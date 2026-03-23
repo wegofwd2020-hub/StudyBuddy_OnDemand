@@ -216,10 +216,22 @@ The mobile app caches by `unit_id + curriculum_id + content_version + lang`.
 - Pipeline: `ANTHROPIC_API_KEY`, `TTS_API_KEY`, `CONTENT_STORE_PATH`, `CLAUDE_MODEL` from env.
 
 ### Authentication
-- JWT payload: `{student_id, grade, locale, exp}` (students) or
-  `{teacher_id, school_id, role, exp}` (teachers/admins).
+**Two-track auth — do not mix:**
+- **Students + Teachers:** authenticate via Auth0 (external). Client sends Auth0 `id_token` to
+  `POST /auth/exchange` or `POST /auth/teacher/exchange`. Backend verifies against Auth0 JWKS
+  (L1-cached), upserts user, and issues an internal JWT. No password hash stored for these users.
+- **Internal team (developer/tester/product_admin/super_admin):** local bcrypt auth via
+  `POST /admin/auth/login`. Signed with `ADMIN_JWT_SECRET` (separate from student/teacher secrets).
+
+Internal JWT payloads:
+- Student: `{student_id, grade, locale, role: "student", exp}`
+- Teacher: `{teacher_id, school_id, role: "teacher|school_admin", exp}`
+- Admin: `{admin_id, role: "developer|tester|product_admin|super_admin", exp}`
+
 - Locale is **authoritative from the JWT**. Content endpoints never accept `?lang=`.
-- Refresh tokens stored in Redis with TTL. One-use password-reset tokens in Redis TTL 1hr.
+- Refresh tokens stored in Redis with TTL (30 days). Admin reset tokens in Redis TTL 1 hr.
+- Suspension: Redis `suspended:{id}` set checked in auth middleware after signature verify.
+  Auth0 block is synced asynchronously via Celery.
 
 ### Logging
 ```python
