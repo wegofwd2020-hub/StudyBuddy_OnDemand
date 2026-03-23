@@ -51,6 +51,8 @@ StudyBuddy_OnDemand/
       admin/             ← pipeline status · regenerate · audit log
       core/              ← cache manager (L1+L2) · entitlement checker · circuit breakers
                             curriculum resolver dependency · Celery dispatcher
+                            observability.py  ← Prometheus metrics, GET /metrics, GET /health, correlation ID middleware
+                            events.py         ← emit_event() structured log + metric counter · write_audit_log() Celery dispatch
     tests/               ← pytest; ALL external calls mocked; no live DB in CI
     requirements.txt
 
