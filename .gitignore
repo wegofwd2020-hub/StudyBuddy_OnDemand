@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# Secrets
+.env
+.env.*
+secrets.json
+
+# Database
+*.db
+*.sqlite
+
+# Content Store (generated — not committed)
+content_store/
+
+# Logs
+logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Mobile build artefacts
+.buildozer/
+bin/
