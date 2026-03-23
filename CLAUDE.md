@@ -315,10 +315,11 @@ See `AGENTS.md` for the full per-phase checklist. Build in this order:
 | 8 | School & Teacher + Curriculum Upload | XLSX upload, async pipeline trigger, school auth |
 | 9 | Student–School Association + Routing | Enrolment, curriculum resolver, restrict_access |
 | 10 | Extended Analytics + Feedback | Lesson-view timing, attempt tracking, feedback endpoints |
+| 11 | Teacher Reporting Dashboard | 6 report types, CSV export, alerts, weekly digest, materialized views |
 
 ---
 
-## Top Pitfalls (full list of 35 in AGENTS.md)
+## Top Pitfalls (full list of 39 in AGENTS.md)
 
 1. Mobile app calling Anthropic directly — it has no API key and must never do this.
 2. Blocking the async event loop — use asyncpg, aioredis, httpx; wrap bcrypt in executor.
