@@ -307,7 +307,7 @@ See `AGENTS.md` for the full per-phase checklist. Build in this order:
 |---|---|---|
 | 1 | Backend Foundation | Auth, curriculum endpoints, PgBouncer, Redis pools, health check |
 | 2 | Content Pipeline + English Delivery | `build_grade.py`, content endpoints, entitlement, L1/L2 cache, nginx |
-| 3 | Progress Tracking | Session, answer, history endpoints; result screen |
+| 3 | Progress Tracking | Session, answer, history endpoints; student dashboard, curriculum map, usage stats, streak counter; result screen |
 | 4 | Offline Sync + Multi-language + TTS | SQLite queue, SyncManager, fr/es pipeline, MP3, CloudFront |
 | 5 | Subscription + Payments | Stripe checkout, webhook, Redis entitlement cache |
 | 6 | Experiment Visualization | Lab detection, experiment JSON, ExperimentScreen |
