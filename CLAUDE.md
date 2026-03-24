@@ -321,14 +321,14 @@ See `AGENTS.md` for the full per-phase checklist. Build in this order:
 
 | Phase | Goal | Key deliverable |
 |---|---|---|
-| 1 | Backend Foundation | Auth, curriculum endpoints, PgBouncer, Redis pools, health check |
+| 1 | Backend Foundation | Auth, curriculum endpoints, PgBouncer, Redis pools, health check; all routes under `/api/v1/` |
 | 2 | Content Pipeline + English Delivery | `build_grade.py`, content endpoints, entitlement, L1/L2 cache, nginx |
 | 3 | Progress Tracking | Session, answer, history endpoints; student dashboard, curriculum map, usage stats, streak counter; result screen |
-| 4 | Offline Sync + Multi-language + TTS | SQLite queue, SyncManager, fr/es pipeline, MP3, CloudFront |
+| 4 | Offline Sync + Multi-language + TTS + Push | SQLite queue, SyncManager, fr/es pipeline, MP3, CloudFront; FCM token registration, `push_tokens`/`notification_preferences` schema, streak/nudge/summary Celery Beat tasks |
 | 5 | Subscription + Payments | Stripe checkout, webhook, Redis entitlement cache |
 | 6 | Experiment Visualization | Lab detection, experiment JSON, ExperimentScreen |
 | 7 | Admin Dashboard + Analytics + Content Review | RBAC (`permissions.py`), content review queue, AlexJS results, annotations, approve/publish/rollback/block, admin API, platform analytics |
-| 8 | School & Teacher + Curriculum Upload | XLSX upload, async pipeline trigger, school auth |
+| 8 | School & Teacher + Curriculum Upload + Academic Year | XLSX upload, async pipeline trigger, school auth; `promote_student_grades` Celery Beat task, `GRADE_PROMOTION_DATE` config, 30-day grace period for old content |
 | 9 | Student–School Association + Routing | Enrolment, curriculum resolver, restrict_access |
 | 10 | Extended Analytics + Feedback | Lesson-view timing, attempt tracking, feedback endpoints |
 | 11 | Teacher Reporting Dashboard | 6 report types, CSV export, alerts, weekly digest, materialized views |
