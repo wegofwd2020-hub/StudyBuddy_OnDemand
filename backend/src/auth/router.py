@@ -89,12 +89,25 @@ async def exchange_token(body: TokenExchangeRequest, request: Request):
     if not (5 <= grade <= 12):
         grade = 8
 
+    # COPPA: Auth0 post-registration Action sets this claim for students under 13.
+    requires_parental_consent: bool = bool(
+        claims.get("https://studybuddy.app/requires_parental_consent", False)
+    )
+
     async with get_db(request) as conn:
         student = await upsert_student(
-            request.app.state.pool, auth0_sub, name, email, grade, locale
+            request.app.state.pool, auth0_sub, name, email, grade, locale,
+            requires_parental_consent=requires_parental_consent,
         )
 
     account_status: str = student["account_status"]
+
+    if account_status == "pending":
+        auth_failures_total.labels(reason="account_pending").inc()
+        raise HTTPException(
+            status_code=403,
+            detail={"error": "account_pending", "detail": "Account awaiting parental consent.", "correlation_id": cid},
+        )
     if account_status == "suspended":
         auth_failures_total.labels(reason="account_suspended").inc()
         raise HTTPException(

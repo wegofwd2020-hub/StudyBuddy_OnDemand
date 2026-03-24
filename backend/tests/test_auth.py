@@ -79,6 +79,22 @@ async def test_auth_exchange_upserts_on_second_login(client: AsyncClient):
 
 
 @pytest.mark.asyncio
+async def test_auth_exchange_under13_blocked_pending(client: AsyncClient):
+    """Under-13 student (requires_parental_consent=true) is blocked with 403 account_pending."""
+    sub = f"auth0|{uuid.uuid4()}"
+    claims = {
+        **_mock_auth0_claims(sub=sub, email="young@example.com", grade=5),
+        "https://studybuddy.app/requires_parental_consent": True,
+    }
+
+    with patch("src.auth.router.verify_auth0_token", AsyncMock(return_value=claims)):
+        r = await client.post("/api/v1/auth/exchange", json={"id_token": "fake"})
+
+    assert r.status_code == 403, r.text
+    assert r.json()["error"] == "account_pending"
+
+
+@pytest.mark.asyncio
 async def test_auth_exchange_suspended_account(client: AsyncClient, fake_redis):
     """POST /auth/exchange with a suspended student returns 403."""
     sub = f"auth0|{uuid.uuid4()}"

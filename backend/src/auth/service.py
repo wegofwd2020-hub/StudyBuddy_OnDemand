@@ -276,16 +276,24 @@ async def upsert_student(
     email: str,
     grade: int,
     locale: str,
+    requires_parental_consent: bool = False,
 ) -> dict:
     """
     Insert or update a student row (keyed by external_auth_id / auth0_sub).
 
+    For new accounts:
+      - requires_parental_consent=False → account_status set to 'active' immediately
+      - requires_parental_consent=True  → account_status stays 'pending' (DB default)
+        until the parental_consents record is updated to 'granted'
+
     Returns the full student record as a dict.
     """
+    initial_status = "pending" if requires_parental_consent else "active"
     row = await pool.fetchrow(
         """
-        INSERT INTO students (external_auth_id, auth_provider, name, email, grade, locale)
-        VALUES ($1, 'auth0', $2, $3, $4, $5)
+        INSERT INTO students (external_auth_id, auth_provider, name, email, grade, locale,
+                              account_status)
+        VALUES ($1, 'auth0', $2, $3, $4, $5, $6)
         ON CONFLICT (external_auth_id) DO UPDATE
             SET name   = EXCLUDED.name,
                 email  = EXCLUDED.email,
@@ -299,6 +307,7 @@ async def upsert_student(
         email,
         grade,
         locale,
+        initial_status,
     )
     if row is None:
         raise HTTPException(status_code=500, detail={"error": "internal_error", "detail": "Student upsert failed."})
