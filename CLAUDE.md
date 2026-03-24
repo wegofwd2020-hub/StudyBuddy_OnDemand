@@ -325,7 +325,7 @@ See `AGENTS.md` for the full per-phase checklist. Build in this order:
 | 4 | Offline Sync + Multi-language + TTS | SQLite queue, SyncManager, fr/es pipeline, MP3, CloudFront |
 | 5 | Subscription + Payments | Stripe checkout, webhook, Redis entitlement cache |
 | 6 | Experiment Visualization | Lab detection, experiment JSON, ExperimentScreen |
-| 7 | Admin Dashboard + Analytics | Admin API, platform analytics, feedback review |
+| 7 | Admin Dashboard + Analytics + Content Review | RBAC (`permissions.py`), content review queue, AlexJS results, annotations, approve/publish/rollback/block, admin API, platform analytics |
 | 8 | School & Teacher + Curriculum Upload | XLSX upload, async pipeline trigger, school auth |
 | 9 | Student–School Association + Routing | Enrolment, curriculum resolver, restrict_access |
 | 10 | Extended Analytics + Feedback | Lesson-view timing, attempt tracking, feedback endpoints |
