@@ -29,6 +29,8 @@ Before writing any code, read these in order:
 | `REQUIREMENTS.md` | Check requirement ID + status before implementing a feature |
 | `AGENTS.md` | Conventions, layer rules, 35 pitfalls, phase-by-phase checklists |
 | `CHANGES.md` | Design decisions log and pending work items |
+| `OPERATIONS.md` | Runbooks, incident response, disaster recovery, deployment procedures |
+| `SCALABILITY.md` | Capacity planning, multi-region, load testing, academic year transitions, API versioning |
 
 ---
 
