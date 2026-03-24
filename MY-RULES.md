@@ -20,7 +20,8 @@
 ## Technical Preferences
 
 - **Primary Language:** Python (backend / pipeline) · Kotlin (Android).
-- **Cloud:** Azure — specifically Azure API Management (APIM) as the API gateway layer, and Azure AI Content Safety for automated content moderation. Other cloud services (storage, CDN, email, TTS) are currently AWS; migration path to Azure equivalents (Blob Storage, Azure CDN, Azure Communication Services, Azure Cognitive Services Speech) should be considered.
+- **Cloud:** Azure — specifically Azure API Management (APIM) as the API gateway layer. Other cloud services (storage, CDN, email, TTS) are currently AWS; migration path to Azure equivalents (Blob Storage, Azure CDN, Azure Communication Services, Azure Cognitive Services Speech) should be considered.
+- **Content Moderation:** AlexJS is the current automated content analysis tool (pipeline phase). Azure AI Content Safety and other commercial options are deferred — to be evaluated when AlexJS proves insufficient or when Azure migration expands.
 - **Compliance:** COPPA and FERPA standards must be considered in all UI/UX and data architecture decisions. See compliance notes below.
 - **Async Pattern:** Kotlin Coroutines for all async operations on Android; no callbacks or blocking calls on the main thread.
 - **Dependencies:** New dependencies must be reviewed for known CVEs before inclusion. Prefer Azure SDK or well-maintained open-source libraries.
