@@ -31,6 +31,7 @@ Before writing any code, read these in order:
 | `CHANGES.md` | Design decisions log and pending work items |
 | `OPERATIONS.md` | Runbooks, incident response, disaster recovery, deployment procedures |
 | `SCALABILITY.md` | Capacity planning, multi-region, load testing, academic year transitions, API versioning |
+| `GLOSSARY.md` | Acronym and term definitions for all abbreviations used across the project |
 
 ---
 
