@@ -1,0 +1,143 @@
+{
+  "grade": 12,
+  "subjects": [
+    {
+      "subject_id": "G12-MATH",
+      "name": "Mathematics",
+      "units": [
+        {
+          "unit_id": "G12-MATH-001",
+          "title": "Advanced Calculus: Techniques of Integration",
+          "description": "Integration by parts, substitution, partial fractions, and improper integrals",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G12-MATH-002",
+          "title": "Differential Equations",
+          "description": "Separable, linear, and second-order ODEs; modeling with differential equations",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G12-MATH-003",
+          "title": "Multivariable Calculus",
+          "description": "Partial derivatives, gradient, divergence, curl, and double integrals",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G12-MATH-004",
+          "title": "Linear Algebra",
+          "description": "Vector spaces, linear transformations, eigenvalues, and eigenvectors",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G12-MATH-005",
+          "title": "Discrete Mathematics",
+          "description": "Logic, set theory, graph theory, induction, and combinatorics",
+          "has_lab": false
+        }
+      ]
+    },
+    {
+      "subject_id": "G12-SCI",
+      "name": "Science",
+      "units": [
+        {
+          "unit_id": "G12-SCI-001",
+          "title": "Momentum, Impulse, and Collisions",
+          "description": "Conservation of momentum; elastic and inelastic collisions; center of mass",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G12-SCI-002",
+          "title": "Modern Physics: Quantum Mechanics",
+          "description": "Photoelectric effect, de Broglie wavelength, Heisenberg uncertainty, Schrödinger equation",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G12-SCI-003",
+          "title": "Nuclear Physics and Radioactivity",
+          "description": "Radioactive decay, half-life, fission, fusion, and nuclear energy",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G12-SCI-004",
+          "title": "Biochemistry",
+          "description": "Proteins, enzymes, DNA, metabolic pathways, and cellular respiration",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G12-SCI-005",
+          "title": "Astrophysics",
+          "description": "Stellar evolution, black holes, cosmology, and the Big Bang model",
+          "has_lab": false
+        }
+      ]
+    },
+    {
+      "subject_id": "G12-TECH",
+      "name": "Technology",
+      "units": [
+        {
+          "unit_id": "G12-TECH-001",
+          "title": "Machine Learning in Practice",
+          "description": "sklearn pipelines, cross-validation, regularization, and ensemble methods",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G12-TECH-002",
+          "title": "Deep Learning and Neural Networks",
+          "description": "CNNs, RNNs, transformers; training pipelines with PyTorch or TensorFlow",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G12-TECH-003",
+          "title": "Distributed Systems",
+          "description": "CAP theorem, consensus algorithms, microservices, and event-driven architecture",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G12-TECH-004",
+          "title": "Quantum Computing",
+          "description": "Qubits, superposition, entanglement; quantum gates and Grover's algorithm",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G12-TECH-005",
+          "title": "Capstone Project: Applied AI",
+          "description": "End-to-end ML project: problem definition, data collection, model, deployment",
+          "has_lab": false
+        }
+      ]
+    },
+    {
+      "subject_id": "G12-ENG",
+      "name": "Engineering",
+      "units": [
+        {
+          "unit_id": "G12-ENG-001",
+          "title": "Advanced Robotics",
+          "description": "SLAM, path planning, computer vision integration, and ROS introduction",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G12-ENG-002",
+          "title": "Aerospace Engineering",
+          "description": "Lift, drag, thrust, weight; airfoil design; rocket propulsion basics",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G12-ENG-003",
+          "title": "Biomedical Engineering",
+          "description": "Medical devices, prosthetics, tissue engineering, and ethics in biomedical design",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G12-ENG-004",
+          "title": "Capstone Engineering Design",
+          "description": "Full design cycle: requirements, prototyping, testing, and presenting a STEM solution",
+          "has_lab": true
+        }
+      ]
+    }
+  ]
+}

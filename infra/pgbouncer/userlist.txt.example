@@ -1,0 +1,10 @@
+# PgBouncer userlist.txt
+#
+# Format: "username" "md5<md5_of_password_plus_username>"
+#
+# To generate the MD5 hash:
+#   echo -n "passwordusername" | md5sum | awk '{print "md5" $1}'
+#
+# Example (replace with your actual values):
+"studybuddy" "md5<replace-with-md5-hash-of-your-password>"
+"pgbouncer_admin" "md5<replace-with-md5-hash-of-admin-password>"

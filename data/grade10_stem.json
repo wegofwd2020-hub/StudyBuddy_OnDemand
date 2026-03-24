@@ -1,0 +1,143 @@
+{
+  "grade": 10,
+  "subjects": [
+    {
+      "subject_id": "G10-MATH",
+      "name": "Mathematics",
+      "units": [
+        {
+          "unit_id": "G10-MATH-001",
+          "title": "Functions: Domain, Range, and Transformations",
+          "description": "Function notation; shifts, stretches, and reflections of function families",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G10-MATH-002",
+          "title": "Trigonometric Functions",
+          "description": "Unit circle; sine, cosine, tangent graphs; amplitude, period, and phase shift",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G10-MATH-003",
+          "title": "Exponential and Logarithmic Functions",
+          "description": "Exponential growth/decay; logarithm laws; natural log and applications",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G10-MATH-004",
+          "title": "Permutations, Combinations, and Probability",
+          "description": "Counting principles; conditional probability; binomial distribution",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G10-MATH-005",
+          "title": "Geometry: Circles and Proofs",
+          "description": "Circle theorems; tangent-chord angles; formal two-column proofs",
+          "has_lab": false
+        }
+      ]
+    },
+    {
+      "subject_id": "G10-SCI",
+      "name": "Science",
+      "units": [
+        {
+          "unit_id": "G10-SCI-001",
+          "title": "Energy: Work, Power, and Efficiency",
+          "description": "Work-energy theorem; power and efficiency; gravitational potential energy",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G10-SCI-002",
+          "title": "Waves and Optics",
+          "description": "Reflection, refraction, lenses, and mirrors; wave-particle duality intro",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G10-SCI-003",
+          "title": "Thermodynamics",
+          "description": "Heat transfer; specific heat capacity; laws of thermodynamics",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G10-SCI-004",
+          "title": "Organic Chemistry",
+          "description": "Hydrocarbons; functional groups; naming organic compounds; reactions",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G10-SCI-005",
+          "title": "Genetics and Biotechnology",
+          "description": "DNA replication, transcription, translation; genetic engineering and CRISPR",
+          "has_lab": true
+        }
+      ]
+    },
+    {
+      "subject_id": "G10-TECH",
+      "name": "Technology",
+      "units": [
+        {
+          "unit_id": "G10-TECH-001",
+          "title": "Data Science with Python",
+          "description": "Pandas, NumPy, and data cleaning; exploratory data analysis and visualization",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G10-TECH-002",
+          "title": "Web Development",
+          "description": "HTML5, CSS3, JavaScript basics; building and deploying a static website",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G10-TECH-003",
+          "title": "Computer Architecture",
+          "description": "CPU, memory hierarchy, fetch-decode-execute cycle; assembly language intro",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G10-TECH-004",
+          "title": "Software Development Lifecycle",
+          "description": "Agile, version control (Git), testing, documentation, and deployment",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G10-TECH-005",
+          "title": "Neural Networks Fundamentals",
+          "description": "Perceptrons, activation functions, backpropagation, and image classification",
+          "has_lab": false
+        }
+      ]
+    },
+    {
+      "subject_id": "G10-ENG",
+      "name": "Engineering",
+      "units": [
+        {
+          "unit_id": "G10-ENG-001",
+          "title": "Statics and Structural Analysis",
+          "description": "Free body diagrams, moments, trusses, and factor of safety",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G10-ENG-002",
+          "title": "Electrical Engineering Fundamentals",
+          "description": "Kirchhoff's laws, AC/DC circuits, capacitors, inductors, and oscilloscopes",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G10-ENG-003",
+          "title": "Manufacturing Processes",
+          "description": "Machining, casting, forming, and joining; tolerances and quality control",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G10-ENG-004",
+          "title": "Engineering Ethics and Society",
+          "description": "Professional responsibility, safety, environmental impact, and case studies",
+          "has_lab": false
+        }
+      ]
+    }
+  ]
+}

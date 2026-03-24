@@ -1,0 +1,143 @@
+{
+  "grade": 9,
+  "subjects": [
+    {
+      "subject_id": "G9-MATH",
+      "name": "Mathematics",
+      "units": [
+        {
+          "unit_id": "G9-MATH-001",
+          "title": "Algebra: Polynomials",
+          "description": "Adding, subtracting, multiplying polynomials; factoring and special products",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G9-MATH-002",
+          "title": "Quadratic Functions",
+          "description": "Graphing parabolas; vertex form, standard form, and solving quadratics",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G9-MATH-003",
+          "title": "Linear Systems and Inequalities",
+          "description": "Systems of equations and inequalities; linear programming intro",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G9-MATH-004",
+          "title": "Coordinate Geometry",
+          "description": "Distance, midpoint, slope; equations of lines and circles",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G9-MATH-005",
+          "title": "Introduction to Trigonometry",
+          "description": "Right triangle trig; sine, cosine, tangent; angles of elevation and depression",
+          "has_lab": false
+        }
+      ]
+    },
+    {
+      "subject_id": "G9-SCI",
+      "name": "Science",
+      "units": [
+        {
+          "unit_id": "G9-SCI-001",
+          "title": "Kinematics: Motion in One Dimension",
+          "description": "Distance, displacement, speed, velocity, and acceleration; motion graphs",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G9-SCI-002",
+          "title": "Newton's Laws of Motion",
+          "description": "Inertia, F=ma, action-reaction; free body diagrams and net force",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G9-SCI-003",
+          "title": "Chemical Bonding",
+          "description": "Ionic, covalent, and metallic bonds; electronegativity and polarity",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G9-SCI-004",
+          "title": "The Mole and Stoichiometry",
+          "description": "Molar mass, Avogadro's number, mole conversions, and limiting reagents",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G9-SCI-005",
+          "title": "Cell Division and Growth",
+          "description": "Mitosis, meiosis, the cell cycle, and cancer biology",
+          "has_lab": true
+        }
+      ]
+    },
+    {
+      "subject_id": "G9-TECH",
+      "name": "Technology",
+      "units": [
+        {
+          "unit_id": "G9-TECH-001",
+          "title": "Object-Oriented Programming",
+          "description": "Classes, objects, methods, and attributes; encapsulation and inheritance",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G9-TECH-002",
+          "title": "Algorithms and Complexity",
+          "description": "Searching and sorting algorithms; Big O notation and efficiency",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G9-TECH-003",
+          "title": "Relational Databases and SQL",
+          "description": "Creating tables, writing queries, joins, and normalization basics",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G9-TECH-004",
+          "title": "Networking and Protocols",
+          "description": "OSI model, TCP/IP, HTTP/HTTPS, and network security concepts",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G9-TECH-005",
+          "title": "Ethical AI and Society",
+          "description": "Bias, fairness, privacy, and governance of AI systems",
+          "has_lab": false
+        }
+      ]
+    },
+    {
+      "subject_id": "G9-ENG",
+      "name": "Engineering",
+      "units": [
+        {
+          "unit_id": "G9-ENG-001",
+          "title": "Engineering Graphics and CAD",
+          "description": "Technical drawing, orthographic projection, and 3D modelling",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G9-ENG-002",
+          "title": "Materials Science",
+          "description": "Properties of metals, polymers, ceramics; stress, strain, and material testing",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G9-ENG-003",
+          "title": "Control Systems",
+          "description": "Open-loop and closed-loop control; PID controllers; real-world examples",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G9-ENG-004",
+          "title": "Renewable Energy Systems",
+          "description": "Solar, wind, hydro, and geothermal energy; designing efficient systems",
+          "has_lab": true
+        }
+      ]
+    }
+  ]
+}

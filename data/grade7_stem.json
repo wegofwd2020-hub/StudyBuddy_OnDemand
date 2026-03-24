@@ -1,0 +1,143 @@
+{
+  "grade": 7,
+  "subjects": [
+    {
+      "subject_id": "G7-MATH",
+      "name": "Mathematics",
+      "units": [
+        {
+          "unit_id": "G7-MATH-001",
+          "title": "Proportional Relationships and Percents",
+          "description": "Percent problems, discounts, tax, tips, and percent change",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G7-MATH-002",
+          "title": "Operations with Rational Numbers",
+          "description": "Adding, subtracting, multiplying, and dividing positive and negative fractions",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G7-MATH-003",
+          "title": "Expressions, Equations, and Inequalities",
+          "description": "Multi-step equations; solving and graphing linear inequalities",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G7-MATH-004",
+          "title": "Geometry: Angles, Triangles, and Scale",
+          "description": "Angle relationships; triangle properties; scale drawings and maps",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G7-MATH-005",
+          "title": "Probability and Sampling",
+          "description": "Experimental and theoretical probability; sample spaces and predictions",
+          "has_lab": false
+        }
+      ]
+    },
+    {
+      "subject_id": "G7-SCI",
+      "name": "Science",
+      "units": [
+        {
+          "unit_id": "G7-SCI-001",
+          "title": "Atoms, Elements, and the Periodic Table",
+          "description": "Atomic structure; elements, compounds, and mixtures; periodic trends",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G7-SCI-002",
+          "title": "Chemical Reactions",
+          "description": "Physical vs chemical changes; evidence of reactions; balancing equations (intro)",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G7-SCI-003",
+          "title": "Life Science: Human Body Systems",
+          "description": "Digestive, circulatory, respiratory, and nervous systems and their interactions",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G7-SCI-004",
+          "title": "Genetics and Heredity",
+          "description": "DNA, chromosomes, Punnett squares, and dominant/recessive traits",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G7-SCI-005",
+          "title": "Natural Disasters and Earth's Forces",
+          "description": "Earthquakes, volcanoes, tsunamis — causes, effects, and risk reduction",
+          "has_lab": false
+        }
+      ]
+    },
+    {
+      "subject_id": "G7-TECH",
+      "name": "Technology",
+      "units": [
+        {
+          "unit_id": "G7-TECH-001",
+          "title": "Python: Conditionals and Loops",
+          "description": "if/elif/else logic, for loops, while loops, and debugging techniques",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G7-TECH-002",
+          "title": "Python: Functions and Modules",
+          "description": "Defining functions, parameters, return values, and using standard library modules",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G7-TECH-003",
+          "title": "Cybersecurity Fundamentals",
+          "description": "Threats, encryption, passwords, phishing, and protecting personal data",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G7-TECH-004",
+          "title": "Introduction to Databases",
+          "description": "Tables, records, queries; organizing information with spreadsheets and simple SQL",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G7-TECH-005",
+          "title": "Artificial Intelligence Concepts",
+          "description": "What is AI, machine learning basics, bias in algorithms, and real-world applications",
+          "has_lab": false
+        }
+      ]
+    },
+    {
+      "subject_id": "G7-ENG",
+      "name": "Engineering",
+      "units": [
+        {
+          "unit_id": "G7-ENG-001",
+          "title": "Mechanisms and Gears",
+          "description": "Gear ratios, cam and crank systems, mechanical advantage",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G7-ENG-002",
+          "title": "Energy Systems",
+          "description": "Electrical, mechanical, thermal, and renewable energy systems and conversions",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G7-ENG-003",
+          "title": "Fluid Systems",
+          "description": "Hydraulics, pneumatics, Pascal's law, and real-world applications",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G7-ENG-004",
+          "title": "Structures Under Stress",
+          "description": "Testing and analyzing structural integrity under loads; failure analysis",
+          "has_lab": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,143 @@
+{
+  "grade": 11,
+  "subjects": [
+    {
+      "subject_id": "G11-MATH",
+      "name": "Mathematics",
+      "units": [
+        {
+          "unit_id": "G11-MATH-001",
+          "title": "Limits and Continuity",
+          "description": "Intuitive limits; one-sided limits; continuity; the epsilon-delta definition",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G11-MATH-002",
+          "title": "Derivatives: Rules and Applications",
+          "description": "Power rule, product rule, chain rule; optimization and related rates",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G11-MATH-003",
+          "title": "Integration: Antiderivatives and Area",
+          "description": "Fundamental theorem of calculus; definite integrals; area between curves",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G11-MATH-004",
+          "title": "Vectors and Matrices",
+          "description": "2D and 3D vectors; dot product, cross product; matrix operations and determinants",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G11-MATH-005",
+          "title": "Statistics: Inference and Regression",
+          "description": "Hypothesis testing, confidence intervals, and linear regression",
+          "has_lab": false
+        }
+      ]
+    },
+    {
+      "subject_id": "G11-SCI",
+      "name": "Science",
+      "units": [
+        {
+          "unit_id": "G11-SCI-001",
+          "title": "Dynamics: Forces in 2D",
+          "description": "Projectile motion, circular motion, centripetal force, and friction",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G11-SCI-002",
+          "title": "Gravitation and Orbital Mechanics",
+          "description": "Newton's law of universal gravitation; satellite orbits; escape velocity",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G11-SCI-003",
+          "title": "Acids, Bases, and Equilibrium",
+          "description": "pH, Ka and Kb; Le Chatelier's principle; buffer solutions",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G11-SCI-004",
+          "title": "Electrochemistry",
+          "description": "Oxidation-reduction reactions; galvanic cells; electrolysis; the Nernst equation",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G11-SCI-005",
+          "title": "Evolution, Ecology, and Conservation",
+          "description": "Population dynamics; biodiversity; species interactions; conservation biology",
+          "has_lab": false
+        }
+      ]
+    },
+    {
+      "subject_id": "G11-TECH",
+      "name": "Technology",
+      "units": [
+        {
+          "unit_id": "G11-TECH-001",
+          "title": "Advanced Python: Decorators and Generators",
+          "description": "Higher-order functions, closures, iterators, and generator expressions",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G11-TECH-002",
+          "title": "Computer Vision Basics",
+          "description": "Image processing with OpenCV; feature detection; convolutional neural networks",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G11-TECH-003",
+          "title": "Cloud Computing",
+          "description": "IaaS, PaaS, SaaS; deploying applications; containerization with Docker",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G11-TECH-004",
+          "title": "Cryptography",
+          "description": "Symmetric and asymmetric encryption; hash functions; PKI and TLS",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G11-TECH-005",
+          "title": "Natural Language Processing",
+          "description": "Tokenization, embeddings, sentiment analysis, and transformer models",
+          "has_lab": false
+        }
+      ]
+    },
+    {
+      "subject_id": "G11-ENG",
+      "name": "Engineering",
+      "units": [
+        {
+          "unit_id": "G11-ENG-001",
+          "title": "Fluid Mechanics",
+          "description": "Bernoulli's equation, fluid flow, viscosity, and hydraulic systems",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G11-ENG-002",
+          "title": "Signal Processing",
+          "description": "Analog and digital signals; Fourier transform; filters and signal conditioning",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G11-ENG-003",
+          "title": "Embedded Systems",
+          "description": "Microcontrollers, sensors, actuators, and real-time programming with C/Arduino",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G11-ENG-004",
+          "title": "Systems Engineering",
+          "description": "Requirements, architecture, integration, verification, and project management",
+          "has_lab": false
+        }
+      ]
+    }
+  ]
+}

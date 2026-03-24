@@ -9,9 +9,10 @@ build/
 .venv/
 venv/
 
-# Secrets
+# Secrets — never commit real env files
 .env
 .env.*
+!.env.example
 secrets.json
 
 # Database

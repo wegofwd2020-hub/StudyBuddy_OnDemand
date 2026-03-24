@@ -1,0 +1,137 @@
+{
+  "grade": 6,
+  "subjects": [
+    {
+      "subject_id": "G6-MATH",
+      "name": "Mathematics",
+      "units": [
+        {
+          "unit_id": "G6-MATH-001",
+          "title": "Ratios and Proportional Relationships",
+          "description": "Understanding ratios, unit rates, and solving proportion problems",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G6-MATH-002",
+          "title": "Integers and Rational Numbers",
+          "description": "Positive and negative numbers; absolute value and coordinate plane",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G6-MATH-003",
+          "title": "Expressions and Equations",
+          "description": "Writing and evaluating algebraic expressions; solving one-step equations",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G6-MATH-004",
+          "title": "Geometry",
+          "description": "Area of polygons; surface area and volume of prisms",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G6-MATH-005",
+          "title": "Statistics and Probability",
+          "description": "Statistical variability; data distributions and box plots",
+          "has_lab": false
+        }
+      ]
+    },
+    {
+      "subject_id": "G6-SCI",
+      "name": "Science",
+      "units": [
+        {
+          "unit_id": "G6-SCI-001",
+          "title": "Cells: The Building Blocks of Life",
+          "description": "Cell structure and function; plant vs animal cells; microscopy",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G6-SCI-002",
+          "title": "Energy Forms and Transformations",
+          "description": "Kinetic and potential energy; conservation of energy; heat and light",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G6-SCI-003",
+          "title": "Earth's Layers and Plate Tectonics",
+          "description": "Crust, mantle, core; continental drift and tectonic plates",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G6-SCI-004",
+          "title": "Rocks, Minerals and the Rock Cycle",
+          "description": "Identifying minerals and rocks; igneous, sedimentary, metamorphic",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G6-SCI-005",
+          "title": "Interdependence in Ecosystems",
+          "description": "Biotic and abiotic factors; nutrient cycles; human impact on ecosystems",
+          "has_lab": false
+        }
+      ]
+    },
+    {
+      "subject_id": "G6-TECH",
+      "name": "Technology",
+      "units": [
+        {
+          "unit_id": "G6-TECH-001",
+          "title": "Introduction to Python",
+          "description": "Variables, data types, input/output, and simple algorithms in Python",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G6-TECH-002",
+          "title": "Internet and Networks",
+          "description": "How the internet works; IP addresses, DNS, and HTTP basics",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G6-TECH-003",
+          "title": "Creating with Media",
+          "description": "Digital images, audio, and video; copyright and creative commons",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G6-TECH-004",
+          "title": "Spreadsheets and Data Analysis",
+          "description": "Using formulas, charts, and filters to analyze real-world datasets",
+          "has_lab": false
+        }
+      ]
+    },
+    {
+      "subject_id": "G6-ENG",
+      "name": "Engineering",
+      "units": [
+        {
+          "unit_id": "G6-ENG-001",
+          "title": "Forces and Structural Design",
+          "description": "Tension, compression, and torsion in bridges and towers",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G6-ENG-002",
+          "title": "Electronics Basics",
+          "description": "Circuits, components, series vs parallel, and building simple circuits",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G6-ENG-003",
+          "title": "Robotics Introduction",
+          "description": "Programming basic robots with sensors and actuators",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G6-ENG-004",
+          "title": "Sustainable Design",
+          "description": "Designing products with consideration for materials, energy, and lifecycle",
+          "has_lab": false
+        }
+      ]
+    }
+  ]
+}
