@@ -22,8 +22,10 @@ VENV_DIR="$REPO_ROOT/venv"
 # Container names
 DB_CONTAINER="sb-db"
 REDIS_CONTAINER="sb-redis"
+TEST_DB_CONTAINER="sb-test-db"
 DB_PORT=5432
 REDIS_PORT=6379
+TEST_DB_PORT=5433   # dedicated test port — never conflicts with dev DB
 
 # ── Colours ───────────────────────────────────────────────────────────────────
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'; NC='\033[0m'
@@ -167,57 +169,94 @@ setup_venv() {
     success "Virtualenv ready"
 }
 
+# ── Port conflict detection ───────────────────────────────────────────────────
+# Returns the container name using a given port, or empty string if none.
+container_on_port() {
+    local port="$1"
+    $RUNTIME ps --format "{{.Names}} {{.Ports}}" 2>/dev/null \
+        | grep ":${port}->" \
+        | awk '{print $1}' \
+        | head -1
+}
+
 # ── Start PostgreSQL ──────────────────────────────────────────────────────────
 start_postgres() {
-    if $RUNTIME ps --format "{{.Names}}" 2>/dev/null | grep -q "^${DB_CONTAINER}$" || \
-       $RUNTIME ps -a --format "{{.Names}}" 2>/dev/null | grep -q "^${DB_CONTAINER}$"; then
-        if $RUNTIME inspect "$DB_CONTAINER" --format "{{.State.Running}}" 2>/dev/null | grep -q "true"; then
-            success "PostgreSQL already running ($DB_CONTAINER)"
-            return
-        fi
-        info "Starting existing PostgreSQL container ..."
-        $RUNTIME start "$DB_CONTAINER"
-    else
-        info "Starting PostgreSQL container ..."
-        $RUNTIME run -d \
-            --name "$DB_CONTAINER" \
-            -e POSTGRES_DB=studybuddy \
-            -e POSTGRES_USER=studybuddy \
-            -e POSTGRES_PASSWORD="${POSTGRES_PASSWORD}" \
-            -p "${DB_PORT}:5432" \
-            -v sb_postgres_data:/var/lib/postgresql/data \
-            docker.io/postgres:16-alpine \
-            postgres -c log_min_messages=WARNING
+    # Already our container and running?
+    if $RUNTIME inspect "$DB_CONTAINER" --format "{{.State.Running}}" 2>/dev/null | grep -q "true"; then
+        success "PostgreSQL already running ($DB_CONTAINER)"
+        return
     fi
+
+    # Our container exists but is stopped/created — remove stale instance first.
+    if $RUNTIME inspect "$DB_CONTAINER" &>/dev/null; then
+        info "Removing stale $DB_CONTAINER container ..."
+        $RUNTIME rm -f "$DB_CONTAINER" &>/dev/null || true
+    fi
+
+    # Check if another container already holds the port.
+    local occupant
+    occupant="$(container_on_port "$DB_PORT")"
+    if [[ -n "$occupant" ]]; then
+        warn "Port $DB_PORT is in use by container '$occupant'."
+        warn "Stopping and removing it to free the port ..."
+        $RUNTIME stop  "$occupant" &>/dev/null || true
+        $RUNTIME rm -f "$occupant" &>/dev/null || true
+        sleep 1
+    fi
+
+    info "Starting PostgreSQL container ..."
+    $RUNTIME run -d \
+        --name "$DB_CONTAINER" \
+        -e POSTGRES_DB=studybuddy \
+        -e POSTGRES_USER=studybuddy \
+        -e POSTGRES_PASSWORD="${POSTGRES_PASSWORD}" \
+        -p "${DB_PORT}:5432" \
+        -v sb_postgres_data:/var/lib/postgresql/data \
+        docker.io/postgres:16-alpine \
+        postgres -c log_min_messages=WARNING
+
     wait_for_port localhost "$DB_PORT" "PostgreSQL"
-    # Give Postgres an extra second after port opens to be fully ready
     sleep 2
 }
 
 # ── Start Redis ───────────────────────────────────────────────────────────────
 start_redis() {
-    if $RUNTIME ps --format "{{.Names}}" 2>/dev/null | grep -q "^${REDIS_CONTAINER}$" || \
-       $RUNTIME ps -a --format "{{.Names}}" 2>/dev/null | grep -q "^${REDIS_CONTAINER}$"; then
-        if $RUNTIME inspect "$REDIS_CONTAINER" --format "{{.State.Running}}" 2>/dev/null | grep -q "true"; then
-            success "Redis already running ($REDIS_CONTAINER)"
-            return
-        fi
-        info "Starting existing Redis container ..."
-        $RUNTIME start "$REDIS_CONTAINER"
-    else
-        info "Starting Redis container ..."
-        $RUNTIME run -d \
-            --name "$REDIS_CONTAINER" \
-            -p "${REDIS_PORT}:6379" \
-            -v sb_redis_data:/data \
-            docker.io/redis:7-alpine \
-            redis-server \
+    # Already our container and running?
+    if $RUNTIME inspect "$REDIS_CONTAINER" --format "{{.State.Running}}" 2>/dev/null | grep -q "true"; then
+        success "Redis already running ($REDIS_CONTAINER)"
+        return
+    fi
+
+    # Our container exists but is stopped/created — remove stale instance first.
+    if $RUNTIME inspect "$REDIS_CONTAINER" &>/dev/null; then
+        info "Removing stale $REDIS_CONTAINER container ..."
+        $RUNTIME rm -f "$REDIS_CONTAINER" &>/dev/null || true
+    fi
+
+    # Check if another container already holds the port.
+    local occupant
+    occupant="$(container_on_port "$REDIS_PORT")"
+    if [[ -n "$occupant" ]]; then
+        warn "Port $REDIS_PORT is in use by container '$occupant'."
+        warn "Stopping and removing it to free the port ..."
+        $RUNTIME stop  "$occupant" &>/dev/null || true
+        $RUNTIME rm -f "$occupant" &>/dev/null || true
+        sleep 1
+    fi
+
+    info "Starting Redis container ..."
+    $RUNTIME run -d \
+        --name "$REDIS_CONTAINER" \
+        -p "${REDIS_PORT}:6379" \
+        -v sb_redis_data:/data \
+        docker.io/redis:7-alpine \
+        redis-server \
             --requirepass "${REDIS_PASSWORD}" \
             --appendonly yes \
             --appendfsync everysec \
             --maxmemory 256mb \
             --maxmemory-policy allkeys-lru
-    fi
+
     wait_for_port localhost "$REDIS_PORT" "Redis"
 }
 
@@ -243,10 +282,54 @@ start_api() {
     popd > /dev/null
 }
 
+# ── Start test-only PostgreSQL (fixed testpassword, studybuddy_test DB) ────────
+start_test_db() {
+    if $RUNTIME inspect "$TEST_DB_CONTAINER" --format "{{.State.Running}}" 2>/dev/null | grep -q "true"; then
+        success "Test PostgreSQL already running ($TEST_DB_CONTAINER)"
+        return
+    fi
+
+    if $RUNTIME inspect "$TEST_DB_CONTAINER" &>/dev/null; then
+        $RUNTIME rm -f "$TEST_DB_CONTAINER" &>/dev/null || true
+    fi
+
+    local occupant
+    occupant="$(container_on_port "$TEST_DB_PORT")"
+    if [[ -n "$occupant" ]]; then
+        warn "Port $TEST_DB_PORT in use by '$occupant' — removing it ..."
+        $RUNTIME stop "$occupant" &>/dev/null || true
+        $RUNTIME rm -f "$occupant" &>/dev/null || true
+        sleep 1
+    fi
+
+    info "Starting test PostgreSQL on port $TEST_DB_PORT ..."
+    $RUNTIME run -d \
+        --name "$TEST_DB_CONTAINER" \
+        -e POSTGRES_DB=studybuddy_test \
+        -e POSTGRES_USER=studybuddy \
+        -e POSTGRES_PASSWORD=testpassword \
+        -p "${TEST_DB_PORT}:5432" \
+        docker.io/postgres:16-alpine \
+        postgres -c log_min_messages=WARNING
+
+    wait_for_port localhost "$TEST_DB_PORT" "Test PostgreSQL"
+    sleep 2
+}
+
 # ── Run tests ─────────────────────────────────────────────────────────────────
 run_tests() {
+    start_test_db
     info "Running test suite ..."
     pushd "$BACKEND_DIR" > /dev/null
+    # Clear any production env vars exported by load_env() so conftest.py's
+    # os.environ.setdefault() picks up its own isolated test values.
+    unset JWT_SECRET ADMIN_JWT_SECRET METRICS_TOKEN \
+          DATABASE_URL REDIS_URL POSTGRES_PASSWORD REDIS_PASSWORD \
+          AUTH0_DOMAIN AUTH0_JWKS_URL AUTH0_STUDENT_CLIENT_ID \
+          AUTH0_TEACHER_CLIENT_ID AUTH0_MGMT_CLIENT_ID \
+          AUTH0_MGMT_CLIENT_SECRET AUTH0_MGMT_API_URL
+    # Point tests at the dedicated test DB (different port, same host/creds as conftest expects).
+    export DATABASE_URL="postgresql://studybuddy:testpassword@localhost:${TEST_DB_PORT}/studybuddy_test"
     PYTHONPATH=. pytest tests/ -v
     popd > /dev/null
 }
@@ -254,8 +337,9 @@ run_tests() {
 # ── Stop containers ───────────────────────────────────────────────────────────
 stop_containers() {
     info "Stopping containers ..."
-    $RUNTIME stop "$DB_CONTAINER"    2>/dev/null || true
-    $RUNTIME stop "$REDIS_CONTAINER" 2>/dev/null || true
+    $RUNTIME stop "$DB_CONTAINER"      2>/dev/null || true
+    $RUNTIME stop "$REDIS_CONTAINER"   2>/dev/null || true
+    $RUNTIME stop "$TEST_DB_CONTAINER" 2>/dev/null || true
     success "Containers stopped"
 }
 
@@ -266,8 +350,9 @@ reset_all() {
     [[ "$confirm" =~ ^[Yy]$ ]] || { info "Aborted."; exit 0; }
 
     stop_containers
-    $RUNTIME rm -f "$DB_CONTAINER"    2>/dev/null || true
-    $RUNTIME rm -f "$REDIS_CONTAINER" 2>/dev/null || true
+    $RUNTIME rm -f "$DB_CONTAINER"      2>/dev/null || true
+    $RUNTIME rm -f "$REDIS_CONTAINER"   2>/dev/null || true
+    $RUNTIME rm -f "$TEST_DB_CONTAINER" 2>/dev/null || true
     $RUNTIME volume rm sb_postgres_data sb_redis_data 2>/dev/null || true
     success "Containers and volumes removed. Run ./dev_start.sh to start fresh."
 }
@@ -290,9 +375,6 @@ case "$COMMAND" in
     bootstrap_env
     load_env
     setup_venv
-    start_postgres
-    start_redis
-    run_migrations
     run_tests
     ;;
 
