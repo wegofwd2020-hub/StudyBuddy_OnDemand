@@ -1,0 +1,137 @@
+{
+  "grade": 5,
+  "subjects": [
+    {
+      "subject_id": "G5-MATH",
+      "name": "Mathematics",
+      "units": [
+        {
+          "unit_id": "G5-MATH-001",
+          "title": "Place Value and Number Systems",
+          "description": "Understanding place value to billions; comparing and ordering whole numbers",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G5-MATH-002",
+          "title": "Fractions and Decimals",
+          "description": "Adding, subtracting, and multiplying fractions; converting between fractions and decimals",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G5-MATH-003",
+          "title": "Geometry and Measurement",
+          "description": "Properties of 2D and 3D shapes; calculating area and perimeter",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G5-MATH-004",
+          "title": "Data and Statistics",
+          "description": "Collecting and displaying data; mean, median, mode, and range",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G5-MATH-005",
+          "title": "Algebraic Thinking",
+          "description": "Patterns, expressions, and introduction to variables",
+          "has_lab": false
+        }
+      ]
+    },
+    {
+      "subject_id": "G5-SCI",
+      "name": "Science",
+      "units": [
+        {
+          "unit_id": "G5-SCI-001",
+          "title": "Matter and Its Properties",
+          "description": "Physical and chemical properties; states of matter and phase changes",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G5-SCI-002",
+          "title": "Forces and Motion",
+          "description": "Gravity, friction, and balanced vs unbalanced forces; speed and velocity",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G5-SCI-003",
+          "title": "Ecosystems",
+          "description": "Food webs, habitats, and interdependence of living organisms",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G5-SCI-004",
+          "title": "Earth and Space",
+          "description": "The solar system, seasons, moon phases, and Earth's rotation",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G5-SCI-005",
+          "title": "Weather and Climate",
+          "description": "Weather patterns, climate zones, and the water cycle",
+          "has_lab": true
+        }
+      ]
+    },
+    {
+      "subject_id": "G5-TECH",
+      "name": "Technology",
+      "units": [
+        {
+          "unit_id": "G5-TECH-001",
+          "title": "Introduction to Computing",
+          "description": "Hardware, software, and how computers process information",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G5-TECH-002",
+          "title": "Digital Citizenship",
+          "description": "Online safety, privacy, and responsible use of technology",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G5-TECH-003",
+          "title": "Block-Based Programming",
+          "description": "Creating simple programs using Scratch; sequences, loops, and events",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G5-TECH-004",
+          "title": "Data and Information",
+          "description": "Collecting data, creating spreadsheets, and basic data visualization",
+          "has_lab": false
+        }
+      ]
+    },
+    {
+      "subject_id": "G5-ENG",
+      "name": "Engineering",
+      "units": [
+        {
+          "unit_id": "G5-ENG-001",
+          "title": "Design Thinking Process",
+          "description": "The engineering design cycle: define, ideate, prototype, test, improve",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G5-ENG-002",
+          "title": "Simple Machines",
+          "description": "Levers, pulleys, wheels, and inclined planes — how they reduce effort",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G5-ENG-003",
+          "title": "Structures and Materials",
+          "description": "Bridges, towers, and selecting materials for strength and function",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G5-ENG-004",
+          "title": "Environmental Engineering",
+          "description": "Designing solutions to environmental challenges using STEM skills",
+          "has_lab": false
+        }
+      ]
+    }
+  ]
+}

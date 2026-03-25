@@ -1,0 +1,149 @@
+{
+  "grade": 8,
+  "subjects": [
+    {
+      "subject_id": "G8-MATH",
+      "name": "Mathematics",
+      "units": [
+        {
+          "unit_id": "G8-MATH-001",
+          "title": "Linear Equations",
+          "description": "Solving single and multi-step linear equations; equations with variables on both sides",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G8-MATH-002",
+          "title": "Functions and Linear Relationships",
+          "description": "Defining functions; slope, y-intercept, and graphing linear functions",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G8-MATH-003",
+          "title": "Systems of Linear Equations",
+          "description": "Solving systems by graphing, substitution, and elimination",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G8-MATH-004",
+          "title": "Exponents and Scientific Notation",
+          "description": "Integer exponents, square roots, cube roots, and scientific notation",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G8-MATH-005",
+          "title": "Transformations and Geometry",
+          "description": "Translations, reflections, rotations, dilations; congruence and similarity",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G8-MATH-006",
+          "title": "The Pythagorean Theorem",
+          "description": "Proof and application of the Pythagorean theorem; distance in the coordinate plane",
+          "has_lab": false
+        }
+      ]
+    },
+    {
+      "subject_id": "G8-SCI",
+      "name": "Science",
+      "units": [
+        {
+          "unit_id": "G8-SCI-001",
+          "title": "Density and Buoyancy",
+          "description": "Measuring density; Archimedes' principle; why objects float or sink",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G8-SCI-002",
+          "title": "Waves: Light and Sound",
+          "description": "Wave properties, the electromagnetic spectrum, sound waves, and resonance",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G8-SCI-003",
+          "title": "Electricity and Magnetism",
+          "description": "Ohm's law, circuits, electromagnetism, and electric motors",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G8-SCI-004",
+          "title": "Evolution and Natural Selection",
+          "description": "Darwin's theory, evidence for evolution, adaptation, and speciation",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G8-SCI-005",
+          "title": "Climate Change and Earth Systems",
+          "description": "Greenhouse gases, global warming, carbon cycle, and climate solutions",
+          "has_lab": false
+        }
+      ]
+    },
+    {
+      "subject_id": "G8-TECH",
+      "name": "Technology",
+      "units": [
+        {
+          "unit_id": "G8-TECH-001",
+          "title": "Python: Data Structures",
+          "description": "Lists, tuples, dictionaries, and sets; iterating and manipulating data",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G8-TECH-002",
+          "title": "Python: File I/O and Exceptions",
+          "description": "Reading and writing files; try/except for error handling",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G8-TECH-003",
+          "title": "Web Technologies",
+          "description": "HTML, CSS basics; how browsers render web pages; APIs and JSON",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G8-TECH-004",
+          "title": "Binary and Number Systems",
+          "description": "Binary, octal, hexadecimal; encoding text and images as bits",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G8-TECH-005",
+          "title": "Machine Learning Intro",
+          "description": "Supervised learning, classification, training data, and model evaluation",
+          "has_lab": false
+        }
+      ]
+    },
+    {
+      "subject_id": "G8-ENG",
+      "name": "Engineering",
+      "units": [
+        {
+          "unit_id": "G8-ENG-001",
+          "title": "Mechanical Systems",
+          "description": "Levers, linkages, cams, and gears in complex mechanical systems",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G8-ENG-002",
+          "title": "Electrical Systems and Sensors",
+          "description": "Sensors, actuators, and feedback control in automated systems",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G8-ENG-003",
+          "title": "CAD and 3D Design",
+          "description": "Introduction to computer-aided design; sketching, modeling, and prototyping",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G8-ENG-004",
+          "title": "Automation and Robotics",
+          "description": "Programmable robots, sensors, logic, and feedback loops",
+          "has_lab": true
+        }
+      ]
+    }
+  ]
+}
