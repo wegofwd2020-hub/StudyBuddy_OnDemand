@@ -46,6 +46,11 @@ class PipelineSettings(BaseSettings):
     # ── Content version (target version for idempotency check) ───────────────
     CONTENT_VERSION: int = 1
 
+    # ── Observability ─────────────────────────────────────────────────────────
+    # If set, pipeline run metrics are pushed to this Pushgateway URL on completion.
+    # e.g. "http://pushgateway:9091"
+    PUSHGATEWAY_URL: Optional[str] = None
+
     @model_validator(mode="after")
     def required_fields_present(self) -> "PipelineSettings":
         if not self.ANTHROPIC_API_KEY:

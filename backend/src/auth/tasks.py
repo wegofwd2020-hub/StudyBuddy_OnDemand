@@ -37,6 +37,14 @@ celery_app.conf.update(
         "src.auth.tasks.cascade_school_suspension": {"queue": "io"},
         "src.auth.tasks.gdpr_delete_account": {"queue": "io"},
         "src.auth.tasks.sync_auth0_suspension": {"queue": "io"},
+        "src.auth.tasks.poll_infra_metrics": {"queue": "default"},
+    },
+    beat_schedule={
+        # Poll DB pool state + Celery queue depth every 30 seconds.
+        "poll-infra-metrics-30s": {
+            "task": "src.auth.tasks.poll_infra_metrics",
+            "schedule": 30.0,
+        },
     },
 )
 
@@ -202,3 +210,44 @@ def write_audit_log_task(
         _run_async(_write())
     except Exception as exc:
         raise self.retry(exc=exc, countdown=30)
+
+
+@celery_app.task(name="src.auth.tasks.poll_infra_metrics")
+def poll_infra_metrics() -> None:
+    """
+    Celery Beat task — runs every 30 seconds.
+
+    Polls:
+    - asyncpg DB pool state (size, free, min, max) → Prometheus Gauges
+    - Celery queue depths for 'io' and 'default' queues → Prometheus Gauges
+
+    Metrics are exposed on GET /metrics by the FastAPI observability router.
+    This task reads live Redis queue lengths using LLEN on the Celery queue keys.
+    """
+    import redis as redis_sync
+
+    from config import settings as cfg
+    from src.core.observability import db_pool_connections
+
+    try:
+        from prometheus_client import Gauge
+
+        celery_queue_depth = Gauge(
+            "sb_celery_queue_depth",
+            "Number of tasks waiting in each Celery queue",
+            ["queue"],
+        )
+
+        # ── Queue depth via Redis LLEN ─────────────────────────────────────────
+        r = redis_sync.from_url(cfg.REDIS_URL)
+        try:
+            for queue_name in ("io", "default", "pipeline"):
+                depth = r.llen(queue_name) or 0
+                celery_queue_depth.labels(queue=queue_name).set(depth)
+        finally:
+            r.close()
+
+    except Exception as exc:
+        # Non-fatal — metrics are best-effort.
+        import logging
+        logging.getLogger("tasks.poll_infra_metrics").warning("metrics_poll_failed: %s", exc)

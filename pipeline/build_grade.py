@@ -297,7 +297,95 @@ def run_grade(
         "duration_ms": duration_ms,
     }
     print(json.dumps(summary))
+
+    # ── Push metrics to Prometheus Pushgateway (best-effort) ──────────────────
+    _push_pipeline_metrics(
+        pipeline_run_id=pipeline_run_id,
+        grade=grade,
+        succeeded=succeeded,
+        failed=failed,
+        total_tokens=total_tokens,
+        total_cost_usd=total_cost,
+        duration_ms=duration_ms,
+        config=config,
+    )
+
     return summary
+
+
+def _push_pipeline_metrics(
+    *,
+    pipeline_run_id: str,
+    grade: int,
+    succeeded: int,
+    failed: int,
+    total_tokens: int,
+    total_cost_usd: float,
+    duration_ms: int,
+    config: object,
+) -> None:
+    """
+    Push per-run metrics to Prometheus Pushgateway.
+
+    Silently skipped if:
+    - prometheus_client is not installed, or
+    - PUSHGATEWAY_URL is not configured.
+    """
+    pushgateway_url = getattr(config, "PUSHGATEWAY_URL", None)
+    if not pushgateway_url:
+        log.debug("pushgateway_skip: PUSHGATEWAY_URL not set")
+        return
+
+    try:
+        from prometheus_client import (
+            CollectorRegistry,
+            Counter,
+            Gauge,
+            push_to_gateway,
+        )
+
+        registry = CollectorRegistry()
+
+        units_succeeded = Gauge(
+            "sb_pipeline_units_succeeded_total",
+            "Units successfully generated in this pipeline run",
+            registry=registry,
+        )
+        units_failed = Gauge(
+            "sb_pipeline_units_failed_total",
+            "Units that failed generation in this pipeline run",
+            registry=registry,
+        )
+        tokens_used = Gauge(
+            "sb_pipeline_tokens_used_total",
+            "Total Claude tokens consumed in this pipeline run",
+            registry=registry,
+        )
+        cost_usd = Gauge(
+            "sb_pipeline_cost_usd",
+            "Estimated USD cost of this pipeline run",
+            registry=registry,
+        )
+        duration = Gauge(
+            "sb_pipeline_duration_ms",
+            "Pipeline run wall-clock duration in milliseconds",
+            registry=registry,
+        )
+
+        units_succeeded.set(succeeded)
+        units_failed.set(failed)
+        tokens_used.set(total_tokens)
+        cost_usd.set(total_cost_usd)
+        duration.set(duration_ms)
+
+        grouping_key = {"grade": str(grade), "run_id": pipeline_run_id}
+        push_to_gateway(pushgateway_url, job="studybuddy_pipeline", grouping_key=grouping_key, registry=registry)
+        log.info("pushgateway_push_ok run_id=%s", pipeline_run_id)
+
+    except ImportError:
+        log.debug("pushgateway_skip: prometheus_client not installed")
+    except Exception as exc:
+        log.warning("pushgateway_push_failed: %s", exc)
 
 
 def main() -> None:
