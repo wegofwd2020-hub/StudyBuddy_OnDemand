@@ -46,6 +46,10 @@ class PipelineSettings(BaseSettings):
     # ── Content version (target version for idempotency check) ───────────────
     CONTENT_VERSION: int = 1
 
+    # ── AWS / CDN ─────────────────────────────────────────────────────────────
+    # If set, built content is uploaded to S3 after local write.
+    S3_BUCKET_NAME: Optional[str] = None
+
     # ── Observability ─────────────────────────────────────────────────────────
     # If set, pipeline run metrics are pushed to this Pushgateway URL on completion.
     # e.g. "http://pushgateway:9091"

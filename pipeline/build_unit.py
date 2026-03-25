@@ -345,6 +345,9 @@ def build_unit(
     audio_path = os.path.join(store_path, f"lesson_{lang}.mp3")
     synthesize_lesson(lesson_text, lang, audio_path)
 
+    # ── Upload to S3 (if configured) ──────────────────────────────────────────
+    _upload_unit_to_s3(curriculum_id, unit_id, store_path, lang, has_lab)
+
     # ── Update meta.json ──────────────────────────────────────────────────────
     _update_meta(
         meta_path=meta_path,
@@ -387,6 +390,80 @@ def _write_json(directory: str, filename: str, data: dict) -> None:
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
     log.debug("wrote %s", path)
+
+
+def _upload_unit_to_s3(curriculum_id: str, unit_id: str, store_path: str, lang: str, has_lab: bool) -> None:
+    """
+    Upload all content files for a unit to S3 with correct Cache-Control headers.
+
+    Cache-Control values per CLAUDE.md non-negotiable rule #7:
+      - lesson JSON, quiz JSON, tutorial JSON, experiment JSON: max-age=3600  (1 hour)
+      - lesson MP3:                                             max-age=86400 (24 hours)
+
+    Silently skips if S3_BUCKET_NAME is not set or boto3 is not installed.
+    """
+    try:
+        bucket = config.S3_BUCKET_NAME
+    except AttributeError:
+        bucket = None
+
+    if not bucket:
+        return
+
+    try:
+        import boto3  # type: ignore
+    except ImportError:
+        log.debug("s3_upload_skip: boto3 not installed")
+        return
+
+    try:
+        s3 = boto3.client("s3")
+        prefix = f"curricula/{curriculum_id}/{unit_id}"
+
+        json_files = [
+            f"lesson_{lang}.json",
+            f"quiz_set_1_{lang}.json",
+            f"quiz_set_2_{lang}.json",
+            f"quiz_set_3_{lang}.json",
+            f"tutorial_{lang}.json",
+        ]
+        if has_lab:
+            json_files.append(f"experiment_{lang}.json")
+
+        for filename in json_files:
+            local_path = os.path.join(store_path, filename)
+            if not os.path.exists(local_path):
+                continue
+            s3.upload_file(
+                local_path,
+                bucket,
+                f"{prefix}/{filename}",
+                ExtraArgs={
+                    "ContentType": "application/json",
+                    "CacheControl": "max-age=3600",
+                },
+            )
+            log.debug("s3_uploaded key=%s/%s", prefix, filename)
+
+        # MP3 — 24hr Cache-Control
+        mp3_filename = f"lesson_{lang}.mp3"
+        mp3_local = os.path.join(store_path, mp3_filename)
+        if os.path.exists(mp3_local):
+            s3.upload_file(
+                mp3_local,
+                bucket,
+                f"{prefix}/{mp3_filename}",
+                ExtraArgs={
+                    "ContentType": "audio/mpeg",
+                    "CacheControl": "max-age=86400",
+                },
+            )
+            log.debug("s3_uploaded key=%s/%s", prefix, mp3_filename)
+
+        log.info("s3_unit_uploaded curriculum_id=%s unit_id=%s lang=%s", curriculum_id, unit_id, lang)
+
+    except Exception as exc:
+        log.warning("s3_upload_failed curriculum_id=%s unit_id=%s lang=%s error=%s", curriculum_id, unit_id, lang, exc)
 
 
 def _extract_text_for_alex(content: dict) -> str:
