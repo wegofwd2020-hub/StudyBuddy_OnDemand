@@ -200,6 +200,7 @@ from src.progress.router import router as progress_router
 from src.student.router import router as student_router
 from src.notifications.router import router as notifications_router
 from src.analytics.router import router as analytics_router
+from src.subscription.router import router as subscription_router
 
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(admin_auth_router, prefix="/api/v1")
@@ -210,5 +211,6 @@ app.include_router(progress_router, prefix="/api/v1")
 app.include_router(student_router, prefix="/api/v1")
 app.include_router(notifications_router, prefix="/api/v1")
 app.include_router(analytics_router, prefix="/api/v1")
+app.include_router(subscription_router, prefix="/api/v1")
 
 log.info("routers_registered")

@@ -72,6 +72,12 @@ class Settings(BaseSettings):
     # ── Content Store ─────────────────────────────────────────────────────────
     CONTENT_STORE_PATH: str = "/data/content"
 
+    # ── Stripe ────────────────────────────────────────────────────────────────
+    STRIPE_SECRET_KEY: Optional[str] = None
+    STRIPE_WEBHOOK_SECRET: Optional[str] = None
+    STRIPE_PRICE_MONTHLY_ID: Optional[str] = None
+    STRIPE_PRICE_ANNUAL_ID: Optional[str] = None
+
     # ── Push Notifications (FCM) ───────────────────────────────────────────────
     FCM_SERVER_KEY: Optional[str] = None
 

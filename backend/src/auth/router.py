@@ -377,6 +377,20 @@ async def delete_account(
         )
 
     if row:
+        # Cancel Stripe subscription before GDPR erasure (Phase 5).
+        # Best-effort — a failure here should not block account deletion.
+        try:
+            from src.subscription.service import (
+                cancel_active_subscription_for_student,
+                cancel_stripe_subscription,
+            )
+            async with get_db(request) as sub_conn:
+                stripe_sub_id = await cancel_active_subscription_for_student(sub_conn, student_id)
+            if stripe_sub_id:
+                await cancel_stripe_subscription(stripe_sub_id)
+        except Exception as exc:
+            log.warning("stripe_cancel_on_delete_failed student_id=%s error=%s", student_id, exc)
+
         gdpr_delete_account.delay(student_id, row["external_auth_id"])
 
     emit_event("auth", "account_deletion_requested", student_id=student_id)
