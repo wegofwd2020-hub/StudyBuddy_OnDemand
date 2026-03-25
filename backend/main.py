@@ -191,11 +191,15 @@ from src.auth.admin_router import router as admin_auth_router
 from src.account.router import router as account_router
 from src.curriculum.router import router as curriculum_router
 from src.content.router import router as content_router
+from src.progress.router import router as progress_router
+from src.student.router import router as student_router
 
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(admin_auth_router, prefix="/api/v1")
 app.include_router(account_router, prefix="/api/v1")
 app.include_router(curriculum_router, prefix="/api/v1")
 app.include_router(content_router, prefix="/api/v1")
+app.include_router(progress_router, prefix="/api/v1")
+app.include_router(student_router, prefix="/api/v1")
 
 log.info("routers_registered")

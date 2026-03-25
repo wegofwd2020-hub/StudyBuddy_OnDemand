@@ -8,14 +8,15 @@ API key. Schools and teachers can upload custom curricula. Subscription-based.
 
 ## Project Status
 
-**Current phase: Phase 3 — Progress Tracking (in progress)**
+**Current phase: Phase 4 — Offline Sync + Multi-language + TTS + Push (next)**
 
 | Phase | Status |
 |---|---|
 | 1 — Backend Foundation | ✅ Complete (38 tests) |
 | 2 — Content Pipeline + English Delivery | ✅ Complete (52 tests) |
-| 3 — Progress Tracking | 🔄 Next |
-| 4–11 | ⏳ Pending |
+| 3 — Progress Tracking | ✅ Complete (73 tests) |
+| 4 — Offline Sync + Multi-language + TTS + Push | 🔄 Next |
+| 5–11 | ⏳ Pending |
 
 Build in phase order; do not skip ahead.
 

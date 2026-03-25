@@ -38,6 +38,9 @@ celery_app.conf.update(
         "src.auth.tasks.gdpr_delete_account": {"queue": "io"},
         "src.auth.tasks.sync_auth0_suspension": {"queue": "io"},
         "src.auth.tasks.poll_infra_metrics": {"queue": "default"},
+        "src.auth.tasks.write_progress_answer_task": {"queue": "io"},
+        "src.auth.tasks.update_streak_task": {"queue": "io"},
+        "src.auth.tasks.refresh_progress_view_task": {"queue": "io"},
     },
     beat_schedule={
         # Poll DB pool state + Celery queue depth every 30 seconds.
@@ -208,6 +211,125 @@ def write_audit_log_task(
 
     try:
         _run_async(_write())
+    except Exception as exc:
+        raise self.retry(exc=exc, countdown=30)
+
+
+@celery_app.task(name="src.auth.tasks.write_progress_answer_task", bind=True, max_retries=3)
+def write_progress_answer_task(
+    self,
+    session_id: str,
+    question_id: str,
+    student_answer: int,
+    correct_answer: int,
+    correct: bool,
+    ms_taken: int,
+    event_id: Optional[str],
+) -> None:
+    """
+    Fire-and-forget task: write a progress answer to PostgreSQL.
+
+    Uses ON CONFLICT DO NOTHING on event_id for mobile offline deduplication.
+    """
+    import asyncpg
+    from config import settings as cfg
+    from src.progress.service import record_answer_sync
+
+    async def _write():
+        pool = await asyncpg.create_pool(cfg.DATABASE_URL, min_size=1, max_size=2)
+        try:
+            async with pool.acquire() as conn:
+                await record_answer_sync(
+                    conn,
+                    session_id=session_id,
+                    question_id=question_id,
+                    student_answer=student_answer,
+                    correct_answer=correct_answer,
+                    correct=correct,
+                    ms_taken=ms_taken,
+                    event_id=event_id,
+                )
+        finally:
+            await pool.close()
+
+    try:
+        _run_async(_write())
+    except Exception as exc:
+        raise self.retry(exc=exc, countdown=10)
+
+
+@celery_app.task(name="src.auth.tasks.update_streak_task", bind=True, max_retries=3)
+def update_streak_task(self, student_id: str, activity_date: str) -> None:
+    """
+    Update the streak counter in Redis for a student's activity date.
+
+    Idempotent: if already counted today, does nothing.
+    """
+    import redis as redis_sync
+    from config import settings as cfg
+
+    try:
+        r = redis_sync.from_url(cfg.REDIS_URL)
+        raw = r.get(f"streak:{student_id}")
+        streak = json.loads(raw) if raw else {"current": 0, "longest": 0, "last_active_date": None}
+
+        last = streak.get("last_active_date")
+        if last == activity_date:
+            r.close()
+            return
+
+        from datetime import date as _date
+        current = streak.get("current", 0)
+        longest = streak.get("longest", 0)
+
+        if last is not None:
+            try:
+                delta = (_date.fromisoformat(activity_date) - _date.fromisoformat(last)).days
+                current = current + 1 if delta == 1 else 1
+            except ValueError:
+                current = 1
+        else:
+            current = 1
+
+        if current > longest:
+            longest = current
+
+        streak = {"current": current, "longest": longest, "last_active_date": activity_date}
+        r.setex(f"streak:{student_id}", 60 * 60 * 24 * 90, json.dumps(streak))
+        r.close()
+    except Exception as exc:
+        raise self.retry(exc=exc, countdown=15)
+
+
+@celery_app.task(name="src.auth.tasks.refresh_progress_view_task", bind=True, max_retries=2)
+def refresh_progress_view_task(self, student_id: str) -> None:
+    """
+    Refresh mv_student_curriculum_progress for a single student.
+
+    Uses REFRESH MATERIALIZED VIEW CONCURRENTLY so reads are not blocked.
+    Also invalidates the dashboard Redis cache for this student.
+    """
+    import asyncpg
+    from config import settings as cfg
+    import redis as redis_sync
+
+    async def _refresh():
+        pool = await asyncpg.create_pool(cfg.DATABASE_URL, min_size=1, max_size=2)
+        try:
+            async with pool.acquire() as conn:
+                await conn.execute(
+                    "REFRESH MATERIALIZED VIEW CONCURRENTLY mv_student_curriculum_progress"
+                )
+        finally:
+            await pool.close()
+
+    try:
+        _run_async(_refresh())
+
+        # Invalidate L2 dashboard cache
+        r = redis_sync.from_url(cfg.REDIS_URL)
+        r.delete(f"dashboard:{student_id}")
+        r.close()
     except Exception as exc:
         raise self.retry(exc=exc, countdown=30)
 
