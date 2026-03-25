@@ -204,7 +204,9 @@ async def end_session_endpoint(
                 detail={"error": "internal_error", "detail": "Could not end session.", "correlation_id": cid},
             )
 
-    # Invalidate dashboard L2 cache
+    # Invalidate dashboard L1 + L2 cache
+    from src.core.cache import dashboard_cache
+    dashboard_cache.pop(student_id, None)
     redis = request.app.state.redis
     await redis.delete(f"dashboard:{student_id}")
 

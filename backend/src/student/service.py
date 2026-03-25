@@ -88,21 +88,38 @@ async def update_streak(redis, student_id: str, activity_date: str) -> dict:
 
 # ── Dashboard ─────────────────────────────────────────────────────────────────
 
-_DASHBOARD_TTL = 60  # seconds (L2 Redis)
+_DASHBOARD_TTL = 60  # seconds (L1 + L2)
 
 async def get_dashboard(conn: asyncpg.Connection, redis, student_id: str) -> dict:
     """
-    Return dashboard payload.  Checks L2 Redis first; falls back to DB aggregation.
+    Return dashboard payload.
+
+    Read order:
+      1. L1 TTLCache (per-worker, in-process, 60 s) — zero network cost
+      2. L2 Redis (shared, 60 s) — single network hop
+      3. DB aggregation — falls back and repopulates both caches
     """
+    from src.core.cache import dashboard_cache
+
+    # ── L1 check ──────────────────────────────────────────────────────────────
+    cached_l1 = dashboard_cache.get(student_id)
+    if cached_l1 is not None:
+        return cached_l1
+
+    # ── L2 check ──────────────────────────────────────────────────────────────
     cache_key = f"dashboard:{student_id}"
-    cached = await redis.get(cache_key)
-    if cached:
+    raw_l2 = await redis.get(cache_key)
+    if raw_l2:
         try:
-            return json.loads(cached)
+            payload = json.loads(raw_l2)
+            dashboard_cache[student_id] = payload  # backfill L1
+            return payload
         except (ValueError, TypeError):
             pass
 
+    # ── DB aggregation ────────────────────────────────────────────────────────
     payload = await _build_dashboard(conn, redis, student_id)
+    dashboard_cache[student_id] = payload
     await redis.setex(cache_key, _DASHBOARD_TTL, json.dumps(payload))
     return payload
 

@@ -9,6 +9,7 @@ For shared state use Redis (L2).
 Cache instances:
   jwks_cache       — Auth0 JWKS keys  (24-hr TTL, size=10)
   curriculum_cache — Grade curriculum trees (1-hr TTL, size=100)
+  dashboard_cache  — Student dashboard payloads (60-s TTL, size=2000)
 """
 
 from __future__ import annotations
@@ -28,4 +29,12 @@ jwks_cache: TTLCache = TTLCache(
 curriculum_cache: TTLCache = TTLCache(
     maxsize=20,
     ttl=3600,
+)
+
+# Student dashboard: keyed by student_id (str); stores the dashboard dict.
+# TTL = 60 s; invalidated explicitly on session/end via del dashboard_cache[student_id].
+# maxsize=2000 caps memory at ~2000 concurrent active students per worker.
+dashboard_cache: TTLCache = TTLCache(
+    maxsize=2000,
+    ttl=60,
 )
