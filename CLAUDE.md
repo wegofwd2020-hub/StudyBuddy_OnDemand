@@ -8,10 +8,16 @@ API key. Schools and teachers can upload custom curricula. Subscription-based.
 
 ## Project Status
 
-**Phase: Architecture & Documentation — no implementation has begun.**
+**Current phase: Phase 3 — Progress Tracking (in progress)**
 
-All source code described below is the **target state**. The `backend/`, `mobile/`,
-and `pipeline/` directories do not yet exist. Build in phase order; do not skip ahead.
+| Phase | Status |
+|---|---|
+| 1 — Backend Foundation | ✅ Complete (38 tests) |
+| 2 — Content Pipeline + English Delivery | ✅ Complete (52 tests) |
+| 3 — Progress Tracking | 🔄 Next |
+| 4–11 | ⏳ Pending |
+
+Build in phase order; do not skip ahead.
 
 Predecessor project (UI + prompt reference):
 `https://github.com/wegofwd2020-hub/studybuddy_free`
@@ -288,12 +294,20 @@ Pipeline: pytest with mocked Anthropic SDK + mocked TTS provider SDK
 
 ---
 
-## Running Things (once implemented)
+## Running Things
 
 ```bash
-# Backend (dev)
-cd backend
-uvicorn main:app --reload --port 8000
+# Start everything (DB, Redis, migrations, API with hot-reload)
+./dev_start.sh
+
+# Run automated test suite (no API key or Auth0 needed)
+./dev_start.sh test
+
+# Stop background containers
+./dev_start.sh stop
+
+# Wipe DB and start fresh
+./dev_start.sh reset
 
 # Backend (production-like)
 gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
@@ -303,15 +317,12 @@ celery -A tasks worker -Q pipeline --concurrency=2
 celery -A tasks worker -Q io,default --concurrency=4
 celery -A tasks beat
 
-# Pipeline — build default curriculum
+# Pipeline — seed and build default curriculum (requires ANTHROPIC_API_KEY)
 python pipeline/seed_default.py --year 2026
 python pipeline/build_grade.py --grade 8 --lang en,fr,es
 
 # Pipeline — regenerate a single unit
 python pipeline/build_unit.py --curriculum-id default-2026-g8 --unit G8-MATH-001 --lang en --force
-
-# All services (dev)
-docker compose up
 ```
 
 ---
