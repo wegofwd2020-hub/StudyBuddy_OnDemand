@@ -17,6 +17,11 @@ Routers registered at /api/v1 prefix:
   - admin_auth
   - account
   - curriculum
+  - content
+  - progress
+  - student
+  - notifications
+  - analytics
 
 Health and metrics mounted at root (no /api/v1 prefix):
   - GET /health
@@ -193,6 +198,8 @@ from src.curriculum.router import router as curriculum_router
 from src.content.router import router as content_router
 from src.progress.router import router as progress_router
 from src.student.router import router as student_router
+from src.notifications.router import router as notifications_router
+from src.analytics.router import router as analytics_router
 
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(admin_auth_router, prefix="/api/v1")
@@ -201,5 +208,7 @@ app.include_router(curriculum_router, prefix="/api/v1")
 app.include_router(content_router, prefix="/api/v1")
 app.include_router(progress_router, prefix="/api/v1")
 app.include_router(student_router, prefix="/api/v1")
+app.include_router(notifications_router, prefix="/api/v1")
+app.include_router(analytics_router, prefix="/api/v1")
 
 log.info("routers_registered")

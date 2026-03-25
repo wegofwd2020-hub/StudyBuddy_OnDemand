@@ -18,6 +18,7 @@ import uuid
 from typing import Optional
 
 from celery import Celery
+from celery.schedules import crontab
 
 from config import settings
 
@@ -41,12 +42,32 @@ celery_app.conf.update(
         "src.auth.tasks.write_progress_answer_task": {"queue": "io"},
         "src.auth.tasks.update_streak_task": {"queue": "io"},
         "src.auth.tasks.refresh_progress_view_task": {"queue": "io"},
+        "src.auth.tasks.write_lesson_end_task": {"queue": "io"},
+        "src.auth.tasks.send_push_notification_task": {"queue": "io"},
+        "src.auth.tasks.check_streak_reminders": {"queue": "default"},
+        "src.auth.tasks.check_quiz_nudges": {"queue": "default"},
+        "src.auth.tasks.send_weekly_summary": {"queue": "default"},
     },
     beat_schedule={
         # Poll DB pool state + Celery queue depth every 30 seconds.
         "poll-infra-metrics-30s": {
             "task": "src.auth.tasks.poll_infra_metrics",
             "schedule": 30.0,
+        },
+        # Daily streak reminders at 20:00 UTC.
+        "check-streak-reminders-daily": {
+            "task": "src.auth.tasks.check_streak_reminders",
+            "schedule": crontab(hour=20, minute=0),
+        },
+        # Daily quiz nudges at 18:00 UTC.
+        "check-quiz-nudges-daily": {
+            "task": "src.auth.tasks.check_quiz_nudges",
+            "schedule": crontab(hour=18, minute=0),
+        },
+        # Weekly summary every Sunday at 09:00 UTC.
+        "send-weekly-summary-sunday": {
+            "task": "src.auth.tasks.send_weekly_summary",
+            "schedule": crontab(hour=9, minute=0, day_of_week=0),
         },
     },
 )
@@ -373,3 +394,216 @@ def poll_infra_metrics() -> None:
         # Non-fatal — metrics are best-effort.
         import logging
         logging.getLogger("tasks.poll_infra_metrics").warning("metrics_poll_failed: %s", exc)
+
+
+@celery_app.task(name="src.auth.tasks.write_lesson_end_task", bind=True, max_retries=3)
+def write_lesson_end_task(
+    self,
+    view_id: str,
+    duration_s: int,
+    audio_played: bool,
+    experiment_viewed: bool,
+) -> None:
+    """
+    Fire-and-forget task: write lesson end data to lesson_views.
+    """
+    import asyncpg
+    from config import settings as cfg
+    from src.analytics.service import end_lesson_view
+
+    async def _write():
+        pool = await asyncpg.create_pool(cfg.DATABASE_URL, min_size=1, max_size=2)
+        try:
+            async with pool.acquire() as conn:
+                await end_lesson_view(
+                    conn,
+                    view_id=view_id,
+                    duration_s=duration_s,
+                    audio_played=audio_played,
+                    experiment_viewed=experiment_viewed,
+                )
+        finally:
+            await pool.close()
+
+    try:
+        _run_async(_write())
+    except Exception as exc:
+        raise self.retry(exc=exc, countdown=10)
+
+
+@celery_app.task(name="src.auth.tasks.send_push_notification_task", bind=True, max_retries=2)
+def send_push_notification_task(
+    self,
+    device_token: str,
+    title: str,
+    body: str,
+    data: Optional[dict] = None,
+) -> None:
+    """Send a single FCM push notification."""
+    from src.notifications.service import send_push_notification
+
+    try:
+        _run_async(send_push_notification(device_token, title, body, data))
+    except Exception as exc:
+        raise self.retry(exc=exc, countdown=30)
+
+
+@celery_app.task(name="src.auth.tasks.check_streak_reminders")
+def check_streak_reminders() -> None:
+    """
+    Celery Beat task — runs daily at 20:00 UTC.
+
+    Finds students whose streak will break tonight (last_active_date = yesterday)
+    and who have streak_reminders enabled. Sends a push notification to each.
+    """
+    import asyncpg
+    import redis as redis_sync
+    from config import settings as cfg
+    from datetime import date, timedelta
+
+    yesterday = (date.today() - timedelta(days=1)).isoformat()
+
+    async def _run():
+        pool = await asyncpg.create_pool(cfg.DATABASE_URL, min_size=1, max_size=3)
+        try:
+            rows = await pool.fetch(
+                """
+                SELECT pt.device_token, pt.student_id::text
+                FROM push_tokens pt
+                JOIN notification_preferences np ON np.student_id = pt.student_id
+                WHERE np.streak_reminders = TRUE
+                """
+            )
+            return rows
+        finally:
+            await pool.close()
+
+    try:
+        rows = _run_async(_run())
+        r = redis_sync.from_url(cfg.REDIS_URL)
+        try:
+            for row in rows:
+                student_id = row["student_id"]
+                raw = r.get(f"streak:{student_id}")
+                if not raw:
+                    continue
+                streak_data = json.loads(raw)
+                if streak_data.get("last_active_date") != yesterday:
+                    continue
+                # Student hasn't practiced today — streak at risk
+                celery_app.send_task(
+                    "src.auth.tasks.send_push_notification_task",
+                    kwargs={
+                        "device_token": row["device_token"],
+                        "title": "Keep your streak alive! 🔥",
+                        "body": f"You have a {streak_data.get('current', 0)}-day streak. Practice today to keep it going!",
+                    },
+                    queue="io",
+                )
+        finally:
+            r.close()
+    except Exception as exc:
+        import logging
+        logging.getLogger("tasks.check_streak_reminders").warning("streak_reminder_failed: %s", exc)
+
+
+@celery_app.task(name="src.auth.tasks.check_quiz_nudges")
+def check_quiz_nudges() -> None:
+    """
+    Celery Beat task — runs daily at 18:00 UTC.
+
+    Finds students who haven't completed a quiz in 3+ days and have quiz_nudges enabled.
+    Sends a push notification encouraging them to practice.
+    """
+    import asyncpg
+    from config import settings as cfg
+
+    async def _run():
+        pool = await asyncpg.create_pool(cfg.DATABASE_URL, min_size=1, max_size=3)
+        try:
+            rows = await pool.fetch(
+                """
+                SELECT DISTINCT pt.device_token
+                FROM push_tokens pt
+                JOIN notification_preferences np ON np.student_id = pt.student_id
+                WHERE np.quiz_nudges = TRUE
+                  AND NOT EXISTS (
+                      SELECT 1 FROM progress_sessions ps
+                      WHERE ps.student_id = pt.student_id
+                        AND ps.completed = TRUE
+                        AND ps.ended_at >= NOW() - INTERVAL '3 days'
+                  )
+                """
+            )
+            return rows
+        finally:
+            await pool.close()
+
+    try:
+        rows = _run_async(_run())
+        for row in rows:
+            celery_app.send_task(
+                "src.auth.tasks.send_push_notification_task",
+                kwargs={
+                    "device_token": row["device_token"],
+                    "title": "Time to practice! 📚",
+                    "body": "You haven't taken a quiz in a few days. Try one now to keep your skills sharp!",
+                },
+                queue="io",
+            )
+    except Exception as exc:
+        import logging
+        logging.getLogger("tasks.check_quiz_nudges").warning("quiz_nudge_failed: %s", exc)
+
+
+@celery_app.task(name="src.auth.tasks.send_weekly_summary")
+def send_weekly_summary() -> None:
+    """
+    Celery Beat task — runs every Sunday at 09:00 UTC.
+
+    Sends a weekly learning summary push to students who have weekly_summary enabled
+    and were active in the past 7 days.
+    """
+    import asyncpg
+    from config import settings as cfg
+
+    async def _run():
+        pool = await asyncpg.create_pool(cfg.DATABASE_URL, min_size=1, max_size=3)
+        try:
+            rows = await pool.fetch(
+                """
+                SELECT
+                    pt.device_token,
+                    COUNT(CASE WHEN ps.completed THEN 1 END) AS quizzes_done,
+                    COUNT(CASE WHEN ps.passed THEN 1 END)    AS quizzes_passed
+                FROM push_tokens pt
+                JOIN notification_preferences np ON np.student_id = pt.student_id
+                LEFT JOIN progress_sessions ps
+                    ON ps.student_id = pt.student_id
+                    AND ps.ended_at >= NOW() - INTERVAL '7 days'
+                WHERE np.weekly_summary = TRUE
+                GROUP BY pt.device_token
+                HAVING COUNT(CASE WHEN ps.completed THEN 1 END) > 0
+                """
+            )
+            return rows
+        finally:
+            await pool.close()
+
+    try:
+        rows = _run_async(_run())
+        for row in rows:
+            quizzes = row["quizzes_done"] or 0
+            passed = row["quizzes_passed"] or 0
+            celery_app.send_task(
+                "src.auth.tasks.send_push_notification_task",
+                kwargs={
+                    "device_token": row["device_token"],
+                    "title": "Your weekly study summary 📊",
+                    "body": f"This week: {quizzes} quiz{'zes' if quizzes != 1 else ''}, {passed} passed. Keep it up!",
+                },
+                queue="io",
+            )
+    except Exception as exc:
+        import logging
+        logging.getLogger("tasks.send_weekly_summary").warning("weekly_summary_failed: %s", exc)

@@ -146,3 +146,98 @@ async def get_stats(token: str, period: str = "30d") -> dict:
         response = await client.get(url, params={"period": period}, headers=_auth_headers(token))
         response.raise_for_status()
         return response.json()
+
+
+# ── Analytics: lesson lifecycle ───────────────────────────────────────────────
+
+async def start_lesson_view(token: str, unit_id: str, curriculum_id: str) -> dict:
+    """
+    Notify the backend that a lesson was opened.
+
+    Returns {view_id} — store this and pass it to end_lesson_view() when done.
+    """
+    url = f"{BACKEND_URL}/api/v1/analytics/lesson/start"
+    async with httpx.AsyncClient(timeout=15) as client:
+        response = await client.post(
+            url,
+            json={"unit_id": unit_id, "curriculum_id": curriculum_id},
+            headers=_auth_headers(token),
+        )
+        response.raise_for_status()
+        return response.json()
+
+
+def end_lesson_view(
+    token: str,
+    view_id: str,
+    duration_s: int,
+    audio_played: bool = False,
+    experiment_viewed: bool = False,
+) -> dict:
+    """
+    Notify the backend that a lesson was closed (synchronous for SyncManager).
+
+    Called by SyncManager when flushing queued lesson_end events.
+    Returns {view_id, duration_s}.
+    """
+    import httpx as _httpx
+    url = f"{BACKEND_URL}/api/v1/analytics/lesson/end"
+    response = _httpx.post(
+        url,
+        json={
+            "view_id": view_id,
+            "duration_s": duration_s,
+            "audio_played": audio_played,
+            "experiment_viewed": experiment_viewed,
+        },
+        headers=_auth_headers(token),
+        timeout=15,
+    )
+    response.raise_for_status()
+    return response.json()
+
+
+# ── Notifications: token + preferences ────────────────────────────────────────
+
+async def register_push_token(token: str, device_token: str, platform: str) -> dict:
+    """Register a device FCM token. platform: 'ios' | 'android'."""
+    url = f"{BACKEND_URL}/api/v1/notifications/token"
+    async with httpx.AsyncClient(timeout=10) as client:
+        response = await client.post(
+            url,
+            json={"device_token": device_token, "platform": platform},
+            headers=_auth_headers(token),
+        )
+        response.raise_for_status()
+        return response.json()
+
+
+async def get_notification_preferences(token: str) -> dict:
+    """Fetch notification preferences for the authenticated student."""
+    url = f"{BACKEND_URL}/api/v1/notifications/preferences"
+    async with httpx.AsyncClient(timeout=10) as client:
+        response = await client.get(url, headers=_auth_headers(token))
+        response.raise_for_status()
+        return response.json()
+
+
+async def update_notification_preferences(
+    token: str,
+    streak_reminders: bool,
+    weekly_summary: bool,
+    quiz_nudges: bool,
+) -> dict:
+    """Update notification preferences for the authenticated student."""
+    url = f"{BACKEND_URL}/api/v1/notifications/preferences"
+    async with httpx.AsyncClient(timeout=10) as client:
+        response = await client.put(
+            url,
+            json={
+                "streak_reminders": streak_reminders,
+                "weekly_summary": weekly_summary,
+                "quiz_nudges": quiz_nudges,
+            },
+            headers=_auth_headers(token),
+        )
+        response.raise_for_status()
+        return response.json()

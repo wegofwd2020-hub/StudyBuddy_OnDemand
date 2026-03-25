@@ -72,6 +72,13 @@ class Settings(BaseSettings):
     # ── Content Store ─────────────────────────────────────────────────────────
     CONTENT_STORE_PATH: str = "/data/content"
 
+    # ── Push Notifications (FCM) ───────────────────────────────────────────────
+    FCM_SERVER_KEY: Optional[str] = None
+
+    # ── AWS / CDN ─────────────────────────────────────────────────────────────
+    S3_BUCKET_NAME: Optional[str] = None
+    CLOUDFRONT_DISTRIBUTION_ID: Optional[str] = None
+
     # ── Celery ────────────────────────────────────────────────────────────────
     CELERY_BROKER_URL: Optional[str] = None
 
