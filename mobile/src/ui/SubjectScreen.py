@@ -1,7 +1,7 @@
 """
 mobile/src/ui/SubjectScreen.py
 
-Subject screen — displays a lesson and provides the "🔊 Listen" audio button.
+Subject screen — displays a lesson and provides audio + experiment buttons.
 
 Responsibilities:
   - Show lesson content (title, synopsis, key concepts, objectives).
@@ -9,9 +9,12 @@ Responsibilities:
     caches to local filesystem → plays via Kivy SoundLoader.
   - Audio is cached by (unit_id, curriculum_id, lang) so offline playback
     works after the first listen.
+  - "🔬 Experiment" button: probed on enter by GET /content/{unit_id}/experiment.
+    Shown only when backend returns 200 (lab-bearing unit). Experiment JSON is
+    cached in LocalCache. Navigates to ExperimentScreen on tap.
   - "📝 Take Quiz" button navigates to quiz screen.
   - Fires POST /analytics/lesson/start on enter; queues lesson_end event
-    (via EventQueue) on leave.
+    (via EventQueue) on leave, including experiment_viewed flag.
 
 Layer rule: SubjectScreen is in the ui layer; calls logic/ and api/ via daemon threads.
 """
@@ -60,6 +63,8 @@ class SubjectScreen(Screen):
         self._view_id: str | None = None
         self._lesson_opened_at: float = 0.0
         self._sound = None
+        self._experiment_data: dict | None = None  # set when lab is available
+        self._experiment_viewed: bool = False
 
         if KIVY_AVAILABLE:
             self._build_ui()
@@ -94,11 +99,20 @@ class SubjectScreen(Screen):
         # ── Buttons ───────────────────────────────────────────────────────────
         btn_row = BoxLayout(orientation="horizontal", size_hint_y=None, height=52, spacing=12)
 
-        self._listen_btn = Button(text="🔊 Listen", size_hint_x=0.4)
+        self._listen_btn = Button(text="🔊 Listen", size_hint_x=0.33)
         self._listen_btn.bind(on_release=self._on_listen)
         btn_row.add_widget(self._listen_btn)
 
-        quiz_btn = Button(text="📝 Take Quiz", size_hint_x=0.6)
+        self._experiment_btn = Button(
+            text="🔬 Experiment",
+            size_hint_x=0.33,
+            disabled=True,
+            opacity=0,
+        )
+        self._experiment_btn.bind(on_release=self._on_experiment)
+        btn_row.add_widget(self._experiment_btn)
+
+        quiz_btn = Button(text="📝 Take Quiz", size_hint_x=0.34)
         quiz_btn.bind(on_release=self._on_take_quiz)
         btn_row.add_widget(quiz_btn)
 
@@ -113,8 +127,10 @@ class SubjectScreen(Screen):
     def on_enter(self, *_) -> None:
         """Called by Kivy when screen becomes active — start lesson analytics."""
         self._lesson_opened_at = time.monotonic()
+        self._experiment_viewed = False
         self._start_lesson_analytics()
         self._load_lesson_async()
+        self._probe_experiment_async()
 
     def on_leave(self, *_) -> None:
         """Called by Kivy when leaving screen — queue lesson_end event."""
@@ -122,6 +138,7 @@ class SubjectScreen(Screen):
             duration_s = int(time.monotonic() - self._lesson_opened_at)
             self._queue_lesson_end(self._view_id, duration_s)
         self._stop_audio()
+        self._experiment_viewed = False
 
     # ── Lesson analytics ──────────────────────────────────────────────────────
 
@@ -151,7 +168,7 @@ class SubjectScreen(Screen):
                     "view_id": view_id,
                     "duration_s": duration_s,
                     "audio_played": self._sound is not None,
-                    "experiment_viewed": False,
+                    "experiment_viewed": self._experiment_viewed,
                 })
                 log.info("lesson_end_queued view_id=%s duration_s=%d", view_id, duration_s)
             except Exception as exc:
@@ -193,6 +210,87 @@ class SubjectScreen(Screen):
             self._title_label.text = data.get("title", self._unit_id)
         if hasattr(self, "_synopsis_label"):
             self._synopsis_label.text = data.get("synopsis", "")
+
+    # ── Experiment probe ──────────────────────────────────────────────────────
+
+    def _probe_experiment_async(self) -> None:
+        """
+        Probe experiment availability for this unit.
+
+        Tries local cache first (content_type="experiment"). Falls back to
+        GET /content/{unit_id}/experiment. Shows the button on HTTP 200,
+        keeps it hidden on 404. Caches the experiment JSON locally.
+        """
+        threading.Thread(target=self._probe_experiment, daemon=True).start()
+
+    def _probe_experiment(self) -> None:
+        try:
+            # Check local cache first
+            try:
+                from mobile.src.logic.LocalCache import LocalCache  # type: ignore
+                cache = LocalCache()
+                cached = cache.get(self._unit_id, self._curriculum_id, "experiment", "en", 1)
+                if cached is not None:
+                    self._experiment_data = cached
+                    self._show_experiment_btn()
+                    log.info("experiment_cache_hit unit_id=%s", self._unit_id)
+                    return
+            except Exception:
+                pass
+
+            # Fetch from backend
+            import asyncio
+            from mobile.src.api.content_client import get_experiment  # type: ignore
+            loop = asyncio.new_event_loop()
+            data = loop.run_until_complete(get_experiment(self._unit_id, self._token))
+            loop.close()
+
+            self._experiment_data = data
+
+            # Cache it alongside lesson JSON
+            try:
+                from mobile.src.logic.LocalCache import LocalCache  # type: ignore
+                content_version = data.get("content_version", 1)
+                LocalCache().put(
+                    self._unit_id, self._curriculum_id, "experiment", "en",
+                    content_version, data
+                )
+            except Exception as exc:
+                log.warning("experiment_cache_write_failed error=%s", exc)
+
+            self._show_experiment_btn()
+            log.info("experiment_available unit_id=%s", self._unit_id)
+
+        except Exception as exc:
+            # 404 means no lab — keep button hidden
+            status = getattr(getattr(exc, "response", None), "status_code", None)
+            if status != 404:
+                log.warning("experiment_probe_failed unit_id=%s error=%s", self._unit_id, exc)
+
+    @mainthread
+    def _show_experiment_btn(self) -> None:
+        if hasattr(self, "_experiment_btn"):
+            self._experiment_btn.disabled = False
+            self._experiment_btn.opacity = 1
+
+    # ── Experiment navigation ─────────────────────────────────────────────────
+
+    def _on_experiment(self, *_) -> None:
+        """Navigate to ExperimentScreen with cached experiment data."""
+        self._experiment_viewed = True
+        if not (KIVY_AVAILABLE and hasattr(self, "manager") and self.manager):
+            return
+
+        # Set data on existing ExperimentScreen if present, else navigate
+        mgr = self.manager
+        if hasattr(mgr, "get_screen"):
+            try:
+                exp_screen = mgr.get_screen("experiment")
+                if self._experiment_data:
+                    exp_screen.set_experiment(self._experiment_data)
+            except Exception:
+                pass
+        mgr.current = "experiment"
 
     # ── Audio ─────────────────────────────────────────────────────────────────
 

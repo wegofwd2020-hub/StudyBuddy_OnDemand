@@ -221,6 +221,50 @@ async def test_experiment_not_found_for_non_lab_unit(client: AsyncClient, fake_r
 
 
 @pytest.mark.asyncio
+async def test_experiment_returns_200_for_lab_unit(client: AsyncClient, fake_redis):
+    """GET /content/{unit_id}/experiment returns 200 with experiment JSON for lab units."""
+    student_id = str(uuid.uuid4())
+    token = make_student_token(student_id=student_id, grade=8)
+    unit_id = "G8-SCI-LAB-001"
+
+    fake_experiment = {
+        "unit_id": unit_id,
+        "language": "en",
+        "experiment_title": "Density Experiment",
+        "materials": ["water", "salt", "graduated cylinder"],
+        "safety_notes": ["Wear goggles."],
+        "steps": [
+            {"step_number": 1, "instruction": "Fill cylinder.", "expected_observation": "Cylinder is full."},
+        ],
+        "questions": [{"question": "What did you observe?", "answer": "The salt dissolved."}],
+        "conclusion_prompt": "Write your conclusion here.",
+        "generated_at": "2026-03-25T00:00:00Z",
+        "model": "claude-sonnet-4-6",
+        "content_version": 1,
+    }
+
+    with (
+        patch("src.content.router.resolve_curriculum_id", new_callable=AsyncMock, return_value="default-2026-g8"),
+        patch("src.content.router.get_unit_subject", new_callable=AsyncMock, return_value="G8-SCI"),
+        patch("src.content.router.check_content_published", new_callable=AsyncMock, return_value=True),
+        patch("src.content.router.check_content_block", new_callable=AsyncMock, return_value=False),
+        patch("src.content.router.get_content_file", new_callable=AsyncMock, return_value=fake_experiment),
+    ):
+        response = await client.get(
+            f"/api/v1/content/{unit_id}/experiment",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert data["unit_id"] == unit_id
+    assert data["experiment_title"] == "Density Experiment"
+    assert len(data["materials"]) == 3
+    assert len(data["steps"]) == 1
+    assert data["content_version"] == 1
+
+
+@pytest.mark.asyncio
 async def test_report_returns_200(client: AsyncClient, db_conn, fake_redis):
     """POST /content/{unit_id}/report returns 200."""
     student_id = str(uuid.uuid4())

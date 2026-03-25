@@ -89,6 +89,21 @@ async def get_app_version(token: str) -> dict:
         return response.json()
 
 
+async def get_experiment(unit_id: str, token: str) -> dict:
+    """
+    Fetch the experiment for a unit.
+
+    Returns the experiment JSON dict on HTTP 200.
+    Raises httpx.HTTPStatusError with status_code 404 for non-lab units.
+    Callers should catch 404 and hide the experiment button.
+    """
+    url = f"{BACKEND_URL}/api/v1/content/{unit_id}/experiment"
+    async with httpx.AsyncClient(timeout=30) as client:
+        response = await client.get(url, headers=_auth_headers(token))
+        response.raise_for_status()
+        return response.json()
+
+
 async def report_content(
     unit_id: str,
     token: str,
