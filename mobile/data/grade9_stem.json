@@ -1,0 +1,143 @@
+{
+  "grade": 9,
+  "subjects": [
+    {
+      "subject_id": "G9-MATH",
+      "name": "Mathematics",
+      "units": [
+        {
+          "unit_id": "G9-MATH-001",
+          "title": "Algebra: Polynomials",
+          "has_lab": false,
+          "sort_order": 1
+        },
+        {
+          "unit_id": "G9-MATH-002",
+          "title": "Quadratic Functions",
+          "has_lab": false,
+          "sort_order": 2
+        },
+        {
+          "unit_id": "G9-MATH-003",
+          "title": "Linear Systems and Inequalities",
+          "has_lab": false,
+          "sort_order": 3
+        },
+        {
+          "unit_id": "G9-MATH-004",
+          "title": "Coordinate Geometry",
+          "has_lab": false,
+          "sort_order": 4
+        },
+        {
+          "unit_id": "G9-MATH-005",
+          "title": "Introduction to Trigonometry",
+          "has_lab": false,
+          "sort_order": 5
+        }
+      ]
+    },
+    {
+      "subject_id": "G9-SCI",
+      "name": "Science",
+      "units": [
+        {
+          "unit_id": "G9-SCI-001",
+          "title": "Kinematics: Motion in One Dimension",
+          "has_lab": true,
+          "sort_order": 1
+        },
+        {
+          "unit_id": "G9-SCI-002",
+          "title": "Newton's Laws of Motion",
+          "has_lab": true,
+          "sort_order": 2
+        },
+        {
+          "unit_id": "G9-SCI-003",
+          "title": "Chemical Bonding",
+          "has_lab": true,
+          "sort_order": 3
+        },
+        {
+          "unit_id": "G9-SCI-004",
+          "title": "The Mole and Stoichiometry",
+          "has_lab": true,
+          "sort_order": 4
+        },
+        {
+          "unit_id": "G9-SCI-005",
+          "title": "Cell Division and Growth",
+          "has_lab": true,
+          "sort_order": 5
+        }
+      ]
+    },
+    {
+      "subject_id": "G9-TECH",
+      "name": "Technology",
+      "units": [
+        {
+          "unit_id": "G9-TECH-001",
+          "title": "Object-Oriented Programming",
+          "has_lab": false,
+          "sort_order": 1
+        },
+        {
+          "unit_id": "G9-TECH-002",
+          "title": "Algorithms and Complexity",
+          "has_lab": false,
+          "sort_order": 2
+        },
+        {
+          "unit_id": "G9-TECH-003",
+          "title": "Relational Databases and SQL",
+          "has_lab": false,
+          "sort_order": 3
+        },
+        {
+          "unit_id": "G9-TECH-004",
+          "title": "Networking and Protocols",
+          "has_lab": false,
+          "sort_order": 4
+        },
+        {
+          "unit_id": "G9-TECH-005",
+          "title": "Ethical AI and Society",
+          "has_lab": false,
+          "sort_order": 5
+        }
+      ]
+    },
+    {
+      "subject_id": "G9-ENG",
+      "name": "Engineering",
+      "units": [
+        {
+          "unit_id": "G9-ENG-001",
+          "title": "Engineering Graphics and CAD",
+          "has_lab": false,
+          "sort_order": 1
+        },
+        {
+          "unit_id": "G9-ENG-002",
+          "title": "Materials Science",
+          "has_lab": true,
+          "sort_order": 2
+        },
+        {
+          "unit_id": "G9-ENG-003",
+          "title": "Control Systems",
+          "has_lab": true,
+          "sort_order": 3
+        },
+        {
+          "unit_id": "G9-ENG-004",
+          "title": "Renewable Energy Systems",
+          "has_lab": true,
+          "sort_order": 4
+        }
+      ]
+    }
+  ]
+}

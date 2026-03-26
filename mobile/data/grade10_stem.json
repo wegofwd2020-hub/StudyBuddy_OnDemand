@@ -1,0 +1,143 @@
+{
+  "grade": 10,
+  "subjects": [
+    {
+      "subject_id": "G10-MATH",
+      "name": "Mathematics",
+      "units": [
+        {
+          "unit_id": "G10-MATH-001",
+          "title": "Functions: Domain, Range, and Transformations",
+          "has_lab": false,
+          "sort_order": 1
+        },
+        {
+          "unit_id": "G10-MATH-002",
+          "title": "Trigonometric Functions",
+          "has_lab": false,
+          "sort_order": 2
+        },
+        {
+          "unit_id": "G10-MATH-003",
+          "title": "Exponential and Logarithmic Functions",
+          "has_lab": false,
+          "sort_order": 3
+        },
+        {
+          "unit_id": "G10-MATH-004",
+          "title": "Permutations, Combinations, and Probability",
+          "has_lab": false,
+          "sort_order": 4
+        },
+        {
+          "unit_id": "G10-MATH-005",
+          "title": "Geometry: Circles and Proofs",
+          "has_lab": false,
+          "sort_order": 5
+        }
+      ]
+    },
+    {
+      "subject_id": "G10-SCI",
+      "name": "Science",
+      "units": [
+        {
+          "unit_id": "G10-SCI-001",
+          "title": "Energy: Work, Power, and Efficiency",
+          "has_lab": true,
+          "sort_order": 1
+        },
+        {
+          "unit_id": "G10-SCI-002",
+          "title": "Waves and Optics",
+          "has_lab": true,
+          "sort_order": 2
+        },
+        {
+          "unit_id": "G10-SCI-003",
+          "title": "Thermodynamics",
+          "has_lab": true,
+          "sort_order": 3
+        },
+        {
+          "unit_id": "G10-SCI-004",
+          "title": "Organic Chemistry",
+          "has_lab": true,
+          "sort_order": 4
+        },
+        {
+          "unit_id": "G10-SCI-005",
+          "title": "Genetics and Biotechnology",
+          "has_lab": true,
+          "sort_order": 5
+        }
+      ]
+    },
+    {
+      "subject_id": "G10-TECH",
+      "name": "Technology",
+      "units": [
+        {
+          "unit_id": "G10-TECH-001",
+          "title": "Data Science with Python",
+          "has_lab": false,
+          "sort_order": 1
+        },
+        {
+          "unit_id": "G10-TECH-002",
+          "title": "Web Development",
+          "has_lab": false,
+          "sort_order": 2
+        },
+        {
+          "unit_id": "G10-TECH-003",
+          "title": "Computer Architecture",
+          "has_lab": false,
+          "sort_order": 3
+        },
+        {
+          "unit_id": "G10-TECH-004",
+          "title": "Software Development Lifecycle",
+          "has_lab": false,
+          "sort_order": 4
+        },
+        {
+          "unit_id": "G10-TECH-005",
+          "title": "Neural Networks Fundamentals",
+          "has_lab": false,
+          "sort_order": 5
+        }
+      ]
+    },
+    {
+      "subject_id": "G10-ENG",
+      "name": "Engineering",
+      "units": [
+        {
+          "unit_id": "G10-ENG-001",
+          "title": "Statics and Structural Analysis",
+          "has_lab": true,
+          "sort_order": 1
+        },
+        {
+          "unit_id": "G10-ENG-002",
+          "title": "Electrical Engineering Fundamentals",
+          "has_lab": true,
+          "sort_order": 2
+        },
+        {
+          "unit_id": "G10-ENG-003",
+          "title": "Manufacturing Processes",
+          "has_lab": true,
+          "sort_order": 3
+        },
+        {
+          "unit_id": "G10-ENG-004",
+          "title": "Engineering Ethics and Society",
+          "has_lab": false,
+          "sort_order": 4
+        }
+      ]
+    }
+  ]
+}

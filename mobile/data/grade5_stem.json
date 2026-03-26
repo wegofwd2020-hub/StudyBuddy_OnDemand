@@ -1,0 +1,137 @@
+{
+  "grade": 5,
+  "subjects": [
+    {
+      "subject_id": "G5-MATH",
+      "name": "Mathematics",
+      "units": [
+        {
+          "unit_id": "G5-MATH-001",
+          "title": "Place Value and Number Systems",
+          "has_lab": false,
+          "sort_order": 1
+        },
+        {
+          "unit_id": "G5-MATH-002",
+          "title": "Fractions and Decimals",
+          "has_lab": false,
+          "sort_order": 2
+        },
+        {
+          "unit_id": "G5-MATH-003",
+          "title": "Geometry and Measurement",
+          "has_lab": false,
+          "sort_order": 3
+        },
+        {
+          "unit_id": "G5-MATH-004",
+          "title": "Data and Statistics",
+          "has_lab": false,
+          "sort_order": 4
+        },
+        {
+          "unit_id": "G5-MATH-005",
+          "title": "Algebraic Thinking",
+          "has_lab": false,
+          "sort_order": 5
+        }
+      ]
+    },
+    {
+      "subject_id": "G5-SCI",
+      "name": "Science",
+      "units": [
+        {
+          "unit_id": "G5-SCI-001",
+          "title": "Matter and Its Properties",
+          "has_lab": true,
+          "sort_order": 1
+        },
+        {
+          "unit_id": "G5-SCI-002",
+          "title": "Forces and Motion",
+          "has_lab": true,
+          "sort_order": 2
+        },
+        {
+          "unit_id": "G5-SCI-003",
+          "title": "Ecosystems",
+          "has_lab": false,
+          "sort_order": 3
+        },
+        {
+          "unit_id": "G5-SCI-004",
+          "title": "Earth and Space",
+          "has_lab": false,
+          "sort_order": 4
+        },
+        {
+          "unit_id": "G5-SCI-005",
+          "title": "Weather and Climate",
+          "has_lab": true,
+          "sort_order": 5
+        }
+      ]
+    },
+    {
+      "subject_id": "G5-TECH",
+      "name": "Technology",
+      "units": [
+        {
+          "unit_id": "G5-TECH-001",
+          "title": "Introduction to Computing",
+          "has_lab": false,
+          "sort_order": 1
+        },
+        {
+          "unit_id": "G5-TECH-002",
+          "title": "Digital Citizenship",
+          "has_lab": false,
+          "sort_order": 2
+        },
+        {
+          "unit_id": "G5-TECH-003",
+          "title": "Block-Based Programming",
+          "has_lab": false,
+          "sort_order": 3
+        },
+        {
+          "unit_id": "G5-TECH-004",
+          "title": "Data and Information",
+          "has_lab": false,
+          "sort_order": 4
+        }
+      ]
+    },
+    {
+      "subject_id": "G5-ENG",
+      "name": "Engineering",
+      "units": [
+        {
+          "unit_id": "G5-ENG-001",
+          "title": "Design Thinking Process",
+          "has_lab": true,
+          "sort_order": 1
+        },
+        {
+          "unit_id": "G5-ENG-002",
+          "title": "Simple Machines",
+          "has_lab": true,
+          "sort_order": 2
+        },
+        {
+          "unit_id": "G5-ENG-003",
+          "title": "Structures and Materials",
+          "has_lab": true,
+          "sort_order": 3
+        },
+        {
+          "unit_id": "G5-ENG-004",
+          "title": "Environmental Engineering",
+          "has_lab": false,
+          "sort_order": 4
+        }
+      ]
+    }
+  ]
+}

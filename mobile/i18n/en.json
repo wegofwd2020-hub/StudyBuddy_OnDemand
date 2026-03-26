@@ -1,0 +1,102 @@
+{
+  "common": {
+    "loading": "Loading…",
+    "error_generic": "Something went wrong. Please try again.",
+    "retry": "Retry",
+    "back": "Back",
+    "save": "Save",
+    "cancel": "Cancel",
+    "ok": "OK",
+    "sign_out": "Sign out"
+  },
+  "subject_screen": {
+    "listen_btn": "🔊 Listen",
+    "playing_btn": "▶ Playing…",
+    "fetching_audio": "Fetching…",
+    "experiment_btn": "🔬 Experiment",
+    "quiz_btn": "📝 Take Quiz",
+    "audio_unavailable": "Audio unavailable",
+    "lesson_load_failed": "Could not load lesson"
+  },
+  "result_screen": {
+    "passed_heading": "Great job! You passed! 🎉",
+    "try_again_heading": "Keep practising!",
+    "score_label": "Score: {score}/{total} ({pct}%)",
+    "attempt_label": "Attempt #{attempt}",
+    "try_again_btn": "Try Again",
+    "back_to_curriculum_btn": "Back to Curriculum"
+  },
+  "dashboard_screen": {
+    "title": "Dashboard",
+    "greeting": "Hello, {name}!",
+    "streak_label": "{count} day streak 🔥",
+    "no_streak": "Start your streak today!",
+    "units_in_progress": "{count} units in progress",
+    "no_activity": "No recent activity",
+    "continue_btn": "Continue Learning"
+  },
+  "curriculum_map_screen": {
+    "title": "Curriculum Map",
+    "status_completed": "Completed ✓",
+    "status_needs_retry": "Needs retry",
+    "status_in_progress": "In progress",
+    "status_not_started": "Not started",
+    "no_units": "No units available"
+  },
+  "stats_screen": {
+    "title": "My Stats",
+    "lessons_viewed": "Lessons viewed",
+    "quizzes_completed": "Quizzes completed",
+    "pass_rate": "Pass rate",
+    "avg_score": "Average score",
+    "audio_played": "Audio sessions",
+    "period_7d": "Last 7 days",
+    "period_30d": "Last 30 days",
+    "period_all": "All time"
+  },
+  "experiment_screen": {
+    "title": "Experiment",
+    "materials_heading": "Materials",
+    "steps_heading": "Steps",
+    "safety_heading": "Safety Notes",
+    "expected_outcome_heading": "Expected Outcome",
+    "step_label": "Step {n}"
+  },
+  "subscription_screen": {
+    "title": "Upgrade Your Plan",
+    "current_plan_free": "Current plan: Free",
+    "current_plan_active": "Current plan: {plan}",
+    "monthly_label": "Monthly",
+    "annual_label": "Annual",
+    "annual_savings": "Save 20%",
+    "subscribe_btn": "Subscribe",
+    "manage_btn": "Manage Subscription",
+    "cancel_btn": "Cancel Subscription",
+    "paywall_msg": "You've reached the free lesson limit. Upgrade to continue.",
+    "loading_plan": "Loading plan…"
+  },
+  "settings_screen": {
+    "title": "Settings",
+    "language_section": "Language",
+    "current_language": "Current: {locale}",
+    "notifications_section": "Notifications",
+    "streak_reminders": "Streak reminders",
+    "weekly_summary": "Weekly summary",
+    "quiz_nudges": "Quiz nudges",
+    "account_section": "Account"
+  },
+  "auth": {
+    "login_title": "StudyBuddy",
+    "login_btn": "Sign in with your school account",
+    "loading_session": "Loading your session…",
+    "session_expired": "Your session has expired. Please sign in again.",
+    "account_pending": "Account is awaiting parental consent.",
+    "account_suspended": "Your account has been suspended. Contact your school."
+  },
+  "errors": {
+    "network": "No internet connection. Your progress will sync when you're back online.",
+    "paywall": "Upgrade your plan to access this content.",
+    "not_enrolled": "You are not enrolled in a school curriculum for this content.",
+    "content_unavailable": "This content is not available yet."
+  }
+}

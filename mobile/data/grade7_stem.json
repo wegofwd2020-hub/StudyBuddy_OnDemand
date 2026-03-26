@@ -1,0 +1,143 @@
+{
+  "grade": 7,
+  "subjects": [
+    {
+      "subject_id": "G7-MATH",
+      "name": "Mathematics",
+      "units": [
+        {
+          "unit_id": "G7-MATH-001",
+          "title": "Proportional Relationships and Percents",
+          "has_lab": false,
+          "sort_order": 1
+        },
+        {
+          "unit_id": "G7-MATH-002",
+          "title": "Operations with Rational Numbers",
+          "has_lab": false,
+          "sort_order": 2
+        },
+        {
+          "unit_id": "G7-MATH-003",
+          "title": "Expressions, Equations, and Inequalities",
+          "has_lab": false,
+          "sort_order": 3
+        },
+        {
+          "unit_id": "G7-MATH-004",
+          "title": "Geometry: Angles, Triangles, and Scale",
+          "has_lab": false,
+          "sort_order": 4
+        },
+        {
+          "unit_id": "G7-MATH-005",
+          "title": "Probability and Sampling",
+          "has_lab": false,
+          "sort_order": 5
+        }
+      ]
+    },
+    {
+      "subject_id": "G7-SCI",
+      "name": "Science",
+      "units": [
+        {
+          "unit_id": "G7-SCI-001",
+          "title": "Atoms, Elements, and the Periodic Table",
+          "has_lab": true,
+          "sort_order": 1
+        },
+        {
+          "unit_id": "G7-SCI-002",
+          "title": "Chemical Reactions",
+          "has_lab": true,
+          "sort_order": 2
+        },
+        {
+          "unit_id": "G7-SCI-003",
+          "title": "Life Science: Human Body Systems",
+          "has_lab": false,
+          "sort_order": 3
+        },
+        {
+          "unit_id": "G7-SCI-004",
+          "title": "Genetics and Heredity",
+          "has_lab": false,
+          "sort_order": 4
+        },
+        {
+          "unit_id": "G7-SCI-005",
+          "title": "Natural Disasters and Earth's Forces",
+          "has_lab": false,
+          "sort_order": 5
+        }
+      ]
+    },
+    {
+      "subject_id": "G7-TECH",
+      "name": "Technology",
+      "units": [
+        {
+          "unit_id": "G7-TECH-001",
+          "title": "Python: Conditionals and Loops",
+          "has_lab": false,
+          "sort_order": 1
+        },
+        {
+          "unit_id": "G7-TECH-002",
+          "title": "Python: Functions and Modules",
+          "has_lab": false,
+          "sort_order": 2
+        },
+        {
+          "unit_id": "G7-TECH-003",
+          "title": "Cybersecurity Fundamentals",
+          "has_lab": false,
+          "sort_order": 3
+        },
+        {
+          "unit_id": "G7-TECH-004",
+          "title": "Introduction to Databases",
+          "has_lab": false,
+          "sort_order": 4
+        },
+        {
+          "unit_id": "G7-TECH-005",
+          "title": "Artificial Intelligence Concepts",
+          "has_lab": false,
+          "sort_order": 5
+        }
+      ]
+    },
+    {
+      "subject_id": "G7-ENG",
+      "name": "Engineering",
+      "units": [
+        {
+          "unit_id": "G7-ENG-001",
+          "title": "Mechanisms and Gears",
+          "has_lab": true,
+          "sort_order": 1
+        },
+        {
+          "unit_id": "G7-ENG-002",
+          "title": "Energy Systems",
+          "has_lab": true,
+          "sort_order": 2
+        },
+        {
+          "unit_id": "G7-ENG-003",
+          "title": "Fluid Systems",
+          "has_lab": true,
+          "sort_order": 3
+        },
+        {
+          "unit_id": "G7-ENG-004",
+          "title": "Structures Under Stress",
+          "has_lab": true,
+          "sort_order": 4
+        }
+      ]
+    }
+  ]
+}

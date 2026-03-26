@@ -1,0 +1,102 @@
+{
+  "common": {
+    "loading": "Chargement…",
+    "error_generic": "Une erreur s'est produite. Veuillez réessayer.",
+    "retry": "Réessayer",
+    "back": "Retour",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "ok": "OK",
+    "sign_out": "Se déconnecter"
+  },
+  "subject_screen": {
+    "listen_btn": "🔊 Écouter",
+    "playing_btn": "▶ Lecture…",
+    "fetching_audio": "Chargement…",
+    "experiment_btn": "🔬 Expérience",
+    "quiz_btn": "📝 Faire le quiz",
+    "audio_unavailable": "Audio indisponible",
+    "lesson_load_failed": "Impossible de charger la leçon"
+  },
+  "result_screen": {
+    "passed_heading": "Bravo ! Tu as réussi ! 🎉",
+    "try_again_heading": "Continue à pratiquer !",
+    "score_label": "Score : {score}/{total} ({pct}%)",
+    "attempt_label": "Tentative n°{attempt}",
+    "try_again_btn": "Réessayer",
+    "back_to_curriculum_btn": "Retour au programme"
+  },
+  "dashboard_screen": {
+    "title": "Tableau de bord",
+    "greeting": "Bonjour, {name} !",
+    "streak_label": "{count} jours consécutifs 🔥",
+    "no_streak": "Commence ta série aujourd'hui !",
+    "units_in_progress": "{count} unités en cours",
+    "no_activity": "Aucune activité récente",
+    "continue_btn": "Continuer à apprendre"
+  },
+  "curriculum_map_screen": {
+    "title": "Plan du programme",
+    "status_completed": "Terminé ✓",
+    "status_needs_retry": "À revoir",
+    "status_in_progress": "En cours",
+    "status_not_started": "Non commencé",
+    "no_units": "Aucune unité disponible"
+  },
+  "stats_screen": {
+    "title": "Mes statistiques",
+    "lessons_viewed": "Leçons consultées",
+    "quizzes_completed": "Quiz complétés",
+    "pass_rate": "Taux de réussite",
+    "avg_score": "Score moyen",
+    "audio_played": "Sessions audio",
+    "period_7d": "7 derniers jours",
+    "period_30d": "30 derniers jours",
+    "period_all": "Tout le temps"
+  },
+  "experiment_screen": {
+    "title": "Expérience",
+    "materials_heading": "Matériel",
+    "steps_heading": "Étapes",
+    "safety_heading": "Consignes de sécurité",
+    "expected_outcome_heading": "Résultat attendu",
+    "step_label": "Étape {n}"
+  },
+  "subscription_screen": {
+    "title": "Améliorer votre abonnement",
+    "current_plan_free": "Abonnement actuel : Gratuit",
+    "current_plan_active": "Abonnement actuel : {plan}",
+    "monthly_label": "Mensuel",
+    "annual_label": "Annuel",
+    "annual_savings": "Économisez 20 %",
+    "subscribe_btn": "S'abonner",
+    "manage_btn": "Gérer l'abonnement",
+    "cancel_btn": "Annuler l'abonnement",
+    "paywall_msg": "Vous avez atteint la limite de leçons gratuites. Passez à la version supérieure pour continuer.",
+    "loading_plan": "Chargement du plan…"
+  },
+  "settings_screen": {
+    "title": "Paramètres",
+    "language_section": "Langue",
+    "current_language": "Actuelle : {locale}",
+    "notifications_section": "Notifications",
+    "streak_reminders": "Rappels de série",
+    "weekly_summary": "Résumé hebdomadaire",
+    "quiz_nudges": "Rappels de quiz",
+    "account_section": "Compte"
+  },
+  "auth": {
+    "login_title": "StudyBuddy",
+    "login_btn": "Se connecter avec votre compte scolaire",
+    "loading_session": "Chargement de votre session…",
+    "session_expired": "Votre session a expiré. Veuillez vous reconnecter.",
+    "account_pending": "Le compte est en attente du consentement parental.",
+    "account_suspended": "Votre compte a été suspendu. Contactez votre école."
+  },
+  "errors": {
+    "network": "Pas de connexion internet. Votre progression sera synchronisée dès que vous serez de nouveau en ligne.",
+    "paywall": "Améliorez votre abonnement pour accéder à ce contenu.",
+    "not_enrolled": "Vous n'êtes pas inscrit à un programme scolaire pour ce contenu.",
+    "content_unavailable": "Ce contenu n'est pas encore disponible."
+  }
+}

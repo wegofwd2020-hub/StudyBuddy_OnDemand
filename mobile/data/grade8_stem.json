@@ -1,0 +1,149 @@
+{
+  "grade": 8,
+  "subjects": [
+    {
+      "subject_id": "G8-MATH",
+      "name": "Mathematics",
+      "units": [
+        {
+          "unit_id": "G8-MATH-001",
+          "title": "Linear Equations",
+          "has_lab": false,
+          "sort_order": 1
+        },
+        {
+          "unit_id": "G8-MATH-002",
+          "title": "Functions and Linear Relationships",
+          "has_lab": false,
+          "sort_order": 2
+        },
+        {
+          "unit_id": "G8-MATH-003",
+          "title": "Systems of Linear Equations",
+          "has_lab": false,
+          "sort_order": 3
+        },
+        {
+          "unit_id": "G8-MATH-004",
+          "title": "Exponents and Scientific Notation",
+          "has_lab": false,
+          "sort_order": 4
+        },
+        {
+          "unit_id": "G8-MATH-005",
+          "title": "Transformations and Geometry",
+          "has_lab": false,
+          "sort_order": 5
+        },
+        {
+          "unit_id": "G8-MATH-006",
+          "title": "The Pythagorean Theorem",
+          "has_lab": false,
+          "sort_order": 6
+        }
+      ]
+    },
+    {
+      "subject_id": "G8-SCI",
+      "name": "Science",
+      "units": [
+        {
+          "unit_id": "G8-SCI-001",
+          "title": "Density and Buoyancy",
+          "has_lab": true,
+          "sort_order": 1
+        },
+        {
+          "unit_id": "G8-SCI-002",
+          "title": "Waves: Light and Sound",
+          "has_lab": true,
+          "sort_order": 2
+        },
+        {
+          "unit_id": "G8-SCI-003",
+          "title": "Electricity and Magnetism",
+          "has_lab": true,
+          "sort_order": 3
+        },
+        {
+          "unit_id": "G8-SCI-004",
+          "title": "Evolution and Natural Selection",
+          "has_lab": false,
+          "sort_order": 4
+        },
+        {
+          "unit_id": "G8-SCI-005",
+          "title": "Climate Change and Earth Systems",
+          "has_lab": false,
+          "sort_order": 5
+        }
+      ]
+    },
+    {
+      "subject_id": "G8-TECH",
+      "name": "Technology",
+      "units": [
+        {
+          "unit_id": "G8-TECH-001",
+          "title": "Python: Data Structures",
+          "has_lab": false,
+          "sort_order": 1
+        },
+        {
+          "unit_id": "G8-TECH-002",
+          "title": "Python: File I/O and Exceptions",
+          "has_lab": false,
+          "sort_order": 2
+        },
+        {
+          "unit_id": "G8-TECH-003",
+          "title": "Web Technologies",
+          "has_lab": false,
+          "sort_order": 3
+        },
+        {
+          "unit_id": "G8-TECH-004",
+          "title": "Binary and Number Systems",
+          "has_lab": false,
+          "sort_order": 4
+        },
+        {
+          "unit_id": "G8-TECH-005",
+          "title": "Machine Learning Intro",
+          "has_lab": false,
+          "sort_order": 5
+        }
+      ]
+    },
+    {
+      "subject_id": "G8-ENG",
+      "name": "Engineering",
+      "units": [
+        {
+          "unit_id": "G8-ENG-001",
+          "title": "Mechanical Systems",
+          "has_lab": true,
+          "sort_order": 1
+        },
+        {
+          "unit_id": "G8-ENG-002",
+          "title": "Electrical Systems and Sensors",
+          "has_lab": true,
+          "sort_order": 2
+        },
+        {
+          "unit_id": "G8-ENG-003",
+          "title": "CAD and 3D Design",
+          "has_lab": false,
+          "sort_order": 3
+        },
+        {
+          "unit_id": "G8-ENG-004",
+          "title": "Automation and Robotics",
+          "has_lab": true,
+          "sort_order": 4
+        }
+      ]
+    }
+  ]
+}

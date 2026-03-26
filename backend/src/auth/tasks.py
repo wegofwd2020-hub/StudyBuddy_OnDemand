@@ -1015,29 +1015,137 @@ def send_weekly_digest_task() -> None:
     """
     Weekly digest email sent Monday 08:00 UTC.
 
-    Iterates over active digest_subscriptions, builds a summary of the
-    past 7 days (active students, struggling units, new feedback),
-    and sends via SendGrid. Email rendering is a stub — replace with
-    a real HTML template in production.
+    For each active digest_subscription:
+      1. Queries the past 7 days of school activity (active students,
+         struggling units, unreviewed feedback count).
+      2. Renders a plain-text + HTML email body.
+      3. Sends via SendGrid (SENDGRID_API_KEY in config).
+         Falls back to logging only when the key is not configured.
     """
+    from datetime import datetime, timedelta, timezone as _tz
     import asyncpg as _asyncpg
+
+    week_start = (datetime.now(_tz.utc) - timedelta(days=7)).isoformat()
 
     async def _digest():
         pool = await _asyncpg.create_pool(settings.DATABASE_URL, min_size=1, max_size=2)
         try:
             async with pool.acquire() as conn:
                 subs = await conn.fetch(
-                    "SELECT subscription_id::text, school_id::text, email, timezone FROM digest_subscriptions WHERE enabled"
+                    "SELECT subscription_id::text, school_id::text, email, timezone "
+                    "FROM digest_subscriptions WHERE enabled"
                 )
                 log.info("weekly_digest_sending", count=len(subs))
-                # In production: render HTML template per school + send via SendGrid.
-                # Stub: just log.
+
                 for sub in subs:
+                    school_id = uuid.UUID(sub["school_id"])
+
+                    # Active students (at least one lesson view in the past 7 days)
+                    active_row = await conn.fetchrow(
+                        """
+                        SELECT COUNT(DISTINCT lv.student_id) AS active_students
+                        FROM lesson_views lv
+                        INNER JOIN school_enrolments se ON se.student_id = lv.student_id
+                        WHERE se.school_id = $1 AND se.status = 'active'
+                          AND lv.started_at >= $2
+                        """,
+                        school_id, week_start,
+                    )
+                    active_students = active_row["active_students"] if active_row else 0
+
+                    # Struggling units (first-attempt pass rate < 60% this week)
+                    struggling_rows = await conn.fetch(
+                        """
+                        SELECT ps.unit_id,
+                            ROUND(100.0 * COUNT(*) FILTER (
+                                WHERE ps.attempt_number = 1 AND ps.passed AND ps.completed
+                            ) / NULLIF(COUNT(*) FILTER (
+                                WHERE ps.attempt_number = 1 AND ps.completed
+                            ), 0), 1) AS pass_rate
+                        FROM progress_sessions ps
+                        INNER JOIN school_enrolments se ON se.student_id = ps.student_id
+                        WHERE se.school_id = $1 AND se.status = 'active'
+                          AND ps.started_at >= $2
+                        GROUP BY ps.unit_id
+                        HAVING ROUND(100.0 * COUNT(*) FILTER (
+                            WHERE ps.attempt_number = 1 AND ps.passed AND ps.completed
+                        ) / NULLIF(COUNT(*) FILTER (
+                            WHERE ps.attempt_number = 1 AND ps.completed
+                        ), 0), 1) < 60
+                        ORDER BY pass_rate ASC
+                        LIMIT 5
+                        """,
+                        school_id, week_start,
+                    )
+
+                    # Unreviewed feedback count
+                    fb_row = await conn.fetchrow(
+                        """
+                        SELECT COUNT(*) AS cnt FROM feedback f
+                        INNER JOIN school_enrolments se ON se.student_id = f.student_id
+                        WHERE se.school_id = $1 AND se.status = 'active' AND NOT f.reviewed
+                        """,
+                        school_id,
+                    )
+                    unreviewed_feedback = fb_row["cnt"] if fb_row else 0
+
+                    # Build email body
+                    struggling_lines = "\n".join(
+                        f"  - {r['unit_id']}: {r['pass_rate']}% pass rate"
+                        for r in struggling_rows
+                    ) or "  None — great week!"
+
+                    plain_body = (
+                        f"StudyBuddy Weekly Digest\n"
+                        f"{'=' * 40}\n\n"
+                        f"Active students this week: {active_students}\n\n"
+                        f"Struggling units (pass rate < 60%):\n{struggling_lines}\n\n"
+                        f"Unreviewed student feedback: {unreviewed_feedback}\n\n"
+                        f"Log in to your teacher dashboard for full details.\n"
+                    )
+
+                    html_body = (
+                        "<h2>StudyBuddy Weekly Digest</h2>"
+                        f"<p><strong>Active students this week:</strong> {active_students}</p>"
+                        "<p><strong>Struggling units (pass rate &lt; 60%):</strong></p><ul>"
+                        + "".join(
+                            f"<li>{r['unit_id']}: {r['pass_rate']}% pass rate</li>"
+                            for r in struggling_rows
+                        )
+                        + ("</ul>" if struggling_rows else "<li>None — great week!</li></ul>")
+                        + f"<p><strong>Unreviewed student feedback:</strong> {unreviewed_feedback}</p>"
+                        "<p>Log in to your teacher dashboard for full details.</p>"
+                    )
+
                     log.info(
-                        "weekly_digest_queued",
+                        "weekly_digest_prepared",
                         school_id=sub["school_id"],
                         email=sub["email"],
+                        active_students=active_students,
+                        struggling_units=len(struggling_rows),
+                        unreviewed_feedback=unreviewed_feedback,
                     )
+
+                    if settings.SENDGRID_API_KEY:
+                        try:
+                            import httpx as _httpx
+                            _httpx.post(
+                                "https://api.sendgrid.com/v3/mail/send",
+                                headers={"Authorization": f"Bearer {settings.SENDGRID_API_KEY}"},
+                                json={
+                                    "personalizations": [{"to": [{"email": sub["email"]}]}],
+                                    "from": {"email": settings.EMAIL_FROM},
+                                    "subject": "StudyBuddy Weekly Digest",
+                                    "content": [
+                                        {"type": "text/plain", "value": plain_body},
+                                        {"type": "text/html", "value": html_body},
+                                    ],
+                                },
+                                timeout=10,
+                            )
+                            log.info("weekly_digest_sent email=%s", sub["email"])
+                        except Exception as exc:
+                            log.warning("weekly_digest_send_failed email=%s error=%s", sub["email"], exc)
         finally:
             await pool.close()
 

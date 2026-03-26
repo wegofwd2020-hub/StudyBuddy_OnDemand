@@ -1,0 +1,137 @@
+{
+  "grade": 6,
+  "subjects": [
+    {
+      "subject_id": "G6-MATH",
+      "name": "Mathematics",
+      "units": [
+        {
+          "unit_id": "G6-MATH-001",
+          "title": "Ratios and Proportional Relationships",
+          "has_lab": false,
+          "sort_order": 1
+        },
+        {
+          "unit_id": "G6-MATH-002",
+          "title": "Integers and Rational Numbers",
+          "has_lab": false,
+          "sort_order": 2
+        },
+        {
+          "unit_id": "G6-MATH-003",
+          "title": "Expressions and Equations",
+          "has_lab": false,
+          "sort_order": 3
+        },
+        {
+          "unit_id": "G6-MATH-004",
+          "title": "Geometry",
+          "has_lab": false,
+          "sort_order": 4
+        },
+        {
+          "unit_id": "G6-MATH-005",
+          "title": "Statistics and Probability",
+          "has_lab": false,
+          "sort_order": 5
+        }
+      ]
+    },
+    {
+      "subject_id": "G6-SCI",
+      "name": "Science",
+      "units": [
+        {
+          "unit_id": "G6-SCI-001",
+          "title": "Cells: The Building Blocks of Life",
+          "has_lab": true,
+          "sort_order": 1
+        },
+        {
+          "unit_id": "G6-SCI-002",
+          "title": "Energy Forms and Transformations",
+          "has_lab": true,
+          "sort_order": 2
+        },
+        {
+          "unit_id": "G6-SCI-003",
+          "title": "Earth's Layers and Plate Tectonics",
+          "has_lab": false,
+          "sort_order": 3
+        },
+        {
+          "unit_id": "G6-SCI-004",
+          "title": "Rocks, Minerals and the Rock Cycle",
+          "has_lab": true,
+          "sort_order": 4
+        },
+        {
+          "unit_id": "G6-SCI-005",
+          "title": "Interdependence in Ecosystems",
+          "has_lab": false,
+          "sort_order": 5
+        }
+      ]
+    },
+    {
+      "subject_id": "G6-TECH",
+      "name": "Technology",
+      "units": [
+        {
+          "unit_id": "G6-TECH-001",
+          "title": "Introduction to Python",
+          "has_lab": false,
+          "sort_order": 1
+        },
+        {
+          "unit_id": "G6-TECH-002",
+          "title": "Internet and Networks",
+          "has_lab": false,
+          "sort_order": 2
+        },
+        {
+          "unit_id": "G6-TECH-003",
+          "title": "Creating with Media",
+          "has_lab": false,
+          "sort_order": 3
+        },
+        {
+          "unit_id": "G6-TECH-004",
+          "title": "Spreadsheets and Data Analysis",
+          "has_lab": false,
+          "sort_order": 4
+        }
+      ]
+    },
+    {
+      "subject_id": "G6-ENG",
+      "name": "Engineering",
+      "units": [
+        {
+          "unit_id": "G6-ENG-001",
+          "title": "Forces and Structural Design",
+          "has_lab": true,
+          "sort_order": 1
+        },
+        {
+          "unit_id": "G6-ENG-002",
+          "title": "Electronics Basics",
+          "has_lab": true,
+          "sort_order": 2
+        },
+        {
+          "unit_id": "G6-ENG-003",
+          "title": "Robotics Introduction",
+          "has_lab": false,
+          "sort_order": 3
+        },
+        {
+          "unit_id": "G6-ENG-004",
+          "title": "Sustainable Design",
+          "has_lab": false,
+          "sort_order": 4
+        }
+      ]
+    }
+  ]
+}

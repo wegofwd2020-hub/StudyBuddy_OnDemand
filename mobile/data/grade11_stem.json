@@ -1,0 +1,143 @@
+{
+  "grade": 11,
+  "subjects": [
+    {
+      "subject_id": "G11-MATH",
+      "name": "Mathematics",
+      "units": [
+        {
+          "unit_id": "G11-MATH-001",
+          "title": "Limits and Continuity",
+          "has_lab": false,
+          "sort_order": 1
+        },
+        {
+          "unit_id": "G11-MATH-002",
+          "title": "Derivatives: Rules and Applications",
+          "has_lab": false,
+          "sort_order": 2
+        },
+        {
+          "unit_id": "G11-MATH-003",
+          "title": "Integration: Antiderivatives and Area",
+          "has_lab": false,
+          "sort_order": 3
+        },
+        {
+          "unit_id": "G11-MATH-004",
+          "title": "Vectors and Matrices",
+          "has_lab": false,
+          "sort_order": 4
+        },
+        {
+          "unit_id": "G11-MATH-005",
+          "title": "Statistics: Inference and Regression",
+          "has_lab": false,
+          "sort_order": 5
+        }
+      ]
+    },
+    {
+      "subject_id": "G11-SCI",
+      "name": "Science",
+      "units": [
+        {
+          "unit_id": "G11-SCI-001",
+          "title": "Dynamics: Forces in 2D",
+          "has_lab": true,
+          "sort_order": 1
+        },
+        {
+          "unit_id": "G11-SCI-002",
+          "title": "Gravitation and Orbital Mechanics",
+          "has_lab": false,
+          "sort_order": 2
+        },
+        {
+          "unit_id": "G11-SCI-003",
+          "title": "Acids, Bases, and Equilibrium",
+          "has_lab": true,
+          "sort_order": 3
+        },
+        {
+          "unit_id": "G11-SCI-004",
+          "title": "Electrochemistry",
+          "has_lab": true,
+          "sort_order": 4
+        },
+        {
+          "unit_id": "G11-SCI-005",
+          "title": "Evolution, Ecology, and Conservation",
+          "has_lab": false,
+          "sort_order": 5
+        }
+      ]
+    },
+    {
+      "subject_id": "G11-TECH",
+      "name": "Technology",
+      "units": [
+        {
+          "unit_id": "G11-TECH-001",
+          "title": "Advanced Python: Decorators and Generators",
+          "has_lab": false,
+          "sort_order": 1
+        },
+        {
+          "unit_id": "G11-TECH-002",
+          "title": "Computer Vision Basics",
+          "has_lab": false,
+          "sort_order": 2
+        },
+        {
+          "unit_id": "G11-TECH-003",
+          "title": "Cloud Computing",
+          "has_lab": false,
+          "sort_order": 3
+        },
+        {
+          "unit_id": "G11-TECH-004",
+          "title": "Cryptography",
+          "has_lab": false,
+          "sort_order": 4
+        },
+        {
+          "unit_id": "G11-TECH-005",
+          "title": "Natural Language Processing",
+          "has_lab": false,
+          "sort_order": 5
+        }
+      ]
+    },
+    {
+      "subject_id": "G11-ENG",
+      "name": "Engineering",
+      "units": [
+        {
+          "unit_id": "G11-ENG-001",
+          "title": "Fluid Mechanics",
+          "has_lab": true,
+          "sort_order": 1
+        },
+        {
+          "unit_id": "G11-ENG-002",
+          "title": "Signal Processing",
+          "has_lab": false,
+          "sort_order": 2
+        },
+        {
+          "unit_id": "G11-ENG-003",
+          "title": "Embedded Systems",
+          "has_lab": true,
+          "sort_order": 3
+        },
+        {
+          "unit_id": "G11-ENG-004",
+          "title": "Systems Engineering",
+          "has_lab": false,
+          "sort_order": 4
+        }
+      ]
+    }
+  ]
+}
