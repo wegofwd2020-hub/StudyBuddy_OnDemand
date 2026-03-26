@@ -49,6 +49,7 @@ from src.auth.service import (
 )
 from src.core.db import get_db
 from src.core.events import emit_event, write_audit_log
+from src.school.enrolment_service import link_student
 from src.core.observability import auth_exchanges_total, auth_failures_total
 from src.core.redis_client import get_redis
 from src.utils.logger import get_logger
@@ -99,6 +100,15 @@ async def exchange_token(body: TokenExchangeRequest, request: Request):
             request.app.state.pool, auth0_sub, name, email, grade, locale,
             requires_parental_consent=requires_parental_consent,
         )
+        # Phase 9: link to pending enrolment if one exists for this email.
+        await link_student(conn, str(student["student_id"]), email)
+        # Re-fetch student to capture any school_id set by link_student.
+        refreshed = await conn.fetchrow(
+            "SELECT school_id FROM students WHERE student_id = $1",
+            student["student_id"],
+        )
+        if refreshed and refreshed["school_id"] is not None:
+            student = {**student, "school_id": refreshed["school_id"]}
 
     account_status: str = student["account_status"]
 

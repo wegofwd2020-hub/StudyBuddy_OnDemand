@@ -32,6 +32,7 @@ from src.core.cache import curriculum_cache
 from src.core.db import get_db
 from src.core.redis_client import get_redis
 from src.curriculum.schemas import (
+    CurriculumActivateResponse,
     CurriculumUploadRequest,
     CurriculumUploadResponse,
     GradeCurriculum,
@@ -260,6 +261,92 @@ async def pipeline_job_status(
             detail={"error": "not_found", "detail": "Job not found.", "correlation_id": _cid(request)},
         )
     return PipelineJobStatusResponse(**data)
+
+
+# ── Curriculum activation ─────────────────────────────────────────────────────
+
+@router.put(
+    "/curriculum/{curriculum_id}/activate",
+    response_model=CurriculumActivateResponse,
+)
+async def activate_curriculum(
+    curriculum_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> CurriculumActivateResponse:
+    """
+    Activate a curriculum for its school/grade/year.
+
+    - Sets status='active', activated_at=NOW().
+    - Archives any other active curriculum for the same (school_id, grade, year).
+    - Invalidates cur:{student_id} Redis cache for all enrolled students.
+    """
+    from src.curriculum.resolver import invalidate_resolver_cache_for_school
+
+    redis = get_redis(request)
+    async with get_db(request) as conn:
+        row = await conn.fetchrow(
+            "SELECT curriculum_id, school_id::text, grade, year, status FROM curricula WHERE curriculum_id = $1",
+            curriculum_id,
+        )
+        if not row:
+            raise HTTPException(
+                status_code=404,
+                detail={"error": "not_found", "detail": "Curriculum not found.", "correlation_id": _cid(request)},
+            )
+
+        school_id = row["school_id"]
+
+        # Only school curricula can be activated by a teacher (not default ones).
+        if school_id is None:
+            raise HTTPException(
+                status_code=403,
+                detail={"error": "forbidden", "detail": "Default curricula cannot be activated via this endpoint.", "correlation_id": _cid(request)},
+            )
+
+        if school_id != teacher.get("school_id"):
+            raise HTTPException(
+                status_code=403,
+                detail={"error": "forbidden", "detail": "Cannot activate curriculum for a different school.", "correlation_id": _cid(request)},
+            )
+
+        import uuid as _uuid
+        school_uuid = _uuid.UUID(school_id)
+
+        # Archive any other active curriculum for (school_id, grade, year).
+        archive_status = await conn.execute(
+            """
+            UPDATE curricula
+            SET status = 'archived'
+            WHERE school_id = $1 AND grade = $2 AND year = $3
+              AND status = 'active' AND curriculum_id != $4
+            """,
+            school_uuid,
+            row["grade"],
+            row["year"],
+            curriculum_id,
+        )
+        # asyncpg returns "UPDATE N" string; parse the count.
+        try:
+            archived_count = int(archive_status.split()[-1])
+        except (ValueError, IndexError):
+            archived_count = 0
+
+        # Activate the target curriculum.
+        await conn.execute(
+            "UPDATE curricula SET status = 'active', activated_at = NOW() WHERE curriculum_id = $1",
+            curriculum_id,
+        )
+
+    # Invalidate resolver cache for all enrolled students.
+    await invalidate_resolver_cache_for_school(redis, request.app.state.pool, school_id)
+
+    log.info("curriculum_activated", curriculum_id=curriculum_id, school_id=school_id)
+    return CurriculumActivateResponse(
+        curriculum_id=curriculum_id,
+        status="active",
+        archived_count=archived_count,
+    )
 
 
 # ── Grade tree /{grade} — kept last to avoid shadowing /template and /pipeline ─

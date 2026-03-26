@@ -87,3 +87,11 @@ class PipelineJobStatusResponse(BaseModel):
     failed: int
     total: int
     progress_pct: float
+
+
+# ── Phase 9: curriculum activation ────────────────────────────────────────────
+
+class CurriculumActivateResponse(BaseModel):
+    curriculum_id: str
+    status: str
+    archived_count: int

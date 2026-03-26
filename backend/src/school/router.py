@@ -1,13 +1,15 @@
 """
 backend/src/school/router.py
 
-Phase 8 school endpoints.
+Phase 8–9 school endpoints.
 
 Routes (all prefixed /api/v1 in main.py):
 
-  POST /schools/register                     — create school + school_admin (public)
-  GET  /schools/{school_id}                  — school profile (teacher-scoped)
-  POST /schools/{school_id}/teachers/invite  — invite a teacher (school_admin only)
+  POST /schools/register                        — create school + school_admin (public)
+  GET  /schools/{school_id}                     — school profile (teacher-scoped)
+  POST /schools/{school_id}/teachers/invite     — invite a teacher (school_admin only)
+  POST /schools/{school_id}/enrolment           — upload student email roster (school_admin only)
+  GET  /schools/{school_id}/enrolment           — get enrolment roster (school_admin only)
 """
 
 from __future__ import annotations
@@ -18,7 +20,12 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 
 from src.auth.dependencies import get_current_teacher
 from src.core.db import get_db
+from src.school.enrolment_service import get_roster, upload_roster
 from src.school.schemas import (
+    EnrolmentRosterItem,
+    EnrolmentRosterResponse,
+    EnrolmentUploadRequest,
+    EnrolmentUploadResponse,
     SchoolProfileResponse,
     SchoolRegisterRequest,
     SchoolRegisterResponse,
@@ -133,3 +140,59 @@ async def invite_teacher_endpoint(
                 )
             raise
     return TeacherInviteResponse(**result)
+
+
+# ── Enrolment roster upload ───────────────────────────────────────────────────
+
+@router.post(
+    "/schools/{school_id}/enrolment",
+    response_model=EnrolmentUploadResponse,
+    status_code=201,
+)
+async def upload_enrolment_roster(
+    school_id: str,
+    body: EnrolmentUploadRequest,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> EnrolmentUploadResponse:
+    """Upload a student email roster for the school (school_admin only)."""
+    if teacher.get("role") != "school_admin":
+        raise HTTPException(
+            status_code=403,
+            detail={"error": "forbidden", "detail": "Only school_admin can upload rosters.", "correlation_id": _cid(request)},
+        )
+    if teacher["school_id"] != school_id:
+        raise HTTPException(
+            status_code=403,
+            detail={"error": "forbidden", "detail": "Cannot manage enrolment for a different school.", "correlation_id": _cid(request)},
+        )
+    async with get_db(request) as conn:
+        result = await upload_roster(conn, school_id, [str(e) for e in body.student_emails])
+    return EnrolmentUploadResponse(**result)
+
+
+# ── Enrolment roster read ─────────────────────────────────────────────────────
+
+@router.get(
+    "/schools/{school_id}/enrolment",
+    response_model=EnrolmentRosterResponse,
+)
+async def get_enrolment_roster(
+    school_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> EnrolmentRosterResponse:
+    """Fetch the student enrolment roster for a school (school_admin only)."""
+    if teacher.get("role") != "school_admin":
+        raise HTTPException(
+            status_code=403,
+            detail={"error": "forbidden", "detail": "Only school_admin can view rosters.", "correlation_id": _cid(request)},
+        )
+    if teacher["school_id"] != school_id:
+        raise HTTPException(
+            status_code=403,
+            detail={"error": "forbidden", "detail": "Cannot view enrolment for a different school.", "correlation_id": _cid(request)},
+        )
+    async with get_db(request) as conn:
+        rows = await get_roster(conn, school_id)
+    return EnrolmentRosterResponse(roster=[EnrolmentRosterItem(**r) for r in rows])
