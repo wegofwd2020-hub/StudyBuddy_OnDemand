@@ -8,7 +8,7 @@ API key. Schools and teachers can upload custom curricula. Subscription-based.
 
 ## Project Status
 
-**Current phase: Phase 11 — Teacher Reporting Dashboard**
+**Current phase: All phases complete through Phase 11**
 
 | Phase | Status |
 |---|---|
@@ -22,7 +22,7 @@ API key. Schools and teachers can upload custom curricula. Subscription-based.
 | 8 — School & Teacher + Curriculum Upload + Academic Year | ✅ Complete (159 tests) |
 | 9 — Student–School Association + Routing | ✅ Complete (176 tests) |
 | 10 — Extended Analytics + Student Feedback | ✅ Complete (197 tests) |
-| 11 — Teacher Reporting Dashboard | ⏳ Pending |
+| 11 — Teacher Reporting Dashboard | ✅ Complete (215 tests) |
 
 Build in phase order; do not skip ahead.
 

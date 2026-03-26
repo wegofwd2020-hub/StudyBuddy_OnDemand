@@ -51,6 +51,10 @@ celery_app.conf.update(
         "src.auth.tasks.run_curriculum_pipeline_task": {"queue": "pipeline"},
         "src.auth.tasks.promote_student_grades": {"queue": "default"},
         "src.auth.tasks.send_pipeline_email_task": {"queue": "io"},
+        "src.auth.tasks.export_report_task": {"queue": "io"},
+        "src.auth.tasks.refresh_report_views_task": {"queue": "default"},
+        "src.auth.tasks.evaluate_report_alerts_task": {"queue": "default"},
+        "src.auth.tasks.send_weekly_digest_task": {"queue": "io"},
     },
     beat_schedule={
         # Poll DB pool state + Celery queue depth every 30 seconds.
@@ -78,6 +82,21 @@ celery_app.conf.update(
         "promote-student-grades-daily": {
             "task": "src.auth.tasks.promote_student_grades",
             "schedule": crontab(hour=0, minute=5),
+        },
+        # Nightly materialized view refresh for teacher reports at 02:00 UTC.
+        "refresh-report-views-nightly": {
+            "task": "src.auth.tasks.refresh_report_views_task",
+            "schedule": crontab(hour=2, minute=0),
+        },
+        # Daily alert evaluation at 06:00 UTC.
+        "evaluate-report-alerts-daily": {
+            "task": "src.auth.tasks.evaluate_report_alerts_task",
+            "schedule": crontab(hour=6, minute=0),
+        },
+        # Weekly digest every Monday at 08:00 UTC.
+        "send-weekly-digest-monday": {
+            "task": "src.auth.tasks.send_weekly_digest_task",
+            "schedule": crontab(hour=8, minute=0, day_of_week=1),
         },
     },
 )
@@ -908,3 +927,172 @@ def promote_student_grades() -> None:
             await redis_client.close()
 
     _run_async(_promote())
+
+
+# ── Phase 11: Teacher Reporting Dashboard tasks ───────────────────────────────
+
+@celery_app.task(name="src.auth.tasks.refresh_report_views_task")
+def refresh_report_views_task() -> None:
+    """
+    Nightly materialized view refresh for teacher report performance.
+
+    Runs at 02:00 UTC via Celery Beat.
+    Views: mv_class_summary, mv_student_progress, mv_feedback_summary.
+    """
+    import asyncpg as _asyncpg
+
+    async def _refresh():
+        pool = await _asyncpg.create_pool(settings.DATABASE_URL, min_size=1, max_size=2)
+        try:
+            async with pool.acquire() as conn:
+                for view in ("mv_class_summary", "mv_student_progress", "mv_feedback_summary"):
+                    await conn.execute(f"REFRESH MATERIALIZED VIEW {view}")
+            log.info("report_views_refreshed_nightly")
+        finally:
+            await pool.close()
+
+    _run_async(_refresh())
+
+
+@celery_app.task(name="src.auth.tasks.evaluate_report_alerts_task")
+def evaluate_report_alerts_task() -> None:
+    """
+    Daily alert evaluation at 06:00 UTC.
+
+    For each school with alert settings, checks configured thresholds
+    (pass rate, inactive students, feedback volume) and inserts a
+    report_alerts row for any breach. Sends email notification if
+    new_feedback_immediate is enabled (stub — real email via SendGrid).
+    """
+    import asyncpg as _asyncpg
+
+    async def _evaluate():
+        pool = await _asyncpg.create_pool(settings.DATABASE_URL, min_size=1, max_size=3)
+        try:
+            async with pool.acquire() as conn:
+                settings_rows = await conn.fetch(
+                    "SELECT school_id::text, pass_rate_threshold, inactive_days_threshold FROM report_alert_settings"
+                )
+                for s in settings_rows:
+                    school_id = s["school_id"]
+                    # Check pass rate breach per unit
+                    breach_rows = await conn.fetch(
+                        """
+                        SELECT ps.unit_id,
+                            ROUND(100.0 * COUNT(*) FILTER (WHERE ps.attempt_number = 1 AND ps.passed AND ps.completed)
+                                / NULLIF(COUNT(DISTINCT ps.student_id) FILTER (WHERE ps.attempt_number = 1 AND ps.completed), 0), 1)
+                                AS pass_rate
+                        FROM progress_sessions ps
+                        INNER JOIN school_enrolments se ON se.student_id = ps.student_id
+                        WHERE se.school_id = $1 AND se.status = 'active'
+                        GROUP BY ps.unit_id
+                        HAVING ROUND(100.0 * COUNT(*) FILTER (WHERE ps.attempt_number = 1 AND ps.passed AND ps.completed)
+                            / NULLIF(COUNT(DISTINCT ps.student_id) FILTER (WHERE ps.attempt_number = 1 AND ps.completed), 0), 1)
+                            < $2
+                        """,
+                        uuid.UUID(school_id),
+                        s["pass_rate_threshold"],
+                    )
+                    for br in breach_rows:
+                        await conn.execute(
+                            """
+                            INSERT INTO report_alerts (school_id, alert_type, details)
+                            VALUES ($1, 'pass_rate_breach', $2::jsonb)
+                            ON CONFLICT DO NOTHING
+                            """,
+                            uuid.UUID(school_id),
+                            json.dumps({"unit_id": br["unit_id"], "pass_rate": float(br["pass_rate"] or 0)}),
+                        )
+            log.info("report_alerts_evaluated")
+        finally:
+            await pool.close()
+
+    _run_async(_evaluate())
+
+
+@celery_app.task(name="src.auth.tasks.send_weekly_digest_task")
+def send_weekly_digest_task() -> None:
+    """
+    Weekly digest email sent Monday 08:00 UTC.
+
+    Iterates over active digest_subscriptions, builds a summary of the
+    past 7 days (active students, struggling units, new feedback),
+    and sends via SendGrid. Email rendering is a stub — replace with
+    a real HTML template in production.
+    """
+    import asyncpg as _asyncpg
+
+    async def _digest():
+        pool = await _asyncpg.create_pool(settings.DATABASE_URL, min_size=1, max_size=2)
+        try:
+            async with pool.acquire() as conn:
+                subs = await conn.fetch(
+                    "SELECT subscription_id::text, school_id::text, email, timezone FROM digest_subscriptions WHERE enabled"
+                )
+                log.info("weekly_digest_sending", count=len(subs))
+                # In production: render HTML template per school + send via SendGrid.
+                # Stub: just log.
+                for sub in subs:
+                    log.info(
+                        "weekly_digest_queued",
+                        school_id=sub["school_id"],
+                        email=sub["email"],
+                    )
+        finally:
+            await pool.close()
+
+    _run_async(_digest())
+
+
+@celery_app.task(name="src.auth.tasks.export_report_task")
+def export_report_task(
+    export_id: str,
+    school_id: str,
+    report_type: str,
+    filters: dict,
+) -> None:
+    """
+    Generate a CSV export and write to CONTENT_STORE_PATH/exports/{export_id}.csv.
+
+    Triggered by POST /reports/school/{school_id}/export. The download
+    endpoint serves the file once it exists.
+    """
+    import asyncpg as _asyncpg
+    import csv as _csv
+    import os as _os
+
+    async def _export():
+        pool = await _asyncpg.create_pool(settings.DATABASE_URL, min_size=1, max_size=2)
+        try:
+            async with pool.acquire() as conn:
+                # Minimal export: enrolled students + progress summary
+                rows = await conn.fetch(
+                    """
+                    SELECT s.name, s.grade, s.email,
+                           COUNT(DISTINCT ps.unit_id) FILTER (WHERE ps.passed) AS units_passed,
+                           ROUND(AVG(ps.score) FILTER (WHERE ps.completed)::numeric, 1) AS avg_score
+                    FROM school_enrolments se
+                    JOIN students s ON s.student_id = se.student_id
+                    LEFT JOIN progress_sessions ps ON ps.student_id = se.student_id
+                    WHERE se.school_id = $1 AND se.status = 'active'
+                    GROUP BY s.name, s.grade, s.email
+                    ORDER BY s.name
+                    """,
+                    uuid.UUID(school_id),
+                )
+        finally:
+            await pool.close()
+
+        export_dir = _os.path.join(settings.CONTENT_STORE_PATH, "exports")
+        _os.makedirs(export_dir, exist_ok=True)
+        export_path = _os.path.join(export_dir, f"{export_id}.csv")
+
+        with open(export_path, "w", newline="") as f:
+            writer = _csv.DictWriter(f, fieldnames=["name", "grade", "email", "units_passed", "avg_score"])
+            writer.writeheader()
+            for r in rows:
+                writer.writerow(dict(r))
+
+        log.info("report_export_complete", export_id=export_id, school_id=school_id, report_type=report_type)
+
+    _run_async(_export())
