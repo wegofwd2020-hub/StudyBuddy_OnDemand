@@ -424,6 +424,56 @@ async def test_feedback_marked_returns_entries(client, db_conn):
     assert data["items"][0]["category"] == "incorrect"
 
 
+# ── Feedback report (units exceeding threshold) ───────────────────────────────
+
+@pytest.mark.asyncio
+async def test_feedback_report_returns_empty_below_threshold(client, db_conn):
+    """GET feedback/report returns empty list when no unit reaches the threshold."""
+    r = await client.get(
+        "/api/v1/admin/content/feedback/report",
+        params={"threshold": 10},
+        headers=_admin_headers(),
+    )
+    assert r.status_code == 200, r.text
+    data = r.json()
+    assert "items" in data
+    assert "threshold" in data
+    assert data["threshold"] == 10
+
+
+@pytest.mark.asyncio
+async def test_feedback_report_surfaces_units_at_threshold(client, db_conn):
+    """Units with feedback_count >= threshold appear in the report."""
+    student_id = await _insert_student(client)
+    unit_id = f"G8-RPT-{uuid.uuid4().hex[:6]}"
+    pool = client._transport.app.state.pool
+    # Insert 3 feedback rows for the same unit
+    for category in ("incorrect", "confusing", "incorrect"):
+        await pool.execute(
+            """
+            INSERT INTO student_content_feedback
+                (student_id, unit_id, curriculum_id, content_type, category)
+            VALUES ($1, $2, 'default-2026-g8', 'lesson', $3)
+            """,
+            uuid.UUID(student_id), unit_id, category,
+        )
+
+    r = await client.get(
+        "/api/v1/admin/content/feedback/report",
+        params={"threshold": 3},
+        headers=_admin_headers(),
+    )
+    assert r.status_code == 200, r.text
+    data = r.json()
+    matching = [item for item in data["items"] if item["unit_id"] == unit_id]
+    assert len(matching) == 1
+    item = matching[0]
+    assert item["report_count"] == 3
+    assert item["incorrect_count"] == 2
+    assert item["confusing_count"] == 1
+    assert item["other_count"] == 0
+
+
 # ── Subscription analytics ────────────────────────────────────────────────────
 
 @pytest.mark.asyncio

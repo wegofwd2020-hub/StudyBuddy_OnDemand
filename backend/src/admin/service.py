@@ -97,6 +97,9 @@ async def open_review(
         "UPDATE content_subject_versions SET status = 'in_review' WHERE version_id = $1 AND status = 'ready_for_review'",
         uuid.UUID(version_id),
     )
+    from src.core.events import write_audit_log
+    write_audit_log("review_opened", "admin", reviewer_id,
+                    metadata={"version_id": version_id})
     return dict(row)
 
 
@@ -123,6 +126,9 @@ async def add_annotation(
         uuid.UUID(version_id), unit_id, content_type, marked_text,
         annotation_text, start_offset, end_offset, uuid.UUID(reviewer_id),
     )
+    from src.core.events import write_audit_log
+    write_audit_log("review_annotated", "admin", reviewer_id,
+                    metadata={"version_id": version_id, "unit_id": unit_id})
     return dict(row)
 
 
@@ -156,6 +162,11 @@ async def rate_version(
         uuid.UUID(version_id), uuid.UUID(reviewer_id), notes,
         language_rating, content_rating,
     )
+    from src.core.events import write_audit_log
+    write_audit_log("review_rated", "admin", reviewer_id,
+                    metadata={"version_id": version_id,
+                              "language_rating": language_rating,
+                              "content_rating": content_rating})
     return dict(row)
 
 
@@ -181,6 +192,9 @@ async def approve_version(
         """,
         uuid.UUID(version_id),
     )
+    from src.core.events import write_audit_log
+    write_audit_log("review_approved", "admin", reviewer_id,
+                    metadata={"version_id": version_id})
     return dict(row) if row else {"version_id": version_id, "status": "approved"}
 
 
@@ -209,6 +223,10 @@ async def reject_version(
     )
     result = dict(row) if row else {"version_id": version_id, "status": "rejected"}
     result["regenerating"] = False
+
+    from src.core.events import write_audit_log
+    write_audit_log("review_rejected", "admin", reviewer_id,
+                    metadata={"version_id": version_id, "regenerate": regenerate})
 
     if regenerate and row:
         try:
@@ -274,7 +292,7 @@ async def publish_version(
 
     # Audit log
     from src.core.events import write_audit_log
-    write_audit_log("content_published", "admin", admin_id, extra={"version_id": version_id})
+    write_audit_log("content_published", "admin", admin_id, metadata={"version_id": version_id})
 
     # Expire Redis content cache keys for this curriculum/subject
     await _expire_content_cache(redis, curriculum_id, subject)
@@ -330,7 +348,7 @@ async def rollback_version(
     )
 
     from src.core.events import write_audit_log
-    write_audit_log("content_rollback", "admin", admin_id, extra={"version_id": version_id})
+    write_audit_log("content_rollback", "admin", admin_id, metadata={"version_id": version_id})
 
     await _expire_content_cache(redis, curriculum_id, subject)
     _invalidate_cdn(curriculum_id)
@@ -386,7 +404,7 @@ async def create_block(
     )
     from src.core.events import write_audit_log
     write_audit_log("content_blocked", "admin", admin_id,
-                    extra={"unit_id": unit_id, "content_type": content_type})
+                    metadata={"unit_id": unit_id, "content_type": content_type})
     return dict(row)
 
 
@@ -401,7 +419,7 @@ async def remove_block(
     )
     if result != "UPDATE 0":
         from src.core.events import write_audit_log
-        write_audit_log("content_unblocked", "admin", admin_id, extra={"block_id": block_id})
+        write_audit_log("content_unblocked", "admin", admin_id, metadata={"block_id": block_id})
         return True
     return False
 
@@ -430,6 +448,40 @@ async def list_feedback(
         unit_id,
     )
     return {"items": [dict(r) for r in rows], "total": total or 0}
+
+
+async def get_feedback_report(
+    conn: asyncpg.Connection,
+    threshold: int = 3,
+    limit: int = 50,
+) -> dict:
+    """
+    Units where student feedback count >= threshold, ordered by report_count desc.
+
+    Surfaces content that students are flagging most so admins can prioritise review.
+    """
+    rows = await conn.fetch(
+        """
+        SELECT
+            unit_id,
+            curriculum_id,
+            COUNT(*)                                                        AS report_count,
+            COUNT(*) FILTER (WHERE category = 'incorrect')                 AS incorrect_count,
+            COUNT(*) FILTER (WHERE category = 'confusing')                 AS confusing_count,
+            COUNT(*) FILTER (WHERE category = 'inappropriate')             AS inappropriate_count,
+            COUNT(*) FILTER (WHERE category NOT IN ('incorrect','confusing','inappropriate')) AS other_count
+        FROM student_content_feedback
+        GROUP BY unit_id, curriculum_id
+        HAVING COUNT(*) >= $1
+        ORDER BY report_count DESC
+        LIMIT $2
+        """,
+        threshold, limit,
+    )
+    return {
+        "items": [dict(r) for r in rows],
+        "threshold": threshold,
+    }
 
 
 # ── Subscription analytics ────────────────────────────────────────────────────

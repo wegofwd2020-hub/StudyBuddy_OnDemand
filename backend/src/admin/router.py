@@ -23,6 +23,7 @@ Routes (all prefixed /api/v1 in main.py):
   POST   /admin/content/block
   DELETE /admin/content/block/{block_id}
   GET    /admin/content/{unit_id}/feedback/marked
+  GET    /admin/content/feedback/report
   GET    /admin/analytics/subscription
   GET    /admin/analytics/struggle
   GET    /admin/content/dictionary
@@ -47,6 +48,7 @@ from src.admin.schemas import (
     BlockResponse,
     DictionaryResponse,
     FeedbackListResponse,
+    FeedbackReportResponse,
     OpenReviewRequest,
     OpenReviewResponse,
     PipelineStatusResponse,
@@ -66,6 +68,7 @@ from src.admin.service import (
     approve_version,
     create_block,
     delete_annotation,
+    get_feedback_report,
     get_pipeline_status,
     get_struggle_report,
     get_subscription_analytics,
@@ -435,6 +438,22 @@ async def feedback_marked(
     async with get_db(request) as conn:
         data = await list_feedback(conn, unit_id, limit, offset)
     return FeedbackListResponse(**data)
+
+
+@router.get(
+    "/admin/content/feedback/report",
+    response_model=FeedbackReportResponse,
+)
+async def feedback_report(
+    request: Request,
+    admin: Annotated[dict, Depends(_require("review:read"))],
+    threshold: int = Query(3, ge=1, le=100),
+    limit: int = Query(50, ge=1, le=200),
+) -> FeedbackReportResponse:
+    """Units with student feedback count >= threshold, ordered by report count desc."""
+    async with get_db(request) as conn:
+        data = await get_feedback_report(conn, threshold, limit)
+    return FeedbackReportResponse(**data)
 
 
 # ── Analytics ─────────────────────────────────────────────────────────────────

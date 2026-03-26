@@ -148,6 +148,21 @@ class FeedbackListResponse(BaseModel):
     total: int
 
 
+class FeedbackReportItem(BaseModel):
+    unit_id: str
+    curriculum_id: str
+    report_count: int
+    incorrect_count: int
+    confusing_count: int
+    inappropriate_count: int
+    other_count: int
+
+
+class FeedbackReportResponse(BaseModel):
+    items: List[FeedbackReportItem]
+    threshold: int
+
+
 # ── Subscription analytics ────────────────────────────────────────────────────
 
 class SubscriptionAnalyticsResponse(BaseModel):
