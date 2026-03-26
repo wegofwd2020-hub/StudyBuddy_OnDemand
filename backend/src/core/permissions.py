@@ -53,6 +53,7 @@ ROLE_PERMISSIONS: dict[str, Set[str]] = {
         "review:approve",
         "student:manage",
         "school:manage",
+        "feedback:view",
     },
     "super_admin": {"*"},  # wildcard — all permissions granted
     "developer": {

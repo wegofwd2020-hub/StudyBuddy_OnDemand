@@ -4,8 +4,10 @@ backend/src/analytics/router.py
 Lesson analytics endpoints.
 
 Routes (all prefixed /api/v1 in main.py):
-  POST /analytics/lesson/start  → LessonStartResponse  (201)
-  POST /analytics/lesson/end    → LessonEndResponse    (200) — fire-and-forget write
+  POST /analytics/lesson/start              → LessonStartResponse  (201)
+  POST /analytics/lesson/end                → LessonEndResponse    (200) — fire-and-forget write
+  GET  /analytics/student/me                → StudentMetricsResponse
+  GET  /analytics/school/{school_id}/class  → ClassMetricsResponse
 
 Performance:
   POST /analytics/lesson/end — dispatches Celery task, returns 200 immediately.
@@ -23,16 +25,20 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 
-from src.auth.dependencies import get_current_student
+from src.auth.dependencies import get_current_student, get_current_teacher
 from src.core.db import get_db
 from src.analytics.schemas import (
+    ClassMetricsResponse,
     LessonEndRequest,
     LessonEndResponse,
     LessonStartRequest,
     LessonStartResponse,
+    StudentMetricsResponse,
 )
 from src.analytics.service import (
     end_lesson_view,
+    get_class_metrics,
+    get_student_metrics,
     start_lesson_view,
     verify_view_owner,
 )
@@ -134,3 +140,43 @@ async def lesson_end(
     )
 
     return LessonEndResponse(view_id=body.view_id, duration_s=body.duration_s)
+
+
+# ── GET /analytics/student/me ─────────────────────────────────────────────────
+
+@router.get("/analytics/student/me", response_model=StudentMetricsResponse)
+async def student_metrics(
+    request: Request,
+    student: Annotated[dict, Depends(get_current_student)],
+) -> StudentMetricsResponse:
+    """Return self-service analytics for the authenticated student."""
+    student_id = str(student["student_id"])
+    async with get_db(request) as conn:
+        result = await get_student_metrics(conn, student_id)
+    return StudentMetricsResponse(**result)
+
+
+# ── GET /analytics/school/{school_id}/class ───────────────────────────────────
+
+@router.get("/analytics/school/{school_id}/class", response_model=ClassMetricsResponse)
+async def class_metrics(
+    school_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+    grade: int | None = None,
+    subject: str | None = None,
+) -> ClassMetricsResponse:
+    """
+    Return aggregate per-unit analytics for all enrolled students in a school.
+
+    Requires teacher JWT. Teachers can only view their own school's data.
+    """
+    cid = getattr(request.state, "correlation_id", "")
+    if teacher.get("school_id") != school_id:
+        raise HTTPException(
+            status_code=403,
+            detail={"error": "forbidden", "detail": "Cannot view analytics for a different school.", "correlation_id": cid},
+        )
+    async with get_db(request) as conn:
+        result = await get_class_metrics(conn, school_id, grade=grade, subject=subject)
+    return ClassMetricsResponse(**result)

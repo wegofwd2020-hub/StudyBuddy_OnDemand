@@ -23,6 +23,7 @@ Routers registered at /api/v1 prefix:
   - notifications
   - analytics
   - school
+  - feedback
 
 Health and metrics mounted at root (no /api/v1 prefix):
   - GET /health
@@ -204,6 +205,7 @@ from src.analytics.router import router as analytics_router
 from src.subscription.router import router as subscription_router
 from src.admin.router import router as admin_router
 from src.school.router import router as school_router
+from src.feedback.router import router as feedback_router
 
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(admin_auth_router, prefix="/api/v1")
@@ -217,5 +219,6 @@ app.include_router(analytics_router, prefix="/api/v1")
 app.include_router(subscription_router, prefix="/api/v1")
 app.include_router(admin_router, prefix="/api/v1")
 app.include_router(school_router, prefix="/api/v1")
+app.include_router(feedback_router, prefix="/api/v1")
 
 log.info("routers_registered")
