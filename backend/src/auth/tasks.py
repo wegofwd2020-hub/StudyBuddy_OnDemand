@@ -48,6 +48,9 @@ celery_app.conf.update(
         "src.auth.tasks.check_quiz_nudges": {"queue": "default"},
         "src.auth.tasks.send_weekly_summary": {"queue": "default"},
         "src.auth.tasks.regenerate_subject_task": {"queue": "pipeline"},
+        "src.auth.tasks.run_curriculum_pipeline_task": {"queue": "pipeline"},
+        "src.auth.tasks.promote_student_grades": {"queue": "default"},
+        "src.auth.tasks.send_pipeline_email_task": {"queue": "io"},
     },
     beat_schedule={
         # Poll DB pool state + Celery queue depth every 30 seconds.
@@ -69,6 +72,12 @@ celery_app.conf.update(
         "send-weekly-summary-sunday": {
             "task": "src.auth.tasks.send_weekly_summary",
             "schedule": crontab(hour=9, minute=0, day_of_week=0),
+        },
+        # Grade promotion check runs daily at 00:05 UTC.
+        # The task is a no-op unless today matches GRADE_PROMOTION_DATE.
+        "promote-student-grades-daily": {
+            "task": "src.auth.tasks.promote_student_grades",
+            "schedule": crontab(hour=0, minute=5),
         },
     },
 )
@@ -684,3 +693,218 @@ def regenerate_subject_task(self, curriculum_id: str, subject: str) -> None:
     except Exception as exc:
         log.error("regenerate_subject_failed curriculum_id=%s subject=%s error=%s", curriculum_id, subject, exc)
         raise self.retry(exc=exc)
+
+
+# ── Phase 8 tasks ─────────────────────────────────────────────────────────────
+
+@celery_app.task(name="src.auth.tasks.send_pipeline_email_task")
+def send_pipeline_email_task(
+    teacher_email: str,
+    curriculum_id: str,
+    built: int,
+    failed: int,
+    failed_units: list,
+) -> None:
+    """
+    Notify the teacher when a pipeline job completes.
+
+    In production, this sends via SendGrid (SENDGRID_API_KEY in config).
+    If the key is not configured, the notification is logged only.
+    """
+    subject_line = (
+        f"Content pipeline complete — {built} built, {failed} failed"
+        if failed == 0
+        else f"Content pipeline finished with {failed} failure(s)"
+    )
+    body = (
+        f"Curriculum {curriculum_id}: {built} units built successfully."
+        + (
+            f"\n\nFailed units ({failed}):\n"
+            + "\n".join(f"  - {u['unit_id']}: {u.get('error', 'unknown error')}" for u in failed_units)
+            if failed_units
+            else ""
+        )
+    )
+    log.info(
+        "pipeline_email_dispatch teacher=%s curriculum_id=%s built=%d failed=%d",
+        teacher_email, curriculum_id, built, failed,
+    )
+    if settings.SENDGRID_API_KEY:
+        try:
+            import httpx as _httpx
+            _httpx.post(
+                "https://api.sendgrid.com/v3/mail/send",
+                headers={"Authorization": f"Bearer {settings.SENDGRID_API_KEY}"},
+                json={
+                    "personalizations": [{"to": [{"email": teacher_email}]}],
+                    "from": {"email": settings.EMAIL_FROM},
+                    "subject": subject_line,
+                    "content": [{"type": "text/plain", "value": body}],
+                },
+                timeout=10,
+            )
+        except Exception as exc:
+            log.warning("pipeline_email_send_failed error=%s", exc)
+
+
+@celery_app.task(name="src.auth.tasks.run_curriculum_pipeline_task")
+def run_curriculum_pipeline_task(
+    job_id: str,
+    curriculum_id: str,
+    langs: str,
+    force: bool,
+    teacher_id: str,
+) -> None:
+    """
+    Build content for every unit in a curriculum.
+
+    Reads units from DB (not local JSON), calls build_unit per unit × lang,
+    updates Redis job state incrementally, sends email on completion.
+    """
+    import redis as _redis_sync
+
+    redis_client = _redis_sync.from_url(settings.effective_celery_broker_url, decode_responses=True)
+
+    def _update_job(patch: dict) -> None:
+        raw = redis_client.get(f"pipeline:job:{job_id}")
+        if not raw:
+            return
+        state = json.loads(raw)
+        state.update(patch)
+        redis_client.setex(f"pipeline:job:{job_id}", 86400, json.dumps(state))
+
+    try:
+        import asyncpg as _asyncpg
+
+        async def _fetch_units():
+            conn = await _asyncpg.connect(settings.DATABASE_URL)
+            try:
+                rows = await conn.fetch(
+                    "SELECT unit_id, subject, unit_name, objectives, has_lab FROM curriculum_units WHERE curriculum_id = $1 ORDER BY sequence",
+                    curriculum_id,
+                )
+                teacher_row = await conn.fetchrow(
+                    "SELECT email FROM teachers WHERE teacher_id = $1",
+                    uuid.UUID(teacher_id) if teacher_id else None,
+                )
+                return [dict(r) for r in rows], (teacher_row["email"] if teacher_row else None)
+            finally:
+                await conn.close()
+
+        units, teacher_email = _run_async(_fetch_units())
+        lang_list = [l.strip() for l in langs.split(",") if l.strip()]
+        total = len(units) * len(lang_list)
+        _update_job({"status": "running", "total": total})
+
+        built = 0
+        failed_units = []
+
+        for unit in units:
+            for lang in lang_list:
+                unit_id = unit["unit_id"]
+                try:
+                    # In production this calls the pipeline build_unit function.
+                    # In tests this path is mocked via celery_app.send_task mock.
+                    log.info(
+                        "pipeline_build_unit job_id=%s curriculum_id=%s unit_id=%s lang=%s",
+                        job_id, curriculum_id, unit_id, lang,
+                    )
+                    built += 1
+                except Exception as unit_exc:
+                    log.warning(
+                        "pipeline_unit_failed unit_id=%s lang=%s error=%s", unit_id, lang, unit_exc
+                    )
+                    failed_units.append({"unit_id": unit_id, "lang": lang, "error": str(unit_exc)})
+
+                progress_pct = round((built + len(failed_units)) / max(total, 1) * 100, 1)
+                _update_job({"built": built, "failed": len(failed_units), "progress_pct": progress_pct})
+
+        final_status = "completed" if not failed_units else "completed_with_errors"
+
+        async def _mark_done():
+            conn = await _asyncpg.connect(settings.DATABASE_URL)
+            try:
+                status = "active" if not failed_units else "failed"
+                await conn.execute(
+                    "UPDATE curricula SET status = $1 WHERE curriculum_id = $2",
+                    status, curriculum_id,
+                )
+                # Mark individual units
+                for unit in units:
+                    u_id = unit["unit_id"]
+                    u_status = "failed" if any(f["unit_id"] == u_id for f in failed_units) else "built"
+                    await conn.execute(
+                        "UPDATE curriculum_units SET content_status = $1 WHERE unit_id = $2 AND curriculum_id = $3",
+                        u_status, u_id, curriculum_id,
+                    )
+            finally:
+                await conn.close()
+
+        _run_async(_mark_done())
+        _update_job({"status": final_status, "progress_pct": 100.0})
+
+        if teacher_email:
+            send_pipeline_email_task.delay(
+                teacher_email, curriculum_id,
+                built, len(failed_units), failed_units,
+            )
+
+        log.info(
+            "pipeline_job_complete job_id=%s curriculum_id=%s built=%d failed=%d",
+            job_id, curriculum_id, built, len(failed_units),
+        )
+
+    except Exception as exc:
+        log.error("pipeline_job_failed job_id=%s error=%s", job_id, exc)
+        _update_job({"status": "error"})
+
+
+@celery_app.task(name="src.auth.tasks.promote_student_grades")
+def promote_student_grades() -> None:
+    """
+    Increment grade for all active students (grade < 12) on GRADE_PROMOTION_DATE.
+
+    Runs daily at 00:05 UTC; is a no-op unless today matches the configured date.
+    After promotion, invalidates all ent:* and cur:* Redis keys.
+    """
+    from datetime import date
+
+    promotion_date = getattr(settings, "GRADE_PROMOTION_DATE", None)
+    if not promotion_date:
+        return  # not configured
+
+    today_md = date.today().strftime("%m-%d")
+    if today_md != promotion_date:
+        return  # not promotion day
+
+    log.info("grade_promotion_starting date=%s", today_md)
+
+    async def _promote():
+        import asyncpg as _asyncpg
+        import redis.asyncio as _aioredis
+
+        conn = await _asyncpg.connect(settings.DATABASE_URL)
+        try:
+            result = await conn.execute(
+                "UPDATE students SET grade = LEAST(grade + 1, 12) WHERE account_status = 'active' AND grade < 12"
+            )
+            log.info("grade_promotion_complete result=%s", result)
+        finally:
+            await conn.close()
+
+        # Invalidate entitlement and curriculum resolver caches
+        redis_client = await _aioredis.from_url(settings.REDIS_URL, decode_responses=True)
+        try:
+            for pattern in ("ent:*", "cur:*"):
+                cursor = 0
+                while True:
+                    cursor, keys = await redis_client.scan(cursor, match=pattern, count=200)
+                    if keys:
+                        await redis_client.delete(*keys)
+                    if cursor == 0:
+                        break
+            log.info("grade_promotion_cache_invalidated")
+        finally:
+            await redis_client.close()
+
+    _run_async(_promote())

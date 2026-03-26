@@ -91,6 +91,15 @@ class Settings(BaseSettings):
     # ── Dictionary (Phase 7) ─────────────────────────────────────────────────
     MW_API_KEY: Optional[str] = None  # Merriam-Webster Collegiate Dictionary API key
 
+    # ── Academic year (Phase 8) ───────────────────────────────────────────────
+    # Format: "MM-DD" (e.g. "09-01" for September 1st).
+    # Celery Beat task runs daily and promotes grades when today matches.
+    GRADE_PROMOTION_DATE: Optional[str] = None
+
+    # ── Email (Phase 8) ───────────────────────────────────────────────────────
+    SENDGRID_API_KEY: Optional[str] = None
+    EMAIL_FROM: str = "noreply@studybuddy.app"
+
     @property
     def effective_celery_broker_url(self) -> str:
         return self.CELERY_BROKER_URL or self.REDIS_URL
