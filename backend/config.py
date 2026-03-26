@@ -88,6 +88,9 @@ class Settings(BaseSettings):
     # ── Celery ────────────────────────────────────────────────────────────────
     CELERY_BROKER_URL: Optional[str] = None
 
+    # ── Dictionary (Phase 7) ─────────────────────────────────────────────────
+    MW_API_KEY: Optional[str] = None  # Merriam-Webster Collegiate Dictionary API key
+
     @property
     def effective_celery_broker_url(self) -> str:
         return self.CELERY_BROKER_URL or self.REDIS_URL

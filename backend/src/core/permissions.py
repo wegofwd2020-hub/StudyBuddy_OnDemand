@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from typing import Callable, Set
 
-from fastapi import HTTPException, Security
+from fastapi import HTTPException, Request, Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from src.utils.logger import get_logger
@@ -93,7 +93,7 @@ def require_permission(permission: str) -> Callable:
     by get_current_student / get_current_teacher / get_current_admin.
     """
 
-    async def dependency(request) -> None:  # type: ignore[override]
+    async def dependency(request: Request) -> None:
         # The auth dependency must have already run and stored the payload.
         payload: dict | None = getattr(request.state, "jwt_payload", None)
         if payload is None:

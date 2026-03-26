@@ -47,6 +47,7 @@ celery_app.conf.update(
         "src.auth.tasks.check_streak_reminders": {"queue": "default"},
         "src.auth.tasks.check_quiz_nudges": {"queue": "default"},
         "src.auth.tasks.send_weekly_summary": {"queue": "default"},
+        "src.auth.tasks.regenerate_subject_task": {"queue": "pipeline"},
     },
     beat_schedule={
         # Poll DB pool state + Celery queue depth every 30 seconds.
@@ -607,3 +608,79 @@ def send_weekly_summary() -> None:
     except Exception as exc:
         import logging
         logging.getLogger("tasks.send_weekly_summary").warning("weekly_summary_failed: %s", exc)
+
+
+# ── Phase 7: content regeneration ────────────────────────────────────────────
+
+@celery_app.task(
+    name="src.auth.tasks.regenerate_subject_task",
+    bind=True,
+    max_retries=2,
+    default_retry_delay=60,
+)
+def regenerate_subject_task(self, curriculum_id: str, subject: str) -> None:
+    """
+    Trigger pipeline regeneration for all units in a curriculum subject.
+
+    Called when a reviewer rejects a content version with regenerate=True.
+    Runs in the 'pipeline' queue (concurrency=2).
+    Logs success/failure; never raises to avoid poisoning the queue.
+    """
+    import logging
+    log = logging.getLogger("tasks.regenerate_subject")
+    log.info("regenerate_subject_start curriculum_id=%s subject=%s", curriculum_id, subject)
+    try:
+        # Import pipeline build_unit lazily — pipeline deps may not be present
+        # on non-pipeline workers. This task must only run on pipeline workers.
+        from pipeline.config import settings as pipeline_cfg  # type: ignore
+        from pipeline.build_unit import build_unit             # type: ignore
+
+        import asyncpg
+
+        cfg = settings  # backend settings
+
+        async def _get_units():
+            pool = await asyncpg.create_pool(cfg.DATABASE_URL, min_size=1, max_size=3)
+            try:
+                return await pool.fetch(
+                    """
+                    SELECT unit_id, title, description, has_lab
+                    FROM curriculum_units
+                    WHERE curriculum_id = $1 AND subject = $2
+                    """,
+                    curriculum_id, subject,
+                )
+            finally:
+                await pool.close()
+
+        units = _run_async(_get_units())
+        results = []
+        for row in units:
+            unit_data = {
+                "title": row["title"],
+                "description": row["description"] or "",
+                "subject": subject,
+                "has_lab": row["has_lab"],
+                "grade": int(curriculum_id.split("g")[-1]) if "g" in curriculum_id else 8,
+            }
+            for lang in ["en"]:
+                result = build_unit(
+                    curriculum_id=curriculum_id,
+                    unit_id=row["unit_id"],
+                    unit_data=unit_data,
+                    lang=lang,
+                    config=pipeline_cfg,
+                    force=True,
+                )
+                results.append(result)
+
+        ok = sum(1 for r in results if r.get("status") == "ok")
+        failed = sum(1 for r in results if r.get("status") == "failed")
+        log.info(
+            "regenerate_subject_complete curriculum_id=%s subject=%s ok=%d failed=%d",
+            curriculum_id, subject, ok, failed,
+        )
+
+    except Exception as exc:
+        log.error("regenerate_subject_failed curriculum_id=%s subject=%s error=%s", curriculum_id, subject, exc)
+        raise self.retry(exc=exc)
