@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { auth0 } from "@/lib/auth0";
 import { StudentNav } from "@/components/layout/StudentNav";
 import { QueryProvider } from "@/lib/providers/QueryProvider";
+import { TrialBanner } from "@/components/student/TrialBanner";
 
 export default async function StudentLayout({
   children,
@@ -18,9 +19,12 @@ export default async function StudentLayout({
     <QueryProvider>
       <div className="flex min-h-screen bg-gray-50">
         <StudentNav />
-        <main id="main-content" className="flex-1 overflow-auto">
-          {children}
-        </main>
+        <div className="flex flex-1 flex-col overflow-auto">
+          <TrialBanner />
+          <main id="main-content" className="flex-1">
+            {children}
+          </main>
+        </div>
       </div>
     </QueryProvider>
   );
