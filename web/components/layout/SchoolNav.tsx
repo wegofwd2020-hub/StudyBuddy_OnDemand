@@ -14,6 +14,9 @@ import {
   BookOpen,
   Mail,
   LogOut,
+  BookMarked,
+  GraduationCap,
+  Settings,
 } from "lucide-react";
 
 interface NavItem {
@@ -27,8 +30,12 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", href: "/school/dashboard", icon: <LayoutDashboard className="h-4 w-4" /> },
   { label: "Class Overview", href: "/school/class/all", icon: <Users className="h-4 w-4" /> },
   { label: "Reports", href: "/school/reports/overview", icon: <BarChart2 className="h-4 w-4" /> },
+  { label: "Curriculum", href: "/school/curriculum", icon: <BookMarked className="h-4 w-4" /> },
+  { label: "Students", href: "/school/students", icon: <Users className="h-4 w-4" /> },
+  { label: "Teachers", href: "/school/teachers", icon: <GraduationCap className="h-4 w-4" />, adminOnly: true },
   { label: "Alerts", href: "/school/alerts", icon: <Bell className="h-4 w-4" /> },
   { label: "Digest Settings", href: "/school/digest", icon: <Mail className="h-4 w-4" /> },
+  { label: "Settings", href: "/school/settings", icon: <Settings className="h-4 w-4" /> },
 ];
 
 const REPORT_SUB: { label: string; href: string }[] = [
@@ -76,7 +83,7 @@ export function SchoolNav() {
 
       {/* Navigation */}
       <nav className="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto">
-        {NAV_ITEMS.map((item) => {
+        {NAV_ITEMS.filter((item) => !item.adminOnly || teacher?.role === "school_admin").map((item) => {
           const isAlerts = item.href === "/school/alerts";
           const isReports = item.href.startsWith("/school/reports");
           const isActive = isReports ? inReports : pathname === item.href;

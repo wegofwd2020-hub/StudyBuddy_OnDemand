@@ -1,0 +1,209 @@
+"use client";
+
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTeacher } from "@/lib/hooks/useTeacher";
+import { getRoster, uploadRoster, getSchoolProfile } from "@/lib/api/school-admin";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Label } from "@/components/ui/label";
+import { Copy, Check, Users, UserPlus } from "lucide-react";
+
+function parseEmails(raw: string): string[] {
+  return raw
+    .split(/[\n,;]+/)
+    .map((s) => s.trim().toLowerCase())
+    .filter((s) => s.includes("@"));
+}
+
+const STATUS_STYLE: Record<string, string> = {
+  active: "bg-green-50 text-green-700 border-green-200",
+  invited: "bg-blue-50 text-blue-700 border-blue-100",
+  pending: "bg-yellow-50 text-yellow-700 border-yellow-100",
+};
+
+export default function StudentsPage() {
+  const teacher = useTeacher();
+  const schoolId = teacher?.school_id ?? "";
+  const qc = useQueryClient();
+
+  const { data: roster, isLoading: loadingRoster } = useQuery({
+    queryKey: ["roster", schoolId],
+    queryFn: () => getRoster(schoolId),
+    enabled: !!schoolId,
+    staleTime: 120_000,
+  });
+
+  const { data: profile } = useQuery({
+    queryKey: ["school-profile", schoolId],
+    queryFn: () => getSchoolProfile(schoolId),
+    enabled: !!schoolId,
+    staleTime: 300_000,
+  });
+
+  const [emailInput, setEmailInput] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [uploadResult, setUploadResult] = useState<{ enrolled: number; already_enrolled: number } | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const inviteUrl =
+    profile?.enrolment_code && typeof window !== "undefined"
+      ? `${window.location.origin}/enrol/${profile.enrolment_code}`
+      : null;
+
+  function copyInviteLink() {
+    if (!inviteUrl) return;
+    navigator.clipboard.writeText(inviteUrl).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
+  async function handleUploadRoster() {
+    const emails = parseEmails(emailInput);
+    if (emails.length === 0 || !schoolId) return;
+    setUploading(true);
+    setUploadResult(null);
+    setUploadError(null);
+    try {
+      const res = await uploadRoster(schoolId, emails);
+      setUploadResult(res);
+      setEmailInput("");
+      await qc.invalidateQueries({ queryKey: ["roster", schoolId] });
+    } catch {
+      setUploadError("Failed to enrol students. Check the email list and try again.");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  const emailCount = parseEmails(emailInput).length;
+
+  return (
+    <div className="p-6 max-w-3xl space-y-6">
+      <div className="flex items-center gap-3">
+        <Users className="h-6 w-6 text-blue-600" />
+        <h1 className="text-2xl font-bold text-gray-900">Student Roster</h1>
+        {roster && (
+          <Badge className="bg-gray-100 text-gray-600 border-gray-200">
+            {roster.roster.length} enrolled
+          </Badge>
+        )}
+      </div>
+
+      {/* Invite link */}
+      {inviteUrl && (
+        <Card className="border shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Enrolment invite link</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-xs text-gray-500 mb-2">
+              Share this link with students. They will be prompted to sign in and confirm enrolment.
+            </p>
+            <div className="flex items-center gap-2">
+              <code className="flex-1 bg-gray-50 border rounded px-3 py-2 text-xs font-mono text-gray-700 overflow-hidden text-ellipsis whitespace-nowrap">
+                {inviteUrl}
+              </code>
+              <Button variant="outline" size="sm" onClick={copyInviteLink} className="h-9 shrink-0 gap-1.5">
+                {copied ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
+                {copied ? "Copied" : "Copy"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Bulk email enrol */}
+      <Card className="border shadow-sm">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base flex items-center gap-2">
+            <UserPlus className="h-4 w-4 text-blue-600" />
+            Bulk enrol by email
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="email_list">Student email addresses</Label>
+            <textarea
+              id="email_list"
+              value={emailInput}
+              onChange={(e) => setEmailInput(e.target.value)}
+              rows={4}
+              placeholder="student1@school.edu&#10;student2@school.edu&#10;or comma-separated"
+              className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {emailCount > 0 && (
+              <p className="text-xs text-gray-400">{emailCount} valid email{emailCount !== 1 ? "s" : ""} detected</p>
+            )}
+          </div>
+
+          {uploadError && <p className="text-sm text-red-600">{uploadError}</p>}
+          {uploadResult && (
+            <div className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg p-3">
+              <span className="font-semibold">{uploadResult.enrolled}</span> new student{uploadResult.enrolled !== 1 ? "s" : ""} enrolled.
+              {uploadResult.already_enrolled > 0 && (
+                <span className="text-gray-500"> ({uploadResult.already_enrolled} already enrolled — skipped)</span>
+              )}
+            </div>
+          )}
+
+          <Button onClick={handleUploadRoster} disabled={uploading || emailCount === 0} className="gap-2">
+            {uploading ? "Enrolling…" : `Enrol ${emailCount > 0 ? emailCount : ""} student${emailCount !== 1 ? "s" : ""}`}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Roster table */}
+      <Card className="border shadow-sm">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">Enrolled students</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          {loadingRoster ? (
+            <div className="p-4 space-y-2">
+              {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-10 rounded" />)}
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b bg-gray-50">
+                    <th className="text-left px-4 py-2.5 text-xs font-medium text-gray-500">Email</th>
+                    <th className="text-left px-4 py-2.5 text-xs font-medium text-gray-500">Status</th>
+                    <th className="text-left px-4 py-2.5 text-xs font-medium text-gray-500">Added</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {(roster?.roster ?? []).map((item) => (
+                    <tr key={item.student_email} className="hover:bg-gray-50">
+                      <td className="px-4 py-3 text-gray-700">{item.student_email}</td>
+                      <td className="px-4 py-3">
+                        <Badge className={`text-xs ${STATUS_STYLE[item.status] ?? "bg-gray-100 text-gray-500"}`}>
+                          {item.status}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3 text-gray-400 text-xs">
+                        {new Date(item.added_at).toLocaleDateString()}
+                      </td>
+                    </tr>
+                  ))}
+                  {(roster?.roster ?? []).length === 0 && (
+                    <tr>
+                      <td colSpan={3} className="px-4 py-8 text-center text-gray-400 text-sm">
+                        No students enrolled yet.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
