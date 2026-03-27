@@ -1,0 +1,101 @@
+"use client";
+
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTeacher } from "@/lib/hooks/useTeacher";
+import { getAlerts, type AlertItem } from "@/lib/api/reports";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Bell, CheckCheck, AlertTriangle, Info } from "lucide-react";
+
+const ALERT_ICON: Record<string, React.ReactNode> = {
+  pass_rate_low: <AlertTriangle className="h-4 w-4 text-red-500" />,
+  feedback_spike: <Info className="h-4 w-4 text-blue-500" />,
+  inactive_students: <AlertTriangle className="h-4 w-4 text-orange-500" />,
+  score_drop: <AlertTriangle className="h-4 w-4 text-orange-500" />,
+};
+
+function alertLabel(type: string) {
+  const labels: Record<string, string> = {
+    pass_rate_low: "Low pass rate", feedback_spike: "Feedback spike",
+    inactive_students: "Inactive students", score_drop: "Score drop",
+  };
+  return labels[type] ?? type;
+}
+
+export default function AlertsPage() {
+  const teacher = useTeacher();
+  const schoolId = teacher?.school_id ?? "";
+  const qc = useQueryClient();
+  const { data, isLoading } = useQuery({
+    queryKey: ["alerts", schoolId],
+    queryFn: () => getAlerts(schoolId),
+    enabled: !!schoolId,
+    staleTime: 30_000,
+  });
+  const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+
+  function dismiss(alertId: string) {
+    setDismissed((prev) => new Set(prev).add(alertId));
+    qc.setQueryData<{ alerts: AlertItem[] }>(["alerts", schoolId], (old) => {
+      if (!old) return old;
+      return { alerts: old.alerts.map((a) => a.alert_id === alertId ? { ...a, acknowledged: true } : a) };
+    });
+  }
+
+  const visibleAlerts = data?.alerts.filter((a) => !a.acknowledged && !dismissed.has(a.alert_id)) ?? [];
+  const acknowledgedAlerts = data?.alerts.filter((a) => a.acknowledged || dismissed.has(a.alert_id)) ?? [];
+
+  return (
+    <div className="p-6 max-w-3xl space-y-6">
+      <div className="flex items-center gap-3">
+        <h1 className="text-2xl font-bold text-gray-900">Alert Inbox</h1>
+        {!isLoading && visibleAlerts.length > 0 && <Badge className="bg-red-50 text-red-600 border-red-200">{visibleAlerts.length} new</Badge>}
+      </div>
+      {isLoading && <div className="space-y-3">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-20 rounded-lg" />)}</div>}
+      {!isLoading && visibleAlerts.length > 0 && (
+        <div className="space-y-3">
+          {visibleAlerts.map((alert) => (
+            <Card key={alert.alert_id} className="border border-orange-100 shadow-sm">
+              <CardContent className="p-4 flex items-start gap-3">
+                <div className="mt-0.5 shrink-0">{ALERT_ICON[alert.alert_type] ?? <Bell className="h-4 w-4 text-gray-400" />}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium text-sm text-gray-900">{alertLabel(alert.alert_type)}</p>
+                    <span className="text-xs text-gray-400">{new Date(alert.triggered_at).toLocaleDateString()}</span>
+                  </div>
+                  <p className="text-sm text-gray-600 mt-0.5">
+                    {typeof alert.details === "object" ? Object.entries(alert.details).map(([k, v]) => `${k}: ${v}`).join(" · ") : String(alert.details)}
+                  </p>
+                </div>
+                <Button variant="outline" size="sm" className="h-8 shrink-0" onClick={() => dismiss(alert.alert_id)}>
+                  <CheckCheck className="h-3.5 w-3.5 mr-1" />Dismiss
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+      {!isLoading && visibleAlerts.length === 0 && (
+        <div className="flex flex-col items-center py-12 text-gray-400 gap-3">
+          <Bell className="h-10 w-10" /><p className="text-sm">No new alerts — all clear.</p>
+        </div>
+      )}
+      {acknowledgedAlerts.length > 0 && (
+        <div>
+          <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">Acknowledged</p>
+          <div className="space-y-2">
+            {acknowledgedAlerts.map((alert) => (
+              <div key={alert.alert_id} className="flex items-center gap-3 text-sm text-gray-400 bg-gray-50 rounded-lg px-4 py-3">
+                <CheckCheck className="h-4 w-4 shrink-0" /><span>{alertLabel(alert.alert_type)}</span>
+                <span className="ml-auto text-xs">{new Date(alert.triggered_at).toLocaleDateString()}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
