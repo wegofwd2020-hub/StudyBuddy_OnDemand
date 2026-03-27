@@ -19,10 +19,13 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   (error) => {
-    if (error.response?.status === 401) {
-      if (typeof window !== "undefined") {
+    const status = error.response?.status;
+    if (typeof window !== "undefined") {
+      if (status === 401) {
         localStorage.removeItem("sb_token");
         window.location.href = "/login";
+      } else if (status === 402) {
+        window.location.href = "/paywall";
       }
     }
     return Promise.reject(error);
