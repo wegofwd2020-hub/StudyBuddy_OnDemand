@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Card, CardContent } from "@/components/ui/card";
 import { LinkButton } from "@/components/ui/link-button";
@@ -13,6 +14,16 @@ import {
 export default function LandingPage() {
   return (
     <>
+      {/* Home banner — 2.5 inches (240 px) tall, full width */}
+      <div className="relative w-full h-[240px]">
+        <Image
+          src="/assets/home_banner.png"
+          alt="StudyBuddy — learning for every family"
+          fill
+          priority
+          className="object-contain object-center"
+        />
+      </div>
       <HeroSection />
       <FeaturesSection />
       <SocialProofSection />
