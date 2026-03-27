@@ -14,14 +14,14 @@ import {
 export default function LandingPage() {
   return (
     <>
-      {/* Home banner — 3 inches (288 px) tall, full width */}
-      <div className="relative w-full h-[288px] overflow-hidden">
+      {/* Home banner — 2.5 inches (240 px) tall, full width */}
+      <div className="relative w-full h-[240px]">
         <Image
           src="/assets/home_banner.png"
           alt="StudyBuddy — learning for every family"
           fill
           priority
-          className="object-cover object-center"
+          className="object-contain object-center"
         />
       </div>
       <HeroSection />
