@@ -7,17 +7,16 @@ Pydantic models for Phase 10 feedback endpoints.
 from __future__ import annotations
 
 from datetime import datetime
-from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
 
 class FeedbackSubmitRequest(BaseModel):
     category: str = Field(..., pattern="^(content|ux|general)$")
-    unit_id: Optional[str] = None
-    curriculum_id: Optional[str] = None
+    unit_id: str | None = None
+    curriculum_id: str | None = None
     message: str = Field(..., min_length=1, max_length=500)
-    rating: Optional[int] = Field(None, ge=1, le=5)
+    rating: int | None = Field(None, ge=1, le=5)
 
 
 class FeedbackSubmitResponse(BaseModel):
@@ -29,14 +28,14 @@ class AdminFeedbackItem(BaseModel):
     feedback_id: str
     student_id: str
     category: str
-    unit_id: Optional[str] = None
-    curriculum_id: Optional[str] = None
+    unit_id: str | None = None
+    curriculum_id: str | None = None
     message: str
-    rating: Optional[int] = None
+    rating: int | None = None
     submitted_at: datetime
     reviewed: bool
-    reviewed_by: Optional[str] = None
-    reviewed_at: Optional[datetime] = None
+    reviewed_by: str | None = None
+    reviewed_at: datetime | None = None
 
 
 class AdminFeedbackPagination(BaseModel):
@@ -47,4 +46,4 @@ class AdminFeedbackPagination(BaseModel):
 
 class AdminFeedbackListResponse(BaseModel):
     pagination: AdminFeedbackPagination
-    feedback_items: List[AdminFeedbackItem]
+    feedback_items: list[AdminFeedbackItem]

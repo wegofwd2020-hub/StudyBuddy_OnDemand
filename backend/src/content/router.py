@@ -27,12 +27,10 @@ Rate limiting: 100 req/min per student JWT via slowapi.
 from __future__ import annotations
 
 import os
-import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 
-from config import settings
 from src.auth.dependencies import get_current_student
 from src.content.schemas import (
     AppVersionResponse,
@@ -54,7 +52,6 @@ from src.content.service import (
     increment_lessons_accessed,
     resolve_curriculum_id,
 )
-from src.core.db import get_db
 from src.core.redis_client import get_redis
 from src.utils.logger import get_logger
 
@@ -194,8 +191,6 @@ async def get_lesson_audio(
     """
     locale = student.get("locale", "en")
     student_id = student["student_id"]
-    redis = get_redis(request)
-    pool = request.app.state.pool
 
     curriculum_id, _subject = await _get_curriculum_and_check_published(
         request, unit_id, "lesson", student
@@ -237,7 +232,6 @@ async def get_quiz(
     Serve a quiz set, rotating through sets 1→2→3→1 per student per unit.
     """
     redis = get_redis(request)
-    pool = request.app.state.pool
     student_id = student["student_id"]
     locale = student.get("locale", "en")
 

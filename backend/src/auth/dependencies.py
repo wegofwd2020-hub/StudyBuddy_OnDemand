@@ -19,10 +19,10 @@ from __future__ import annotations
 
 from typing import Annotated
 
+from config import settings
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from config import settings
 from src.auth.service import verify_internal_jwt
 from src.core.redis_client import get_redis
 from src.utils.logger import get_logger

@@ -17,11 +17,10 @@ from __future__ import annotations
 
 import re
 import uuid
-from typing import Optional
 
 import asyncpg
-
 from config import settings
+
 from src.auth.service import create_internal_jwt
 from src.utils.logger import get_logger
 
@@ -91,7 +90,7 @@ async def fetch_school(
     conn: asyncpg.Connection,
     school_id: str,
     requesting_school_id: str,
-) -> Optional[dict]:
+) -> dict | None:
     """
     Return school profile.  Teachers may only view their own school.
     """

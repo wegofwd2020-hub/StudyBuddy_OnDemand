@@ -12,7 +12,6 @@ Functions:
 from __future__ import annotations
 
 import uuid
-from typing import List, Optional
 
 import asyncpg
 
@@ -24,7 +23,7 @@ log = get_logger("enrolment")
 async def upload_roster(
     conn: asyncpg.Connection,
     school_id: str,
-    student_emails: List[str],
+    student_emails: list[str],
 ) -> dict:
     """
     Upsert enrolment rows for the given email list.
@@ -108,7 +107,7 @@ async def link_student(
     conn: asyncpg.Connection,
     student_id: str,
     email: str,
-) -> Optional[str]:
+) -> str | None:
     """
     After student login/registration, check for a pending enrolment by email.
 

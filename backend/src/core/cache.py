@@ -14,8 +14,8 @@ Cache instances:
 
 from __future__ import annotations
 
-from config import settings
 from cachetools import TTLCache
+from config import settings
 
 # Auth0 JWKS: keyed by AUTH0_JWKS_URL; stores the raw JWKS dict.
 # TTL = 24 hours; at most 10 distinct JWKS URLs (only one in practice).

@@ -16,10 +16,10 @@ from __future__ import annotations
 import uuid
 from typing import Literal
 
+from config import settings
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
-from config import settings
 from src.auth.service import create_internal_jwt
 from src.core.db import get_db
 from src.utils.logger import get_logger
@@ -27,16 +27,17 @@ from src.utils.logger import get_logger
 log = get_logger("auth.dev")
 router = APIRouter(tags=["dev"])
 
-_DEV_STUDENT_SUB = "dev|student-001"
-_DEV_TEACHER_SUB = "dev|teacher-001"
-_DEV_SCHOOL_ID = uuid.UUID("00000000-0000-0000-0000-000000000001")
+_DEV_STUDENT_SUB      = "dev|student-001"
+_DEV_TEACHER_SUB      = "dev|teacher-001"
+_DEV_SCHOOL_ADMIN_SUB = "dev|school-admin-001"
+_DEV_SCHOOL_ID        = uuid.UUID("00000000-0000-0000-0000-000000000001")
 
 # 7-day tokens — long enough for a testing session
 _TOKEN_EXPIRE_MINUTES = 60 * 24 * 7
 
 
 class DevLoginRequest(BaseModel):
-    role: Literal["student", "teacher"]
+    role: Literal["student", "teacher", "school_admin"]
 
 
 class DevLoginResponse(BaseModel):
@@ -103,7 +104,7 @@ async def dev_login(body: DevLoginRequest, request: Request) -> DevLoginResponse
             log.info("dev_student_login", student_id=str(row["student_id"]))
             return DevLoginResponse(token=token, name=row["name"], email=row["email"], role="student")
 
-        # ── Teacher ───────────────────────────────────────────────────────────
+        # ── Teacher / School Admin ────────────────────────────────────────────
         # Ensure dev school exists first (teachers require a school_id FK).
         await conn.execute(
             """
@@ -114,22 +115,36 @@ async def dev_login(body: DevLoginRequest, request: Request) -> DevLoginResponse
             _DEV_SCHOOL_ID,
         )
 
+        if body.role == "school_admin":
+            ext_sub = _DEV_SCHOOL_ADMIN_SUB
+            dev_name = "Dev School Admin"
+            dev_email = "dev.schooladmin@studybuddy.dev"
+            db_role = "school_admin"
+        else:
+            ext_sub = _DEV_TEACHER_SUB
+            dev_name = "Dev Teacher"
+            dev_email = "dev.teacher@studybuddy.dev"
+            db_role = "teacher"
+
         teacher_row = await conn.fetchrow(
             "SELECT teacher_id, name, email, school_id, role, account_status FROM teachers WHERE external_auth_id = $1",
-            _DEV_TEACHER_SUB,
+            ext_sub,
         )
         if teacher_row is None:
             teacher_row = await conn.fetchrow(
                 """
                 INSERT INTO teachers (school_id, external_auth_id, auth_provider, name, email, role, account_status)
-                VALUES ($1, $2, 'dev', 'Dev Teacher', 'dev.teacher@studybuddy.dev', 'teacher', 'active')
+                VALUES ($1, $2, 'dev', $3, $4, $5, 'active')
                 RETURNING teacher_id, name, email, school_id, role, account_status
                 """,
                 _DEV_SCHOOL_ID,
-                _DEV_TEACHER_SUB,
+                ext_sub,
+                dev_name,
+                dev_email,
+                db_role,
             )
         if teacher_row is None:
-            raise HTTPException(status_code=500, detail={"error": "internal_error", "detail": "Failed to create dev teacher."})
+            raise HTTPException(status_code=500, detail={"error": "internal_error", "detail": f"Failed to create dev {body.role}."})
 
         token = create_internal_jwt(
             {
@@ -141,5 +156,5 @@ async def dev_login(body: DevLoginRequest, request: Request) -> DevLoginResponse
             settings.JWT_SECRET,
             _TOKEN_EXPIRE_MINUTES,
         )
-        log.info("dev_teacher_login", teacher_id=str(teacher_row["teacher_id"]))
+        log.info("dev_teacher_login", teacher_id=str(teacher_row["teacher_id"]), role=teacher_row["role"])
         return DevLoginResponse(token=token, name=teacher_row["name"], email=teacher_row["email"], role=teacher_row["role"])

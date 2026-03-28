@@ -19,8 +19,7 @@ Streak:
 from __future__ import annotations
 
 import json
-from datetime import date, datetime, timezone
-from typing import Optional
+from datetime import date
 
 import asyncpg
 
@@ -349,7 +348,7 @@ async def get_progress_map(conn: asyncpg.Connection, student_id: str) -> dict:
 
 # ── Stats ─────────────────────────────────────────────────────────────────────
 
-def _period_days(period: str) -> Optional[int]:
+def _period_days(period: str) -> int | None:
     if period == "7d":
         return 7
     if period == "30d":

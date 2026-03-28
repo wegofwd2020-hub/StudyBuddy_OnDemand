@@ -10,12 +10,12 @@ Routes (all prefixed /api/v1 in main.py):
 
 from __future__ import annotations
 
-from typing import Annotated, Optional
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
-from src.auth.dependencies import get_current_student
 from src.admin.router import _require
+from src.auth.dependencies import get_current_student
 from src.core.db import get_db
 from src.core.redis_client import get_redis
 from src.feedback.schemas import (
@@ -88,10 +88,10 @@ async def list_admin_feedback(
     admin: Annotated[dict, Depends(_require("feedback:view"))],
     page: int = Query(1, ge=1),
     per_page: int = Query(20, ge=1, le=100),
-    category: Optional[str] = Query(None),
-    unit_id: Optional[str] = Query(None),
-    curriculum_id: Optional[str] = Query(None),
-    reviewed: Optional[bool] = Query(None),
+    category: str | None = Query(None),
+    unit_id: str | None = Query(None),
+    curriculum_id: str | None = Query(None),
+    reviewed: bool | None = Query(None),
 ) -> AdminFeedbackListResponse:
     """
     List all student feedback (admin only, requires feedback:view permission).

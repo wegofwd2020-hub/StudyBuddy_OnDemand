@@ -6,9 +6,7 @@ Pydantic schemas for progress tracking endpoints.
 
 from __future__ import annotations
 
-from typing import Optional
 from pydantic import BaseModel, Field
-
 
 # ── Request schemas ───────────────────────────────────────────────────────────
 
@@ -23,7 +21,7 @@ class RecordAnswerRequest(BaseModel):
     correct_answer: int
     correct: bool
     ms_taken: int = Field(ge=0)
-    event_id: Optional[str] = Field(None, max_length=64)  # offline dedup key
+    event_id: str | None = Field(None, max_length=64)  # offline dedup key
 
 
 class EndSessionRequest(BaseModel):
@@ -58,10 +56,10 @@ class EndSessionResponse(BaseModel):
 class ProgressAnswerRecord(BaseModel):
     answer_id: str
     question_id: str
-    student_answer: Optional[int]
-    correct_answer: Optional[int]
-    correct: Optional[bool]
-    ms_taken: Optional[int]
+    student_answer: int | None
+    correct_answer: int | None
+    correct: bool | None
+    ms_taken: int | None
     recorded_at: str
 
 
@@ -72,11 +70,11 @@ class SessionRecord(BaseModel):
     grade: int
     subject: str
     started_at: str
-    ended_at: Optional[str]
-    score: Optional[int]
-    total_questions: Optional[int]
+    ended_at: str | None
+    score: int | None
+    total_questions: int | None
     completed: bool
-    passed: Optional[bool]
+    passed: bool | None
     attempt_number: int
     answers: list[ProgressAnswerRecord] = []
 

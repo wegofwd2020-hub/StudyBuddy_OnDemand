@@ -16,9 +16,7 @@ from __future__ import annotations
 
 import io
 import json
-import re
 import uuid
-from typing import List, Optional
 
 import asyncpg
 
@@ -94,8 +92,8 @@ async def create_curriculum_from_json(
     year: int,
     name: str,
     units: list,
-    teacher_id: Optional[str],
-    school_id: Optional[str],
+    teacher_id: str | None,
+    school_id: str | None,
 ) -> dict:
     """
     Insert a curricula row + curriculum_units rows from a validated unit list.
@@ -309,7 +307,7 @@ async def trigger_pipeline(
     return {"job_id": job_id, "status": "queued"}
 
 
-async def get_pipeline_job_status(redis, job_id: str) -> Optional[dict]:
+async def get_pipeline_job_status(redis, job_id: str) -> dict | None:
     """Read job state from Redis."""
     raw = await redis.get(f"pipeline:job:{job_id}")
     if not raw:

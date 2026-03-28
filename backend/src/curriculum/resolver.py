@@ -23,10 +23,8 @@ Cache invalidated by:
 
 from __future__ import annotations
 
-import json
 import uuid
-from datetime import datetime, timezone
-from typing import Optional
+from datetime import UTC, datetime
 
 import asyncpg
 from fastapi import Depends, HTTPException, Request
@@ -41,7 +39,7 @@ _RESOLVER_TTL = 300  # 5 minutes
 
 
 def _current_year() -> int:
-    return datetime.now(timezone.utc).year
+    return datetime.now(UTC).year
 
 
 def _default_curriculum_id(grade: int, year: int) -> str:
@@ -52,7 +50,7 @@ async def _resolve_from_db(
     pool: asyncpg.Pool,
     student_id: str,
     grade: int,
-    school_id: Optional[str],
+    school_id: str | None,
 ) -> str:
     """Resolve curriculum_id from the database (no Redis)."""
     year = _current_year()
@@ -110,7 +108,7 @@ async def get_curriculum_id(
     """
     student_id: str = str(student["student_id"])
     grade: int = student["grade"]
-    school_id: Optional[str] = student.get("school_id") and str(student["school_id"])
+    school_id: str | None = student.get("school_id") and str(student["school_id"])
 
     redis = get_redis(request)
     cache_key = f"cur:{student_id}"

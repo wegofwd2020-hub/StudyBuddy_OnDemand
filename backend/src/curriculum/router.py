@@ -23,7 +23,7 @@ from __future__ import annotations
 
 import json
 import os
-from typing import Annotated, List
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
 from fastapi.responses import Response
@@ -70,7 +70,7 @@ def _load_grade(grade: int) -> dict:
             status_code=404,
             detail={"error": "not_found", "detail": f"Curriculum data for grade {grade} not found."},
         )
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         data = json.load(f)
     curriculum_cache[grade] = data
     log.info("curriculum_loaded", grade=grade)
@@ -83,9 +83,9 @@ def _cid(request: Request) -> str:
 
 # ── Grade tree (existing) ─────────────────────────────────────────────────────
 
-@router.get("/curriculum", response_model=List[GradeSummary])
+@router.get("/curriculum", response_model=list[GradeSummary])
 async def list_curriculum(request: Request):
-    summaries: List[GradeSummary] = []
+    summaries: list[GradeSummary] = []
     for grade in range(5, 13):
         try:
             data = _load_grade(grade)

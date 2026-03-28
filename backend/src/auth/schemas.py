@@ -6,11 +6,10 @@ Pydantic request and response models for auth endpoints.
 
 from __future__ import annotations
 
-from typing import Literal, Optional
+from typing import Literal
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, field_validator
-
 
 # ── Request schemas ───────────────────────────────────────────────────────────
 
@@ -49,13 +48,13 @@ class ForgotPasswordRequest(BaseModel):
 
 class StudentProfileUpdate(BaseModel):
     """PATCH /student/profile"""
-    name: Optional[str] = None
-    locale: Optional[Literal["en", "fr", "es"]] = None
-    grade: Optional[int] = None
+    name: str | None = None
+    locale: Literal["en", "fr", "es"] | None = None
+    grade: int | None = None
 
     @field_validator("grade")
     @classmethod
-    def grade_range(cls, v: Optional[int]) -> Optional[int]:
+    def grade_range(cls, v: int | None) -> int | None:
         if v is not None and not (5 <= v <= 12):
             raise ValueError("grade must be between 5 and 12")
         return v

@@ -25,7 +25,7 @@ Security:
 from __future__ import annotations
 
 import os
-from typing import Annotated, Optional
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import FileResponse
@@ -91,7 +91,7 @@ async def student_roster(
     school_id: str,
     request: Request,
     teacher: Annotated[dict, Depends(get_current_teacher)],
-    grade: Optional[int] = None,
+    grade: int | None = None,
 ) -> dict:
     """
     Return per-student rows for the Class Overview table.
@@ -223,9 +223,9 @@ async def feedback_report(
     school_id: str,
     request: Request,
     teacher: Annotated[dict, Depends(get_current_teacher)],
-    unit_id: Optional[str] = Query(None),
-    category: Optional[str] = Query(None, pattern="^(content|ux|general)$"),
-    reviewed: Optional[bool] = Query(None),
+    unit_id: str | None = Query(None),
+    category: str | None = Query(None, pattern="^(content|ux|general)$"),
+    reviewed: bool | None = Query(None),
     sort: str = Query("recent", pattern="^(recent|oldest|volume)$"),
 ) -> FeedbackReport:
     """All student feedback for the school's curriculum, grouped by unit."""

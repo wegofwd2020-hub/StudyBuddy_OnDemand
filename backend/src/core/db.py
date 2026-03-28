@@ -11,8 +11,8 @@ Layer rule: every service module imports from here — never creates its own poo
 
 from __future__ import annotations
 
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
 
 import asyncpg
 from fastapi import Request

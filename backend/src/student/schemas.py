@@ -6,9 +6,7 @@ Pydantic schemas for student dashboard, progress map, and stats endpoints.
 
 from __future__ import annotations
 
-from typing import Optional
 from pydantic import BaseModel
-
 
 # ── Dashboard ─────────────────────────────────────────────────────────────────
 
@@ -38,14 +36,14 @@ class RecentActivityItem(BaseModel):
     type: str          # "quiz" | "lesson"
     unit_id: str
     title: str
-    score: Optional[int] = None
+    score: int | None = None
     at: str
 
 
 class DashboardResponse(BaseModel):
     summary: DashboardSummary
     subject_progress: list[SubjectProgress]
-    next_unit: Optional[NextUnit]
+    next_unit: NextUnit | None
     recent_activity: list[RecentActivityItem]
 
 
@@ -55,9 +53,9 @@ class UnitProgressItem(BaseModel):
     unit_id: str
     title: str
     status: str        # not_started | in_progress | needs_retry | completed
-    best_score: Optional[int]
+    best_score: int | None
     attempts: int
-    last_attempt_at: Optional[str]
+    last_attempt_at: str | None
 
 
 class SubjectProgressMap(BaseModel):

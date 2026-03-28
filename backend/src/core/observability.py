@@ -16,14 +16,13 @@ Metrics exported:
 from __future__ import annotations
 
 import uuid
+from collections.abc import Callable
 from contextvars import ContextVar
-from typing import Callable
 
 from fastapi import APIRouter, HTTPException, Request, Response
 from fastapi.responses import PlainTextResponse
-from prometheus_client import Counter, Gauge, Histogram, generate_latest, CONTENT_TYPE_LATEST
+from prometheus_client import CONTENT_TYPE_LATEST, Counter, Gauge, Histogram, generate_latest
 from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.types import ASGIApp
 
 from src.utils.logger import get_logger
 

@@ -9,10 +9,10 @@ Adding a permission to a role = code change + deployment.
 
 from __future__ import annotations
 
-from typing import Callable, Set
+from collections.abc import Callable
 
-from fastapi import HTTPException, Request, Security
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi import HTTPException, Request
+from fastapi.security import HTTPBearer
 
 from src.utils.logger import get_logger
 
@@ -20,7 +20,7 @@ log = get_logger("permissions")
 
 # ── Permission matrix ─────────────────────────────────────────────────────────
 # "*" means all permissions granted (super_admin only).
-ROLE_PERMISSIONS: dict[str, Set[str]] = {
+ROLE_PERMISSIONS: dict[str, set[str]] = {
     "student": {
         "content:read",
         "content:feedback",

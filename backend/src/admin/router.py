@@ -31,14 +31,10 @@ Routes (all prefixed /api/v1 in main.py):
 
 from __future__ import annotations
 
-from typing import Annotated, Optional
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
-from src.auth.dependencies import get_current_admin
-from src.core.db import get_db
-from src.core.permissions import ROLE_PERMISSIONS
-from src.core.redis_client import get_redis
 from src.admin.schemas import (
     AnnotateRequest,
     AnnotateResponse,
@@ -82,6 +78,10 @@ from src.admin.service import (
     remove_block,
     rollback_version,
 )
+from src.auth.dependencies import get_current_admin
+from src.core.db import get_db
+from src.core.permissions import ROLE_PERMISSIONS
+from src.core.redis_client import get_redis
 from src.utils.logger import get_logger
 
 log = get_logger("admin")
@@ -157,9 +157,9 @@ async def pipeline_status(
 async def review_queue(
     request: Request,
     admin: Annotated[dict, Depends(_require("review:read"))],
-    status: Optional[str] = Query(None),
-    subject: Optional[str] = Query(None),
-    curriculum_id: Optional[str] = Query(None),
+    status: str | None = Query(None),
+    subject: str | None = Query(None),
+    curriculum_id: str | None = Query(None),
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
 ) -> ReviewQueueResponse:

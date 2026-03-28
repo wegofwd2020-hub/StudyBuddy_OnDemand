@@ -17,24 +17,23 @@ from __future__ import annotations
 import secrets
 import uuid
 
+from config import settings
 from fastapi import APIRouter, HTTPException, Request
 
-from config import settings
 from src.auth.schemas import (
     AdminForgotPasswordRequest,
     AdminLoginRequest,
     AdminLoginResponse,
     AdminResetPasswordRequest,
-    RefreshResponse,
     RefreshRequest,
+    RefreshResponse,
 )
 from src.auth.service import (
+    _hash_refresh_token,
     create_admin_jwt,
     generate_refresh_token,
     hash_password,
-    verify_internal_jwt,
     verify_password,
-    _hash_refresh_token,
 )
 from src.core.db import get_db
 from src.core.events import emit_event, write_audit_log

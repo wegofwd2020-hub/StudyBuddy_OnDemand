@@ -13,9 +13,11 @@
  */
 
 import { useState } from "react";
-import { BookOpen, School, Loader2, AlertCircle } from "lucide-react";
+import { BookOpen, School, ShieldCheck, Loader2, AlertCircle } from "lucide-react";
 
-async function loginAs(role: "student" | "teacher"): Promise<void> {
+type DevRole = "student" | "teacher" | "school_admin";
+
+async function loginAs(role: DevRole): Promise<void> {
   // Calls the Next.js proxy route (/api/dev-login) to avoid CORS
   const res = await fetch("/api/dev-login", {
     method: "POST",
@@ -45,16 +47,46 @@ async function loginAs(role: "student" | "teacher"): Promise<void> {
   document.cookie = `sb_dev_session=${payload}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
 }
 
+interface LoginButtonProps {
+  role: DevRole;
+  label: string;
+  sublabel: string;
+  icon: React.ReactNode;
+  colorClass: string;
+  loading: DevRole | null;
+  onClick: (role: DevRole) => void;
+}
+
+function LoginButton({ role, label, sublabel, icon, colorClass, loading, onClick }: LoginButtonProps) {
+  const isLoading = loading === role;
+  return (
+    <button
+      onClick={() => onClick(role)}
+      disabled={loading !== null}
+      className={`w-full flex items-center gap-3 px-4 py-3 ${colorClass} disabled:opacity-50 text-white font-medium rounded-xl transition-colors`}
+    >
+      <span className="shrink-0">
+        {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : icon}
+      </span>
+      <span className="text-left">
+        <span className="block text-sm font-semibold">{label}</span>
+        <span className="block text-xs opacity-80">{sublabel}</span>
+      </span>
+    </button>
+  );
+}
+
 export default function DevLoginPage() {
-  const [loading, setLoading] = useState<"student" | "teacher" | null>(null);
+  const [loading, setLoading] = useState<DevRole | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleLogin(role: "student" | "teacher") {
+  async function handleLogin(role: DevRole) {
     setLoading(role);
     setError(null);
     try {
       await loginAs(role);
-      window.location.href = role === "student" ? "/dashboard" : "/school/dashboard";
+      const dest = role === "student" ? "/dashboard" : "/school/dashboard";
+      window.location.href = dest;
     } catch (err: unknown) {
       setError((err as Error).message ?? "Login failed.");
       setLoading(null);
@@ -75,31 +107,33 @@ export default function DevLoginPage() {
         </div>
 
         <div className="space-y-3">
-          <button
-            onClick={() => handleLogin("student")}
-            disabled={loading !== null}
-            className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-medium rounded-xl transition-colors"
-          >
-            {loading === "student" ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <BookOpen className="h-4 w-4" />
-            )}
-            Login as Student (Grade 8)
-          </button>
-
-          <button
-            onClick={() => handleLogin("teacher")}
-            disabled={loading !== null}
-            className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-medium rounded-xl transition-colors"
-          >
-            {loading === "teacher" ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <School className="h-4 w-4" />
-            )}
-            Login as Teacher
-          </button>
+          <LoginButton
+            role="student"
+            label="Student — Grade 8"
+            sublabel="dev.student@studybuddy.dev"
+            icon={<BookOpen className="h-4 w-4" />}
+            colorClass="bg-indigo-600 hover:bg-indigo-500"
+            loading={loading}
+            onClick={handleLogin}
+          />
+          <LoginButton
+            role="teacher"
+            label="Teacher"
+            sublabel="dev.teacher@studybuddy.dev"
+            icon={<School className="h-4 w-4" />}
+            colorClass="bg-emerald-600 hover:bg-emerald-500"
+            loading={loading}
+            onClick={handleLogin}
+          />
+          <LoginButton
+            role="school_admin"
+            label="School Admin"
+            sublabel="dev.schooladmin@studybuddy.dev"
+            icon={<ShieldCheck className="h-4 w-4" />}
+            colorClass="bg-violet-600 hover:bg-violet-500"
+            loading={loading}
+            onClick={handleLogin}
+          />
         </div>
 
         {error && (
@@ -109,12 +143,18 @@ export default function DevLoginPage() {
           </div>
         )}
 
-        <p className="text-xs text-gray-400 text-center mt-6">
-          Admin login →{" "}
-          <a href="/admin/login" className="text-indigo-500 hover:underline">
-            /admin/login
-          </a>
-        </p>
+        <div className="mt-6 pt-5 border-t border-gray-100 text-center space-y-1">
+          <p className="text-xs text-gray-400">
+            Super Admin →{" "}
+            <a href="/admin/login" className="text-indigo-500 hover:underline">
+              /admin/login
+            </a>
+            {" "}· password: <code className="text-gray-600">DevAdmin1234!</code>
+          </p>
+          <p className="text-xs text-gray-400">
+            Email: <code className="text-gray-600">dev.admin@studybuddy.dev</code>
+          </p>
+        </div>
       </div>
     </div>
   );

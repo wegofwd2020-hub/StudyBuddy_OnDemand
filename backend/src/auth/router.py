@@ -17,27 +17,26 @@ All prefixed with /api/v1 in main.py.
 
 from __future__ import annotations
 
-import hashlib
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import JSONResponse
-
 from config import settings
+from fastapi import APIRouter, Depends, HTTPException, Request
+
 from src.auth.dependencies import get_current_student
 from src.auth.schemas import (
     ForgotPasswordRequest,
     LogoutRequest,
     RefreshRequest,
+    RefreshResponse,
     StudentProfileUpdate,
     StudentPublic,
     TeacherPublic,
     TeacherTokenExchangeResponse,
     TokenExchangeRequest,
     TokenExchangeResponse,
-    RefreshResponse,
 )
 from src.auth.service import (
+    _hash_refresh_token,
     create_internal_jwt,
     generate_refresh_token,
     trigger_auth0_password_reset,
@@ -45,13 +44,12 @@ from src.auth.service import (
     upsert_teacher,
     verify_auth0_teacher_token,
     verify_auth0_token,
-    _hash_refresh_token,
 )
 from src.core.db import get_db
 from src.core.events import emit_event, write_audit_log
-from src.school.enrolment_service import link_student
 from src.core.observability import auth_exchanges_total, auth_failures_total
 from src.core.redis_client import get_redis
+from src.school.enrolment_service import link_student
 from src.utils.logger import get_logger
 
 log = get_logger("auth")

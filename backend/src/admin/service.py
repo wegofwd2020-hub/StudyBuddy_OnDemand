@@ -18,8 +18,6 @@ Covers:
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
-from typing import Optional
 
 import asyncpg
 import httpx
@@ -37,9 +35,9 @@ _ANNUAL_MONTHLY_USD = 7.99  # annual / 12
 
 async def list_review_queue(
     conn: asyncpg.Connection,
-    status: Optional[str] = None,
-    subject: Optional[str] = None,
-    curriculum_id: Optional[str] = None,
+    status: str | None = None,
+    subject: str | None = None,
+    curriculum_id: str | None = None,
     limit: int = 50,
     offset: int = 0,
 ) -> dict:
@@ -83,7 +81,7 @@ async def open_review(
     conn: asyncpg.Connection,
     version_id: str,
     reviewer_id: str,
-    notes: Optional[str],
+    notes: str | None,
 ) -> dict:
     row = await conn.fetchrow(
         """
@@ -109,10 +107,10 @@ async def add_annotation(
     reviewer_id: str,
     unit_id: str,
     content_type: str,
-    marked_text: Optional[str],
+    marked_text: str | None,
     annotation_text: str,
-    start_offset: Optional[int],
-    end_offset: Optional[int],
+    start_offset: int | None,
+    end_offset: int | None,
 ) -> dict:
     row = await conn.fetchrow(
         """
@@ -150,7 +148,7 @@ async def rate_version(
     reviewer_id: str,
     language_rating: int,
     content_rating: int,
-    notes: Optional[str],
+    notes: str | None,
 ) -> dict:
     row = await conn.fetchrow(
         """
@@ -174,7 +172,7 @@ async def approve_version(
     conn: asyncpg.Connection,
     version_id: str,
     reviewer_id: str,
-    notes: Optional[str],
+    notes: str | None,
 ) -> dict:
     await conn.execute(
         """
@@ -202,7 +200,7 @@ async def reject_version(
     conn: asyncpg.Connection,
     version_id: str,
     reviewer_id: str,
-    notes: Optional[str],
+    notes: str | None,
     regenerate: bool,
 ) -> dict:
     await conn.execute(
@@ -388,7 +386,7 @@ async def create_block(
     curriculum_id: str,
     unit_id: str,
     content_type: str,
-    reason: Optional[str],
+    reason: str | None,
     admin_id: str,
 ) -> dict:
     row = await conn.fetchrow(

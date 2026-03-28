@@ -1,0 +1,78 @@
+# =============================================================================
+# StudyBuddy OnDemand — Backend Python Tool Configuration
+# =============================================================================
+
+# ── Ruff (linting + formatting) ───────────────────────────────────────────────
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+src = ["src"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes (unused imports, undefined names)
+    "I",   # isort (import ordering)
+    "B",   # flake8-bugbear (common bugs + design problems)
+    "C4",  # flake8-comprehensions (simplify comprehensions)
+    "UP",  # pyupgrade (modernise syntax)
+    "S",   # flake8-bandit subset (security)
+    "T20", # flake8-print (no stray print() calls)
+    "RUF", # ruff-specific rules
+]
+ignore = [
+    "E501",   # line too long — handled by formatter
+    "B008",   # function calls in default arguments (FastAPI Depends pattern)
+    "B904",   # raise-from in except — existing codebase pattern; non-critical
+    "S101",   # use of assert — needed in tests
+    "S105",   # hardcoded password string — false positives on var names
+    "S106",   # hardcoded password in function arg
+    "S311",   # standard pseudo-random — not used for crypto here
+    "S608",   # SQL injection via string — false positive; asyncpg uses $N params
+    "S110",   # try-except-pass — existing logging pattern; non-critical
+    "RUF001", # ambiguous unicode in string literals — EN DASH in curriculum text
+    "RUF002", # ambiguous unicode in docstrings — editorial, not functional
+    "RUF003", # ambiguous unicode in comments — editorial, not functional
+    "RUF005", # list concatenation — existing structlog pattern
+    "RUF012", # mutable class attributes — common in Pydantic models
+    "B007",   # unused loop variable — used in context managers
+    "B023",   # loop variable in closure — existing pattern
+    "E701",   # multiple statements on one line — existing service layer style
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S", "T20"]   # relax security + print rules in tests
+"scripts/**" = ["T20"]      # allow print() in one-off scripts
+"alembic/**" = ["E402"]     # alembic env.py needs sys.path manipulation
+
+[tool.ruff.lint.isort]
+known-first-party = ["src"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+
+# ── Bandit (security SAST) ────────────────────────────────────────────────────
+[tool.bandit]
+targets = ["src"]
+skips = [
+    "B101",  # assert_used — needed in tests (excluded via exclude_dirs)
+    "B311",  # random — not used for crypto
+    "B603",  # subprocess without shell — we use it safely
+    "B607",  # partial executable path — intentional in scripts
+    "B608",  # SQL injection — false positive; asyncpg uses $N parameterized queries throughout
+]
+exclude_dirs = ["tests", "scripts", "alembic"]
+severity = "medium"   # only flag medium and above
+
+# ── Coverage ──────────────────────────────────────────────────────────────────
+[tool.coverage.run]
+source = ["src"]
+omit = ["tests/*", "scripts/*", "alembic/*"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+fail_under = 70

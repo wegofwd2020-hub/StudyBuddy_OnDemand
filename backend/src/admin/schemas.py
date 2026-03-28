@@ -7,9 +7,8 @@ Pydantic request/response schemas for all Phase 7 admin endpoints.
 from __future__ import annotations
 
 from datetime import datetime
-from typing import List, Optional
-from pydantic import BaseModel, Field
 
+from pydantic import BaseModel, Field
 
 # ── Review queue ──────────────────────────────────────────────────────────────
 
@@ -21,18 +20,18 @@ class ReviewQueueItem(BaseModel):
     status: str
     alex_warnings_count: int
     generated_at: datetime
-    published_at: Optional[datetime] = None
+    published_at: datetime | None = None
 
 
 class ReviewQueueResponse(BaseModel):
-    items: List[ReviewQueueItem]
+    items: list[ReviewQueueItem]
     total: int
 
 
 # ── Review session ────────────────────────────────────────────────────────────
 
 class OpenReviewRequest(BaseModel):
-    notes: Optional[str] = None
+    notes: str | None = None
 
 
 class OpenReviewResponse(BaseModel):
@@ -45,10 +44,10 @@ class OpenReviewResponse(BaseModel):
 class AnnotateRequest(BaseModel):
     unit_id: str
     content_type: str
-    marked_text: Optional[str] = None
+    marked_text: str | None = None
     annotation_text: str
-    start_offset: Optional[int] = None
-    end_offset: Optional[int] = None
+    start_offset: int | None = None
+    end_offset: int | None = None
 
 
 class AnnotateResponse(BaseModel):
@@ -65,7 +64,7 @@ class AnnotateResponse(BaseModel):
 class RateRequest(BaseModel):
     language_rating: int = Field(..., ge=1, le=5)
     content_rating: int = Field(..., ge=1, le=5)
-    notes: Optional[str] = None
+    notes: str | None = None
 
 
 class RateResponse(BaseModel):
@@ -78,7 +77,7 @@ class RateResponse(BaseModel):
 # ── Approve / reject ──────────────────────────────────────────────────────────
 
 class ApproveRequest(BaseModel):
-    notes: Optional[str] = None
+    notes: str | None = None
 
 
 class ApproveResponse(BaseModel):
@@ -87,7 +86,7 @@ class ApproveResponse(BaseModel):
 
 
 class RejectRequest(BaseModel):
-    notes: Optional[str] = None
+    notes: str | None = None
     regenerate: bool = False
 
 
@@ -116,7 +115,7 @@ class BlockRequest(BaseModel):
     curriculum_id: str
     unit_id: str
     content_type: str
-    reason: Optional[str] = None
+    reason: str | None = None
 
 
 class BlockResponse(BaseModel):
@@ -139,12 +138,12 @@ class FeedbackItem(BaseModel):
     curriculum_id: str
     content_type: str
     category: str
-    message: Optional[str] = None
+    message: str | None = None
     created_at: datetime
 
 
 class FeedbackListResponse(BaseModel):
-    items: List[FeedbackItem]
+    items: list[FeedbackItem]
     total: int
 
 
@@ -159,7 +158,7 @@ class FeedbackReportItem(BaseModel):
 
 
 class FeedbackReportResponse(BaseModel):
-    items: List[FeedbackReportItem]
+    items: list[FeedbackReportItem]
     threshold: int
 
 
@@ -186,13 +185,13 @@ class StruggleItem(BaseModel):
 
 
 class StruggleResponse(BaseModel):
-    items: List[StruggleItem]
+    items: list[StruggleItem]
 
 
 # ── Pipeline status ───────────────────────────────────────────────────────────
 
 class PipelineStatusResponse(BaseModel):
-    last_run_at: Optional[datetime]
+    last_run_at: datetime | None
     total_versions: int
     ready_for_review: int
     approved: int
@@ -205,6 +204,6 @@ class PipelineStatusResponse(BaseModel):
 
 class DictionaryResponse(BaseModel):
     word: str
-    definitions: List[str]
-    synonyms: List[str]
-    antonyms: List[str]
+    definitions: list[str]
+    synonyms: list[str]
+    antonyms: list[str]

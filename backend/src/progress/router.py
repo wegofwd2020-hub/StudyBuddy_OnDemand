@@ -23,7 +23,7 @@ Performance:
 from __future__ import annotations
 
 import uuid
-from typing import Annotated, Optional
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
@@ -42,7 +42,6 @@ from src.progress.service import (
     create_session,
     end_session,
     get_raw_history,
-    record_answer_sync,
     verify_session_owner,
 )
 from src.utils.logger import get_logger
@@ -211,8 +210,9 @@ async def end_session_endpoint(
     await redis.delete(f"dashboard:{student_id}")
 
     # Fire-and-forget: streak update + materialized view refresh
-    from src.auth.tasks import celery_app
     from datetime import date
+
+    from src.auth.tasks import celery_app
     today = date.today().isoformat()
     celery_app.send_task("src.auth.tasks.update_streak_task", kwargs={"student_id": student_id, "activity_date": today}, queue="io")
     celery_app.send_task("src.auth.tasks.refresh_progress_view_task", kwargs={"student_id": student_id}, queue="io")

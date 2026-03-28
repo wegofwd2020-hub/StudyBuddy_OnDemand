@@ -25,15 +25,14 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 
-from config import settings
 from src.account.schemas import (
     AccountStatusUpdate,
     SchoolStatusResponse,
     StudentStatusResponse,
     TeacherStatusResponse,
 )
-from src.auth.tasks import cascade_school_suspension
 from src.auth.dependencies import get_current_admin
+from src.auth.tasks import cascade_school_suspension
 from src.core.db import get_db
 from src.core.events import emit_event, write_audit_log
 from src.core.redis_client import get_redis

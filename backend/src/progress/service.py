@@ -13,8 +13,7 @@ Key rules:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Optional
+from datetime import UTC, datetime
 
 import asyncpg
 
@@ -26,7 +25,7 @@ QUIZ_PASS_THRESHOLD = 0.60
 
 
 def _now_iso() -> str:
-    return datetime.now(tz=timezone.utc).isoformat()
+    return datetime.now(tz=UTC).isoformat()
 
 
 async def compute_attempt_number(conn: asyncpg.Connection, student_id: str, unit_id: str, curriculum_id: str) -> int:
@@ -132,7 +131,7 @@ async def record_answer_sync(
     correct_answer: int,
     correct: bool,
     ms_taken: int,
-    event_id: Optional[str],
+    event_id: str | None,
 ) -> dict:
     """
     Write an answer row synchronously (called from the fire-and-forget Celery task).

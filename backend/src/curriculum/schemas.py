@@ -6,10 +6,7 @@ Pydantic models for curriculum endpoints.
 
 from __future__ import annotations
 
-from typing import List, Optional
-
 from pydantic import BaseModel, Field
-
 
 # ── Existing grade-tree schemas ───────────────────────────────────────────────
 
@@ -23,12 +20,12 @@ class Unit(BaseModel):
 class Subject(BaseModel):
     subject_id: str
     name: str
-    units: List[Unit]
+    units: list[Unit]
 
 
 class GradeCurriculum(BaseModel):
     grade: int
-    subjects: List[Subject]
+    subjects: list[Subject]
 
 
 class GradeSummary(BaseModel):
@@ -42,17 +39,17 @@ class GradeSummary(BaseModel):
 class CurriculumUnitInput(BaseModel):
     subject: str
     unit_name: str
-    unit_id: Optional[str] = None
-    objectives: List[str]
+    unit_id: str | None = None
+    objectives: list[str]
     has_lab: bool = False
-    lab_description: Optional[str] = None
+    lab_description: str | None = None
 
 
 class CurriculumUploadRequest(BaseModel):
     grade: int = Field(..., ge=5, le=12)
     year: int = Field(..., ge=2020, le=2099)
     name: str
-    units: List[CurriculumUnitInput]
+    units: list[CurriculumUnitInput]
 
 
 class UploadError(BaseModel):
@@ -62,9 +59,9 @@ class UploadError(BaseModel):
 
 
 class CurriculumUploadResponse(BaseModel):
-    curriculum_id: Optional[str] = None
+    curriculum_id: str | None = None
     unit_count: int
-    errors: List[UploadError] = []
+    errors: list[UploadError] = []
 
 
 # ── Phase 8: pipeline trigger + job status ────────────────────────────────────

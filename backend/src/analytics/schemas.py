@@ -6,7 +6,6 @@ Pydantic schemas for lesson analytics endpoints (Phase 4 + Phase 10).
 
 from __future__ import annotations
 
-from typing import List, Optional
 from pydantic import BaseModel
 
 
@@ -37,7 +36,7 @@ class PerUnitStudentMetric(BaseModel):
     unit_id: str
     subject: str
     quiz_attempts: int
-    best_score_pct: Optional[float] = None
+    best_score_pct: float | None = None
     passed: bool
     total_time_minutes: float
     lessons_viewed: int
@@ -45,9 +44,9 @@ class PerUnitStudentMetric(BaseModel):
 
 class ImprovementPoint(BaseModel):
     unit_id: str
-    attempt_1_score: Optional[int] = None
-    best_retry_score: Optional[int] = None
-    improvement_pct: Optional[float] = None
+    attempt_1_score: int | None = None
+    best_retry_score: int | None = None
+    improvement_pct: float | None = None
 
 
 class StudentMetricsResponse(BaseModel):
@@ -59,8 +58,8 @@ class StudentMetricsResponse(BaseModel):
     total_time_minutes: float
     lessons_viewed: int
     audio_plays: int
-    per_unit: List[PerUnitStudentMetric]
-    improvement_trajectory: List[ImprovementPoint]
+    per_unit: list[PerUnitStudentMetric]
+    improvement_trajectory: list[ImprovementPoint]
 
 
 class PerUnitClassMetric(BaseModel):
@@ -79,4 +78,4 @@ class PerUnitClassMetric(BaseModel):
 class ClassMetricsResponse(BaseModel):
     school_id: str
     enrolled_students: int
-    metrics_per_unit: List[PerUnitClassMetric]
+    metrics_per_unit: list[PerUnitClassMetric]
