@@ -118,7 +118,7 @@ export default function AdminDashboardPage() {
           <div className="grid grid-cols-3 gap-4">
             <KpiCard
               label="Total Jobs"
-              value={pipelineData?.jobs.length ?? 0}
+              value={pipelineData?.jobs?.length ?? 0}
               icon={<GitBranch className="h-4 w-4" />}
             />
             <KpiCard
