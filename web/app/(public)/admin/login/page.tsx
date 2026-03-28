@@ -20,8 +20,11 @@ export default function AdminLoginPage() {
       const { token } = await adminLogin(email, password);
       localStorage.setItem("sb_admin_token", token);
       router.push("/admin/dashboard");
-    } catch {
-      setError("Invalid credentials. Please check your email and password.");
+    } catch (err: unknown) {
+      const apiMsg =
+        (err as { response?: { data?: { detail?: string } } })?.response?.data
+          ?.detail;
+      setError(apiMsg ?? "Invalid credentials. Please check your email and password.");
     } finally {
       setLoading(false);
     }

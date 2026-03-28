@@ -23,7 +23,10 @@ adminApi.interceptors.response.use(
   (res) => res,
   (error) => {
     const status = error.response?.status;
-    if (typeof window !== "undefined" && status === 401) {
+    const isLoginEndpoint = error.config?.url?.includes("/admin/auth/login");
+    // Don't redirect on 401 from the login endpoint itself — let the page's
+    // catch block handle it and show the error message to the user.
+    if (typeof window !== "undefined" && status === 401 && !isLoginEndpoint) {
       localStorage.removeItem("sb_admin_token");
       window.location.href = "/admin/login";
     }
