@@ -41,11 +41,11 @@ export default function AdminDashboardPage() {
     staleTime: 30_000,
   });
 
-  const activeJobs = pipelineData?.jobs.filter(
+  const activeJobs = pipelineData?.jobs?.filter(
     (j) => j.status === "running" || j.status === "queued",
   ).length ?? 0;
 
-  const failedJobs = pipelineData?.jobs.filter(
+  const failedJobs = pipelineData?.jobs?.filter(
     (j) => j.status === "failed",
   ).length ?? 0;
 
