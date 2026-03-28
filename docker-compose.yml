@@ -139,8 +139,12 @@ services:
       - .env
     environment:
       <<: *api-env
+      # Migrations connect directly to Postgres — pgbouncer's transaction-pooling
+      # mode is incompatible with Alembic's DDL transaction management.
+      DATABASE_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@db:5432/studybuddy
     depends_on:
-      <<: *depends-infra
+      db:
+        condition: service_healthy
     restart: "no"
 
   # ── Backend API (FastAPI + uvicorn, hot-reload) ─────────────────────────────
