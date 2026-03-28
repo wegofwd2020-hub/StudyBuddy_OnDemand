@@ -81,7 +81,7 @@ export default function AdminFeedbackPage() {
             <div key={i} className="h-20 bg-gray-100 rounded-xl animate-pulse" />
           ))}
         </div>
-      ) : data && data.items.length > 0 ? (
+      ) : data && data.items?.length > 0 ? (
         <>
           <p className="text-xs text-gray-400 mb-3">
             {data.total} item{data.total !== 1 ? "s" : ""}
@@ -129,7 +129,7 @@ export default function AdminFeedbackPage() {
             </button>
             <span className="text-sm text-gray-500">Page {page}</span>
             <button
-              disabled={data.items.length < 20}
+              disabled={(data.items?.length ?? 0) < 20}
               onClick={() => setPage(page + 1)}
               className="px-3 py-1.5 text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 disabled:opacity-40 rounded-lg transition-colors"
             >
