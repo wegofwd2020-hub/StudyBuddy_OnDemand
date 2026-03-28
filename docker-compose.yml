@@ -43,9 +43,6 @@ x-api-env: &api-env
   CELERY_BROKER_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
   CONTENT_STORE_PATH: /data/content
 
-x-api-volumes: &api-volumes
-  - content_store:/data/content
-
 x-depends-infra: &depends-infra
   db:
     condition: service_healthy
@@ -55,6 +52,16 @@ x-depends-infra: &depends-infra
     condition: service_started
 
 x-depends-migrated: &depends-migrated
+  migrate:
+    condition: service_completed_successfully
+
+x-depends-all: &depends-all
+  db:
+    condition: service_healthy
+  redis:
+    condition: service_healthy
+  pgbouncer:
+    condition: service_started
   migrate:
     condition: service_completed_successfully
 
@@ -157,10 +164,9 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/app          # bind-mount source for hot-reload
-      - *api-volumes
+      - content_store:/data/content
     depends_on:
-      <<: *depends-infra
-      <<: *depends-migrated
+      <<: *depends-all
     healthcheck:
       test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\""]
       interval: 15s
@@ -185,10 +191,9 @@ services:
       <<: *api-env
     volumes:
       - ./backend:/app
-      - *api-volumes
+      - content_store:/data/content
     depends_on:
-      <<: *depends-infra
-      <<: *depends-migrated
+      <<: *depends-all
 
   # ── Celery worker — pipeline queue ──────────────────────────────────────────
   celery-pipeline:
@@ -209,10 +214,9 @@ services:
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
     volumes:
       - ./backend:/app
-      - *api-volumes
+      - content_store:/data/content
     depends_on:
-      <<: *depends-infra
-      <<: *depends-migrated
+      <<: *depends-all
 
   # ── Celery Beat (scheduled tasks: digest, alerts, grade promotion) ───────────
   celery-beat:
@@ -230,10 +234,9 @@ services:
       <<: *api-env
     volumes:
       - ./backend:/app
-      - *api-volumes
+      - content_store:/data/content
     depends_on:
-      <<: *depends-infra
-      <<: *depends-migrated
+      <<: *depends-all
 
   # ── Next.js Web Frontend (dev server with hot-reload) ───────────────────────
   web:
@@ -275,8 +278,7 @@ services:
       - ./pipeline:/pipeline
       - content_store:/data/content
     depends_on:
-      <<: *depends-infra
-      <<: *depends-migrated
+      <<: *depends-all
     profiles:
       - pipeline                       # only starts with: docker compose --profile pipeline run pipeline ...
 
