@@ -1,5 +1,6 @@
 import { PublicNav } from "@/components/layout/PublicNav";
-import { Footer } from "@/components/layout/Footer";
+import { PortalHeader } from "@/components/layout/PortalHeader";
+import { PortalFooter } from "@/components/layout/PortalFooter";
 
 export default function PublicLayout({
   children,
@@ -9,10 +10,11 @@ export default function PublicLayout({
   return (
     <>
       <PublicNav />
+      <PortalHeader portal="public" />
       <main id="main-content" className="flex-1">
         {children}
       </main>
-      <Footer />
+      <PortalFooter />
     </>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { useTeacher } from "@/lib/hooks/useTeacher";
 import { getOverviewReport, getAlerts } from "@/lib/api/reports";
@@ -56,9 +57,21 @@ export default function SchoolDashboard() {
   const unreadAlerts = alertsData?.alerts.filter((a) => !a.acknowledged).length ?? 0;
 
   return (
+    <div className="flex flex-col">
+      {/* Hero image */}
+      <div className="relative w-full h-[240px] bg-gray-50">
+        <Image
+          src="/assets/banyan_tree.png"
+          alt="School Portal"
+          fill
+          priority
+          className="object-contain object-center"
+        />
+      </div>
+
     <div className="p-6 space-y-8 max-w-5xl">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Teacher Dashboard</h1>
+        <h1 className="text-2xl font-bold text-gray-900 w-full text-center">Teacher Dashboard</h1>
         <div className="flex gap-2">
           {unreadAlerts > 0 && (
             <LinkButton href="/school/alerts" variant="outline" size="sm">
@@ -120,6 +133,7 @@ export default function SchoolDashboard() {
           </LinkButton>
         ))}
       </div>
+    </div>
     </div>
   );
 }

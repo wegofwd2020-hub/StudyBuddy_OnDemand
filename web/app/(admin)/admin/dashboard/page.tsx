@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { getSubscriptionAnalytics, getPipelineJobs } from "@/lib/api/admin";
 import { TrendingUp, Users, DollarSign, GitBranch, AlertTriangle } from "lucide-react";
@@ -49,9 +50,21 @@ export default function AdminDashboardPage() {
   ).length ?? 0;
 
   return (
+    <div className="flex flex-col">
+      {/* Hero image */}
+      <div className="relative w-full h-[240px] bg-gray-900">
+        <Image
+          src="/assets/peeple.png"
+          alt="Admin Console"
+          fill
+          priority
+          className="object-contain object-center"
+        />
+      </div>
+
     <div className="p-8 max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">Platform Dashboard</h1>
-      <p className="text-sm text-gray-500 mb-8">Live subscription and pipeline overview</p>
+      <h1 className="text-2xl font-bold text-gray-900 mb-1 text-center">Platform Dashboard</h1>
+      <p className="text-sm text-gray-500 mb-8 text-center">Live subscription and pipeline overview</p>
 
       {/* Subscription KPIs */}
       <section className="mb-8">
@@ -122,6 +135,7 @@ export default function AdminDashboardPage() {
           </div>
         )}
       </section>
+    </div>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useProgressHistory } from "@/lib/hooks/useProgress";
 import { useStudentStats } from "@/lib/hooks/useStats";
@@ -9,7 +10,6 @@ import { LinkButton } from "@/components/ui/link-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BookOpen, CheckCircle2, Clock } from "lucide-react";
-import type { Metadata } from "next";
 
 export default function DashboardPage() {
   const t = useTranslations("dashboard_screen");
@@ -18,9 +18,20 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col">
+      {/* Hero image */}
+      <div className="relative w-full h-[240px] bg-gray-50">
+        <Image
+          src="/assets/books.png"
+          alt="Student Portal"
+          fill
+          priority
+          className="object-contain object-center"
+        />
+      </div>
+
       <OfflineBanner />
       <div className="p-6 space-y-6 max-w-4xl">
-        <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
+        <h1 className="text-2xl font-bold text-gray-900 text-center">{t("title")}</h1>
 
         {/* Streak */}
         {statsLoading ? (
