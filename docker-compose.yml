@@ -110,18 +110,18 @@ services:
 
   # ── PgBouncer (transaction-pooling, max 200 client connections) ─────────────
   pgbouncer:
-    image: bitnami/pgbouncer:1.22
+    image: edoburu/pgbouncer:latest
     restart: unless-stopped
     environment:
-      POSTGRESQL_HOST: db
-      POSTGRESQL_PORT: "5432"
-      POSTGRESQL_DATABASE: studybuddy
-      POSTGRESQL_USERNAME: studybuddy
-      POSTGRESQL_PASSWORD: ${POSTGRES_PASSWORD}
-      PGBOUNCER_POOL_MODE: transaction
-      PGBOUNCER_MAX_CLIENT_CONN: "200"
-      PGBOUNCER_DEFAULT_POOL_SIZE: "50"
-      PGBOUNCER_AUTH_TYPE: md5
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: studybuddy
+      DB_USER: studybuddy
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      POOL_MODE: transaction
+      MAX_CLIENT_CONN: "200"
+      DEFAULT_POOL_SIZE: "50"
+      AUTH_TYPE: md5
     ports:
       - "6432:6432"
     depends_on:
