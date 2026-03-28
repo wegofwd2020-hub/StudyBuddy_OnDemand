@@ -97,7 +97,7 @@ export default function AdminAnalyticsPage() {
         </p>
         {struggleLoading ? (
           <div className="h-48 bg-gray-100 rounded-xl animate-pulse" />
-        ) : struggle && struggle.units.length > 0 ? (
+        ) : struggle && struggle.units?.length > 0 ? (
           <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b border-gray-200">
