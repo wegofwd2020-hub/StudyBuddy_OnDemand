@@ -61,7 +61,7 @@ x-depends-all: &depends-all
   redis:
     condition: service_healthy
   pgbouncer:
-    condition: service_started
+    condition: service_healthy
   migrate:
     condition: service_completed_successfully
 
@@ -124,6 +124,12 @@ services:
       AUTH_TYPE: md5
     ports:
       - "6432:6432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -p 6432 -U studybuddy || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     depends_on:
       db:
         condition: service_healthy
