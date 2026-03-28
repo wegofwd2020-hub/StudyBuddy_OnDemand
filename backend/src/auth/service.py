@@ -21,18 +21,17 @@ import asyncio
 import hashlib
 import secrets
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from functools import partial
-from typing import Any, Optional
 
 import asyncpg
 import bcrypt
 import httpx
+from config import settings
 from fastapi import HTTPException
 from jose import JWTError, jwt
 from jose.exceptions import ExpiredSignatureError
 
-from config import settings
 from src.core.cache import jwks_cache
 from src.utils.logger import get_logger
 
@@ -144,7 +143,7 @@ async def verify_auth0_teacher_token(id_token: str) -> dict:
     """Same as verify_auth0_token but uses AUTH0_TEACHER_CLIENT_ID as audience."""
     try:
         unverified_header = jwt.get_unverified_header(id_token)
-    except JWTError as exc:
+    except JWTError:
         raise HTTPException(
             status_code=401,
             detail={"error": "invalid_token", "detail": "JWT header could not be parsed."},
@@ -177,7 +176,7 @@ async def verify_auth0_teacher_token(id_token: str) -> dict:
             status_code=401,
             detail={"error": "unauthenticated", "detail": "Token has expired."},
         )
-    except JWTError as exc:
+    except JWTError:
         raise HTTPException(
             status_code=401,
             detail={"error": "invalid_token", "detail": "JWT signature verification failed."},
@@ -194,7 +193,7 @@ def create_internal_jwt(payload: dict, secret: str, expire_minutes: int) -> str:
 
     Always adds exp, iat, jti claims (per PHASE1_SETUP.md section 10.3).
     """
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     claims = {
         **payload,
         "iat": now,
@@ -317,7 +316,7 @@ async def upsert_student(
 async def upsert_teacher(
     pool: asyncpg.Pool,
     auth0_sub: str,
-    school_id: Optional[uuid.UUID],
+    school_id: uuid.UUID | None,
     name: str,
     email: str,
     role: str = "teacher",

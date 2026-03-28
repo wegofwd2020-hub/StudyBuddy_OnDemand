@@ -14,13 +14,15 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import uuid
-from typing import Optional
+from datetime import UTC
 
 from celery import Celery
 from celery.schedules import crontab
-
 from config import settings
+
+log = logging.getLogger("auth.tasks")
 
 celery_app = Celery(
     "studybuddy",
@@ -193,6 +195,7 @@ def gdpr_delete_account(self, student_id: str, auth0_sub: str) -> None:
     """
     import asyncpg
     from config import settings as cfg
+
     from src.auth.service import delete_auth0_user
 
     async def _delete():
@@ -226,12 +229,12 @@ def write_audit_log_task(
     self,
     event_type: str,
     actor_type: str,
-    actor_id: Optional[str],
-    target_type: Optional[str],
-    target_id: Optional[str],
-    metadata: Optional[dict],
-    ip_address: Optional[str],
-    correlation_id: Optional[str],
+    actor_id: str | None,
+    target_type: str | None,
+    target_id: str | None,
+    metadata: dict | None,
+    ip_address: str | None,
+    correlation_id: str | None,
 ) -> None:
     """Write a single row to the audit_log table."""
     import asyncpg
@@ -274,7 +277,7 @@ def write_progress_answer_task(
     correct_answer: int,
     correct: bool,
     ms_taken: int,
-    event_id: Optional[str],
+    event_id: str | None,
 ) -> None:
     """
     Fire-and-forget task: write a progress answer to PostgreSQL.
@@ -283,6 +286,7 @@ def write_progress_answer_task(
     """
     import asyncpg
     from config import settings as cfg
+
     from src.progress.service import record_answer_sync
 
     async def _write():
@@ -360,8 +364,8 @@ def refresh_progress_view_task(self, student_id: str) -> None:
     Also invalidates the dashboard Redis cache for this student.
     """
     import asyncpg
-    from config import settings as cfg
     import redis as redis_sync
+    from config import settings as cfg
 
     async def _refresh():
         pool = await asyncpg.create_pool(cfg.DATABASE_URL, min_size=1, max_size=2)
@@ -397,9 +401,8 @@ def poll_infra_metrics() -> None:
     This task reads live Redis queue lengths using LLEN on the Celery queue keys.
     """
     import redis as redis_sync
-
     from config import settings as cfg
-    from src.core.observability import db_pool_connections
+
 
     try:
         from prometheus_client import Gauge
@@ -438,6 +441,7 @@ def write_lesson_end_task(
     """
     import asyncpg
     from config import settings as cfg
+
     from src.analytics.service import end_lesson_view
 
     async def _write():
@@ -466,7 +470,7 @@ def send_push_notification_task(
     device_token: str,
     title: str,
     body: str,
-    data: Optional[dict] = None,
+    data: dict | None = None,
 ) -> None:
     """Send a single FCM push notification."""
     from src.notifications.service import send_push_notification
@@ -485,10 +489,11 @@ def check_streak_reminders() -> None:
     Finds students whose streak will break tonight (last_active_date = yesterday)
     and who have streak_reminders enabled. Sends a push notification to each.
     """
+    from datetime import date, timedelta
+
     import asyncpg
     import redis as redis_sync
     from config import settings as cfg
-    from datetime import date, timedelta
 
     yesterday = (date.today() - timedelta(days=1)).isoformat()
 
@@ -660,10 +665,9 @@ def regenerate_subject_task(self, curriculum_id: str, subject: str) -> None:
     try:
         # Import pipeline build_unit lazily — pipeline deps may not be present
         # on non-pipeline workers. This task must only run on pipeline workers.
-        from pipeline.config import settings as pipeline_cfg  # type: ignore
-        from pipeline.build_unit import build_unit             # type: ignore
-
         import asyncpg
+        from pipeline.build_unit import build_unit  # type: ignore
+        from pipeline.config import settings as pipeline_cfg  # type: ignore
 
         cfg = settings  # backend settings
 
@@ -811,7 +815,7 @@ def run_curriculum_pipeline_task(
                 await conn.close()
 
         units, teacher_email = _run_async(_fetch_units())
-        lang_list = [l.strip() for l in langs.split(",") if l.strip()]
+        lang_list = [lang.strip() for lang in langs.split(",") if lang.strip()]
         total = len(units) * len(lang_list)
         _update_job({"status": "running", "total": total})
 
@@ -1022,10 +1026,11 @@ def send_weekly_digest_task() -> None:
       3. Sends via SendGrid (SENDGRID_API_KEY in config).
          Falls back to logging only when the key is not configured.
     """
-    from datetime import datetime, timedelta, timezone as _tz
+    from datetime import datetime, timedelta
+
     import asyncpg as _asyncpg
 
-    week_start = (datetime.now(_tz.utc) - timedelta(days=7)).isoformat()
+    week_start = (datetime.now(UTC) - timedelta(days=7)).isoformat()
 
     async def _digest():
         pool = await _asyncpg.create_pool(settings.DATABASE_URL, min_size=1, max_size=2)
@@ -1165,9 +1170,10 @@ def export_report_task(
     Triggered by POST /reports/school/{school_id}/export. The download
     endpoint serves the file once it exists.
     """
-    import asyncpg as _asyncpg
     import csv as _csv
     import os as _os
+
+    import asyncpg as _asyncpg
 
     async def _export():
         pool = await _asyncpg.create_pool(settings.DATABASE_URL, min_size=1, max_size=2)

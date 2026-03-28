@@ -16,10 +16,10 @@ from __future__ import annotations
 import uuid
 from typing import Literal
 
+from config import settings
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
-from config import settings
 from src.auth.service import create_internal_jwt
 from src.core.db import get_db
 from src.utils.logger import get_logger

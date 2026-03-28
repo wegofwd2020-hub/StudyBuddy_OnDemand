@@ -25,8 +25,6 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 
-from src.auth.dependencies import get_current_student, get_current_teacher
-from src.core.db import get_db
 from src.analytics.schemas import (
     ClassMetricsResponse,
     LessonEndRequest,
@@ -36,12 +34,13 @@ from src.analytics.schemas import (
     StudentMetricsResponse,
 )
 from src.analytics.service import (
-    end_lesson_view,
     get_class_metrics,
     get_student_metrics,
     start_lesson_view,
     verify_view_owner,
 )
+from src.auth.dependencies import get_current_student, get_current_teacher
+from src.core.db import get_db
 from src.utils.logger import get_logger
 
 log = get_logger("analytics")
@@ -242,7 +241,10 @@ async def student_stats(
         "pass_rate": round(total_passed / total_scored, 4) if total_scored else 0.0,
         "avg_score": round(avg_score / 100, 4),
         "audio_sessions": int(vr.get("audio_sessions") or 0),
-        "subject_breakdown": [],
+        "subject_breakdown": [
+            {"subject": r["subject"], "lessons": int(r["lessons"]), "pass_rate": round(float(r["pass_rate"] or 0), 4)}
+            for r in subj_rows
+        ],
     }
 
 

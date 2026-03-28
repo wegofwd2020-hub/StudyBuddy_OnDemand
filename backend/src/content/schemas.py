@@ -6,9 +6,7 @@ Pydantic response/request models for the Content Service.
 
 from __future__ import annotations
 
-from typing import List, Optional
 from pydantic import BaseModel
-
 
 # ── Lesson ────────────────────────────────────────────────────────────────────
 
@@ -23,13 +21,13 @@ class LessonResponse(BaseModel):
     grade: int
     subject: str
     lang: str
-    sections: List[LessonSection]
-    key_points: List[str]
+    sections: list[LessonSection]
+    key_points: list[str]
     has_audio: bool = False
     # Pipeline metadata (optional — not rendered by the frontend)
-    generated_at: Optional[str] = None
-    model: Optional[str] = None
-    content_version: Optional[int] = None
+    generated_at: str | None = None
+    model: str | None = None
+    content_version: int | None = None
 
 
 # ── Quiz ──────────────────────────────────────────────────────────────────────
@@ -43,7 +41,7 @@ class QuizQuestion(BaseModel):
     question_id: str
     question_text: str
     question_type: str
-    options: List[QuizOption]
+    options: list[QuizOption]
     correct_option: str
     explanation: str
     difficulty: str
@@ -53,7 +51,7 @@ class QuizResponse(BaseModel):
     unit_id: str
     set_number: int
     language: str
-    questions: List[QuizQuestion]
+    questions: list[QuizQuestion]
     total_questions: int
     estimated_duration_minutes: int
     passing_score: int
@@ -68,7 +66,7 @@ class TutorialSection(BaseModel):
     section_id: str
     title: str
     content: str
-    examples: List[str]
+    examples: list[str]
     practice_question: str
 
 
@@ -76,8 +74,8 @@ class TutorialResponse(BaseModel):
     unit_id: str
     language: str
     title: str
-    sections: List[TutorialSection]
-    common_mistakes: List[str]
+    sections: list[TutorialSection]
+    common_mistakes: list[str]
     generated_at: str
     model: str
     content_version: int
@@ -100,10 +98,10 @@ class ExperimentResponse(BaseModel):
     unit_id: str
     language: str
     experiment_title: str
-    materials: List[str]
-    safety_notes: List[str]
-    steps: List[ExperimentStep]
-    questions: List[ExperimentQuestion]
+    materials: list[str]
+    safety_notes: list[str]
+    steps: list[ExperimentStep]
+    questions: list[ExperimentQuestion]
     conclusion_prompt: str
     generated_at: str
     model: str
@@ -121,14 +119,14 @@ class AudioUrlResponse(BaseModel):
 
 class ReportRequest(BaseModel):
     category: str  # incorrect | offensive | unclear | other
-    message: Optional[str] = None
+    message: str | None = None
 
 
 class FeedbackRequest(BaseModel):
     content_type: str
-    start_offset: Optional[int] = None
-    end_offset: Optional[int] = None
-    marked_text: Optional[str] = None
+    start_offset: int | None = None
+    end_offset: int | None = None
+    marked_text: str | None = None
     feedback_text: str
 
 

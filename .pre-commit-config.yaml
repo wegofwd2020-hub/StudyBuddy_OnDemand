@@ -1,0 +1,81 @@
+# =============================================================================
+# StudyBuddy OnDemand — Pre-commit hooks
+#
+# Install:
+#   pip install pre-commit
+#   pre-commit install
+#
+# Run manually against all files:
+#   pre-commit run --all-files
+# =============================================================================
+
+repos:
+  # ── General file hygiene ────────────────────────────────────────────────────
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ["--maxkb=500"]
+      - id: mixed-line-ending
+        args: ["--fix=lf"]
+
+  # ── Secrets detection ───────────────────────────────────────────────────────
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: ["--baseline", ".secrets.baseline"]
+        exclude: |
+          (?x)
+          ^(
+            backend/tests/helpers/token_factory\.py|  # test JWT helpers use fake secrets
+            \.github/workflows/.*\.yml               # CI env vars are placeholders
+          )$
+
+  # ── Python: Ruff (lint + format) ────────────────────────────────────────────
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.9.10
+    hooks:
+      - id: ruff
+        args: ["--fix"]
+        files: ^backend/
+      - id: ruff-format
+        files: ^backend/
+
+  # ── Python: Bandit (security SAST) ──────────────────────────────────────────
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.8.3
+    hooks:
+      - id: bandit
+        args: ["-c", "backend/pyproject.toml"]
+        files: ^backend/src/
+
+  # ── JavaScript / TypeScript: ESLint ─────────────────────────────────────────
+  - repo: local
+    hooks:
+      - id: eslint
+        name: eslint
+        language: node
+        entry: bash -c 'cd web && npx eslint --max-warnings=0 "$@"' --
+        types: [file]
+        files: ^web/.*\.(ts|tsx|js|jsx)$
+        exclude: ^web/(node_modules|\.next|out|build)/
+        pass_filenames: true
+
+  # ── JavaScript / TypeScript: Prettier ───────────────────────────────────────
+  - repo: local
+    hooks:
+      - id: prettier
+        name: prettier
+        language: node
+        entry: bash -c 'cd web && npx prettier --check "$@"' --
+        types: [file]
+        files: ^web/.*\.(ts|tsx|js|jsx|json|css|md)$
+        exclude: ^web/(node_modules|\.next|out|build)/
+        pass_filenames: true

@@ -11,7 +11,7 @@ write_audit_log() — dispatches a Celery task to insert an audit_log row
 from __future__ import annotations
 
 import uuid
-from typing import Any, Optional
+from typing import Any
 
 from src.core.observability import correlation_id_var, events_total
 from src.utils.logger import get_logger
@@ -47,11 +47,11 @@ def emit_event(
 def write_audit_log(
     event_type: str,
     actor_type: str,
-    actor_id: Optional[uuid.UUID],
-    target_type: Optional[str] = None,
-    target_id: Optional[uuid.UUID] = None,
-    metadata: Optional[dict] = None,
-    ip_address: Optional[str] = None,
+    actor_id: uuid.UUID | None,
+    target_type: str | None = None,
+    target_id: uuid.UUID | None = None,
+    metadata: dict | None = None,
+    ip_address: str | None = None,
 ) -> None:
     """
     Dispatch a Celery task to write an audit_log row.
@@ -63,7 +63,7 @@ def write_audit_log(
     Import is deferred to avoid circular imports at module load time.
     """
     try:
-        from src.auth.tasks import write_audit_log_task  # noqa: PLC0415
+        from src.auth.tasks import write_audit_log_task
 
         write_audit_log_task.delay(
             event_type=event_type,

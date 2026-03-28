@@ -1,0 +1,87 @@
+# =============================================================================
+# Dependabot — automated dependency update PRs
+# Runs weekly on Monday mornings.  Opens PRs against main.
+# =============================================================================
+
+version: 2
+
+updates:
+  # ── GitHub Actions ──────────────────────────────────────────────────────────
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+    labels:
+      - "dependencies"
+      - "github-actions"
+
+  # ── Backend Python (FastAPI, Celery, etc.) ───────────────────────────────────
+  - package-ecosystem: "pip"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+    labels:
+      - "dependencies"
+      - "python"
+    open-pull-requests-limit: 10
+    groups:
+      # Batch all testing tools into one PR to reduce noise
+      testing-tools:
+        patterns:
+          - "pytest*"
+          - "fakeredis"
+          - "anyio"
+          - "httpx"
+          - "ruff"
+          - "bandit*"
+          - "pip-audit"
+          - "pytest-cov"
+
+  # ── Pipeline Python (Anthropic, Boto3, TTS) ──────────────────────────────────
+  - package-ecosystem: "pip"
+    directory: "/pipeline"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+    labels:
+      - "dependencies"
+      - "python"
+      - "pipeline"
+    open-pull-requests-limit: 5
+
+  # ── Web Frontend (Next.js, React, etc.) ──────────────────────────────────────
+  - package-ecosystem: "npm"
+    directory: "/web"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+    labels:
+      - "dependencies"
+      - "javascript"
+    open-pull-requests-limit: 10
+    groups:
+      # Batch Next.js ecosystem (next, react, react-dom, eslint-config-next)
+      nextjs-ecosystem:
+        patterns:
+          - "next"
+          - "react"
+          - "react-dom"
+          - "eslint-config-next"
+      # Batch all @types/* into one PR
+      typescript-types:
+        patterns:
+          - "@types/*"
+      # Batch testing tools
+      testing-tools:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
+          - "@playwright/test"
+          - "@testing-library/*"
+          - "jsdom"

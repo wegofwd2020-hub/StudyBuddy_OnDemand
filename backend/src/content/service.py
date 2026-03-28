@@ -17,11 +17,10 @@ from __future__ import annotations
 
 import json
 import os
-from typing import Optional
 
 import asyncpg
-
 from config import settings
+
 from src.utils.logger import get_logger
 
 log = get_logger("content.service")
@@ -151,7 +150,7 @@ async def get_content_file(
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"Content file not found: {file_path}")
 
-    with open(file_path, "r", encoding="utf-8") as f:
+    with open(file_path, encoding="utf-8") as f:
         data = json.load(f)
 
     await redis.set(key, json.dumps(data), ex=_CONTENT_TTL)
@@ -211,7 +210,7 @@ async def resolve_curriculum_id(
             pass
 
     # Check school enrollment for a custom curriculum
-    curriculum_id: Optional[str] = None
+    curriculum_id: str | None = None
     async with pool.acquire() as conn:
         row = await conn.fetchrow(
             """
@@ -296,7 +295,7 @@ async def get_unit_subject(
     unit_id: str,
     curriculum_id: str,
     pool: asyncpg.Pool,
-) -> Optional[str]:
+) -> str | None:
     """
     Return the subject for a unit by looking it up in curriculum_units.
     Returns None if the unit is not found.
@@ -310,7 +309,7 @@ async def get_unit_subject(
     return row["subject"] if row else None
 
 
-async def invalidate_cdn_path(curriculum_id: str, unit_id: Optional[str] = None) -> None:
+async def invalidate_cdn_path(curriculum_id: str, unit_id: str | None = None) -> None:
     """
     Invalidate CloudFront CDN paths after a content version bump.
 
@@ -334,8 +333,9 @@ async def invalidate_cdn_path(curriculum_id: str, unit_id: Optional[str] = None)
         path = f"/curricula/{curriculum_id}/*"
 
     try:
-        import boto3
         import time
+
+        import boto3
 
         cf = boto3.client("cloudfront")
         cf.create_invalidation(

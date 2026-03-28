@@ -10,7 +10,7 @@ list_feedback    — paginated admin query with optional filters
 from __future__ import annotations
 
 import uuid
-from typing import Optional
+from datetime import UTC
 
 import asyncpg
 
@@ -30,8 +30,8 @@ async def check_and_increment_rate_limit(redis, student_id: str) -> bool:
     Returns True if allowed, False if limit exceeded.
     Uses Redis INCR + EXPIRE; atomic via single-connection pipeline semantics.
     """
-    from datetime import datetime, timezone
-    hour_key = datetime.now(timezone.utc).strftime("%Y%m%d%H")
+    from datetime import datetime
+    hour_key = datetime.now(UTC).strftime("%Y%m%d%H")
     key = f"feedback:rate:{student_id}:{hour_key}"
 
     count = await redis.incr(key)
@@ -45,9 +45,9 @@ async def submit_feedback(
     student_id: str,
     category: str,
     message: str,
-    unit_id: Optional[str] = None,
-    curriculum_id: Optional[str] = None,
-    rating: Optional[int] = None,
+    unit_id: str | None = None,
+    curriculum_id: str | None = None,
+    rating: int | None = None,
 ) -> dict:
     """Insert a feedback row. Returns {feedback_id, submitted_at}."""
     row = await conn.fetchrow(
@@ -72,10 +72,10 @@ async def list_feedback(
     conn: asyncpg.Connection,
     page: int = 1,
     per_page: int = 20,
-    category: Optional[str] = None,
-    unit_id: Optional[str] = None,
-    curriculum_id: Optional[str] = None,
-    reviewed: Optional[bool] = None,
+    category: str | None = None,
+    unit_id: str | None = None,
+    curriculum_id: str | None = None,
+    reviewed: bool | None = None,
 ) -> dict:
     """
     Paginated admin query for feedback rows.

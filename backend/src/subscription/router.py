@@ -29,7 +29,6 @@ from __future__ import annotations
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import JSONResponse
 
 from src.auth.dependencies import get_current_student
 from src.core.db import get_db
@@ -206,7 +205,7 @@ async def _dispatch_event(conn, redis, event_type: str, obj: dict, event: dict) 
             sub = stripe_mod.Subscription.retrieve(stripe_subscription_id)
             import datetime as _dt
             current_period_end = _dt.datetime.fromtimestamp(
-                sub["current_period_end"], tz=_dt.timezone.utc
+                sub["current_period_end"], tz=_dt.UTC
             )
         except Exception as exc:
             log.warning("could_not_fetch_subscription_period error=%s", exc)
@@ -229,7 +228,7 @@ async def _dispatch_event(conn, redis, event_type: str, obj: dict, event: dict) 
         import datetime as _dt
         period_end_ts = obj.get("current_period_end")
         current_period_end = (
-            _dt.datetime.fromtimestamp(period_end_ts, tz=_dt.timezone.utc)
+            _dt.datetime.fromtimestamp(period_end_ts, tz=_dt.UTC)
             if period_end_ts else None
         )
 

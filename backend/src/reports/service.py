@@ -16,11 +16,8 @@ Shared helper:
 
 from __future__ import annotations
 
-import csv
-import io
 import uuid
-from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, List, Optional
+from datetime import UTC, datetime, timedelta
 
 import asyncpg
 
@@ -37,12 +34,12 @@ _HEALTHY_ATT     = 1.5    # at or below this → healthy
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 def _period_start(period: str) -> datetime:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     if period == "30d":
         return now - timedelta(days=30)
     if period == "term":
         year = now.year if now.month >= 9 else now.year - 1
-        return datetime(year, 9, 1, tzinfo=timezone.utc)
+        return datetime(year, 9, 1, tzinfo=UTC)
     return now - timedelta(days=7)   # default: 7d
 
 
@@ -417,8 +414,6 @@ async def get_student_report(
     )
     units_completed = summary["units_completed"] or 0
     avg_score = float(summary["avg_score"] or 0)
-    first_pass_count = summary["first_pass"] or 0
-    first_att = summary["first_att_students"] or 0  # should be unique per unit
     # Recalculate first attempt pass rate properly
     first_att_row = await conn.fetchrow(
         """
@@ -633,9 +628,9 @@ async def get_curriculum_health(
 async def get_feedback_report(
     conn: asyncpg.Connection,
     school_id: str,
-    unit_id: Optional[str] = None,
-    category: Optional[str] = None,
-    reviewed: Optional[bool] = None,
+    unit_id: str | None = None,
+    category: str | None = None,
+    reviewed: bool | None = None,
     sort: str = "recent",
 ) -> dict:
     """Feedback from enrolled students, grouped by unit."""
@@ -674,7 +669,7 @@ async def get_feedback_report(
         """,
         *id_uuids,
     )
-    seven_days_ago = datetime.now(timezone.utc) - timedelta(days=7)
+    seven_days_ago = datetime.now(UTC) - timedelta(days=7)
 
     by_unit = []
     for row in unit_ids_fb:
@@ -765,7 +760,7 @@ async def get_trends(
 ) -> dict:
     """Week-over-week trend data for enrolled students."""
     n_weeks = _trend_weeks(period)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     enrolled = await _enrolled_ids(conn, school_id)
     id_uuids = [uuid.UUID(s) for s in enrolled]
@@ -959,6 +954,6 @@ async def refresh_materialized_views(pool: asyncpg.Pool) -> dict:
             await conn.execute(f"REFRESH MATERIALIZED VIEW {view}")
     log.info("materialized_views_refreshed", views=views)
     return {
-        "refreshed_at": datetime.now(timezone.utc),
+        "refreshed_at": datetime.now(UTC),
         "views_refreshed": views,
     }

@@ -23,9 +23,7 @@ Entitlement cache:
 
 from __future__ import annotations
 
-import json
-from datetime import datetime, timedelta, timezone
-from typing import Optional
+from datetime import UTC, datetime, timedelta
 
 import asyncpg
 
@@ -129,7 +127,7 @@ async def log_stripe_event(
     stripe_event_id: str,
     event_type: str,
     outcome: str,
-    error_detail: Optional[str] = None,
+    error_detail: str | None = None,
 ) -> None:
     """Insert a stripe_events row. Uses INSERT ... ON CONFLICT DO NOTHING for idempotency."""
     await conn.execute(
@@ -207,7 +205,7 @@ async def activate_subscription(
     plan: str,
     stripe_customer_id: str,
     stripe_subscription_id: str,
-    current_period_end: Optional[datetime],
+    current_period_end: datetime | None,
 ) -> None:
     """
     Called on checkout.session.completed.
@@ -258,7 +256,7 @@ async def update_subscription_status(
     redis,
     stripe_subscription_id: str,
     status: str,
-    current_period_end: Optional[datetime],
+    current_period_end: datetime | None,
 ) -> None:
     """
     Called on customer.subscription.updated.
@@ -340,7 +338,7 @@ async def handle_payment_failed(
     Sets status=past_due and grace_period_end = NOW() + 3 days.
     Student retains access until grace_period_end.
     """
-    grace_end = datetime.now(timezone.utc) + timedelta(days=_GRACE_PERIOD_DAYS)
+    grace_end = datetime.now(UTC) + timedelta(days=_GRACE_PERIOD_DAYS)
 
     row = await conn.fetchrow(
         """
@@ -376,7 +374,7 @@ async def handle_payment_failed(
 async def cancel_active_subscription_for_student(
     conn: asyncpg.Connection,
     student_id: str,
-) -> Optional[str]:
+) -> str | None:
     """
     Return the active stripe_subscription_id for a student (or None).
     Used by DELETE /auth/account to cancel Stripe sub before GDPR deletion.

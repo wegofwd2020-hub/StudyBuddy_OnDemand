@@ -7,7 +7,6 @@ Pydantic request/response models for Phase 8–9 school endpoints.
 from __future__ import annotations
 
 from datetime import datetime
-from typing import List, Optional
 
 from pydantic import BaseModel, EmailStr
 
@@ -30,7 +29,7 @@ class SchoolProfileResponse(BaseModel):
     name: str
     contact_email: str
     country: str
-    enrolment_code: Optional[str] = None
+    enrolment_code: str | None = None
     status: str
     created_at: datetime
 
@@ -49,7 +48,7 @@ class TeacherInviteResponse(BaseModel):
 # ── Phase 9 — Enrolment ────────────────────────────────────────────────────────
 
 class EnrolmentUploadRequest(BaseModel):
-    student_emails: List[EmailStr]
+    student_emails: list[EmailStr]
 
 
 class EnrolmentUploadResponse(BaseModel):
@@ -59,10 +58,10 @@ class EnrolmentUploadResponse(BaseModel):
 
 class EnrolmentRosterItem(BaseModel):
     student_email: str
-    student_id: Optional[str] = None
+    student_id: str | None = None
     status: str
     added_at: datetime
 
 
 class EnrolmentRosterResponse(BaseModel):
-    roster: List[EnrolmentRosterItem]
+    roster: list[EnrolmentRosterItem]
