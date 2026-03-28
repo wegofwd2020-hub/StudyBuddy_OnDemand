@@ -4,7 +4,7 @@
  */
 "use client";
 
-import { useMemo } from "react";
+import { useState, useEffect } from "react";
 
 export type AdminRole = "developer" | "tester" | "product_admin" | "super_admin";
 
@@ -42,15 +42,18 @@ const VALID_ROLES = new Set<AdminRole>([
 ]);
 
 export function useAdmin(): AdminClaims | null {
-  return useMemo(() => {
-    if (typeof window === "undefined") return null;
+  const [admin, setAdmin] = useState<AdminClaims | null>(null);
+
+  useEffect(() => {
     const token = localStorage.getItem("sb_admin_token");
-    if (!token) return null;
+    if (!token) return;
     const payload = decodeJwtPayload(token);
-    if (!payload) return null;
+    if (!payload) return;
     const admin_id = payload.admin_id as string | undefined;
     const role = payload.role as AdminRole | undefined;
-    if (!admin_id || !role || !VALID_ROLES.has(role)) return null;
-    return { admin_id, role };
+    if (!admin_id || !role || !VALID_ROLES.has(role)) return;
+    setAdmin({ admin_id, role });
   }, []);
+
+  return admin;
 }
