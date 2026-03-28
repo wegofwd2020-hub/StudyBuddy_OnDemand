@@ -5,6 +5,7 @@ Curriculum endpoints.
 
 Phase 1–2 routes (JSON files):
   GET  /curriculum               — list grades
+  GET  /curriculum/tree          — student's grade tree (JWT-resolved)
   GET  /curriculum/{grade}       — grade tree
 
 Phase 8 routes (DB + XLSX):
@@ -27,7 +28,7 @@ from typing import Annotated, List
 from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
 from fastapi.responses import Response
 
-from src.auth.dependencies import get_current_teacher
+from src.auth.dependencies import get_current_student, get_current_teacher
 from src.core.cache import curriculum_cache
 from src.core.db import get_db
 from src.core.redis_client import get_redis
@@ -347,6 +348,70 @@ async def activate_curriculum(
         status="active",
         archived_count=archived_count,
     )
+
+
+# ── Student curriculum tree — resolves curriculum_id from JWT + enrollment ──────
+
+@router.get("/curriculum/tree")
+async def get_curriculum_tree(
+    request: Request,
+    student: Annotated[dict, Depends(get_current_student)],
+) -> dict:
+    """
+    Return the full subject + unit tree for the authenticated student.
+
+    Resolves curriculum_id via enrollment (school custom) or default-{year}-g{grade}.
+    Returns the shape the web frontend expects:
+      { curriculum_id, grade, subjects: [{ subject, units: [{ unit_id, title, subject, grade, sort_order, has_lab }] }] }
+    """
+    grade = student.get("grade", 8)
+    student_id = student["student_id"]
+    redis = request.app.state.redis
+
+    # Resolve curriculum_id (inlined to avoid circular import with content.service)
+    _cur_key = f"cur:{student_id}"
+    cached = await redis.get(_cur_key)
+    if cached:
+        curriculum_id = cached.decode() if isinstance(cached, bytes) else cached
+    else:
+        curriculum_id = None
+        async with request.app.state.pool.acquire() as conn:
+            row = await conn.fetchrow(
+                """
+                SELECT c.curriculum_id
+                FROM students s
+                JOIN schools sc ON s.school_id = sc.school_id
+                JOIN curricula c ON c.school_id = sc.school_id AND c.grade = s.grade
+                WHERE s.student_id = $1
+                LIMIT 1
+                """,
+                student_id,
+            )
+            if row:
+                curriculum_id = row["curriculum_id"]
+        if not curriculum_id:
+            curriculum_id = f"default-2026-g{grade}"
+        await redis.set(_cur_key, curriculum_id, ex=300)
+
+    data = _load_grade(grade)
+
+    subjects = []
+    for subj in data.get("subjects", []):
+        subject_name = subj.get("name", subj.get("subject", ""))
+        units = [
+            {
+                "unit_id": u["unit_id"],
+                "title": u["title"],
+                "subject": subject_name,
+                "grade": grade,
+                "sort_order": idx,
+                "has_lab": u.get("has_lab", False),
+            }
+            for idx, u in enumerate(subj.get("units", []))
+        ]
+        subjects.append({"subject": subject_name, "units": units})
+
+    return {"curriculum_id": curriculum_id, "grade": grade, "subjects": subjects}
 
 
 # ── Grade tree /{grade} — kept last to avoid shadowing /template and /pipeline ─

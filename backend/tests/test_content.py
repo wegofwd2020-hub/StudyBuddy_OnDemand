@@ -27,14 +27,16 @@ from tests.helpers.token_factory import make_student_token
 
 SAMPLE_LESSON = {
     "unit_id": "G8-SCI-001",
+    "title": "Density and Buoyancy",
+    "grade": 8,
     "subject": "G8-SCI",
-    "topic": "Density and Buoyancy",
-    "synopsis": "Explore why objects float or sink using density and Archimedes' principle.",
-    "key_concepts": ["density", "buoyancy", "Archimedes' principle"],
-    "learning_objectives": ["Explain why objects float", "Calculate density"],
-    "reading_level": "Grade 8 reading level",
-    "estimated_duration_minutes": 30,
-    "language": "en",
+    "lang": "en",
+    "sections": [
+        {"heading": "Introduction", "body": "Density determines whether objects float or sink."},
+        {"heading": "Archimedes' Principle", "body": "An object submerged in fluid experiences an upward buoyant force."},
+    ],
+    "key_points": ["density", "buoyancy", "Archimedes' principle"],
+    "has_audio": False,
     "generated_at": "2026-03-25T00:00:00+00:00",
     "model": "claude-sonnet-4-6",
     "content_version": 1,
@@ -109,8 +111,9 @@ async def test_lesson_returns_content(client: AsyncClient, fake_redis):
     assert response.status_code == 200, response.text
     data = response.json()
     assert data["unit_id"] == unit_id
-    assert data["topic"] == "Density and Buoyancy"
-    assert "key_concepts" in data
+    assert data["title"] == "Density and Buoyancy"
+    assert "key_points" in data
+    assert len(data["sections"]) == 2
 
 
 @pytest.mark.asyncio

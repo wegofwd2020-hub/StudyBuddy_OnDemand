@@ -4,7 +4,7 @@ import { Flame } from "lucide-react";
 
 interface StreakCardProps {
   streakDays: number;
-  sessionDates: string[];
+  sessionDates: string[] | undefined;
 }
 
 export function StreakCard({ streakDays, sessionDates }: StreakCardProps) {
@@ -39,7 +39,7 @@ export function StreakCard({ streakDays, sessionDates }: StreakCardProps) {
               key={date}
               title={date}
               className={`h-3 w-3 rounded-full ${
-                sessionDates.includes(date) ? "bg-orange-400" : "bg-gray-100"
+                sessionDates?.includes(date) ? "bg-orange-400" : "bg-gray-100"
               }`}
             />
           ))}

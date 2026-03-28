@@ -78,13 +78,14 @@ export function QuizPlayer({ quiz, sessionId }: QuizPlayerProps) {
 
   async function handleSubmit() {
     if (state.selectedIndex === null) return;
+    const correct = state.selectedIndex === question.correct_index;
     const res = await submitAnswer({
       session_id: sessionId,
       unit_id: quiz.unit_id,
       question_index: state.questionIndex,
       answer_index: state.selectedIndex,
+      correct_index: question.correct_index,
     });
-    const correct = state.selectedIndex === question.correct_index;
     dispatch({ type: "REVIEWED", result: res, correct });
   }
 
@@ -196,9 +197,9 @@ export function QuizPlayer({ quiz, sessionId }: QuizPlayerProps) {
         </div>
 
         {/* Explanation */}
-        {state.phase === "reviewing" && state.answerResult && (
+        {state.phase === "reviewing" && question.explanation && (
           <div className="mt-4 rounded-lg bg-gray-50 border p-3 text-sm text-gray-600">
-            {state.answerResult.explanation}
+            {question.explanation}
           </div>
         )}
       </div>

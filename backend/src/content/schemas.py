@@ -12,19 +12,24 @@ from pydantic import BaseModel
 
 # ── Lesson ────────────────────────────────────────────────────────────────────
 
+class LessonSection(BaseModel):
+    heading: str
+    body: str
+
+
 class LessonResponse(BaseModel):
     unit_id: str
+    title: str
+    grade: int
     subject: str
-    topic: str
-    synopsis: str
-    key_concepts: List[str]
-    learning_objectives: List[str]
-    reading_level: str
-    estimated_duration_minutes: int
-    language: str
-    generated_at: str
-    model: str
-    content_version: int
+    lang: str
+    sections: List[LessonSection]
+    key_points: List[str]
+    has_audio: bool = False
+    # Pipeline metadata (optional — not rendered by the frontend)
+    generated_at: Optional[str] = None
+    model: Optional[str] = None
+    content_version: Optional[int] = None
 
 
 # ── Quiz ──────────────────────────────────────────────────────────────────────

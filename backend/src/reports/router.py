@@ -84,6 +84,67 @@ def _check_school(teacher: dict, school_id: str, request: Request) -> None:
         )
 
 
+# ── Student Roster ────────────────────────────────────────────────────────────
+
+@router.get("/reports/school/{school_id}/roster")
+async def student_roster(
+    school_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+    grade: Optional[int] = None,
+) -> dict:
+    """
+    Return per-student rows for the Class Overview table.
+
+    Columns: student_id, student_name, grade, units_completed, total_units,
+             avg_score_pct, last_active.
+    """
+    _check_school(teacher, school_id, request)
+    async with get_db(request) as conn:
+        grade_filter = "AND s.grade = $2" if grade is not None else ""
+        params = [school_id, grade] if grade is not None else [school_id]
+        rows = await conn.fetch(
+            f"""
+            SELECT
+                s.student_id,
+                s.name                                              AS student_name,
+                s.grade,
+                COALESCE(SUM(CASE WHEN ps.passed THEN 1 ELSE 0 END), 0)
+                                                                    AS units_completed,
+                (SELECT COUNT(*) FROM curriculum_units cu
+                 JOIN curricula c ON c.curriculum_id = cu.curriculum_id
+                 WHERE c.grade = s.grade AND c.is_default)          AS total_units,
+                COALESCE(
+                    AVG(CASE WHEN ps.score IS NOT NULL
+                        THEN ps.score::float / NULLIF(ps.total_questions, 0) * 100
+                    END), 0
+                )                                                   AS avg_score_pct,
+                MAX(ps.started_at)                                  AS last_active
+            FROM students s
+            LEFT JOIN progress_sessions ps ON ps.student_id = s.student_id
+                AND ps.completed = true
+            WHERE s.school_id = $1 {grade_filter}
+            GROUP BY s.student_id, s.name, s.grade
+            ORDER BY s.name
+            """,
+            *params,
+        )
+
+    students = [
+        {
+            "student_id": str(r["student_id"]),
+            "student_name": r["student_name"],
+            "grade": r["grade"],
+            "units_completed": int(r["units_completed"]),
+            "total_units": int(r["total_units"] or 0),
+            "avg_score_pct": round(float(r["avg_score_pct"] or 0), 1),
+            "last_active": r["last_active"].isoformat() if r["last_active"] else None,
+        }
+        for r in rows
+    ]
+    return {"school_id": school_id, "grade": grade, "subject": None, "students": students}
+
+
 # ── Report 1: Class Overview ──────────────────────────────────────────────────
 
 @router.get("/reports/school/{school_id}/overview", response_model=OverviewReport)

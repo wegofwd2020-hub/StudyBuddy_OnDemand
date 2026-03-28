@@ -224,4 +224,9 @@ app.include_router(school_router, prefix="/api/v1")
 app.include_router(feedback_router, prefix="/api/v1")
 app.include_router(reports_router, prefix="/api/v1")
 
+if settings.APP_ENV == "development":
+    from src.auth.dev_router import router as dev_router  # noqa: E402
+    app.include_router(dev_router, prefix="/api/v1")
+    log.info("dev_router_registered")
+
 log.info("routers_registered")

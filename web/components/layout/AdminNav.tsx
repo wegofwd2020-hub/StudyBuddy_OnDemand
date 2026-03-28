@@ -72,7 +72,7 @@ function handleLogout() {
 }
 
 export function AdminNav() {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "";
   const admin = useAdmin();
 
   const visibleItems = NAV_ITEMS.filter(

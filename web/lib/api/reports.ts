@@ -166,7 +166,7 @@ export async function getClassMetrics(
   subject?: string,
 ): Promise<ClassMetricsResponse> {
   const res = await schoolApi.get<ClassMetricsResponse>(
-    `/analytics/school/${schoolId}/class`,
+    `/reports/school/${schoolId}/roster`,
     { params: { grade, subject } },
   );
   return res.data;

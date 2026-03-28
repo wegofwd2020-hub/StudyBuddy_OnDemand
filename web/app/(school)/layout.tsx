@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { auth0 } from "@/lib/auth0";
+import { getDevSession } from "@/lib/dev-session";
 import { SchoolNav } from "@/components/layout/SchoolNav";
 import { QueryProvider } from "@/lib/providers/QueryProvider";
 import { PortalHeader } from "@/components/layout/PortalHeader";
@@ -10,7 +11,7 @@ export default async function SchoolLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth0.getSession();
+  const session = (await auth0.getSession()) ?? (await getDevSession());
 
   if (!session) {
     redirect("/school/login");

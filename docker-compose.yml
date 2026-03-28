@@ -140,8 +140,10 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    command: >
-      sh -c "alembic upgrade head && echo '[migrate] All migrations applied.'"
+    command: [
+      "sh", "-c",
+      "alembic upgrade head && echo '[migrate] All migrations applied.' && if [ \"$$APP_ENV\" = 'development' ]; then echo '[migrate] Seeding dev content ...' && python scripts/seed_dev_content.py && echo '[migrate] Dev seed complete.'; fi"
+    ]
     env_file:
       - .env
     environment:
@@ -149,6 +151,9 @@ services:
       # Migrations connect directly to Postgres — pgbouncer's transaction-pooling
       # mode is incompatible with Alembic's DDL transaction management.
       DATABASE_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@db:5432/studybuddy
+    volumes:
+      - ./data:/data            # grade JSON files needed by seed script
+      - content_store:/data/content
     depends_on:
       db:
         condition: service_healthy
@@ -175,6 +180,7 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/app          # bind-mount source for hot-reload
+      - ./data:/data            # grade JSON files (grade5_stem.json … grade12_stem.json)
       - content_store:/data/content
     depends_on:
       <<: *depends-all
@@ -262,6 +268,8 @@ services:
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
       NEXT_PUBLIC_CDN_URL: http://localhost:8000
+      # Server-side only — uses Docker service name (not localhost)
+      INTERNAL_API_URL: http://api:8000/api/v1
       # Tell Next.js to allow connections from Docker network
       HOSTNAME: "0.0.0.0"
     ports:

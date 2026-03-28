@@ -49,7 +49,8 @@ const REPORT_SUB: { label: string; href: string }[] = [
 ];
 
 export function SchoolNav() {
-  const pathname = usePathname();
+  const rawPathname = usePathname();
+  const pathname = rawPathname ?? "";
   const teacher = useTeacher();
   const schoolId = teacher?.school_id ?? "";
 
@@ -66,7 +67,7 @@ export function SchoolNav() {
   function handleLogout() {
     if (typeof window !== "undefined") {
       localStorage.removeItem("sb_teacher_token");
-      window.location.href = "/school/login";
+      window.location.href = "/api/auth/logout";
     }
   }
 

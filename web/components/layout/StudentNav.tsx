@@ -14,7 +14,8 @@ const NAV_ITEMS = [
 ] as const;
 
 export function StudentNav() {
-  const pathname = usePathname();
+  const rawPathname = usePathname();
+  const pathname = rawPathname ?? "";
 
   return (
     <aside className="hidden md:flex flex-col w-56 shrink-0 border-r bg-white min-h-screen">
@@ -52,13 +53,16 @@ export function StudentNav() {
           <Settings className="h-4 w-4 shrink-0" />
           Settings
         </Link>
-        <a
-          href="/auth/logout"
-          className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+        <button
+          onClick={() => {
+            localStorage.removeItem("sb_token");
+            window.location.href = "/api/auth/logout";
+          }}
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors"
         >
           <LogOut className="h-4 w-4 shrink-0" />
           Sign out
-        </a>
+        </button>
       </div>
     </aside>
   );

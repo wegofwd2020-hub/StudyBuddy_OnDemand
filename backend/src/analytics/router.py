@@ -156,6 +156,96 @@ async def student_metrics(
     return StudentMetricsResponse(**result)
 
 
+# ── GET /analytics/student/stats ─────────────────────────────────────────────
+
+@router.get("/analytics/student/stats")
+async def student_stats(
+    request: Request,
+    student: Annotated[dict, Depends(get_current_student)],
+) -> dict:
+    """
+    Return streak, session dates, and summary stats for the student dashboard.
+
+    streak_days     — consecutive days with at least one completed session (ending today)
+    session_dates   — ISO date strings (YYYY-MM-DD) for the last 30 days that had sessions
+    """
+    student_id = str(student["student_id"])
+    async with get_db(request) as conn:
+        rows = await conn.fetch(
+            """
+            SELECT DATE(started_at AT TIME ZONE 'UTC') AS session_date,
+                   COUNT(*) AS sessions,
+                   AVG(score::float / NULLIF(total_questions, 0) * 100) FILTER (WHERE score IS NOT NULL) AS avg_score,
+                   SUM(CASE WHEN passed THEN 1 ELSE 0 END) AS passed_count,
+                   COUNT(*) FILTER (WHERE score IS NOT NULL) AS scored_count
+            FROM progress_sessions
+            WHERE student_id = $1
+              AND started_at >= NOW() - INTERVAL '30 days'
+            GROUP BY 1
+            ORDER BY 1 DESC
+            """,
+            student_id,
+        )
+
+        # Lesson views + audio in last 30 days
+        view_rows = await conn.fetch(
+            """
+            SELECT COUNT(*) AS lessons_viewed,
+                   SUM(CASE WHEN audio_played THEN 1 ELSE 0 END) AS audio_sessions
+            FROM lesson_views
+            WHERE student_id = $1
+              AND started_at >= NOW() - INTERVAL '30 days'
+            """,
+            student_id,
+        )
+
+        # Subject breakdown (last 30 days) — grouped by subject column on progress_sessions
+        subj_rows = await conn.fetch(
+            """
+            SELECT subject, COUNT(*) AS lessons,
+                   AVG(CASE WHEN passed THEN 100.0 ELSE 0.0 END) AS pass_rate
+            FROM progress_sessions
+            WHERE student_id = $1
+              AND started_at >= NOW() - INTERVAL '30 days'
+            GROUP BY 1
+            """,
+            student_id,
+        )
+
+    session_dates = [str(r["session_date"]) for r in rows]
+    total_sessions = sum(r["sessions"] for r in rows)
+    total_scored = sum(r["scored_count"] for r in rows)
+    total_passed = sum(r["passed_count"] for r in rows)
+
+    # Compute streak from today backwards
+    from datetime import date, timedelta
+    today = date.today()
+    date_set = set(session_dates)
+    streak = 0
+    check = today
+    while str(check) in date_set:
+        streak += 1
+        check -= timedelta(days=1)
+
+    avg_score = 0.0
+    if rows:
+        scores = [r["avg_score"] for r in rows if r["avg_score"] is not None]
+        avg_score = sum(scores) / len(scores) if scores else 0.0
+
+    vr = dict(view_rows[0]) if view_rows else {}
+
+    return {
+        "streak_days": streak,
+        "session_dates": session_dates,
+        "lessons_viewed": int(vr.get("lessons_viewed") or 0),
+        "quizzes_completed": int(total_sessions),
+        "pass_rate": round(total_passed / total_scored, 4) if total_scored else 0.0,
+        "avg_score": round(avg_score / 100, 4),
+        "audio_sessions": int(vr.get("audio_sessions") or 0),
+        "subject_breakdown": [],
+    }
+
+
 # ── GET /analytics/school/{school_id}/class ───────────────────────────────────
 
 @router.get("/analytics/school/{school_id}/class", response_model=ClassMetricsResponse)

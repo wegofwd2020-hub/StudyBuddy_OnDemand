@@ -26,7 +26,7 @@ export default function CurriculumMapPage() {
 
   // Build status map from progress history
   const statusMap = new Map<string, UnitStatus>();
-  history?.unit_progress.forEach((up) => statusMap.set(up.unit_id, up.status));
+  history?.unit_progress?.forEach((up) => statusMap.set(up.unit_id, up.status));
 
   return (
     <div className="flex flex-col">
