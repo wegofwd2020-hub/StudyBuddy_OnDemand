@@ -1,8 +1,66 @@
+# =============================================================================
+# StudyBuddy OnDemand — Docker Compose (Local Development)
+#
+# Services
+# ────────────────────────────────────────────────────────────────────────────
+#   db              PostgreSQL 16           localhost:5432
+#   redis           Redis 7 (AOF on)        localhost:6379
+#   pgbouncer       PgBouncer 1.22          localhost:6432
+#   migrate         Alembic (one-shot)      exits after migrations
+#   api             FastAPI (uvicorn)       localhost:8000
+#   celery-worker   Celery io+default       (background)
+#   celery-pipeline Celery pipeline queue   (background)
+#   celery-beat     Celery Beat scheduler   (background)
+#   web             Next.js dev server      localhost:3000
+#   stripe-cli      Stripe webhook relay    profile: stripe
+#
+# Quick start
+# ────────────────────────────────────────────────────────────────────────────
+#   ./local-setup.sh          # first-time setup + start
+#   docker compose up         # subsequent starts
+#   docker compose down       # stop all
+#   docker compose down -v    # stop + delete volumes (fresh DB)
+#
+# Pipeline (run on-demand — does NOT start automatically)
+# ────────────────────────────────────────────────────────────────────────────
+#   docker compose run --rm pipeline python seed_default.py --year 2026
+#   docker compose run --rm pipeline python build_grade.py --grade 8 --lang en,fr
+#   docker compose run --rm pipeline python build_unit.py --curriculum-id default-2026-g8 --unit G8-MATH-001 --lang en
+#
+# Stripe (local webhook testing — requires Stripe CLI installed)
+# ────────────────────────────────────────────────────────────────────────────
+#   docker compose --profile stripe up stripe-cli
+# =============================================================================
+
 version: "3.9"
+
+# ---------------------------------------------------------------------------
+# Shared environment helpers
+# ---------------------------------------------------------------------------
+x-api-env: &api-env
+  DATABASE_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@pgbouncer:6432/studybuddy
+  REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+  CELERY_BROKER_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+  CONTENT_STORE_PATH: /data/content
+
+x-api-volumes: &api-volumes
+  - content_store:/data/content
+
+x-depends-infra: &depends-infra
+  db:
+    condition: service_healthy
+  redis:
+    condition: service_healthy
+  pgbouncer:
+    condition: service_started
+
+x-depends-migrated: &depends-migrated
+  migrate:
+    condition: service_completed_successfully
 
 services:
 
-  # ── PostgreSQL ────────────────────────────────────────────────────────────
+  # ── PostgreSQL ──────────────────────────────────────────────────────────────
   db:
     image: postgres:16-alpine
     restart: unless-stopped
@@ -19,9 +77,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 10s
+      start_period: 15s
 
-  # ── Redis (with AOF persistence — mandatory in production) ────────────────
+  # ── Redis (AOF persistence — mandatory) ─────────────────────────────────────
   redis:
     image: redis:7-alpine
     restart: unless-stopped
@@ -41,8 +99,9 @@ services:
       interval: 10s
       timeout: 3s
       retries: 5
+      start_period: 5s
 
-  # ── PgBouncer (connection pooler) ─────────────────────────────────────────
+  # ── PgBouncer (transaction-pooling, max 200 client connections) ─────────────
   pgbouncer:
     image: bitnami/pgbouncer:1.22
     restart: unless-stopped
@@ -62,48 +121,188 @@ services:
       db:
         condition: service_healthy
 
-  # ── Backend API ───────────────────────────────────────────────────────────
+  # ── Alembic migrations (one-shot — exits when done) ──────────────────────────
+  migrate:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: >
+      sh -c "alembic upgrade head && echo '[migrate] All migrations applied.'"
+    env_file:
+      - .env
+    environment:
+      <<: *api-env
+    depends_on:
+      <<: *depends-infra
+    restart: "no"
+
+  # ── Backend API (FastAPI + uvicorn, hot-reload) ─────────────────────────────
   api:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    # Override production gunicorn CMD with uvicorn --reload for local dev
+    command: >
+      uvicorn main:app
+      --host 0.0.0.0
+      --port 8000
+      --reload
+      --log-level info
     restart: unless-stopped
     env_file:
       - .env
     environment:
-      DATABASE_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@pgbouncer:6432/studybuddy
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      <<: *api-env
     ports:
       - "8000:8000"
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
     volumes:
-      - content_store:/data/content
+      - ./backend:/app          # bind-mount source for hot-reload
+      - *api-volumes
+    depends_on:
+      <<: *depends-infra
+      <<: *depends-migrated
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
-  # ── Celery workers ────────────────────────────────────────────────────────
+  # ── Celery worker — io + default queues ─────────────────────────────────────
   celery-worker:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    command: >
+      celery -A src.core.celery_app worker
+      -Q io,default
+      --concurrency=4
+      --loglevel=info
     restart: unless-stopped
-    command: celery -A src.auth.tasks.celery_app worker -Q io,default --concurrency=4 --loglevel=info
     env_file:
       - .env
     environment:
-      DATABASE_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@pgbouncer:6432/studybuddy
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+      <<: *api-env
     volumes:
-      - content_store:/data/content
+      - ./backend:/app
+      - *api-volumes
+    depends_on:
+      <<: *depends-infra
+      <<: *depends-migrated
 
+  # ── Celery worker — pipeline queue ──────────────────────────────────────────
+  celery-pipeline:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: >
+      celery -A src.core.celery_app worker
+      -Q pipeline
+      --concurrency=2
+      --loglevel=info
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      <<: *api-env
+      # Pipeline worker also needs the Anthropic key for triggered jobs
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    volumes:
+      - ./backend:/app
+      - *api-volumes
+    depends_on:
+      <<: *depends-infra
+      <<: *depends-migrated
+
+  # ── Celery Beat (scheduled tasks: digest, alerts, grade promotion) ───────────
+  celery-beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: >
+      celery -A src.core.celery_app beat
+      --loglevel=info
+      --schedule /tmp/celerybeat-schedule
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      <<: *api-env
+    volumes:
+      - ./backend:/app
+      - *api-volumes
+    depends_on:
+      <<: *depends-infra
+      <<: *depends-migrated
+
+  # ── Next.js Web Frontend (dev server with hot-reload) ───────────────────────
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+      target: deps            # stop at deps stage — dev uses mounted source
+    command: npm run dev
+    restart: unless-stopped
+    env_file:
+      - ./web/.env.local
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+      NEXT_PUBLIC_CDN_URL: http://localhost:8000
+      # Tell Next.js to allow connections from Docker network
+      HOSTNAME: "0.0.0.0"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./web:/app                     # bind-mount source for hot-reload
+      - /app/node_modules              # keep container node_modules separate
+      - /app/.next                     # keep build cache in container
+    depends_on:
+      api:
+        condition: service_healthy
+
+  # ── Pipeline CLI (on-demand — not started automatically) ────────────────────
+  pipeline:
+    build:
+      context: ./pipeline
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      CONTENT_STORE_PATH: /data/content
+      DATABASE_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@pgbouncer:6432/studybuddy
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    volumes:
+      - ./pipeline:/pipeline
+      - content_store:/data/content
+    depends_on:
+      <<: *depends-infra
+      <<: *depends-migrated
+    profiles:
+      - pipeline                       # only starts with: docker compose --profile pipeline run pipeline ...
+
+  # ── Stripe CLI (local webhook relay — opt-in) ────────────────────────────────
+  stripe-cli:
+    image: stripe/stripe-cli:latest
+    command: >
+      listen
+      --api-key ${STRIPE_SECRET_KEY:-sk_test_placeholder}
+      --forward-to http://api:8000/api/v1/subscription/webhook
+      --skip-verify
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    profiles:
+      - stripe                         # only starts with: docker compose --profile stripe up
+
+# ---------------------------------------------------------------------------
+# Named volumes (data persists across docker compose down / up cycles)
+# Use `docker compose down -v` to wipe everything and start fresh.
+# ---------------------------------------------------------------------------
 volumes:
   postgres_data:
+    driver: local
   redis_data:
+    driver: local
   content_store:
+    driver: local
