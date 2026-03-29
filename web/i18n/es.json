@@ -179,7 +179,8 @@
     "streak_reminders": "Recordatorios de racha",
     "weekly_summary": "Resumen semanal",
     "quiz_nudges": "Recordatorios de cuestionario",
-    "account_section": "Cuenta"
+    "account_section": "Cuenta",
+    "save_btn": "Guardar cambios"
   },
   "errors": {
     "network": "Sin conexión a internet. Tu progreso se sincronizará cuando estés en línea.",

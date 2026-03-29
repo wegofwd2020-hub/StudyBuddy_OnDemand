@@ -179,7 +179,8 @@
     "streak_reminders": "Streak reminders",
     "weekly_summary": "Weekly summary",
     "quiz_nudges": "Quiz nudges",
-    "account_section": "Account"
+    "account_section": "Account",
+    "save_btn": "Save changes"
   },
   "errors": {
     "network": "No internet connection. Your progress will sync when you're back online.",

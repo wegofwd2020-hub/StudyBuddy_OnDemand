@@ -179,7 +179,8 @@
     "streak_reminders": "Rappels de série",
     "weekly_summary": "Résumé hebdomadaire",
     "quiz_nudges": "Rappels de quiz",
-    "account_section": "Compte"
+    "account_section": "Compte",
+    "save_btn": "Enregistrer"
   },
   "errors": {
     "network": "Pas de connexion internet. Votre progression sera synchronisée dès que vous serez de nouveau en ligne.",
