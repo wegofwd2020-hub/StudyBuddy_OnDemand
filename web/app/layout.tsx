@@ -45,7 +45,16 @@ export default async function RootLayout({
     <html
       lang={locale}
       className={`${nunito.variable} ${lora.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
+      <head>
+        {/* Reads localStorage before React hydrates — prevents dyslexic font flash on reload */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{if(localStorage.getItem('sb_dyslexic')==='1'){document.documentElement.setAttribute('data-dyslexic','true')}}catch(e){}})()`,
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col">
         <a
           href="#main-content"

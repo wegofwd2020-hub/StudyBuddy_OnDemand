@@ -2,14 +2,24 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("/fonts/OpenDyslexic-Regular.woff2") format("woff2"),
+       url("/fonts/OpenDyslexic-Regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-lora);       /* body text — Lora (Serif) */
-  --font-heading: var(--font-nunito); /* headings — Nunito (Sans Serif) */
+  --font-sans: var(--font-lora);        /* body text — Lora (Serif) */
+  --font-heading: var(--font-nunito);  /* headings — Nunito (Sans Serif) */
   --font-mono: var(--font-geist-mono);
+  --font-dyslexic: "OpenDyslexic", system-ui, sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -129,5 +139,17 @@
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-heading;
+  }
+  /* Dyslexia-friendly mode: swap body font; headings stay in Nunito */
+  [data-dyslexic="true"] body,
+  [data-dyslexic="true"] p,
+  [data-dyslexic="true"] li,
+  [data-dyslexic="true"] label,
+  [data-dyslexic="true"] input,
+  [data-dyslexic="true"] textarea,
+  [data-dyslexic="true"] button,
+  [data-dyslexic="true"] td,
+  [data-dyslexic="true"] th {
+    font-family: var(--font-dyslexic);
   }
 }
