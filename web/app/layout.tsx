@@ -1,23 +1,34 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Nunito, Lora, Geist_Mono } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Headings — Sans Serif (clear, scannable, modern)
+const nunito = Nunito({
+  variable: "--font-nunito",
   subsets: ["latin"],
+  display: "swap",
 });
 
+// Body text — Serif (warm, readable for longer content)
+const lora = Lora({
+  variable: "--font-lora",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+// Code / monospace
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
   title: {
-    default: "StudyBuddy — STEM tutoring for Grades 5–12",
+    default: "StudyBuddy \u2014 STEM tutoring for Grades 5\u201312",
     template: "%s | StudyBuddy",
   },
   description:
@@ -33,7 +44,7 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${nunito.variable} ${lora.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <a
