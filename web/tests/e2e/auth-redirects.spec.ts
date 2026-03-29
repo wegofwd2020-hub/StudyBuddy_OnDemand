@@ -41,18 +41,14 @@ test.describe("School portal auth redirects", () => {
 });
 
 test.describe("Admin portal auth redirects", () => {
-  test("/admin/dashboard redirects to /admin/login when no token", async ({
-    page,
-  }) => {
+  test("/admin/dashboard redirects to /admin/login when no token", async ({ page }) => {
     // Ensure localStorage is clean (no sb_admin_token)
     await page.addInitScript(() => localStorage.removeItem("sb_admin_token"));
     await page.goto("/admin/dashboard");
     await expect(page).toHaveURL(/\/admin\/login/);
   });
 
-  test("/admin/analytics redirects to /admin/login when no token", async ({
-    page,
-  }) => {
+  test("/admin/analytics redirects to /admin/login when no token", async ({ page }) => {
     await page.addInitScript(() => localStorage.removeItem("sb_admin_token"));
     await page.goto("/admin/analytics");
     await expect(page).toHaveURL(/\/admin\/login/);

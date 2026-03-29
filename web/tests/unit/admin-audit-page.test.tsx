@@ -73,9 +73,7 @@ describe("ADM-62 — Audit log renders for product_admin", () => {
 
   it("renders action value in table row", () => {
     render(<AdminAuditPage />);
-    expect(
-      screen.getByText(MOCK_AUDIT_LOG.entries[0].action),
-    ).toBeInTheDocument();
+    expect(screen.getByText(MOCK_AUDIT_LOG.entries[0].action)).toBeInTheDocument();
   });
 });
 
@@ -150,9 +148,7 @@ describe("ADM-65 — Pagination Next/Previous", () => {
 
   it("Previous button is disabled on page 1", () => {
     render(<AdminAuditPage />);
-    expect(
-      screen.getByRole("button", { name: AUDIT_STRINGS.prevBtn }),
-    ).toBeDisabled();
+    expect(screen.getByRole("button", { name: AUDIT_STRINGS.prevBtn })).toBeDisabled();
   });
 
   it("clicking Next triggers query with page=2", async () => {

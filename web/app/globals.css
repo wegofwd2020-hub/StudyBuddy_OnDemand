@@ -4,8 +4,9 @@
 
 @font-face {
   font-family: "OpenDyslexic";
-  src: url("/fonts/OpenDyslexic-Regular.woff2") format("woff2"),
-       url("/fonts/OpenDyslexic-Regular.woff") format("woff");
+  src:
+    url("/fonts/OpenDyslexic-Regular.woff2") format("woff2"),
+    url("/fonts/OpenDyslexic-Regular.woff") format("woff");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -16,8 +17,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-lora);        /* body text — Lora (Serif) */
-  --font-heading: var(--font-nunito);  /* headings — Nunito (Sans Serif) */
+  --font-sans: var(--font-lora); /* body text — Lora (Serif) */
+  --font-heading: var(--font-nunito); /* headings — Nunito (Sans Serif) */
   --font-mono: var(--font-geist-mono);
   --font-dyslexic: "OpenDyslexic", system-ui, sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
@@ -137,7 +138,12 @@
   html {
     @apply font-sans;
   }
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-heading;
   }
   /* Dyslexia-friendly mode: swap body font; headings stay in Nunito */

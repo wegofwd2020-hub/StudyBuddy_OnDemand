@@ -18,16 +18,16 @@ export const MOCK_NEW_JOB = {
 };
 
 export const TRIGGER_STRINGS = {
-  pageHeading:      "Trigger Pipeline Job",
+  pageHeading: "Trigger Pipeline Job",
   // Form fields
-  gradeLabel:       "Grade",
-  languagesLabel:   "Languages (comma-separated)",
-  forceLabel:       /Force regenerate/,
+  gradeLabel: "Grade",
+  languagesLabel: "Languages (comma-separated)",
+  forceLabel: /Force regenerate/,
   // Buttons
-  triggerBtn:       "Trigger Job",
-  triggeringBtn:    "Triggering…",
+  triggerBtn: "Trigger Job",
+  triggeringBtn: "Triggering…",
   // Access denied
-  accessDenied:     "Access denied",
+  accessDenied: "Access denied",
   // Error
-  errorMsg:         /Failed to trigger pipeline job/,
+  errorMsg: /Failed to trigger pipeline job/,
 } as const;

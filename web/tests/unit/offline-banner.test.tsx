@@ -34,9 +34,7 @@ describe("OfflineBanner", () => {
   it("shows banner when offline", async () => {
     mockOnlineGetter(false);
     render(<OfflineBanner />);
-    expect(
-      screen.getByText(/No internet connection/i)
-    ).toBeTruthy();
+    expect(screen.getByText(/No internet connection/i)).toBeTruthy();
   });
 
   it("shows banner when offline event fires", async () => {

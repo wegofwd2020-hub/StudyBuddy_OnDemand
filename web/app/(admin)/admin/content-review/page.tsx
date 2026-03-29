@@ -27,49 +27,64 @@ export default function AdminContentReviewPage() {
   });
 
   return (
-    <div className="p-8 max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">Content Review Queue</h1>
-      <p className="text-sm text-gray-500 mb-6">Review, approve, and publish AI-generated content.</p>
+    <div className="mx-auto max-w-6xl p-8">
+      <h1 className="mb-1 text-2xl font-bold text-gray-900">Content Review Queue</h1>
+      <p className="mb-6 text-sm text-gray-500">
+        Review, approve, and publish AI-generated content.
+      </p>
 
       {/* Filter tabs */}
-      <div className="flex gap-2 mb-6 flex-wrap">
-        {(["pending", "approved", "published", "rejected", "blocked", ""] as StatusFilter[]).map(
-          (s) => (
-            <button
-              key={s || "all"}
-              onClick={() => setStatusFilter(s)}
-              className={cn(
-                "px-3 py-1.5 rounded-full text-sm font-medium transition-colors",
-                statusFilter === s
-                  ? "bg-indigo-600 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200",
-              )}
-            >
-              {s || "All"}
-            </button>
-          ),
-        )}
+      <div className="mb-6 flex flex-wrap gap-2">
+        {(
+          [
+            "pending",
+            "approved",
+            "published",
+            "rejected",
+            "blocked",
+            "",
+          ] as StatusFilter[]
+        ).map((s) => (
+          <button
+            key={s || "all"}
+            onClick={() => setStatusFilter(s)}
+            className={cn(
+              "rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
+              statusFilter === s
+                ? "bg-indigo-600 text-white"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200",
+            )}
+          >
+            {s || "All"}
+          </button>
+        ))}
       </div>
 
       {isLoading ? (
         <div className="space-y-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-14 bg-gray-100 rounded-xl animate-pulse" />
+            <div key={i} className="h-14 animate-pulse rounded-xl bg-gray-100" />
           ))}
         </div>
       ) : data && data.items.length > 0 ? (
         <>
-          <p className="text-xs text-gray-400 mb-3">{data.total} item{data.total !== 1 ? "s" : ""}</p>
-          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <p className="mb-3 text-xs text-gray-400">
+            {data.total} item{data.total !== 1 ? "s" : ""}
+          </p>
+          <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead className="border-b border-gray-200 bg-gray-50">
                 <tr>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Unit</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Grade</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Lang</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Submitted</th>
-                  <th className="text-right px-4 py-3 font-medium text-gray-600"></th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-600">Unit</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-600">Grade</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-600">Lang</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-600">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-600">
+                    Submitted
+                  </th>
+                  <th className="px-4 py-3 text-right font-medium text-gray-600"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -79,20 +94,20 @@ export default function AdminContentReviewPage() {
                       {item.unit_title}
                     </td>
                     <td className="px-4 py-3 text-gray-600">Gr. {item.grade}</td>
-                    <td className="px-4 py-3 text-gray-600 uppercase font-mono text-xs">
+                    <td className="px-4 py-3 font-mono text-xs text-gray-600 uppercase">
                       {item.lang}
                     </td>
                     <td className="px-4 py-3">
                       <span
                         className={cn(
-                          "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium",
+                          "inline-flex items-center rounded px-2 py-0.5 text-xs font-medium",
                           STATUS_STYLES[item.status] ?? "bg-gray-100 text-gray-600",
                         )}
                       >
                         {item.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-gray-500 text-xs">
+                    <td className="px-4 py-3 text-xs text-gray-500">
                       {new Date(item.submitted_at).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-3 text-right">
@@ -110,11 +125,9 @@ export default function AdminContentReviewPage() {
           </div>
         </>
       ) : (
-        <div className="text-center py-16 text-gray-400">
-          <ClipboardList className="h-10 w-10 mx-auto mb-3 opacity-40" />
-          <p className="text-sm">
-            No {statusFilter || ""} items in the queue.
-          </p>
+        <div className="py-16 text-center text-gray-400">
+          <ClipboardList className="mx-auto mb-3 h-10 w-10 opacity-40" />
+          <p className="text-sm">No {statusFilter || ""} items in the queue.</p>
         </div>
       )}
     </div>

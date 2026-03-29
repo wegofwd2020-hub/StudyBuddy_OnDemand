@@ -8,18 +8,18 @@ import type { ReviewItemDetail } from "@/lib/api/admin";
 export const MOCK_VERSION_ID = "ver-001";
 
 const BASE_ITEM = {
-  version_id:      MOCK_VERSION_ID,
-  unit_id:         "unit-001",
-  unit_title:      "Algebra Basics",
-  grade:           8,
-  subject:         "Math",
-  lang:            "en",
+  version_id: MOCK_VERSION_ID,
+  unit_id: "unit-001",
+  unit_title: "Algebra Basics",
+  grade: 8,
+  subject: "Math",
+  lang: "en",
   content_version: 1,
-  submitted_at:    "2026-03-28T08:00:00Z",
-  reviewer_id:     null,
-  lesson_preview:  "In this lesson we explore linear equations...",
-  quiz_count:      5,
-  alexjs_score:    0,
+  submitted_at: "2026-03-28T08:00:00Z",
+  reviewer_id: null,
+  lesson_preview: "In this lesson we explore linear equations...",
+  quiz_count: 5,
+  alexjs_score: 0,
 };
 
 export const MOCK_ITEM_PENDING: ReviewItemDetail = {
@@ -46,8 +46,8 @@ export const MOCK_ITEM_WITH_ANNOTATIONS: ReviewItemDetail = {
   annotations: [
     {
       reviewer_id: "adm-001",
-      note:        "Please simplify the language in paragraph 2.",
-      created_at:  "2026-03-27T10:00:00Z",
+      note: "Please simplify the language in paragraph 2.",
+      created_at: "2026-03-27T10:00:00Z",
     },
   ],
 };
@@ -63,20 +63,20 @@ export const MOCK_DEVELOPER = {
 };
 
 export const REVIEW_DETAIL_STRINGS = {
-  backLink:        "Back to queue",
+  backLink: "Back to queue",
   // Metadata
-  lessonPreview:   "Lesson Preview",
+  lessonPreview: "Lesson Preview",
   // Actions — pending
-  approveBtn:      "Approve",
-  rejectBtn:       "Reject",
+  approveBtn: "Approve",
+  rejectBtn: "Reject",
   // Actions — approved (product_admin)
-  publishBtn:      "Publish",
+  publishBtn: "Publish",
   // Actions — published (product_admin)
-  rollbackBtn:     "Rollback",
-  blockBtn:        "Block",
+  rollbackBtn: "Rollback",
+  blockBtn: "Block",
   // Modal
-  confirmReject:   "Confirm reject",
-  confirmBlock:    "Confirm block",
+  confirmReject: "Confirm reject",
+  confirmBlock: "Confirm block",
   // Annotations
   annotationsHeading: "Annotations",
 } as const;

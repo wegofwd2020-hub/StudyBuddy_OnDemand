@@ -9,10 +9,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import AdminLoginPage from "@/app/(public)/admin/login/page";
-import {
-  LOGIN_STRINGS,
-  VALID_CREDENTIALS,
-} from "../e2e/data/admin-login-page";
+import { LOGIN_STRINGS, VALID_CREDENTIALS } from "../e2e/data/admin-login-page";
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -37,9 +34,15 @@ const localStorageMock = (() => {
   let store: Record<string, string> = {};
   return {
     getItem: (key: string) => store[key] ?? null,
-    setItem: (key: string, value: string) => { store[key] = value; },
-    removeItem: (key: string) => { delete store[key]; },
-    clear: () => { store = {}; },
+    setItem: (key: string, value: string) => {
+      store[key] = value;
+    },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+    clear: () => {
+      store = {};
+    },
   };
 })();
 Object.defineProperty(window, "localStorage", { value: localStorageMock });
@@ -114,9 +117,7 @@ describe("ADM-02 — Successful login stores token and redirects", () => {
       target: { value: VALID_CREDENTIALS.password },
     });
     fireEvent.click(screen.getByRole("button", { name: LOGIN_STRINGS.signInBtn }));
-    await waitFor(() =>
-      expect(mockPush).toHaveBeenCalledWith("/admin/dashboard"),
-    );
+    await waitFor(() => expect(mockPush).toHaveBeenCalledWith("/admin/dashboard"));
   });
 });
 
@@ -191,7 +192,9 @@ describe("ADM-04 — Sign in button shows loading state during submit", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: LOGIN_STRINGS.signInBtn }));
     await waitFor(() =>
-      expect(screen.getByText(LOGIN_STRINGS.signingInBtn).closest("button")).toBeDisabled(),
+      expect(
+        screen.getByText(LOGIN_STRINGS.signingInBtn).closest("button"),
+      ).toBeDisabled(),
     );
   });
 });

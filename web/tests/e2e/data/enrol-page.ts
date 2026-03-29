@@ -18,7 +18,7 @@
 // Test tokens
 // ---------------------------------------------------------------------------
 
-export const VALID_TOKEN   = "enrol-token-abc123";
+export const VALID_TOKEN = "enrol-token-abc123";
 export const INVALID_TOKEN = "enrol-token-bad999";
 
 // ---------------------------------------------------------------------------
@@ -37,13 +37,13 @@ export const MOCK_ENROL_ERROR_DETAIL = "This enrolment link is invalid or has ex
 
 export const ENROL_STRINGS = {
   // Success state
-  successHeading:  "You're enrolled!",
+  successHeading: "You're enrolled!",
   successBodyPart: "been successfully enrolled in",
-  dashboardBtn:    "Go to dashboard",
+  dashboardBtn: "Go to dashboard",
   // Error state
-  errorHeading:    "Enrolment failed",
-  defaultError:    "This enrolment link is invalid or has expired.",
-  backBtn:         "Back to dashboard",
+  errorHeading: "Enrolment failed",
+  defaultError: "This enrolment link is invalid or has expired.",
+  backBtn: "Back to dashboard",
 } as const;
 
 // ---------------------------------------------------------------------------

@@ -9,10 +9,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import AdminPipelinePage from "@/app/(admin)/admin/pipeline/page";
-import {
-  MOCK_JOBS,
-  PIPELINE_LIST_STRINGS,
-} from "../e2e/data/admin-pipeline-page";
+import { MOCK_JOBS, PIPELINE_LIST_STRINGS } from "../e2e/data/admin-pipeline-page";
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -55,9 +52,7 @@ describe("ADM-15 — Pipeline page heading renders", () => {
 describe("ADM-16 — Trigger job link visible", () => {
   it("renders the 'Trigger job' link", () => {
     render(<AdminPipelinePage />);
-    expect(
-      screen.getByRole("link", { name: /Trigger job/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Trigger job/i })).toBeInTheDocument();
   });
 
   it("Trigger job link points to /admin/pipeline/trigger", () => {

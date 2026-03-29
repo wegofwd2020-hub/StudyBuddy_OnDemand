@@ -30,10 +30,14 @@ export default function LessonPage({ params }: PageProps) {
     if (!lesson) return;
     const curriculumId = "default"; // resolved from JWT in production
     startSession(unit_id, curriculumId)
-      .then((r) => { sessionIdRef.current = r.session_id; })
+      .then((r) => {
+        sessionIdRef.current = r.session_id;
+      })
       .catch(() => {});
     startLessonView(unit_id, curriculumId)
-      .then((r) => { viewIdRef.current = r.view_id; })
+      .then((r) => {
+        viewIdRef.current = r.view_id;
+      })
       .catch(() => {});
     startTimeRef.current = Date.now();
 
@@ -41,14 +45,16 @@ export default function LessonPage({ params }: PageProps) {
       // Fire-and-forget on unmount
       if (viewIdRef.current) {
         const duration = Math.round((Date.now() - startTimeRef.current) / 1000);
-        endLessonView(viewIdRef.current, duration, audioPlayedRef.current, false).catch(() => {});
+        endLessonView(viewIdRef.current, duration, audioPlayedRef.current, false).catch(
+          () => {},
+        );
       }
     };
   }, [lesson, unit_id]);
 
   if (isLoading) {
     return (
-      <div className="p-6 max-w-3xl space-y-4">
+      <div className="max-w-3xl space-y-4 p-6">
         <Skeleton className="h-8 w-2/3" />
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-5/6" />
@@ -60,7 +66,7 @@ export default function LessonPage({ params }: PageProps) {
   if (isError || !lesson) {
     return (
       <div className="p-6">
-        <p className="text-red-500 text-sm">Could not load lesson. Please try again.</p>
+        <p className="text-sm text-red-500">Could not load lesson. Please try again.</p>
       </div>
     );
   }
@@ -68,12 +74,14 @@ export default function LessonPage({ params }: PageProps) {
   return (
     <div className="flex flex-col">
       <OfflineBanner />
-      <div className="p-6 max-w-3xl space-y-6">
+      <div className="max-w-3xl space-y-6 p-6">
         {/* Audio player */}
         {lesson.has_audio && (
           <AudioPlayer
             unitId={unit_id}
-            onPlayed={() => { audioPlayedRef.current = true; }}
+            onPlayed={() => {
+              audioPlayedRef.current = true;
+            }}
           />
         )}
 

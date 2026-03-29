@@ -22,7 +22,10 @@ vi.mock("@/lib/hooks/useTeacher", () => ({
 const mockSubscribeDigest = vi.fn();
 vi.mock("@/lib/api/reports", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/api/reports")>();
-  return { ...actual, subscribeDigest: (...args: unknown[]) => mockSubscribeDigest(...args) };
+  return {
+    ...actual,
+    subscribeDigest: (...args: unknown[]) => mockSubscribeDigest(...args),
+  };
 });
 
 // ---------------------------------------------------------------------------
@@ -54,7 +57,9 @@ describe("SCH-22 — Digest settings form renders", () => {
 
   it("renders the Save settings button", () => {
     render(<DigestSettingsPage />);
-    expect(screen.getByRole("button", { name: DIGEST_STRINGS.saveBtn })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: DIGEST_STRINGS.saveBtn }),
+    ).toBeInTheDocument();
   });
 
   it("Save settings button is disabled when email is empty", () => {
@@ -66,7 +71,9 @@ describe("SCH-22 — Digest settings form renders", () => {
     render(<DigestSettingsPage />);
     const emailInput = screen.getByLabelText(DIGEST_STRINGS.emailLabel);
     fireEvent.change(emailInput, { target: { value: TEST_EMAIL } });
-    expect(screen.getByRole("button", { name: DIGEST_STRINGS.saveBtn })).not.toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: DIGEST_STRINGS.saveBtn }),
+    ).not.toBeDisabled();
   });
 
   it("renders the digest enabled toggle label by default", () => {
@@ -97,7 +104,9 @@ describe("SCH-23 — Subscribe saves preferences", () => {
       target: { value: TEST_EMAIL },
     });
     fireEvent.click(screen.getByRole("button", { name: DIGEST_STRINGS.saveBtn }));
-    expect(await screen.findByRole("button", { name: DIGEST_STRINGS.savingBtn })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("button", { name: DIGEST_STRINGS.savingBtn }),
+    ).toBeInTheDocument();
   });
 
   it("shows 'Saved' confirmation after successful save", async () => {
@@ -122,7 +131,7 @@ describe("SCH-23 — Subscribe saves preferences", () => {
       MOCK_TEACHER.school_id,
       TEST_EMAIL,
       expect.any(String), // timezone
-      true,               // enabled
+      true, // enabled
     );
   });
 

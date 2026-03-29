@@ -95,10 +95,9 @@ export async function getTrendsReport(
   schoolId: string,
   period: TrendsPeriod = "4w",
 ): Promise<TrendsReport> {
-  const res = await schoolApi.get<TrendsReport>(
-    `/reports/school/${schoolId}/trends`,
-    { params: { period } },
-  );
+  const res = await schoolApi.get<TrendsReport>(`/reports/school/${schoolId}/trends`, {
+    params: { period },
+  });
   return res.data;
 }
 
@@ -201,9 +200,7 @@ export interface FeedbackReport {
 }
 
 export async function getFeedbackReport(schoolId: string): Promise<FeedbackReport> {
-  const res = await schoolApi.get<FeedbackReport>(
-    `/reports/school/${schoolId}/feedback`,
-  );
+  const res = await schoolApi.get<FeedbackReport>(`/reports/school/${schoolId}/feedback`);
   return res.data;
 }
 
@@ -220,10 +217,10 @@ export async function triggerExport(
   reportType: ReportType,
   filters: Record<string, unknown> = {},
 ): Promise<ExportResponse> {
-  const res = await schoolApi.post<ExportResponse>(
-    `/reports/school/${schoolId}/export`,
-    { report_type: reportType, filters },
-  );
+  const res = await schoolApi.post<ExportResponse>(`/reports/school/${schoolId}/export`, {
+    report_type: reportType,
+    filters,
+  });
   return res.data;
 }
 

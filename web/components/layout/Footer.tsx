@@ -12,7 +12,7 @@ export function Footer() {
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="flex items-center gap-2 font-bold text-lg">
+            <Link href="/" className="flex items-center gap-2 text-lg font-bold">
               <BookOpen className="h-5 w-5 text-blue-600" />
               <span>StudyBuddy</span>
             </Link>
@@ -23,9 +23,21 @@ export function Footer() {
           <div>
             <h3 className="text-sm font-semibold text-gray-900">{t("product")}</h3>
             <ul className="mt-3 space-y-2 text-sm text-gray-500">
-              <li><Link href="/#features" className="hover:text-gray-900">{t("features")}</Link></li>
-              <li><Link href="/pricing" className="hover:text-gray-900">{t("pricing")}</Link></li>
-              <li><Link href="/pricing#schools" className="hover:text-gray-900">{t("for_schools")}</Link></li>
+              <li>
+                <Link href="/#features" className="hover:text-gray-900">
+                  {t("features")}
+                </Link>
+              </li>
+              <li>
+                <Link href="/pricing" className="hover:text-gray-900">
+                  {t("pricing")}
+                </Link>
+              </li>
+              <li>
+                <Link href="/pricing#schools" className="hover:text-gray-900">
+                  {t("for_schools")}
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -33,7 +45,11 @@ export function Footer() {
           <div>
             <h3 className="text-sm font-semibold text-gray-900">{t("company")}</h3>
             <ul className="mt-3 space-y-2 text-sm text-gray-500">
-              <li><Link href="/contact" className="hover:text-gray-900">{t("contact")}</Link></li>
+              <li>
+                <Link href="/contact" className="hover:text-gray-900">
+                  {t("contact")}
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -41,8 +57,16 @@ export function Footer() {
           <div>
             <h3 className="text-sm font-semibold text-gray-900">{t("legal")}</h3>
             <ul className="mt-3 space-y-2 text-sm text-gray-500">
-              <li><Link href="/terms" className="hover:text-gray-900">{t("terms")}</Link></li>
-              <li><Link href="/privacy" className="hover:text-gray-900">{t("privacy")}</Link></li>
+              <li>
+                <Link href="/terms" className="hover:text-gray-900">
+                  {t("terms")}
+                </Link>
+              </li>
+              <li>
+                <Link href="/privacy" className="hover:text-gray-900">
+                  {t("privacy")}
+                </Link>
+              </li>
             </ul>
           </div>
         </div>

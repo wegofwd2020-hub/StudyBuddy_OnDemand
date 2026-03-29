@@ -101,7 +101,9 @@ describe("ADM-12 — Subscription table renders", () => {
 describe("ADM-13 — Struggle report table renders", () => {
   it("renders Struggle Report section heading", () => {
     render(<AdminAnalyticsPage />);
-    expect(screen.getByText(ANALYTICS_STRINGS.struggleSectionHeading)).toBeInTheDocument();
+    expect(
+      screen.getByText(ANALYTICS_STRINGS.struggleSectionHeading),
+    ).toBeInTheDocument();
   });
 
   it("renders the Fail Rate column header", () => {

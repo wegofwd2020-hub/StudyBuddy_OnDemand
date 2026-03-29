@@ -40,7 +40,7 @@ vi.mock("@tanstack/react-query", async (importOriginal) => {
 });
 
 const mockUseQueryOverview = vi.fn();
-const mockUseQueryHealth   = vi.fn();
+const mockUseQueryHealth = vi.fn();
 
 // ---------------------------------------------------------------------------
 // SCH-15 — Engagement metrics render
@@ -49,7 +49,10 @@ const mockUseQueryHealth   = vi.fn();
 describe("SCH-15 — Engagement report renders", () => {
   beforeEach(() => {
     mockUseQueryOverview.mockReturnValue({ data: MOCK_OVERVIEW_30D, isLoading: false });
-    mockUseQueryHealth.mockReturnValue({ data: MOCK_HEALTH_ALL_ACTIVE, isLoading: false });
+    mockUseQueryHealth.mockReturnValue({
+      data: MOCK_HEALTH_ALL_ACTIVE,
+      isLoading: false,
+    });
   });
 
   it("renders the page heading", () => {
@@ -110,18 +113,25 @@ describe("SCH-15 — Engagement report renders", () => {
   it("shows Inactive students card when active_pct < 100", () => {
     render(<EngagementReportPage />);
     expect(screen.getByText(ENGAGEMENT_STRINGS.inactiveStudents)).toBeInTheDocument();
-    const inactive = MOCK_OVERVIEW_30D.enrolled_students - MOCK_OVERVIEW_30D.active_students_period;
+    const inactive =
+      MOCK_OVERVIEW_30D.enrolled_students - MOCK_OVERVIEW_30D.active_students_period;
     expect(screen.getByText(String(inactive))).toBeInTheDocument();
   });
 
   it("does NOT show Inactive students card when all students are active", () => {
-    mockUseQueryOverview.mockReturnValue({ data: MOCK_OVERVIEW_FULL_ACTIVE, isLoading: false });
+    mockUseQueryOverview.mockReturnValue({
+      data: MOCK_OVERVIEW_FULL_ACTIVE,
+      isLoading: false,
+    });
     render(<EngagementReportPage />);
     expect(screen.queryByText(ENGAGEMENT_STRINGS.inactiveStudents)).toBeNull();
   });
 
   it("shows Units with zero activity card when dropout-risk units exist", () => {
-    mockUseQueryHealth.mockReturnValue({ data: MOCK_HEALTH_WITH_NO_ACTIVITY, isLoading: false });
+    mockUseQueryHealth.mockReturnValue({
+      data: MOCK_HEALTH_WITH_NO_ACTIVITY,
+      isLoading: false,
+    });
     render(<EngagementReportPage />);
     expect(screen.getByText(ENGAGEMENT_STRINGS.zeroActivityCard)).toBeInTheDocument();
   });

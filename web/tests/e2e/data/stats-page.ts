@@ -22,17 +22,11 @@ export const MOCK_STUDENT_STATS: StudentStats = {
   pass_rate: 0.75,
   avg_score: 0.82,
   audio_sessions: 4,
-  session_dates: [
-    "2026-03-28",
-    "2026-03-27",
-    "2026-03-26",
-    "2026-03-25",
-    "2026-03-24",
-  ],
+  session_dates: ["2026-03-28", "2026-03-27", "2026-03-26", "2026-03-25", "2026-03-24"],
   subject_breakdown: [
-    { subject: "Science",     lessons: 6, pass_rate: 0.83 },
+    { subject: "Science", lessons: 6, pass_rate: 0.83 },
     { subject: "Mathematics", lessons: 4, pass_rate: 0.75 },
-    { subject: "English",     lessons: 2, pass_rate: 0.50 },
+    { subject: "English", lessons: 2, pass_rate: 0.5 },
   ],
 };
 
@@ -57,13 +51,13 @@ export const MOCK_STUDENT_STATS_ZERO: StudentStats = {
 // ---------------------------------------------------------------------------
 
 export const STATS_STRINGS = {
-  title:             "title",
-  lessonsViewed:     "lessons_viewed",
-  quizzesCompleted:  "quizzes_completed",
-  passRate:          "pass_rate",
-  avgScore:          "avg_score",
-  audioPlayed:       "audio_played",
-  subjectBreakdown:  "Subject Breakdown",
+  title: "title",
+  lessonsViewed: "lessons_viewed",
+  quizzesCompleted: "quizzes_completed",
+  passRate: "pass_rate",
+  avgScore: "avg_score",
+  audioPlayed: "audio_played",
+  subjectBreakdown: "Subject Breakdown",
 } as const;
 
 // ---------------------------------------------------------------------------

@@ -16,11 +16,19 @@ const CATEGORY_COLOR: Record<string, string> = {
 };
 
 function StarRating({ rating }: { rating: number | null }) {
-  if (rating === null) return <span className="text-gray-300 text-xs">No rating</span>;
+  if (rating === null) return <span className="text-xs text-gray-300">No rating</span>;
   return (
     <span className="flex items-center gap-0.5">
       {Array.from({ length: 5 }).map((_, i) => (
-        <Star key={i} className={cn("h-3 w-3", i < Math.round(rating) ? "text-yellow-400 fill-yellow-400" : "text-gray-200 fill-gray-100")} />
+        <Star
+          key={i}
+          className={cn(
+            "h-3 w-3",
+            i < Math.round(rating)
+              ? "fill-yellow-400 text-yellow-400"
+              : "fill-gray-100 text-gray-200",
+          )}
+        />
       ))}
     </span>
   );
@@ -38,14 +46,28 @@ export default function FeedbackReportPage() {
   });
 
   return (
-    <div className="p-6 max-w-4xl space-y-6">
+    <div className="max-w-4xl space-y-6 p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Student Feedback</h1>
         {data && (
           <div className="flex items-center gap-4 text-sm text-gray-500">
-            <span><span className="font-semibold text-gray-900">{data.total_feedback_count}</span> total</span>
-            {data.unreviewed_count > 0 && <Badge className="bg-red-50 text-red-600 border-red-200">{data.unreviewed_count} unreviewed</Badge>}
-            {data.avg_rating_overall !== null && <span className="flex items-center gap-1"><Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />{data.avg_rating_overall.toFixed(1)} overall</span>}
+            <span>
+              <span className="font-semibold text-gray-900">
+                {data.total_feedback_count}
+              </span>{" "}
+              total
+            </span>
+            {data.unreviewed_count > 0 && (
+              <Badge className="border-red-200 bg-red-50 text-red-600">
+                {data.unreviewed_count} unreviewed
+              </Badge>
+            )}
+            {data.avg_rating_overall !== null && (
+              <span className="flex items-center gap-1">
+                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                {data.avg_rating_overall.toFixed(1)} overall
+              </span>
+            )}
           </div>
         )}
       </div>
@@ -55,12 +77,29 @@ export default function FeedbackReportPage() {
           <CardHeader className="pb-2">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <CardTitle className="text-base">{unit.unit_name ?? unit.unit_id}</CardTitle>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="text-xs text-gray-400">{unit.feedback_count} item{unit.feedback_count !== 1 ? "s" : ""}</span>
-                  {unit.trending && <span className="flex items-center gap-1 text-xs text-orange-600"><TrendingUp className="h-3 w-3" />Trending</span>}
+                <CardTitle className="text-base">
+                  {unit.unit_name ?? unit.unit_id}
+                </CardTitle>
+                <div className="mt-1 flex items-center gap-2">
+                  <span className="text-xs text-gray-400">
+                    {unit.feedback_count} item{unit.feedback_count !== 1 ? "s" : ""}
+                  </span>
+                  {unit.trending && (
+                    <span className="flex items-center gap-1 text-xs text-orange-600">
+                      <TrendingUp className="h-3 w-3" />
+                      Trending
+                    </span>
+                  )}
                   {Object.entries(unit.category_breakdown).map(([cat, count]) => (
-                    <Badge key={cat} className={cn("text-xs", CATEGORY_COLOR[cat] ?? CATEGORY_COLOR.general)}>{cat} ({count})</Badge>
+                    <Badge
+                      key={cat}
+                      className={cn(
+                        "text-xs",
+                        CATEGORY_COLOR[cat] ?? CATEGORY_COLOR.general,
+                      )}
+                    >
+                      {cat} ({count})
+                    </Badge>
                   ))}
                 </div>
               </div>
@@ -68,22 +107,44 @@ export default function FeedbackReportPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             {unit.feedback_items.map((item) => (
-              <div key={item.feedback_id} className={cn("border rounded-lg p-3 space-y-1", item.reviewed ? "bg-gray-50 border-gray-100" : "bg-white border-gray-200")}>
+              <div
+                key={item.feedback_id}
+                className={cn(
+                  "space-y-1 rounded-lg border p-3",
+                  item.reviewed
+                    ? "border-gray-100 bg-gray-50"
+                    : "border-gray-200 bg-white",
+                )}
+              >
                 <div className="flex items-center gap-2">
-                  <Badge className={cn("text-xs", CATEGORY_COLOR[item.category] ?? CATEGORY_COLOR.general)}>{item.category}</Badge>
+                  <Badge
+                    className={cn(
+                      "text-xs",
+                      CATEGORY_COLOR[item.category] ?? CATEGORY_COLOR.general,
+                    )}
+                  >
+                    {item.category}
+                  </Badge>
                   <StarRating rating={item.rating} />
-                  {!item.reviewed && <Badge className="text-xs bg-red-50 text-red-600 border-red-100 ml-auto">Unreviewed</Badge>}
+                  {!item.reviewed && (
+                    <Badge className="ml-auto border-red-100 bg-red-50 text-xs text-red-600">
+                      Unreviewed
+                    </Badge>
+                  )}
                 </div>
                 <p className="text-sm text-gray-700">{item.message}</p>
-                <p className="text-xs text-gray-400">{new Date(item.submitted_at).toLocaleDateString()}</p>
+                <p className="text-xs text-gray-400">
+                  {new Date(item.submitted_at).toLocaleDateString()}
+                </p>
               </div>
             ))}
           </CardContent>
         </Card>
       ))}
       {!isLoading && data?.by_unit.length === 0 && (
-        <div className="flex flex-col items-center py-12 text-gray-400 gap-2">
-          <MessageSquare className="h-10 w-10" /><p className="text-sm">No feedback submitted yet.</p>
+        <div className="flex flex-col items-center gap-2 py-12 text-gray-400">
+          <MessageSquare className="h-10 w-10" />
+          <p className="text-sm">No feedback submitted yet.</p>
         </div>
       )}
     </div>

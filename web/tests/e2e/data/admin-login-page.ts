@@ -4,17 +4,18 @@
  */
 
 export const LOGIN_STRINGS = {
-  pageHeading:   "Sign in to admin console",
-  emailLabel:    "Email",
+  pageHeading: "Sign in to admin console",
+  emailLabel: "Email",
   passwordLabel: "Password",
-  signInBtn:     "Sign in",
-  signingInBtn:  "Signing in…",
-  errorMsg:      /Invalid credentials/,
+  signInBtn: "Sign in",
+  signingInBtn: "Signing in…",
+  errorMsg: /Invalid credentials/,
 } as const;
 
 export const VALID_CREDENTIALS = {
-  email:    "admin@studybuddy.ca",
+  email: "admin@studybuddy.ca",
   password: "secret123",
-  token:    "eyJhbGciOiJIUzI1NiJ9.eyJhZG1pbl9pZCI6ImFkbS0wMDEiLCJyb2xlIjoicHJvZHVjdF9hZG1pbiJ9.sig",
+  token:
+    "eyJhbGciOiJIUzI1NiJ9.eyJhZG1pbl9pZCI6ImFkbS0wMDEiLCJyb2xlIjoicHJvZHVjdF9hZG1pbiJ9.sig",
   admin_id: "adm-001",
 };

@@ -35,7 +35,11 @@ describe("XLSX upload error list", () => {
   });
 
   it("renders row 0 as file-level error (no row number)", () => {
-    const err: UploadError = { row: 0, field: "file", message: "Unrecognised XLSX format" };
+    const err: UploadError = {
+      row: 0,
+      field: "file",
+      message: "Unrecognised XLSX format",
+    };
     const displayRow = err.row > 0 ? String(err.row) : "—";
     expect(displayRow).toBe("—");
   });
@@ -59,7 +63,11 @@ describe("XLSX upload error list", () => {
   });
 
   it("returns curriculum_id null when errors present", () => {
-    const response = { curriculum_id: null, unit_count: 0, errors: [{ row: 3, field: "x", message: "bad" }] };
+    const response = {
+      curriculum_id: null,
+      unit_count: 0,
+      errors: [{ row: 3, field: "x", message: "bad" }],
+    };
     const isSuccess = response.errors.length === 0 && response.curriculum_id !== null;
     expect(isSuccess).toBe(false);
   });
@@ -92,7 +100,9 @@ describe("uploadCurriculumXlsx API", () => {
       data: { curriculum_id: "curr-xyz", unit_count: 8, errors: [] },
     });
 
-    const file = new File(["fake xlsx bytes"], "test.xlsx", { type: "application/vnd.ms-excel" });
+    const file = new File(["fake xlsx bytes"], "test.xlsx", {
+      type: "application/vnd.ms-excel",
+    });
     const result = await uploadCurriculumXlsx(file, 8, 2026, "My Curriculum");
 
     expect(result.curriculum_id).toBe("curr-xyz");

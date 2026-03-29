@@ -14,7 +14,7 @@ export default function SubjectsPage() {
   return (
     <div className="flex flex-col">
       <OfflineBanner />
-      <div className="p-6 max-w-5xl space-y-6">
+      <div className="max-w-5xl space-y-6 p-6">
         <h1 className="text-2xl font-bold text-gray-900">Subjects</h1>
 
         {isLoading && (
@@ -41,7 +41,7 @@ export default function SubjectsPage() {
                   {subject.units.map((unit) => (
                     <div
                       key={unit.unit_id}
-                      className="flex items-center justify-between py-1.5 border-b last:border-0"
+                      className="flex items-center justify-between border-b py-1.5 last:border-0"
                     >
                       <div className="flex items-center gap-2">
                         <span className="text-sm text-gray-700">{unit.title}</span>
@@ -54,7 +54,7 @@ export default function SubjectsPage() {
                           href={`/lesson/${unit.unit_id}`}
                           variant="ghost"
                           size="sm"
-                          className="text-xs h-7"
+                          className="h-7 text-xs"
                         >
                           Lesson
                         </LinkButton>
@@ -62,7 +62,7 @@ export default function SubjectsPage() {
                           href={`/quiz/${unit.unit_id}`}
                           variant="ghost"
                           size="sm"
-                          className="text-xs h-7"
+                          className="h-7 text-xs"
                         >
                           Quiz
                         </LinkButton>

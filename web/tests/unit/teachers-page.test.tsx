@@ -166,8 +166,12 @@ describe("SCH-43 — Successful invite adds teacher to list", () => {
 
   it("clears name and email fields after invite", async () => {
     render(<TeachersPage />);
-    const nameInput = screen.getByLabelText(TEACHERS_STRINGS.nameLabel) as HTMLInputElement;
-    const emailInput = screen.getByLabelText(TEACHERS_STRINGS.emailLabel) as HTMLInputElement;
+    const nameInput = screen.getByLabelText(
+      TEACHERS_STRINGS.nameLabel,
+    ) as HTMLInputElement;
+    const emailInput = screen.getByLabelText(
+      TEACHERS_STRINGS.emailLabel,
+    ) as HTMLInputElement;
     fireEvent.change(nameInput, { target: { value: TEST_INVITE.name } });
     fireEvent.change(emailInput, { target: { value: TEST_INVITE.email } });
     fireEvent.click(screen.getByRole("button", { name: TEACHERS_STRINGS.sendInviteBtn }));

@@ -46,7 +46,10 @@ vi.mock("@/lib/hooks/useProgress", () => ({
 
 describe("STU-29 — Progress history renders", () => {
   it("renders the page heading", () => {
-    mockUseProgressHistory.mockReturnValue({ data: MOCK_PROGRESS_HISTORY, isLoading: false });
+    mockUseProgressHistory.mockReturnValue({
+      data: MOCK_PROGRESS_HISTORY,
+      isLoading: false,
+    });
     render(<ProgressPage />);
     expect(
       screen.getByRole("heading", { name: PROGRESS_STRINGS.pageHeading }),
@@ -54,7 +57,10 @@ describe("STU-29 — Progress history renders", () => {
   });
 
   it("renders a card for each session", () => {
-    mockUseProgressHistory.mockReturnValue({ data: MOCK_PROGRESS_HISTORY, isLoading: false });
+    mockUseProgressHistory.mockReturnValue({
+      data: MOCK_PROGRESS_HISTORY,
+      isLoading: false,
+    });
     render(<ProgressPage />);
     for (const session of MOCK_PROGRESS_HISTORY.sessions) {
       expect(screen.getByText(session.unit_title)).toBeInTheDocument();
@@ -62,7 +68,10 @@ describe("STU-29 — Progress history renders", () => {
   });
 
   it("renders the subject for each session", () => {
-    mockUseProgressHistory.mockReturnValue({ data: MOCK_PROGRESS_HISTORY, isLoading: false });
+    mockUseProgressHistory.mockReturnValue({
+      data: MOCK_PROGRESS_HISTORY,
+      isLoading: false,
+    });
     render(<ProgressPage />);
     // Science appears twice — just check both subjects are rendered
     expect(screen.getAllByText(/Science/)).toHaveLength(
@@ -72,7 +81,10 @@ describe("STU-29 — Progress history renders", () => {
   });
 
   it("renders score as X/Y for sessions with a score", () => {
-    mockUseProgressHistory.mockReturnValue({ data: MOCK_PROGRESS_HISTORY, isLoading: false });
+    mockUseProgressHistory.mockReturnValue({
+      data: MOCK_PROGRESS_HISTORY,
+      isLoading: false,
+    });
     render(<ProgressPage />);
     const withScore = MOCK_PROGRESS_HISTORY.sessions.filter(
       (s) => s.score !== null && s.total !== null,
@@ -83,33 +95,43 @@ describe("STU-29 — Progress history renders", () => {
   });
 
   it("renders attempt number for each session", () => {
-    mockUseProgressHistory.mockReturnValue({ data: MOCK_PROGRESS_HISTORY, isLoading: false });
+    mockUseProgressHistory.mockReturnValue({
+      data: MOCK_PROGRESS_HISTORY,
+      isLoading: false,
+    });
     render(<ProgressPage />);
     // Collect all unique attempt numbers and verify each appears at least once
-    const attemptNumbers = [...new Set(
-      MOCK_PROGRESS_HISTORY.sessions.map((s) => s.attempt_number),
-    )];
+    const attemptNumbers = [
+      ...new Set(MOCK_PROGRESS_HISTORY.sessions.map((s) => s.attempt_number)),
+    ];
     for (const n of attemptNumbers) {
-      expect(
-        screen.getAllByText(new RegExp(`Attempt #${n}`)).length,
-      ).toBeGreaterThan(0);
+      expect(screen.getAllByText(new RegExp(`Attempt #${n}`)).length).toBeGreaterThan(0);
     }
   });
 
   it("passed session renders CheckCircle2 (green svg)", () => {
-    mockUseProgressHistory.mockReturnValue({ data: MOCK_PROGRESS_HISTORY, isLoading: false });
+    mockUseProgressHistory.mockReturnValue({
+      data: MOCK_PROGRESS_HISTORY,
+      isLoading: false,
+    });
     const { container } = render(<ProgressPage />);
     expect(container.querySelector("svg.text-green-500")).toBeTruthy();
   });
 
   it("failed session renders XCircle (red svg)", () => {
-    mockUseProgressHistory.mockReturnValue({ data: MOCK_PROGRESS_HISTORY, isLoading: false });
+    mockUseProgressHistory.mockReturnValue({
+      data: MOCK_PROGRESS_HISTORY,
+      isLoading: false,
+    });
     const { container } = render(<ProgressPage />);
     expect(container.querySelector("svg.text-red-400")).toBeTruthy();
   });
 
   it("each session card has a Lesson link with correct href", () => {
-    mockUseProgressHistory.mockReturnValue({ data: MOCK_PROGRESS_HISTORY, isLoading: false });
+    mockUseProgressHistory.mockReturnValue({
+      data: MOCK_PROGRESS_HISTORY,
+      isLoading: false,
+    });
     render(<ProgressPage />);
     for (const session of MOCK_PROGRESS_HISTORY.sessions) {
       const links = screen.getAllByRole("link", { name: PROGRESS_STRINGS.lessonBtn });
@@ -121,7 +143,10 @@ describe("STU-29 — Progress history renders", () => {
   });
 
   it("each session card has a Retry quiz link with correct href", () => {
-    mockUseProgressHistory.mockReturnValue({ data: MOCK_PROGRESS_HISTORY, isLoading: false });
+    mockUseProgressHistory.mockReturnValue({
+      data: MOCK_PROGRESS_HISTORY,
+      isLoading: false,
+    });
     render(<ProgressPage />);
     for (const session of MOCK_PROGRESS_HISTORY.sessions) {
       const links = screen.getAllByRole("link", { name: PROGRESS_STRINGS.retryQuizBtn });
@@ -145,13 +170,19 @@ describe("STU-29 — Progress history renders", () => {
 
 describe("STU-30 — Empty state when no history", () => {
   it("renders empty state message when sessions list is empty", () => {
-    mockUseProgressHistory.mockReturnValue({ data: MOCK_PROGRESS_EMPTY, isLoading: false });
+    mockUseProgressHistory.mockReturnValue({
+      data: MOCK_PROGRESS_EMPTY,
+      isLoading: false,
+    });
     render(<ProgressPage />);
     expect(screen.getByText(PROGRESS_STRINGS.emptyMessage)).toBeInTheDocument();
   });
 
   it("renders Browse Subjects link in empty state", () => {
-    mockUseProgressHistory.mockReturnValue({ data: MOCK_PROGRESS_EMPTY, isLoading: false });
+    mockUseProgressHistory.mockReturnValue({
+      data: MOCK_PROGRESS_EMPTY,
+      isLoading: false,
+    });
     render(<ProgressPage />);
     const link = screen.getByRole("link", { name: PROGRESS_STRINGS.browseSubjects });
     expect(link).toBeInTheDocument();
@@ -159,13 +190,19 @@ describe("STU-30 — Empty state when no history", () => {
   });
 
   it("renders Clock icon (svg) in empty state", () => {
-    mockUseProgressHistory.mockReturnValue({ data: MOCK_PROGRESS_EMPTY, isLoading: false });
+    mockUseProgressHistory.mockReturnValue({
+      data: MOCK_PROGRESS_EMPTY,
+      isLoading: false,
+    });
     const { container } = render(<ProgressPage />);
     expect(container.querySelector("svg")).toBeTruthy();
   });
 
   it("does not render any session cards in empty state", () => {
-    mockUseProgressHistory.mockReturnValue({ data: MOCK_PROGRESS_EMPTY, isLoading: false });
+    mockUseProgressHistory.mockReturnValue({
+      data: MOCK_PROGRESS_EMPTY,
+      isLoading: false,
+    });
     render(<ProgressPage />);
     expect(screen.queryByText(/Attempt #/)).toBeNull();
   });

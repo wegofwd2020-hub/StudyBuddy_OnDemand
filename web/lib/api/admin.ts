@@ -32,9 +32,7 @@ export interface SubscriptionAnalytics {
 }
 
 export async function getSubscriptionAnalytics(): Promise<SubscriptionAnalytics> {
-  const res = await adminApi.get<SubscriptionAnalytics>(
-    "/admin/analytics/subscriptions",
-  );
+  const res = await adminApi.get<SubscriptionAnalytics>("/admin/analytics/subscriptions");
   return res.data;
 }
 
@@ -78,9 +76,7 @@ export interface PipelineJobsResponse {
 }
 
 export async function getPipelineJobs(): Promise<PipelineJobsResponse> {
-  const res = await adminApi.get<PipelineJobsResponse>(
-    "/admin/pipeline/status",
-  );
+  const res = await adminApi.get<PipelineJobsResponse>("/admin/pipeline/status");
   return res.data;
 }
 
@@ -121,14 +117,11 @@ export interface ReviewQueueResponse {
   total: number;
 }
 
-export async function getReviewQueue(
-  status?: string,
-): Promise<ReviewQueueResponse> {
+export async function getReviewQueue(status?: string): Promise<ReviewQueueResponse> {
   const params = status ? { status } : {};
-  const res = await adminApi.get<ReviewQueueResponse>(
-    "/admin/content-review/queue",
-    { params },
-  );
+  const res = await adminApi.get<ReviewQueueResponse>("/admin/content-review/queue", {
+    params,
+  });
   return res.data;
 }
 
@@ -139,12 +132,8 @@ export interface ReviewItemDetail extends ReviewQueueItem {
   annotations: { reviewer_id: string; note: string; created_at: string }[];
 }
 
-export async function getReviewItem(
-  versionId: string,
-): Promise<ReviewItemDetail> {
-  const res = await adminApi.get<ReviewItemDetail>(
-    `/admin/content-review/${versionId}`,
-  );
+export async function getReviewItem(versionId: string): Promise<ReviewItemDetail> {
+  const res = await adminApi.get<ReviewItemDetail>(`/admin/content-review/${versionId}`);
   return res.data;
 }
 
@@ -152,10 +141,7 @@ export async function approveReview(versionId: string): Promise<void> {
   await adminApi.post(`/admin/content-review/${versionId}/approve`);
 }
 
-export async function rejectReview(
-  versionId: string,
-  reason: string,
-): Promise<void> {
+export async function rejectReview(versionId: string, reason: string): Promise<void> {
   await adminApi.post(`/admin/content-review/${versionId}/reject`, { reason });
 }
 
@@ -167,10 +153,7 @@ export async function rollbackReview(versionId: string): Promise<void> {
   await adminApi.post(`/admin/content-review/${versionId}/rollback`);
 }
 
-export async function blockReview(
-  versionId: string,
-  reason: string,
-): Promise<void> {
+export async function blockReview(versionId: string, reason: string): Promise<void> {
   await adminApi.post(`/admin/content-review/${versionId}/block`, { reason });
 }
 

@@ -75,7 +75,9 @@ describe("SCH-08 — Student detail page", () => {
 
   it("renders Units completed value", () => {
     render(<StudentDetailPage />);
-    expect(screen.getByText(String(MOCK_STUDENT_REPORT.units_completed))).toBeInTheDocument();
+    expect(
+      screen.getByText(String(MOCK_STUDENT_REPORT.units_completed)),
+    ).toBeInTheDocument();
   });
 
   it("renders In progress KPI label", () => {
@@ -173,7 +175,9 @@ describe("SCH-08 — Student detail page", () => {
   it("renders Needs attention subject tag", () => {
     render(<StudentDetailPage />);
     expect(screen.getByText("Needs attention:")).toBeInTheDocument();
-    expect(screen.getByText(MOCK_STUDENT_REPORT.needs_attention_subject!)).toBeInTheDocument();
+    expect(
+      screen.getByText(MOCK_STUDENT_REPORT.needs_attention_subject!),
+    ).toBeInTheDocument();
   });
 
   it("shows loading heading when isLoading is true", () => {

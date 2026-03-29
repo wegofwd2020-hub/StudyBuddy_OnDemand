@@ -13,7 +13,7 @@ export default function ProgressPage() {
   return (
     <div className="flex flex-col">
       <OfflineBanner />
-      <div className="p-6 max-w-3xl space-y-6">
+      <div className="max-w-3xl space-y-6 p-6">
         <h1 className="text-2xl font-bold text-gray-900">Progress History</h1>
 
         {isLoading ? (
@@ -23,9 +23,11 @@ export default function ProgressPage() {
             ))}
           </div>
         ) : !history?.sessions.length ? (
-          <div className="text-center py-16 space-y-3">
-            <Clock className="h-10 w-10 text-gray-300 mx-auto" />
-            <p className="text-gray-400">No sessions yet. Start learning to track progress.</p>
+          <div className="space-y-3 py-16 text-center">
+            <Clock className="mx-auto h-10 w-10 text-gray-300" />
+            <p className="text-gray-400">
+              No sessions yet. Start learning to track progress.
+            </p>
             <LinkButton href="/subjects">Browse Subjects</LinkButton>
           </div>
         ) : (
@@ -34,9 +36,11 @@ export default function ProgressPage() {
               <Card key={session.session_id} className="border shadow-sm">
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 truncate">{session.unit_title}</p>
-                      <p className="text-xs text-gray-400 mt-0.5">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium text-gray-900">
+                        {session.unit_title}
+                      </p>
+                      <p className="mt-0.5 text-xs text-gray-400">
                         {session.subject} ·{" "}
                         {new Date(session.started_at).toLocaleDateString(undefined, {
                           weekday: "short",
@@ -47,7 +51,7 @@ export default function ProgressPage() {
                         Attempt #{session.attempt_number}
                       </p>
                     </div>
-                    <div className="shrink-0 flex items-center gap-2">
+                    <div className="flex shrink-0 items-center gap-2">
                       {session.passed !== null && (
                         <>
                           {session.passed ? (
@@ -69,7 +73,7 @@ export default function ProgressPage() {
                       href={`/lesson/${session.unit_id}`}
                       variant="ghost"
                       size="sm"
-                      className="text-xs h-6"
+                      className="h-6 text-xs"
                     >
                       Lesson
                     </LinkButton>
@@ -77,7 +81,7 @@ export default function ProgressPage() {
                       href={`/quiz/${session.unit_id}`}
                       variant="ghost"
                       size="sm"
-                      className="text-xs h-6"
+                      className="h-6 text-xs"
                     >
                       Retry quiz
                     </LinkButton>

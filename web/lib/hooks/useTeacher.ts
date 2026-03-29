@@ -35,7 +35,9 @@ function readTeacherClaims(): TeacherClaims | null {
     return {
       teacher_id,
       school_id,
-      role: (role === "school_admin" ? "school_admin" : "teacher") as TeacherClaims["role"],
+      role: (role === "school_admin"
+        ? "school_admin"
+        : "teacher") as TeacherClaims["role"],
     };
   } catch {
     return null;

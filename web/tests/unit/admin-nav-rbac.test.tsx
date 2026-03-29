@@ -40,10 +40,16 @@ vi.mock("@/lib/hooks/useAdmin", async (importOriginal) => {
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
   return {
-    getItem:    (key: string) => store[key] ?? null,
-    setItem:    (key: string, value: string) => { store[key] = value; },
-    removeItem: (key: string) => { delete store[key]; },
-    clear:      () => { store = {}; },
+    getItem: (key: string) => store[key] ?? null,
+    setItem: (key: string, value: string) => {
+      store[key] = value;
+    },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+    clear: () => {
+      store = {};
+    },
   };
 })();
 Object.defineProperty(window, "localStorage", { value: localStorageMock });
@@ -64,9 +70,7 @@ describe("ADM-66 — developer role hides Feedback in nav", () => {
 
   it("does NOT show Feedback nav item for developer", () => {
     render(<AdminNav />);
-    expect(
-      screen.queryByRole("link", { name: ADMIN_NAV_STRINGS.feedback }),
-    ).toBeNull();
+    expect(screen.queryByRole("link", { name: ADMIN_NAV_STRINGS.feedback })).toBeNull();
   });
 });
 
@@ -82,9 +86,7 @@ describe("ADM-67 — developer role hides Audit Log in nav", () => {
 
   it("does NOT show Audit Log nav item for developer", () => {
     render(<AdminNav />);
-    expect(
-      screen.queryByRole("link", { name: ADMIN_NAV_STRINGS.auditLog }),
-    ).toBeNull();
+    expect(screen.queryByRole("link", { name: ADMIN_NAV_STRINGS.auditLog })).toBeNull();
   });
 
   it("still shows Dashboard nav item for developer", () => {
@@ -121,9 +123,9 @@ describe("ADM-68 — super_admin sees all nav items", () => {
 
   it("shows all 7 nav links for super_admin", () => {
     render(<AdminNav />);
-    const navLinks = screen.getAllByRole("link").filter(
-      (el) => el.getAttribute("href")?.startsWith("/admin/"),
-    );
+    const navLinks = screen
+      .getAllByRole("link")
+      .filter((el) => el.getAttribute("href")?.startsWith("/admin/"));
     expect(navLinks.length).toBeGreaterThanOrEqual(7);
   });
 });
@@ -166,9 +168,7 @@ describe("ADM-70 — Sign out clears token", () => {
 
   it("renders the Sign out button", () => {
     render(<AdminNav />);
-    expect(
-      screen.getByRole("button", { name: /Sign out/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Sign out/i })).toBeInTheDocument();
   });
 
   it("removes sb_admin_token from localStorage on sign out", () => {

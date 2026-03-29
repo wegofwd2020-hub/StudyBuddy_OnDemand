@@ -10,38 +10,38 @@
 
 ### Pages added
 
-| Route | Page | Req |
-|---|---|---|
-| `/account/subscription` | Plan selector (monthly/annual toggle), current plan status, cancel flow | S-10, S-11 |
-| `/account/subscription/success` | Post-Stripe-checkout confirmation; invalidates subscription cache | — |
-| `/account/settings` | Display name, locale (EN/FR/ES), notification toggles | S-12 |
-| `/enrol/[token]` | School enrolment confirmation (calls `POST /school/enrol/confirm`) | S-15 |
+| Route                           | Page                                                                    | Req        |
+| ------------------------------- | ----------------------------------------------------------------------- | ---------- |
+| `/account/subscription`         | Plan selector (monthly/annual toggle), current plan status, cancel flow | S-10, S-11 |
+| `/account/subscription/success` | Post-Stripe-checkout confirmation; invalidates subscription cache       | —          |
+| `/account/settings`             | Display name, locale (EN/FR/ES), notification toggles                   | S-12       |
+| `/enrol/[token]`                | School enrolment confirmation (calls `POST /school/enrol/confirm`)      | S-15       |
 
 ### Components added
 
-| Component | Purpose |
-|---|---|
+| Component                            | Purpose                                            |
+| ------------------------------------ | -------------------------------------------------- |
 | `components/student/TrialBanner.tsx` | Sticky top banner; blue → red when ≤ 3 days remain |
 
 ### API layer added
 
-| Module | Exports |
-|---|---|
+| Module                    | Exports                                                                                |
+| ------------------------- | -------------------------------------------------------------------------------------- |
 | `lib/api/subscription.ts` | `getSubscriptionStatus`, `createCheckout`, `getBillingPortalUrl`, `cancelSubscription` |
-| `lib/api/settings.ts` | `getAccountSettings`, `saveAccountSettings` |
-| `lib/api/school.ts` | `confirmEnrolment` |
+| `lib/api/settings.ts`     | `getAccountSettings`, `saveAccountSettings`                                            |
+| `lib/api/school.ts`       | `confirmEnrolment`                                                                     |
 
 ### Hooks added
 
-| Hook | Purpose |
-|---|---|
+| Hook                           | Purpose                                                                 |
+| ------------------------------ | ----------------------------------------------------------------------- |
 | `lib/hooks/useSubscription.ts` | `useSubscription()` (TanStack Query), `trialDaysRemaining(iso)` utility |
 
 ### Tests added
 
-| File | Tests | Coverage |
-|---|---|---|
-| `tests/unit/subscription.test.ts` | 11 | `trialDaysRemaining` edge cases; all 4 API functions mocked |
+| File                              | Tests | Coverage                                                    |
+| --------------------------------- | ----- | ----------------------------------------------------------- |
+| `tests/unit/subscription.test.ts` | 11    | `trialDaysRemaining` edge cases; all 4 API functions mocked |
 
 ---
 
@@ -49,13 +49,13 @@
 
 The subscription page handles all 5 plan states cleanly:
 
-| `status` | Plan selector shown | Cancel link shown | Manage billing shown |
-|---|---|---|---|
-| `free` | ✅ | — | — |
-| `trial` | ✅ | — | — |
-| `active` | — | ✅ | ✅ |
-| `cancelled` (cancel_at_period_end) | ✅ | — | ✅ |
-| `past_due` | — | — | ✅ |
+| `status`                           | Plan selector shown | Cancel link shown | Manage billing shown |
+| ---------------------------------- | ------------------- | ----------------- | -------------------- |
+| `free`                             | ✅                  | —                 | —                    |
+| `trial`                            | ✅                  | —                 | —                    |
+| `active`                           | —                   | ✅                | ✅                   |
+| `cancelled` (cancel_at_period_end) | ✅                  | —                 | ✅                   |
+| `past_due`                         | —                   | —                 | ✅                   |
 
 Cancel flow: link → confirmation card → `POST /subscription/cancel` → cache invalidation → success message.
 
@@ -64,6 +64,7 @@ Cancel flow: link → confirmation card → `POST /subscription/cancel` → cach
 ## Layout Update
 
 `app/(student)/layout.tsx` now wraps all student pages in:
+
 1. `QueryProvider` — TanStack Query context
 2. `TrialBanner` — shown only when `status === "trial"`
 3. `OfflineBanner` — shown when offline (from Phase W2)

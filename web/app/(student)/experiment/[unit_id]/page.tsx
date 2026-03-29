@@ -15,7 +15,11 @@ interface PageProps {
 
 export default function ExperimentPage({ params }: PageProps) {
   const { unit_id } = use(params);
-  const { data: experiment, isLoading, isError } = useQuery({
+  const {
+    data: experiment,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["experiment", unit_id],
     queryFn: () => getExperiment(unit_id),
     enabled: !!unit_id,
@@ -23,7 +27,7 @@ export default function ExperimentPage({ params }: PageProps) {
 
   if (isLoading) {
     return (
-      <div className="p-6 max-w-3xl space-y-4">
+      <div className="max-w-3xl space-y-4 p-6">
         <Skeleton className="h-8 w-2/3" />
         <Skeleton className="h-24 rounded-lg" />
         <Skeleton className="h-48 rounded-lg" />
@@ -34,7 +38,9 @@ export default function ExperimentPage({ params }: PageProps) {
   if (isError || !experiment) {
     return (
       <div className="p-6">
-        <p className="text-red-500 text-sm">Could not load experiment. Please try again.</p>
+        <p className="text-sm text-red-500">
+          Could not load experiment. Please try again.
+        </p>
       </div>
     );
   }
@@ -42,11 +48,13 @@ export default function ExperimentPage({ params }: PageProps) {
   return (
     <div className="flex flex-col">
       <OfflineBanner />
-      <div className="p-6 max-w-3xl space-y-6">
+      <div className="max-w-3xl space-y-6 p-6">
         <ExperimentRenderer experiment={experiment} />
         <div className="flex items-center justify-between border-t pt-4">
           <FeedbackWidget unitId={unit_id} contentType="experiment" />
-          <LinkButton href={`/quiz/${unit_id}`} size="sm">Take Quiz</LinkButton>
+          <LinkButton href={`/quiz/${unit_id}`} size="sm">
+            Take Quiz
+          </LinkButton>
         </div>
       </div>
     </div>

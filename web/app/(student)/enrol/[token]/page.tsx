@@ -31,18 +31,18 @@ export default function EnrolConfirmPage() {
   }, [token]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] p-6 text-center">
+    <div className="flex min-h-[60vh] flex-col items-center justify-center p-6 text-center">
       {state === "loading" && (
-        <div className="space-y-4 w-full max-w-sm">
-          <Skeleton className="h-16 w-16 rounded-full mx-auto" />
-          <Skeleton className="h-6 w-48 mx-auto" />
-          <Skeleton className="h-4 w-64 mx-auto" />
+        <div className="w-full max-w-sm space-y-4">
+          <Skeleton className="mx-auto h-16 w-16 rounded-full" />
+          <Skeleton className="mx-auto h-6 w-48" />
+          <Skeleton className="mx-auto h-4 w-64" />
         </div>
       )}
 
       {state === "success" && (
-        <div className="space-y-4 max-w-sm">
-          <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
+        <div className="max-w-sm space-y-4">
+          <CheckCircle className="mx-auto h-16 w-16 text-green-500" />
           <h1 className="text-2xl font-bold text-gray-900">You&apos;re enrolled!</h1>
           <p className="text-gray-600">
             You&apos;ve been successfully enrolled in{" "}
@@ -56,8 +56,8 @@ export default function EnrolConfirmPage() {
       )}
 
       {state === "error" && (
-        <div className="space-y-4 max-w-sm">
-          <XCircle className="h-16 w-16 text-red-400 mx-auto" />
+        <div className="max-w-sm space-y-4">
+          <XCircle className="mx-auto h-16 w-16 text-red-400" />
           <h1 className="text-2xl font-bold text-gray-900">Enrolment failed</h1>
           <p className="text-gray-600">{errorMsg}</p>
           <LinkButton href="/dashboard" variant="outline">

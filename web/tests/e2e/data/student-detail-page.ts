@@ -17,7 +17,7 @@ import type { StudentReport } from "@/lib/api/reports";
 
 export const MOCK_TEACHER = {
   teacher_id: "teacher-001",
-  school_id:  "school-001",
+  school_id: "school-001",
   role: "teacher" as const,
 };
 
@@ -28,47 +28,47 @@ export const MOCK_STUDENT_ID = "stu-001";
 // ---------------------------------------------------------------------------
 
 export const MOCK_STUDENT_REPORT: StudentReport = {
-  school_id:                   "school-001",
-  student_id:                  "stu-001",
-  student_name:                "Alice Chen",
-  grade:                       8,
-  last_active:                 "2026-03-27T10:00:00Z",
-  units_completed:             6,
-  units_in_progress:           2,
+  school_id: "school-001",
+  student_id: "stu-001",
+  student_name: "Alice Chen",
+  grade: 8,
+  last_active: "2026-03-27T10:00:00Z",
+  units_completed: 6,
+  units_in_progress: 2,
   first_attempt_pass_rate_pct: 83.0,
-  overall_avg_score_pct:       84.0,
-  total_time_spent_s:          7200,  // 2h 0m
-  strongest_subject:           "Science",
-  needs_attention_subject:     "Mathematics",
+  overall_avg_score_pct: 84.0,
+  total_time_spent_s: 7200, // 2h 0m
+  strongest_subject: "Science",
+  needs_attention_subject: "Mathematics",
   per_unit: [
     {
-      unit_id:       "G8-SCI-001",
-      unit_name:     "Cell Biology",
-      subject:       "science",
+      unit_id: "G8-SCI-001",
+      unit_name: "Cell Biology",
+      subject: "science",
       lesson_viewed: true,
       quiz_attempts: 2,
-      best_score:    90.0,
-      passed:        true,
+      best_score: 90.0,
+      passed: true,
       avg_duration_s: 1200,
     },
     {
-      unit_id:       "G8-MATH-001",
-      unit_name:     "Linear Equations",
-      subject:       "mathematics",
+      unit_id: "G8-MATH-001",
+      unit_name: "Linear Equations",
+      subject: "mathematics",
       lesson_viewed: true,
       quiz_attempts: 3,
-      best_score:    55.0,
-      passed:        false,
+      best_score: 55.0,
+      passed: false,
       avg_duration_s: 900,
     },
     {
-      unit_id:       "G8-SCI-002",
-      unit_name:     "Chemical Reactions",
-      subject:       "science",
+      unit_id: "G8-SCI-002",
+      unit_name: "Chemical Reactions",
+      subject: "science",
       lesson_viewed: false,
       quiz_attempts: 0,
-      best_score:    null,
-      passed:        false,
+      best_score: null,
+      passed: false,
       avg_duration_s: 0,
     },
   ],
@@ -79,25 +79,25 @@ export const MOCK_STUDENT_REPORT: StudentReport = {
 // ---------------------------------------------------------------------------
 
 export const STUDENT_DETAIL_STRINGS = {
-  backBtn:          "← Class",
+  backBtn: "← Class",
   unitProgressCard: "Unit progress",
   // KPI labels
-  unitsCompleted:   "Units completed",
-  inProgress:       "In progress",
-  passRate:         "Pass rate",
-  timeSpent:        "Time spent",
+  unitsCompleted: "Units completed",
+  inProgress: "In progress",
+  passRate: "Pass rate",
+  timeSpent: "Time spent",
   // Subject tags
-  strongestPrefix:  "Strongest:",
-  attentionPrefix:  "Needs attention:",
+  strongestPrefix: "Strongest:",
+  attentionPrefix: "Needs attention:",
   // Table headers
-  colUnit:          "Unit",
-  colSubject:       "Subject",
-  colLesson:        "Lesson",
-  colAttempts:      "Attempts",
-  colBestScore:     "Best score",
-  colTime:          "Time",
+  colUnit: "Unit",
+  colSubject: "Subject",
+  colLesson: "Lesson",
+  colAttempts: "Attempts",
+  colBestScore: "Best score",
+  colTime: "Time",
   // Time formatting
-  twoHours:         "2h 0m",
+  twoHours: "2h 0m",
 } as const;
 
 // ---------------------------------------------------------------------------

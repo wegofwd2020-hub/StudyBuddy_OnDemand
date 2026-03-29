@@ -11,7 +11,8 @@ import { cn } from "@/lib/utils";
 function StatusIcon({ status }: { status: string }) {
   if (status === "done") return <CheckCircle className="h-5 w-5 text-green-500" />;
   if (status === "failed") return <XCircle className="h-5 w-5 text-red-500" />;
-  if (status === "running") return <Loader2 className="h-5 w-5 text-blue-500 animate-spin" />;
+  if (status === "running")
+    return <Loader2 className="h-5 w-5 animate-spin text-blue-500" />;
   return <Clock className="h-5 w-5 text-gray-400" />;
 }
 
@@ -36,9 +37,11 @@ export default function PipelineStatusPage() {
   const isFinished = isDone || isFailed;
 
   return (
-    <div className="p-6 max-w-2xl space-y-6">
+    <div className="max-w-2xl space-y-6 p-6">
       <div className="flex items-center gap-3">
-        <LinkButton href="/school/curriculum" variant="outline" size="sm">← Curriculum</LinkButton>
+        <LinkButton href="/school/curriculum" variant="outline" size="sm">
+          ← Curriculum
+        </LinkButton>
         <h1 className="text-2xl font-bold text-gray-900">Pipeline Status</h1>
       </div>
 
@@ -47,21 +50,23 @@ export default function PipelineStatusPage() {
           <div className="flex items-center gap-2">
             {data && <StatusIcon status={data.status} />}
             <CardTitle className="text-base">
-              {isLoading ? "Loading…" : data?.status ?? "Unknown"}
+              {isLoading ? "Loading…" : (data?.status ?? "Unknown")}
             </CardTitle>
           </div>
-          <p className="text-xs text-gray-400 font-mono mt-1">{job_id}</p>
+          <p className="mt-1 font-mono text-xs text-gray-400">{job_id}</p>
         </CardHeader>
         <CardContent className="space-y-4">
           {data && (
             <>
               {/* Progress bar */}
               <div>
-                <div className="flex justify-between text-xs text-gray-500 mb-1">
-                  <span>{data.built} built · {data.failed} failed · {data.total} total</span>
+                <div className="mb-1 flex justify-between text-xs text-gray-500">
+                  <span>
+                    {data.built} built · {data.failed} failed · {data.total} total
+                  </span>
                   <span>{data.progress_pct.toFixed(0)}%</span>
                 </div>
-                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-2 overflow-hidden rounded-full bg-gray-100">
                   <div
                     className={cn(
                       "h-full rounded-full transition-all duration-500",
@@ -75,26 +80,28 @@ export default function PipelineStatusPage() {
 
               {/* Status messages */}
               {isDone && (
-                <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg p-3">
+                <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
                   <CheckCircle className="h-4 w-4 shrink-0" />
-                  Content generation complete. {data.built} unit{data.built !== 1 ? "s" : ""} built successfully.
+                  Content generation complete. {data.built} unit
+                  {data.built !== 1 ? "s" : ""} built successfully.
                 </div>
               )}
 
               {isFailed && (
-                <div className="rounded-lg border border-red-200 bg-red-50 p-3 space-y-2">
-                  <p className="text-sm text-red-700 font-medium">
-                    Pipeline failed — {data.failed} unit{data.failed !== 1 ? "s" : ""} could not be generated.
+                <div className="space-y-2 rounded-lg border border-red-200 bg-red-50 p-3">
+                  <p className="text-sm font-medium text-red-700">
+                    Pipeline failed — {data.failed} unit{data.failed !== 1 ? "s" : ""}{" "}
+                    could not be generated.
                   </p>
                   <p className="text-xs text-red-600">
-                    {data.built} unit{data.built !== 1 ? "s" : ""} succeeded before the failure.
-                    You can re-trigger the pipeline from the Curriculum page.
+                    {data.built} unit{data.built !== 1 ? "s" : ""} succeeded before the
+                    failure. You can re-trigger the pipeline from the Curriculum page.
                   </p>
                 </div>
               )}
 
               {!isFinished && (
-                <p className="text-xs text-gray-400 text-center animate-pulse">
+                <p className="animate-pulse text-center text-xs text-gray-400">
                   Refreshing every 5 seconds…
                 </p>
               )}
@@ -106,7 +113,9 @@ export default function PipelineStatusPage() {
       {isFinished && (
         <div className="flex gap-2">
           <LinkButton href="/school/curriculum">Back to curriculum</LinkButton>
-          <LinkButton href="/school/dashboard" variant="outline">Dashboard</LinkButton>
+          <LinkButton href="/school/dashboard" variant="outline">
+            Dashboard
+          </LinkButton>
         </div>
       )}
     </div>

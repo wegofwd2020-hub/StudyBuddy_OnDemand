@@ -98,7 +98,9 @@ test.describe("Admin login page", () => {
 // ---------------------------------------------------------------------------
 
 function makeAdminJwt(role: string): string {
-  const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString("base64url");
+  const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString(
+    "base64url",
+  );
   const payload = Buffer.from(
     JSON.stringify({ admin_id: "test-admin", role, exp: 9999999999 }),
   ).toString("base64url");

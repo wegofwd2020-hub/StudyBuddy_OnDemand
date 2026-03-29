@@ -10,7 +10,10 @@ import { NextRequest, NextResponse } from "next/server";
 
 // INTERNAL_API_URL uses the Docker service name — works inside the container.
 // Falls back to localhost for running Next.js outside Docker.
-const BACKEND_URL = process.env.INTERNAL_API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+const BACKEND_URL =
+  process.env.INTERNAL_API_URL ??
+  process.env.NEXT_PUBLIC_API_URL ??
+  "http://localhost:8000/api/v1";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();

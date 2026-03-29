@@ -20,14 +20,14 @@ export const MOCK_SUPER_ADMIN = {
 
 export const ADMIN_NAV_STRINGS = {
   // Nav item labels that are RBAC-gated
-  feedback:    "Feedback",
-  auditLog:    "Audit Log",
+  feedback: "Feedback",
+  auditLog: "Audit Log",
   // Always-visible items
-  dashboard:   "Dashboard",
-  analytics:   "Analytics",
-  pipeline:    "Pipeline",
+  dashboard: "Dashboard",
+  analytics: "Analytics",
+  pipeline: "Pipeline",
   contentReview: "Content Review",
-  health:      "Health",
+  health: "Health",
   // Sign out
-  signOut:     "Sign out",
+  signOut: "Sign out",
 } as const;

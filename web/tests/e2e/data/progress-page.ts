@@ -17,9 +17,27 @@ import type { ProgressHistory } from "@/lib/types/api";
 
 export const MOCK_PROGRESS_HISTORY: ProgressHistory = {
   unit_progress: [
-    { unit_id: "G8-SCI-001", status: "completed",    best_score: 3, attempts: 1, last_attempted_at: "2026-03-25T10:00:00Z" },
-    { unit_id: "G8-MATH-001", status: "needs_retry", best_score: 1, attempts: 2, last_attempted_at: "2026-03-24T14:30:00Z" },
-    { unit_id: "G8-SCI-002", status: "in_progress",  best_score: null, attempts: 1, last_attempted_at: "2026-03-23T09:15:00Z" },
+    {
+      unit_id: "G8-SCI-001",
+      status: "completed",
+      best_score: 3,
+      attempts: 1,
+      last_attempted_at: "2026-03-25T10:00:00Z",
+    },
+    {
+      unit_id: "G8-MATH-001",
+      status: "needs_retry",
+      best_score: 1,
+      attempts: 2,
+      last_attempted_at: "2026-03-24T14:30:00Z",
+    },
+    {
+      unit_id: "G8-SCI-002",
+      status: "in_progress",
+      best_score: null,
+      attempts: 1,
+      last_attempted_at: "2026-03-23T09:15:00Z",
+    },
   ],
   sessions: [
     {
@@ -75,16 +93,20 @@ export const MOCK_PROGRESS_EMPTY: ProgressHistory = {
 // ---------------------------------------------------------------------------
 
 export const PROGRESS_STRINGS = {
-  pageHeading:    "Progress History",
-  emptyMessage:   "No sessions yet. Start learning to track progress.",
+  pageHeading: "Progress History",
+  emptyMessage: "No sessions yet. Start learning to track progress.",
   browseSubjects: "Browse Subjects",
-  lessonBtn:      "Lesson",
-  retryQuizBtn:   "Retry quiz",
+  lessonBtn: "Lesson",
+  retryQuizBtn: "Retry quiz",
 } as const;
 
 // ---------------------------------------------------------------------------
 // Href helpers
 // ---------------------------------------------------------------------------
 
-export function lessonHref(unitId: string) { return `/lesson/${unitId}`; }
-export function quizHref(unitId: string)   { return `/quiz/${unitId}`; }
+export function lessonHref(unitId: string) {
+  return `/lesson/${unitId}`;
+}
+export function quizHref(unitId: string) {
+  return `/quiz/${unitId}`;
+}

@@ -6,26 +6,26 @@
 import type { SystemHealth } from "@/lib/api/admin";
 
 export const MOCK_HEALTH_OK: SystemHealth = {
-  db_status:                 "ok",
-  redis_status:              "ok",
-  db_pool_size:              20,
-  db_pool_available:         18,
-  redis_connected_clients:   4,
-  checked_at:                "2026-03-28T07:00:00Z",
+  db_status: "ok",
+  redis_status: "ok",
+  db_pool_size: 20,
+  db_pool_available: 18,
+  redis_connected_clients: 4,
+  checked_at: "2026-03-28T07:00:00Z",
 };
 
 export const MOCK_HEALTH_DEGRADED: SystemHealth = {
-  db_status:    "error",
+  db_status: "error",
   redis_status: "ok",
-  checked_at:   "2026-03-28T07:00:00Z",
+  checked_at: "2026-03-28T07:00:00Z",
 };
 
 export const HEALTH_STRINGS = {
-  pageHeading:     "System Health",
+  pageHeading: "System Health",
   // Service rows
-  postgresRow:     "PostgreSQL",
-  redisRow:        "Redis",
+  postgresRow: "PostgreSQL",
+  redisRow: "Redis",
   // Status banners
-  allOkBanner:     "All systems operational",
-  degradedBanner:  "One or more systems degraded",
+  allOkBanner: "All systems operational",
+  degradedBanner: "One or more systems degraded",
 } as const;

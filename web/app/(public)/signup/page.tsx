@@ -21,17 +21,17 @@ export default function SignupPage() {
       <div className="w-full max-w-sm">
         <Card className="shadow-lg">
           <CardHeader className="text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 mb-2">
+            <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-blue-50">
               <BookOpen className="h-6 w-6 text-blue-600" />
             </div>
             <CardTitle className="text-2xl">{t("signup_title")}</CardTitle>
             <p className="text-sm text-gray-500">{t("signup_subtitle")}</p>
           </CardHeader>
           <CardContent className="space-y-4">
-            <ul className="space-y-2 mb-2">
+            <ul className="mb-2 space-y-2">
               {PERKS.map((perk) => (
                 <li key={perk} className="flex items-center gap-2 text-sm text-gray-600">
-                  <Check className="h-4 w-4 text-green-500 shrink-0" />
+                  <Check className="h-4 w-4 shrink-0 text-green-500" />
                   {perk}
                 </li>
               ))}

@@ -44,7 +44,9 @@ test("PUB-17 — sign-in link renders and points to Auth0 endpoint", async ({ pa
 // PUB-18 — "Sign up free" link navigates to /signup
 // ---------------------------------------------------------------------------
 
-test("PUB-18 — 'Sign up free' link is visible and navigates to /signup", async ({ page }) => {
+test("PUB-18 — 'Sign up free' link is visible and navigates to /signup", async ({
+  page,
+}) => {
   await page.goto(PAGE.url);
 
   const link = page.getByRole("link", { name: SIGN_UP_LINK.text });

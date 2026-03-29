@@ -14,7 +14,14 @@ import {
 } from "@/lib/api/admin";
 import { useAdmin, hasPermission } from "@/lib/hooks/useAdmin";
 import { cn } from "@/lib/utils";
-import { ArrowLeft, CheckCircle, XCircle, Globe, RotateCcw, ShieldOff } from "lucide-react";
+import {
+  ArrowLeft,
+  CheckCircle,
+  XCircle,
+  Globe,
+  RotateCcw,
+  ShieldOff,
+} from "lucide-react";
 
 type ActionModal = "reject" | "block" | null;
 
@@ -53,10 +60,10 @@ export default function AdminContentReviewDetailPage() {
   const canBlock = canPublish;
 
   return (
-    <div className="p-8 max-w-3xl mx-auto">
+    <div className="mx-auto max-w-3xl p-8">
       <Link
         href="/admin/content-review"
-        className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 mb-6 transition-colors"
+        className="mb-6 inline-flex items-center gap-1.5 text-sm text-gray-500 transition-colors hover:text-gray-900"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to queue
@@ -64,33 +71,41 @@ export default function AdminContentReviewDetailPage() {
 
       {isLoading ? (
         <div className="space-y-4">
-          <div className="h-8 bg-gray-100 rounded-lg animate-pulse" />
-          <div className="h-48 bg-gray-100 rounded-xl animate-pulse" />
+          <div className="h-8 animate-pulse rounded-lg bg-gray-100" />
+          <div className="h-48 animate-pulse rounded-xl bg-gray-100" />
         </div>
       ) : item ? (
         <div className="space-y-6">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{item.unit_title}</h1>
-            <p className="text-sm text-gray-500 mt-1">
-              Grade {item.grade} · {item.subject} · <span className="uppercase font-mono">{item.lang}</span> ·
-              v{item.content_version}
+            <p className="mt-1 text-sm text-gray-500">
+              Grade {item.grade} · {item.subject} ·{" "}
+              <span className="font-mono uppercase">{item.lang}</span> · v
+              {item.content_version}
             </p>
           </div>
 
           {/* Meta */}
           <div className="flex flex-wrap gap-3 text-xs text-gray-500">
-            <span>Status: <strong className="text-gray-900">{item.status}</strong></span>
-            <span>Quiz questions: <strong className="text-gray-900">{item.quiz_count}</strong></span>
+            <span>
+              Status: <strong className="text-gray-900">{item.status}</strong>
+            </span>
+            <span>
+              Quiz questions: <strong className="text-gray-900">{item.quiz_count}</strong>
+            </span>
             {item.alexjs_score !== null && (
-              <span>AlexJS score: <strong className="text-gray-900">{item.alexjs_score}</strong></span>
+              <span>
+                AlexJS score:{" "}
+                <strong className="text-gray-900">{item.alexjs_score}</strong>
+              </span>
             )}
             <span>Submitted: {new Date(item.submitted_at).toLocaleString()}</span>
           </div>
 
           {/* Lesson preview */}
-          <div className="bg-gray-50 rounded-xl border border-gray-200 p-5">
-            <h2 className="text-sm font-semibold text-gray-700 mb-3">Lesson Preview</h2>
-            <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+          <div className="rounded-xl border border-gray-200 bg-gray-50 p-5">
+            <h2 className="mb-3 text-sm font-semibold text-gray-700">Lesson Preview</h2>
+            <p className="text-sm leading-relaxed whitespace-pre-wrap text-gray-700">
               {item.lesson_preview}
             </p>
           </div>
@@ -98,12 +113,15 @@ export default function AdminContentReviewDetailPage() {
           {/* Annotations */}
           {item.annotations.length > 0 && (
             <div>
-              <h2 className="text-sm font-semibold text-gray-700 mb-2">Annotations</h2>
+              <h2 className="mb-2 text-sm font-semibold text-gray-700">Annotations</h2>
               <div className="space-y-2">
                 {item.annotations.map((ann, i) => (
-                  <div key={i} className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm">
+                  <div
+                    key={i}
+                    className="rounded-lg border border-yellow-200 bg-yellow-50 p-3 text-sm"
+                  >
                     <p className="text-gray-700">{ann.note}</p>
-                    <p className="text-xs text-gray-400 mt-1">
+                    <p className="mt-1 text-xs text-gray-400">
                       {ann.reviewer_id} · {new Date(ann.created_at).toLocaleString()}
                     </p>
                   </div>
@@ -113,7 +131,7 @@ export default function AdminContentReviewDetailPage() {
           )}
 
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+            <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
               {error}
             </div>
           )}
@@ -124,7 +142,7 @@ export default function AdminContentReviewDetailPage() {
               <button
                 disabled={acting}
                 onClick={() => performAction(() => approveReview(version_id))}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors"
+                className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-500 disabled:opacity-50"
               >
                 <CheckCircle className="h-4 w-4" />
                 Approve
@@ -132,7 +150,7 @@ export default function AdminContentReviewDetailPage() {
               <button
                 disabled={acting}
                 onClick={() => setModal("reject")}
-                className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors"
+                className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-500 disabled:opacity-50"
               >
                 <XCircle className="h-4 w-4" />
                 Reject
@@ -145,7 +163,7 @@ export default function AdminContentReviewDetailPage() {
               <button
                 disabled={acting}
                 onClick={() => performAction(() => publishReview(version_id))}
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-500 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors"
+                className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-500 disabled:opacity-50"
               >
                 <Globe className="h-4 w-4" />
                 Publish
@@ -158,7 +176,7 @@ export default function AdminContentReviewDetailPage() {
               <button
                 disabled={acting}
                 onClick={() => performAction(() => rollbackReview(version_id))}
-                className="flex items-center gap-2 px-4 py-2 bg-yellow-600 hover:bg-yellow-500 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors"
+                className="flex items-center gap-2 rounded-lg bg-yellow-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-yellow-500 disabled:opacity-50"
               >
                 <RotateCcw className="h-4 w-4" />
                 Rollback
@@ -167,7 +185,7 @@ export default function AdminContentReviewDetailPage() {
                 <button
                   disabled={acting}
                   onClick={() => setModal("block")}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors"
+                  className="flex items-center gap-2 rounded-lg bg-gray-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-600 disabled:opacity-50"
                 >
                   <ShieldOff className="h-4 w-4" />
                   Block
@@ -182,9 +200,9 @@ export default function AdminContentReviewDetailPage() {
 
       {/* Reason modal (reject or block) */}
       {modal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl border border-gray-200 p-6 w-full max-w-md">
-            <h2 className="text-base font-semibold text-gray-900 mb-4 capitalize">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-6">
+            <h2 className="mb-4 text-base font-semibold text-gray-900 capitalize">
               {modal} content
             </h2>
             <textarea
@@ -192,9 +210,9 @@ export default function AdminContentReviewDetailPage() {
               onChange={(e) => setReason(e.target.value)}
               placeholder={`Reason for ${modal}…`}
               rows={3}
-              className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+              className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
             />
-            <div className="flex gap-3 mt-4">
+            <div className="mt-4 flex gap-3">
               <button
                 disabled={acting || !reason.trim()}
                 onClick={() => {
@@ -207,7 +225,7 @@ export default function AdminContentReviewDetailPage() {
                   performAction(action);
                 }}
                 className={cn(
-                  "flex-1 py-2 text-sm font-medium text-white rounded-lg transition-colors disabled:opacity-50",
+                  "flex-1 rounded-lg py-2 text-sm font-medium text-white transition-colors disabled:opacity-50",
                   modal === "reject"
                     ? "bg-red-600 hover:bg-red-500"
                     : "bg-gray-700 hover:bg-gray-600",
@@ -216,8 +234,11 @@ export default function AdminContentReviewDetailPage() {
                 Confirm {modal}
               </button>
               <button
-                onClick={() => { setModal(null); setReason(""); }}
-                className="flex-1 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                onClick={() => {
+                  setModal(null);
+                  setReason("");
+                }}
+                className="flex-1 py-2 text-sm text-gray-600 transition-colors hover:text-gray-900"
               >
                 Cancel
               </button>

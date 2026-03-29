@@ -36,8 +36,8 @@ vi.mock("@/components/student/OfflineBanner", () => ({
   OfflineBanner: () => null,
 }));
 
-const mockUseCurriculumTree   = vi.fn();
-const mockUseProgressHistory  = vi.fn();
+const mockUseCurriculumTree = vi.fn();
+const mockUseProgressHistory = vi.fn();
 
 vi.mock("@/lib/hooks/useCurriculumTree", () => ({
   useCurriculumTree: () => mockUseCurriculumTree(),
@@ -53,8 +53,14 @@ vi.mock("@/lib/hooks/useProgress", () => ({
 
 describe("STU-32 — Curriculum tree renders", () => {
   it("renders the page title", () => {
-    mockUseCurriculumTree.mockReturnValue({ data: MOCK_CURRICULUM_TREE, isLoading: false });
-    mockUseProgressHistory.mockReturnValue({ data: MOCK_PROGRESS_EMPTY, isLoading: false });
+    mockUseCurriculumTree.mockReturnValue({
+      data: MOCK_CURRICULUM_TREE,
+      isLoading: false,
+    });
+    mockUseProgressHistory.mockReturnValue({
+      data: MOCK_PROGRESS_EMPTY,
+      isLoading: false,
+    });
     render(<CurriculumMapPage />);
     expect(
       screen.getByRole("heading", { name: CURRICULUM_MAP_STRINGS.title }),
@@ -62,19 +68,29 @@ describe("STU-32 — Curriculum tree renders", () => {
   });
 
   it("renders a section heading for each subject", () => {
-    mockUseCurriculumTree.mockReturnValue({ data: MOCK_CURRICULUM_TREE, isLoading: false });
-    mockUseProgressHistory.mockReturnValue({ data: MOCK_PROGRESS_EMPTY, isLoading: false });
+    mockUseCurriculumTree.mockReturnValue({
+      data: MOCK_CURRICULUM_TREE,
+      isLoading: false,
+    });
+    mockUseProgressHistory.mockReturnValue({
+      data: MOCK_PROGRESS_EMPTY,
+      isLoading: false,
+    });
     render(<CurriculumMapPage />);
     for (const subject of MOCK_CURRICULUM_TREE.subjects) {
-      expect(
-        screen.getByRole("heading", { name: subject.subject }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: subject.subject })).toBeInTheDocument();
     }
   });
 
   it("renders all unit titles", () => {
-    mockUseCurriculumTree.mockReturnValue({ data: MOCK_CURRICULUM_TREE, isLoading: false });
-    mockUseProgressHistory.mockReturnValue({ data: MOCK_PROGRESS_EMPTY, isLoading: false });
+    mockUseCurriculumTree.mockReturnValue({
+      data: MOCK_CURRICULUM_TREE,
+      isLoading: false,
+    });
+    mockUseProgressHistory.mockReturnValue({
+      data: MOCK_PROGRESS_EMPTY,
+      isLoading: false,
+    });
     render(<CurriculumMapPage />);
     for (const subject of MOCK_CURRICULUM_TREE.subjects) {
       for (const unit of subject.units) {
@@ -84,32 +100,58 @@ describe("STU-32 — Curriculum tree renders", () => {
   });
 
   it("renders a Lesson link for each unit with correct href", () => {
-    mockUseCurriculumTree.mockReturnValue({ data: MOCK_CURRICULUM_TREE, isLoading: false });
-    mockUseProgressHistory.mockReturnValue({ data: MOCK_PROGRESS_EMPTY, isLoading: false });
+    mockUseCurriculumTree.mockReturnValue({
+      data: MOCK_CURRICULUM_TREE,
+      isLoading: false,
+    });
+    mockUseProgressHistory.mockReturnValue({
+      data: MOCK_PROGRESS_EMPTY,
+      isLoading: false,
+    });
     render(<CurriculumMapPage />);
     for (const subject of MOCK_CURRICULUM_TREE.subjects) {
       for (const unit of subject.units) {
-        const links = screen.getAllByRole("link", { name: CURRICULUM_MAP_STRINGS.lessonBtn });
-        expect(links.some((l) => l.getAttribute("href") === lessonHref(unit.unit_id))).toBe(true);
+        const links = screen.getAllByRole("link", {
+          name: CURRICULUM_MAP_STRINGS.lessonBtn,
+        });
+        expect(
+          links.some((l) => l.getAttribute("href") === lessonHref(unit.unit_id)),
+        ).toBe(true);
       }
     }
   });
 
   it("renders a Quiz link for each unit with correct href", () => {
-    mockUseCurriculumTree.mockReturnValue({ data: MOCK_CURRICULUM_TREE, isLoading: false });
-    mockUseProgressHistory.mockReturnValue({ data: MOCK_PROGRESS_EMPTY, isLoading: false });
+    mockUseCurriculumTree.mockReturnValue({
+      data: MOCK_CURRICULUM_TREE,
+      isLoading: false,
+    });
+    mockUseProgressHistory.mockReturnValue({
+      data: MOCK_PROGRESS_EMPTY,
+      isLoading: false,
+    });
     render(<CurriculumMapPage />);
     for (const subject of MOCK_CURRICULUM_TREE.subjects) {
       for (const unit of subject.units) {
-        const links = screen.getAllByRole("link", { name: CURRICULUM_MAP_STRINGS.quizBtn });
-        expect(links.some((l) => l.getAttribute("href") === quizHref(unit.unit_id))).toBe(true);
+        const links = screen.getAllByRole("link", {
+          name: CURRICULUM_MAP_STRINGS.quizBtn,
+        });
+        expect(links.some((l) => l.getAttribute("href") === quizHref(unit.unit_id))).toBe(
+          true,
+        );
       }
     }
   });
 
   it("renders Lab badge for lab units only", () => {
-    mockUseCurriculumTree.mockReturnValue({ data: MOCK_CURRICULUM_TREE, isLoading: false });
-    mockUseProgressHistory.mockReturnValue({ data: MOCK_PROGRESS_EMPTY, isLoading: false });
+    mockUseCurriculumTree.mockReturnValue({
+      data: MOCK_CURRICULUM_TREE,
+      isLoading: false,
+    });
+    mockUseProgressHistory.mockReturnValue({
+      data: MOCK_PROGRESS_EMPTY,
+      isLoading: false,
+    });
     render(<CurriculumMapPage />);
     const labBadges = screen.getAllByText(CURRICULUM_MAP_STRINGS.labBadge);
     const labUnitCount = MOCK_CURRICULUM_TREE.subjects
@@ -119,8 +161,14 @@ describe("STU-32 — Curriculum tree renders", () => {
   });
 
   it("renders status legend with all four status labels", () => {
-    mockUseCurriculumTree.mockReturnValue({ data: MOCK_CURRICULUM_TREE, isLoading: false });
-    mockUseProgressHistory.mockReturnValue({ data: MOCK_PROGRESS_EMPTY, isLoading: false });
+    mockUseCurriculumTree.mockReturnValue({
+      data: MOCK_CURRICULUM_TREE,
+      isLoading: false,
+    });
+    mockUseProgressHistory.mockReturnValue({
+      data: MOCK_PROGRESS_EMPTY,
+      isLoading: false,
+    });
     render(<CurriculumMapPage />);
     expect(screen.getByText(CURRICULUM_MAP_STRINGS.completed)).toBeInTheDocument();
     expect(screen.getByText(CURRICULUM_MAP_STRINGS.needsRetry)).toBeInTheDocument();
@@ -142,38 +190,68 @@ describe("STU-32 — Curriculum tree renders", () => {
 
 describe("STU-33 — Completed units marked differently", () => {
   it("completed unit shows green CheckCircle2 icon", () => {
-    mockUseCurriculumTree.mockReturnValue({ data: MOCK_CURRICULUM_TREE, isLoading: false });
-    mockUseProgressHistory.mockReturnValue({ data: MOCK_PROGRESS_WITH_STATUS, isLoading: false });
+    mockUseCurriculumTree.mockReturnValue({
+      data: MOCK_CURRICULUM_TREE,
+      isLoading: false,
+    });
+    mockUseProgressHistory.mockReturnValue({
+      data: MOCK_PROGRESS_WITH_STATUS,
+      isLoading: false,
+    });
     const { container } = render(<CurriculumMapPage />);
     // CheckCircle2 renders with text-green-500 class
     expect(container.querySelector("svg.text-green-500")).toBeTruthy();
   });
 
   it("needs_retry unit shows amber AlertCircle icon", () => {
-    mockUseCurriculumTree.mockReturnValue({ data: MOCK_CURRICULUM_TREE, isLoading: false });
-    mockUseProgressHistory.mockReturnValue({ data: MOCK_PROGRESS_WITH_STATUS, isLoading: false });
+    mockUseCurriculumTree.mockReturnValue({
+      data: MOCK_CURRICULUM_TREE,
+      isLoading: false,
+    });
+    mockUseProgressHistory.mockReturnValue({
+      data: MOCK_PROGRESS_WITH_STATUS,
+      isLoading: false,
+    });
     const { container } = render(<CurriculumMapPage />);
     expect(container.querySelector("svg.text-amber-500")).toBeTruthy();
   });
 
   it("in_progress unit shows blue Clock icon", () => {
-    mockUseCurriculumTree.mockReturnValue({ data: MOCK_CURRICULUM_TREE, isLoading: false });
-    mockUseProgressHistory.mockReturnValue({ data: MOCK_PROGRESS_WITH_STATUS, isLoading: false });
+    mockUseCurriculumTree.mockReturnValue({
+      data: MOCK_CURRICULUM_TREE,
+      isLoading: false,
+    });
+    mockUseProgressHistory.mockReturnValue({
+      data: MOCK_PROGRESS_WITH_STATUS,
+      isLoading: false,
+    });
     const { container } = render(<CurriculumMapPage />);
     expect(container.querySelector("svg.text-blue-500")).toBeTruthy();
   });
 
   it("not_started units show gray Circle icon", () => {
-    mockUseCurriculumTree.mockReturnValue({ data: MOCK_CURRICULUM_TREE, isLoading: false });
-    mockUseProgressHistory.mockReturnValue({ data: MOCK_PROGRESS_WITH_STATUS, isLoading: false });
+    mockUseCurriculumTree.mockReturnValue({
+      data: MOCK_CURRICULUM_TREE,
+      isLoading: false,
+    });
+    mockUseProgressHistory.mockReturnValue({
+      data: MOCK_PROGRESS_WITH_STATUS,
+      isLoading: false,
+    });
     const { container } = render(<CurriculumMapPage />);
     // 3 units are not_started + 4 legend items = at least 4 gray-300 svgs
     expect(container.querySelectorAll("svg.text-gray-300").length).toBeGreaterThan(0);
   });
 
   it("all units without progress default to not_started (gray)", () => {
-    mockUseCurriculumTree.mockReturnValue({ data: MOCK_CURRICULUM_TREE, isLoading: false });
-    mockUseProgressHistory.mockReturnValue({ data: MOCK_PROGRESS_EMPTY, isLoading: false });
+    mockUseCurriculumTree.mockReturnValue({
+      data: MOCK_CURRICULUM_TREE,
+      isLoading: false,
+    });
+    mockUseProgressHistory.mockReturnValue({
+      data: MOCK_PROGRESS_EMPTY,
+      isLoading: false,
+    });
     const { container } = render(<CurriculumMapPage />);
     const allUnits = MOCK_CURRICULUM_TREE.subjects.flatMap((s) => s.units);
     // Each unit + each legend entry renders a gray Circle — at least allUnits.length

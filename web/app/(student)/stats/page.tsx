@@ -8,10 +8,21 @@ import { StreakCard } from "@/components/student/StreakCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslations } from "next-intl";
 import {
-  BookOpen, CheckCircle2, TrendingUp, Star, Volume2, BarChart3
+  BookOpen,
+  CheckCircle2,
+  TrendingUp,
+  Star,
+  Volume2,
+  BarChart3,
 } from "lucide-react";
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
 } from "recharts";
 
 type Period = "7d" | "30d" | "all";
@@ -30,16 +41,16 @@ export default function StatsPage() {
   return (
     <div className="flex flex-col">
       <OfflineBanner />
-      <div className="p-6 max-w-4xl space-y-6">
+      <div className="max-w-4xl space-y-6 p-6">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
           {/* Period selector */}
-          <div className="flex gap-1 rounded-lg border p-1 bg-white">
+          <div className="flex gap-1 rounded-lg border bg-white p-1">
             {PERIODS.map((p) => (
               <button
                 key={p.value}
                 onClick={() => setPeriod(p.value)}
-                className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                className={`rounded px-3 py-1 text-xs font-medium transition-colors ${
                   period === p.value
                     ? "bg-blue-600 text-white"
                     : "text-gray-500 hover:text-gray-900"
@@ -60,7 +71,10 @@ export default function StatsPage() {
         ) : !stats ? null : (
           <>
             {/* Streak */}
-            <StreakCard streakDays={stats.streak_days} sessionDates={stats.session_dates} />
+            <StreakCard
+              streakDays={stats.streak_days}
+              sessionDates={stats.session_dates}
+            />
 
             {/* KPI grid */}
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -99,13 +113,16 @@ export default function StatsPage() {
             {/* Subject breakdown chart */}
             {stats.subject_breakdown.length > 0 && (
               <section>
-                <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-800">
                   <BarChart3 className="h-4 w-4" />
                   Subject Breakdown
                 </h2>
                 <div className="rounded-lg border bg-white p-4 shadow-sm">
                   <ResponsiveContainer width="100%" height={200}>
-                    <BarChart data={stats.subject_breakdown} margin={{ top: 0, right: 0, bottom: 0, left: -20 }}>
+                    <BarChart
+                      data={stats.subject_breakdown}
+                      margin={{ top: 0, right: 0, bottom: 0, left: -20 }}
+                    >
                       <XAxis dataKey="subject" tick={{ fontSize: 11 }} />
                       <YAxis tick={{ fontSize: 11 }} />
                       <Tooltip
@@ -116,7 +133,11 @@ export default function StatsPage() {
                         {stats.subject_breakdown.map((_, i) => (
                           <Cell
                             key={i}
-                            fill={["#3b82f6", "#8b5cf6", "#10b981", "#f59e0b", "#ef4444"][i % 5]}
+                            fill={
+                              ["#3b82f6", "#8b5cf6", "#10b981", "#f59e0b", "#ef4444"][
+                                i % 5
+                              ]
+                            }
                           />
                         ))}
                       </Bar>

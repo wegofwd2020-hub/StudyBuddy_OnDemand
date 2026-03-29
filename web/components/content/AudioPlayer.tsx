@@ -92,7 +92,7 @@ export function AudioPlayer({ unitId, onPlayed }: AudioPlayerProps) {
         max={100}
         value={progress}
         onChange={handleSeek}
-        className="flex-1 h-1 accent-blue-600"
+        className="h-1 flex-1 accent-blue-600"
         aria-label="Audio progress"
       />
 

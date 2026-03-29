@@ -5,22 +5,22 @@
 
 export const MOCK_TEACHER = {
   teacher_id: "teacher-001",
-  school_id:  "school-001",
+  school_id: "school-001",
   role: "teacher" as const,
 };
 
 export const DIGEST_STRINGS = {
-  pageHeading:      "Weekly Digest",
-  cardHeading:      "Digest settings",
-  emailLabel:       "Email address",
+  pageHeading: "Weekly Digest",
+  cardHeading: "Digest settings",
+  emailLabel: "Email address",
   emailPlaceholder: "you@school.edu",
-  timezoneLabel:    "Timezone",
-  saveBtn:          "Save settings",
-  savingBtn:        "Saving…",
-  savedConfirm:     "Saved",
+  timezoneLabel: "Timezone",
+  saveBtn: "Save settings",
+  savingBtn: "Saving…",
+  savedConfirm: "Saved",
   // Toggle label (initial enabled state)
-  digestEnabled:    "Digest enabled — sent every Monday",
-  digestDisabled:   "Digest disabled",
+  digestEnabled: "Digest enabled — sent every Monday",
+  digestDisabled: "Digest disabled",
   // What's in the digest card
   digestInfoHeading: "What's in the digest?",
 } as const;

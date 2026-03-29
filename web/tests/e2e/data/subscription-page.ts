@@ -66,7 +66,7 @@ export const MOCK_SUB_CANCELLED: SubscriptionState = {
 // ---------------------------------------------------------------------------
 
 export const STRIPE_CHECKOUT_URL = "https://checkout.stripe.com/pay/cs_test_abc123";
-export const STRIPE_PORTAL_URL   = "https://billing.stripe.com/session/bps_test_xyz789";
+export const STRIPE_PORTAL_URL = "https://billing.stripe.com/session/bps_test_xyz789";
 
 // ---------------------------------------------------------------------------
 // Expected UI strings
@@ -74,23 +74,23 @@ export const STRIPE_PORTAL_URL   = "https://billing.stripe.com/session/bps_test_
 // ---------------------------------------------------------------------------
 
 export const SUBSCRIPTION_STRINGS = {
-  title:           "title",
+  title: "title",
   currentPlanFree: "current_plan_free",
-  subscribeBtn:    "subscribe_btn",
+  subscribeBtn: "subscribe_btn",
   // Static strings
-  currentPlanLabel:    "Current plan",
-  choosePlanHeading:   "Choose a plan",
-  studentPlan:         "Student Plan",
-  manageBilling:       "Manage billing",
-  freeTrial:           "Free Trial",
-  studentMonthly:      "Student — Monthly",
-  studentAnnual:       "Student — Annual",
-  monthlyPrice:        "$9.99",
-  annualPrice:         "$99.99",
-  annualSaving:        "Save $19.89 vs monthly",
-  trialSuffix:         "days remaining in trial",
-  cancelSubscription:  "Cancel subscription",
-  cancelConfirmMsg:    "Cancel your subscription?",
+  currentPlanLabel: "Current plan",
+  choosePlanHeading: "Choose a plan",
+  studentPlan: "Student Plan",
+  manageBilling: "Manage billing",
+  freeTrial: "Free Trial",
+  studentMonthly: "Student — Monthly",
+  studentAnnual: "Student — Annual",
+  monthlyPrice: "$9.99",
+  annualPrice: "$99.99",
+  annualSaving: "Save $19.89 vs monthly",
+  trialSuffix: "days remaining in trial",
+  cancelSubscription: "Cancel subscription",
+  cancelConfirmMsg: "Cancel your subscription?",
 } as const;
 
 // ---------------------------------------------------------------------------

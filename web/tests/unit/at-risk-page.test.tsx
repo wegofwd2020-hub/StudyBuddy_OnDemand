@@ -45,7 +45,9 @@ describe("SCH-12 — At-risk report renders with struggling/watch units", () => 
   it("renders the Healthy tier count card", () => {
     render(<AtRiskReportPage />);
     expect(screen.getByText(AT_RISK_STRINGS.healthy)).toBeInTheDocument();
-    expect(screen.getByText(String(MOCK_CURRICULUM_HEALTH.healthy_count))).toBeInTheDocument();
+    expect(
+      screen.getByText(String(MOCK_CURRICULUM_HEALTH.healthy_count)),
+    ).toBeInTheDocument();
   });
 
   it("renders the Watch tier count card", () => {
@@ -75,7 +77,9 @@ describe("SCH-12 — At-risk report renders with struggling/watch units", () => 
 
   it("renders struggling unit name in the table", () => {
     render(<AtRiskReportPage />);
-    const struggling = MOCK_CURRICULUM_HEALTH.units.find((u) => u.health_tier === "struggling")!;
+    const struggling = MOCK_CURRICULUM_HEALTH.units.find(
+      (u) => u.health_tier === "struggling",
+    )!;
     expect(screen.getByText(struggling.unit_name!)).toBeInTheDocument();
   });
 
@@ -87,13 +91,17 @@ describe("SCH-12 — At-risk report renders with struggling/watch units", () => 
 
   it("renders recommended action for struggling unit", () => {
     render(<AtRiskReportPage />);
-    const struggling = MOCK_CURRICULUM_HEALTH.units.find((u) => u.health_tier === "struggling")!;
+    const struggling = MOCK_CURRICULUM_HEALTH.units.find(
+      (u) => u.health_tier === "struggling",
+    )!;
     expect(screen.getByText(struggling.recommended_action)).toBeInTheDocument();
   });
 
   it("renders watch unit name in the watch table", () => {
     render(<AtRiskReportPage />);
-    const watchUnit = MOCK_CURRICULUM_HEALTH.units.find((u) => u.health_tier === "watch")!;
+    const watchUnit = MOCK_CURRICULUM_HEALTH.units.find(
+      (u) => u.health_tier === "watch",
+    )!;
     expect(screen.getByText(watchUnit.unit_name!)).toBeInTheDocument();
   });
 

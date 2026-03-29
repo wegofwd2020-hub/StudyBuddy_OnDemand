@@ -11,9 +11,9 @@
 // ---------------------------------------------------------------------------
 
 export const PLAN_PRICES: ReadonlyArray<{ plan: string; price: string }> = [
-  { plan: "Free",    price: "$0"    },
+  { plan: "Free", price: "$0" },
   { plan: "Student", price: "$9.99" },
-  { plan: "School",  price: "$299+" },
+  { plan: "School", price: "$299+" },
 ];
 
 // ---------------------------------------------------------------------------
@@ -21,8 +21,8 @@ export const PLAN_PRICES: ReadonlyArray<{ plan: string; price: string }> = [
 // ---------------------------------------------------------------------------
 
 export const PLAN_CTAS: ReadonlyArray<{ label: string; href: string }> = [
-  { label: "Start free",    href: "/signup"  }, // PUB-12 — Free plan
-  { label: "Subscribe now", href: "/signup"  }, // PUB-13 — Student plan
+  { label: "Start free", href: "/signup" }, // PUB-12 — Free plan
+  { label: "Subscribe now", href: "/signup" }, // PUB-13 — Student plan
   { label: "Contact sales", href: "/contact" }, // PUB-14 — School plan
 ];
 
@@ -33,7 +33,8 @@ export const PLAN_CTAS: ReadonlyArray<{ label: string; href: string }> = [
 export const FAQ_ITEMS: ReadonlyArray<{ question: string; answer: string }> = [
   {
     question: "Is there a free trial?",
-    answer: "Yes. Every account starts with 5 free lessons per month, no credit card required.",
+    answer:
+      "Yes. Every account starts with 5 free lessons per month, no credit card required.",
   },
   {
     question: "Can I switch plans at any time?",

@@ -105,7 +105,7 @@ export function QuizPlayer({ quiz, sessionId }: QuizPlayerProps) {
     const { score, total, passed, attempt_number } = state.result;
     const pct = Math.round((score / total) * 100);
     return (
-      <div className="text-center space-y-6 py-8">
+      <div className="space-y-6 py-8 text-center">
         <div className="flex justify-center">
           {passed ? (
             <Trophy className="h-16 w-16 text-yellow-400" />
@@ -117,7 +117,9 @@ export function QuizPlayer({ quiz, sessionId }: QuizPlayerProps) {
           {passed ? t("passed_heading") : t("try_again_heading")}
         </h2>
         <p className="text-gray-500">{t("score_label", { score, total, pct })}</p>
-        <p className="text-sm text-gray-400">{t("attempt_label", { attempt: attempt_number })}</p>
+        <p className="text-sm text-gray-400">
+          {t("attempt_label", { attempt: attempt_number })}
+        </p>
         <div className="flex justify-center gap-3">
           {!passed && (
             <LinkButton variant="outline" href={`/quiz/${quiz.unit_id}`}>
@@ -157,7 +159,7 @@ export function QuizPlayer({ quiz, sessionId }: QuizPlayerProps) {
 
       {/* Question */}
       <div className="rounded-lg border bg-white p-6 shadow-sm">
-        <p className="text-lg font-medium text-gray-900 mb-6">{question.question}</p>
+        <p className="mb-6 text-lg font-medium text-gray-900">{question.question}</p>
 
         <div className="space-y-3">
           {question.options.map((option, i) => {
@@ -167,7 +169,8 @@ export function QuizPlayer({ quiz, sessionId }: QuizPlayerProps) {
 
             const variant = "outline";
             let extra = "";
-            if (reviewed && isCorrect) extra = "border-green-500 bg-green-50 text-green-800";
+            if (reviewed && isCorrect)
+              extra = "border-green-500 bg-green-50 text-green-800";
             else if (reviewed && isSelected && !isCorrect)
               extra = "border-red-500 bg-red-50 text-red-800";
             else if (isSelected) extra = "border-blue-500 bg-blue-50 text-blue-800";
@@ -178,14 +181,16 @@ export function QuizPlayer({ quiz, sessionId }: QuizPlayerProps) {
                 disabled={reviewed}
                 onClick={() => dispatch({ type: "SELECT", index: i })}
                 className={cn(
-                  "w-full text-left rounded-lg border px-4 py-3 text-sm font-medium transition-colors",
+                  "w-full rounded-lg border px-4 py-3 text-left text-sm font-medium transition-colors",
                   "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
                   extra || (isSelected ? "" : "hover:bg-gray-50"),
                   variant,
                 )}
               >
                 <span className="flex items-center gap-2">
-                  {reviewed && isCorrect && <CheckCircle2 className="h-4 w-4 text-green-600" />}
+                  {reviewed && isCorrect && (
+                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                  )}
                   {reviewed && isSelected && !isCorrect && (
                     <XCircle className="h-4 w-4 text-red-500" />
                   )}
@@ -198,7 +203,7 @@ export function QuizPlayer({ quiz, sessionId }: QuizPlayerProps) {
 
         {/* Explanation */}
         {state.phase === "reviewing" && question.explanation && (
-          <div className="mt-4 rounded-lg bg-gray-50 border p-3 text-sm text-gray-600">
+          <div className="mt-4 rounded-lg border bg-gray-50 p-3 text-sm text-gray-600">
             {question.explanation}
           </div>
         )}

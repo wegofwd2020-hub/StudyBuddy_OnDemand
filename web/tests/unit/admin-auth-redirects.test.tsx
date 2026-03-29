@@ -20,7 +20,7 @@ import { AUTH_REDIRECT_STRINGS } from "../e2e/data/admin-auth-redirects";
 
 const mockReplace = vi.fn();
 vi.mock("next/navigation", () => ({
-  useRouter:   vi.fn(() => ({ replace: mockReplace, push: vi.fn() })),
+  useRouter: vi.fn(() => ({ replace: mockReplace, push: vi.fn() })),
   usePathname: vi.fn(() => "/admin/dashboard"),
 }));
 
@@ -31,8 +31,8 @@ vi.mock("next/link", () => ({
 }));
 
 vi.mock("@/lib/hooks/useAdmin", () => ({
-  useAdmin:       vi.fn(() => null),
-  hasPermission:  vi.fn(() => false),
+  useAdmin: vi.fn(() => null),
+  hasPermission: vi.fn(() => false),
 }));
 
 vi.mock("@/lib/providers/QueryProvider", () => ({
@@ -43,10 +43,16 @@ vi.mock("@/lib/providers/QueryProvider", () => ({
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
   return {
-    getItem:    (key: string) => store[key] ?? null,
-    setItem:    (key: string, value: string) => { store[key] = value; },
-    removeItem: (key: string) => { delete store[key]; },
-    clear:      () => { store = {}; },
+    getItem: (key: string) => store[key] ?? null,
+    setItem: (key: string, value: string) => {
+      store[key] = value;
+    },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+    clear: () => {
+      store = {};
+    },
   };
 })();
 Object.defineProperty(window, "localStorage", { value: localStorageMock });

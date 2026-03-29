@@ -14,10 +14,11 @@
 // ---------------------------------------------------------------------------
 
 export const SUCCESS_STRINGS = {
-  heading:        "You're subscribed!",
-  bodyText:       "Welcome to StudyBuddy OnDemand. You now have full access to all lessons, quizzes, and offline content.",
-  dashboardBtn:   "Go to dashboard",
-  subjectsBtn:    "Browse subjects",
+  heading: "You're subscribed!",
+  bodyText:
+    "Welcome to StudyBuddy OnDemand. You now have full access to all lessons, quizzes, and offline content.",
+  dashboardBtn: "Go to dashboard",
+  subjectsBtn: "Browse subjects",
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -26,5 +27,5 @@ export const SUCCESS_STRINGS = {
 
 export const SUCCESS_HREFS = {
   dashboard: "/dashboard",
-  subjects:  "/subjects",
+  subjects: "/subjects",
 } as const;

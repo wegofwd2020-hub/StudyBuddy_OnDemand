@@ -49,8 +49,8 @@ export default function ConsentPage() {
   if (done) {
     return (
       <div className="flex min-h-[80vh] items-center justify-center px-4">
-        <div className="text-center space-y-3">
-          <CheckCircle className="h-12 w-12 text-green-500 mx-auto" />
+        <div className="space-y-3 text-center">
+          <CheckCircle className="mx-auto h-12 w-12 text-green-500" />
           <h1 className="text-2xl font-bold">{t("success_heading")}</h1>
           <p className="text-gray-500">{t("success_body")}</p>
         </div>
@@ -62,7 +62,7 @@ export default function ConsentPage() {
     <div className="flex min-h-[80vh] items-center justify-center px-4 py-12">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber-50 mb-2">
+          <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-amber-50">
             <ShieldCheck className="h-6 w-6 text-amber-600" />
           </div>
           <CardTitle className="text-2xl">{t("heading")}</CardTitle>
@@ -91,7 +91,10 @@ export default function ConsentPage() {
                 className="mt-1"
                 {...register("consent")}
               />
-              <Label htmlFor="consent" className="text-sm font-normal text-gray-600 cursor-pointer">
+              <Label
+                htmlFor="consent"
+                className="cursor-pointer text-sm font-normal text-gray-600"
+              >
                 {t("consent_checkbox")}
               </Label>
             </div>

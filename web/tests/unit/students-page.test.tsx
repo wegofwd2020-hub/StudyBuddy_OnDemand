@@ -28,13 +28,13 @@ vi.mock("@/lib/hooks/useTeacher", () => ({
   useTeacher: vi.fn(() => MOCK_TEACHER),
 }));
 
-const mockUseQuery     = vi.fn();
+const mockUseQuery = vi.fn();
 const mockInvalidateQueries = vi.fn();
 vi.mock("@tanstack/react-query", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@tanstack/react-query")>();
   return {
     ...actual,
-    useQuery:       vi.fn((opts) => mockUseQuery(opts)),
+    useQuery: vi.fn((opts) => mockUseQuery(opts)),
     useQueryClient: vi.fn(() => ({ invalidateQueries: mockInvalidateQueries })),
   };
 });
@@ -106,9 +106,7 @@ describe("SCH-35 — Roster table renders", () => {
 
   it("renders enrolled count badge", () => {
     render(<StudentsPage />);
-    expect(
-      screen.getByText(`${MOCK_ROSTER.roster.length} enrolled`),
-    ).toBeInTheDocument();
+    expect(screen.getByText(`${MOCK_ROSTER.roster.length} enrolled`)).toBeInTheDocument();
   });
 });
 
@@ -132,13 +130,17 @@ describe("SCH-36 — Invite link displayed and copyable", () => {
 
   it("renders the Copy button", () => {
     render(<StudentsPage />);
-    expect(screen.getByRole("button", { name: STUDENTS_STRINGS.copyBtn })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: STUDENTS_STRINGS.copyBtn }),
+    ).toBeInTheDocument();
   });
 
   it("shows 'Copied' after clicking Copy", async () => {
     render(<StudentsPage />);
     fireEvent.click(screen.getByRole("button", { name: STUDENTS_STRINGS.copyBtn }));
-    expect(await screen.findByRole("button", { name: STUDENTS_STRINGS.copiedBtn })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("button", { name: STUDENTS_STRINGS.copiedBtn }),
+    ).toBeInTheDocument();
   });
 });
 
@@ -158,10 +160,11 @@ describe("SCH-37 — Bulk email enrol newline separated", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: STUDENTS_STRINGS.enrollBtn }));
     await waitFor(() => expect(mockUploadRoster).toHaveBeenCalledTimes(1));
-    expect(mockUploadRoster).toHaveBeenCalledWith(
-      MOCK_TEACHER.school_id,
-      ["test1@school.edu", "test2@school.edu", "test3@school.edu"],
-    );
+    expect(mockUploadRoster).toHaveBeenCalledWith(MOCK_TEACHER.school_id, [
+      "test1@school.edu",
+      "test2@school.edu",
+      "test3@school.edu",
+    ]);
   });
 
   it("shows success message after enrolment", async () => {
@@ -194,10 +197,11 @@ describe("SCH-38 — Bulk email enrol comma separated", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: STUDENTS_STRINGS.enrollBtn }));
     await waitFor(() => expect(mockUploadRoster).toHaveBeenCalledTimes(1));
-    expect(mockUploadRoster).toHaveBeenCalledWith(
-      MOCK_TEACHER.school_id,
-      ["test1@school.edu", "test2@school.edu", "test3@school.edu"],
-    );
+    expect(mockUploadRoster).toHaveBeenCalledWith(MOCK_TEACHER.school_id, [
+      "test1@school.edu",
+      "test2@school.edu",
+      "test3@school.edu",
+    ]);
   });
 });
 
@@ -207,7 +211,10 @@ describe("SCH-38 — Bulk email enrol comma separated", () => {
 
 describe("SCH-39 — Non-email strings filtered out", () => {
   beforeEach(() => {
-    mockUploadRoster.mockResolvedValue({ enrolled: VALID_EMAIL_COUNT, already_enrolled: 0 });
+    mockUploadRoster.mockResolvedValue({
+      enrolled: VALID_EMAIL_COUNT,
+      already_enrolled: 0,
+    });
   });
 
   it("filters out non-email strings — only valid emails sent to API", async () => {

@@ -27,7 +27,7 @@ const mockGetAccountSettings = vi.fn();
 const mockSaveAccountSettings = vi.fn();
 
 vi.mock("@/lib/api/settings", () => ({
-  getAccountSettings:  (...args: unknown[]) => mockGetAccountSettings(...args),
+  getAccountSettings: (...args: unknown[]) => mockGetAccountSettings(...args),
   saveAccountSettings: (...args: unknown[]) => mockSaveAccountSettings(...args),
 }));
 
@@ -44,7 +44,9 @@ describe("STU-36 — Settings load with current values", () => {
   it("renders the page title", async () => {
     render(<SettingsPage />);
     await waitFor(() =>
-      expect(screen.getByRole("heading", { name: SETTINGS_STRINGS.title })).toBeInTheDocument(),
+      expect(
+        screen.getByRole("heading", { name: SETTINGS_STRINGS.title }),
+      ).toBeInTheDocument(),
     );
   });
 
@@ -58,7 +60,9 @@ describe("STU-36 — Settings load with current values", () => {
   it("pre-fills display name input with current value", async () => {
     render(<SettingsPage />);
     await waitFor(() => {
-      const input = screen.getByLabelText(SETTINGS_STRINGS.displayNameLabel) as HTMLInputElement;
+      const input = screen.getByLabelText(
+        SETTINGS_STRINGS.displayNameLabel,
+      ) as HTMLInputElement;
       expect(input.value).toBe(MOCK_ACCOUNT_SETTINGS.display_name);
     });
   });
@@ -73,9 +77,15 @@ describe("STU-36 — Settings load with current values", () => {
   it("renders all three locale buttons", async () => {
     render(<SettingsPage />);
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: SETTINGS_STRINGS.english })).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: SETTINGS_STRINGS.french })).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: SETTINGS_STRINGS.spanish })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: SETTINGS_STRINGS.english }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: SETTINGS_STRINGS.french }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: SETTINGS_STRINGS.spanish }),
+      ).toBeInTheDocument();
     });
   });
 
@@ -106,7 +116,9 @@ describe("STU-36 — Settings load with current values", () => {
   it("renders the Save button", async () => {
     render(<SettingsPage />);
     await waitFor(() =>
-      expect(screen.getByRole("button", { name: SETTINGS_STRINGS.saveBtn })).toBeInTheDocument(),
+      expect(
+        screen.getByRole("button", { name: SETTINGS_STRINGS.saveBtn }),
+      ).toBeInTheDocument(),
     );
   });
 });
@@ -124,9 +136,13 @@ describe("STU-37 — Display name update", () => {
   it("allows typing a new display name into the input", async () => {
     render(<SettingsPage />);
     await waitFor(() =>
-      expect(screen.getByLabelText(SETTINGS_STRINGS.displayNameLabel)).toBeInTheDocument(),
+      expect(
+        screen.getByLabelText(SETTINGS_STRINGS.displayNameLabel),
+      ).toBeInTheDocument(),
     );
-    const input = screen.getByLabelText(SETTINGS_STRINGS.displayNameLabel) as HTMLInputElement;
+    const input = screen.getByLabelText(
+      SETTINGS_STRINGS.displayNameLabel,
+    ) as HTMLInputElement;
     fireEvent.change(input, { target: { value: UPDATED_DISPLAY_NAME } });
     expect(input.value).toBe(UPDATED_DISPLAY_NAME);
   });
@@ -134,7 +150,9 @@ describe("STU-37 — Display name update", () => {
   it("clicking Save calls saveAccountSettings with updated name", async () => {
     render(<SettingsPage />);
     await waitFor(() =>
-      expect(screen.getByLabelText(SETTINGS_STRINGS.displayNameLabel)).toBeInTheDocument(),
+      expect(
+        screen.getByLabelText(SETTINGS_STRINGS.displayNameLabel),
+      ).toBeInTheDocument(),
     );
     const input = screen.getByLabelText(SETTINGS_STRINGS.displayNameLabel);
     fireEvent.change(input, { target: { value: UPDATED_DISPLAY_NAME } });
@@ -149,7 +167,9 @@ describe("STU-37 — Display name update", () => {
   it("shows Saved confirmation after successful save", async () => {
     render(<SettingsPage />);
     await waitFor(() =>
-      expect(screen.getByRole("button", { name: SETTINGS_STRINGS.saveBtn })).toBeInTheDocument(),
+      expect(
+        screen.getByRole("button", { name: SETTINGS_STRINGS.saveBtn }),
+      ).toBeInTheDocument(),
     );
     fireEvent.click(screen.getByRole("button", { name: SETTINGS_STRINGS.saveBtn }));
     await waitFor(() =>
@@ -171,7 +191,9 @@ describe("STU-38 — Language selection", () => {
   it("clicking Français activates it with blue background", async () => {
     render(<SettingsPage />);
     await waitFor(() =>
-      expect(screen.getByRole("button", { name: SETTINGS_STRINGS.french })).toBeInTheDocument(),
+      expect(
+        screen.getByRole("button", { name: SETTINGS_STRINGS.french }),
+      ).toBeInTheDocument(),
     );
     fireEvent.click(screen.getByRole("button", { name: SETTINGS_STRINGS.french }));
     expect(
@@ -182,7 +204,9 @@ describe("STU-38 — Language selection", () => {
   it("clicking Français deactivates English button", async () => {
     render(<SettingsPage />);
     await waitFor(() =>
-      expect(screen.getByRole("button", { name: SETTINGS_STRINGS.french })).toBeInTheDocument(),
+      expect(
+        screen.getByRole("button", { name: SETTINGS_STRINGS.french }),
+      ).toBeInTheDocument(),
     );
     fireEvent.click(screen.getByRole("button", { name: SETTINGS_STRINGS.french }));
     expect(
@@ -193,7 +217,9 @@ describe("STU-38 — Language selection", () => {
   it("saving after language change calls saveAccountSettings with locale fr", async () => {
     render(<SettingsPage />);
     await waitFor(() =>
-      expect(screen.getByRole("button", { name: SETTINGS_STRINGS.french })).toBeInTheDocument(),
+      expect(
+        screen.getByRole("button", { name: SETTINGS_STRINGS.french }),
+      ).toBeInTheDocument(),
     );
     fireEvent.click(screen.getByRole("button", { name: SETTINGS_STRINGS.french }));
     fireEvent.click(screen.getByRole("button", { name: SETTINGS_STRINGS.saveBtn }));
@@ -249,7 +275,9 @@ describe("STU-39 — Notification toggles", () => {
   it("shows no error after successful notification save", async () => {
     render(<SettingsPage />);
     await waitFor(() =>
-      expect(screen.getByRole("button", { name: SETTINGS_STRINGS.saveBtn })).toBeInTheDocument(),
+      expect(
+        screen.getByRole("button", { name: SETTINGS_STRINGS.saveBtn }),
+      ).toBeInTheDocument(),
     );
     fireEvent.click(screen.getByRole("button", { name: SETTINGS_STRINGS.saveBtn }));
     await waitFor(() => expect(mockSaveAccountSettings).toHaveBeenCalled());
@@ -273,7 +301,9 @@ describe("STU-40 — Loading skeleton during fetch", () => {
     mockGetAccountSettings.mockResolvedValue(MOCK_ACCOUNT_SETTINGS);
     const { container } = render(<SettingsPage />);
     await waitFor(() =>
-      expect(screen.getByLabelText(SETTINGS_STRINGS.displayNameLabel)).toBeInTheDocument(),
+      expect(
+        screen.getByLabelText(SETTINGS_STRINGS.displayNameLabel),
+      ).toBeInTheDocument(),
     );
     expect(container.querySelector("[data-slot='skeleton']")).toBeNull();
   });
@@ -291,7 +321,9 @@ describe("STU-40 — Loading skeleton during fetch", () => {
     mockSaveAccountSettings.mockRejectedValue(new Error("save failed"));
     render(<SettingsPage />);
     await waitFor(() =>
-      expect(screen.getByRole("button", { name: SETTINGS_STRINGS.saveBtn })).toBeInTheDocument(),
+      expect(
+        screen.getByRole("button", { name: SETTINGS_STRINGS.saveBtn }),
+      ).toBeInTheDocument(),
     );
     fireEvent.click(screen.getByRole("button", { name: SETTINGS_STRINGS.saveBtn }));
     await waitFor(() =>

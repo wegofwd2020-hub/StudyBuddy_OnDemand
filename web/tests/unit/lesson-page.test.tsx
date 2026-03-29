@@ -60,7 +60,9 @@ describe("STU-15 — LessonRenderer", () => {
 
   it("renders Key Points heading when key_points exist", () => {
     render(<LessonRenderer lesson={MOCK_LESSON_WITH_AUDIO} />);
-    expect(screen.getByRole("heading", { name: LESSON_STRINGS.keyPoints })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: LESSON_STRINGS.keyPoints }),
+    ).toBeInTheDocument();
   });
 
   it("renders each key point", () => {
@@ -181,8 +183,12 @@ describe("STU-18 — API client response interceptor", () => {
       configurable: true,
       value: {
         ...window.location,
-        get href() { return redirectTarget || originalHref; },
-        set href(val: string) { redirectTarget = val; },
+        get href() {
+          return redirectTarget || originalHref;
+        },
+        set href(val: string) {
+          redirectTarget = val;
+        },
       },
     });
 
@@ -209,8 +215,12 @@ describe("STU-18 — API client response interceptor", () => {
       configurable: true,
       value: {
         ...window.location,
-        get href() { return redirectTarget; },
-        set href(val: string) { redirectTarget = val; },
+        get href() {
+          return redirectTarget;
+        },
+        set href(val: string) {
+          redirectTarget = val;
+        },
       },
     });
 
@@ -240,8 +250,12 @@ describe("STU-18 — API client response interceptor", () => {
       configurable: true,
       value: {
         ...window.location,
-        get href() { return redirectTarget; },
-        set href(val: string) { redirectTarget = val; },
+        get href() {
+          return redirectTarget;
+        },
+        set href(val: string) {
+          redirectTarget = val;
+        },
       },
     });
 

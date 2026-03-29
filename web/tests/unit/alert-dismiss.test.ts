@@ -102,15 +102,12 @@ describe("updateAlertSettings", () => {
       score_drop_threshold: 15,
       new_feedback_immediate: true,
     });
-    expect(mockPut).toHaveBeenCalledWith(
-      "/reports/school/school-abc/alerts/settings",
-      {
-        pass_rate_threshold: 60,
-        feedback_count_threshold: 5,
-        inactive_days_threshold: 7,
-        score_drop_threshold: 15,
-        new_feedback_immediate: true,
-      },
-    );
+    expect(mockPut).toHaveBeenCalledWith("/reports/school/school-abc/alerts/settings", {
+      pass_rate_threshold: 60,
+      feedback_count_threshold: 5,
+      inactive_days_threshold: 7,
+      score_drop_threshold: 15,
+      new_feedback_immediate: true,
+    });
   });
 });

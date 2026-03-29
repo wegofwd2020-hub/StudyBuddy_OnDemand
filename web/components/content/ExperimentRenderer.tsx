@@ -20,14 +20,14 @@ export function ExperimentRenderer({ experiment }: ExperimentRendererProps) {
 
       {/* Materials */}
       <section>
-        <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-800 mb-3">
+        <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold text-gray-800">
           <Package className="h-4 w-4" />
           {t("materials_heading")}
         </h2>
         <ul className="grid gap-2 sm:grid-cols-2">
           {experiment.materials.map((m, i) => (
             <li key={i} className="flex items-center gap-2 text-sm text-gray-600">
-              <span className="h-1.5 w-1.5 rounded-full bg-gray-400 shrink-0" />
+              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-gray-400" />
               {m}
             </li>
           ))}
@@ -37,7 +37,7 @@ export function ExperimentRenderer({ experiment }: ExperimentRendererProps) {
       {/* Safety notes */}
       {experiment.safety_notes.length > 0 && (
         <section className="rounded-lg border border-amber-200 bg-amber-50 p-4">
-          <h2 className="flex items-center gap-2 font-semibold text-amber-800 mb-2">
+          <h2 className="mb-2 flex items-center gap-2 font-semibold text-amber-800">
             <AlertTriangle className="h-4 w-4" />
             {t("safety_heading")}
           </h2>
@@ -53,14 +53,16 @@ export function ExperimentRenderer({ experiment }: ExperimentRendererProps) {
 
       {/* Steps */}
       <section>
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">{t("steps_heading")}</h2>
+        <h2 className="mb-4 text-lg font-semibold text-gray-800">{t("steps_heading")}</h2>
         <ol className="space-y-4">
           {experiment.steps.map((step) => (
             <li key={step.step} className="flex gap-4">
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-purple-600 text-white text-xs font-bold">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-purple-600 text-xs font-bold text-white">
                 {step.step}
               </div>
-              <p className="text-sm text-gray-600 leading-relaxed pt-0.5">{step.instruction}</p>
+              <p className="pt-0.5 text-sm leading-relaxed text-gray-600">
+                {step.instruction}
+              </p>
             </li>
           ))}
         </ol>
@@ -69,7 +71,7 @@ export function ExperimentRenderer({ experiment }: ExperimentRendererProps) {
       {/* Expected outcome */}
       {experiment.expected_outcome && (
         <section className="rounded-lg border border-green-100 bg-green-50 p-4">
-          <h2 className="flex items-center gap-2 font-semibold text-green-800 mb-1">
+          <h2 className="mb-1 flex items-center gap-2 font-semibold text-green-800">
             <CheckCircle2 className="h-4 w-4" />
             {t("expected_outcome_heading")}
           </h2>

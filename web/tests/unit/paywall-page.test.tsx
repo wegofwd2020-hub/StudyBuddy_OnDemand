@@ -49,7 +49,9 @@ describe("STU-34 — Paywall page renders", () => {
 
   it("renders the monthly price text", () => {
     render(<PaywallPage />);
-    expect(screen.getByText(new RegExp(`\\${PAYWALL_STRINGS.monthlyPrice}`))).toBeInTheDocument();
+    expect(
+      screen.getByText(new RegExp(`\\${PAYWALL_STRINGS.monthlyPrice}`)),
+    ).toBeInTheDocument();
   });
 
   it("renders the annual price text", () => {
@@ -63,7 +65,9 @@ describe("STU-34 — Paywall page renders", () => {
 
   it("renders the annual savings i18n text", () => {
     render(<PaywallPage />);
-    expect(screen.getByText(new RegExp(PAYWALL_STRINGS.annualSavings))).toBeInTheDocument();
+    expect(
+      screen.getByText(new RegExp(PAYWALL_STRINGS.annualSavings)),
+    ).toBeInTheDocument();
   });
 
   it("renders the Back to Dashboard link", () => {
@@ -115,8 +119,12 @@ describe("STU-35 — Upgrade button href", () => {
   it("both CTAs are present simultaneously", () => {
     render(<PaywallPage />);
     const links = screen.getAllByRole("link");
-    const hasUpgrade = links.some((l) => l.getAttribute("href") === PAYWALL_HREFS.upgradeHref);
-    const hasDashboard = links.some((l) => l.getAttribute("href") === PAYWALL_HREFS.dashboardHref);
+    const hasUpgrade = links.some(
+      (l) => l.getAttribute("href") === PAYWALL_HREFS.upgradeHref,
+    );
+    const hasDashboard = links.some(
+      (l) => l.getAttribute("href") === PAYWALL_HREFS.dashboardHref,
+    );
     expect(hasUpgrade).toBe(true);
     expect(hasDashboard).toBe(true);
   });

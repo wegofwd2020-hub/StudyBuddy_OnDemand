@@ -42,6 +42,6 @@ export const SIGN_UP_LINK = {
 // ---------------------------------------------------------------------------
 
 export const SUPPORTING_LINKS: ReadonlyArray<{ text: string; href: string }> = [
-  { text: "Forgot password?",  href: "/reset-password" },
-  { text: "School sign in",    href: "/school/login"   },
+  { text: "Forgot password?", href: "/reset-password" },
+  { text: "School sign in", href: "/school/login" },
 ];

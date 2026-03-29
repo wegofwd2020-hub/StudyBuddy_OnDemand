@@ -35,13 +35,13 @@ vi.mock("@/lib/hooks/useTeacher", () => ({
   useTeacher: vi.fn(() => MOCK_TEACHER),
 }));
 
-const mockUseQuery    = vi.fn();
+const mockUseQuery = vi.fn();
 const mockSetQueryData = vi.fn();
 vi.mock("@tanstack/react-query", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@tanstack/react-query")>();
   return {
     ...actual,
-    useQuery:       vi.fn((opts) => mockUseQuery(opts)),
+    useQuery: vi.fn((opts) => mockUseQuery(opts)),
     useQueryClient: vi.fn(() => ({ setQueryData: mockSetQueryData })),
   };
 });

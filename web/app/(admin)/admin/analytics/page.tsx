@@ -17,22 +17,30 @@ export default function AdminAnalyticsPage() {
   });
 
   return (
-    <div className="p-8 max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">Platform Analytics</h1>
-      <p className="text-sm text-gray-500 mb-8">Subscription funnel and student struggle data</p>
+    <div className="mx-auto max-w-6xl p-8">
+      <h1 className="mb-1 text-2xl font-bold text-gray-900">Platform Analytics</h1>
+      <p className="mb-8 text-sm text-gray-500">
+        Subscription funnel and student struggle data
+      </p>
 
       {/* Subscription funnel */}
       <section className="mb-10">
-        <h2 className="text-base font-semibold text-gray-800 mb-4">Subscription Breakdown</h2>
+        <h2 className="mb-4 text-base font-semibold text-gray-800">
+          Subscription Breakdown
+        </h2>
         {subLoading ? (
-          <div className="h-40 bg-gray-100 rounded-xl animate-pulse" />
+          <div className="h-40 animate-pulse rounded-xl bg-gray-100" />
         ) : sub ? (
-          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead className="border-b border-gray-200 bg-gray-50">
                 <tr>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Metric</th>
-                  <th className="text-right px-4 py-3 font-medium text-gray-600">Value</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-600">
+                    Metric
+                  </th>
+                  <th className="px-4 py-3 text-right font-medium text-gray-600">
+                    Value
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -88,32 +96,40 @@ export default function AdminAnalyticsPage() {
 
       {/* Struggle report */}
       <section>
-        <h2 className="text-base font-semibold text-gray-800 mb-1">Struggle Report</h2>
-        <p className="text-xs text-gray-500 mb-4">
+        <h2 className="mb-1 text-base font-semibold text-gray-800">Struggle Report</h2>
+        <p className="mb-4 text-xs text-gray-500">
           Units with highest fail rates across all students.
           {struggle && (
             <> Generated {new Date(struggle.generated_at).toLocaleString()}.</>
           )}
         </p>
         {struggleLoading ? (
-          <div className="h-48 bg-gray-100 rounded-xl animate-pulse" />
+          <div className="h-48 animate-pulse rounded-xl bg-gray-100" />
         ) : struggle && struggle.units?.length > 0 ? (
-          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead className="border-b border-gray-200 bg-gray-50">
                 <tr>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Unit</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Grade</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Subject</th>
-                  <th className="text-right px-4 py-3 font-medium text-gray-600">Avg Score</th>
-                  <th className="text-right px-4 py-3 font-medium text-gray-600">Attempts</th>
-                  <th className="text-right px-4 py-3 font-medium text-gray-600">Fail Rate</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-600">Unit</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-600">Grade</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-600">
+                    Subject
+                  </th>
+                  <th className="px-4 py-3 text-right font-medium text-gray-600">
+                    Avg Score
+                  </th>
+                  <th className="px-4 py-3 text-right font-medium text-gray-600">
+                    Attempts
+                  </th>
+                  <th className="px-4 py-3 text-right font-medium text-gray-600">
+                    Fail Rate
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {struggle.units.map((unit) => (
                   <tr key={unit.unit_id}>
-                    <td className="px-4 py-3 text-gray-900 font-medium">
+                    <td className="px-4 py-3 font-medium text-gray-900">
                       {unit.unit_title}
                     </td>
                     <td className="px-4 py-3 text-gray-600">Gr. {unit.grade}</td>
@@ -128,10 +144,10 @@ export default function AdminAnalyticsPage() {
                       <span
                         className={
                           unit.fail_rate > 0.4
-                            ? "text-red-600 font-semibold"
+                            ? "font-semibold text-red-600"
                             : unit.fail_rate > 0.2
-                            ? "text-yellow-600"
-                            : "text-green-600"
+                              ? "text-yellow-600"
+                              : "text-green-600"
                         }
                       >
                         {(unit.fail_rate * 100).toFixed(1)}%

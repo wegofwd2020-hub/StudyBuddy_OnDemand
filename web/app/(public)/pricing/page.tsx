@@ -69,7 +69,7 @@ export default function PricingPage() {
           <p className="mt-4 text-lg text-gray-500">{t("subheading")}</p>
         </div>
 
-        <div id="plans" className="mt-12 grid gap-6 md:grid-cols-3 items-start">
+        <div id="plans" className="mt-12 grid items-start gap-6 md:grid-cols-3">
           {/* Free */}
           <Card className="border shadow-sm">
             <CardHeader>
@@ -82,19 +82,23 @@ export default function PricingPage() {
               <ul className="space-y-2">
                 {FREE_FEATURES.map((f) => (
                   <li key={f} className="flex items-center gap-2 text-sm text-gray-600">
-                    <Check className="h-4 w-4 text-green-500 shrink-0" />
+                    <Check className="h-4 w-4 shrink-0 text-green-500" />
                     {t(f)}
                   </li>
                 ))}
               </ul>
-              <LinkButton variant="outline" className="w-full justify-center" href="/signup">
+              <LinkButton
+                variant="outline"
+                className="w-full justify-center"
+                href="/signup"
+              >
                 {t("start_free")}
               </LinkButton>
             </CardContent>
           </Card>
 
           {/* Student */}
-          <Card className="border-2 border-blue-600 shadow-lg relative">
+          <Card className="relative border-2 border-blue-600 shadow-lg">
             <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600">
               Most popular
             </Badge>
@@ -102,7 +106,7 @@ export default function PricingPage() {
               <CardTitle>{t("student_plan")}</CardTitle>
               <div className="mt-2">
                 <span className="text-4xl font-bold text-gray-900">$9.99</span>
-                <span className="text-gray-500 text-sm">{t("per_month")}</span>
+                <span className="text-sm text-gray-500">{t("per_month")}</span>
               </div>
               <p className="text-xs text-gray-400">
                 or $99.99{t("per_year")} — {t("save_badge")}
@@ -112,7 +116,7 @@ export default function PricingPage() {
               <ul className="space-y-2">
                 {STUDENT_FEATURES.map((f) => (
                   <li key={f} className="flex items-center gap-2 text-sm text-gray-600">
-                    <Check className="h-4 w-4 text-green-500 shrink-0" />
+                    <Check className="h-4 w-4 shrink-0 text-green-500" />
                     {t(f)}
                   </li>
                 ))}
@@ -124,12 +128,12 @@ export default function PricingPage() {
           </Card>
 
           {/* School */}
-          <Card id="schools" className="border shadow-sm bg-gray-900 text-white">
+          <Card id="schools" className="border bg-gray-900 text-white shadow-sm">
             <CardHeader>
               <CardTitle className="text-white">{t("school_plan")}</CardTitle>
               <div className="mt-2">
                 <span className="text-4xl font-bold">$299+</span>
-                <span className="text-gray-300 text-sm">{t("per_month")}</span>
+                <span className="text-sm text-gray-300">{t("per_month")}</span>
               </div>
               <p className="text-xs text-gray-400">Custom pricing per school size</p>
             </CardHeader>
@@ -137,7 +141,7 @@ export default function PricingPage() {
               <ul className="space-y-2">
                 {SCHOOL_FEATURES.map((f) => (
                   <li key={f} className="flex items-center gap-2 text-sm text-gray-300">
-                    <Check className="h-4 w-4 text-green-400 shrink-0" />
+                    <Check className="h-4 w-4 shrink-0 text-green-400" />
                     {t(f)}
                   </li>
                 ))}
@@ -154,8 +158,8 @@ export default function PricingPage() {
         </div>
 
         {/* FAQ */}
-        <div className="mt-20 mx-auto max-w-3xl">
-          <h2 className="text-2xl font-bold text-gray-900 text-center mb-8">
+        <div className="mx-auto mt-20 max-w-3xl">
+          <h2 className="mb-8 text-center text-2xl font-bold text-gray-900">
             {t("faq_heading")}
           </h2>
           <Accordion>

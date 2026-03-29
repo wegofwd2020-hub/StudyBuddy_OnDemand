@@ -75,8 +75,8 @@ export const MOCK_TUTORIAL_NO_SUMMARY: TutorialContent = {
 
 export const TUTORIAL_STRINGS = {
   summaryHeading: "Summary",
-  takeQuizBtn:    "Take Quiz",
-  errorMessage:   "Could not load tutorial. Please try again.",
+  takeQuizBtn: "Take Quiz",
+  errorMessage: "Could not load tutorial. Please try again.",
 } as const;
 
 // ---------------------------------------------------------------------------

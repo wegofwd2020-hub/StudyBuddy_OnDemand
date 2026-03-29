@@ -4,10 +4,10 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 
 const PORTAL_ICONS = {
-  public:  { src: "/assets/home_banner.png", alt: "StudyBuddy" },
-  student: { src: "/assets/books.png",       alt: "Student Portal" },
-  school:  { src: "/assets/banyan_tree.png", alt: "School Portal" },
-  admin:   { src: "/assets/peeple.png",      alt: "Admin Console" },
+  public: { src: "/assets/home_banner.png", alt: "StudyBuddy" },
+  student: { src: "/assets/books.png", alt: "Student Portal" },
+  school: { src: "/assets/banyan_tree.png", alt: "School Portal" },
+  admin: { src: "/assets/peeple.png", alt: "Admin Console" },
 } as const;
 
 export function PortalHeader({
@@ -27,7 +27,7 @@ export function PortalHeader({
   const icon = PORTAL_ICONS[portal];
 
   return (
-    <div className="flex items-center justify-between px-4 py-2 bg-white border-b border-gray-100 shadow-sm min-h-[52px]">
+    <div className="flex min-h-[52px] items-center justify-between border-b border-gray-100 bg-white px-4 py-2 shadow-sm">
       {/* Left: small portal icon */}
       <div className="relative h-10 w-16 flex-shrink-0">
         <Image
@@ -41,7 +41,7 @@ export function PortalHeader({
       {/* Right: username + live datetime */}
       <div className="flex items-center gap-3 text-sm text-gray-500">
         {userName && (
-          <span className="font-medium text-gray-700 truncate max-w-[180px]">
+          <span className="max-w-[180px] truncate font-medium text-gray-700">
             {userName}
           </span>
         )}

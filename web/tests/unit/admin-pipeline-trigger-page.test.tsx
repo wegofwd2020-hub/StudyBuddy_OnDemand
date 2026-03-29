@@ -118,9 +118,7 @@ describe("ADM-23 — Successful trigger redirects to job", () => {
     render(<AdminPipelineTriggerPage />);
     fireEvent.click(screen.getByRole("button", { name: TRIGGER_STRINGS.triggerBtn }));
     await waitFor(() =>
-      expect(mockPush).toHaveBeenCalledWith(
-        `/admin/pipeline/${MOCK_NEW_JOB.job_id}`,
-      ),
+      expect(mockPush).toHaveBeenCalledWith(`/admin/pipeline/${MOCK_NEW_JOB.job_id}`),
     );
   });
 });

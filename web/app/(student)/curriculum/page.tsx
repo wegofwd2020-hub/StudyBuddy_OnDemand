@@ -10,7 +10,10 @@ import { FlaskConical, CheckCircle2, Circle, AlertCircle, Clock } from "lucide-r
 import { cn } from "@/lib/utils";
 import type { UnitStatus } from "@/lib/types/api";
 
-const STATUS_CONFIG: Record<UnitStatus, { icon: typeof Circle; color: string; label: string }> = {
+const STATUS_CONFIG: Record<
+  UnitStatus,
+  { icon: typeof Circle; color: string; label: string }
+> = {
   completed: { icon: CheckCircle2, color: "text-green-500", label: "Completed" },
   needs_retry: { icon: AlertCircle, color: "text-amber-500", label: "Needs retry" },
   in_progress: { icon: Clock, color: "text-blue-500", label: "In progress" },
@@ -31,7 +34,7 @@ export default function CurriculumMapPage() {
   return (
     <div className="flex flex-col">
       <OfflineBanner />
-      <div className="p-6 max-w-5xl space-y-8">
+      <div className="max-w-5xl space-y-8 p-6">
         <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
 
         {/* Legend */}
@@ -55,7 +58,9 @@ export default function CurriculumMapPage() {
         ) : (
           tree.subjects.map((subject) => (
             <section key={subject.subject}>
-              <h2 className="text-lg font-semibold text-gray-800 mb-3">{subject.subject}</h2>
+              <h2 className="mb-3 text-lg font-semibold text-gray-800">
+                {subject.subject}
+              </h2>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {subject.units.map((unit) => {
                   const status = statusMap.get(unit.unit_id) ?? "not_started";
@@ -63,20 +68,20 @@ export default function CurriculumMapPage() {
                   return (
                     <div
                       key={unit.unit_id}
-                      className="rounded-lg border bg-white p-4 shadow-sm flex flex-col gap-3"
+                      className="flex flex-col gap-3 rounded-lg border bg-white p-4 shadow-sm"
                     >
                       <div className="flex items-start justify-between gap-2">
-                        <p className="text-sm font-medium text-gray-900 leading-tight">
+                        <p className="text-sm leading-tight font-medium text-gray-900">
                           {unit.title}
                         </p>
-                        <Icon className={cn("h-4 w-4 shrink-0 mt-0.5", color)} />
+                        <Icon className={cn("mt-0.5 h-4 w-4 shrink-0", color)} />
                       </div>
                       {unit.has_lab && (
                         <span className="flex items-center gap-1 text-xs text-purple-600">
                           <FlaskConical className="h-3 w-3" /> Lab
                         </span>
                       )}
-                      <div className="flex gap-2 mt-auto">
+                      <div className="mt-auto flex gap-2">
                         <LinkButton
                           href={`/lesson/${unit.unit_id}`}
                           size="sm"

@@ -65,8 +65,8 @@ function ResetPasswordInner() {
   if (done) {
     return (
       <div className="flex min-h-[80vh] items-center justify-center px-4">
-        <div className="text-center space-y-3">
-          <CheckCircle className="h-12 w-12 text-green-500 mx-auto" />
+        <div className="space-y-3 text-center">
+          <CheckCircle className="mx-auto h-12 w-12 text-green-500" />
           <h1 className="text-xl font-bold">
             {token ? "Password updated!" : t("reset_email_sent")}
           </h1>
@@ -91,7 +91,11 @@ function ResetPasswordInner() {
             <form onSubmit={resetForm.handleSubmit(onResetSubmit)} className="space-y-4">
               <div className="space-y-1">
                 <Label htmlFor="password">{t("password_label")}</Label>
-                <Input id="password" type="password" {...resetForm.register("password")} />
+                <Input
+                  id="password"
+                  type="password"
+                  {...resetForm.register("password")}
+                />
                 {resetForm.formState.errors.password && (
                   <p className="text-xs text-red-500">
                     {resetForm.formState.errors.password.message}
@@ -117,7 +121,10 @@ function ResetPasswordInner() {
               </Button>
             </form>
           ) : (
-            <form onSubmit={requestForm.handleSubmit(onRequestSubmit)} className="space-y-4">
+            <form
+              onSubmit={requestForm.handleSubmit(onRequestSubmit)}
+              className="space-y-4"
+            >
               <div className="space-y-1">
                 <Label htmlFor="email">{t("email_label")}</Label>
                 <Input id="email" type="email" {...requestForm.register("email")} />

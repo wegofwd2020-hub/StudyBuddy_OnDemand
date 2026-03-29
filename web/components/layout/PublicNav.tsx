@@ -14,26 +14,26 @@ export function PublicNav() {
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 font-bold text-xl">
+        <Link href="/" className="flex items-center gap-2 text-xl font-bold">
           <BookOpen className="h-6 w-6 text-blue-600" />
           <span>StudyBuddy</span>
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-600">
-          <Link href="/#features" className="hover:text-gray-900 transition-colors">
+        <nav className="hidden items-center gap-6 text-sm font-medium text-gray-600 md:flex">
+          <Link href="/#features" className="transition-colors hover:text-gray-900">
             {t("features")}
           </Link>
-          <Link href="/pricing" className="hover:text-gray-900 transition-colors">
+          <Link href="/pricing" className="transition-colors hover:text-gray-900">
             {t("pricing")}
           </Link>
-          <Link href="/pricing#schools" className="hover:text-gray-900 transition-colors">
+          <Link href="/pricing#schools" className="transition-colors hover:text-gray-900">
             {t("for_schools")}
           </Link>
         </nav>
 
         {/* Desktop CTA */}
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden items-center gap-3 md:flex">
           <LinkButton variant="ghost" href="/login">
             {t("sign_in")}
           </LinkButton>
@@ -42,7 +42,7 @@ export function PublicNav() {
 
         {/* Mobile hamburger */}
         <button
-          className="md:hidden p-2 rounded-md text-gray-600 hover:text-gray-900"
+          className="rounded-md p-2 text-gray-600 hover:text-gray-900 md:hidden"
           onClick={() => setOpen(!open)}
           aria-label="Toggle menu"
         >
@@ -52,7 +52,7 @@ export function PublicNav() {
 
       {/* Mobile menu */}
       {open && (
-        <div className="md:hidden border-t bg-white px-4 py-4 space-y-3">
+        <div className="space-y-3 border-t bg-white px-4 py-4 md:hidden">
           <Link
             href="/#features"
             className="block text-sm font-medium text-gray-600 hover:text-gray-900"
@@ -74,7 +74,7 @@ export function PublicNav() {
           >
             {t("for_schools")}
           </Link>
-          <div className="pt-2 flex flex-col gap-2">
+          <div className="flex flex-col gap-2 pt-2">
             <LinkButton variant="outline" href="/login">
               {t("sign_in")}
             </LinkButton>

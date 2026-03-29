@@ -51,7 +51,7 @@ vi.mock("@tanstack/react-query", async (importOriginal) => {
 });
 
 const mockUseQueryOverview = vi.fn();
-const mockUseQueryAlerts   = vi.fn();
+const mockUseQueryAlerts = vi.fn();
 
 // ---------------------------------------------------------------------------
 // SCH-03 — Dashboard loads: KPI cards visible
@@ -135,7 +135,10 @@ describe("SCH-03 — Dashboard KPI cards render", () => {
   });
 
   it("does NOT render Units needing attention when struggles list is empty", () => {
-    mockUseQueryOverview.mockReturnValue({ data: MOCK_OVERVIEW_NO_STRUGGLES, isLoading: false });
+    mockUseQueryOverview.mockReturnValue({
+      data: MOCK_OVERVIEW_NO_STRUGGLES,
+      isLoading: false,
+    });
     render(<SchoolDashboard />);
     expect(screen.queryByText(DASHBOARD_STRINGS.unitsNeedingAttention)).toBeNull();
   });
@@ -148,12 +151,24 @@ describe("SCH-03 — Dashboard KPI cards render", () => {
 
   it("renders all quick-nav links", () => {
     render(<SchoolDashboard />);
-    expect(screen.getByRole("link", { name: DASHBOARD_STRINGS.classOverview })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: DASHBOARD_STRINGS.trendsReport })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: DASHBOARD_STRINGS.unitPerformance })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: DASHBOARD_STRINGS.studentFeedback })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: DASHBOARD_STRINGS.exportCsv })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: DASHBOARD_STRINGS.alertInbox })).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: DASHBOARD_STRINGS.classOverview }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: DASHBOARD_STRINGS.trendsReport }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: DASHBOARD_STRINGS.unitPerformance }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: DASHBOARD_STRINGS.studentFeedback }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: DASHBOARD_STRINGS.exportCsv }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: DASHBOARD_STRINGS.alertInbox }),
+    ).toBeInTheDocument();
   });
 });
 
@@ -179,7 +194,10 @@ describe("SCH-05 — Alert count badge in header", () => {
   });
 
   it("shows alert count link when there are unread alerts", () => {
-    mockUseQueryAlerts.mockReturnValue({ data: MOCK_ALERTS_WITH_UNREAD, isLoading: false });
+    mockUseQueryAlerts.mockReturnValue({
+      data: MOCK_ALERTS_WITH_UNREAD,
+      isLoading: false,
+    });
     render(<SchoolDashboard />);
     const unread = MOCK_ALERTS_WITH_UNREAD.alerts.filter((a) => !a.acknowledged).length;
     const link = screen.getByRole("link", { name: new RegExp(`${unread} alert`) });
@@ -188,7 +206,10 @@ describe("SCH-05 — Alert count badge in header", () => {
   });
 
   it("alert count badge shows correct count (2 unread)", () => {
-    mockUseQueryAlerts.mockReturnValue({ data: MOCK_ALERTS_WITH_UNREAD, isLoading: false });
+    mockUseQueryAlerts.mockReturnValue({
+      data: MOCK_ALERTS_WITH_UNREAD,
+      isLoading: false,
+    });
     render(<SchoolDashboard />);
     expect(screen.getByText(/2 alerts/)).toBeInTheDocument();
   });

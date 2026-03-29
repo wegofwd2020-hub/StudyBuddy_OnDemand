@@ -28,33 +28,48 @@ describe("invite link construction", () => {
 
   it("email parsing splits on newlines", () => {
     const raw = "a@s.com\nb@s.com\nc@s.com";
-    const emails = raw.split(/[\n,;]+/).map((s) => s.trim()).filter((s) => s.includes("@"));
+    const emails = raw
+      .split(/[\n,;]+/)
+      .map((s) => s.trim())
+      .filter((s) => s.includes("@"));
     expect(emails).toHaveLength(3);
   });
 
   it("email parsing splits on commas", () => {
     const raw = "a@s.com,b@s.com,c@s.com";
-    const emails = raw.split(/[\n,;]+/).map((s) => s.trim()).filter((s) => s.includes("@"));
+    const emails = raw
+      .split(/[\n,;]+/)
+      .map((s) => s.trim())
+      .filter((s) => s.includes("@"));
     expect(emails).toHaveLength(3);
   });
 
   it("email parsing strips whitespace and blank lines", () => {
     const raw = "  a@s.com  \n\n  b@s.com  ";
-    const emails = raw.split(/[\n,;]+/).map((s) => s.trim()).filter((s) => s.includes("@"));
+    const emails = raw
+      .split(/[\n,;]+/)
+      .map((s) => s.trim())
+      .filter((s) => s.includes("@"));
     expect(emails).toHaveLength(2);
     expect(emails[0]).toBe("a@s.com");
   });
 
   it("email parsing rejects non-email strings", () => {
     const raw = "not-an-email\na@b.com";
-    const emails = raw.split(/[\n,;]+/).map((s) => s.trim()).filter((s) => s.includes("@"));
+    const emails = raw
+      .split(/[\n,;]+/)
+      .map((s) => s.trim())
+      .filter((s) => s.includes("@"));
     expect(emails).toHaveLength(1);
     expect(emails[0]).toBe("a@b.com");
   });
 
   it("mixed delimiters all work", () => {
     const raw = "a@s.com;b@s.com\nc@s.com,d@s.com";
-    const emails = raw.split(/[\n,;]+/).map((s) => s.trim()).filter((s) => s.includes("@"));
+    const emails = raw
+      .split(/[\n,;]+/)
+      .map((s) => s.trim())
+      .filter((s) => s.includes("@"));
     expect(emails).toHaveLength(4);
   });
 });

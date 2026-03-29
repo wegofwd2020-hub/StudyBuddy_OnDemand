@@ -17,7 +17,7 @@ import type { OverviewReport } from "@/lib/api/reports";
 
 export const MOCK_TEACHER = {
   teacher_id: "teacher-001",
-  school_id:  "school-001",
+  school_id: "school-001",
   role: "teacher" as const,
 };
 
@@ -26,18 +26,18 @@ export const MOCK_TEACHER = {
 // ---------------------------------------------------------------------------
 
 export const MOCK_OVERVIEW_REPORT: OverviewReport = {
-  school_id:                   "school-001",
-  period:                      "7d",
-  enrolled_students:           120,
-  active_students_period:      85,
-  active_pct:                  70.8,
-  lessons_viewed:              340,
-  quiz_attempts:               210,
+  school_id: "school-001",
+  period: "7d",
+  enrolled_students: 120,
+  active_students_period: 85,
+  active_pct: 70.8,
+  lessons_viewed: 340,
+  quiz_attempts: 210,
   first_attempt_pass_rate_pct: 72.0,
-  audio_play_rate_pct:         45.0,
-  units_with_struggles:        ["G8-MATH-002", "G8-SCI-003"],
-  units_no_activity:           [],
-  unreviewed_feedback_count:   3,
+  audio_play_rate_pct: 45.0,
+  units_with_struggles: ["G8-MATH-002", "G8-SCI-003"],
+  units_no_activity: [],
+  unreviewed_feedback_count: 3,
 };
 
 // ---------------------------------------------------------------------------
@@ -47,7 +47,7 @@ export const MOCK_OVERVIEW_REPORT: OverviewReport = {
 export const MOCK_OVERVIEW_HEALTHY: OverviewReport = {
   ...MOCK_OVERVIEW_REPORT,
   units_with_struggles: [],
-  units_no_activity:    [],
+  units_no_activity: [],
 };
 
 // ---------------------------------------------------------------------------
@@ -64,23 +64,23 @@ export const MOCK_OVERVIEW_LOW_PASS: OverviewReport = {
 // ---------------------------------------------------------------------------
 
 export const OVERVIEW_STRINGS = {
-  pageHeading:        "Overview Report",
+  pageHeading: "Overview Report",
   // Period toggle labels
-  period7d:           "Last 7 days",
-  period30d:          "Last 30 days",
-  periodTerm:         "This term",
+  period7d: "Last 7 days",
+  period30d: "Last 30 days",
+  periodTerm: "This term",
   // KPI card labels
-  enrolled:           "Enrolled",
-  active:             "Active",
-  lessonsViewed:      "Lessons viewed",
-  quizAttempts:       "Quiz attempts",
-  passRate:           "1st-attempt pass rate",
-  audioPlayRate:      "Audio play rate",
+  enrolled: "Enrolled",
+  active: "Active",
+  lessonsViewed: "Lessons viewed",
+  quizAttempts: "Quiz attempts",
+  passRate: "1st-attempt pass rate",
+  audioPlayRate: "Audio play rate",
   // Unit sections
   unitsWithStruggles: "Units with struggles",
-  noStruggles:        "None — all units healthy.",
-  unitsNoActivity:    "Units with no activity",
-  allUnitsActive:     "All units have activity.",
+  noStruggles: "None — all units healthy.",
+  unitsNoActivity: "Units with no activity",
+  allUnitsActive: "All units have activity.",
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -98,11 +98,11 @@ export const REPORT_SUBNAV_LABELS = [
 ] as const;
 
 export const REPORT_SUBNAV_HREFS = {
-  overview:    "/school/reports/overview",
-  trends:      "/school/reports/trends",
-  atRisk:      "/school/reports/at-risk",
-  units:       "/school/reports/units",
-  engagement:  "/school/reports/engagement",
-  feedback:    "/school/reports/feedback",
-  exportCsv:   "/school/reports/export",
+  overview: "/school/reports/overview",
+  trends: "/school/reports/trends",
+  atRisk: "/school/reports/at-risk",
+  units: "/school/reports/units",
+  engagement: "/school/reports/engagement",
+  feedback: "/school/reports/feedback",
+  exportCsv: "/school/reports/export",
 } as const;

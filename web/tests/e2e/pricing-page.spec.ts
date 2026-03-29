@@ -7,7 +7,12 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { PLAN_PRICES, PLAN_CTAS, FAQ_ITEMS, MOST_POPULAR_BADGE } from "./data/pricing-page";
+import {
+  PLAN_PRICES,
+  PLAN_CTAS,
+  FAQ_ITEMS,
+  MOST_POPULAR_BADGE,
+} from "./data/pricing-page";
 
 // ---------------------------------------------------------------------------
 // PUB-11 — Three plan cards render with correct prices
@@ -44,7 +49,9 @@ test("PUB-12 — 'Start free' on Free plan navigates to /signup", async ({ page 
 // PUB-13 — Student plan CTA → /signup
 // ---------------------------------------------------------------------------
 
-test("PUB-13 — 'Subscribe now' on Student plan navigates to /signup", async ({ page }) => {
+test("PUB-13 — 'Subscribe now' on Student plan navigates to /signup", async ({
+  page,
+}) => {
   await page.goto("/pricing");
 
   const { label, href } = PLAN_CTAS[1];
@@ -59,7 +66,9 @@ test("PUB-13 — 'Subscribe now' on Student plan navigates to /signup", async ({
 // PUB-14 — School plan CTA → /contact
 // ---------------------------------------------------------------------------
 
-test("PUB-14 — 'Contact sales' on School plan navigates to /contact", async ({ page }) => {
+test("PUB-14 — 'Contact sales' on School plan navigates to /contact", async ({
+  page,
+}) => {
   await page.goto("/pricing");
 
   const { label, href } = PLAN_CTAS[2];
@@ -80,7 +89,9 @@ test("PUB-15 — FAQ accordion expands on click and collapses on second click", 
   await page.goto("/pricing");
 
   // Scroll FAQ into view first
-  await page.getByRole("heading", { name: "Frequently asked questions" }).scrollIntoViewIfNeeded();
+  await page
+    .getByRole("heading", { name: "Frequently asked questions" })
+    .scrollIntoViewIfNeeded();
 
   // Test each FAQ item independently
   for (const { question, answer } of FAQ_ITEMS) {

@@ -47,29 +47,53 @@ vi.mock("@/lib/api/progress", () => ({
 
 describe("STU-19 — Quiz question renders", () => {
   it("renders the first question text", () => {
-    render(<QuizPlayer quiz={MOCK_QUIZ} sessionId={MOCK_SESSION_ID} curriculumId="default-2026-g8" />);
+    render(
+      <QuizPlayer
+        quiz={MOCK_QUIZ}
+        sessionId={MOCK_SESSION_ID}
+        curriculumId="default-2026-g8"
+      />,
+    );
     expect(screen.getByText(MOCK_QUIZ.questions[0].question)).toBeInTheDocument();
   });
 
   it("renders all 4 answer option buttons", () => {
-    render(<QuizPlayer quiz={MOCK_QUIZ} sessionId={MOCK_SESSION_ID} curriculumId="default-2026-g8" />);
+    render(
+      <QuizPlayer
+        quiz={MOCK_QUIZ}
+        sessionId={MOCK_SESSION_ID}
+        curriculumId="default-2026-g8"
+      />,
+    );
     for (const option of MOCK_QUIZ.questions[0].options) {
-      expect(screen.getByRole("button", { name: new RegExp(option) })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: new RegExp(option) }),
+      ).toBeInTheDocument();
     }
   });
 
   it("renders progress indicator showing question 1 of N", () => {
-    render(<QuizPlayer quiz={MOCK_QUIZ} sessionId={MOCK_SESSION_ID} curriculumId="default-2026-g8" />);
+    render(
+      <QuizPlayer
+        quiz={MOCK_QUIZ}
+        sessionId={MOCK_SESSION_ID}
+        curriculumId="default-2026-g8"
+      />,
+    );
     expect(
       screen.getByText(`Question 1 of ${MOCK_QUIZ.questions.length}`),
     ).toBeInTheDocument();
   });
 
   it("Submit button is initially disabled (no option selected)", () => {
-    render(<QuizPlayer quiz={MOCK_QUIZ} sessionId={MOCK_SESSION_ID} curriculumId="default-2026-g8" />);
-    expect(
-      screen.getByRole("button", { name: QUIZ_STRINGS.submitBtn }),
-    ).toBeDisabled();
+    render(
+      <QuizPlayer
+        quiz={MOCK_QUIZ}
+        sessionId={MOCK_SESSION_ID}
+        curriculumId="default-2026-g8"
+      />,
+    );
+    expect(screen.getByRole("button", { name: QUIZ_STRINGS.submitBtn })).toBeDisabled();
   });
 });
 
@@ -79,7 +103,13 @@ describe("STU-19 — Quiz question renders", () => {
 
 describe("STU-20 — Selecting answer enables submit", () => {
   it("submit button becomes enabled after clicking an option", () => {
-    render(<QuizPlayer quiz={MOCK_QUIZ} sessionId={MOCK_SESSION_ID} curriculumId="default-2026-g8" />);
+    render(
+      <QuizPlayer
+        quiz={MOCK_QUIZ}
+        sessionId={MOCK_SESSION_ID}
+        curriculumId="default-2026-g8"
+      />,
+    );
     const option = screen.getByRole("button", {
       name: new RegExp(MOCK_QUIZ.questions[0].options[0]),
     });
@@ -90,7 +120,13 @@ describe("STU-20 — Selecting answer enables submit", () => {
   });
 
   it("clicking a different option still keeps submit enabled", () => {
-    render(<QuizPlayer quiz={MOCK_QUIZ} sessionId={MOCK_SESSION_ID} curriculumId="default-2026-g8" />);
+    render(
+      <QuizPlayer
+        quiz={MOCK_QUIZ}
+        sessionId={MOCK_SESSION_ID}
+        curriculumId="default-2026-g8"
+      />,
+    );
     fireEvent.click(
       screen.getByRole("button", { name: new RegExp(MOCK_QUIZ.questions[0].options[0]) }),
     );
@@ -114,14 +150,17 @@ describe("STU-21 — Correct answer shown after submit", () => {
 
   it("correct option gets green background class after submit", async () => {
     const { container } = render(
-      <QuizPlayer quiz={MOCK_QUIZ} sessionId={MOCK_SESSION_ID} curriculumId="default-2026-g8" />,
+      <QuizPlayer
+        quiz={MOCK_QUIZ}
+        sessionId={MOCK_SESSION_ID}
+        curriculumId="default-2026-g8"
+      />,
     );
 
     // Select the correct option (index 1 → "Cell")
-    const correctOption = MOCK_QUIZ.questions[0].options[MOCK_QUIZ.questions[0].correct_index];
-    fireEvent.click(
-      screen.getByRole("button", { name: new RegExp(correctOption) }),
-    );
+    const correctOption =
+      MOCK_QUIZ.questions[0].options[MOCK_QUIZ.questions[0].correct_index];
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(correctOption) }));
     fireEvent.click(screen.getByRole("button", { name: QUIZ_STRINGS.submitBtn }));
 
     await waitFor(() => {
@@ -135,12 +174,15 @@ describe("STU-21 — Correct answer shown after submit", () => {
 
   it("CheckCircle2 SVG appears on correct option after submit", async () => {
     const { container } = render(
-      <QuizPlayer quiz={MOCK_QUIZ} sessionId={MOCK_SESSION_ID} curriculumId="default-2026-g8" />,
+      <QuizPlayer
+        quiz={MOCK_QUIZ}
+        sessionId={MOCK_SESSION_ID}
+        curriculumId="default-2026-g8"
+      />,
     );
-    const correctOption = MOCK_QUIZ.questions[0].options[MOCK_QUIZ.questions[0].correct_index];
-    fireEvent.click(
-      screen.getByRole("button", { name: new RegExp(correctOption) }),
-    );
+    const correctOption =
+      MOCK_QUIZ.questions[0].options[MOCK_QUIZ.questions[0].correct_index];
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(correctOption) }));
     fireEvent.click(screen.getByRole("button", { name: QUIZ_STRINGS.submitBtn }));
 
     await waitFor(() => {
@@ -154,37 +196,40 @@ describe("STU-21 — Correct answer shown after submit", () => {
 
   it("option buttons are disabled during reviewing phase", async () => {
     const { container } = render(
-      <QuizPlayer quiz={MOCK_QUIZ} sessionId={MOCK_SESSION_ID} curriculumId="default-2026-g8" />,
+      <QuizPlayer
+        quiz={MOCK_QUIZ}
+        sessionId={MOCK_SESSION_ID}
+        curriculumId="default-2026-g8"
+      />,
     );
-    const correctOption = MOCK_QUIZ.questions[0].options[MOCK_QUIZ.questions[0].correct_index];
-    fireEvent.click(
-      screen.getByRole("button", { name: new RegExp(correctOption) }),
-    );
+    const correctOption =
+      MOCK_QUIZ.questions[0].options[MOCK_QUIZ.questions[0].correct_index];
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(correctOption) }));
     fireEvent.click(screen.getByRole("button", { name: QUIZ_STRINGS.submitBtn }));
 
     await waitFor(() => {
       // All option buttons (not Submit/Next) should be disabled
-      const optionBtns = container.querySelectorAll<HTMLButtonElement>(
-        "div.space-y-3 button",
-      );
+      const optionBtns =
+        container.querySelectorAll<HTMLButtonElement>("div.space-y-3 button");
       optionBtns.forEach((btn) => expect(btn).toBeDisabled());
     });
   });
 
   it("explanation text appears after submit", async () => {
     render(
-      <QuizPlayer quiz={MOCK_QUIZ} sessionId={MOCK_SESSION_ID} curriculumId="default-2026-g8" />,
+      <QuizPlayer
+        quiz={MOCK_QUIZ}
+        sessionId={MOCK_SESSION_ID}
+        curriculumId="default-2026-g8"
+      />,
     );
-    const correctOption = MOCK_QUIZ.questions[0].options[MOCK_QUIZ.questions[0].correct_index];
-    fireEvent.click(
-      screen.getByRole("button", { name: new RegExp(correctOption) }),
-    );
+    const correctOption =
+      MOCK_QUIZ.questions[0].options[MOCK_QUIZ.questions[0].correct_index];
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(correctOption) }));
     fireEvent.click(screen.getByRole("button", { name: QUIZ_STRINGS.submitBtn }));
 
     await waitFor(() => {
-      expect(
-        screen.getByText(MOCK_ANSWER_CORRECT.explanation),
-      ).toBeInTheDocument();
+      expect(screen.getByText(MOCK_ANSWER_CORRECT.explanation)).toBeInTheDocument();
     });
   });
 });
@@ -200,20 +245,22 @@ describe("STU-22 — Wrong answer shown after submit", () => {
 
   it("wrong selected option gets red background class after submit", async () => {
     const { container } = render(
-      <QuizPlayer quiz={MOCK_QUIZ} sessionId={MOCK_SESSION_ID} curriculumId="default-2026-g8" />,
+      <QuizPlayer
+        quiz={MOCK_QUIZ}
+        sessionId={MOCK_SESSION_ID}
+        curriculumId="default-2026-g8"
+      />,
     );
 
     // Select a wrong option (index 0 → "Atom")
     const wrongOption = MOCK_QUIZ.questions[0].options[0]; // index 0, correct is index 1
-    fireEvent.click(
-      screen.getByRole("button", { name: new RegExp(wrongOption) }),
-    );
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(wrongOption) }));
     fireEvent.click(screen.getByRole("button", { name: QUIZ_STRINGS.submitBtn }));
 
     await waitFor(() => {
       const buttons = container.querySelectorAll("button");
-      const wrongBtn = Array.from(buttons).find((b) =>
-        b.textContent?.includes(wrongOption) && !b.textContent?.includes("Cell"),
+      const wrongBtn = Array.from(buttons).find(
+        (b) => b.textContent?.includes(wrongOption) && !b.textContent?.includes("Cell"),
       );
       expect(wrongBtn?.className).toContain("bg-red-50");
     });
@@ -221,16 +268,19 @@ describe("STU-22 — Wrong answer shown after submit", () => {
 
   it("correct option still gets green background when wrong option selected", async () => {
     const { container } = render(
-      <QuizPlayer quiz={MOCK_QUIZ} sessionId={MOCK_SESSION_ID} curriculumId="default-2026-g8" />,
+      <QuizPlayer
+        quiz={MOCK_QUIZ}
+        sessionId={MOCK_SESSION_ID}
+        curriculumId="default-2026-g8"
+      />,
     );
     const wrongOption = MOCK_QUIZ.questions[0].options[0];
-    fireEvent.click(
-      screen.getByRole("button", { name: new RegExp(wrongOption) }),
-    );
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(wrongOption) }));
     fireEvent.click(screen.getByRole("button", { name: QUIZ_STRINGS.submitBtn }));
 
     await waitFor(() => {
-      const correctOption = MOCK_QUIZ.questions[0].options[MOCK_QUIZ.questions[0].correct_index];
+      const correctOption =
+        MOCK_QUIZ.questions[0].options[MOCK_QUIZ.questions[0].correct_index];
       const buttons = container.querySelectorAll("button");
       const correctBtn = Array.from(buttons).find((b) =>
         b.textContent?.includes(correctOption),
@@ -241,18 +291,20 @@ describe("STU-22 — Wrong answer shown after submit", () => {
 
   it("XCircle SVG appears on wrong selected option", async () => {
     const { container } = render(
-      <QuizPlayer quiz={MOCK_QUIZ} sessionId={MOCK_SESSION_ID} curriculumId="default-2026-g8" />,
+      <QuizPlayer
+        quiz={MOCK_QUIZ}
+        sessionId={MOCK_SESSION_ID}
+        curriculumId="default-2026-g8"
+      />,
     );
     const wrongOption = MOCK_QUIZ.questions[0].options[0];
-    fireEvent.click(
-      screen.getByRole("button", { name: new RegExp(wrongOption) }),
-    );
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(wrongOption) }));
     fireEvent.click(screen.getByRole("button", { name: QUIZ_STRINGS.submitBtn }));
 
     await waitFor(() => {
       const buttons = container.querySelectorAll("button");
-      const wrongBtn = Array.from(buttons).find((b) =>
-        b.textContent?.includes(wrongOption) && !b.textContent?.includes("Cell"),
+      const wrongBtn = Array.from(buttons).find(
+        (b) => b.textContent?.includes(wrongOption) && !b.textContent?.includes("Cell"),
       );
       expect(wrongBtn?.querySelector("svg")).toBeTruthy();
     });
@@ -282,7 +334,9 @@ describe("STU-23 — Score screen after quiz completion", () => {
       const correctOption = question.options[question.correct_index];
 
       await waitFor(() => {
-        expect(screen.getByText(`Question ${q + 1} of ${MOCK_QUIZ.questions.length}`)).toBeInTheDocument();
+        expect(
+          screen.getByText(`Question ${q + 1} of ${MOCK_QUIZ.questions.length}`),
+        ).toBeInTheDocument();
       });
 
       clickOptionByText(correctOption);
@@ -292,12 +346,16 @@ describe("STU-23 — Score screen after quiz completion", () => {
       if (isLast) {
         mockEndSession.mockResolvedValue(MOCK_SESSION_END_PASSED);
         await waitFor(() => {
-          expect(screen.getByRole("button", { name: QUIZ_STRINGS.seeResultsBtn })).toBeInTheDocument();
+          expect(
+            screen.getByRole("button", { name: QUIZ_STRINGS.seeResultsBtn }),
+          ).toBeInTheDocument();
         });
         fireEvent.click(screen.getByRole("button", { name: QUIZ_STRINGS.seeResultsBtn }));
       } else {
         await waitFor(() => {
-          expect(screen.getByRole("button", { name: QUIZ_STRINGS.nextBtn })).toBeInTheDocument();
+          expect(
+            screen.getByRole("button", { name: QUIZ_STRINGS.nextBtn }),
+          ).toBeInTheDocument();
         });
         fireEvent.click(screen.getByRole("button", { name: QUIZ_STRINGS.nextBtn }));
       }
@@ -306,7 +364,11 @@ describe("STU-23 — Score screen after quiz completion", () => {
 
   it("score screen shows passed heading (Trophy) when passed", async () => {
     render(
-      <QuizPlayer quiz={MOCK_QUIZ} sessionId={MOCK_SESSION_ID} curriculumId="default-2026-g8" />,
+      <QuizPlayer
+        quiz={MOCK_QUIZ}
+        sessionId={MOCK_SESSION_ID}
+        curriculumId="default-2026-g8"
+      />,
     );
     mockEndSession.mockResolvedValue(MOCK_SESSION_END_PASSED);
     await completeQuiz();
@@ -318,7 +380,11 @@ describe("STU-23 — Score screen after quiz completion", () => {
 
   it("score screen shows Trophy SVG when passed", async () => {
     const { container } = render(
-      <QuizPlayer quiz={MOCK_QUIZ} sessionId={MOCK_SESSION_ID} curriculumId="default-2026-g8" />,
+      <QuizPlayer
+        quiz={MOCK_QUIZ}
+        sessionId={MOCK_SESSION_ID}
+        curriculumId="default-2026-g8"
+      />,
     );
     mockEndSession.mockResolvedValue(MOCK_SESSION_END_PASSED);
     await completeQuiz();
@@ -333,7 +399,11 @@ describe("STU-23 — Score screen after quiz completion", () => {
   it("score screen shows try_again heading (RefreshCw) when failed", async () => {
     mockEndSession.mockResolvedValue(MOCK_SESSION_END_FAILED);
     render(
-      <QuizPlayer quiz={MOCK_QUIZ} sessionId={MOCK_SESSION_ID} curriculumId="default-2026-g8" />,
+      <QuizPlayer
+        quiz={MOCK_QUIZ}
+        sessionId={MOCK_SESSION_ID}
+        curriculumId="default-2026-g8"
+      />,
     );
 
     // Override endSession to return failed result
@@ -350,7 +420,11 @@ describe("STU-23 — Score screen after quiz completion", () => {
 
   it("back to curriculum link is present on score screen", async () => {
     render(
-      <QuizPlayer quiz={MOCK_QUIZ} sessionId={MOCK_SESSION_ID} curriculumId="default-2026-g8" />,
+      <QuizPlayer
+        quiz={MOCK_QUIZ}
+        sessionId={MOCK_SESSION_ID}
+        curriculumId="default-2026-g8"
+      />,
     );
     mockEndSession.mockResolvedValue(MOCK_SESSION_END_PASSED);
     await completeQuiz();
@@ -374,13 +448,16 @@ describe("STU-24 — Session ID is passed to progress API", () => {
 
   it("submitAnswer is called with the provided sessionId", async () => {
     render(
-      <QuizPlayer quiz={MOCK_QUIZ} sessionId={MOCK_SESSION_ID} curriculumId="default-2026-g8" />,
+      <QuizPlayer
+        quiz={MOCK_QUIZ}
+        sessionId={MOCK_SESSION_ID}
+        curriculumId="default-2026-g8"
+      />,
     );
 
-    const correctOption = MOCK_QUIZ.questions[0].options[MOCK_QUIZ.questions[0].correct_index];
-    fireEvent.click(
-      screen.getByRole("button", { name: new RegExp(correctOption) }),
-    );
+    const correctOption =
+      MOCK_QUIZ.questions[0].options[MOCK_QUIZ.questions[0].correct_index];
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(correctOption) }));
     fireEvent.click(screen.getByRole("button", { name: QUIZ_STRINGS.submitBtn }));
 
     await waitFor(() => {
@@ -392,7 +469,11 @@ describe("STU-24 — Session ID is passed to progress API", () => {
 
   it("no error is rendered when sessionId is provided", () => {
     render(
-      <QuizPlayer quiz={MOCK_QUIZ} sessionId={MOCK_SESSION_ID} curriculumId="default-2026-g8" />,
+      <QuizPlayer
+        quiz={MOCK_QUIZ}
+        sessionId={MOCK_SESSION_ID}
+        curriculumId="default-2026-g8"
+      />,
     );
     expect(screen.queryByRole("alert")).toBeNull();
     expect(screen.queryByText(/error/i)).toBeNull();
@@ -400,13 +481,16 @@ describe("STU-24 — Session ID is passed to progress API", () => {
 
   it("submitAnswer is called with correct unit_id and question_index", async () => {
     render(
-      <QuizPlayer quiz={MOCK_QUIZ} sessionId={MOCK_SESSION_ID} curriculumId="default-2026-g8" />,
+      <QuizPlayer
+        quiz={MOCK_QUIZ}
+        sessionId={MOCK_SESSION_ID}
+        curriculumId="default-2026-g8"
+      />,
     );
 
-    const correctOption = MOCK_QUIZ.questions[0].options[MOCK_QUIZ.questions[0].correct_index];
-    fireEvent.click(
-      screen.getByRole("button", { name: new RegExp(correctOption) }),
-    );
+    const correctOption =
+      MOCK_QUIZ.questions[0].options[MOCK_QUIZ.questions[0].correct_index];
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(correctOption) }));
     fireEvent.click(screen.getByRole("button", { name: QUIZ_STRINGS.submitBtn }));
 
     await waitFor(() => {

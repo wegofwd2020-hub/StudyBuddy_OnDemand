@@ -19,8 +19,8 @@ export default function AdminAuditPage() {
 
   if (admin && !hasPermission(admin.role, "product_admin")) {
     return (
-      <div className="p-8 max-w-lg mx-auto">
-        <div className="flex items-center gap-3 text-red-600 mb-2">
+      <div className="mx-auto max-w-lg p-8">
+        <div className="mb-2 flex items-center gap-3 text-red-600">
           <ShieldOff className="h-5 w-5" />
           <span className="font-semibold">Access denied</span>
         </div>
@@ -32,56 +32,71 @@ export default function AdminAuditPage() {
   }
 
   return (
-    <div className="p-8 max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">Audit Log</h1>
-      <p className="text-sm text-gray-500 mb-6">All admin actions recorded with actor and resource.</p>
+    <div className="mx-auto max-w-6xl p-8">
+      <h1 className="mb-1 text-2xl font-bold text-gray-900">Audit Log</h1>
+      <p className="mb-6 text-sm text-gray-500">
+        All admin actions recorded with actor and resource.
+      </p>
 
       {/* Action filter */}
-      <div className="flex gap-3 mb-6">
+      <div className="mb-6 flex gap-3">
         <input
           type="text"
           value={actionFilter}
-          onChange={(e) => { setActionFilter(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setActionFilter(e.target.value);
+            setPage(1);
+          }}
           placeholder="Filter by action (e.g. publish, block)…"
-          className="w-64 px-3 py-2 rounded-lg border border-gray-300 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-64 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
         />
       </div>
 
       {isLoading ? (
         <div className="space-y-2">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="h-12 bg-gray-100 rounded-lg animate-pulse" />
+            <div key={i} className="h-12 animate-pulse rounded-lg bg-gray-100" />
           ))}
         </div>
       ) : data && data.entries.length > 0 ? (
         <>
-          <p className="text-xs text-gray-400 mb-3">{data.total.toLocaleString()} entries</p>
-          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <p className="mb-3 text-xs text-gray-400">
+            {data.total.toLocaleString()} entries
+          </p>
+          <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead className="border-b border-gray-200 bg-gray-50">
                 <tr>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Time</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Actor</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Action</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-600">Resource</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-600">Time</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-600">Actor</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-600">
+                    Action
+                  </th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-600">
+                    Resource
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {data.entries.map((entry) => (
                   <tr key={entry.audit_id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">
+                    <td className="px-4 py-3 text-xs whitespace-nowrap text-gray-500">
                       {new Date(entry.created_at).toLocaleString()}
                     </td>
                     <td className="px-4 py-3">
-                      <span className="text-gray-700 text-xs">{entry.actor_id.slice(0, 8)}…</span>
-                      <span className="ml-1.5 text-gray-400 text-xs">{entry.actor_role}</span>
+                      <span className="text-xs text-gray-700">
+                        {entry.actor_id.slice(0, 8)}…
+                      </span>
+                      <span className="ml-1.5 text-xs text-gray-400">
+                        {entry.actor_role}
+                      </span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="font-mono text-xs text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded">
+                      <span className="rounded bg-indigo-50 px-1.5 py-0.5 font-mono text-xs text-indigo-700">
                         {entry.action}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-gray-600 text-xs">
+                    <td className="px-4 py-3 text-xs text-gray-600">
                       <span className="text-gray-400">{entry.resource_type}/</span>
                       {entry.resource_id.slice(0, 12)}…
                     </td>
@@ -91,11 +106,11 @@ export default function AdminAuditPage() {
             </table>
           </div>
 
-          <div className="flex items-center gap-3 mt-4">
+          <div className="mt-4 flex items-center gap-3">
             <button
               disabled={page === 1}
               onClick={() => setPage(page - 1)}
-              className="px-3 py-1.5 text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 disabled:opacity-40 rounded-lg transition-colors"
+              className="rounded-lg bg-gray-100 px-3 py-1.5 text-sm text-gray-600 transition-colors hover:bg-gray-200 disabled:opacity-40"
             >
               Previous
             </button>
@@ -103,15 +118,15 @@ export default function AdminAuditPage() {
             <button
               disabled={data.entries.length < 50}
               onClick={() => setPage(page + 1)}
-              className="px-3 py-1.5 text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 disabled:opacity-40 rounded-lg transition-colors"
+              className="rounded-lg bg-gray-100 px-3 py-1.5 text-sm text-gray-600 transition-colors hover:bg-gray-200 disabled:opacity-40"
             >
               Next
             </button>
           </div>
         </>
       ) : (
-        <div className="text-center py-16 text-gray-400">
-          <FileText className="h-10 w-10 mx-auto mb-3 opacity-40" />
+        <div className="py-16 text-center text-gray-400">
+          <FileText className="mx-auto mb-3 h-10 w-10 opacity-40" />
           <p className="text-sm">No audit entries found.</p>
         </div>
       )}

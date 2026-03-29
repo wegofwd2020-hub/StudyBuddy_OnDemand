@@ -15,7 +15,11 @@ interface PageProps {
 
 export default function TutorialPage({ params }: PageProps) {
   const { unit_id } = use(params);
-  const { data: tutorial, isLoading, isError } = useQuery({
+  const {
+    data: tutorial,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["tutorial", unit_id],
     queryFn: () => getTutorial(unit_id),
     enabled: !!unit_id,
@@ -23,9 +27,11 @@ export default function TutorialPage({ params }: PageProps) {
 
   if (isLoading) {
     return (
-      <div className="p-6 max-w-3xl space-y-4">
+      <div className="max-w-3xl space-y-4 p-6">
         <Skeleton className="h-8 w-2/3" />
-        {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-16 rounded-lg" />)}
+        {[...Array(4)].map((_, i) => (
+          <Skeleton key={i} className="h-16 rounded-lg" />
+        ))}
       </div>
     );
   }
@@ -33,7 +39,7 @@ export default function TutorialPage({ params }: PageProps) {
   if (isError || !tutorial) {
     return (
       <div className="p-6">
-        <p className="text-red-500 text-sm">Could not load tutorial. Please try again.</p>
+        <p className="text-sm text-red-500">Could not load tutorial. Please try again.</p>
       </div>
     );
   }
@@ -41,11 +47,13 @@ export default function TutorialPage({ params }: PageProps) {
   return (
     <div className="flex flex-col">
       <OfflineBanner />
-      <div className="p-6 max-w-3xl space-y-6">
+      <div className="max-w-3xl space-y-6 p-6">
         <TutorialRenderer tutorial={tutorial} />
         <div className="flex items-center justify-between border-t pt-4">
           <FeedbackWidget unitId={unit_id} contentType="tutorial" />
-          <LinkButton href={`/quiz/${unit_id}`} size="sm">Take Quiz</LinkButton>
+          <LinkButton href={`/quiz/${unit_id}`} size="sm">
+            Take Quiz
+          </LinkButton>
         </div>
       </div>
     </div>

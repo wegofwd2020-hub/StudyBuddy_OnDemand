@@ -95,7 +95,7 @@ export async function getProgressHistory(limit = 20): Promise<ProgressHistory> {
   const sessions = raw.sessions.map((s) => ({
     session_id: s.session_id,
     unit_id: s.unit_id,
-    unit_title: s.unit_id,   // title not returned by this endpoint
+    unit_title: s.unit_id, // title not returned by this endpoint
     subject: s.subject,
     started_at: s.started_at,
     ended_at: s.ended_at,
@@ -117,9 +117,7 @@ export async function getProgressHistory(limit = 20): Promise<ProgressHistory> {
     const passed = completed.filter((s) => s.passed);
     const scores = completed.map((s) => s.score).filter((s): s is number => s !== null);
     const best_score = scores.length ? Math.max(...scores) : null;
-    const last = unitSessions.reduce((a, b) =>
-      a.started_at > b.started_at ? a : b,
-    );
+    const last = unitSessions.reduce((a, b) => (a.started_at > b.started_at ? a : b));
 
     let status: "completed" | "needs_retry" | "in_progress" | "not_started";
     if (passed.length > 0) status = "completed";

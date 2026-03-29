@@ -22,15 +22,17 @@ export default function AdminPipelinePage() {
   });
 
   return (
-    <div className="p-8 max-w-5xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+    <div className="mx-auto max-w-5xl p-8">
+      <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Pipeline Jobs</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Content generation pipeline status</p>
+          <p className="mt-0.5 text-sm text-gray-500">
+            Content generation pipeline status
+          </p>
         </div>
         <Link
           href="/admin/pipeline/trigger"
-          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-lg transition-colors"
+          className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
         >
           <Plus className="h-4 w-4" />
           Trigger job
@@ -40,19 +42,25 @@ export default function AdminPipelinePage() {
       {isLoading ? (
         <div className="space-y-3">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-14 bg-gray-100 rounded-xl animate-pulse" />
+            <div key={i} className="h-14 animate-pulse rounded-xl bg-gray-100" />
           ))}
         </div>
       ) : data && data.jobs?.length > 0 ? (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead className="border-b border-gray-200 bg-gray-50">
               <tr>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Job ID</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Curriculum</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-600">Progress</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Triggered</th>
+                <th className="px-4 py-3 text-left font-medium text-gray-600">Job ID</th>
+                <th className="px-4 py-3 text-left font-medium text-gray-600">
+                  Curriculum
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-gray-600">Status</th>
+                <th className="px-4 py-3 text-right font-medium text-gray-600">
+                  Progress
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-gray-600">
+                  Triggered
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -66,13 +74,13 @@ export default function AdminPipelinePage() {
                       {job.job_id.slice(0, 8)}…
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-gray-700 font-mono text-xs">
+                  <td className="px-4 py-3 font-mono text-xs text-gray-700">
                     {job.curriculum_id}
                   </td>
                   <td className="px-4 py-3">
                     <span
                       className={cn(
-                        "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium",
+                        "inline-flex items-center rounded px-2 py-0.5 text-xs font-medium",
                         STATUS_STYLES[job.status] ?? "bg-gray-100 text-gray-600",
                       )}
                     >
@@ -80,14 +88,14 @@ export default function AdminPipelinePage() {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <span className="text-gray-700 font-mono text-xs">
+                    <span className="font-mono text-xs text-gray-700">
                       {job.built}/{job.total}
                       {job.failed > 0 && (
-                        <span className="text-red-500 ml-1">({job.failed} failed)</span>
+                        <span className="ml-1 text-red-500">({job.failed} failed)</span>
                       )}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-gray-500 text-xs">
+                  <td className="px-4 py-3 text-xs text-gray-500">
                     {new Date(job.triggered_at).toLocaleString()}
                   </td>
                 </tr>
@@ -96,12 +104,12 @@ export default function AdminPipelinePage() {
           </table>
         </div>
       ) : (
-        <div className="text-center py-16 text-gray-400">
-          <GitBranch className="h-10 w-10 mx-auto mb-3 opacity-40" />
+        <div className="py-16 text-center text-gray-400">
+          <GitBranch className="mx-auto mb-3 h-10 w-10 opacity-40" />
           <p className="text-sm">No pipeline jobs found.</p>
           <Link
             href="/admin/pipeline/trigger"
-            className="inline-flex items-center gap-1.5 mt-4 text-sm text-indigo-600 hover:underline"
+            className="mt-4 inline-flex items-center gap-1.5 text-sm text-indigo-600 hover:underline"
           >
             <Plus className="h-4 w-4" />
             Trigger your first job
@@ -111,7 +119,7 @@ export default function AdminPipelinePage() {
 
       <button
         onClick={() => refetch()}
-        className="mt-4 text-xs text-gray-400 hover:text-gray-600 transition-colors"
+        className="mt-4 text-xs text-gray-400 transition-colors hover:text-gray-600"
       >
         Refresh
       </button>

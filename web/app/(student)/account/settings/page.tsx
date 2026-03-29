@@ -2,7 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { getAccountSettings, saveAccountSettings, type AccountSettings } from "@/lib/api/settings";
+import {
+  getAccountSettings,
+  saveAccountSettings,
+  type AccountSettings,
+} from "@/lib/api/settings";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -81,7 +85,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="p-6 max-w-2xl space-y-8">
+    <div className="max-w-2xl space-y-8 p-6">
       <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
 
       {isLoading && <Skeleton className="h-64 rounded-lg" />}
@@ -120,17 +124,17 @@ export default function SettingsPage() {
                   <button
                     key={loc.value}
                     onClick={() => setSettings({ ...settings, locale: loc.value })}
-                    className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
+                    className={`rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
                       settings.locale === loc.value
-                        ? "bg-blue-600 text-white border-blue-600"
-                        : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
+                        ? "border-blue-600 bg-blue-600 text-white"
+                        : "border-gray-200 bg-white text-gray-600 hover:border-gray-400"
                     }`}
                   >
                     {loc.label}
                   </button>
                 ))}
               </div>
-              <p className="text-xs text-gray-400 mt-2">
+              <p className="mt-2 text-xs text-gray-400">
                 Content is served in your selected language.
               </p>
             </CardContent>
@@ -161,10 +165,7 @@ export default function SettingsPage() {
                   },
                 ] as const
               ).map(({ key, label, description }) => (
-                <label
-                  key={key}
-                  className="flex items-start gap-3 cursor-pointer group"
-                >
+                <label key={key} className="group flex cursor-pointer items-start gap-3">
                   <div className="relative mt-0.5">
                     <input
                       type="checkbox"
@@ -173,10 +174,10 @@ export default function SettingsPage() {
                       onChange={(e) => setNotif(key, e.target.checked)}
                     />
                     <div
-                      className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                      className={`flex h-5 w-5 items-center justify-center rounded border-2 transition-colors ${
                         settings.notifications[key]
-                          ? "bg-blue-600 border-blue-600"
-                          : "bg-white border-gray-300 group-hover:border-gray-400"
+                          ? "border-blue-600 bg-blue-600"
+                          : "border-gray-300 bg-white group-hover:border-gray-400"
                       }`}
                     >
                       {settings.notifications[key] && (
@@ -196,13 +197,13 @@ export default function SettingsPage() {
           {/* Accessibility */}
           <Card className="border shadow-sm">
             <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-base">
                 <Eye className="h-4 w-4 text-gray-500" />
                 Accessibility
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <label className="flex items-start gap-3 cursor-pointer group">
+              <label className="group flex cursor-pointer items-start gap-3">
                 <div className="relative mt-0.5">
                   <input
                     type="checkbox"
@@ -211,10 +212,10 @@ export default function SettingsPage() {
                     onChange={(e) => toggleDyslexicFont(e.target.checked)}
                   />
                   <div
-                    className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                    className={`flex h-5 w-5 items-center justify-center rounded border-2 transition-colors ${
                       dyslexicFont
-                        ? "bg-blue-600 border-blue-600"
-                        : "bg-white border-gray-300 group-hover:border-gray-400"
+                        ? "border-blue-600 bg-blue-600"
+                        : "border-gray-300 bg-white group-hover:border-gray-400"
                     }`}
                   >
                     {dyslexicFont && (
@@ -227,24 +228,22 @@ export default function SettingsPage() {
                     Use dyslexia-friendly font
                   </p>
                   <p className="text-xs text-gray-400">
-                    Switches body text to OpenDyslexic — a font designed to reduce
-                    letter confusion for readers with dyslexia. Takes effect immediately.
+                    Switches body text to OpenDyslexic — a font designed to reduce letter
+                    confusion for readers with dyslexia. Takes effect immediately.
                   </p>
                 </div>
               </label>
             </CardContent>
           </Card>
 
-          {error && (
-            <p className="text-sm text-red-600">{error}</p>
-          )}
+          {error && <p className="text-sm text-red-600">{error}</p>}
 
           <div className="flex items-center gap-3">
             <Button onClick={handleSave} disabled={isSaving}>
               {isSaving ? "Saving…" : t("save_btn")}
             </Button>
             {saved && (
-              <span className="text-sm text-green-600 flex items-center gap-1">
+              <span className="flex items-center gap-1 text-sm text-green-600">
                 <Check className="h-4 w-4" /> Saved
               </span>
             )}

@@ -17,12 +17,12 @@ started automatically by the Playwright `webServer` config.
 
 ## Auth Strategy Per Portal
 
-| Portal | Auth mechanism | E2E approach |
-|---|---|---|
-| Admin | Client-side `localStorage.getItem("sb_admin_token")` | `page.addInitScript` injects a mock JWT; `page.route()` mocks backend API responses |
-| Student | Server-side `auth0.getSession()` in layout | Fake Auth0 env vars injected into dev server; no real session → `getSession()` returns null → redirect tested |
-| School | Same as student | Same approach |
-| Public | No auth | Direct navigation; assert visible elements |
+| Portal  | Auth mechanism                                       | E2E approach                                                                                                  |
+| ------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Admin   | Client-side `localStorage.getItem("sb_admin_token")` | `page.addInitScript` injects a mock JWT; `page.route()` mocks backend API responses                           |
+| Student | Server-side `auth0.getSession()` in layout           | Fake Auth0 env vars injected into dev server; no real session → `getSession()` returns null → redirect tested |
+| School  | Same as student                                      | Same approach                                                                                                 |
+| Public  | No auth                                              | Direct navigation; assert visible elements                                                                    |
 
 **Auth0 env vars** — injected into the dev server process via `webServer.env` in
 `playwright.config.ts`. Using fake but correctly-shaped values means
@@ -38,11 +38,11 @@ client-side.
 
 ## Spec Files to Add
 
-| File | Tests | Coverage |
-|---|---|---|
-| `tests/e2e/admin-portal.spec.ts` | 11 | Login form, error state, success + token stored, redirect when no token, dashboard load with API mocks, analytics, health, pipeline, content review, RBAC nav diff (developer vs super_admin) |
-| `tests/e2e/auth-redirects.spec.ts` | 6 | `/dashboard` → `/login`; `/subjects` → `/login`; `/school/dashboard` → `/school/login`; `/school/reports/overview` → `/school/login`; `/admin/dashboard` (no token) → `/admin/login`; `/admin/analytics` (no token) → `/admin/login` |
-| `tests/e2e/login-pages.spec.ts` | 4 | School login renders Sign In button; school login links to student login; admin login has email/password fields; admin login shows error on bad credentials |
+| File                               | Tests | Coverage                                                                                                                                                                                                                             |
+| ---------------------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `tests/e2e/admin-portal.spec.ts`   | 11    | Login form, error state, success + token stored, redirect when no token, dashboard load with API mocks, analytics, health, pipeline, content review, RBAC nav diff (developer vs super_admin)                                        |
+| `tests/e2e/auth-redirects.spec.ts` | 6     | `/dashboard` → `/login`; `/subjects` → `/login`; `/school/dashboard` → `/school/login`; `/school/reports/overview` → `/school/login`; `/admin/dashboard` (no token) → `/admin/login`; `/admin/analytics` (no token) → `/admin/login` |
+| `tests/e2e/login-pages.spec.ts`    | 4     | School login renders Sign In button; school login links to student login; admin login has email/password fields; admin login shows error on bad credentials                                                                          |
 
 **Existing spec untouched:** `tests/e2e/public.spec.ts` (8 tests)
 

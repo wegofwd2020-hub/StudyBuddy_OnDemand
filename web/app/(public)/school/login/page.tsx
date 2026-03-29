@@ -14,7 +14,7 @@ export default function SchoolLoginPage() {
     <div className="flex min-h-[80vh] items-center justify-center px-4 py-12">
       <Card className="w-full max-w-sm shadow-lg">
         <CardHeader className="text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-indigo-50 mb-2">
+          <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-indigo-50">
             <School className="h-6 w-6 text-indigo-600" />
           </div>
           <CardTitle className="text-2xl">{t("school_login_title")}</CardTitle>

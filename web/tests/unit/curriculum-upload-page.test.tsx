@@ -38,7 +38,7 @@ vi.mock("@/lib/hooks/useTeacher", () => ({
 }));
 
 const mockUploadCurriculumXlsx = vi.fn();
-const mockTriggerPipeline      = vi.fn();
+const mockTriggerPipeline = vi.fn();
 const mockDownloadXlsxTemplate = vi.fn();
 
 vi.mock("@/lib/api/curriculum-admin", async (importOriginal) => {
@@ -46,7 +46,7 @@ vi.mock("@/lib/api/curriculum-admin", async (importOriginal) => {
   return {
     ...actual,
     uploadCurriculumXlsx: (...args: unknown[]) => mockUploadCurriculumXlsx(...args),
-    triggerPipeline:      (...args: unknown[]) => mockTriggerPipeline(...args),
+    triggerPipeline: (...args: unknown[]) => mockTriggerPipeline(...args),
     downloadXlsxTemplate: (...args: unknown[]) => mockDownloadXlsxTemplate(...args),
   };
 });
@@ -69,13 +69,17 @@ vi.stubGlobal("URL", {
 beforeEach(() => {
   vi.clearAllMocks();
   mockTriggerPipeline.mockResolvedValue(MOCK_PIPELINE_RESPONSE);
-  mockDownloadXlsxTemplate.mockResolvedValue(new Blob(["fake xlsx"], { type: "application/vnd.ms-excel" }));
+  mockDownloadXlsxTemplate.mockResolvedValue(
+    new Blob(["fake xlsx"], { type: "application/vnd.ms-excel" }),
+  );
 });
 
 // Helper: attach a fake file to the hidden input
 function attachFile() {
   const fileInput = document.querySelector<HTMLInputElement>('input[type="file"]')!;
-  const file = new File(["unit,subject\nCell Biology,science"], "curriculum.xlsx", { type: "application/vnd.ms-excel" });
+  const file = new File(["unit,subject\nCell Biology,science"], "curriculum.xlsx", {
+    type: "application/vnd.ms-excel",
+  });
   Object.defineProperty(fileInput, "files", { value: [file], configurable: true });
 }
 
@@ -118,7 +122,9 @@ describe("SCH-24 — Upload form renders", () => {
 
   it("renders the Upload & generate content button", () => {
     render(<CurriculumPage />);
-    expect(screen.getByRole("button", { name: /Upload & generate content/ })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Upload & generate content/ }),
+    ).toBeInTheDocument();
   });
 });
 
@@ -129,7 +135,9 @@ describe("SCH-24 — Upload form renders", () => {
 describe("SCH-25 — Template download works", () => {
   it("clicking Download XLSX template calls downloadXlsxTemplate", async () => {
     render(<CurriculumPage />);
-    fireEvent.click(screen.getByRole("button", { name: CURRICULUM_STRINGS.downloadTemplateBtn }));
+    fireEvent.click(
+      screen.getByRole("button", { name: CURRICULUM_STRINGS.downloadTemplateBtn }),
+    );
     await waitFor(() => expect(mockDownloadXlsxTemplate).toHaveBeenCalledTimes(1));
   });
 });

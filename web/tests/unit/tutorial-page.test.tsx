@@ -57,9 +57,7 @@ describe("STU-26 — TutorialRenderer: tutorial content loads", () => {
   it("renders all step titles as headings", () => {
     render(<TutorialRenderer tutorial={MOCK_TUTORIAL} />);
     for (const step of MOCK_TUTORIAL.steps) {
-      expect(
-        screen.getByRole("heading", { name: step.title }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: step.title })).toBeInTheDocument();
     }
   });
 

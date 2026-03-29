@@ -30,7 +30,7 @@ async function loginAs(role: DevRole): Promise<void> {
     throw new Error(body?.detail ?? `HTTP ${res.status}`);
   }
 
-  const data = await res.json() as {
+  const data = (await res.json()) as {
     token: string;
     name: string;
     email: string;
@@ -57,13 +57,21 @@ interface LoginButtonProps {
   onClick: (role: DevRole) => void;
 }
 
-function LoginButton({ role, label, sublabel, icon, colorClass, loading, onClick }: LoginButtonProps) {
+function LoginButton({
+  role,
+  label,
+  sublabel,
+  icon,
+  colorClass,
+  loading,
+  onClick,
+}: LoginButtonProps) {
   const isLoading = loading === role;
   return (
     <button
       onClick={() => onClick(role)}
       disabled={loading !== null}
-      className={`w-full flex items-center gap-3 px-4 py-3 ${colorClass} disabled:opacity-50 text-white font-medium rounded-xl transition-colors`}
+      className={`flex w-full items-center gap-3 px-4 py-3 ${colorClass} rounded-xl font-medium text-white transition-colors disabled:opacity-50`}
     >
       <span className="shrink-0">
         {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : icon}
@@ -94,14 +102,14 @@ export default function DevLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm w-full max-w-sm p-8">
-        <div className="text-center mb-8">
-          <span className="inline-block px-2 py-0.5 rounded text-xs font-semibold bg-amber-100 text-amber-700 mb-3">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
+      <div className="w-full max-w-sm rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+        <div className="mb-8 text-center">
+          <span className="mb-3 inline-block rounded bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700">
             DEV ONLY
           </span>
           <h1 className="text-xl font-bold text-gray-900">Test Login</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="mt-1 text-sm text-gray-500">
             Bypass Auth0 for local development testing.
           </p>
         </div>
@@ -137,19 +145,19 @@ export default function DevLoginPage() {
         </div>
 
         {error && (
-          <div className="mt-4 flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-            <AlertCircle className="h-4 w-4 text-red-500 mt-0.5 shrink-0" />
+          <div className="mt-4 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3">
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
             <p className="text-sm text-red-600">{error}</p>
           </div>
         )}
 
-        <div className="mt-6 pt-5 border-t border-gray-100 text-center space-y-1">
+        <div className="mt-6 space-y-1 border-t border-gray-100 pt-5 text-center">
           <p className="text-xs text-gray-400">
             Super Admin →{" "}
             <a href="/admin/login" className="text-indigo-500 hover:underline">
               /admin/login
-            </a>
-            {" "}· password: <code className="text-gray-600">DevAdmin1234!</code>
+            </a>{" "}
+            · password: <code className="text-gray-600">DevAdmin1234!</code>
           </p>
           <p className="text-xs text-gray-400">
             Email: <code className="text-gray-600">dev.admin@studybuddy.dev</code>

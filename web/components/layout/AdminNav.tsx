@@ -80,30 +80,29 @@ export function AdminNav() {
   );
 
   return (
-    <aside className="w-56 shrink-0 bg-gray-900 text-gray-100 flex flex-col min-h-screen">
+    <aside className="flex min-h-screen w-56 shrink-0 flex-col bg-gray-900 text-gray-100">
       {/* Logo */}
-      <div className="h-14 flex items-center px-4 border-b border-gray-700">
+      <div className="flex h-14 items-center border-b border-gray-700 px-4">
         <Link href="/admin/dashboard" className="flex items-center gap-2">
           <BookOpen className="h-5 w-5 text-indigo-400" />
-          <span className="font-bold text-white text-sm">StudyBuddy</span>
-          <span className="text-xs text-gray-400 font-medium">Admin</span>
+          <span className="text-sm font-bold text-white">StudyBuddy</span>
+          <span className="text-xs font-medium text-gray-400">Admin</span>
         </Link>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto">
+      <nav className="flex-1 space-y-0.5 overflow-y-auto px-2 py-3">
         {visibleItems.map((item) => {
-          const isActive =
-            pathname === item.href || pathname.startsWith(item.href + "/");
+          const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
 
           return (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors",
+                "flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors",
                 isActive
-                  ? "bg-indigo-600 text-white font-medium"
+                  ? "bg-indigo-600 font-medium text-white"
                   : "text-gray-400 hover:bg-gray-800 hover:text-gray-100",
               )}
             >
@@ -115,16 +114,16 @@ export function AdminNav() {
       </nav>
 
       {/* Footer */}
-      <div className="px-2 py-3 border-t border-gray-700">
+      <div className="border-t border-gray-700 px-2 py-3">
         {admin && (
-          <div className="px-3 mb-2 flex items-center gap-2">
+          <div className="mb-2 flex items-center gap-2 px-3">
             <Shield className="h-3 w-3 text-indigo-400" />
-            <span className="text-xs text-gray-400 truncate">{admin.role}</span>
+            <span className="truncate text-xs text-gray-400">{admin.role}</span>
           </div>
         )}
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2.5 w-full px-3 py-2 rounded-md text-sm text-gray-400 hover:bg-gray-800 hover:text-gray-100 transition-colors"
+          className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-gray-400 transition-colors hover:bg-gray-800 hover:text-gray-100"
         >
           <LogOut className="h-4 w-4" />
           Sign out

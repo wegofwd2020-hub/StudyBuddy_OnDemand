@@ -67,9 +67,30 @@ describe("CSV export — papaparse unparse", () => {
 
   it("produces correct row count for trends export", () => {
     const rows: TrendsRow[] = [
-      { week_start: "2026-03-01", active_students: 90, lessons_viewed: 280, quiz_attempts: 180, avg_score_pct: "74.1", first_attempt_pass_rate_pct: "68.0" },
-      { week_start: "2026-03-08", active_students: 95, lessons_viewed: 310, quiz_attempts: 200, avg_score_pct: "76.2", first_attempt_pass_rate_pct: "70.5" },
-      { week_start: "2026-03-15", active_students: 88, lessons_viewed: 265, quiz_attempts: 175, avg_score_pct: "72.8", first_attempt_pass_rate_pct: "66.2" },
+      {
+        week_start: "2026-03-01",
+        active_students: 90,
+        lessons_viewed: 280,
+        quiz_attempts: 180,
+        avg_score_pct: "74.1",
+        first_attempt_pass_rate_pct: "68.0",
+      },
+      {
+        week_start: "2026-03-08",
+        active_students: 95,
+        lessons_viewed: 310,
+        quiz_attempts: 200,
+        avg_score_pct: "76.2",
+        first_attempt_pass_rate_pct: "70.5",
+      },
+      {
+        week_start: "2026-03-15",
+        active_students: 88,
+        lessons_viewed: 265,
+        quiz_attempts: 175,
+        avg_score_pct: "72.8",
+        first_attempt_pass_rate_pct: "66.2",
+      },
     ];
     const csv = Papa.unparse(rows);
     const lines = csv.trim().split("\n");
@@ -101,9 +122,7 @@ describe("CSV export — papaparse unparse", () => {
   });
 
   it("handles null/undefined gracefully", () => {
-    const rows = [
-      { unit_id: "U1", unit_name: null, avg_rating: undefined },
-    ];
+    const rows = [{ unit_id: "U1", unit_name: null, avg_rating: undefined }];
     // papaparse should not throw on null/undefined values
     expect(() => Papa.unparse(rows as Parameters<typeof Papa.unparse>[0])).not.toThrow();
   });

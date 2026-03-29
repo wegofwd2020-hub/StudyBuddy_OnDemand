@@ -32,7 +32,11 @@ vi.mock("@tanstack/react-query", async (importOriginal) => {
 describe("ADM-55 — Health page heading renders", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockUseQuery.mockReturnValue({ data: MOCK_HEALTH_OK, isLoading: false, dataUpdatedAt: Date.now() });
+    mockUseQuery.mockReturnValue({
+      data: MOCK_HEALTH_OK,
+      isLoading: false,
+      dataUpdatedAt: Date.now(),
+    });
   });
 
   it("renders 'System Health' heading", () => {
@@ -50,7 +54,11 @@ describe("ADM-55 — Health page heading renders", () => {
 describe("ADM-56 — PostgreSQL service row renders", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockUseQuery.mockReturnValue({ data: MOCK_HEALTH_OK, isLoading: false, dataUpdatedAt: Date.now() });
+    mockUseQuery.mockReturnValue({
+      data: MOCK_HEALTH_OK,
+      isLoading: false,
+      dataUpdatedAt: Date.now(),
+    });
   });
 
   it("renders the PostgreSQL row", () => {
@@ -66,7 +74,11 @@ describe("ADM-56 — PostgreSQL service row renders", () => {
 describe("ADM-57 — Redis service row renders", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockUseQuery.mockReturnValue({ data: MOCK_HEALTH_OK, isLoading: false, dataUpdatedAt: Date.now() });
+    mockUseQuery.mockReturnValue({
+      data: MOCK_HEALTH_OK,
+      isLoading: false,
+      dataUpdatedAt: Date.now(),
+    });
   });
 
   it("renders the Redis row", () => {
@@ -82,7 +94,11 @@ describe("ADM-57 — Redis service row renders", () => {
 describe("ADM-58 — All-ok green banner", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockUseQuery.mockReturnValue({ data: MOCK_HEALTH_OK, isLoading: false, dataUpdatedAt: Date.now() });
+    mockUseQuery.mockReturnValue({
+      data: MOCK_HEALTH_OK,
+      isLoading: false,
+      dataUpdatedAt: Date.now(),
+    });
   });
 
   it("shows 'All systems operational' when both services are ok", () => {
@@ -104,7 +120,11 @@ describe("ADM-58 — All-ok green banner", () => {
 describe("ADM-59 — Degraded red banner", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockUseQuery.mockReturnValue({ data: MOCK_HEALTH_DEGRADED, isLoading: false, dataUpdatedAt: Date.now() });
+    mockUseQuery.mockReturnValue({
+      data: MOCK_HEALTH_DEGRADED,
+      isLoading: false,
+      dataUpdatedAt: Date.now(),
+    });
   });
 
   it("shows 'One or more systems degraded' when a service is down", () => {
@@ -126,7 +146,11 @@ describe("ADM-59 — Degraded red banner", () => {
 describe("ADM-61 — Page always polls (refetchInterval always set)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockUseQuery.mockReturnValue({ data: MOCK_HEALTH_OK, isLoading: false, dataUpdatedAt: Date.now() });
+    mockUseQuery.mockReturnValue({
+      data: MOCK_HEALTH_OK,
+      isLoading: false,
+      dataUpdatedAt: Date.now(),
+    });
   });
 
   it("useQuery is called with refetchInterval=10000", () => {

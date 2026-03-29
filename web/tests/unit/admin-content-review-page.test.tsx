@@ -70,32 +70,44 @@ describe("ADM-32 — Status filter tabs render", () => {
 
   it("renders 'pending' tab", () => {
     render(<AdminContentReviewPage />);
-    expect(screen.getByRole("button", { name: REVIEW_QUEUE_STRINGS.tabPending })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: REVIEW_QUEUE_STRINGS.tabPending }),
+    ).toBeInTheDocument();
   });
 
   it("renders 'approved' tab", () => {
     render(<AdminContentReviewPage />);
-    expect(screen.getByRole("button", { name: REVIEW_QUEUE_STRINGS.tabApproved })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: REVIEW_QUEUE_STRINGS.tabApproved }),
+    ).toBeInTheDocument();
   });
 
   it("renders 'published' tab", () => {
     render(<AdminContentReviewPage />);
-    expect(screen.getByRole("button", { name: REVIEW_QUEUE_STRINGS.tabPublished })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: REVIEW_QUEUE_STRINGS.tabPublished }),
+    ).toBeInTheDocument();
   });
 
   it("renders 'rejected' tab", () => {
     render(<AdminContentReviewPage />);
-    expect(screen.getByRole("button", { name: REVIEW_QUEUE_STRINGS.tabRejected })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: REVIEW_QUEUE_STRINGS.tabRejected }),
+    ).toBeInTheDocument();
   });
 
   it("renders 'blocked' tab", () => {
     render(<AdminContentReviewPage />);
-    expect(screen.getByRole("button", { name: REVIEW_QUEUE_STRINGS.tabBlocked })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: REVIEW_QUEUE_STRINGS.tabBlocked }),
+    ).toBeInTheDocument();
   });
 
   it("renders 'All' tab", () => {
     render(<AdminContentReviewPage />);
-    expect(screen.getByRole("button", { name: REVIEW_QUEUE_STRINGS.tabAll })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: REVIEW_QUEUE_STRINGS.tabAll }),
+    ).toBeInTheDocument();
   });
 });
 
@@ -111,7 +123,9 @@ describe("ADM-33 — Filter tab click updates the query", () => {
 
   it("clicking 'approved' tab triggers query with approved status", async () => {
     render(<AdminContentReviewPage />);
-    fireEvent.click(screen.getByRole("button", { name: REVIEW_QUEUE_STRINGS.tabApproved }));
+    fireEvent.click(
+      screen.getByRole("button", { name: REVIEW_QUEUE_STRINGS.tabApproved }),
+    );
     await waitFor(() => {
       const lastCall = mockUseQuery.mock.calls.at(-1)?.[0];
       expect(lastCall?.queryKey).toContain("approved");
@@ -137,7 +151,9 @@ describe("ADM-34 — Review link navigates to detail", () => {
 
   it("Review link href contains version_id", () => {
     render(<AdminContentReviewPage />);
-    const link = screen.getAllByRole("link", { name: REVIEW_QUEUE_STRINGS.reviewLink })[0];
+    const link = screen.getAllByRole("link", {
+      name: REVIEW_QUEUE_STRINGS.reviewLink,
+    })[0];
     expect(link).toHaveAttribute(
       "href",
       `/admin/content-review/${MOCK_QUEUE.items[0].version_id}`,

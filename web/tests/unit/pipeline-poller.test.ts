@@ -69,18 +69,39 @@ describe("getPipelineStatus", () => {
 
 describe("progress_pct logic", () => {
   it("is 0 when queued", () => {
-    const job: PipelineJobStatus = { job_id: "j", status: "queued", built: 0, failed: 0, total: 10, progress_pct: 0 };
+    const job: PipelineJobStatus = {
+      job_id: "j",
+      status: "queued",
+      built: 0,
+      failed: 0,
+      total: 10,
+      progress_pct: 0,
+    };
     expect(job.progress_pct).toBe(0);
   });
 
   it("is between 0 and 100 when running", () => {
-    const job: PipelineJobStatus = { job_id: "j", status: "running", built: 5, failed: 0, total: 10, progress_pct: 50 };
+    const job: PipelineJobStatus = {
+      job_id: "j",
+      status: "running",
+      built: 5,
+      failed: 0,
+      total: 10,
+      progress_pct: 50,
+    };
     expect(job.progress_pct).toBeGreaterThan(0);
     expect(job.progress_pct).toBeLessThan(100);
   });
 
   it("is 100 when done", () => {
-    const job: PipelineJobStatus = { job_id: "j", status: "done", built: 10, failed: 0, total: 10, progress_pct: 100 };
+    const job: PipelineJobStatus = {
+      job_id: "j",
+      status: "done",
+      built: 10,
+      failed: 0,
+      total: 10,
+      progress_pct: 100,
+    };
     expect(job.progress_pct).toBe(100);
   });
 });

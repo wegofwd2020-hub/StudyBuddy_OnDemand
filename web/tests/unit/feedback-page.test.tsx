@@ -45,8 +45,8 @@ describe("SCH-16 — Feedback report renders", () => {
   it("renders total feedback count", () => {
     const { container } = render(<FeedbackReportPage />);
     // count + " total" is split across nested spans — check textContent
-    const match = Array.from(container.querySelectorAll("span")).find(
-      (el) => el.textContent?.match(/\d+ total/),
+    const match = Array.from(container.querySelectorAll("span")).find((el) =>
+      el.textContent?.match(/\d+ total/),
     );
     expect(match).toBeTruthy();
   });

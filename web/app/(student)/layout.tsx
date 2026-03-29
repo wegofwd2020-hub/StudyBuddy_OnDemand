@@ -7,11 +7,7 @@ import { TrialBanner } from "@/components/student/TrialBanner";
 import { PortalHeader } from "@/components/layout/PortalHeader";
 import { PortalFooter } from "@/components/layout/PortalFooter";
 
-export default async function StudentLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function StudentLayout({ children }: { children: React.ReactNode }) {
   const session = (await auth0.getSession()) ?? (await getDevSession());
 
   if (!session) {

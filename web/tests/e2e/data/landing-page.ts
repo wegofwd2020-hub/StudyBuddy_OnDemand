@@ -35,11 +35,13 @@ export const HERO = {
 export const FEATURES: ReadonlyArray<{ title: string; description: string }> = [
   {
     title: "Instant content",
-    description: "Pre-generated lessons and quizzes load in milliseconds — no AI wait time.",
+    description:
+      "Pre-generated lessons and quizzes load in milliseconds — no AI wait time.",
   },
   {
     title: "Audio lessons",
-    description: "Every lesson has a narrated audio version. Learn by reading or listening.",
+    description:
+      "Every lesson has a narrated audio version. Learn by reading or listening.",
   },
   {
     title: "English, French & Spanish",
@@ -47,7 +49,8 @@ export const FEATURES: ReadonlyArray<{ title: string; description: string }> = [
   },
   {
     title: "Works offline",
-    description: "Downloaded content is available without internet. Progress syncs automatically.",
+    description:
+      "Downloaded content is available without internet. Progress syncs automatically.",
   },
   {
     title: "Lab experiments",
@@ -71,7 +74,8 @@ export const TESTIMONIALS: ReadonlyArray<{ quote: string; author: string }> = [
     author: "Maria T., Parent",
   },
   {
-    quote: "The audio lessons are a game-changer for my students with reading difficulties.",
+    quote:
+      "The audio lessons are a game-changer for my students with reading difficulties.",
     author: "James K., Grade 8 Teacher",
   },
   {

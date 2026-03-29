@@ -118,8 +118,6 @@ describe("ADM-09 — Pipeline section renders", () => {
   it("shows correct total job count", () => {
     render(<AdminDashboardPage />);
     // 2 jobs total
-    expect(
-      screen.getByText(String(MOCK_PIPELINE_JOBS.jobs.length)),
-    ).toBeInTheDocument();
+    expect(screen.getByText(String(MOCK_PIPELINE_JOBS.jobs.length))).toBeInTheDocument();
   });
 });

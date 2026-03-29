@@ -18,7 +18,9 @@ import {
 // Page load
 // ---------------------------------------------------------------------------
 
-test("page loads at /school/login with correct heading and subtitle", async ({ page }) => {
+test("page loads at /school/login with correct heading and subtitle", async ({
+  page,
+}) => {
   await page.goto(PAGE.url);
 
   await expect(page.getByText(PAGE.title)).toBeVisible();
@@ -46,7 +48,9 @@ test("PUB-19 — school sign-in link renders and points to Auth0 school endpoint
 // PUB-20 — "Student login" link navigates to /login
 // ---------------------------------------------------------------------------
 
-test("PUB-20 — 'Student login' link is visible and navigates to /login", async ({ page }) => {
+test("PUB-20 — 'Student login' link is visible and navigates to /login", async ({
+  page,
+}) => {
   await page.goto(PAGE.url);
 
   const link = page.getByRole("link", { name: STUDENT_LOGIN_LINK.text });
@@ -60,7 +64,9 @@ test("PUB-20 — 'Student login' link is visible and navigates to /login", async
 // PUB-21 — "Contact us" link navigates to /contact
 // ---------------------------------------------------------------------------
 
-test("PUB-21 — 'Contact us' link is visible and navigates to /contact", async ({ page }) => {
+test("PUB-21 — 'Contact us' link is visible and navigates to /contact", async ({
+  page,
+}) => {
   await page.goto(PAGE.url);
 
   const link = page.getByRole("link", { name: CONTACT_LINK.text });

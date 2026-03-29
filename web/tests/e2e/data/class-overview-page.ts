@@ -17,7 +17,7 @@ import type { ClassMetricsResponse } from "@/lib/api/reports";
 
 export const MOCK_TEACHER = {
   teacher_id: "teacher-001",
-  school_id:  "school-001",
+  school_id: "school-001",
   role: "teacher" as const,
 };
 
@@ -27,44 +27,44 @@ export const MOCK_TEACHER = {
 
 export const MOCK_CLASS_METRICS: ClassMetricsResponse = {
   school_id: "school-001",
-  grade:     null,
-  subject:   null,
+  grade: null,
+  subject: null,
   students: [
     {
-      student_id:      "stu-001",
-      student_name:    "Alice Chen",
-      grade:           8,
+      student_id: "stu-001",
+      student_name: "Alice Chen",
+      grade: 8,
       units_completed: 6,
-      total_units:     10,
-      avg_score_pct:   84.0,
-      last_active:     "2026-03-27T10:00:00Z",
+      total_units: 10,
+      avg_score_pct: 84.0,
+      last_active: "2026-03-27T10:00:00Z",
     },
     {
-      student_id:      "stu-002",
-      student_name:    "Ben Okafor",
-      grade:           8,
+      student_id: "stu-002",
+      student_name: "Ben Okafor",
+      grade: 8,
       units_completed: 3,
-      total_units:     10,
-      avg_score_pct:   55.0,
-      last_active:     "2026-03-25T09:00:00Z",
+      total_units: 10,
+      avg_score_pct: 55.0,
+      last_active: "2026-03-25T09:00:00Z",
     },
     {
-      student_id:      "stu-003",
-      student_name:    "Chloe Martin",
-      grade:           7,
+      student_id: "stu-003",
+      student_name: "Chloe Martin",
+      grade: 7,
       units_completed: 8,
-      total_units:     10,
-      avg_score_pct:   91.0,
-      last_active:     "2026-03-28T08:30:00Z",
+      total_units: 10,
+      avg_score_pct: 91.0,
+      last_active: "2026-03-28T08:30:00Z",
     },
     {
-      student_id:      "stu-004",
-      student_name:    "David Lee",
-      grade:           8,
+      student_id: "stu-004",
+      student_name: "David Lee",
+      grade: 8,
       units_completed: 0,
-      total_units:     10,
-      avg_score_pct:   0.0,
-      last_active:     null,
+      total_units: 10,
+      avg_score_pct: 0.0,
+      last_active: null,
     },
   ],
 };
@@ -75,9 +75,9 @@ export const MOCK_CLASS_METRICS: ClassMetricsResponse = {
 
 export const MOCK_CLASS_METRICS_EMPTY: ClassMetricsResponse = {
   school_id: "school-001",
-  grade:     null,
-  subject:   null,
-  students:  [],
+  grade: null,
+  subject: null,
+  students: [],
 };
 
 // ---------------------------------------------------------------------------
@@ -85,17 +85,17 @@ export const MOCK_CLASS_METRICS_EMPTY: ClassMetricsResponse = {
 // ---------------------------------------------------------------------------
 
 export const CLASS_STRINGS = {
-  pageHeading:   "Class Overview",
-  detailBtn:     "Detail",
-  noStudents:    "No students found.",
-  gradeAll:      "All",
+  pageHeading: "Class Overview",
+  detailBtn: "Detail",
+  noStudents: "No students found.",
+  gradeAll: "All",
   // Table column headers
-  colStudent:    "Student",
-  colGrade:      "Grade",
-  colUnitsDone:  "Units done",
-  colAvgScore:   "Avg score",
+  colStudent: "Student",
+  colGrade: "Grade",
+  colUnitsDone: "Units done",
+  colAvgScore: "Avg score",
   colLastActive: "Last active",
-  neverActive:   "Never",
+  neverActive: "Never",
 } as const;
 
 // ---------------------------------------------------------------------------

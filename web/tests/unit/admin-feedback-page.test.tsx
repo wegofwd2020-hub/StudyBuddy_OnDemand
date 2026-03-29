@@ -33,7 +33,7 @@ vi.mock("@tanstack/react-query", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@tanstack/react-query")>();
   return {
     ...actual,
-    useQuery:       vi.fn((opts) => mockUseQuery(opts)),
+    useQuery: vi.fn((opts) => mockUseQuery(opts)),
     useQueryClient: vi.fn(() => ({ invalidateQueries: mockInvalidateQueries })),
   };
 });
@@ -43,7 +43,7 @@ vi.mock("@/lib/api/admin", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/api/admin")>();
   return {
     ...actual,
-    resolveFeedback:  (...args: unknown[]) => mockResolveFeedback(...args),
+    resolveFeedback: (...args: unknown[]) => mockResolveFeedback(...args),
   };
 });
 
@@ -72,7 +72,9 @@ describe("ADM-50 — Feedback page renders for product_admin", () => {
 
   it("renders Resolve button for open feedback", () => {
     render(<AdminFeedbackPage />);
-    const resolveBtns = screen.getAllByRole("button", { name: FEEDBACK_STRINGS.resolveBtn });
+    const resolveBtns = screen.getAllByRole("button", {
+      name: FEEDBACK_STRINGS.resolveBtn,
+    });
     expect(resolveBtns.length).toBe(MOCK_FEEDBACK_OPEN.items.length);
   });
 });
@@ -95,9 +97,7 @@ describe("ADM-51 — Access denied for developer", () => {
 
   it("does NOT render feedback items for developer role", () => {
     render(<AdminFeedbackPage />);
-    expect(
-      screen.queryByText(MOCK_FEEDBACK_OPEN.items[0].unit_title),
-    ).toBeNull();
+    expect(screen.queryByText(MOCK_FEEDBACK_OPEN.items[0].unit_title)).toBeNull();
   });
 });
 
@@ -137,7 +137,9 @@ describe("ADM-53 — Resolve action calls API", () => {
 
   it("calls resolveFeedback with correct feedback_id", async () => {
     render(<AdminFeedbackPage />);
-    fireEvent.click(screen.getAllByRole("button", { name: FEEDBACK_STRINGS.resolveBtn })[0]);
+    fireEvent.click(
+      screen.getAllByRole("button", { name: FEEDBACK_STRINGS.resolveBtn })[0],
+    );
     await waitFor(() =>
       expect(mockResolveFeedback).toHaveBeenCalledWith(
         MOCK_FEEDBACK_OPEN.items[0].feedback_id,
@@ -147,7 +149,9 @@ describe("ADM-53 — Resolve action calls API", () => {
 
   it("invalidates the feedback query after resolve", async () => {
     render(<AdminFeedbackPage />);
-    fireEvent.click(screen.getAllByRole("button", { name: FEEDBACK_STRINGS.resolveBtn })[0]);
+    fireEvent.click(
+      screen.getAllByRole("button", { name: FEEDBACK_STRINGS.resolveBtn })[0],
+    );
     await waitFor(() => expect(mockInvalidateQueries).toHaveBeenCalledTimes(1));
   });
 });
@@ -172,9 +176,7 @@ describe("ADM-54 — Pagination Next/Previous", () => {
 
   it("Previous button is disabled on page 1", () => {
     render(<AdminFeedbackPage />);
-    expect(
-      screen.getByRole("button", { name: FEEDBACK_STRINGS.prevBtn }),
-    ).toBeDisabled();
+    expect(screen.getByRole("button", { name: FEEDBACK_STRINGS.prevBtn })).toBeDisabled();
   });
 
   it("clicking Next triggers query with page=2", async () => {

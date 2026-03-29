@@ -81,18 +81,22 @@ export const MOCK_AUDIO_URL_RESPONSE: AudioUrlResponse = {
 // ---------------------------------------------------------------------------
 
 export const LESSON_STRINGS = {
-  takeQuizBtn:  "Take Quiz",
-  tutorialBtn:  "Tutorial",
-  keyPoints:    "Key Points",
+  takeQuizBtn: "Take Quiz",
+  tutorialBtn: "Tutorial",
+  keyPoints: "Key Points",
   errorMessage: "Could not load lesson. Please try again.",
-  playAudio:    "Play audio",
-  pauseAudio:   "Pause audio",
-  audioProgress:"Audio progress",
+  playAudio: "Play audio",
+  pauseAudio: "Pause audio",
+  audioProgress: "Audio progress",
 } as const;
 
 // ---------------------------------------------------------------------------
 // STU-17 — CTA href helpers
 // ---------------------------------------------------------------------------
 
-export function quizHref(unitId: string)     { return `/quiz/${unitId}`; }
-export function tutorialHref(unitId: string) { return `/tutorial/${unitId}`; }
+export function quizHref(unitId: string) {
+  return `/quiz/${unitId}`;
+}
+export function tutorialHref(unitId: string) {
+  return `/tutorial/${unitId}`;
+}

@@ -15,13 +15,13 @@
 // ---------------------------------------------------------------------------
 
 export const PAYWALL_STRINGS = {
-  title:           "title",
-  paywallMsg:      "paywall_msg",
-  subscribeBtn:    "subscribe_btn",
-  annualSavings:   "annual_savings",
+  title: "title",
+  paywallMsg: "paywall_msg",
+  subscribeBtn: "subscribe_btn",
+  annualSavings: "annual_savings",
   backToDashboard: "Back to Dashboard",
-  monthlyPrice:    "$9.99/month",
-  annualPrice:     "$99.99/year",
+  monthlyPrice: "$9.99/month",
+  annualPrice: "$99.99/year",
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -29,6 +29,6 @@ export const PAYWALL_STRINGS = {
 // ---------------------------------------------------------------------------
 
 export const PAYWALL_HREFS = {
-  upgradeHref:   "/account/subscription",
+  upgradeHref: "/account/subscription",
   dashboardHref: "/dashboard",
 } as const;

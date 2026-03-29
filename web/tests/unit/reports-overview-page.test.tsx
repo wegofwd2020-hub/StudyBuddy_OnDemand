@@ -62,9 +62,15 @@ describe("SCH-09 — Overview report KPI cards render", () => {
 
   it("renders all period toggle buttons", () => {
     render(<OverviewReportPage />);
-    expect(screen.getByRole("button", { name: OVERVIEW_STRINGS.period7d })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: OVERVIEW_STRINGS.period30d })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: OVERVIEW_STRINGS.periodTerm })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: OVERVIEW_STRINGS.period7d }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: OVERVIEW_STRINGS.period30d }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: OVERVIEW_STRINGS.periodTerm }),
+    ).toBeInTheDocument();
   });
 
   it("renders Enrolled KPI label", () => {
@@ -74,7 +80,9 @@ describe("SCH-09 — Overview report KPI cards render", () => {
 
   it("renders Enrolled student count", () => {
     render(<OverviewReportPage />);
-    expect(screen.getByText(String(MOCK_OVERVIEW_REPORT.enrolled_students))).toBeInTheDocument();
+    expect(
+      screen.getByText(String(MOCK_OVERVIEW_REPORT.enrolled_students)),
+    ).toBeInTheDocument();
   });
 
   it("renders Active KPI label", () => {
@@ -103,7 +111,9 @@ describe("SCH-09 — Overview report KPI cards render", () => {
 
   it("renders lessons viewed value", () => {
     render(<OverviewReportPage />);
-    expect(screen.getByText(String(MOCK_OVERVIEW_REPORT.lessons_viewed))).toBeInTheDocument();
+    expect(
+      screen.getByText(String(MOCK_OVERVIEW_REPORT.lessons_viewed)),
+    ).toBeInTheDocument();
   });
 
   it("renders Quiz attempts KPI label", () => {
@@ -120,7 +130,9 @@ describe("SCH-09 — Overview report KPI cards render", () => {
     const { container } = render(<OverviewReportPage />);
     const greenVal = container.querySelector("p.text-green-600");
     expect(greenVal).toBeTruthy();
-    expect(greenVal!.textContent).toBe(`${MOCK_OVERVIEW_REPORT.first_attempt_pass_rate_pct.toFixed(0)}%`);
+    expect(greenVal!.textContent).toBe(
+      `${MOCK_OVERVIEW_REPORT.first_attempt_pass_rate_pct.toFixed(0)}%`,
+    );
   });
 
   it("renders pass rate value as red when <60%", () => {
@@ -128,7 +140,9 @@ describe("SCH-09 — Overview report KPI cards render", () => {
     const { container } = render(<OverviewReportPage />);
     const redVal = container.querySelector("p.text-red-500");
     expect(redVal).toBeTruthy();
-    expect(redVal!.textContent).toBe(`${MOCK_OVERVIEW_LOW_PASS.first_attempt_pass_rate_pct.toFixed(0)}%`);
+    expect(redVal!.textContent).toBe(
+      `${MOCK_OVERVIEW_LOW_PASS.first_attempt_pass_rate_pct.toFixed(0)}%`,
+    );
   });
 
   it("renders Audio play rate KPI label", () => {
@@ -209,16 +223,16 @@ describe("SCH-10 — Reports sub-nav renders", () => {
 
   it("Trends sub-nav link has correct href", () => {
     render(<SchoolNav />);
-    expect(
-      screen.getByRole("link", { name: "Trends" }).getAttribute("href"),
-    ).toBe(REPORT_SUBNAV_HREFS.trends);
+    expect(screen.getByRole("link", { name: "Trends" }).getAttribute("href")).toBe(
+      REPORT_SUBNAV_HREFS.trends,
+    );
   });
 
   it("At-Risk sub-nav link has correct href", () => {
     render(<SchoolNav />);
-    expect(
-      screen.getByRole("link", { name: "At-Risk" }).getAttribute("href"),
-    ).toBe(REPORT_SUBNAV_HREFS.atRisk);
+    expect(screen.getByRole("link", { name: "At-Risk" }).getAttribute("href")).toBe(
+      REPORT_SUBNAV_HREFS.atRisk,
+    );
   });
 
   it("Unit Performance sub-nav link has correct href", () => {
@@ -230,23 +244,23 @@ describe("SCH-10 — Reports sub-nav renders", () => {
 
   it("Engagement sub-nav link has correct href", () => {
     render(<SchoolNav />);
-    expect(
-      screen.getByRole("link", { name: "Engagement" }).getAttribute("href"),
-    ).toBe(REPORT_SUBNAV_HREFS.engagement);
+    expect(screen.getByRole("link", { name: "Engagement" }).getAttribute("href")).toBe(
+      REPORT_SUBNAV_HREFS.engagement,
+    );
   });
 
   it("Feedback sub-nav link has correct href", () => {
     render(<SchoolNav />);
-    expect(
-      screen.getByRole("link", { name: "Feedback" }).getAttribute("href"),
-    ).toBe(REPORT_SUBNAV_HREFS.feedback);
+    expect(screen.getByRole("link", { name: "Feedback" }).getAttribute("href")).toBe(
+      REPORT_SUBNAV_HREFS.feedback,
+    );
   });
 
   it("Export CSV sub-nav link has correct href", () => {
     render(<SchoolNav />);
-    expect(
-      screen.getByRole("link", { name: "Export CSV" }).getAttribute("href"),
-    ).toBe(REPORT_SUBNAV_HREFS.exportCsv);
+    expect(screen.getByRole("link", { name: "Export CSV" }).getAttribute("href")).toBe(
+      REPORT_SUBNAV_HREFS.exportCsv,
+    );
   });
 
   it("sub-nav is NOT rendered when not on a reports route", async () => {

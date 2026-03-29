@@ -90,9 +90,9 @@ export const MOCK_PROGRESS_EMPTY: ProgressHistory = {
 // ---------------------------------------------------------------------------
 
 export const QUICK_ACTIONS: ReadonlyArray<{ label: string; href: string }> = [
-  { label: "Browse Subjects", href: "/subjects"    }, // STU-05
-  { label: "Curriculum Map",  href: "/curriculum"  }, // STU-06
-  { label: "View Progress",   href: "/progress"    }, // STU-07
+  { label: "Browse Subjects", href: "/subjects" }, // STU-05
+  { label: "Curriculum Map", href: "/curriculum" }, // STU-06
+  { label: "View Progress", href: "/progress" }, // STU-07
 ];
 
 // ---------------------------------------------------------------------------
@@ -100,11 +100,12 @@ export const QUICK_ACTIONS: ReadonlyArray<{ label: string; href: string }> = [
 // ---------------------------------------------------------------------------
 
 export const DASHBOARD_STRINGS = {
-  title:          "Dashboard",
-  noActivity:     "No recent activity",
-  continueBtn:    "Continue Learning",
-  recentHeading:  "Recent Activity",
-  offlineAlert:   "No internet connection. Your progress will sync when you're back online.",
+  title: "Dashboard",
+  noActivity: "No recent activity",
+  continueBtn: "Continue Learning",
+  recentHeading: "Recent Activity",
+  offlineAlert:
+    "No internet connection. Your progress will sync when you're back online.",
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -113,5 +114,5 @@ export const DASHBOARD_STRINGS = {
 
 export const API_ROUTES = {
   progressHistory: "**/api/v1/progress/history*",
-  studentStats:    "**/api/v1/analytics/student*",
+  studentStats: "**/api/v1/analytics/student*",
 } as const;

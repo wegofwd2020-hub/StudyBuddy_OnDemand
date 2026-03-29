@@ -6,11 +6,7 @@ import { QueryProvider } from "@/lib/providers/QueryProvider";
 import { PortalHeader } from "@/components/layout/PortalHeader";
 import { PortalFooter } from "@/components/layout/PortalFooter";
 
-export default async function SchoolLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function SchoolLayout({ children }: { children: React.ReactNode }) {
   const session = (await auth0.getSession()) ?? (await getDevSession());
 
   if (!session) {

@@ -22,23 +22,23 @@ export const MOCK_FEEDBACK_OPEN: FeedbackListResponse = {
   items: [
     {
       feedback_id: "fb-001",
-      student_id:  "stu-001",
-      unit_id:     "unit-001",
-      unit_title:  "Algebra Basics",
-      rating:      3,
-      comment:     "Hard to follow",
+      student_id: "stu-001",
+      unit_id: "unit-001",
+      unit_title: "Algebra Basics",
+      rating: 3,
+      comment: "Hard to follow",
       submitted_at: "2026-03-28T09:00:00Z",
-      resolved:    false,
+      resolved: false,
     },
     {
       feedback_id: "fb-002",
-      student_id:  "stu-002",
-      unit_id:     "unit-002",
-      unit_title:  "Photosynthesis",
-      rating:      5,
-      comment:     "Great lesson!",
+      student_id: "stu-002",
+      unit_id: "unit-002",
+      unit_title: "Photosynthesis",
+      rating: 5,
+      comment: "Great lesson!",
       submitted_at: "2026-03-27T09:00:00Z",
-      resolved:    false,
+      resolved: false,
     },
   ],
 };
@@ -50,13 +50,13 @@ export const MOCK_FEEDBACK_RESOLVED: FeedbackListResponse = {
   items: [
     {
       feedback_id: "fb-003",
-      student_id:  "stu-003",
-      unit_id:     "unit-001",
-      unit_title:  "Algebra Basics",
-      rating:      2,
-      comment:     "Too fast",
+      student_id: "stu-003",
+      unit_id: "unit-001",
+      unit_title: "Algebra Basics",
+      rating: 2,
+      comment: "Too fast",
       submitted_at: "2026-03-26T09:00:00Z",
-      resolved:    true,
+      resolved: true,
     },
   ],
 };
@@ -68,26 +68,26 @@ export const MOCK_FEEDBACK_PAGE1: FeedbackListResponse = {
   page_size: 20,
   items: Array.from({ length: 20 }, (_, i) => ({
     feedback_id: `fb-p${i}`,
-    student_id:  `stu-${i}`,
-    unit_id:     "unit-001",
-    unit_title:  "Algebra Basics",
-    rating:      4,
-    comment:     null,
+    student_id: `stu-${i}`,
+    unit_id: "unit-001",
+    unit_title: "Algebra Basics",
+    rating: 4,
+    comment: null,
     submitted_at: "2026-03-28T09:00:00Z",
-    resolved:    false,
+    resolved: false,
   })),
 };
 
 export const FEEDBACK_STRINGS = {
-  pageHeading:   "Student Feedback",
+  pageHeading: "Student Feedback",
   // Tabs
-  tabOpen:       "Open",
-  tabResolved:   "Resolved",
+  tabOpen: "Open",
+  tabResolved: "Resolved",
   // Resolve button
-  resolveBtn:    "Resolve",
+  resolveBtn: "Resolve",
   // Pagination
-  nextBtn:       "Next",
-  prevBtn:       "Previous",
+  nextBtn: "Next",
+  prevBtn: "Previous",
   // Access denied
-  accessDenied:  "Access denied",
+  accessDenied: "Access denied",
 } as const;

@@ -12,11 +12,7 @@
  *   POST /api/v1/progress/session/end       → MOCK_SESSION_END_PASSED | MOCK_SESSION_END_FAILED
  */
 
-import type {
-  QuizContent,
-  AnswerResponse,
-  SessionEndResponse,
-} from "@/lib/types/api";
+import type { QuizContent, AnswerResponse, SessionEndResponse } from "@/lib/types/api";
 
 // ---------------------------------------------------------------------------
 // Mock quiz — 3 questions, correct_index varies (STU-19..STU-23)
@@ -32,7 +28,8 @@ export const MOCK_QUIZ: QuizContent = {
       question: "What is the basic unit of all living organisms?",
       options: ["Atom", "Cell", "Tissue", "Organ"],
       correct_index: 1,
-      explanation: "The cell is the basic structural and functional unit of all living organisms.",
+      explanation:
+        "The cell is the basic structural and functional unit of all living organisms.",
     },
     {
       index: 1,
@@ -46,7 +43,8 @@ export const MOCK_QUIZ: QuizContent = {
       question: "What do mitochondria produce?",
       options: ["Protein", "DNA", "ATP (energy)", "Cell membrane"],
       correct_index: 2,
-      explanation: "Mitochondria are the powerhouse of the cell, producing ATP through cellular respiration.",
+      explanation:
+        "Mitochondria are the powerhouse of the cell, producing ATP through cellular respiration.",
     },
   ],
 };
@@ -63,12 +61,14 @@ export const MOCK_SESSION_ID = "sess-test-001";
 
 export const MOCK_ANSWER_CORRECT: AnswerResponse = {
   correct: true,
-  explanation: "The cell is the basic structural and functional unit of all living organisms.",
+  explanation:
+    "The cell is the basic structural and functional unit of all living organisms.",
 };
 
 export const MOCK_ANSWER_WRONG: AnswerResponse = {
   correct: false,
-  explanation: "The cell is the basic structural and functional unit of all living organisms.",
+  explanation:
+    "The cell is the basic structural and functional unit of all living organisms.",
 };
 
 // ---------------------------------------------------------------------------
@@ -94,11 +94,11 @@ export const MOCK_SESSION_END_FAILED: SessionEndResponse = {
 // ---------------------------------------------------------------------------
 
 export const QUIZ_STRINGS = {
-  submitBtn:     "Submit answer",
-  nextBtn:       "Next question",
+  submitBtn: "Submit answer",
+  nextBtn: "Next question",
   seeResultsBtn: "See results",
   passedHeading: "passed_heading",
   tryAgainHeading: "try_again_heading",
   backToCurriculum: "back_to_curriculum_btn",
-  tryAgainBtn:   "try_again_btn",
+  tryAgainBtn: "try_again_btn",
 } as const;

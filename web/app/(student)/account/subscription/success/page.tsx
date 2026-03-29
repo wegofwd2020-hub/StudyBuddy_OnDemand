@@ -15,15 +15,15 @@ export default function SubscriptionSuccessPage() {
   }, [qc]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] p-6 text-center">
-      <div className="space-y-4 max-w-sm">
-        <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
+    <div className="flex min-h-[60vh] flex-col items-center justify-center p-6 text-center">
+      <div className="max-w-sm space-y-4">
+        <CheckCircle className="mx-auto h-16 w-16 text-green-500" />
         <h1 className="text-2xl font-bold text-gray-900">You&apos;re subscribed!</h1>
         <p className="text-gray-600">
-          Welcome to StudyBuddy OnDemand. You now have full access to all lessons, quizzes,
-          and offline content.
+          Welcome to StudyBuddy OnDemand. You now have full access to all lessons,
+          quizzes, and offline content.
         </p>
-        <div className="flex flex-col sm:flex-row gap-2 justify-center pt-2">
+        <div className="flex flex-col justify-center gap-2 pt-2 sm:flex-row">
           <LinkButton href="/dashboard">Go to dashboard</LinkButton>
           <LinkButton href="/subjects" variant="outline">
             Browse subjects

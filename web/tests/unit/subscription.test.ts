@@ -87,7 +87,9 @@ describe("getSubscriptionStatus", () => {
 
 describe("createCheckout", () => {
   it("posts plan and billing_period, returns checkout_url", async () => {
-    mockPost.mockResolvedValueOnce({ data: { checkout_url: "https://checkout.stripe.com/abc" } });
+    mockPost.mockResolvedValueOnce({
+      data: { checkout_url: "https://checkout.stripe.com/abc" },
+    });
 
     const url = await createCheckout("student_monthly", "monthly");
     expect(url).toBe("https://checkout.stripe.com/abc");
@@ -100,7 +102,9 @@ describe("createCheckout", () => {
 
 describe("getBillingPortalUrl", () => {
   it("fetches and returns portal URL", async () => {
-    mockGet.mockResolvedValueOnce({ data: { url: "https://billing.stripe.com/session/xyz" } });
+    mockGet.mockResolvedValueOnce({
+      data: { url: "https://billing.stripe.com/session/xyz" },
+    });
 
     const url = await getBillingPortalUrl();
     expect(url).toBe("https://billing.stripe.com/session/xyz");

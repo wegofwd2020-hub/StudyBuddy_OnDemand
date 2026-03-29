@@ -36,12 +36,16 @@ vi.mock("@/components/student/OfflineBanner", () => ({
 
 // Recharts uses ResizeObserver — stub it for jsdom
 vi.mock("recharts", () => ({
-  BarChart: ({ children }: { children: React.ReactNode }) => <div data-testid="bar-chart">{children}</div>,
+  BarChart: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="bar-chart">{children}</div>
+  ),
   Bar: () => null,
   XAxis: () => null,
   YAxis: () => null,
   Tooltip: () => null,
-  ResponsiveContainer: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  ResponsiveContainer: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
   Cell: () => null,
 }));
 
@@ -88,9 +92,7 @@ describe("STU-31 — Stats page renders", () => {
 
   it("renders streak day count", () => {
     render(<StatsPage />);
-    expect(
-      screen.getByText(String(MOCK_STUDENT_STATS.streak_days)),
-    ).toBeInTheDocument();
+    expect(screen.getByText(String(MOCK_STUDENT_STATS.streak_days))).toBeInTheDocument();
   });
 
   it("renders lessons_viewed stat card label", () => {
@@ -149,7 +151,10 @@ describe("STU-31 — Stats page renders", () => {
   });
 
   it("does not render Subject Breakdown section when breakdown is empty", () => {
-    mockUseStudentStats.mockReturnValue({ data: MOCK_STUDENT_STATS_ZERO, isLoading: false });
+    mockUseStudentStats.mockReturnValue({
+      data: MOCK_STUDENT_STATS_ZERO,
+      isLoading: false,
+    });
     render(<StatsPage />);
     expect(
       screen.queryByRole("heading", { name: STATS_STRINGS.subjectBreakdown }),

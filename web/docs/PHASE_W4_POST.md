@@ -10,46 +10,46 @@
 
 ### Routes added (all under `/school/*`)
 
-| Route | Page | Req |
-|---|---|---|
-| `/school/dashboard` | KPI cards, alerts badge, quick links | T-01 |
-| `/school/class/[class_id]` | Sortable student completion table, grade filter | T-02 |
-| `/school/student/[student_id]` | Per-student stats + per-unit progress table | T-03 |
-| `/school/reports/overview` | 6 KPI cards + period selector + struggle/no-activity lists | T-04 |
-| `/school/reports/trends` | Two Recharts line charts + weekly data table | T-05 |
-| `/school/reports/at-risk` | Health tier summary + struggling/watch unit tables | T-06 |
-| `/school/reports/units` | Horizontal bar chart (color-coded by tier) + full table | T-07 |
-| `/school/reports/engagement` | Active %, audio rate, inactive students, zero-activity units | T-08 |
-| `/school/reports/feedback` | Per-unit feedback cards with star ratings + category badges | T-09 |
-| `/school/reports/export` | 3-report CSV export via papaparse (BOM-prefixed for Excel) | T-10 |
-| `/school/alerts` | Alert inbox with optimistic dismiss + acknowledged section | T-16 |
-| `/school/digest` | Digest subscription settings (email, timezone, enable toggle) | T-17 |
+| Route                          | Page                                                          | Req  |
+| ------------------------------ | ------------------------------------------------------------- | ---- |
+| `/school/dashboard`            | KPI cards, alerts badge, quick links                          | T-01 |
+| `/school/class/[class_id]`     | Sortable student completion table, grade filter               | T-02 |
+| `/school/student/[student_id]` | Per-student stats + per-unit progress table                   | T-03 |
+| `/school/reports/overview`     | 6 KPI cards + period selector + struggle/no-activity lists    | T-04 |
+| `/school/reports/trends`       | Two Recharts line charts + weekly data table                  | T-05 |
+| `/school/reports/at-risk`      | Health tier summary + struggling/watch unit tables            | T-06 |
+| `/school/reports/units`        | Horizontal bar chart (color-coded by tier) + full table       | T-07 |
+| `/school/reports/engagement`   | Active %, audio rate, inactive students, zero-activity units  | T-08 |
+| `/school/reports/feedback`     | Per-unit feedback cards with star ratings + category badges   | T-09 |
+| `/school/reports/export`       | 3-report CSV export via papaparse (BOM-prefixed for Excel)    | T-10 |
+| `/school/alerts`               | Alert inbox with optimistic dismiss + acknowledged section    | T-16 |
+| `/school/digest`               | Digest subscription settings (email, timezone, enable toggle) | T-17 |
 
 ### Components added
 
-| Component | Purpose |
-|---|---|
+| Component                         | Purpose                                            |
+| --------------------------------- | -------------------------------------------------- |
 | `components/layout/SchoolNav.tsx` | Sidebar with alert badge counter + reports sub-nav |
 
 ### API layer added
 
-| Module | Exports |
-|---|---|
-| `lib/api/school-client.ts` | Axios instance for teacher JWT (`sb_teacher_token`); 401→`/school/login` |
-| `lib/api/reports.ts` | All 6 report types, alerts, alert settings, export trigger, digest subscribe |
+| Module                     | Exports                                                                      |
+| -------------------------- | ---------------------------------------------------------------------------- |
+| `lib/api/school-client.ts` | Axios instance for teacher JWT (`sb_teacher_token`); 401→`/school/login`     |
+| `lib/api/reports.ts`       | All 6 report types, alerts, alert settings, export trigger, digest subscribe |
 
 ### Hooks added
 
-| Hook | Purpose |
-|---|---|
+| Hook                      | Purpose                                                      |
+| ------------------------- | ------------------------------------------------------------ |
 | `lib/hooks/useTeacher.ts` | Decode teacher JWT; expose `school_id`, `teacher_id`, `role` |
 
 ### Tests added
 
-| File | Tests | Coverage |
-|---|---|---|
-| `tests/unit/csv-export.test.ts` | 7 | papaparse unparse: headers, BOM, comma escaping, empty rows, null handling |
-| `tests/unit/alert-dismiss.test.ts` | 7 | `getAlerts` API, optimistic dismiss logic, `updateAlertSettings` payload |
+| File                               | Tests | Coverage                                                                   |
+| ---------------------------------- | ----- | -------------------------------------------------------------------------- |
+| `tests/unit/csv-export.test.ts`    | 7     | papaparse unparse: headers, BOM, comma escaping, empty rows, null handling |
+| `tests/unit/alert-dismiss.test.ts` | 7     | `getAlerts` API, optimistic dismiss logic, `updateAlertSettings` payload   |
 
 ---
 
@@ -63,15 +63,15 @@ Initial implementation placed pages at `app/(school)/dashboard/`, `app/(school)/
 
 ## Data Strategy
 
-| Report | API endpoint |
-|---|---|
-| Dashboard, Overview | `GET /reports/school/{id}/overview` |
-| Trends | `GET /reports/school/{id}/trends` |
-| At-Risk, Units, Engagement | `GET /reports/school/{id}/curriculum-health` |
-| Student Detail | `GET /reports/school/{id}/student/{student_id}` |
-| Class Overview | `GET /analytics/school/{id}/class` |
-| Feedback | `GET /reports/school/{id}/feedback` |
-| Alerts | `GET /reports/school/{id}/alerts` |
+| Report                     | API endpoint                                    |
+| -------------------------- | ----------------------------------------------- |
+| Dashboard, Overview        | `GET /reports/school/{id}/overview`             |
+| Trends                     | `GET /reports/school/{id}/trends`               |
+| At-Risk, Units, Engagement | `GET /reports/school/{id}/curriculum-health`    |
+| Student Detail             | `GET /reports/school/{id}/student/{student_id}` |
+| Class Overview             | `GET /analytics/school/{id}/class`              |
+| Feedback                   | `GET /reports/school/{id}/feedback`             |
+| Alerts                     | `GET /reports/school/{id}/alerts`               |
 
 Engagement report derives from two cached queries (`overview` 30d + `curriculum-health`) to avoid a dedicated endpoint.
 

@@ -10,7 +10,7 @@ function StatusBadge({ status }: { status: ServiceStatus }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-medium",
+        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-sm font-medium",
         ok ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700",
       )}
     >
@@ -30,10 +30,10 @@ function ServiceRow({
   meta?: string;
 }) {
   return (
-    <div className="flex items-center justify-between py-4 border-b border-gray-100 last:border-0">
+    <div className="flex items-center justify-between border-b border-gray-100 py-4 last:border-0">
       <div>
         <p className="text-sm font-medium text-gray-900">{name}</p>
-        {meta && <p className="text-xs text-gray-400 mt-0.5">{meta}</p>}
+        {meta && <p className="mt-0.5 text-xs text-gray-400">{meta}</p>}
       </div>
       <StatusBadge status={status} />
     </div>
@@ -48,24 +48,21 @@ export default function AdminHealthPage() {
     refetchInterval: 10_000,
   });
 
-  const overallOk =
-    data?.db_status === "ok" && data?.redis_status === "ok";
+  const overallOk = data?.db_status === "ok" && data?.redis_status === "ok";
 
   return (
-    <div className="p-8 max-w-2xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+    <div className="mx-auto max-w-2xl p-8">
+      <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">System Health</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Auto-refreshes every 10 seconds</p>
+          <p className="mt-0.5 text-sm text-gray-500">Auto-refreshes every 10 seconds</p>
         </div>
         {!isLoading && (
           <div className="flex items-center gap-2 text-xs text-gray-400">
             <RefreshCw className="h-3.5 w-3.5" />
             <span>
               Last checked{" "}
-              {dataUpdatedAt
-                ? new Date(dataUpdatedAt).toLocaleTimeString()
-                : "—"}
+              {dataUpdatedAt ? new Date(dataUpdatedAt).toLocaleTimeString() : "—"}
             </span>
           </div>
         )}
@@ -75,10 +72,10 @@ export default function AdminHealthPage() {
       {!isLoading && data && (
         <div
           className={cn(
-            "rounded-xl p-4 mb-8 flex items-center gap-3",
+            "mb-8 flex items-center gap-3 rounded-xl p-4",
             overallOk
-              ? "bg-green-50 border border-green-200"
-              : "bg-red-50 border border-red-200",
+              ? "border border-green-200 bg-green-50"
+              : "border border-red-200 bg-red-50",
           )}
         >
           {overallOk ? (
@@ -98,9 +95,9 @@ export default function AdminHealthPage() {
       )}
 
       {isLoading ? (
-        <div className="h-48 bg-gray-100 rounded-xl animate-pulse" />
+        <div className="h-48 animate-pulse rounded-xl bg-gray-100" />
       ) : data ? (
-        <div className="bg-white rounded-xl border border-gray-200 px-6">
+        <div className="rounded-xl border border-gray-200 bg-white px-6">
           <ServiceRow
             name="PostgreSQL"
             status={data.db_status}

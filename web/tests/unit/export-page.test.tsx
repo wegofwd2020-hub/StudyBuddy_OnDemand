@@ -9,10 +9,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import ExportPage from "@/app/(school)/school/reports/export/page";
-import {
-  MOCK_TEACHER,
-  EXPORT_STRINGS,
-} from "../e2e/data/export-page";
+import { MOCK_TEACHER, EXPORT_STRINGS } from "../e2e/data/export-page";
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -23,16 +20,16 @@ vi.mock("@/lib/hooks/useTeacher", () => ({
 }));
 
 const mockGetOverviewReport = vi.fn();
-const mockGetTrendsReport   = vi.fn();
+const mockGetTrendsReport = vi.fn();
 const mockGetCurriculumHealth = vi.fn();
 
 vi.mock("@/lib/api/reports", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/api/reports")>();
   return {
     ...actual,
-    getOverviewReport:    (...args: unknown[]) => mockGetOverviewReport(...args),
-    getTrendsReport:      (...args: unknown[]) => mockGetTrendsReport(...args),
-    getCurriculumHealth:  (...args: unknown[]) => mockGetCurriculumHealth(...args),
+    getOverviewReport: (...args: unknown[]) => mockGetOverviewReport(...args),
+    getTrendsReport: (...args: unknown[]) => mockGetTrendsReport(...args),
+    getCurriculumHealth: (...args: unknown[]) => mockGetCurriculumHealth(...args),
   };
 });
 
@@ -115,11 +112,18 @@ describe("SCH-17 — Export form renders", () => {
 describe("SCH-18 — CSV download triggers on export click", () => {
   beforeEach(() => {
     mockGetOverviewReport.mockResolvedValue({
-      school_id: "school-001", period: "30d",
-      enrolled_students: 120, active_students_period: 85, active_pct: 70.8,
-      lessons_viewed: 340, quiz_attempts: 210,
-      first_attempt_pass_rate_pct: 72.0, audio_play_rate_pct: 45.0,
-      units_with_struggles: [], units_no_activity: [], unreviewed_feedback_count: 3,
+      school_id: "school-001",
+      period: "30d",
+      enrolled_students: 120,
+      active_students_period: 85,
+      active_pct: 70.8,
+      lessons_viewed: 340,
+      quiz_attempts: 210,
+      first_attempt_pass_rate_pct: 72.0,
+      audio_play_rate_pct: 45.0,
+      units_with_struggles: [],
+      units_no_activity: [],
+      unreviewed_feedback_count: 3,
     });
   });
 

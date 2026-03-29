@@ -31,10 +31,9 @@ describe("rejectReview", () => {
   it("posts reason to reject endpoint", async () => {
     mockPost.mockResolvedValueOnce({ data: {} });
     await rejectReview("ver-002", "Inaccurate formula");
-    expect(mockPost).toHaveBeenCalledWith(
-      "/admin/content-review/ver-002/reject",
-      { reason: "Inaccurate formula" },
-    );
+    expect(mockPost).toHaveBeenCalledWith("/admin/content-review/ver-002/reject", {
+      reason: "Inaccurate formula",
+    });
   });
 });
 
@@ -58,10 +57,9 @@ describe("blockReview", () => {
   it("posts reason to block endpoint", async () => {
     mockPost.mockResolvedValueOnce({ data: {} });
     await blockReview("ver-005", "Unsafe content");
-    expect(mockPost).toHaveBeenCalledWith(
-      "/admin/content-review/ver-005/block",
-      { reason: "Unsafe content" },
-    );
+    expect(mockPost).toHaveBeenCalledWith("/admin/content-review/ver-005/block", {
+      reason: "Unsafe content",
+    });
   });
 });
 

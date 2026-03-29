@@ -2,20 +2,13 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Card, CardContent } from "@/components/ui/card";
 import { LinkButton } from "@/components/ui/link-button";
-import {
-  Zap,
-  Volume2,
-  Globe,
-  WifiOff,
-  FlaskConical,
-  School,
-} from "lucide-react";
+import { Zap, Volume2, Globe, WifiOff, FlaskConical, School } from "lucide-react";
 
 export default function LandingPage() {
   return (
     <>
       {/* Home banner — 2.5 inches (240 px) tall, full width */}
-      <div className="relative w-full h-[240px]">
+      <div className="relative h-[240px] w-full">
         <Image
           src="/assets/home_banner.png"
           alt="StudyBuddy — learning for every family"
@@ -66,7 +59,7 @@ const FEATURES = [
 function FeaturesSection() {
   const t = useTranslations("landing");
   return (
-    <section id="features" className="px-4 py-20 bg-white">
+    <section id="features" className="bg-white px-4 py-20">
       <div className="mx-auto max-w-7xl">
         <h2 className="text-center text-3xl font-bold text-gray-900">
           {t("features_heading")}
@@ -99,7 +92,8 @@ const TESTIMONIALS = [
     author: "Maria T., Parent",
   },
   {
-    quote: "The audio lessons are a game-changer for my students with reading difficulties.",
+    quote:
+      "The audio lessons are a game-changer for my students with reading difficulties.",
     author: "James K., Grade 8 Teacher",
   },
   {
@@ -121,9 +115,7 @@ function SocialProofSection() {
             <Card key={item.author} className="bg-white shadow-sm">
               <CardContent className="p-6">
                 <p className="text-gray-600 italic">&ldquo;{item.quote}&rdquo;</p>
-                <p className="mt-4 text-sm font-medium text-gray-900">
-                  — {item.author}
-                </p>
+                <p className="mt-4 text-sm font-medium text-gray-900">— {item.author}</p>
               </CardContent>
             </Card>
           ))}

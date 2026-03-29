@@ -33,8 +33,8 @@ export default function AdminFeedbackPage() {
 
   if (admin && !hasPermission(admin.role, "product_admin")) {
     return (
-      <div className="p-8 max-w-lg mx-auto">
-        <div className="flex items-center gap-3 text-red-600 mb-2">
+      <div className="mx-auto max-w-lg p-8">
+        <div className="mb-2 flex items-center gap-3 text-red-600">
           <ShieldOff className="h-5 w-5" />
           <span className="font-semibold">Access denied</span>
         </div>
@@ -51,24 +51,36 @@ export default function AdminFeedbackPage() {
   }
 
   return (
-    <div className="p-8 max-w-5xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">Student Feedback</h1>
-      <p className="text-sm text-gray-500 mb-6">Ratings and comments submitted by students.</p>
+    <div className="mx-auto max-w-5xl p-8">
+      <h1 className="mb-1 text-2xl font-bold text-gray-900">Student Feedback</h1>
+      <p className="mb-6 text-sm text-gray-500">
+        Ratings and comments submitted by students.
+      </p>
 
       {/* Filter */}
-      <div className="flex gap-2 mb-6">
+      <div className="mb-6 flex gap-2">
         <button
-          onClick={() => { setShowResolved(false); setPage(1); }}
-          className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-            !showResolved ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+          onClick={() => {
+            setShowResolved(false);
+            setPage(1);
+          }}
+          className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
+            !showResolved
+              ? "bg-indigo-600 text-white"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
           }`}
         >
           Open
         </button>
         <button
-          onClick={() => { setShowResolved(true); setPage(1); }}
-          className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-            showResolved ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+          onClick={() => {
+            setShowResolved(true);
+            setPage(1);
+          }}
+          className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
+            showResolved
+              ? "bg-indigo-600 text-white"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
           }`}
         >
           Resolved
@@ -78,38 +90,38 @@ export default function AdminFeedbackPage() {
       {isLoading ? (
         <div className="space-y-3">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-20 bg-gray-100 rounded-xl animate-pulse" />
+            <div key={i} className="h-20 animate-pulse rounded-xl bg-gray-100" />
           ))}
         </div>
       ) : data && data.items?.length > 0 ? (
         <>
-          <p className="text-xs text-gray-400 mb-3">
+          <p className="mb-3 text-xs text-gray-400">
             {data.total} item{data.total !== 1 ? "s" : ""}
           </p>
           <div className="space-y-3">
             {data.items.map((fb) => (
               <div
                 key={fb.feedback_id}
-                className="bg-white rounded-xl border border-gray-200 p-4 flex gap-4"
+                className="flex gap-4 rounded-xl border border-gray-200 bg-white p-4"
               >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 mb-1">
-                    <span className="text-sm font-medium text-gray-900 truncate">
+                <div className="min-w-0 flex-1">
+                  <div className="mb-1 flex items-center gap-3">
+                    <span className="truncate text-sm font-medium text-gray-900">
                       {fb.unit_title}
                     </span>
                     <StarRating rating={fb.rating} />
                   </div>
                   {fb.comment && (
-                    <p className="text-sm text-gray-600 line-clamp-2">{fb.comment}</p>
+                    <p className="line-clamp-2 text-sm text-gray-600">{fb.comment}</p>
                   )}
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="mt-1 text-xs text-gray-400">
                     {new Date(fb.submitted_at).toLocaleString()}
                   </p>
                 </div>
                 {!fb.resolved && (
                   <button
                     onClick={() => handleResolve(fb.feedback_id)}
-                    className="shrink-0 px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                    className="shrink-0 rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-200"
                   >
                     Resolve
                   </button>
@@ -119,11 +131,11 @@ export default function AdminFeedbackPage() {
           </div>
 
           {/* Pagination */}
-          <div className="flex items-center gap-3 mt-6">
+          <div className="mt-6 flex items-center gap-3">
             <button
               disabled={page === 1}
               onClick={() => setPage(page - 1)}
-              className="px-3 py-1.5 text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 disabled:opacity-40 rounded-lg transition-colors"
+              className="rounded-lg bg-gray-100 px-3 py-1.5 text-sm text-gray-600 transition-colors hover:bg-gray-200 disabled:opacity-40"
             >
               Previous
             </button>
@@ -131,15 +143,15 @@ export default function AdminFeedbackPage() {
             <button
               disabled={(data.items?.length ?? 0) < 20}
               onClick={() => setPage(page + 1)}
-              className="px-3 py-1.5 text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 disabled:opacity-40 rounded-lg transition-colors"
+              className="rounded-lg bg-gray-100 px-3 py-1.5 text-sm text-gray-600 transition-colors hover:bg-gray-200 disabled:opacity-40"
             >
               Next
             </button>
           </div>
         </>
       ) : (
-        <div className="text-center py-16 text-gray-400">
-          <MessageSquare className="h-10 w-10 mx-auto mb-3 opacity-40" />
+        <div className="py-16 text-center text-gray-400">
+          <MessageSquare className="mx-auto mb-3 h-10 w-10 opacity-40" />
           <p className="text-sm">No {showResolved ? "resolved" : "open"} feedback.</p>
         </div>
       )}

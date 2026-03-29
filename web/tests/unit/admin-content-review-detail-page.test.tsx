@@ -48,25 +48,25 @@ vi.mock("@tanstack/react-query", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@tanstack/react-query")>();
   return {
     ...actual,
-    useQuery:       vi.fn((opts) => mockUseQuery(opts)),
+    useQuery: vi.fn((opts) => mockUseQuery(opts)),
     useQueryClient: vi.fn(() => ({ invalidateQueries: mockInvalidateQueries })),
   };
 });
 
-const mockApprove   = vi.fn();
-const mockReject    = vi.fn();
-const mockPublish   = vi.fn();
-const mockRollback  = vi.fn();
-const mockBlock     = vi.fn();
+const mockApprove = vi.fn();
+const mockReject = vi.fn();
+const mockPublish = vi.fn();
+const mockRollback = vi.fn();
+const mockBlock = vi.fn();
 vi.mock("@/lib/api/admin", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/api/admin")>();
   return {
     ...actual,
-    approveReview:  (...args: unknown[]) => mockApprove(...args),
-    rejectReview:   (...args: unknown[]) => mockReject(...args),
-    publishReview:  (...args: unknown[]) => mockPublish(...args),
+    approveReview: (...args: unknown[]) => mockApprove(...args),
+    rejectReview: (...args: unknown[]) => mockReject(...args),
+    publishReview: (...args: unknown[]) => mockPublish(...args),
     rollbackReview: (...args: unknown[]) => mockRollback(...args),
-    blockReview:    (...args: unknown[]) => mockBlock(...args),
+    blockReview: (...args: unknown[]) => mockBlock(...args),
   };
 });
 
@@ -83,7 +83,9 @@ describe("ADM-36 — Lesson preview renders", () => {
 
   it("renders the unit title", () => {
     render(<AdminContentReviewDetailPage />);
-    expect(screen.getByRole("heading", { name: MOCK_ITEM_PENDING.unit_title })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: MOCK_ITEM_PENDING.unit_title }),
+    ).toBeInTheDocument();
   });
 
   it("renders Lesson Preview section heading", () => {
@@ -116,9 +118,7 @@ describe("ADM-37 — Approve button visible for pending item", () => {
 
   it("renders Approve button for pending item", () => {
     render(<AdminContentReviewDetailPage />);
-    expect(
-      screen.getByRole("button", { name: /Approve/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Approve/i })).toBeInTheDocument();
   });
 });
 
@@ -207,9 +207,7 @@ describe("ADM-41 — Reject action calls API with reason", () => {
     fireEvent.click(screen.getByRole("button", { name: /Reject/i }));
     fireEvent.change(screen.getByRole("textbox"), { target: { value: reason } });
     fireEvent.click(screen.getByRole("button", { name: /Confirm reject/i }));
-    await waitFor(() =>
-      expect(mockReject).toHaveBeenCalledWith(MOCK_VERSION_ID, reason),
-    );
+    await waitFor(() => expect(mockReject).toHaveBeenCalledWith(MOCK_VERSION_ID, reason));
   });
 });
 
@@ -226,9 +224,7 @@ describe("ADM-42 — Publish button visible for approved item (product_admin)", 
 
   it("renders Publish button for approved item when product_admin", () => {
     render(<AdminContentReviewDetailPage />);
-    expect(
-      screen.getByRole("button", { name: /Publish/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Publish/i })).toBeInTheDocument();
   });
 });
 
@@ -264,9 +260,7 @@ describe("ADM-44 — Rollback button visible for published item", () => {
 
   it("renders Rollback button for published item when product_admin", () => {
     render(<AdminContentReviewDetailPage />);
-    expect(
-      screen.getByRole("button", { name: /Rollback/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Rollback/i })).toBeInTheDocument();
   });
 });
 
@@ -326,9 +320,7 @@ describe("ADM-47 — Block action calls API with reason", () => {
     fireEvent.click(screen.getByRole("button", { name: /Block/i }));
     fireEvent.change(screen.getByRole("textbox"), { target: { value: reason } });
     fireEvent.click(screen.getByRole("button", { name: /Confirm block/i }));
-    await waitFor(() =>
-      expect(mockBlock).toHaveBeenCalledWith(MOCK_VERSION_ID, reason),
-    );
+    await waitFor(() => expect(mockBlock).toHaveBeenCalledWith(MOCK_VERSION_ID, reason));
   });
 });
 
@@ -345,7 +337,9 @@ describe("ADM-48 — Annotations rendered when present", () => {
 
   it("renders Annotations heading", () => {
     render(<AdminContentReviewDetailPage />);
-    expect(screen.getByText(REVIEW_DETAIL_STRINGS.annotationsHeading)).toBeInTheDocument();
+    expect(
+      screen.getByText(REVIEW_DETAIL_STRINGS.annotationsHeading),
+    ).toBeInTheDocument();
   });
 
   it("renders the annotation note text", () => {
@@ -369,9 +363,7 @@ describe("ADM-49 — Back link returns to queue", () => {
 
   it("renders 'Back to queue' link", () => {
     render(<AdminContentReviewDetailPage />);
-    expect(
-      screen.getByRole("link", { name: /Back to queue/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Back to queue/i })).toBeInTheDocument();
   });
 
   it("back link points to /admin/content-review", () => {

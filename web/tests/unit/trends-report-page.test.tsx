@@ -37,14 +37,18 @@ vi.mock("@tanstack/react-query", async (importOriginal) => {
 });
 
 vi.mock("recharts", () => ({
-  LineChart: ({ children }: { children: React.ReactNode }) => <div data-testid="line-chart">{children}</div>,
+  LineChart: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="line-chart">{children}</div>
+  ),
   Line: () => null,
   XAxis: () => null,
   YAxis: () => null,
   CartesianGrid: () => null,
   Tooltip: () => null,
   Legend: () => null,
-  ResponsiveContainer: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  ResponsiveContainer: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
 }));
 
 // ---------------------------------------------------------------------------
@@ -65,9 +69,15 @@ describe("SCH-11 — Trends report renders", () => {
 
   it("renders all period toggle buttons", () => {
     render(<TrendsReportPage />);
-    expect(screen.getByRole("button", { name: TRENDS_STRINGS.period4w })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: TRENDS_STRINGS.period12w })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: TRENDS_STRINGS.periodTerm })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: TRENDS_STRINGS.period4w }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: TRENDS_STRINGS.period12w }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: TRENDS_STRINGS.periodTerm }),
+    ).toBeInTheDocument();
   });
 
   it("renders the lesson views & active students chart card", () => {

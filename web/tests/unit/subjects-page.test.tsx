@@ -48,13 +48,23 @@ vi.mock("@/lib/hooks/useCurriculumTree", () => ({
 
 describe("STU-12 — Subject list renders", () => {
   it("shows page heading", () => {
-    mockUseCurriculumTree.mockReturnValue({ data: MOCK_CURRICULUM_TREE, isLoading: false, isError: false });
+    mockUseCurriculumTree.mockReturnValue({
+      data: MOCK_CURRICULUM_TREE,
+      isLoading: false,
+      isError: false,
+    });
     render(<SubjectsPage />);
-    expect(screen.getByRole("heading", { name: SUBJECTS_STRINGS.pageHeading })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: SUBJECTS_STRINGS.pageHeading }),
+    ).toBeInTheDocument();
   });
 
   it("renders a card for each subject", () => {
-    mockUseCurriculumTree.mockReturnValue({ data: MOCK_CURRICULUM_TREE, isLoading: false, isError: false });
+    mockUseCurriculumTree.mockReturnValue({
+      data: MOCK_CURRICULUM_TREE,
+      isLoading: false,
+      isError: false,
+    });
     render(<SubjectsPage />);
 
     for (const subject of MOCK_CURRICULUM_TREE.subjects) {
@@ -63,18 +73,24 @@ describe("STU-12 — Subject list renders", () => {
   });
 
   it("shows unit count for each subject card", () => {
-    mockUseCurriculumTree.mockReturnValue({ data: MOCK_CURRICULUM_TREE, isLoading: false, isError: false });
+    mockUseCurriculumTree.mockReturnValue({
+      data: MOCK_CURRICULUM_TREE,
+      isLoading: false,
+      isError: false,
+    });
     render(<SubjectsPage />);
 
     for (const subject of MOCK_CURRICULUM_TREE.subjects) {
-      expect(
-        screen.getByText(`${subject.units.length} units`),
-      ).toBeInTheDocument();
+      expect(screen.getByText(`${subject.units.length} units`)).toBeInTheDocument();
     }
   });
 
   it("renders all unit titles", () => {
-    mockUseCurriculumTree.mockReturnValue({ data: MOCK_CURRICULUM_TREE, isLoading: false, isError: false });
+    mockUseCurriculumTree.mockReturnValue({
+      data: MOCK_CURRICULUM_TREE,
+      isLoading: false,
+      isError: false,
+    });
     render(<SubjectsPage />);
 
     for (const subject of MOCK_CURRICULUM_TREE.subjects) {
@@ -85,14 +101,22 @@ describe("STU-12 — Subject list renders", () => {
   });
 
   it("shows loading skeletons while fetching", () => {
-    mockUseCurriculumTree.mockReturnValue({ data: undefined, isLoading: true, isError: false });
+    mockUseCurriculumTree.mockReturnValue({
+      data: undefined,
+      isLoading: true,
+      isError: false,
+    });
     const { container } = render(<SubjectsPage />);
     // Skeleton divs render during loading
     expect(container.querySelector("[data-slot='skeleton']")).toBeTruthy();
   });
 
   it("shows error message on fetch failure", () => {
-    mockUseCurriculumTree.mockReturnValue({ data: undefined, isLoading: false, isError: true });
+    mockUseCurriculumTree.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: true,
+    });
     render(<SubjectsPage />);
     expect(screen.getByText(SUBJECTS_STRINGS.errorMessage)).toBeInTheDocument();
   });
@@ -105,13 +129,18 @@ describe("STU-12 — Subject list renders", () => {
 
 describe("STU-13 — Unit buttons and hrefs", () => {
   it("each unit has a Lesson link with correct href", () => {
-    mockUseCurriculumTree.mockReturnValue({ data: MOCK_CURRICULUM_TREE, isLoading: false, isError: false });
+    mockUseCurriculumTree.mockReturnValue({
+      data: MOCK_CURRICULUM_TREE,
+      isLoading: false,
+      isError: false,
+    });
     render(<SubjectsPage />);
 
     for (const subject of MOCK_CURRICULUM_TREE.subjects) {
       for (const unit of subject.units) {
-        const lessonLinks = screen
-          .getAllByRole("link", { name: SUBJECTS_STRINGS.lessonBtn });
+        const lessonLinks = screen.getAllByRole("link", {
+          name: SUBJECTS_STRINGS.lessonBtn,
+        });
         const match = lessonLinks.find(
           (el) => el.getAttribute("href") === lessonHref(unit.unit_id),
         );
@@ -121,13 +150,16 @@ describe("STU-13 — Unit buttons and hrefs", () => {
   });
 
   it("each unit has a Quiz link with correct href", () => {
-    mockUseCurriculumTree.mockReturnValue({ data: MOCK_CURRICULUM_TREE, isLoading: false, isError: false });
+    mockUseCurriculumTree.mockReturnValue({
+      data: MOCK_CURRICULUM_TREE,
+      isLoading: false,
+      isError: false,
+    });
     render(<SubjectsPage />);
 
     for (const subject of MOCK_CURRICULUM_TREE.subjects) {
       for (const unit of subject.units) {
-        const quizLinks = screen
-          .getAllByRole("link", { name: SUBJECTS_STRINGS.quizBtn });
+        const quizLinks = screen.getAllByRole("link", { name: SUBJECTS_STRINGS.quizBtn });
         const match = quizLinks.find(
           (el) => el.getAttribute("href") === quizHref(unit.unit_id),
         );
@@ -137,7 +169,11 @@ describe("STU-13 — Unit buttons and hrefs", () => {
   });
 
   it("lab units show a flask icon (svg)", () => {
-    mockUseCurriculumTree.mockReturnValue({ data: MOCK_CURRICULUM_TREE, isLoading: false, isError: false });
+    mockUseCurriculumTree.mockReturnValue({
+      data: MOCK_CURRICULUM_TREE,
+      isLoading: false,
+      isError: false,
+    });
     const { container } = render(<SubjectsPage />);
 
     const labUnits = MOCK_CURRICULUM_TREE.subjects
@@ -160,7 +196,11 @@ describe("STU-13 — Unit buttons and hrefs", () => {
         },
       ],
     };
-    mockUseCurriculumTree.mockReturnValue({ data: nonLabOnly, isLoading: false, isError: false });
+    mockUseCurriculumTree.mockReturnValue({
+      data: nonLabOnly,
+      isLoading: false,
+      isError: false,
+    });
     const { container } = render(<SubjectsPage />);
 
     const svgs = container.querySelectorAll("svg");

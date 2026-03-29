@@ -21,9 +21,8 @@ export default function AdminLoginPage() {
       localStorage.setItem("sb_admin_token", token);
       router.push("/admin/dashboard");
     } catch (err: unknown) {
-      const apiMsg =
-        (err as { response?: { data?: { detail?: string } } })?.response?.data
-          ?.detail;
+      const apiMsg = (err as { response?: { data?: { detail?: string } } })?.response
+        ?.data?.detail;
       setError(apiMsg ?? "Invalid credentials. Please check your email and password.");
     } finally {
       setLoading(false);
@@ -31,17 +30,17 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
+    <div className="flex min-h-screen items-center justify-center bg-gray-900 p-4">
       <div className="w-full max-w-sm">
         {/* Logo */}
-        <div className="flex items-center justify-center gap-2 mb-8">
+        <div className="mb-8 flex items-center justify-center gap-2">
           <BookOpen className="h-7 w-7 text-indigo-400" />
           <span className="text-xl font-bold text-white">StudyBuddy</span>
-          <span className="text-sm text-gray-400 font-medium mt-0.5">Admin</span>
+          <span className="mt-0.5 text-sm font-medium text-gray-400">Admin</span>
         </div>
 
-        <div className="bg-gray-800 rounded-xl border border-gray-700 p-8">
-          <h1 className="text-lg font-semibold text-white mb-6 text-center">
+        <div className="rounded-xl border border-gray-700 bg-gray-800 p-8">
+          <h1 className="mb-6 text-center text-lg font-semibold text-white">
             Sign in to admin console
           </h1>
 
@@ -49,7 +48,7 @@ export default function AdminLoginPage() {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-300 mb-1.5"
+                className="mb-1.5 block text-sm font-medium text-gray-300"
               >
                 Email
               </label>
@@ -60,7 +59,7 @@ export default function AdminLoginPage() {
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-gray-900 border border-gray-600 text-white placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full rounded-lg border border-gray-600 bg-gray-900 px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-transparent focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 placeholder="admin@studybuddy.ca"
               />
             </div>
@@ -68,7 +67,7 @@ export default function AdminLoginPage() {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-300 mb-1.5"
+                className="mb-1.5 block text-sm font-medium text-gray-300"
               >
                 Password
               </label>
@@ -79,14 +78,14 @@ export default function AdminLoginPage() {
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-gray-900 border border-gray-600 text-white placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full rounded-lg border border-gray-600 bg-gray-900 px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-transparent focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 placeholder="••••••••"
               />
             </div>
 
             {error && (
-              <div className="flex items-start gap-2 p-3 bg-red-950 border border-red-800 rounded-lg text-sm text-red-300">
-                <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+              <div className="flex items-start gap-2 rounded-lg border border-red-800 bg-red-950 p-3 text-sm text-red-300">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                 <span>{error}</span>
               </div>
             )}
@@ -94,7 +93,7 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
+              className="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? "Signing in…" : "Sign in"}
             </button>

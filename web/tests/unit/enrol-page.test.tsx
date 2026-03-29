@@ -57,9 +57,7 @@ describe("STU-48 — Valid token shows success", () => {
   it("renders the school name in the success message", async () => {
     render(<EnrolConfirmPage />);
     await waitFor(() =>
-      expect(
-        screen.getByText(MOCK_ENROL_SUCCESS.school_name),
-      ).toBeInTheDocument(),
+      expect(screen.getByText(MOCK_ENROL_SUCCESS.school_name)).toBeInTheDocument(),
     );
   });
 
@@ -123,9 +121,7 @@ describe("STU-49 — Invalid token shows error", () => {
 
   it("renders red XCircle icon on error", async () => {
     const { container } = render(<EnrolConfirmPage />);
-    await waitFor(() =>
-      expect(container.querySelector("svg.text-red-400")).toBeTruthy(),
-    );
+    await waitFor(() => expect(container.querySelector("svg.text-red-400")).toBeTruthy());
   });
 
   it("renders Back to dashboard link on error", async () => {

@@ -13,7 +13,9 @@ import { test, expect } from "@playwright/test";
 // ---------------------------------------------------------------------------
 
 function makeAdminJwt(role: string): string {
-  const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString("base64url");
+  const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString(
+    "base64url",
+  );
   const payload = Buffer.from(
     JSON.stringify({ admin_id: "test-admin", role, exp: 9999999999 }),
   ).toString("base64url");
@@ -48,7 +50,10 @@ async function stubAdminApis(page: Page) {
     route.fulfill({ status: 200, json: { jobs: [] } }),
   );
   await page.route("**/api/v1/admin/analytics/struggle", (route) =>
-    route.fulfill({ status: 200, json: { units: [], generated_at: new Date().toISOString() } }),
+    route.fulfill({
+      status: 200,
+      json: { units: [], generated_at: new Date().toISOString() },
+    }),
   );
   await page.route("**/api/v1/admin/content-review/queue**", (route) =>
     route.fulfill({ status: 200, json: { items: [], total: 0 } }),
@@ -80,7 +85,9 @@ test.describe("Admin dashboard", () => {
 
   test("loads and shows Platform Dashboard heading", async ({ page }) => {
     await page.goto("/admin/dashboard");
-    await expect(page.getByRole("heading", { name: /platform dashboard/i })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /platform dashboard/i }),
+    ).toBeVisible();
   });
 
   test("shows Subscriptions section", async ({ page }) => {
@@ -91,9 +98,7 @@ test.describe("Admin dashboard", () => {
   test("shows Pipeline section heading", async ({ page }) => {
     await page.goto("/admin/dashboard");
     // Use the h2 section heading specifically — getByText matches multiple elements
-    await expect(
-      page.getByRole("heading", { name: "Pipeline" }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Pipeline" })).toBeVisible();
   });
 });
 
@@ -103,13 +108,18 @@ test.describe("Admin dashboard", () => {
 
 test.describe("Admin analytics", () => {
   test.beforeEach(async ({ page }) => {
-    await page.addInitScript((t) => localStorage.setItem("sb_admin_token", t), SUPER_TOKEN);
+    await page.addInitScript(
+      (t) => localStorage.setItem("sb_admin_token", t),
+      SUPER_TOKEN,
+    );
     await stubAdminApis(page);
   });
 
   test("loads and shows Platform Analytics heading", async ({ page }) => {
     await page.goto("/admin/analytics");
-    await expect(page.getByRole("heading", { name: /platform analytics/i })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /platform analytics/i }),
+    ).toBeVisible();
   });
 
   test("shows Subscription Breakdown section", async ({ page }) => {
@@ -124,7 +134,10 @@ test.describe("Admin analytics", () => {
 
 test.describe("Admin health page", () => {
   test.beforeEach(async ({ page }) => {
-    await page.addInitScript((t) => localStorage.setItem("sb_admin_token", t), SUPER_TOKEN);
+    await page.addInitScript(
+      (t) => localStorage.setItem("sb_admin_token", t),
+      SUPER_TOKEN,
+    );
     await stubAdminApis(page);
   });
 
@@ -146,7 +159,10 @@ test.describe("Admin health page", () => {
 
 test.describe("Admin pipeline page", () => {
   test.beforeEach(async ({ page }) => {
-    await page.addInitScript((t) => localStorage.setItem("sb_admin_token", t), SUPER_TOKEN);
+    await page.addInitScript(
+      (t) => localStorage.setItem("sb_admin_token", t),
+      SUPER_TOKEN,
+    );
     await stubAdminApis(page);
   });
 
@@ -167,13 +183,18 @@ test.describe("Admin pipeline page", () => {
 
 test.describe("Admin content review", () => {
   test.beforeEach(async ({ page }) => {
-    await page.addInitScript((t) => localStorage.setItem("sb_admin_token", t), SUPER_TOKEN);
+    await page.addInitScript(
+      (t) => localStorage.setItem("sb_admin_token", t),
+      SUPER_TOKEN,
+    );
     await stubAdminApis(page);
   });
 
   test("loads and shows Content Review Queue heading", async ({ page }) => {
     await page.goto("/admin/content-review");
-    await expect(page.getByRole("heading", { name: /content review queue/i })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /content review queue/i }),
+    ).toBeVisible();
   });
 
   test("shows status filter tabs", async ({ page }) => {
@@ -189,7 +210,10 @@ test.describe("Admin content review", () => {
 
 test.describe("Admin nav RBAC", () => {
   test("super_admin sees Feedback in sidebar", async ({ page }) => {
-    await page.addInitScript((t) => localStorage.setItem("sb_admin_token", t), SUPER_TOKEN);
+    await page.addInitScript(
+      (t) => localStorage.setItem("sb_admin_token", t),
+      SUPER_TOKEN,
+    );
     await stubAdminApis(page);
     await page.goto("/admin/dashboard");
     await expect(page.getByRole("link", { name: /feedback/i })).toBeVisible();

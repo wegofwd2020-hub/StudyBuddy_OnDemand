@@ -19,7 +19,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col">
       {/* Hero image */}
-      <div className="relative w-full h-[240px] bg-gray-50">
+      <div className="relative h-[240px] w-full bg-gray-50">
         <Image
           src="/assets/books.png"
           alt="Student Portal"
@@ -30,8 +30,8 @@ export default function DashboardPage() {
       </div>
 
       <OfflineBanner />
-      <div className="p-6 space-y-6 max-w-4xl">
-        <h1 className="text-2xl font-bold text-gray-900 text-center">{t("title")}</h1>
+      <div className="max-w-4xl space-y-6 p-6">
+        <h1 className="text-center text-2xl font-bold text-gray-900">{t("title")}</h1>
 
         {/* Streak */}
         {statsLoading ? (
@@ -45,7 +45,11 @@ export default function DashboardPage() {
           <LinkButton href="/subjects" variant="outline" className="justify-start gap-2">
             <BookOpen className="h-4 w-4" /> Browse Subjects
           </LinkButton>
-          <LinkButton href="/curriculum" variant="outline" className="justify-start gap-2">
+          <LinkButton
+            href="/curriculum"
+            variant="outline"
+            className="justify-start gap-2"
+          >
             <CheckCircle2 className="h-4 w-4" /> Curriculum Map
           </LinkButton>
           <LinkButton href="/progress" variant="outline" className="justify-start gap-2">
@@ -55,7 +59,7 @@ export default function DashboardPage() {
 
         {/* Recent sessions */}
         <section>
-          <h2 className="text-lg font-semibold text-gray-900 mb-3">Recent Activity</h2>
+          <h2 className="mb-3 text-lg font-semibold text-gray-900">Recent Activity</h2>
           {histLoading ? (
             <div className="space-y-2">
               {[...Array(3)].map((_, i) => (
@@ -68,17 +72,16 @@ export default function DashboardPage() {
             <div className="space-y-2">
               {history.sessions.map((s) => (
                 <Card key={s.session_id} className="border shadow-sm">
-                  <CardContent className="p-4 flex items-center justify-between">
+                  <CardContent className="flex items-center justify-between p-4">
                     <div>
                       <p className="text-sm font-medium text-gray-900">{s.unit_title}</p>
                       <p className="text-xs text-gray-400">
-                        {s.subject} ·{" "}
-                        {new Date(s.started_at).toLocaleDateString()}
+                        {s.subject} · {new Date(s.started_at).toLocaleDateString()}
                       </p>
                     </div>
                     {s.passed !== null && (
                       <span
-                        className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                           s.passed
                             ? "bg-green-100 text-green-700"
                             : "bg-red-100 text-red-700"

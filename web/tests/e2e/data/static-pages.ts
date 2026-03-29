@@ -50,17 +50,17 @@ export const CONTACT = {
   heading: "Get in touch",
   /** Input field ids from the form */
   fields: [
-    { id: "name",    label: "Name",    type: "text"  },
-    { id: "email",   label: "Email",   type: "email" },
-    { id: "subject", label: "Subject", type: "text"  },
+    { id: "name", label: "Name", type: "text" },
+    { id: "email", label: "Email", type: "email" },
+    { id: "subject", label: "Subject", type: "text" },
     { id: "message", label: "Message", type: "textarea" },
   ],
   submitButton: "Send message",
   successText: "Message sent!",
   /** Valid form payload for submission test */
   validPayload: {
-    name:    "Test User",
-    email:   "test@example.com",
+    name: "Test User",
+    email: "test@example.com",
     subject: "Test enquiry",
     message: "This is a test message from the E2E harness.",
   },
@@ -103,11 +103,12 @@ export const CONSENT = {
   url: "/consent",
   heading: "Parental consent required",
   fields: [
-    { id: "parent_name",  label: "Parent / guardian name"  },
+    { id: "parent_name", label: "Parent / guardian name" },
     { id: "parent_email", label: "Parent / guardian email" },
   ],
   checkboxId: "consent",
-  checkboxLabel: "I consent to my child using StudyBuddy and agree to the Privacy Policy.",
+  checkboxLabel:
+    "I consent to my child using StudyBuddy and agree to the Privacy Policy.",
   submitButton: "Give consent",
 } as const;
 

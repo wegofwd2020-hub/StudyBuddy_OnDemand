@@ -8,13 +8,27 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LinkButton } from "@/components/ui/link-button";
 import { Badge } from "@/components/ui/badge";
-import { Users, BookOpen, CheckCircle, Bell, TrendingUp, AlertTriangle } from "lucide-react";
+import {
+  Users,
+  BookOpen,
+  CheckCircle,
+  Bell,
+  TrendingUp,
+  AlertTriangle,
+} from "lucide-react";
 
 function KpiCard({
-  title, value, subtitle, icon, accent,
+  title,
+  value,
+  subtitle,
+  icon,
+  accent,
 }: {
-  title: string; value: string | number; subtitle?: string;
-  icon: React.ReactNode; accent?: "green" | "blue" | "red" | "gray";
+  title: string;
+  value: string | number;
+  subtitle?: string;
+  icon: React.ReactNode;
+  accent?: "green" | "blue" | "red" | "gray";
 }) {
   const colors = {
     green: "text-green-600 bg-green-50",
@@ -24,12 +38,14 @@ function KpiCard({
   };
   return (
     <Card className="border shadow-sm">
-      <CardContent className="p-5 flex items-start gap-4">
+      <CardContent className="flex items-start gap-4 p-5">
         <div className={`rounded-lg p-2.5 ${colors[accent ?? "blue"]}`}>{icon}</div>
         <div>
-          <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">{title}</p>
-          <p className="text-2xl font-bold text-gray-900 mt-0.5">{value}</p>
-          {subtitle && <p className="text-xs text-gray-500 mt-0.5">{subtitle}</p>}
+          <p className="text-xs font-medium tracking-wide text-gray-400 uppercase">
+            {title}
+          </p>
+          <p className="mt-0.5 text-2xl font-bold text-gray-900">{value}</p>
+          {subtitle && <p className="mt-0.5 text-xs text-gray-500">{subtitle}</p>}
         </div>
       </CardContent>
     </Card>
@@ -59,7 +75,7 @@ export default function SchoolDashboard() {
   return (
     <div className="flex flex-col">
       {/* Hero image */}
-      <div className="relative w-full h-[240px] bg-gray-50">
+      <div className="relative h-[240px] w-full bg-gray-50">
         <Image
           src="/assets/banyan_tree.png"
           alt="School Portal"
@@ -69,71 +85,124 @@ export default function SchoolDashboard() {
         />
       </div>
 
-    <div className="p-6 space-y-8 max-w-5xl">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 w-full text-center">Teacher Dashboard</h1>
-        <div className="flex gap-2">
-          {unreadAlerts > 0 && (
-            <LinkButton href="/school/alerts" variant="outline" size="sm">
-              <Bell className="h-4 w-4 mr-1.5 text-red-500" />
-              {unreadAlerts} alert{unreadAlerts !== 1 ? "s" : ""}
+      <div className="max-w-5xl space-y-8 p-6">
+        <div className="flex items-center justify-between">
+          <h1 className="w-full text-center text-2xl font-bold text-gray-900">
+            Teacher Dashboard
+          </h1>
+          <div className="flex gap-2">
+            {unreadAlerts > 0 && (
+              <LinkButton href="/school/alerts" variant="outline" size="sm">
+                <Bell className="mr-1.5 h-4 w-4 text-red-500" />
+                {unreadAlerts} alert{unreadAlerts !== 1 ? "s" : ""}
+              </LinkButton>
+            )}
+            <LinkButton href="/school/reports/overview" size="sm">
+              View full report
             </LinkButton>
-          )}
-          <LinkButton href="/school/reports/overview" size="sm">View full report</LinkButton>
+          </div>
+        </div>
+
+        {isLoading ? (
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-28 rounded-lg" />
+            ))}
+          </div>
+        ) : overview ? (
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+            <KpiCard
+              title="Enrolled students"
+              value={overview.enrolled_students}
+              icon={<Users className="h-5 w-5" />}
+              accent="blue"
+            />
+            <KpiCard
+              title="Active this week"
+              value={`${overview.active_pct.toFixed(0)}%`}
+              subtitle={`${overview.active_students_period} of ${overview.enrolled_students}`}
+              icon={<TrendingUp className="h-5 w-5" />}
+              accent="green"
+            />
+            <KpiCard
+              title="Lessons viewed"
+              value={overview.lessons_viewed}
+              subtitle="Last 7 days"
+              icon={<BookOpen className="h-5 w-5" />}
+              accent="blue"
+            />
+            <KpiCard
+              title="Pass rate (1st attempt)"
+              value={`${overview.first_attempt_pass_rate_pct.toFixed(0)}%`}
+              icon={<CheckCircle className="h-5 w-5" />}
+              accent={overview.first_attempt_pass_rate_pct >= 60 ? "green" : "red"}
+            />
+            <KpiCard
+              title="Quiz attempts"
+              value={overview.quiz_attempts}
+              icon={<BookOpen className="h-5 w-5" />}
+              accent="gray"
+            />
+            <KpiCard
+              title="Unreviewed feedback"
+              value={overview.unreviewed_feedback_count}
+              icon={<Bell className="h-5 w-5" />}
+              accent={overview.unreviewed_feedback_count > 0 ? "red" : "gray"}
+            />
+          </div>
+        ) : null}
+
+        {overview && overview.units_with_struggles.length > 0 && (
+          <Card className="border shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <AlertTriangle className="h-4 w-4 text-orange-500" />
+                Units needing attention
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-2">
+                {overview.units_with_struggles.map((uid) => (
+                  <Badge
+                    key={uid}
+                    className="border-orange-200 bg-orange-50 text-orange-700"
+                  >
+                    {uid}
+                  </Badge>
+                ))}
+              </div>
+              <LinkButton
+                href="/school/reports/at-risk"
+                variant="outline"
+                size="sm"
+                className="mt-3"
+              >
+                View at-risk report
+              </LinkButton>
+            </CardContent>
+          </Card>
+        )}
+
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+          {[
+            { label: "Class overview", href: "/school/class/all" },
+            { label: "Trends report", href: "/school/reports/trends" },
+            { label: "Unit performance", href: "/school/reports/units" },
+            { label: "Student feedback", href: "/school/reports/feedback" },
+            { label: "Export CSV", href: "/school/reports/export" },
+            { label: "Alert inbox", href: "/school/alerts" },
+          ].map((link) => (
+            <LinkButton
+              key={link.href}
+              href={link.href}
+              variant="outline"
+              className="justify-start"
+            >
+              {link.label}
+            </LinkButton>
+          ))}
         </div>
       </div>
-
-      {isLoading ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-28 rounded-lg" />)}
-        </div>
-      ) : overview ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <KpiCard title="Enrolled students" value={overview.enrolled_students} icon={<Users className="h-5 w-5" />} accent="blue" />
-          <KpiCard title="Active this week" value={`${overview.active_pct.toFixed(0)}%`} subtitle={`${overview.active_students_period} of ${overview.enrolled_students}`} icon={<TrendingUp className="h-5 w-5" />} accent="green" />
-          <KpiCard title="Lessons viewed" value={overview.lessons_viewed} subtitle="Last 7 days" icon={<BookOpen className="h-5 w-5" />} accent="blue" />
-          <KpiCard title="Pass rate (1st attempt)" value={`${overview.first_attempt_pass_rate_pct.toFixed(0)}%`} icon={<CheckCircle className="h-5 w-5" />} accent={overview.first_attempt_pass_rate_pct >= 60 ? "green" : "red"} />
-          <KpiCard title="Quiz attempts" value={overview.quiz_attempts} icon={<BookOpen className="h-5 w-5" />} accent="gray" />
-          <KpiCard title="Unreviewed feedback" value={overview.unreviewed_feedback_count} icon={<Bell className="h-5 w-5" />} accent={overview.unreviewed_feedback_count > 0 ? "red" : "gray"} />
-        </div>
-      ) : null}
-
-      {overview && overview.units_with_struggles.length > 0 && (
-        <Card className="border shadow-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-orange-500" />
-              Units needing attention
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2">
-              {overview.units_with_struggles.map((uid) => (
-                <Badge key={uid} className="bg-orange-50 text-orange-700 border-orange-200">{uid}</Badge>
-              ))}
-            </div>
-            <LinkButton href="/school/reports/at-risk" variant="outline" size="sm" className="mt-3">
-              View at-risk report
-            </LinkButton>
-          </CardContent>
-        </Card>
-      )}
-
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        {[
-          { label: "Class overview", href: "/school/class/all" },
-          { label: "Trends report", href: "/school/reports/trends" },
-          { label: "Unit performance", href: "/school/reports/units" },
-          { label: "Student feedback", href: "/school/reports/feedback" },
-          { label: "Export CSV", href: "/school/reports/export" },
-          { label: "Alert inbox", href: "/school/alerts" },
-        ].map((link) => (
-          <LinkButton key={link.href} href={link.href} variant="outline" className="justify-start">
-            {link.label}
-          </LinkButton>
-        ))}
-      </div>
-    </div>
     </div>
   );
 }

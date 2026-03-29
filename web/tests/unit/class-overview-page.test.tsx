@@ -78,7 +78,9 @@ describe("SCH-06 — Student list renders", () => {
 
   it("renders grade filter buttons (All + grades 5-12)", () => {
     render(<ClassOverviewPage />);
-    expect(screen.getByRole("button", { name: CLASS_STRINGS.gradeAll })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: CLASS_STRINGS.gradeAll }),
+    ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "8" })).toBeInTheDocument();
   });
 

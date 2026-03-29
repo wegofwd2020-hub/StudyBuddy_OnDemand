@@ -86,10 +86,10 @@ export const MOCK_CURRICULUM_TREE: CurriculumTree = {
 // ---------------------------------------------------------------------------
 
 export const SUBJECTS_STRINGS = {
-  pageHeading:  "Subjects",
+  pageHeading: "Subjects",
   errorMessage: "Could not load curriculum. Please retry.",
-  lessonBtn:    "Lesson",
-  quizBtn:      "Quiz",
+  lessonBtn: "Lesson",
+  quizBtn: "Quiz",
 } as const;
 
 // ---------------------------------------------------------------------------

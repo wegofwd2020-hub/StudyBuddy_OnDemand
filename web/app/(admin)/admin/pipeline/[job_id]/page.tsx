@@ -24,29 +24,30 @@ export default function AdminPipelineJobPage() {
   const isDone = job?.status === "done";
   const isFailed = job?.status === "failed";
 
-  const barColor = isFailed && (job?.failed ?? 0) > 0
-    ? "bg-red-500"
-    : isDone
-    ? "bg-green-500"
-    : "bg-indigo-500";
+  const barColor =
+    isFailed && (job?.failed ?? 0) > 0
+      ? "bg-red-500"
+      : isDone
+        ? "bg-green-500"
+        : "bg-indigo-500";
 
   return (
-    <div className="p-8 max-w-2xl mx-auto">
+    <div className="mx-auto max-w-2xl p-8">
       <Link
         href="/admin/pipeline"
-        className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 mb-6 transition-colors"
+        className="mb-6 inline-flex items-center gap-1.5 text-sm text-gray-500 transition-colors hover:text-gray-900"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to pipeline
       </Link>
 
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">Pipeline Job</h1>
-      <p className="text-xs text-gray-400 font-mono mb-8">{job_id}</p>
+      <h1 className="mb-1 text-2xl font-bold text-gray-900">Pipeline Job</h1>
+      <p className="mb-8 font-mono text-xs text-gray-400">{job_id}</p>
 
       {isLoading ? (
-        <div className="h-40 bg-gray-100 rounded-xl animate-pulse" />
+        <div className="h-40 animate-pulse rounded-xl bg-gray-100" />
       ) : job ? (
-        <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-6">
+        <div className="space-y-6 rounded-xl border border-gray-200 bg-white p-6">
           {/* Status */}
           <div className="flex items-center gap-3">
             {isDone ? (
@@ -54,20 +55,23 @@ export default function AdminPipelineJobPage() {
             ) : isFailed ? (
               <XCircle className="h-5 w-5 text-red-500" />
             ) : (
-              <Loader2 className="h-5 w-5 text-indigo-500 animate-spin" />
+              <Loader2 className="h-5 w-5 animate-spin text-indigo-500" />
             )}
             <span className="font-semibold text-gray-900 capitalize">{job.status}</span>
           </div>
 
           {/* Progress bar */}
           <div>
-            <div className="flex justify-between text-xs text-gray-500 mb-1.5">
+            <div className="mb-1.5 flex justify-between text-xs text-gray-500">
               <span>Progress</span>
               <span>{job.progress_pct}%</span>
             </div>
-            <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+            <div className="h-3 overflow-hidden rounded-full bg-gray-100">
               <div
-                className={cn("h-full rounded-full transition-all duration-500", barColor)}
+                className={cn(
+                  "h-full rounded-full transition-all duration-500",
+                  barColor,
+                )}
                 style={{ width: `${job.progress_pct}%` }}
               />
             </div>
@@ -75,15 +79,15 @@ export default function AdminPipelineJobPage() {
 
           {/* Counts */}
           <div className="grid grid-cols-3 gap-4 text-center">
-            <div className="bg-gray-50 rounded-lg p-3">
+            <div className="rounded-lg bg-gray-50 p-3">
               <p className="text-2xl font-bold text-gray-900">{job.built}</p>
-              <p className="text-xs text-gray-500 mt-0.5">Built</p>
+              <p className="mt-0.5 text-xs text-gray-500">Built</p>
             </div>
-            <div className="bg-gray-50 rounded-lg p-3">
+            <div className="rounded-lg bg-gray-50 p-3">
               <p className="text-2xl font-bold text-gray-900">{job.total}</p>
-              <p className="text-xs text-gray-500 mt-0.5">Total</p>
+              <p className="mt-0.5 text-xs text-gray-500">Total</p>
             </div>
-            <div className="bg-gray-50 rounded-lg p-3">
+            <div className="rounded-lg bg-gray-50 p-3">
               <p
                 className={cn(
                   "text-2xl font-bold",
@@ -92,12 +96,12 @@ export default function AdminPipelineJobPage() {
               >
                 {job.failed}
               </p>
-              <p className="text-xs text-gray-500 mt-0.5">Failed</p>
+              <p className="mt-0.5 text-xs text-gray-500">Failed</p>
             </div>
           </div>
 
           {isFailed && job.failed > 0 && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+            <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
               {job.failed} unit{job.failed > 1 ? "s" : ""} failed to generate. Check the
               pipeline worker logs for details.
             </div>

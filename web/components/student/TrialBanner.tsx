@@ -18,8 +18,8 @@ export function TrialBanner() {
     <div
       className={`flex items-center justify-between gap-3 px-4 py-2 text-sm ${
         urgent
-          ? "bg-red-50 border-b border-red-200 text-red-800"
-          : "bg-blue-50 border-b border-blue-100 text-blue-800"
+          ? "border-b border-red-200 bg-red-50 text-red-800"
+          : "border-b border-blue-100 bg-blue-50 text-blue-800"
       }`}
     >
       <span className="flex items-center gap-2">
@@ -28,11 +28,7 @@ export function TrialBanner() {
           ? "Your free trial ends today."
           : `${days} day${days === 1 ? "" : "s"} left in your free trial.`}
       </span>
-      <LinkButton
-        href="/account/subscription"
-        size="sm"
-        className="shrink-0 h-7 text-xs"
-      >
+      <LinkButton href="/account/subscription" size="sm" className="h-7 shrink-0 text-xs">
         Upgrade now
       </LinkButton>
     </div>

@@ -25,7 +25,9 @@ test.describe("PUB-22 — Terms of Service (/terms)", () => {
   test("H1 heading and all section headings render", async ({ page }) => {
     await page.goto(TERMS.url);
 
-    await expect(page.getByRole("heading", { name: TERMS.heading, level: 1 })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: TERMS.heading, level: 1 }),
+    ).toBeVisible();
 
     for (const section of TERMS.sectionHeadings) {
       await expect(page.getByRole("heading", { name: section })).toBeVisible();
@@ -46,7 +48,9 @@ test.describe("PUB-23 — Privacy Policy (/privacy)", () => {
   test("H1 heading and all section headings render", async ({ page }) => {
     await page.goto(PRIVACY.url);
 
-    await expect(page.getByRole("heading", { name: PRIVACY.heading, level: 1 })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: PRIVACY.heading, level: 1 }),
+    ).toBeVisible();
 
     for (const section of PRIVACY.sectionHeadings) {
       await expect(page.getByRole("heading", { name: section })).toBeVisible();
@@ -62,7 +66,9 @@ test.describe("PUB-24 — Contact Page (/contact)", () => {
   test("heading and all form fields render", async ({ page }) => {
     await page.goto(CONTACT.url);
 
-    await expect(page.getByRole("heading", { name: CONTACT.heading, level: 1 })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: CONTACT.heading, level: 1 }),
+    ).toBeVisible();
 
     for (const field of CONTACT.fields) {
       if (field.type === "textarea") {
@@ -121,7 +127,9 @@ test.describe("PUB-25 — Signup Page (/signup)", () => {
     await page.goto(SIGNUP.url);
 
     // Scope to main content to avoid matching the nav "Sign in" button
-    const link = page.locator("#main-content").getByRole("link", { name: SIGNUP.signInLink.text });
+    const link = page
+      .locator("#main-content")
+      .getByRole("link", { name: SIGNUP.signInLink.text });
     await expect(link).toBeVisible();
     await link.click();
     await expect(page).toHaveURL(new RegExp(SIGNUP.signInLink.href));
@@ -132,7 +140,9 @@ test.describe("PUB-25 — Signup Page (/signup)", () => {
 // PUB-26 — 404 Page
 // ---------------------------------------------------------------------------
 
-test("PUB-26 — unknown route returns 404 and shows 'Page not found'", async ({ page }) => {
+test("PUB-26 — unknown route returns 404 and shows 'Page not found'", async ({
+  page,
+}) => {
   const response = await page.goto(NOT_FOUND.url);
 
   expect(response?.status()).toBe(NOT_FOUND.expectedStatus);

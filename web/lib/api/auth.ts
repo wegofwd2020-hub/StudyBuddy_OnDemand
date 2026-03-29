@@ -12,9 +12,7 @@ export async function exchangeToken(idToken: string): Promise<TokenResponse> {
   return res.data;
 }
 
-export async function exchangeTeacherToken(
-  idToken: string,
-): Promise<TokenResponse> {
+export async function exchangeTeacherToken(idToken: string): Promise<TokenResponse> {
   const res = await api.post<TokenResponse>("/auth/teacher/exchange", {
     id_token: idToken,
   });
@@ -25,10 +23,7 @@ export async function requestPasswordReset(email: string): Promise<void> {
   await api.post("/auth/forgot-password", { email });
 }
 
-export async function resetPassword(
-  token: string,
-  newPassword: string,
-): Promise<void> {
+export async function resetPassword(token: string, newPassword: string): Promise<void> {
   await api.post("/auth/reset-password", { token, new_password: newPassword });
 }
 

@@ -39,7 +39,8 @@ export const MOCK_EXPERIMENT: ExperimentContent = {
     },
     {
       step: 2,
-      instruction: "Add one drop of iodine solution to stain the cells and improve visibility.",
+      instruction:
+        "Add one drop of iodine solution to stain the cells and improve visibility.",
     },
     {
       step: 3,
@@ -47,11 +48,13 @@ export const MOCK_EXPERIMENT: ExperimentContent = {
     },
     {
       step: 4,
-      instruction: "Place the slide on the microscope stage and focus under low power (4×) first.",
+      instruction:
+        "Place the slide on the microscope stage and focus under low power (4×) first.",
     },
     {
       step: 5,
-      instruction: "Switch to higher magnification (10×) and identify the cell wall, nucleus, and cytoplasm.",
+      instruction:
+        "Switch to higher magnification (10×) and identify the cell wall, nucleus, and cytoplasm.",
     },
   ],
   safety_notes: [
@@ -91,12 +94,12 @@ export const MOCK_EXPERIMENT_NO_OUTCOME: ExperimentContent = {
 // ---------------------------------------------------------------------------
 
 export const EXPERIMENT_STRINGS = {
-  materialsHeading:       "materials_heading",
-  safetyHeading:          "safety_heading",
-  stepsHeading:           "steps_heading",
+  materialsHeading: "materials_heading",
+  safetyHeading: "safety_heading",
+  stepsHeading: "steps_heading",
   expectedOutcomeHeading: "expected_outcome_heading",
-  errorMessage:           "Could not load experiment. Please try again.",
-  takeQuizBtn:            "Take Quiz",
+  errorMessage: "Could not load experiment. Please try again.",
+  takeQuizBtn: "Take Quiz",
 } as const;
 
 // ---------------------------------------------------------------------------

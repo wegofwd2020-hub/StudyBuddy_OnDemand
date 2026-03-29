@@ -62,9 +62,7 @@ describe("ADM-26 — Progress bar renders while running", () => {
 
   it("renders correct progress percentage while running", () => {
     render(<AdminPipelineJobPage />);
-    expect(
-      screen.getByText(`${MOCK_JOB_RUNNING.progress_pct}%`),
-    ).toBeInTheDocument();
+    expect(screen.getByText(`${MOCK_JOB_RUNNING.progress_pct}%`)).toBeInTheDocument();
   });
 });
 
@@ -108,9 +106,7 @@ describe("ADM-28 — Failed state shows red indicator and failure count", () => 
 
   it("shows failure warning message with unit count", () => {
     render(<AdminPipelineJobPage />);
-    expect(
-      screen.getByText(PIPELINE_JOB_STRINGS.failureWarning),
-    ).toBeInTheDocument();
+    expect(screen.getByText(PIPELINE_JOB_STRINGS.failureWarning)).toBeInTheDocument();
   });
 });
 
@@ -162,9 +158,7 @@ describe("ADM-30 — Back link returns to pipeline list", () => {
 
   it("renders 'Back to pipeline' link", () => {
     render(<AdminPipelineJobPage />);
-    expect(
-      screen.getByRole("link", { name: /Back to pipeline/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Back to pipeline/i })).toBeInTheDocument();
   });
 
   it("back link points to /admin/pipeline", () => {
