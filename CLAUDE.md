@@ -373,3 +373,83 @@ See [AGENTS.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/AGE
 13. Teacher JWT accepted on student endpoints (and vice versa) — separate secrets + role checks.
 14. Pipeline not idempotent — check `meta.json` content_version before generating; use `--force` to override.
 15. XLSX parse errors surfaced as 500 — return HTTP 400 with per-row structured error list.
+
+---
+
+## Content Rules
+
+These rules apply to all AI-generated content (lessons, quizzes, experiments, audio scripts)
+and to all student-facing UI copy. They are non-negotiable.
+
+1. **Age-appropriate:** No violence, profanity, or suggestive themes. All content targets Grades 5–12.
+2. **Inclusive language:** Use gender-neutral phrasing (e.g., "the engineer", "they"). Do not use
+   gendered emoji to represent professional roles in diagrams or examples.
+3. **Reading level:** AI-generated lesson content must target 1–2 grade levels below the student's
+   actual grade to ensure comprehension accessibility.
+4. **STEM clarity:** Use Mermaid.js diagrams for flowcharts. Explain maths step-by-step.
+5. **Student-facing error messages** must be age-appropriate and non-technical. Never expose stack
+   traces, HTTP status codes, or internal identifiers in any message visible to students.
+6. **PSA language (Accessibility AI):** Emergency notification content must use plain language
+   (Flesch-Kincaid Grade 8 or below), be multi-channel (text + audio + visual), and be compatible
+   with screen readers.
+
+---
+
+## Compliance — COPPA & FERPA
+
+### COPPA (Children's Online Privacy Protection Act)
+Applies to students under 13 in US distribution.
+
+- Require verifiable parental consent before collecting any data from under-13 students.
+  Block content access until `account_status = 'active'`.
+- Collect only minimum necessary PII: name, email, grade, locale.
+- No tracking, location data, or behavioural fingerprinting of minors.
+
+### FERPA (Family Educational Rights and Privacy Act)
+Applies to educational records of students at schools receiving US federal funding.
+
+- Parents (or eligible students aged 18+) have the right to inspect and review educational records.
+- Schools must obtain written consent before disclosing student educational records to third parties.
+- Student progress records, quiz scores, and lesson-view history are educational records under FERPA.
+- Admin and teacher endpoints that expose student records must be scoped to the student's own
+  institution and require a `teacher` or `school_admin` JWT. Never cross school boundaries.
+- Default to not sharing directory information without explicit consent, even where technically
+  permitted.
+
+---
+
+## Accessibility Standards
+
+- UI (mobile and web) must target **WCAG 2.1 Level AA**.
+- Minimum colour contrast ratio: 4.5:1 for normal text, 3:1 for large text.
+- All interactive elements must have accessible labels (content descriptions on Android,
+  `aria-label` on web).
+- Audio content must have text alternatives.
+- PSA Notification AI: must support TalkBack (Android), VoiceOver (iOS), and high-contrast mode.
+
+---
+
+## Data & Privacy Rules
+
+- **No real student PII in dev or test environments.** Use synthetic data generators.
+  CI must never connect to production databases.
+- **Data minimisation:** Collect only name, email, grade, locale. No device ID, location,
+  or behavioural fingerprinting.
+- **Retention:** Progress records retained for the lifetime of the account, then anonymised
+  (strip `student_id`) after deletion — 30-day GDPR schedule.
+- **AI-generated content is never the output of the student.** Do not attribute AI content
+  to the student or store it as their work product.
+
+---
+
+## Technical Preferences
+
+- **Primary languages:** Python (backend / pipeline) · TypeScript/React (web) · Kotlin (Android).
+- **Cloud:** Architecture decisions must remain cloud-agnostic where possible. Abstract storage
+  behind an interface; avoid vendor-specific SDK lock-in in business logic.
+- **Content moderation:** AlexJS is the current automated content analysis tool (pipeline phase).
+  Azure AI Content Safety and other commercial options are deferred until AlexJS proves insufficient
+  or a specific cloud platform is adopted.
+- **Async pattern:** Kotlin Coroutines for all async operations on Android; no callbacks or blocking
+  calls on the main thread.
+- **Dependencies:** New dependencies must be reviewed for known CVEs before inclusion.
