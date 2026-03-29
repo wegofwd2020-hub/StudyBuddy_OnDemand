@@ -10,6 +10,8 @@ Routes:
   POST /auth/logout                — invalidate refresh token
   POST /auth/forgot-password       — trigger Auth0 password reset (always 200)
   PATCH /student/profile           — update student name/locale/grade
+  GET   /auth/settings             — get display_name, locale, notification preferences
+  PATCH /auth/settings             — update display_name, locale, notification preferences
   DELETE /auth/account             — soft-delete + GDPR Celery task
 
 All prefixed with /api/v1 in main.py.
@@ -358,6 +360,93 @@ async def update_student_profile(
         "locale": row["locale"],
         "account_status": row["account_status"],
     }
+
+
+# ── Student settings (display_name, locale, notifications) ───────────────────
+
+@router.get("/auth/settings")
+async def get_settings(
+    request: Request,
+    student: Annotated[dict, Depends(get_current_student)],
+):
+    """Return display name, locale, and notification preferences for the student."""
+    student_id = student["student_id"]
+
+    async with get_db(request) as conn:
+        row = await conn.fetchrow(
+            "SELECT name, locale FROM students WHERE student_id = $1",
+            student_id,
+        )
+        notif = await conn.fetchrow(
+            """
+            SELECT streak_reminders, weekly_summary, quiz_nudges
+            FROM notification_preferences
+            WHERE student_id = $1
+            """,
+            student_id,
+        )
+
+    # notification_preferences row may not exist yet for older accounts
+    notifications = {
+        "streak_reminders": notif["streak_reminders"] if notif else True,
+        "weekly_summary": notif["weekly_summary"] if notif else True,
+        "quiz_nudges": notif["quiz_nudges"] if notif else True,
+    }
+
+    return {
+        "display_name": row["name"],
+        "locale": row["locale"],
+        "notifications": notifications,
+    }
+
+
+@router.patch("/auth/settings")
+async def update_settings(
+    request: Request,
+    student: Annotated[dict, Depends(get_current_student)],
+    body: dict,
+):
+    """Update display name, locale, and/or notification preferences."""
+    student_id = student["student_id"]
+
+    async with get_db(request) as conn:
+        # Update students table fields if provided
+        student_updates = {}
+        if "display_name" in body and body["display_name"] is not None:
+            student_updates["name"] = body["display_name"]
+        if "locale" in body and body["locale"] in ("en", "fr", "es"):
+            student_updates["locale"] = body["locale"]
+
+        if student_updates:
+            set_clause = ", ".join(f"{k} = ${i+2}" for i, k in enumerate(student_updates))
+            await conn.execute(
+                f"UPDATE students SET {set_clause} WHERE student_id = $1",
+                student_id,
+                *student_updates.values(),
+            )
+
+        # Upsert notification preferences if provided
+        notif = body.get("notifications")
+        if isinstance(notif, dict):
+            await conn.execute(
+                """
+                INSERT INTO notification_preferences
+                    (student_id, streak_reminders, weekly_summary, quiz_nudges, updated_at)
+                VALUES ($1, $2, $3, $4, NOW())
+                ON CONFLICT (student_id) DO UPDATE SET
+                    streak_reminders = EXCLUDED.streak_reminders,
+                    weekly_summary   = EXCLUDED.weekly_summary,
+                    quiz_nudges      = EXCLUDED.quiz_nudges,
+                    updated_at       = NOW()
+                """,
+                student_id,
+                bool(notif.get("streak_reminders", True)),
+                bool(notif.get("weekly_summary", True)),
+                bool(notif.get("quiz_nudges", True)),
+            )
+
+    emit_event("auth", "settings_updated", student_id=str(student_id))
+    return {}
 
 
 # ── Account deletion (GDPR) ───────────────────────────────────────────────────
