@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 
 # ── Review queue ──────────────────────────────────────────────────────────────
 
+
 class ReviewQueueItem(BaseModel):
     version_id: str
     curriculum_id: str
@@ -29,6 +30,7 @@ class ReviewQueueResponse(BaseModel):
 
 
 # ── Review session ────────────────────────────────────────────────────────────
+
 
 class OpenReviewRequest(BaseModel):
     notes: str | None = None
@@ -61,6 +63,7 @@ class AnnotateResponse(BaseModel):
 
 # ── Rating ────────────────────────────────────────────────────────────────────
 
+
 class RateRequest(BaseModel):
     language_rating: int = Field(..., ge=1, le=5)
     content_rating: int = Field(..., ge=1, le=5)
@@ -75,6 +78,7 @@ class RateResponse(BaseModel):
 
 
 # ── Approve / reject ──────────────────────────────────────────────────────────
+
 
 class ApproveRequest(BaseModel):
     notes: str | None = None
@@ -98,6 +102,7 @@ class RejectResponse(BaseModel):
 
 # ── Publish / rollback ────────────────────────────────────────────────────────
 
+
 class PublishResponse(BaseModel):
     version_id: str
     status: str
@@ -110,6 +115,7 @@ class RollbackResponse(BaseModel):
 
 
 # ── Content block ─────────────────────────────────────────────────────────────
+
 
 class BlockRequest(BaseModel):
     curriculum_id: str
@@ -131,6 +137,7 @@ class UnblockResponse(BaseModel):
 
 
 # ── Student feedback ──────────────────────────────────────────────────────────
+
 
 class FeedbackItem(BaseModel):
     feedback_id: str
@@ -164,6 +171,7 @@ class FeedbackReportResponse(BaseModel):
 
 # ── Subscription analytics ────────────────────────────────────────────────────
 
+
 class SubscriptionAnalyticsResponse(BaseModel):
     active_monthly: int
     active_annual: int
@@ -175,6 +183,7 @@ class SubscriptionAnalyticsResponse(BaseModel):
 
 
 # ── Struggle analytics ────────────────────────────────────────────────────────
+
 
 class StruggleItem(BaseModel):
     unit_id: str
@@ -190,6 +199,7 @@ class StruggleResponse(BaseModel):
 
 # ── Pipeline status ───────────────────────────────────────────────────────────
 
+
 class PipelineStatusResponse(BaseModel):
     last_run_at: datetime | None
     total_versions: int
@@ -201,6 +211,7 @@ class PipelineStatusResponse(BaseModel):
 
 
 # ── Dictionary ────────────────────────────────────────────────────────────────
+
 
 class DictionaryResponse(BaseModel):
     word: str

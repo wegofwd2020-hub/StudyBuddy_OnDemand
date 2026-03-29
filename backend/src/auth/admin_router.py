@@ -52,6 +52,7 @@ _LOCKOUT_TTL = 900  # 15 minutes
 
 # ── Admin login ───────────────────────────────────────────────────────────────
 
+
 @router.post("/admin/auth/login", response_model=AdminLoginResponse)
 async def admin_login(body: AdminLoginRequest, request: Request):
     """
@@ -110,7 +111,11 @@ async def admin_login(body: AdminLoginRequest, request: Request):
     if admin["account_status"] == "suspended":
         raise HTTPException(
             status_code=403,
-            detail={"error": "account_suspended", "detail": "Account suspended.", "correlation_id": cid},
+            detail={
+                "error": "account_suspended",
+                "detail": "Account suspended.",
+                "correlation_id": cid,
+            },
         )
 
     # Successful login — clear lockout counter.
@@ -124,10 +129,12 @@ async def admin_login(body: AdminLoginRequest, request: Request):
         )
 
     admin_id = str(admin["admin_user_id"])
-    token = create_admin_jwt({
-        "admin_id": admin_id,
-        "role": admin["role"],
-    })
+    token = create_admin_jwt(
+        {
+            "admin_id": admin_id,
+            "role": admin["role"],
+        }
+    )
 
     # Issue refresh token for admin.
     refresh = generate_refresh_token()
@@ -145,6 +152,7 @@ async def admin_login(body: AdminLoginRequest, request: Request):
 
 # ── Admin refresh ─────────────────────────────────────────────────────────────
 
+
 @router.post("/admin/auth/refresh", response_model=RefreshResponse)
 async def admin_refresh(body: RefreshRequest, request: Request):
     """Exchange an admin refresh token for a new admin JWT."""
@@ -156,7 +164,11 @@ async def admin_refresh(body: RefreshRequest, request: Request):
     if not admin_id_bytes:
         raise HTTPException(
             status_code=401,
-            detail={"error": "unauthenticated", "detail": "Invalid or expired refresh token.", "correlation_id": cid},
+            detail={
+                "error": "unauthenticated",
+                "detail": "Invalid or expired refresh token.",
+                "correlation_id": cid,
+            },
         )
 
     admin_id: str = admin_id_bytes.decode() if isinstance(admin_id_bytes, bytes) else admin_id_bytes
@@ -170,17 +182,24 @@ async def admin_refresh(body: RefreshRequest, request: Request):
     if not admin or admin["account_status"] != "active":
         raise HTTPException(
             status_code=401,
-            detail={"error": "unauthenticated", "detail": "Admin user not found or inactive.", "correlation_id": cid},
+            detail={
+                "error": "unauthenticated",
+                "detail": "Admin user not found or inactive.",
+                "correlation_id": cid,
+            },
         )
 
-    token = create_admin_jwt({
-        "admin_id": str(admin["admin_user_id"]),
-        "role": admin["role"],
-    })
+    token = create_admin_jwt(
+        {
+            "admin_id": str(admin["admin_user_id"]),
+            "role": admin["role"],
+        }
+    )
     return RefreshResponse(token=token)
 
 
 # ── Forgot password (always 200) ──────────────────────────────────────────────
+
 
 @router.post("/admin/auth/forgot-password")
 async def admin_forgot_password(body: AdminForgotPasswordRequest, request: Request):
@@ -217,6 +236,7 @@ async def admin_forgot_password(body: AdminForgotPasswordRequest, request: Reque
 
 # ── Reset password ────────────────────────────────────────────────────────────
 
+
 @router.post("/admin/auth/reset-password")
 async def admin_reset_password(body: AdminResetPasswordRequest, request: Request):
     """Consume a one-time reset token and set a new password."""
@@ -228,7 +248,11 @@ async def admin_reset_password(body: AdminResetPasswordRequest, request: Request
     if not admin_id_bytes:
         raise HTTPException(
             status_code=400,
-            detail={"error": "bad_request", "detail": "Invalid or expired reset token.", "correlation_id": cid},
+            detail={
+                "error": "bad_request",
+                "detail": "Invalid or expired reset token.",
+                "correlation_id": cid,
+            },
         )
 
     admin_id: str = admin_id_bytes.decode() if isinstance(admin_id_bytes, bytes) else admin_id_bytes

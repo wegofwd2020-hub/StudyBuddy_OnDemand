@@ -14,7 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { LinkButton } from "@/components/ui/link-button";
+
 import { Check, CreditCard, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -144,7 +144,7 @@ export default function SubscriptionPage() {
             <div>
               <p className="font-medium text-red-800">Cancel your subscription?</p>
               <p className="text-sm text-red-600 mt-0.5">
-                You'll keep access until the end of your current billing period.
+                You&apos;ll keep access until the end of your current billing period.
               </p>
             </div>
           </div>
@@ -166,7 +166,7 @@ export default function SubscriptionPage() {
 
       {cancelDone && (
         <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700">
-          Subscription cancelled. You'll keep full access until your billing period ends.
+          Subscription cancelled. You&apos;ll keep full access until your billing period ends.
         </div>
       )}
 

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AnchorButton, LinkButton } from "@/components/ui/link-button";
+import { AnchorButton } from "@/components/ui/link-button";
 import { BookOpen } from "lucide-react";
 
 export const metadata: Metadata = { title: "Sign In" };

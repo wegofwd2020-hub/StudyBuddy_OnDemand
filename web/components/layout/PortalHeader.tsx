@@ -17,10 +17,9 @@ export function PortalHeader({
   portal: keyof typeof PORTAL_ICONS;
   userName?: string;
 }) {
-  const [now, setNow] = useState<Date | null>(null);
+  const [now, setNow] = useState<Date | null>(() => new Date());
 
   useEffect(() => {
-    setNow(new Date());
     const id = setInterval(() => setNow(new Date()), 60_000);
     return () => clearInterval(id);
   }, []);

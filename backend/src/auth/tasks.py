@@ -333,6 +333,7 @@ def update_streak_task(self, student_id: str, activity_date: str) -> None:
             return
 
         from datetime import date as _date
+
         current = streak.get("current", 0)
         longest = streak.get("longest", 0)
 
@@ -403,7 +404,6 @@ def poll_infra_metrics() -> None:
     import redis as redis_sync
     from config import settings as cfg
 
-
     try:
         from prometheus_client import Gauge
 
@@ -425,6 +425,7 @@ def poll_infra_metrics() -> None:
     except Exception as exc:
         # Non-fatal — metrics are best-effort.
         import logging
+
         logging.getLogger("tasks.poll_infra_metrics").warning("metrics_poll_failed: %s", exc)
 
 
@@ -538,6 +539,7 @@ def check_streak_reminders() -> None:
             r.close()
     except Exception as exc:
         import logging
+
         logging.getLogger("tasks.check_streak_reminders").warning("streak_reminder_failed: %s", exc)
 
 
@@ -587,6 +589,7 @@ def check_quiz_nudges() -> None:
             )
     except Exception as exc:
         import logging
+
         logging.getLogger("tasks.check_quiz_nudges").warning("quiz_nudge_failed: %s", exc)
 
 
@@ -640,10 +643,12 @@ def send_weekly_summary() -> None:
             )
     except Exception as exc:
         import logging
+
         logging.getLogger("tasks.send_weekly_summary").warning("weekly_summary_failed: %s", exc)
 
 
 # ── Phase 7: content regeneration ────────────────────────────────────────────
+
 
 @celery_app.task(
     name="src.auth.tasks.regenerate_subject_task",
@@ -660,6 +665,7 @@ def regenerate_subject_task(self, curriculum_id: str, subject: str) -> None:
     Logs success/failure; never raises to avoid poisoning the queue.
     """
     import logging
+
     log = logging.getLogger("tasks.regenerate_subject")
     log.info("regenerate_subject_start curriculum_id=%s subject=%s", curriculum_id, subject)
     try:
@@ -680,7 +686,8 @@ def regenerate_subject_task(self, curriculum_id: str, subject: str) -> None:
                     FROM curriculum_units
                     WHERE curriculum_id = $1 AND subject = $2
                     """,
-                    curriculum_id, subject,
+                    curriculum_id,
+                    subject,
                 )
             finally:
                 await pool.close()
@@ -710,15 +717,24 @@ def regenerate_subject_task(self, curriculum_id: str, subject: str) -> None:
         failed = sum(1 for r in results if r.get("status") == "failed")
         log.info(
             "regenerate_subject_complete curriculum_id=%s subject=%s ok=%d failed=%d",
-            curriculum_id, subject, ok, failed,
+            curriculum_id,
+            subject,
+            ok,
+            failed,
         )
 
     except Exception as exc:
-        log.error("regenerate_subject_failed curriculum_id=%s subject=%s error=%s", curriculum_id, subject, exc)
+        log.error(
+            "regenerate_subject_failed curriculum_id=%s subject=%s error=%s",
+            curriculum_id,
+            subject,
+            exc,
+        )
         raise self.retry(exc=exc)
 
 
 # ── Phase 8 tasks ─────────────────────────────────────────────────────────────
+
 
 @celery_app.task(name="src.auth.tasks.send_pipeline_email_task")
 def send_pipeline_email_task(
@@ -739,22 +755,23 @@ def send_pipeline_email_task(
         if failed == 0
         else f"Content pipeline finished with {failed} failure(s)"
     )
-    body = (
-        f"Curriculum {curriculum_id}: {built} units built successfully."
-        + (
-            f"\n\nFailed units ({failed}):\n"
-            + "\n".join(f"  - {u['unit_id']}: {u.get('error', 'unknown error')}" for u in failed_units)
-            if failed_units
-            else ""
-        )
+    body = f"Curriculum {curriculum_id}: {built} units built successfully." + (
+        f"\n\nFailed units ({failed}):\n"
+        + "\n".join(f"  - {u['unit_id']}: {u.get('error', 'unknown error')}" for u in failed_units)
+        if failed_units
+        else ""
     )
     log.info(
         "pipeline_email_dispatch teacher=%s curriculum_id=%s built=%d failed=%d",
-        teacher_email, curriculum_id, built, failed,
+        teacher_email,
+        curriculum_id,
+        built,
+        failed,
     )
     if settings.SENDGRID_API_KEY:
         try:
             import httpx as _httpx
+
             _httpx.post(
                 "https://api.sendgrid.com/v3/mail/send",
                 headers={"Authorization": f"Bearer {settings.SENDGRID_API_KEY}"},
@@ -830,7 +847,10 @@ def run_curriculum_pipeline_task(
                     # In tests this path is mocked via celery_app.send_task mock.
                     log.info(
                         "pipeline_build_unit job_id=%s curriculum_id=%s unit_id=%s lang=%s",
-                        job_id, curriculum_id, unit_id, lang,
+                        job_id,
+                        curriculum_id,
+                        unit_id,
+                        lang,
                     )
                     built += 1
                 except Exception as unit_exc:
@@ -840,7 +860,9 @@ def run_curriculum_pipeline_task(
                     failed_units.append({"unit_id": unit_id, "lang": lang, "error": str(unit_exc)})
 
                 progress_pct = round((built + len(failed_units)) / max(total, 1) * 100, 1)
-                _update_job({"built": built, "failed": len(failed_units), "progress_pct": progress_pct})
+                _update_job(
+                    {"built": built, "failed": len(failed_units), "progress_pct": progress_pct}
+                )
 
         final_status = "completed" if not failed_units else "completed_with_errors"
 
@@ -850,15 +872,20 @@ def run_curriculum_pipeline_task(
                 status = "active" if not failed_units else "failed"
                 await conn.execute(
                     "UPDATE curricula SET status = $1 WHERE curriculum_id = $2",
-                    status, curriculum_id,
+                    status,
+                    curriculum_id,
                 )
                 # Mark individual units
                 for unit in units:
                     u_id = unit["unit_id"]
-                    u_status = "failed" if any(f["unit_id"] == u_id for f in failed_units) else "built"
+                    u_status = (
+                        "failed" if any(f["unit_id"] == u_id for f in failed_units) else "built"
+                    )
                     await conn.execute(
                         "UPDATE curriculum_units SET content_status = $1 WHERE unit_id = $2 AND curriculum_id = $3",
-                        u_status, u_id, curriculum_id,
+                        u_status,
+                        u_id,
+                        curriculum_id,
                     )
             finally:
                 await conn.close()
@@ -868,13 +895,19 @@ def run_curriculum_pipeline_task(
 
         if teacher_email:
             send_pipeline_email_task.delay(
-                teacher_email, curriculum_id,
-                built, len(failed_units), failed_units,
+                teacher_email,
+                curriculum_id,
+                built,
+                len(failed_units),
+                failed_units,
             )
 
         log.info(
             "pipeline_job_complete job_id=%s curriculum_id=%s built=%d failed=%d",
-            job_id, curriculum_id, built, len(failed_units),
+            job_id,
+            curriculum_id,
+            built,
+            len(failed_units),
         )
 
     except Exception as exc:
@@ -934,6 +967,7 @@ def promote_student_grades() -> None:
 
 
 # ── Phase 11: Teacher Reporting Dashboard tasks ───────────────────────────────
+
 
 @celery_app.task(name="src.auth.tasks.refresh_report_views_task")
 def refresh_report_views_task() -> None:
@@ -1005,7 +1039,9 @@ def evaluate_report_alerts_task() -> None:
                             ON CONFLICT DO NOTHING
                             """,
                             uuid.UUID(school_id),
-                            json.dumps({"unit_id": br["unit_id"], "pass_rate": float(br["pass_rate"] or 0)}),
+                            json.dumps(
+                                {"unit_id": br["unit_id"], "pass_rate": float(br["pass_rate"] or 0)}
+                            ),
                         )
             log.info("report_alerts_evaluated")
         finally:
@@ -1054,7 +1090,8 @@ def send_weekly_digest_task() -> None:
                         WHERE se.school_id = $1 AND se.status = 'active'
                           AND lv.started_at >= $2
                         """,
-                        school_id, week_start,
+                        school_id,
+                        week_start,
                     )
                     active_students = active_row["active_students"] if active_row else 0
 
@@ -1080,7 +1117,8 @@ def send_weekly_digest_task() -> None:
                         ORDER BY pass_rate ASC
                         LIMIT 5
                         """,
-                        school_id, week_start,
+                        school_id,
+                        week_start,
                     )
 
                     # Unreviewed feedback count
@@ -1095,10 +1133,13 @@ def send_weekly_digest_task() -> None:
                     unreviewed_feedback = fb_row["cnt"] if fb_row else 0
 
                     # Build email body
-                    struggling_lines = "\n".join(
-                        f"  - {r['unit_id']}: {r['pass_rate']}% pass rate"
-                        for r in struggling_rows
-                    ) or "  None — great week!"
+                    struggling_lines = (
+                        "\n".join(
+                            f"  - {r['unit_id']}: {r['pass_rate']}% pass rate"
+                            for r in struggling_rows
+                        )
+                        or "  None — great week!"
+                    )
 
                     plain_body = (
                         f"StudyBuddy Weekly Digest\n"
@@ -1134,6 +1175,7 @@ def send_weekly_digest_task() -> None:
                     if settings.SENDGRID_API_KEY:
                         try:
                             import httpx as _httpx
+
                             _httpx.post(
                                 "https://api.sendgrid.com/v3/mail/send",
                                 headers={"Authorization": f"Bearer {settings.SENDGRID_API_KEY}"},
@@ -1150,7 +1192,9 @@ def send_weekly_digest_task() -> None:
                             )
                             log.info("weekly_digest_sent email=%s", sub["email"])
                         except Exception as exc:
-                            log.warning("weekly_digest_send_failed email=%s error=%s", sub["email"], exc)
+                            log.warning(
+                                "weekly_digest_send_failed email=%s error=%s", sub["email"], exc
+                            )
         finally:
             await pool.close()
 
@@ -1202,11 +1246,18 @@ def export_report_task(
         export_path = _os.path.join(export_dir, f"{export_id}.csv")
 
         with open(export_path, "w", newline="") as f:
-            writer = _csv.DictWriter(f, fieldnames=["name", "grade", "email", "units_passed", "avg_score"])
+            writer = _csv.DictWriter(
+                f, fieldnames=["name", "grade", "email", "units_passed", "avg_score"]
+            )
             writer.writeheader()
             for r in rows:
                 writer.writerow(dict(r))
 
-        log.info("report_export_complete", export_id=export_id, school_id=school_id, report_type=report_type)
+        log.info(
+            "report_export_complete",
+            export_id=export_id,
+            school_id=school_id,
+            report_type=report_type,
+        )
 
     _run_async(_export())

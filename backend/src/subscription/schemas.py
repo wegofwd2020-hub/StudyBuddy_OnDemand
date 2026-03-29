@@ -27,8 +27,8 @@ class CheckoutResponse(BaseModel):
 
 
 class SubscriptionStatusResponse(BaseModel):
-    plan: str                       # free | monthly | annual
-    status: str | None = None    # active | cancelled | past_due | None (free tier)
+    plan: str  # free | monthly | annual
+    status: str | None = None  # active | cancelled | past_due | None (free tier)
     valid_until: str | None = None
     lessons_accessed: int = 0
     stripe_subscription_id: str | None = None

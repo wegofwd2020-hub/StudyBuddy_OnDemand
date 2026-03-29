@@ -13,6 +13,7 @@ from pydantic import BaseModel, Field
 
 # ── Shared ────────────────────────────────────────────────────────────────────
 
+
 class AttemptDistribution(BaseModel):
     one: int = 0
     two: int = 0
@@ -21,6 +22,7 @@ class AttemptDistribution(BaseModel):
 
 
 # ── Report 1: Class Overview ──────────────────────────────────────────────────
+
 
 class OverviewReport(BaseModel):
     school_id: str
@@ -38,6 +40,7 @@ class OverviewReport(BaseModel):
 
 
 # ── Report 2: Unit Performance ────────────────────────────────────────────────
+
 
 class RecentFeedbackItem(BaseModel):
     feedback_id: str
@@ -70,6 +73,7 @@ class UnitReport(BaseModel):
 
 # ── Report 3: Student Progress ────────────────────────────────────────────────
 
+
 class PerUnitStudentReportItem(BaseModel):
     unit_id: str
     unit_name: str | None = None
@@ -99,6 +103,7 @@ class StudentReport(BaseModel):
 
 # ── Report 4: Curriculum Health ───────────────────────────────────────────────
 
+
 class CurriculumHealthUnit(BaseModel):
     unit_id: str
     unit_name: str | None = None
@@ -123,6 +128,7 @@ class CurriculumHealthReport(BaseModel):
 
 
 # ── Report 5: Feedback Report ─────────────────────────────────────────────────
+
 
 class FeedbackReportItem(BaseModel):
     feedback_id: str
@@ -152,6 +158,7 @@ class FeedbackReport(BaseModel):
 
 # ── Report 6: Trends ──────────────────────────────────────────────────────────
 
+
 class TrendsWeek(BaseModel):
     week_start: str  # YYYY-MM-DD
     active_students: int
@@ -169,8 +176,11 @@ class TrendsReport(BaseModel):
 
 # ── Export ────────────────────────────────────────────────────────────────────
 
+
 class ExportRequest(BaseModel):
-    report_type: str = Field(..., pattern="^(overview|unit|student|curriculum-health|feedback|trends)$")
+    report_type: str = Field(
+        ..., pattern="^(overview|unit|student|curriculum-health|feedback|trends)$"
+    )
     filters: dict[str, Any] = {}
 
 
@@ -181,6 +191,7 @@ class ExportResponse(BaseModel):
 
 
 # ── Alerts ────────────────────────────────────────────────────────────────────
+
 
 class AlertItem(BaseModel):
     alert_id: str
@@ -215,6 +226,7 @@ class AlertSettingsResponse(BaseModel):
 
 # ── Digest ────────────────────────────────────────────────────────────────────
 
+
 class DigestSubscribeRequest(BaseModel):
     email: str
     timezone: str = "UTC"
@@ -230,6 +242,7 @@ class DigestSubscribeResponse(BaseModel):
 
 
 # ── Refresh ───────────────────────────────────────────────────────────────────
+
 
 class RefreshResponse(BaseModel):
     refreshed_at: datetime

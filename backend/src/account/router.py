@@ -58,6 +58,7 @@ def _require_account_admin(admin: dict) -> None:
 
 # ── Student status ────────────────────────────────────────────────────────────
 
+
 @router.patch("/account/students/{student_id}/status", response_model=StudentStatusResponse)
 async def update_student_status(
     student_id: uuid.UUID,
@@ -135,6 +136,7 @@ async def update_student_status(
 
 # ── Teacher status ────────────────────────────────────────────────────────────
 
+
 @router.patch("/account/teachers/{teacher_id}/status", response_model=TeacherStatusResponse)
 async def update_teacher_status(
     teacher_id: uuid.UUID,
@@ -202,6 +204,7 @@ async def update_teacher_status(
 
 
 # ── School status (cascades to members via Celery) ────────────────────────────
+
 
 @router.patch("/account/schools/{school_id}/status", response_model=SchoolStatusResponse)
 async def update_school_status(
@@ -273,6 +276,7 @@ async def update_school_status(
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
+
 def _validate_transition(current: str, new: str, cid: str) -> None:
     """Enforce allowed status transitions."""
     if current == "deleted":
@@ -299,6 +303,7 @@ def _dispatch_auth0_sync(user_id: str, action: str, conn) -> None:
     """Fire-and-forget Auth0 block/unblock — swallow import errors gracefully."""
     try:
         from src.auth.tasks import sync_auth0_suspension
+
         sync_auth0_suspension.delay(user_id, action)
     except Exception as exc:
         log.warning("auth0_sync_dispatch_failed", error=str(exc))

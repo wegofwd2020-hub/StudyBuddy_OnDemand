@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 
 # ── Existing grade-tree schemas ───────────────────────────────────────────────
 
+
 class Unit(BaseModel):
     unit_id: str
     title: str
@@ -35,6 +36,7 @@ class GradeSummary(BaseModel):
 
 
 # ── Phase 8: curriculum upload ────────────────────────────────────────────────
+
 
 class CurriculumUnitInput(BaseModel):
     subject: str
@@ -66,6 +68,7 @@ class CurriculumUploadResponse(BaseModel):
 
 # ── Phase 8: pipeline trigger + job status ────────────────────────────────────
 
+
 class PipelineTriggerRequest(BaseModel):
     curriculum_id: str
     langs: str = "en"
@@ -87,6 +90,7 @@ class PipelineJobStatusResponse(BaseModel):
 
 
 # ── Phase 9: curriculum activation ────────────────────────────────────────────
+
 
 class CurriculumActivateResponse(BaseModel):
     curriculum_id: str

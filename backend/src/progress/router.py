@@ -76,7 +76,11 @@ async def start_session(
             log.error("start_session_failed", error=str(exc), correlation_id=cid)
             raise HTTPException(
                 status_code=500,
-                detail={"error": "internal_error", "detail": "Could not create session.", "correlation_id": cid},
+                detail={
+                    "error": "internal_error",
+                    "detail": "Could not create session.",
+                    "correlation_id": cid,
+                },
             )
 
     return StartSessionResponse(**result)
@@ -108,7 +112,11 @@ async def record_answer(
     except ValueError:
         raise HTTPException(
             status_code=400,
-            detail={"error": "invalid_session_id", "detail": "session_id must be a UUID.", "correlation_id": cid},
+            detail={
+                "error": "invalid_session_id",
+                "detail": "session_id must be a UUID.",
+                "correlation_id": cid,
+            },
         )
 
     # Verify ownership synchronously (cheap DB hit — just SELECT)
@@ -118,16 +126,25 @@ async def record_answer(
         except LookupError:
             raise HTTPException(
                 status_code=404,
-                detail={"error": "session_not_found", "detail": "Session not found.", "correlation_id": cid},
+                detail={
+                    "error": "session_not_found",
+                    "detail": "Session not found.",
+                    "correlation_id": cid,
+                },
             )
         except PermissionError:
             raise HTTPException(
                 status_code=403,
-                detail={"error": "forbidden", "detail": "This session belongs to another student.", "correlation_id": cid},
+                detail={
+                    "error": "forbidden",
+                    "detail": "This session belongs to another student.",
+                    "correlation_id": cid,
+                },
             )
 
     # Fire-and-forget Celery task for the actual write
     from src.auth.tasks import celery_app
+
     celery_app.send_task(
         "src.auth.tasks.write_progress_answer_task",
         kwargs={
@@ -171,7 +188,11 @@ async def end_session_endpoint(
     except ValueError:
         raise HTTPException(
             status_code=400,
-            detail={"error": "invalid_session_id", "detail": "session_id must be a UUID.", "correlation_id": cid},
+            detail={
+                "error": "invalid_session_id",
+                "detail": "session_id must be a UUID.",
+                "correlation_id": cid,
+            },
         )
 
     async with get_db(request) as conn:
@@ -180,31 +201,50 @@ async def end_session_endpoint(
         except LookupError:
             raise HTTPException(
                 status_code=404,
-                detail={"error": "session_not_found", "detail": "Session not found.", "correlation_id": cid},
+                detail={
+                    "error": "session_not_found",
+                    "detail": "Session not found.",
+                    "correlation_id": cid,
+                },
             )
         except PermissionError:
             raise HTTPException(
                 status_code=403,
-                detail={"error": "forbidden", "detail": "This session belongs to another student.", "correlation_id": cid},
+                detail={
+                    "error": "forbidden",
+                    "detail": "This session belongs to another student.",
+                    "correlation_id": cid,
+                },
             )
 
         if session_row["completed"]:
             raise HTTPException(
                 status_code=409,
-                detail={"error": "session_already_ended", "detail": "This session has already been ended.", "correlation_id": cid},
+                detail={
+                    "error": "session_already_ended",
+                    "detail": "This session has already been ended.",
+                    "correlation_id": cid,
+                },
             )
 
         try:
-            result = await end_session(conn, session_id=session_id, score=body.score, total_questions=body.total_questions)
+            result = await end_session(
+                conn, session_id=session_id, score=body.score, total_questions=body.total_questions
+            )
         except Exception as exc:
             log.error("end_session_failed", error=str(exc), correlation_id=cid)
             raise HTTPException(
                 status_code=500,
-                detail={"error": "internal_error", "detail": "Could not end session.", "correlation_id": cid},
+                detail={
+                    "error": "internal_error",
+                    "detail": "Could not end session.",
+                    "correlation_id": cid,
+                },
             )
 
     # Invalidate dashboard L1 + L2 cache
     from src.core.cache import dashboard_cache
+
     dashboard_cache.pop(student_id, None)
     redis = request.app.state.redis
     await redis.delete(f"dashboard:{student_id}")
@@ -213,9 +253,16 @@ async def end_session_endpoint(
     from datetime import date
 
     from src.auth.tasks import celery_app
+
     today = date.today().isoformat()
-    celery_app.send_task("src.auth.tasks.update_streak_task", kwargs={"student_id": student_id, "activity_date": today}, queue="io")
-    celery_app.send_task("src.auth.tasks.refresh_progress_view_task", kwargs={"student_id": student_id}, queue="io")
+    celery_app.send_task(
+        "src.auth.tasks.update_streak_task",
+        kwargs={"student_id": student_id, "activity_date": today},
+        queue="io",
+    )
+    celery_app.send_task(
+        "src.auth.tasks.refresh_progress_view_task", kwargs={"student_id": student_id}, queue="io"
+    )
 
     return EndSessionResponse(**result)
 
@@ -242,7 +289,11 @@ async def get_student_history(
             log.error("get_history_failed", error=str(exc), correlation_id=cid)
             raise HTTPException(
                 status_code=500,
-                detail={"error": "internal_error", "detail": "Could not retrieve history.", "correlation_id": cid},
+                detail={
+                    "error": "internal_error",
+                    "detail": "Could not retrieve history.",
+                    "correlation_id": cid,
+                },
             )
 
     return ProgressHistoryResponse(**history)

@@ -25,13 +25,14 @@ from src.utils.logger import get_logger
 
 log = get_logger("reports")
 
-_STRUGGLE_PASS   = 50.0   # below this → struggling (or watch)
-_HEALTHY_PASS    = 70.0   # at or above this → healthy
-_STRUGGLE_ATT    = 2.0    # above this → struggling
-_HEALTHY_ATT     = 1.5    # at or below this → healthy
+_STRUGGLE_PASS = 50.0  # below this → struggling (or watch)
+_HEALTHY_PASS = 70.0  # at or above this → healthy
+_STRUGGLE_ATT = 2.0  # above this → struggling
+_HEALTHY_ATT = 1.5  # at or below this → healthy
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
+
 
 def _period_start(period: str) -> datetime:
     now = datetime.now(UTC)
@@ -40,7 +41,7 @@ def _period_start(period: str) -> datetime:
     if period == "term":
         year = now.year if now.month >= 9 else now.year - 1
         return datetime(year, 9, 1, tzinfo=UTC)
-    return now - timedelta(days=7)   # default: 7d
+    return now - timedelta(days=7)  # default: 7d
 
 
 def _trend_weeks(period: str) -> int:
@@ -72,14 +73,15 @@ def _health_tier(pass_rate: float, avg_attempts: float, has_activity: bool) -> s
 
 def _recommended_action(tier: str) -> str:
     return {
-        "healthy":     "none",
-        "watch":       "review_content",
-        "struggling":  "report_to_admin",
+        "healthy": "none",
+        "watch": "review_content",
+        "struggling": "report_to_admin",
         "no_activity": "add_class_time",
     }.get(tier, "none")
 
 
 # ── Report 1: Class Overview ──────────────────────────────────────────────────
+
 
 async def get_overview(
     conn: asyncpg.Connection,
@@ -94,11 +96,17 @@ async def get_overview(
 
     if not enrolled:
         return {
-            "school_id": school_id, "period": period,
-            "enrolled_students": 0, "active_students_period": 0,
-            "active_pct": 0.0, "lessons_viewed": 0, "quiz_attempts": 0,
-            "first_attempt_pass_rate_pct": 0.0, "audio_play_rate_pct": 0.0,
-            "units_with_struggles": [], "units_no_activity": [],
+            "school_id": school_id,
+            "period": period,
+            "enrolled_students": 0,
+            "active_students_period": 0,
+            "active_pct": 0.0,
+            "lessons_viewed": 0,
+            "quiz_attempts": 0,
+            "first_attempt_pass_rate_pct": 0.0,
+            "audio_play_rate_pct": 0.0,
+            "units_with_struggles": [],
+            "units_no_activity": [],
             "unreviewed_feedback_count": 0,
         }
 
@@ -115,11 +123,12 @@ async def get_overview(
         WHERE student_id = ANY(ARRAY[{placeholders}]::uuid[])
           AND started_at >= $1
         """,
-        start, *id_uuids,
+        start,
+        *id_uuids,
     )
     active_students = active_row["active_students"] or 0
-    lessons_viewed  = active_row["lessons_viewed"] or 0
-    audio_plays     = active_row["audio_plays"] or 0
+    lessons_viewed = active_row["lessons_viewed"] or 0
+    audio_plays = active_row["audio_plays"] or 0
 
     # Quiz attempts + pass rates in period
     quiz_row = await conn.fetchrow(
@@ -135,10 +144,11 @@ async def get_overview(
         WHERE student_id = ANY(ARRAY[{placeholders}]::uuid[])
           AND started_at >= $1
         """,
-        start, *id_uuids,
+        start,
+        *id_uuids,
     )
-    quiz_attempts      = quiz_row["quiz_attempts"] or 0
-    pass_rate          = float(quiz_row["first_attempt_pass_rate_pct"] or 0)
+    quiz_attempts = quiz_row["quiz_attempts"] or 0
+    pass_rate = float(quiz_row["first_attempt_pass_rate_pct"] or 0)
 
     # Audio play rate
     audio_rate = round(100.0 * audio_plays / lessons_viewed, 1) if lessons_viewed else 0.0
@@ -158,11 +168,16 @@ async def get_overview(
           AND started_at >= $1
         GROUP BY unit_id
         """,
-        start, *id_uuids,
+        start,
+        *id_uuids,
     )
     units_with_struggles = [
-        r["unit_id"] for r in struggle_rows
-        if (float(r["first_pass_rate"] or 0) < _STRUGGLE_PASS or float(r["avg_att"] or 1) > _STRUGGLE_ATT)
+        r["unit_id"]
+        for r in struggle_rows
+        if (
+            float(r["first_pass_rate"] or 0) < _STRUGGLE_PASS
+            or float(r["avg_att"] or 1) > _STRUGGLE_ATT
+        )
     ]
 
     # Units with NO activity in period
@@ -173,7 +188,8 @@ async def get_overview(
         WHERE student_id = ANY(ARRAY[{placeholders}]::uuid[])
           AND started_at < $1
         """,
-        start, *id_uuids,
+        start,
+        *id_uuids,
     )
     ever_active_units = {r["unit_id"] for r in all_unit_rows}
     units_no_activity = sorted(ever_active_units - active_units)
@@ -207,6 +223,7 @@ async def get_overview(
 
 # ── Report 2: Unit Performance ────────────────────────────────────────────────
 
+
 async def get_unit_report(
     conn: asyncpg.Connection,
     school_id: str,
@@ -238,15 +255,17 @@ async def get_unit_report(
           AND started_at >= $2
           AND student_id = ANY(ARRAY[{placeholders}]::uuid[])
         """,
-        unit_id, start, *id_uuids,
+        unit_id,
+        start,
+        *id_uuids,
     )
     students_viewed = lv_row["students_viewed"] or 0
-    total_views     = lv_row["total_views"] or 0
-    avg_duration    = float(lv_row["avg_duration_s"] or 0)
-    audio_plays     = lv_row["audio_plays"] or 0
-    exp_views       = lv_row["exp_views"] or 0
-    audio_rate      = round(100.0 * audio_plays / total_views, 1) if total_views else 0.0
-    exp_rate        = round(100.0 * exp_views / total_views, 1) if total_views else None
+    total_views = lv_row["total_views"] or 0
+    avg_duration = float(lv_row["avg_duration_s"] or 0)
+    audio_plays = lv_row["audio_plays"] or 0
+    exp_views = lv_row["exp_views"] or 0
+    audio_rate = round(100.0 * audio_plays / total_views, 1) if total_views else 0.0
+    exp_rate = round(100.0 * exp_views / total_views, 1) if total_views else None
 
     # Quiz stats
     quiz_rows = await conn.fetch(
@@ -257,22 +276,30 @@ async def get_unit_report(
           AND started_at >= $2
           AND student_id = ANY(ARRAY[{placeholders}]::uuid[])
         """,
-        unit_id, start, *id_uuids,
+        unit_id,
+        start,
+        *id_uuids,
     )
     students_attempted = len({r["student_id"] for r in quiz_rows if r["completed"]})
     first_pass = sum(
-        1 for r in quiz_rows
-        if r["attempt_number"] == 1 and r["passed"] and r["completed"]
+        1 for r in quiz_rows if r["attempt_number"] == 1 and r["passed"] and r["completed"]
     )
-    first_attempt_students = len({
-        r["student_id"] for r in quiz_rows if r["attempt_number"] == 1 and r["completed"]
-    })
-    pass_rate = round(100.0 * first_pass / first_attempt_students, 1) if first_attempt_students else 0.0
+    first_attempt_students = len(
+        {r["student_id"] for r in quiz_rows if r["attempt_number"] == 1 and r["completed"]}
+    )
+    pass_rate = (
+        round(100.0 * first_pass / first_attempt_students, 1) if first_attempt_students else 0.0
+    )
 
     completed_rows = [r for r in quiz_rows if r["completed"]]
-    avg_score = round(
-        sum(r["score"] for r in completed_rows if r["score"] is not None) / len(completed_rows), 1
-    ) if completed_rows else 0.0
+    avg_score = (
+        round(
+            sum(r["score"] for r in completed_rows if r["score"] is not None) / len(completed_rows),
+            1,
+        )
+        if completed_rows
+        else 0.0
+    )
 
     # Average attempts to pass
     passed_students: dict[str, int] = {}
@@ -280,7 +307,9 @@ async def get_unit_report(
         if r["passed"] and r["completed"]:
             sid = r["student_id"]
             passed_students[sid] = max(passed_students.get(sid, 0), r["attempt_number"])
-    avg_att = round(sum(passed_students.values()) / len(passed_students), 1) if passed_students else 0.0
+    avg_att = (
+        round(sum(passed_students.values()) / len(passed_students), 1) if passed_students else 0.0
+    )
 
     # Attempt distribution
     att_counts: dict[str, int] = {}
@@ -290,10 +319,14 @@ async def get_unit_report(
             att_counts[sid] = max(att_counts.get(sid, 0), r["attempt_number"])
     dist = {"one": 0, "two": 0, "three": 0, "four_plus": 0}
     for v in att_counts.values():
-        if v == 1:   dist["one"] += 1
-        elif v == 2: dist["two"] += 1
-        elif v == 3: dist["three"] += 1
-        else:        dist["four_plus"] += 1
+        if v == 1:
+            dist["one"] += 1
+        elif v == 2:
+            dist["two"] += 1
+        elif v == 3:
+            dist["three"] += 1
+        else:
+            dist["four_plus"] += 1
 
     struggle_flag = pass_rate < _STRUGGLE_PASS or avg_att > _STRUGGLE_ATT
 
@@ -308,7 +341,8 @@ async def get_unit_report(
         ORDER BY submitted_at DESC
         LIMIT 3
         """,
-        unit_id, *id_uuids,
+        unit_id,
+        *id_uuids,
     )
     fb_count_row = await conn.fetchrow(
         f"""
@@ -316,7 +350,8 @@ async def get_unit_report(
         FROM feedback
         WHERE unit_id = $1 AND student_id = ANY(ARRAY[{fb_placeholders}]::uuid[])
         """,
-        unit_id, *id_uuids,
+        unit_id,
+        *id_uuids,
     )
 
     return {
@@ -329,7 +364,9 @@ async def get_unit_report(
         "audio_play_rate_pct": audio_rate,
         "experiment_view_pct": exp_rate,
         "students_attempted_quiz": students_attempted,
-        "quiz_attempt_pct": round(100.0 * students_attempted / n_enrolled, 1) if n_enrolled else 0.0,
+        "quiz_attempt_pct": round(100.0 * students_attempted / n_enrolled, 1)
+        if n_enrolled
+        else 0.0,
         "first_attempt_pass_rate_pct": pass_rate,
         "avg_score_pct": avg_score,
         "avg_attempts_to_pass": avg_att,
@@ -352,19 +389,29 @@ async def get_unit_report(
 
 def _empty_unit_report(school_id: str, unit_id: str, period: str) -> dict:
     return {
-        "school_id": school_id, "unit_id": unit_id, "period": period,
-        "students_viewed_lesson": 0, "lesson_view_pct": 0.0,
-        "avg_lesson_duration_s": 0.0, "audio_play_rate_pct": 0.0,
-        "experiment_view_pct": None, "students_attempted_quiz": 0,
-        "quiz_attempt_pct": 0.0, "first_attempt_pass_rate_pct": 0.0,
-        "avg_score_pct": 0.0, "avg_attempts_to_pass": 0.0,
+        "school_id": school_id,
+        "unit_id": unit_id,
+        "period": period,
+        "students_viewed_lesson": 0,
+        "lesson_view_pct": 0.0,
+        "avg_lesson_duration_s": 0.0,
+        "audio_play_rate_pct": 0.0,
+        "experiment_view_pct": None,
+        "students_attempted_quiz": 0,
+        "quiz_attempt_pct": 0.0,
+        "first_attempt_pass_rate_pct": 0.0,
+        "avg_score_pct": 0.0,
+        "avg_attempts_to_pass": 0.0,
         "attempt_distribution": {"one": 0, "two": 0, "three": 0, "four_plus": 0},
-        "struggle_flag": False, "feedback_count": 0, "avg_rating": None,
+        "struggle_flag": False,
+        "feedback_count": 0,
+        "avg_rating": None,
         "feedback_summary": [],
     }
 
 
 # ── Report 3: Student Progress ────────────────────────────────────────────────
+
 
 async def get_student_report(
     conn: asyncpg.Connection,
@@ -375,7 +422,8 @@ async def get_student_report(
     # Verify this student is enrolled in the school
     enrol = await conn.fetchrow(
         "SELECT 1 FROM school_enrolments WHERE school_id = $1 AND student_id = $2 AND status = 'active'",
-        uuid.UUID(school_id), uuid.UUID(student_id),
+        uuid.UUID(school_id),
+        uuid.UUID(student_id),
     )
     if enrol is None:
         raise LookupError(f"student {student_id} not enrolled in school {school_id}")
@@ -425,9 +473,11 @@ async def get_student_report(
         """,
         uuid.UUID(student_id),
     )
-    first_pass_rate = round(
-        100.0 * (first_att_row["passed"] or 0) / (first_att_row["total"] or 1), 1
-    ) if (first_att_row["total"] or 0) > 0 else 0.0
+    first_pass_rate = (
+        round(100.0 * (first_att_row["passed"] or 0) / (first_att_row["total"] or 1), 1)
+        if (first_att_row["total"] or 0) > 0
+        else 0.0
+    )
 
     # Total time
     time_row = await conn.fetchrow(
@@ -524,6 +574,7 @@ async def get_student_report(
 
 # ── Report 4: Curriculum Health ───────────────────────────────────────────────
 
+
 async def get_curriculum_health(
     conn: asyncpg.Connection,
     school_id: str,
@@ -532,9 +583,12 @@ async def get_curriculum_health(
     enrolled = await _enrolled_ids(conn, school_id)
     if not enrolled:
         return {
-            "school_id": school_id, "total_units": 0,
-            "healthy_count": 0, "watch_count": 0,
-            "struggling_count": 0, "no_activity_count": 0,
+            "school_id": school_id,
+            "total_units": 0,
+            "healthy_count": 0,
+            "watch_count": 0,
+            "struggling_count": 0,
+            "no_activity_count": 0,
             "units": [],
         }
 
@@ -591,39 +645,42 @@ async def get_curriculum_health(
     units = []
     counts = {"healthy": 0, "watch": 0, "struggling": 0, "no_activity": 0}
     for r in rows:
-        pass_rate  = float(r["first_pass_rate"] or 0)
-        avg_att    = float(r["avg_att"] or 0)
-        avg_score  = float(r["avg_score"] or 0)
-        has_lv     = bool(r["has_lesson_view"])
-        tier       = _health_tier(pass_rate, avg_att, has_lv)
-        action     = _recommended_action(tier)
+        pass_rate = float(r["first_pass_rate"] or 0)
+        avg_att = float(r["avg_att"] or 0)
+        avg_score = float(r["avg_score"] or 0)
+        has_lv = bool(r["has_lesson_view"])
+        tier = _health_tier(pass_rate, avg_att, has_lv)
+        action = _recommended_action(tier)
         counts[tier] += 1
         fb = fb_map.get(r["unit_id"])
-        units.append({
-            "unit_id": r["unit_id"],
-            "unit_name": unit_names.get(r["unit_id"]),
-            "subject": r["subject"],
-            "health_tier": tier,
-            "first_attempt_pass_rate_pct": pass_rate,
-            "avg_attempts_to_pass": avg_att,
-            "avg_score_pct": avg_score,
-            "feedback_count": fb["fb_count"] if fb else 0,
-            "avg_rating": float(fb["avg_rating"]) if fb and fb["avg_rating"] else None,
-            "recommended_action": action,
-        })
+        units.append(
+            {
+                "unit_id": r["unit_id"],
+                "unit_name": unit_names.get(r["unit_id"]),
+                "subject": r["subject"],
+                "health_tier": tier,
+                "first_attempt_pass_rate_pct": pass_rate,
+                "avg_attempts_to_pass": avg_att,
+                "avg_score_pct": avg_score,
+                "feedback_count": fb["fb_count"] if fb else 0,
+                "avg_rating": float(fb["avg_rating"]) if fb and fb["avg_rating"] else None,
+                "recommended_action": action,
+            }
+        )
 
     return {
         "school_id": school_id,
         "total_units": len(units),
-        "healthy_count":     counts["healthy"],
-        "watch_count":       counts["watch"],
-        "struggling_count":  counts["struggling"],
+        "healthy_count": counts["healthy"],
+        "watch_count": counts["watch"],
+        "struggling_count": counts["struggling"],
         "no_activity_count": counts["no_activity"],
         "units": units,
     }
 
 
 # ── Report 5: Feedback Report ─────────────────────────────────────────────────
+
 
 async def get_feedback_report(
     conn: asyncpg.Connection,
@@ -695,7 +752,7 @@ async def get_feedback_report(
             WHERE student_id = ANY(ARRAY[{placeholders}]::uuid[])
               AND unit_id = ${len(id_uuids) + 1}
               {extra_sql}
-            ORDER BY submitted_at {'ASC' if sort == 'oldest' else 'DESC'}
+            ORDER BY submitted_at {"ASC" if sort == "oldest" else "DESC"}
             """,
             *extra_params,
         )
@@ -710,7 +767,9 @@ async def get_feedback_report(
             FROM feedback
             WHERE student_id = ANY(ARRAY[{placeholders}]::uuid[]) AND unit_id = ${len(id_uuids) + 1}
             """,
-            *id_uuids, uid, seven_days_ago,
+            *id_uuids,
+            uid,
+            seven_days_ago,
         )
 
         # unit_name lookup
@@ -719,28 +778,30 @@ async def get_feedback_report(
         )
         unit_name = name_row["unit_name"] if name_row else None
 
-        by_unit.append({
-            "unit_id": uid,
-            "unit_name": unit_name,
-            "feedback_count": len(items),
-            "category_breakdown": {
-                "content": cat_counts["content"] or 0,
-                "ux": cat_counts["ux"] or 0,
-                "general": cat_counts["general"] or 0,
-            },
-            "trending": (cat_counts["recent_7d"] or 0) > 3,
-            "feedback_items": [
-                {
-                    "feedback_id": r["feedback_id"],
-                    "category": r["category"],
-                    "rating": r["rating"],
-                    "message": r["message"],
-                    "submitted_at": r["submitted_at"],
-                    "reviewed": r["reviewed"],
-                }
-                for r in items
-            ],
-        })
+        by_unit.append(
+            {
+                "unit_id": uid,
+                "unit_name": unit_name,
+                "feedback_count": len(items),
+                "category_breakdown": {
+                    "content": cat_counts["content"] or 0,
+                    "ux": cat_counts["ux"] or 0,
+                    "general": cat_counts["general"] or 0,
+                },
+                "trending": (cat_counts["recent_7d"] or 0) > 3,
+                "feedback_items": [
+                    {
+                        "feedback_id": r["feedback_id"],
+                        "category": r["category"],
+                        "rating": r["rating"],
+                        "message": r["message"],
+                        "submitted_at": r["submitted_at"],
+                        "reviewed": r["reviewed"],
+                    }
+                    for r in items
+                ],
+            }
+        )
 
     return {
         "school_id": school_id,
@@ -752,6 +813,7 @@ async def get_feedback_report(
 
 
 # ── Report 6: Trends ──────────────────────────────────────────────────────────
+
 
 async def get_trends(
     conn: asyncpg.Connection,
@@ -767,11 +829,13 @@ async def get_trends(
     # Placeholders for student IDs starting at $3 (after week_start=$1 and week_end=$2).
     # For empty enrollment ARRAY[]::uuid[] is used — PostgreSQL returns 0 counts correctly.
     id_placeholders = ", ".join(f"${i + 3}" for i in range(len(id_uuids)))
-    enrolled_filter = f"AND student_id = ANY(ARRAY[{id_placeholders}]::uuid[])" if id_uuids else "AND FALSE"
+    enrolled_filter = (
+        f"AND student_id = ANY(ARRAY[{id_placeholders}]::uuid[])" if id_uuids else "AND FALSE"
+    )
 
     weeks = []
     for i in range(n_weeks - 1, -1, -1):
-        week_end   = now - timedelta(weeks=i)
+        week_end = now - timedelta(weeks=i)
         week_start = week_end - timedelta(weeks=1)
 
         lv_row = await conn.fetchrow(
@@ -783,7 +847,9 @@ async def get_trends(
             WHERE started_at >= $1 AND started_at < $2
               {enrolled_filter}
             """,
-            week_start, week_end, *id_uuids,
+            week_start,
+            week_end,
+            *id_uuids,
         )
         ps_row = await conn.fetchrow(
             f"""
@@ -798,21 +864,26 @@ async def get_trends(
             WHERE started_at >= $1 AND started_at < $2
               {enrolled_filter}
             """,
-            week_start, week_end, *id_uuids,
+            week_start,
+            week_end,
+            *id_uuids,
         )
-        weeks.append({
-            "week_start": week_start.strftime("%Y-%m-%d"),
-            "active_students": lv_row["active"] or 0,
-            "lessons_viewed":  lv_row["views"] or 0,
-            "quiz_attempts":   ps_row["attempts"] or 0,
-            "avg_score_pct":   float(ps_row["avg_score"] or 0),
-            "first_attempt_pass_rate_pct": float(ps_row["pass_rate"] or 0),
-        })
+        weeks.append(
+            {
+                "week_start": week_start.strftime("%Y-%m-%d"),
+                "active_students": lv_row["active"] or 0,
+                "lessons_viewed": lv_row["views"] or 0,
+                "quiz_attempts": ps_row["attempts"] or 0,
+                "avg_score_pct": float(ps_row["avg_score"] or 0),
+                "first_attempt_pass_rate_pct": float(ps_row["pass_rate"] or 0),
+            }
+        )
 
     return {"school_id": school_id, "period": period, "weeks": weeks}
 
 
 # ── Export ────────────────────────────────────────────────────────────────────
+
 
 async def trigger_export(
     school_id: str,
@@ -845,6 +916,7 @@ async def trigger_export(
 
 
 # ── Alerts ────────────────────────────────────────────────────────────────────
+
 
 async def get_alerts(
     conn: asyncpg.Connection,
@@ -910,6 +982,7 @@ async def save_alert_settings(
 
 # ── Digest ────────────────────────────────────────────────────────────────────
 
+
 async def subscribe_digest(
     conn: asyncpg.Connection,
     school_id: str,
@@ -939,6 +1012,7 @@ async def subscribe_digest(
 
 
 # ── Refresh ───────────────────────────────────────────────────────────────────
+
 
 async def refresh_materialized_views(pool: asyncpg.Pool) -> dict:
     """

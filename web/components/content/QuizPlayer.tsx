@@ -165,7 +165,7 @@ export function QuizPlayer({ quiz, sessionId }: QuizPlayerProps) {
             const isCorrect = i === question.correct_index;
             const reviewed = state.phase === "reviewing";
 
-            let variant = "outline";
+            const variant = "outline";
             let extra = "";
             if (reviewed && isCorrect) extra = "border-green-500 bg-green-50 text-green-800";
             else if (reviewed && isSelected && !isCorrect)

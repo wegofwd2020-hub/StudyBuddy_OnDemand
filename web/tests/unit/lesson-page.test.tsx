@@ -155,11 +155,7 @@ describe("STU-17 — CTA href construction", () => {
 // ---------------------------------------------------------------------------
 
 describe("STU-18 — API client response interceptor", () => {
-  let responseErrorHandler: ((error: any) => any) | null = null;
-
   beforeEach(() => {
-    responseErrorHandler = null;
-
     vi.doMock("axios", async () => {
       return {
         default: {
@@ -167,9 +163,7 @@ describe("STU-18 — API client response interceptor", () => {
             interceptors: {
               request: { use: vi.fn() },
               response: {
-                use: vi.fn((_success: any, error: any) => {
-                  responseErrorHandler = error;
-                }),
+                use: vi.fn(() => {}),
               },
             },
           })),

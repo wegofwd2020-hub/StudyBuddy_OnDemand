@@ -25,6 +25,12 @@ export default function AdminFeedbackPage() {
   const [showResolved, setShowResolved] = useState(false);
   const [page, setPage] = useState(1);
 
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin", "feedback", page, showResolved],
+    queryFn: () => getFeedbackList(page, 20, showResolved ? true : false),
+    staleTime: 30_000,
+  });
+
   if (admin && !hasPermission(admin.role, "product_admin")) {
     return (
       <div className="p-8 max-w-lg mx-auto">
@@ -38,12 +44,6 @@ export default function AdminFeedbackPage() {
       </div>
     );
   }
-
-  const { data, isLoading } = useQuery({
-    queryKey: ["admin", "feedback", page, showResolved],
-    queryFn: () => getFeedbackList(page, 20, showResolved ? true : false),
-    staleTime: 30_000,
-  });
 
   async function handleResolve(feedbackId: string) {
     await resolveFeedback(feedbackId);

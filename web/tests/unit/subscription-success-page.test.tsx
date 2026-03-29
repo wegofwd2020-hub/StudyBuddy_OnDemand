@@ -88,7 +88,7 @@ describe("STU-47 — Dashboard link present", () => {
   it("invalidateQueries is called on mount to refresh subscription cache", async () => {
     const { useQueryClient } = await import("@tanstack/react-query");
     const invalidateQueries = vi.fn();
-    vi.mocked(useQueryClient).mockReturnValue({ invalidateQueries } as any);
+    vi.mocked(useQueryClient).mockReturnValue({ invalidateQueries } as unknown as ReturnType<typeof useQueryClient>);
     render(<SubscriptionSuccessPage />);
     expect(invalidateQueries).toHaveBeenCalledWith(
       expect.objectContaining({ queryKey: ["subscription"] }),

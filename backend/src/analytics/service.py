@@ -103,6 +103,7 @@ async def end_lesson_view(
 
 # ── Phase 10: student self-service metrics ─────────────────────────────────────
 
+
 async def get_student_metrics(
     conn: asyncpg.Connection,
     student_id: str,
@@ -166,7 +167,9 @@ async def get_student_metrics(
             "unit_id": r["unit_id"],
             "subject": r["subject"],
             "quiz_attempts": r["quiz_attempts"] or 0,
-            "best_score_pct": float(r["best_score_pct"]) if r["best_score_pct"] is not None else None,
+            "best_score_pct": float(r["best_score_pct"])
+            if r["best_score_pct"] is not None
+            else None,
             "passed": bool(r["passed"]),
             "total_time_minutes": round((r["total_time_s"] or 0) / 60, 1),
             "lessons_viewed": r["lessons_viewed"] or 0,
@@ -195,7 +198,8 @@ async def get_student_metrics(
             "best_retry_score": r["best_retry_score"],
             "improvement_pct": (
                 round(
-                    ((r["best_retry_score"] - r["attempt_1_score"]) / max(r["attempt_1_score"], 1)) * 100,
+                    ((r["best_retry_score"] - r["attempt_1_score"]) / max(r["attempt_1_score"], 1))
+                    * 100,
                     1,
                 )
                 if r["attempt_1_score"] is not None and r["best_retry_score"] is not None
@@ -209,7 +213,9 @@ async def get_student_metrics(
         "units_attempted": summary["units_attempted"] or 0,
         "units_completed": summary["units_completed"] or 0,
         "units_passed_first_attempt": summary["units_passed_first_attempt"] or 0,
-        "overall_avg_score_pct": float(summary["overall_avg_score_pct"]) if summary["overall_avg_score_pct"] else 0.0,
+        "overall_avg_score_pct": float(summary["overall_avg_score_pct"])
+        if summary["overall_avg_score_pct"]
+        else 0.0,
         "quizzes_completed": summary["quizzes_completed"] or 0,
         "total_time_minutes": round((time_row["total_duration_s"] or 0) / 60, 1),
         "lessons_viewed": time_row["lessons_viewed"] or 0,
@@ -221,7 +227,7 @@ async def get_student_metrics(
 
 # ── Phase 10: class analytics (teacher view) ─────────────────────────────────
 
-_STRUGGLE_PASS_THRESHOLD = 50.0   # < 50% first-attempt pass rate
+_STRUGGLE_PASS_THRESHOLD = 50.0  # < 50% first-attempt pass rate
 _STRUGGLE_ATTEMPTS_THRESHOLD = 2.0  # > 2 mean attempts to pass
 
 
@@ -291,20 +297,26 @@ async def get_class_metrics(
     for r in rows:
         first_pass = float(r["first_attempt_pass_rate_pct"] or 0)
         mean_attempts = float(r["mean_attempts_to_pass"] or 1)
-        struggle_flag = first_pass < _STRUGGLE_PASS_THRESHOLD or mean_attempts > _STRUGGLE_ATTEMPTS_THRESHOLD
+        struggle_flag = (
+            first_pass < _STRUGGLE_PASS_THRESHOLD or mean_attempts > _STRUGGLE_ATTEMPTS_THRESHOLD
+        )
         lv_count = r["students_with_lesson_view"] or 0
-        metrics_per_unit.append({
-            "unit_id": r["unit_id"],
-            "subject": r["subject"],
-            "students_with_lesson_view": lv_count,
-            "lesson_view_pct": round(100 * lv_count / total_enrolled, 1) if total_enrolled else 0,
-            "total_quiz_attempts": r["total_quiz_attempts"] or 0,
-            "unique_students_attempted": r["unique_students_attempted"] or 0,
-            "first_attempt_pass_rate_pct": first_pass,
-            "mean_score_pct": float(r["mean_score_pct"] or 0),
-            "mean_attempts_to_pass": mean_attempts,
-            "struggle_flag": struggle_flag,
-        })
+        metrics_per_unit.append(
+            {
+                "unit_id": r["unit_id"],
+                "subject": r["subject"],
+                "students_with_lesson_view": lv_count,
+                "lesson_view_pct": round(100 * lv_count / total_enrolled, 1)
+                if total_enrolled
+                else 0,
+                "total_quiz_attempts": r["total_quiz_attempts"] or 0,
+                "unique_students_attempted": r["unique_students_attempted"] or 0,
+                "first_attempt_pass_rate_pct": first_pass,
+                "mean_score_pct": float(r["mean_score_pct"] or 0),
+                "mean_attempts_to_pass": mean_attempts,
+                "struggle_flag": struggle_flag,
+            }
+        )
 
     return {
         "school_id": school_id,

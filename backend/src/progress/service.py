@@ -28,7 +28,9 @@ def _now_iso() -> str:
     return datetime.now(tz=UTC).isoformat()
 
 
-async def compute_attempt_number(conn: asyncpg.Connection, student_id: str, unit_id: str, curriculum_id: str) -> int:
+async def compute_attempt_number(
+    conn: asyncpg.Connection, student_id: str, unit_id: str, curriculum_id: str
+) -> int:
     """Return COUNT of prior completed sessions + 1 for this student × unit."""
     row = await conn.fetchrow(
         """
@@ -267,32 +269,34 @@ async def get_raw_history(
             """,
             s["session_id"],
         )
-        result_sessions.append({
-            "session_id": str(s["session_id"]),
-            "unit_id": s["unit_id"],
-            "curriculum_id": s["curriculum_id"],
-            "grade": s["grade"],
-            "subject": s["subject"],
-            "started_at": s["started_at"].isoformat(),
-            "ended_at": s["ended_at"].isoformat() if s["ended_at"] else None,
-            "score": s["score"],
-            "total_questions": s["total_questions"],
-            "completed": s["completed"],
-            "passed": s["passed"],
-            "attempt_number": s["attempt_number"],
-            "answers": [
-                {
-                    "answer_id": str(a["answer_id"]),
-                    "question_id": a["question_id"],
-                    "student_answer": a["student_answer"],
-                    "correct_answer": a["correct_answer"],
-                    "correct": a["correct"],
-                    "ms_taken": a["ms_taken"],
-                    "recorded_at": a["recorded_at"].isoformat(),
-                }
-                for a in answers
-            ],
-        })
+        result_sessions.append(
+            {
+                "session_id": str(s["session_id"]),
+                "unit_id": s["unit_id"],
+                "curriculum_id": s["curriculum_id"],
+                "grade": s["grade"],
+                "subject": s["subject"],
+                "started_at": s["started_at"].isoformat(),
+                "ended_at": s["ended_at"].isoformat() if s["ended_at"] else None,
+                "score": s["score"],
+                "total_questions": s["total_questions"],
+                "completed": s["completed"],
+                "passed": s["passed"],
+                "attempt_number": s["attempt_number"],
+                "answers": [
+                    {
+                        "answer_id": str(a["answer_id"]),
+                        "question_id": a["question_id"],
+                        "student_answer": a["student_answer"],
+                        "correct_answer": a["correct_answer"],
+                        "correct": a["correct"],
+                        "ms_taken": a["ms_taken"],
+                        "recorded_at": a["recorded_at"].isoformat(),
+                    }
+                    for a in answers
+                ],
+            }
+        )
 
     return {
         "student_id": student_id,

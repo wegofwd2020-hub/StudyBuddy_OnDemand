@@ -10,6 +10,7 @@ from pydantic import BaseModel
 
 # ── Lesson ────────────────────────────────────────────────────────────────────
 
+
 class LessonSection(BaseModel):
     heading: str
     body: str
@@ -31,6 +32,7 @@ class LessonResponse(BaseModel):
 
 
 # ── Quiz ──────────────────────────────────────────────────────────────────────
+
 
 class QuizOption(BaseModel):
     option_id: str
@@ -62,6 +64,7 @@ class QuizResponse(BaseModel):
 
 # ── Tutorial ──────────────────────────────────────────────────────────────────
 
+
 class TutorialSection(BaseModel):
     section_id: str
     title: str
@@ -82,6 +85,7 @@ class TutorialResponse(BaseModel):
 
 
 # ── Experiment ────────────────────────────────────────────────────────────────
+
 
 class ExperimentStep(BaseModel):
     step_number: int
@@ -110,12 +114,14 @@ class ExperimentResponse(BaseModel):
 
 # ── Audio ─────────────────────────────────────────────────────────────────────
 
+
 class AudioUrlResponse(BaseModel):
     url: str
     expires_in: int
 
 
 # ── Report / Feedback ─────────────────────────────────────────────────────────
+
 
 class ReportRequest(BaseModel):
     category: str  # incorrect | offensive | unclear | other
@@ -131,6 +137,7 @@ class FeedbackRequest(BaseModel):
 
 
 # ── App version ───────────────────────────────────────────────────────────────
+
 
 class AppVersionResponse(BaseModel):
     min_version: str

@@ -32,12 +32,13 @@ _CONTENT_KEY = "content:{curriculum_id}:{unit_id}:{filename}"
 _CUR_KEY = "cur:{student_id}"
 _QUIZ_SET_KEY = "quiz_set:{student_id}:{unit_id}"
 
-_ENT_TTL = 300    # 5 minutes
-_CSV_TTL = 300    # 5 minutes
+_ENT_TTL = 300  # 5 minutes
+_CSV_TTL = 300  # 5 minutes
 _CONTENT_TTL = 3600  # 1 hour
 
 
 # ── Entitlement ───────────────────────────────────────────────────────────────
+
 
 async def get_entitlement(
     student_id: str,
@@ -80,6 +81,7 @@ async def get_entitlement(
 
 # ── Content publish check ─────────────────────────────────────────────────────
 
+
 async def check_content_published(
     curriculum_id: str,
     subject: str,
@@ -113,6 +115,7 @@ async def check_content_published(
 
 
 # ── Content file serving ──────────────────────────────────────────────────────
+
 
 async def get_content_file(
     curriculum_id: str,
@@ -159,6 +162,7 @@ async def get_content_file(
 
 # ── Lessons-accessed counter ──────────────────────────────────────────────────
 
+
 async def increment_lessons_accessed(
     student_id: str,
     pool: asyncpg.Pool,
@@ -187,6 +191,7 @@ async def increment_lessons_accessed(
 
 
 # ── Curriculum resolver ───────────────────────────────────────────────────────
+
 
 async def resolve_curriculum_id(
     student_id: str,
@@ -235,6 +240,7 @@ async def resolve_curriculum_id(
 
 # ── Content block check ───────────────────────────────────────────────────────
 
+
 async def check_content_block(
     curriculum_id: str,
     unit_id: str,
@@ -264,6 +270,7 @@ async def check_content_block(
 
 # ── Quiz rotation ─────────────────────────────────────────────────────────────
 
+
 async def get_next_quiz_set(
     student_id: str,
     unit_id: str,
@@ -290,6 +297,7 @@ async def get_next_quiz_set(
 
 
 # ── Subject from unit ID ──────────────────────────────────────────────────────
+
 
 async def get_unit_subject(
     unit_id: str,
@@ -347,4 +355,6 @@ async def invalidate_cdn_path(curriculum_id: str, unit_id: str | None = None) ->
         )
         log.info("cdn_invalidation_created distribution=%s path=%s", distribution_id, path)
     except Exception as exc:
-        log.warning("cdn_invalidation_failed distribution=%s path=%s error=%s", distribution_id, path, exc)
+        log.warning(
+            "cdn_invalidation_failed distribution=%s path=%s error=%s", distribution_id, path, exc
+        )

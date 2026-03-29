@@ -61,7 +61,11 @@ async def register_push_token(
             log.error("register_token_failed", error=str(exc), correlation_id=cid)
             raise HTTPException(
                 status_code=500,
-                detail={"error": "internal_error", "detail": "Could not register token.", "correlation_id": cid},
+                detail={
+                    "error": "internal_error",
+                    "detail": "Could not register token.",
+                    "correlation_id": cid,
+                },
             )
 
     return RegisterTokenResponse(**result)
@@ -84,13 +88,19 @@ async def deregister_push_token(
             log.error("deregister_token_failed", error=str(exc), correlation_id=cid)
             raise HTTPException(
                 status_code=500,
-                detail={"error": "internal_error", "detail": "Could not deregister token.", "correlation_id": cid},
+                detail={
+                    "error": "internal_error",
+                    "detail": "Could not deregister token.",
+                    "correlation_id": cid,
+                },
             )
 
     return {"status": "ok"}
 
 
-@router.get("/notifications/preferences", response_model=NotificationPreferencesResponse, status_code=200)
+@router.get(
+    "/notifications/preferences", response_model=NotificationPreferencesResponse, status_code=200
+)
 async def get_notification_preferences(
     request: Request,
     student: Annotated[dict, Depends(get_current_student)],
@@ -106,13 +116,19 @@ async def get_notification_preferences(
             log.error("get_preferences_failed", error=str(exc), correlation_id=cid)
             raise HTTPException(
                 status_code=500,
-                detail={"error": "internal_error", "detail": "Could not fetch preferences.", "correlation_id": cid},
+                detail={
+                    "error": "internal_error",
+                    "detail": "Could not fetch preferences.",
+                    "correlation_id": cid,
+                },
             )
 
     return NotificationPreferencesResponse(**prefs)
 
 
-@router.put("/notifications/preferences", response_model=NotificationPreferencesResponse, status_code=200)
+@router.put(
+    "/notifications/preferences", response_model=NotificationPreferencesResponse, status_code=200
+)
 async def update_notification_preferences(
     request: Request,
     body: NotificationPreferences,
@@ -135,7 +151,11 @@ async def update_notification_preferences(
             log.error("update_preferences_failed", error=str(exc), correlation_id=cid)
             raise HTTPException(
                 status_code=500,
-                detail={"error": "internal_error", "detail": "Could not update preferences.", "correlation_id": cid},
+                detail={
+                    "error": "internal_error",
+                    "detail": "Could not update preferences.",
+                    "correlation_id": cid,
+                },
             )
 
     return NotificationPreferencesResponse(**prefs)

@@ -92,6 +92,7 @@ router = APIRouter(tags=["admin"])
 # Using a chained dependency ensures get_current_admin always runs first,
 # setting request.state.jwt_payload before the permission check reads it.
 
+
 def _require(permission: str):
     """
     Admin auth + permission check in one chained dependency.
@@ -99,6 +100,7 @@ def _require(permission: str):
     get_current_admin verifies the ADMIN_JWT_SECRET and sets
     request.state.jwt_payload.  This inner dep then enforces RBAC.
     """
+
     async def dep(
         request: Request,
         admin: Annotated[dict, Depends(get_current_admin)],
@@ -121,6 +123,7 @@ def _require(permission: str):
                 },
             )
         return admin
+
     return dep
 
 
@@ -133,6 +136,7 @@ def _cid(request: Request) -> str:
 
 
 # ── Pipeline status ───────────────────────────────────────────────────────────
+
 
 @router.get(
     "/admin/pipeline/status",
@@ -149,6 +153,7 @@ async def pipeline_status(
 
 
 # ── Review queue ──────────────────────────────────────────────────────────────
+
 
 @router.get(
     "/admin/content/review/queue",
@@ -171,6 +176,7 @@ async def review_queue(
 
 # ── Open review session ───────────────────────────────────────────────────────
 
+
 @router.post(
     "/admin/content/review/{version_id}/open",
     response_model=OpenReviewResponse,
@@ -187,7 +193,11 @@ async def open_review_session(
     if not row:
         raise HTTPException(
             status_code=404,
-            detail={"error": "not_found", "detail": "Version not found.", "correlation_id": _cid(request)},
+            detail={
+                "error": "not_found",
+                "detail": "Version not found.",
+                "correlation_id": _cid(request),
+            },
         )
     return OpenReviewResponse(
         review_id=row["review_id"],
@@ -198,6 +208,7 @@ async def open_review_session(
 
 
 # ── Annotate ──────────────────────────────────────────────────────────────────
+
 
 @router.post(
     "/admin/content/review/{version_id}/annotate",
@@ -212,10 +223,15 @@ async def annotate(
     """Add a text annotation to a unit within a content version."""
     async with get_db(request) as conn:
         row = await add_annotation(
-            conn, version_id, _admin_id(admin),
-            body.unit_id, body.content_type,
-            body.marked_text, body.annotation_text,
-            body.start_offset, body.end_offset,
+            conn,
+            version_id,
+            _admin_id(admin),
+            body.unit_id,
+            body.content_type,
+            body.marked_text,
+            body.annotation_text,
+            body.start_offset,
+            body.end_offset,
         )
     return AnnotateResponse(
         annotation_id=row["annotation_id"],
@@ -241,12 +257,17 @@ async def delete_annotation_endpoint(
     if not deleted:
         raise HTTPException(
             status_code=404,
-            detail={"error": "not_found", "detail": "Annotation not found.", "correlation_id": _cid(request)},
+            detail={
+                "error": "not_found",
+                "detail": "Annotation not found.",
+                "correlation_id": _cid(request),
+            },
         )
     return {"status": "deleted"}
 
 
 # ── Rate ──────────────────────────────────────────────────────────────────────
+
 
 @router.post(
     "/admin/content/review/{version_id}/rate",
@@ -261,8 +282,12 @@ async def rate(
     """Submit language and content ratings (1–5) for a version."""
     async with get_db(request) as conn:
         row = await rate_version(
-            conn, version_id, _admin_id(admin),
-            body.language_rating, body.content_rating, body.notes,
+            conn,
+            version_id,
+            _admin_id(admin),
+            body.language_rating,
+            body.content_rating,
+            body.notes,
         )
     return RateResponse(
         review_id=row["review_id"],
@@ -273,6 +298,7 @@ async def rate(
 
 
 # ── Approve ───────────────────────────────────────────────────────────────────
+
 
 @router.post(
     "/admin/content/review/{version_id}/approve",
@@ -292,6 +318,7 @@ async def approve(
 
 # ── Reject ────────────────────────────────────────────────────────────────────
 
+
 @router.post(
     "/admin/content/review/{version_id}/reject",
     response_model=RejectResponse,
@@ -304,9 +331,7 @@ async def reject(
 ) -> RejectResponse:
     """Reject a content version. Set regenerate=true to trigger pipeline rerun."""
     async with get_db(request) as conn:
-        row = await reject_version(
-            conn, version_id, _admin_id(admin), body.notes, body.regenerate
-        )
+        row = await reject_version(conn, version_id, _admin_id(admin), body.notes, body.regenerate)
     return RejectResponse(
         version_id=row["version_id"],
         status=row["status"],
@@ -315,6 +340,7 @@ async def reject(
 
 
 # ── Publish ───────────────────────────────────────────────────────────────────
+
 
 @router.post(
     "/admin/content/versions/{version_id}/publish",
@@ -337,7 +363,11 @@ async def publish(
     if not row:
         raise HTTPException(
             status_code=404,
-            detail={"error": "not_found", "detail": "Version not found.", "correlation_id": _cid(request)},
+            detail={
+                "error": "not_found",
+                "detail": "Version not found.",
+                "correlation_id": _cid(request),
+            },
         )
     return PublishResponse(
         version_id=row["version_id"],
@@ -347,6 +377,7 @@ async def publish(
 
 
 # ── Rollback ──────────────────────────────────────────────────────────────────
+
 
 @router.post(
     "/admin/content/versions/{version_id}/rollback",
@@ -369,12 +400,17 @@ async def rollback(
     if not row:
         raise HTTPException(
             status_code=404,
-            detail={"error": "not_found", "detail": "Version not found.", "correlation_id": _cid(request)},
+            detail={
+                "error": "not_found",
+                "detail": "Version not found.",
+                "correlation_id": _cid(request),
+            },
         )
     return RollbackResponse(**row)
 
 
 # ── Content block ─────────────────────────────────────────────────────────────
+
 
 @router.post(
     "/admin/content/block",
@@ -389,8 +425,12 @@ async def block_content(
     """Block a specific content item (school-scoped or platform-wide)."""
     async with get_db(request) as conn:
         row = await create_block(
-            conn, body.curriculum_id, body.unit_id, body.content_type,
-            body.reason, _admin_id(admin),
+            conn,
+            body.curriculum_id,
+            body.unit_id,
+            body.content_type,
+            body.reason,
+            _admin_id(admin),
         )
     return BlockResponse(
         block_id=row["block_id"],
@@ -416,12 +456,17 @@ async def unblock_content(
     if not removed:
         raise HTTPException(
             status_code=404,
-            detail={"error": "not_found", "detail": "Block not found.", "correlation_id": _cid(request)},
+            detail={
+                "error": "not_found",
+                "detail": "Block not found.",
+                "correlation_id": _cid(request),
+            },
         )
     return UnblockResponse(status="unblocked")
 
 
 # ── Student feedback ──────────────────────────────────────────────────────────
+
 
 @router.get(
     "/admin/content/{unit_id}/feedback/marked",
@@ -458,6 +503,7 @@ async def feedback_report(
 
 # ── Analytics ─────────────────────────────────────────────────────────────────
 
+
 @router.get(
     "/admin/analytics/subscription",
     response_model=SubscriptionAnalyticsResponse,
@@ -488,6 +534,7 @@ async def struggle_analytics(
 
 
 # ── Dictionary ────────────────────────────────────────────────────────────────
+
 
 @router.get(
     "/admin/content/dictionary",

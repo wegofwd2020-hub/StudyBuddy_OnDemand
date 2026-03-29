@@ -67,7 +67,9 @@ async def _resolve_from_db(
             ORDER BY activated_at DESC NULLS LAST
             LIMIT 1
             """,
-            uuid.UUID(school_id), grade, year,
+            uuid.UUID(school_id),
+            grade,
+            year,
         )
 
         if not row:
@@ -82,7 +84,8 @@ async def _resolve_from_db(
                 SELECT enrolment_id FROM school_enrolments
                 WHERE school_id = $1 AND student_id = $2 AND status = 'active'
                 """,
-                uuid.UUID(school_id), uuid.UUID(student_id),
+                uuid.UUID(school_id),
+                uuid.UUID(student_id),
             )
             if not enrolment:
                 raise HTTPException(
@@ -117,12 +120,12 @@ async def get_curriculum_id(
     if raw:
         return raw.decode() if isinstance(raw, bytes) else raw
 
-    curriculum_id = await _resolve_from_db(
-        request.app.state.pool, student_id, grade, school_id
-    )
+    curriculum_id = await _resolve_from_db(request.app.state.pool, student_id, grade, school_id)
 
     await redis.setex(cache_key, _RESOLVER_TTL, curriculum_id)
-    log.info("curriculum_resolved", student_id=student_id, curriculum_id=curriculum_id, cached=False)
+    log.info(
+        "curriculum_resolved", student_id=student_id, curriculum_id=curriculum_id, cached=False
+    )
     return curriculum_id
 
 

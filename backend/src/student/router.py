@@ -50,7 +50,11 @@ async def student_dashboard(
             log.error("dashboard_failed", error=str(exc), correlation_id=cid)
             raise HTTPException(
                 status_code=500,
-                detail={"error": "internal_error", "detail": "Could not load dashboard.", "correlation_id": cid},
+                detail={
+                    "error": "internal_error",
+                    "detail": "Could not load dashboard.",
+                    "correlation_id": cid,
+                },
             )
 
     return DashboardResponse(**payload)
@@ -76,7 +80,11 @@ async def student_progress_map(
             log.error("progress_map_failed", error=str(exc), correlation_id=cid)
             raise HTTPException(
                 status_code=500,
-                detail={"error": "internal_error", "detail": "Could not load progress map.", "correlation_id": cid},
+                detail={
+                    "error": "internal_error",
+                    "detail": "Could not load progress map.",
+                    "correlation_id": cid,
+                },
             )
 
     return ProgressMapResponse(**payload)
@@ -104,7 +112,11 @@ async def student_stats(
             log.error("stats_failed", error=str(exc), correlation_id=cid)
             raise HTTPException(
                 status_code=500,
-                detail={"error": "internal_error", "detail": "Could not load stats.", "correlation_id": cid},
+                detail={
+                    "error": "internal_error",
+                    "detail": "Could not load stats.",
+                    "correlation_id": cid,
+                },
             )
 
     return StatsResponse(**payload)

@@ -19,12 +19,11 @@ export function AudioPlayer({ unitId, onPlayed }: AudioPlayerProps) {
 
   const { data: audioUrl, isLoading } = useLessonAudioUrl(unitId, loadAudio);
 
-  // Set src once URL is available
+  // Set src once URL is available; update playing via the onPlay event instead
   useEffect(() => {
     if (audioUrl && audioRef.current) {
       audioRef.current.src = audioUrl;
-      audioRef.current.play();
-      setPlaying(true);
+      audioRef.current.play().catch(() => {});
     }
   }, [audioUrl]);
 
@@ -97,9 +96,9 @@ export function AudioPlayer({ unitId, onPlayed }: AudioPlayerProps) {
         aria-label="Audio progress"
       />
 
-      {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
       <audio
         ref={audioRef}
+        onPlay={() => setPlaying(true)}
         onTimeUpdate={handleTimeUpdate}
         onEnded={handleEnded}
         onError={() => setPlaying(false)}

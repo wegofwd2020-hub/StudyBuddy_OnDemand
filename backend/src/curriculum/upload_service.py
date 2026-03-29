@@ -47,6 +47,7 @@ def _auto_unit_id(subject: str, sequence: int) -> str:
 
 # ── Validation helpers ────────────────────────────────────────────────────────
 
+
 def _validate_units(units: list) -> list:
     """
     Validate a list of unit dicts.  Returns a list of error dicts:
@@ -68,23 +69,35 @@ def _validate_units(units: list) -> list:
         if not unit_name:
             errors.append({"row": row, "field": "Unit Name", "message": "Unit Name is required."})
         if len(objectives) < 2:
-            errors.append({"row": row, "field": "Objectives",
-                           "message": "At least 2 objectives are required (pipe-separated)."})
+            errors.append(
+                {
+                    "row": row,
+                    "field": "Objectives",
+                    "message": "At least 2 objectives are required (pipe-separated).",
+                }
+            )
         if has_lab and not lab_desc:
-            errors.append({"row": row, "field": "Lab Description",
-                           "message": "Lab Description is required when Has Lab = Yes."})
+            errors.append(
+                {
+                    "row": row,
+                    "field": "Lab Description",
+                    "message": "Lab Description is required when Has Lab = Yes.",
+                }
+            )
 
         code = unit.get("unit_id") or ""
         if code:
             if code in seen_codes:
-                errors.append({"row": row, "field": "Unit Code",
-                               "message": f"Duplicate unit code '{code}'."})
+                errors.append(
+                    {"row": row, "field": "Unit Code", "message": f"Duplicate unit code '{code}'."}
+                )
             seen_codes.add(code)
 
     return errors
 
 
 # ── JSON upload ───────────────────────────────────────────────────────────────
+
 
 async def create_curriculum_from_json(
     conn: asyncpg.Connection,
@@ -113,7 +126,9 @@ async def create_curriculum_from_json(
         """,
         curriculum_id,
         uuid.UUID(school_id) if school_id else None,
-        grade, year, name,
+        grade,
+        year,
+        name,
         uuid.UUID(teacher_id) if teacher_id else None,
     )
 
@@ -131,7 +146,10 @@ async def create_curriculum_from_json(
                  has_lab, lab_description, sequence)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             """,
-            unit_id, curriculum_id, subject, unit["unit_name"].strip(),
+            unit_id,
+            curriculum_id,
+            subject,
+            unit["unit_name"].strip(),
             objectives,
             bool(unit.get("has_lab", False)),
             unit.get("lab_description") or None,
@@ -143,6 +161,7 @@ async def create_curriculum_from_json(
 
 
 # ── XLSX upload ───────────────────────────────────────────────────────────────
+
 
 def parse_xlsx(content: bytes, grade: int) -> tuple[list, list]:
     """
@@ -159,8 +178,13 @@ def parse_xlsx(content: bytes, grade: int) -> tuple[list, list]:
         # Try case-insensitive match
         match = next((s for s in wb.sheetnames if s.lower() == sheet_name.lower()), None)
         if not match:
-            return [], [{"row": 0, "field": "Sheet",
-                         "message": f"Sheet '{sheet_name}' not found in workbook."}]
+            return [], [
+                {
+                    "row": 0,
+                    "field": "Sheet",
+                    "message": f"Sheet '{sheet_name}' not found in workbook.",
+                }
+            ]
         sheet_name = match
 
     ws = wb[sheet_name]
@@ -177,11 +201,17 @@ def parse_xlsx(content: bytes, grade: int) -> tuple[list, list]:
             col_idx[col] = header.index(col)
         except ValueError:
             if col in required_cols:
-                return [], [{"row": 1, "field": col,
-                             "message": f"Required column '{col}' not found in header row."}]
+                return [], [
+                    {
+                        "row": 1,
+                        "field": col,
+                        "message": f"Required column '{col}' not found in header row.",
+                    }
+                ]
 
     units = []
     for row_num, row in enumerate(rows[1:], start=2):
+
         def cell(col_name: str) -> str:
             idx = col_idx.get(col_name)
             return str(row[idx]).strip() if idx is not None and row[idx] is not None else ""
@@ -194,19 +224,22 @@ def parse_xlsx(content: bytes, grade: int) -> tuple[list, list]:
         objectives = [o.strip() for o in raw_objectives.split("|") if o.strip()]
         has_lab = cell("Has Lab").lower() in ("yes", "true", "1")
 
-        units.append({
-            "subject": subject,
-            "unit_name": cell("Unit Name"),
-            "unit_id": cell("Unit Code") or None,
-            "objectives": objectives,
-            "has_lab": has_lab,
-            "lab_description": cell("Lab Description") or None,
-        })
+        units.append(
+            {
+                "subject": subject,
+                "unit_name": cell("Unit Name"),
+                "unit_id": cell("Unit Code") or None,
+                "objectives": objectives,
+                "has_lab": has_lab,
+                "lab_description": cell("Lab Description") or None,
+            }
+        )
 
     return units, []
 
 
 # ── XLSX template ─────────────────────────────────────────────────────────────
+
 
 def build_xlsx_template(grade: int) -> bytes:
     """Generate an XLSX template for the given grade with sample rows."""
@@ -229,12 +262,26 @@ def build_xlsx_template(grade: int) -> bytes:
         ws.column_dimensions[cell.column_letter].width = max(15, len(header[col - 1]) + 4)
 
     # Sample rows
-    ws.append(["Mathematics", "Algebra – Linear Equations", "MATH-LIN-001",
-               "Solve linear equations|Graph functions|Apply to word problems",
-               "No", ""])
-    ws.append(["Science", "Measuring Density", "SCI-DEN-001",
-               "Apply the density formula|Use lab equipment safely",
-               "Yes", "Measure density of common solids using a balance and graduated cylinder"])
+    ws.append(
+        [
+            "Mathematics",
+            "Algebra – Linear Equations",
+            "MATH-LIN-001",
+            "Solve linear equations|Graph functions|Apply to word problems",
+            "No",
+            "",
+        ]
+    )
+    ws.append(
+        [
+            "Science",
+            "Measuring Density",
+            "SCI-DEN-001",
+            "Apply the density formula|Use lab equipment safely",
+            "Yes",
+            "Measure density of common solids using a balance and graduated cylinder",
+        ]
+    )
 
     buf = io.BytesIO()
     wb.save(buf)
@@ -242,6 +289,7 @@ def build_xlsx_template(grade: int) -> bytes:
 
 
 # ── Pipeline trigger ──────────────────────────────────────────────────────────
+
 
 async def trigger_pipeline(
     conn: asyncpg.Connection,
@@ -296,6 +344,7 @@ async def trigger_pipeline(
     # Dispatch Celery task
     try:
         from src.auth.tasks import celery_app
+
         celery_app.send_task(
             "src.auth.tasks.run_curriculum_pipeline_task",
             args=[job_id, curriculum_id, langs, force, teacher_id],
@@ -325,6 +374,7 @@ async def get_pipeline_job_status(redis, job_id: str) -> dict | None:
 
 # ── Seed helper (used by pipeline/seed_default.py) ────────────────────────────
 
+
 async def seed_default_curriculum(
     conn: asyncpg.Connection,
     grade: int,
@@ -347,7 +397,10 @@ async def seed_default_curriculum(
         ON CONFLICT (curriculum_id) DO UPDATE
             SET name = EXCLUDED.name, status = 'active'
         """,
-        curriculum_id, grade, year, name,
+        curriculum_id,
+        grade,
+        year,
+        name,
     )
 
     for seq, unit in enumerate(units, start=1):
@@ -370,7 +423,9 @@ async def seed_default_curriculum(
                     lab_description = EXCLUDED.lab_description,
                     sequence = EXCLUDED.sequence
             """,
-            unit_id, curriculum_id, subject,
+            unit_id,
+            curriculum_id,
+            subject,
             unit.get("unit_name", subject).strip(),
             objectives,
             bool(unit.get("has_lab", False)),

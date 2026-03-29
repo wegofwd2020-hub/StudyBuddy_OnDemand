@@ -6,10 +6,12 @@ import { useTranslations } from "next-intl";
 
 export function OfflineBanner() {
   const t = useTranslations("errors");
-  const [isOnline, setIsOnline] = useState(true);
+  const [isOnline, setIsOnline] = useState<boolean>(() => {
+    if (typeof navigator === "undefined") return true;
+    return navigator.onLine;
+  });
 
   useEffect(() => {
-    setIsOnline(navigator.onLine);
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
     window.addEventListener("online", handleOnline);

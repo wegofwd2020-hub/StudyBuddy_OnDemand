@@ -27,9 +27,10 @@ const DEV_TOKEN = makeAdminJwt("developer");
 // Shared API stubs
 // ---------------------------------------------------------------------------
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function stubAdminApis(page: any) {
-  await page.route("**/api/v1/admin/analytics/subscriptions", (route: any) =>
+import type { Page } from "@playwright/test";
+
+async function stubAdminApis(page: Page) {
+  await page.route("**/api/v1/admin/analytics/subscriptions", (route) =>
     route.fulfill({
       status: 200,
       json: {
@@ -43,16 +44,16 @@ async function stubAdminApis(page: any) {
       },
     }),
   );
-  await page.route("**/api/v1/admin/pipeline/status", (route: any) =>
+  await page.route("**/api/v1/admin/pipeline/status", (route) =>
     route.fulfill({ status: 200, json: { jobs: [] } }),
   );
-  await page.route("**/api/v1/admin/analytics/struggle", (route: any) =>
+  await page.route("**/api/v1/admin/analytics/struggle", (route) =>
     route.fulfill({ status: 200, json: { units: [], generated_at: new Date().toISOString() } }),
   );
-  await page.route("**/api/v1/admin/content-review/queue**", (route: any) =>
+  await page.route("**/api/v1/admin/content-review/queue**", (route) =>
     route.fulfill({ status: 200, json: { items: [], total: 0 } }),
   );
-  await page.route("**/api/v1/health", (route: any) =>
+  await page.route("**/api/v1/health", (route) =>
     route.fulfill({
       status: 200,
       json: {

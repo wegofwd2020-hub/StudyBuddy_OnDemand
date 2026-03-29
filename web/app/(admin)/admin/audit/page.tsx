@@ -11,6 +11,12 @@ export default function AdminAuditPage() {
   const [page, setPage] = useState(1);
   const [actionFilter, setActionFilter] = useState("");
 
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin", "audit", page, actionFilter],
+    queryFn: () => getAuditLog(page, 50, actionFilter || undefined),
+    staleTime: 30_000,
+  });
+
   if (admin && !hasPermission(admin.role, "product_admin")) {
     return (
       <div className="p-8 max-w-lg mx-auto">
@@ -24,12 +30,6 @@ export default function AdminAuditPage() {
       </div>
     );
   }
-
-  const { data, isLoading } = useQuery({
-    queryKey: ["admin", "audit", page, actionFilter],
-    queryFn: () => getAuditLog(page, 50, actionFilter || undefined),
-    staleTime: 30_000,
-  });
 
   return (
     <div className="p-8 max-w-6xl mx-auto">

@@ -77,6 +77,7 @@ events_total = Counter(
 
 # ── Correlation ID middleware ─────────────────────────────────────────────────
 
+
 class CorrelationIdMiddleware(BaseHTTPMiddleware):
     """
     Inject a UUID correlation ID into every request/response cycle.

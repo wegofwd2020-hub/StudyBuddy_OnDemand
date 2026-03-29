@@ -33,6 +33,7 @@ _ANNUAL_MONTHLY_USD = 7.99  # annual / 12
 
 # ── Review queue ──────────────────────────────────────────────────────────────
 
+
 async def list_review_queue(
     conn: asyncpg.Connection,
     status: str | None = None,
@@ -64,9 +65,11 @@ async def list_review_queue(
         FROM content_subject_versions
         WHERE {where}
         ORDER BY generated_at DESC
-        LIMIT ${len(params)+1} OFFSET ${len(params)+2}
+        LIMIT ${len(params) + 1} OFFSET ${len(params) + 2}
         """,
-        *params, limit, offset,
+        *params,
+        limit,
+        offset,
     )
     total = await conn.fetchval(
         f"SELECT COUNT(*) FROM content_subject_versions WHERE {where}",
@@ -76,6 +79,7 @@ async def list_review_queue(
 
 
 # ── Review session ────────────────────────────────────────────────────────────
+
 
 async def open_review(
     conn: asyncpg.Connection,
@@ -89,15 +93,17 @@ async def open_review(
         VALUES ($1, $2, 'open', $3)
         RETURNING review_id::text, version_id::text, action, reviewed_at
         """,
-        uuid.UUID(version_id), uuid.UUID(reviewer_id), notes,
+        uuid.UUID(version_id),
+        uuid.UUID(reviewer_id),
+        notes,
     )
     await conn.execute(
         "UPDATE content_subject_versions SET status = 'in_review' WHERE version_id = $1 AND status = 'ready_for_review'",
         uuid.UUID(version_id),
     )
     from src.core.events import write_audit_log
-    write_audit_log("review_opened", "admin", reviewer_id,
-                    metadata={"version_id": version_id})
+
+    write_audit_log("review_opened", "admin", reviewer_id, metadata={"version_id": version_id})
     return dict(row)
 
 
@@ -121,12 +127,23 @@ async def add_annotation(
         RETURNING annotation_id::text, version_id::text, unit_id, content_type,
                   annotation_text, created_at
         """,
-        uuid.UUID(version_id), unit_id, content_type, marked_text,
-        annotation_text, start_offset, end_offset, uuid.UUID(reviewer_id),
+        uuid.UUID(version_id),
+        unit_id,
+        content_type,
+        marked_text,
+        annotation_text,
+        start_offset,
+        end_offset,
+        uuid.UUID(reviewer_id),
     )
     from src.core.events import write_audit_log
-    write_audit_log("review_annotated", "admin", reviewer_id,
-                    metadata={"version_id": version_id, "unit_id": unit_id})
+
+    write_audit_log(
+        "review_annotated",
+        "admin",
+        reviewer_id,
+        metadata={"version_id": version_id, "unit_id": unit_id},
+    )
     return dict(row)
 
 
@@ -157,14 +174,24 @@ async def rate_version(
         VALUES ($1, $2, 'rate', $3, $4, $5)
         RETURNING review_id::text, version_id::text, language_rating, content_rating
         """,
-        uuid.UUID(version_id), uuid.UUID(reviewer_id), notes,
-        language_rating, content_rating,
+        uuid.UUID(version_id),
+        uuid.UUID(reviewer_id),
+        notes,
+        language_rating,
+        content_rating,
     )
     from src.core.events import write_audit_log
-    write_audit_log("review_rated", "admin", reviewer_id,
-                    metadata={"version_id": version_id,
-                              "language_rating": language_rating,
-                              "content_rating": content_rating})
+
+    write_audit_log(
+        "review_rated",
+        "admin",
+        reviewer_id,
+        metadata={
+            "version_id": version_id,
+            "language_rating": language_rating,
+            "content_rating": content_rating,
+        },
+    )
     return dict(row)
 
 
@@ -179,7 +206,9 @@ async def approve_version(
         INSERT INTO content_reviews (version_id, reviewer_id, action, notes)
         VALUES ($1, $2, 'approve', $3)
         """,
-        uuid.UUID(version_id), uuid.UUID(reviewer_id), notes,
+        uuid.UUID(version_id),
+        uuid.UUID(reviewer_id),
+        notes,
     )
     row = await conn.fetchrow(
         """
@@ -191,8 +220,8 @@ async def approve_version(
         uuid.UUID(version_id),
     )
     from src.core.events import write_audit_log
-    write_audit_log("review_approved", "admin", reviewer_id,
-                    metadata={"version_id": version_id})
+
+    write_audit_log("review_approved", "admin", reviewer_id, metadata={"version_id": version_id})
     return dict(row) if row else {"version_id": version_id, "status": "approved"}
 
 
@@ -208,7 +237,9 @@ async def reject_version(
         INSERT INTO content_reviews (version_id, reviewer_id, action, notes)
         VALUES ($1, $2, 'reject', $3)
         """,
-        uuid.UUID(version_id), uuid.UUID(reviewer_id), notes,
+        uuid.UUID(version_id),
+        uuid.UUID(reviewer_id),
+        notes,
     )
     row = await conn.fetchrow(
         """
@@ -223,12 +254,18 @@ async def reject_version(
     result["regenerating"] = False
 
     from src.core.events import write_audit_log
-    write_audit_log("review_rejected", "admin", reviewer_id,
-                    metadata={"version_id": version_id, "regenerate": regenerate})
+
+    write_audit_log(
+        "review_rejected",
+        "admin",
+        reviewer_id,
+        metadata={"version_id": version_id, "regenerate": regenerate},
+    )
 
     if regenerate and row:
         try:
             from src.auth.tasks import celery_app
+
             celery_app.send_task(
                 "src.auth.tasks.regenerate_subject_task",
                 args=[row["curriculum_id"], row["subject"]],
@@ -242,6 +279,7 @@ async def reject_version(
 
 
 # ── Publish / rollback ────────────────────────────────────────────────────────
+
 
 async def publish_version(
     conn: asyncpg.Connection,
@@ -275,7 +313,9 @@ async def publish_version(
         WHERE curriculum_id = $1 AND subject = $2 AND status = 'published'
           AND version_id != $3
         """,
-        curriculum_id, subject, uuid.UUID(version_id),
+        curriculum_id,
+        subject,
+        uuid.UUID(version_id),
     )
 
     row = await conn.fetchrow(
@@ -290,6 +330,7 @@ async def publish_version(
 
     # Audit log
     from src.core.events import write_audit_log
+
     write_audit_log("content_published", "admin", admin_id, metadata={"version_id": version_id})
 
     # Expire Redis content cache keys for this curriculum/subject
@@ -332,7 +373,9 @@ async def rollback_version(
         WHERE curriculum_id = $1 AND subject = $2 AND status = 'published'
           AND version_id != $3
         """,
-        curriculum_id, subject, uuid.UUID(version_id),
+        curriculum_id,
+        subject,
+        uuid.UUID(version_id),
     )
 
     row = await conn.fetchrow(
@@ -346,6 +389,7 @@ async def rollback_version(
     )
 
     from src.core.events import write_audit_log
+
     write_audit_log("content_rollback", "admin", admin_id, metadata={"version_id": version_id})
 
     await _expire_content_cache(redis, curriculum_id, subject)
@@ -374,12 +418,14 @@ def _invalidate_cdn(curriculum_id: str) -> None:
     """Fire-and-forget CloudFront invalidation for a curriculum."""
     try:
         from src.content.service import invalidate_cdn_path
+
         invalidate_cdn_path(curriculum_id)
     except Exception as exc:
         log.warning("cdn_invalidation_failed curriculum_id=%s error=%s", curriculum_id, exc)
 
 
 # ── Content blocks ────────────────────────────────────────────────────────────
+
 
 async def create_block(
     conn: asyncpg.Connection,
@@ -398,11 +444,20 @@ async def create_block(
                 blocked_at = NOW(), unblocked_at = NULL
         RETURNING block_id::text, curriculum_id, unit_id, content_type, blocked_at
         """,
-        curriculum_id, unit_id, content_type, reason, uuid.UUID(admin_id),
+        curriculum_id,
+        unit_id,
+        content_type,
+        reason,
+        uuid.UUID(admin_id),
     )
     from src.core.events import write_audit_log
-    write_audit_log("content_blocked", "admin", admin_id,
-                    metadata={"unit_id": unit_id, "content_type": content_type})
+
+    write_audit_log(
+        "content_blocked",
+        "admin",
+        admin_id,
+        metadata={"unit_id": unit_id, "content_type": content_type},
+    )
     return dict(row)
 
 
@@ -417,12 +472,14 @@ async def remove_block(
     )
     if result != "UPDATE 0":
         from src.core.events import write_audit_log
+
         write_audit_log("content_unblocked", "admin", admin_id, metadata={"block_id": block_id})
         return True
     return False
 
 
 # ── Student feedback listing ──────────────────────────────────────────────────
+
 
 async def list_feedback(
     conn: asyncpg.Connection,
@@ -439,7 +496,9 @@ async def list_feedback(
         ORDER BY created_at DESC
         LIMIT $2 OFFSET $3
         """,
-        unit_id, limit, offset,
+        unit_id,
+        limit,
+        offset,
     )
     total = await conn.fetchval(
         "SELECT COUNT(*) FROM student_content_feedback WHERE unit_id = $1",
@@ -474,7 +533,8 @@ async def get_feedback_report(
         ORDER BY report_count DESC
         LIMIT $2
         """,
-        threshold, limit,
+        threshold,
+        limit,
     )
     return {
         "items": [dict(r) for r in rows],
@@ -483,6 +543,7 @@ async def get_feedback_report(
 
 
 # ── Subscription analytics ────────────────────────────────────────────────────
+
 
 async def get_subscription_analytics(conn: asyncpg.Connection) -> dict:
     """MRR, churn, new/cancelled this month."""
@@ -497,9 +558,7 @@ async def get_subscription_analytics(conn: asyncpg.Connection) -> dict:
     )
     active_monthly = totals["active_monthly"] or 0
     active_annual = totals["active_annual"] or 0
-    mrr = round(
-        active_monthly * _MONTHLY_PRICE_USD + active_annual * _ANNUAL_MONTHLY_USD, 2
-    )
+    mrr = round(active_monthly * _MONTHLY_PRICE_USD + active_annual * _ANNUAL_MONTHLY_USD, 2)
 
     month_stats = await conn.fetchrow(
         """
@@ -530,6 +589,7 @@ async def get_subscription_analytics(conn: asyncpg.Connection) -> dict:
 
 
 # ── Struggle analytics ────────────────────────────────────────────────────────
+
 
 async def get_struggle_report(conn: asyncpg.Connection, limit: int = 20) -> dict:
     """
@@ -569,6 +629,7 @@ async def get_struggle_report(conn: asyncpg.Connection, limit: int = 20) -> dict
 
 # ── Pipeline status ───────────────────────────────────────────────────────────
 
+
 async def get_pipeline_status(conn: asyncpg.Connection) -> dict:
     row = await conn.fetchrow(
         """
@@ -596,6 +657,7 @@ async def get_pipeline_status(conn: asyncpg.Connection) -> dict:
 
 
 # ── Dictionary ────────────────────────────────────────────────────────────────
+
 
 async def lookup_dictionary(word: str) -> dict:
     """
@@ -632,6 +694,7 @@ async def lookup_dictionary(word: str) -> dict:
     # Merriam-Webster definitions (optional)
     try:
         from config import settings
+
         mw_key = getattr(settings, "MW_API_KEY", None)
         if mw_key:
             async with httpx.AsyncClient(timeout=5) as client:

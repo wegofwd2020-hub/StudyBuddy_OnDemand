@@ -36,10 +36,12 @@ _GRACE_PERIOD_DAYS = 3
 
 # ── Stripe helpers ─────────────────────────────────────────────────────────────
 
+
 def _get_stripe():
     """Import stripe lazily; raise RuntimeError if not installed."""
     try:
         import stripe  # type: ignore
+
         return stripe
     except ImportError:
         raise RuntimeError("stripe package not installed — run: pip install stripe")
@@ -47,6 +49,7 @@ def _get_stripe():
 
 def _stripe_key():
     from config import settings
+
     key = getattr(settings, "STRIPE_SECRET_KEY", None)
     if not key:
         raise RuntimeError("STRIPE_SECRET_KEY is not configured")
@@ -54,6 +57,7 @@ def _stripe_key():
 
 
 # ── Checkout ──────────────────────────────────────────────────────────────────
+
 
 async def create_checkout_session(
     student_id: str,
@@ -68,6 +72,7 @@ async def create_checkout_session(
     the subscription without an additional DB lookup.
     """
     from config import settings
+
     stripe = _get_stripe()
     stripe.api_key = _stripe_key()
 
@@ -92,6 +97,7 @@ async def create_checkout_session(
 
 # ── Stripe cancellation ───────────────────────────────────────────────────────
 
+
 async def cancel_stripe_subscription(stripe_subscription_id: str) -> None:
     """Cancel a Stripe subscription at period end."""
     stripe = _get_stripe()
@@ -105,6 +111,7 @@ async def cancel_stripe_subscription(stripe_subscription_id: str) -> None:
 
 # ── Entitlement cache ─────────────────────────────────────────────────────────
 
+
 async def expire_entitlement_cache(redis, student_id: str) -> None:
     """Delete the Redis entitlement cache entry for a student."""
     await redis.delete(f"ent:{student_id}")
@@ -112,6 +119,7 @@ async def expire_entitlement_cache(redis, student_id: str) -> None:
 
 
 # ── Stripe event dedup ────────────────────────────────────────────────────────
+
 
 async def already_processed(conn: asyncpg.Connection, stripe_event_id: str) -> bool:
     """Return True if this stripe_event_id has already been handled."""
@@ -144,6 +152,7 @@ async def log_stripe_event(
 
 
 # ── Subscription status ───────────────────────────────────────────────────────
+
 
 async def get_subscription_status(conn: asyncpg.Connection, student_id: str) -> dict:
     """
@@ -197,6 +206,7 @@ async def get_subscription_status(conn: asyncpg.Connection, student_id: str) -> 
 
 
 # ── Webhook event handlers ────────────────────────────────────────────────────
+
 
 async def activate_subscription(
     conn: asyncpg.Connection,
@@ -324,7 +334,9 @@ async def cancel_subscription_db(
         student_id,
     )
     await expire_entitlement_cache(redis, student_id)
-    log.info("subscription_cancelled stripe_sub=%s student_id=%s", stripe_subscription_id, student_id)
+    log.info(
+        "subscription_cancelled stripe_sub=%s student_id=%s", stripe_subscription_id, student_id
+    )
 
 
 async def handle_payment_failed(
@@ -367,7 +379,9 @@ async def handle_payment_failed(
     await expire_entitlement_cache(redis, student_id)
     log.info(
         "payment_failed_grace_period_set stripe_sub=%s student_id=%s grace_end=%s",
-        stripe_subscription_id, student_id, grace_end.isoformat()
+        stripe_subscription_id,
+        student_id,
+        grace_end.isoformat(),
     )
 
 

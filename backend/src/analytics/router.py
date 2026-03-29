@@ -74,7 +74,11 @@ async def lesson_start(
             log.error("lesson_start_failed", error=str(exc), correlation_id=cid)
             raise HTTPException(
                 status_code=500,
-                detail={"error": "internal_error", "detail": "Could not record lesson start.", "correlation_id": cid},
+                detail={
+                    "error": "internal_error",
+                    "detail": "Could not record lesson start.",
+                    "correlation_id": cid,
+                },
             )
 
     return LessonStartResponse(**result)
@@ -101,7 +105,11 @@ async def lesson_end(
     except ValueError:
         raise HTTPException(
             status_code=400,
-            detail={"error": "invalid_view_id", "detail": "view_id must be a UUID.", "correlation_id": cid},
+            detail={
+                "error": "invalid_view_id",
+                "detail": "view_id must be a UUID.",
+                "correlation_id": cid,
+            },
         )
 
     # Verify ownership synchronously
@@ -111,22 +119,35 @@ async def lesson_end(
         except LookupError:
             raise HTTPException(
                 status_code=404,
-                detail={"error": "view_not_found", "detail": "Lesson view not found.", "correlation_id": cid},
+                detail={
+                    "error": "view_not_found",
+                    "detail": "Lesson view not found.",
+                    "correlation_id": cid,
+                },
             )
         except PermissionError:
             raise HTTPException(
                 status_code=403,
-                detail={"error": "forbidden", "detail": "This view belongs to another student.", "correlation_id": cid},
+                detail={
+                    "error": "forbidden",
+                    "detail": "This view belongs to another student.",
+                    "correlation_id": cid,
+                },
             )
 
         if view_row.get("ended_at") is not None:
             raise HTTPException(
                 status_code=409,
-                detail={"error": "view_already_ended", "detail": "This lesson view has already been ended.", "correlation_id": cid},
+                detail={
+                    "error": "view_already_ended",
+                    "detail": "This lesson view has already been ended.",
+                    "correlation_id": cid,
+                },
             )
 
     # Fire-and-forget: write duration + flags
     from src.auth.tasks import celery_app
+
     celery_app.send_task(
         "src.auth.tasks.write_lesson_end_task",
         kwargs={
@@ -143,6 +164,7 @@ async def lesson_end(
 
 # ── GET /analytics/student/me ─────────────────────────────────────────────────
 
+
 @router.get("/analytics/student/me", response_model=StudentMetricsResponse)
 async def student_metrics(
     request: Request,
@@ -156,6 +178,7 @@ async def student_metrics(
 
 
 # ── GET /analytics/student/stats ─────────────────────────────────────────────
+
 
 @router.get("/analytics/student/stats")
 async def student_stats(
@@ -218,6 +241,7 @@ async def student_stats(
 
     # Compute streak from today backwards
     from datetime import date, timedelta
+
     today = date.today()
     date_set = set(session_dates)
     streak = 0
@@ -242,13 +266,18 @@ async def student_stats(
         "avg_score": round(avg_score / 100, 4),
         "audio_sessions": int(vr.get("audio_sessions") or 0),
         "subject_breakdown": [
-            {"subject": r["subject"], "lessons": int(r["lessons"]), "pass_rate": round(float(r["pass_rate"] or 0), 4)}
+            {
+                "subject": r["subject"],
+                "lessons": int(r["lessons"]),
+                "pass_rate": round(float(r["pass_rate"] or 0), 4),
+            }
             for r in subj_rows
         ],
     }
 
 
 # ── GET /analytics/school/{school_id}/class ───────────────────────────────────
+
 
 @router.get("/analytics/school/{school_id}/class", response_model=ClassMetricsResponse)
 async def class_metrics(
@@ -267,7 +296,11 @@ async def class_metrics(
     if teacher.get("school_id") != school_id:
         raise HTTPException(
             status_code=403,
-            detail={"error": "forbidden", "detail": "Cannot view analytics for a different school.", "correlation_id": cid},
+            detail={
+                "error": "forbidden",
+                "detail": "Cannot view analytics for a different school.",
+                "correlation_id": cid,
+            },
         )
     async with get_db(request) as conn:
         result = await get_class_metrics(conn, school_id, grade=grade, subject=subject)

@@ -54,7 +54,11 @@ async def register_school(
         INSERT INTO schools (school_id, name, contact_email, country, enrolment_code, status)
         VALUES ($1, $2, $3, $4, $5, 'active')
         """,
-        uuid.UUID(school_id), name, contact_email, country, enrolment_code,
+        uuid.UUID(school_id),
+        name,
+        contact_email,
+        country,
+        enrolment_code,
     )
 
     teacher_id = str(uuid.uuid4())
@@ -67,8 +71,11 @@ async def register_school(
             (teacher_id, school_id, external_auth_id, name, email, role, account_status)
         VALUES ($1, $2, $3, $4, $5, 'school_admin', 'active')
         """,
-        uuid.UUID(teacher_id), uuid.UUID(school_id),
-        ext_auth_id, name, contact_email,
+        uuid.UUID(teacher_id),
+        uuid.UUID(school_id),
+        ext_auth_id,
+        name,
+        contact_email,
     )
 
     token = create_internal_jwt(
@@ -129,8 +136,11 @@ async def invite_teacher(
             (teacher_id, school_id, external_auth_id, name, email, role, account_status)
         VALUES ($1, $2, $3, $4, $5, 'teacher', 'pending')
         """,
-        uuid.UUID(teacher_id), uuid.UUID(school_id),
-        ext_auth_id, name, email,
+        uuid.UUID(teacher_id),
+        uuid.UUID(school_id),
+        ext_auth_id,
+        name,
+        email,
     )
 
     log.info("teacher_invited", teacher_id=teacher_id, school_id=school_id)

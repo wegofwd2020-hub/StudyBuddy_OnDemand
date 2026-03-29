@@ -27,10 +27,10 @@ from src.utils.logger import get_logger
 log = get_logger("auth.dev")
 router = APIRouter(tags=["dev"])
 
-_DEV_STUDENT_SUB      = "dev|student-001"
-_DEV_TEACHER_SUB      = "dev|teacher-001"
+_DEV_STUDENT_SUB = "dev|student-001"
+_DEV_TEACHER_SUB = "dev|teacher-001"
 _DEV_SCHOOL_ADMIN_SUB = "dev|school-admin-001"
-_DEV_SCHOOL_ID        = uuid.UUID("00000000-0000-0000-0000-000000000001")
+_DEV_SCHOOL_ID = uuid.UUID("00000000-0000-0000-0000-000000000001")
 
 # 7-day tokens — long enough for a testing session
 _TOKEN_EXPIRE_MINUTES = 60 * 24 * 7
@@ -57,7 +57,10 @@ async def dev_login(body: DevLoginRequest, request: Request) -> DevLoginResponse
     if settings.APP_ENV != "development":
         raise HTTPException(
             status_code=403,
-            detail={"error": "forbidden", "detail": "Dev login is only available in development mode."},
+            detail={
+                "error": "forbidden",
+                "detail": "Dev login is only available in development mode.",
+            },
         )
 
     async with get_db(request) as conn:
@@ -77,7 +80,10 @@ async def dev_login(body: DevLoginRequest, request: Request) -> DevLoginResponse
                     _DEV_STUDENT_SUB,
                 )
             if row is None:
-                raise HTTPException(status_code=500, detail={"error": "internal_error", "detail": "Failed to create dev student."})
+                raise HTTPException(
+                    status_code=500,
+                    detail={"error": "internal_error", "detail": "Failed to create dev student."},
+                )
 
             # Give dev student a premium entitlement (bypasses the 2-lesson free-tier paywall)
             await conn.execute(
@@ -102,7 +108,9 @@ async def dev_login(body: DevLoginRequest, request: Request) -> DevLoginResponse
                 _TOKEN_EXPIRE_MINUTES,
             )
             log.info("dev_student_login", student_id=str(row["student_id"]))
-            return DevLoginResponse(token=token, name=row["name"], email=row["email"], role="student")
+            return DevLoginResponse(
+                token=token, name=row["name"], email=row["email"], role="student"
+            )
 
         # ── Teacher / School Admin ────────────────────────────────────────────
         # Ensure dev school exists first (teachers require a school_id FK).
@@ -144,7 +152,10 @@ async def dev_login(body: DevLoginRequest, request: Request) -> DevLoginResponse
                 db_role,
             )
         if teacher_row is None:
-            raise HTTPException(status_code=500, detail={"error": "internal_error", "detail": f"Failed to create dev {body.role}."})
+            raise HTTPException(
+                status_code=500,
+                detail={"error": "internal_error", "detail": f"Failed to create dev {body.role}."},
+            )
 
         token = create_internal_jwt(
             {
@@ -156,5 +167,12 @@ async def dev_login(body: DevLoginRequest, request: Request) -> DevLoginResponse
             settings.JWT_SECRET,
             _TOKEN_EXPIRE_MINUTES,
         )
-        log.info("dev_teacher_login", teacher_id=str(teacher_row["teacher_id"]), role=teacher_row["role"])
-        return DevLoginResponse(token=token, name=teacher_row["name"], email=teacher_row["email"], role=teacher_row["role"])
+        log.info(
+            "dev_teacher_login", teacher_id=str(teacher_row["teacher_id"]), role=teacher_row["role"]
+        )
+        return DevLoginResponse(
+            token=token,
+            name=teacher_row["name"],
+            email=teacher_row["email"],
+            role=teacher_row["role"],
+        )

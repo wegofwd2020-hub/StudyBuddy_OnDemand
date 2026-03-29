@@ -59,6 +59,7 @@ router = APIRouter(tags=["subscription"])
 
 # ── GET /subscription/status ──────────────────────────────────────────────────
 
+
 @router.get("/subscription/status", response_model=SubscriptionStatusResponse, status_code=200)
 async def subscription_status(
     request: Request,
@@ -74,6 +75,7 @@ async def subscription_status(
 
 
 # ── POST /subscription/checkout ───────────────────────────────────────────────
+
 
 @router.post("/subscription/checkout", response_model=CheckoutResponse, status_code=200)
 async def checkout(
@@ -105,16 +107,23 @@ async def checkout(
             detail={"error": "payment_unavailable", "detail": str(exc), "correlation_id": cid},
         )
     except Exception as exc:
-        log.error("checkout_stripe_error student_id=%s error=%s correlation_id=%s", student_id, exc, cid)
+        log.error(
+            "checkout_stripe_error student_id=%s error=%s correlation_id=%s", student_id, exc, cid
+        )
         raise HTTPException(
             status_code=502,
-            detail={"error": "stripe_error", "detail": "Could not create checkout session.", "correlation_id": cid},
+            detail={
+                "error": "stripe_error",
+                "detail": "Could not create checkout session.",
+                "correlation_id": cid,
+            },
         )
 
     return CheckoutResponse(checkout_url=url)
 
 
 # ── POST /subscription/webhook ────────────────────────────────────────────────
+
 
 @router.post("/subscription/webhook", status_code=200)
 async def stripe_webhook(request: Request) -> dict:
@@ -151,7 +160,10 @@ async def stripe_webhook(request: Request) -> dict:
         log.warning("stripe_signature_invalid error=%s", exc)
         raise HTTPException(
             status_code=400,
-            detail={"error": "invalid_signature", "detail": "Stripe webhook signature verification failed."},
+            detail={
+                "error": "invalid_signature",
+                "detail": "Stripe webhook signature verification failed.",
+            },
         )
 
     stripe_event_id = event["id"]
@@ -173,7 +185,9 @@ async def stripe_webhook(request: Request) -> dict:
         except Exception as exc:
             log.error(
                 "stripe_event_handler_failed event_id=%s event_type=%s error=%s",
-                stripe_event_id, event_type, exc,
+                stripe_event_id,
+                event_type,
+                exc,
             )
             outcome = "error"
             error_detail = str(exc)
@@ -190,7 +204,11 @@ async def _dispatch_event(conn, redis, event_type: str, obj: dict, event: dict) 
         student_id = metadata.get("student_id")
         plan = metadata.get("plan")
         if not student_id or not plan:
-            log.warning("checkout.session.completed missing metadata student_id=%s plan=%s", student_id, plan)
+            log.warning(
+                "checkout.session.completed missing metadata student_id=%s plan=%s",
+                student_id,
+                plan,
+            )
             return
 
         stripe_customer_id = obj.get("customer", "")
@@ -201,17 +219,18 @@ async def _dispatch_event(conn, redis, event_type: str, obj: dict, event: dict) 
         try:
             stripe_mod = _get_stripe_module()
             from config import settings
+
             stripe_mod.api_key = settings.STRIPE_SECRET_KEY
             sub = stripe_mod.Subscription.retrieve(stripe_subscription_id)
             import datetime as _dt
-            current_period_end = _dt.datetime.fromtimestamp(
-                sub["current_period_end"], tz=_dt.UTC
-            )
+
+            current_period_end = _dt.datetime.fromtimestamp(sub["current_period_end"], tz=_dt.UTC)
         except Exception as exc:
             log.warning("could_not_fetch_subscription_period error=%s", exc)
 
         await activate_subscription(
-            conn, redis,
+            conn,
+            redis,
             student_id=student_id,
             plan=plan,
             stripe_customer_id=stripe_customer_id,
@@ -226,13 +245,15 @@ async def _dispatch_event(conn, redis, event_type: str, obj: dict, event: dict) 
         status = _map_stripe_status(raw_status)
 
         import datetime as _dt
+
         period_end_ts = obj.get("current_period_end")
         current_period_end = (
-            _dt.datetime.fromtimestamp(period_end_ts, tz=_dt.UTC)
-            if period_end_ts else None
+            _dt.datetime.fromtimestamp(period_end_ts, tz=_dt.UTC) if period_end_ts else None
         )
 
-        await update_subscription_status(conn, redis, stripe_subscription_id, status, current_period_end)
+        await update_subscription_status(
+            conn, redis, stripe_subscription_id, status, current_period_end
+        )
 
     elif event_type == "customer.subscription.deleted":
         stripe_subscription_id = obj.get("id", "")
@@ -263,12 +284,14 @@ def _map_stripe_status(stripe_status: str) -> str:
 def _get_stripe_module():
     try:
         import stripe  # type: ignore
+
         return stripe
     except ImportError:
         raise RuntimeError("stripe package not installed")
 
 
 # ── DELETE /subscription ──────────────────────────────────────────────────────
+
 
 @router.delete("/subscription", response_model=CancelResponse, status_code=200)
 async def cancel_subscription(
@@ -299,7 +322,11 @@ async def cancel_subscription(
     if row is None:
         raise HTTPException(
             status_code=404,
-            detail={"error": "no_active_subscription", "detail": "No active subscription found.", "correlation_id": cid},
+            detail={
+                "error": "no_active_subscription",
+                "detail": "No active subscription found.",
+                "correlation_id": cid,
+            },
         )
 
     stripe_sub_id = row["stripe_subscription_id"]
@@ -316,7 +343,11 @@ async def cancel_subscription(
         log.error("cancel_subscription_stripe_error student_id=%s error=%s", student_id, exc)
         raise HTTPException(
             status_code=502,
-            detail={"error": "stripe_error", "detail": "Could not cancel subscription.", "correlation_id": cid},
+            detail={
+                "error": "stripe_error",
+                "detail": "Could not cancel subscription.",
+                "correlation_id": cid,
+            },
         )
 
     # Expire the entitlement cache so next request reflects the cancellation

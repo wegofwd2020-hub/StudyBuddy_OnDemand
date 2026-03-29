@@ -63,6 +63,7 @@ _FREE_TIER_LESSON_LIMIT = 2
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
+
 async def _get_curriculum_and_check_published(
     request: Request,
     unit_id: str,
@@ -114,6 +115,7 @@ async def _get_curriculum_and_check_published(
 
 # ── GET /content/{unit_id}/lesson ─────────────────────────────────────────────
 
+
 @router.get("/content/{unit_id}/lesson", response_model=LessonResponse)
 async def get_lesson(
     unit_id: str,
@@ -137,10 +139,7 @@ async def get_lesson(
 
     # Entitlement check
     entitlement = await get_entitlement(student_id, pool, redis)
-    if (
-        entitlement["plan"] == "free"
-        and entitlement["lessons_accessed"] >= _FREE_TIER_LESSON_LIMIT
-    ):
+    if entitlement["plan"] == "free" and entitlement["lessons_accessed"] >= _FREE_TIER_LESSON_LIMIT:
         raise HTTPException(
             status_code=402,
             detail={
@@ -175,6 +174,7 @@ async def get_lesson(
 
 # ── GET /content/{unit_id}/lesson/audio ──────────────────────────────────────
 
+
 @router.get("/content/{unit_id}/lesson/audio", response_model=AudioUrlResponse)
 async def get_lesson_audio(
     unit_id: str,
@@ -203,6 +203,7 @@ async def get_lesson_audio(
         # Generate pre-signed S3 URL
         try:
             import boto3
+
             s3_client = boto3.client("s3")
             key = f"curricula/{curriculum_id}/{unit_id}/lesson_{locale}.mp3"
             url = s3_client.generate_presigned_url(
@@ -221,6 +222,7 @@ async def get_lesson_audio(
 
 
 # ── GET /content/{unit_id}/quiz ───────────────────────────────────────────────
+
 
 @router.get("/content/{unit_id}/quiz", response_model=QuizResponse)
 async def get_quiz(
@@ -246,7 +248,9 @@ async def get_quiz(
         data = await get_content_file(curriculum_id, unit_id, filename, redis)
     except FileNotFoundError:
         try:
-            data = await get_content_file(curriculum_id, unit_id, f"quiz_set_{set_number}_en.json", redis)
+            data = await get_content_file(
+                curriculum_id, unit_id, f"quiz_set_{set_number}_en.json", redis
+            )
         except FileNotFoundError:
             raise HTTPException(
                 status_code=404,
@@ -258,6 +262,7 @@ async def get_quiz(
 
 
 # ── GET /content/{unit_id}/tutorial ──────────────────────────────────────────
+
 
 @router.get("/content/{unit_id}/tutorial", response_model=TutorialResponse)
 async def get_tutorial(
@@ -291,6 +296,7 @@ async def get_tutorial(
 
 
 # ── GET /content/{unit_id}/experiment ────────────────────────────────────────
+
 
 @router.get("/content/{unit_id}/experiment", response_model=ExperimentResponse)
 async def get_experiment(
@@ -328,6 +334,7 @@ async def get_experiment(
 
 # ── POST /content/{unit_id}/report ────────────────────────────────────────────
 
+
 @router.post("/content/{unit_id}/report", status_code=200)
 async def report_content(
     unit_id: str,
@@ -343,9 +350,7 @@ async def report_content(
     pool = request.app.state.pool
     redis = get_redis(request)
 
-    curriculum_id = await resolve_curriculum_id(
-        student_id, student.get("grade", 8), pool, redis
-    )
+    curriculum_id = await resolve_curriculum_id(student_id, student.get("grade", 8), pool, redis)
 
     async with pool.acquire() as conn:
         await conn.execute(
@@ -361,11 +366,14 @@ async def report_content(
             body.message,
         )
 
-    log.info("content_report unit_id=%s student_id=%s category=%s", unit_id, student_id, body.category)
+    log.info(
+        "content_report unit_id=%s student_id=%s category=%s", unit_id, student_id, body.category
+    )
     return {"status": "ok"}
 
 
 # ── POST /content/{unit_id}/feedback/marked ──────────────────────────────────
+
 
 @router.post("/content/{unit_id}/feedback/marked", status_code=200)
 async def submit_marked_feedback(
@@ -382,9 +390,7 @@ async def submit_marked_feedback(
     pool = request.app.state.pool
     redis = get_redis(request)
 
-    curriculum_id = await resolve_curriculum_id(
-        student_id, student.get("grade", 8), pool, redis
-    )
+    curriculum_id = await resolve_curriculum_id(student_id, student.get("grade", 8), pool, redis)
 
     async with pool.acquire() as conn:
         await conn.execute(
@@ -400,11 +406,17 @@ async def submit_marked_feedback(
             body.feedback_text,
         )
 
-    log.info("marked_feedback unit_id=%s student_id=%s content_type=%s", unit_id, student_id, body.content_type)
+    log.info(
+        "marked_feedback unit_id=%s student_id=%s content_type=%s",
+        unit_id,
+        student_id,
+        body.content_type,
+    )
     return {"status": "ok"}
 
 
 # ── GET /app/version ──────────────────────────────────────────────────────────
+
 
 @router.get("/app/version", response_model=AppVersionResponse)
 async def get_app_version(

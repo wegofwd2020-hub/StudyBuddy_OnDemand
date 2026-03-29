@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef } from "react";
 import { useLesson } from "@/lib/hooks/useLesson";
 import { LessonRenderer } from "@/components/content/LessonRenderer";
 import { AudioPlayer } from "@/components/content/AudioPlayer";
@@ -22,7 +22,7 @@ export default function LessonPage({ params }: PageProps) {
 
   const sessionIdRef = useRef<string | null>(null);
   const viewIdRef = useRef<string | null>(null);
-  const startTimeRef = useRef<number>(Date.now());
+  const startTimeRef = useRef<number>(0);
   const audioPlayedRef = useRef(false);
 
   // Start session + analytics view on mount

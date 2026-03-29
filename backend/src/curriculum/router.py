@@ -55,9 +55,7 @@ log = get_logger("curriculum")
 router = APIRouter(tags=["curriculum"])
 
 # Path to data directory (relative to repo root, resolved at import time).
-_DATA_DIR = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..", "..", "data")
-)
+_DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "data"))
 
 
 def _load_grade(grade: int) -> dict:
@@ -68,7 +66,10 @@ def _load_grade(grade: int) -> dict:
     if not os.path.exists(path):
         raise HTTPException(
             status_code=404,
-            detail={"error": "not_found", "detail": f"Curriculum data for grade {grade} not found."},
+            detail={
+                "error": "not_found",
+                "detail": f"Curriculum data for grade {grade} not found.",
+            },
         )
     with open(path, encoding="utf-8") as f:
         data = json.load(f)
@@ -83,6 +84,7 @@ def _cid(request: Request) -> str:
 
 # ── Grade tree (existing) ─────────────────────────────────────────────────────
 
+
 @router.get("/curriculum", response_model=list[GradeSummary])
 async def list_curriculum(request: Request):
     summaries: list[GradeSummary] = []
@@ -93,11 +95,14 @@ async def list_curriculum(request: Request):
             continue
         subjects = data.get("subjects", [])
         unit_count = sum(len(s.get("units", [])) for s in subjects)
-        summaries.append(GradeSummary(grade=grade, subject_count=len(subjects), unit_count=unit_count))
+        summaries.append(
+            GradeSummary(grade=grade, subject_count=len(subjects), unit_count=unit_count)
+        )
     return summaries
 
 
 # ── XLSX template — must be registered before /{grade} to avoid route conflict ─
+
 
 @router.get("/curriculum/template")
 async def download_template(
@@ -108,17 +113,24 @@ async def download_template(
     if not (5 <= grade <= 12):
         raise HTTPException(
             status_code=400,
-            detail={"error": "bad_request", "detail": "Grade must be 5–12.", "correlation_id": _cid(request)},
+            detail={
+                "error": "bad_request",
+                "detail": "Grade must be 5–12.",
+                "correlation_id": _cid(request),
+            },
         )
     content = build_xlsx_template(grade)
     return Response(
         content=content,
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        headers={"Content-Disposition": f'attachment; filename="curriculum_template_grade{grade}.xlsx"'},
+        headers={
+            "Content-Disposition": f'attachment; filename="curriculum_template_grade{grade}.xlsx"'
+        },
     )
 
 
 # ── Curriculum upload (JSON body) ─────────────────────────────────────────────
+
 
 @router.post(
     "/curriculum/upload",
@@ -157,6 +169,7 @@ async def upload_curriculum_json(
 
 # ── Curriculum upload (XLSX file) ─────────────────────────────────────────────
 
+
 @router.post(
     "/curriculum/upload/xlsx",
     response_model=CurriculumUploadResponse,
@@ -174,7 +187,11 @@ async def upload_curriculum_xlsx(
     if not (5 <= grade <= 12):
         raise HTTPException(
             status_code=400,
-            detail={"error": "bad_request", "detail": "Grade must be 5–12.", "correlation_id": _cid(request)},
+            detail={
+                "error": "bad_request",
+                "detail": "Grade must be 5–12.",
+                "correlation_id": _cid(request),
+            },
         )
     content = await file.read()
     units, parse_errors = parse_xlsx(content, grade)
@@ -214,6 +231,7 @@ async def upload_curriculum_xlsx(
 
 # ── Pipeline trigger ──────────────────────────────────────────────────────────
 
+
 @router.post(
     "/curriculum/pipeline/trigger",
     response_model=PipelineTriggerResponse,
@@ -228,7 +246,8 @@ async def pipeline_trigger(
     redis = get_redis(request)
     async with get_db(request) as conn:
         result = await trigger_pipeline(
-            conn, redis,
+            conn,
+            redis,
             curriculum_id=body.curriculum_id,
             langs=body.langs,
             force=body.force,
@@ -237,12 +256,17 @@ async def pipeline_trigger(
     if not result:
         raise HTTPException(
             status_code=404,
-            detail={"error": "not_found", "detail": "Curriculum not found.", "correlation_id": _cid(request)},
+            detail={
+                "error": "not_found",
+                "detail": "Curriculum not found.",
+                "correlation_id": _cid(request),
+            },
         )
     return PipelineTriggerResponse(**result)
 
 
 # ── Pipeline job status ───────────────────────────────────────────────────────
+
 
 @router.get(
     "/curriculum/pipeline/{job_id}/status",
@@ -259,12 +283,17 @@ async def pipeline_job_status(
     if not data:
         raise HTTPException(
             status_code=404,
-            detail={"error": "not_found", "detail": "Job not found.", "correlation_id": _cid(request)},
+            detail={
+                "error": "not_found",
+                "detail": "Job not found.",
+                "correlation_id": _cid(request),
+            },
         )
     return PipelineJobStatusResponse(**data)
 
 
 # ── Curriculum activation ─────────────────────────────────────────────────────
+
 
 @router.put(
     "/curriculum/{curriculum_id}/activate",
@@ -293,7 +322,11 @@ async def activate_curriculum(
         if not row:
             raise HTTPException(
                 status_code=404,
-                detail={"error": "not_found", "detail": "Curriculum not found.", "correlation_id": _cid(request)},
+                detail={
+                    "error": "not_found",
+                    "detail": "Curriculum not found.",
+                    "correlation_id": _cid(request),
+                },
             )
 
         school_id = row["school_id"]
@@ -302,16 +335,25 @@ async def activate_curriculum(
         if school_id is None:
             raise HTTPException(
                 status_code=403,
-                detail={"error": "forbidden", "detail": "Default curricula cannot be activated via this endpoint.", "correlation_id": _cid(request)},
+                detail={
+                    "error": "forbidden",
+                    "detail": "Default curricula cannot be activated via this endpoint.",
+                    "correlation_id": _cid(request),
+                },
             )
 
         if school_id != teacher.get("school_id"):
             raise HTTPException(
                 status_code=403,
-                detail={"error": "forbidden", "detail": "Cannot activate curriculum for a different school.", "correlation_id": _cid(request)},
+                detail={
+                    "error": "forbidden",
+                    "detail": "Cannot activate curriculum for a different school.",
+                    "correlation_id": _cid(request),
+                },
             )
 
         import uuid as _uuid
+
         school_uuid = _uuid.UUID(school_id)
 
         # Archive any other active curriculum for (school_id, grade, year).
@@ -351,6 +393,7 @@ async def activate_curriculum(
 
 
 # ── Student curriculum tree — resolves curriculum_id from JWT + enrollment ──────
+
 
 @router.get("/curriculum/tree")
 async def get_curriculum_tree(
@@ -416,6 +459,7 @@ async def get_curriculum_tree(
 
 # ── Grade tree /{grade} — kept last to avoid shadowing /template and /pipeline ─
 
+
 @router.get("/curriculum/{grade}", response_model=GradeCurriculum)
 async def get_grade_curriculum(grade: int, request: Request):
     """Return the full subject + unit tree for a grade (5–12)."""
@@ -423,7 +467,11 @@ async def get_grade_curriculum(grade: int, request: Request):
     if not (5 <= grade <= 12):
         raise HTTPException(
             status_code=400,
-            detail={"error": "bad_request", "detail": "Grade must be between 5 and 12.", "correlation_id": cid},
+            detail={
+                "error": "bad_request",
+                "detail": "Grade must be between 5 and 12.",
+                "correlation_id": cid,
+            },
         )
     data = _load_grade(grade)
     return GradeCurriculum(**data)

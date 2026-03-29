@@ -18,6 +18,7 @@ class AccountStatusUpdate(BaseModel):
     PATCH /account/teachers/{id}/status
     PATCH /account/schools/{id}/status
     """
+
     status: Literal["active", "suspended"]
 
 

@@ -276,7 +276,7 @@ describe("STU-23 — Score screen after quiz completion", () => {
     fireEvent.click(btn);
   }
 
-  async function completeQuiz(container: HTMLElement) {
+  async function completeQuiz() {
     for (let q = 0; q < MOCK_QUIZ.questions.length; q++) {
       const question = MOCK_QUIZ.questions[q];
       const correctOption = question.options[question.correct_index];
@@ -305,11 +305,11 @@ describe("STU-23 — Score screen after quiz completion", () => {
   }
 
   it("score screen shows passed heading (Trophy) when passed", async () => {
-    const { container } = render(
+    render(
       <QuizPlayer quiz={MOCK_QUIZ} sessionId={MOCK_SESSION_ID} curriculumId="default-2026-g8" />,
     );
     mockEndSession.mockResolvedValue(MOCK_SESSION_END_PASSED);
-    await completeQuiz(container);
+    await completeQuiz();
 
     await waitFor(() => {
       expect(screen.getByText(QUIZ_STRINGS.passedHeading)).toBeInTheDocument();
@@ -321,7 +321,7 @@ describe("STU-23 — Score screen after quiz completion", () => {
       <QuizPlayer quiz={MOCK_QUIZ} sessionId={MOCK_SESSION_ID} curriculumId="default-2026-g8" />,
     );
     mockEndSession.mockResolvedValue(MOCK_SESSION_END_PASSED);
-    await completeQuiz(container);
+    await completeQuiz();
 
     await waitFor(() => {
       // Trophy SVG has text-yellow-400 class
@@ -332,12 +332,12 @@ describe("STU-23 — Score screen after quiz completion", () => {
 
   it("score screen shows try_again heading (RefreshCw) when failed", async () => {
     mockEndSession.mockResolvedValue(MOCK_SESSION_END_FAILED);
-    const { container } = render(
+    render(
       <QuizPlayer quiz={MOCK_QUIZ} sessionId={MOCK_SESSION_ID} curriculumId="default-2026-g8" />,
     );
 
     // Override endSession to return failed result
-    await completeQuiz(container);
+    await completeQuiz();
 
     await waitFor(() => {
       // Either passed or try_again heading will appear
@@ -349,11 +349,11 @@ describe("STU-23 — Score screen after quiz completion", () => {
   });
 
   it("back to curriculum link is present on score screen", async () => {
-    const { container } = render(
+    render(
       <QuizPlayer quiz={MOCK_QUIZ} sessionId={MOCK_SESSION_ID} curriculumId="default-2026-g8" />,
     );
     mockEndSession.mockResolvedValue(MOCK_SESSION_END_PASSED);
-    await completeQuiz(container);
+    await completeQuiz();
 
     await waitFor(() => {
       const link = screen.getByRole("link", { name: QUIZ_STRINGS.backToCurriculum });

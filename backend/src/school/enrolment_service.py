@@ -44,7 +44,8 @@ async def upload_roster(
         # Check if already linked to an active student
         existing = await conn.fetchrow(
             "SELECT enrolment_id, status FROM school_enrolments WHERE school_id = $1 AND student_email = $2",
-            uuid.UUID(school_id), email,
+            uuid.UUID(school_id),
+            email,
         )
         if existing:
             already_enrolled += 1
@@ -64,7 +65,8 @@ async def upload_roster(
             VALUES ($1, $2, $3, $4)
             ON CONFLICT (school_id, student_email) DO NOTHING
             """,
-            uuid.UUID(school_id), email,
+            uuid.UUID(school_id),
+            email,
             student_id,
             status,
         )
@@ -77,12 +79,15 @@ async def upload_roster(
                 SET school_id = $1, enrolled_at = NOW()
                 WHERE student_id = $2 AND school_id IS NULL
                 """,
-                uuid.UUID(school_id), student_id,
+                uuid.UUID(school_id),
+                student_id,
             )
 
         enrolled += 1
 
-    log.info("roster_uploaded", school_id=school_id, enrolled=enrolled, already_enrolled=already_enrolled)
+    log.info(
+        "roster_uploaded", school_id=school_id, enrolled=enrolled, already_enrolled=already_enrolled
+    )
     return {"enrolled": enrolled, "already_enrolled": already_enrolled}
 
 
@@ -140,7 +145,8 @@ async def link_student(
         SET student_id = $1, status = 'active'
         WHERE enrolment_id = $2
         """,
-        uuid.UUID(student_id), enrolment_id,
+        uuid.UUID(student_id),
+        enrolment_id,
     )
 
     await conn.execute(
@@ -149,7 +155,8 @@ async def link_student(
         SET school_id = $1, enrolled_at = NOW()
         WHERE student_id = $2 AND school_id IS NULL
         """,
-        uuid.UUID(school_id), uuid.UUID(student_id),
+        uuid.UUID(school_id),
+        uuid.UUID(student_id),
     )
 
     log.info("student_enrolled", student_id=student_id, school_id=school_id)

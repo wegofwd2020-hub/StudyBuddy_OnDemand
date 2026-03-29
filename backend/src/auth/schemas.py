@@ -13,18 +13,22 @@ from pydantic import BaseModel, EmailStr, field_validator
 
 # ── Request schemas ───────────────────────────────────────────────────────────
 
+
 class TokenExchangeRequest(BaseModel):
     """POST /auth/exchange  and  POST /auth/teacher/exchange"""
+
     id_token: str
 
 
 class RefreshRequest(BaseModel):
     """POST /auth/refresh"""
+
     refresh_token: str
 
 
 class LogoutRequest(BaseModel):
     """POST /auth/logout"""
+
     refresh_token: str
 
 
@@ -36,6 +40,7 @@ class ForgotPasswordRequest(BaseModel):
     avoided here so that the endpoint always returns 200 regardless of input format,
     preventing enumeration of valid email addresses or formats.
     """
+
     email: str
 
     @field_validator("email")
@@ -48,6 +53,7 @@ class ForgotPasswordRequest(BaseModel):
 
 class StudentProfileUpdate(BaseModel):
     """PATCH /student/profile"""
+
     name: str | None = None
     locale: Literal["en", "fr", "es"] | None = None
     grade: int | None = None
@@ -62,17 +68,20 @@ class StudentProfileUpdate(BaseModel):
 
 class AdminLoginRequest(BaseModel):
     """POST /admin/auth/login"""
+
     email: EmailStr
     password: str
 
 
 class AdminForgotPasswordRequest(BaseModel):
     """POST /admin/auth/forgot-password"""
+
     email: EmailStr
 
 
 class AdminResetPasswordRequest(BaseModel):
     """POST /admin/auth/reset-password"""
+
     token: str
     new_password: str
 
@@ -86,8 +95,10 @@ class AdminResetPasswordRequest(BaseModel):
 
 # ── Response schemas ──────────────────────────────────────────────────────────
 
+
 class StudentPublic(BaseModel):
     """Safe public view of a student record."""
+
     student_id: UUID
     name: str
     grade: int
@@ -97,6 +108,7 @@ class StudentPublic(BaseModel):
 
 class TeacherPublic(BaseModel):
     """Safe public view of a teacher record."""
+
     teacher_id: UUID
     school_id: UUID
     name: str
@@ -107,6 +119,7 @@ class TeacherPublic(BaseModel):
 
 class TokenExchangeResponse(BaseModel):
     """Response for POST /auth/exchange"""
+
     token: str
     refresh_token: str
     student_id: UUID
@@ -115,6 +128,7 @@ class TokenExchangeResponse(BaseModel):
 
 class TeacherTokenExchangeResponse(BaseModel):
     """Response for POST /auth/teacher/exchange"""
+
     token: str
     refresh_token: str
     teacher_id: UUID
@@ -123,10 +137,12 @@ class TeacherTokenExchangeResponse(BaseModel):
 
 class RefreshResponse(BaseModel):
     """Response for POST /auth/refresh"""
+
     token: str
 
 
 class AdminLoginResponse(BaseModel):
     """Response for POST /admin/auth/login"""
+
     token: str
     admin_id: UUID

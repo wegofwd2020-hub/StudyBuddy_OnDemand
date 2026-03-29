@@ -1,6 +1,6 @@
 "use client";
 
-import type { Metadata } from "next";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -30,7 +30,7 @@ export default function ContactPage() {
     formState: { errors, isSubmitting },
   } = useForm<FormData>({ resolver: zodResolver(schema) });
 
-  async function onSubmit(_data: FormData) {
+  async function onSubmit() {
     // In production, POST to /api/contact or a form service
     await new Promise((r) => setTimeout(r, 600));
     setDone(true);

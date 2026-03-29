@@ -47,6 +47,7 @@ class TeacherInviteResponse(BaseModel):
 
 # ── Phase 9 — Enrolment ────────────────────────────────────────────────────────
 
+
 class EnrolmentUploadRequest(BaseModel):
     student_emails: list[EmailStr]
 

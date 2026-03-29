@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 
 # ── Request schemas ───────────────────────────────────────────────────────────
 
+
 class StartSessionRequest(BaseModel):
     unit_id: str = Field(..., min_length=1, max_length=64)
     curriculum_id: str = Field(..., min_length=1, max_length=64)
@@ -30,6 +31,7 @@ class EndSessionRequest(BaseModel):
 
 
 # ── Response schemas ──────────────────────────────────────────────────────────
+
 
 class StartSessionResponse(BaseModel):
     session_id: str

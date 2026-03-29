@@ -62,6 +62,7 @@ _REFRESH_TTL = settings.JWT_REFRESH_TOKEN_EXPIRE_DAYS * 86400  # seconds
 
 # ── Student exchange ──────────────────────────────────────────────────────────
 
+
 @router.post("/auth/exchange", response_model=TokenExchangeResponse)
 async def exchange_token(body: TokenExchangeRequest, request: Request):
     """
@@ -97,7 +98,12 @@ async def exchange_token(body: TokenExchangeRequest, request: Request):
 
     async with get_db(request) as conn:
         student = await upsert_student(
-            request.app.state.pool, auth0_sub, name, email, grade, locale,
+            request.app.state.pool,
+            auth0_sub,
+            name,
+            email,
+            grade,
+            locale,
             requires_parental_consent=requires_parental_consent,
         )
         # Phase 9: link to pending enrolment if one exists for this email.
@@ -116,19 +122,31 @@ async def exchange_token(body: TokenExchangeRequest, request: Request):
         auth_failures_total.labels(reason="account_pending").inc()
         raise HTTPException(
             status_code=403,
-            detail={"error": "account_pending", "detail": "Account awaiting parental consent.", "correlation_id": cid},
+            detail={
+                "error": "account_pending",
+                "detail": "Account awaiting parental consent.",
+                "correlation_id": cid,
+            },
         )
     if account_status == "suspended":
         auth_failures_total.labels(reason="account_suspended").inc()
         raise HTTPException(
             status_code=403,
-            detail={"error": "account_suspended", "detail": "Account has been suspended.", "correlation_id": cid},
+            detail={
+                "error": "account_suspended",
+                "detail": "Account has been suspended.",
+                "correlation_id": cid,
+            },
         )
     if account_status == "deleted":
         auth_failures_total.labels(reason="account_deleted").inc()
         raise HTTPException(
             status_code=401,
-            detail={"error": "unauthenticated", "detail": "Account has been deleted.", "correlation_id": cid},
+            detail={
+                "error": "unauthenticated",
+                "detail": "Account has been deleted.",
+                "correlation_id": cid,
+            },
         )
 
     student_id = str(student["student_id"])
@@ -139,7 +157,9 @@ async def exchange_token(body: TokenExchangeRequest, request: Request):
         "role": "student",
         "account_status": account_status,
     }
-    token = create_internal_jwt(jwt_payload, settings.JWT_SECRET, settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
+    token = create_internal_jwt(
+        jwt_payload, settings.JWT_SECRET, settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES
+    )
 
     refresh = generate_refresh_token()
     redis = get_redis(request)
@@ -169,6 +189,7 @@ async def exchange_token(body: TokenExchangeRequest, request: Request):
 
 # ── Teacher exchange ──────────────────────────────────────────────────────────
 
+
 @router.post("/auth/teacher/exchange", response_model=TeacherTokenExchangeResponse)
 async def exchange_teacher_token(body: TokenExchangeRequest, request: Request):
     """Exchange Auth0 id_token for teacher internal JWT."""
@@ -183,16 +204,18 @@ async def exchange_teacher_token(body: TokenExchangeRequest, request: Request):
     if role not in ("teacher", "school_admin"):
         role = "teacher"
 
-    teacher = await upsert_teacher(
-        request.app.state.pool, auth0_sub, None, name, email, role
-    )
+    teacher = await upsert_teacher(request.app.state.pool, auth0_sub, None, name, email, role)
 
     account_status: str = teacher["account_status"]
     if account_status == "suspended":
         auth_failures_total.labels(reason="account_suspended").inc()
         raise HTTPException(
             status_code=403,
-            detail={"error": "account_suspended", "detail": "Account has been suspended.", "correlation_id": cid},
+            detail={
+                "error": "account_suspended",
+                "detail": "Account has been suspended.",
+                "correlation_id": cid,
+            },
         )
 
     teacher_id = str(teacher["teacher_id"])
@@ -204,7 +227,9 @@ async def exchange_teacher_token(body: TokenExchangeRequest, request: Request):
         "role": role,
         "account_status": account_status,
     }
-    token = create_internal_jwt(jwt_payload, settings.JWT_SECRET, settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
+    token = create_internal_jwt(
+        jwt_payload, settings.JWT_SECRET, settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES
+    )
 
     refresh = generate_refresh_token()
     redis = get_redis(request)
@@ -234,6 +259,7 @@ async def exchange_teacher_token(body: TokenExchangeRequest, request: Request):
 
 # ── Refresh ───────────────────────────────────────────────────────────────────
 
+
 @router.post("/auth/refresh", response_model=RefreshResponse)
 async def refresh_token(body: RefreshRequest, request: Request):
     """Exchange a valid refresh token for a new access JWT."""
@@ -246,7 +272,11 @@ async def refresh_token(body: RefreshRequest, request: Request):
         auth_failures_total.labels(reason="refresh_token_invalid").inc()
         raise HTTPException(
             status_code=401,
-            detail={"error": "unauthenticated", "detail": "Invalid or expired refresh token.", "correlation_id": cid},
+            detail={
+                "error": "unauthenticated",
+                "detail": "Invalid or expired refresh token.",
+                "correlation_id": cid,
+            },
         )
 
     user_id: str = user_id_bytes.decode() if isinstance(user_id_bytes, bytes) else user_id_bytes
@@ -274,7 +304,11 @@ async def refresh_token(body: RefreshRequest, request: Request):
             if not teacher:
                 raise HTTPException(
                     status_code=401,
-                    detail={"error": "unauthenticated", "detail": "User not found.", "correlation_id": cid},
+                    detail={
+                        "error": "unauthenticated",
+                        "detail": "User not found.",
+                        "correlation_id": cid,
+                    },
                 )
             payload = {
                 "teacher_id": str(teacher["teacher_id"]),
@@ -290,6 +324,7 @@ async def refresh_token(body: RefreshRequest, request: Request):
 
 # ── Logout ────────────────────────────────────────────────────────────────────
 
+
 @router.post("/auth/logout")
 async def logout(body: LogoutRequest, request: Request):
     """Delete the refresh token from Redis."""
@@ -300,6 +335,7 @@ async def logout(body: LogoutRequest, request: Request):
 
 
 # ── Forgot password (always 200) ──────────────────────────────────────────────
+
 
 @router.post("/auth/forgot-password")
 async def forgot_password(body: ForgotPasswordRequest, request: Request):
@@ -319,6 +355,7 @@ async def forgot_password(body: ForgotPasswordRequest, request: Request):
 
 
 # ── Student profile update ────────────────────────────────────────────────────
+
 
 @router.patch("/student/profile")
 async def update_student_profile(
@@ -343,7 +380,7 @@ async def update_student_profile(
             detail={"error": "bad_request", "detail": "No fields to update."},
         )
 
-    set_clause = ", ".join(f"{k} = ${i+2}" for i, k in enumerate(updates))
+    set_clause = ", ".join(f"{k} = ${i + 2}" for i, k in enumerate(updates))
     values = [student_id, *updates.values()]
 
     async with get_db(request) as conn:
@@ -363,6 +400,7 @@ async def update_student_profile(
 
 
 # ── Student settings (display_name, locale, notifications) ───────────────────
+
 
 @router.get("/auth/settings")
 async def get_settings(
@@ -418,7 +456,7 @@ async def update_settings(
             student_updates["locale"] = body["locale"]
 
         if student_updates:
-            set_clause = ", ".join(f"{k} = ${i+2}" for i, k in enumerate(student_updates))
+            set_clause = ", ".join(f"{k} = ${i + 2}" for i, k in enumerate(student_updates))
             await conn.execute(
                 f"UPDATE students SET {set_clause} WHERE student_id = $1",
                 student_id,
@@ -451,6 +489,7 @@ async def update_settings(
 
 # ── Account deletion (GDPR) ───────────────────────────────────────────────────
 
+
 @router.delete("/auth/account")
 async def delete_account(
     request: Request,
@@ -481,6 +520,7 @@ async def delete_account(
                 cancel_active_subscription_for_student,
                 cancel_stripe_subscription,
             )
+
             async with get_db(request) as sub_conn:
                 stripe_sub_id = await cancel_active_subscription_for_student(sub_conn, student_id)
             if stripe_sub_id:

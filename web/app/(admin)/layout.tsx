@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AdminNav } from "@/components/layout/AdminNav";
 import { QueryProvider } from "@/lib/providers/QueryProvider";
@@ -24,14 +24,22 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const [userName, setUserName] = useState<string | undefined>(undefined);
+  const [userName] = useState<string | undefined>(() => {
+    try {
+      const token = localStorage.getItem("sb_admin_token");
+      return token ? parseAdminName(token) : undefined;
+    } catch {
+      return undefined;
+    }
+  });
+  const redirectedRef = useRef(false);
 
   useEffect(() => {
+    if (redirectedRef.current) return;
     const token = localStorage.getItem("sb_admin_token");
     if (!token) {
+      redirectedRef.current = true;
       router.replace("/admin/login");
-    } else {
-      setUserName(parseAdminName(token));
     }
   }, [router]);
 

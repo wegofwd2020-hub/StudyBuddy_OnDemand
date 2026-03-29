@@ -10,6 +10,7 @@ from pydantic import BaseModel
 
 # ── Dashboard ─────────────────────────────────────────────────────────────────
 
+
 class DashboardSummary(BaseModel):
     units_completed: int
     quizzes_passed: int
@@ -33,7 +34,7 @@ class NextUnit(BaseModel):
 
 
 class RecentActivityItem(BaseModel):
-    type: str          # "quiz" | "lesson"
+    type: str  # "quiz" | "lesson"
     unit_id: str
     title: str
     score: int | None = None
@@ -49,10 +50,11 @@ class DashboardResponse(BaseModel):
 
 # ── Progress map ──────────────────────────────────────────────────────────────
 
+
 class UnitProgressItem(BaseModel):
     unit_id: str
     title: str
-    status: str        # not_started | in_progress | needs_retry | completed
+    status: str  # not_started | in_progress | needs_retry | completed
     best_score: int | None
     attempts: int
     last_attempt_at: str | None
@@ -73,6 +75,7 @@ class ProgressMapResponse(BaseModel):
 
 
 # ── Stats ─────────────────────────────────────────────────────────────────────
+
 
 class DailyActivity(BaseModel):
     date: str

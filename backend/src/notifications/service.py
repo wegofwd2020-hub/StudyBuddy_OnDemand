@@ -106,7 +106,11 @@ async def update_preferences(
         weekly_summary,
         quiz_nudges,
     )
-    return {"streak_reminders": streak_reminders, "weekly_summary": weekly_summary, "quiz_nudges": quiz_nudges}
+    return {
+        "streak_reminders": streak_reminders,
+        "weekly_summary": weekly_summary,
+        "quiz_nudges": quiz_nudges,
+    }
 
 
 async def send_push_notification(
@@ -130,6 +134,7 @@ async def send_push_notification(
 
     try:
         import httpx
+
         payload = {
             "to": device_token,
             "notification": {"title": title, "body": body},
@@ -149,7 +154,9 @@ async def send_push_notification(
             log.info("push_sent device_token=%s title=%s", device_token[:16], title)
             return True
         else:
-            log.warning("push_failed device_token=%s status=%d", device_token[:16], resp.status_code)
+            log.warning(
+                "push_failed device_token=%s status=%d", device_token[:16], resp.status_code
+            )
             return False
     except Exception as exc:
         log.warning("push_exception device_token=%s error=%s", device_token[:16], exc)

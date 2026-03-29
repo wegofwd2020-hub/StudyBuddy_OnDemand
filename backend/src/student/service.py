@@ -32,6 +32,7 @@ QUIZ_PASS_THRESHOLD = 0.60
 
 # ── Streak helpers ────────────────────────────────────────────────────────────
 
+
 async def get_streak(redis, student_id: str) -> dict:
     """Read streak data from Redis.  Returns default if absent."""
     raw = await redis.get(f"streak:{student_id}")
@@ -88,6 +89,7 @@ async def update_streak(redis, student_id: str, activity_date: str) -> dict:
 # ── Dashboard ─────────────────────────────────────────────────────────────────
 
 _DASHBOARD_TTL = 60  # seconds (L1 + L2)
+
 
 async def get_dashboard(conn: asyncpg.Connection, redis, student_id: str) -> dict:
     """
@@ -175,7 +177,9 @@ async def _build_dashboard(conn: asyncpg.Connection, redis, student_id: str) -> 
             "subject": r["subject"],
             "units_total": r["units_total"],
             "units_completed": r["units_completed"],
-            "pct": round(r["units_completed"] / r["units_total"] * 100, 1) if r["units_total"] else 0.0,
+            "pct": round(r["units_completed"] / r["units_total"] * 100, 1)
+            if r["units_total"]
+            else 0.0,
         }
         for r in subject_rows
     ]
@@ -243,13 +247,15 @@ async def _build_dashboard(conn: asyncpg.Connection, redis, student_id: str) -> 
     recent: list[dict] = []
     for r in list(quiz_activity) + list(lesson_activity):
         at_val = r["at"]
-        recent.append({
-            "type": r["type"],
-            "unit_id": r["unit_id"],
-            "title": r["title"],
-            "score": r["score"],
-            "at": at_val.isoformat() if at_val else None,
-        })
+        recent.append(
+            {
+                "type": r["type"],
+                "unit_id": r["unit_id"],
+                "title": r["title"],
+                "score": r["score"],
+                "at": at_val.isoformat() if at_val else None,
+            }
+        )
     recent.sort(key=lambda x: x["at"] or "", reverse=True)
     recent = recent[:5]
 
@@ -268,6 +274,7 @@ async def _build_dashboard(conn: asyncpg.Connection, redis, student_id: str) -> 
 
 
 # ── Progress map ──────────────────────────────────────────────────────────────
+
 
 async def get_progress_map(conn: asyncpg.Connection, student_id: str) -> dict:
     """
@@ -316,14 +323,18 @@ async def get_progress_map(conn: asyncpg.Connection, student_id: str) -> dict:
         subj = u["subject"]
         if subj not in subjects:
             subjects[subj] = []
-        subjects[subj].append({
-            "unit_id": u["unit_id"],
-            "title": u["title"],
-            "status": u["status"],
-            "best_score": u["best_score"],
-            "attempts": u["attempts"] or 0,
-            "last_attempt_at": u["last_attempt_at"].isoformat() if u["last_attempt_at"] else None,
-        })
+        subjects[subj].append(
+            {
+                "unit_id": u["unit_id"],
+                "title": u["title"],
+                "status": u["status"],
+                "best_score": u["best_score"],
+                "attempts": u["attempts"] or 0,
+                "last_attempt_at": u["last_attempt_at"].isoformat()
+                if u["last_attempt_at"]
+                else None,
+            }
+        )
 
     pending_count = sum(1 for u in units if u["status"] in ("not_started", "in_progress"))
     needs_retry_count = sum(1 for u in units if u["status"] == "needs_retry")
@@ -347,6 +358,7 @@ async def get_progress_map(conn: asyncpg.Connection, student_id: str) -> dict:
 
 
 # ── Stats ─────────────────────────────────────────────────────────────────────
+
 
 def _period_days(period: str) -> int | None:
     if period == "7d":

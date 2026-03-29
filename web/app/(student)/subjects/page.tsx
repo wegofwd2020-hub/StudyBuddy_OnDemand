@@ -3,7 +3,7 @@
 import { useCurriculumTree } from "@/lib/hooks/useCurriculumTree";
 import { LinkButton } from "@/components/ui/link-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import { FlaskConical } from "lucide-react";
 import { OfflineBanner } from "@/components/student/OfflineBanner";

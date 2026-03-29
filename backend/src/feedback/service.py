@@ -31,6 +31,7 @@ async def check_and_increment_rate_limit(redis, student_id: str) -> bool:
     Uses Redis INCR + EXPIRE; atomic via single-connection pipeline semantics.
     """
     from datetime import datetime
+
     hour_key = datetime.now(UTC).strftime("%Y%m%d%H")
     key = f"feedback:rate:{student_id}:{hour_key}"
 
@@ -117,7 +118,9 @@ async def list_feedback(
         ORDER BY submitted_at DESC
         LIMIT ${idx} OFFSET ${idx + 1}
         """,
-        *params, per_page, offset,
+        *params,
+        per_page,
+        offset,
     )
 
     return {

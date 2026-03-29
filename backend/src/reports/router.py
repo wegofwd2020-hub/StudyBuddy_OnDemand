@@ -86,6 +86,7 @@ def _check_school(teacher: dict, school_id: str, request: Request) -> None:
 
 # ── Student Roster ────────────────────────────────────────────────────────────
 
+
 @router.get("/reports/school/{school_id}/roster")
 async def student_roster(
     school_id: str,
@@ -147,6 +148,7 @@ async def student_roster(
 
 # ── Report 1: Class Overview ──────────────────────────────────────────────────
 
+
 @router.get("/reports/school/{school_id}/overview", response_model=OverviewReport)
 async def overview_report(
     school_id: str,
@@ -162,6 +164,7 @@ async def overview_report(
 
 
 # ── Report 2: Unit Performance ────────────────────────────────────────────────
+
 
 @router.get("/reports/school/{school_id}/unit/{unit_id}", response_model=UnitReport)
 async def unit_report(
@@ -179,6 +182,7 @@ async def unit_report(
 
 
 # ── Report 3: Student Progress ────────────────────────────────────────────────
+
 
 @router.get("/reports/school/{school_id}/student/{student_id}", response_model=StudentReport)
 async def student_report(
@@ -203,6 +207,7 @@ async def student_report(
 
 # ── Report 4: Curriculum Health ───────────────────────────────────────────────
 
+
 @router.get("/reports/school/{school_id}/curriculum-health", response_model=CurriculumHealthReport)
 async def curriculum_health(
     school_id: str,
@@ -217,6 +222,7 @@ async def curriculum_health(
 
 
 # ── Report 5: Feedback Report ─────────────────────────────────────────────────
+
 
 @router.get("/reports/school/{school_id}/feedback", response_model=FeedbackReport)
 async def feedback_report(
@@ -237,6 +243,7 @@ async def feedback_report(
 
 # ── Report 6: Trends ──────────────────────────────────────────────────────────
 
+
 @router.get("/reports/school/{school_id}/trends", response_model=TrendsReport)
 async def trends_report(
     school_id: str,
@@ -252,6 +259,7 @@ async def trends_report(
 
 
 # ── Export ────────────────────────────────────────────────────────────────────
+
 
 @router.post("/reports/school/{school_id}/export", response_model=ExportResponse)
 async def export_report(
@@ -274,12 +282,17 @@ async def download_export(
 ):
     """Serve a completed CSV export file."""
     from config import settings
+
     export_path = os.path.join(settings.CONTENT_STORE_PATH, "exports", f"{export_id}.csv")
     if not os.path.exists(export_path):
         cid = _cid(request)
         raise HTTPException(
             status_code=404,
-            detail={"error": "export_not_found", "detail": "Export not ready or expired.", "correlation_id": cid},
+            detail={
+                "error": "export_not_found",
+                "detail": "Export not ready or expired.",
+                "correlation_id": cid,
+            },
         )
     return FileResponse(
         export_path,
@@ -289,6 +302,7 @@ async def download_export(
 
 
 # ── Alerts ────────────────────────────────────────────────────────────────────
+
 
 @router.get("/reports/school/{school_id}/alerts", response_model=AlertListResponse)
 async def list_alerts(
@@ -319,6 +333,7 @@ async def update_alert_settings(
 
 # ── Digest ────────────────────────────────────────────────────────────────────
 
+
 @router.post("/reports/school/{school_id}/digest/subscribe", response_model=DigestSubscribeResponse)
 async def digest_subscribe(
     school_id: str,
@@ -331,13 +346,18 @@ async def digest_subscribe(
     teacher_id = str(teacher["teacher_id"])
     async with get_db(request) as conn:
         result = await subscribe_digest(
-            conn, school_id, teacher_id,
-            body.email, body.timezone, body.enabled,
+            conn,
+            school_id,
+            teacher_id,
+            body.email,
+            body.timezone,
+            body.enabled,
         )
     return DigestSubscribeResponse(**result)
 
 
 # ── Refresh ───────────────────────────────────────────────────────────────────
+
 
 @router.post("/reports/school/{school_id}/refresh", response_model=RefreshResponse)
 async def refresh_views(

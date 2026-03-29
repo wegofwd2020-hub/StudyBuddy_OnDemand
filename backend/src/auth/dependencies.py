@@ -65,7 +65,11 @@ async def get_current_student(
     if not student_id:
         raise HTTPException(
             status_code=401,
-            detail={"error": "invalid_token", "detail": "student_id missing from token.", "correlation_id": cid},
+            detail={
+                "error": "invalid_token",
+                "detail": "student_id missing from token.",
+                "correlation_id": cid,
+            },
         )
 
     # Check Redis suspension key (no TTL — key must be explicitly deleted).
@@ -94,7 +98,11 @@ async def get_current_student(
     if account_status == "deleted":
         raise HTTPException(
             status_code=401,
-            detail={"error": "unauthenticated", "detail": "Account has been deleted.", "correlation_id": cid},
+            detail={
+                "error": "unauthenticated",
+                "detail": "Account has been deleted.",
+                "correlation_id": cid,
+            },
         )
 
     request.state.jwt_payload = payload
@@ -127,7 +135,11 @@ async def get_current_teacher(
     if not teacher_id:
         raise HTTPException(
             status_code=401,
-            detail={"error": "invalid_token", "detail": "teacher_id missing from token.", "correlation_id": cid},
+            detail={
+                "error": "invalid_token",
+                "detail": "teacher_id missing from token.",
+                "correlation_id": cid,
+            },
         )
 
     redis = get_redis(request)
@@ -146,7 +158,11 @@ async def get_current_teacher(
     if account_status in ("pending",):
         raise HTTPException(
             status_code=403,
-            detail={"error": "account_pending", "detail": "Account pending verification.", "correlation_id": cid},
+            detail={
+                "error": "account_pending",
+                "detail": "Account pending verification.",
+                "correlation_id": cid,
+            },
         )
 
     request.state.jwt_payload = payload

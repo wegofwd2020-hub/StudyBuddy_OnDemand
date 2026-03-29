@@ -39,6 +39,7 @@ log = get_logger("auth")
 
 # ── Auth0 JWKS verification ───────────────────────────────────────────────────
 
+
 async def _fetch_jwks() -> dict:
     """Fetch JWKS from Auth0 and store in L1 cache."""
     cached = jwks_cache.get(settings.AUTH0_JWKS_URL)
@@ -187,6 +188,7 @@ async def verify_auth0_teacher_token(id_token: str) -> dict:
 
 # ── Internal JWT helpers ──────────────────────────────────────────────────────
 
+
 def create_internal_jwt(payload: dict, secret: str, expire_minutes: int) -> str:
     """
     Sign a payload as an HS256 JWT.
@@ -235,6 +237,7 @@ def verify_internal_jwt(token: str, secret: str) -> dict:
 
 # ── Refresh token helpers ─────────────────────────────────────────────────────
 
+
 def _hash_refresh_token(token: str) -> str:
     """SHA-256 hash of a refresh token for use as a Redis key."""
     return hashlib.sha256(token.encode()).hexdigest()
@@ -246,6 +249,7 @@ def generate_refresh_token() -> str:
 
 
 # ── bcrypt helpers (run in executor to avoid blocking event loop) ─────────────
+
 
 async def hash_password(password: str) -> str:
     """Hash a password with bcrypt, executed in the default thread pool."""
@@ -267,6 +271,7 @@ async def verify_password(plain: str, hashed: str) -> bool:
 
 
 # ── DB helpers — upsert student / teacher ────────────────────────────────────
+
 
 async def upsert_student(
     pool: asyncpg.Pool,
@@ -309,7 +314,9 @@ async def upsert_student(
         initial_status,
     )
     if row is None:
-        raise HTTPException(status_code=500, detail={"error": "internal_error", "detail": "Student upsert failed."})
+        raise HTTPException(
+            status_code=500, detail={"error": "internal_error", "detail": "Student upsert failed."}
+        )
     return dict(row)
 
 
@@ -363,11 +370,14 @@ async def upsert_teacher(
             )
 
     if row is None:
-        raise HTTPException(status_code=500, detail={"error": "internal_error", "detail": "Teacher upsert failed."})
+        raise HTTPException(
+            status_code=500, detail={"error": "internal_error", "detail": "Teacher upsert failed."}
+        )
     return dict(row)
 
 
 # ── Auth0 Management API ──────────────────────────────────────────────────────
+
 
 async def _get_mgmt_token() -> str:
     """Obtain a short-lived Auth0 Management API token via client_credentials."""

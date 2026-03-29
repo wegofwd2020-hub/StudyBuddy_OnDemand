@@ -4,7 +4,7 @@
  */
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export interface TeacherClaims {
   teacher_id: string;
@@ -22,24 +22,27 @@ function decodeJwtPayload(token: string): Record<string, unknown> | null {
   }
 }
 
-export function useTeacher(): TeacherClaims | null {
-  const [teacher, setTeacher] = useState<TeacherClaims | null>(null);
-
-  useEffect(() => {
+function readTeacherClaims(): TeacherClaims | null {
+  try {
     const token = localStorage.getItem("sb_teacher_token");
-    if (!token) return;
+    if (!token) return null;
     const payload = decodeJwtPayload(token);
-    if (!payload) return;
+    if (!payload) return null;
     const teacher_id = payload.teacher_id as string | undefined;
     const school_id = payload.school_id as string | undefined;
     const role = payload.role as string | undefined;
-    if (!teacher_id || !school_id) return;
-    setTeacher({
+    if (!teacher_id || !school_id) return null;
+    return {
       teacher_id,
       school_id,
       role: (role === "school_admin" ? "school_admin" : "teacher") as TeacherClaims["role"],
-    });
-  }, []);
+    };
+  } catch {
+    return null;
+  }
+}
 
+export function useTeacher(): TeacherClaims | null {
+  const [teacher] = useState<TeacherClaims | null>(() => readTeacherClaims());
   return teacher;
 }
