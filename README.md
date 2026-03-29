@@ -37,18 +37,15 @@ The Free edition proved the concept — students can navigate a grade-aware STEM
 ```
 StudyBuddy_OnDemand/
   README.md               ← This file
-  ARCHITECTURE.md         ← Full system design, diagrams, API spec, phase plan
-  AGENTS.md               ← AI agent onboarding guide for this project
-  CHANGES.md              ← Incremental change request log
+  CLAUDE.md               ← Claude Code instructions (stays with the code)
   backend/                ← FastAPI backend (Phase 1+)
   mobile/                 ← Kivy mobile app — thin client (Phase 1+)
   pipeline/               ← Content generation scripts (Phase 2+)
   data/                   ← Grade curriculum JSON files (shared with Free edition)
-  docs/                   ← Additional design documents
 ```
 
-> **Status:** Architecture and documentation phase. Implementation begins at Phase 1.
-> See [ARCHITECTURE.md](ARCHITECTURE.md) for the full design and phased plan.
+> **Documentation** has been moved to the [studybuddy-docs](https://github.com/wegofwd2020-hub/studybuddy-docs) repository — architecture, requirements, operations runbooks, and design decisions all live there.
+> See [ARCHITECTURE.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/ARCHITECTURE.md) for the full design and phased plan.
 
 ---
 
@@ -68,10 +65,10 @@ The Free edition remains a useful standalone tool and a reference implementation
 
 ---
 
-## Getting Started (Documentation Phase)
+## Getting Started
 
-Full implementation has not begun. To understand the system:
+To understand the system before touching code:
 
-1. Read [ARCHITECTURE.md](ARCHITECTURE.md) — system design, diagrams, API spec
-2. Read [AGENTS.md](AGENTS.md) — conventions and onboarding for AI-assisted development
-3. Review the [phased implementation plan](ARCHITECTURE.md#phased-implementation-plan)
+1. Read [ARCHITECTURE.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/ARCHITECTURE.md) — system design, diagrams, API spec
+2. Read [AGENTS.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/AGENTS.md) — conventions and onboarding for AI-assisted development
+3. Review the [phased implementation plan](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/ARCHITECTURE.md#phased-implementation-plan)

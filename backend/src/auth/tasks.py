@@ -134,7 +134,7 @@ def cascade_school_suspension(self, school_id: str, new_status: str) -> None:
     """
     When a school is suspended, add Redis suspended:{id} for all its members.
     When a school is reactivated, this task does NOT reactivate members
-    (per PHASE1_SETUP.md section 10.6 — each must be explicitly reactivated).
+    (per studybuddy-docs/PHASE1_SETUP.md section 10.6 — each must be explicitly reactivated).
     """
     import asyncpg
     from config import settings as cfg

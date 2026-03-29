@@ -191,7 +191,7 @@ def create_internal_jwt(payload: dict, secret: str, expire_minutes: int) -> str:
     """
     Sign a payload as an HS256 JWT.
 
-    Always adds exp, iat, jti claims (per PHASE1_SETUP.md section 10.3).
+    Always adds exp, iat, jti claims (per studybuddy-docs/PHASE1_SETUP.md section 10.3).
     """
     now = datetime.now(tz=UTC)
     claims = {
