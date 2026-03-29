@@ -255,4 +255,4 @@ async def test_progress_requires_auth(client):
         "/api/v1/progress/session",
         json={"unit_id": "G8-MATH-001", "curriculum_id": "default-2026-g8"},
     )
-    assert r.status_code == 403
+    assert r.status_code == 401

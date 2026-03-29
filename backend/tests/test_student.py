@@ -97,9 +97,9 @@ async def test_dashboard_requires_student_token(client, teacher_token):
 
 @pytest.mark.asyncio
 async def test_dashboard_requires_auth(client):
-    """Unauthenticated request returns 403."""
+    """Unauthenticated request returns 401."""
     r = await client.get("/api/v1/student/dashboard")
-    assert r.status_code == 403
+    assert r.status_code == 401
 
 
 # ── Progress map tests ────────────────────────────────────────────────────────

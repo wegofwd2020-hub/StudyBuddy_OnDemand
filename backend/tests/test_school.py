@@ -61,9 +61,9 @@ async def test_register_school_missing_name_returns_422(client: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_get_school_profile_requires_auth(client: AsyncClient):
-    """GET school profile without JWT returns 403 (HTTPBearer denies missing credentials)."""
+    """GET school profile without JWT returns 401."""
     r = await client.get("/api/v1/schools/some-school-id")
-    assert r.status_code == 403
+    assert r.status_code == 401
 
 
 @pytest.mark.asyncio
@@ -221,9 +221,9 @@ async def test_invite_teacher_duplicate_email_returns_409(client: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_invite_teacher_requires_auth(client: AsyncClient):
-    """Invite endpoint without JWT returns 403 (HTTPBearer denies missing credentials)."""
+    """Invite endpoint without JWT returns 401."""
     r = await client.post(
         "/api/v1/schools/some-school-id/teachers/invite",
         json={"name": "X", "email": "x@x.com"},
     )
-    assert r.status_code == 403
+    assert r.status_code == 401

@@ -535,7 +535,7 @@ async def test_dictionary_returns_structure(client, db_conn):
 @pytest.mark.asyncio
 async def test_dictionary_requires_auth(client):
     r = await client.get("/api/v1/admin/content/dictionary", params={"word": "test"})
-    assert r.status_code == 403
+    assert r.status_code == 401
 
 
 # ── Student token rejected on admin endpoints ────────────────────────────────

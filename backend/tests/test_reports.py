@@ -185,7 +185,7 @@ async def test_overview_wrong_school_403(client, db_conn):
 async def test_overview_requires_auth(client, db_conn):
     school = await _register_school(client, "_ov_auth")
     r = await client.get(f"/api/v1/reports/school/{school['school_id']}/overview")
-    assert r.status_code == 403
+    assert r.status_code == 401
 
 
 # ── Unit report ───────────────────────────────────────────────────────────────

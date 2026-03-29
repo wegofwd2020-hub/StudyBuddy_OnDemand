@@ -106,10 +106,10 @@ async def test_upload_curriculum_json_succeeds(client: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_upload_curriculum_json_requires_auth(client: AsyncClient):
-    """Upload without JWT returns 403 (HTTPBearer denies missing credentials)."""
+    """Upload without JWT returns 401."""
     payload = {"grade": 8, "year": 2026, "name": "Test", "units": _VALID_UNITS}
     r = await client.post("/api/v1/curriculum/upload", json=payload)
-    assert r.status_code == 403
+    assert r.status_code == 401
 
 
 @pytest.mark.asyncio
@@ -214,7 +214,7 @@ async def test_upload_xlsx_template_succeeds(client: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_upload_xlsx_requires_auth(client: AsyncClient):
-    """XLSX upload without JWT returns 403."""
+    """XLSX upload without JWT returns 401."""
     xlsx_bytes = _make_xlsx_bytes(8)
     r = await client.post(
         "/api/v1/curriculum/upload/xlsx",
@@ -222,7 +222,7 @@ async def test_upload_xlsx_requires_auth(client: AsyncClient):
                         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")},
         params={"grade": 8},
     )
-    assert r.status_code == 403
+    assert r.status_code == 401
 
 
 @pytest.mark.asyncio
@@ -378,12 +378,12 @@ async def test_pipeline_trigger_nonexistent_curriculum_returns_404(client: Async
 
 @pytest.mark.asyncio
 async def test_pipeline_trigger_requires_auth(client: AsyncClient):
-    """Pipeline trigger without JWT returns 403."""
+    """Pipeline trigger without JWT returns 401."""
     r = await client.post(
         "/api/v1/curriculum/pipeline/trigger",
         json={"curriculum_id": str(uuid.uuid4()), "langs": "en", "force": False},
     )
-    assert r.status_code == 403
+    assert r.status_code == 401
 
 
 # ── GET /curriculum/pipeline/{job_id}/status ─────────────────────────────────
@@ -440,9 +440,9 @@ async def test_pipeline_status_nonexistent_job_returns_404(client: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_pipeline_status_requires_auth(client: AsyncClient):
-    """Status endpoint without JWT returns 403."""
+    """Status endpoint without JWT returns 401."""
     r = await client.get(f"/api/v1/curriculum/pipeline/{uuid.uuid4()}/status")
-    assert r.status_code == 403
+    assert r.status_code == 401
 
 
 # ── promote_student_grades task (unit tests) ──────────────────────────────────

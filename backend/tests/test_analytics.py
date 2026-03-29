@@ -176,8 +176,8 @@ async def test_lesson_end_double_end_returns_409(client, db_conn, student_token)
 
 @pytest.mark.asyncio
 async def test_analytics_require_auth(client):
-    """All analytics endpoints return 403 without a JWT."""
+    """All analytics endpoints return 401 without a JWT."""
     r1 = await client.post("/api/v1/analytics/lesson/start", json={"unit_id": "x", "curriculum_id": "y"})
     r2 = await client.post("/api/v1/analytics/lesson/end", json={"view_id": str(uuid.uuid4()), "duration_s": 60})
-    assert r1.status_code == 403
-    assert r2.status_code == 403
+    assert r1.status_code == 401
+    assert r2.status_code == 401

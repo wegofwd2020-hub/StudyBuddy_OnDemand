@@ -161,12 +161,12 @@ async def test_submit_feedback_rate_limit_enforced(client, db_conn, student_toke
 
 @pytest.mark.asyncio
 async def test_submit_feedback_requires_auth(client):
-    """Unauthenticated request returns 403."""
+    """Unauthenticated request returns 401."""
     r = await client.post(
         "/api/v1/feedback",
         json={"category": "content", "message": "Test"},
     )
-    assert r.status_code == 403
+    assert r.status_code == 401
 
 
 # ── GET /admin/feedback ────────────────────────────────────────────────────────
@@ -288,6 +288,6 @@ async def test_admin_list_feedback_developer_role_returns_403(client):
 
 @pytest.mark.asyncio
 async def test_admin_list_feedback_requires_auth(client):
-    """Unauthenticated request returns 403."""
+    """Unauthenticated request returns 401."""
     r = await client.get("/api/v1/admin/feedback")
-    assert r.status_code == 403
+    assert r.status_code == 401

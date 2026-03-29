@@ -391,13 +391,13 @@ async def test_cancel_subscription_success(client, db_conn, student_token):
 
 @pytest.mark.asyncio
 async def test_subscription_endpoints_require_auth(client):
-    """All JWT-gated subscription endpoints return 403 without a token."""
+    """All JWT-gated subscription endpoints return 401 without a token."""
     r1 = await client.get("/api/v1/subscription/status")
     r2 = await client.post(
         "/api/v1/subscription/checkout",
         json={"plan": "monthly", "success_url": "x://s", "cancel_url": "x://c"},
     )
     r3 = await client.delete("/api/v1/subscription")
-    assert r1.status_code == 403
-    assert r2.status_code == 403
-    assert r3.status_code == 403
+    assert r1.status_code == 401
+    assert r2.status_code == 401
+    assert r3.status_code == 401

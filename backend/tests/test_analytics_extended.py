@@ -194,9 +194,9 @@ async def test_student_metrics_with_data(client, db_conn, student_token):
 
 @pytest.mark.asyncio
 async def test_student_metrics_requires_auth(client):
-    """Unauthenticated request returns 403."""
+    """Unauthenticated request returns 401."""
     r = await client.get("/api/v1/analytics/student/me")
-    assert r.status_code == 403
+    assert r.status_code == 401
 
 
 # ── GET /analytics/school/{school_id}/class ────────────────────────────────────
@@ -323,6 +323,6 @@ async def test_class_metrics_wrong_school_returns_403(client, db_conn):
 
 @pytest.mark.asyncio
 async def test_class_metrics_requires_auth(client, db_conn):
-    """Unauthenticated request returns 403."""
+    """Unauthenticated request returns 401."""
     r = await client.get(f"/api/v1/analytics/school/{uuid.uuid4()}/class")
-    assert r.status_code == 403
+    assert r.status_code == 401

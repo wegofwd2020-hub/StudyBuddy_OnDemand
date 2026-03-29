@@ -151,10 +151,10 @@ async def test_update_and_get_preferences(client, db_conn, student_token):
 
 @pytest.mark.asyncio
 async def test_notifications_require_auth(client):
-    """All notification endpoints return 403 without a JWT."""
+    """All notification endpoints return 401 without a JWT."""
     r1 = await client.post("/api/v1/notifications/token", json={"device_token": "t", "platform": "ios"})
     r2 = await client.get("/api/v1/notifications/preferences")
     r3 = await client.put("/api/v1/notifications/preferences", json={"streak_reminders": True, "weekly_summary": True, "quiz_nudges": True})
-    assert r1.status_code == 403
-    assert r2.status_code == 403
-    assert r3.status_code == 403
+    assert r1.status_code == 401
+    assert r2.status_code == 401
+    assert r3.status_code == 401

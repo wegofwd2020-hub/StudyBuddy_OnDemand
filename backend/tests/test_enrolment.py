@@ -132,12 +132,12 @@ async def test_upload_roster_wrong_school_returns_403(client: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_upload_roster_requires_auth(client: AsyncClient):
-    """Roster upload without JWT returns 403."""
+    """Roster upload without JWT returns 401."""
     r = await client.post(
         "/api/v1/schools/some-id/enrolment",
         json={"student_emails": ["x@x.com"]},
     )
-    assert r.status_code == 403
+    assert r.status_code == 401
 
 
 # ── GET /schools/{school_id}/enrolment ───────────────────────────────────────
@@ -189,9 +189,9 @@ async def test_get_roster_non_admin_returns_403(client: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_get_roster_requires_auth(client: AsyncClient):
-    """Roster GET without JWT returns 403."""
+    """Roster GET without JWT returns 401."""
     r = await client.get("/api/v1/schools/some-id/enrolment")
-    assert r.status_code == 403
+    assert r.status_code == 401
 
 
 # ── PUT /curriculum/{curriculum_id}/activate ──────────────────────────────────
@@ -266,9 +266,9 @@ async def test_activate_curriculum_wrong_school_returns_403(client: AsyncClient)
 
 @pytest.mark.asyncio
 async def test_activate_curriculum_requires_auth(client: AsyncClient):
-    """Activate endpoint without JWT returns 403."""
+    """Activate endpoint without JWT returns 401."""
     r = await client.put(f"/api/v1/curriculum/{uuid.uuid4()}/activate")
-    assert r.status_code == 403
+    assert r.status_code == 401
 
 
 # ── Curriculum resolver unit tests ────────────────────────────────────────────
