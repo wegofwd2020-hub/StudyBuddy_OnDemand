@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Check } from "lucide-react";
+import { Check, Eye } from "lucide-react";
 
 const LOCALES = [
   { value: "en", label: "English" },
@@ -23,6 +23,31 @@ export default function SettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [dyslexicFont, setDyslexicFont] = useState(false);
+
+  // Read dyslexic preference from localStorage on mount
+  useEffect(() => {
+    try {
+      setDyslexicFont(localStorage.getItem("sb_dyslexic") === "1");
+    } catch {
+      // localStorage unavailable — ignore
+    }
+  }, []);
+
+  function toggleDyslexicFont(enabled: boolean) {
+    setDyslexicFont(enabled);
+    try {
+      if (enabled) {
+        localStorage.setItem("sb_dyslexic", "1");
+        document.documentElement.setAttribute("data-dyslexic", "true");
+      } else {
+        localStorage.removeItem("sb_dyslexic");
+        document.documentElement.removeAttribute("data-dyslexic");
+      }
+    } catch {
+      // localStorage unavailable — ignore
+    }
+  }
 
   useEffect(() => {
     getAccountSettings()
@@ -165,6 +190,48 @@ export default function SettingsPage() {
                   </div>
                 </label>
               ))}
+            </CardContent>
+          </Card>
+
+          {/* Accessibility */}
+          <Card className="border shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Eye className="h-4 w-4 text-gray-500" />
+                Accessibility
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <label className="flex items-start gap-3 cursor-pointer group">
+                <div className="relative mt-0.5">
+                  <input
+                    type="checkbox"
+                    className="sr-only"
+                    checked={dyslexicFont}
+                    onChange={(e) => toggleDyslexicFont(e.target.checked)}
+                  />
+                  <div
+                    className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                      dyslexicFont
+                        ? "bg-blue-600 border-blue-600"
+                        : "bg-white border-gray-300 group-hover:border-gray-400"
+                    }`}
+                  >
+                    {dyslexicFont && (
+                      <Check className="h-3 w-3 text-white" strokeWidth={3} />
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-900">
+                    Use dyslexia-friendly font
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    Switches body text to OpenDyslexic — a font designed to reduce
+                    letter confusion for readers with dyslexia. Takes effect immediately.
+                  </p>
+                </div>
+              </label>
             </CardContent>
           </Card>
 
