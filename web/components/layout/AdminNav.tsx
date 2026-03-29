@@ -15,6 +15,7 @@ import {
   Shield,
   BookOpen,
   LogOut,
+  Hammer,
 } from "lucide-react";
 
 interface NavItem {
@@ -61,6 +62,12 @@ const NAV_ITEMS: NavItem[] = [
     label: "Health",
     href: "/admin/health",
     icon: <Activity className="h-4 w-4" />,
+  },
+  {
+    label: "Build Reports",
+    href: "/admin/build-reports",
+    icon: <Hammer className="h-4 w-4" />,
+    minRole: "super_admin",
   },
 ];
 

@@ -7,7 +7,6 @@ Missing required secrets cause an immediate startup failure — no silent defaul
 
 from __future__ import annotations
 
-from typing import List, Optional
 from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -60,11 +59,11 @@ class Settings(BaseSettings):
     ALLOWED_ORIGINS: str = "http://localhost:3000,http://localhost:8080"
 
     @property
-    def allowed_origins_list(self) -> List[str]:
+    def allowed_origins_list(self) -> list[str]:
         return [o.strip() for o in self.ALLOWED_ORIGINS.split(",") if o.strip()]
 
     # ── Sentry (optional) ─────────────────────────────────────────────────────
-    SENTRY_DSN: Optional[str] = None
+    SENTRY_DSN: str | None = None
 
     # ── Observability ─────────────────────────────────────────────────────────
     METRICS_TOKEN: str
@@ -73,31 +72,31 @@ class Settings(BaseSettings):
     CONTENT_STORE_PATH: str = "/data/content"
 
     # ── Stripe ────────────────────────────────────────────────────────────────
-    STRIPE_SECRET_KEY: Optional[str] = None
-    STRIPE_WEBHOOK_SECRET: Optional[str] = None
-    STRIPE_PRICE_MONTHLY_ID: Optional[str] = None
-    STRIPE_PRICE_ANNUAL_ID: Optional[str] = None
+    STRIPE_SECRET_KEY: str | None = None
+    STRIPE_WEBHOOK_SECRET: str | None = None
+    STRIPE_PRICE_MONTHLY_ID: str | None = None
+    STRIPE_PRICE_ANNUAL_ID: str | None = None
 
     # ── Push Notifications (FCM) ───────────────────────────────────────────────
-    FCM_SERVER_KEY: Optional[str] = None
+    FCM_SERVER_KEY: str | None = None
 
     # ── AWS / CDN ─────────────────────────────────────────────────────────────
-    S3_BUCKET_NAME: Optional[str] = None
-    CLOUDFRONT_DISTRIBUTION_ID: Optional[str] = None
+    S3_BUCKET_NAME: str | None = None
+    CLOUDFRONT_DISTRIBUTION_ID: str | None = None
 
     # ── Celery ────────────────────────────────────────────────────────────────
-    CELERY_BROKER_URL: Optional[str] = None
+    CELERY_BROKER_URL: str | None = None
 
     # ── Dictionary (Phase 7) ─────────────────────────────────────────────────
-    MW_API_KEY: Optional[str] = None  # Merriam-Webster Collegiate Dictionary API key
+    MW_API_KEY: str | None = None  # Merriam-Webster Collegiate Dictionary API key
 
     # ── Academic year (Phase 8) ───────────────────────────────────────────────
     # Format: "MM-DD" (e.g. "09-01" for September 1st).
     # Celery Beat task runs daily and promotes grades when today matches.
-    GRADE_PROMOTION_DATE: Optional[str] = None
+    GRADE_PROMOTION_DATE: str | None = None
 
     # ── Email (Phase 8) ───────────────────────────────────────────────────────
-    SENDGRID_API_KEY: Optional[str] = None
+    SENDGRID_API_KEY: str | None = None
     EMAIL_FROM: str = "noreply@studybuddy.app"
 
     @property
@@ -107,25 +106,29 @@ class Settings(BaseSettings):
     # ── Cache TTLs ────────────────────────────────────────────────────────────
     JWKS_CACHE_TTL_HOURS: int = 24
 
+    # ── GitHub CI integration (optional) ─────────────────────────────────────
+    # GITHUB_REPO:  "owner/repo"  e.g. "wegofwd2020-hub/StudyBuddy_OnDemand"
+    # GITHUB_TOKEN: Personal Access Token or Fine-grained token with Actions:read
+    #               Without a token the GitHub API allows 60 unauthenticated
+    #               requests/hour per IP — sufficient for a low-traffic admin panel.
+    GITHUB_REPO: str | None = None
+    GITHUB_TOKEN: str | None = None
+
     # ── Feature flags ─────────────────────────────────────────────────────────
     REVIEW_AUTO_APPROVE: bool = False
 
     # ── Validation ────────────────────────────────────────────────────────────
     @model_validator(mode="after")
-    def secrets_must_differ(self) -> "Settings":
+    def secrets_must_differ(self) -> Settings:
         if self.JWT_SECRET == self.ADMIN_JWT_SECRET:
-            raise ValueError(
-                "JWT_SECRET and ADMIN_JWT_SECRET must be different values."
-            )
+            raise ValueError("JWT_SECRET and ADMIN_JWT_SECRET must be different values.")
         return self
 
     @field_validator("JWT_SECRET", "ADMIN_JWT_SECRET", mode="before")
     @classmethod
     def minimum_secret_length(cls, v: str, info) -> str:
         if len(v) < 32:
-            raise ValueError(
-                f"{info.field_name} must be at least 32 characters long."
-            )
+            raise ValueError(f"{info.field_name} must be at least 32 characters long.")
         return v
 
 

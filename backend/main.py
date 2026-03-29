@@ -33,18 +33,18 @@ Health and metrics mounted at root (no /api/v1 prefix):
 
 from __future__ import annotations
 
-import logging
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import AsyncIterator
 
 import asyncpg
 import redis.asyncio as aioredis
+from config import settings
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from config import settings
-from src.core.observability import CorrelationIdMiddleware, router as obs_router
+from src.core.observability import CorrelationIdMiddleware
+from src.core.observability import router as obs_router
 from src.utils.logger import get_logger
 
 log = get_logger("main")
@@ -83,6 +83,7 @@ if settings.SENTRY_DSN:
 
 
 # ── Lifespan ──────────────────────────────────────────────────────────────────
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
@@ -149,6 +150,7 @@ app.add_middleware(
 
 # ── Global exception handlers — never leak stack traces ──────────────────────
 
+
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
     """
@@ -194,20 +196,21 @@ app.include_router(obs_router)
 
 # ── API routers ───────────────────────────────────────────────────────────────
 
-from src.auth.router import router as auth_router
-from src.auth.admin_router import router as admin_auth_router
-from src.account.router import router as account_router
-from src.curriculum.router import router as curriculum_router
-from src.content.router import router as content_router
-from src.progress.router import router as progress_router
-from src.student.router import router as student_router
-from src.notifications.router import router as notifications_router
-from src.analytics.router import router as analytics_router
-from src.subscription.router import router as subscription_router
-from src.admin.router import router as admin_router
-from src.school.router import router as school_router
-from src.feedback.router import router as feedback_router
-from src.reports.router import router as reports_router
+from src.account.router import router as account_router  # noqa: E402
+from src.admin.build_reports import router as ci_reports_router  # noqa: E402
+from src.admin.router import router as admin_router  # noqa: E402
+from src.analytics.router import router as analytics_router  # noqa: E402
+from src.auth.admin_router import router as admin_auth_router  # noqa: E402
+from src.auth.router import router as auth_router  # noqa: E402
+from src.content.router import router as content_router  # noqa: E402
+from src.curriculum.router import router as curriculum_router  # noqa: E402
+from src.feedback.router import router as feedback_router  # noqa: E402
+from src.notifications.router import router as notifications_router  # noqa: E402
+from src.progress.router import router as progress_router  # noqa: E402
+from src.reports.router import router as reports_router  # noqa: E402
+from src.school.router import router as school_router  # noqa: E402
+from src.student.router import router as student_router  # noqa: E402
+from src.subscription.router import router as subscription_router  # noqa: E402
 
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(admin_auth_router, prefix="/api/v1")
@@ -220,12 +223,14 @@ app.include_router(notifications_router, prefix="/api/v1")
 app.include_router(analytics_router, prefix="/api/v1")
 app.include_router(subscription_router, prefix="/api/v1")
 app.include_router(admin_router, prefix="/api/v1")
+app.include_router(ci_reports_router, prefix="/api/v1")
 app.include_router(school_router, prefix="/api/v1")
 app.include_router(feedback_router, prefix="/api/v1")
 app.include_router(reports_router, prefix="/api/v1")
 
 if settings.APP_ENV == "development":
-    from src.auth.dev_router import router as dev_router  # noqa: E402
+    from src.auth.dev_router import router as dev_router
+
     app.include_router(dev_router, prefix="/api/v1")
     log.info("dev_router_registered")
 

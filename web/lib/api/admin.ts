@@ -243,3 +243,36 @@ export async function getAuditLog(
   const res = await adminApi.get<AuditLogResponse>("/admin/audit", { params });
   return res.data;
 }
+
+// ── CI / Build Reports ────────────────────────────────────────────────────────
+
+export interface CiJob {
+  name: string;
+  status: string;
+  conclusion: string | null;
+  duration_s: number | null;
+  html_url: string;
+}
+
+export interface CiRun {
+  run_id: number;
+  head_branch: string;
+  head_sha: string;
+  conclusion: string | null; // "success" | "failure" | "cancelled" | "timed_out" | null
+  created_at: string;
+  duration_s: number | null;
+  html_url: string;
+  jobs: CiJob[]; // populated only for runs[0] (latest)
+}
+
+export interface CiReportsResponse {
+  github_configured: boolean;
+  repo: string;
+  runs: CiRun[];
+  cached_at: string;
+}
+
+export async function getCiReports(): Promise<CiReportsResponse> {
+  const res = await adminApi.get<CiReportsResponse>("/admin/ci/reports");
+  return res.data;
+}
