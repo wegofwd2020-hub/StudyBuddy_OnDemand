@@ -95,11 +95,15 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     )
 
     # Asyncpg pool — one pool per worker process.
+    # statement_cache_size=0 is required when routing through PgBouncer in
+    # transaction-pooling mode; prepared statements are not preserved across
+    # connections in that mode and would cause InvalidCachedStatementError.
     app.state.pool = await asyncpg.create_pool(
         settings.DATABASE_URL,
         min_size=settings.DATABASE_POOL_MIN,
         max_size=settings.DATABASE_POOL_MAX,
         command_timeout=30,
+        statement_cache_size=0,
     )
     log.info(
         "db_pool_created",

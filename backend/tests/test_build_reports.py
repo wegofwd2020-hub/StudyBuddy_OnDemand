@@ -142,9 +142,9 @@ async def test_ci_reports_rejects_student_token(client: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_ci_reports_requires_auth(client: AsyncClient):
-    """Unauthenticated request is rejected (HTTPBearer returns 403)."""
+    """Unauthenticated request returns 401."""
     r = await client.get("/api/v1/admin/ci/reports")
-    assert r.status_code == 403
+    assert r.status_code == 401
 
 
 # ---------------------------------------------------------------------------

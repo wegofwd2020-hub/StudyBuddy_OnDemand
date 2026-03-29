@@ -180,6 +180,7 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/app          # bind-mount source for hot-reload
+      - ./pipeline:/pipeline    # pipeline module available for backend/tests/test_pipeline.py
       - ./data:/data            # grade JSON files (grade5_stem.json … grade12_stem.json)
       - content_store:/data/content
     depends_on:

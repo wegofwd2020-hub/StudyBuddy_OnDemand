@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Nunito, Lora, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { Toaster } from "@/components/ui/sonner";
@@ -49,7 +50,9 @@ export default async function RootLayout({
     >
       <head>
         {/* Reads localStorage before React hydrates — prevents dyslexic font flash on reload */}
-        <script
+        <Script
+          id="dyslexic-font-init"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `(function(){try{if(localStorage.getItem('sb_dyslexic')==='1'){document.documentElement.setAttribute('data-dyslexic','true')}}catch(e){}})()`,
           }}

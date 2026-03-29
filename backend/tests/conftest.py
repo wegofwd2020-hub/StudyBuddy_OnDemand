@@ -123,7 +123,7 @@ async def client(fake_redis, db_conn) -> AsyncGenerator[AsyncClient, None]:
     Injects a fake Redis and a real asyncpg pool (pointing to test DB).
     Mocks all Celery task dispatch to be no-ops.
     """
-    pool = await asyncpg.create_pool(TEST_DB_URL, min_size=1, max_size=5)
+    pool = await asyncpg.create_pool(TEST_DB_URL, min_size=1, max_size=5, statement_cache_size=0)
     app.state.pool = pool
     app.state.redis = fake_redis
 
