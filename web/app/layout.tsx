@@ -45,6 +45,7 @@ export default async function RootLayout({
     <html
       lang={locale}
       className={`${nunito.variable} ${lora.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
       <head>
         {/* Reads localStorage before React hydrates — prevents dyslexic font flash on reload */}
