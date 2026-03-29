@@ -6,7 +6,7 @@ Core business logic for the Content Service.
 All functions are async and use the asyncpg pool + aioredis passed in as
 arguments — no global state, easy to unit-test with mocks.
 
-Cache read order (per CLAUDE.md / BACKEND_ARCHITECTURE.md):
+Cache read order (per CLAUDE.md / studybuddy-docs/BACKEND_ARCHITECTURE.md):
   L1 (in-process TTLCache) → L2 (Redis) → DB / filesystem
 
 This module handles L2 (Redis) + DB/filesystem. The router sits above and

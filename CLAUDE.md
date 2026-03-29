@@ -35,16 +35,18 @@ Predecessor project (UI + prompt reference):
 
 Before writing any code, read these in order:
 
+All documentation has moved to **[studybuddy-docs](https://github.com/wegofwd2020-hub/studybuddy-docs)**.
+
 | Doc | Read when |
 |---|---|
-| `ARCHITECTURE.md` | First — system design, data models, API contracts, all phases |
-| `BACKEND_ARCHITECTURE.md` | Before touching backend — caching, hot path, SLOs, deployment |
-| `REQUIREMENTS.md` | Check requirement ID + status before implementing a feature |
-| `AGENTS.md` | Conventions, layer rules, 35 pitfalls, phase-by-phase checklists |
-| `CHANGES.md` | Design decisions log and pending work items |
-| `OPERATIONS.md` | Runbooks, incident response, disaster recovery, deployment procedures |
-| `SCALABILITY.md` | Capacity planning, multi-region, load testing, academic year transitions, API versioning |
-| `GLOSSARY.md` | Acronym and term definitions for all abbreviations used across the project |
+| [ARCHITECTURE.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/ARCHITECTURE.md) | First — system design, data models, API contracts, all phases |
+| [BACKEND_ARCHITECTURE.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/BACKEND_ARCHITECTURE.md) | Before touching backend — caching, hot path, SLOs, deployment |
+| [REQUIREMENTS.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/REQUIREMENTS.md) | Check requirement ID + status before implementing a feature |
+| [AGENTS.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/AGENTS.md) | Conventions, layer rules, 35 pitfalls, phase-by-phase checklists |
+| [CHANGES.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/CHANGES.md) | Design decisions log and pending work items |
+| [OPERATIONS.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/OPERATIONS.md) | Runbooks, incident response, disaster recovery, deployment procedures |
+| [SCALABILITY.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/SCALABILITY.md) | Capacity planning, multi-region, load testing, academic year transitions, API versioning |
+| [GLOSSARY.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/GLOSSARY.md) | Acronym and term definitions for all abbreviations used across the project |
 
 ---
 
@@ -336,7 +338,7 @@ python pipeline/build_unit.py --curriculum-id default-2026-g8 --unit G8-MATH-001
 
 ## Phase Checklist Quick Reference
 
-See `AGENTS.md` for the full per-phase checklist. Build in this order:
+See [AGENTS.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/AGENTS.md) for the full per-phase checklist. Build in this order:
 
 | Phase | Goal | Key deliverable |
 |---|---|---|
@@ -354,7 +356,7 @@ See `AGENTS.md` for the full per-phase checklist. Build in this order:
 
 ---
 
-## Top Pitfalls (full list of 39 in AGENTS.md)
+## Top Pitfalls (full list of 39 in [AGENTS.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/AGENTS.md))
 
 1. Mobile app calling Anthropic directly — it has no API key and must never do this.
 2. Blocking the async event loop — use asyncpg, aioredis, httpx; wrap bcrypt in executor.

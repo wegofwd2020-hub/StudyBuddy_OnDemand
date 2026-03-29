@@ -8,7 +8,7 @@ Routes:
   PATCH /account/teachers/{teacher_id}/status
   PATCH /account/schools/{school_id}/status   ← cascades via Celery
 
-Account status transition rules (PHASE1_SETUP.md section 10.4):
+Account status transition rules (studybuddy-docs/PHASE1_SETUP.md section 10.4):
   pending   → active     (system, not via this endpoint)
   active    → suspended  (product_admin, super_admin)
   suspended → active     (product_admin, super_admin)
@@ -215,7 +215,7 @@ async def update_school_status(
 
     On suspension: cascades to all teachers + students via Celery.
     On reactivation: does NOT automatically reactivate members
-    (per PHASE1_SETUP.md section 10.6).
+    (per studybuddy-docs/PHASE1_SETUP.md section 10.6).
     """
     _require_account_admin(admin)
     cid = getattr(request.state, "correlation_id", "")
