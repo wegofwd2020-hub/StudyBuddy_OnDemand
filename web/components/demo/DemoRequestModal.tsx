@@ -20,7 +20,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { requestDemo } from "@/lib/api/demo";
+import { requestDemo, resendDemoVerification } from "@/lib/api/demo";
 
 const schema = z.object({
   email: z.string().email("Valid email required"),
@@ -46,6 +46,8 @@ export function DemoRequestModal() {
   const [open, setOpen] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState("");
   const [errorKey, setErrorKey] = useState<ErrorKey | null>(null);
+  const [pendingEmail, setPendingEmail] = useState("");
+  const [resendState, setResendState] = useState<"idle" | "sending" | "sent" | "failed">("idle");
 
   const {
     register,
@@ -61,11 +63,14 @@ export function DemoRequestModal() {
       reset();
       setErrorKey(null);
       setSubmittedEmail("");
+      setPendingEmail("");
+      setResendState("idle");
     }
   }
 
   async function onSubmit(data: FormData) {
     setErrorKey(null);
+    setResendState("idle");
     try {
       await requestDemo(data.email);
       setSubmittedEmail(data.email);
@@ -73,12 +78,23 @@ export function DemoRequestModal() {
       const axiosErr = err as {
         response?: { status?: number; data?: { error?: string } };
       };
-      setErrorKey(
-        resolveErrorKey(
-          axiosErr.response?.status,
-          axiosErr.response?.data?.error,
-        ),
+      const key = resolveErrorKey(
+        axiosErr.response?.status,
+        axiosErr.response?.data?.error,
       );
+      setErrorKey(key);
+      if (key === "error_pending") setPendingEmail(data.email);
+    }
+  }
+
+  async function handleResend() {
+    if (!pendingEmail) return;
+    setResendState("sending");
+    try {
+      await resendDemoVerification(pendingEmail);
+      setResendState("sent");
+    } catch {
+      setResendState("failed");
     }
   }
 
@@ -135,7 +151,30 @@ export function DemoRequestModal() {
               </div>
 
               {errorKey && (
-                <p className="text-sm text-red-500">{t(errorKey)}</p>
+                <div className="space-y-2">
+                  <p className="text-sm text-red-500">{t(errorKey)}</p>
+                  {errorKey === "error_pending" && (
+                    <div className="text-xs text-gray-500">
+                      {resendState === "sent" ? (
+                        <p className="text-green-600">Verification email resent. Check your inbox.</p>
+                      ) : resendState === "failed" ? (
+                        <p className="text-red-500">Resend failed. Please try again.</p>
+                      ) : (
+                        <p>
+                          {t("resend_label")}{" "}
+                          <button
+                            type="button"
+                            disabled={resendState === "sending"}
+                            onClick={handleResend}
+                            className="text-blue-600 underline underline-offset-2 hover:text-blue-800 disabled:opacity-50"
+                          >
+                            {resendState === "sending" ? "Sending…" : t("resend_link")}
+                          </button>
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
               )}
 
               <DialogFooter showCloseButton={false} className="flex-col gap-2">
