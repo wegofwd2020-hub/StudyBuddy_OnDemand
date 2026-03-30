@@ -10,6 +10,7 @@ import { LinkButton } from "@/components/ui/link-button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { startSession } from "@/lib/api/progress";
 import { startLessonView, endLessonView } from "@/lib/api/analytics";
+import { AIContentDisclosure } from "@/components/content/AIContentDisclosure";
 import { FlaskConical, FileQuestion } from "lucide-react";
 
 interface PageProps {
@@ -87,6 +88,8 @@ export default function LessonPage({ params }: PageProps) {
 
         {/* Lesson content */}
         <LessonRenderer lesson={lesson} />
+
+        <AIContentDisclosure />
 
         {/* Action bar */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-4">

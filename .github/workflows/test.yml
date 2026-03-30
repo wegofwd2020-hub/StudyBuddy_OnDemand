@@ -194,3 +194,142 @@ jobs:
         with:
           name: frontend-test-results
           path: web/test-results/
+
+  # ── 5. Snyk — dependency vulnerability scan (SARIF → GitHub Security tab) ────
+  snyk:
+    name: Snyk — Vulnerability Scan
+    runs-on: ubuntu-latest
+    # Skip on fork PRs where SNYK_TOKEN is unavailable.
+    if: ${{ secrets.SNYK_TOKEN != '' }}
+    permissions:
+      # Required to upload SARIF results to GitHub Code Scanning.
+      security-events: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+
+      # Snyk needs deps installed to resolve the full dependency graph.
+      - name: Install Python dependencies
+        working-directory: backend
+        run: pip install -r requirements.txt
+
+      - name: Install Node.js dependencies
+        working-directory: web
+        run: npm ci
+
+      # Run both scans with continue-on-error so the SARIF upload always runs.
+      # Exit codes are captured in environment variables and checked at the end.
+      - name: Snyk scan — Python (backend)
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          snyk test \
+            --file=backend/requirements.txt \
+            --severity-threshold=high \
+            --sarif-file-output=snyk-python.sarif \
+            || echo "SNYK_PYTHON_FAILED=1" >> "$GITHUB_ENV"
+        continue-on-error: true
+
+      - name: Snyk scan — Node.js (web)
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          snyk test \
+            --file=web/package.json \
+            --package-manager=npm \
+            --severity-threshold=high \
+            --sarif-file-output=snyk-node.sarif \
+            || echo "SNYK_NODE_FAILED=1" >> "$GITHUB_ENV"
+        continue-on-error: true
+
+      - name: Upload Python SARIF to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: snyk-python.sarif
+          category: snyk-python
+
+      - name: Upload Node.js SARIF to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: snyk-node.sarif
+          category: snyk-node
+
+      # Fail the job after SARIF upload so results are always visible in the
+      # Security tab even when the PR is blocked.
+      - name: Fail if high/critical vulnerabilities were found
+        run: |
+          if [ -n "$SNYK_PYTHON_FAILED" ] || [ -n "$SNYK_NODE_FAILED" ]; then
+            echo "High or critical severity vulnerabilities found."
+            echo "See the Security tab for details: https://github.com/${{ github.repository }}/security/code-scanning"
+            exit 1
+          fi
+
+  # ── 6. API contract — OpenAPI → TypeScript types drift check ─────────────────
+  api-contract:
+    name: API Contract — Types in Sync
+    runs-on: ubuntu-latest
+    needs: [backend-lint, frontend-lint]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: pip install -r requirements.txt
+
+      - name: Export OpenAPI schema
+        working-directory: backend
+        run: python scripts/export_openapi.py --out ../web/openapi.json
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install web dependencies
+        working-directory: web
+        run: npm ci
+
+      - name: Re-generate TypeScript types
+        working-directory: web
+        run: npm run gen:types
+
+      - name: Check for schema drift
+        working-directory: web
+        run: |
+          if ! git diff --exit-code lib/api/types.gen.ts; then
+            echo ""
+            echo "❌  lib/api/types.gen.ts is out of date."
+            echo "    Run 'npm run gen:types' locally and commit the result."
+            exit 1
+          fi
+          echo "✅  TypeScript API types are up to date."

@@ -244,6 +244,61 @@ export async function getAuditLog(
   return res.data;
 }
 
+// ── Demo Accounts ─────────────────────────────────────────────────────────────
+
+export interface DemoAccountItem {
+  request_id: string;
+  email: string;
+  request_status: "pending" | "verified" | "expired" | "revoked";
+  account_id: string | null;
+  expires_at: string | null;
+  revoked_at: string | null;
+  extended_at: string | null;
+  verification_pending: boolean;
+}
+
+export interface DemoAccountListResponse {
+  items: DemoAccountItem[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
+export async function getDemoAccounts(
+  page = 1,
+  pageSize = 20,
+  status?: string,
+  email?: string,
+): Promise<DemoAccountListResponse> {
+  const params: Record<string, unknown> = { page, page_size: pageSize };
+  if (status) params.status = status;
+  if (email) params.email = email;
+  const res = await adminApi.get<DemoAccountListResponse>("/admin/demo-accounts", { params });
+  return res.data;
+}
+
+export async function extendDemoAccount(
+  accountId: string,
+  hours: number,
+): Promise<{ account_id: string; expires_at: string; extended_at: string }> {
+  const res = await adminApi.post(`/admin/demo-accounts/${accountId}/extend`, { hours });
+  return res.data;
+}
+
+export async function revokeDemoAccount(
+  accountId: string,
+): Promise<{ email: string; message: string }> {
+  const res = await adminApi.post(`/admin/demo-accounts/${accountId}/revoke`);
+  return res.data;
+}
+
+export async function adminResendDemoVerification(
+  requestId: string,
+): Promise<{ email: string }> {
+  const res = await adminApi.post(`/admin/demo-requests/${requestId}/resend`);
+  return res.data;
+}
+
 // ── CI / Build Reports ────────────────────────────────────────────────────────
 
 export interface CiJob {

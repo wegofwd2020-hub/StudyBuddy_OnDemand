@@ -57,6 +57,9 @@ celery_app.conf.update(
         "src.auth.tasks.refresh_report_views_task": {"queue": "default"},
         "src.auth.tasks.evaluate_report_alerts_task": {"queue": "default"},
         "src.auth.tasks.send_weekly_digest_task": {"queue": "io"},
+        "src.auth.tasks.sweep_expired_demo_accounts": {"queue": "default"},
+        "src.auth.tasks.send_demo_verification_email_task": {"queue": "io"},
+        "src.auth.tasks.send_demo_credentials_email_task": {"queue": "io"},
     },
     beat_schedule={
         # Poll DB pool state + Celery queue depth every 30 seconds.
@@ -99,6 +102,12 @@ celery_app.conf.update(
         "send-weekly-digest-monday": {
             "task": "src.auth.tasks.send_weekly_digest_task",
             "schedule": crontab(hour=8, minute=0, day_of_week=1),
+        },
+        # Nightly demo account sweep at 03:00 UTC.
+        # Marks expired demo_requests and deletes associated students rows.
+        "sweep-expired-demo-accounts-nightly": {
+            "task": "src.auth.tasks.sweep_expired_demo_accounts",
+            "schedule": crontab(hour=3, minute=0),
         },
     },
 )
@@ -1261,3 +1270,92 @@ def export_report_task(
         )
 
     _run_async(_export())
+
+
+# ── Demo account sweep ────────────────────────────────────────────────────────
+
+
+@celery_app.task(name="src.auth.tasks.sweep_expired_demo_accounts")
+def sweep_expired_demo_accounts() -> None:
+    """
+    Nightly sweep: expire demo accounts whose TTL has elapsed.
+
+    For each expired demo_account:
+      1. Soft-delete the associated students row (account_status='deleted').
+      2. Mark demo_requests.status = 'expired'.
+      3. Delete the demo_accounts row (hard-delete; student row kept for GDPR audit).
+
+    This task is idempotent — re-running produces no side effects.
+    """
+    from config import settings as cfg
+
+    async def _sweep() -> None:
+        import asyncpg as _asyncpg
+
+        pool = await _asyncpg.create_pool(cfg.DATABASE_URL, min_size=1, max_size=2, statement_cache_size=0)
+        try:
+            async with pool.acquire() as conn:
+                expired = await conn.fetch(
+                    """
+                    SELECT da.id, da.student_id, da.request_id
+                    FROM demo_accounts da
+                    WHERE da.expires_at < NOW()
+                      AND da.revoked_at IS NULL
+                    """
+                )
+                if not expired:
+                    log.info("demo_sweep_no_expired")
+                    return
+
+                for row in expired:
+                    await conn.execute(
+                        "UPDATE students SET account_status='deleted' WHERE student_id=$1",
+                        row["student_id"],
+                    )
+                    await conn.execute(
+                        "UPDATE demo_requests SET status='expired' WHERE id=$1",
+                        row["request_id"],
+                    )
+                    await conn.execute(
+                        "DELETE FROM demo_accounts WHERE id=$1",
+                        row["id"],
+                    )
+
+                log.info("demo_sweep_complete", swept=len(expired))
+        finally:
+            await pool.close()
+
+    _run_async(_sweep())
+
+
+# ── Demo email tasks ──────────────────────────────────────────────────────────
+
+
+@celery_app.task(
+    name="src.auth.tasks.send_demo_verification_email_task",
+    bind=True,
+    max_retries=3,
+)
+def send_demo_verification_email_task(self, email: str, token: str) -> None:
+    """Send the demo email-verification link. Retries up to 3× on SMTP failure."""
+    from src.email.service import send_verification_email
+
+    try:
+        _run_async(send_verification_email(email, token))
+    except Exception as exc:
+        raise self.retry(exc=exc, countdown=30)
+
+
+@celery_app.task(
+    name="src.auth.tasks.send_demo_credentials_email_task",
+    bind=True,
+    max_retries=3,
+)
+def send_demo_credentials_email_task(self, email: str, password: str) -> None:
+    """Send demo account credentials after successful verification. Retries 3× on failure."""
+    from src.email.service import send_credentials_email
+
+    try:
+        _run_async(send_credentials_email(email, password))
+    except Exception as exc:
+        raise self.retry(exc=exc, countdown=30)

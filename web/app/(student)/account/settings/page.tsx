@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Check, Eye } from "lucide-react";
+import { DemoGate } from "@/components/demo/DemoGate";
 
 const LOCALES = [
   { value: "en", label: "English" },
@@ -21,6 +22,17 @@ const LOCALES = [
 ] as const;
 
 export default function SettingsPage() {
+  return (
+    <DemoGate
+      heading="Account settings not available in demo"
+      description="Demo accounts are temporary and cannot be modified. Sign up for a full account to manage your settings."
+    >
+      <SettingsPageInner />
+    </DemoGate>
+  );
+}
+
+function SettingsPageInner() {
   const t = useTranslations("settings_screen");
   const [settings, setSettings] = useState<AccountSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -43,13 +55,17 @@ export default function SettingsPage() {
     try {
       if (enabled) {
         localStorage.setItem("sb_dyslexic", "1");
+        // Cookie lets the Server Component set data-dyslexic during SSR,
+        // eliminating the need for an inline <script> anti-flash workaround.
+        document.cookie = "sb_dyslexic=1; path=/; max-age=31536000; SameSite=Lax";
         document.documentElement.setAttribute("data-dyslexic", "true");
       } else {
         localStorage.removeItem("sb_dyslexic");
+        document.cookie = "sb_dyslexic=; path=/; max-age=0; SameSite=Lax";
         document.documentElement.removeAttribute("data-dyslexic");
       }
     } catch {
-      // localStorage unavailable — ignore
+      // localStorage/cookie unavailable — ignore
     }
   }
 

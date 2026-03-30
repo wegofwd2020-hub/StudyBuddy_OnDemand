@@ -51,7 +51,7 @@ async def get_current_student(
     payload = verify_internal_jwt(credentials.credentials, settings.JWT_SECRET)
 
     role = payload.get("role", "")
-    if role not in ("student",):
+    if role not in ("student", "demo_student"):
         raise HTTPException(
             status_code=403,
             detail={
@@ -84,6 +84,19 @@ async def get_current_student(
                 "correlation_id": cid,
             },
         )
+
+    # For demo students: check logout blacklist (JTI blacklisted on explicit logout).
+    if role == "demo_student":
+        jti = payload.get("jti")
+        if jti and await redis.exists(f"demo_blacklist:{jti}"):
+            raise HTTPException(
+                status_code=401,
+                detail={
+                    "error": "unauthenticated",
+                    "detail": "Token has been revoked.",
+                    "correlation_id": cid,
+                },
+            )
 
     account_status = payload.get("account_status", "active")
     if account_status == "pending":

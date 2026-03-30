@@ -17,9 +17,13 @@ export function PortalHeader({
   portal: keyof typeof PORTAL_ICONS;
   userName?: string;
 }) {
-  const [now, setNow] = useState<Date | null>(() => new Date());
+  // Start null so the server renders nothing — avoids a locale-format mismatch
+  // between Node.js (server) and the browser (client) which causes hydration errors.
+  // The clock appears after the first client-side effect and ticks every minute.
+  const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
+    setNow(new Date());
     const id = setInterval(() => setNow(new Date()), 60_000);
     return () => clearInterval(id);
   }, []);

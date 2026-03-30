@@ -7,6 +7,7 @@ import { ExperimentRenderer } from "@/components/content/ExperimentRenderer";
 import { FeedbackWidget } from "@/components/feedback/FeedbackWidget";
 import { OfflineBanner } from "@/components/student/OfflineBanner";
 import { LinkButton } from "@/components/ui/link-button";
+import { AIContentDisclosure } from "@/components/content/AIContentDisclosure";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface PageProps {
@@ -50,6 +51,7 @@ export default function ExperimentPage({ params }: PageProps) {
       <OfflineBanner />
       <div className="max-w-3xl space-y-6 p-6">
         <ExperimentRenderer experiment={experiment} />
+        <AIContentDisclosure />
         <div className="flex items-center justify-between border-t pt-4">
           <FeedbackWidget unitId={unit_id} contentType="experiment" />
           <LinkButton href={`/quiz/${unit_id}`} size="sm">

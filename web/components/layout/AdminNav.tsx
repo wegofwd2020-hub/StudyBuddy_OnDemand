@@ -16,6 +16,7 @@ import {
   BookOpen,
   LogOut,
   Hammer,
+  FlaskConical,
 } from "lucide-react";
 
 interface NavItem {
@@ -62,6 +63,12 @@ const NAV_ITEMS: NavItem[] = [
     label: "Health",
     href: "/admin/health",
     icon: <Activity className="h-4 w-4" />,
+  },
+  {
+    label: "Demo Accounts",
+    href: "/admin/demo-accounts",
+    icon: <FlaskConical className="h-4 w-4" />,
+    minRole: "product_admin",
   },
   {
     label: "Build Reports",

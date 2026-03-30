@@ -2,6 +2,7 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Card, CardContent } from "@/components/ui/card";
 import { LinkButton } from "@/components/ui/link-button";
+import { DemoRequestModal } from "@/components/demo/DemoRequestModal";
 import { Zap, Volume2, Globe, WifiOff, FlaskConical, School } from "lucide-react";
 
 export default function LandingPage() {
@@ -34,13 +35,8 @@ function HeroSection() {
           {t("hero_heading")}
         </h1>
         <p className="mt-6 text-lg text-gray-600">{t("hero_subheading")}</p>
-        <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-          <LinkButton size="lg" href="/signup">
-            {t("hero_cta_primary")}
-          </LinkButton>
-          <LinkButton size="lg" variant="outline" href="/#features">
-            {t("hero_cta_secondary")}
-          </LinkButton>
+        <div className="mt-8 flex justify-center">
+          <DemoRequestModal />
         </div>
       </div>
     </section>

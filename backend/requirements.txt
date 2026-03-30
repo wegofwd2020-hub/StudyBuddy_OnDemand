@@ -19,6 +19,7 @@ slowapi==0.1.9
 alembic==1.13.1
 psycopg2-binary==2.9.9
 python-multipart==0.0.22
+aiosmtplib==3.0.1
 
 jsonschema==4.23.0
 
