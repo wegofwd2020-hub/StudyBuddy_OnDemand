@@ -139,7 +139,17 @@ async def request_demo(body: DemoRequestInput, request: Request):
     await pipe.execute()
 
     # ── Fire verification email task (fire-and-forget) ──
-    send_demo_verification_email_task.delay(body.email, token)
+    # Wrapped in try/except so a Celery broker outage (Redis unreachable) does
+    # not surface as a 500 to the user. The request row is already in the DB;
+    # an operator can resend manually or wait for broker recovery.
+    try:
+        send_demo_verification_email_task.delay(body.email, token)
+    except Exception as exc:
+        log.error(
+            "demo_verification_email_dispatch_failed",
+            email=body.email,
+            error=str(exc),
+        )
 
     log.info("demo_request_created", email=body.email, ip=client_ip)
     return {"message": "Verification email sent. Please check your inbox."}
@@ -245,7 +255,14 @@ async def verify_demo_email(token: str, request: Request):
             await mark_request_verified(conn, request_id)
 
     # ── Fire credentials email task ──
-    send_demo_credentials_email_task.delay(email, plain_password)
+    try:
+        send_demo_credentials_email_task.delay(email, plain_password)
+    except Exception as exc:
+        log.error(
+            "demo_credentials_email_dispatch_failed",
+            email=email,
+            error=str(exc),
+        )
 
     log.info("demo_account_created", email=email)
     return {
