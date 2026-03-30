@@ -1,5 +1,18 @@
 import type { Metadata } from "next";
-import { CheckCircle2, Clock, AlertCircle, BookOpen, Shield, Globe, FileText, Lock } from "lucide-react";
+import {
+  CheckCircle2,
+  Clock,
+  AlertCircle,
+  BookOpen,
+  Shield,
+  Globe,
+  FileText,
+  Lock,
+  GitPullRequest,
+  ShieldCheck,
+  ShieldAlert,
+} from "lucide-react";
+import Link from "next/link";
 import {
   COMPLIANCE_STANDARDS,
   COMPLIANCE_CATEGORIES,
@@ -13,10 +26,21 @@ export const metadata: Metadata = {
     "About StudyBuddy — our mission, the accessibility and privacy standards we target, and how every build is verified.",
 };
 
-// Build time is stamped by next.config.ts at compile time.
+// Build metadata stamped by next.config.ts at compile time.
 const BUILD_TIME = process.env.NEXT_PUBLIC_BUILD_TIME ?? null;
 
-function formatBuildTime(iso: string | null): string {
+// Snyk counts injected by CI after parsing SARIF outputs (empty string locally).
+const SNYK_HIGH = process.env.NEXT_PUBLIC_SNYK_HIGH_COUNT ?? "";
+const SNYK_CRITICAL = process.env.NEXT_PUBLIC_SNYK_CRITICAL_COUNT ?? "";
+const SNYK_SCAN_DATE = process.env.NEXT_PUBLIC_SNYK_SCAN_DATE ?? "";
+
+// Last merged PR injected by CI before `npm run build` (empty string locally).
+const LAST_PR_NUMBER = process.env.NEXT_PUBLIC_LAST_PR_NUMBER ?? "";
+const LAST_PR_TITLE = process.env.NEXT_PUBLIC_LAST_PR_TITLE ?? "";
+const LAST_PR_URL = process.env.NEXT_PUBLIC_LAST_PR_URL ?? "";
+const LAST_PR_MERGED_AT = process.env.NEXT_PUBLIC_LAST_PR_MERGED_AT ?? "";
+
+function formatDate(iso: string | null): string {
   if (!iso) return "unknown";
   try {
     return new Date(iso).toLocaleDateString("en-US", {
@@ -71,6 +95,147 @@ function StatusBadge({ status }: { status: ComplianceStatus }) {
   );
 }
 
+// ── Snyk security panel ───────────────────────────────────────────────────────
+
+function SnykPanel() {
+  const scanned = SNYK_SCAN_DATE !== "";
+  const high = SNYK_HIGH !== "" ? parseInt(SNYK_HIGH, 10) : null;
+  const critical = SNYK_CRITICAL !== "" ? parseInt(SNYK_CRITICAL, 10) : null;
+  const clean = high === 0 && critical === 0;
+
+  return (
+    <section
+      aria-labelledby="snyk-heading"
+      className="rounded-xl border border-gray-200 bg-white p-6"
+    >
+      <div className="mb-4 flex items-center gap-2">
+        {scanned && clean ? (
+          <ShieldCheck className="h-5 w-5 text-green-600" aria-hidden="true" />
+        ) : scanned ? (
+          <ShieldAlert className="h-5 w-5 text-red-500" aria-hidden="true" />
+        ) : (
+          <Shield className="h-5 w-5 text-gray-400" aria-hidden="true" />
+        )}
+        <h2 id="snyk-heading" className="text-lg font-semibold text-gray-900">
+          Dependency Security
+        </h2>
+      </div>
+
+      {!scanned ? (
+        <p className="text-sm text-gray-500">
+          Snyk scan results are not available in this environment. Scans run automatically on
+          every CI build when{" "}
+          <code className="rounded bg-gray-100 px-1 py-0.5 text-xs">SNYK_TOKEN</code> is
+          configured.
+        </p>
+      ) : (
+        <>
+          <div className="mb-4 flex flex-wrap items-center gap-6">
+            <div>
+              <p
+                className={`text-3xl font-bold ${
+                  critical !== null && critical > 0 ? "text-red-600" : "text-gray-900"
+                }`}
+              >
+                {critical ?? "—"}
+              </p>
+              <p className="mt-0.5 text-xs text-gray-500">Critical vulnerabilities</p>
+            </div>
+            <div className="h-10 w-px bg-gray-200" aria-hidden="true" />
+            <div>
+              <p
+                className={`text-3xl font-bold ${
+                  high !== null && high > 0 ? "text-amber-600" : "text-gray-900"
+                }`}
+              >
+                {high ?? "—"}
+              </p>
+              <p className="mt-0.5 text-xs text-gray-500">High vulnerabilities</p>
+            </div>
+            <div className="h-10 w-px bg-gray-200" aria-hidden="true" />
+            <div>
+              {clean ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-3 py-1 text-sm font-medium text-green-700">
+                  <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+                  No high or critical issues
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1 text-sm font-medium text-red-700">
+                  <AlertCircle className="h-4 w-4" aria-hidden="true" />
+                  Issues require attention
+                </span>
+              )}
+            </div>
+          </div>
+          <p className="text-xs text-gray-400">
+            Scanned across Python (backend) and Node.js (frontend) dependencies
+            {SNYK_SCAN_DATE && (
+              <>
+                {" · "}
+                <time dateTime={SNYK_SCAN_DATE}>Last scan: {formatDate(SNYK_SCAN_DATE)}</time>
+              </>
+            )}
+          </p>
+        </>
+      )}
+    </section>
+  );
+}
+
+// ── Last release panel ────────────────────────────────────────────────────────
+
+function LastReleasePanel() {
+  const hasData = LAST_PR_NUMBER !== "" && LAST_PR_TITLE !== "";
+
+  return (
+    <section
+      aria-labelledby="release-heading"
+      className="rounded-xl border border-gray-200 bg-white p-6"
+    >
+      <div className="mb-4 flex items-center gap-2">
+        <GitPullRequest className="h-5 w-5 text-indigo-600" aria-hidden="true" />
+        <h2 id="release-heading" className="text-lg font-semibold text-gray-900">
+          Last Published Release
+        </h2>
+      </div>
+
+      {!hasData ? (
+        <p className="text-sm text-gray-500">
+          Release information is not available in this environment. It is injected at build time
+          during CI deployment.
+        </p>
+      ) : (
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-start gap-3">
+            <span className="mt-0.5 inline-flex shrink-0 items-center rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700">
+              #{LAST_PR_NUMBER}
+            </span>
+            {LAST_PR_URL ? (
+              <Link
+                href={LAST_PR_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-base font-medium text-gray-900 underline-offset-2 hover:text-indigo-600 hover:underline"
+              >
+                {LAST_PR_TITLE}
+              </Link>
+            ) : (
+              <p className="text-base font-medium text-gray-900">{LAST_PR_TITLE}</p>
+            )}
+          </div>
+          {LAST_PR_MERGED_AT && (
+            <p className="text-xs text-gray-400">
+              Merged <time dateTime={LAST_PR_MERGED_AT}>{formatDate(LAST_PR_MERGED_AT)}</time>
+            </p>
+          )}
+        </div>
+      )}
+    </section>
+  );
+}
+
+// ── Page ──────────────────────────────────────────────────────────────────────
+
 export default function AboutPage() {
   const byCategory = COMPLIANCE_CATEGORIES.map((cat) => ({
     category: cat,
@@ -92,6 +257,12 @@ export default function AboutPage() {
         </p>
       </div>
 
+      {/* Security + Release row */}
+      <div className="mb-10 grid gap-6 sm:grid-cols-2">
+        <SnykPanel />
+        <LastReleasePanel />
+      </div>
+
       {/* Compliance summary strip */}
       <div className="mb-10 flex flex-wrap items-center gap-6 rounded-2xl border border-gray-100 bg-gray-50 px-6 py-5">
         <div>
@@ -109,7 +280,7 @@ export default function AboutPage() {
         <div className="h-10 w-px bg-gray-200" aria-hidden="true" />
         <div>
           <p className="text-sm font-medium text-gray-700">Standards verified as of</p>
-          <p className="text-sm text-gray-500">{formatBuildTime(BUILD_TIME)} build</p>
+          <p className="text-sm text-gray-500">{formatDate(BUILD_TIME)} build</p>
         </div>
 
         {/* Legend */}
@@ -126,10 +297,7 @@ export default function AboutPage() {
           <section key={category} aria-labelledby={`cat-${category}`}>
             <div className="mb-4 flex items-center gap-2">
               {CATEGORY_ICONS[category]}
-              <h2
-                id={`cat-${category}`}
-                className="text-xl font-semibold text-gray-900"
-              >
+              <h2 id={`cat-${category}`} className="text-xl font-semibold text-gray-900">
                 {category}
               </h2>
             </div>
@@ -208,10 +376,9 @@ export default function AboutPage() {
         This page is generated at build time.{" "}
         {BUILD_TIME && (
           <>
-            Last deployment:{" "}
-            <time dateTime={BUILD_TIME}>{formatBuildTime(BUILD_TIME)}</time>.
+            Last deployment: <time dateTime={BUILD_TIME}>{formatDate(BUILD_TIME)}</time>.{" "}
           </>
-        )}{" "}
+        )}
         Standards data is sourced from{" "}
         <code className="rounded bg-gray-100 px-1 py-0.5">web/lib/compliance.ts</code>.
       </p>

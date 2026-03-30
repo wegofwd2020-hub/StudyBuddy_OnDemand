@@ -275,6 +275,23 @@ jobs:
           sarif_file: snyk-node.sarif
           category: snyk-node
 
+      # Upload SARIF files as artifacts so the build-metadata job can parse counts.
+      - name: Upload Python SARIF artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: snyk-python-sarif
+          path: snyk-python.sarif
+          retention-days: 1
+
+      - name: Upload Node.js SARIF artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: snyk-node-sarif
+          path: snyk-node.sarif
+          retention-days: 1
+
       # Fail the job after SARIF upload so results are always visible in the
       # Security tab even when the PR is blocked.
       - name: Fail if high/critical vulnerabilities were found
@@ -285,7 +302,145 @@ jobs:
             exit 1
           fi
 
-  # ── 6. API contract — OpenAPI → TypeScript types drift check ─────────────────
+  # ── 6. Inject build metadata (Snyk summary + last PR) into Next.js build ──────
+  #
+  # Runs only on pushes to main so the About page always reflects the live state.
+  # Parses Snyk SARIF outputs (produced by the snyk job) and fetches the last
+  # merged PR from the GitHub API, then exports env vars consumed by next.config.ts:
+  #
+  #   SNYK_HIGH_COUNT        — number of open high-severity issues
+  #   SNYK_CRITICAL_COUNT    — number of open critical-severity issues
+  #   SNYK_SCAN_DATE         — ISO-8601 timestamp of the scan
+  #   LAST_PR_NUMBER         — PR number of the most-recently merged PR to main
+  #   LAST_PR_TITLE          — PR title
+  #   LAST_PR_URL            — GitHub PR URL
+  #   LAST_PR_MERGED_AT      — ISO-8601 merge timestamp
+  #
+  # The Next.js build is NOT run in CI (it runs at deployment); this job writes
+  # the values to a build-metadata artifact so the deploy pipeline can source them
+  # before running `npm run build`.
+  build-metadata:
+    name: Collect Build Metadata
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [snyk]
+    # snyk is conditional — allow this job to run even if snyk was skipped
+    continue-on-error: false
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Download Snyk SARIF files produced by the snyk job (may not exist if
+      # SNYK_TOKEN is not set — the step is guarded with continue-on-error).
+      - name: Download Snyk Python SARIF
+        uses: actions/download-artifact@v4
+        with:
+          name: snyk-python-sarif
+          path: sarif/
+        continue-on-error: true
+
+      - name: Download Snyk Node SARIF
+        uses: actions/download-artifact@v4
+        with:
+          name: snyk-node-sarif
+          path: sarif/
+        continue-on-error: true
+
+      - name: Parse Snyk SARIF counts
+        id: snyk_counts
+        run: |
+          python3 - <<'PYEOF'
+          import json, os, glob
+
+          high = 0
+          critical = 0
+
+          for path in glob.glob("sarif/*.sarif"):
+              try:
+                  with open(path) as f:
+                      data = json.load(f)
+                  for run in data.get("runs", []):
+                      for result in run.get("results", []):
+                          level = result.get("level", "")
+                          # Snyk maps: critical → error, high → error (with tag), medium → warning
+                          # Check the rule's security-severity property for precision.
+                          rule_id = result.get("ruleId", "")
+                          rule_props = {}
+                          for rule in run.get("tool", {}).get("driver", {}).get("rules", []):
+                              if rule.get("id") == rule_id:
+                                  rule_props = rule.get("properties", {})
+                                  break
+                          severity = float(rule_props.get("security-severity", 0))
+                          if severity >= 9.0:
+                              critical += 1
+                          elif severity >= 7.0:
+                              high += 1
+              except Exception as e:
+                  print(f"Warning: could not parse {path}: {e}")
+
+          scan_date = os.environ.get("SCAN_DATE", "")
+          env_file = os.environ["GITHUB_ENV"]
+          with open(env_file, "a") as f:
+              f.write(f"SNYK_HIGH_COUNT={high}\n")
+              f.write(f"SNYK_CRITICAL_COUNT={critical}\n")
+              f.write(f"SNYK_SCAN_DATE={scan_date}\n")
+          print(f"Snyk counts — critical: {critical}, high: {high}")
+          PYEOF
+        env:
+          SCAN_DATE: ${{ github.event.head_commit.timestamp }}
+
+      - name: Fetch last merged PR
+        run: |
+          PR=$(gh pr list \
+            --repo "$GITHUB_REPOSITORY" \
+            --state merged \
+            --base main \
+            --limit 1 \
+            --json number,title,url,mergedAt \
+            --jq '.[0]')
+
+          if [ -z "$PR" ] || [ "$PR" = "null" ]; then
+            echo "No merged PRs found."
+            exit 0
+          fi
+
+          PR_NUMBER=$(echo "$PR" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('number',''))")
+          PR_TITLE=$(echo  "$PR" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('title',''))")
+          PR_URL=$(echo    "$PR" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('url',''))")
+          PR_MERGED=$(echo "$PR" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('mergedAt',''))")
+
+          echo "LAST_PR_NUMBER=${PR_NUMBER}"   >> "$GITHUB_ENV"
+          echo "LAST_PR_TITLE=${PR_TITLE}"     >> "$GITHUB_ENV"
+          echo "LAST_PR_URL=${PR_URL}"         >> "$GITHUB_ENV"
+          echo "LAST_PR_MERGED_AT=${PR_MERGED}" >> "$GITHUB_ENV"
+          echo "Last PR: #${PR_NUMBER} — ${PR_TITLE}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Write build-metadata artifact
+        run: |
+          mkdir -p build-meta
+          cat > build-meta/build-metadata.env <<EOF
+          SNYK_HIGH_COUNT=${SNYK_HIGH_COUNT}
+          SNYK_CRITICAL_COUNT=${SNYK_CRITICAL_COUNT}
+          SNYK_SCAN_DATE=${SNYK_SCAN_DATE}
+          LAST_PR_NUMBER=${LAST_PR_NUMBER}
+          LAST_PR_TITLE=${LAST_PR_TITLE}
+          LAST_PR_URL=${LAST_PR_URL}
+          LAST_PR_MERGED_AT=${LAST_PR_MERGED_AT}
+          EOF
+          cat build-meta/build-metadata.env
+
+      - name: Upload build-metadata artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-metadata
+          path: build-meta/build-metadata.env
+          retention-days: 30
+
+  # ── 7. API contract — OpenAPI → TypeScript types drift check ─────────────────
   api-contract:
     name: API Contract — Types in Sync
     runs-on: ubuntu-latest
