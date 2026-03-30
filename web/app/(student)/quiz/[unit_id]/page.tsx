@@ -5,6 +5,7 @@ import { useQuiz } from "@/lib/hooks/useQuiz";
 import { QuizPlayer } from "@/components/content/QuizPlayer";
 import { OfflineBanner } from "@/components/student/OfflineBanner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AIContentDisclosure } from "@/components/content/AIContentDisclosure";
 import { startSession } from "@/lib/api/progress";
 
 interface PageProps {
@@ -49,6 +50,7 @@ export default function QuizPage({ params }: PageProps) {
         {sessionId && (
           <QuizPlayer quiz={quiz} sessionId={sessionId} curriculumId="default" />
         )}
+        <AIContentDisclosure />
       </div>
     </div>
   );

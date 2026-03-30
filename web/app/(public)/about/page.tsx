@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { CheckCircle2, Clock, AlertCircle, BookOpen, Shield, Globe, FileText } from "lucide-react";
+import { CheckCircle2, Clock, AlertCircle, BookOpen, Shield, Globe, FileText, Lock } from "lucide-react";
 import {
   COMPLIANCE_STANDARDS,
   COMPLIANCE_CATEGORIES,
@@ -54,6 +54,7 @@ const STATUS_META: Record<
 const CATEGORY_ICONS: Record<ComplianceStandard["category"], React.ReactNode> = {
   Accessibility: <BookOpen className="h-5 w-5 text-blue-600" aria-hidden="true" />,
   "Privacy & Legal": <Shield className="h-5 w-5 text-purple-600" aria-hidden="true" />,
+  Security: <Lock className="h-5 w-5 text-red-500" aria-hidden="true" />,
   Content: <FileText className="h-5 w-5 text-emerald-600" aria-hidden="true" />,
   Internationalisation: <Globe className="h-5 w-5 text-orange-500" aria-hidden="true" />,
 };

@@ -137,6 +137,15 @@
   }
   html {
     @apply font-sans;
+    /*
+     * WCAG 2.2 SC 2.4.11 — Focus Not Obscured (Minimum)
+     *
+     * The public header is sticky at h-16 (64 px). Without scroll-padding-top,
+     * keyboard-focusing an element near the top of the page can hide it behind
+     * the nav bar. scroll-padding-top ensures the browser scrolls far enough
+     * to keep the focused element visible above the sticky header.
+     */
+    scroll-padding-top: 72px; /* 64 px header + 8 px breathing room */
   }
   h1,
   h2,
@@ -159,6 +168,19 @@
     font-family: var(--font-dyslexic);
   }
 }
+
+/*
+ * WCAG 2.2 SC 2.5.8 — Target Size (Minimum): 24 × 24 CSS pixels.
+ *
+ * The Button component's smallest variants are:
+ *   xs      → h-6  (24 px)  ✓ exactly at the minimum
+ *   icon-xs → size-6 (24 × 24 px)  ✓
+ * All larger variants exceed the minimum. We document this here
+ * so the rule is easy to verify during future refactors.
+ *
+ * For inline text links that are smaller than 24 px tall, WCAG 2.2
+ * allows an exception when sufficient spacing surrounds them.
+ */
 
 /*
  * Button typography — Nunito (sans-serif) + bold on every <button> element.

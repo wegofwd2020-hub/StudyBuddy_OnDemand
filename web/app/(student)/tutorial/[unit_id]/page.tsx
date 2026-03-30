@@ -7,6 +7,7 @@ import { TutorialRenderer } from "@/components/content/TutorialRenderer";
 import { FeedbackWidget } from "@/components/feedback/FeedbackWidget";
 import { OfflineBanner } from "@/components/student/OfflineBanner";
 import { LinkButton } from "@/components/ui/link-button";
+import { AIContentDisclosure } from "@/components/content/AIContentDisclosure";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface PageProps {
@@ -49,6 +50,7 @@ export default function TutorialPage({ params }: PageProps) {
       <OfflineBanner />
       <div className="max-w-3xl space-y-6 p-6">
         <TutorialRenderer tutorial={tutorial} />
+        <AIContentDisclosure />
         <div className="flex items-center justify-between border-t pt-4">
           <FeedbackWidget unitId={unit_id} contentType="tutorial" />
           <LinkButton href={`/quiz/${unit_id}`} size="sm">

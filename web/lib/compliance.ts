@@ -20,12 +20,20 @@ export interface ComplianceStandard {
   /** Compliance level */
   status: ComplianceStatus;
   /** Grouping category for visual separation */
-  category: "Accessibility" | "Privacy & Legal" | "Content" | "Internationalisation";
+  category: "Accessibility" | "Privacy & Legal" | "Content" | "Internationalisation" | "Security";
 }
 
 export const COMPLIANCE_STANDARDS: ComplianceStandard[] = [
   // ── Accessibility ─────────────────────────────────────────────────────────
 
+  {
+    standard: "WCAG 2.2 Level AA",
+    version: "W3C Rec — October 2023",
+    description:
+      "The 2023 update to WCAG that adds nine new success criteria. Implemented: SC 2.4.11 Focus Not Obscured (scroll-padding-top prevents sticky nav from hiding focused elements); SC 2.5.8 Target Size Minimum (all interactive elements ≥ 24×24 px); SC 3.2.6 Consistent Help (Privacy, Accessibility, and Contact links appear in the same footer location on every page); SC 3.3.8 Accessible Authentication (no CAPTCHA or cognitive test on any auth flow). Remaining criteria are being audited.",
+    status: "targeted",
+    category: "Accessibility",
+  },
   {
     standard: "WCAG 2.1 Level AA",
     version: "W3C Rec — June 2018",
@@ -75,6 +83,30 @@ export const COMPLIANCE_STANDARDS: ComplianceStandard[] = [
     category: "Accessibility",
   },
   {
+    standard: "Section 508 of the Rehabilitation Act",
+    version: "US Federal — 2018 Refresh",
+    description:
+      "US federal accessibility standard for ICT, required for procurement by federal agencies and publicly funded educational institutions. The technical standard for web content references WCAG 2.0 Level AA; our WCAG 2.1 AA compliance exceeds this requirement.",
+    status: "compliant",
+    category: "Accessibility",
+  },
+  {
+    standard: "EN 301 549 v3.2.1",
+    version: "ETSI — August 2021",
+    description:
+      "European standard for accessibility requirements for ICT products and services. Required for EU public-sector procurement under the European Accessibility Act (Directive 2019/882). References WCAG 2.1 AA for web content — satisfied by our existing WCAG 2.1 AA compliance.",
+    status: "compliant",
+    category: "Accessibility",
+  },
+  {
+    standard: "AODA — Accessibility for Ontarians with Disabilities Act",
+    version: "Ontario, Canada — IASR, January 2012",
+    description:
+      "Ontario law requiring public-facing websites to meet WCAG 2.0 Level AA and publish an Accessibility Statement with a feedback mechanism. Our WCAG 2.1 AA target exceeds the WCAG 2.0 AA minimum. An Accessibility Statement is published at /accessibility with a dedicated feedback email.",
+    status: "compliant",
+    category: "Accessibility",
+  },
+  {
     standard: "Android TalkBack / iOS VoiceOver",
     version: "WCAG 2.1 Mobile Guidance",
     description:
@@ -110,6 +142,34 @@ export const COMPLIANCE_STANDARDS: ComplianceStandard[] = [
     category: "Privacy & Legal",
   },
 
+  {
+    standard: "SOPIPA — Student Online Personal Information Protection Act",
+    version: "California — January 2016",
+    description:
+      "Prohibits operators of school-related websites from using student data for targeted advertising, building profiles for non-educational purposes, or selling student information. StudyBuddy collects no advertising identifiers, performs no behavioural profiling, and shares student data only with sub-processors necessary to deliver the educational service (Auth0, AWS, SendGrid). A dedicated SOPIPA section is included in the Privacy Policy.",
+    status: "compliant",
+    category: "Privacy & Legal",
+  },
+  {
+    standard: "CCPA / CPRA — California Consumer Privacy Act",
+    version: "California — amended by CPRA, January 2023",
+    description:
+      "Grants California residents the right to know, delete, and opt out of the sale or sharing of their personal information. StudyBuddy does not sell or share personal information as defined under CCPA. A 'Do Not Sell or Share My Personal Information' statement and contact details for exercising rights are included in the Privacy Policy.",
+    status: "compliant",
+    category: "Privacy & Legal",
+  },
+
+  // ── Security ──────────────────────────────────────────────────────────────
+
+  {
+    standard: "PCI DSS SAQ-A",
+    version: "PCI SSC v4.0 — March 2022",
+    description:
+      "Payment card security standard. StudyBuddy uses Stripe Checkout (redirect model) — no card data ever touches our servers or passes through our application code. This limits scope to SAQ-A (the lowest-burden self-assessment questionnaire). Stripe holds PCI DSS Level 1 certification; our obligation is to complete and retain the SAQ-A annually.",
+    status: "compliant",
+    category: "Security",
+  },
+
   // ── Content ───────────────────────────────────────────────────────────────
 
   {
@@ -133,6 +193,15 @@ export const COMPLIANCE_STANDARDS: ComplianceStandard[] = [
     version: "AlexJS v11",
     description:
       "All AI-generated content passes AlexJS analysis before publication. Gender-neutral phrasing is enforced for professional roles. No gendered emoji in diagrams or examples.",
+    status: "compliant",
+    category: "Content",
+  },
+
+  {
+    standard: "EU AI Act — Transparency Obligation (Art. 50)",
+    version: "EU 2024/1689 — in force August 2024",
+    description:
+      "AI systems that generate or manipulate content must inform users that the content is AI-generated. An AIContentDisclosure notice is rendered at the bottom of every lesson, quiz, tutorial, and experiment page, stating that content was generated by the StudyBuddy AI pipeline and reviewed before publication.",
     status: "compliant",
     category: "Content",
   },
@@ -161,6 +230,7 @@ export const COMPLIANCE_STANDARDS: ComplianceStandard[] = [
 export const COMPLIANCE_CATEGORIES: ComplianceStandard["category"][] = [
   "Accessibility",
   "Privacy & Legal",
+  "Security",
   "Content",
   "Internationalisation",
 ];

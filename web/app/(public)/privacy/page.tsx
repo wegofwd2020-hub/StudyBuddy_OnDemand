@@ -61,6 +61,39 @@ export default function PrivacyPage() {
         </section>
 
         <section>
+          <h2 className="mb-3 text-xl font-semibold text-gray-800">
+            SOPIPA (Student Data Privacy — California)
+          </h2>
+          <p className="text-sm">
+            In compliance with the Student Online Personal Information Protection Act,
+            we do not use student data to target advertising, build profiles for
+            non-educational purposes, sell student information, or disclose it to
+            third parties except as needed to provide the educational service. Student
+            data is used solely to deliver and improve the StudyBuddy learning
+            experience.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="mb-3 text-xl font-semibold text-gray-800">
+            CCPA / CPRA (California Residents)
+          </h2>
+          <p className="mb-2 text-sm">
+            California residents have the right to know what personal information we
+            collect, request deletion of their data, and opt out of the sale or
+            sharing of personal information. We do not sell or share personal
+            information as defined by the CCPA. To exercise your rights, contact{" "}
+            <a
+              href="mailto:privacy@studybuddy.com"
+              className="text-blue-600 hover:underline"
+            >
+              privacy@studybuddy.com
+            </a>
+            .
+          </p>
+        </section>
+
+        <section>
           <h2 className="mb-3 text-xl font-semibold text-gray-800">Data Retention</h2>
           <p className="text-sm">
             Active account data is retained while your account is active. Upon account
