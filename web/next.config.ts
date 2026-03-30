@@ -13,13 +13,18 @@ const apiOrigin = process.env.NEXT_PUBLIC_API_URL
 // - default-src 'self': baseline allowlist
 // - script-src 'self' 'unsafe-inline': Next.js inline bootstrap scripts require unsafe-inline;
 //   nonce-based CSP is the correct long-term fix but is left for a dedicated hardening sprint.
+// - 'unsafe-eval' is added only in development: React dev builds use eval() for call-stack
+//   reconstruction and debugging features. React never uses eval() in production.
 // - connect-src: API origin + Stripe telemetry (JS.stripe.com requires it)
 // - img-src 'self' data: blob: *.cloudfront.net: lesson images served from CDN
 // - frame-src https://js.stripe.com: Stripe Checkout iframe
 // - frame-ancestors 'none': equivalent to X-Frame-Options DENY, but honoured by modern browsers
+const isDev = process.env.NODE_ENV === "development";
 const csp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://js.stripe.com",
+  isDev
+    ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com"
+    : "script-src 'self' 'unsafe-inline' https://js.stripe.com",
   `connect-src 'self' ${apiOrigin} https://api.stripe.com`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://*.cloudfront.net",
