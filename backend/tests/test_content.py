@@ -391,3 +391,90 @@ async def test_audio_returns_url(client: AsyncClient, fake_redis):
     assert data["url"].startswith("/") or data["url"].startswith("http")
     # Content-Type must be JSON, not audio
     assert "application/json" in response.headers.get("content-type", "")
+
+
+# ── Demo student entitlement bypass ──────────────────────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_demo_student_bypasses_free_tier_lesson_limit(client: AsyncClient, fake_redis):
+    """
+    Demo students get full lesson access regardless of lessons_accessed count.
+    The 24-hour account TTL is their effective subscription limit, not the free
+    tier 2-lesson cap.
+    """
+    from tests.helpers.token_factory import make_demo_student_token
+
+    student_id = str(uuid.uuid4())
+    token = make_demo_student_token(student_id=student_id)
+    unit_id = "G8-SCI-001"
+
+    with (
+        patch("src.content.router.resolve_curriculum_id", new_callable=AsyncMock, return_value="default-2026-g8"),
+        patch("src.content.router.get_unit_subject", new_callable=AsyncMock, return_value="G8-SCI"),
+        patch("src.content.router.check_content_published", new_callable=AsyncMock, return_value=True),
+        patch("src.content.router.check_content_block", new_callable=AsyncMock, return_value=False),
+        # get_entitlement should NOT be called for demo students — assert it is never reached
+        patch("src.content.router.get_entitlement", new_callable=AsyncMock,
+              return_value={"plan": "free", "lessons_accessed": 99, "valid_until": None}) as mock_ent,
+        patch("src.content.router.get_content_file", new_callable=AsyncMock, return_value=SAMPLE_LESSON),
+        patch("src.content.router.increment_lessons_accessed", new_callable=AsyncMock),
+    ):
+        response = await client.get(
+            f"/api/v1/content/{unit_id}/lesson",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+
+    assert response.status_code == 200, response.text
+    mock_ent.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_regular_student_still_hits_free_tier_limit(client: AsyncClient, fake_redis):
+    """
+    Sanity check: regular free-tier students are still limited to 2 lessons.
+    The demo bypass must not affect the standard entitlement path.
+    """
+    student_id = str(uuid.uuid4())
+    token = make_student_token(student_id=student_id, grade=8)
+    unit_id = "G8-SCI-001"
+
+    with (
+        patch("src.content.router.resolve_curriculum_id", new_callable=AsyncMock, return_value="default-2026-g8"),
+        patch("src.content.router.get_unit_subject", new_callable=AsyncMock, return_value="G8-SCI"),
+        patch("src.content.router.check_content_published", new_callable=AsyncMock, return_value=True),
+        patch("src.content.router.check_content_block", new_callable=AsyncMock, return_value=False),
+        patch("src.content.router.get_entitlement", new_callable=AsyncMock,
+              return_value={"plan": "free", "lessons_accessed": 2, "valid_until": None}),
+    ):
+        response = await client.get(
+            f"/api/v1/content/{unit_id}/lesson",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+
+    assert response.status_code == 402, response.text
+    assert response.json()["error"] == "subscription_required"
+
+
+# ── Demo student permissions ──────────────────────────────────────────────────
+
+
+def test_demo_student_has_content_read_permission():
+    """demo_student role must include content:read so require_permission works."""
+    from src.core.permissions import _has_permission
+
+    assert _has_permission("demo_student", "content:read") is True
+
+
+def test_demo_student_does_not_have_feedback_permission():
+    """demo_student must NOT have content:feedback — demo submissions must not reach the real queue."""
+    from src.core.permissions import _has_permission
+
+    assert _has_permission("demo_student", "content:feedback") is False
+
+
+def test_demo_student_does_not_have_student_manage_permission():
+    """demo_student must not have any elevated permissions."""
+    from src.core.permissions import _has_permission
+
+    assert _has_permission("demo_student", "student:manage") is False
