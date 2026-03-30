@@ -137,16 +137,18 @@ async def get_lesson(
         request, unit_id, "lesson", student
     )
 
-    # Entitlement check
-    entitlement = await get_entitlement(student_id, pool, redis)
-    if entitlement["plan"] == "free" and entitlement["lessons_accessed"] >= _FREE_TIER_LESSON_LIMIT:
-        raise HTTPException(
-            status_code=402,
-            detail={
-                "error": "subscription_required",
-                "detail": "Upgrade to StudyBuddy Premium to unlock all lessons.",
-            },
-        )
+    # Entitlement check — demo students get full access for the duration of their
+    # 24-hour trial; the TTL on their account is the effective subscription limit.
+    if student.get("role") != "demo_student":
+        entitlement = await get_entitlement(student_id, pool, redis)
+        if entitlement["plan"] == "free" and entitlement["lessons_accessed"] >= _FREE_TIER_LESSON_LIMIT:
+            raise HTTPException(
+                status_code=402,
+                detail={
+                    "error": "subscription_required",
+                    "detail": "Upgrade to StudyBuddy Premium to unlock all lessons.",
+                },
+            )
 
     filename = f"lesson_{locale}.json"
     try:

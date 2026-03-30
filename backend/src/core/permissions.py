@@ -25,6 +25,11 @@ ROLE_PERMISSIONS: dict[str, set[str]] = {
         "content:read",
         "content:feedback",
     },
+    # Demo students get read access for the duration of their trial.
+    # No content:feedback — demo submissions would pollute the real feedback queue.
+    "demo_student": {
+        "content:read",
+    },
     "teacher": {
         "content:read",
         "review:read",
