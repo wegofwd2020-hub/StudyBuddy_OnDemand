@@ -34,7 +34,8 @@ function resolveLoginError(status: number | undefined, code: string | undefined)
 /** Write the demo session cookie so the server-side student layout can read name/email. */
 function setDemoSessionCookie(email: string): void {
   const payload = btoa(JSON.stringify({ name: "Demo Student", email }));
-  document.cookie = `sb_dev_session=${payload}; path=/; max-age=${60 * 60 * 24}; SameSite=Lax`;
+  const secure = location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = `sb_dev_session=${payload}; path=/; max-age=${60 * 60 * 24}; SameSite=Lax${secure}`;
 }
 
 export default function DemoLoginPage() {

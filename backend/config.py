@@ -118,7 +118,9 @@ class Settings(BaseSettings):
         return self.CELERY_BROKER_URL or self.REDIS_URL
 
     # ── Cache TTLs ────────────────────────────────────────────────────────────
-    JWKS_CACHE_TTL_HOURS: int = 24
+    # 1 hour matches the typical Auth0 JWKS rotation window. 24 hours risks
+    # serving a stale key set for too long after a key rotation event.
+    JWKS_CACHE_TTL_HOURS: int = 1
 
     # ── GitHub CI integration (optional) ─────────────────────────────────────
     # GITHUB_REPO:  "owner/repo"  e.g. "wegofwd2020-hub/StudyBuddy_OnDemand"

@@ -200,34 +200,49 @@ async def verify_demo_email(token: str, request: Request):
                 },
             )
 
-        # ── Check DEMO_MAX_ACTIVE cap ──
-        active_count = await count_active_demos(conn)
-        if active_count >= settings.DEMO_MAX_ACTIVE:
-            log.warning("demo_max_active_reached", count=active_count)
-            raise HTTPException(
-                status_code=503,
-                detail={
-                    "error": "demo_capacity_reached",
-                    "detail": "All demo slots are currently occupied. Please try again later.",
-                    "correlation_id": cid,
-                },
-            )
+        # ── Capacity check + account creation — atomic under advisory lock ──
+        #
+        # Without a transaction + advisory lock, two concurrent verify requests
+        # for different tokens could both pass the count check and both create
+        # accounts, exceeding DEMO_MAX_ACTIVE (TOCTOU race).
+        #
+        # pg_advisory_xact_lock(hash) serialises all verify calls globally.
+        # The lock is released automatically when the transaction commits or rolls
+        # back, so there is no risk of a held lock on error.
+        #
+        # Advisory lock key: a stable 32-bit integer derived from the string
+        # "demo_verify_capacity" (pre-computed: 1_953_719_636).
+        DEMO_LOCK_KEY = 1_953_719_636
 
-        # ── Create student + account ──
         email = row["email"]
         request_id = row["request_id"]
         plain_password = _generate_demo_password()
         password_hash = await hash_password(plain_password)
 
-        await create_demo_student_and_account(
-            conn,
-            request_id=request_id,
-            email=email,
-            from_password=plain_password,
-            password_hash=password_hash,
-        )
-        await mark_verification_used(conn, row["verif_id"])
-        await mark_request_verified(conn, request_id)
+        async with conn.transaction():
+            await conn.execute("SELECT pg_advisory_xact_lock($1)", DEMO_LOCK_KEY)
+
+            active_count = await count_active_demos(conn)
+            if active_count >= settings.DEMO_MAX_ACTIVE:
+                log.warning("demo_max_active_reached", count=active_count)
+                raise HTTPException(
+                    status_code=503,
+                    detail={
+                        "error": "demo_capacity_reached",
+                        "detail": "All demo slots are currently occupied. Please try again later.",
+                        "correlation_id": cid,
+                    },
+                )
+
+            await create_demo_student_and_account(
+                conn,
+                request_id=request_id,
+                email=email,
+                from_password=plain_password,
+                password_hash=password_hash,
+            )
+            await mark_verification_used(conn, row["verif_id"])
+            await mark_request_verified(conn, request_id)
 
     # ── Fire credentials email task ──
     send_demo_credentials_email_task.delay(email, plain_password)
