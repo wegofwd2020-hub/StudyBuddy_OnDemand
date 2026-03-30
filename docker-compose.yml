@@ -152,6 +152,7 @@ services:
       # mode is incompatible with Alembic's DDL transaction management.
       DATABASE_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@db:5432/studybuddy
     volumes:
+      - ./backend:/app          # bind-mount source so new migrations are picked up without rebuilding
       - ./data:/data            # grade JSON files needed by seed script
       - content_store:/data/content
     depends_on:
