@@ -99,6 +99,20 @@ class Settings(BaseSettings):
     SENDGRID_API_KEY: str | None = None
     EMAIL_FROM: str = "noreply@studybuddy.app"
 
+    # ── SMTP (demo email via Gmail) ───────────────────────────────────────────
+    SMTP_HOST: str = "smtp.gmail.com"
+    SMTP_PORT: int = 587
+    SMTP_USER: str | None = None      # Gmail address (e.g. hello@studybuddy.app)
+    SMTP_PASSWORD: str | None = None  # Gmail App Password (not account password)
+    SMTP_FROM_NAME: str = "StudyBuddy"
+
+    # ── Demo accounts ─────────────────────────────────────────────────────────
+    DEMO_ACCOUNT_TTL_HOURS: int = 24
+    DEMO_VERIFICATION_TOKEN_TTL_MINUTES: int = 60
+    DEMO_RESEND_COOLDOWN_MINUTES: int = 5
+    DEMO_MAX_ACTIVE: int = 100        # hard cap on concurrent active demo accounts
+    FRONTEND_URL: str = "http://localhost:3000"
+
     @property
     def effective_celery_broker_url(self) -> str:
         return self.CELERY_BROKER_URL or self.REDIS_URL

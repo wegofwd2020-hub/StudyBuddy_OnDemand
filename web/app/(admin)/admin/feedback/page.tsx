@@ -8,11 +8,21 @@ import { ShieldOff, MessageSquare, Star } from "lucide-react";
 
 function StarRating({ rating }: { rating: number }) {
   return (
-    <span className="flex gap-0.5">
+    <span
+      className="flex gap-0.5"
+      role="img"
+      aria-label={`${rating} out of 5 stars`}
+    >
       {[1, 2, 3, 4, 5].map((n) => (
         <Star
           key={n}
-          className={`h-3.5 w-3.5 ${n <= rating ? "fill-yellow-400 text-yellow-400" : "text-gray-200"}`}
+          aria-hidden="true"
+          className={`h-3.5 w-3.5 ${
+            n <= rating
+              ? "fill-yellow-400 text-yellow-400"
+              : "fill-none text-gray-300 opacity-60"
+          }`}
+          strokeWidth={n <= rating ? 0 : 1.5}
         />
       ))}
     </span>

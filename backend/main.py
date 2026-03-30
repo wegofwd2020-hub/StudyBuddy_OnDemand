@@ -202,6 +202,8 @@ app.include_router(obs_router)
 
 from src.account.router import router as account_router  # noqa: E402
 from src.admin.build_reports import router as ci_reports_router  # noqa: E402
+from src.demo.router import router as demo_router  # noqa: E402
+from src.admin.demo_accounts import router as demo_admin_router  # noqa: E402
 from src.admin.router import router as admin_router  # noqa: E402
 from src.analytics.router import router as analytics_router  # noqa: E402
 from src.auth.admin_router import router as admin_auth_router  # noqa: E402
@@ -231,6 +233,8 @@ app.include_router(ci_reports_router, prefix="/api/v1")
 app.include_router(school_router, prefix="/api/v1")
 app.include_router(feedback_router, prefix="/api/v1")
 app.include_router(reports_router, prefix="/api/v1")
+app.include_router(demo_router, prefix="/api/v1")
+app.include_router(demo_admin_router, prefix="/api/v1")
 
 if settings.APP_ENV == "development":
     from src.auth.dev_router import router as dev_router

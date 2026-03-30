@@ -10,7 +10,7 @@ These tokens should never be used outside of tests.
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from jose import jwt
 
@@ -29,7 +29,7 @@ def make_student_token(
 ) -> str:
     """Return a signed student JWT for testing."""
     sid = student_id or str(uuid.uuid4())
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     payload = {
         "student_id": sid,
         "grade": grade,
@@ -53,7 +53,7 @@ def make_teacher_token(
     """Return a signed teacher JWT for testing."""
     tid = teacher_id or str(uuid.uuid4())
     sid = school_id or str(uuid.uuid4())
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     payload = {
         "teacher_id": tid,
         "school_id": sid,
@@ -73,7 +73,7 @@ def make_admin_token(
 ) -> str:
     """Return a signed admin JWT for testing."""
     aid = admin_id or str(uuid.uuid4())
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     payload = {
         "admin_id": aid,
         "role": role,
@@ -82,6 +82,30 @@ def make_admin_token(
         "jti": str(uuid.uuid4()),
     }
     return jwt.encode(payload, TEST_ADMIN_JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+
+def make_demo_student_token(
+    student_id: str | None = None,
+    demo_account_id: str | None = None,
+    expire_minutes: int = 15,
+) -> str:
+    """Return a signed demo_student JWT for testing."""
+    sid = student_id or str(uuid.uuid4())
+    did = demo_account_id or str(uuid.uuid4())
+    now = datetime.now(tz=UTC)
+    payload = {
+        "student_id": sid,
+        "grade": 8,
+        "locale": "en",
+        "role": "demo_student",
+        "account_status": "active",
+        "demo_account_id": did,
+        "demo_expires_at": (now + timedelta(hours=24)).isoformat(),
+        "iat": now,
+        "exp": now + timedelta(minutes=expire_minutes),
+        "jti": str(uuid.uuid4()),
+    }
+    return jwt.encode(payload, TEST_JWT_SECRET, algorithm=JWT_ALGORITHM)
 
 
 def make_expired_student_token() -> str:

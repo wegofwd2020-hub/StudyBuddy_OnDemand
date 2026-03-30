@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Nunito, Lora, Geist_Mono } from "next/font/google";
-import Script from "next/script";
+import { cookies } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { Toaster } from "@/components/ui/sonner";
@@ -42,22 +42,19 @@ export default async function RootLayout({
   const locale = await getLocale();
   const messages = await getMessages();
 
+  // Read the dyslexic-font preference from the cookie set by the settings page.
+  // Setting the attribute here (SSR) means the correct font is in the HTML before
+  // React hydrates — no inline script needed, no React 19 script warning.
+  const cookieStore = await cookies();
+  const dyslexic = cookieStore.get("sb_dyslexic")?.value === "1";
+
   return (
     <html
       lang={locale}
       className={`${nunito.variable} ${lora.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
+      {...(dyslexic ? { "data-dyslexic": "true" } : {})}
     >
-      <head>
-        {/* Reads localStorage before React hydrates — prevents dyslexic font flash on reload */}
-        <Script
-          id="dyslexic-font-init"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{if(localStorage.getItem('sb_dyslexic')==='1'){document.documentElement.setAttribute('data-dyslexic','true')}}catch(e){}})()`,
-          }}
-        />
-      </head>
       <body className="flex min-h-full flex-col">
         <a
           href="#main-content"

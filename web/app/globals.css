@@ -159,3 +159,74 @@
     font-family: var(--font-dyslexic);
   }
 }
+
+/*
+ * Button typography — Nunito (sans-serif) + bold on every <button> element.
+ *
+ * Non-layered CSS wins over all @layer rules (including @layer utilities) in
+ * the CSS cascade, so this overrides Tailwind's font-medium / font-semibold
+ * utilities on raw <button> elements without touching every component file.
+ *
+ * The [data-slot="button"] selector covers Base UI's ButtonPrimitive (rendered
+ * by our <Button> component). <LinkButton> gets bold/sans through the CVA
+ * font-bold font-heading classes already applied in button.tsx.
+ *
+ * Dyslexia override: the more-specific [data-dyslexic] selector swaps the
+ * font family back to OpenDyslexic while keeping bold weight.
+ */
+button,
+[data-slot="button"] {
+  font-family: var(--font-heading);
+  font-weight: 700;
+}
+
+[data-dyslexic="true"] button,
+[data-dyslexic="true"] [data-slot="button"] {
+  font-family: var(--font-dyslexic);
+}
+
+/*
+ * Windows High Contrast / Forced Colors mode (WCAG 2.1 SC 1.4.11)
+ *
+ * In forced-colors mode the OS replaces all author colours with a small
+ * system palette (ButtonText, ButtonFace, Highlight, etc.).  Background-image
+ * tricks and box-shadows disappear entirely, so we must ensure:
+ *   1. Every interactive element has a visible border.
+ *   2. Status badges retain a border so they don't vanish.
+ *   3. The DemoBanner distinguishes urgency via border-style, not colour.
+ *   4. Disabled states use the GrayText system colour.
+ */
+@media (forced-colors: active) {
+  /* Ensure all buttons have a solid border so they remain visible */
+  button,
+  [data-slot="button"],
+  a[class*="rounded"] {
+    border: 1px solid ButtonText;
+    forced-color-adjust: none;
+  }
+
+  /* Disabled buttons use the system GrayText colour */
+  button:disabled,
+  [data-slot="button"]:disabled {
+    color: GrayText;
+    border-color: GrayText;
+    forced-color-adjust: auto;
+  }
+
+  /* Status badges: always show a border so shape (not just fill) is visible */
+  [class*="rounded-full"] {
+    border: 1px solid currentColor;
+  }
+
+  /* Demo banner: use border-style to distinguish urgent vs normal */
+  [role="status"] {
+    border: 2px solid ButtonText;
+    forced-color-adjust: none;
+  }
+
+  /* Focus ring: use the system Highlight colour */
+  :focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: 2px;
+  }
+}

@@ -15,8 +15,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import { Check, CreditCard, AlertCircle } from "lucide-react";
+import { Check, CheckCircle2, CreditCard, AlertCircle, Clock, XCircle, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DemoGate } from "@/components/demo/DemoGate";
 
 const PLAN_FEATURES = [
   "Unlimited lessons",
@@ -30,6 +31,17 @@ const PLAN_FEATURES = [
 type BillingToggle = "monthly" | "annual";
 
 export default function SubscriptionPage() {
+  return (
+    <DemoGate
+      heading="Subscription not available in demo"
+      description="Demo accounts access Grade 8 content for 24 hours. Sign up for full, ongoing access."
+    >
+      <SubscriptionPageInner />
+    </DemoGate>
+  );
+}
+
+function SubscriptionPageInner() {
   const t = useTranslations("subscription_screen");
   const { data: sub, isLoading } = useSubscription();
   const qc = useQueryClient();
@@ -100,7 +112,7 @@ export default function SubscriptionPage() {
                 </p>
                 <Badge
                   className={cn(
-                    "text-xs",
+                    "inline-flex items-center gap-1 text-xs",
                     isActive &&
                       !isCancelled &&
                       "border-green-200 bg-green-100 text-green-700",
@@ -109,6 +121,21 @@ export default function SubscriptionPage() {
                     sub.status === "past_due" && "bg-red-100 text-red-700",
                   )}
                 >
+                  {isActive && !isCancelled && (
+                    <CheckCircle2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+                  )}
+                  {isTrial && (
+                    <Clock className="h-3 w-3 shrink-0" aria-hidden="true" />
+                  )}
+                  {isCancelled && (
+                    <AlertTriangle className="h-3 w-3 shrink-0" aria-hidden="true" />
+                  )}
+                  {sub.status === "past_due" && (
+                    <XCircle className="h-3 w-3 shrink-0" aria-hidden="true" />
+                  )}
+                  {sub.status === "free" && !isCancelled && (
+                    <XCircle className="h-3 w-3 shrink-0" aria-hidden="true" />
+                  )}
                   {isCancelled
                     ? "Cancels at period end"
                     : sub.status === "past_due"
@@ -117,7 +144,8 @@ export default function SubscriptionPage() {
                 </Badge>
               </div>
               {isTrial && trialDays !== null && (
-                <p className="text-xs text-blue-600">
+                <p className="flex items-center gap-1 text-xs text-blue-600">
+                  <Clock className="h-3 w-3 shrink-0" aria-hidden="true" />
                   {trialDays} day{trialDays !== 1 ? "s" : ""} remaining in trial
                 </p>
               )}
