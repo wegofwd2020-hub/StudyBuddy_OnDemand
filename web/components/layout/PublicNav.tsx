@@ -30,6 +30,9 @@ export function PublicNav() {
           <Link href="/pricing#schools" className="transition-colors hover:text-gray-900">
             {t("for_schools")}
           </Link>
+          <Link href="/about" className="transition-colors hover:text-gray-900">
+            {t("about")}
+          </Link>
         </nav>
 
         {/* Desktop CTA */}
@@ -73,6 +76,13 @@ export function PublicNav() {
             onClick={() => setOpen(false)}
           >
             {t("for_schools")}
+          </Link>
+          <Link
+            href="/about"
+            className="block text-sm font-medium text-gray-600 hover:text-gray-900"
+            onClick={() => setOpen(false)}
+          >
+            {t("about")}
           </Link>
           <div className="flex flex-col gap-2 pt-2">
             <LinkButton variant="outline" href="/login">
