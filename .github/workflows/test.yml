@@ -5,6 +5,7 @@ on:
     branches: [main, "2026*", "feat/*"]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 # Cancel in-progress runs on the same branch when a new commit arrives
 concurrency:
