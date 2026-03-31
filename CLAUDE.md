@@ -8,7 +8,7 @@ API key. Schools and teachers can upload custom curricula. Subscription-based.
 
 ## Project Status
 
-**Current phase: All phases complete through Phase 11**
+**Phases 1–11 complete. Active development on content review, admin tooling, and demo flows.**
 
 | Phase | Status |
 |---|---|
@@ -24,7 +24,23 @@ API key. Schools and teachers can upload custom curricula. Subscription-based.
 | 10 — Extended Analytics + Student Feedback | ✅ Complete (197 tests) |
 | 11 — Teacher Reporting Dashboard | ✅ Complete (215 tests) |
 
-Build in phase order; do not skip ahead.
+**Active branch:** `feat/review-enhancements` (branched from `main`)
+
+**Recently shipped (beyond Phase 11):**
+- Content review unit viewer — Lesson / Tutorial / Quiz / Experiment renderers
+- Inline reviewer annotations scoped per section, question, and step
+- Side-by-side version diff with word-level highlighting
+- Pipeline improvements: `max_tokens=8192`, `subject_name` column, `payload_bytes` tracking
+- Demo teacher account request / verify / login flow
+- Admin pipeline jobs table: sortable, filterable, horizontal scroll
+
+**Open tasks tracked in GitHub Issues** (wegofwd2020-hub/StudyBuddy_OnDemand):
+- #52 Inline annotations on lesson sections and quiz questions ✅ Done
+- #53 Side-by-side version diff ✅ Done
+- #54 Batch approve all subjects in a grade
+- #55 Surface alex_warnings prominently in unit viewer
+- #56 Review assignment — assign versions to specific admins
+- #57 Multi-tier subscription model (School / Teacher / Student)
 
 Predecessor project (UI + prompt reference):
 `https://github.com/wegofwd2020-hub/studybuddy_free`
@@ -50,13 +66,18 @@ All documentation has moved to **[studybuddy-docs](https://github.com/wegofwd202
 
 ---
 
-## Repository Layout (target state)
+## Repository Layout
 
 ```
 StudyBuddy_OnDemand/
   backend/
     main.py              ← FastAPI app entry point + lifespan (DB/Redis pools)
     config.py            ← pydantic-settings; all config from env vars; fail-fast if missing
+    alembic/
+      versions/          ← migrations 0001…000N; run in order; never skip
+    scripts/
+      reset_admin_password.py  ← dev utility: reset an admin user's password
+      seed_super_admin.py      ← create the initial super_admin account
     src/
       auth/              ← register · login · refresh · forgot-password · reset · delete
       curriculum/        ← serve grade/subject/unit tree from DB
@@ -66,13 +87,33 @@ StudyBuddy_OnDemand/
       school/            ← registration · teacher invite · enrolment roster
       analytics/         ← lesson-view events · class metrics · student metrics
       feedback/          ← submit · admin list
-      admin/             ← pipeline status · regenerate · audit log
+      admin/             ← pipeline status · regenerate · audit log · content review
+      demo/              ← demo student + demo teacher request/verify flows
       core/              ← cache manager (L1+L2) · entitlement checker · circuit breakers
                             curriculum resolver dependency · Celery dispatcher
                             observability.py  ← Prometheus metrics, GET /metrics, GET /health, correlation ID middleware
                             events.py         ← emit_event() structured log + metric counter · write_audit_log() Celery dispatch
     tests/               ← pytest; ALL external calls mocked; no live DB in CI
     requirements.txt
+
+  web/                   ← Next.js 15 app (admin console + public pages)
+    app/
+      (admin)/           ← admin-only routes (JWT-gated); no SSR — all "use client"
+        admin/
+          content-review/  ← review queue · version detail · unit viewer · version diff
+          pipeline/        ← job list · job detail · upload grade JSON
+          demo-teacher-accounts/
+          feedback/ · analytics/ · audit/ · ci/ · pipeline/
+      (public)/          ← public-facing pages (landing, about, demo request)
+      (student)/         ← student portal (Auth0-gated)
+      (school)/          ← school/teacher portal (Auth0-gated)
+    components/
+      layout/            ← PortalHeader · PortalFooter · AdminNav
+      demo/              ← DemoRequestModal · DemoTeacherRequestModal · DemoTeacherGate
+    lib/
+      api/               ← admin.ts · demo.ts · client.ts (Axios instances per role)
+      hooks/             ← useAdmin · useTeacher · useDemoStudent · useDemoTeacher
+    i18n/                ← en.json (UI strings; AI content is never passed through i18n)
 
   mobile/
     main.py              ← Kivy entry; thin client; version check on startup
@@ -99,6 +140,51 @@ StudyBuddy_OnDemand/
 
 ---
 
+## Web Frontend — Tech Stack
+
+| Layer | Choice |
+|---|---|
+| Framework | Next.js 15 (App Router) |
+| Styling | Tailwind CSS v4 — config is in `globals.css` via `@import "tailwindcss"`, **no `tailwind.config.js`** |
+| Data fetching | TanStack React Query v5 (`useQuery` / `useMutation`) |
+| HTTP client | Axios — separate instances per role in `lib/api/client.ts` and `lib/api/admin-client.ts` |
+| Markdown rendering | `react-markdown` + `remark-gfm` (tables, code blocks, bold/italic) |
+| Text diffing | `diff` package (`diffWords`) for version diff view |
+| Icons | `lucide-react` |
+| Auth | Admin: local JWT in `localStorage` key `sb_admin_token`. Students/Teachers: Auth0 |
+
+**Critical Tailwind v4 note:** There is no `tailwind.config.js`. Plugins are added via `@plugin` in
+`globals.css`. The `prose` class requires `@plugin "@tailwindcss/typography"` — do not use `prose`
+without confirming the plugin is configured. Custom theme values go in `@theme` blocks in the CSS file.
+
+**Hydration rule:** Never read `localStorage` during SSR. Always initialise state as `undefined`/`null`
+and populate in `useEffect`. The `PortalHeader` `userName` prop is the canonical example of this pattern.
+
+---
+
+## Admin Console — Route Map
+
+All admin routes live under `/admin/` and require a valid `sb_admin_token` JWT checked in
+`app/(admin)/layout.tsx`. Unauthenticated requests redirect to `/admin/login`.
+
+| Route | Purpose |
+|---|---|
+| `/admin/login` | Local bcrypt login → issues JWT |
+| `/admin/` | Dashboard — subscription analytics, system health, CI status |
+| `/admin/content-review` | Review queue (filterable by status) |
+| `/admin/content-review/[version_id]` | Version detail — units, annotations summary, actions (approve/reject/publish/rollback) |
+| `/admin/content-review/[version_id]/unit/[unit_id]` | Unit content viewer — per-section inline annotations |
+| `/admin/content-review/[version_id]/diff` | Side-by-side version diff with word-level highlighting |
+| `/admin/pipeline` | Pipeline job list — sortable, filterable |
+| `/admin/pipeline/[job_id]` | Job detail — progress, payload size, duration |
+| `/admin/pipeline/upload` | Upload grade JSON to trigger pipeline |
+| `/admin/demo-accounts` | Manage demo student accounts |
+| `/admin/demo-teacher-accounts` | Manage demo teacher accounts |
+| `/admin/feedback` | Student feedback list |
+| `/admin/audit` | Audit log |
+
+---
+
 ## Three Runtime Contexts
 
 These are completely independent at runtime. Never mix their concerns.
@@ -113,8 +199,8 @@ These are completely independent at runtime. Never mix their concerns.
    FastAPI + uvicorn → PostgreSQL + Redis + Content Store
    JWT auth · entitlement gating · content serving · progress recording · subscriptions
 
-3. Mobile App  (student device)
-   Kivy → local SQLite cache + backend REST API
+3. Web / Mobile App  (user device)
+   Next.js (admin + public) or Kivy (student mobile) → backend REST API
    NEVER calls Anthropic directly. NEVER has Anthropic or Stripe keys.
 ```
 
@@ -123,9 +209,11 @@ These are completely independent at runtime. Never mix their concerns.
 ## Layer Rules — Dependencies flow downward only
 
 ```
-mobile/src/ui/            → mobile/src/logic/,  mobile/src/api/
-mobile/src/logic/         → mobile/src/api/
-mobile/src/api/           → (external: backend REST)
+web/app/(admin)/       → web/lib/api/admin.ts → backend /api/v1/admin/*
+web/app/(student)/     → web/lib/api/client.ts → backend /api/v1/*
+mobile/src/ui/         → mobile/src/logic/,  mobile/src/api/
+mobile/src/logic/      → mobile/src/api/
+mobile/src/api/        → (external: backend REST)
 
 backend/src/content/      → backend/src/core/  (auth checks, entitlement, cache)
 backend/src/progress/     → backend/src/core/
@@ -159,6 +247,30 @@ Default IDs follow `default-{year}-g{grade}`. School IDs are UUIDs.
 
 `meta.json` per unit: `{generated_at, model, content_version, langs_built: []}`.
 The mobile app caches by `unit_id + curriculum_id + content_version + lang`.
+
+The admin content viewer checks `has_content` by scanning this directory — if a subject's unit
+directories are absent, the Review Queue shows "No content" instead of a Review link.
+
+---
+
+## Database Migrations (Alembic)
+
+Migrations live in `backend/alembic/versions/` and are numbered `0001_…` → `000N_…`.
+
+- **Never skip a migration.** Run `alembic upgrade head` after pulling new code before restarting the API.
+- **Naming convention:** `{NNNN}_{short_description}.py` — e.g. `0015_subject_name.py`
+- **In Docker:** migrations run automatically via the `migrate` service in `docker-compose.yml` on `./dev_start.sh`
+- **Manual run:** `docker compose exec api alembic upgrade head`
+- If the API starts throwing `UndefinedColumnError`, a migration is almost certainly missing.
+
+Current migrations (as of last commit):
+| # | Description |
+|---|---|
+| 0001–0011 | Phase 1–11 schema |
+| 0012 | Demo teacher accounts |
+| 0013 | Pipeline jobs table |
+| 0014 | `payload_bytes` on pipeline_jobs |
+| 0015 | `subject_name` on content_subject_versions |
 
 ---
 
@@ -215,6 +327,8 @@ The mobile app caches by `unit_id + curriculum_id + content_version + lang`.
 
 - **Pin the Claude model ID** in `pipeline/config.py` (`CLAUDE_MODEL = "claude-sonnet-4-6"`).
   Never use an implicit "latest". Upgrading models is a deliberate act.
+- **`max_tokens` must be `8192`.** Grade 12 tutorials exceed 4096 tokens and will be silently
+  truncated, producing invalid JSON. Always set `max_tokens=8192` in `_call_claude()`.
 - **Pipeline is idempotent.** Check `meta.json` at unit start; skip if
   `content_version` matches and all expected files exist. Use `--force` to override.
 - **Validate every Claude response** against a JSON schema before writing to the
@@ -222,9 +336,65 @@ The mobile app caches by `unit_id + curriculum_id + content_version + lang`.
   continue. Never write malformed content.
 - **Spend cap:** abort if `tokens_used × TOKEN_COST_USD > MAX_PIPELINE_COST_USD`
   (default $50). Log and alert.
-- **Pipeline jobs triggered via API are async (Celery).** `POST /curriculum/pipeline/trigger`
-  returns `{job_id}` immediately (202). Status polled via
-  `GET /curriculum/pipeline/{job_id}/status`.
+- **Pipeline jobs triggered via API are async (Celery).** `POST /admin/pipeline/trigger`
+  returns `{job_id}` immediately. Status polled via `GET /admin/pipeline/{job_id}/status`.
+- **Known issue — `unit_name NOT NULL`:** `curriculum_units` has a `unit_name` NOT NULL
+  constraint added in Phase 8. The pipeline's `_upsert_curriculum_units()` must include
+  `unit_name` in the INSERT (same value as `title`). If missing, the DB insert silently
+  fails (caught and logged as `db_upsert_units_skip`) but content generation continues.
+- **After rebuilding the `celery-pipeline` image, always restart the container:**
+  `docker compose build celery-pipeline && docker compose up -d celery-pipeline`
+
+---
+
+## Content Review Workflow
+
+```
+Pipeline generates content
+  → content_subject_versions row created (status = "pending")
+  → files written to Content Store
+
+Admin opens Content Review Queue
+  → "Review →" link shown only if has_content = true (files exist on disk)
+  → Click Review → version detail page
+
+Version detail page
+  → List of units with "View →" links
+  → Actions: Approve / Reject / Publish / Rollback / Block unit content
+  → "Compare with previous version" link (if version_number > 1)
+
+Unit viewer (/admin/content-review/{version_id}/unit/{unit_id})
+  → Left nav: content types (Lesson / Tutorial / Quiz Set 1/2/3 / Experiment)
+  → Tutorial: sections rendered as tabs
+  → Inline reviewer notes per section/question/step (stored in content_annotations table)
+  → Notes use compound key: {unit_id}::{content_type}::{section_id}
+
+Version diff (/admin/content-review/{version_id}/diff)
+  → Compare any two versions of the same subject
+  → Word-level diff highlighting (green = added, red = removed)
+  → Per content type, per field (section heading, question, step)
+```
+
+---
+
+## Admin Account Management
+
+Admin accounts use local bcrypt auth (not Auth0). They are stored in `admin_users`.
+
+**Roles:** `developer` · `tester` · `product_admin` · `super_admin`
+
+**Dev setup — create or reset an admin account:**
+```bash
+# Create initial super admin (run once)
+docker compose exec api python scripts/seed_super_admin.py
+
+# Reset password for existing admin
+docker compose exec api python scripts/reset_admin_password.py \
+  --email your@email.com --password NewPassword123!
+```
+
+**Login endpoint:** `POST /api/v1/admin/auth/login` → returns `{ token, admin_id }`
+The token is stored in `localStorage` as `sb_admin_token` and sent as `Authorization: Bearer {token}`.
 
 ---
 
@@ -279,7 +449,7 @@ and `cur:{student_id}` on subscription change, school transfer, or curriculum ac
 
 ### i18n
 - AI-generated content is already in the correct language — never run it through i18n.
-- UI strings only: `mobile/i18n/{lang}.json`. Load at startup; fall back to `en` on missing key.
+- UI strings only: `web/i18n/en.json` and `mobile/i18n/{lang}.json`. Load at startup; fall back to `en` on missing key.
 - Never hardcode user-facing strings in screen files.
 
 ---
@@ -291,6 +461,8 @@ Backend : pytest + httpx.AsyncClient
            Mock PostgreSQL: pytest-asyncio + testing.postgresql (no live DB in CI)
            Mock Stripe SDK calls
            Mock Redis: fakeredis or pytest fixture
+
+Web     : No component tests currently. TypeScript type-check via `npm run typecheck`.
 
 Mobile  : pytest for logic only (SyncManager, LocalCache, ProgressQueue, i18n loader)
            No Kivy widget tests in CI
@@ -306,7 +478,9 @@ Pipeline: pytest with mocked Anthropic SDK + mocked TTS provider SDK
 ## Running Things
 
 ```bash
-# Start everything (DB, Redis, migrations, API with hot-reload)
+# ── Dev environment ───────────────────────────────────────────────────────────
+
+# Start everything (DB, Redis, migrations, API, Celery, web — all with hot-reload)
 ./dev_start.sh
 
 # Run automated test suite (no API key or Auth0 needed)
@@ -318,20 +492,47 @@ Pipeline: pytest with mocked Anthropic SDK + mocked TTS provider SDK
 # Wipe DB and start fresh
 ./dev_start.sh reset
 
-# Backend (production-like)
+# ── Docker Compose — targeted rebuilds ───────────────────────────────────────
+
+# Rebuild and restart a single service (e.g. after changing backend code)
+docker compose build api && docker compose up -d api
+
+# Rebuild pipeline worker (e.g. after changing build_unit.py or prompts.py)
+docker compose build celery-pipeline && docker compose up -d celery-pipeline
+
+# Rebuild web frontend (e.g. after npm install of a new package)
+docker compose build web && docker compose up -d web
+
+# Apply pending migrations manually
+docker compose exec api alembic upgrade head
+
+# Check logs for a specific service
+docker compose logs celery-pipeline --since 10m -f
+
+# ── Production-like ───────────────────────────────────────────────────────────
+
+# Backend
 gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
 
 # Celery workers
-celery -A tasks worker -Q pipeline --concurrency=2
-celery -A tasks worker -Q io,default --concurrency=4
-celery -A tasks beat
+celery -A src.auth.tasks worker -Q pipeline --concurrency=2
+celery -A src.auth.tasks worker -Q io,default --concurrency=4
+celery -A src.auth.tasks beat
 
-# Pipeline — seed and build default curriculum (requires ANTHROPIC_API_KEY)
+# ── Pipeline ──────────────────────────────────────────────────────────────────
+
+# Seed and build default curriculum (requires ANTHROPIC_API_KEY)
 python pipeline/seed_default.py --year 2026
 python pipeline/build_grade.py --grade 8 --lang en,fr,es
 
-# Pipeline — regenerate a single unit
+# Regenerate a single unit
 python pipeline/build_unit.py --curriculum-id default-2026-g8 --unit G8-MATH-001 --lang en --force
+
+# Trigger pipeline via API (returns job_id immediately)
+curl -X POST http://localhost:8000/api/v1/admin/pipeline/trigger \
+  -H "Authorization: Bearer $ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"grade": 12, "langs": "en", "force": true, "year": 2026}'
 ```
 
 ---
@@ -356,9 +557,9 @@ See [AGENTS.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/AGE
 
 ---
 
-## Top Pitfalls (full list of 39 in [AGENTS.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/AGENTS.md))
+## Top Pitfalls
 
-1. Mobile app calling Anthropic directly — it has no API key and must never do this.
+1. Mobile/web app calling Anthropic directly — it has no API key and must never do this.
 2. Blocking the async event loop — use asyncpg, aioredis, httpx; wrap bcrypt in executor.
 3. Proxying audio through FastAPI — return a pre-signed URL; never stream MP3 bytes.
 4. Progress writes blocking the student response — Celery fire-and-forget only.
@@ -373,6 +574,11 @@ See [AGENTS.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/AGE
 13. Teacher JWT accepted on student endpoints (and vice versa) — separate secrets + role checks.
 14. Pipeline not idempotent — check `meta.json` content_version before generating; use `--force` to override.
 15. XLSX parse errors surfaced as 500 — return HTTP 400 with per-row structured error list.
+16. `max_tokens=4096` in pipeline — Grade 12 tutorials exceed this; always use `8192`.
+17. Reading `localStorage` during SSR in Next.js — initialise as `null`, populate in `useEffect`.
+18. Missing migration after pull — API throws `UndefinedColumnError`; run `alembic upgrade head`.
+19. Rebuilding a Docker image without restarting the container — old image stays running; always `up -d` after `build`.
+20. `unit_name NOT NULL` in `curriculum_units` — include `unit_name` in pipeline INSERT or the row silently fails.
 
 ---
 
@@ -453,3 +659,5 @@ Applies to educational records of students at schools receiving US federal fundi
 - **Async pattern:** Kotlin Coroutines for all async operations on Android; no callbacks or blocking
   calls on the main thread.
 - **Dependencies:** New dependencies must be reviewed for known CVEs before inclusion.
+  After `npm install`, also run `docker compose exec web npm install` so the running container
+  picks up the new package without a full rebuild.
