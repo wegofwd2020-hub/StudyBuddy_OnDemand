@@ -4,7 +4,7 @@
  */
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export interface TeacherClaims {
   teacher_id: string;
@@ -45,6 +45,11 @@ function readTeacherClaims(): TeacherClaims | null {
 }
 
 export function useTeacher(): TeacherClaims | null {
-  const [teacher] = useState<TeacherClaims | null>(() => readTeacherClaims());
+  const [teacher, setTeacher] = useState<TeacherClaims | null>(null);
+
+  useEffect(() => {
+    setTeacher(readTeacherClaims());
+  }, []);
+
   return teacher;
 }

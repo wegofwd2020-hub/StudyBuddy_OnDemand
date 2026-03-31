@@ -233,6 +233,8 @@ services:
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
     volumes:
       - ./backend:/app
+      - ./pipeline:/pipeline
+      - ./data:/data
       - content_store:/data/content
     depends_on:
       <<: *depends-all
@@ -297,6 +299,8 @@ services:
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
     volumes:
       - ./pipeline:/pipeline
+      - ./backend:/backend
+      - ./data:/data
       - content_store:/data/content
     depends_on:
       <<: *depends-all

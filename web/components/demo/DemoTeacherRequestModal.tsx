@@ -20,7 +20,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { requestDemo, resendDemoVerification } from "@/lib/api/demo";
+import { requestTeacherDemo, resendDemoTeacherVerification } from "@/lib/api/demo";
 
 const schema = z.object({
   email: z.string().email("Valid email required"),
@@ -41,8 +41,8 @@ function resolveErrorKey(status: number | undefined, code: string | undefined): 
   return "error_generic";
 }
 
-export function DemoRequestModal() {
-  const t = useTranslations("demo");
+export function DemoTeacherRequestModal() {
+  const t = useTranslations("demo_teacher");
   const [open, setOpen] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState("");
   const [errorKey, setErrorKey] = useState<ErrorKey | null>(null);
@@ -59,7 +59,6 @@ export function DemoRequestModal() {
   function handleOpenChange(next: boolean) {
     setOpen(next);
     if (!next) {
-      // Reset form state when dialog closes
       reset();
       setErrorKey(null);
       setSubmittedEmail("");
@@ -72,7 +71,7 @@ export function DemoRequestModal() {
     setErrorKey(null);
     setResendState("idle");
     try {
-      await requestDemo(data.email);
+      await requestTeacherDemo(data.email);
       setSubmittedEmail(data.email);
     } catch (err: unknown) {
       const axiosErr = err as {
@@ -91,7 +90,7 @@ export function DemoRequestModal() {
     if (!pendingEmail) return;
     setResendState("sending");
     try {
-      await resendDemoVerification(pendingEmail);
+      await resendDemoTeacherVerification(pendingEmail);
       setResendState("sent");
     } catch {
       setResendState("failed");
@@ -137,9 +136,9 @@ export function DemoRequestModal() {
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-1">
-                <Label htmlFor="demo-email">{t("email_label")}</Label>
+                <Label htmlFor="teacher-demo-email">{t("email_label")}</Label>
                 <Input
-                  id="demo-email"
+                  id="teacher-demo-email"
                   type="email"
                   placeholder={t("email_placeholder")}
                   aria-invalid={!!errors.email}
@@ -166,7 +165,7 @@ export function DemoRequestModal() {
                             type="button"
                             disabled={resendState === "sending"}
                             onClick={handleResend}
-                            className="text-blue-600 underline underline-offset-2 hover:text-blue-800 disabled:opacity-50"
+                            className="text-cyan-600 underline underline-offset-2 hover:text-cyan-800 disabled:opacity-50"
                           >
                             {resendState === "sending" ? "Sending…" : t("resend_link")}
                           </button>
@@ -187,8 +186,8 @@ export function DemoRequestModal() {
             <p className="mt-2 text-center text-xs text-gray-500">
               {t("already_have_demo")}{" "}
               <Link
-                href="/demo/login"
-                className="text-blue-600 underline underline-offset-2 hover:text-blue-800"
+                href="/demo/teacher/login"
+                className="text-cyan-600 underline underline-offset-2 hover:text-cyan-800"
                 onClick={() => handleOpenChange(false)}
               >
                 {t("sign_in_demo")}

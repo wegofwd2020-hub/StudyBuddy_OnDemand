@@ -62,13 +62,19 @@ export interface AdminPipelineJob {
   job_id: string;
   curriculum_id: string;
   grade: number | null;
-  status: "queued" | "running" | "done" | "failed";
+  langs: string;
+  force: boolean;
+  status: "queued" | "running" | "completed" | "failed" | "done";
   progress_pct: number;
   built: number;
   failed: number;
   total: number;
-  triggered_by: string;
+  triggered_by_email: string | null;
   triggered_at: string;
+  started_at: string | null;
+  completed_at: string | null;
+  error: string | null;
+  payload_bytes: number | null;
 }
 
 export interface PipelineJobsResponse {
@@ -76,24 +82,54 @@ export interface PipelineJobsResponse {
 }
 
 export async function getPipelineJobs(): Promise<PipelineJobsResponse> {
-  const res = await adminApi.get<PipelineJobsResponse>("/admin/pipeline/status");
+  const res = await adminApi.get<PipelineJobsResponse>("/admin/pipeline/jobs");
   return res.data;
 }
 
 export interface AdminPipelineTriggerResponse {
   job_id: string;
   status: string;
+  curriculum_id: string;
+}
+
+export interface UploadGradeJsonResponse {
+  curriculum_id: string;
+  grade: number;
+  unit_count: number;
+  subject_count: number;
 }
 
 export async function triggerAdminPipeline(
   grade: number,
-  lang: string,
+  langs: string,
   force: boolean,
+  year = 2026,
 ): Promise<AdminPipelineTriggerResponse> {
-  const res = await adminApi.post<AdminPipelineTriggerResponse>(
-    "/admin/pipeline/trigger",
-    { grade, lang, force },
+  const res = await adminApi.post<AdminPipelineTriggerResponse>("/admin/pipeline/trigger", {
+    grade,
+    langs,
+    force,
+    year,
+  });
+  return res.data;
+}
+
+export async function uploadGradeJson(
+  file: File,
+  year = 2026,
+): Promise<UploadGradeJsonResponse> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await adminApi.post<UploadGradeJsonResponse>(
+    `/admin/pipeline/upload-grade?year=${year}`,
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } },
   );
+  return res.data;
+}
+
+export async function getAdminPipelineJobStatus(jobId: string): Promise<AdminPipelineJob> {
+  const res = await adminApi.get<AdminPipelineJob>(`/admin/pipeline/${jobId}/status`);
   return res.data;
 }
 
@@ -101,15 +137,15 @@ export async function triggerAdminPipeline(
 
 export interface ReviewQueueItem {
   version_id: string;
-  unit_id: string;
-  unit_title: string;
-  grade: number;
+  curriculum_id: string;
   subject: string;
-  lang: string;
-  content_version: number;
+  subject_name: string | null;
+  version_number: number;
   status: "pending" | "approved" | "rejected" | "published" | "blocked";
-  submitted_at: string;
-  reviewer_id: string | null;
+  alex_warnings_count: number;
+  generated_at: string;
+  published_at: string | null;
+  has_content: boolean;
 }
 
 export interface ReviewQueueResponse {
@@ -117,44 +153,107 @@ export interface ReviewQueueResponse {
   total: number;
 }
 
-export async function getReviewQueue(status?: string): Promise<ReviewQueueResponse> {
-  const params = status ? { status } : {};
-  const res = await adminApi.get<ReviewQueueResponse>("/admin/content-review/queue", {
-    params,
-  });
+export async function getReviewQueue(
+  status?: string,
+  curriculumId?: string,
+  subject?: string,
+): Promise<ReviewQueueResponse> {
+  const params: Record<string, string> = {};
+  if (status) params.status = status;
+  if (curriculumId) params.curriculum_id = curriculumId;
+  if (subject) params.subject = subject;
+  const res = await adminApi.get<ReviewQueueResponse>("/admin/content/review/queue", { params });
   return res.data;
+}
+
+export interface ReviewUnitItem {
+  unit_id: string;
+  title: string;
+  sort_order: number;
+}
+
+export interface ReviewHistoryItem {
+  review_id: string;
+  action: string;
+  notes: string | null;
+  reviewed_at: string;
+  reviewer_email: string | null;
+}
+
+export interface ReviewAnnotationItem {
+  annotation_id: string;
+  unit_id: string;
+  content_type: string;
+  annotation_text: string;
+  created_at: string;
+  reviewer_email: string | null;
 }
 
 export interface ReviewItemDetail extends ReviewQueueItem {
-  lesson_preview: string;
-  quiz_count: number;
-  alexjs_score: number | null;
-  annotations: { reviewer_id: string; note: string; created_at: string }[];
+  units: ReviewUnitItem[];
+  review_history: ReviewHistoryItem[];
+  annotations: ReviewAnnotationItem[];
 }
 
 export async function getReviewItem(versionId: string): Promise<ReviewItemDetail> {
-  const res = await adminApi.get<ReviewItemDetail>(`/admin/content-review/${versionId}`);
+  const res = await adminApi.get<ReviewItemDetail>(`/admin/content/review/${versionId}`);
   return res.data;
 }
 
-export async function approveReview(versionId: string): Promise<void> {
-  await adminApi.post(`/admin/content-review/${versionId}/approve`);
+export async function addAnnotation(
+  versionId: string,
+  unitId: string,
+  contentType: string,
+  annotationText: string,
+  markedText?: string,
+): Promise<ReviewAnnotationItem> {
+  const res = await adminApi.post<ReviewAnnotationItem>(
+    `/admin/content/review/${versionId}/annotate`,
+    { unit_id: unitId, content_type: contentType, annotation_text: annotationText, marked_text: markedText ?? null },
+  );
+  return res.data;
 }
 
-export async function rejectReview(versionId: string, reason: string): Promise<void> {
-  await adminApi.post(`/admin/content-review/${versionId}/reject`, { reason });
+export async function deleteAnnotation(annotationId: string): Promise<void> {
+  await adminApi.delete(`/admin/content/review/annotations/${annotationId}`);
+}
+
+export async function approveReview(versionId: string, notes?: string): Promise<void> {
+  await adminApi.post(`/admin/content/review/${versionId}/approve`, { notes });
+}
+
+export async function rejectReview(versionId: string, notes?: string): Promise<void> {
+  await adminApi.post(`/admin/content/review/${versionId}/reject`, { notes, regenerate: false });
 }
 
 export async function publishReview(versionId: string): Promise<void> {
-  await adminApi.post(`/admin/content-review/${versionId}/publish`);
+  await adminApi.post(`/admin/content/versions/${versionId}/publish`);
 }
 
 export async function rollbackReview(versionId: string): Promise<void> {
-  await adminApi.post(`/admin/content-review/${versionId}/rollback`);
+  await adminApi.post(`/admin/content/versions/${versionId}/rollback`);
 }
 
-export async function blockReview(versionId: string, reason: string): Promise<void> {
-  await adminApi.post(`/admin/content-review/${versionId}/block`, { reason });
+export async function blockContent(
+  curriculumId: string,
+  unitId: string,
+  contentType: string,
+  reason?: string,
+): Promise<void> {
+  await adminApi.post(`/admin/content/block`, { curriculum_id: curriculumId, unit_id: unitId, content_type: contentType, reason });
+}
+
+export async function blockVersionContent(
+  versionId: string,
+  unitId: string,
+  contentType: string,
+  reason?: string,
+): Promise<void> {
+  await adminApi.post(`/admin/content/review/${versionId}/block`, {
+    unit_id: unitId,
+    content_type: contentType,
+    reason,
+  });
 }
 
 // ── Feedback ──────────────────────────────────────────────────────────────────
@@ -299,6 +398,61 @@ export async function adminResendDemoVerification(
   return res.data;
 }
 
+// ── Demo Teacher Accounts ─────────────────────────────────────────────────────
+
+export interface DemoTeacherAccountItem {
+  request_id: string;
+  email: string;
+  request_status: "pending" | "verified" | "expired" | "revoked";
+  account_id: string | null;
+  expires_at: string | null;
+  revoked_at: string | null;
+  extended_at: string | null;
+  verification_pending: boolean;
+}
+
+export interface DemoTeacherAccountListResponse {
+  items: DemoTeacherAccountItem[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
+export async function getDemoTeacherAccounts(
+  page = 1,
+  pageSize = 20,
+  status?: string,
+  email?: string,
+): Promise<DemoTeacherAccountListResponse> {
+  const params: Record<string, unknown> = { page, page_size: pageSize };
+  if (status) params.status = status;
+  if (email) params.email = email;
+  const res = await adminApi.get<DemoTeacherAccountListResponse>("/admin/demo-teacher-accounts", { params });
+  return res.data;
+}
+
+export async function extendDemoTeacherAccount(
+  accountId: string,
+  hours: number,
+): Promise<{ account_id: string; expires_at: string; extended_at: string }> {
+  const res = await adminApi.post(`/admin/demo-teacher-accounts/${accountId}/extend`, { hours });
+  return res.data;
+}
+
+export async function revokeDemoTeacherAccount(
+  accountId: string,
+): Promise<{ email: string; message: string }> {
+  const res = await adminApi.post(`/admin/demo-teacher-accounts/${accountId}/revoke`);
+  return res.data;
+}
+
+export async function adminResendDemoTeacherVerification(
+  requestId: string,
+): Promise<{ email: string }> {
+  const res = await adminApi.post(`/admin/demo-teacher-requests/${requestId}/resend`);
+  return res.data;
+}
+
 // ── CI / Build Reports ────────────────────────────────────────────────────────
 
 export interface CiJob {
@@ -329,5 +483,48 @@ export interface CiReportsResponse {
 
 export async function getCiReports(): Promise<CiReportsResponse> {
   const res = await adminApi.get<CiReportsResponse>("/admin/ci/reports");
+  return res.data;
+}
+
+// ── Unit content viewer ────────────────────────────────────────────────────────
+
+export interface UnitContentMeta {
+  unit_id: string;
+  title: string;
+  curriculum_id: string;
+  lang: string;
+  available_types: string[];
+}
+
+export async function getUnitContentMeta(
+  versionId: string,
+  unitId: string,
+  lang = "en",
+): Promise<UnitContentMeta> {
+  const res = await adminApi.get<UnitContentMeta>(
+    `/admin/content/review/${versionId}/unit/${unitId}`,
+    { params: { lang } },
+  );
+  return res.data;
+}
+
+export interface UnitContentFile {
+  unit_id: string;
+  curriculum_id: string;
+  content_type: string;
+  lang: string;
+  data: Record<string, unknown>;
+}
+
+export async function getUnitContentFile(
+  versionId: string,
+  unitId: string,
+  contentType: string,
+  lang = "en",
+): Promise<UnitContentFile> {
+  const res = await adminApi.get<UnitContentFile>(
+    `/admin/content/review/${versionId}/unit/${unitId}/${contentType}`,
+    { params: { lang } },
+  );
   return res.data;
 }

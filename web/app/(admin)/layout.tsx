@@ -20,14 +20,7 @@ function parseAdminName(token: string): string | undefined {
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const [userName] = useState<string | undefined>(() => {
-    try {
-      const token = localStorage.getItem("sb_admin_token");
-      return token ? parseAdminName(token) : undefined;
-    } catch {
-      return undefined;
-    }
-  });
+  const [userName, setUserName] = useState<string | undefined>(undefined);
   const redirectedRef = useRef(false);
 
   useEffect(() => {
@@ -36,6 +29,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (!token) {
       redirectedRef.current = true;
       router.replace("/admin/login");
+    } else {
+      setUserName(parseAdminName(token));
     }
   }, [router]);
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export interface DemoStudentClaims {
   student_id: string;
@@ -38,6 +38,11 @@ function readDemoClaims(): DemoStudentClaims | null {
  * by any component that needs to branch on demo vs regular student.
  */
 export function useDemoStudent(): DemoStudentClaims | null {
-  const [claims] = useState<DemoStudentClaims | null>(() => readDemoClaims());
+  const [claims, setClaims] = useState<DemoStudentClaims | null>(null);
+
+  useEffect(() => {
+    setClaims(readDemoClaims());
+  }, []);
+
   return claims;
 }

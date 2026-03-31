@@ -3,6 +3,7 @@ import { useTranslations } from "next-intl";
 import { Card, CardContent } from "@/components/ui/card";
 import { LinkButton } from "@/components/ui/link-button";
 import { DemoRequestModal } from "@/components/demo/DemoRequestModal";
+import { DemoTeacherRequestModal } from "@/components/demo/DemoTeacherRequestModal";
 import { Zap, Volume2, Globe, WifiOff, FlaskConical, School } from "lucide-react";
 
 export default function LandingPage() {
@@ -35,8 +36,9 @@ function HeroSection() {
           {t("hero_heading")}
         </h1>
         <p className="mt-6 text-lg text-gray-600">{t("hero_subheading")}</p>
-        <div className="mt-8 flex justify-center">
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
           <DemoRequestModal />
+          <DemoTeacherRequestModal />
         </div>
       </div>
     </section>

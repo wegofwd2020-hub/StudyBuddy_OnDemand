@@ -134,7 +134,7 @@ async def get_current_teacher(
     payload = verify_internal_jwt(credentials.credentials, settings.JWT_SECRET)
 
     role = payload.get("role", "")
-    if role not in ("teacher", "school_admin"):
+    if role not in ("teacher", "school_admin", "demo_teacher"):
         raise HTTPException(
             status_code=403,
             detail={
@@ -156,6 +156,21 @@ async def get_current_teacher(
         )
 
     redis = get_redis(request)
+
+    # Demo teacher blacklist check (JTI-based, set on logout).
+    if role == "demo_teacher":
+        jti = payload.get("jti")
+        if jti and await redis.exists(f"demo_teacher_blacklist:{jti}"):
+            log.warning("demo_teacher_token_blacklisted", teacher_id=teacher_id)
+            raise HTTPException(
+                status_code=401,
+                detail={
+                    "error": "unauthenticated",
+                    "detail": "Token has been revoked.",
+                    "correlation_id": cid,
+                },
+            )
+
     if await redis.exists(f"suspended:{teacher_id}"):
         log.warning("teacher_suspended", teacher_id=teacher_id)
         raise HTTPException(

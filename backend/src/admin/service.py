@@ -17,11 +17,14 @@ Covers:
 
 from __future__ import annotations
 
+import json
+import os
 import uuid
 
 import asyncpg
 import httpx
 
+from config import settings as _settings
 from src.utils.logger import get_logger
 
 log = get_logger("admin")
@@ -47,8 +50,12 @@ async def list_review_queue(
     params: list = []
 
     if status:
-        params.append(status)
-        filters.append(f"status = ${len(params)}")
+        # "pending" is the canonical pre-review status; also match legacy pipeline values
+        if status == "pending":
+            filters.append("status IN ('pending', 'ready_for_review', 'needs_review')")
+        else:
+            params.append(status)
+            filters.append(f"status = ${len(params)}")
     if subject:
         params.append(subject)
         filters.append(f"subject = ${len(params)}")
@@ -60,7 +67,7 @@ async def list_review_queue(
 
     rows = await conn.fetch(
         f"""
-        SELECT version_id::text, curriculum_id, subject, version_number, status,
+        SELECT version_id::text, curriculum_id, subject, subject_name, version_number, status,
                alex_warnings_count, generated_at, published_at
         FROM content_subject_versions
         WHERE {where}
@@ -75,7 +82,96 @@ async def list_review_queue(
         f"SELECT COUNT(*) FROM content_subject_versions WHERE {where}",
         *params,
     )
-    return {"items": [dict(r) for r in rows], "total": total or 0}
+
+    # Build a per-curriculum unit listing (one os.listdir per curriculum_id)
+    content_store = getattr(_settings, "CONTENT_STORE_PATH", "/data/content")
+    _curriculum_units: dict[str, set[str]] = {}
+    for r in rows:
+        cid = r["curriculum_id"]
+        if cid not in _curriculum_units:
+            cdir = os.path.join(content_store, "curricula", cid)
+            try:
+                _curriculum_units[cid] = set(os.listdir(cdir))
+            except OSError:
+                _curriculum_units[cid] = set()
+
+    items = []
+    for r in rows:
+        d = dict(r)
+        subject_prefix = r["subject"] + "-"
+        units_on_disk = _curriculum_units.get(r["curriculum_id"], set())
+        d["has_content"] = any(u.startswith(subject_prefix) for u in units_on_disk)
+        items.append(d)
+
+    return {"items": items, "total": total or 0}
+
+
+# ── Review detail ─────────────────────────────────────────────────────────────
+
+
+async def get_review_detail(
+    conn: asyncpg.Connection,
+    version_id: str,
+) -> dict | None:
+    """Return full detail for a single content version including units, review history, and annotations."""
+    version = await conn.fetchrow(
+        """
+        SELECT version_id::text, curriculum_id, subject, subject_name, version_number, status,
+               alex_warnings_count, generated_at, published_at
+        FROM content_subject_versions
+        WHERE version_id = $1
+        """,
+        uuid.UUID(version_id),
+    )
+    if not version:
+        return None
+
+    curriculum_id = version["curriculum_id"]
+    subject = version["subject"]
+
+    units = await conn.fetch(
+        """
+        SELECT unit_id, title, sort_order
+        FROM curriculum_units
+        WHERE curriculum_id = $1 AND subject = $2
+        ORDER BY sort_order
+        """,
+        curriculum_id,
+        subject,
+    )
+
+    history = await conn.fetch(
+        """
+        SELECT cr.review_id::text, cr.action, cr.notes, cr.reviewed_at,
+               au.email AS reviewer_email
+        FROM content_reviews cr
+        LEFT JOIN admin_users au ON au.admin_user_id = cr.reviewer_id
+        WHERE cr.version_id = $1
+        ORDER BY cr.reviewed_at DESC
+        LIMIT 20
+        """,
+        uuid.UUID(version_id),
+    )
+
+    annotations = await conn.fetch(
+        """
+        SELECT ca.annotation_id::text, ca.unit_id, ca.content_type,
+               ca.annotation_text, ca.created_at,
+               au.email AS reviewer_email
+        FROM content_annotations ca
+        LEFT JOIN admin_users au ON au.admin_user_id = ca.created_by
+        WHERE ca.version_id = $1
+        ORDER BY ca.created_at DESC
+        """,
+        uuid.UUID(version_id),
+    )
+
+    return {
+        **dict(version),
+        "units": [dict(u) for u in units],
+        "review_history": [dict(h) for h in history],
+        "annotations": [dict(a) for a in annotations],
+    }
 
 
 # ── Review session ────────────────────────────────────────────────────────────
@@ -349,11 +445,11 @@ async def rollback_version(
     admin_id: str,
 ) -> dict:
     """
-    Rollback to a previously approved/published version:
-    1. Archive the current published version.
-    2. Restore target version to status='published'.
-    3. Log audit event.
-    4. Expire Redis + CDN.
+    Rollback the currently published version:
+    1. Move this version back to 'approved' (un-publish it).
+    2. Restore the most recently archived version for the same subject to 'published'.
+       If no prior version exists, leave the subject without a live published version.
+    3. Log audit event, expire Redis + CDN.
     """
     target = await conn.fetchrow(
         "SELECT curriculum_id, subject FROM content_subject_versions WHERE version_id = $1",
@@ -365,32 +461,57 @@ async def rollback_version(
     curriculum_id = target["curriculum_id"]
     subject = target["subject"]
 
-    # Archive current published
+    # Step 1: un-publish the current version
     await conn.execute(
         """
         UPDATE content_subject_versions
-        SET archived_at = NOW()
-        WHERE curriculum_id = $1 AND subject = $2 AND status = 'published'
+        SET status = 'approved', published_at = NULL
+        WHERE version_id = $1
+        """,
+        uuid.UUID(version_id),
+    )
+
+    # Step 2: find the most recently archived version and restore it
+    prev = await conn.fetchrow(
+        """
+        SELECT version_id
+        FROM content_subject_versions
+        WHERE curriculum_id = $1 AND subject = $2
+          AND archived_at IS NOT NULL
           AND version_id != $3
+        ORDER BY archived_at DESC
+        LIMIT 1
         """,
         curriculum_id,
         subject,
         uuid.UUID(version_id),
     )
 
+    restored_id = None
+    if prev:
+        restored_id = prev["version_id"]
+        await conn.execute(
+            """
+            UPDATE content_subject_versions
+            SET status = 'published', published_at = NOW(), archived_at = NULL
+            WHERE version_id = $1
+            """,
+            restored_id,
+        )
+
     row = await conn.fetchrow(
-        """
-        UPDATE content_subject_versions
-        SET status = 'published', published_at = NOW(), archived_at = NULL
-        WHERE version_id = $1
-        RETURNING version_id::text, status
-        """,
+        "SELECT version_id::text, status FROM content_subject_versions WHERE version_id = $1",
         uuid.UUID(version_id),
     )
 
     from src.core.events import write_audit_log
 
-    write_audit_log("content_rollback", "admin", admin_id, metadata={"version_id": version_id})
+    write_audit_log(
+        "content_rollback",
+        "admin",
+        admin_id,
+        metadata={"version_id": version_id, "restored_version_id": str(restored_id) if restored_id else None},
+    )
 
     await _expire_content_cache(redis, curriculum_id, subject)
     _invalidate_cdn(curriculum_id)
@@ -422,6 +543,62 @@ def _invalidate_cdn(curriculum_id: str) -> None:
         invalidate_cdn_path(curriculum_id)
     except Exception as exc:
         log.warning("cdn_invalidation_failed curriculum_id=%s error=%s", curriculum_id, exc)
+
+
+# ── Block version (creates block record + marks version blocked) ───────────────
+
+
+async def block_version(
+    conn: asyncpg.Connection,
+    version_id: str,
+    unit_id: str,
+    content_type: str,
+    reason: str | None,
+    admin_id: str,
+) -> dict:
+    """
+    Block a unit's content type and flip the subject version status to 'blocked'.
+    Both writes happen in the same transaction.
+    """
+    version = await conn.fetchrow(
+        "SELECT curriculum_id, subject FROM content_subject_versions WHERE version_id = $1",
+        uuid.UUID(version_id),
+    )
+    if not version:
+        raise ValueError("version_not_found")
+
+    curriculum_id = version["curriculum_id"]
+
+    block_row = await conn.fetchrow(
+        """
+        INSERT INTO content_blocks (curriculum_id, unit_id, content_type, reason, blocked_by)
+        VALUES ($1, $2, $3, $4, $5)
+        ON CONFLICT (curriculum_id, unit_id, content_type) DO UPDATE
+            SET reason = EXCLUDED.reason, blocked_by = EXCLUDED.blocked_by,
+                blocked_at = NOW(), unblocked_at = NULL
+        RETURNING block_id::text, curriculum_id, unit_id, content_type, blocked_at
+        """,
+        curriculum_id,
+        unit_id,
+        content_type,
+        reason,
+        uuid.UUID(admin_id),
+    )
+
+    await conn.execute(
+        "UPDATE content_subject_versions SET status = 'blocked' WHERE version_id = $1",
+        uuid.UUID(version_id),
+    )
+
+    from src.core.events import write_audit_log
+
+    write_audit_log(
+        "content_blocked",
+        "admin",
+        admin_id,
+        metadata={"version_id": version_id, "unit_id": unit_id, "content_type": content_type},
+    )
+    return dict(block_row)
 
 
 # ── Content blocks ────────────────────────────────────────────────────────────
@@ -636,11 +813,11 @@ async def get_pipeline_status(conn: asyncpg.Connection) -> dict:
         SELECT
             MAX(generated_at) AS last_run_at,
             COUNT(*)                                                        AS total_versions,
-            COUNT(*) FILTER (WHERE status = 'ready_for_review')            AS ready_for_review,
+            COUNT(*) FILTER (WHERE status IN ('pending','ready_for_review','needs_review')) AS ready_for_review,
             COUNT(*) FILTER (WHERE status = 'approved')                    AS approved,
             COUNT(*) FILTER (WHERE status = 'published')                   AS published,
             COUNT(*) FILTER (WHERE status = 'rejected')                    AS rejected,
-            COUNT(*) FILTER (WHERE status NOT IN ('ready_for_review','approved','published','rejected')) AS pending
+            COUNT(*) FILTER (WHERE status NOT IN ('pending','ready_for_review','needs_review','approved','published','rejected')) AS other
         FROM content_subject_versions
         WHERE archived_at IS NULL
         """
@@ -716,4 +893,103 @@ async def lookup_dictionary(word: str) -> dict:
         "definitions": definitions[:6],
         "synonyms": synonyms,
         "antonyms": antonyms,
+    }
+
+
+# ── Unit content viewer ────────────────────────────────────────────────────────
+
+_CONTENT_TYPES_ORDERED = [
+    "lesson",
+    "tutorial",
+    "quiz_set_1",
+    "quiz_set_2",
+    "quiz_set_3",
+    "experiment",
+]
+
+
+async def get_unit_content_meta(
+    conn: asyncpg.Connection,
+    version_id: str,
+    unit_id: str,
+    lang: str = "en",
+) -> dict | None:
+    """
+    Return unit title + list of content types that have files on disk.
+    Resolves curriculum_id from the version row, then checks the filesystem.
+    """
+    row = await conn.fetchrow(
+        """
+        SELECT csv.curriculum_id, cu.title
+        FROM content_subject_versions csv
+        JOIN curriculum_units cu
+          ON cu.unit_id = $2 AND cu.curriculum_id = csv.curriculum_id
+        WHERE csv.version_id = $1
+        LIMIT 1
+        """,
+        uuid.UUID(version_id),
+        unit_id,
+    )
+    if not row:
+        return None
+
+    curriculum_id = row["curriculum_id"]
+    title = row["title"]
+    unit_dir = os.path.join(
+        _settings.CONTENT_STORE_PATH, "curricula", curriculum_id, unit_id
+    )
+
+    available: list[str] = []
+    for ct in _CONTENT_TYPES_ORDERED:
+        if os.path.isfile(os.path.join(unit_dir, f"{ct}_{lang}.json")):
+            available.append(ct)
+
+    return {
+        "unit_id": unit_id,
+        "title": title,
+        "curriculum_id": curriculum_id,
+        "lang": lang,
+        "available_types": available,
+    }
+
+
+async def get_unit_content_file(
+    conn: asyncpg.Connection,
+    version_id: str,
+    unit_id: str,
+    content_type: str,
+    lang: str = "en",
+) -> dict | None:
+    """
+    Read and return the raw JSON for a specific content type from disk.
+    Returns None if version not found; raises FileNotFoundError if file absent.
+    """
+    row = await conn.fetchrow(
+        "SELECT curriculum_id FROM content_subject_versions WHERE version_id = $1",
+        uuid.UUID(version_id),
+    )
+    if not row:
+        return None
+
+    curriculum_id = row["curriculum_id"]
+    file_path = os.path.join(
+        _settings.CONTENT_STORE_PATH,
+        "curricula",
+        curriculum_id,
+        unit_id,
+        f"{content_type}_{lang}.json",
+    )
+
+    if not os.path.isfile(file_path):
+        raise FileNotFoundError(f"Content file not found: {file_path}")
+
+    with open(file_path, encoding="utf-8") as f:
+        data = json.load(f)
+
+    return {
+        "unit_id": unit_id,
+        "curriculum_id": curriculum_id,
+        "content_type": content_type,
+        "lang": lang,
+        "data": data,
     }

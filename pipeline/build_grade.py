@@ -83,15 +83,13 @@ async def _upsert_content_subject_version(
     conn: object,
     curriculum_id: str,
     subject: str,
+    subject_name: str,
     alex_warnings: int,
     auto_approve: bool,
     pipeline_run_id: str,
 ) -> None:
     """Create or update content_subject_versions record."""
-    if alex_warnings > 0:
-        status = "needs_review"
-    else:
-        status = "ready_for_review"
+    status = "pending"
 
     if auto_approve:
         status = "published"
@@ -114,17 +112,19 @@ async def _upsert_content_subject_version(
     await conn.execute(
         """
         INSERT INTO content_subject_versions
-            (curriculum_id, subject, version_number, status, alex_warnings_count,
+            (curriculum_id, subject, subject_name, version_number, status, alex_warnings_count,
              generated_at, published_at, pipeline_run_id)
-        VALUES ($1, $2, $3, $4, $5, NOW(), $6, $7)
+        VALUES ($1, $2, $3, $4, $5, $6, NOW(), $7, $8)
         ON CONFLICT (curriculum_id, subject, version_number) DO UPDATE
             SET status = EXCLUDED.status,
+                subject_name = EXCLUDED.subject_name,
                 alex_warnings_count = EXCLUDED.alex_warnings_count,
                 published_at = EXCLUDED.published_at,
                 pipeline_run_id = EXCLUDED.pipeline_run_id
         """,
         curriculum_id,
         subject,
+        subject_name,
         next_version,
         status,
         alex_warnings,
@@ -264,6 +264,7 @@ def run_grade(
                         db_conn,
                         curriculum_id,
                         subject_id,
+                        subject_name,
                         subject_alex_warnings,
                         config.REVIEW_AUTO_APPROVE,
                         pipeline_run_id,
