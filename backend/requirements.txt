@@ -16,7 +16,7 @@ prometheus-fastapi-instrumentator==7.0.0
 sentry-sdk[fastapi]==2.56.0
 structlog==24.2.0
 slowapi==0.1.9
-alembic==1.13.1
+alembic==1.18.4
 psycopg2-binary==2.9.9
 python-multipart==0.0.22
 aiosmtplib==3.0.1
