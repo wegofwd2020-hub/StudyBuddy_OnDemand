@@ -11,6 +11,8 @@ type StatusFilter = "pending" | "approved" | "published" | "rejected" | "blocked
 
 const STATUS_STYLES: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-700",
+  ready_for_review: "bg-yellow-100 text-yellow-700",
+  needs_review: "bg-amber-100 text-amber-700",
   approved: "bg-blue-100 text-blue-700",
   published: "bg-green-100 text-green-700",
   rejected: "bg-red-100 text-red-700",
@@ -90,12 +92,17 @@ export default function AdminContentReviewPage() {
               <tbody className="divide-y divide-gray-100">
                 {data.items.map((item) => (
                   <tr key={item.version_id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium text-gray-900">
-                      {item.unit_title}
+                    <td className="px-4 py-3">
+                      <p className="font-medium text-gray-900">
+                        {item.subject_name ?? item.subject}
+                      </p>
+                      {item.subject_name && (
+                        <p className="font-mono text-xs text-gray-400">{item.subject}</p>
+                      )}
                     </td>
-                    <td className="px-4 py-3 text-gray-600">Gr. {item.grade}</td>
-                    <td className="px-4 py-3 font-mono text-xs text-gray-600 uppercase">
-                      {item.lang}
+                    <td className="px-4 py-3 text-gray-600">{item.curriculum_id}</td>
+                    <td className="px-4 py-3 text-xs text-gray-500">
+                      v{item.version_number}
                     </td>
                     <td className="px-4 py-3">
                       <span
@@ -108,15 +115,21 @@ export default function AdminContentReviewPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-xs text-gray-500">
-                      {new Date(item.submitted_at).toLocaleDateString()}
+                      {new Date(item.generated_at).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <Link
-                        href={`/admin/content-review/${item.version_id}`}
-                        className="text-xs text-indigo-600 hover:underline"
-                      >
-                        Review →
-                      </Link>
+                      {item.has_content ? (
+                        <Link
+                          href={`/admin/content-review/${item.version_id}`}
+                          className="text-xs text-indigo-600 hover:underline"
+                        >
+                          Review →
+                        </Link>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-400">
+                          No content
+                        </span>
+                      )}
                     </td>
                   </tr>
                 ))}

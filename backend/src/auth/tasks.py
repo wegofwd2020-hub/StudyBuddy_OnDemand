@@ -60,6 +60,10 @@ celery_app.conf.update(
         "src.auth.tasks.sweep_expired_demo_accounts": {"queue": "default"},
         "src.auth.tasks.send_demo_verification_email_task": {"queue": "io"},
         "src.auth.tasks.send_demo_credentials_email_task": {"queue": "io"},
+        "src.auth.tasks.sweep_expired_demo_teacher_accounts": {"queue": "default"},
+        "src.auth.tasks.send_demo_teacher_verification_email_task": {"queue": "io"},
+        "src.auth.tasks.send_demo_teacher_credentials_email_task": {"queue": "io"},
+        "src.auth.tasks.run_grade_pipeline_task": {"queue": "pipeline"},
     },
     beat_schedule={
         # Poll DB pool state + Celery queue depth every 30 seconds.
@@ -108,6 +112,11 @@ celery_app.conf.update(
         "sweep-expired-demo-accounts-nightly": {
             "task": "src.auth.tasks.sweep_expired_demo_accounts",
             "schedule": crontab(hour=3, minute=0),
+        },
+        # Nightly demo teacher account sweep at 03:15 UTC (offset from student sweep).
+        "sweep-expired-demo-teacher-accounts-nightly": {
+            "task": "src.auth.tasks.sweep_expired_demo_teacher_accounts",
+            "schedule": crontab(hour=3, minute=15),
         },
     },
 )
@@ -924,6 +933,141 @@ def run_curriculum_pipeline_task(
         _update_job({"status": "error"})
 
 
+@celery_app.task(name="src.auth.tasks.run_grade_pipeline_task")
+def run_grade_pipeline_task(
+    job_id: str,
+    grade: int,
+    langs: str,
+    force: bool,
+    year: int,
+) -> None:
+    """
+    Build content for all units in a default grade curriculum.
+
+    Calls pipeline.build_grade.run_grade() with auto_approve=False so all
+    generated content goes to the review queue rather than being published.
+    Updates Redis job state at pipeline:job:{job_id} throughout.
+    """
+    import sys
+
+    import redis as _redis_sync
+
+    redis_client = _redis_sync.from_url(settings.effective_celery_broker_url, decode_responses=True)
+
+    def _update_job(patch: dict) -> None:
+        raw = redis_client.get(f"pipeline:job:{job_id}")
+        if not raw:
+            return
+        state = json.loads(raw)
+        state.update(patch)
+        redis_client.setex(f"pipeline:job:{job_id}", 86400, json.dumps(state))
+
+    # Add the repo root (parent of /pipeline) so namespace package resolution works:
+    # sys.path = ["/", ...] → import pipeline.build_grade resolves to /pipeline/build_grade.py
+    _pipeline_parent = "/pipeline/.."
+    import os as _os
+    _pipeline_parent = _os.path.abspath(_pipeline_parent)
+    if _pipeline_parent not in sys.path:
+        sys.path.insert(0, _pipeline_parent)
+
+    try:
+        try:
+            import pipeline.config as pipeline_cfg
+            from pipeline.build_grade import run_grade
+        except ImportError as imp_exc:
+            log.error("run_grade_pipeline_task import_error job_id=%s error=%s", job_id, imp_exc)
+            _update_job({"status": "failed", "error": str(imp_exc)})
+            return
+
+        pipeline_cfg.settings.REVIEW_AUTO_APPROVE = False
+
+        _update_job({"status": "running"})
+
+        # Persist started_at to DB
+        async def _mark_started():
+            conn = await _asyncpg.connect(settings.DATABASE_URL)
+            try:
+                await conn.execute(
+                    "UPDATE pipeline_jobs SET status='running', started_at=NOW() WHERE job_id=$1",
+                    job_id,
+                )
+            finally:
+                await conn.close()
+        try:
+            import asyncpg as _asyncpg
+            _run_async(_mark_started())
+        except Exception:
+            pass
+
+        log.info(
+            "run_grade_pipeline_task_start job_id=%s grade=%d langs=%s force=%s year=%d",
+            job_id,
+            grade,
+            langs,
+            force,
+            year,
+        )
+
+        run_grade(grade=grade, langs=langs.split(","), year=year, force=force)
+
+        # Compute total size of generated content files
+        payload_bytes: int = 0
+        try:
+            import os as _os2
+            curriculum_id = f"default-{year}-g{grade}"
+            content_dir = _os2.path.join(
+                pipeline_cfg.settings.CONTENT_STORE_PATH, "curricula", curriculum_id
+            )
+            if _os2.path.isdir(content_dir):
+                for dirpath, _dirs, filenames in _os2.walk(content_dir):
+                    for fn in filenames:
+                        try:
+                            payload_bytes += _os2.path.getsize(_os2.path.join(dirpath, fn))
+                        except OSError:
+                            pass
+        except Exception:
+            pass
+
+        _update_job({"status": "completed", "progress_pct": 100.0, "payload_bytes": payload_bytes})
+
+        async def _mark_done():
+            conn = await _asyncpg.connect(settings.DATABASE_URL)
+            try:
+                await conn.execute(
+                    "UPDATE pipeline_jobs SET status='completed', completed_at=NOW(), payload_bytes=$2 WHERE job_id=$1",
+                    job_id,
+                    payload_bytes,
+                )
+            finally:
+                await conn.close()
+        try:
+            _run_async(_mark_done())
+        except Exception:
+            pass
+
+        log.info("run_grade_pipeline_task_complete job_id=%s grade=%d", job_id, grade)
+
+    except Exception as exc:
+        log.error("run_grade_pipeline_task_failed job_id=%s error=%s", job_id, exc)
+        _update_job({"status": "failed", "error": str(exc)})
+
+        async def _mark_failed():
+            conn = await _asyncpg.connect(settings.DATABASE_URL)
+            try:
+                await conn.execute(
+                    "UPDATE pipeline_jobs SET status='failed', completed_at=NOW(), error=$2 WHERE job_id=$1",
+                    job_id,
+                    str(exc),
+                )
+            finally:
+                await conn.close()
+        try:
+            import asyncpg as _asyncpg
+            _run_async(_mark_failed())
+        except Exception:
+            pass
+
+
 @celery_app.task(name="src.auth.tasks.promote_student_grades")
 def promote_student_grades() -> None:
     """
@@ -1357,5 +1501,91 @@ def send_demo_credentials_email_task(self, email: str, password: str) -> None:
 
     try:
         _run_async(send_credentials_email(email, password))
+    except Exception as exc:
+        raise self.retry(exc=exc, countdown=30)
+
+
+# ── Demo teacher Celery tasks ─────────────────────────────────────────────────
+
+
+@celery_app.task(name="src.auth.tasks.sweep_expired_demo_teacher_accounts")
+def sweep_expired_demo_teacher_accounts() -> None:
+    """
+    Nightly sweep: expire demo teacher accounts whose TTL has elapsed.
+
+    For each expired demo_teacher_account:
+      1. Soft-delete the associated teachers row (account_status='deleted').
+      2. Mark demo_teacher_requests.status = 'expired'.
+      3. Delete the demo_teacher_accounts row (hard-delete).
+
+    This task is idempotent — re-running produces no side effects.
+    """
+    from config import settings as cfg
+
+    async def _sweep() -> None:
+        import asyncpg as _asyncpg
+
+        pool = await _asyncpg.create_pool(cfg.DATABASE_URL, min_size=1, max_size=2, statement_cache_size=0)
+        try:
+            async with pool.acquire() as conn:
+                expired = await conn.fetch(
+                    """
+                    SELECT dta.id, dta.teacher_id, dta.request_id
+                    FROM demo_teacher_accounts dta
+                    WHERE dta.expires_at < NOW()
+                      AND dta.revoked_at IS NULL
+                    """
+                )
+                if not expired:
+                    log.info("demo_teacher_sweep_no_expired")
+                    return
+
+                for row in expired:
+                    await conn.execute(
+                        "UPDATE teachers SET account_status='deleted' WHERE teacher_id=$1",
+                        row["teacher_id"],
+                    )
+                    await conn.execute(
+                        "UPDATE demo_teacher_requests SET status='expired' WHERE id=$1",
+                        row["request_id"],
+                    )
+                    await conn.execute(
+                        "DELETE FROM demo_teacher_accounts WHERE id=$1",
+                        row["id"],
+                    )
+
+                log.info("demo_teacher_sweep_complete", swept=len(expired))
+        finally:
+            await pool.close()
+
+    _run_async(_sweep())
+
+
+@celery_app.task(
+    name="src.auth.tasks.send_demo_teacher_verification_email_task",
+    bind=True,
+    max_retries=3,
+)
+def send_demo_teacher_verification_email_task(self, email: str, token: str) -> None:
+    """Send the demo teacher email-verification link. Retries up to 3× on SMTP failure."""
+    from src.email.service import send_teacher_verification_email
+
+    try:
+        _run_async(send_teacher_verification_email(email, token))
+    except Exception as exc:
+        raise self.retry(exc=exc, countdown=30)
+
+
+@celery_app.task(
+    name="src.auth.tasks.send_demo_teacher_credentials_email_task",
+    bind=True,
+    max_retries=3,
+)
+def send_demo_teacher_credentials_email_task(self, email: str, password: str) -> None:
+    """Send demo teacher credentials after successful verification. Retries 3× on failure."""
+    from src.email.service import send_teacher_credentials_email
+
+    try:
+        _run_async(send_teacher_credentials_email(email, password))
     except Exception as exc:
         raise self.retry(exc=exc, countdown=30)

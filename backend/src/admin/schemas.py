@@ -17,16 +17,47 @@ class ReviewQueueItem(BaseModel):
     version_id: str
     curriculum_id: str
     subject: str
+    subject_name: str | None = None
     version_number: int
     status: str
     alex_warnings_count: int
     generated_at: datetime
     published_at: datetime | None = None
+    has_content: bool = False
 
 
 class ReviewQueueResponse(BaseModel):
     items: list[ReviewQueueItem]
     total: int
+
+
+class ReviewUnitItem(BaseModel):
+    unit_id: str
+    title: str
+    sort_order: int
+
+
+class ReviewHistoryItem(BaseModel):
+    review_id: str
+    action: str
+    notes: str | None = None
+    reviewed_at: datetime
+    reviewer_email: str | None = None
+
+
+class ReviewAnnotationItem(BaseModel):
+    annotation_id: str
+    unit_id: str
+    content_type: str
+    annotation_text: str
+    created_at: datetime
+    reviewer_email: str | None = None
+
+
+class ReviewDetailResponse(ReviewQueueItem):
+    units: list[ReviewUnitItem]
+    review_history: list[ReviewHistoryItem]
+    annotations: list[ReviewAnnotationItem]
 
 
 # ── Review session ────────────────────────────────────────────────────────────
@@ -119,6 +150,12 @@ class RollbackResponse(BaseModel):
 
 class BlockRequest(BaseModel):
     curriculum_id: str
+    unit_id: str
+    content_type: str
+    reason: str | None = None
+
+
+class BlockVersionRequest(BaseModel):
     unit_id: str
     content_type: str
     reason: str | None = None
@@ -218,3 +255,45 @@ class DictionaryResponse(BaseModel):
     definitions: list[str]
     synonyms: list[str]
     antonyms: list[str]
+
+
+# ── Admin pipeline ────────────────────────────────────────────────────────────
+
+
+class UploadGradeJsonResponse(BaseModel):
+    curriculum_id: str
+    grade: int
+    unit_count: int
+    subject_count: int
+
+
+class AdminPipelineTriggerRequest(BaseModel):
+    grade: int
+    langs: str = "en"
+    force: bool = False
+    year: int = 2026
+
+
+class AdminPipelineTriggerResponse(BaseModel):
+    job_id: str
+    status: str
+    curriculum_id: str
+
+
+# ── Unit content viewer ───────────────────────────────────────────────────────
+
+
+class UnitContentMetaResponse(BaseModel):
+    unit_id: str
+    title: str
+    curriculum_id: str
+    lang: str
+    available_types: list[str]
+
+
+class UnitContentFileResponse(BaseModel):
+    unit_id: str
+    curriculum_id: str
+    content_type: str
+    lang: str
+    data: dict

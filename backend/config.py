@@ -110,7 +110,10 @@ class Settings(BaseSettings):
     DEMO_ACCOUNT_TTL_HOURS: int = 24
     DEMO_VERIFICATION_TOKEN_TTL_MINUTES: int = 60
     DEMO_RESEND_COOLDOWN_MINUTES: int = 5
-    DEMO_MAX_ACTIVE: int = 100        # hard cap on concurrent active demo accounts
+    DEMO_MAX_ACTIVE: int = 100             # hard cap on concurrent active demo student accounts
+
+    DEMO_TEACHER_ACCOUNT_TTL_HOURS: int = 48
+    DEMO_TEACHER_MAX_ACTIVE: int = 50      # hard cap on concurrent active demo teacher accounts
     FRONTEND_URL: str = "http://localhost:3000"
 
     @property

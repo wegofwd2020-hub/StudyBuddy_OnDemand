@@ -68,7 +68,7 @@ def _call_claude(client: Any, model: str, prompt: str) -> tuple[str, int, int]:
     """
     message = client.messages.create(
         model=model,
-        max_tokens=4096,
+        max_tokens=8192,
         messages=[{"role": "user", "content": prompt}],
     )
     text = message.content[0].text if message.content else ""
@@ -404,7 +404,7 @@ def _upload_unit_to_s3(curriculum_id: str, unit_id: str, store_path: str, lang: 
     """
     try:
         bucket = config.S3_BUCKET_NAME
-    except AttributeError:
+    except (AttributeError, NameError):
         bucket = None
 
     if not bucket:

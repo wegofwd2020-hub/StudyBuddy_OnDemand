@@ -102,7 +102,7 @@ export function DemoRequestModal() {
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger
         render={
-          <Button size="lg" variant="outline">
+          <Button size="lg" variant="outline" className="whitespace-pre-line text-center leading-tight">
             {t("hero_cta")}
           </Button>
         }
@@ -177,22 +177,23 @@ export function DemoRequestModal() {
                 </div>
               )}
 
-              <DialogFooter showCloseButton={false} className="flex-col gap-2">
-                <Button type="submit" className="w-full" disabled={isSubmitting}>
+              <div className="flex justify-center">
+                <Button type="submit" disabled={isSubmitting}>
                   {isSubmitting ? t("submitting") : t("submit_btn")}
                 </Button>
-                <p className="text-center text-xs text-gray-500">
-                  {t("already_have_demo")}{" "}
-                  <Link
-                    href="/demo/login"
-                    className="text-blue-600 underline underline-offset-2 hover:text-blue-800"
-                    onClick={() => handleOpenChange(false)}
-                  >
-                    {t("sign_in_demo")}
-                  </Link>
-                </p>
-              </DialogFooter>
+              </div>
             </form>
+
+            <p className="mt-2 text-center text-xs text-gray-500">
+              {t("already_have_demo")}{" "}
+              <Link
+                href="/demo/login"
+                className="text-blue-600 underline underline-offset-2 hover:text-blue-800"
+                onClick={() => handleOpenChange(false)}
+              >
+                {t("sign_in_demo")}
+              </Link>
+            </p>
           </>
         )}
       </DialogContent>

@@ -66,3 +66,59 @@ export async function verifyDemoEmail(token: string): Promise<DemoRequestRespons
 export async function resendDemoVerification(email: string): Promise<void> {
   await api.post("/demo/verify/resend", { email });
 }
+
+// ── Teacher demo API ──────────────────────────────────────────────────────────
+
+/**
+ * POST /demo/teacher/request
+ * Submit email to request a 48-hour teacher demo account.
+ */
+export async function requestTeacherDemo(email: string): Promise<DemoRequestResponse> {
+  const res = await api.post<DemoRequestResponse>("/demo/teacher/request", { email });
+  return res.data;
+}
+
+/**
+ * POST /demo/teacher/auth/login
+ * Authenticate with teacher demo credentials (email + password).
+ * Returns JWT with role=demo_teacher.
+ */
+export async function demoTeacherLogin(
+  email: string,
+  password: string,
+): Promise<DemoLoginResponse> {
+  const res = await api.post<DemoLoginResponse>("/demo/teacher/auth/login", {
+    email,
+    password,
+  });
+  return res.data;
+}
+
+/**
+ * POST /demo/teacher/auth/logout
+ * Blacklists the demo teacher JWT JTI in Redis.
+ */
+export async function demoTeacherLogout(token: string): Promise<void> {
+  await api.post(
+    "/demo/teacher/auth/logout",
+    {},
+    { headers: { Authorization: `Bearer ${token}` } },
+  );
+}
+
+/**
+ * GET /demo/teacher/verify/{token}
+ * Verify a teacher email address and create the demo teacher account.
+ */
+export async function verifyDemoTeacherEmail(token: string): Promise<DemoRequestResponse> {
+  const res = await api.get<DemoRequestResponse>(`/demo/teacher/verify/${token}`);
+  return res.data;
+}
+
+/**
+ * POST /demo/teacher/verify/resend
+ * Resend the teacher verification email for a pending demo request.
+ */
+export async function resendDemoTeacherVerification(email: string): Promise<void> {
+  await api.post("/demo/teacher/verify/resend", { email });
+}

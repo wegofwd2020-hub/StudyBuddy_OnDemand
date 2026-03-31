@@ -39,10 +39,22 @@ const csp = [
   .trimEnd();
 
 const nextConfig: NextConfig = {
-  // Stamp the UTC build time into the bundle so the About page can show
-  // "Standards verified as of <date>" that updates on every deployment.
+  // Stamp build metadata into the bundle so the About page reflects each deployment.
+  //
+  // SNYK_HIGH_COUNT / SNYK_CRITICAL_COUNT / SNYK_SCAN_DATE are injected by the
+  // CI workflow after parsing the Snyk SARIF outputs (see .github/workflows/test.yml).
+  // LAST_PR_NUMBER / LAST_PR_TITLE / LAST_PR_URL / LAST_PR_MERGED_AT are injected
+  // by the CI workflow from the GitHub API before running `npm run build`.
+  // All values are empty strings locally — the About page renders a "pending" state.
   env: {
     NEXT_PUBLIC_BUILD_TIME: new Date().toISOString(),
+    NEXT_PUBLIC_SNYK_HIGH_COUNT: process.env.SNYK_HIGH_COUNT ?? "",
+    NEXT_PUBLIC_SNYK_CRITICAL_COUNT: process.env.SNYK_CRITICAL_COUNT ?? "",
+    NEXT_PUBLIC_SNYK_SCAN_DATE: process.env.SNYK_SCAN_DATE ?? "",
+    NEXT_PUBLIC_LAST_PR_NUMBER: process.env.LAST_PR_NUMBER ?? "",
+    NEXT_PUBLIC_LAST_PR_TITLE: process.env.LAST_PR_TITLE ?? "",
+    NEXT_PUBLIC_LAST_PR_URL: process.env.LAST_PR_URL ?? "",
+    NEXT_PUBLIC_LAST_PR_MERGED_AT: process.env.LAST_PR_MERGED_AT ?? "",
   },
   images: {
     remotePatterns: [

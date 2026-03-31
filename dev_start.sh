@@ -147,7 +147,10 @@ EOF
 
 # ── Source .env into shell ────────────────────────────────────────────────────
 load_env() {
-    # Export non-comment, non-empty lines
+    # Export non-comment, non-empty lines.
+    # Values with spaces (e.g. Gmail App Passwords) must be quoted in .env:
+    #   SMTP_PASSWORD='xxxx xxxx xxxx xxxx'
+    # Single- and double-quoted assignments are valid bash and sourced correctly.
     set -o allexport
     # shellcheck disable=SC1090
     source <(grep -E '^[A-Z_]+=.' "$ENV_FILE")

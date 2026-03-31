@@ -4,7 +4,7 @@
  */
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export type AdminRole = "developer" | "tester" | "product_admin" | "super_admin";
 
@@ -57,6 +57,11 @@ function readAdminClaims(): AdminClaims | null {
 }
 
 export function useAdmin(): AdminClaims | null {
-  const [admin] = useState<AdminClaims | null>(() => readAdminClaims());
+  const [admin, setAdmin] = useState<AdminClaims | null>(null);
+
+  useEffect(() => {
+    setAdmin(readAdminClaims());
+  }, []);
+
   return admin;
 }
