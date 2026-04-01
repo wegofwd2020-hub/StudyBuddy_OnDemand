@@ -138,6 +138,19 @@ class Settings(BaseSettings):
     SCHOOL_PIPELINE_QUOTA_PROFESSIONAL: int = 10
     SCHOOL_PIPELINE_QUOTA_ENTERPRISE: int = 9999
 
+    # ── School subscription — Stripe price IDs ────────────────────────────────
+    STRIPE_SCHOOL_PRICE_STARTER_ID: str | None = None
+    STRIPE_SCHOOL_PRICE_PROFESSIONAL_ID: str | None = None
+    STRIPE_SCHOOL_PRICE_ENTERPRISE_ID: str | None = None
+
+    # ── School seat limits by plan ────────────────────────────────────────────
+    SCHOOL_SEATS_STARTER_STUDENTS: int = 30
+    SCHOOL_SEATS_STARTER_TEACHERS: int = 3
+    SCHOOL_SEATS_PROFESSIONAL_STUDENTS: int = 150
+    SCHOOL_SEATS_PROFESSIONAL_TEACHERS: int = 10
+    SCHOOL_SEATS_ENTERPRISE_STUDENTS: int = 9999
+    SCHOOL_SEATS_ENTERPRISE_TEACHERS: int = 9999
+
     # ── Feature flags ─────────────────────────────────────────────────────────
     REVIEW_AUTO_APPROVE: bool = False
 

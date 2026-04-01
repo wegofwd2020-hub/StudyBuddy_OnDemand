@@ -48,8 +48,13 @@ async def get_entitlement(
     """
     Return {plan, lessons_accessed, valid_until} for a student.
 
-    L2 cache: ent:{student_id} with TTL=300.
-    On miss: queries student_entitlements table; inserts free-tier row if absent.
+    Read order:
+      1. ent:{student_id} Redis cache (TTL=300)
+      2. student_entitlements DB row
+      3. School subscription path — if student is enrolled in a school with
+         an active subscription, derive entitlement from ent:school:{school_id}
+         (also cached at TTL=300). This handles students whose entitlements
+         row predates their school enrolment.
     """
     key = _ENT_KEY.format(student_id=student_id)
     cached = await redis.get(key)
@@ -65,8 +70,21 @@ async def get_entitlement(
             student_id,
         )
 
+    if row is None or row["plan"] == "free":
+        # Check school subscription path before defaulting to free
+        from src.school.subscription_service import get_school_entitlement_for_student
+
+        school_ent = await get_school_entitlement_for_student(student_id, pool, redis)
+        if school_ent is not None:
+            entitlement = {
+                "plan": school_ent["plan"],
+                "lessons_accessed": row["lessons_accessed"] if row else 0,
+                "valid_until": school_ent.get("valid_until"),
+            }
+            await redis.set(key, json.dumps(entitlement), ex=_ENT_TTL)
+            return entitlement
+
     if row is None:
-        # Free-tier default
         entitlement = {"plan": "free", "lessons_accessed": 0, "valid_until": None}
     else:
         entitlement = {

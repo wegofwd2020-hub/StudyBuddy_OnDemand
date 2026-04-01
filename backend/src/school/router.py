@@ -33,6 +33,7 @@ from src.school.schemas import (
     TeacherInviteResponse,
 )
 from src.school.service import fetch_school, invite_teacher, register_school
+from src.school.subscription_service import get_seat_usage
 from src.utils.logger import get_logger
 
 log = get_logger("school")
@@ -138,7 +139,29 @@ async def invite_teacher_endpoint(
                 "correlation_id": _cid(request),
             },
         )
+    import uuid as _uuid
+
     async with get_db(request) as conn:
+        # Seat limit check — only enforced if school has an active subscription
+        sub_row = await conn.fetchrow(
+            """
+            SELECT max_teachers FROM school_subscriptions
+            WHERE school_id = $1 AND status IN ('active', 'trialing')
+            """,
+            _uuid.UUID(school_id),
+        )
+        if sub_row is not None:
+            usage = await get_seat_usage(conn, school_id)
+            if usage["seats_used_teachers"] >= sub_row["max_teachers"]:
+                raise HTTPException(
+                    status_code=402,
+                    detail={
+                        "error": "seat_limit_reached",
+                        "detail": "Teacher seat limit reached for this plan.",
+                        "limit": sub_row["max_teachers"],
+                        "correlation_id": _cid(request),
+                    },
+                )
         try:
             result = await invite_teacher(conn, school_id, body.name, body.email)
         except Exception as exc:
@@ -188,7 +211,31 @@ async def upload_enrolment_roster(
                 "correlation_id": _cid(request),
             },
         )
+    import uuid as _uuid
+
     async with get_db(request) as conn:
+        # Seat limit check — only enforced if school has an active subscription
+        sub_row = await conn.fetchrow(
+            """
+            SELECT max_students FROM school_subscriptions
+            WHERE school_id = $1 AND status IN ('active', 'trialing')
+            """,
+            _uuid.UUID(school_id),
+        )
+        if sub_row is not None:
+            usage = await get_seat_usage(conn, school_id)
+            incoming = len([e for e in body.student_emails if str(e).strip()])
+            if usage["seats_used_students"] + incoming > sub_row["max_students"]:
+                raise HTTPException(
+                    status_code=402,
+                    detail={
+                        "error": "seat_limit_reached",
+                        "detail": "Enrolling these students would exceed the plan seat limit.",
+                        "limit": sub_row["max_students"],
+                        "used": usage["seats_used_students"],
+                        "correlation_id": _cid(request),
+                    },
+                )
         result = await upload_roster(conn, school_id, [str(e) for e in body.student_emails])
     return EnrolmentUploadResponse(**result)
 

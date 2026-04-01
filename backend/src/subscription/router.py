@@ -198,7 +198,19 @@ async def stripe_webhook(request: Request) -> dict:
 
 
 async def _dispatch_event(conn, redis, event_type: str, obj: dict, event: dict) -> None:
-    """Route a Stripe event to the correct handler."""
+    """Route a Stripe event to the correct handler.
+
+    Branches on session/subscription metadata:
+      - metadata["school_id"] present → school subscription path
+      - otherwise                     → individual student subscription path (unchanged)
+    """
+    # ── Detect school events ──────────────────────────────────────────────────
+    metadata = obj.get("metadata") or {}
+    if "school_id" in metadata or await _is_school_subscription(obj):
+        await _dispatch_school_event(conn, redis, event_type, obj)
+        return
+
+    # ── Individual student path (unchanged) ───────────────────────────────────
     if event_type == "checkout.session.completed":
         metadata = obj.get("metadata") or {}
         student_id = metadata.get("student_id")
@@ -288,6 +300,97 @@ def _get_stripe_module():
         return stripe
     except ImportError:
         raise RuntimeError("stripe package not installed")
+
+
+# ── School subscription helpers ───────────────────────────────────────────────
+
+
+async def _is_school_subscription(obj: dict) -> bool:
+    """
+    Return True if this Stripe object (subscription or session) belongs to
+    a school subscription rather than an individual student.
+
+    For subscription.updated / deleted / payment_failed events the metadata
+    is on the subscription object itself.
+    """
+    meta = obj.get("metadata") or {}
+    return "school_id" in meta
+
+
+async def _dispatch_school_event(conn, redis, event_type: str, obj: dict) -> None:
+    """Route Stripe events to school subscription handlers."""
+    from src.school.subscription_service import (
+        activate_school_subscription,
+        cancel_school_subscription_db,
+        handle_school_payment_failed,
+        update_school_subscription_status,
+    )
+
+    if event_type == "checkout.session.completed":
+        metadata = obj.get("metadata") or {}
+        school_id = metadata.get("school_id")
+        plan = metadata.get("plan")
+        if not school_id or not plan:
+            log.warning(
+                "school_checkout.session.completed missing metadata school_id=%s plan=%s",
+                school_id,
+                plan,
+            )
+            return
+
+        stripe_customer_id = obj.get("customer", "")
+        stripe_subscription_id = obj.get("subscription", "")
+
+        current_period_end = None
+        try:
+            stripe_mod = _get_stripe_module()
+            from config import settings as _settings
+
+            stripe_mod.api_key = _settings.STRIPE_SECRET_KEY
+            sub = stripe_mod.Subscription.retrieve(stripe_subscription_id)
+            import datetime as _dt
+
+            current_period_end = _dt.datetime.fromtimestamp(
+                sub["current_period_end"], tz=_dt.UTC
+            )
+        except Exception as exc:
+            log.warning("could_not_fetch_school_subscription_period error=%s", exc)
+
+        await activate_school_subscription(
+            conn,
+            redis,
+            school_id=school_id,
+            plan=plan,
+            stripe_customer_id=stripe_customer_id,
+            stripe_subscription_id=stripe_subscription_id,
+            current_period_end=current_period_end,
+        )
+
+    elif event_type == "customer.subscription.updated":
+        stripe_subscription_id = obj.get("id", "")
+        raw_status = obj.get("status", "active")
+        status = _map_stripe_status(raw_status)
+
+        import datetime as _dt
+
+        period_end_ts = obj.get("current_period_end")
+        current_period_end = (
+            _dt.datetime.fromtimestamp(period_end_ts, tz=_dt.UTC) if period_end_ts else None
+        )
+
+        await update_school_subscription_status(conn, redis, stripe_subscription_id, status, current_period_end)
+
+    elif event_type == "customer.subscription.deleted":
+        stripe_subscription_id = obj.get("id", "")
+        await cancel_school_subscription_db(conn, redis, stripe_subscription_id)
+
+    elif event_type == "invoice.payment_failed":
+        stripe_subscription_id = obj.get("subscription", "")
+        if stripe_subscription_id:
+            await handle_school_payment_failed(conn, redis, stripe_subscription_id)
+
+    else:
+        log.debug("school_stripe_event_unhandled event_type=%s", event_type)
 
 
 # ── DELETE /subscription ──────────────────────────────────────────────────────
