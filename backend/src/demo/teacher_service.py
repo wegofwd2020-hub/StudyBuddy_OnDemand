@@ -197,7 +197,7 @@ async def get_demo_teacher_account_for_login(
     return await conn.fetchrow(
         """
         SELECT dta.id, dta.teacher_id, dta.email, dta.password_hash, dta.expires_at,
-               t.school_id
+               t.school_id, t.name AS teacher_name
         FROM demo_teacher_accounts dta
         JOIN teachers t ON t.teacher_id = dta.teacher_id
         WHERE dta.email = $1

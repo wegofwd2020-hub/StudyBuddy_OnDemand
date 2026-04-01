@@ -31,9 +31,19 @@ function resolveLoginError(
   return "login_error_generic";
 }
 
+/** Decode the teacher_name claim from a JWT (base64url payload, no verification needed client-side). */
+function decodeTeacherName(token: string): string | null {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+    return typeof payload.teacher_name === "string" ? payload.teacher_name : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Write the teacher demo session cookie so server-side teacher layout can read name/email. */
-function setDemoTeacherSessionCookie(email: string): void {
-  const payload = btoa(JSON.stringify({ name: "Demo Teacher", email }));
+function setDemoTeacherSessionCookie(email: string, name: string): void {
+  const payload = btoa(JSON.stringify({ name, email }));
   const secure = location.protocol === "https:" ? "; Secure" : "";
   document.cookie = `sb_teacher_session=${payload}; path=/; max-age=${60 * 60 * 48}; SameSite=Lax${secure}`;
 }
@@ -58,7 +68,8 @@ export default function DemoTeacherLoginPage() {
     try {
       const result = await demoTeacherLogin(data.email, data.password);
       localStorage.setItem("sb_teacher_token", result.access_token);
-      setDemoTeacherSessionCookie(data.email);
+      const teacherName = decodeTeacherName(result.access_token) ?? data.email;
+      setDemoTeacherSessionCookie(data.email, teacherName);
       router.push("/school/dashboard");
     } catch (err: unknown) {
       const axiosErr = err as {

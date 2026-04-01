@@ -303,6 +303,7 @@ async def demo_teacher_login(body: DemoLoginInput, request: Request):
         payload={
             "teacher_id": str(account["teacher_id"]),
             "school_id": str(account["school_id"]) if account["school_id"] else None,
+            "teacher_name": account["teacher_name"],
             "role": "demo_teacher",
             "account_status": "active",
             "demo_account_id": str(account["id"]),
