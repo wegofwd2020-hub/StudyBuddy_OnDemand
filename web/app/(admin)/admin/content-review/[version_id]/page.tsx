@@ -23,6 +23,7 @@ import {
   XCircle,
   Globe,
   RotateCcw,
+  ShieldAlert,
   ShieldOff,
   Clock,
   MessageSquare,
@@ -133,11 +134,31 @@ export default function AdminContentReviewDetailPage() {
                 {item.status}
               </span>
             </div>
-            <p className="mt-1 text-sm text-gray-500">
-              {item.curriculum_id} · Version {item.version_number} ·{" "}
-              {item.alex_warnings_count} AlexJS warning
-              {item.alex_warnings_count !== 1 ? "s" : ""}
-            </p>
+            <div className="mt-1 flex items-center gap-2 flex-wrap">
+              <p className="text-sm text-gray-500">
+                {item.curriculum_id} · Version {item.version_number}
+              </p>
+              {item.alex_warnings_count > 0 ? (
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold",
+                    item.alex_warnings_count >= 10
+                      ? "bg-red-100 text-red-700"
+                      : item.alex_warnings_count >= 3
+                        ? "bg-amber-100 text-amber-700"
+                        : "bg-orange-100 text-orange-700",
+                  )}
+                >
+                  <ShieldAlert className="h-3 w-3" />
+                  {item.alex_warnings_count} AlexJS warning{item.alex_warnings_count !== 1 ? "s" : ""}
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-700">
+                  <CheckCircle className="h-3 w-3" />
+                  No AlexJS warnings
+                </span>
+              )}
+            </div>
             <p className="mt-0.5 text-xs text-gray-400">
               Generated {new Date(item.generated_at).toLocaleString()}
               {item.published_at && (
@@ -196,16 +217,54 @@ export default function AdminContentReviewDetailPage() {
           </div>
 
           {item.alex_warnings_count > 0 && (
-            <div className="flex gap-3 rounded-lg border border-orange-200 bg-orange-50 p-4">
-              <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-orange-500" />
+            <div
+              className={cn(
+                "flex gap-3 rounded-xl border-2 p-4",
+                item.alex_warnings_count >= 10
+                  ? "border-red-300 bg-red-50"
+                  : item.alex_warnings_count >= 3
+                    ? "border-amber-300 bg-amber-50"
+                    : "border-orange-200 bg-orange-50",
+              )}
+            >
+              <ShieldAlert
+                className={cn(
+                  "mt-0.5 h-5 w-5 flex-shrink-0",
+                  item.alex_warnings_count >= 10
+                    ? "text-red-600"
+                    : item.alex_warnings_count >= 3
+                      ? "text-amber-600"
+                      : "text-orange-500",
+                )}
+              />
               <div>
-                <p className="text-sm font-semibold text-orange-800">
+                <p
+                  className={cn(
+                    "text-sm font-bold",
+                    item.alex_warnings_count >= 10
+                      ? "text-red-900"
+                      : item.alex_warnings_count >= 3
+                        ? "text-amber-900"
+                        : "text-orange-800",
+                  )}
+                >
                   {item.alex_warnings_count} AlexJS warning
-                  {item.alex_warnings_count !== 1 ? "s" : ""} detected
+                  {item.alex_warnings_count !== 1 ? "s" : ""} detected —{" "}
+                  {item.alex_warnings_count >= 10 ? "High" : item.alex_warnings_count >= 3 ? "Moderate" : "Low"} severity
                 </p>
-                <p className="mt-0.5 text-xs text-orange-700">
-                  AlexJS flagged potentially non-inclusive language in this subject
-                  version. Review unit content carefully before approving.
+                <p
+                  className={cn(
+                    "mt-0.5 text-xs",
+                    item.alex_warnings_count >= 10
+                      ? "text-red-700"
+                      : item.alex_warnings_count >= 3
+                        ? "text-amber-700"
+                        : "text-orange-700",
+                  )}
+                >
+                  AlexJS flagged potentially non-inclusive or insensitive language in
+                  this subject version. Open each unit&apos;s viewer and review all content
+                  types carefully before approving.
                 </p>
               </div>
             </div>

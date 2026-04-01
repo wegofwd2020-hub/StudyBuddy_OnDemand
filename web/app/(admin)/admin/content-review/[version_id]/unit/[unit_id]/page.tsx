@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -22,6 +22,7 @@ import {
   FlaskConical,
   GraduationCap,
   MessageSquarePlus,
+  ShieldAlert,
   Trash2,
   ChevronDown,
   ChevronUp,
@@ -60,6 +61,138 @@ function useAnnotations(effectiveKey: string) {
     onAdd: (text: string) => ctx.onAdd(effectiveKey, text),
     onDelete: ctx.onDelete,
   };
+}
+
+// ── AlexJS warnings banner ────────────────────────────────────────────────────
+
+const ALEX_CHECKLIST = [
+  "Ableist or euphemistic language (e.g. \"crazy\", \"lame\", \"blind to\")",
+  "Gendered terms where neutral alternatives exist (e.g. \"mankind\", \"stewardess\")",
+  "Potentially insensitive cultural or racial references",
+  "Overly binary gender assumptions in examples",
+  "Medical or mental-health language used casually",
+];
+
+function AlexWarningsBanner({ count }: { count: number }) {
+  const [expanded, setExpanded] = useState(false);
+  const bannerRef = useRef<HTMLDivElement>(null);
+  const [sticky, setSticky] = useState(false);
+
+  // Show a sticky pill once the banner scrolls out of view
+  useEffect(() => {
+    const el = bannerRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setSticky(!entry.isIntersecting),
+      { threshold: 0 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const isHigh = count >= 10;
+  const isMedium = count >= 3 && count < 10;
+
+  const colours = isHigh
+    ? {
+        border: "border-red-300",
+        bg: "bg-red-50",
+        icon: "text-red-600",
+        title: "text-red-900",
+        body: "text-red-700",
+        toggle: "text-red-600 hover:text-red-800",
+        pill: "bg-red-600",
+      }
+    : isMedium
+      ? {
+          border: "border-amber-300",
+          bg: "bg-amber-50",
+          icon: "text-amber-600",
+          title: "text-amber-900",
+          body: "text-amber-700",
+          toggle: "text-amber-600 hover:text-amber-800",
+          pill: "bg-amber-500",
+        }
+      : {
+          border: "border-orange-200",
+          bg: "bg-orange-50",
+          icon: "text-orange-500",
+          title: "text-orange-800",
+          body: "text-orange-700",
+          toggle: "text-orange-600 hover:text-orange-800",
+          pill: "bg-orange-500",
+        };
+
+  const severity = isHigh ? "High" : isMedium ? "Moderate" : "Low";
+
+  return (
+    <>
+      <div
+        ref={bannerRef}
+        className={cn(
+          "mb-6 rounded-xl border-2 p-4",
+          colours.border,
+          colours.bg,
+        )}
+      >
+        <div className="flex items-start gap-3">
+          <ShieldAlert className={cn("mt-0.5 h-5 w-5 flex-shrink-0", colours.icon)} />
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className={cn("text-sm font-bold", colours.title)}>
+                {count} AlexJS warning{count !== 1 ? "s" : ""} — {severity} severity
+              </p>
+              <span
+                className={cn(
+                  "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold text-white",
+                  colours.pill,
+                )}
+              >
+                Action required
+              </span>
+            </div>
+            <p className={cn("mt-1 text-xs", colours.body)}>
+              AlexJS flagged potentially non-inclusive or insensitive language across this
+              unit&apos;s content. Review <strong>all content types</strong> in the left
+              panel and add reviewer notes where applicable before approving.
+            </p>
+            <button
+              onClick={() => setExpanded((e) => !e)}
+              className={cn(
+                "mt-2 inline-flex items-center gap-1 text-xs font-medium",
+                colours.toggle,
+              )}
+            >
+              {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+              {expanded ? "Hide" : "Show"} what to look for
+            </button>
+            {expanded && (
+              <ul className={cn("mt-2 space-y-1 text-xs", colours.body)}>
+                {ALEX_CHECKLIST.map((item) => (
+                  <li key={item} className="flex items-start gap-1.5">
+                    <AlertTriangle className={cn("mt-0.5 h-3 w-3 flex-shrink-0", colours.icon)} />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Sticky pill visible when banner is out of view */}
+      {sticky && (
+        <div className="fixed right-6 top-4 z-50 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold text-white shadow-lg cursor-pointer"
+          style={{ backgroundColor: isHigh ? "#dc2626" : isMedium ? "#d97706" : "#f97316" }}
+          onClick={() => bannerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+          title="AlexJS warnings — click to scroll to banner"
+        >
+          <ShieldAlert className="h-3.5 w-3.5" />
+          {count} AlexJS warning{count !== 1 ? "s" : ""}
+        </div>
+      )}
+    </>
+  );
 }
 
 // ── Inline section notes ──────────────────────────────────────────────────────
@@ -610,28 +743,33 @@ export default function AdminUnitContentPage() {
             </div>
 
             {meta.alex_warnings_count > 0 && (
-              <div className="mb-6 flex gap-3 rounded-lg border border-orange-200 bg-orange-50 p-4">
-                <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-orange-500" />
-                <div>
-                  <p className="text-sm font-semibold text-orange-800">
-                    {meta.alex_warnings_count} AlexJS warning
-                    {meta.alex_warnings_count !== 1 ? "s" : ""} in this unit
-                  </p>
-                  <p className="mt-0.5 text-xs text-orange-700">
-                    AlexJS flagged potentially non-inclusive or insensitive language.
-                    Review all content types below and add reviewer notes where
-                    appropriate.
-                  </p>
-                </div>
-              </div>
+              <AlexWarningsBanner
+                count={meta.alex_warnings_count}
+              />
             )}
 
             <div className="flex gap-6">
               {/* Left: content type nav */}
               <div className="w-48 flex-shrink-0">
-                <p className="mb-3 text-xs font-semibold tracking-wide text-gray-400 uppercase">
-                  Content Types
-                </p>
+                <div className="mb-3 flex items-center gap-2">
+                  <p className="text-xs font-semibold tracking-wide text-gray-400 uppercase">
+                    Content Types
+                  </p>
+                  {meta.alex_warnings_count > 0 && (
+                    <span
+                      title={`${meta.alex_warnings_count} AlexJS warning${meta.alex_warnings_count !== 1 ? "s" : ""} across all content types`}
+                      className={cn(
+                        "inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-xs font-semibold",
+                        meta.alex_warnings_count >= 10
+                          ? "bg-red-100 text-red-700"
+                          : "bg-amber-100 text-amber-700",
+                      )}
+                    >
+                      <AlertTriangle className="h-3 w-3" />
+                      {meta.alex_warnings_count}
+                    </span>
+                  )}
+                </div>
                 {meta.available_types.length === 0 ? (
                   <p className="text-xs text-gray-400">No content files on disk.</p>
                 ) : (
