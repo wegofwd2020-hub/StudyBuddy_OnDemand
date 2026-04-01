@@ -23,8 +23,8 @@ import uuid
 
 import asyncpg
 import httpx
-
 from config import settings as _settings
+
 from src.utils.logger import get_logger
 
 log = get_logger("admin")

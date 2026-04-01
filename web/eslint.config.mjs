@@ -13,6 +13,14 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  {
+    rules: {
+      // This project intentionally calls setState inside useEffect on mount to
+      // read localStorage without triggering SSR hydration mismatches. This is
+      // the canonical pattern documented in CLAUDE.md ("Hydration rule").
+      "react-hooks/set-state-in-effect": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;

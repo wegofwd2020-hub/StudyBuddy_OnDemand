@@ -133,7 +133,7 @@ async def get_lesson(
     student_id = student["student_id"]
     locale = student.get("locale", "en")
 
-    curriculum_id, subject = await _get_curriculum_and_check_published(
+    curriculum_id, _subject = await _get_curriculum_and_check_published(
         request, unit_id, "lesson", student
     )
 

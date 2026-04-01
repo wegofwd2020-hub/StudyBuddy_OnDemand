@@ -151,9 +151,9 @@ export default function AdminPipelineJobPage() {
           {isDone && (
             <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700">
               Build complete. Content is now available in the{" "}
-              <a href="/admin/content-review" className="font-medium underline">
+              <Link href="/admin/content-review" className="font-medium underline">
                 Content Review queue
-              </a>{" "}
+              </Link>{" "}
               as <strong>pending</strong>.
             </div>
           )}

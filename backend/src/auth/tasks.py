@@ -1050,6 +1050,7 @@ def run_grade_pipeline_task(
     except Exception as exc:
         log.error("run_grade_pipeline_task_failed job_id=%s error=%s", job_id, exc)
         _update_job({"status": "failed", "error": str(exc)})
+        _exc_str = str(exc)  # capture before Python deletes the except-clause binding
 
         async def _mark_failed():
             conn = await _asyncpg.connect(settings.DATABASE_URL)
@@ -1057,7 +1058,7 @@ def run_grade_pipeline_task(
                 await conn.execute(
                     "UPDATE pipeline_jobs SET status='failed', completed_at=NOW(), error=$2 WHERE job_id=$1",
                     job_id,
-                    str(exc),
+                    _exc_str,
                 )
             finally:
                 await conn.close()
