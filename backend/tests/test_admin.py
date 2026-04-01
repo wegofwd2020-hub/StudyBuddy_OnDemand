@@ -13,6 +13,9 @@ Coverage:
   - POST /admin/content/review/{id}/approve — requires review:approve; sets status=approved
   - POST /admin/content/review/{id}/reject  — requires review:approve; regenerate dispatched
   - POST /admin/content/review/batch-approve — approves all pending for a curriculum
+  - POST /admin/content/review/{id}/assign  — requires review:assign; assigns/unassigns reviewer
+  - GET  /admin/users                     — requires review:assign; lists active admin accounts
+  - GET  /admin/content/review/queue (assigned_to filter) — returns only assigned items
   - POST /admin/content/versions/{id}/publish  — requires content:publish; sets published
   - POST /admin/content/versions/{id}/rollback — requires content:rollback
   - POST /admin/content/block             — requires content:block; returns block_id
@@ -401,6 +404,136 @@ async def test_batch_approve_requires_approve_permission(client, db_conn):
         headers=_admin_headers(role="developer"),
     )
     assert r.status_code == 403
+
+
+# ── Assign ────────────────────────────────────────────────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_assign_version_to_admin(client, db_conn):
+    """POST /assign sets assigned_to_admin_id and returns assigned_to_email."""
+    version_id = await _insert_version(
+        client, subject=f"Assign-{uuid.uuid4().hex[:6]}", status="pending"
+    )
+    await _insert_admin(client)
+
+    with patch("src.core.events.write_audit_log"):
+        r = await client.post(
+            f"/api/v1/admin/content/review/{version_id}/assign",
+            json={"admin_id": _TEST_ADMIN_ID},
+            headers=_admin_headers(),
+        )
+    assert r.status_code == 200, r.text
+    data = r.json()
+    assert data["version_id"] == version_id
+    assert data["assigned_to_admin_id"] == _TEST_ADMIN_ID
+    assert data["assigned_to_email"] == "test-admin@test.invalid"
+    assert data["assigned_at"] is not None
+
+
+@pytest.mark.asyncio
+async def test_unassign_version(client, db_conn):
+    """POST /assign with admin_id=null clears the assignment."""
+    version_id = await _insert_version(
+        client, subject=f"Unassign-{uuid.uuid4().hex[:6]}", status="pending"
+    )
+    await _insert_admin(client)
+
+    # First assign
+    with patch("src.core.events.write_audit_log"):
+        await client.post(
+            f"/api/v1/admin/content/review/{version_id}/assign",
+            json={"admin_id": _TEST_ADMIN_ID},
+            headers=_admin_headers(),
+        )
+    # Then unassign
+    with patch("src.core.events.write_audit_log"):
+        r = await client.post(
+            f"/api/v1/admin/content/review/{version_id}/assign",
+            json={"admin_id": None},
+            headers=_admin_headers(),
+        )
+    assert r.status_code == 200, r.text
+    data = r.json()
+    assert data["assigned_to_admin_id"] is None
+    assert data["assigned_to_email"] is None
+    assert data["assigned_at"] is None
+
+
+@pytest.mark.asyncio
+async def test_assign_version_404_on_unknown(client, db_conn):
+    """POST /assign on a non-existent version returns 404."""
+    await _insert_admin(client)
+    with patch("src.core.events.write_audit_log"):
+        r = await client.post(
+            f"/api/v1/admin/content/review/{uuid.uuid4()}/assign",
+            json={"admin_id": _TEST_ADMIN_ID},
+            headers=_admin_headers(),
+        )
+    assert r.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_assign_version_requires_permission(client, db_conn):
+    """developer role lacks review:assign — must get 403."""
+    version_id = await _insert_version(
+        client, subject=f"AssignPerm-{uuid.uuid4().hex[:6]}", status="pending"
+    )
+    r = await client.post(
+        f"/api/v1/admin/content/review/{version_id}/assign",
+        json={"admin_id": _TEST_ADMIN_ID},
+        headers=_admin_headers(role="developer"),
+    )
+    assert r.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_list_admin_users(client, db_conn):
+    """GET /admin/users returns list of active admin accounts."""
+    await _insert_admin(client)
+    r = await client.get("/api/v1/admin/users", headers=_admin_headers())
+    assert r.status_code == 200, r.text
+    data = r.json()
+    assert "users" in data
+    emails = [u["email"] for u in data["users"]]
+    assert "test-admin@test.invalid" in emails
+
+
+@pytest.mark.asyncio
+async def test_queue_assigned_to_filter(client, db_conn):
+    """GET /queue?assigned_to=<id> returns only versions assigned to that admin."""
+    await _insert_admin(client)
+    curriculum_id = f"default-2026-g{uuid.uuid4().hex[:4]}"
+    assigned_id = await _insert_version(
+        client,
+        curriculum_id=curriculum_id,
+        subject=f"Assigned-{uuid.uuid4().hex[:6]}",
+        status="pending",
+    )
+    unassigned_id = await _insert_version(
+        client,
+        curriculum_id=curriculum_id,
+        subject=f"Unassigned-{uuid.uuid4().hex[:6]}",
+        status="pending",
+    )
+
+    # Assign the first version to the test admin
+    with patch("src.core.events.write_audit_log"):
+        await client.post(
+            f"/api/v1/admin/content/review/{assigned_id}/assign",
+            json={"admin_id": _TEST_ADMIN_ID},
+            headers=_admin_headers(),
+        )
+
+    r = await client.get(
+        "/api/v1/admin/content/review/queue",
+        params={"assigned_to": _TEST_ADMIN_ID},
+        headers=_admin_headers(),
+    )
+    assert r.status_code == 200, r.text
+    ids = [item["version_id"] for item in r.json()["items"]]
+    assert assigned_id in ids
+    assert unassigned_id not in ids
 
 
 # ── Publish ───────────────────────────────────────────────────────────────────
