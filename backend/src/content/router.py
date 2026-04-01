@@ -141,7 +141,10 @@ async def get_lesson(
     # 24-hour trial; the TTL on their account is the effective subscription limit.
     if student.get("role") != "demo_student":
         entitlement = await get_entitlement(student_id, pool, redis)
-        if entitlement["plan"] == "free" and entitlement["lessons_accessed"] >= _FREE_TIER_LESSON_LIMIT:
+        if (
+            entitlement["plan"] == "free"
+            and entitlement["lessons_accessed"] >= _FREE_TIER_LESSON_LIMIT
+        ):
             raise HTTPException(
                 status_code=402,
                 detail={

@@ -236,7 +236,11 @@ async def unit_content_meta(
     if not data:
         raise HTTPException(
             status_code=404,
-            detail={"error": "not_found", "detail": "Unit or version not found.", "correlation_id": _cid(request)},
+            detail={
+                "error": "not_found",
+                "detail": "Unit or version not found.",
+                "correlation_id": _cid(request),
+            },
         )
     return UnitContentMetaResponse(**data)
 
@@ -260,12 +264,20 @@ async def unit_content_file(
         except FileNotFoundError:
             raise HTTPException(
                 status_code=404,
-                detail={"error": "not_found", "detail": f"Content file '{content_type}_{lang}.json' not found.", "correlation_id": _cid(request)},
+                detail={
+                    "error": "not_found",
+                    "detail": f"Content file '{content_type}_{lang}.json' not found.",
+                    "correlation_id": _cid(request),
+                },
             )
     if not data:
         raise HTTPException(
             status_code=404,
-            detail={"error": "not_found", "detail": "Version not found.", "correlation_id": _cid(request)},
+            detail={
+                "error": "not_found",
+                "detail": "Version not found.",
+                "correlation_id": _cid(request),
+            },
         )
     return UnitContentFileResponse(**data)
 

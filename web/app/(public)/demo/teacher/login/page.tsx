@@ -20,12 +20,12 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-type LoginError =
-  | "login_error_invalid"
-  | "login_error_expired"
-  | "login_error_generic";
+type LoginError = "login_error_invalid" | "login_error_expired" | "login_error_generic";
 
-function resolveLoginError(status: number | undefined, code: string | undefined): LoginError {
+function resolveLoginError(
+  status: number | undefined,
+  code: string | undefined,
+): LoginError {
   if (status === 401) return "login_error_invalid";
   if (status === 403 && code === "demo_expired") return "login_error_expired";
   return "login_error_generic";
@@ -42,7 +42,9 @@ export default function DemoTeacherLoginPage() {
   const t = useTranslations("demo_teacher");
   const router = useRouter();
   const [errorKey, setErrorKey] = useState<LoginError | null>(null);
-  const [resendState, setResendState] = useState<"idle" | "sending" | "sent" | "failed">("idle");
+  const [resendState, setResendState] = useState<"idle" | "sending" | "sent" | "failed">(
+    "idle",
+  );
 
   const {
     register,
@@ -62,7 +64,9 @@ export default function DemoTeacherLoginPage() {
       const axiosErr = err as {
         response?: { status?: number; data?: { error?: string } };
       };
-      setErrorKey(resolveLoginError(axiosErr.response?.status, axiosErr.response?.data?.error));
+      setErrorKey(
+        resolveLoginError(axiosErr.response?.status, axiosErr.response?.data?.error),
+      );
     }
   }
 
@@ -141,7 +145,9 @@ export default function DemoTeacherLoginPage() {
           {/* Resend credentials */}
           <div className="mt-5 border-t pt-4 text-center text-xs text-gray-500">
             {resendState === "sent" ? (
-              <p className="text-green-600">Credentials email resent. Check your inbox.</p>
+              <p className="text-green-600">
+                Credentials email resent. Check your inbox.
+              </p>
             ) : resendState === "failed" ? (
               <p className="text-red-500">Resend failed. Please try again.</p>
             ) : (
@@ -162,7 +168,10 @@ export default function DemoTeacherLoginPage() {
 
         <p className="mt-4 text-center text-xs text-gray-400">
           {t("already_have_demo")}{" "}
-          <Link href="/" className="text-cyan-600 underline underline-offset-2 hover:text-cyan-800">
+          <Link
+            href="/"
+            className="text-cyan-600 underline underline-offset-2 hover:text-cyan-800"
+          >
             {t("sign_in_demo")} →
           </Link>
         </p>

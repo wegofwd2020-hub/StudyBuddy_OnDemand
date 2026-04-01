@@ -966,6 +966,7 @@ def run_grade_pipeline_task(
     # sys.path = ["/", ...] → import pipeline.build_grade resolves to /pipeline/build_grade.py
     _pipeline_parent = "/pipeline/.."
     import os as _os
+
     _pipeline_parent = _os.path.abspath(_pipeline_parent)
     if _pipeline_parent not in sys.path:
         sys.path.insert(0, _pipeline_parent)
@@ -993,8 +994,10 @@ def run_grade_pipeline_task(
                 )
             finally:
                 await conn.close()
+
         try:
             import asyncpg as _asyncpg
+
             _run_async(_mark_started())
         except Exception:
             pass
@@ -1014,6 +1017,7 @@ def run_grade_pipeline_task(
         payload_bytes: int = 0
         try:
             import os as _os2
+
             curriculum_id = f"default-{year}-g{grade}"
             content_dir = _os2.path.join(
                 pipeline_cfg.settings.CONTENT_STORE_PATH, "curricula", curriculum_id
@@ -1040,6 +1044,7 @@ def run_grade_pipeline_task(
                 )
             finally:
                 await conn.close()
+
         try:
             _run_async(_mark_done())
         except Exception:
@@ -1062,8 +1067,10 @@ def run_grade_pipeline_task(
                 )
             finally:
                 await conn.close()
+
         try:
             import asyncpg as _asyncpg
+
             _run_async(_mark_failed())
         except Exception:
             pass
@@ -1437,7 +1444,9 @@ def sweep_expired_demo_accounts() -> None:
     async def _sweep() -> None:
         import asyncpg as _asyncpg
 
-        pool = await _asyncpg.create_pool(cfg.DATABASE_URL, min_size=1, max_size=2, statement_cache_size=0)
+        pool = await _asyncpg.create_pool(
+            cfg.DATABASE_URL, min_size=1, max_size=2, statement_cache_size=0
+        )
         try:
             async with pool.acquire() as conn:
                 expired = await conn.fetch(
@@ -1526,7 +1535,9 @@ def sweep_expired_demo_teacher_accounts() -> None:
     async def _sweep() -> None:
         import asyncpg as _asyncpg
 
-        pool = await _asyncpg.create_pool(cfg.DATABASE_URL, min_size=1, max_size=2, statement_cache_size=0)
+        pool = await _asyncpg.create_pool(
+            cfg.DATABASE_URL, min_size=1, max_size=2, statement_cache_size=0
+        )
         try:
             async with pool.acquire() as conn:
                 expired = await conn.fetch(

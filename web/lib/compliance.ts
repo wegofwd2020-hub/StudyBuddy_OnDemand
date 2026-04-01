@@ -20,7 +20,12 @@ export interface ComplianceStandard {
   /** Compliance level */
   status: ComplianceStatus;
   /** Grouping category for visual separation */
-  category: "Accessibility" | "Privacy & Legal" | "Content" | "Internationalisation" | "Security";
+  category:
+    | "Accessibility"
+    | "Privacy & Legal"
+    | "Content"
+    | "Internationalisation"
+    | "Security";
 }
 
 export const COMPLIANCE_STANDARDS: ComplianceStandard[] = [
@@ -70,7 +75,7 @@ export const COMPLIANCE_STANDARDS: ComplianceStandard[] = [
     standard: "Screen Reader Support (WAI-ARIA 1.2)",
     version: "W3C Rec — June 2023",
     description:
-      "Interactive widgets use correct ARIA roles, aria-label, aria-hidden, and aria-invalid attributes. Decorative icons are hidden from the accessibility tree. Live regions (role=\"status\") announce time-sensitive updates such as the demo countdown banner.",
+      'Interactive widgets use correct ARIA roles, aria-label, aria-hidden, and aria-invalid attributes. Decorative icons are hidden from the accessibility tree. Live regions (role="status") announce time-sensitive updates such as the demo countdown banner.',
     status: "compliant",
     category: "Accessibility",
   },
@@ -220,7 +225,7 @@ export const COMPLIANCE_STANDARDS: ComplianceStandard[] = [
     standard: "HTML lang Attribute",
     version: "WCAG 2.1 SC 3.1.1",
     description:
-      "The <html lang=\"…\"> attribute is set server-side from the user's active locale so screen readers announce content in the correct language without guessing.",
+      'The <html lang="…"> attribute is set server-side from the user\'s active locale so screen readers announce content in the correct language without guessing.',
     status: "compliant",
     category: "Internationalisation",
   },

@@ -100,8 +100,10 @@ function ExtendModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-xl">
-        <h2 className="mb-1 text-base font-semibold text-gray-900">Extend teacher demo</h2>
-        <p className="mb-4 text-sm text-gray-500 break-all">{item.email}</p>
+        <h2 className="mb-1 text-base font-semibold text-gray-900">
+          Extend teacher demo
+        </h2>
+        <p className="mb-4 text-sm break-all text-gray-500">{item.email}</p>
         <label className="mb-1 block text-xs font-medium text-gray-700">
           Hours to add (1–168)
         </label>
@@ -111,7 +113,7 @@ function ExtendModal({
           max={168}
           value={hours}
           onChange={(e) => setHours(Math.max(1, Math.min(168, Number(e.target.value))))}
-          className="mb-4 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+          className="mb-4 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none"
         />
         <div className="flex gap-2">
           <button
@@ -162,8 +164,10 @@ function RevokeModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-xl">
-        <h2 className="mb-1 text-base font-semibold text-gray-900">Revoke teacher demo?</h2>
-        <p className="mb-1 text-sm text-gray-500 break-all">{item.email}</p>
+        <h2 className="mb-1 text-base font-semibold text-gray-900">
+          Revoke teacher demo?
+        </h2>
+        <p className="mb-1 text-sm break-all text-gray-500">{item.email}</p>
         <p className="mb-4 text-sm text-gray-500">
           This immediately ends their teacher demo session. This cannot be undone.
         </p>
@@ -283,7 +287,12 @@ export default function AdminDemoTeacherAccountsPage() {
   const { data, isLoading } = useQuery({
     queryKey: ["admin", "demo-teacher-accounts", page, statusFilter, emailSearch],
     queryFn: () =>
-      getDemoTeacherAccounts(page, PAGE_SIZE, statusFilter || undefined, emailSearch || undefined),
+      getDemoTeacherAccounts(
+        page,
+        PAGE_SIZE,
+        statusFilter || undefined,
+        emailSearch || undefined,
+      ),
     staleTime: 30_000,
   });
 
@@ -295,7 +304,8 @@ export default function AdminDemoTeacherAccountsPage() {
           <span className="font-semibold">Access denied</span>
         </div>
         <p className="text-sm text-gray-500">
-          Managing teacher demo accounts requires <strong>product_admin</strong> or higher.
+          Managing teacher demo accounts requires <strong>product_admin</strong> or
+          higher.
         </p>
       </div>
     );
@@ -347,7 +357,7 @@ export default function AdminDemoTeacherAccountsPage() {
             placeholder="Search by email…"
             value={emailInput}
             onChange={(e) => setEmailInput(e.target.value)}
-            className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm focus:ring-2 focus:ring-cyan-500 focus:outline-none"
           />
           <button
             type="submit"
@@ -387,8 +397,12 @@ export default function AdminDemoTeacherAccountsPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-100 bg-gray-50">
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">Email</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">Status</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">
+                    Email
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">
+                    Status
+                  </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">
                     Expires
                   </th>
@@ -413,9 +427,7 @@ export default function AdminDemoTeacherAccountsPage() {
                       <StatusBadge status={item.request_status} />
                     </td>
                     <td className="px-4 py-3 text-gray-500">
-                      {item.expires_at
-                        ? new Date(item.expires_at).toLocaleString()
-                        : "—"}
+                      {item.expires_at ? new Date(item.expires_at).toLocaleString() : "—"}
                     </td>
                     <td className="px-4 py-3 text-gray-500">
                       {item.extended_at
@@ -423,9 +435,7 @@ export default function AdminDemoTeacherAccountsPage() {
                         : "—"}
                     </td>
                     <td className="px-4 py-3 text-gray-500">
-                      {item.revoked_at
-                        ? new Date(item.revoked_at).toLocaleString()
-                        : "—"}
+                      {item.revoked_at ? new Date(item.revoked_at).toLocaleString() : "—"}
                     </td>
                     <td className="px-4 py-3">
                       <RowActions item={item} onRefresh={refresh} />

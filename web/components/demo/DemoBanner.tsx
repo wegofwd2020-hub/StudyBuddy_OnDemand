@@ -66,11 +66,13 @@ export function DemoBanner() {
         )}
         <span>
           {urgent && (
-            <span className="mr-1 font-bold uppercase tracking-wide text-xs">Urgent:</span>
+            <span className="mr-1 text-xs font-bold tracking-wide uppercase">
+              Urgent:
+            </span>
           )}
           <span className="font-medium">Demo account</span>
           {" — "}
-          <Clock className="inline h-3 w-3 align-middle mr-0.5" aria-hidden="true" />
+          <Clock className="mr-0.5 inline h-3 w-3 align-middle" aria-hidden="true" />
           {label}
         </span>
       </span>

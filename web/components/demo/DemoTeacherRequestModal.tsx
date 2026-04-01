@@ -47,7 +47,9 @@ export function DemoTeacherRequestModal() {
   const [submittedEmail, setSubmittedEmail] = useState("");
   const [errorKey, setErrorKey] = useState<ErrorKey | null>(null);
   const [pendingEmail, setPendingEmail] = useState("");
-  const [resendState, setResendState] = useState<"idle" | "sending" | "sent" | "failed">("idle");
+  const [resendState, setResendState] = useState<"idle" | "sending" | "sent" | "failed">(
+    "idle",
+  );
 
   const {
     register,
@@ -101,7 +103,11 @@ export function DemoTeacherRequestModal() {
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger
         render={
-          <Button size="lg" variant="outline" className="whitespace-pre-line text-center leading-tight">
+          <Button
+            size="lg"
+            variant="outline"
+            className="text-center leading-tight whitespace-pre-line"
+          >
             {t("hero_cta")}
           </Button>
         }
@@ -155,7 +161,9 @@ export function DemoTeacherRequestModal() {
                   {errorKey === "error_pending" && (
                     <div className="text-xs text-gray-500">
                       {resendState === "sent" ? (
-                        <p className="text-green-600">Verification email resent. Check your inbox.</p>
+                        <p className="text-green-600">
+                          Verification email resent. Check your inbox.
+                        </p>
                       ) : resendState === "failed" ? (
                         <p className="text-red-500">Resend failed. Please try again.</p>
                       ) : (

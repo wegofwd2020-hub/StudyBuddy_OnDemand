@@ -244,9 +244,7 @@ async def verify_demo_teacher_email(token: str, request: Request):
         )
 
     log.info("demo_teacher_account_created", email=email)
-    return {
-        "message": "Account created. Login credentials have been sent to your email."
-    }
+    return {"message": "Account created. Login credentials have been sent to your email."}
 
 
 # ── POST /demo/teacher/auth/login ─────────────────────────────────────────────

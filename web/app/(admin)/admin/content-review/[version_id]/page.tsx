@@ -128,7 +128,7 @@ export default function AdminContentReviewDetailPage() {
             {item.version_number > 1 && (
               <Link
                 href={`/admin/content-review/${version_id}/diff`}
-                className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 hover:border-indigo-300 hover:text-indigo-700 transition-colors"
+                className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:border-indigo-300 hover:text-indigo-700"
               >
                 <GitCompare className="h-3.5 w-3.5" />
                 Compare with previous version
@@ -152,7 +152,10 @@ export default function AdminContentReviewDetailPage() {
               </div>
               <ul className="divide-y divide-gray-50">
                 {item.units.map((u) => (
-                  <li key={u.unit_id} className="flex items-center justify-between px-4 py-2.5">
+                  <li
+                    key={u.unit_id}
+                    className="flex items-center justify-between px-4 py-2.5"
+                  >
                     <div>
                       <p className="text-sm font-medium text-gray-900">{u.title}</p>
                       <p className="font-mono text-xs text-gray-400">{u.unit_id}</p>
@@ -213,7 +216,7 @@ export default function AdminContentReviewDetailPage() {
                       {ACTION_LABELS[h.action] ?? h.action}
                     </span>
                     <span className="flex-1 text-gray-500">{h.notes ?? "—"}</span>
-                    <span className="whitespace-nowrap text-xs text-gray-400">
+                    <span className="text-xs whitespace-nowrap text-gray-400">
                       {h.reviewer_email ?? "system"} ·{" "}
                       {new Date(h.reviewed_at).toLocaleString()}
                     </span>
@@ -295,7 +298,9 @@ export default function AdminContentReviewDetailPage() {
           <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-6">
             {modal === "reject" ? (
               <>
-                <h2 className="mb-4 text-base font-semibold text-gray-900">Reject version</h2>
+                <h2 className="mb-4 text-base font-semibold text-gray-900">
+                  Reject version
+                </h2>
                 <textarea
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
@@ -317,7 +322,10 @@ export default function AdminContentReviewDetailPage() {
                     Confirm reject
                   </button>
                   <button
-                    onClick={() => { setModal(null); setReason(""); }}
+                    onClick={() => {
+                      setModal(null);
+                      setReason("");
+                    }}
                     className="flex-1 py-2 text-sm text-gray-600 transition-colors hover:text-gray-900"
                   >
                     Cancel
@@ -326,14 +334,19 @@ export default function AdminContentReviewDetailPage() {
               </>
             ) : (
               <>
-                <h2 className="mb-1 text-base font-semibold text-gray-900">Block unit content</h2>
+                <h2 className="mb-1 text-base font-semibold text-gray-900">
+                  Block unit content
+                </h2>
                 <p className="mb-4 text-xs text-gray-500">
-                  Blocks a specific content type for a unit. Students will not be served this content.
+                  Blocks a specific content type for a unit. Students will not be served
+                  this content.
                 </p>
 
                 <div className="space-y-3">
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-gray-600">Unit</label>
+                    <label className="mb-1 block text-xs font-medium text-gray-600">
+                      Unit
+                    </label>
                     <select
                       value={blockUnit}
                       onChange={(e) => setBlockUnit(e.target.value)}
@@ -348,20 +361,26 @@ export default function AdminContentReviewDetailPage() {
                   </div>
 
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-gray-600">Content type</label>
+                    <label className="mb-1 block text-xs font-medium text-gray-600">
+                      Content type
+                    </label>
                     <select
                       value={blockType}
                       onChange={(e) => setBlockType(e.target.value)}
                       className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                     >
                       {CONTENT_TYPES.map((t) => (
-                        <option key={t} value={t}>{t}</option>
+                        <option key={t} value={t}>
+                          {t}
+                        </option>
                       ))}
                     </select>
                   </div>
 
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-gray-600">Reason (optional)</label>
+                    <label className="mb-1 block text-xs font-medium text-gray-600">
+                      Reason (optional)
+                    </label>
                     <textarea
                       value={reason}
                       onChange={(e) => setReason(e.target.value)}
@@ -388,7 +407,10 @@ export default function AdminContentReviewDetailPage() {
                     Confirm block
                   </button>
                   <button
-                    onClick={() => { setModal(null); setReason(""); }}
+                    onClick={() => {
+                      setModal(null);
+                      setReason("");
+                    }}
                     className="flex-1 py-2 text-sm text-gray-600 transition-colors hover:text-gray-900"
                   >
                     Cancel

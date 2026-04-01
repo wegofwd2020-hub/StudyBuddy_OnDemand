@@ -7,9 +7,7 @@
   "paths": {
     "/health": {
       "get": {
-        "tags": [
-          "observability"
-        ],
+        "tags": ["observability"],
         "summary": "Health Check",
         "description": "Deep health check: verifies DB and Redis connectivity.\n\nReturns HTTP 200 if all dependencies are healthy.\nReturns HTTP 503 if any dependency is unreachable.",
         "operationId": "health_check_health_get",
@@ -31,9 +29,7 @@
     },
     "/api/v1/auth/exchange": {
       "post": {
-        "tags": [
-          "auth"
-        ],
+        "tags": ["auth"],
         "summary": "Exchange Token",
         "description": "Exchange an Auth0 id_token for an internal JWT + refresh token.\n\nCreates the student record on first login (upsert).\nReturns 403 if the account is suspended or pending.",
         "operationId": "exchange_token_api_v1_auth_exchange_post",
@@ -73,9 +69,7 @@
     },
     "/api/v1/auth/teacher/exchange": {
       "post": {
-        "tags": [
-          "auth"
-        ],
+        "tags": ["auth"],
         "summary": "Exchange Teacher Token",
         "description": "Exchange Auth0 id_token for teacher internal JWT.",
         "operationId": "exchange_teacher_token_api_v1_auth_teacher_exchange_post",
@@ -115,9 +109,7 @@
     },
     "/api/v1/auth/refresh": {
       "post": {
-        "tags": [
-          "auth"
-        ],
+        "tags": ["auth"],
         "summary": "Refresh Token",
         "description": "Exchange a valid refresh token for a new access JWT.",
         "operationId": "refresh_token_api_v1_auth_refresh_post",
@@ -157,9 +149,7 @@
     },
     "/api/v1/auth/logout": {
       "post": {
-        "tags": [
-          "auth"
-        ],
+        "tags": ["auth"],
         "summary": "Logout",
         "description": "Delete the refresh token from Redis.",
         "operationId": "logout_api_v1_auth_logout_post",
@@ -197,9 +187,7 @@
     },
     "/api/v1/auth/forgot-password": {
       "post": {
-        "tags": [
-          "auth"
-        ],
+        "tags": ["auth"],
         "summary": "Forgot Password",
         "description": "Trigger Auth0 password reset email.\n\nAlways returns HTTP 200 regardless of whether the email is registered.\nDifferent responses would leak registered email addresses.",
         "operationId": "forgot_password_api_v1_auth_forgot_password_post",
@@ -237,9 +225,7 @@
     },
     "/api/v1/student/profile": {
       "patch": {
-        "tags": [
-          "auth"
-        ],
+        "tags": ["auth"],
         "summary": "Update Student Profile",
         "description": "Update student name, locale, or grade.",
         "operationId": "update_student_profile_api_v1_student_profile_patch",
@@ -282,9 +268,7 @@
     },
     "/api/v1/auth/settings": {
       "get": {
-        "tags": [
-          "auth"
-        ],
+        "tags": ["auth"],
         "summary": "Get Settings",
         "description": "Return display name, locale, and notification preferences for the student.",
         "operationId": "get_settings_api_v1_auth_settings_get",
@@ -305,9 +289,7 @@
         ]
       },
       "patch": {
-        "tags": [
-          "auth"
-        ],
+        "tags": ["auth"],
         "summary": "Update Settings",
         "description": "Update display name, locale, and/or notification preferences.",
         "operationId": "update_settings_api_v1_auth_settings_patch",
@@ -352,9 +334,7 @@
     },
     "/api/v1/auth/account": {
       "delete": {
-        "tags": [
-          "auth"
-        ],
+        "tags": ["auth"],
         "summary": "Delete Account",
         "description": "Initiate GDPR account deletion.\n\nSoft-deletes the account immediately and dispatches a Celery task\nto anonymise PII and delete from Auth0.  Always returns 200.",
         "operationId": "delete_account_api_v1_auth_account_delete",
@@ -377,9 +357,7 @@
     },
     "/api/v1/admin/auth/login": {
       "post": {
-        "tags": [
-          "admin-auth"
-        ],
+        "tags": ["admin-auth"],
         "summary": "Admin Login",
         "description": "Authenticate an internal admin user with email + password.\n\nLockout: 5 failures \u2192 423 Locked for 15 minutes (Redis-backed).\nbcrypt verify runs in thread pool executor (non-blocking).",
         "operationId": "admin_login_api_v1_admin_auth_login_post",
@@ -419,9 +397,7 @@
     },
     "/api/v1/admin/auth/refresh": {
       "post": {
-        "tags": [
-          "admin-auth"
-        ],
+        "tags": ["admin-auth"],
         "summary": "Admin Refresh",
         "description": "Exchange an admin refresh token for a new admin JWT.",
         "operationId": "admin_refresh_api_v1_admin_auth_refresh_post",
@@ -461,9 +437,7 @@
     },
     "/api/v1/admin/auth/forgot-password": {
       "post": {
-        "tags": [
-          "admin-auth"
-        ],
+        "tags": ["admin-auth"],
         "summary": "Admin Forgot Password",
         "description": "Store a one-time reset token in Redis (TTL 1 hr).\n\nAlways returns 200 \u2014 different responses leak registered emails.\nThe reset link/token would normally be emailed; for Phase 1 it is\nreturned in the logs only (email integration is Phase 2+).",
         "operationId": "admin_forgot_password_api_v1_admin_auth_forgot_password_post",
@@ -501,9 +475,7 @@
     },
     "/api/v1/admin/auth/reset-password": {
       "post": {
-        "tags": [
-          "admin-auth"
-        ],
+        "tags": ["admin-auth"],
         "summary": "Admin Reset Password",
         "description": "Consume a one-time reset token and set a new password.",
         "operationId": "admin_reset_password_api_v1_admin_auth_reset_password_post",
@@ -541,9 +513,7 @@
     },
     "/api/v1/account/students/{student_id}/status": {
       "patch": {
-        "tags": [
-          "account"
-        ],
+        "tags": ["account"],
         "summary": "Update Student Status",
         "description": "Suspend or reactivate a student account.\n\nOn suspend:     SET suspended:{student_id} 1  (no TTL)\nOn reactivate:  DEL suspended:{student_id}",
         "operationId": "update_student_status_api_v1_account_students__student_id__status_patch",
@@ -600,9 +570,7 @@
     },
     "/api/v1/account/teachers/{teacher_id}/status": {
       "patch": {
-        "tags": [
-          "account"
-        ],
+        "tags": ["account"],
         "summary": "Update Teacher Status",
         "description": "Suspend or reactivate a teacher account.",
         "operationId": "update_teacher_status_api_v1_account_teachers__teacher_id__status_patch",
@@ -659,9 +627,7 @@
     },
     "/api/v1/account/schools/{school_id}/status": {
       "patch": {
-        "tags": [
-          "account"
-        ],
+        "tags": ["account"],
         "summary": "Update School Status",
         "description": "Suspend or reactivate a school.\n\nOn suspension: cascades to all teachers + students via Celery.\nOn reactivation: does NOT automatically reactivate members\n(per studybuddy-docs/PHASE1_SETUP.md section 10.6).",
         "operationId": "update_school_status_api_v1_account_schools__school_id__status_patch",
@@ -718,9 +684,7 @@
     },
     "/api/v1/curriculum": {
       "get": {
-        "tags": [
-          "curriculum"
-        ],
+        "tags": ["curriculum"],
         "summary": "List Curriculum",
         "operationId": "list_curriculum_api_v1_curriculum_get",
         "responses": {
@@ -743,9 +707,7 @@
     },
     "/api/v1/curriculum/template": {
       "get": {
-        "tags": [
-          "curriculum"
-        ],
+        "tags": ["curriculum"],
         "summary": "Download Template",
         "description": "Download an XLSX curriculum template for the given grade.",
         "operationId": "download_template_api_v1_curriculum_template_get",
@@ -785,9 +747,7 @@
     },
     "/api/v1/curriculum/upload": {
       "post": {
-        "tags": [
-          "curriculum"
-        ],
+        "tags": ["curriculum"],
         "summary": "Upload Curriculum Json",
         "description": "Create a curriculum from a JSON unit list. Returns 400 with per-row errors on validation failure.",
         "operationId": "upload_curriculum_json_api_v1_curriculum_upload_post",
@@ -832,9 +792,7 @@
     },
     "/api/v1/curriculum/upload/xlsx": {
       "post": {
-        "tags": [
-          "curriculum"
-        ],
+        "tags": ["curriculum"],
         "summary": "Upload Curriculum Xlsx",
         "description": "Upload an XLSX file to create a curriculum. Returns 400 with per-row errors on failure.",
         "operationId": "upload_curriculum_xlsx_api_v1_curriculum_upload_xlsx_post",
@@ -911,9 +869,7 @@
     },
     "/api/v1/curriculum/pipeline/trigger": {
       "post": {
-        "tags": [
-          "curriculum"
-        ],
+        "tags": ["curriculum"],
         "summary": "Pipeline Trigger",
         "description": "Dispatch an async content-generation pipeline job. Returns job_id immediately.",
         "operationId": "pipeline_trigger_api_v1_curriculum_pipeline_trigger_post",
@@ -958,9 +914,7 @@
     },
     "/api/v1/curriculum/pipeline/{job_id}/status": {
       "get": {
-        "tags": [
-          "curriculum"
-        ],
+        "tags": ["curriculum"],
         "summary": "Pipeline Job Status",
         "description": "Poll the status of a pipeline job (reads from Redis).",
         "operationId": "pipeline_job_status_api_v1_curriculum_pipeline__job_id__status_get",
@@ -1006,9 +960,7 @@
     },
     "/api/v1/curriculum/{curriculum_id}/activate": {
       "put": {
-        "tags": [
-          "curriculum"
-        ],
+        "tags": ["curriculum"],
         "summary": "Activate Curriculum",
         "description": "Activate a curriculum for its school/grade/year.\n\n- Sets status='active', activated_at=NOW().\n- Archives any other active curriculum for the same (school_id, grade, year).\n- Invalidates cur:{student_id} Redis cache for all enrolled students.",
         "operationId": "activate_curriculum_api_v1_curriculum__curriculum_id__activate_put",
@@ -1054,9 +1006,7 @@
     },
     "/api/v1/curriculum/tree": {
       "get": {
-        "tags": [
-          "curriculum"
-        ],
+        "tags": ["curriculum"],
         "summary": "Get Curriculum Tree",
         "description": "Return the full subject + unit tree for the authenticated student.\n\nResolves curriculum_id via enrollment (school custom) or default-{year}-g{grade}.\nReturns the shape the web frontend expects:\n  { curriculum_id, grade, subjects: [{ subject, units: [{ unit_id, title, subject, grade, sort_order, has_lab }] }] }",
         "operationId": "get_curriculum_tree_api_v1_curriculum_tree_get",
@@ -1083,9 +1033,7 @@
     },
     "/api/v1/curriculum/{grade}": {
       "get": {
-        "tags": [
-          "curriculum"
-        ],
+        "tags": ["curriculum"],
         "summary": "Get Grade Curriculum",
         "description": "Return the full subject + unit tree for a grade (5\u201312).",
         "operationId": "get_grade_curriculum_api_v1_curriculum__grade__get",
@@ -1126,9 +1074,7 @@
     },
     "/api/v1/content/{unit_id}/lesson": {
       "get": {
-        "tags": [
-          "content"
-        ],
+        "tags": ["content"],
         "summary": "Get Lesson",
         "description": "Serve a lesson for the given unit.\n\nEntitlement guard: free-tier students are limited to 2 lessons.\nIncrements lessons_accessed after serving.",
         "operationId": "get_lesson_api_v1_content__unit_id__lesson_get",
@@ -1174,9 +1120,7 @@
     },
     "/api/v1/content/{unit_id}/lesson/audio": {
       "get": {
-        "tags": [
-          "content"
-        ],
+        "tags": ["content"],
         "summary": "Get Lesson Audio",
         "description": "Return a URL for the lesson MP3 audio file.\n\nFor local dev (no S3): returns a /static/content/... URL.\nFor production: returns a pre-signed S3 URL.\n\nNever proxies audio bytes through this server.",
         "operationId": "get_lesson_audio_api_v1_content__unit_id__lesson_audio_get",
@@ -1222,9 +1166,7 @@
     },
     "/api/v1/content/{unit_id}/quiz": {
       "get": {
-        "tags": [
-          "content"
-        ],
+        "tags": ["content"],
         "summary": "Get Quiz",
         "description": "Serve a quiz set, rotating through sets 1\u21922\u21923\u21921 per student per unit.",
         "operationId": "get_quiz_api_v1_content__unit_id__quiz_get",
@@ -1270,9 +1212,7 @@
     },
     "/api/v1/content/{unit_id}/tutorial": {
       "get": {
-        "tags": [
-          "content"
-        ],
+        "tags": ["content"],
         "summary": "Get Tutorial",
         "description": "Serve the tutorial for a unit.",
         "operationId": "get_tutorial_api_v1_content__unit_id__tutorial_get",
@@ -1318,9 +1258,7 @@
     },
     "/api/v1/content/{unit_id}/experiment": {
       "get": {
-        "tags": [
-          "content"
-        ],
+        "tags": ["content"],
         "summary": "Get Experiment",
         "description": "Serve the lab experiment for a unit.\nReturns 404 if no experiment file exists (non-lab unit).",
         "operationId": "get_experiment_api_v1_content__unit_id__experiment_get",
@@ -1366,9 +1304,7 @@
     },
     "/api/v1/content/{unit_id}/report": {
       "post": {
-        "tags": [
-          "content"
-        ],
+        "tags": ["content"],
         "summary": "Report Content",
         "description": "Student reports a content issue.\nStores in student_content_feedback table.",
         "operationId": "report_content_api_v1_content__unit_id__report_post",
@@ -1422,9 +1358,7 @@
     },
     "/api/v1/content/{unit_id}/feedback/marked": {
       "post": {
-        "tags": [
-          "content"
-        ],
+        "tags": ["content"],
         "summary": "Submit Marked Feedback",
         "description": "Student submits feedback on a specific marked portion of content.\nStored as student_content_feedback with content_type from body.",
         "operationId": "submit_marked_feedback_api_v1_content__unit_id__feedback_marked_post",
@@ -1478,9 +1412,7 @@
     },
     "/api/v1/app/version": {
       "get": {
-        "tags": [
-          "content"
-        ],
+        "tags": ["content"],
         "summary": "Get App Version",
         "description": "Return the current minimum and latest app versions.\nLoaded from the app_versions table (platform='all' or platform='ios'/'android').",
         "operationId": "get_app_version_api_v1_app_version_get",
@@ -1505,9 +1437,7 @@
     },
     "/api/v1/progress/session": {
       "post": {
-        "tags": [
-          "progress"
-        ],
+        "tags": ["progress"],
         "summary": "Start Session",
         "description": "Open a new quiz session for a student.\n\nattempt_number is computed server-side (COUNT prior completed sessions + 1).",
         "operationId": "start_session_api_v1_progress_session_post",
@@ -1552,9 +1482,7 @@
     },
     "/api/v1/progress/session/{session_id}/answer": {
       "post": {
-        "tags": [
-          "progress"
-        ],
+        "tags": ["progress"],
         "summary": "Record Answer",
         "description": "Record a single quiz answer.\n\nWrite is fire-and-forget via Celery task \u2014 returns 200 before DB write.\nThe session_id ownership is verified synchronously first.",
         "operationId": "record_answer_api_v1_progress_session__session_id__answer_post",
@@ -1610,9 +1538,7 @@
     },
     "/api/v1/progress/session/{session_id}/end": {
       "post": {
-        "tags": [
-          "progress"
-        ],
+        "tags": ["progress"],
         "summary": "End Session Endpoint",
         "description": "Close a session and compute the final score + passed flag.\n\nScore is written synchronously (client needs the result immediately).\nStreak update and progress view refresh are dispatched as Celery tasks.\nDashboard cache for this student is invalidated.",
         "operationId": "end_session_endpoint_api_v1_progress_session__session_id__end_post",
@@ -1668,9 +1594,7 @@
     },
     "/api/v1/progress/student": {
       "get": {
-        "tags": [
-          "progress"
-        ],
+        "tags": ["progress"],
         "summary": "Get Student History",
         "description": "Return the full raw progress history for the authenticated student.\n\nReturns sessions ordered newest-first, with answers nested inside.",
         "operationId": "get_student_history_api_v1_progress_student_get",
@@ -1730,9 +1654,7 @@
     },
     "/api/v1/student/dashboard": {
       "get": {
-        "tags": [
-          "student"
-        ],
+        "tags": ["student"],
         "summary": "Student Dashboard",
         "description": "Aggregated dashboard card for the authenticated student.\n\nCached at L2 Redis (60 s TTL); invalidated on session/end.",
         "operationId": "student_dashboard_api_v1_student_dashboard_get",
@@ -1757,9 +1679,7 @@
     },
     "/api/v1/student/progress": {
       "get": {
-        "tags": [
-          "student"
-        ],
+        "tags": ["student"],
         "summary": "Student Progress Map",
         "description": "Curriculum map with per-unit status badges.\n\nReads from mv_student_curriculum_progress (materialized view).",
         "operationId": "student_progress_map_api_v1_student_progress_get",
@@ -1784,9 +1704,7 @@
     },
     "/api/v1/student/stats": {
       "get": {
-        "tags": [
-          "student"
-        ],
+        "tags": ["student"],
         "summary": "Student Stats",
         "description": "Usage statistics for the requested period (7d | 30d | all).\n\nIncludes daily_activity breakdown and streak counters from Redis.",
         "operationId": "student_stats_api_v1_student_stats_get",
@@ -1834,9 +1752,7 @@
     },
     "/api/v1/notifications/token": {
       "post": {
-        "tags": [
-          "notifications"
-        ],
+        "tags": ["notifications"],
         "summary": "Register Push Token",
         "description": "Register or refresh an FCM push token for the authenticated student.",
         "operationId": "register_push_token_api_v1_notifications_token_post",
@@ -1879,9 +1795,7 @@
         ]
       },
       "delete": {
-        "tags": [
-          "notifications"
-        ],
+        "tags": ["notifications"],
         "summary": "Deregister Push Token",
         "description": "Remove an FCM push token for the authenticated student.",
         "operationId": "deregister_push_token_api_v1_notifications_token_delete",
@@ -1928,9 +1842,7 @@
     },
     "/api/v1/notifications/preferences": {
       "get": {
-        "tags": [
-          "notifications"
-        ],
+        "tags": ["notifications"],
         "summary": "Get Notification Preferences",
         "description": "Return notification preferences for the authenticated student.",
         "operationId": "get_notification_preferences_api_v1_notifications_preferences_get",
@@ -1953,9 +1865,7 @@
         ]
       },
       "put": {
-        "tags": [
-          "notifications"
-        ],
+        "tags": ["notifications"],
         "summary": "Update Notification Preferences",
         "description": "Update notification preferences for the authenticated student.",
         "operationId": "update_notification_preferences_api_v1_notifications_preferences_put",
@@ -2000,9 +1910,7 @@
     },
     "/api/v1/analytics/lesson/start": {
       "post": {
-        "tags": [
-          "analytics"
-        ],
+        "tags": ["analytics"],
         "summary": "Lesson Start",
         "description": "Record that a student opened a lesson.\n\nCreates a lesson_views row with started_at = NOW().\nThe mobile app stores the returned view_id and sends it when the lesson closes.",
         "operationId": "lesson_start_api_v1_analytics_lesson_start_post",
@@ -2047,9 +1955,7 @@
     },
     "/api/v1/analytics/lesson/end": {
       "post": {
-        "tags": [
-          "analytics"
-        ],
+        "tags": ["analytics"],
         "summary": "Lesson End",
         "description": "Record that a student closed a lesson (fire-and-forget write).\n\nVerifies view ownership synchronously, then dispatches a Celery task\nfor the actual DB write. Returns 200 before the write completes.",
         "operationId": "lesson_end_api_v1_analytics_lesson_end_post",
@@ -2094,9 +2000,7 @@
     },
     "/api/v1/analytics/student/me": {
       "get": {
-        "tags": [
-          "analytics"
-        ],
+        "tags": ["analytics"],
         "summary": "Student Metrics",
         "description": "Return self-service analytics for the authenticated student.",
         "operationId": "student_metrics_api_v1_analytics_student_me_get",
@@ -2121,9 +2025,7 @@
     },
     "/api/v1/analytics/student/stats": {
       "get": {
-        "tags": [
-          "analytics"
-        ],
+        "tags": ["analytics"],
         "summary": "Student Stats",
         "description": "Return streak, session dates, and summary stats for the student dashboard.\n\nstreak_days     \u2014 consecutive days with at least one completed session (ending today)\nsession_dates   \u2014 ISO date strings (YYYY-MM-DD) for the last 30 days that had sessions",
         "operationId": "student_stats_api_v1_analytics_student_stats_get",
@@ -2150,9 +2052,7 @@
     },
     "/api/v1/analytics/school/{school_id}/class": {
       "get": {
-        "tags": [
-          "analytics"
-        ],
+        "tags": ["analytics"],
         "summary": "Class Metrics",
         "description": "Return aggregate per-unit analytics for all enrolled students in a school.\n\nRequires teacher JWT. Teachers can only view their own school's data.",
         "operationId": "class_metrics_api_v1_analytics_school__school_id__class_get",
@@ -2230,9 +2130,7 @@
     },
     "/api/v1/subscription/status": {
       "get": {
-        "tags": [
-          "subscription"
-        ],
+        "tags": ["subscription"],
         "summary": "Subscription Status",
         "description": "Return the current subscription plan and status for the authenticated student.",
         "operationId": "subscription_status_api_v1_subscription_status_get",
@@ -2257,9 +2155,7 @@
     },
     "/api/v1/subscription/checkout": {
       "post": {
-        "tags": [
-          "subscription"
-        ],
+        "tags": ["subscription"],
         "summary": "Checkout",
         "description": "Create a Stripe Checkout Session and return the hosted checkout URL.\n\nThe mobile app opens this URL in a browser / in-app WebView.\nOn success, Stripe calls POST /subscription/webhook with checkout.session.completed.",
         "operationId": "checkout_api_v1_subscription_checkout_post",
@@ -2304,9 +2200,7 @@
     },
     "/api/v1/subscription/webhook": {
       "post": {
-        "tags": [
-          "subscription"
-        ],
+        "tags": ["subscription"],
         "summary": "Stripe Webhook",
         "description": "Stripe webhook endpoint.\n\nSecurity:\n  1. Validates Stripe-Signature header \u2014 rejects with 400 on failure.\n  2. Deduplicates by stripe_event_id \u2014 returns 200 if already processed.\n  3. Logs every event to stripe_events table.\n\nAlways returns 200 to Stripe after signature verification so Stripe\ndoes not retry unnecessarily. Processing errors are logged but don't\nchange the HTTP response code.\n\nNote: this endpoint does NOT use get_current_student \u2014 it is authenticated\nvia the Stripe webhook signature only.",
         "operationId": "stripe_webhook_api_v1_subscription_webhook_post",
@@ -2328,9 +2222,7 @@
     },
     "/api/v1/subscription": {
       "delete": {
-        "tags": [
-          "subscription"
-        ],
+        "tags": ["subscription"],
         "summary": "Cancel Subscription",
         "description": "Cancel the student's subscription at the end of the current billing period.\n\nThe student retains access until current_period_end.\nEntitlement cache is expired immediately.",
         "operationId": "cancel_subscription_api_v1_subscription_delete",
@@ -2355,9 +2247,7 @@
     },
     "/api/v1/admin/pipeline/status": {
       "get": {
-        "tags": [
-          "admin"
-        ],
+        "tags": ["admin"],
         "summary": "Pipeline Status",
         "description": "Return a summary of content pipeline runs and version statuses.",
         "operationId": "pipeline_status_api_v1_admin_pipeline_status_get",
@@ -2382,9 +2272,7 @@
     },
     "/api/v1/admin/content/review/queue": {
       "get": {
-        "tags": [
-          "admin"
-        ],
+        "tags": ["admin"],
         "summary": "Review Queue",
         "description": "List content subject versions, optionally filtered.",
         "operationId": "review_queue_api_v1_admin_content_review_queue_get",
@@ -2492,9 +2380,7 @@
     },
     "/api/v1/admin/content/review/{version_id}/open": {
       "post": {
-        "tags": [
-          "admin"
-        ],
+        "tags": ["admin"],
         "summary": "Open Review Session",
         "description": "Open a review session for a content subject version.",
         "operationId": "open_review_session_api_v1_admin_content_review__version_id__open_post",
@@ -2550,9 +2436,7 @@
     },
     "/api/v1/admin/content/review/{version_id}/annotate": {
       "post": {
-        "tags": [
-          "admin"
-        ],
+        "tags": ["admin"],
         "summary": "Annotate",
         "description": "Add a text annotation to a unit within a content version.",
         "operationId": "annotate_api_v1_admin_content_review__version_id__annotate_post",
@@ -2608,9 +2492,7 @@
     },
     "/api/v1/admin/content/review/annotations/{annotation_id}": {
       "delete": {
-        "tags": [
-          "admin"
-        ],
+        "tags": ["admin"],
         "summary": "Delete Annotation Endpoint",
         "description": "Delete an annotation by ID.",
         "operationId": "delete_annotation_endpoint_api_v1_admin_content_review_annotations__annotation_id__delete",
@@ -2658,9 +2540,7 @@
     },
     "/api/v1/admin/content/review/{version_id}/rate": {
       "post": {
-        "tags": [
-          "admin"
-        ],
+        "tags": ["admin"],
         "summary": "Rate",
         "description": "Submit language and content ratings (1\u20135) for a version.",
         "operationId": "rate_api_v1_admin_content_review__version_id__rate_post",
@@ -2716,9 +2596,7 @@
     },
     "/api/v1/admin/content/review/{version_id}/approve": {
       "post": {
-        "tags": [
-          "admin"
-        ],
+        "tags": ["admin"],
         "summary": "Approve",
         "description": "Approve a content version for publishing.",
         "operationId": "approve_api_v1_admin_content_review__version_id__approve_post",
@@ -2774,9 +2652,7 @@
     },
     "/api/v1/admin/content/review/{version_id}/reject": {
       "post": {
-        "tags": [
-          "admin"
-        ],
+        "tags": ["admin"],
         "summary": "Reject",
         "description": "Reject a content version. Set regenerate=true to trigger pipeline rerun.",
         "operationId": "reject_api_v1_admin_content_review__version_id__reject_post",
@@ -2832,9 +2708,7 @@
     },
     "/api/v1/admin/content/versions/{version_id}/publish": {
       "post": {
-        "tags": [
-          "admin"
-        ],
+        "tags": ["admin"],
         "summary": "Publish",
         "description": "Publish a content version.\n\nArchives the current published version, marks this one published,\ninvalidates Redis content cache and CloudFront CDN.",
         "operationId": "publish_api_v1_admin_content_versions__version_id__publish_post",
@@ -2880,9 +2754,7 @@
     },
     "/api/v1/admin/content/versions/{version_id}/rollback": {
       "post": {
-        "tags": [
-          "admin"
-        ],
+        "tags": ["admin"],
         "summary": "Rollback",
         "description": "Rollback to a previous version.\n\nArchives the current published version and restores the target.\nInvalidates Redis and CDN.",
         "operationId": "rollback_api_v1_admin_content_versions__version_id__rollback_post",
@@ -2928,9 +2800,7 @@
     },
     "/api/v1/admin/content/block": {
       "post": {
-        "tags": [
-          "admin"
-        ],
+        "tags": ["admin"],
         "summary": "Block Content",
         "description": "Block a specific content item (school-scoped or platform-wide).",
         "operationId": "block_content_api_v1_admin_content_block_post",
@@ -2975,9 +2845,7 @@
     },
     "/api/v1/admin/content/block/{block_id}": {
       "delete": {
-        "tags": [
-          "admin"
-        ],
+        "tags": ["admin"],
         "summary": "Unblock Content",
         "description": "Remove a content block.",
         "operationId": "unblock_content_api_v1_admin_content_block__block_id__delete",
@@ -3023,9 +2891,7 @@
     },
     "/api/v1/admin/content/{unit_id}/feedback/marked": {
       "get": {
-        "tags": [
-          "admin"
-        ],
+        "tags": ["admin"],
         "summary": "Feedback Marked",
         "description": "List student marked-text feedback for a unit.",
         "operationId": "feedback_marked_api_v1_admin_content__unit_id__feedback_marked_get",
@@ -3094,9 +2960,7 @@
     },
     "/api/v1/admin/content/feedback/report": {
       "get": {
-        "tags": [
-          "admin"
-        ],
+        "tags": ["admin"],
         "summary": "Feedback Report",
         "description": "Units with student feedback count >= threshold, ordered by report count desc.",
         "operationId": "feedback_report_api_v1_admin_content_feedback_report_get",
@@ -3157,9 +3021,7 @@
     },
     "/api/v1/admin/analytics/subscription": {
       "get": {
-        "tags": [
-          "admin"
-        ],
+        "tags": ["admin"],
         "summary": "Subscription Analytics",
         "description": "Return subscription MRR, active counts, new/cancelled this month, churn rate.",
         "operationId": "subscription_analytics_api_v1_admin_analytics_subscription_get",
@@ -3184,9 +3046,7 @@
     },
     "/api/v1/admin/analytics/struggle": {
       "get": {
-        "tags": [
-          "admin"
-        ],
+        "tags": ["admin"],
         "summary": "Struggle Analytics",
         "description": "Return units ordered by struggle (mean_attempts desc, pass_rate asc).",
         "operationId": "struggle_analytics_api_v1_admin_analytics_struggle_get",
@@ -3235,9 +3095,7 @@
     },
     "/api/v1/admin/content/dictionary": {
       "get": {
-        "tags": [
-          "admin"
-        ],
+        "tags": ["admin"],
         "summary": "Dictionary",
         "description": "Look up definitions, synonyms, and antonyms via Datamuse (+ optional Merriam-Webster).",
         "operationId": "dictionary_api_v1_admin_content_dictionary_get",
@@ -3285,9 +3143,7 @@
     },
     "/api/v1/admin/ci/reports": {
       "get": {
-        "tags": [
-          "admin"
-        ],
+        "tags": ["admin"],
         "summary": "Latest CI build and test reports",
         "description": "Return the last 10 GitHub Actions CI runs with per-job details on\nthe most recent run.  Results are cached for 5 minutes.",
         "operationId": "get_ci_reports_api_v1_admin_ci_reports_get",
@@ -3312,9 +3168,7 @@
     },
     "/api/v1/schools/register": {
       "post": {
-        "tags": [
-          "school"
-        ],
+        "tags": ["school"],
         "summary": "Register School Endpoint",
         "description": "Register a new school.\n\nAuto-approves the school and creates a school_admin teacher account.\nReturns an access token for immediate use.",
         "operationId": "register_school_endpoint_api_v1_schools_register_post",
@@ -3354,9 +3208,7 @@
     },
     "/api/v1/schools/{school_id}": {
       "get": {
-        "tags": [
-          "school"
-        ],
+        "tags": ["school"],
         "summary": "Get School Profile",
         "description": "Return the profile for the teacher's school.",
         "operationId": "get_school_profile_api_v1_schools__school_id__get",
@@ -3402,9 +3254,7 @@
     },
     "/api/v1/schools/{school_id}/teachers/invite": {
       "post": {
-        "tags": [
-          "school"
-        ],
+        "tags": ["school"],
         "summary": "Invite Teacher Endpoint",
         "description": "Invite a new teacher to the school (school_admin only).",
         "operationId": "invite_teacher_endpoint_api_v1_schools__school_id__teachers_invite_post",
@@ -3460,9 +3310,7 @@
     },
     "/api/v1/schools/{school_id}/enrolment": {
       "post": {
-        "tags": [
-          "school"
-        ],
+        "tags": ["school"],
         "summary": "Upload Enrolment Roster",
         "description": "Upload a student email roster for the school (school_admin only).",
         "operationId": "upload_enrolment_roster_api_v1_schools__school_id__enrolment_post",
@@ -3516,9 +3364,7 @@
         }
       },
       "get": {
-        "tags": [
-          "school"
-        ],
+        "tags": ["school"],
         "summary": "Get Enrolment Roster",
         "description": "Fetch the student enrolment roster for a school (school_admin only).",
         "operationId": "get_enrolment_roster_api_v1_schools__school_id__enrolment_get",
@@ -3564,9 +3410,7 @@
     },
     "/api/v1/feedback": {
       "post": {
-        "tags": [
-          "feedback"
-        ],
+        "tags": ["feedback"],
         "summary": "Submit Feedback Endpoint",
         "description": "Submit product feedback.\n\nRate-limited to 5 submissions per student per hour.\nReturns 429 if the limit is exceeded.",
         "operationId": "submit_feedback_endpoint_api_v1_feedback_post",
@@ -3611,9 +3455,7 @@
     },
     "/api/v1/admin/feedback": {
       "get": {
-        "tags": [
-          "feedback"
-        ],
+        "tags": ["feedback"],
         "summary": "List Admin Feedback",
         "description": "List all student feedback (admin only, requires feedback:view permission).\n\nSupports pagination and filtering by category, unit, curriculum, and reviewed status.",
         "operationId": "list_admin_feedback_api_v1_admin_feedback_get",
@@ -3737,9 +3579,7 @@
     },
     "/api/v1/reports/school/{school_id}/roster": {
       "get": {
-        "tags": [
-          "reports"
-        ],
+        "tags": ["reports"],
         "summary": "Student Roster",
         "description": "Return per-student rows for the Class Overview table.\n\nColumns: student_id, student_name, grade, units_completed, total_units,\n         avg_score_pct, last_active.",
         "operationId": "student_roster_api_v1_reports_school__school_id__roster_get",
@@ -3803,9 +3643,7 @@
     },
     "/api/v1/reports/school/{school_id}/overview": {
       "get": {
-        "tags": [
-          "reports"
-        ],
+        "tags": ["reports"],
         "summary": "Overview Report",
         "description": "Class overview summary for the selected period.",
         "operationId": "overview_report_api_v1_reports_school__school_id__overview_get",
@@ -3862,9 +3700,7 @@
     },
     "/api/v1/reports/school/{school_id}/unit/{unit_id}": {
       "get": {
-        "tags": [
-          "reports"
-        ],
+        "tags": ["reports"],
         "summary": "Unit Report",
         "description": "Per-unit performance deep-dive.",
         "operationId": "unit_report_api_v1_reports_school__school_id__unit__unit_id__get",
@@ -3930,9 +3766,7 @@
     },
     "/api/v1/reports/school/{school_id}/student/{student_id}": {
       "get": {
-        "tags": [
-          "reports"
-        ],
+        "tags": ["reports"],
         "summary": "Student Report",
         "description": "Individual student report card.",
         "operationId": "student_report_api_v1_reports_school__school_id__student__student_id__get",
@@ -3987,9 +3821,7 @@
     },
     "/api/v1/reports/school/{school_id}/curriculum-health": {
       "get": {
-        "tags": [
-          "reports"
-        ],
+        "tags": ["reports"],
         "summary": "Curriculum Health",
         "description": "All units ranked by health tier.",
         "operationId": "curriculum_health_api_v1_reports_school__school_id__curriculum_health_get",
@@ -4035,9 +3867,7 @@
     },
     "/api/v1/reports/school/{school_id}/feedback": {
       "get": {
-        "tags": [
-          "reports"
-        ],
+        "tags": ["reports"],
         "summary": "Feedback Report",
         "description": "All student feedback for the school's curriculum, grouped by unit.",
         "operationId": "feedback_report_api_v1_reports_school__school_id__feedback_get",
@@ -4143,9 +3973,7 @@
     },
     "/api/v1/reports/school/{school_id}/trends": {
       "get": {
-        "tags": [
-          "reports"
-        ],
+        "tags": ["reports"],
         "summary": "Trends Report",
         "description": "Week-over-week engagement and performance trends.",
         "operationId": "trends_report_api_v1_reports_school__school_id__trends_get",
@@ -4202,9 +4030,7 @@
     },
     "/api/v1/reports/school/{school_id}/export": {
       "post": {
-        "tags": [
-          "reports"
-        ],
+        "tags": ["reports"],
         "summary": "Export Report",
         "description": "Queue a CSV export task. Returns export_id and download URL.",
         "operationId": "export_report_api_v1_reports_school__school_id__export_post",
@@ -4260,9 +4086,7 @@
     },
     "/api/v1/reports/download/{export_id}": {
       "get": {
-        "tags": [
-          "reports"
-        ],
+        "tags": ["reports"],
         "summary": "Download Export",
         "description": "Serve a completed CSV export file.",
         "operationId": "download_export_api_v1_reports_download__export_id__get",
@@ -4306,9 +4130,7 @@
     },
     "/api/v1/reports/school/{school_id}/alerts": {
       "get": {
-        "tags": [
-          "reports"
-        ],
+        "tags": ["reports"],
         "summary": "List Alerts",
         "description": "Return unacknowledged threshold alerts for the school.",
         "operationId": "list_alerts_api_v1_reports_school__school_id__alerts_get",
@@ -4354,9 +4176,7 @@
     },
     "/api/v1/reports/school/{school_id}/alerts/settings": {
       "put": {
-        "tags": [
-          "reports"
-        ],
+        "tags": ["reports"],
         "summary": "Update Alert Settings",
         "description": "Configure alert thresholds for the school.",
         "operationId": "update_alert_settings_api_v1_reports_school__school_id__alerts_settings_put",
@@ -4412,9 +4232,7 @@
     },
     "/api/v1/reports/school/{school_id}/digest/subscribe": {
       "post": {
-        "tags": [
-          "reports"
-        ],
+        "tags": ["reports"],
         "summary": "Digest Subscribe",
         "description": "Subscribe or update weekly digest settings.",
         "operationId": "digest_subscribe_api_v1_reports_school__school_id__digest_subscribe_post",
@@ -4470,9 +4288,7 @@
     },
     "/api/v1/reports/school/{school_id}/refresh": {
       "post": {
-        "tags": [
-          "reports"
-        ],
+        "tags": ["reports"],
         "summary": "Refresh Views",
         "description": "On-demand materialized view refresh (school_admin only).",
         "operationId": "refresh_views_api_v1_reports_school__school_id__refresh_post",
@@ -4518,9 +4334,7 @@
     },
     "/api/v1/demo/request": {
       "post": {
-        "tags": [
-          "demo"
-        ],
+        "tags": ["demo"],
         "summary": "Request Demo",
         "description": "Submit an email address to request a demo account.\n\nSends a verification link to the provided email.\nRate-limited to 3 requests per IP per hour.",
         "operationId": "request_demo_api_v1_demo_request_post",
@@ -4558,9 +4372,7 @@
     },
     "/api/v1/demo/verify/{token}": {
       "get": {
-        "tags": [
-          "demo"
-        ],
+        "tags": ["demo"],
         "summary": "Verify Demo Email",
         "description": "Verify an email address via the token from the verification link.\n\nCreates the demo student account and emails login credentials.",
         "operationId": "verify_demo_email_api_v1_demo_verify__token__get",
@@ -4599,9 +4411,7 @@
     },
     "/api/v1/demo/auth/login": {
       "post": {
-        "tags": [
-          "demo"
-        ],
+        "tags": ["demo"],
         "summary": "Demo Login",
         "description": "Authenticate a demo student with email + password.\n\nReturns a short-lived JWT (role=demo_student).\nNo refresh token \u2014 demo accounts are short-lived.",
         "operationId": "demo_login_api_v1_demo_auth_login_post",
@@ -4641,9 +4451,7 @@
     },
     "/api/v1/demo/auth/logout": {
       "post": {
-        "tags": [
-          "demo"
-        ],
+        "tags": ["demo"],
         "summary": "Demo Logout",
         "description": "Log out a demo student by blacklisting the JWT JTI in Redis.\n\nThe blacklist TTL matches the token's remaining lifetime so the key\nauto-expires without a background sweep.",
         "operationId": "demo_logout_api_v1_demo_auth_logout_post",
@@ -4666,9 +4474,7 @@
     },
     "/api/v1/demo/verify/resend": {
       "post": {
-        "tags": [
-          "demo"
-        ],
+        "tags": ["demo"],
         "summary": "Resend Demo Verification",
         "description": "Resend the verification email to a pending demo request.\n\nEnforces a per-email cooldown (default 5 minutes).",
         "operationId": "resend_demo_verification_api_v1_demo_verify_resend_post",
@@ -4706,9 +4512,7 @@
     },
     "/api/v1/admin/demo-accounts": {
       "get": {
-        "tags": [
-          "admin-demo"
-        ],
+        "tags": ["admin-demo"],
         "summary": "List Demo Accounts",
         "description": "List all demo account requests with optional filters.",
         "operationId": "list_demo_accounts_api_v1_admin_demo_accounts_get",
@@ -4804,9 +4608,7 @@
     },
     "/api/v1/admin/demo-accounts/{account_id}/extend": {
       "post": {
-        "tags": [
-          "admin-demo"
-        ],
+        "tags": ["admin-demo"],
         "summary": "Extend Demo Account",
         "description": "Extend a demo account's TTL.\n\nSets expires_at = NOW() + {hours} hours (max 168 hours / 7 days).",
         "operationId": "extend_demo_account_api_v1_admin_demo_accounts__account_id__extend_post",
@@ -4861,9 +4663,7 @@
     },
     "/api/v1/admin/demo-accounts/{account_id}/revoke": {
       "post": {
-        "tags": [
-          "admin-demo"
-        ],
+        "tags": ["admin-demo"],
         "summary": "Revoke Demo Account",
         "description": "Revoke an active demo account immediately.\n\n- Sets demo_accounts.revoked_at / revoked_by\n- Marks demo_requests.status = 'revoked'\n- Soft-deletes the student row (account_status = 'deleted')",
         "operationId": "revoke_demo_account_api_v1_admin_demo_accounts__account_id__revoke_post",
@@ -4908,9 +4708,7 @@
     },
     "/api/v1/admin/demo-requests/{request_id}/resend": {
       "post": {
-        "tags": [
-          "admin-demo"
-        ],
+        "tags": ["admin-demo"],
         "summary": "Resend Demo Verification",
         "description": "Resend the verification email for a pending demo request.\n\nInvalidates the current token and issues a fresh one.\nDoes not enforce cooldown (admin override).",
         "operationId": "resend_demo_verification_api_v1_admin_demo_requests__request_id__resend_post",
@@ -4955,9 +4753,7 @@
     },
     "/api/v1/auth/dev-login": {
       "post": {
-        "tags": [
-          "dev"
-        ],
+        "tags": ["dev"],
         "summary": "Dev Login",
         "description": "Issue a long-lived JWT for the seeded dev student or teacher.\nCreates the DB records on first call (idempotent).\nOnly available when APP_ENV=development.",
         "operationId": "dev_login_api_v1_auth_dev_login_post",
@@ -5002,17 +4798,12 @@
         "properties": {
           "status": {
             "type": "string",
-            "enum": [
-              "active",
-              "suspended"
-            ],
+            "enum": ["active", "suspended"],
             "title": "Status"
           }
         },
         "type": "object",
-        "required": [
-          "status"
-        ],
+        "required": ["status"],
         "title": "AccountStatusUpdate",
         "description": "PATCH /account/students/{id}/status\nPATCH /account/teachers/{id}/status\nPATCH /account/schools/{id}/status"
       },
@@ -5125,10 +4916,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "pagination",
-          "feedback_items"
-        ],
+        "required": ["pagination", "feedback_items"],
         "title": "AdminFeedbackListResponse"
       },
       "AdminFeedbackPagination": {
@@ -5147,11 +4935,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "page",
-          "per_page",
-          "total"
-        ],
+        "required": ["page", "per_page", "total"],
         "title": "AdminFeedbackPagination"
       },
       "AdminForgotPasswordRequest": {
@@ -5163,9 +4947,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "email"
-        ],
+        "required": ["email"],
         "title": "AdminForgotPasswordRequest",
         "description": "POST /admin/auth/forgot-password"
       },
@@ -5182,10 +4964,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "email",
-          "password"
-        ],
+        "required": ["email", "password"],
         "title": "AdminLoginRequest",
         "description": "POST /admin/auth/login"
       },
@@ -5202,10 +4981,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "token",
-          "admin_id"
-        ],
+        "required": ["token", "admin_id"],
         "title": "AdminLoginResponse",
         "description": "Response for POST /admin/auth/login"
       },
@@ -5221,10 +4997,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "token",
-          "new_password"
-        ],
+        "required": ["token", "new_password"],
         "title": "AdminResetPasswordRequest",
         "description": "POST /admin/auth/reset-password"
       },
@@ -5279,9 +5052,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "alerts"
-        ],
+        "required": ["alerts"],
         "title": "AlertListResponse"
       },
       "AlertSettings": {
@@ -5414,11 +5185,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "unit_id",
-          "content_type",
-          "annotation_text"
-        ],
+        "required": ["unit_id", "content_type", "annotation_text"],
         "title": "AnnotateRequest"
       },
       "AnnotateResponse": {
@@ -5472,10 +5239,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "min_version",
-          "latest_version"
-        ],
+        "required": ["min_version", "latest_version"],
         "title": "AppVersionResponse"
       },
       "ApproveRequest": {
@@ -5507,10 +5271,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "version_id",
-          "status"
-        ],
+        "required": ["version_id", "status"],
         "title": "ApproveResponse"
       },
       "AttemptDistribution": {
@@ -5551,10 +5312,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "url",
-          "expires_in"
-        ],
+        "required": ["url", "expires_in"],
         "title": "AudioUrlResponse"
       },
       "BlockRequest": {
@@ -5584,11 +5342,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "curriculum_id",
-          "unit_id",
-          "content_type"
-        ],
+        "required": ["curriculum_id", "unit_id", "content_type"],
         "title": "BlockRequest"
       },
       "BlockResponse": {
@@ -5634,9 +5388,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "file"
-        ],
+        "required": ["file"],
         "title": "Body_upload_curriculum_xlsx_api_v1_curriculum_upload_xlsx_post"
       },
       "CancelResponse": {
@@ -5658,9 +5410,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "status"
-        ],
+        "required": ["status"],
         "title": "CancelResponse"
       },
       "CheckoutRequest": {
@@ -5679,11 +5429,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "plan",
-          "success_url",
-          "cancel_url"
-        ],
+        "required": ["plan", "success_url", "cancel_url"],
         "title": "CheckoutRequest"
       },
       "CheckoutResponse": {
@@ -5694,9 +5440,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "checkout_url"
-        ],
+        "required": ["checkout_url"],
         "title": "CheckoutResponse"
       },
       "CiJob": {
@@ -5737,13 +5481,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "name",
-          "status",
-          "conclusion",
-          "duration_s",
-          "html_url"
-        ],
+        "required": ["name", "status", "conclusion", "duration_s", "html_url"],
         "title": "CiJob"
       },
       "CiReportsResponse": {
@@ -5769,12 +5507,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "github_configured",
-          "repo",
-          "runs",
-          "cached_at"
-        ],
+        "required": ["github_configured", "repo", "runs", "cached_at"],
         "title": "CiReportsResponse"
       },
       "CiRun": {
@@ -5861,11 +5594,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "school_id",
-          "enrolled_students",
-          "metrics_per_unit"
-        ],
+        "required": ["school_id", "enrolled_students", "metrics_per_unit"],
         "title": "ClassMetricsResponse"
       },
       "CurriculumActivateResponse": {
@@ -5884,11 +5613,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "curriculum_id",
-          "status",
-          "archived_count"
-        ],
+        "required": ["curriculum_id", "status", "archived_count"],
         "title": "CurriculumActivateResponse"
       },
       "CurriculumHealthReport": {
@@ -6053,11 +5778,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "subject",
-          "unit_name",
-          "objectives"
-        ],
+        "required": ["subject", "unit_name", "objectives"],
         "title": "CurriculumUnitInput"
       },
       "CurriculumUploadRequest": {
@@ -6087,12 +5808,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "grade",
-          "year",
-          "name",
-          "units"
-        ],
+        "required": ["grade", "year", "name", "units"],
         "title": "CurriculumUploadRequest"
       },
       "CurriculumUploadResponse": {
@@ -6122,9 +5838,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "unit_count"
-        ],
+        "required": ["unit_count"],
         "title": "CurriculumUploadResponse"
       },
       "DailyActivity": {
@@ -6147,12 +5861,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "date",
-          "lessons",
-          "quizzes",
-          "minutes"
-        ],
+        "required": ["date", "lessons", "quizzes", "minutes"],
         "title": "DailyActivity"
       },
       "DashboardResponse": {
@@ -6186,12 +5895,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "summary",
-          "subject_progress",
-          "next_unit",
-          "recent_activity"
-        ],
+        "required": ["summary", "subject_progress", "next_unit", "recent_activity"],
         "title": "DashboardResponse"
       },
       "DashboardSummary": {
@@ -6338,12 +6042,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "request_id",
-          "email",
-          "requested_at",
-          "request_status"
-        ],
+        "required": ["request_id", "email", "requested_at", "request_status"],
         "title": "DemoAccountItem",
         "description": "Single row in the admin demo accounts list."
       },
@@ -6370,12 +6069,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "items",
-          "total",
-          "page",
-          "page_size"
-        ],
+        "required": ["items", "total", "page", "page_size"],
         "title": "DemoAccountListResponse"
       },
       "DemoLoginInput": {
@@ -6391,10 +6085,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "email",
-          "password"
-        ],
+        "required": ["email", "password"],
         "title": "DemoLoginInput"
       },
       "DemoLoginResponse": {
@@ -6415,10 +6106,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "access_token",
-          "demo_expires_at"
-        ],
+        "required": ["access_token", "demo_expires_at"],
         "title": "DemoLoginResponse"
       },
       "DemoRequestInput": {
@@ -6430,9 +6118,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "email"
-        ],
+        "required": ["email"],
         "title": "DemoRequestInput"
       },
       "DemoResendInput": {
@@ -6444,27 +6130,19 @@
           }
         },
         "type": "object",
-        "required": [
-          "email"
-        ],
+        "required": ["email"],
         "title": "DemoResendInput"
       },
       "DevLoginRequest": {
         "properties": {
           "role": {
             "type": "string",
-            "enum": [
-              "student",
-              "teacher",
-              "school_admin"
-            ],
+            "enum": ["student", "teacher", "school_admin"],
             "title": "Role"
           }
         },
         "type": "object",
-        "required": [
-          "role"
-        ],
+        "required": ["role"],
         "title": "DevLoginRequest"
       },
       "DevLoginResponse": {
@@ -6487,12 +6165,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "token",
-          "name",
-          "email",
-          "role"
-        ],
+        "required": ["token", "name", "email", "role"],
         "title": "DevLoginResponse"
       },
       "DictionaryResponse": {
@@ -6524,12 +6197,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "word",
-          "definitions",
-          "synonyms",
-          "antonyms"
-        ],
+        "required": ["word", "definitions", "synonyms", "antonyms"],
         "title": "DictionaryResponse"
       },
       "DigestSubscribeRequest": {
@@ -6550,9 +6218,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "email"
-        ],
+        "required": ["email"],
         "title": "DigestSubscribeRequest"
       },
       "DigestSubscribeResponse": {
@@ -6579,13 +6245,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "subscription_id",
-          "school_id",
-          "email",
-          "timezone",
-          "enabled"
-        ],
+        "required": ["subscription_id", "school_id", "email", "timezone", "enabled"],
         "title": "DigestSubscribeResponse"
       },
       "EndSessionRequest": {
@@ -6602,10 +6262,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "score",
-          "total_questions"
-        ],
+        "required": ["score", "total_questions"],
         "title": "EndSessionRequest"
       },
       "EndSessionResponse": {
@@ -6674,11 +6331,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "student_email",
-          "status",
-          "added_at"
-        ],
+        "required": ["student_email", "status", "added_at"],
         "title": "EnrolmentRosterItem"
       },
       "EnrolmentRosterResponse": {
@@ -6692,9 +6345,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "roster"
-        ],
+        "required": ["roster"],
         "title": "EnrolmentRosterResponse"
       },
       "EnrolmentUploadRequest": {
@@ -6709,9 +6360,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "student_emails"
-        ],
+        "required": ["student_emails"],
         "title": "EnrolmentUploadRequest"
       },
       "EnrolmentUploadResponse": {
@@ -6726,10 +6375,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "enrolled",
-          "already_enrolled"
-        ],
+        "required": ["enrolled", "already_enrolled"],
         "title": "EnrolmentUploadResponse"
       },
       "ExperimentQuestion": {
@@ -6744,10 +6390,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "question",
-          "answer"
-        ],
+        "required": ["question", "answer"],
         "title": "ExperimentQuestion"
       },
       "ExperimentResponse": {
@@ -6841,11 +6484,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "step_number",
-          "instruction",
-          "expected_observation"
-        ],
+        "required": ["step_number", "instruction", "expected_observation"],
         "title": "ExperimentStep"
       },
       "ExportRequest": {
@@ -6863,9 +6502,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "report_type"
-        ],
+        "required": ["report_type"],
         "title": "ExportRequest"
       },
       "ExportResponse": {
@@ -6884,11 +6521,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "export_id",
-          "download_url",
-          "status"
-        ],
+        "required": ["export_id", "download_url", "status"],
         "title": "ExportResponse"
       },
       "ExtendRequest": {
@@ -7019,10 +6652,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "items",
-          "total"
-        ],
+        "required": ["items", "total"],
         "title": "FeedbackListResponse"
       },
       "FeedbackReport": {
@@ -7059,12 +6689,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "school_id",
-          "total_feedback_count",
-          "unreviewed_count",
-          "by_unit"
-        ],
+        "required": ["school_id", "total_feedback_count", "unreviewed_count", "by_unit"],
         "title": "FeedbackReport"
       },
       "FeedbackReportResponse": {
@@ -7082,10 +6707,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "items",
-          "threshold"
-        ],
+        "required": ["items", "threshold"],
         "title": "FeedbackReportResponse"
       },
       "FeedbackRequest": {
@@ -7133,10 +6755,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "content_type",
-          "feedback_text"
-        ],
+        "required": ["content_type", "feedback_text"],
         "title": "FeedbackRequest"
       },
       "FeedbackSubmitRequest": {
@@ -7189,10 +6808,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "category",
-          "message"
-        ],
+        "required": ["category", "message"],
         "title": "FeedbackSubmitRequest"
       },
       "FeedbackSubmitResponse": {
@@ -7208,10 +6824,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "feedback_id",
-          "submitted_at"
-        ],
+        "required": ["feedback_id", "submitted_at"],
         "title": "FeedbackSubmitResponse"
       },
       "ForgotPasswordRequest": {
@@ -7222,9 +6835,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "email"
-        ],
+        "required": ["email"],
         "title": "ForgotPasswordRequest",
         "description": "POST /auth/forgot-password\n\nAccepts any string containing '@' \u2014 strict EmailStr validation is intentionally\navoided here so that the endpoint always returns 200 regardless of input format,\npreventing enumeration of valid email addresses or formats."
       },
@@ -7243,10 +6854,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "grade",
-          "subjects"
-        ],
+        "required": ["grade", "subjects"],
         "title": "GradeCurriculum"
       },
       "GradeSummary": {
@@ -7265,11 +6873,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "grade",
-          "subject_count",
-          "unit_count"
-        ],
+        "required": ["grade", "subject_count", "unit_count"],
         "title": "GradeSummary"
       },
       "HTTPValidationError": {
@@ -7326,9 +6930,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "unit_id"
-        ],
+        "required": ["unit_id"],
         "title": "ImprovementPoint"
       },
       "LessonEndRequest": {
@@ -7353,10 +6955,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "view_id",
-          "duration_s"
-        ],
+        "required": ["view_id", "duration_s"],
         "title": "LessonEndRequest"
       },
       "LessonEndResponse": {
@@ -7371,10 +6970,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "view_id",
-          "duration_s"
-        ],
+        "required": ["view_id", "duration_s"],
         "title": "LessonEndResponse"
       },
       "LessonResponse": {
@@ -7476,10 +7072,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "heading",
-          "body"
-        ],
+        "required": ["heading", "body"],
         "title": "LessonSection"
       },
       "LessonStartRequest": {
@@ -7494,10 +7087,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "unit_id",
-          "curriculum_id"
-        ],
+        "required": ["unit_id", "curriculum_id"],
         "title": "LessonStartRequest"
       },
       "LessonStartResponse": {
@@ -7508,9 +7098,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "view_id"
-        ],
+        "required": ["view_id"],
         "title": "LessonStartResponse"
       },
       "LogoutRequest": {
@@ -7521,9 +7109,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "refresh_token"
-        ],
+        "required": ["refresh_token"],
         "title": "LogoutRequest",
         "description": "POST /auth/logout"
       },
@@ -7547,12 +7133,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "unit_id",
-          "title",
-          "subject",
-          "estimated_minutes"
-        ],
+        "required": ["unit_id", "title", "subject", "estimated_minutes"],
         "title": "NextUnit"
       },
       "NotificationPreferences": {
@@ -7635,12 +7216,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "review_id",
-          "version_id",
-          "action",
-          "reviewed_at"
-        ],
+        "required": ["review_id", "version_id", "action", "reviewed_at"],
         "title": "OpenReviewResponse"
       },
       "OverviewReport": {
@@ -7912,14 +7488,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "job_id",
-          "status",
-          "built",
-          "failed",
-          "total",
-          "progress_pct"
-        ],
+        "required": ["job_id", "status", "built", "failed", "total", "progress_pct"],
         "title": "PipelineJobStatusResponse"
       },
       "PipelineStatusResponse": {
@@ -7991,9 +7560,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "curriculum_id"
-        ],
+        "required": ["curriculum_id"],
         "title": "PipelineTriggerRequest"
       },
       "PipelineTriggerResponse": {
@@ -8008,10 +7575,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "job_id",
-          "status"
-        ],
+        "required": ["job_id", "status"],
         "title": "PipelineTriggerResponse"
       },
       "ProgressAnswerRecord": {
@@ -8104,11 +7668,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "student_id",
-          "sessions",
-          "total"
-        ],
+        "required": ["student_id", "sessions", "total"],
         "title": "ProgressHistoryResponse"
       },
       "ProgressMapResponse": {
@@ -8134,12 +7694,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "curriculum_id",
-          "pending_count",
-          "needs_retry_count",
-          "subjects"
-        ],
+        "required": ["curriculum_id", "pending_count", "needs_retry_count", "subjects"],
         "title": "ProgressMapResponse"
       },
       "PublishResponse": {
@@ -8159,11 +7714,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "version_id",
-          "status",
-          "published_at"
-        ],
+        "required": ["version_id", "status", "published_at"],
         "title": "PublishResponse"
       },
       "QuizOption": {
@@ -8178,10 +7729,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "option_id",
-          "text"
-        ],
+        "required": ["option_id", "text"],
         "title": "QuizOption"
       },
       "QuizQuestion": {
@@ -8318,10 +7866,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "language_rating",
-          "content_rating"
-        ],
+        "required": ["language_rating", "content_rating"],
         "title": "RateRequest"
       },
       "RateResponse": {
@@ -8344,12 +7889,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "review_id",
-          "version_id",
-          "language_rating",
-          "content_rating"
-        ],
+        "required": ["review_id", "version_id", "language_rating", "content_rating"],
         "title": "RateResponse"
       },
       "RecentActivityItem": {
@@ -8383,12 +7923,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "type",
-          "unit_id",
-          "title",
-          "at"
-        ],
+        "required": ["type", "unit_id", "title", "at"],
         "title": "RecentActivityItem"
       },
       "RecentFeedbackItem": {
@@ -8423,12 +7958,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "feedback_id",
-          "category",
-          "message",
-          "submitted_at"
-        ],
+        "required": ["feedback_id", "category", "message", "submitted_at"],
         "title": "RecentFeedbackItem"
       },
       "RecordAnswerRequest": {
@@ -8491,10 +8021,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "answer_id",
-          "correct"
-        ],
+        "required": ["answer_id", "correct"],
         "title": "RecordAnswerResponse"
       },
       "RefreshRequest": {
@@ -8505,9 +8032,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "refresh_token"
-        ],
+        "required": ["refresh_token"],
         "title": "RefreshRequest",
         "description": "POST /auth/refresh"
       },
@@ -8523,10 +8048,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "device_token",
-          "platform"
-        ],
+        "required": ["device_token", "platform"],
         "title": "RegisterTokenRequest"
       },
       "RegisterTokenResponse": {
@@ -8541,10 +8063,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "token_id",
-          "platform"
-        ],
+        "required": ["token_id", "platform"],
         "title": "RegisterTokenResponse"
       },
       "RejectRequest": {
@@ -8585,11 +8104,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "version_id",
-          "status",
-          "regenerating"
-        ],
+        "required": ["version_id", "status", "regenerating"],
         "title": "RejectResponse"
       },
       "ReportRequest": {
@@ -8611,9 +8126,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "category"
-        ],
+        "required": ["category"],
         "title": "ReportRequest"
       },
       "ReviewQueueItem": {
@@ -8687,10 +8200,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "items",
-          "total"
-        ],
+        "required": ["items", "total"],
         "title": "ReviewQueueResponse"
       },
       "RollbackResponse": {
@@ -8705,10 +8215,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "version_id",
-          "status"
-        ],
+        "required": ["version_id", "status"],
         "title": "RollbackResponse"
       },
       "SchoolProfileResponse": {
@@ -8779,10 +8286,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "school_name",
-          "contact_email"
-        ],
+        "required": ["school_name", "contact_email"],
         "title": "SchoolRegisterRequest"
       },
       "SchoolRegisterResponse": {
@@ -8805,12 +8309,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "school_id",
-          "teacher_id",
-          "access_token",
-          "role"
-        ],
+        "required": ["school_id", "teacher_id", "access_token", "role"],
         "title": "SchoolRegisterResponse"
       },
       "SchoolStatusResponse": {
@@ -8830,11 +8329,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "school_id",
-          "name",
-          "status"
-        ],
+        "required": ["school_id", "name", "status"],
         "title": "SchoolStatusResponse"
       },
       "SessionRecord": {
@@ -8957,10 +8452,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "unit_id",
-          "curriculum_id"
-        ],
+        "required": ["unit_id", "curriculum_id"],
         "title": "StartSessionRequest"
       },
       "StartSessionResponse": {
@@ -9101,9 +8593,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "items"
-        ],
+        "required": ["items"],
         "title": "StruggleResponse"
       },
       "StudentMetricsResponse": {
@@ -9187,11 +8677,7 @@
             "anyOf": [
               {
                 "type": "string",
-                "enum": [
-                  "en",
-                  "fr",
-                  "es"
-                ]
+                "enum": ["en", "fr", "es"]
               },
               {
                 "type": "null"
@@ -9240,13 +8726,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "student_id",
-          "name",
-          "grade",
-          "locale",
-          "account_status"
-        ],
+        "required": ["student_id", "name", "grade", "locale", "account_status"],
         "title": "StudentPublic",
         "description": "Safe public view of a student record."
       },
@@ -9366,12 +8846,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "student_id",
-          "name",
-          "email",
-          "account_status"
-        ],
+        "required": ["student_id", "name", "email", "account_status"],
         "title": "StudentStatusResponse"
       },
       "Subject": {
@@ -9393,11 +8868,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "subject_id",
-          "name",
-          "units"
-        ],
+        "required": ["subject_id", "name", "units"],
         "title": "Subject"
       },
       "SubjectProgress": {
@@ -9420,12 +8891,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "subject",
-          "units_total",
-          "units_completed",
-          "pct"
-        ],
+        "required": ["subject", "units_total", "units_completed", "pct"],
         "title": "SubjectProgress"
       },
       "SubjectProgressMap": {
@@ -9451,12 +8917,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "subject",
-          "units_total",
-          "units_completed",
-          "units"
-        ],
+        "required": ["subject", "units_total", "units_completed", "units"],
         "title": "SubjectProgressMap"
       },
       "SubscriptionAnalyticsResponse": {
@@ -9548,9 +9009,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "plan"
-        ],
+        "required": ["plan"],
         "title": "SubscriptionStatusResponse"
       },
       "TeacherInviteRequest": {
@@ -9566,10 +9025,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "name",
-          "email"
-        ],
+        "required": ["name", "email"],
         "title": "TeacherInviteRequest"
       },
       "TeacherInviteResponse": {
@@ -9588,11 +9044,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "teacher_id",
-          "email",
-          "role"
-        ],
+        "required": ["teacher_id", "email", "role"],
         "title": "TeacherInviteResponse"
       },
       "TeacherPublic": {
@@ -9662,13 +9114,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "teacher_id",
-          "school_id",
-          "name",
-          "email",
-          "account_status"
-        ],
+        "required": ["teacher_id", "school_id", "name", "email", "account_status"],
         "title": "TeacherStatusResponse"
       },
       "TeacherTokenExchangeResponse": {
@@ -9691,12 +9137,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "token",
-          "refresh_token",
-          "teacher_id",
-          "teacher"
-        ],
+        "required": ["token", "refresh_token", "teacher_id", "teacher"],
         "title": "TeacherTokenExchangeResponse",
         "description": "Response for POST /auth/teacher/exchange"
       },
@@ -9708,9 +9149,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "id_token"
-        ],
+        "required": ["id_token"],
         "title": "TokenExchangeRequest",
         "description": "POST /auth/exchange  and  POST /auth/teacher/exchange"
       },
@@ -9734,12 +9173,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "token",
-          "refresh_token",
-          "student_id",
-          "student"
-        ],
+        "required": ["token", "refresh_token", "student_id", "student"],
         "title": "TokenExchangeResponse",
         "description": "Response for POST /auth/exchange"
       },
@@ -9762,11 +9196,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "school_id",
-          "period",
-          "weeks"
-        ],
+        "required": ["school_id", "period", "weeks"],
         "title": "TrendsReport"
       },
       "TrendsWeek": {
@@ -9888,13 +9318,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "section_id",
-          "title",
-          "content",
-          "examples",
-          "practice_question"
-        ],
+        "required": ["section_id", "title", "content", "examples", "practice_question"],
         "title": "TutorialSection"
       },
       "UnblockResponse": {
@@ -9905,9 +9329,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "status"
-        ],
+        "required": ["status"],
         "title": "UnblockResponse"
       },
       "Unit": {
@@ -9930,12 +9352,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "unit_id",
-          "title",
-          "description",
-          "has_lab"
-        ],
+        "required": ["unit_id", "title", "description", "has_lab"],
         "title": "Unit"
       },
       "UnitProgressItem": {
@@ -10118,11 +9535,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "row",
-          "field",
-          "message"
-        ],
+        "required": ["row", "field", "message"],
         "title": "UploadError"
       },
       "ValidationError": {
@@ -10151,11 +9564,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "loc",
-          "msg",
-          "type"
-        ],
+        "required": ["loc", "msg", "type"],
         "title": "ValidationError"
       },
       "src__admin__schemas__FeedbackReportItem": {
@@ -10209,9 +9618,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "token"
-        ],
+        "required": ["token"],
         "title": "RefreshResponse",
         "description": "Response for POST /auth/refresh"
       },
@@ -10251,13 +9658,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "feedback_id",
-          "category",
-          "message",
-          "submitted_at",
-          "reviewed"
-        ],
+        "required": ["feedback_id", "category", "message", "submitted_at", "reviewed"],
         "title": "FeedbackReportItem"
       },
       "src__reports__schemas__RefreshResponse": {
@@ -10276,10 +9677,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "refreshed_at",
-          "views_refreshed"
-        ],
+        "required": ["refreshed_at", "views_refreshed"],
         "title": "RefreshResponse"
       }
     },

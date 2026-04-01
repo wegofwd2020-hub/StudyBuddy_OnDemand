@@ -510,7 +510,10 @@ async def rollback_version(
         "content_rollback",
         "admin",
         admin_id,
-        metadata={"version_id": version_id, "restored_version_id": str(restored_id) if restored_id else None},
+        metadata={
+            "version_id": version_id,
+            "restored_version_id": str(restored_id) if restored_id else None,
+        },
     )
 
     await _expire_content_cache(redis, curriculum_id, subject)
@@ -935,9 +938,7 @@ async def get_unit_content_meta(
 
     curriculum_id = row["curriculum_id"]
     title = row["title"]
-    unit_dir = os.path.join(
-        _settings.CONTENT_STORE_PATH, "curricula", curriculum_id, unit_id
-    )
+    unit_dir = os.path.join(_settings.CONTENT_STORE_PATH, "curricula", curriculum_id, unit_id)
 
     available: list[str] = []
     for ct in _CONTENT_TYPES_ORDERED:

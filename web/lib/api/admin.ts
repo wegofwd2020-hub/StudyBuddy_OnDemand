@@ -105,12 +105,15 @@ export async function triggerAdminPipeline(
   force: boolean,
   year = 2026,
 ): Promise<AdminPipelineTriggerResponse> {
-  const res = await adminApi.post<AdminPipelineTriggerResponse>("/admin/pipeline/trigger", {
-    grade,
-    langs,
-    force,
-    year,
-  });
+  const res = await adminApi.post<AdminPipelineTriggerResponse>(
+    "/admin/pipeline/trigger",
+    {
+      grade,
+      langs,
+      force,
+      year,
+    },
+  );
   return res.data;
 }
 
@@ -128,7 +131,9 @@ export async function uploadGradeJson(
   return res.data;
 }
 
-export async function getAdminPipelineJobStatus(jobId: string): Promise<AdminPipelineJob> {
+export async function getAdminPipelineJobStatus(
+  jobId: string,
+): Promise<AdminPipelineJob> {
   const res = await adminApi.get<AdminPipelineJob>(`/admin/pipeline/${jobId}/status`);
   return res.data;
 }
@@ -162,7 +167,9 @@ export async function getReviewQueue(
   if (status) params.status = status;
   if (curriculumId) params.curriculum_id = curriculumId;
   if (subject) params.subject = subject;
-  const res = await adminApi.get<ReviewQueueResponse>("/admin/content/review/queue", { params });
+  const res = await adminApi.get<ReviewQueueResponse>("/admin/content/review/queue", {
+    params,
+  });
   return res.data;
 }
 
@@ -209,7 +216,12 @@ export async function addAnnotation(
 ): Promise<ReviewAnnotationItem> {
   const res = await adminApi.post<ReviewAnnotationItem>(
     `/admin/content/review/${versionId}/annotate`,
-    { unit_id: unitId, content_type: contentType, annotation_text: annotationText, marked_text: markedText ?? null },
+    {
+      unit_id: unitId,
+      content_type: contentType,
+      annotation_text: annotationText,
+      marked_text: markedText ?? null,
+    },
   );
   return res.data;
 }
@@ -223,7 +235,10 @@ export async function approveReview(versionId: string, notes?: string): Promise<
 }
 
 export async function rejectReview(versionId: string, notes?: string): Promise<void> {
-  await adminApi.post(`/admin/content/review/${versionId}/reject`, { notes, regenerate: false });
+  await adminApi.post(`/admin/content/review/${versionId}/reject`, {
+    notes,
+    regenerate: false,
+  });
 }
 
 export async function publishReview(versionId: string): Promise<void> {
@@ -240,7 +255,12 @@ export async function blockContent(
   contentType: string,
   reason?: string,
 ): Promise<void> {
-  await adminApi.post(`/admin/content/block`, { curriculum_id: curriculumId, unit_id: unitId, content_type: contentType, reason });
+  await adminApi.post(`/admin/content/block`, {
+    curriculum_id: curriculumId,
+    unit_id: unitId,
+    content_type: contentType,
+    reason,
+  });
 }
 
 export async function blockVersionContent(
@@ -372,7 +392,9 @@ export async function getDemoAccounts(
   const params: Record<string, unknown> = { page, page_size: pageSize };
   if (status) params.status = status;
   if (email) params.email = email;
-  const res = await adminApi.get<DemoAccountListResponse>("/admin/demo-accounts", { params });
+  const res = await adminApi.get<DemoAccountListResponse>("/admin/demo-accounts", {
+    params,
+  });
   return res.data;
 }
 
@@ -427,7 +449,10 @@ export async function getDemoTeacherAccounts(
   const params: Record<string, unknown> = { page, page_size: pageSize };
   if (status) params.status = status;
   if (email) params.email = email;
-  const res = await adminApi.get<DemoTeacherAccountListResponse>("/admin/demo-teacher-accounts", { params });
+  const res = await adminApi.get<DemoTeacherAccountListResponse>(
+    "/admin/demo-teacher-accounts",
+    { params },
+  );
   return res.data;
 }
 
@@ -435,7 +460,9 @@ export async function extendDemoTeacherAccount(
   accountId: string,
   hours: number,
 ): Promise<{ account_id: string; expires_at: string; extended_at: string }> {
-  const res = await adminApi.post(`/admin/demo-teacher-accounts/${accountId}/extend`, { hours });
+  const res = await adminApi.post(`/admin/demo-teacher-accounts/${accountId}/extend`, {
+    hours,
+  });
   return res.data;
 }
 

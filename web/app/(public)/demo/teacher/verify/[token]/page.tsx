@@ -77,8 +77,8 @@ const STATE_CONFIG: Record<Exclude<VerifyState, "loading">, StateConfig> = {
 };
 
 function resolveState(err: unknown): Exclude<VerifyState, "loading" | "success"> {
-  const code = (err as { response?: { data?: { error?: string } } })?.response
-    ?.data?.error;
+  const code = (err as { response?: { data?: { error?: string } } })?.response?.data
+    ?.error;
   if (code === "token_not_found") return "invalid";
   if (code === "token_already_used") return "used";
   if (code === "token_expired") return "expired";
@@ -96,7 +96,7 @@ export default function DemoTeacherVerifyPage() {
     verifyDemoTeacherEmail(token)
       .then(() => setState("success"))
       .catch((err) => setState(resolveState(err)));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (state === "loading") {

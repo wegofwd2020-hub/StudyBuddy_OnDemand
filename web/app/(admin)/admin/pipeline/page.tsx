@@ -5,7 +5,16 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { getPipelineJobs, AdminPipelineJob } from "@/lib/api/admin";
 import { cn } from "@/lib/utils";
-import { ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, GitBranch, Plus, Upload, X } from "lucide-react";
+import {
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  ChevronDown,
+  GitBranch,
+  Plus,
+  Upload,
+  X,
+} from "lucide-react";
 
 const STATUS_STYLES: Record<string, string> = {
   queued: "bg-gray-100 text-gray-600",
@@ -40,11 +49,22 @@ function fmtBytes(bytes: number | null): string {
   return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
 }
 
-function SortIcon({ col, sortKey, sortDir }: { col: SortKey; sortKey: SortKey; sortDir: SortDir }) {
-  if (sortKey !== col) return <ArrowUpDown className="ml-1 inline h-3.5 w-3.5 opacity-40" />;
-  return sortDir === "asc"
-    ? <ArrowUp className="ml-1 inline h-3.5 w-3.5 text-indigo-600" />
-    : <ArrowDown className="ml-1 inline h-3.5 w-3.5 text-indigo-600" />;
+function SortIcon({
+  col,
+  sortKey,
+  sortDir,
+}: {
+  col: SortKey;
+  sortKey: SortKey;
+  sortDir: SortDir;
+}) {
+  if (sortKey !== col)
+    return <ArrowUpDown className="ml-1 inline h-3.5 w-3.5 opacity-40" />;
+  return sortDir === "asc" ? (
+    <ArrowUp className="ml-1 inline h-3.5 w-3.5 text-indigo-600" />
+  ) : (
+    <ArrowDown className="ml-1 inline h-3.5 w-3.5 text-indigo-600" />
+  );
 }
 
 export default function AdminPipelinePage() {
@@ -91,7 +111,10 @@ export default function AdminPipelinePage() {
     const result: string[] = [];
     for (const j of data.jobs) {
       const e = j.triggered_by_email ?? "";
-      if (e && !seen.has(e)) { seen.add(e); result.push(e); }
+      if (e && !seen.has(e)) {
+        seen.add(e);
+        result.push(e);
+      }
     }
     return result.sort();
   }, [data]);
@@ -118,9 +141,11 @@ export default function AdminPipelinePage() {
   }, [data, filterField, filterValue, sortKey, sortDir]);
 
   const activeFilterLabel =
-    filterField === "status" ? `Status: ${filterValue}`
-    : filterField === "triggered_by_email" ? `User: ${filterValue}`
-    : null;
+    filterField === "status"
+      ? `Status: ${filterValue}`
+      : filterField === "triggered_by_email"
+        ? `User: ${filterValue}`
+        : null;
 
   return (
     <div className="mx-auto max-w-6xl p-8">
@@ -157,7 +182,10 @@ export default function AdminPipelinePage() {
           {/* Status filter */}
           <div className="relative">
             <button
-              onClick={() => { setStatusOpen((o) => !o); if (filterField !== "status") setFilterField("status"); }}
+              onClick={() => {
+                setStatusOpen((o) => !o);
+                if (filterField !== "status") setFilterField("status");
+              }}
               className={cn(
                 "flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors",
                 filterField === "status" && filterValue
@@ -166,20 +194,24 @@ export default function AdminPipelinePage() {
               )}
             >
               Status
-              {filterField === "status" && filterValue
-                ? <span className="ml-1 font-bold">{filterValue}</span>
-                : null}
+              {filterField === "status" && filterValue ? (
+                <span className="ml-1 font-bold">{filterValue}</span>
+              ) : null}
               <ChevronDown className="h-3 w-3" />
             </button>
             {statusOpen && (
-              <div className="absolute left-0 top-full z-20 mt-1 min-w-[130px] rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
+              <div className="absolute top-full left-0 z-20 mt-1 min-w-[130px] rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
                 {ALL_STATUSES.map((s) => (
                   <button
                     key={s}
-                    onClick={() => { setFilter("status", s); }}
+                    onClick={() => {
+                      setFilter("status", s);
+                    }}
                     className={cn(
                       "w-full px-3 py-1.5 text-left text-xs hover:bg-gray-50",
-                      filterValue === s ? "font-semibold text-indigo-600" : "text-gray-700",
+                      filterValue === s
+                        ? "font-semibold text-indigo-600"
+                        : "text-gray-700",
                     )}
                   >
                     {s}
@@ -199,7 +231,7 @@ export default function AdminPipelinePage() {
                   else clearFilter();
                 }}
                 className={cn(
-                  "rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors appearance-none pr-7",
+                  "appearance-none rounded-lg border px-3 py-1.5 pr-7 text-xs font-medium transition-colors",
                   filterField === "triggered_by_email" && filterValue
                     ? "border-indigo-400 bg-indigo-50 text-indigo-700"
                     : "border-gray-200 bg-white text-gray-600 hover:border-gray-300",
@@ -207,10 +239,12 @@ export default function AdminPipelinePage() {
               >
                 <option value="">Triggered by</option>
                 {allEmails.map((e) => (
-                  <option key={e} value={e}>{e}</option>
+                  <option key={e} value={e}>
+                    {e}
+                  </option>
                 ))}
               </select>
-              <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2 text-gray-400" />
+              <ChevronDown className="pointer-events-none absolute top-1/2 right-2 h-3 w-3 -translate-y-1/2 text-gray-400" />
             </div>
           )}
 
@@ -218,7 +252,10 @@ export default function AdminPipelinePage() {
           {activeFilterLabel && (
             <div className="flex items-center gap-1 rounded-full bg-indigo-100 px-2.5 py-1 text-xs font-medium text-indigo-700">
               {activeFilterLabel}
-              <button onClick={clearFilter} className="ml-0.5 rounded-full hover:text-indigo-900">
+              <button
+                onClick={clearFilter}
+                className="ml-0.5 rounded-full hover:text-indigo-900"
+              >
                 <X className="h-3 w-3" />
               </button>
             </div>
@@ -240,14 +277,20 @@ export default function AdminPipelinePage() {
         </div>
       ) : processed.length > 0 ? (
         <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white">
-          <table className="min-w-[1000px] w-full text-sm">
+          <table className="w-full min-w-[1000px] text-sm">
             <thead className="border-b border-gray-200 bg-gray-50">
               <tr>
                 <th className="px-4 py-3 text-left font-medium text-gray-600">Job</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-600">Curriculum</th>
+                <th className="px-4 py-3 text-left font-medium text-gray-600">
+                  Curriculum
+                </th>
                 <th className="px-4 py-3 text-left font-medium text-gray-600">Status</th>
-                <th className="px-4 py-3 text-right font-medium text-gray-600">Progress</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-600">Triggered by</th>
+                <th className="px-4 py-3 text-right font-medium text-gray-600">
+                  Progress
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-gray-600">
+                  Triggered by
+                </th>
                 <th className="px-4 py-3 text-left font-medium text-gray-600">
                   <button
                     onClick={() => toggleSort("triggered_at")}
@@ -266,8 +309,12 @@ export default function AdminPipelinePage() {
                     <SortIcon col="started_at" sortKey={sortKey} sortDir={sortDir} />
                   </button>
                 </th>
-                <th className="px-4 py-3 text-left font-medium text-gray-600">Duration</th>
-                <th className="px-4 py-3 text-right font-medium text-gray-600">Payload</th>
+                <th className="px-4 py-3 text-left font-medium text-gray-600">
+                  Duration
+                </th>
+                <th className="px-4 py-3 text-right font-medium text-gray-600">
+                  Payload
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -281,7 +328,8 @@ export default function AdminPipelinePage() {
                       {job.job_id.slice(0, 8)}…
                     </Link>
                     <p className="mt-0.5 font-mono text-xs text-gray-400">
-                      {job.langs}{job.force ? " · force" : ""}
+                      {job.langs}
+                      {job.force ? " · force" : ""}
                     </p>
                   </td>
                   <td className="px-4 py-3 font-mono text-xs text-gray-700">
@@ -297,7 +345,10 @@ export default function AdminPipelinePage() {
                       {job.status}
                     </span>
                     {job.error && (
-                      <p className="mt-0.5 max-w-[180px] truncate text-xs text-red-500" title={job.error}>
+                      <p
+                        className="mt-0.5 max-w-[180px] truncate text-xs text-red-500"
+                        title={job.error}
+                      >
                         {job.error}
                       </p>
                     )}
@@ -314,14 +365,10 @@ export default function AdminPipelinePage() {
                     {job.triggered_by_email ?? "—"}
                   </td>
                   <td className="px-4 py-3 text-xs text-gray-500">
-                    {job.triggered_at
-                      ? new Date(job.triggered_at).toLocaleString()
-                      : "—"}
+                    {job.triggered_at ? new Date(job.triggered_at).toLocaleString() : "—"}
                   </td>
                   <td className="px-4 py-3 text-xs text-gray-500">
-                    {job.started_at
-                      ? new Date(job.started_at).toLocaleString()
-                      : "—"}
+                    {job.started_at ? new Date(job.started_at).toLocaleString() : "—"}
                   </td>
                   <td className="px-4 py-3 text-xs text-gray-500">
                     {duration(job.started_at, job.completed_at)}
@@ -337,7 +384,10 @@ export default function AdminPipelinePage() {
       ) : data && data.jobs?.length > 0 ? (
         <div className="py-10 text-center text-gray-400">
           <p className="text-sm">No jobs match the current filter.</p>
-          <button onClick={clearFilter} className="mt-2 text-xs text-indigo-600 hover:underline">
+          <button
+            onClick={clearFilter}
+            className="mt-2 text-xs text-indigo-600 hover:underline"
+          >
             Clear filter
           </button>
         </div>

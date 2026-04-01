@@ -176,18 +176,14 @@ async def create_demo_teacher_and_account(
     return demo_row
 
 
-async def mark_teacher_verification_used(
-    conn: asyncpg.Connection, verif_id: uuid.UUID
-) -> None:
+async def mark_teacher_verification_used(conn: asyncpg.Connection, verif_id: uuid.UUID) -> None:
     await conn.execute(
         "UPDATE demo_teacher_verifications SET used_at = NOW() WHERE id = $1",
         verif_id,
     )
 
 
-async def mark_teacher_request_verified(
-    conn: asyncpg.Connection, request_id: uuid.UUID
-) -> None:
+async def mark_teacher_request_verified(conn: asyncpg.Connection, request_id: uuid.UUID) -> None:
     await conn.execute(
         "UPDATE demo_teacher_requests SET status = 'verified' WHERE id = $1",
         request_id,

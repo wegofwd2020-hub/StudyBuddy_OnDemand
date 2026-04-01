@@ -161,9 +161,7 @@ async def list_demo_teacher_accounts(
         for r in rows
     ]
 
-    return DemoTeacherListResponse(
-        total=total, page=page, page_size=page_size, items=items
-    )
+    return DemoTeacherListResponse(total=total, page=page, page_size=page_size, items=items)
 
 
 @router.post(

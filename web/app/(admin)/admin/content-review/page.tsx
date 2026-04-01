@@ -126,7 +126,7 @@ export default function AdminContentReviewPage() {
                           Review →
                         </Link>
                       ) : (
-                        <span className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-400">
+                        <span className="inline-flex items-center gap-1 rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-400">
                           No content
                         </span>
                       )}
