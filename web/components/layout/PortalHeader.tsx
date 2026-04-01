@@ -42,15 +42,15 @@ export function PortalHeader({
         />
       </div>
 
-      {/* Right: username + live datetime */}
-      <div className="flex items-center gap-3 text-sm text-gray-500">
+      {/* Right: username above live datetime */}
+      <div className="flex flex-col items-end text-sm">
         {userName && (
-          <span className="max-w-[180px] truncate font-medium text-gray-700">
+          <span className="max-w-[200px] truncate font-medium text-gray-700">
             {userName}
           </span>
         )}
         {now && (
-          <span className="whitespace-nowrap tabular-nums">
+          <span className="whitespace-nowrap tabular-nums text-gray-500">
             {now.toLocaleDateString()}{" "}
             {now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
           </span>
