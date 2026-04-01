@@ -59,7 +59,7 @@ export default function DemoTeacherLoginPage() {
       const result = await demoTeacherLogin(data.email, data.password);
       localStorage.setItem("sb_teacher_token", result.access_token);
       setDemoTeacherSessionCookie(data.email);
-      router.push("/teacher/dashboard");
+      router.push("/school/dashboard");
     } catch (err: unknown) {
       const axiosErr = err as {
         response?: { status?: number; data?: { error?: string } };
