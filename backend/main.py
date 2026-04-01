@@ -222,6 +222,7 @@ from src.school.subscription_router import router as school_subscription_router 
 from src.school.limits_router import router as school_limits_router  # noqa: E402
 from src.student.router import router as student_router  # noqa: E402
 from src.subscription.router import router as subscription_router  # noqa: E402
+from src.private_teacher.router import router as private_teacher_router  # noqa: E402
 
 app.include_router(auth_router, prefix="/api/v1")
 app.include_router(admin_auth_router, prefix="/api/v1")
@@ -245,6 +246,7 @@ app.include_router(demo_router, prefix="/api/v1")
 app.include_router(demo_teacher_router, prefix="/api/v1")
 app.include_router(demo_admin_router, prefix="/api/v1")
 app.include_router(demo_teacher_admin_router, prefix="/api/v1")
+app.include_router(private_teacher_router, prefix="/api/v1")
 
 if settings.APP_ENV == "development":
     from src.auth.dev_router import router as dev_router

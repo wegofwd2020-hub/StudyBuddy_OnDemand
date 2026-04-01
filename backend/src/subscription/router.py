@@ -201,13 +201,25 @@ async def _dispatch_event(conn, redis, event_type: str, obj: dict, event: dict) 
     """Route a Stripe event to the correct handler.
 
     Branches on session/subscription metadata:
-      - metadata["school_id"] present → school subscription path
-      - otherwise                     → individual student subscription path (unchanged)
+      - metadata["school_id"] present              → school subscription path
+      - metadata["teacher_id"] (no access_type)    → teacher subscription path
+      - metadata["access_type"] == "teacher_access" → student-teacher access path
+      - otherwise                                   → individual student subscription path
     """
     # ── Detect school events ──────────────────────────────────────────────────
     metadata = obj.get("metadata") or {}
     if "school_id" in metadata or await _is_school_subscription(obj):
         await _dispatch_school_event(conn, redis, event_type, obj)
+        return
+
+    # ── Teacher subscription events ───────────────────────────────────────────
+    if "teacher_id" in metadata and metadata.get("access_type") != "teacher_access":
+        await _dispatch_teacher_event(conn, redis, event_type, obj)
+        return
+
+    # ── Student-teacher access events ─────────────────────────────────────────
+    if metadata.get("access_type") == "teacher_access":
+        await _dispatch_student_teacher_event(conn, redis, event_type, obj)
         return
 
     # ── Individual student path (unchanged) ───────────────────────────────────
@@ -391,6 +403,143 @@ async def _dispatch_school_event(conn, redis, event_type: str, obj: dict) -> Non
 
     else:
         log.debug("school_stripe_event_unhandled event_type=%s", event_type)
+
+
+# ── Private teacher subscription handlers ────────────────────────────────────
+
+
+async def _dispatch_teacher_event(conn, redis, event_type: str, obj: dict) -> None:
+    """Route Stripe events to private teacher subscription handlers."""
+    from src.private_teacher.service import (
+        activate_teacher_subscription,
+        cancel_teacher_subscription_db,
+        handle_teacher_payment_failed,
+        update_teacher_subscription_status,
+    )
+
+    if event_type == "checkout.session.completed":
+        metadata = obj.get("metadata") or {}
+        teacher_id = metadata.get("teacher_id")
+        plan = metadata.get("plan")
+        if not teacher_id or not plan:
+            log.warning(
+                "teacher_checkout.session.completed missing metadata teacher_id=%s plan=%s",
+                teacher_id,
+                plan,
+            )
+            return
+
+        stripe_customer_id = obj.get("customer", "")
+        stripe_subscription_id = obj.get("subscription", "")
+
+        current_period_end = None
+        try:
+            stripe_mod = _get_stripe_module()
+            from config import settings as _settings
+
+            stripe_mod.api_key = _settings.STRIPE_SECRET_KEY
+            sub = stripe_mod.Subscription.retrieve(stripe_subscription_id)
+            import datetime as _dt
+
+            current_period_end = _dt.datetime.fromtimestamp(
+                sub["current_period_end"], tz=_dt.UTC
+            )
+        except Exception as exc:
+            log.warning("could_not_fetch_teacher_subscription_period error=%s", exc)
+
+        await activate_teacher_subscription(
+            conn,
+            redis,
+            teacher_id=teacher_id,
+            plan=plan,
+            stripe_customer_id=stripe_customer_id,
+            stripe_subscription_id=stripe_subscription_id,
+            current_period_end=current_period_end,
+        )
+
+    elif event_type == "customer.subscription.updated":
+        stripe_subscription_id = obj.get("id", "")
+        raw_status = obj.get("status", "active")
+        status = _map_stripe_status(raw_status)
+
+        import datetime as _dt
+
+        period_end_ts = obj.get("current_period_end")
+        current_period_end = (
+            _dt.datetime.fromtimestamp(period_end_ts, tz=_dt.UTC) if period_end_ts else None
+        )
+
+        await update_teacher_subscription_status(conn, redis, stripe_subscription_id, status, current_period_end)
+
+    elif event_type == "customer.subscription.deleted":
+        stripe_subscription_id = obj.get("id", "")
+        await cancel_teacher_subscription_db(conn, redis, stripe_subscription_id)
+
+    elif event_type == "invoice.payment_failed":
+        stripe_subscription_id = obj.get("subscription", "")
+        if stripe_subscription_id:
+            await handle_teacher_payment_failed(conn, redis, stripe_subscription_id)
+
+    else:
+        log.debug("teacher_stripe_event_unhandled event_type=%s", event_type)
+
+
+async def _dispatch_student_teacher_event(conn, redis, event_type: str, obj: dict) -> None:
+    """Route Stripe events to student-teacher access handlers."""
+    from src.private_teacher.service import (
+        activate_student_teacher_access,
+        cancel_student_teacher_access_db,
+    )
+
+    if event_type == "checkout.session.completed":
+        metadata = obj.get("metadata") or {}
+        student_id = metadata.get("student_id")
+        teacher_id = metadata.get("teacher_id")
+        if not student_id or not teacher_id:
+            log.warning(
+                "student_teacher_checkout.session.completed missing metadata student_id=%s teacher_id=%s",
+                student_id,
+                teacher_id,
+            )
+            return
+
+        stripe_customer_id = obj.get("customer", "")
+        stripe_subscription_id = obj.get("subscription", "")
+
+        valid_until = None
+        try:
+            stripe_mod = _get_stripe_module()
+            from config import settings as _settings
+
+            stripe_mod.api_key = _settings.STRIPE_SECRET_KEY
+            sub = stripe_mod.Subscription.retrieve(stripe_subscription_id)
+            import datetime as _dt
+
+            valid_until = _dt.datetime.fromtimestamp(sub["current_period_end"], tz=_dt.UTC)
+        except Exception as exc:
+            log.warning("could_not_fetch_student_teacher_access_period error=%s", exc)
+
+        await activate_student_teacher_access(
+            conn,
+            redis,
+            student_id=student_id,
+            teacher_id=teacher_id,
+            stripe_customer_id=stripe_customer_id,
+            stripe_subscription_id=stripe_subscription_id,
+            valid_until=valid_until,
+        )
+
+    elif event_type == "customer.subscription.deleted":
+        stripe_subscription_id = obj.get("id", "")
+        await cancel_student_teacher_access_db(conn, redis, stripe_subscription_id)
+
+    elif event_type == "invoice.payment_failed":
+        stripe_subscription_id = obj.get("subscription", "")
+        if stripe_subscription_id:
+            await cancel_student_teacher_access_db(conn, redis, stripe_subscription_id)
+
+    else:
+        log.debug("student_teacher_stripe_event_unhandled event_type=%s", event_type)
 
 
 # ── DELETE /subscription ──────────────────────────────────────────────────────

@@ -197,6 +197,69 @@ async def get_current_teacher(
     return payload
 
 
+async def get_current_private_teacher(
+    request: Request,
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(_bearer)],
+) -> dict:
+    """
+    Verify a private teacher JWT (signed with JWT_SECRET, role == 'private_teacher').
+
+    Raises:
+        401 — missing / invalid / expired token
+        403 — wrong role, account suspended, or account not active
+    """
+    cid = _get_correlation_id(request)
+    payload = verify_internal_jwt(credentials.credentials, settings.JWT_SECRET)
+
+    role = payload.get("role", "")
+    if role != "private_teacher":
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "forbidden",
+                "detail": "Private teacher token required.",
+                "correlation_id": cid,
+            },
+        )
+
+    teacher_id = payload.get("teacher_id")
+    if not teacher_id:
+        raise HTTPException(
+            status_code=401,
+            detail={
+                "error": "invalid_token",
+                "detail": "teacher_id missing from token.",
+                "correlation_id": cid,
+            },
+        )
+
+    redis = get_redis(request)
+    if await redis.exists(f"suspended:{teacher_id}"):
+        log.warning("private_teacher_suspended", teacher_id=teacher_id)
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "account_suspended",
+                "detail": "Your account has been suspended.",
+                "correlation_id": cid,
+            },
+        )
+
+    account_status = payload.get("account_status", "active")
+    if account_status != "active":
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "account_not_active",
+                "detail": "Account is not active.",
+                "correlation_id": cid,
+            },
+        )
+
+    request.state.jwt_payload = payload
+    return payload
+
+
 async def get_current_admin(
     request: Request,
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(_bearer)],

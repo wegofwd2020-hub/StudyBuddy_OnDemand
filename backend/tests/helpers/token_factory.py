@@ -108,6 +108,24 @@ def make_demo_student_token(
     return jwt.encode(payload, TEST_JWT_SECRET, algorithm=JWT_ALGORITHM)
 
 
+def make_private_teacher_token(
+    teacher_id: str | None = None,
+    expire_minutes: int = 15,
+) -> str:
+    """Return a signed private_teacher JWT for testing (signed with JWT_SECRET)."""
+    tid = teacher_id or str(uuid.uuid4())
+    now = datetime.now(tz=UTC)
+    payload = {
+        "teacher_id": tid,
+        "role": "private_teacher",
+        "account_status": "active",
+        "iat": now,
+        "exp": now + timedelta(minutes=expire_minutes),
+        "jti": str(uuid.uuid4()),
+    }
+    return jwt.encode(payload, TEST_JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+
 def make_expired_student_token() -> str:
     """Return an already-expired student JWT."""
     return make_student_token(expire_minutes=-5)

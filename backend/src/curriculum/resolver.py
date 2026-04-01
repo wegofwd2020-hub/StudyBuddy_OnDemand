@@ -55,48 +55,75 @@ async def _resolve_from_db(
     """Resolve curriculum_id from the database (no Redis)."""
     year = _current_year()
 
-    if not school_id:
-        return _default_curriculum_id(grade, year)
+    # Path 1: school curriculum
+    if school_id:
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(
+                """
+                SELECT curriculum_id, restrict_access
+                FROM curricula
+                WHERE school_id = $1 AND grade = $2 AND year = $3 AND status = 'active'
+                ORDER BY activated_at DESC NULLS LAST
+                LIMIT 1
+                """,
+                uuid.UUID(school_id),
+                grade,
+                year,
+            )
 
+            if not row:
+                return _default_curriculum_id(grade, year)
+
+            curriculum_id: str = row["curriculum_id"]
+            restrict_access: bool = row["restrict_access"]
+
+            if restrict_access:
+                enrolment = await conn.fetchrow(
+                    """
+                    SELECT enrolment_id FROM school_enrolments
+                    WHERE school_id = $1 AND student_id = $2 AND status = 'active'
+                    """,
+                    uuid.UUID(school_id),
+                    uuid.UUID(student_id),
+                )
+                if not enrolment:
+                    raise HTTPException(
+                        status_code=403,
+                        detail={
+                            "error": "not_enrolled",
+                            "detail": "Not enrolled in this school's curriculum.",
+                        },
+                    )
+
+        return curriculum_id
+
+    # Path 2: private teacher access (only when the student has no school affiliation)
     async with pool.acquire() as conn:
-        row = await conn.fetchrow(
+        teacher_row = await conn.fetchrow(
             """
-            SELECT curriculum_id, restrict_access
-            FROM curricula
-            WHERE school_id = $1 AND grade = $2 AND year = $3 AND status = 'active'
-            ORDER BY activated_at DESC NULLS LAST
+            SELECT c.curriculum_id
+            FROM student_teacher_access sta
+            JOIN curricula c
+                ON c.owner_type = 'teacher'
+               AND c.owner_id = sta.teacher_id
+            WHERE sta.student_id = $1
+              AND sta.status = 'active'
+              AND c.grade = $2
+              AND c.year = $3
+              AND c.status = 'active'
+            ORDER BY c.activated_at DESC NULLS LAST
             LIMIT 1
             """,
-            uuid.UUID(school_id),
+            uuid.UUID(student_id),
             grade,
             year,
         )
 
-        if not row:
-            return _default_curriculum_id(grade, year)
+    if teacher_row:
+        return teacher_row["curriculum_id"]
 
-        curriculum_id: str = row["curriculum_id"]
-        restrict_access: bool = row["restrict_access"]
-
-        if restrict_access:
-            enrolment = await conn.fetchrow(
-                """
-                SELECT enrolment_id FROM school_enrolments
-                WHERE school_id = $1 AND student_id = $2 AND status = 'active'
-                """,
-                uuid.UUID(school_id),
-                uuid.UUID(student_id),
-            )
-            if not enrolment:
-                raise HTTPException(
-                    status_code=403,
-                    detail={
-                        "error": "not_enrolled",
-                        "detail": "Not enrolled in this school's curriculum.",
-                    },
-                )
-
-    return curriculum_id
+    # Path 3: default platform curriculum
+    return _default_curriculum_id(grade, year)
 
 
 async def get_curriculum_id(
