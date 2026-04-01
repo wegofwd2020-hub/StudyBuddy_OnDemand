@@ -111,3 +111,26 @@ def make_demo_student_token(
 def make_expired_student_token() -> str:
     """Return an already-expired student JWT."""
     return make_student_token(expire_minutes=-5)
+
+
+def make_demo_teacher_token(
+    teacher_id: str | None = None,
+    demo_account_id: str | None = None,
+    expire_minutes: int = 15,
+) -> str:
+    """Return a signed demo_teacher JWT for testing (role=demo_teacher, signed with JWT_SECRET)."""
+    tid = teacher_id or str(uuid.uuid4())
+    did = demo_account_id or str(uuid.uuid4())
+    now = datetime.now(tz=UTC)
+    payload = {
+        "teacher_id": tid,
+        "school_id": None,
+        "role": "demo_teacher",
+        "account_status": "active",
+        "demo_account_id": did,
+        "demo_expires_at": (now + timedelta(hours=24)).isoformat(),
+        "iat": now,
+        "exp": now + timedelta(minutes=expire_minutes),
+        "jti": str(uuid.uuid4()),
+    }
+    return jwt.encode(payload, TEST_JWT_SECRET, algorithm=JWT_ALGORITHM)
