@@ -12,6 +12,7 @@ Coverage:
   - POST /admin/content/review/{id}/rate  — requires review:rate (1–5 validated)
   - POST /admin/content/review/{id}/approve — requires review:approve; sets status=approved
   - POST /admin/content/review/{id}/reject  — requires review:approve; regenerate dispatched
+  - POST /admin/content/review/batch-approve — approves all pending for a curriculum
   - POST /admin/content/versions/{id}/publish  — requires content:publish; sets published
   - POST /admin/content/versions/{id}/rollback — requires content:rollback
   - POST /admin/content/block             — requires content:block; returns block_id
@@ -298,6 +299,108 @@ async def test_reject_with_regenerate_dispatches_task(client, db_conn):
     assert r.json()["regenerating"] is True
     mock_send.assert_called_once()
     assert mock_send.call_args[0][0] == "src.auth.tasks.regenerate_subject_task"
+
+
+# ── Batch approve ─────────────────────────────────────────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_batch_approve_approves_all_pending(client, db_conn):
+    """POST /batch-approve sets all pending versions for a curriculum to approved."""
+    curriculum_id = f"default-2026-g{uuid.uuid4().hex[:4]}"
+    await _insert_admin(client)
+
+    # Insert three pending versions for the same curriculum
+    subjects = [f"Batch-{uuid.uuid4().hex[:6]}" for _ in range(3)]
+    for subject in subjects:
+        await _insert_version(client, curriculum_id=curriculum_id, subject=subject, status="pending")
+
+    with patch("src.core.events.write_audit_log"):
+        r = await client.post(
+            "/api/v1/admin/content/review/batch-approve",
+            json={"curriculum_id": curriculum_id, "notes": "Batch LGTM"},
+            headers=_admin_headers(),
+        )
+
+    assert r.status_code == 200, r.text
+    data = r.json()
+    assert data["approved_count"] == 3
+    assert len(data["version_ids"]) == 3
+
+    # Verify all rows are now approved in the DB
+    pool = client._transport.app.state.pool
+    still_pending = await pool.fetchval(
+        "SELECT COUNT(*) FROM content_subject_versions WHERE curriculum_id = $1 AND status = 'pending'",
+        curriculum_id,
+    )
+    assert still_pending == 0
+
+
+@pytest.mark.asyncio
+async def test_batch_approve_skips_non_pending(client, db_conn):
+    """Batch approve only touches pending versions — approved/published are left alone."""
+    curriculum_id = f"default-2026-g{uuid.uuid4().hex[:4]}"
+    await _insert_admin(client)
+
+    pending_subject = f"BatchPend-{uuid.uuid4().hex[:6]}"
+    approved_subject = f"BatchAppr-{uuid.uuid4().hex[:6]}"
+    await _insert_version(client, curriculum_id=curriculum_id, subject=pending_subject, status="pending")
+    await _insert_version(client, curriculum_id=curriculum_id, subject=approved_subject, status="approved")
+
+    with patch("src.core.events.write_audit_log"):
+        r = await client.post(
+            "/api/v1/admin/content/review/batch-approve",
+            json={"curriculum_id": curriculum_id},
+            headers=_admin_headers(),
+        )
+
+    assert r.status_code == 200, r.text
+    data = r.json()
+    # Only the one pending version should be approved
+    assert data["approved_count"] == 1
+
+    # The already-approved version should remain approved (not double-approved)
+    pool = client._transport.app.state.pool
+    approved_count = await pool.fetchval(
+        "SELECT COUNT(*) FROM content_subject_versions WHERE curriculum_id = $1 AND status = 'approved'",
+        curriculum_id,
+    )
+    assert approved_count == 2  # original approved + the newly approved one
+
+
+@pytest.mark.asyncio
+async def test_batch_approve_empty_returns_zero(client, db_conn):
+    """Batch approve for a curriculum with no pending versions returns approved_count=0."""
+    curriculum_id = f"default-2026-g{uuid.uuid4().hex[:4]}"
+    await _insert_admin(client)
+    # Insert a non-pending version so the curriculum exists
+    await _insert_version(client, curriculum_id=curriculum_id,
+                           subject=f"Pub-{uuid.uuid4().hex[:6]}", status="published")
+
+    with patch("src.core.events.write_audit_log"):
+        r = await client.post(
+            "/api/v1/admin/content/review/batch-approve",
+            json={"curriculum_id": curriculum_id},
+            headers=_admin_headers(),
+        )
+
+    assert r.status_code == 200, r.text
+    data = r.json()
+    assert data["approved_count"] == 0
+    assert data["version_ids"] == []
+
+
+@pytest.mark.asyncio
+async def test_batch_approve_requires_approve_permission(client, db_conn):
+    """Developer role (lacks review:approve) receives 403."""
+    curriculum_id = f"default-2026-g{uuid.uuid4().hex[:4]}"
+
+    r = await client.post(
+        "/api/v1/admin/content/review/batch-approve",
+        json={"curriculum_id": curriculum_id, "notes": "test"},
+        headers=_admin_headers(role="developer"),
+    )
+    assert r.status_code == 403
 
 
 # ── Publish ───────────────────────────────────────────────────────────────────
