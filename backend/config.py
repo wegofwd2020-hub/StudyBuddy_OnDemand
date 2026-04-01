@@ -133,6 +133,11 @@ class Settings(BaseSettings):
     GITHUB_REPO: str | None = None
     GITHUB_TOKEN: str | None = None
 
+    # ── School pipeline quotas (runs per calendar month per school) ──────────────
+    SCHOOL_PIPELINE_QUOTA_STARTER: int = 3
+    SCHOOL_PIPELINE_QUOTA_PROFESSIONAL: int = 10
+    SCHOOL_PIPELINE_QUOTA_ENTERPRISE: int = 9999
+
     # ── Feature flags ─────────────────────────────────────────────────────────
     REVIEW_AUTO_APPROVE: bool = False
 
