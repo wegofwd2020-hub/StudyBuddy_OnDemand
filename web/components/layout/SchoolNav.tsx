@@ -18,6 +18,7 @@ import {
   GraduationCap,
   Settings,
   CreditCard,
+  Library,
 } from "lucide-react";
 
 interface NavItem {
@@ -47,6 +48,11 @@ const NAV_ITEMS: NavItem[] = [
     label: "Curriculum",
     href: "/school/curriculum",
     icon: <BookMarked className="h-4 w-4" />,
+  },
+  {
+    label: "Content Library",
+    href: "/school/curriculum/content",
+    icon: <Library className="h-4 w-4" />,
   },
   { label: "Students", href: "/school/students", icon: <Users className="h-4 w-4" /> },
   {
@@ -121,7 +127,17 @@ export function SchoolNav() {
         ).map((item) => {
           const isAlerts = item.href === "/school/alerts";
           const isReports = item.href.startsWith("/school/reports");
-          const isActive = isReports ? inReports : pathname === item.href;
+          const isContentLib = item.href === "/school/curriculum/content";
+          const isCurriculumUpload = item.href === "/school/curriculum";
+          const isActive = isReports
+            ? inReports
+            : isContentLib
+              ? pathname.startsWith("/school/curriculum/content")
+              : isCurriculumUpload
+                ? pathname === "/school/curriculum" ||
+                  (pathname.startsWith("/school/curriculum") &&
+                    !pathname.startsWith("/school/curriculum/content"))
+                : pathname === item.href;
 
           return (
             <div key={item.href}>

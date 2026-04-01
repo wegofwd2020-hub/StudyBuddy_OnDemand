@@ -247,3 +247,108 @@ export async function assignTeacherGrades(
   );
   return res.data;
 }
+
+// ── School content (read-only curriculum viewer for teachers) ─────────────────
+
+export interface SchoolContentSubject {
+  version_id: string;
+  curriculum_id: string;
+  subject: string;
+  subject_name: string | null;
+  version_number: number;
+  status: string;
+  generated_at: string;
+  published_at: string | null;
+  alex_warnings_count: number;
+  grade: number;
+  year: number;
+  curriculum_name: string;
+  has_content: boolean;
+  unit_count: number;
+}
+
+export interface SchoolContentUnit {
+  unit_id: string;
+  title: string;
+  sort_order: number;
+}
+
+export interface SchoolContentVersion {
+  version_id: string;
+  curriculum_id: string;
+  subject: string;
+  subject_name: string | null;
+  version_number: number;
+  status: string;
+  generated_at: string;
+  published_at: string | null;
+  alex_warnings_count: number;
+  grade: number;
+  year: number;
+  curriculum_name: string;
+  units: SchoolContentUnit[];
+}
+
+export interface SchoolUnitMeta {
+  unit_id: string;
+  title: string;
+  curriculum_id: string;
+  lang: string;
+  available_types: string[];
+  alex_warnings_count: number;
+  annotations: Array<{
+    annotation_id: string;
+    content_type: string;
+    annotation_text: string;
+    created_at: string;
+    reviewer_email: string | null;
+  }>;
+}
+
+export async function listSchoolContentSubjects(
+  schoolId: string,
+  grade?: number,
+): Promise<SchoolContentSubject[]> {
+  const res = await schoolApi.get<{ subjects: SchoolContentSubject[] }>(
+    `/schools/${schoolId}/content/subjects`,
+    { params: grade !== undefined ? { grade } : {} },
+  );
+  return res.data.subjects;
+}
+
+export async function getSchoolContentVersion(
+  schoolId: string,
+  versionId: string,
+): Promise<SchoolContentVersion> {
+  const res = await schoolApi.get<SchoolContentVersion>(
+    `/schools/${schoolId}/content/versions/${versionId}`,
+  );
+  return res.data;
+}
+
+export async function getSchoolUnitMeta(
+  schoolId: string,
+  versionId: string,
+  unitId: string,
+  lang = "en",
+): Promise<SchoolUnitMeta> {
+  const res = await schoolApi.get<SchoolUnitMeta>(
+    `/schools/${schoolId}/content/versions/${versionId}/unit/${unitId}`,
+    { params: { lang } },
+  );
+  return res.data;
+}
+
+export async function getSchoolUnitContent(
+  schoolId: string,
+  versionId: string,
+  unitId: string,
+  contentType: string,
+  lang = "en",
+): Promise<{ unit_id: string; content_type: string; lang: string; content: unknown }> {
+  const res = await schoolApi.get(
+    `/schools/${schoolId}/content/versions/${versionId}/unit/${unitId}/${contentType}`,
+    { params: { lang } },
+  );
+  return res.data;
+}

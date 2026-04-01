@@ -220,6 +220,7 @@ from src.school.router import router as school_router  # noqa: E402
 from src.school.pipeline_router import router as school_pipeline_router  # noqa: E402
 from src.school.subscription_router import router as school_subscription_router  # noqa: E402
 from src.school.limits_router import router as school_limits_router  # noqa: E402
+from src.school.content_router import router as school_content_router  # noqa: E402
 from src.student.router import router as student_router  # noqa: E402
 from src.subscription.router import router as subscription_router  # noqa: E402
 from src.private_teacher.router import router as private_teacher_router  # noqa: E402
@@ -240,6 +241,7 @@ app.include_router(school_router, prefix="/api/v1")
 app.include_router(school_pipeline_router, prefix="/api/v1")
 app.include_router(school_subscription_router, prefix="/api/v1")
 app.include_router(school_limits_router, prefix="/api/v1")
+app.include_router(school_content_router, prefix="/api/v1")
 app.include_router(feedback_router, prefix="/api/v1")
 app.include_router(reports_router, prefix="/api/v1")
 app.include_router(demo_router, prefix="/api/v1")
