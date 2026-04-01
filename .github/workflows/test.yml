@@ -201,7 +201,9 @@ jobs:
     name: Snyk — Vulnerability Scan
     runs-on: ubuntu-latest
     # Skip on fork PRs where SNYK_TOKEN is unavailable.
-    if: ${{ secrets.SNYK_TOKEN != '' }}
+    # secrets context is not allowed in job-level if; use a repository variable instead.
+    # Set SNYK_ENABLED = 'true' in repo Settings → Variables to activate this job.
+    if: ${{ vars.SNYK_ENABLED == 'true' }}
     permissions:
       # Required to upload SARIF results to GitHub Code Scanning.
       security-events: write
