@@ -609,3 +609,86 @@ export async function getUnitContentFile(
   );
   return res.data;
 }
+
+// ── Admin school management ───────────────────────────────────────────────────
+
+export interface AdminSchoolListItem {
+  school_id: string;
+  name: string;
+  contact_email: string;
+  country: string;
+  status: string;
+  created_at: string;
+  plan: string;
+  subscription_status: string | null;
+  seats_used_students: number;
+  seats_used_teachers: number;
+  has_override: boolean;
+}
+
+export interface AdminSchoolListResponse {
+  schools: AdminSchoolListItem[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
+export async function listAdminSchools(
+  page = 1,
+  pageSize = 20,
+  search?: string,
+): Promise<AdminSchoolListResponse> {
+  const params: Record<string, unknown> = { page, page_size: pageSize };
+  if (search) params.search = search;
+  const res = await adminApi.get<AdminSchoolListResponse>("/admin/schools", { params });
+  return res.data;
+}
+
+export interface AdminSchoolOverride {
+  max_students: number | null;
+  max_teachers: number | null;
+  pipeline_quota: number | null;
+  override_reason: string;
+  set_by_admin_id: string;
+  set_at: string;
+}
+
+export interface AdminSchoolLimits {
+  plan: string;
+  max_students: number;
+  max_teachers: number;
+  pipeline_quota_monthly: number;
+  pipeline_runs_this_month: number;
+  pipeline_resets_at: string;
+  seats_used_students: number;
+  seats_used_teachers: number;
+  has_override: boolean;
+  override: AdminSchoolOverride | null;
+}
+
+export async function getAdminSchoolLimits(schoolId: string): Promise<AdminSchoolLimits> {
+  const res = await adminApi.get<AdminSchoolLimits>(`/admin/schools/${schoolId}/limits`);
+  return res.data;
+}
+
+export interface SetOverridePayload {
+  max_students?: number | null;
+  max_teachers?: number | null;
+  pipeline_quota?: number | null;
+  override_reason: string;
+}
+
+export async function setAdminSchoolLimits(
+  schoolId: string,
+  payload: SetOverridePayload,
+): Promise<{ status: string; school_id: string }> {
+  const res = await adminApi.put(`/admin/schools/${schoolId}/limits`, payload);
+  return res.data;
+}
+
+export async function clearAdminSchoolLimits(
+  schoolId: string,
+): Promise<{ status: string; school_id: string }> {
+  const res = await adminApi.delete(`/admin/schools/${schoolId}/limits`);
+  return res.data;
+}

@@ -25,7 +25,7 @@ from __future__ import annotations
 import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel
 
 from src.auth.dependencies import get_current_admin, get_current_teacher
@@ -44,6 +44,27 @@ router = APIRouter(tags=["school-limits"])
 
 
 # ── Schemas ───────────────────────────────────────────────────────────────────
+
+
+class AdminSchoolListItem(BaseModel):
+    school_id: str
+    name: str
+    contact_email: str
+    country: str
+    status: str
+    created_at: str
+    plan: str
+    subscription_status: str | None
+    seats_used_students: int
+    seats_used_teachers: int
+    has_override: bool
+
+
+class AdminSchoolListResponse(BaseModel):
+    schools: list[AdminSchoolListItem]
+    total: int
+    page: int
+    page_size: int
 
 
 class SchoolLimitsResponse(BaseModel):
@@ -103,6 +124,90 @@ def _require_school_manage(admin: dict, request: Request) -> None:
 
 def _admin_id(admin: dict) -> str:
     return str(admin["admin_id"])
+
+
+# ── GET /admin/schools ────────────────────────────────────────────────────────
+
+
+@router.get(
+    "/admin/schools",
+    response_model=AdminSchoolListResponse,
+    status_code=200,
+)
+async def admin_list_schools(
+    request: Request,
+    admin: Annotated[dict, Depends(get_current_admin)],
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+    search: str | None = Query(None),
+) -> AdminSchoolListResponse:
+    """List all schools with subscription plan and seat usage (school:manage required)."""
+    _require_school_manage(admin, request)
+
+    offset = (page - 1) * page_size
+    search_like = f"%{search}%" if search else None
+
+    async with get_db(request) as conn:
+        rows = await conn.fetch(
+            """
+            SELECT
+                s.school_id::text,
+                s.name,
+                s.contact_email,
+                s.country,
+                s.status::text,
+                s.created_at,
+                COALESCE(sub.plan, 'starter')          AS plan,
+                sub.status::text                        AS subscription_status,
+                (SELECT COUNT(*) FROM school_enrolments e
+                 WHERE e.school_id = s.school_id AND e.status = 'active')::int
+                                                        AS seats_used_students,
+                (SELECT COUNT(*) FROM teachers t
+                 WHERE t.school_id = s.school_id AND t.account_status = 'active')::int
+                                                        AS seats_used_teachers,
+                (SELECT 1 FROM school_plan_overrides o
+                 WHERE o.school_id = s.school_id) IS NOT NULL AS has_override
+            FROM schools s
+            LEFT JOIN school_subscriptions sub
+                ON sub.school_id = s.school_id
+                AND sub.status IN ('active', 'trialing', 'past_due')
+            WHERE ($3::text IS NULL OR s.name ILIKE $3 OR s.contact_email ILIKE $3)
+            ORDER BY s.created_at DESC
+            LIMIT $1 OFFSET $2
+            """,
+            page_size,
+            offset,
+            search_like,
+        )
+        total = await conn.fetchval(
+            """
+            SELECT COUNT(*) FROM schools s
+            WHERE ($1::text IS NULL OR s.name ILIKE $1 OR s.contact_email ILIKE $1)
+            """,
+            search_like,
+        )
+
+    return AdminSchoolListResponse(
+        schools=[
+            AdminSchoolListItem(
+                school_id=r["school_id"],
+                name=r["name"],
+                contact_email=r["contact_email"],
+                country=r["country"],
+                status=r["status"],
+                created_at=r["created_at"].isoformat(),
+                plan=r["plan"],
+                subscription_status=r["subscription_status"],
+                seats_used_students=r["seats_used_students"],
+                seats_used_teachers=r["seats_used_teachers"],
+                has_override=r["has_override"],
+            )
+            for r in rows
+        ],
+        total=int(total or 0),
+        page=page,
+        page_size=page_size,
+    )
 
 
 # ── GET /schools/{school_id}/limits ──────────────────────────────────────────

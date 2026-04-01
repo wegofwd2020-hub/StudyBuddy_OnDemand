@@ -18,6 +18,7 @@ import {
   Hammer,
   FlaskConical,
   GraduationCap,
+  School,
 } from "lucide-react";
 
 interface NavItem {
@@ -75,6 +76,12 @@ const NAV_ITEMS: NavItem[] = [
     label: "Teacher Demo Accounts",
     href: "/admin/demo-teacher-accounts",
     icon: <GraduationCap className="h-4 w-4" />,
+    minRole: "product_admin",
+  },
+  {
+    label: "Schools",
+    href: "/admin/schools",
+    icon: <School className="h-4 w-4" />,
     minRole: "product_admin",
   },
   {
