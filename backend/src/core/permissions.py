@@ -56,6 +56,7 @@ ROLE_PERMISSIONS: dict[str, set[str]] = {
         "review:annotate",
         "review:rate",
         "review:approve",
+        "review:assign",
         "student:manage",
         "school:manage",
         "feedback:view",

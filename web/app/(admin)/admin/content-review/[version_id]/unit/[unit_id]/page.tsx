@@ -15,6 +15,7 @@ import {
   type ReviewAnnotationItem,
 } from "@/lib/api/admin";
 import {
+  AlertTriangle,
   ArrowLeft,
   BookOpen,
   ClipboardList,
@@ -607,6 +608,23 @@ export default function AdminUnitContentPage() {
                 {unit_id} · {meta.curriculum_id} · {meta.lang.toUpperCase()}
               </p>
             </div>
+
+            {meta.alex_warnings_count > 0 && (
+              <div className="mb-6 flex gap-3 rounded-lg border border-orange-200 bg-orange-50 p-4">
+                <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-orange-500" />
+                <div>
+                  <p className="text-sm font-semibold text-orange-800">
+                    {meta.alex_warnings_count} AlexJS warning
+                    {meta.alex_warnings_count !== 1 ? "s" : ""} in this unit
+                  </p>
+                  <p className="mt-0.5 text-xs text-orange-700">
+                    AlexJS flagged potentially non-inclusive or insensitive language.
+                    Review all content types below and add reviewer notes where
+                    appropriate.
+                  </p>
+                </div>
+              </div>
+            )}
 
             <div className="flex gap-6">
               {/* Left: content type nav */}

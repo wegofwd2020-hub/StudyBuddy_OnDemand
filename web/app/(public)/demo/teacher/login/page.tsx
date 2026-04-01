@@ -145,11 +145,9 @@ export default function DemoTeacherLoginPage() {
           {/* Resend credentials */}
           <div className="mt-5 border-t pt-4 text-center text-xs text-gray-500">
             {resendState === "sent" ? (
-              <p className="text-green-600">
-                Credentials email resent. Check your inbox.
-              </p>
+              <p className="text-green-600">{t("resend_sent")}</p>
             ) : resendState === "failed" ? (
-              <p className="text-red-500">Resend failed. Please try again.</p>
+              <p className="text-red-500">{t("resend_failed")}</p>
             ) : (
               <p>
                 {t("resend_label")}{" "}
@@ -159,7 +157,7 @@ export default function DemoTeacherLoginPage() {
                   onClick={handleResend}
                   className="text-cyan-600 underline underline-offset-2 hover:text-cyan-800 disabled:opacity-50"
                 >
-                  {resendState === "sending" ? "Sending…" : t("resend_link")}
+                  {resendState === "sending" ? t("resend_sending") : t("resend_link")}
                 </button>
               </p>
             )}

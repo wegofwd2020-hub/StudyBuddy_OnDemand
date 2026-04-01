@@ -18,6 +18,9 @@ const BASE_ITEM = {
   generated_at: "2026-03-28T08:00:00Z",
   published_at: null as string | null,
   has_content: true,
+  assigned_to_admin_id: null as string | null,
+  assigned_to_email: null as string | null,
+  assigned_at: null as string | null,
   // ReviewItemDetail extras
   units: [{ unit_id: "unit-001", title: "Algebra Basics", sort_order: 1 }],
   review_history: [],

@@ -140,6 +140,12 @@ export async function getAdminPipelineJobStatus(
 
 // ── Content Review ─────────────────────────────────────────────────────────────
 
+export interface AdminUser {
+  admin_user_id: string;
+  email: string;
+  role: string;
+}
+
 export interface ReviewQueueItem {
   version_id: string;
   curriculum_id: string;
@@ -151,6 +157,9 @@ export interface ReviewQueueItem {
   generated_at: string;
   published_at: string | null;
   has_content: boolean;
+  assigned_to_admin_id: string | null;
+  assigned_to_email: string | null;
+  assigned_at: string | null;
 }
 
 export interface ReviewQueueResponse {
@@ -162,11 +171,13 @@ export async function getReviewQueue(
   status?: string,
   curriculumId?: string,
   subject?: string,
+  assignedTo?: string,
 ): Promise<ReviewQueueResponse> {
   const params: Record<string, string> = {};
   if (status) params.status = status;
   if (curriculumId) params.curriculum_id = curriculumId;
   if (subject) params.subject = subject;
+  if (assignedTo) params.assigned_to = assignedTo;
   const res = await adminApi.get<ReviewQueueResponse>("/admin/content/review/queue", {
     params,
   });
@@ -232,6 +243,48 @@ export async function deleteAnnotation(annotationId: string): Promise<void> {
 
 export async function approveReview(versionId: string, notes?: string): Promise<void> {
   await adminApi.post(`/admin/content/review/${versionId}/approve`, { notes });
+}
+
+export interface BatchApproveResult {
+  approved_count: number;
+  version_ids: string[];
+}
+
+export async function batchApproveGrade(
+  curriculumId: string,
+  notes?: string,
+): Promise<BatchApproveResult> {
+  const res = await adminApi.post<BatchApproveResult>(
+    "/admin/content/review/batch-approve",
+    {
+      curriculum_id: curriculumId,
+      notes,
+    },
+  );
+  return res.data;
+}
+
+export async function getAdminUsers(): Promise<AdminUser[]> {
+  const res = await adminApi.get<{ users: AdminUser[] }>("/admin/users");
+  return res.data.users;
+}
+
+export interface AssignResult {
+  version_id: string;
+  assigned_to_admin_id: string | null;
+  assigned_to_email: string | null;
+  assigned_at: string | null;
+}
+
+export async function assignReview(
+  versionId: string,
+  adminId: string | null,
+): Promise<AssignResult> {
+  const res = await adminApi.post<AssignResult>(
+    `/admin/content/review/${versionId}/assign`,
+    { admin_id: adminId },
+  );
+  return res.data;
 }
 
 export async function rejectReview(versionId: string, notes?: string): Promise<void> {
@@ -521,6 +574,7 @@ export interface UnitContentMeta {
   curriculum_id: string;
   lang: string;
   available_types: string[];
+  alex_warnings_count: number;
 }
 
 export async function getUnitContentMeta(

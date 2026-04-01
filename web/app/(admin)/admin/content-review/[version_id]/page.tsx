@@ -3,18 +3,21 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getReviewItem,
+  getAdminUsers,
   approveReview,
   rejectReview,
   publishReview,
   rollbackReview,
   blockVersionContent,
+  assignReview,
 } from "@/lib/api/admin";
 import { useAdmin, hasPermission } from "@/lib/hooks/useAdmin";
 import { cn } from "@/lib/utils";
 import {
+  AlertTriangle,
   ArrowLeft,
   CheckCircle,
   XCircle,
@@ -24,6 +27,7 @@ import {
   Clock,
   MessageSquare,
   GitCompare,
+  UserCheck,
 } from "lucide-react";
 
 type ActionModal = "reject" | "block" | null;
@@ -66,6 +70,21 @@ export default function AdminContentReviewDetailPage() {
     queryKey: ["admin", "content-review", version_id],
     queryFn: () => getReviewItem(version_id),
     staleTime: 60_000,
+  });
+
+  const canAssign = admin && hasPermission(admin.role, "product_admin");
+
+  const { data: adminUsers } = useQuery({
+    queryKey: ["admin", "users"],
+    queryFn: getAdminUsers,
+    staleTime: 300_000,
+    enabled: !!canAssign,
+  });
+
+  const assignMutation = useMutation({
+    mutationFn: (adminId: string | null) => assignReview(version_id, adminId),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ["admin", "content-review", version_id] }),
   });
 
   async function performAction(action: () => Promise<void>) {
@@ -135,6 +154,62 @@ export default function AdminContentReviewDetailPage() {
               </Link>
             )}
           </div>
+
+          {/* Assignment panel */}
+          <div className="rounded-xl border border-gray-200 bg-white px-4 py-3">
+            <div className="flex items-center gap-2">
+              <UserCheck className="h-4 w-4 flex-shrink-0 text-gray-400" />
+              <span className="text-sm font-medium text-gray-700">Assigned reviewer</span>
+              {item.assigned_to_email ? (
+                <span className="ml-1 text-sm text-gray-900">
+                  {item.assigned_to_email}
+                </span>
+              ) : (
+                <span className="ml-1 text-sm text-gray-400">Unassigned</span>
+              )}
+              {canAssign && adminUsers && (
+                <div className="ml-auto flex items-center gap-2">
+                  <select
+                    defaultValue={item.assigned_to_admin_id ?? ""}
+                    onChange={(e) => assignMutation.mutate(e.target.value || null)}
+                    disabled={assignMutation.isPending}
+                    className="rounded-md border border-gray-200 px-2.5 py-1 text-xs text-gray-700 focus:border-indigo-400 focus:outline-none disabled:opacity-50"
+                  >
+                    <option value="">— Unassigned —</option>
+                    {adminUsers.map((u) => (
+                      <option key={u.admin_user_id} value={u.admin_user_id}>
+                        {u.email}
+                      </option>
+                    ))}
+                  </select>
+                  {assignMutation.isError && (
+                    <span className="text-xs text-red-500">Failed</span>
+                  )}
+                </div>
+              )}
+            </div>
+            {item.assigned_at && (
+              <p className="mt-1 pl-6 text-xs text-gray-400">
+                Assigned {new Date(item.assigned_at).toLocaleString()}
+              </p>
+            )}
+          </div>
+
+          {item.alex_warnings_count > 0 && (
+            <div className="flex gap-3 rounded-lg border border-orange-200 bg-orange-50 p-4">
+              <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-orange-500" />
+              <div>
+                <p className="text-sm font-semibold text-orange-800">
+                  {item.alex_warnings_count} AlexJS warning
+                  {item.alex_warnings_count !== 1 ? "s" : ""} detected
+                </p>
+                <p className="mt-0.5 text-xs text-orange-700">
+                  AlexJS flagged potentially non-inclusive language in this subject
+                  version. Review unit content carefully before approving.
+                </p>
+              </div>
+            </div>
+          )}
 
           {error && (
             <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">

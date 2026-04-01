@@ -18,6 +18,8 @@ Routes (all prefixed /api/v1 in main.py):
   DELETE /admin/content/review/annotations/{annotation_id}
   POST   /admin/content/review/{version_id}/rate
   POST   /admin/content/review/{version_id}/approve
+  POST   /admin/content/review/batch-approve
+  POST   /admin/content/review/{version_id}/assign
   POST   /admin/content/review/{version_id}/reject
   POST   /admin/content/review/{version_id}/block
   POST   /admin/content/versions/{version_id}/publish
@@ -42,10 +44,16 @@ from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, Upl
 from src.admin.schemas import (
     AdminPipelineTriggerRequest,
     AdminPipelineTriggerResponse,
+    AdminUserItem,
+    AdminUsersResponse,
     AnnotateRequest,
     AnnotateResponse,
     ApproveRequest,
     ApproveResponse,
+    AssignRequest,
+    AssignResponse,
+    BatchApproveRequest,
+    BatchApproveResponse,
     BlockRequest,
     BlockResponse,
     BlockVersionRequest,
@@ -73,6 +81,8 @@ from src.admin.schemas import (
 from src.admin.service import (
     add_annotation,
     approve_version,
+    assign_version,
+    batch_approve_versions,
     block_version,
     create_block,
     delete_annotation,
@@ -83,6 +93,7 @@ from src.admin.service import (
     get_subscription_analytics,
     get_unit_content_file,
     get_unit_content_meta,
+    list_admin_users,
     list_feedback,
     list_review_queue,
     lookup_dictionary,
@@ -180,12 +191,15 @@ async def review_queue(
     status: str | None = Query(None),
     subject: str | None = Query(None),
     curriculum_id: str | None = Query(None),
+    assigned_to: str | None = Query(None, description="Filter by assigned admin UUID"),
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
 ) -> ReviewQueueResponse:
     """List content subject versions, optionally filtered."""
     async with get_db(request) as conn:
-        data = await list_review_queue(conn, status, subject, curriculum_id, limit, offset)
+        data = await list_review_queue(
+            conn, status, subject, curriculum_id, assigned_to, limit, offset
+        )
     return ReviewQueueResponse(**data)
 
 
@@ -419,6 +433,58 @@ async def approve(
     async with get_db(request) as conn:
         row = await approve_version(conn, version_id, _admin_id(admin), body.notes)
     return ApproveResponse(**row)
+
+
+@router.post(
+    "/admin/content/review/batch-approve",
+    response_model=BatchApproveResponse,
+)
+async def batch_approve(
+    body: BatchApproveRequest,
+    request: Request,
+    admin: Annotated[dict, Depends(_require("review:approve"))],
+) -> BatchApproveResponse:
+    """Approve all pending content versions for a curriculum."""
+    async with get_db(request) as conn:
+        result = await batch_approve_versions(
+            conn, body.curriculum_id, _admin_id(admin), body.notes
+        )
+    return BatchApproveResponse(**result)
+
+
+# ── Assign ────────────────────────────────────────────────────────────────────
+
+
+@router.post(
+    "/admin/content/review/{version_id}/assign",
+    response_model=AssignResponse,
+)
+async def assign(
+    version_id: str,
+    body: AssignRequest,
+    request: Request,
+    admin: Annotated[dict, Depends(_require("review:assign"))],
+) -> AssignResponse:
+    """Assign (or unassign when admin_id is null) a version to a reviewer."""
+    async with get_db(request) as conn:
+        result = await assign_version(conn, version_id, body.admin_id, _admin_id(admin))
+    if not result:
+        raise HTTPException(status_code=404, detail="Version not found")
+    return AssignResponse(**result)
+
+
+# ── Admin users ───────────────────────────────────────────────────────────────
+
+
+@router.get("/admin/users", response_model=AdminUsersResponse)
+async def admin_users(
+    request: Request,
+    admin: Annotated[dict, Depends(_require("review:assign"))],
+) -> AdminUsersResponse:
+    """List all active admin accounts (for assignment dropdowns)."""
+    async with get_db(request) as conn:
+        users = await list_admin_users(conn)
+    return AdminUsersResponse(users=[AdminUserItem(**u) for u in users])
 
 
 # ── Reject ────────────────────────────────────────────────────────────────────

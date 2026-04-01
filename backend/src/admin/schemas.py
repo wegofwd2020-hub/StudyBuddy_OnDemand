@@ -24,6 +24,9 @@ class ReviewQueueItem(BaseModel):
     generated_at: datetime
     published_at: datetime | None = None
     has_content: bool = False
+    assigned_to_admin_id: str | None = None
+    assigned_to_email: str | None = None
+    assigned_at: datetime | None = None
 
 
 class ReviewQueueResponse(BaseModel):
@@ -108,6 +111,33 @@ class RateResponse(BaseModel):
     content_rating: int
 
 
+# ── Admin user listing ────────────────────────────────────────────────────────
+
+
+class AdminUserItem(BaseModel):
+    admin_user_id: str
+    email: str
+    role: str
+
+
+class AdminUsersResponse(BaseModel):
+    users: list[AdminUserItem]
+
+
+# ── Review assignment ──────────────────────────────────────────────────────────
+
+
+class AssignRequest(BaseModel):
+    admin_id: str | None  # None = unassign
+
+
+class AssignResponse(BaseModel):
+    version_id: str
+    assigned_to_admin_id: str | None
+    assigned_to_email: str | None
+    assigned_at: datetime | None
+
+
 # ── Approve / reject ──────────────────────────────────────────────────────────
 
 
@@ -118,6 +148,16 @@ class ApproveRequest(BaseModel):
 class ApproveResponse(BaseModel):
     version_id: str
     status: str
+
+
+class BatchApproveRequest(BaseModel):
+    curriculum_id: str
+    notes: str | None = None
+
+
+class BatchApproveResponse(BaseModel):
+    approved_count: int
+    version_ids: list[str]
 
 
 class RejectRequest(BaseModel):
@@ -289,6 +329,7 @@ class UnitContentMetaResponse(BaseModel):
     curriculum_id: str
     lang: str
     available_types: list[str]
+    alex_warnings_count: int = 0
 
 
 class UnitContentFileResponse(BaseModel):

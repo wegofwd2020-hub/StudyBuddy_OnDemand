@@ -19,6 +19,9 @@ export const MOCK_QUEUE: ReviewQueueResponse = {
       generated_at: "2026-03-28T08:00:00Z",
       published_at: null,
       has_content: true,
+      assigned_to_admin_id: null,
+      assigned_to_email: null,
+      assigned_at: null,
     },
     {
       version_id: "ver-002",
@@ -31,6 +34,9 @@ export const MOCK_QUEUE: ReviewQueueResponse = {
       generated_at: "2026-03-27T08:00:00Z",
       published_at: null,
       has_content: true,
+      assigned_to_admin_id: null,
+      assigned_to_email: null,
+      assigned_at: null,
     },
   ],
 };

@@ -161,11 +161,9 @@ export function DemoTeacherRequestModal() {
                   {errorKey === "error_pending" && (
                     <div className="text-xs text-gray-500">
                       {resendState === "sent" ? (
-                        <p className="text-green-600">
-                          Verification email resent. Check your inbox.
-                        </p>
+                        <p className="text-green-600">{t("resend_sent")}</p>
                       ) : resendState === "failed" ? (
-                        <p className="text-red-500">Resend failed. Please try again.</p>
+                        <p className="text-red-500">{t("resend_failed")}</p>
                       ) : (
                         <p>
                           {t("resend_label")}{" "}
@@ -175,7 +173,7 @@ export function DemoTeacherRequestModal() {
                             onClick={handleResend}
                             className="text-cyan-600 underline underline-offset-2 hover:text-cyan-800 disabled:opacity-50"
                           >
-                            {resendState === "sending" ? "Sending…" : t("resend_link")}
+                            {resendState === "sending" ? t("resend_sending") : t("resend_link")}
                           </button>
                         </p>
                       )}
