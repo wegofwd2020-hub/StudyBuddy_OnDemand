@@ -178,3 +178,42 @@ export async function getSchoolLimits(schoolId: string): Promise<SchoolLimits> {
   const res = await schoolApi.get<SchoolLimits>(`/schools/${schoolId}/limits`);
   return res.data;
 }
+
+// ── School subscription ───────────────────────────────────────────────────────
+
+export interface SchoolSubscription {
+  plan: string;
+  status: string | null;
+  max_students: number;
+  max_teachers: number;
+  seats_used_students: number;
+  seats_used_teachers: number;
+  current_period_end: string | null;
+}
+
+export async function getSchoolSubscription(schoolId: string): Promise<SchoolSubscription> {
+  const res = await schoolApi.get<SchoolSubscription>(`/schools/${schoolId}/subscription`);
+  return res.data;
+}
+
+export async function createSchoolCheckout(
+  schoolId: string,
+  plan: string,
+  successUrl: string,
+  cancelUrl: string,
+): Promise<{ checkout_url: string }> {
+  const res = await schoolApi.post<{ checkout_url: string }>(
+    `/schools/${schoolId}/subscription/checkout`,
+    { plan, success_url: successUrl, cancel_url: cancelUrl },
+  );
+  return res.data;
+}
+
+export async function cancelSchoolSubscription(
+  schoolId: string,
+): Promise<{ status: string; current_period_end: string | null }> {
+  const res = await schoolApi.delete<{ status: string; current_period_end: string | null }>(
+    `/schools/${schoolId}/subscription`,
+  );
+  return res.data;
+}
