@@ -832,7 +832,6 @@ async def get_pipeline_status(conn: asyncpg.Connection) -> dict:
         "approved": row["approved"] or 0,
         "published": row["published"] or 0,
         "rejected": row["rejected"] or 0,
-        "pending": row["pending"] or 0,
     }
 
 

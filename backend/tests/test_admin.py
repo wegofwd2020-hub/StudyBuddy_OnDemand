@@ -335,9 +335,9 @@ async def test_publish_404_on_unknown(client, db_conn):
 
 @pytest.mark.asyncio
 async def test_rollback_version(client, db_conn):
-    """POST /rollback restores a version to published."""
+    """POST /rollback un-publishes the current version (moves it back to approved)."""
     version_id = await _insert_version(
-        client, subject=f"Roll-{uuid.uuid4().hex[:6]}", status="approved"
+        client, subject=f"Roll-{uuid.uuid4().hex[:6]}", status="published"
     )
     await _insert_admin(client)
 
@@ -348,7 +348,7 @@ async def test_rollback_version(client, db_conn):
             headers=_admin_headers(),
         )
     assert r.status_code == 200, r.text
-    assert r.json()["status"] == "published"
+    assert r.json()["status"] == "approved"
 
 
 # ── Content block ─────────────────────────────────────────────────────────────

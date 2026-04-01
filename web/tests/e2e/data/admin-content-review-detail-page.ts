@@ -8,18 +8,19 @@ import type { ReviewItemDetail } from "@/lib/api/admin";
 export const MOCK_VERSION_ID = "ver-001";
 
 const BASE_ITEM = {
+  // ReviewQueueItem fields
   version_id: MOCK_VERSION_ID,
-  unit_id: "unit-001",
-  unit_title: "Algebra Basics",
-  grade: 8,
+  curriculum_id: "default-2026-g8",
   subject: "Math",
-  lang: "en",
-  content_version: 1,
-  submitted_at: "2026-03-28T08:00:00Z",
-  reviewer_id: null,
-  lesson_preview: "In this lesson we explore linear equations...",
-  quiz_count: 5,
-  alexjs_score: 0,
+  subject_name: "Mathematics",
+  version_number: 1,
+  alex_warnings_count: 0,
+  generated_at: "2026-03-28T08:00:00Z",
+  published_at: null as string | null,
+  has_content: true,
+  // ReviewItemDetail extras
+  units: [{ unit_id: "unit-001", title: "Algebra Basics", sort_order: 1 }],
+  review_history: [],
 };
 
 export const MOCK_ITEM_PENDING: ReviewItemDetail = {
@@ -45,9 +46,12 @@ export const MOCK_ITEM_WITH_ANNOTATIONS: ReviewItemDetail = {
   status: "pending",
   annotations: [
     {
-      reviewer_id: "adm-001",
-      note: "Please simplify the language in paragraph 2.",
+      annotation_id: "ann-001",
+      unit_id: "unit-001",
+      content_type: "lesson",
+      annotation_text: "Please simplify the language in paragraph 2.",
       created_at: "2026-03-27T10:00:00Z",
+      reviewer_email: "admin@example.com",
     },
   ],
 };

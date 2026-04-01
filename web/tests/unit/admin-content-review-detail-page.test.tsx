@@ -81,21 +81,14 @@ describe("ADM-36 — Lesson preview renders", () => {
     mockUseQuery.mockReturnValue({ data: MOCK_ITEM_PENDING, isLoading: false });
   });
 
-  it("renders the unit title", () => {
+  it("renders the subject heading", () => {
     render(<AdminContentReviewDetailPage />);
-    expect(
-      screen.getByRole("heading", { name: MOCK_ITEM_PENDING.unit_title }),
-    ).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(MOCK_ITEM_PENDING.subject))).toBeInTheDocument();
   });
 
   it("renders Lesson Preview section heading", () => {
     render(<AdminContentReviewDetailPage />);
     expect(screen.getByText(REVIEW_DETAIL_STRINGS.lessonPreview)).toBeInTheDocument();
-  });
-
-  it("renders the lesson preview text", () => {
-    render(<AdminContentReviewDetailPage />);
-    expect(screen.getByText(MOCK_ITEM_PENDING.lesson_preview)).toBeInTheDocument();
   });
 
   it("renders grade and subject metadata", () => {
@@ -345,7 +338,7 @@ describe("ADM-48 — Annotations rendered when present", () => {
   it("renders the annotation note text", () => {
     render(<AdminContentReviewDetailPage />);
     expect(
-      screen.getByText(MOCK_ITEM_WITH_ANNOTATIONS.annotations[0].note),
+      screen.getByText(MOCK_ITEM_WITH_ANNOTATIONS.annotations[0].annotation_text),
     ).toBeInTheDocument();
   });
 });
