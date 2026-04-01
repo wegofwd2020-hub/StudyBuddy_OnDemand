@@ -70,3 +70,111 @@ export async function inviteTeacher(
   );
   return res.data;
 }
+
+// ── School pipeline — JSON upload, trigger, list, detail ─────────────────────
+
+export interface CurriculumUploadResponse {
+  curriculum_id: string;
+  grade: number;
+  year: number;
+  unit_count: number;
+  subject_count: number;
+  subjects: string[];
+}
+
+export async function uploadCurriculumJSON(
+  schoolId: string,
+  file: File,
+  year: number,
+): Promise<CurriculumUploadResponse> {
+  const form = new FormData();
+  form.append("file", file);
+  const res = await schoolApi.post<CurriculumUploadResponse>(
+    `/schools/${schoolId}/curriculum/upload?year=${year}`,
+    form,
+    { headers: { "Content-Type": "multipart/form-data" } },
+  );
+  return res.data;
+}
+
+export interface TriggerPipelineResponse {
+  job_id: string;
+  status: string;
+  curriculum_id: string;
+}
+
+export async function triggerSchoolPipeline(
+  schoolId: string,
+  body: { langs: string; force: boolean; year: number },
+): Promise<TriggerPipelineResponse> {
+  const res = await schoolApi.post<TriggerPipelineResponse>(
+    `/schools/${schoolId}/pipeline/trigger`,
+    body,
+  );
+  return res.data;
+}
+
+export interface PipelineJob {
+  job_id: string;
+  curriculum_id: string;
+  grade: number;
+  langs: string;
+  status: string;
+  built: number | null;
+  failed: number | null;
+  total: number | null;
+  triggered_at: string;
+  started_at: string | null;
+  completed_at: string | null;
+  error: string | null;
+  payload_bytes: number | null;
+  triggered_by_email: string | null;
+  progress_pct?: number;
+}
+
+export interface PipelineJobListResponse {
+  jobs: PipelineJob[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
+export async function listSchoolPipelineJobs(
+  schoolId: string,
+  params: { page?: number; page_size?: number; status?: string } = {},
+): Promise<PipelineJobListResponse> {
+  const res = await schoolApi.get<PipelineJobListResponse>(
+    `/schools/${schoolId}/pipeline`,
+    { params },
+  );
+  return res.data;
+}
+
+export async function getSchoolPipelineJob(
+  schoolId: string,
+  jobId: string,
+): Promise<PipelineJob> {
+  const res = await schoolApi.get<PipelineJob>(
+    `/schools/${schoolId}/pipeline/${jobId}`,
+  );
+  return res.data;
+}
+
+// ── School limits (quota indicator) ──────────────────────────────────────────
+
+export interface SchoolLimits {
+  plan: string;
+  max_students: number;
+  max_teachers: number;
+  pipeline_quota_monthly: number;
+  pipeline_runs_this_month: number;
+  pipeline_resets_at: string;
+  seats_used_students: number;
+  seats_used_teachers: number;
+  has_override: boolean;
+}
+
+export async function getSchoolLimits(schoolId: string): Promise<SchoolLimits> {
+  const res = await schoolApi.get<SchoolLimits>(`/schools/${schoolId}/limits`);
+  return res.data;
+}
