@@ -45,6 +45,32 @@ class TeacherInviteResponse(BaseModel):
     role: str
 
 
+# ── Teacher roster + grade assignments ───────────────────────────────────────
+
+
+class TeacherRosterItem(BaseModel):
+    teacher_id: str
+    name: str
+    email: str
+    role: str
+    account_status: str
+    assigned_grades: list[int]
+
+
+class TeacherRosterResponse(BaseModel):
+    teachers: list[TeacherRosterItem]
+
+
+class TeacherGradeAssignRequest(BaseModel):
+    grades: list[int]
+
+
+class TeacherGradeAssignResponse(BaseModel):
+    teacher_id: str
+    school_id: str
+    assigned_grades: list[int]
+
+
 # ── Phase 9 — Enrolment ────────────────────────────────────────────────────────
 
 

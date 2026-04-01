@@ -217,3 +217,33 @@ export async function cancelSchoolSubscription(
   );
   return res.data;
 }
+
+// ── Teacher roster + grade assignments ────────────────────────────────────────
+
+export interface TeacherRosterItem {
+  teacher_id: string;
+  name: string;
+  email: string;
+  role: string;
+  account_status: string;
+  assigned_grades: number[];
+}
+
+export async function listTeachers(schoolId: string): Promise<TeacherRosterItem[]> {
+  const res = await schoolApi.get<{ teachers: TeacherRosterItem[] }>(
+    `/schools/${schoolId}/teachers`,
+  );
+  return res.data.teachers;
+}
+
+export async function assignTeacherGrades(
+  schoolId: string,
+  teacherId: string,
+  grades: number[],
+): Promise<{ teacher_id: string; school_id: string; assigned_grades: number[] }> {
+  const res = await schoolApi.put(
+    `/schools/${schoolId}/teachers/${teacherId}/grades`,
+    { grades },
+  );
+  return res.data;
+}

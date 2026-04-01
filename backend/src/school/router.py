@@ -29,8 +29,11 @@ from src.school.schemas import (
     SchoolProfileResponse,
     SchoolRegisterRequest,
     SchoolRegisterResponse,
+    TeacherGradeAssignRequest,
+    TeacherGradeAssignResponse,
     TeacherInviteRequest,
     TeacherInviteResponse,
+    TeacherRosterResponse,
 )
 from src.school.service import fetch_school, invite_teacher, register_school
 from src.school.subscription_service import get_seat_usage
@@ -274,3 +277,140 @@ async def get_enrolment_roster(
     async with get_db(request) as conn:
         rows = await get_roster(conn, school_id)
     return EnrolmentRosterResponse(roster=[EnrolmentRosterItem(**r) for r in rows])
+
+
+# ── Teacher roster ────────────────────────────────────────────────────────────
+
+
+@router.get("/schools/{school_id}/teachers", response_model=TeacherRosterResponse)
+async def list_teachers(
+    school_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> TeacherRosterResponse:
+    """List all teachers in the school with their assigned grades."""
+    if teacher["school_id"] != school_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "forbidden",
+                "detail": "Cannot view teachers for a different school.",
+                "correlation_id": _cid(request),
+            },
+        )
+    import uuid as _uuid
+
+    async with get_db(request) as conn:
+        rows = await conn.fetch(
+            """
+            SELECT t.teacher_id::text, t.name, t.email, t.role,
+                   t.account_status::text,
+                   COALESCE(
+                       array_agg(tga.grade ORDER BY tga.grade)
+                       FILTER (WHERE tga.grade IS NOT NULL), '{}'
+                   ) AS assigned_grades
+            FROM teachers t
+            LEFT JOIN teacher_grade_assignments tga
+                ON tga.teacher_id = t.teacher_id
+            WHERE t.school_id = $1
+            GROUP BY t.teacher_id, t.name, t.email, t.role, t.account_status
+            ORDER BY t.name
+            """,
+            _uuid.UUID(school_id),
+        )
+    return TeacherRosterResponse(
+        teachers=[
+            {
+                "teacher_id": r["teacher_id"],
+                "name": r["name"],
+                "email": r["email"],
+                "role": r["role"],
+                "account_status": r["account_status"],
+                "assigned_grades": list(r["assigned_grades"]),
+            }
+            for r in rows
+        ]
+    )
+
+
+# ── Teacher grade assignment ───────────────────────────────────────────────────
+
+
+@router.put(
+    "/schools/{school_id}/teachers/{teacher_id}/grades",
+    response_model=TeacherGradeAssignResponse,
+)
+async def assign_teacher_grades(
+    school_id: str,
+    teacher_id: str,
+    body: TeacherGradeAssignRequest,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> TeacherGradeAssignResponse:
+    """Replace the grade assignments for a teacher (any teacher in the school)."""
+    if teacher["school_id"] != school_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "forbidden",
+                "detail": "Cannot manage teachers for a different school.",
+                "correlation_id": _cid(request),
+            },
+        )
+    # Validate grades
+    invalid = [g for g in body.grades if g < 5 or g > 12]
+    if invalid:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "error": "invalid_grades",
+                "detail": f"Grades must be between 5 and 12. Invalid: {invalid}",
+                "correlation_id": _cid(request),
+            },
+        )
+
+    import uuid as _uuid
+
+    tid = _uuid.UUID(teacher_id)
+    sid = _uuid.UUID(school_id)
+
+    async with get_db(request) as conn:
+        # Verify the teacher belongs to this school
+        exists = await conn.fetchval(
+            "SELECT 1 FROM teachers WHERE teacher_id = $1 AND school_id = $2",
+            tid, sid,
+        )
+        if not exists:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "error": "not_found",
+                    "detail": "Teacher not found in this school.",
+                    "correlation_id": _cid(request),
+                },
+            )
+        async with conn.transaction():
+            await conn.execute(
+                "DELETE FROM teacher_grade_assignments WHERE teacher_id = $1", tid
+            )
+            if body.grades:
+                await conn.executemany(
+                    """
+                    INSERT INTO teacher_grade_assignments (teacher_id, school_id, grade)
+                    VALUES ($1, $2, $3)
+                    ON CONFLICT (teacher_id, grade) DO NOTHING
+                    """,
+                    [(tid, sid, g) for g in body.grades],
+                )
+
+    log.info(
+        "teacher_grades_assigned",
+        teacher_id=teacher_id,
+        school_id=school_id,
+        grades=sorted(body.grades),
+    )
+    return TeacherGradeAssignResponse(
+        teacher_id=teacher_id,
+        school_id=school_id,
+        assigned_grades=sorted(body.grades),
+    )
