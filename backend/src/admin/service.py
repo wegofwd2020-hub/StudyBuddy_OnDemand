@@ -816,6 +816,7 @@ async def get_pipeline_status(conn: asyncpg.Connection) -> dict:
         SELECT
             MAX(generated_at) AS last_run_at,
             COUNT(*)                                                        AS total_versions,
+            COUNT(*) FILTER (WHERE status = 'pending')                     AS pending,
             COUNT(*) FILTER (WHERE status IN ('pending','ready_for_review','needs_review')) AS ready_for_review,
             COUNT(*) FILTER (WHERE status = 'approved')                    AS approved,
             COUNT(*) FILTER (WHERE status = 'published')                   AS published,
@@ -828,6 +829,7 @@ async def get_pipeline_status(conn: asyncpg.Connection) -> dict:
     return {
         "last_run_at": row["last_run_at"],
         "total_versions": row["total_versions"] or 0,
+        "pending": row["pending"] or 0,
         "ready_for_review": row["ready_for_review"] or 0,
         "approved": row["approved"] or 0,
         "published": row["published"] or 0,

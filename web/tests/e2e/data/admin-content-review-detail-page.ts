@@ -81,6 +81,6 @@ export const REVIEW_DETAIL_STRINGS = {
   // Modal
   confirmReject: "Confirm reject",
   confirmBlock: "Confirm block",
-  // Annotations
-  annotationsHeading: "Annotations",
+  // Annotations — component renders "Annotations (N)" with the count
+  annotationsHeading: "Annotations (1)",
 } as const;

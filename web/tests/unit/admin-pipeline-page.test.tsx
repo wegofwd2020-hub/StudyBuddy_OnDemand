@@ -79,7 +79,10 @@ describe("ADM-17 — Jobs table renders with correct columns", () => {
 
   it("renders Status column header", () => {
     render(<AdminPipelinePage />);
-    expect(screen.getByText(PIPELINE_LIST_STRINGS.colStatus)).toBeInTheDocument();
+    // "Status" appears in both the filter button and the table header
+    expect(
+      screen.getAllByText(PIPELINE_LIST_STRINGS.colStatus).length,
+    ).toBeGreaterThanOrEqual(1);
   });
 
   it("renders Progress column header", () => {

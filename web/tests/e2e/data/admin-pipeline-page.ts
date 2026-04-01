@@ -86,7 +86,7 @@ export const PIPELINE_LIST_STRINGS = {
   pageHeading: "Pipeline Jobs",
   triggerJobLink: "Trigger job",
   // Table column headers
-  colJobId: "Job ID",
+  colJobId: "Job",
   colCurriculum: "Curriculum",
   colStatus: "Status",
   colProgress: "Progress",
