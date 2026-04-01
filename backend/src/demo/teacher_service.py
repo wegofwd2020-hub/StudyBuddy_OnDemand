@@ -193,14 +193,16 @@ async def mark_teacher_request_verified(conn: asyncpg.Connection, request_id: uu
 async def get_demo_teacher_account_for_login(
     conn: asyncpg.Connection, email: str
 ) -> asyncpg.Record | None:
-    """Return the active demo_teacher_account row for login (includes password_hash)."""
+    """Return the active demo_teacher_account row for login (includes password_hash and school_id)."""
     return await conn.fetchrow(
         """
-        SELECT id, teacher_id, email, password_hash, expires_at
-        FROM demo_teacher_accounts
-        WHERE email = $1
-          AND expires_at > NOW()
-          AND revoked_at IS NULL
+        SELECT dta.id, dta.teacher_id, dta.email, dta.password_hash, dta.expires_at,
+               t.school_id
+        FROM demo_teacher_accounts dta
+        JOIN teachers t ON t.teacher_id = dta.teacher_id
+        WHERE dta.email = $1
+          AND dta.expires_at > NOW()
+          AND dta.revoked_at IS NULL
         """,
         email,
     )
