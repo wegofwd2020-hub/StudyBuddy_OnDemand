@@ -17,9 +17,10 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-lora); /* body text — Lora (Serif) */
-  --font-heading: var(--font-nunito); /* headings — Nunito (Sans Serif) */
-  --font-mono: var(--font-geist-mono);
+  --font-body: var(--font-merriweather); /* body text — Merriweather (serif) */
+  --font-sans: var(--font-body); /* alias kept for Tailwind prose/reset compat */
+  --font-heading: var(--font-inter); /* headings & labels — Inter (sans-serif) */
+  --font-mono: var(--font-jetbrains-mono); /* numbers, IDs, code — JetBrains Mono */
   --font-dyslexic: "OpenDyslexic", system-ui, sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -155,7 +156,7 @@
   h6 {
     @apply font-heading;
   }
-  /* Dyslexia-friendly mode: swap body font; headings stay in Nunito */
+  /* Dyslexia-friendly mode: swap body font; headings stay in Inter */
   [data-dyslexic="true"] body,
   [data-dyslexic="true"] p,
   [data-dyslexic="true"] li,
@@ -183,7 +184,7 @@
  */
 
 /*
- * Button typography — Nunito (sans-serif) + bold on every <button> element.
+ * Button typography — Inter (sans-serif) + bold on every <button> element.
  *
  * Non-layered CSS wins over all @layer rules (including @layer utilities) in
  * the CSS cascade, so this overrides Tailwind's font-medium / font-semibold
