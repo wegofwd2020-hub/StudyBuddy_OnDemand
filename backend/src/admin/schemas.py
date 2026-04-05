@@ -211,10 +211,9 @@ class FeedbackReportResponse(BaseModel):
 
 
 class SubscriptionAnalyticsResponse(BaseModel):
-    active_monthly: int
-    active_annual: int
+    by_plan: dict  # plan → {active, new_this_month, cancelled_this_month}
     total_active: int
-    mrr_usd: Decimal
+    mrr_usd: str  # string per Rule 1 — money is never a float
     new_this_month: int
     cancelled_this_month: int
     churn_rate: float  # cancelled / (active + cancelled) for the month
@@ -281,6 +280,46 @@ class AdminPipelineTriggerResponse(BaseModel):
     curriculum_id: str
 
 
+# ── Batch approve ─────────────────────────────────────────────────────────────
+
+
+class BatchApproveRequest(BaseModel):
+    curriculum_id: str
+    notes: str | None = None
+
+
+class BatchApproveResponse(BaseModel):
+    approved_count: int
+    version_ids: list[str]
+
+
+# ── Assign / unassign reviewer ────────────────────────────────────────────────
+
+
+class AssignRequest(BaseModel):
+    admin_id: str | None = None  # None to unassign
+
+
+class AssignResponse(BaseModel):
+    version_id: str
+    assigned_to_admin_id: str | None = None
+    assigned_to_email: str | None = None
+    assigned_at: datetime | None = None
+
+
+# ── Admin user management ─────────────────────────────────────────────────────
+
+
+class AdminUserItem(BaseModel):
+    admin_user_id: str
+    email: str
+    role: str
+
+
+class AdminUsersResponse(BaseModel):
+    users: list[AdminUserItem]
+
+
 # ── Unit content viewer ───────────────────────────────────────────────────────
 
 
@@ -290,6 +329,8 @@ class UnitContentMetaResponse(BaseModel):
     curriculum_id: str
     lang: str
     available_types: list[str]
+    alex_warnings_count: int = 0
+    alex_warnings_by_type: dict[str, int] = {}
 
 
 class UnitContentFileResponse(BaseModel):

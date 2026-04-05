@@ -325,10 +325,11 @@ def build_unit(
             "error": fail_reason,
         }
 
-    # ── Run AlexJS on all text content ────────────────────────────────────────
-    all_text = _extract_text_for_alex(generated_content)
-    alex_result = run_alex(all_text)
-    alex_warnings = alex_result["warnings_count"]
+    # ── Run AlexJS per content type ───────────────────────────────────────────
+    alex_warnings_by_type: dict[str, int] = {}
+    for ct, text in _extract_text_for_alex_by_type(generated_content).items():
+        alex_warnings_by_type[ct] = run_alex(text)["warnings_count"] if text else 0
+    alex_warnings = sum(alex_warnings_by_type.values())
 
     # ── Write content files ───────────────────────────────────────────────────
     os.makedirs(store_path, exist_ok=True)
@@ -357,6 +358,7 @@ def build_unit(
         content_version=config.CONTENT_VERSION,
         lang=lang,
         alex_warnings_count=alex_warnings,
+        alex_warnings_by_type=alex_warnings_by_type,
     )
 
     duration_ms = int((time.monotonic() - start_ms) * 1000)
@@ -466,42 +468,49 @@ def _upload_unit_to_s3(curriculum_id: str, unit_id: str, store_path: str, lang: 
         log.warning("s3_upload_failed curriculum_id=%s unit_id=%s lang=%s error=%s", curriculum_id, unit_id, lang, exc)
 
 
-def _extract_text_for_alex(content: dict) -> str:
-    """Concatenate all human-readable text from generated content for AlexJS."""
-    parts = []
+def _extract_text_for_alex_by_type(content: dict) -> dict[str, str]:
+    """Return {content_type: text} for per-type AlexJS analysis."""
+    result: dict[str, str] = {}
 
     if "lesson" in content:
         lesson = content["lesson"]
-        parts.append(lesson.get("synopsis", ""))
+        parts: list[str] = [lesson.get("synopsis", "")]
         parts.extend(lesson.get("key_concepts", []))
         parts.extend(lesson.get("learning_objectives", []))
+        result["lesson"] = "\n".join(p for p in parts if p)
 
-    for key in ["quiz_1", "quiz_2", "quiz_3"]:
+    for set_num in range(1, 4):
+        key = f"quiz_{set_num}"
         if key in content:
+            parts = []
             for q in content[key].get("questions", []):
                 parts.append(q.get("question_text", ""))
                 parts.append(q.get("explanation", ""))
                 for opt in q.get("options", []):
                     parts.append(opt.get("text", ""))
+            result[f"quiz_set_{set_num}"] = "\n".join(p for p in parts if p)
 
     if "tutorial" in content:
         tutorial = content["tutorial"]
+        parts = []
         for section in tutorial.get("sections", []):
             parts.append(section.get("content", ""))
             parts.extend(section.get("examples", []))
             parts.append(section.get("practice_question", ""))
         parts.extend(tutorial.get("common_mistakes", []))
+        result["tutorial"] = "\n".join(p for p in parts if p)
 
     if "experiment" in content:
         exp = content["experiment"]
-        parts.extend(exp.get("materials", []))
+        parts = list(exp.get("materials", []))
         parts.extend(exp.get("safety_notes", []))
         for step in exp.get("steps", []):
             parts.append(step.get("instruction", ""))
             parts.append(step.get("expected_observation", ""))
         parts.append(exp.get("conclusion_prompt", ""))
+        result["experiment"] = "\n".join(p for p in parts if p)
 
-    return "\n".join(p for p in parts if p)
+    return result
 
 
 def _lesson_to_speech_text(lesson: dict) -> str:
@@ -522,6 +531,7 @@ def _update_meta(
     content_version: int,
     lang: str,
     alex_warnings_count: int,
+    alex_warnings_by_type: dict[str, int] | None = None,
 ) -> None:
     """Read existing meta.json (if any), update, and write back."""
     if os.path.exists(meta_path):
@@ -540,6 +550,7 @@ def _update_meta(
     meta["model"] = model
     meta["content_version"] = content_version
     meta["alex_warnings_count"] = alex_warnings_count
+    meta["alex_warnings_by_type"] = alex_warnings_by_type or {}
 
     langs = meta.get("langs_built", [])
     if lang not in langs:

@@ -1105,14 +1105,18 @@ async def get_unit_content_meta(
         if os.path.isfile(os.path.join(unit_dir, f"{ct}_{lang}.json")):
             available.append(ct)
 
-    # Read per-unit alex_warnings_count from meta.json if present
+    # Read per-unit alex_warnings from meta.json if present
     alex_warnings_count = 0
+    alex_warnings_by_type: dict[str, int] = {}
     meta_path = os.path.join(unit_dir, "meta.json")
     if os.path.isfile(meta_path):
         try:
             with open(meta_path, encoding="utf-8") as f:
                 meta = json.load(f)
             alex_warnings_count = int(meta.get("alex_warnings_count", 0))
+            alex_warnings_by_type = {
+                k: int(v) for k, v in meta.get("alex_warnings_by_type", {}).items()
+            }
         except Exception:
             pass
 
@@ -1123,6 +1127,7 @@ async def get_unit_content_meta(
         "lang": lang,
         "available_types": available,
         "alex_warnings_count": alex_warnings_count,
+        "alex_warnings_by_type": alex_warnings_by_type,
     }
 
 

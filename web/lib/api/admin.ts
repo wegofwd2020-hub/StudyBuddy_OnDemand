@@ -575,6 +575,7 @@ export interface UnitContentMeta {
   lang: string;
   available_types: string[];
   alex_warnings_count: number;
+  alex_warnings_by_type?: Record<string, number>;
 }
 
 export async function getUnitContentMeta(

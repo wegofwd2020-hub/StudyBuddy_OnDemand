@@ -776,6 +776,7 @@ export default function AdminUnitContentPage() {
                   <nav className="space-y-1">
                     {meta.available_types.map((ct) => {
                       const m = TYPE_META[ct] ?? { label: ct, icon: null };
+                      const ctWarnings = meta.alex_warnings_by_type?.[ct] ?? 0;
                       return (
                         <button
                           key={ct}
@@ -788,7 +789,20 @@ export default function AdminUnitContentPage() {
                           )}
                         >
                           {m.icon}
-                          {m.label}
+                          <span className="flex-1">{m.label}</span>
+                          {ctWarnings > 0 && (
+                            <span
+                              title={`${ctWarnings} AlexJS warning${ctWarnings !== 1 ? "s" : ""}`}
+                              className={cn(
+                                "ml-auto inline-flex items-center rounded-full px-1.5 py-0.5 text-xs font-semibold",
+                                ctWarnings >= 5
+                                  ? "bg-red-100 text-red-700"
+                                  : "bg-amber-100 text-amber-700",
+                              )}
+                            >
+                              {ctWarnings}
+                            </span>
+                          )}
                         </button>
                       );
                     })}
