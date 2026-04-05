@@ -18,6 +18,20 @@ from httpx import AsyncClient
 
 from tests.helpers.token_factory import make_admin_token, make_teacher_token
 
+# ── Deterministic test IDs (Rule 9 — no uuid4 in fixtures) ───────────────────
+_ADMIN_ID_01  = "e1000000-0000-0000-0000-000000000001"
+_ADMIN_ID_02  = "e1000000-0000-0000-0000-000000000002"
+_ADMIN_ID_03  = "e1000000-0000-0000-0000-000000000003"
+_ADMIN_ID_04  = "e1000000-0000-0000-0000-000000000004"
+_ADMIN_ID_05  = "e1000000-0000-0000-0000-000000000005"
+_ADMIN_ID_06  = "e1000000-0000-0000-0000-000000000006"
+_ADMIN_ID_07  = "e1000000-0000-0000-0000-000000000007"
+_ADMIN_ID_08  = "e1000000-0000-0000-0000-000000000008"
+_ADMIN_ID_09  = "e1000000-0000-0000-0000-000000000009"
+_WRONG_SCHOOL = "ffff0000-0000-0000-0000-000000000002"  # never registered
+_NOT_FOUND_SCHOOL = "ffff0000-0000-0000-0000-000000000003"  # for 404 checks
+_FIXED_SUB_ID = "sub_fixedtestsubscription01"  # deterministic Stripe sub ID
+
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -26,7 +40,7 @@ async def _register_school(client: AsyncClient) -> dict:
     """Register a school and return {school_id, teacher_id, access_token}."""
     r = await client.post("/api/v1/schools/register", json={
         "school_name": "Limits Test School",
-        "contact_email": f"limits-{uuid.uuid4().hex[:8]}@example.com",
+        "contact_email": "limits-fixed@example.com",
         "country": "US",
     })
     assert r.status_code == 201, r.text
@@ -60,7 +74,7 @@ async def _insert_subscription(client: AsyncClient, school_id: str, plan: str = 
         """,
         uuid.UUID(school_id),
         plan,
-        f"sub_{uuid.uuid4().hex[:12]}",
+        _FIXED_SUB_ID,
     )
 
 
@@ -113,7 +127,7 @@ async def test_school_limits_with_professional_subscription(client: AsyncClient)
 async def test_school_limits_wrong_school_returns_403(client: AsyncClient):
     """Teacher cannot view limits for a different school."""
     reg = await _register_school(client)
-    other_school_id = str(uuid.uuid4())
+    other_school_id = _WRONG_SCHOOL
     token = make_teacher_token(teacher_id=reg["teacher_id"], school_id=reg["school_id"], role="school_admin")
 
     r = await client.get(
@@ -125,7 +139,7 @@ async def test_school_limits_wrong_school_returns_403(client: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_school_limits_requires_auth(client: AsyncClient):
-    r = await client.get(f"/api/v1/schools/{uuid.uuid4()}/limits")
+    r = await client.get(f"/api/v1/schools/{_WRONG_SCHOOL}/limits")
     assert r.status_code == 401
 
 
@@ -137,7 +151,7 @@ async def test_override_takes_priority_over_plan_default(client: AsyncClient):
     """Override values shadow plan defaults; NULL override fields fall back to plan defaults."""
     reg = await _register_school(client)
     school_id = reg["school_id"]
-    admin_id = str(uuid.uuid4())
+    admin_id = _ADMIN_ID_01
     await _seed_admin(client, admin_id)
     await _insert_subscription(client, school_id, plan="professional")
 
@@ -174,7 +188,7 @@ async def test_admin_get_school_limits_includes_override_detail(client: AsyncCli
     """Admin GET returns override object when an override exists."""
     reg = await _register_school(client)
     school_id = reg["school_id"]
-    admin_id = str(uuid.uuid4())
+    admin_id = _ADMIN_ID_01
     await _seed_admin(client, admin_id)
 
     pool = client._transport.app.state.pool
@@ -205,7 +219,7 @@ async def test_admin_get_school_limits_no_override(client: AsyncClient):
     """Admin GET returns override=None when no override exists."""
     reg = await _register_school(client)
     school_id = reg["school_id"]
-    admin_id = str(uuid.uuid4())
+    admin_id = _ADMIN_ID_01
     await _seed_admin(client, admin_id)
 
     token = make_admin_token(admin_id=admin_id, role="super_admin")
@@ -221,12 +235,12 @@ async def test_admin_get_school_limits_no_override(client: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_admin_get_school_not_found_returns_404(client: AsyncClient):
-    admin_id = str(uuid.uuid4())
+    admin_id = _ADMIN_ID_01
     await _seed_admin(client, admin_id)
     token = make_admin_token(admin_id=admin_id, role="super_admin")
 
     r = await client.get(
-        f"/api/v1/admin/schools/{uuid.uuid4()}/limits",
+        f"/api/v1/admin/schools/{_NOT_FOUND_SCHOOL}/limits",
         headers={"Authorization": f"Bearer {token}"},
     )
     assert r.status_code == 404
@@ -235,12 +249,12 @@ async def test_admin_get_school_not_found_returns_404(client: AsyncClient):
 @pytest.mark.asyncio
 async def test_admin_limits_insufficient_permission_returns_403(client: AsyncClient):
     """developer role does not have school:manage — 403."""
-    admin_id = str(uuid.uuid4())
+    admin_id = _ADMIN_ID_01
     await _seed_admin(client, admin_id, role="developer")
     token = make_admin_token(admin_id=admin_id, role="developer")
 
     r = await client.get(
-        f"/api/v1/admin/schools/{uuid.uuid4()}/limits",
+        f"/api/v1/admin/schools/{_NOT_FOUND_SCHOOL}/limits",
         headers={"Authorization": f"Bearer {token}"},
     )
     assert r.status_code == 403
@@ -254,7 +268,7 @@ async def test_set_override_creates_row_and_writes_audit_log(client: AsyncClient
     """PUT creates override row; audit log entry dispatched."""
     reg = await _register_school(client)
     school_id = reg["school_id"]
-    admin_id = str(uuid.uuid4())
+    admin_id = _ADMIN_ID_01
     await _seed_admin(client, admin_id)
     token = make_admin_token(admin_id=admin_id, role="super_admin")
 
@@ -287,12 +301,12 @@ async def test_set_override_creates_row_and_writes_audit_log(client: AsyncClient
 @pytest.mark.asyncio
 async def test_set_override_missing_reason_returns_422(client: AsyncClient):
     """override_reason is required — 422 without it."""
-    admin_id = str(uuid.uuid4())
+    admin_id = _ADMIN_ID_01
     await _seed_admin(client, admin_id)
     token = make_admin_token(admin_id=admin_id, role="super_admin")
 
     r = await client.put(
-        f"/api/v1/admin/schools/{uuid.uuid4()}/limits",
+        f"/api/v1/admin/schools/{_NOT_FOUND_SCHOOL}/limits",
         json={"max_students": 100},
         headers={"Authorization": f"Bearer {token}"},
     )
@@ -301,12 +315,12 @@ async def test_set_override_missing_reason_returns_422(client: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_set_override_school_not_found_returns_404(client: AsyncClient):
-    admin_id = str(uuid.uuid4())
+    admin_id = _ADMIN_ID_01
     await _seed_admin(client, admin_id)
     token = make_admin_token(admin_id=admin_id, role="super_admin")
 
     r = await client.put(
-        f"/api/v1/admin/schools/{uuid.uuid4()}/limits",
+        f"/api/v1/admin/schools/{_NOT_FOUND_SCHOOL}/limits",
         json={"max_students": 100, "override_reason": "test"},
         headers={"Authorization": f"Bearer {token}"},
     )
@@ -321,7 +335,7 @@ async def test_clear_override_removes_row_and_writes_audit_log(client: AsyncClie
     """DELETE removes override row and dispatches audit log entry."""
     reg = await _register_school(client)
     school_id = reg["school_id"]
-    admin_id = str(uuid.uuid4())
+    admin_id = _ADMIN_ID_01
     await _seed_admin(client, admin_id)
     token = make_admin_token(admin_id=admin_id, role="super_admin")
 
@@ -361,7 +375,7 @@ async def test_clear_override_no_override_returns_404(client: AsyncClient):
     """DELETE when no override exists returns 404."""
     reg = await _register_school(client)
     school_id = reg["school_id"]
-    admin_id = str(uuid.uuid4())
+    admin_id = _ADMIN_ID_01
     await _seed_admin(client, admin_id)
     token = make_admin_token(admin_id=admin_id, role="super_admin")
 
@@ -375,12 +389,12 @@ async def test_clear_override_no_override_returns_404(client: AsyncClient):
 
 @pytest.mark.asyncio
 async def test_clear_override_school_not_found_returns_404(client: AsyncClient):
-    admin_id = str(uuid.uuid4())
+    admin_id = _ADMIN_ID_01
     await _seed_admin(client, admin_id)
     token = make_admin_token(admin_id=admin_id, role="super_admin")
 
     r = await client.delete(
-        f"/api/v1/admin/schools/{uuid.uuid4()}/limits",
+        f"/api/v1/admin/schools/{_NOT_FOUND_SCHOOL}/limits",
         headers={"Authorization": f"Bearer {token}"},
     )
     assert r.status_code == 404

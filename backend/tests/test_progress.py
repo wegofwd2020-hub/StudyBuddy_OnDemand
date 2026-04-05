@@ -124,7 +124,7 @@ async def test_record_answer_returns_200(client, db_conn, student_token):
 @pytest.mark.asyncio
 async def test_answer_wrong_session_returns_404(client, db_conn, student_token):
     """Answering on a non-existent session_id returns 404."""
-    fake_session_id = str(uuid.uuid4())
+    fake_session_id = "c9000000-0000-0000-0000-000000000002"  # deterministic nonexistent ID
     from jose import jwt as _jwt
     payload = _jwt.decode(student_token, "test-secret-do-not-use-in-production-aaaa", algorithms=["HS256"])
     student_id = payload["student_id"]
