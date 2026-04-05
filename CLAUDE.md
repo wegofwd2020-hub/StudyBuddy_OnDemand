@@ -57,6 +57,7 @@ All documentation has moved to **[studybuddy-docs](https://github.com/wegofwd202
 |---|---|
 | [ARCHITECTURE.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/ARCHITECTURE.md) | First — system design, data models, API contracts, all phases |
 | [BACKEND_ARCHITECTURE.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/BACKEND_ARCHITECTURE.md) | Before touching backend — caching, hot path, SLOs, deployment |
+| [UX_GOALS.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/UX_GOALS.md) | Before any UI/UX work — north star goals per persona; use as a prioritisation filter |
 | [REQUIREMENTS.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/REQUIREMENTS.md) | Check requirement ID + status before implementing a feature |
 | [AGENTS.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/AGENTS.md) | Conventions, layer rules, 35 pitfalls, phase-by-phase checklists |
 | [CHANGES.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/CHANGES.md) | Design decisions log and pending work items |
