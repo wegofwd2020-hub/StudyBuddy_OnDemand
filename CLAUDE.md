@@ -24,7 +24,7 @@ API key. Schools and teachers can upload custom curricula. Subscription-based.
 | 10 — Extended Analytics + Student Feedback | ✅ Complete (197 tests) |
 | 11 — Teacher Reporting Dashboard | ✅ Complete (215 tests) |
 
-**Active branch:** `feat/review-enhancements` (branched from `main`)
+**Active branch:** `feat/demo-teacher-flow` (branched from `main`)
 
 **Recently shipped (beyond Phase 11):**
 - Content review unit viewer — Lesson / Tutorial / Quiz / Experiment renderers
@@ -33,6 +33,7 @@ API key. Schools and teachers can upload custom curricula. Subscription-based.
 - Pipeline improvements: `max_tokens=8192`, `subject_name` column, `payload_bytes` tracking
 - Demo teacher account request / verify / login flow
 - Admin pipeline jobs table: sortable, filterable, horizontal scroll
+- School-as-primary-entity model: `student_teacher_assignments` (migration 0024), per-student grade+teacher assignment, bulk reassign, grade self-change guard
 
 **Open tasks tracked in GitHub Issues** (wegofwd2020-hub/StudyBuddy_OnDemand):
 - #52 Inline annotations on lesson sections and quiz questions ✅ Done
@@ -272,6 +273,8 @@ Current migrations (as of last commit):
 | 0013 | Pipeline jobs table |
 | 0014 | `payload_bytes` on pipeline_jobs |
 | 0015 | `subject_name` on content_subject_versions |
+| 0016–0023 | School/teacher/enrolment schema (phases 8–9) |
+| 0024 | `student_teacher_assignments` table + `grade`/`teacher_id` on `school_enrolments` |
 
 ---
 
@@ -580,6 +583,8 @@ See [AGENTS.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/AGE
 18. Missing migration after pull — API throws `UndefinedColumnError`; run `alembic upgrade head`.
 19. Rebuilding a Docker image without restarting the container — old image stays running; always `up -d` after `build`.
 20. `unit_name NOT NULL` in `curriculum_units` — include `unit_name` in pipeline INSERT or the row silently fails.
+21. Roster upload uses `{students: [{email, grade?, teacher_id?}]}`, NOT `{student_emails: [...]}` — the old flat list format was removed in migration 0024.
+22. Grade self-change blocked for school-enrolled students — `PATCH /student/profile` returns 403 on `grade` if `students.school_id IS NOT NULL`. Grade is set exclusively via `PUT /schools/{school_id}/students/{student_id}/assignment`.
 
 ---
 

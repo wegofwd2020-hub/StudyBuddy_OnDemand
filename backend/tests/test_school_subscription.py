@@ -365,7 +365,7 @@ async def test_enrolment_blocked_at_seat_limit(client: AsyncClient):
     # Uploading 2 students exceeds the limit of 1
     r = await client.post(
         f"/api/v1/schools/{school_id}/enrolment",
-        json={"student_emails": ["s1@test.com", "s2@test.com"]},
+        json={"students": [{"email": "s1@test.com"}, {"email": "s2@test.com"}]},
         headers={"Authorization": f"Bearer {token}"},
     )
     assert r.status_code == 402, r.text
@@ -386,7 +386,7 @@ async def test_enrolment_allowed_within_seat_limit(client: AsyncClient):
 
     r = await client.post(
         f"/api/v1/schools/{school_id}/enrolment",
-        json={"student_emails": ["stu1@test.com", "stu2@test.com"]},
+        json={"students": [{"email": "stu1@test.com"}, {"email": "stu2@test.com"}]},
         headers={"Authorization": f"Bearer {token}"},
     )
     assert r.status_code == 201, r.text
