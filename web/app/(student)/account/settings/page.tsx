@@ -7,6 +7,7 @@ import {
   saveAccountSettings,
   type AccountSettings,
 } from "@/lib/api/settings";
+import { useDyslexia } from "@/lib/hooks/useDyslexia";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,35 +40,7 @@ function SettingsPageInner() {
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [dyslexicFont, setDyslexicFont] = useState(false);
-
-  // Read dyslexic preference from localStorage on mount
-  useEffect(() => {
-    try {
-      setDyslexicFont(localStorage.getItem("sb_dyslexic") === "1");
-    } catch {
-      // localStorage unavailable — ignore
-    }
-  }, []);
-
-  function toggleDyslexicFont(enabled: boolean) {
-    setDyslexicFont(enabled);
-    try {
-      if (enabled) {
-        localStorage.setItem("sb_dyslexic", "1");
-        // Cookie lets the Server Component set data-dyslexic during SSR,
-        // eliminating the need for an inline <script> anti-flash workaround.
-        document.cookie = "sb_dyslexic=1; path=/; max-age=31536000; SameSite=Lax";
-        document.documentElement.setAttribute("data-dyslexic", "true");
-      } else {
-        localStorage.removeItem("sb_dyslexic");
-        document.cookie = "sb_dyslexic=; path=/; max-age=0; SameSite=Lax";
-        document.documentElement.removeAttribute("data-dyslexic");
-      }
-    } catch {
-      // localStorage/cookie unavailable — ignore
-    }
-  }
+  const { enabled: dyslexicFont, toggle: toggleDyslexicFont } = useDyslexia();
 
   useEffect(() => {
     getAccountSettings()
