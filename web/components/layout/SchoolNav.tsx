@@ -12,6 +12,7 @@ import {
   BarChart2,
   Bell,
   BookOpen,
+  HelpCircle,
   Mail,
   LogOut,
   BookMarked,
@@ -74,6 +75,7 @@ const NAV_ITEMS: NavItem[] = [
     adminOnly: true,
   },
   { label: "Settings", href: "/school/settings", icon: <Settings className="h-4 w-4" /> },
+  { label: "Help", href: "/school/help", icon: <HelpCircle className="h-4 w-4" /> },
 ];
 
 const REPORT_SUB: { label: string; href: string }[] = [

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BookOpen,
+  HelpCircle,
   LayoutDashboard,
   Map,
   BarChart3,
@@ -76,6 +77,18 @@ export function StudentNav() {
 
       {/* Bottom links */}
       <div className="space-y-1 border-t px-2 py-4">
+        <Link
+          href="/help"
+          className={cn(
+            "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+            pathname === "/help"
+              ? "bg-blue-50 text-blue-700"
+              : "text-gray-500 hover:bg-gray-50 hover:text-gray-900",
+          )}
+        >
+          <HelpCircle className="h-4 w-4 shrink-0" />
+          Help
+        </Link>
         <Link
           href="/account/settings"
           className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-900"
