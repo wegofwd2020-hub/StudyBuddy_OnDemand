@@ -275,6 +275,10 @@ Current migrations (as of last commit):
 | 0015 | `subject_name` on content_subject_versions |
 | 0016–0023 | School/teacher/enrolment schema (phases 8–9) |
 | 0024 | `student_teacher_assignments` table + `grade`/`teacher_id` on `school_enrolments` |
+| 0025 | Schema corrections (ADR-001 G1–G2): `schools.contact_email` UNIQUE + `teachers` school_id CHECK |
+| 0026 | Remove private teacher tier (ADR-001): drop `private_teachers`, `teacher_subscriptions`, `student_teacher_access`; tighten `curricula.owner_type` CHECK |
+| 0027 | Remove individual student subscriptions (ADR-001): drop `subscriptions` table; subscription webhook now school-only |
+| 0028 | PostgreSQL Row-Level Security (ADR-001 Decision 3): `ENABLE/FORCE ROW LEVEL SECURITY` + `tenant_isolation` policy on 7 tables; `app.current_school_id` session variable stamped by `get_db()` |
 
 ---
 

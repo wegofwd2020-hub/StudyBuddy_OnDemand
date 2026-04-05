@@ -84,7 +84,7 @@ async def register_school_endpoint(
                     status_code=409,
                     detail={
                         "error": "conflict",
-                        "detail": "A teacher account with that email already exists.",
+                        "detail": "A school or account with that email already exists.",
                         "correlation_id": _cid(request),
                     },
                 )

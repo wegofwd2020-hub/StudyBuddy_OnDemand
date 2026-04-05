@@ -227,3 +227,64 @@ async def test_invite_teacher_requires_auth(client: AsyncClient):
         json={"name": "X", "email": "x@x.com"},
     )
     assert r.status_code == 401
+
+
+# ── G1: schools.contact_email uniqueness (ADR-001) ───────────────────────────
+
+@pytest.mark.asyncio
+async def test_register_school_same_contact_email_returns_409(client: AsyncClient):
+    """
+    Two schools cannot share the same contact_email.
+    The constraint fires on the schools INSERT now (G1), giving a clear 409
+    before the teachers INSERT is even attempted.
+    """
+    payload = {
+        "school_name": "First School",
+        "contact_email": "shared@sameemail.example.com",
+        "country": "US",
+    }
+    r1 = await client.post("/api/v1/schools/register", json=payload)
+    assert r1.status_code == 201, r1.text
+
+    # Different school name, same email — should be rejected.
+    payload2 = {**payload, "school_name": "Second School"}
+    r2 = await client.post("/api/v1/schools/register", json=payload2)
+    assert r2.status_code == 409
+    assert r2.json()["error"] == "conflict"
+
+
+# ── G2: teacher school_id constraint (ADR-001) ───────────────────────────────
+
+@pytest.mark.asyncio
+async def test_invite_teacher_always_has_school_id(client: AsyncClient):
+    """
+    Every invited teacher gets the school's school_id — the G2 CHECK constraint
+    (school_id IS NOT NULL OR auth_provider = 'demo') is satisfied automatically
+    because invite_teacher() always writes the school_id.
+    Verifies the teacher appears in the school's teacher list with the correct school.
+    """
+    reg = await client.post("/api/v1/schools/register", json={
+        "school_name": "G2 Academy",
+        "contact_email": "g2-admin@example.com",
+        "country": "CA",
+    })
+    assert reg.status_code == 201, reg.text
+    data = reg.json()
+    school_id = data["school_id"]
+    token = data["access_token"]
+
+    inv = await client.post(
+        f"/api/v1/schools/{school_id}/teachers/invite",
+        json={"name": "Affiliated Teacher", "email": "affiliated@g2.example.com"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert inv.status_code == 201, inv.text
+
+    # Teacher appears in the school roster with the correct school affiliation.
+    roster_r = await client.get(
+        f"/api/v1/schools/{school_id}/teachers",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert roster_r.status_code == 200, roster_r.text
+    emails = [t["email"] for t in roster_r.json()["teachers"]]
+    assert "affiliated@g2.example.com" in emails

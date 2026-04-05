@@ -1110,10 +1110,12 @@ def promote_student_grades() -> None:
         finally:
             await conn.close()
 
-        # Invalidate entitlement and curriculum resolver caches
+        # Invalidate entitlement and curriculum resolver caches.
+        # Patterns cover both school-namespaced keys (ADR-001 Decision 3) and
+        # legacy unscoped keys (demo students / unaffiliated students).
         redis_client = await _aioredis.from_url(settings.REDIS_URL, decode_responses=True)
         try:
-            for pattern in ("ent:*", "cur:*"):
+            for pattern in ("school:*:ent:*", "school:*:cur:*", "ent:*", "cur:*"):
                 cursor = 0
                 while True:
                     cursor, keys = await redis_client.scan(cursor, match=pattern, count=200)
@@ -1607,44 +1609,41 @@ def send_demo_teacher_credentials_email_task(self, email: str, password: str) ->
 @celery_app.task(name="src.auth.tasks.invalidate_school_entitlement_cache_task")
 def invalidate_school_entitlement_cache_task(school_id: str) -> None:
     """
-    Bulk-delete ent:{student_id} Redis keys for all students enrolled in a school.
+    Bulk-delete all school:{school_id}:* Redis keys after a subscription state change.
 
-    Called after any school subscription state change (activate / cancel / payment fail)
+    Called after any school subscription event (activate / cancel / payment fail)
     so that enrolled students' next content request re-derives entitlement from DB.
-    The ent:school:{school_id} key is deleted synchronously in expire_school_entitlement_cache()
-    before this task is dispatched.
+    The school:{school_id}:ent key is deleted synchronously in
+    expire_school_entitlement_cache() before this task is dispatched.
+
+    Uses school-prefix SCAN (ADR-001 Decision 3) — no need to enumerate enrolled
+    student IDs from the DB; the namespace covers all per-student ent + cur keys.
     """
     from config import settings as cfg
+    from src.core.cache_keys import school_scan_pattern
 
     async def _invalidate() -> None:
-        import asyncpg as _asyncpg
-        import redis as _redis_sync
+        import redis.asyncio as _aioredis
 
-        db = await _asyncpg.connect(cfg.DATABASE_URL, statement_cache_size=0)
+        redis_client = await _aioredis.from_url(cfg.REDIS_URL, decode_responses=True)
+        pattern = school_scan_pattern(school_id)
+        count = 0
         try:
-            rows = await db.fetch(
-                """
-                SELECT student_id::text
-                FROM school_enrolments
-                WHERE school_id = $1 AND status = 'active' AND student_id IS NOT NULL
-                """,
-                uuid.UUID(school_id),
-            )
+            cursor = 0
+            while True:
+                cursor, keys = await redis_client.scan(cursor, match=pattern, count=200)
+                if keys:
+                    await redis_client.delete(*keys)
+                    count += len(keys)
+                if cursor == 0:
+                    break
         finally:
-            await db.close()
+            await redis_client.aclose()
 
-        if not rows:
-            return
-
-        redis_client = _redis_sync.from_url(cfg.REDIS_URL, decode_responses=True)
-        pipeline = redis_client.pipeline()
-        for row in rows:
-            pipeline.delete(f"ent:{row['student_id']}")
-        pipeline.execute()
         log.info(
-            "invalidate_school_entitlement_cache school_id=%s count=%d",
+            "invalidate_school_entitlement_cache school_id=%s keys_deleted=%d",
             school_id,
-            len(rows),
+            count,
         )
 
     _run_async(_invalidate())

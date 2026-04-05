@@ -30,8 +30,15 @@ from src.utils.logger import get_logger
 log = get_logger("admin")
 
 # Stripe plan monthly prices (USD) used for MRR estimation
-_MONTHLY_PRICE_USD = 9.99
-_ANNUAL_MONTHLY_USD = 7.99  # annual / 12
+# School subscription plan pricing (USD/month)
+# Starter: up to 30 students / 5 teachers
+# Professional: up to 150 students / 10 teachers
+# Enterprise: unlimited
+_PLAN_PRICE_USD = {
+    "starter": 99.00,
+    "professional": 299.00,
+    "enterprise": 999.00,
+}
 
 
 # ── Review queue ──────────────────────────────────────────────────────────────
@@ -864,42 +871,56 @@ async def get_feedback_report(
 
 
 async def get_subscription_analytics(conn: asyncpg.Connection) -> dict:
-    """MRR, churn, new/cancelled this month."""
-    totals = await conn.fetchrow(
-        """
-        SELECT
-            COUNT(*) FILTER (WHERE status = 'active' AND plan = 'monthly') AS active_monthly,
-            COUNT(*) FILTER (WHERE status = 'active' AND plan = 'annual')  AS active_annual
-        FROM subscriptions
-        WHERE status = 'active'
-        """
-    )
-    active_monthly = totals["active_monthly"] or 0
-    active_annual = totals["active_annual"] or 0
-    mrr = round(active_monthly * _MONTHLY_PRICE_USD + active_annual * _ANNUAL_MONTHLY_USD, 2)
+    """
+    School subscription analytics: active counts by plan, MRR, new/cancelled this month.
 
-    month_stats = await conn.fetchrow(
+    Billing is school-level only (ADR-001).  Individual student subscriptions
+    were removed in migration 0027.
+    """
+    from decimal import Decimal
+
+    rows = await conn.fetch(
         """
         SELECT
+            plan,
+            COUNT(*) FILTER (WHERE status IN ('active', 'trialing'))  AS active_count,
             COUNT(*) FILTER (WHERE created_at >= date_trunc('month', NOW())) AS new_this_month,
             COUNT(*) FILTER (
                 WHERE status = 'cancelled'
                   AND updated_at >= date_trunc('month', NOW())
             ) AS cancelled_this_month
-        FROM subscriptions
+        FROM school_subscriptions
+        GROUP BY plan
         """
     )
-    new_this_month = month_stats["new_this_month"] or 0
-    cancelled_this_month = month_stats["cancelled_this_month"] or 0
-    total_active = active_monthly + active_annual
+
+    plan_stats: dict[str, dict] = {}
+    total_active = 0
+    mrr = Decimal("0.00")
+    new_this_month = 0
+    cancelled_this_month = 0
+
+    for row in rows:
+        plan = row["plan"]
+        active = row["active_count"] or 0
+        price = Decimal(str(_PLAN_PRICE_USD.get(plan, 0)))
+        plan_stats[plan] = {
+            "active": active,
+            "new_this_month": row["new_this_month"] or 0,
+            "cancelled_this_month": row["cancelled_this_month"] or 0,
+        }
+        total_active += active
+        mrr += price * active
+        new_this_month += row["new_this_month"] or 0
+        cancelled_this_month += row["cancelled_this_month"] or 0
+
     churn_denominator = total_active + cancelled_this_month
     churn_rate = round(cancelled_this_month / churn_denominator, 4) if churn_denominator else 0.0
 
     return {
-        "active_monthly": active_monthly,
-        "active_annual": active_annual,
+        "by_plan": plan_stats,
         "total_active": total_active,
-        "mrr_usd": mrr,
+        "mrr_usd": str(mrr.quantize(Decimal("0.01"))),
         "new_this_month": new_this_month,
         "cancelled_this_month": cancelled_this_month,
         "churn_rate": churn_rate,

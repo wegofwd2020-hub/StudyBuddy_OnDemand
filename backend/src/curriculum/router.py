@@ -30,6 +30,7 @@ from fastapi.responses import Response
 
 from src.auth.dependencies import get_current_student, get_current_teacher
 from src.core.cache import curriculum_cache
+from src.core.cache_keys import cur_key
 from src.core.db import get_db
 from src.core.redis_client import get_redis
 from src.curriculum.schemas import (
@@ -409,10 +410,11 @@ async def get_curriculum_tree(
     """
     grade = student.get("grade", 8)
     student_id = student["student_id"]
+    school_id = student.get("school_id")
     redis = request.app.state.redis
 
     # Resolve curriculum_id (inlined to avoid circular import with content.service)
-    _cur_key = f"cur:{student_id}"
+    _cur_key = cur_key(student_id, school_id)
     cached = await redis.get(_cur_key)
     if cached:
         curriculum_id = cached.decode() if isinstance(cached, bytes) else cached

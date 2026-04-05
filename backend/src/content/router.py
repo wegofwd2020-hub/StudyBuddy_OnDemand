@@ -80,8 +80,9 @@ async def _get_curriculum_and_check_published(
     pool = request.app.state.pool
     student_id = student_payload["student_id"]
     grade = student_payload.get("grade", 8)
+    school_id = student_payload.get("school_id")
 
-    curriculum_id = await resolve_curriculum_id(student_id, grade, pool, redis)
+    curriculum_id = await resolve_curriculum_id(student_id, grade, pool, redis, school_id=school_id)
 
     subject = await get_unit_subject(unit_id, curriculum_id, pool)
     if subject is None:
@@ -140,7 +141,7 @@ async def get_lesson(
     # Entitlement check — demo students get full access for the duration of their
     # 24-hour trial; the TTL on their account is the effective subscription limit.
     if student.get("role") != "demo_student":
-        entitlement = await get_entitlement(student_id, pool, redis)
+        entitlement = await get_entitlement(student_id, pool, redis, school_id=student.get("school_id"))
         if (
             entitlement["plan"] == "free"
             and entitlement["lessons_accessed"] >= _FREE_TIER_LESSON_LIMIT
@@ -169,7 +170,7 @@ async def get_lesson(
     # Fire-and-forget: increment counter (async, no await-on-hot-path issues
     # since this is a simple DB upsert, not a Celery task in Phase 2)
     try:
-        await increment_lessons_accessed(student_id, pool, redis)
+        await increment_lessons_accessed(student_id, pool, redis, school_id=student.get("school_id"))
     except Exception as exc:
         log.warning("increment_lessons_accessed_failed student_id=%s error=%s", student_id, exc)
 
@@ -355,7 +356,7 @@ async def report_content(
     pool = request.app.state.pool
     redis = get_redis(request)
 
-    curriculum_id = await resolve_curriculum_id(student_id, student.get("grade", 8), pool, redis)
+    curriculum_id = await resolve_curriculum_id(student_id, student.get("grade", 8), pool, redis, school_id=student.get("school_id"))
 
     async with pool.acquire() as conn:
         await conn.execute(
@@ -395,7 +396,7 @@ async def submit_marked_feedback(
     pool = request.app.state.pool
     redis = get_redis(request)
 
-    curriculum_id = await resolve_curriculum_id(student_id, student.get("grade", 8), pool, redis)
+    curriculum_id = await resolve_curriculum_id(student_id, student.get("grade", 8), pool, redis, school_id=student.get("school_id"))
 
     async with pool.acquire() as conn:
         await conn.execute(

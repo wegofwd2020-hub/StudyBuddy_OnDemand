@@ -478,3 +478,151 @@ def test_demo_student_does_not_have_student_manage_permission():
     from src.core.permissions import _has_permission
 
     assert _has_permission("demo_student", "student:manage") is False
+
+
+# ── get_entitlement unit tests (ADR-001 Decision 2) ───────────────────────────
+# These tests prove that school_subscriptions is the source of truth for
+# school-enrolled students, and that no extra students-table lookup is needed.
+
+
+@pytest.mark.asyncio
+async def test_get_entitlement_school_student_uses_school_subscription():
+    """
+    For a school-enrolled student, entitlement comes from school_subscriptions,
+    NOT from student_entitlements.plan.  student_entitlements is only used for
+    the lessons_accessed counter.
+    """
+    from unittest.mock import AsyncMock, MagicMock, patch
+    from src.content.service import get_entitlement
+
+    school_id = "d3000000-0000-0000-0000-000000000001"
+    student_id = "d1000000-0000-0000-0000-000000000001"
+
+    # Redis: cache miss
+    fake_redis = MagicMock()
+    fake_redis.get = AsyncMock(return_value=None)
+    fake_redis.set = AsyncMock()
+
+    # _get_school_sub should be called; mock school subscription: active, professional
+    school_sub = {
+        "active": True,
+        "plan": "professional",
+        "status": "active",
+        "valid_until": "2027-01-01T00:00:00+00:00",
+    }
+
+    # student_entitlements row: shows "free" — should be IGNORED for plan
+    ent_row = MagicMock()
+    ent_row.__getitem__ = lambda self, k: 5 if k == "lessons_accessed" else None
+
+    fake_conn = MagicMock()
+    fake_conn.fetchrow = AsyncMock(return_value=ent_row)
+    fake_conn.__aenter__ = AsyncMock(return_value=fake_conn)
+    fake_conn.__aexit__ = AsyncMock(return_value=False)
+
+    fake_pool = MagicMock()
+    fake_pool.acquire = MagicMock(return_value=fake_conn)
+
+    with patch("src.content.service._get_school_sub", AsyncMock(return_value=school_sub)):
+        result = await get_entitlement(student_id, fake_pool, fake_redis, school_id=school_id)
+
+    assert result["plan"] == "professional", "School subscription plan must win"
+    assert result["lessons_accessed"] == 5
+    assert result["valid_until"] == "2027-01-01T00:00:00+00:00"
+
+
+@pytest.mark.asyncio
+async def test_get_entitlement_no_school_subscription_falls_back_to_free():
+    """
+    A school-enrolled student whose school has no active subscription is treated
+    as free tier (plan='free').  student_entitlements is queried as the fallback.
+    """
+    from unittest.mock import AsyncMock, MagicMock, patch
+    from src.content.service import get_entitlement
+
+    school_id = "d3000000-0000-0000-0000-000000000001"
+    student_id = "d1000000-0000-0000-0000-000000000001"
+
+    fake_redis = MagicMock()
+    fake_redis.get = AsyncMock(return_value=None)
+    fake_redis.set = AsyncMock()
+
+    ent_row = MagicMock()
+    ent_row.__getitem__ = MagicMock(side_effect=lambda k: {
+        "plan": "free", "lessons_accessed": 1, "valid_until": None
+    }[k])
+
+    fake_conn = MagicMock()
+    fake_conn.fetchrow = AsyncMock(return_value=ent_row)
+    fake_conn.__aenter__ = AsyncMock(return_value=fake_conn)
+    fake_conn.__aexit__ = AsyncMock(return_value=False)
+
+    fake_pool = MagicMock()
+    fake_pool.acquire = MagicMock(return_value=fake_conn)
+
+    # School has no active subscription → _get_school_sub returns None
+    with patch("src.content.service._get_school_sub", AsyncMock(return_value=None)):
+        result = await get_entitlement(student_id, fake_pool, fake_redis, school_id=school_id)
+
+    assert result["plan"] == "free"
+    assert result["lessons_accessed"] == 1
+
+
+@pytest.mark.asyncio
+async def test_get_entitlement_unaffiliated_student_uses_student_entitlements():
+    """
+    A student without a school_id (no school_id from JWT) uses student_entitlements
+    directly — the school path is bypassed entirely.
+    """
+    from unittest.mock import AsyncMock, MagicMock, patch
+    from src.content.service import get_entitlement
+
+    student_id = "d1000000-0000-0000-0000-000000000001"
+
+    fake_redis = MagicMock()
+    fake_redis.get = AsyncMock(return_value=None)
+    fake_redis.set = AsyncMock()
+
+    ent_row = MagicMock()
+    ent_row.__getitem__ = MagicMock(side_effect=lambda k: {
+        "plan": "free", "lessons_accessed": 0, "valid_until": None
+    }[k])
+
+    fake_conn = MagicMock()
+    fake_conn.fetchrow = AsyncMock(return_value=ent_row)
+    fake_conn.__aenter__ = AsyncMock(return_value=fake_conn)
+    fake_conn.__aexit__ = AsyncMock(return_value=False)
+
+    fake_pool = MagicMock()
+    fake_pool.acquire = MagicMock(return_value=fake_conn)
+
+    with patch("src.content.service._get_school_sub") as mock_school_sub:
+        result = await get_entitlement(student_id, fake_pool, fake_redis, school_id=None)
+
+    mock_school_sub.assert_not_called()  # school path must not be entered
+    assert result["plan"] == "free"
+
+
+@pytest.mark.asyncio
+async def test_get_entitlement_returns_cached_value():
+    """Cache hit returns immediately — no DB queries made."""
+    import json
+    from unittest.mock import AsyncMock, MagicMock, patch
+    from src.content.service import get_entitlement
+
+    cached = {"plan": "starter", "lessons_accessed": 3, "valid_until": None}
+
+    fake_redis = MagicMock()
+    fake_redis.get = AsyncMock(return_value=json.dumps(cached).encode())
+
+    fake_pool = MagicMock()
+
+    result = await get_entitlement(
+        "d1000000-0000-0000-0000-000000000001",
+        fake_pool,
+        fake_redis,
+        school_id="d3000000-0000-0000-0000-000000000001",
+    )
+
+    assert result == cached
+    fake_pool.acquire.assert_not_called()

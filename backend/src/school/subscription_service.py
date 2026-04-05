@@ -4,7 +4,7 @@ backend/src/school/subscription_service.py
 School subscription business logic.
 
 School billing model: one subscription per school covers all enrolled
-students and teachers. Individual student subscriptions are unchanged.
+students and teachers.
 
 Plan seat limits are resolved in priority order:
   1. school_plan_overrides (per-school manual override by super_admin)
@@ -14,26 +14,24 @@ Stripe metadata convention for school sessions:
   {"school_id": "...", "plan": "starter|professional|enterprise"}
 
 Entitlement derivation for school-enrolled students:
-  - School subscription active  → student plan = school plan
-  - School subscription absent / cancelled → fall back to student_entitlements
-  The school path is cached at ent:school:{school_id} TTL=300s.
+  Handled by src/content/service.py::get_entitlement() which calls
+  _get_school_sub() using school_id from the JWT — no students-table lookup.
+  The result is cached at school:{school_id}:ent (TTL=300s).
 """
 
 from __future__ import annotations
 
-import json
 import uuid
 from datetime import UTC, datetime, timedelta
 
 import asyncpg
 
+from src.core.cache_keys import school_ent_key, school_scan_pattern
 from src.utils.logger import get_logger
 
 log = get_logger("school.subscription")
 
 _GRACE_PERIOD_DAYS = 3
-_ENT_SCHOOL_KEY = "ent:school:{school_id}"
-_ENT_SCHOOL_TTL = 300  # 5 minutes
 
 
 # ── Plan defaults ─────────────────────────────────────────────────────────────
@@ -203,10 +201,10 @@ async def cancel_school_stripe_subscription(stripe_subscription_id: str) -> None
 
 async def expire_school_entitlement_cache(redis, school_id: str) -> None:
     """
-    Delete ent:school:{school_id} from Redis and dispatch a Celery task
-    to bulk-delete all enrolled students' ent:{student_id} keys.
+    Delete school:{school_id}:ent from Redis and dispatch a Celery task
+    to bulk-delete all remaining school:{school_id}:* keys (ent + cur per student).
     """
-    await redis.delete(_ENT_SCHOOL_KEY.format(school_id=school_id))
+    await redis.delete(school_ent_key(school_id))
     log.debug("school_entitlement_cache_expired school_id=%s", school_id)
 
     try:
@@ -215,82 +213,6 @@ async def expire_school_entitlement_cache(redis, school_id: str) -> None:
         invalidate_school_entitlement_cache_task.delay(school_id)
     except Exception as exc:
         log.warning("could_not_dispatch_cache_invalidation school_id=%s error=%s", school_id, exc)
-
-
-async def get_school_entitlement_for_student(
-    student_id: str,
-    pool: asyncpg.Pool,
-    redis,
-) -> dict | None:
-    """
-    Return {plan, lessons_accessed, valid_until} derived from the school
-    subscription for an enrolled student, or None if no active school subscription.
-
-    Uses ent:school:{school_id} L2 cache (TTL=300s).
-    """
-    # Find the student's school_id
-    async with pool.acquire() as conn:
-        row = await conn.fetchrow(
-            "SELECT school_id::text FROM students WHERE student_id = $1 AND school_id IS NOT NULL",
-            student_id,
-        )
-    if not row:
-        return None
-
-    school_id = row["school_id"]
-    cache_key = _ENT_SCHOOL_KEY.format(school_id=school_id)
-
-    cached = await redis.get(cache_key)
-    if cached:
-        try:
-            school_ent = json.loads(cached)
-            if not school_ent.get("active"):
-                return None
-            return {
-                "plan": school_ent["plan"],
-                "lessons_accessed": 0,
-                "valid_until": school_ent.get("valid_until"),
-            }
-        except Exception:
-            pass
-
-    # Cache miss — query school_subscriptions
-    async with pool.acquire() as conn:
-        sub_row = await conn.fetchrow(
-            """
-            SELECT plan, status, current_period_end, grace_period_end
-            FROM school_subscriptions
-            WHERE school_id = $1
-            """,
-            uuid.UUID(school_id),
-        )
-
-    active = (
-        sub_row is not None
-        and sub_row["status"] in ("active", "trialing", "past_due")
-    )
-
-    if active and sub_row["status"] == "past_due" and sub_row["grace_period_end"]:
-        valid_until = sub_row["grace_period_end"].isoformat()
-    elif active and sub_row["current_period_end"]:
-        valid_until = sub_row["current_period_end"].isoformat()
-    else:
-        valid_until = None
-
-    school_ent = {
-        "active": active,
-        "plan": sub_row["plan"] if active else None,
-        "valid_until": valid_until,
-    }
-    await redis.set(cache_key, json.dumps(school_ent), ex=_ENT_SCHOOL_TTL)
-
-    if not active:
-        return None
-    return {
-        "plan": school_ent["plan"],
-        "lessons_accessed": 0,
-        "valid_until": valid_until,
-    }
 
 
 # ── Webhook event handlers ────────────────────────────────────────────────────

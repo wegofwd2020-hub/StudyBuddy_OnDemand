@@ -105,10 +105,18 @@ def fake_redis():
 
 @pytest_asyncio.fixture
 async def db_conn() -> AsyncGenerator[asyncpg.Connection, None]:
-    """Provide an asyncpg connection to the test DB, wrapped in a transaction."""
+    """
+    Provide an asyncpg connection to the test DB, wrapped in a transaction.
+
+    Sets app.current_school_id = 'bypass' so that RLS policies (migration 0028)
+    allow direct fixture inserts and reads without a teacher JWT in scope.
+    Individual RLS isolation tests override this via a separate fixture.
+    """
     conn = await asyncpg.connect(TEST_DB_URL)
     tr = conn.transaction()
     await tr.start()
+    # 'true' = transaction-local; the value resets when the transaction rolls back.
+    await conn.execute("SELECT set_config('app.current_school_id', 'bypass', true)")
     try:
         yield conn
     finally:

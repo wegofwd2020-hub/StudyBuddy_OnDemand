@@ -178,6 +178,8 @@ async def get_roster(
         FROM school_enrolments se
         LEFT JOIN student_teacher_assignments sta
             ON sta.student_id = se.student_id
+            AND sta.school_id = se.school_id
+            AND (se.grade IS NULL OR sta.grade = se.grade)
         LEFT JOIN teachers t
             ON t.teacher_id = sta.teacher_id
         WHERE se.school_id = $1

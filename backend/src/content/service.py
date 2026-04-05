@@ -21,20 +21,70 @@ import os
 import asyncpg
 from config import settings
 
+import uuid as _uuid
+
+from src.core.cache_keys import content_key, csv_key, cur_key, ent_key, quiz_set_key, school_ent_key
 from src.utils.logger import get_logger
 
 log = get_logger("content.service")
 
-# Redis key templates
-_ENT_KEY = "ent:{student_id}"
-_CSV_KEY = "csv:{curriculum_id}:{subject}"
-_CONTENT_KEY = "content:{curriculum_id}:{unit_id}:{filename}"
-_CUR_KEY = "cur:{student_id}"
-_QUIZ_SET_KEY = "quiz_set:{student_id}:{unit_id}"
-
 _ENT_TTL = 300  # 5 minutes
 _CSV_TTL = 300  # 5 minutes
 _CONTENT_TTL = 3600  # 1 hour
+
+
+# ── School subscription helper ────────────────────────────────────────────────
+
+
+async def _get_school_sub(school_id: str, pool: asyncpg.Pool, redis) -> dict | None:
+    """
+    Return the active school subscription as {plan, status, valid_until} or None.
+
+    Uses school:{school_id}:ent (TTL=300 s) as L2 cache.
+
+    Called by get_entitlement() instead of the old get_school_entitlement_for_student()
+    so that the school_id (already present in the JWT) is used directly — no extra
+    SELECT from the students table.
+    """
+    cache_key = school_ent_key(school_id)
+    cached = await redis.get(cache_key)
+    if cached:
+        try:
+            data = json.loads(cached)
+            return data if data.get("active") else None
+        except Exception:
+            pass
+
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(
+            """
+            SELECT plan, status, current_period_end, grace_period_end
+            FROM school_subscriptions
+            WHERE school_id = $1
+            """,
+            _uuid.UUID(school_id),
+        )
+
+    active = row is not None and row["status"] in ("active", "trialing", "past_due")
+
+    if active:
+        if row["status"] == "past_due" and row["grace_period_end"]:
+            valid_until = row["grace_period_end"].isoformat()
+        elif row["current_period_end"]:
+            valid_until = row["current_period_end"].isoformat()
+        else:
+            valid_until = None
+        blob = {
+            "active": True,
+            "plan": row["plan"],
+            "status": row["status"],
+            "valid_until": valid_until,
+        }
+    else:
+        blob = {"active": False, "plan": None, "status": None, "valid_until": None}
+
+    await redis.set(cache_key, json.dumps(blob), ex=_ENT_TTL)
+    return blob if active else None
 
 
 # ── Entitlement ───────────────────────────────────────────────────────────────
@@ -44,45 +94,55 @@ async def get_entitlement(
     student_id: str,
     pool: asyncpg.Pool,
     redis,
+    school_id: str | None = None,
 ) -> dict:
     """
     Return {plan, lessons_accessed, valid_until} for a student.
 
-    Read order:
-      1. ent:{student_id} Redis cache (TTL=300)
-      2. student_entitlements DB row
-      3. School subscription path — if student is enrolled in a school with
-         an active subscription, derive entitlement from ent:school:{school_id}
-         (also cached at TTL=300). This handles students whose entitlements
-         row predates their school enrolment.
+    Decision order (ADR-001 Decision 2 — school_subscriptions is source of truth):
+
+      1. L2 cache: school:{school_id}:ent:{student_id}  (or ent:{student_id})  TTL=300
+      2. If school_id present → query school_subscriptions via _get_school_sub()
+           active/trialing/past_due  → derive plan from subscription
+                                        lessons_accessed from student_entitlements (usage only)
+           absent / cancelled        → treat as free
+      3. Unaffiliated / free tier → query student_entitlements directly
+
+    school_id is taken from the JWT payload, so no extra students-table lookup is needed.
     """
-    key = _ENT_KEY.format(student_id=student_id)
+    key = ent_key(student_id, school_id)
     cached = await redis.get(key)
     if cached:
         try:
             return json.loads(cached)
         except Exception:
-            pass  # stale / corrupt cache — fall through to DB
+            pass  # stale / corrupt — fall through to DB
 
+    # ── School subscription path ──────────────────────────────────────────────
+    if school_id:
+        sub = await _get_school_sub(school_id, pool, redis)
+        if sub is not None:
+            # lessons_accessed is still tracked in student_entitlements (usage counter).
+            async with pool.acquire() as conn:
+                ent_row = await conn.fetchrow(
+                    "SELECT lessons_accessed FROM student_entitlements WHERE student_id = $1",
+                    student_id,
+                )
+            entitlement = {
+                "plan": sub["plan"],
+                "lessons_accessed": ent_row["lessons_accessed"] if ent_row else 0,
+                "valid_until": sub["valid_until"],
+            }
+            await redis.set(key, json.dumps(entitlement), ex=_ENT_TTL)
+            return entitlement
+        # School exists but subscription inactive → fall through to free tier
+
+    # ── Free / unaffiliated path ──────────────────────────────────────────────
     async with pool.acquire() as conn:
         row = await conn.fetchrow(
             "SELECT plan, lessons_accessed, valid_until FROM student_entitlements WHERE student_id = $1",
             student_id,
         )
-
-    if row is None or row["plan"] == "free":
-        # Check school subscription path before defaulting to free
-        from src.school.subscription_service import get_school_entitlement_for_student
-
-        school_ent = await get_school_entitlement_for_student(student_id, pool, redis)
-        if school_ent is not None:
-            entitlement = {
-                "plan": school_ent["plan"],
-                "lessons_accessed": row["lessons_accessed"] if row else 0,
-                "valid_until": school_ent.get("valid_until"),
-            }
-            await redis.set(key, json.dumps(entitlement), ex=_ENT_TTL)
-            return entitlement
 
     if row is None:
         entitlement = {"plan": "free", "lessons_accessed": 0, "valid_until": None}
@@ -111,7 +171,7 @@ async def check_content_published(
 
     L2 cache: csv:{curriculum_id}:{subject} TTL=300.
     """
-    key = _CSV_KEY.format(curriculum_id=curriculum_id, subject=subject)
+    key = csv_key(curriculum_id, subject)
     cached = await redis.get(key)
     if cached is not None:
         return cached == b"1" or cached == "1"
@@ -148,11 +208,7 @@ async def get_content_file(
 
     Raises FileNotFoundError if the file doesn't exist.
     """
-    key = _CONTENT_KEY.format(
-        curriculum_id=curriculum_id,
-        unit_id=unit_id,
-        filename=filename,
-    )
+    key = content_key(curriculum_id, unit_id, filename)
     cached = await redis.get(key)
     if cached:
         try:
@@ -185,11 +241,12 @@ async def increment_lessons_accessed(
     student_id: str,
     pool: asyncpg.Pool,
     redis,
+    school_id: str | None = None,
 ) -> None:
     """
     Increment lessons_accessed for a student.
     Upserts the student_entitlements row if absent.
-    Invalidates the ent:{student_id} Redis key.
+    Invalidates the correct namespaced ent key (ADR-001 Decision 3).
     """
     async with pool.acquire() as conn:
         await conn.execute(
@@ -204,8 +261,7 @@ async def increment_lessons_accessed(
         )
 
     # Invalidate L2 cache
-    key = _ENT_KEY.format(student_id=student_id)
-    await redis.delete(key)
+    await redis.delete(ent_key(student_id, school_id))
 
 
 # ── Curriculum resolver ───────────────────────────────────────────────────────
@@ -217,14 +273,15 @@ async def resolve_curriculum_id(
     pool: asyncpg.Pool,
     redis,
     year: int = 2026,
+    school_id: str | None = None,
 ) -> str:
     """
     Return the curriculum_id for a student.
 
-    L2 cache: cur:{student_id} TTL=300.
+    L2 cache: school:{school_id}:cur:{student_id} (or cur:{student_id} if unaffiliated).
     On miss: queries school enrollment or falls back to default-{year}-g{grade}.
     """
-    key = _CUR_KEY.format(student_id=student_id)
+    key = cur_key(student_id, school_id)
     cached = await redis.get(key)
     if cached:
         try:
@@ -298,7 +355,7 @@ async def get_next_quiz_set(
     Return the next quiz set number (1, 2, or 3) using round-robin rotation.
     Tracks state in Redis key quiz_set:{student_id}:{unit_id}.
     """
-    key = _QUIZ_SET_KEY.format(student_id=student_id, unit_id=unit_id)
+    key = quiz_set_key(student_id, unit_id)
     current = await redis.get(key)
 
     if current is None:
