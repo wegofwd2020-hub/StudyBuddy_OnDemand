@@ -30,6 +30,10 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 # without a .env file (CI doesn't have one).  Values are never used because
 # we only call app.openapi() — no DB/Redis connections are opened.
 _STUBS = {
+    # Force production mode so the dev router (/auth/dev-login) is never
+    # included in the exported schema.  APP_ENV defaults to "development"
+    # in config.py which would cause schema drift between local and CI.
+    "APP_ENV": "production",
     "DATABASE_URL": "postgresql://stub:stub@localhost/stub",
     "REDIS_URL": "redis://localhost:6379/0",
     "JWT_SECRET": "stub-jwt-secret-min-32-chars-aaaabbbb",
