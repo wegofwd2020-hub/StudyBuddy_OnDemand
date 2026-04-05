@@ -20,8 +20,16 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 
 from src.auth.dependencies import get_current_teacher
 from src.core.db import get_db
-from src.school.enrolment_service import get_roster, upload_roster
+from src.school.enrolment_service import (
+    assign_student,
+    get_roster,
+    get_student_assignment,
+    reassign_students_bulk,
+    upload_roster,
+)
 from src.school.schemas import (
+    BulkReassignRequest,
+    BulkReassignResponse,
     EnrolmentRosterItem,
     EnrolmentRosterResponse,
     EnrolmentUploadRequest,
@@ -29,6 +37,8 @@ from src.school.schemas import (
     SchoolProfileResponse,
     SchoolRegisterRequest,
     SchoolRegisterResponse,
+    StudentAssignmentRequest,
+    StudentAssignmentResponse,
     TeacherGradeAssignRequest,
     TeacherGradeAssignResponse,
     TeacherInviteRequest,
@@ -227,7 +237,7 @@ async def upload_enrolment_roster(
         )
         if sub_row is not None:
             usage = await get_seat_usage(conn, school_id)
-            incoming = len([e for e in body.student_emails if str(e).strip()])
+            incoming = len(body.students)
             if usage["seats_used_students"] + incoming > sub_row["max_students"]:
                 raise HTTPException(
                     status_code=402,
@@ -239,7 +249,8 @@ async def upload_enrolment_roster(
                         "correlation_id": _cid(request),
                     },
                 )
-        result = await upload_roster(conn, school_id, [str(e) for e in body.student_emails])
+        entries = [e.model_dump() for e in body.students]
+        result = await upload_roster(conn, school_id, entries)
     return EnrolmentUploadResponse(**result)
 
 
@@ -277,6 +288,118 @@ async def get_enrolment_roster(
     async with get_db(request) as conn:
         rows = await get_roster(conn, school_id)
     return EnrolmentRosterResponse(roster=[EnrolmentRosterItem(**r) for r in rows])
+
+
+# ── Student-teacher assignment ────────────────────────────────────────────────
+
+
+def _require_school_admin(teacher: dict, school_id: str, request: Request) -> None:
+    """Raise 403 if caller is not school_admin for the given school."""
+    if teacher.get("role") != "school_admin":
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "forbidden",
+                "detail": "Only school_admin can manage student assignments.",
+                "correlation_id": _cid(request),
+            },
+        )
+    if teacher["school_id"] != school_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "forbidden",
+                "detail": "Cannot manage assignments for a different school.",
+                "correlation_id": _cid(request),
+            },
+        )
+
+
+@router.get(
+    "/schools/{school_id}/students/{student_id}/assignment",
+    response_model=StudentAssignmentResponse,
+)
+async def get_student_assignment_endpoint(
+    school_id: str,
+    student_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> StudentAssignmentResponse:
+    """Return the current teacher assignment for a student (teacher-scoped)."""
+    if teacher["school_id"] != school_id:
+        raise HTTPException(
+            status_code=403,
+            detail={"error": "forbidden", "detail": "Cannot view assignments for a different school.", "correlation_id": _cid(request)},
+        )
+    async with get_db(request) as conn:
+        row = await get_student_assignment(conn, school_id, student_id)
+    if not row:
+        raise HTTPException(
+            status_code=404,
+            detail={"error": "not_found", "detail": "No assignment found for this student.", "correlation_id": _cid(request)},
+        )
+    return StudentAssignmentResponse(**row)
+
+
+@router.put(
+    "/schools/{school_id}/students/{student_id}/assignment",
+    response_model=StudentAssignmentResponse,
+)
+async def set_student_assignment_endpoint(
+    school_id: str,
+    student_id: str,
+    body: StudentAssignmentRequest,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> StudentAssignmentResponse:
+    """
+    Set or replace a student's grade+teacher assignment (school_admin only).
+
+    The school is the sole authority on which grade and teacher a student belongs to.
+    """
+    _require_school_admin(teacher, school_id, request)
+    async with get_db(request) as conn:
+        try:
+            row = await assign_student(
+                conn, school_id, student_id, body.grade, body.teacher_id,
+                assigned_by=teacher["teacher_id"],
+            )
+        except ValueError as exc:
+            raise HTTPException(
+                status_code=422,
+                detail={"error": "assignment_invalid", "detail": str(exc), "correlation_id": _cid(request)},
+            )
+    return StudentAssignmentResponse(**row)
+
+
+@router.post(
+    "/schools/{school_id}/teachers/{from_teacher_id}/reassign",
+    response_model=BulkReassignResponse,
+)
+async def bulk_reassign_students_endpoint(
+    school_id: str,
+    from_teacher_id: str,
+    body: BulkReassignRequest,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> BulkReassignResponse:
+    """
+    Move all students in a grade from one teacher to another (school_admin only).
+    Used when a teacher leaves or a class is restructured.
+    """
+    _require_school_admin(teacher, school_id, request)
+    async with get_db(request) as conn:
+        try:
+            count = await reassign_students_bulk(
+                conn, school_id, from_teacher_id, body.to_teacher_id, body.grade,
+                assigned_by=teacher["teacher_id"],
+            )
+        except ValueError as exc:
+            raise HTTPException(
+                status_code=422,
+                detail={"error": "reassign_invalid", "detail": str(exc), "correlation_id": _cid(request)},
+            )
+    return BulkReassignResponse(reassigned=count)
 
 
 # ── Teacher roster ────────────────────────────────────────────────────────────

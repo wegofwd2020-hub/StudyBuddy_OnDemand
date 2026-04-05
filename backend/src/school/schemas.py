@@ -74,21 +74,67 @@ class TeacherGradeAssignResponse(BaseModel):
 # ── Phase 9 — Enrolment ────────────────────────────────────────────────────────
 
 
+class StudentEnrolmentEntry(BaseModel):
+    """One row in a roster upload. Only email is required."""
+
+    email: EmailStr
+    grade: int | None = None
+    teacher_id: str | None = None
+
+
 class EnrolmentUploadRequest(BaseModel):
-    student_emails: list[EmailStr]
+    students: list[StudentEnrolmentEntry]
 
 
 class EnrolmentUploadResponse(BaseModel):
     enrolled: int
     already_enrolled: int
+    errors: list[dict] = []
 
 
 class EnrolmentRosterItem(BaseModel):
     student_email: str
     student_id: str | None = None
     status: str
+    enrolled_grade: int | None = None
+    assigned_teacher_id: str | None = None
+    assigned_teacher_name: str | None = None
+    assigned_grade: int | None = None
     added_at: datetime
 
 
 class EnrolmentRosterResponse(BaseModel):
     roster: list[EnrolmentRosterItem]
+
+
+# ── Student-teacher assignment ────────────────────────────────────────────────
+
+
+class StudentAssignmentRequest(BaseModel):
+    """PUT /schools/{school_id}/students/{student_id}/assignment"""
+
+    teacher_id: str
+    grade: int
+
+
+class StudentAssignmentResponse(BaseModel):
+    assignment_id: str
+    student_id: str
+    teacher_id: str
+    teacher_name: str | None = None
+    teacher_email: str | None = None
+    school_id: str
+    grade: int
+    assigned_at: datetime
+    assigned_by_name: str | None = None
+
+
+class BulkReassignRequest(BaseModel):
+    """POST /schools/{school_id}/teachers/{from_id}/reassign"""
+
+    to_teacher_id: str
+    grade: int
+
+
+class BulkReassignResponse(BaseModel):
+    reassigned: int
