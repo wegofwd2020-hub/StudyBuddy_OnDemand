@@ -233,15 +233,80 @@ docker compose exec api python scripts/seed_demo_milfordwaterford.py
 
 ---
 
-## 7. Stashed changes note
+## 7. ADR-001 changes that affect testing (shipped 2026-04-05)
 
-A set of in-progress backend refactor changes was stashed during the compliance
-fixes session (2026-04-05). They are **not committed**. To inspect:
+The `adr-001-complete` tag (commit `4ab32c8`) introduced structural changes that
+affect how you seed and test the school model. Key things to know:
+
+### Subscription model — school-only billing
+
+Individual student subscriptions (`subscriptions` table) and private teacher
+subscriptions have been removed. All billing flows through `school_subscriptions`.
+
+- The **Subscription** tab in the school portal creates a Stripe checkout session for the school.
+- Stripe metadata: `{"school_id": "...", "plan": "starter|professional|enterprise"}`.
+- In local dev (no live Stripe), you can simulate an active subscription by inserting directly:
 
 ```bash
-git stash list
-git stash show -p stash@{0}
+docker compose exec api python3 - <<'EOF'
+import asyncio, asyncpg, os, uuid
+from datetime import datetime, UTC, timedelta
+
+async def main():
+    conn = await asyncpg.connect(os.environ["DATABASE_URL"])
+    # Get the MilfordWaterford school_id
+    school = await conn.fetchrow(
+        "SELECT id FROM schools WHERE contact_email = 'admin@milfordwaterford.edu'"
+    )
+    if not school:
+        print("School not found — run seed_demo_milfordwaterford.py first")
+        return
+    school_id = school["id"]
+    await conn.execute(
+        """
+        INSERT INTO school_subscriptions
+            (school_id, plan, status, max_students, max_teachers,
+             stripe_customer_id, stripe_subscription_id, current_period_end)
+        VALUES ($1, 'professional', 'active', 200, 20, 'cus_test', 'sub_test', $2)
+        ON CONFLICT (school_id) DO UPDATE
+            SET plan='professional', status='active',
+                current_period_end=EXCLUDED.current_period_end
+        """,
+        school_id,
+        datetime.now(UTC) + timedelta(days=30),
+    )
+    print(f"School {school_id} — professional subscription activated")
+    await conn.close()
+
+asyncio.run(main())
+EOF
 ```
 
-Do not apply them without a full review — they remove significant functionality
-(school router endpoints, subscription router, grade assignment schemas).
+### Row-Level Security (RLS)
+
+All seven tenant-scoped tables now have PostgreSQL RLS policies. This is invisible
+during normal use (the API stamps `app.current_school_id` automatically), but affects
+direct DB access:
+
+- **psql / pgAdmin queries** — if you connect as the app user, you must set the variable
+  before querying or you'll see zero rows:
+  ```sql
+  SELECT set_config('app.current_school_id', 'bypass', false);
+  SELECT * FROM teachers;   -- now shows all rows
+  ```
+- **Direct seed scripts** — the seed scripts run as the `postgres` superuser
+  (via the `DATABASE_URL` env var), which is exempt from RLS. They work as-is.
+- **Test fixtures** — the `db_conn` pytest fixture sets bypass mode automatically.
+
+### Private teacher tier removed
+
+The `src/private_teacher/` module and its endpoints are gone. There are no
+`/auth/private-teacher/*` routes. Home schoolers and private tutors register
+as a school (`POST /api/v1/schools/register`) with their personal email as both
+the school contact email and teacher email.
+
+### Redis key namespace
+
+School-scoped Redis keys now use the `school:{school_id}:` prefix. If you're
+inspecting Redis manually (e.g. with RedisInsight), use `SCAN school:*` to browse
+tenant-scoped cache entries.
