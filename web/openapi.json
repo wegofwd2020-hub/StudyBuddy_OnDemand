@@ -11149,7 +11149,8 @@
             "title": "Total Active"
           },
           "mrr_usd": {
-            "type": "number",
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
             "title": "Mrr Usd"
           },
           "new_this_month": {

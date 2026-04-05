@@ -25,7 +25,7 @@ export interface SubscriptionAnalytics {
   active_monthly: number;
   active_annual: number;
   total_active: number;
-  mrr_usd: number;
+  mrr_usd: string;
   new_this_month: number;
   cancelled_this_month: number;
   churn_rate: number;

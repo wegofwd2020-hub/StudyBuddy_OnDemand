@@ -4443,7 +4443,7 @@ export interface components {
             /** Total Active */
             total_active: number;
             /** Mrr Usd */
-            mrr_usd: number;
+            mrr_usd: string;
             /** New This Month */
             new_this_month: number;
             /** Cancelled This Month */

@@ -89,7 +89,7 @@ export default function AdminDashboardPage() {
               />
               <KpiCard
                 label="MRR"
-                value={`$${analytics.mrr_usd.toLocaleString("en-CA", { minimumFractionDigits: 0 })}`}
+                value={`$${parseFloat(analytics.mrr_usd).toLocaleString("en-CA", { minimumFractionDigits: 0 })}`}
                 icon={<DollarSign className="h-4 w-4" />}
               />
               <KpiCard
