@@ -1,9 +1,12 @@
 "use client";
 
 import Image from "next/image";
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
 import { useTeacher } from "@/lib/hooks/useTeacher";
-import { getOverviewReport, getAlerts } from "@/lib/api/reports";
+import { getOverviewReport, getAlerts, getClassMetrics } from "@/lib/api/reports";
+import { listTeachers } from "@/lib/api/school-admin";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LinkButton } from "@/components/ui/link-button";
@@ -15,6 +18,7 @@ import {
   Bell,
   TrendingUp,
   AlertTriangle,
+  GraduationCap,
 } from "lucide-react";
 
 function KpiCard({
@@ -72,6 +76,28 @@ export default function SchoolDashboard() {
 
   const unreadAlerts = alertsData?.alerts.filter((a) => !a.acknowledged).length ?? 0;
 
+  const isAdmin = teacher?.role === "school_admin";
+
+  const { data: teachers } = useQuery({
+    queryKey: ["teachers", schoolId],
+    queryFn: () => listTeachers(schoolId),
+    enabled: !!schoolId && !isAdmin,
+    staleTime: 30_000,
+  });
+
+  const assignedGrades = useMemo(() => {
+    if (isAdmin || !teachers || !teacher?.teacher_id) return null;
+    const me = teachers.find(t => t.teacher_id === teacher.teacher_id);
+    return me?.assigned_grades ?? [];
+  }, [teachers, teacher, isAdmin]);
+
+  const { data: classMetrics } = useQuery({
+    queryKey: ["class-metrics", schoolId],
+    queryFn: () => getClassMetrics(schoolId),
+    enabled: !!schoolId && !isAdmin && (assignedGrades?.length ?? 0) > 0,
+    staleTime: 60_000,
+  });
+
   return (
     <div className="flex flex-col">
       {/* Hero image */}
@@ -102,6 +128,44 @@ export default function SchoolDashboard() {
             </LinkButton>
           </div>
         </div>
+
+        {/* My Classes — shown for non-admin teachers with assigned grades */}
+        {!isAdmin && assignedGrades && assignedGrades.length > 0 && (
+          <section>
+            <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-gray-500">
+              <GraduationCap className="h-4 w-4" />
+              My Classes
+            </h2>
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              {assignedGrades.map(grade => {
+                const studentCount = classMetrics?.students.filter(s => s.grade === grade).length ?? 0;
+                return (
+                  <div key={grade} className="rounded-lg border bg-white p-4 shadow-sm">
+                    <p className="text-3xl font-bold text-indigo-600">{grade}</p>
+                    <p className="text-xs font-medium text-gray-400 uppercase">Grade</p>
+                    <p className="mt-2 text-sm text-gray-600">
+                      {studentCount} student{studentCount !== 1 ? "s" : ""}
+                    </p>
+                    <div className="mt-3 flex gap-2">
+                      <Link
+                        href="/school/curriculum/content"
+                        className="flex-1 rounded-md bg-indigo-50 px-2 py-1.5 text-center text-xs font-medium text-indigo-700 hover:bg-indigo-100"
+                      >
+                        Content
+                      </Link>
+                      <Link
+                        href="/school/students"
+                        className="flex-1 rounded-md bg-gray-50 px-2 py-1.5 text-center text-xs font-medium text-gray-600 hover:bg-gray-100"
+                      >
+                        Students
+                      </Link>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
         {isLoading ? (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3">

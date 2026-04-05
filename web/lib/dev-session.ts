@@ -26,3 +26,20 @@ export async function getDevSession(): Promise<DevSession | null> {
     return null;
   }
 }
+
+/**
+ * Read the demo teacher session cookie set by the demo teacher login flow.
+ * The cookie payload is base64-encoded JSON: { name, email }.
+ */
+export async function getDemoTeacherSession(): Promise<DevSession | null> {
+  try {
+    const store = await cookies();
+    const raw = store.get("sb_teacher_session")?.value;
+    if (!raw) return null;
+    const data = JSON.parse(atob(raw));
+    if (!data?.email) return null;
+    return { user: { name: data.name ?? data.email, email: data.email } };
+  } catch {
+    return null;
+  }
+}

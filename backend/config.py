@@ -133,6 +133,33 @@ class Settings(BaseSettings):
     GITHUB_REPO: str | None = None
     GITHUB_TOKEN: str | None = None
 
+    # ── School pipeline quotas (runs per calendar month per school) ──────────────
+    SCHOOL_PIPELINE_QUOTA_STARTER: int = 3
+    SCHOOL_PIPELINE_QUOTA_PROFESSIONAL: int = 10
+    SCHOOL_PIPELINE_QUOTA_ENTERPRISE: int = 9999
+
+    # ── School subscription — Stripe price IDs ────────────────────────────────
+    STRIPE_SCHOOL_PRICE_STARTER_ID: str | None = None
+    STRIPE_SCHOOL_PRICE_PROFESSIONAL_ID: str | None = None
+    STRIPE_SCHOOL_PRICE_ENTERPRISE_ID: str | None = None
+
+    # ── School seat limits by plan ────────────────────────────────────────────
+    SCHOOL_SEATS_STARTER_STUDENTS: int = 30
+    SCHOOL_SEATS_STARTER_TEACHERS: int = 3
+    SCHOOL_SEATS_PROFESSIONAL_STUDENTS: int = 150
+    SCHOOL_SEATS_PROFESSIONAL_TEACHERS: int = 10
+    SCHOOL_SEATS_ENTERPRISE_STUDENTS: int = 9999
+    SCHOOL_SEATS_ENTERPRISE_TEACHERS: int = 9999
+
+    # ── Private teacher plan limits ───────────────────────────────────────────
+    PRIVATE_TEACHER_PLAN_BASIC_PIPELINE_QUOTA: int = 2
+    PRIVATE_TEACHER_PLAN_PRO_PIPELINE_QUOTA: int = 8
+    PRIVATE_TEACHER_PLAN_BASIC_MAX_STUDENTS: int = 20
+    PRIVATE_TEACHER_PLAN_PRO_MAX_STUDENTS: int = 50
+    STRIPE_PRIVATE_TEACHER_PRICE_BASIC_ID: str | None = None
+    STRIPE_PRIVATE_TEACHER_PRICE_PRO_ID: str | None = None
+    STRIPE_STUDENT_TEACHER_ACCESS_PRICE_ID: str | None = None
+
     # ── Feature flags ─────────────────────────────────────────────────────────
     REVIEW_AUTO_APPROVE: bool = False
 

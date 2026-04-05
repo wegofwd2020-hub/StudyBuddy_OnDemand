@@ -15,7 +15,9 @@ vi.mock("@/lib/api/demo", () => ({
   demoLogout: vi.fn().mockResolvedValue(undefined),
 }));
 
-type DemoStudentReturn = ReturnType<typeof import("@/lib/hooks/useDemoStudent").useDemoStudent>;
+type DemoStudentReturn = ReturnType<
+  typeof import("@/lib/hooks/useDemoStudent").useDemoStudent
+>;
 const mockDemoStudent = vi.fn<() => DemoStudentReturn>();
 vi.mock("@/lib/hooks/useDemoStudent", () => ({
   useDemoStudent: () => mockDemoStudent(),
@@ -30,9 +32,15 @@ const localStorageMock = (() => {
   let store: Record<string, string> = {};
   return {
     getItem: (k: string) => store[k] ?? null,
-    setItem: (k: string, v: string) => { store[k] = v; },
-    removeItem: (k: string) => { delete store[k]; },
-    clear: () => { store = {}; },
+    setItem: (k: string, v: string) => {
+      store[k] = v;
+    },
+    removeItem: (k: string) => {
+      delete store[k];
+    },
+    clear: () => {
+      store = {};
+    },
   };
 })();
 Object.defineProperty(window, "localStorage", { value: localStorageMock });
@@ -54,7 +62,9 @@ const DEMO_CLAIMS = {
 // ── DemoBanner tests ──────────────────────────────────────────────────────────
 
 describe("DemoBanner — not a demo session", () => {
-  beforeEach(() => { mockDemoStudent.mockReturnValue(null); });
+  beforeEach(() => {
+    mockDemoStudent.mockReturnValue(null);
+  });
 
   it("renders nothing when useDemoStudent returns null", () => {
     const { container } = render(<DemoBanner />);
@@ -162,7 +172,9 @@ describe("DemoBanner — sign out", () => {
 // ── DemoGate tests ────────────────────────────────────────────────────────────
 
 describe("DemoGate — regular student (no demo)", () => {
-  beforeEach(() => { mockDemoStudent.mockReturnValue(null); });
+  beforeEach(() => {
+    mockDemoStudent.mockReturnValue(null);
+  });
 
   it("renders children when user is not a demo student", () => {
     render(
@@ -184,7 +196,9 @@ describe("DemoGate — regular student (no demo)", () => {
 });
 
 describe("DemoGate — demo student", () => {
-  beforeEach(() => { mockDemoStudent.mockReturnValue(DEMO_CLAIMS); });
+  beforeEach(() => {
+    mockDemoStudent.mockReturnValue(DEMO_CLAIMS);
+  });
 
   it("does not render children for demo students", () => {
     render(
@@ -196,7 +210,11 @@ describe("DemoGate — demo student", () => {
   });
 
   it("shows the default blocked heading", () => {
-    render(<DemoGate><p>x</p></DemoGate>);
+    render(
+      <DemoGate>
+        <p>x</p>
+      </DemoGate>,
+    );
     expect(screen.getByText("Not available in demo")).toBeInTheDocument();
   });
 
@@ -210,7 +228,11 @@ describe("DemoGate — demo student", () => {
   });
 
   it("renders 'Sign up for full access' link pointing to /signup", () => {
-    render(<DemoGate><p>x</p></DemoGate>);
+    render(
+      <DemoGate>
+        <p>x</p>
+      </DemoGate>,
+    );
     expect(screen.getByRole("link", { name: "Sign up for full access" })).toHaveAttribute(
       "href",
       "/signup",
@@ -218,7 +240,11 @@ describe("DemoGate — demo student", () => {
   });
 
   it("renders a 'Back to dashboard' link", () => {
-    render(<DemoGate><p>x</p></DemoGate>);
+    render(
+      <DemoGate>
+        <p>x</p>
+      </DemoGate>,
+    );
     expect(screen.getByRole("link", { name: "Back to dashboard" })).toHaveAttribute(
       "href",
       "/dashboard",

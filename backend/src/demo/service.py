@@ -101,9 +101,7 @@ async def create_demo_verification(
     return token
 
 
-async def get_verification_by_token(
-    conn: asyncpg.Connection, token: str
-) -> asyncpg.Record | None:
+async def get_verification_by_token(conn: asyncpg.Connection, token: str) -> asyncpg.Record | None:
     """Fetch the verification row + request status for a given token."""
     return await conn.fetchrow(
         """
@@ -179,18 +177,14 @@ async def create_demo_student_and_account(
     return demo_row
 
 
-async def mark_verification_used(
-    conn: asyncpg.Connection, verif_id: uuid.UUID
-) -> None:
+async def mark_verification_used(conn: asyncpg.Connection, verif_id: uuid.UUID) -> None:
     await conn.execute(
         "UPDATE demo_verifications SET used_at = NOW() WHERE id = $1",
         verif_id,
     )
 
 
-async def mark_request_verified(
-    conn: asyncpg.Connection, request_id: uuid.UUID
-) -> None:
+async def mark_request_verified(conn: asyncpg.Connection, request_id: uuid.UUID) -> None:
     await conn.execute(
         "UPDATE demo_requests SET status = 'verified' WHERE id = $1",
         request_id,
@@ -200,9 +194,7 @@ async def mark_request_verified(
 # ── Login helpers ─────────────────────────────────────────────────────────────
 
 
-async def get_demo_account_for_login(
-    conn: asyncpg.Connection, email: str
-) -> asyncpg.Record | None:
+async def get_demo_account_for_login(conn: asyncpg.Connection, email: str) -> asyncpg.Record | None:
     """Return the active demo_account row for login (includes password_hash)."""
     return await conn.fetchrow(
         """
@@ -216,9 +208,7 @@ async def get_demo_account_for_login(
     )
 
 
-async def update_last_login(
-    conn: asyncpg.Connection, demo_account_id: uuid.UUID
-) -> None:
+async def update_last_login(conn: asyncpg.Connection, demo_account_id: uuid.UUID) -> None:
     await conn.execute(
         "UPDATE demo_accounts SET last_login_at = NOW() WHERE id = $1",
         demo_account_id,

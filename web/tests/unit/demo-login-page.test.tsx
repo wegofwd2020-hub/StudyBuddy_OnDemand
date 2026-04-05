@@ -35,9 +35,15 @@ const localStorageMock = (() => {
   let store: Record<string, string> = {};
   return {
     getItem: (k: string) => store[k] ?? null,
-    setItem: (k: string, v: string) => { store[k] = v; },
-    removeItem: (k: string) => { delete store[k]; },
-    clear: () => { store = {}; },
+    setItem: (k: string, v: string) => {
+      store[k] = v;
+    },
+    removeItem: (k: string) => {
+      delete store[k];
+    },
+    clear: () => {
+      store = {};
+    },
   };
 })();
 Object.defineProperty(window, "localStorage", { value: localStorageMock });
@@ -111,17 +117,13 @@ describe("DemoLoginPage — successful login", () => {
   it("calls demoLogin with email and password", async () => {
     render(<DemoLoginPage />);
     fillAndSubmit();
-    await waitFor(() =>
-      expect(mockDemoLogin).toHaveBeenCalledWith(EMAIL, PASSWORD),
-    );
+    await waitFor(() => expect(mockDemoLogin).toHaveBeenCalledWith(EMAIL, PASSWORD));
   });
 
   it("stores access_token in localStorage as sb_token", async () => {
     render(<DemoLoginPage />);
     fillAndSubmit();
-    await waitFor(() =>
-      expect(localStorageMock.getItem("sb_token")).toBe(TOKEN),
-    );
+    await waitFor(() => expect(localStorageMock.getItem("sb_token")).toBe(TOKEN));
   });
 
   it("redirects to /dashboard on success", async () => {
@@ -213,9 +215,7 @@ describe("DemoLoginPage — loading state", () => {
   it("shows login_loading while submitting", async () => {
     render(<DemoLoginPage />);
     fillAndSubmit();
-    await waitFor(() =>
-      expect(screen.getByText("login_loading")).toBeInTheDocument(),
-    );
+    await waitFor(() => expect(screen.getByText("login_loading")).toBeInTheDocument());
   });
 
   it("disables the submit button while loading", async () => {
@@ -240,9 +240,7 @@ describe("DemoLoginPage — resend credentials", () => {
       target: { value: EMAIL },
     });
     fireEvent.click(screen.getByText("resend_link"));
-    await waitFor(() =>
-      expect(mockResend).toHaveBeenCalledWith(EMAIL),
-    );
+    await waitFor(() => expect(mockResend).toHaveBeenCalledWith(EMAIL));
   });
 
   it("shows confirmation after successful resend", async () => {
@@ -251,8 +249,6 @@ describe("DemoLoginPage — resend credentials", () => {
       target: { value: EMAIL },
     });
     fireEvent.click(screen.getByText("resend_link"));
-    await waitFor(() =>
-      expect(screen.getByText(/resent/i)).toBeInTheDocument(),
-    );
+    await waitFor(() => expect(screen.getByText(/resent/i)).toBeInTheDocument());
   });
 });

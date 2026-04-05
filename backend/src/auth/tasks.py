@@ -64,6 +64,7 @@ celery_app.conf.update(
         "src.auth.tasks.send_demo_teacher_verification_email_task": {"queue": "io"},
         "src.auth.tasks.send_demo_teacher_credentials_email_task": {"queue": "io"},
         "src.auth.tasks.run_grade_pipeline_task": {"queue": "pipeline"},
+        "src.auth.tasks.invalidate_school_entitlement_cache_task": {"queue": "io"},
     },
     beat_schedule={
         # Poll DB pool state + Celery queue depth every 30 seconds.
@@ -966,6 +967,7 @@ def run_grade_pipeline_task(
     # sys.path = ["/", ...] → import pipeline.build_grade resolves to /pipeline/build_grade.py
     _pipeline_parent = "/pipeline/.."
     import os as _os
+
     _pipeline_parent = _os.path.abspath(_pipeline_parent)
     if _pipeline_parent not in sys.path:
         sys.path.insert(0, _pipeline_parent)
@@ -993,8 +995,10 @@ def run_grade_pipeline_task(
                 )
             finally:
                 await conn.close()
+
         try:
             import asyncpg as _asyncpg
+
             _run_async(_mark_started())
         except Exception:
             pass
@@ -1014,6 +1018,7 @@ def run_grade_pipeline_task(
         payload_bytes: int = 0
         try:
             import os as _os2
+
             curriculum_id = f"default-{year}-g{grade}"
             content_dir = _os2.path.join(
                 pipeline_cfg.settings.CONTENT_STORE_PATH, "curricula", curriculum_id
@@ -1040,6 +1045,7 @@ def run_grade_pipeline_task(
                 )
             finally:
                 await conn.close()
+
         try:
             _run_async(_mark_done())
         except Exception:
@@ -1050,6 +1056,7 @@ def run_grade_pipeline_task(
     except Exception as exc:
         log.error("run_grade_pipeline_task_failed job_id=%s error=%s", job_id, exc)
         _update_job({"status": "failed", "error": str(exc)})
+        _exc_str = str(exc)  # capture before Python deletes the except-clause binding
 
         async def _mark_failed():
             conn = await _asyncpg.connect(settings.DATABASE_URL)
@@ -1057,12 +1064,14 @@ def run_grade_pipeline_task(
                 await conn.execute(
                     "UPDATE pipeline_jobs SET status='failed', completed_at=NOW(), error=$2 WHERE job_id=$1",
                     job_id,
-                    str(exc),
+                    _exc_str,
                 )
             finally:
                 await conn.close()
+
         try:
             import asyncpg as _asyncpg
+
             _run_async(_mark_failed())
         except Exception:
             pass
@@ -1436,7 +1445,9 @@ def sweep_expired_demo_accounts() -> None:
     async def _sweep() -> None:
         import asyncpg as _asyncpg
 
-        pool = await _asyncpg.create_pool(cfg.DATABASE_URL, min_size=1, max_size=2, statement_cache_size=0)
+        pool = await _asyncpg.create_pool(
+            cfg.DATABASE_URL, min_size=1, max_size=2, statement_cache_size=0
+        )
         try:
             async with pool.acquire() as conn:
                 expired = await conn.fetch(
@@ -1525,7 +1536,9 @@ def sweep_expired_demo_teacher_accounts() -> None:
     async def _sweep() -> None:
         import asyncpg as _asyncpg
 
-        pool = await _asyncpg.create_pool(cfg.DATABASE_URL, min_size=1, max_size=2, statement_cache_size=0)
+        pool = await _asyncpg.create_pool(
+            cfg.DATABASE_URL, min_size=1, max_size=2, statement_cache_size=0
+        )
         try:
             async with pool.acquire() as conn:
                 expired = await conn.fetch(
@@ -1589,3 +1602,49 @@ def send_demo_teacher_credentials_email_task(self, email: str, password: str) ->
         _run_async(send_teacher_credentials_email(email, password))
     except Exception as exc:
         raise self.retry(exc=exc, countdown=30)
+
+
+@celery_app.task(name="src.auth.tasks.invalidate_school_entitlement_cache_task")
+def invalidate_school_entitlement_cache_task(school_id: str) -> None:
+    """
+    Bulk-delete ent:{student_id} Redis keys for all students enrolled in a school.
+
+    Called after any school subscription state change (activate / cancel / payment fail)
+    so that enrolled students' next content request re-derives entitlement from DB.
+    The ent:school:{school_id} key is deleted synchronously in expire_school_entitlement_cache()
+    before this task is dispatched.
+    """
+    from config import settings as cfg
+
+    async def _invalidate() -> None:
+        import asyncpg as _asyncpg
+        import redis as _redis_sync
+
+        db = await _asyncpg.connect(cfg.DATABASE_URL, statement_cache_size=0)
+        try:
+            rows = await db.fetch(
+                """
+                SELECT student_id::text
+                FROM school_enrolments
+                WHERE school_id = $1 AND status = 'active' AND student_id IS NOT NULL
+                """,
+                uuid.UUID(school_id),
+            )
+        finally:
+            await db.close()
+
+        if not rows:
+            return
+
+        redis_client = _redis_sync.from_url(cfg.REDIS_URL, decode_responses=True)
+        pipeline = redis_client.pipeline()
+        for row in rows:
+            pipeline.delete(f"ent:{row['student_id']}")
+        pipeline.execute()
+        log.info(
+            "invalidate_school_entitlement_cache school_id=%s count=%d",
+            school_id,
+            len(rows),
+        )
+
+    _run_async(_invalidate())

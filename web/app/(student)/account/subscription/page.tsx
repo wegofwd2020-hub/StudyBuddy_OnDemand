@@ -15,7 +15,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import { Check, CheckCircle2, CreditCard, AlertCircle, Clock, XCircle, AlertTriangle } from "lucide-react";
+import {
+  Check,
+  CheckCircle2,
+  CreditCard,
+  AlertCircle,
+  Clock,
+  XCircle,
+  AlertTriangle,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DemoGate } from "@/components/demo/DemoGate";
 
@@ -124,9 +132,7 @@ function SubscriptionPageInner() {
                   {isActive && !isCancelled && (
                     <CheckCircle2 className="h-3 w-3 shrink-0" aria-hidden="true" />
                   )}
-                  {isTrial && (
-                    <Clock className="h-3 w-3 shrink-0" aria-hidden="true" />
-                  )}
+                  {isTrial && <Clock className="h-3 w-3 shrink-0" aria-hidden="true" />}
                   {isCancelled && (
                     <AlertTriangle className="h-3 w-3 shrink-0" aria-hidden="true" />
                   )}

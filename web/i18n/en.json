@@ -162,7 +162,10 @@
     "verify_capacity_body": "All teacher demo slots are currently occupied. Please try again later.",
     "verify_error_title": "Verification failed",
     "verify_error_body": "Something went wrong. Please try again.",
-    "verify_error_cta": "Request a new teacher demo"
+    "verify_error_cta": "Request a new teacher demo",
+    "resend_sending": "Sending…",
+    "resend_sent": "Verification email resent. Check your inbox.",
+    "resend_failed": "Resend failed. Please try again."
   },
   "auth": {
     "login_title": "Welcome back",

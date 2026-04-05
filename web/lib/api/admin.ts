@@ -25,7 +25,7 @@ export interface SubscriptionAnalytics {
   active_monthly: number;
   active_annual: number;
   total_active: number;
-  mrr_usd: number;
+  mrr_usd: string;
   new_this_month: number;
   cancelled_this_month: number;
   churn_rate: number;
@@ -105,12 +105,15 @@ export async function triggerAdminPipeline(
   force: boolean,
   year = 2026,
 ): Promise<AdminPipelineTriggerResponse> {
-  const res = await adminApi.post<AdminPipelineTriggerResponse>("/admin/pipeline/trigger", {
-    grade,
-    langs,
-    force,
-    year,
-  });
+  const res = await adminApi.post<AdminPipelineTriggerResponse>(
+    "/admin/pipeline/trigger",
+    {
+      grade,
+      langs,
+      force,
+      year,
+    },
+  );
   return res.data;
 }
 
@@ -128,12 +131,20 @@ export async function uploadGradeJson(
   return res.data;
 }
 
-export async function getAdminPipelineJobStatus(jobId: string): Promise<AdminPipelineJob> {
+export async function getAdminPipelineJobStatus(
+  jobId: string,
+): Promise<AdminPipelineJob> {
   const res = await adminApi.get<AdminPipelineJob>(`/admin/pipeline/${jobId}/status`);
   return res.data;
 }
 
 // ── Content Review ─────────────────────────────────────────────────────────────
+
+export interface AdminUser {
+  admin_user_id: string;
+  email: string;
+  role: string;
+}
 
 export interface ReviewQueueItem {
   version_id: string;
@@ -146,6 +157,9 @@ export interface ReviewQueueItem {
   generated_at: string;
   published_at: string | null;
   has_content: boolean;
+  assigned_to_admin_id: string | null;
+  assigned_to_email: string | null;
+  assigned_at: string | null;
 }
 
 export interface ReviewQueueResponse {
@@ -157,12 +171,16 @@ export async function getReviewQueue(
   status?: string,
   curriculumId?: string,
   subject?: string,
+  assignedTo?: string,
 ): Promise<ReviewQueueResponse> {
   const params: Record<string, string> = {};
   if (status) params.status = status;
   if (curriculumId) params.curriculum_id = curriculumId;
   if (subject) params.subject = subject;
-  const res = await adminApi.get<ReviewQueueResponse>("/admin/content/review/queue", { params });
+  if (assignedTo) params.assigned_to = assignedTo;
+  const res = await adminApi.get<ReviewQueueResponse>("/admin/content/review/queue", {
+    params,
+  });
   return res.data;
 }
 
@@ -209,7 +227,12 @@ export async function addAnnotation(
 ): Promise<ReviewAnnotationItem> {
   const res = await adminApi.post<ReviewAnnotationItem>(
     `/admin/content/review/${versionId}/annotate`,
-    { unit_id: unitId, content_type: contentType, annotation_text: annotationText, marked_text: markedText ?? null },
+    {
+      unit_id: unitId,
+      content_type: contentType,
+      annotation_text: annotationText,
+      marked_text: markedText ?? null,
+    },
   );
   return res.data;
 }
@@ -222,8 +245,53 @@ export async function approveReview(versionId: string, notes?: string): Promise<
   await adminApi.post(`/admin/content/review/${versionId}/approve`, { notes });
 }
 
+export interface BatchApproveResult {
+  approved_count: number;
+  version_ids: string[];
+}
+
+export async function batchApproveGrade(
+  curriculumId: string,
+  notes?: string,
+): Promise<BatchApproveResult> {
+  const res = await adminApi.post<BatchApproveResult>(
+    "/admin/content/review/batch-approve",
+    {
+      curriculum_id: curriculumId,
+      notes,
+    },
+  );
+  return res.data;
+}
+
+export async function getAdminUsers(): Promise<AdminUser[]> {
+  const res = await adminApi.get<{ users: AdminUser[] }>("/admin/users");
+  return res.data.users;
+}
+
+export interface AssignResult {
+  version_id: string;
+  assigned_to_admin_id: string | null;
+  assigned_to_email: string | null;
+  assigned_at: string | null;
+}
+
+export async function assignReview(
+  versionId: string,
+  adminId: string | null,
+): Promise<AssignResult> {
+  const res = await adminApi.post<AssignResult>(
+    `/admin/content/review/${versionId}/assign`,
+    { admin_id: adminId },
+  );
+  return res.data;
+}
+
 export async function rejectReview(versionId: string, notes?: string): Promise<void> {
-  await adminApi.post(`/admin/content/review/${versionId}/reject`, { notes, regenerate: false });
+  await adminApi.post(`/admin/content/review/${versionId}/reject`, {
+    notes,
+    regenerate: false,
+  });
 }
 
 export async function publishReview(versionId: string): Promise<void> {
@@ -240,7 +308,12 @@ export async function blockContent(
   contentType: string,
   reason?: string,
 ): Promise<void> {
-  await adminApi.post(`/admin/content/block`, { curriculum_id: curriculumId, unit_id: unitId, content_type: contentType, reason });
+  await adminApi.post(`/admin/content/block`, {
+    curriculum_id: curriculumId,
+    unit_id: unitId,
+    content_type: contentType,
+    reason,
+  });
 }
 
 export async function blockVersionContent(
@@ -372,7 +445,9 @@ export async function getDemoAccounts(
   const params: Record<string, unknown> = { page, page_size: pageSize };
   if (status) params.status = status;
   if (email) params.email = email;
-  const res = await adminApi.get<DemoAccountListResponse>("/admin/demo-accounts", { params });
+  const res = await adminApi.get<DemoAccountListResponse>("/admin/demo-accounts", {
+    params,
+  });
   return res.data;
 }
 
@@ -427,7 +502,10 @@ export async function getDemoTeacherAccounts(
   const params: Record<string, unknown> = { page, page_size: pageSize };
   if (status) params.status = status;
   if (email) params.email = email;
-  const res = await adminApi.get<DemoTeacherAccountListResponse>("/admin/demo-teacher-accounts", { params });
+  const res = await adminApi.get<DemoTeacherAccountListResponse>(
+    "/admin/demo-teacher-accounts",
+    { params },
+  );
   return res.data;
 }
 
@@ -435,7 +513,9 @@ export async function extendDemoTeacherAccount(
   accountId: string,
   hours: number,
 ): Promise<{ account_id: string; expires_at: string; extended_at: string }> {
-  const res = await adminApi.post(`/admin/demo-teacher-accounts/${accountId}/extend`, { hours });
+  const res = await adminApi.post(`/admin/demo-teacher-accounts/${accountId}/extend`, {
+    hours,
+  });
   return res.data;
 }
 
@@ -494,6 +574,7 @@ export interface UnitContentMeta {
   curriculum_id: string;
   lang: string;
   available_types: string[];
+  alex_warnings_count: number;
 }
 
 export async function getUnitContentMeta(
@@ -525,6 +606,121 @@ export async function getUnitContentFile(
   const res = await adminApi.get<UnitContentFile>(
     `/admin/content/review/${versionId}/unit/${unitId}/${contentType}`,
     { params: { lang } },
+  );
+  return res.data;
+}
+
+// ── Admin school management ───────────────────────────────────────────────────
+
+export interface AdminSchoolListItem {
+  school_id: string;
+  name: string;
+  contact_email: string;
+  country: string;
+  status: string;
+  created_at: string;
+  plan: string;
+  subscription_status: string | null;
+  seats_used_students: number;
+  seats_used_teachers: number;
+  has_override: boolean;
+}
+
+export interface AdminSchoolListResponse {
+  schools: AdminSchoolListItem[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
+export async function listAdminSchools(
+  page = 1,
+  pageSize = 20,
+  search?: string,
+): Promise<AdminSchoolListResponse> {
+  const params: Record<string, unknown> = { page, page_size: pageSize };
+  if (search) params.search = search;
+  const res = await adminApi.get<AdminSchoolListResponse>("/admin/schools", { params });
+  return res.data;
+}
+
+export interface AdminSchoolOverride {
+  max_students: number | null;
+  max_teachers: number | null;
+  pipeline_quota: number | null;
+  override_reason: string;
+  set_by_admin_id: string;
+  set_at: string;
+}
+
+export interface AdminSchoolLimits {
+  plan: string;
+  max_students: number;
+  max_teachers: number;
+  pipeline_quota_monthly: number;
+  pipeline_runs_this_month: number;
+  pipeline_resets_at: string;
+  seats_used_students: number;
+  seats_used_teachers: number;
+  has_override: boolean;
+  override: AdminSchoolOverride | null;
+}
+
+export async function getAdminSchoolLimits(schoolId: string): Promise<AdminSchoolLimits> {
+  const res = await adminApi.get<AdminSchoolLimits>(`/admin/schools/${schoolId}/limits`);
+  return res.data;
+}
+
+export interface SetOverridePayload {
+  max_students?: number | null;
+  max_teachers?: number | null;
+  pipeline_quota?: number | null;
+  override_reason: string;
+}
+
+export async function setAdminSchoolLimits(
+  schoolId: string,
+  payload: SetOverridePayload,
+): Promise<{ status: string; school_id: string }> {
+  const res = await adminApi.put(`/admin/schools/${schoolId}/limits`, payload);
+  return res.data;
+}
+
+export async function clearAdminSchoolLimits(
+  schoolId: string,
+): Promise<{ status: string; school_id: string }> {
+  const res = await adminApi.delete(`/admin/schools/${schoolId}/limits`);
+  return res.data;
+}
+
+// ── Admin private teacher management ─────────────────────────────────────────
+
+export interface AdminPrivateTeacherItem {
+  teacher_id: string;
+  email: string;
+  name: string;
+  account_status: string;
+  plan: string | null;
+  subscription_status: string | null;
+  curricula_count: number;
+  created_at: string;
+}
+
+export interface AdminPrivateTeacherListResponse {
+  teachers: AdminPrivateTeacherItem[];
+  total: number;
+}
+
+export async function listAdminPrivateTeachers(
+  page: number = 1,
+  pageSize: number = 20,
+  search?: string,
+): Promise<AdminPrivateTeacherListResponse> {
+  const res = await adminApi.get<AdminPrivateTeacherListResponse>(
+    "/admin/private-teachers",
+    {
+      params: { page, page_size: pageSize, ...(search ? { search } : {}) },
+    },
   );
   return res.data;
 }

@@ -7,6 +7,7 @@ Pydantic request/response schemas for all Phase 7 admin endpoints.
 from __future__ import annotations
 
 from datetime import datetime
+from decimal import Decimal
 
 from pydantic import BaseModel, Field
 
@@ -213,7 +214,7 @@ class SubscriptionAnalyticsResponse(BaseModel):
     active_monthly: int
     active_annual: int
     total_active: int
-    mrr_usd: float
+    mrr_usd: Decimal
     new_this_month: int
     cancelled_this_month: int
     churn_rate: float  # cancelled / (active + cancelled) for the month

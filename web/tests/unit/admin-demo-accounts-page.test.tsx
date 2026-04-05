@@ -180,7 +180,9 @@ describe("ADM-63 — Extend demo modal", () => {
   it("closes modal on Cancel click", () => {
     render(<AdminDemoAccountsPage />);
     fireEvent.click(screen.getByTitle("Extend demo access"));
-    fireEvent.click(screen.getByRole("button", { name: DEMO_ACCOUNTS_STRINGS.cancelBtn }));
+    fireEvent.click(
+      screen.getByRole("button", { name: DEMO_ACCOUNTS_STRINGS.cancelBtn }),
+    );
     expect(screen.queryByText("Extend demo")).toBeNull();
   });
 
@@ -188,7 +190,9 @@ describe("ADM-63 — Extend demo modal", () => {
     render(<AdminDemoAccountsPage />);
     fireEvent.click(screen.getByTitle("Extend demo access"));
     // Modal submit button is the last "Extend" button (row btn + modal btn)
-    const extendBtns = screen.getAllByRole("button", { name: DEMO_ACCOUNTS_STRINGS.extendBtn });
+    const extendBtns = screen.getAllByRole("button", {
+      name: DEMO_ACCOUNTS_STRINGS.extendBtn,
+    });
     fireEvent.click(extendBtns[extendBtns.length - 1]);
     await waitFor(() =>
       expect(mockExtendDemoAccount).toHaveBeenCalledWith(MOCK_ACTIVE_ITEM.account_id, 24),
@@ -198,7 +202,9 @@ describe("ADM-63 — Extend demo modal", () => {
   it("shows success toast after successful extend", async () => {
     render(<AdminDemoAccountsPage />);
     fireEvent.click(screen.getByTitle("Extend demo access"));
-    const extendBtns = screen.getAllByRole("button", { name: DEMO_ACCOUNTS_STRINGS.extendBtn });
+    const extendBtns = screen.getAllByRole("button", {
+      name: DEMO_ACCOUNTS_STRINGS.extendBtn,
+    });
     fireEvent.click(extendBtns[extendBtns.length - 1]);
     await waitFor(() => expect(toast.success).toHaveBeenCalled());
   });
@@ -207,7 +213,9 @@ describe("ADM-63 — Extend demo modal", () => {
     mockExtendDemoAccount.mockRejectedValue(new Error("network error"));
     render(<AdminDemoAccountsPage />);
     fireEvent.click(screen.getByTitle("Extend demo access"));
-    const extendBtns = screen.getAllByRole("button", { name: DEMO_ACCOUNTS_STRINGS.extendBtn });
+    const extendBtns = screen.getAllByRole("button", {
+      name: DEMO_ACCOUNTS_STRINGS.extendBtn,
+    });
     fireEvent.click(extendBtns[extendBtns.length - 1]);
     await waitFor(() => expect(toast.error).toHaveBeenCalled());
   });
@@ -237,7 +245,9 @@ describe("ADM-64 — Revoke demo modal", () => {
   it("closes revoke modal on Cancel click", () => {
     render(<AdminDemoAccountsPage />);
     fireEvent.click(screen.getByTitle("Revoke demo access"));
-    fireEvent.click(screen.getByRole("button", { name: DEMO_ACCOUNTS_STRINGS.cancelBtn }));
+    fireEvent.click(
+      screen.getByRole("button", { name: DEMO_ACCOUNTS_STRINGS.cancelBtn }),
+    );
     expect(screen.queryByText("Revoke demo?")).toBeNull();
   });
 
@@ -245,7 +255,9 @@ describe("ADM-64 — Revoke demo modal", () => {
     render(<AdminDemoAccountsPage />);
     fireEvent.click(screen.getByTitle("Revoke demo access"));
     // Modal has two "Revoke" buttons (row + modal confirm) — pick the last
-    const revokeBtns = screen.getAllByRole("button", { name: DEMO_ACCOUNTS_STRINGS.confirmRevokeBtn });
+    const revokeBtns = screen.getAllByRole("button", {
+      name: DEMO_ACCOUNTS_STRINGS.confirmRevokeBtn,
+    });
     fireEvent.click(revokeBtns[revokeBtns.length - 1]);
     await waitFor(() =>
       expect(mockRevokeDemoAccount).toHaveBeenCalledWith(MOCK_ACTIVE_ITEM.account_id),
@@ -255,7 +267,9 @@ describe("ADM-64 — Revoke demo modal", () => {
   it("shows success toast after successful revoke", async () => {
     render(<AdminDemoAccountsPage />);
     fireEvent.click(screen.getByTitle("Revoke demo access"));
-    const revokeBtns = screen.getAllByRole("button", { name: DEMO_ACCOUNTS_STRINGS.confirmRevokeBtn });
+    const revokeBtns = screen.getAllByRole("button", {
+      name: DEMO_ACCOUNTS_STRINGS.confirmRevokeBtn,
+    });
     fireEvent.click(revokeBtns[revokeBtns.length - 1]);
     await waitFor(() => expect(toast.success).toHaveBeenCalled());
   });
@@ -263,7 +277,9 @@ describe("ADM-64 — Revoke demo modal", () => {
   it("invalidates query after revoke", async () => {
     render(<AdminDemoAccountsPage />);
     fireEvent.click(screen.getByTitle("Revoke demo access"));
-    const revokeBtns = screen.getAllByRole("button", { name: DEMO_ACCOUNTS_STRINGS.confirmRevokeBtn });
+    const revokeBtns = screen.getAllByRole("button", {
+      name: DEMO_ACCOUNTS_STRINGS.confirmRevokeBtn,
+    });
     fireEvent.click(revokeBtns[revokeBtns.length - 1]);
     await waitFor(() => expect(mockInvalidateQueries).toHaveBeenCalled());
   });
@@ -285,7 +301,9 @@ describe("ADM-65 — Resend verification", () => {
     render(<AdminDemoAccountsPage />);
     fireEvent.click(screen.getByTitle("Resend verification email"));
     await waitFor(() =>
-      expect(mockAdminResendDemoVerification).toHaveBeenCalledWith(MOCK_PENDING_ITEM.request_id),
+      expect(mockAdminResendDemoVerification).toHaveBeenCalledWith(
+        MOCK_PENDING_ITEM.request_id,
+      ),
     );
   });
 

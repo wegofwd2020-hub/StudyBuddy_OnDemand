@@ -12,12 +12,8 @@ const LAST_REVIEWED = "March 2026";
 export default function AccessibilityStatementPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-16">
-      <h1 className="mb-2 text-3xl font-bold text-gray-900">
-        Accessibility Statement
-      </h1>
-      <p className="mb-10 text-sm text-gray-400">
-        Last reviewed: {LAST_REVIEWED}
-      </p>
+      <h1 className="mb-2 text-3xl font-bold text-gray-900">Accessibility Statement</h1>
+      <p className="mb-10 text-sm text-gray-400">Last reviewed: {LAST_REVIEWED}</p>
 
       <div className="space-y-10 text-gray-600">
         {/* Commitment */}
@@ -26,11 +22,11 @@ export default function AccessibilityStatementPage() {
             Our Commitment
           </h2>
           <p className="text-sm leading-relaxed">
-            StudyBuddy is committed to ensuring that its web portal is accessible to
-            the widest possible audience, regardless of technology, ability, or
-            circumstance. This commitment extends to students with dyslexia, colour
-            blindness, motor impairments, low vision, and users who rely on assistive
-            technologies such as screen readers or keyboard-only navigation.
+            StudyBuddy is committed to ensuring that its web portal is accessible to the
+            widest possible audience, regardless of technology, ability, or circumstance.
+            This commitment extends to students with dyslexia, colour blindness, motor
+            impairments, low vision, and users who rely on assistive technologies such as
+            screen readers or keyboard-only navigation.
           </p>
         </section>
 
@@ -100,18 +96,18 @@ export default function AccessibilityStatementPage() {
               to switch body text to a font designed to reduce letter confusion.
             </li>
             <li>
-              <strong>Audio lessons</strong> — every lesson has a narrated audio
-              version so content is available to users who find reading difficult.
+              <strong>Audio lessons</strong> — every lesson has a narrated audio version
+              so content is available to users who find reading difficult.
             </li>
             <li>
-              <strong>High-contrast mode</strong> — the site responds correctly to
-              Windows High Contrast Mode and macOS Increase Contrast, using system
-              colours so interactive elements remain visible.
+              <strong>High-contrast mode</strong> — the site responds correctly to Windows
+              High Contrast Mode and macOS Increase Contrast, using system colours so
+              interactive elements remain visible.
             </li>
             <li>
-              <strong>Keyboard navigation</strong> — all functionality is operable
-              via keyboard alone. A skip-to-main-content link is the first focusable
-              element on every page.
+              <strong>Keyboard navigation</strong> — all functionality is operable via
+              keyboard alone. A skip-to-main-content link is the first focusable element
+              on every page.
             </li>
             <li>
               <strong>Screen reader support</strong> — ARIA roles, labels, and live
@@ -120,8 +116,8 @@ export default function AccessibilityStatementPage() {
             </li>
             <li>
               <strong>Multi-language</strong> — full content in English, French, and
-              Spanish. The <code>lang</code> attribute on{" "}
-              <code>&lt;html&gt;</code> reflects the active locale.
+              Spanish. The <code>lang</code> attribute on <code>&lt;html&gt;</code>{" "}
+              reflects the active locale.
             </li>
           </ul>
         </section>
@@ -133,20 +129,20 @@ export default function AccessibilityStatementPage() {
           </h2>
           <ul className="list-disc space-y-2 pl-5 text-sm">
             <li>
-              <strong>WCAG 2.2 full coverage</strong> — automated axe-core tests
-              cover all three portals for WCAG 2.1 AA; WCAG 2.2 coverage is being
-              expanded and is not yet complete across every page.
+              <strong>WCAG 2.2 full coverage</strong> — automated axe-core tests cover all
+              three portals for WCAG 2.1 AA; WCAG 2.2 coverage is being expanded and is
+              not yet complete across every page.
             </li>
             <li>
-              <strong>Third-party embeds</strong> — Stripe Checkout and Auth0 login
-              flows are provided by third parties. We work with those providers to
-              maintain accessibility but cannot guarantee full conformance in those
-              embedded components.
+              <strong>Third-party embeds</strong> — Stripe Checkout and Auth0 login flows
+              are provided by third parties. We work with those providers to maintain
+              accessibility but cannot guarantee full conformance in those embedded
+              components.
             </li>
             <li>
-              <strong>Complex diagrams</strong> — Mermaid.js-rendered experiment
-              diagrams include a text alternative in the surrounding content, but the
-              SVG itself may not be fully navigable by screen readers.
+              <strong>Complex diagrams</strong> — Mermaid.js-rendered experiment diagrams
+              include a text alternative in the surrounding content, but the SVG itself
+              may not be fully navigable by screen readers.
             </li>
           </ul>
         </section>
@@ -157,9 +153,9 @@ export default function AccessibilityStatementPage() {
             Feedback and Contact
           </h2>
           <p className="mb-3 text-sm leading-relaxed">
-            We welcome feedback on the accessibility of StudyBuddy. If you
-            encounter a barrier, need content in an alternative format, or would
-            like to report a problem, please contact us:
+            We welcome feedback on the accessibility of StudyBuddy. If you encounter a
+            barrier, need content in an alternative format, or would like to report a
+            problem, please contact us:
           </p>
           <ul className="space-y-2 text-sm">
             <li>
@@ -179,9 +175,9 @@ export default function AccessibilityStatementPage() {
             </li>
           </ul>
           <p className="mt-3 text-sm text-gray-500">
-            We aim to respond to accessibility feedback within 2 business days.
-            If you are not satisfied with our response, you may contact the relevant
-            supervisory authority in your jurisdiction.
+            We aim to respond to accessibility feedback within 2 business days. If you are
+            not satisfied with our response, you may contact the relevant supervisory
+            authority in your jurisdiction.
           </p>
         </section>
 
@@ -206,8 +202,8 @@ export default function AccessibilityStatementPage() {
               <strong>Canada (Ontario):</strong> Accessibility Directorate of Ontario
             </li>
             <li>
-              <strong>European Union:</strong> Your national accessibility
-              supervisory authority
+              <strong>European Union:</strong> Your national accessibility supervisory
+              authority
             </li>
             <li>
               <strong>United Kingdom:</strong> Equality and Human Rights Commission

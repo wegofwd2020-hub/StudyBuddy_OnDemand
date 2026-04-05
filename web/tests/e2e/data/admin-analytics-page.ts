@@ -9,7 +9,7 @@ export const MOCK_SUBSCRIPTION: SubscriptionAnalytics = {
   active_monthly: 320,
   active_annual: 180,
   total_active: 500,
-  mrr_usd: 4_950,
+  mrr_usd: "4950.00",
   new_this_month: 42,
   cancelled_this_month: 8,
   churn_rate: 0.016,

@@ -31,8 +31,11 @@ from httpx import ASGITransport, AsyncClient
 
 os.environ.setdefault("DATABASE_URL", "postgresql://studybuddy:testpassword@localhost:5432/studybuddy_test")
 os.environ.setdefault("REDIS_URL", "redis://localhost:6379/1")
-os.environ.setdefault("JWT_SECRET", "test-secret-do-not-use-in-production-aaaa")
-os.environ.setdefault("ADMIN_JWT_SECRET", "test-admin-secret-do-not-use-in-prod-bbb")
+# Force-assign JWT secrets so token_factory-signed tokens always verify correctly,
+# even when running inside a container that has a different runtime secret set.
+os.environ["JWT_SECRET"] = "test-secret-do-not-use-in-production-aaaa"
+os.environ["ADMIN_JWT_SECRET"] = "test-admin-secret-do-not-use-in-prod-bbb"
+os.environ["METRICS_TOKEN"] = "test-metrics-token"
 os.environ.setdefault("AUTH0_DOMAIN", "test.auth0.com")
 os.environ.setdefault("AUTH0_JWKS_URL", "http://localhost:9999/.well-known/jwks.json")
 os.environ.setdefault("AUTH0_STUDENT_CLIENT_ID", "test-student-client-id")

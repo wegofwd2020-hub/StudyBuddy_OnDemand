@@ -15,7 +15,7 @@ Permission: super_admin or product_admin.
 from __future__ import annotations
 
 import uuid
-from datetime import UTC, datetime
+from datetime import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
@@ -161,9 +161,7 @@ async def list_demo_teacher_accounts(
         for r in rows
     ]
 
-    return DemoTeacherListResponse(
-        total=total, page=page, page_size=page_size, items=items
-    )
+    return DemoTeacherListResponse(total=total, page=page, page_size=page_size, items=items)
 
 
 @router.post(

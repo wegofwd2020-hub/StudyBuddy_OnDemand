@@ -18,6 +18,9 @@ import {
   Hammer,
   FlaskConical,
   GraduationCap,
+  HelpCircle,
+  School,
+  Users,
 } from "lucide-react";
 
 interface NavItem {
@@ -78,10 +81,27 @@ const NAV_ITEMS: NavItem[] = [
     minRole: "product_admin",
   },
   {
+    label: "Schools",
+    href: "/admin/schools",
+    icon: <School className="h-4 w-4" />,
+    minRole: "product_admin",
+  },
+  {
+    label: "Private Teachers",
+    href: "/admin/private-teachers",
+    icon: <Users className="h-4 w-4" />,
+    minRole: "product_admin",
+  },
+  {
     label: "Build Reports",
     href: "/admin/build-reports",
     icon: <Hammer className="h-4 w-4" />,
     minRole: "super_admin",
+  },
+  {
+    label: "Help",
+    href: "/admin/help",
+    icon: <HelpCircle className="h-4 w-4" />,
   },
 ];
 

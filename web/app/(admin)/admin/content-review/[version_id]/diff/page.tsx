@@ -26,19 +26,23 @@ function DiffText({ oldText, newText }: { oldText: string; newText: string }) {
       {parts.map((part, i) => {
         if (part.added) {
           return (
-            <mark key={i} className="rounded bg-green-100 text-green-800 px-0.5">
+            <mark key={i} className="rounded bg-green-100 px-0.5 text-green-800">
               {part.value}
             </mark>
           );
         }
         if (part.removed) {
           return (
-            <del key={i} className="rounded bg-red-100 text-red-700 px-0.5 line-through">
+            <del key={i} className="rounded bg-red-100 px-0.5 text-red-700 line-through">
               {part.value}
             </del>
           );
         }
-        return <span key={i} className="text-gray-700">{part.value}</span>;
+        return (
+          <span key={i} className="text-gray-700">
+            {part.value}
+          </span>
+        );
       })}
     </>
   );
@@ -46,7 +50,10 @@ function DiffText({ oldText, newText }: { oldText: string; newText: string }) {
 
 // ── Section-level diff for a content type ────────────────────────────────────
 
-function extractTextFields(contentType: string, data: Record<string, unknown>): Array<{ label: string; text: string }> {
+function extractTextFields(
+  contentType: string,
+  data: Record<string, unknown>,
+): Array<{ label: string; text: string }> {
   const fields: Array<{ label: string; text: string }> = [];
 
   if (contentType === "lesson") {
@@ -55,7 +62,11 @@ function extractTextFields(contentType: string, data: Record<string, unknown>): 
     const kp = (data.key_points ?? []) as string[];
     if (kp.length) fields.push({ label: "Key Points", text: kp.join("\n") });
   } else if (contentType === "tutorial") {
-    const sections = (data.sections ?? []) as Array<{ title: string; content: string; examples?: string[] }>;
+    const sections = (data.sections ?? []) as Array<{
+      title: string;
+      content: string;
+      examples?: string[];
+    }>;
     sections.forEach((s) => {
       fields.push({ label: s.title, text: s.content });
       if (s.examples?.length) {
@@ -63,7 +74,8 @@ function extractTextFields(contentType: string, data: Record<string, unknown>): 
       }
     });
     const mistakes = (data.common_mistakes ?? []) as string[];
-    if (mistakes.length) fields.push({ label: "Common Mistakes", text: mistakes.join("\n") });
+    if (mistakes.length)
+      fields.push({ label: "Common Mistakes", text: mistakes.join("\n") });
   } else if (contentType.startsWith("quiz_set")) {
     const questions = (data.questions ?? []) as Array<{
       question_text: string;
@@ -76,20 +88,29 @@ function extractTextFields(contentType: string, data: Record<string, unknown>): 
         label: `Q${i + 1} Options`,
         text: q.options.map((o) => `${o.option_id}. ${o.text}`).join("\n"),
       });
-      if (q.explanation) fields.push({ label: `Q${i + 1} Explanation`, text: q.explanation });
+      if (q.explanation)
+        fields.push({ label: `Q${i + 1} Explanation`, text: q.explanation });
     });
   } else if (contentType === "experiment") {
     const steps = (data.steps ?? []) as Array<{ instruction: string }>;
     steps.forEach((s, i) => fields.push({ label: `Step ${i + 1}`, text: s.instruction }));
     const safety = (data.safety_notes ?? []) as string[];
     if (safety.length) fields.push({ label: "Safety Notes", text: safety.join("\n") });
-    if (data.expected_outcome) fields.push({ label: "Expected Outcome", text: data.expected_outcome as string });
+    if (data.expected_outcome)
+      fields.push({ label: "Expected Outcome", text: data.expected_outcome as string });
   }
 
   return fields;
 }
 
-const CONTENT_TYPES = ["lesson", "tutorial", "quiz_set_1", "quiz_set_2", "quiz_set_3", "experiment"];
+const CONTENT_TYPES = [
+  "lesson",
+  "tutorial",
+  "quiz_set_1",
+  "quiz_set_2",
+  "quiz_set_3",
+  "experiment",
+];
 const CONTENT_TYPE_LABELS: Record<string, string> = {
   lesson: "Lesson",
   tutorial: "Tutorial",
@@ -128,7 +149,9 @@ function UnitDiff({
 
   const isLoading = loadingCurrent || loadingPrev;
 
-  const currentFields = currentFile ? extractTextFields(activeType, currentFile.data) : [];
+  const currentFields = currentFile
+    ? extractTextFields(activeType, currentFile.data)
+    : [];
   const prevFields = prevFile ? extractTextFields(activeType, prevFile.data) : [];
 
   const hasChanges =
@@ -145,10 +168,10 @@ function UnitDiff({
             key={ct}
             onClick={() => setActiveType(ct)}
             className={cn(
-              "px-3 py-2 text-xs font-medium rounded-t-md border-b-2 -mb-px transition-colors",
+              "-mb-px rounded-t-md border-b-2 px-3 py-2 text-xs font-medium transition-colors",
               activeType === ct
-                ? "border-indigo-500 text-indigo-700 bg-indigo-50"
-                : "border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-50",
+                ? "border-indigo-500 bg-indigo-50 text-indigo-700"
+                : "border-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-800",
             )}
           >
             {CONTENT_TYPE_LABELS[ct]}
@@ -163,7 +186,9 @@ function UnitDiff({
           ))}
         </div>
       ) : !currentFile && !prevFile ? (
-        <p className="text-sm text-gray-400 italic">No content for this type in either version.</p>
+        <p className="text-sm text-gray-400 italic">
+          No content for this type in either version.
+        </p>
       ) : (
         <>
           {/* Legend */}
@@ -171,21 +196,28 @@ function UnitDiff({
             {hasChanges ? (
               <>
                 <span className="flex items-center gap-1">
-                  <span className="inline-block rounded bg-green-100 px-1.5 py-0.5 text-green-800">added</span>
+                  <span className="inline-block rounded bg-green-100 px-1.5 py-0.5 text-green-800">
+                    added
+                  </span>
                 </span>
                 <span className="flex items-center gap-1">
-                  <span className="inline-block rounded bg-red-100 px-1.5 py-0.5 text-red-700 line-through">removed</span>
+                  <span className="inline-block rounded bg-red-100 px-1.5 py-0.5 text-red-700 line-through">
+                    removed
+                  </span>
                 </span>
               </>
             ) : (
-              <span className="text-green-600 font-medium">No changes in this content type</span>
+              <span className="font-medium text-green-600">
+                No changes in this content type
+              </span>
             )}
           </div>
 
           {/* Field-by-field diff */}
           <div className="space-y-4">
             {currentFields.map((field, i) => {
-              const prevField = prevFields.find((p) => p.label === field.label) ?? prevFields[i];
+              const prevField =
+                prevFields.find((p) => p.label === field.label) ?? prevFields[i];
               const oldText = prevField?.text ?? "";
               const changed = oldText !== field.text;
               return (
@@ -193,7 +225,9 @@ function UnitDiff({
                   key={field.label}
                   className={cn(
                     "rounded-lg border p-4",
-                    changed ? "border-amber-200 bg-amber-50/40" : "border-gray-100 bg-gray-50",
+                    changed
+                      ? "border-amber-200 bg-amber-50/40"
+                      : "border-gray-100 bg-gray-50",
                   )}
                 >
                   <div className="mb-2 flex items-center gap-2">
@@ -233,7 +267,12 @@ export default function ContentDiffPage() {
 
   // Load all versions of the same subject to populate the compare dropdown
   const { data: allVersions } = useQuery({
-    queryKey: ["admin", "content-review-versions", current?.curriculum_id, current?.subject],
+    queryKey: [
+      "admin",
+      "content-review-versions",
+      current?.curriculum_id,
+      current?.subject,
+    ],
     queryFn: () => getReviewQueue(undefined, current!.curriculum_id, current!.subject),
     enabled: !!current,
     staleTime: 60_000,
@@ -251,11 +290,11 @@ export default function ContentDiffPage() {
 
   const resolvedCompareId = compareVersionId ?? defaultCompare?.version_id ?? null;
 
-  const activeUnit = selectedUnit ?? (current?.units[0]?.unit_id ?? null);
+  const activeUnit = selectedUnit ?? current?.units[0]?.unit_id ?? null;
 
   if (loadingCurrent) {
     return (
-      <div className="mx-auto max-w-6xl p-8 space-y-4">
+      <div className="mx-auto max-w-6xl space-y-4 p-8">
         <div className="h-8 w-64 animate-pulse rounded-lg bg-gray-100" />
         <div className="h-96 animate-pulse rounded-xl bg-gray-100" />
       </div>
@@ -279,7 +318,8 @@ export default function ContentDiffPage() {
         <div className="rounded-xl border border-gray-200 bg-white p-12 text-center">
           <GitCompare className="mx-auto mb-3 h-10 w-10 text-gray-300" />
           <p className="text-sm text-gray-500">
-            No other versions exist for <strong>{current.subject_name ?? current.subject}</strong> yet.
+            No other versions exist for{" "}
+            <strong>{current.subject_name ?? current.subject}</strong> yet.
             <br />
             Diff will be available once a second version is generated.
           </p>
@@ -300,7 +340,7 @@ export default function ContentDiffPage() {
 
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+        <h1 className="flex items-center gap-2 text-2xl font-bold text-gray-900">
           <GitCompare className="h-6 w-6 text-indigo-500" />
           Version Diff — {current.subject_name ?? current.subject}
         </h1>
@@ -309,8 +349,12 @@ export default function ContentDiffPage() {
         <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
           <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-1.5">
             <span className="text-xs font-medium text-green-700">Current</span>
-            <span className="font-semibold text-green-800">v{current.version_number}</span>
-            <span className="rounded px-1.5 py-0.5 text-xs bg-green-100 text-green-600">{current.status}</span>
+            <span className="font-semibold text-green-800">
+              v{current.version_number}
+            </span>
+            <span className="rounded bg-green-100 px-1.5 py-0.5 text-xs text-green-600">
+              {current.status}
+            </span>
           </div>
 
           <span className="text-gray-400">vs</span>
@@ -324,7 +368,8 @@ export default function ContentDiffPage() {
             >
               {otherVersions.map((v) => (
                 <option key={v.version_id} value={v.version_id}>
-                  v{v.version_number} — {v.status} — {new Date(v.generated_at).toLocaleDateString()}
+                  v{v.version_number} — {v.status} —{" "}
+                  {new Date(v.generated_at).toLocaleDateString()}
                 </option>
               ))}
             </select>
@@ -336,7 +381,9 @@ export default function ContentDiffPage() {
         <div className="flex gap-6">
           {/* Left: unit list */}
           <div className="w-52 flex-shrink-0">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">Units</p>
+            <p className="mb-3 text-xs font-semibold tracking-wide text-gray-400 uppercase">
+              Units
+            </p>
             <nav className="space-y-1">
               {current.units.map((u) => (
                 <button
@@ -349,7 +396,7 @@ export default function ContentDiffPage() {
                       : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
                   )}
                 >
-                  <p className="text-sm font-medium truncate">{u.title}</p>
+                  <p className="truncate text-sm font-medium">{u.title}</p>
                   <p className="font-mono text-xs text-gray-400">{u.unit_id}</p>
                 </button>
               ))}

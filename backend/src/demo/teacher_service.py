@@ -176,18 +176,14 @@ async def create_demo_teacher_and_account(
     return demo_row
 
 
-async def mark_teacher_verification_used(
-    conn: asyncpg.Connection, verif_id: uuid.UUID
-) -> None:
+async def mark_teacher_verification_used(conn: asyncpg.Connection, verif_id: uuid.UUID) -> None:
     await conn.execute(
         "UPDATE demo_teacher_verifications SET used_at = NOW() WHERE id = $1",
         verif_id,
     )
 
 
-async def mark_teacher_request_verified(
-    conn: asyncpg.Connection, request_id: uuid.UUID
-) -> None:
+async def mark_teacher_request_verified(conn: asyncpg.Connection, request_id: uuid.UUID) -> None:
     await conn.execute(
         "UPDATE demo_teacher_requests SET status = 'verified' WHERE id = $1",
         request_id,
@@ -197,14 +193,16 @@ async def mark_teacher_request_verified(
 async def get_demo_teacher_account_for_login(
     conn: asyncpg.Connection, email: str
 ) -> asyncpg.Record | None:
-    """Return the active demo_teacher_account row for login (includes password_hash)."""
+    """Return the active demo_teacher_account row for login (includes password_hash and school_id)."""
     return await conn.fetchrow(
         """
-        SELECT id, teacher_id, email, password_hash, expires_at
-        FROM demo_teacher_accounts
-        WHERE email = $1
-          AND expires_at > NOW()
-          AND revoked_at IS NULL
+        SELECT dta.id, dta.teacher_id, dta.email, dta.password_hash, dta.expires_at,
+               t.school_id, t.name AS teacher_name
+        FROM demo_teacher_accounts dta
+        JOIN teachers t ON t.teacher_id = dta.teacher_id
+        WHERE dta.email = $1
+          AND dta.expires_at > NOW()
+          AND dta.revoked_at IS NULL
         """,
         email,
     )

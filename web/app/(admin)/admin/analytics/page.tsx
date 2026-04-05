@@ -64,8 +64,8 @@ export default function AdminAnalyticsPage() {
                 </tr>
                 <tr>
                   <td className="px-4 py-3 text-gray-700">MRR (CAD)</td>
-                  <td className="px-4 py-3 text-right font-mono text-gray-900">
-                    ${sub.mrr_usd.toLocaleString("en-CA", { minimumFractionDigits: 2 })}
+                  <td className="px-4 py-3 text-right font-mono tabular-nums text-gray-900">
+                    ${parseFloat(sub.mrr_usd).toLocaleString("en-CA", { minimumFractionDigits: 2 })}
                   </td>
                 </tr>
                 <tr>

@@ -110,7 +110,9 @@ export async function demoTeacherLogout(token: string): Promise<void> {
  * GET /demo/teacher/verify/{token}
  * Verify a teacher email address and create the demo teacher account.
  */
-export async function verifyDemoTeacherEmail(token: string): Promise<DemoRequestResponse> {
+export async function verifyDemoTeacherEmail(
+  token: string,
+): Promise<DemoRequestResponse> {
   const res = await api.get<DemoRequestResponse>(`/demo/teacher/verify/${token}`);
   return res.data;
 }

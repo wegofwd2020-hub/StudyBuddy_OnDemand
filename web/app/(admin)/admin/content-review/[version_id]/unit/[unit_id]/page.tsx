@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -15,12 +15,14 @@ import {
   type ReviewAnnotationItem,
 } from "@/lib/api/admin";
 import {
+  AlertTriangle,
   ArrowLeft,
   BookOpen,
   ClipboardList,
   FlaskConical,
   GraduationCap,
   MessageSquarePlus,
+  ShieldAlert,
   Trash2,
   ChevronDown,
   ChevronUp,
@@ -61,6 +63,138 @@ function useAnnotations(effectiveKey: string) {
   };
 }
 
+// ── AlexJS warnings banner ────────────────────────────────────────────────────
+
+const ALEX_CHECKLIST = [
+  "Ableist or euphemistic language (e.g. \"crazy\", \"lame\", \"blind to\")",
+  "Gendered terms where neutral alternatives exist (e.g. \"mankind\", \"stewardess\")",
+  "Potentially insensitive cultural or racial references",
+  "Overly binary gender assumptions in examples",
+  "Medical or mental-health language used casually",
+];
+
+function AlexWarningsBanner({ count }: { count: number }) {
+  const [expanded, setExpanded] = useState(false);
+  const bannerRef = useRef<HTMLDivElement>(null);
+  const [sticky, setSticky] = useState(false);
+
+  // Show a sticky pill once the banner scrolls out of view
+  useEffect(() => {
+    const el = bannerRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setSticky(!entry.isIntersecting),
+      { threshold: 0 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const isHigh = count >= 10;
+  const isMedium = count >= 3 && count < 10;
+
+  const colours = isHigh
+    ? {
+        border: "border-red-300",
+        bg: "bg-red-50",
+        icon: "text-red-600",
+        title: "text-red-900",
+        body: "text-red-700",
+        toggle: "text-red-600 hover:text-red-800",
+        pill: "bg-red-600",
+      }
+    : isMedium
+      ? {
+          border: "border-amber-300",
+          bg: "bg-amber-50",
+          icon: "text-amber-600",
+          title: "text-amber-900",
+          body: "text-amber-700",
+          toggle: "text-amber-600 hover:text-amber-800",
+          pill: "bg-amber-500",
+        }
+      : {
+          border: "border-orange-200",
+          bg: "bg-orange-50",
+          icon: "text-orange-500",
+          title: "text-orange-800",
+          body: "text-orange-700",
+          toggle: "text-orange-600 hover:text-orange-800",
+          pill: "bg-orange-500",
+        };
+
+  const severity = isHigh ? "High" : isMedium ? "Moderate" : "Low";
+
+  return (
+    <>
+      <div
+        ref={bannerRef}
+        className={cn(
+          "mb-6 rounded-xl border-2 p-4",
+          colours.border,
+          colours.bg,
+        )}
+      >
+        <div className="flex items-start gap-3">
+          <ShieldAlert className={cn("mt-0.5 h-5 w-5 flex-shrink-0", colours.icon)} />
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className={cn("text-sm font-bold", colours.title)}>
+                {count} AlexJS warning{count !== 1 ? "s" : ""} — {severity} severity
+              </p>
+              <span
+                className={cn(
+                  "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold text-white",
+                  colours.pill,
+                )}
+              >
+                Action required
+              </span>
+            </div>
+            <p className={cn("mt-1 text-xs", colours.body)}>
+              AlexJS flagged potentially non-inclusive or insensitive language across this
+              unit&apos;s content. Review <strong>all content types</strong> in the left
+              panel and add reviewer notes where applicable before approving.
+            </p>
+            <button
+              onClick={() => setExpanded((e) => !e)}
+              className={cn(
+                "mt-2 inline-flex items-center gap-1 text-xs font-medium",
+                colours.toggle,
+              )}
+            >
+              {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+              {expanded ? "Hide" : "Show"} what to look for
+            </button>
+            {expanded && (
+              <ul className={cn("mt-2 space-y-1 text-xs", colours.body)}>
+                {ALEX_CHECKLIST.map((item) => (
+                  <li key={item} className="flex items-start gap-1.5">
+                    <AlertTriangle className={cn("mt-0.5 h-3 w-3 flex-shrink-0", colours.icon)} />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Sticky pill visible when banner is out of view */}
+      {sticky && (
+        <div className="fixed right-6 top-4 z-50 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold text-white shadow-lg cursor-pointer"
+          style={{ backgroundColor: isHigh ? "#dc2626" : isMedium ? "#d97706" : "#f97316" }}
+          onClick={() => bannerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+          title="AlexJS warnings — click to scroll to banner"
+        >
+          <ShieldAlert className="h-3.5 w-3.5" />
+          {count} AlexJS warning{count !== 1 ? "s" : ""}
+        </div>
+      )}
+    </>
+  );
+}
+
 // ── Inline section notes ──────────────────────────────────────────────────────
 // Used inside Lesson sections, Quiz questions, Experiment steps.
 
@@ -84,7 +218,7 @@ function SectionNotes({ effectiveKey }: { effectiveKey: string }) {
       {/* Toggle button with count badge */}
       <button
         onClick={() => setOpen((o) => !o)}
-        className="inline-flex items-center gap-1.5 text-xs text-amber-600 hover:text-amber-800 transition-colors"
+        className="inline-flex items-center gap-1.5 text-xs text-amber-600 transition-colors hover:text-amber-800"
       >
         <MessageSquarePlus className="h-3.5 w-3.5" />
         {annotations.length > 0 ? (
@@ -98,22 +232,25 @@ function SectionNotes({ effectiveKey }: { effectiveKey: string }) {
       </button>
 
       {open && (
-        <div className="mt-2 rounded-lg border border-amber-100 bg-amber-50 p-3 space-y-2">
+        <div className="mt-2 space-y-2 rounded-lg border border-amber-100 bg-amber-50 p-3">
           {/* Existing notes */}
           {annotations.map((a) => (
             <div
               key={a.annotation_id}
               className="flex gap-2 rounded-md border border-amber-100 bg-white px-3 py-2"
             >
-              <div className="flex-1 min-w-0">
-                <p className="text-xs text-gray-800 whitespace-pre-wrap">{a.annotation_text}</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs whitespace-pre-wrap text-gray-800">
+                  {a.annotation_text}
+                </p>
                 <p className="mt-0.5 text-xs text-gray-400">
-                  {a.reviewer_email ?? "Admin"} · {new Date(a.created_at).toLocaleString()}
+                  {a.reviewer_email ?? "Admin"} ·{" "}
+                  {new Date(a.created_at).toLocaleString()}
                 </p>
               </div>
               <button
                 onClick={() => onDelete(a.annotation_id)}
-                className="flex-shrink-0 text-gray-300 hover:text-red-500 transition-colors"
+                className="flex-shrink-0 text-gray-300 transition-colors hover:text-red-500"
                 title="Delete note"
               >
                 <Trash2 className="h-3 w-3" />
@@ -128,11 +265,14 @@ function SectionNotes({ effectiveKey }: { effectiveKey: string }) {
             onChange={(e) => setNote(e.target.value)}
             placeholder="Write a note about this section…"
             rows={2}
-            className="w-full rounded-md border border-gray-200 px-3 py-2 text-xs text-gray-800 placeholder-gray-400 focus:border-amber-400 focus:outline-none resize-none"
+            className="w-full resize-none rounded-md border border-gray-200 px-3 py-2 text-xs text-gray-800 placeholder-gray-400 focus:border-amber-400 focus:outline-none"
           />
           <div className="flex justify-end gap-2">
             <button
-              onClick={() => { setOpen(false); setNote(""); }}
+              onClick={() => {
+                setOpen(false);
+                setNote("");
+              }}
               className="rounded px-2 py-1 text-xs text-gray-500 hover:text-gray-800"
             >
               Cancel
@@ -140,7 +280,7 @@ function SectionNotes({ effectiveKey }: { effectiveKey: string }) {
             <button
               disabled={!note.trim() || saving}
               onClick={handleSave}
-              className="rounded bg-amber-600 px-3 py-1 text-xs font-medium text-white hover:bg-amber-700 disabled:opacity-50 transition-colors"
+              className="rounded bg-amber-600 px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-amber-700 disabled:opacity-50"
             >
               {saving ? "Saving…" : "Save"}
             </button>
@@ -160,12 +300,12 @@ function Prose({ text, className }: { text: string; className?: string }) {
         remarkPlugins={[remarkGfm]}
         components={{
           table: ({ children }) => (
-            <div className="overflow-x-auto my-3">
-              <table className="w-full text-xs border-collapse">{children}</table>
+            <div className="my-3 overflow-x-auto">
+              <table className="w-full border-collapse text-xs">{children}</table>
             </div>
           ),
           thead: ({ children }) => (
-            <thead className="bg-gray-100 text-gray-600 font-semibold">{children}</thead>
+            <thead className="bg-gray-100 font-semibold text-gray-600">{children}</thead>
           ),
           tbody: ({ children }) => (
             <tbody className="divide-y divide-gray-100">{children}</tbody>
@@ -177,7 +317,7 @@ function Prose({ text, className }: { text: string; className?: string }) {
             const isBlock = className?.includes("language-");
             if (isBlock) {
               return (
-                <pre className="bg-gray-50 rounded-md p-3 overflow-x-auto text-xs font-mono text-gray-800 my-2">
+                <pre className="my-2 overflow-x-auto rounded-md bg-gray-50 p-3 font-mono text-xs text-gray-800">
                   <code>{children}</code>
                 </pre>
               );
@@ -188,9 +328,15 @@ function Prose({ text, className }: { text: string; className?: string }) {
               </code>
             );
           },
-          p: ({ children }) => <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>,
-          ul: ({ children }) => <ul className="list-disc pl-4 space-y-1 mb-2">{children}</ul>,
-          ol: ({ children }) => <ol className="list-decimal pl-4 space-y-1 mb-2">{children}</ol>,
+          p: ({ children }) => (
+            <p className="mb-2 leading-relaxed last:mb-0">{children}</p>
+          ),
+          ul: ({ children }) => (
+            <ul className="mb-2 list-disc space-y-1 pl-4">{children}</ul>
+          ),
+          ol: ({ children }) => (
+            <ol className="mb-2 list-decimal space-y-1 pl-4">{children}</ol>
+          ),
           li: ({ children }) => <li className="leading-relaxed">{children}</li>,
         }}
       >
@@ -203,10 +349,10 @@ function Prose({ text, className }: { text: string; className?: string }) {
 function ExampleBlock({ text }: { text: string }) {
   const hasSteps = text.includes("\n");
   if (!hasSteps) {
-    return <p className="text-xs text-gray-600 leading-relaxed">{text}</p>;
+    return <p className="text-xs leading-relaxed text-gray-600">{text}</p>;
   }
   return (
-    <pre className="whitespace-pre-wrap rounded-md bg-gray-50 border border-gray-100 p-3 font-mono text-xs text-gray-800 leading-relaxed overflow-x-auto">
+    <pre className="overflow-x-auto rounded-md border border-gray-100 bg-gray-50 p-3 font-mono text-xs leading-relaxed whitespace-pre-wrap text-gray-800">
       {text}
     </pre>
   );
@@ -214,7 +360,13 @@ function ExampleBlock({ text }: { text: string }) {
 
 // ── Content renderers ─────────────────────────────────────────────────────────
 
-function LessonRenderer({ data, baseKey }: { data: Record<string, unknown>; baseKey: string }) {
+function LessonRenderer({
+  data,
+  baseKey,
+}: {
+  data: Record<string, unknown>;
+  baseKey: string;
+}) {
   const sections = (data.sections ?? []) as Array<{ heading: string; body: string }>;
   const keyPoints = (data.key_points ?? []) as string[];
 
@@ -247,7 +399,13 @@ function LessonRenderer({ data, baseKey }: { data: Record<string, unknown>; base
   );
 }
 
-function TutorialRenderer({ data, baseKey }: { data: Record<string, unknown>; baseKey: string }) {
+function TutorialRenderer({
+  data,
+  baseKey,
+}: {
+  data: Record<string, unknown>;
+  baseKey: string;
+}) {
   const sections = (data.sections ?? []) as Array<{
     section_id?: string;
     title: string;
@@ -263,27 +421,28 @@ function TutorialRenderer({ data, baseKey }: { data: Record<string, unknown>; ba
   ];
 
   const [activeTab, setActiveTab] = useState<string>(tabs[0]?.key ?? "");
-  const activeSection = sections.find((s, i) => (s.section_id ?? String(i)) === activeTab);
+  const activeSection = sections.find(
+    (s, i) => (s.section_id ?? String(i)) === activeTab,
+  );
 
-  const activeSectionKey = activeTab === "__mistakes__"
-    ? `${baseKey}::mistakes`
-    : `${baseKey}::${activeTab}`;
+  const activeSectionKey =
+    activeTab === "__mistakes__" ? `${baseKey}::mistakes` : `${baseKey}::${activeTab}`;
 
   return (
     <div>
       {/* Tab bar */}
-      <div className="flex flex-wrap gap-1 border-b border-gray-200 mb-4">
+      <div className="mb-4 flex flex-wrap gap-1 border-b border-gray-200">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
             className={cn(
-              "px-3 py-2 text-xs font-medium rounded-t-md border-b-2 -mb-px transition-colors",
+              "-mb-px rounded-t-md border-b-2 px-3 py-2 text-xs font-medium transition-colors",
               activeTab === tab.key
                 ? tab.key === "__mistakes__"
-                  ? "border-red-500 text-red-600 bg-red-50"
-                  : "border-indigo-500 text-indigo-700 bg-indigo-50"
-                : "border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-50",
+                  ? "border-red-500 bg-red-50 text-red-600"
+                  : "border-indigo-500 bg-indigo-50 text-indigo-700"
+                : "border-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-800",
             )}
           >
             {tab.key === "__mistakes__" ? "⚠ Common Mistakes" : tab.label}
@@ -296,7 +455,10 @@ function TutorialRenderer({ data, baseKey }: { data: Record<string, unknown>; ba
         <>
           <ul className="space-y-2">
             {mistakes.map((m, i) => (
-              <li key={i} className="flex gap-2 text-sm text-red-600 rounded-md bg-red-50 px-3 py-2">
+              <li
+                key={i}
+                className="flex gap-2 rounded-md bg-red-50 px-3 py-2 text-sm text-red-600"
+              >
                 <span className="flex-shrink-0">⚠</span>
                 <span>{m}</span>
               </li>
@@ -309,7 +471,9 @@ function TutorialRenderer({ data, baseKey }: { data: Record<string, unknown>; ba
           <Prose text={activeSection.content} />
           {activeSection.examples && activeSection.examples.length > 0 && (
             <div className="space-y-2">
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Examples</p>
+              <p className="text-xs font-semibold tracking-wide text-gray-500 uppercase">
+                Examples
+              </p>
               {activeSection.examples.map((ex, j) => (
                 <ExampleBlock key={j} text={ex} />
               ))}
@@ -317,7 +481,7 @@ function TutorialRenderer({ data, baseKey }: { data: Record<string, unknown>; ba
           )}
           {activeSection.practice_question && (
             <div className="rounded-md border border-indigo-100 bg-indigo-50 px-3 py-2">
-              <p className="text-xs font-semibold text-indigo-500 mb-1">Practice</p>
+              <p className="mb-1 text-xs font-semibold text-indigo-500">Practice</p>
               <p className="text-xs text-indigo-700">{activeSection.practice_question}</p>
             </div>
           )}
@@ -329,7 +493,13 @@ function TutorialRenderer({ data, baseKey }: { data: Record<string, unknown>; ba
   );
 }
 
-function QuizRenderer({ data, baseKey }: { data: Record<string, unknown>; baseKey: string }) {
+function QuizRenderer({
+  data,
+  baseKey,
+}: {
+  data: Record<string, unknown>;
+  baseKey: string;
+}) {
   const setNumber = data.set_number as number | undefined;
   const questions = (data.questions ?? []) as Array<{
     question_id: string;
@@ -343,16 +513,21 @@ function QuizRenderer({ data, baseKey }: { data: Record<string, unknown>; baseKe
   return (
     <div className="space-y-5">
       {setNumber && (
-        <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">
+        <p className="text-xs font-medium tracking-wide text-gray-400 uppercase">
           Quiz Set {setNumber} · {questions.length} questions
         </p>
       )}
       {questions.map((q, i) => {
         const qKey = `${baseKey}::Q${i + 1}`;
         return (
-          <div key={q.question_id ?? i} className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+          <div
+            key={q.question_id ?? i}
+            className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+          >
             <div className="mb-3 flex gap-2">
-              <span className="flex-shrink-0 font-mono text-xs text-gray-400 mt-0.5">Q{i + 1}.</span>
+              <span className="mt-0.5 flex-shrink-0 font-mono text-xs text-gray-400">
+                Q{i + 1}.
+              </span>
               <Prose text={q.question_text} className="flex-1" />
             </div>
             <ul className="space-y-1.5">
@@ -362,23 +537,25 @@ function QuizRenderer({ data, baseKey }: { data: Record<string, unknown>; baseKe
                   className={cn(
                     "flex items-start gap-2 rounded-md px-3 py-2 text-sm",
                     opt.option_id === q.correct_option
-                      ? "bg-green-50 text-green-800 font-medium"
+                      ? "bg-green-50 font-medium text-green-800"
                       : "bg-gray-50 text-gray-700",
                   )}
                 >
-                  <span className="flex-shrink-0 font-mono text-xs mt-0.5 text-gray-400">
+                  <span className="mt-0.5 flex-shrink-0 font-mono text-xs text-gray-400">
                     {opt.option_id}.
                   </span>
                   <span className="flex-1">{opt.text}</span>
                   {opt.option_id === q.correct_option && (
-                    <span className="ml-auto flex-shrink-0 text-xs text-green-600">✓ correct</span>
+                    <span className="ml-auto flex-shrink-0 text-xs text-green-600">
+                      ✓ correct
+                    </span>
                   )}
                 </li>
               ))}
             </ul>
             {q.explanation && (
               <div className="mt-3 rounded bg-amber-50 px-3 py-2">
-                <p className="text-xs font-semibold text-amber-600 mb-1">Explanation</p>
+                <p className="mb-1 text-xs font-semibold text-amber-600">Explanation</p>
                 <Prose text={q.explanation} className="text-xs text-amber-700" />
               </div>
             )}
@@ -394,7 +571,13 @@ function QuizRenderer({ data, baseKey }: { data: Record<string, unknown>; baseKe
   );
 }
 
-function ExperimentRenderer({ data, baseKey }: { data: Record<string, unknown>; baseKey: string }) {
+function ExperimentRenderer({
+  data,
+  baseKey,
+}: {
+  data: Record<string, unknown>;
+  baseKey: string;
+}) {
   const materials = (data.materials ?? []) as string[];
   const steps = (data.steps ?? []) as Array<{ step?: number; instruction: string }>;
   const safety = (data.safety_notes ?? []) as string[];
@@ -407,7 +590,9 @@ function ExperimentRenderer({ data, baseKey }: { data: Record<string, unknown>; 
           <h3 className="mb-2 text-sm font-semibold text-gray-800">Materials</h3>
           <ul className="grid grid-cols-2 gap-1">
             {materials.map((m, i) => (
-              <li key={i} className="text-sm text-gray-700">• {m}</li>
+              <li key={i} className="text-sm text-gray-700">
+                • {m}
+              </li>
             ))}
           </ul>
         </div>
@@ -463,9 +648,12 @@ function ContentRenderer({
   baseKey: string;
 }) {
   if (contentType === "lesson") return <LessonRenderer data={data} baseKey={baseKey} />;
-  if (contentType === "tutorial") return <TutorialRenderer data={data} baseKey={baseKey} />;
-  if (contentType.startsWith("quiz_set")) return <QuizRenderer data={data} baseKey={baseKey} />;
-  if (contentType === "experiment") return <ExperimentRenderer data={data} baseKey={baseKey} />;
+  if (contentType === "tutorial")
+    return <TutorialRenderer data={data} baseKey={baseKey} />;
+  if (contentType.startsWith("quiz_set"))
+    return <QuizRenderer data={data} baseKey={baseKey} />;
+  if (contentType === "experiment")
+    return <ExperimentRenderer data={data} baseKey={baseKey} />;
   return (
     <pre className="overflow-x-auto rounded-lg bg-gray-50 p-4 text-xs text-gray-700">
       {JSON.stringify(data, null, 2)}
@@ -492,7 +680,7 @@ export default function AdminUnitContentPage() {
     staleTime: 30_000,
   });
 
-  const resolvedType = activeType ?? (meta?.available_types[0] ?? null);
+  const resolvedType = activeType ?? meta?.available_types[0] ?? null;
 
   const { data: contentFile, isLoading: fileLoading } = useQuery({
     queryKey: ["admin", "unit-content", version_id, unit_id, resolvedType],
@@ -504,20 +692,26 @@ export default function AdminUnitContentPage() {
   const addMutation = useMutation({
     mutationFn: ({ effectiveKey, text }: { effectiveKey: string; text: string }) =>
       addAnnotation(version_id, unit_id, effectiveKey, text),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin", "review-detail", version_id] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["admin", "review-detail", version_id] }),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (annotationId: string) => deleteAnnotation(annotationId),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin", "review-detail", version_id] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["admin", "review-detail", version_id] }),
   });
 
   const annotationCtx: AnnotationCtx = {
     versionId: version_id,
     unitId: unit_id,
     annotations: detail?.annotations ?? [],
-    onAdd: async (effectiveKey, text) => { await addMutation.mutateAsync({ effectiveKey, text }); },
-    onDelete: async (id) => { await deleteMutation.mutateAsync(id); },
+    onAdd: async (effectiveKey, text) => {
+      await addMutation.mutateAsync({ effectiveKey, text });
+    },
+    onDelete: async (id) => {
+      await deleteMutation.mutateAsync(id);
+    },
   };
 
   // base key = "{unit_id}::{contentType}" — section keys append "::{sectionId}"
@@ -548,12 +742,34 @@ export default function AdminUnitContentPage() {
               </p>
             </div>
 
+            {meta.alex_warnings_count > 0 && (
+              <AlexWarningsBanner
+                count={meta.alex_warnings_count}
+              />
+            )}
+
             <div className="flex gap-6">
               {/* Left: content type nav */}
               <div className="w-48 flex-shrink-0">
-                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                  Content Types
-                </p>
+                <div className="mb-3 flex items-center gap-2">
+                  <p className="text-xs font-semibold tracking-wide text-gray-400 uppercase">
+                    Content Types
+                  </p>
+                  {meta.alex_warnings_count > 0 && (
+                    <span
+                      title={`${meta.alex_warnings_count} AlexJS warning${meta.alex_warnings_count !== 1 ? "s" : ""} across all content types`}
+                      className={cn(
+                        "inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-xs font-semibold",
+                        meta.alex_warnings_count >= 10
+                          ? "bg-red-100 text-red-700"
+                          : "bg-amber-100 text-amber-700",
+                      )}
+                    >
+                      <AlertTriangle className="h-3 w-3" />
+                      {meta.alex_warnings_count}
+                    </span>
+                  )}
+                </div>
                 {meta.available_types.length === 0 ? (
                   <p className="text-xs text-gray-400">No content files on disk.</p>
                 ) : (
@@ -595,7 +811,8 @@ export default function AdminUnitContentPage() {
                     <div className="mb-5 flex items-center gap-2 border-b border-gray-100 pb-4">
                       {TYPE_META[contentFile.content_type]?.icon}
                       <p className="text-sm font-semibold text-gray-800">
-                        {TYPE_META[contentFile.content_type]?.label ?? contentFile.content_type}
+                        {TYPE_META[contentFile.content_type]?.label ??
+                          contentFile.content_type}
                       </p>
                     </div>
                     <ContentRenderer

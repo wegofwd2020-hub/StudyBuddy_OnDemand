@@ -3,27 +3,32 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getReviewItem,
+  getAdminUsers,
   approveReview,
   rejectReview,
   publishReview,
   rollbackReview,
   blockVersionContent,
+  assignReview,
 } from "@/lib/api/admin";
 import { useAdmin, hasPermission } from "@/lib/hooks/useAdmin";
 import { cn } from "@/lib/utils";
 import {
+  AlertTriangle,
   ArrowLeft,
   CheckCircle,
   XCircle,
   Globe,
   RotateCcw,
+  ShieldAlert,
   ShieldOff,
   Clock,
   MessageSquare,
   GitCompare,
+  UserCheck,
 } from "lucide-react";
 
 type ActionModal = "reject" | "block" | null;
@@ -66,6 +71,21 @@ export default function AdminContentReviewDetailPage() {
     queryKey: ["admin", "content-review", version_id],
     queryFn: () => getReviewItem(version_id),
     staleTime: 60_000,
+  });
+
+  const canAssign = admin && hasPermission(admin.role, "product_admin");
+
+  const { data: adminUsers } = useQuery({
+    queryKey: ["admin", "users"],
+    queryFn: getAdminUsers,
+    staleTime: 300_000,
+    enabled: !!canAssign,
+  });
+
+  const assignMutation = useMutation({
+    mutationFn: (adminId: string | null) => assignReview(version_id, adminId),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ["admin", "content-review", version_id] }),
   });
 
   async function performAction(action: () => Promise<void>) {
@@ -114,11 +134,31 @@ export default function AdminContentReviewDetailPage() {
                 {item.status}
               </span>
             </div>
-            <p className="mt-1 text-sm text-gray-500">
-              {item.curriculum_id} · Version {item.version_number} ·{" "}
-              {item.alex_warnings_count} AlexJS warning
-              {item.alex_warnings_count !== 1 ? "s" : ""}
-            </p>
+            <div className="mt-1 flex items-center gap-2 flex-wrap">
+              <p className="text-sm text-gray-500">
+                {item.curriculum_id} · Version {item.version_number}
+              </p>
+              {item.alex_warnings_count > 0 ? (
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold",
+                    item.alex_warnings_count >= 10
+                      ? "bg-red-100 text-red-700"
+                      : item.alex_warnings_count >= 3
+                        ? "bg-amber-100 text-amber-700"
+                        : "bg-orange-100 text-orange-700",
+                  )}
+                >
+                  <ShieldAlert className="h-3 w-3" />
+                  {item.alex_warnings_count} AlexJS warning{item.alex_warnings_count !== 1 ? "s" : ""}
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-700">
+                  <CheckCircle className="h-3 w-3" />
+                  No AlexJS warnings
+                </span>
+              )}
+            </div>
             <p className="mt-0.5 text-xs text-gray-400">
               Generated {new Date(item.generated_at).toLocaleString()}
               {item.published_at && (
@@ -128,13 +168,107 @@ export default function AdminContentReviewDetailPage() {
             {item.version_number > 1 && (
               <Link
                 href={`/admin/content-review/${version_id}/diff`}
-                className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 hover:border-indigo-300 hover:text-indigo-700 transition-colors"
+                className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:border-indigo-300 hover:text-indigo-700"
               >
                 <GitCompare className="h-3.5 w-3.5" />
                 Compare with previous version
               </Link>
             )}
           </div>
+
+          {/* Assignment panel */}
+          <div className="rounded-xl border border-gray-200 bg-white px-4 py-3">
+            <div className="flex items-center gap-2">
+              <UserCheck className="h-4 w-4 flex-shrink-0 text-gray-400" />
+              <span className="text-sm font-medium text-gray-700">Assigned reviewer</span>
+              {item.assigned_to_email ? (
+                <span className="ml-1 text-sm text-gray-900">
+                  {item.assigned_to_email}
+                </span>
+              ) : (
+                <span className="ml-1 text-sm text-gray-400">Unassigned</span>
+              )}
+              {canAssign && adminUsers && (
+                <div className="ml-auto flex items-center gap-2">
+                  <select
+                    defaultValue={item.assigned_to_admin_id ?? ""}
+                    onChange={(e) => assignMutation.mutate(e.target.value || null)}
+                    disabled={assignMutation.isPending}
+                    className="rounded-md border border-gray-200 px-2.5 py-1 text-xs text-gray-700 focus:border-indigo-400 focus:outline-none disabled:opacity-50"
+                  >
+                    <option value="">— Unassigned —</option>
+                    {adminUsers.map((u) => (
+                      <option key={u.admin_user_id} value={u.admin_user_id}>
+                        {u.email}
+                      </option>
+                    ))}
+                  </select>
+                  {assignMutation.isError && (
+                    <span className="text-xs text-red-500">Failed</span>
+                  )}
+                </div>
+              )}
+            </div>
+            {item.assigned_at && (
+              <p className="mt-1 pl-6 text-xs text-gray-400">
+                Assigned {new Date(item.assigned_at).toLocaleString()}
+              </p>
+            )}
+          </div>
+
+          {item.alex_warnings_count > 0 && (
+            <div
+              className={cn(
+                "flex gap-3 rounded-xl border-2 p-4",
+                item.alex_warnings_count >= 10
+                  ? "border-red-300 bg-red-50"
+                  : item.alex_warnings_count >= 3
+                    ? "border-amber-300 bg-amber-50"
+                    : "border-orange-200 bg-orange-50",
+              )}
+            >
+              <ShieldAlert
+                className={cn(
+                  "mt-0.5 h-5 w-5 flex-shrink-0",
+                  item.alex_warnings_count >= 10
+                    ? "text-red-600"
+                    : item.alex_warnings_count >= 3
+                      ? "text-amber-600"
+                      : "text-orange-500",
+                )}
+              />
+              <div>
+                <p
+                  className={cn(
+                    "text-sm font-bold",
+                    item.alex_warnings_count >= 10
+                      ? "text-red-900"
+                      : item.alex_warnings_count >= 3
+                        ? "text-amber-900"
+                        : "text-orange-800",
+                  )}
+                >
+                  {item.alex_warnings_count} AlexJS warning
+                  {item.alex_warnings_count !== 1 ? "s" : ""} detected —{" "}
+                  {item.alex_warnings_count >= 10 ? "High" : item.alex_warnings_count >= 3 ? "Moderate" : "Low"} severity
+                </p>
+                <p
+                  className={cn(
+                    "mt-0.5 text-xs",
+                    item.alex_warnings_count >= 10
+                      ? "text-red-700"
+                      : item.alex_warnings_count >= 3
+                        ? "text-amber-700"
+                        : "text-orange-700",
+                  )}
+                >
+                  AlexJS flagged potentially non-inclusive or insensitive language in
+                  this subject version. Open each unit&apos;s viewer and review all content
+                  types carefully before approving.
+                </p>
+              </div>
+            </div>
+          )}
 
           {error && (
             <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
@@ -152,7 +286,10 @@ export default function AdminContentReviewDetailPage() {
               </div>
               <ul className="divide-y divide-gray-50">
                 {item.units.map((u) => (
-                  <li key={u.unit_id} className="flex items-center justify-between px-4 py-2.5">
+                  <li
+                    key={u.unit_id}
+                    className="flex items-center justify-between px-4 py-2.5"
+                  >
                     <div>
                       <p className="text-sm font-medium text-gray-900">{u.title}</p>
                       <p className="font-mono text-xs text-gray-400">{u.unit_id}</p>
@@ -213,7 +350,7 @@ export default function AdminContentReviewDetailPage() {
                       {ACTION_LABELS[h.action] ?? h.action}
                     </span>
                     <span className="flex-1 text-gray-500">{h.notes ?? "—"}</span>
-                    <span className="whitespace-nowrap text-xs text-gray-400">
+                    <span className="text-xs whitespace-nowrap text-gray-400">
                       {h.reviewer_email ?? "system"} ·{" "}
                       {new Date(h.reviewed_at).toLocaleString()}
                     </span>
@@ -295,7 +432,9 @@ export default function AdminContentReviewDetailPage() {
           <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-6">
             {modal === "reject" ? (
               <>
-                <h2 className="mb-4 text-base font-semibold text-gray-900">Reject version</h2>
+                <h2 className="mb-4 text-base font-semibold text-gray-900">
+                  Reject version
+                </h2>
                 <textarea
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
@@ -317,7 +456,10 @@ export default function AdminContentReviewDetailPage() {
                     Confirm reject
                   </button>
                   <button
-                    onClick={() => { setModal(null); setReason(""); }}
+                    onClick={() => {
+                      setModal(null);
+                      setReason("");
+                    }}
                     className="flex-1 py-2 text-sm text-gray-600 transition-colors hover:text-gray-900"
                   >
                     Cancel
@@ -326,14 +468,19 @@ export default function AdminContentReviewDetailPage() {
               </>
             ) : (
               <>
-                <h2 className="mb-1 text-base font-semibold text-gray-900">Block unit content</h2>
+                <h2 className="mb-1 text-base font-semibold text-gray-900">
+                  Block unit content
+                </h2>
                 <p className="mb-4 text-xs text-gray-500">
-                  Blocks a specific content type for a unit. Students will not be served this content.
+                  Blocks a specific content type for a unit. Students will not be served
+                  this content.
                 </p>
 
                 <div className="space-y-3">
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-gray-600">Unit</label>
+                    <label className="mb-1 block text-xs font-medium text-gray-600">
+                      Unit
+                    </label>
                     <select
                       value={blockUnit}
                       onChange={(e) => setBlockUnit(e.target.value)}
@@ -348,20 +495,26 @@ export default function AdminContentReviewDetailPage() {
                   </div>
 
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-gray-600">Content type</label>
+                    <label className="mb-1 block text-xs font-medium text-gray-600">
+                      Content type
+                    </label>
                     <select
                       value={blockType}
                       onChange={(e) => setBlockType(e.target.value)}
                       className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                     >
                       {CONTENT_TYPES.map((t) => (
-                        <option key={t} value={t}>{t}</option>
+                        <option key={t} value={t}>
+                          {t}
+                        </option>
                       ))}
                     </select>
                   </div>
 
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-gray-600">Reason (optional)</label>
+                    <label className="mb-1 block text-xs font-medium text-gray-600">
+                      Reason (optional)
+                    </label>
                     <textarea
                       value={reason}
                       onChange={(e) => setReason(e.target.value)}
@@ -388,7 +541,10 @@ export default function AdminContentReviewDetailPage() {
                     Confirm block
                   </button>
                   <button
-                    onClick={() => { setModal(null); setReason(""); }}
+                    onClick={() => {
+                      setModal(null);
+                      setReason("");
+                    }}
                     className="flex-1 py-2 text-sm text-gray-600 transition-colors hover:text-gray-900"
                   >
                     Cancel

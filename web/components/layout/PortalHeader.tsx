@@ -2,6 +2,9 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useDyslexia } from "@/lib/hooks/useDyslexia";
+import { Eye } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const PORTAL_ICONS = {
   public: { src: "/assets/home_banner.png", alt: "StudyBuddy" },
@@ -21,12 +24,25 @@ export function PortalHeader({
   // between Node.js (server) and the browser (client) which causes hydration errors.
   // The clock appears after the first client-side effect and ticks every minute.
   const [now, setNow] = useState<Date | null>(null);
+  const { enabled: dyslexic, toggle: toggleDyslexic } = useDyslexia();
 
   useEffect(() => {
     setNow(new Date());
     const id = setInterval(() => setNow(new Date()), 60_000);
     return () => clearInterval(id);
   }, []);
+
+  // Alt+D global keyboard shortcut for the dyslexia toggle.
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.altKey && e.key.toLowerCase() === "d") {
+        e.preventDefault();
+        toggleDyslexic();
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [toggleDyslexic]);
 
   const icon = PORTAL_ICONS[portal];
 
@@ -42,19 +58,41 @@ export function PortalHeader({
         />
       </div>
 
-      {/* Right: username + live datetime */}
-      <div className="flex items-center gap-3 text-sm text-gray-500">
-        {userName && (
-          <span className="max-w-[180px] truncate font-medium text-gray-700">
-            {userName}
-          </span>
-        )}
-        {now && (
-          <span className="whitespace-nowrap tabular-nums">
-            {now.toLocaleDateString()}{" "}
-            {now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-          </span>
-        )}
+      {/* Right: accessibility toggle + username + live datetime */}
+      <div className="flex items-center gap-3">
+        {/* Dyslexia-friendly font toggle — accessible from topbar (Rule 18) */}
+        <button
+          onClick={() => toggleDyslexic()}
+          aria-pressed={dyslexic}
+          aria-label={
+            dyslexic
+              ? "Disable dyslexia-friendly font (Alt+D)"
+              : "Enable dyslexia-friendly font (Alt+D)"
+          }
+          title={dyslexic ? "Dyslexia font: on (Alt+D)" : "Dyslexia font: off (Alt+D)"}
+          className={cn(
+            "flex h-7 w-7 items-center justify-center rounded-md border transition-colors",
+            dyslexic
+              ? "border-blue-500 bg-blue-50 text-blue-600"
+              : "border-gray-200 text-gray-400 hover:border-gray-400 hover:text-gray-600",
+          )}
+        >
+          <Eye className="h-4 w-4" aria-hidden />
+        </button>
+
+        <div className="flex flex-col items-end text-sm">
+          {userName && (
+            <span className="max-w-[200px] truncate font-medium text-gray-700">
+              {userName}
+            </span>
+          )}
+          {now && (
+            <span className="whitespace-nowrap tabular-nums text-gray-500">
+              {now.toLocaleDateString()}{" "}
+              {now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );

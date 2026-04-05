@@ -4,7 +4,11 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { AlertCircle, ArrowLeft, CheckCircle, Upload } from "lucide-react";
-import { uploadGradeJson, triggerAdminPipeline, UploadGradeJsonResponse } from "@/lib/api/admin";
+import {
+  uploadGradeJson,
+  triggerAdminPipeline,
+  UploadGradeJsonResponse,
+} from "@/lib/api/admin";
 
 interface SubjectPreview {
   subject_id: string;
@@ -30,7 +34,8 @@ function parsePreview(data: unknown): GradeJsonPreview | string {
     return "'subjects' must be a non-empty array.";
   }
   const previews: SubjectPreview[] = subjects.map((s: unknown, i: number) => {
-    if (typeof s !== "object" || s === null) return { subject_id: `[${i}]`, name: `Subject ${i}`, unit_count: 0 };
+    if (typeof s !== "object" || s === null)
+      return { subject_id: `[${i}]`, name: `Subject ${i}`, unit_count: 0 };
     const subj = s as Record<string, unknown>;
     const units = Array.isArray(subj.units) ? subj.units : [];
     return {
@@ -107,7 +112,9 @@ export default function AdminPipelineUploadPage() {
         typeof err.response === "object" &&
         "data" in err.response
       ) {
-        const data = (err as { response: { data: { detail?: string; errors?: string[] } } }).response.data;
+        const data = (
+          err as { response: { data: { detail?: string; errors?: string[] } } }
+        ).response.data;
         const msg = data.detail ?? "Upload failed.";
         const details = data.errors?.join(" ") ?? "";
         setUploadError(details ? `${msg} ${details}` : msg);
@@ -125,7 +132,12 @@ export default function AdminPipelineUploadPage() {
     setTriggerError(null);
     setTriggering(true);
     try {
-      const { job_id } = await triggerAdminPipeline(uploadResult.grade, langs, force, year);
+      const { job_id } = await triggerAdminPipeline(
+        uploadResult.grade,
+        langs,
+        force,
+        year,
+      );
       router.push(`/admin/pipeline/${job_id}`);
     } catch {
       setTriggerError("Failed to trigger pipeline job. Try again.");
@@ -158,7 +170,9 @@ export default function AdminPipelineUploadPage() {
         >
           {step > 1 ? <CheckCircle className="h-4 w-4" /> : "1"}
         </div>
-        <span className={`text-sm font-medium ${step === 1 ? "text-gray-900" : "text-gray-400"}`}>
+        <span
+          className={`text-sm font-medium ${step === 1 ? "text-gray-900" : "text-gray-400"}`}
+        >
           Upload &amp; Seed
         </span>
         <div className="h-px flex-1 bg-gray-200" />
@@ -169,7 +183,9 @@ export default function AdminPipelineUploadPage() {
         >
           2
         </div>
-        <span className={`text-sm font-medium ${step === 2 ? "text-gray-900" : "text-gray-400"}`}>
+        <span
+          className={`text-sm font-medium ${step === 2 ? "text-gray-900" : "text-gray-400"}`}
+        >
           Configure &amp; Build
         </span>
       </div>
@@ -219,7 +235,10 @@ export default function AdminPipelineUploadPage() {
                 </p>
                 <ul className="space-y-0.5">
                   {preview.subjects.map((s) => (
-                    <li key={s.subject_id} className="flex justify-between text-xs text-indigo-700">
+                    <li
+                      key={s.subject_id}
+                      className="flex justify-between text-xs text-indigo-700"
+                    >
                       <span>{s.name}</span>
                       <span className="font-mono">{s.unit_count} units</span>
                     </li>
@@ -263,9 +282,7 @@ export default function AdminPipelineUploadPage() {
       {step === 2 && uploadResult && (
         <div className="rounded-xl border border-gray-200 bg-white p-6">
           <div className="mb-5 rounded-lg border border-green-200 bg-green-50 p-4">
-            <p className="text-sm font-semibold text-green-800">
-              Seeded successfully
-            </p>
+            <p className="text-sm font-semibold text-green-800">Seeded successfully</p>
             <p className="mt-1 font-mono text-xs text-green-700">
               {uploadResult.curriculum_id}
             </p>

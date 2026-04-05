@@ -244,9 +244,7 @@ async def verify_demo_teacher_email(token: str, request: Request):
         )
 
     log.info("demo_teacher_account_created", email=email)
-    return {
-        "message": "Account created. Login credentials have been sent to your email."
-    }
+    return {"message": "Account created. Login credentials have been sent to your email."}
 
 
 # ── POST /demo/teacher/auth/login ─────────────────────────────────────────────
@@ -304,7 +302,8 @@ async def demo_teacher_login(body: DemoLoginInput, request: Request):
     token = create_internal_jwt(
         payload={
             "teacher_id": str(account["teacher_id"]),
-            "school_id": None,
+            "school_id": str(account["school_id"]) if account["school_id"] else None,
+            "teacher_name": account["teacher_name"],
             "role": "demo_teacher",
             "account_status": "active",
             "demo_account_id": str(account["id"]),
