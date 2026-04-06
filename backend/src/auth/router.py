@@ -409,6 +409,9 @@ async def update_student_profile(
             *values,
         )
 
+    if row is None:
+        raise HTTPException(status_code=404, detail={"error": "not_found", "detail": "Student not found."})
+
     emit_event("auth", "profile_updated", student_id=student_id)
     return {
         "student_id": str(row["student_id"]),

@@ -20,12 +20,15 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 
 # Pull DATABASE_URL from our settings (reads .env automatically).
+# TEST_DB_URL takes precedence when running the test suite so migrations
+# target studybuddy_test instead of the dev database.
 from config import settings
 
+_raw_url = os.environ.get("TEST_DB_URL") or settings.DATABASE_URL
 # Strip +asyncpg driver suffix if present — alembic uses psycopg2.
-_db_url = settings.DATABASE_URL.replace("+asyncpg", "").replace("postgresql://", "postgresql+psycopg2://")
+_db_url = _raw_url.replace("+asyncpg", "").replace("postgresql://", "postgresql+psycopg2://")
 if not _db_url.startswith("postgresql"):
-    _db_url = settings.DATABASE_URL
+    _db_url = _raw_url
 
 config = context.config
 config.set_main_option("sqlalchemy.url", _db_url)

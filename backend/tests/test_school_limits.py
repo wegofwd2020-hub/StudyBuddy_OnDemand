@@ -36,11 +36,12 @@ _FIXED_SUB_ID = "sub_fixedtestsubscription01"  # deterministic Stripe sub ID
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 
-async def _register_school(client: AsyncClient) -> dict:
+async def _register_school(client: AsyncClient, tag: str = "") -> dict:
     """Register a school and return {school_id, teacher_id, access_token}."""
+    suffix = f"-{tag}" if tag else f"-{uuid.uuid4().hex[:8]}"
     r = await client.post("/api/v1/schools/register", json={
         "school_name": "Limits Test School",
-        "contact_email": "limits-fixed@example.com",
+        "contact_email": f"limits{suffix}@example.com",
         "country": "US",
     })
     assert r.status_code == 201, r.text
@@ -64,17 +65,22 @@ async def _seed_admin(client: AsyncClient, admin_id: str, role: str = "super_adm
 
 async def _insert_subscription(client: AsyncClient, school_id: str, plan: str = "professional") -> None:
     pool = client._transport.app.state.pool
+    # Use school_id prefix for stripe_subscription_id to avoid unique constraint
+    # collisions when rows from previous test runs remain in the dev DB.
+    sub_id = f"sub_{school_id[:8].replace('-', '')}"
     await pool.execute(
         """
         INSERT INTO school_subscriptions
             (school_id, plan, status, stripe_customer_id, stripe_subscription_id,
              max_students, max_teachers, current_period_end)
         VALUES ($1, $2, 'active', 'cus_test', $3, 150, 10, NOW() + INTERVAL '30 days')
-        ON CONFLICT (school_id) DO UPDATE SET plan = EXCLUDED.plan
+        ON CONFLICT (school_id) DO UPDATE SET
+            plan = EXCLUDED.plan,
+            stripe_subscription_id = EXCLUDED.stripe_subscription_id
         """,
         uuid.UUID(school_id),
         plan,
-        _FIXED_SUB_ID,
+        sub_id,
     )
 
 
