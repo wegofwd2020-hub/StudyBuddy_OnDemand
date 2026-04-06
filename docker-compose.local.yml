@@ -1,0 +1,123 @@
+# =============================================================================
+# StudyBuddy OnDemand — Local Host-DB Override
+#
+# PURPOSE
+# ───────
+# Use the host machine's PostgreSQL (port 5433) instead of Docker-managed DB.
+# This preserves data across docker compose down/up cycles and eliminates port
+# clashes between multiple projects on the same machine.
+#
+# PREREQUISITES
+# ─────────────
+# 1. Run scripts/local-db-init.sh once to create the studybuddy role and DBs
+#    on the host PostgreSQL.
+# 2. Create .env.local in the project root (see template below).
+#
+# USAGE
+# ─────
+#   docker compose -f docker-compose.yml -f docker-compose.local.yml up
+#
+# Or set permanently in .env (or shell profile):
+#   export COMPOSE_FILE=docker-compose.yml:docker-compose.local.yml
+#
+# PORT VARIABLES (.env.local)
+# ──────────────────────────
+#   SB_API_PORT=8010      # avoids clash with other projects on 8000
+#   SB_WEB_PORT=3010      # avoids clash with other projects on 3000
+#   LOCAL_DB_PASSWORD=    # password for host studybuddy role (from local-db-init.sh)
+#
+# WHAT THIS FILE CHANGES
+# ──────────────────────
+# • db        → replaced with no-op alpine stub (host PG serves data instead)
+# • pgbouncer → replaced with no-op alpine stub (direct PG connection used)
+# • migrate   → connects to host.docker.internal:5433 for DDL migrations
+# • api, celery-*, pipeline → DATABASE_URL / DIRECT_DB_URL / TEST_DB_URL all
+#                              point to host.docker.internal:5433
+# • api port  → ${SB_API_PORT:-8000}   (override in .env.local to avoid clashes)
+# • web port  → ${SB_WEB_PORT:-3000}   (override in .env.local to avoid clashes)
+# =============================================================================
+
+services:
+
+  # ── No-op stub: satisfies service_healthy checks without running Postgres ──
+  #    The postgres_data volume mount from the base file is harmlessly ignored.
+  db:
+    image: alpine:3.19
+    command: ["tail", "-f", "/dev/null"]
+    environment: {}
+    healthcheck:
+      test: ["CMD-SHELL", "exit 0"]
+      interval: 5s
+      timeout: 2s
+      retries: 1
+      start_period: 2s
+
+  # ── No-op stub: direct host PG connection replaces pgbouncer pooling ───────
+  pgbouncer:
+    image: alpine:3.19
+    command: ["tail", "-f", "/dev/null"]
+    environment: {}
+    depends_on: {}
+    healthcheck:
+      test: ["CMD-SHELL", "exit 0"]
+      interval: 5s
+      timeout: 2s
+      retries: 1
+      start_period: 2s
+
+  # ── Migrations: point directly to host PostgreSQL ──────────────────────────
+  migrate:
+    environment:
+      DATABASE_URL: postgresql://studybuddy:${LOCAL_DB_PASSWORD}@host.docker.internal:5433/studybuddy
+      DIRECT_DB_URL: postgresql://studybuddy:${LOCAL_DB_PASSWORD}@host.docker.internal:5433/studybuddy
+      TEST_DB_URL: postgresql://studybuddy:${LOCAL_DB_PASSWORD}@host.docker.internal:5433/studybuddy_test
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # ── API ─────────────────────────────────────────────────────────────────────
+  api:
+    environment:
+      DATABASE_URL: postgresql://studybuddy:${LOCAL_DB_PASSWORD}@host.docker.internal:5433/studybuddy
+      DIRECT_DB_URL: postgresql://studybuddy:${LOCAL_DB_PASSWORD}@host.docker.internal:5433/studybuddy
+      TEST_DB_URL: postgresql://studybuddy:${LOCAL_DB_PASSWORD}@host.docker.internal:5433/studybuddy_test
+    ports:
+      - "${SB_API_PORT:-8000}:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # ── Celery workers ──────────────────────────────────────────────────────────
+  celery-worker:
+    environment:
+      DATABASE_URL: postgresql://studybuddy:${LOCAL_DB_PASSWORD}@host.docker.internal:5433/studybuddy
+      DIRECT_DB_URL: postgresql://studybuddy:${LOCAL_DB_PASSWORD}@host.docker.internal:5433/studybuddy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  celery-pipeline:
+    environment:
+      DATABASE_URL: postgresql://studybuddy:${LOCAL_DB_PASSWORD}@host.docker.internal:5433/studybuddy
+      DIRECT_DB_URL: postgresql://studybuddy:${LOCAL_DB_PASSWORD}@host.docker.internal:5433/studybuddy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  celery-beat:
+    environment:
+      DATABASE_URL: postgresql://studybuddy:${LOCAL_DB_PASSWORD}@host.docker.internal:5433/studybuddy
+      DIRECT_DB_URL: postgresql://studybuddy:${LOCAL_DB_PASSWORD}@host.docker.internal:5433/studybuddy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # ── Pipeline CLI ─────────────────────────────────────────────────────────────
+  pipeline:
+    environment:
+      DATABASE_URL: postgresql://studybuddy:${LOCAL_DB_PASSWORD}@host.docker.internal:5433/studybuddy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # ── Web frontend: configurable port only (no DB access) ─────────────────────
+  web:
+    ports:
+      - "${SB_WEB_PORT:-3000}:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:${SB_API_PORT:-8000}/api/v1
+      NEXT_PUBLIC_CDN_URL: http://localhost:${SB_API_PORT:-8000}
