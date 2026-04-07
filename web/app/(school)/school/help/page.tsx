@@ -21,7 +21,7 @@ const GETTING_STARTED_TEACHER = [
   {
     step: "3",
     title: "Content Library",
-    body: "Browse AI-generated lessons, tutorials, quizzes, and experiments for your assigned grades. Click a subject to see its units, then click a unit to view the full content.",
+    body: "Browse AI-generated lessons, tutorials, quizzes, and activities for your assigned grades. Click a subject to see its units, then click a unit to view the full content.",
   },
   {
     step: "4",

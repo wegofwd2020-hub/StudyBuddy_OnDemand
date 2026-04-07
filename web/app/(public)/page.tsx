@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { LinkButton } from "@/components/ui/link-button";
 import { DemoRequestModal } from "@/components/demo/DemoRequestModal";
 import { DemoTeacherRequestModal } from "@/components/demo/DemoTeacherRequestModal";
-import { Zap, Volume2, Globe, WifiOff, FlaskConical, School } from "lucide-react";
+import { Zap, Volume2, Globe, WifiOff, ClipboardList, School } from "lucide-react";
 
 export default function LandingPage() {
   return (
@@ -27,11 +27,37 @@ export default function LandingPage() {
   );
 }
 
+const MULTILINGUAL_PHRASES = [
+  "AI-powered study material",
+  "Material de estudio con IA",
+  "Ressources d'apprentissage par IA",
+  "KI-gestütztes Lernmaterial",
+  "AI-ஆல் இயங்கும் படிப்பு உபகரணங்கள்",
+  "AI-संचालित अध्ययन सामग्री",
+  "AI-ఆధారిత అధ్యయన సామగ్రి",
+  "AI-ಚಾಲಿತ ಅಧ್ಯಯನ ಸಾಮಗ್ರಿ",
+  "AI-അധിഷ്ഠിത പഠന സാമഗ്രി",
+];
+
 function HeroSection() {
   const t = useTranslations("landing");
+  // Repeat phrases enough to fill the background
+  const repeated = Array.from({ length: 4 }, () => MULTILINGUAL_PHRASES).flat();
   return (
-    <section className="bg-gradient-to-b from-blue-50 to-white px-4 py-20 text-center sm:py-28">
-      <div className="mx-auto max-w-3xl">
+    <section className="relative overflow-hidden bg-gradient-to-b from-blue-50 to-white px-4 py-20 text-center sm:py-28">
+      {/* Decorative multilingual background — purely visual, hidden from assistive tech */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 flex flex-wrap content-start gap-x-8 gap-y-4 p-6 select-none opacity-[0.07]"
+      >
+        {repeated.map((phrase, i) => (
+          <span key={i} className="text-sm font-medium text-blue-900 whitespace-nowrap">
+            {phrase}
+          </span>
+        ))}
+      </div>
+
+      <div className="relative mx-auto max-w-3xl">
         <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
           {t("hero_heading")}
         </h1>
@@ -50,7 +76,7 @@ const FEATURES = [
   { icon: Volume2, key: "audio" },
   { icon: Globe, key: "multilang" },
   { icon: WifiOff, key: "offline" },
-  { icon: FlaskConical, key: "experiments" },
+  { icon: ClipboardList, key: "experiments" },
   { icon: School, key: "schools" },
 ] as const;
 
@@ -86,7 +112,7 @@ function FeaturesSection() {
 
 const TESTIMONIALS = [
   {
-    quote: "My daughter went from a C to a B+ in algebra in one semester.",
+    quote: "My daughter went from a C to a B+ in her favourite subject in one semester.",
     author: "Maria T., Parent",
   },
   {

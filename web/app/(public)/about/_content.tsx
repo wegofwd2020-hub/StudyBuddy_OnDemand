@@ -280,7 +280,7 @@ function AuthenticatedAbout({ data }: { data: AboutBuildData }) {
           About StudyBuddy
         </h1>
         <p className="mt-4 max-w-2xl text-lg text-gray-600">
-          StudyBuddy is an AI-powered STEM tutoring platform for Grades 5–12. Lessons,
+          StudyBuddy is an AI-powered learning platform for Grades 5–12. Lessons,
           quizzes, and audio are pre-generated so students get instant responses — no API
           keys, no wait time, and no internet required for cached content.
         </p>
@@ -455,8 +455,8 @@ const FEATURES = [
   },
   {
     icon: <FlaskConical className="h-6 w-6 text-emerald-600" />,
-    title: "Lab experiments",
-    desc: "Step-by-step experiment guides with materials lists bring hands-on science to any classroom.",
+    title: "Activities",
+    desc: "Step-by-step activity guides with materials lists bring hands-on learning to any classroom.",
   },
   {
     icon: <School className="h-6 w-6 text-indigo-600" />,
@@ -496,7 +496,7 @@ function PublicAbout() {
           About StudyBuddy
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
-          An AI-powered STEM tutoring platform for Grades 5–12. Lessons, quizzes, and
+          An AI-powered study material platform for Grades 5–12. Lessons, quizzes, and
           audio are pre-generated so students get instant responses — no wait time, no
           internet required for cached content.
         </p>
@@ -524,9 +524,9 @@ function PublicAbout() {
       <div className="mb-16 rounded-2xl bg-blue-600 px-8 py-10 text-white">
         <h2 className="mb-4 text-2xl font-bold">Our mission</h2>
         <p className="max-w-2xl text-blue-100">
-          Every student deserves access to high-quality STEM education regardless of their
+          Every student deserves access to high-quality education regardless of their
           internet connection, device, or first language. StudyBuddy delivers AI-generated
-          curriculum to students the moment they need it — with audio support for
+          study material to students the moment they need it — with audio support for
           accessibility and offline caching for low-connectivity environments.
         </p>
       </div>
@@ -558,7 +558,7 @@ function PublicAbout() {
             {
               step: "1",
               title: "Teacher sets up the class",
-              body: "A teacher or school admin registers the school, uploads their curriculum (or uses the default STEM curriculum), and invites students.",
+              body: "A teacher or school admin registers the school, uploads their curriculum (or uses the default curriculum), and invites students.",
             },
             {
               step: "2",

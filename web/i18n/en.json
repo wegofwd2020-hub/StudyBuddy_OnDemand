@@ -39,13 +39,13 @@
     "feature_multilang_desc": "Full content in three languages. Switch any time in settings.",
     "feature_offline_title": "Works offline",
     "feature_offline_desc": "Downloaded content is available without internet. Progress syncs automatically.",
-    "feature_experiments_title": "Lab experiments",
-    "feature_experiments_desc": "Step-by-step experiment guides with materials lists for hands-on learning.",
+    "feature_experiments_title": "Activities",
+    "feature_experiments_desc": "Step-by-step activity guides with materials lists for hands-on learning.",
     "feature_schools_title": "Built for schools",
     "feature_schools_desc": "Teachers get real-time progress reports, alerts, and custom curriculum tools.",
     "social_proof_heading": "Trusted by students, teachers, and parents",
     "cta_heading": "Ready to get started?",
-    "cta_subheading": "Join thousands of students improving their STEM grades.",
+    "cta_subheading": "Join thousands of students mastering their subjects.",
     "cta_btn": "Start your free trial"
   },
   "pricing": {
@@ -65,7 +65,7 @@
     "audio_included": "Audio included",
     "all_languages": "All 3 languages",
     "offline_access": "Offline access",
-    "experiments": "Experiment guides",
+    "experiments": "Activity guides",
     "progress_tracking": "Progress tracking",
     "teacher_reports": "Teacher reports",
     "custom_curriculum": "Custom curriculum upload",
@@ -203,7 +203,7 @@
     "listen_btn": "Listen",
     "playing_btn": "Playing…",
     "fetching_audio": "Fetching…",
-    "experiment_btn": "Experiment",
+    "experiment_btn": "Activity",
     "quiz_btn": "Take Quiz",
     "audio_unavailable": "Audio unavailable",
     "lesson_load_failed": "Could not load lesson"
@@ -245,7 +245,7 @@
     "period_all": "All time"
   },
   "experiment_screen": {
-    "title": "Experiment",
+    "title": "Activity",
     "materials_heading": "Materials",
     "steps_heading": "Steps",
     "safety_heading": "Safety Notes",
@@ -287,7 +287,7 @@
     "500_body": "We're working on fixing this. Please try again shortly."
   },
   "footer": {
-    "tagline": "STEM tutoring for Grades 5–12",
+    "tagline": "AI-powered study material for Grades 5–12",
     "product": "Product",
     "company": "Company",
     "legal": "Legal",

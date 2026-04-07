@@ -16,17 +16,17 @@ const GETTING_STARTED_DEMO = [
   {
     step: "2",
     title: "Log in",
-    body: "Open the magic link, then log in with your email and password at /demo/login. You get Grade 8 STEM content automatically.",
+    body: "Open the magic link, then log in with your email and password at /demo/login. You get Grade 8 content automatically.",
   },
   {
     step: "3",
     title: "Explore subjects",
-    body: "Go to Subjects or the Curriculum Map to browse Mathematics, Science, Technology, and Engineering units.",
+    body: "Go to Subjects or the Curriculum Map to browse your assigned subject units.",
   },
   {
     step: "4",
     title: "Start a unit",
-    body: "Click any unit to access the Lesson, Tutorial, Quiz, and Experiment. Lessons show key concepts; quizzes give immediate feedback.",
+    body: "Click any unit to access the Lesson, Tutorial, Quiz, and Activity. Lessons show key concepts; quizzes give immediate feedback.",
   },
   {
     step: "5",
@@ -54,7 +54,7 @@ const GETTING_STARTED_FULL = [
   {
     step: "4",
     title: "Learning flow",
-    body: "Each unit has a Lesson (with optional audio), Tutorial (tabbed deep-dive), up to 3 Quiz sets, and an Experiment where available.",
+    body: "Each unit has a Lesson (with optional audio), Tutorial (tabbed deep-dive), up to 3 Quiz sets, and an Activity where available.",
   },
   {
     step: "5",
@@ -86,8 +86,8 @@ export default function StudentHelpPage() {
           <h1 className="text-2xl font-bold text-gray-900">Help &amp; Tutorial</h1>
           <p className="text-sm text-gray-500">
             {demo
-              ? "Demo account guide — explore Grade 8 STEM content, no sign-up required."
-              : "Student guide — your full STEM learning experience."}
+              ? "Demo account guide — explore Grade 8 content, no sign-up required."
+              : "Student guide — your full learning experience."}
           </p>
         </div>
       </div>
@@ -165,7 +165,7 @@ export default function StudentHelpPage() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {[
-                ["Browse STEM subjects", "/subjects"],
+                ["Browse subjects", "/subjects"],
                 ["Open Curriculum Map", "/curriculum"],
                 ["Read a lesson", "/subjects → unit → Lesson tab"],
                 ["Take a quiz", "/subjects → unit → Quiz tab"],

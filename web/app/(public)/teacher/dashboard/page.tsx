@@ -88,7 +88,7 @@ export default function DemoTeacherDashboard() {
           <FeatureCard
             icon={<BookOpen className="h-5 w-5 text-cyan-600" />}
             title="Curriculum"
-            description="Browse STEM lessons, quizzes, and experiments across all grades."
+            description="Browse lessons, quizzes, and activities across all grades."
           />
           <FeatureCard
             icon={<Users className="h-5 w-5 text-cyan-600" />}

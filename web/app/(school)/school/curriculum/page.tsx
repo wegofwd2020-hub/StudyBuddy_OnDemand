@@ -418,7 +418,7 @@ function XlsxSection({ schoolId }: { schoolId: string }) {
               id="curriculum_name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder={`e.g. Grade ${grade} STEM — ${year}`}
+              placeholder={`e.g. Grade ${grade} Curriculum — ${year}`}
             />
           </div>
 
