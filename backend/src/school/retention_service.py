@@ -31,19 +31,42 @@ def _queue_retention_email(
     school_id: str,
     curriculum_id: str,
     template: str,
-    **kw,
+    contact_email: str = "",
+    grade: int = 0,
+    curriculum_name: str = "",
+    expires_at: str = "",
+    grace_until: str = "",
+    days_remaining: int = 0,
 ) -> None:
     """
-    Placeholder for Phase E email dispatch.
+    Dispatch a retention lifecycle email via Celery (io queue).
 
-    Phase E replaces this with:
-        celery_app.send_task("src.auth.tasks.send_retention_email_task",
-                             args=[school_id, curriculum_id, template],
-                             kwargs=kw, queue="io")
+    grace_until is used as both grace_date and purge_date — for the
+    purge_complete template the grace expiry date IS the purge date.
+
+    Lazy import of celery_app avoids circular imports:
+      retention_service → tasks → retention_service
     """
+    # Lazy import to avoid circular dependency.
+    from src.auth.tasks import celery_app  # noqa: PLC0415
+
+    celery_app.send_task(
+        "src.auth.tasks.send_retention_email_task",
+        kwargs=dict(
+            to_email=contact_email,
+            template=template,
+            grade=grade,
+            curriculum_name=curriculum_name or curriculum_id,
+            expires_date=expires_at,
+            grace_date=grace_until,
+            purge_date=grace_until,  # grace expiry == purge date for template 5
+            days_remaining=days_remaining,
+        ),
+        queue="io",
+    )
     log.info(
         "retention_email_queued school_id=%s curriculum_id=%s template=%s",
-        school_id, curriculum_id, template, **kw,
+        school_id, curriculum_id, template,
     )
 
 
@@ -97,15 +120,20 @@ async def expire_active_curricula(conn: asyncpg.Connection) -> list[dict]:
     """
     rows = await conn.fetch(
         """
-        UPDATE curricula
-        SET retention_status = 'unavailable',
-            grace_until      = expires_at + INTERVAL '180 days'
-        WHERE retention_status = 'active'
-          AND owner_type = 'school'
-          AND expires_at IS NOT NULL
-          AND expires_at <= NOW()
-        RETURNING curriculum_id, grade, school_id::text AS school_id,
-                  expires_at, grace_until
+        WITH updated AS (
+            UPDATE curricula
+            SET retention_status = 'unavailable',
+                grace_until      = expires_at + INTERVAL '180 days'
+            WHERE retention_status = 'active'
+              AND owner_type = 'school'
+              AND expires_at IS NOT NULL
+              AND expires_at <= NOW()
+            RETURNING curriculum_id, grade, school_id, expires_at, grace_until
+        )
+        SELECT u.curriculum_id, u.grade, u.school_id::text AS school_id,
+               u.expires_at, u.grace_until, s.contact_email
+        FROM updated u
+        JOIN schools s ON s.school_id = u.school_id
         """
     )
     for row in rows:
@@ -113,6 +141,7 @@ async def expire_active_curricula(conn: asyncpg.Connection) -> list[dict]:
             school_id=row["school_id"],
             curriculum_id=row["curriculum_id"],
             template="retention_expiry_notification",
+            contact_email=row["contact_email"],
             grade=row["grade"],
             expires_at=row["expires_at"].isoformat(),
             grace_until=row["grace_until"].isoformat(),
@@ -134,8 +163,9 @@ async def send_grace_90day_reminders(conn: asyncpg.Connection) -> int:
     rows = await conn.fetch(
         """
         SELECT c.curriculum_id, c.grade, c.school_id::text AS school_id,
-               c.expires_at, c.grace_until
+               c.expires_at, c.grace_until, s.contact_email
         FROM curricula c
+        JOIN schools s ON s.school_id = c.school_id
         WHERE c.retention_status = 'unavailable'
           AND c.owner_type = 'school'
           AND c.grace_until IS NOT NULL
@@ -147,6 +177,7 @@ async def send_grace_90day_reminders(conn: asyncpg.Connection) -> int:
             school_id=row["school_id"],
             curriculum_id=row["curriculum_id"],
             template="retention_grace_90day_reminder",
+            contact_email=row["contact_email"],
             grade=row["grade"],
             grace_until=row["grace_until"].isoformat(),
             days_remaining=90,
@@ -168,8 +199,9 @@ async def send_purge_30day_warnings(conn: asyncpg.Connection) -> int:
     rows = await conn.fetch(
         """
         SELECT c.curriculum_id, c.grade, c.school_id::text AS school_id,
-               c.expires_at, c.grace_until
+               c.expires_at, c.grace_until, s.contact_email
         FROM curricula c
+        JOIN schools s ON s.school_id = c.school_id
         WHERE c.retention_status = 'unavailable'
           AND c.owner_type = 'school'
           AND c.grace_until IS NOT NULL
@@ -181,6 +213,7 @@ async def send_purge_30day_warnings(conn: asyncpg.Connection) -> int:
             school_id=row["school_id"],
             curriculum_id=row["curriculum_id"],
             template="retention_purge_warning_30day",
+            contact_email=row["contact_email"],
             grade=row["grade"],
             grace_until=row["grace_until"].isoformat(),
             days_remaining=30,
@@ -215,14 +248,19 @@ async def purge_grace_expired(
     """
     rows = await conn.fetch(
         """
-        UPDATE curricula
-        SET retention_status = 'purged'
-        WHERE retention_status = 'unavailable'
-          AND owner_type = 'school'
-          AND grace_until IS NOT NULL
-          AND grace_until <= NOW()
-        RETURNING curriculum_id, grade, school_id::text AS school_id,
-                  expires_at, grace_until
+        WITH purged AS (
+            UPDATE curricula
+            SET retention_status = 'purged'
+            WHERE retention_status = 'unavailable'
+              AND owner_type = 'school'
+              AND grace_until IS NOT NULL
+              AND grace_until <= NOW()
+            RETURNING curriculum_id, grade, school_id, expires_at, grace_until
+        )
+        SELECT p.curriculum_id, p.grade, p.school_id::text AS school_id,
+               p.expires_at, p.grace_until, s.contact_email
+        FROM purged p
+        JOIN schools s ON s.school_id = p.school_id
         """
     )
 
@@ -256,8 +294,10 @@ async def purge_grace_expired(
             school_id=row["school_id"],
             curriculum_id=cid,
             template="retention_purge_complete",
+            contact_email=row["contact_email"],
             grade=row["grade"],
             expires_at=row["expires_at"].isoformat(),
+            grace_until=row["grace_until"].isoformat(),
         )
 
     log.info("retention_purge_complete count=%d", len(rows))

@@ -72,6 +72,7 @@ celery_app.conf.update(
         "src.auth.tasks.check_retention_grace_reminders": {"queue": "default"},
         "src.auth.tasks.check_retention_purge_warnings": {"queue": "default"},
         "src.auth.tasks.purge_expired_curricula": {"queue": "default"},
+        "src.auth.tasks.send_retention_email_task": {"queue": "io"},
     },
     beat_schedule={
         # Poll DB pool state + Celery queue depth every 30 seconds.
@@ -1890,6 +1891,55 @@ def check_retention_purge_warnings() -> None:
             await conn.close()
 
     _run_async(_run())
+
+
+# ── Retention email task ──────────────────────────────────────────────────────
+
+
+@celery_app.task(
+    name="src.auth.tasks.send_retention_email_task",
+    bind=True,
+    max_retries=3,
+)
+def send_retention_email_task(
+    self,
+    to_email: str,
+    template: str,
+    grade: int,
+    curriculum_name: str,
+    expires_date: str = "",
+    grace_date: str = "",
+    purge_date: str = "",
+    days_remaining: int = 0,
+) -> None:
+    """
+    Send one of the five retention lifecycle emails to a school_admin contact.
+    Retries up to 3× on SMTP failure (30-second backoff).
+
+    template must be one of:
+      retention_pre_expiry_warning
+      retention_expiry_notification
+      retention_grace_90day_reminder
+      retention_purge_warning_30day
+      retention_purge_complete
+    """
+    from src.email.service import send_retention_email
+
+    try:
+        _run_async(
+            send_retention_email(
+                to_email=to_email,
+                template=template,
+                grade=grade,
+                curriculum_name=curriculum_name,
+                expires_date=expires_date,
+                grace_date=grace_date,
+                purge_date=purge_date,
+                days_remaining=days_remaining,
+            )
+        )
+    except Exception as exc:
+        raise self.retry(exc=exc, countdown=30)
 
 
 # ── Task 5: File purge (day 180 of grace) ────────────────────────────────────
