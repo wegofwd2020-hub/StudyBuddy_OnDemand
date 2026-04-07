@@ -279,6 +279,7 @@ Current migrations (as of last commit):
 | 0026 | Remove private teacher tier (ADR-001): drop `private_teachers`, `teacher_subscriptions`, `student_teacher_access`; tighten `curricula.owner_type` CHECK |
 | 0027 | Remove individual student subscriptions (ADR-001): drop `subscriptions` table; subscription webhook now school-only |
 | 0028 | PostgreSQL Row-Level Security (ADR-001 Decision 3): `ENABLE/FORCE ROW LEVEL SECURITY` + `tenant_isolation` policy on 7 tables; `app.current_school_id` session variable stamped by `get_db()` |
+| 0029 | Lesson Retention Service — Phase A schema (#90): `retention_status`, `expires_at`, `grace_until`, `renewed_at` on `curricula`; `tokens_used`, `cost_usd` on `content_subject_versions`; new `school_storage_quotas` and `grade_curriculum_assignments` tables with RLS |
 
 ---
 
