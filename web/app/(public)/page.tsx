@@ -29,17 +29,19 @@ export default function LandingPage() {
 
 // "Study Buddy" translated into 8 languages — shown as a decorative background
 // watermark to convey the meaning: a companion that helps a student learn.
+// Each phrase captures the "learning companion" concept in its language —
+// the intended meaning behind the StudyBuddy name.
 const STUDY_BUDDY_TRANSLATIONS = [
-  "Study Buddy",          // English
-  "Compañero de Estudio", // Spanish
-  "Друг по учёбе",        // Russian
-  "Camarade d'Étude",     // French
-  "Lernbegleiter",        // German
-  "படிப்பு தோழன்",          // Tamil
-  "पढ़ाई का साथी",          // Hindi
-  "చదువు స్నేహితుడు",       // Telugu
-  "ಅಧ್ಯಯನ ಸ್ನೇಹಿತ",         // Kannada
-  "പഠന കൂട്ടുകാരൻ",        // Malayalam
+  "Learning Companion",          // English
+  "Compañero de Aprendizaje",    // Spanish
+  "Напарник в обучении",         // Russian
+  "Compagnon d'Apprentissage",   // French
+  "Lernbegleiter",               // German
+  "கற்றல் தோழன்",                // Tamil
+  "सीखने का साथी",               // Hindi
+  "అభ్యాస సహచరుడు",             // Telugu
+  "ಕಲಿಕೆಯ ಸಂಗಾತಿ",              // Kannada
+  "പഠന സഹചാരി",                 // Malayalam
 ];
 
 // Vary font sizes by position to give a natural scattered feel
