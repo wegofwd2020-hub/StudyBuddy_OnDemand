@@ -696,6 +696,73 @@ export async function clearAdminSchoolLimits(
 
 // ── Admin private teacher management ─────────────────────────────────────────
 
+// ── Admin retention monitor (platform-wide) ───────────────────────────────────
+
+export interface AdminRetentionItem {
+  curriculum_id: string;
+  school_id: string;
+  school_name: string;
+  contact_email: string;
+  grade: number;
+  name: string;
+  year: number;
+  retention_status: "active" | "unavailable" | "purged";
+  expires_at: string | null;
+  grace_until: string | null;
+  days_until_expiry: number | null;
+  days_until_purge: number | null;
+  is_assigned: boolean;
+}
+
+export interface AdminRetentionSummary {
+  total: number;
+  active: number;
+  unavailable: number;
+  purged: number;
+  expiring_soon: number;
+}
+
+export interface AdminRetentionDashboard {
+  summary: AdminRetentionSummary;
+  curricula: AdminRetentionItem[];
+}
+
+export interface CurriculumActionResponse {
+  curriculum_id: string;
+  school_id: string;
+  action: string;
+  success: boolean;
+  detail: string;
+  new_expires_at: string | null;
+  new_grace_until: string | null;
+  new_retention_status: string | null;
+  units_removed: number | null;
+  versions_removed: number | null;
+}
+
+export async function getAdminRetentionDashboard(params?: {
+  status?: string;
+  school_id?: string;
+  grade?: number;
+  expiring_days?: number;
+}): Promise<AdminRetentionDashboard> {
+  const res = await adminApi.get<AdminRetentionDashboard>("/admin/retention", { params });
+  return res.data;
+}
+
+export async function adminCurriculumAction(
+  schoolId: string,
+  curriculumId: string,
+  action: "renew" | "force_expire" | "force_delete",
+  reason: string,
+): Promise<CurriculumActionResponse> {
+  const res = await adminApi.post<CurriculumActionResponse>(
+    `/admin/schools/${schoolId}/curriculum/versions/${curriculumId}/action`,
+    { action, reason },
+  );
+  return res.data;
+}
+
 export interface AdminPrivateTeacherItem {
   teacher_id: string;
   email: string;

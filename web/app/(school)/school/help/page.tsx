@@ -52,6 +52,11 @@ const GETTING_STARTED_ADMIN = [
     title: "Subscription",
     body: "View your current plan limits (students, teachers, pipeline quota). Upgrade or cancel via the Subscription page.",
   },
+  {
+    step: "9",
+    title: "Content Retention",
+    body: "Manage curriculum version lifecycle from the Content Retention page. See which versions are active, unavailable (expired), or purged. Renew expiring content with one click, pay for a renewal via Stripe, or purchase additional storage. Assign a specific curriculum version as the live content source for each grade.",
+  },
 ];
 
 export default function SchoolHelpPage() {
@@ -161,6 +166,9 @@ export default function SchoolHelpPage() {
                 isAdmin && ["Upload curriculum JSON", "/school/curriculum → Upload"],
                 isAdmin && ["Trigger pipeline build", "/school/curriculum/jobs → Trigger"],
                 isAdmin && ["View subscription plan", "/school/subscription"],
+                isAdmin && ["View / renew curriculum versions", "/school/retention"],
+                isAdmin && ["Purchase storage add-on", "/school/retention → Storage strip"],
+                isAdmin && ["Assign curriculum version to a grade", "/school/retention → row → Details → Assign"],
                 ["View AI-generated content", "/school/curriculum/content"],
                 ["Browse a unit's lesson", "/school/curriculum/content → subject → unit"],
                 ["See class performance", "/school/reports/overview"],

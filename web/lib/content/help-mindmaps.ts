@@ -151,6 +151,25 @@ export const HELP_MINDMAPS: PersonaMindMap[] = [
       Current plan
       Upgrade plan
       Cancel subscription
+    Content Retention
+      Summary stats
+        Active versions
+        Unavailable versions
+        Purged versions
+      Storage add-ons
+        Buy 5 GB
+        Buy 10 GB
+        Buy 25 GB
+      Curriculum table
+        Grade filter
+        Status filter
+        Urgency highlights
+      Version drawer
+        Expiry dates
+        Grace period countdown
+        Renew free
+        Pay and renew
+        Assign to grade
     Settings
       School profile
       Contact email`,

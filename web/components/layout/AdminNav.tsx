@@ -21,6 +21,7 @@ import {
   HelpCircle,
   School,
   Users,
+  Archive,
 } from "lucide-react";
 
 interface NavItem {
@@ -90,6 +91,12 @@ const NAV_ITEMS: NavItem[] = [
     label: "Private Teachers",
     href: "/admin/private-teachers",
     icon: <Users className="h-4 w-4" />,
+    minRole: "product_admin",
+  },
+  {
+    label: "Retention Monitor",
+    href: "/admin/retention",
+    icon: <Archive className="h-4 w-4" />,
     minRole: "product_admin",
   },
   {

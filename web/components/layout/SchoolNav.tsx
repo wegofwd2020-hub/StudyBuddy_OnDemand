@@ -20,6 +20,7 @@ import {
   Settings,
   CreditCard,
   Library,
+  Archive,
 } from "lucide-react";
 
 interface NavItem {
@@ -72,6 +73,12 @@ const NAV_ITEMS: NavItem[] = [
     label: "Subscription",
     href: "/school/subscription",
     icon: <CreditCard className="h-4 w-4" />,
+    adminOnly: true,
+  },
+  {
+    label: "Content Retention",
+    href: "/school/retention",
+    icon: <Archive className="h-4 w-4" />,
     adminOnly: true,
   },
   { label: "Settings", href: "/school/settings", icon: <Settings className="h-4 w-4" /> },

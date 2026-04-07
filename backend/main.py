@@ -206,6 +206,7 @@ from src.demo.router import router as demo_router  # noqa: E402
 from src.demo.teacher_router import router as demo_teacher_router  # noqa: E402
 from src.admin.demo_accounts import router as demo_admin_router  # noqa: E402
 from src.admin.demo_teacher_accounts import router as demo_teacher_admin_router  # noqa: E402
+from src.admin.retention_router import router as admin_retention_router  # noqa: E402
 from src.admin.router import router as admin_router  # noqa: E402
 from src.analytics.router import router as analytics_router  # noqa: E402
 from src.auth.admin_router import router as admin_auth_router  # noqa: E402
@@ -237,6 +238,7 @@ app.include_router(notifications_router, prefix="/api/v1")
 app.include_router(analytics_router, prefix="/api/v1")
 app.include_router(subscription_router, prefix="/api/v1")
 app.include_router(admin_router, prefix="/api/v1")
+app.include_router(admin_retention_router, prefix="/api/v1")
 app.include_router(ci_reports_router, prefix="/api/v1")
 app.include_router(school_router, prefix="/api/v1")
 app.include_router(school_content_router, prefix="/api/v1")

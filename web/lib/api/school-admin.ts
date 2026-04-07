@@ -352,3 +352,98 @@ export async function getSchoolUnitContent(
   );
   return res.data;
 }
+
+// ── Retention dashboard (Phase H) ─────────────────────────────────────────────
+
+export interface RetentionVersion {
+  curriculum_id: string;
+  grade: number;
+  name: string;
+  year: number;
+  retention_status: "active" | "unavailable" | "purged";
+  expires_at: string | null;
+  grace_until: string | null;
+  renewed_at: string | null;
+  is_assigned: boolean;
+  days_until_expiry: number | null;
+  days_until_purge: number | null;
+}
+
+export interface RetentionDashboard {
+  school_id: string;
+  total_versions: number;
+  active_count: number;
+  unavailable_count: number;
+  purged_count: number;
+  curricula: RetentionVersion[];
+}
+
+export interface RenewResponse {
+  curriculum_id: string;
+  grade: number;
+  previous_expires_at: string | null;
+  new_expires_at: string;
+  renewed_at: string;
+  retention_status: string;
+}
+
+export interface AssignCurriculumResponse {
+  school_id: string;
+  grade: number;
+  curriculum_id: string;
+  assigned_at: string;
+  previous_curriculum_id: string | null;
+}
+
+export async function getRetentionDashboard(schoolId: string): Promise<RetentionDashboard> {
+  const res = await schoolApi.get<RetentionDashboard>(`/schools/${schoolId}/retention`);
+  return res.data;
+}
+
+export async function renewCurriculum(
+  schoolId: string,
+  curriculumId: string,
+): Promise<RenewResponse> {
+  const res = await schoolApi.post<RenewResponse>(
+    `/schools/${schoolId}/curriculum/versions/${curriculumId}/renew`,
+  );
+  return res.data;
+}
+
+export async function createRenewalCheckout(
+  schoolId: string,
+  curriculumId: string,
+  successUrl: string,
+  cancelUrl: string,
+): Promise<{ checkout_url: string }> {
+  const res = await schoolApi.post<{ checkout_url: string }>(
+    `/schools/${schoolId}/curriculum/versions/${curriculumId}/renewal-checkout`,
+    { success_url: successUrl, cancel_url: cancelUrl },
+  );
+  return res.data;
+}
+
+export async function createStorageCheckout(
+  schoolId: string,
+  gbPackage: 5 | 10 | 25,
+  successUrl: string,
+  cancelUrl: string,
+): Promise<{ checkout_url: string }> {
+  const res = await schoolApi.post<{ checkout_url: string }>(
+    `/schools/${schoolId}/storage/checkout`,
+    { gb_package: gbPackage, success_url: successUrl, cancel_url: cancelUrl },
+  );
+  return res.data;
+}
+
+export async function assignCurriculumToGrade(
+  schoolId: string,
+  grade: number,
+  curriculumId: string,
+): Promise<AssignCurriculumResponse> {
+  const res = await schoolApi.put<AssignCurriculumResponse>(
+    `/schools/${schoolId}/grades/${grade}/curriculum`,
+    { curriculum_id: curriculumId },
+  );
+  return res.data;
+}
