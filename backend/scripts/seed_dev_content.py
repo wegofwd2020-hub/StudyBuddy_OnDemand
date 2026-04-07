@@ -178,6 +178,8 @@ async def main() -> None:
     # Connect to DB
     conn = await asyncpg.connect(DATABASE_URL)
     print(f"Connected to DB.")
+    # Set RLS bypass so this admin seed script can write to tenant-scoped tables.
+    await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
 
     try:
         # 1. Upsert curricula row

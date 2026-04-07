@@ -153,6 +153,8 @@ services:
       # Migrations connect directly to Postgres — pgbouncer's transaction-pooling
       # mode is incompatible with Alembic's DDL transaction management.
       DATABASE_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@db:5432/studybuddy
+      # Unset TEST_DB_URL so env.py targets the dev DB, not studybuddy_test.
+      TEST_DB_URL: ""
     volumes:
       - ./backend:/app          # bind-mount source so new migrations are picked up without rebuilding
       - ./data:/data            # grade JSON files needed by seed script

@@ -11,36 +11,51 @@
 #   IF NOT EXISTS / ON CONFLICT guards.
 #
 # PREREQUISITES
-#   • PostgreSQL running on the host at port 5433
+#   • PostgreSQL running on the host at port 5433 and accepting TCP connections
 #     (Ubuntu: systemctl status postgresql)
+#   • PostgreSQL superuser (postgres) password to hand
 #   • sudo access (needed to edit pg_hba.conf for Docker bridge access)
 #
 # USAGE
 #   chmod +x scripts/local-db-init.sh
 #   ./scripts/local-db-init.sh
 #
+# The script will prompt for:
+#   1. The postgres superuser password (for all DDL operations)
+#   2. The password to set for the new 'studybuddy' role
+#
 # AFTER RUNNING
 #   1. Set LOCAL_DB_PASSWORD=<chosen-password> in your .env.local
 #   2. Start stack: docker compose -f docker-compose.yml -f docker-compose.local.yml up
-#   3. Migrations run automatically via the migrate service on first up
+#      Migrations run automatically on first up via the migrate service.
 #
 # TO REINITIALIZE (wipe and start fresh)
-#   psql -p 5433 -U postgres -c "DROP DATABASE studybuddy;"
-#   psql -p 5433 -U postgres -c "DROP DATABASE studybuddy_test;"
+#   PGPASSWORD=<postgres-password> psql -h localhost -p 5433 -U postgres \
+#     -c "DROP DATABASE studybuddy;" \
+#     -c "DROP DATABASE studybuddy_test;"
 #   Then re-run this script.
 # =============================================================================
 
 set -euo pipefail
 
+PG_HOST=localhost
 PG_PORT=5433
 PG_SUPERUSER=postgres
-DOCKER_BRIDGE_CIDR="172.17.0.0/16"
+DOCKER_BRIDGE_CIDR="172.16.0.0/12"
 
-# ── Prompt for password ─────────────────────────────────────────────────────
+# ── Prompt for passwords ─────────────────────────────────────────────────────
 echo ""
 echo "StudyBuddy — Host PostgreSQL initializer"
 echo "Port: ${PG_PORT}  Superuser: ${PG_SUPERUSER}"
 echo ""
+read -r -s -p "Enter password for the '${PG_SUPERUSER}' superuser: " PG_SUPERUSER_PASSWORD
+echo ""
+
+if [[ -z "${PG_SUPERUSER_PASSWORD}" ]]; then
+    echo "ERROR: Superuser password cannot be empty." >&2
+    exit 1
+fi
+
 read -r -s -p "Enter password to set for the 'studybuddy' role: " SB_PASSWORD
 echo ""
 read -r -s -p "Confirm password: " SB_PASSWORD_CONFIRM
@@ -58,12 +73,12 @@ fi
 
 # ── Helper: run SQL as postgres superuser ────────────────────────────────────
 run_sql() {
-    psql -p "${PG_PORT}" -U "${PG_SUPERUSER}" -v ON_ERROR_STOP=1 -c "$1"
+    PGPASSWORD="${PG_SUPERUSER_PASSWORD}" psql -h "${PG_HOST}" -p "${PG_PORT}" -U "${PG_SUPERUSER}" -v ON_ERROR_STOP=1 -c "$1"
 }
 
 run_sql_db() {
     local db=$1; shift
-    psql -p "${PG_PORT}" -U "${PG_SUPERUSER}" -d "${db}" -v ON_ERROR_STOP=1 -c "$1"
+    PGPASSWORD="${PG_SUPERUSER_PASSWORD}" psql -h "${PG_HOST}" -p "${PG_PORT}" -U "${PG_SUPERUSER}" -d "${db}" -v ON_ERROR_STOP=1 -c "$1"
 }
 
 echo ""
@@ -84,7 +99,7 @@ END
 
 echo ""
 echo "── Step 2: Create development database ──────────────────────────────────"
-if psql -p "${PG_PORT}" -U "${PG_SUPERUSER}" -lqt | cut -d '|' -f1 | grep -qw studybuddy; then
+if PGPASSWORD="${PG_SUPERUSER_PASSWORD}" psql -h "${PG_HOST}" -p "${PG_PORT}" -U "${PG_SUPERUSER}" -lqt | cut -d '|' -f1 | grep -qw studybuddy; then
     echo "  Database 'studybuddy' already exists — skipping."
 else
     run_sql "CREATE DATABASE studybuddy OWNER studybuddy;"
@@ -93,7 +108,7 @@ fi
 
 echo ""
 echo "── Step 3: Create test database ─────────────────────────────────────────"
-if psql -p "${PG_PORT}" -U "${PG_SUPERUSER}" -lqt | cut -d '|' -f1 | grep -qw studybuddy_test; then
+if PGPASSWORD="${PG_SUPERUSER_PASSWORD}" psql -h "${PG_HOST}" -p "${PG_PORT}" -U "${PG_SUPERUSER}" -lqt | cut -d '|' -f1 | grep -qw studybuddy_test; then
     echo "  Database 'studybuddy_test' already exists — skipping."
 else
     run_sql "CREATE DATABASE studybuddy_test OWNER studybuddy;"
@@ -121,8 +136,7 @@ echo "  Privileges granted."
 echo ""
 echo "── Step 5: pg_hba.conf — Docker bridge access ───────────────────────────"
 # Find the PostgreSQL data directory
-PG_CONF_DIR=$(psql -p "${PG_PORT}" -U "${PG_SUPERUSER}" -t -c "SHOW hba_file;" 2>/dev/null | xargs dirname || true)
-HBA_FILE=$(psql -p "${PG_PORT}" -U "${PG_SUPERUSER}" -t -c "SHOW hba_file;" 2>/dev/null | xargs || true)
+HBA_FILE=$(PGPASSWORD="${PG_SUPERUSER_PASSWORD}" psql -h "${PG_HOST}" -p "${PG_PORT}" -U "${PG_SUPERUSER}" -t -c "SHOW hba_file;" 2>/dev/null | xargs || true)
 
 if [[ -z "${HBA_FILE}" ]]; then
     echo "  WARNING: Could not determine pg_hba.conf location automatically."
@@ -153,7 +167,7 @@ fi
 
 echo ""
 echo "── Step 6: Verify connection from host ──────────────────────────────────"
-if PGPASSWORD="${SB_PASSWORD}" psql -p "${PG_PORT}" -U studybuddy -d studybuddy -c "SELECT 1;" > /dev/null 2>&1; then
+if PGPASSWORD="${SB_PASSWORD}" psql -h "${PG_HOST}" -p "${PG_PORT}" -U studybuddy -d studybuddy -c "SELECT 1;" > /dev/null 2>&1; then
     echo "  OK — studybuddy role can connect to studybuddy database."
 else
     echo "  WARNING: Connection test failed. Check pg_hba.conf and PostgreSQL logs."

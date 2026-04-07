@@ -450,6 +450,8 @@ async def seed(dry_run: bool) -> None:
     pool = await asyncpg.create_pool(DATABASE_URL, min_size=1, max_size=2)
     try:
         async with pool.acquire() as conn:
+            # Set RLS bypass so admin seed scripts can write across all tenant tables.
+            await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
             async with conn.transaction():
                 school_id = await _upsert_school(conn)
                 print(f"\nSchool '{SCHOOL_NAME}'")

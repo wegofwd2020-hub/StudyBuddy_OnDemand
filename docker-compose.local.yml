@@ -30,9 +30,10 @@
 # ──────────────────────
 # • db        → replaced with no-op alpine stub (host PG serves data instead)
 # • pgbouncer → replaced with no-op alpine stub (direct PG connection used)
-# • migrate   → connects to host.docker.internal:5433 for DDL migrations
-# • api, celery-*, pipeline → DATABASE_URL / DIRECT_DB_URL / TEST_DB_URL all
-#                              point to host.docker.internal:5433
+# • migrate   → DATABASE_URL / DIRECT_DB_URL point to host.docker.internal:5433/studybuddy
+#               TEST_DB_URL is explicitly unset so alembic targets the dev DB, not studybuddy_test
+# • api, celery-*, pipeline → DATABASE_URL / DIRECT_DB_URL point to host.docker.internal:5433
+#                              TEST_DB_URL retained for test runs (studybuddy_test)
 # • api port  → ${SB_API_PORT:-8000}   (override in .env.local to avoid clashes)
 # • web port  → ${SB_WEB_PORT:-3000}   (override in .env.local to avoid clashes)
 # =============================================================================
@@ -70,7 +71,8 @@ services:
     environment:
       DATABASE_URL: postgresql://studybuddy:${LOCAL_DB_PASSWORD}@host.docker.internal:5433/studybuddy
       DIRECT_DB_URL: postgresql://studybuddy:${LOCAL_DB_PASSWORD}@host.docker.internal:5433/studybuddy
-      TEST_DB_URL: postgresql://studybuddy:${LOCAL_DB_PASSWORD}@host.docker.internal:5433/studybuddy_test
+      # Unset TEST_DB_URL so env.py targets the dev DB, not studybuddy_test.
+      TEST_DB_URL: ""
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
