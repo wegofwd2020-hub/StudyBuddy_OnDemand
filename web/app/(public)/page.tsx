@@ -32,6 +32,7 @@ export default function LandingPage() {
 const STUDY_BUDDY_TRANSLATIONS = [
   "Study Buddy",          // English
   "Compañero de Estudio", // Spanish
+  "Друг по учёбе",        // Russian
   "Camarade d'Étude",     // French
   "Lernbegleiter",        // German
   "படிப்பு தோழன்",          // Tamil
@@ -53,7 +54,7 @@ function HeroSection() {
       {/* Decorative multilingual watermark — purely visual, hidden from assistive tech */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 flex flex-wrap content-start gap-x-10 gap-y-5 p-6 select-none opacity-[0.12]"
+        className="pointer-events-none absolute inset-0 flex flex-wrap content-start gap-x-10 gap-y-5 p-6 select-none opacity-[0.22]"
       >
         {repeated.map((phrase, i) => (
           <span
