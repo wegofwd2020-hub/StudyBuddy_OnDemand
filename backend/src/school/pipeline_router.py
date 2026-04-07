@@ -46,6 +46,8 @@ router = APIRouter(tags=["school-pipeline"])
 # ── Schemas ───────────────────────────────────────────────────────────────────
 
 
+VERSION_CAP = 5
+
 class UploadCurriculumResponse(BaseModel):
     curriculum_id: str
     grade: int
@@ -53,6 +55,8 @@ class UploadCurriculumResponse(BaseModel):
     unit_count: int
     subject_count: int
     subjects: list[str]
+    version_count: int  # how many curriculum versions this school now holds for this grade
+    version_cap: int = VERSION_CAP
 
 
 class PipelineTriggerRequest(BaseModel):
@@ -184,15 +188,48 @@ async def upload_school_curriculum(
         )
 
     curriculum_id = f"{school_id}-{year}-g{grade}"
-    curriculum_name = f"School Grade {grade} STEM ({year})"
+    curriculum_name = f"School Grade {grade} Curriculum ({year})"
     unit_count = sum(len(s.get("units", [])) for s in subjects)
 
     async with get_db(request) as conn:
+        # ── Version cap check ─────────────────────────────────────────────────
+        # Only applies when this would create a NEW curricula row.
+        # Re-uploading the same year+grade is idempotent (ON CONFLICT DO NOTHING)
+        # and does not count as a new version.
+        existing_id = await conn.fetchval(
+            "SELECT curriculum_id FROM curricula WHERE curriculum_id = $1",
+            curriculum_id,
+        )
+        if not existing_id:
+            version_count = await conn.fetchval(
+                """
+                SELECT COUNT(*) FROM curricula
+                WHERE school_id = $1::uuid AND grade = $2
+                """,
+                school_id, grade,
+            )
+            if version_count >= VERSION_CAP:
+                raise HTTPException(
+                    status_code=409,
+                    detail={
+                        "error": "version_cap_reached",
+                        "message": (
+                            f"Grade {grade} already has {VERSION_CAP} curriculum versions. "
+                            f"Remove a version before uploading a new one."
+                        ),
+                        "current_count": int(version_count),
+                        "cap": VERSION_CAP,
+                        "correlation_id": _cid(request),
+                    },
+                )
+
         await conn.execute(
             """
             INSERT INTO curricula
-                (curriculum_id, grade, year, name, is_default, source_type, school_id, status)
-            VALUES ($1, $2, $3, $4, false, 'school', $5::uuid, 'draft')
+                (curriculum_id, grade, year, name, is_default, source_type, school_id,
+                 status, expires_at)
+            VALUES ($1, $2, $3, $4, false, 'school', $5::uuid, 'draft',
+                    NOW() + INTERVAL '1 year')
             ON CONFLICT (curriculum_id) DO NOTHING
             """,
             curriculum_id, grade, year, curriculum_name, school_id,
@@ -217,9 +254,15 @@ async def upload_school_curriculum(
                 )
                 sort_order += 1
 
+        # Fetch updated version count for the response
+        final_version_count = await conn.fetchval(
+            "SELECT COUNT(*) FROM curricula WHERE school_id = $1::uuid AND grade = $2",
+            school_id, grade,
+        )
+
     log.info(
-        "school_curriculum_upload school_id=%s curriculum_id=%s grade=%d units=%d",
-        school_id, curriculum_id, grade, unit_count,
+        "school_curriculum_upload school_id=%s curriculum_id=%s grade=%d units=%d versions=%d",
+        school_id, curriculum_id, grade, unit_count, final_version_count,
     )
     return UploadCurriculumResponse(
         curriculum_id=curriculum_id,
@@ -228,6 +271,7 @@ async def upload_school_curriculum(
         unit_count=unit_count,
         subject_count=len(subjects),
         subjects=[s["name"] for s in subjects],
+        version_count=int(final_version_count),
     )
 
 

@@ -50,6 +50,7 @@ ROLE_PERMISSIONS: dict[str, set[str]] = {
         "pipeline:trigger",
         "pipeline:view",
         "school:view_limits",
+        "curriculum:delete",
     },
     "product_admin": {
         "content:read",
