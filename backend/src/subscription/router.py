@@ -146,6 +146,47 @@ async def _dispatch_school_event(conn, redis, event_type: str, obj: dict) -> Non
 
     if event_type == "checkout.session.completed":
         school_id = metadata.get("school_id")
+        product_type = metadata.get("product_type", "")
+
+        # ── Phase G: curriculum renewal payment ───────────────────────────────
+        if product_type == "curriculum_renewal":
+            from src.school.subscription_service import handle_curriculum_renewal_payment
+
+            curriculum_id = metadata.get("curriculum_id", "")
+            if not school_id or not curriculum_id:
+                log.warning(
+                    "renewal_checkout.session.completed missing metadata "
+                    "school_id=%s curriculum_id=%s",
+                    school_id, curriculum_id,
+                )
+                return
+            await handle_curriculum_renewal_payment(conn, school_id, curriculum_id)
+            return
+
+        # ── Phase G: storage add-on payment ───────────────────────────────────
+        if product_type == "storage_addon":
+            from src.school.subscription_service import handle_storage_addon_payment
+
+            additional_gb_str = metadata.get("additional_gb", "0")
+            try:
+                additional_gb = int(additional_gb_str)
+            except ValueError:
+                log.warning(
+                    "storage_addon_checkout.session.completed invalid additional_gb=%s",
+                    additional_gb_str,
+                )
+                return
+            if not school_id or additional_gb <= 0:
+                log.warning(
+                    "storage_addon_checkout.session.completed missing/invalid metadata "
+                    "school_id=%s additional_gb=%d",
+                    school_id, additional_gb,
+                )
+                return
+            await handle_storage_addon_payment(conn, school_id, additional_gb)
+            return
+
+        # ── School subscription (existing flow) ───────────────────────────────
         plan = metadata.get("plan")
         if not school_id or not plan:
             log.warning(

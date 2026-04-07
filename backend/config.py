@@ -143,6 +143,13 @@ class Settings(BaseSettings):
     STRIPE_SCHOOL_PRICE_PROFESSIONAL_ID: str | None = None
     STRIPE_SCHOOL_PRICE_ENTERPRISE_ID: str | None = None
 
+    # ── Retention billing — one-time payment price IDs ────────────────────────
+    # Set these in .env; leave None in dev (endpoints return 503 when unset).
+    STRIPE_SCHOOL_PRICE_RENEWAL_ID: str | None = None        # per-curriculum renewal
+    STRIPE_SCHOOL_PRICE_STORAGE_5GB_ID: str | None = None    # +5 GB storage add-on
+    STRIPE_SCHOOL_PRICE_STORAGE_10GB_ID: str | None = None   # +10 GB storage add-on
+    STRIPE_SCHOOL_PRICE_STORAGE_25GB_ID: str | None = None   # +25 GB storage add-on
+
     # ── School seat limits by plan ────────────────────────────────────────────
     SCHOOL_SEATS_STARTER_STUDENTS: int = 30
     SCHOOL_SEATS_STARTER_TEACHERS: int = 3

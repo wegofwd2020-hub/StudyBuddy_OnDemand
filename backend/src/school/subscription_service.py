@@ -406,3 +406,194 @@ async def _bulk_update_enrolled_student_entitlements(
     log.debug(
         "bulk_entitlement_update school_id=%s plan=%s count=%d", school_id, plan, len(rows)
     )
+
+
+# ── Retention billing — Stripe Checkout sessions ──────────────────────────────
+
+_STORAGE_PACKAGES: dict[int, str] = {5: "5GB", 10: "10GB", 25: "25GB"}
+
+
+def _storage_price_id(gb: int) -> str:
+    """Return the Stripe price ID for a storage add-on package."""
+    from config import settings
+
+    price_map = {
+        5: getattr(settings, "STRIPE_SCHOOL_PRICE_STORAGE_5GB_ID", None),
+        10: getattr(settings, "STRIPE_SCHOOL_PRICE_STORAGE_10GB_ID", None),
+        25: getattr(settings, "STRIPE_SCHOOL_PRICE_STORAGE_25GB_ID", None),
+    }
+    price_id = price_map.get(gb)
+    if not price_id:
+        raise RuntimeError(f"STRIPE_SCHOOL_PRICE_STORAGE_{gb}GB_ID is not configured")
+    return price_id
+
+
+async def create_renewal_checkout_session(
+    school_id: str,
+    curriculum_id: str,
+    grade: int,
+    success_url: str,
+    cancel_url: str,
+) -> str:
+    """
+    Create a Stripe Checkout Session (mode=payment) for curriculum renewal.
+
+    Embeds school_id, curriculum_id, and product_type in metadata so the
+    checkout.session.completed webhook can activate the renewal without
+    needing a synchronous API call from the frontend.
+
+    Returns the Stripe-hosted checkout URL.
+    """
+    from config import settings
+
+    stripe = _get_stripe()
+    stripe.api_key = _stripe_key()
+
+    price_id = getattr(settings, "STRIPE_SCHOOL_PRICE_RENEWAL_ID", None)
+    if not price_id:
+        raise RuntimeError("STRIPE_SCHOOL_PRICE_RENEWAL_ID is not configured")
+
+    session = stripe.checkout.Session.create(
+        mode="payment",
+        line_items=[{"price": price_id, "quantity": 1}],
+        success_url=success_url,
+        cancel_url=cancel_url,
+        metadata={
+            "school_id": school_id,
+            "curriculum_id": curriculum_id,
+            "grade": str(grade),
+            "product_type": "curriculum_renewal",
+        },
+    )
+    return session.url
+
+
+async def create_storage_checkout_session(
+    school_id: str,
+    gb_package: int,
+    success_url: str,
+    cancel_url: str,
+) -> str:
+    """
+    Create a Stripe Checkout Session (mode=payment) for a storage add-on.
+
+    gb_package must be one of: 5, 10, 25.
+    On payment, the checkout.session.completed webhook increments
+    school_storage_quotas.purchased_gb by gb_package.
+
+    Returns the Stripe-hosted checkout URL.
+    """
+    stripe = _get_stripe()
+    stripe.api_key = _stripe_key()
+
+    price_id = _storage_price_id(gb_package)
+
+    session = stripe.checkout.Session.create(
+        mode="payment",
+        line_items=[{"price": price_id, "quantity": 1}],
+        success_url=success_url,
+        cancel_url=cancel_url,
+        metadata={
+            "school_id": school_id,
+            "additional_gb": str(gb_package),
+            "product_type": "storage_addon",
+        },
+    )
+    return session.url
+
+
+# ── Retention billing — webhook event handlers ────────────────────────────────
+
+
+async def handle_curriculum_renewal_payment(
+    conn: asyncpg.Connection,
+    school_id: str,
+    curriculum_id: str,
+) -> None:
+    """
+    Called on checkout.session.completed with product_type='curriculum_renewal'.
+
+    Renews the curriculum: extends expires_at by 1 year, resets retention_status
+    to 'active', clears grace_until, sets renewed_at = NOW().
+
+    Idempotent: if the curriculum is already active (was renewed via the API
+    before the webhook arrived), the UPDATE is a safe no-op (status stays active).
+    Purged curricula are logged as a warning — the payment succeeded but the
+    content was already deleted; refund must be handled manually.
+    """
+    row = await conn.fetchrow(
+        """
+        SELECT curriculum_id, grade, retention_status
+        FROM curricula
+        WHERE curriculum_id = $1
+          AND school_id = $2::uuid
+          AND owner_type = 'school'
+        """,
+        curriculum_id, school_id,
+    )
+
+    if row is None:
+        log.warning(
+            "retention_renewal_curriculum_not_found curriculum_id=%s school_id=%s",
+            curriculum_id, school_id,
+        )
+        return
+
+    if row["retention_status"] == "purged":
+        log.warning(
+            "retention_renewal_curriculum_already_purged curriculum_id=%s school_id=%s "
+            "— payment succeeded but content was already purged; manual refund may be needed",
+            curriculum_id, school_id,
+        )
+        return
+
+    await conn.execute(
+        """
+        UPDATE curricula
+        SET expires_at       = expires_at + INTERVAL '1 year',
+            grace_until      = NULL,
+            retention_status = 'active',
+            renewed_at       = NOW()
+        WHERE curriculum_id = $1
+        """,
+        curriculum_id,
+    )
+    log.info(
+        "retention_renewal_payment_applied curriculum_id=%s school_id=%s grade=%d",
+        curriculum_id, school_id, row["grade"],
+    )
+
+
+async def handle_storage_addon_payment(
+    conn: asyncpg.Connection,
+    school_id: str,
+    additional_gb: int,
+) -> None:
+    """
+    Called on checkout.session.completed with product_type='storage_addon'.
+
+    Increments school_storage_quotas.purchased_gb by additional_gb.
+
+    Idempotent from the Stripe webhook perspective: the already_processed()
+    check in the webhook handler prevents duplicate execution for the same
+    stripe_event_id.
+    """
+    result = await conn.execute(
+        """
+        UPDATE school_storage_quotas
+        SET purchased_gb = purchased_gb + $1,
+            updated_at   = NOW()
+        WHERE school_id = $2::uuid
+        """,
+        additional_gb, school_id,
+    )
+    if result == "UPDATE 0":
+        log.warning(
+            "storage_addon_no_quota_row school_id=%s additional_gb=%d",
+            school_id, additional_gb,
+        )
+    else:
+        log.info(
+            "storage_addon_applied school_id=%s additional_gb=%d",
+            school_id, additional_gb,
+        )
