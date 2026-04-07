@@ -65,6 +65,7 @@ celery_app.conf.update(
         "src.auth.tasks.send_demo_teacher_credentials_email_task": {"queue": "io"},
         "src.auth.tasks.run_grade_pipeline_task": {"queue": "pipeline"},
         "src.auth.tasks.invalidate_school_entitlement_cache_task": {"queue": "io"},
+        "src.auth.tasks.reconcile_school_storage_task": {"queue": "default"},
     },
     beat_schedule={
         # Poll DB pool state + Celery queue depth every 30 seconds.
@@ -118,6 +119,13 @@ celery_app.conf.update(
         "sweep-expired-demo-teacher-accounts-nightly": {
             "task": "src.auth.tasks.sweep_expired_demo_teacher_accounts",
             "schedule": crontab(hour=3, minute=15),
+        },
+        # Nightly storage quota reconcile at 01:00 UTC.
+        # Recomputes used_bytes for every school from pipeline_jobs.payload_bytes
+        # to correct any drift from manual deletes or failed increments.
+        "reconcile-school-storage-nightly": {
+            "task": "src.auth.tasks.reconcile_school_storage_task",
+            "schedule": crontab(hour=1, minute=0),
         },
     },
 )
@@ -1647,3 +1655,84 @@ def invalidate_school_entitlement_cache_task(school_id: str) -> None:
         )
 
     _run_async(_invalidate())
+
+
+# ── Storage quota reconcile ───────────────────────────────────────────────────
+
+
+@celery_app.task(name="src.auth.tasks.reconcile_school_storage_task")
+def reconcile_school_storage_task() -> None:
+    """
+    Nightly reconcile: recompute used_bytes for every school from pipeline_jobs.
+
+    The pipeline worker increments school_storage_quotas.used_bytes atomically
+    after each successful job.  This task recomputes from scratch nightly so any
+    drift (manual deletions, failed increments, Phase B curriculum deletes) is
+    corrected before the school admin opens the retention dashboard.
+
+    Only completed pipeline jobs with a non-null payload_bytes contribute.
+    Runs at 01:00 UTC (after the nightly retention status sweep).
+    This task is idempotent — re-running is safe.
+    """
+    from config import settings as cfg
+
+    async def _reconcile() -> None:
+        import asyncpg as _asyncpg
+
+        pool = await _asyncpg.create_pool(
+            cfg.DATABASE_URL, min_size=1, max_size=2, statement_cache_size=0
+        )
+        try:
+            async with pool.acquire() as conn:
+                # Bypass RLS — this is an internal admin operation.
+                await conn.execute(
+                    "SELECT set_config('app.current_school_id', 'bypass', false)"
+                )
+
+                # Aggregate payload_bytes per school across all completed jobs.
+                rows = await conn.fetch(
+                    """
+                    SELECT school_id::text, COALESCE(SUM(payload_bytes), 0) AS total_bytes
+                    FROM pipeline_jobs
+                    WHERE status = 'completed'
+                      AND payload_bytes IS NOT NULL
+                      AND school_id IS NOT NULL
+                    GROUP BY school_id
+                    """
+                )
+
+                updated = 0
+                for row in rows:
+                    result = await conn.execute(
+                        """
+                        UPDATE school_storage_quotas
+                        SET used_bytes = $1, updated_at = NOW()
+                        WHERE school_id = $2::uuid
+                        """,
+                        int(row["total_bytes"]),
+                        row["school_id"],
+                    )
+                    if result != "UPDATE 0":
+                        updated += 1
+
+                # Zero out schools that have no completed jobs (e.g. all content deleted).
+                await conn.execute(
+                    """
+                    UPDATE school_storage_quotas
+                    SET used_bytes = 0, updated_at = NOW()
+                    WHERE school_id NOT IN (
+                        SELECT DISTINCT school_id
+                        FROM pipeline_jobs
+                        WHERE status = 'completed'
+                          AND payload_bytes IS NOT NULL
+                          AND school_id IS NOT NULL
+                    )
+                    AND used_bytes > 0
+                    """
+                )
+
+                log.info("storage_reconcile_complete schools_updated=%d", updated)
+        finally:
+            await pool.close()
+
+    _run_async(_reconcile())
