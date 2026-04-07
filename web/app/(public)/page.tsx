@@ -27,31 +27,39 @@ export default function LandingPage() {
   );
 }
 
-const MULTILINGUAL_PHRASES = [
-  "AI-powered study material",
-  "Material de estudio con IA",
-  "Ressources d'apprentissage par IA",
-  "KI-gestütztes Lernmaterial",
-  "AI-ஆல் இயங்கும் படிப்பு உபகரணங்கள்",
-  "AI-संचालित अध्ययन सामग्री",
-  "AI-ఆధారిత అధ్యయన సామగ్రి",
-  "AI-ಚಾಲಿತ ಅಧ್ಯಯನ ಸಾಮಗ್ರಿ",
-  "AI-അധിഷ്ഠിത പഠന സാമഗ്രി",
+// "Study Buddy" translated into 8 languages — shown as a decorative background
+// watermark to convey the meaning: a companion that helps a student learn.
+const STUDY_BUDDY_TRANSLATIONS = [
+  "Study Buddy",          // English
+  "Compañero de Estudio", // Spanish
+  "Camarade d'Étude",     // French
+  "Lernbegleiter",        // German
+  "படிப்பு தோழன்",          // Tamil
+  "पढ़ाई का साथी",          // Hindi
+  "చదువు స్నేహితుడు",       // Telugu
+  "ಅಧ್ಯಯನ ಸ್ನೇಹಿತ",         // Kannada
+  "പഠന കൂട്ടുകാരൻ",        // Malayalam
 ];
+
+// Vary font sizes by position to give a natural scattered feel
+const SIZE_CLASSES = ["text-sm", "text-base", "text-lg", "text-xl", "text-sm", "text-base"];
 
 function HeroSection() {
   const t = useTranslations("landing");
-  // Repeat phrases enough to fill the background
-  const repeated = Array.from({ length: 4 }, () => MULTILINGUAL_PHRASES).flat();
+  // Repeat enough times to fill the background across all viewport sizes
+  const repeated = Array.from({ length: 5 }, () => STUDY_BUDDY_TRANSLATIONS).flat();
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-blue-50 to-white px-4 py-20 text-center sm:py-28">
-      {/* Decorative multilingual background — purely visual, hidden from assistive tech */}
+      {/* Decorative multilingual watermark — purely visual, hidden from assistive tech */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 flex flex-wrap content-start gap-x-8 gap-y-4 p-6 select-none opacity-[0.07]"
+        className="pointer-events-none absolute inset-0 flex flex-wrap content-start gap-x-10 gap-y-5 p-6 select-none opacity-[0.12]"
       >
         {repeated.map((phrase, i) => (
-          <span key={i} className="text-sm font-medium text-blue-900 whitespace-nowrap">
+          <span
+            key={i}
+            className={`${SIZE_CLASSES[i % SIZE_CLASSES.length]} font-semibold text-blue-800 whitespace-nowrap`}
+          >
             {phrase}
           </span>
         ))}
@@ -61,7 +69,8 @@ function HeroSection() {
         <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
           {t("hero_heading")}
         </h1>
-        <p className="mt-6 text-lg text-gray-600">{t("hero_subheading")}</p>
+        <p className="mt-3 text-xl font-medium text-blue-600">{t("hero_tagline")}</p>
+        <p className="mt-4 text-lg text-gray-600">{t("hero_subheading")}</p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <DemoRequestModal />
           <DemoTeacherRequestModal />

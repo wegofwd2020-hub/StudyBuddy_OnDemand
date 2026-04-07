@@ -27,6 +27,7 @@
   },
   "landing": {
     "hero_heading": "Study Buddy",
+    "hero_tagline": "AI-powered study material",
     "hero_subheading": "Instant lessons, quizzes, and audio where available. Just learning.",
     "hero_cta_primary": "Start free trial",
     "hero_cta_secondary": "See how it works",
