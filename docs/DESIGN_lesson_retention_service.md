@@ -1,12 +1,11 @@
 # Design — Lesson Retention Service
 
-> **Status:** In design — decisions pending  
+> **Status:** Decisions complete — ready to ticket  
 > **Author:** Sivakumar Mambakkam  
 > **Last updated:** 2026-04-07  
 >
-> This document captures the design decisions for the Lesson Retention Service.
-> Open items are marked **[ OPEN ]** — add thoughts directly in those sections
-> before implementation is ticketed.
+> All design decisions are settled. This document is the source of truth
+> for implementation. Refer to Section 11 for the phased build plan.
 
 ---
 
@@ -42,24 +41,18 @@ which case it is removed from their catalog.
 A curriculum has one expiry date. Publishing a new version of a subject within
 the same curriculum does **not** reset the clock.
 
-### Version cap
+### Version cap — DECIDED
 
 A school may hold up to **5 versions** of the same curriculum simultaneously.
 
-#### [ OPEN — Decision 3a ] Version cap enforcement
+**Enforcement:** When a school attempts to generate a 6th version, the system
+blocks the action and prompts the admin to **completely remove** an existing
+version first. There is no archive concept — removal is permanent (subject to
+the 180-day purge grace on expired content).
 
-When a school attempts to generate a 6th version, the recommended behaviour
-is to **block and prompt** the admin to retire an older version first, rather
-than auto-retiring the oldest.
-
-> **Your thoughts:**
-
-#### [ OPEN — Decision 3b ] Expired versions and the cap
-
-Does an expired or unavailable version count toward the 5-version cap,
-or only active versions?
-
-> **Your thoughts:**
+**Counting rule:** All versions count toward the cap regardless of state
+(active, expired, unavailable). A version must be fully purged or explicitly
+deleted by the admin before the slot is freed.
 
 ---
 
@@ -68,149 +61,163 @@ or only active versions?
 ```
 ACTIVE  (1 year from curriculum creation or last renewal)
     │
+    │  30 days before expiry — pre-expiry warning email to school_admin
+    │
     │  expiry date reached — no automatic renewal
     ▼
 EXPIRED  → notification sent to school_admin
     │       content marked UNAVAILABLE (hidden from students immediately)
     │       files remain in content store during grace period
+    │       version still counts toward the 5-version cap
     │
     │  180-day grace period
+    │    • 90 days in  → reminder email
+    │    • 30 days left → email + in-app alert
     ▼
 PURGED  (files deleted from content store + CDN cache invalidated)
+         version slot freed — no longer counts toward cap
 ```
 
 ### Lifecycle states
 
-| State | Student sees content? | Files in store? | Admin can renew? |
-|---|---|---|---|
-| ACTIVE | Yes | Yes | Yes |
-| EXPIRED / UNAVAILABLE | No | Yes | Yes (during grace) |
-| PURGED | No | No | No (must regenerate) |
+| State | Student sees content? | Files in store? | Admin can renew? | Counts toward cap? |
+|---|---|---|---|---|
+| ACTIVE | Yes | Yes | Yes | Yes |
+| EXPIRED / UNAVAILABLE | No | Yes | Yes (during grace) | Yes |
+| PURGED | No | No | No (must regenerate) | No |
+
+### Student access on expiry — DECIDED
+
+If a student is assigned to a version that expires, they **lose access
+immediately**. There is no automatic fallback to another version. The admin
+must reassign the grade to an active version via the retention dashboard.
 
 ---
 
-## 5. Renewal vs New Version — Two Distinct Cost Events
+## 5. Storage Model — DECIDED
 
-| Event | What it means | What it costs |
+### Included quota
+
+Every school subscription includes **5 GB** of content storage as the base
+allocation. This covers the majority of schools running a standard curriculum
+across a few grades.
+
+### Additional storage
+
+Schools may purchase additional storage in **5 GB increments** via Stripe when
+their usage approaches or exceeds the base quota.
+
+### Metering
+
+Storage usage is calculated from `payload_bytes` aggregated across all
+`pipeline_jobs` for the school's curricula. The retention dashboard displays:
+
+- Total storage used vs quota (e.g. 3.2 GB / 5 GB)
+- Storage consumed per curriculum
+- Storage consumed per version within each curriculum
+
+This gives admins clear visibility before they decide to renew or remove a
+version.
+
+---
+
+## 6. Cost Model — DECIDED
+
+Two distinct billable events:
+
+| Event | What it means | Cost |
 |---|---|---|
-| **Renew** | Extend expiry of existing content by 1 year — no regeneration | Storage space only |
-| **New version** | Run the AI pipeline to generate fresh content | Anthropic token usage + storage of new content |
+| **Renew** | Extend expiry of existing content by 1 year — no regeneration | Storage charge only (based on quota tier) |
+| **New version** | Run the AI pipeline to regenerate curriculum content | Anthropic token cost + storage of new content |
 
-`payload_bytes` is already tracked on `pipeline_jobs` and can be aggregated
-per curriculum to compute a storage cost estimate shown to the admin before
-they confirm.
+### Renewal billing
 
-### [ OPEN — Decision 5a ] Storage pricing formula
+Renewal billing **starts from expiry date + 1 day** and runs for exactly
+1 year. The admin is not charged from the day they click "Renew" — the new
+period begins at the natural end of the old one, so no overlap or gap occurs.
 
-At what rate is storage charged for renewal?
+### Anthropic cost tracking
 
-- $/GB/year flat rate?
-- Metered against actual `payload_bytes`?
-- Is a cost estimate shown to the admin before they confirm renewal?
+Every pipeline run records the token cost (`tokens_used × cost_per_token`)
+per curriculum per version. The **billing dashboard** presents this as a
+statement:
 
-> **Your thoughts:**
+| Curriculum | Grade | Version | Built On | Tokens Used | Est. Cost | Storage |
+|---|---|---|---|---|---|---|
+| Mathematics | 8 | v1 | Jan 2025 | 420,000 | $1.26 | 320 MB |
+| Mathematics | 8 | v2 | Jun 2025 | 455,000 | $1.37 | 338 MB |
+| Science | 8 | v1 | Jan 2025 | 510,000 | $1.53 | 410 MB |
 
-### [ OPEN — Decision 5b ] Anthropic cost tracking for new versions
-
-The pipeline tracks `payload_bytes` but not USD cost directly.
-
-Options:
-- Track `tokens_used × cost_per_token` and invoice the school per new version
-- Include new-version generation within the school subscription plan up to a quota (e.g. N pipeline runs/year included)
-- Hybrid: first N versions/year included; additional versions billed per run
-
-> **Your thoughts:**
-
-### [ OPEN — Decision 5c ] Payment timing
-
-When a school admin clicks "Renew":
-
-- Charged immediately via Stripe (charge now), **or**
-- Added to the next billing cycle?
-
-> **Your thoughts:**
+Each version's cost is tracked and displayed separately so the admin has a
+full audit trail of what was spent generating each version.
 
 ---
 
-## 6. Version Assignment to Students
-
-School admins can assign a specific version (v1–v5) of a curriculum to
-students. Currently students are resolved to "the active curriculum for their
-school." Version pinning is a new concept that affects the curriculum resolver
-(`cur:{student_id}` Redis cache).
-
-### [ OPEN — Decision 6a ] Assignment granularity
-
-When pinning a version to students, is the assignment:
-
-- Per **grade** (all Grade 8 students → v2)?
-- Per **student** (individual override)?
-- Per **subject** within a grade?
-
-> **Your thoughts:**
-
-### [ OPEN — Decision 6b ] Fallback on expiry
-
-If a student is pinned to v2 and v2 expires:
-
-- Fall back to the latest active version automatically?
-- Lose access until the admin reassigns?
-- Notify the admin and freeze access for N days before fallback kicks in?
-
-> **Your thoughts:**
-
----
-
-## 7. Notification Design
+## 7. Notification Schedule — DECIDED
 
 | Trigger | Channel | Recipient |
 |---|---|---|
+| 30 days before expiry | Email | school_admin |
 | Expiry date reached | Email | school_admin |
 | 90 days into grace period | Email | school_admin |
-| 30 days before purge | Email + in-app alert | school_admin |
+| 30 days before purge (day 150 of grace) | Email + in-app alert | school_admin |
 | Purge completed | Email | school_admin |
 
-### [ OPEN — Decision 7a ] Additional notification triggers
-
-Should notifications also be sent:
-
-- At 30 days *before* expiry (pre-expiry warning)?
-- At 60 days before expiry?
-- To teachers as well as school_admin?
-
-> **Your thoughts:**
+Notifications go to `school_admin` only — teachers are not included in
+retention alerts.
 
 ---
 
-## 8. The Retention Panel (UI)
+## 8. Version Assignment — DECIDED
 
-Accessible to `school_admin` only. Shows all curricula with their retention
-status, expiry date, version count, and available actions.
+Version assignment is **per grade**. When a school admin pins a version to
+a grade, all students in that grade are served that curriculum version.
 
-### Sketch
+Assignment is managed in the retention dashboard. Granularity:
 
-| Curriculum | Grade | Versions | Active Since | Expires On | Status | Actions |
+```
+School → Grade → Curriculum version (v1–v5)
+```
+
+This maps cleanly to the existing grade-based enrolment model and keeps
+the curriculum resolver simple: one active version per grade at any time.
+
+---
+
+## 9. Retention Panel (UI) — DECIDED
+
+**Location:** Under `/school/subscription`
+
+Accessible to `school_admin` only. Combines retention status, storage usage,
+and Anthropic cost into a single view.
+
+### Panel layout
+
+**Storage summary strip** (top of panel)
+
+```
+[ 3.2 GB used of 5 GB ]  ████████░░░░░  64%   [ Buy more storage ]
+```
+
+**Curriculum retention table**
+
+| Curriculum | Grade | Versions | Expires On | Status | Storage | Actions |
 |---|---|---|---|---|---|---|
-| Mathematics | 8 | 3 of 5 | Jan 2025 | Jan 2026 | Active | Renew / Details |
-| Science | 8 | 2 of 5 | Mar 2025 | Mar 2026 | Expiring | Renew |
-| History | 9 | 1 of 5 | Dec 2024 | Dec 2025 | Grace (120d left) | Renew / Remove |
-| Art | 7 | 5 of 5 | Jun 2024 | Jun 2025 | Purged | Regenerate |
+| Mathematics | 8 | 3 / 5 | Jan 2026 | Active | 1.1 GB | Renew / Details |
+| Science | 8 | 2 / 5 | Mar 2026 | Expiring in 30d | 820 MB | Renew |
+| History | 9 | 1 / 5 | Dec 2025 | Grace (120d left) | 640 MB | Renew / Remove |
+| Art | 7 | 5 / 5 | Jun 2025 | Purged | — | Regenerate |
 
-### [ OPEN — Decision 8a ] Panel location
+**Version detail drawer** (on "Details" click)
 
-Where does this panel live in the school admin UI?
-
-- Under `/school/subscription`?
-- A dedicated `/school/content-retention` route?
-- Integrated into the existing `/school/curriculum` page?
-
-> **Your thoughts:**
+Shows per-version breakdown: built date, tokens used, est. cost, storage,
+assigned grades, and individual remove action per version.
 
 ---
 
-## 9. Compliance Notes
+## 10. Compliance Notes
 
-These are non-negotiable and not open for decision:
+Non-negotiable — not subject to change:
 
 - **FERPA:** Student progress records (quiz scores, session history) are
   educational records. They must be retained independently of content expiry.
@@ -224,45 +231,31 @@ These are non-negotiable and not open for decision:
 
 ---
 
-## 10. What Is Fully Decided (Ready to Ticket)
+## 11. All Decisions — Summary
 
-The following are confirmed and require no further input:
-
-- [x] Retention clock is per **curriculum**, not per subject-version
-- [x] Default: **manual renewal** — no auto-renew
-- [x] Expiry → content immediately **unavailable** to students
-- [x] **180-day grace period** before hard purge
-- [x] Renewal restricted to **school_admin** only
-- [x] **5-version cap** per curriculum
-- [x] Two distinct cost events: **renew** (storage) vs **new version** (tokens + storage)
-- [x] First release scoped to **Schools** — independent actors follow after #57
-- [x] Student progress data is **never** deleted as part of content expiry
-
----
-
-## 11. Implementation Phases (Outline — subject to decisions above)
-
-| Phase | Scope |
-|---|---|
-| **Phase A** | Schema: `content_retention` table; version cap enforcement; lifecycle state column on `curricula` |
-| **Phase B** | Celery Beat: expiry detection job; 180-day purge job; CDN invalidation on purge |
-| **Phase C** | Notifications: email templates for all triggers |
-| **Phase D** | API: `GET /retention`, `POST /retention/{id}/renew`, version assignment endpoints |
-| **Phase E** | Web UI: retention panel; version assignment UI; cost estimate before renewal |
-| **Phase F** | Stripe: storage-based renewal billing; pipeline cost tracking for new versions |
-
----
-
-## 12. Open Decisions Summary
-
-| # | Decision | Status |
+| # | Decision | Resolution |
 |---|---|---|
-| 3a | Version cap enforcement (block+prompt vs auto-retire) | **[ OPEN ]** |
-| 3b | Do expired versions count toward the 5-version cap? | **[ OPEN ]** |
-| 5a | Storage pricing formula | **[ OPEN ]** |
-| 5b | Anthropic cost model for new versions | **[ OPEN ]** |
-| 5c | Payment timing (immediate vs next billing cycle) | **[ OPEN ]** |
-| 6a | Version assignment granularity (grade / student / subject) | **[ OPEN ]** |
-| 6b | Fallback behaviour when pinned version expires | **[ OPEN ]** |
-| 7a | Additional notification triggers (pre-expiry warnings) | **[ OPEN ]** |
-| 8a | Retention panel location in the UI | **[ OPEN ]** |
+| 3a | Version cap enforcement | Block + prompt. Admin must fully remove a version before adding a new one. No archive. |
+| 3b | Expired versions and the cap | All versions (any state) count toward the cap until purged or explicitly deleted. |
+| 5a | Storage pricing | 5 GB base included in subscription; additional in 5 GB increments via Stripe; metered usage shown on dashboard. |
+| 5b | Anthropic cost model | Track `tokens_used × cost_per_token` per pipeline run per version; display as per-curriculum billing statement. |
+| 5c | Payment timing | Renewal billing starts from `expiry_date + 1 day` and runs 1 year — no overlap, no gap. |
+| 6a | Version assignment granularity | Per grade. One active version per grade at a time. |
+| 6b | Fallback on expiry | No fallback. Students lose access until admin reassigns the grade to an active version. |
+| 7a | Pre-expiry notification | 30 days before expiry (in addition to notifications during grace period). |
+| 8a | Retention panel location | Under `/school/subscription`. |
+
+---
+
+## 12. Implementation Phases
+
+| Phase | Scope | Key deliverables |
+|---|---|---|
+| **A — Schema** | DB foundation | `curricula.status` column (active/expired/unavailable/purged); `curricula.expires_at`; `curriculum_versions.cost_usd`; `curriculum_versions.tokens_used`; `school_storage_quota` table (base + purchased GB) |
+| **B — Version cap** | Enforcement | Block pipeline trigger if 5 versions exist; API returns structured error prompting admin to remove a version; version slot freed only on purge or explicit delete |
+| **C — Storage metering** | Usage tracking | Aggregate `payload_bytes` per curriculum per version; expose `GET /school/storage` returning used/quota/breakdown; Stripe integration for 5 GB add-on packages |
+| **D — Lifecycle jobs** | Celery Beat | Daily: detect expired curricula, mark unavailable, send expiry email; Day 90 of grace: reminder email; Day 150: email + in-app alert; Day 180: purge files from content store + CDN invalidation + free version slot |
+| **E — Notifications** | Email templates | 5 templates: 30-day pre-expiry warning; expiry notification; 90-day grace reminder; 30-day-to-purge alert; purge confirmation |
+| **F — API** | Endpoints | `GET /school/retention` (curriculum list with status); `POST /school/retention/{curriculum_id}/renew` (schedule renewal billing from expiry+1); `DELETE /school/retention/{version_id}` (explicit version remove); `PUT /school/grades/{grade}/curriculum-version` (version assignment per grade) |
+| **G — Billing** | Stripe | Renewal subscription starting from `expiry_date + 1`; storage add-on packages; pipeline cost recorded per version (informational, not separately billed in v1) |
+| **H — UI** | Retention panel | Storage summary strip; curriculum retention table; version detail drawer; grade version assignment selector; cost estimate modal before renew confirmation |
