@@ -66,6 +66,12 @@ celery_app.conf.update(
         "src.auth.tasks.run_grade_pipeline_task": {"queue": "pipeline"},
         "src.auth.tasks.invalidate_school_entitlement_cache_task": {"queue": "io"},
         "src.auth.tasks.reconcile_school_storage_task": {"queue": "default"},
+        # Retention lifecycle tasks
+        "src.auth.tasks.check_retention_pre_expiry_warnings": {"queue": "default"},
+        "src.auth.tasks.sweep_expired_curricula": {"queue": "default"},
+        "src.auth.tasks.check_retention_grace_reminders": {"queue": "default"},
+        "src.auth.tasks.check_retention_purge_warnings": {"queue": "default"},
+        "src.auth.tasks.purge_expired_curricula": {"queue": "default"},
     },
     beat_schedule={
         # Poll DB pool state + Celery queue depth every 30 seconds.
@@ -126,6 +132,30 @@ celery_app.conf.update(
         "reconcile-school-storage-nightly": {
             "task": "src.auth.tasks.reconcile_school_storage_task",
             "schedule": crontab(hour=1, minute=0),
+        },
+        # Retention lifecycle tasks — all run daily at 02:00 UTC in sequence.
+        # Offset by 5 minutes each to avoid simultaneous DB load.
+        # Order: pre-expiry warnings → expiry sweep → grace reminders →
+        #        purge warnings → file purge.
+        "retention-pre-expiry-warnings-daily": {
+            "task": "src.auth.tasks.check_retention_pre_expiry_warnings",
+            "schedule": crontab(hour=2, minute=0),
+        },
+        "retention-expiry-sweep-daily": {
+            "task": "src.auth.tasks.sweep_expired_curricula",
+            "schedule": crontab(hour=2, minute=5),
+        },
+        "retention-grace-reminders-daily": {
+            "task": "src.auth.tasks.check_retention_grace_reminders",
+            "schedule": crontab(hour=2, minute=10),
+        },
+        "retention-purge-warnings-daily": {
+            "task": "src.auth.tasks.check_retention_purge_warnings",
+            "schedule": crontab(hour=2, minute=15),
+        },
+        "retention-purge-daily": {
+            "task": "src.auth.tasks.purge_expired_curricula",
+            "schedule": crontab(hour=2, minute=20),
         },
     },
 )
@@ -1736,3 +1766,159 @@ def reconcile_school_storage_task() -> None:
             await pool.close()
 
     _run_async(_reconcile())
+
+
+# ── Retention lifecycle tasks ─────────────────────────────────────────────────
+#
+# All five tasks share the same _db_bypass() helper (RLS bypass) and
+# a stub _queue_retention_email() that logs the intent.  Phase E will
+# replace the stub with real email dispatch.
+#
+# Idempotency strategy:
+#   - sweep_expired_curricula: state change (active → unavailable) is its own
+#     idempotency guard — subsequent runs find no rows matching the WHERE clause.
+#   - check_*: fire only on the exact calendar date matching the notification
+#     window, so each notification triggers at most once per curriculum.
+#   - purge_expired_curricula: sets retention_status = 'purged' before deleting
+#     files, so a partial failure on file deletion is safely retried.
+
+
+# ── Task 1: 30-day pre-expiry warnings ───────────────────────────────────────
+
+
+@celery_app.task(name="src.auth.tasks.check_retention_pre_expiry_warnings")
+def check_retention_pre_expiry_warnings() -> None:
+    """
+    Daily: send a 30-day pre-expiry warning for school curricula expiring in
+    exactly 30 days. No DB state change — email notification only.
+    """
+    from config import settings as cfg
+    from src.school.retention_service import send_pre_expiry_warnings
+
+    async def _run() -> None:
+        import asyncpg as _asyncpg
+
+        conn = await _asyncpg.connect(cfg.DATABASE_URL)
+        try:
+            await conn.execute(
+                "SELECT set_config('app.current_school_id', 'bypass', false)"
+            )
+            await send_pre_expiry_warnings(conn)
+        finally:
+            await conn.close()
+
+    _run_async(_run())
+
+
+# ── Task 2: Expiry sweep (active → unavailable) ───────────────────────────────
+
+
+@celery_app.task(name="src.auth.tasks.sweep_expired_curricula")
+def sweep_expired_curricula() -> None:
+    """
+    Daily: transition school curricula from 'active' to 'unavailable' when
+    their expires_at has passed. Sets grace_until = expires_at + 180 days.
+    Idempotent — only 'active' rows are touched.
+    """
+    from config import settings as cfg
+    from src.school.retention_service import expire_active_curricula
+
+    async def _run() -> None:
+        import asyncpg as _asyncpg
+
+        conn = await _asyncpg.connect(cfg.DATABASE_URL)
+        try:
+            await conn.execute(
+                "SELECT set_config('app.current_school_id', 'bypass', false)"
+            )
+            await expire_active_curricula(conn)
+        finally:
+            await conn.close()
+
+    _run_async(_run())
+
+
+# ── Task 3: 90-day grace period reminder ─────────────────────────────────────
+
+
+@celery_app.task(name="src.auth.tasks.check_retention_grace_reminders")
+def check_retention_grace_reminders() -> None:
+    """
+    Daily: send a reminder email on day 90 of the grace period
+    ((grace_until - 90 days)::date == today). No DB state change.
+    """
+    from config import settings as cfg
+    from src.school.retention_service import send_grace_90day_reminders
+
+    async def _run() -> None:
+        import asyncpg as _asyncpg
+
+        conn = await _asyncpg.connect(cfg.DATABASE_URL)
+        try:
+            await conn.execute(
+                "SELECT set_config('app.current_school_id', 'bypass', false)"
+            )
+            await send_grace_90day_reminders(conn)
+        finally:
+            await conn.close()
+
+    _run_async(_run())
+
+
+# ── Task 4: 30-days-to-purge warning (day 150 of grace) ─────────────────────
+
+
+@celery_app.task(name="src.auth.tasks.check_retention_purge_warnings")
+def check_retention_purge_warnings() -> None:
+    """
+    Daily: send an urgent warning 30 days before purge (day 150 of 180-day grace).
+    ((grace_until - 30 days)::date == today). No DB state change.
+    """
+    from config import settings as cfg
+    from src.school.retention_service import send_purge_30day_warnings
+
+    async def _run() -> None:
+        import asyncpg as _asyncpg
+
+        conn = await _asyncpg.connect(cfg.DATABASE_URL)
+        try:
+            await conn.execute(
+                "SELECT set_config('app.current_school_id', 'bypass', false)"
+            )
+            await send_purge_30day_warnings(conn)
+        finally:
+            await conn.close()
+
+    _run_async(_run())
+
+
+# ── Task 5: File purge (day 180 of grace) ────────────────────────────────────
+
+
+@celery_app.task(name="src.auth.tasks.purge_expired_curricula")
+def purge_expired_curricula() -> None:
+    """
+    Daily: permanently delete content files for curricula whose 180-day grace
+    period has elapsed (grace_until <= NOW(), retention_status = 'unavailable').
+
+    Sets retention_status = 'purged' in DB before deleting files so students
+    lose access even during slow file deletion.  FERPA: student progress
+    records are NOT deleted.
+    """
+    from config import settings as cfg
+    from src.school.retention_service import purge_grace_expired
+
+    async def _run() -> None:
+        import asyncpg as _asyncpg
+
+        conn = await _asyncpg.connect(cfg.DATABASE_URL)
+        try:
+            await conn.execute(
+                "SELECT set_config('app.current_school_id', 'bypass', false)"
+            )
+            content_store = getattr(cfg, "CONTENT_STORE_PATH", "/tmp/studybuddy-content")
+            await purge_grace_expired(conn, content_store)
+        finally:
+            await conn.close()
+
+    _run_async(_run())

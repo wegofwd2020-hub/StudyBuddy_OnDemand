@@ -205,6 +205,7 @@ async def upload_school_curriculum(
                 """
                 SELECT COUNT(*) FROM curricula
                 WHERE school_id = $1::uuid AND grade = $2
+                  AND retention_status <> 'purged'
                 """,
                 school_id, grade,
             )
@@ -227,9 +228,9 @@ async def upload_school_curriculum(
             """
             INSERT INTO curricula
                 (curriculum_id, grade, year, name, is_default, source_type, school_id,
-                 status, expires_at)
+                 status, owner_type, owner_id, expires_at)
             VALUES ($1, $2, $3, $4, false, 'school', $5::uuid, 'draft',
-                    NOW() + INTERVAL '1 year')
+                    'school', $5::uuid, NOW() + INTERVAL '1 year')
             ON CONFLICT (curriculum_id) DO NOTHING
             """,
             curriculum_id, grade, year, curriculum_name, school_id,
@@ -254,9 +255,13 @@ async def upload_school_curriculum(
                 )
                 sort_order += 1
 
-        # Fetch updated version count for the response
+        # Fetch updated version count for the response (purged versions don't count)
         final_version_count = await conn.fetchval(
-            "SELECT COUNT(*) FROM curricula WHERE school_id = $1::uuid AND grade = $2",
+            """
+            SELECT COUNT(*) FROM curricula
+            WHERE school_id = $1::uuid AND grade = $2
+              AND retention_status <> 'purged'
+            """,
             school_id, grade,
         )
 

@@ -242,9 +242,13 @@ async def delete_curriculum_version(
         units_removed = _rowcount(units_result)
         versions_removed = _rowcount(versions_result)
 
-        # Version count remaining for this school+grade after deletion
+        # Version count remaining for this school+grade after deletion (purged don't count)
         remaining = await conn.fetchval(
-            "SELECT COUNT(*) FROM curricula WHERE school_id = $1::uuid AND grade = $2",
+            """
+            SELECT COUNT(*) FROM curricula
+            WHERE school_id = $1::uuid AND grade = $2
+              AND retention_status <> 'purged'
+            """,
             school_id, grade,
         )
 
