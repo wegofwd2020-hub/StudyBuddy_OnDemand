@@ -173,7 +173,7 @@ async def test_quiz_rotates_sets(client: AsyncClient, fake_redis):
 
     sets_served = []
 
-    async def _mock_get_content_file(curriculum_id, unit_id, filename, redis):
+    async def _mock_get_content_file(curriculum_id, unit_id, filename, redis, storage):
         for n in [1, 2, 3]:
             if f"quiz_set_{n}_" in filename:
                 quiz = dict(SAMPLE_QUIZ)

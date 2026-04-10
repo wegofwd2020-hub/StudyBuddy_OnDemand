@@ -13,12 +13,13 @@ Tests for auth endpoints:
 from __future__ import annotations
 
 import uuid
-from unittest.mock import AsyncMock, patch, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from httpx import AsyncClient
 
-from tests.helpers.token_factory import make_student_token, make_admin_token
+from src.core.cache import jwks_cache
+from tests.helpers.token_factory import make_admin_token, make_student_token
 
 
 # ── Auth0 exchange helpers ────────────────────────────────────────────────────
@@ -303,3 +304,119 @@ async def test_student_token_rejected_on_admin_endpoint(client: AsyncClient, stu
     )
     # Student token uses JWT_SECRET not ADMIN_JWT_SECRET → jose decode will fail
     assert response.status_code in (401, 403)
+
+
+# ── JWKS cache TTL and key-rotation retry ─────────────────────────────────────
+
+@pytest.mark.asyncio
+async def test_fetch_jwks_uses_cache(client: AsyncClient):
+    """_fetch_jwks returns cached value without hitting network on second call."""
+    sample_jwks = {"keys": [{"kid": "key1", "kty": "RSA", "n": "abc", "e": "AQAB"}]}
+
+    call_count = 0
+
+    async def _mock_get(url, **kwargs):
+        nonlocal call_count
+        call_count += 1
+        mock_resp = MagicMock()
+        mock_resp.json.return_value = sample_jwks
+        mock_resp.raise_for_status = MagicMock()
+        return mock_resp
+
+    jwks_cache.clear()
+    with patch("src.auth.service.httpx.AsyncClient") as mock_client_cls:
+        mock_client_cls.return_value.__aenter__ = AsyncMock(return_value=MagicMock(get=_mock_get))
+        mock_client_cls.return_value.__aexit__ = AsyncMock(return_value=False)
+
+        from src.auth.service import _fetch_jwks
+        await _fetch_jwks()
+        await _fetch_jwks()  # second call — must hit cache, not network
+
+    assert call_count == 1, "JWKS URL should only be fetched once; second call must use TTLCache"
+    jwks_cache.clear()
+
+
+@pytest.mark.asyncio
+async def test_verify_auth0_token_retries_on_stale_jwks(client: AsyncClient):
+    """
+    If kid is not found in cached JWKS, verify_auth0_token evicts the cache
+    and fetches fresh JWKS exactly once before giving up.
+    """
+    stale_jwks = {"keys": [{"kid": "old-key", "kty": "RSA", "n": "x", "e": "AQAB"}]}
+    fresh_jwks = {"keys": [{"kid": "old-key", "kty": "RSA", "n": "x", "e": "AQAB"}]}
+
+    fetch_count = 0
+
+    async def _mock_get(url, **kwargs):
+        nonlocal fetch_count
+        fetch_count += 1
+        mock_resp = MagicMock()
+        mock_resp.json.return_value = fresh_jwks
+        mock_resp.raise_for_status = MagicMock()
+        return mock_resp
+
+    # Seed cache with stale JWKS (different kid than the token presents)
+    from config import settings as cfg
+    jwks_cache[cfg.AUTH0_JWKS_URL] = stale_jwks
+
+    # Token header claims kid="new-key" which is absent from the stale cache
+    import base64, json as _json
+    header = base64.urlsafe_b64encode(_json.dumps({"alg": "RS256", "kid": "new-key"}).encode()).decode().rstrip("=")
+    fake_token = f"{header}.payload.sig"
+
+    from fastapi import HTTPException
+    from src.auth.service import verify_auth0_token
+
+    with patch("src.auth.service.httpx.AsyncClient") as mock_client_cls:
+        mock_client_cls.return_value.__aenter__ = AsyncMock(return_value=MagicMock(get=_mock_get))
+        mock_client_cls.return_value.__aexit__ = AsyncMock(return_value=False)
+
+        with pytest.raises(HTTPException) as exc_info:
+            await verify_auth0_token(fake_token)
+
+    # Fresh JWKS was fetched exactly once after cache miss
+    assert fetch_count == 1, "Should fetch fresh JWKS exactly once on cache miss"
+    # Ended with 401 (key still not found in fresh JWKS — this is expected in the test)
+    assert exc_info.value.status_code == 401
+    jwks_cache.clear()
+
+
+@pytest.mark.asyncio
+async def test_verify_auth0_teacher_token_retries_on_stale_jwks(client: AsyncClient):
+    """
+    verify_auth0_teacher_token must also evict and retry on stale JWKS — same
+    behaviour as the student path. Regression guard for the parity fix in #113.
+    """
+    stale_jwks = {"keys": [{"kid": "old-key", "kty": "RSA", "n": "x", "e": "AQAB"}]}
+    fresh_jwks = {"keys": [{"kid": "old-key", "kty": "RSA", "n": "x", "e": "AQAB"}]}
+
+    fetch_count = 0
+
+    async def _mock_get(url, **kwargs):
+        nonlocal fetch_count
+        fetch_count += 1
+        mock_resp = MagicMock()
+        mock_resp.json.return_value = fresh_jwks
+        mock_resp.raise_for_status = MagicMock()
+        return mock_resp
+
+    from config import settings as cfg
+    jwks_cache[cfg.AUTH0_JWKS_URL] = stale_jwks
+
+    import base64, json as _json
+    header = base64.urlsafe_b64encode(_json.dumps({"alg": "RS256", "kid": "new-key"}).encode()).decode().rstrip("=")
+    fake_token = f"{header}.payload.sig"
+
+    from fastapi import HTTPException
+    from src.auth.service import verify_auth0_teacher_token
+
+    with patch("src.auth.service.httpx.AsyncClient") as mock_client_cls:
+        mock_client_cls.return_value.__aenter__ = AsyncMock(return_value=MagicMock(get=_mock_get))
+        mock_client_cls.return_value.__aexit__ = AsyncMock(return_value=False)
+
+        with pytest.raises(HTTPException) as exc_info:
+            await verify_auth0_teacher_token(fake_token)
+
+    assert fetch_count == 1, "Teacher path must also fetch fresh JWKS exactly once on cache miss"
+    assert exc_info.value.status_code == 401
+    jwks_cache.clear()

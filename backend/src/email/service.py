@@ -690,3 +690,77 @@ async def send_retention_email(
     subject, text_body, html_body = templates[template]
     await _send(to_email=to_email, subject=subject,
                 text_body=text_body, html_body=html_body)
+
+
+# ── Payment action required (SCA / 3DS) ──────────────────────────────────────
+
+_SCA_SUBJECT = "Action required: complete your StudyBuddy payment"
+
+_SCA_TEXT = """\
+Hi there,
+
+Your bank requires additional verification to complete the payment for your
+StudyBuddy school subscription.
+
+Click the link below to complete the 3D Secure verification step:
+
+{action_url}
+
+This link was provided by Stripe and expires shortly — please act now to avoid
+your subscription being declined.
+
+If you have any questions, reply to this email or contact us at {support_email}.
+
+— The StudyBuddy Team
+"""
+
+_SCA_HTML = """\
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8" /></head>
+<body style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:24px">
+  <h2 style="color:#dc2626">Action required: complete your payment</h2>
+  <p>
+    Your bank requires additional verification to process the payment for your
+    <strong>StudyBuddy school subscription</strong>.
+  </p>
+  <p>
+    Click the button below to complete the 3D Secure (SCA) step. This link
+    was provided by Stripe and <strong>expires shortly</strong> — please act
+    now to avoid your subscription being declined.
+  </p>
+  <p style="text-align:center;margin:32px 0">
+    <a href="{action_url}"
+       style="background:#dc2626;color:#fff;padding:12px 28px;border-radius:6px;
+              text-decoration:none;font-weight:bold">
+      Complete Payment Verification
+    </a>
+  </p>
+  <p style="color:#6b7280;font-size:13px">
+    If you did not initiate this subscription or have questions, contact us at
+    <a href="mailto:{support_email}">{support_email}</a>.
+  </p>
+  <p style="color:#6b7280;font-size:13px">— The StudyBuddy Team</p>
+</body>
+</html>
+"""
+
+
+async def send_payment_action_required_email(
+    to_email: str,
+    action_url: str,
+) -> None:
+    """
+    Notify a school admin that their bank requires SCA / 3DS verification.
+
+    action_url is the Stripe-hosted invoice URL (hosted_invoice_url) which
+    contains the 3DS challenge link.  Skips silently if SMTP is not configured.
+    """
+    support_email = getattr(settings, "EMAIL_FROM", "support@studybuddy.app")
+    fmt = dict(action_url=action_url, support_email=support_email)
+    await _send(
+        to_email=to_email,
+        subject=_SCA_SUBJECT,
+        text_body=_SCA_TEXT.format(**fmt),
+        html_body=_SCA_HTML.format(**fmt),
+    )

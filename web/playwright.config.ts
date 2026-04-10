@@ -31,6 +31,7 @@ export default defineConfig({
         "**/e2e/pricing-page.spec.ts",
         "**/e2e/public.spec.ts",
         "**/e2e/static-pages.spec.ts",
+        "**/e2e/student_flow.spec.ts",
       ],
       use: { ...devices["Desktop Chrome"] },
     },

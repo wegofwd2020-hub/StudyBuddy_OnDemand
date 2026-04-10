@@ -18,13 +18,13 @@ Covers:
 from __future__ import annotations
 
 import json
-import os
 import uuid
 
 import asyncpg
 import httpx
 from config import settings as _settings
 
+from src.core.storage import StorageBackend
 from src.utils.logger import get_logger
 
 log = get_logger("admin")
@@ -46,6 +46,7 @@ _PLAN_PRICE_USD = {
 
 async def list_review_queue(
     conn: asyncpg.Connection,
+    storage: StorageBackend,
     status: str | None = None,
     subject: str | None = None,
     curriculum_id: str | None = None,
@@ -107,17 +108,13 @@ async def list_review_queue(
         *params,
     )
 
-    # Build a per-curriculum unit listing (one os.listdir per curriculum_id)
-    content_store = getattr(_settings, "CONTENT_STORE_PATH", "/data/content")
+    # Build a per-curriculum unit listing (one listdir per curriculum_id)
     _dirs_on_disk: dict[str, set[str]] = {}
     for r in rows:
         cid = r["curriculum_id"]
         if cid not in _dirs_on_disk:
-            cdir = os.path.join(content_store, "curricula", cid)
-            try:
-                _dirs_on_disk[cid] = set(os.listdir(cdir))
-            except OSError:
-                _dirs_on_disk[cid] = set()
+            entries = await storage.listdir(f"curricula/{cid}")
+            _dirs_on_disk[cid] = set(entries)
 
     # Fetch unit_ids per (curriculum_id, subject) so we can check disk by unit_id,
     # not by subject name (unit dirs are named like "G12-MATH-001", not "Mathematics-001")
@@ -545,7 +542,7 @@ async def reject_version(
 
     if regenerate and row:
         try:
-            from src.auth.tasks import celery_app
+            from src.core.celery_app import celery_app
 
             celery_app.send_task(
                 "src.auth.tasks.regenerate_subject_task",
@@ -1113,6 +1110,7 @@ _CONTENT_TYPES_ORDERED = [
 
 async def get_unit_content_meta(
     conn: asyncpg.Connection,
+    storage: StorageBackend,
     version_id: str,
     unit_id: str,
     lang: str = "en",
@@ -1138,21 +1136,19 @@ async def get_unit_content_meta(
 
     curriculum_id = row["curriculum_id"]
     title = row["title"]
-    unit_dir = os.path.join(_settings.CONTENT_STORE_PATH, "curricula", curriculum_id, unit_id)
 
     available: list[str] = []
     for ct in _CONTENT_TYPES_ORDERED:
-        if os.path.isfile(os.path.join(unit_dir, f"{ct}_{lang}.json")):
+        if await storage.exists(f"curricula/{curriculum_id}/{unit_id}/{ct}_{lang}.json"):
             available.append(ct)
 
     # Read per-unit alex_warnings from meta.json if present
     alex_warnings_count = 0
     alex_warnings_by_type: dict[str, int] = {}
-    meta_path = os.path.join(unit_dir, "meta.json")
-    if os.path.isfile(meta_path):
+    meta_path = f"curricula/{curriculum_id}/{unit_id}/meta.json"
+    if await storage.exists(meta_path):
         try:
-            with open(meta_path, encoding="utf-8") as f:
-                meta = json.load(f)
+            meta = await storage.read_json(meta_path)
             alex_warnings_count = int(meta.get("alex_warnings_count", 0))
             alex_warnings_by_type = {
                 k: int(v) for k, v in meta.get("alex_warnings_by_type", {}).items()
@@ -1173,6 +1169,7 @@ async def get_unit_content_meta(
 
 async def get_unit_content_file(
     conn: asyncpg.Connection,
+    storage: StorageBackend,
     version_id: str,
     unit_id: str,
     content_type: str,
@@ -1190,19 +1187,12 @@ async def get_unit_content_file(
         return None
 
     curriculum_id = row["curriculum_id"]
-    file_path = os.path.join(
-        _settings.CONTENT_STORE_PATH,
-        "curricula",
-        curriculum_id,
-        unit_id,
-        f"{content_type}_{lang}.json",
-    )
+    file_path = f"curricula/{curriculum_id}/{unit_id}/{content_type}_{lang}.json"
 
-    if not os.path.isfile(file_path):
+    if not await storage.exists(file_path):
         raise FileNotFoundError(f"Content file not found: {file_path}")
 
-    with open(file_path, encoding="utf-8") as f:
-        data = json.load(f)
+    data = await storage.read_json(file_path)
 
     return {
         "unit_id": unit_id,
@@ -1218,6 +1208,7 @@ async def get_unit_content_file(
 
 async def get_version_warnings(
     conn: asyncpg.Connection,
+    storage: StorageBackend,
     version_id: str,
 ) -> dict | None:
     """
@@ -1265,16 +1256,14 @@ async def get_version_warnings(
         for r in ack_rows
     }
 
-    content_store = getattr(_settings, "CONTENT_STORE_PATH", "/data/content")
     warnings: list[dict] = []
 
     for unit_row in units:
         unit_id = unit_row["unit_id"]
-        meta_path = os.path.join(content_store, "curricula", curriculum_id, unit_id, "meta.json")
-        if not os.path.isfile(meta_path):
+        meta_path = f"curricula/{curriculum_id}/{unit_id}/meta.json"
+        if not await storage.exists(meta_path):
             continue
-        with open(meta_path, encoding="utf-8") as f:
-            meta = json.load(f)
+        meta = await storage.read_json(meta_path)
 
         detail_by_type: dict[str, list] = meta.get("alex_warnings_detail_by_type", {})
         for content_type, detail_list in detail_by_type.items():

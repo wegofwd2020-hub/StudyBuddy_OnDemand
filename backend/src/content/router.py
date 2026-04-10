@@ -26,7 +26,6 @@ Rate limiting: 100 req/min per student JWT via slowapi.
 
 from __future__ import annotations
 
-import os
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -53,6 +52,7 @@ from src.content.service import (
     resolve_curriculum_id,
 )
 from src.core.redis_client import get_redis
+from src.core.storage import StorageBackend, get_storage
 from src.utils.logger import get_logger
 
 log = get_logger("content")
@@ -122,6 +122,7 @@ async def get_lesson(
     unit_id: str,
     request: Request,
     student: Annotated[dict, Depends(get_current_student)],
+    storage: StorageBackend = Depends(get_storage),
 ):
     """
     Serve a lesson for the given unit.
@@ -156,11 +157,11 @@ async def get_lesson(
 
     filename = f"lesson_{locale}.json"
     try:
-        data = await get_content_file(curriculum_id, unit_id, filename, redis)
+        data = await get_content_file(curriculum_id, unit_id, filename, redis, storage)
     except FileNotFoundError:
         # Try English fallback
         try:
-            data = await get_content_file(curriculum_id, unit_id, "lesson_en.json", redis)
+            data = await get_content_file(curriculum_id, unit_id, "lesson_en.json", redis, storage)
         except FileNotFoundError:
             raise HTTPException(
                 status_code=404,
@@ -186,12 +187,13 @@ async def get_lesson_audio(
     unit_id: str,
     request: Request,
     student: Annotated[dict, Depends(get_current_student)],
+    storage: StorageBackend = Depends(get_storage),
 ):
     """
     Return a URL for the lesson MP3 audio file.
 
-    For local dev (no S3): returns a /static/content/... URL.
-    For production: returns a pre-signed S3 URL.
+    For local dev (LocalStorage): returns a /static/content/... URL.
+    For production (S3Storage): returns a pre-signed S3 URL valid for 1 hour.
 
     Never proxies audio bytes through this server.
     """
@@ -202,28 +204,9 @@ async def get_lesson_audio(
         request, unit_id, "lesson", student
     )
 
-    # Check if we have an S3 bucket configured
-    s3_bucket = os.environ.get("S3_BUCKET_NAME", "")
-
-    if s3_bucket:
-        # Generate pre-signed S3 URL
-        try:
-            import boto3
-
-            s3_client = boto3.client("s3")
-            key = f"curricula/{curriculum_id}/{unit_id}/lesson_{locale}.mp3"
-            url = s3_client.generate_presigned_url(
-                "get_object",
-                Params={"Bucket": s3_bucket, "Key": key},
-                ExpiresIn=3600,
-            )
-            return AudioUrlResponse(url=url, expires_in=3600)
-        except Exception as exc:
-            log.warning("s3_presign_failed unit_id=%s error=%s", unit_id, exc)
-
-    # Local dev fallback: return static path
-    url = f"/static/content/{curriculum_id}/{unit_id}/lesson_{locale}.mp3"
-    log.info("audio_url_served unit_id=%s student_id=%s url=%s", unit_id, student_id, url)
+    audio_path = f"curricula/{curriculum_id}/{unit_id}/lesson_{locale}.mp3"
+    url = storage.audio_url(audio_path, ttl_seconds=3600)
+    log.info("audio_url_served unit_id=%s student_id=%s", unit_id, student_id)
     return AudioUrlResponse(url=url, expires_in=3600)
 
 
@@ -235,6 +218,7 @@ async def get_quiz(
     unit_id: str,
     request: Request,
     student: Annotated[dict, Depends(get_current_student)],
+    storage: StorageBackend = Depends(get_storage),
 ):
     """
     Serve a quiz set, rotating through sets 1→2→3→1 per student per unit.
@@ -251,11 +235,11 @@ async def get_quiz(
     filename = f"quiz_set_{set_number}_{locale}.json"
 
     try:
-        data = await get_content_file(curriculum_id, unit_id, filename, redis)
+        data = await get_content_file(curriculum_id, unit_id, filename, redis, storage)
     except FileNotFoundError:
         try:
             data = await get_content_file(
-                curriculum_id, unit_id, f"quiz_set_{set_number}_en.json", redis
+                curriculum_id, unit_id, f"quiz_set_{set_number}_en.json", redis, storage
             )
         except FileNotFoundError:
             raise HTTPException(
@@ -275,6 +259,7 @@ async def get_tutorial(
     unit_id: str,
     request: Request,
     student: Annotated[dict, Depends(get_current_student)],
+    storage: StorageBackend = Depends(get_storage),
 ):
     """Serve the tutorial for a unit."""
     redis = get_redis(request)
@@ -287,10 +272,10 @@ async def get_tutorial(
 
     filename = f"tutorial_{locale}.json"
     try:
-        data = await get_content_file(curriculum_id, unit_id, filename, redis)
+        data = await get_content_file(curriculum_id, unit_id, filename, redis, storage)
     except FileNotFoundError:
         try:
-            data = await get_content_file(curriculum_id, unit_id, "tutorial_en.json", redis)
+            data = await get_content_file(curriculum_id, unit_id, "tutorial_en.json", redis, storage)
         except FileNotFoundError:
             raise HTTPException(
                 status_code=404,
@@ -309,6 +294,7 @@ async def get_experiment(
     unit_id: str,
     request: Request,
     student: Annotated[dict, Depends(get_current_student)],
+    storage: StorageBackend = Depends(get_storage),
 ):
     """
     Serve the lab experiment for a unit.
@@ -324,10 +310,10 @@ async def get_experiment(
 
     filename = f"experiment_{locale}.json"
     try:
-        data = await get_content_file(curriculum_id, unit_id, filename, redis)
+        data = await get_content_file(curriculum_id, unit_id, filename, redis, storage)
     except FileNotFoundError:
         try:
-            data = await get_content_file(curriculum_id, unit_id, "experiment_en.json", redis)
+            data = await get_content_file(curriculum_id, unit_id, "experiment_en.json", redis, storage)
         except FileNotFoundError:
             raise HTTPException(
                 status_code=404,

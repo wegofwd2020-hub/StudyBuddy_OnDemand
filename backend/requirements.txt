@@ -10,6 +10,7 @@ pydantic-settings==2.3.0
 pydantic[email]>=2.3.0
 httpx==0.28.1
 celery[redis]==5.4.0
+celery-redbeat==2.2.0
 cachetools==7.0.5
 prometheus-client==0.20.0
 prometheus-fastapi-instrumentator==7.1.0
@@ -20,6 +21,8 @@ alembic==1.18.4
 psycopg2-binary==2.9.9
 python-multipart==0.0.22
 aiosmtplib==3.0.1
+
+stripe>=7.0.0
 
 jsonschema==4.23.0
 

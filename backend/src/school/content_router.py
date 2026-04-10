@@ -23,16 +23,14 @@ Auth:
 
 from __future__ import annotations
 
-import json
-import os
 import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
-from config import settings
 from src.auth.dependencies import get_current_teacher
 from src.core.db import get_db
+from src.core.storage import StorageBackend, get_storage
 from src.utils.logger import get_logger
 
 log = get_logger("school.content")
@@ -99,6 +97,7 @@ async def list_school_content_subjects(
     school_id: str,
     request: Request,
     teacher: Annotated[dict, Depends(get_current_teacher)],
+    storage: StorageBackend = Depends(get_storage),
     grade: int | None = Query(None, ge=5, le=12),
 ) -> dict:
     """
@@ -140,18 +139,14 @@ async def list_school_content_subjects(
         )
 
         # Check which ones have content on disk
-        content_store = getattr(settings, "CONTENT_STORE_PATH", "/data/content")
         _dirs_cache: dict[str, set[str]] = {}
         _units_cache: dict[tuple[str, str], list[str]] = {}
 
         for r in rows:
             cid = r["curriculum_id"]
             if cid not in _dirs_cache:
-                cdir = os.path.join(content_store, "curricula", cid)
-                try:
-                    _dirs_cache[cid] = set(os.listdir(cdir))
-                except OSError:
-                    _dirs_cache[cid] = set()
+                entries = await storage.listdir(f"curricula/{cid}")
+                _dirs_cache[cid] = set(entries)
 
         unique_pairs = {(r["curriculum_id"], r["subject"]) for r in rows}
         for cid, subj in unique_pairs:
@@ -238,6 +233,7 @@ async def get_school_unit_meta(
     unit_id: str,
     request: Request,
     teacher: Annotated[dict, Depends(get_current_teacher)],
+    storage: StorageBackend = Depends(get_storage),
     lang: str = Query("en", min_length=2, max_length=5),
 ) -> dict:
     """Return unit title + list of available content types on disk."""
@@ -279,20 +275,16 @@ async def get_school_unit_meta(
             unit_id,
         )
 
-    content_store = getattr(settings, "CONTENT_STORE_PATH", "/data/content")
-    unit_dir = os.path.join(content_store, "curricula", curriculum_id, unit_id)
-
     available: list[str] = []
     for ct in _CONTENT_TYPES_ORDERED:
-        if os.path.isfile(os.path.join(unit_dir, f"{ct}_{lang}.json")):
+        if await storage.exists(f"curricula/{curriculum_id}/{unit_id}/{ct}_{lang}.json"):
             available.append(ct)
 
     alex_warnings_count = 0
-    meta_path = os.path.join(unit_dir, "meta.json")
-    if os.path.isfile(meta_path):
+    meta_path = f"curricula/{curriculum_id}/{unit_id}/meta.json"
+    if await storage.exists(meta_path):
         try:
-            with open(meta_path, encoding="utf-8") as f:
-                meta = json.load(f)
+            meta = await storage.read_json(meta_path)
             alex_warnings_count = int(meta.get("alex_warnings_count", 0))
         except Exception:
             pass
@@ -321,6 +313,7 @@ async def get_school_unit_content(
     content_type: str,
     request: Request,
     teacher: Annotated[dict, Depends(get_current_teacher)],
+    storage: StorageBackend = Depends(get_storage),
     lang: str = Query("en", min_length=2, max_length=5),
 ) -> dict:
     """Return the raw JSON for a specific content type file."""
@@ -341,16 +334,9 @@ async def get_school_unit_content(
             conn, version_id, school_id, request
         )
 
-    content_store = getattr(settings, "CONTENT_STORE_PATH", "/data/content")
-    file_path = os.path.join(
-        content_store,
-        "curricula",
-        curriculum_id,
-        unit_id,
-        f"{content_type}_{lang}.json",
-    )
+    file_path = f"curricula/{curriculum_id}/{unit_id}/{content_type}_{lang}.json"
 
-    if not os.path.isfile(file_path):
+    if not await storage.exists(file_path):
         raise HTTPException(
             status_code=404,
             detail={
@@ -360,8 +346,7 @@ async def get_school_unit_content(
             },
         )
 
-    with open(file_path, encoding="utf-8") as f:
-        data = json.load(f)
+    data = await storage.read_json(file_path)
 
     return {
         "unit_id": unit_id,

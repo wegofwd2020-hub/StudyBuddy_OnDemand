@@ -10,7 +10,8 @@
 #   api             FastAPI (uvicorn)       localhost:8000
 #   celery-worker   Celery io+default       (background)
 #   celery-pipeline Celery pipeline queue   (background)
-#   celery-beat     Celery Beat scheduler   (background)
+#   celery-beat-primary   Celery Beat (RedBeat primary)  (background)
+#   celery-beat-standby   Celery Beat (RedBeat standby)  (background)
 #   web             Next.js dev server      localhost:3000
 #   stripe-cli      Stripe webhook relay    profile: stripe
 #
@@ -203,7 +204,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     command: >
-      celery -A src.auth.tasks worker
+      celery -A src.core.celery_app worker
       -Q io,default
       --concurrency=4
       --loglevel=info
@@ -224,7 +225,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     command: >
-      celery -A src.auth.tasks worker
+      celery -A src.core.celery_app worker
       -Q pipeline
       --concurrency=2
       --loglevel=info
@@ -243,15 +244,36 @@ services:
     depends_on:
       <<: *depends-all
 
-  # ── Celery Beat (scheduled tasks: digest, alerts, grade promotion) ───────────
-  celery-beat:
+  # ── Celery Beat — primary (RedBeat distributed scheduler) ───────────────────
+  #
+  # Two Beat instances run simultaneously.  RedBeat uses a Redis lock so only
+  # one dispatches tasks at a time.  If the primary crashes, the standby
+  # acquires the lock within REDBEAT_LOCK_TIMEOUT seconds (default: 5 min)
+  # and resumes task dispatch — eliminating the single-point-of-failure.
+  #
+  # Note: --schedule is omitted.  RedBeat stores state in Redis, not a file.
+  celery-beat-primary:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    command: >
-      celery -A src.auth.tasks beat
-      --loglevel=info
-      --schedule /tmp/celerybeat-schedule
+    command: celery -A src.core.celery_app beat --loglevel=info
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      <<: *api-env
+    volumes:
+      - ./backend:/app
+      - content_store:/data/content
+    depends_on:
+      <<: *depends-all
+
+  # ── Celery Beat — standby (waits for primary lock to expire on crash) ────────
+  celery-beat-standby:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: celery -A src.core.celery_app beat --loglevel=info
     restart: unless-stopped
     env_file:
       - .env

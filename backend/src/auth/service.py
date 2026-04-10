@@ -56,95 +56,24 @@ async def _fetch_jwks() -> dict:
     return jwks
 
 
-async def verify_auth0_token(id_token: str) -> dict:
+async def _verify_auth0_token(id_token: str, audience: str) -> dict:
     """
-    Verify an Auth0 id_token against the tenant JWKS.
+    Shared Auth0 JWT verification logic, parameterised by audience.
 
-    Returns decoded JWT claims on success.
-    Raises HTTP 401 on any verification failure.
+    Flow:
+      1. Parse the unverified header to extract `kid`.
+      2. Fetch the matching RSA key from JWKS (L1 cache via _fetch_jwks).
+      3. If the key is not found, evict the cache and retry once (handles
+         key rotation between cache warm and token issuance).
+      4. Decode + verify the JWT (RS256, audience, issuer).
+
+    Returns decoded claims on success.
+    Raises HTTP 401 on any failure — never leaks internal detail.
     """
     try:
-        # Decode header to extract kid without verification.
         unverified_header = jwt.get_unverified_header(id_token)
     except JWTError as exc:
         log.warning("auth0_token_header_invalid", error=str(exc))
-        raise HTTPException(
-            status_code=401,
-            detail={
-                "error": "invalid_token",
-                "detail": "JWT header could not be parsed.",
-            },
-        )
-
-    kid = unverified_header.get("kid")
-    jwks = await _fetch_jwks()
-
-    # Find matching key in JWKS.
-    rsa_key: dict = {}
-    for key in jwks.get("keys", []):
-        if key.get("kid") == kid:
-            rsa_key = {
-                "kty": key["kty"],
-                "kid": key["kid"],
-                "n": key["n"],
-                "e": key["e"],
-            }
-            break
-
-    if not rsa_key:
-        # Key not found — JWKS may be stale; evict cache and retry once.
-        log.warning("jwks_key_not_found", kid=kid, retrying=True)
-        jwks_cache.pop(settings.AUTH0_JWKS_URL, None)
-        jwks = await _fetch_jwks()
-        for key in jwks.get("keys", []):
-            if key.get("kid") == kid:
-                rsa_key = {
-                    "kty": key["kty"],
-                    "kid": key["kid"],
-                    "n": key["n"],
-                    "e": key["e"],
-                }
-                break
-
-    if not rsa_key:
-        raise HTTPException(
-            status_code=401,
-            detail={
-                "error": "invalid_token",
-                "detail": "JWT signing key not found.",
-            },
-        )
-
-    try:
-        payload = jwt.decode(
-            id_token,
-            rsa_key,
-            algorithms=["RS256"],
-            audience=settings.AUTH0_STUDENT_CLIENT_ID,
-        )
-    except ExpiredSignatureError:
-        raise HTTPException(
-            status_code=401,
-            detail={"error": "unauthenticated", "detail": "Token has expired."},
-        )
-    except JWTError as exc:
-        log.warning("auth0_token_verification_failed", error=str(exc))
-        raise HTTPException(
-            status_code=401,
-            detail={
-                "error": "invalid_token",
-                "detail": "JWT signature verification failed.",
-            },
-        )
-
-    return payload
-
-
-async def verify_auth0_teacher_token(id_token: str) -> dict:
-    """Same as verify_auth0_token but uses AUTH0_TEACHER_CLIENT_ID as audience."""
-    try:
-        unverified_header = jwt.get_unverified_header(id_token)
-    except JWTError:
         raise HTTPException(
             status_code=401,
             detail={"error": "invalid_token", "detail": "JWT header could not be parsed."},
@@ -153,11 +82,20 @@ async def verify_auth0_teacher_token(id_token: str) -> dict:
     kid = unverified_header.get("kid")
     jwks = await _fetch_jwks()
 
-    rsa_key: dict = {}
-    for key in jwks.get("keys", []):
-        if key.get("kid") == kid:
-            rsa_key = {k: key[k] for k in ("kty", "kid", "n", "e")}
-            break
+    def _find_key(keys: list) -> dict:
+        for key in keys:
+            if key.get("kid") == kid:
+                return {k: key[k] for k in ("kty", "kid", "n", "e")}
+        return {}
+
+    rsa_key = _find_key(jwks.get("keys", []))
+
+    if not rsa_key:
+        # Key not found — JWKS may be stale; evict cache and retry once.
+        log.warning("jwks_key_not_found", kid=kid, audience=audience, retrying=True)
+        jwks_cache.pop(settings.AUTH0_JWKS_URL, None)
+        jwks = await _fetch_jwks()
+        rsa_key = _find_key(jwks.get("keys", []))
 
     if not rsa_key:
         raise HTTPException(
@@ -170,20 +108,31 @@ async def verify_auth0_teacher_token(id_token: str) -> dict:
             id_token,
             rsa_key,
             algorithms=["RS256"],
-            audience=settings.AUTH0_TEACHER_CLIENT_ID,
+            audience=audience,
         )
     except ExpiredSignatureError:
         raise HTTPException(
             status_code=401,
             detail={"error": "unauthenticated", "detail": "Token has expired."},
         )
-    except JWTError:
+    except JWTError as exc:
+        log.warning("auth0_token_verification_failed", error=str(exc), audience=audience)
         raise HTTPException(
             status_code=401,
             detail={"error": "invalid_token", "detail": "JWT signature verification failed."},
         )
 
     return payload
+
+
+async def verify_auth0_token(id_token: str) -> dict:
+    """Verify an Auth0 student id_token. Returns decoded claims or raises HTTP 401."""
+    return await _verify_auth0_token(id_token, settings.AUTH0_STUDENT_CLIENT_ID)
+
+
+async def verify_auth0_teacher_token(id_token: str) -> dict:
+    """Verify an Auth0 teacher id_token. Returns decoded claims or raises HTTP 401."""
+    return await _verify_auth0_token(id_token, settings.AUTH0_TEACHER_CLIENT_ID)
 
 
 # ── Internal JWT helpers ──────────────────────────────────────────────────────
@@ -287,8 +236,15 @@ async def upsert_student(
 
     For new accounts:
       - requires_parental_consent=False → account_status set to 'active' immediately
-      - requires_parental_consent=True  → account_status stays 'pending' (DB default)
+      - requires_parental_consent=True  → account_status set to 'pending'
         until the parental_consents record is updated to 'granted'
+
+    On conflict (returning student re-authenticates), account_status rules:
+      - 'suspended' → always kept (never auto-unsuspend via re-login)
+      - 'pending' + incoming 'active' → transition to 'active' (consent completed)
+      - anything else → keep existing status
+
+    Grade is never overridden for school-enrolled students (school manages it).
 
     Returns the full student record as a dict.
     """
@@ -301,8 +257,19 @@ async def upsert_student(
         ON CONFLICT (external_auth_id) DO UPDATE
             SET name   = EXCLUDED.name,
                 email  = EXCLUDED.email,
-                grade  = EXCLUDED.grade,
-                locale = EXCLUDED.locale
+                grade  = CASE
+                             WHEN students.school_id IS NOT NULL THEN students.grade
+                             ELSE EXCLUDED.grade
+                         END,
+                locale = EXCLUDED.locale,
+                account_status = CASE
+                    WHEN students.account_status = 'suspended'
+                        THEN 'suspended'
+                    WHEN students.account_status = 'pending'
+                         AND EXCLUDED.account_status = 'active'
+                        THEN 'active'
+                    ELSE students.account_status
+                END
         RETURNING student_id, name, email, grade, locale,
                   account_status, school_id, created_at
         """,
@@ -377,57 +344,10 @@ async def upsert_teacher(
 
 
 # ── Auth0 Management API ──────────────────────────────────────────────────────
+# Thin re-exports — implementation lives in src/auth/auth0_client.py where the
+# Redis-cached token logic and 401 retry are co-located.
 
-
-async def _get_mgmt_token() -> str:
-    """Obtain a short-lived Auth0 Management API token via client_credentials."""
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        resp = await client.post(
-            f"https://{settings.AUTH0_DOMAIN}/oauth/token",
-            json={
-                "grant_type": "client_credentials",
-                "client_id": settings.AUTH0_MGMT_CLIENT_ID,
-                "client_secret": settings.AUTH0_MGMT_CLIENT_SECRET,
-                "audience": settings.AUTH0_MGMT_API_URL + "/",
-            },
-        )
-        resp.raise_for_status()
-        return resp.json()["access_token"]
-
-
-async def block_auth0_user(auth0_sub: str, blocked: bool = True) -> None:
-    """Block or unblock a user via Auth0 Management API."""
-    token = await _get_mgmt_token()
-    user_id = auth0_sub.replace("|", "%7C")
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        resp = await client.patch(
-            f"{settings.AUTH0_MGMT_API_URL}/users/{user_id}",
-            headers={"Authorization": f"Bearer {token}"},
-            json={"blocked": blocked},
-        )
-        if resp.status_code not in (200, 204):
-            log.error(
-                "auth0_block_failed",
-                auth0_sub=auth0_sub,
-                status=resp.status_code,
-            )
-
-
-async def delete_auth0_user(auth0_sub: str) -> None:
-    """Delete a user from Auth0 (GDPR erasure)."""
-    token = await _get_mgmt_token()
-    user_id = auth0_sub.replace("|", "%7C")
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        resp = await client.delete(
-            f"{settings.AUTH0_MGMT_API_URL}/users/{user_id}",
-            headers={"Authorization": f"Bearer {token}"},
-        )
-        if resp.status_code not in (200, 204):
-            log.error(
-                "auth0_delete_failed",
-                auth0_sub=auth0_sub,
-                status=resp.status_code,
-            )
+from src.auth.auth0_client import block_auth0_user, delete_auth0_user  # noqa: F401, E402
 
 
 async def trigger_auth0_password_reset(email: str) -> None:

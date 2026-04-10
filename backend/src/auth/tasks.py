@@ -18,157 +18,9 @@ import logging
 import uuid
 from datetime import UTC
 
-from celery import Celery
-from celery.schedules import crontab
-from config import settings
+from src.core.celery_app import _run_async, celery_app  # noqa: F401 — re-exported for callers
 
 log = logging.getLogger("auth.tasks")
-
-celery_app = Celery(
-    "studybuddy",
-    broker=settings.effective_celery_broker_url,
-)
-
-celery_app.conf.update(
-    task_serializer="json",
-    accept_content=["json"],
-    result_serializer="json",
-    timezone="UTC",
-    enable_utc=True,
-    task_routes={
-        "src.auth.tasks.write_audit_log_task": {"queue": "io"},
-        "src.auth.tasks.cascade_school_suspension": {"queue": "io"},
-        "src.auth.tasks.gdpr_delete_account": {"queue": "io"},
-        "src.auth.tasks.sync_auth0_suspension": {"queue": "io"},
-        "src.auth.tasks.poll_infra_metrics": {"queue": "default"},
-        "src.auth.tasks.write_progress_answer_task": {"queue": "io"},
-        "src.auth.tasks.update_streak_task": {"queue": "io"},
-        "src.auth.tasks.refresh_progress_view_task": {"queue": "io"},
-        "src.auth.tasks.write_lesson_end_task": {"queue": "io"},
-        "src.auth.tasks.send_push_notification_task": {"queue": "io"},
-        "src.auth.tasks.check_streak_reminders": {"queue": "default"},
-        "src.auth.tasks.check_quiz_nudges": {"queue": "default"},
-        "src.auth.tasks.send_weekly_summary": {"queue": "default"},
-        "src.auth.tasks.regenerate_subject_task": {"queue": "pipeline"},
-        "src.auth.tasks.run_curriculum_pipeline_task": {"queue": "pipeline"},
-        "src.auth.tasks.promote_student_grades": {"queue": "default"},
-        "src.auth.tasks.send_pipeline_email_task": {"queue": "io"},
-        "src.auth.tasks.export_report_task": {"queue": "io"},
-        "src.auth.tasks.refresh_report_views_task": {"queue": "default"},
-        "src.auth.tasks.evaluate_report_alerts_task": {"queue": "default"},
-        "src.auth.tasks.send_weekly_digest_task": {"queue": "io"},
-        "src.auth.tasks.sweep_expired_demo_accounts": {"queue": "default"},
-        "src.auth.tasks.send_demo_verification_email_task": {"queue": "io"},
-        "src.auth.tasks.send_demo_credentials_email_task": {"queue": "io"},
-        "src.auth.tasks.sweep_expired_demo_teacher_accounts": {"queue": "default"},
-        "src.auth.tasks.send_demo_teacher_verification_email_task": {"queue": "io"},
-        "src.auth.tasks.send_demo_teacher_credentials_email_task": {"queue": "io"},
-        "src.auth.tasks.run_grade_pipeline_task": {"queue": "pipeline"},
-        "src.auth.tasks.invalidate_school_entitlement_cache_task": {"queue": "io"},
-        "src.auth.tasks.reconcile_school_storage_task": {"queue": "default"},
-        # Retention lifecycle tasks
-        "src.auth.tasks.check_retention_pre_expiry_warnings": {"queue": "default"},
-        "src.auth.tasks.sweep_expired_curricula": {"queue": "default"},
-        "src.auth.tasks.check_retention_grace_reminders": {"queue": "default"},
-        "src.auth.tasks.check_retention_purge_warnings": {"queue": "default"},
-        "src.auth.tasks.purge_expired_curricula": {"queue": "default"},
-        "src.auth.tasks.send_retention_email_task": {"queue": "io"},
-    },
-    beat_schedule={
-        # Poll DB pool state + Celery queue depth every 30 seconds.
-        "poll-infra-metrics-30s": {
-            "task": "src.auth.tasks.poll_infra_metrics",
-            "schedule": 30.0,
-        },
-        # Daily streak reminders at 20:00 UTC.
-        "check-streak-reminders-daily": {
-            "task": "src.auth.tasks.check_streak_reminders",
-            "schedule": crontab(hour=20, minute=0),
-        },
-        # Daily quiz nudges at 18:00 UTC.
-        "check-quiz-nudges-daily": {
-            "task": "src.auth.tasks.check_quiz_nudges",
-            "schedule": crontab(hour=18, minute=0),
-        },
-        # Weekly summary every Sunday at 09:00 UTC.
-        "send-weekly-summary-sunday": {
-            "task": "src.auth.tasks.send_weekly_summary",
-            "schedule": crontab(hour=9, minute=0, day_of_week=0),
-        },
-        # Grade promotion check runs daily at 00:05 UTC.
-        # The task is a no-op unless today matches GRADE_PROMOTION_DATE.
-        "promote-student-grades-daily": {
-            "task": "src.auth.tasks.promote_student_grades",
-            "schedule": crontab(hour=0, minute=5),
-        },
-        # Nightly materialized view refresh for teacher reports at 02:00 UTC.
-        "refresh-report-views-nightly": {
-            "task": "src.auth.tasks.refresh_report_views_task",
-            "schedule": crontab(hour=2, minute=0),
-        },
-        # Daily alert evaluation at 06:00 UTC.
-        "evaluate-report-alerts-daily": {
-            "task": "src.auth.tasks.evaluate_report_alerts_task",
-            "schedule": crontab(hour=6, minute=0),
-        },
-        # Weekly digest every Monday at 08:00 UTC.
-        "send-weekly-digest-monday": {
-            "task": "src.auth.tasks.send_weekly_digest_task",
-            "schedule": crontab(hour=8, minute=0, day_of_week=1),
-        },
-        # Nightly demo account sweep at 03:00 UTC.
-        # Marks expired demo_requests and deletes associated students rows.
-        "sweep-expired-demo-accounts-nightly": {
-            "task": "src.auth.tasks.sweep_expired_demo_accounts",
-            "schedule": crontab(hour=3, minute=0),
-        },
-        # Nightly demo teacher account sweep at 03:15 UTC (offset from student sweep).
-        "sweep-expired-demo-teacher-accounts-nightly": {
-            "task": "src.auth.tasks.sweep_expired_demo_teacher_accounts",
-            "schedule": crontab(hour=3, minute=15),
-        },
-        # Nightly storage quota reconcile at 01:00 UTC.
-        # Recomputes used_bytes for every school from pipeline_jobs.payload_bytes
-        # to correct any drift from manual deletes or failed increments.
-        "reconcile-school-storage-nightly": {
-            "task": "src.auth.tasks.reconcile_school_storage_task",
-            "schedule": crontab(hour=1, minute=0),
-        },
-        # Retention lifecycle tasks — all run daily at 02:00 UTC in sequence.
-        # Offset by 5 minutes each to avoid simultaneous DB load.
-        # Order: pre-expiry warnings → expiry sweep → grace reminders →
-        #        purge warnings → file purge.
-        "retention-pre-expiry-warnings-daily": {
-            "task": "src.auth.tasks.check_retention_pre_expiry_warnings",
-            "schedule": crontab(hour=2, minute=0),
-        },
-        "retention-expiry-sweep-daily": {
-            "task": "src.auth.tasks.sweep_expired_curricula",
-            "schedule": crontab(hour=2, minute=5),
-        },
-        "retention-grace-reminders-daily": {
-            "task": "src.auth.tasks.check_retention_grace_reminders",
-            "schedule": crontab(hour=2, minute=10),
-        },
-        "retention-purge-warnings-daily": {
-            "task": "src.auth.tasks.check_retention_purge_warnings",
-            "schedule": crontab(hour=2, minute=15),
-        },
-        "retention-purge-daily": {
-            "task": "src.auth.tasks.purge_expired_curricula",
-            "schedule": crontab(hour=2, minute=20),
-        },
-    },
-)
-
-
-def _run_async(coro):
-    """Run an async coroutine from a sync Celery task."""
-    loop = asyncio.new_event_loop()
-    try:
-        return loop.run_until_complete(coro)
-    finally:
-        loop.close()
 
 
 @celery_app.task(name="src.auth.tasks.sync_auth0_suspension", bind=True, max_retries=3)
@@ -178,11 +30,20 @@ def sync_auth0_suspension(self, auth0_sub: str, action: str) -> None:
 
     action: "block" | "unblock"
     """
-    from src.auth.service import block_auth0_user
+    import redis.asyncio as aioredis_mod
+    from config import settings as cfg
+
+    from src.auth.auth0_client import block_auth0_user
+
+    async def _run():
+        redis = await aioredis_mod.from_url(cfg.REDIS_URL)
+        try:
+            await block_auth0_user(auth0_sub, blocked=(action == "block"), redis=redis)
+        finally:
+            await redis.aclose()
 
     try:
-        blocked = action == "block"
-        _run_async(block_auth0_user(auth0_sub, blocked=blocked))
+        _run_async(_run())
     except Exception as exc:
         raise self.retry(exc=exc, countdown=60)
 
@@ -252,12 +113,14 @@ def gdpr_delete_account(self, student_id: str, auth0_sub: str) -> None:
     3. Delete user from Auth0.
     """
     import asyncpg
+    import redis.asyncio as aioredis_mod
     from config import settings as cfg
 
-    from src.auth.service import delete_auth0_user
+    from src.auth.auth0_client import delete_auth0_user
 
     async def _delete():
         pool = await asyncpg.create_pool(cfg.DATABASE_URL, min_size=1, max_size=2)
+        redis = await aioredis_mod.from_url(cfg.REDIS_URL)
         try:
             anon_name = f"deleted-{student_id[:8]}"
             anon_email = f"deleted-{student_id}@deleted.invalid"
@@ -271,10 +134,10 @@ def gdpr_delete_account(self, student_id: str, auth0_sub: str) -> None:
                 anon_email,
                 uuid.UUID(student_id),
             )
+            await delete_auth0_user(auth0_sub, redis=redis)
         finally:
+            await redis.aclose()
             await pool.close()
-
-        await delete_auth0_user(auth0_sub)
 
     try:
         _run_async(_delete())
@@ -1956,6 +1819,7 @@ def purge_expired_curricula() -> None:
     records are NOT deleted.
     """
     from config import settings as cfg
+    from src.core.storage import LocalStorage
     from src.school.retention_service import purge_grace_expired
 
     async def _run() -> None:
@@ -1966,9 +1830,38 @@ def purge_expired_curricula() -> None:
             await conn.execute(
                 "SELECT set_config('app.current_school_id', 'bypass', false)"
             )
-            content_store = getattr(cfg, "CONTENT_STORE_PATH", "/tmp/studybuddy-content")
-            await purge_grace_expired(conn, content_store)
+            storage = LocalStorage(root=getattr(cfg, "CONTENT_STORE_PATH", "/tmp/studybuddy-content"))
+            await purge_grace_expired(conn, storage)
         finally:
             await conn.close()
+
+
+# ── Payment action required (SCA / 3DS) ──────────────────────────────────────
+
+
+@celery_app.task(
+    name="src.auth.tasks.send_payment_action_required_email_task",
+    bind=True,
+    max_retries=3,
+)
+def send_payment_action_required_email_task(
+    self,
+    to_email: str,
+    action_url: str,
+) -> None:
+    """
+    Notify a school admin that their bank requires SCA / 3DS verification.
+
+    to_email     — school contact_email
+    action_url   — Stripe hosted_invoice_url containing the 3DS challenge link
+
+    Retries up to 3× on SMTP failure (30-second backoff).
+    """
+    from src.email.service import send_payment_action_required_email
+
+    try:
+        _run_async(send_payment_action_required_email(to_email=to_email, action_url=action_url))
+    except Exception as exc:
+        raise self.retry(exc=exc, countdown=30)
 
     _run_async(_run())

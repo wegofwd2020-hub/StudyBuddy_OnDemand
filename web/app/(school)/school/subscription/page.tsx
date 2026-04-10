@@ -7,11 +7,13 @@ import {
   getSchoolSubscription,
   createSchoolCheckout,
   cancelSchoolSubscription,
+  createExtraBuildCheckout,
+  createCreditsBundleCheckout,
 } from "@/lib/api/school-admin";
 import { SCHOOL_PLANS_LIST, formatPlanPrice } from "@/lib/pricing";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, CheckCircle, XCircle, CreditCard, Users, GraduationCap, AlertTriangle, Hammer } from "lucide-react";
+import { Loader2, CheckCircle, XCircle, CreditCard, Users, GraduationCap, AlertTriangle, Hammer, PackagePlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // ── Seat usage bar ────────────────────────────────────────────────────────────
@@ -162,6 +164,8 @@ export default function SubscriptionPage() {
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [cancelSuccess, setCancelSuccess] = useState(false);
+  const [buyingExtraBuild, setBuyingExtraBuild] = useState(false);
+  const [buyingBundle, setBuyingBundle] = useState<number | null>(null); // bundle size
 
   const { data: sub, isLoading } = useQuery({
     queryKey: ["school-subscription", schoolId],
@@ -206,6 +210,41 @@ export default function SubscriptionPage() {
           : "Could not start checkout. Please try again.";
       setCheckoutError(msg);
       setCheckingOut(null);
+    }
+  }
+
+  async function handleExtraBuild() {
+    if (!origin) return;
+    setBuyingExtraBuild(true);
+    setCheckoutError(null);
+    try {
+      const { checkout_url } = await createExtraBuildCheckout(
+        schoolId,
+        `${origin}/school/subscription?success=1`,
+        `${origin}/school/subscription?cancelled=1`,
+      );
+      window.location.href = checkout_url;
+    } catch {
+      setCheckoutError("Could not start checkout. Please try again.");
+      setBuyingExtraBuild(false);
+    }
+  }
+
+  async function handleCreditBundle(bundleSize: 3 | 10 | 25) {
+    if (!origin) return;
+    setBuyingBundle(bundleSize);
+    setCheckoutError(null);
+    try {
+      const { checkout_url } = await createCreditsBundleCheckout(
+        schoolId,
+        bundleSize,
+        `${origin}/school/subscription?success=1`,
+        `${origin}/school/subscription?cancelled=1`,
+      );
+      window.location.href = checkout_url;
+    } catch {
+      setCheckoutError("Could not start checkout. Please try again.");
+      setBuyingBundle(null);
     }
   }
 
@@ -329,6 +368,102 @@ export default function SubscriptionPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Extra builds / credit bundles — shown when admin has an active subscription */}
+      {isAdmin && hasSub && sub && sub.builds_included !== -1 && (
+        <div className="space-y-3">
+          <h2 className="text-base font-semibold text-gray-900">Curriculum builds</h2>
+          <p className="text-sm text-gray-500">
+            Your plan includes{" "}
+            <span className="font-medium text-gray-700">
+              {sub.builds_included} build{sub.builds_included !== 1 ? "s" : ""} / year
+            </span>
+            . You have used{" "}
+            <span className="font-medium text-gray-700">{sub.builds_used}</span>.
+            {sub.builds_credits_balance > 0 && (
+              <>
+                {" "}Rollover credit balance:{" "}
+                <span className="font-medium text-blue-700">
+                  {sub.builds_credits_balance} credit{sub.builds_credits_balance !== 1 ? "s" : ""}
+                </span>.
+              </>
+            )}
+          </p>
+
+          {/* Single extra build CTA — shown when allowance is exhausted */}
+          {sub.builds_remaining === 0 && (
+            <div className="flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
+              <AlertTriangle className="h-4 w-4 shrink-0 text-amber-500" />
+              <p className="flex-1 text-sm text-amber-800">
+                Plan allowance exhausted.
+                {sub.builds_credits_balance > 0
+                  ? ` You have ${sub.builds_credits_balance} rollover credit${sub.builds_credits_balance !== 1 ? "s" : ""} remaining.`
+                  : " Purchase an extra build or a credit bundle below."}
+              </p>
+              {sub.builds_credits_balance === 0 && (
+                <Button
+                  size="sm"
+                  className="gap-2 shrink-0"
+                  disabled={buyingExtraBuild}
+                  onClick={handleExtraBuild}
+                >
+                  {buyingExtraBuild ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <CreditCard className="h-3.5 w-3.5" />
+                  )}
+                  Buy 1 build — $15
+                </Button>
+              )}
+            </div>
+          )}
+
+          {/* Credit bundle cards */}
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            {(
+              [
+                { size: 3,  price: "$39",  saving: null },
+                { size: 10, price: "$119", saving: "Save 21%" },
+                { size: 25, price: "$269", saving: "Save 28%" },
+              ] as { size: 3 | 10 | 25; price: string; saving: string | null }[]
+            ).map(({ size, price, saving }) => (
+              <div
+                key={size}
+                className="flex flex-col gap-2 rounded-xl border border-gray-200 p-4"
+              >
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {size} build credit{size !== 1 ? "s" : ""}
+                    </p>
+                    <p className="text-xs text-gray-500">Roll over — never expire</p>
+                  </div>
+                  {saving && (
+                    <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+                      {saving}
+                    </span>
+                  )}
+                </div>
+                <p className="text-lg font-bold text-gray-900">{price}</p>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="mt-auto gap-2"
+                  disabled={buyingBundle !== null || buyingExtraBuild}
+                  onClick={() => handleCreditBundle(size)}
+                >
+                  {buyingBundle === size ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <PackagePlus className="h-3.5 w-3.5" />
+                  )}
+                  Buy bundle
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Plan comparison */}
       {isAdmin && (

@@ -22,11 +22,12 @@ from __future__ import annotations
 
 import json
 import uuid
-from unittest.mock import patch
 
 import pytest
 from httpx import AsyncClient
 
+from main import app
+from src.core.storage import LocalStorage
 from tests.helpers.token_factory import make_admin_token
 
 # ── Fixed IDs ─────────────────────────────────────────────────────────────────
@@ -135,12 +136,12 @@ async def test_get_warnings_empty_when_no_meta(client, tmp_path):
     await _ensure_admin(client)
     vid, _, _ = await _insert_version(client, warnings_count=0)
 
-    with patch("src.admin.service._settings") as mock_cfg:
-        mock_cfg.CONTENT_STORE_PATH = str(tmp_path)
-        r = await client.get(
-            f"/api/v1/admin/content/review/{vid}/warnings",
-            headers=_hdrs(),
-        )
+    # No meta.json written — storage returns exists=False, warnings list is empty.
+    app.state.storage = LocalStorage(root=str(tmp_path))
+    r = await client.get(
+        f"/api/v1/admin/content/review/{vid}/warnings",
+        headers=_hdrs(),
+    )
 
     assert r.status_code == 200
     data = r.json()
@@ -167,12 +168,11 @@ async def test_get_warnings_returns_unacked_warnings(client, tmp_path):
         ])
     )
 
-    with patch("src.admin.service._settings") as mock_cfg:
-        mock_cfg.CONTENT_STORE_PATH = str(tmp_path)
-        r = await client.get(
-            f"/api/v1/admin/content/review/{vid}/warnings",
-            headers=_hdrs(),
-        )
+    app.state.storage = LocalStorage(root=str(tmp_path))
+    r = await client.get(
+        f"/api/v1/admin/content/review/{vid}/warnings",
+        headers=_hdrs(),
+    )
 
     assert r.status_code == 200
     data = r.json()
@@ -215,24 +215,23 @@ async def test_acknowledge_warning_marks_acknowledged(client, tmp_path):
         _meta_json(unit_id, [{"line": 2, "column": 1, "message": "Don't use \"lame\""}])
     )
 
-    with patch("src.admin.service._settings") as mock_cfg:
-        mock_cfg.CONTENT_STORE_PATH = str(tmp_path)
+    app.state.storage = LocalStorage(root=str(tmp_path))
 
-        ack_r = await client.post(
-            f"/api/v1/admin/content/review/{vid}/warnings/{unit_id}/lesson/0/acknowledge",
-            json={"is_false_positive": False},
-            headers=_hdrs(),
-        )
-        assert ack_r.status_code == 200
-        ack_data = ack_r.json()
-        assert ack_data["is_false_positive"] is False
-        assert ack_data["unit_id"] == unit_id
-        assert ack_data["warning_index"] == 0
+    ack_r = await client.post(
+        f"/api/v1/admin/content/review/{vid}/warnings/{unit_id}/lesson/0/acknowledge",
+        json={"is_false_positive": False},
+        headers=_hdrs(),
+    )
+    assert ack_r.status_code == 200
+    ack_data = ack_r.json()
+    assert ack_data["is_false_positive"] is False
+    assert ack_data["unit_id"] == unit_id
+    assert ack_data["warning_index"] == 0
 
-        get_r = await client.get(
-            f"/api/v1/admin/content/review/{vid}/warnings",
-            headers=_hdrs(),
-        )
+    get_r = await client.get(
+        f"/api/v1/admin/content/review/{vid}/warnings",
+        headers=_hdrs(),
+    )
 
     assert get_r.status_code == 200
     data = get_r.json()
@@ -256,16 +255,15 @@ async def test_acknowledge_warning_idempotent(client, tmp_path):
 
     url = f"/api/v1/admin/content/review/{vid}/warnings/{unit_id}/lesson/0/acknowledge"
 
-    with patch("src.admin.service._settings") as mock_cfg:
-        mock_cfg.CONTENT_STORE_PATH = str(tmp_path)
+    app.state.storage = LocalStorage(root=str(tmp_path))
 
-        r1 = await client.post(url, json={"is_false_positive": False}, headers=_hdrs())
-        assert r1.status_code == 200
+    r1 = await client.post(url, json={"is_false_positive": False}, headers=_hdrs())
+    assert r1.status_code == 200
 
-        # Re-submit as false positive
-        r2 = await client.post(url, json={"is_false_positive": True}, headers=_hdrs())
-        assert r2.status_code == 200
-        assert r2.json()["is_false_positive"] is True
+    # Re-submit as false positive
+    r2 = await client.post(url, json={"is_false_positive": True}, headers=_hdrs())
+    assert r2.status_code == 200
+    assert r2.json()["is_false_positive"] is True
 
     pool = client._transport.app.state.pool
     count = await pool.fetchval(

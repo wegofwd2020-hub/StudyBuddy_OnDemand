@@ -30,6 +30,17 @@ class Settings(BaseSettings):
     DATABASE_POOL_MIN: int = 5
     DATABASE_POOL_MAX: int = 20
 
+    # ── Connection pool arithmetic ────────────────────────────────────────────
+    # Total connections to PgBouncer = DATABASE_POOL_MAX × WORKER_COUNT.
+    # This must not exceed PGBOUNCER_POOL_SIZE or connections will be queued
+    # or dropped under load, producing intermittent asyncpg.TooManyConnectionsError.
+    #
+    # Default WORKER_COUNT=1 matches single-worker dev; set it to the gunicorn
+    # worker count (-w N) in production.  Default PGBOUNCER_POOL_SIZE=100 is the
+    # recommended PgBouncer pool size for a 4-worker deployment with pool_max=20.
+    PGBOUNCER_POOL_SIZE: int = 100
+    WORKER_COUNT: int = 1
+
     # ── Redis ─────────────────────────────────────────────────────────────────
     REDIS_URL: str
     REDIS_MAX_CONNECTIONS: int = 10
@@ -70,6 +81,10 @@ class Settings(BaseSettings):
 
     # ── Content Store ─────────────────────────────────────────────────────────
     CONTENT_STORE_PATH: str = "/data/content"
+    # "local" uses CONTENT_STORE_PATH on the local filesystem (default, single-host).
+    # "s3" uses S3_BUCKET_NAME + S3_KEY_PREFIX (multi-host production).
+    STORAGE_BACKEND: str = "local"
+    S3_KEY_PREFIX: str = ""  # optional path prefix within the bucket
 
     # ── Stripe ────────────────────────────────────────────────────────────────
     STRIPE_SECRET_KEY: str | None = None
@@ -86,6 +101,13 @@ class Settings(BaseSettings):
 
     # ── Celery ────────────────────────────────────────────────────────────────
     CELERY_BROKER_URL: str | None = None
+
+    # ── RedBeat (distributed Beat scheduler) ─────────────────────────────────
+    # How long the primary Beat holds the Redis lock before it is considered
+    # dead and the standby instance takes over.  5 minutes gives the primary
+    # enough headroom for a slow task dispatch cycle while still recovering
+    # quickly after a crash.
+    REDBEAT_LOCK_TIMEOUT: int = 300  # seconds (5 minutes)
 
     # ── Dictionary (Phase 7) ─────────────────────────────────────────────────
     MW_API_KEY: str | None = None  # Merriam-Webster Collegiate Dictionary API key
@@ -217,17 +239,23 @@ class Settings(BaseSettings):
         from src.pricing import TEACHER_PLANS
         return next(p.price_monthly for p in TEACHER_PLANS if p.id == "pro")
 
-    # ── Extra curriculum build price ──────────────────────────────────────────
-    STRIPE_SCHOOL_PRICE_EXTRA_BUILD_ID: str | None = None  # $15/grade build — Q3-B #106
-
     # ── School curriculum build allowance per plan (Option A — absorbed into plan)
     # Number of grade-level pipeline builds included per subscription year.
     # -1 = unlimited (Enterprise).
-    # Future: Option B (pay-per-build) and Option C (credit bundles) tracked in
-    # GitHub issues feat/q3-b-pay-per-build and feat/q3-c-credit-bundles.
     SCHOOL_BUILDS_STARTER: int = 1
     SCHOOL_BUILDS_PROFESSIONAL: int = 3
     SCHOOL_BUILDS_ENTERPRISE: int = -1  # unlimited
+
+    # ── Extra curriculum build — pay-per-build (Option B, #106) ──────────────
+    # One-time $15 Stripe payment per grade beyond plan allowance.
+    STRIPE_SCHOOL_PRICE_EXTRA_BUILD_ID: str | None = None
+
+    # ── Credit bundles — rollover build credits (Option C, #107) ─────────────
+    # One-time Stripe payments; credits never expire.
+    # Bundles: 3 credits/$39  ·  10 credits/$119  ·  25 credits/$269
+    STRIPE_SCHOOL_PRICE_CREDITS_3_ID: str | None = None
+    STRIPE_SCHOOL_PRICE_CREDITS_10_ID: str | None = None
+    STRIPE_SCHOOL_PRICE_CREDITS_25_ID: str | None = None
 
     # ── Independent Teacher plan pricing (Option A — flat fee, teacher keeps student revenue)
     # Future: Option B (revenue share) tracked in feat/q2-b-revenue-share.
@@ -236,8 +264,11 @@ class Settings(BaseSettings):
     TEACHER_PLAN_GROWTH_MONTHLY_USD: str = "59.00"  # Growth: up to 75 students (future)
     TEACHER_PLAN_PRO_MONTHLY_USD: str = "99.00"     # Pro: up to 200 students (future)
 
-    # ── Extra curriculum build price (Stripe one-time, beyond plan allowance) ──
-    STRIPE_SCHOOL_PRICE_EXTRA_BUILD_ID: str | None = None  # $15/grade build
+    # ── Mobile API versioning ─────────────────────────────────────────────────
+    # Oldest mobile app version the backend will accept (semver string).
+    # Requests carrying X-App-Version below this receive HTTP 426 Upgrade Required.
+    # Bump this when a breaking API change ships; give field devices 90 days to update.
+    MINIMUM_SUPPORTED_APP_VERSION: str = "2.0.0"
 
     # ── Feature flags ─────────────────────────────────────────────────────────
     REVIEW_AUTO_APPROVE: bool = False
@@ -247,6 +278,28 @@ class Settings(BaseSettings):
     def secrets_must_differ(self) -> Settings:
         if self.JWT_SECRET == self.ADMIN_JWT_SECRET:
             raise ValueError("JWT_SECRET and ADMIN_JWT_SECRET must be different values.")
+        return self
+
+    @model_validator(mode="after")
+    def connection_pool_arithmetic(self) -> Settings:
+        """
+        Guard against pool exhaustion before the first connection is made.
+
+        Total connections = DATABASE_POOL_MAX × WORKER_COUNT must not exceed
+        PGBOUNCER_POOL_SIZE.  A violation here surfaces at startup (config
+        import) rather than as intermittent asyncpg.TooManyConnectionsError
+        under production load.
+        """
+        total = self.DATABASE_POOL_MAX * self.WORKER_COUNT
+        if total > self.PGBOUNCER_POOL_SIZE:
+            raise ValueError(
+                f"Connection pool arithmetic invalid: "
+                f"DATABASE_POOL_MAX ({self.DATABASE_POOL_MAX}) × "
+                f"WORKER_COUNT ({self.WORKER_COUNT}) = {total} connections "
+                f"> PGBOUNCER_POOL_SIZE ({self.PGBOUNCER_POOL_SIZE}). "
+                f"Reduce DATABASE_POOL_MAX, increase PGBOUNCER_POOL_SIZE, "
+                f"or reduce WORKER_COUNT."
+            )
         return self
 
     @field_validator("JWT_SECRET", "ADMIN_JWT_SECRET", mode="before")

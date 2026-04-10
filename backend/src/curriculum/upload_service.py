@@ -343,7 +343,7 @@ async def trigger_pipeline(
 
     # Dispatch Celery task
     try:
-        from src.auth.tasks import celery_app
+        from src.core.celery_app import celery_app
 
         celery_app.send_task(
             "src.auth.tasks.run_curriculum_pipeline_task",

@@ -20,6 +20,8 @@ try:
 except ImportError:
     BACKEND_URL = os.environ.get("BACKEND_URL", "http://localhost:8000")
 
+from mobile.src.api import version_headers  # noqa: E402
+
 
 async def exchange_id_token(id_token: str) -> dict:
     """
@@ -32,7 +34,7 @@ async def exchange_id_token(id_token: str) -> dict:
     """
     url = f"{BACKEND_URL}/api/v1/auth/exchange"
     async with httpx.AsyncClient(timeout=15) as client:
-        resp = await client.post(url, json={"id_token": id_token})
+        resp = await client.post(url, json={"id_token": id_token}, headers=version_headers())
         resp.raise_for_status()
         return resp.json()
 

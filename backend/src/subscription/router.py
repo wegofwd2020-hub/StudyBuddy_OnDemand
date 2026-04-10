@@ -24,7 +24,9 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException, Request
 
 from src.core.db import get_db
+from src.core.events import write_audit_log
 from src.core.redis_client import get_redis
+from src.core.stripe_async import run_stripe
 from src.subscription.service import already_processed, log_stripe_event
 from src.utils.logger import get_logger
 
@@ -60,9 +62,10 @@ async def stripe_webhook(request: Request) -> dict:
     sig_header = request.headers.get("stripe-signature", "")
 
     # ── Signature verification ────────────────────────────────────────────────
+    # construct_event is CPU-bound (HMAC) — run in executor to keep the loop free.
     try:
         stripe_mod = _get_stripe_module()
-        event = stripe_mod.Webhook.construct_event(payload, sig_header, webhook_secret)
+        event = await run_stripe(stripe_mod.Webhook.construct_event, payload, sig_header, webhook_secret)
     except Exception as exc:
         log.warning("stripe_signature_invalid error=%s", exc)
         raise HTTPException(
@@ -186,6 +189,41 @@ async def _dispatch_school_event(conn, redis, event_type: str, obj: dict) -> Non
             await handle_storage_addon_payment(conn, school_id, additional_gb)
             return
 
+        # ── #106: extra build payment ($15 / one grade build) ─────────────────
+        if product_type == "extra_build":
+            from src.school.subscription_service import handle_extra_build_payment
+
+            if not school_id:
+                log.warning(
+                    "extra_build_checkout.session.completed missing school_id in metadata"
+                )
+                return
+            await handle_extra_build_payment(conn, school_id)
+            return
+
+        # ── #107: build credit bundle payment ─────────────────────────────────
+        if product_type == "build_credits":
+            from src.school.subscription_service import handle_credits_bundle_payment
+
+            credits_str = metadata.get("credits", "0")
+            try:
+                credits = int(credits_str)
+            except ValueError:
+                log.warning(
+                    "build_credits_checkout.session.completed invalid credits=%s",
+                    credits_str,
+                )
+                return
+            if not school_id or credits <= 0:
+                log.warning(
+                    "build_credits_checkout.session.completed missing/invalid metadata "
+                    "school_id=%s credits=%d",
+                    school_id, credits,
+                )
+                return
+            await handle_credits_bundle_payment(conn, school_id, credits)
+            return
+
         # ── School subscription (existing flow) ───────────────────────────────
         plan = metadata.get("plan")
         if not school_id or not plan:
@@ -203,7 +241,7 @@ async def _dispatch_school_event(conn, redis, event_type: str, obj: dict) -> Non
             stripe_mod = _get_stripe_module()
             from config import settings as _settings
             stripe_mod.api_key = _settings.STRIPE_SECRET_KEY
-            sub = stripe_mod.Subscription.retrieve(stripe_subscription_id)
+            sub = await run_stripe(stripe_mod.Subscription.retrieve, stripe_subscription_id)
             import datetime as _dt
             current_period_end = _dt.datetime.fromtimestamp(sub["current_period_end"], tz=_dt.UTC)
         except Exception as exc:
@@ -239,5 +277,71 @@ async def _dispatch_school_event(conn, redis, event_type: str, obj: dict) -> Non
         if stripe_subscription_id:
             await handle_school_payment_failed(conn, redis, stripe_subscription_id)
 
+    elif event_type == "invoice.payment_action_required":
+        await _handle_payment_action_required(conn, obj)
+
     else:
         log.debug("school_stripe_event_unhandled event_type=%s", event_type)
+
+
+async def _handle_payment_action_required(conn, obj: dict) -> None:
+    """
+    Handle invoice.payment_action_required — fires when a European bank requires
+    SCA / 3DS authentication before authorising a subscription payment.
+
+    Resolves the school via stripe_subscription_id from school_subscriptions,
+    then fetches the contact_email from schools.  Dispatches a Celery task
+    to email the contact with the Stripe hosted_invoice_url so they can
+    complete the 3DS challenge.  The audit log records the event for compliance.
+
+    If the subscription is not found (e.g. a non-school invoice or setup-mode
+    invoice before a subscription exists), the event is silently skipped —
+    Stripe still receives a 200.
+    """
+    stripe_subscription_id: str = obj.get("subscription", "")
+    action_url: str = obj.get("hosted_invoice_url", "")
+
+    if not stripe_subscription_id:
+        log.warning("payment_action_required_missing_subscription_id")
+        return
+
+    row = await conn.fetchrow(
+        """
+        SELECT ss.school_id, s.contact_email
+        FROM school_subscriptions ss
+        JOIN schools s ON s.school_id = ss.school_id
+        WHERE ss.stripe_subscription_id = $1
+        """,
+        stripe_subscription_id,
+    )
+
+    if not row:
+        log.info(
+            "payment_action_required_school_not_found stripe_sub=%s",
+            stripe_subscription_id,
+        )
+        return
+
+    school_id = str(row["school_id"])
+    contact_email: str = row["contact_email"]
+
+    from src.auth.tasks import send_payment_action_required_email_task
+
+    send_payment_action_required_email_task.delay(
+        to_email=contact_email,
+        action_url=action_url,
+    )
+
+    write_audit_log(
+        event_type="payment_action_required",
+        actor_type="stripe",
+        actor_id=None,
+        target_type="school",
+        target_id=row["school_id"],
+    )
+
+    log.info(
+        "payment_action_required_email_queued school_id=%s contact_email=%s",
+        school_id,
+        contact_email,
+    )

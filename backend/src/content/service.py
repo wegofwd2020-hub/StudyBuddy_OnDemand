@@ -16,14 +16,13 @@ handles L1 where applicable.
 from __future__ import annotations
 
 import json
-import os
 
 import asyncpg
-from config import settings
 
 import uuid as _uuid
 
 from src.core.cache_keys import content_key, csv_key, cur_key, ent_key, quiz_set_key, school_ent_key
+from src.core.storage import StorageBackend
 from src.utils.logger import get_logger
 
 log = get_logger("content.service")
@@ -200,6 +199,7 @@ async def get_content_file(
     unit_id: str,
     filename: str,
     redis,
+    storage: StorageBackend,
 ) -> dict:
     """
     Read a content JSON file from the Content Store.
@@ -216,19 +216,8 @@ async def get_content_file(
         except Exception:
             pass  # corrupt cache entry — fall through
 
-    file_path = os.path.join(
-        settings.CONTENT_STORE_PATH,
-        "curricula",
-        curriculum_id,
-        unit_id,
-        filename,
-    )
-
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"Content file not found: {file_path}")
-
-    with open(file_path, encoding="utf-8") as f:
-        data = json.load(f)
+    path = f"curricula/{curriculum_id}/{unit_id}/{filename}"
+    data = await storage.read_json(path)  # raises FileNotFoundError if absent
 
     await redis.set(key, json.dumps(data), ex=_CONTENT_TTL)
     return data

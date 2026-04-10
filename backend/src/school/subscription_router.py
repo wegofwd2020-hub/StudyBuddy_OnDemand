@@ -14,6 +14,14 @@ Routes (all prefixed /api/v1 in main.py):
   POST   /schools/{school_id}/storage/checkout
          — create a one-time Stripe payment to purchase storage add-on (5/10/25 GB)
 
+  #106 — pay-per-build:
+  POST   /schools/{school_id}/pipeline/extra-build-checkout
+         — $15 one-time Stripe payment for one extra grade build credit
+
+  #107 — credit bundles:
+  POST   /schools/{school_id}/pipeline/credits-checkout
+         — one-time Stripe payment for 3/10/25 build credits ($39/$119/$269)
+
 Auth: school_admin JWT only for billing endpoints.  school_id in path must match JWT.
 """
 
@@ -30,6 +38,8 @@ from src.core.redis_client import get_redis
 from src.school.subscription_service import (
     cancel_school_stripe_subscription,
     cancel_school_subscription_db,
+    create_credits_bundle_checkout_session,
+    create_extra_build_checkout_session,
     create_renewal_checkout_session,
     create_school_checkout_session,
     create_storage_checkout_session,
@@ -80,6 +90,24 @@ class StorageCheckoutRequest(BaseModel):
         return v
 
 
+class ExtraBuildCheckoutRequest(BaseModel):
+    success_url: str
+    cancel_url: str
+
+
+class CreditsBundleCheckoutRequest(BaseModel):
+    bundle_size: int          # 3, 10, or 25
+    success_url: str
+    cancel_url: str
+
+    @field_validator("bundle_size")
+    @classmethod
+    def valid_bundle(cls, v: int) -> int:
+        if v not in (3, 10, 25):
+            raise ValueError("bundle_size must be 3, 10, or 25")
+        return v
+
+
 class SchoolSubscriptionStatusResponse(BaseModel):
     plan: str
     status: str | None = None
@@ -88,6 +116,13 @@ class SchoolSubscriptionStatusResponse(BaseModel):
     seats_used_students: int = 0
     seats_used_teachers: int = 0
     current_period_end: str | None = None
+    # Build allowance (Option A — absorbed into plan)
+    builds_included: int = 0          # -1 = unlimited (Enterprise)
+    builds_used: int = 0
+    builds_remaining: int = 0         # -1 = unlimited
+    builds_period_end: str | None = None
+    # Rollover credit balance (Options B/C — never expires)
+    builds_credits_balance: int = 0
 
 
 class SchoolSubscriptionCancelResponse(BaseModel):
@@ -462,5 +497,142 @@ async def storage_addon_checkout(
     log.info(
         "storage_checkout_created school_id=%s gb_package=%d",
         school_id, body.gb_package,
+    )
+    return SchoolCheckoutResponse(checkout_url=url)
+
+
+# ── POST /schools/{school_id}/pipeline/extra-build-checkout (#106) ────────────
+
+
+@router.post(
+    "/schools/{school_id}/pipeline/extra-build-checkout",
+    response_model=SchoolCheckoutResponse,
+    status_code=200,
+)
+async def extra_build_checkout(
+    school_id: str,
+    body: ExtraBuildCheckoutRequest,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> SchoolCheckoutResponse:
+    """
+    Create a Stripe Checkout Session (mode=payment) for one extra grade build.
+
+    Price: $15.  Adds 1 credit to builds_credits_balance on payment, which can
+    be consumed the next time the school triggers a pipeline build beyond their
+    plan allowance.
+
+    Only school_admin may initiate this purchase.
+    """
+    _assert_school_match(teacher, school_id, request)
+
+    if teacher.get("role") != "school_admin":
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "forbidden",
+                "detail": "Only school_admin can purchase extra builds.",
+                "correlation_id": _cid(request),
+            },
+        )
+
+    try:
+        url = await create_extra_build_checkout_session(
+            school_id=school_id,
+            success_url=body.success_url,
+            cancel_url=body.cancel_url,
+        )
+    except RuntimeError as exc:
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "error": "payment_unavailable",
+                "detail": str(exc),
+                "correlation_id": _cid(request),
+            },
+        )
+    except Exception as exc:
+        log.error("extra_build_checkout_error school_id=%s error=%s", school_id, exc)
+        raise HTTPException(
+            status_code=502,
+            detail={
+                "error": "stripe_error",
+                "detail": "Could not create extra build checkout session.",
+                "correlation_id": _cid(request),
+            },
+        )
+
+    log.info("extra_build_checkout_created school_id=%s", school_id)
+    return SchoolCheckoutResponse(checkout_url=url)
+
+
+# ── POST /schools/{school_id}/pipeline/credits-checkout (#107) ────────────────
+
+
+@router.post(
+    "/schools/{school_id}/pipeline/credits-checkout",
+    response_model=SchoolCheckoutResponse,
+    status_code=200,
+)
+async def credits_bundle_checkout(
+    school_id: str,
+    body: CreditsBundleCheckoutRequest,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> SchoolCheckoutResponse:
+    """
+    Create a Stripe Checkout Session (mode=payment) for a build credit bundle.
+
+    bundle_size must be 3, 10, or 25 (priced at $39 / $119 / $269).
+    Credits roll over — they never expire.
+    On payment, builds_credits_balance is incremented by bundle_size.
+
+    Only school_admin may initiate this purchase.
+    """
+    _assert_school_match(teacher, school_id, request)
+
+    if teacher.get("role") != "school_admin":
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "forbidden",
+                "detail": "Only school_admin can purchase credit bundles.",
+                "correlation_id": _cid(request),
+            },
+        )
+
+    try:
+        url = await create_credits_bundle_checkout_session(
+            school_id=school_id,
+            bundle_size=body.bundle_size,
+            success_url=body.success_url,
+            cancel_url=body.cancel_url,
+        )
+    except RuntimeError as exc:
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "error": "payment_unavailable",
+                "detail": str(exc),
+                "correlation_id": _cid(request),
+            },
+        )
+    except Exception as exc:
+        log.error(
+            "credits_bundle_checkout_error school_id=%s bundle_size=%d error=%s",
+            school_id, body.bundle_size, exc,
+        )
+        raise HTTPException(
+            status_code=502,
+            detail={
+                "error": "stripe_error",
+                "detail": "Could not create credits checkout session.",
+                "correlation_id": _cid(request),
+            },
+        )
+
+    log.info(
+        "credits_bundle_checkout_created school_id=%s bundle_size=%d",
+        school_id, body.bundle_size,
     )
     return SchoolCheckoutResponse(checkout_url=url)

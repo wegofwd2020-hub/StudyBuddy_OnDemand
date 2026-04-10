@@ -22,9 +22,7 @@ try:
 except ImportError:
     BACKEND_URL = os.environ.get("BACKEND_URL", "http://localhost:8000")
 
-
-def _auth_headers(token: str) -> dict:
-    return {"Authorization": f"Bearer {token}"}
+from mobile.src.api import app_headers  # noqa: E402
 
 
 async def start_lesson_view(token: str, unit_id: str, curriculum_id: str) -> dict:
@@ -39,7 +37,7 @@ async def start_lesson_view(token: str, unit_id: str, curriculum_id: str) -> dic
         response = await client.post(
             url,
             json={"unit_id": unit_id, "curriculum_id": curriculum_id},
-            headers=_auth_headers(token),
+            headers=app_headers(token),
         )
         response.raise_for_status()
         return response.json()
@@ -68,7 +66,7 @@ def end_lesson_view(
             "audio_played": audio_played,
             "experiment_viewed": experiment_viewed,
         },
-        headers=_auth_headers(token),
+        headers=app_headers(token),
         timeout=15,
     )
     response.raise_for_status()

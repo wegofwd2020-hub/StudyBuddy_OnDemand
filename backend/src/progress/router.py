@@ -143,7 +143,7 @@ async def record_answer(
             )
 
     # Fire-and-forget Celery task for the actual write
-    from src.auth.tasks import celery_app
+    from src.core.celery_app import celery_app
 
     celery_app.send_task(
         "src.auth.tasks.write_progress_answer_task",
@@ -252,7 +252,7 @@ async def end_session_endpoint(
     # Fire-and-forget: streak update + materialized view refresh
     from datetime import date
 
-    from src.auth.tasks import celery_app
+    from src.core.celery_app import celery_app
 
     today = date.today().isoformat()
     celery_app.send_task(
