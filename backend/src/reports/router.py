@@ -36,28 +36,34 @@ from src.reports.schemas import (
     AlertListResponse,
     AlertSettings,
     AlertSettingsResponse,
+    AtRiskListResponse,
     CurriculumHealthReport,
     DigestSubscribeRequest,
     DigestSubscribeResponse,
     ExportRequest,
     ExportResponse,
     FeedbackReport,
+    MarkSeenResponse,
     OverviewReport,
     RefreshResponse,
+    SendReminderResponse,
     StudentReport,
     TrendsReport,
     UnitReport,
 )
 from src.reports.service import (
     get_alerts,
+    get_at_risk_students,
     get_curriculum_health,
     get_feedback_report,
     get_overview,
     get_student_report,
     get_trends,
     get_unit_report,
+    mark_at_risk_student_seen,
     refresh_materialized_views,
     save_alert_settings,
+    send_at_risk_reminder,
     subscribe_digest,
     trigger_export,
 )
@@ -299,6 +305,58 @@ async def download_export(
         media_type="text/csv",
         filename=f"report_{export_id}.csv",
     )
+
+
+# ── At-Risk Student Action Queue (#79) ───────────────────────────────────────
+
+
+@router.get("/reports/school/{school_id}/at-risk", response_model=AtRiskListResponse)
+async def at_risk_students(
+    school_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> AtRiskListResponse:
+    """
+    Return students who are inactive or have a low pass rate, using the
+    school's configured alert thresholds (defaults: 14 days / 50%).
+    """
+    _check_school(teacher, school_id, request)
+    async with get_db(request) as conn:
+        result = await get_at_risk_students(conn, school_id)
+    return AtRiskListResponse(**result)
+
+
+@router.post("/reports/school/{school_id}/at-risk/{student_id}/seen", response_model=MarkSeenResponse)
+async def mark_seen(
+    school_id: str,
+    student_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+    seen: bool = True,
+) -> MarkSeenResponse:
+    """Toggle the 'seen' acknowledgement for an at-risk student."""
+    _check_school(teacher, school_id, request)
+    teacher_id = str(teacher["teacher_id"])
+    async with get_db(request) as conn:
+        result = await mark_at_risk_student_seen(conn, school_id, student_id, teacher_id, seen)
+    return MarkSeenResponse(**result)
+
+
+@router.post(
+    "/reports/school/{school_id}/at-risk/{student_id}/reminder",
+    response_model=SendReminderResponse,
+)
+async def send_reminder(
+    school_id: str,
+    student_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> SendReminderResponse:
+    """Queue a push notification nudge for a specific at-risk student."""
+    _check_school(teacher, school_id, request)
+    async with get_db(request) as conn:
+        result = await send_at_risk_reminder(conn, school_id, student_id)
+    return SendReminderResponse(**result)
 
 
 # ── Alerts ────────────────────────────────────────────────────────────────────

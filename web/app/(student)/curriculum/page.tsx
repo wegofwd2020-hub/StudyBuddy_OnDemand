@@ -6,7 +6,7 @@ import { LinkButton } from "@/components/ui/link-button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OfflineBanner } from "@/components/student/OfflineBanner";
 import { useTranslations } from "next-intl";
-import { FlaskConical, CheckCircle2, Circle, AlertCircle, Clock } from "lucide-react";
+import { FlaskConical, CheckCircle2, Circle, AlertCircle, Clock, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { UnitStatus } from "@/lib/types/api";
 
@@ -54,7 +54,15 @@ export default function CurriculumMapPage() {
             ))}
           </div>
         ) : !tree?.subjects.length ? (
-          <p className="text-sm text-gray-400">{t("no_units")}</p>
+          <div className="rounded-xl border border-gray-200 bg-white py-16 text-center">
+            <BookOpen className="mx-auto mb-3 h-10 w-10 text-gray-300" />
+            <p className="mb-1 text-sm font-medium text-gray-600">
+              {t("no_units")}
+            </p>
+            <p className="text-xs text-gray-400">
+              Your curriculum hasn&apos;t been published yet. Check back soon.
+            </p>
+          </div>
         ) : (
           tree.subjects.map((subject) => (
             <section key={subject.subject}>

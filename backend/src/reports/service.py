@@ -1011,6 +1011,196 @@ async def subscribe_digest(
     return dict(row)
 
 
+# ── At-Risk Student Action Queue (#79) ───────────────────────────────────────
+
+
+async def get_at_risk_students(
+    conn: asyncpg.Connection,
+    school_id: str,
+) -> dict:
+    """
+    Return students who are either inactive beyond the school's threshold or
+    have a pass rate below the school's threshold.  Augments each row with
+    whether a teacher has already marked the student as "seen".
+    """
+    # Fetch school-specific thresholds (or defaults if not configured).
+    settings_row = await conn.fetchrow(
+        """
+        SELECT inactive_days_threshold, pass_rate_threshold
+        FROM report_alert_settings
+        WHERE school_id = $1
+        """,
+        uuid.UUID(school_id),
+    )
+    inactive_days_threshold = settings_row["inactive_days_threshold"] if settings_row else 14
+    pass_rate_threshold = float(settings_row["pass_rate_threshold"]) if settings_row else 50.0
+
+    rows = await conn.fetch(
+        """
+        WITH enrolled AS (
+            SELECT s.student_id, s.name, s.grade
+            FROM students s
+            JOIN school_enrolments se ON se.student_id = s.student_id
+            WHERE se.school_id = $1 AND se.status = 'active'
+        ),
+        quiz_stats AS (
+            SELECT
+                ps.student_id,
+                MAX(ps.ended_at)                                                          AS last_active,
+                COALESCE(
+                    100.0 * SUM(CASE WHEN ps.passed THEN 1 END)::float / NULLIF(COUNT(*), 0),
+                    0
+                )                                                                         AS pass_rate_pct,
+                SUM(CASE WHEN ps.passed THEN 1 ELSE 0 END)                                AS units_completed
+            FROM progress_sessions ps
+            WHERE ps.student_id IN (SELECT student_id FROM enrolled)
+              AND ps.completed = TRUE
+            GROUP BY ps.student_id
+        ),
+        total_units AS (
+            SELECT c.grade, COUNT(cu.unit_id) AS total
+            FROM curricula c
+            JOIN curriculum_units cu ON cu.curriculum_id = c.curriculum_id
+            WHERE c.is_default = TRUE
+            GROUP BY c.grade
+        )
+        SELECT
+            e.student_id,
+            e.name                                    AS student_name,
+            e.grade,
+            qs.last_active,
+            CASE WHEN qs.last_active IS NOT NULL
+                THEN EXTRACT(EPOCH FROM (NOW() - qs.last_active)) / 86400
+            END::int                                  AS inactive_days,
+            qs.pass_rate_pct,
+            COALESCE(qs.units_completed, 0)           AS units_completed,
+            COALESCE(tu.total, 0)                     AS total_units,
+            CASE WHEN qs.last_active IS NULL
+                      OR EXTRACT(EPOCH FROM (NOW() - qs.last_active)) / 86400 > $2
+                 THEN TRUE ELSE FALSE END             AS inactive,
+            CASE WHEN COALESCE(qs.pass_rate_pct, 0) < $3
+                      AND COALESCE(qs.units_completed, 0) > 0
+                 THEN TRUE ELSE FALSE END             AS low_pass_rate,
+            ars.seen_at                               AS seen_at
+        FROM enrolled e
+        LEFT JOIN quiz_stats qs USING (student_id)
+        LEFT JOIN total_units tu ON tu.grade = e.grade
+        LEFT JOIN at_risk_seen ars ON ars.school_id = $1::uuid
+                                   AND ars.student_id = e.student_id
+        WHERE
+            qs.last_active IS NULL
+            OR EXTRACT(EPOCH FROM (NOW() - qs.last_active)) / 86400 > $2
+            OR (COALESCE(qs.pass_rate_pct, 0) < $3 AND COALESCE(qs.units_completed, 0) > 0)
+        ORDER BY inactive_days DESC NULLS LAST, pass_rate_pct ASC NULLS FIRST
+        """,
+        uuid.UUID(school_id),
+        inactive_days_threshold,
+        pass_rate_threshold,
+    )
+
+    students = [
+        {
+            "student_id": str(r["student_id"]),
+            "student_name": r["student_name"],
+            "grade": r["grade"],
+            "last_active": r["last_active"],
+            "inactive_days": r["inactive_days"],
+            "pass_rate_pct": round(float(r["pass_rate_pct"]), 1) if r["pass_rate_pct"] is not None else None,
+            "units_completed": int(r["units_completed"]),
+            "total_units": int(r["total_units"]),
+            "risk_reasons": {
+                "inactive": bool(r["inactive"]),
+                "low_pass_rate": bool(r["low_pass_rate"]),
+            },
+            "is_seen": r["seen_at"] is not None,
+            "seen_at": r["seen_at"],
+        }
+        for r in rows
+    ]
+    return {
+        "school_id": school_id,
+        "inactive_days_threshold": inactive_days_threshold,
+        "pass_rate_threshold": pass_rate_threshold,
+        "students": students,
+        "total": len(students),
+    }
+
+
+async def mark_at_risk_student_seen(
+    conn: asyncpg.Connection,
+    school_id: str,
+    student_id: str,
+    teacher_id: str,
+    seen: bool,
+) -> dict:
+    """Toggle the seen flag for an at-risk student."""
+    if seen:
+        row = await conn.fetchrow(
+            """
+            INSERT INTO at_risk_seen (school_id, student_id, seen_by, seen_at)
+            VALUES ($1, $2, $3, NOW())
+            ON CONFLICT (school_id, student_id) DO UPDATE SET
+                seen_by = EXCLUDED.seen_by,
+                seen_at = NOW()
+            RETURNING seen_at
+            """,
+            uuid.UUID(school_id),
+            uuid.UUID(student_id),
+            uuid.UUID(teacher_id),
+        )
+        return {"school_id": school_id, "student_id": student_id, "seen": True, "seen_at": row["seen_at"]}
+    else:
+        await conn.execute(
+            "DELETE FROM at_risk_seen WHERE school_id = $1 AND student_id = $2",
+            uuid.UUID(school_id),
+            uuid.UUID(student_id),
+        )
+        return {"school_id": school_id, "student_id": student_id, "seen": False, "seen_at": None}
+
+
+async def send_at_risk_reminder(
+    conn: asyncpg.Connection,
+    school_id: str,
+    student_id: str,
+) -> dict:
+    """
+    Queue a push notification nudge for a specific at-risk student.
+
+    Mirrors check_quiz_nudges — sends via the existing push task on the io queue.
+    Returns immediately; delivery is fire-and-forget.
+    """
+    from src.auth.tasks import celery_app
+
+    rows = await conn.fetch(
+        """
+        SELECT pt.device_token
+        FROM push_tokens pt
+        WHERE pt.student_id = $1
+        """,
+        uuid.UUID(student_id),
+    )
+    queued = False
+    for row in rows:
+        celery_app.send_task(
+            "src.auth.tasks.send_push_notification_task",
+            kwargs={
+                "device_token": row["device_token"],
+                "title": "Your teacher checked in!",
+                "body": "Keep going — log in to StudyBuddy and continue where you left off.",
+            },
+            queue="io",
+        )
+        queued = True
+
+    log.info(
+        "at_risk_reminder_queued",
+        school_id=school_id,
+        student_id=student_id,
+        tokens=len(rows),
+    )
+    return {"school_id": school_id, "student_id": student_id, "queued": queued}
+
+
 # ── Refresh ───────────────────────────────────────────────────────────────────
 
 

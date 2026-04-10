@@ -463,7 +463,16 @@ export default function AdminDemoAccountsPage() {
       ) : (
         <div className="py-20 text-center text-gray-400">
           <FlaskConical className="mx-auto mb-3 h-10 w-10 opacity-40" />
-          <p className="text-sm">No demo accounts found.</p>
+          <p className="text-sm font-medium text-gray-600">
+            {statusFilter || emailSearch
+              ? "No demo accounts match your filters."
+              : "No demo accounts yet."}
+          </p>
+          {!statusFilter && !emailSearch && (
+            <p className="mt-1 text-xs text-gray-400">
+              Demo requests appear here when prospective users submit a trial request from the landing page.
+            </p>
+          )}
         </div>
       )}
     </div>

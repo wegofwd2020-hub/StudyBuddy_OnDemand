@@ -14,6 +14,7 @@ import {
   Star,
   Volume2,
   BarChart3,
+  BarChart2,
 } from "lucide-react";
 import {
   BarChart,
@@ -68,7 +69,24 @@ export default function StatsPage() {
               <Skeleton key={i} className="h-20 rounded-lg" />
             ))}
           </div>
-        ) : !stats ? null : (
+        ) : !stats || stats.quizzes_completed === 0 ? (
+          <div className="rounded-xl border border-gray-200 bg-white py-16 text-center">
+            <BarChart2 className="mx-auto mb-3 h-10 w-10 text-gray-300" />
+            <p className="mb-1 text-sm font-medium text-gray-600">
+              No stats yet
+            </p>
+            <p className="mb-4 text-xs text-gray-400">
+              Complete your first quiz to start tracking your progress here.
+            </p>
+            <a
+              href="/subjects"
+              className="inline-flex items-center gap-1 rounded-lg bg-indigo-600 px-4 py-2 text-xs font-medium text-white hover:bg-indigo-700"
+            >
+              <BookOpen className="h-3.5 w-3.5" />
+              Browse Subjects
+            </a>
+          </div>
+        ) : (
           <>
             {/* Streak */}
             <StreakCard

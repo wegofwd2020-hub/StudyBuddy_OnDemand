@@ -127,7 +127,14 @@ export default function AdminAuditPage() {
       ) : (
         <div className="py-16 text-center text-gray-400">
           <FileText className="mx-auto mb-3 h-10 w-10 opacity-40" />
-          <p className="text-sm">No audit entries found.</p>
+          <p className="text-sm font-medium text-gray-600">
+            {actionFilter ? `No entries matching "${actionFilter}".` : "No audit events recorded yet."}
+          </p>
+          {!actionFilter && (
+            <p className="mt-1 text-xs text-gray-400">
+              Events are recorded automatically when admins approve, publish, block, or annotate content.
+            </p>
+          )}
         </div>
       )}
     </div>

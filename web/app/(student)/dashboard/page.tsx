@@ -9,7 +9,7 @@ import { OfflineBanner } from "@/components/student/OfflineBanner";
 import { LinkButton } from "@/components/ui/link-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BookOpen, CheckCircle2, Clock } from "lucide-react";
+import { BookOpen, CheckCircle2, Clock, Sparkles } from "lucide-react";
 
 export default function DashboardPage() {
   const t = useTranslations("dashboard_screen");
@@ -67,7 +67,18 @@ export default function DashboardPage() {
               ))}
             </div>
           ) : !history?.sessions.length ? (
-            <p className="text-sm text-gray-400">{t("no_activity")}</p>
+            <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-6 text-center">
+              <Sparkles className="mx-auto mb-3 h-8 w-8 text-indigo-400" />
+              <p className="mb-1 text-sm font-semibold text-indigo-800">
+                Welcome to StudyBuddy!
+              </p>
+              <p className="mb-4 text-xs text-indigo-600">
+                Pick a subject below to start your first lesson. Your progress will appear here.
+              </p>
+              <LinkButton href="/subjects" className="mx-auto w-fit text-xs">
+                Browse Subjects
+              </LinkButton>
+            </div>
           ) : (
             <div className="space-y-2">
               {history.sessions.map((s) => (
