@@ -70,7 +70,16 @@ class AdminLoginRequest(BaseModel):
     """POST /admin/auth/login"""
 
     email: EmailStr
+    # bcrypt silently truncated passwords >72 bytes before v5; v5 raises ValueError.
+    # Enforce the limit at the schema boundary so callers get a clear 422.
     password: str
+
+    @field_validator("password")
+    @classmethod
+    def password_max_bytes(cls, v: str) -> str:
+        if len(v.encode()) > 72:
+            raise ValueError("Password must be 72 bytes or fewer.")
+        return v
 
 
 class AdminForgotPasswordRequest(BaseModel):
@@ -87,9 +96,13 @@ class AdminResetPasswordRequest(BaseModel):
 
     @field_validator("new_password")
     @classmethod
-    def password_min_length(cls, v: str) -> str:
+    def password_length(cls, v: str) -> str:
         if len(v) < 12:
             raise ValueError("Password must be at least 12 characters.")
+        # bcrypt v5 raises ValueError for passwords >72 bytes; enforce here
+        # so the caller gets a clean 422 rather than an unhandled 500.
+        if len(v.encode()) > 72:
+            raise ValueError("Password must be 72 bytes or fewer.")
         return v
 
 
