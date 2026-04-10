@@ -56,95 +56,24 @@ async def _fetch_jwks() -> dict:
     return jwks
 
 
-async def verify_auth0_token(id_token: str) -> dict:
+async def _verify_auth0_token(id_token: str, audience: str) -> dict:
     """
-    Verify an Auth0 id_token against the tenant JWKS.
+    Shared Auth0 JWT verification logic, parameterised by audience.
 
-    Returns decoded JWT claims on success.
-    Raises HTTP 401 on any verification failure.
+    Flow:
+      1. Parse the unverified header to extract `kid`.
+      2. Fetch the matching RSA key from JWKS (L1 cache via _fetch_jwks).
+      3. If the key is not found, evict the cache and retry once (handles
+         key rotation between cache warm and token issuance).
+      4. Decode + verify the JWT (RS256, audience, issuer).
+
+    Returns decoded claims on success.
+    Raises HTTP 401 on any failure — never leaks internal detail.
     """
     try:
-        # Decode header to extract kid without verification.
         unverified_header = jwt.get_unverified_header(id_token)
     except JWTError as exc:
         log.warning("auth0_token_header_invalid", error=str(exc))
-        raise HTTPException(
-            status_code=401,
-            detail={
-                "error": "invalid_token",
-                "detail": "JWT header could not be parsed.",
-            },
-        )
-
-    kid = unverified_header.get("kid")
-    jwks = await _fetch_jwks()
-
-    # Find matching key in JWKS.
-    rsa_key: dict = {}
-    for key in jwks.get("keys", []):
-        if key.get("kid") == kid:
-            rsa_key = {
-                "kty": key["kty"],
-                "kid": key["kid"],
-                "n": key["n"],
-                "e": key["e"],
-            }
-            break
-
-    if not rsa_key:
-        # Key not found — JWKS may be stale; evict cache and retry once.
-        log.warning("jwks_key_not_found", kid=kid, retrying=True)
-        jwks_cache.pop(settings.AUTH0_JWKS_URL, None)
-        jwks = await _fetch_jwks()
-        for key in jwks.get("keys", []):
-            if key.get("kid") == kid:
-                rsa_key = {
-                    "kty": key["kty"],
-                    "kid": key["kid"],
-                    "n": key["n"],
-                    "e": key["e"],
-                }
-                break
-
-    if not rsa_key:
-        raise HTTPException(
-            status_code=401,
-            detail={
-                "error": "invalid_token",
-                "detail": "JWT signing key not found.",
-            },
-        )
-
-    try:
-        payload = jwt.decode(
-            id_token,
-            rsa_key,
-            algorithms=["RS256"],
-            audience=settings.AUTH0_STUDENT_CLIENT_ID,
-        )
-    except ExpiredSignatureError:
-        raise HTTPException(
-            status_code=401,
-            detail={"error": "unauthenticated", "detail": "Token has expired."},
-        )
-    except JWTError as exc:
-        log.warning("auth0_token_verification_failed", error=str(exc))
-        raise HTTPException(
-            status_code=401,
-            detail={
-                "error": "invalid_token",
-                "detail": "JWT signature verification failed.",
-            },
-        )
-
-    return payload
-
-
-async def verify_auth0_teacher_token(id_token: str) -> dict:
-    """Same as verify_auth0_token but uses AUTH0_TEACHER_CLIENT_ID as audience."""
-    try:
-        unverified_header = jwt.get_unverified_header(id_token)
-    except JWTError:
         raise HTTPException(
             status_code=401,
             detail={"error": "invalid_token", "detail": "JWT header could not be parsed."},
@@ -153,21 +82,20 @@ async def verify_auth0_teacher_token(id_token: str) -> dict:
     kid = unverified_header.get("kid")
     jwks = await _fetch_jwks()
 
-    rsa_key: dict = {}
-    for key in jwks.get("keys", []):
-        if key.get("kid") == kid:
-            rsa_key = {k: key[k] for k in ("kty", "kid", "n", "e")}
-            break
+    def _find_key(keys: list) -> dict:
+        for key in keys:
+            if key.get("kid") == kid:
+                return {k: key[k] for k in ("kty", "kid", "n", "e")}
+        return {}
+
+    rsa_key = _find_key(jwks.get("keys", []))
 
     if not rsa_key:
         # Key not found — JWKS may be stale; evict cache and retry once.
-        log.warning("jwks_key_not_found_teacher", kid=kid, retrying=True)
+        log.warning("jwks_key_not_found", kid=kid, audience=audience, retrying=True)
         jwks_cache.pop(settings.AUTH0_JWKS_URL, None)
         jwks = await _fetch_jwks()
-        for key in jwks.get("keys", []):
-            if key.get("kid") == kid:
-                rsa_key = {k: key[k] for k in ("kty", "kid", "n", "e")}
-                break
+        rsa_key = _find_key(jwks.get("keys", []))
 
     if not rsa_key:
         raise HTTPException(
@@ -180,20 +108,31 @@ async def verify_auth0_teacher_token(id_token: str) -> dict:
             id_token,
             rsa_key,
             algorithms=["RS256"],
-            audience=settings.AUTH0_TEACHER_CLIENT_ID,
+            audience=audience,
         )
     except ExpiredSignatureError:
         raise HTTPException(
             status_code=401,
             detail={"error": "unauthenticated", "detail": "Token has expired."},
         )
-    except JWTError:
+    except JWTError as exc:
+        log.warning("auth0_token_verification_failed", error=str(exc), audience=audience)
         raise HTTPException(
             status_code=401,
             detail={"error": "invalid_token", "detail": "JWT signature verification failed."},
         )
 
     return payload
+
+
+async def verify_auth0_token(id_token: str) -> dict:
+    """Verify an Auth0 student id_token. Returns decoded claims or raises HTTP 401."""
+    return await _verify_auth0_token(id_token, settings.AUTH0_STUDENT_CLIENT_ID)
+
+
+async def verify_auth0_teacher_token(id_token: str) -> dict:
+    """Verify an Auth0 teacher id_token. Returns decoded claims or raises HTTP 401."""
+    return await _verify_auth0_token(id_token, settings.AUTH0_TEACHER_CLIENT_ID)
 
 
 # ── Internal JWT helpers ──────────────────────────────────────────────────────
