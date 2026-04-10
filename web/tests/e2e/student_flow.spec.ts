@@ -29,9 +29,9 @@ import {
 } from "./data/lesson-page";
 import {
   MOCK_QUIZ,
+  MOCK_BACKEND_QUIZ_RESPONSE,
+  MOCK_QUIZ_DISPLAY_TITLE,
   MOCK_SESSION_ID,
-  MOCK_ANSWER_CORRECT,
-  MOCK_SESSION_END_PASSED,
   QUIZ_STRINGS,
 } from "./data/quiz-page";
 // MOCK_PROGRESS_HISTORY not imported — stubProgressApis uses inline backend-format response
@@ -94,8 +94,9 @@ async function stubLessonApis(page: Page) {
 }
 
 async function stubQuizApis(page: Page) {
+  // Stub must return BackendQuizResponse shape — getQuiz() in content.ts maps it.
   await page.route("**/api/v1/content/G8-SCI-001/quiz**", (route) =>
-    route.fulfill({ status: 200, json: MOCK_QUIZ }),
+    route.fulfill({ status: 200, json: MOCK_BACKEND_QUIZ_RESPONSE }),
   );
   // POST /progress/session — actual URL used by startSession() in progress.ts
   // Use function predicate: glob "**/api/v1/progress/session" (no trailing **)
@@ -241,8 +242,8 @@ test("student learning loop: lesson → quiz → result → progress", async ({
   await page.waitForURL("**/quiz/G8-SCI-001**");
   await page.waitForLoadState("networkidle");
 
-  // Quiz title
-  await expect(page.getByText(MOCK_QUIZ.title)).toBeVisible();
+  // Quiz title — getQuiz() constructs "Quiz — Set {n}" from the backend set_number
+  await expect(page.getByText(MOCK_QUIZ_DISPLAY_TITLE)).toBeVisible();
 
   // ── Step 3: answer all 3 questions correctly ──────────────────────────────
   for (let i = 0; i < MOCK_QUIZ.questions.length; i++) {
@@ -278,7 +279,7 @@ test("student learning loop: lesson → quiz → result → progress", async ({
   }
 
   // ── Step 4: result screen shows a passing score ───────────────────────────
-  // MOCK_SESSION_END_PASSED: score=3, total=3, passed=true
+  // Session end stub: score=3, total_questions=3, passed=true
   await expect(page.getByText("3")).toBeVisible();
 
   // ── Step 5: progress history reflects the completed unit ─────────────────
