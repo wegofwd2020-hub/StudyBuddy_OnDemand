@@ -520,11 +520,27 @@ async def assign(
     version_id: str,
     body: AssignRequest,
     request: Request,
-    admin: Annotated[dict, Depends(_require("review:assign"))],
+    admin: Annotated[dict, Depends(_require("review:annotate"))],
 ) -> AssignResponse:
-    """Assign (or unassign when admin_id is null) a version to a reviewer."""
+    """Assign (or unassign when admin_id is null) a version to a reviewer.
+
+    Self-assign and unassign require only ``review:annotate``.
+    Assigning to a *different* admin requires ``review:assign`` (product_admin+).
+    """
+    caller_id = _admin_id(admin)
+    if body.admin_id is not None and body.admin_id != caller_id:
+        perms = ROLE_PERMISSIONS.get(admin.get("role", ""), set())
+        if "*" not in perms and "review:assign" not in perms:
+            raise HTTPException(
+                status_code=403,
+                detail={
+                    "error": "forbidden",
+                    "detail": "Assigning to another admin requires 'review:assign' permission.",
+                    "correlation_id": getattr(request.state, "correlation_id", ""),
+                },
+            )
     async with get_db(request) as conn:
-        result = await assign_version(conn, version_id, body.admin_id, _admin_id(admin))
+        result = await assign_version(conn, version_id, body.admin_id, caller_id)
     if not result:
         raise HTTPException(status_code=404, detail="Version not found")
     return AssignResponse(**result)
@@ -536,7 +552,7 @@ async def assign(
 @router.get("/admin/users", response_model=AdminUsersResponse)
 async def admin_users(
     request: Request,
-    admin: Annotated[dict, Depends(_require("review:assign"))],
+    admin: Annotated[dict, Depends(_require("review:annotate"))],
 ) -> AdminUsersResponse:
     """List all active admin accounts (for assignment dropdowns)."""
     async with get_db(request) as conn:
