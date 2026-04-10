@@ -4,6 +4,182 @@
 
 ---
 
+### ADR-001 + Demo Teacher Flow + Content Review Improvements (2026-04-05)
+
+**Branch:** `feat/demo-teacher-flow`  
+**Tag:** `adr-001-complete`  
+**Tests:** 215 backend tests passing
+
+#### ADR-001 — School-as-Primary-Entity Architecture
+
+Three decisions shipped together under `security(adr-001)`:
+
+**Decision 1 — Student-teacher assignment model (migration 0024)**
+
+| File | Change |
+|---|---|
+| `backend/alembic/versions/0024_student_teacher_assignments.py` | New `student_teacher_assignments` table; adds `grade` + `teacher_id` columns to `school_enrolments` |
+| `backend/src/school/router.py` | `PUT /schools/{id}/students/{student_id}/assignment` — per-student grade + teacher assignment; bulk reassign endpoint |
+| `backend/src/school/service.py` | Grade self-change guard: returns 403 on `PATCH /student/profile` if student has `school_id` |
+| `backend/tests/test_school_roster.py` | Migrated roster tests to `{students: [...]}` format (old `{student_emails: [...]}` removed in 0024) |
+
+**Decision 2 — School-only billing (migrations 0025–0027)**
+
+| Migration | Description |
+|---|---|
+| 0025 | Schema corrections: `schools.contact_email UNIQUE` + `teachers.school_id CHECK` |
+| 0026 | Drop `private_teachers`, `teacher_subscriptions`, `student_teacher_access`; tighten `curricula.owner_type` CHECK |
+| 0027 | Drop `subscriptions` table; Stripe webhook now school-only |
+
+- `backend/src/school/subscription_service.py` — Full rewrite for school-level billing: `activate_school_subscription`, `cancel_school_subscription_db`, `handle_school_payment_failed`, `_bulk_update_enrolled_student_entitlements`
+- `backend/src/private_teacher/` — Module removed entirely (no routes remain)
+
+**Decision 3 — PostgreSQL Row-Level Security (migration 0028)**
+
+| File | Change |
+|---|---|
+| `backend/alembic/versions/0028_rls.py` | `ENABLE/FORCE ROW LEVEL SECURITY` + `tenant_isolation` policy on 7 tables; `app.current_school_id` session variable |
+| `backend/src/core/db.py` | `get_db()` stamps `app.current_school_id` from `request.state.rls_school_id` before yielding; resets in `finally` |
+| `backend/src/auth/dependencies.py` | `get_current_teacher()` sets `request.state.rls_school_id = payload["school_id"]` |
+| `backend/tests/conftest.py` | `db_conn` fixture sets `app.current_school_id = 'bypass'` (transaction-local) |
+| `backend/tests/test_rls.py` | 6 new isolation tests using deterministic school UUIDs `a0000000-...001` / `b0000000-...001` |
+
+**Redis key namespace (centralised in `cache_keys.py`)**
+
+| File | Change |
+|---|---|
+| `backend/src/core/cache_keys.py` | New module: `ent_key`, `cur_key`, `school_ent_key`, `school_scan_pattern`, `content_key`, `csv_key`, `quiz_set_key` |
+| `backend/src/content/service.py` | Switched to `cache_keys` helpers; `get_entitlement()` now queries `school_subscriptions` as source of truth for school-enrolled students (no extra `students` table lookup); `_get_school_sub()` private helper with 300 s Redis cache |
+| `backend/src/curriculum/resolver.py` | `invalidate_resolver_cache_for_school()` uses `SCAN school:{school_id}:*` instead of per-student DB lookup |
+| `backend/src/auth/tasks.py` | Grade-promotion scan covers `school:*:ent:*`, `school:*:cur:*`, `ent:*`, `cur:*` |
+
+Key prefixes now in use:
+
+| Key | Scope |
+|---|---|
+| `school:{school_id}:ent:{student_id}` | Entitlement for school-enrolled student |
+| `school:{school_id}:cur:{student_id}` | Curriculum resolver for school-enrolled student |
+| `school:{school_id}:ent` | Whole-school entitlement summary (TTL 300 s) |
+| `ent:{student_id}` | Solo student entitlement (legacy path) |
+| `cur:{student_id}` | Solo student curriculum resolver (legacy path) |
+
+---
+
+#### Demo Teacher Flow
+
+**Scope:** Allow a prospective teacher to request a demo account, receive credentials by email, and explore the full school portal with read-only data from MilfordWaterford.
+
+| File | Change |
+|---|---|
+| `backend/alembic/versions/0012_demo_teacher_accounts.py` | `demo_teacher_requests` + `demo_teacher_accounts` tables |
+| `backend/src/demo/teacher_router.py` | Request / verify / login / logout for demo teachers |
+| `backend/src/demo/teacher_service.py` | Business logic; token generation; email dispatch via Celery |
+| `backend/scripts/seed_demo_milfordwaterford.py` | Seeds MilfordWaterford school + teachers Sam Houston (Gr 8) + Linda Ronstad (Gr 12) + 4 students; idempotent |
+| `web/app/(public)/demo-teacher/page.tsx` | Public demo teacher request page |
+| `web/app/(school)/school/...` | Full school portal with grade-filtered curriculum, roster, reports, alerts |
+| `web/components/demo/DemoTeacherRequestModal.tsx` | Modal launched from landing page |
+| `web/components/demo/DemoTeacherGate.tsx` | Blocks write actions (demo teachers are read-only) |
+| `web/app/(admin)/admin/demo-teacher-accounts/page.tsx` | Admin management: approve / reject / extend / revoke demo teacher accounts |
+
+**Demo teacher credentials (MilfordWaterford):**
+
+| Name | Email | Password | Grade |
+|---|---|---|---|
+| Sam Houston | sam.houston@milfordwaterford.edu | MWTeacher-Sam-2026! | 8 |
+| Linda Ronstad | linda.ronstad@milfordwaterford.edu | MWTeacher-Linda-2026! | 12 |
+
+Login at: `http://localhost:3000/school/login`
+
+---
+
+#### Content Review Improvements
+
+**AlexJS warnings — per-content-type breakdown (Issue #55)**
+
+Previously AlexJS ran once over all content concatenated, the total count was stored but silently dropped by Pydantic (field was missing from `UnitContentMetaResponse`), and no per-type breakdown existed.
+
+| File | Change |
+|---|---|
+| `pipeline/build_unit.py` | `_extract_text_for_alex_by_type()` returns `{content_type: text}`; AlexJS runs once per type; `meta.json` now stores `alex_warnings_by_type: {"lesson": N, ...}` |
+| `backend/src/admin/schemas.py` | Added `alex_warnings_count: int = 0` and `alex_warnings_by_type: dict[str, int] = {}` to `UnitContentMetaResponse` (bug fix — fields were missing) |
+| `backend/src/admin/service.py` | `get_unit_content_meta()` reads `alex_warnings_by_type` from `meta.json` |
+| `web/lib/api/admin.ts` | Added `alex_warnings_by_type?: Record<string, number>` to `UnitContentMeta` |
+| `web/app/(admin)/admin/content-review/[version_id]/unit/[unit_id]/page.tsx` | Left-nav items show per-type warning badge (amber <5 warnings, red ≥5) |
+
+**Inline reviewer annotations (Issue #52)**
+
+- `content_annotations` table (migration 0013): stores annotations keyed by `{unit_id}::{content_type}::{section_id}`
+- Unit viewer renders per-section `SectionNotes` component — expandable, with add/delete
+- Tutorial sections use tab key as section ID; quiz questions use `Q{n}` suffix
+
+**Side-by-side version diff (Issue #53)**
+
+- `GET /admin/content/review/{version_id}/diff?compare_to={version_id}` returns two full versions
+- Frontend at `/admin/content-review/{version_id}/diff` renders word-level diff (green = added, red = removed) using `diffWords` from the `diff` package
+- Per content type, per field (section heading, question text, step instruction)
+
+**Batch approve (Issue #54)**
+
+- `POST /admin/content/review/batch-approve` with `{curriculum_id, notes}` — approves all pending versions for a curriculum
+- Admin detail page shows "Approve All" button when ≥2 pending versions exist
+
+---
+
+#### Admin schemas fixes (pre-existing bugs exposed by import error)
+
+The following schemas were missing from `schemas.py`, causing an `ImportError` that silently blocked the entire test suite:
+
+| Schema | Shape |
+|---|---|
+| `AssignRequest` / `AssignResponse` | `admin_id: str | None` → `{version_id, assigned_to_admin_id, assigned_to_email, assigned_at}` |
+| `BatchApproveRequest` / `BatchApproveResponse` | `{curriculum_id, notes}` → `{approved_count, version_ids}` |
+| `AdminUserItem` / `AdminUsersResponse` | `{admin_user_id, email, role}` |
+| `SubscriptionAnalyticsResponse` | Updated from individual-billing shape (`active_monthly`, `active_annual`) to school-billing shape (`by_plan`, `total_active`, `mrr_usd: str`) |
+
+---
+
+#### Accessibility + typography (Rules 18 + 13)
+
+- Inter / Merriweather / JetBrains Mono font stack loaded via `@fontsource` — no external CDN
+- Dyslexia toggle via Eye icon in portal header or **Alt+D** — persisted in `sb_dyslexic` cookie
+- `/healthz` liveness + `/readyz` readiness probes added (Rule 13)
+
+---
+
+#### Pipeline improvements
+
+| Change | Detail |
+|---|---|
+| `max_tokens=8192` | Always set in `_call_claude()` — Grade 12 tutorials exceeded 4096 and produced truncated JSON |
+| `subject_name` column | Added to `content_subject_versions` (migration 0015); pipeline stores human-readable subject name alongside `subject` key |
+| `payload_bytes` tracking | Migration 0014; pipeline records output byte count per job |
+| Per-unit AlexJS | `_extract_text_for_alex_by_type()` introduced; each content type checked independently |
+
+---
+
+**How to test:**
+
+```bash
+# Start all services
+./dev_start.sh
+
+# Seed MilfordWaterford demo school (teachers + students)
+docker compose exec api python scripts/seed_demo_milfordwaterford.py
+
+# Run backend tests
+docker compose exec api python -m pytest -q
+
+# Teacher login
+curl -s -X POST http://localhost:8000/api/v1/demo/teacher/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"sam.houston@milfordwaterford.edu","password":"MWTeacher-Sam-2026!"}' \
+  | python3 -m json.tool
+```
+
+*Last updated: 2026-04-05*
+
+---
+
 ### Demo Student System — Issues #32–#40 (2026-03-30)
 
 **Branch:** `feat/demo-32`

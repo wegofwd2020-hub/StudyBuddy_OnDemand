@@ -20,8 +20,16 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 
 from src.auth.dependencies import get_current_teacher
 from src.core.db import get_db
-from src.school.enrolment_service import get_roster, upload_roster
+from src.school.enrolment_service import (
+    assign_student,
+    get_roster,
+    get_student_assignment,
+    reassign_students_bulk,
+    upload_roster,
+)
 from src.school.schemas import (
+    BulkReassignRequest,
+    BulkReassignResponse,
     EnrolmentRosterItem,
     EnrolmentRosterResponse,
     EnrolmentUploadRequest,
@@ -29,10 +37,16 @@ from src.school.schemas import (
     SchoolProfileResponse,
     SchoolRegisterRequest,
     SchoolRegisterResponse,
+    StudentAssignmentRequest,
+    StudentAssignmentResponse,
+    TeacherGradeAssignRequest,
+    TeacherGradeAssignResponse,
     TeacherInviteRequest,
     TeacherInviteResponse,
+    TeacherRosterResponse,
 )
 from src.school.service import fetch_school, invite_teacher, register_school
+from src.school.subscription_service import get_seat_usage
 from src.utils.logger import get_logger
 
 log = get_logger("school")
@@ -70,7 +84,7 @@ async def register_school_endpoint(
                     status_code=409,
                     detail={
                         "error": "conflict",
-                        "detail": "A teacher account with that email already exists.",
+                        "detail": "A school or account with that email already exists.",
                         "correlation_id": _cid(request),
                     },
                 )
@@ -138,7 +152,29 @@ async def invite_teacher_endpoint(
                 "correlation_id": _cid(request),
             },
         )
+    import uuid as _uuid
+
     async with get_db(request) as conn:
+        # Seat limit check — only enforced if school has an active subscription
+        sub_row = await conn.fetchrow(
+            """
+            SELECT max_teachers FROM school_subscriptions
+            WHERE school_id = $1 AND status IN ('active', 'trialing')
+            """,
+            _uuid.UUID(school_id),
+        )
+        if sub_row is not None:
+            usage = await get_seat_usage(conn, school_id)
+            if usage["seats_used_teachers"] >= sub_row["max_teachers"]:
+                raise HTTPException(
+                    status_code=402,
+                    detail={
+                        "error": "seat_limit_reached",
+                        "detail": "Teacher seat limit reached for this plan.",
+                        "limit": sub_row["max_teachers"],
+                        "correlation_id": _cid(request),
+                    },
+                )
         try:
             result = await invite_teacher(conn, school_id, body.name, body.email)
         except Exception as exc:
@@ -188,8 +224,33 @@ async def upload_enrolment_roster(
                 "correlation_id": _cid(request),
             },
         )
+    import uuid as _uuid
+
     async with get_db(request) as conn:
-        result = await upload_roster(conn, school_id, [str(e) for e in body.student_emails])
+        # Seat limit check — only enforced if school has an active subscription
+        sub_row = await conn.fetchrow(
+            """
+            SELECT max_students FROM school_subscriptions
+            WHERE school_id = $1 AND status IN ('active', 'trialing')
+            """,
+            _uuid.UUID(school_id),
+        )
+        if sub_row is not None:
+            usage = await get_seat_usage(conn, school_id)
+            incoming = len(body.students)
+            if usage["seats_used_students"] + incoming > sub_row["max_students"]:
+                raise HTTPException(
+                    status_code=402,
+                    detail={
+                        "error": "seat_limit_reached",
+                        "detail": "Enrolling these students would exceed the plan seat limit.",
+                        "limit": sub_row["max_students"],
+                        "used": usage["seats_used_students"],
+                        "correlation_id": _cid(request),
+                    },
+                )
+        entries = [e.model_dump() for e in body.students]
+        result = await upload_roster(conn, school_id, entries)
     return EnrolmentUploadResponse(**result)
 
 
@@ -227,3 +288,252 @@ async def get_enrolment_roster(
     async with get_db(request) as conn:
         rows = await get_roster(conn, school_id)
     return EnrolmentRosterResponse(roster=[EnrolmentRosterItem(**r) for r in rows])
+
+
+# ── Student-teacher assignment ────────────────────────────────────────────────
+
+
+def _require_school_admin(teacher: dict, school_id: str, request: Request) -> None:
+    """Raise 403 if caller is not school_admin for the given school."""
+    if teacher.get("role") != "school_admin":
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "forbidden",
+                "detail": "Only school_admin can manage student assignments.",
+                "correlation_id": _cid(request),
+            },
+        )
+    if teacher["school_id"] != school_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "forbidden",
+                "detail": "Cannot manage assignments for a different school.",
+                "correlation_id": _cid(request),
+            },
+        )
+
+
+@router.get(
+    "/schools/{school_id}/students/{student_id}/assignment",
+    response_model=StudentAssignmentResponse,
+)
+async def get_student_assignment_endpoint(
+    school_id: str,
+    student_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> StudentAssignmentResponse:
+    """Return the current teacher assignment for a student (teacher-scoped)."""
+    if teacher["school_id"] != school_id:
+        raise HTTPException(
+            status_code=403,
+            detail={"error": "forbidden", "detail": "Cannot view assignments for a different school.", "correlation_id": _cid(request)},
+        )
+    async with get_db(request) as conn:
+        row = await get_student_assignment(conn, school_id, student_id)
+    if not row:
+        raise HTTPException(
+            status_code=404,
+            detail={"error": "not_found", "detail": "No assignment found for this student.", "correlation_id": _cid(request)},
+        )
+    return StudentAssignmentResponse(**row)
+
+
+@router.put(
+    "/schools/{school_id}/students/{student_id}/assignment",
+    response_model=StudentAssignmentResponse,
+)
+async def set_student_assignment_endpoint(
+    school_id: str,
+    student_id: str,
+    body: StudentAssignmentRequest,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> StudentAssignmentResponse:
+    """
+    Set or replace a student's grade+teacher assignment (school_admin only).
+
+    The school is the sole authority on which grade and teacher a student belongs to.
+    """
+    _require_school_admin(teacher, school_id, request)
+    async with get_db(request) as conn:
+        try:
+            row = await assign_student(
+                conn, school_id, student_id, body.grade, body.teacher_id,
+                assigned_by=teacher["teacher_id"],
+            )
+        except ValueError as exc:
+            raise HTTPException(
+                status_code=422,
+                detail={"error": "assignment_invalid", "detail": str(exc), "correlation_id": _cid(request)},
+            )
+    return StudentAssignmentResponse(**row)
+
+
+@router.post(
+    "/schools/{school_id}/teachers/{from_teacher_id}/reassign",
+    response_model=BulkReassignResponse,
+)
+async def bulk_reassign_students_endpoint(
+    school_id: str,
+    from_teacher_id: str,
+    body: BulkReassignRequest,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> BulkReassignResponse:
+    """
+    Move all students in a grade from one teacher to another (school_admin only).
+    Used when a teacher leaves or a class is restructured.
+    """
+    _require_school_admin(teacher, school_id, request)
+    async with get_db(request) as conn:
+        try:
+            count = await reassign_students_bulk(
+                conn, school_id, from_teacher_id, body.to_teacher_id, body.grade,
+                assigned_by=teacher["teacher_id"],
+            )
+        except ValueError as exc:
+            raise HTTPException(
+                status_code=422,
+                detail={"error": "reassign_invalid", "detail": str(exc), "correlation_id": _cid(request)},
+            )
+    return BulkReassignResponse(reassigned=count)
+
+
+# ── Teacher roster ────────────────────────────────────────────────────────────
+
+
+@router.get("/schools/{school_id}/teachers", response_model=TeacherRosterResponse)
+async def list_teachers(
+    school_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> TeacherRosterResponse:
+    """List all teachers in the school with their assigned grades."""
+    if teacher["school_id"] != school_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "forbidden",
+                "detail": "Cannot view teachers for a different school.",
+                "correlation_id": _cid(request),
+            },
+        )
+    import uuid as _uuid
+
+    async with get_db(request) as conn:
+        rows = await conn.fetch(
+            """
+            SELECT t.teacher_id::text, t.name, t.email, t.role,
+                   t.account_status::text,
+                   COALESCE(
+                       array_agg(tga.grade ORDER BY tga.grade)
+                       FILTER (WHERE tga.grade IS NOT NULL), '{}'
+                   ) AS assigned_grades
+            FROM teachers t
+            LEFT JOIN teacher_grade_assignments tga
+                ON tga.teacher_id = t.teacher_id
+            WHERE t.school_id = $1
+            GROUP BY t.teacher_id, t.name, t.email, t.role, t.account_status
+            ORDER BY t.name
+            """,
+            _uuid.UUID(school_id),
+        )
+    return TeacherRosterResponse(
+        teachers=[
+            {
+                "teacher_id": r["teacher_id"],
+                "name": r["name"],
+                "email": r["email"],
+                "role": r["role"],
+                "account_status": r["account_status"],
+                "assigned_grades": list(r["assigned_grades"]),
+            }
+            for r in rows
+        ]
+    )
+
+
+# ── Teacher grade assignment ───────────────────────────────────────────────────
+
+
+@router.put(
+    "/schools/{school_id}/teachers/{teacher_id}/grades",
+    response_model=TeacherGradeAssignResponse,
+)
+async def assign_teacher_grades(
+    school_id: str,
+    teacher_id: str,
+    body: TeacherGradeAssignRequest,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> TeacherGradeAssignResponse:
+    """Replace the grade assignments for a teacher (any teacher in the school)."""
+    if teacher["school_id"] != school_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "forbidden",
+                "detail": "Cannot manage teachers for a different school.",
+                "correlation_id": _cid(request),
+            },
+        )
+    # Validate grades
+    invalid = [g for g in body.grades if g < 5 or g > 12]
+    if invalid:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "error": "invalid_grades",
+                "detail": f"Grades must be between 5 and 12. Invalid: {invalid}",
+                "correlation_id": _cid(request),
+            },
+        )
+
+    import uuid as _uuid
+
+    tid = _uuid.UUID(teacher_id)
+    sid = _uuid.UUID(school_id)
+
+    async with get_db(request) as conn:
+        # Verify the teacher belongs to this school
+        exists = await conn.fetchval(
+            "SELECT 1 FROM teachers WHERE teacher_id = $1 AND school_id = $2",
+            tid, sid,
+        )
+        if not exists:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "error": "not_found",
+                    "detail": "Teacher not found in this school.",
+                    "correlation_id": _cid(request),
+                },
+            )
+        async with conn.transaction():
+            await conn.execute(
+                "DELETE FROM teacher_grade_assignments WHERE teacher_id = $1", tid
+            )
+            if body.grades:
+                await conn.executemany(
+                    """
+                    INSERT INTO teacher_grade_assignments (teacher_id, school_id, grade)
+                    VALUES ($1, $2, $3)
+                    ON CONFLICT (teacher_id, grade) DO NOTHING
+                    """,
+                    [(tid, sid, g) for g in body.grades],
+                )
+
+    log.info(
+        "teacher_grades_assigned",
+        teacher_id=teacher_id,
+        school_id=school_id,
+        grades=sorted(body.grades),
+    )
+    return TeacherGradeAssignResponse(
+        teacher_id=teacher_id,
+        school_id=school_id,
+        assigned_grades=sorted(body.grades),
+    )

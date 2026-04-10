@@ -12,8 +12,18 @@ vi.mock("next-intl", () => ({
 }));
 
 vi.mock("next/link", () => ({
-  default: ({ href, children, onClick }: { href: string; children: React.ReactNode; onClick?: () => void }) => (
-    <a href={href} onClick={onClick}>{children}</a>
+  default: ({
+    href,
+    children,
+    onClick,
+  }: {
+    href: string;
+    children: React.ReactNode;
+    onClick?: () => void;
+  }) => (
+    <a href={href} onClick={onClick}>
+      {children}
+    </a>
   ),
 }));
 

@@ -119,7 +119,7 @@ async def test_demo_requests_insert_and_fk_cascade(db_conn):
         "pending",
     )
 
-    token = str(uuid.uuid4())
+    token = "demotest-fixed-token-cascade-0001"  # deterministic; uniqueness not required here
     expires = datetime.now(UTC) + timedelta(minutes=60)
     await db_conn.execute(
         """INSERT INTO demo_verifications (request_id, email, token, expires_at)

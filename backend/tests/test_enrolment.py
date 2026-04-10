@@ -2,7 +2,7 @@
 tests/test_enrolment.py
 
 Tests for Phase 9 enrolment endpoints and curriculum resolver:
-  POST /api/v1/schools/{school_id}/enrolment  — upload student email roster
+  POST /api/v1/schools/{school_id}/enrolment  — upload student roster ({email, grade?, teacher_id?})
   GET  /api/v1/schools/{school_id}/enrolment  — get roster
   PUT  /api/v1/curriculum/{curriculum_id}/activate — activate curriculum
   Curriculum resolver: resolver unit tests
@@ -72,7 +72,7 @@ async def test_upload_roster_succeeds(client: AsyncClient):
 
     r = await client.post(
         f"/api/v1/schools/{school_id}/enrolment",
-        json={"student_emails": ["alice@example.com", "bob@example.com"]},
+        json={"students": [{"email": "alice@example.com"}, {"email": "bob@example.com"}]},
         headers=headers,
     )
     assert r.status_code == 201, r.text
@@ -88,7 +88,7 @@ async def test_upload_roster_deduplicates(client: AsyncClient):
     school_id = school["school_id"]
     headers = {"Authorization": f"Bearer {school['access_token']}"}
 
-    payload = {"student_emails": ["dedup@example.com"]}
+    payload = {"students": [{"email": "dedup@example.com"}]}
     r1 = await client.post(f"/api/v1/schools/{school_id}/enrolment", json=payload, headers=headers)
     assert r1.status_code == 201
     assert r1.json()["enrolled"] == 1
@@ -110,7 +110,7 @@ async def test_upload_roster_non_admin_returns_403(client: AsyncClient):
 
     r = await client.post(
         f"/api/v1/schools/{school_id}/enrolment",
-        json={"student_emails": ["x@x.com"]},
+        json={"students": [{"email": "x@x.com"}]},
         headers=headers,
     )
     assert r.status_code == 403
@@ -124,7 +124,7 @@ async def test_upload_roster_wrong_school_returns_403(client: AsyncClient):
 
     r = await client.post(
         f"/api/v1/schools/{uuid.uuid4()}/enrolment",
-        json={"student_emails": ["x@x.com"]},
+        json={"students": [{"email": "x@x.com"}]},
         headers=headers,
     )
     assert r.status_code == 403
@@ -135,7 +135,7 @@ async def test_upload_roster_requires_auth(client: AsyncClient):
     """Roster upload without JWT returns 401."""
     r = await client.post(
         "/api/v1/schools/some-id/enrolment",
-        json={"student_emails": ["x@x.com"]},
+        json={"students": [{"email": "x@x.com"}]},
     )
     assert r.status_code == 401
 
@@ -151,7 +151,7 @@ async def test_get_roster_returns_uploaded_emails(client: AsyncClient):
 
     await client.post(
         f"/api/v1/schools/{school_id}/enrolment",
-        json={"student_emails": ["get1@example.com", "get2@example.com"]},
+        json={"students": [{"email": "get1@example.com"}, {"email": "get2@example.com"}]},
         headers=headers,
     )
 

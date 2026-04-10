@@ -25,7 +25,8 @@ export default function AdminPipelineJobPage() {
     staleTime: 0,
     refetchInterval: (query) => {
       const status = query.state.data?.status;
-      if (status === "done" || status === "completed" || status === "failed") return false;
+      if (status === "done" || status === "completed" || status === "failed")
+        return false;
       return 5_000;
     },
   });
@@ -76,7 +77,9 @@ export default function AdminPipelineJobPage() {
           <div className="grid grid-cols-2 gap-3 text-xs text-gray-500">
             <div>
               <p className="font-medium text-gray-600">Triggered</p>
-              <p>{job.triggered_at ? new Date(job.triggered_at).toLocaleString() : "—"}</p>
+              <p>
+                {job.triggered_at ? new Date(job.triggered_at).toLocaleString() : "—"}
+              </p>
             </div>
             <div>
               <p className="font-medium text-gray-600">Started</p>
@@ -84,7 +87,9 @@ export default function AdminPipelineJobPage() {
             </div>
             <div>
               <p className="font-medium text-gray-600">Completed</p>
-              <p>{job.completed_at ? new Date(job.completed_at).toLocaleString() : "—"}</p>
+              <p>
+                {job.completed_at ? new Date(job.completed_at).toLocaleString() : "—"}
+              </p>
             </div>
             <div>
               <p className="font-medium text-gray-600">Languages</p>
@@ -102,7 +107,9 @@ export default function AdminPipelineJobPage() {
                       const s = new Date(job.started_at).getTime();
                       const e = new Date(job.completed_at).getTime();
                       const secs = Math.round((e - s) / 1000);
-                      return secs < 60 ? `${secs}s` : `${Math.floor(secs / 60)}m ${secs % 60}s`;
+                      return secs < 60
+                        ? `${secs}s`
+                        : `${Math.floor(secs / 60)}m ${secs % 60}s`;
                     })()
                   : "—"}
               </p>
@@ -117,7 +124,10 @@ export default function AdminPipelineJobPage() {
             </div>
             <div className="h-3 overflow-hidden rounded-full bg-gray-100">
               <div
-                className={cn("h-full rounded-full transition-all duration-500", barColor)}
+                className={cn(
+                  "h-full rounded-full transition-all duration-500",
+                  barColor,
+                )}
                 style={{ width: `${job.progress_pct ?? 0}%` }}
               />
             </div>
@@ -134,7 +144,12 @@ export default function AdminPipelineJobPage() {
               <p className="mt-0.5 text-xs text-gray-500">Total</p>
             </div>
             <div className="rounded-lg bg-gray-50 p-3">
-              <p className={cn("text-2xl font-bold", (job.failed ?? 0) > 0 ? "text-red-600" : "text-gray-900")}>
+              <p
+                className={cn(
+                  "text-2xl font-bold",
+                  (job.failed ?? 0) > 0 ? "text-red-600" : "text-gray-900",
+                )}
+              >
                 {job.failed ?? 0}
               </p>
               <p className="mt-0.5 text-xs text-gray-500">Failed</p>
@@ -151,9 +166,9 @@ export default function AdminPipelineJobPage() {
           {isDone && (
             <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700">
               Build complete. Content is now available in the{" "}
-              <a href="/admin/content-review" className="font-medium underline">
+              <Link href="/admin/content-review" className="font-medium underline">
                 Content Review queue
-              </a>{" "}
+              </Link>{" "}
               as <strong>pending</strong>.
             </div>
           )}

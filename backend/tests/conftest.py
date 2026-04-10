@@ -31,8 +31,11 @@ from httpx import ASGITransport, AsyncClient
 
 os.environ.setdefault("DATABASE_URL", "postgresql://studybuddy:testpassword@localhost:5432/studybuddy_test")
 os.environ.setdefault("REDIS_URL", "redis://localhost:6379/1")
-os.environ.setdefault("JWT_SECRET", "test-secret-do-not-use-in-production-aaaa")
-os.environ.setdefault("ADMIN_JWT_SECRET", "test-admin-secret-do-not-use-in-prod-bbb")
+# Force-assign JWT secrets so token_factory-signed tokens always verify correctly,
+# even when running inside a container that has a different runtime secret set.
+os.environ["JWT_SECRET"] = "test-secret-do-not-use-in-production-aaaa"
+os.environ["ADMIN_JWT_SECRET"] = "test-admin-secret-do-not-use-in-prod-bbb"
+os.environ["METRICS_TOKEN"] = "test-metrics-token"
 os.environ.setdefault("AUTH0_DOMAIN", "test.auth0.com")
 os.environ.setdefault("AUTH0_JWKS_URL", "http://localhost:9999/.well-known/jwks.json")
 os.environ.setdefault("AUTH0_STUDENT_CLIENT_ID", "test-student-client-id")
@@ -55,10 +58,40 @@ from tests.helpers.token_factory import (
     make_teacher_token,
 )
 
-TEST_DB_URL = os.environ["DATABASE_URL"]
+# ── Test database URL ─────────────────────────────────────────────────────────
+# Use a dedicated test DB so the downgrade/upgrade cycle is safe.
+# TEST_DB_URL defaults to studybuddy_test on the same host as DATABASE_URL.
+_dev_db_url = os.environ.get("DATABASE_URL", "postgresql://studybuddy:studybuddy_dev@db:5432/studybuddy")
+TEST_DB_URL = os.environ.get(
+    "TEST_DB_URL",
+    _dev_db_url.replace("/studybuddy", "/studybuddy_test").replace("@pgbouncer:", "@db:"),
+)
 
 
-# ── Session-scoped: run Alembic migrations once ───────────────────────────────
+# ── Session-scoped: ensure test DB exists + run Alembic migrations ────────────
+
+def _ensure_test_db(dev_url: str, test_url: str) -> None:
+    """Create studybuddy_test if absent (requires connecting to the dev DB)."""
+    import psycopg2
+    from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+
+    # Extract DB name from test URL (last path segment).
+    test_db_name = test_url.rstrip("/").rsplit("/", 1)[-1]
+    # Connect to the dev DB as a superuser to issue CREATE DATABASE.
+    conn_url = dev_url.replace("+asyncpg", "").replace("postgresql://", "postgresql+psycopg2://")
+    # psycopg2 needs a plain postgresql:// URL without the driver prefix.
+    plain_url = dev_url.replace("+asyncpg", "").replace("@pgbouncer:", "@db:")
+    try:
+        pg = psycopg2.connect(plain_url)
+        pg.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+        with pg.cursor() as cur:
+            cur.execute("SELECT 1 FROM pg_database WHERE datname = %s", (test_db_name,))
+            if not cur.fetchone():
+                cur.execute(f'CREATE DATABASE "{test_db_name}"')
+        pg.close()
+    except Exception:
+        pass  # If creation fails, Alembic connect will surface the error.
+
 
 @pytest.fixture(scope="session")
 def event_loop():
@@ -70,24 +103,24 @@ def event_loop():
 
 @pytest.fixture(scope="session", autouse=True)
 def run_migrations():
-    """Apply Alembic migrations to the test DB before any test runs."""
+    """
+    Ensure studybuddy_test exists, apply Alembic migrations, then tear down.
+
+    Using a dedicated test DB means the downgrade is safe: it removes all
+    schema from studybuddy_test without touching the dev DB.  Per-test data
+    isolation is still provided by the db_conn transaction-rollback fixture.
+    """
     from alembic import command
     from alembic.config import Config
 
-    cfg = Config("alembic.ini")
-    # Use synchronous psycopg2 URL for alembic.
-    sync_url = TEST_DB_URL.replace("+asyncpg", "").replace(
-        "postgresql://", "postgresql+psycopg2://"
-    )
-    if not sync_url.startswith("postgresql"):
-        sync_url = TEST_DB_URL
-    cfg.set_main_option("sqlalchemy.url", sync_url)
+    _ensure_test_db(_dev_db_url, TEST_DB_URL)
 
-    try:
-        command.upgrade(cfg, "head")
-        yield
-    finally:
-        command.downgrade(cfg, "base")
+    # alembic/env.py reads TEST_DB_URL from the environment (takes precedence
+    # over DATABASE_URL), so no need to override sqlalchemy.url manually here.
+    cfg = Config("alembic.ini")
+    command.upgrade(cfg, "head")
+    yield
+    command.downgrade(cfg, "base")
 
 
 # ── Per-test: fake Redis ──────────────────────────────────────────────────────
@@ -102,10 +135,18 @@ def fake_redis():
 
 @pytest_asyncio.fixture
 async def db_conn() -> AsyncGenerator[asyncpg.Connection, None]:
-    """Provide an asyncpg connection to the test DB, wrapped in a transaction."""
+    """
+    Provide an asyncpg connection to the test DB, wrapped in a transaction.
+
+    Sets app.current_school_id = 'bypass' so that RLS policies (migration 0028)
+    allow direct fixture inserts and reads without a teacher JWT in scope.
+    Individual RLS isolation tests override this via a separate fixture.
+    """
     conn = await asyncpg.connect(TEST_DB_URL)
     tr = conn.transaction()
     await tr.start()
+    # 'true' = transaction-local; the value resets when the transaction rolls back.
+    await conn.execute("SELECT set_config('app.current_school_id', 'bypass', true)")
     try:
         yield conn
     finally:

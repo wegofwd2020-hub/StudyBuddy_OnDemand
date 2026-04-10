@@ -133,6 +133,31 @@ class Settings(BaseSettings):
     GITHUB_REPO: str | None = None
     GITHUB_TOKEN: str | None = None
 
+    # ── School pipeline quotas (runs per calendar month per school) ──────────────
+    SCHOOL_PIPELINE_QUOTA_STARTER: int = 3
+    SCHOOL_PIPELINE_QUOTA_PROFESSIONAL: int = 10
+    SCHOOL_PIPELINE_QUOTA_ENTERPRISE: int = 9999
+
+    # ── School subscription — Stripe price IDs ────────────────────────────────
+    STRIPE_SCHOOL_PRICE_STARTER_ID: str | None = None
+    STRIPE_SCHOOL_PRICE_PROFESSIONAL_ID: str | None = None
+    STRIPE_SCHOOL_PRICE_ENTERPRISE_ID: str | None = None
+
+    # ── Retention billing — one-time payment price IDs ────────────────────────
+    # Set these in .env; leave None in dev (endpoints return 503 when unset).
+    STRIPE_SCHOOL_PRICE_RENEWAL_ID: str | None = None        # per-curriculum renewal
+    STRIPE_SCHOOL_PRICE_STORAGE_5GB_ID: str | None = None    # +5 GB storage add-on
+    STRIPE_SCHOOL_PRICE_STORAGE_10GB_ID: str | None = None   # +10 GB storage add-on
+    STRIPE_SCHOOL_PRICE_STORAGE_25GB_ID: str | None = None   # +25 GB storage add-on
+
+    # ── School seat limits by plan ────────────────────────────────────────────
+    SCHOOL_SEATS_STARTER_STUDENTS: int = 30
+    SCHOOL_SEATS_STARTER_TEACHERS: int = 3
+    SCHOOL_SEATS_PROFESSIONAL_STUDENTS: int = 150
+    SCHOOL_SEATS_PROFESSIONAL_TEACHERS: int = 10
+    SCHOOL_SEATS_ENTERPRISE_STUDENTS: int = 9999
+    SCHOOL_SEATS_ENTERPRISE_TEACHERS: int = 9999
+
     # ── Feature flags ─────────────────────────────────────────────────────────
     REVIEW_AUTO_APPROVE: bool = False
 

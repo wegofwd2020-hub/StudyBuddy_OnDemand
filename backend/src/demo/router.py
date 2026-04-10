@@ -69,8 +69,8 @@ _REQ_RATE_PREFIX = "demo_req:"
 _RESEND_COOLDOWN_PREFIX = "demo_resend:"
 _BLACKLIST_PREFIX = "demo_blacklist:"
 
-_REQ_RATE_LIMIT = 3          # max requests per IP per window
-_REQ_RATE_WINDOW = 3600      # 1 hour in seconds
+_REQ_RATE_LIMIT = 3  # max requests per IP per window
+_REQ_RATE_WINDOW = 3600  # 1 hour in seconds
 
 
 # ── POST /demo/request ────────────────────────────────────────────────────────
@@ -265,9 +265,7 @@ async def verify_demo_email(token: str, request: Request):
         )
 
     log.info("demo_account_created", email=email)
-    return {
-        "message": "Account created. Login credentials have been sent to your email."
-    }
+    return {"message": "Account created. Login credentials have been sent to your email."}
 
 
 # ── POST /demo/auth/login ─────────────────────────────────────────────────────
@@ -417,9 +415,7 @@ async def resend_demo_verification(body: DemoResendInput, request: Request):
             # Return 200 to avoid leaking whether the email is registered
             return {"message": "If a pending verification exists, it has been resent."}
 
-        new_token = await replace_verification_token(
-            conn, pending["request_id"], body.email
-        )
+        new_token = await replace_verification_token(conn, pending["request_id"], body.email)
 
     # ── Set cooldown ──
     await redis.set(

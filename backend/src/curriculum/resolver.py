@@ -30,6 +30,7 @@ import asyncpg
 from fastapi import Depends, HTTPException, Request
 
 from src.auth.dependencies import get_current_student
+from src.core.cache_keys import cur_key, school_scan_pattern
 from src.core.redis_client import get_redis
 from src.utils.logger import get_logger
 
@@ -55,48 +56,50 @@ async def _resolve_from_db(
     """Resolve curriculum_id from the database (no Redis)."""
     year = _current_year()
 
-    if not school_id:
-        return _default_curriculum_id(grade, year)
-
-    async with pool.acquire() as conn:
-        row = await conn.fetchrow(
-            """
-            SELECT curriculum_id, restrict_access
-            FROM curricula
-            WHERE school_id = $1 AND grade = $2 AND year = $3 AND status = 'active'
-            ORDER BY activated_at DESC NULLS LAST
-            LIMIT 1
-            """,
-            uuid.UUID(school_id),
-            grade,
-            year,
-        )
-
-        if not row:
-            return _default_curriculum_id(grade, year)
-
-        curriculum_id: str = row["curriculum_id"]
-        restrict_access: bool = row["restrict_access"]
-
-        if restrict_access:
-            enrolment = await conn.fetchrow(
+    # Path 1: school curriculum
+    if school_id:
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(
                 """
-                SELECT enrolment_id FROM school_enrolments
-                WHERE school_id = $1 AND student_id = $2 AND status = 'active'
+                SELECT curriculum_id, restrict_access
+                FROM curricula
+                WHERE school_id = $1 AND grade = $2 AND year = $3 AND status = 'active'
+                ORDER BY activated_at DESC NULLS LAST
+                LIMIT 1
                 """,
                 uuid.UUID(school_id),
-                uuid.UUID(student_id),
+                grade,
+                year,
             )
-            if not enrolment:
-                raise HTTPException(
-                    status_code=403,
-                    detail={
-                        "error": "not_enrolled",
-                        "detail": "Not enrolled in this school's curriculum.",
-                    },
-                )
 
-    return curriculum_id
+            if not row:
+                return _default_curriculum_id(grade, year)
+
+            curriculum_id: str = row["curriculum_id"]
+            restrict_access: bool = row["restrict_access"]
+
+            if restrict_access:
+                enrolment = await conn.fetchrow(
+                    """
+                    SELECT enrolment_id FROM school_enrolments
+                    WHERE school_id = $1 AND student_id = $2 AND status = 'active'
+                    """,
+                    uuid.UUID(school_id),
+                    uuid.UUID(student_id),
+                )
+                if not enrolment:
+                    raise HTTPException(
+                        status_code=403,
+                        detail={
+                            "error": "not_enrolled",
+                            "detail": "Not enrolled in this school's curriculum.",
+                        },
+                    )
+
+        return curriculum_id
+
+    # Path 2: default platform curriculum
+    return _default_curriculum_id(grade, year)
 
 
 async def get_curriculum_id(
@@ -114,7 +117,7 @@ async def get_curriculum_id(
     school_id: str | None = student.get("school_id") and str(student["school_id"])
 
     redis = get_redis(request)
-    cache_key = f"cur:{student_id}"
+    cache_key = cur_key(student_id, school_id)
 
     raw = await redis.get(cache_key)
     if raw:
@@ -135,20 +138,23 @@ async def invalidate_resolver_cache_for_school(
     school_id: str,
 ) -> int:
     """
-    Invalidate cur:{student_id} cache keys for all enrolled students in a school.
+    Invalidate all school:{school_id}:* Redis keys for a school.
+
+    Uses the school-prefix SCAN (ADR-001 Decision 3) instead of enumerating
+    enrolled students — faster and covers cur, ent, and any future school keys.
 
     Returns the count of invalidated keys.
     """
-    async with pool.acquire() as conn:
-        rows = await conn.fetch(
-            "SELECT student_id::text FROM school_enrolments WHERE school_id = $1 AND student_id IS NOT NULL",
-            uuid.UUID(school_id),
-        )
-
+    pattern = school_scan_pattern(school_id)
     count = 0
-    for row in rows:
-        deleted = await redis.delete(f"cur:{row['student_id']}")
-        count += deleted
+    cursor = b"0"
+    while True:
+        cursor, keys = await redis.scan(cursor, match=pattern, count=200)
+        if keys:
+            await redis.delete(*keys)
+            count += len(keys)
+        if cursor == b"0" or cursor == 0:
+            break
 
     log.info("resolver_cache_invalidated", school_id=school_id, keys_deleted=count)
     return count

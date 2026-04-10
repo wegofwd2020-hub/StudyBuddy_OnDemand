@@ -29,6 +29,19 @@ from httpx import AsyncClient
 
 from tests.helpers.token_factory import make_teacher_token
 
+# ── Deterministic test IDs (Rule 9 — no uuid4 in fixtures) ───────────────────
+# Each constant is a fixed UUID so test runs are fully reproducible.
+# "wrong" school / teacher IDs must never match any registered entity.
+_SID_OV_DATA   = "a1000000-0000-0000-0000-000000000001"  # overview_with_data
+_SID_STUDENT   = "a1000000-0000-0000-0000-000000000002"  # student report card
+_SID_TRENDS    = "a1000000-0000-0000-0000-000000000003"  # trends
+_SID_FEEDBACK  = "a1000000-0000-0000-0000-000000000004"  # feedback
+_SID_HEALTH    = "a1000000-0000-0000-0000-000000000005"  # curriculum health
+_SID_EXPORT    = "a1000000-0000-0000-0000-000000000006"  # export
+_SID_ALERTS    = "a1000000-0000-0000-0000-000000000007"  # alerts
+_WRONG_SCHOOL  = "ffff0000-0000-0000-0000-000000000001"  # 403 wrong-school checks
+_NONEXISTENT_SID = "eeee0000-0000-0000-0000-000000000001"  # not-enrolled 404
+
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -148,8 +161,8 @@ async def test_overview_with_data(client, db_conn):
     school_id = school["school_id"]
     token = school["access_token"]
 
-    sid = str(uuid.uuid4())
-    email = f"ov-{sid[:6]}@test.invalid"
+    sid = _SID_OV_DATA
+    email = "ov-a10000@test.invalid"
     await _insert_student(client, sid, email)
     await _enrol_student(client, school_id, sid, email)
     await _insert_lesson_view(client, sid, audio_played=True)
@@ -172,7 +185,7 @@ async def test_overview_wrong_school_403(client, db_conn):
     """Teacher cannot access another school's overview."""
     school = await _register_school(client, "_ov_ws")
     school_id = school["school_id"]
-    wrong_token = _make_teacher(str(uuid.uuid4()))
+    wrong_token = _make_teacher(_WRONG_SCHOOL)
 
     r = await client.get(
         f"/api/v1/reports/school/{school_id}/overview",
@@ -197,8 +210,8 @@ async def test_unit_report_returns_200(client, db_conn):
     school_id = school["school_id"]
     token = school["access_token"]
 
-    sid = str(uuid.uuid4())
-    email = f"ur-{sid[:6]}@test.invalid"
+    sid = _SID_STUDENT
+    email = "ur-a10000@test.invalid"
     await _insert_student(client, sid, email)
     await _enrol_student(client, school_id, sid, email)
     await _insert_lesson_view(client, sid, unit_id="G8-SCI-001", duration_s=600)
@@ -221,7 +234,7 @@ async def test_unit_report_returns_200(client, db_conn):
 async def test_unit_report_wrong_school_403(client, db_conn):
     school = await _register_school(client, "_ur_ws")
     school_id = school["school_id"]
-    wrong_token = _make_teacher(str(uuid.uuid4()))
+    wrong_token = _make_teacher(_WRONG_SCHOOL)
 
     r = await client.get(
         f"/api/v1/reports/school/{school_id}/unit/G8-MATH-001",
@@ -239,8 +252,8 @@ async def test_student_report_returns_200(client, db_conn):
     school_id = school["school_id"]
     token = school["access_token"]
 
-    sid = str(uuid.uuid4())
-    email = f"sr-{sid[:6]}@test.invalid"
+    sid = _SID_STUDENT
+    email = "sr-a10000@test.invalid"
     await _insert_student(client, sid, email)
     await _enrol_student(client, school_id, sid, email)
     await _insert_lesson_view(client, sid)
@@ -264,7 +277,7 @@ async def test_student_report_not_enrolled_returns_404(client, db_conn):
     school_id = school["school_id"]
     token = school["access_token"]
 
-    random_sid = str(uuid.uuid4())
+    random_sid = _NONEXISTENT_SID
 
     r = await client.get(
         f"/api/v1/reports/school/{school_id}/student/{random_sid}",
@@ -282,8 +295,8 @@ async def test_curriculum_health_returns_200(client, db_conn):
     school_id = school["school_id"]
     token = school["access_token"]
 
-    sid = str(uuid.uuid4())
-    email = f"ch-{sid[:6]}@test.invalid"
+    sid = _SID_HEALTH
+    email = "ch-a10000@test.invalid"
     await _insert_student(client, sid, email)
     await _enrol_student(client, school_id, sid, email)
     await _insert_lesson_view(client, sid, unit_id="G8-MATH-002")
@@ -312,9 +325,13 @@ async def test_curriculum_health_struggling_tier(client, db_conn):
     token = school["access_token"]
 
     # Three students all fail first attempt
-    for _ in range(3):
-        sid = str(uuid.uuid4())
-        email = f"chstr-{sid[:6]}@test.invalid"
+    _STRUGGLE_SIDS = [
+        "b1000000-0000-0000-0000-000000000001",
+        "b1000000-0000-0000-0000-000000000002",
+        "b1000000-0000-0000-0000-000000000003",
+    ]
+    for i, sid in enumerate(_STRUGGLE_SIDS):
+        email = f"chstr-{i + 1}@test.invalid"
         await _insert_student(client, sid, email)
         await _enrol_student(client, school_id, sid, email)
         await _insert_lesson_view(client, sid, unit_id="G8-STRUGGLE")
@@ -344,8 +361,8 @@ async def test_feedback_report_returns_200(client, db_conn):
     school_id = school["school_id"]
     token = school["access_token"]
 
-    sid = str(uuid.uuid4())
-    email = f"fb-{sid[:6]}@test.invalid"
+    sid = _SID_FEEDBACK
+    email = "fb-a10000@test.invalid"
     await _insert_student(client, sid, email)
     await _enrol_student(client, school_id, sid, email)
 
@@ -419,7 +436,7 @@ async def test_export_queues_celery_task(client, db_conn):
 async def test_export_wrong_school_403(client, db_conn):
     school = await _register_school(client, "_exp_ws")
     school_id = school["school_id"]
-    wrong_token = _make_teacher(str(uuid.uuid4()))
+    wrong_token = _make_teacher(_WRONG_SCHOOL)
 
     r = await client.post(
         f"/api/v1/reports/school/{school_id}/export",

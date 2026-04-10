@@ -64,6 +64,15 @@ celery_app.conf.update(
         "src.auth.tasks.send_demo_teacher_verification_email_task": {"queue": "io"},
         "src.auth.tasks.send_demo_teacher_credentials_email_task": {"queue": "io"},
         "src.auth.tasks.run_grade_pipeline_task": {"queue": "pipeline"},
+        "src.auth.tasks.invalidate_school_entitlement_cache_task": {"queue": "io"},
+        "src.auth.tasks.reconcile_school_storage_task": {"queue": "default"},
+        # Retention lifecycle tasks
+        "src.auth.tasks.check_retention_pre_expiry_warnings": {"queue": "default"},
+        "src.auth.tasks.sweep_expired_curricula": {"queue": "default"},
+        "src.auth.tasks.check_retention_grace_reminders": {"queue": "default"},
+        "src.auth.tasks.check_retention_purge_warnings": {"queue": "default"},
+        "src.auth.tasks.purge_expired_curricula": {"queue": "default"},
+        "src.auth.tasks.send_retention_email_task": {"queue": "io"},
     },
     beat_schedule={
         # Poll DB pool state + Celery queue depth every 30 seconds.
@@ -117,6 +126,37 @@ celery_app.conf.update(
         "sweep-expired-demo-teacher-accounts-nightly": {
             "task": "src.auth.tasks.sweep_expired_demo_teacher_accounts",
             "schedule": crontab(hour=3, minute=15),
+        },
+        # Nightly storage quota reconcile at 01:00 UTC.
+        # Recomputes used_bytes for every school from pipeline_jobs.payload_bytes
+        # to correct any drift from manual deletes or failed increments.
+        "reconcile-school-storage-nightly": {
+            "task": "src.auth.tasks.reconcile_school_storage_task",
+            "schedule": crontab(hour=1, minute=0),
+        },
+        # Retention lifecycle tasks — all run daily at 02:00 UTC in sequence.
+        # Offset by 5 minutes each to avoid simultaneous DB load.
+        # Order: pre-expiry warnings → expiry sweep → grace reminders →
+        #        purge warnings → file purge.
+        "retention-pre-expiry-warnings-daily": {
+            "task": "src.auth.tasks.check_retention_pre_expiry_warnings",
+            "schedule": crontab(hour=2, minute=0),
+        },
+        "retention-expiry-sweep-daily": {
+            "task": "src.auth.tasks.sweep_expired_curricula",
+            "schedule": crontab(hour=2, minute=5),
+        },
+        "retention-grace-reminders-daily": {
+            "task": "src.auth.tasks.check_retention_grace_reminders",
+            "schedule": crontab(hour=2, minute=10),
+        },
+        "retention-purge-warnings-daily": {
+            "task": "src.auth.tasks.check_retention_purge_warnings",
+            "schedule": crontab(hour=2, minute=15),
+        },
+        "retention-purge-daily": {
+            "task": "src.auth.tasks.purge_expired_curricula",
+            "schedule": crontab(hour=2, minute=20),
         },
     },
 )
@@ -966,6 +1006,7 @@ def run_grade_pipeline_task(
     # sys.path = ["/", ...] → import pipeline.build_grade resolves to /pipeline/build_grade.py
     _pipeline_parent = "/pipeline/.."
     import os as _os
+
     _pipeline_parent = _os.path.abspath(_pipeline_parent)
     if _pipeline_parent not in sys.path:
         sys.path.insert(0, _pipeline_parent)
@@ -993,8 +1034,10 @@ def run_grade_pipeline_task(
                 )
             finally:
                 await conn.close()
+
         try:
             import asyncpg as _asyncpg
+
             _run_async(_mark_started())
         except Exception:
             pass
@@ -1014,6 +1057,7 @@ def run_grade_pipeline_task(
         payload_bytes: int = 0
         try:
             import os as _os2
+
             curriculum_id = f"default-{year}-g{grade}"
             content_dir = _os2.path.join(
                 pipeline_cfg.settings.CONTENT_STORE_PATH, "curricula", curriculum_id
@@ -1040,6 +1084,7 @@ def run_grade_pipeline_task(
                 )
             finally:
                 await conn.close()
+
         try:
             _run_async(_mark_done())
         except Exception:
@@ -1050,6 +1095,7 @@ def run_grade_pipeline_task(
     except Exception as exc:
         log.error("run_grade_pipeline_task_failed job_id=%s error=%s", job_id, exc)
         _update_job({"status": "failed", "error": str(exc)})
+        _exc_str = str(exc)  # capture before Python deletes the except-clause binding
 
         async def _mark_failed():
             conn = await _asyncpg.connect(settings.DATABASE_URL)
@@ -1057,12 +1103,14 @@ def run_grade_pipeline_task(
                 await conn.execute(
                     "UPDATE pipeline_jobs SET status='failed', completed_at=NOW(), error=$2 WHERE job_id=$1",
                     job_id,
-                    str(exc),
+                    _exc_str,
                 )
             finally:
                 await conn.close()
+
         try:
             import asyncpg as _asyncpg
+
             _run_async(_mark_failed())
         except Exception:
             pass
@@ -1101,10 +1149,12 @@ def promote_student_grades() -> None:
         finally:
             await conn.close()
 
-        # Invalidate entitlement and curriculum resolver caches
+        # Invalidate entitlement and curriculum resolver caches.
+        # Patterns cover both school-namespaced keys (ADR-001 Decision 3) and
+        # legacy unscoped keys (demo students / unaffiliated students).
         redis_client = await _aioredis.from_url(settings.REDIS_URL, decode_responses=True)
         try:
-            for pattern in ("ent:*", "cur:*"):
+            for pattern in ("school:*:ent:*", "school:*:cur:*", "ent:*", "cur:*"):
                 cursor = 0
                 while True:
                     cursor, keys = await redis_client.scan(cursor, match=pattern, count=200)
@@ -1436,7 +1486,9 @@ def sweep_expired_demo_accounts() -> None:
     async def _sweep() -> None:
         import asyncpg as _asyncpg
 
-        pool = await _asyncpg.create_pool(cfg.DATABASE_URL, min_size=1, max_size=2, statement_cache_size=0)
+        pool = await _asyncpg.create_pool(
+            cfg.DATABASE_URL, min_size=1, max_size=2, statement_cache_size=0
+        )
         try:
             async with pool.acquire() as conn:
                 expired = await conn.fetch(
@@ -1525,7 +1577,9 @@ def sweep_expired_demo_teacher_accounts() -> None:
     async def _sweep() -> None:
         import asyncpg as _asyncpg
 
-        pool = await _asyncpg.create_pool(cfg.DATABASE_URL, min_size=1, max_size=2, statement_cache_size=0)
+        pool = await _asyncpg.create_pool(
+            cfg.DATABASE_URL, min_size=1, max_size=2, statement_cache_size=0
+        )
         try:
             async with pool.acquire() as conn:
                 expired = await conn.fetch(
@@ -1589,3 +1643,332 @@ def send_demo_teacher_credentials_email_task(self, email: str, password: str) ->
         _run_async(send_teacher_credentials_email(email, password))
     except Exception as exc:
         raise self.retry(exc=exc, countdown=30)
+
+
+@celery_app.task(name="src.auth.tasks.invalidate_school_entitlement_cache_task")
+def invalidate_school_entitlement_cache_task(school_id: str) -> None:
+    """
+    Bulk-delete all school:{school_id}:* Redis keys after a subscription state change.
+
+    Called after any school subscription event (activate / cancel / payment fail)
+    so that enrolled students' next content request re-derives entitlement from DB.
+    The school:{school_id}:ent key is deleted synchronously in
+    expire_school_entitlement_cache() before this task is dispatched.
+
+    Uses school-prefix SCAN (ADR-001 Decision 3) — no need to enumerate enrolled
+    student IDs from the DB; the namespace covers all per-student ent + cur keys.
+    """
+    from config import settings as cfg
+    from src.core.cache_keys import school_scan_pattern
+
+    async def _invalidate() -> None:
+        import redis.asyncio as _aioredis
+
+        redis_client = await _aioredis.from_url(cfg.REDIS_URL, decode_responses=True)
+        pattern = school_scan_pattern(school_id)
+        count = 0
+        try:
+            cursor = 0
+            while True:
+                cursor, keys = await redis_client.scan(cursor, match=pattern, count=200)
+                if keys:
+                    await redis_client.delete(*keys)
+                    count += len(keys)
+                if cursor == 0:
+                    break
+        finally:
+            await redis_client.aclose()
+
+        log.info(
+            "invalidate_school_entitlement_cache school_id=%s keys_deleted=%d",
+            school_id,
+            count,
+        )
+
+    _run_async(_invalidate())
+
+
+# ── Storage quota reconcile ───────────────────────────────────────────────────
+
+
+@celery_app.task(name="src.auth.tasks.reconcile_school_storage_task")
+def reconcile_school_storage_task() -> None:
+    """
+    Nightly reconcile: recompute used_bytes for every school from pipeline_jobs.
+
+    The pipeline worker increments school_storage_quotas.used_bytes atomically
+    after each successful job.  This task recomputes from scratch nightly so any
+    drift (manual deletions, failed increments, Phase B curriculum deletes) is
+    corrected before the school admin opens the retention dashboard.
+
+    Only completed pipeline jobs with a non-null payload_bytes contribute.
+    Runs at 01:00 UTC (after the nightly retention status sweep).
+    This task is idempotent — re-running is safe.
+    """
+    from config import settings as cfg
+
+    async def _reconcile() -> None:
+        import asyncpg as _asyncpg
+
+        pool = await _asyncpg.create_pool(
+            cfg.DATABASE_URL, min_size=1, max_size=2, statement_cache_size=0
+        )
+        try:
+            async with pool.acquire() as conn:
+                # Bypass RLS — this is an internal admin operation.
+                await conn.execute(
+                    "SELECT set_config('app.current_school_id', 'bypass', false)"
+                )
+
+                # Aggregate payload_bytes per school across all completed jobs.
+                rows = await conn.fetch(
+                    """
+                    SELECT school_id::text, COALESCE(SUM(payload_bytes), 0) AS total_bytes
+                    FROM pipeline_jobs
+                    WHERE status = 'completed'
+                      AND payload_bytes IS NOT NULL
+                      AND school_id IS NOT NULL
+                    GROUP BY school_id
+                    """
+                )
+
+                updated = 0
+                for row in rows:
+                    result = await conn.execute(
+                        """
+                        UPDATE school_storage_quotas
+                        SET used_bytes = $1, updated_at = NOW()
+                        WHERE school_id = $2::uuid
+                        """,
+                        int(row["total_bytes"]),
+                        row["school_id"],
+                    )
+                    if result != "UPDATE 0":
+                        updated += 1
+
+                # Zero out schools that have no completed jobs (e.g. all content deleted).
+                await conn.execute(
+                    """
+                    UPDATE school_storage_quotas
+                    SET used_bytes = 0, updated_at = NOW()
+                    WHERE school_id NOT IN (
+                        SELECT DISTINCT school_id
+                        FROM pipeline_jobs
+                        WHERE status = 'completed'
+                          AND payload_bytes IS NOT NULL
+                          AND school_id IS NOT NULL
+                    )
+                    AND used_bytes > 0
+                    """
+                )
+
+                log.info("storage_reconcile_complete schools_updated=%d", updated)
+        finally:
+            await pool.close()
+
+    _run_async(_reconcile())
+
+
+# ── Retention lifecycle tasks ─────────────────────────────────────────────────
+#
+# All five tasks share the same _db_bypass() helper (RLS bypass) and
+# a stub _queue_retention_email() that logs the intent.  Phase E will
+# replace the stub with real email dispatch.
+#
+# Idempotency strategy:
+#   - sweep_expired_curricula: state change (active → unavailable) is its own
+#     idempotency guard — subsequent runs find no rows matching the WHERE clause.
+#   - check_*: fire only on the exact calendar date matching the notification
+#     window, so each notification triggers at most once per curriculum.
+#   - purge_expired_curricula: sets retention_status = 'purged' before deleting
+#     files, so a partial failure on file deletion is safely retried.
+
+
+# ── Task 1: 30-day pre-expiry warnings ───────────────────────────────────────
+
+
+@celery_app.task(name="src.auth.tasks.check_retention_pre_expiry_warnings")
+def check_retention_pre_expiry_warnings() -> None:
+    """
+    Daily: send a 30-day pre-expiry warning for school curricula expiring in
+    exactly 30 days. No DB state change — email notification only.
+    """
+    from config import settings as cfg
+    from src.school.retention_service import send_pre_expiry_warnings
+
+    async def _run() -> None:
+        import asyncpg as _asyncpg
+
+        conn = await _asyncpg.connect(cfg.DATABASE_URL)
+        try:
+            await conn.execute(
+                "SELECT set_config('app.current_school_id', 'bypass', false)"
+            )
+            await send_pre_expiry_warnings(conn)
+        finally:
+            await conn.close()
+
+    _run_async(_run())
+
+
+# ── Task 2: Expiry sweep (active → unavailable) ───────────────────────────────
+
+
+@celery_app.task(name="src.auth.tasks.sweep_expired_curricula")
+def sweep_expired_curricula() -> None:
+    """
+    Daily: transition school curricula from 'active' to 'unavailable' when
+    their expires_at has passed. Sets grace_until = expires_at + 180 days.
+    Idempotent — only 'active' rows are touched.
+    """
+    from config import settings as cfg
+    from src.school.retention_service import expire_active_curricula
+
+    async def _run() -> None:
+        import asyncpg as _asyncpg
+
+        conn = await _asyncpg.connect(cfg.DATABASE_URL)
+        try:
+            await conn.execute(
+                "SELECT set_config('app.current_school_id', 'bypass', false)"
+            )
+            await expire_active_curricula(conn)
+        finally:
+            await conn.close()
+
+    _run_async(_run())
+
+
+# ── Task 3: 90-day grace period reminder ─────────────────────────────────────
+
+
+@celery_app.task(name="src.auth.tasks.check_retention_grace_reminders")
+def check_retention_grace_reminders() -> None:
+    """
+    Daily: send a reminder email on day 90 of the grace period
+    ((grace_until - 90 days)::date == today). No DB state change.
+    """
+    from config import settings as cfg
+    from src.school.retention_service import send_grace_90day_reminders
+
+    async def _run() -> None:
+        import asyncpg as _asyncpg
+
+        conn = await _asyncpg.connect(cfg.DATABASE_URL)
+        try:
+            await conn.execute(
+                "SELECT set_config('app.current_school_id', 'bypass', false)"
+            )
+            await send_grace_90day_reminders(conn)
+        finally:
+            await conn.close()
+
+    _run_async(_run())
+
+
+# ── Task 4: 30-days-to-purge warning (day 150 of grace) ─────────────────────
+
+
+@celery_app.task(name="src.auth.tasks.check_retention_purge_warnings")
+def check_retention_purge_warnings() -> None:
+    """
+    Daily: send an urgent warning 30 days before purge (day 150 of 180-day grace).
+    ((grace_until - 30 days)::date == today). No DB state change.
+    """
+    from config import settings as cfg
+    from src.school.retention_service import send_purge_30day_warnings
+
+    async def _run() -> None:
+        import asyncpg as _asyncpg
+
+        conn = await _asyncpg.connect(cfg.DATABASE_URL)
+        try:
+            await conn.execute(
+                "SELECT set_config('app.current_school_id', 'bypass', false)"
+            )
+            await send_purge_30day_warnings(conn)
+        finally:
+            await conn.close()
+
+    _run_async(_run())
+
+
+# ── Retention email task ──────────────────────────────────────────────────────
+
+
+@celery_app.task(
+    name="src.auth.tasks.send_retention_email_task",
+    bind=True,
+    max_retries=3,
+)
+def send_retention_email_task(
+    self,
+    to_email: str,
+    template: str,
+    grade: int,
+    curriculum_name: str,
+    expires_date: str = "",
+    grace_date: str = "",
+    purge_date: str = "",
+    days_remaining: int = 0,
+) -> None:
+    """
+    Send one of the five retention lifecycle emails to a school_admin contact.
+    Retries up to 3× on SMTP failure (30-second backoff).
+
+    template must be one of:
+      retention_pre_expiry_warning
+      retention_expiry_notification
+      retention_grace_90day_reminder
+      retention_purge_warning_30day
+      retention_purge_complete
+    """
+    from src.email.service import send_retention_email
+
+    try:
+        _run_async(
+            send_retention_email(
+                to_email=to_email,
+                template=template,
+                grade=grade,
+                curriculum_name=curriculum_name,
+                expires_date=expires_date,
+                grace_date=grace_date,
+                purge_date=purge_date,
+                days_remaining=days_remaining,
+            )
+        )
+    except Exception as exc:
+        raise self.retry(exc=exc, countdown=30)
+
+
+# ── Task 5: File purge (day 180 of grace) ────────────────────────────────────
+
+
+@celery_app.task(name="src.auth.tasks.purge_expired_curricula")
+def purge_expired_curricula() -> None:
+    """
+    Daily: permanently delete content files for curricula whose 180-day grace
+    period has elapsed (grace_until <= NOW(), retention_status = 'unavailable').
+
+    Sets retention_status = 'purged' in DB before deleting files so students
+    lose access even during slow file deletion.  FERPA: student progress
+    records are NOT deleted.
+    """
+    from config import settings as cfg
+    from src.school.retention_service import purge_grace_expired
+
+    async def _run() -> None:
+        import asyncpg as _asyncpg
+
+        conn = await _asyncpg.connect(cfg.DATABASE_URL)
+        try:
+            await conn.execute(
+                "SELECT set_config('app.current_school_id', 'bypass', false)"
+            )
+            content_store = getattr(cfg, "CONTENT_STORE_PATH", "/tmp/studybuddy-content")
+            await purge_grace_expired(conn, content_store)
+        finally:
+            await conn.close()
+
+    _run_async(_run())

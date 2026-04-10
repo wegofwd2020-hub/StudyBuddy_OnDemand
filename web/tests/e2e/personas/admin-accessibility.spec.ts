@@ -42,7 +42,7 @@ async function stubAdminApis(page: Page) {
         active_monthly: 150,
         active_annual: 80,
         total_active: 230,
-        mrr_usd: 2485,
+        mrr_usd: "2485.00",
         new_this_month: 18,
         cancelled_this_month: 5,
         churn_rate: 0.022,

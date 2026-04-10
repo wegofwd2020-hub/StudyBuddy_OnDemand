@@ -1,7 +1,13 @@
 """
 backend/src/core/observability.py
 
-Prometheus metrics, CorrelationIdMiddleware, /health and /metrics endpoints.
+Prometheus metrics, CorrelationIdMiddleware, and observability endpoints.
+
+Endpoints (mounted at root — no /api/v1 prefix):
+  GET /healthz   liveness probe   — always 200 if the process is up
+  GET /readyz    readiness probe  — 200 if DB + Redis are reachable, 503 otherwise
+  GET /health    alias for /readyz (backwards-compatible)
+  GET /metrics   Prometheus scrape target (requires METRICS_TOKEN)
 
 Metrics exported:
   sb_requests_total          counter  (method, path, status)
@@ -108,13 +114,22 @@ class CorrelationIdMiddleware(BaseHTTPMiddleware):
 router = APIRouter(tags=["observability"])
 
 
-@router.get("/health", include_in_schema=True)
-async def health_check(request: Request) -> dict:
+@router.get("/healthz", include_in_schema=False)
+async def liveness_check() -> dict:
     """
-    Deep health check: verifies DB and Redis connectivity.
+    Liveness probe — always 200 if the process is running.
 
-    Returns HTTP 200 if all dependencies are healthy.
-    Returns HTTP 503 if any dependency is unreachable.
+    Kubernetes/ECS: use this for livenessProbe. A failure here causes a pod restart.
+    This endpoint intentionally does NOT check external dependencies.
+    """
+    return {"status": "ok"}
+
+
+async def _readiness_check(request: Request) -> dict:
+    """
+    Shared readiness logic: verifies DB and Redis connectivity.
+
+    Returns the payload dict if healthy; raises HTTP 503 if not.
     """
     from config import settings
 
@@ -166,6 +181,28 @@ async def health_check(request: Request) -> dict:
         )
 
     return payload
+
+
+@router.get("/readyz", include_in_schema=True)
+async def readiness_check(request: Request) -> dict:
+    """
+    Readiness probe — 200 if DB and Redis are reachable, 503 otherwise.
+
+    Kubernetes/ECS: use this for readinessProbe. A failure here removes the pod
+    from the load balancer until dependencies recover.
+    """
+    return await _readiness_check(request)
+
+
+@router.get("/health", include_in_schema=True)
+async def health_check(request: Request) -> dict:
+    """
+    Deep health check alias for /readyz (backwards-compatible).
+
+    Returns HTTP 200 if all dependencies are healthy.
+    Returns HTTP 503 if any dependency is unreachable.
+    """
+    return await _readiness_check(request)
 
 
 @router.get("/metrics", include_in_schema=False)

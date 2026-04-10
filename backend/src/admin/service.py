@@ -23,15 +23,22 @@ import uuid
 
 import asyncpg
 import httpx
-
 from config import settings as _settings
+
 from src.utils.logger import get_logger
 
 log = get_logger("admin")
 
 # Stripe plan monthly prices (USD) used for MRR estimation
-_MONTHLY_PRICE_USD = 9.99
-_ANNUAL_MONTHLY_USD = 7.99  # annual / 12
+# School subscription plan pricing (USD/month)
+# Starter: up to 30 students / 5 teachers
+# Professional: up to 150 students / 10 teachers
+# Enterprise: unlimited
+_PLAN_PRICE_USD = {
+    "starter": 99.00,
+    "professional": 299.00,
+    "enterprise": 999.00,
+}
 
 
 # ── Review queue ──────────────────────────────────────────────────────────────
@@ -42,36 +49,44 @@ async def list_review_queue(
     status: str | None = None,
     subject: str | None = None,
     curriculum_id: str | None = None,
+    assigned_to_admin_id: str | None = None,
     limit: int = 50,
     offset: int = 0,
 ) -> dict:
     """Return content_subject_versions rows matching the filters."""
-    filters = ["archived_at IS NULL"]
+    filters = ["csv.archived_at IS NULL"]
     params: list = []
 
     if status:
         # "pending" is the canonical pre-review status; also match legacy pipeline values
         if status == "pending":
-            filters.append("status IN ('pending', 'ready_for_review', 'needs_review')")
+            filters.append("csv.status IN ('pending', 'ready_for_review', 'needs_review')")
         else:
             params.append(status)
-            filters.append(f"status = ${len(params)}")
+            filters.append(f"csv.status = ${len(params)}")
     if subject:
         params.append(subject)
-        filters.append(f"subject = ${len(params)}")
+        filters.append(f"csv.subject = ${len(params)}")
     if curriculum_id:
         params.append(curriculum_id)
-        filters.append(f"curriculum_id = ${len(params)}")
+        filters.append(f"csv.curriculum_id = ${len(params)}")
+    if assigned_to_admin_id:
+        params.append(uuid.UUID(assigned_to_admin_id))
+        filters.append(f"csv.assigned_to_admin_id = ${len(params)}")
 
     where = " AND ".join(filters)
 
     rows = await conn.fetch(
         f"""
-        SELECT version_id::text, curriculum_id, subject, subject_name, version_number, status,
-               alex_warnings_count, generated_at, published_at
-        FROM content_subject_versions
+        SELECT csv.version_id::text, csv.curriculum_id, csv.subject, csv.subject_name,
+               csv.version_number, csv.status, csv.alex_warnings_count,
+               csv.generated_at, csv.published_at,
+               csv.assigned_to_admin_id::text, csv.assigned_at,
+               au.email AS assigned_to_email
+        FROM content_subject_versions csv
+        LEFT JOIN admin_users au ON au.admin_user_id = csv.assigned_to_admin_id
         WHERE {where}
-        ORDER BY generated_at DESC
+        ORDER BY csv.generated_at DESC
         LIMIT ${len(params) + 1} OFFSET ${len(params) + 2}
         """,
         *params,
@@ -79,28 +94,45 @@ async def list_review_queue(
         offset,
     )
     total = await conn.fetchval(
-        f"SELECT COUNT(*) FROM content_subject_versions WHERE {where}",
+        f"""
+        SELECT COUNT(*)
+        FROM content_subject_versions csv
+        LEFT JOIN admin_users au ON au.admin_user_id = csv.assigned_to_admin_id
+        WHERE {where}
+        """,
         *params,
     )
 
     # Build a per-curriculum unit listing (one os.listdir per curriculum_id)
     content_store = getattr(_settings, "CONTENT_STORE_PATH", "/data/content")
-    _curriculum_units: dict[str, set[str]] = {}
+    _dirs_on_disk: dict[str, set[str]] = {}
     for r in rows:
         cid = r["curriculum_id"]
-        if cid not in _curriculum_units:
+        if cid not in _dirs_on_disk:
             cdir = os.path.join(content_store, "curricula", cid)
             try:
-                _curriculum_units[cid] = set(os.listdir(cdir))
+                _dirs_on_disk[cid] = set(os.listdir(cdir))
             except OSError:
-                _curriculum_units[cid] = set()
+                _dirs_on_disk[cid] = set()
+
+    # Fetch unit_ids per (curriculum_id, subject) so we can check disk by unit_id,
+    # not by subject name (unit dirs are named like "G12-MATH-001", not "Mathematics-001")
+    unique_pairs = {(r["curriculum_id"], r["subject"]) for r in rows}
+    _subject_units: dict[tuple[str, str], list[str]] = {}
+    for cid, subj in unique_pairs:
+        unit_rows = await conn.fetch(
+            "SELECT unit_id FROM curriculum_units WHERE curriculum_id = $1 AND subject = $2",
+            cid,
+            subj,
+        )
+        _subject_units[(cid, subj)] = [ur["unit_id"] for ur in unit_rows]
 
     items = []
     for r in rows:
         d = dict(r)
-        subject_prefix = r["subject"] + "-"
-        units_on_disk = _curriculum_units.get(r["curriculum_id"], set())
-        d["has_content"] = any(u.startswith(subject_prefix) for u in units_on_disk)
+        dirs = _dirs_on_disk.get(r["curriculum_id"], set())
+        unit_ids = _subject_units.get((r["curriculum_id"], r["subject"]), [])
+        d["has_content"] = any(uid in dirs for uid in unit_ids)
         items.append(d)
 
     return {"items": items, "total": total or 0}
@@ -116,10 +148,14 @@ async def get_review_detail(
     """Return full detail for a single content version including units, review history, and annotations."""
     version = await conn.fetchrow(
         """
-        SELECT version_id::text, curriculum_id, subject, subject_name, version_number, status,
-               alex_warnings_count, generated_at, published_at
-        FROM content_subject_versions
-        WHERE version_id = $1
+        SELECT csv.version_id::text, csv.curriculum_id, csv.subject, csv.subject_name,
+               csv.version_number, csv.status, csv.alex_warnings_count,
+               csv.generated_at, csv.published_at,
+               csv.assigned_to_admin_id::text, csv.assigned_at,
+               au.email AS assigned_to_email
+        FROM content_subject_versions csv
+        LEFT JOIN admin_users au ON au.admin_user_id = csv.assigned_to_admin_id
+        WHERE csv.version_id = $1
         """,
         uuid.UUID(version_id),
     )
@@ -321,6 +357,115 @@ async def approve_version(
     return dict(row) if row else {"version_id": version_id, "status": "approved"}
 
 
+async def batch_approve_versions(
+    conn: asyncpg.Connection,
+    curriculum_id: str,
+    reviewer_id: str,
+    notes: str | None,
+) -> dict:
+    """Approve all pending versions for a curriculum in one operation."""
+    rows = await conn.fetch(
+        """
+        SELECT version_id::text
+        FROM content_subject_versions
+        WHERE curriculum_id = $1 AND status = 'pending'
+        """,
+        curriculum_id,
+    )
+    if not rows:
+        return {"approved_count": 0, "version_ids": []}
+
+    version_ids = [r["version_id"] for r in rows]
+    reviewer_uuid = uuid.UUID(reviewer_id)
+
+    await conn.executemany(
+        """
+        INSERT INTO content_reviews (version_id, reviewer_id, action, notes)
+        VALUES ($1, $2, 'approve', $3)
+        """,
+        [(uuid.UUID(vid), reviewer_uuid, notes) for vid in version_ids],
+    )
+    await conn.execute(
+        """
+        UPDATE content_subject_versions
+        SET status = 'approved'
+        WHERE version_id = ANY($1::uuid[])
+        """,
+        [uuid.UUID(vid) for vid in version_ids],
+    )
+
+    from src.core.events import write_audit_log
+
+    write_audit_log(
+        "batch_review_approved",
+        "admin",
+        reviewer_id,
+        metadata={"curriculum_id": curriculum_id, "approved_count": len(version_ids)},
+    )
+    return {"approved_count": len(version_ids), "version_ids": version_ids}
+
+
+async def list_admin_users(conn: asyncpg.Connection) -> list[dict]:
+    """Return all active admin accounts (id, email, role)."""
+    rows = await conn.fetch(
+        """
+        SELECT admin_user_id::text, email, role
+        FROM admin_users
+        WHERE account_status = 'active'
+        ORDER BY email
+        """
+    )
+    return [dict(r) for r in rows]
+
+
+async def assign_version(
+    conn: asyncpg.Connection,
+    version_id: str,
+    admin_id: str | None,
+    assigner_id: str,
+) -> dict:
+    """Assign (or unassign when admin_id is None) a version to a reviewer."""
+    assigned_to_uuid = uuid.UUID(admin_id) if admin_id else None
+    row = await conn.fetchrow(
+        """
+        UPDATE content_subject_versions
+        SET assigned_to_admin_id = $1::uuid,
+            assigned_at = CASE WHEN $1::uuid IS NOT NULL THEN NOW() ELSE NULL END
+        WHERE version_id = $2::uuid
+        RETURNING version_id::text,
+                  assigned_to_admin_id::text,
+                  assigned_at
+        """,
+        str(assigned_to_uuid) if assigned_to_uuid else None,
+        version_id,
+    )
+    if not row:
+        return {}
+
+    assigned_to_email: str | None = None
+    if admin_id:
+        email_row = await conn.fetchrow(
+            "SELECT email FROM admin_users WHERE admin_user_id = $1",
+            uuid.UUID(admin_id),
+        )
+        assigned_to_email = email_row["email"] if email_row else None
+
+    from src.core.events import write_audit_log
+
+    write_audit_log(
+        "review_assigned",
+        "admin",
+        assigner_id,
+        metadata={"version_id": version_id, "assigned_to": admin_id},
+    )
+    return {
+        "version_id": row["version_id"],
+        "assigned_to_admin_id": row["assigned_to_admin_id"],
+        "assigned_to_email": assigned_to_email,
+        "assigned_at": row["assigned_at"],
+    }
+
+
 async def reject_version(
     conn: asyncpg.Connection,
     version_id: str,
@@ -510,7 +655,10 @@ async def rollback_version(
         "content_rollback",
         "admin",
         admin_id,
-        metadata={"version_id": version_id, "restored_version_id": str(restored_id) if restored_id else None},
+        metadata={
+            "version_id": version_id,
+            "restored_version_id": str(restored_id) if restored_id else None,
+        },
     )
 
     await _expire_content_cache(redis, curriculum_id, subject)
@@ -723,42 +871,56 @@ async def get_feedback_report(
 
 
 async def get_subscription_analytics(conn: asyncpg.Connection) -> dict:
-    """MRR, churn, new/cancelled this month."""
-    totals = await conn.fetchrow(
-        """
-        SELECT
-            COUNT(*) FILTER (WHERE status = 'active' AND plan = 'monthly') AS active_monthly,
-            COUNT(*) FILTER (WHERE status = 'active' AND plan = 'annual')  AS active_annual
-        FROM subscriptions
-        WHERE status = 'active'
-        """
-    )
-    active_monthly = totals["active_monthly"] or 0
-    active_annual = totals["active_annual"] or 0
-    mrr = round(active_monthly * _MONTHLY_PRICE_USD + active_annual * _ANNUAL_MONTHLY_USD, 2)
+    """
+    School subscription analytics: active counts by plan, MRR, new/cancelled this month.
 
-    month_stats = await conn.fetchrow(
+    Billing is school-level only (ADR-001).  Individual student subscriptions
+    were removed in migration 0027.
+    """
+    from decimal import Decimal
+
+    rows = await conn.fetch(
         """
         SELECT
+            plan,
+            COUNT(*) FILTER (WHERE status IN ('active', 'trialing'))  AS active_count,
             COUNT(*) FILTER (WHERE created_at >= date_trunc('month', NOW())) AS new_this_month,
             COUNT(*) FILTER (
                 WHERE status = 'cancelled'
                   AND updated_at >= date_trunc('month', NOW())
             ) AS cancelled_this_month
-        FROM subscriptions
+        FROM school_subscriptions
+        GROUP BY plan
         """
     )
-    new_this_month = month_stats["new_this_month"] or 0
-    cancelled_this_month = month_stats["cancelled_this_month"] or 0
-    total_active = active_monthly + active_annual
+
+    plan_stats: dict[str, dict] = {}
+    total_active = 0
+    mrr = Decimal("0.00")
+    new_this_month = 0
+    cancelled_this_month = 0
+
+    for row in rows:
+        plan = row["plan"]
+        active = row["active_count"] or 0
+        price = Decimal(str(_PLAN_PRICE_USD.get(plan, 0)))
+        plan_stats[plan] = {
+            "active": active,
+            "new_this_month": row["new_this_month"] or 0,
+            "cancelled_this_month": row["cancelled_this_month"] or 0,
+        }
+        total_active += active
+        mrr += price * active
+        new_this_month += row["new_this_month"] or 0
+        cancelled_this_month += row["cancelled_this_month"] or 0
+
     churn_denominator = total_active + cancelled_this_month
     churn_rate = round(cancelled_this_month / churn_denominator, 4) if churn_denominator else 0.0
 
     return {
-        "active_monthly": active_monthly,
-        "active_annual": active_annual,
+        "by_plan": plan_stats,
         "total_active": total_active,
-        "mrr_usd": mrr,
+        "mrr_usd": str(mrr.quantize(Decimal("0.01"))),
         "new_this_month": new_this_month,
         "cancelled_this_month": cancelled_this_month,
         "churn_rate": churn_rate,
@@ -813,6 +975,7 @@ async def get_pipeline_status(conn: asyncpg.Connection) -> dict:
         SELECT
             MAX(generated_at) AS last_run_at,
             COUNT(*)                                                        AS total_versions,
+            COUNT(*) FILTER (WHERE status = 'pending')                     AS pending,
             COUNT(*) FILTER (WHERE status IN ('pending','ready_for_review','needs_review')) AS ready_for_review,
             COUNT(*) FILTER (WHERE status = 'approved')                    AS approved,
             COUNT(*) FILTER (WHERE status = 'published')                   AS published,
@@ -825,11 +988,11 @@ async def get_pipeline_status(conn: asyncpg.Connection) -> dict:
     return {
         "last_run_at": row["last_run_at"],
         "total_versions": row["total_versions"] or 0,
+        "pending": row["pending"] or 0,
         "ready_for_review": row["ready_for_review"] or 0,
         "approved": row["approved"] or 0,
         "published": row["published"] or 0,
         "rejected": row["rejected"] or 0,
-        "pending": row["pending"] or 0,
     }
 
 
@@ -935,14 +1098,27 @@ async def get_unit_content_meta(
 
     curriculum_id = row["curriculum_id"]
     title = row["title"]
-    unit_dir = os.path.join(
-        _settings.CONTENT_STORE_PATH, "curricula", curriculum_id, unit_id
-    )
+    unit_dir = os.path.join(_settings.CONTENT_STORE_PATH, "curricula", curriculum_id, unit_id)
 
     available: list[str] = []
     for ct in _CONTENT_TYPES_ORDERED:
         if os.path.isfile(os.path.join(unit_dir, f"{ct}_{lang}.json")):
             available.append(ct)
+
+    # Read per-unit alex_warnings from meta.json if present
+    alex_warnings_count = 0
+    alex_warnings_by_type: dict[str, int] = {}
+    meta_path = os.path.join(unit_dir, "meta.json")
+    if os.path.isfile(meta_path):
+        try:
+            with open(meta_path, encoding="utf-8") as f:
+                meta = json.load(f)
+            alex_warnings_count = int(meta.get("alex_warnings_count", 0))
+            alex_warnings_by_type = {
+                k: int(v) for k, v in meta.get("alex_warnings_by_type", {}).items()
+            }
+        except Exception:
+            pass
 
     return {
         "unit_id": unit_id,
@@ -950,6 +1126,8 @@ async def get_unit_content_meta(
         "curriculum_id": curriculum_id,
         "lang": lang,
         "available_types": available,
+        "alex_warnings_count": alex_warnings_count,
+        "alex_warnings_by_type": alex_warnings_by_type,
     }
 
 

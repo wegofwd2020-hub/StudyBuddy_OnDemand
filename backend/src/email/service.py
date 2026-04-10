@@ -334,3 +334,359 @@ async def send_teacher_credentials_email(to_email: str, password: str) -> None:
             ttl_hours=settings.DEMO_TEACHER_ACCOUNT_TTL_HOURS,
         ),
     )
+
+
+# ── Retention lifecycle emails ────────────────────────────────────────────────
+#
+# All five templates are sent to the school_admin contact email.
+# The retention dashboard URL is /school/subscription (Phase H UI).
+# Placeholders: {grade}, {curriculum_name}, {expires_date}, {grace_date},
+#               {days_remaining}, {dashboard_url}
+#
+# Color scheme: amber/orange (#d97706) for warnings, red (#dc2626) for urgent.
+
+
+def _retention_dashboard_url() -> str:
+    return f"{settings.FRONTEND_URL}/school/subscription"
+
+
+# ── Template 1: 30-day pre-expiry warning ─────────────────────────────────────
+
+_PRE_EXPIRY_SUBJECT = "Action required: Your Grade {grade} curriculum expires in 30 days"
+
+_PRE_EXPIRY_TEXT = """\
+Hi,
+
+This is a reminder that your Grade {grade} curriculum ({curriculum_name}) \
+will expire on {expires_date}.
+
+After expiry, students will immediately lose access to this curriculum's content.
+
+To keep your content active, please renew from your retention dashboard:
+{dashboard_url}
+
+Renewal extends access for one year from the expiry date — no overlap, no gap.
+
+— The StudyBuddy Team
+"""
+
+_PRE_EXPIRY_HTML = """\
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8" /></head>
+<body style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:24px">
+  <div style="background:#fef3c7;border-left:4px solid #d97706;padding:12px 16px;margin-bottom:20px">
+    <strong style="color:#92400e">Action required — 30-day expiry warning</strong>
+  </div>
+  <h2 style="color:#1f2937">Your Grade {grade} curriculum expires in 30 days</h2>
+  <p>
+    <strong>{curriculum_name}</strong> will expire on
+    <strong>{expires_date}</strong>.
+  </p>
+  <p>
+    After expiry, students will <strong>immediately lose access</strong> to this
+    curriculum's content. Renew before the deadline to keep your class on track.
+  </p>
+  <p style="text-align:center;margin:28px 0">
+    <a href="{dashboard_url}"
+       style="background:#d97706;color:#fff;padding:12px 28px;border-radius:6px;
+              text-decoration:none;font-weight:bold">
+      Renew Now
+    </a>
+  </p>
+  <p style="color:#6b7280;font-size:13px">
+    Renewal extends access for one year from the expiry date — no overlap, no gap.
+  </p>
+  <p style="color:#6b7280;font-size:13px">— The StudyBuddy Team</p>
+</body>
+</html>
+"""
+
+# ── Template 2: expiry notification (content marked unavailable) ──────────────
+
+_EXPIRY_SUBJECT = "Your Grade {grade} curriculum has expired — student access suspended"
+
+_EXPIRY_TEXT = """\
+Hi,
+
+Your Grade {grade} curriculum ({curriculum_name}) expired on {expires_date}.
+
+Student access to this curriculum has been suspended immediately.
+
+You have until {grace_date} (180 days) to renew before the content is
+permanently deleted.
+
+Renew from your retention dashboard to restore student access:
+{dashboard_url}
+
+— The StudyBuddy Team
+"""
+
+_EXPIRY_HTML = """\
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8" /></head>
+<body style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:24px">
+  <div style="background:#fef2f2;border-left:4px solid #dc2626;padding:12px 16px;margin-bottom:20px">
+    <strong style="color:#991b1b">Curriculum expired — student access suspended</strong>
+  </div>
+  <h2 style="color:#1f2937">Grade {grade} curriculum has expired</h2>
+  <p>
+    <strong>{curriculum_name}</strong> expired on <strong>{expires_date}</strong>.
+    Students can no longer access its lessons, quizzes, or activities.
+  </p>
+  <p>
+    Your content will be <strong>permanently deleted on {grace_date}</strong>
+    unless you renew before that date.
+  </p>
+  <p style="text-align:center;margin:28px 0">
+    <a href="{dashboard_url}"
+       style="background:#dc2626;color:#fff;padding:12px 28px;border-radius:6px;
+              text-decoration:none;font-weight:bold">
+      Renew to Restore Access
+    </a>
+  </p>
+  <p style="color:#6b7280;font-size:13px">
+    Renewing will immediately restore student access and extend the
+    curriculum for one year from the original expiry date.
+  </p>
+  <p style="color:#6b7280;font-size:13px">— The StudyBuddy Team</p>
+</body>
+</html>
+"""
+
+# ── Template 3: 90-day grace reminder ────────────────────────────────────────
+
+_GRACE_90_SUBJECT = "Reminder: {days_remaining} days until Grade {grade} curriculum is permanently deleted"
+
+_GRACE_90_TEXT = """\
+Hi,
+
+This is a reminder that your Grade {grade} curriculum ({curriculum_name})
+is unavailable and will be permanently deleted on {grace_date}
+({days_remaining} days from today).
+
+Students cannot access this content until it is renewed.
+
+Renew from your retention dashboard:
+{dashboard_url}
+
+After permanent deletion, restoring the curriculum requires running the full
+content pipeline again (Anthropic token cost applies).
+
+— The StudyBuddy Team
+"""
+
+_GRACE_90_HTML = """\
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8" /></head>
+<body style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:24px">
+  <div style="background:#fef3c7;border-left:4px solid #d97706;padding:12px 16px;margin-bottom:20px">
+    <strong style="color:#92400e">
+      Reminder — {days_remaining} days until permanent deletion
+    </strong>
+  </div>
+  <h2 style="color:#1f2937">Grade {grade} curriculum: {days_remaining} days remaining</h2>
+  <p>
+    <strong>{curriculum_name}</strong> will be permanently deleted on
+    <strong>{grace_date}</strong>.
+  </p>
+  <p>
+    Students have been unable to access this content since it expired.
+    Renewing now will restore access and extend the curriculum by one year.
+  </p>
+  <p style="text-align:center;margin:28px 0">
+    <a href="{dashboard_url}"
+       style="background:#d97706;color:#fff;padding:12px 28px;border-radius:6px;
+              text-decoration:none;font-weight:bold">
+      Renew Curriculum
+    </a>
+  </p>
+  <p style="color:#6b7280;font-size:13px">
+    After permanent deletion, you will need to regenerate the curriculum from
+    scratch (Anthropic token cost applies).
+  </p>
+  <p style="color:#6b7280;font-size:13px">— The StudyBuddy Team</p>
+</body>
+</html>
+"""
+
+# ── Template 4: 30-days-to-purge urgent warning (day 150) ────────────────────
+
+_PURGE_WARNING_SUBJECT = "URGENT: Grade {grade} curriculum content deleted in {days_remaining} days"
+
+_PURGE_WARNING_TEXT = """\
+URGENT NOTICE
+
+Your Grade {grade} curriculum ({curriculum_name}) will be permanently and
+irreversibly deleted on {grace_date} — {days_remaining} days from today.
+
+After deletion there is no recovery. Generating new content requires a full
+pipeline rebuild (Anthropic token cost applies).
+
+Renew NOW from your retention dashboard:
+{dashboard_url}
+
+— The StudyBuddy Team
+"""
+
+_PURGE_WARNING_HTML = """\
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8" /></head>
+<body style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:24px">
+  <div style="background:#fef2f2;border-left:4px solid #dc2626;padding:12px 16px;margin-bottom:20px">
+    <strong style="color:#991b1b">
+      URGENT — Permanent deletion in {days_remaining} days
+    </strong>
+  </div>
+  <h2 style="color:#dc2626">Grade {grade} curriculum deleted in {days_remaining} days</h2>
+  <p>
+    <strong>{curriculum_name}</strong> will be <strong>permanently and
+    irreversibly deleted</strong> on <strong>{grace_date}</strong>.
+  </p>
+  <p>
+    There is <strong>no recovery</strong> after deletion. Generating new content
+    requires a full pipeline rebuild (Anthropic token cost applies).
+  </p>
+  <p style="text-align:center;margin:28px 0">
+    <a href="{dashboard_url}"
+       style="background:#dc2626;color:#fff;padding:12px 28px;border-radius:6px;
+              text-decoration:none;font-weight:bold;font-size:16px">
+      Renew Now — Last Chance
+    </a>
+  </p>
+  <p style="color:#6b7280;font-size:13px">— The StudyBuddy Team</p>
+</body>
+</html>
+"""
+
+# ── Template 5: purge complete ────────────────────────────────────────────────
+
+_PURGE_COMPLETE_SUBJECT = "Grade {grade} curriculum content permanently deleted"
+
+_PURGE_COMPLETE_TEXT = """\
+Hi,
+
+The content for your Grade {grade} curriculum ({curriculum_name}) has been
+permanently deleted as of {purge_date}.
+
+The version slot has been freed and is now available for a new curriculum build.
+
+To regenerate content for this grade, upload a new curriculum JSON file and
+trigger the pipeline from your school portal.
+
+{dashboard_url}
+
+— The StudyBuddy Team
+"""
+
+_PURGE_COMPLETE_HTML = """\
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8" /></head>
+<body style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:24px">
+  <div style="background:#f3f4f6;border-left:4px solid #6b7280;padding:12px 16px;margin-bottom:20px">
+    <strong style="color:#374151">Content permanently deleted</strong>
+  </div>
+  <h2 style="color:#1f2937">Grade {grade} curriculum deleted</h2>
+  <p>
+    The content for <strong>{curriculum_name}</strong> was permanently deleted
+    on <strong>{purge_date}</strong>.
+  </p>
+  <p>
+    The version slot has been freed. You can now upload and build a new
+    curriculum for Grade {grade}.
+  </p>
+  <p style="text-align:center;margin:28px 0">
+    <a href="{dashboard_url}"
+       style="background:#4b5563;color:#fff;padding:12px 28px;border-radius:6px;
+              text-decoration:none;font-weight:bold">
+      Go to School Portal
+    </a>
+  </p>
+  <p style="color:#6b7280;font-size:13px">
+    Student progress records (quiz scores, session history) have been retained
+    in accordance with FERPA requirements.
+  </p>
+  <p style="color:#6b7280;font-size:13px">— The StudyBuddy Team</p>
+</body>
+</html>
+"""
+
+
+# ── Retention email dispatcher ────────────────────────────────────────────────
+
+
+async def send_retention_email(
+    to_email: str,
+    template: str,
+    grade: int,
+    curriculum_name: str,
+    *,
+    expires_date: str = "",
+    grace_date: str = "",
+    purge_date: str = "",
+    days_remaining: int = 0,
+) -> None:
+    """
+    Send one of the five retention lifecycle emails to a school_admin contact.
+
+    template must be one of:
+      retention_pre_expiry_warning
+      retention_expiry_notification
+      retention_grace_90day_reminder
+      retention_purge_warning_30day
+      retention_purge_complete
+
+    Dates should be ISO-format strings (YYYY-MM-DD) or human-readable dates.
+    Delegates to _send() which skips silently when SMTP is not configured.
+    """
+    dashboard_url = _retention_dashboard_url()
+
+    fmt = dict(
+        grade=grade,
+        curriculum_name=curriculum_name,
+        expires_date=expires_date,
+        grace_date=grace_date,
+        purge_date=purge_date,
+        days_remaining=days_remaining,
+        dashboard_url=dashboard_url,
+    )
+
+    templates: dict[str, tuple[str, str, str]] = {
+        "retention_pre_expiry_warning": (
+            _PRE_EXPIRY_SUBJECT.format(**fmt),
+            _PRE_EXPIRY_TEXT.format(**fmt),
+            _PRE_EXPIRY_HTML.format(**fmt),
+        ),
+        "retention_expiry_notification": (
+            _EXPIRY_SUBJECT.format(**fmt),
+            _EXPIRY_TEXT.format(**fmt),
+            _EXPIRY_HTML.format(**fmt),
+        ),
+        "retention_grace_90day_reminder": (
+            _GRACE_90_SUBJECT.format(**fmt),
+            _GRACE_90_TEXT.format(**fmt),
+            _GRACE_90_HTML.format(**fmt),
+        ),
+        "retention_purge_warning_30day": (
+            _PURGE_WARNING_SUBJECT.format(**fmt),
+            _PURGE_WARNING_TEXT.format(**fmt),
+            _PURGE_WARNING_HTML.format(**fmt),
+        ),
+        "retention_purge_complete": (
+            _PURGE_COMPLETE_SUBJECT.format(**fmt),
+            _PURGE_COMPLETE_TEXT.format(**fmt),
+            _PURGE_COMPLETE_HTML.format(**fmt),
+        ),
+    }
+
+    if template not in templates:
+        log.warning("retention_email_unknown_template template=%s", template)
+        return
+
+    subject, text_body, html_body = templates[template]
+    await _send(to_email=to_email, subject=subject,
+                text_body=text_body, html_body=html_body)

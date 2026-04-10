@@ -36,6 +36,8 @@ ROLE_PERMISSIONS: dict[str, set[str]] = {
         "review:annotate",
         "review:rate",
         "student:manage",
+        "pipeline:trigger",
+        "pipeline:view",
     },
     "school_admin": {
         "content:read",
@@ -45,6 +47,10 @@ ROLE_PERMISSIONS: dict[str, set[str]] = {
         "review:approve",
         "content:block",
         "student:manage",
+        "pipeline:trigger",
+        "pipeline:view",
+        "school:view_limits",
+        "curriculum:delete",
     },
     "product_admin": {
         "content:read",
@@ -56,6 +62,7 @@ ROLE_PERMISSIONS: dict[str, set[str]] = {
         "review:annotate",
         "review:rate",
         "review:approve",
+        "review:assign",
         "student:manage",
         "school:manage",
         "feedback:view",

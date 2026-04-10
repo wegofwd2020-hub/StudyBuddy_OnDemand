@@ -1,39 +1,40 @@
 import type { Metadata } from "next";
-import { Nunito, Lora, Geist_Mono } from "next/font/google";
+import { Inter, Merriweather, JetBrains_Mono } from "next/font/google";
 import { cookies } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
-// Headings — Sans Serif (clear, scannable, modern)
-const nunito = Nunito({
-  variable: "--font-nunito",
+// Headings & labels — Inter (sans-serif, clear, scannable)
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
 });
 
-// Body text — Serif (warm, readable for longer content)
-const lora = Lora({
-  variable: "--font-lora",
+// Body text — Merriweather (serif, warm, readable for longer content)
+const merriweather = Merriweather({
+  variable: "--font-merriweather",
   subsets: ["latin"],
+  weight: ["300", "400", "700"],
   display: "swap",
 });
 
-// Code / monospace
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+// Numbers, IDs, code — JetBrains Mono (tabular, developer-friendly)
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
   subsets: ["latin"],
   display: "swap",
 });
 
 export const metadata: Metadata = {
   title: {
-    default: "StudyBuddy \u2014 STEM tutoring for Grades 5\u201312",
+    default: "StudyBuddy \u2014 AI-powered study material for Grades 5\u201312",
     template: "%s | StudyBuddy",
   },
   description:
-    "Instant AI-powered lessons, quizzes, and audio for STEM subjects. Available in English, French, and Spanish.",
+    "Instant AI-powered lessons, quizzes, and audio for any subject. Available in English, French, and Spanish.",
 };
 
 export default async function RootLayout({
@@ -51,7 +52,7 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${nunito.variable} ${lora.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${merriweather.variable} ${jetbrainsMono.variable} h-full antialiased`}
       suppressHydrationWarning
       {...(dyslexic ? { "data-dyslexic": "true" } : {})}
     >

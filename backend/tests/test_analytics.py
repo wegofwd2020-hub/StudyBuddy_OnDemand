@@ -16,6 +16,9 @@ from __future__ import annotations
 import uuid
 from unittest.mock import patch
 
+# ── Deterministic test IDs (Rule 9) ──────────────────────────────────────────
+_NONEXISTENT_VIEW_ID = "c9000000-0000-0000-0000-000000000001"
+
 import pytest
 from httpx import AsyncClient
 
@@ -142,7 +145,7 @@ async def test_lesson_end_nonexistent_view_returns_404(client, db_conn, student_
 
     r = await client.post(
         "/api/v1/analytics/lesson/end",
-        json={"view_id": str(uuid.uuid4()), "duration_s": 60},
+        json={"view_id": _NONEXISTENT_VIEW_ID, "duration_s": 60},
         headers={"Authorization": f"Bearer {student_token}"},
     )
     assert r.status_code == 404
@@ -178,6 +181,6 @@ async def test_lesson_end_double_end_returns_409(client, db_conn, student_token)
 async def test_analytics_require_auth(client):
     """All analytics endpoints return 401 without a JWT."""
     r1 = await client.post("/api/v1/analytics/lesson/start", json={"unit_id": "x", "curriculum_id": "y"})
-    r2 = await client.post("/api/v1/analytics/lesson/end", json={"view_id": str(uuid.uuid4()), "duration_s": 60})
+    r2 = await client.post("/api/v1/analytics/lesson/end", json={"view_id": _NONEXISTENT_VIEW_ID, "duration_s": 60})
     assert r1.status_code == 401
     assert r2.status_code == 401

@@ -111,7 +111,11 @@ function StatusBadge({ status }: { status: ComplianceStatus }) {
 
 // ── Snyk security panel ───────────────────────────────────────────────────────
 
-function SnykPanel({ snykHigh, snykCritical, snykScanDate }: Pick<AboutBuildData, "snykHigh" | "snykCritical" | "snykScanDate">) {
+function SnykPanel({
+  snykHigh,
+  snykCritical,
+  snykScanDate,
+}: Pick<AboutBuildData, "snykHigh" | "snykCritical" | "snykScanDate">) {
   const scanned = snykScanDate !== "";
   const high = snykHigh !== "" ? parseInt(snykHigh, 10) : null;
   const critical = snykCritical !== "" ? parseInt(snykCritical, 10) : null;
@@ -137,8 +141,8 @@ function SnykPanel({ snykHigh, snykCritical, snykScanDate }: Pick<AboutBuildData
 
       {!scanned ? (
         <p className="text-sm text-gray-500">
-          Snyk scan results are not available in this environment. Scans run automatically on
-          every CI build when{" "}
+          Snyk scan results are not available in this environment. Scans run automatically
+          on every CI build when{" "}
           <code className="rounded bg-gray-100 px-1 py-0.5 text-xs">SNYK_TOKEN</code> is
           configured.
         </p>
@@ -198,7 +202,15 @@ function SnykPanel({ snykHigh, snykCritical, snykScanDate }: Pick<AboutBuildData
 
 // ── Last release panel ────────────────────────────────────────────────────────
 
-function LastReleasePanel({ lastPrNumber, lastPrTitle, lastPrUrl, lastPrMergedAt }: Pick<AboutBuildData, "lastPrNumber" | "lastPrTitle" | "lastPrUrl" | "lastPrMergedAt">) {
+function LastReleasePanel({
+  lastPrNumber,
+  lastPrTitle,
+  lastPrUrl,
+  lastPrMergedAt,
+}: Pick<
+  AboutBuildData,
+  "lastPrNumber" | "lastPrTitle" | "lastPrUrl" | "lastPrMergedAt"
+>) {
   const hasData = lastPrNumber !== "" && lastPrTitle !== "";
 
   return (
@@ -215,8 +227,8 @@ function LastReleasePanel({ lastPrNumber, lastPrTitle, lastPrUrl, lastPrMergedAt
 
       {!hasData ? (
         <p className="text-sm text-gray-500">
-          Release information is not available in this environment. It is injected at build time
-          during CI deployment.
+          Release information is not available in this environment. It is injected at
+          build time during CI deployment.
         </p>
       ) : (
         <div className="space-y-3">
@@ -256,17 +268,21 @@ function AuthenticatedAbout({ data }: { data: AboutBuildData }) {
     standards: COMPLIANCE_STANDARDS.filter((s) => s.category === cat),
   }));
 
-  const compliantCount = COMPLIANCE_STANDARDS.filter((s) => s.status === "compliant").length;
+  const compliantCount = COMPLIANCE_STANDARDS.filter(
+    (s) => s.status === "compliant",
+  ).length;
   const totalCount = COMPLIANCE_STANDARDS.length;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
       <div className="mb-12">
-        <h1 className="text-4xl font-bold tracking-tight text-gray-900">About StudyBuddy</h1>
+        <h1 className="text-4xl font-bold tracking-tight text-gray-900">
+          About StudyBuddy
+        </h1>
         <p className="mt-4 max-w-2xl text-lg text-gray-600">
-          StudyBuddy is an AI-powered STEM tutoring platform for Grades 5–12. Lessons, quizzes,
-          and audio are pre-generated so students get instant responses — no API keys, no wait
-          time, and no internet required for cached content.
+          StudyBuddy is an AI-powered learning platform for Grades 5–12. Lessons,
+          quizzes, and audio are pre-generated so students get instant responses — no API
+          keys, no wait time, and no internet required for cached content.
         </p>
       </div>
 
@@ -296,13 +312,17 @@ function AuthenticatedAbout({ data }: { data: AboutBuildData }) {
         </div>
         <div className="h-10 w-px bg-gray-200" aria-hidden="true" />
         <div>
-          <p className="text-2xl font-bold text-gray-900">{COMPLIANCE_CATEGORIES.length}</p>
+          <p className="text-2xl font-bold text-gray-900">
+            {COMPLIANCE_CATEGORIES.length}
+          </p>
           <p className="text-sm text-gray-500">compliance categories</p>
         </div>
         <div className="h-10 w-px bg-gray-200" aria-hidden="true" />
         <div>
           <p className="text-sm font-medium text-gray-700">Standards verified as of</p>
-          <p className="text-sm text-gray-500">{formatDate(data.buildTime || null)} build</p>
+          <p className="text-sm text-gray-500">
+            {formatDate(data.buildTime || null)} build
+          </p>
         </div>
         <div className="ml-auto flex flex-wrap gap-3">
           {(["compliant", "targeted", "partial"] as ComplianceStatus[]).map((s) => (
@@ -323,19 +343,22 @@ function AuthenticatedAbout({ data }: { data: AboutBuildData }) {
             </div>
 
             <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white">
-              <table className="w-full text-sm" aria-label={`${category} compliance standards`}>
+              <table
+                className="w-full text-sm"
+                aria-label={`${category} compliance standards`}
+              >
                 <thead>
                   <tr className="border-b border-gray-100 bg-gray-50 text-left">
-                    <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-gray-500">
+                    <th className="px-5 py-3 text-xs font-medium tracking-wide text-gray-500 uppercase">
                       Standard
                     </th>
-                    <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-gray-500">
+                    <th className="px-5 py-3 text-xs font-medium tracking-wide text-gray-500 uppercase">
                       Version / Updated
                     </th>
-                    <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-gray-500">
+                    <th className="px-5 py-3 text-xs font-medium tracking-wide text-gray-500 uppercase">
                       Description
                     </th>
-                    <th className="px-5 py-3 text-xs font-medium uppercase tracking-wide text-gray-500">
+                    <th className="px-5 py-3 text-xs font-medium tracking-wide text-gray-500 uppercase">
                       Status
                     </th>
                   </tr>
@@ -343,13 +366,13 @@ function AuthenticatedAbout({ data }: { data: AboutBuildData }) {
                 <tbody className="divide-y divide-gray-100">
                   {standards.map((s) => (
                     <tr key={s.standard} className="hover:bg-gray-50">
-                      <td className="px-5 py-4 font-medium text-gray-900 align-top whitespace-nowrap">
+                      <td className="px-5 py-4 align-top font-medium whitespace-nowrap text-gray-900">
                         {s.standard}
                       </td>
-                      <td className="px-5 py-4 text-gray-500 align-top whitespace-nowrap">
+                      <td className="px-5 py-4 align-top whitespace-nowrap text-gray-500">
                         {s.version}
                       </td>
-                      <td className="px-5 py-4 text-gray-600 align-top max-w-md">
+                      <td className="max-w-md px-5 py-4 align-top text-gray-600">
                         {s.description}
                       </td>
                       <td className="px-5 py-4 align-top">
@@ -371,21 +394,22 @@ function AuthenticatedAbout({ data }: { data: AboutBuildData }) {
           <div className="flex items-start gap-3">
             <StatusBadge status="compliant" />
             <dd className="text-gray-600">
-              Implemented and verified in code. Automated or manual tests confirm the behaviour.
+              Implemented and verified in code. Automated or manual tests confirm the
+              behaviour.
             </dd>
           </div>
           <div className="flex items-start gap-3">
             <StatusBadge status="targeted" />
             <dd className="text-gray-600">
-              Actively targeted. Core infrastructure is in place; automated coverage is being
-              expanded across all pages and flows.
+              Actively targeted. Core infrastructure is in place; automated coverage is
+              being expanded across all pages and flows.
             </dd>
           </div>
           <div className="flex items-start gap-3">
             <StatusBadge status="partial" />
             <dd className="text-gray-600">
-              Partially implemented. Some flows are covered; remaining gaps are tracked and
-              scheduled.
+              Partially implemented. Some flows are covered; remaining gaps are tracked
+              and scheduled.
             </dd>
           </div>
         </dl>
@@ -395,7 +419,8 @@ function AuthenticatedAbout({ data }: { data: AboutBuildData }) {
         This page is generated at build time.{" "}
         {data.buildTime && (
           <>
-            Last deployment: <time dateTime={data.buildTime}>{formatDate(data.buildTime)}</time>.{" "}
+            Last deployment:{" "}
+            <time dateTime={data.buildTime}>{formatDate(data.buildTime)}</time>.{" "}
           </>
         )}
         Standards data is sourced from{" "}
@@ -430,8 +455,8 @@ const FEATURES = [
   },
   {
     icon: <FlaskConical className="h-6 w-6 text-emerald-600" />,
-    title: "Lab experiments",
-    desc: "Step-by-step experiment guides with materials lists bring hands-on science to any classroom.",
+    title: "Activities",
+    desc: "Step-by-step activity guides with materials lists bring hands-on learning to any classroom.",
   },
   {
     icon: <School className="h-6 w-6 text-indigo-600" />,
@@ -471,9 +496,9 @@ function PublicAbout() {
           About StudyBuddy
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
-          An AI-powered STEM tutoring platform for Grades 5–12. Lessons, quizzes, and audio are
-          pre-generated so students get instant responses — no wait time, no internet required for
-          cached content.
+          An AI-powered study material platform for Grades 5–12. Lessons, quizzes, and
+          audio are pre-generated so students get instant responses — no wait time, no
+          internet required for cached content.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <LinkButton href="/signup" size="lg">
@@ -499,10 +524,10 @@ function PublicAbout() {
       <div className="mb-16 rounded-2xl bg-blue-600 px-8 py-10 text-white">
         <h2 className="mb-4 text-2xl font-bold">Our mission</h2>
         <p className="max-w-2xl text-blue-100">
-          Every student deserves access to high-quality STEM education regardless of their internet
-          connection, device, or first language. StudyBuddy delivers AI-generated curriculum to
-          students the moment they need it — with audio support for accessibility and offline
-          caching for low-connectivity environments.
+          Every student deserves access to high-quality education regardless of their
+          internet connection, device, or first language. StudyBuddy delivers AI-generated
+          study material to students the moment they need it — with audio support for
+          accessibility and offline caching for low-connectivity environments.
         </p>
       </div>
 
@@ -533,7 +558,7 @@ function PublicAbout() {
             {
               step: "1",
               title: "Teacher sets up the class",
-              body: "A teacher or school admin registers the school, uploads their curriculum (or uses the default STEM curriculum), and invites students.",
+              body: "A teacher or school admin registers the school, uploads their curriculum (or uses the default curriculum), and invites students.",
             },
             {
               step: "2",
@@ -567,17 +592,20 @@ function PublicAbout() {
       {/* Compliance callout */}
       <div className="rounded-2xl border border-gray-200 bg-gray-50 px-8 py-8">
         <div className="flex items-start gap-4">
-          <Shield className="mt-0.5 h-6 w-6 shrink-0 text-purple-600" aria-hidden="true" />
+          <Shield
+            className="mt-0.5 h-6 w-6 shrink-0 text-purple-600"
+            aria-hidden="true"
+          />
           <div>
             <h2 className="mb-2 text-lg font-semibold text-gray-900">
               Compliance &amp; accessibility
             </h2>
             <p className="text-sm text-gray-600">
               StudyBuddy targets <strong>WCAG 2.1 Level AA</strong> for all student-facing
-              interfaces, and is built to comply with <strong>COPPA</strong> (parental consent for
-              under-13 students) and <strong>FERPA</strong> (educational record privacy). Full
-              compliance details, including per-standard status, are available to signed-in users
-              on this page.
+              interfaces, and is built to comply with <strong>COPPA</strong> (parental
+              consent for under-13 students) and <strong>FERPA</strong> (educational
+              record privacy). Full compliance details, including per-standard status, are
+              available to signed-in users on this page.
             </p>
           </div>
         </div>

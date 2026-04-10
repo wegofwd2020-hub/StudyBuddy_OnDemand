@@ -177,9 +177,7 @@ async def _count_demo_accounts(
         p += 1
 
     where_sql = ("WHERE " + " AND ".join(where_clauses)) if where_clauses else ""
-    return await conn.fetchval(
-        f"SELECT COUNT(*) FROM demo_requests dr {where_sql}", *params
-    )
+    return await conn.fetchval(f"SELECT COUNT(*) FROM demo_requests dr {where_sql}", *params)
 
 
 async def _get_active_account(conn, account_id: UUID):
@@ -203,7 +201,9 @@ async def _get_active_account(conn, account_id: UUID):
 async def list_demo_accounts(
     request: Request,
     admin: Annotated[dict, Depends(_demo_manage)],
-    status: str | None = Query(default=None, description="Filter by status: pending/verified/expired/revoked/all"),
+    status: str | None = Query(
+        default=None, description="Filter by status: pending/verified/expired/revoked/all"
+    ),
     email: str | None = Query(default=None, description="Partial email match"),
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=20, ge=1, le=100),
@@ -232,9 +232,7 @@ async def list_demo_accounts(
         )
         for r in rows
     ]
-    return DemoAccountListResponse(
-        items=items, total=total, page=page, page_size=page_size
-    )
+    return DemoAccountListResponse(items=items, total=total, page=page, page_size=page_size)
 
 
 @router.post("/admin/demo-accounts/{account_id}/extend", status_code=200)

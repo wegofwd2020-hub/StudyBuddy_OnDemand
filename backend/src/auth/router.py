@@ -371,23 +371,46 @@ async def update_student_profile(
         updates["name"] = body.name
     if body.locale is not None:
         updates["locale"] = body.locale
-    if body.grade is not None:
-        updates["grade"] = body.grade
 
-    if not updates:
+    if not updates and body.grade is None:
         raise HTTPException(
             status_code=400,
             detail={"error": "bad_request", "detail": "No fields to update."},
         )
 
-    set_clause = ", ".join(f"{k} = ${i + 2}" for i, k in enumerate(updates))
-    values = [student_id, *updates.values()]
-
     async with get_db(request) as conn:
+        # Grade is managed exclusively by the school once a student is enrolled.
+        # Reject self-grade-change; school admin uses the assignment endpoint.
+        if body.grade is not None:
+            school_id_row = await conn.fetchval(
+                "SELECT school_id FROM students WHERE student_id = $1",
+                student_id,
+            )
+            if school_id_row is not None:
+                raise HTTPException(
+                    status_code=403,
+                    detail={
+                        "error": "forbidden",
+                        "detail": "Grade is managed by your school and cannot be changed here.",
+                    },
+                )
+            updates["grade"] = body.grade
+
+        if not updates:
+            raise HTTPException(
+                status_code=400,
+                detail={"error": "bad_request", "detail": "No fields to update."},
+            )
+
+        set_clause = ", ".join(f"{k} = ${i + 2}" for i, k in enumerate(updates))
+        values = [student_id, *updates.values()]
         row = await conn.fetchrow(
             f"UPDATE students SET {set_clause} WHERE student_id = $1 RETURNING *",
             *values,
         )
+
+    if row is None:
+        raise HTTPException(status_code=404, detail={"error": "not_found", "detail": "Student not found."})
 
     emit_event("auth", "profile_updated", student_id=student_id)
     return {
@@ -513,21 +536,6 @@ async def delete_account(
         )
 
     if row:
-        # Cancel Stripe subscription before GDPR erasure (Phase 5).
-        # Best-effort — a failure here should not block account deletion.
-        try:
-            from src.subscription.service import (
-                cancel_active_subscription_for_student,
-                cancel_stripe_subscription,
-            )
-
-            async with get_db(request) as sub_conn:
-                stripe_sub_id = await cancel_active_subscription_for_student(sub_conn, student_id)
-            if stripe_sub_id:
-                await cancel_stripe_subscription(stripe_sub_id)
-        except Exception as exc:
-            log.warning("stripe_cancel_on_delete_failed student_id=%s error=%s", student_id, exc)
-
         gdpr_delete_account.delay(student_id, row["external_auth_id"])
 
     emit_event("auth", "account_deletion_requested", student_id=student_id)

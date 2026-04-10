@@ -27,9 +27,19 @@ import urllib.parse
 import webbrowser
 
 import httpx
-from kivy.utils import platform
 
-import config as app_config
+try:
+    from kivy.utils import platform  # type: ignore
+except ImportError:
+    platform = "unknown"  # type: ignore  # non-Kivy environments (tests, CI)
+
+try:
+    import config as app_config  # type: ignore
+except ImportError:
+    class app_config:  # type: ignore  # noqa: N801
+        AUTH0_DOMAIN = ""
+        AUTH0_CLIENT_ID = ""
+        AUTH0_REDIRECT_URI = "studybuddy://callback"
 
 
 def generate_pkce_pair() -> tuple[str, str]:

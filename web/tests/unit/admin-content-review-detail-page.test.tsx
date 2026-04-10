@@ -66,7 +66,7 @@ vi.mock("@/lib/api/admin", async (importOriginal) => {
     rejectReview: (...args: unknown[]) => mockReject(...args),
     publishReview: (...args: unknown[]) => mockPublish(...args),
     rollbackReview: (...args: unknown[]) => mockRollback(...args),
-    blockReview: (...args: unknown[]) => mockBlock(...args),
+    blockVersionContent: (...args: unknown[]) => mockBlock(...args),
   };
 });
 
@@ -81,26 +81,19 @@ describe("ADM-36 — Lesson preview renders", () => {
     mockUseQuery.mockReturnValue({ data: MOCK_ITEM_PENDING, isLoading: false });
   });
 
-  it("renders the unit title", () => {
+  it("renders the subject heading", () => {
     render(<AdminContentReviewDetailPage />);
-    expect(
-      screen.getByRole("heading", { name: MOCK_ITEM_PENDING.unit_title }),
-    ).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(MOCK_ITEM_PENDING.subject))).toBeInTheDocument();
   });
 
-  it("renders Lesson Preview section heading", () => {
+  it("renders units section heading", () => {
     render(<AdminContentReviewDetailPage />);
-    expect(screen.getByText(REVIEW_DETAIL_STRINGS.lessonPreview)).toBeInTheDocument();
+    expect(screen.getByText(/Units \(1\)/)).toBeInTheDocument();
   });
 
-  it("renders the lesson preview text", () => {
+  it("renders curriculum_id and version metadata", () => {
     render(<AdminContentReviewDetailPage />);
-    expect(screen.getByText(MOCK_ITEM_PENDING.lesson_preview)).toBeInTheDocument();
-  });
-
-  it("renders grade and subject metadata", () => {
-    render(<AdminContentReviewDetailPage />);
-    expect(screen.getByText(/Grade 8/)).toBeInTheDocument();
+    expect(screen.getByText(/default-2026-g8/)).toBeInTheDocument();
     expect(screen.getByText(/Math/)).toBeInTheDocument();
   });
 });
@@ -136,7 +129,7 @@ describe("ADM-38 — Reject opens reason modal", () => {
   it("clicking Reject opens the reason modal", () => {
     render(<AdminContentReviewDetailPage />);
     fireEvent.click(screen.getByRole("button", { name: /Reject/i }));
-    expect(screen.getByText("reject content", { exact: false })).toBeInTheDocument();
+    expect(screen.getByText("Reject version")).toBeInTheDocument();
     expect(screen.getByRole("textbox")).toBeInTheDocument();
   });
 });
@@ -277,8 +270,10 @@ describe("ADM-45 — Block opens reason modal", () => {
 
   it("clicking Block opens the reason modal", () => {
     render(<AdminContentReviewDetailPage />);
-    fireEvent.click(screen.getByRole("button", { name: /Block/i }));
-    expect(screen.getByText("block content", { exact: false })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Block unit content/i }));
+    expect(
+      screen.getByRole("heading", { name: /Block unit content/i }),
+    ).toBeInTheDocument();
     expect(screen.getByRole("textbox")).toBeInTheDocument();
   });
 });
@@ -314,13 +309,20 @@ describe("ADM-47 — Block action calls API with reason", () => {
     mockBlock.mockResolvedValue(undefined);
   });
 
-  it("calls blockReview with version_id and reason", async () => {
+  it("calls blockVersionContent with version_id, unit_id, content_type, and reason", async () => {
     const reason = "Inappropriate content detected";
     render(<AdminContentReviewDetailPage />);
-    fireEvent.click(screen.getByRole("button", { name: /Block/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Block unit content/i }));
     fireEvent.change(screen.getByRole("textbox"), { target: { value: reason } });
     fireEvent.click(screen.getByRole("button", { name: /Confirm block/i }));
-    await waitFor(() => expect(mockBlock).toHaveBeenCalledWith(MOCK_VERSION_ID, reason));
+    await waitFor(() =>
+      expect(mockBlock).toHaveBeenCalledWith(
+        MOCK_VERSION_ID,
+        "unit-001",
+        "lesson",
+        reason,
+      ),
+    );
   });
 });
 
@@ -345,7 +347,7 @@ describe("ADM-48 — Annotations rendered when present", () => {
   it("renders the annotation note text", () => {
     render(<AdminContentReviewDetailPage />);
     expect(
-      screen.getByText(MOCK_ITEM_WITH_ANNOTATIONS.annotations[0].note),
+      screen.getByText(MOCK_ITEM_WITH_ANNOTATIONS.annotations[0].annotation_text),
     ).toBeInTheDocument();
   });
 });

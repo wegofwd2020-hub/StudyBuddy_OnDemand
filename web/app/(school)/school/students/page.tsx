@@ -1,15 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTeacher } from "@/lib/hooks/useTeacher";
-import { getRoster, uploadRoster, getSchoolProfile } from "@/lib/api/school-admin";
+import { getRoster, uploadRoster, getSchoolProfile, listTeachers } from "@/lib/api/school-admin";
+import { getClassMetrics } from "@/lib/api/reports";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Label } from "@/components/ui/label";
-import { Copy, Check, Users, UserPlus } from "lucide-react";
+import { Copy, Check, Users, UserPlus, BookOpen } from "lucide-react";
 
 function parseEmails(raw: string): string[] {
   return raw
@@ -24,9 +25,133 @@ const STATUS_STYLE: Record<string, string> = {
   pending: "bg-yellow-50 text-yellow-700 border-yellow-100",
 };
 
-export default function StudentsPage() {
-  const teacher = useTeacher();
-  const schoolId = teacher?.school_id ?? "";
+function ProgressBar({ pct }: { pct: number }) {
+  const clamped = Math.min(100, Math.max(0, pct));
+  return (
+    <div className="flex items-center gap-2">
+      <div className="h-1.5 w-20 overflow-hidden rounded-full bg-gray-100">
+        <div
+          className="h-full rounded-full bg-indigo-500"
+          style={{ width: `${clamped}%` }}
+        />
+      </div>
+      <span className="text-xs tabular-nums text-gray-500">{Math.round(clamped)}%</span>
+    </div>
+  );
+}
+
+// ── Teacher view (non-admin) ──────────────────────────────────────────────────
+
+function TeacherStudentView({ schoolId, teacherId }: { schoolId: string; teacherId: string }) {
+  // Get this teacher's assigned grades
+  const { data: teachers, isLoading: loadingTeachers } = useQuery({
+    queryKey: ["teachers", schoolId],
+    queryFn: () => listTeachers(schoolId),
+    enabled: !!schoolId,
+    staleTime: 30_000,
+  });
+
+  const assignedGrades = useMemo(() => {
+    if (!teachers) return null;
+    const me = teachers.find((t) => t.teacher_id === teacherId);
+    return me?.assigned_grades ?? [];
+  }, [teachers, teacherId]);
+
+  // Fetch class metrics (all grades — we'll filter on the frontend)
+  const { data: metrics, isLoading: loadingMetrics } = useQuery({
+    queryKey: ["class-metrics", schoolId],
+    queryFn: () => getClassMetrics(schoolId),
+    enabled: !!schoolId,
+    staleTime: 60_000,
+  });
+
+  const students = useMemo(() => {
+    if (!metrics) return [];
+    if (!assignedGrades || assignedGrades.length === 0) return metrics.students;
+    return metrics.students.filter((s) => assignedGrades.includes(s.grade));
+  }, [metrics, assignedGrades]);
+
+  const isLoading = loadingTeachers || loadingMetrics;
+
+  return (
+    <Card className="border shadow-sm">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-2 text-base">
+          <BookOpen className="h-4 w-4 text-indigo-600" />
+          My Students
+          {assignedGrades && assignedGrades.length > 0 && (
+            <span className="text-xs font-normal text-gray-400">
+              — Grades {assignedGrades.join(", ")}
+            </span>
+          )}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="p-0">
+        {isLoading ? (
+          <div className="space-y-2 p-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-10 rounded" />
+            ))}
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b bg-gray-50">
+                  <th className="px-4 py-2.5 text-left text-xs font-medium text-gray-500">
+                    Name
+                  </th>
+                  <th className="px-4 py-2.5 text-left text-xs font-medium text-gray-500">
+                    Grade
+                  </th>
+                  <th className="px-4 py-2.5 text-left text-xs font-medium text-gray-500">
+                    Progress
+                  </th>
+                  <th className="px-4 py-2.5 text-left text-xs font-medium text-gray-500">
+                    Avg Score
+                  </th>
+                  <th className="px-4 py-2.5 text-left text-xs font-medium text-gray-500">
+                    Last Active
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {students.map((s) => (
+                  <tr key={s.student_id} className="hover:bg-gray-50">
+                    <td className="px-4 py-3 font-medium text-gray-800">{s.student_name}</td>
+                    <td className="px-4 py-3 text-gray-600">Grade {s.grade}</td>
+                    <td className="px-4 py-3">
+                      <ProgressBar pct={(s.units_completed / Math.max(s.total_units, 1)) * 100} />
+                    </td>
+                    <td className="px-4 py-3 tabular-nums text-gray-600">
+                      {s.avg_score_pct != null ? `${Math.round(s.avg_score_pct)}%` : "—"}
+                    </td>
+                    <td className="px-4 py-3 text-xs text-gray-400">
+                      {s.last_active ? new Date(s.last_active).toLocaleDateString() : "—"}
+                    </td>
+                  </tr>
+                ))}
+                {students.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="px-4 py-8 text-center text-sm text-gray-400">
+                      {assignedGrades && assignedGrades.length === 0
+                        ? "No grades assigned yet. Ask your school admin to assign grades to your account."
+                        : "No students found for your assigned grades."}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// ── Admin view ────────────────────────────────────────────────────────────────
+
+function AdminStudentView({ schoolId }: { schoolId: string }) {
   const qc = useQueryClient();
 
   const { data: roster, isLoading: loadingRoster } = useQuery({
@@ -86,17 +211,7 @@ export default function StudentsPage() {
   const emailCount = parseEmails(emailInput).length;
 
   return (
-    <div className="max-w-3xl space-y-6 p-6">
-      <div className="flex items-center gap-3">
-        <Users className="h-6 w-6 text-blue-600" />
-        <h1 className="text-2xl font-bold text-gray-900">Student Roster</h1>
-        {roster && (
-          <Badge className="border-gray-200 bg-gray-100 text-gray-600">
-            {roster.roster.length} enrolled
-          </Badge>
-        )}
-      </div>
-
+    <>
       {/* Invite link */}
       {inviteUrl && (
         <Card className="border shadow-sm">
@@ -242,6 +357,29 @@ export default function StudentsPage() {
           )}
         </CardContent>
       </Card>
+    </>
+  );
+}
+
+// ── Page ──────────────────────────────────────────────────────────────────────
+
+export default function StudentsPage() {
+  const teacher = useTeacher();
+  const schoolId = teacher?.school_id ?? "";
+  const isAdmin = teacher?.role === "school_admin";
+
+  return (
+    <div className="max-w-3xl space-y-6 p-6">
+      <div className="flex items-center gap-3">
+        <Users className="h-6 w-6 text-blue-600" />
+        <h1 className="text-2xl font-bold text-gray-900">Student Roster</h1>
+      </div>
+
+      {isAdmin ? (
+        <AdminStudentView schoolId={schoolId} />
+      ) : schoolId && teacher?.teacher_id ? (
+        <TeacherStudentView schoolId={schoolId} teacherId={teacher.teacher_id} />
+      ) : null}
     </div>
   );
 }

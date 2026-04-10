@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { LinkButton } from "@/components/ui/link-button";
 import { DemoRequestModal } from "@/components/demo/DemoRequestModal";
 import { DemoTeacherRequestModal } from "@/components/demo/DemoTeacherRequestModal";
-import { Zap, Volume2, Globe, WifiOff, FlaskConical, School } from "lucide-react";
+import { Zap, Volume2, Globe, WifiOff, ClipboardList, School } from "lucide-react";
 
 export default function LandingPage() {
   return (
@@ -27,15 +27,53 @@ export default function LandingPage() {
   );
 }
 
+// "Study Buddy" translated into 8 languages — shown as a decorative background
+// watermark to convey the meaning: a companion that helps a student learn.
+// Each phrase captures the "learning companion" concept in its language —
+// the intended meaning behind the StudyBuddy name.
+const STUDY_BUDDY_TRANSLATIONS = [
+  "Learning Companion",          // English
+  "Compañero de Aprendizaje",    // Spanish
+  "Напарник в обучении",         // Russian
+  "Compagnon d'Apprentissage",   // French
+  "Lernbegleiter",               // German
+  "கற்றல் தோழன்",                // Tamil
+  "सीखने का साथी",               // Hindi
+  "అభ్యాస సహచరుడు",             // Telugu
+  "ಕಲಿಕೆಯ ಸಂಗಾತಿ",              // Kannada
+  "പഠന സഹചാരി",                 // Malayalam
+];
+
+// Vary font sizes by position to give a natural scattered feel
+const SIZE_CLASSES = ["text-sm", "text-base", "text-lg", "text-xl", "text-sm", "text-base"];
+
 function HeroSection() {
   const t = useTranslations("landing");
+  // Repeat enough times to fill the background across all viewport sizes
+  const repeated = Array.from({ length: 5 }, () => STUDY_BUDDY_TRANSLATIONS).flat();
   return (
-    <section className="bg-gradient-to-b from-blue-50 to-white px-4 py-20 text-center sm:py-28">
-      <div className="mx-auto max-w-3xl">
+    <section className="relative overflow-hidden bg-gradient-to-b from-blue-50 to-white px-4 py-20 text-center sm:py-28">
+      {/* Decorative multilingual watermark — purely visual, hidden from assistive tech */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 flex flex-wrap content-start gap-x-10 gap-y-5 p-6 select-none opacity-[0.22]"
+      >
+        {repeated.map((phrase, i) => (
+          <span
+            key={i}
+            className={`${SIZE_CLASSES[i % SIZE_CLASSES.length]} font-semibold text-blue-800 whitespace-nowrap`}
+          >
+            {phrase}
+          </span>
+        ))}
+      </div>
+
+      <div className="relative mx-auto max-w-3xl">
         <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
           {t("hero_heading")}
         </h1>
-        <p className="mt-6 text-lg text-gray-600">{t("hero_subheading")}</p>
+        <p className="mt-3 text-xl font-medium text-blue-600">{t("hero_tagline")}</p>
+        <p className="mt-4 text-lg text-gray-600">{t("hero_subheading")}</p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <DemoRequestModal />
           <DemoTeacherRequestModal />
@@ -50,7 +88,7 @@ const FEATURES = [
   { icon: Volume2, key: "audio" },
   { icon: Globe, key: "multilang" },
   { icon: WifiOff, key: "offline" },
-  { icon: FlaskConical, key: "experiments" },
+  { icon: ClipboardList, key: "experiments" },
   { icon: School, key: "schools" },
 ] as const;
 
@@ -86,7 +124,7 @@ function FeaturesSection() {
 
 const TESTIMONIALS = [
   {
-    quote: "My daughter went from a C to a B+ in algebra in one semester.",
+    quote: "My daughter went from a C to a B+ in her favourite subject in one semester.",
     author: "Maria T., Parent",
   },
   {

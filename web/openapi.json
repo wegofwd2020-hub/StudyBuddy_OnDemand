@@ -2490,6 +2490,201 @@
         }
       }
     },
+    "/api/v1/admin/content/review/{version_id}": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Review Detail",
+        "description": "Return full detail for a single content version: metadata, units, review history, annotations.",
+        "operationId": "review_detail_api_v1_admin_content_review__version_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Version Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewDetailResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/content/review/{version_id}/unit/{unit_id}": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Unit Content Meta",
+        "description": "Return unit title and list of available content type files on disk.",
+        "operationId": "unit_content_meta_api_v1_admin_content_review__version_id__unit__unit_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Version Id"
+            }
+          },
+          {
+            "name": "unit_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Unit Id"
+            }
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 5,
+              "default": "en",
+              "title": "Lang"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnitContentMetaResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/content/review/{version_id}/unit/{unit_id}/{content_type}": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Unit Content File",
+        "description": "Read and return raw content JSON for the specified type from disk.",
+        "operationId": "unit_content_file_api_v1_admin_content_review__version_id__unit__unit_id___content_type__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Version Id"
+            }
+          },
+          {
+            "name": "unit_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Unit Id"
+            }
+          },
+          {
+            "name": "content_type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Content Type"
+            }
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 5,
+              "default": "en",
+              "title": "Lang"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnitContentFileResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/content/review/{version_id}/open": {
       "post": {
         "tags": [
@@ -2813,6 +3008,64 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/RejectResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/content/review/{version_id}/block": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Block Version Endpoint",
+        "description": "Block a unit's content type and mark the subject version as blocked.",
+        "operationId": "block_version_endpoint_api_v1_admin_content_review__version_id__block_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Version Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BlockVersionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlockResponse"
                 }
               }
             }
@@ -3283,6 +3536,217 @@
         }
       }
     },
+    "/api/v1/admin/pipeline/upload-grade": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Upload Grade Json",
+        "description": "Validate a grade JSON file, save it to /data/grade{N}_stem.json,\nand seed the curricula + curriculum_units tables.",
+        "operationId": "upload_grade_json_api_v1_admin_pipeline_upload_grade_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 2040,
+              "minimum": 2024,
+              "default": 2026,
+              "title": "Year"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_grade_json_api_v1_admin_pipeline_upload_grade_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadGradeJsonResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/pipeline/trigger": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Admin Trigger Pipeline",
+        "description": "Dispatch a run_grade_pipeline_task Celery job for the given grade.\n\nReturns immediately with job_id; poll GET /admin/pipeline/{job_id}/status\nfor progress. Content is built with auto_approve=False so all output goes\nto the review queue.",
+        "operationId": "admin_trigger_pipeline_api_v1_admin_pipeline_trigger_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminPipelineTriggerRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminPipelineTriggerResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/pipeline/jobs": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Admin Pipeline Jobs",
+        "description": "Return paginated pipeline job history from DB, enriched with live Redis status.",
+        "operationId": "admin_pipeline_jobs_api_v1_admin_pipeline_jobs_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Admin Pipeline Jobs Api V1 Admin Pipeline Jobs Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/pipeline/{job_id}/status": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Admin Pipeline Job Status",
+        "description": "Return the current job state, preferring live Redis data with DB fallback.",
+        "operationId": "admin_pipeline_job_status_api_v1_admin_pipeline__job_id__status_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Admin Pipeline Job Status Api V1 Admin Pipeline  Job Id  Status Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/ci/reports": {
       "get": {
         "tags": [
@@ -3545,6 +4009,302 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/EnrolmentRosterResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/schools/{school_id}/content/subjects": {
+      "get": {
+        "tags": [
+          "school-content"
+        ],
+        "summary": "List School Content Subjects",
+        "description": "List content subject versions for this school's own curricula plus all\ndefault (platform) curricula. Default curricula are shared across all schools\nand represent the base content teachers can assign from.",
+        "operationId": "list_school_content_subjects_api_v1_schools__school_id__content_subjects_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "school_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "School Id"
+            }
+          },
+          {
+            "name": "grade",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 12,
+                  "minimum": 5
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Grade"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response List School Content Subjects Api V1 Schools  School Id  Content Subjects Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/schools/{school_id}/content/versions/{version_id}": {
+      "get": {
+        "tags": [
+          "school-content"
+        ],
+        "summary": "Get School Content Version",
+        "description": "Return version metadata + list of units for a content subject version.",
+        "operationId": "get_school_content_version_api_v1_schools__school_id__content_versions__version_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "school_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "School Id"
+            }
+          },
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Version Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get School Content Version Api V1 Schools  School Id  Content Versions  Version Id  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/schools/{school_id}/content/versions/{version_id}/unit/{unit_id}": {
+      "get": {
+        "tags": [
+          "school-content"
+        ],
+        "summary": "Get School Unit Meta",
+        "description": "Return unit title + list of available content types on disk.",
+        "operationId": "get_school_unit_meta_api_v1_schools__school_id__content_versions__version_id__unit__unit_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "school_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "School Id"
+            }
+          },
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Version Id"
+            }
+          },
+          {
+            "name": "unit_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Unit Id"
+            }
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 5,
+              "default": "en",
+              "title": "Lang"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get School Unit Meta Api V1 Schools  School Id  Content Versions  Version Id  Unit  Unit Id  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/schools/{school_id}/content/versions/{version_id}/unit/{unit_id}/{content_type}": {
+      "get": {
+        "tags": [
+          "school-content"
+        ],
+        "summary": "Get School Unit Content",
+        "description": "Return the raw JSON for a specific content type file.",
+        "operationId": "get_school_unit_content_api_v1_schools__school_id__content_versions__version_id__unit__unit_id___content_type__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "school_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "School Id"
+            }
+          },
+          {
+            "name": "version_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Version Id"
+            }
+          },
+          {
+            "name": "unit_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Unit Id"
+            }
+          },
+          {
+            "name": "content_type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Content Type"
+            }
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 5,
+              "default": "en",
+              "title": "Lang"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get School Unit Content Api V1 Schools  School Id  Content Versions  Version Id  Unit  Unit Id   Content Type  Get"
                 }
               }
             }
@@ -4704,6 +5464,194 @@
         }
       }
     },
+    "/api/v1/demo/teacher/request": {
+      "post": {
+        "tags": [
+          "demo-teacher"
+        ],
+        "summary": "Request Teacher Demo",
+        "description": "Submit an email address to request a teacher demo account.\n\nSends a verification link to the provided email.\nRate-limited to 3 requests per IP per hour.",
+        "operationId": "request_teacher_demo_api_v1_demo_teacher_request_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DemoRequestInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/demo/teacher/verify/{token}": {
+      "get": {
+        "tags": [
+          "demo-teacher"
+        ],
+        "summary": "Verify Demo Teacher Email",
+        "description": "Verify a teacher email address via the token from the verification link.\n\nCreates the demo teacher account and emails login credentials.",
+        "operationId": "verify_demo_teacher_email_api_v1_demo_teacher_verify__token__get",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/demo/teacher/auth/login": {
+      "post": {
+        "tags": [
+          "demo-teacher"
+        ],
+        "summary": "Demo Teacher Login",
+        "description": "Authenticate a demo teacher with email + password.\n\nReturns a short-lived JWT (role=demo_teacher).",
+        "operationId": "demo_teacher_login_api_v1_demo_teacher_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DemoLoginInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DemoLoginResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/demo/teacher/auth/logout": {
+      "post": {
+        "tags": [
+          "demo-teacher"
+        ],
+        "summary": "Demo Teacher Logout",
+        "description": "Log out a demo teacher by blacklisting the JWT JTI in Redis.",
+        "operationId": "demo_teacher_logout_api_v1_demo_teacher_auth_logout_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/demo/teacher/verify/resend": {
+      "post": {
+        "tags": [
+          "demo-teacher"
+        ],
+        "summary": "Resend Demo Teacher Verification",
+        "description": "Resend the teacher verification email to a pending demo request.\n\nEnforces a per-email cooldown (default 5 minutes).",
+        "operationId": "resend_demo_teacher_verification_api_v1_demo_teacher_verify_resend_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DemoResendInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/demo-accounts": {
       "get": {
         "tags": [
@@ -4914,6 +5862,251 @@
         "summary": "Resend Demo Verification",
         "description": "Resend the verification email for a pending demo request.\n\nInvalidates the current token and issues a fresh one.\nDoes not enforce cooldown (admin override).",
         "operationId": "resend_demo_verification_api_v1_admin_demo_requests__request_id__resend_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "request_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Request Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/demo-teacher-accounts": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "List demo teacher requests and accounts",
+        "operationId": "list_demo_teacher_accounts_api_v1_admin_demo_teacher_accounts_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by request status",
+              "title": "Status"
+            },
+            "description": "Filter by request status"
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by email (partial match)",
+              "title": "Email"
+            },
+            "description": "Filter by email (partial match)"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Page Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DemoTeacherListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/demo-teacher-accounts/{account_id}/extend": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Extend a demo teacher account's expiry",
+        "operationId": "extend_demo_teacher_account_api_v1_admin_demo_teacher_accounts__account_id__extend_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "account_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Account Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExtendInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/demo-teacher-accounts/{account_id}/revoke": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Revoke a demo teacher account",
+        "operationId": "revoke_demo_teacher_account_api_v1_admin_demo_teacher_accounts__account_id__revoke_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "account_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Account Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/demo-teacher-requests/{request_id}/resend": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Resend verification email for a pending teacher demo request",
+        "operationId": "resend_demo_teacher_verification_api_v1_admin_demo_teacher_requests__request_id__resend_post",
         "security": [
           {
             "HTTPBearer": []
@@ -5208,6 +6401,57 @@
         ],
         "title": "AdminLoginResponse",
         "description": "Response for POST /admin/auth/login"
+      },
+      "AdminPipelineTriggerRequest": {
+        "properties": {
+          "grade": {
+            "type": "integer",
+            "title": "Grade"
+          },
+          "langs": {
+            "type": "string",
+            "title": "Langs",
+            "default": "en"
+          },
+          "force": {
+            "type": "boolean",
+            "title": "Force",
+            "default": false
+          },
+          "year": {
+            "type": "integer",
+            "title": "Year",
+            "default": 2026
+          }
+        },
+        "type": "object",
+        "required": [
+          "grade"
+        ],
+        "title": "AdminPipelineTriggerRequest"
+      },
+      "AdminPipelineTriggerResponse": {
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "title": "Job Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "curriculum_id": {
+            "type": "string",
+            "title": "Curriculum Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "job_id",
+          "status",
+          "curriculum_id"
+        ],
+        "title": "AdminPipelineTriggerResponse"
       },
       "AdminResetPasswordRequest": {
         "properties": {
@@ -5625,6 +6869,35 @@
         ],
         "title": "BlockResponse"
       },
+      "BlockVersionRequest": {
+        "properties": {
+          "unit_id": {
+            "type": "string",
+            "title": "Unit Id"
+          },
+          "content_type": {
+            "type": "string",
+            "title": "Content Type"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "unit_id",
+          "content_type"
+        ],
+        "title": "BlockVersionRequest"
+      },
       "Body_upload_curriculum_xlsx_api_v1_curriculum_upload_xlsx_post": {
         "properties": {
           "file": {
@@ -5638,6 +6911,20 @@
           "file"
         ],
         "title": "Body_upload_curriculum_xlsx_api_v1_curriculum_upload_xlsx_post"
+      },
+      "Body_upload_grade_json_api_v1_admin_pipeline_upload_grade_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_upload_grade_json_api_v1_admin_pipeline_upload_grade_post"
       },
       "CancelResponse": {
         "properties": {
@@ -6449,6 +7736,155 @@
         ],
         "title": "DemoResendInput"
       },
+      "DemoTeacherAccountRow": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "title": "Request Id"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "request_status": {
+            "type": "string",
+            "title": "Request Status"
+          },
+          "requested_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Requested At"
+          },
+          "account_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account Id"
+          },
+          "teacher_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Teacher Id"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "last_login_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Login At"
+          },
+          "extended_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extended At"
+          },
+          "revoked_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revoked At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "email",
+          "request_status",
+          "requested_at",
+          "account_id",
+          "teacher_id",
+          "expires_at",
+          "created_at",
+          "last_login_at",
+          "extended_at",
+          "revoked_at"
+        ],
+        "title": "DemoTeacherAccountRow"
+      },
+      "DemoTeacherListResponse": {
+        "properties": {
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/DemoTeacherAccountRow"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total",
+          "page",
+          "page_size",
+          "items"
+        ],
+        "title": "DemoTeacherListResponse"
+      },
       "DevLoginRequest": {
         "properties": {
           "role": {
@@ -6890,6 +8326,19 @@
           "status"
         ],
         "title": "ExportResponse"
+      },
+      "ExtendInput": {
+        "properties": {
+          "hours": {
+            "type": "integer",
+            "title": "Hours"
+          }
+        },
+        "type": "object",
+        "required": [
+          "hours"
+        ],
+        "title": "ExtendInput"
       },
       "ExtendRequest": {
         "properties": {
@@ -8616,7 +10065,52 @@
         ],
         "title": "ReportRequest"
       },
-      "ReviewQueueItem": {
+      "ReviewAnnotationItem": {
+        "properties": {
+          "annotation_id": {
+            "type": "string",
+            "title": "Annotation Id"
+          },
+          "unit_id": {
+            "type": "string",
+            "title": "Unit Id"
+          },
+          "content_type": {
+            "type": "string",
+            "title": "Content Type"
+          },
+          "annotation_text": {
+            "type": "string",
+            "title": "Annotation Text"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "reviewer_email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewer Email"
+          }
+        },
+        "type": "object",
+        "required": [
+          "annotation_id",
+          "unit_id",
+          "content_type",
+          "annotation_text",
+          "created_at"
+        ],
+        "title": "ReviewAnnotationItem"
+      },
+      "ReviewDetailResponse": {
         "properties": {
           "version_id": {
             "type": "string",
@@ -8629,6 +10123,17 @@
           "subject": {
             "type": "string",
             "title": "Subject"
+          },
+          "subject_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject Name"
           },
           "version_number": {
             "type": "integer",
@@ -8658,6 +10163,153 @@
               }
             ],
             "title": "Published At"
+          },
+          "has_content": {
+            "type": "boolean",
+            "title": "Has Content",
+            "default": false
+          },
+          "units": {
+            "items": {
+              "$ref": "#/components/schemas/ReviewUnitItem"
+            },
+            "type": "array",
+            "title": "Units"
+          },
+          "review_history": {
+            "items": {
+              "$ref": "#/components/schemas/ReviewHistoryItem"
+            },
+            "type": "array",
+            "title": "Review History"
+          },
+          "annotations": {
+            "items": {
+              "$ref": "#/components/schemas/ReviewAnnotationItem"
+            },
+            "type": "array",
+            "title": "Annotations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "version_id",
+          "curriculum_id",
+          "subject",
+          "version_number",
+          "status",
+          "alex_warnings_count",
+          "generated_at",
+          "units",
+          "review_history",
+          "annotations"
+        ],
+        "title": "ReviewDetailResponse"
+      },
+      "ReviewHistoryItem": {
+        "properties": {
+          "review_id": {
+            "type": "string",
+            "title": "Review Id"
+          },
+          "action": {
+            "type": "string",
+            "title": "Action"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "reviewed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Reviewed At"
+          },
+          "reviewer_email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewer Email"
+          }
+        },
+        "type": "object",
+        "required": [
+          "review_id",
+          "action",
+          "reviewed_at"
+        ],
+        "title": "ReviewHistoryItem"
+      },
+      "ReviewQueueItem": {
+        "properties": {
+          "version_id": {
+            "type": "string",
+            "title": "Version Id"
+          },
+          "curriculum_id": {
+            "type": "string",
+            "title": "Curriculum Id"
+          },
+          "subject": {
+            "type": "string",
+            "title": "Subject"
+          },
+          "subject_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject Name"
+          },
+          "version_number": {
+            "type": "integer",
+            "title": "Version Number"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "alex_warnings_count": {
+            "type": "integer",
+            "title": "Alex Warnings Count"
+          },
+          "generated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Generated At"
+          },
+          "published_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published At"
+          },
+          "has_content": {
+            "type": "boolean",
+            "title": "Has Content",
+            "default": false
           }
         },
         "type": "object",
@@ -8692,6 +10344,29 @@
           "total"
         ],
         "title": "ReviewQueueResponse"
+      },
+      "ReviewUnitItem": {
+        "properties": {
+          "unit_id": {
+            "type": "string",
+            "title": "Unit Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "sort_order": {
+            "type": "integer",
+            "title": "Sort Order"
+          }
+        },
+        "type": "object",
+        "required": [
+          "unit_id",
+          "title",
+          "sort_order"
+        ],
+        "title": "ReviewUnitItem"
       },
       "RollbackResponse": {
         "properties": {
@@ -9474,7 +11149,8 @@
             "title": "Total Active"
           },
           "mrr_usd": {
-            "type": "number",
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
             "title": "Mrr Usd"
           },
           "new_this_month": {
@@ -9938,6 +11614,76 @@
         ],
         "title": "Unit"
       },
+      "UnitContentFileResponse": {
+        "properties": {
+          "unit_id": {
+            "type": "string",
+            "title": "Unit Id"
+          },
+          "curriculum_id": {
+            "type": "string",
+            "title": "Curriculum Id"
+          },
+          "content_type": {
+            "type": "string",
+            "title": "Content Type"
+          },
+          "lang": {
+            "type": "string",
+            "title": "Lang"
+          },
+          "data": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Data"
+          }
+        },
+        "type": "object",
+        "required": [
+          "unit_id",
+          "curriculum_id",
+          "content_type",
+          "lang",
+          "data"
+        ],
+        "title": "UnitContentFileResponse"
+      },
+      "UnitContentMetaResponse": {
+        "properties": {
+          "unit_id": {
+            "type": "string",
+            "title": "Unit Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "curriculum_id": {
+            "type": "string",
+            "title": "Curriculum Id"
+          },
+          "lang": {
+            "type": "string",
+            "title": "Lang"
+          },
+          "available_types": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Available Types"
+          }
+        },
+        "type": "object",
+        "required": [
+          "unit_id",
+          "title",
+          "curriculum_id",
+          "lang",
+          "available_types"
+        ],
+        "title": "UnitContentMetaResponse"
+      },
       "UnitProgressItem": {
         "properties": {
           "unit_id": {
@@ -10124,6 +11870,34 @@
           "message"
         ],
         "title": "UploadError"
+      },
+      "UploadGradeJsonResponse": {
+        "properties": {
+          "curriculum_id": {
+            "type": "string",
+            "title": "Curriculum Id"
+          },
+          "grade": {
+            "type": "integer",
+            "title": "Grade"
+          },
+          "unit_count": {
+            "type": "integer",
+            "title": "Unit Count"
+          },
+          "subject_count": {
+            "type": "integer",
+            "title": "Subject Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "curriculum_id",
+          "grade",
+          "unit_count",
+          "subject_count"
+        ],
+        "title": "UploadGradeJsonResponse"
       },
       "ValidationError": {
         "properties": {

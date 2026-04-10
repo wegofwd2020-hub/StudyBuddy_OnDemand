@@ -70,3 +70,380 @@ export async function inviteTeacher(
   );
   return res.data;
 }
+
+// ── School pipeline — JSON upload, trigger, list, detail ─────────────────────
+
+export interface CurriculumUploadResponse {
+  curriculum_id: string;
+  grade: number;
+  year: number;
+  unit_count: number;
+  subject_count: number;
+  subjects: string[];
+}
+
+export async function uploadCurriculumJSON(
+  schoolId: string,
+  file: File,
+  year: number,
+): Promise<CurriculumUploadResponse> {
+  const form = new FormData();
+  form.append("file", file);
+  const res = await schoolApi.post<CurriculumUploadResponse>(
+    `/schools/${schoolId}/curriculum/upload?year=${year}`,
+    form,
+    { headers: { "Content-Type": "multipart/form-data" } },
+  );
+  return res.data;
+}
+
+export interface TriggerPipelineResponse {
+  job_id: string;
+  status: string;
+  curriculum_id: string;
+}
+
+export async function triggerSchoolPipeline(
+  schoolId: string,
+  body: { langs: string; force: boolean; year: number },
+): Promise<TriggerPipelineResponse> {
+  const res = await schoolApi.post<TriggerPipelineResponse>(
+    `/schools/${schoolId}/pipeline/trigger`,
+    body,
+  );
+  return res.data;
+}
+
+export interface PipelineJob {
+  job_id: string;
+  curriculum_id: string;
+  grade: number;
+  langs: string;
+  status: string;
+  built: number | null;
+  failed: number | null;
+  total: number | null;
+  triggered_at: string;
+  started_at: string | null;
+  completed_at: string | null;
+  error: string | null;
+  payload_bytes: number | null;
+  triggered_by_email: string | null;
+  progress_pct?: number;
+}
+
+export interface PipelineJobListResponse {
+  jobs: PipelineJob[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
+export async function listSchoolPipelineJobs(
+  schoolId: string,
+  params: { page?: number; page_size?: number; status?: string } = {},
+): Promise<PipelineJobListResponse> {
+  const res = await schoolApi.get<PipelineJobListResponse>(
+    `/schools/${schoolId}/pipeline`,
+    { params },
+  );
+  return res.data;
+}
+
+export async function getSchoolPipelineJob(
+  schoolId: string,
+  jobId: string,
+): Promise<PipelineJob> {
+  const res = await schoolApi.get<PipelineJob>(
+    `/schools/${schoolId}/pipeline/${jobId}`,
+  );
+  return res.data;
+}
+
+// ── School limits (quota indicator) ──────────────────────────────────────────
+
+export interface SchoolLimits {
+  plan: string;
+  max_students: number;
+  max_teachers: number;
+  pipeline_quota_monthly: number;
+  pipeline_runs_this_month: number;
+  pipeline_resets_at: string;
+  seats_used_students: number;
+  seats_used_teachers: number;
+  has_override: boolean;
+}
+
+export async function getSchoolLimits(schoolId: string): Promise<SchoolLimits> {
+  const res = await schoolApi.get<SchoolLimits>(`/schools/${schoolId}/limits`);
+  return res.data;
+}
+
+// ── School subscription ───────────────────────────────────────────────────────
+
+export interface SchoolSubscription {
+  plan: string;
+  status: string | null;
+  max_students: number;
+  max_teachers: number;
+  seats_used_students: number;
+  seats_used_teachers: number;
+  current_period_end: string | null;
+}
+
+export async function getSchoolSubscription(schoolId: string): Promise<SchoolSubscription> {
+  const res = await schoolApi.get<SchoolSubscription>(`/schools/${schoolId}/subscription`);
+  return res.data;
+}
+
+export async function createSchoolCheckout(
+  schoolId: string,
+  plan: string,
+  successUrl: string,
+  cancelUrl: string,
+): Promise<{ checkout_url: string }> {
+  const res = await schoolApi.post<{ checkout_url: string }>(
+    `/schools/${schoolId}/subscription/checkout`,
+    { plan, success_url: successUrl, cancel_url: cancelUrl },
+  );
+  return res.data;
+}
+
+export async function cancelSchoolSubscription(
+  schoolId: string,
+): Promise<{ status: string; current_period_end: string | null }> {
+  const res = await schoolApi.delete<{ status: string; current_period_end: string | null }>(
+    `/schools/${schoolId}/subscription`,
+  );
+  return res.data;
+}
+
+// ── Teacher roster + grade assignments ────────────────────────────────────────
+
+export interface TeacherRosterItem {
+  teacher_id: string;
+  name: string;
+  email: string;
+  role: string;
+  account_status: string;
+  assigned_grades: number[];
+}
+
+export async function listTeachers(schoolId: string): Promise<TeacherRosterItem[]> {
+  const res = await schoolApi.get<{ teachers: TeacherRosterItem[] }>(
+    `/schools/${schoolId}/teachers`,
+  );
+  return res.data.teachers;
+}
+
+export async function assignTeacherGrades(
+  schoolId: string,
+  teacherId: string,
+  grades: number[],
+): Promise<{ teacher_id: string; school_id: string; assigned_grades: number[] }> {
+  const res = await schoolApi.put(
+    `/schools/${schoolId}/teachers/${teacherId}/grades`,
+    { grades },
+  );
+  return res.data;
+}
+
+// ── School content (read-only curriculum viewer for teachers) ─────────────────
+
+export interface SchoolContentSubject {
+  version_id: string;
+  curriculum_id: string;
+  subject: string;
+  subject_name: string | null;
+  version_number: number;
+  status: string;
+  generated_at: string;
+  published_at: string | null;
+  alex_warnings_count: number;
+  grade: number;
+  year: number;
+  curriculum_name: string;
+  has_content: boolean;
+  unit_count: number;
+}
+
+export interface SchoolContentUnit {
+  unit_id: string;
+  title: string;
+  sort_order: number;
+}
+
+export interface SchoolContentVersion {
+  version_id: string;
+  curriculum_id: string;
+  subject: string;
+  subject_name: string | null;
+  version_number: number;
+  status: string;
+  generated_at: string;
+  published_at: string | null;
+  alex_warnings_count: number;
+  grade: number;
+  year: number;
+  curriculum_name: string;
+  units: SchoolContentUnit[];
+}
+
+export interface SchoolUnitMeta {
+  unit_id: string;
+  title: string;
+  curriculum_id: string;
+  lang: string;
+  available_types: string[];
+  alex_warnings_count: number;
+  annotations: Array<{
+    annotation_id: string;
+    content_type: string;
+    annotation_text: string;
+    created_at: string;
+    reviewer_email: string | null;
+  }>;
+}
+
+export async function listSchoolContentSubjects(
+  schoolId: string,
+  grade?: number,
+): Promise<SchoolContentSubject[]> {
+  const res = await schoolApi.get<{ subjects: SchoolContentSubject[] }>(
+    `/schools/${schoolId}/content/subjects`,
+    { params: grade !== undefined ? { grade } : {} },
+  );
+  return res.data.subjects;
+}
+
+export async function getSchoolContentVersion(
+  schoolId: string,
+  versionId: string,
+): Promise<SchoolContentVersion> {
+  const res = await schoolApi.get<SchoolContentVersion>(
+    `/schools/${schoolId}/content/versions/${versionId}`,
+  );
+  return res.data;
+}
+
+export async function getSchoolUnitMeta(
+  schoolId: string,
+  versionId: string,
+  unitId: string,
+  lang = "en",
+): Promise<SchoolUnitMeta> {
+  const res = await schoolApi.get<SchoolUnitMeta>(
+    `/schools/${schoolId}/content/versions/${versionId}/unit/${unitId}`,
+    { params: { lang } },
+  );
+  return res.data;
+}
+
+export async function getSchoolUnitContent(
+  schoolId: string,
+  versionId: string,
+  unitId: string,
+  contentType: string,
+  lang = "en",
+): Promise<{ unit_id: string; content_type: string; lang: string; content: unknown }> {
+  const res = await schoolApi.get(
+    `/schools/${schoolId}/content/versions/${versionId}/unit/${unitId}/${contentType}`,
+    { params: { lang } },
+  );
+  return res.data;
+}
+
+// ── Retention dashboard (Phase H) ─────────────────────────────────────────────
+
+export interface RetentionVersion {
+  curriculum_id: string;
+  grade: number;
+  name: string;
+  year: number;
+  retention_status: "active" | "unavailable" | "purged";
+  expires_at: string | null;
+  grace_until: string | null;
+  renewed_at: string | null;
+  is_assigned: boolean;
+  days_until_expiry: number | null;
+  days_until_purge: number | null;
+}
+
+export interface RetentionDashboard {
+  school_id: string;
+  total_versions: number;
+  active_count: number;
+  unavailable_count: number;
+  purged_count: number;
+  curricula: RetentionVersion[];
+}
+
+export interface RenewResponse {
+  curriculum_id: string;
+  grade: number;
+  previous_expires_at: string | null;
+  new_expires_at: string;
+  renewed_at: string;
+  retention_status: string;
+}
+
+export interface AssignCurriculumResponse {
+  school_id: string;
+  grade: number;
+  curriculum_id: string;
+  assigned_at: string;
+  previous_curriculum_id: string | null;
+}
+
+export async function getRetentionDashboard(schoolId: string): Promise<RetentionDashboard> {
+  const res = await schoolApi.get<RetentionDashboard>(`/schools/${schoolId}/retention`);
+  return res.data;
+}
+
+export async function renewCurriculum(
+  schoolId: string,
+  curriculumId: string,
+): Promise<RenewResponse> {
+  const res = await schoolApi.post<RenewResponse>(
+    `/schools/${schoolId}/curriculum/versions/${curriculumId}/renew`,
+  );
+  return res.data;
+}
+
+export async function createRenewalCheckout(
+  schoolId: string,
+  curriculumId: string,
+  successUrl: string,
+  cancelUrl: string,
+): Promise<{ checkout_url: string }> {
+  const res = await schoolApi.post<{ checkout_url: string }>(
+    `/schools/${schoolId}/curriculum/versions/${curriculumId}/renewal-checkout`,
+    { success_url: successUrl, cancel_url: cancelUrl },
+  );
+  return res.data;
+}
+
+export async function createStorageCheckout(
+  schoolId: string,
+  gbPackage: 5 | 10 | 25,
+  successUrl: string,
+  cancelUrl: string,
+): Promise<{ checkout_url: string }> {
+  const res = await schoolApi.post<{ checkout_url: string }>(
+    `/schools/${schoolId}/storage/checkout`,
+    { gb_package: gbPackage, success_url: successUrl, cancel_url: cancelUrl },
+  );
+  return res.data;
+}
+
+export async function assignCurriculumToGrade(
+  schoolId: string,
+  grade: number,
+  curriculumId: string,
+): Promise<AssignCurriculumResponse> {
+  const res = await schoolApi.put<AssignCurriculumResponse>(
+    `/schools/${schoolId}/grades/${grade}/curriculum`,
+    { curriculum_id: curriculumId },
+  );
+  return res.data;
+}

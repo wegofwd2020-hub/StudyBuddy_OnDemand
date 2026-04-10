@@ -12,11 +12,15 @@ import {
   BarChart2,
   Bell,
   BookOpen,
+  HelpCircle,
   Mail,
   LogOut,
   BookMarked,
   GraduationCap,
   Settings,
+  CreditCard,
+  Library,
+  Archive,
 } from "lucide-react";
 
 interface NavItem {
@@ -47,6 +51,11 @@ const NAV_ITEMS: NavItem[] = [
     href: "/school/curriculum",
     icon: <BookMarked className="h-4 w-4" />,
   },
+  {
+    label: "Content Library",
+    href: "/school/curriculum/content",
+    icon: <Library className="h-4 w-4" />,
+  },
   { label: "Students", href: "/school/students", icon: <Users className="h-4 w-4" /> },
   {
     label: "Teachers",
@@ -60,7 +69,20 @@ const NAV_ITEMS: NavItem[] = [
     href: "/school/digest",
     icon: <Mail className="h-4 w-4" />,
   },
+  {
+    label: "Subscription",
+    href: "/school/subscription",
+    icon: <CreditCard className="h-4 w-4" />,
+    adminOnly: true,
+  },
+  {
+    label: "Content Retention",
+    href: "/school/retention",
+    icon: <Archive className="h-4 w-4" />,
+    adminOnly: true,
+  },
   { label: "Settings", href: "/school/settings", icon: <Settings className="h-4 w-4" /> },
+  { label: "Help", href: "/school/help", icon: <HelpCircle className="h-4 w-4" /> },
 ];
 
 const REPORT_SUB: { label: string; href: string }[] = [
@@ -114,7 +136,17 @@ export function SchoolNav() {
         ).map((item) => {
           const isAlerts = item.href === "/school/alerts";
           const isReports = item.href.startsWith("/school/reports");
-          const isActive = isReports ? inReports : pathname === item.href;
+          const isContentLib = item.href === "/school/curriculum/content";
+          const isCurriculumUpload = item.href === "/school/curriculum";
+          const isActive = isReports
+            ? inReports
+            : isContentLib
+              ? pathname.startsWith("/school/curriculum/content")
+              : isCurriculumUpload
+                ? pathname === "/school/curriculum" ||
+                  (pathname.startsWith("/school/curriculum") &&
+                    !pathname.startsWith("/school/curriculum/content"))
+                : pathname === item.href;
 
           return (
             <div key={item.href}>

@@ -194,6 +194,11 @@ async def get_current_teacher(
         )
 
     request.state.jwt_payload = payload
+    # Stamp the school_id for RLS — get_db() reads this before stamping the
+    # PostgreSQL session variable.  demo_teacher has school_id=None so the DB
+    # helper falls back to 'bypass', which is correct (demo teachers have no
+    # school rows to isolate).
+    request.state.rls_school_id = payload.get("school_id")
     return payload
 
 

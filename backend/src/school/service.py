@@ -61,6 +61,16 @@ async def register_school(
         enrolment_code,
     )
 
+    # Seed the storage quota row — every school starts with 5 GB base allocation.
+    await conn.execute(
+        """
+        INSERT INTO school_storage_quotas (school_id)
+        VALUES ($1)
+        ON CONFLICT DO NOTHING
+        """,
+        uuid.UUID(school_id),
+    )
+
     teacher_id = str(uuid.uuid4())
     # external_auth_id is a placeholder until the teacher links their Auth0 account.
     ext_auth_id = f"school_reg:{teacher_id}"
