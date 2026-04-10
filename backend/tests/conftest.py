@@ -169,7 +169,9 @@ async def client(fake_redis, db_conn) -> AsyncGenerator[AsyncClient, None]:
     app.state.redis = fake_redis
 
     from config import settings as _cfg
+    from src.core.limiter import limiter
     from src.core.storage import LocalStorage
+    app.state.limiter = limiter
     app.state.storage = LocalStorage(root=_cfg.CONTENT_STORE_PATH)
 
     with (

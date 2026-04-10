@@ -18,7 +18,7 @@ import secrets
 import uuid
 
 from config import settings
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 from src.auth.schemas import (
     AdminForgotPasswordRequest,
@@ -38,6 +38,7 @@ from src.auth.service import (
 from src.core.db import get_db
 from src.core.events import emit_event, write_audit_log
 from src.core.observability import auth_failures_total
+from src.core.rate_limit import ip_auth_rate_limit
 from src.core.redis_client import get_redis
 from src.utils.logger import get_logger
 
@@ -54,7 +55,11 @@ _LOCKOUT_TTL = 900  # 15 minutes
 
 
 @router.post("/admin/auth/login", response_model=AdminLoginResponse)
-async def admin_login(body: AdminLoginRequest, request: Request):
+async def admin_login(
+    body: AdminLoginRequest,
+    request: Request,
+    _: None = Depends(ip_auth_rate_limit),
+):
     """
     Authenticate an internal admin user with email + password.
 
@@ -202,7 +207,11 @@ async def admin_refresh(body: RefreshRequest, request: Request):
 
 
 @router.post("/admin/auth/forgot-password")
-async def admin_forgot_password(body: AdminForgotPasswordRequest, request: Request):
+async def admin_forgot_password(
+    body: AdminForgotPasswordRequest,
+    request: Request,
+    _: None = Depends(ip_auth_rate_limit),
+):
     """
     Store a one-time reset token in Redis (TTL 1 hr).
 
@@ -238,7 +247,11 @@ async def admin_forgot_password(body: AdminForgotPasswordRequest, request: Reque
 
 
 @router.post("/admin/auth/reset-password")
-async def admin_reset_password(body: AdminResetPasswordRequest, request: Request):
+async def admin_reset_password(
+    body: AdminResetPasswordRequest,
+    request: Request,
+    _: None = Depends(ip_auth_rate_limit),
+):
     """Consume a one-time reset token and set a new password."""
     cid = getattr(request.state, "correlation_id", "")
     redis = get_redis(request)

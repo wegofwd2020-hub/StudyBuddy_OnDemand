@@ -19,12 +19,14 @@ All prefixed with /api/v1 in main.py.
 
 from __future__ import annotations
 
+import hashlib
 from typing import Annotated
 
 from config import settings
 from fastapi import APIRouter, Depends, HTTPException, Request
 
 from src.auth.dependencies import get_current_student
+from src.core.rate_limit import ip_auth_rate_limit
 from src.auth.schemas import (
     ForgotPasswordRequest,
     LogoutRequest,
@@ -59,12 +61,20 @@ router = APIRouter(tags=["auth"])
 
 _REFRESH_TTL = settings.JWT_REFRESH_TOKEN_EXPIRE_DAYS * 86400  # seconds
 
+# Per-email forgot-password rate limit (Redis, prevents email flooding via proxies).
+_FORGOT_PW_LIMIT = 5
+_FORGOT_PW_TTL = 3600  # 1 hour
+
 
 # ── Student exchange ──────────────────────────────────────────────────────────
 
 
 @router.post("/auth/exchange", response_model=TokenExchangeResponse)
-async def exchange_token(body: TokenExchangeRequest, request: Request):
+async def exchange_token(
+    body: TokenExchangeRequest,
+    request: Request,
+    _: None = Depends(ip_auth_rate_limit),
+):
     """
     Exchange an Auth0 id_token for an internal JWT + refresh token.
 
@@ -191,7 +201,11 @@ async def exchange_token(body: TokenExchangeRequest, request: Request):
 
 
 @router.post("/auth/teacher/exchange", response_model=TeacherTokenExchangeResponse)
-async def exchange_teacher_token(body: TokenExchangeRequest, request: Request):
+async def exchange_teacher_token(
+    body: TokenExchangeRequest,
+    request: Request,
+    _: None = Depends(ip_auth_rate_limit),
+):
     """Exchange Auth0 id_token for teacher internal JWT."""
     cid = getattr(request.state, "correlation_id", "")
 
@@ -338,18 +352,40 @@ async def logout(body: LogoutRequest, request: Request):
 
 
 @router.post("/auth/forgot-password")
-async def forgot_password(body: ForgotPasswordRequest, request: Request):
+async def forgot_password(
+    body: ForgotPasswordRequest,
+    request: Request,
+    _: None = Depends(ip_auth_rate_limit),
+):
     """
     Trigger Auth0 password reset email.
 
     Always returns HTTP 200 regardless of whether the email is registered.
     Different responses would leak registered email addresses.
+
+    Per-email Redis guard (5/hour): suppresses the Auth0 call once the limit is
+    exceeded so a single email address cannot be flooded even from rotating IPs.
+    The 200 response is always returned to preserve the non-enumeration guarantee.
     """
-    # Fire and forget — do not await or surface errors.
-    try:
-        await trigger_auth0_password_reset(str(body.email))
-    except Exception:
-        pass
+    redis = get_redis(request)
+
+    # Hash the email to keep Redis keys free of PII.
+    email_hash = hashlib.sha256(str(body.email).lower().encode()).hexdigest()[:24]
+    fp_key = f"fp_rate:{email_hash}"
+
+    count_raw = await redis.get(fp_key)
+    count = int(count_raw) if count_raw else 0
+
+    if count < _FORGOT_PW_LIMIT:
+        pipe = redis.pipeline()
+        pipe.incr(fp_key)
+        pipe.expire(fp_key, _FORGOT_PW_TTL)
+        await pipe.execute()
+        try:
+            await trigger_auth0_password_reset(str(body.email))
+        except Exception:
+            pass
+
     emit_event("auth", "forgot_password_requested")
     return {}
 

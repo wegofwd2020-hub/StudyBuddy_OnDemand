@@ -43,6 +43,9 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from slowapi.errors import RateLimitExceeded
+
+from src.core.limiter import limiter
 from src.core.observability import CorrelationIdMiddleware
 from src.core.observability import router as obs_router
 from src.utils.logger import get_logger
@@ -158,6 +161,10 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# ── Rate limiter ──────────────────────────────────────────────────────────────
+
+app.state.limiter = limiter
+
 # ── Middleware ────────────────────────────────────────────────────────────────
 
 app.add_middleware(CorrelationIdMiddleware)
@@ -208,6 +215,20 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONR
         content={
             "error": "internal_error",
             "detail": "An unexpected error occurred.",
+            "correlation_id": cid,
+        },
+    )
+
+
+@app.exception_handler(RateLimitExceeded)
+async def rate_limit_handler(request: Request, exc: RateLimitExceeded) -> JSONResponse:
+    """Return a consistent JSON 429 envelope instead of slowapi's plain-text default."""
+    cid = getattr(request.state, "correlation_id", "")
+    return JSONResponse(
+        status_code=429,
+        content={
+            "error": "rate_limited",
+            "detail": "Too many requests. Please try again later.",
             "correlation_id": cid,
         },
     )
