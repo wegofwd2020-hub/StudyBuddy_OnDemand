@@ -45,28 +45,34 @@ async def _insert_school_subscription(
     max_teachers: int = 10,
     stripe_sub_id: str | None = None,
 ) -> str:
-    """Insert a school_subscriptions row directly via the pool."""
+    """Insert a school_subscriptions row directly via the pool.
+
+    Sets app.current_school_id = 'bypass' to satisfy the FORCE ROW LEVEL
+    SECURITY policy on school_subscriptions (migration 0028).
+    """
     sub_id = stripe_sub_id or f"sub_school_{uuid.uuid4().hex[:12]}"
     pool = client._transport.app.state.pool
-    await pool.execute(
-        """
-        INSERT INTO school_subscriptions
-            (school_id, plan, status, stripe_customer_id, stripe_subscription_id,
-             max_students, max_teachers, current_period_end)
-        VALUES ($1, $2, $3, 'cus_test', $4, $5, $6, NOW() + INTERVAL '30 days')
-        ON CONFLICT (school_id) DO UPDATE
-            SET plan = EXCLUDED.plan, status = EXCLUDED.status,
-                max_students = EXCLUDED.max_students, max_teachers = EXCLUDED.max_teachers,
-                stripe_subscription_id = EXCLUDED.stripe_subscription_id,
-                updated_at = NOW()
-        """,
-        uuid.UUID(school_id),
-        plan,
-        status,
-        sub_id,
-        max_students,
-        max_teachers,
-    )
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        await conn.execute(
+            """
+            INSERT INTO school_subscriptions
+                (school_id, plan, status, stripe_customer_id, stripe_subscription_id,
+                 max_students, max_teachers, current_period_end)
+            VALUES ($1, $2, $3, 'cus_test', $4, $5, $6, NOW() + INTERVAL '30 days')
+            ON CONFLICT (school_id) DO UPDATE
+                SET plan = EXCLUDED.plan, status = EXCLUDED.status,
+                    max_students = EXCLUDED.max_students, max_teachers = EXCLUDED.max_teachers,
+                    stripe_subscription_id = EXCLUDED.stripe_subscription_id,
+                    updated_at = NOW()
+            """,
+            uuid.UUID(school_id),
+            plan,
+            status,
+            sub_id,
+            max_students,
+            max_teachers,
+        )
     return sub_id
 
 
@@ -304,10 +310,12 @@ async def test_webhook_activates_school_subscription(client: AsyncClient):
 
     # Verify school_subscriptions row was created
     pool = client._transport.app.state.pool
-    row = await pool.fetchrow(
-        "SELECT plan, status FROM school_subscriptions WHERE school_id = $1",
-        uuid.UUID(school_id),
-    )
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', $1, false)", school_id)
+        row = await conn.fetchrow(
+            "SELECT plan, status FROM school_subscriptions WHERE school_id = $1",
+            uuid.UUID(school_id),
+        )
     assert row is not None
     assert row["plan"] == "starter"
     assert row["status"] == "active"
@@ -421,24 +429,30 @@ async def _insert_quota_row(
     builds_used: int = 0,
     builds_period_end_days: int = 365,
 ) -> None:
-    """Insert a school_storage_quotas row with build allowance columns set."""
+    """Insert a school_storage_quotas row with build allowance columns set.
+
+    Sets app.current_school_id = 'bypass' to satisfy the FORCE ROW LEVEL
+    SECURITY policy on school_storage_quotas (migration 0029).
+    """
     pool = client._transport.app.state.pool
-    await pool.execute(
-        """
-        INSERT INTO school_storage_quotas
-            (school_id, builds_included, builds_used, builds_period_end)
-        VALUES ($1, $2, $3, NOW() + ($4 || ' days')::INTERVAL)
-        ON CONFLICT (school_id) DO UPDATE SET
-            builds_included   = EXCLUDED.builds_included,
-            builds_used       = EXCLUDED.builds_used,
-            builds_period_end = EXCLUDED.builds_period_end,
-            updated_at        = NOW()
-        """,
-        uuid.UUID(school_id),
-        builds_included,
-        builds_used,
-        str(builds_period_end_days),
-    )
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        await conn.execute(
+            """
+            INSERT INTO school_storage_quotas
+                (school_id, builds_included, builds_used, builds_period_end)
+            VALUES ($1, $2, $3, NOW() + ($4 || ' days')::INTERVAL)
+            ON CONFLICT (school_id) DO UPDATE SET
+                builds_included   = EXCLUDED.builds_included,
+                builds_used       = EXCLUDED.builds_used,
+                builds_period_end = EXCLUDED.builds_period_end,
+                updated_at        = NOW()
+            """,
+            uuid.UUID(school_id),
+            builds_included,
+            builds_used,
+            str(builds_period_end_days),
+        )
 
 
 @pytest.mark.asyncio
@@ -471,6 +485,7 @@ async def test_check_build_allowance_has_remaining(client: AsyncClient):
 
     pool = client._transport.app.state.pool
     async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', $1, false)", school_id)
         result = await check_build_allowance(conn, school_id)
 
     assert result["allowed"] is True
@@ -491,6 +506,7 @@ async def test_check_build_allowance_exhausted(client: AsyncClient):
 
     pool = client._transport.app.state.pool
     async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', $1, false)", school_id)
         result = await check_build_allowance(conn, school_id)
 
     assert result["allowed"] is False
@@ -508,6 +524,7 @@ async def test_check_build_allowance_enterprise_unlimited(client: AsyncClient):
 
     pool = client._transport.app.state.pool
     async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', $1, false)", school_id)
         result = await check_build_allowance(conn, school_id)
 
     assert result["allowed"] is True
@@ -526,6 +543,7 @@ async def test_consume_build_increments_counter(client: AsyncClient):
 
     pool = client._transport.app.state.pool
     async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', $1, false)", school_id)
         await consume_build(conn, school_id)
         result = await check_build_allowance(conn, school_id)
 
@@ -546,6 +564,7 @@ async def test_stamp_build_allowance_resets_on_reactivation(client: AsyncClient)
     pool = client._transport.app.state.pool
     new_period_end = datetime.now(UTC) + timedelta(days=365)
     async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', $1, false)", school_id)
         # Simulate reactivation on professional plan
         await _stamp_build_allowance(conn, school_id, "professional", new_period_end)
         result = await check_build_allowance(conn, school_id)
@@ -579,3 +598,317 @@ async def test_subscription_status_response_includes_builds_fields(client: Async
     assert data["builds_included"] == 3
     assert data["builds_used"] == 1
     assert data["builds_remaining"] == 2
+
+
+# ── Credit balance (#107) — check_build_allowance ────────────────────────────
+
+
+async def _insert_quota_row_with_credits(
+    client: AsyncClient,
+    school_id: str,
+    builds_included: int = 1,
+    builds_used: int = 0,
+    builds_credits_balance: int = 0,
+) -> None:
+    """Insert a quota row with a credit balance for testing.
+
+    Sets app.current_school_id = 'bypass' so the FORCE ROW LEVEL SECURITY
+    policy on school_storage_quotas permits the direct write.
+    """
+    pool = client._transport.app.state.pool
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        await conn.execute(
+            """
+            INSERT INTO school_storage_quotas
+                (school_id, builds_included, builds_used, builds_period_end,
+                 builds_credits_balance)
+            VALUES ($1, $2, $3, NOW() + INTERVAL '365 days', $4)
+            ON CONFLICT (school_id) DO UPDATE SET
+                builds_included        = EXCLUDED.builds_included,
+                builds_used            = EXCLUDED.builds_used,
+                builds_credits_balance = EXCLUDED.builds_credits_balance,
+                builds_period_end      = EXCLUDED.builds_period_end,
+                updated_at             = NOW()
+            """,
+            uuid.UUID(school_id),
+            builds_included,
+            builds_used,
+            builds_credits_balance,
+        )
+
+
+@pytest.mark.asyncio
+async def test_check_build_allowance_credits_enable_build_when_plan_exhausted(
+    client: AsyncClient,
+):
+    """allowed=True when plan allowance=0 but credits>0."""
+    from src.school.subscription_service import check_build_allowance
+
+    reg = await _register_school(client)
+    school_id = reg["school_id"]
+    # Plan fully used, but 3 rollover credits available
+    await _insert_quota_row_with_credits(
+        client, school_id,
+        builds_included=1, builds_used=1, builds_credits_balance=3,
+    )
+
+    pool = client._transport.app.state.pool
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', $1, false)", school_id)
+        result = await check_build_allowance(conn, school_id)
+
+    assert result["allowed"] is True
+    assert result["builds_remaining"] == 0
+    assert result["builds_credits_balance"] == 3
+
+
+@pytest.mark.asyncio
+async def test_check_build_allowance_no_plan_no_credits_blocked(client: AsyncClient):
+    """allowed=False when plan allowance=0 and credits=0."""
+    from src.school.subscription_service import check_build_allowance
+
+    reg = await _register_school(client)
+    school_id = reg["school_id"]
+    await _insert_quota_row_with_credits(
+        client, school_id,
+        builds_included=1, builds_used=1, builds_credits_balance=0,
+    )
+
+    pool = client._transport.app.state.pool
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', $1, false)", school_id)
+        result = await check_build_allowance(conn, school_id)
+
+    assert result["allowed"] is False
+    assert result["builds_credits_balance"] == 0
+
+
+# ── consume_build with credits (#107) ────────────────────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_consume_build_deducts_credit_when_plan_exhausted(client: AsyncClient):
+    """consume_build deducts from credits when plan allowance is 0."""
+    from src.school.subscription_service import check_build_allowance, consume_build
+
+    reg = await _register_school(client)
+    school_id = reg["school_id"]
+    # Plan exhausted, 5 credits available
+    await _insert_quota_row_with_credits(
+        client, school_id,
+        builds_included=1, builds_used=1, builds_credits_balance=5,
+    )
+
+    pool = client._transport.app.state.pool
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', $1, false)", school_id)
+        await consume_build(conn, school_id)
+        result = await check_build_allowance(conn, school_id)
+
+    assert result["builds_used"] == 1           # plan counter unchanged
+    assert result["builds_credits_balance"] == 4  # one credit deducted
+
+
+@pytest.mark.asyncio
+async def test_consume_build_uses_plan_first_before_credits(client: AsyncClient):
+    """consume_build uses plan allowance, not credits, when plan has remaining."""
+    from src.school.subscription_service import check_build_allowance, consume_build
+
+    reg = await _register_school(client)
+    school_id = reg["school_id"]
+    # Plan has 1 remaining, 3 credits in reserve
+    await _insert_quota_row_with_credits(
+        client, school_id,
+        builds_included=2, builds_used=1, builds_credits_balance=3,
+    )
+
+    pool = client._transport.app.state.pool
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', $1, false)", school_id)
+        await consume_build(conn, school_id)
+        result = await check_build_allowance(conn, school_id)
+
+    assert result["builds_used"] == 2           # plan counter incremented
+    assert result["builds_credits_balance"] == 3  # credits untouched
+
+
+# ── handle_extra_build_payment and handle_credits_bundle_payment ──────────────
+
+
+@pytest.mark.asyncio
+async def test_handle_extra_build_payment_increments_credits(client: AsyncClient):
+    """handle_extra_build_payment adds 1 to builds_credits_balance."""
+    from src.school.subscription_service import (
+        check_build_allowance,
+        handle_extra_build_payment,
+    )
+
+    reg = await _register_school(client)
+    school_id = reg["school_id"]
+    await _insert_quota_row_with_credits(
+        client, school_id, builds_included=1, builds_used=1, builds_credits_balance=0,
+    )
+
+    pool = client._transport.app.state.pool
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', $1, false)", school_id)
+        await handle_extra_build_payment(conn, school_id)
+        result = await check_build_allowance(conn, school_id)
+
+    assert result["builds_credits_balance"] == 1
+    assert result["allowed"] is True
+
+
+@pytest.mark.asyncio
+async def test_handle_credits_bundle_payment_adds_correct_count(client: AsyncClient):
+    """handle_credits_bundle_payment increments balance by the bundle size."""
+    from src.school.subscription_service import (
+        check_build_allowance,
+        handle_credits_bundle_payment,
+    )
+
+    reg = await _register_school(client)
+    school_id = reg["school_id"]
+    await _insert_quota_row_with_credits(
+        client, school_id, builds_included=1, builds_used=1, builds_credits_balance=2,
+    )
+
+    pool = client._transport.app.state.pool
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', $1, false)", school_id)
+        await handle_credits_bundle_payment(conn, school_id, 10)  # buy 10-pack
+        result = await check_build_allowance(conn, school_id)
+
+    assert result["builds_credits_balance"] == 12  # 2 existing + 10 purchased
+
+
+# ── Webhook routing — extra_build and build_credits product_types ─────────────
+
+
+def _make_webhook_session(metadata: dict) -> dict:
+    """Build a minimal checkout.session.completed Stripe object."""
+    return {
+        "id": f"cs_test_{uuid.uuid4().hex[:16]}",
+        "object": "checkout.session",
+        "customer": "cus_test_webhook",
+        "subscription": None,
+        "metadata": metadata,
+    }
+
+
+@pytest.mark.asyncio
+async def test_webhook_extra_build_payment_applies_credit(client: AsyncClient):
+    """Webhook with product_type=extra_build increments builds_credits_balance by 1."""
+    from src.school.subscription_service import check_build_allowance
+
+    reg = await _register_school(client)
+    school_id = reg["school_id"]
+    await _insert_quota_row_with_credits(
+        client, school_id, builds_included=1, builds_used=1, builds_credits_balance=0,
+    )
+
+    stripe_event_id = f"evt_extrabuild_{uuid.uuid4().hex[:12]}"
+    session = _make_webhook_session({"school_id": school_id, "product_type": "extra_build", "credits": "1"})
+
+    mock_stripe = MagicMock()
+    mock_stripe.Webhook.construct_event.return_value = {
+        "id": stripe_event_id,
+        "type": "checkout.session.completed",
+        "data": {"object": session},
+    }
+
+    with patch("src.subscription.router._get_stripe_module", return_value=mock_stripe):
+        with patch("config.settings") as mock_settings:
+            mock_settings.STRIPE_WEBHOOK_SECRET = "whsec_test"
+            with patch("src.subscription.service.already_processed", return_value=False):
+                with patch("src.subscription.service.log_stripe_event", return_value=None):
+                    r = await client.post(
+                        "/api/v1/subscription/webhook",
+                        content=b"payload",
+                        headers={"stripe-signature": "t=1,v1=sig"},
+                    )
+
+    assert r.status_code == 200, r.text
+    pool = client._transport.app.state.pool
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', $1, false)", school_id)
+        result = await check_build_allowance(conn, school_id)
+    assert result["builds_credits_balance"] == 1
+
+
+@pytest.mark.asyncio
+async def test_webhook_build_credits_payment_adds_bundle_count(client: AsyncClient):
+    """Webhook with product_type=build_credits increments balance by the credits value."""
+    from src.school.subscription_service import check_build_allowance
+
+    reg = await _register_school(client)
+    school_id = reg["school_id"]
+    await _insert_quota_row_with_credits(
+        client, school_id, builds_included=1, builds_used=1, builds_credits_balance=0,
+    )
+
+    stripe_event_id = f"evt_credits_{uuid.uuid4().hex[:12]}"
+    session = _make_webhook_session({
+        "school_id": school_id,
+        "product_type": "build_credits",
+        "credits": "10",
+    })
+
+    mock_stripe = MagicMock()
+    mock_stripe.Webhook.construct_event.return_value = {
+        "id": stripe_event_id,
+        "type": "checkout.session.completed",
+        "data": {"object": session},
+    }
+
+    with patch("src.subscription.router._get_stripe_module", return_value=mock_stripe):
+        with patch("config.settings") as mock_settings:
+            mock_settings.STRIPE_WEBHOOK_SECRET = "whsec_test"
+            with patch("src.subscription.service.already_processed", return_value=False):
+                with patch("src.subscription.service.log_stripe_event", return_value=None):
+                    r = await client.post(
+                        "/api/v1/subscription/webhook",
+                        content=b"payload",
+                        headers={"stripe-signature": "t=1,v1=sig"},
+                    )
+
+    assert r.status_code == 200, r.text
+    pool = client._transport.app.state.pool
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', $1, false)", school_id)
+        result = await check_build_allowance(conn, school_id)
+    assert result["builds_credits_balance"] == 10
+
+
+# ── subscription status includes builds_credits_balance ─────────────────────
+
+
+@pytest.mark.asyncio
+async def test_subscription_status_includes_credits_balance(client: AsyncClient):
+    """GET /subscription response includes builds_credits_balance in the payload.
+
+    We test with an unsubscribed school that has a quota row with credits — the
+    endpoint returns plan='none' but still surfaces the credit balance so the
+    frontend can show it.
+    """
+    reg = await _register_school(client)
+    school_id = reg["school_id"]
+    token = make_teacher_token(
+        teacher_id=reg["teacher_id"], school_id=school_id, role="school_admin"
+    )
+
+    # Insert quota row with 5 credits (no subscription row needed for this check)
+    await _insert_quota_row_with_credits(
+        client, school_id,
+        builds_included=1, builds_used=0, builds_credits_balance=5,
+    )
+
+    r = await client.get(
+        f"/api/v1/schools/{school_id}/subscription",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert r.status_code == 200, r.text
+    data = r.json()
+    assert "builds_credits_balance" in data, "builds_credits_balance must be in subscription response"
+    assert data["builds_credits_balance"] == 5

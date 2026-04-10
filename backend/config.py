@@ -217,17 +217,23 @@ class Settings(BaseSettings):
         from src.pricing import TEACHER_PLANS
         return next(p.price_monthly for p in TEACHER_PLANS if p.id == "pro")
 
-    # ── Extra curriculum build price ──────────────────────────────────────────
-    STRIPE_SCHOOL_PRICE_EXTRA_BUILD_ID: str | None = None  # $15/grade build — Q3-B #106
-
     # ── School curriculum build allowance per plan (Option A — absorbed into plan)
     # Number of grade-level pipeline builds included per subscription year.
     # -1 = unlimited (Enterprise).
-    # Future: Option B (pay-per-build) and Option C (credit bundles) tracked in
-    # GitHub issues feat/q3-b-pay-per-build and feat/q3-c-credit-bundles.
     SCHOOL_BUILDS_STARTER: int = 1
     SCHOOL_BUILDS_PROFESSIONAL: int = 3
     SCHOOL_BUILDS_ENTERPRISE: int = -1  # unlimited
+
+    # ── Extra curriculum build — pay-per-build (Option B, #106) ──────────────
+    # One-time $15 Stripe payment per grade beyond plan allowance.
+    STRIPE_SCHOOL_PRICE_EXTRA_BUILD_ID: str | None = None
+
+    # ── Credit bundles — rollover build credits (Option C, #107) ─────────────
+    # One-time Stripe payments; credits never expire.
+    # Bundles: 3 credits/$39  ·  10 credits/$119  ·  25 credits/$269
+    STRIPE_SCHOOL_PRICE_CREDITS_3_ID: str | None = None
+    STRIPE_SCHOOL_PRICE_CREDITS_10_ID: str | None = None
+    STRIPE_SCHOOL_PRICE_CREDITS_25_ID: str | None = None
 
     # ── Independent Teacher plan pricing (Option A — flat fee, teacher keeps student revenue)
     # Future: Option B (revenue share) tracked in feat/q2-b-revenue-share.
@@ -235,9 +241,6 @@ class Settings(BaseSettings):
     TEACHER_PLAN_SOLO_MONTHLY_USD: str = "29.00"   # Solo: up to 25 students
     TEACHER_PLAN_GROWTH_MONTHLY_USD: str = "59.00"  # Growth: up to 75 students (future)
     TEACHER_PLAN_PRO_MONTHLY_USD: str = "99.00"     # Pro: up to 200 students (future)
-
-    # ── Extra curriculum build price (Stripe one-time, beyond plan allowance) ──
-    STRIPE_SCHOOL_PRICE_EXTRA_BUILD_ID: str | None = None  # $15/grade build
 
     # ── Feature flags ─────────────────────────────────────────────────────────
     REVIEW_AUTO_APPROVE: bool = False

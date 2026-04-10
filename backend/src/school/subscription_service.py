@@ -107,16 +107,22 @@ async def check_build_allowance(
     """
     Return the current build allowance state for a school.
 
+    A build is allowed when:
+      - builds_included = -1 (Enterprise, unlimited), OR
+      - builds_remaining > 0 (plan allowance has quota left), OR
+      - builds_credits_balance > 0 (paid credit rollover balance).
+
     Returns:
-      allowed         — True if the school can trigger another pipeline build.
-      builds_included — total builds per year (-1 = unlimited).
-      builds_used     — builds consumed this period.
-      builds_remaining — builds_included - builds_used, or -1 if unlimited.
-      builds_period_end — ISO timestamp when the allowance resets.
+      allowed              — True if the school can trigger another pipeline build.
+      builds_included      — total plan builds per year (-1 = unlimited).
+      builds_used          — plan builds consumed this period.
+      builds_remaining     — builds_included - builds_used, or -1 if unlimited.
+      builds_period_end    — ISO timestamp when the plan allowance resets.
+      builds_credits_balance — rollover credit balance (Option C, #107).
     """
     row = await conn.fetchrow(
         """
-        SELECT builds_included, builds_used, builds_period_end
+        SELECT builds_included, builds_used, builds_period_end, builds_credits_balance
         FROM school_storage_quotas
         WHERE school_id = $1
         """,
@@ -130,13 +136,15 @@ async def check_build_allowance(
             "builds_used": 0,
             "builds_remaining": 0,
             "builds_period_end": None,
+            "builds_credits_balance": 0,
         }
 
     included = row["builds_included"]
     used = row["builds_used"]
+    credits_balance = row["builds_credits_balance"]
     unlimited = included == -1
     remaining = -1 if unlimited else max(included - used, 0)
-    allowed = unlimited or remaining > 0
+    allowed = unlimited or remaining > 0 or credits_balance > 0
 
     return {
         "allowed": allowed,
@@ -144,6 +152,7 @@ async def check_build_allowance(
         "builds_used": used,
         "builds_remaining": remaining,
         "builds_period_end": row["builds_period_end"].isoformat() if row["builds_period_end"] else None,
+        "builds_credits_balance": credits_balance,
     }
 
 
@@ -152,22 +161,72 @@ async def consume_build(
     school_id: str,
 ) -> None:
     """
-    Increment builds_used for a school after a successful pipeline build.
+    Consume one build for a school after a successful pipeline build.
 
-    Does not check the allowance — call check_build_allowance first and enforce
-    before triggering the pipeline job (see school-scoped pipeline trigger, #61).
-    Safe to call for Enterprise schools (builds_included = -1); the counter is
-    incremented for audit purposes but never blocks access.
+    Deduction priority:
+      1. If unlimited (builds_included = -1): only increment builds_used (audit).
+      2. If plan allowance remains (builds_remaining > 0): increment builds_used.
+      3. Otherwise: deduct 1 from builds_credits_balance (rollover credits, #107).
+
+    Call check_build_allowance() first and enforce before triggering the job.
+    If both allowance and credits are 0 the pipeline trigger should have already
+    rejected with 402 — consume_build() does not re-validate here.
     """
-    await conn.execute(
+    row = await conn.fetchrow(
         """
-        UPDATE school_storage_quotas
-        SET builds_used = builds_used + 1, updated_at = NOW()
+        SELECT builds_included, builds_used, builds_credits_balance
+        FROM school_storage_quotas
         WHERE school_id = $1
         """,
         uuid.UUID(school_id),
     )
-    log.info("build_consumed school_id=%s", school_id)
+    if row is None:
+        log.warning("consume_build_no_quota_row school_id=%s", school_id)
+        return
+
+    included = row["builds_included"]
+    used = row["builds_used"]
+    credits_balance = row["builds_credits_balance"]
+    unlimited = included == -1
+    plan_remaining = max(included - used, 0) if not unlimited else -1
+
+    if unlimited or plan_remaining > 0:
+        # Deduct from plan allowance (or just audit for Enterprise).
+        await conn.execute(
+            """
+            UPDATE school_storage_quotas
+            SET builds_used = builds_used + 1, updated_at = NOW()
+            WHERE school_id = $1
+            """,
+            uuid.UUID(school_id),
+        )
+        log.info(
+            "build_consumed_plan school_id=%s builds_used=%d",
+            school_id, used + 1,
+        )
+    else:
+        # Plan exhausted — consume a rollover credit.
+        result = await conn.execute(
+            """
+            UPDATE school_storage_quotas
+            SET builds_credits_balance = GREATEST(builds_credits_balance - 1, 0),
+                updated_at = NOW()
+            WHERE school_id = $1
+              AND builds_credits_balance > 0
+            """,
+            uuid.UUID(school_id),
+        )
+        if result == "UPDATE 0":
+            log.warning(
+                "consume_build_credits_exhausted school_id=%s credits=%d "
+                "— allowance and credits both 0 at consume time",
+                school_id, credits_balance,
+            )
+        else:
+            log.info(
+                "build_consumed_credit school_id=%s credits_remaining=%d",
+                school_id, credits_balance - 1,
+            )
 
 
 # ── Seat usage ────────────────────────────────────────────────────────────────
@@ -223,7 +282,7 @@ async def get_school_subscription_status(
             "max_teachers": 0,
             "current_period_end": None,
             **usage,
-            **{f"builds_{k}": v for k, v in builds.items() if k != "allowed"},
+            **{k: v for k, v in builds.items() if k != "allowed"},
         }
 
     if row["status"] == "past_due" and row["grace_period_end"]:
@@ -240,7 +299,7 @@ async def get_school_subscription_status(
         "max_teachers": row["max_teachers"],
         "current_period_end": valid_until,
         **usage,
-        **{f"builds_{k}": v for k, v in builds.items() if k != "allowed"},
+        **{k: v for k, v in builds.items() if k != "allowed"},
     }
 
 
@@ -714,4 +773,163 @@ async def handle_storage_addon_payment(
         log.info(
             "storage_addon_applied school_id=%s additional_gb=%d",
             school_id, additional_gb,
+        )
+
+
+# ── Extra build / credit bundle — Stripe Checkout sessions (#106 / #107) ─────
+
+
+async def create_extra_build_checkout_session(
+    school_id: str,
+    success_url: str,
+    cancel_url: str,
+) -> str:
+    """
+    Create a Stripe Checkout Session (mode=payment) for one extra grade build.
+
+    Price: $15 flat.  On payment, the checkout.session.completed webhook calls
+    handle_extra_build_payment() which increments builds_credits_balance by 1.
+
+    Returns the Stripe-hosted checkout URL.
+    """
+    from config import settings
+
+    stripe = _get_stripe()
+    stripe.api_key = _stripe_key()
+
+    price_id = getattr(settings, "STRIPE_SCHOOL_PRICE_EXTRA_BUILD_ID", None)
+    if not price_id:
+        raise RuntimeError("STRIPE_SCHOOL_PRICE_EXTRA_BUILD_ID is not configured")
+
+    session = stripe.checkout.Session.create(
+        mode="payment",
+        line_items=[{"price": price_id, "quantity": 1}],
+        success_url=success_url,
+        cancel_url=cancel_url,
+        metadata={
+            "school_id": school_id,
+            "product_type": "extra_build",
+            "credits": "1",
+        },
+    )
+    return session.url
+
+
+def _credits_price_id(bundle_size: int) -> str:
+    """Return the Stripe price ID for a build credit bundle."""
+    from config import settings
+
+    price_map = {
+        3:  getattr(settings, "STRIPE_SCHOOL_PRICE_CREDITS_3_ID", None),
+        10: getattr(settings, "STRIPE_SCHOOL_PRICE_CREDITS_10_ID", None),
+        25: getattr(settings, "STRIPE_SCHOOL_PRICE_CREDITS_25_ID", None),
+    }
+    price_id = price_map.get(bundle_size)
+    if not price_id:
+        raise RuntimeError(f"STRIPE_SCHOOL_PRICE_CREDITS_{bundle_size}_ID is not configured")
+    return price_id
+
+
+async def create_credits_bundle_checkout_session(
+    school_id: str,
+    bundle_size: int,
+    success_url: str,
+    cancel_url: str,
+) -> str:
+    """
+    Create a Stripe Checkout Session (mode=payment) for a credit bundle.
+
+    bundle_size must be one of: 3, 10, 25 (maps to $39 / $119 / $269).
+    Credits roll over — they never expire.
+    On payment, the webhook increments builds_credits_balance by bundle_size.
+
+    Returns the Stripe-hosted checkout URL.
+    """
+    from src.pricing import VALID_CREDIT_BUNDLE_SIZES
+
+    if bundle_size not in VALID_CREDIT_BUNDLE_SIZES:
+        raise ValueError(f"Invalid credit bundle size: {bundle_size}. Must be one of {sorted(VALID_CREDIT_BUNDLE_SIZES)}")
+
+    stripe = _get_stripe()
+    stripe.api_key = _stripe_key()
+
+    price_id = _credits_price_id(bundle_size)
+
+    session = stripe.checkout.Session.create(
+        mode="payment",
+        line_items=[{"price": price_id, "quantity": 1}],
+        success_url=success_url,
+        cancel_url=cancel_url,
+        metadata={
+            "school_id": school_id,
+            "product_type": "build_credits",
+            "credits": str(bundle_size),
+        },
+    )
+    return session.url
+
+
+# ── Extra build / credit bundle — webhook event handlers ─────────────────────
+
+
+async def handle_extra_build_payment(
+    conn: asyncpg.Connection,
+    school_id: str,
+) -> None:
+    """
+    Called on checkout.session.completed with product_type='extra_build'.
+
+    Increments builds_credits_balance by 1.  The single extra build is modelled
+    as a credit so the consume_build() credit-deduction path handles it uniformly.
+
+    Idempotent: already_processed() in the webhook handler prevents re-execution.
+    """
+    result = await conn.execute(
+        """
+        UPDATE school_storage_quotas
+        SET builds_credits_balance = builds_credits_balance + 1,
+            updated_at = NOW()
+        WHERE school_id = $1::uuid
+        """,
+        school_id,
+    )
+    if result == "UPDATE 0":
+        log.warning(
+            "extra_build_no_quota_row school_id=%s — credits not applied",
+            school_id,
+        )
+    else:
+        log.info("extra_build_credit_applied school_id=%s", school_id)
+
+
+async def handle_credits_bundle_payment(
+    conn: asyncpg.Connection,
+    school_id: str,
+    credits: int,
+) -> None:
+    """
+    Called on checkout.session.completed with product_type='build_credits'.
+
+    Increments builds_credits_balance by credits.  Credits never expire.
+
+    Idempotent: already_processed() in the webhook handler prevents re-execution.
+    """
+    result = await conn.execute(
+        """
+        UPDATE school_storage_quotas
+        SET builds_credits_balance = builds_credits_balance + $1,
+            updated_at = NOW()
+        WHERE school_id = $2::uuid
+        """,
+        credits, school_id,
+    )
+    if result == "UPDATE 0":
+        log.warning(
+            "credits_bundle_no_quota_row school_id=%s credits=%d — credits not applied",
+            school_id, credits,
+        )
+    else:
+        log.info(
+            "credits_bundle_applied school_id=%s credits=%d",
+            school_id, credits,
         )

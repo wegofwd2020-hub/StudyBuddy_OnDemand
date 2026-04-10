@@ -167,6 +167,40 @@ VALID_STORAGE_GB: frozenset[int] = frozenset(STORAGE_PACKAGES.keys())  # {5, 10,
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# 2b. Extra build add-ons  (#106 pay-per-build, #107 credit bundles)
+# ─────────────────────────────────────────────────────────────────────────────
+
+# One-time $15 charge for a single extra grade build beyond the plan allowance.
+EXTRA_BUILD_PRICE_USD: str = "15.00"
+
+@dataclass(frozen=True)
+class BuildCreditBundle:
+    """
+    A purchasable block of curriculum build credits.
+
+    Credits roll over — they never expire.  Consumed after the plan allowance
+    is exhausted (builds_used >= builds_included).
+
+    Attributes
+    ----------
+    credits     Number of grade-level builds in the bundle.
+    price_usd   One-time charge in USD (decimal string).
+    """
+
+    credits: int
+    price_usd: str              # decimal string, e.g. "39.00"
+
+
+BUILD_CREDIT_BUNDLES: dict[int, BuildCreditBundle] = {
+    3:  BuildCreditBundle(credits=3,  price_usd="39.00"),
+    10: BuildCreditBundle(credits=10, price_usd="119.00"),
+    25: BuildCreditBundle(credits=25, price_usd="269.00"),
+}
+
+VALID_CREDIT_BUNDLE_SIZES: frozenset[int] = frozenset(BUILD_CREDIT_BUNDLES.keys())  # {3, 10, 25}
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # 3. AI generation cost model  (pipeline / build_grade.py)
 # ─────────────────────────────────────────────────────────────────────────────
 

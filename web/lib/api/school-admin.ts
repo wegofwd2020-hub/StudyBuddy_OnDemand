@@ -190,10 +190,12 @@ export interface SchoolSubscription {
   seats_used_teachers: number;
   current_period_end: string | null;
   // Curriculum build allowance (Option A — absorbed into plan)
-  builds_included: number;    // -1 = unlimited (Enterprise)
+  builds_included: number;        // -1 = unlimited (Enterprise)
   builds_used: number;
-  builds_remaining: number;   // -1 = unlimited
+  builds_remaining: number;       // -1 = unlimited
   builds_period_end: string | null;
+  // Rollover credit balance (Option C, #107 — never expires)
+  builds_credits_balance: number;
 }
 
 export async function getSchoolSubscription(schoolId: string): Promise<SchoolSubscription> {
@@ -219,6 +221,33 @@ export async function cancelSchoolSubscription(
 ): Promise<{ status: string; current_period_end: string | null }> {
   const res = await schoolApi.delete<{ status: string; current_period_end: string | null }>(
     `/schools/${schoolId}/subscription`,
+  );
+  return res.data;
+}
+
+// ── Extra build / credit bundle checkouts (#106 / #107) ──────────────────────
+
+export async function createExtraBuildCheckout(
+  schoolId: string,
+  successUrl: string,
+  cancelUrl: string,
+): Promise<{ checkout_url: string }> {
+  const res = await schoolApi.post<{ checkout_url: string }>(
+    `/schools/${schoolId}/pipeline/extra-build-checkout`,
+    { success_url: successUrl, cancel_url: cancelUrl },
+  );
+  return res.data;
+}
+
+export async function createCreditsBundleCheckout(
+  schoolId: string,
+  bundleSize: 3 | 10 | 25,
+  successUrl: string,
+  cancelUrl: string,
+): Promise<{ checkout_url: string }> {
+  const res = await schoolApi.post<{ checkout_url: string }>(
+    `/schools/${schoolId}/pipeline/credits-checkout`,
+    { bundle_size: bundleSize, success_url: successUrl, cancel_url: cancelUrl },
   );
   return res.data;
 }

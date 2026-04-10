@@ -186,6 +186,41 @@ async def _dispatch_school_event(conn, redis, event_type: str, obj: dict) -> Non
             await handle_storage_addon_payment(conn, school_id, additional_gb)
             return
 
+        # ── #106: extra build payment ($15 / one grade build) ─────────────────
+        if product_type == "extra_build":
+            from src.school.subscription_service import handle_extra_build_payment
+
+            if not school_id:
+                log.warning(
+                    "extra_build_checkout.session.completed missing school_id in metadata"
+                )
+                return
+            await handle_extra_build_payment(conn, school_id)
+            return
+
+        # ── #107: build credit bundle payment ─────────────────────────────────
+        if product_type == "build_credits":
+            from src.school.subscription_service import handle_credits_bundle_payment
+
+            credits_str = metadata.get("credits", "0")
+            try:
+                credits = int(credits_str)
+            except ValueError:
+                log.warning(
+                    "build_credits_checkout.session.completed invalid credits=%s",
+                    credits_str,
+                )
+                return
+            if not school_id or credits <= 0:
+                log.warning(
+                    "build_credits_checkout.session.completed missing/invalid metadata "
+                    "school_id=%s credits=%d",
+                    school_id, credits,
+                )
+                return
+            await handle_credits_bundle_payment(conn, school_id, credits)
+            return
+
         # ── School subscription (existing flow) ───────────────────────────────
         plan = metadata.get("plan")
         if not school_id or not plan:
