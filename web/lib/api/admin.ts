@@ -611,6 +611,50 @@ export async function getUnitContentFile(
   return res.data;
 }
 
+// ── Alex warning acknowledgements ────────────────────────────────────────────
+
+export interface WarningDetail {
+  warning_index: number;
+  unit_id: string;
+  content_type: string;
+  message: string;
+  line: number;
+  column: number;
+  acknowledged: boolean;
+  is_false_positive: boolean;
+  acknowledged_by_email: string | null;
+  acknowledged_at: string | null;
+}
+
+export interface VersionWarningsResponse {
+  version_id: string;
+  total_count: number;
+  unacknowledged_count: number;
+  warnings: WarningDetail[];
+}
+
+export async function getVersionWarnings(
+  versionId: string,
+): Promise<VersionWarningsResponse> {
+  const res = await adminApi.get<VersionWarningsResponse>(
+    `/admin/content/review/${versionId}/warnings`,
+  );
+  return res.data;
+}
+
+export async function acknowledgeWarning(
+  versionId: string,
+  unitId: string,
+  contentType: string,
+  warningIndex: number,
+  isFalsePositive: boolean,
+): Promise<void> {
+  await adminApi.post(
+    `/admin/content/review/${versionId}/warnings/${unitId}/${contentType}/${warningIndex}/acknowledge`,
+    { is_false_positive: isFalsePositive },
+  );
+}
+
 // ── Admin school management ───────────────────────────────────────────────────
 
 export interface AdminSchoolListItem {

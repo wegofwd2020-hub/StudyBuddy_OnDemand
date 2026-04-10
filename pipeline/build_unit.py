@@ -327,8 +327,11 @@ def build_unit(
 
     # ── Run AlexJS per content type ───────────────────────────────────────────
     alex_warnings_by_type: dict[str, int] = {}
+    alex_warnings_detail_by_type: dict[str, list] = {}
     for ct, text in _extract_text_for_alex_by_type(generated_content).items():
-        alex_warnings_by_type[ct] = run_alex(text)["warnings_count"] if text else 0
+        result = run_alex(text) if text else {"warnings_count": 0, "warnings": []}
+        alex_warnings_by_type[ct] = result["warnings_count"]
+        alex_warnings_detail_by_type[ct] = result.get("warnings", [])
     alex_warnings = sum(alex_warnings_by_type.values())
 
     # ── Write content files ───────────────────────────────────────────────────
@@ -359,6 +362,7 @@ def build_unit(
         lang=lang,
         alex_warnings_count=alex_warnings,
         alex_warnings_by_type=alex_warnings_by_type,
+        alex_warnings_detail_by_type=alex_warnings_detail_by_type,
     )
 
     duration_ms = int((time.monotonic() - start_ms) * 1000)
@@ -532,6 +536,7 @@ def _update_meta(
     lang: str,
     alex_warnings_count: int,
     alex_warnings_by_type: dict[str, int] | None = None,
+    alex_warnings_detail_by_type: dict[str, list] | None = None,
 ) -> None:
     """Read existing meta.json (if any), update, and write back."""
     if os.path.exists(meta_path):
@@ -551,6 +556,9 @@ def _update_meta(
     meta["content_version"] = content_version
     meta["alex_warnings_count"] = alex_warnings_count
     meta["alex_warnings_by_type"] = alex_warnings_by_type or {}
+    # Full per-warning detail [{line, column, message}] per content type.
+    # Present on units built from this version onward; absent on older units.
+    meta["alex_warnings_detail_by_type"] = alex_warnings_detail_by_type or {}
 
     langs = meta.get("langs_built", [])
     if lang not in langs:

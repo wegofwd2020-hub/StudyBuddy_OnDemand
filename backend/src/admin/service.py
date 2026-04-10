@@ -333,6 +333,21 @@ async def approve_version(
     reviewer_id: str,
     notes: str | None,
 ) -> dict:
+    # Gate: if warnings exist, all must be acknowledged before approving.
+    version_row = await conn.fetchrow(
+        "SELECT alex_warnings_count FROM content_subject_versions WHERE version_id = $1",
+        uuid.UUID(version_id),
+    )
+    if version_row and (version_row["alex_warnings_count"] or 0) > 0:
+        ack_count = await conn.fetchval(
+            "SELECT COUNT(*) FROM content_warning_acks WHERE version_id = $1",
+            uuid.UUID(version_id),
+        )
+        if not ack_count:
+            raise ValueError(
+                "All AlexJS warnings must be acknowledged or marked false-positive before approving."
+            )
+
     await conn.execute(
         """
         INSERT INTO content_reviews (version_id, reviewer_id, action, notes)
@@ -1170,4 +1185,158 @@ async def get_unit_content_file(
         "content_type": content_type,
         "lang": lang,
         "data": data,
+    }
+
+
+# ── Alex warning acknowledgements ─────────────────────────────────────────────
+
+
+async def get_version_warnings(
+    conn: asyncpg.Connection,
+    version_id: str,
+) -> dict | None:
+    """
+    Return all AlexJS warnings for every unit in the version, with acknowledgement state.
+
+    Reads per-warning detail from each unit's meta.json (field
+    alex_warnings_detail_by_type added in pipeline build_unit.py).  Units built
+    before this field existed will return an empty warnings list for that unit —
+    counts are still shown from alex_warnings_count.
+    """
+    version_row = await conn.fetchrow(
+        "SELECT curriculum_id, alex_warnings_count FROM content_subject_versions WHERE version_id = $1",
+        uuid.UUID(version_id),
+    )
+    if not version_row:
+        return None
+
+    curriculum_id = version_row["curriculum_id"]
+
+    # Fetch all units for this version (via subject match)
+    subject_row = await conn.fetchrow(
+        "SELECT subject FROM content_subject_versions WHERE version_id = $1",
+        uuid.UUID(version_id),
+    )
+    units = await conn.fetch(
+        "SELECT unit_id FROM curriculum_units WHERE curriculum_id = $1 AND subject = $2 ORDER BY sort_order",
+        curriculum_id,
+        subject_row["subject"],
+    )
+
+    # Load ack state for this version
+    ack_rows = await conn.fetch(
+        """
+        SELECT cwa.unit_id, cwa.content_type, cwa.warning_index,
+               cwa.is_false_positive, cwa.acknowledged_at,
+               au.email AS acknowledged_by_email
+        FROM content_warning_acks cwa
+        LEFT JOIN admin_users au ON au.admin_user_id = cwa.acknowledged_by
+        WHERE cwa.version_id = $1
+        """,
+        uuid.UUID(version_id),
+    )
+    ack_map: dict[tuple, dict] = {
+        (r["unit_id"], r["content_type"], r["warning_index"]): dict(r)
+        for r in ack_rows
+    }
+
+    content_store = getattr(_settings, "CONTENT_STORE_PATH", "/data/content")
+    warnings: list[dict] = []
+
+    for unit_row in units:
+        unit_id = unit_row["unit_id"]
+        meta_path = os.path.join(content_store, "curricula", curriculum_id, unit_id, "meta.json")
+        if not os.path.isfile(meta_path):
+            continue
+        with open(meta_path, encoding="utf-8") as f:
+            meta = json.load(f)
+
+        detail_by_type: dict[str, list] = meta.get("alex_warnings_detail_by_type", {})
+        for content_type, detail_list in detail_by_type.items():
+            for idx, w in enumerate(detail_list):
+                ack = ack_map.get((unit_id, content_type, idx))
+                warnings.append({
+                    "warning_index": idx,
+                    "unit_id": unit_id,
+                    "content_type": content_type,
+                    "message": w.get("message", ""),
+                    "line": w.get("line", 0),
+                    "column": w.get("column", 0),
+                    "acknowledged": ack is not None,
+                    "is_false_positive": ack["is_false_positive"] if ack else False,
+                    "acknowledged_by_email": ack["acknowledged_by_email"] if ack else None,
+                    "acknowledged_at": ack["acknowledged_at"] if ack else None,
+                })
+
+    unacknowledged_count = sum(1 for w in warnings if not w["acknowledged"])
+
+    return {
+        "version_id": version_id,
+        "total_count": len(warnings),
+        "unacknowledged_count": unacknowledged_count,
+        "warnings": warnings,
+    }
+
+
+async def acknowledge_warning(
+    conn: asyncpg.Connection,
+    version_id: str,
+    unit_id: str,
+    content_type: str,
+    warning_index: int,
+    is_false_positive: bool,
+    reviewer_id: str,
+) -> dict:
+    """
+    Acknowledge (or update) a single AlexJS warning.  Idempotent — re-submitting
+    updates is_false_positive in place.
+    """
+    row = await conn.fetchrow(
+        """
+        INSERT INTO content_warning_acks
+            (version_id, unit_id, content_type, warning_index, is_false_positive, acknowledged_by)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        ON CONFLICT (version_id, unit_id, content_type, warning_index)
+        DO UPDATE SET is_false_positive = EXCLUDED.is_false_positive,
+                      acknowledged_by   = EXCLUDED.acknowledged_by,
+                      acknowledged_at   = NOW()
+        RETURNING ack_id::text, acknowledged_at
+        """,
+        uuid.UUID(version_id),
+        unit_id,
+        content_type,
+        warning_index,
+        is_false_positive,
+        uuid.UUID(reviewer_id),
+    )
+
+    email_row = await conn.fetchrow(
+        "SELECT email FROM admin_users WHERE admin_user_id = $1",
+        uuid.UUID(reviewer_id),
+    )
+
+    from src.core.events import write_audit_log
+
+    write_audit_log(
+        "warning_acknowledged",
+        "admin",
+        reviewer_id,
+        metadata={
+            "version_id": version_id,
+            "unit_id": unit_id,
+            "content_type": content_type,
+            "warning_index": warning_index,
+            "is_false_positive": is_false_positive,
+        },
+    )
+
+    return {
+        "ack_id": row["ack_id"],
+        "version_id": version_id,
+        "unit_id": unit_id,
+        "content_type": content_type,
+        "warning_index": warning_index,
+        "is_false_positive": is_false_positive,
+        "acknowledged_by_email": email_row["email"] if email_row else "",
+        "acknowledged_at": row["acknowledged_at"],
     }

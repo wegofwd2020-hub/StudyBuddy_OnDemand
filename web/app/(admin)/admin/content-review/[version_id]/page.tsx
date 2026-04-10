@@ -7,6 +7,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getReviewItem,
   getAdminUsers,
+  getVersionWarnings,
   approveReview,
   rejectReview,
   publishReview,
@@ -72,6 +73,16 @@ export default function AdminContentReviewDetailPage() {
     queryFn: () => getReviewItem(version_id),
     staleTime: 60_000,
   });
+
+  const { data: warnings } = useQuery({
+    queryKey: ["admin", "content-review", version_id, "warnings"],
+    queryFn: () => getVersionWarnings(version_id),
+    staleTime: 30_000,
+    enabled: !!item && item.alex_warnings_count > 0,
+  });
+
+  const unacknowledgedCount = warnings?.unacknowledged_count ?? item?.alex_warnings_count ?? 0;
+  const approveBlocked = (item?.alex_warnings_count ?? 0) > 0 && unacknowledgedCount > 0;
 
   const canAssign = admin && hasPermission(admin.role, "product_admin");
 
@@ -217,55 +228,34 @@ export default function AdminContentReviewDetailPage() {
           </div>
 
           {item.alex_warnings_count > 0 && (
-            <div
-              className={cn(
-                "flex gap-3 rounded-xl border-2 p-4",
-                item.alex_warnings_count >= 10
-                  ? "border-red-300 bg-red-50"
-                  : item.alex_warnings_count >= 3
-                    ? "border-amber-300 bg-amber-50"
-                    : "border-orange-200 bg-orange-50",
-              )}
-            >
-              <ShieldAlert
-                className={cn(
-                  "mt-0.5 h-5 w-5 flex-shrink-0",
-                  item.alex_warnings_count >= 10
-                    ? "text-red-600"
-                    : item.alex_warnings_count >= 3
-                      ? "text-amber-600"
-                      : "text-orange-500",
-                )}
-              />
-              <div>
-                <p
-                  className={cn(
-                    "text-sm font-bold",
-                    item.alex_warnings_count >= 10
-                      ? "text-red-900"
-                      : item.alex_warnings_count >= 3
-                        ? "text-amber-900"
-                        : "text-orange-800",
+            <div className="rounded-xl border-2 border-red-300 bg-red-50 p-4">
+              <div className="flex gap-3">
+                <ShieldAlert className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-bold text-red-900">
+                    ⚠ {item.alex_warnings_count} AlexJS warning
+                    {item.alex_warnings_count !== 1 ? "s" : ""} — review before approving
+                  </p>
+                  <p className="mt-0.5 text-xs text-red-700">
+                    Open each unit&apos;s viewer and acknowledge or mark false-positive every
+                    warning before the Approve button becomes available.
+                  </p>
+                  {warnings && (
+                    <div className="mt-2 flex items-center gap-2">
+                      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-red-200">
+                        <div
+                          className="h-full rounded-full bg-green-500 transition-all"
+                          style={{
+                            width: `${warnings.total_count > 0 ? Math.round(((warnings.total_count - warnings.unacknowledged_count) / warnings.total_count) * 100) : 0}%`,
+                          }}
+                        />
+                      </div>
+                      <span className="whitespace-nowrap text-xs font-medium text-red-800">
+                        {warnings.total_count - warnings.unacknowledged_count} / {warnings.total_count} acknowledged
+                      </span>
+                    </div>
                   )}
-                >
-                  {item.alex_warnings_count} AlexJS warning
-                  {item.alex_warnings_count !== 1 ? "s" : ""} detected —{" "}
-                  {item.alex_warnings_count >= 10 ? "High" : item.alex_warnings_count >= 3 ? "Moderate" : "Low"} severity
-                </p>
-                <p
-                  className={cn(
-                    "mt-0.5 text-xs",
-                    item.alex_warnings_count >= 10
-                      ? "text-red-700"
-                      : item.alex_warnings_count >= 3
-                        ? "text-amber-700"
-                        : "text-orange-700",
-                  )}
-                >
-                  AlexJS flagged potentially non-inclusive or insensitive language in
-                  this subject version. Open each unit&apos;s viewer and review all content
-                  types carefully before approving.
-                </p>
+                </div>
               </div>
             </div>
           )}
@@ -364,14 +354,22 @@ export default function AdminContentReviewDetailPage() {
           <div className="flex flex-wrap gap-3 border-t border-gray-100 pt-4">
             {item.status === "pending" && (
               <>
-                <button
-                  disabled={acting}
-                  onClick={() => performAction(() => approveReview(version_id))}
-                  className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-500 disabled:opacity-50"
-                >
-                  <CheckCircle className="h-4 w-4" />
-                  Approve
-                </button>
+                <div className="flex flex-col items-start gap-1">
+                  <button
+                    disabled={acting || approveBlocked}
+                    onClick={() => performAction(() => approveReview(version_id))}
+                    title={approveBlocked ? `${unacknowledgedCount} warning${unacknowledgedCount !== 1 ? "s" : ""} must be acknowledged first` : undefined}
+                    className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    <CheckCircle className="h-4 w-4" />
+                    Approve
+                  </button>
+                  {approveBlocked && (
+                    <p className="text-xs text-red-600">
+                      {unacknowledgedCount} warning{unacknowledgedCount !== 1 ? "s" : ""} unacknowledged
+                    </p>
+                  )}
+                </div>
                 <button
                   disabled={acting}
                   onClick={() => setModal("reject")}
