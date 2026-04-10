@@ -7,7 +7,7 @@ These are per-worker, in-memory caches — fast but not shared across workers.
 For shared state use Redis (L2).
 
 Cache instances:
-  jwks_cache       — Auth0 JWKS keys  (24-hr TTL, size=10)
+  jwks_cache       — Auth0 JWKS keys  (JWKS_CACHE_TTL_HOURS TTL, default 1h, size=10)
   curriculum_cache — Grade curriculum trees (1-hr TTL, size=100)
   dashboard_cache  — Student dashboard payloads (60-s TTL, size=2000)
 """
@@ -18,7 +18,8 @@ from cachetools import TTLCache
 from config import settings
 
 # Auth0 JWKS: keyed by AUTH0_JWKS_URL; stores the raw JWKS dict.
-# TTL = 24 hours; at most 10 distinct JWKS URLs (only one in practice).
+# TTL controlled by JWKS_CACHE_TTL_HOURS (default 1h — short enough to pick up
+# Auth0 key rotations quickly; bounded at 10 entries to cap memory).
 jwks_cache: TTLCache = TTLCache(
     maxsize=10,
     ttl=settings.JWKS_CACHE_TTL_HOURS * 3600,

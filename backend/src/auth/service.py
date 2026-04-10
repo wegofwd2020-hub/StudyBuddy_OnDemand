@@ -160,6 +160,16 @@ async def verify_auth0_teacher_token(id_token: str) -> dict:
             break
 
     if not rsa_key:
+        # Key not found — JWKS may be stale; evict cache and retry once.
+        log.warning("jwks_key_not_found_teacher", kid=kid, retrying=True)
+        jwks_cache.pop(settings.AUTH0_JWKS_URL, None)
+        jwks = await _fetch_jwks()
+        for key in jwks.get("keys", []):
+            if key.get("kid") == kid:
+                rsa_key = {k: key[k] for k in ("kty", "kid", "n", "e")}
+                break
+
+    if not rsa_key:
         raise HTTPException(
             status_code=401,
             detail={"error": "invalid_token", "detail": "JWT signing key not found."},
