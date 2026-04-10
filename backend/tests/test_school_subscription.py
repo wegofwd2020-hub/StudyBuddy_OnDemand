@@ -409,3 +409,173 @@ async def test_teacher_invite_blocked_at_seat_limit(client: AsyncClient):
     )
     assert r.status_code == 402, r.text
     assert r.json()["error"] == "seat_limit_reached"
+
+
+# ── Build allowance (Option A) ────────────────────────────────────────────────
+
+
+async def _insert_quota_row(
+    client: AsyncClient,
+    school_id: str,
+    builds_included: int = 3,
+    builds_used: int = 0,
+    builds_period_end_days: int = 365,
+) -> None:
+    """Insert a school_storage_quotas row with build allowance columns set."""
+    pool = client._transport.app.state.pool
+    await pool.execute(
+        """
+        INSERT INTO school_storage_quotas
+            (school_id, builds_included, builds_used, builds_period_end)
+        VALUES ($1, $2, $3, NOW() + ($4 || ' days')::INTERVAL)
+        ON CONFLICT (school_id) DO UPDATE SET
+            builds_included   = EXCLUDED.builds_included,
+            builds_used       = EXCLUDED.builds_used,
+            builds_period_end = EXCLUDED.builds_period_end,
+            updated_at        = NOW()
+        """,
+        uuid.UUID(school_id),
+        builds_included,
+        builds_used,
+        str(builds_period_end_days),
+    )
+
+
+@pytest.mark.asyncio
+async def test_check_build_allowance_no_quota_row(client: AsyncClient):
+    """Returns allowed=False with 0 allowance when no quota row exists."""
+    from src.school.subscription_service import check_build_allowance
+
+    reg = await _register_school(client)
+    school_id = reg["school_id"]
+    pool = client._transport.app.state.pool
+
+    async with pool.acquire() as conn:
+        result = await check_build_allowance(conn, school_id)
+
+    assert result["allowed"] is False
+    assert result["builds_included"] == 0
+    assert result["builds_used"] == 0
+    assert result["builds_remaining"] == 0
+    assert result["builds_period_end"] is None
+
+
+@pytest.mark.asyncio
+async def test_check_build_allowance_has_remaining(client: AsyncClient):
+    """Returns allowed=True with correct remaining count when builds available."""
+    from src.school.subscription_service import check_build_allowance
+
+    reg = await _register_school(client)
+    school_id = reg["school_id"]
+    await _insert_quota_row(client, school_id, builds_included=3, builds_used=1)
+
+    pool = client._transport.app.state.pool
+    async with pool.acquire() as conn:
+        result = await check_build_allowance(conn, school_id)
+
+    assert result["allowed"] is True
+    assert result["builds_included"] == 3
+    assert result["builds_used"] == 1
+    assert result["builds_remaining"] == 2
+    assert result["builds_period_end"] is not None
+
+
+@pytest.mark.asyncio
+async def test_check_build_allowance_exhausted(client: AsyncClient):
+    """Returns allowed=False when builds_used >= builds_included."""
+    from src.school.subscription_service import check_build_allowance
+
+    reg = await _register_school(client)
+    school_id = reg["school_id"]
+    await _insert_quota_row(client, school_id, builds_included=1, builds_used=1)
+
+    pool = client._transport.app.state.pool
+    async with pool.acquire() as conn:
+        result = await check_build_allowance(conn, school_id)
+
+    assert result["allowed"] is False
+    assert result["builds_remaining"] == 0
+
+
+@pytest.mark.asyncio
+async def test_check_build_allowance_enterprise_unlimited(client: AsyncClient):
+    """Enterprise plan (-1) reports allowed=True and builds_remaining=-1."""
+    from src.school.subscription_service import check_build_allowance
+
+    reg = await _register_school(client)
+    school_id = reg["school_id"]
+    await _insert_quota_row(client, school_id, builds_included=-1, builds_used=99)
+
+    pool = client._transport.app.state.pool
+    async with pool.acquire() as conn:
+        result = await check_build_allowance(conn, school_id)
+
+    assert result["allowed"] is True
+    assert result["builds_included"] == -1
+    assert result["builds_remaining"] == -1
+
+
+@pytest.mark.asyncio
+async def test_consume_build_increments_counter(client: AsyncClient):
+    """consume_build increments builds_used by 1."""
+    from src.school.subscription_service import check_build_allowance, consume_build
+
+    reg = await _register_school(client)
+    school_id = reg["school_id"]
+    await _insert_quota_row(client, school_id, builds_included=3, builds_used=0)
+
+    pool = client._transport.app.state.pool
+    async with pool.acquire() as conn:
+        await consume_build(conn, school_id)
+        result = await check_build_allowance(conn, school_id)
+
+    assert result["builds_used"] == 1
+    assert result["builds_remaining"] == 2
+
+
+@pytest.mark.asyncio
+async def test_stamp_build_allowance_resets_on_reactivation(client: AsyncClient):
+    """_stamp_build_allowance resets builds_used=0 and sets builds_included from plan."""
+    from src.school.subscription_service import _stamp_build_allowance, check_build_allowance
+
+    reg = await _register_school(client)
+    school_id = reg["school_id"]
+    # Start with used=2 (simulating mid-year)
+    await _insert_quota_row(client, school_id, builds_included=3, builds_used=2)
+
+    pool = client._transport.app.state.pool
+    new_period_end = datetime.now(UTC) + timedelta(days=365)
+    async with pool.acquire() as conn:
+        # Simulate reactivation on professional plan
+        await _stamp_build_allowance(conn, school_id, "professional", new_period_end)
+        result = await check_build_allowance(conn, school_id)
+
+    assert result["builds_used"] == 0           # reset
+    assert result["builds_included"] == 3       # professional = 3
+    assert result["builds_remaining"] == 3
+    assert result["allowed"] is True
+
+
+@pytest.mark.asyncio
+async def test_subscription_status_response_includes_builds_fields(client: AsyncClient):
+    """GET /subscription response includes builds_included, builds_used, builds_remaining."""
+    reg = await _register_school(client)
+    school_id = reg["school_id"]
+    token = make_teacher_token(teacher_id=reg["teacher_id"], school_id=school_id, role="school_admin")
+
+    await _insert_school_subscription(client, school_id, plan="professional")
+    await _insert_quota_row(client, school_id, builds_included=3, builds_used=1)
+
+    r = await client.get(
+        f"/api/v1/schools/{school_id}/subscription",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert r.status_code == 200, r.text
+    data = r.json()
+
+    assert "builds_included" in data
+    assert "builds_used" in data
+    assert "builds_remaining" in data
+    assert data["builds_included"] == 3
+    assert data["builds_used"] == 1
+    assert data["builds_remaining"] == 2

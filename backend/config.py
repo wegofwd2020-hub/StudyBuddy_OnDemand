@@ -220,6 +220,25 @@ class Settings(BaseSettings):
     # ── Extra curriculum build price ──────────────────────────────────────────
     STRIPE_SCHOOL_PRICE_EXTRA_BUILD_ID: str | None = None  # $15/grade build — Q3-B #106
 
+    # ── School curriculum build allowance per plan (Option A — absorbed into plan)
+    # Number of grade-level pipeline builds included per subscription year.
+    # -1 = unlimited (Enterprise).
+    # Future: Option B (pay-per-build) and Option C (credit bundles) tracked in
+    # GitHub issues feat/q3-b-pay-per-build and feat/q3-c-credit-bundles.
+    SCHOOL_BUILDS_STARTER: int = 1
+    SCHOOL_BUILDS_PROFESSIONAL: int = 3
+    SCHOOL_BUILDS_ENTERPRISE: int = -1  # unlimited
+
+    # ── Independent Teacher plan pricing (Option A — flat fee, teacher keeps student revenue)
+    # Future: Option B (revenue share) tracked in feat/q2-b-revenue-share.
+    #         Option C (seat-tiered flat) tracked in feat/q2-c-seat-tiered.
+    TEACHER_PLAN_SOLO_MONTHLY_USD: str = "29.00"   # Solo: up to 25 students
+    TEACHER_PLAN_GROWTH_MONTHLY_USD: str = "59.00"  # Growth: up to 75 students (future)
+    TEACHER_PLAN_PRO_MONTHLY_USD: str = "99.00"     # Pro: up to 200 students (future)
+
+    # ── Extra curriculum build price (Stripe one-time, beyond plan allowance) ──
+    STRIPE_SCHOOL_PRICE_EXTRA_BUILD_ID: str | None = None  # $15/grade build
+
     # ── Feature flags ─────────────────────────────────────────────────────────
     REVIEW_AUTO_APPROVE: bool = False
 

@@ -189,6 +189,11 @@ export interface SchoolSubscription {
   seats_used_students: number;
   seats_used_teachers: number;
   current_period_end: string | null;
+  // Curriculum build allowance (Option A — absorbed into plan)
+  builds_included: number;    // -1 = unlimited (Enterprise)
+  builds_used: number;
+  builds_remaining: number;   // -1 = unlimited
+  builds_period_end: string | null;
 }
 
 export async function getSchoolSubscription(schoolId: string): Promise<SchoolSubscription> {
