@@ -71,8 +71,12 @@ async def list_review_queue(
         params.append(curriculum_id)
         filters.append(f"csv.curriculum_id = ${len(params)}")
     if assigned_to_admin_id:
-        params.append(uuid.UUID(assigned_to_admin_id))
-        filters.append(f"csv.assigned_to_admin_id = ${len(params)}")
+        if assigned_to_admin_id == "unassigned":
+            # Special sentinel: return only versions with no assignee
+            filters.append("csv.assigned_to_admin_id IS NULL")
+        else:
+            params.append(uuid.UUID(assigned_to_admin_id))
+            filters.append(f"csv.assigned_to_admin_id = ${len(params)}")
 
     where = " AND ".join(filters)
 

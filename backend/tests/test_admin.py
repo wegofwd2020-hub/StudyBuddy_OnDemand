@@ -525,7 +525,7 @@ async def test_assign_version_404_on_unknown(client, db_conn):
 
 @pytest.mark.asyncio
 async def test_assign_version_requires_permission(client, db_conn):
-    """developer role lacks review:assign — must get 403."""
+    """developer role lacks review:annotate — must get 403 even for self-assign."""
     version_id = await _insert_version(
         client, subject=f"AssignPerm-{uuid.uuid4().hex[:6]}", status="pending"
     )
@@ -535,6 +535,73 @@ async def test_assign_version_requires_permission(client, db_conn):
         headers=_admin_headers(role="developer"),
     )
     assert r.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_self_assign_allowed_for_annotate_role(client, db_conn):
+    """tester role (has review:annotate) can assign the version to themselves."""
+    version_id = await _insert_version(
+        client, subject=f"SelfAssign-{uuid.uuid4().hex[:6]}", status="pending"
+    )
+    await _insert_admin(client)
+
+    with patch("src.core.events.write_audit_log"):
+        r = await client.post(
+            f"/api/v1/admin/content/review/{version_id}/assign",
+            # Assigning to the same admin_id as the JWT (self-assign)
+            json={"admin_id": _TEST_ADMIN_ID},
+            headers=_admin_headers(role="tester"),
+        )
+    assert r.status_code == 200, r.text
+    assert r.json()["assigned_to_admin_id"] == _TEST_ADMIN_ID
+
+
+@pytest.mark.asyncio
+async def test_assign_other_requires_assign_permission(client, db_conn):
+    """tester cannot assign to a *different* admin — requires review:assign."""
+    version_id = await _insert_version(
+        client, subject=f"AssignOther-{uuid.uuid4().hex[:6]}", status="pending"
+    )
+    other_admin_id = str(uuid.uuid4())
+    r = await client.post(
+        f"/api/v1/admin/content/review/{version_id}/assign",
+        json={"admin_id": other_admin_id},
+        headers=_admin_headers(role="tester"),
+    )
+    assert r.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_queue_unassigned_filter(client, db_conn):
+    """assigned_to=unassigned returns only versions with no assignee."""
+    curriculum_id = f"default-2026-g{uuid.uuid4().hex[:4]}"
+    await _insert_admin(client)
+
+    unassigned_vid = await _insert_version(
+        client, curriculum_id=curriculum_id,
+        subject=f"Unassigned-{uuid.uuid4().hex[:6]}", status="pending",
+    )
+    assigned_vid = await _insert_version(
+        client, curriculum_id=curriculum_id,
+        subject=f"Assigned-{uuid.uuid4().hex[:6]}", status="pending",
+    )
+    # Assign one of them
+    with patch("src.core.events.write_audit_log"):
+        await client.post(
+            f"/api/v1/admin/content/review/{assigned_vid}/assign",
+            json={"admin_id": _TEST_ADMIN_ID},
+            headers=_admin_headers(),
+        )
+
+    r = await client.get(
+        "/api/v1/admin/content/review/queue",
+        params={"curriculum_id": curriculum_id, "assigned_to": "unassigned"},
+        headers=_admin_headers(),
+    )
+    assert r.status_code == 200, r.text
+    ids = [item["version_id"] for item in r.json()["items"]]
+    assert unassigned_vid in ids
+    assert assigned_vid not in ids
 
 
 @pytest.mark.asyncio

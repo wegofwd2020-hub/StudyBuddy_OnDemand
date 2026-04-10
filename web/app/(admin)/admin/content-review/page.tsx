@@ -3,12 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { BatchApproveResult, batchApproveGrade, getReviewQueue } from "@/lib/api/admin";
-import { useAdmin } from "@/lib/hooks/useAdmin";
+import { BatchApproveResult, assignReview, batchApproveGrade, getReviewQueue } from "@/lib/api/admin";
+import { useAdmin, hasPermission } from "@/lib/hooks/useAdmin";
 import { cn } from "@/lib/utils";
 import { AlertTriangle, CheckCheck, ClipboardList, UserCheck } from "lucide-react";
 
 type StatusFilter = "pending" | "approved" | "published" | "rejected" | "blocked" | "";
+type AssignFilter = "all" | "mine" | "unassigned";
 
 const STATUS_STYLES: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-700",
@@ -39,27 +40,28 @@ interface ConfirmState {
 
 export default function AdminContentReviewPage() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("pending");
-  const [myAssignments, setMyAssignments] = useState(false);
+  const [assignFilter, setAssignFilter] = useState<AssignFilter>("all");
   const [confirm, setConfirm] = useState<ConfirmState | null>(null);
   const [batchResult, setBatchResult] = useState<BatchApproveResult | null>(null);
   const queryClient = useQueryClient();
   const admin = useAdmin();
+  const canSelfAssign = admin && hasPermission(admin.role, "tester");
+
+  const assignedToParam =
+    assignFilter === "mine" && admin ? admin.admin_id :
+    assignFilter === "unassigned" ? "unassigned" :
+    undefined;
 
   const { data, isLoading } = useQuery({
-    queryKey: [
-      "admin",
-      "content-review",
-      statusFilter,
-      myAssignments ? admin?.admin_id : null,
-    ],
-    queryFn: () =>
-      getReviewQueue(
-        statusFilter || undefined,
-        undefined,
-        undefined,
-        myAssignments && admin ? admin.admin_id : undefined,
-      ),
+    queryKey: ["admin", "content-review", statusFilter, assignFilter, admin?.admin_id],
+    queryFn: () => getReviewQueue(statusFilter || undefined, undefined, undefined, assignedToParam),
     staleTime: 30_000,
+  });
+
+  const selfAssignMutation = useMutation({
+    mutationFn: (versionId: string) => assignReview(versionId, admin!.admin_id),
+    onSuccess: () =>
+      void queryClient.invalidateQueries({ queryKey: ["admin", "content-review"] }),
   });
 
   const batchMutation = useMutation({
@@ -113,19 +115,22 @@ export default function AdminContentReviewPage() {
             {s || "All"}
           </button>
         ))}
-        <div className="ml-auto">
-          <button
-            onClick={() => setMyAssignments((v) => !v)}
-            className={cn(
-              "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
-              myAssignments
-                ? "bg-indigo-100 text-indigo-700"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200",
-            )}
-          >
-            <UserCheck className="h-3.5 w-3.5" />
-            My assignments
-          </button>
+        <div className="ml-auto flex items-center gap-1 rounded-full bg-gray-100 p-1">
+          {(["all", "mine", "unassigned"] as AssignFilter[]).map((f) => (
+            <button
+              key={f}
+              onClick={() => setAssignFilter(f)}
+              className={cn(
+                "flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium transition-colors",
+                assignFilter === f
+                  ? "bg-white text-gray-900 shadow-sm"
+                  : "text-gray-500 hover:text-gray-700",
+              )}
+            >
+              {f === "mine" && <UserCheck className="h-3 w-3" />}
+              {f === "all" ? "All" : f === "mine" ? "Mine" : "Unassigned"}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -248,9 +253,23 @@ export default function AdminContentReviewPage() {
                               {new Date(item.generated_at).toLocaleDateString()}
                             </td>
                             <td className="px-4 py-3 text-xs text-gray-500">
-                              {item.assigned_to_email ?? (
-                                <span className="text-gray-300">—</span>
-                              )}
+                              <div className="flex items-center gap-2">
+                                <span>
+                                  {item.assigned_to_email ?? (
+                                    <span className="text-gray-300">—</span>
+                                  )}
+                                </span>
+                                {canSelfAssign &&
+                                  item.assigned_to_admin_id !== admin?.admin_id && (
+                                    <button
+                                      onClick={() => selfAssignMutation.mutate(item.version_id)}
+                                      disabled={selfAssignMutation.isPending}
+                                      className="rounded bg-indigo-50 px-1.5 py-0.5 text-xs font-medium text-indigo-600 hover:bg-indigo-100 disabled:opacity-50"
+                                    >
+                                      Assign to me
+                                    </button>
+                                  )}
+                              </div>
                             </td>
                             <td className="px-4 py-3 text-right">
                               {item.has_content ? (

@@ -84,6 +84,7 @@ export default function AdminContentReviewDetailPage() {
   const unacknowledgedCount = warnings?.unacknowledged_count ?? item?.alex_warnings_count ?? 0;
   const approveBlocked = (item?.alex_warnings_count ?? 0) > 0 && unacknowledgedCount > 0;
 
+  const canSelfAssign = admin && hasPermission(admin.role, "tester");
   const canAssign = admin && hasPermission(admin.role, "product_admin");
 
   const { data: adminUsers } = useQuery({
@@ -189,20 +190,43 @@ export default function AdminContentReviewDetailPage() {
 
           {/* Assignment panel */}
           <div className="rounded-xl border border-gray-200 bg-white px-4 py-3">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <UserCheck className="h-4 w-4 flex-shrink-0 text-gray-400" />
               <span className="text-sm font-medium text-gray-700">Assigned reviewer</span>
               {item.assigned_to_email ? (
-                <span className="ml-1 text-sm text-gray-900">
-                  {item.assigned_to_email}
-                </span>
+                <span className="ml-1 text-sm text-gray-900">{item.assigned_to_email}</span>
               ) : (
                 <span className="ml-1 text-sm text-gray-400">Unassigned</span>
               )}
-              {canAssign && adminUsers && (
-                <div className="ml-auto flex items-center gap-2">
+
+              <div className="ml-auto flex items-center gap-2">
+                {/* Self-assign / unassign buttons (tester+) */}
+                {canSelfAssign && !canAssign && (
+                  <>
+                    {item.assigned_to_admin_id !== admin?.admin_id ? (
+                      <button
+                        onClick={() => assignMutation.mutate(admin!.admin_id)}
+                        disabled={assignMutation.isPending}
+                        className="rounded-md border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 hover:bg-indigo-100 disabled:opacity-50"
+                      >
+                        Assign to me
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => assignMutation.mutate(null)}
+                        disabled={assignMutation.isPending}
+                        className="rounded-md border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+                      >
+                        Unassign
+                      </button>
+                    )}
+                  </>
+                )}
+
+                {/* Full dropdown (product_admin+) */}
+                {canAssign && adminUsers && (
                   <select
-                    defaultValue={item.assigned_to_admin_id ?? ""}
+                    value={item.assigned_to_admin_id ?? ""}
                     onChange={(e) => assignMutation.mutate(e.target.value || null)}
                     disabled={assignMutation.isPending}
                     className="rounded-md border border-gray-200 px-2.5 py-1 text-xs text-gray-700 focus:border-indigo-400 focus:outline-none disabled:opacity-50"
@@ -214,11 +238,12 @@ export default function AdminContentReviewDetailPage() {
                       </option>
                     ))}
                   </select>
-                  {assignMutation.isError && (
-                    <span className="text-xs text-red-500">Failed</span>
-                  )}
-                </div>
-              )}
+                )}
+
+                {assignMutation.isError && (
+                  <span className="text-xs text-red-500">Failed</span>
+                )}
+              </div>
             </div>
             {item.assigned_at && (
               <p className="mt-1 pl-6 text-xs text-gray-400">
