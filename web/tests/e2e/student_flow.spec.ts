@@ -29,12 +29,13 @@ import {
 } from "./data/lesson-page";
 import {
   MOCK_QUIZ,
+  MOCK_BACKEND_QUIZ_RESPONSE,
+  MOCK_QUIZ_DISPLAY_TITLE,
   MOCK_SESSION_ID,
-  MOCK_ANSWER_CORRECT,
-  MOCK_SESSION_END_PASSED,
   QUIZ_STRINGS,
 } from "./data/quiz-page";
-import { MOCK_PROGRESS_HISTORY } from "./data/progress-page";
+// MOCK_PROGRESS_HISTORY not imported — stubProgressApis uses inline backend-format response
+// (getProgressHistory maps /progress/student backend shape; frontend ProgressHistory type differs)
 import { HERO, NAV_LINKS } from "./data/landing-page";
 
 // ---------------------------------------------------------------------------
@@ -93,23 +94,63 @@ async function stubLessonApis(page: Page) {
 }
 
 async function stubQuizApis(page: Page) {
+  // Stub must return BackendQuizResponse shape — getQuiz() in content.ts maps it.
   await page.route("**/api/v1/content/G8-SCI-001/quiz**", (route) =>
-    route.fulfill({ status: 200, json: MOCK_QUIZ }),
+    route.fulfill({ status: 200, json: MOCK_BACKEND_QUIZ_RESPONSE }),
   );
-  await page.route("**/api/v1/progress/session/start**", (route) =>
-    route.fulfill({ status: 200, json: { session_id: MOCK_SESSION_ID } }),
+  // POST /progress/session — actual URL used by startSession() in progress.ts
+  // Use function predicate: glob "**/api/v1/progress/session" (no trailing **)
+  // is ambiguous in Playwright's LIFO resolver when the more-specific
+  // "/*/answer" and "/*/end" patterns are registered after it.
+  await page.route(
+    (url) => url.pathname === "/api/v1/progress/session",
+    (route) => route.fulfill({ status: 200, json: { session_id: MOCK_SESSION_ID } }),
   );
-  await page.route("**/api/v1/progress/answer**", (route) =>
-    route.fulfill({ status: 200, json: MOCK_ANSWER_CORRECT }),
+  // POST /progress/session/{id}/answer
+  await page.route("**/api/v1/progress/session/*/answer", (route) =>
+    route.fulfill({ status: 200, json: { correct: true, explanation: "" } }),
   );
-  await page.route("**/api/v1/progress/session/end**", (route) =>
-    route.fulfill({ status: 200, json: MOCK_SESSION_END_PASSED }),
+  // POST /progress/session/{id}/end — backend returns total_questions, not total
+  await page.route("**/api/v1/progress/session/*/end", (route) =>
+    route.fulfill({
+      status: 200,
+      json: {
+        session_id: MOCK_SESSION_ID,
+        score: 3,
+        total_questions: 3,
+        passed: true,
+        attempt_number: 1,
+        ended_at: new Date().toISOString(),
+      },
+    }),
   );
 }
 
 async function stubProgressApis(page: Page) {
-  await page.route("**/api/v1/progress/history**", (route) =>
-    route.fulfill({ status: 200, json: MOCK_PROGRESS_HISTORY }),
+  // useProgressHistory → getProgressHistory → GET /progress/student?limit=...
+  // Response must match the backend shape that getProgressHistory maps from.
+  await page.route("**/api/v1/progress/student**", (route) =>
+    route.fulfill({
+      status: 200,
+      json: {
+        student_id: "test-student-001",
+        sessions: [
+          {
+            session_id: "sess-001",
+            unit_id: "G8-SCI-001",
+            curriculum_id: "default-2026-g8",
+            subject: "Science",
+            started_at: "2026-03-25T10:00:00Z",
+            ended_at: "2026-03-25T10:15:00Z",
+            score: 3,
+            total_questions: 3,
+            completed: true,
+            passed: true,
+            attempt_number: 1,
+          },
+        ],
+      },
+    }),
   );
 }
 
@@ -201,8 +242,8 @@ test("student learning loop: lesson → quiz → result → progress", async ({
   await page.waitForURL("**/quiz/G8-SCI-001**");
   await page.waitForLoadState("networkidle");
 
-  // Quiz title
-  await expect(page.getByText(MOCK_QUIZ.title)).toBeVisible();
+  // Quiz title — getQuiz() constructs "Quiz — Set {n}" from the backend set_number
+  await expect(page.getByText(MOCK_QUIZ_DISPLAY_TITLE)).toBeVisible();
 
   // ── Step 3: answer all 3 questions correctly ──────────────────────────────
   for (let i = 0; i < MOCK_QUIZ.questions.length; i++) {
@@ -238,7 +279,7 @@ test("student learning loop: lesson → quiz → result → progress", async ({
   }
 
   // ── Step 4: result screen shows a passing score ───────────────────────────
-  // MOCK_SESSION_END_PASSED: score=3, total=3, passed=true
+  // Session end stub: score=3, total_questions=3, passed=true
   await expect(page.getByText("3")).toBeVisible();
 
   // ── Step 5: progress history reflects the completed unit ─────────────────
@@ -246,6 +287,6 @@ test("student learning loop: lesson → quiz → result → progress", async ({
   await page.goto("/progress");
   await page.waitForLoadState("networkidle");
 
-  // Cell Biology session from MOCK_PROGRESS_HISTORY.sessions[0]
-  await expect(page.getByText("Cell Biology")).toBeVisible();
+  // getProgressHistory maps unit_title from unit_id (backend doesn't return title)
+  await expect(page.getByText("G8-SCI-001")).toBeVisible();
 });
