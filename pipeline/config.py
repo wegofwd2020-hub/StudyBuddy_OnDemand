@@ -7,9 +7,19 @@ Required env vars fail fast if missing.
 
 from __future__ import annotations
 
+import sys
+import os
 from typing import Optional
 from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Pull AI cost defaults from the shared pricing module.
+# Add backend/ to sys.path so pipeline scripts can import src.pricing.
+_backend_dir = os.path.join(os.path.dirname(__file__), "..", "backend")
+if _backend_dir not in sys.path:
+    sys.path.insert(0, os.path.abspath(_backend_dir))
+
+from src.pricing import AI_COST as _ai  # noqa: E402
 
 
 class PipelineSettings(BaseSettings):
@@ -32,10 +42,11 @@ class PipelineSettings(BaseSettings):
     TTS_API_KEY: Optional[str] = None    # used for Google TTS
 
     # ── Cost controls ─────────────────────────────────────────────────────────
-    MAX_PIPELINE_COST_USD: float = 50.0
-    # Rough per-token cost estimates (USD)
-    TOKEN_COST_INPUT_USD: float = 0.000003   # $3 / 1M input tokens
-    TOKEN_COST_OUTPUT_USD: float = 0.000015  # $15 / 1M output tokens
+    # Defaults sourced from backend/src/pricing.py (AI_COST).
+    # Override via env var only when testing with a different model.
+    MAX_PIPELINE_COST_USD: float = _ai.max_run_usd.__float__()
+    TOKEN_COST_INPUT_USD: float  = _ai.input_per_token_usd    # $3 / 1M input tokens
+    TOKEN_COST_OUTPUT_USD: float = _ai.output_per_token_usd   # $15 / 1M output tokens
 
     # ── Database (for seed_default / build_grade upserts) ─────────────────────
     DATABASE_URL: Optional[str] = None

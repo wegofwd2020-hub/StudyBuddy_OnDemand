@@ -30,7 +30,12 @@ from pydantic import BaseModel
 
 from src.auth.dependencies import get_current_teacher
 from src.core.db import get_db
+from src.pricing import SCHOOL_PLANS as _PLANS
 from src.utils.logger import get_logger
+
+# Base storage GB included with every school subscription.
+# Defined in src/pricing.py — no magic numbers here.
+_BASE_STORAGE_GB: int = _PLANS["starter"].storage_base_gb
 
 log = get_logger("school.storage")
 router = APIRouter(tags=["school-storage"])
@@ -137,7 +142,7 @@ async def get_school_storage(
             # This should not happen — migration 0029 seeds one row per school.
             # Guard defensively and return zero-state.
             log.warning("school_storage_quota_missing school_id=%s", school_id)
-            base_gb, purchased_gb, used_bytes = 5, 0, 0
+            base_gb, purchased_gb, used_bytes = _BASE_STORAGE_GB, 0, 0
         else:
             base_gb = quota_row["base_gb"]
             purchased_gb = quota_row["purchased_gb"]

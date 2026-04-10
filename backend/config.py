@@ -139,6 +139,7 @@ class Settings(BaseSettings):
     SCHOOL_PIPELINE_QUOTA_ENTERPRISE: int = 9999
 
     # ── School subscription — Stripe price IDs ────────────────────────────────
+    # Pricing defaults come from src/pricing.py — only Stripe IDs live here.
     STRIPE_SCHOOL_PRICE_STARTER_ID: str | None = None
     STRIPE_SCHOOL_PRICE_PROFESSIONAL_ID: str | None = None
     STRIPE_SCHOOL_PRICE_ENTERPRISE_ID: str | None = None
@@ -151,12 +152,73 @@ class Settings(BaseSettings):
     STRIPE_SCHOOL_PRICE_STORAGE_25GB_ID: str | None = None   # +25 GB storage add-on
 
     # ── School seat limits by plan ────────────────────────────────────────────
-    SCHOOL_SEATS_STARTER_STUDENTS: int = 30
-    SCHOOL_SEATS_STARTER_TEACHERS: int = 3
-    SCHOOL_SEATS_PROFESSIONAL_STUDENTS: int = 150
-    SCHOOL_SEATS_PROFESSIONAL_TEACHERS: int = 10
-    SCHOOL_SEATS_ENTERPRISE_STUDENTS: int = 9999
-    SCHOOL_SEATS_ENTERPRISE_TEACHERS: int = 9999
+    # Defaults sourced from src/pricing.py — override via env var for unusual deploys.
+    @property
+    def school_seats_starter_students(self) -> int:
+        from src.pricing import SCHOOL_PLANS
+        return SCHOOL_PLANS["starter"].max_students
+
+    @property
+    def school_seats_starter_teachers(self) -> int:
+        from src.pricing import SCHOOL_PLANS
+        return SCHOOL_PLANS["starter"].max_teachers
+
+    @property
+    def school_seats_professional_students(self) -> int:
+        from src.pricing import SCHOOL_PLANS
+        return SCHOOL_PLANS["professional"].max_students
+
+    @property
+    def school_seats_professional_teachers(self) -> int:
+        from src.pricing import SCHOOL_PLANS
+        return SCHOOL_PLANS["professional"].max_teachers
+
+    @property
+    def school_seats_enterprise_students(self) -> int:
+        from src.pricing import SCHOOL_PLANS
+        return SCHOOL_PLANS["enterprise"].max_students
+
+    @property
+    def school_seats_enterprise_teachers(self) -> int:
+        from src.pricing import SCHOOL_PLANS
+        return SCHOOL_PLANS["enterprise"].max_teachers
+
+    # ── School curriculum build allowance per plan ────────────────────────────
+    # Defaults sourced from src/pricing.py. -1 = unlimited (Enterprise).
+    @property
+    def school_builds_starter(self) -> int:
+        from src.pricing import SCHOOL_PLANS
+        return SCHOOL_PLANS["starter"].builds_per_year
+
+    @property
+    def school_builds_professional(self) -> int:
+        from src.pricing import SCHOOL_PLANS
+        return SCHOOL_PLANS["professional"].builds_per_year
+
+    @property
+    def school_builds_enterprise(self) -> int:
+        from src.pricing import SCHOOL_PLANS
+        return SCHOOL_PLANS["enterprise"].builds_per_year
+
+    # ── Independent teacher plan pricing ─────────────────────────────────────
+    # Defaults sourced from src/pricing.py — future: teacher tier rebuild (#57).
+    @property
+    def teacher_plan_solo_monthly_usd(self) -> str:
+        from src.pricing import TEACHER_PLANS
+        return next(p.price_monthly for p in TEACHER_PLANS if p.id == "solo")
+
+    @property
+    def teacher_plan_growth_monthly_usd(self) -> str:
+        from src.pricing import TEACHER_PLANS
+        return next(p.price_monthly for p in TEACHER_PLANS if p.id == "growth")
+
+    @property
+    def teacher_plan_pro_monthly_usd(self) -> str:
+        from src.pricing import TEACHER_PLANS
+        return next(p.price_monthly for p in TEACHER_PLANS if p.id == "pro")
+
+    # ── Extra curriculum build price ──────────────────────────────────────────
+    STRIPE_SCHOOL_PRICE_EXTRA_BUILD_ID: str | None = None  # $15/grade build — Q3-B #106
 
     # ── Feature flags ─────────────────────────────────────────────────────────
     REVIEW_AUTO_APPROVE: bool = False

@@ -6,9 +6,9 @@ School subscription business logic.
 School billing model: one subscription per school covers all enrolled
 students and teachers.
 
-Plan seat limits are resolved in priority order:
-  1. school_plan_overrides (per-school manual override by super_admin)
-  2. settings.SCHOOL_SEATS_*  (env-configurable plan defaults)
+Plan seat limits and build allowances are resolved from src/pricing.py
+(single source of truth for all platform pricing).
+Per-school manual overrides by super_admin can be applied separately.
 
 Stripe metadata convention for school sessions:
   {"school_id": "...", "plan": "starter|professional|enterprise"}
@@ -38,24 +38,9 @@ _GRACE_PERIOD_DAYS = 3
 
 
 def _plan_seats(plan: str) -> dict[str, int]:
-    """Return {max_students, max_teachers} for a plan using settings env vars."""
-    from config import settings
-
-    mapping = {
-        "starter": {
-            "max_students": settings.SCHOOL_SEATS_STARTER_STUDENTS,
-            "max_teachers": settings.SCHOOL_SEATS_STARTER_TEACHERS,
-        },
-        "professional": {
-            "max_students": settings.SCHOOL_SEATS_PROFESSIONAL_STUDENTS,
-            "max_teachers": settings.SCHOOL_SEATS_PROFESSIONAL_TEACHERS,
-        },
-        "enterprise": {
-            "max_students": settings.SCHOOL_SEATS_ENTERPRISE_STUDENTS,
-            "max_teachers": settings.SCHOOL_SEATS_ENTERPRISE_TEACHERS,
-        },
-    }
-    return mapping.get(plan, mapping["starter"])
+    """Return {max_students, max_teachers} for a plan from src/pricing.py."""
+    from src.pricing import plan_seats
+    return plan_seats(plan)
 
 
 # ── Seat usage ────────────────────────────────────────────────────────────────

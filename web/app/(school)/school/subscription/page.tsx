@@ -8,59 +8,11 @@ import {
   createSchoolCheckout,
   cancelSchoolSubscription,
 } from "@/lib/api/school-admin";
+import { SCHOOL_PLANS_LIST, formatPlanPrice } from "@/lib/pricing";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, CheckCircle, XCircle, CreditCard, Users, GraduationCap, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-// ── Plan definitions (display only — limits come from backend) ────────────────
-
-const PLANS = [
-  {
-    id: "starter",
-    name: "Starter",
-    price: "Free",
-    students: 30,
-    teachers: 3,
-    pipeline: 3,
-    features: ["30 students", "3 teachers", "3 pipeline runs / month", "English content"],
-    highlight: false,
-  },
-  {
-    id: "professional",
-    name: "Professional",
-    price: "Contact sales",
-    students: 150,
-    teachers: 10,
-    pipeline: 10,
-    features: [
-      "150 students",
-      "10 teachers",
-      "10 pipeline runs / month",
-      "EN + FR + ES content",
-      "Custom curriculum upload",
-      "Teacher reporting dashboard",
-    ],
-    highlight: true,
-  },
-  {
-    id: "enterprise",
-    name: "Enterprise",
-    price: "Custom",
-    students: null,
-    teachers: null,
-    pipeline: null,
-    features: [
-      "Unlimited students & teachers",
-      "Unlimited pipeline runs",
-      "All languages",
-      "Custom seat limits",
-      "Dedicated support",
-      "SLA guarantee",
-    ],
-    highlight: false,
-  },
-] as const;
 
 // ── Seat usage bar ────────────────────────────────────────────────────────────
 
@@ -378,7 +330,7 @@ export default function SubscriptionPage() {
           )}
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {PLANS.map((plan) => {
+            {SCHOOL_PLANS_LIST.map((plan) => {
               const isCurrent = activePlan === plan.id && hasSub;
               const isEnterprise = plan.id === "enterprise";
 
@@ -406,7 +358,7 @@ export default function SubscriptionPage() {
 
                   <div className="mb-1">
                     <h3 className="text-base font-semibold text-gray-900">{plan.name}</h3>
-                    <p className="mt-0.5 text-sm text-gray-500">{plan.price}</p>
+                    <p className="mt-0.5 text-sm text-gray-500">{formatPlanPrice(plan)}</p>
                   </div>
 
                   <ul className="mt-3 flex-1 space-y-1.5">
