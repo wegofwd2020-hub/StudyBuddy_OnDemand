@@ -279,8 +279,9 @@ test("student learning loop: lesson → quiz → result → progress", async ({
   }
 
   // ── Step 4: result screen shows a passing score ───────────────────────────
-  // Session end stub: score=3, total_questions=3, passed=true
-  await expect(page.getByText("3")).toBeVisible();
+  // score_label = "Score: {score}/{total} ({pct}%)" → "Score: 3/3 (100%)"
+  // Use regex to avoid strict-mode violation from other elements containing "3".
+  await expect(page.getByText(/Score: 3\/3/)).toBeVisible();
 
   // ── Step 5: progress history reflects the completed unit ─────────────────
   await stubProgressApis(page);
