@@ -30,11 +30,20 @@ def sync_auth0_suspension(self, auth0_sub: str, action: str) -> None:
 
     action: "block" | "unblock"
     """
-    from src.auth.service import block_auth0_user
+    import redis.asyncio as aioredis_mod
+    from config import settings as cfg
+
+    from src.auth.auth0_client import block_auth0_user
+
+    async def _run():
+        redis = await aioredis_mod.from_url(cfg.REDIS_URL)
+        try:
+            await block_auth0_user(auth0_sub, blocked=(action == "block"), redis=redis)
+        finally:
+            await redis.aclose()
 
     try:
-        blocked = action == "block"
-        _run_async(block_auth0_user(auth0_sub, blocked=blocked))
+        _run_async(_run())
     except Exception as exc:
         raise self.retry(exc=exc, countdown=60)
 
@@ -104,12 +113,14 @@ def gdpr_delete_account(self, student_id: str, auth0_sub: str) -> None:
     3. Delete user from Auth0.
     """
     import asyncpg
+    import redis.asyncio as aioredis_mod
     from config import settings as cfg
 
-    from src.auth.service import delete_auth0_user
+    from src.auth.auth0_client import delete_auth0_user
 
     async def _delete():
         pool = await asyncpg.create_pool(cfg.DATABASE_URL, min_size=1, max_size=2)
+        redis = await aioredis_mod.from_url(cfg.REDIS_URL)
         try:
             anon_name = f"deleted-{student_id[:8]}"
             anon_email = f"deleted-{student_id}@deleted.invalid"
@@ -123,10 +134,10 @@ def gdpr_delete_account(self, student_id: str, auth0_sub: str) -> None:
                 anon_email,
                 uuid.UUID(student_id),
             )
+            await delete_auth0_user(auth0_sub, redis=redis)
         finally:
+            await redis.aclose()
             await pool.close()
-
-        await delete_auth0_user(auth0_sub)
 
     try:
         _run_async(_delete())

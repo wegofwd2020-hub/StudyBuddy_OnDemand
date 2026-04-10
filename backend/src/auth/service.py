@@ -344,57 +344,10 @@ async def upsert_teacher(
 
 
 # ── Auth0 Management API ──────────────────────────────────────────────────────
+# Thin re-exports — implementation lives in src/auth/auth0_client.py where the
+# Redis-cached token logic and 401 retry are co-located.
 
-
-async def _get_mgmt_token() -> str:
-    """Obtain a short-lived Auth0 Management API token via client_credentials."""
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        resp = await client.post(
-            f"https://{settings.AUTH0_DOMAIN}/oauth/token",
-            json={
-                "grant_type": "client_credentials",
-                "client_id": settings.AUTH0_MGMT_CLIENT_ID,
-                "client_secret": settings.AUTH0_MGMT_CLIENT_SECRET,
-                "audience": settings.AUTH0_MGMT_API_URL + "/",
-            },
-        )
-        resp.raise_for_status()
-        return resp.json()["access_token"]
-
-
-async def block_auth0_user(auth0_sub: str, blocked: bool = True) -> None:
-    """Block or unblock a user via Auth0 Management API."""
-    token = await _get_mgmt_token()
-    user_id = auth0_sub.replace("|", "%7C")
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        resp = await client.patch(
-            f"{settings.AUTH0_MGMT_API_URL}/users/{user_id}",
-            headers={"Authorization": f"Bearer {token}"},
-            json={"blocked": blocked},
-        )
-        if resp.status_code not in (200, 204):
-            log.error(
-                "auth0_block_failed",
-                auth0_sub=auth0_sub,
-                status=resp.status_code,
-            )
-
-
-async def delete_auth0_user(auth0_sub: str) -> None:
-    """Delete a user from Auth0 (GDPR erasure)."""
-    token = await _get_mgmt_token()
-    user_id = auth0_sub.replace("|", "%7C")
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        resp = await client.delete(
-            f"{settings.AUTH0_MGMT_API_URL}/users/{user_id}",
-            headers={"Authorization": f"Bearer {token}"},
-        )
-        if resp.status_code not in (200, 204):
-            log.error(
-                "auth0_delete_failed",
-                auth0_sub=auth0_sub,
-                status=resp.status_code,
-            )
+from src.auth.auth0_client import block_auth0_user, delete_auth0_user  # noqa: F401, E402
 
 
 async def trigger_auth0_password_reset(email: str) -> None:
