@@ -258,11 +258,21 @@ class Settings(BaseSettings):
     STRIPE_SCHOOL_PRICE_CREDITS_25_ID: str | None = None
 
     # ── Independent Teacher plan pricing (Option A — flat fee, teacher keeps student revenue)
-    # Future: Option B (revenue share) tracked in feat/q2-b-revenue-share.
-    #         Option C (seat-tiered flat) tracked in feat/q2-c-seat-tiered.
     TEACHER_PLAN_SOLO_MONTHLY_USD: str = "29.00"   # Solo: up to 25 students
-    TEACHER_PLAN_GROWTH_MONTHLY_USD: str = "59.00"  # Growth: up to 75 students (future)
-    TEACHER_PLAN_PRO_MONTHLY_USD: str = "99.00"     # Pro: up to 200 students (future)
+    TEACHER_PLAN_GROWTH_MONTHLY_USD: str = "59.00"  # Growth: up to 75 students
+    TEACHER_PLAN_PRO_MONTHLY_USD: str = "99.00"     # Pro: up to 200 students
+
+    STRIPE_TEACHER_PRICE_SOLO_ID: str | None = None     # $29/mo recurring
+    STRIPE_TEACHER_PRICE_GROWTH_ID: str | None = None   # $59/mo recurring
+    STRIPE_TEACHER_PRICE_PRO_ID: str | None = None      # $99/mo recurring
+
+    # ── Option B — Stripe Connect revenue share (#104) ────────────────────────
+    # Teacher earns TEACHER_REVENUE_SHARE_PCT % of each student's subscription.
+    # Platform keeps (100 - TEACHER_REVENUE_SHARE_PCT) % as an application fee.
+    # Leave STRIPE_STUDENT_CONNECT_PRICE_ID unset in dev — endpoint returns 503.
+    TEACHER_REVENUE_SHARE_PCT: int = 70            # teacher's share (default 70 %)
+    STRIPE_STUDENT_CONNECT_PRICE_ID: str | None = None  # recurring Price for per-student billing
+    STRIPE_CONNECT_WEBHOOK_SECRET: str | None = None    # separate secret for /connect-webhook
 
     # ── Independent Teacher plan — Stripe recurring price IDs (#57) ──────────
     # Leave unset in dev — subscription endpoints return 503 when unconfigured.
