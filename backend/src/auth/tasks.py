@@ -73,6 +73,7 @@ celery_app.conf.update(
         "src.auth.tasks.check_retention_purge_warnings": {"queue": "default"},
         "src.auth.tasks.purge_expired_curricula": {"queue": "default"},
         "src.auth.tasks.send_retention_email_task": {"queue": "io"},
+        "src.auth.tasks.send_payment_action_required_email_task": {"queue": "io"},
     },
     beat_schedule={
         # Poll DB pool state + Celery queue depth every 30 seconds.
@@ -1971,5 +1972,34 @@ def purge_expired_curricula() -> None:
             await purge_grace_expired(conn, storage)
         finally:
             await conn.close()
+
+
+# ── Payment action required (SCA / 3DS) ──────────────────────────────────────
+
+
+@celery_app.task(
+    name="src.auth.tasks.send_payment_action_required_email_task",
+    bind=True,
+    max_retries=3,
+)
+def send_payment_action_required_email_task(
+    self,
+    to_email: str,
+    action_url: str,
+) -> None:
+    """
+    Notify a school admin that their bank requires SCA / 3DS verification.
+
+    to_email     — school contact_email
+    action_url   — Stripe hosted_invoice_url containing the 3DS challenge link
+
+    Retries up to 3× on SMTP failure (30-second backoff).
+    """
+    from src.email.service import send_payment_action_required_email
+
+    try:
+        _run_async(send_payment_action_required_email(to_email=to_email, action_url=action_url))
+    except Exception as exc:
+        raise self.retry(exc=exc, countdown=30)
 
     _run_async(_run())
