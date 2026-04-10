@@ -97,6 +97,19 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         version=settings.APP_VERSION,
     )
 
+    # Log connection arithmetic so ops can spot misconfiguration immediately.
+    # The config model_validator already rejected invalid combinations at import
+    # time; this log makes the headroom visible in dashboards at every restart.
+    _total_db_conns = settings.DATABASE_POOL_MAX * settings.WORKER_COUNT
+    log.info(
+        "connection_pool_arithmetic",
+        pool_max=settings.DATABASE_POOL_MAX,
+        workers=settings.WORKER_COUNT,
+        total_connections=_total_db_conns,
+        pgbouncer_pool_size=settings.PGBOUNCER_POOL_SIZE,
+        headroom=settings.PGBOUNCER_POOL_SIZE - _total_db_conns,
+    )
+
     # Asyncpg pool — one pool per worker process.
     # statement_cache_size=0 is required when routing through PgBouncer in
     # transaction-pooling mode; prepared statements are not preserved across

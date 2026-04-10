@@ -30,6 +30,17 @@ class Settings(BaseSettings):
     DATABASE_POOL_MIN: int = 5
     DATABASE_POOL_MAX: int = 20
 
+    # ── Connection pool arithmetic ────────────────────────────────────────────
+    # Total connections to PgBouncer = DATABASE_POOL_MAX × WORKER_COUNT.
+    # This must not exceed PGBOUNCER_POOL_SIZE or connections will be queued
+    # or dropped under load, producing intermittent asyncpg.TooManyConnectionsError.
+    #
+    # Default WORKER_COUNT=1 matches single-worker dev; set it to the gunicorn
+    # worker count (-w N) in production.  Default PGBOUNCER_POOL_SIZE=100 is the
+    # recommended PgBouncer pool size for a 4-worker deployment with pool_max=20.
+    PGBOUNCER_POOL_SIZE: int = 100
+    WORKER_COUNT: int = 1
+
     # ── Redis ─────────────────────────────────────────────────────────────────
     REDIS_URL: str
     REDIS_MAX_CONNECTIONS: int = 10
@@ -254,6 +265,28 @@ class Settings(BaseSettings):
     def secrets_must_differ(self) -> Settings:
         if self.JWT_SECRET == self.ADMIN_JWT_SECRET:
             raise ValueError("JWT_SECRET and ADMIN_JWT_SECRET must be different values.")
+        return self
+
+    @model_validator(mode="after")
+    def connection_pool_arithmetic(self) -> Settings:
+        """
+        Guard against pool exhaustion before the first connection is made.
+
+        Total connections = DATABASE_POOL_MAX × WORKER_COUNT must not exceed
+        PGBOUNCER_POOL_SIZE.  A violation here surfaces at startup (config
+        import) rather than as intermittent asyncpg.TooManyConnectionsError
+        under production load.
+        """
+        total = self.DATABASE_POOL_MAX * self.WORKER_COUNT
+        if total > self.PGBOUNCER_POOL_SIZE:
+            raise ValueError(
+                f"Connection pool arithmetic invalid: "
+                f"DATABASE_POOL_MAX ({self.DATABASE_POOL_MAX}) × "
+                f"WORKER_COUNT ({self.WORKER_COUNT}) = {total} connections "
+                f"> PGBOUNCER_POOL_SIZE ({self.PGBOUNCER_POOL_SIZE}). "
+                f"Reduce DATABASE_POOL_MAX, increase PGBOUNCER_POOL_SIZE, "
+                f"or reduce WORKER_COUNT."
+            )
         return self
 
     @field_validator("JWT_SECRET", "ADMIN_JWT_SECRET", mode="before")
