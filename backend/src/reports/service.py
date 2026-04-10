@@ -895,7 +895,7 @@ async def trigger_export(
 
     The Celery task writes the CSV to CONTENT_STORE_PATH/exports/{export_id}.csv.
     """
-    from src.auth.tasks import celery_app
+    from src.core.celery_app import celery_app
 
     export_id = str(uuid.uuid4())
     celery_app.send_task(
@@ -1169,7 +1169,7 @@ async def send_at_risk_reminder(
     Mirrors check_quiz_nudges — sends via the existing push task on the io queue.
     Returns immediately; delivery is fire-and-forget.
     """
-    from src.auth.tasks import celery_app
+    from src.core.celery_app import celery_app
 
     rows = await conn.fetch(
         """

@@ -306,7 +306,7 @@ async def trigger_school_pipeline(
     Dispatches run_curriculum_pipeline_task to the 'pipeline' Celery queue
     and returns immediately with the job_id.
     """
-    from src.auth.tasks import celery_app as _celery
+    from src.core.celery_app import celery_app as _celery
 
     _assert_school_match(teacher, school_id, request)
     teacher_id = teacher.get("teacher_id", "")

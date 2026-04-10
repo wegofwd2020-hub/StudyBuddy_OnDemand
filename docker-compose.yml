@@ -203,7 +203,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     command: >
-      celery -A src.auth.tasks worker
+      celery -A src.core.celery_app worker
       -Q io,default
       --concurrency=4
       --loglevel=info
@@ -224,7 +224,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     command: >
-      celery -A src.auth.tasks worker
+      celery -A src.core.celery_app worker
       -Q pipeline
       --concurrency=2
       --loglevel=info
@@ -249,7 +249,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     command: >
-      celery -A src.auth.tasks beat
+      celery -A src.core.celery_app beat
       --loglevel=info
       --schedule /tmp/celerybeat-schedule
     restart: unless-stopped

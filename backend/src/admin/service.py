@@ -542,7 +542,7 @@ async def reject_version(
 
     if regenerate and row:
         try:
-            from src.auth.tasks import celery_app
+            from src.core.celery_app import celery_app
 
             celery_app.send_task(
                 "src.auth.tasks.regenerate_subject_task",

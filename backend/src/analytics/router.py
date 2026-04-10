@@ -146,7 +146,7 @@ async def lesson_end(
             )
 
     # Fire-and-forget: write duration + flags
-    from src.auth.tasks import celery_app
+    from src.core.celery_app import celery_app
 
     celery_app.send_task(
         "src.auth.tasks.write_lesson_end_task",

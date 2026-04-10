@@ -985,7 +985,7 @@ async def admin_trigger_pipeline(
     for progress. Content is built with auto_approve=False so all output goes
     to the review queue.
     """
-    from src.auth.tasks import celery_app as _celery
+    from src.core.celery_app import celery_app as _celery
 
     curriculum_id = f"default-{body.year}-g{body.grade}"
 

@@ -46,7 +46,7 @@ def _queue_retention_email(
       retention_service → tasks → retention_service
     """
     # Lazy import to avoid circular dependency.
-    from src.auth.tasks import celery_app  # noqa: PLC0415
+    from src.core.celery_app import celery_app  # noqa: PLC0415
 
     celery_app.send_task(
         "src.auth.tasks.send_retention_email_task",
