@@ -282,16 +282,28 @@ AI_COST = AICostModel()
 @dataclass(frozen=True)
 class TeacherPlan:
     """
-    Flat-fee independent teacher plan (Option A: teacher keeps all student revenue).
+    Flat-fee independent teacher subscription tier (#57).
 
-    Option B (revenue share via Stripe Connect) → GitHub #104
-    Option C (seat-tiered flat fee) → GitHub #105
+    Teachers pay a flat monthly fee and keep 100% of any student-side revenue
+    they collect (Option A).  Option B (Stripe Connect revenue share) and
+    Option C (seat-tiered flat) are tracked in GitHub #104 and #105 respectively.
+
+    Attributes
+    ----------
+    id              Stripe metadata key and DB plan column value.
+    name            Display name shown in the teacher portal.
+    price_monthly   USD / month (decimal string, e.g. "29.00").
+    max_students    Hard seat cap on independently-enrolled students.
+    features        Bullet points shown in the plan comparison card.
+    highlight       True = "Popular" badge in the UI.
     """
 
     id: str
     name: str
     price_monthly: str          # decimal string
     max_students: int
+    features: tuple[str, ...] = field(default_factory=tuple)
+    highlight: bool = False
 
 
 TEACHER_PLANS: dict[str, TeacherPlan] = {
@@ -300,17 +312,47 @@ TEACHER_PLANS: dict[str, TeacherPlan] = {
         name="Solo",
         price_monthly="29.00",
         max_students=25,
+        features=(
+            "Up to 25 students",
+            "Default curriculum (Grades 5–12)",
+            "English content",
+            "Progress dashboard",
+        ),
+        highlight=False,
     ),
     "growth": TeacherPlan(
         id="growth",
         name="Growth",
         price_monthly="59.00",
         max_students=75,
+        features=(
+            "Up to 75 students",
+            "EN + FR + ES content",
+            "Teacher reporting dashboard",
+            "Weekly digest emails",
+        ),
+        highlight=True,
     ),
     "pro": TeacherPlan(
         id="pro",
         name="Pro",
         price_monthly="99.00",
         max_students=200,
+        features=(
+            "Up to 200 students",
+            "All languages",
+            "Full reporting suite",
+            "Priority support",
+        ),
+        highlight=False,
     ),
 }
+
+VALID_TEACHER_PLAN_IDS: frozenset[str] = frozenset(TEACHER_PLANS.keys())
+
+
+def get_teacher_plan(plan_id: str) -> TeacherPlan:
+    """Return TeacherPlan for plan_id. Raises KeyError for unknown IDs."""
+    if plan_id not in TEACHER_PLANS:
+        raise KeyError(f"Unknown teacher plan: {plan_id!r}. Valid: {sorted(VALID_TEACHER_PLAN_IDS)}")
+    return TEACHER_PLANS[plan_id]

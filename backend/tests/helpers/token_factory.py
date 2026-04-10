@@ -58,26 +58,38 @@ def make_student_token(
     return jwt.encode(payload, TEST_JWT_SECRET, algorithm=JWT_ALGORITHM)
 
 
+_UNSET = object()  # sentinel for "use default"
+
+
 def make_teacher_token(
     teacher_id: str | None = None,
-    school_id: str | None = None,
+    school_id: object = _UNSET,   # pass None explicitly for independent teachers
     role: str = "teacher",
     account_status: str = "active",
     expire_minutes: int = 15,
 ) -> str:
-    """Return a signed teacher JWT for testing."""
+    """Return a signed teacher JWT for testing.
+
+    Pass school_id=None explicitly to produce an independent-teacher token
+    (school_id omitted from payload, matching the auth0 exchange path for
+    teachers without a school affiliation).
+
+    Omitting school_id (or passing the _UNSET sentinel) uses _DEFAULT_SCHOOL_ID.
+    """
     tid = teacher_id or _DEFAULT_TEACHER_ID
-    sid = school_id or _DEFAULT_SCHOOL_ID
+    sid = _DEFAULT_SCHOOL_ID if school_id is _UNSET else school_id
     now = datetime.now(tz=UTC)
     payload = {
         "teacher_id": tid,
-        "school_id": sid,
         "role": role,
         "account_status": account_status,
         "iat": now,
         "exp": now + timedelta(minutes=expire_minutes),
         "jti": str(uuid.uuid4()),
     }
+    # Only include school_id in the JWT when set — mirrors the real exchange endpoint.
+    if sid is not None:
+        payload["school_id"] = sid
     return jwt.encode(payload, TEST_JWT_SECRET, algorithm=JWT_ALGORITHM)
 
 

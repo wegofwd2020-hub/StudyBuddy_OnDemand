@@ -1,18 +1,20 @@
 """
 backend/src/subscription/router.py
 
-Stripe webhook endpoint (school subscriptions only).
+Stripe webhook endpoint — school and teacher subscriptions.
 
 Routes (all prefixed /api/v1 in main.py):
   POST /subscription/webhook  → 200  (Stripe webhook — no JWT required)
 
 Individual student subscription endpoints (status / checkout / cancel) were
-removed in migration 0027 per ADR-001 Decision 2.  All billing is now
-school-level only — see src/school/subscription_router.py.
+removed in migration 0027 per ADR-001 Decision 2.
+
+School billing:   src/school/subscription_router.py
+Teacher billing:  src/teacher/subscription_router.py  (#57)
 
 Security:
   POST /subscription/webhook validates the Stripe-Signature header.
-  All other routes in the subscription domain are on school_subscription_router.
+  All other routes in the subscription domain are on the domain-specific routers.
 
 Idempotency:
   Webhook handler checks stripe_events table before processing.
@@ -108,8 +110,100 @@ async def stripe_webhook(request: Request) -> dict:
 
 
 async def _dispatch_event(conn, redis, event_type: str, obj: dict) -> None:
-    """Route a Stripe event to the school subscription handler."""
+    """Route a Stripe event to the appropriate subscription handler.
+
+    Teacher subscription events are identified by product_type='teacher_subscription'
+    in checkout.session.metadata or by matching stripe_subscription_id against
+    teacher_subscriptions for lifecycle events.
+    """
+    # ── Teacher subscription events (#57) ─────────────────────────────────────
+    if event_type == "checkout.session.completed":
+        metadata = obj.get("metadata") or {}
+        if metadata.get("product_type") == "teacher_subscription":
+            await _dispatch_teacher_checkout(conn, obj, metadata)
+            return
+
+    elif event_type in (
+        "customer.subscription.updated",
+        "customer.subscription.deleted",
+        "invoice.payment_failed",
+    ):
+        stripe_sub_id = obj.get("id") or obj.get("subscription", "")
+        if stripe_sub_id:
+            from src.teacher.subscription_service import find_teacher_by_stripe_subscription
+            teacher_id = await find_teacher_by_stripe_subscription(conn, stripe_sub_id)
+            if teacher_id:
+                await _dispatch_teacher_lifecycle(conn, event_type, obj, stripe_sub_id)
+                return
+
+    # ── School subscription events (existing) ─────────────────────────────────
     await _dispatch_school_event(conn, redis, event_type, obj)
+
+
+async def _dispatch_teacher_checkout(conn, obj: dict, metadata: dict) -> None:
+    """Handle checkout.session.completed for teacher_subscription product_type."""
+    import datetime as _dt
+    from src.teacher.subscription_service import handle_teacher_subscription_activated
+
+    teacher_id = metadata.get("teacher_id", "")
+    plan = metadata.get("plan", "")
+    if not teacher_id or not plan:
+        log.warning(
+            "teacher_checkout.session.completed missing metadata "
+            "teacher_id=%s plan=%s",
+            teacher_id, plan,
+        )
+        return
+
+    stripe_customer_id = obj.get("customer", "")
+    stripe_subscription_id = obj.get("subscription", "")
+    current_period_end = None
+
+    try:
+        stripe_mod = _get_stripe_module()
+        from config import settings as _settings
+        stripe_mod.api_key = _settings.STRIPE_SECRET_KEY
+        sub = await run_stripe(stripe_mod.Subscription.retrieve, stripe_subscription_id)
+        current_period_end = _dt.datetime.fromtimestamp(
+            sub["current_period_end"], tz=_dt.UTC
+        )
+    except Exception as exc:
+        log.warning("could_not_fetch_teacher_subscription_period error=%s", exc)
+
+    await handle_teacher_subscription_activated(
+        conn,
+        teacher_id=teacher_id,
+        plan=plan,
+        stripe_customer_id=stripe_customer_id,
+        stripe_subscription_id=stripe_subscription_id,
+        current_period_end=current_period_end,
+    )
+
+
+async def _dispatch_teacher_lifecycle(
+    conn, event_type: str, obj: dict, stripe_sub_id: str
+) -> None:
+    """Handle lifecycle events (updated / deleted / payment_failed) for teacher subscriptions."""
+    import datetime as _dt
+    from src.teacher.subscription_service import (
+        handle_teacher_payment_failed,
+        handle_teacher_subscription_deleted,
+        handle_teacher_subscription_updated,
+    )
+
+    if event_type == "customer.subscription.updated":
+        status = _map_stripe_status(obj.get("status", "active"))
+        period_end_ts = obj.get("current_period_end")
+        current_period_end = (
+            _dt.datetime.fromtimestamp(period_end_ts, tz=_dt.UTC) if period_end_ts else None
+        )
+        await handle_teacher_subscription_updated(conn, stripe_sub_id, status, current_period_end)
+
+    elif event_type == "customer.subscription.deleted":
+        await handle_teacher_subscription_deleted(conn, stripe_sub_id)
+
+    elif event_type == "invoice.payment_failed":
+        await handle_teacher_payment_failed(conn, stripe_sub_id)
 
 
 def _map_stripe_status(stripe_status: str) -> str:
