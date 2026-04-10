@@ -34,8 +34,9 @@ import config as cfg
 
 log = logging.getLogger("mobile.main")
 
-# ── App version (embedded at build time) ──────────────────────────────────────
-APP_VERSION = "0.1.0"
+# ── App version — single source of truth is config.py ─────────────────────────
+# Never hardcode the version here; config.APP_VERSION is updated at release time.
+APP_VERSION = cfg.APP_VERSION
 
 
 def _version_tuple(v: str) -> tuple[int, ...]:
@@ -99,14 +100,16 @@ def _show_upgrade_banner(latest_version: str) -> None:
 
 # ── Async version check (runs in daemon thread) ───────────────────────────────
 
-def _check_version_thread(token: Optional[str]) -> None:
+def _check_version_thread() -> None:
     """
     Run in a daemon thread.  Calls GET /app/version and triggers the
     appropriate UI response on the main thread.
+
+    The endpoint is unauthenticated — no token is needed or sent.
     """
     async def _fetch():
         from mobile.src.api.content_client import get_app_version
-        return await get_app_version(token or "")
+        return await get_app_version()
 
     try:
         loop = asyncio.new_event_loop()
@@ -162,10 +165,7 @@ class StudyBuddyApp(App):
 
     def on_start(self) -> None:
         """Called after build().  Launch version check without blocking the UI."""
-        # Read stored JWT (if any) for authenticated version check.
-        token = self._read_stored_token()
-
-        t = Thread(target=_check_version_thread, args=(token,), daemon=True)
+        t = Thread(target=_check_version_thread, daemon=True)
         t.start()
 
         # Navigate to login screen (or home screen if already authenticated).
