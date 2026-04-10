@@ -202,7 +202,7 @@ def _register_middleware(app: FastAPI) -> None:
         allow_origins=settings.allowed_origins_list,
         allow_credentials=True,
         allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-        allow_headers=["Content-Type", "Authorization", "X-Correlation-Id", "X-Requested-With"],
+        allow_headers=["Content-Type", "Authorization", "X-Correlation-Id", "X-Requested-With", "X-App-Version"],
         expose_headers=["X-Correlation-Id"],
     )
 

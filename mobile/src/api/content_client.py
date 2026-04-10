@@ -21,7 +21,7 @@ try:
 except ImportError:
     BACKEND_URL = os.environ.get("BACKEND_URL", "http://localhost:8000")
 
-from mobile.src.api import app_headers  # noqa: E402
+from mobile.src.api import app_headers, version_headers  # noqa: E402
 
 
 async def get_lesson(unit_id: str, token: str) -> dict:
@@ -73,16 +73,17 @@ async def get_audio_url(unit_id: str, token: str) -> dict:
         return response.json()
 
 
-async def get_app_version(token: str) -> dict:
+async def get_app_version() -> dict:
     """
     Fetch the current min/latest app version from the backend.
 
     Returns {min_version: str, latest_version: str}.
-    Called on app startup to check if an upgrade is required.
+    Called on app startup before login — no auth token required.
+    The endpoint is unauthenticated; only X-App-Version is sent.
     """
     url = f"{BACKEND_URL}/api/v1/app/version"
     async with httpx.AsyncClient(timeout=10) as client:
-        response = await client.get(url, headers=app_headers(token))
+        response = await client.get(url, headers=version_headers())
         response.raise_for_status()
         return response.json()
 

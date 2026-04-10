@@ -413,11 +413,14 @@ async def submit_marked_feedback(
 @router.get("/app/version", response_model=AppVersionResponse)
 async def get_app_version(
     request: Request,
-    student: Annotated[dict, Depends(get_current_student)],
 ):
     """
     Return the current minimum and latest app versions.
-    Loaded from the app_versions table (platform='all' or platform='ios'/'android').
+
+    No authentication required — called by the mobile app on startup before
+    the user has logged in.  Version info is not sensitive.
+
+    Loaded from the app_versions table (platform='all').
     """
     pool = request.app.state.pool
 
