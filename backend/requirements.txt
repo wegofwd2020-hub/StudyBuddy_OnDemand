@@ -21,6 +21,8 @@ psycopg2-binary==2.9.9
 python-multipart==0.0.22
 aiosmtplib==3.0.1
 
+stripe>=7.0.0
+
 jsonschema==4.23.0
 
 # Testing

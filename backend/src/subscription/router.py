@@ -25,6 +25,7 @@ from fastapi import APIRouter, HTTPException, Request
 
 from src.core.db import get_db
 from src.core.redis_client import get_redis
+from src.core.stripe_async import run_stripe
 from src.subscription.service import already_processed, log_stripe_event
 from src.utils.logger import get_logger
 
@@ -60,9 +61,10 @@ async def stripe_webhook(request: Request) -> dict:
     sig_header = request.headers.get("stripe-signature", "")
 
     # ── Signature verification ────────────────────────────────────────────────
+    # construct_event is CPU-bound (HMAC) — run in executor to keep the loop free.
     try:
         stripe_mod = _get_stripe_module()
-        event = stripe_mod.Webhook.construct_event(payload, sig_header, webhook_secret)
+        event = await run_stripe(stripe_mod.Webhook.construct_event, payload, sig_header, webhook_secret)
     except Exception as exc:
         log.warning("stripe_signature_invalid error=%s", exc)
         raise HTTPException(
@@ -238,7 +240,7 @@ async def _dispatch_school_event(conn, redis, event_type: str, obj: dict) -> Non
             stripe_mod = _get_stripe_module()
             from config import settings as _settings
             stripe_mod.api_key = _settings.STRIPE_SECRET_KEY
-            sub = stripe_mod.Subscription.retrieve(stripe_subscription_id)
+            sub = await run_stripe(stripe_mod.Subscription.retrieve, stripe_subscription_id)
             import datetime as _dt
             current_period_end = _dt.datetime.fromtimestamp(sub["current_period_end"], tz=_dt.UTC)
         except Exception as exc:

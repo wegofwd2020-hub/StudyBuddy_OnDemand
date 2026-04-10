@@ -27,6 +27,7 @@ from datetime import UTC, datetime, timedelta
 import asyncpg
 
 from src.core.cache_keys import school_ent_key, school_scan_pattern
+from src.core.stripe_async import run_stripe
 from src.utils.logger import get_logger
 
 log = get_logger("school.subscription")
@@ -351,7 +352,8 @@ async def create_school_checkout_session(
     if not price_id:
         raise RuntimeError(f"STRIPE_SCHOOL_PRICE_{plan.upper()}_ID is not configured")
 
-    session = stripe.checkout.Session.create(
+    session = await run_stripe(
+        stripe.checkout.Session.create,
         mode="subscription",
         line_items=[{"price": price_id, "quantity": 1}],
         success_url=success_url,
@@ -366,7 +368,7 @@ async def cancel_school_stripe_subscription(stripe_subscription_id: str) -> None
     """Cancel a school's Stripe subscription at period end."""
     stripe = _get_stripe()
     stripe.api_key = _stripe_key()
-    stripe.Subscription.modify(stripe_subscription_id, cancel_at_period_end=True)
+    await run_stripe(stripe.Subscription.modify, stripe_subscription_id, cancel_at_period_end=True)
     log.info("school_stripe_subscription_cancel_at_period_end sub_id=%s", stripe_subscription_id)
 
 
@@ -630,7 +632,8 @@ async def create_renewal_checkout_session(
     if not price_id:
         raise RuntimeError("STRIPE_SCHOOL_PRICE_RENEWAL_ID is not configured")
 
-    session = stripe.checkout.Session.create(
+    session = await run_stripe(
+        stripe.checkout.Session.create,
         mode="payment",
         line_items=[{"price": price_id, "quantity": 1}],
         success_url=success_url,
@@ -665,7 +668,8 @@ async def create_storage_checkout_session(
 
     price_id = _storage_price_id(gb_package)
 
-    session = stripe.checkout.Session.create(
+    session = await run_stripe(
+        stripe.checkout.Session.create,
         mode="payment",
         line_items=[{"price": price_id, "quantity": 1}],
         success_url=success_url,
@@ -801,7 +805,8 @@ async def create_extra_build_checkout_session(
     if not price_id:
         raise RuntimeError("STRIPE_SCHOOL_PRICE_EXTRA_BUILD_ID is not configured")
 
-    session = stripe.checkout.Session.create(
+    session = await run_stripe(
+        stripe.checkout.Session.create,
         mode="payment",
         line_items=[{"price": price_id, "quantity": 1}],
         success_url=success_url,
@@ -855,7 +860,8 @@ async def create_credits_bundle_checkout_session(
 
     price_id = _credits_price_id(bundle_size)
 
-    session = stripe.checkout.Session.create(
+    session = await run_stripe(
+        stripe.checkout.Session.create,
         mode="payment",
         line_items=[{"price": price_id, "quantity": 1}],
         success_url=success_url,
