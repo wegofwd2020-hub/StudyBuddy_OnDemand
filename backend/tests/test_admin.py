@@ -52,19 +52,24 @@ def _student_headers() -> dict:
     return {"Authorization": f"Bearer {make_student_token()}"}
 
 
-async def _insert_version(client: AsyncClient, curriculum_id: str = "default-2026-g8",
-                           subject: str = "Mathematics",
-                           status: str = "ready_for_review") -> str:
+async def _insert_version(
+    client: AsyncClient,
+    curriculum_id: str = "default-2026-g8",
+    subject: str = "Mathematics",
+    status: str = "ready_for_review",
+    alex_warnings_count: int = 0,
+) -> str:
     """Insert a content_subject_versions row; return version_id."""
     pool = client._transport.app.state.pool
     row = await pool.fetchrow(
         """
-        INSERT INTO content_subject_versions (curriculum_id, subject, version_number, status)
-        VALUES ($1, $2, 1, $3)
+        INSERT INTO content_subject_versions
+            (curriculum_id, subject, version_number, status, alex_warnings_count)
+        VALUES ($1, $2, 1, $3, $4)
         ON CONFLICT DO NOTHING
         RETURNING version_id::text
         """,
-        curriculum_id, subject, status,
+        curriculum_id, subject, status, alex_warnings_count,
     )
     if row:
         return row["version_id"]
@@ -329,6 +334,7 @@ async def test_batch_approve_approves_all_pending(client, db_conn):
     data = r.json()
     assert data["approved_count"] == 3
     assert len(data["version_ids"]) == 3
+    assert data["skipped"] == []
 
     # Verify all rows are now approved in the DB
     pool = client._transport.app.state.pool
@@ -391,6 +397,50 @@ async def test_batch_approve_empty_returns_zero(client, db_conn):
     data = r.json()
     assert data["approved_count"] == 0
     assert data["version_ids"] == []
+    assert data["skipped"] == []
+
+
+@pytest.mark.asyncio
+async def test_batch_approve_skips_versions_with_warnings(client, db_conn):
+    """Pending versions with alex_warnings_count > 0 are skipped and reported."""
+    curriculum_id = f"default-2026-g{uuid.uuid4().hex[:4]}"
+    await _insert_admin(client)
+
+    clean_subject = f"Clean-{uuid.uuid4().hex[:6]}"
+    dirty_subject = f"Dirty-{uuid.uuid4().hex[:6]}"
+    await _insert_version(
+        client, curriculum_id=curriculum_id, subject=clean_subject,
+        status="pending", alex_warnings_count=0,
+    )
+    dirty_vid = await _insert_version(
+        client, curriculum_id=curriculum_id, subject=dirty_subject,
+        status="pending", alex_warnings_count=3,
+    )
+
+    with patch("src.core.events.write_audit_log"):
+        r = await client.post(
+            "/api/v1/admin/content/review/batch-approve",
+            json={"curriculum_id": curriculum_id},
+            headers=_admin_headers(),
+        )
+
+    assert r.status_code == 200, r.text
+    data = r.json()
+    # Only the clean version is approved
+    assert data["approved_count"] == 1
+    assert len(data["version_ids"]) == 1
+    # The dirty version is reported as skipped
+    assert len(data["skipped"]) == 1
+    assert data["skipped"][0]["version_id"] == dirty_vid
+    assert "warning" in data["skipped"][0]["reason"].lower()
+
+    # Dirty version remains pending in the DB
+    pool = client._transport.app.state.pool
+    dirty_status = await pool.fetchval(
+        "SELECT status FROM content_subject_versions WHERE version_id = $1::uuid",
+        dirty_vid,
+    )
+    assert dirty_status == "pending"
 
 
 @pytest.mark.asyncio

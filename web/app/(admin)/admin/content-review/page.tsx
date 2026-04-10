@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { batchApproveGrade, getReviewQueue } from "@/lib/api/admin";
+import { BatchApproveResult, batchApproveGrade, getReviewQueue } from "@/lib/api/admin";
 import { useAdmin } from "@/lib/hooks/useAdmin";
 import { cn } from "@/lib/utils";
 import { AlertTriangle, CheckCheck, ClipboardList, UserCheck } from "lucide-react";
@@ -30,15 +30,18 @@ function gradeLabel(curriculumId: string): string {
   return curriculumId;
 }
 
+type QueueItem = NonNullable<Awaited<ReturnType<typeof getReviewQueue>>>["items"][number];
+
 interface ConfirmState {
   curriculumId: string;
-  pendingCount: number;
+  items: QueueItem[];
 }
 
 export default function AdminContentReviewPage() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("pending");
   const [myAssignments, setMyAssignments] = useState(false);
   const [confirm, setConfirm] = useState<ConfirmState | null>(null);
+  const [batchResult, setBatchResult] = useState<BatchApproveResult | null>(null);
   const queryClient = useQueryClient();
   const admin = useAdmin();
 
@@ -61,8 +64,9 @@ export default function AdminContentReviewPage() {
 
   const batchMutation = useMutation({
     mutationFn: (curriculumId: string) => batchApproveGrade(curriculumId),
-    onSuccess: () => {
+    onSuccess: (result) => {
       setConfirm(null);
+      setBatchResult(result);
       void queryClient.invalidateQueries({ queryKey: ["admin", "content-review"] });
     },
   });
@@ -138,8 +142,17 @@ export default function AdminContentReviewPage() {
           </p>
           <div className="space-y-6">
             {Array.from(groups.entries()).map(([curriculumId, items]) => {
-              const pendingCount = items.filter((i) => i.status === "pending").length;
+              const pendingItems = items.filter((i) => i.status === "pending");
+              const pendingCount = pendingItems.length;
               const showBatchApprove = statusFilter === "pending" && pendingCount > 0;
+              const allClean = pendingItems.every(
+                (i) => i.alex_warnings_count === 0 && i.has_content,
+              );
+              const disabledReason = !allClean
+                ? pendingItems.some((i) => i.alex_warnings_count > 0)
+                  ? "Some subjects have unacknowledged AlexJS warnings"
+                  : "Some subjects have no generated content"
+                : null;
 
               return (
                 <div key={curriculumId}>
@@ -153,11 +166,18 @@ export default function AdminContentReviewPage() {
                     </h2>
                     {showBatchApprove && (
                       <button
-                        onClick={() => setConfirm({ curriculumId, pendingCount })}
-                        className="flex items-center gap-1.5 rounded-lg bg-indigo-50 px-3 py-1.5 text-xs font-medium text-indigo-700 transition-colors hover:bg-indigo-100"
+                        onClick={() => setConfirm({ curriculumId, items: pendingItems })}
+                        disabled={!allClean}
+                        title={disabledReason ?? undefined}
+                        className={cn(
+                          "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors",
+                          allClean
+                            ? "bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
+                            : "cursor-not-allowed bg-gray-100 text-gray-400",
+                        )}
                       >
                         <CheckCheck className="h-3.5 w-3.5" />
-                        Approve all pending ({pendingCount})
+                        Approve all clean ({pendingCount})
                       </button>
                     )}
                   </div>
@@ -263,21 +283,51 @@ export default function AdminContentReviewPage() {
         </div>
       )}
 
+      {/* Batch result banner */}
+      {batchResult && (
+        <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2">
+          <div className="flex items-start gap-3 rounded-xl bg-white px-5 py-4 shadow-lg ring-1 ring-gray-200">
+            <CheckCheck className="mt-0.5 h-4 w-4 shrink-0 text-green-600" />
+            <div>
+              <p className="text-sm font-medium text-gray-900">
+                {batchResult.approved_count} subject
+                {batchResult.approved_count !== 1 ? "s" : ""} approved
+              </p>
+              {batchResult.skipped.length > 0 && (
+                <p className="mt-0.5 text-xs text-amber-600">
+                  {batchResult.skipped.length} skipped (warnings present)
+                </p>
+              )}
+            </div>
+            <button
+              onClick={() => setBatchResult(null)}
+              className="ml-2 text-xs text-gray-400 hover:text-gray-600"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Batch approve confirmation dialog */}
       {confirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-            <h2 className="mb-2 text-lg font-semibold text-gray-900">
-              Approve all pending?
+            <h2 className="mb-1 text-lg font-semibold text-gray-900">
+              Approve all clean subjects?
             </h2>
-            <p className="mb-1 text-sm text-gray-600">
-              This will approve{" "}
-              <span className="font-semibold">{confirm.pendingCount}</span> pending
-              subject
-              {confirm.pendingCount !== 1 ? "s" : ""} for{" "}
-              <span className="font-mono text-xs">{confirm.curriculumId}</span>.
-            </p>
-            <p className="mb-6 text-xs text-gray-400">
+            <p className="mb-4 text-xs text-gray-400 font-mono">{confirm.curriculumId}</p>
+            <ul className="mb-5 divide-y divide-gray-100 rounded-lg border border-gray-200">
+              {confirm.items.map((item) => (
+                <li key={item.version_id} className="flex items-center gap-2 px-3 py-2 text-sm">
+                  <CheckCheck className="h-3.5 w-3.5 shrink-0 text-green-500" />
+                  <span className="font-medium text-gray-800">
+                    {item.subject_name ?? item.subject}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <p className="mb-5 text-xs text-gray-400">
               Each subject will be recorded individually in the review history.
             </p>
             {batchMutation.isError && (
@@ -298,7 +348,7 @@ export default function AdminContentReviewPage() {
                 disabled={batchMutation.isPending}
                 className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
               >
-                {batchMutation.isPending ? "Approving…" : "Approve all"}
+                {batchMutation.isPending ? "Approving…" : `Approve ${confirm.items.length}`}
               </button>
             </div>
           </div>
