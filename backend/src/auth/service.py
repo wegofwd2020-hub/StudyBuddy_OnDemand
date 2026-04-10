@@ -297,8 +297,15 @@ async def upsert_student(
 
     For new accounts:
       - requires_parental_consent=False → account_status set to 'active' immediately
-      - requires_parental_consent=True  → account_status stays 'pending' (DB default)
+      - requires_parental_consent=True  → account_status set to 'pending'
         until the parental_consents record is updated to 'granted'
+
+    On conflict (returning student re-authenticates), account_status rules:
+      - 'suspended' → always kept (never auto-unsuspend via re-login)
+      - 'pending' + incoming 'active' → transition to 'active' (consent completed)
+      - anything else → keep existing status
+
+    Grade is never overridden for school-enrolled students (school manages it).
 
     Returns the full student record as a dict.
     """
@@ -311,8 +318,19 @@ async def upsert_student(
         ON CONFLICT (external_auth_id) DO UPDATE
             SET name   = EXCLUDED.name,
                 email  = EXCLUDED.email,
-                grade  = EXCLUDED.grade,
-                locale = EXCLUDED.locale
+                grade  = CASE
+                             WHEN students.school_id IS NOT NULL THEN students.grade
+                             ELSE EXCLUDED.grade
+                         END,
+                locale = EXCLUDED.locale,
+                account_status = CASE
+                    WHEN students.account_status = 'suspended'
+                        THEN 'suspended'
+                    WHEN students.account_status = 'pending'
+                         AND EXCLUDED.account_status = 'active'
+                        THEN 'active'
+                    ELSE students.account_status
+                END
         RETURNING student_id, name, email, grade, locale,
                   account_status, school_id, created_at
         """,
