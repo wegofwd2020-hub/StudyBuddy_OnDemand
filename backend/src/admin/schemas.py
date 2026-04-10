@@ -288,9 +288,15 @@ class BatchApproveRequest(BaseModel):
     notes: str | None = None
 
 
+class SkippedVersion(BaseModel):
+    version_id: str
+    reason: str
+
+
 class BatchApproveResponse(BaseModel):
     approved_count: int
     version_ids: list[str]
+    skipped: list[SkippedVersion]
 
 
 # ── Assign / unassign reviewer ────────────────────────────────────────────────

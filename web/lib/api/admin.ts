@@ -245,9 +245,15 @@ export async function approveReview(versionId: string, notes?: string): Promise<
   await adminApi.post(`/admin/content/review/${versionId}/approve`, { notes });
 }
 
+export interface SkippedVersion {
+  version_id: string;
+  reason: string;
+}
+
 export interface BatchApproveResult {
   approved_count: number;
   version_ids: string[];
+  skipped: SkippedVersion[];
 }
 
 export async function batchApproveGrade(

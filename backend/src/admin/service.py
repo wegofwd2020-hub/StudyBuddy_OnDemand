@@ -378,19 +378,37 @@ async def batch_approve_versions(
     reviewer_id: str,
     notes: str | None,
 ) -> dict:
-    """Approve all pending versions for a curriculum in one operation."""
+    """Approve all pending, warning-free versions for a curriculum in one operation.
+
+    Versions with alex_warnings_count > 0 are skipped and returned in the
+    ``skipped`` list with the reason. One audit_log entry is written per
+    approved version (not one batch entry) so the review history is granular.
+    """
     rows = await conn.fetch(
         """
-        SELECT version_id::text
+        SELECT version_id::text, subject, alex_warnings_count
         FROM content_subject_versions
         WHERE curriculum_id = $1 AND status = 'pending'
         """,
         curriculum_id,
     )
     if not rows:
-        return {"approved_count": 0, "version_ids": []}
+        return {"approved_count": 0, "version_ids": [], "skipped": []}
 
-    version_ids = [r["version_id"] for r in rows]
+    eligible = [r for r in rows if r["alex_warnings_count"] == 0]
+    skipped = [
+        {
+            "version_id": r["version_id"],
+            "reason": f"{r['alex_warnings_count']} unacknowledged AlexJS warning(s)",
+        }
+        for r in rows
+        if r["alex_warnings_count"] > 0
+    ]
+
+    if not eligible:
+        return {"approved_count": 0, "version_ids": [], "skipped": skipped}
+
+    version_ids = [r["version_id"] for r in eligible]
     reviewer_uuid = uuid.UUID(reviewer_id)
 
     await conn.executemany(
@@ -411,13 +429,16 @@ async def batch_approve_versions(
 
     from src.core.events import write_audit_log
 
-    write_audit_log(
-        "batch_review_approved",
-        "admin",
-        reviewer_id,
-        metadata={"curriculum_id": curriculum_id, "approved_count": len(version_ids)},
-    )
-    return {"approved_count": len(version_ids), "version_ids": version_ids}
+    # One audit entry per version so review history remains granular
+    for vid in version_ids:
+        write_audit_log(
+            "review_approved",
+            "admin",
+            reviewer_id,
+            metadata={"version_id": vid, "batch": True, "curriculum_id": curriculum_id},
+        )
+
+    return {"approved_count": len(version_ids), "version_ids": version_ids, "skipped": skipped}
 
 
 async def list_admin_users(conn: asyncpg.Connection) -> list[dict]:
