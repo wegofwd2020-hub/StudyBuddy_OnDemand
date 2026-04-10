@@ -98,8 +98,12 @@ async function stubQuizApis(page: Page) {
     route.fulfill({ status: 200, json: MOCK_QUIZ }),
   );
   // POST /progress/session — actual URL used by startSession() in progress.ts
-  await page.route("**/api/v1/progress/session", (route) =>
-    route.fulfill({ status: 200, json: { session_id: MOCK_SESSION_ID } }),
+  // Use function predicate: glob "**/api/v1/progress/session" (no trailing **)
+  // is ambiguous in Playwright's LIFO resolver when the more-specific
+  // "/*/answer" and "/*/end" patterns are registered after it.
+  await page.route(
+    (url) => url.pathname === "/api/v1/progress/session",
+    (route) => route.fulfill({ status: 200, json: { session_id: MOCK_SESSION_ID } }),
   );
   // POST /progress/session/{id}/answer
   await page.route("**/api/v1/progress/session/*/answer", (route) =>
