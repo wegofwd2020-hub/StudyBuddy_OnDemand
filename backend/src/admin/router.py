@@ -19,6 +19,8 @@ Routes (all prefixed /api/v1 in main.py):
   POST   /admin/content/review/{version_id}/rate
   POST   /admin/content/review/{version_id}/approve
   POST   /admin/content/review/batch-approve
+  GET    /admin/content/review/{version_id}/warnings
+  POST   /admin/content/review/{version_id}/warnings/{unit_id}/{content_type}/{warning_index}/acknowledge
   POST   /admin/content/review/{version_id}/assign
   POST   /admin/content/review/{version_id}/reject
   POST   /admin/content/review/{version_id}/block
@@ -74,11 +76,15 @@ from src.admin.schemas import (
     StruggleResponse,
     SubscriptionAnalyticsResponse,
     UnblockResponse,
+    AcknowledgeWarningRequest,
+    AcknowledgeWarningResponse,
     UnitContentFileResponse,
     UnitContentMetaResponse,
     UploadGradeJsonResponse,
+    VersionWarningsResponse,
 )
 from src.admin.service import (
+    acknowledge_warning,
     add_annotation,
     approve_version,
     assign_version,
@@ -93,6 +99,7 @@ from src.admin.service import (
     get_subscription_analytics,
     get_unit_content_file,
     get_unit_content_meta,
+    get_version_warnings,
     list_admin_users,
     list_feedback,
     list_review_queue,
@@ -431,7 +438,10 @@ async def approve(
 ) -> ApproveResponse:
     """Approve a content version for publishing."""
     async with get_db(request) as conn:
-        row = await approve_version(conn, version_id, _admin_id(admin), body.notes)
+        try:
+            row = await approve_version(conn, version_id, _admin_id(admin), body.notes)
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc))
     return ApproveResponse(**row)
 
 
@@ -450,6 +460,53 @@ async def batch_approve(
             conn, body.curriculum_id, _admin_id(admin), body.notes
         )
     return BatchApproveResponse(**result)
+
+
+# ── Alex warning acknowledgements ─────────────────────────────────────────────
+
+
+@router.get(
+    "/admin/content/review/{version_id}/warnings",
+    response_model=VersionWarningsResponse,
+)
+async def list_warnings(
+    version_id: str,
+    request: Request,
+    admin: Annotated[dict, Depends(_require("review:read"))],
+) -> VersionWarningsResponse:
+    """List all AlexJS warnings for a version with acknowledgement state."""
+    async with get_db(request) as conn:
+        result = await get_version_warnings(conn, version_id)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Version not found")
+    return VersionWarningsResponse(**result)
+
+
+@router.post(
+    "/admin/content/review/{version_id}/warnings/{unit_id}/{content_type}/{warning_index}/acknowledge",
+    response_model=AcknowledgeWarningResponse,
+)
+async def ack_warning(
+    version_id: str,
+    unit_id: str,
+    content_type: str,
+    warning_index: int,
+    body: AcknowledgeWarningRequest,
+    request: Request,
+    admin: Annotated[dict, Depends(_require("review:approve"))],
+) -> AcknowledgeWarningResponse:
+    """Acknowledge or mark false-positive a single AlexJS warning. Idempotent."""
+    async with get_db(request) as conn:
+        result = await acknowledge_warning(
+            conn,
+            version_id,
+            unit_id,
+            content_type,
+            warning_index,
+            body.is_false_positive,
+            _admin_id(admin),
+        )
+    return AcknowledgeWarningResponse(**result)
 
 
 # ── Assign ────────────────────────────────────────────────────────────────────

@@ -201,8 +201,8 @@ export default function AdminContentReviewPage() {
                                 </div>
                                 {item.alex_warnings_count > 0 && (
                                   <span
-                                    title={`${item.alex_warnings_count} AlexJS warning${item.alex_warnings_count !== 1 ? "s" : ""}`}
-                                    className="mt-0.5 inline-flex flex-shrink-0 items-center gap-1 rounded bg-orange-100 px-1.5 py-0.5 text-xs font-medium text-orange-700"
+                                    title={`${item.alex_warnings_count} unreviewed AlexJS warning${item.alex_warnings_count !== 1 ? "s" : ""} — must acknowledge before approving`}
+                                    className="mt-0.5 inline-flex flex-shrink-0 items-center gap-1 rounded bg-red-100 px-1.5 py-0.5 text-xs font-semibold text-red-700"
                                   >
                                     <AlertTriangle className="h-3 w-3" />
                                     {item.alex_warnings_count}

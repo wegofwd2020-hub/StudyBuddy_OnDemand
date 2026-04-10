@@ -10,9 +10,12 @@ import {
   getUnitContentMeta,
   getUnitContentFile,
   getReviewItem,
+  getVersionWarnings,
+  acknowledgeWarning,
   addAnnotation,
   deleteAnnotation,
   type ReviewAnnotationItem,
+  type WarningDetail,
 } from "@/lib/api/admin";
 import {
   AlertTriangle,
@@ -638,6 +641,87 @@ function ExperimentRenderer({
   );
 }
 
+// ── Inline warning panel ──────────────────────────────────────────────────────
+// Shows warnings for the active content type + unit; each row has
+// Acknowledge / False positive actions.
+
+function InlineWarningsPanel({
+  warnings,
+  onAcknowledge,
+}: {
+  warnings: WarningDetail[];
+  onAcknowledge: (w: WarningDetail, isFp: boolean) => void;
+}) {
+  if (warnings.length === 0) return null;
+  const unacked = warnings.filter((w) => !w.acknowledged);
+  return (
+    <div className="mb-5 rounded-lg border border-red-200 bg-red-50 p-4">
+      <p className="mb-3 text-xs font-semibold text-red-800">
+        {warnings.length} AlexJS warning{warnings.length !== 1 ? "s" : ""} in this content type
+        {unacked.length > 0 && (
+          <span className="ml-1.5 rounded-full bg-red-200 px-1.5 py-0.5 text-red-800">
+            {unacked.length} unacknowledged
+          </span>
+        )}
+      </p>
+      <div className="space-y-2">
+        {warnings.map((w) => (
+          <div
+            key={`${w.unit_id}-${w.content_type}-${w.warning_index}`}
+            className={cn(
+              "rounded-md border px-3 py-2",
+              w.acknowledged
+                ? "border-gray-200 bg-white opacity-60"
+                : "border-red-200 bg-white",
+            )}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <p
+                  className={cn(
+                    "text-xs",
+                    w.acknowledged ? "text-gray-400 line-through" : "text-gray-800",
+                  )}
+                >
+                  {w.message}
+                </p>
+                <p className="mt-0.5 font-mono text-xs text-gray-400">
+                  line {w.line}:{w.column}
+                </p>
+                {w.acknowledged && (
+                  <p className="mt-0.5 text-xs text-gray-400">
+                    {w.is_false_positive ? "False positive" : "Acknowledged"} by{" "}
+                    {w.acknowledged_by_email ?? "reviewer"}
+                    {w.acknowledged_at
+                      ? ` · ${new Date(w.acknowledged_at).toLocaleString()}`
+                      : ""}
+                  </p>
+                )}
+              </div>
+              {!w.acknowledged && (
+                <div className="flex flex-shrink-0 gap-2">
+                  <button
+                    onClick={() => onAcknowledge(w, false)}
+                    className="rounded-md bg-green-600 px-2.5 py-1 text-xs font-medium text-white transition-colors hover:bg-green-700"
+                  >
+                    Acknowledge
+                  </button>
+                  <button
+                    onClick={() => onAcknowledge(w, true)}
+                    className="rounded-md border border-gray-300 px-2.5 py-1 text-xs font-medium text-gray-600 transition-colors hover:border-gray-400 hover:text-gray-800"
+                  >
+                    False positive
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ContentRenderer({
   contentType,
   data,
@@ -688,6 +772,30 @@ export default function AdminUnitContentPage() {
     enabled: resolvedType !== null,
     staleTime: 120_000,
   });
+
+  const { data: versionWarnings } = useQuery({
+    queryKey: ["admin", "content-review", version_id, "warnings"],
+    queryFn: () => getVersionWarnings(version_id),
+    staleTime: 30_000,
+    enabled: (meta?.alex_warnings_count ?? 0) > 0,
+  });
+
+  const ackMutation = useMutation({
+    mutationFn: ({ w, isFp }: { w: WarningDetail; isFp: boolean }) =>
+      acknowledgeWarning(version_id, w.unit_id, w.content_type, w.warning_index, isFp),
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: ["admin", "content-review", version_id, "warnings"],
+      }),
+  });
+
+  // Warnings for the currently visible content type in this unit
+  const activeWarnings =
+    resolvedType && versionWarnings
+      ? versionWarnings.warnings.filter(
+          (w) => w.unit_id === unit_id && w.content_type === resolvedType,
+        )
+      : [];
 
   const addMutation = useMutation({
     mutationFn: ({ effectiveKey, text }: { effectiveKey: string; text: string }) =>
@@ -829,6 +937,10 @@ export default function AdminUnitContentPage() {
                           contentFile.content_type}
                       </p>
                     </div>
+                    <InlineWarningsPanel
+                      warnings={activeWarnings}
+                      onAcknowledge={(w, isFp) => ackMutation.mutate({ w, isFp })}
+                    />
                     <ContentRenderer
                       contentType={contentFile.content_type}
                       data={contentFile.data}

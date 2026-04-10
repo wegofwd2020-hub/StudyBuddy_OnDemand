@@ -339,3 +339,41 @@ class UnitContentFileResponse(BaseModel):
     content_type: str
     lang: str
     data: dict
+
+
+# ── Alex warning acknowledgements ─────────────────────────────────────────────
+
+
+class WarningDetail(BaseModel):
+    warning_index: int
+    unit_id: str
+    content_type: str
+    message: str
+    line: int
+    column: int
+    acknowledged: bool = False
+    is_false_positive: bool = False
+    acknowledged_by_email: str | None = None
+    acknowledged_at: datetime | None = None
+
+
+class VersionWarningsResponse(BaseModel):
+    version_id: str
+    total_count: int
+    unacknowledged_count: int
+    warnings: list[WarningDetail]
+
+
+class AcknowledgeWarningRequest(BaseModel):
+    is_false_positive: bool = False
+
+
+class AcknowledgeWarningResponse(BaseModel):
+    ack_id: str
+    version_id: str
+    unit_id: str
+    content_type: str
+    warning_index: int
+    is_false_positive: bool
+    acknowledged_by_email: str
+    acknowledged_at: datetime
