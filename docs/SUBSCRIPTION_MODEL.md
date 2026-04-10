@@ -7,13 +7,29 @@
 
 ## 1. Who Pays for What
 
-StudyBuddy has three types of paying customers:
-
-| Customer | What they buy | How they pay |
-|---|---|---|
-| **School** | A plan that covers all enrolled students and teachers | Monthly Stripe subscription |
-| **School** (add-on) | Extra storage or extra curriculum builds | One-time Stripe payment |
-| **Independent Teacher** | Access for their own student group | Monthly flat fee *(future — #57)* |
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                        Money flows                                   │
+│                                                                      │
+│  ┌──────────┐  monthly sub   ┌─────────────┐                        │
+│  │  School  │ ─────────────► │  StudyBuddy │                        │
+│  │  Admin   │  one-time      │  Platform   │                        │
+│  │          │ ─────────────► │             │                        │
+│  └──────────┘ (storage/      └─────────────┘                        │
+│               extra builds)        │                                 │
+│                                    │ covers access for               │
+│                                    ▼                                 │
+│               ┌────────────────────────────────┐                    │
+│               │   All enrolled students         │  ← never pay      │
+│               │   All school teachers           │  ← never pay      │
+│               └────────────────────────────────┘                    │
+│                                                                      │
+│  ┌─────────────────┐  monthly flat fee  ┌─────────────┐            │
+│  │ Indep. Teacher  │ ──────────────────► │  Platform   │  (future)  │
+│  │                 │  keeps all student  │             │            │
+│  └─────────────────┘  revenue           └─────────────┘            │
+└─────────────────────────────────────────────────────────────────────┘
+```
 
 Students themselves never pay — access is granted by the school or teacher they belong to.
 
@@ -23,206 +39,345 @@ Students themselves never pay — access is granted by the school or teacher the
 
 One subscription per school covers every enrolled student and teacher.
 
-| | Starter | Professional | Enterprise |
-|---|---|---|---|
-| **Monthly price** | $49 / month | $149 / month | Custom (sales) |
-| **Students** | Up to 30 | Up to 150 | Unlimited |
-| **Teachers** | Up to 3 | Up to 10 | Unlimited |
-| **Curriculum builds / year** | 1 | 3 | Unlimited |
-| **Storage included** | 5 GB | 5 GB | Negotiated |
-| **Languages** | English | EN + FR + ES | All |
-| **Custom curriculum upload** | — | ✓ | ✓ |
-| **Teacher reporting dashboard** | — | ✓ | ✓ |
-| **Dedicated support / SLA** | — | — | ✓ |
+```
+                    ┌────────────┬────────────────┬─────────────────┐
+                    │  STARTER   │  PROFESSIONAL  │   ENTERPRISE    │
+                    ├────────────┼────────────────┼─────────────────┤
+  Monthly price     │  $49/mo    │   $149/mo      │   Custom        │
+  ─────────────────────────────────────────────────────────────────
+  Students          │  up to 30  │   up to 150    │   Unlimited     │
+  Teachers          │  up to 3   │   up to 10     │   Unlimited     │
+  ─────────────────────────────────────────────────────────────────
+  Builds / year     │     1      │       3        │   Unlimited     │
+  Storage           │    5 GB    │      5 GB      │   Negotiated    │
+  ─────────────────────────────────────────────────────────────────
+  Languages         │     EN     │  EN, FR, ES    │   All           │
+  Custom curriculum │     —      │       ✓        │   ✓             │
+  Teacher reports   │     —      │       ✓        │   ✓             │
+  Dedicated support │     —      │       —        │   ✓             │
+                    └────────────┴────────────────┴─────────────────┘
+```
 
 ### What is a "curriculum build"?
 
-A curriculum build is one full grade-level content generation run — the pipeline
-calls Claude to produce lessons, quizzes, tutorials, and experiments for every unit
-in a grade. It is the most compute-intensive operation on the platform.
+```
+  One curriculum build = one full grade-level AI content generation run
 
-- A **Starter** school gets 1 build per subscription year — enough to set up once.
-- A **Professional** school gets 3 — allowing annual refresh or a mid-year revision.
-- **Enterprise** schools have no limit.
+  ┌─────────────────────────────────────────────────────────────────┐
+  │  Grade 8  (30 units)                                            │
+  │                                                                 │
+  │  Unit 1 → Lesson + Quiz + Tutorial + Experiment  (EN)          │
+  │  Unit 2 → Lesson + Quiz + Tutorial + Experiment  (EN)          │
+  │  ...                                                            │
+  │  Unit 30 → Lesson + Quiz + Tutorial + Experiment (EN)          │
+  │                                                                 │
+  │  = 1 build consumed from annual allowance                       │
+  └─────────────────────────────────────────────────────────────────┘
 
-The annual allowance resets on the subscription anniversary date. Schools that exhaust
-their allowance can purchase additional builds at $15 per grade *(future — Q3-B #106)*.
+  Allowance resets every subscription anniversary.
+
+  Starter  ──── [■□□] 1 build / year  (set up once)
+  Pro      ──── [■■■] 3 builds / year (annual refresh + 2 revisions)
+  Enterprise ── [∞]   Unlimited
+```
+
+Schools that exhaust their allowance can purchase extra builds at $15/grade *(future — Q3-B #106)*.
 
 ---
 
 ## 3. Storage Add-On Packages
 
-Every plan includes 5 GB of base storage for generated curriculum content.
-Schools that need more can purchase additional storage as a one-time payment.
-Purchased storage accumulates (never expires) and does not reset on plan renewal.
+```
+  Every plan:  5 GB base (included, resets on plan change? No — stays)
+               │
+               ▼
+  ┌────────────────────────────────────────────────────────────────┐
+  │  school_storage_quotas                                         │
+  │                                                                │
+  │  base_gb = 5        ← always included                         │
+  │  purchased_gb = 0   ← accumulates with add-on purchases       │
+  │  used_bytes = …     ← updated after each pipeline build       │
+  │                                                                │
+  │  total = base_gb + purchased_gb                               │
+  └────────────────────────────────────────────────────────────────┘
 
-| Package | Additional storage | One-time price |
-|---|---|---|
-| Small | +5 GB | $19 |
-| Medium | +10 GB | $35 |
-| Large | +25 GB | $79 |
+  Add-on packages (one-time, never expire):
 
-Storage is consumed by completed pipeline jobs (`payload_bytes` on `pipeline_jobs`).
-Usage is tracked in `school_storage_quotas.used_bytes`, updated nightly by a
-reconciliation task and atomically on each job completion.
+  ┌──────────────┬────────────┬────────────┐
+  │   +5 GB      │   +10 GB   │   +25 GB   │
+  │   $19        │    $35     │    $79     │
+  │  ($3.80/GB)  │  ($3.50/GB)│  ($3.16/GB)│
+  └──────────────┴────────────┴────────────┘
+                  ↑ bulk discount
+```
 
 ---
 
-## 4. AI Generation Cost (Platform Cost, Not Billed to Schools)
+## 4. AI Generation Cost (Platform Cost — Not Billed to Schools)
 
-This section is **internal** — it describes what the platform pays Anthropic to
-generate curriculum content. It is not charged directly to schools; it is absorbed
-into subscription pricing.
+This is **internal margin data** — what the platform pays Anthropic per build.
 
-### Token rates (Claude Sonnet 4.6)
+```
+  Claude Sonnet 4.6 token rates
+  ┌──────────────────────────────────────────────────────────────┐
+  │  Input tokens  →  $3.00 per 1 million tokens                 │
+  │  Output tokens →  $15.00 per 1 million tokens                │
+  └──────────────────────────────────────────────────────────────┘
 
-| Token type | Rate |
-|---|---|
-| Input | $3.00 per 1 million tokens |
-| Output | $15.00 per 1 million tokens |
+  Per curriculum unit (avg):
+  ┌──────────────────────────────────────────────────────────────┐
+  │  ~1,800 input tokens   →  $0.0054                           │
+  │  ~3,200 output tokens  →  $0.0480                           │
+  │  ─────────────────────────────────────                       │
+  │  cost per unit         →  ~$0.053                           │
+  │  × 30 units / grade    →  ~$1.60 per grade (English)        │
+  │  × 3 languages         →  ~$4.80 per grade (EN+FR+ES)       │
+  └──────────────────────────────────────────────────────────────┘
 
-### Per-grade cost estimate
+  Full K–12 build cost estimate (Grades 5–12 = 8 grades):
+  ┌──────────────────────────────────────────────────────────────┐
+  │  English only   8 × $1.60 = ~$12.80                         │
+  │  3 languages    8 × $4.80 = ~$38.40                         │
+  └──────────────────────────────────────────────────────────────┘
+```
 
-| Scope | Estimated cost |
-|---|---|
-| 1 grade · English only | ~$1.60 |
-| 1 grade · EN + FR + ES | ~$4.80 |
-| Full K–12 (Grades 5–12, English) | ~$12.80 |
-| Full K–12 (Grades 5–12, 3 languages) | ~$38.40 |
+### Margin at a glance
 
-*Based on 30 units/grade, ~1,800 input and ~3,200 output tokens/unit.*
-*Actual costs vary by grade level and subject density.*
+```
+  ┌─────────────────┬─────────────┬──────────────┬────────────────┐
+  │  Plan           │ Annual rev  │ Max AI cost  │ AI as % of rev │
+  ├─────────────────┼─────────────┼──────────────┼────────────────┤
+  │ Starter  (1/yr) │    $588     │    ~$1.60    │    < 0.3 %     │
+  │ Pro      (3/yr) │  $1,788     │    ~$4.80    │    < 0.3 %     │
+  │ Enterprise      │  Negotiated │  Unlimited   │  Per contract  │
+  └─────────────────┴─────────────┴──────────────┴────────────────┘
+  ↑ AI generation cost is not the margin risk.
+    Infrastructure, storage egress, and Stripe fees are larger.
 
-### Margin analysis
-
-| Plan | Annual revenue | Max build cost (1 EN grade) | AI cost as % of revenue |
-|---|---|---|---|
-| Starter (1 build/yr) | $588 | ~$1.60 | < 0.3 % |
-| Professional (3 builds/yr) | $1,788 | ~$4.80 | < 0.3 % |
-| Enterprise | Negotiated | Unlimited | Managed per contract |
-
-AI generation cost is not the margin risk — storage, infrastructure, and Stripe fees are larger line items.
-
-### Safety cap
-
-The pipeline aborts if cumulative token cost for a single run exceeds **$50**.
-This prevents runaway jobs from a malformed curriculum JSON. Configured in
-`pipeline/config.py` via `MAX_PIPELINE_COST_USD`.
+  Safety cap: pipeline aborts if a single run exceeds $50
+  (prevents runaway jobs from malformed curriculum JSON)
+```
 
 ---
 
 ## 5. Independent Teacher Plans *(future — #57)*
 
-When the teacher tier is rebuilt, independent teachers (not affiliated with a school)
-will pay a flat monthly fee and keep 100 % of their student revenue (Option A).
-
-| Tier | Students | Monthly fee |
-|---|---|---|
-| Solo | Up to 25 | $29 / month |
-| Growth | Up to 75 | $59 / month |
-| Pro | Up to 200 | $99 / month |
-
-Alternative billing models are tracked as future issues:
-- **Q2-B #104** — Revenue share (Stripe Connect, platform takes ~20 %)
-- **Q2-C #105** — Seat-tiered flat fee (same tiers, different enforcement)
+```
+  ┌───────────────────────────────────────────────────────────┐
+  │  Option A  (shipped as config — awaiting teacher tier)    │
+  │                                                           │
+  │  Teacher pays flat monthly fee → keeps 100% of student    │
+  │  revenue                                                  │
+  │                                                           │
+  │  ┌─────────┬────────────┬─────────┐                      │
+  │  │  Solo   │  Growth    │   Pro   │                      │
+  │  │ ≤25 stu │  ≤75 stu   │ ≤200 stu│                      │
+  │  │ $29/mo  │  $59/mo    │ $99/mo  │                      │
+  │  └─────────┴────────────┴─────────┘                      │
+  │                                                           │
+  │  Future alternatives:                                     │
+  │  • Q2-B #104 — Revenue share via Stripe Connect (~20%)   │
+  │  • Q2-C #105 — Same tiers, seat-based enforcement        │
+  └───────────────────────────────────────────────────────────┘
+```
 
 ---
 
 ## 6. Billing Flow (Stripe)
 
 ```
-School admin clicks "Upgrade" on the subscription page
-  → POST /schools/{id}/subscription/checkout
-  → Backend creates a Stripe Checkout Session (mode=subscription)
-  → Admin is redirected to Stripe-hosted payment page
+  UPGRADE FLOW
+  ────────────
+  School admin                  Backend                     Stripe
+       │                           │                           │
+       │  POST /subscription/      │                           │
+       │  checkout                 │                           │
+       │──────────────────────────►│                           │
+       │                           │  Create Checkout Session  │
+       │                           │──────────────────────────►│
+       │                           │  ◄── checkout_url         │
+       │  ◄── redirect to Stripe   │                           │
+       │                           │                           │
+       │     [pays on Stripe]      │                           │
+       │                           │                           │
+       │                           │  ◄─ checkout.session.     │
+       │                           │     completed (webhook)   │
+       │                           │                           │
+       │                           │  verify signature         │
+       │                           │  activate_school_sub()    │
+       │                           │   ├─ upsert subscription  │
+       │                           │   ├─ stamp build quota    │
+       │                           │   ├─ update entitlements  │
+       │                           │   └─ invalidate Redis     │
+       │                           │                           │
+       │  [students gain access]   │                           │
 
-Payment succeeds
-  → Stripe fires checkout.session.completed webhook
-  → Backend verifies signature (stripe.Webhook.construct_event)
-  → activate_school_subscription() is called:
-      · Upserts school_subscriptions (plan, status=active, seat caps)
-      · Stamps build allowance on school_storage_quotas
-      · Bulk-upserts student_entitlements for all enrolled students
-      · Invalidates school entitlement cache in Redis
-  → All enrolled students gain plan access immediately
 
-School admin cancels
-  → DELETE /schools/{id}/subscription
-  → Backend calls Stripe cancel_at_period_end=True
-  → Status becomes cancelled_at_period_end
-  → Students retain access until the period end date
+  CANCELLATION FLOW
+  ─────────────────
+  Admin clicks Cancel
+       │
+       │  DELETE /subscription → cancel_at_period_end = true (Stripe)
+       │  status → "cancelled_at_period_end"
+       │  Students retain access until period end
+       │
+  Period ends
+       │
+       ▼  customer.subscription.deleted webhook
+       │  status → "cancelled"
+       └► All enrolled students reverted to free tier
 
-Stripe fires customer.subscription.deleted
-  → Backend sets status=cancelled
-  → All enrolled students reverted to free tier
 
-Payment fails
-  → Backend sets status=past_due, sets grace_period_end = NOW() + 3 days
-  → Students retain access during the grace period
-  → If payment is not recovered, subscription is cancelled
+  PAYMENT FAILURE FLOW
+  ────────────────────
+  Invoice fails
+       │
+       ▼  invoice.payment_failed webhook
+       │  status → "past_due"
+       │  grace_period_end = NOW() + 3 days
+       │  Students retain access during grace period
+       │
+  Grace period expires without payment
+       ▼
+       └► Subscription cancelled → students lose access
 ```
 
 ---
 
 ## 7. Entitlement Model
 
-The entitlement system answers: *"is this student allowed to access this content?"*
+*"Is this student allowed to access this content?"*
 
 ```
-Student JWT arrives at a content endpoint
-  │
-  ├─ Student enrolled in a school?
-  │     Yes → check school_subscriptions (cached at school:{id}:ent, TTL=300s)
-  │           → plan determines which grades and languages are available
-  │
-  └─ No school → check student_entitlements (individual subscription)
-                  → legacy path; individual subscriptions were removed in migration 0027
-```
+  Student JWT hits a content endpoint
+          │
+          ▼
+  ┌───────────────────────────────────────────────────────────┐
+  │  Is student enrolled in a school?                         │
+  └──────────────────────────┬───────────────────────────────┘
+                             │
+          ┌──── YES ─────────┴──────── NO ────┐
+          │                                    │
+          ▼                                    ▼
+  Check school plan                   Check student_entitlements
+  (cached in Redis,                   (legacy individual sub path —
+   TTL = 300s)                         removed in migration 0027)
+          │
+          ▼
+  ┌───────────────────────────────────────┐
+  │  school_subscriptions                 │
+  │  plan = "professional"                │
+  │  status = "active"                    │──► grant access
+  │  max_students = 150                   │
+  │  current_period_end = 2027-03-01      │
+  └───────────────────────────────────────┘
 
-School entitlement cache is explicitly invalidated (not TTL-expired) on:
-- Subscription activation / renewal
-- Cancellation
-- Payment failure / recovery
-- Student enrolment or removal
+  Cache invalidated (not TTL-expired) on:
+  ┌────────────────────────────────────┐
+  │  • Subscription activation         │
+  │  • Cancellation                    │
+  │  • Payment failure / recovery      │
+  │  • Student enrolment / removal     │
+  └────────────────────────────────────┘
+```
 
 ---
 
 ## 8. Seat Limit Enforcement
 
-Seat limits are enforced at the write path (enrolment upload and teacher invite),
-not at content access time.
+```
+  Limits are checked at write time — not at content access time.
 
-| Action | Limit checked | HTTP response on breach |
-|---|---|---|
-| Enrol students (bulk upload) | `max_students` vs current active count | 402 `seat_limit_reached` |
-| Invite teacher | `max_teachers` vs current active count | 402 `seat_limit_reached` |
+  ┌──────────────────────────────────────────────────────────────┐
+  │  POST /schools/{id}/enrolment  (bulk student upload)         │
+  │                                                              │
+  │  incoming students + current active count > max_students?    │
+  │                                                              │
+  │  YES ──► 402  { "error": "seat_limit_reached",              │
+  │                 "limit": 30,                                 │
+  │                 "used": 28,                                  │
+  │                 "requested": 5 }                             │
+  │                                                              │
+  │  NO  ──► 201  enrolment proceeds                            │
+  └──────────────────────────────────────────────────────────────┘
 
-Seat counts come from live DB queries:
-- Students: `COUNT(*) FROM school_enrolments WHERE status = 'active'`
-- Teachers: `COUNT(*) FROM teachers WHERE account_status = 'active'`
+  ┌──────────────────────────────────────────────────────────────┐
+  │  POST /schools/{id}/teachers/invite                          │
+  │                                                              │
+  │  current active teachers ≥ max_teachers?                     │
+  │                                                              │
+  │  YES ──► 402  { "error": "seat_limit_reached" }             │
+  │  NO  ──► 201  invite sent                                   │
+  └──────────────────────────────────────────────────────────────┘
+
+  UI warning thresholds (LimitWarningBanner):
+  ────────────────────────────────────────────
+  ≥ 80% used  →  amber banner  "approaching limit"
+  = 100% used →  red banner    "limit reached — action blocked"
+```
 
 ---
 
-## 9. Key Tables
+## 9. Key Database Tables
 
-| Table | Purpose |
-|---|---|
-| `school_subscriptions` | One row per school. Plan, status, Stripe IDs, seat caps, period dates. |
-| `school_storage_quotas` | Storage usage + build allowance per school. |
-| `student_entitlements` | Per-student plan snapshot. Bulk-updated on school subscription events. |
-| `stripe_events` | Deduplication log. Every processed `stripe_event_id` is recorded here. |
+```
+  ┌──────────────────────────────────────────────────────────────────┐
+  │                    school_subscriptions                           │
+  │  school_id │ plan │ status │ stripe_sub_id │ max_students │ ...  │
+  │  (one row per school — the billing source of truth)              │
+  └──────────────────────────────────────┬───────────────────────────┘
+                                         │ on change →
+                                         ▼ bulk upsert
+  ┌──────────────────────────────────────────────────────────────────┐
+  │                    student_entitlements                           │
+  │  student_id │ plan │ valid_until                                  │
+  │  (per-student snapshot — drives content access checks)           │
+  └──────────────────────────────────────────────────────────────────┘
+
+  ┌──────────────────────────────────────────────────────────────────┐
+  │                    school_storage_quotas                          │
+  │  school_id │ base_gb │ purchased_gb │ used_bytes                  │
+  │            │ builds_included │ builds_used │ builds_period_end    │
+  │  (storage metering + annual build allowance — one row per school)│
+  └──────────────────────────────────────────────────────────────────┘
+
+  ┌──────────────────────────────────────────────────────────────────┐
+  │                       stripe_events                               │
+  │  stripe_event_id │ event_type │ outcome                          │
+  │  (deduplication log — prevents double-processing webhooks)       │
+  └──────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
 ## 10. Where to Change Prices
 
-All pricing constants live in two files. Edit both together.
+```
+  ┌─────────────────────────────────────────────────────────────────┐
+  │                                                                   │
+  │   To change ANY price or limit:                                   │
+  │                                                                   │
+  │   1. Edit  backend/src/pricing.py   (Python — backend + pipeline) │
+  │   2. Edit  web/lib/pricing.ts       (TypeScript — frontend UI)    │
+  │                                                                   │
+  │   Nothing else needs to change.                                   │
+  │                                                                   │
+  │   ┌──────────────────┐        ┌──────────────────────────────┐   │
+  │   │  pricing.py      │        │  pricing.ts                  │   │
+  │   │                  │        │                              │   │
+  │   │  SCHOOL_PLANS    │  ────► │  SCHOOL_PLANS_LIST           │   │
+  │   │  STORAGE_PACKAGES│  ────► │  STORAGE_PACKAGES            │   │
+  │   │  AI_COST         │        │  AI_COST_MODEL               │   │
+  │   │  TEACHER_PLANS   │  ────► │  TEACHER_PLANS               │   │
+  │   └──────────────────┘        └──────────────────────────────┘   │
+  │           │                              │                        │
+  │           ▼                              ▼                        │
+  │   subscription_service.py       subscription/page.tsx            │
+  │   storage_router.py             storage/page.tsx                 │
+  │   pipeline/config.py            LimitWarningBanner               │
+  │                                                                   │
+  └─────────────────────────────────────────────────────────────────┘
 
-| File | Language | Edit when |
-|---|---|---|
-| `backend/src/pricing.py` | Python | Changing plan prices, seat limits, build allowances, storage package prices, AI cost rates, teacher plan prices |
-| `web/lib/pricing.ts` | TypeScript | Same changes — mirrors the Python file for the frontend |
-
-Stripe price IDs (`STRIPE_SCHOOL_PRICE_*_ID`) are **not** in these files — they are
-environment-specific Stripe configuration set in `.env`. Changing business pricing
-requires creating a new Stripe price in the dashboard and updating the `.env` value.
+  Stripe price IDs (STRIPE_SCHOOL_PRICE_*_ID) live in .env only —
+  they are environment-specific and are NOT in the pricing files.
+```
