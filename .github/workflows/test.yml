@@ -489,3 +489,56 @@ jobs:
             exit 1
           fi
           echo "✅  TypeScript API types are up to date."
+
+  # ── 8. Syft SBOM — generate SBOMs for backend and web ─────────────────────────
+  #
+  # Produces two artifacts per run, each in two formats:
+  #   SPDX JSON    — ISO/IEC 5962:2021 standard; required by EU AI Act §53 and
+  #                  many school-district procurement checklists
+  #   CycloneDX JSON — OWASP standard; broader tooling ecosystem (Dependency-Track,
+  #                    Grype, etc.)
+  #
+  # Artifacts are retained for 90 days and named sbom-<git-sha> so every release
+  # has a traceable, downloadable SBOM. The contents: write permission enables
+  # future submission to the GitHub Dependency Graph without changing the job.
+  #
+  # To scan the SBOM for CVEs locally:
+  #   grype sbom:sbom-backend.spdx.json
+  #   grype sbom:sbom-web.spdx.json
+  sbom:
+    name: SBOM — Software Bill of Materials
+    runs-on: ubuntu-latest
+    needs: [backend-test, frontend-lint]
+    permissions:
+      contents: write  # enables future Dependency Graph submission
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install Syft
+        uses: anchore/sbom-action/download-syft@v0
+
+      - name: Generate backend SBOM (Python)
+        run: |
+          syft scan dir:backend \
+            -o spdx-json=sbom-backend.spdx.json \
+            -o cyclonedx-json=sbom-backend.cdx.json \
+            -o table
+
+      - name: Generate web SBOM (Node.js)
+        run: |
+          syft scan dir:web \
+            -o spdx-json=sbom-web.spdx.json \
+            -o cyclonedx-json=sbom-web.cdx.json \
+            -o table
+
+      - name: Upload SBOMs as CI artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-${{ github.sha }}
+          path: |
+            sbom-backend.spdx.json
+            sbom-backend.cdx.json
+            sbom-web.spdx.json
+            sbom-web.cdx.json
+          retention-days: 90
