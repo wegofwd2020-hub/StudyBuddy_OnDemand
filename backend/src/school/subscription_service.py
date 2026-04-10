@@ -43,6 +43,133 @@ def _plan_seats(plan: str) -> dict[str, int]:
     return plan_seats(plan)
 
 
+def _plan_builds(plan: str) -> int:
+    """
+    Return builds_included for a plan (Option A: absorbed into plan).
+
+    -1 = unlimited (Enterprise).
+    """
+    from config import settings
+
+    mapping = {
+        "starter": settings.SCHOOL_BUILDS_STARTER,
+        "professional": settings.SCHOOL_BUILDS_PROFESSIONAL,
+        "enterprise": settings.SCHOOL_BUILDS_ENTERPRISE,
+    }
+    return mapping.get(plan, settings.SCHOOL_BUILDS_STARTER)
+
+
+# ── Build allowance (Option A — absorbed into plan) ───────────────────────────
+
+
+async def _stamp_build_allowance(
+    conn: asyncpg.Connection,
+    school_id: str,
+    plan: str,
+    period_end: datetime | None = None,
+) -> None:
+    """
+    Upsert school_storage_quotas with builds_included from the plan and reset
+    builds_used to 0.  Called on subscription activation and on annual renewal.
+
+    builds_period_end defaults to 1 year from now when not supplied.
+    """
+    builds = _plan_builds(plan)
+    if period_end is None:
+        period_end = datetime.now(UTC) + timedelta(days=365)
+
+    await conn.execute(
+        """
+        INSERT INTO school_storage_quotas (school_id, builds_included, builds_used, builds_period_end)
+        VALUES ($1, $2, 0, $3)
+        ON CONFLICT (school_id) DO UPDATE SET
+            builds_included  = EXCLUDED.builds_included,
+            builds_used      = 0,
+            builds_period_end = EXCLUDED.builds_period_end,
+            updated_at       = NOW()
+        """,
+        uuid.UUID(school_id),
+        builds,
+        period_end,
+    )
+    log.info(
+        "build_allowance_stamped school_id=%s plan=%s builds_included=%d",
+        school_id,
+        plan,
+        builds,
+    )
+
+
+async def check_build_allowance(
+    conn: asyncpg.Connection,
+    school_id: str,
+) -> dict:
+    """
+    Return the current build allowance state for a school.
+
+    Returns:
+      allowed         — True if the school can trigger another pipeline build.
+      builds_included — total builds per year (-1 = unlimited).
+      builds_used     — builds consumed this period.
+      builds_remaining — builds_included - builds_used, or -1 if unlimited.
+      builds_period_end — ISO timestamp when the allowance resets.
+    """
+    row = await conn.fetchrow(
+        """
+        SELECT builds_included, builds_used, builds_period_end
+        FROM school_storage_quotas
+        WHERE school_id = $1
+        """,
+        uuid.UUID(school_id),
+    )
+    if row is None:
+        # No quota row yet — school has no subscription, treat as 0 allowance.
+        return {
+            "allowed": False,
+            "builds_included": 0,
+            "builds_used": 0,
+            "builds_remaining": 0,
+            "builds_period_end": None,
+        }
+
+    included = row["builds_included"]
+    used = row["builds_used"]
+    unlimited = included == -1
+    remaining = -1 if unlimited else max(included - used, 0)
+    allowed = unlimited or remaining > 0
+
+    return {
+        "allowed": allowed,
+        "builds_included": included,
+        "builds_used": used,
+        "builds_remaining": remaining,
+        "builds_period_end": row["builds_period_end"].isoformat() if row["builds_period_end"] else None,
+    }
+
+
+async def consume_build(
+    conn: asyncpg.Connection,
+    school_id: str,
+) -> None:
+    """
+    Increment builds_used for a school after a successful pipeline build.
+
+    Does not check the allowance — call check_build_allowance first and enforce
+    before triggering the pipeline job (see school-scoped pipeline trigger, #61).
+    Safe to call for Enterprise schools (builds_included = -1); the counter is
+    incremented for audit purposes but never blocks access.
+    """
+    await conn.execute(
+        """
+        UPDATE school_storage_quotas
+        SET builds_used = builds_used + 1, updated_at = NOW()
+        WHERE school_id = $1
+        """,
+        uuid.UUID(school_id),
+    )
+    log.info("build_consumed school_id=%s", school_id)
+
+
 # ── Seat usage ────────────────────────────────────────────────────────────────
 
 
@@ -86,6 +213,7 @@ async def get_school_subscription_status(
     )
 
     usage = await get_seat_usage(conn, school_id)
+    builds = await check_build_allowance(conn, school_id)
 
     if row is None:
         return {
@@ -95,6 +223,7 @@ async def get_school_subscription_status(
             "max_teachers": 0,
             "current_period_end": None,
             **usage,
+            **{f"builds_{k}": v for k, v in builds.items() if k != "allowed"},
         }
 
     if row["status"] == "past_due" and row["grace_period_end"]:
@@ -111,6 +240,7 @@ async def get_school_subscription_status(
         "max_teachers": row["max_teachers"],
         "current_period_end": valid_until,
         **usage,
+        **{f"builds_{k}": v for k, v in builds.items() if k != "allowed"},
     }
 
 
@@ -250,6 +380,9 @@ async def activate_school_subscription(
 
     # Bulk-upsert student_entitlements for all enrolled students
     await _bulk_update_enrolled_student_entitlements(conn, school_id, plan, current_period_end)
+
+    # Stamp build allowance for the new subscription period (Option A).
+    await _stamp_build_allowance(conn, school_id, plan, current_period_end)
 
     await expire_school_entitlement_cache(redis, school_id)
     log.info("school_subscription_activated school_id=%s plan=%s", school_id, plan)

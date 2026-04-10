@@ -11,7 +11,7 @@ import {
 import { SCHOOL_PLANS_LIST, formatPlanPrice } from "@/lib/pricing";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, CheckCircle, XCircle, CreditCard, Users, GraduationCap, AlertTriangle } from "lucide-react";
+import { Loader2, CheckCircle, XCircle, CreditCard, Users, GraduationCap, AlertTriangle, Hammer } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // ── Seat usage bar ────────────────────────────────────────────────────────────
@@ -266,6 +266,19 @@ export default function SubscriptionPage() {
                       max={sub.max_teachers}
                       icon={<GraduationCap className="h-3.5 w-3.5 text-gray-400" />}
                     />
+                    {sub.builds_included === -1 ? (
+                      <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                        <Hammer className="h-3.5 w-3.5 text-gray-400" />
+                        Unlimited curriculum builds (Enterprise)
+                      </div>
+                    ) : (
+                      <SeatBar
+                        label="Curriculum builds / year"
+                        used={sub.builds_used}
+                        max={sub.builds_included}
+                        icon={<Hammer className="h-3.5 w-3.5 text-gray-400" />}
+                      />
+                    )}
                   </div>
 
                   {periodEndDate && (
