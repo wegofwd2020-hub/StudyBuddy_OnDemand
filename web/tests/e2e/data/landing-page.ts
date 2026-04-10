@@ -21,9 +21,10 @@ export const BANNER = {
 // ---------------------------------------------------------------------------
 
 export const HERO = {
-  heading: "STEM tutoring available the moment students need it",
+  // Matches en.json "hero_heading". Update here if the i18n value changes.
+  heading: "Study Buddy",
   subheading:
-    "Instant lessons, quizzes, and audio for Grades 5–12. No waiting. No API keys. Just learning.",
+    "Instant lessons, quizzes, and audio where available. Just learning.",
   ctaPrimary: { text: "Start free trial", href: "/signup" },
   ctaSecondary: { text: "See how it works", href: "/#features" },
 } as const;
