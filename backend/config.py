@@ -264,6 +264,12 @@ class Settings(BaseSettings):
     TEACHER_PLAN_GROWTH_MONTHLY_USD: str = "59.00"  # Growth: up to 75 students (future)
     TEACHER_PLAN_PRO_MONTHLY_USD: str = "99.00"     # Pro: up to 200 students (future)
 
+    # ── Independent Teacher plan — Stripe recurring price IDs (#57) ──────────
+    # Leave unset in dev — subscription endpoints return 503 when unconfigured.
+    STRIPE_TEACHER_PRICE_SOLO_ID: str | None = None     # $29/mo recurring
+    STRIPE_TEACHER_PRICE_GROWTH_ID: str | None = None   # $59/mo recurring
+    STRIPE_TEACHER_PRICE_PRO_ID: str | None = None      # $99/mo recurring
+
     # ── Mobile API versioning ─────────────────────────────────────────────────
     # Oldest mobile app version the backend will accept (semver string).
     # Requests carrying X-App-Version below this receive HTTP 426 Upgrade Required.

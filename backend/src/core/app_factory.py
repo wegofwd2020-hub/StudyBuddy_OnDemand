@@ -239,6 +239,7 @@ def _register_routers(app: FastAPI) -> None:
     from src.school.subscription_router import router as school_subscription_router
     from src.student.router import router as student_router
     from src.subscription.router import router as subscription_router
+    from src.teacher.subscription_router import router as teacher_subscription_router
 
     # Health + metrics at root (no /api/v1 prefix).
     app.include_router(obs_router)
@@ -259,6 +260,7 @@ def _register_routers(app: FastAPI) -> None:
     app.include_router(school_router, prefix="/api/v1")
     app.include_router(school_content_router, prefix="/api/v1")
     app.include_router(school_subscription_router, prefix="/api/v1")
+    app.include_router(teacher_subscription_router, prefix="/api/v1")
     app.include_router(school_limits_router, prefix="/api/v1")
     app.include_router(school_pipeline_router, prefix="/api/v1")
     app.include_router(school_retention_router, prefix="/api/v1")
