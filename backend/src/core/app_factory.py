@@ -28,6 +28,7 @@ from fastapi.responses import JSONResponse
 from slowapi.errors import RateLimitExceeded
 
 from src.core.limiter import limiter
+from src.core.middleware import AppVersionMiddleware
 from src.core.observability import CorrelationIdMiddleware
 from src.core.observability import router as obs_router
 from src.utils.logger import get_logger
@@ -191,7 +192,11 @@ def _register_exception_handlers(app: FastAPI) -> None:
 
 
 def _register_middleware(app: FastAPI) -> None:
+    # Middleware is applied in reverse registration order (last added = outermost).
+    # CorrelationId must be outermost so correlation_id is available to all layers.
+    # AppVersion runs inside CorrelationId so 426 responses carry a correlation ID.
     app.add_middleware(CorrelationIdMiddleware)
+    app.add_middleware(AppVersionMiddleware)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.allowed_origins_list,

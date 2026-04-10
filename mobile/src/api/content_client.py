@@ -21,9 +21,7 @@ try:
 except ImportError:
     BACKEND_URL = os.environ.get("BACKEND_URL", "http://localhost:8000")
 
-
-def _auth_headers(token: str) -> dict:
-    return {"Authorization": f"Bearer {token}"}
+from mobile.src.api import app_headers  # noqa: E402
 
 
 async def get_lesson(unit_id: str, token: str) -> dict:
@@ -35,7 +33,7 @@ async def get_lesson(unit_id: str, token: str) -> dict:
     """
     url = f"{BACKEND_URL}/api/v1/content/{unit_id}/lesson"
     async with httpx.AsyncClient(timeout=30) as client:
-        response = await client.get(url, headers=_auth_headers(token))
+        response = await client.get(url, headers=app_headers(token))
         response.raise_for_status()
         return response.json()
 
@@ -47,7 +45,7 @@ async def get_quiz(unit_id: str, token: str) -> dict:
     """
     url = f"{BACKEND_URL}/api/v1/content/{unit_id}/quiz"
     async with httpx.AsyncClient(timeout=30) as client:
-        response = await client.get(url, headers=_auth_headers(token))
+        response = await client.get(url, headers=app_headers(token))
         response.raise_for_status()
         return response.json()
 
@@ -56,7 +54,7 @@ async def get_tutorial(unit_id: str, token: str) -> dict:
     """Fetch the tutorial for a unit."""
     url = f"{BACKEND_URL}/api/v1/content/{unit_id}/tutorial"
     async with httpx.AsyncClient(timeout=30) as client:
-        response = await client.get(url, headers=_auth_headers(token))
+        response = await client.get(url, headers=app_headers(token))
         response.raise_for_status()
         return response.json()
 
@@ -70,7 +68,7 @@ async def get_audio_url(unit_id: str, token: str) -> dict:
     """
     url = f"{BACKEND_URL}/api/v1/content/{unit_id}/lesson/audio"
     async with httpx.AsyncClient(timeout=30) as client:
-        response = await client.get(url, headers=_auth_headers(token))
+        response = await client.get(url, headers=app_headers(token))
         response.raise_for_status()
         return response.json()
 
@@ -84,7 +82,7 @@ async def get_app_version(token: str) -> dict:
     """
     url = f"{BACKEND_URL}/api/v1/app/version"
     async with httpx.AsyncClient(timeout=10) as client:
-        response = await client.get(url, headers=_auth_headers(token))
+        response = await client.get(url, headers=app_headers(token))
         response.raise_for_status()
         return response.json()
 
@@ -99,7 +97,7 @@ async def get_experiment(unit_id: str, token: str) -> dict:
     """
     url = f"{BACKEND_URL}/api/v1/content/{unit_id}/experiment"
     async with httpx.AsyncClient(timeout=30) as client:
-        response = await client.get(url, headers=_auth_headers(token))
+        response = await client.get(url, headers=app_headers(token))
         response.raise_for_status()
         return response.json()
 
@@ -117,5 +115,5 @@ async def report_content(
         payload["message"] = message
 
     async with httpx.AsyncClient(timeout=10) as client:
-        response = await client.post(url, json=payload, headers=_auth_headers(token))
+        response = await client.post(url, json=payload, headers=app_headers(token))
         response.raise_for_status()

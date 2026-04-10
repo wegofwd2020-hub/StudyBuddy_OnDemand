@@ -19,9 +19,7 @@ try:
 except ImportError:
     BACKEND_URL = os.environ.get("BACKEND_URL", "http://localhost:8000")
 
-
-def _auth_headers(token: str) -> dict:
-    return {"Authorization": f"Bearer {token}"}
+from mobile.src.api import app_headers  # noqa: E402
 
 
 # ── Progress: session lifecycle ───────────────────────────────────────────────
@@ -37,7 +35,7 @@ async def start_session(token: str, unit_id: str, curriculum_id: str) -> dict:
         response = await client.post(
             url,
             json={"unit_id": unit_id, "curriculum_id": curriculum_id},
-            headers=_auth_headers(token),
+            headers=app_headers(token),
         )
         response.raise_for_status()
         return response.json()
@@ -71,7 +69,7 @@ async def record_answer(
         payload["event_id"] = event_id
 
     async with httpx.AsyncClient(timeout=15) as client:
-        response = await client.post(url, json=payload, headers=_auth_headers(token))
+        response = await client.post(url, json=payload, headers=app_headers(token))
         response.raise_for_status()
         return response.json()
 
@@ -87,7 +85,7 @@ async def end_session(token: str, session_id: str, score: int, total_questions: 
         response = await client.post(
             url,
             json={"score": score, "total_questions": total_questions},
-            headers=_auth_headers(token),
+            headers=app_headers(token),
         )
         response.raise_for_status()
         return response.json()
@@ -102,7 +100,7 @@ async def get_progress_history(token: str, limit: int = 50, offset: int = 0) -> 
     url = f"{BACKEND_URL}/api/v1/progress/student"
     params = {"limit": limit, "offset": offset}
     async with httpx.AsyncClient(timeout=20) as client:
-        response = await client.get(url, params=params, headers=_auth_headers(token))
+        response = await client.get(url, params=params, headers=app_headers(token))
         response.raise_for_status()
         return response.json()
 
@@ -117,7 +115,7 @@ async def get_dashboard(token: str) -> dict:
     """
     url = f"{BACKEND_URL}/api/v1/student/dashboard"
     async with httpx.AsyncClient(timeout=15) as client:
-        response = await client.get(url, headers=_auth_headers(token))
+        response = await client.get(url, headers=app_headers(token))
         response.raise_for_status()
         return response.json()
 
@@ -130,7 +128,7 @@ async def get_progress_map(token: str) -> dict:
     """
     url = f"{BACKEND_URL}/api/v1/student/progress"
     async with httpx.AsyncClient(timeout=15) as client:
-        response = await client.get(url, headers=_auth_headers(token))
+        response = await client.get(url, headers=app_headers(token))
         response.raise_for_status()
         return response.json()
 
@@ -143,7 +141,7 @@ async def get_stats(token: str, period: str = "30d") -> dict:
     """
     url = f"{BACKEND_URL}/api/v1/student/stats"
     async with httpx.AsyncClient(timeout=15) as client:
-        response = await client.get(url, params={"period": period}, headers=_auth_headers(token))
+        response = await client.get(url, params={"period": period}, headers=app_headers(token))
         response.raise_for_status()
         return response.json()
 
@@ -161,7 +159,7 @@ async def start_lesson_view(token: str, unit_id: str, curriculum_id: str) -> dic
         response = await client.post(
             url,
             json={"unit_id": unit_id, "curriculum_id": curriculum_id},
-            headers=_auth_headers(token),
+            headers=app_headers(token),
         )
         response.raise_for_status()
         return response.json()
@@ -190,7 +188,7 @@ def end_lesson_view(
             "audio_played": audio_played,
             "experiment_viewed": experiment_viewed,
         },
-        headers=_auth_headers(token),
+        headers=app_headers(token),
         timeout=15,
     )
     response.raise_for_status()
@@ -206,7 +204,7 @@ async def register_push_token(token: str, device_token: str, platform: str) -> d
         response = await client.post(
             url,
             json={"device_token": device_token, "platform": platform},
-            headers=_auth_headers(token),
+            headers=app_headers(token),
         )
         response.raise_for_status()
         return response.json()
@@ -216,7 +214,7 @@ async def get_notification_preferences(token: str) -> dict:
     """Fetch notification preferences for the authenticated student."""
     url = f"{BACKEND_URL}/api/v1/notifications/preferences"
     async with httpx.AsyncClient(timeout=10) as client:
-        response = await client.get(url, headers=_auth_headers(token))
+        response = await client.get(url, headers=app_headers(token))
         response.raise_for_status()
         return response.json()
 
@@ -237,7 +235,7 @@ async def update_notification_preferences(
                 "weekly_summary": weekly_summary,
                 "quiz_nudges": quiz_nudges,
             },
-            headers=_auth_headers(token),
+            headers=app_headers(token),
         )
         response.raise_for_status()
         return response.json()

@@ -10,6 +10,12 @@ Auth0 client_id is a public value (safe to embed in mobile apps).
 
 import os
 
+# ── App version ───────────────────────────────────────────────────────────────
+# Sent as X-App-Version on every backend request.
+# The backend enforces a minimum supported version (MINIMUM_SUPPORTED_APP_VERSION
+# in backend/config.py) and returns 426 Upgrade Required when this is too old.
+APP_VERSION = "2.0.0"
+
 # ── Backend connection ─────────────────────────────────────────────────────────
 BACKEND_URL = os.getenv("STUDYBUDDY_BACKEND_URL", "http://localhost:8000")
 

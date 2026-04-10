@@ -19,9 +19,7 @@ try:
 except ImportError:
     BACKEND_URL = os.environ.get("BACKEND_URL", "http://localhost:8000")
 
-
-def _auth_headers(token: str) -> dict:
-    return {"Authorization": f"Bearer {token}"}
+from mobile.src.api import app_headers  # noqa: E402
 
 
 async def get_subscription_status(token: str) -> dict:
@@ -34,7 +32,7 @@ async def get_subscription_status(token: str) -> dict:
     """
     url = f"{BACKEND_URL}/api/v1/subscription/status"
     async with httpx.AsyncClient(timeout=15) as client:
-        response = await client.get(url, headers=_auth_headers(token))
+        response = await client.get(url, headers=app_headers(token))
         response.raise_for_status()
         return response.json()
 
@@ -60,7 +58,7 @@ async def get_checkout_url(
                 "success_url": success_url,
                 "cancel_url": cancel_url,
             },
-            headers=_auth_headers(token),
+            headers=app_headers(token),
         )
         response.raise_for_status()
         return response.json()["checkout_url"]
@@ -75,6 +73,6 @@ async def cancel_subscription(token: str) -> dict:
     """
     url = f"{BACKEND_URL}/api/v1/subscription"
     async with httpx.AsyncClient(timeout=15) as client:
-        response = await client.delete(url, headers=_auth_headers(token))
+        response = await client.delete(url, headers=app_headers(token))
         response.raise_for_status()
         return response.json()

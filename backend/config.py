@@ -257,6 +257,12 @@ class Settings(BaseSettings):
     TEACHER_PLAN_GROWTH_MONTHLY_USD: str = "59.00"  # Growth: up to 75 students (future)
     TEACHER_PLAN_PRO_MONTHLY_USD: str = "99.00"     # Pro: up to 200 students (future)
 
+    # ── Mobile API versioning ─────────────────────────────────────────────────
+    # Oldest mobile app version the backend will accept (semver string).
+    # Requests carrying X-App-Version below this receive HTTP 426 Upgrade Required.
+    # Bump this when a breaking API change ships; give field devices 90 days to update.
+    MINIMUM_SUPPORTED_APP_VERSION: str = "2.0.0"
+
     # ── Feature flags ─────────────────────────────────────────────────────────
     REVIEW_AUTO_APPROVE: bool = False
 
