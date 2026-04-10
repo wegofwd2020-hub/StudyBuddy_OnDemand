@@ -70,6 +70,10 @@ class Settings(BaseSettings):
 
     # ── Content Store ─────────────────────────────────────────────────────────
     CONTENT_STORE_PATH: str = "/data/content"
+    # "local" uses CONTENT_STORE_PATH on the local filesystem (default, single-host).
+    # "s3" uses S3_BUCKET_NAME + S3_KEY_PREFIX (multi-host production).
+    STORAGE_BACKEND: str = "local"
+    S3_KEY_PREFIX: str = ""  # optional path prefix within the bucket
 
     # ── Stripe ────────────────────────────────────────────────────────────────
     STRIPE_SECRET_KEY: str | None = None

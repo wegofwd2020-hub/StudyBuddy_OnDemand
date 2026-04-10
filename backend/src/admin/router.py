@@ -115,6 +115,7 @@ from src.auth.dependencies import get_current_admin
 from src.core.db import get_db
 from src.core.permissions import ROLE_PERMISSIONS
 from src.core.redis_client import get_redis
+from src.core.storage import StorageBackend, get_storage
 from src.utils.logger import get_logger
 
 log = get_logger("admin")
@@ -195,6 +196,7 @@ async def pipeline_status(
 async def review_queue(
     request: Request,
     admin: Annotated[dict, Depends(_require("review:read"))],
+    storage: StorageBackend = Depends(get_storage),
     status: str | None = Query(None),
     subject: str | None = Query(None),
     curriculum_id: str | None = Query(None),
@@ -205,7 +207,7 @@ async def review_queue(
     """List content subject versions, optionally filtered."""
     async with get_db(request) as conn:
         data = await list_review_queue(
-            conn, status, subject, curriculum_id, assigned_to, limit, offset
+            conn, storage, status, subject, curriculum_id, assigned_to, limit, offset
         )
     return ReviewQueueResponse(**data)
 
@@ -249,11 +251,12 @@ async def unit_content_meta(
     unit_id: str,
     request: Request,
     admin: Annotated[dict, Depends(_require("review:read"))],
+    storage: StorageBackend = Depends(get_storage),
     lang: str = Query("en", min_length=2, max_length=5),
 ) -> UnitContentMetaResponse:
     """Return unit title and list of available content type files on disk."""
     async with get_db(request) as conn:
-        data = await get_unit_content_meta(conn, version_id, unit_id, lang)
+        data = await get_unit_content_meta(conn, storage, version_id, unit_id, lang)
     if not data:
         raise HTTPException(
             status_code=404,
@@ -276,12 +279,13 @@ async def unit_content_file(
     content_type: str,
     request: Request,
     admin: Annotated[dict, Depends(_require("review:read"))],
+    storage: StorageBackend = Depends(get_storage),
     lang: str = Query("en", min_length=2, max_length=5),
 ) -> UnitContentFileResponse:
     """Read and return raw content JSON for the specified type from disk."""
     async with get_db(request) as conn:
         try:
-            data = await get_unit_content_file(conn, version_id, unit_id, content_type, lang)
+            data = await get_unit_content_file(conn, storage, version_id, unit_id, content_type, lang)
         except FileNotFoundError:
             raise HTTPException(
                 status_code=404,
@@ -473,10 +477,11 @@ async def list_warnings(
     version_id: str,
     request: Request,
     admin: Annotated[dict, Depends(_require("review:read"))],
+    storage: StorageBackend = Depends(get_storage),
 ) -> VersionWarningsResponse:
     """List all AlexJS warnings for a version with acknowledgement state."""
     async with get_db(request) as conn:
-        result = await get_version_warnings(conn, version_id)
+        result = await get_version_warnings(conn, storage, version_id)
     if result is None:
         raise HTTPException(status_code=404, detail="Version not found")
     return VersionWarningsResponse(**result)

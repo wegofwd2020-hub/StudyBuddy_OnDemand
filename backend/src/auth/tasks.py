@@ -1956,6 +1956,7 @@ def purge_expired_curricula() -> None:
     records are NOT deleted.
     """
     from config import settings as cfg
+    from src.core.storage import LocalStorage
     from src.school.retention_service import purge_grace_expired
 
     async def _run() -> None:
@@ -1966,8 +1967,8 @@ def purge_expired_curricula() -> None:
             await conn.execute(
                 "SELECT set_config('app.current_school_id', 'bypass', false)"
             )
-            content_store = getattr(cfg, "CONTENT_STORE_PATH", "/tmp/studybuddy-content")
-            await purge_grace_expired(conn, content_store)
+            storage = LocalStorage(root=getattr(cfg, "CONTENT_STORE_PATH", "/tmp/studybuddy-content"))
+            await purge_grace_expired(conn, storage)
         finally:
             await conn.close()
 

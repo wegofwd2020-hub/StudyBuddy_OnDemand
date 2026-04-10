@@ -168,6 +168,10 @@ async def client(fake_redis, db_conn) -> AsyncGenerator[AsyncClient, None]:
     app.state.pool = pool
     app.state.redis = fake_redis
 
+    from config import settings as _cfg
+    from src.core.storage import LocalStorage
+    app.state.storage = LocalStorage(root=_cfg.CONTENT_STORE_PATH)
+
     with (
         patch("src.core.events.write_audit_log", return_value=None),
         patch("src.auth.tasks.write_audit_log_task.delay", return_value=None),

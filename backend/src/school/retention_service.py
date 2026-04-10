@@ -17,11 +17,9 @@ entry.  Phase E will replace this with real Celery email task dispatch.
 
 from __future__ import annotations
 
-import os
-import shutil
-
 import asyncpg
 
+from src.core.storage import StorageBackend
 from src.utils.logger import get_logger
 
 log = get_logger("school.retention_service")
@@ -227,7 +225,7 @@ async def send_purge_30day_warnings(conn: asyncpg.Connection) -> int:
 
 async def purge_grace_expired(
     conn: asyncpg.Connection,
-    content_store_path: str,
+    storage: StorageBackend,
 ) -> list[dict]:
     """
     Permanently delete content files for curricula whose 180-day grace period
@@ -236,7 +234,7 @@ async def purge_grace_expired(
     Sequence:
       1. Mark retention_status = 'purged' in DB (before file deletion so
          subsequent requests get 'not found' even if deletion is slow).
-      2. Delete curriculum directory from content_store_path.
+      2. Delete curriculum directory via StorageBackend.delete_tree.
       3. Log CDN invalidation stub (Phase G will wire up CloudFront).
       4. Queue purge-complete notification to school_admin.
 
@@ -271,20 +269,13 @@ async def purge_grace_expired(
     for row in rows:
         cid = row["curriculum_id"]
 
-        curriculum_dir = os.path.join(content_store_path, "curricula", cid)
-        if os.path.isdir(curriculum_dir):
-            try:
-                shutil.rmtree(curriculum_dir)
-                log.info("retention_purge_files_deleted curriculum_id=%s", cid)
-            except OSError as exc:
-                log.warning(
-                    "retention_purge_file_delete_failed curriculum_id=%s err=%s",
-                    cid, exc,
-                )
-        else:
-            log.info(
-                "retention_purge_no_files_found curriculum_id=%s dir=%s",
-                cid, curriculum_dir,
+        try:
+            await storage.delete_tree(f"curricula/{cid}")
+            log.info("retention_purge_files_deleted curriculum_id=%s", cid)
+        except Exception as exc:
+            log.warning(
+                "retention_purge_file_delete_failed curriculum_id=%s err=%s",
+                cid, exc,
             )
 
         # CDN invalidation stub — Phase G will call CloudFront here.

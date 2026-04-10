@@ -119,6 +119,25 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     )
     log.info("redis_pool_created", url=settings.REDIS_URL.split("@")[-1])
 
+    # Content store backend.
+    from src.core.storage import LocalStorage, S3Storage
+
+    if settings.STORAGE_BACKEND == "s3":
+        if not settings.S3_BUCKET_NAME:
+            raise RuntimeError("S3_BUCKET_NAME must be set when STORAGE_BACKEND=s3")
+        app.state.storage = S3Storage(
+            bucket=settings.S3_BUCKET_NAME,
+            prefix=settings.S3_KEY_PREFIX,
+        )
+        log.info(
+            "storage_backend_s3",
+            bucket=settings.S3_BUCKET_NAME,
+            prefix=settings.S3_KEY_PREFIX or "(none)",
+        )
+    else:
+        app.state.storage = LocalStorage(root=settings.CONTENT_STORE_PATH)
+        log.info("storage_backend_local", root=settings.CONTENT_STORE_PATH)
+
     log.info("startup_complete")
     yield
 

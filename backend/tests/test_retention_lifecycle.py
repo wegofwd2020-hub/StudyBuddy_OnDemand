@@ -35,6 +35,7 @@ import pytest
 from httpx import AsyncClient
 
 from main import app
+from src.core.storage import LocalStorage
 from src.school.retention_service import (
     expire_active_curricula,
     purge_grace_expired,
@@ -323,11 +324,12 @@ async def test_purge_transitions_to_purged(client: AsyncClient):
         grace_until=datetime.now(UTC) - timedelta(days=1),
     )
 
+    storage = LocalStorage(root=settings.CONTENT_STORE_PATH)
     async with app.state.pool.acquire() as conn:
         await conn.execute(
             "SELECT set_config('app.current_school_id', 'bypass', false)"
         )
-        purged = await purge_grace_expired(conn, settings.CONTENT_STORE_PATH)
+        purged = await purge_grace_expired(conn, storage)
 
     assert any(r["curriculum_id"] == cid for r in purged)
     row = await _fetch_curriculum(cid)
@@ -349,11 +351,12 @@ async def test_purge_handles_missing_content_directory(client: AsyncClient):
         grace_until=datetime.now(UTC) - timedelta(days=20),
     )
 
+    storage = LocalStorage(root=settings.CONTENT_STORE_PATH)
     async with app.state.pool.acquire() as conn:
         await conn.execute(
             "SELECT set_config('app.current_school_id', 'bypass', false)"
         )
-        purged = await purge_grace_expired(conn, settings.CONTENT_STORE_PATH)
+        purged = await purge_grace_expired(conn, storage)
 
     assert any(r["curriculum_id"] == cid for r in purged)
     row = await _fetch_curriculum(cid)
@@ -383,11 +386,12 @@ async def test_purge_deletes_content_directory(client: AsyncClient):
 
     assert os.path.isdir(content_dir)
 
+    storage = LocalStorage(root=settings.CONTENT_STORE_PATH)
     async with app.state.pool.acquire() as conn:
         await conn.execute(
             "SELECT set_config('app.current_school_id', 'bypass', false)"
         )
-        await purge_grace_expired(conn, settings.CONTENT_STORE_PATH)
+        await purge_grace_expired(conn, storage)
 
     assert not os.path.exists(content_dir)
     row = await _fetch_curriculum(cid)
@@ -409,12 +413,13 @@ async def test_purge_is_idempotent(client: AsyncClient):
         grace_until=datetime.now(UTC) - timedelta(days=10),
     )
 
+    storage = LocalStorage(root=settings.CONTENT_STORE_PATH)
     async with app.state.pool.acquire() as conn:
         await conn.execute(
             "SELECT set_config('app.current_school_id', 'bypass', false)"
         )
-        await purge_grace_expired(conn, settings.CONTENT_STORE_PATH)
-        await purge_grace_expired(conn, settings.CONTENT_STORE_PATH)
+        await purge_grace_expired(conn, storage)
+        await purge_grace_expired(conn, storage)
 
     row = await _fetch_curriculum(cid)
     assert row["retention_status"] == "purged"
