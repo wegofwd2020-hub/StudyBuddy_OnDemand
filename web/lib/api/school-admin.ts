@@ -436,6 +436,34 @@ export async function createStorageCheckout(
   return res.data;
 }
 
+// ── School storage quota ──────────────────────────────────────────────────────
+
+export interface StorageBreakdownItem {
+  curriculum_id: string;
+  grade: number;
+  name: string;
+  bytes_used: number;
+  gb_used: number;
+  job_count: number;
+}
+
+export interface SchoolStorageQuota {
+  school_id: string;
+  base_gb: number;
+  purchased_gb: number;
+  total_gb: number;
+  used_bytes: number;
+  used_gb: number;
+  used_pct: number;
+  over_quota: boolean;
+  breakdown: StorageBreakdownItem[];
+}
+
+export async function getSchoolStorage(schoolId: string): Promise<SchoolStorageQuota> {
+  const res = await schoolApi.get<SchoolStorageQuota>(`/schools/${schoolId}/storage`);
+  return res.data;
+}
+
 export async function assignCurriculumToGrade(
   schoolId: string,
   grade: number,

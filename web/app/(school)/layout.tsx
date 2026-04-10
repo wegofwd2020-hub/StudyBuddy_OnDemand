@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { auth0 } from "@/lib/auth0";
 import { getDevSession, getDemoTeacherSession } from "@/lib/dev-session";
 import { SchoolNav } from "@/components/layout/SchoolNav";
+import { LimitWarningBanner } from "@/components/school/LimitWarningBanner";
 import { QueryProvider } from "@/lib/providers/QueryProvider";
 import { PortalHeader } from "@/components/layout/PortalHeader";
 import { PortalFooter } from "@/components/layout/PortalFooter";
@@ -25,6 +26,7 @@ export default async function SchoolLayout({ children }: { children: React.React
         <div className="flex flex-1 flex-col overflow-auto">
           <PortalHeader portal="school" userName={userName} />
           <main id="main-content" className="flex-1">
+            <LimitWarningBanner />
             {children}
           </main>
           <PortalFooter />
