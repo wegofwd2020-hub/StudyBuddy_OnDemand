@@ -247,3 +247,46 @@ class DigestSubscribeResponse(BaseModel):
 class RefreshResponse(BaseModel):
     refreshed_at: datetime
     views_refreshed: list[str]
+
+
+# ── At-Risk Student Action Queue (#79) ───────────────────────────────────────
+
+
+class AtRiskReason(BaseModel):
+    inactive: bool = False
+    low_pass_rate: bool = False
+
+
+class AtRiskStudent(BaseModel):
+    student_id: str
+    student_name: str
+    grade: int
+    last_active: datetime | None = None
+    inactive_days: int | None = None
+    pass_rate_pct: float | None = None
+    units_completed: int
+    total_units: int
+    risk_reasons: AtRiskReason
+    is_seen: bool = False
+    seen_at: datetime | None = None
+
+
+class AtRiskListResponse(BaseModel):
+    school_id: str
+    inactive_days_threshold: int
+    pass_rate_threshold: float
+    students: list[AtRiskStudent]
+    total: int
+
+
+class MarkSeenResponse(BaseModel):
+    school_id: str
+    student_id: str
+    seen: bool
+    seen_at: datetime | None = None
+
+
+class SendReminderResponse(BaseModel):
+    school_id: str
+    student_id: str
+    queued: bool

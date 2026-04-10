@@ -8,7 +8,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Bell, CheckCheck, AlertTriangle, Info } from "lucide-react";
+import Link from "next/link";
+import { Bell, CheckCheck, AlertTriangle, Info, Settings } from "lucide-react";
 
 const ALERT_ICON: Record<string, React.ReactNode> = {
   pass_rate_low: <AlertTriangle className="h-4 w-4 text-red-500" />,
@@ -115,9 +116,19 @@ export default function AlertsPage() {
         </div>
       )}
       {!isLoading && visibleAlerts.length === 0 && (
-        <div className="flex flex-col items-center gap-3 py-12 text-gray-400">
-          <Bell className="h-10 w-10" />
-          <p className="text-sm">No new alerts — all clear.</p>
+        <div className="flex flex-col items-center gap-3 rounded-xl border border-gray-100 bg-gray-50 py-14 text-gray-400">
+          <Bell className="h-10 w-10 opacity-50" />
+          <p className="text-sm font-medium text-gray-600">No active alerts — all clear.</p>
+          <p className="text-xs text-gray-400">
+            Alerts fire when pass rates, inactivity, or feedback exceed your configured thresholds.
+          </p>
+          <Link
+            href="/school/reports/alerts/settings"
+            className="mt-1 inline-flex items-center gap-1 text-xs text-blue-600 hover:underline"
+          >
+            <Settings className="h-3 w-3" />
+            Configure thresholds
+          </Link>
         </div>
       )}
       {acknowledgedAlerts.length > 0 && (

@@ -7,7 +7,7 @@ import { getClassMetrics, type ClassStudentRow } from "@/lib/api/reports";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LinkButton } from "@/components/ui/link-button";
-import { ArrowUpDown, ChevronUp, ChevronDown } from "lucide-react";
+import { ArrowUpDown, ChevronUp, ChevronDown, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type SortKey = keyof Pick<
@@ -195,11 +195,14 @@ export default function ClassOverviewPage() {
                   ))}
                   {rows.length === 0 && (
                     <tr>
-                      <td
-                        colSpan={6}
-                        className="px-4 py-8 text-center text-sm text-gray-400"
-                      >
-                        No students found.
+                      <td colSpan={6} className="px-4 py-12 text-center">
+                        <Users className="mx-auto mb-2 h-8 w-8 text-gray-300" />
+                        <p className="text-sm font-medium text-gray-500">
+                          No students enrolled yet
+                        </p>
+                        <p className="mt-0.5 text-xs text-gray-400">
+                          Upload a roster or enrol students via the school portal.
+                        </p>
                       </td>
                     </tr>
                   )}

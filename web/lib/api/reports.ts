@@ -285,3 +285,73 @@ export async function subscribeDigest(
   );
   return res.data;
 }
+
+// ── At-Risk Student Action Queue (#79) ───────────────────────────────────────
+
+export interface AtRiskReason {
+  inactive: boolean;
+  low_pass_rate: boolean;
+}
+
+export interface AtRiskStudent {
+  student_id: string;
+  student_name: string;
+  grade: number;
+  last_active: string | null;
+  inactive_days: number | null;
+  pass_rate_pct: number | null;
+  units_completed: number;
+  total_units: number;
+  risk_reasons: AtRiskReason;
+  is_seen: boolean;
+  seen_at: string | null;
+}
+
+export interface AtRiskListResponse {
+  school_id: string;
+  inactive_days_threshold: number;
+  pass_rate_threshold: number;
+  students: AtRiskStudent[];
+  total: number;
+}
+
+export interface MarkSeenResponse {
+  school_id: string;
+  student_id: string;
+  seen: boolean;
+  seen_at: string | null;
+}
+
+export interface SendReminderResponse {
+  school_id: string;
+  student_id: string;
+  queued: boolean;
+}
+
+export async function getAtRiskStudents(schoolId: string): Promise<AtRiskListResponse> {
+  const res = await schoolApi.get<AtRiskListResponse>(`/reports/school/${schoolId}/at-risk`);
+  return res.data;
+}
+
+export async function markAtRiskSeen(
+  schoolId: string,
+  studentId: string,
+  seen: boolean,
+): Promise<MarkSeenResponse> {
+  const res = await schoolApi.post<MarkSeenResponse>(
+    `/reports/school/${schoolId}/at-risk/${studentId}/seen`,
+    null,
+    { params: { seen } },
+  );
+  return res.data;
+}
+
+export async function sendAtRiskReminder(
+  schoolId: string,
+  studentId: string,
+): Promise<SendReminderResponse> {
+  const res = await schoolApi.post<SendReminderResponse>(
+    `/reports/school/${schoolId}/at-risk/${studentId}/reminder`,
+  );
+  return res.data;
+}

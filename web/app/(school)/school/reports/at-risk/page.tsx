@@ -1,82 +1,236 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTeacher } from "@/lib/hooks/useTeacher";
-import { getCurriculumHealth } from "@/lib/api/reports";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { AlertTriangle, XCircle } from "lucide-react";
+import {
+  AtRiskStudent,
+  getAtRiskStudents,
+  markAtRiskSeen,
+  sendAtRiskReminder,
+} from "@/lib/api/reports";
 import { cn } from "@/lib/utils";
+import {
+  AlertTriangle,
+  Bell,
+  CheckCircle,
+  Clock,
+  Eye,
+  TrendingDown,
+  UserX,
+} from "lucide-react";
 
-const TIER_STYLE: Record<string, string> = {
-  healthy: "bg-green-50 text-green-700 border-green-200",
-  watch: "bg-yellow-50 text-yellow-700 border-yellow-200",
-  struggling: "bg-red-50 text-red-700 border-red-200",
-  no_activity: "bg-gray-100 text-gray-500 border-gray-200",
-};
+function RiskBadge({ reasons }: { reasons: AtRiskStudent["risk_reasons"] }) {
+  if (reasons.inactive && reasons.low_pass_rate) {
+    return (
+      <span className="inline-flex items-center gap-1 rounded bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">
+        <AlertTriangle className="h-3 w-3" />
+        Inactive + low pass rate
+      </span>
+    );
+  }
+  if (reasons.inactive) {
+    return (
+      <span className="inline-flex items-center gap-1 rounded bg-orange-100 px-2 py-0.5 text-xs font-semibold text-orange-700">
+        <Clock className="h-3 w-3" />
+        Inactive
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 rounded bg-yellow-100 px-2 py-0.5 text-xs font-semibold text-yellow-700">
+      <TrendingDown className="h-3 w-3" />
+      Low pass rate
+    </span>
+  );
+}
 
-export default function AtRiskReportPage() {
+function LastActiveCell({ lastActive, inactiveDays }: { lastActive: string | null; inactiveDays: number | null }) {
+  if (!lastActive) {
+    return <span className="text-gray-400">Never active</span>;
+  }
+  const label = inactiveDays != null ? `${inactiveDays}d ago` : new Date(lastActive).toLocaleDateString();
+  return <span className={cn(inactiveDays != null && inactiveDays > 21 ? "font-semibold text-red-600" : "text-gray-600")}>{label}</span>;
+}
+
+export default function AtRiskPage() {
   const teacher = useTeacher();
   const schoolId = teacher?.school_id ?? "";
+  const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
-    queryKey: ["curriculum-health", schoolId],
-    queryFn: () => getCurriculumHealth(schoolId),
+    queryKey: ["at-risk", schoolId],
+    queryFn: () => getAtRiskStudents(schoolId),
     enabled: !!schoolId,
-    staleTime: 120_000,
+    staleTime: 60_000,
   });
 
-  const struggling = data?.units.filter((u) => u.health_tier === "struggling") ?? [];
-  const watching = data?.units.filter((u) => u.health_tier === "watch") ?? [];
+  const seenMutation = useMutation({
+    mutationFn: ({ studentId, seen }: { studentId: string; seen: boolean }) =>
+      markAtRiskSeen(schoolId, studentId, seen),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["at-risk", schoolId] }),
+  });
+
+  const reminderMutation = useMutation({
+    mutationFn: (studentId: string) => sendAtRiskReminder(schoolId, studentId),
+  });
+
+  const unseen = data?.students.filter((s) => !s.is_seen) ?? [];
+  const seen = data?.students.filter((s) => s.is_seen) ?? [];
 
   return (
-    <div className="max-w-4xl space-y-6 p-6">
-      <h1 className="text-2xl font-bold text-gray-900">At-Risk Report</h1>
-      {isLoading && <Skeleton className="h-60 rounded-lg" />}
-      {data && (
+    <div className="max-w-5xl space-y-6 p-6">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">At-Risk Students</h1>
+        <p className="mt-1 text-sm text-gray-500">
+          Students who are inactive or have a low pass rate. Mark as seen once
+          you&apos;ve followed up, or send a push reminder.
+        </p>
+        {data && (
+          <p className="mt-0.5 text-xs text-gray-400">
+            Thresholds: inactive &gt; {data.inactive_days_threshold} days ·
+            pass rate &lt; {data.pass_rate_threshold}%
+          </p>
+        )}
+      </div>
+
+      {isLoading && (
+        <div className="space-y-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-14 animate-pulse rounded-xl bg-gray-100" />
+          ))}
+        </div>
+      )}
+
+      {!isLoading && data && data.total === 0 && (
+        <div className="rounded-xl border border-green-100 bg-green-50 py-14 text-center">
+          <CheckCircle className="mx-auto mb-3 h-10 w-10 text-green-400" />
+          <p className="text-sm font-medium text-green-700">No at-risk students</p>
+          <p className="mt-1 text-xs text-gray-500">
+            All enrolled students are active and passing. Check back later or
+            adjust thresholds in{" "}
+            <Link href="/school/reports/alerts" className="underline hover:text-gray-700">
+              Alert Settings
+            </Link>
+            .
+          </p>
+        </div>
+      )}
+
+      {!isLoading && data && data.total > 0 && (
         <>
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            {[
-              { label: "Healthy", count: data.healthy_count, tier: "healthy" },
-              { label: "Watch", count: data.watch_count, tier: "watch" },
-              { label: "Struggling", count: data.struggling_count, tier: "struggling" },
-              {
-                label: "No activity",
-                count: data.no_activity_count,
-                tier: "no_activity",
-              },
-            ].map(({ label, count, tier }) => (
-              <Card key={tier} className="border shadow-sm">
-                <CardContent className="p-4 text-center">
-                  <p className="text-2xl font-bold text-gray-900">{count}</p>
-                  <Badge className={cn("mt-1 text-xs", TIER_STYLE[tier])}>{label}</Badge>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-          {struggling.length > 0 && (
-            <Card className="border border-red-100 shadow-sm">
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center gap-2 text-base text-red-700">
-                  <XCircle className="h-4 w-4" />
-                  Struggling units ({struggling.length})
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
+          {/* Needs attention */}
+          {unseen.length > 0 && (
+            <section>
+              <h2 className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-700">
+                <UserX className="h-4 w-4 text-red-500" />
+                Needs attention ({unseen.length})
+              </h2>
+              <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
                 <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b bg-red-50/50">
-                      {[
-                        "Unit",
-                        "Subject",
-                        "Pass rate",
-                        "Avg attempts",
-                        "Recommended action",
-                      ].map((h) => (
+                  <thead className="border-b border-gray-100 bg-gray-50">
+                    <tr>
+                      {["Student", "Grade", "Last active", "Pass rate", "Risk", "Actions"].map(
+                        (h) => (
+                          <th
+                            key={h}
+                            className="px-4 py-3 text-left text-xs font-medium text-gray-500"
+                          >
+                            {h}
+                          </th>
+                        ),
+                      )}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {unseen.map((s) => (
+                      <tr key={s.student_id} className="hover:bg-gray-50">
+                        <td className="px-4 py-3">
+                          <Link
+                            href={`/school/reports/student/${s.student_id}`}
+                            className="font-medium text-gray-900 hover:text-indigo-600 hover:underline"
+                          >
+                            {s.student_name}
+                          </Link>
+                        </td>
+                        <td className="px-4 py-3 text-gray-500">Gr. {s.grade}</td>
+                        <td className="px-4 py-3">
+                          <LastActiveCell
+                            lastActive={s.last_active}
+                            inactiveDays={s.inactive_days}
+                          />
+                        </td>
+                        <td className="px-4 py-3">
+                          {s.pass_rate_pct != null ? (
+                            <span
+                              className={cn(
+                                "font-medium",
+                                s.risk_reasons.low_pass_rate
+                                  ? "text-red-600"
+                                  : "text-gray-700",
+                              )}
+                            >
+                              {s.pass_rate_pct.toFixed(0)}%
+                            </span>
+                          ) : (
+                            <span className="text-gray-400">—</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          <RiskBadge reasons={s.risk_reasons} />
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() =>
+                                reminderMutation.mutate(s.student_id)
+                              }
+                              disabled={reminderMutation.isPending}
+                              title="Send push reminder"
+                              className="inline-flex items-center gap-1 rounded bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-600 hover:bg-indigo-100 disabled:opacity-50"
+                            >
+                              <Bell className="h-3 w-3" />
+                              Remind
+                            </button>
+                            <button
+                              onClick={() =>
+                                seenMutation.mutate({
+                                  studentId: s.student_id,
+                                  seen: true,
+                                })
+                              }
+                              disabled={seenMutation.isPending}
+                              title="Mark as reviewed"
+                              className="inline-flex items-center gap-1 rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-200 disabled:opacity-50"
+                            >
+                              <Eye className="h-3 w-3" />
+                              Mark seen
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          )}
+
+          {/* Already reviewed */}
+          {seen.length > 0 && (
+            <section>
+              <h2 className="mb-2 flex items-center gap-2 text-sm font-semibold text-gray-500">
+                <CheckCircle className="h-4 w-4 text-green-400" />
+                Reviewed ({seen.length})
+              </h2>
+              <div className="overflow-hidden rounded-xl border border-gray-100 bg-white opacity-75">
+                <table className="w-full text-sm">
+                  <thead className="border-b border-gray-100 bg-gray-50">
+                    <tr>
+                      {["Student", "Grade", "Last active", "Pass rate", "Risk", ""].map((h) => (
                         <th
                           key={h}
-                          className="px-4 py-2.5 text-left text-xs font-medium text-gray-500"
+                          className="px-4 py-3 text-left text-xs font-medium text-gray-400"
                         >
                           {h}
                         </th>
@@ -84,80 +238,61 @@ export default function AtRiskReportPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
-                    {struggling.map((u) => (
-                      <tr key={u.unit_id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 font-medium text-gray-800">
-                          {u.unit_name ?? u.unit_id}
+                    {seen.map((s) => (
+                      <tr key={s.student_id} className="hover:bg-gray-50">
+                        <td className="px-4 py-3">
+                          <Link
+                            href={`/school/reports/student/${s.student_id}`}
+                            className="font-medium text-gray-700 hover:text-indigo-600 hover:underline"
+                          >
+                            {s.student_name}
+                          </Link>
                         </td>
-                        <td className="px-4 py-3 text-gray-500 capitalize">
-                          {u.subject}
+                        <td className="px-4 py-3 text-gray-400">Gr. {s.grade}</td>
+                        <td className="px-4 py-3 text-gray-400">
+                          <LastActiveCell
+                            lastActive={s.last_active}
+                            inactiveDays={s.inactive_days}
+                          />
                         </td>
-                        <td className="px-4 py-3 font-medium text-red-600">
-                          {u.first_attempt_pass_rate_pct.toFixed(0)}%
+                        <td className="px-4 py-3 text-gray-400">
+                          {s.pass_rate_pct != null ? `${s.pass_rate_pct.toFixed(0)}%` : "—"}
                         </td>
-                        <td className="px-4 py-3 text-gray-600">
-                          {u.avg_attempts_to_pass.toFixed(1)}
+                        <td className="px-4 py-3">
+                          <RiskBadge reasons={s.risk_reasons} />
                         </td>
-                        <td className="px-4 py-3 text-xs text-gray-500">
-                          {u.recommended_action}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </CardContent>
-            </Card>
-          )}
-          {watching.length > 0 && (
-            <Card className="border border-yellow-100 shadow-sm">
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center gap-2 text-base text-yellow-700">
-                  <AlertTriangle className="h-4 w-4" />
-                  Units to watch ({watching.length})
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b bg-yellow-50/50">
-                      {["Unit", "Subject", "Pass rate", "Avg score"].map((h) => (
-                        <th
-                          key={h}
-                          className="px-4 py-2.5 text-left text-xs font-medium text-gray-500"
-                        >
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-50">
-                    {watching.map((u) => (
-                      <tr key={u.unit_id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 font-medium text-gray-800">
-                          {u.unit_name ?? u.unit_id}
-                        </td>
-                        <td className="px-4 py-3 text-gray-500 capitalize">
-                          {u.subject}
-                        </td>
-                        <td className="px-4 py-3 font-medium text-yellow-600">
-                          {u.first_attempt_pass_rate_pct.toFixed(0)}%
-                        </td>
-                        <td className="px-4 py-3 text-gray-600">
-                          {u.avg_score_pct.toFixed(0)}%
+                        <td className="px-4 py-3">
+                          <button
+                            onClick={() =>
+                              seenMutation.mutate({
+                                studentId: s.student_id,
+                                seen: false,
+                              })
+                            }
+                            disabled={seenMutation.isPending}
+                            className="text-xs text-gray-400 hover:text-gray-600 disabled:opacity-50"
+                          >
+                            Unmark
+                          </button>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-              </CardContent>
-            </Card>
-          )}
-          {struggling.length === 0 && watching.length === 0 && (
-            <div className="py-12 text-center text-sm text-gray-400">
-              No at-risk units — all units are healthy.
-            </div>
+              </div>
+            </section>
           )}
         </>
+      )}
+
+      {reminderMutation.isSuccess && (
+        <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-xl bg-white px-5 py-3 shadow-lg ring-1 ring-gray-200">
+          <p className="text-sm text-gray-700">
+            {reminderMutation.data?.queued
+              ? "Reminder queued successfully."
+              : "No push tokens registered for this student."}
+          </p>
+        </div>
       )}
     </div>
   );

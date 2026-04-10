@@ -158,7 +158,14 @@ export default function AdminFeedbackPage() {
       ) : (
         <div className="py-16 text-center text-gray-400">
           <MessageSquare className="mx-auto mb-3 h-10 w-10 opacity-40" />
-          <p className="text-sm">No {showResolved ? "resolved" : "open"} feedback.</p>
+          <p className="text-sm font-medium text-gray-600">
+            No {showResolved ? "resolved" : "open"} feedback yet.
+          </p>
+          {!showResolved && (
+            <p className="mt-1 text-xs text-gray-400">
+              Students can submit feedback after completing a quiz. It will appear here once received.
+            </p>
+          )}
         </div>
       )}
     </div>
