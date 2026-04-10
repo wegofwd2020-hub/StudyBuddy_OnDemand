@@ -118,15 +118,24 @@ jobs:
         working-directory: backend
         run: |
           pytest tests/ -v --tb=short \
-            --cov=src --cov-report=xml --cov-report=term-missing \
+            --cov=src \
+            --cov-report=xml \
+            --cov-report=json \
+            --cov-report=term-missing \
             --cov-fail-under=70
+
+      - name: Check per-module coverage thresholds
+        working-directory: backend
+        run: python scripts/check_coverage_thresholds.py coverage.json
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: backend-coverage
-          path: backend/coverage.xml
+          path: |
+            backend/coverage.xml
+            backend/coverage.json
 
   # ── 3. Frontend lint + typecheck ─────────────────────────────────────────────
   frontend-lint:
