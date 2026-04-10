@@ -129,7 +129,7 @@ jobs:
         run: python scripts/check_coverage_thresholds.py coverage.json
 
       - name: Upload coverage report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: backend-coverage
@@ -197,7 +197,7 @@ jobs:
         run: npm test
 
       - name: Upload test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: frontend-test-results
@@ -286,7 +286,7 @@ jobs:
 
       # Upload SARIF files as artifacts so the build-metadata job can parse counts.
       - name: Upload Python SARIF artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: snyk-python-sarif
@@ -294,7 +294,7 @@ jobs:
           retention-days: 1
 
       - name: Upload Node.js SARIF artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: snyk-node-sarif
@@ -443,7 +443,7 @@ jobs:
           cat build-meta/build-metadata.env
 
       - name: Upload build-metadata artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: build-metadata
           path: build-meta/build-metadata.env
@@ -542,7 +542,7 @@ jobs:
             -o table
 
       - name: Upload SBOMs as CI artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: sbom-${{ github.sha }}
           path: |
