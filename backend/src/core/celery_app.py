@@ -10,7 +10,14 @@ misleading auth dependency.  This module is the canonical home.
 Workers are started with:
   celery -A src.core.celery_app worker -Q io,default --concurrency=4
   celery -A src.core.celery_app worker -Q pipeline --concurrency=2
-  celery -A src.core.celery_app beat --schedule /tmp/celerybeat-schedule
+  celery -A src.core.celery_app beat --loglevel=info
+
+Beat is configured to use RedBeat (celery-redbeat) which stores the schedule
+state in Redis instead of a local file.  Two Beat instances run simultaneously
+(primary and standby); the primary holds a Redis lock that expires after
+REDBEAT_LOCK_TIMEOUT seconds.  If the primary crashes, the standby acquires
+the lock within one lock-timeout window and resumes task dispatch automatically,
+eliminating the single-point-of-failure in the original file-based scheduler.
 
 All task *implementations* remain in src/auth/tasks — they register onto
 this Celery instance by importing celery_app from here.
@@ -35,6 +42,15 @@ celery_app.conf.update(
     result_serializer="json",
     timezone="UTC",
     enable_utc=True,
+    # ── RedBeat — distributed Beat scheduler ─────────────────────────────────
+    # Stores schedule state in Redis so multiple Beat instances can safely
+    # compete for the scheduler lock.  Only one instance dispatches tasks at
+    # a time; the other waits and takes over within lock_timeout seconds if
+    # the primary crashes.
+    beat_scheduler="redbeat.RedBeatScheduler",
+    redbeat_redis_url=settings.effective_celery_broker_url,
+    redbeat_lock_timeout=settings.REDBEAT_LOCK_TIMEOUT,
+    redbeat_key_prefix="redbeat:",
     task_routes={
         "src.auth.tasks.write_audit_log_task": {"queue": "io"},
         "src.auth.tasks.cascade_school_suspension": {"queue": "io"},

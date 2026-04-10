@@ -102,6 +102,13 @@ class Settings(BaseSettings):
     # ── Celery ────────────────────────────────────────────────────────────────
     CELERY_BROKER_URL: str | None = None
 
+    # ── RedBeat (distributed Beat scheduler) ─────────────────────────────────
+    # How long the primary Beat holds the Redis lock before it is considered
+    # dead and the standby instance takes over.  5 minutes gives the primary
+    # enough headroom for a slow task dispatch cycle while still recovering
+    # quickly after a crash.
+    REDBEAT_LOCK_TIMEOUT: int = 300  # seconds (5 minutes)
+
     # ── Dictionary (Phase 7) ─────────────────────────────────────────────────
     MW_API_KEY: str | None = None  # Merriam-Webster Collegiate Dictionary API key
 
