@@ -1,4 +1,4 @@
-"""0035 — teacher_subscription_overage
+"""0036 — teacher_subscription_overage
 
 Adds over-quota tracking columns to teacher_subscriptions so the
 check_teacher_seat_quotas Celery Beat task can flag independent teachers
@@ -17,15 +17,15 @@ teacher_subscriptions
                     enforce the 7-day grace period before content access
                     is restricted.  NULL when over_quota = FALSE.
 
-Revision ID: 0035
-Revises: 0034
+Revision ID: 0036
+Revises: 0035
 Create Date: 2026-04-10
 """
 
 from alembic import op
 
-revision = "0035"
-down_revision = "0034"
+revision = "0036"
+down_revision = "0035"
 branch_labels = None
 depends_on = None
 
