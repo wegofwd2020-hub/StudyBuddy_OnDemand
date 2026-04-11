@@ -112,14 +112,20 @@ async def stripe_webhook(request: Request) -> dict:
 async def _dispatch_event(conn, redis, event_type: str, obj: dict) -> None:
     """Route a Stripe event to the appropriate subscription handler.
 
-    Teacher subscription events are identified by product_type='teacher_subscription'
-    in checkout.session.metadata or by matching stripe_subscription_id against
-    teacher_subscriptions for lifecycle events.
+    Dispatch priority (first match wins):
+      1. student_connect_subscription — Option B revenue-share student payments (#104)
+      2. teacher_subscription         — Option A flat-fee teacher plans (#57)
+      3. school subscription events   — school billing (existing)
     """
-    # ── Teacher subscription events (#57) ─────────────────────────────────────
+    metadata = obj.get("metadata") or {}
+    product_type = metadata.get("product_type", "")
+
+    # ── Option B: student Connect subscription (#104) ─────────────────────────
     if event_type == "checkout.session.completed":
-        metadata = obj.get("metadata") or {}
-        if metadata.get("product_type") == "teacher_subscription":
+        if product_type == "student_connect_subscription":
+            await _dispatch_student_connect_checkout(conn, obj, metadata)
+            return
+        if product_type == "teacher_subscription":
             await _dispatch_teacher_checkout(conn, obj, metadata)
             return
 
@@ -130,6 +136,14 @@ async def _dispatch_event(conn, redis, event_type: str, obj: dict) -> None:
     ):
         stripe_sub_id = obj.get("id") or obj.get("subscription", "")
         if stripe_sub_id:
+            # Check student Connect subscriptions first (Option B)
+            from src.teacher.connect_service import find_teacher_by_student_subscription
+            teacher_id = await find_teacher_by_student_subscription(conn, stripe_sub_id)
+            if teacher_id:
+                await _dispatch_student_connect_lifecycle(conn, event_type, obj, stripe_sub_id)
+                return
+
+            # Then check teacher flat-fee subscriptions (Option A)
             from src.teacher.subscription_service import find_teacher_by_stripe_subscription
             teacher_id = await find_teacher_by_stripe_subscription(conn, stripe_sub_id)
             if teacher_id:
@@ -438,4 +452,179 @@ async def _handle_payment_action_required(conn, obj: dict) -> None:
         "payment_action_required_email_queued school_id=%s contact_email=%s",
         school_id,
         contact_email,
+    )
+
+
+# ── Student Connect subscription handlers (#104) ──────────────────────────────
+
+
+async def _dispatch_student_connect_checkout(conn, obj: dict, metadata: dict) -> None:
+    """Handle checkout.session.completed for product_type='student_connect_subscription'."""
+    import datetime as _dt
+    from src.teacher.connect_service import handle_student_subscription_activated
+
+    student_id = metadata.get("student_id", "")
+    teacher_id = metadata.get("teacher_id", "")
+    if not student_id or not teacher_id:
+        log.warning(
+            "student_connect_checkout.session.completed missing metadata "
+            "student_id=%s teacher_id=%s",
+            student_id, teacher_id,
+        )
+        return
+
+    stripe_customer_id = obj.get("customer", "")
+    stripe_subscription_id = obj.get("subscription", "")
+    current_period_end = None
+
+    try:
+        stripe_mod = _get_stripe_module()
+        from config import settings as _settings
+        stripe_mod.api_key = _settings.STRIPE_SECRET_KEY
+        sub = await run_stripe(stripe_mod.Subscription.retrieve, stripe_subscription_id)
+        current_period_end = _dt.datetime.fromtimestamp(
+            sub["current_period_end"], tz=_dt.UTC
+        )
+    except Exception as exc:
+        log.warning("could_not_fetch_student_connect_subscription_period error=%s", exc)
+
+    await handle_student_subscription_activated(
+        conn,
+        student_id=student_id,
+        teacher_id=teacher_id,
+        stripe_customer_id=stripe_customer_id,
+        stripe_subscription_id=stripe_subscription_id,
+        current_period_end=current_period_end,
+    )
+
+
+async def _dispatch_student_connect_lifecycle(
+    conn, event_type: str, obj: dict, stripe_sub_id: str
+) -> None:
+    """Handle lifecycle events for student Connect subscriptions."""
+    import datetime as _dt
+    from src.teacher.connect_service import (
+        handle_student_payment_failed,
+        handle_student_subscription_deleted,
+        handle_student_subscription_updated,
+    )
+
+    if event_type == "customer.subscription.updated":
+        status = _map_stripe_status(obj.get("status", "active"))
+        period_end_ts = obj.get("current_period_end")
+        current_period_end = (
+            _dt.datetime.fromtimestamp(period_end_ts, tz=_dt.UTC) if period_end_ts else None
+        )
+        await handle_student_subscription_updated(conn, stripe_sub_id, status, current_period_end)
+
+    elif event_type == "customer.subscription.deleted":
+        await handle_student_subscription_deleted(conn, stripe_sub_id)
+
+    elif event_type == "invoice.payment_failed":
+        await handle_student_payment_failed(conn, stripe_sub_id)
+
+
+# ── POST /subscription/connect-webhook ───────────────────────────────────────
+# Separate webhook endpoint for Stripe Connect account events (account.updated).
+# Stripe sends these to a dedicated endpoint registered in the Connect webhook
+# settings (not the platform webhook).  The Stripe-Signature header is verified
+# against STRIPE_CONNECT_WEBHOOK_SECRET.
+
+
+@router.post("/subscription/connect-webhook", status_code=200)
+async def stripe_connect_webhook(request: Request) -> dict:
+    """
+    Stripe Connect webhook endpoint — account.updated events from Express accounts.
+
+    Syncs onboarding state (charges_enabled, payouts_enabled) to
+    teacher_connect_accounts and marks billing_model='revenue_share' once
+    capabilities are fully enabled.
+
+    Security: Stripe-Signature verified against STRIPE_CONNECT_WEBHOOK_SECRET.
+    """
+    from config import settings
+
+    webhook_secret = getattr(settings, "STRIPE_CONNECT_WEBHOOK_SECRET", None)
+    if not webhook_secret:
+        log.error("stripe_connect_webhook_secret_not_configured")
+        raise HTTPException(status_code=503, detail={"error": "webhook_not_configured"})
+
+    payload = await request.body()
+    sig_header = request.headers.get("stripe-signature", "")
+
+    try:
+        stripe_mod = _get_stripe_module()
+        event = await run_stripe(
+            stripe_mod.Webhook.construct_event, payload, sig_header, webhook_secret
+        )
+    except Exception as exc:
+        log.warning("connect_signature_invalid error=%s", exc)
+        raise HTTPException(
+            status_code=400,
+            detail={"error": "invalid_signature"},
+        )
+
+    event_type = event["type"]
+    obj = event["data"]["object"]
+    stripe_event_id = event["id"]
+
+    async with get_db(request) as conn:
+        if await already_processed(conn, stripe_event_id):
+            return {"status": "already_processed"}
+
+        outcome = "ok"
+        error_detail = None
+        try:
+            if event_type == "account.updated":
+                await _dispatch_connect_account_updated(conn, obj)
+            else:
+                log.debug("connect_event_unhandled event_type=%s", event_type)
+        except Exception as exc:
+            log.error(
+                "connect_event_handler_failed event_id=%s event_type=%s error=%s",
+                stripe_event_id, event_type, exc,
+            )
+            outcome = "error"
+            error_detail = str(exc)
+
+        await log_stripe_event(conn, stripe_event_id, event_type, outcome, error_detail)
+
+    return {"status": "ok"}
+
+
+async def _dispatch_connect_account_updated(conn, obj: dict) -> None:
+    """
+    Sync Stripe Express account capability state to teacher_connect_accounts.
+
+    Stripe fires account.updated whenever onboarding progresses or a capability
+    changes.  We only update our row — no side effects on the teacher's plan
+    until onboarding_complete flips to True (handled in sync_connect_account).
+    """
+    from src.teacher.connect_service import sync_connect_account
+
+    stripe_account_id: str = obj.get("id", "")
+    charges_enabled: bool = bool(obj.get("charges_enabled", False))
+    payouts_enabled: bool = bool(obj.get("payouts_enabled", False))
+
+    if not stripe_account_id:
+        log.warning("connect_account_updated missing account id")
+        return
+
+    # Resolve teacher_id from the account row (set at onboard time).
+    teacher_id = await conn.fetchval(
+        "SELECT teacher_id::text FROM teacher_connect_accounts WHERE stripe_account_id = $1",
+        stripe_account_id,
+    )
+    if not teacher_id:
+        log.warning(
+            "connect_account_updated unknown stripe_account_id=%s", stripe_account_id
+        )
+        return
+
+    await sync_connect_account(
+        conn, teacher_id, stripe_account_id, charges_enabled, payouts_enabled
+    )
+    log.info(
+        "connect_account_updated teacher_id=%s charges=%s payouts=%s",
+        teacher_id, charges_enabled, payouts_enabled,
     )

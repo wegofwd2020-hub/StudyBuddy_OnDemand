@@ -356,3 +356,33 @@ def get_teacher_plan(plan_id: str) -> TeacherPlan:
     if plan_id not in TEACHER_PLANS:
         raise KeyError(f"Unknown teacher plan: {plan_id!r}. Valid: {sorted(VALID_TEACHER_PLAN_IDS)}")
     return TEACHER_PLANS[plan_id]
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 5. Option B — Revenue-share billing constants  (#104)
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+@dataclass(frozen=True)
+class RevenueShare:
+    """
+    Platform revenue-share parameters for Option B teacher billing (#104).
+
+    Under this model the teacher earns teacher_pct % of each student's monthly
+    payment.  The platform keeps platform_pct % as a Stripe application fee.
+    Stripe's application_fee_percent accepts an integer so both values are ints
+    that must sum to 100.
+
+    student_price_monthly is the platform's listed per-student price the
+    student sees at checkout.
+    """
+
+    teacher_pct: int = 70          # % forwarded to teacher's Connect account
+    platform_pct: int = 30         # % kept by platform as application fee
+    student_price_monthly: str = "9.99"  # USD, decimal string
+
+
+REVENUE_SHARE = RevenueShare()
+
+# Passed directly to Stripe's application_fee_percent on Subscription.create.
+CONNECT_APPLICATION_FEE_PCT: int = REVENUE_SHARE.platform_pct
