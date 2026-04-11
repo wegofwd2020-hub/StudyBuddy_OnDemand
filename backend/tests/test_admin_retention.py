@@ -439,6 +439,87 @@ async def test_admin_action_force_delete_bypasses_grade_assignment(client: Async
     assert r.json()["success"] is True
 
 
+@pytest.mark.asyncio
+async def test_admin_force_delete_removes_content_files(client: AsyncClient):
+    """
+    force_delete calls StorageBackend.delete_tree for the curriculum's content
+    directory in addition to removing the DB rows.
+    """
+    from unittest.mock import AsyncMock
+
+    from main import app as _app
+
+    reg = await _register_school(client)
+    sid = reg["school_id"]
+    cid = await _seed_curriculum(sid, grade=9, retention_status="active")
+
+    # Patch delete_tree on the live storage instance so we can assert it's called.
+    original_delete_tree = _app.state.storage.delete_tree
+    mock_delete = AsyncMock(return_value=None)
+    _app.state.storage.delete_tree = mock_delete
+
+    token = make_admin_token(role="super_admin")
+    try:
+        r = await client.post(
+            f"/api/v1/admin/schools/{sid}/curriculum/versions/{cid}/action",
+            json={"action": "force_delete", "reason": "Content files must be removed"},
+            headers={"Authorization": f"Bearer {token}"},
+        )
+    finally:
+        _app.state.storage.delete_tree = original_delete_tree
+
+    assert r.status_code == 200
+    assert r.json()["success"] is True
+
+    # delete_tree must have been called with the curriculum's content path.
+    mock_delete.assert_called_once_with(f"curricula/{cid}")
+
+
+@pytest.mark.asyncio
+async def test_admin_force_delete_succeeds_even_if_file_deletion_fails(client: AsyncClient):
+    """
+    If storage.delete_tree raises (e.g. S3 permission error), force_delete still
+    returns 200 — the DB row is gone, which is the correctness-critical outcome.
+    File cleanup can be retried manually.
+    """
+    from unittest.mock import AsyncMock, patch
+
+    reg = await _register_school(client)
+    sid = reg["school_id"]
+    cid = await _seed_curriculum(sid, grade=10, retention_status="unavailable")
+
+    token = make_admin_token(role="super_admin")
+
+    with patch(
+        "src.admin.retention_router.get_storage",
+        return_value=lambda: None,  # not used — we patch the StorageBackend directly
+    ):
+        pass  # approach: patch delete_tree on the actual app.state.storage instance
+
+    from main import app as _app
+    original_delete_tree = _app.state.storage.delete_tree
+    _app.state.storage.delete_tree = AsyncMock(side_effect=Exception("S3 permission denied"))
+
+    try:
+        r = await client.post(
+            f"/api/v1/admin/schools/{sid}/curriculum/versions/{cid}/action",
+            json={"action": "force_delete", "reason": "Resilience test"},
+            headers={"Authorization": f"Bearer {token}"},
+        )
+    finally:
+        _app.state.storage.delete_tree = original_delete_tree
+
+    # Action must still succeed — DB is the source of truth.
+    assert r.status_code == 200
+    assert r.json()["success"] is True
+
+    # Curriculum row is gone despite the storage error.
+    row = await _pool_fetchrow(
+        "SELECT curriculum_id FROM curricula WHERE curriculum_id = $1", cid
+    )
+    assert row is None
+
+
 # ── Auth guards for action endpoint ──────────────────────────────────────────
 
 

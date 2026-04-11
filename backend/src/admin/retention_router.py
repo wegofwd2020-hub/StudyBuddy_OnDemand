@@ -28,8 +28,10 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel
 
 from src.auth.dependencies import get_current_admin
+from src.core.cdn import invalidate_curriculum
 from src.core.db import get_db
 from src.core.permissions import ROLE_PERMISSIONS
+from src.core.storage import StorageBackend, get_storage
 from src.utils.logger import get_logger
 
 log = get_logger("admin.retention")
@@ -298,6 +300,7 @@ async def admin_curriculum_action(
     body: CurriculumActionRequest,
     request: Request,
     admin: Annotated[dict, Depends(_require("school:manage"))],
+    storage: StorageBackend = Depends(get_storage),
 ) -> CurriculumActionResponse:
     """
     Perform an admin action on any school's curriculum version.
@@ -494,6 +497,35 @@ async def admin_curriculum_action(
 
             units_removed = _rowcount(units_result)
             versions_removed = _rowcount(versions_result)
+
+            # Delete content files from the Content Store.
+            # Must run after the DB transaction so any request racing against
+            # the delete already sees the curricula row as gone.
+            try:
+                await storage.delete_tree(f"curricula/{curriculum_id}")
+                log.info(
+                    "admin_force_delete_files_removed curriculum_id=%s", curriculum_id
+                )
+            except Exception as exc:
+                # File deletion failure is logged but never suppresses the action —
+                # the DB row is already gone; orphaned files can be cleaned up manually.
+                log.warning(
+                    "admin_force_delete_file_error curriculum_id=%s err=%s",
+                    curriculum_id, exc,
+                )
+
+            # Invalidate CloudFront so purged content is evicted from the CDN edge.
+            try:
+                from config import settings as _cfg  # noqa: PLC0415
+                await invalidate_curriculum(
+                    curriculum_id,
+                    getattr(_cfg, "CLOUDFRONT_DISTRIBUTION_ID", None),
+                )
+            except Exception as exc:
+                log.warning(
+                    "admin_force_delete_cdn_error curriculum_id=%s err=%s",
+                    curriculum_id, exc,
+                )
 
             await _write_audit(
                 conn, admin_id_str, "admin_curriculum_force_delete",
