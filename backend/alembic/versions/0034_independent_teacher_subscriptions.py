@@ -95,6 +95,17 @@ def downgrade() -> None:
     # SET LOCAL ensures the RLS bypass applies within this migration's transaction
     # even when running as a non-superuser (e.g. the studybuddy_rls_tester role in CI).
     op.execute("SELECT set_config('app.current_school_id', 'bypass', true)")
+    # Delete student_teacher_assignments for independent teachers first to avoid
+    # FK violation (student_teacher_assignments.teacher_id ON DELETE RESTRICT).
+    op.execute(
+        """
+        DELETE FROM student_teacher_assignments
+        WHERE teacher_id IN (
+            SELECT teacher_id FROM teachers
+            WHERE auth_provider = 'auth0' AND school_id IS NULL
+        )
+        """
+    )
     op.execute(
         "DELETE FROM teachers WHERE auth_provider = 'auth0' AND school_id IS NULL"
     )

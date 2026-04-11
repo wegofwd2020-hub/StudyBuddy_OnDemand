@@ -55,6 +55,17 @@ _direct_dev_url = _dev_url.replace("@pgbouncer:", "@db:")
 _default_test_url = _direct_dev_url.replace("/studybuddy", "/studybuddy_test")
 TEST_DB_URL = os.environ.get("TEST_DB_URL", os.environ.get("DIRECT_DB_URL", _default_test_url))
 
+# For DDL operations (CREATE ROLE) we need a direct superuser connection to
+# @db:5432 — the PostgreSQL container where studybuddy is the cluster owner.
+# All env URLs may point to PgBouncer or an external proxy where studybuddy
+# lacks CREATEROLE.  Extract credentials from any known URL and rebuild with
+# the internal Docker hostname.
+import re as _re
+_any_url = os.environ.get("DIRECT_DB_URL", os.environ.get("DATABASE_URL", _direct_dev_url))
+_m = _re.match(r"postgresql://([^:]+):([^@]+)@", _any_url)
+_user, _pass = (_m.group(1), _m.group(2)) if _m else ("studybuddy", "studybuddy_dev")
+_DIRECT_TEST_DB_URL = f"postgresql://{_user}:{_pass}@db:5432/studybuddy_test"
+
 
 # ── Session-scoped: ensure non-superuser role exists ─────────────────────────
 
@@ -79,7 +90,18 @@ def rls_role_setup():
     import asyncio
 
     async def _setup() -> None:
-        conn = await asyncpg.connect(TEST_DB_URL)
+        # Prefer a direct @db:5432 URL where studybuddy is the cluster superuser.
+        # Fall back to TEST_DB_URL if the direct URL is unavailable.
+        for url in [_DIRECT_TEST_DB_URL, TEST_DB_URL]:
+            try:
+                conn = await asyncpg.connect(url, timeout=5)
+                break
+            except Exception:
+                continue
+        else:
+            # Neither URL reachable — tests will be skipped below.
+            return
+
         try:
             await conn.execute(f"""
                 DO $$ BEGIN
@@ -90,6 +112,8 @@ def rls_role_setup():
             """)
             await conn.execute(f"GRANT ALL ON ALL TABLES IN SCHEMA public TO {_RLS_ROLE}")
             await conn.execute(f"GRANT USAGE ON SCHEMA public TO {_RLS_ROLE}")
+        except asyncpg.InsufficientPrivilegeError:
+            pass  # CREATEROLE not available — tests will be skipped by rls_conn
         finally:
             await conn.close()
 
@@ -113,6 +137,17 @@ async def rls_conn(rls_role_setup):
     All INSERTs are rolled back on teardown.
     """
     conn = await asyncpg.connect(TEST_DB_URL, timeout=10, command_timeout=10)
+    # Check the role exists before proceeding — if CREATEROLE was denied during
+    # setup (non-superuser env), skip rather than error.
+    role_exists = await conn.fetchval(
+        "SELECT 1 FROM pg_roles WHERE rolname = $1", _RLS_ROLE
+    )
+    if not role_exists:
+        await conn.close()
+        pytest.skip(
+            f"Role '{_RLS_ROLE}' does not exist on this DB cluster. "
+            "Run: ALTER ROLE studybuddy CREATEROLE; (as superuser on the test DB)"
+        )
     tr = conn.transaction()
     await tr.start()
     # Switch to non-superuser role — RLS is now enforced.

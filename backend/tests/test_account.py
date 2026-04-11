@@ -34,28 +34,39 @@ async def _create_student(pool, email: str = None, status: str = "active") -> di
 
 
 async def _create_school(pool) -> dict:
-    row = await pool.fetchrow(
-        """
-        INSERT INTO schools (name, contact_email, country)
-        VALUES ('Test School', 'school@example.com', 'CA')
-        RETURNING school_id, name, status
-        """
-    )
+    # Acquire explicitly so we can set the RLS bypass before inserting.
+    # get_db() resets app.current_school_id to '' on release, so pool connections
+    # used after any HTTP request have '' and would be denied by FORCE RLS.
+    # Use a random email to avoid the uq_schools_contact_email unique constraint
+    # (migration 0025) when multiple tests create schools in the same session.
+    email = f"school_{uuid.uuid4().hex[:8]}@example.com"
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        row = await conn.fetchrow(
+            """
+            INSERT INTO schools (name, contact_email, country)
+            VALUES ('Test School', $1, 'CA')
+            RETURNING school_id, name, status
+            """,
+            email,
+        )
     return dict(row)
 
 
 async def _create_teacher(pool, school_id: uuid.UUID, email: str = None) -> dict:
     email = email or f"teacher_{uuid.uuid4().hex[:8]}@example.com"
-    row = await pool.fetchrow(
-        """
-        INSERT INTO teachers (school_id, external_auth_id, name, email, role, account_status)
-        VALUES ($1, $2, 'Test Teacher', $3, 'teacher', 'active')
-        RETURNING teacher_id, school_id, name, email, account_status
-        """,
-        school_id,
-        f"auth0|{uuid.uuid4()}",
-        email,
-    )
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        row = await conn.fetchrow(
+            """
+            INSERT INTO teachers (school_id, external_auth_id, name, email, role, account_status)
+            VALUES ($1, $2, 'Test Teacher', $3, 'teacher', 'active')
+            RETURNING teacher_id, school_id, name, email, account_status
+            """,
+            school_id,
+            f"auth0|{uuid.uuid4()}",
+            email,
+        )
     return dict(row)
 
 

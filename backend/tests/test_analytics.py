@@ -36,7 +36,7 @@ async def _insert_student(client: AsyncClient, student_id: str) -> None:
         ON CONFLICT (student_id) DO NOTHING
         """,
         uuid.UUID(student_id),
-        f"auth0|analytics-{student_id[:8]}",
+        f"auth0|analytics-{student_id.replace('-', '')[:20]}",
         f"Analytics Student {student_id[:6]}",
         f"analytics-{student_id[:6]}@test.invalid",
     )
@@ -100,8 +100,8 @@ async def test_lesson_end_fires_and_returns_200(client, db_conn, student_token):
 @pytest.mark.asyncio
 async def test_lesson_end_ownership_enforced(client, db_conn):
     """Student B cannot end student A's lesson view."""
-    token_a = make_student_token()
-    token_b = make_student_token()
+    token_a = make_student_token(student_id="a1aa0000-0000-0000-0000-000000000010")
+    token_b = make_student_token(student_id="b1bb0000-0000-0000-0000-000000000011")
     student_a = _student_id_from_token(token_a)
     student_b = _student_id_from_token(token_b)
 

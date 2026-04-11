@@ -29,18 +29,18 @@ def _plan_defaults(plan: str) -> dict:
 
     mapping = {
         "starter": {
-            "max_students": settings.SCHOOL_SEATS_STARTER_STUDENTS,
-            "max_teachers": settings.SCHOOL_SEATS_STARTER_TEACHERS,
+            "max_students": settings.school_seats_starter_students,
+            "max_teachers": settings.school_seats_starter_teachers,
             "pipeline_quota": settings.SCHOOL_PIPELINE_QUOTA_STARTER,
         },
         "professional": {
-            "max_students": settings.SCHOOL_SEATS_PROFESSIONAL_STUDENTS,
-            "max_teachers": settings.SCHOOL_SEATS_PROFESSIONAL_TEACHERS,
+            "max_students": settings.school_seats_professional_students,
+            "max_teachers": settings.school_seats_professional_teachers,
             "pipeline_quota": settings.SCHOOL_PIPELINE_QUOTA_PROFESSIONAL,
         },
         "enterprise": {
-            "max_students": settings.SCHOOL_SEATS_ENTERPRISE_STUDENTS,
-            "max_teachers": settings.SCHOOL_SEATS_ENTERPRISE_TEACHERS,
+            "max_students": settings.school_seats_enterprise_students,
+            "max_teachers": settings.school_seats_enterprise_teachers,
             "pipeline_quota": settings.SCHOOL_PIPELINE_QUOTA_ENTERPRISE,
         },
     }

@@ -242,9 +242,9 @@ async def get_class_metrics(
 
     struggle_flag = True when first_attempt_pass_rate_pct < 50% OR mean_attempts_to_pass > 2.
     """
-    # All enrolled student IDs for the school.
+    # All enrolled student IDs for the school (exclude rows where student hasn't linked yet).
     enrolled = await conn.fetch(
-        "SELECT student_id::text FROM school_enrolments WHERE school_id = $1 AND status = 'active'",
+        "SELECT student_id::text FROM school_enrolments WHERE school_id = $1 AND status = 'active' AND student_id IS NOT NULL",
         __import__("uuid").UUID(school_id),
     )
     enrolled_ids = [r["student_id"] for r in enrolled]

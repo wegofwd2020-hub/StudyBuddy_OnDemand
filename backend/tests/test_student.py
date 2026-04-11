@@ -67,23 +67,30 @@ async def test_dashboard_returns_correct_structure(client, db_conn, student_toke
 
 
 @pytest.mark.asyncio
-async def test_dashboard_cached_in_redis(client, db_conn, student_token, fake_redis):
-    """Second call returns cached value from Redis."""
+async def test_dashboard_cached_in_redis(client, db_conn, fake_redis):
+    """Second call returns cached value from Redis.
+
+    Uses a unique student ID to avoid the in-process L1 TTLCache being
+    pre-populated by test_dashboard_returns_correct_structure (which uses the
+    shared student_token fixture).  A cache hit on L1 skips the Redis write,
+    causing fake_redis.get() to return None even after the first HTTP call.
+    """
+    fresh_token = make_student_token(student_id="fc000000-0000-0000-0000-000000000001")
     from jose import jwt as _jwt
-    payload = _jwt.decode(student_token, "test-secret-do-not-use-in-production-aaaa", algorithms=["HS256"])
+    payload = _jwt.decode(fresh_token, "test-secret-do-not-use-in-production-aaaa", algorithms=["HS256"])
     student_id = payload["student_id"]
     await _insert_student(client, student_id)
 
-    # First call — populates cache
-    r1 = await client.get("/api/v1/student/dashboard", headers=_auth(student_token))
+    # First call — populates L1 + L2 (Redis) cache
+    r1 = await client.get("/api/v1/student/dashboard", headers=_auth(fresh_token))
     assert r1.status_code == 200
 
-    # Cache should now be set
+    # Cache should now be set in Redis
     cached = await fake_redis.get(f"dashboard:{student_id}")
     assert cached is not None
 
-    # Second call — served from cache
-    r2 = await client.get("/api/v1/student/dashboard", headers=_auth(student_token))
+    # Second call — served from cache (same shape)
+    r2 = await client.get("/api/v1/student/dashboard", headers=_auth(fresh_token))
     assert r2.status_code == 200
     assert r2.json() == r1.json()
 

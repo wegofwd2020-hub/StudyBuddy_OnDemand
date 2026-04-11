@@ -120,28 +120,42 @@ async def _register_school(client: AsyncClient, suffix: str = "") -> dict:
 
 
 async def _enrol_student(pool, school_id: str, student_email: str) -> None:
-    await pool.execute(
-        """
-        INSERT INTO school_enrolments (school_id, student_email, status)
-        VALUES ($1, $2, 'active')
-        ON CONFLICT (school_id, student_email) DO NOTHING
-        """,
-        uuid.UUID(school_id),
-        student_email,
-    )
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        await conn.execute(
+            """
+            INSERT INTO school_enrolments (school_id, student_email, status)
+            VALUES ($1, $2, 'active')
+            ON CONFLICT (school_id, student_email) DO NOTHING
+            """,
+            uuid.UUID(school_id),
+            student_email,
+        )
+
+
+async def _link_student_enrolment(pool, school_id: str, student_id: str, student_email: str) -> None:
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        await conn.execute(
+            "UPDATE school_enrolments SET student_id = $1 WHERE school_id = $2 AND student_email = $3",
+            uuid.UUID(student_id), uuid.UUID(school_id), student_email,
+        )
 
 
 # ── GET /analytics/student/me ─────────────────────────────────────────────────
 
 @pytest.mark.asyncio
-async def test_student_metrics_empty_returns_defaults(client, db_conn, student_token):
+async def test_student_metrics_empty_returns_defaults(client, db_conn):
     """Student with no sessions returns zero-valued response."""
-    student_id = _student_id_from_token(student_token)
+    # Use a unique student ID to avoid leftover lesson_views from earlier tests
+    # (HTTP-level writes via the app pool are committed and persist across tests).
+    fresh_token = make_student_token(student_id="e0000000-0000-0000-0000-000000000099")
+    student_id = _student_id_from_token(fresh_token)
     await _insert_student(client, student_id)
 
     r = await client.get(
         "/api/v1/analytics/student/me",
-        headers={"Authorization": f"Bearer {student_token}"},
+        headers={"Authorization": f"Bearer {fresh_token}"},
     )
     assert r.status_code == 200, r.text
     data = r.json()
@@ -240,13 +254,9 @@ async def test_class_metrics_with_data(client, db_conn):
         student_email, uuid.UUID(student_id),
     )
 
-    # Enrol by school_id + student_email (active)
+    # Enrol by school_id + student_email (active) and link the student_id
     await _enrol_student(pool, school_id, student_email)
-    # Link student_id to enrolment
-    await pool.execute(
-        "UPDATE school_enrolments SET student_id = $1 WHERE school_id = $2 AND student_email = $3",
-        uuid.UUID(student_id), uuid.UUID(school_id), student_email,
-    )
+    await _link_student_enrolment(pool, school_id, student_id, student_email)
 
     # Insert quiz attempt
     await _insert_progress_session(pool, student_id, unit_id="G8-SCI-001", subject="Science", score=80.0, passed=True, attempt_number=1)
@@ -284,10 +294,7 @@ async def test_class_metrics_struggle_flag_low_pass_rate(client, db_conn):
             email, uuid.UUID(sid),
         )
         await _enrol_student(pool, school_id, email)
-        await pool.execute(
-            "UPDATE school_enrolments SET student_id = $1 WHERE school_id = $2 AND student_email = $3",
-            uuid.UUID(sid), uuid.UUID(school_id), email,
-        )
+        await _link_student_enrolment(pool, school_id, sid, email)
         await _insert_progress_session(
             pool, sid, unit_id="G8-MATH-STRUGGLE", subject="Mathematics",
             score=30.0, passed=False, attempt_number=1,

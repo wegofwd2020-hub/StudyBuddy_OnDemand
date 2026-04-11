@@ -36,7 +36,7 @@ async def _insert_student(client: AsyncClient, student_id: str) -> None:
         ON CONFLICT (student_id) DO NOTHING
         """,
         uuid.UUID(student_id),
-        f"auth0|test-{student_id[:8]}",
+        f"auth0|test-{student_id.replace('-', '')[:20]}",
         f"Test Student {student_id[:6]}",
         f"test-{student_id[:6]}@test.invalid",
     )
@@ -55,12 +55,12 @@ async def _start_session(client: AsyncClient, token: str) -> dict:
 # ── Tests ─────────────────────────────────────────────────────────────────────
 
 @pytest.mark.asyncio
-async def test_start_session_returns_201(client, db_conn, student_token):
+async def test_start_session_returns_201(client, db_conn):
     """POST /progress/session creates a session and returns attempt_number = 1."""
-    sid = make_student_token.__kwdefaults__  # not needed
-    token = student_token
-    from tests.helpers.token_factory import make_student_token as _make
+    # Use a unique student ID to avoid leftover progress_sessions from earlier tests
+    # (direct pool writes are committed and persist across the test session).
     import jose.jwt as _jwt
+    token = make_student_token(student_id="f0000000-0000-0000-0000-000000000099")
     payload = _jwt.decode(token, "test-secret-do-not-use-in-production-aaaa", algorithms=["HS256"])
     student_id = payload["student_id"]
 
@@ -75,24 +75,25 @@ async def test_start_session_returns_201(client, db_conn, student_token):
 
 
 @pytest.mark.asyncio
-async def test_start_session_increments_attempt_number(client, db_conn, student_token):
+async def test_start_session_increments_attempt_number(client, db_conn):
     """Second session for the same unit has attempt_number = 2 after first is completed."""
     from jose import jwt as _jwt
-    payload = _jwt.decode(student_token, "test-secret-do-not-use-in-production-aaaa", algorithms=["HS256"])
+    token = make_student_token(student_id="f1000000-0000-0000-0000-000000000098")
+    payload = _jwt.decode(token, "test-secret-do-not-use-in-production-aaaa", algorithms=["HS256"])
     student_id = payload["student_id"]
     await _insert_student(client, student_id)
 
     with patch("src.auth.tasks.celery_app.send_task", return_value=None):
-        s1 = await _start_session(client, student_token)
+        s1 = await _start_session(client, token)
         # End session 1
         r = await client.post(
             f"/api/v1/progress/session/{s1['session_id']}/end",
             json={"score": 8, "total_questions": 8},
-            headers={"Authorization": f"Bearer {student_token}"},
+            headers={"Authorization": f"Bearer {token}"},
         )
         assert r.status_code == 200
 
-        s2 = await _start_session(client, student_token)
+        s2 = await _start_session(client, token)
         assert s2["attempt_number"] == 2
 
 
@@ -142,9 +143,9 @@ async def test_answer_wrong_session_returns_404(client, db_conn, student_token):
 @pytest.mark.asyncio
 async def test_answer_other_student_session_returns_403(client, db_conn):
     """Student B cannot answer on Student A's session."""
-    token_a = make_student_token()
-    token_b = make_student_token()
     from jose import jwt as _jwt
+    token_a = make_student_token(student_id="fa000000-0000-0000-0000-000000000010")
+    token_b = make_student_token(student_id="fb000000-0000-0000-0000-000000000011")
     pa = _jwt.decode(token_a, "test-secret-do-not-use-in-production-aaaa", algorithms=["HS256"])
     pb = _jwt.decode(token_b, "test-secret-do-not-use-in-production-aaaa", algorithms=["HS256"])
 
