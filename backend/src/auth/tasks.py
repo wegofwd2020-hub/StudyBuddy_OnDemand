@@ -1831,7 +1831,11 @@ def purge_expired_curricula() -> None:
                 "SELECT set_config('app.current_school_id', 'bypass', false)"
             )
             storage = LocalStorage(root=getattr(cfg, "CONTENT_STORE_PATH", "/tmp/studybuddy-content"))
-            await purge_grace_expired(conn, storage)
+            await purge_grace_expired(
+                conn,
+                storage,
+                distribution_id=getattr(cfg, "CLOUDFRONT_DISTRIBUTION_ID", None),
+            )
         finally:
             await conn.close()
 
