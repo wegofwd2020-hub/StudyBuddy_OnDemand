@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import asyncpg
 
+from src.core.cdn import invalidate_curriculum
 from src.core.storage import StorageBackend
 from src.utils.logger import get_logger
 
@@ -226,6 +227,7 @@ async def send_purge_30day_warnings(conn: asyncpg.Connection) -> int:
 async def purge_grace_expired(
     conn: asyncpg.Connection,
     storage: StorageBackend,
+    distribution_id: str | None = None,
 ) -> list[dict]:
     """
     Permanently delete content files for curricula whose 180-day grace period
@@ -278,8 +280,19 @@ async def purge_grace_expired(
                 cid, exc,
             )
 
-        # CDN invalidation stub — Phase G will call CloudFront here.
-        log.info("retention_purge_cdn_invalidation_stub curriculum_id=%s", cid)
+        # Invalidate CloudFront edge cache so purged content is not served
+        # after the DB has already marked the curriculum as 'purged'.
+        try:
+            await invalidate_curriculum(cid, distribution_id)
+        except Exception as exc:
+            # CDN invalidation failure must not suppress the purge — log and
+            # continue.  The files are already deleted from the Content Store;
+            # CloudFront will serve a 404 to any student requesting them once
+            # the TTL expires (max 1 hour).
+            log.warning(
+                "retention_purge_cdn_invalidation_failed curriculum_id=%s err=%s",
+                cid, exc,
+            )
 
         _queue_retention_email(
             school_id=row["school_id"],

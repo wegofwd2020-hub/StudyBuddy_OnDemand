@@ -1831,7 +1831,11 @@ def purge_expired_curricula() -> None:
                 "SELECT set_config('app.current_school_id', 'bypass', false)"
             )
             storage = LocalStorage(root=getattr(cfg, "CONTENT_STORE_PATH", "/tmp/studybuddy-content"))
-            await purge_grace_expired(conn, storage)
+            await purge_grace_expired(
+                conn,
+                storage,
+                distribution_id=getattr(cfg, "CLOUDFRONT_DISTRIBUTION_ID", None),
+            )
         finally:
             await conn.close()
 
@@ -1865,3 +1869,105 @@ def send_payment_action_required_email_task(
         raise self.retry(exc=exc, countdown=30)
 
     _run_async(_run())
+
+
+# ── Independent teacher seat-quota monitoring (#105) ─────────────────────────
+
+
+@celery_app.task(name="src.auth.tasks.check_teacher_seat_quotas")
+def check_teacher_seat_quotas() -> None:
+    """
+    Daily seat-quota check for independent teacher flat-fee plans (#105).
+
+    For every active/trialing teacher_subscriptions row:
+    - seats_used > max_students AND NOT over_quota  → flag over_quota, stamp over_quota_since.
+    - seats_used <= max_students AND over_quota      → clear the flag.
+    - already flagged AND over_quota_since > 7 days → the entitlement middleware will
+      block content access on the next request; this task does not block access directly.
+
+    The task is idempotent — re-running produces no cumulative side effects.
+    Runs daily at 07:00 UTC (after materialized view refresh at 02:00 UTC).
+    """
+    from config import settings as cfg
+
+    async def _run() -> None:
+        import asyncpg as _asyncpg
+
+        from src.teacher.subscription_service import (
+            clear_teacher_over_quota,
+            flag_teacher_over_quota,
+        )
+
+        pool = await _asyncpg.create_pool(
+            cfg.DATABASE_URL, min_size=1, max_size=3, statement_cache_size=0
+        )
+        try:
+            async with pool.acquire() as conn:
+                # Bypass RLS for this cross-school admin scan.
+                await conn.execute(
+                    "SELECT set_config('app.current_school_id', 'bypass', false)"
+                )
+                rows = await conn.fetch(
+                    """
+                    SELECT ts.teacher_id::text AS teacher_id,
+                           ts.max_students,
+                           ts.over_quota,
+                           ts.over_quota_since,
+                           COUNT(s.student_id) AS seats_used
+                    FROM teacher_subscriptions ts
+                    LEFT JOIN student_teacher_assignments sta
+                        ON sta.teacher_id = ts.teacher_id
+                    LEFT JOIN students s
+                        ON s.student_id = sta.student_id
+                       AND s.school_id IS NULL
+                       AND s.account_status = 'active'
+                    WHERE ts.status IN ('active', 'trialing')
+                    GROUP BY ts.teacher_id, ts.max_students,
+                             ts.over_quota, ts.over_quota_since
+                    """
+                )
+
+            flagged = 0
+            cleared = 0
+            for row in rows:
+                teacher_id = row["teacher_id"]
+                seats_used = int(row["seats_used"] or 0)
+                max_s = row["max_students"]
+                currently_over = row["over_quota"]
+
+                if seats_used > max_s and not currently_over:
+                    async with pool.acquire() as conn:
+                        await conn.execute(
+                            "SELECT set_config('app.current_school_id', 'bypass', false)"
+                        )
+                        await flag_teacher_over_quota(conn, teacher_id)
+                    flagged += 1
+                    logging.getLogger("tasks.check_teacher_seat_quotas").info(
+                        "over_quota_flagged teacher_id=%s seats=%d max=%d",
+                        teacher_id, seats_used, max_s,
+                    )
+                elif seats_used <= max_s and currently_over:
+                    async with pool.acquire() as conn:
+                        await conn.execute(
+                            "SELECT set_config('app.current_school_id', 'bypass', false)"
+                        )
+                        await clear_teacher_over_quota(conn, teacher_id)
+                    cleared += 1
+                    logging.getLogger("tasks.check_teacher_seat_quotas").info(
+                        "over_quota_cleared teacher_id=%s seats=%d max=%d",
+                        teacher_id, seats_used, max_s,
+                    )
+
+            logging.getLogger("tasks.check_teacher_seat_quotas").info(
+                "check_teacher_seat_quotas_done flagged=%d cleared=%d total=%d",
+                flagged, cleared, len(rows),
+            )
+        finally:
+            await pool.close()
+
+    try:
+        _run_async(_run())
+    except Exception as exc:
+        logging.getLogger("tasks.check_teacher_seat_quotas").warning(
+            "check_teacher_seat_quotas_failed: %s", exc
+        )

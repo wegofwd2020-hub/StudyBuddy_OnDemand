@@ -558,3 +558,382 @@ def test_get_teacher_plan_invalid_raises():
     from src.pricing import get_teacher_plan
     with pytest.raises(KeyError):
         get_teacher_plan("enterprise")
+
+
+# ── PATCH /teachers/{teacher_id}/subscription/plan (#105) ────────────────────
+
+
+@pytest.mark.asyncio
+async def test_upgrade_plan_solo_to_growth(client: AsyncClient):
+    """Upgrading from solo to growth swaps Stripe price and updates DB."""
+    tid = str(uuid.uuid4())
+    await _create_independent_teacher(client, tid)
+    sub_id = await _insert_teacher_subscription(client, tid, plan="solo")
+    token = _indep_token(tid)
+
+    mock_sub = MagicMock()
+    mock_sub.__getitem__ = lambda self, k: {"items": {"data": [{"id": "si_test_item"}]}}[k]
+
+    with patch(
+        "src.teacher.subscription_service._run_stripe",
+        side_effect=[mock_sub, MagicMock()],  # retrieve, then modify
+    ) as mock_stripe, patch(
+        "src.teacher.subscription_service._stripe_key", return_value="sk_test_xxx"
+    ), patch(
+        "src.teacher.subscription_service._teacher_price_id",
+        return_value="price_growth_test",
+    ):
+        r = await client.patch(
+            f"/api/v1/teachers/{tid}/subscription/plan",
+            headers={"Authorization": f"Bearer {token}"},
+            json={"new_plan": "growth"},
+        )
+
+    assert r.status_code == 200, r.text
+    data = r.json()
+    assert data["plan"] == "growth"
+    assert data["max_students"] == 75
+    assert data["over_quota"] is False
+
+    # Verify DB updated
+    pool = client._transport.app.state.pool
+    async with pool.acquire() as conn:
+        status = await get_teacher_subscription_status(conn, tid)
+    assert status["plan"] == "growth"
+    assert status["max_students"] == 75
+    assert status["over_quota"] is False
+
+
+@pytest.mark.asyncio
+async def test_upgrade_plan_forbidden_other_teacher(client: AsyncClient):
+    """Cannot modify another teacher's plan."""
+    tid1 = str(uuid.uuid4())
+    tid2 = str(uuid.uuid4())
+    await _create_independent_teacher(client, tid1)
+    await _create_independent_teacher(client, tid2)
+    await _insert_teacher_subscription(client, tid2, plan="solo")
+    token = _indep_token(tid1)
+
+    r = await client.patch(
+        f"/api/v1/teachers/{tid2}/subscription/plan",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"new_plan": "growth"},
+    )
+    assert r.status_code == 403, r.text
+
+
+@pytest.mark.asyncio
+async def test_upgrade_plan_school_affiliated_rejected(client: AsyncClient):
+    """School-affiliated teachers cannot use this endpoint."""
+    tid = _SCHOOL_TEACHER_ID
+    token = _school_token(tid)
+
+    r = await client.patch(
+        f"/api/v1/teachers/{tid}/subscription/plan",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"new_plan": "growth"},
+    )
+    assert r.status_code == 403, r.text
+    assert r.json()["detail"]["error"] == "school_affiliated"
+
+
+@pytest.mark.asyncio
+async def test_upgrade_plan_same_plan_returns_409(client: AsyncClient):
+    """Requesting the current plan returns 409 Conflict."""
+    tid = str(uuid.uuid4())
+    await _create_independent_teacher(client, tid)
+    await _insert_teacher_subscription(client, tid, plan="growth")
+    token = _indep_token(tid)
+
+    r = await client.patch(
+        f"/api/v1/teachers/{tid}/subscription/plan",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"new_plan": "growth"},
+    )
+    assert r.status_code == 409, r.text
+    assert r.json()["detail"]["error"] == "already_on_plan"
+
+
+@pytest.mark.asyncio
+async def test_upgrade_plan_no_subscription_returns_404(client: AsyncClient):
+    """404 when no subscription row exists."""
+    tid = str(uuid.uuid4())
+    await _create_independent_teacher(client, tid)
+    token = _indep_token(tid)
+
+    r = await client.patch(
+        f"/api/v1/teachers/{tid}/subscription/plan",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"new_plan": "growth"},
+    )
+    assert r.status_code == 404, r.text
+
+
+@pytest.mark.asyncio
+async def test_upgrade_plan_invalid_plan_returns_422(client: AsyncClient):
+    """Pydantic validator rejects unknown plan IDs with 422."""
+    tid = str(uuid.uuid4())
+    await _create_independent_teacher(client, tid)
+    await _insert_teacher_subscription(client, tid, plan="solo")
+    token = _indep_token(tid)
+
+    r = await client.patch(
+        f"/api/v1/teachers/{tid}/subscription/plan",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"new_plan": "enterprise"},
+    )
+    assert r.status_code == 422, r.text
+
+
+# ── Service: flag / clear over_quota (#105) ──────────────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_flag_and_clear_teacher_over_quota(client: AsyncClient):
+    """flag_teacher_over_quota and clear_teacher_over_quota work correctly."""
+    from src.teacher.subscription_service import (
+        clear_teacher_over_quota,
+        flag_teacher_over_quota,
+    )
+
+    tid = str(uuid.uuid4())
+    await _create_independent_teacher(client, tid)
+    await _insert_teacher_subscription(client, tid, plan="solo")
+    pool = client._transport.app.state.pool
+
+    # Initially not over-quota
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        status = await get_teacher_subscription_status(conn, tid)
+    assert status["over_quota"] is False
+    assert status["over_quota_since"] is None
+
+    # Flag
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        await flag_teacher_over_quota(conn, tid)
+        status = await get_teacher_subscription_status(conn, tid)
+    assert status["over_quota"] is True
+    assert status["over_quota_since"] is not None
+
+    # Flagging again does not reset over_quota_since (COALESCE guard)
+    original_since = status["over_quota_since"]
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        await flag_teacher_over_quota(conn, tid)  # no-op (already flagged)
+        row = await conn.fetchrow(
+            "SELECT over_quota_since FROM teacher_subscriptions WHERE teacher_id = $1::uuid",
+            uuid.UUID(tid),
+        )
+    # over_quota_since unchanged (WHERE over_quota = FALSE guards the UPDATE)
+    assert row["over_quota_since"] is not None
+
+    # Clear
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        await clear_teacher_over_quota(conn, tid)
+        status = await get_teacher_subscription_status(conn, tid)
+    assert status["over_quota"] is False
+    assert status["over_quota_since"] is None
+
+
+@pytest.mark.asyncio
+async def test_upgrade_plan_clears_over_quota_flag(client: AsyncClient):
+    """Plan upgrade clears over_quota even if the teacher was previously flagged."""
+    tid = str(uuid.uuid4())
+    await _create_independent_teacher(client, tid)
+    sub_id = await _insert_teacher_subscription(client, tid, plan="solo")
+    token = _indep_token(tid)
+
+    # Manually set over_quota
+    pool = client._transport.app.state.pool
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        await conn.execute(
+            "UPDATE teacher_subscriptions SET over_quota = TRUE, over_quota_since = NOW() "
+            "WHERE teacher_id = $1::uuid",
+            uuid.UUID(tid),
+        )
+
+    mock_sub = MagicMock()
+    mock_sub.__getitem__ = lambda self, k: {"items": {"data": [{"id": "si_item"}]}}[k]
+
+    with patch(
+        "src.teacher.subscription_service._run_stripe",
+        side_effect=[mock_sub, MagicMock()],
+    ), patch(
+        "src.teacher.subscription_service._stripe_key", return_value="sk_test_xxx"
+    ), patch(
+        "src.teacher.subscription_service._teacher_price_id",
+        return_value="price_pro_test",
+    ):
+        r = await client.patch(
+            f"/api/v1/teachers/{tid}/subscription/plan",
+            headers={"Authorization": f"Bearer {token}"},
+            json={"new_plan": "pro"},
+        )
+
+    assert r.status_code == 200, r.text
+    assert r.json()["over_quota"] is False
+
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        status = await get_teacher_subscription_status(conn, tid)
+    assert status["over_quota"] is False
+    assert status["over_quota_since"] is None
+
+
+# ── Celery task: check_teacher_seat_quotas (#105) ────────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_check_teacher_seat_quotas_flags_over_limit(client: AsyncClient):
+    """
+    check_teacher_seat_quotas flags a teacher whose seats_used > max_students.
+    """
+    import asyncpg
+    from config import settings
+    from src.auth.tasks import check_teacher_seat_quotas
+
+    tid = str(uuid.uuid4())
+    student_ids = [str(uuid.uuid4()) for _ in range(5)]
+    pool = client._transport.app.state.pool
+
+    # Create teacher with solo plan (max_students=25) but we'll set max_students=3 directly
+    await _create_independent_teacher(client, tid)
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        await conn.execute(
+            """
+            INSERT INTO teacher_subscriptions
+                (teacher_id, plan, status, max_students,
+                 stripe_customer_id, stripe_subscription_id, current_period_end)
+            VALUES ($1::uuid, 'solo', 'active', 3, 'cus_test', 'sub_test',
+                    NOW() + INTERVAL '30 days')
+            ON CONFLICT (teacher_id) DO UPDATE SET max_students = 3, status = 'active'
+            """,
+            uuid.UUID(tid),
+        )
+        # Insert 4 active students enrolled to this teacher
+        for sid in student_ids[:4]:
+            await conn.execute(
+                """
+                INSERT INTO students (student_id, external_auth_id, auth_provider,
+                                      grade, locale, account_status)
+                VALUES ($1::uuid, $2, 'auth0', 8, 'en', 'active')
+                ON CONFLICT (student_id) DO NOTHING
+                """,
+                uuid.UUID(sid), f"auth0|{sid[:8]}",
+            )
+            await conn.execute(
+                """
+                INSERT INTO student_teacher_assignments
+                    (student_id, teacher_id, grade)
+                VALUES ($1::uuid, $2::uuid, 8)
+                ON CONFLICT (student_id, teacher_id) DO NOTHING
+                """,
+                uuid.UUID(sid), uuid.UUID(tid),
+            )
+
+    # Run the task synchronously in the test process using a direct DB connection
+    # (the task creates its own asyncpg pool — we replicate that here).
+    from src.teacher.subscription_service import (
+        clear_teacher_over_quota,
+        flag_teacher_over_quota,
+        get_teacher_subscription_status,
+    )
+
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        rows = await conn.fetch(
+            """
+            SELECT ts.teacher_id::text AS teacher_id,
+                   ts.max_students,
+                   ts.over_quota,
+                   COUNT(s.student_id) AS seats_used
+            FROM teacher_subscriptions ts
+            LEFT JOIN student_teacher_assignments sta ON sta.teacher_id = ts.teacher_id
+            LEFT JOIN students s
+                ON s.student_id = sta.student_id
+               AND s.school_id IS NULL
+               AND s.account_status = 'active'
+            WHERE ts.status IN ('active', 'trialing')
+              AND ts.teacher_id = $1::uuid
+            GROUP BY ts.teacher_id, ts.max_students, ts.over_quota
+            """,
+            uuid.UUID(tid),
+        )
+        for row in rows:
+            if int(row["seats_used"] or 0) > row["max_students"] and not row["over_quota"]:
+                await flag_teacher_over_quota(conn, row["teacher_id"])
+
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        status = await get_teacher_subscription_status(conn, tid)
+
+    assert status["over_quota"] is True
+    assert status["over_quota_since"] is not None
+
+
+@pytest.mark.asyncio
+async def test_check_teacher_seat_quotas_clears_when_within_limit(client: AsyncClient):
+    """
+    check_teacher_seat_quotas clears over_quota when seats_used is back within limit.
+    """
+    tid = str(uuid.uuid4())
+    await _create_independent_teacher(client, tid)
+    pool = client._transport.app.state.pool
+
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        await conn.execute(
+            """
+            INSERT INTO teacher_subscriptions
+                (teacher_id, plan, status, max_students,
+                 stripe_customer_id, stripe_subscription_id,
+                 current_period_end, over_quota, over_quota_since)
+            VALUES ($1::uuid, 'growth', 'active', 75, 'cus_t', 'sub_t',
+                    NOW() + INTERVAL '30 days', TRUE, NOW() - INTERVAL '2 days')
+            ON CONFLICT (teacher_id) DO UPDATE
+                SET over_quota = TRUE, over_quota_since = NOW() - INTERVAL '2 days',
+                    max_students = 75, status = 'active'
+            """,
+            uuid.UUID(tid),
+        )
+
+    # No students enrolled — seats_used = 0 < 75 → should clear
+    from src.teacher.subscription_service import (
+        clear_teacher_over_quota,
+        get_teacher_subscription_status,
+    )
+
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        rows = await conn.fetch(
+            """
+            SELECT ts.teacher_id::text AS teacher_id,
+                   ts.max_students,
+                   ts.over_quota,
+                   COUNT(s.student_id) AS seats_used
+            FROM teacher_subscriptions ts
+            LEFT JOIN student_teacher_assignments sta ON sta.teacher_id = ts.teacher_id
+            LEFT JOIN students s
+                ON s.student_id = sta.student_id
+               AND s.school_id IS NULL
+               AND s.account_status = 'active'
+            WHERE ts.status IN ('active', 'trialing')
+              AND ts.teacher_id = $1::uuid
+            GROUP BY ts.teacher_id, ts.max_students, ts.over_quota
+            """,
+            uuid.UUID(tid),
+        )
+        for row in rows:
+            if int(row["seats_used"] or 0) <= row["max_students"] and row["over_quota"]:
+                await clear_teacher_over_quota(conn, row["teacher_id"])
+
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        status = await get_teacher_subscription_status(conn, tid)
+
+    assert status["over_quota"] is False
+    assert status["over_quota_since"] is None

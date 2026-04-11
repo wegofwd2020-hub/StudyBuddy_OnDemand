@@ -2,7 +2,7 @@
  * Hook for independent teachers (school_id may be null).
  *
  * Unlike useTeacher(), this does not require school_id in the JWT.
- * Used by Option B (revenue-share) Connect billing pages.
+ * Used by Option A (flat-fee) and Option B (revenue-share) teacher pages.
  */
 "use client";
 

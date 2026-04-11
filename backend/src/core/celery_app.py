@@ -82,6 +82,7 @@ celery_app.conf.update(
         "src.auth.tasks.run_grade_pipeline_task": {"queue": "pipeline"},
         "src.auth.tasks.invalidate_school_entitlement_cache_task": {"queue": "io"},
         "src.auth.tasks.reconcile_school_storage_task": {"queue": "default"},
+        "src.auth.tasks.check_teacher_seat_quotas": {"queue": "default"},
         # Retention lifecycle tasks
         "src.auth.tasks.check_retention_pre_expiry_warnings": {"queue": "default"},
         "src.auth.tasks.sweep_expired_curricula": {"queue": "default"},
@@ -168,6 +169,11 @@ celery_app.conf.update(
         "retention-purge-daily": {
             "task": "src.auth.tasks.purge_expired_curricula",
             "schedule": crontab(hour=2, minute=20),
+        },
+        # Daily independent teacher seat-quota check at 07:00 UTC.
+        "check-teacher-seat-quotas-daily": {
+            "task": "src.auth.tasks.check_teacher_seat_quotas",
+            "schedule": crontab(hour=7, minute=0),
         },
     },
 )

@@ -1,7 +1,7 @@
 """
 backend/src/teacher/subscription_service.py
 
-Business logic for independent teacher Stripe subscriptions (#57).
+Business logic for independent teacher Stripe subscriptions (#57, #105).
 
 An independent teacher is one with school_id IS NULL in the teachers table.
 They pay a flat monthly recurring fee (Solo $29 · Growth $59 · Pro $99) and
@@ -13,6 +13,15 @@ Public API
   get_teacher_subscription_status(conn, teacher_id) → dict
   cancel_teacher_stripe_subscription(stripe_sub_id) → None
   cancel_teacher_subscription_db(conn, teacher_id) → None
+
+  upgrade_teacher_plan(conn, teacher_id, new_plan, stripe_subscription_id) → None
+    Swaps the Stripe subscription price mid-cycle and updates the DB row.
+    Clears over_quota so the Beat task can re-evaluate within 24 h.
+
+  flag_teacher_over_quota(conn, teacher_id) → None
+    Set over_quota=TRUE and stamp over_quota_since (idempotent on first flag).
+  clear_teacher_over_quota(conn, teacher_id) → None
+    Clear over_quota and over_quota_since.
 
   check_student_seat_limit(conn, teacher_id) → dict
     Returns {allowed, seats_used, max_students, plan}.
@@ -134,7 +143,8 @@ async def get_teacher_subscription_status(
     row = await conn.fetchrow(
         """
         SELECT plan, status, max_students,
-               stripe_subscription_id, current_period_end, grace_period_end
+               stripe_subscription_id, current_period_end, grace_period_end,
+               over_quota, over_quota_since
         FROM teacher_subscriptions
         WHERE teacher_id = $1::uuid
         """,
@@ -149,6 +159,8 @@ async def get_teacher_subscription_status(
             "max_students": 0,
             "seats_used_students": seats["seats_used"],
             "current_period_end": None,
+            "over_quota": False,
+            "over_quota_since": None,
         }
 
     if row["status"] == "past_due" and row["grace_period_end"]:
@@ -158,12 +170,15 @@ async def get_teacher_subscription_status(
     else:
         valid_until = None
 
+    oqs = row["over_quota_since"]
     return {
         "plan": row["plan"],
         "status": row["status"],
         "max_students": row["max_students"],
         "seats_used_students": seats["seats_used"],
         "current_period_end": valid_until,
+        "over_quota": bool(row["over_quota"]),
+        "over_quota_since": oqs.isoformat() if oqs else None,
     }
 
 
@@ -406,3 +421,121 @@ async def find_teacher_by_stripe_subscription(
         stripe_subscription_id,
     )
     return row
+
+
+# ── Plan upgrade / downgrade (#105) ──────────────────────────────────────────
+
+
+async def upgrade_teacher_plan(
+    conn: asyncpg.Connection,
+    teacher_id: str,
+    new_plan: str,
+    stripe_subscription_id: str,
+) -> None:
+    """
+    Upgrade or downgrade an independent teacher's flat-fee plan mid-cycle.
+
+    1. Fetches the current Stripe subscription to locate the line-item ID.
+    2. Calls Stripe Subscription.modify() to swap the price, creating pro-rated
+       charges/credits automatically (proration_behavior='create_prorations').
+    3. Updates the DB row: new plan, max_students; clears over_quota so the
+       daily Beat task can re-evaluate within 24 h on the new limit.
+    4. Stamps teacher.teacher_plan with the new plan ID.
+
+    Raises RuntimeError if Stripe or config is unavailable.
+    Idempotent — replaying with the same new_plan is safe (Stripe deduplicates).
+    """
+    teacher_plan_obj = get_teacher_plan(new_plan)
+    new_max = teacher_plan_obj.max_students
+    new_price_id = _teacher_price_id(new_plan)
+
+    stripe = _get_stripe()
+    stripe.api_key = _stripe_key()
+
+    # Retrieve the current subscription to get the line-item id to replace.
+    sub = await _run_stripe(stripe.Subscription.retrieve, stripe_subscription_id)
+    item_id = sub["items"]["data"][0]["id"]
+
+    await _run_stripe(
+        stripe.Subscription.modify,
+        stripe_subscription_id,
+        items=[{"id": item_id, "price": new_price_id}],
+        proration_behavior="create_prorations",
+    )
+
+    # Always clear over_quota on a plan change — the Beat task will re-flag
+    # within 24 h if the new limit still doesn't cover the enrolled students.
+    await conn.execute(
+        """
+        UPDATE teacher_subscriptions
+        SET plan             = $1,
+            max_students     = $2,
+            over_quota       = FALSE,
+            over_quota_since = NULL,
+            updated_at       = NOW()
+        WHERE teacher_id = $3::uuid
+        """,
+        new_plan,
+        new_max,
+        teacher_id,
+    )
+    await conn.execute(
+        "UPDATE teachers SET teacher_plan = $1 WHERE teacher_id = $2::uuid",
+        new_plan, teacher_id,
+    )
+    log.info(
+        "teacher_plan_upgraded teacher_id=%s new_plan=%s max_students=%d",
+        teacher_id, new_plan, new_max,
+    )
+
+
+# ── Over-quota flag helpers ───────────────────────────────────────────────────
+
+
+async def flag_teacher_over_quota(
+    conn: asyncpg.Connection,
+    teacher_id: str,
+) -> None:
+    """
+    Mark an independent teacher as over-quota.
+
+    Sets over_quota=TRUE and stamps over_quota_since with the current time on
+    the first call.  Subsequent calls for an already-flagged teacher are no-ops
+    (COALESCE preserves the original timestamp so the grace-period clock is not
+    reset on repeat runs of the Beat task).
+    """
+    await conn.execute(
+        """
+        UPDATE teacher_subscriptions
+        SET over_quota       = TRUE,
+            over_quota_since = COALESCE(over_quota_since, NOW()),
+            updated_at       = NOW()
+        WHERE teacher_id = $1::uuid
+          AND over_quota  = FALSE
+        """,
+        teacher_id,
+    )
+    log.info("teacher_over_quota_flagged teacher_id=%s", teacher_id)
+
+
+async def clear_teacher_over_quota(
+    conn: asyncpg.Connection,
+    teacher_id: str,
+) -> None:
+    """
+    Clear the over-quota flag when seats_used has dropped back within the limit.
+
+    No-op if the teacher is not currently flagged.
+    """
+    await conn.execute(
+        """
+        UPDATE teacher_subscriptions
+        SET over_quota       = FALSE,
+            over_quota_since = NULL,
+            updated_at       = NOW()
+        WHERE teacher_id = $1::uuid
+          AND over_quota  = TRUE
+        """,
+        teacher_id,
+    )
+    log.info("teacher_over_quota_cleared teacher_id=%s", teacher_id)
