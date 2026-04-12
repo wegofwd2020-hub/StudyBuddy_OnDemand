@@ -18,6 +18,7 @@ the decision notes become the spec and we develop from there.
 | 4 | Parent Portal | [EPIC_04_parent_portal.md](EPIC_04_parent_portal.md) | 💭 Your call |
 | 5 | District Admin | [EPIC_05_district_admin.md](EPIC_05_district_admin.md) | 💭 Your call |
 | 6 | Platform Hardening | [EPIC_06_platform_hardening.md](EPIC_06_platform_hardening.md) | 💭 Your call |
+| 7 | Self-Serve Demo System | [EPIC_07_self_serve_demo.md](EPIC_07_self_serve_demo.md) | 💭 Needs clarifications |
 
 ---
 
