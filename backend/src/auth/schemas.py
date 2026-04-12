@@ -159,3 +159,54 @@ class AdminLoginResponse(BaseModel):
 
     token: str
     admin_id: UUID
+
+
+# ── Local auth (Phase A) ──────────────────────────────────────────────────────
+
+
+class LocalLoginRequest(BaseModel):
+    """POST /auth/login — email + password for school-provisioned users."""
+
+    email: EmailStr
+    password: str
+
+    @field_validator("password")
+    @classmethod
+    def password_max_bytes(cls, v: str) -> str:
+        if len(v.encode()) > 72:
+            raise ValueError("Password must be 72 bytes or fewer.")
+        return v
+
+
+class LocalLoginResponse(BaseModel):
+    """Response for POST /auth/login"""
+
+    token: str
+    refresh_token: str
+    role: str                # "teacher" | "school_admin" | "student"
+    first_login: bool        # True → client must redirect to password-reset page
+    user_id: UUID            # teacher_id or student_id
+
+
+class ChangePasswordRequest(BaseModel):
+    """PATCH /auth/change-password — used for first-login forced reset and voluntary changes."""
+
+    current_password: str
+    new_password: str
+
+    @field_validator("new_password")
+    @classmethod
+    def password_strength(cls, v: str) -> str:
+        if len(v) < 12:
+            raise ValueError("Password must be at least 12 characters.")
+        if len(v.encode()) > 72:
+            raise ValueError("Password must be 72 bytes or fewer.")
+        return v
+
+
+class ChangePasswordResponse(BaseModel):
+    """Response for PATCH /auth/change-password — fresh token with first_login=False."""
+
+    token: str
+    refresh_token: str
+    role: str

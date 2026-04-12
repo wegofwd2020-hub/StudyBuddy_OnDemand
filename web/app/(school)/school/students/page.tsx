@@ -1,16 +1,25 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTeacher } from "@/lib/hooks/useTeacher";
-import { getRoster, uploadRoster, getSchoolProfile, listTeachers } from "@/lib/api/school-admin";
+import {
+  getRoster,
+  uploadRoster,
+  getSchoolProfile,
+  listTeachers,
+  provisionStudent,
+  resetStudentPassword,
+  type RosterItem,
+} from "@/lib/api/school-admin";
 import { getClassMetrics } from "@/lib/api/reports";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Label } from "@/components/ui/label";
-import { Copy, Check, Users, UserPlus, BookOpen } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Copy, Check, Users, UserPlus, BookOpen, KeyRound } from "lucide-react";
 
 function parseEmails(raw: string): string[] {
   return raw
@@ -149,6 +158,93 @@ function TeacherStudentView({ schoolId, teacherId }: { schoolId: string; teacher
   );
 }
 
+// ── Roster row with reset password ───────────────────────────────────────────
+
+function RosterRow({ item, schoolId }: { item: RosterItem; schoolId: string }) {
+  const [confirmReset, setConfirmReset] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+
+  const { mutate: doReset, isPending: resetting } = useMutation({
+    mutationFn: () => resetStudentPassword(schoolId, item.student_id!),
+    onSuccess: () => {
+      setConfirmReset(false);
+      setMsg("Password reset. New credentials have been emailed to the student.");
+    },
+    onError: () => {
+      setConfirmReset(false);
+      setMsg("Reset failed. Please try again.");
+    },
+  });
+
+  return (
+    <>
+      <tr className="hover:bg-gray-50">
+        <td className="px-4 py-3 text-gray-700">{item.student_email}</td>
+        <td className="px-4 py-3">
+          <Badge
+            className={`text-xs ${STATUS_STYLE[item.status] ?? "bg-gray-100 text-gray-500"}`}
+          >
+            {item.status}
+          </Badge>
+        </td>
+        <td className="px-4 py-3 text-xs text-gray-400">
+          {new Date(item.added_at).toLocaleDateString()}
+        </td>
+        <td className="px-4 py-3">
+          {item.student_id && item.status === "active" && (
+            <button
+              type="button"
+              onClick={() => { setConfirmReset(true); setMsg(null); }}
+              className="rounded-md p-1 text-gray-400 hover:bg-amber-50 hover:text-amber-600"
+              aria-label="Reset password"
+              title="Reset password"
+            >
+              <KeyRound className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </td>
+      </tr>
+      {confirmReset && (
+        <tr>
+          <td colSpan={4} className="bg-amber-50 px-4 py-3">
+            <p className="mb-2 text-xs text-amber-800">
+              Reset password for <strong>{item.student_email}</strong>? A new
+              temporary password will be emailed to them.
+            </p>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 border-amber-300 text-xs text-amber-700 hover:bg-amber-100"
+                onClick={() => doReset()}
+                disabled={resetting}
+              >
+                {resetting ? "Resetting…" : "Yes, reset"}
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-7 text-xs"
+                onClick={() => setConfirmReset(false)}
+                disabled={resetting}
+              >
+                Cancel
+              </Button>
+            </div>
+          </td>
+        </tr>
+      )}
+      {msg && (
+        <tr>
+          <td colSpan={4} className="bg-gray-50 px-4 py-2 text-xs text-gray-600">
+            {msg}
+          </td>
+        </tr>
+      )}
+    </>
+  );
+}
+
 // ── Admin view ────────────────────────────────────────────────────────────────
 
 function AdminStudentView({ schoolId }: { schoolId: string }) {
@@ -176,6 +272,35 @@ function AdminStudentView({ schoolId }: { schoolId: string }) {
   } | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+
+  // Add individual student
+  const [addName, setAddName] = useState("");
+  const [addEmail, setAddEmail] = useState("");
+  const [addGrade, setAddGrade] = useState<string>("8");
+  const [addError, setAddError] = useState<string | null>(null);
+  const [addSuccess, setAddSuccess] = useState<string | null>(null);
+
+  const { mutate: doProvision, isPending: provisioning } = useMutation({
+    mutationFn: () =>
+      provisionStudent(schoolId, { name: addName, email: addEmail, grade: Number(addGrade) }),
+    onSuccess: (res) => {
+      setAddSuccess(res.email);
+      setAddName("");
+      setAddEmail("");
+      setAddGrade("8");
+      qc.invalidateQueries({ queryKey: ["roster", schoolId] });
+    },
+    onError: (err: unknown) => {
+      const status = (err as { response?: { status?: number } })?.response?.status;
+      if (status === 409) {
+        setAddError("A student with that email already exists.");
+      } else if (status === 422) {
+        setAddError("Invalid grade — must be between 1 and 12.");
+      } else {
+        setAddError("Could not add student. Please try again.");
+      }
+    },
+  });
 
   const inviteUrl =
     profile?.enrolment_code && typeof window !== "undefined"
@@ -297,6 +422,70 @@ function AdminStudentView({ schoolId }: { schoolId: string }) {
         </CardContent>
       </Card>
 
+      {/* Add individual student */}
+      <Card className="border shadow-sm">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <UserPlus className="h-4 w-4 text-indigo-600" />
+            Add a student
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-3 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="student_name">Full name</Label>
+              <Input
+                id="student_name"
+                value={addName}
+                onChange={(e) => setAddName(e.target.value)}
+                placeholder="Alex Johnson"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="student_email">Email</Label>
+              <Input
+                id="student_email"
+                type="email"
+                value={addEmail}
+                onChange={(e) => { setAddEmail(e.target.value); setAddError(null); }}
+                placeholder="alex@school.edu"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="student_grade">Grade</Label>
+              <select
+                id="student_grade"
+                value={addGrade}
+                onChange={(e) => setAddGrade(e.target.value)}
+                className="h-9 w-full rounded-md border border-gray-200 bg-white px-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              >
+                {[5, 6, 7, 8, 9, 10, 11, 12].map((g) => (
+                  <option key={g} value={g}>Grade {g}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {addError && <p className="text-sm text-red-600">{addError}</p>}
+          {addSuccess && (
+            <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
+              <Check className="h-4 w-4 shrink-0" />
+              Student added. A temporary password has been sent to{" "}
+              <span className="font-medium">{addSuccess}</span>. They must set a
+              new password on first login.
+            </div>
+          )}
+
+          <Button
+            onClick={() => { setAddError(null); setAddSuccess(null); doProvision(); }}
+            disabled={provisioning || !addName || !addEmail}
+            className="gap-2"
+          >
+            {provisioning ? "Adding…" : "Add student"}
+          </Button>
+        </CardContent>
+      </Card>
+
       {/* Roster table */}
       <Card className="border shadow-sm">
         <CardHeader className="pb-2">
@@ -323,28 +512,19 @@ function AdminStudentView({ schoolId }: { schoolId: string }) {
                     <th className="px-4 py-2.5 text-left text-xs font-medium text-gray-500">
                       Added
                     </th>
+                    <th className="px-4 py-2.5 text-left text-xs font-medium text-gray-500">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                   {(roster?.roster ?? []).map((item) => (
-                    <tr key={item.student_email} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 text-gray-700">{item.student_email}</td>
-                      <td className="px-4 py-3">
-                        <Badge
-                          className={`text-xs ${STATUS_STYLE[item.status] ?? "bg-gray-100 text-gray-500"}`}
-                        >
-                          {item.status}
-                        </Badge>
-                      </td>
-                      <td className="px-4 py-3 text-xs text-gray-400">
-                        {new Date(item.added_at).toLocaleDateString()}
-                      </td>
-                    </tr>
+                    <RosterRow key={item.student_email} item={item} schoolId={schoolId} />
                   ))}
                   {(roster?.roster ?? []).length === 0 && (
                     <tr>
                       <td
-                        colSpan={3}
+                        colSpan={4}
                         className="px-4 py-8 text-center text-sm text-gray-400"
                       >
                         No students enrolled yet.

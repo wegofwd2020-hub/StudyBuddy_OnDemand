@@ -50,6 +50,7 @@ async def _register_school(client: AsyncClient, suffix: str = "") -> dict:
         "school_name": f"Report School{suffix}",
         "contact_email": f"report{suffix}@school.example.com",
         "country": "ZA",
+        "password": "SecureTestPwd1!",
     })
     assert r.status_code == 201, r.text
     return r.json()
@@ -57,6 +58,9 @@ async def _register_school(client: AsyncClient, suffix: str = "") -> dict:
 
 async def _insert_student(client: AsyncClient, student_id: str, email: str) -> None:
     pool = client._transport.app.state.pool
+    # Use full UUID (no dashes) as external_auth_id to avoid unique-constraint
+    # collisions — all test UUIDs share the same 8-char prefix "a1000000".
+    ext_id = f"auth0|rpt-{student_id.replace('-', '')}"
     await pool.execute(
         """
         INSERT INTO students (student_id, external_auth_id, name, email, grade, locale, account_status)
@@ -64,7 +68,7 @@ async def _insert_student(client: AsyncClient, student_id: str, email: str) -> N
         ON CONFLICT (student_id) DO NOTHING
         """,
         uuid.UUID(student_id),
-        f"auth0|rpt-{student_id[:8]}",
+        ext_id,
         f"Report Student {student_id[:6]}",
         email,
     )
@@ -72,14 +76,17 @@ async def _insert_student(client: AsyncClient, student_id: str, email: str) -> N
 
 async def _enrol_student(client: AsyncClient, school_id: str, student_id: str, email: str) -> None:
     pool = client._transport.app.state.pool
-    await pool.execute(
-        """
-        INSERT INTO school_enrolments (school_id, student_email, student_id, status)
-        VALUES ($1, $2, $3, 'active')
-        ON CONFLICT (school_id, student_email) DO UPDATE SET student_id = EXCLUDED.student_id, status = 'active'
-        """,
-        uuid.UUID(school_id), email, uuid.UUID(student_id),
-    )
+    # school_enrolments has FORCE RLS; acquire explicitly to set bypass.
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        await conn.execute(
+            """
+            INSERT INTO school_enrolments (school_id, student_email, student_id, status)
+            VALUES ($1, $2, $3, 'active')
+            ON CONFLICT (school_id, student_email) DO UPDATE SET student_id = EXCLUDED.student_id, status = 'active'
+            """,
+            uuid.UUID(school_id), email, uuid.UUID(student_id),
+        )
 
 
 async def _insert_session(

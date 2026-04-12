@@ -121,6 +121,9 @@ export function SchoolNav() {
   function handleLogout() {
     if (typeof window !== "undefined") {
       localStorage.removeItem("sb_teacher_token");
+      localStorage.removeItem("sb_teacher_refresh_token");
+      // /api/auth/logout clears session cookies and redirects to the correct
+      // destination (local-auth → /school/login, Auth0 → /).
       window.location.href = "/api/auth/logout";
     }
   }

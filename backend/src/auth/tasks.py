@@ -18,6 +18,7 @@ import logging
 import uuid
 from datetime import UTC
 
+from config import settings  # noqa: E402 — module-level import for patchability in tests
 from src.core.celery_app import _run_async, celery_app  # noqa: F401 — re-exported for callers
 
 log = logging.getLogger("auth.tasks")

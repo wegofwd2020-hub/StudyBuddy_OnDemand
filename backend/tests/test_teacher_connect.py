@@ -109,14 +109,21 @@ async def _create_school_teacher(client: AsyncClient, teacher_id: str, school_id
         )
 
 
+def _account_id_for(teacher_id: str) -> str:
+    """Derive a unique Stripe account ID from a teacher_id to avoid unique-constraint
+    collisions across tests that all share the same session-scoped DB."""
+    return f"acct_{teacher_id.replace('-', '')[:16]}"
+
+
 async def _insert_connect_account(
     client: AsyncClient,
     teacher_id: str,
-    stripe_account_id: str = _ACCOUNT_ID,
+    stripe_account_id: str | None = None,
     charges_enabled: bool = True,
     payouts_enabled: bool = True,
     onboarding_complete: bool = True,
 ) -> None:
+    acct_id = stripe_account_id or _account_id_for(teacher_id)
     pool = client._transport.app.state.pool
     async with pool.acquire() as conn:
         await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
@@ -134,7 +141,7 @@ async def _insert_connect_account(
                 updated_at          = NOW()
             """,
             uuid.UUID(teacher_id),
-            stripe_account_id,
+            acct_id,
             onboarding_complete,
             charges_enabled,
             payouts_enabled,
@@ -240,10 +247,11 @@ async def test_sync_connect_account_not_complete_when_charges_disabled(client: A
     tid = str(uuid.uuid4())
     await _create_independent_teacher(client, tid)
 
+    acct_id = _account_id_for(tid)
     pool = client._transport.app.state.pool
     async with pool.acquire() as conn:
         await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
-        await sync_connect_account(conn, tid, _ACCOUNT_ID, charges_enabled=False, payouts_enabled=True)
+        await sync_connect_account(conn, tid, acct_id, charges_enabled=False, payouts_enabled=True)
         row = await get_connect_account(conn, tid)
 
     assert row is not None
@@ -454,7 +462,7 @@ async def test_connect_status_with_account(client: AsyncClient):
     assert data["onboarding_complete"] is True
     assert data["charges_enabled"] is True
     assert data["payouts_enabled"] is True
-    assert data["stripe_account_id"] == _ACCOUNT_ID
+    assert data["stripe_account_id"] == _account_id_for(tid)
 
 
 @pytest.mark.asyncio
@@ -480,13 +488,14 @@ async def test_connect_onboard_creates_account(client: AsyncClient):
     await _create_independent_teacher(client, tid)
     token = _indep_token(tid)
 
+    acct_id = _account_id_for(tid)
     with (
         patch(
-            "src.teacher.connect_service.create_connect_account",
-            new=AsyncMock(return_value=_ACCOUNT_ID),
+            "src.teacher.connect_router.create_connect_account",
+            new=AsyncMock(return_value=acct_id),
         ),
         patch(
-            "src.teacher.connect_service.create_onboarding_link",
+            "src.teacher.connect_router.create_onboarding_link",
             new=AsyncMock(return_value="https://connect.stripe.com/onboard/test"),
         ),
     ):
@@ -497,7 +506,7 @@ async def test_connect_onboard_creates_account(client: AsyncClient):
 
     assert r.status_code == 200, r.text
     data = r.json()
-    assert data["stripe_account_id"] == _ACCOUNT_ID
+    assert data["stripe_account_id"] == acct_id
     assert data["onboarding_url"] == "https://connect.stripe.com/onboard/test"
 
 
@@ -513,7 +522,9 @@ async def test_connect_onboard_school_teacher_forbidden(client: AsyncClient):
         headers={"Authorization": f"Bearer {token}"},
     )
     assert r.status_code == 403
-    assert r.json()["detail"]["error"] == "school_affiliated"
+    # Custom exception handler spreads the detail dict directly into the response body
+    # (see app_factory._register_exception_handlers), so the key is at top level.
+    assert r.json()["error"] == "school_affiliated"
 
 
 @pytest.mark.asyncio
@@ -539,7 +550,7 @@ async def test_connect_refresh_returns_new_url(client: AsyncClient):
     token = _indep_token(tid)
 
     with patch(
-        "src.teacher.connect_service.create_onboarding_link",
+        "src.teacher.connect_router.create_onboarding_link",
         new=AsyncMock(return_value="https://connect.stripe.com/refreshed"),
     ):
         r = await client.post(
@@ -584,7 +595,7 @@ async def test_connect_earnings_returns_transfers(client: AsyncClient):
         }
     ]
     with patch(
-        "src.teacher.connect_service.get_earnings",
+        "src.teacher.connect_router.get_earnings",
         new=AsyncMock(return_value=mock_transfers),
     ):
         r = await client.get(
@@ -620,7 +631,7 @@ async def test_student_checkout_connect_not_ready(client: AsyncClient):
         },
     )
     assert r.status_code == 402
-    assert r.json()["detail"]["error"] == "connect_not_ready"
+    assert r.json()["error"] == "connect_not_ready"
 
 
 @pytest.mark.asyncio
@@ -633,7 +644,7 @@ async def test_student_checkout_returns_url(client: AsyncClient):
     token = _indep_token(tid)
 
     with patch(
-        "src.teacher.connect_service.create_student_checkout_session",
+        "src.teacher.connect_router.create_student_checkout_session",
         new=AsyncMock(return_value="https://checkout.stripe.com/session/test"),
     ):
         r = await client.post(
@@ -668,8 +679,10 @@ async def test_connect_webhook_account_updated(client: AsyncClient):
     """POST /connect-webhook syncs account state on account.updated."""
     tid = str(uuid.uuid4())
     await _create_independent_teacher(client, tid)
+    acct_id = _account_id_for(tid)
     await _insert_connect_account(
-        client, tid, charges_enabled=False, onboarding_complete=False, payouts_enabled=False
+        client, tid, stripe_account_id=acct_id,
+        charges_enabled=False, onboarding_complete=False, payouts_enabled=False
     )
 
     stripe_event_id = f"evt_connect_{uuid.uuid4().hex[:12]}"
@@ -678,7 +691,7 @@ async def test_connect_webhook_account_updated(client: AsyncClient):
         "type": "account.updated",
         "data": {
             "object": {
-                "id": _ACCOUNT_ID,
+                "id": acct_id,
                 "charges_enabled": True,
                 "payouts_enabled": True,
             }
@@ -690,7 +703,7 @@ async def test_connect_webhook_account_updated(client: AsyncClient):
         "type": "account.updated",
         "data": {
             "object": {
-                "id": _ACCOUNT_ID,
+                "id": acct_id,
                 "charges_enabled": True,
                 "payouts_enabled": True,
             }

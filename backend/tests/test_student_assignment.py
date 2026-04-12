@@ -30,6 +30,7 @@ async def _register_school(client: AsyncClient, email_suffix: str) -> dict:
         "school_name": f"Test School {email_suffix}",
         "contact_email": f"admin-{email_suffix}@school.example.com",
         "country": "CA",
+        "password": "SecureTestPwd1!",
     })
     assert r.status_code == 201, r.text
     return r.json()

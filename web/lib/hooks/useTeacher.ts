@@ -10,6 +10,8 @@ export interface TeacherClaims {
   teacher_id: string;
   school_id: string;
   role: "teacher" | "school_admin";
+  /** True when logged in with a system-issued default password — client must redirect to change-password */
+  first_login: boolean;
 }
 
 function decodeJwtPayload(token: string): Record<string, unknown> | null {
@@ -38,6 +40,7 @@ function readTeacherClaims(): TeacherClaims | null {
       role: (role === "school_admin"
         ? "school_admin"
         : "teacher") as TeacherClaims["role"],
+      first_login: Boolean(payload.first_login),
     };
   } catch {
     return null;

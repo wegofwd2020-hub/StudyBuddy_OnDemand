@@ -222,7 +222,7 @@ async def _build_dashboard(conn: asyncpg.Connection, redis, student_id: str) -> 
                ps.ended_at AS at
         FROM progress_sessions ps
         LEFT JOIN curriculum_units cu ON cu.unit_id = ps.unit_id AND cu.curriculum_id = ps.curriculum_id
-        WHERE ps.student_id = $1 AND ps.completed = TRUE
+        WHERE ps.student_id = $1 AND ps.completed = TRUE AND ps.ended_at IS NOT NULL
         ORDER BY ps.ended_at DESC
         LIMIT 5
         """,

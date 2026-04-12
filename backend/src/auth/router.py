@@ -28,7 +28,11 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from src.auth.dependencies import get_current_student
 from src.core.rate_limit import ip_auth_rate_limit
 from src.auth.schemas import (
+    ChangePasswordRequest,
+    ChangePasswordResponse,
     ForgotPasswordRequest,
+    LocalLoginRequest,
+    LocalLoginResponse,
     LogoutRequest,
     RefreshRequest,
     RefreshResponse,
@@ -43,11 +47,14 @@ from src.auth.service import (
     _hash_refresh_token,
     create_internal_jwt,
     generate_refresh_token,
+    hash_password,
+    login_local_user,
     trigger_auth0_password_reset,
     upsert_student,
     upsert_teacher,
     verify_auth0_teacher_token,
     verify_auth0_token,
+    verify_password,
 )
 from src.core.db import get_db
 from src.core.events import emit_event, write_audit_log
@@ -388,6 +395,188 @@ async def forgot_password(
 
     emit_event("auth", "forgot_password_requested")
     return {}
+
+
+# ── Local auth: email + password login (Phase A) ─────────────────────────────
+
+
+@router.post("/auth/login", response_model=LocalLoginResponse)
+async def local_login(
+    body: LocalLoginRequest,
+    request: Request,
+    _: None = Depends(ip_auth_rate_limit),
+):
+    """
+    Email + password login for school-provisioned teachers and students.
+
+    Auth0 exchange endpoints remain as the parallel path for legacy self-registered
+    users (Q19).  This endpoint handles auth_provider='local' accounts only.
+
+    Returns first_login=True when the user is logging in with a system-issued
+    default password — the client must redirect to the password-change screen before
+    allowing any other navigation.
+    """
+    cid = getattr(request.state, "correlation_id", "")
+
+    user = await login_local_user(request.app.state.pool, str(body.email), body.password)
+
+    user_type: str = user["user_type"]
+    user_id: str = user["user_id"]
+    role: str = user["role"]
+    first_login: bool = bool(user["first_login"])
+
+    if user_type == "teacher":
+        jwt_payload = {
+            "teacher_id": user_id,
+            "school_id": user["school_id"],
+            "role": role,
+            "account_status": user["account_status"],
+            "first_login": first_login,
+        }
+    else:
+        # student
+        student_row = await request.app.state.pool.fetchrow(
+            "SELECT grade, locale FROM students WHERE student_id = $1",
+            user_id,
+        )
+        jwt_payload = {
+            "student_id": user_id,
+            "grade": student_row["grade"] if student_row else 8,
+            "locale": student_row["locale"] if student_row else "en",
+            "role": "student",
+            "account_status": user["account_status"],
+            "first_login": first_login,
+        }
+
+    token = create_internal_jwt(
+        jwt_payload, settings.JWT_SECRET, settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES
+    )
+    refresh = generate_refresh_token()
+    redis = get_redis(request)
+    await redis.set(
+        f"refresh:{_hash_refresh_token(refresh)}",
+        user_id,
+        ex=_REFRESH_TTL,
+    )
+
+    auth_exchanges_total.labels(track="local").inc()
+    emit_event("auth", "local_login", user_id=user_id, role=role)
+    write_audit_log("local_login", user_type, user_id)
+
+    return LocalLoginResponse(
+        token=token,
+        refresh_token=refresh,
+        role=role,
+        first_login=first_login,
+        user_id=user_id,
+    )
+
+
+# ── Change password (forced reset + voluntary) ────────────────────────────────
+
+
+@router.patch("/auth/change-password", response_model=ChangePasswordResponse)
+async def change_password(
+    body: ChangePasswordRequest,
+    request: Request,
+):
+    """
+    Change password for a local-auth user (teacher or student).
+
+    Requires a valid JWT.  Verifies the current password before accepting the new
+    one.  Sets first_login=False after a successful reset so the client no longer
+    redirects to the reset screen.
+
+    Both teacher and student JWTs are accepted here (this endpoint sits outside
+    the role-specific dependency guards).
+    """
+    from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+    from src.auth.service import verify_internal_jwt
+
+    cid = getattr(request.state, "correlation_id", "")
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        raise HTTPException(
+            status_code=401,
+            detail={"error": "unauthenticated", "detail": "Authorization header required.", "correlation_id": cid},
+        )
+    raw_token = auth_header.split(" ", 1)[1]
+    payload = verify_internal_jwt(raw_token, settings.JWT_SECRET)
+
+    teacher_id = payload.get("teacher_id")
+    student_id = payload.get("student_id")
+
+    async with get_db(request) as conn:
+        if teacher_id:
+            row = await conn.fetchrow(
+                "SELECT password_hash FROM teachers WHERE teacher_id = $1 AND auth_provider = 'local'",
+                teacher_id,
+            )
+            if not row or not row["password_hash"]:
+                raise HTTPException(
+                    status_code=400,
+                    detail={"error": "bad_request", "detail": "Account does not use password login.", "correlation_id": cid},
+                )
+            if not await verify_password(body.current_password, row["password_hash"]):
+                raise HTTPException(
+                    status_code=401,
+                    detail={"error": "unauthenticated", "detail": "Current password is incorrect.", "correlation_id": cid},
+                )
+            new_hash = await hash_password(body.new_password)
+            await conn.execute(
+                "UPDATE teachers SET password_hash = $1, first_login = FALSE WHERE teacher_id = $2",
+                new_hash, teacher_id,
+            )
+            emit_event("auth", "password_changed", teacher_id=teacher_id)
+            write_audit_log("password_changed", "teacher", teacher_id)
+
+        elif student_id:
+            row = await conn.fetchrow(
+                "SELECT password_hash FROM students WHERE student_id = $1 AND auth_provider = 'local'",
+                student_id,
+            )
+            if not row or not row["password_hash"]:
+                raise HTTPException(
+                    status_code=400,
+                    detail={"error": "bad_request", "detail": "Account does not use password login.", "correlation_id": cid},
+                )
+            if not await verify_password(body.current_password, row["password_hash"]):
+                raise HTTPException(
+                    status_code=401,
+                    detail={"error": "unauthenticated", "detail": "Current password is incorrect.", "correlation_id": cid},
+                )
+            new_hash = await hash_password(body.new_password)
+            await conn.execute(
+                "UPDATE students SET password_hash = $1, first_login = FALSE WHERE student_id = $2",
+                new_hash, student_id,
+            )
+            emit_event("auth", "password_changed", student_id=student_id)
+            write_audit_log("password_changed", "student", student_id)
+
+        else:
+            raise HTTPException(
+                status_code=403,
+                detail={"error": "forbidden", "detail": "Teacher or student token required.", "correlation_id": cid},
+            )
+
+    # Re-issue a fresh JWT with first_login=False so the client can update
+    # localStorage immediately — no need for another round-trip login.
+    new_payload = {k: v for k, v in payload.items() if k not in ("exp", "iat")}
+    new_payload["first_login"] = False
+    role = payload.get("role", "teacher")
+    new_token = create_internal_jwt(
+        new_payload, settings.JWT_SECRET, settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES
+    )
+    new_refresh = generate_refresh_token()
+    user_id = str(teacher_id or student_id)
+    redis = get_redis(request)
+    await redis.set(
+        f"refresh:{_hash_refresh_token(new_refresh)}",
+        user_id,
+        ex=_REFRESH_TTL,
+    )
+
+    return ChangePasswordResponse(token=new_token, refresh_token=new_refresh, role=role)
 
 
 # ── Student profile update ────────────────────────────────────────────────────

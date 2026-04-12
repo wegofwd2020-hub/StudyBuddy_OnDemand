@@ -54,6 +54,7 @@ async def _register_school(client: AsyncClient) -> dict:
         "school_name": "Lifecycle Test School",
         "contact_email": unique_email,
         "country": "US",
+        "password": "SecureTestPwd1!",
     })
     assert r.status_code == 201, r.text
     return r.json()

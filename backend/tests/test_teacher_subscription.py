@@ -179,6 +179,7 @@ async def test_teacher_checkout_school_affiliated_blocked(client: AsyncClient):
         "school_name": "Affiliated School",
         "contact_email": f"admin-{uuid.uuid4().hex[:8]}@example.com",
         "country": "US",
+        "password": "SecureTestPwd1!",
     })
     assert r.status_code == 201, r.text
     real_school_id = r.json()["school_id"]
@@ -596,8 +597,10 @@ async def test_upgrade_plan_solo_to_growth(client: AsyncClient):
     assert data["over_quota"] is False
 
     # Verify DB updated
+    from src.teacher.subscription_service import get_teacher_subscription_status
     pool = client._transport.app.state.pool
     async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
         status = await get_teacher_subscription_status(conn, tid)
     assert status["plan"] == "growth"
     assert status["max_students"] == 75
@@ -634,7 +637,8 @@ async def test_upgrade_plan_school_affiliated_rejected(client: AsyncClient):
         json={"new_plan": "growth"},
     )
     assert r.status_code == 403, r.text
-    assert r.json()["detail"]["error"] == "school_affiliated"
+    # Custom exception handler spreads detail dict to top-level response body
+    assert r.json()["error"] == "school_affiliated"
 
 
 @pytest.mark.asyncio
@@ -651,7 +655,7 @@ async def test_upgrade_plan_same_plan_returns_409(client: AsyncClient):
         json={"new_plan": "growth"},
     )
     assert r.status_code == 409, r.text
-    assert r.json()["detail"]["error"] == "already_on_plan"
+    assert r.json()["error"] == "already_on_plan"
 
 
 @pytest.mark.asyncio
@@ -694,6 +698,7 @@ async def test_flag_and_clear_teacher_over_quota(client: AsyncClient):
     from src.teacher.subscription_service import (
         clear_teacher_over_quota,
         flag_teacher_over_quota,
+        get_teacher_subscription_status,
     )
 
     tid = str(uuid.uuid4())
@@ -776,9 +781,10 @@ async def test_upgrade_plan_clears_over_quota_flag(client: AsyncClient):
     assert r.status_code == 200, r.text
     assert r.json()["over_quota"] is False
 
+    from src.teacher.subscription_service import get_teacher_subscription_status as _get_sub_status
     async with pool.acquire() as conn:
         await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
-        status = await get_teacher_subscription_status(conn, tid)
+        status = await _get_sub_status(conn, tid)
     assert status["over_quota"] is False
     assert status["over_quota_since"] is None
 
@@ -801,6 +807,19 @@ async def test_check_teacher_seat_quotas_flags_over_limit(client: AsyncClient):
 
     # Create teacher with solo plan (max_students=25) but we'll set max_students=3 directly
     await _create_independent_teacher(client, tid)
+
+    # Register a school just to satisfy student_teacher_assignments.school_id NOT NULL FK.
+    # (school_id in the assignment row is irrelevant for the seat-count query, which filters
+    # on students.school_id IS NULL to identify independent-teacher students.)
+    school_reg = await client.post("/api/v1/schools/register", json={
+        "school_name": "Quota Test School",
+        "contact_email": f"quota-{tid[:8]}@example.com",
+        "country": "US",
+        "password": "SecureTestPwd1!",
+    })
+    assert school_reg.status_code == 201, school_reg.text
+    dummy_school_id = school_reg.json()["school_id"]
+
     async with pool.acquire() as conn:
         await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
         await conn.execute(
@@ -814,25 +833,27 @@ async def test_check_teacher_seat_quotas_flags_over_limit(client: AsyncClient):
             """,
             uuid.UUID(tid),
         )
-        # Insert 4 active students enrolled to this teacher
-        for sid in student_ids[:4]:
+        # Insert 4 active students (school_id = NULL so they count as independent).
+        # Each student gets a distinct grade to avoid UNIQUE (student_id, grade) conflicts.
+        for i, sid in enumerate(student_ids[:4]):
+            grade = 8 + i  # grades 8, 9, 10, 11 — all within CHECK 5-12
             await conn.execute(
                 """
                 INSERT INTO students (student_id, external_auth_id, auth_provider,
-                                      grade, locale, account_status)
-                VALUES ($1::uuid, $2, 'auth0', 8, 'en', 'active')
+                                      name, email, grade, locale, account_status)
+                VALUES ($1::uuid, $2, 'auth0', 'Test Student', $3, $4, 'en', 'active')
                 ON CONFLICT (student_id) DO NOTHING
                 """,
-                uuid.UUID(sid), f"auth0|{sid[:8]}",
+                uuid.UUID(sid), f"auth0|{sid.replace('-', '')}", f"quota-{sid[:8]}@example.com", grade,
             )
             await conn.execute(
                 """
                 INSERT INTO student_teacher_assignments
-                    (student_id, teacher_id, grade)
-                VALUES ($1::uuid, $2::uuid, 8)
-                ON CONFLICT (student_id, teacher_id) DO NOTHING
+                    (student_id, teacher_id, school_id, grade)
+                VALUES ($1::uuid, $2::uuid, $3::uuid, $4)
+                ON CONFLICT (student_id, grade) DO NOTHING
                 """,
-                uuid.UUID(sid), uuid.UUID(tid),
+                uuid.UUID(sid), uuid.UUID(tid), uuid.UUID(dummy_school_id), grade,
             )
 
     # Run the task synchronously in the test process using a direct DB connection

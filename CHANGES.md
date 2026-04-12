@@ -4,6 +4,100 @@
 
 ---
 
+### Phase A — Local Auth polish: layout gate, logout, registration, token refresh (2026-04-12)
+
+**Branch:** `fix/test-isolation-and-prod-bugs`  
+**GitHub issues:** #146 (logout), #147 (registration form), #148 (refresh token)  
+**Commits:** `0c9546b`, `0d7e487`
+
+| File | Change |
+|---|---|
+| `web/app/(school)/layout.tsx` | Reads `sb_local_teacher_session` cookie; renders `LocalAuthGuard` for local-auth users instead of Auth0 redirect |
+| `web/components/school/LocalAuthGuard.tsx` | New "use client" gate: decodes `sb_teacher_token`, checks expiry + `first_login`, renders null during check to prevent flash, then renders full portal layout |
+| `backend/src/auth/schemas.py` | Added `ChangePasswordResponse` |
+| `backend/src/auth/router.py` | `PATCH /auth/change-password` now returns a fresh JWT with `first_login=False` — no second login needed after password reset |
+| `web/lib/api/auth.ts` | Updated `changePassword` return type; added `registerSchool()` + `RegisterSchoolRequest/Response` interfaces |
+| `web/app/(public)/school/change-password/page.tsx` | Stores new token + refresh_token from `PATCH /auth/change-password` response |
+| `web/app/(public)/school/login/page.tsx` | Sets `sb_local_teacher_session` cookie + stores refresh_token; "Register your school" link added |
+| `web/app/(public)/school/register/page.tsx` | New public self-registration page (school name, country, email, password); calls `registerSchool()`; stores token + session cookie on success |
+| `web/app/api/auth/logout/route.ts` | Clears all three session cookies; detects local-auth and redirects to `/school/login` instead of `/` |
+| `web/components/layout/SchoolNav.tsx` | `handleLogout` also removes `sb_teacher_refresh_token` |
+| `web/lib/api/school-client.ts` | Added 401 refresh interceptor: one silent `POST /auth/refresh`; concurrent calls coalesced; clears tokens + cookie and redirects on failure |
+| `web/lib/dev-session.ts` | Added `getLocalTeacherSession()` reading `sb_local_teacher_session` cookie |
+
+---
+
+### Phase A — Local Auth for School-Provisioned Users (2026-04-12)
+
+**Branch:** `fix/test-isolation-and-prod-bugs`  
+**GitHub issues:** #140 (login page), #141 (change-password page), #142 (teacher provision UI), #143 (student provision UI), #144 (seed script), #145 (CLAUDE.md + CHANGES.md)  
+**Tests:** 678 backend tests passing
+
+#### Design decision — Third auth track for school-provisioned users
+
+The platform now supports three independent authentication tracks:
+
+| Track | Users | Login endpoint | JWT secret | Token key |
+|---|---|---|---|---|
+| Auth0 exchange | Self-registered students & teachers | `POST /auth/exchange`, `POST /auth/teacher/exchange` | `JWT_SECRET` | `sb_token` / `sb_teacher_token` |
+| **Local (Phase A)** | **School founders, provisioned teachers & students** | **`POST /auth/login`** | **`JWT_SECRET`** | **`sb_teacher_token` (teachers/admins), `sb_token` (students)** |
+| Admin bcrypt | Internal team | `POST /admin/auth/login` | `ADMIN_JWT_SECRET` | `sb_admin_token` |
+
+Local-auth users are created by school admins via API or the seed script. They receive a system-generated password by email and must change it on first login (`first_login=TRUE` in the JWT). The school layout enforces this redirect before any portal navigation.
+
+#### Backend — migration and auth endpoints (shipped in previous commit)
+
+| File | Change |
+|---|---|
+| `backend/alembic/versions/0037_phase_a_local_auth.py` | Adds `password_hash TEXT` + `first_login BOOLEAN NOT NULL DEFAULT FALSE` to `teachers` and `students` |
+| `backend/src/auth/router.py` | `POST /auth/login` — email+password; `PATCH /auth/change-password` — clears `first_login`; `POST /schools/{id}/teachers` — provision teacher; `POST /schools/{id}/students` — provision student; `POST /schools/{id}/teachers/{id}/reset-password`; `POST /schools/{id}/students/{id}/reset-password`; `POST /schools/{id}/teachers/{id}/promote` |
+| `backend/src/auth/service.py` | `login_local_user` — bcrypt verify; timing-safe sentinel hash; RLS bypass via `set_config('app.current_school_id', 'bypass', false)` before pool query |
+| `backend/src/auth/schemas.py` | `LocalLoginRequest`, `LocalLoginResponse`, `ChangePasswordRequest`, `ProvisionTeacherRequest/Response`, `ProvisionStudentRequest/Response`, `ResetPasswordResponse`, `PromoteTeacherResponse` |
+| `backend/tests/test_phase_a_provisioning.py` | 20 new tests covering all Phase A flows |
+
+**Two production bugs fixed:**
+1. **Invalid bcrypt salt** — sentinel hash was a 34-char string; replaced with `bcrypt.hashpw(b"__sentinel__", bcrypt.gensalt(rounds=4)).decode()` at module level.
+2. **RLS hiding all rows on login** — `login_local_user` used bare `pool.fetchrow()` without stamping `app.current_school_id='bypass'`; changed to acquire a pool connection explicitly and execute `set_config` before querying.
+
+#### Web — login and change-password pages
+
+| File | Change |
+|---|---|
+| `web/app/(public)/school/login/page.tsx` | Replaced static Auth0 redirect button with email+password form; calls `localLogin()`; stores to correct localStorage key per role; redirects to `/school/change-password?required=1` when `first_login=true` |
+| `web/app/(public)/school/change-password/page.tsx` | New page — current password + new password (≥12 chars) + confirm; calls `changePassword()`; amber "required" banner when `?required=1`; SSR-safe (token read in `useEffect`) |
+| `web/lib/api/auth.ts` | Added `publicApi` (unauthenticated Axios); `localLogin()`, `changePassword()` functions; `LocalLoginRequest/Response`, `ChangePasswordRequest` interfaces |
+| `web/lib/hooks/useTeacher.ts` | Added `first_login: boolean` to `TeacherClaims` interface; decoded from JWT payload in `readTeacherClaims()` |
+
+#### Web — school portal teacher and student management
+
+| File | Change |
+|---|---|
+| `web/lib/api/school-admin.ts` | Added `provisionTeacher()`, `provisionStudent()`, `resetTeacherPassword()`, `resetStudentPassword()`, `promoteTeacher()` functions with full TypeScript interfaces |
+| `web/app/(school)/school/teachers/page.tsx` | Replaced `inviteTeacher` (Auth0 link) with `provisionTeacher` form; added Reset Password (KeyRound icon) + Promote to Admin (Crown icon) action buttons on each `TeacherRow` with inline confirmation dialogs |
+| `web/app/(school)/school/students/page.tsx` | Added `provisionStudent` "Add a student" form (name, email, grade picker) and `RosterRow` component with Reset Password action for active provisioned students |
+
+#### Dev tooling
+
+| File | Change |
+|---|---|
+| `backend/scripts/seed_phase_a_dev.py` | New idempotent seed script — creates Dev School + Dev Admin + Dev Teacher + Dev Student with local auth; prints credentials to stdout; `--reset` flag drops and recreates all dev data |
+
+**Dev credentials (after running `seed_phase_a_dev.py`):**
+
+| Role | Email | Password |
+|---|---|---|
+| School admin | `admin@devschool.local` | `DevAdmin1234!` |
+| Teacher | `teacher@devschool.local` | `DevTeacher1234!` |
+| Student | `student@devschool.local` | `DevStudent1234!` |
+
+#### Documentation
+
+| File | Change |
+|---|---|
+| `CLAUDE.md` | Auth section updated from "Two-track" to "Three-track"; full Phase A flow; JWT payload examples; added pitfalls #23 (RLS bypass on login) and #24 (`first_login` enforcement at layout level) |
+
+---
+
 ### ADR-001 + Demo Teacher Flow + Content Review Improvements (2026-04-05)
 
 **Branch:** `feat/demo-teacher-flow`  
