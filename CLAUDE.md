@@ -29,7 +29,7 @@ API key. Schools and teachers can upload custom curricula. Subscription-based.
 | Phase D — Curriculum Builder | ✅ Complete (migration 0039, 19 tests, definition form + approval queue UI) |
 | Phase E — Pipeline Billing | ✅ Complete (10 tests, cost estimate + Stripe-gated trigger) |
 
-**Active branch:** `main` (next: Help system)
+**Active branch:** `main` (next: see `docs/epics/` — product backlog)
 
 **Recently shipped (beyond Phase 11):**
 - Content review unit viewer — Lesson / Tutorial / Quiz / Experiment renderers
@@ -46,8 +46,13 @@ API key. Schools and teachers can upload custom curricula. Subscription-based.
 - **Phase E Pipeline Billing**: cost estimate endpoint (`/definitions/{id}/estimate`) — unit runs, token forecast, `within_allowance`, `card_last4`; trigger endpoint (`/definitions/{id}/trigger`) — confirm gate, concurrency guard, Stripe PaymentIntent on allowance exhaustion, Celery dispatch; `source_type='school'`; 10 tests; `run_stripe` module-level import for patchability
 
 **Open tasks:**
-- Multi-provider LLM pipeline — see `docs/DESIGN_EXPLORATION_MULTI_PROVIDER_LLM.md` (design exploration, not scheduled)
-- Help system — see `docs/DESIGN_HELP_SYSTEM.md` (design exploration)
+- See `docs/epics/` for the full product backlog (6 epics, each with open questions and space for decisions)
+- Multi-provider LLM pipeline — Epic 1 (`docs/epics/EPIC_01_multi_provider_llm.md`)
+- Production launch & demo readiness — Epic 2 (`docs/epics/EPIC_02_production_launch.md`)
+- Student mobile app — Epic 3 (`docs/epics/EPIC_03_student_mobile.md`)
+- Parent portal — Epic 4 (`docs/epics/EPIC_04_parent_portal.md`)
+- District admin — Epic 5 (`docs/epics/EPIC_05_district_admin.md`)
+- Platform hardening — Epic 6 (`docs/epics/EPIC_06_platform_hardening.md`)
 
 Predecessor project (UI + prompt reference):
 `https://github.com/wegofwd2020-hub/studybuddy_free`
