@@ -7,6 +7,7 @@ import { LocalAuthGuard } from "@/components/school/LocalAuthGuard";
 import { QueryProvider } from "@/lib/providers/QueryProvider";
 import { PortalHeader } from "@/components/layout/PortalHeader";
 import { PortalFooter } from "@/components/layout/PortalFooter";
+import { HelpWidget } from "@/components/help/HelpWidget";
 
 export default async function SchoolLayout({ children }: { children: React.ReactNode }) {
   // Phase A local-auth session — cookie set at login, validated client-side.
@@ -50,6 +51,7 @@ export default async function SchoolLayout({ children }: { children: React.React
           </main>
           <PortalFooter />
         </div>
+        <HelpWidget />
       </div>
     </QueryProvider>
   );

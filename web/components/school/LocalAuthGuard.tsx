@@ -24,6 +24,7 @@ import { SchoolNav } from "@/components/layout/SchoolNav";
 import { PortalHeader } from "@/components/layout/PortalHeader";
 import { PortalFooter } from "@/components/layout/PortalFooter";
 import { LimitWarningBanner } from "@/components/school/LimitWarningBanner";
+import { HelpWidget } from "@/components/help/HelpWidget";
 
 function decodeJwtPayload(token: string): Record<string, unknown> | null {
   try {
@@ -103,6 +104,7 @@ export function LocalAuthGuard({
         </main>
         <PortalFooter />
       </div>
+      <HelpWidget />
     </div>
   );
 }
