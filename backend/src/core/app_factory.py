@@ -277,6 +277,9 @@ def _register_routers(app: FastAPI) -> None:
     from src.help.router import router as help_router
     app.include_router(help_router, prefix="/api/v1")
 
+    from src.demo_leads.router import router as demo_leads_router
+    app.include_router(demo_leads_router, prefix="/api/v1")
+
     if settings.APP_ENV == "development":
         from src.auth.dev_router import router as dev_router
 

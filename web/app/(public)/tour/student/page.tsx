@@ -15,9 +15,11 @@
  */
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, CheckCircle2 } from "lucide-react";
+import { DemoTourBanner } from "@/components/demo/DemoTourBanner";
 
 interface Step {
   title: string;
@@ -252,6 +254,8 @@ const STEPS: Step[] = [
 
 export default function StudentTour() {
   const [current, setCurrent] = useState(0);
+  const searchParams = useSearchParams();
+  const demoToken = searchParams.get("demo_token");
   const step = STEPS[current];
   const isFirst = current === 0;
   const isLast = current === STEPS.length - 1;
@@ -306,6 +310,9 @@ export default function StudentTour() {
           </div>
         </div>
       </div>
+
+      {/* Personalised demo welcome banner (only when demo_token present) */}
+      <DemoTourBanner token={demoToken} accentColor="green" />
 
       {/* Step content */}
       <div className="mx-auto max-w-3xl px-6 py-10">

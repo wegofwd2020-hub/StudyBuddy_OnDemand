@@ -842,3 +842,97 @@ export async function listAdminPrivateTeachers(
   );
   return res.data;
 }
+
+// ── Demo leads (Epic 7) ──────────────────────────────────────────────────────
+
+export interface DemoLeadItem {
+  lead_id: string;
+  name: string;
+  email: string;
+  school_org: string;
+  ip_country: string | null;
+  status: "pending" | "approved" | "rejected";
+  token_expires_at: string | null;
+  approved_at: string | null;
+  rejected_reason: string | null;
+  created_at: string;
+}
+
+export interface DemoLeadListResponse {
+  leads: DemoLeadItem[];
+  total: number;
+}
+
+export interface DemoLeadApproveResponse {
+  lead_id: string;
+  demo_url_admin: string;
+  demo_url_teacher: string;
+  demo_url_student: string;
+  token_expires_at: string;
+}
+
+export interface GeoBlockItem {
+  country_code: string;
+  country_name: string | null;
+  added_at: string;
+}
+
+export async function listDemoLeads(
+  status?: string,
+  limit = 50,
+  offset = 0,
+): Promise<DemoLeadListResponse> {
+  const res = await adminApi.get<DemoLeadListResponse>("/admin/demo-leads", {
+    params: { limit, offset, ...(status ? { status } : {}) },
+  });
+  return res.data;
+}
+
+export async function approveDemoLead(
+  leadId: string,
+  ttlHours = 24,
+): Promise<DemoLeadApproveResponse> {
+  const res = await adminApi.post<DemoLeadApproveResponse>(
+    `/admin/demo-leads/${leadId}/approve`,
+    { ttl_hours: ttlHours },
+  );
+  return res.data;
+}
+
+export async function rejectDemoLead(
+  leadId: string,
+  reason?: string,
+): Promise<{ lead_id: string; status: string }> {
+  const res = await adminApi.post<{ lead_id: string; status: string }>(
+    `/admin/demo-leads/${leadId}/reject`,
+    { reason: reason ?? null },
+  );
+  return res.data;
+}
+
+export async function listDemoGeoBlocks(): Promise<{ blocks: GeoBlockItem[] }> {
+  const res = await adminApi.get<{ blocks: GeoBlockItem[] }>(
+    "/admin/demo-geo-blocks",
+  );
+  return res.data;
+}
+
+export async function addDemoGeoBlock(
+  countryCode: string,
+  countryName?: string,
+): Promise<{ country_code: string; added: boolean }> {
+  const res = await adminApi.post<{ country_code: string; added: boolean }>(
+    "/admin/demo-geo-blocks",
+    { country_code: countryCode, country_name: countryName ?? null },
+  );
+  return res.data;
+}
+
+export async function removeDemoGeoBlock(
+  countryCode: string,
+): Promise<{ status: string; country_code: string }> {
+  const res = await adminApi.delete<{ status: string; country_code: string }>(
+    `/admin/demo-geo-blocks/${countryCode}`,
+  );
+  return res.data;
+}

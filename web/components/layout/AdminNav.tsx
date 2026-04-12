@@ -22,6 +22,7 @@ import {
   School,
   Users,
   Archive,
+  Sparkles,
 } from "lucide-react";
 
 interface NavItem {
@@ -80,6 +81,12 @@ const NAV_ITEMS: NavItem[] = [
     href: "/admin/demo-teacher-accounts",
     icon: <GraduationCap className="h-4 w-4" />,
     minRole: "product_admin",
+  },
+  {
+    label: "Demo Leads",
+    href: "/admin/demo-leads",
+    icon: <Sparkles className="h-4 w-4" />,
+    minRole: "plat_admin",
   },
   {
     label: "Schools",

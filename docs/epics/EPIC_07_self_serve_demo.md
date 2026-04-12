@@ -1,6 +1,6 @@
 # Epic 7 — Self-Serve Demo System
 
-**Status:** 💭 Needs answers to clarifying questions below
+**Status:** ✅ Complete
 
 ---
 
@@ -54,6 +54,8 @@ with real-looking data. No live backend needed. The "package" is a personalised
 URL with pre-filled data.
 
 → **Which option, or a combination?**
+Option C seems like a low maintanence opetion in terms of data handling and housekeep chores.
+
 
 ---
 
@@ -75,6 +77,7 @@ approves individual requests manually.
 → **Which option? And is geo-lock the default state (all locked, some opened) or
 the exception (all open, some locked)?**
 
+Option A seems more practical
 ---
 
 ### Who can request a demo?
@@ -92,7 +95,7 @@ The "Request a demo" form submits a lead. PLAT-ADMIN reviews and manually
 triggers the demo package for qualified prospects only.
 
 → **Which option?**
-
+Option C works for me,
 ---
 
 ### The 10-request limit — how is a "requester" identified?
@@ -102,7 +105,7 @@ Email address only, or email + device fingerprint? Email is easy to bypass
 stricter signal is needed.
 
 → **Email only, or stricter?**
-
+email address only.
 ---
 
 ### What does the PLAT-ADMIN console look like?
@@ -112,19 +115,35 @@ expires at, status), controls to extend TTL or revoke early, and a geo-lock
 configuration screen.
 
 → **Any additional controls needed?**
-
+No additional controls required at this time.
 ---
 
-## Rough scope (assuming Option A for data package — live sandbox)
+## Decisions (finalised)
 
-| Phase | What gets built |
+| Decision | Choice |
 |---|---|
-| L-1 | `demo_requests` table + PLAT-ADMIN role + geo-lock config table |
-| L-2 | Demo request API: `POST /demo/request` (rate-limited, geo-checked, throttled to 1 active); confirmation email with credentials |
-| L-3 | Demo provisioning: seed script that creates an isolated demo school on request (teachers, students, classrooms, curriculum, progress data) |
-| L-4 | TTL expiry: Celery Beat task that deactivates expired demo schools every hour; PLAT-ADMIN extend endpoint |
-| L-5 | PLAT-ADMIN console: request list, extend/revoke controls, geo-lock settings, regional capacity view |
-| L-6 | Public landing page: "Request a demo" form with region detection and queue messaging when at capacity |
+| Data package | **Option C** — Guided read-only tour with personalised URL (`?demo_token=`) |
+| Geo-lock | **Option A** — Block by IP country via `CF-IPCountry` / `X-Country-Code` header |
+| Who can request | **Option C** — Sales-qualified only; PLAT-ADMIN manually approves each lead |
+| Requester identity | Email address only |
+| PLAT-ADMIN console | Baseline: lead list, approve/reject, geo-block CRUD |
+
+## What was built
+
+| Phase | Status | What was built |
+|---|---|---|
+| L-1 | ✅ | Migration 0042: `demo_leads` + `demo_geo_blocks` tables; `plat_admin` ENUM added to `admin_role`; `demo:manage` permission in `permissions.py`; `DEMO_TOKEN_SECRET` / `DEMO_LEAD_TOKEN_TTL_HOURS` / `DEMO_LEAD_LIFETIME_MAX` / `DEMO_LEAD_ACTIVE_MAX` settings |
+| L-2 | ✅ | `POST /demo/request` (public, slowapi 3/hour, geo-check, 1-active limit, lifetime limit); `src/demo_leads/` module (schemas, service, router); registered in app_factory |
+| L-3 | ✅ | `POST /admin/demo-leads/{id}/approve` — generates HS256 JWT demo_token, stores in DB, sends approval email via `send_demo_approval_email()` with all 3 personalised tour URLs |
+| L-4 | N/A | No seed script or Celery TTL task needed (Option C is stateless — token TTL embedded in JWT) |
+| L-5 | ✅ | Admin console: `/admin/demo-leads` (lead list, approve/reject panels, TTL selector, tour URL display); `/admin/demo-settings` (geo-block CRUD); API client functions in `web/lib/api/admin.ts`; `plat_admin` role added to `useAdmin.ts` hook and `AdminNav.tsx` |
+| L-6 | ✅ | `DemoTourBanner` component shown on all 3 tour pages (`/tour/school-admin`, `/tour/teacher`, `/tour/student`) when `?demo_token=` is present; banner decodes JWT client-side and greets by name and school |
+
+## Tests
+
+`backend/tests/test_demo_leads.py` — 15 tests (DML-01 … DML-15)  
+Covers: request happy path, geo-block rejection, active-demo conflict, field validation,  
+admin auth gate, lead listing and status filter, approve/reject flows, geo-block CRUD.
 
 ---
 

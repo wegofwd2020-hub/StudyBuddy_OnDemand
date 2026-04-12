@@ -6,7 +6,12 @@
 
 import { useState, useEffect } from "react";
 
-export type AdminRole = "developer" | "tester" | "product_admin" | "super_admin";
+export type AdminRole =
+  | "developer"
+  | "tester"
+  | "product_admin"
+  | "super_admin"
+  | "plat_admin";
 
 export interface AdminClaims {
   admin_id: string;
@@ -18,6 +23,7 @@ const ROLE_RANK: Record<AdminRole, number> = {
   tester: 1,
   product_admin: 2,
   super_admin: 3,
+  plat_admin: 4,
 };
 
 export function hasPermission(role: AdminRole, minRole: AdminRole): boolean {
@@ -39,6 +45,7 @@ const VALID_ROLES = new Set<AdminRole>([
   "tester",
   "product_admin",
   "super_admin",
+  "plat_admin",
 ]);
 
 function readAdminClaims(): AdminClaims | null {

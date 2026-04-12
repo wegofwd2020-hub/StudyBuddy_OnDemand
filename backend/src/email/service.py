@@ -929,6 +929,72 @@ _SCA_HTML = """\
 """
 
 
+async def send_demo_approval_email(
+    to_email: str,
+    name: str,
+    school_org: str,
+    url_admin: str,
+    url_teacher: str,
+    url_student: str,
+    expires_at: object,
+) -> None:
+    """
+    Send a personalised demo tour approval email.
+
+    Includes three tour links (school admin / teacher / student) each carrying
+    the same signed demo_token so the tour page can greet the requester by name.
+    """
+    from datetime import datetime
+
+    expires_str = expires_at.strftime("%B %d, %Y at %H:%M UTC") if isinstance(expires_at, datetime) else str(expires_at)
+
+    subject = f"Your StudyBuddy demo is ready, {name}"
+    text_body = (
+        f"Hi {name},\n\n"
+        f"Your personalised StudyBuddy demo for {school_org} is ready.\n\n"
+        f"Explore each role using the links below. Your demo expires on {expires_str}.\n\n"
+        f"School Admin tour:  {url_admin}\n"
+        f"Teacher tour:       {url_teacher}\n"
+        f"Student tour:       {url_student}\n\n"
+        "These links are personalised for you — please do not share them.\n\n"
+        "— The StudyBuddy Team"
+    )
+    html_body = f"""<!DOCTYPE html>
+<html>
+<body style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#111827">
+  <h2 style="color:#4f46e5">Your StudyBuddy demo is ready</h2>
+  <p>Hi <strong>{name}</strong>,</p>
+  <p>Your personalised demo for <strong>{school_org}</strong> is ready to explore.</p>
+  <p style="color:#6b7280;font-size:13px">Your demo expires on <strong>{expires_str}</strong>.</p>
+  <table style="width:100%;border-collapse:collapse;margin:24px 0">
+    <tr>
+      <td style="padding:12px;background:#f5f3ff;border-radius:8px 8px 0 0;border-bottom:1px solid #e5e7eb">
+        <strong style="color:#4f46e5">School Admin tour</strong><br>
+        <a href="{url_admin}" style="color:#4f46e5;font-size:13px">{url_admin}</a>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;background:#eff6ff;border-bottom:1px solid #e5e7eb">
+        <strong style="color:#2563eb">Teacher tour</strong><br>
+        <a href="{url_teacher}" style="color:#2563eb;font-size:13px">{url_teacher}</a>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:12px;background:#f0fdf4;border-radius:0 0 8px 8px">
+        <strong style="color:#16a34a">Student tour</strong><br>
+        <a href="{url_student}" style="color:#16a34a;font-size:13px">{url_student}</a>
+      </td>
+    </tr>
+  </table>
+  <p style="color:#6b7280;font-size:13px">
+    These links are personalised for you — please do not share them.
+  </p>
+  <p style="color:#6b7280;font-size:13px">— The StudyBuddy Team</p>
+</body>
+</html>"""
+    await _send(to_email=to_email, subject=subject, text_body=text_body, html_body=html_body)
+
+
 async def send_payment_action_required_email(
     to_email: str,
     action_url: str,

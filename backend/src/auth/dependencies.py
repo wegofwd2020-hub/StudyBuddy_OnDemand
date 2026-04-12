@@ -214,7 +214,7 @@ async def get_current_admin(
     payload = verify_internal_jwt(credentials.credentials, settings.ADMIN_JWT_SECRET)
 
     role = payload.get("role", "")
-    if role not in ("developer", "tester", "product_admin", "super_admin"):
+    if role not in ("developer", "tester", "product_admin", "super_admin", "plat_admin"):
         raise HTTPException(
             status_code=403,
             detail={

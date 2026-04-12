@@ -68,6 +68,10 @@ ROLE_PERMISSIONS: dict[str, set[str]] = {
         "feedback:view",
     },
     "super_admin": {"*"},  # wildcard — all permissions granted
+    # Platform Administrator — manages demo leads, geo-blocks, and demo settings only.
+    "plat_admin": {
+        "demo:manage",
+    },
     "developer": {
         "content:read",
         "review:read",

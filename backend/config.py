@@ -138,6 +138,15 @@ class Settings(BaseSettings):
     DEMO_TEACHER_MAX_ACTIVE: int = 50      # hard cap on concurrent active demo teacher accounts
     FRONTEND_URL: str = "http://localhost:3000"
 
+    # ── Demo lead tour tokens (Epic 7) ────────────────────────────────────────
+    # Signed with HS256; payload carries { lead_id, name, school_org, exp }.
+    # Separate from JWT_SECRET — demo tokens are read client-side and must not
+    # share a secret with auth tokens.
+    DEMO_TOKEN_SECRET: str = "demo-token-secret-change-in-production-xxxxx"
+    DEMO_LEAD_TOKEN_TTL_HOURS: int = 24      # default TTL for approved demo URLs
+    DEMO_LEAD_LIFETIME_MAX: int = 10         # max lifetime requests per email
+    DEMO_LEAD_ACTIVE_MAX: int = 1            # max concurrent approved (non-expired) leads per email
+
     @property
     def effective_celery_broker_url(self) -> str:
         return self.CELERY_BROKER_URL or self.REDIS_URL
