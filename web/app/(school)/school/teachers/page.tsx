@@ -6,7 +6,9 @@ import { useTeacher } from "@/lib/hooks/useTeacher";
 import {
   listTeachers,
   assignTeacherGrades,
-  inviteTeacher,
+  provisionTeacher,
+  resetTeacherPassword,
+  promoteTeacher,
   type TeacherRosterItem,
 } from "@/lib/api/school-admin";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,6 +24,8 @@ import {
   ShieldCheck,
   Pencil,
   X,
+  KeyRound,
+  Crown,
 } from "lucide-react";
 
 const ALL_GRADES = [5, 6, 7, 8, 9, 10, 11, 12];
@@ -107,16 +111,46 @@ function GradeEditor({
 function TeacherRow({
   item,
   schoolId,
+  isAdmin,
 }: {
   item: TeacherRosterItem;
   schoolId: string;
+  isAdmin: boolean;
 }) {
+  const queryClient = useQueryClient();
   const [editing, setEditing] = useState(false);
+  const [confirmReset, setConfirmReset] = useState(false);
+  const [confirmPromote, setConfirmPromote] = useState(false);
+  const [actionMsg, setActionMsg] = useState<string | null>(null);
+
+  const { mutate: doReset, isPending: resetting } = useMutation({
+    mutationFn: () => resetTeacherPassword(schoolId, item.teacher_id),
+    onSuccess: () => {
+      setConfirmReset(false);
+      setActionMsg("Password reset. New credentials have been emailed to the teacher.");
+    },
+    onError: () => {
+      setConfirmReset(false);
+      setActionMsg("Reset failed. Please try again.");
+    },
+  });
+
+  const { mutate: doPromote, isPending: promoting } = useMutation({
+    mutationFn: () => promoteTeacher(schoolId, item.teacher_id),
+    onSuccess: () => {
+      setConfirmPromote(false);
+      queryClient.invalidateQueries({ queryKey: ["teachers", schoolId] });
+    },
+    onError: () => {
+      setConfirmPromote(false);
+      setActionMsg("Promotion failed. Please try again.");
+    },
+  });
 
   return (
     <div className="rounded-lg border bg-white p-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <span className="font-medium text-gray-900">{item.name}</span>
             {item.role === "school_admin" ? (
@@ -147,15 +181,105 @@ function TeacherRow({
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setEditing((v) => !v)}
-          className="flex-shrink-0 rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-          aria-label="Edit grade assignments"
-        >
-          {editing ? <X className="h-4 w-4" /> : <Pencil className="h-4 w-4" />}
-        </button>
+        {/* Action buttons */}
+        <div className="flex shrink-0 items-center gap-1">
+          {isAdmin && item.role !== "school_admin" && (
+            <button
+              type="button"
+              onClick={() => { setConfirmPromote(true); setActionMsg(null); }}
+              className="rounded-md p-1.5 text-gray-400 hover:bg-purple-50 hover:text-purple-600"
+              aria-label="Promote to school admin"
+              title="Promote to admin"
+            >
+              <Crown className="h-4 w-4" />
+            </button>
+          )}
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => { setConfirmReset(true); setActionMsg(null); }}
+              className="rounded-md p-1.5 text-gray-400 hover:bg-amber-50 hover:text-amber-600"
+              aria-label="Reset password"
+              title="Reset password"
+            >
+              <KeyRound className="h-4 w-4" />
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => setEditing((v) => !v)}
+            className="rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+            aria-label="Edit grade assignments"
+          >
+            {editing ? <X className="h-4 w-4" /> : <Pencil className="h-4 w-4" />}
+          </button>
+        </div>
       </div>
+
+      {/* Reset password confirm */}
+      {confirmReset && (
+        <div className="mt-3 rounded-lg border border-amber-100 bg-amber-50 p-3 text-sm">
+          <p className="text-amber-800">
+            Reset <strong>{item.name}</strong>&apos;s password? They will receive a new
+            temporary password and must change it on next login.
+          </p>
+          <div className="mt-2 flex gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              className="border-amber-300 text-amber-700 hover:bg-amber-100"
+              onClick={() => doReset()}
+              disabled={resetting}
+            >
+              {resetting ? "Resetting…" : "Yes, reset"}
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => setConfirmReset(false)}
+              disabled={resetting}
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Promote to admin confirm */}
+      {confirmPromote && (
+        <div className="mt-3 rounded-lg border border-purple-100 bg-purple-50 p-3 text-sm">
+          <p className="text-purple-800">
+            Promote <strong>{item.name}</strong> to school admin? They will be able to
+            manage all teachers and students at this school.
+          </p>
+          <div className="mt-2 flex gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              className="border-purple-300 text-purple-700 hover:bg-purple-100"
+              onClick={() => doPromote()}
+              disabled={promoting}
+            >
+              {promoting ? "Promoting…" : "Yes, promote"}
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => setConfirmPromote(false)}
+              disabled={promoting}
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Action result message */}
+      {actionMsg && (
+        <div className="mt-3 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-700">
+          {actionMsg}
+        </div>
+      )}
 
       {editing && (
         <GradeEditor
@@ -183,25 +307,30 @@ export default function TeachersPage() {
     staleTime: 30_000,
   });
 
-  // Invite form state
+  // Provision form state
   const queryClient = useQueryClient();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [inviteError, setInviteError] = useState<string | null>(null);
-  const [inviteSuccess, setInviteSuccess] = useState<string | null>(null);
+  const [addError, setAddError] = useState<string | null>(null);
+  const [addSuccess, setAddSuccess] = useState<string | null>(null);
 
-  const { mutate: doInvite, isPending: inviting } = useMutation({
-    mutationFn: () => inviteTeacher(schoolId, name, email),
+  const { mutate: doProvision, isPending: provisioning } = useMutation({
+    mutationFn: () => provisionTeacher(schoolId, { name, email }),
     onSuccess: (res) => {
-      setInviteSuccess(res.email);
+      setAddSuccess(res.email);
       setName("");
       setEmail("");
       queryClient.invalidateQueries({ queryKey: ["teachers", schoolId] });
     },
     onError: (err: unknown) => {
-      const detail = (err as { response?: { data?: { detail?: string } } })
-        ?.response?.data?.detail;
-      setInviteError(detail ?? "Invite failed. The email may already be registered.");
+      const status = (err as { response?: { status?: number } })?.response?.status;
+      if (status === 409) {
+        setAddError("A teacher with that email already exists.");
+      } else {
+        const detail = (err as { response?: { data?: { detail?: string } } })
+          ?.response?.data?.detail;
+        setAddError(detail ?? "Could not add teacher. Please try again.");
+      }
     },
   });
 
@@ -226,7 +355,12 @@ export default function TeachersPage() {
         ) : teachers && teachers.length > 0 ? (
           <div className="space-y-3">
             {teachers.map((t) => (
-              <TeacherRow key={t.teacher_id} item={t} schoolId={schoolId} />
+              <TeacherRow
+                key={t.teacher_id}
+                item={t}
+                schoolId={schoolId}
+                isAdmin={isAdmin}
+              />
             ))}
           </div>
         ) : (
@@ -234,14 +368,14 @@ export default function TeachersPage() {
         )}
       </section>
 
-      {/* ── Invite form (admin only) ── */}
+      {/* ── Add teacher form (admin only) ── */}
       {isAdmin && (
         <section>
           <Card className="border shadow-sm">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
                 <UserPlus className="h-4 w-4 text-indigo-600" />
-                Invite a teacher
+                Add a teacher
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -263,33 +397,33 @@ export default function TeachersPage() {
                     value={email}
                     onChange={(e) => {
                       setEmail(e.target.value);
-                      setInviteError(null);
+                      setAddError(null);
                     }}
                     placeholder="j.smith@school.edu"
                   />
                 </div>
               </div>
 
-              {inviteError && <p className="text-sm text-red-600">{inviteError}</p>}
-              {inviteSuccess && (
+              {addError && <p className="text-sm text-red-600">{addError}</p>}
+              {addSuccess && (
                 <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
                   <Check className="h-4 w-4 shrink-0" />
-                  Invitation sent to{" "}
-                  <span className="font-medium">{inviteSuccess}</span>. They will
-                  receive an Auth0 login link.
+                  Teacher added. A temporary password has been sent to{" "}
+                  <span className="font-medium">{addSuccess}</span>. They must set
+                  a new password on first login.
                 </div>
               )}
 
               <Button
                 onClick={() => {
-                  setInviteError(null);
-                  setInviteSuccess(null);
-                  doInvite();
+                  setAddError(null);
+                  setAddSuccess(null);
+                  doProvision();
                 }}
-                disabled={inviting || !name || !email}
+                disabled={provisioning || !name || !email}
                 className="gap-2"
               >
-                {inviting ? "Sending…" : "Send invitation"}
+                {provisioning ? "Adding…" : "Add teacher"}
               </Button>
             </CardContent>
           </Card>

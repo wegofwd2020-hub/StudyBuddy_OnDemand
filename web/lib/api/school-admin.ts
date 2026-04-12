@@ -252,6 +252,118 @@ export async function createCreditsBundleCheckout(
   return res.data;
 }
 
+// ── Phase A provisioning ──────────────────────────────────────────────────────
+
+export interface ProvisionTeacherRequest {
+  name: string;
+  email: string;
+  subject_specialisation?: string;
+}
+
+export interface ProvisionedTeacher {
+  teacher_id: string;
+  school_id: string;
+  name: string;
+  email: string;
+  role: string;
+}
+
+/**
+ * Create a teacher with a system-generated default password.
+ * The backend emails credentials to the teacher. Sets first_login=true.
+ * Requires school_admin role.
+ */
+export async function provisionTeacher(
+  schoolId: string,
+  body: ProvisionTeacherRequest,
+): Promise<ProvisionedTeacher> {
+  const res = await schoolApi.post<ProvisionedTeacher>(
+    `/schools/${schoolId}/teachers`,
+    body,
+  );
+  return res.data;
+}
+
+export interface ProvisionStudentRequest {
+  name: string;
+  email: string;
+  /** 1–12 */
+  grade: number;
+}
+
+export interface ProvisionedStudent {
+  student_id: string;
+  school_id: string;
+  name: string;
+  email: string;
+  grade: number;
+}
+
+/**
+ * Create a student with a system-generated default password.
+ * The backend emails credentials to the student. Sets first_login=true.
+ * Requires school_admin role.
+ */
+export async function provisionStudent(
+  schoolId: string,
+  body: ProvisionStudentRequest,
+): Promise<ProvisionedStudent> {
+  const res = await schoolApi.post<ProvisionedStudent>(
+    `/schools/${schoolId}/students`,
+    body,
+  );
+  return res.data;
+}
+
+/**
+ * Admin-initiated password reset for a teacher.
+ * Generates a new default password, emails it, and sets first_login=true.
+ */
+export async function resetTeacherPassword(
+  schoolId: string,
+  teacherId: string,
+): Promise<{ detail: string }> {
+  const res = await schoolApi.post<{ detail: string }>(
+    `/schools/${schoolId}/teachers/${teacherId}/reset-password`,
+  );
+  return res.data;
+}
+
+/**
+ * Admin-initiated password reset for a student.
+ * Generates a new default password, emails it, and sets first_login=true.
+ */
+export async function resetStudentPassword(
+  schoolId: string,
+  studentId: string,
+): Promise<{ detail: string }> {
+  const res = await schoolApi.post<{ detail: string }>(
+    `/schools/${schoolId}/students/${studentId}/reset-password`,
+  );
+  return res.data;
+}
+
+export interface PromoteTeacherResponse {
+  teacher_id: string;
+  name: string;
+  email: string;
+  role: string;
+}
+
+/**
+ * Promote a teacher to school_admin.
+ * Multiple school_admins per school are allowed.
+ */
+export async function promoteTeacher(
+  schoolId: string,
+  teacherId: string,
+): Promise<PromoteTeacherResponse> {
+  const res = await schoolApi.post<PromoteTeacherResponse>(
+    `/schools/${schoolId}/teachers/${teacherId}/promote`,
+  );
+  return res.data;
+}
+
 // ── Teacher roster + grade assignments ────────────────────────────────────────
 
 export interface TeacherRosterItem {

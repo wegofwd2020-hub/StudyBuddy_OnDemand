@@ -415,16 +415,28 @@ The token is stored in `localStorage` as `sb_admin_token` and sent as `Authoriza
 - Pipeline: `ANTHROPIC_API_KEY`, `TTS_API_KEY`, `CONTENT_STORE_PATH`, `CLAUDE_MODEL` from env.
 
 ### Authentication
-**Two-track auth — do not mix:**
-- **Students + Teachers:** authenticate via Auth0 (external). Client sends Auth0 `id_token` to
-  `POST /auth/exchange` or `POST /auth/teacher/exchange`. Backend verifies against Auth0 JWKS
-  (L1-cached), upserts user, and issues an internal JWT. No password hash stored for these users.
-- **Internal team (developer/tester/product_admin/super_admin):** local bcrypt auth via
-  `POST /admin/auth/login`. Signed with `ADMIN_JWT_SECRET` (separate from student/teacher secrets).
+**Three-track auth — do not mix tracks:**
+
+| Track | Users | Login endpoint | JWT secret | Token key |
+|---|---|---|---|---|
+| Auth0 exchange | Self-registered students & teachers | `POST /auth/exchange`, `POST /auth/teacher/exchange` | `JWT_SECRET` (via Auth0 JWKS verify) | `sb_token` / `sb_teacher_token` |
+| **Local (school-provisioned)** | School founders, provisioned teachers & students | **`POST /auth/login`** | `JWT_SECRET` | `sb_teacher_token` (teachers/admins), `sb_token` (students) |
+| Admin bcrypt | Internal team (developer/tester/product_admin/super_admin) | `POST /admin/auth/login` | `ADMIN_JWT_SECRET` | `sb_admin_token` |
+
+**Local auth flow (Phase A):**
+- School founder registers via `POST /schools/register` (requires `password` ≥12 chars). Gets `auth_provider='local'`, `first_login=FALSE`.
+- School admin provisions teachers via `POST /schools/{id}/teachers` and students via `POST /schools/{id}/students`. System generates a random default password, emails it, sets `first_login=TRUE`.
+- `POST /auth/login` authenticates local users. Response includes `first_login: bool`.
+- **`first_login=true` → client MUST redirect to `/school/change-password?required=1` before any portal page renders.** This is enforced in the school portal layout. Never skip it client-side.
+- `PATCH /auth/change-password` verifies current password, sets `first_login=FALSE`.
+- Password policy: ≥12 chars, ≤72 bytes (bcrypt limit). Validated at schema level.
+- Timing-attack prevention: a sentinel bcrypt hash is computed at module import time and burned on unknown-email lookups to prevent email enumeration.
 
 Internal JWT payloads:
-- Student: `{student_id, grade, locale, role: "student", exp}`
-- Teacher: `{teacher_id, school_id, role: "teacher|school_admin", exp}`
+- Student (Auth0): `{student_id, grade, locale, role: "student", exp}`
+- Student (local): `{student_id, grade, locale, role: "student", account_status, first_login, exp}`
+- Teacher (Auth0): `{teacher_id, school_id, role: "teacher|school_admin", exp}`
+- Teacher (local): `{teacher_id, school_id, role: "teacher|school_admin", account_status, first_login, exp}`
 - Admin: `{admin_id, role: "developer|tester|product_admin|super_admin", exp}`
 
 - Locale is **authoritative from the JWT**. Content endpoints never accept `?lang=`.
@@ -590,6 +602,8 @@ See [AGENTS.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/AGE
 20. `unit_name NOT NULL` in `curriculum_units` — include `unit_name` in pipeline INSERT or the row silently fails.
 21. Roster upload uses `{students: [{email, grade?, teacher_id?}]}`, NOT `{student_emails: [...]}` — the old flat list format was removed in migration 0024.
 22. Grade self-change blocked for school-enrolled students — `PATCH /student/profile` returns 403 on `grade` if `students.school_id IS NOT NULL`. Grade is set exclusively via `PUT /schools/{school_id}/students/{student_id}/assignment`.
+23. **`login_local_user` must stamp `app.current_school_id='bypass'` before querying** — the RLS policy (migration 0028) hides all teacher/student rows when this is not set. Always acquire a pool connection and call `set_config` before the SELECT. Never use `pool.fetchrow()` directly on RLS-protected tables in an unauthenticated context.
+24. **`first_login=true` must block navigation at the portal layout level** — not just on the login page. A user who navigates directly to `/school/dashboard` after receiving a token with `first_login=true` must still be redirected to `/school/change-password?required=1`. Check the decoded JWT in the layout `useEffect`, not only in the login handler.
 
 ---
 
