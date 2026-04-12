@@ -44,6 +44,9 @@ x-api-env: &api-env
   REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
   CELERY_BROKER_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
   CONTENT_STORE_PATH: /data/content
+  # Help system — Deliver-1 (both keys optional in dev; endpoint degrades gracefully)
+  ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+  VOYAGE_API_KEY: ${VOYAGE_API_KEY:-}
 
 x-depends-infra: &depends-infra
   db:
@@ -71,7 +74,7 @@ services:
 
   # ── PostgreSQL ──────────────────────────────────────────────────────────────
   db:
-    image: postgres:16-alpine
+    image: pgvector/pgvector:pg16
     restart: unless-stopped
     environment:
       POSTGRES_DB: studybuddy

@@ -280,6 +280,15 @@ class Settings(BaseSettings):
     STRIPE_TEACHER_PRICE_GROWTH_ID: str | None = None   # $59/mo recurring
     STRIPE_TEACHER_PRICE_PRO_ID: str | None = None      # $99/mo recurring
 
+    # ── Help system (Deliver-1) ───────────────────────────────────────────────
+    # Anthropic API key — used by the help endpoint to call Claude Haiku.
+    # T2 secret. Same key used by the Celery pipeline workers.
+    ANTHROPIC_API_KEY: str | None = None
+
+    # Voyage AI — embedding model for RAG retrieval (voyage-3-lite, 512 dims).
+    # T2 secret. Falls back to full-text search when unset (dev without Voyage API key).
+    VOYAGE_API_KEY: str | None = None
+
     # ── Mobile API versioning ─────────────────────────────────────────────────
     # Oldest mobile app version the backend will accept (semver string).
     # Requests carrying X-App-Version below this receive HTTP 426 Upgrade Required.

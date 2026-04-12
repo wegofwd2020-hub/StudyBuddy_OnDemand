@@ -21,6 +21,41 @@ from src.core.redis_client import get_redis
 _AUTH_LIMIT = 10
 _AUTH_WINDOW = 60  # seconds
 
+_HELP_LIMIT = 10
+_HELP_WINDOW = 60  # seconds
+
+
+async def ip_help_rate_limit(request: Request) -> None:
+    """
+    FastAPI dependency: raise HTTP 429 if this IP has exceeded 10 help-ask
+    requests within the past 60 seconds.
+
+    Usage::
+
+        @router.post("/help/ask")
+        async def handler(
+            request: Request,
+            body: HelpAskRequest,
+            _: None = Depends(ip_help_rate_limit),
+        ): ...
+    """
+    redis = get_redis(request)
+    ip = request.client.host if request.client else "unknown"
+    key = f"help_rate:{ip}"
+
+    count = await redis.incr(key)
+    if count == 1:
+        await redis.expire(key, _HELP_WINDOW)
+
+    if count > _HELP_LIMIT:
+        raise HTTPException(
+            status_code=429,
+            detail={
+                "error": "rate_limited",
+                "detail": "Too many requests. Please try again later.",
+            },
+        )
+
 
 async def ip_auth_rate_limit(request: Request) -> None:
     """

@@ -37,6 +37,11 @@ openpyxl==3.1.5
 anthropic==0.28.0
 tiktoken>=0.7.0
 
+# Help system — Deliver-1
+voyageai>=0.3.0         # Anthropic-recommended embedding model for Claude RAG
+pgvector>=0.3.6         # asyncpg codec for the vector type (pgvector extension)
+beautifulsoup4>=4.12.0  # HTML parsing for the help library indexing script
+
 # Code quality + security (CI)
 ruff==0.15.10
 bandit[toml]==1.9.4
