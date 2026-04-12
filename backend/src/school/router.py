@@ -31,6 +31,9 @@ from src.school.schemas import (
     BulkReassignRequest,
     BulkReassignResponse,
     CatalogResponse,
+    CurriculumDefinitionRequest,
+    CurriculumDefinitionResponse,
+    DefinitionListResponse,
     EnrolmentRosterItem,
     EnrolmentRosterResponse,
     EnrolmentUploadRequest,
@@ -50,6 +53,7 @@ from src.school.schemas import (
     ProvisionStudentResponse,
     ProvisionTeacherRequest,
     ProvisionTeacherResponse,
+    RejectDefinitionRequest,
     ReorderPackageRequest,
     ResetPasswordResponse,
     SchoolProfileResponse,
@@ -64,20 +68,25 @@ from src.school.schemas import (
     TeacherRosterResponse,
 )
 from src.school.service import (
+    approve_definition,
     assign_package_to_classroom,
     assign_student_to_classroom,
     create_classroom,
     fetch_school,
     get_classroom_detail,
+    get_definition,
     invite_teacher,
     list_catalog,
     list_classrooms,
+    list_definitions,
     promote_to_school_admin,
     provision_student,
     provision_teacher,
+    reject_definition,
     remove_package_from_classroom,
     remove_student_from_classroom,
     reorder_package_in_classroom,
+    submit_definition,
     update_classroom,
     register_school,
     reset_student_password,
@@ -1077,3 +1086,190 @@ async def get_curriculum_catalog(
         packages = await list_catalog(conn, grade=grade)
 
     return CatalogResponse(packages=packages, total=len(packages))
+
+
+# ── Phase D — Curriculum Definitions ──────────────────────────────────────────
+
+
+@router.post(
+    "/schools/{school_id}/curriculum/definitions",
+    response_model=CurriculumDefinitionResponse,
+    status_code=201,
+)
+async def submit_definition_endpoint(
+    school_id: str,
+    body: CurriculumDefinitionRequest,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> CurriculumDefinitionResponse:
+    """
+    Submit a Curriculum Definition for school admin approval.
+
+    Any teacher or school_admin in the school may submit.
+    Status is set to 'pending_approval' automatically.
+    """
+    if teacher["school_id"] != school_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    subjects_payload = [
+        {
+            "subject_label": s.subject_label,
+            "units": [{"title": u.title} for u in s.units],
+        }
+        for s in body.subjects
+    ]
+
+    async with get_db(request) as conn:
+        result = await submit_definition(
+            conn,
+            school_id=school_id,
+            teacher_id=teacher["teacher_id"],
+            name=body.name,
+            grade=body.grade,
+            languages=body.languages,
+            subjects=subjects_payload,
+        )
+
+    return CurriculumDefinitionResponse(**result)
+
+
+@router.get(
+    "/schools/{school_id}/curriculum/definitions",
+    response_model=DefinitionListResponse,
+)
+async def list_definitions_endpoint(
+    school_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+    status: str | None = None,
+) -> DefinitionListResponse:
+    """
+    List Curriculum Definitions for the school.
+
+    - school_admin sees all definitions.
+    - teacher sees only their own.
+
+    Optional ?status= filter: pending_approval | approved | rejected
+    """
+    if teacher["school_id"] != school_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    is_admin = teacher.get("role") == "school_admin"
+    teacher_filter = None if is_admin else teacher["teacher_id"]
+
+    async with get_db(request) as conn:
+        definitions = await list_definitions(
+            conn,
+            school_id=school_id,
+            status_filter=status,
+            teacher_id=teacher_filter,
+        )
+
+    return DefinitionListResponse(definitions=definitions, total=len(definitions))
+
+
+@router.get(
+    "/schools/{school_id}/curriculum/definitions/{definition_id}",
+    response_model=CurriculumDefinitionResponse,
+)
+async def get_definition_endpoint(
+    school_id: str,
+    definition_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> CurriculumDefinitionResponse:
+    """
+    Fetch a single Curriculum Definition.
+
+    school_admin can view any definition in the school.
+    A regular teacher can only view their own.
+    """
+    if teacher["school_id"] != school_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    async with get_db(request) as conn:
+        defn = await get_definition(conn, definition_id, school_id)
+
+    if not defn:
+        raise HTTPException(status_code=404, detail="Definition not found")
+
+    is_admin = teacher.get("role") == "school_admin"
+    if not is_admin and defn["submitted_by"] != teacher["teacher_id"]:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    return CurriculumDefinitionResponse(**defn)
+
+
+@router.post(
+    "/schools/{school_id}/curriculum/definitions/{definition_id}/approve",
+    response_model=CurriculumDefinitionResponse,
+)
+async def approve_definition_endpoint(
+    school_id: str,
+    definition_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> CurriculumDefinitionResponse:
+    """
+    Approve a pending Curriculum Definition (school_admin only).
+
+    After approval the school admin can trigger the pipeline (Phase E).
+    Returns 409 if the definition is not in 'pending_approval' state.
+    """
+    if teacher.get("role") != "school_admin":
+        raise HTTPException(status_code=403, detail="Only school_admin can approve definitions")
+    if teacher["school_id"] != school_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    async with get_db(request) as conn:
+        result = await approve_definition(
+            conn, definition_id, school_id, reviewed_by=teacher["teacher_id"]
+        )
+
+    if result is None:
+        raise HTTPException(
+            status_code=409,
+            detail="Definition not found or not in pending_approval state",
+        )
+
+    return CurriculumDefinitionResponse(**result)
+
+
+@router.post(
+    "/schools/{school_id}/curriculum/definitions/{definition_id}/reject",
+    response_model=CurriculumDefinitionResponse,
+)
+async def reject_definition_endpoint(
+    school_id: str,
+    definition_id: str,
+    body: RejectDefinitionRequest,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> CurriculumDefinitionResponse:
+    """
+    Reject a pending Curriculum Definition (school_admin only).
+
+    The rejection reason is stored and surfaced to the submitting teacher.
+    Returns 409 if the definition is not in 'pending_approval' state.
+    """
+    if teacher.get("role") != "school_admin":
+        raise HTTPException(status_code=403, detail="Only school_admin can reject definitions")
+    if teacher["school_id"] != school_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    async with get_db(request) as conn:
+        result = await reject_definition(
+            conn,
+            definition_id,
+            school_id,
+            reviewed_by=teacher["teacher_id"],
+            reason=body.reason,
+        )
+
+    if result is None:
+        raise HTTPException(
+            status_code=409,
+            detail="Definition not found or not in pending_approval state",
+        )
+
+    return CurriculumDefinitionResponse(**result)

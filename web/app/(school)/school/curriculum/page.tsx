@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { LinkButton } from "@/components/ui/link-button";
+import Link from "next/link";
 import {
   Upload,
   Download,
@@ -28,6 +29,8 @@ import {
   Loader2,
   FileJson,
   FileSpreadsheet,
+  FileText,
+  ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -526,6 +529,23 @@ export default function CurriculumPage() {
           View all jobs
         </LinkButton>
       </div>
+
+      {/* Definitions panel */}
+      <Link
+        href="/school/curriculum/definitions"
+        className="flex items-center justify-between rounded-lg border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm hover:bg-indigo-100 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <FileText className="h-5 w-5 text-indigo-600" />
+          <div>
+            <p className="font-medium text-indigo-900">Curriculum Definitions</p>
+            <p className="text-xs text-indigo-600">
+              Build a form-based definition and submit for approval before generating content.
+            </p>
+          </div>
+        </div>
+        <ChevronRight className="h-4 w-4 text-indigo-400" />
+      </Link>
 
       {/* Tab switcher */}
       <div className="flex gap-1 rounded-lg border border-gray-200 bg-gray-50 p-1">

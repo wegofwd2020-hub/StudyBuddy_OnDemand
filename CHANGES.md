@@ -4,6 +4,36 @@
 
 ---
 
+### Phase D — Curriculum Builder: definition form + approval queue (2026-04-12)
+
+**Branch:** `feat/phase-d-curriculum-builder`  
+**Design docs:** `docs/REGISTRATION_DESIGN_ANALYSIS.md` (Q7, Q9, Q18 — form UI, school admin approval)
+
+**What ships:**
+
+| Area | Change |
+|---|---|
+| **Migration 0039** | `curriculum_definitions` table with RLS tenant isolation. Status enum: `pending_approval` / `approved` / `rejected`. Stores subjects as JSONB: `[{subject_label, units:[{title}]}]` |
+| **Backend schemas** | `DefinitionUnitEntry`, `DefinitionSubjectEntry`, `CurriculumDefinitionRequest` (validates grade 1–12, languages in {en,fr,es}, at-least-one subject/unit), `CurriculumDefinitionResponse`, `DefinitionListResponse`, `RejectDefinitionRequest` |
+| **Backend service** | `submit_definition`, `list_definitions` (admin sees all; teacher sees own; optional status filter), `get_definition`, `approve_definition` (UPDATE WHERE status='pending_approval'), `reject_definition` |
+| **Backend router** | 5 new endpoints: `POST /definitions`, `GET /definitions`, `GET /definitions/{id}`, `POST /definitions/{id}/approve`, `POST /definitions/{id}/reject` |
+| **school-admin.ts** | `listDefinitions`, `getDefinition`, `submitDefinition`, `approveDefinition`, `rejectDefinition`; TypeScript interfaces `CurriculumDefinition`, `DefinitionSubject`, `DefinitionUnit` |
+| **Curriculum page** | Definitions panel link inserted above tab switcher |
+| **Definitions list page** | `/school/curriculum/definitions` — status tabs (Pending/Approved/Rejected/All); inline approve + reject-with-reason; link to detail |
+| **Definition builder (new)** | `/school/curriculum/definitions/new` — 4-step form: (1) name+grade, (2) subjects+units (add/remove, per-subject unit list), (3) languages toggle, (4) review+submit |
+| **Definition detail page** | `/school/curriculum/definitions/[id]` — subject/unit list; admin review card (approve/reject inline); approved state shows next-step hint |
+| **Tests** | 19 tests in `test_phase_d_definitions.py` — all passing |
+
+**Design decisions:**
+- `approve_definition` and `reject_definition` use `UPDATE WHERE status = 'pending_approval'` — acting on an already-decided definition returns 409
+- Teacher can only view their own definitions; admin can see all (list + detail)
+- Rejection reason stored in DB and surfaced to teacher in list and detail views
+- Phase E pipeline trigger is gated on `status = 'approved'` — not yet wired (Phase E)
+
+**Test count:** 724 passed, 6 skipped (full suite)
+
+---
+
 ### Phase C — Curriculum Catalog: browse platform packages (2026-04-12)
 
 **Branch:** `feat/phase-c-curriculum-catalog`  

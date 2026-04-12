@@ -332,3 +332,87 @@ class ClassroomDetailResponse(BaseModel):
     created_at: datetime
     packages: list[ClassroomPackageItem]
     students: list[ClassroomStudentItem]
+
+
+# ── Phase D — Curriculum Definition schemas ───────────────────────────────────
+
+
+class DefinitionUnitEntry(BaseModel):
+    """One unit inside a subject within a Curriculum Definition."""
+
+    title: str
+
+
+class DefinitionSubjectEntry(BaseModel):
+    """One subject with its ordered unit list."""
+
+    subject_label: str
+    units: list[DefinitionUnitEntry]
+
+    @field_validator("units")
+    @classmethod
+    def at_least_one_unit(cls, v: list[DefinitionUnitEntry]) -> list[DefinitionUnitEntry]:
+        if not v:
+            raise ValueError("Each subject must have at least one unit.")
+        return v
+
+
+class CurriculumDefinitionRequest(BaseModel):
+    """POST /schools/{school_id}/curriculum/definitions"""
+
+    name: str
+    grade: int
+    languages: list[str] = ["en"]
+    subjects: list[DefinitionSubjectEntry]
+
+    @field_validator("grade")
+    @classmethod
+    def grade_range(cls, v: int) -> int:
+        if not (1 <= v <= 12):
+            raise ValueError("grade must be between 1 and 12")
+        return v
+
+    @field_validator("languages")
+    @classmethod
+    def valid_languages(cls, v: list[str]) -> list[str]:
+        allowed = {"en", "fr", "es"}
+        bad = [lang for lang in v if lang not in allowed]
+        if bad:
+            raise ValueError(f"Unsupported languages: {bad}. Allowed: en, fr, es")
+        if not v:
+            raise ValueError("At least one language is required.")
+        return v
+
+    @field_validator("subjects")
+    @classmethod
+    def at_least_one_subject(cls, v: list[DefinitionSubjectEntry]) -> list[DefinitionSubjectEntry]:
+        if not v:
+            raise ValueError("At least one subject is required.")
+        return v
+
+
+class CurriculumDefinitionResponse(BaseModel):
+    definition_id: str
+    school_id: str
+    submitted_by: str
+    submitted_by_name: str | None = None
+    name: str
+    grade: int
+    languages: list[str]
+    subjects: list[dict]
+    status: str
+    rejection_reason: str | None = None
+    reviewed_by: str | None = None
+    reviewed_at: datetime | None = None
+    created_at: datetime
+
+
+class DefinitionListResponse(BaseModel):
+    definitions: list[CurriculumDefinitionResponse]
+    total: int
+
+
+class RejectDefinitionRequest(BaseModel):
+    """POST /schools/{school_id}/curriculum/definitions/{id}/reject"""
+
+    reason: str

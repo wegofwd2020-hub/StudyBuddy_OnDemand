@@ -749,3 +749,260 @@ async def list_catalog(
             }
         )
     return result
+
+
+# ── Phase D — Curriculum Definitions ─────────────────────────────────────────
+
+
+async def submit_definition(
+    conn: asyncpg.Connection,
+    school_id: str,
+    teacher_id: str,
+    name: str,
+    grade: int,
+    languages: list[str],
+    subjects: list[dict],
+) -> dict:
+    """
+    Persist a new Curriculum Definition submitted by a teacher.
+
+    Status starts at 'pending_approval'.  A school_admin must approve it
+    before the pipeline can be triggered (Phase E).
+    """
+    import json
+
+    definition_id = str(uuid.uuid4())
+    row = await conn.fetchrow(
+        """
+        INSERT INTO curriculum_definitions
+            (definition_id, school_id, submitted_by, name, grade, languages, subjects)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        RETURNING
+            definition_id::text,
+            school_id::text,
+            submitted_by::text,
+            name,
+            grade,
+            languages,
+            subjects,
+            status,
+            rejection_reason,
+            reviewed_by::text,
+            reviewed_at,
+            created_at
+        """,
+        uuid.UUID(definition_id),
+        uuid.UUID(school_id),
+        uuid.UUID(teacher_id),
+        name,
+        grade,
+        languages,
+        json.dumps(subjects),
+    )
+    d = dict(row)
+    if isinstance(d["subjects"], str):
+        import json as _json
+        d["subjects"] = _json.loads(d["subjects"])
+    log.info("definition_submitted", definition_id=definition_id, school_id=school_id)
+    return d
+
+
+async def list_definitions(
+    conn: asyncpg.Connection,
+    school_id: str,
+    status_filter: str | None = None,
+    teacher_id: str | None = None,
+) -> list[dict]:
+    """
+    List Curriculum Definitions for a school.
+
+    - school_admin: all definitions
+    - teacher (teacher_id supplied): only their own definitions
+    - status_filter: optional 'pending_approval' | 'approved' | 'rejected'
+    """
+    clauses = ["d.school_id = $1"]
+    params: list = [uuid.UUID(school_id)]
+
+    if status_filter:
+        params.append(status_filter)
+        clauses.append(f"d.status = ${len(params)}")
+
+    if teacher_id:
+        params.append(uuid.UUID(teacher_id))
+        clauses.append(f"d.submitted_by = ${len(params)}")
+
+    where = " AND ".join(clauses)
+
+    rows = await conn.fetch(
+        f"""
+        SELECT
+            d.definition_id::text,
+            d.school_id::text,
+            d.submitted_by::text,
+            t.name AS submitted_by_name,
+            d.name,
+            d.grade,
+            d.languages,
+            d.subjects,
+            d.status,
+            d.rejection_reason,
+            d.reviewed_by::text,
+            d.reviewed_at,
+            d.created_at
+        FROM curriculum_definitions d
+        LEFT JOIN teachers t ON t.teacher_id = d.submitted_by
+        WHERE {where}
+        ORDER BY d.created_at DESC
+        """,
+        *params,
+    )
+    result = []
+    for row in rows:
+        d = dict(row)
+        if isinstance(d.get("subjects"), str):
+            import json
+            d["subjects"] = json.loads(d["subjects"])
+        result.append(d)
+    return result
+
+
+async def get_definition(
+    conn: asyncpg.Connection,
+    definition_id: str,
+    school_id: str,
+) -> dict | None:
+    """Fetch a single definition, verifying it belongs to this school."""
+    row = await conn.fetchrow(
+        """
+        SELECT
+            d.definition_id::text,
+            d.school_id::text,
+            d.submitted_by::text,
+            t.name AS submitted_by_name,
+            d.name,
+            d.grade,
+            d.languages,
+            d.subjects,
+            d.status,
+            d.rejection_reason,
+            d.reviewed_by::text,
+            d.reviewed_at,
+            d.created_at
+        FROM curriculum_definitions d
+        LEFT JOIN teachers t ON t.teacher_id = d.submitted_by
+        WHERE d.definition_id = $1 AND d.school_id = $2
+        """,
+        uuid.UUID(definition_id),
+        uuid.UUID(school_id),
+    )
+    if not row:
+        return None
+    d = dict(row)
+    if isinstance(d.get("subjects"), str):
+        import json
+        d["subjects"] = json.loads(d["subjects"])
+    return d
+
+
+async def approve_definition(
+    conn: asyncpg.Connection,
+    definition_id: str,
+    school_id: str,
+    reviewed_by: str,
+) -> dict | None:
+    """
+    Approve a pending Curriculum Definition.
+
+    Only definitions in 'pending_approval' status can be approved.
+    Returns None if not found or already acted upon.
+    """
+    row = await conn.fetchrow(
+        """
+        UPDATE curriculum_definitions
+        SET status = 'approved', reviewed_by = $3, reviewed_at = now()
+        WHERE definition_id = $1
+          AND school_id = $2
+          AND status = 'pending_approval'
+        RETURNING
+            definition_id::text,
+            school_id::text,
+            submitted_by::text,
+            name,
+            grade,
+            languages,
+            subjects,
+            status,
+            rejection_reason,
+            reviewed_by::text,
+            reviewed_at,
+            created_at
+        """,
+        uuid.UUID(definition_id),
+        uuid.UUID(school_id),
+        uuid.UUID(reviewed_by),
+    )
+    if not row:
+        return None
+    d = dict(row)
+    if isinstance(d.get("subjects"), str):
+        import json
+        d["subjects"] = json.loads(d["subjects"])
+    log.info("definition_approved", definition_id=definition_id, reviewed_by=reviewed_by)
+    return d
+
+
+async def reject_definition(
+    conn: asyncpg.Connection,
+    definition_id: str,
+    school_id: str,
+    reviewed_by: str,
+    reason: str,
+) -> dict | None:
+    """
+    Reject a pending Curriculum Definition.
+
+    Records the rejection reason for the submitting teacher to read.
+    Returns None if not found or already acted upon.
+    """
+    row = await conn.fetchrow(
+        """
+        UPDATE curriculum_definitions
+        SET status = 'rejected',
+            reviewed_by = $3,
+            reviewed_at = now(),
+            rejection_reason = $4
+        WHERE definition_id = $1
+          AND school_id = $2
+          AND status = 'pending_approval'
+        RETURNING
+            definition_id::text,
+            school_id::text,
+            submitted_by::text,
+            name,
+            grade,
+            languages,
+            subjects,
+            status,
+            rejection_reason,
+            reviewed_by::text,
+            reviewed_at,
+            created_at
+        """,
+        uuid.UUID(definition_id),
+        uuid.UUID(school_id),
+        uuid.UUID(reviewed_by),
+        reason,
+    )
+    if not row:
+        return None
+    d = dict(row)
+    if isinstance(d.get("subjects"), str):
+        import json
+        d["subjects"] = json.loads(d["subjects"])
+    log.info(
+        "definition_rejected",
+        definition_id=definition_id,
+        reviewed_by=reviewed_by,
+        reason=reason,
+    )
+    return d

@@ -26,8 +26,9 @@ API key. Schools and teachers can upload custom curricula. Subscription-based.
 | Phase A — Local Auth (school-provisioned users) | ✅ Complete (678 tests) |
 | Phase B — Classrooms | ✅ Complete (migration 0038, 21 tests, web UI) |
 | Phase C — Curriculum Catalog | ✅ Complete (6 tests, catalog browser UI) |
+| Phase D — Curriculum Builder | ✅ Complete (migration 0039, 19 tests, definition form + approval queue UI) |
 
-**Active branch:** `main` (next: Phase D — Curriculum Builder)
+**Active branch:** `main` (next: Phase E — Pipeline Billing)
 
 **Recently shipped (beyond Phase 11):**
 - Content review unit viewer — Lesson / Tutorial / Quiz / Experiment renderers
@@ -40,9 +41,10 @@ API key. Schools and teachers can upload custom curricula. Subscription-based.
 - **Phase A local auth**: third auth track for school-provisioned users — email+password login, `first_login` forced reset, school self-registration, teacher/student provisioning UI, `LocalAuthGuard` portal gate, JWT refresh interceptor (migrations 0030–0037)
 - **Phase B Classrooms**: `classrooms`, `classroom_packages`, `classroom_students` tables (migration 0038); classroom CRUD + package/student assignment endpoints; Classrooms nav + list/detail pages in school portal; 21 tests
 - **Phase C Curriculum Catalog**: `GET /curricula/catalog` endpoint with optional `?grade=N` filter; lists platform packages with per-subject content readiness; catalog browser page at `/school/catalog` with expandable subject list and readiness bar; 6 tests
+- **Phase D Curriculum Builder**: `curriculum_definitions` table (migration 0039, RLS); submit/list/get/approve/reject endpoints; 4-step definition form at `/school/curriculum/definitions/new`; approval queue at `/school/curriculum/definitions`; detail+review page; 19 tests
 
 **Open tasks:**
-- Phase D (Curriculum Builder), Phase E (Pipeline Billing) — see `docs/REGISTRATION_DESIGN_ANALYSIS.md`
+- Phase E (Pipeline Billing) — see `docs/REGISTRATION_DESIGN_ANALYSIS.md`
 - Multi-provider LLM pipeline — see `docs/DESIGN_EXPLORATION_MULTI_PROVIDER_LLM.md` (design exploration, not scheduled)
 - Help system — see `docs/DESIGN_HELP_SYSTEM.md` (design exploration, begin after Phase E)
 
@@ -292,6 +294,7 @@ Current migrations (as of last commit):
 | 0036 | Teacher subscription overage tracking |
 | 0037 | Phase A local auth — `password_hash TEXT` + `first_login BOOLEAN` on `teachers` and `students` |
 | 0038 | Phase B classrooms — `classrooms`, `classroom_packages`, `classroom_students` tables with RLS |
+| 0039 | Phase D curriculum definitions — `curriculum_definitions` table with RLS |
 
 ---
 
