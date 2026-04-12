@@ -34,8 +34,11 @@ docker compose exec api python scripts/seed_super_admin.py
 # Generic demo student (for the public "Try it" flow)
 docker compose exec api python scripts/seed_demo_test_account.py
 
-# Full school demo — MilfordWaterford Local School (teachers + students)
+# Full school demo — MilfordWaterford Local School (teachers + students, Auth0 demo track)
 docker compose exec api python scripts/seed_demo_milfordwaterford.py
+
+# Dev School — local auth track (Phase A: email+password login, no Auth0)
+docker compose exec api python scripts/seed_phase_a_dev.py
 ```
 
 ---
@@ -225,10 +228,11 @@ curl -s -X POST http://localhost:8000/api/v1/demo/auth/login \
 # Wipe DB and start fresh (destroys all data)
 ./dev_start.sh reset
 
-# After reset, re-seed:
+# After reset, re-seed everything:
 docker compose exec api python scripts/seed_super_admin.py
 docker compose exec api python scripts/seed_demo_test_account.py
 docker compose exec api python scripts/seed_demo_milfordwaterford.py
+docker compose exec api python scripts/seed_phase_a_dev.py
 ```
 
 ---
@@ -310,3 +314,286 @@ the school contact email and teacher email.
 School-scoped Redis keys now use the `school:{school_id}:` prefix. If you're
 inspecting Redis manually (e.g. with RedisInsight), use `SCAN school:*` to browse
 tenant-scoped cache entries.
+
+---
+
+## 8. Phase A — Local Auth (school-provisioned users)
+
+Phase A adds a third auth track: email + password login for school-provisioned
+teachers and students (no Auth0 required). New schools register via
+`POST /schools/register` instead of Auth0.
+
+### Seed the Dev School (local auth)
+
+```bash
+docker compose exec api python scripts/seed_phase_a_dev.py
+```
+
+This is idempotent. To wipe and recreate:
+
+```bash
+docker compose exec api python scripts/seed_phase_a_dev.py --reset
+```
+
+### Accounts
+
+All accounts log in at: **http://localhost:3000/school/login**
+
+| Role | Email | Password | Notes |
+|---|---|---|---|
+| School Admin | `admin@devschool.local` | `DevAdmin1234!` | `first_login=FALSE` — no forced reset |
+| Teacher | `teacher@devschool.local` | `DevTeacher1234!` | `first_login=FALSE` |
+| Student | `student@devschool.local` | `DevStudent1234!` | Grade 8 |
+
+### First-login forced-reset flow
+
+When a school admin provisions a new teacher or student via the portal, the system
+sets `first_login=TRUE` and emails a generated password. To test this flow manually:
+
+```bash
+# Force first_login=TRUE on the Dev Teacher
+docker compose exec api python3 - <<'EOF'
+import asyncio, asyncpg, os
+
+async def main():
+    conn = await asyncpg.connect(os.environ["DATABASE_URL"])
+    await conn.execute(
+        "UPDATE teachers SET first_login = TRUE WHERE email = $1",
+        "teacher@devschool.local"
+    )
+    print("Done — teacher@devschool.local will be forced to reset on next login")
+    await conn.close()
+
+asyncio.run(main())
+EOF
+```
+
+Then log in as `teacher@devschool.local` — the portal must redirect to
+`/school/change-password?required=1` before any other page renders.
+
+After changing the password, `first_login` is set back to `FALSE` and normal
+navigation resumes.
+
+### What to test (Phase A)
+
+1. **School self-registration** — `POST /api/v1/schools/register` (requires `password` ≥12 chars)
+2. **Local login** — `POST /api/v1/auth/login` → JWT with `first_login` bool in payload
+3. **Forced password reset** — set `first_login=TRUE`, log in, confirm redirect to change-password page
+4. **`PATCH /auth/change-password`** — verifies current password, clears `first_login`
+5. **Teacher provisioning** — as school admin: `POST /schools/{id}/teachers`
+6. **Student provisioning** — as school admin: `POST /schools/{id}/students`
+
+---
+
+## 9. Phase B — Classrooms
+
+Classrooms let school admins group curriculum packages and assign students to them.
+
+### Routes
+
+| URL | What it shows |
+|---|---|
+| http://localhost:3000/school/classrooms | List of classrooms for the school |
+| http://localhost:3000/school/classrooms/[id] | Classroom detail — packages + students |
+
+### What to test
+
+1. Log in as Sam Houston (or Dev Admin from Phase A) at `/school/login`
+2. Navigate to **Classrooms** in the sidebar
+3. Create a new classroom (name + grade level)
+4. Add a curriculum package to the classroom
+5. Assign enrolled students to the classroom
+6. Verify the classroom detail page shows both the package list and student roster
+
+### API endpoints
+
+```bash
+# List classrooms (requires teacher JWT)
+curl http://localhost:8000/api/v1/schools/{school_id}/classrooms \
+  -H "Authorization: Bearer $TEACHER_TOKEN"
+
+# Create classroom
+curl -X POST http://localhost:8000/api/v1/schools/{school_id}/classrooms \
+  -H "Authorization: Bearer $TEACHER_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Grade 8 Science","grade":8}'
+```
+
+---
+
+## 10. Phase C — Curriculum Catalog
+
+The catalog browser lets school staff see all platform-provided curriculum packages
+and their content readiness per subject.
+
+### Route
+
+| URL | What it shows |
+|---|---|
+| http://localhost:3000/school/catalog | Platform curriculum catalog |
+| http://localhost:3000/school/catalog?grade=8 | Filtered to Grade 8 |
+
+### What to test
+
+1. Log in as any teacher at `/school/login`
+2. Navigate to **Catalog** in the sidebar
+3. Expand a subject row — see content readiness bar (% of units with generated content)
+4. Filter by grade using the dropdown
+
+### API
+
+```bash
+# All grades
+curl http://localhost:8000/api/v1/curricula/catalog \
+  -H "Authorization: Bearer $TEACHER_TOKEN"
+
+# Grade 8 only
+curl "http://localhost:8000/api/v1/curricula/catalog?grade=8" \
+  -H "Authorization: Bearer $TEACHER_TOKEN"
+```
+
+---
+
+## 11. Phase D — Curriculum Builder
+
+School admins can submit custom curriculum definitions for platform review and
+AI content generation.
+
+### Routes
+
+| URL | What it shows |
+|---|---|
+| http://localhost:3000/school/curriculum/definitions | Approval queue — submitted definitions |
+| http://localhost:3000/school/curriculum/definitions/new | 4-step definition submission form |
+| http://localhost:3000/school/curriculum/definitions/[id] | Definition detail + review actions |
+
+### What to test
+
+1. Log in as Sam Houston (promoted to school_admin) at `/school/login`
+2. Go to **Curriculum → Definitions** → click **New Definition**
+3. Complete the 4-step form (grade, subject, unit list, confirmation)
+4. Submit — definition appears in the queue with status `pending`
+5. As super admin in the admin console, approve or reject the definition
+6. Verify the status updates on the school portal
+
+### API
+
+```bash
+# Submit a definition
+curl -X POST http://localhost:8000/api/v1/schools/{school_id}/curriculum/definitions \
+  -H "Authorization: Bearer $TEACHER_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"grade":8,"subject":"MATH","units":[{"title":"Algebra Intro","sort_order":1}]}'
+
+# List definitions
+curl http://localhost:8000/api/v1/schools/{school_id}/curriculum/definitions \
+  -H "Authorization: Bearer $TEACHER_TOKEN"
+```
+
+---
+
+## 12. Phase E — Pipeline Billing
+
+Before triggering a custom curriculum build, school admins see a cost estimate
+and must confirm. Builds beyond the plan allowance require a Stripe payment.
+
+### What to test
+
+1. Log in as school admin, go to a definition in `approved` status
+2. Click **Estimate Cost** — see unit count, token forecast, `within_allowance`, card on file
+3. Click **Trigger Build** — if within allowance, Celery dispatches immediately; if not, Stripe PaymentIntent is required
+4. Confirm the pipeline job appears in the admin console at http://localhost:3000/admin/pipeline
+
+### Simulate within-allowance scenario
+
+The MilfordWaterford school starts with 0 builds used. The starter plan includes 1 free
+build per year. After seeding, the first trigger will be within allowance:
+
+```bash
+# Get cost estimate for a definition
+curl http://localhost:8000/api/v1/schools/{school_id}/curriculum/definitions/{def_id}/estimate \
+  -H "Authorization: Bearer $TEACHER_TOKEN"
+```
+
+### Simulate over-allowance (Stripe required)
+
+```bash
+# Exhaust the build allowance
+docker compose exec api python3 - <<'EOF'
+import asyncio, asyncpg, os
+
+async def main():
+    conn = await asyncpg.connect(os.environ["DATABASE_URL"])
+    school = await conn.fetchrow(
+        "SELECT id FROM schools WHERE contact_email = 'admin@milfordwaterford.edu'"
+    )
+    await conn.execute(
+        "UPDATE school_subscriptions SET builds_used = max_builds WHERE school_id = $1",
+        school["id"]
+    )
+    print("Build allowance exhausted — next trigger will require Stripe payment")
+    await conn.close()
+
+asyncio.run(main())
+EOF
+```
+
+---
+
+## 13. Epic 1 — Multi-Provider LLM
+
+Schools can configure which LLM provider (Anthropic Claude, OpenAI GPT-4o, Google
+Gemini) generates their curriculum content. Admins can see which provider generated
+each version in the content review queue.
+
+### Provider badge in admin content review
+
+1. Log in as super admin → http://localhost:3000/admin/content-review
+2. The **Provider** column shows a colour-coded chip per version:
+   - Violet = Anthropic Claude
+   - Emerald = OpenAI GPT-4o
+   - Blue = Google Gemini
+   - Amber = School Upload
+
+### School LLM config API
+
+```bash
+# Get current LLM config for a school
+curl http://localhost:8000/api/v1/schools/{school_id}/llm-config \
+  -H "Authorization: Bearer $TEACHER_TOKEN"
+
+# Response:
+# {
+#   "school_id": "...",
+#   "allowed_providers": ["anthropic"],
+#   "default_provider": "anthropic",
+#   "comparison_enabled": false,
+#   "dpa_acknowledged_at": {}
+# }
+
+# Enable OpenAI + acknowledge DPA
+curl -X PUT http://localhost:8000/api/v1/schools/{school_id}/llm-config \
+  -H "Authorization: Bearer $TEACHER_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "allowed_providers": ["anthropic", "openai"],
+    "default_provider": "openai",
+    "comparison_enabled": false,
+    "acknowledge_dpa_for": ["openai"]
+  }'
+```
+
+### Trigger a comparison build (CLI)
+
+```bash
+# Run both Anthropic and OpenAI on Grade 8 (dry run first)
+docker compose exec celery-pipeline python pipeline/build_grade.py \
+  --grade 8 --lang en --provider anthropic,openai --dry-run
+
+# Live run (requires ANTHROPIC_API_KEY + OPENAI_API_KEY in environment)
+docker compose exec celery-pipeline python pipeline/build_grade.py \
+  --grade 8 --lang en --provider anthropic,openai
+```
+
+Both versions appear in the content review queue side-by-side. Use the existing
+**Compare with previous version** diff view to compare outputs.
