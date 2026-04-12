@@ -38,10 +38,10 @@ API key. Schools and teachers can upload custom curricula. Subscription-based.
 - **Phase A local auth**: third auth track for school-provisioned users — email+password login, `first_login` forced reset, school self-registration, teacher/student provisioning UI, `LocalAuthGuard` portal gate, JWT refresh interceptor (migrations 0030–0037)
 
 **Open tasks tracked in GitHub Issues** (wegofwd2020-hub/StudyBuddy_OnDemand):
-- #54 Batch approve all subjects in a grade
-- #55 Surface alex_warnings prominently in unit viewer
-- #56 Review assignment — assign versions to specific admins
-- #57 Multi-tier subscription model (School / Teacher / Student)
+- #54 Batch approve all subjects in a grade ✅ Done
+- #55 Surface alex_warnings prominently in unit viewer ✅ Done
+- #56 Review assignment — assign versions to specific admins ✅ Done (self-assign implemented in queue page)
+- #57 Multi-tier subscription model (School / Teacher / Student) — next major feature
 
 Predecessor project (UI + prompt reference):
 `https://github.com/wegofwd2020-hub/studybuddy_free`
