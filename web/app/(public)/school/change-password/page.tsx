@@ -58,6 +58,7 @@ export default function ChangePasswordPage() {
       // navigation — no redirect loop.
       const tokenKey = res.role === "student" ? "sb_token" : "sb_teacher_token";
       localStorage.setItem(tokenKey, res.token);
+      localStorage.setItem("sb_teacher_refresh_token", res.refresh_token);
       router.push("/school/dashboard");
     } catch (err: unknown) {
       const status = (err as { response?: { status?: number } })?.response?.status;

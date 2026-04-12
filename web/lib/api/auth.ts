@@ -102,3 +102,33 @@ export async function changePassword(
   );
   return res.data;
 }
+
+// ── School self-registration ──────────────────────────────────────────────────
+
+export interface RegisterSchoolRequest {
+  school_name: string;
+  contact_email: string;
+  country: string;
+  password: string;
+}
+
+export interface RegisterSchoolResponse {
+  school_id: string;
+  teacher_id: string;
+  /** JWT for the school_admin account — store as sb_teacher_token. */
+  access_token: string;
+  role: string;
+}
+
+/**
+ * Register a new school with the founder's own password.
+ * On success the founder is already authenticated (access_token returned).
+ * Store as sb_teacher_token and set sb_local_teacher_session cookie.
+ * No first_login flow — founder chose their own password.
+ */
+export async function registerSchool(
+  body: RegisterSchoolRequest,
+): Promise<RegisterSchoolResponse> {
+  const res = await publicApi.post<RegisterSchoolResponse>("/schools/register", body);
+  return res.data;
+}

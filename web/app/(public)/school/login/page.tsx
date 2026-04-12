@@ -31,6 +31,7 @@ export default function SchoolLoginPage() {
         // school_admin and teacher both use sb_teacher_token — school Axios
         // client and useTeacher hook read from this key.
         localStorage.setItem("sb_teacher_token", res.token);
+        localStorage.setItem("sb_teacher_refresh_token", res.refresh_token);
         // Set a lightweight session cookie so the server layout can detect the
         // local-auth session and skip the Auth0 redirect. Encoded the same way
         // as sb_teacher_session (base64 JSON) for consistency.
@@ -130,9 +131,9 @@ export default function SchoolLoginPage() {
             </Link>
           </p>
           <p className="text-center text-sm text-gray-500">
-            Don&apos;t have a school account?{" "}
-            <Link href="/contact" className="text-blue-600 hover:underline">
-              Contact us
+            New school?{" "}
+            <Link href="/school/register" className="text-indigo-600 hover:underline">
+              Register your school
             </Link>
           </p>
         </CardContent>
