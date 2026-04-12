@@ -343,6 +343,109 @@ async def upsert_teacher(
     return dict(row)
 
 
+# ── Local auth helpers (Phase A) ─────────────────────────────────────────────
+
+# Pre-hashed sentinel used to burn constant bcrypt time when a user is not found,
+# preventing timing-based email enumeration.  Generated once at import time with
+# rounds=4 (fast) — the only goal here is timing parity, not security.
+import string as _string
+
+_DEFAULT_PW_CHARS = _string.ascii_letters + _string.digits
+_TIMING_SENTINEL_HASH: str = bcrypt.hashpw(b"__sentinel__", bcrypt.gensalt(rounds=4)).decode()
+
+
+def generate_default_password(length: int = 12) -> str:
+    """
+    Generate a random URL-safe default password for provisioned users.
+
+    Uses secrets.choice over a restricted character set (no ambiguous chars)
+    so the plain-text password can be sent in an email and typed without confusion.
+    """
+    return "".join(secrets.choice(_DEFAULT_PW_CHARS) for _ in range(length))
+
+
+async def login_local_user(
+    pool: asyncpg.Pool,
+    email: str,
+    password: str,
+) -> dict:
+    """
+    Authenticate a school-provisioned user (teacher or student) by email + password.
+
+    Checks teachers first, then students.  Raises HTTP 401 on any failure —
+    never reveals whether the email exists.
+
+    Returns a dict with keys:
+      user_type      "teacher" | "student"
+      user_id        str (UUID)
+      role           str (teacher role or "student")
+      school_id      str | None
+      account_status str
+      first_login    bool
+    """
+    # Acquire a dedicated connection and stamp app.current_school_id='bypass' so
+    # that the RLS policy (migration 0028) does not hide any rows.  Login is an
+    # unauthenticated endpoint — we need to look up the user before we know their
+    # school, so bypass is correct here.
+    async with pool.acquire() as conn:
+        await conn.execute(
+            "SELECT set_config('app.current_school_id', 'bypass', false)"
+        )
+        row = await conn.fetchrow(
+            """
+            SELECT teacher_id::text AS user_id, role, school_id::text, account_status,
+                   password_hash, first_login, 'teacher' AS user_type
+            FROM teachers
+            WHERE email = $1 AND auth_provider = 'local'
+            """,
+            email,
+        )
+
+        if row is None:
+            row = await conn.fetchrow(
+                """
+                SELECT student_id::text AS user_id, 'student' AS role,
+                       school_id::text, account_status,
+                       password_hash, first_login, 'student' AS user_type
+                FROM students
+                WHERE email = $1 AND auth_provider = 'local'
+                """,
+                email,
+            )
+        # Reset session var before returning connection to pool.
+        await conn.execute(
+            "SELECT set_config('app.current_school_id', '', false)"
+        )
+
+    if row is None or not row["password_hash"]:
+        # Always spend bcrypt time to prevent timing-based enumeration.
+        await verify_password(password, _TIMING_SENTINEL_HASH)
+        raise HTTPException(
+            status_code=401,
+            detail={"error": "unauthenticated", "detail": "Invalid email or password."},
+        )
+
+    valid = await verify_password(password, row["password_hash"])
+    if not valid:
+        raise HTTPException(
+            status_code=401,
+            detail={"error": "unauthenticated", "detail": "Invalid email or password."},
+        )
+
+    if row["account_status"] == "suspended":
+        raise HTTPException(
+            status_code=403,
+            detail={"error": "account_suspended", "detail": "Account has been suspended."},
+        )
+    if row["account_status"] == "deleted":
+        raise HTTPException(
+            status_code=401,
+            detail={"error": "unauthenticated", "detail": "Account has been deleted."},
+        )
+
+    return dict(row)
+
+
 # ── Auth0 Management API ──────────────────────────────────────────────────────
 # Thin re-exports — implementation lives in src/auth/auth0_client.py where the
 # Redis-cached token logic and 401 retry are co-located.

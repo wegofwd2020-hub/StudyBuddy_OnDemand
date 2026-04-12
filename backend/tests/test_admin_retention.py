@@ -33,6 +33,7 @@ async def _register_school(client: AsyncClient, *, school_name: str | None = Non
         "school_name": name,
         "contact_email": f"admin-ret-{uuid.uuid4().hex[:8]}@example.com",
         "country": "US",
+        "password": "SecureTestPwd1!",
     })
     assert r.status_code == 201, r.text
     body = r.json()

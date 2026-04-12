@@ -14,18 +14,21 @@ from httpx import AsyncClient
 
 from tests.helpers.token_factory import make_teacher_token
 
+# Shared test password satisfying the 12-char minimum.
+_PW = "SecureTestPwd1!"
+
+
+def _reg(name: str, email: str, country: str = "CA") -> dict:
+    """Build a school registration payload with the required password field."""
+    return {"school_name": name, "contact_email": email, "country": country, "password": _PW}
+
 
 # ── POST /schools/register ────────────────────────────────────────────────────
 
 @pytest.mark.asyncio
 async def test_register_school_returns_201(client: AsyncClient):
     """Successful school registration returns 201 with access_token."""
-    payload = {
-        "school_name": "Test Academy",
-        "contact_email": "admin@testacademy.example.com",
-        "country": "US",
-    }
-    r = await client.post("/api/v1/schools/register", json=payload)
+    r = await client.post("/api/v1/schools/register", json=_reg("Test Academy", "admin@testacademy.example.com", "US"))
     assert r.status_code == 201, r.text
     data = r.json()
     assert "school_id" in data
@@ -37,11 +40,7 @@ async def test_register_school_returns_201(client: AsyncClient):
 @pytest.mark.asyncio
 async def test_register_school_duplicate_email_returns_409(client: AsyncClient):
     """Registering the same email twice returns 409 Conflict."""
-    payload = {
-        "school_name": "Dup Academy",
-        "contact_email": "dup@testacademy.example.com",
-        "country": "CA",
-    }
+    payload = _reg("Dup Academy", "dup@testacademy.example.com")
     r1 = await client.post("/api/v1/schools/register", json=payload)
     assert r1.status_code == 201, r1.text
 
@@ -53,7 +52,15 @@ async def test_register_school_duplicate_email_returns_409(client: AsyncClient):
 @pytest.mark.asyncio
 async def test_register_school_missing_name_returns_422(client: AsyncClient):
     """Missing required field returns 422 Unprocessable Entity."""
-    r = await client.post("/api/v1/schools/register", json={"contact_email": "x@x.com"})
+    r = await client.post("/api/v1/schools/register", json={"contact_email": "x@x.com", "password": _PW})
+    assert r.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_register_school_short_password_returns_422(client: AsyncClient):
+    """Password shorter than 12 characters returns 422."""
+    payload = {"school_name": "Weak Academy", "contact_email": "weak@example.com", "country": "CA", "password": "short"}
+    r = await client.post("/api/v1/schools/register", json=payload)
     assert r.status_code == 422
 
 
@@ -69,12 +76,7 @@ async def test_get_school_profile_requires_auth(client: AsyncClient):
 @pytest.mark.asyncio
 async def test_get_school_profile_returns_school(client: AsyncClient):
     """School admin can fetch their own school profile."""
-    # Register a school first to get valid IDs.
-    reg = await client.post("/api/v1/schools/register", json={
-        "school_name": "Profile Academy",
-        "contact_email": "profile@example.com",
-        "country": "GB",
-    })
+    reg = await client.post("/api/v1/schools/register", json=_reg("Profile Academy", "profile@example.com", "GB"))
     assert reg.status_code == 201, reg.text
     data = reg.json()
     school_id = data["school_id"]
@@ -95,23 +97,13 @@ async def test_get_school_profile_returns_school(client: AsyncClient):
 @pytest.mark.asyncio
 async def test_get_school_profile_wrong_school_returns_404(client: AsyncClient):
     """Teacher cannot access a school they do not belong to."""
-    # Register two schools.
-    reg1 = await client.post("/api/v1/schools/register", json={
-        "school_name": "School A",
-        "contact_email": "schoola@example.com",
-        "country": "US",
-    })
-    reg2 = await client.post("/api/v1/schools/register", json={
-        "school_name": "School B",
-        "contact_email": "schoolb@example.com",
-        "country": "US",
-    })
+    reg1 = await client.post("/api/v1/schools/register", json=_reg("School A", "schoola@example.com", "US"))
+    reg2 = await client.post("/api/v1/schools/register", json=_reg("School B", "schoolb@example.com", "US"))
     assert reg1.status_code == 201 and reg2.status_code == 201
 
     school_b_id = reg2.json()["school_id"]
     token_a = reg1.json()["access_token"]
 
-    # Teacher from School A tries to read School B's profile.
     r = await client.get(
         f"/api/v1/schools/{school_b_id}",
         headers={"Authorization": f"Bearer {token_a}"},
@@ -124,11 +116,7 @@ async def test_get_school_profile_wrong_school_returns_404(client: AsyncClient):
 @pytest.mark.asyncio
 async def test_invite_teacher_school_admin_succeeds(client: AsyncClient):
     """school_admin can invite a teacher to their school."""
-    reg = await client.post("/api/v1/schools/register", json={
-        "school_name": "Invite Academy",
-        "contact_email": "invite-admin@example.com",
-        "country": "AU",
-    })
+    reg = await client.post("/api/v1/schools/register", json=_reg("Invite Academy", "invite-admin@example.com", "AU"))
     assert reg.status_code == 201, reg.text
     data = reg.json()
     school_id = data["school_id"]
@@ -149,16 +137,10 @@ async def test_invite_teacher_school_admin_succeeds(client: AsyncClient):
 @pytest.mark.asyncio
 async def test_invite_teacher_non_admin_returns_403(client: AsyncClient):
     """A regular teacher (not school_admin) cannot invite new teachers."""
-    reg = await client.post("/api/v1/schools/register", json={
-        "school_name": "Perm Academy",
-        "contact_email": "perm-admin@example.com",
-        "country": "US",
-    })
+    reg = await client.post("/api/v1/schools/register", json=_reg("Perm Academy", "perm-admin@example.com", "US"))
     assert reg.status_code == 201
-    data = reg.json()
-    school_id = data["school_id"]
+    school_id = reg.json()["school_id"]
 
-    # Make a regular teacher token for this school.
     teacher_token = make_teacher_token(school_id=school_id, role="teacher")
     r = await client.post(
         f"/api/v1/schools/{school_id}/teachers/invite",
@@ -171,11 +153,7 @@ async def test_invite_teacher_non_admin_returns_403(client: AsyncClient):
 @pytest.mark.asyncio
 async def test_invite_teacher_wrong_school_returns_403(client: AsyncClient):
     """school_admin cannot invite teachers to a different school."""
-    reg = await client.post("/api/v1/schools/register", json={
-        "school_name": "Cross Academy",
-        "contact_email": "cross@example.com",
-        "country": "US",
-    })
+    reg = await client.post("/api/v1/schools/register", json=_reg("Cross Academy", "cross@example.com", "US"))
     assert reg.status_code == 201
     data = reg.json()
     school_id = data["school_id"]
@@ -193,11 +171,7 @@ async def test_invite_teacher_wrong_school_returns_403(client: AsyncClient):
 @pytest.mark.asyncio
 async def test_invite_teacher_duplicate_email_returns_409(client: AsyncClient):
     """Inviting the same email twice returns 409 Conflict."""
-    reg = await client.post("/api/v1/schools/register", json={
-        "school_name": "Dup Invite Academy",
-        "contact_email": "dup-invite-admin@example.com",
-        "country": "US",
-    })
+    reg = await client.post("/api/v1/schools/register", json=_reg("Dup Invite Academy", "dup-invite-admin@example.com", "US"))
     assert reg.status_code == 201
     data = reg.json()
     school_id = data["school_id"]
@@ -238,15 +212,10 @@ async def test_register_school_same_contact_email_returns_409(client: AsyncClien
     The constraint fires on the schools INSERT now (G1), giving a clear 409
     before the teachers INSERT is even attempted.
     """
-    payload = {
-        "school_name": "First School",
-        "contact_email": "shared@sameemail.example.com",
-        "country": "US",
-    }
+    payload = _reg("First School", "shared@sameemail.example.com", "US")
     r1 = await client.post("/api/v1/schools/register", json=payload)
     assert r1.status_code == 201, r1.text
 
-    # Different school name, same email — should be rejected.
     payload2 = {**payload, "school_name": "Second School"}
     r2 = await client.post("/api/v1/schools/register", json=payload2)
     assert r2.status_code == 409
@@ -263,11 +232,7 @@ async def test_invite_teacher_always_has_school_id(client: AsyncClient):
     because invite_teacher() always writes the school_id.
     Verifies the teacher appears in the school's teacher list with the correct school.
     """
-    reg = await client.post("/api/v1/schools/register", json={
-        "school_name": "G2 Academy",
-        "contact_email": "g2-admin@example.com",
-        "country": "CA",
-    })
+    reg = await client.post("/api/v1/schools/register", json=_reg("G2 Academy", "g2-admin@example.com"))
     assert reg.status_code == 201, reg.text
     data = reg.json()
     school_id = data["school_id"]
@@ -280,7 +245,6 @@ async def test_invite_teacher_always_has_school_id(client: AsyncClient):
     )
     assert inv.status_code == 201, inv.text
 
-    # Teacher appears in the school roster with the correct school affiliation.
     roster_r = await client.get(
         f"/api/v1/schools/{school_id}/teachers",
         headers={"Authorization": f"Bearer {token}"},

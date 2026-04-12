@@ -66,7 +66,8 @@ async def _register_school(client: AsyncClient, contact_email: str | None = None
     email = contact_email or f"sca-{uuid.uuid4().hex[:8]}@example.com"
     r = await client.post(
         "/api/v1/schools/register",
-        json={"school_name": "SCA Test School", "contact_email": email, "country": "DE"},
+        json={"school_name": "SCA Test School", "contact_email": email, "country": "DE",
+        "password": "SecureTestPwd1!"},
     )
     assert r.status_code == 201, r.text
     return {**r.json(), "contact_email": email}

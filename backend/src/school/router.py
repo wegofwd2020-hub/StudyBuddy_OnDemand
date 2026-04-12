@@ -34,6 +34,12 @@ from src.school.schemas import (
     EnrolmentRosterResponse,
     EnrolmentUploadRequest,
     EnrolmentUploadResponse,
+    PromoteTeacherResponse,
+    ProvisionStudentRequest,
+    ProvisionStudentResponse,
+    ProvisionTeacherRequest,
+    ProvisionTeacherResponse,
+    ResetPasswordResponse,
     SchoolProfileResponse,
     SchoolRegisterRequest,
     SchoolRegisterResponse,
@@ -45,7 +51,16 @@ from src.school.schemas import (
     TeacherInviteResponse,
     TeacherRosterResponse,
 )
-from src.school.service import fetch_school, invite_teacher, register_school
+from src.school.service import (
+    fetch_school,
+    invite_teacher,
+    promote_to_school_admin,
+    provision_student,
+    provision_teacher,
+    register_school,
+    reset_student_password,
+    reset_teacher_password,
+)
 from src.school.subscription_service import get_seat_usage
 from src.utils.logger import get_logger
 
@@ -77,7 +92,7 @@ async def register_school_endpoint(
     """
     async with get_db(request) as conn:
         try:
-            result = await register_school(conn, body.school_name, body.contact_email, body.country)
+            result = await register_school(conn, body.school_name, body.contact_email, body.country, body.password)
         except Exception as exc:
             if "unique" in str(exc).lower():
                 raise HTTPException(
@@ -537,3 +552,211 @@ async def assign_teacher_grades(
         school_id=school_id,
         assigned_grades=sorted(body.grades),
     )
+
+
+# ── Phase A provisioning endpoints ───────────────────────────────────────────
+
+
+@router.post(
+    "/schools/{school_id}/teachers",
+    response_model=ProvisionTeacherResponse,
+    status_code=201,
+)
+async def provision_teacher_endpoint(
+    school_id: str,
+    body: ProvisionTeacherRequest,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> ProvisionTeacherResponse:
+    """
+    Create a teacher account with a system-generated default password (school_admin only).
+
+    Sends a welcome email with temporary credentials.
+    Teacher is set to first_login=True and must reset their password on first use.
+    """
+    _require_school_admin(teacher, school_id, request)
+
+    from src.email.service import send_welcome_teacher_email
+
+    async with get_db(request) as conn:
+        try:
+            result = await provision_teacher(
+                conn, school_id, body.name, str(body.email), body.subject_specialisation
+            )
+        except Exception as exc:
+            if "unique" in str(exc).lower():
+                raise HTTPException(
+                    status_code=409,
+                    detail={
+                        "error": "conflict",
+                        "detail": "A teacher with that email already exists.",
+                        "correlation_id": _cid(request),
+                    },
+                )
+            raise
+
+    try:
+        await send_welcome_teacher_email(result["email"], result["name"], result["default_password"])
+    except Exception:
+        log.warning("welcome_email_failed", teacher_id=result["teacher_id"])
+
+    return ProvisionTeacherResponse(
+        teacher_id=result["teacher_id"],
+        school_id=result["school_id"],
+        name=result["name"],
+        email=result["email"],
+        role=result["role"],
+    )
+
+
+@router.post(
+    "/schools/{school_id}/students",
+    response_model=ProvisionStudentResponse,
+    status_code=201,
+)
+async def provision_student_endpoint(
+    school_id: str,
+    body: ProvisionStudentRequest,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> ProvisionStudentResponse:
+    """
+    Create a student account with a system-generated default password (school_admin only).
+
+    Sends a welcome email with temporary credentials.
+    Student is set to first_login=True and must reset their password on first use.
+    """
+    _require_school_admin(teacher, school_id, request)
+
+    from src.email.service import send_welcome_student_email
+
+    async with get_db(request) as conn:
+        try:
+            result = await provision_student(
+                conn, school_id, body.name, str(body.email), body.grade
+            )
+        except Exception as exc:
+            if "unique" in str(exc).lower():
+                raise HTTPException(
+                    status_code=409,
+                    detail={
+                        "error": "conflict",
+                        "detail": "A student with that email already exists.",
+                        "correlation_id": _cid(request),
+                    },
+                )
+            raise
+
+    try:
+        await send_welcome_student_email(result["email"], result["name"], result["default_password"])
+    except Exception:
+        log.warning("welcome_email_failed", student_id=result["student_id"])
+
+    return ProvisionStudentResponse(
+        student_id=result["student_id"],
+        school_id=result["school_id"],
+        name=result["name"],
+        email=result["email"],
+        grade=result["grade"],
+    )
+
+
+@router.post(
+    "/schools/{school_id}/teachers/{target_teacher_id}/reset-password",
+    response_model=ResetPasswordResponse,
+)
+async def reset_teacher_password_endpoint(
+    school_id: str,
+    target_teacher_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> ResetPasswordResponse:
+    """
+    Generate a new default password for a teacher and email it to them (school_admin only).
+
+    Sets first_login=True — the teacher must reset again on next login.
+    """
+    _require_school_admin(teacher, school_id, request)
+
+    from src.email.service import send_password_reset_email
+
+    async with get_db(request) as conn:
+        result = await reset_teacher_password(conn, school_id, target_teacher_id)
+
+    if not result:
+        raise HTTPException(
+            status_code=404,
+            detail={"error": "not_found", "detail": "Teacher not found in this school.", "correlation_id": _cid(request)},
+        )
+
+    try:
+        await send_password_reset_email(result["email"], result["name"], result["default_password"])
+    except Exception:
+        log.warning("reset_email_failed", teacher_id=target_teacher_id)
+
+    return ResetPasswordResponse(detail="Password reset. New credentials emailed to the teacher.")
+
+
+@router.post(
+    "/schools/{school_id}/students/{target_student_id}/reset-password",
+    response_model=ResetPasswordResponse,
+)
+async def reset_student_password_endpoint(
+    school_id: str,
+    target_student_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> ResetPasswordResponse:
+    """
+    Generate a new default password for a student and email it to them (school_admin only).
+
+    Sets first_login=True — the student must reset again on next login.
+    """
+    _require_school_admin(teacher, school_id, request)
+
+    from src.email.service import send_password_reset_email
+
+    async with get_db(request) as conn:
+        result = await reset_student_password(conn, school_id, target_student_id)
+
+    if not result:
+        raise HTTPException(
+            status_code=404,
+            detail={"error": "not_found", "detail": "Student not found in this school.", "correlation_id": _cid(request)},
+        )
+
+    try:
+        await send_password_reset_email(result["email"], result["name"], result["default_password"])
+    except Exception:
+        log.warning("reset_email_failed", student_id=target_student_id)
+
+    return ResetPasswordResponse(detail="Password reset. New credentials emailed to the student.")
+
+
+@router.post(
+    "/schools/{school_id}/teachers/{target_teacher_id}/promote",
+    response_model=PromoteTeacherResponse,
+)
+async def promote_teacher_endpoint(
+    school_id: str,
+    target_teacher_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> PromoteTeacherResponse:
+    """
+    Promote a teacher to the school_admin role (school_admin only).
+
+    Multiple people can hold school_admin per school for backup coverage (Q18).
+    """
+    _require_school_admin(teacher, school_id, request)
+
+    async with get_db(request) as conn:
+        result = await promote_to_school_admin(conn, school_id, target_teacher_id)
+
+    if not result:
+        raise HTTPException(
+            status_code=404,
+            detail={"error": "not_found", "detail": "Teacher not found in this school.", "correlation_id": _cid(request)},
+        )
+
+    return PromoteTeacherResponse(**result)

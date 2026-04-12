@@ -336,6 +336,189 @@ async def send_teacher_credentials_email(to_email: str, password: str) -> None:
     )
 
 
+# ── School provisioning welcome emails (Phase A) ─────────────────────────────
+
+_WELCOME_TEACHER_SUBJECT = "Welcome to StudyBuddy — your teacher account is ready"
+
+_WELCOME_TEACHER_TEXT = """\
+Hi {name},
+
+Your StudyBuddy teacher account has been created by your school administrator.
+
+Login URL : {login_url}
+Email     : {email}
+Password  : {password}
+
+You will be asked to set a new password on your first login.
+
+— The StudyBuddy Team
+"""
+
+_WELCOME_TEACHER_HTML = """\
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8" /></head>
+<body style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:24px">
+  <h2 style="color:#1a56db">Welcome to StudyBuddy</h2>
+  <p>Hi {name},</p>
+  <p>Your teacher account has been created by your school administrator.</p>
+  <table style="border-collapse:collapse;width:100%;margin:16px 0">
+    <tr>
+      <td style="padding:10px;background:#f3f4f6;font-weight:bold;width:120px">Login URL</td>
+      <td style="padding:10px;background:#f9fafb">
+        <a href="{login_url}" style="color:#1a56db">{login_url}</a>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:10px;background:#f3f4f6;font-weight:bold">Email</td>
+      <td style="padding:10px;background:#f9fafb">{email}</td>
+    </tr>
+    <tr>
+      <td style="padding:10px;background:#f3f4f6;font-weight:bold">Password</td>
+      <td style="padding:10px;background:#f9fafb;font-family:monospace">{password}</td>
+    </tr>
+  </table>
+  <p style="color:#666;font-size:13px">
+    You will be asked to set a new password on your first login.
+  </p>
+  <p style="color:#666;font-size:13px">— The StudyBuddy Team</p>
+</body>
+</html>
+"""
+
+_WELCOME_STUDENT_SUBJECT = "Welcome to StudyBuddy — your student account is ready"
+
+_WELCOME_STUDENT_TEXT = """\
+Hi {name},
+
+Your StudyBuddy student account has been created by your school.
+
+Login URL : {login_url}
+Email     : {email}
+Password  : {password}
+
+You will be asked to set a new password on your first login.
+
+— The StudyBuddy Team
+"""
+
+_WELCOME_STUDENT_HTML = """\
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8" /></head>
+<body style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:24px">
+  <h2 style="color:#1a56db">Welcome to StudyBuddy</h2>
+  <p>Hi {name},</p>
+  <p>Your student account has been created by your school.</p>
+  <table style="border-collapse:collapse;width:100%;margin:16px 0">
+    <tr>
+      <td style="padding:10px;background:#f3f4f6;font-weight:bold;width:120px">Login URL</td>
+      <td style="padding:10px;background:#f9fafb">
+        <a href="{login_url}" style="color:#1a56db">{login_url}</a>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:10px;background:#f3f4f6;font-weight:bold">Email</td>
+      <td style="padding:10px;background:#f9fafb">{email}</td>
+    </tr>
+    <tr>
+      <td style="padding:10px;background:#f3f4f6;font-weight:bold">Password</td>
+      <td style="padding:10px;background:#f9fafb;font-family:monospace">{password}</td>
+    </tr>
+  </table>
+  <p style="color:#666;font-size:13px">
+    You will be asked to set a new password on your first login.
+  </p>
+  <p style="color:#666;font-size:13px">— The StudyBuddy Team</p>
+</body>
+</html>
+"""
+
+_RESET_PASSWORD_SUBJECT = "StudyBuddy — your password has been reset"
+
+_RESET_PASSWORD_TEXT = """\
+Hi {name},
+
+Your StudyBuddy account password has been reset by your school administrator.
+
+Login URL : {login_url}
+Email     : {email}
+Password  : {password}
+
+You will be asked to set a new password on your next login.
+
+— The StudyBuddy Team
+"""
+
+_RESET_PASSWORD_HTML = """\
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8" /></head>
+<body style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:24px">
+  <h2 style="color:#1a56db">Your password has been reset</h2>
+  <p>Hi {name},</p>
+  <p>Your school administrator has reset your StudyBuddy account password.</p>
+  <table style="border-collapse:collapse;width:100%;margin:16px 0">
+    <tr>
+      <td style="padding:10px;background:#f3f4f6;font-weight:bold;width:120px">Login URL</td>
+      <td style="padding:10px;background:#f9fafb">
+        <a href="{login_url}" style="color:#1a56db">{login_url}</a>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:10px;background:#f3f4f6;font-weight:bold">Email</td>
+      <td style="padding:10px;background:#f9fafb">{email}</td>
+    </tr>
+    <tr>
+      <td style="padding:10px;background:#f3f4f6;font-weight:bold">Temp Password</td>
+      <td style="padding:10px;background:#f9fafb;font-family:monospace">{password}</td>
+    </tr>
+  </table>
+  <p style="color:#666;font-size:13px">
+    You will be asked to set a new password on your next login.
+  </p>
+  <p style="color:#666;font-size:13px">— The StudyBuddy Team</p>
+</body>
+</html>
+"""
+
+
+async def send_welcome_teacher_email(to_email: str, name: str, password: str) -> None:
+    """Send welcome credentials email to a school-provisioned teacher."""
+    login_url = f"{settings.FRONTEND_URL}/login"
+    fmt = dict(name=name, login_url=login_url, email=to_email, password=password)
+    await _send(
+        to_email=to_email,
+        subject=_WELCOME_TEACHER_SUBJECT,
+        text_body=_WELCOME_TEACHER_TEXT.format(**fmt),
+        html_body=_WELCOME_TEACHER_HTML.format(**fmt),
+    )
+
+
+async def send_welcome_student_email(to_email: str, name: str, password: str) -> None:
+    """Send welcome credentials email to a school-provisioned student."""
+    login_url = f"{settings.FRONTEND_URL}/login"
+    fmt = dict(name=name, login_url=login_url, email=to_email, password=password)
+    await _send(
+        to_email=to_email,
+        subject=_WELCOME_STUDENT_SUBJECT,
+        text_body=_WELCOME_STUDENT_TEXT.format(**fmt),
+        html_body=_WELCOME_STUDENT_HTML.format(**fmt),
+    )
+
+
+async def send_password_reset_email(to_email: str, name: str, password: str) -> None:
+    """Send admin-initiated password reset email to a teacher or student."""
+    login_url = f"{settings.FRONTEND_URL}/login"
+    fmt = dict(name=name, login_url=login_url, email=to_email, password=password)
+    await _send(
+        to_email=to_email,
+        subject=_RESET_PASSWORD_SUBJECT,
+        text_body=_RESET_PASSWORD_TEXT.format(**fmt),
+        html_body=_RESET_PASSWORD_HTML.format(**fmt),
+    )
+
+
 # ── Retention lifecycle emails ────────────────────────────────────────────────
 #
 # All five templates are sent to the school_admin contact email.

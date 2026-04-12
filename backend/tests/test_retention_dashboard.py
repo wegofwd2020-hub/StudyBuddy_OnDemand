@@ -38,6 +38,7 @@ async def _register_school(client: AsyncClient) -> dict:
         "school_name": "Dashboard Test School",
         "contact_email": f"dash-{uuid.uuid4().hex[:8]}@example.com",
         "country": "US",
+        "password": "SecureTestPwd1!",
     })
     assert r.status_code == 201, r.text
     body = r.json()

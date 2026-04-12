@@ -8,13 +8,23 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, field_validator
 
 
 class SchoolRegisterRequest(BaseModel):
     school_name: str
     contact_email: EmailStr
     country: str = "CA"
+    password: str
+
+    @field_validator("password")
+    @classmethod
+    def password_strength(cls, v: str) -> str:
+        if len(v) < 12:
+            raise ValueError("Password must be at least 12 characters.")
+        if len(v.encode()) > 72:
+            raise ValueError("Password must be 72 bytes or fewer.")
+        return v
 
 
 class SchoolRegisterResponse(BaseModel):
@@ -138,3 +148,56 @@ class BulkReassignRequest(BaseModel):
 
 class BulkReassignResponse(BaseModel):
     reassigned: int
+
+
+# ── Phase A provisioning schemas ──────────────────────────────────────────────
+
+
+class ProvisionTeacherRequest(BaseModel):
+    """POST /schools/{school_id}/teachers"""
+
+    name: str
+    email: EmailStr
+    subject_specialisation: str | None = None
+
+
+class ProvisionTeacherResponse(BaseModel):
+    teacher_id: str
+    school_id: str
+    name: str
+    email: str
+    role: str
+
+
+class ProvisionStudentRequest(BaseModel):
+    """POST /schools/{school_id}/students"""
+
+    name: str
+    email: EmailStr
+    grade: int
+
+    @field_validator("grade")
+    @classmethod
+    def grade_range(cls, v: int) -> int:
+        if not (1 <= v <= 12):
+            raise ValueError("grade must be between 1 and 12")
+        return v
+
+
+class ProvisionStudentResponse(BaseModel):
+    student_id: str
+    school_id: str
+    name: str
+    email: str
+    grade: int
+
+
+class ResetPasswordResponse(BaseModel):
+    detail: str
+
+
+class PromoteTeacherResponse(BaseModel):
+    teacher_id: str
+    name: str
+    email: str
+    role: str

@@ -179,6 +179,7 @@ async def test_teacher_checkout_school_affiliated_blocked(client: AsyncClient):
         "school_name": "Affiliated School",
         "contact_email": f"admin-{uuid.uuid4().hex[:8]}@example.com",
         "country": "US",
+        "password": "SecureTestPwd1!",
     })
     assert r.status_code == 201, r.text
     real_school_id = r.json()["school_id"]
@@ -814,6 +815,7 @@ async def test_check_teacher_seat_quotas_flags_over_limit(client: AsyncClient):
         "school_name": "Quota Test School",
         "contact_email": f"quota-{tid[:8]}@example.com",
         "country": "US",
+        "password": "SecureTestPwd1!",
     })
     assert school_reg.status_code == 201, school_reg.text
     dummy_school_id = school_reg.json()["school_id"]
