@@ -44,16 +44,24 @@ RESULT: ✓ The teacher receives a temporary password by email and can log in.
 RELATED: Reset teacher password, Promote to admin, Assign grades
 """
 
+_FAKE_INTERACTION_ID = "aaaaaaaa-1111-0000-0000-000000000001"
+
 
 @contextmanager
 def _patch_retrieval(chunks=None):
-    """Context manager that patches embed + text-retrieval + haiku."""
+    """
+    Context manager that patches embed + text-retrieval + haiku + log_interaction.
+
+    log_interaction is mocked so tests never need a real help_interactions table.
+    The mock returns a deterministic UUID so tests can assert on interaction_id.
+    """
     if chunks is None:
         chunks = [_FAKE_CHUNK]
     with (
         patch("src.help.service._embed", new=AsyncMock(return_value=None)),
         patch("src.help.service._retrieve_by_text", new=AsyncMock(return_value=chunks)),
         patch("src.help.service._call_haiku", new=AsyncMock(return_value=_FAKE_HAIKU_RAW)) as mock_haiku,
+        patch("src.help.router.log_interaction", new=AsyncMock(return_value=_FAKE_INTERACTION_ID)),
     ):
         yield mock_haiku
 
@@ -81,6 +89,8 @@ async def test_help_ask_school_admin_returns_structured_response(client: AsyncCl
     assert len(data["related"]) == 3
     assert isinstance(data["sources"], list)
     assert data["sources"] == ["Provisioning a teacher"]
+    # Deliver-4: interaction_id is returned for feedback submission.
+    assert data["interaction_id"] == _FAKE_INTERACTION_ID
 
 
 @pytest.mark.asyncio
@@ -268,3 +278,69 @@ async def test_help_ask_omitting_account_state_still_works(client: AsyncClient):
     assert r.status_code == 200, r.text
     prompt_sent = mock_haiku.call_args[0][0]
     assert "Account context" not in prompt_sent
+
+
+# ── Deliver-4: feedback endpoint ──────────────────────────────────────────────
+
+@pytest.mark.asyncio
+async def test_help_feedback_thumbs_up_returns_ok(client: AsyncClient):
+    """POST /help/feedback with helpful=True returns {ok: true}."""
+    fake_id = "bbbbbbbb-0000-0000-0000-000000000001"
+    with patch("src.help.router.record_feedback", new=AsyncMock()) as mock_fb:
+        r = await client.post("/api/v1/help/feedback", json={
+            "interaction_id": fake_id,
+            "helpful": True,
+        })
+
+    assert r.status_code == 200, r.text
+    assert r.json()["ok"] is True
+    mock_fb.assert_awaited_once()
+    _, kwargs = mock_fb.call_args
+    assert kwargs["helpful"] is True
+    assert kwargs["interaction_id"] == fake_id
+
+
+@pytest.mark.asyncio
+async def test_help_feedback_thumbs_down_returns_ok(client: AsyncClient):
+    """POST /help/feedback with helpful=False returns {ok: true}."""
+    fake_id = "cccccccc-0000-0000-0000-000000000001"
+    with patch("src.help.router.record_feedback", new=AsyncMock()):
+        r = await client.post("/api/v1/help/feedback", json={
+            "interaction_id": fake_id,
+            "helpful": False,
+        })
+
+    assert r.status_code == 200, r.text
+    assert r.json()["ok"] is True
+
+
+@pytest.mark.asyncio
+async def test_help_feedback_missing_interaction_id_returns_422(client: AsyncClient):
+    """Omitting interaction_id fails schema validation."""
+    r = await client.post("/api/v1/help/feedback", json={"helpful": True})
+    assert r.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_help_feedback_wrong_id_length_returns_422(client: AsyncClient):
+    """An interaction_id shorter than 36 chars fails schema validation."""
+    r = await client.post("/api/v1/help/feedback", json={
+        "interaction_id": "too-short",
+        "helpful": True,
+    })
+    assert r.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_help_ask_interaction_id_included_in_response(client: AsyncClient):
+    """ask response always contains an interaction_id for the feedback loop."""
+    with _patch_retrieval():
+        r = await client.post("/api/v1/help/ask", json={
+            "question": "How do I enrol a student?",
+            "role": "teacher",
+        })
+
+    assert r.status_code == 200, r.text
+    data = r.json()
+    assert "interaction_id" in data
+    assert data["interaction_id"] is not None

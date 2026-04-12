@@ -63,3 +63,25 @@ class HelpAskResponse(BaseModel):
         default_factory=list,
         description="Headings of the library sections that were retrieved (for transparency).",
     )
+    interaction_id: str | None = Field(
+        default=None,
+        description="UUID of the logged help_interactions row. "
+                    "Pass to POST /help/feedback to record thumbs-up or thumbs-down.",
+    )
+
+
+class HelpFeedbackRequest(BaseModel):
+    interaction_id: str = Field(
+        ...,
+        description="UUID returned by POST /help/ask.",
+        min_length=36,
+        max_length=36,
+    )
+    helpful: bool = Field(
+        ...,
+        description="True for thumbs-up (answer was useful), False for thumbs-down.",
+    )
+
+
+class HelpFeedbackResponse(BaseModel):
+    ok: bool = True

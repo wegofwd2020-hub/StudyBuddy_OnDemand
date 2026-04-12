@@ -1127,3 +1127,79 @@ async def admin_pipeline_job_status(
             },
         )
     return dict(row)
+
+
+
+# ── Help interactions analytics (Deliver-4) ────────────────────────────────────
+
+@router.get("/admin/help/interactions")
+async def admin_help_interactions(
+    request: Request,
+    admin: Annotated[dict, Depends(_require("review:read"))],
+    limit: int = 50,
+    offset: int = 0,
+    helpful: str | None = None,  # "true" | "false" | "null" (filter by feedback state)
+    persona: str | None = None,
+) -> dict:
+    """
+    List help interactions for analytics — questions asked, response titles,
+    sources used, and thumbs feedback.
+
+    Query params:
+      limit   — max rows (default 50, max 200)
+      offset  — for pagination
+      helpful — filter: 'true' (thumbs up), 'false' (thumbs down), 'null' (no feedback yet)
+      persona — filter: 'school_admin' | 'teacher' | 'student'
+    """
+    limit = min(limit, 200)
+
+    # Build WHERE clauses from optional filters.
+    conditions: list[str] = []
+    params: list = [limit, offset]
+
+    if helpful == "null":
+        conditions.append("helpful IS NULL")
+    elif helpful == "true":
+        conditions.append("helpful = TRUE")
+    elif helpful == "false":
+        conditions.append("helpful = FALSE")
+
+    if persona in ("school_admin", "teacher", "student"):
+        params.append(persona)
+        conditions.append(f"persona = ${len(params)}")
+
+    where_clause = ("WHERE " + " AND ".join(conditions)) if conditions else ""
+
+    async with get_db(request) as conn:
+        rows = await conn.fetch(
+            f"""
+            SELECT interaction_id::text,
+                   persona,
+                   page,
+                   question,
+                   response_title,
+                   sources,
+                   helpful,
+                   created_at
+            FROM help_interactions
+            {where_clause}
+            ORDER BY created_at DESC
+            LIMIT $1 OFFSET $2
+            """,
+            *params,
+        )
+        total_row = await conn.fetchrow(
+            f"""
+            SELECT COUNT(*) AS total
+            FROM help_interactions
+            {where_clause}
+            """,
+            *params[2:],  # skip limit + offset
+        )
+
+    return {
+        "interactions": [dict(r) for r in rows],
+        "total": total_row["total"],
+        "limit": limit,
+        "offset": offset,
+    }

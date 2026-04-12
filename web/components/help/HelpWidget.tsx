@@ -26,8 +26,16 @@ import {
   ChevronRight,
   Loader2,
   AlertCircle,
+  ThumbsUp,
+  ThumbsDown,
 } from "lucide-react";
-import { askHelp, type HelpAskResponse, type AccountState, HELP_BASE_URL } from "@/lib/api/help";
+import {
+  askHelp,
+  submitFeedback,
+  type HelpAskResponse,
+  type AccountState,
+  HELP_BASE_URL,
+} from "@/lib/api/help";
 
 // ── JWT helpers ───────────────────────────────────────────────────────────────
 
@@ -131,6 +139,47 @@ function RelatedChips({ related }: { related: string[] }) {
   );
 }
 
+function FeedbackBar({ interactionId }: { interactionId: string | null }) {
+  const [submitted, setSubmitted] = useState<"up" | "down" | null>(null);
+
+  if (!interactionId) return null;
+
+  async function handleFeedback(helpful: boolean) {
+    if (submitted) return;
+    setSubmitted(helpful ? "up" : "down");
+    await submitFeedback(interactionId!, helpful);
+  }
+
+  if (submitted) {
+    return (
+      <p className="text-xs text-gray-400">
+        Thanks for the feedback
+        {submitted === "up" ? " 👍" : " 👎"}
+      </p>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-xs text-gray-400">Was this helpful?</span>
+      <button
+        onClick={() => handleFeedback(true)}
+        aria-label="Thumbs up — this answer was helpful"
+        className="rounded p-1 text-gray-400 hover:bg-green-50 hover:text-green-600 focus:outline-none focus:ring-1 focus:ring-green-400"
+      >
+        <ThumbsUp className="h-3.5 w-3.5" />
+      </button>
+      <button
+        onClick={() => handleFeedback(false)}
+        aria-label="Thumbs down — this answer was not helpful"
+        className="rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-500 focus:outline-none focus:ring-1 focus:ring-red-400"
+      >
+        <ThumbsDown className="h-3.5 w-3.5" />
+      </button>
+    </div>
+  );
+}
+
 function ResponseCard({ response }: { response: HelpAskResponse }) {
   return (
     <div className="space-y-3">
@@ -156,6 +205,9 @@ function ResponseCard({ response }: { response: HelpAskResponse }) {
           Sources: {response.sources.join(" · ")}
         </p>
       )}
+
+      {/* Thumbs feedback (Deliver-4) */}
+      <FeedbackBar interactionId={response.interaction_id} />
     </div>
   );
 }

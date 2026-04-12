@@ -260,6 +260,62 @@ def _parse_response(raw: str, chunks: list[asyncpg.Record]) -> dict:
     }
 
 
+# ── Interaction logging (Deliver-4) ──────────────────────────────────────────
+
+
+async def log_interaction(
+    conn: asyncpg.Connection,
+    persona: str,
+    page: str | None,
+    question: str,
+    response_title: str,
+    sources: list[str],
+) -> str:
+    """
+    Insert a help_interactions row and return the generated interaction_id.
+
+    Called synchronously before returning the ask response so the client
+    receives the ID and can submit thumbs feedback later.
+    """
+    row = await conn.fetchrow(
+        """
+        INSERT INTO help_interactions (persona, page, question, response_title, sources)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING interaction_id::text
+        """,
+        persona,
+        page,
+        question[:500],  # belt-and-suspenders; schema already caps at 500
+        response_title,
+        sources,
+    )
+    return row["interaction_id"]
+
+
+async def record_feedback(
+    conn: asyncpg.Connection,
+    interaction_id: str,
+    helpful: bool,
+) -> None:
+    """
+    Record a thumbs-up or thumbs-down on an existing interaction.
+
+    Silently does nothing if interaction_id is not found — this prevents
+    information leakage about valid vs invalid IDs. Idempotent: calling
+    twice with the same value overwrites without error.
+    """
+    await conn.execute(
+        """
+        UPDATE help_interactions
+        SET helpful = $2
+        WHERE interaction_id = $1::uuid
+        """,
+        interaction_id,
+        helpful,
+    )
+    log.info("help_feedback_recorded", interaction_id=interaction_id, helpful=helpful)
+
+
 # ── Public interface ──────────────────────────────────────────────────────────
 
 

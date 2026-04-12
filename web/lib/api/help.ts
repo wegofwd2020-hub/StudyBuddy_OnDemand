@@ -36,6 +36,8 @@ export interface HelpAskResponse {
   result: string;
   related: string[];
   sources: string[];
+  /** UUID of the logged interaction. Pass to submitFeedback() to rate the answer. */
+  interaction_id: string | null;
 }
 
 export async function askHelp(body: HelpAskRequest): Promise<HelpAskResponse> {
@@ -53,4 +55,24 @@ export async function askHelp(body: HelpAskRequest): Promise<HelpAskResponse> {
   }
 
   return res.json() as Promise<HelpAskResponse>;
+}
+
+/**
+ * Submit thumbs-up (helpful=true) or thumbs-down (helpful=false) feedback on
+ * a help response. Fire-and-forget — failures are silently swallowed so a
+ * network error never breaks the widget.
+ */
+export async function submitFeedback(
+  interactionId: string,
+  helpful: boolean,
+): Promise<void> {
+  try {
+    await fetch(`${HELP_BASE_URL}/help/feedback`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ interaction_id: interactionId, helpful }),
+    });
+  } catch {
+    // best-effort — feedback failure must never surface as a UI error
+  }
 }
