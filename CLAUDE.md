@@ -8,7 +8,7 @@ API key. Schools and teachers can upload custom curricula. Subscription-based.
 
 ## Project Status
 
-**Phases 1–11 complete. Active development on content review, admin tooling, and demo flows.**
+**Phases 1–11 complete. Phase A (local auth) shipped. Active development on admin tooling and billing.**
 
 | Phase | Status |
 |---|---|
@@ -23,8 +23,9 @@ API key. Schools and teachers can upload custom curricula. Subscription-based.
 | 9 — Student–School Association + Routing | ✅ Complete (176 tests) |
 | 10 — Extended Analytics + Student Feedback | ✅ Complete (197 tests) |
 | 11 — Teacher Reporting Dashboard | ✅ Complete (215 tests) |
+| Phase A — Local Auth (school-provisioned users) | ✅ Complete (678 tests) |
 
-**Active branch:** `feat/demo-teacher-flow` (branched from `main`)
+**Active branch:** `main` (next feature branch TBD)
 
 **Recently shipped (beyond Phase 11):**
 - Content review unit viewer — Lesson / Tutorial / Quiz / Experiment renderers
@@ -34,10 +35,9 @@ API key. Schools and teachers can upload custom curricula. Subscription-based.
 - Demo teacher account request / verify / login flow
 - Admin pipeline jobs table: sortable, filterable, horizontal scroll
 - School-as-primary-entity model: `student_teacher_assignments` (migration 0024), per-student grade+teacher assignment, bulk reassign, grade self-change guard
+- **Phase A local auth**: third auth track for school-provisioned users — email+password login, `first_login` forced reset, school self-registration, teacher/student provisioning UI, `LocalAuthGuard` portal gate, JWT refresh interceptor (migrations 0030–0037)
 
 **Open tasks tracked in GitHub Issues** (wegofwd2020-hub/StudyBuddy_OnDemand):
-- #52 Inline annotations on lesson sections and quiz questions ✅ Done
-- #53 Side-by-side version diff ✅ Done
 - #54 Batch approve all subjects in a grade
 - #55 Surface alex_warnings prominently in unit viewer
 - #56 Review assignment — assign versions to specific admins
@@ -280,6 +280,14 @@ Current migrations (as of last commit):
 | 0027 | Remove individual student subscriptions (ADR-001): drop `subscriptions` table; subscription webhook now school-only |
 | 0028 | PostgreSQL Row-Level Security (ADR-001 Decision 3): `ENABLE/FORCE ROW LEVEL SECURITY` + `tenant_isolation` policy on 7 tables; `app.current_school_id` session variable stamped by `get_db()` |
 | 0029 | Lesson Retention Service — Phase A schema (#90): `retention_status`, `expires_at`, `grace_until`, `renewed_at` on `curricula`; `tokens_used`, `cost_usd` on `content_subject_versions`; new `school_storage_quotas` and `grade_curriculum_assignments` tables with RLS |
+| 0030 | AlexJS warning acknowledgements — `content_warning_acks` table (#76) |
+| 0031 | At-risk seen tracking — `at_risk_seen` flag per teacher/student pair |
+| 0032 | Build allowance — curriculum build quota per school subscription year |
+| 0033 | Build credits balance — credit rollover balance for curriculum builds |
+| 0034 | Independent teacher subscriptions schema |
+| 0035 | Teacher Stripe Connect accounts |
+| 0036 | Teacher subscription overage tracking |
+| 0037 | Phase A local auth — `password_hash TEXT` + `first_login BOOLEAN` on `teachers` and `students` |
 
 ---
 
