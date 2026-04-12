@@ -78,16 +78,27 @@ export interface ChangePasswordRequest {
   new_password: string;
 }
 
+export interface ChangePasswordResponse {
+  /** Fresh JWT with first_login=false — client must replace the stored token. */
+  token: string;
+  refresh_token: string;
+  role: string;
+}
+
 /**
  * Change password for a local-auth user.
- * Requires the user's current JWT — pass it explicitly so this function
- * can be called before the school Axios instance has picked up the new token.
+ * Returns a fresh JWT with first_login=false so the client can replace the
+ * stored token immediately without requiring another login round-trip.
+ * Pass the current token explicitly — publicApi has no Bearer pre-injected.
  */
 export async function changePassword(
   token: string,
   body: ChangePasswordRequest,
-): Promise<void> {
-  await publicApi.patch("/auth/change-password", body, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+): Promise<ChangePasswordResponse> {
+  const res = await publicApi.patch<ChangePasswordResponse>(
+    "/auth/change-password",
+    body,
+    { headers: { Authorization: `Bearer ${token}` } },
+  );
+  return res.data;
 }

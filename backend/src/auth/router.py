@@ -29,6 +29,7 @@ from src.auth.dependencies import get_current_student
 from src.core.rate_limit import ip_auth_rate_limit
 from src.auth.schemas import (
     ChangePasswordRequest,
+    ChangePasswordResponse,
     ForgotPasswordRequest,
     LocalLoginRequest,
     LocalLoginResponse,
@@ -474,7 +475,7 @@ async def local_login(
 # ── Change password (forced reset + voluntary) ────────────────────────────────
 
 
-@router.patch("/auth/change-password")
+@router.patch("/auth/change-password", response_model=ChangePasswordResponse)
 async def change_password(
     body: ChangePasswordRequest,
     request: Request,
@@ -558,7 +559,24 @@ async def change_password(
                 detail={"error": "forbidden", "detail": "Teacher or student token required.", "correlation_id": cid},
             )
 
-    return {}
+    # Re-issue a fresh JWT with first_login=False so the client can update
+    # localStorage immediately — no need for another round-trip login.
+    new_payload = {k: v for k, v in payload.items() if k not in ("exp", "iat")}
+    new_payload["first_login"] = False
+    role = payload.get("role", "teacher")
+    new_token = create_internal_jwt(
+        new_payload, settings.JWT_SECRET, settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES
+    )
+    new_refresh = generate_refresh_token()
+    user_id = str(teacher_id or student_id)
+    redis = get_redis(request)
+    await redis.set(
+        f"refresh:{_hash_refresh_token(new_refresh)}",
+        user_id,
+        ex=_REFRESH_TTL,
+    )
+
+    return ChangePasswordResponse(token=new_token, refresh_token=new_refresh, role=role)
 
 
 # ── Student profile update ────────────────────────────────────────────────────

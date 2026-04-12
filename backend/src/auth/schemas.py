@@ -202,3 +202,11 @@ class ChangePasswordRequest(BaseModel):
         if len(v.encode()) > 72:
             raise ValueError("Password must be 72 bytes or fewer.")
         return v
+
+
+class ChangePasswordResponse(BaseModel):
+    """Response for PATCH /auth/change-password — fresh token with first_login=False."""
+
+    token: str
+    refresh_token: str
+    role: str

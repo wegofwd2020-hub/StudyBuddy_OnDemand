@@ -49,14 +49,15 @@ export default function ChangePasswordPage() {
 
     setLoading(true);
     try {
-      await changePassword(token, {
+      const res = await changePassword(token, {
         current_password: currentPassword,
         new_password: newPassword,
       });
-      // Clear first_login flag by re-reading the updated token from the next
-      // login. For now, redirect to dashboard — the JWT still shows first_login=true
-      // until the user logs in again, but the backend has cleared the DB flag.
-      // The school layout will not re-check first_login after a successful change.
+      // Backend returns a fresh JWT with first_login=false. Replace the stored
+      // token so the school layout guard sees first_login=false on the next
+      // navigation — no redirect loop.
+      const tokenKey = res.role === "student" ? "sb_token" : "sb_teacher_token";
+      localStorage.setItem(tokenKey, res.token);
       router.push("/school/dashboard");
     } catch (err: unknown) {
       const status = (err as { response?: { status?: number } })?.response?.status;

@@ -31,6 +31,11 @@ export default function SchoolLoginPage() {
         // school_admin and teacher both use sb_teacher_token — school Axios
         // client and useTeacher hook read from this key.
         localStorage.setItem("sb_teacher_token", res.token);
+        // Set a lightweight session cookie so the server layout can detect the
+        // local-auth session and skip the Auth0 redirect. Encoded the same way
+        // as sb_teacher_session (base64 JSON) for consistency.
+        const sessionPayload = btoa(JSON.stringify({ name: email, email }));
+        document.cookie = `sb_local_teacher_session=${sessionPayload}; path=/; SameSite=Strict; Max-Age=86400`;
       }
       if (res.first_login) {
         router.push("/school/change-password?required=1");

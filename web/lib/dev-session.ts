@@ -43,3 +43,24 @@ export async function getDemoTeacherSession(): Promise<DevSession | null> {
     return null;
   }
 }
+
+/**
+ * Read the Phase A local-auth session cookie set by the school login page.
+ * The cookie payload is base64-encoded JSON: { name, email }.
+ *
+ * This is a thin server-side hint only — the client-side LocalAuthGuard
+ * component does the full JWT validation and first_login enforcement from
+ * localStorage. The cookie is set at login and cleared on logout.
+ */
+export async function getLocalTeacherSession(): Promise<DevSession | null> {
+  try {
+    const store = await cookies();
+    const raw = store.get("sb_local_teacher_session")?.value;
+    if (!raw) return null;
+    const data = JSON.parse(atob(raw));
+    if (!data?.email) return null;
+    return { user: { name: data.name ?? data.email, email: data.email } };
+  } catch {
+    return null;
+  }
+}
