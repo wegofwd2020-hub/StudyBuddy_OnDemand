@@ -4,6 +4,33 @@
 
 ---
 
+### Phase C — Curriculum Catalog: browse platform packages (2026-04-12)
+
+**Branch:** `feat/phase-c-curriculum-catalog`  
+**Design docs:** `docs/REGISTRATION_DESIGN_ANALYSIS.md` (Q12, Q13)
+
+**What ships:**
+
+| Area | Change |
+|---|---|
+| **Backend schemas** | `CatalogSubjectSummary`, `CatalogEntry`, `CatalogResponse` in `school/schemas.py` |
+| **Backend service** | `list_catalog(conn, grade?)` — queries platform curricula with subject/unit counts and content readiness via lateral join on `curriculum_units` and `content_subject_versions` |
+| **Backend router** | `GET /api/v1/curricula/catalog` with optional `?grade=N` filter; accessible to any authenticated teacher or school_admin |
+| **school-admin.ts** | `getCatalog(grade?)` function; `CatalogEntry`, `CatalogSubjectSummary`, `CatalogResponse` TypeScript interfaces |
+| **SchoolNav** | Added "Catalog" nav item (`LayoutGrid` icon) between Curriculum and Content Library |
+| **Catalog browser page** | `/school/catalog` — grade filter dropdown; package cards with expandable subject list; content readiness bar (approved subjects / total); legend |
+| **Tests** | 6 tests in `tests/test_phase_c_catalog.py` — all passing |
+
+**Design decisions:**
+- Catalog is read-only; assignment to classroom happens from the classroom detail page (Phase B)
+- Content readiness = `content_subject_versions.status IN ('approved', 'published')` per subject
+- No FK from `classroom_packages.curriculum_id` — catalog IDs are TEXT, platform packages may not be in test DB
+- `owner_type = 'platform'` is the filter for catalog; RLS on `curricula` already exposes these rows to all authenticated users
+
+**Test count:** 705 passed, 6 skipped (full suite)
+
+---
+
 ### Phase B — Classrooms: entity, CRUD, package + student assignment (2026-04-12)
 
 **Branch:** `feat/phase-b-classroom`  

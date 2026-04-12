@@ -30,6 +30,7 @@ from src.school.enrolment_service import (
 from src.school.schemas import (
     BulkReassignRequest,
     BulkReassignResponse,
+    CatalogResponse,
     EnrolmentRosterItem,
     EnrolmentRosterResponse,
     EnrolmentUploadRequest,
@@ -69,6 +70,7 @@ from src.school.service import (
     fetch_school,
     get_classroom_detail,
     invite_teacher,
+    list_catalog,
     list_classrooms,
     promote_to_school_admin,
     provision_student,
@@ -1051,3 +1053,27 @@ async def remove_student_endpoint(
 
     if not ok:
         raise HTTPException(status_code=404, detail="Classroom not found")
+
+
+# ── Phase C — Curriculum Catalog ──────────────────────────────────────────────
+
+
+@router.get(
+    "/curricula/catalog",
+    response_model=CatalogResponse,
+)
+async def get_curriculum_catalog(
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+    grade: int | None = None,
+) -> CatalogResponse:
+    """
+    List all platform curriculum packages available for classroom assignment.
+
+    Optional ?grade=N filter returns only packages for that grade.
+    Any authenticated teacher or school_admin may call this endpoint.
+    """
+    async with get_db(request) as conn:
+        packages = await list_catalog(conn, grade=grade)
+
+    return CatalogResponse(packages=packages, total=len(packages))

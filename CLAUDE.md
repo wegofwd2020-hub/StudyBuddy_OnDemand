@@ -8,7 +8,7 @@ API key. Schools and teachers can upload custom curricula. Subscription-based.
 
 ## Project Status
 
-**Phases 1–11 complete. Phase A (local auth) shipped. Phase B (Classrooms) in progress.**
+**Phases 1–11 complete. Phase A (local auth) shipped. Phase B (Classrooms) and Phase C (Catalog) complete.**
 
 | Phase | Status |
 |---|---|
@@ -25,8 +25,9 @@ API key. Schools and teachers can upload custom curricula. Subscription-based.
 | 11 — Teacher Reporting Dashboard | ✅ Complete (215 tests) |
 | Phase A — Local Auth (school-provisioned users) | ✅ Complete (678 tests) |
 | Phase B — Classrooms | ✅ Complete (migration 0038, 21 tests, web UI) |
+| Phase C — Curriculum Catalog | ✅ Complete (6 tests, catalog browser UI) |
 
-**Active branch:** `main` (next: Phase C — Curriculum Catalog)
+**Active branch:** `main` (next: Phase D — Curriculum Builder)
 
 **Recently shipped (beyond Phase 11):**
 - Content review unit viewer — Lesson / Tutorial / Quiz / Experiment renderers
@@ -37,11 +38,13 @@ API key. Schools and teachers can upload custom curricula. Subscription-based.
 - Admin pipeline jobs table: sortable, filterable, horizontal scroll
 - School-as-primary-entity model: `student_teacher_assignments` (migration 0024), per-student grade+teacher assignment, bulk reassign, grade self-change guard
 - **Phase A local auth**: third auth track for school-provisioned users — email+password login, `first_login` forced reset, school self-registration, teacher/student provisioning UI, `LocalAuthGuard` portal gate, JWT refresh interceptor (migrations 0030–0037)
-- **Phase B Classrooms (partial)**: `classrooms`, `classroom_packages`, `classroom_students` tables (migration 0038); classroom CRUD + package/student assignment endpoints; Classrooms nav + list/detail pages in school portal; 21 tests
+- **Phase B Classrooms**: `classrooms`, `classroom_packages`, `classroom_students` tables (migration 0038); classroom CRUD + package/student assignment endpoints; Classrooms nav + list/detail pages in school portal; 21 tests
+- **Phase C Curriculum Catalog**: `GET /curricula/catalog` endpoint with optional `?grade=N` filter; lists platform packages with per-subject content readiness; catalog browser page at `/school/catalog` with expandable subject list and readiness bar; 6 tests
 
 **Open tasks:**
-- Phase B — Phase C (Curriculum Catalog), Phase D (Curriculum Builder), Phase E (Pipeline Billing) — see `docs/REGISTRATION_DESIGN_ANALYSIS.md`
+- Phase D (Curriculum Builder), Phase E (Pipeline Billing) — see `docs/REGISTRATION_DESIGN_ANALYSIS.md`
 - Multi-provider LLM pipeline — see `docs/DESIGN_EXPLORATION_MULTI_PROVIDER_LLM.md` (design exploration, not scheduled)
+- Help system — see `docs/DESIGN_HELP_SYSTEM.md` (design exploration, begin after Phase E)
 
 Predecessor project (UI + prompt reference):
 `https://github.com/wegofwd2020-hub/studybuddy_free`

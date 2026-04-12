@@ -203,6 +203,36 @@ class PromoteTeacherResponse(BaseModel):
     role: str
 
 
+# ── Phase C — Curriculum Catalog schemas ─────────────────────────────────────
+
+
+class CatalogSubjectSummary(BaseModel):
+    subject: str
+    subject_name: str | None
+    unit_count: int
+    has_content: bool
+
+
+class CatalogEntry(BaseModel):
+    """One pre-built platform Curriculum Package available for classroom assignment."""
+
+    curriculum_id: str
+    name: str
+    grade: int
+    year: int
+    is_default: bool
+    owner_type: str
+    subject_count: int
+    unit_count: int
+    subjects: list[CatalogSubjectSummary]
+    created_at: datetime
+
+
+class CatalogResponse(BaseModel):
+    packages: list[CatalogEntry]
+    total: int
+
+
 # ── Phase B — Classroom schemas ───────────────────────────────────────────────
 
 

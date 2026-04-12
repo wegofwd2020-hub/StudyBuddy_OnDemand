@@ -23,6 +23,7 @@ import {
   Archive,
   HardDrive,
   DoorOpen,
+  LayoutGrid,
 } from "lucide-react";
 
 interface NavItem {
@@ -57,6 +58,11 @@ const NAV_ITEMS: NavItem[] = [
     label: "Curriculum",
     href: "/school/curriculum",
     icon: <BookMarked className="h-4 w-4" />,
+  },
+  {
+    label: "Catalog",
+    href: "/school/catalog",
+    icon: <LayoutGrid className="h-4 w-4" />,
   },
   {
     label: "Content Library",

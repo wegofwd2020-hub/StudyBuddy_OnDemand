@@ -743,3 +743,36 @@ export async function removeStudentFromClassroom(
     `/schools/${schoolId}/classrooms/${classroomId}/students/${studentId}`,
   );
 }
+
+// ── Phase C — Curriculum Catalog ──────────────────────────────────────────────
+
+export interface CatalogSubjectSummary {
+  subject: string;
+  subject_name: string | null;
+  unit_count: number;
+  has_content: boolean;
+}
+
+export interface CatalogEntry {
+  curriculum_id: string;
+  name: string;
+  grade: number;
+  year: number;
+  is_default: boolean;
+  owner_type: string;
+  subject_count: number;
+  unit_count: number;
+  subjects: CatalogSubjectSummary[];
+  created_at: string;
+}
+
+export interface CatalogResponse {
+  packages: CatalogEntry[];
+  total: number;
+}
+
+export async function getCatalog(grade?: number): Promise<CatalogResponse> {
+  const params = grade !== undefined ? { grade } : {};
+  const res = await schoolApi.get<CatalogResponse>("/curricula/catalog", { params });
+  return res.data;
+}
