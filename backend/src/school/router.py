@@ -59,6 +59,7 @@ from src.school.schemas import (
     SchoolProfileResponse,
     SchoolRegisterRequest,
     SchoolRegisterResponse,
+    SetupStatusResponse,
     StudentAssignmentRequest,
     StudentAssignmentResponse,
     TeacherGradeAssignRequest,
@@ -75,6 +76,7 @@ from src.school.service import (
     fetch_school,
     get_classroom_detail,
     get_definition,
+    get_setup_status,
     invite_teacher,
     list_catalog,
     list_classrooms,
@@ -163,6 +165,48 @@ async def get_school_profile(
             },
         )
     return SchoolProfileResponse(**school)
+
+
+# ── Setup status (Layer 1.5 onboarding checklist) ────────────────────────────
+
+
+@router.get(
+    "/schools/{school_id}/setup-status",
+    response_model=SetupStatusResponse,
+)
+async def get_setup_status_endpoint(
+    school_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> SetupStatusResponse:
+    """
+    Return the school's first-run setup progress.
+
+    Reports whether the admin has completed each of the four required steps:
+    add a teacher, enrol a student, create a classroom, assign a curriculum.
+    Used by the dashboard SetupChecklist banner.
+    """
+    if teacher.get("role") != "school_admin":
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "forbidden",
+                "detail": "Only school_admin can view setup status.",
+                "correlation_id": _cid(request),
+            },
+        )
+    if teacher["school_id"] != school_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "forbidden",
+                "detail": "Cannot view setup status for a different school.",
+                "correlation_id": _cid(request),
+            },
+        )
+    async with get_db(request) as conn:
+        status = await get_setup_status(conn, school_id)
+    return SetupStatusResponse(**status)
 
 
 # ── Teacher invite ────────────────────────────────────────────────────────────

@@ -452,3 +452,11 @@ class PipelineTriggerFromDefinitionResponse(BaseModel):
     status: str
     estimated_cost_usd: str
     charged_amount_usd: str | None  # non-null if a Stripe charge was made
+
+
+class SetupStatusResponse(BaseModel):
+    teacher_count: int
+    student_count: int
+    classroom_count: int
+    curriculum_assigned: bool  # ≥1 package assigned to ≥1 classroom
+    setup_complete: bool  # true when all 4 steps are done

@@ -951,6 +951,52 @@ async def approve_definition(
     return d
 
 
+async def get_setup_status(conn: asyncpg.Connection, school_id: str) -> dict:
+    """
+    Return a snapshot of the school's first-run setup progress.
+
+    Four steps are tracked:
+      1. At least one teacher provisioned (beyond the founding school_admin).
+      2. At least one student provisioned.
+      3. At least one classroom created.
+      4. At least one curriculum package assigned to a classroom.
+
+    setup_complete is true when all four are satisfied.
+    """
+    row = await conn.fetchrow(
+        """
+        SELECT
+            (SELECT COUNT(*) FROM teachers
+             WHERE school_id = $1 AND role = 'teacher')::int         AS teacher_count,
+            (SELECT COUNT(*) FROM students
+             WHERE school_id = $1)::int                              AS student_count,
+            (SELECT COUNT(*) FROM classrooms
+             WHERE school_id = $1 AND status = 'active')::int        AS classroom_count,
+            (SELECT COUNT(*) > 0 FROM classroom_packages cp
+             JOIN classrooms c ON c.classroom_id = cp.classroom_id
+             WHERE c.school_id = $1)                                 AS curriculum_assigned
+        """,
+        uuid.UUID(school_id),
+    )
+    teacher_count = row["teacher_count"]
+    student_count = row["student_count"]
+    classroom_count = row["classroom_count"]
+    curriculum_assigned = bool(row["curriculum_assigned"])
+    setup_complete = (
+        teacher_count > 0
+        and student_count > 0
+        and classroom_count > 0
+        and curriculum_assigned
+    )
+    return {
+        "teacher_count": teacher_count,
+        "student_count": student_count,
+        "classroom_count": classroom_count,
+        "curriculum_assigned": curriculum_assigned,
+        "setup_complete": setup_complete,
+    }
+
+
 async def reject_definition(
     conn: asyncpg.Connection,
     definition_id: str,

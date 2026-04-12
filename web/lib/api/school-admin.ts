@@ -870,3 +870,18 @@ export async function rejectDefinition(
   );
   return res.data;
 }
+
+// ── Setup status (Layer 1.5 onboarding checklist) ────────────────────────────
+
+export interface SetupStatus {
+  teacher_count: number;
+  student_count: number;
+  classroom_count: number;
+  curriculum_assigned: boolean;
+  setup_complete: boolean;
+}
+
+export async function getSetupStatus(schoolId: string): Promise<SetupStatus> {
+  const res = await schoolApi.get<SetupStatus>(`/schools/${schoolId}/setup-status`);
+  return res.data;
+}
