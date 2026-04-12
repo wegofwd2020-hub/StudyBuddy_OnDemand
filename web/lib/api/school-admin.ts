@@ -743,3 +743,130 @@ export async function removeStudentFromClassroom(
     `/schools/${schoolId}/classrooms/${classroomId}/students/${studentId}`,
   );
 }
+
+// ── Phase C — Curriculum Catalog ──────────────────────────────────────────────
+
+export interface CatalogSubjectSummary {
+  subject: string;
+  subject_name: string | null;
+  unit_count: number;
+  has_content: boolean;
+}
+
+export interface CatalogEntry {
+  curriculum_id: string;
+  name: string;
+  grade: number;
+  year: number;
+  is_default: boolean;
+  owner_type: string;
+  subject_count: number;
+  unit_count: number;
+  subjects: CatalogSubjectSummary[];
+  created_at: string;
+}
+
+export interface CatalogResponse {
+  packages: CatalogEntry[];
+  total: number;
+}
+
+export async function getCatalog(grade?: number): Promise<CatalogResponse> {
+  const params = grade !== undefined ? { grade } : {};
+  const res = await schoolApi.get<CatalogResponse>("/curricula/catalog", { params });
+  return res.data;
+}
+
+// ── Phase D — Curriculum Definitions ──────────────────────────────────────────
+
+export interface DefinitionUnit {
+  title: string;
+}
+
+export interface DefinitionSubject {
+  subject_label: string;
+  units: DefinitionUnit[];
+}
+
+export interface CurriculumDefinition {
+  definition_id: string;
+  school_id: string;
+  submitted_by: string;
+  submitted_by_name: string | null;
+  name: string;
+  grade: number;
+  languages: string[];
+  subjects: DefinitionSubject[];
+  status: "pending_approval" | "approved" | "rejected";
+  rejection_reason: string | null;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  created_at: string;
+}
+
+export interface DefinitionListResponse {
+  definitions: CurriculumDefinition[];
+  total: number;
+}
+
+export interface SubmitDefinitionRequest {
+  name: string;
+  grade: number;
+  languages: string[];
+  subjects: DefinitionSubject[];
+}
+
+export async function listDefinitions(
+  schoolId: string,
+  status?: string,
+): Promise<DefinitionListResponse> {
+  const params = status ? { status } : {};
+  const res = await schoolApi.get<DefinitionListResponse>(
+    `/schools/${schoolId}/curriculum/definitions`,
+    { params },
+  );
+  return res.data;
+}
+
+export async function getDefinition(
+  schoolId: string,
+  definitionId: string,
+): Promise<CurriculumDefinition> {
+  const res = await schoolApi.get<CurriculumDefinition>(
+    `/schools/${schoolId}/curriculum/definitions/${definitionId}`,
+  );
+  return res.data;
+}
+
+export async function submitDefinition(
+  schoolId: string,
+  body: SubmitDefinitionRequest,
+): Promise<CurriculumDefinition> {
+  const res = await schoolApi.post<CurriculumDefinition>(
+    `/schools/${schoolId}/curriculum/definitions`,
+    body,
+  );
+  return res.data;
+}
+
+export async function approveDefinition(
+  schoolId: string,
+  definitionId: string,
+): Promise<CurriculumDefinition> {
+  const res = await schoolApi.post<CurriculumDefinition>(
+    `/schools/${schoolId}/curriculum/definitions/${definitionId}/approve`,
+  );
+  return res.data;
+}
+
+export async function rejectDefinition(
+  schoolId: string,
+  definitionId: string,
+  reason: string,
+): Promise<CurriculumDefinition> {
+  const res = await schoolApi.post<CurriculumDefinition>(
+    `/schools/${schoolId}/curriculum/definitions/${definitionId}/reject`,
+    { reason },
+  );
+  return res.data;
+}

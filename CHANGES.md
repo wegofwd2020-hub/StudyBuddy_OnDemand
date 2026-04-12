@@ -4,6 +4,90 @@
 
 ---
 
+### Phase E — Pipeline Billing: cost estimate + Stripe-gated trigger (2026-04-12)
+
+**Branch:** `fix/test-isolation-and-prod-bugs`  
+**Design docs:** `docs/REGISTRATION_DESIGN_ANALYSIS.md` (Q5, Q6 — build quotas, billing)
+
+**What ships:**
+
+| Area | Change |
+|---|---|
+| **`pipeline_router.py` imports** | Moved `run_stripe`, `AI_COST`, `EXTRA_BUILD_PRICE_USD`, `check_build_allowance`, `consume_build`, Phase E schemas to module-level imports (top of file) so tests can patch `src.school.pipeline_router.run_stripe` |
+| **`/definitions/{id}/estimate`** | Returns `PipelineEstimateResponse`: `total_units`, `languages`, `unit_runs` (units × languages), `estimated_input_tokens`, `estimated_output_tokens`, `estimated_cost_usd`, `within_allowance`, `builds_remaining`, `builds_credits_balance`, `extra_build_charge_usd`, `card_last4`; 409 if not approved |
+| **`/definitions/{id}/trigger`** | `confirm=True` gate; 409 if not approved; concurrency guard (one queued/running job per school+grade); `within_allowance=False` → Stripe PaymentIntent off-session; `within_allowance=True` → `consume_build`; creates `curricula` row with `source_type='school'`; creates `curriculum_units` from definition subjects; dispatches Celery; 202 response with `job_id`, `curriculum_id`, `estimated_cost_usd`, `charged_amount_usd` |
+| **Bug fix** | `source_type='definition'` → `source_type='school'` (violates `curricula_source_type_check` constraint) |
+| **Tests** | 10 tests in `test_phase_e_pipeline_billing.py` — all passing |
+| **Test fixes** | Pool-based subscription seeding (`client._transport.app.state.pool`) for cross-connection visibility; error assertion uses `r.json()["error"]` not `r.json()["detail"]["error"]` (custom exception handler flattens the dict) |
+
+**Design decisions:**
+- `source_type='school'` is the correct value for school-owned curricula created from a definition — `'definition'` is not a valid CHECK constraint value
+- `run_stripe` must be importable at module level in `pipeline_router.py` for `patch("src.school.pipeline_router.run_stripe")` to work in tests
+- Subscription row seeded in tests via `pool.acquire()` (committed immediately) not `db_conn` (in rolled-back transaction, invisible to pool connections)
+- Stripe charge is flat `EXTRA_BUILD_PRICE_USD = "15.00"` off-session against the school's stored payment method
+- `charged_amount_usd = None` when build is within allowance; `"15.00"` when Stripe charge succeeds
+
+**Test count:** 734 passed, 6 skipped (full suite)
+
+---
+
+### Phase D — Curriculum Builder: definition form + approval queue (2026-04-12)
+
+**Branch:** `feat/phase-d-curriculum-builder`  
+**Design docs:** `docs/REGISTRATION_DESIGN_ANALYSIS.md` (Q7, Q9, Q18 — form UI, school admin approval)
+
+**What ships:**
+
+| Area | Change |
+|---|---|
+| **Migration 0039** | `curriculum_definitions` table with RLS tenant isolation. Status enum: `pending_approval` / `approved` / `rejected`. Stores subjects as JSONB: `[{subject_label, units:[{title}]}]` |
+| **Backend schemas** | `DefinitionUnitEntry`, `DefinitionSubjectEntry`, `CurriculumDefinitionRequest` (validates grade 1–12, languages in {en,fr,es}, at-least-one subject/unit), `CurriculumDefinitionResponse`, `DefinitionListResponse`, `RejectDefinitionRequest` |
+| **Backend service** | `submit_definition`, `list_definitions` (admin sees all; teacher sees own; optional status filter), `get_definition`, `approve_definition` (UPDATE WHERE status='pending_approval'), `reject_definition` |
+| **Backend router** | 5 new endpoints: `POST /definitions`, `GET /definitions`, `GET /definitions/{id}`, `POST /definitions/{id}/approve`, `POST /definitions/{id}/reject` |
+| **school-admin.ts** | `listDefinitions`, `getDefinition`, `submitDefinition`, `approveDefinition`, `rejectDefinition`; TypeScript interfaces `CurriculumDefinition`, `DefinitionSubject`, `DefinitionUnit` |
+| **Curriculum page** | Definitions panel link inserted above tab switcher |
+| **Definitions list page** | `/school/curriculum/definitions` — status tabs (Pending/Approved/Rejected/All); inline approve + reject-with-reason; link to detail |
+| **Definition builder (new)** | `/school/curriculum/definitions/new` — 4-step form: (1) name+grade, (2) subjects+units (add/remove, per-subject unit list), (3) languages toggle, (4) review+submit |
+| **Definition detail page** | `/school/curriculum/definitions/[id]` — subject/unit list; admin review card (approve/reject inline); approved state shows next-step hint |
+| **Tests** | 19 tests in `test_phase_d_definitions.py` — all passing |
+
+**Design decisions:**
+- `approve_definition` and `reject_definition` use `UPDATE WHERE status = 'pending_approval'` — acting on an already-decided definition returns 409
+- Teacher can only view their own definitions; admin can see all (list + detail)
+- Rejection reason stored in DB and surfaced to teacher in list and detail views
+- Phase E pipeline trigger is gated on `status = 'approved'` — not yet wired (Phase E)
+
+**Test count:** 724 passed, 6 skipped (full suite)
+
+---
+
+### Phase C — Curriculum Catalog: browse platform packages (2026-04-12)
+
+**Branch:** `feat/phase-c-curriculum-catalog`  
+**Design docs:** `docs/REGISTRATION_DESIGN_ANALYSIS.md` (Q12, Q13)
+
+**What ships:**
+
+| Area | Change |
+|---|---|
+| **Backend schemas** | `CatalogSubjectSummary`, `CatalogEntry`, `CatalogResponse` in `school/schemas.py` |
+| **Backend service** | `list_catalog(conn, grade?)` — queries platform curricula with subject/unit counts and content readiness via lateral join on `curriculum_units` and `content_subject_versions` |
+| **Backend router** | `GET /api/v1/curricula/catalog` with optional `?grade=N` filter; accessible to any authenticated teacher or school_admin |
+| **school-admin.ts** | `getCatalog(grade?)` function; `CatalogEntry`, `CatalogSubjectSummary`, `CatalogResponse` TypeScript interfaces |
+| **SchoolNav** | Added "Catalog" nav item (`LayoutGrid` icon) between Curriculum and Content Library |
+| **Catalog browser page** | `/school/catalog` — grade filter dropdown; package cards with expandable subject list; content readiness bar (approved subjects / total); legend |
+| **Tests** | 6 tests in `tests/test_phase_c_catalog.py` — all passing |
+
+**Design decisions:**
+- Catalog is read-only; assignment to classroom happens from the classroom detail page (Phase B)
+- Content readiness = `content_subject_versions.status IN ('approved', 'published')` per subject
+- No FK from `classroom_packages.curriculum_id` — catalog IDs are TEXT, platform packages may not be in test DB
+- `owner_type = 'platform'` is the filter for catalog; RLS on `curricula` already exposes these rows to all authenticated users
+
+**Test count:** 705 passed, 6 skipped (full suite)
+
+---
+
 ### Phase B — Classrooms: entity, CRUD, package + student assignment (2026-04-12)
 
 **Branch:** `feat/phase-b-classroom`  
