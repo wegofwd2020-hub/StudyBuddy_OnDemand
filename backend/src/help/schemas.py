@@ -6,10 +6,22 @@ Request and response schemas for POST /help/ask (Layer 2 — AI delivery).
 
 from __future__ import annotations
 
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 
 VALID_PERSONAS = {"school_admin", "teacher", "student"}
+
+# Keys we recognise in account_state. Unknown keys are silently ignored so
+# future signals can be added to the frontend before the backend is updated.
+_ACCOUNT_STATE_KEYS = frozenset({
+    "first_login",
+    "teacher_count",
+    "student_count",
+    "classroom_count",
+    "curriculum_assigned",
+})
 
 
 class HelpAskRequest(BaseModel):
@@ -24,6 +36,16 @@ class HelpAskRequest(BaseModel):
         default="school_admin",
         description="Persona for scoping retrieval. "
                     "One of: school_admin, teacher, student.",
+    )
+    account_state: dict[str, Any] | None = Field(
+        default=None,
+        description=(
+            "Optional flat key-value context signals collected by the widget "
+            "before submitting the question. Recognised keys: "
+            "first_login (bool), teacher_count (int), student_count (int), "
+            "classroom_count (int), curriculum_assigned (bool). "
+            "Unknown keys are ignored. Values must be str, int, or bool."
+        ),
     )
 
     @property

@@ -6,14 +6,28 @@
  * The endpoint is public — no JWT is required.  We use plain fetch rather than
  * the authenticated schoolApi Axios instance so the widget can render on any
  * portal page regardless of session state.
+ *
+ * Deliver-3: account_state carries context signals collected by HelpWidget
+ * (first_login, teacher_count, etc.) that the backend threads into the prompt.
  */
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+export const HELP_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+
+/** Recognised account_state signal keys (mirrors backend schema). */
+export interface AccountState {
+  first_login?: boolean;
+  teacher_count?: number;
+  student_count?: number;
+  classroom_count?: number;
+  curriculum_assigned?: boolean;
+}
 
 export interface HelpAskRequest {
   question: string;
   page?: string;
   role: "school_admin" | "teacher" | "student";
+  account_state?: AccountState;
 }
 
 export interface HelpAskResponse {
@@ -25,7 +39,7 @@ export interface HelpAskResponse {
 }
 
 export async function askHelp(body: HelpAskRequest): Promise<HelpAskResponse> {
-  const res = await fetch(`${BASE_URL}/help/ask`, {
+  const res = await fetch(`${HELP_BASE_URL}/help/ask`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),

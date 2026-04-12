@@ -11,6 +11,10 @@
  * Role is auto-detected from the `sb_teacher_token` JWT in localStorage so
  * the answer is always persona-appropriate (school_admin vs teacher).
  * Page context is captured via usePathname() for improved retrieval.
+ *
+ * Deliver-3: account_state context signals are collected before each ask —
+ * first_login from the JWT, and setup-status counts from the API (school_admin
+ * only). Collection is best-effort: a failed fetch never blocks the help call.
  */
 
 import { useState, useRef, useEffect, KeyboardEvent } from "react";
@@ -23,20 +27,74 @@ import {
   Loader2,
   AlertCircle,
 } from "lucide-react";
-import { askHelp, type HelpAskResponse } from "@/lib/api/help";
+import { askHelp, type HelpAskResponse, type AccountState, HELP_BASE_URL } from "@/lib/api/help";
 
-// ── Role detection ────────────────────────────────────────────────────────────
+// ── JWT helpers ───────────────────────────────────────────────────────────────
 
-function readRoleFromJwt(): "school_admin" | "teacher" {
-  if (typeof window === "undefined") return "school_admin";
+interface JwtPayload {
+  role?: string;
+  school_id?: string;
+  first_login?: boolean;
+}
+
+function readJwtPayload(): JwtPayload {
+  if (typeof window === "undefined") return {};
   try {
     const token = localStorage.getItem("sb_teacher_token");
-    if (!token) return "school_admin";
-    const payload = JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
-    return payload.role === "school_admin" ? "school_admin" : "teacher";
+    if (!token) return {};
+    return JSON.parse(
+      atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")),
+    ) as JwtPayload;
   } catch {
-    return "school_admin";
+    return {};
   }
+}
+
+function readRoleFromJwt(): "school_admin" | "teacher" {
+  const payload = readJwtPayload();
+  return payload.role === "school_admin" ? "school_admin" : "teacher";
+}
+
+// ── Account state collection (Deliver-3) ─────────────────────────────────────
+
+/**
+ * Collect context signals to pass as account_state in the help request.
+ *
+ * - first_login: from JWT (always available if token exists)
+ * - setup counts: from GET /schools/{id}/setup-status (school_admin only)
+ *
+ * Best-effort: any failure silently returns what has been collected so far.
+ */
+async function collectAccountState(
+  role: "school_admin" | "teacher",
+): Promise<AccountState | undefined> {
+  const payload = readJwtPayload();
+  const state: AccountState = {};
+
+  if (payload.first_login === true) {
+    state.first_login = true;
+  }
+
+  if (role === "school_admin" && payload.school_id) {
+    try {
+      const token = localStorage.getItem("sb_teacher_token");
+      const res = await fetch(
+        `${HELP_BASE_URL}/schools/${payload.school_id}/setup-status`,
+        { headers: token ? { Authorization: `Bearer ${token}` } : {} },
+      );
+      if (res.ok) {
+        const status = await res.json();
+        state.teacher_count = status.teacher_count ?? 0;
+        state.student_count = status.student_count ?? 0;
+        state.classroom_count = status.classroom_count ?? 0;
+        state.curriculum_assigned = status.curriculum_assigned ?? false;
+      }
+    } catch {
+      // best-effort — never block the help request
+    }
+  }
+
+  return Object.keys(state).length > 0 ? state : undefined;
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
@@ -163,7 +221,9 @@ export function HelpWidget() {
 
     try {
       const role = readRoleFromJwt();
-      const data = await askHelp({ question: q, page: pathname, role });
+      // Collect context signals in parallel with the loading state — best-effort.
+      const account_state = await collectAccountState(role);
+      const data = await askHelp({ question: q, page: pathname, role, account_state });
       setResponse(data);
     } catch (err) {
       setError(

@@ -1,7 +1,7 @@
 """
 backend/src/help/router.py
 
-Deliver-1 — POST /help/ask
+Deliver-1 + Deliver-3 — POST /help/ask
 
 Public endpoint (no JWT required — the portal layouts already enforce auth).
 Rate-limited to 10 requests/minute per IP via a Redis-backed Depends() dependency.
@@ -60,6 +60,7 @@ async def help_ask(
             question=body.question,
             page=body.page,
             persona=body.persona,
+            account_state=body.account_state,
         )
 
     log.info(
@@ -68,5 +69,6 @@ async def help_ask(
         page=body.page,
         steps_count=len(result["steps"]),
         sources_count=len(result["sources"]),
+        has_account_state=body.account_state is not None,
     )
     return HelpAskResponse(**result)

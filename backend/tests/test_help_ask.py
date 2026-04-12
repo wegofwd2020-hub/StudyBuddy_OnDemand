@@ -1,7 +1,7 @@
 """
 backend/tests/test_help_ask.py
 
-Tests for POST /api/v1/help/ask (Deliver-1 help RAG endpoint).
+Tests for POST /api/v1/help/ask (Deliver-1 + Deliver-3 help RAG endpoint).
 
 All external calls and retrieval functions are mocked so tests do not require
 pgvector, Voyage AI, or Anthropic API keys, and are not affected by DB
@@ -173,3 +173,98 @@ async def test_help_ask_no_chunks_returns_graceful_fallback(client: AsyncClient)
     assert data["title"] == "I don't know"
     assert "support" in data["steps"][0].lower()
     mock_haiku.assert_not_called()
+
+
+# ── Deliver-3: account_state context signals ──────────────────────────────────
+
+@pytest.mark.asyncio
+async def test_help_ask_account_state_accepted(client: AsyncClient):
+    """Passing account_state is accepted and returns 200."""
+    with _patch_retrieval():
+        r = await client.post("/api/v1/help/ask", json={
+            "question": "How do I set up my school?",
+            "role": "school_admin",
+            "account_state": {
+                "teacher_count": 0,
+                "student_count": 0,
+                "classroom_count": 0,
+                "curriculum_assigned": False,
+            },
+        })
+
+    assert r.status_code == 200, r.text
+
+
+@pytest.mark.asyncio
+async def test_help_ask_account_state_appears_in_prompt(client: AsyncClient):
+    """Recognised account_state keys are rendered into the Haiku prompt."""
+    with _patch_retrieval() as mock_haiku:
+        r = await client.post("/api/v1/help/ask", json={
+            "question": "What should I do first?",
+            "role": "school_admin",
+            "account_state": {
+                "teacher_count": 0,
+                "classroom_count": 2,
+                "curriculum_assigned": False,
+            },
+        })
+
+    assert r.status_code == 200, r.text
+    # Verify account context was threaded into the prompt.
+    prompt_sent = mock_haiku.call_args[0][0]
+    assert "Teachers provisioned" in prompt_sent
+    assert "Classrooms created" in prompt_sent
+    assert "Curriculum package assigned" in prompt_sent
+
+
+@pytest.mark.asyncio
+async def test_help_ask_first_login_signal_in_prompt(client: AsyncClient):
+    """first_login=True produces a descriptive account context line in the prompt."""
+    with _patch_retrieval() as mock_haiku:
+        r = await client.post("/api/v1/help/ask", json={
+            "question": "How do I change my password?",
+            "role": "teacher",
+            "account_state": {"first_login": True},
+        })
+
+    assert r.status_code == 200, r.text
+    prompt_sent = mock_haiku.call_args[0][0]
+    assert "First login" in prompt_sent
+    assert "temporary password" in prompt_sent
+
+
+@pytest.mark.asyncio
+async def test_help_ask_unknown_account_state_keys_ignored(client: AsyncClient):
+    """Unknown account_state keys are silently ignored — no error, no prompt injection."""
+    with _patch_retrieval() as mock_haiku:
+        r = await client.post("/api/v1/help/ask", json={
+            "question": "How do I add a teacher?",
+            "role": "school_admin",
+            "account_state": {
+                "teacher_count": 3,
+                "unknown_future_signal": "some_value",
+                "another_unknown": 99,
+            },
+        })
+
+    assert r.status_code == 200, r.text
+    prompt_sent = mock_haiku.call_args[0][0]
+    # Known key appears; unknown keys are absent from prompt.
+    assert "Teachers provisioned" in prompt_sent
+    assert "unknown_future_signal" not in prompt_sent
+    assert "another_unknown" not in prompt_sent
+
+
+@pytest.mark.asyncio
+async def test_help_ask_omitting_account_state_still_works(client: AsyncClient):
+    """Omitting account_state entirely is valid — no account context block in prompt."""
+    with _patch_retrieval() as mock_haiku:
+        r = await client.post("/api/v1/help/ask", json={
+            "question": "How do I add a teacher?",
+            "role": "school_admin",
+            # no account_state
+        })
+
+    assert r.status_code == 200, r.text
+    prompt_sent = mock_haiku.call_args[0][0]
+    assert "Account context" not in prompt_sent

@@ -1,7 +1,7 @@
 """
 backend/src/help/service.py
 
-Deliver-1 — contextual help response generation.
+Deliver-1 + Deliver-3 — contextual help response generation.
 
 Pipeline:
   1. Embed the question (Voyage AI voyage-3-lite, 512 dims)
@@ -41,13 +41,62 @@ _PERSONA_LABELS = {
     "student": "Student",
 }
 
+# Human-readable labels and formatters for recognised account_state keys.
+# Values passed from the frontend are sanitised through these formatters —
+# the raw dict is never interpolated directly into the prompt.
+_ACCOUNT_STATE_LABELS: dict[str, tuple[str, object]] = {
+    "first_login": (
+        "First login (temporary password not yet changed)",
+        lambda v: "Yes — user must change password before using the portal" if v else "No",
+    ),
+    "teacher_count": (
+        "Teachers provisioned",
+        lambda v: str(int(v)),
+    ),
+    "student_count": (
+        "Students enrolled",
+        lambda v: str(int(v)),
+    ),
+    "classroom_count": (
+        "Classrooms created",
+        lambda v: str(int(v)),
+    ),
+    "curriculum_assigned": (
+        "Curriculum package assigned to a classroom",
+        lambda v: "Yes" if v else "No — no packages assigned yet",
+    ),
+}
+
+
+def _render_account_context(account_state: dict | None) -> str:
+    """
+    Render account_state into a human-readable block for the prompt.
+
+    Only recognised keys are included. Unknown keys are silently dropped so
+    future signals can be added to the frontend incrementally.
+    Returns an empty string when no recognised signals are present.
+    """
+    if not account_state:
+        return ""
+    lines: list[str] = []
+    for key, (label, fmt) in _ACCOUNT_STATE_LABELS.items():
+        if key in account_state:
+            try:
+                lines.append(f"- {label}: {fmt(account_state[key])}")
+            except (TypeError, ValueError):
+                pass  # malformed value — skip rather than fail
+    if not lines:
+        return ""
+    return "Account context (use to personalise the answer):\n" + "\n".join(lines) + "\n"
+
+
 # Structured output template the LLM must follow
 _PROMPT_TEMPLATE = """\
 You are a help assistant for StudyBuddy OnDemand, a K-12 STEM tutoring platform.
 
 Persona: {persona_label}
 Current page: {page}
-
+{account_context}
 Answer the question below using ONLY the reference content provided.
 Format your answer EXACTLY as follows (no extra text outside these sections):
 
@@ -219,9 +268,14 @@ async def ask_help(
     question: str,
     page: str | None,
     persona: str,
+    account_state: dict | None = None,
 ) -> dict:
     """
-    Full Deliver-1 pipeline: embed → retrieve → prompt → parse.
+    Full Deliver-1 + Deliver-3 pipeline: embed → retrieve → prompt → parse.
+
+    account_state is an optional dict of context signals collected by the
+    widget (first_login, teacher_count, etc.). Only recognised keys are
+    threaded into the prompt — unknown keys are silently dropped.
 
     Returns a dict matching HelpAskResponse fields.
     """
@@ -245,22 +299,30 @@ async def ask_help(
             "sources": [],
         }
 
-    # 3. Build context
+    # 3. Build context + prompt
     context_parts = [f"## {c['heading']}\n{c['body']}" for c in chunks]
     context = "\n\n---\n\n".join(context_parts)
 
     page_label = page or "unknown"
     persona_label = _PERSONA_LABELS.get(persona, "User")
+    account_context = _render_account_context(account_state)
+
     prompt = _PROMPT_TEMPLATE.format(
         persona_label=persona_label,
         page=page_label,
+        account_context=account_context,
         question=question,
         context=context,
     )
 
     # 4. Call Haiku
     raw = await _call_haiku(prompt)
-    log.info("help_haiku_called", persona=persona, response_chars=len(raw))
+    log.info(
+        "help_haiku_called",
+        persona=persona,
+        response_chars=len(raw),
+        has_account_state=account_state is not None,
+    )
 
     # 5. Parse
     return _parse_response(raw, list(chunks))
