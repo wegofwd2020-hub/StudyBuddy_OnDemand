@@ -24,9 +24,9 @@ API key. Schools and teachers can upload custom curricula. Subscription-based.
 | 10 — Extended Analytics + Student Feedback | ✅ Complete (197 tests) |
 | 11 — Teacher Reporting Dashboard | ✅ Complete (215 tests) |
 | Phase A — Local Auth (school-provisioned users) | ✅ Complete (678 tests) |
-| Phase B — Classrooms | 🔄 In progress (migration 0038, 21 tests, web UI) |
+| Phase B — Classrooms | ✅ Complete (migration 0038, 21 tests, web UI) |
 
-**Active branch:** `feat/phase-b-classroom`
+**Active branch:** `main` (next: Phase C — Curriculum Catalog)
 
 **Recently shipped (beyond Phase 11):**
 - Content review unit viewer — Lesson / Tutorial / Quiz / Experiment renderers
