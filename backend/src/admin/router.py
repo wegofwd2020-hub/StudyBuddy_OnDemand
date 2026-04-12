@@ -44,6 +44,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile
 
 from src.admin.schemas import (
+    AcknowledgeWarningRequest,
+    AcknowledgeWarningResponse,
     AdminPipelineTriggerRequest,
     AdminPipelineTriggerResponse,
     AdminUserItem,
@@ -76,8 +78,6 @@ from src.admin.schemas import (
     StruggleResponse,
     SubscriptionAnalyticsResponse,
     UnblockResponse,
-    AcknowledgeWarningRequest,
-    AcknowledgeWarningResponse,
     UnitContentFileResponse,
     UnitContentMetaResponse,
     UploadGradeJsonResponse,
@@ -1203,3 +1203,36 @@ async def admin_help_interactions(
         "limit": limit,
         "offset": offset,
     }
+
+
+# ── POST /admin/demo/reset ────────────────────────────────────────────────────
+
+
+@router.post(
+    "/admin/demo/reset",
+    dependencies=[Depends(_require("demo:reset"))],
+)
+async def reset_demo_school(request: Request) -> dict:
+    """
+    Wipe and re-seed the Riverside Academy demo school.
+
+    Deletes all demo data (school, teachers, students, classrooms, curricula)
+    then re-inserts from the fixed fixture set.  Takes ~2–5 seconds due to
+    bcrypt hashing.
+
+    Requires: product_admin or super_admin role.
+    """
+    from src.admin.demo_seed import reset_demo
+
+    async with get_db(request) as conn:
+        # get_db() sets app.current_school_id='bypass' for admin tokens,
+        # which satisfies the RLS policies on classrooms/students/teachers.
+        summary = await reset_demo(conn)
+
+    log.info(
+        "demo_school_reset",
+        teachers=summary["teachers_seeded"],
+        students=summary["students_seeded"],
+        classrooms=summary["classrooms_seeded"],
+    )
+    return summary

@@ -47,13 +47,13 @@ with confidence. It also blocks a production pilot with a real school.
 
 ## Rough scope
 
-| Phase | What gets built |
-|---|---|
-| G-1 | Cloud deployment: Dockerfile hardening, K8s manifests (or Fly.io/Railway for simpler start), managed Postgres + Redis |
-| G-2 | CI/CD: GitHub Actions — lint → test → build → deploy on merge to main |
-| G-3 | Demo seed script: one school, 3 teachers, 30 students, 4 classrooms, pre-built curriculum, realistic progress data |
-| G-4 | Observability: Grafana dashboards for API latency, error rate, pipeline job status, help widget usage |
-| G-5 | Demo reset endpoint: admin-only `POST /admin/demo/reset` that wipes and re-seeds demo data |
+| Phase | What gets built | Status |
+|---|---|---|
+| G-1 | Cloud deployment: Dockerfile hardening, K8s manifests (or Fly.io/Railway for simpler start), managed Postgres + Redis | ⏸ Blocked — hosting decision pending |
+| G-2 | CI/CD: GitHub Actions — lint → test → build → deploy on merge to main | ✅ Done — `test.yml` (lint+test+Snyk+SBOM+API contract) + `e2e.yml` |
+| G-3 | Demo seed script: one school, 3 teachers, 30 students, 4 classrooms, pre-built curriculum | ✅ Done — `scripts/seed_demo.py`; `src/admin/demo_seed.py` (shared); Riverside Academy, grades 8–10, 58 curriculum units |
+| G-4 | Observability: Grafana dashboards for API latency, error rate, pipeline job status, help widget usage | ⏸ Blocked — needs staging (G-1 first) |
+| G-5 | Demo reset endpoint: admin-only `POST /admin/demo/reset` that wipes and re-seeds demo data | ✅ Done — `product_admin`+ only; returns summary JSON |
 
 ---
 
