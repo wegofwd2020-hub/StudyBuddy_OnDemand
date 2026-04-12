@@ -8,7 +8,7 @@ API key. Schools and teachers can upload custom curricula. Subscription-based.
 
 ## Project Status
 
-**Phases 1–11 complete. Phase A (local auth) shipped. Phase B (Classrooms) and Phase C (Catalog) complete.**
+**Phases 1–11 complete. Phase A (local auth) shipped. Phases B–E complete.**
 
 | Phase | Status |
 |---|---|
@@ -27,8 +27,9 @@ API key. Schools and teachers can upload custom curricula. Subscription-based.
 | Phase B — Classrooms | ✅ Complete (migration 0038, 21 tests, web UI) |
 | Phase C — Curriculum Catalog | ✅ Complete (6 tests, catalog browser UI) |
 | Phase D — Curriculum Builder | ✅ Complete (migration 0039, 19 tests, definition form + approval queue UI) |
+| Phase E — Pipeline Billing | ✅ Complete (10 tests, cost estimate + Stripe-gated trigger) |
 
-**Active branch:** `main` (next: Phase E — Pipeline Billing)
+**Active branch:** `main` (next: Help system)
 
 **Recently shipped (beyond Phase 11):**
 - Content review unit viewer — Lesson / Tutorial / Quiz / Experiment renderers
@@ -42,11 +43,11 @@ API key. Schools and teachers can upload custom curricula. Subscription-based.
 - **Phase B Classrooms**: `classrooms`, `classroom_packages`, `classroom_students` tables (migration 0038); classroom CRUD + package/student assignment endpoints; Classrooms nav + list/detail pages in school portal; 21 tests
 - **Phase C Curriculum Catalog**: `GET /curricula/catalog` endpoint with optional `?grade=N` filter; lists platform packages with per-subject content readiness; catalog browser page at `/school/catalog` with expandable subject list and readiness bar; 6 tests
 - **Phase D Curriculum Builder**: `curriculum_definitions` table (migration 0039, RLS); submit/list/get/approve/reject endpoints; 4-step definition form at `/school/curriculum/definitions/new`; approval queue at `/school/curriculum/definitions`; detail+review page; 19 tests
+- **Phase E Pipeline Billing**: cost estimate endpoint (`/definitions/{id}/estimate`) — unit runs, token forecast, `within_allowance`, `card_last4`; trigger endpoint (`/definitions/{id}/trigger`) — confirm gate, concurrency guard, Stripe PaymentIntent on allowance exhaustion, Celery dispatch; `source_type='school'`; 10 tests; `run_stripe` module-level import for patchability
 
 **Open tasks:**
-- Phase E (Pipeline Billing) — see `docs/REGISTRATION_DESIGN_ANALYSIS.md`
 - Multi-provider LLM pipeline — see `docs/DESIGN_EXPLORATION_MULTI_PROVIDER_LLM.md` (design exploration, not scheduled)
-- Help system — see `docs/DESIGN_HELP_SYSTEM.md` (design exploration, begin after Phase E)
+- Help system — see `docs/DESIGN_HELP_SYSTEM.md` (design exploration)
 
 Predecessor project (UI + prompt reference):
 `https://github.com/wegofwd2020-hub/studybuddy_free`

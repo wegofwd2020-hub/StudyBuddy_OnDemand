@@ -4,6 +4,33 @@
 
 ---
 
+### Phase E — Pipeline Billing: cost estimate + Stripe-gated trigger (2026-04-12)
+
+**Branch:** `fix/test-isolation-and-prod-bugs`  
+**Design docs:** `docs/REGISTRATION_DESIGN_ANALYSIS.md` (Q5, Q6 — build quotas, billing)
+
+**What ships:**
+
+| Area | Change |
+|---|---|
+| **`pipeline_router.py` imports** | Moved `run_stripe`, `AI_COST`, `EXTRA_BUILD_PRICE_USD`, `check_build_allowance`, `consume_build`, Phase E schemas to module-level imports (top of file) so tests can patch `src.school.pipeline_router.run_stripe` |
+| **`/definitions/{id}/estimate`** | Returns `PipelineEstimateResponse`: `total_units`, `languages`, `unit_runs` (units × languages), `estimated_input_tokens`, `estimated_output_tokens`, `estimated_cost_usd`, `within_allowance`, `builds_remaining`, `builds_credits_balance`, `extra_build_charge_usd`, `card_last4`; 409 if not approved |
+| **`/definitions/{id}/trigger`** | `confirm=True` gate; 409 if not approved; concurrency guard (one queued/running job per school+grade); `within_allowance=False` → Stripe PaymentIntent off-session; `within_allowance=True` → `consume_build`; creates `curricula` row with `source_type='school'`; creates `curriculum_units` from definition subjects; dispatches Celery; 202 response with `job_id`, `curriculum_id`, `estimated_cost_usd`, `charged_amount_usd` |
+| **Bug fix** | `source_type='definition'` → `source_type='school'` (violates `curricula_source_type_check` constraint) |
+| **Tests** | 10 tests in `test_phase_e_pipeline_billing.py` — all passing |
+| **Test fixes** | Pool-based subscription seeding (`client._transport.app.state.pool`) for cross-connection visibility; error assertion uses `r.json()["error"]` not `r.json()["detail"]["error"]` (custom exception handler flattens the dict) |
+
+**Design decisions:**
+- `source_type='school'` is the correct value for school-owned curricula created from a definition — `'definition'` is not a valid CHECK constraint value
+- `run_stripe` must be importable at module level in `pipeline_router.py` for `patch("src.school.pipeline_router.run_stripe")` to work in tests
+- Subscription row seeded in tests via `pool.acquire()` (committed immediately) not `db_conn` (in rolled-back transaction, invisible to pool connections)
+- Stripe charge is flat `EXTRA_BUILD_PRICE_USD = "15.00"` off-session against the school's stored payment method
+- `charged_amount_usd = None` when build is within allowance; `"15.00"` when Stripe charge succeeds
+
+**Test count:** 734 passed, 6 skipped (full suite)
+
+---
+
 ### Phase D — Curriculum Builder: definition form + approval queue (2026-04-12)
 
 **Branch:** `feat/phase-d-curriculum-builder`  

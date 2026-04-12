@@ -416,3 +416,39 @@ class RejectDefinitionRequest(BaseModel):
     """POST /schools/{school_id}/curriculum/definitions/{id}/reject"""
 
     reason: str
+
+
+# ── Phase E — Pipeline Billing schemas ───────────────────────────────────────
+
+
+class PipelineEstimateResponse(BaseModel):
+    """Response from POST /definitions/{id}/estimate."""
+
+    definition_id: str
+    total_units: int
+    languages: list[str]
+    unit_runs: int                    # total_units × len(languages)
+    estimated_input_tokens: int
+    estimated_output_tokens: int
+    estimated_cost_usd: str           # decimal string, e.g. "12.34"
+    within_allowance: bool            # True if build is covered by plan allowance or credits
+    builds_remaining: int             # -1 = unlimited
+    builds_credits_balance: int
+    extra_build_charge_usd: str | None  # non-null when within_allowance is False
+    card_last4: str | None            # last 4 digits of card on file (from Stripe)
+
+
+class PipelineTriggerFromDefinitionRequest(BaseModel):
+    """POST /schools/{school_id}/curriculum/definitions/{id}/trigger"""
+
+    confirm: bool  # must be True — prevents accidental triggers
+    langs: str = "en"  # comma-separated, e.g. "en,fr"
+    force: bool = False
+
+
+class PipelineTriggerFromDefinitionResponse(BaseModel):
+    job_id: str
+    curriculum_id: str
+    status: str
+    estimated_cost_usd: str
+    charged_amount_usd: str | None  # non-null if a Stripe charge was made

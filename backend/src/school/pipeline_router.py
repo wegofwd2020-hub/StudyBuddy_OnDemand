@@ -4,10 +4,12 @@ backend/src/school/pipeline_router.py
 School-scoped pipeline endpoints.
 
 Routes (all prefixed /api/v1 in main.py):
-  POST /schools/{school_id}/curriculum/upload   — validate + store grade JSON, seed curriculum
-  POST /schools/{school_id}/pipeline/trigger    — trigger Celery build (quota + concurrency gated)
-  GET  /schools/{school_id}/pipeline            — list pipeline jobs for this school
-  GET  /schools/{school_id}/pipeline/{job_id}   — job detail (403 if wrong school)
+  POST /schools/{school_id}/curriculum/upload                               — validate + store grade JSON, seed curriculum
+  POST /schools/{school_id}/pipeline/trigger                                — trigger Celery build (quota + concurrency gated)
+  GET  /schools/{school_id}/pipeline                                        — list pipeline jobs for this school
+  GET  /schools/{school_id}/pipeline/{job_id}                               — job detail (403 if wrong school)
+  POST /schools/{school_id}/curriculum/definitions/{definition_id}/estimate — cost estimate for an approved definition (Phase E)
+  POST /schools/{school_id}/curriculum/definitions/{definition_id}/trigger  — trigger pipeline from definition (Phase E)
 
 Auth:
   All endpoints require a teacher or school_admin JWT.
@@ -33,10 +35,20 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile
 from pydantic import BaseModel
 
+from decimal import Decimal
+
 from config import settings
 from src.auth.dependencies import get_current_teacher
 from src.core.db import get_db
 from src.core.redis_client import get_redis
+from src.core.stripe_async import run_stripe
+from src.pricing import AI_COST, EXTRA_BUILD_PRICE_USD
+from src.school.schemas import (
+    PipelineEstimateResponse,
+    PipelineTriggerFromDefinitionRequest,
+    PipelineTriggerFromDefinitionResponse,
+)
+from src.school.subscription_service import check_build_allowance, consume_build
 from src.utils.logger import get_logger
 
 log = get_logger("school.pipeline")
@@ -574,3 +586,384 @@ async def get_school_pipeline_job(
         )
 
     return dict(row)
+
+
+# ── Phase E — Definition-driven pipeline (estimate + trigger) ─────────────────
+
+
+def _get_stripe():
+    try:
+        import stripe  # type: ignore
+        return stripe
+    except ImportError:
+        raise RuntimeError("stripe package not installed")
+
+
+def _stripe_key() -> str:
+    return settings.STRIPE_SECRET_KEY
+
+
+async def _get_definition_or_404(conn, definition_id: str, school_id: str, request: Request) -> dict:
+    """Fetch an approved curriculum definition or raise HTTP 404/409."""
+    import json as _json
+    row = await conn.fetchrow(
+        """
+        SELECT definition_id::text, school_id::text, name, grade, languages, subjects, status
+        FROM curriculum_definitions
+        WHERE definition_id = $1 AND school_id = $2
+        """,
+        uuid.UUID(definition_id),
+        uuid.UUID(school_id),
+    )
+    if not row:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "error": "not_found",
+                "detail": "Curriculum definition not found.",
+                "correlation_id": _cid(request),
+            },
+        )
+    d = dict(row)
+    if isinstance(d.get("subjects"), str):
+        d["subjects"] = _json.loads(d["subjects"])
+    return d
+
+
+async def _get_card_last4(stripe_customer_id: str) -> str | None:
+    """
+    Retrieve the last 4 digits of the default card on the Stripe customer.
+
+    Returns None if no payment method is found or Stripe is unavailable.
+    Does not raise — card info is informational only.
+    """
+    try:
+        stripe = _get_stripe()
+        stripe.api_key = _stripe_key()
+        customer = await run_stripe(
+            stripe.Customer.retrieve,
+            stripe_customer_id,
+            expand=["invoice_settings.default_payment_method"],
+        )
+        pm = (customer.get("invoice_settings") or {}).get("default_payment_method")
+        if isinstance(pm, dict):
+            return pm.get("card", {}).get("last4")
+        # pm is a string (unexpanded) — retrieve separately
+        if isinstance(pm, str):
+            pm_obj = await run_stripe(stripe.PaymentMethod.retrieve, pm)
+            return (pm_obj.get("card") or {}).get("last4")
+        return None
+    except Exception:
+        return None
+
+
+# ── POST /schools/{school_id}/curriculum/definitions/{definition_id}/estimate ──
+
+
+@router.post(
+    "/schools/{school_id}/curriculum/definitions/{definition_id}/estimate",
+    response_model=PipelineEstimateResponse,
+)
+async def estimate_definition_pipeline(
+    school_id: str,
+    definition_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> PipelineEstimateResponse:
+    """
+    Return a cost estimate for generating content from an approved Curriculum Definition.
+
+    The estimate uses the AI_COST pricing constants from src/pricing.py — the same
+    model used by the pipeline spend-cap.  No charge is made at this step.
+
+    - within_allowance = True  → build is covered by plan quota or rollover credits
+    - within_allowance = False → extra_build_charge_usd is set; school will be charged on trigger
+    """
+    _assert_school_match(teacher, school_id, request)
+
+    async with get_db(request) as conn:
+        defn = await _get_definition_or_404(conn, definition_id, school_id, request)
+        if defn["status"] != "approved":
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "error": "not_approved",
+                    "detail": "Definition must be approved before estimating pipeline cost.",
+                    "status": defn["status"],
+                    "correlation_id": _cid(request),
+                },
+            )
+
+        allowance = await check_build_allowance(conn, school_id)
+
+        # Stripe card lookup
+        sub_row = await conn.fetchrow(
+            "SELECT stripe_customer_id FROM school_subscriptions WHERE school_id = $1::uuid",
+            school_id,
+        )
+    stripe_customer_id = sub_row["stripe_customer_id"] if sub_row else None
+    card_last4 = await _get_card_last4(stripe_customer_id) if stripe_customer_id else None
+
+    # Cost calculation
+    subjects = defn["subjects"] or []
+    total_units = sum(len(s.get("units", [])) for s in subjects)
+    languages = defn["languages"] or ["en"]
+    unit_runs = total_units * len(languages)
+
+    est_input  = unit_runs * AI_COST.avg_input_tokens_per_unit
+    est_output = unit_runs * AI_COST.avg_output_tokens_per_unit
+    est_cost   = (AI_COST.cost_per_unit_usd * unit_runs).quantize(Decimal("0.01"))
+
+    within = allowance["allowed"]
+    extra_charge = None if within else EXTRA_BUILD_PRICE_USD
+
+    return PipelineEstimateResponse(
+        definition_id=definition_id,
+        total_units=total_units,
+        languages=languages,
+        unit_runs=unit_runs,
+        estimated_input_tokens=est_input,
+        estimated_output_tokens=est_output,
+        estimated_cost_usd=str(est_cost),
+        within_allowance=within,
+        builds_remaining=allowance["builds_remaining"],
+        builds_credits_balance=allowance["builds_credits_balance"],
+        extra_build_charge_usd=extra_charge,
+        card_last4=card_last4,
+    )
+
+
+# ── POST /schools/{school_id}/curriculum/definitions/{definition_id}/trigger ───
+
+
+@router.post(
+    "/schools/{school_id}/curriculum/definitions/{definition_id}/trigger",
+    response_model=PipelineTriggerFromDefinitionResponse,
+    status_code=202,
+)
+async def trigger_pipeline_from_definition(
+    school_id: str,
+    definition_id: str,
+    body: PipelineTriggerFromDefinitionRequest,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> PipelineTriggerFromDefinitionResponse:
+    """
+    Trigger the content pipeline for an approved Curriculum Definition.
+
+    Gates (in order):
+    1. Definition must exist, belong to this school, and have status='approved'
+    2. body.confirm must be True (prevents accidental triggers)
+    3. No running/queued job for the same school + grade
+    4. Build allowance checked; if exhausted, Stripe PaymentIntent created and captured
+
+    On success:
+    - Creates a curricula row (owner_type='school') from the definition
+    - Creates curriculum_units rows from the definition subjects
+    - Dispatches Celery pipeline job
+    - Deducts one build from allowance or credits; or charges Stripe
+    """
+    from src.core.celery_app import celery_app as _celery
+
+    _assert_school_match(teacher, school_id, request)
+
+    if not body.confirm:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": "confirmation_required",
+                "detail": "Set confirm=true to trigger the pipeline.",
+                "correlation_id": _cid(request),
+            },
+        )
+
+    teacher_id = teacher.get("teacher_id", "")
+
+    async with get_db(request) as conn:
+        defn = await _get_definition_or_404(conn, definition_id, school_id, request)
+
+        if defn["status"] != "approved":
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "error": "not_approved",
+                    "detail": "Definition must be approved before triggering the pipeline.",
+                    "status": defn["status"],
+                    "correlation_id": _cid(request),
+                },
+            )
+
+        grade = defn["grade"]
+
+        # Concurrency check — one job per (school, grade) at a time
+        conflict = await conn.fetchrow(
+            """
+            SELECT job_id, status FROM pipeline_jobs
+            WHERE school_id = $1::uuid AND grade = $2
+              AND status IN ('queued', 'running')
+            LIMIT 1
+            """,
+            school_id, grade,
+        )
+        if conflict:
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "error": "pipeline_already_running",
+                    "job_id": conflict["job_id"],
+                    "status": conflict["status"],
+                    "correlation_id": _cid(request),
+                },
+            )
+
+        allowance = await check_build_allowance(conn, school_id)
+
+        # Stripe charge if allowance exhausted
+        charged_amount: str | None = None
+        if not allowance["allowed"]:
+            sub_row = await conn.fetchrow(
+                "SELECT stripe_customer_id FROM school_subscriptions WHERE school_id = $1::uuid",
+                school_id,
+            )
+            if not sub_row or not sub_row["stripe_customer_id"]:
+                raise HTTPException(
+                    status_code=402,
+                    detail={
+                        "error": "payment_required",
+                        "detail": (
+                            "Build allowance exhausted and no payment method on file. "
+                            "Purchase build credits or upgrade your plan."
+                        ),
+                        "correlation_id": _cid(request),
+                    },
+                )
+            stripe = _get_stripe()
+            stripe.api_key = _stripe_key()
+            charge_cents = int(Decimal(EXTRA_BUILD_PRICE_USD) * 100)
+            try:
+                pi = await run_stripe(
+                    stripe.PaymentIntent.create,
+                    amount=charge_cents,
+                    currency="usd",
+                    customer=sub_row["stripe_customer_id"],
+                    confirm=True,
+                    off_session=True,
+                    description=f"StudyBuddy extra pipeline build — definition {definition_id}",
+                    metadata={
+                        "school_id": school_id,
+                        "definition_id": definition_id,
+                        "grade": str(grade),
+                    },
+                )
+            except Exception as stripe_err:
+                raise HTTPException(
+                    status_code=402,
+                    detail={
+                        "error": "payment_failed",
+                        "detail": str(stripe_err),
+                        "correlation_id": _cid(request),
+                    },
+                )
+            charged_amount = EXTRA_BUILD_PRICE_USD
+            log.info(
+                "definition_pipeline_charged school_id=%s definition_id=%s amount=%s",
+                school_id, definition_id, charged_amount,
+            )
+
+        # Build curricula + units from the definition
+        import json as _json
+        year = datetime.now(UTC).year
+        curriculum_id = f"{school_id}-def-{definition_id[:8]}-g{grade}"
+        curriculum_name = defn["name"]
+        subjects = defn["subjects"] or []
+
+        await conn.execute(
+            """
+            INSERT INTO curricula
+                (curriculum_id, grade, year, name, is_default, source_type,
+                 school_id, status, owner_type, owner_id, expires_at)
+            VALUES ($1, $2, $3, $4, FALSE, 'school', $5::uuid, 'draft',
+                    'school', $5::uuid, NOW() + INTERVAL '1 year')
+            ON CONFLICT (curriculum_id) DO NOTHING
+            """,
+            curriculum_id, grade, year, curriculum_name, school_id,
+        )
+
+        sort_order = 0
+        for subj in subjects:
+            subj_label = subj.get("subject_label", "")
+            for unit in subj.get("units", []):
+                unit_id = f"{curriculum_id}-{subj_label[:6]}-u{sort_order:03d}"
+                await conn.execute(
+                    """
+                    INSERT INTO curriculum_units
+                        (unit_id, curriculum_id, subject, title, unit_name,
+                         description, has_lab, sort_order)
+                    VALUES ($1, $2, $3, $4, $5, '', FALSE, $6)
+                    ON CONFLICT (unit_id, curriculum_id) DO NOTHING
+                    """,
+                    unit_id, curriculum_id, subj_label,
+                    unit.get("title", ""), unit.get("title", ""),
+                    sort_order,
+                )
+                sort_order += 1
+
+        # Consume build allowance
+        await consume_build(conn, school_id)
+
+        # Create pipeline job record
+        job_id = str(uuid.uuid4())
+        langs_str = body.langs or ",".join(defn.get("languages", ["en"]))
+        await conn.execute(
+            """
+            INSERT INTO pipeline_jobs
+                (job_id, curriculum_id, grade, langs, force, status,
+                 school_id, triggered_by_teacher_id)
+            VALUES ($1, $2, $3, $4, $5, 'queued', $6::uuid, $7::uuid)
+            """,
+            job_id, curriculum_id, grade, langs_str, body.force,
+            school_id,
+            teacher_id if teacher_id else None,
+        )
+
+    # Seed Redis job state
+    redis = get_redis(request)
+    await redis.setex(
+        f"pipeline:job:{job_id}",
+        86400 * 7,
+        json.dumps({
+            "job_id": job_id,
+            "curriculum_id": curriculum_id,
+            "status": "queued",
+            "built": 0,
+            "failed": 0,
+            "total": 0,
+            "progress_pct": 0.0,
+            "langs": langs_str,
+        }),
+    )
+
+    # Dispatch to pipeline queue
+    _celery.send_task(
+        "src.auth.tasks.run_curriculum_pipeline_task",
+        args=[job_id, curriculum_id, langs_str, body.force, teacher_id],
+        queue="pipeline",
+    )
+
+    # Cost estimate for the response
+    total_units = sort_order
+    unit_runs = total_units * len(defn.get("languages", ["en"]))
+    est_cost = (AI_COST.cost_per_unit_usd * unit_runs).quantize(Decimal("0.01"))
+
+    log.info(
+        "definition_pipeline_triggered school_id=%s definition_id=%s "
+        "job_id=%s curriculum_id=%s grade=%d",
+        school_id, definition_id, job_id, curriculum_id, grade,
+    )
+    return PipelineTriggerFromDefinitionResponse(
+        job_id=job_id,
+        curriculum_id=curriculum_id,
+        status="queued",
+        estimated_cost_usd=str(est_cost),
+        charged_amount_usd=charged_amount,
+    )
