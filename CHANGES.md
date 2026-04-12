@@ -4,6 +4,29 @@
 
 ---
 
+### Phase A — Local Auth polish: layout gate, logout, registration, token refresh (2026-04-12)
+
+**Branch:** `fix/test-isolation-and-prod-bugs`  
+**GitHub issues:** #146 (logout), #147 (registration form), #148 (refresh token)  
+**Commits:** `0c9546b`, `0d7e487`
+
+| File | Change |
+|---|---|
+| `web/app/(school)/layout.tsx` | Reads `sb_local_teacher_session` cookie; renders `LocalAuthGuard` for local-auth users instead of Auth0 redirect |
+| `web/components/school/LocalAuthGuard.tsx` | New "use client" gate: decodes `sb_teacher_token`, checks expiry + `first_login`, renders null during check to prevent flash, then renders full portal layout |
+| `backend/src/auth/schemas.py` | Added `ChangePasswordResponse` |
+| `backend/src/auth/router.py` | `PATCH /auth/change-password` now returns a fresh JWT with `first_login=False` — no second login needed after password reset |
+| `web/lib/api/auth.ts` | Updated `changePassword` return type; added `registerSchool()` + `RegisterSchoolRequest/Response` interfaces |
+| `web/app/(public)/school/change-password/page.tsx` | Stores new token + refresh_token from `PATCH /auth/change-password` response |
+| `web/app/(public)/school/login/page.tsx` | Sets `sb_local_teacher_session` cookie + stores refresh_token; "Register your school" link added |
+| `web/app/(public)/school/register/page.tsx` | New public self-registration page (school name, country, email, password); calls `registerSchool()`; stores token + session cookie on success |
+| `web/app/api/auth/logout/route.ts` | Clears all three session cookies; detects local-auth and redirects to `/school/login` instead of `/` |
+| `web/components/layout/SchoolNav.tsx` | `handleLogout` also removes `sb_teacher_refresh_token` |
+| `web/lib/api/school-client.ts` | Added 401 refresh interceptor: one silent `POST /auth/refresh`; concurrent calls coalesced; clears tokens + cookie and redirects on failure |
+| `web/lib/dev-session.ts` | Added `getLocalTeacherSession()` reading `sb_local_teacher_session` cookie |
+
+---
+
 ### Phase A — Local Auth for School-Provisioned Users (2026-04-12)
 
 **Branch:** `fix/test-isolation-and-prod-bugs`  
