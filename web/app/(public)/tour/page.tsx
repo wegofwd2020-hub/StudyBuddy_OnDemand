@@ -26,7 +26,7 @@ const ROLES = [
       "Create classrooms, assign content packages, monitor student progress, flag at-risk learners, and download class reports.",
     cta: "Explore teacher capabilities",
     href: "/tour/teacher",
-    available: false,
+    available: true,
     accent: "blue",
   },
   {
@@ -36,7 +36,7 @@ const ROLES = [
       "Access your personalised lessons, quizzes, and tutorials. Work through units at your own pace — even offline.",
     cta: "Explore student experience",
     href: "/tour/student",
-    available: false,
+    available: true,
     accent: "green",
   },
 ] as const;
