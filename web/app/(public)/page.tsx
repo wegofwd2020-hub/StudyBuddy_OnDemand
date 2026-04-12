@@ -1,10 +1,11 @@
 import Image from "next/image";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Card, CardContent } from "@/components/ui/card";
 import { LinkButton } from "@/components/ui/link-button";
 import { DemoRequestModal } from "@/components/demo/DemoRequestModal";
 import { DemoTeacherRequestModal } from "@/components/demo/DemoTeacherRequestModal";
-import { Zap, Volume2, Globe, WifiOff, ClipboardList, School } from "lucide-react";
+import { Zap, Volume2, Globe, WifiOff, ClipboardList, School, ArrowRight } from "lucide-react";
 
 export default function LandingPage() {
   return (
@@ -21,6 +22,7 @@ export default function LandingPage() {
       </div>
       <HeroSection />
       <FeaturesSection />
+      <TourGatewaySection />
       <SocialProofSection />
       <CtaSection />
     </>
@@ -77,6 +79,15 @@ function HeroSection() {
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <DemoRequestModal />
           <DemoTeacherRequestModal />
+        </div>
+        <div className="mt-4">
+          <Link
+            href="/tour"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:underline"
+          >
+            Explore the platform first
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
       </div>
     </section>
@@ -137,6 +148,32 @@ const TESTIMONIALS = [
     author: "Priya, Grade 10 Student",
   },
 ];
+
+function TourGatewaySection() {
+  return (
+    <section className="border-y bg-violet-50 px-4 py-16">
+      <div className="mx-auto max-w-3xl text-center">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-violet-500">
+          No account needed
+        </p>
+        <h2 className="mb-3 text-2xl font-bold text-gray-900 sm:text-3xl">
+          See exactly what you can do
+        </h2>
+        <p className="mb-8 text-base text-gray-500">
+          Walk through the platform from the perspective of a School Admin, Teacher, or Student —
+          before you register.
+        </p>
+        <Link
+          href="/tour"
+          className="inline-flex items-center gap-2 rounded-lg bg-violet-600 px-6 py-3 text-sm font-bold text-white shadow-sm hover:bg-violet-700"
+        >
+          Explore the platform
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+      </div>
+    </section>
+  );
+}
 
 function SocialProofSection() {
   const t = useTranslations("landing");

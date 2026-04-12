@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 480" font-family="Inter, system-ui, sans-serif" font-size="13">
+  <title>Student Enrolment Flow</title>
+  <desc>Provisioning to teacher assignment to classroom to content access</desc>
+
+  <defs>
+    <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <!-- Step 1: Admin provisions student -->
+  <rect x="170" y="20" width="220" height="50" rx="6" fill="#7c3aed" opacity="0.1" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="280" y="40" text-anchor="middle" fill="#1a202c" font-weight="600">Admin provisions student</text>
+  <text x="280" y="57" text-anchor="middle" fill="#64748b" font-size="11">Name · Email · Grade (1–12)</text>
+
+  <line x1="280" y1="70" x2="280" y2="100" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- System: create account -->
+  <rect x="170" y="100" width="220" height="50" rx="6" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="280" y="120" text-anchor="middle" fill="#1a202c" font-weight="600">System creates student account</text>
+  <text x="280" y="137" text-anchor="middle" fill="#64748b" font-size="11">Temp password emailed · status: pending</text>
+
+  <line x1="280" y1="150" x2="280" y2="180" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Step 2: Assign teacher -->
+  <rect x="170" y="180" width="220" height="50" rx="6" fill="#7c3aed" opacity="0.1" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="280" y="200" text-anchor="middle" fill="#1a202c" font-weight="600">Admin assigns teacher + grade</text>
+  <text x="280" y="217" text-anchor="middle" fill="#64748b" font-size="11">Teacher sees student in their reports</text>
+
+  <line x1="280" y1="230" x2="280" y2="260" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Step 3: Enrol in classroom -->
+  <rect x="170" y="260" width="220" height="50" rx="6" fill="#7c3aed" opacity="0.1" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="280" y="280" text-anchor="middle" fill="#1a202c" font-weight="600">Admin enrols student in classroom</text>
+  <text x="280" y="297" text-anchor="middle" fill="#64748b" font-size="11">Classroom must have ≥1 package assigned</text>
+
+  <line x1="280" y1="310" x2="280" y2="340" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Step 4: Student first login -->
+  <rect x="170" y="340" width="220" height="50" rx="6" fill="#059669" opacity="0.1" stroke="#059669" stroke-width="1.5"/>
+  <text x="280" y="360" text-anchor="middle" fill="#1a202c" font-weight="600">Student logs in + sets password</text>
+  <text x="280" y="377" text-anchor="middle" fill="#64748b" font-size="11">status: active · first_login cleared</text>
+
+  <line x1="280" y1="390" x2="280" y2="420" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- Final: Content access -->
+  <rect x="170" y="420" width="220" height="46" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+  <text x="280" y="440" text-anchor="middle" fill="#166534" font-weight="700">Student accesses content</text>
+  <text x="280" y="457" text-anchor="middle" fill="#166534" font-size="11">Lessons · Quizzes · Audio</text>
+</svg>
