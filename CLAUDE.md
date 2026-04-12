@@ -8,7 +8,7 @@ API key. Schools and teachers can upload custom curricula. Subscription-based.
 
 ## Project Status
 
-**Phases 1–11 complete. Phase A (local auth) shipped. Phases B–E complete.**
+**Phases 1–11 complete. Phase A (local auth) shipped. Phases B–E complete. Epic 1 complete.**
 
 | Phase | Status |
 |---|---|
@@ -28,6 +28,7 @@ API key. Schools and teachers can upload custom curricula. Subscription-based.
 | Phase C — Curriculum Catalog | ✅ Complete (6 tests, catalog browser UI) |
 | Phase D — Curriculum Builder | ✅ Complete (migration 0039, 19 tests, definition form + approval queue UI) |
 | Phase E — Pipeline Billing | ✅ Complete (10 tests, cost estimate + Stripe-gated trigger) |
+| Epic 1 — Multi-Provider LLM Pipeline | ✅ Complete (migration 0043, 19 tests, F-1–F-5) |
 
 **Active branch:** `main` (next: see `docs/epics/` — product backlog)
 
@@ -44,10 +45,10 @@ API key. Schools and teachers can upload custom curricula. Subscription-based.
 - **Phase C Curriculum Catalog**: `GET /curricula/catalog` endpoint with optional `?grade=N` filter; lists platform packages with per-subject content readiness; catalog browser page at `/school/catalog` with expandable subject list and readiness bar; 6 tests
 - **Phase D Curriculum Builder**: `curriculum_definitions` table (migration 0039, RLS); submit/list/get/approve/reject endpoints; 4-step definition form at `/school/curriculum/definitions/new`; approval queue at `/school/curriculum/definitions`; detail+review page; 19 tests
 - **Phase E Pipeline Billing**: cost estimate endpoint (`/definitions/{id}/estimate`) — unit runs, token forecast, `within_allowance`, `card_last4`; trigger endpoint (`/definitions/{id}/trigger`) — confirm gate, concurrency guard, Stripe PaymentIntent on allowance exhaustion, Celery dispatch; `source_type='school'`; 10 tests; `run_stripe` module-level import for patchability
+- **Epic 1 Multi-Provider LLM**: `pipeline/providers/` package — `LLMProvider` ABC + `AnthropicProvider`, `OpenAIProvider`, `GeminiProvider`; `get_provider()` registry; `provider` column on `content_subject_versions` + `pipeline_jobs` (migration 0043); `--provider` CLI flag; comparison builds via `run_grade(providers=[...])` sequential loop; `ProviderBadge` UI chip on review queue; `school_llm_config` table with RLS; `GET/PUT /schools/{id}/llm-config`; DPA acknowledgements as append-only JSONB; 19 tests
 
 **Open tasks:**
-- See `docs/epics/` for the full product backlog (6 epics, each with open questions and space for decisions)
-- Multi-provider LLM pipeline — Epic 1 (`docs/epics/EPIC_01_multi_provider_llm.md`)
+- See `docs/epics/` for the full product backlog (7 epics, each with open questions and space for decisions)
 - Production launch & demo readiness — Epic 2 (`docs/epics/EPIC_02_production_launch.md`)
 - Student mobile app — Epic 3 (`docs/epics/EPIC_03_student_mobile.md`)
 - Parent portal — Epic 4 (`docs/epics/EPIC_04_parent_portal.md`)

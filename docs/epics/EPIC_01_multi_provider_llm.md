@@ -1,6 +1,6 @@
 # Epic 1 — Multi-Provider LLM Pipeline
 
-**Status:** 💭 Your call
+**Status:** ✅ Complete (F-1 through F-5, 19 tests, migration 0043)
 **Full design exploration:** `docs/DESIGN_EXPLORATION_MULTI_PROVIDER_LLM.md`
 
 ---
@@ -15,8 +15,22 @@ in parallel to compare outputs side-by-side before approving a version.
 
 ## Current state
 
-The pipeline today is Claude-only. The call is centralised in `_call_claude()` in
-`pipeline/prompts.py`. The rest of the architecture is already provider-agnostic:
+**Shipped in commit `132308c`.** All five features are live:
+
+| Feature | Deliverable |
+|---|---|
+| F-1 | `pipeline/providers/` — `LLMProvider` ABC + `AnthropicProvider`, `OpenAIProvider`, `GeminiProvider`; `get_provider()` registry |
+| F-2 | Migration 0043 — `provider` column on `content_subject_versions` + `pipeline_jobs`; `--provider` CLI flag on `build_unit.py` / `build_grade.py`; idempotency keyed on provider |
+| F-3 | `run_grade(providers=[...])` — sequential outer loop, each provider gets its own version row; `--provider anthropic,openai` on CLI |
+| F-4 | `ProviderBadge` chip on content-review queue; colour-coded: Anthropic (violet), OpenAI (emerald), Google (blue), school_upload (amber) |
+| F-5 | `school_llm_config` table (RLS); `GET/PUT /schools/{id}/llm-config`; DPA acknowledgements as JSONB timestamps (append-only) |
+
+---
+
+## Original design note
+
+The pipeline previously was Claude-only. The call was centralised in `_call_claude()` in
+`pipeline/prompts.py`. The rest of the architecture was already provider-agnostic:
 
 - Content Store schema is provider-neutral (JSON files, same shape regardless of provider)
 - `content_subject_versions` already tracks multiple versions per subject — adding a `provider` column turns version comparison into provider comparison

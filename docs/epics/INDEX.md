@@ -12,7 +12,7 @@ the decision notes become the spec and we develop from there.
 
 | # | Epic | File | Status |
 |---|---|---|---|
-| 1 | Multi-Provider LLM Pipeline | [EPIC_01_multi_provider_llm.md](EPIC_01_multi_provider_llm.md) | 💭 Your call |
+| 1 | Multi-Provider LLM Pipeline | [EPIC_01_multi_provider_llm.md](EPIC_01_multi_provider_llm.md) | ✅ Complete (F-1–F-5, 19 tests, migration 0043) |
 | 2 | Production Launch & Demo Readiness | [EPIC_02_production_launch.md](EPIC_02_production_launch.md) | 🚧 G-2/G-3/G-5 done; G-1/G-4 blocked on hosting decision |
 | 3 | Student Mobile App | [EPIC_03_student_mobile.md](EPIC_03_student_mobile.md) | 💭 Your call |
 | 4 | Parent Portal | [EPIC_04_parent_portal.md](EPIC_04_parent_portal.md) | 💭 Your call |
