@@ -340,3 +340,321 @@ async def promote_to_school_admin(conn: asyncpg.Connection, school_id: str, teac
 
     log.info("teacher_promoted_to_admin", teacher_id=teacher_id, school_id=school_id)
     return dict(row)
+
+
+# ── Phase B — Classroom service ───────────────────────────────────────────────
+
+
+async def create_classroom(
+    conn: asyncpg.Connection,
+    school_id: str,
+    name: str,
+    grade: int | None,
+    teacher_id: str | None,
+) -> dict:
+    """Create a new classroom belonging to the given school."""
+    classroom_id = str(uuid.uuid4())
+
+    await conn.execute(
+        """
+        INSERT INTO classrooms (classroom_id, school_id, teacher_id, name, grade, status)
+        VALUES ($1, $2, $3, $4, $5, 'active')
+        """,
+        uuid.UUID(classroom_id),
+        uuid.UUID(school_id),
+        uuid.UUID(teacher_id) if teacher_id else None,
+        name,
+        grade,
+    )
+
+    log.info("classroom_created", classroom_id=classroom_id, school_id=school_id)
+    return {"classroom_id": classroom_id, "school_id": school_id, "teacher_id": teacher_id,
+            "name": name, "grade": grade, "status": "active"}
+
+
+async def list_classrooms(conn: asyncpg.Connection, school_id: str) -> list[dict]:
+    """Return all classrooms for a school with student + package counts."""
+    rows = await conn.fetch(
+        """
+        SELECT
+            c.classroom_id::text,
+            c.school_id::text,
+            c.teacher_id::text,
+            t.name AS teacher_name,
+            c.name,
+            c.grade,
+            c.status,
+            c.created_at,
+            (SELECT COUNT(*) FROM classroom_students cs WHERE cs.classroom_id = c.classroom_id)
+                AS student_count,
+            (SELECT COUNT(*) FROM classroom_packages cp WHERE cp.classroom_id = c.classroom_id)
+                AS package_count
+        FROM classrooms c
+        LEFT JOIN teachers t ON t.teacher_id = c.teacher_id
+        WHERE c.school_id = $1
+        ORDER BY c.created_at DESC
+        """,
+        uuid.UUID(school_id),
+    )
+    return [dict(r) for r in rows]
+
+
+async def get_classroom_detail(
+    conn: asyncpg.Connection,
+    school_id: str,
+    classroom_id: str,
+) -> dict | None:
+    """Return classroom details including packages and students."""
+    row = await conn.fetchrow(
+        """
+        SELECT
+            c.classroom_id::text,
+            c.school_id::text,
+            c.teacher_id::text,
+            t.name AS teacher_name,
+            c.name,
+            c.grade,
+            c.status,
+            c.created_at
+        FROM classrooms c
+        LEFT JOIN teachers t ON t.teacher_id = c.teacher_id
+        WHERE c.classroom_id = $1 AND c.school_id = $2
+        """,
+        uuid.UUID(classroom_id),
+        uuid.UUID(school_id),
+    )
+    if not row:
+        return None
+
+    packages = await conn.fetch(
+        """
+        SELECT
+            cp.curriculum_id::text,
+            cu.name AS curriculum_name,
+            cp.assigned_at,
+            cp.sort_order
+        FROM classroom_packages cp
+        LEFT JOIN curricula cu ON cu.curriculum_id = cp.curriculum_id
+        WHERE cp.classroom_id = $1
+        ORDER BY cp.sort_order, cp.assigned_at
+        """,
+        uuid.UUID(classroom_id),
+    )
+
+    students = await conn.fetch(
+        """
+        SELECT
+            cs.student_id::text,
+            s.name,
+            s.email,
+            s.grade,
+            cs.joined_at
+        FROM classroom_students cs
+        JOIN students s ON s.student_id = cs.student_id
+        WHERE cs.classroom_id = $1
+        ORDER BY s.name
+        """,
+        uuid.UUID(classroom_id),
+    )
+
+    return {
+        **dict(row),
+        "packages": [dict(p) for p in packages],
+        "students": [dict(s) for s in students],
+    }
+
+
+async def update_classroom(
+    conn: asyncpg.Connection,
+    school_id: str,
+    classroom_id: str,
+    name: str | None,
+    grade: int | None,
+    teacher_id: str | None,
+    status: str | None,
+) -> dict | None:
+    """Update mutable classroom fields. Returns updated row or None if not found."""
+    updates = []
+    params: list = []
+    idx = 1
+
+    if name is not None:
+        updates.append(f"name = ${idx}")
+        params.append(name)
+        idx += 1
+    if grade is not None:
+        updates.append(f"grade = ${idx}")
+        params.append(grade)
+        idx += 1
+    if teacher_id is not None:
+        updates.append(f"teacher_id = ${idx}")
+        params.append(uuid.UUID(teacher_id))
+        idx += 1
+    if status is not None:
+        updates.append(f"status = ${idx}")
+        params.append(status)
+        idx += 1
+
+    if not updates:
+        return await get_classroom_detail(conn, school_id, classroom_id)
+
+    params.extend([uuid.UUID(classroom_id), uuid.UUID(school_id)])
+    row = await conn.fetchrow(
+        f"""
+        UPDATE classrooms
+           SET {', '.join(updates)}
+         WHERE classroom_id = ${idx} AND school_id = ${idx + 1}
+        RETURNING classroom_id::text, school_id::text, teacher_id::text, name, grade, status, created_at
+        """,
+        *params,
+    )
+    return dict(row) if row else None
+
+
+async def assign_package_to_classroom(
+    conn: asyncpg.Connection,
+    school_id: str,
+    classroom_id: str,
+    curriculum_id: str,
+    assigned_by: str | None,
+    sort_order: int,
+) -> bool:
+    """Add a curriculum package to a classroom. Returns False if classroom not in school."""
+    # Verify classroom belongs to school
+    exists = await conn.fetchval(
+        "SELECT 1 FROM classrooms WHERE classroom_id = $1 AND school_id = $2",
+        uuid.UUID(classroom_id),
+        uuid.UUID(school_id),
+    )
+    if not exists:
+        return False
+
+    await conn.execute(
+        """
+        INSERT INTO classroom_packages (classroom_id, curriculum_id, assigned_by, sort_order)
+        VALUES ($1, $2, $3, $4)
+        ON CONFLICT (classroom_id, curriculum_id) DO UPDATE
+            SET sort_order = EXCLUDED.sort_order
+        """,
+        uuid.UUID(classroom_id),
+        curriculum_id,  # TEXT in curricula table
+        uuid.UUID(assigned_by) if assigned_by else None,
+        sort_order,
+    )
+    log.info("package_assigned", classroom_id=classroom_id, curriculum_id=curriculum_id)
+    return True
+
+
+async def remove_package_from_classroom(
+    conn: asyncpg.Connection,
+    school_id: str,
+    classroom_id: str,
+    curriculum_id: str,
+) -> bool:
+    """Remove a package from a classroom. Returns False if classroom not in school."""
+    exists = await conn.fetchval(
+        "SELECT 1 FROM classrooms WHERE classroom_id = $1 AND school_id = $2",
+        uuid.UUID(classroom_id),
+        uuid.UUID(school_id),
+    )
+    if not exists:
+        return False
+
+    result = await conn.execute(
+        "DELETE FROM classroom_packages WHERE classroom_id = $1 AND curriculum_id = $2",
+        uuid.UUID(classroom_id),
+        curriculum_id,  # TEXT in curricula table
+    )
+    return result != "DELETE 0"
+
+
+async def reorder_package_in_classroom(
+    conn: asyncpg.Connection,
+    school_id: str,
+    classroom_id: str,
+    curriculum_id: str,
+    sort_order: int,
+) -> bool:
+    """Update the sort_order of a package within a classroom."""
+    exists = await conn.fetchval(
+        "SELECT 1 FROM classrooms WHERE classroom_id = $1 AND school_id = $2",
+        uuid.UUID(classroom_id),
+        uuid.UUID(school_id),
+    )
+    if not exists:
+        return False
+
+    result = await conn.execute(
+        """
+        UPDATE classroom_packages SET sort_order = $1
+         WHERE classroom_id = $2 AND curriculum_id = $3
+        """,
+        sort_order,
+        uuid.UUID(classroom_id),
+        curriculum_id,  # TEXT in curricula table
+    )
+    return result != "UPDATE 0"
+
+
+async def assign_student_to_classroom(
+    conn: asyncpg.Connection,
+    school_id: str,
+    classroom_id: str,
+    student_id: str,
+) -> bool:
+    """
+    Add a student to a classroom.
+
+    A student may be in multiple classrooms (temporal reassignment is valid per Q17).
+    Returns False if classroom not in school or student not in school.
+    """
+    classroom_ok = await conn.fetchval(
+        "SELECT 1 FROM classrooms WHERE classroom_id = $1 AND school_id = $2",
+        uuid.UUID(classroom_id),
+        uuid.UUID(school_id),
+    )
+    if not classroom_ok:
+        return False
+
+    student_ok = await conn.fetchval(
+        "SELECT 1 FROM students WHERE student_id = $1 AND school_id = $2",
+        uuid.UUID(student_id),
+        uuid.UUID(school_id),
+    )
+    if not student_ok:
+        return False
+
+    await conn.execute(
+        """
+        INSERT INTO classroom_students (classroom_id, student_id)
+        VALUES ($1, $2)
+        ON CONFLICT DO NOTHING
+        """,
+        uuid.UUID(classroom_id),
+        uuid.UUID(student_id),
+    )
+    log.info("student_assigned_to_classroom", classroom_id=classroom_id, student_id=student_id)
+    return True
+
+
+async def remove_student_from_classroom(
+    conn: asyncpg.Connection,
+    school_id: str,
+    classroom_id: str,
+    student_id: str,
+) -> bool:
+    """Remove a student from a classroom."""
+    exists = await conn.fetchval(
+        "SELECT 1 FROM classrooms WHERE classroom_id = $1 AND school_id = $2",
+        uuid.UUID(classroom_id),
+        uuid.UUID(school_id),
+    )
+    if not exists:
+        return False
+
+    result = await conn.execute(
+        "DELETE FROM classroom_students WHERE classroom_id = $1 AND student_id = $2",
+        uuid.UUID(classroom_id),
+        uuid.UUID(student_id),
+    )
+    return result != "DELETE 0"

@@ -4,6 +4,44 @@
 
 ---
 
+### Phase B — Classrooms: entity, CRUD, package + student assignment (2026-04-12)
+
+**Branch:** `feat/phase-b-classroom`  
+**Design docs:** `docs/REGISTRATION_DESIGN_ANALYSIS.md` (Q14, Q16, Q17, Q22), `docs/REGISTRATION_DESIGN_QA.md`
+
+**What ships:**
+
+| Area | Change |
+|---|---|
+| **Migration 0038** | `classrooms`, `classroom_packages`, `classroom_students` tables with RLS tenant isolation. `classroom_packages.curriculum_id` is TEXT (no FK — matches `curricula.curriculum_id TEXT PK`; platform IDs like "default-2026-g8" don't need a DB row) |
+| **Backend schemas** | `ClassroomCreateRequest`, `ClassroomUpdateRequest`, `ClassroomItem`, `ClassroomDetailResponse`, `ClassroomPackageItem`, `ClassroomStudentItem`, `AssignPackageRequest`, `ReorderPackageRequest`, `AssignStudentRequest` |
+| **Backend service** | `create_classroom`, `list_classrooms`, `get_classroom_detail`, `update_classroom`, `assign_package_to_classroom`, `remove_package_from_classroom`, `reorder_package_in_classroom`, `assign_student_to_classroom`, `remove_student_from_classroom` |
+| **Backend router** | 9 new endpoints on `/schools/{id}/classrooms/…` — create, list, detail, update (PATCH), assign/reorder/remove package, assign/remove student |
+| **school-admin.ts** | `listClassrooms`, `getClassroom`, `createClassroom`, `updateClassroom`, `assignPackageToClassroom`, `reorderPackageInClassroom`, `removePackageFromClassroom`, `assignStudentToClassroom`, `removeStudentFromClassroom` with TypeScript interfaces |
+| **SchoolNav** | Added "Classrooms" nav item (`DoorOpen` icon) above "Class Overview" |
+| **Classrooms list page** | `/school/classrooms` — active/archived classroom cards with student/package counts; create form (admin-only); archive/restore toggle |
+| **Classroom detail page** | `/school/classrooms/[classroomId]` — package list + add-by-ID form; student roster + enrol-by-ID form; inline remove with confirmation |
+| **Tests** | 21 tests in `tests/test_phase_b_classrooms.py` — all passing |
+
+**Design decisions:**
+- A student may be in multiple classrooms simultaneously (Q17 — temporal reassignment)
+- `classroom_packages.curriculum_id` has no FK; application logic gates assignment
+- Archive/restore via `PATCH status` rather than DELETE — preserves history
+- Duplicate unit_id across packages: both shown (Q22) — no merging
+- Curriculum ID input is UUID/text string for now; catalog browser is Phase C
+
+**Design docs committed:**
+- `docs/REGISTRATION_DESIGN_ANALYSIS.md` — full Q&A to decisions mapping
+- `docs/REGISTRATION_DESIGN_QA.md` — original Q&A with answers
+- `docs/DESIGN_EXPLORATION_MULTI_PROVIDER_LLM.md` — multi-provider LLM design exploration (not scheduled; Phases A–F outlined)
+
+**Next phases** (per design doc build order):
+- Phase C — Curriculum Catalog (`GET /curricula/catalog`, assign catalog package to classroom)
+- Phase D — Curriculum Builder (form-based Definition, school admin approval queue)
+- Phase E — Pipeline Billing (live cost estimate, Stripe pay-per-run, pipeline trigger gate)
+
+---
+
 ### Phase A — Local Auth polish: layout gate, logout, registration, token refresh (2026-04-12)
 
 **Branch:** `fix/test-isolation-and-prod-bugs`  

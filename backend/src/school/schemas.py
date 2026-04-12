@@ -201,3 +201,104 @@ class PromoteTeacherResponse(BaseModel):
     name: str
     email: str
     role: str
+
+
+# ── Phase B — Classroom schemas ───────────────────────────────────────────────
+
+
+class ClassroomCreateRequest(BaseModel):
+    """POST /schools/{school_id}/classrooms"""
+
+    name: str
+    grade: int | None = None
+    teacher_id: str | None = None
+
+    @field_validator("grade")
+    @classmethod
+    def grade_range(cls, v: int | None) -> int | None:
+        if v is not None and not (1 <= v <= 12):
+            raise ValueError("grade must be between 1 and 12")
+        return v
+
+
+class ClassroomUpdateRequest(BaseModel):
+    """PATCH /schools/{school_id}/classrooms/{classroom_id}"""
+
+    name: str | None = None
+    grade: int | None = None
+    teacher_id: str | None = None
+    status: str | None = None
+
+    @field_validator("grade")
+    @classmethod
+    def grade_range(cls, v: int | None) -> int | None:
+        if v is not None and not (1 <= v <= 12):
+            raise ValueError("grade must be between 1 and 12")
+        return v
+
+    @field_validator("status")
+    @classmethod
+    def status_values(cls, v: str | None) -> str | None:
+        if v is not None and v not in ("active", "archived"):
+            raise ValueError("status must be 'active' or 'archived'")
+        return v
+
+
+class ClassroomItem(BaseModel):
+    classroom_id: str
+    school_id: str
+    teacher_id: str | None
+    teacher_name: str | None
+    name: str
+    grade: int | None
+    status: str
+    created_at: datetime
+    student_count: int = 0
+    package_count: int = 0
+
+
+class ClassroomPackageItem(BaseModel):
+    curriculum_id: str
+    curriculum_name: str | None
+    assigned_at: datetime
+    sort_order: int
+
+
+class ClassroomStudentItem(BaseModel):
+    student_id: str
+    name: str
+    email: str
+    grade: int | None
+    joined_at: datetime
+
+
+class AssignPackageRequest(BaseModel):
+    """POST /schools/{school_id}/classrooms/{classroom_id}/packages"""
+
+    curriculum_id: str
+    sort_order: int = 0
+
+
+class ReorderPackageRequest(BaseModel):
+    """PATCH /schools/{school_id}/classrooms/{classroom_id}/packages/{curriculum_id}"""
+
+    sort_order: int
+
+
+class AssignStudentRequest(BaseModel):
+    """POST /schools/{school_id}/classrooms/{classroom_id}/students"""
+
+    student_id: str
+
+
+class ClassroomDetailResponse(BaseModel):
+    classroom_id: str
+    school_id: str
+    teacher_id: str | None
+    teacher_name: str | None
+    name: str
+    grade: int | None
+    status: str
+    created_at: datetime
+    packages: list[ClassroomPackageItem]
+    students: list[ClassroomStudentItem]

@@ -37,8 +37,19 @@ from src.school.schemas import (
     PromoteTeacherResponse,
     ProvisionStudentRequest,
     ProvisionStudentResponse,
+    AssignPackageRequest,
+    AssignStudentRequest,
+    ClassroomCreateRequest,
+    ClassroomDetailResponse,
+    ClassroomItem,
+    ClassroomPackageItem,
+    ClassroomStudentItem,
+    ClassroomUpdateRequest,
+    ProvisionStudentRequest,
+    ProvisionStudentResponse,
     ProvisionTeacherRequest,
     ProvisionTeacherResponse,
+    ReorderPackageRequest,
     ResetPasswordResponse,
     SchoolProfileResponse,
     SchoolRegisterRequest,
@@ -52,11 +63,20 @@ from src.school.schemas import (
     TeacherRosterResponse,
 )
 from src.school.service import (
+    assign_package_to_classroom,
+    assign_student_to_classroom,
+    create_classroom,
     fetch_school,
+    get_classroom_detail,
     invite_teacher,
+    list_classrooms,
     promote_to_school_admin,
     provision_student,
     provision_teacher,
+    remove_package_from_classroom,
+    remove_student_from_classroom,
+    reorder_package_in_classroom,
+    update_classroom,
     register_school,
     reset_student_password,
     reset_teacher_password,
@@ -760,3 +780,274 @@ async def promote_teacher_endpoint(
         )
 
     return PromoteTeacherResponse(**result)
+
+
+# ── Phase B — Classroom endpoints ────────────────────────────────────────────
+
+
+@router.post(
+    "/schools/{school_id}/classrooms",
+    response_model=ClassroomItem,
+    status_code=201,
+)
+async def create_classroom_endpoint(
+    school_id: str,
+    body: ClassroomCreateRequest,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> ClassroomItem:
+    """
+    Create a classroom (school_admin or teacher).
+
+    Any teacher at the school may create a classroom; a school_admin can create
+    one and assign it to any teacher.  The lead teacher_id is optional.
+    """
+    if teacher["school_id"] != school_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    async with get_db(request) as conn:
+        result = await create_classroom(
+            conn,
+            school_id,
+            body.name,
+            body.grade,
+            body.teacher_id,
+        )
+
+    return ClassroomItem(
+        classroom_id=result["classroom_id"],
+        school_id=result["school_id"],
+        teacher_id=result.get("teacher_id"),
+        teacher_name=None,
+        name=result["name"],
+        grade=result.get("grade"),
+        status=result["status"],
+        created_at=result.get("created_at") or __import__("datetime").datetime.utcnow(),
+        student_count=0,
+        package_count=0,
+    )
+
+
+@router.get(
+    "/schools/{school_id}/classrooms",
+    response_model=list[ClassroomItem],
+)
+async def list_classrooms_endpoint(
+    school_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> list[ClassroomItem]:
+    """
+    List all classrooms for a school (school_admin sees all; teacher sees all too).
+
+    Student counts and package counts are included for the roster display.
+    """
+    if teacher["school_id"] != school_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    async with get_db(request) as conn:
+        rows = await list_classrooms(conn, school_id)
+
+    return [ClassroomItem(**r) for r in rows]
+
+
+@router.get(
+    "/schools/{school_id}/classrooms/{classroom_id}",
+    response_model=ClassroomDetailResponse,
+)
+async def get_classroom_endpoint(
+    school_id: str,
+    classroom_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> ClassroomDetailResponse:
+    """Return a classroom with its full package and student lists."""
+    if teacher["school_id"] != school_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    async with get_db(request) as conn:
+        detail = await get_classroom_detail(conn, school_id, classroom_id)
+
+    if not detail:
+        raise HTTPException(status_code=404, detail="Classroom not found")
+
+    return ClassroomDetailResponse(
+        classroom_id=detail["classroom_id"],
+        school_id=detail["school_id"],
+        teacher_id=detail.get("teacher_id"),
+        teacher_name=detail.get("teacher_name"),
+        name=detail["name"],
+        grade=detail.get("grade"),
+        status=detail["status"],
+        created_at=detail["created_at"],
+        packages=[ClassroomPackageItem(**p) for p in detail["packages"]],
+        students=[ClassroomStudentItem(**s) for s in detail["students"]],
+    )
+
+
+@router.patch(
+    "/schools/{school_id}/classrooms/{classroom_id}",
+    response_model=ClassroomItem,
+)
+async def update_classroom_endpoint(
+    school_id: str,
+    classroom_id: str,
+    body: ClassroomUpdateRequest,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> ClassroomItem:
+    """Update classroom name, grade, lead teacher, or status (active/archived)."""
+    if teacher["school_id"] != school_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    async with get_db(request) as conn:
+        result = await update_classroom(
+            conn,
+            school_id,
+            classroom_id,
+            body.name,
+            body.grade,
+            body.teacher_id,
+            body.status,
+        )
+
+    if not result:
+        raise HTTPException(status_code=404, detail="Classroom not found")
+
+    return ClassroomItem(
+        classroom_id=result["classroom_id"],
+        school_id=result["school_id"],
+        teacher_id=result.get("teacher_id"),
+        teacher_name=None,
+        name=result["name"],
+        grade=result.get("grade"),
+        status=result["status"],
+        created_at=result["created_at"],
+    )
+
+
+@router.post(
+    "/schools/{school_id}/classrooms/{classroom_id}/packages",
+    status_code=204,
+)
+async def assign_package_endpoint(
+    school_id: str,
+    classroom_id: str,
+    body: AssignPackageRequest,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> None:
+    """Assign a Curriculum Package to a classroom (idempotent — safe to call twice)."""
+    if teacher["school_id"] != school_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    async with get_db(request) as conn:
+        ok = await assign_package_to_classroom(
+            conn,
+            school_id,
+            classroom_id,
+            body.curriculum_id,
+            teacher.get("teacher_id"),
+            body.sort_order,
+        )
+
+    if not ok:
+        raise HTTPException(status_code=404, detail="Classroom not found")
+
+
+@router.patch(
+    "/schools/{school_id}/classrooms/{classroom_id}/packages/{curriculum_id}",
+    status_code=204,
+)
+async def reorder_package_endpoint(
+    school_id: str,
+    classroom_id: str,
+    curriculum_id: str,
+    body: ReorderPackageRequest,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> None:
+    """Update the display sort_order of a package within a classroom."""
+    if teacher["school_id"] != school_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    async with get_db(request) as conn:
+        ok = await reorder_package_in_classroom(
+            conn, school_id, classroom_id, curriculum_id, body.sort_order
+        )
+
+    if not ok:
+        raise HTTPException(status_code=404, detail="Classroom or package not found")
+
+
+@router.delete(
+    "/schools/{school_id}/classrooms/{classroom_id}/packages/{curriculum_id}",
+    status_code=204,
+)
+async def remove_package_endpoint(
+    school_id: str,
+    classroom_id: str,
+    curriculum_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> None:
+    """Remove a package from a classroom."""
+    if teacher["school_id"] != school_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    async with get_db(request) as conn:
+        ok = await remove_package_from_classroom(conn, school_id, classroom_id, curriculum_id)
+
+    if not ok:
+        raise HTTPException(status_code=404, detail="Classroom not found")
+
+
+@router.post(
+    "/schools/{school_id}/classrooms/{classroom_id}/students",
+    status_code=204,
+)
+async def assign_student_endpoint(
+    school_id: str,
+    classroom_id: str,
+    body: AssignStudentRequest,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> None:
+    """
+    Add a student to a classroom.
+
+    A student may be in multiple classrooms simultaneously (Q17 — temporal
+    reassignment is valid).  Duplicate inserts are silently ignored.
+    """
+    if teacher["school_id"] != school_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    async with get_db(request) as conn:
+        ok = await assign_student_to_classroom(
+            conn, school_id, classroom_id, body.student_id
+        )
+
+    if not ok:
+        raise HTTPException(status_code=404, detail="Classroom or student not found")
+
+
+@router.delete(
+    "/schools/{school_id}/classrooms/{classroom_id}/students/{student_id}",
+    status_code=204,
+)
+async def remove_student_endpoint(
+    school_id: str,
+    classroom_id: str,
+    student_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> None:
+    """Remove a student from a classroom."""
+    if teacher["school_id"] != school_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    async with get_db(request) as conn:
+        ok = await remove_student_from_classroom(conn, school_id, classroom_id, student_id)
+
+    if not ok:
+        raise HTTPException(status_code=404, detail="Classroom not found")

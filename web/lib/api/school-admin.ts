@@ -621,3 +621,125 @@ export async function assignCurriculumToGrade(
   );
   return res.data;
 }
+
+// ── Phase B — Classrooms ──────────────────────────────────────────────────────
+
+export interface ClassroomItem {
+  classroom_id: string;
+  school_id: string;
+  teacher_id: string | null;
+  teacher_name: string | null;
+  name: string;
+  grade: number | null;
+  status: "active" | "archived";
+  created_at: string;
+  student_count: number;
+  package_count: number;
+}
+
+export interface ClassroomPackageItem {
+  curriculum_id: string;
+  curriculum_name: string | null;
+  assigned_at: string;
+  sort_order: number;
+}
+
+export interface ClassroomStudentItem {
+  student_id: string;
+  name: string;
+  email: string;
+  grade: number | null;
+  joined_at: string;
+}
+
+export interface ClassroomDetail extends ClassroomItem {
+  packages: ClassroomPackageItem[];
+  students: ClassroomStudentItem[];
+}
+
+export async function listClassrooms(schoolId: string): Promise<ClassroomItem[]> {
+  const res = await schoolApi.get<ClassroomItem[]>(`/schools/${schoolId}/classrooms`);
+  return res.data;
+}
+
+export async function getClassroom(schoolId: string, classroomId: string): Promise<ClassroomDetail> {
+  const res = await schoolApi.get<ClassroomDetail>(
+    `/schools/${schoolId}/classrooms/${classroomId}`,
+  );
+  return res.data;
+}
+
+export async function createClassroom(
+  schoolId: string,
+  body: { name: string; grade?: number | null; teacher_id?: string | null },
+): Promise<ClassroomItem> {
+  const res = await schoolApi.post<ClassroomItem>(`/schools/${schoolId}/classrooms`, body);
+  return res.data;
+}
+
+export async function updateClassroom(
+  schoolId: string,
+  classroomId: string,
+  body: { name?: string; grade?: number | null; teacher_id?: string | null; status?: string },
+): Promise<ClassroomItem> {
+  const res = await schoolApi.patch<ClassroomItem>(
+    `/schools/${schoolId}/classrooms/${classroomId}`,
+    body,
+  );
+  return res.data;
+}
+
+export async function assignPackageToClassroom(
+  schoolId: string,
+  classroomId: string,
+  curriculumId: string,
+  sortOrder = 0,
+): Promise<void> {
+  await schoolApi.post(
+    `/schools/${schoolId}/classrooms/${classroomId}/packages`,
+    { curriculum_id: curriculumId, sort_order: sortOrder },
+  );
+}
+
+export async function reorderPackageInClassroom(
+  schoolId: string,
+  classroomId: string,
+  curriculumId: string,
+  sortOrder: number,
+): Promise<void> {
+  await schoolApi.patch(
+    `/schools/${schoolId}/classrooms/${classroomId}/packages/${curriculumId}`,
+    { sort_order: sortOrder },
+  );
+}
+
+export async function removePackageFromClassroom(
+  schoolId: string,
+  classroomId: string,
+  curriculumId: string,
+): Promise<void> {
+  await schoolApi.delete(
+    `/schools/${schoolId}/classrooms/${classroomId}/packages/${curriculumId}`,
+  );
+}
+
+export async function assignStudentToClassroom(
+  schoolId: string,
+  classroomId: string,
+  studentId: string,
+): Promise<void> {
+  await schoolApi.post(
+    `/schools/${schoolId}/classrooms/${classroomId}/students`,
+    { student_id: studentId },
+  );
+}
+
+export async function removeStudentFromClassroom(
+  schoolId: string,
+  classroomId: string,
+  studentId: string,
+): Promise<void> {
+  await schoolApi.delete(
+    `/schools/${schoolId}/classrooms/${classroomId}/students/${studentId}`,
+  );
+}
