@@ -1,6 +1,6 @@
 # Epic 6 — Platform Hardening
 
-**Status:** 💭 Your call
+**Status:** 🚧 In Progress (K-1 through K-3, K-6 complete)
 
 ---
 
@@ -53,14 +53,14 @@ fix than in staging. A security incident before launch ends the company.
 
 ## Rough scope
 
-| Phase | What gets built |
-|---|---|
-| K-1 | CI hardening: Bandit + `pip audit` + `npm audit` on every PR; block merge on high-severity findings |
-| K-2 | E2E test suite: Playwright covering student login → lesson → quiz → progress flow |
-| K-3 | Stripe webhook hardening: tests for retry, idempotency, and out-of-order event delivery |
-| K-4 | Load testing: k6 scripts for the hot read path and concurrent pipeline jobs; establish baselines |
-| K-5 | SLO definitions + Grafana alerting: p95 latency < 200ms, error rate < 0.1%, pipeline job failure rate < 5% |
-| K-6 | COPPA/FERPA test coverage: consent gate, parental consent flow, cross-school data isolation assertions |
+| Phase | What gets built | Status |
+|---|---|---|
+| K-1 | CI hardening: Bandit + `pip audit` + `npm audit` on every PR; block merge on high-severity findings | ✅ Done — added `pull_request` trigger + fixed `pgvector/pgvector:pg16` image |
+| K-2 | E2E test suite: Playwright covering student login → lesson → quiz → progress flow | ✅ Done — `tests/e2e/student_flow.spec.ts` (3 critical paths, dev-session auth bypass) |
+| K-3 | Stripe webhook hardening: tests for retry, idempotency, and out-of-order event delivery | ✅ Done — `tests/test_stripe_webhook_hardening.py` (8 cases: WHK-01–08) |
+| K-4 | Load testing: k6 scripts for the hot read path and concurrent pipeline jobs; establish baselines | ⏸ Deferred — needs staging environment (Epic 2) |
+| K-5 | SLO definitions + Grafana alerting: p95 latency < 200ms, error rate < 0.1%, pipeline job failure rate < 5% | ⏸ Deferred — needs staging environment (Epic 2) |
+| K-6 | COPPA/FERPA test coverage: consent gate, parental consent flow, cross-school data isolation assertions | ✅ Done — `tests/test_coppa_ferpa.py` (9 cases: COP-01–04, FRP-01–05) |
 
 ---
 
