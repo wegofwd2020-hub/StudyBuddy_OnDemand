@@ -25,6 +25,7 @@ class ReviewQueueItem(BaseModel):
     generated_at: datetime
     published_at: datetime | None = None
     has_content: bool = False
+    provider: str | None = None  # Epic 1 — which LLM generated this version
 
 
 class ReviewQueueResponse(BaseModel):

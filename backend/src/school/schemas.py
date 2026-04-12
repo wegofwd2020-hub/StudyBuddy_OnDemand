@@ -460,3 +460,52 @@ class SetupStatusResponse(BaseModel):
     classroom_count: int
     curriculum_assigned: bool  # ≥1 package assigned to ≥1 classroom
     setup_complete: bool  # true when all 4 steps are done
+
+
+# ── Epic 1 — Multi-Provider LLM Config schemas ────────────────────────────────
+
+_VALID_PROVIDERS = {"anthropic", "openai", "google"}
+
+
+class SchoolLLMConfigResponse(BaseModel):
+    """GET /schools/{school_id}/llm-config"""
+
+    school_id: str
+    allowed_providers: list[str]
+    default_provider: str
+    comparison_enabled: bool
+    dpa_acknowledged_at: dict  # {provider_id: ISO timestamp}
+
+
+class SchoolLLMConfigUpdateRequest(BaseModel):
+    """PUT /schools/{school_id}/llm-config"""
+
+    allowed_providers: list[str] | None = None
+    default_provider: str | None = None
+    comparison_enabled: bool | None = None
+    # DPA acknowledgement: set {provider_id: true} to record acceptance now.
+    # The API stamps the timestamp server-side; the client just signals intent.
+    acknowledge_dpa: list[str] | None = None
+
+    @field_validator("allowed_providers")
+    @classmethod
+    def valid_providers(cls, v: list[str] | None) -> list[str] | None:
+        if v is None:
+            return v
+        bad = [p for p in v if p not in _VALID_PROVIDERS]
+        if bad:
+            raise ValueError(
+                f"Unknown providers: {bad}. Valid: {sorted(_VALID_PROVIDERS)}"
+            )
+        if not v:
+            raise ValueError("allowed_providers must contain at least one provider")
+        return v
+
+    @field_validator("default_provider")
+    @classmethod
+    def valid_default(cls, v: str | None) -> str | None:
+        if v is not None and v not in _VALID_PROVIDERS:
+            raise ValueError(
+                f"Unknown provider '{v}'. Valid: {sorted(_VALID_PROVIDERS)}"
+            )
+        return v

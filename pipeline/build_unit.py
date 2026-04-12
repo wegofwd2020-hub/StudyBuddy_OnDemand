@@ -42,6 +42,8 @@ from pipeline.prompts import (
     build_quiz_prompt,
     build_tutorial_prompt,
 )
+from pipeline.providers import get_provider
+from pipeline.providers.base import LLMProvider
 from pipeline.schemas import (
     validate_experiment,
     validate_lesson,
@@ -60,21 +62,6 @@ class SpendCapExceeded(Exception):
 
 def _now_iso() -> str:
     return datetime.now(tz=timezone.utc).isoformat()
-
-
-def _call_claude(client: Any, model: str, prompt: str) -> tuple[str, int, int]:
-    """
-    Call Claude and return (response_text, input_tokens, output_tokens).
-    """
-    message = client.messages.create(
-        model=model,
-        max_tokens=8192,
-        messages=[{"role": "user", "content": prompt}],
-    )
-    text = message.content[0].text if message.content else ""
-    input_tokens = message.usage.input_tokens if message.usage else 0
-    output_tokens = message.usage.output_tokens if message.usage else 0
-    return text, input_tokens, output_tokens
 
 
 def _parse_json_response(text: str) -> dict:
@@ -96,15 +83,14 @@ def _parse_json_response(text: str) -> dict:
 
 
 def _generate_and_validate(
-    client: Any,
-    model: str,
+    provider: "LLMProvider",
     prompt: str,
     validator: Any,
     content_type: str,
     max_retries: int = 3,
 ) -> tuple[dict, int, int]:
     """
-    Call Claude, parse JSON, validate schema. Retry up to max_retries times.
+    Call the LLM provider, parse JSON, validate schema. Retry up to max_retries times.
 
     Returns (data, total_input_tokens, total_output_tokens).
     Raises RuntimeError if all retries fail.
@@ -115,7 +101,7 @@ def _generate_and_validate(
 
     for attempt in range(1, max_retries + 1):
         try:
-            text, in_tok, out_tok = _call_claude(client, model, prompt)
+            text, in_tok, out_tok = provider.generate(prompt)
             total_in += in_tok
             total_out += out_tok
 
@@ -161,6 +147,8 @@ def build_unit(
     config: Any,
     force: bool = False,
     dry_run: bool = False,
+    provider_id: str | None = None,
+    provider: "LLMProvider | None" = None,
 ) -> dict:
     """
     Build content for a single unit + language.
@@ -172,10 +160,14 @@ def build_unit(
         lang:          ISO 639-1 code e.g. "en"
         config:        PipelineSettings instance
         force:         Skip idempotency check and regenerate
-        dry_run:       Log what would be done but don't call Claude or write files
+        dry_run:       Log what would be done but don't call the LLM or write files
+        provider_id:   Provider name — "anthropic" | "openai" | "google".
+                       Defaults to config.DEFAULT_PROVIDER if not given.
+        provider:      Pre-instantiated LLMProvider (takes precedence over provider_id).
+                       Pass this when the caller manages the provider lifecycle.
 
     Returns:
-        {unit_id, lang, tokens_used, cost_usd, duration_ms, alex_warnings, status}
+        {unit_id, lang, provider, tokens_used, cost_usd, duration_ms, alex_warnings, status}
     """
     start_ms = time.monotonic()
 
@@ -189,6 +181,9 @@ def build_unit(
     has_lab = unit_data.get("has_lab", False)
     grade = unit_data.get("grade", 8)
 
+    # Resolve which provider to use
+    resolved_provider_id = provider_id or getattr(config, "DEFAULT_PROVIDER", "anthropic")
+
     # ── Idempotency check ─────────────────────────────────────────────────────
     if not force and os.path.exists(meta_path):
         with open(meta_path, "r", encoding="utf-8") as f:
@@ -197,16 +192,18 @@ def build_unit(
         if (
             meta.get("content_version") == config.CONTENT_VERSION
             and lang in meta.get("langs_built", [])
+            and meta.get("provider", "anthropic") == resolved_provider_id
             and _all_files_exist(store_path, lang, has_lab)
         ):
             log.info(
-                "unit_skip unit_id=%s lang=%s content_version=%d (already built)",
-                unit_id, lang, config.CONTENT_VERSION,
+                "unit_skip unit_id=%s lang=%s provider=%s content_version=%d (already built)",
+                unit_id, lang, resolved_provider_id, config.CONTENT_VERSION,
             )
             duration_ms = int((time.monotonic() - start_ms) * 1000)
             return {
                 "unit_id": unit_id,
                 "lang": lang,
+                "provider": resolved_provider_id,
                 "tokens_used": 0,
                 "cost_usd": 0.0,
                 "duration_ms": duration_ms,
@@ -215,11 +212,12 @@ def build_unit(
             }
 
     if dry_run:
-        log.info("dry_run unit_id=%s lang=%s (would generate content)", unit_id, lang)
+        log.info("dry_run unit_id=%s lang=%s provider=%s (would generate content)", unit_id, lang, resolved_provider_id)
         duration_ms = int((time.monotonic() - start_ms) * 1000)
         return {
             "unit_id": unit_id,
             "lang": lang,
+            "provider": resolved_provider_id,
             "tokens_used": 0,
             "cost_usd": 0.0,
             "duration_ms": duration_ms,
@@ -227,16 +225,12 @@ def build_unit(
             "status": "dry_run",
         }
 
-    # ── Initialise Anthropic client ───────────────────────────────────────────
-    try:
-        import anthropic  # type: ignore
-    except ImportError:
-        raise RuntimeError(
-            "anthropic SDK not installed. Run: pip install anthropic"
-        )
+    # ── Resolve LLM provider ─────────────────────────────────────────────────
+    if provider is None:
+        provider = get_provider(resolved_provider_id, config)
 
-    client = anthropic.Anthropic(api_key=config.ANTHROPIC_API_KEY)
-    model = config.CLAUDE_MODEL
+    # Model name for stamping into generated content JSON
+    model_name = getattr(provider, "model", resolved_provider_id)
 
     total_input_tokens = 0
     total_output_tokens = 0
@@ -246,57 +240,57 @@ def build_unit(
 
     try:
         # ── Lesson ────────────────────────────────────────────────────────────
-        log.info("generating lesson unit_id=%s lang=%s", unit_id, lang)
+        log.info("generating lesson unit_id=%s lang=%s provider=%s", unit_id, lang, resolved_provider_id)
         prompt = build_lesson_prompt(unit_id, subject, title, grade, lang)
         lesson_data, in_tok, out_tok = _generate_and_validate(
-            client, model, prompt, validate_lesson, "lesson"
+            provider, prompt, validate_lesson, "lesson"
         )
         lesson_data["generated_at"] = _now_iso()
-        lesson_data["model"] = model
+        lesson_data["model"] = model_name
         total_input_tokens += in_tok
         total_output_tokens += out_tok
         generated_content["lesson"] = lesson_data
 
         # ── 3 Quiz sets ───────────────────────────────────────────────────────
         for set_num in range(1, 4):
-            log.info("generating quiz set=%d unit_id=%s lang=%s", set_num, unit_id, lang)
+            log.info("generating quiz set=%d unit_id=%s lang=%s provider=%s", set_num, unit_id, lang, resolved_provider_id)
             prompt = build_quiz_prompt(unit_id, subject, title, grade, lang, set_num)
             quiz_data, in_tok, out_tok = _generate_and_validate(
-                client, model, prompt, validate_quiz, f"quiz_set_{set_num}"
+                provider, prompt, validate_quiz, f"quiz_set_{set_num}"
             )
             quiz_data["generated_at"] = _now_iso()
-            quiz_data["model"] = model
+            quiz_data["model"] = model_name
             total_input_tokens += in_tok
             total_output_tokens += out_tok
             generated_content[f"quiz_{set_num}"] = quiz_data
 
         # ── Tutorial ─────────────────────────────────────────────────────────
-        log.info("generating tutorial unit_id=%s lang=%s", unit_id, lang)
+        log.info("generating tutorial unit_id=%s lang=%s provider=%s", unit_id, lang, resolved_provider_id)
         prompt = build_tutorial_prompt(unit_id, subject, title, grade, lang)
         tutorial_data, in_tok, out_tok = _generate_and_validate(
-            client, model, prompt, validate_tutorial, "tutorial"
+            provider, prompt, validate_tutorial, "tutorial"
         )
         tutorial_data["generated_at"] = _now_iso()
-        tutorial_data["model"] = model
+        tutorial_data["model"] = model_name
         total_input_tokens += in_tok
         total_output_tokens += out_tok
         generated_content["tutorial"] = tutorial_data
 
         # ── Experiment (has_lab only) ─────────────────────────────────────────
         if has_lab:
-            log.info("generating experiment unit_id=%s lang=%s", unit_id, lang)
+            log.info("generating experiment unit_id=%s lang=%s provider=%s", unit_id, lang, resolved_provider_id)
             prompt = build_experiment_prompt(unit_id, subject, title, grade, lang)
             exp_data, in_tok, out_tok = _generate_and_validate(
-                client, model, prompt, validate_experiment, "experiment"
+                provider, prompt, validate_experiment, "experiment"
             )
             exp_data["generated_at"] = _now_iso()
-            exp_data["model"] = model
+            exp_data["model"] = model_name
             total_input_tokens += in_tok
             total_output_tokens += out_tok
             generated_content["experiment"] = exp_data
 
     except RuntimeError as exc:
-        log.error("unit_failed unit_id=%s lang=%s error=%s", unit_id, lang, exc)
+        log.error("unit_failed unit_id=%s lang=%s provider=%s error=%s", unit_id, lang, resolved_provider_id, exc)
         failed = True
         fail_reason = str(exc)
 
@@ -317,6 +311,7 @@ def build_unit(
         return {
             "unit_id": unit_id,
             "lang": lang,
+            "provider": resolved_provider_id,
             "tokens_used": total_input_tokens + total_output_tokens,
             "cost_usd": cost_usd,
             "duration_ms": duration_ms,
@@ -357,7 +352,8 @@ def build_unit(
         meta_path=meta_path,
         unit_id=unit_id,
         curriculum_id=curriculum_id,
-        model=model,
+        model=model_name,
+        provider=resolved_provider_id,
         content_version=config.CONTENT_VERSION,
         lang=lang,
         alex_warnings_count=alex_warnings,
@@ -373,6 +369,7 @@ def build_unit(
             "event": "unit_complete",
             "unit_id": unit_id,
             "lang": lang,
+            "provider": resolved_provider_id,
             "tokens": tokens_used,
             "cost_usd": round(cost_usd, 6),
             "duration_ms": duration_ms,
@@ -383,6 +380,7 @@ def build_unit(
     return {
         "unit_id": unit_id,
         "lang": lang,
+        "provider": resolved_provider_id,
         "tokens_used": tokens_used,
         "cost_usd": cost_usd,
         "duration_ms": duration_ms,
@@ -535,6 +533,7 @@ def _update_meta(
     content_version: int,
     lang: str,
     alex_warnings_count: int,
+    provider: str = "anthropic",
     alex_warnings_by_type: dict[str, int] | None = None,
     alex_warnings_detail_by_type: dict[str, list] | None = None,
 ) -> None:
@@ -553,6 +552,7 @@ def _update_meta(
     meta["curriculum_id"] = curriculum_id
     meta["generated_at"] = _now_iso()
     meta["model"] = model
+    meta["provider"] = provider
     meta["content_version"] = content_version
     meta["alex_warnings_count"] = alex_warnings_count
     meta["alex_warnings_by_type"] = alex_warnings_by_type or {}
@@ -579,11 +579,16 @@ def main() -> None:
     parser.add_argument("--unit", required=True, help="Unit ID e.g. G8-MATH-001")
     parser.add_argument("--lang", required=True, help="Language code e.g. en")
     parser.add_argument("--force", action="store_true", help="Rebuild even if already built")
-    parser.add_argument("--dry-run", action="store_true", help="Log what would be done without calling Claude")
+    parser.add_argument("--dry-run", action="store_true", help="Log what would be done without calling the LLM")
     parser.add_argument("--subject", default="", help="Subject name (optional override)")
     parser.add_argument("--title", default="", help="Unit title (optional override)")
     parser.add_argument("--grade", type=int, default=8, help="Grade number (default: 8)")
     parser.add_argument("--has-lab", action="store_true", help="Unit has a lab experiment")
+    parser.add_argument(
+        "--provider",
+        default=None,
+        help="LLM provider: anthropic (default) | openai | google",
+    )
     args = parser.parse_args()
 
     from pipeline.config import settings as config
@@ -604,6 +609,7 @@ def main() -> None:
         config=config,
         force=args.force,
         dry_run=args.dry_run,
+        provider_id=args.provider,
     )
     print(json.dumps(result, indent=2))
 

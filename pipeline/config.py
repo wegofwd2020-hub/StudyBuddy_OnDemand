@@ -34,8 +34,20 @@ class PipelineSettings(BaseSettings):
     ANTHROPIC_API_KEY: str
     CONTENT_STORE_PATH: str
 
-    # ── Model (pinned — never implicit latest) ────────────────────────────────
+    # ── LLM Provider selection ────────────────────────────────────────────────
+    # Default provider used by build_unit / build_grade when --provider is not given.
+    # Valid values: "anthropic" | "openai" | "google"
+    DEFAULT_PROVIDER: str = "anthropic"
+
+    # ── Model pins (never implicit "latest") ─────────────────────────────────
     CLAUDE_MODEL: str = "claude-sonnet-4-6"
+    OPENAI_MODEL: str = "gpt-4o"
+    GEMINI_MODEL: str = "gemini-1.5-pro"
+
+    # ── Provider API keys (optional — only required when provider is selected) ─
+    # ANTHROPIC_API_KEY is already required above (it's the default provider).
+    OPENAI_API_KEY: Optional[str] = None
+    GOOGLE_API_KEY: Optional[str] = None
 
     # ── TTS ───────────────────────────────────────────────────────────────────
     TTS_PROVIDER: Optional[str] = None   # "polly" | "google" | None

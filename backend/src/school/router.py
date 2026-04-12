@@ -57,6 +57,8 @@ from src.school.schemas import (
     ReorderPackageRequest,
     ResetPasswordResponse,
     SchoolProfileResponse,
+    SchoolLLMConfigResponse,
+    SchoolLLMConfigUpdateRequest,
     SchoolRegisterRequest,
     SchoolRegisterResponse,
     SetupStatusResponse,
@@ -76,6 +78,7 @@ from src.school.service import (
     fetch_school,
     get_classroom_detail,
     get_definition,
+    get_llm_config,
     get_setup_status,
     invite_teacher,
     list_catalog,
@@ -90,6 +93,7 @@ from src.school.service import (
     reorder_package_in_classroom,
     submit_definition,
     update_classroom,
+    update_llm_config,
     register_school,
     reset_student_password,
     reset_teacher_password,
@@ -1317,3 +1321,76 @@ async def reject_definition_endpoint(
         )
 
     return CurriculumDefinitionResponse(**result)
+
+
+# ── Epic 1 — LLM Provider Config ──────────────────────────────────────────────
+
+
+@router.get(
+    "/schools/{school_id}/llm-config",
+    response_model=SchoolLLMConfigResponse,
+)
+async def get_school_llm_config(
+    school_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> SchoolLLMConfigResponse:
+    """
+    Return the school's LLM provider configuration.
+
+    school_admin only. Creates a default config row (anthropic) if none exists.
+    """
+    if teacher.get("role") != "school_admin":
+        raise HTTPException(status_code=403, detail="Only school_admin can view LLM config")
+    if teacher["school_id"] != school_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    async with get_db(request) as conn:
+        config = await get_llm_config(conn, school_id)
+
+    return SchoolLLMConfigResponse(**config)
+
+
+@router.put(
+    "/schools/{school_id}/llm-config",
+    response_model=SchoolLLMConfigResponse,
+)
+async def update_school_llm_config(
+    school_id: str,
+    body: SchoolLLMConfigUpdateRequest,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> SchoolLLMConfigResponse:
+    """
+    Update the school's LLM provider configuration.
+
+    school_admin only. Validates that default_provider is in allowed_providers
+    after the update. DPA acknowledgements are stamped with the current timestamp
+    and are never removed.
+    """
+    if teacher.get("role") != "school_admin":
+        raise HTTPException(status_code=403, detail="Only school_admin can update LLM config")
+    if teacher["school_id"] != school_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    async with get_db(request) as conn:
+        updated = await update_llm_config(
+            conn,
+            school_id,
+            allowed_providers=body.allowed_providers,
+            default_provider=body.default_provider,
+            comparison_enabled=body.comparison_enabled,
+            acknowledge_dpa=body.acknowledge_dpa,
+        )
+
+    # Validate that the default provider is in the allowed set after update
+    if updated["default_provider"] not in updated["allowed_providers"]:
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                f"default_provider '{updated['default_provider']}' is not in "
+                f"allowed_providers {updated['allowed_providers']}"
+            ),
+        )
+
+    return SchoolLLMConfigResponse(**updated)

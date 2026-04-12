@@ -190,6 +190,7 @@ def test_idempotency_skip():
         config.CONTENT_VERSION = 1
         config.CLAUDE_MODEL = "claude-sonnet-4-6"
         config.ANTHROPIC_API_KEY = "test-key"
+        config.DEFAULT_PROVIDER = "anthropic"
         config.TOKEN_COST_INPUT_USD = 0.000003
         config.TOKEN_COST_OUTPUT_USD = 0.000015
         config.MAX_PIPELINE_COST_USD = 50.0
@@ -298,6 +299,8 @@ def test_spend_cap_raises():
         config.CONTENT_VERSION = 1
         config.CLAUDE_MODEL = "claude-sonnet-4-6"
         config.ANTHROPIC_API_KEY = "test-key"
+        config.DEFAULT_PROVIDER = "anthropic"
+        config.S3_BUCKET_NAME = None
         # Very low spend cap — even 1 output token exceeds it
         config.TOKEN_COST_INPUT_USD = 0.000003
         config.TOKEN_COST_OUTPUT_USD = 0.000015

@@ -87,7 +87,8 @@ async def list_review_queue(
                csv.version_number, csv.status, csv.alex_warnings_count,
                csv.generated_at, csv.published_at,
                csv.assigned_to_admin_id::text, csv.assigned_at,
-               au.email AS assigned_to_email
+               au.email AS assigned_to_email,
+               csv.provider
         FROM content_subject_versions csv
         LEFT JOIN admin_users au ON au.admin_user_id = csv.assigned_to_admin_id
         WHERE {where}
@@ -153,7 +154,8 @@ async def get_review_detail(
                csv.version_number, csv.status, csv.alex_warnings_count,
                csv.generated_at, csv.published_at,
                csv.assigned_to_admin_id::text, csv.assigned_at,
-               au.email AS assigned_to_email
+               au.email AS assigned_to_email,
+               csv.provider
         FROM content_subject_versions csv
         LEFT JOIN admin_users au ON au.admin_user_id = csv.assigned_to_admin_id
         WHERE csv.version_id = $1

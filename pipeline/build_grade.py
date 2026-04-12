@@ -87,6 +87,7 @@ async def _upsert_content_subject_version(
     alex_warnings: int,
     auto_approve: bool,
     pipeline_run_id: str,
+    provider: str = "anthropic",
 ) -> None:
     """Create or update content_subject_versions record."""
     status = "pending"
@@ -113,12 +114,13 @@ async def _upsert_content_subject_version(
         """
         INSERT INTO content_subject_versions
             (curriculum_id, subject, subject_name, version_number, status, alex_warnings_count,
-             generated_at, published_at, pipeline_run_id)
-        VALUES ($1, $2, $3, $4, $5, $6, NOW(), $7, $8)
+             provider, generated_at, published_at, pipeline_run_id)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8, $9)
         ON CONFLICT (curriculum_id, subject, version_number) DO UPDATE
             SET status = EXCLUDED.status,
                 subject_name = EXCLUDED.subject_name,
                 alex_warnings_count = EXCLUDED.alex_warnings_count,
+                provider = EXCLUDED.provider,
                 published_at = EXCLUDED.published_at,
                 pipeline_run_id = EXCLUDED.pipeline_run_id
         """,
@@ -128,6 +130,7 @@ async def _upsert_content_subject_version(
         next_version,
         status,
         alex_warnings,
+        provider,
         published_at,
         pipeline_run_id,
     )
@@ -139,15 +142,27 @@ def run_grade(
     year: int = 2026,
     force: bool = False,
     dry_run: bool = False,
+    providers: list[str] | None = None,
 ) -> dict:
     """
     Build all content for a grade. Returns a run summary dict.
+
+    Args:
+        providers: List of provider IDs to run, e.g. ["anthropic", "openai"].
+                   Each provider gets its own content_subject_versions row so
+                   outputs land in the review queue for side-by-side comparison.
+                   Defaults to [config.DEFAULT_PROVIDER] when not given.
     """
     from pipeline.config import settings as config
     from pipeline.build_unit import build_unit, SpendCapExceeded
+    from pipeline.providers import get_provider
 
     start_ms = time.monotonic()
     pipeline_run_id = f"run-g{grade}-{int(start_ms)}"
+
+    # Resolve provider list — default to the single configured default provider
+    resolved_providers = providers or [getattr(config, "DEFAULT_PROVIDER", "anthropic")]
+    is_comparison = len(resolved_providers) > 1
 
     # ── Load grade data ───────────────────────────────────────────────────────
     data_path = os.path.join(_REPO_ROOT, "data", f"grade{grade}_stem.json")
@@ -185,13 +200,18 @@ def run_grade(
     failed = 0
     all_failed = False
 
+    if is_comparison:
+        log.info(
+            "comparison_build_start grade=%d providers=%s",
+            grade, resolved_providers,
+        )
+
     for subject in subjects:
         subject_id = subject.get("subject_id", "unknown")
         subject_name = subject.get("name", subject_id)
         units = subject.get("units", [])
-        subject_alex_warnings = 0
 
-        # Upsert units into DB
+        # Upsert units into DB once — provider-agnostic schema
         if db_conn and not dry_run:
             try:
                 asyncio.get_event_loop().run_until_complete(
@@ -200,82 +220,101 @@ def run_grade(
             except Exception as exc:
                 log.warning("db_upsert_units_skip: %s", exc)
 
-        for unit in units:
-            unit_id = unit["unit_id"]
-            total_units += 1
+        # Run each provider in sequence; each gets its own version row
+        for provider_id in resolved_providers:
+            subject_alex_warnings = 0
 
-            # Inject subject info and grade into unit_data
-            unit_data = {
-                **unit,
-                "subject": subject_id,
-                "grade": grade,
-            }
+            # Instantiate provider once per subject×provider (keeps connection open across units)
+            try:
+                llm_provider = get_provider(provider_id, config) if not dry_run else None
+            except RuntimeError as exc:
+                log.error("provider_init_failed provider=%s error=%s", provider_id, exc)
+                failed += len(units) * len(langs)
+                continue
 
-            for lang in langs:
-                try:
-                    result = build_unit(
-                        curriculum_id=curriculum_id,
-                        unit_id=unit_id,
-                        unit_data=unit_data,
-                        lang=lang,
-                        config=config,
-                        force=force,
-                        dry_run=dry_run,
-                    )
+            for unit in units:
+                unit_id = unit["unit_id"]
+                if provider_id == resolved_providers[0]:
+                    total_units += 1
 
-                    total_tokens += result.get("tokens_used", 0)
-                    total_cost += result.get("cost_usd", 0.0)
-                    subject_alex_warnings += result.get("alex_warnings", 0)
+                unit_data = {
+                    **unit,
+                    "subject": subject_id,
+                    "grade": grade,
+                }
 
-                    if result["status"] in ("ok", "skipped", "dry_run"):
-                        succeeded += 1
-                    else:
-                        failed += 1
+                for lang in langs:
+                    try:
+                        result = build_unit(
+                            curriculum_id=curriculum_id,
+                            unit_id=unit_id,
+                            unit_data=unit_data,
+                            lang=lang,
+                            config=config,
+                            force=force,
+                            dry_run=dry_run,
+                            provider_id=provider_id,
+                            provider=llm_provider,
+                        )
 
-                    # Per-unit structured log
-                    print(json.dumps({
-                        "event": "unit_complete",
-                        "unit_id": unit_id,
-                        "lang": lang,
-                        "tokens": result.get("tokens_used", 0),
-                        "cost_usd": round(result.get("cost_usd", 0.0), 6),
-                        "duration_ms": result.get("duration_ms", 0),
-                        "alex_warnings": result.get("alex_warnings", 0),
-                        "status": result["status"],
-                    }))
+                        total_tokens += result.get("tokens_used", 0)
+                        total_cost += result.get("cost_usd", 0.0)
+                        subject_alex_warnings += result.get("alex_warnings", 0)
 
-                except SpendCapExceeded as exc:
-                    log.error("spend_cap_exceeded: %s", exc)
-                    all_failed = True
+                        if result["status"] in ("ok", "skipped", "dry_run"):
+                            succeeded += 1
+                        else:
+                            failed += 1
+
+                        # Per-unit structured log
+                        print(json.dumps({
+                            "event": "unit_complete",
+                            "unit_id": unit_id,
+                            "lang": lang,
+                            "provider": provider_id,
+                            "tokens": result.get("tokens_used", 0),
+                            "cost_usd": round(result.get("cost_usd", 0.0), 6),
+                            "duration_ms": result.get("duration_ms", 0),
+                            "alex_warnings": result.get("alex_warnings", 0),
+                            "status": result["status"],
+                        }))
+
+                    except SpendCapExceeded as exc:
+                        log.error("spend_cap_exceeded provider=%s: %s", provider_id, exc)
+                        all_failed = True
+                        break
+
+                if all_failed:
                     break
 
             if all_failed:
+                log.error("aborting_due_to_spend_cap")
                 break
 
-        if all_failed:
-            log.error("aborting_due_to_spend_cap")
-            break
-
-        # ── Create/update content_subject_versions in DB ──────────────────────
-        if db_conn and not dry_run:
-            try:
-                asyncio.get_event_loop().run_until_complete(
-                    _upsert_content_subject_version(
-                        db_conn,
-                        curriculum_id,
-                        subject_id,
-                        subject_name,
-                        subject_alex_warnings,
-                        config.REVIEW_AUTO_APPROVE,
-                        pipeline_run_id,
+            # ── Create/update content_subject_versions in DB (per provider) ──
+            if db_conn and not dry_run:
+                try:
+                    asyncio.get_event_loop().run_until_complete(
+                        _upsert_content_subject_version(
+                            db_conn,
+                            curriculum_id,
+                            subject_id,
+                            subject_name,
+                            subject_alex_warnings,
+                            config.REVIEW_AUTO_APPROVE,
+                            pipeline_run_id,
+                            provider=provider_id,
+                        )
                     )
-                )
-                log.info(
-                    "content_subject_version_created curriculum=%s subject=%s warnings=%d",
-                    curriculum_id, subject_id, subject_alex_warnings,
-                )
-            except Exception as exc:
-                log.warning("db_csv_upsert_skip: %s", exc)
+                    log.info(
+                        "content_subject_version_created curriculum=%s subject=%s provider=%s warnings=%d",
+                        curriculum_id, subject_id, provider_id, subject_alex_warnings,
+                    )
+                except Exception as exc:
+                    log.warning("db_csv_upsert_skip: %s", exc)
+
+        if all_failed:
+            break
 
     if db_conn:
         try:
@@ -289,6 +328,7 @@ def run_grade(
         "event": "run_complete",
         "grade": grade,
         "langs": langs,
+        "providers": resolved_providers,
         "curriculum_id": curriculum_id,
         "total_units": total_units,
         "succeeded": succeeded,
@@ -397,16 +437,28 @@ def main() -> None:
     parser.add_argument("--lang", default="en", help="Comma-separated language codes e.g. en,fr,es")
     parser.add_argument("--year", type=int, default=2026, help="Curriculum year (default: 2026)")
     parser.add_argument("--force", action="store_true", help="Rebuild even if already built")
-    parser.add_argument("--dry-run", action="store_true", help="Log what would be done without calling Claude")
+    parser.add_argument("--dry-run", action="store_true", help="Log what would be done without calling the LLM")
+    parser.add_argument(
+        "--provider",
+        default=None,
+        help=(
+            "Comma-separated provider IDs e.g. anthropic,openai. "
+            "Multiple providers run sequentially; each gets its own version row "
+            "in the review queue for side-by-side comparison. "
+            "Default: config.DEFAULT_PROVIDER (anthropic)."
+        ),
+    )
     args = parser.parse_args()
 
     langs = [l.strip() for l in args.lang.split(",") if l.strip()]
+    providers = [p.strip() for p in args.provider.split(",") if p.strip()] if args.provider else None
     run_grade(
         grade=args.grade,
         langs=langs,
         year=args.year,
         force=args.force,
         dry_run=args.dry_run,
+        providers=providers,
     )
 
 

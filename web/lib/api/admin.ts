@@ -160,6 +160,8 @@ export interface ReviewQueueItem {
   assigned_to_admin_id: string | null;
   assigned_to_email: string | null;
   assigned_at: string | null;
+  /** LLM provider that generated this version — added in Epic 1 */
+  provider: "anthropic" | "openai" | "google" | "school_upload" | null;
 }
 
 export interface ReviewQueueResponse {

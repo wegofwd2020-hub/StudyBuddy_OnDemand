@@ -38,6 +38,34 @@ interface ConfirmState {
   items: QueueItem[];
 }
 
+const PROVIDER_STYLES: Record<string, string> = {
+  anthropic: "bg-purple-100 text-purple-700",
+  openai: "bg-emerald-100 text-emerald-700",
+  google: "bg-blue-100 text-blue-700",
+  school_upload: "bg-orange-100 text-orange-700",
+};
+
+const PROVIDER_LABELS: Record<string, string> = {
+  anthropic: "Claude",
+  openai: "GPT-4o",
+  google: "Gemini",
+  school_upload: "Upload",
+};
+
+function ProviderBadge({ provider }: { provider: string | null }) {
+  if (!provider) return <span className="text-gray-300 text-xs">—</span>;
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center rounded px-2 py-0.5 text-xs font-medium",
+        PROVIDER_STYLES[provider] ?? "bg-gray-100 text-gray-600",
+      )}
+    >
+      {PROVIDER_LABELS[provider] ?? provider}
+    </span>
+  );
+}
+
 export default function AdminContentReviewPage() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("pending");
   const [assignFilter, setAssignFilter] = useState<AssignFilter>("all");
@@ -195,7 +223,10 @@ export default function AdminContentReviewPage() {
                             Subject
                           </th>
                           <th className="px-4 py-3 text-left font-medium text-gray-600">
-                            Lang
+                            Provider
+                          </th>
+                          <th className="px-4 py-3 text-left font-medium text-gray-600">
+                            Ver
                           </th>
                           <th className="px-4 py-3 text-left font-medium text-gray-600">
                             Status
@@ -234,6 +265,9 @@ export default function AdminContentReviewPage() {
                                   </span>
                                 )}
                               </div>
+                            </td>
+                            <td className="px-4 py-3">
+                              <ProviderBadge provider={item.provider} />
                             </td>
                             <td className="px-4 py-3 text-xs text-gray-500">
                               v{item.version_number}

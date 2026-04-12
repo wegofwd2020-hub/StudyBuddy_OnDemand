@@ -1052,3 +1052,127 @@ async def reject_definition(
         reason=reason,
     )
     return d
+
+
+# ── Epic 1 — School LLM Config ────────────────────────────────────────────────
+
+
+async def get_llm_config(conn: asyncpg.Connection, school_id: str) -> dict:
+    """
+    Return school LLM provider configuration.
+
+    Creates a default row (anthropic only) if none exists yet —
+    idempotent via ON CONFLICT DO NOTHING.
+    """
+    import json as _json
+
+    await conn.execute(
+        """
+        INSERT INTO school_llm_config (school_id)
+        VALUES ($1)
+        ON CONFLICT (school_id) DO NOTHING
+        """,
+        uuid.UUID(school_id),
+    )
+
+    row = await conn.fetchrow(
+        """
+        SELECT school_id::text,
+               allowed_providers,
+               default_provider,
+               comparison_enabled,
+               dpa_acknowledged_at
+        FROM school_llm_config
+        WHERE school_id = $1
+        """,
+        uuid.UUID(school_id),
+    )
+    d = dict(row)
+    # JSONB columns arrive as strings in asyncpg when not explicitly cast
+    if isinstance(d.get("allowed_providers"), str):
+        d["allowed_providers"] = _json.loads(d["allowed_providers"])
+    if isinstance(d.get("dpa_acknowledged_at"), str):
+        d["dpa_acknowledged_at"] = _json.loads(d["dpa_acknowledged_at"])
+    return d
+
+
+async def update_llm_config(
+    conn: asyncpg.Connection,
+    school_id: str,
+    *,
+    allowed_providers: list[str] | None,
+    default_provider: str | None,
+    comparison_enabled: bool | None,
+    acknowledge_dpa: list[str] | None,
+) -> dict:
+    """
+    Update school LLM provider configuration.
+
+    DPA acknowledgements are append-only — once a provider is acknowledged
+    its timestamp is never removed (FERPA audit requirement).
+
+    Returns the updated config row.
+    """
+    import json as _json
+    from datetime import datetime, timezone
+
+    # Ensure row exists
+    await conn.execute(
+        """
+        INSERT INTO school_llm_config (school_id)
+        VALUES ($1)
+        ON CONFLICT (school_id) DO NOTHING
+        """,
+        uuid.UUID(school_id),
+    )
+
+    # Build dynamic SET clause
+    updates: list[str] = ["updated_at = NOW()"]
+    params: list = [uuid.UUID(school_id)]
+    idx = 2
+
+    if allowed_providers is not None:
+        updates.append(f"allowed_providers = ${idx}::jsonb")
+        params.append(_json.dumps(allowed_providers))
+        idx += 1
+
+    if default_provider is not None:
+        updates.append(f"default_provider = ${idx}")
+        params.append(default_provider)
+        idx += 1
+
+    if comparison_enabled is not None:
+        updates.append(f"comparison_enabled = ${idx}")
+        params.append(comparison_enabled)
+        idx += 1
+
+    if acknowledge_dpa:
+        # Merge new timestamps into existing JSONB map using || (JSONB merge).
+        # Build a single JSONB object with all acknowledged providers at once.
+        now_iso = datetime.now(tz=timezone.utc).isoformat()
+        # One || per provider to keep the parameterised query straightforward.
+        for provider_id in acknowledge_dpa:
+            updates.append(
+                f"dpa_acknowledged_at = dpa_acknowledged_at || "
+                f"jsonb_build_object('{provider_id}'::text, ${idx}::text)"
+            )
+            params.append(now_iso)
+            idx += 1
+
+    if len(updates) > 1:
+        set_clause = ", ".join(updates)
+        await conn.execute(
+            f"UPDATE school_llm_config SET {set_clause} WHERE school_id = $1",
+            *params,
+        )
+
+    log.info(
+        "llm_config_updated",
+        school_id=school_id,
+        allowed_providers=allowed_providers,
+        default_provider=default_provider,
+        comparison_enabled=comparison_enabled,
+        dpa_providers=acknowledge_dpa,
+    )
+
+    return await get_llm_config(conn, school_id)
