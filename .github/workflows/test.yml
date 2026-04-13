@@ -347,14 +347,14 @@ jobs:
       # Download Snyk SARIF files produced by the snyk job (may not exist if
       # SNYK_TOKEN is not set — the step is guarded with continue-on-error).
       - name: Download Snyk Python SARIF
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: snyk-python-sarif
           path: sarif/
         continue-on-error: true
 
       - name: Download Snyk Node SARIF
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: snyk-node-sarif
           path: sarif/
