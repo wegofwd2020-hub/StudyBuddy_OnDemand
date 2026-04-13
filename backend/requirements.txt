@@ -14,7 +14,7 @@ celery-redbeat==2.2.0
 cachetools==7.0.5
 prometheus-client==0.20.0
 prometheus-fastapi-instrumentator==7.1.0
-sentry-sdk[fastapi]==2.56.0
+sentry-sdk[fastapi]==2.57.0
 structlog==25.5.0
 slowapi==0.1.9
 alembic==1.18.4
