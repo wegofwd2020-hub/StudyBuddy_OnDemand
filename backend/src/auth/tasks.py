@@ -761,23 +761,56 @@ def run_curriculum_pipeline_task(
         built = 0
         failed_units = []
 
+        # Import the real generator + its config. Deferred to task-execution time
+        # because pipeline.* depends on third-party SDKs (anthropic, openai,
+        # google-genai) that should not load at api-boot time.
+        from pipeline.build_unit import build_unit, SpendCapExceeded
+        from pipeline.config import settings as pipeline_config
+
         for unit in units:
+            # Map the DB row → the shape build_unit() expects. The DB has
+            # unit_name + objectives; build_unit reads title/description/has_lab.
+            unit_data = {
+                "title": unit.get("unit_name") or unit["unit_id"],
+                "description": "\n".join(unit.get("objectives") or []),
+                "has_lab": bool(unit.get("has_lab")),
+                "subject": unit.get("subject", ""),
+            }
             for lang in lang_list:
                 unit_id = unit["unit_id"]
                 try:
-                    # In production this calls the pipeline build_unit function.
-                    # In tests this path is mocked via celery_app.send_task mock.
                     log.info(
                         "pipeline_build_unit job_id=%s curriculum_id=%s unit_id=%s lang=%s",
-                        job_id,
-                        curriculum_id,
-                        unit_id,
-                        lang,
+                        job_id, curriculum_id, unit_id, lang,
                     )
-                    built += 1
+                    result = build_unit(
+                        curriculum_id=curriculum_id,
+                        unit_id=unit_id,
+                        unit_data=unit_data,
+                        lang=lang,
+                        config=pipeline_config,
+                        force=force,
+                    )
+                    # build_unit returns {status: "built" | "skipped" | "failed", ...}
+                    if result.get("status") == "failed":
+                        failed_units.append({
+                            "unit_id": unit_id, "lang": lang,
+                            "error": result.get("error", "unknown"),
+                        })
+                    else:
+                        built += 1
+                except SpendCapExceeded as cap_exc:
+                    log.error("pipeline_spend_cap_exceeded job_id=%s error=%s", job_id, cap_exc)
+                    failed_units.append({
+                        "unit_id": unit_id, "lang": lang,
+                        "error": f"spend cap exceeded: {cap_exc}",
+                    })
+                    # Stop dispatching further units once we hit the spend cap.
+                    break
                 except Exception as unit_exc:
                     log.warning(
-                        "pipeline_unit_failed unit_id=%s lang=%s error=%s", unit_id, lang, unit_exc
+                        "pipeline_unit_failed unit_id=%s lang=%s error=%s",
+                        unit_id, lang, unit_exc,
                     )
                     failed_units.append({"unit_id": unit_id, "lang": lang, "error": str(unit_exc)})
 
@@ -785,6 +818,11 @@ def run_curriculum_pipeline_task(
                 _update_job(
                     {"built": built, "failed": len(failed_units), "progress_pct": progress_pct}
                 )
+            else:
+                # Inner loop finished without break — continue outer loop.
+                continue
+            # Inner loop broke (spend cap) — propagate to outer.
+            break
 
         final_status = "completed" if not failed_units else "completed_with_errors"
 

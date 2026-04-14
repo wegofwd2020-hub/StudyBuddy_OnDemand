@@ -34,6 +34,13 @@ from config import settings
 celery_app = Celery(
     "studybuddy",
     broker=settings.effective_celery_broker_url,
+    # `include` is eager — Celery imports these modules at app construction so
+    # every @celery_app.task decorator registers onto this instance before any
+    # worker consumes a message. Without this, the task registry is empty at
+    # worker boot and every incoming task is silently discarded as
+    # "unregistered" — which is exactly what was happening to
+    # run_curriculum_pipeline_task.
+    include=["src.auth.tasks"],
 )
 
 celery_app.conf.update(

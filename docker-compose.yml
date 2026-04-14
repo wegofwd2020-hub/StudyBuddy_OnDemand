@@ -239,9 +239,12 @@ services:
       <<: *api-env
       # Pipeline worker also needs the Anthropic key for triggered jobs
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      # Make `from pipeline.build_unit import build_unit` importable — the
+      # pipeline/ tree is mounted at /app/pipeline below.
+      PYTHONPATH: /app
     volumes:
       - ./backend:/app
-      - ./pipeline:/pipeline
+      - ./pipeline:/app/pipeline
       - ./data:/data
       - ./content_store_data:/data/content
     depends_on:
