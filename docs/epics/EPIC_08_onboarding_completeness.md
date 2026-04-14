@@ -53,6 +53,8 @@ Full specification lives in
 | H-5 | `<Measurement value={250} unit="ml" />` component — consumes unit-system context; fallback to raw string if JSON still holds inline value | S |
 | H-6 | Experiment JSON schema update — canonical metric storage format; migrate existing content lazily (component handles both shapes) | M |
 | H-7 | Tests — API validation, country whitelist, unit conversion (metric↔imperial for common units: ml, L, g, kg, cm, m, °C) | S |
+| H-8 | **Streams — backend** ✅ (shipped 2026-04-14) — migration `0044_stream_column` adds `curricula.stream_code`, `students.stream`, `teachers.stream`; admin upload + trigger endpoints accept `stream` query/body param; curriculum_id gains `-{stream}` suffix; `pipeline/build_grade.py` honours the stream arg. Canonical codes: `science | commerce | humanities | english | stem`. Backward-compatible — legacy stream-unaware uploads still work. | S |
+| H-9 | **Streams — student/teacher UI** — stream picker on onboarding; students.stream filter on curriculum map, content library, reports; school portal "Upload curriculum" form exposes a stream dropdown; teacher assignment UI accepts stream | M |
 
 ---
 
