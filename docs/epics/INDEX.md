@@ -14,7 +14,7 @@ the decision notes become the spec and we develop from there.
 |---|---|---|---|
 | 1 | Multi-Provider LLM Pipeline | [EPIC_01_multi_provider_llm.md](EPIC_01_multi_provider_llm.md) | ✅ Complete (F-1–F-5, 19 tests, migration 0043) |
 | 2 | Production Launch & Demo Readiness | [EPIC_02_production_launch.md](EPIC_02_production_launch.md) | 🚧 G-2/G-3/G-5 done; G-1/G-4 blocked on hosting decision |
-| 3 | Student Mobile App | [EPIC_03_student_mobile.md](EPIC_03_student_mobile.md) | 💭 Your call |
+| 3 | Student Mobile App (Expo / RN) | [EPIC_03_student_mobile.md](EPIC_03_student_mobile.md) | ✅ Path B chosen 2026-04-14; not yet started (parked behind testing + hosting) |
 | 4 | Parent Portal | [EPIC_04_parent_portal.md](EPIC_04_parent_portal.md) | 💭 Your call |
 | 5 | District Admin | [EPIC_05_district_admin.md](EPIC_05_district_admin.md) | 💭 Your call |
 | 6 | Platform Hardening | [EPIC_06_platform_hardening.md](EPIC_06_platform_hardening.md) | 🚧 K-1/K-2/K-3/K-6 done; K-4/K-5 need staging |
@@ -44,8 +44,8 @@ User is in a testing phase. Resume these conversations afterward, in this order:
    open question is whether to invest in interactive simulations (PhET-style
    live manipulation, 3D rendering, lab-bench UI). New epic if pursued.
 3. **Pick the next product epic** — Onboarding Completeness (8),
-   Accessibility & Personalization (9), Student Mobile (3), Parent Portal (4),
-   District Admin (5), or Platform Hardening finish (6).
+   Accessibility & Personalization (9), Student Mobile (3 — Path B chosen, ready to
+   schedule), Parent Portal (4), District Admin (5), or Platform Hardening finish (6).
 
 Already settled, do **not** reopen unless something changes:
 - Multi-provider LLM pipeline — shipped as Epic 1 on 2026-04-12.

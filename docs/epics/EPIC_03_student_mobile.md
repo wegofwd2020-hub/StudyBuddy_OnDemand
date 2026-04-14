@@ -1,82 +1,138 @@
-# Epic 3 — Student Mobile App
+# Epic 3 — Student Mobile App (Expo / React Native)
 
-**Status:** 💭 Your call
+**Status:** ✅ Path B chosen (2026-04-14) — not yet started; parked behind testing phase and hosting decision.
 
 ---
 
 ## What it is
 
-Improve the student-facing mobile experience: the current Kivy app is a thin
-client built for offline-first study. This epic covers either hardening the
-existing Kivy app for a real release, or replacing it with a React Native / Expo
-app that shares components with the existing Next.js web frontend.
+Rewrite the student-facing mobile app in Expo / React Native, sharing TypeScript
+types, API clients, Zod schemas, and UI logic with the existing Next.js web
+frontend. The existing Kivy app at `mobile/` is retained as a working reference
+during the rewrite and deleted after feature parity.
 
 ---
 
-## Current state
+## Decision record — Path B chosen (2026-04-14)
 
-A Kivy (Python) mobile app exists at `mobile/`. It is a thin client:
+Path A (harden Kivy) was considered and rejected. Reasons:
 
-- Reads curriculum metadata from `data/*.json` (grade-level JSON files)
-- Fetches lesson/quiz content from the backend API
-- Caches content in SQLite for offline access
-- Queues progress + analytics events in SQLite `event_queue`, synced on foreground
-- Has a `SyncManager`, `LocalCache`, `ProgressQueue`, and `CurriculumResolver`
-- i18n for EN/FR/ES UI strings
-- No production build pipeline exists (no APK, no app store listing)
+| Factor | Why Path B wins |
+|---|---|
+| Accessibility (Epic 9 + WCAG 2.1 AA) | RN Accessibility API is first-class; Kivy has no mature a11y tooling |
+| Code sharing with Next.js web | TypeScript types, API clients, `next-intl` JSON, Zod schemas, hooks all reuse |
+| Team fit | Team already ships React + TS + Tailwind on the web — Expo is the same stack |
+| Android build pipeline | EAS Build is standard; `buildozer` / python-for-android produces large slow APKs |
+| iOS story | Expo supports iOS in the same codebase; Kivy on iOS is impractical |
+| App store submission | Expo EAS Submit is mature; Kivy path is bespoke |
+| Offline-first | `expo-sqlite` + `expo-file-system` + `@react-native-community/netinfo` cover every current Kivy capability |
+| Architecture reusability | `mobile/ARCHITECTURE.md` (committed 2026-04-14) is substrate-agnostic — personas, offline sync, auth flow, API contract all transfer |
 
-**Key gap:** The Kivy app was built as a proof-of-concept. It has no tests for UI
-screens, no accessibility support verified, no production signing/build pipeline,
-and no feature parity with the web portal's school features (classrooms, reports).
+Path A remained viable only under a narrow scenario (single-partner Android-only
+pilot, no accessibility target) which does not match this product's positioning.
 
-The `mobile/ARCHITECTURE.md` file exists (recently added) but content unknown.
+---
+
+## Current state — what exists to port from
+
+| Area | Kivy reference | Port strategy |
+|---|---|---|
+| Screens | 12 Kivy screens: Login, Tutorial, Quiz, Dashboard, Subject, Progress, Stats, Experiment, Result, Subscription, Settings, CurriculumMap | Redesign per Rule #18 typography; rebuild as RN components |
+| API clients | `mobile/src/api/` — auth, content, progress, subscription, analytics | Extract to shared `packages/api-client` consumed by both `web/` and `mobile-rn/` |
+| Offline sync | `SyncManager`, `LocalCache`, `EventQueue` in `mobile/src/logic/` | Port logic, swap Kivy/Python SQLite for `expo-sqlite` |
+| i18n | `mobile/i18n/{en,fr,es}.json` | Extract to shared `packages/i18n`; reuse in web + mobile-rn |
+| Architecture | `mobile/ARCHITECTURE.md` — 14 sections, 1135 lines | Treat as the spec; substrate-agnostic content maps directly to RN |
+| Known gaps (from ARCHITECTURE.md) | ProgressQueue, CurriculumResolver, network listener, centralised error types | Build correctly the first time in RN rather than backporting to Kivy |
 
 ---
 
 ## Why it matters
 
-Students are the end users. Most K-12 students study on a phone. A polished,
+Students are the end users. Most K-12 students study on a phone. An accessible,
 offline-capable mobile experience is the product's core value proposition for
-students in low-bandwidth environments.
+students in low-bandwidth environments. The Next.js web portal is the teacher /
+school-admin surface; the mobile app is where students actually live.
 
 ---
 
-## Two paths
+## Phased scope
 
-### Path A — Harden the Kivy app
-Continue with Python/Kivy. Better for teams with Python skills and no
-React Native experience. Lower rewrite risk but Kivy has limited community
-support, poor accessibility tooling, and no component sharing with the web frontend.
+### Wave 1 — Monorepo foundation
 
-### Path B — React Native / Expo rewrite
-Rewrite the student app in React Native (Expo). Shares TypeScript types, API
-client code, and some UI logic with the Next.js web frontend. Better long-term
-maintainability, stronger accessibility (React Native Accessibility API), and
-a proper app store build pipeline via EAS Build.
+| Phase | What gets built | Size |
+|---|---|---|
+| M-1 | Convert root to pnpm workspace (or Turborepo). Extract `packages/api-client`, `packages/schemas` (Zod), `packages/i18n`. Make `web/` consume them. No behaviour change. | M |
+| M-2 | Scaffold `mobile-rn/` — Expo SDK 51+, Expo Router, TypeScript strict, EAS project. Consumes the shared packages from M-1. | S |
+| M-3 | CI: lint + type-check + unit tests for `mobile-rn/` in GitHub Actions. Add `mobile-rn/` to existing `test.yml` workflow. | S |
 
----
+### Wave 2 — Auth + shell
 
-## Rough scope (Path B — React Native)
+| Phase | What gets built | Size |
+|---|---|---|
+| M-4 | Auth0 PKCE flow via `expo-auth-session`; secure token storage via `expo-secure-store`; token refresh interceptor in shared `api-client`. | M |
+| M-5 | Local auth (school-provisioned, email+password) — supports the third auth track shipped in Phase A. Respects `first_login=true` → forced reset screen. | S |
+| M-6 | App shell: Expo Router tabs (Home / Progress / Settings), theme tokens from web (OKLch CSS-variables → RN equivalent via `useColorScheme` + theme context), Rule #18 font stack via `expo-font`. | M |
 
-| Phase | What gets built |
-|---|---|
-| H-1 | Expo project setup, shared `lib/api/` types from web, Auth0 login flow |
-| H-2 | Student home screen: subject cards, unit list, lesson viewer |
-| H-3 | Quiz flow: question display, answer selection, results screen |
-| H-4 | Offline sync: SQLite cache, event queue, SyncManager (port from Kivy) |
-| H-5 | Audio player, progress screen, streak display |
-| H-6 | EAS Build pipeline: staging APK + iOS TestFlight |
+### Wave 3 — Learning core (standard student persona)
+
+| Phase | What gets built | Size |
+|---|---|---|
+| M-7 | Subject cards + unit list (home screen). Consumes existing `/api/v1/content/*` endpoints. | S |
+| M-8 | Lesson viewer: Markdown via `react-native-markdown-display`; Mermaid diagrams (via `react-native-svg` stub or WebView); JetBrains Mono for equations. | M |
+| M-9 | Audio player: pre-signed CDN URL → `expo-av`; transcript toggle (wires up Epic 9 I-12). | S |
+| M-10 | Quiz flow: MCQ UI, answer selection, results screen, fire-and-forget `POST /progress/answer`. | M |
+| M-11 | Experiment viewer: ports ExperimentScreen behaviour from Kivy; renders canonical-unit measurements via `<Measurement>` component (Epic 8 H-5). | M |
+
+### Wave 4 — Offline-first
+
+| Phase | What gets built | Size |
+|---|---|---|
+| M-12 | `LocalCache` on `expo-sqlite`: content JSON keyed by `unit_id + curriculum_id + content_version + lang`; LRU eviction under `MAX_CACHE_MB`. | M |
+| M-13 | `EventQueue` on `expo-sqlite`: progress + analytics events with UUID `event_id`; backend deduplicates via `ON CONFLICT DO NOTHING`. | S |
+| M-14 | `SyncManager`: foreground-resume flush **plus** `@react-native-community/netinfo` network-state listener (closes a Known Gap from ARCHITECTURE.md). | M |
+| M-15 | Audio cache on `expo-file-system`: MP3 files keyed by CloudFront URL hash; size budget separate from content cache. | S |
+| M-16 | Centralised error types + exponential backoff (closes another Known Gap). | S |
+
+### Wave 5 — School-enrolled student features
+
+| Phase | What gets built | Size |
+|---|---|---|
+| M-17 | Curriculum resolver on device: restrict-access filter, classroom assignment awareness (closes Known Gap). | M |
+| M-18 | Subscription paywall intercept: 402 from backend → Stripe Checkout in system browser via `expo-web-browser`; deep-link back to app. | S |
+| M-19 | Progress dashboard, streak counter, history screen (port from Kivy). | M |
+
+### Wave 6 — Release readiness
+
+| Phase | What gets built | Size |
+|---|---|---|
+| M-20 | Accessibility pass: RN Accessibility API coverage, VoiceOver + TalkBack testing, focus order, contrast audit. | M |
+| M-21 | Crash reporting + structured logging (Sentry or equivalent); offline-safe log buffer. | S |
+| M-22 | EAS Build: staging Android (APK internal track) + iOS (TestFlight). | M |
+| M-23 | Play Store + App Store submission: privacy manifests (COPPA data-safety form, FERPA disclosures), icons, screenshots, store copy. | M |
+| M-24 | Delete `mobile/` Kivy tree after production release sign-off. | S |
 
 ---
 
 ## Open questions
 
-1. **Kivy or React Native?** This is the biggest decision. What's the team's React Native experience?
-2. **Target platform:** Android only, iOS only, or both from day one?
-3. **Offline depth:** Full offline (download entire curriculum) or lightweight offline (cache last-viewed lessons only)?
-4. **Student auth:** Students currently use Auth0 or local auth (school-provisioned). Should mobile support both auth tracks from launch?
-5. **Feature scope at v1:** Lessons + quizzes only, or also tutorials and experiments?
-6. **App store:** Private TestFlight/internal track first, or public release from day one?
+1. **Monorepo tool.** pnpm workspaces (lightest) vs Turborepo (caching + remote build cache) vs Nx (heaviest, most features). Turborepo is the usual sweet spot for a 2-app repo.
+2. **RN New Architecture (Fabric / TurboModules).** Expo SDK 51 makes it opt-in; 52 makes it default. Ship with new arch from day one, or stay on bridge for v1?
+3. **Offline depth.** Full-curriculum prefetch on Wi-Fi toggle, or cache only what's been tapped? Lighter-touch (cache-on-tap) ships faster and matches current Kivy behaviour.
+4. **Single codebase vs two.** One Expo app with runtime platform branches, or separate Android/iOS Expo configurations? Single is the default unless a specific feature forces divergence.
+5. **Deep-linking URL scheme.** `studybuddy://` vs `https://study.buddy.app/` universal links. Universal links are better for sharing but require domain + DNS — gated on hosting decision (Epic 2 G-1).
+6. **Kivy app transition.** Hard cutover at M-24, or soft deprecation with a "migrate to the new app" prompt in the Kivy version?
+7. **Release cadence.** OTA updates via Expo Updates for JS-only changes, or always go through the stores? OTA is faster but some school IT policies block it.
+
+---
+
+## Dependencies
+
+- **Epic 2 (Hosting)** — deep-link domain (Q5) and production Auth0 tenant gate M-4 and M-22.
+- **Epic 8 (Onboarding Completeness)** — `<Measurement>` component (H-5) is reused by M-11 experiments.
+- **Epic 9 (Accessibility & Personalization)** — shared theme tokens (I-9) reused by M-6; transcript toggle (I-12) reused by M-9; `packages/i18n` landed here but extracted in Epic 9 Wave 1.
+
+Epic 3 can start as soon as Epic 2 hosting is settled. Monorepo extraction (Wave
+1) has no external blockers and could begin at any time.
 
 ---
 
@@ -84,6 +140,6 @@ a proper app store build pipeline via EAS Build.
 
 > Add your thoughts here. Even rough bullet points are enough to start.
 
--
+- Path B chosen on 2026-04-14. Kivy app stays as reference; delete at M-24.
 -
 -
