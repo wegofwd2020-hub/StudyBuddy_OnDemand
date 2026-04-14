@@ -1,0 +1,197 @@
+{
+  "grade": 12,
+  "subjects": [
+    {
+      "subject_id": "G12-PHYS",
+      "name": "Physics",
+      "units": [
+        {
+          "unit_id": "G12-PHYS-001",
+          "title": "Electrostatics",
+          "description": "Electric Charges and Fields. Electrostatic Potential. Capacitance.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G12-PHYS-002",
+          "title": "Current Electricity",
+          "description": "Ohm's Law. Kirchhoff's Laws. Wheatstone Bridge. Moving Charges and Magnetism.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G12-PHYS-003",
+          "title": "Magnetic Effects and Electromagnetic Induction",
+          "description": "Magnetism and Matter. Electromagnetic Induction. Alternating Current.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G12-PHYS-004",
+          "title": "Electromagnetic Waves",
+          "description": "Electromagnetic Spectrum. Displacement Current.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G12-PHYS-005",
+          "title": "Optics",
+          "description": "Ray Optics. Wave Optics. Interference. Diffraction.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G12-PHYS-006",
+          "title": "Dual Nature of Radiation and Matter",
+          "description": "Photoelectric Effect. de Broglie Hypothesis.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G12-PHYS-007",
+          "title": "Atoms and Nuclei",
+          "description": "Bohr's Model. Nuclear Reactions. Radioactivity. Nuclear Energy.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G12-PHYS-008",
+          "title": "Electronic Devices",
+          "description": "Semiconductors. p-n Junction Diodes. Transistors. Logic Gates.",
+          "has_lab": true
+        }
+      ]
+    },
+    {
+      "subject_id": "G12-CHEM",
+      "name": "Chemistry",
+      "units": [
+        {
+          "unit_id": "G12-CHEM-001",
+          "title": "Solutions",
+          "description": "Raoult's Law. Colligative Properties.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G12-CHEM-002",
+          "title": "Electrochemistry",
+          "description": "Galvanic Cells. Nernst Equation. Kohlrausch's Law.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G12-CHEM-003",
+          "title": "Chemical Kinetics",
+          "description": "Rate Laws. Activation Energy. Arrhenius Equation.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G12-CHEM-004",
+          "title": "d- and f-Block Elements",
+          "description": "Transition Metals. Lanthanoids. Actinoids.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G12-CHEM-005",
+          "title": "Coordination Compounds",
+          "description": "IUPAC Nomenclature. Crystal Field Theory. Bonding in Coordination Compounds.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G12-CHEM-006",
+          "title": "Haloalkanes and Haloarenes",
+          "description": "Preparation. Physical & Chemical Properties. SN1 & SN2 Reactions.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G12-CHEM-007",
+          "title": "Alcohols, Phenols and Ethers",
+          "description": "Preparation and Properties. Reactions.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G12-CHEM-008",
+          "title": "Aldehydes, Ketones and Carboxylic Acids",
+          "description": "Nucleophilic Addition. Oxidation Reactions. Acidity of Carboxylic Acids.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G12-CHEM-009",
+          "title": "Amines",
+          "description": "Classification. Preparation. Diazonium Salts.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G12-CHEM-010",
+          "title": "Biomolecules",
+          "description": "Carbohydrates. Proteins. Nucleic Acids. Vitamins & Hormones.",
+          "has_lab": true
+        }
+      ]
+    },
+    {
+      "subject_id": "G12-MATH",
+      "name": "Mathematics",
+      "units": [
+        {
+          "unit_id": "G12-MATH-001",
+          "title": "Relations and Functions",
+          "description": "Types of Relations. Inverse Trigonometric Functions.",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G12-MATH-002",
+          "title": "Algebra",
+          "description": "Matrices. Determinants.",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G12-MATH-003",
+          "title": "Calculus",
+          "description": "Continuity and Differentiability. Applications of Derivatives. Integrals. Applications of Integrals. Differential Equations.",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G12-MATH-004",
+          "title": "Vectors and 3D Geometry",
+          "description": "Vectors. Three-Dimensional Geometry.",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G12-MATH-005",
+          "title": "Linear Programming",
+          "description": "Formulation of LPP. Graphical Method.",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G12-MATH-006",
+          "title": "Probability",
+          "description": "Conditional Probability. Bayes' Theorem. Probability Distribution. Binomial Distribution.",
+          "has_lab": false
+        }
+      ]
+    },
+    {
+      "subject_id": "G12-BIO",
+      "name": "Biology",
+      "units": [
+        {
+          "unit_id": "G12-BIO-001",
+          "title": "Sexual Reproduction",
+          "description": "Reproduction in Organisms. Sexual Reproduction in Flowering Plants. Human Reproduction. Reproductive Health.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G12-BIO-002",
+          "title": "Genetics and Evolution",
+          "description": "Heredity and Variation. Molecular Basis of Inheritance. Evolution.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G12-BIO-003",
+          "title": "Biology and Human Welfare",
+          "description": "Human Health and Disease. Microbes in Human Welfare. Strategies for Enhancement of Food Production. Biotechnology and its Applications.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G12-BIO-004",
+          "title": "Ecology and Environment",
+          "description": "Organisms and Populations. Ecosystem. Biodiversity and Conservation. Environmental Issues.",
+          "has_lab": true
+        }
+      ]
+    }
+  ]
+}

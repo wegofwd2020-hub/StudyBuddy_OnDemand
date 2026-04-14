@@ -1,0 +1,29 @@
+{
+  "grade": 12,
+  "subjects": [
+    {
+      "subject_id": "G12-ENG",
+      "name": "English Core",
+      "units": [
+        {
+          "unit_id": "G12-ENG-001",
+          "title": "Reading Skills",
+          "description": "Comprehension Passages. Inference-Based Questions.",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G12-ENG-002",
+          "title": "Writing Skills",
+          "description": "Notices and Invitations. Letters. Articles and Reports.",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G12-ENG-003",
+          "title": "Literature",
+          "description": "Flamingo – Prose. Flamingo – Poetry. Vistas – Supplementary Reader.",
+          "has_lab": false
+        }
+      ]
+    }
+  ]
+}

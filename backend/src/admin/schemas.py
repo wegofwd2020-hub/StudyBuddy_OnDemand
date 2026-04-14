@@ -273,6 +273,10 @@ class AdminPipelineTriggerRequest(BaseModel):
     langs: str = "en"
     force: bool = False
     year: int = 2026
+    # Optional stream suffix — see migration 0044 + admin upload-grade endpoint.
+    # When present, the task builds curriculum_id `default-{year}-g{grade}-{stream}`
+    # reading from `data/grade{N}_{stream}.json`. When absent, legacy behaviour.
+    stream: str | None = None
 
 
 class AdminPipelineTriggerResponse(BaseModel):

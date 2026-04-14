@@ -882,6 +882,7 @@ def run_grade_pipeline_task(
     langs: str,
     force: bool,
     year: int,
+    stream: str | None = None,
 ) -> None:
     """
     Build content for all units in a default grade curriculum.
@@ -953,7 +954,13 @@ def run_grade_pipeline_task(
             year,
         )
 
-        summary = run_grade(grade=grade, langs=langs.split(","), year=year, force=force) or {}
+        summary = run_grade(
+            grade=grade,
+            langs=langs.split(","),
+            year=year,
+            force=force,
+            stream=stream,
+        ) or {}
         # run_grade() returns {total_units, succeeded, failed, total_tokens,
         # total_cost_usd, duration_ms, ...}. Capture these so the admin UI
         # shows real built/failed/total counts instead of 0/0.
@@ -967,6 +974,8 @@ def run_grade_pipeline_task(
             import os as _os2
 
             curriculum_id = f"default-{year}-g{grade}"
+            if stream:
+                curriculum_id = f"{curriculum_id}-{stream}"
             content_dir = _os2.path.join(
                 pipeline_cfg.settings.CONTENT_STORE_PATH, "curricula", curriculum_id
             )

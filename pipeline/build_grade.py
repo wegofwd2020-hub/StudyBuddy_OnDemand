@@ -143,11 +143,18 @@ def run_grade(
     force: bool = False,
     dry_run: bool = False,
     providers: list[str] | None = None,
+    stream: str | None = None,
 ) -> dict:
     """
-    Build all content for a grade. Returns a run summary dict.
+    Build all content for a grade (or a specific stream within a grade).
+    Returns a run summary dict.
 
     Args:
+        stream:    Optional stream code — "science", "commerce", "humanities",
+                   "english", "stem". When set, reads `data/grade{N}_{stream}.json`
+                   and writes under curriculum_id `default-{year}-g{grade}-{stream}`.
+                   When None, uses the legacy `grade{N}_stem.json` + curriculum_id
+                   `default-{year}-g{grade}` so existing callers are unaffected.
         providers: List of provider IDs to run, e.g. ["anthropic", "openai"].
                    Each provider gets its own content_subject_versions row so
                    outputs land in the review queue for side-by-side comparison.
@@ -165,7 +172,9 @@ def run_grade(
     is_comparison = len(resolved_providers) > 1
 
     # ── Load grade data ───────────────────────────────────────────────────────
-    data_path = os.path.join(_REPO_ROOT, "data", f"grade{grade}_stem.json")
+    # Stream-specific file if stream is set, else legacy `_stem.json`.
+    file_suffix = stream or "stem"
+    data_path = os.path.join(_REPO_ROOT, "data", f"grade{grade}_{file_suffix}.json")
     if not os.path.exists(data_path):
         raise FileNotFoundError(f"Grade data not found: {data_path}")
 
@@ -173,6 +182,8 @@ def run_grade(
         grade_data = json.load(f)
 
     curriculum_id = f"default-{year}-g{grade}"
+    if stream:
+        curriculum_id = f"{curriculum_id}-{stream}"
     subjects = grade_data.get("subjects", [])
 
     # ── DB connection (optional — skip if DATABASE_URL not set) ───────────────
