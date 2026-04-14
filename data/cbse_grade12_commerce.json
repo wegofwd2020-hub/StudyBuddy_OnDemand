@@ -1,0 +1,65 @@
+{
+  "grade": 12,
+  "subjects": [
+    {
+      "subject_id": "G12-ACC",
+      "name": "Accountancy",
+      "units": [
+        {
+          "unit_id": "G12-ACC-001",
+          "title": "Partnership Accounts",
+          "description": "Fundamentals of Partnership. Reconstitution of a Partnership Firm. Dissolution of Partnership.",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G12-ACC-002",
+          "title": "Company Accounts",
+          "description": "Accounting for Share Capital. Issue and Redemption of Debentures.",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G12-ACC-003",
+          "title": "Financial Statement Analysis",
+          "description": "Analysis of Financial Statements. Accounting Ratios. Cash Flow Statement.",
+          "has_lab": false
+        }
+      ]
+    },
+    {
+      "subject_id": "G12-BUS",
+      "name": "Business Studies",
+      "units": [
+        {
+          "unit_id": "G12-BUS-001",
+          "title": "Principles and Functions of Management",
+          "description": "Nature and Significance of Management. Principles of Management. Business Environment. Planning. Organising. Staffing. Directing. Controlling.",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G12-BUS-002",
+          "title": "Business Finance and Marketing",
+          "description": "Financial Management. Financial Markets. Marketing Management. Consumer Protection. Entrepreneurship Development.",
+          "has_lab": false
+        }
+      ]
+    },
+    {
+      "subject_id": "G12-ECON",
+      "name": "Economics",
+      "units": [
+        {
+          "unit_id": "G12-ECON-001",
+          "title": "Introductory Macroeconomics",
+          "description": "National Income Accounting. Money and Banking. Determination of Income and Employment. Government Budget and the Economy. Balance of Payments.",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G12-ECON-002",
+          "title": "Indian Economic Development",
+          "description": "Development Experience (1947-90). Economic Reforms since 1991. Current Challenges Facing Indian Economy.",
+          "has_lab": false
+        }
+      ]
+    }
+  ]
+}

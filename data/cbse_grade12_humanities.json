@@ -1,0 +1,83 @@
+{
+  "grade": 12,
+  "subjects": [
+    {
+      "subject_id": "G12-HIST",
+      "name": "History",
+      "units": [
+        {
+          "unit_id": "G12-HIST-001",
+          "title": "Early India",
+          "description": "Bricks, Beads and Bones – Harappan Civilisation. Kings, Farmers and Towns. Kinship, Caste and Class.",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G12-HIST-002",
+          "title": "Medieval India",
+          "description": "Bhakti-Sufi Traditions. Through the Eyes of Travellers. Agrarian Structure in the Mughal Empire. Religious Histories.",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G12-HIST-003",
+          "title": "Modern India",
+          "description": "Colonialism and the Countryside. Rebels and the Raj – 1857. Mahatma Gandhi and the Nationalist Movement. Partition. The Constitution.",
+          "has_lab": false
+        }
+      ]
+    },
+    {
+      "subject_id": "G12-POL",
+      "name": "Political Science",
+      "units": [
+        {
+          "unit_id": "G12-POL-001",
+          "title": "Contemporary World Politics",
+          "description": "The Cold War Era. The End of Bipolarity. US Hegemony in World Politics. Alternative Centres of Power. Contemporary South Asia. International Organisations. Security in the Contemporary World. Environment and Natural Resources. Globalisation.",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G12-POL-002",
+          "title": "Politics in India since Independence",
+          "description": "Challenges of Nation Building. Era of One-Party Dominance. Politics of Planned Development. India's External Relations. Challenges to the Congress System. Coalition Politics. Rise of New Social Movements. Regional Aspirations. Recent Developments.",
+          "has_lab": false
+        }
+      ]
+    },
+    {
+      "subject_id": "G12-GEO",
+      "name": "Geography",
+      "units": [
+        {
+          "unit_id": "G12-GEO-001",
+          "title": "Fundamentals of Human Geography",
+          "description": "Human Geography – Nature and Scope. Population. Migration. Human Development. Primary, Secondary and Tertiary Activities. Transport, Communication and Trade. International Trade. International Organisations.",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G12-GEO-002",
+          "title": "India – People and Economy",
+          "description": "Population – Distribution, Density. Migration. Human Development. Land Resources and Agriculture. Water Resources. Mineral and Energy Resources. Manufacturing Industries. Planning and Sustainable Development.",
+          "has_lab": false
+        }
+      ]
+    },
+    {
+      "subject_id": "G12-SOC",
+      "name": "Sociology",
+      "units": [
+        {
+          "unit_id": "G12-SOC-001",
+          "title": "Indian Society",
+          "description": "Introducing Indian Society. Cultural Diversity. Structural Change. Cultural Change. Challenges of Cultural Diversity.",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G12-SOC-002",
+          "title": "Social Change and Development",
+          "description": "Structural Change. Cultural Change. Social Movements. Rural Society. Industry and Urbanisation. Globalisation and Social Change. Mass Media and Communication. Social Movements.",
+          "has_lab": false
+        }
+      ]
+    }
+  ]
+}

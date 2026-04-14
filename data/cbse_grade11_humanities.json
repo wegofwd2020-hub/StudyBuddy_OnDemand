@@ -1,0 +1,83 @@
+{
+  "grade": 11,
+  "subjects": [
+    {
+      "subject_id": "G11-HIST",
+      "name": "History",
+      "units": [
+        {
+          "unit_id": "G11-HIST-001",
+          "title": "Early Societies",
+          "description": "Writing and City Life. An Empire across Three Continents. Nomadic Empires.",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G11-HIST-002",
+          "title": "Empires",
+          "description": "The Central Islamic Lands. Changing Cultural Traditions. The Three Orders.",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G11-HIST-003",
+          "title": "Changing Traditions",
+          "description": "Confrontation of Cultures. The Industrial Revolution. Displacing Indigenous Peoples. Paths to Modernisation.",
+          "has_lab": false
+        }
+      ]
+    },
+    {
+      "subject_id": "G11-POL",
+      "name": "Political Science",
+      "units": [
+        {
+          "unit_id": "G11-POL-001",
+          "title": "Indian Constitution at Work",
+          "description": "Constitution – Why and How. Rights in the Indian Constitution. Election and Representation. Executive, Legislature, Judiciary. Local Governments. Federalism. National Identity.",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G11-POL-002",
+          "title": "Political Theory",
+          "description": "Political Theory – An Introduction. Freedom. Equality. Social Justice. Rights. Citizenship. Nationalism. Secularism. Peace. Development.",
+          "has_lab": false
+        }
+      ]
+    },
+    {
+      "subject_id": "G11-GEO",
+      "name": "Geography",
+      "units": [
+        {
+          "unit_id": "G11-GEO-001",
+          "title": "Fundamentals of Physical Geography",
+          "description": "Geography as a Discipline. Earth. Landforms. Climate. Water. Life on Earth.",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G11-GEO-002",
+          "title": "India – Physical Environment",
+          "description": "Introduction. Structure and Physiography. Drainage System. Climate. Natural Vegetation. Soils. Natural Hazards and Disasters.",
+          "has_lab": false
+        }
+      ]
+    },
+    {
+      "subject_id": "G11-PSY",
+      "name": "Psychology",
+      "units": [
+        {
+          "unit_id": "G11-PSY-001",
+          "title": "Introduction",
+          "description": "What is Psychology?. Methods of Enquiry.",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G11-PSY-002",
+          "title": "Biological and Cultural Shaping",
+          "description": "The Bases of Human Behaviour. Human Development. Sensory Processes. Learning. Human Memory. Thinking. Motivation and Emotion.",
+          "has_lab": false
+        }
+      ]
+    }
+  ]
+}

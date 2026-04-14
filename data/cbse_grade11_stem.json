@@ -1,0 +1,203 @@
+{
+  "grade": 11,
+  "subjects": [
+    {
+      "subject_id": "G11-PHYS",
+      "name": "Physics",
+      "units": [
+        {
+          "unit_id": "G11-PHYS-001",
+          "title": "Physical World & Measurement",
+          "description": "Physical World. Units and Measurements.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G11-PHYS-002",
+          "title": "Kinematics",
+          "description": "Motion in a Straight Line. Motion in a Plane.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G11-PHYS-003",
+          "title": "Laws of Motion",
+          "description": "Newton's Laws. Friction. Circular Motion.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G11-PHYS-004",
+          "title": "Work, Energy and Power",
+          "description": "Work. Energy. Power. Collisions.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G11-PHYS-005",
+          "title": "Motion of System of Particles and Rigid Body",
+          "description": "Centre of Mass. Moment of Inertia. Angular Momentum.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G11-PHYS-006",
+          "title": "Gravitation",
+          "description": "Kepler's Laws. Universal Gravitation. Satellites.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G11-PHYS-007",
+          "title": "Properties of Bulk Matter",
+          "description": "Mechanical Properties of Solids. Mechanical Properties of Fluids. Thermal Properties of Matter.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G11-PHYS-008",
+          "title": "Thermodynamics",
+          "description": "Thermal Equilibrium. Laws of Thermodynamics. Carnot Engine.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G11-PHYS-009",
+          "title": "Behaviour of Perfect Gas and Kinetic Theory",
+          "description": "Kinetic Theory of Gases. Degrees of Freedom. Mean Free Path.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G11-PHYS-010",
+          "title": "Oscillations and Waves",
+          "description": "Simple Harmonic Motion. Damped Oscillations. Wave Motion. Doppler Effect.",
+          "has_lab": true
+        }
+      ]
+    },
+    {
+      "subject_id": "G11-CHEM",
+      "name": "Chemistry",
+      "units": [
+        {
+          "unit_id": "G11-CHEM-001",
+          "title": "Some Basic Concepts of Chemistry",
+          "description": "Mole Concept. Stoichiometry. Limiting Reagent.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G11-CHEM-002",
+          "title": "Structure of Atom",
+          "description": "Bohr Model. Quantum Numbers. Electronic Configuration.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G11-CHEM-003",
+          "title": "Classification of Elements and Periodicity",
+          "description": "Periodic Table. Periodic Trends. Ionisation Energy.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G11-CHEM-004",
+          "title": "Chemical Bonding and Molecular Structure",
+          "description": "VSEPR Theory. Hybridisation. Hydrogen Bonding.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G11-CHEM-005",
+          "title": "Chemical Thermodynamics",
+          "description": "Enthalpy. Entropy. Gibbs Energy. Hess's Law.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G11-CHEM-006",
+          "title": "Equilibrium",
+          "description": "Chemical Equilibrium. Ionic Equilibrium. pH & Buffers.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G11-CHEM-007",
+          "title": "Redox Reactions",
+          "description": "Oxidation States. Balancing Redox Reactions.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G11-CHEM-008",
+          "title": "Organic Chemistry – Basic Principles",
+          "description": "IUPAC Nomenclature. Reaction Mechanisms. Isomerism.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G11-CHEM-009",
+          "title": "Hydrocarbons",
+          "description": "Alkanes. Alkenes. Alkynes. Aromatic Compounds.",
+          "has_lab": true
+        }
+      ]
+    },
+    {
+      "subject_id": "G11-MATH",
+      "name": "Mathematics",
+      "units": [
+        {
+          "unit_id": "G11-MATH-001",
+          "title": "Sets and Functions",
+          "description": "Sets. Relations and Functions. Trigonometric Functions.",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G11-MATH-002",
+          "title": "Algebra",
+          "description": "Principle of Mathematical Induction. Complex Numbers. Linear Inequalities. Permutations and Combinations. Binomial Theorem. Sequences and Series.",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G11-MATH-003",
+          "title": "Coordinate Geometry",
+          "description": "Straight Lines. Conic Sections. Introduction to 3D Geometry.",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G11-MATH-004",
+          "title": "Calculus",
+          "description": "Limits and Derivatives.",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G11-MATH-005",
+          "title": "Statistics and Probability",
+          "description": "Statistics. Probability.",
+          "has_lab": false
+        }
+      ]
+    },
+    {
+      "subject_id": "G11-BIO",
+      "name": "Biology",
+      "units": [
+        {
+          "unit_id": "G11-BIO-001",
+          "title": "Diversity of Living Organisms",
+          "description": "The Living World. Biological Classification. Plant Kingdom. Animal Kingdom.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G11-BIO-002",
+          "title": "Structural Organisation in Plants and Animals",
+          "description": "Morphology of Flowering Plants. Anatomy of Flowering Plants. Structural Organisation in Animals.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G11-BIO-003",
+          "title": "Cell: Structure and Functions",
+          "description": "Cell – The Unit of Life. Biomolecules. Cell Cycle and Cell Division.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G11-BIO-004",
+          "title": "Plant Physiology",
+          "description": "Transport in Plants. Mineral Nutrition. Photosynthesis. Respiration in Plants. Plant Growth and Development.",
+          "has_lab": true
+        },
+        {
+          "unit_id": "G11-BIO-005",
+          "title": "Human Physiology",
+          "description": "Digestion and Absorption. Breathing and Exchange of Gases. Body Fluids and Circulation. Excretory Products. Locomotion and Movement. Neural Control and Coordination. Chemical Coordination and Integration.",
+          "has_lab": true
+        }
+      ]
+    }
+  ]
+}

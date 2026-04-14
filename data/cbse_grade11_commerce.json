@@ -1,0 +1,59 @@
+{
+  "grade": 11,
+  "subjects": [
+    {
+      "subject_id": "G11-ACC",
+      "name": "Accountancy",
+      "units": [
+        {
+          "unit_id": "G11-ACC-001",
+          "title": "Theoretical Framework",
+          "description": "Introduction to Accounting. Accounting Process. Bases of Accounting.",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G11-ACC-002",
+          "title": "Financial Statements",
+          "description": "Financial Statements of Sole Proprietorship. Accounts from Incomplete Records.",
+          "has_lab": false
+        }
+      ]
+    },
+    {
+      "subject_id": "G11-BUS",
+      "name": "Business Studies",
+      "units": [
+        {
+          "unit_id": "G11-BUS-001",
+          "title": "Nature and Purpose of Business",
+          "description": "Business, Trade and Commerce. Forms of Business Organisation. Public, Private and Global Enterprises. Business Services. Emerging Modes of Business. Social Responsibility of Business.",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G11-BUS-002",
+          "title": "Finance and Trade",
+          "description": "Sources of Business Finance. Small Business and Entrepreneurship. Internal Trade. International Business.",
+          "has_lab": false
+        }
+      ]
+    },
+    {
+      "subject_id": "G11-ECON",
+      "name": "Economics",
+      "units": [
+        {
+          "unit_id": "G11-ECON-001",
+          "title": "Statistics for Economics",
+          "description": "Introduction. Collection of Data. Organisation of Data. Statistical Tools. Measures of Central Tendency. Measures of Dispersion. Index Numbers.",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G11-ECON-002",
+          "title": "Indian Economic Development",
+          "description": "Development Experience (1947-90). Economic Reforms since 1991. Current Challenges facing Indian Economy. Development Experience of India.",
+          "has_lab": false
+        }
+      ]
+    }
+  ]
+}

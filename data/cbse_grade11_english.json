@@ -1,0 +1,29 @@
+{
+  "grade": 11,
+  "subjects": [
+    {
+      "subject_id": "G11-ENG",
+      "name": "English Core",
+      "units": [
+        {
+          "unit_id": "G11-ENG-001",
+          "title": "Reading Skills",
+          "description": "Reading Comprehension – Unseen Passages. Note Making and Summarising.",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G11-ENG-002",
+          "title": "Writing Skills",
+          "description": "Short Composition (Notices, Letters, Messages). Long Composition (Articles, Speeches, Reports).",
+          "has_lab": false
+        },
+        {
+          "unit_id": "G11-ENG-003",
+          "title": "Literature",
+          "description": "Hornbill – Prose. Hornbill – Poetry. Snapshots – Supplementary Reader.",
+          "has_lab": false
+        }
+      ]
+    }
+  ]
+}
