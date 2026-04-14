@@ -953,7 +953,13 @@ def run_grade_pipeline_task(
             year,
         )
 
-        run_grade(grade=grade, langs=langs.split(","), year=year, force=force)
+        summary = run_grade(grade=grade, langs=langs.split(","), year=year, force=force) or {}
+        # run_grade() returns {total_units, succeeded, failed, total_tokens,
+        # total_cost_usd, duration_ms, ...}. Capture these so the admin UI
+        # shows real built/failed/total counts instead of 0/0.
+        built = int(summary.get("succeeded", 0))
+        failed_count = int(summary.get("failed", 0))
+        total = int(summary.get("total_units", built + failed_count))
 
         # Compute total size of generated content files
         payload_bytes: int = 0
@@ -974,15 +980,30 @@ def run_grade_pipeline_task(
         except Exception:
             pass
 
-        _update_job({"status": "completed", "progress_pct": 100.0, "payload_bytes": payload_bytes})
+        _update_job({
+            "status": "completed",
+            "progress_pct": 100.0,
+            "payload_bytes": payload_bytes,
+            "built": built,
+            "failed": failed_count,
+            "total": total,
+        })
 
         async def _mark_done():
             conn = await _asyncpg.connect(settings.DATABASE_URL)
             try:
                 await conn.execute(
-                    "UPDATE pipeline_jobs SET status='completed', completed_at=NOW(), payload_bytes=$2 WHERE job_id=$1",
-                    job_id,
-                    payload_bytes,
+                    """
+                    UPDATE pipeline_jobs
+                       SET status='completed',
+                           completed_at=NOW(),
+                           payload_bytes=$2,
+                           built=$3,
+                           failed=$4,
+                           total=$5
+                     WHERE job_id=$1
+                    """,
+                    job_id, payload_bytes, built, failed_count, total,
                 )
             finally:
                 await conn.close()
