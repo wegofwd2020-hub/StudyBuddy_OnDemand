@@ -113,15 +113,20 @@ school-admin surface; the mobile app is where students actually live.
 
 ---
 
+## Decisions locked (2026-04-14)
+
+| # | Question | Decision | Rationale |
+|---|---|---|---|
+| Q1 | Monorepo tool | **pnpm workspaces** | Lightest option; no Turborepo/Nx overhead for a 2-app repo. Remote build caching can be added later if CI time becomes an issue. |
+| Q2 | RN New Architecture (Fabric / TurboModules) | **Opt in from day one** | Expo SDK 51+ makes it a toggle. Starting on the new arch avoids a painful migration later; Expo 52 makes it default anyway. |
+| Q3 | Offline depth | **Cache-on-tap** | Matches current Kivy behaviour, ships faster, lets device storage decisions stay in the user's control. Full-curriculum prefetch can be added later as a per-school opt-in. |
+| Q4 | Single codebase vs two | **Single Expo codebase** | Divergences (status bar, back button, notification prompts, store manifests) are small and handled via `Platform.OS` or `.ios.tsx`/`.android.tsx` overrides. Two projects would duplicate every screen for no payoff. |
+| Q5 | Deep-linking scheme | **`studybuddy://` for dev and early testing; universal links (`https://…`) added alongside at M-22** | Custom scheme ships today, no infra needed, good enough for internal TestFlight / Play internal track. Apple and Google store review will **reject** a production app that uses a custom scheme for OAuth callbacks — so M-22 (EAS Build for stores) must add universal links. Custom scheme retained as a fallback for debug tooling. Gated on hosting (domain + `.well-known` files). |
+
 ## Open questions
 
-1. **Monorepo tool.** pnpm workspaces (lightest) vs Turborepo (caching + remote build cache) vs Nx (heaviest, most features). Turborepo is the usual sweet spot for a 2-app repo.
-2. **RN New Architecture (Fabric / TurboModules).** Expo SDK 51 makes it opt-in; 52 makes it default. Ship with new arch from day one, or stay on bridge for v1?
-3. **Offline depth.** Full-curriculum prefetch on Wi-Fi toggle, or cache only what's been tapped? Lighter-touch (cache-on-tap) ships faster and matches current Kivy behaviour.
-4. **Single codebase vs two.** One Expo app with runtime platform branches, or separate Android/iOS Expo configurations? Single is the default unless a specific feature forces divergence.
-5. **Deep-linking URL scheme.** `studybuddy://` vs `https://study.buddy.app/` universal links. Universal links are better for sharing but require domain + DNS — gated on hosting decision (Epic 2 G-1).
-6. **Kivy app transition.** Hard cutover at M-24, or soft deprecation with a "migrate to the new app" prompt in the Kivy version?
-7. **Release cadence.** OTA updates via Expo Updates for JS-only changes, or always go through the stores? OTA is faster but some school IT policies block it.
+1. **Kivy app transition.** Hard cutover at M-24, or soft deprecation with a "migrate to the new app" prompt in the Kivy version?
+2. **Release cadence.** OTA updates via Expo Updates for JS-only changes, or always go through the stores? OTA is faster but some school IT policies block it.
 
 ---
 
@@ -141,5 +146,6 @@ Epic 3 can start as soon as Epic 2 hosting is settled. Monorepo extraction (Wave
 > Add your thoughts here. Even rough bullet points are enough to start.
 
 - Path B chosen on 2026-04-14. Kivy app stays as reference; delete at M-24.
--
+- 5 technical decisions locked on 2026-04-14 (pnpm, RN new arch, cache-on-tap, single codebase, `studybuddy://` + universal links at M-22).
+- **M-22 must add `.well-known/apple-app-site-association` + `.well-known/assetlinks.json` to whatever production host Epic 2 picks.** Flagging here so it isn't forgotten when hosting lands.
 -
