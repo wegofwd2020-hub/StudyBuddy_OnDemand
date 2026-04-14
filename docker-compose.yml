@@ -246,6 +246,7 @@ services:
       - ./backend:/app
       - ./pipeline:/app/pipeline
       - ./data:/data
+      - ./data:/app/data
       - ./content_store_data:/data/content
     depends_on:
       <<: *depends-all
@@ -333,6 +334,7 @@ services:
       - ./pipeline:/pipeline
       - ./backend:/backend
       - ./data:/data
+      - ./data:/app/data
       - ./content_store_data:/data/content
     depends_on:
       <<: *depends-all
