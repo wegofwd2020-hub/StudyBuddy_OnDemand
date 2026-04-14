@@ -55,6 +55,7 @@ Full specification lives in
 | H-7 | Tests — API validation, country whitelist, unit conversion (metric↔imperial for common units: ml, L, g, kg, cm, m, °C) | S |
 | H-8 | **Streams — backend** ✅ (shipped 2026-04-14) — migration `0044_stream_column` adds `curricula.stream_code`, `students.stream`, `teachers.stream`; admin upload + trigger endpoints accept `stream` query/body param; curriculum_id gains `-{stream}` suffix; `pipeline/build_grade.py` honours the stream arg. Canonical codes: `science | commerce | humanities | english | stem`. Backward-compatible — legacy stream-unaware uploads still work. | S |
 | H-9 | **Streams — student/teacher UI** — stream picker on onboarding; students.stream filter on curriculum map, content library, reports; school portal "Upload curriculum" form exposes a stream dropdown; teacher assignment UI accepts stream | M |
+| H-10 | **Streams — mandatory picker + registry + housekeeping** — admin Upload page makes Stream required with an "Other…" custom-code path; soft `streams` registry with upsert-on-use; admin CRUD + merge + archive pages at `/admin/streams`. Tickets: **S-1** #175 (migration 0045), **S-2** #176 (backend endpoints), **S-3** #177 (frontend + housekeeping UI). | M |
 
 ---
 
