@@ -347,8 +347,23 @@ stop_containers() {
 }
 
 # ── Reset (stop + delete volumes) ────────────────────────────────────────────
+# By default, preserves ./content_store_data/ (AI-generated lessons — expensive
+# to regenerate, cost real LLM tokens). Pass --wipe-content to also delete them.
 reset_all() {
+    local wipe_content="${1:-}"
+    local content_dir="${SCRIPT_DIR:-$(pwd)}/content_store_data"
+    local lesson_count=0
+    if [[ -d "$content_dir" ]]; then
+        lesson_count=$(find "$content_dir" -name "meta.json" 2>/dev/null | wc -l)
+    fi
+
     warn "This will DELETE all database data and Redis state."
+    if [[ "$wipe_content" == "--wipe-content" ]]; then
+        warn "You also passed --wipe-content: ${lesson_count} built lessons in ${content_dir} will be DELETED."
+    else
+        info "Content store preserved: ${lesson_count} built lessons in ${content_dir}."
+        info "Use './dev_start.sh reset --wipe-content' to also delete them."
+    fi
     read -r -p "Are you sure? [y/N] " confirm
     [[ "$confirm" =~ ^[Yy]$ ]] || { info "Aborted."; exit 0; }
 
@@ -357,6 +372,12 @@ reset_all() {
     $RUNTIME rm -f "$REDIS_CONTAINER"   2>/dev/null || true
     $RUNTIME rm -f "$TEST_DB_CONTAINER" 2>/dev/null || true
     $RUNTIME volume rm sb_postgres_data sb_redis_data 2>/dev/null || true
+
+    if [[ "$wipe_content" == "--wipe-content" ]] && [[ -d "$content_dir" ]]; then
+        rm -rf "$content_dir"
+        success "Content store wiped (${lesson_count} lessons deleted)."
+    fi
+
     success "Containers and volumes removed. Run ./dev_start.sh to start fresh."
 }
 
@@ -386,11 +407,11 @@ case "$COMMAND" in
     ;;
 
   reset)
-    reset_all
+    reset_all "${2:-}"
     ;;
 
   *)
-    echo "Usage: $0 [start|test|stop|reset]"
+    echo "Usage: $0 [start|test|stop|reset [--wipe-content]]"
     exit 1
     ;;
 esac

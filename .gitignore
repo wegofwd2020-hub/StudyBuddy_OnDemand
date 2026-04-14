@@ -42,3 +42,6 @@ htmlcov/
 # Mobile build artefacts
 .buildozer/
 bin/
+
+# AI-generated lesson content (bind-mounted into containers; grows large, not for git)
+content_store_data/
