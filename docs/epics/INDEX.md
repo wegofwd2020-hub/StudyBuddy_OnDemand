@@ -29,3 +29,20 @@ the decision notes become the spec and we develop from there.
 3. When you're ready to build an epic, bring it back and we'll turn your notes into a phased implementation plan.
 
 **Status key:** 💭 Thinking → ✅ Go → ⏸ Parked
+
+---
+
+## Pending discussion topics (parked 2026-04-14)
+
+User is in a testing phase. Resume these conversations afterward, in this order:
+
+1. **Hosting — Production & Demo environments.** Unblocks Epic 2 (G-1, G-4) and
+   Epic 6 (K-4, K-5 staging). The single most load-bearing next decision.
+2. **Enhanced visual experiments.** Phase 6 shipped basic `ExperimentScreen`;
+   open question is whether to invest in interactive simulations (PhET-style
+   live manipulation, 3D rendering, lab-bench UI). New epic if pursued.
+3. **Pick the next product epic** — Student Mobile (3), Parent Portal (4),
+   District Admin (5), or Platform Hardening finish (6).
+
+Already settled, do **not** reopen unless something changes:
+- Multi-provider LLM pipeline — shipped as Epic 1 on 2026-04-12.

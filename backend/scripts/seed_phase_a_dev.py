@@ -32,13 +32,13 @@ DEV_SCHOOL = {
     "school_id": "d0000000-0000-0000-0000-000000000001",
     "name": "Dev School",
     "country": "US",
-    "contact_email": "admin@devschool.local",
+    "contact_email": "admin@devschool.dev",
 }
 
 DEV_ADMIN = {
     "teacher_id": "d0000000-0000-0000-0000-000000000010",
     "name": "Dev Admin",
-    "email": "admin@devschool.local",
+    "email": "admin@devschool.dev",
     "password": "DevAdmin1234!",
     "role": "school_admin",
 }
@@ -46,7 +46,7 @@ DEV_ADMIN = {
 DEV_TEACHER = {
     "teacher_id": "d0000000-0000-0000-0000-000000000011",
     "name": "Dev Teacher",
-    "email": "teacher@devschool.local",
+    "email": "teacher@devschool.dev",
     "password": "DevTeacher1234!",
     "role": "teacher",
 }
@@ -54,7 +54,7 @@ DEV_TEACHER = {
 DEV_STUDENT = {
     "student_id": "d0000000-0000-0000-0000-000000000020",
     "name": "Dev Student",
-    "email": "student@devschool.local",
+    "email": "student@devschool.dev",
     "password": "DevStudent1234!",
     "grade": 8,
 }
@@ -89,7 +89,7 @@ async def _seed(reset: bool) -> None:
         else:
             await conn.execute(
                 """
-                INSERT INTO schools (school_id, name, country, contact_email, account_status)
+                INSERT INTO schools (school_id, name, country, contact_email, status)
                 VALUES ($1, $2, $3, $4, 'active')
                 """,
                 DEV_SCHOOL["school_id"],
@@ -111,14 +111,16 @@ async def _seed(reset: bool) -> None:
                     """
                     INSERT INTO teachers
                         (teacher_id, school_id, name, email, role,
-                         auth_provider, password_hash, first_login, account_status)
-                    VALUES ($1, $2, $3, $4, $5, 'local', $6, false, 'active')
+                         auth_provider, external_auth_id,
+                         password_hash, first_login, account_status)
+                    VALUES ($1, $2, $3, $4, $5, 'local', $6, $7, false, 'active')
                     """,
                     t["teacher_id"],
                     DEV_SCHOOL["school_id"],
                     t["name"],
                     t["email"],
                     t["role"],
+                    f"local:{t['teacher_id']}",
                     _hash(t["password"]),
                 )
                 print(f"Created teacher ({t['role']}): {t['email']}")
@@ -135,14 +137,16 @@ async def _seed(reset: bool) -> None:
                 """
                 INSERT INTO students
                     (student_id, school_id, name, email, grade,
-                     auth_provider, password_hash, first_login, account_status)
-                VALUES ($1, $2, $3, $4, $5, 'local', $6, false, 'active')
+                     auth_provider, external_auth_id,
+                     password_hash, first_login, account_status)
+                VALUES ($1, $2, $3, $4, $5, 'local', $6, $7, false, 'active')
                 """,
                 s["student_id"],
                 DEV_SCHOOL["school_id"],
                 s["name"],
                 s["email"],
                 s["grade"],
+                f"local:{s['student_id']}",
                 _hash(s["password"]),
             )
             print(f"Created student: {s['email']}")

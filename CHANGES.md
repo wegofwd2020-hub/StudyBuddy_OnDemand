@@ -208,9 +208,9 @@ Local-auth users are created by school admins via API or the seed script. They r
 
 | Role | Email | Password |
 |---|---|---|
-| School admin | `admin@devschool.local` | `DevAdmin1234!` |
-| Teacher | `teacher@devschool.local` | `DevTeacher1234!` |
-| Student | `student@devschool.local` | `DevStudent1234!` |
+| School admin | `admin@devschool.dev` | `DevAdmin1234!` |
+| Teacher | `teacher@devschool.dev` | `DevTeacher1234!` |
+| Student | `student@devschool.dev` | `DevStudent1234!` |
 
 #### Documentation
 
