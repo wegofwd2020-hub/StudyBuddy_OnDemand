@@ -138,6 +138,7 @@ async def admin_login(
         {
             "admin_id": admin_id,
             "role": admin["role"],
+            "email": admin["email"],
         }
     )
 
@@ -180,7 +181,7 @@ async def admin_refresh(body: RefreshRequest, request: Request):
 
     async with get_db(request) as conn:
         admin = await conn.fetchrow(
-            "SELECT admin_user_id, role, account_status FROM admin_users WHERE admin_user_id = $1",
+            "SELECT admin_user_id, email, role, account_status FROM admin_users WHERE admin_user_id = $1",
             admin_id,
         )
 
@@ -198,6 +199,7 @@ async def admin_refresh(body: RefreshRequest, request: Request):
         {
             "admin_id": str(admin["admin_user_id"]),
             "role": admin["role"],
+            "email": admin["email"],
         }
     )
     return RefreshResponse(token=token)

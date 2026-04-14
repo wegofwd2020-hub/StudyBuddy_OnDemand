@@ -12,7 +12,10 @@ function parseAdminName(token: string): string | undefined {
     const payload = JSON.parse(
       atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")),
     );
-    return payload.admin_id ?? payload.sub ?? payload.email ?? undefined;
+    // Prefer name > email (show the local-part before @ for brevity) > admin_id UUID as last resort.
+    if (payload.name) return payload.name;
+    if (payload.email) return String(payload.email).split("@")[0];
+    return payload.sub ?? payload.admin_id ?? undefined;
   } catch {
     return undefined;
   }
