@@ -57,6 +57,11 @@ export default function AdminPipelineUploadPage() {
 
   const [step, setStep] = useState<1 | 2>(1);
   const [year, setYear] = useState(2026);
+  // Stream is optional. Empty string means "no stream" — legacy single-curriculum
+  // behaviour (curriculum_id = `default-{year}-g{grade}`). Setting a stream
+  // scopes the curriculum to `default-{year}-g{grade}-{stream}` so parallel
+  // streams within a grade don't overwrite each other.
+  const [stream, setStream] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<GradeJsonPreview | null>(null);
   const [previewError, setPreviewError] = useState<string | null>(null);
@@ -100,7 +105,7 @@ export default function AdminPipelineUploadPage() {
     setUploadError(null);
     setUploading(true);
     try {
-      const result = await uploadGradeJson(selectedFile, year);
+      const result = await uploadGradeJson(selectedFile, year, stream || null);
       setUploadResult(result);
       setStep(2);
     } catch (err: unknown) {
@@ -137,6 +142,7 @@ export default function AdminPipelineUploadPage() {
         langs,
         force,
         year,
+        stream || null,
       );
       router.push(`/admin/pipeline/${job_id}`);
     } catch {
@@ -247,19 +253,43 @@ export default function AdminPipelineUploadPage() {
               </div>
             )}
 
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700">
-                Academic year
-              </label>
-              <input
-                type="number"
-                value={year}
-                min={2024}
-                max={2040}
-                onChange={(e) => setYear(Number(e.target.value))}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-              />
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-gray-700">
+                  Academic year
+                </label>
+                <input
+                  type="number"
+                  value={year}
+                  min={2024}
+                  max={2040}
+                  onChange={(e) => setYear(Number(e.target.value))}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-gray-700">
+                  Stream <span className="text-gray-400">(optional)</span>
+                </label>
+                <select
+                  value={stream}
+                  onChange={(e) => setStream(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                >
+                  <option value="">— none (single curriculum per grade) —</option>
+                  <option value="science">Science (CBSE STEM)</option>
+                  <option value="commerce">Commerce</option>
+                  <option value="humanities">Humanities</option>
+                  <option value="english">English Core</option>
+                  <option value="stem">STEM (legacy US)</option>
+                </select>
+              </div>
             </div>
+            <p className="-mt-2 text-xs text-gray-500">
+              Without a stream, curriculum is <code className="rounded bg-gray-100 px-1">default-{year}-g{preview?.grade ?? "N"}</code>.
+              With a stream, it becomes <code className="rounded bg-gray-100 px-1">default-{year}-g{preview?.grade ?? "N"}-{stream || "…"}</code>,
+              letting parallel streams for the same grade coexist.
+            </p>
 
             {uploadError && (
               <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">

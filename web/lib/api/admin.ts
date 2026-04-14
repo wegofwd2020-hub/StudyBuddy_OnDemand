@@ -104,15 +104,13 @@ export async function triggerAdminPipeline(
   langs: string,
   force: boolean,
   year = 2026,
+  stream: string | null = null,
 ): Promise<AdminPipelineTriggerResponse> {
+  const body: Record<string, unknown> = { grade, langs, force, year };
+  if (stream) body.stream = stream;
   const res = await adminApi.post<AdminPipelineTriggerResponse>(
     "/admin/pipeline/trigger",
-    {
-      grade,
-      langs,
-      force,
-      year,
-    },
+    body,
   );
   return res.data;
 }
@@ -120,11 +118,14 @@ export async function triggerAdminPipeline(
 export async function uploadGradeJson(
   file: File,
   year = 2026,
+  stream: string | null = null,
 ): Promise<UploadGradeJsonResponse> {
   const formData = new FormData();
   formData.append("file", file);
+  const query = new URLSearchParams({ year: String(year) });
+  if (stream) query.set("stream", stream);
   const res = await adminApi.post<UploadGradeJsonResponse>(
-    `/admin/pipeline/upload-grade?year=${year}`,
+    `/admin/pipeline/upload-grade?${query.toString()}`,
     formData,
     { headers: { "Content-Type": "multipart/form-data" } },
   );
