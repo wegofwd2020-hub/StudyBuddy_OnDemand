@@ -102,7 +102,14 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-  celery-beat:
+  celery-beat-primary:
+    environment:
+      DATABASE_URL: postgresql://studybuddy:${LOCAL_DB_PASSWORD}@host.docker.internal:5433/studybuddy
+      DIRECT_DB_URL: postgresql://studybuddy:${LOCAL_DB_PASSWORD}@host.docker.internal:5433/studybuddy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  celery-beat-standby:
     environment:
       DATABASE_URL: postgresql://studybuddy:${LOCAL_DB_PASSWORD}@host.docker.internal:5433/studybuddy
       DIRECT_DB_URL: postgresql://studybuddy:${LOCAL_DB_PASSWORD}@host.docker.internal:5433/studybuddy
