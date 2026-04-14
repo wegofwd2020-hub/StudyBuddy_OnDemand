@@ -122,11 +122,12 @@ school-admin surface; the mobile app is where students actually live.
 | Q3 | Offline depth | **Cache-on-tap** | Matches current Kivy behaviour, ships faster, lets device storage decisions stay in the user's control. Full-curriculum prefetch can be added later as a per-school opt-in. |
 | Q4 | Single codebase vs two | **Single Expo codebase** | Divergences (status bar, back button, notification prompts, store manifests) are small and handled via `Platform.OS` or `.ios.tsx`/`.android.tsx` overrides. Two projects would duplicate every screen for no payoff. |
 | Q5 | Deep-linking scheme | **`studybuddy://` for dev and early testing; universal links (`https://…`) added alongside at M-22** | Custom scheme ships today, no infra needed, good enough for internal TestFlight / Play internal track. Apple and Google store review will **reject** a production app that uses a custom scheme for OAuth callbacks — so M-22 (EAS Build for stores) must add universal links. Custom scheme retained as a fallback for debug tooling. Gated on hosting (domain + `.well-known` files). |
+| Q6 | Kivy app transition | **Hard cutover at M-24** | Kivy tree deleted from repo once the Expo app passes store review and is live in production. No dual-running, no "migrate to the new app" prompt inside the Kivy version. Simpler to operate; avoids carrying two codepaths through support incidents. **Pre-M-24 check:** confirm no users are still on the Kivy app by checking `/admin/analytics` for recent sessions from the Kivy `X-App-Version` header. |
+| Q7 | Release cadence | **Expo Updates (OTA) for JS-only changes; store releases for native / manifest changes** | JS-only patches (bug fixes, copy changes, small feature toggles) push instantly via Expo Updates — no store review. Native-module upgrades, permission additions, SDK bumps, and `app.json` changes require a full store build. **Channel strategy:** `staging` branch auto-deploys OTA to TestFlight + Play internal track; `production` branch requires a manual promote. Monitor for school IT policies that block OTA (rare but possible); if encountered, fall back to pinned store builds for that tenant. |
 
 ## Open questions
 
-1. **Kivy app transition.** Hard cutover at M-24, or soft deprecation with a "migrate to the new app" prompt in the Kivy version?
-2. **Release cadence.** OTA updates via Expo Updates for JS-only changes, or always go through the stores? OTA is faster but some school IT policies block it.
+_All closed on 2026-04-14. Epic is ready to schedule once testing phase wraps and Epic 2 hosting is settled._
 
 ---
 
@@ -146,6 +147,7 @@ Epic 3 can start as soon as Epic 2 hosting is settled. Monorepo extraction (Wave
 > Add your thoughts here. Even rough bullet points are enough to start.
 
 - Path B chosen on 2026-04-14. Kivy app stays as reference; delete at M-24.
-- 5 technical decisions locked on 2026-04-14 (pnpm, RN new arch, cache-on-tap, single codebase, `studybuddy://` + universal links at M-22).
+- 7 technical decisions locked on 2026-04-14 (pnpm, RN new arch, cache-on-tap, single codebase, `studybuddy://` + universal links at M-22, hard cutover at M-24, Expo Updates OTA).
 - **M-22 must add `.well-known/apple-app-site-association` + `.well-known/assetlinks.json` to whatever production host Epic 2 picks.** Flagging here so it isn't forgotten when hosting lands.
--
+- **Pre-M-24 gate:** check `/admin/analytics` `X-App-Version` distribution to confirm no active Kivy sessions before deleting the Kivy tree.
+- **EAS Update channels:** wire `staging` and `production` channels in `eas.json` at M-22; staging auto-pushes on merge to main, production requires manual promote.
