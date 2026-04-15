@@ -188,9 +188,13 @@ eight are answered, this section becomes the spec we ticket against.
 super-admin as the break-glass.
 
 **Your answer:**
+The School can initialize the "archive" process for the content they own
+The "super-admin" can archive only the content that is in "general" library
+
+-- Any content that is not assigned to a student can only be selected for "archiving"
 
 **Your reasoning (optional):**
-
+The ownership of the the "content" and the "curriculum structure"  is the prime property of the school
 ---
 
 ### Q2. What counts as "in use" for the archive precondition?
@@ -204,7 +208,7 @@ super-admin as the break-glass.
 block archival of superseded curricula.
 
 **Your answer:**
-
+Let us use (b) .
 **If (c), what N:**
 
 ---
@@ -221,7 +225,7 @@ block archival of superseded curricula.
 without letting the curriculum stay discoverable.
 
 **Your answer:**
-
+Let us use (c)
 ---
 
 ### Q4. Audit scope for platform content reads.
@@ -235,7 +239,7 @@ without letting the curriculum stay discoverable.
 similar certification.
 
 **Your answer:**
-
+Let us use (c)
 ---
 
 ### Q5. What happens to a running pipeline build when its curriculum is archived?
@@ -248,7 +252,7 @@ similar certification.
 `archive` — we shouldn't let archival race with a late-finishing build.
 
 **Your answer:**
-
+Archive is possible only when content is "Published". If the content build is in pipeline, the job is in "pending" state and hence there is not impact.
 ---
 
 ### Q6. When does the 1-year TTL clock start?
@@ -260,7 +264,7 @@ similar certification.
 **My lean:** (a) — keep it simple; revisit when retrieval is designed.
 
 **Your answer:**
-
+let us stick to (a)
 ---
 
 ### Q7. Can super-admin shorten (or extend) the TTL?
@@ -276,19 +280,19 @@ to extend beyond a year.
 cheap.
 
 **Your answer:**
-
+(b)
 ---
 
 ### Q8. Sweeper safety — what guardrails on the hard-delete job?
 
 Pick all that apply:
 
-- [ ] Dry-run mode (logs what would be deleted without acting).
-- [ ] Pre-delete JSONL backup to object storage (row + units + version meta).
-- [ ] Rate limit — max N deletions per run (e.g. 50).
-- [ ] Alert if a single run would delete > M rows (e.g. 20), requires manual
+- [X] Dry-run mode (logs what would be deleted without acting).
+- [X] Pre-delete JSONL backup to object storage (row + units + version meta).
+- [X] Rate limit — max N deletions per run (e.g. 50).
+- [X] Alert if a single run would delete > M rows (e.g. 20), requires manual
       unblock.
-- [ ] Separate Celery queue + dedicated worker so a queue backlog can't delay
+- [X] Separate Celery queue + dedicated worker so a queue backlog can't delay
       other beat jobs.
 
 **My lean:** all five — sweeper is the one code path that can destroy live
@@ -296,7 +300,7 @@ content at scale, and the cost of guardrails is tiny compared to the blast
 radius of a regression.
 
 **Your answer (check boxes you want):**
-
+All five
 ---
 
 ### Additional notes
