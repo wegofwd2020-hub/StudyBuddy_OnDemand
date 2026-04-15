@@ -105,9 +105,11 @@ export async function triggerAdminPipeline(
   force: boolean,
   year = 2026,
   stream: string | null = null,
+  streamDisplayName: string | null = null,
 ): Promise<AdminPipelineTriggerResponse> {
   const body: Record<string, unknown> = { grade, langs, force, year };
   if (stream) body.stream = stream;
+  if (streamDisplayName) body.stream_display_name = streamDisplayName;
   const res = await adminApi.post<AdminPipelineTriggerResponse>(
     "/admin/pipeline/trigger",
     body,
@@ -119,17 +121,104 @@ export async function uploadGradeJson(
   file: File,
   year = 2026,
   stream: string | null = null,
+  streamDisplayName: string | null = null,
 ): Promise<UploadGradeJsonResponse> {
   const formData = new FormData();
   formData.append("file", file);
   const query = new URLSearchParams({ year: String(year) });
   if (stream) query.set("stream", stream);
+  if (streamDisplayName) query.set("stream_display_name", streamDisplayName);
   const res = await adminApi.post<UploadGradeJsonResponse>(
     `/admin/pipeline/upload-grade?${query.toString()}`,
     formData,
     { headers: { "Content-Type": "multipart/form-data" } },
   );
   return res.data;
+}
+
+// ── Streams registry ─────────────────────────────────────────────────────────
+
+export interface StreamResponse {
+  code: string;
+  display_name: string;
+  description: string | null;
+  is_system: boolean;
+  is_archived: boolean;
+  curricula_count: number;
+  created_at: string;
+}
+
+export interface StreamCurriculumSummary {
+  curriculum_id: string;
+  grade: number;
+  year: number;
+  name: string | null;
+}
+
+export interface StreamDetailResponse {
+  stream: StreamResponse;
+  curricula: StreamCurriculumSummary[];
+}
+
+export async function listStreams(opts?: {
+  q?: string;
+  includeArchived?: boolean;
+}): Promise<StreamResponse[]> {
+  const query = new URLSearchParams();
+  if (opts?.q) query.set("q", opts.q);
+  if (opts?.includeArchived) query.set("include_archived", "true");
+  const qs = query.toString();
+  const res = await adminApi.get<{ streams: StreamResponse[] }>(
+    `/admin/streams${qs ? `?${qs}` : ""}`,
+  );
+  return res.data.streams;
+}
+
+export async function getStream(code: string): Promise<StreamDetailResponse> {
+  const res = await adminApi.get<StreamDetailResponse>(`/admin/streams/${code}`);
+  return res.data;
+}
+
+export async function createStream(body: {
+  code: string;
+  display_name: string;
+  description?: string;
+}): Promise<StreamResponse> {
+  const res = await adminApi.post<StreamResponse>("/admin/streams", body);
+  return res.data;
+}
+
+export async function updateStream(
+  code: string,
+  body: { display_name?: string; description?: string },
+): Promise<StreamResponse> {
+  const res = await adminApi.patch<StreamResponse>(`/admin/streams/${code}`, body);
+  return res.data;
+}
+
+export async function archiveStream(code: string): Promise<StreamResponse> {
+  const res = await adminApi.post<StreamResponse>(`/admin/streams/${code}/archive`);
+  return res.data;
+}
+
+export async function unarchiveStream(code: string): Promise<StreamResponse> {
+  const res = await adminApi.post<StreamResponse>(`/admin/streams/${code}/unarchive`);
+  return res.data;
+}
+
+export async function mergeStream(
+  code: string,
+  targetCode: string,
+): Promise<{ affected_curricula: number; source_archived: boolean }> {
+  const res = await adminApi.post<{ affected_curricula: number; source_archived: boolean }>(
+    `/admin/streams/${code}/merge`,
+    { target_code: targetCode },
+  );
+  return res.data;
+}
+
+export async function deleteStream(code: string): Promise<void> {
+  await adminApi.delete(`/admin/streams/${code}`);
 }
 
 export async function getAdminPipelineJobStatus(

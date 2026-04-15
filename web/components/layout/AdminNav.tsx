@@ -23,6 +23,7 @@ import {
   Users,
   Archive,
   Sparkles,
+  Layers,
 } from "lucide-react";
 
 interface NavItem {
@@ -47,6 +48,11 @@ const NAV_ITEMS: NavItem[] = [
     label: "Pipeline",
     href: "/admin/pipeline",
     icon: <GitBranch className="h-4 w-4" />,
+  },
+  {
+    label: "Streams",
+    href: "/admin/streams",
+    icon: <Layers className="h-4 w-4" />,
   },
   {
     label: "Content Review",

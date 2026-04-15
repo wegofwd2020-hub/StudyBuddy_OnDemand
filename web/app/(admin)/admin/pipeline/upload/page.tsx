@@ -1,12 +1,15 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, ArrowLeft, CheckCircle, Upload } from "lucide-react";
 import {
-  uploadGradeJson,
+  listStreams,
   triggerAdminPipeline,
+  uploadGradeJson,
+  StreamResponse,
   UploadGradeJsonResponse,
 } from "@/lib/api/admin";
 
@@ -20,6 +23,19 @@ interface GradeJsonPreview {
   grade: number;
   subjects: SubjectPreview[];
   total_units: number;
+}
+
+const OTHER_VALUE = "__other__";
+const CODE_PATTERN = /^[a-z0-9-]+$/;
+const RESERVED_CODES = new Set(["none", "other", "all", "default", "null"]);
+
+function validateCustomCode(code: string): string | null {
+  if (!code) return "Required.";
+  if (code.length < 3 || code.length > 30) return "3–30 characters.";
+  if (!CODE_PATTERN.test(code))
+    return "Lowercase letters, digits, and hyphens only.";
+  if (RESERVED_CODES.has(code)) return `'${code}' is reserved.`;
+  return null;
 }
 
 function parsePreview(data: unknown): GradeJsonPreview | string {
@@ -57,11 +73,15 @@ export default function AdminPipelineUploadPage() {
 
   const [step, setStep] = useState<1 | 2>(1);
   const [year, setYear] = useState(2026);
-  // Stream is optional. Empty string means "no stream" — legacy single-curriculum
-  // behaviour (curriculum_id = `default-{year}-g{grade}`). Setting a stream
-  // scopes the curriculum to `default-{year}-g{grade}-{stream}` so parallel
-  // streams within a grade don't overwrite each other.
-  const [stream, setStream] = useState<string>("");
+
+  // Stream is required. `streamSelect` is the dropdown value (either a
+  // registry code or the OTHER_VALUE sentinel). When Other is picked, the
+  // user fills `customCode` and `customDisplayName` which are sent as
+  // `stream` + `stream_display_name` so the backend upserts a new row.
+  const [streamSelect, setStreamSelect] = useState<string>("");
+  const [customCode, setCustomCode] = useState("");
+  const [customDisplayName, setCustomDisplayName] = useState("");
+
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<GradeJsonPreview | null>(null);
   const [previewError, setPreviewError] = useState<string | null>(null);
@@ -74,6 +94,51 @@ export default function AdminPipelineUploadPage() {
   const [force, setForce] = useState(false);
   const [triggering, setTriggering] = useState(false);
   const [triggerError, setTriggerError] = useState<string | null>(null);
+
+  // Fetch registry — used for the dropdown and typeahead suggestions.
+  const { data: streams } = useQuery({
+    queryKey: ["admin-streams", "upload"],
+    queryFn: () => listStreams({ includeArchived: false }),
+  });
+
+  // Typeahead: debounced prefix query against the registry.
+  const [debouncedCustomCode, setDebouncedCustomCode] = useState("");
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedCustomCode(customCode.trim().toLowerCase()), 200);
+    return () => clearTimeout(t);
+  }, [customCode]);
+
+  const { data: typeaheadMatches } = useQuery({
+    queryKey: ["admin-streams", "typeahead", debouncedCustomCode],
+    queryFn: () => listStreams({ q: debouncedCustomCode, includeArchived: false }),
+    enabled: streamSelect === OTHER_VALUE && debouncedCustomCode.length >= 2,
+  });
+
+  const sortedStreams = useMemo(() => {
+    if (!streams) return [];
+    return [...streams].sort((a, b) => {
+      if (a.is_system !== b.is_system) return a.is_system ? -1 : 1;
+      return a.display_name.localeCompare(b.display_name);
+    });
+  }, [streams]);
+
+  const isOther = streamSelect === OTHER_VALUE;
+  const customCodeError = isOther ? validateCustomCode(customCode.trim().toLowerCase()) : null;
+  const streamReady =
+    streamSelect !== "" &&
+    (!isOther || (!customCodeError && customDisplayName.trim().length > 0));
+
+  // The final stream code submitted to the backend.
+  function resolveStream(): { code: string; displayName: string | null } | null {
+    if (!streamSelect) return null;
+    if (isOther) {
+      return {
+        code: customCode.trim().toLowerCase(),
+        displayName: customDisplayName.trim(),
+      };
+    }
+    return { code: streamSelect, displayName: null };
+  }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0] ?? null;
@@ -102,10 +167,17 @@ export default function AdminPipelineUploadPage() {
   async function handleUpload(e: React.FormEvent) {
     e.preventDefault();
     if (!selectedFile) return;
+    const resolved = resolveStream();
+    if (!resolved) return;
     setUploadError(null);
     setUploading(true);
     try {
-      const result = await uploadGradeJson(selectedFile, year, stream || null);
+      const result = await uploadGradeJson(
+        selectedFile,
+        year,
+        resolved.code,
+        resolved.displayName,
+      );
       setUploadResult(result);
       setStep(2);
     } catch (err: unknown) {
@@ -134,6 +206,8 @@ export default function AdminPipelineUploadPage() {
   async function handleTrigger(e: React.FormEvent) {
     e.preventDefault();
     if (!uploadResult) return;
+    const resolved = resolveStream();
+    if (!resolved) return;
     setTriggerError(null);
     setTriggering(true);
     try {
@@ -142,7 +216,8 @@ export default function AdminPipelineUploadPage() {
         langs,
         force,
         year,
-        stream || null,
+        resolved.code,
+        resolved.displayName,
       );
       router.push(`/admin/pipeline/${job_id}`);
     } catch {
@@ -151,6 +226,14 @@ export default function AdminPipelineUploadPage() {
       setTriggering(false);
     }
   }
+
+  function pickSuggestion(s: StreamResponse) {
+    setStreamSelect(s.code);
+    setCustomCode("");
+    setCustomDisplayName("");
+  }
+
+  const resolvedCode = resolveStream()?.code ?? "…";
 
   return (
     <div className="mx-auto max-w-lg p-8">
@@ -269,26 +352,84 @@ export default function AdminPipelineUploadPage() {
               </div>
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-gray-700">
-                  Stream <span className="text-gray-400">(optional)</span>
+                  Stream <span className="text-red-500">*</span>
                 </label>
                 <select
-                  value={stream}
-                  onChange={(e) => setStream(e.target.value)}
+                  value={streamSelect}
+                  onChange={(e) => setStreamSelect(e.target.value)}
+                  required
                   className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 >
-                  <option value="">— none (single curriculum per grade) —</option>
-                  <option value="science">Science (CBSE STEM)</option>
-                  <option value="commerce">Commerce</option>
-                  <option value="humanities">Humanities</option>
-                  <option value="english">English Core</option>
-                  <option value="stem">STEM (legacy US)</option>
+                  <option value="">Select a stream…</option>
+                  {sortedStreams.map((s) => (
+                    <option key={s.code} value={s.code}>
+                      {s.display_name} {s.is_system ? "" : "(custom)"}
+                    </option>
+                  ))}
+                  <option value={OTHER_VALUE}>Other…</option>
                 </select>
               </div>
             </div>
+
+            {isOther && (
+              <div className="space-y-3 rounded-lg border border-indigo-100 bg-indigo-50/50 p-4">
+                <p className="text-xs text-indigo-700">
+                  Creating a new stream. It will appear in future uploads automatically.
+                </p>
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-gray-700">
+                    Custom code
+                  </label>
+                  <input
+                    type="text"
+                    value={customCode}
+                    onChange={(e) => setCustomCode(e.target.value.toLowerCase())}
+                    placeholder="e.g. vocational, ib-dp, montessori"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 font-mono text-xs text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  />
+                  {customCode && customCodeError && (
+                    <p className="mt-1 text-xs text-red-600">{customCodeError}</p>
+                  )}
+                  {typeaheadMatches && typeaheadMatches.length > 0 && (
+                    <div className="mt-2 rounded-md border border-gray-200 bg-white p-1.5 shadow-sm">
+                      <p className="px-2 py-1 text-xs text-gray-500">
+                        Existing streams that match:
+                      </p>
+                      {typeaheadMatches.map((s) => (
+                        <button
+                          key={s.code}
+                          type="button"
+                          onClick={() => pickSuggestion(s)}
+                          className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-xs hover:bg-gray-100"
+                        >
+                          <span className="font-mono">{s.code}</span>
+                          <span className="text-gray-500">{s.display_name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-gray-700">
+                    Display name
+                  </label>
+                  <input
+                    type="text"
+                    value={customDisplayName}
+                    onChange={(e) => setCustomDisplayName(e.target.value)}
+                    placeholder="e.g. Vocational Track"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-xs text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+            )}
+
             <p className="-mt-2 text-xs text-gray-500">
-              Without a stream, curriculum is <code className="rounded bg-gray-100 px-1">default-{year}-g{preview?.grade ?? "N"}</code>.
-              With a stream, it becomes <code className="rounded bg-gray-100 px-1">default-{year}-g{preview?.grade ?? "N"}-{stream || "…"}</code>,
-              letting parallel streams for the same grade coexist.
+              Curriculum will be{" "}
+              <code className="rounded bg-gray-100 px-1">
+                default-{year}-g{preview?.grade ?? "N"}-{resolvedCode}
+              </code>
+              .
             </p>
 
             {uploadError && (
@@ -300,7 +441,7 @@ export default function AdminPipelineUploadPage() {
 
             <button
               type="submit"
-              disabled={!selectedFile || !!previewError || uploading}
+              disabled={!selectedFile || !!previewError || !streamReady || uploading}
               className="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
             >
               {uploading ? "Uploading…" : "Upload & Seed"}
