@@ -459,6 +459,16 @@ def main() -> None:
             "Default: config.DEFAULT_PROVIDER (anthropic)."
         ),
     )
+    parser.add_argument(
+        "--stream",
+        default=None,
+        help=(
+            "Optional stream code e.g. science, commerce, humanities, english. "
+            "When set, reads data/grade{N}_{stream}.json and writes under "
+            "curriculum_id default-{year}-g{grade}-{stream}. Omit for legacy "
+            "single-curriculum-per-grade behaviour."
+        ),
+    )
     args = parser.parse_args()
 
     langs = [l.strip() for l in args.lang.split(",") if l.strip()]
@@ -470,6 +480,7 @@ def main() -> None:
         force=args.force,
         dry_run=args.dry_run,
         providers=providers,
+        stream=args.stream,
     )
 
 
