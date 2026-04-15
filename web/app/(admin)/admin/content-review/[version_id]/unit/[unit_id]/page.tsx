@@ -302,14 +302,15 @@ function Prose({ text, className }: { text: string; className?: string }) {
 }
 
 function ExampleBlock({ text }: { text: string }) {
-  const hasSteps = text.includes("\n");
-  if (!hasSteps) {
-    return <p className="text-xs leading-relaxed text-gray-600">{text}</p>;
-  }
+  // Worked examples are markdown (GFM tables, KaTeX math, fenced code). The
+  // prior version wrapped multi-line text in <pre> which rendered Claude's
+  // proper markdown tables as monospace raw source — pipes lined up loosely,
+  // looked like misaligned ASCII art. SBMarkdown handles everything including
+  // fenced code for code-heavy examples.
   return (
-    <pre className="overflow-x-auto rounded-md border border-gray-100 bg-gray-50 p-3 font-mono text-xs leading-relaxed whitespace-pre-wrap text-gray-800">
-      {text}
-    </pre>
+    <div className="rounded-md border border-gray-100 bg-gray-50 p-3">
+      <SBMarkdown className="text-xs text-gray-800">{text}</SBMarkdown>
+    </div>
   );
 }
 

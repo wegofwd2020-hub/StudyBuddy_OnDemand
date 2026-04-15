@@ -159,12 +159,12 @@ function TutorialRenderer({ data }: { data: Record<string, unknown> }) {
                 Examples
               </p>
               {activeSection.examples.map((ex, j) => (
-                <pre
+                <div
                   key={j}
-                  className="overflow-x-auto rounded-md border border-gray-100 bg-gray-50 p-3 font-mono text-xs leading-relaxed whitespace-pre-wrap text-gray-800"
+                  className="rounded-md border border-gray-100 bg-gray-50 p-3"
                 >
-                  {ex}
-                </pre>
+                  <SBMarkdown className="text-xs text-gray-800">{ex}</SBMarkdown>
+                </div>
               ))}
             </div>
           )}
