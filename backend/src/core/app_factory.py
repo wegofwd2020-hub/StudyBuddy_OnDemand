@@ -233,6 +233,9 @@ def _register_routers(app: FastAPI) -> None:
     from src.progress.router import router as progress_router
     from src.reports.router import router as reports_router
     from src.school.content_router import router as school_content_router
+    from src.school.curriculum_lifecycle_router import (
+        router as school_curriculum_lifecycle_router,
+    )
     from src.school.limits_router import router as school_limits_router
     from src.school.pipeline_router import router as school_pipeline_router
     from src.school.retention_router import router as school_retention_router
@@ -264,6 +267,7 @@ def _register_routers(app: FastAPI) -> None:
     app.include_router(ci_reports_router, prefix="/api/v1")
     app.include_router(school_router, prefix="/api/v1")
     app.include_router(school_content_router, prefix="/api/v1")
+    app.include_router(school_curriculum_lifecycle_router, prefix="/api/v1")
     app.include_router(school_subscription_router, prefix="/api/v1")
     app.include_router(teacher_subscription_router, prefix="/api/v1")
     app.include_router(teacher_connect_router, prefix="/api/v1")

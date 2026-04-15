@@ -102,10 +102,121 @@ async def fetch_curriculum_owner(
     """Return owner_type / owner_id / school_id for a curriculum, or None if absent."""
     row = await conn.fetchrow(
         """
-        SELECT curriculum_id, owner_type, owner_id, school_id, grade, year, name
+        SELECT curriculum_id, owner_type, owner_id, school_id, grade, year, name,
+               retention_status, expires_at
           FROM curricula
          WHERE curriculum_id = $1
         """,
         curriculum_id,
     )
     return dict(row) if row else None
+
+
+# ── Archive preconditions ────────────────────────────────────────────────────
+
+class ArchiveBlocker(Exception):
+    """Raised when an archive pre-condition isn't met."""
+
+    def __init__(self, code: str, detail: str):
+        self.code = code
+        self.detail = detail
+        super().__init__(detail)
+
+
+async def assert_archivable(conn: asyncpg.Connection, curriculum_id: str) -> dict:
+    """
+    Verify the curriculum can be archived per Epic 10 L-4 rules.
+
+    Raises ArchiveBlocker on any failed pre-condition. Returns the curriculum
+    row on success so callers don't re-fetch.
+    """
+    row = await fetch_curriculum_owner(conn, curriculum_id)
+    if not row:
+        raise ArchiveBlocker("not_found", f"Curriculum '{curriculum_id}' not found.")
+
+    if row["retention_status"] == "archived":
+        raise ArchiveBlocker(
+            "already_archived",
+            f"Curriculum '{curriculum_id}' is already archived.",
+        )
+
+    if await is_curriculum_in_use(conn, curriculum_id):
+        raise ArchiveBlocker(
+            "in_use",
+            f"Curriculum '{curriculum_id}' still has active student assignments. "
+            "Unassign them before archiving.",
+        )
+
+    # "Either at least one version has been published OR no versions exist."
+    version_count = await conn.fetchval(
+        "SELECT COUNT(*) FROM content_subject_versions WHERE curriculum_id = $1",
+        curriculum_id,
+    )
+    if version_count:
+        published_count = await conn.fetchval(
+            """
+            SELECT COUNT(*)
+              FROM content_subject_versions
+             WHERE curriculum_id = $1
+               AND status = 'published'
+            """,
+            curriculum_id,
+        )
+        if not published_count:
+            raise ArchiveBlocker(
+                "no_published_version",
+                f"Curriculum '{curriculum_id}' has versions but none are published. "
+                "Publish a version first or build without uploading to archive an empty shell.",
+            )
+
+    return row
+
+
+# ── Archive / unarchive mutators ────────────────────────────────────────────
+
+
+async def archive_curriculum(
+    conn: asyncpg.Connection,
+    *,
+    curriculum_id: str,
+    ttl_days: int = 365,
+) -> dict:
+    """
+    Flip a curriculum to retention_status='archived' with expires_at set to
+    now + ttl_days. Does NOT enforce pre-conditions — the caller must run
+    assert_archivable first.
+
+    Returns the updated row.
+    """
+    row = await conn.fetchrow(
+        """
+        UPDATE curricula
+           SET retention_status = 'archived',
+               expires_at = now() + ($2 || ' days')::interval
+         WHERE curriculum_id = $1
+        RETURNING curriculum_id, owner_type, owner_id, school_id,
+                  retention_status, expires_at
+        """,
+        curriculum_id,
+        str(ttl_days),
+    )
+    return dict(row) if row else {}
+
+
+async def unarchive_curriculum(
+    conn: asyncpg.Connection, curriculum_id: str
+) -> dict:
+    """Reverse archive: retention_status='active', clear expires_at."""
+    row = await conn.fetchrow(
+        """
+        UPDATE curricula
+           SET retention_status = 'active',
+               expires_at = NULL
+         WHERE curriculum_id = $1
+           AND retention_status = 'archived'
+        RETURNING curriculum_id, owner_type, owner_id, school_id,
+                  retention_status, expires_at
+        """,
+        curriculum_id,
+    )
+    return dict(row) if row else {}
