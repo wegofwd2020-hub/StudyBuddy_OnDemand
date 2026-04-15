@@ -38,13 +38,26 @@ export interface A11yReport {
  * Violations at "moderate" or "minor" impact are recorded in the report
  * but do not fail the test — raise the bar incrementally over time.
  *
- * @param page   Playwright page object
- * @param label  Human-readable name used in failure messages and reports
+ * @param page          Playwright page object
+ * @param label         Human-readable name used in failure messages and reports
+ * @param excludeRules  Axe rule IDs to disable for this check. Use sparingly,
+ *                      and only when a regression is already tracked — the
+ *                      default posture is zero exclusions.
  */
-export async function checkA11y(page: Page, label: string): Promise<A11yReport> {
-  const results = await new AxeBuilder({ page })
-    .withTags(["wcag2a", "wcag2aa", "best-practice"])
-    .analyze();
+export async function checkA11y(
+  page: Page,
+  label: string,
+  excludeRules: readonly string[] = [],
+): Promise<A11yReport> {
+  let builder = new AxeBuilder({ page }).withTags([
+    "wcag2a",
+    "wcag2aa",
+    "best-practice",
+  ]);
+  if (excludeRules.length > 0) {
+    builder = builder.disableRules([...excludeRules]);
+  }
+  const results = await builder.analyze();
 
   const critical = results.violations.filter(
     (v) => v.impact === "critical" || v.impact === "serious",
