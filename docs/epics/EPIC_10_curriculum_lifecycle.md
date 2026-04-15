@@ -1,6 +1,6 @@
 # Epic 10 — Curriculum Lifecycle & Governance
 
-**Status:** 💭 Your call
+**Status:** ✅ Go — all 8 questions + 2 follow-ups resolved 2026-04-15
 
 ---
 
@@ -79,11 +79,13 @@ Gaps:
 | L-1 | **Access policy formalisation.** ADR + migration 0046 that adds an RLS policy `platform_readable` on `curricula`, `curriculum_units`, and `content_subject_versions`: `USING (owner_type = 'platform' OR school_id = current_setting('app.current_school_id')::uuid)`. Explicit refusal of writes on `owner_type='platform'` rows by any non-super-admin, enforced both in endpoint handlers and via a policy `FOR UPDATE/DELETE`. | S |
 | L-2 | **"In use" query.** Single authoritative helper `is_curriculum_in_use(curriculum_id)` that joins `student_teacher_assignments` + `school_enrolments` + (optionally) `progress_sessions` within a retention window. Exposed as `GET /admin/curricula/{id}/usage` for UI and as a gate inside archive endpoints. | S |
 | L-3 | **Soft archive state.** New `retention_status = 'archived'` value (separate from the retention-service lifecycle). Columns already exist: `retention_status`, `expires_at`. Migration to add a CHECK constraint accepting the new value and an index on `(retention_status, expires_at)`. | S |
-| L-4 | **Archive endpoints.** `POST /admin/curricula/{id}/archive` (super-admin for platform, school_admin for own), `POST /admin/curricula/{id}/unarchive` (super-admin-only), `DELETE /admin/curricula/{id}` is repurposed to call archive internally — no hard delete via API. Pre-conditions: `is_curriculum_in_use` returns false; if platform-owned, caller must be super-admin. | M |
-| L-5 | **Audit events.** Three new action types: `curriculum.archive`, `curriculum.unarchive`, `curriculum.hard_delete_by_sweeper`. Every call records `actor_id`, `curriculum_id`, `owner_type`, `school_id`, prior `retention_status`, new `retention_status`, `reason` (free text), `correlation_id`. | S |
+| L-4 | **Archive endpoints.** `POST /admin/curricula/{id}/archive` and `POST /admin/curricula/{id}/unarchive`, `DELETE /admin/curricula/{id}` repurposed to call archive internally — no hard delete via API. Authorisation matrix: school_admin can archive their own content; super-admin archives platform content and can override school content with a required `reason` field (audited, surfaced in school UI). Pre-conditions: `is_curriculum_in_use=false`; curriculum has at least one published version OR zero versions; not already archived. Action cascades to all versions regardless of state (published / failed / rolled_back / draft). | M |
+| L-5 | **Audit events.** Four new action types: `curriculum.archive`, `curriculum.archive_by_platform_admin` (when super-admin archives school-owned), `curriculum.unarchive`, `curriculum.hard_delete_by_sweeper`. Every call records `actor_id`, `curriculum_id`, `owner_type`, `school_id`, prior `retention_status`, new `retention_status`, `reason` (required for platform-admin-overrides school content; optional otherwise), `correlation_id`. | S |
 | L-6 | **TTL sweeper.** Celery Beat job `sweep_archived_curricula` runs daily; deletes rows where `retention_status='archived' AND expires_at < now() - interval '1 year'`. Rows are deleted together with their `curriculum_units` + `content_subject_versions` rows (cascade or explicit). Logs each hard-delete as audit event. | S |
 | L-7 | **Super-admin archive view.** New page `/admin/archive/curricula` listing archived rows across the platform with filters (owner_type, school, grade, days-until-TTL). Shows audit trail for each row. Read-only initially — retrieval is a later epic. | M |
-| L-8 | **School UI treatment.** Decide what schools see during the archive window for their own archived curricula — greyed out in library with "Archived — expires 2027-04-15" tag? Hidden entirely? See Open Question 3. | S |
+| L-8 | **School UI treatment (Q3 resolution).** Archived curricula hidden from school library but still served to students with active assignments pre-dating archive. "Archived by platform admin — reason: X" banner shown to school_admin when super-admin archived their content. | S |
+| L-9 | **Per-jurisdiction audit mode (Q4 resolution).** `schools.compliance_read_audit_enabled BOOLEAN DEFAULT false`. When true, every read of platform-owned curriculum content by that school is logged to `audit_log` with action `platform_content.read`. Off by default; enabled per-school by super-admin for SOC-2 / FERPA / ISO customers. | S |
+| L-10 | **TTL override (Q7 resolution).** `PATCH /admin/curricula/{id}/expiry` — super-admin-only, updates `expires_at` to any future date, required `reason` field, audited as `curriculum.expiry_override`. Used for regulatory ("30-day delete") or exceptional ("hold for litigation") cases. | S |
 
 ---
 
@@ -301,6 +303,35 @@ radius of a regression.
 
 **Your answer (check boxes you want):**
 All five
+---
+
+### Follow-up A (from Q1) — super-admin override on school-owned content
+
+**Resolution:** Super-admin **can** archive school-owned content with a
+written reason; audit log captures it; schools see "Archived by platform
+admin — reason: X" in their UI. Rare action, always logged, no dual-approval
+overhead.
+
+Covers support cases (locked-out school admins) and compliance (court orders,
+DMCA, copyright takedowns) without building a heavier process we'd rarely use.
+
+### Follow-up B (from Q5) — archive granularity
+
+**Resolution:** Archive acts at the **curriculum level**, not the version
+level. Version-level lifecycle (published / pending / failed / rolled_back)
+stays as-is; archiving a curriculum cascades to all its versions regardless
+of state.
+
+A curriculum is archivable when:
+- `owner_type='school'`, **and**
+- No active assignments (Q2 definition), **and**
+- Either at least one version has been published, **or** no versions exist at
+  all (empty shell — e.g. definition submitted but pipeline never triggered).
+
+Platform-owned curricula: super-admin archives them following the same
+assignment check. Failed / rolled-back / draft versions are swept along when
+the parent curriculum is archived; no per-version archive flow.
+
 ---
 
 ### Additional notes
