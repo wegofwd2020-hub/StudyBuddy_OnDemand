@@ -22,6 +22,7 @@ export const MOCK_QUEUE: ReviewQueueResponse = {
       assigned_to_admin_id: null,
       assigned_to_email: null,
       assigned_at: null,
+      provider: "anthropic",
     },
     {
       version_id: "ver-002",
@@ -37,6 +38,7 @@ export const MOCK_QUEUE: ReviewQueueResponse = {
       assigned_to_admin_id: null,
       assigned_to_email: null,
       assigned_at: null,
+      provider: "anthropic",
     },
   ],
 };

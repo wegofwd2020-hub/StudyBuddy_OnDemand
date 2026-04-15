@@ -21,6 +21,7 @@ const BASE_ITEM = {
   assigned_to_admin_id: null as string | null,
   assigned_to_email: null as string | null,
   assigned_at: null as string | null,
+  provider: "anthropic" as const,
   // ReviewItemDetail extras
   units: [{ unit_id: "unit-001", title: "Algebra Basics", sort_order: 1 }],
   review_history: [],
