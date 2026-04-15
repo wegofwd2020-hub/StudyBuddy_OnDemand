@@ -1,6 +1,6 @@
 # Epic 11 — Content Presentation & Formatting
 
-**Status:** 💭 Your call
+**Status:** ✅ Go — 9 questions resolved 2026-04-15
 
 ---
 
@@ -85,8 +85,9 @@ Not verified in this epic scope — flagged as an open question below.
 | C-4 | **Renderer — table + math styling.** Zebra-striped tables, numeric-column alignment (right-aligned for Balance Sheet amounts using `font-mono tabular-nums`, per CLAUDE.md §18), display math centered with subtle margin. Honour OpenDyslexic accessibility mode (per Epic 9) — KaTeX fonts swap when dyslexia mode is on. | S |
 | C-5 | **Content regeneration — decision-gated.** Once C-1/C-2/C-3 land, re-run the pipeline against existing curricula to apply the new prompts. Scope depends on Q1 below: only new builds vs. targeted re-run vs. full rebuild. | S–L |
 | C-6 | **Schema validation — optional hardening.** Extend `pipeline/schemas.py` to fail fast if a section that should be tabular (detected heuristically by presence of e.g. "Balance Sheet", "Trial Balance" in the heading) doesn't contain a table. Surfaces prompt drift early. | S |
-| C-7 | **PDF export parity.** Verify tables + math survive PDF export. If not, bridge via a headless-browser renderer (Playwright) or a server-side math typesetter (KaTeX server-side render). | M (if needed) |
+| C-7 | **PDF export smoke check (Q6 resolution).** Verify only — run an export on a Commerce + Maths lesson and document whether tables + math survive. **No production PDF-generation feature** will be built. If broken, the finding is noted for a future epic. | S |
 | C-8 | **Mobile renderer (Epic 3 coord).** Ensure the Expo/RN Markdown component used in Epic 3 supports GFM tables + KaTeX. Decision lives in Epic 3 M-phases; this is a cross-reference so the two epics stay aligned. | S |
+| C-9 | **Attributed quotes (Q9 resolution).** Prompt rule that allows markdown blockquote attribution (`> Energy cannot be created or destroyed. — James Prescott Joule`) and explicitly forbids invented citations / paper titles / DOIs. Blockquote styling in the shared Markdown component renders the attribution line right-aligned and italicised. Curated external link catalog (option d) is deferred to a follow-up epic. | S |
 
 ---
 
@@ -109,6 +110,7 @@ formatting actively hurts comprehension. Full regen is overkill for
 English / Humanities where tables + formulae aren't the norm.
 
 **Your answer:**
+Option (b) 
 
 **Your reasoning (optional):**
 
@@ -127,7 +129,7 @@ will be consistent. Literal `$` in commerce amounts can be written as `\$`
 or formatted outside math mode (`USD 150.00` rather than `$150.00`).
 
 **Your answer:**
-
+Option (a)
 ---
 
 ### Q3. Table row limits.
@@ -145,7 +147,7 @@ Splitting accountancy statements across sub-tables loses the "total must
 equal total" comprehension beat.
 
 **Your answer:**
-
+Option (c)
 ---
 
 ### Q4. Numeric alignment.
@@ -162,7 +164,7 @@ Balance Sheet amounts look wrong when left-aligned.
 **My lean:** (c) — belt-and-braces. Cheap to do both.
 
 **Your answer:**
-
+Option (c)
 ---
 
 ### Q5. Scientific-notation + unit formatting.
@@ -178,7 +180,7 @@ Physics content includes quantities like `1.6 × 10⁻¹⁹ C`.
 inline "the charge is 1.6 × 10⁻¹⁹ C" in prose uses Unicode for readability.
 
 **Your answer:**
-
+Option (c)
 ---
 
 ### Q6. PDF export — in scope now?
@@ -191,7 +193,7 @@ inline "the charge is 1.6 × 10⁻¹⁹ C" in prose uses Unicode for readability
 **My lean:** (b) — quick verification; only invest if broken.
 
 **Your answer:**
-
+Option (b). Keep a ticket to test this, but NO PDF file generation option to be be provided.
 ---
 
 ### Q7. Content moderation — does AlexJS accept KaTeX source?
@@ -208,7 +210,7 @@ similar LaTeX macro could trigger a false positive.
 if they exist.
 
 **Your answer:**
-
+Option (a)
 ---
 
 ### Q8. Accessibility — screen readers and KaTeX.
@@ -226,7 +228,7 @@ unreadable" for complex expressions.
 later enhancement if users report issues.
 
 **Your answer:**
-
+Option (a)
 ---
 
 ### Additional notes
@@ -234,6 +236,26 @@ later enhancement if users report issues.
 > Add subjects, edge cases, examples, or scope adjustments that the
 > questions above don't cover. Paste screenshots or sample JSON snippets
 > here so we have concrete reference material for the prompt work.
+
+
+### Q9. External references / quotes.
+
+Till now no explicit handling of external references or quotes attributed to
+others. What's the best pathway?
+
+- (a) Ban external references entirely — content stands on its own.
+- (b) Attributed quotes only — markdown blockquote with author line.
+  No citations, no URLs.
+- (c) Structured reference metadata per unit — LLM-generated citation list.
+  High hallucination risk without human curation.
+- (d) Inline quotes (b) + curated external link catalog reviewed by admins.
+
+**My lean:** (b) for this epic. (d) queued as a follow-up epic if there's
+demand. (c) avoided because LLM-generated citations are frequently
+fabricated; (d) mitigates this via a human-reviewed allow-list.
+
+**Your answer:**
+Option (b). (d) queued as a follow-up epic.
 
 -
 -
