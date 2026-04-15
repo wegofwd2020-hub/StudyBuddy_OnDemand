@@ -4,9 +4,10 @@ test.describe("Public pages", () => {
   test("landing page loads and shows hero CTA", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    // Two CTAs exist (desktop + mobile layout) — first is sufficient
+    // Header CTA label is now "Start free" (not "Start free trial");
+    // bottom CTA section still reads "Start your free trial". Regex covers both.
     await expect(
-      page.getByRole("link", { name: "Start free trial" }).first(),
+      page.getByRole("link", { name: /start.*free/i }).first(),
     ).toBeVisible();
   });
 

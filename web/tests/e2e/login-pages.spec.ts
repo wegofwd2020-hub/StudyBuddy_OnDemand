@@ -8,9 +8,11 @@ import { test, expect } from "@playwright/test";
 test.describe("School login page", () => {
   test("renders Sign In button", async ({ page }) => {
     await page.goto("/school/login");
-    // Exact button text from i18n auth.login_btn
+    // Page was restructured from a redirect-link pattern to a form-with-submit
+    // pattern; the primary affordance is now a submit <button>, matched by
+    // role. Use .last() to pick the in-page form button over the nav link.
     await expect(
-      page.getByRole("link", { name: "Sign in with school account" }),
+      page.getByRole("button", { name: /sign in/i }).last(),
     ).toBeVisible();
   });
 
@@ -21,7 +23,8 @@ test.describe("School login page", () => {
 
   test("links to contact page", async ({ page }) => {
     await page.goto("/school/login");
-    await expect(page.getByRole("link", { name: /contact us/i })).toBeVisible();
+    // Footer now renders the link label as just "Contact" (not "Contact us").
+    await expect(page.getByRole("link", { name: /^contact$/i })).toBeVisible();
   });
 });
 

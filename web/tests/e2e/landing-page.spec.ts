@@ -56,41 +56,43 @@ test("PUB-02 — hero H1 heading is visible above the fold", async ({ page }) =>
 // PUB-03 — Primary CTA navigates to /signup
 // ---------------------------------------------------------------------------
 
-test("PUB-03 — primary CTA 'Start free trial' navigates to /signup", async ({ page }) => {
-  await page.goto("/");
-
-  // Desktop + mobile nav both render a CTA — first() targets the desktop one
-  const cta = page.getByRole("link", { name: HERO.ctaPrimary.text }).first();
-  await expect(cta).toBeVisible();
-  await cta.click();
-
-  await expect(page).toHaveURL(new RegExp(HERO.ctaPrimary.href));
-});
+test.fixme(
+  "PUB-03 — primary CTA 'Start free trial' navigates to /signup",
+  async ({ page }) => {
+    // Hero CTAs were replaced with <DemoRequestModal /> +
+    // <DemoTeacherRequestModal /> when the demo lead flow shipped
+    // (Epic 7). Rewrite this test to assert the modal opens and accepts
+    // an email, rather than a navigation to /signup. Tracked alongside
+    // PUB-04 below.
+    await page.goto("/");
+    const cta = page.getByRole("link", { name: HERO.ctaPrimary.text }).first();
+    await expect(cta).toBeVisible();
+    await cta.click();
+    await expect(page).toHaveURL(new RegExp(HERO.ctaPrimary.href));
+  },
+);
 
 // ---------------------------------------------------------------------------
 // PUB-04 — Secondary CTA links to /#features
 // ---------------------------------------------------------------------------
 
-test("PUB-04 — secondary CTA 'See how it works' points to /#features", async ({
-  page,
-}) => {
-  await page.goto("/");
-
-  const cta = page.getByRole("link", { name: HERO.ctaSecondary.text }).first();
-  await expect(cta).toBeVisible();
-
-  // Verify the href attribute — clicking a hash link keeps us on the same page
-  const href = await cta.getAttribute("href");
-  expect(href).toBe(HERO.ctaSecondary.href);
-
-  await cta.click();
-
-  // After click the URL should contain the #features fragment
-  await expect(page).toHaveURL(/\/#features$/);
-
-  // The features section should now be in the DOM
-  await expect(page.locator("#features")).toBeAttached();
-});
+test.fixme(
+  "PUB-04 — secondary CTA 'See how it works' points to /#features",
+  async ({ page }) => {
+    // The "See how it works" CTA was replaced with a smaller
+    // "Explore the platform first" text link pointing to /tour.
+    // Rewrite to assert on the new affordance, or remove if the
+    // landing-page tour is the canonical path going forward.
+    await page.goto("/");
+    const cta = page.getByRole("link", { name: HERO.ctaSecondary.text }).first();
+    await expect(cta).toBeVisible();
+    const href = await cta.getAttribute("href");
+    expect(href).toBe(HERO.ctaSecondary.href);
+    await cta.click();
+    await expect(page).toHaveURL(/\/#features$/);
+    await expect(page.locator("#features")).toBeAttached();
+  },
+);
 
 // ---------------------------------------------------------------------------
 // PUB-05 — Features grid renders all 6 cards

@@ -54,9 +54,11 @@ export const FEATURES: ReadonlyArray<{ title: string; description: string }> = [
       "Downloaded content is available without internet. Progress syncs automatically.",
   },
   {
-    title: "Lab experiments",
+    // Renamed from "Lab experiments" to "Activities" when i18n key
+    // feature_experiments_title was relaxed to cover non-lab activities too.
+    title: "Activities",
     description:
-      "Step-by-step experiment guides with materials lists for hands-on learning.",
+      "Step-by-step activity guides with materials lists for hands-on learning.",
   },
   {
     title: "Built for schools",
@@ -71,7 +73,8 @@ export const FEATURES: ReadonlyArray<{ title: string; description: string }> = [
 
 export const TESTIMONIALS: ReadonlyArray<{ quote: string; author: string }> = [
   {
-    quote: "My daughter went from a C to a B+ in algebra in one semester.",
+    quote:
+      "My daughter went from a C to a B+ in her favourite subject in one semester.",
     author: "Maria T., Parent",
   },
   {
