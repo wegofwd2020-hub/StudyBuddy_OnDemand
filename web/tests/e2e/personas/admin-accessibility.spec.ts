@@ -17,9 +17,9 @@ import { test, expect } from "@playwright/test";
 import type { Page } from "@playwright/test";
 import { checkA11y } from "../helpers/axe";
 
-// Rules we're explicitly aware of and tracking separately. See
-// docs/epics/EPIC_09_accessibility_personalization.md. Do NOT extend
-// without filing a corresponding GitHub issue and linking it here.
+// Axe rules disabled for this persona. Tracked in GitHub issue #189
+// (umbrella Epic 9 accessibility audit). Do NOT extend without filing
+// a corresponding issue first.
 const KNOWN_A11Y_EXCLUSIONS = ["color-contrast", "html-has-lang", "document-title"] as const;
 import { makeAdminToken } from "../helpers/tokens";
 

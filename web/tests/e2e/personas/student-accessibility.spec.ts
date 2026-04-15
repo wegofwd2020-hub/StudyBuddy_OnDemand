@@ -15,16 +15,16 @@ import type { Page } from "@playwright/test";
 import { checkA11y } from "../helpers/axe";
 import { makeStudentToken, devSessionCookie } from "../helpers/tokens";
 
-// Rules we're explicitly aware of and tracking separately. See
-// docs/epics/EPIC_09_accessibility_personalization.md for the full
-// a11y audit work. Do NOT add to this list without filing a
-// corresponding GitHub issue and linking it here.
+// Axe rules disabled for this persona. Tracked in GitHub issue #189
+// (umbrella Epic 9 accessibility audit). Do NOT extend without filing
+// a corresponding issue first.
 //
 //   color-contrast — several pages have tokens below WCAG AA 4.5:1
 //   html-has-lang  — some routes render before next-intl has resolved
 //                    the locale cookie, leaving <html> without a lang.
 //                    Symptom only under mocked-API test mode; the real
 //                    dev server resolves the attribute correctly.
+//   document-title — teacher/admin routes miss <title>. Real regression.
 const KNOWN_A11Y_EXCLUSIONS = ["color-contrast", "html-has-lang", "document-title"] as const;
 
 // ---------------------------------------------------------------------------

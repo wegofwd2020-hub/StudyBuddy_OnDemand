@@ -46,7 +46,10 @@ export default defineConfig({
     // ── Persona: Teacher / School Admin ───────────────────────────────────
     {
       name: "persona-teacher",
-      testMatch: "**/e2e/personas/teacher-accessibility.spec.ts",
+      testMatch: [
+        "**/e2e/personas/teacher-accessibility.spec.ts",
+        "**/e2e/personas/school-admin-curriculum-flow.spec.ts",
+      ],
       use: { ...devices["Desktop Chrome"] },
     },
 
