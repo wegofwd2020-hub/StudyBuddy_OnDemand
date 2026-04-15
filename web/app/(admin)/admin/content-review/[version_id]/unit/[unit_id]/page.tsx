@@ -4,8 +4,7 @@ import { createContext, useContext, useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { SBMarkdown } from "@/components/content/Markdown";
 import {
   getUnitContentMeta,
   getUnitContentFile,
@@ -295,58 +294,11 @@ function SectionNotes({ effectiveKey }: { effectiveKey: string }) {
 }
 
 // ── Shared prose renderer ─────────────────────────────────────────────────────
+// Thin alias kept for callsite compatibility; real rendering lives in
+// components/content/Markdown.tsx (Epic 11 C-3).
 
 function Prose({ text, className }: { text: string; className?: string }) {
-  return (
-    <div className={cn("text-sm text-gray-700", className)}>
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        components={{
-          table: ({ children }) => (
-            <div className="my-3 overflow-x-auto">
-              <table className="w-full border-collapse text-xs">{children}</table>
-            </div>
-          ),
-          thead: ({ children }) => (
-            <thead className="bg-gray-100 font-semibold text-gray-600">{children}</thead>
-          ),
-          tbody: ({ children }) => (
-            <tbody className="divide-y divide-gray-100">{children}</tbody>
-          ),
-          tr: ({ children }) => <tr className="even:bg-gray-50">{children}</tr>,
-          th: ({ children }) => <th className="px-3 py-2 text-left">{children}</th>,
-          td: ({ children }) => <td className="px-3 py-2">{children}</td>,
-          code: ({ children, className }) => {
-            const isBlock = className?.includes("language-");
-            if (isBlock) {
-              return (
-                <pre className="my-2 overflow-x-auto rounded-md bg-gray-50 p-3 font-mono text-xs text-gray-800">
-                  <code>{children}</code>
-                </pre>
-              );
-            }
-            return (
-              <code className="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs text-indigo-700">
-                {children}
-              </code>
-            );
-          },
-          p: ({ children }) => (
-            <p className="mb-2 leading-relaxed last:mb-0">{children}</p>
-          ),
-          ul: ({ children }) => (
-            <ul className="mb-2 list-disc space-y-1 pl-4">{children}</ul>
-          ),
-          ol: ({ children }) => (
-            <ol className="mb-2 list-decimal space-y-1 pl-4">{children}</ol>
-          ),
-          li: ({ children }) => <li className="leading-relaxed">{children}</li>,
-        }}
-      >
-        {text}
-      </ReactMarkdown>
-    </div>
-  );
+  return <SBMarkdown className={className}>{text}</SBMarkdown>;
 }
 
 function ExampleBlock({ text }: { text: string }) {
