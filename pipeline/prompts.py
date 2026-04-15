@@ -23,6 +23,52 @@ def _grade_descriptor(grade: int) -> str:
         return "a Grade 11–12 student (age 16–18) preparing for post-secondary studies. Use rigorous, university-prep language with full technical terminology."
 
 
+# ── Universal formatting guidelines (Epic 11 C-1) ────────────────────────────
+# Injected into every prompt so AI-generated content carries the right shape
+# for tables and mathematical formulae. Per-subject refinements (Commerce
+# Balance Sheets, Science reaction mechanisms, etc.) land in C-2.
+
+_FORMATTING_GUIDELINES = """FORMATTING RULES (apply to all string-valued content fields):
+
+Markdown syntax is ALLOWED inside content string values. The rule against
+markdown fences applies ONLY to the outermost JSON response envelope.
+
+TABLES — use GFM markdown tables whenever content is tabular by nature:
+  - Comparisons with 2+ attributes
+  - Chronologies and timelines
+  - Side-by-side concept contrasts
+  - Any numeric data set where rows share the same columns
+Include column-alignment markers in the separator row:
+  | Name | Amount | Description |
+  |:-----|-------:|:------------|
+  | Cash | 1,500  | Liquid asset |
+Left-align text (`:---`), right-align numbers (`---:`), centre headings
+(`:---:`). Right-align any monetary or numeric column.
+
+MATHEMATICAL FORMULAE — use LaTeX delimiters:
+  - Inline math inside prose: $E = mc^2$
+  - Display math on its own line: $$\\int_a^b f(x)\\,dx$$
+Use this for all equations, inequalities, fractions, subscripts,
+superscripts, Greek letters, and any expression that benefits from typeset
+rendering. Do NOT write raw "E = mc^2" as plain text — it will not render.
+
+DOLLAR SIGN AS CURRENCY — escape or spell out to avoid math-mode collisions:
+  - Write \\$150.00 (backslash-escaped) inside prose, OR
+  - Spell out the currency code: "USD 150.00", "INR 1,200", "EUR 42.50".
+Never use an unescaped $ outside a math expression.
+
+SCIENTIFIC NOTATION:
+  - In inline prose, Unicode superscripts are fine: "1.6 × 10⁻¹⁹ C".
+  - In display equations, use KaTeX: $$1.6 \\times 10^{-19}\\,\\mathrm{C}$$.
+
+FENCED CODE BLOCKS — use for pseudocode, algorithms, and program listings:
+  ```python
+  def area(r):
+      return 3.14159 * r * r
+  ```
+"""
+
+
 def build_lesson_prompt(
     unit_id: str,
     subject: str,
@@ -42,6 +88,9 @@ Generate a comprehensive lesson on the topic: "{topic}" (subject: {subject}, gra
 Unit ID: {unit_id}
 
 You MUST respond with ONLY valid JSON — no markdown fences, no extra text, no explanation.
+
+{_FORMATTING_GUIDELINES}
+
 The JSON must exactly match this schema:
 
 {{
@@ -87,6 +136,9 @@ Generate quiz set {set_number} of 3 for the topic: "{topic}" (subject: {subject}
 Unit ID: {unit_id}
 
 You MUST respond with ONLY valid JSON — no markdown fences, no extra text, no explanation.
+
+{_FORMATTING_GUIDELINES}
+
 The JSON must exactly match this schema:
 
 {{
@@ -147,6 +199,9 @@ Generate a step-by-step tutorial for the topic: "{topic}" (subject: {subject}, g
 Unit ID: {unit_id}
 
 You MUST respond with ONLY valid JSON — no markdown fences, no extra text, no explanation.
+
+{_FORMATTING_GUIDELINES}
+
 The JSON must exactly match this schema:
 
 {{
@@ -198,6 +253,9 @@ Generate a safe, classroom-appropriate lab experiment for the topic: "{topic}" (
 Unit ID: {unit_id}
 
 You MUST respond with ONLY valid JSON — no markdown fences, no extra text, no explanation.
+
+{_FORMATTING_GUIDELINES}
+
 The JSON must exactly match this schema:
 
 {{
