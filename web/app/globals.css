@@ -261,6 +261,33 @@ button,
 }
 
 /*
+ * Epic 11 C-9 — Attributed-quote styling.
+ *
+ * The prompt convention is that attributed quotes render as:
+ *   > Quote text...
+ *   > — Attribution Name
+ *
+ * Markdown parses this as a blockquote whose last <p> is the attribution.
+ * Right-align it, drop the italic, and de-emphasise the colour so the
+ * quote body reads as the primary content and the attribution as
+ * secondary metadata.
+ */
+blockquote p:last-child {
+  text-align: right;
+  font-style: normal;
+  font-weight: 500;
+  color: rgb(55 65 81); /* gray-700 */
+}
+
+/* But only when there's more than one paragraph — a single-paragraph
+   blockquote isn't an attributed quote, it's just a blockquote. */
+blockquote > p:only-child {
+  text-align: left;
+  font-style: italic;
+  font-weight: 400;
+}
+
+/*
  * Windows High Contrast / Forced Colors mode (WCAG 2.1 SC 1.4.11)
  *
  * In forced-colors mode the OS replaces all author colours with a small

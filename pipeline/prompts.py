@@ -66,6 +66,25 @@ FENCED CODE BLOCKS — use for pseudocode, algorithms, and program listings:
   def area(r):
       return 3.14159 * r * r
   ```
+
+ATTRIBUTED QUOTES — you MAY include short attributed quotes from
+historical figures (scientists, mathematicians, authors) when they frame
+or reinforce the lesson. Use markdown blockquote syntax with an em-dashed
+attribution on its own line:
+
+  > Energy cannot be created or destroyed, only transformed.
+  > — James Prescott Joule
+
+Rules:
+  - Only quote widely-documented, verifiable statements. When in doubt,
+    paraphrase instead of quoting.
+  - NEVER invent paper titles, book titles, DOIs, URLs, or citation
+    metadata. No "Smith, J. (2019)" style references.
+  - Do NOT quote living people or recent (post-2000) sources — stick to
+    established historical figures whose quotes are well-attested.
+  - Keep quotes under 25 words. If a passage needs more, paraphrase.
+  - Attribution line starts with "— " (em dash + space), then the
+    speaker's name only. No role, no date, no source title.
 """
 
 
