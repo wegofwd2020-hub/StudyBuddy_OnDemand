@@ -8,7 +8,7 @@ API key. Schools and teachers can upload custom curricula. Subscription-based.
 
 ## Project Status
 
-**Phases 1–11 complete. Phase A (local auth) shipped. Phases B–E complete. Epic 1 complete.**
+**Phases 1–11 complete. Phase A (local auth) shipped. Phases B–E complete. Epic 1 complete. Epic 8 H-8/H-9/H-10 (Stream layer) shipped. Epic 10 L-1 through L-5 shipped. Epic 11 C-1 through C-6 + C-9 shipped; C-5 in progress.**
 
 | Phase | Status |
 |---|---|
@@ -29,6 +29,9 @@ API key. Schools and teachers can upload custom curricula. Subscription-based.
 | Phase D — Curriculum Builder | ✅ Complete (migration 0039, 19 tests, definition form + approval queue UI) |
 | Phase E — Pipeline Billing | ✅ Complete (10 tests, cost estimate + Stripe-gated trigger) |
 | Epic 1 — Multi-Provider LLM Pipeline | ✅ Complete (migration 0043, 19 tests, F-1–F-5) |
+| Epic 8 H-8/9/10 — Stream layer + registry | ✅ Complete (migrations 0044, 0045, 18 tests; admin CRUD, upsert-on-use) |
+| Epic 10 L-1…L-5 — Curriculum lifecycle (archive) | ✅ Backend complete (migrations 0046, 0047, 0048; archive/unarchive/usage endpoints; audit events). L-6 sweeper paused; L-7 super-admin archive view + L-8 school UI pending |
+| Epic 11 C-1…C-4, C-6, C-9 — Content formatting | ✅ Pipeline + renderer complete (GFM tables, KaTeX math, per-subject guidelines, format-drift validator, attributed quotes). C-5 in progress (regen); C-7/C-8 pending |
 
 **Active branch:** `main` (next: see `docs/epics/` — product backlog)
 
@@ -46,14 +49,30 @@ API key. Schools and teachers can upload custom curricula. Subscription-based.
 - **Phase D Curriculum Builder**: `curriculum_definitions` table (migration 0039, RLS); submit/list/get/approve/reject endpoints; 4-step definition form at `/school/curriculum/definitions/new`; approval queue at `/school/curriculum/definitions`; detail+review page; 19 tests
 - **Phase E Pipeline Billing**: cost estimate endpoint (`/definitions/{id}/estimate`) — unit runs, token forecast, `within_allowance`, `card_last4`; trigger endpoint (`/definitions/{id}/trigger`) — confirm gate, concurrency guard, Stripe PaymentIntent on allowance exhaustion, Celery dispatch; `source_type='school'`; 10 tests; `run_stripe` module-level import for patchability
 - **Epic 1 Multi-Provider LLM**: `pipeline/providers/` package — `LLMProvider` ABC + `AnthropicProvider`, `OpenAIProvider`, `GeminiProvider`; `get_provider()` registry; `provider` column on `content_subject_versions` + `pipeline_jobs` (migration 0043); `--provider` CLI flag; comparison builds via `run_grade(providers=[...])` sequential loop; `ProviderBadge` UI chip on review queue; `school_llm_config` table with RLS; `GET/PUT /schools/{id}/llm-config`; DPA acknowledgements as append-only JSONB; 19 tests
+- **Epic 8 Stream layer (H-8/H-9/H-10)**: Stream as curriculum-identity suffix (Option A). Migration 0044 adds nullable `curricula.stream_code`, `students.stream`, `teachers.stream`. Migration 0045 adds the soft-registry `streams` table with 5 system seeds (`science`, `commerce`, `humanities`, `english`, `stem`) — no FK from curricula so rename/merge is a data action. Admin `/admin/streams` CRUD + archive/unarchive/merge/delete endpoints; upload-grade endpoint upserts unknown streams on-first-use when `stream_display_name` is supplied. Admin UI at `/admin/streams`, `/admin/streams/new`, `/admin/streams/[code]` with typeahead on the Upload page. 18 stream-specific tests
+- **Epic 10 Curriculum lifecycle (L-1…L-5)**: Migration 0046 adds three per-command RESTRICTIVE RLS policies on `curricula` refusing INSERT/UPDATE/DELETE on `owner_type='platform'` rows from non-bypass sessions (schools still SELECT via the existing permissive policy). Migration 0047 adds `retention_status='archived'` + partial index for the TTL sweeper. Migration 0048 drops stale policies from the L-1 debug draft. `is_curriculum_in_use()` + `get_curriculum_usage_summary()` helpers gate archive on active-enrolment count via `grade_curriculum_assignments`. `POST /admin/curricula/{id}/archive` (super-admin-for-platform, super-admin-archives-school with required reason); `POST /schools/{school_id}/curricula/{curriculum_id}/archive` (school_admin own-content only). Fire-and-forget audit events via `write_audit_log`: `curriculum.archive`, `curriculum.archive_by_platform_admin`, `curriculum.unarchive`, `curriculum.hard_delete_by_sweeper` (sweeper unimplemented yet). 1-year TTL. L-6 sweeper paused per user call; L-7 super-admin archive view + L-8 school UI pending
+- **Epic 11 Content Formatting (C-1…C-4, C-6, C-9)**: `pipeline/prompts.py` now embeds a universal formatting block (GFM tables with alignment markers, KaTeX `$...$` delimiters, currency-escape rules, fenced code blocks, attributed blockquotes with no invented citations) plus a per-subject block keyed by subject name (Commerce → Balance Sheet / P&L templates; Natural Sciences → KaTeX formulae + reaction mechanisms; Mathematics → every expression in KaTeX; CS → truth tables + Big-O). Web renderer: shared `<SBMarkdown>` component at `web/components/content/Markdown.tsx` with `remark-math` + `rehype-katex` wired; KaTeX CSS imported globally; Examples in tutorials now route through markdown rather than `<pre>` (previously rendered GFM tables as ASCII art). `max_tokens` raised from 8192 → 16384 on both Anthropic + OpenAI providers to prevent mid-string JSON truncation under richer prompts. `pipeline/content_format_validator.py` emits `format_drift` warnings when a section title suggests tabular/formula content but the output lacks it. C-5 targeted regen in progress (Grade 11 Commerce done; Grade 11 Science in flight). C-7 PDF smoke-check + C-8 mobile parity pending
 
 **Open tasks:**
-- See `docs/epics/` for the full product backlog (7 epics, each with open questions and space for decisions)
-- Production launch & demo readiness — Epic 2 (`docs/epics/EPIC_02_production_launch.md`)
-- Student mobile app — Epic 3 (`docs/epics/EPIC_03_student_mobile.md`)
-- Parent portal — Epic 4 (`docs/epics/EPIC_04_parent_portal.md`)
-- District admin — Epic 5 (`docs/epics/EPIC_05_district_admin.md`)
-- Platform hardening — Epic 6 (`docs/epics/EPIC_06_platform_hardening.md`)
+- See `docs/epics/` for the full product backlog (11 epics; see `INDEX.md`)
+- Epic 2 — Production launch & demo readiness (hosting blocker)
+- Epic 3 — Student mobile app (Path B: Expo/RN chosen; parked behind testing + hosting)
+- Epic 4 — Parent portal (💭 your call)
+- Epic 5 — District admin (💭 your call)
+- Epic 6 — Platform hardening (K-4/K-5 need staging)
+- Epic 10 — Curriculum lifecycle remaining phases:
+  - L-6 TTL sweeper (paused per user)
+  - L-7 `/admin/archive/curricula` super-admin view
+  - L-8 school UI treatment (hidden-from-library, serve-to-pre-existing-assignments)
+  - L-9 per-jurisdiction read-audit mode
+  - L-10 TTL override endpoint
+- Epic 11 — Content formatting remaining phases:
+  - C-5 regen (Grade 11 Science resume in flight; Grade 12 Commerce + Grade 12 Science + Maths-heavy units pending)
+  - C-7 PDF smoke check
+  - C-8 mobile renderer parity (waits on Epic 3)
+- Tracked issues:
+  - #188 — e2e test case: school-admin curriculum submission → pipeline → student-visible content
+  - #189 — a11y debt: `color-contrast`, `html-has-lang`, `document-title` axe rules disabled in persona Playwright specs
 
 Predecessor project (UI + prompt reference):
 `https://github.com/wegofwd2020-hub/studybuddy_free`
@@ -302,6 +321,12 @@ Current migrations (as of last commit):
 | 0037 | Phase A local auth — `password_hash TEXT` + `first_login BOOLEAN` on `teachers` and `students` |
 | 0038 | Phase B classrooms — `classrooms`, `classroom_packages`, `classroom_students` tables with RLS |
 | 0039 | Phase D curriculum definitions — `curriculum_definitions` table with RLS |
+| 0040–0043 | Epic 1 multi-provider LLM, school llm_config, provider columns |
+| 0044 | Epic 8 stream layer — nullable `curricula.stream_code`, `students.stream`, `teachers.stream` |
+| 0045 | Epic 8 streams registry — `streams` lookup table with 5 system seeds, no FK |
+| 0046 | Epic 10 L-1 — per-command RESTRICTIVE write-guard RLS on `curricula` for `owner_type='platform'` rows |
+| 0047 | Epic 10 L-3 — `retention_status='archived'` CHECK value + partial index for TTL sweeper |
+| 0048 | Hotfix — drop stale RLS policies left on `curriculum_units` / `content_subject_versions` by the L-1 debug draft |
 
 ---
 
@@ -358,8 +383,11 @@ Current migrations (as of last commit):
 
 - **Pin the Claude model ID** in `pipeline/config.py` (`CLAUDE_MODEL = "claude-sonnet-4-6"`).
   Never use an implicit "latest". Upgrading models is a deliberate act.
-- **`max_tokens` must be `8192`.** Grade 12 tutorials exceed 4096 tokens and will be silently
-  truncated, producing invalid JSON. Always set `max_tokens=8192` in `_call_claude()`.
+- **`max_tokens` must be `16384`** (raised from 8192 on 2026-04-15). Epic 11 C-1/C-2 richer
+  prompts (tables + KaTeX) regularly exceed 8192 output tokens, causing mid-string JSON
+  truncation. 16K is the conservative headroom; Sonnet 4.6 supports up to 64K. Always set
+  `max_tokens=16384` in provider `generate()` methods (`pipeline/providers/anthropic.py`,
+  `pipeline/providers/openai.py`).
 - **Pipeline is idempotent.** Check `meta.json` at unit start; skip if
   `content_version` matches and all expected files exist. Use `--force` to override.
 - **Validate every Claude response** against a JSON schema before writing to the
@@ -505,7 +533,10 @@ Backend : pytest + httpx.AsyncClient
            Mock Stripe SDK calls
            Mock Redis: fakeredis or pytest fixture
 
-Web     : No component tests currently. TypeScript type-check via `npm run typecheck`.
+Web     : Playwright E2E — 120 tests across 4 projects (chromium + persona-student/teacher/admin).
+           Runs from host (not container; Chromium glibc vs Alpine musl).
+           See `web/tests/e2e/README.md` for the runbook.
+           TypeScript type-check via `npm run typecheck`.
 
 Mobile  : pytest for logic only (SyncManager, LocalCache, ProgressQueue, i18n loader)
            No Kivy widget tests in CI
@@ -617,7 +648,7 @@ See [AGENTS.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/AGE
 13. Teacher JWT accepted on student endpoints (and vice versa) — separate secrets + role checks.
 14. Pipeline not idempotent — check `meta.json` content_version before generating; use `--force` to override.
 15. XLSX parse errors surfaced as 500 — return HTTP 400 with per-row structured error list.
-16. `max_tokens=4096` in pipeline — Grade 12 tutorials exceed this; always use `8192`.
+16. `max_tokens=4096` or `8192` in pipeline — content with Epic 11 tables + KaTeX regularly exceeds 8192. Always use `16384` in both `pipeline/providers/anthropic.py` and `pipeline/providers/openai.py`.
 17. Reading `localStorage` during SSR in Next.js — initialise as `null`, populate in `useEffect`.
 18. Missing migration after pull — API throws `UndefinedColumnError`; run `alembic upgrade head`.
 19. Rebuilding a Docker image without restarting the container — old image stays running; always `up -d` after `build`.
@@ -626,6 +657,9 @@ See [AGENTS.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/AGE
 22. Grade self-change blocked for school-enrolled students — `PATCH /student/profile` returns 403 on `grade` if `students.school_id IS NOT NULL`. Grade is set exclusively via `PUT /schools/{school_id}/students/{student_id}/assignment`.
 23. **`login_local_user` must stamp `app.current_school_id='bypass'` before querying** — the RLS policy (migration 0028) hides all teacher/student rows when this is not set. Always acquire a pool connection and call `set_config` before the SELECT. Never use `pool.fetchrow()` directly on RLS-protected tables in an unauthenticated context.
 24. **`first_login=true` must block navigation at the portal layout level** — not just on the login page. A user who navigates directly to `/school/dashboard` after receiving a token with `first_login=true` must still be redirected to `/school/change-password?required=1`. Check the decoded JWT in the layout `useEffect`, not only in the login handler.
+25. **Parallel pipeline runs race on `meta.json`** — firing `build_grade.py --force` via `docker exec` while a Celery trigger is also running for the same curriculum causes unit-level collisions (one writes meta, the other's idempotency check races, some units fail). For manual runs, confirm no `pipeline_jobs` row with `status IN ('queued','running')` for that curriculum_id first.
+26. **Playwright Chromium cannot run in the Alpine `web` container** — the binary is glibc-linked; Alpine is musl. Error: `symbol not found: __memset_chk`. Run `npx playwright test` on the host from `web/` directory. Browsers install to `~/.cache/ms-playwright/`. See `web/tests/e2e/README.md`.
+27. **Alembic migrations that fail mid-upgrade can leave orphan state** — the L-1 debug draft of migration 0046 enabled RLS + policies on `curriculum_units` and `content_subject_versions` before it was rewritten to Option 3 (curricula-only). The shipped migration didn't drop the orphans; hotfix migration 0048 cleaned them up. When iterating on a migration, always run a full downgrade → upgrade cycle against a fresh DB before committing to catch orphan state.
 
 ---
 
