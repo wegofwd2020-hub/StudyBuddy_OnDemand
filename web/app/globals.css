@@ -166,7 +166,8 @@
   [data-dyslexic="true"] textarea,
   [data-dyslexic="true"] button,
   [data-dyslexic="true"] td,
-  [data-dyslexic="true"] th {
+  [data-dyslexic="true"] th,
+  [data-dyslexic="true"] blockquote {
     font-family: var(--font-dyslexic);
   }
 }
@@ -207,6 +208,56 @@ button,
 [data-dyslexic="true"] button,
 [data-dyslexic="true"] [data-slot="button"] {
   font-family: var(--font-dyslexic);
+}
+
+/*
+ * Epic 11 C-4 — Content formatting polish.
+ *
+ * KaTeX typesets formulae in its own glyph stack (KaTeX_Main, KaTeX_Math,
+ * KaTeX_Size*, etc.). Forcing OpenDyslexic on math breaks symbols like
+ * ∫, ∑, ∞, Greek letters. Instead we keep KaTeX's native fonts but give
+ * display math extra breathing room in dyslexia mode so the expression
+ * has clearer separation from surrounding prose.
+ *
+ * Code blocks are intentionally NOT swapped — monospace is essential for
+ * reading pseudocode, truth-table columns, and SQL/YAML structure.
+ */
+
+/* Display math: centred by default from KaTeX; add subtle vertical rhythm */
+.katex-display {
+  margin: 0.75rem 0 !important;
+}
+
+/* Inline math: vertical-align fix so it sits on the baseline with prose */
+.katex {
+  font-size: 1.02em;
+}
+
+/* Dyslexia mode: widen display-math padding; nudge inline math larger */
+[data-dyslexic="true"] .katex-display {
+  margin: 1.25rem 0 !important;
+  padding: 0.5rem 0;
+}
+
+[data-dyslexic="true"] .katex {
+  font-size: 1.08em;
+}
+
+/* Keep code blocks in mono fonts even under dyslexia mode */
+[data-dyslexic="true"] pre,
+[data-dyslexic="true"] pre code,
+[data-dyslexic="true"] code,
+[data-dyslexic="true"] .katex,
+[data-dyslexic="true"] .katex * {
+  font-family: revert;
+}
+
+/* Ensure numeric cells retain tabular-nums even when a dyslexia swap
+   would otherwise hand them to OpenDyslexic (which lacks tabular figures). */
+[data-dyslexic="true"] td.text-right,
+[data-dyslexic="true"] th.text-right {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 
 /*
