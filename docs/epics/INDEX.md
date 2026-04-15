@@ -21,7 +21,8 @@ the decision notes become the spec and we develop from there.
 | 7 | Self-Serve Demo System | [EPIC_07_self_serve_demo.md](EPIC_07_self_serve_demo.md) | ✅ Complete (Option C guided tour, 15 tests) |
 | 8 | Onboarding Completeness (Address & Units) | [EPIC_08_onboarding_completeness.md](EPIC_08_onboarding_completeness.md) | 💭 Your call |
 | 9 | Accessibility & Personalization | [EPIC_09_accessibility_personalization.md](EPIC_09_accessibility_personalization.md) | 💭 Your call |
-| 10 | Curriculum Lifecycle & Governance | [EPIC_10_curriculum_lifecycle.md](EPIC_10_curriculum_lifecycle.md) | ✅ Go — 10 phases (L-1…L-10), ready to ticket |
+| 10 | Curriculum Lifecycle & Governance | [EPIC_10_curriculum_lifecycle.md](EPIC_10_curriculum_lifecycle.md) | 🚧 L-1–L-5 shipped; L-6 paused; L-7–L-10 pending |
+| 11 | Content Presentation & Formatting | [EPIC_11_content_formatting.md](EPIC_11_content_formatting.md) | 💭 Your call |
 
 ---
 
