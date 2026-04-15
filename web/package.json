@@ -34,7 +34,7 @@
     "clsx": "2.1.1",
     "diff": "^8.0.4",
     "katex": "^0.16.45",
-    "lucide-react": "1.7.0",
+    "lucide-react": "1.8.0",
     "mermaid": "^11.14.0",
     "next": "16.2.3",
     "next-intl": "4.9.1",
