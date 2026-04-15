@@ -171,7 +171,138 @@ Gaps:
 
 ## Your decisions / notes
 
-> Add your thoughts here. Even rough bullet points are enough to start.
+Fill in the **Your answer** field under each question. "My lean" is a default
+recommendation — circle it, override it, or write your own reasoning. When all
+eight are answered, this section becomes the spec we ticket against.
+
+---
+
+### Q1. Who can initiate an archive?
+
+- (a) Super-admin only for everything.
+- (b) Super-admin for platform content; school_admin for school-owned content.
+- (c) Super-admin for platform; school_admin for school-owned **only when not
+  in use**; super-admin can override the in-use gate with an explicit reason.
+
+**My lean:** (c) — gives schools day-to-day control without risk, keeps
+super-admin as the break-glass.
+
+**Your answer:**
+
+**Your reasoning (optional):**
+
+---
+
+### Q2. What counts as "in use" for the archive precondition?
+
+- (a) Any row in `student_teacher_assignments` (historical + active).
+- (b) Only active assignments — students currently enrolled.
+- (c) Active assignments **OR** a progress_session in the last N days
+  (suggest N=30).
+
+**My lean:** (b) — historical assignments from past academic years shouldn't
+block archival of superseded curricula.
+
+**Your answer:**
+
+**If (c), what N:**
+
+---
+
+### Q3. What do students / school admins see during the 1-year archive window?
+
+- (a) Hidden entirely — the curriculum simply disappears from the library.
+- (b) Shown with an "Archived" badge, read-only, students mid-course can
+  finish.
+- (c) Hidden from library, but still served to students who had an active
+  assignment before archive (they finish; new assignments are impossible).
+
+**My lean:** (c) — protects in-flight students from mid-course disruption
+without letting the curriculum stay discoverable.
+
+**Your answer:**
+
+---
+
+### Q4. Audit scope for platform content reads.
+
+- (a) Audit only destructive actions (archive / unarchive / sweep).
+- (b) Audit every read of platform content by every school — heavy log volume,
+  but some frameworks require it.
+- (c) (a) by default, (b) opt-in per jurisdiction / compliance mode.
+
+**My lean:** (a) initially; add (c) if a paying customer asks for SOC-2 or
+similar certification.
+
+**Your answer:**
+
+---
+
+### Q5. What happens to a running pipeline build when its curriculum is archived?
+
+- (a) Cancel the job immediately; mark the job as `cancelled`.
+- (b) Let it finish, then the output is already archived-state content.
+- (c) Refuse to archive while a build is running — return 409.
+
+**My lean:** (a) for running jobs, and (c) as an additional guard on
+`archive` — we shouldn't let archival race with a late-finishing build.
+
+**Your answer:**
+
+---
+
+### Q6. When does the 1-year TTL clock start?
+
+- (a) `expires_at = archived_at + interval '1 year'`.
+- (b) Same as (a), but the clock pauses while there is a pending restore
+  request (requires restore flow, out of scope for this epic).
+
+**My lean:** (a) — keep it simple; revisit when retrieval is designed.
+
+**Your answer:**
+
+---
+
+### Q7. Can super-admin shorten (or extend) the TTL?
+
+Regulatory deletion requests ("delete within 30 days") vs. edge-case reasons
+to extend beyond a year.
+
+- (a) No — TTL is fixed at one year.
+- (b) Yes, super-admin can `PATCH` `expires_at` to any future date; audited.
+- (c) Shorten only (for compliance); never extend.
+
+**My lean:** (b) — it's a rare action and always audited; flexibility is
+cheap.
+
+**Your answer:**
+
+---
+
+### Q8. Sweeper safety — what guardrails on the hard-delete job?
+
+Pick all that apply:
+
+- [ ] Dry-run mode (logs what would be deleted without acting).
+- [ ] Pre-delete JSONL backup to object storage (row + units + version meta).
+- [ ] Rate limit — max N deletions per run (e.g. 50).
+- [ ] Alert if a single run would delete > M rows (e.g. 20), requires manual
+      unblock.
+- [ ] Separate Celery queue + dedicated worker so a queue backlog can't delay
+      other beat jobs.
+
+**My lean:** all five — sweeper is the one code path that can destroy live
+content at scale, and the cost of guardrails is tiny compared to the blast
+radius of a regression.
+
+**Your answer (check boxes you want):**
+
+---
+
+### Additional notes
+
+> Anything not covered by the eight questions above — a custom sub-scope you
+> want to add, a phase you want to drop, integrations with other epics, etc.
 
 -
 -
