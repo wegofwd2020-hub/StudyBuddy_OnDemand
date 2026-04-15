@@ -10,14 +10,19 @@ Accounts created
   School   : MilfordWaterford Local School
 
   Teachers (login via POST /demo/teacher/auth/login):
-    sam.houston@milfordwaterford.edu   / MWTeacher-Sam-2026!
-    linda.ronstad@milfordwaterford.edu / MWTeacher-Linda-2026!
+    sam.houston@milfordwaterford.edu     / MWTeacher-Sam-2026!
+    linda.ronstad@milfordwaterford.edu   / MWTeacher-Linda-2026!
+    warren.buffett@milfordwaterford.edu  / MWTeacher-Warren-2026!  (Commerce)
+    indra.nooyi@milfordwaterford.edu     / MWTeacher-Indra-2026!   (Commerce)
 
   Students (login via POST /demo/auth/login):
-    samjr@milfordwaterford.edu         / MWStudent-SamJr-2026!    Grade 8
-    jose.herbert@milfordwaterford.edu  / MWStudent-Jose-2026!     Grade 8
-    samsr@milfordwaterford.edu         / MWStudent-SamSr-2026!    Grade 12
-    linda.herbert@milfordwaterford.edu / MWStudent-Linda-2026!    Grade 12
+    samjr@milfordwaterford.edu          / MWStudent-SamJr-2026!    Grade 8
+    jose.herbert@milfordwaterford.edu   / MWStudent-Jose-2026!     Grade 8
+    anya.iyer@milfordwaterford.edu      / MWStudent-Anya-2026!     Grade 11 (Commerce)
+    raj.kapoor@milfordwaterford.edu     / MWStudent-Raj-2026!      Grade 11 (Commerce)
+    mei.chen@milfordwaterford.edu       / MWStudent-Mei-2026!      Grade 11 (Commerce)
+    samsr@milfordwaterford.edu          / MWStudent-SamSr-2026!    Grade 12
+    linda.herbert@milfordwaterford.edu  / MWStudent-Linda-2026!    Grade 12
 
 All accounts expire 2099-12-31 (effectively non-expiring).
 
@@ -73,6 +78,20 @@ TEACHERS: list[dict] = [
         "password": "MWTeacher-Linda-2026!",
         "role": "teacher",
     },
+    # Commerce-stream teachers (Grade 11). Added to support testing of
+    # Balance Sheet / P&L / Accountancy content flow end-to-end.
+    {
+        "name": "Warren Buffett",
+        "email": "warren.buffett@milfordwaterford.edu",
+        "password": "MWTeacher-Warren-2026!",
+        "role": "teacher",
+    },
+    {
+        "name": "Indra Nooyi",
+        "email": "indra.nooyi@milfordwaterford.edu",
+        "password": "MWTeacher-Indra-2026!",
+        "role": "teacher",
+    },
 ]
 
 STUDENTS: list[dict] = [
@@ -99,6 +118,26 @@ STUDENTS: list[dict] = [
         "email": "linda.herbert@milfordwaterford.edu",
         "password": "MWStudent-Linda-2026!",
         "grade": 12,
+    },
+    # Grade 11 Commerce students — pair with Warren Buffett / Indra Nooyi
+    # teachers so the Commerce content pipeline can be tested end-to-end.
+    {
+        "name": "Anya Iyer",
+        "email": "anya.iyer@milfordwaterford.edu",
+        "password": "MWStudent-Anya-2026!",
+        "grade": 11,
+    },
+    {
+        "name": "Raj Kapoor",
+        "email": "raj.kapoor@milfordwaterford.edu",
+        "password": "MWStudent-Raj-2026!",
+        "grade": 11,
+    },
+    {
+        "name": "Mei Chen",
+        "email": "mei.chen@milfordwaterford.edu",
+        "password": "MWStudent-Mei-2026!",
+        "grade": 11,
     },
 ]
 
