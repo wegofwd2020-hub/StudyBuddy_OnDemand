@@ -69,6 +69,159 @@ FENCED CODE BLOCKS — use for pseudocode, algorithms, and program listings:
 """
 
 
+# ── Per-subject guidelines (Epic 11 C-2) ─────────────────────────────────────
+# Injected in addition to the universal block. Subject names are matched
+# case-insensitively against canonical groupings — unknown subjects fall
+# through to the empty string (no-op).
+
+_COMMERCE_GUIDELINES = """SUBJECT-SPECIFIC — COMMERCE (Accountancy / Business Studies / Economics):
+
+Financial statements — ALWAYS render as markdown tables with right-aligned
+numeric columns. Templates:
+
+Balance Sheet example:
+| Item | Amount (INR) |
+|:-----|-------------:|
+| Cash and Cash Equivalents | 50,000 |
+| Accounts Receivable       | 30,000 |
+| Inventory                 | 20,000 |
+| **Total Current Assets**  | **100,000** |
+
+Profit & Loss statement example:
+| Line Item | Amount (INR) |
+|:----------|-------------:|
+| Revenue             | 500,000 |
+| Cost of Goods Sold  | (300,000) |
+| **Gross Profit**    | **200,000** |
+
+Trial Balance example:
+| Account | Debit | Credit |
+|:--------|------:|-------:|
+| Cash             | 50,000 |        |
+| Accounts Payable |        | 30,000 |
+
+Cash Flow statement: three sections — Operating, Investing, Financing —
+each rendered as its own table. Use parentheses (300,000) for negative
+values, bold rows for subtotals and totals. Always spell out currency
+(INR / USD / EUR) — never unescaped $.
+
+Accounting equations render as KaTeX:
+  $$\\text{Assets} = \\text{Liabilities} + \\text{Equity}$$
+  $$\\text{Gross Profit Margin} = \\frac{\\text{Gross Profit}}{\\text{Revenue}} \\times 100\\%$$
+"""
+
+
+_SCIENCE_GUIDELINES = """SUBJECT-SPECIFIC — NATURAL SCIENCES (Physics / Chemistry / Biology):
+
+Formulae and equations — ALWAYS in KaTeX, never raw text.
+  Physics: $$F = ma$$, $$E_k = \\tfrac{1}{2}mv^2$$, $$\\lambda = \\frac{h}{p}$$
+  Chemistry: balanced equations via `\\ce{}` or arrow notation:
+    $$2\\mathrm{H}_2 + \\mathrm{O}_2 \\rightarrow 2\\mathrm{H}_2\\mathrm{O}$$
+  Biology: kinetic and equilibrium expressions as display math.
+
+Reaction mechanisms / stoichiometry — tables:
+| Reactant | Coefficient | Product | Coefficient |
+|:---------|:-----------:|:--------|:-----------:|
+| H₂       | 2           | H₂O     | 2           |
+| O₂       | 1           |         |             |
+
+Periodic-table excerpts, taxonomic ladders, comparative species tables,
+genetic crosses (Punnett squares) — all as markdown tables. Keep Punnett
+squares to 2×2 or 4×4 grids with bold allele labels.
+
+Units: use KaTeX `\\mathrm{}` for unit typesetting in display equations
+(e.g. $\\mathrm{m/s^2}$, $\\mathrm{kg \\cdot m^2}$). In inline prose,
+Unicode is fine ("9.8 m/s²").
+
+Observation tables and lab data should always be tabular.
+"""
+
+
+_MATHEMATICS_GUIDELINES = """SUBJECT-SPECIFIC — MATHEMATICS:
+
+EVERY mathematical expression goes in KaTeX — inline `$...$` for expressions
+that live mid-sentence, display `$$...$$` for expressions on their own line.
+This applies to: variables ($x$, $y$), fractions ($\\frac{a}{b}$), powers
+($x^2$), roots ($\\sqrt{2}$), integrals, sums, limits, matrices, set
+notation, trigonometric functions, logarithms — everything.
+
+Worked solutions: present each step in a numbered list; put the equation
+on a display-math line beneath its explanation.
+
+1. Move all $x$ terms to the left-hand side:
+   $$3x + 2 = x + 10$$
+   $$2x = 8$$
+2. Divide both sides by 2:
+   $$x = 4$$
+
+Systems of equations, matrix operations, transformations — present the
+matrix/system as display math. Proofs (geometric, algebraic, by induction)
+use numbered steps where each justification cites a rule or earlier step.
+
+Comparisons of functions, function-value tables, and piecewise definitions
+render as markdown tables with right-aligned numeric columns.
+"""
+
+
+_CS_GUIDELINES = """SUBJECT-SPECIFIC — COMPUTER SCIENCE / TECHNOLOGY:
+
+Pseudocode and program listings — fenced code blocks with the language tag
+(```python, ```javascript, ```java, ```sql, etc.). Use 4-space indentation;
+keep snippets under 20 lines; annotate with inline `# comments`.
+
+Complexity analysis — KaTeX for asymptotic notation ($O(n \\log n)$,
+$\\Theta(n^2)$, $\\Omega(n)$). Complexity comparisons as markdown tables:
+
+| Operation | Array | Linked List | Hash Map |
+|:----------|:-----:|:-----------:|:--------:|
+| Lookup    | $O(1)$ | $O(n)$     | $O(1)$   |
+| Insert    | $O(n)$ | $O(1)$     | $O(1)$   |
+
+Truth tables — always as markdown tables with centred columns:
+| p | q | p ∧ q | p ∨ q |
+|:-:|:-:|:-----:|:-----:|
+| T | T | T     | T     |
+| T | F | F     | T     |
+
+Data-structure diagrams (trees, graphs, linked lists) — use Mermaid.js
+(```mermaid ... ```) for flowcharts and control flow, consistent with
+CLAUDE.md content rule §4.
+
+Shell commands in fenced `bash` blocks. Configuration files (JSON, YAML,
+TOML) in fenced blocks tagged with the format.
+"""
+
+
+# Keyword → guideline block. Subjects are normalised (lowercase, stripped).
+# Order matters: more-specific subjects first. "Computer Science" must match
+# _CS_GUIDELINES before the bare "science" tests against the natural-sciences
+# block (so _SCIENCE_GUIDELINES deliberately omits the over-broad "science"
+# keyword — matching is anchored on specific discipline names only).
+_SUBJECT_GUIDELINE_KEYWORDS: list[tuple[tuple[str, ...], str]] = [
+    (("computer science", "computing", "informatics", "programming", "coding",
+      "information technology", "technology"),
+     _CS_GUIDELINES),
+    (("accountancy", "accounting", "business studies", "economics", "commerce"),
+     _COMMERCE_GUIDELINES),
+    (("physics", "chemistry", "biology"),
+     _SCIENCE_GUIDELINES),
+    (("mathematics", "math", "maths", "algebra", "geometry", "calculus", "statistics"),
+     _MATHEMATICS_GUIDELINES),
+]
+
+
+def _subject_guidelines(subject: str) -> str:
+    """Return the matching subject-specific guidelines, or '' if none match."""
+    s = (subject or "").strip().lower()
+    if not s:
+        return ""
+    for keywords, block in _SUBJECT_GUIDELINE_KEYWORDS:
+        for kw in keywords:
+            if kw in s:
+                return block
+    return ""
+
+
 def build_lesson_prompt(
     unit_id: str,
     subject: str,
@@ -90,7 +243,7 @@ Unit ID: {unit_id}
 You MUST respond with ONLY valid JSON — no markdown fences, no extra text, no explanation.
 
 {_FORMATTING_GUIDELINES}
-
+{_subject_guidelines(subject)}
 The JSON must exactly match this schema:
 
 {{
@@ -138,7 +291,7 @@ Unit ID: {unit_id}
 You MUST respond with ONLY valid JSON — no markdown fences, no extra text, no explanation.
 
 {_FORMATTING_GUIDELINES}
-
+{_subject_guidelines(subject)}
 The JSON must exactly match this schema:
 
 {{
@@ -201,7 +354,7 @@ Unit ID: {unit_id}
 You MUST respond with ONLY valid JSON — no markdown fences, no extra text, no explanation.
 
 {_FORMATTING_GUIDELINES}
-
+{_subject_guidelines(subject)}
 The JSON must exactly match this schema:
 
 {{
@@ -255,7 +408,7 @@ Unit ID: {unit_id}
 You MUST respond with ONLY valid JSON — no markdown fences, no extra text, no explanation.
 
 {_FORMATTING_GUIDELINES}
-
+{_subject_guidelines(subject)}
 The JSON must exactly match this schema:
 
 {{
