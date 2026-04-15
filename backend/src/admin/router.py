@@ -839,9 +839,6 @@ async def dictionary(
 # ── Admin pipeline: upload grade JSON + trigger build ─────────────────────────
 
 
-_VALID_STREAM_CODES = {"science", "commerce", "humanities", "english", "stem"}
-
-
 @router.post(
     "/admin/pipeline/upload-grade",
     response_model=UploadGradeJsonResponse,
@@ -855,11 +852,18 @@ async def upload_grade_json(
     stream: str | None = Query(
         None,
         description=(
-            "Optional stream code (science|commerce|humanities|english|stem). "
+            "Stream code; resolved against the `streams` registry. "
             "When provided, curriculum_id becomes `default-{year}-g{grade}-{stream}` "
-            "and the file is saved as `grade{N}_{stream}.json` so parallel streams "
-            "don't overwrite each other. Omit for legacy single-curriculum-per-grade "
-            "behaviour (curriculum_id = `default-{year}-g{grade}`)."
+            "and the file is saved as `grade{N}_{stream}.json`. Omit for legacy "
+            "single-curriculum-per-grade behaviour."
+        ),
+    ),
+    stream_display_name: str | None = Query(
+        None,
+        description=(
+            "When the admin picks 'Other…' on the Upload page and supplies a "
+            "free-text label, this creates a new non-system row in the `streams` "
+            "registry on first use. Ignored if the stream code already exists."
         ),
     ),
 ) -> UploadGradeJsonResponse:
@@ -869,21 +873,7 @@ async def upload_grade_json(
     """
     import os
 
-    # Normalise and validate stream if provided. Stream is optional —
-    # stream-unaware uploads (legacy US-STEM) continue to work as before.
-    if stream is not None:
-        stream = stream.strip().lower() or None
-    if stream and stream not in _VALID_STREAM_CODES:
-        raise HTTPException(
-            status_code=400,
-            detail={
-                "error": "validation_error",
-                "detail": (
-                    f"Unknown stream '{stream}'. "
-                    f"Expected one of: {sorted(_VALID_STREAM_CODES)}."
-                ),
-            },
-        )
+    from src.admin.streams_router import resolve_stream_for_upload
 
     raw = await file.read()
     try:
@@ -940,23 +930,30 @@ async def upload_grade_json(
             },
         )
 
-    # File naming: when stream is set, each stream lands in its own file so
-    # a subsequent Commerce upload can't clobber an earlier Science upload.
-    file_suffix = stream or "stem"
-    dest_path = f"/data/grade{grade}_{file_suffix}.json"
-    os.makedirs("/data", exist_ok=True)
-    with open(dest_path, "wb") as fh:
-        fh.write(raw)
-
-    # Curriculum ID: include stream suffix when present so each stream is its
-    # own curriculum entity (Option A from the Streams design discussion).
-    curriculum_id = f"default-{year}-g{grade}"
-    if stream:
-        curriculum_id = f"{curriculum_id}-{stream}"
-    stream_label = f" {stream.title()}" if stream else ""
-    curriculum_name = f"Grade {grade}{stream_label} ({year})"
-
     async with get_db(request) as conn:
+        resolved_stream = await resolve_stream_for_upload(
+            conn,
+            stream=stream,
+            display_name=stream_display_name,
+            admin_id=_admin_id(admin),
+        )
+
+        # File naming: when stream is set, each stream lands in its own file so
+        # a subsequent Commerce upload can't clobber an earlier Science upload.
+        file_suffix = resolved_stream or "stem"
+        dest_path = f"/data/grade{grade}_{file_suffix}.json"
+        os.makedirs("/data", exist_ok=True)
+        with open(dest_path, "wb") as fh:
+            fh.write(raw)
+
+        # Curriculum ID: include stream suffix when present so each stream is
+        # its own curriculum entity (Option A from the Streams design).
+        curriculum_id = f"default-{year}-g{grade}"
+        if resolved_stream:
+            curriculum_id = f"{curriculum_id}-{resolved_stream}"
+        stream_label = f" {resolved_stream.title()}" if resolved_stream else ""
+        curriculum_name = f"Grade {grade}{stream_label} ({year})"
+
         await conn.execute(
             """
             INSERT INTO curricula (curriculum_id, grade, year, name, is_default, stream_code)
@@ -969,7 +966,7 @@ async def upload_grade_json(
             grade,
             year,
             curriculum_name,
-            stream,
+            resolved_stream,
         )
         sort_order = 0
         for subj in subjects:
@@ -992,6 +989,18 @@ async def upload_grade_json(
                     sort_order,
                 )
                 sort_order += 1
+
+        if resolved_stream:
+            await conn.execute(
+                """
+                UPDATE streams
+                   SET curricula_count = (
+                       SELECT COUNT(*) FROM curricula WHERE stream_code = $1
+                   )
+                 WHERE code = $1
+                """,
+                resolved_stream,
+            )
 
     unit_count = sum(len(subj.get("units", [])) for subj in subjects)
     log.info(
@@ -1025,27 +1034,21 @@ async def admin_trigger_pipeline(
     for progress. Content is built with auto_approve=False so all output goes
     to the review queue.
     """
+    from src.admin.streams_router import resolve_stream_for_upload
     from src.core.celery_app import celery_app as _celery
 
-    # Normalise optional stream (same rules as upload endpoint).
-    stream = (body.stream or "").strip().lower() or None
-    if stream and stream not in _VALID_STREAM_CODES:
-        raise HTTPException(
-            status_code=400,
-            detail={
-                "error": "validation_error",
-                "detail": (
-                    f"Unknown stream '{stream}'. "
-                    f"Expected one of: {sorted(_VALID_STREAM_CODES)}."
-                ),
-            },
+    async with get_db(request) as conn:
+        stream = await resolve_stream_for_upload(
+            conn,
+            stream=body.stream,
+            display_name=body.stream_display_name,
+            admin_id=_admin_id(admin),
         )
 
-    curriculum_id = f"default-{body.year}-g{body.grade}"
-    if stream:
-        curriculum_id = f"{curriculum_id}-{stream}"
+        curriculum_id = f"default-{body.year}-g{body.grade}"
+        if stream:
+            curriculum_id = f"{curriculum_id}-{stream}"
 
-    async with get_db(request) as conn:
         row = await conn.fetchrow(
             "SELECT curriculum_id FROM curricula WHERE curriculum_id = $1",
             curriculum_id,

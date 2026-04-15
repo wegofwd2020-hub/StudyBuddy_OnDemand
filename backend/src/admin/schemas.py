@@ -277,12 +277,65 @@ class AdminPipelineTriggerRequest(BaseModel):
     # When present, the task builds curriculum_id `default-{year}-g{grade}-{stream}`
     # reading from `data/grade{N}_{stream}.json`. When absent, legacy behaviour.
     stream: str | None = None
+    # When the admin selects "Other…" on the Upload page they pass a free-text
+    # display name alongside the slugified code. If the code isn't in the
+    # registry yet, the backend upserts a new `streams` row using this value.
+    stream_display_name: str | None = None
 
 
 class AdminPipelineTriggerResponse(BaseModel):
     job_id: str
     status: str
     curriculum_id: str
+
+
+# ── Streams registry ──────────────────────────────────────────────────────────
+
+
+class StreamResponse(BaseModel):
+    code: str
+    display_name: str
+    description: str | None = None
+    is_system: bool
+    is_archived: bool
+    curricula_count: int
+    created_at: datetime
+
+
+class StreamListResponse(BaseModel):
+    streams: list[StreamResponse]
+
+
+class StreamCurriculumSummary(BaseModel):
+    curriculum_id: str
+    grade: int
+    year: int
+    name: str | None = None
+
+
+class StreamDetailResponse(BaseModel):
+    stream: StreamResponse
+    curricula: list[StreamCurriculumSummary]
+
+
+class StreamCreateRequest(BaseModel):
+    code: str = Field(..., min_length=3, max_length=30)
+    display_name: str = Field(..., min_length=1, max_length=100)
+    description: str | None = Field(default=None, max_length=500)
+
+
+class StreamUpdateRequest(BaseModel):
+    display_name: str | None = Field(default=None, min_length=1, max_length=100)
+    description: str | None = Field(default=None, max_length=500)
+
+
+class StreamMergeRequest(BaseModel):
+    target_code: str = Field(..., min_length=1, max_length=30)
+
+
+class StreamMergeResponse(BaseModel):
+    affected_curricula: int
+    source_archived: bool = True
 
 
 # ── Batch approve ─────────────────────────────────────────────────────────────
