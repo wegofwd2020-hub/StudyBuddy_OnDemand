@@ -38,7 +38,13 @@ class AnthropicProvider(LLMProvider):
     def generate(self, prompt: str) -> tuple[str, int, int]:
         message = self._client.messages.create(
             model=self._model,
-            max_tokens=8192,
+            # 16384: Epic 11 C-1/C-2 richer content (GFM tables + KaTeX math)
+            # regularly pushes past 8192 in Grade 11+ Science tutorials, which
+            # triggers mid-string JSON truncation on the client side. Sonnet
+            # 4.6 supports up to 64K output tokens; 16K is the conservative
+            # headroom that keeps cost predictable while eliminating the
+            # truncation-fail mode seen in the G11 Science run (~13/29 units).
+            max_tokens=16384,
             messages=[{"role": "user", "content": prompt}],
         )
         text = message.content[0].text if message.content else ""

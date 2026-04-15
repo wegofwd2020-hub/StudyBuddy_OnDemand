@@ -46,7 +46,10 @@ class OpenAIProvider(LLMProvider):
     def generate(self, prompt: str) -> tuple[str, int, int]:
         response = self._client.chat.completions.create(
             model=self._model,
-            max_tokens=8192,
+            # Mirror the Anthropic provider — Epic 11 C-1/C-2 richer content
+            # regularly exceeds 8192 output tokens, causing mid-string JSON
+            # truncation. 16K is the conservative headroom.
+            max_tokens=16384,
             response_format={"type": "json_object"},
             messages=[{"role": "user", "content": prompt}],
         )
