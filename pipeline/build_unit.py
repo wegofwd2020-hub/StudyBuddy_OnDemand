@@ -36,6 +36,7 @@ if _REPO_ROOT not in sys.path:
     sys.path.insert(0, _REPO_ROOT)
 
 from pipeline.alex_runner import run_alex
+from pipeline.content_format_validator import FormatWarning, check_content
 from pipeline.prompts import (
     build_experiment_prompt,
     build_lesson_prompt,
@@ -329,6 +330,25 @@ def build_unit(
         alex_warnings_detail_by_type[ct] = result.get("warnings", [])
     alex_warnings = sum(alex_warnings_by_type.values())
 
+    # ── Run format-drift checks (Epic 11 C-6) ────────────────────────────────
+    # Advisory only — emits structured warnings when a section whose title
+    # suggests tabular or formula content lacks the expected markdown.
+    format_warnings: list[FormatWarning] = []
+    for ct, doc in generated_content.items():
+        # generated_content keys: "lesson", "quiz_1"..."quiz_3", "tutorial", "experiment"
+        check_type = "tutorial" if ct == "tutorial" else (
+            "lesson" if ct == "lesson" else (
+                "experiment" if ct == "experiment" else None
+            )
+        )
+        if check_type:
+            format_warnings.extend(check_content(check_type, doc))
+    for w in format_warnings:
+        log.warning(
+            "format_drift unit_id=%s lang=%s rule=%s location=%s title=%r",
+            unit_id, lang, w.rule, w.location, w.title,
+        )
+
     # ── Write content files ───────────────────────────────────────────────────
     os.makedirs(store_path, exist_ok=True)
 
@@ -374,6 +394,7 @@ def build_unit(
             "cost_usd": round(cost_usd, 6),
             "duration_ms": duration_ms,
             "alex_warnings": alex_warnings,
+            "format_warnings": len(format_warnings),
         })
     )
 
