@@ -1,0 +1,414 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studybuddy.app/schemas/content-block.v0.json",
+  "title": "ContentDocument",
+  "description": "Typed block schema for AI-generated lesson content. See docs/epics/EPIC_12_content_block_taxonomy.md",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "blocks"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$",
+      "description": "SemVer major.minor. v0 ships as '1.0'. Additive Layer-4 additions bump minor; breaking changes bump major."
+    },
+    "blocks": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/ContentBlock" }
+    }
+  },
+  "$defs": {
+    "BlockId": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{0,63}$",
+      "description": "Stable block identifier. Positional 'b-NNNN' for prose blocks; content-derived slug (e.g. 'def-balance-sheet') for Heading/Definition/KeyConcept."
+    },
+    "InlineMarkdown": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4000,
+      "description": "Markdown restricted to inline constructs (bold, italic, code, links, $...$ math). Block-level constructs (headings, tables, code fences, triple-newlines) are forbidden; enforced by a second-pass validator, not this schema."
+    },
+    "ContentBlock": {
+      "oneOf": [
+        { "$ref": "#/$defs/Heading" },
+        { "$ref": "#/$defs/Paragraph" },
+        { "$ref": "#/$defs/List" },
+        { "$ref": "#/$defs/Callout" },
+        { "$ref": "#/$defs/Figure" },
+        { "$ref": "#/$defs/Quote" },
+        { "$ref": "#/$defs/Code" },
+        { "$ref": "#/$defs/Definition" },
+        { "$ref": "#/$defs/KeyConcept" },
+        { "$ref": "#/$defs/WorkedExample" },
+        { "$ref": "#/$defs/TryThis" },
+        { "$ref": "#/$defs/Summary" },
+        { "$ref": "#/$defs/CrossReference" },
+        { "$ref": "#/$defs/Formula" },
+        { "$ref": "#/$defs/DataTable" },
+        { "$ref": "#/$defs/Diagram" },
+        { "$ref": "#/$defs/MediaPlaceholder" }
+      ]
+    },
+    "Heading": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "data"],
+      "properties": {
+        "type": { "const": "Heading" },
+        "id": { "$ref": "#/$defs/BlockId" },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["level", "text"],
+          "properties": {
+            "level": { "type": "integer", "minimum": 2, "maximum": 4 },
+            "text": { "type": "string", "minLength": 1, "maxLength": 240 }
+          }
+        }
+      }
+    },
+    "Paragraph": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "data"],
+      "properties": {
+        "type": { "const": "Paragraph" },
+        "id": { "$ref": "#/$defs/BlockId" },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["markdown"],
+          "properties": {
+            "markdown": { "$ref": "#/$defs/InlineMarkdown" }
+          }
+        }
+      }
+    },
+    "List": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "data"],
+      "properties": {
+        "type": { "const": "List" },
+        "id": { "$ref": "#/$defs/BlockId" },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["style", "items"],
+          "properties": {
+            "style": { "enum": ["bullet", "ordered"] },
+            "items": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 50,
+              "items": { "$ref": "#/$defs/InlineMarkdown" }
+            }
+          }
+        }
+      }
+    },
+    "Callout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "data"],
+      "properties": {
+        "type": { "const": "Callout" },
+        "id": { "$ref": "#/$defs/BlockId" },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["variant", "body"],
+          "properties": {
+            "variant": { "enum": ["info", "warning", "tip", "note"] },
+            "title": { "type": "string", "minLength": 1, "maxLength": 120 },
+            "body": { "$ref": "#/$defs/InlineMarkdown" }
+          }
+        }
+      }
+    },
+    "Figure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "data"],
+      "properties": {
+        "type": { "const": "Figure" },
+        "id": { "$ref": "#/$defs/BlockId" },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["src", "alt"],
+          "properties": {
+            "src": { "type": "string", "minLength": 1, "maxLength": 512 },
+            "alt": { "type": "string", "minLength": 3, "maxLength": 480 },
+            "caption": { "$ref": "#/$defs/InlineMarkdown" },
+            "attribution": { "type": "string", "maxLength": 240 },
+            "license": { "type": "string", "maxLength": 120 }
+          }
+        }
+      }
+    },
+    "Quote": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "data"],
+      "properties": {
+        "type": { "const": "Quote" },
+        "id": { "$ref": "#/$defs/BlockId" },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["markdown"],
+          "properties": {
+            "markdown": { "$ref": "#/$defs/InlineMarkdown" },
+            "attribution": { "type": "string", "maxLength": 240 },
+            "source": { "type": "string", "maxLength": 240 }
+          }
+        }
+      }
+    },
+    "Code": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "data"],
+      "properties": {
+        "type": { "const": "Code" },
+        "id": { "$ref": "#/$defs/BlockId" },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["source"],
+          "properties": {
+            "language": { "type": "string", "maxLength": 40 },
+            "source": { "type": "string", "minLength": 1, "maxLength": 8000 }
+          }
+        }
+      }
+    },
+    "Definition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "data"],
+      "properties": {
+        "type": { "const": "Definition" },
+        "id": { "$ref": "#/$defs/BlockId" },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["term", "body"],
+          "properties": {
+            "term": { "type": "string", "minLength": 1, "maxLength": 120 },
+            "body": { "$ref": "#/$defs/InlineMarkdown" }
+          }
+        }
+      }
+    },
+    "KeyConcept": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "data"],
+      "properties": {
+        "type": { "const": "KeyConcept" },
+        "id": { "$ref": "#/$defs/BlockId" },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["title", "body"],
+          "properties": {
+            "title": { "type": "string", "minLength": 1, "maxLength": 160 },
+            "body": { "$ref": "#/$defs/InlineMarkdown" }
+          }
+        }
+      }
+    },
+    "WorkedExample": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "data"],
+      "properties": {
+        "type": { "const": "WorkedExample" },
+        "id": { "$ref": "#/$defs/BlockId" },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["title", "prompt", "steps"],
+          "properties": {
+            "title": { "type": "string", "minLength": 1, "maxLength": 160 },
+            "prompt": { "$ref": "#/$defs/InlineMarkdown" },
+            "steps": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 40,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["body"],
+                "properties": {
+                  "label": { "type": "string", "minLength": 1, "maxLength": 80 },
+                  "body": { "$ref": "#/$defs/InlineMarkdown" }
+                }
+              }
+            },
+            "answer": { "$ref": "#/$defs/InlineMarkdown" }
+          }
+        }
+      }
+    },
+    "TryThis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "data"],
+      "properties": {
+        "type": { "const": "TryThis" },
+        "id": { "$ref": "#/$defs/BlockId" },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["prompt"],
+          "properties": {
+            "prompt": { "$ref": "#/$defs/InlineMarkdown" },
+            "hint": { "$ref": "#/$defs/InlineMarkdown" },
+            "answer": { "$ref": "#/$defs/InlineMarkdown" }
+          }
+        }
+      }
+    },
+    "Summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "data"],
+      "properties": {
+        "type": { "const": "Summary" },
+        "id": { "$ref": "#/$defs/BlockId" },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["points"],
+          "properties": {
+            "points": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 20,
+              "items": { "$ref": "#/$defs/InlineMarkdown" }
+            }
+          }
+        }
+      }
+    },
+    "CrossReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "data"],
+      "properties": {
+        "type": { "const": "CrossReference" },
+        "id": { "$ref": "#/$defs/BlockId" },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["target_id"],
+          "properties": {
+            "target_id": { "$ref": "#/$defs/BlockId" },
+            "label": { "$ref": "#/$defs/InlineMarkdown" }
+          }
+        }
+      }
+    },
+    "Formula": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "data"],
+      "properties": {
+        "type": { "const": "Formula" },
+        "id": { "$ref": "#/$defs/BlockId" },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["latex"],
+          "properties": {
+            "latex": { "type": "string", "minLength": 1, "maxLength": 2000 },
+            "label": { "type": "string", "minLength": 1, "maxLength": 120 },
+            "block": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "DataTable": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "data"],
+      "properties": {
+        "type": { "const": "DataTable" },
+        "id": { "$ref": "#/$defs/BlockId" },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["headers", "rows"],
+          "properties": {
+            "caption": { "type": "string", "minLength": 1, "maxLength": 240 },
+            "headers": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 24,
+              "items": { "type": "string", "minLength": 1, "maxLength": 120 }
+            },
+            "align": {
+              "type": "array",
+              "items": { "enum": ["left", "center", "right"] }
+            },
+            "rows": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 200,
+              "items": {
+                "type": "array",
+                "items": { "$ref": "#/$defs/InlineMarkdown" }
+              }
+            },
+            "tabular_numbers": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "Diagram": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "data"],
+      "properties": {
+        "type": { "const": "Diagram" },
+        "id": { "$ref": "#/$defs/BlockId" },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["format", "source", "alt"],
+          "properties": {
+            "format": { "enum": ["mermaid", "svg"] },
+            "source": { "type": "string", "minLength": 1, "maxLength": 16000 },
+            "alt": { "type": "string", "minLength": 3, "maxLength": 480 }
+          }
+        }
+      }
+    },
+    "MediaPlaceholder": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "id", "data"],
+      "description": "External video/audio reference. No ingest, no transcoding, no CDN hosting. Renderer opens url in a new tab.",
+      "properties": {
+        "type": { "const": "MediaPlaceholder" },
+        "id": { "$ref": "#/$defs/BlockId" },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["media_type", "url", "caption"],
+          "properties": {
+            "media_type": { "enum": ["video", "audio"] },
+            "url": { "type": "string", "format": "uri", "minLength": 1, "maxLength": 2000 },
+            "caption": { "type": "string", "minLength": 1, "maxLength": 240 },
+            "attribution": { "type": "string", "maxLength": 240 }
+          }
+        }
+      }
+    }
+  }
+}
