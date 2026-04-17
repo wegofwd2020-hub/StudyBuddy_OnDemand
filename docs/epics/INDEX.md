@@ -23,6 +23,7 @@ the decision notes become the spec and we develop from there.
 | 9 | Accessibility & Personalization | [EPIC_09_accessibility_personalization.md](EPIC_09_accessibility_personalization.md) | 🚧 Umbrella for GitHub issue #189 (3 axe rules disabled in persona e2e suite pending app-side fix) |
 | 10 | Curriculum Lifecycle & Governance | [EPIC_10_curriculum_lifecycle.md](EPIC_10_curriculum_lifecycle.md) | 🚧 L-1–L-5 backend shipped (migrations 0046–0048, archive + unarchive + usage endpoints, audit events); L-6 sweeper paused; L-7 super-admin archive view + L-8 school UI + L-9 per-jurisdiction audit + L-10 TTL override pending |
 | 11 | Content Presentation & Formatting | [EPIC_11_content_formatting.md](EPIC_11_content_formatting.md) | 🚧 C-1 through C-4, C-6, C-9 shipped; C-5 regen in progress (Grade 11 Commerce done, Grade 11 Science resume in flight); C-7 PDF smoke + C-8 mobile parity pending |
+| 12 | Structured Content Block Taxonomy | [EPIC_12_content_block_taxonomy.md](EPIC_12_content_block_taxonomy.md) | 🚧 Filed as [#193](https://github.com/wegofwd2020-hub/StudyBuddy_OnDemand/issues/193); scope pending confirmation (8 open questions) |
 
 ---
 
