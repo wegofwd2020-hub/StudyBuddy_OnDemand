@@ -145,7 +145,7 @@ Playwright fails loudly — the terminal output shows:
 | `Error: browserType.launch: Executable doesn't exist` | Browser binary missing | `npx playwright install chromium` |
 | `Error: spawn ... ENOENT` + `__memset_chk: symbol not found` | Running Playwright inside the Alpine container | Run on host instead — see §6 |
 | `Timeout: 5000ms` waiting for a network request | Mock route doesn't match the real URL pattern | Run with `--trace=on` and inspect the network panel; tighten the route glob |
-| Color-contrast / html-has-lang / document-title axe failures | Known debt tracked in issue #189 | Do NOT add more rules to `KNOWN_A11Y_EXCLUSIONS` — fix the app |
+| Color-contrast / document-title axe failures | Known debt tracked in issue #189 | Do NOT add more rules to `KNOWN_A11Y_EXCLUSIONS` — fix the app |
 
 ### 3.2 Debugging with trace
 
@@ -273,18 +273,19 @@ specs without filing a GitHub issue first (currently tracked in #189).
 
 ## 5. The `KNOWN_A11Y_EXCLUSIONS` technical debt
 
-The three persona specs disable three axe rules:
+The three persona specs disable two axe rules:
 
 ```typescript
 const KNOWN_A11Y_EXCLUSIONS = [
   "color-contrast",
-  "html-has-lang",
   "document-title",
 ] as const;
 ```
 
 Each is tracked in GitHub issue **#189** with root-cause hypothesis +
-fix approach. Do NOT add more rules without:
+fix approach. (`html-has-lang` was resolved by adding a server-side
+`"en"` fallback in `app/layout.tsx` — see the merged PR on #189.)
+Do NOT add more rules without:
 
 1. Filing a tracking issue.
 2. Linking it in the comment block above the constant.

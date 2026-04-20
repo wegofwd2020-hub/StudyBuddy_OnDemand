@@ -20,12 +20,8 @@ import { makeStudentToken, devSessionCookie } from "../helpers/tokens";
 // a corresponding issue first.
 //
 //   color-contrast — several pages have tokens below WCAG AA 4.5:1
-//   html-has-lang  — some routes render before next-intl has resolved
-//                    the locale cookie, leaving <html> without a lang.
-//                    Symptom only under mocked-API test mode; the real
-//                    dev server resolves the attribute correctly.
 //   document-title — teacher/admin routes miss <title>. Real regression.
-const KNOWN_A11Y_EXCLUSIONS = ["color-contrast", "html-has-lang", "document-title"] as const;
+const KNOWN_A11Y_EXCLUSIONS = ["color-contrast", "document-title"] as const;
 
 // ---------------------------------------------------------------------------
 // Auth helpers
