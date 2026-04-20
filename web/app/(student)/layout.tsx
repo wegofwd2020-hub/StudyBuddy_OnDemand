@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth0 } from "@/lib/auth0";
 import { getDevSession } from "@/lib/dev-session";
@@ -7,6 +8,10 @@ import { TrialBanner } from "@/components/student/TrialBanner";
 import { DemoBanner } from "@/components/demo/DemoBanner";
 import { PortalHeader } from "@/components/layout/PortalHeader";
 import { PortalFooter } from "@/components/layout/PortalFooter";
+
+export const metadata: Metadata = {
+  title: "Student | StudyBuddy",
+};
 
 export default async function StudentLayout({ children }: { children: React.ReactNode }) {
   const session = (await auth0.getSession()) ?? (await getDevSession());

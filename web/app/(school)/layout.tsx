@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth0 } from "@/lib/auth0";
 import { getDevSession, getDemoTeacherSession, getLocalTeacherSession } from "@/lib/dev-session";
@@ -8,6 +9,10 @@ import { QueryProvider } from "@/lib/providers/QueryProvider";
 import { PortalHeader } from "@/components/layout/PortalHeader";
 import { PortalFooter } from "@/components/layout/PortalFooter";
 import { HelpWidget } from "@/components/help/HelpWidget";
+
+export const metadata: Metadata = {
+  title: "School | StudyBuddy",
+};
 
 export default async function SchoolLayout({ children }: { children: React.ReactNode }) {
   // Phase A local-auth session — cookie set at login, validated client-side.
