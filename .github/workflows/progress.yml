@@ -20,17 +20,71 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Generate PROGRESS.md
+      - name: Generate PROGRESS.md + CSVs
         run: python3 scripts/generate_progress.py
+
+      - name: Write step summary (Option C per docs/PROGRESS_consumption.md)
+        run: |
+          python3 << 'PYEOF' >> "$GITHUB_STEP_SUMMARY"
+          import csv
+
+          epics   = list(csv.DictReader(open("docs/PROGRESS_epics.csv")))
+          tickets = list(csv.DictReader(open("docs/PROGRESS_tickets.csv")))
+
+          hot_tickets = sorted(
+              (t for t in tickets if int(t["commit_count"]) >= 2),
+              key=lambda t: -int(t["commit_count"]),
+          )
+          total_commits = sum(int(e["commit_count"]) for e in epics)
+
+          print("## 🗂️ Progress Chart — StudyBuddy OnDemand")
+          print()
+          print(f"- **{len(epics)} epics** tracked, **{total_commits} commits** attributed")
+          print(f"- **{len(hot_tickets)} tickets** with 2+ commits (iteration / redesign candidates)")
+          print()
+
+          if hot_tickets:
+              print("### 🔥 Top redesign hot-spots")
+              print()
+              print("| Ticket | Epic | Commits | Span (days) |")
+              print("|---|---|---|---|")
+              for t in hot_tickets[:10]:
+                  epic_label = f"Epic {t['epic_num']} — {t['epic_title'][:40]}".replace("|", "\\|")
+                  print(f"| `{t['ticket']}` | {epic_label} | {t['commit_count']} | {t['span_days']} |")
+              print()
+
+          top_epics = sorted(
+              (e for e in epics if int(e["commit_count"]) > 0),
+              key=lambda e: -int(e["commit_count"]),
+          )[:5]
+          if top_epics:
+              print("### 📊 Most active epics (top 5)")
+              print()
+              print("| Epic | Status | Commits | Tickets | Hot-spots |")
+              print("|---|---|---|---|---|")
+              for e in top_epics:
+                  title = e["title"][:50].replace("|", "\\|")
+                  status = e["status"][:40].replace("|", "\\|")
+                  print(f"| {title} | {status} | {e['commit_count']} | {e['ticket_count']} | {e['hotspots'] or '—'} |")
+              print()
+
+          print("### 📄 Generated artifacts")
+          print()
+          print("- [`docs/PROGRESS.md`](../blob/main/docs/PROGRESS.md) — full report")
+          print("- [`docs/PROGRESS_epics.csv`](../blob/main/docs/PROGRESS_epics.csv) — spreadsheet rows by epic")
+          print("- [`docs/PROGRESS_tickets.csv`](../blob/main/docs/PROGRESS_tickets.csv) — spreadsheet rows by ticket")
+          print()
+          print("_See `docs/PROGRESS_consumption.md` for all dashboard options._")
+          PYEOF
 
       - name: Commit and push if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if git diff --quiet docs/PROGRESS.md; then
-            echo "No changes to PROGRESS.md"
+          git add docs/PROGRESS.md docs/PROGRESS_epics.csv docs/PROGRESS_tickets.csv
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
             exit 0
           fi
-          git add docs/PROGRESS.md
-          git commit -m "chore(progress): nightly update of docs/PROGRESS.md"
+          git commit -m "chore(progress): nightly update of docs/PROGRESS.md + CSVs"
           git push
