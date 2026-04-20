@@ -53,7 +53,7 @@ export default function CurriculumMapPage() {
               <Skeleton key={i} className="h-32 rounded-lg" />
             ))}
           </div>
-        ) : !tree?.subjects.length ? (
+        ) : !tree?.subjects?.length ? (
           <div className="rounded-xl border border-gray-200 bg-white py-16 text-center">
             <BookOpen className="mx-auto mb-3 h-10 w-10 text-gray-300" />
             <p className="mb-1 text-sm font-medium text-gray-600">

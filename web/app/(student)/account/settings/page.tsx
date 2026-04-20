@@ -159,17 +159,17 @@ function SettingsPageInner() {
                     <input
                       type="checkbox"
                       className="sr-only"
-                      checked={settings.notifications[key]}
+                      checked={settings.notifications?.[key] ?? false}
                       onChange={(e) => setNotif(key, e.target.checked)}
                     />
                     <div
                       className={`flex h-5 w-5 items-center justify-center rounded border-2 transition-colors ${
-                        settings.notifications[key]
+                        settings.notifications?.[key]
                           ? "border-blue-600 bg-blue-600"
                           : "border-gray-300 bg-white group-hover:border-gray-400"
                       }`}
                     >
-                      {settings.notifications[key] && (
+                      {settings.notifications?.[key] && (
                         <Check className="h-3 w-3 text-white" strokeWidth={3} />
                       )}
                     </div>

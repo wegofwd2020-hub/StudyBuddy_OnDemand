@@ -103,7 +103,7 @@ export default function AdminContentReviewPage() {
 
   // Group items by curriculum_id, preserving insertion order
   const groups: Map<string, NonNullable<typeof data>["items"]> = new Map();
-  if (data) {
+  if (data?.items) {
     for (const item of data.items) {
       const key = item.curriculum_id;
       if (!groups.has(key)) groups.set(key, []);
@@ -168,7 +168,7 @@ export default function AdminContentReviewPage() {
             <div key={i} className="h-14 animate-pulse rounded-xl bg-gray-100" />
           ))}
         </div>
-      ) : data && data.items.length > 0 ? (
+      ) : data && data.items && data.items.length > 0 ? (
         <>
           <p className="mb-3 text-xs text-gray-400">
             {data.total} item{data.total !== 1 ? "s" : ""}

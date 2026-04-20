@@ -47,43 +47,45 @@ export default function AdminAnalyticsPage() {
                 <tr>
                   <td className="px-4 py-3 text-gray-700">Monthly subscribers</td>
                   <td className="px-4 py-3 text-right font-mono text-gray-900">
-                    {sub.active_monthly.toLocaleString()}
+                    {sub.active_monthly?.toLocaleString() ?? "—"}
                   </td>
                 </tr>
                 <tr>
                   <td className="px-4 py-3 text-gray-700">Annual subscribers</td>
                   <td className="px-4 py-3 text-right font-mono text-gray-900">
-                    {sub.active_annual.toLocaleString()}
+                    {sub.active_annual?.toLocaleString() ?? "—"}
                   </td>
                 </tr>
                 <tr>
                   <td className="px-4 py-3 text-gray-700">Total active</td>
                   <td className="px-4 py-3 text-right font-mono font-semibold text-gray-900">
-                    {sub.total_active.toLocaleString()}
+                    {sub.total_active?.toLocaleString() ?? "—"}
                   </td>
                 </tr>
                 <tr>
                   <td className="px-4 py-3 text-gray-700">MRR (CAD)</td>
                   <td className="px-4 py-3 text-right font-mono tabular-nums text-gray-900">
-                    ${parseFloat(sub.mrr_usd).toLocaleString("en-CA", { minimumFractionDigits: 2 })}
+                    {sub.mrr_usd
+                      ? `$${parseFloat(sub.mrr_usd).toLocaleString("en-CA", { minimumFractionDigits: 2 })}`
+                      : "—"}
                   </td>
                 </tr>
                 <tr>
                   <td className="px-4 py-3 text-gray-700">New this month</td>
                   <td className="px-4 py-3 text-right font-mono text-green-700">
-                    +{sub.new_this_month}
+                    +{sub.new_this_month ?? 0}
                   </td>
                 </tr>
                 <tr>
                   <td className="px-4 py-3 text-gray-700">Cancelled this month</td>
                   <td className="px-4 py-3 text-right font-mono text-red-600">
-                    -{sub.cancelled_this_month}
+                    -{sub.cancelled_this_month ?? 0}
                   </td>
                 </tr>
                 <tr>
                   <td className="px-4 py-3 text-gray-700">Churn rate</td>
                   <td className="px-4 py-3 text-right font-mono text-gray-900">
-                    {(sub.churn_rate * 100).toFixed(2)}%
+                    {sub.churn_rate != null ? `${(sub.churn_rate * 100).toFixed(2)}%` : "—"}
                   </td>
                 </tr>
               </tbody>

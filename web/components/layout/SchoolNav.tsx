@@ -53,6 +53,7 @@ const NAV_ITEMS: NavItem[] = [
     label: "Reports",
     href: "/school/reports/overview",
     icon: <BarChart2 className="h-4 w-4" />,
+    adminOnly: true,
   },
   {
     label: "Curriculum",
@@ -127,7 +128,7 @@ export function SchoolNav() {
     staleTime: 60_000,
   });
 
-  const unreadAlerts = alertsData?.alerts.filter((a) => !a.acknowledged).length ?? 0;
+  const unreadAlerts = alertsData?.alerts?.filter((a) => !a.acknowledged).length ?? 0;
   const inReports = pathname.startsWith("/school/reports");
 
   function handleLogout() {
