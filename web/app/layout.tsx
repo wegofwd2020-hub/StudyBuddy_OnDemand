@@ -51,7 +51,7 @@ export default async function RootLayout({
 
   return (
     <html
-      lang={locale}
+      lang={locale || "en"}
       className={`${inter.variable} ${merriweather.variable} ${jetbrainsMono.variable} h-full antialiased`}
       suppressHydrationWarning
       {...(dyslexic ? { "data-dyslexic": "true" } : {})}
