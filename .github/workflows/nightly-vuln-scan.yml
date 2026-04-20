@@ -1,0 +1,107 @@
+name: Nightly Vulnerability Scan
+
+# Runs pip-audit against backend/requirements.txt and upserts a single open
+# GitHub issue on findings. Auto-closes the issue when clean.
+#
+# Strategy: install the pinned set with --no-deps (skipping dependency
+# resolution entirely), then run pip-audit against the installed venv.
+# This sidesteps known resolution conflicts (e.g. celery[redis]==5.6.3 vs
+# redis[asyncio]==7.4.0) while catching any CVE in the pinned-direct set.
+# Transitive deps are NOT audited by this path — revisit once the
+# requirements.txt conflict is resolved (see issue on that work).
+
+on:
+  schedule:
+    - cron: "30 5 * * *" # 05:30 UTC — after glossary-drift (04:45)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Create audit venv + install pinned set (no dep resolution)
+        run: |
+          python3 -m venv /tmp/audit-venv
+          /tmp/audit-venv/bin/pip install --upgrade pip
+          /tmp/audit-venv/bin/pip install pip-audit
+          # --no-deps skips dependency resolution; we audit only the direct pins
+          /tmp/audit-venv/bin/pip install --no-deps -r backend/requirements.txt
+
+      - name: Run pip-audit against the venv
+        id: audit
+        run: |
+          set +e
+          /tmp/audit-venv/bin/pip-audit \
+            --format markdown \
+            > audit-raw.md 2>&1
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+          cat audit-raw.md
+
+      - name: Build report markdown
+        run: |
+          {
+            echo "# Vulnerability scan — StudyBuddy OnDemand"
+            echo
+            echo "_Nightly \`pip-audit\` scan: $(date -u +%FT%TZ)_"
+            echo
+            echo "Source: \`backend/requirements.txt\` audited against the PyPI advisory DB."
+            echo
+            if [ "${{ steps.audit.outputs.exit_code }}" = "0" ]; then
+              echo "✅ **No vulnerabilities found.**"
+            else
+              echo "## Findings"
+              echo
+              cat audit-raw.md
+              echo
+              echo "---"
+              echo
+              echo "**Next steps:** review each CVE, check whether the affected"
+              echo "package is reachable in prod, and either upgrade or add a"
+              echo "justified \`--ignore-vuln\` to the workflow."
+            fi
+          } > vuln-report.md
+
+      - name: Upsert vuln-scan issue
+        if: steps.audit.outputs.exit_code != '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create vuln-scan --color FF0000 --description "CVEs detected in dependencies" 2>/dev/null || true
+
+          body=$(cat vuln-report.md)
+          existing=$(gh issue list --label vuln-scan --state open --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            gh issue edit "$existing" --body "$body"
+          else
+            gh issue create \
+              --title "Vulnerabilities detected in dependencies ($(date -u +%F))" \
+              --label vuln-scan \
+              --body "$body"
+          fi
+
+      - name: Close vuln-scan issue if clean
+        if: steps.audit.outputs.exit_code == '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for n in $(gh issue list --label vuln-scan --state open --json number --jq '.[].number'); do
+            gh issue close "$n" --comment "Vuln scan clean as of $(date -u +%F)."
+          done
+
+      - name: Upload report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vuln-report
+          path: vuln-report.md
+          retention-days: 30
