@@ -124,6 +124,7 @@ def route_matches(doc_path: str, source_paths: set[str]) -> bool:
 # Known env-var-looking backtick tokens that aren't app env vars. Extend as
 # false positives emerge.
 ENV_ALLOWLIST = {
+    # CI / shell env, not app config
     "GITHUB_TOKEN",
     "DOCS_REPO_TOKEN",
     "GH_TOKEN",
@@ -131,6 +132,10 @@ ENV_ALLOWLIST = {
     "PATH",
     "HOME",
     "USER",
+    # Docker Compose / infra resource limits — not sourced from backend/config.py
+    "CELERY_PIPELINE_MEMORY_LIMIT",
+    # Python constants (dicts, class attrs) that look like env vars in prose
+    "ROLE_PERMISSIONS",
 }
 
 
