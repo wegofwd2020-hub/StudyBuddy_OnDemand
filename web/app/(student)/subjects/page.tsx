@@ -29,7 +29,7 @@ export default function SubjectsPage() {
           <p className="text-sm text-red-500">Could not load curriculum. Please retry.</p>
         )}
 
-        {tree && (
+        {tree && tree.subjects && (
           <div className="grid gap-6 sm:grid-cols-2">
             {tree.subjects.map((subject) => (
               <Card key={subject.subject} className="border shadow-sm">

@@ -75,8 +75,8 @@ export default function AtRiskPage() {
     mutationFn: (studentId: string) => sendAtRiskReminder(schoolId, studentId),
   });
 
-  const unseen = data?.students.filter((s) => !s.is_seen) ?? [];
-  const seen = data?.students.filter((s) => s.is_seen) ?? [];
+  const unseen = data?.students?.filter((s) => !s.is_seen) ?? [];
+  const seen = data?.students?.filter((s) => s.is_seen) ?? [];
 
   return (
     <div className="max-w-5xl space-y-6 p-6">

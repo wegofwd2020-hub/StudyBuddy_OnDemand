@@ -53,9 +53,9 @@ export default function AlertsPage() {
   }
 
   const visibleAlerts =
-    data?.alerts.filter((a) => !a.acknowledged && !dismissed.has(a.alert_id)) ?? [];
+    data?.alerts?.filter((a) => !a.acknowledged && !dismissed.has(a.alert_id)) ?? [];
   const acknowledgedAlerts =
-    data?.alerts.filter((a) => a.acknowledged || dismissed.has(a.alert_id)) ?? [];
+    data?.alerts?.filter((a) => a.acknowledged || dismissed.has(a.alert_id)) ?? [];
 
   return (
     <div className="max-w-3xl space-y-6 p-6">

@@ -83,24 +83,32 @@ export default function AdminDashboardPage() {
             <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
               <KpiCard
                 label="Total Active"
-                value={analytics.total_active.toLocaleString()}
-                sub={`${analytics.active_monthly} monthly · ${analytics.active_annual} annual`}
+                value={analytics.total_active?.toLocaleString() ?? "—"}
+                sub={`${analytics.active_monthly ?? 0} monthly · ${analytics.active_annual ?? 0} annual`}
                 icon={<Users className="h-4 w-4" />}
               />
               <KpiCard
                 label="MRR"
-                value={`$${parseFloat(analytics.mrr_usd).toLocaleString("en-CA", { minimumFractionDigits: 0 })}`}
+                value={
+                  analytics.mrr_usd
+                    ? `$${parseFloat(analytics.mrr_usd).toLocaleString("en-CA", { minimumFractionDigits: 0 })}`
+                    : "—"
+                }
                 icon={<DollarSign className="h-4 w-4" />}
               />
               <KpiCard
                 label="New This Month"
-                value={analytics.new_this_month}
+                value={analytics.new_this_month ?? 0}
                 icon={<TrendingUp className="h-4 w-4" />}
               />
               <KpiCard
                 label="Churn Rate"
-                value={`${(analytics.churn_rate * 100).toFixed(1)}%`}
-                sub={`${analytics.cancelled_this_month} cancelled`}
+                value={
+                  analytics.churn_rate != null
+                    ? `${(analytics.churn_rate * 100).toFixed(1)}%`
+                    : "—"
+                }
+                sub={`${analytics.cancelled_this_month ?? 0} cancelled`}
                 icon={<AlertTriangle className="h-4 w-4" />}
               />
             </div>

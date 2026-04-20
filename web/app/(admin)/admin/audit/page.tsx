@@ -58,10 +58,10 @@ export default function AdminAuditPage() {
             <div key={i} className="h-12 animate-pulse rounded-lg bg-gray-100" />
           ))}
         </div>
-      ) : data && data.entries.length > 0 ? (
+      ) : data && data.entries && data.entries.length > 0 ? (
         <>
           <p className="mb-3 text-xs text-gray-400">
-            {data.total.toLocaleString()} entries
+            {data.total?.toLocaleString() ?? 0} entries
           </p>
           <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
             <table className="w-full text-sm">

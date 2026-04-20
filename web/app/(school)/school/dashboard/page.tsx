@@ -75,7 +75,7 @@ export default function SchoolDashboard() {
     staleTime: 60_000,
   });
 
-  const unreadAlerts = alertsData?.alerts.filter((a) => !a.acknowledged).length ?? 0;
+  const unreadAlerts = alertsData?.alerts?.filter((a) => !a.acknowledged).length ?? 0;
 
   const isAdmin = teacher?.role === "school_admin";
 
@@ -187,8 +187,8 @@ export default function SchoolDashboard() {
             />
             <KpiCard
               title="Active this week"
-              value={`${overview.active_pct.toFixed(0)}%`}
-              subtitle={`${overview.active_students_period} of ${overview.enrolled_students}`}
+              value={overview.active_pct != null ? `${overview.active_pct.toFixed(0)}%` : "—"}
+              subtitle={`${overview.active_students_period ?? 0} of ${overview.enrolled_students ?? 0}`}
               icon={<TrendingUp className="h-5 w-5" />}
               accent="green"
             />
@@ -201,9 +201,18 @@ export default function SchoolDashboard() {
             />
             <KpiCard
               title="Pass rate (1st attempt)"
-              value={`${overview.first_attempt_pass_rate_pct.toFixed(0)}%`}
+              value={
+                overview.first_attempt_pass_rate_pct != null
+                  ? `${overview.first_attempt_pass_rate_pct.toFixed(0)}%`
+                  : "—"
+              }
               icon={<CheckCircle className="h-5 w-5" />}
-              accent={overview.first_attempt_pass_rate_pct >= 60 ? "green" : "red"}
+              accent={
+                overview.first_attempt_pass_rate_pct != null &&
+                overview.first_attempt_pass_rate_pct >= 60
+                  ? "green"
+                  : "red"
+              }
             />
             <KpiCard
               title="Quiz attempts"
@@ -220,7 +229,7 @@ export default function SchoolDashboard() {
           </div>
         ) : null}
 
-        {overview && overview.units_with_struggles.length > 0 && (
+        {overview && overview.units_with_struggles && overview.units_with_struggles.length > 0 && (
           <Card className="border shadow-sm">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">

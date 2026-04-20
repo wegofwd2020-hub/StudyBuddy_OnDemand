@@ -53,22 +53,34 @@ export default function OverviewReportPage() {
         <>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
             {[
-              { label: "Enrolled", value: data.enrolled_students },
+              { label: "Enrolled", value: data.enrolled_students ?? 0 },
               {
                 label: "Active",
-                value: `${data.active_pct.toFixed(0)}%`,
-                sub: `${data.active_students_period} students`,
+                value:
+                  data.active_pct != null
+                    ? `${data.active_pct.toFixed(0)}%`
+                    : "—",
+                sub: `${data.active_students_period ?? 0} students`,
               },
-              { label: "Lessons viewed", value: data.lessons_viewed },
-              { label: "Quiz attempts", value: data.quiz_attempts },
+              { label: "Lessons viewed", value: data.lessons_viewed ?? 0 },
+              { label: "Quiz attempts", value: data.quiz_attempts ?? 0 },
               {
                 label: "1st-attempt pass rate",
-                value: `${data.first_attempt_pass_rate_pct.toFixed(0)}%`,
-                highlight: data.first_attempt_pass_rate_pct < 60 ? "red" : "green",
+                value:
+                  data.first_attempt_pass_rate_pct != null
+                    ? `${data.first_attempt_pass_rate_pct.toFixed(0)}%`
+                    : "—",
+                highlight:
+                  data.first_attempt_pass_rate_pct != null && data.first_attempt_pass_rate_pct < 60
+                    ? "red"
+                    : "green",
               },
               {
                 label: "Audio play rate",
-                value: `${data.audio_play_rate_pct.toFixed(0)}%`,
+                value:
+                  data.audio_play_rate_pct != null
+                    ? `${data.audio_play_rate_pct.toFixed(0)}%`
+                    : "—",
               },
             ].map(({ label, value, sub, highlight }) => (
               <Card key={label} className="border shadow-sm">
@@ -99,7 +111,7 @@ export default function OverviewReportPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {data.units_with_struggles.length === 0 ? (
+                {!data.units_with_struggles?.length ? (
                   <p className="text-xs text-gray-400">None — all units healthy.</p>
                 ) : (
                   <div className="flex flex-wrap gap-1.5">
@@ -122,7 +134,7 @@ export default function OverviewReportPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {data.units_no_activity.length === 0 ? (
+                {!data.units_no_activity?.length ? (
                   <p className="text-xs text-gray-400">All units have activity.</p>
                 ) : (
                   <div className="flex flex-wrap gap-1.5">
