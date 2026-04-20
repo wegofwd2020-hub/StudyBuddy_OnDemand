@@ -1,6 +1,6 @@
 # StudyBuddy OnDemand — Progress Chart
 
-_Auto-generated 2026-04-20T12:21:12+00:00. Regenerated nightly at 21:00 EST._
+_Auto-generated 2026-04-20T16:21:17+00:00. Regenerated nightly at 21:00 EST._
 
 Source: `docs/epics/` (feature manifest) + `git log` (activity). Script: `scripts/generate_progress.py`.
 
@@ -18,7 +18,6 @@ gantt
     Epic 8  :active, e8, 2026-04-14, 2026-04-15
     Epic 10 :done, e10, 2026-04-15, 2026-04-16
     Epic 11 :done, e11, 2026-04-15, 2026-04-16
-    Epic 12 :active, e12, 2026-04-17, 2026-04-18
 ```
 
 ## Summary
@@ -36,7 +35,6 @@ gantt
 | 9 | [Accessibility & Personalization](epics/EPIC_09_accessibility_personalization.md) | 💭 Your call | — | — | 0 | 0 | — |
 | 10 | [Curriculum Lifecycle & Governance](epics/EPIC_10_curriculum_lifecycle.md) | ✅ Go — all 8 questions + 2 follow-ups resolved 2026-04-15 | 2026-04-15 | 2026-04-15 | 10 | 7 | L-1×4, L-5×2 |
 | 11 | [Content Presentation & Formatting](epics/EPIC_11_content_formatting.md) | ✅ Go — 9 questions resolved 2026-04-15 | 2026-04-15 | 2026-04-15 | 8 | 7 | C-9×2 |
-| 12 | [Structured Content Block Taxonomy](epics/EPIC_12_content_block_taxonomy.md) | 🚧 Filed as GitHub #193; scope pending confirmation | 2026-04-17 | 2026-04-17 | 2 | 1 | — |
 
 ## Redesign leaderboard
 
@@ -174,15 +172,4 @@ Tickets with 2+ commits — each extra commit is an iteration or rework.
 | C-5 | 1 | 2026-04-15 | 2026-04-15 |
 | C-6 | 1 | 2026-04-15 | 2026-04-15 |
 | C-9 | 2 | 2026-04-15 | 2026-04-15 |
-
-### Epic 12 — Structured Content Block Taxonomy
-
-- **Status:** 🚧 Filed as GitHub #193; scope pending confirmation
-- **Epic file:** [EPIC_12_content_block_taxonomy.md](epics/EPIC_12_content_block_taxonomy.md)
-- **Ticket prefix:** `T`
-- **Commits attributed:** 2
-
-| Ticket | Commits | First | Last |
-|---|---|---|---|
-| T-1a | 1 | 2026-04-17 | 2026-04-17 |
 

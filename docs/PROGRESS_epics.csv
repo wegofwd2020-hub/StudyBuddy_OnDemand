@@ -1,0 +1,12 @@
+epic_num,title,status,prefix,first_activity,last_activity,commit_count,ticket_count,hotspots
+1,Epic 1 — Multi-Provider LLM Pipeline,"✅ Complete (F-1 through F-5, 19 tests, migration 0043)",F,2026-04-12,2026-04-12,1,2,
+2,Epic 2 — Production Launch & Demo Readiness,💭 Your call,G,2026-04-12,2026-04-12,1,2,
+3,Epic 3 — Student Mobile App (Expo / React Native),✅ Path B chosen (2026-04-14) — not yet started; parked behind testing phase and ,M,2026-04-14,2026-04-14,2,0,
+4,Epic 4 — Parent Portal,💭 Your call,I,,,0,0,
+5,Epic 5 — District Admin,💭 Your call,J,,,0,0,
+6,Epic 6 — Platform Hardening,"🚧 In Progress (K-1 through K-3, K-6 complete)",K,2026-04-12,2026-04-12,1,3,
+7,Epic 7 — Self-Serve Demo System,✅ Complete,L,,,0,0,
+8,Epic 8 — Onboarding Completeness (Address & Measurement Units),💭 Your call,H,2026-04-14,2026-04-15,6,8,H-10x2
+9,Epic 9 — Accessibility & Personalization,💭 Your call,I,,,0,0,
+10,Epic 10 — Curriculum Lifecycle & Governance,✅ Go — all 8 questions + 2 follow-ups resolved 2026-04-15,L,2026-04-15,2026-04-15,10,7,L-1x4; L-5x2
+11,Epic 11 — Content Presentation & Formatting,✅ Go — 9 questions resolved 2026-04-15,C,2026-04-15,2026-04-15,8,7,C-9x2

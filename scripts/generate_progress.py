@@ -9,6 +9,7 @@ A ticket that appears in 2+ commits is counted as iterated/redesigned.
 """
 from __future__ import annotations
 
+import csv
 import re
 import subprocess
 from collections import defaultdict
@@ -18,6 +19,8 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 EPICS_DIR = REPO / "docs" / "epics"
 OUTPUT = REPO / "docs" / "PROGRESS.md"
+OUTPUT_EPICS_CSV = REPO / "docs" / "PROGRESS_epics.csv"
+OUTPUT_TICKETS_CSV = REPO / "docs" / "PROGRESS_tickets.csv"
 
 TICKET_RE = re.compile(r"\b([A-Z])-(\d+[a-z]?)\b")
 EPIC_SCOPE_RE = re.compile(r"\(epic-(\d+)\)", re.IGNORECASE)
@@ -221,12 +224,75 @@ def render(epics: dict[int, dict], commits: list[dict]) -> str:
     return "\n".join(lines) + "\n"
 
 
+def write_csvs(epics: dict[int, dict], commits: list[dict]) -> None:
+    """Write PROGRESS_epics.csv + PROGRESS_tickets.csv for spreadsheet analysis.
+
+    Same data as the markdown tables, flattened to a format friendly to
+    `=IMPORTDATA(...)` in Google Sheets or plain `File > Import` in Excel.
+    """
+    per_epic: dict[int, dict] = defaultdict(
+        lambda: {"commits": [], "tickets": defaultdict(list)}
+    )
+    for c in commits:
+        for n in c["epics"]:
+            per_epic[n]["commits"].append(c)
+            for t in c["tickets"]:
+                per_epic[n]["tickets"][t].append(c)
+
+    # Epics sheet — one row per epic.
+    with OUTPUT_EPICS_CSV.open("w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow([
+            "epic_num", "title", "status", "prefix",
+            "first_activity", "last_activity",
+            "commit_count", "ticket_count", "hotspots",
+        ])
+        for num in sorted(epics):
+            e = epics[num]
+            data = per_epic.get(num, {"commits": [], "tickets": {}})
+            cs = data["commits"]
+            ds = sorted(c["date"] for c in cs)
+            first = ds[0] if ds else ""
+            last = ds[-1] if ds else ""
+            hot = [(t, len(v)) for t, v in data["tickets"].items() if len(v) >= 2]
+            hot.sort(key=lambda x: -x[1])
+            hotspots = "; ".join(f"{t}x{n}" for t, n in hot[:4])
+            w.writerow([
+                num, e["title"], e["status"], e["prefix"] or "",
+                first, last, len(cs), len(data["tickets"]), hotspots,
+            ])
+
+    # Tickets sheet — one row per ticket that appears in 1+ commits.
+    with OUTPUT_TICKETS_CSV.open("w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow([
+            "ticket", "epic_num", "epic_title",
+            "commit_count", "first", "last", "span_days",
+        ])
+        for num in sorted(epics):
+            data = per_epic.get(num, {"commits": [], "tickets": {}})
+            for t, tc in sorted(data["tickets"].items()):
+                ds = sorted(c["date"] for c in tc)
+                span = (
+                    datetime.fromisoformat(ds[-1]).date()
+                    - datetime.fromisoformat(ds[0]).date()
+                ).days
+                w.writerow([
+                    t, num, epics[num]["title"],
+                    len(tc), ds[0], ds[-1], span,
+                ])
+
+
 def main() -> None:
     epics = parse_epics()
     commits = get_commits()
     attribute_commits(commits, epics)
     OUTPUT.write_text(render(epics, commits))
-    print(f"Wrote {OUTPUT} — {len(epics)} epics, {len(commits)} commits scanned.")
+    write_csvs(epics, commits)
+    print(
+        f"Wrote {OUTPUT} + {OUTPUT_EPICS_CSV.name} + {OUTPUT_TICKETS_CSV.name} "
+        f"— {len(epics)} epics, {len(commits)} commits scanned."
+    )
 
 
 if __name__ == "__main__":
