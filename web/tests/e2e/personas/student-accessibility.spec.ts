@@ -20,8 +20,7 @@ import { makeStudentToken, devSessionCookie } from "../helpers/tokens";
 // a corresponding issue first.
 //
 //   color-contrast — several pages have tokens below WCAG AA 4.5:1
-//   document-title — teacher/admin routes miss <title>. Real regression.
-const KNOWN_A11Y_EXCLUSIONS = ["color-contrast", "document-title"] as const;
+const KNOWN_A11Y_EXCLUSIONS = ["color-contrast"] as const;
 
 // ---------------------------------------------------------------------------
 // Auth helpers

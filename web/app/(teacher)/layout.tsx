@@ -1,9 +1,14 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth0 } from "@/lib/auth0";
 import { getDevSession } from "@/lib/dev-session";
 import { QueryProvider } from "@/lib/providers/QueryProvider";
 import { PortalHeader } from "@/components/layout/PortalHeader";
 import { PortalFooter } from "@/components/layout/PortalFooter";
+
+export const metadata: Metadata = {
+  title: "Teacher | StudyBuddy",
+};
 
 /**
  * Layout for independent teacher pages (no school affiliation required).
