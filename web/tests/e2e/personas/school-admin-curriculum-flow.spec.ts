@@ -10,6 +10,12 @@
  * paths. Does NOT run the real pipeline — that's covered by the backend
  * integration tests.
  *
+ * Status:
+ *   - Wizard-submit test: live. Asserts the 4-step flow posts the right
+ *     shape to POST /api/v1/schools/{id}/curriculum/definitions.
+ *   - 5 follow-up tests: fixme'd with concrete --trace=on unblock steps.
+ *     Each comment names the next action needed to un-fixme that test.
+ *
  * Covers steps 1–4 of the ticket walkthrough. Steps 5–7 (pipeline job
  * progress, content review, student visibility) require a live backend
  * and are tracked separately in the manual QA path.
@@ -145,73 +151,69 @@ test.describe("School admin — curriculum submission flow (#188)", () => {
     await expect(page.getByLabel(/^grade$/i)).toBeVisible();
   });
 
-  test.fixme("wizard submits and posts to the definitions endpoint", async ({
+  test("wizard submits and posts to the definitions endpoint", async ({
     page,
   }) => {
-    // Needs each wizard step's required fields filled explicitly.
-    // Step 1: name + grade. Step 2: subject rows. Step 3: units per subject.
-    // Step 4: review/confirm. The wizard blocks the Next button until each
-    // step validates — generic "click Next three times" doesn't advance.
-    // Extend this test by labelling each step's inputs and filling them.
-    // Capture the POST body so we can assert the wizard collected the
-    // right shape. Listen before the navigation so no request is missed.
-    const postBodyPromise = page.waitForRequest((req) => {
-      return (
+    // Capture the POST before navigation so no request is missed.
+    const postBodyPromise = page.waitForRequest(
+      (req) =>
         req.method() === "POST" &&
         req.url().endsWith(
           `/api/v1/schools/${SCHOOL_ID}/curriculum/definitions`,
-        )
-      );
-    });
+        ),
+    );
 
     await page.goto("/school/curriculum/definitions/new");
+
+    // Step 0 — Basics. validateStep(0) requires non-empty name + grade.
     await page.getByLabel(/curriculum name/i).fill("Grade 11 Commerce — Sem 1");
     await page.getByLabel(/^grade$/i).selectOption("11");
+    await page.getByRole("button", { name: /^Next$/i }).click();
 
-    // Click through the remaining steps; validation content is spec-internal,
-    // so we simulate "happy path" by stepping past each one. The Next button
-    // is only enabled when the current step validates; if the wizard is
-    // stricter than expected, the test will fail here and we'll tighten.
-    for (let step = 0; step < 3; step++) {
-      const next = page.getByRole("button", { name: /^next$/i });
-      if (await next.isVisible()) await next.click();
-    }
+    // Step 1 — Subjects. A default subject row with one empty unit is already
+    // rendered by the page; validateStep(1) requires subject_label + unit title
+    // to be non-empty. Selectors match SubjectCard + UnitRow placeholders.
+    await page
+      .getByPlaceholder("Subject name (e.g. Mathematics)")
+      .fill("Accountancy");
+    await page.getByPlaceholder("Unit title").fill("Introduction to Accounting");
+    await page.getByRole("button", { name: /^Next$/i }).click();
 
-    const submit = page.getByRole("button", { name: /submit for approval/i });
-    if (await submit.isVisible()) await submit.click();
+    // Step 2 — Languages. Default state ["en"] satisfies validation; no input.
+    await page.getByRole("button", { name: /^Next$/i }).click();
 
-    // Either the POST fired, or the wizard rejected at an earlier step.
-    // Race a short timeout so this doesn't hang when the wizard refuses.
-    const req = await Promise.race([
-      postBodyPromise,
-      new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000)),
-    ]);
-    if (req) {
-      const body = req.postDataJSON() as {
-        name?: string;
-        grade?: number;
-      };
-      expect(body.name).toContain("Grade 11 Commerce");
-      expect(body.grade).toBe(11);
-    } else {
-      // Wizard enforced stricter validation than the happy-path skeleton —
-      // not a regression, just a signal that the wizard has per-step rules
-      // we need to exercise individually. Fixme with a note.
-      test.info().annotations.push({
-        type: "wizard-strict",
-        description:
-          "Wizard did not advance to POST with minimum fields. Extend the test to fill each step's required fields.",
-      });
-    }
+    // Step 3 — Review. Fire the mutation.
+    await page
+      .getByRole("button", { name: /submit for approval/i })
+      .click();
+
+    // Assert the wizard collected the right shape.
+    const req = await postBodyPromise;
+    const body = req.postDataJSON() as {
+      name: string;
+      grade: number;
+      languages: string[];
+      subjects: Array<{ subject_label: string; units: Array<{ title: string }> }>;
+    };
+    expect(body.name).toBe("Grade 11 Commerce — Sem 1");
+    expect(body.grade).toBe(11);
+    expect(body.languages).toEqual(["en"]);
+    expect(body.subjects).toHaveLength(1);
+    expect(body.subjects[0].subject_label).toBe("Accountancy");
+    expect(body.subjects[0].units).toHaveLength(1);
+    expect(body.subjects[0].units[0].title).toBe("Introduction to Accounting");
   });
 
   test.fixme("approval queue lists the submitted definition", async ({
     page,
   }) => {
-    // Route URL for the list endpoint needs verification — current mock
-    // pattern may not match the hook's request (could be a different path
-    // or a React Query cache-key structure). Inspect real request logs
-    // via --trace=on before tightening.
+    // UNBLOCK: run `cd web && npx playwright test -g "approval queue" --trace=on`
+    // then `npx playwright show-trace test-results/.../trace.zip` and inspect the
+    // Network tab. The list fetch is initiated by a React Query hook on the
+    // /school/curriculum/definitions page; confirm the exact URL (likely
+    // `GET /api/v1/schools/{school_id}/curriculum/definitions`, possibly with
+    // `?status=pending` or paging params). Tighten `stubDefinitionApis`'
+    // GET branch to match, then delete the fixme here.
     await page.goto("/school/curriculum/definitions");
     await expect(page.getByText(SUBMITTED_DEFINITION.name)).toBeVisible();
     await expect(page.getByText(/pending/i).first()).toBeVisible();
@@ -220,9 +222,14 @@ test.describe("School admin — curriculum submission flow (#188)", () => {
   test.fixme("definition detail view shows grade, status, subjects", async ({
     page,
   }) => {
-    // Same as above — the [definitionId] detail route needs to be wired
-    // with its exact API paths. Expand once real responses are captured
-    // via --trace=on.
+    // UNBLOCK: run `cd web && npx playwright test -g "detail view" --trace=on`
+    // and inspect the trace Network tab for the single-definition fetch from
+    // `web/app/(school)/school/curriculum/definitions/[definitionId]/page.tsx`.
+    // Confirm the exact URL (detail mock is currently
+    // `/api/v1/schools/{id}/curriculum/definitions/{definitionId}`). If the
+    // page also fetches estimate/status separately on mount, stub those too —
+    // otherwise the page stays in a loading skeleton and the heading doesn't
+    // render. Once the page fully renders in the trace, delete this fixme.
     await page.goto(`/school/curriculum/definitions/${DEFINITION_ID}`);
     await expect(page.getByText(SUBMITTED_DEFINITION.name)).toBeVisible();
     await expect(page.getByText(/grade 11/i).first()).toBeVisible();
@@ -231,9 +238,12 @@ test.describe("School admin — curriculum submission flow (#188)", () => {
   test.fixme("cost estimate endpoint returns within_allowance=true on fresh build", async ({
     page,
   }) => {
-    // Depends on the detail page rendering; see above.
-    // Trigger the estimate via direct navigation to the detail page where the
-    // "Estimate cost" button lives.
+    // UNBLOCK: depends on the detail-view fixme above being resolved first
+    // (the "Estimate cost" button only renders once the detail page has
+    // hydrated). After that, run `--trace=on` and confirm (a) the exact
+    // button label the UI uses (current regex `/estimate|cost/i` is a guess)
+    // and (b) the estimate endpoint fires — the current mock matches
+    // `.../estimate` which should be right.
     await page.goto(`/school/curriculum/definitions/${DEFINITION_ID}`);
 
     const estimatePromise = page.waitForResponse((res) =>
@@ -259,7 +269,12 @@ test.describe("School admin — curriculum submission flow (#188)", () => {
   });
 
   test.fixme("trigger returns a job_id and queued status", async ({ page }) => {
-    // Depends on the detail page rendering.
+    // UNBLOCK: same dependency chain as the estimate fixme above. The trigger
+    // button likely only enables AFTER an estimate has been fetched (UX flow:
+    // estimate → confirm → trigger). Run `--trace=on`, click Estimate first,
+    // then click Trigger, and confirm both events fire. Current button regex
+    // `/build|trigger|start build/i` is a guess — replace with the real
+    // label observed in the trace.
     await page.goto(`/school/curriculum/definitions/${DEFINITION_ID}`);
 
     const triggerPromise = page.waitForResponse((res) =>
@@ -299,7 +314,11 @@ test.describe("School admin — curriculum build overage gate", () => {
   test.fixme("estimate surfaces within_allowance=false + card_last4", async ({
     page,
   }) => {
-    // Depends on the detail page rendering; see above.
+    // UNBLOCK: same chain as the happy-path estimate fixme above. Additionally,
+    // confirm the UI actually surfaces `card_last4` and `within_allowance=false`
+    // distinctly — the Stripe-gated overage path may render a charge-card
+    // confirmation modal rather than inline text. The assertion here checks
+    // the raw JSON response, which is safe regardless of UI surface.
     await page.goto(`/school/curriculum/definitions/${DEFINITION_ID}`);
 
     const estimatePromise = page.waitForResponse((res) =>
