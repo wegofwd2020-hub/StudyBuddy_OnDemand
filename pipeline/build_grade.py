@@ -60,19 +60,31 @@ async def _upsert_curriculum_units(
     subject_id: str,
     units: list[dict],
 ) -> None:
-    """Upsert curriculum_units rows for a subject."""
+    """Upsert curriculum_units rows for a subject.
+
+    NOTE: `unit_name` is `NOT NULL` per the Phase-8 schema (migration 0016ish).
+    We mirror `title` into it — the same value — because the source grade data
+    files have one field per unit (`title`) while the table evolved to carry
+    both a long-form title and a short unique name. If we omit `unit_name` the
+    INSERT silently fails and no curriculum_units rows are created, leaving
+    the admin review queue with empty unit lists even though content files
+    are on disk. Pitfall #20 in CLAUDE.md.
+    """
     for sort_order, unit in enumerate(units):
+        title = unit.get("title", unit["unit_id"])
         await conn.execute(
             """
             INSERT INTO curriculum_units
-                (unit_id, curriculum_id, subject, title, description, has_lab, sort_order)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
+                (unit_id, curriculum_id, subject, title, unit_name,
+                 description, has_lab, sort_order)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             ON CONFLICT (unit_id, curriculum_id) DO NOTHING
             """,
             unit["unit_id"],
             curriculum_id,
             subject_id,
-            unit.get("title", unit["unit_id"]),
+            title,
+            title,  # unit_name — same as title for platform-seeded curricula
             unit.get("description", ""),
             unit.get("has_lab", False),
             sort_order,
@@ -94,7 +106,10 @@ async def _upsert_content_subject_version(
 
     if auto_approve:
         status = "published"
-        published_at = _now_iso()
+        # asyncpg expects a datetime instance for TIMESTAMPTZ columns.
+        # `_now_iso()` returns a string (used elsewhere for JSON serialisation)
+        # and silently fails the INSERT when passed here. Pitfall #29.
+        published_at = datetime.now(tz=timezone.utc)
     else:
         published_at = None
 
