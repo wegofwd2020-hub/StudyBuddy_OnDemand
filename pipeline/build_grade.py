@@ -193,7 +193,14 @@ def run_grade(
             import asyncpg  # type: ignore
 
             async def _get_conn():
-                return await asyncpg.connect(config.DATABASE_URL)
+                conn = await asyncpg.connect(config.DATABASE_URL)
+                # Epic 10 L-1 (migration 0046) added RESTRICTIVE RLS policies on
+                # `curricula` refusing INSERT/UPDATE/DELETE on owner_type='platform'
+                # rows from non-bypass sessions. Pipeline CLI is platform-owner code
+                # and must bypass. See CLAUDE.md pitfall #23 (same pattern in
+                # auth.login_local_user).
+                await conn.execute("SET app.current_school_id = 'bypass'")
+                return conn
 
             db_conn = asyncio.get_event_loop().run_until_complete(_get_conn())
             asyncio.get_event_loop().run_until_complete(
