@@ -1,6 +1,6 @@
 # Epic 13 — Branding Refresh: STEM → Education Enhancement
 
-**Status:** 🚧 Scope locked 2026-04-21; execution tickets pending
+**Status:** 🚧 In progress — T-BR-3 + T-BR-4 shipped 2026-04-21 (`95c514c`); T-BR-2 partial STEM-drop shipped (`c938210`); T-BR-1 + T-BR-5 pending
 
 ---
 
@@ -149,6 +149,8 @@ Canonical tagline translations:
 
 ### T-BR-3 — Backend student-facing AI + transactional email copy
 
+**Status:** ✅ Shipped 2026-04-21 in commit `95c514c` (minimum STEM-drop; help prompt now reads *"an AI-powered education platform for Grades 5–12"*, email drops "STEM" from "Grade 8 content is pre-loaded"). Full C+1 tagline alignment for the help prompt deferred to T-BR-5 rollout.
+
 **Files:**
 - `backend/src/help/service.py` line 95 — help-assistant system prompt.
 - `backend/src/email/service.py` lines 89, 119 — welcome / credentials email.
@@ -172,6 +174,8 @@ Canonical tagline translations:
 ---
 
 ### T-BR-4 — School portal UI copy
+
+**Status:** ✅ Shipped 2026-04-21 in commit `95c514c`. All four surfaces updated (including the low-priority placeholder). Zero STEM references remain in `web/app/(school)` or `web/lib/content/help-mindmaps.ts`.
 
 **Files:**
 - `web/lib/content/help-mindmaps.ts` lines 301, 319
