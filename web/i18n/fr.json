@@ -26,11 +26,12 @@
     "start_free": "Démarrer gratuitement"
   },
   "landing": {
-    "hero_heading": "Le tutorat STEM disponible dès que les élèves en ont besoin",
-    "hero_subheading": "Leçons, quiz et audio instantanés pour les classes 5 à 12. Sans attente. Sans clé API. Juste l'apprentissage.",
+    "hero_heading": "Study Buddy",
+    "hero_tagline": "Matériel d'étude alimenté par l'IA",
+    "hero_subheading": "Leçons, quiz et audio instantanés quand disponibles. Juste l'apprentissage.",
     "hero_cta_primary": "Commencer l'essai gratuit",
     "hero_cta_secondary": "Voir comment ça marche",
-    "features_heading": "Tout ce dont les élèves ont besoin pour maîtriser les STIM",
+    "features_heading": "Un enseignant peut créer son propre matériel d'étude grâce à l'IA",
     "feature_instant_title": "Contenu instantané",
     "feature_instant_desc": "Les leçons et quiz pré-générés se chargent en millisecondes — sans temps d'attente IA.",
     "feature_audio_title": "Leçons audio",
@@ -45,7 +46,7 @@
     "feature_schools_desc": "Les enseignants reçoivent des rapports de progression en temps réel, des alertes et des outils de curriculum personnalisé.",
     "social_proof_heading": "Approuvé par les élèves, les enseignants et les parents",
     "cta_heading": "Prêt à commencer ?",
-    "cta_subheading": "Rejoignez des milliers d'élèves qui améliorent leurs notes en STIM.",
+    "cta_subheading": "Rejoignez des milliers d'élèves qui maîtrisent toutes leurs matières.",
     "cta_btn": "Démarrer votre essai gratuit"
   },
   "pricing": {
@@ -194,7 +195,7 @@
     "500_body": "Nous travaillons à résoudre ce problème. Veuillez réessayer dans un instant."
   },
   "footer": {
-    "tagline": "Tutorat STIM pour les classes 5 à 12",
+    "tagline": "Matériel d'étude alimenté par l'IA pour les classes 5 à 12",
     "product": "Produit",
     "company": "Entreprise",
     "legal": "Mentions légales",
