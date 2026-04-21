@@ -1,6 +1,6 @@
 # StudyBuddy AI — OnDemand Edition
 
-**Backend-powered STEM tutoring platform for students Grades 5–12.**
+**Backend-powered education enhancement platform for students.**
 
 ---
 
@@ -8,7 +8,7 @@
 
 StudyBuddy OnDemand is the next generation of the [StudyBuddy Free](https://github.com/wegofwd2020-hub/studybuddy_free) standalone app.
 
-The Free edition proved the concept — students can navigate a grade-aware STEM curriculum, read AI-generated lesson synopses, take adaptive quizzes, and receive personalised remediation. However, it has fundamental limitations:
+The Free edition proved the concept — students can navigate a grade-aware curriculum, read AI-generated lesson synopses, take adaptive quizzes, and receive personalised remediation. However, it has fundamental limitations:
 
 | Problem | Root Cause |
 |---|---|

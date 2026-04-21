@@ -1,6 +1,6 @@
 # Epic 13 — Branding Refresh: STEM → Education Enhancement
 
-**Status:** 🚧 In progress — T-BR-1, T-BR-3, T-BR-4 shipped 2026-04-21; T-BR-2 partial STEM-drop shipped (`c938210`); T-BR-5 (English canonical + C+1 rollout) + T-BR-2 remainder pending
+**Status:** ✅ Complete 2026-04-21 — all five tickets shipped. Minimum-scope PR #246 landed T-BR-1/T-BR-3/T-BR-4 + T-BR-2 partial; C+1 launch PR lands T-BR-5 + T-BR-2 remainder across EN/FR/ES locales and site metadata (native-speaker review completed; drafted translations validated as-is).
 
 ---
 
@@ -119,6 +119,8 @@ libraries curate by *selection* (static); search engines curate by *query*
 
 ### T-BR-2 — Non-English locales: FR + ES hero, features, CTA, tagline
 
+**Status:** ✅ Fully shipped — partial STEM-drop in `c938210` (mirrored interim EN framing); C+1 tagline + sub-headline + footer tagline rolled out in the C+1 launch PR after native-speaker review validated the drafted translations from `docs/BRANDING_I18N_DRAFT.md` as-is.
+
 **Files:** `web/i18n/fr.json`, `web/i18n/es.json`
 
 **Changes:** Both locales currently contain "Tutoría STEM" / "Tutorat STIM"
@@ -200,6 +202,8 @@ Canonical tagline translations:
 ---
 
 ### T-BR-5 — English canonical surfaces (README, metadata, en.json)
+
+**Status:** ✅ Shipped in the C+1 launch PR. Canonical tagline + sub-headline applied consistently across `en.json` hero + footer, site metadata (title.default + description), and README (using the pre-existing WIP rebrand of line 3 to "education enhancement platform"). Backend help prompt kept at the T-BR-3 neutral framing (does not need the full C+1 tagline).
 
 **Files:**
 - `README.md` line 3
