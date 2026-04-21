@@ -30,11 +30,11 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "StudyBuddy \u2014 AI-powered study material for Grades 5\u201312",
+    default: "StudyBuddy \u2014 Your bridge from lessons to a world that's always current",
     template: "%s | StudyBuddy",
   },
   description:
-    "Instant AI-powered lessons, quizzes, and audio for any subject. Available in English, French, and Spanish.",
+    "An AI study buddy that connects your lessons to the world \u2014 and keeps learning alongside you. Available in English, French, and Spanish.",
 };
 
 export default async function RootLayout({

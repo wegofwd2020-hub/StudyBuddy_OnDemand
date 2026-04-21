@@ -27,8 +27,8 @@
   },
   "landing": {
     "hero_heading": "Study Buddy",
-    "hero_tagline": "AI-powered study material",
-    "hero_subheading": "Instant lessons, quizzes, and audio where available. Just learning.",
+    "hero_tagline": "Your bridge from lessons to a world that's always current.",
+    "hero_subheading": "An AI study buddy that connects your lessons to the world — and keeps learning alongside you.",
     "hero_cta_primary": "Start free trial",
     "hero_cta_secondary": "See how it works",
     "features_heading": "A teacher can set their own study material using AI",
@@ -288,7 +288,7 @@
     "500_body": "We're working on fixing this. Please try again shortly."
   },
   "footer": {
-    "tagline": "AI-powered study material for Grades 5–12",
+    "tagline": "Your bridge from lessons to a world that's always current.",
     "product": "Product",
     "company": "Company",
     "legal": "Legal",

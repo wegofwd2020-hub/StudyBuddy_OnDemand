@@ -27,8 +27,8 @@
   },
   "landing": {
     "hero_heading": "Study Buddy",
-    "hero_tagline": "Material de estudio con IA",
-    "hero_subheading": "Lecciones, cuestionarios y audio instantáneos cuando estén disponibles. Solo aprendizaje.",
+    "hero_tagline": "Tu puente entre las lecciones y un mundo siempre actual.",
+    "hero_subheading": "Un compañero de aprendizaje con IA que conecta tus lecciones con el mundo — y sigue aprendiendo a tu lado.",
     "hero_cta_primary": "Comenzar prueba gratuita",
     "hero_cta_secondary": "Ver cómo funciona",
     "features_heading": "Un profesor puede crear su propio material de estudio con IA",
@@ -195,7 +195,7 @@
     "500_body": "Estamos trabajando para solucionar esto. Por favor, inténtalo de nuevo en breve."
   },
   "footer": {
-    "tagline": "Material de estudio con IA para los grados 5 a 12",
+    "tagline": "Tu puente entre las lecciones y un mundo siempre actual.",
     "product": "Producto",
     "company": "Empresa",
     "legal": "Legal",
