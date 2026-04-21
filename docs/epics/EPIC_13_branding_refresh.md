@@ -1,6 +1,6 @@
 # Epic 13 — Branding Refresh: STEM → Education Enhancement
 
-**Status:** 🚧 In progress — T-BR-3 + T-BR-4 shipped 2026-04-21 (`95c514c`); T-BR-2 partial STEM-drop shipped (`c938210`); T-BR-1 + T-BR-5 pending
+**Status:** 🚧 In progress — T-BR-1, T-BR-3, T-BR-4 shipped 2026-04-21; T-BR-2 partial STEM-drop shipped (`c938210`); T-BR-5 (English canonical + C+1 rollout) + T-BR-2 remainder pending
 
 ---
 
@@ -90,6 +90,8 @@ libraries curate by *selection* (static); search engines curate by *query*
 ## Tickets
 
 ### T-BR-1 — CLAUDE.md: description + positioning section
+
+**Status:** ✅ Shipped 2026-04-21. Line 3 description rewritten; new `## Positioning` section inserted before `## Project Status` with consumer framing (information bridge + canonical tagline), engineering mental model (scoped retrieval with six-dimension table), audience translation matrix, and the load-bearing-word explainer for "current".
 
 **File:** `CLAUDE.md`
 
