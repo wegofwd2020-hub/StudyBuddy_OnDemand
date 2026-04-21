@@ -298,7 +298,7 @@ export const HELP_MINDMAPS: PersonaMindMap[] = [
   {
     id: "full-student",
     title: "Full Student",
-    subtitle: "Complete STEM learning experience with your school or subscription",
+    subtitle: "Complete learning experience with your school or subscription",
     color: "bg-purple-700",
     diagram: `mindmap
   root((Full Student))
@@ -316,7 +316,7 @@ export const HELP_MINDMAPS: PersonaMindMap[] = [
         Custom grade mapping
       Default platform content
         Grades 5 through 12
-        All STEM subjects
+        All supported subjects
     Learning Flow
       Lesson
         Full text + diagrams

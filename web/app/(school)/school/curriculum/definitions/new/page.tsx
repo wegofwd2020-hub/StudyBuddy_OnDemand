@@ -52,7 +52,7 @@ function StepBasics({
           id="def_name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Grade 8 STEM — Semester 1"
+          placeholder="Grade 8 — Semester 1"
         />
         <p className="text-xs text-gray-400">
           Choose a name students and teachers will recognise.

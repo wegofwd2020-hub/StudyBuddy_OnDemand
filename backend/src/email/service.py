@@ -86,7 +86,7 @@ Password  : {password}
 
 Your account is active for {ttl_hours} hours.
 
-Grade 8 STEM content is pre-loaded and ready to explore.
+Grade 8 content is pre-loaded and ready to explore.
 
 — The StudyBuddy Team
 """
@@ -116,7 +116,7 @@ _CREDENTIALS_HTML = """\
   </table>
   <p style="color:#666;font-size:13px">
     Your account is active for <strong>{ttl_hours} hours</strong>.<br />
-    Grade 8 STEM content is pre-loaded and ready to explore.
+    Grade 8 content is pre-loaded and ready to explore.
   </p>
   <p style="color:#666;font-size:13px">— The StudyBuddy Team</p>
 </body>
