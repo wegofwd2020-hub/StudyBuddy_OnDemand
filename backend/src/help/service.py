@@ -92,7 +92,7 @@ def _render_account_context(account_state: dict | None) -> str:
 
 # Structured output template the LLM must follow
 _PROMPT_TEMPLATE = """\
-You are a help assistant for StudyBuddy OnDemand, a K-12 STEM tutoring platform.
+You are a help assistant for StudyBuddy OnDemand, an AI-powered education platform for Grades 5–12.
 
 Persona: {persona_label}
 Current page: {page}

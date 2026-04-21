@@ -148,7 +148,7 @@ export default function CatalogPage() {
 
       <p className="text-sm text-gray-500">
         Platform-built curriculum packages available for assignment to your classrooms.
-        Each package covers a full grade&apos;s STEM content across multiple subjects and units.
+        Each package covers a full grade&apos;s content across multiple subjects and units.
         Assign packages to classrooms from the{" "}
         <a href="/school/classrooms" className="text-indigo-600 underline-offset-2 hover:underline">
           Classrooms

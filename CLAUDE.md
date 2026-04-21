@@ -1,8 +1,75 @@
 # StudyBuddy OnDemand — CLAUDE.md
 
-Backend-powered STEM tutoring platform for Grades 5–12. Students get instant
-pre-generated AI content (lessons, quizzes, audio) without needing an Anthropic
-API key. Schools and teachers can upload custom curricula. Subscription-based.
+Backend-powered AI education platform for Grades 5–12. StudyBuddy is the
+information bridge between classroom lessons and the current world. Students
+get instant pre-generated content (lessons, quizzes, audio) in English, French,
+and Spanish — no Anthropic API key required on the client. Schools and teachers
+can upload custom curricula. Subscription-based.
+
+---
+
+## Positioning
+
+StudyBuddy has two framings that serve different audiences. Both are correct;
+use the one matched to the reader. Full decision log in
+[`docs/BRANDING_TAGLINE_OPTIONS.md`](docs/BRANDING_TAGLINE_OPTIONS.md); epic spec
+in [`docs/epics/EPIC_13_branding_refresh.md`](docs/epics/EPIC_13_branding_refresh.md).
+
+### Consumer framing — "information bridge"
+
+- **Tagline:** *"Your bridge from lessons to a world that's always current."*
+- **Sub-headline:** *"An AI study buddy that connects your lessons to the world — and keeps learning alongside you."*
+
+Use this framing on: landing page, emails, help-widget responses, marketing
+pages, anything user-facing for parents / students / teachers / school admins.
+
+### Engineering mental model — "scoped retrieval over the world of knowledge"
+
+Every content generation is a **scoped query** against the LLM, parametrised
+by six dimensions that together form the product's IP:
+
+| Scope dimension | What it enforces |
+|---|---|
+| Topic / subject / unit | Curriculum alignment |
+| Grade | Reading level, conceptual depth, age-appropriateness |
+| Language | en / fr / es / vernacular |
+| Curriculum context | What the student has already covered |
+| Format | Lesson / quiz / tutorial / experiment |
+| Real-world framing | The bridge — connect to something current the student recognises |
+
+The LLM is the commodity. The **scoping layer** is the product IP. When
+touching `pipeline/prompts.py`, `pipeline/build_grade.py`, or any LLM-calling
+code: think "I'm tuning a scoped-retrieval system," not "I'm writing a content
+library."
+
+**Structural consequence — why "current" holds:** a *library* is curated by
+selection (static, goes stale); a *search engine* is curated by query
+(dynamic, re-runs each time). StudyBuddy is the second. This is why the
+"always current" tagline claim is defensible, not cosmetic.
+
+### Audience translation matrix
+
+| Audience | Use which framing |
+|---|---|
+| Parents, students, teachers, school admins | Information bridge |
+| Developers, architects, internal technical discussions | Scoped retrieval |
+| VCs / B2B pitch decks | Scoped retrieval first (30 sec), then bridge metaphor |
+
+### Load-bearing word — "current" (not "today's")
+
+Tagline uses **"current"** deliberately. **Do not** swap it for "today's",
+"latest", or any dated alternative. Reason: "today's" anchors to a specific
+date (a snapshot); "current" anchors to "whenever the student is using the
+product" (evergreen). The tagline has to cover three phases:
+
+1. **Now** — pre-generated content per curriculum
+2. **Soon** — teachers generate more content as a course progresses
+3. **Roadmap** — AI Agent where students query and learn more on demand
+
+"Today's" breaks at Phase 2/3. "Current" is the agent's actual promise. If
+"current" feels awkward in a sentence, restructure the sentence (e.g. *"a
+world that's always current"*, *"keeping lessons current with the world"*) —
+do not swap the word.
 
 ---
 

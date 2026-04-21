@@ -26,11 +26,12 @@
     "start_free": "Comenzar gratis"
   },
   "landing": {
-    "hero_heading": "Tutoría STEM disponible en el momento en que los estudiantes la necesitan",
-    "hero_subheading": "Lecciones, cuestionarios y audio instantáneos para los grados 5 a 12. Sin esperas. Sin claves de API. Solo aprendizaje.",
+    "hero_heading": "Study Buddy",
+    "hero_tagline": "Material de estudio con IA",
+    "hero_subheading": "Lecciones, cuestionarios y audio instantáneos cuando estén disponibles. Solo aprendizaje.",
     "hero_cta_primary": "Comenzar prueba gratuita",
     "hero_cta_secondary": "Ver cómo funciona",
-    "features_heading": "Todo lo que los estudiantes necesitan para dominar STEM",
+    "features_heading": "Un profesor puede crear su propio material de estudio con IA",
     "feature_instant_title": "Contenido instantáneo",
     "feature_instant_desc": "Las lecciones y cuestionarios pregenerados se cargan en milisegundos — sin tiempo de espera de IA.",
     "feature_audio_title": "Lecciones de audio",
@@ -45,7 +46,7 @@
     "feature_schools_desc": "Los profesores obtienen informes de progreso en tiempo real, alertas y herramientas de currículo personalizadas.",
     "social_proof_heading": "Confiado por estudiantes, profesores y padres",
     "cta_heading": "¿Listo para comenzar?",
-    "cta_subheading": "Únete a miles de estudiantes que mejoran sus calificaciones en STEM.",
+    "cta_subheading": "Únete a miles de estudiantes que dominan todas sus materias.",
     "cta_btn": "Comienza tu prueba gratuita"
   },
   "pricing": {
@@ -194,7 +195,7 @@
     "500_body": "Estamos trabajando para solucionar esto. Por favor, inténtalo de nuevo en breve."
   },
   "footer": {
-    "tagline": "Tutoría STEM para los grados 5 a 12",
+    "tagline": "Material de estudio con IA para los grados 5 a 12",
     "product": "Producto",
     "company": "Empresa",
     "legal": "Legal",
