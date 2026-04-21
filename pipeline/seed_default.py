@@ -92,6 +92,10 @@ async def seed_all(year: int, grades: list[int]) -> None:
         raise RuntimeError("DATABASE_URL must be set (env var or pipeline/config.py)")
 
     conn = await asyncpg.connect(db_url)
+    # Epic 10 L-1 (migration 0046) — platform-owner CLI must bypass RLS
+    # to insert/update `curricula` rows with owner_type='platform'.
+    # See CLAUDE.md pitfall #23.
+    await conn.execute("SET app.current_school_id = 'bypass'")
     try:
         for grade in grades:
             await seed_grade(conn, grade, year)
