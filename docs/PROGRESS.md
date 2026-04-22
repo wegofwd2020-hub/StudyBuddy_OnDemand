@@ -1,6 +1,6 @@
 # StudyBuddy OnDemand — Progress Chart
 
-_Auto-generated 2026-04-21T04:38:55+00:00. Regenerated nightly at 21:00 EST._
+_Auto-generated 2026-04-22T04:36:40+00:00. Regenerated nightly at 21:00 EST._
 
 Source: `docs/epics/` (feature manifest) + `git log` (activity). Script: `scripts/generate_progress.py`.
 
@@ -18,6 +18,7 @@ gantt
     Epic 8  :active, e8, 2026-04-14, 2026-04-15
     Epic 10 :done, e10, 2026-04-15, 2026-04-16
     Epic 11 :done, e11, 2026-04-15, 2026-04-16
+    Epic 13 :done, e13, 2026-04-21, 2026-04-22
 ```
 
 ## Summary
@@ -35,6 +36,7 @@ gantt
 | 9 | [Accessibility & Personalization](epics/EPIC_09_accessibility_personalization.md) | 💭 Your call | — | — | 0 | 0 | — |
 | 10 | [Curriculum Lifecycle & Governance](epics/EPIC_10_curriculum_lifecycle.md) | ✅ Go — all 8 questions + 2 follow-ups resolved 2026-04-15 | 2026-04-15 | 2026-04-15 | 10 | 7 | L-1×4, L-5×2 |
 | 11 | [Content Presentation & Formatting](epics/EPIC_11_content_formatting.md) | ✅ Go — 9 questions resolved 2026-04-15 | 2026-04-15 | 2026-04-15 | 8 | 7 | C-9×2 |
+| 13 | [Branding Refresh: STEM → Education Enhancement](epics/EPIC_13_branding_refresh.md) | ✅ Complete 2026-04-21 — all five tickets shipped. Minimum-scope PR #246 landed T | 2026-04-21 | 2026-04-21 | 1 | 0 | — |
 
 ## Redesign leaderboard
 
@@ -172,4 +174,11 @@ Tickets with 2+ commits — each extra commit is an iteration or rework.
 | C-5 | 1 | 2026-04-15 | 2026-04-15 |
 | C-6 | 1 | 2026-04-15 | 2026-04-15 |
 | C-9 | 2 | 2026-04-15 | 2026-04-15 |
+
+### Epic 13 — Branding Refresh: STEM → Education Enhancement
+
+- **Status:** ✅ Complete 2026-04-21 — all five tickets shipped. Minimum-scope PR #246 landed T
+- **Epic file:** [EPIC_13_branding_refresh.md](epics/EPIC_13_branding_refresh.md)
+- **Ticket prefix:** `K`
+- **Commits attributed:** 1
 
