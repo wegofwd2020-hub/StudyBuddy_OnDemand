@@ -85,6 +85,10 @@ jobs:
 
     env:
       DATABASE_URL: postgresql://studybuddy:testpassword@localhost:5432/studybuddy_test
+      # Pin TEST_DB_URL explicitly: conftest.py's .replace("/studybuddy", ...)
+      # derivation mangles the user portion when the dev URL already points at
+      # the test DB. Local dev sets this via docker-compose; CI mirrors the same.
+      TEST_DB_URL: postgresql://studybuddy:testpassword@localhost:5432/studybuddy_test
       REDIS_URL: redis://localhost:6379/1
       JWT_SECRET: test-secret-do-not-use-in-production-aaaa
       ADMIN_JWT_SECRET: test-admin-secret-do-not-use-in-prod-bbb
