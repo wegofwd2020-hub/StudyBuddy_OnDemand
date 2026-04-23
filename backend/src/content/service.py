@@ -19,7 +19,6 @@ import json
 import uuid as _uuid
 
 import asyncpg
-from config import settings
 
 from src.core.cache_keys import content_key, csv_key, cur_key, ent_key, quiz_set_key, school_ent_key
 from src.core.storage import StorageBackend
@@ -379,46 +378,3 @@ async def get_unit_subject(
             curriculum_id,
         )
     return row["subject"] if row else None
-
-
-async def invalidate_cdn_path(curriculum_id: str, unit_id: str | None = None) -> None:
-    """
-    Invalidate CloudFront CDN paths after a content version bump.
-
-    Per CLAUDE.md non-negotiable rule #7: CDN invalidation must accompany
-    Redis cache invalidation on content bumps.
-
-    Pattern invalidated:
-      - unit_id provided:  curricula/{curriculum_id}/{unit_id}/*
-      - unit_id omitted:   curricula/{curriculum_id}/*
-
-    Silently skips if CLOUDFRONT_DISTRIBUTION_ID is not set (local dev).
-    """
-    distribution_id = settings.CLOUDFRONT_DISTRIBUTION_ID
-    if not distribution_id:
-        log.debug("cloudfront_distribution_id_absent_skipping_invalidation")
-        return
-
-    if unit_id:
-        path = f"/curricula/{curriculum_id}/{unit_id}/*"
-    else:
-        path = f"/curricula/{curriculum_id}/*"
-
-    try:
-        import time
-
-        import boto3
-
-        cf = boto3.client("cloudfront")
-        cf.create_invalidation(
-            DistributionId=distribution_id,
-            InvalidationBatch={
-                "Paths": {"Quantity": 1, "Items": [path]},
-                "CallerReference": str(int(time.time())),
-            },
-        )
-        log.info("cdn_invalidation_created distribution=%s path=%s", distribution_id, path)
-    except Exception as exc:
-        log.warning(
-            "cdn_invalidation_failed distribution=%s path=%s error=%s", distribution_id, path, exc
-        )

@@ -190,6 +190,25 @@ def write_audit_log_task(
         raise self.retry(exc=exc, countdown=30)
 
 
+@celery_app.task(name="src.auth.tasks.invalidate_cdn_task", bind=True, max_retries=2)
+def invalidate_cdn_task(self, curriculum_id: str) -> None:
+    """
+    Fire-and-forget CloudFront invalidation for a curriculum.
+
+    Runs on the `io` queue so the FastAPI request path never blocks on the
+    CloudFront API call.  Silently no-ops when CLOUDFRONT_DISTRIBUTION_ID is
+    unset (local dev).
+
+    Retries up to 2× on transient CloudFront errors.
+    """
+    from src.core.cdn import invalidate_curriculum
+
+    try:
+        _run_async(invalidate_curriculum(curriculum_id, settings.CLOUDFRONT_DISTRIBUTION_ID))
+    except Exception as exc:
+        raise self.retry(exc=exc, countdown=60)
+
+
 @celery_app.task(name="src.auth.tasks.write_progress_answer_task", bind=True, max_retries=3)
 def write_progress_answer_task(
     self,

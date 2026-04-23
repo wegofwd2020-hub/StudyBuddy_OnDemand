@@ -13,13 +13,11 @@ from __future__ import annotations
 import uuid
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
 from src.core.cdn import invalidate_curriculum, invalidate_paths, invalidate_unit
-
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
 
@@ -341,3 +339,55 @@ async def test_purge_grace_expired_skips_cdn_when_no_distribution(tmp_path: Path
     assert len(results) == 1
     # boto3 client was never instantiated — no CloudFront call.
     boto3_mock.client.assert_not_called()
+
+
+# ── _invalidate_cdn dispatcher (Issue #254 P1) ────────────────────────────────
+
+
+def test_invalidate_cdn_dispatches_celery_task_on_io_queue():
+    """
+    admin.service._invalidate_cdn must apply_async the Celery task on the 'io'
+    queue with the given curriculum_id.  Previously it called an async
+    function without await — producing an unawaited coroutine that was
+    silently swallowed (Issue #254 P1).
+    """
+    from src.admin.service import _invalidate_cdn
+
+    with patch("src.auth.tasks.invalidate_cdn_task") as mock_task:
+        _invalidate_cdn("default-2026-g8")
+
+    mock_task.apply_async.assert_called_once_with(
+        kwargs={"curriculum_id": "default-2026-g8"},
+        queue="io",
+    )
+
+
+def test_invalidate_cdn_swallows_dispatch_failures():
+    """
+    Dispatch errors must not break the admin request path (publish/rollback).
+    """
+    from src.admin.service import _invalidate_cdn
+
+    with patch("src.auth.tasks.invalidate_cdn_task") as mock_task:
+        mock_task.apply_async.side_effect = RuntimeError("broker unreachable")
+        # Must not raise.
+        _invalidate_cdn("default-2026-g8")
+
+
+def test_invalidate_cdn_task_calls_invalidate_curriculum():
+    """
+    The Celery task body delegates to src.core.cdn.invalidate_curriculum with
+    the configured distribution_id.
+    """
+    from src.auth.tasks import invalidate_cdn_task
+
+    with patch("src.auth.tasks._run_async") as mock_run, \
+         patch("src.core.cdn.invalidate_curriculum") as mock_invalidate, \
+         patch("src.auth.tasks.settings") as mock_settings:
+        mock_settings.CLOUDFRONT_DISTRIBUTION_ID = "EDIST1234"
+
+        # Celery tasks bound with bind=True expose .run() for direct invocation.
+        invalidate_cdn_task.run("default-2026-g8")
+
+    mock_run.assert_called_once()
+    mock_invalidate.assert_called_once_with("default-2026-g8", "EDIST1234")
