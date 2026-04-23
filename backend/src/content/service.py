@@ -378,5 +378,3 @@ async def get_unit_subject(
             curriculum_id,
         )
     return row["subject"] if row else None
-
-

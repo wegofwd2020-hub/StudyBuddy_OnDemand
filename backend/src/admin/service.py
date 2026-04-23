@@ -736,7 +736,9 @@ def _invalidate_cdn(curriculum_id: str) -> None:
         invalidate_cdn_task.apply_async(kwargs={"curriculum_id": curriculum_id}, queue="io")
     except Exception as exc:
         # Dispatch failure must never break the admin publish/rollback request.
-        log.warning("cdn_invalidation_dispatch_failed curriculum_id=%s error=%s", curriculum_id, exc)
+        log.warning(
+            "cdn_invalidation_dispatch_failed curriculum_id=%s error=%s", curriculum_id, exc
+        )
 
 
 # ── Block version (creates block record + marks version blocked) ───────────────
