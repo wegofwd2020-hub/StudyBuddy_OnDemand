@@ -11,7 +11,6 @@ Plus webhook routing for school events and seat limit enforcement.
 
 from __future__ import annotations
 
-import json
 import uuid
 from datetime import UTC, datetime, timedelta
 from unittest.mock import MagicMock, patch
@@ -20,7 +19,6 @@ import pytest
 from httpx import AsyncClient
 
 from tests.helpers.token_factory import make_teacher_token
-
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -457,8 +455,18 @@ async def _insert_quota_row(
 
 
 @pytest.mark.asyncio
-async def test_check_build_allowance_no_quota_row(client: AsyncClient):
-    """Returns allowed=False with 0 allowance when no quota row exists."""
+async def test_check_build_allowance_fresh_school_has_default_quota(client: AsyncClient):
+    """
+    A freshly-registered school has a school_storage_quotas row with the
+    column default (builds_included=1 from migration 0032), so the first
+    build is allowed without any subscription action.
+
+    Previously this test asserted the "no quota row" scenario, but
+    src/school/service.py:register_school now seeds the quota row
+    unconditionally on registration, making that branch unreachable via
+    the normal flow.  The branch itself is still tested below as a
+    defensive check against an orphan school.
+    """
     from src.school.subscription_service import check_build_allowance
 
     reg = await _register_school(client)
@@ -466,6 +474,35 @@ async def test_check_build_allowance_no_quota_row(client: AsyncClient):
     pool = client._transport.app.state.pool
 
     async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', $1, false)", school_id)
+        result = await check_build_allowance(conn, school_id)
+
+    assert result["allowed"] is True
+    assert result["builds_included"] == 1  # migration 0032 default
+    assert result["builds_used"] == 0
+    assert result["builds_remaining"] == 1
+    assert result["builds_credits_balance"] == 0
+
+
+@pytest.mark.asyncio
+async def test_check_build_allowance_missing_quota_row_denies(client: AsyncClient):
+    """
+    Defensive branch: if a school somehow has no school_storage_quotas row
+    (schema migration lag, manual data surgery), check_build_allowance
+    returns allowed=False rather than crashing with KeyError.
+    """
+    from src.school.subscription_service import check_build_allowance
+
+    reg = await _register_school(client)
+    school_id = reg["school_id"]
+    pool = client._transport.app.state.pool
+
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        await conn.execute(
+            "DELETE FROM school_storage_quotas WHERE school_id = $1",
+            uuid.UUID(school_id),
+        )
         result = await check_build_allowance(conn, school_id)
 
     assert result["allowed"] is False
