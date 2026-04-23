@@ -59,14 +59,14 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    # Restore the original 3-col index.  Note: downgrading on a schema
-    # where real multi-subject rows exist will fail because the index
-    # violates uniqueness.  That's expected — the whole point of this
-    # migration is that the 3-col shape was wrong.
+    # Drop the 4-col index.  The original 3-col index is NOT recreated
+    # because doing so against any real multi-subject data triggers the
+    # same UniqueViolation this migration was written to fix — which
+    # also broke the pytest session-teardown downgrade chain.
+    #
+    # Migration 0010's downgrade drops mv_class_summary entirely, so
+    # the index absence is transient.  Non-CONCURRENTLY REFRESH still
+    # works on the MV without the unique index; CONCURRENTLY REFRESH
+    # is the only thing that'd need it, and that path is disabled
+    # while the downgrade chain walks back to 0010.
     op.execute("DROP INDEX IF EXISTS mv_class_summary_pk")
-    op.execute(
-        """
-        CREATE UNIQUE INDEX IF NOT EXISTS mv_class_summary_pk
-            ON mv_class_summary(school_id, curriculum_id, unit_id)
-        """
-    )
