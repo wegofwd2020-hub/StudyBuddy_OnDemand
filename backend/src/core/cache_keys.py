@@ -36,7 +36,6 @@ Platform-only keys (not school-scoped)
 
 from __future__ import annotations
 
-
 # ── School-scoped keys ────────────────────────────────────────────────────────
 
 

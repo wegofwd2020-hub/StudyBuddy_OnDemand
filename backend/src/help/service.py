@@ -26,6 +26,7 @@ import re
 
 import asyncpg
 from config import settings
+
 from src.utils.logger import get_logger
 
 log = get_logger("help")
@@ -138,6 +139,7 @@ async def _embed(text: str) -> list[float] | None:
     if not settings.VOYAGE_API_KEY:
         return None
     import voyageai  # imported lazily — not required for non-help routes
+
     client = voyageai.AsyncClient(api_key=settings.VOYAGE_API_KEY)
     result = await client.embed([text], model="voyage-3-lite", input_type="query")
     return result.embeddings[0]
@@ -205,6 +207,7 @@ async def _retrieve_by_text(
 async def _call_haiku(prompt: str) -> str:
     """Call Claude Haiku with temperature=0 for deterministic structured output."""
     import anthropic  # already in requirements; imported here to isolate the import
+
     client = anthropic.AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY or "")
     msg = await client.messages.create(
         model=_HAIKU_MODEL,

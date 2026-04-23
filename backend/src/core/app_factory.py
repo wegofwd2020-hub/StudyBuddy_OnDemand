@@ -24,7 +24,6 @@ from config import settings
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-
 from slowapi.errors import RateLimitExceeded
 
 from src.core.limiter import limiter
@@ -202,7 +201,13 @@ def _register_middleware(app: FastAPI) -> None:
         allow_origins=settings.allowed_origins_list,
         allow_credentials=True,
         allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-        allow_headers=["Content-Type", "Authorization", "X-Correlation-Id", "X-Requested-With", "X-App-Version"],
+        allow_headers=[
+            "Content-Type",
+            "Authorization",
+            "X-Correlation-Id",
+            "X-Requested-With",
+            "X-App-Version",
+        ],
         expose_headers=["X-Correlation-Id"],
     )
 
@@ -215,10 +220,10 @@ def _register_routers(app: FastAPI) -> None:
     # routers import from src.core.* but never from main.py.
     from src.account.router import router as account_router
     from src.admin.build_reports import router as ci_reports_router
+    from src.admin.curriculum_lifecycle_router import router as admin_curriculum_lifecycle_router
     from src.admin.demo_accounts import router as demo_admin_router
     from src.admin.demo_teacher_accounts import router as demo_teacher_admin_router
     from src.admin.retention_router import router as admin_retention_router
-    from src.admin.curriculum_lifecycle_router import router as admin_curriculum_lifecycle_router
     from src.admin.router import router as admin_router
     from src.admin.streams_router import router as admin_streams_router
     from src.analytics.router import router as analytics_router
@@ -283,9 +288,11 @@ def _register_routers(app: FastAPI) -> None:
     app.include_router(demo_teacher_admin_router, prefix="/api/v1")
 
     from src.help.router import router as help_router
+
     app.include_router(help_router, prefix="/api/v1")
 
     from src.demo_leads.router import router as demo_leads_router
+
     app.include_router(demo_leads_router, prefix="/api/v1")
 
     if settings.APP_ENV == "development":

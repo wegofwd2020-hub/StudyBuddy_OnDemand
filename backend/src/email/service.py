@@ -640,7 +640,9 @@ _EXPIRY_HTML = """\
 
 # ── Template 3: 90-day grace reminder ────────────────────────────────────────
 
-_GRACE_90_SUBJECT = "Reminder: {days_remaining} days until Grade {grade} curriculum is permanently deleted"
+_GRACE_90_SUBJECT = (
+    "Reminder: {days_remaining} days until Grade {grade} curriculum is permanently deleted"
+)
 
 _GRACE_90_TEXT = """\
 Hi,
@@ -871,8 +873,7 @@ async def send_retention_email(
         return
 
     subject, text_body, html_body = templates[template]
-    await _send(to_email=to_email, subject=subject,
-                text_body=text_body, html_body=html_body)
+    await _send(to_email=to_email, subject=subject, text_body=text_body, html_body=html_body)
 
 
 # ── Payment action required (SCA / 3DS) ──────────────────────────────────────
@@ -946,7 +947,11 @@ async def send_demo_approval_email(
     """
     from datetime import datetime
 
-    expires_str = expires_at.strftime("%B %d, %Y at %H:%M UTC") if isinstance(expires_at, datetime) else str(expires_at)
+    expires_str = (
+        expires_at.strftime("%B %d, %Y at %H:%M UTC")
+        if isinstance(expires_at, datetime)
+        else str(expires_at)
+    )
 
     subject = f"Your StudyBuddy demo is ready, {name}"
     text_body = (

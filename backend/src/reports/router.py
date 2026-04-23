@@ -326,7 +326,9 @@ async def at_risk_students(
     return AtRiskListResponse(**result)
 
 
-@router.post("/reports/school/{school_id}/at-risk/{student_id}/seen", response_model=MarkSeenResponse)
+@router.post(
+    "/reports/school/{school_id}/at-risk/{student_id}/seen", response_model=MarkSeenResponse
+)
 async def mark_seen(
     school_id: str,
     student_id: str,

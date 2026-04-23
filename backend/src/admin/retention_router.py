@@ -20,7 +20,6 @@ Auth: Admin JWT only (product_admin or super_admin via 'school:manage' permissio
 
 from __future__ import annotations
 
-import uuid
 from datetime import UTC, datetime
 from typing import Annotated, Literal
 
@@ -83,11 +82,11 @@ class AdminRetentionItem(BaseModel):
     grade: int
     name: str
     year: int
-    retention_status: str          # active | unavailable | purged
+    retention_status: str  # active | unavailable | purged
     expires_at: datetime | None
     grace_until: datetime | None
     days_until_expiry: int | None  # set for active curricula only
-    days_until_purge: int | None   # set for unavailable curricula in grace
+    days_until_purge: int | None  # set for unavailable curricula in grace
     is_assigned: bool
 
 
@@ -96,7 +95,7 @@ class AdminRetentionSummary(BaseModel):
     active: int
     unavailable: int
     purged: int
-    expiring_soon: int             # active with days_until_expiry ≤ expiring_days threshold
+    expiring_soon: int  # active with days_until_expiry ≤ expiring_days threshold
 
 
 class AdminRetentionDashboard(BaseModel):
@@ -149,7 +148,9 @@ async def get_admin_retention_dashboard(
     status: str | None = Query(None, description="Filter by retention_status"),
     school_id: str | None = Query(None, description="Filter by school_id UUID"),
     grade: int | None = Query(None, description="Filter by grade"),
-    expiring_days: int = Query(30, ge=1, le=365, description="Days threshold for expiring_soon count"),
+    expiring_days: int = Query(
+        30, ge=1, le=365, description="Days threshold for expiring_soon count"
+    ),
 ) -> AdminRetentionDashboard:
     """
     Platform-wide retention dashboard.
@@ -253,25 +254,31 @@ async def get_admin_retention_dashboard(
             delta = (grace_until - now).days
             days_until_purge = max(delta, 0)
 
-        curricula.append(AdminRetentionItem(
-            curriculum_id=row["curriculum_id"],
-            school_id=row["school_id"],
-            school_name=row["school_name"],
-            contact_email=row["contact_email"],
-            grade=row["grade"],
-            name=row["name"],
-            year=row["year"],
-            retention_status=rs,
-            expires_at=expires_at,
-            grace_until=grace_until,
-            days_until_expiry=days_until_expiry,
-            days_until_purge=days_until_purge,
-            is_assigned=row["is_assigned"],
-        ))
+        curricula.append(
+            AdminRetentionItem(
+                curriculum_id=row["curriculum_id"],
+                school_id=row["school_id"],
+                school_name=row["school_name"],
+                contact_email=row["contact_email"],
+                grade=row["grade"],
+                name=row["name"],
+                year=row["year"],
+                retention_status=rs,
+                expires_at=expires_at,
+                grace_until=grace_until,
+                days_until_expiry=days_until_expiry,
+                days_until_purge=days_until_purge,
+                is_assigned=row["is_assigned"],
+            )
+        )
 
     log.info(
         "admin_retention_dashboard total=%d active=%d unavailable=%d purged=%d expiring_soon=%d",
-        len(curricula), active_count, unavailable_count, purged_count, expiring_soon,
+        len(curricula),
+        active_count,
+        unavailable_count,
+        purged_count,
+        expiring_soon,
     )
 
     return AdminRetentionDashboard(
@@ -336,7 +343,8 @@ async def admin_curriculum_action(
               AND school_id = $2::uuid
               AND owner_type = 'school'
             """,
-            curriculum_id, school_id,
+            curriculum_id,
+            school_id,
         )
         if row is None:
             raise HTTPException(
@@ -381,14 +389,21 @@ async def admin_curriculum_action(
             )
 
             await _write_audit(
-                conn, admin_id_str, "admin_curriculum_renew",
-                curriculum_id, school_id, body.reason,
+                conn,
+                admin_id_str,
+                "admin_curriculum_renew",
+                curriculum_id,
+                school_id,
+                body.reason,
                 {"previous_status": current_status, "new_expires_at": str(updated["expires_at"])},
             )
 
             log.info(
                 "admin_curriculum_renew admin=%s curriculum=%s school=%s grade=%d",
-                admin_id_str, curriculum_id, school_id, grade,
+                admin_id_str,
+                curriculum_id,
+                school_id,
+                grade,
             )
             return CurriculumActionResponse(
                 curriculum_id=curriculum_id,
@@ -428,14 +443,21 @@ async def admin_curriculum_action(
             )
 
             await _write_audit(
-                conn, admin_id_str, "admin_curriculum_force_expire",
-                curriculum_id, school_id, body.reason,
+                conn,
+                admin_id_str,
+                "admin_curriculum_force_expire",
+                curriculum_id,
+                school_id,
+                body.reason,
                 {"previous_status": current_status, "grace_until": str(updated["grace_until"])},
             )
 
             log.info(
                 "admin_curriculum_force_expire admin=%s curriculum=%s school=%s grade=%d",
-                admin_id_str, curriculum_id, school_id, grade,
+                admin_id_str,
+                curriculum_id,
+                school_id,
+                grade,
             )
             return CurriculumActionResponse(
                 curriculum_id=curriculum_id,
@@ -503,20 +525,20 @@ async def admin_curriculum_action(
             # the delete already sees the curricula row as gone.
             try:
                 await storage.delete_tree(f"curricula/{curriculum_id}")
-                log.info(
-                    "admin_force_delete_files_removed curriculum_id=%s", curriculum_id
-                )
+                log.info("admin_force_delete_files_removed curriculum_id=%s", curriculum_id)
             except Exception as exc:
                 # File deletion failure is logged but never suppresses the action —
                 # the DB row is already gone; orphaned files can be cleaned up manually.
                 log.warning(
                     "admin_force_delete_file_error curriculum_id=%s err=%s",
-                    curriculum_id, exc,
+                    curriculum_id,
+                    exc,
                 )
 
             # Invalidate CloudFront so purged content is evicted from the CDN edge.
             try:
-                from config import settings as _cfg  # noqa: PLC0415
+                from config import settings as _cfg
+
                 await invalidate_curriculum(
                     curriculum_id,
                     getattr(_cfg, "CLOUDFRONT_DISTRIBUTION_ID", None),
@@ -524,12 +546,17 @@ async def admin_curriculum_action(
             except Exception as exc:
                 log.warning(
                     "admin_force_delete_cdn_error curriculum_id=%s err=%s",
-                    curriculum_id, exc,
+                    curriculum_id,
+                    exc,
                 )
 
             await _write_audit(
-                conn, admin_id_str, "admin_curriculum_force_delete",
-                curriculum_id, school_id, body.reason,
+                conn,
+                admin_id_str,
+                "admin_curriculum_force_delete",
+                curriculum_id,
+                school_id,
+                body.reason,
                 {
                     "previous_status": current_status,
                     "grade": grade,
@@ -541,8 +568,12 @@ async def admin_curriculum_action(
             log.info(
                 "admin_curriculum_force_delete admin=%s curriculum=%s school=%s "
                 "grade=%d units=%d versions=%d",
-                admin_id_str, curriculum_id, school_id, grade,
-                units_removed, versions_removed,
+                admin_id_str,
+                curriculum_id,
+                school_id,
+                grade,
+                units_removed,
+                versions_removed,
             )
             return CurriculumActionResponse(
                 curriculum_id=curriculum_id,

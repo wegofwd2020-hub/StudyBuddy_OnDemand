@@ -10,18 +10,19 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-
 VALID_PERSONAS = {"school_admin", "teacher", "student"}
 
 # Keys we recognise in account_state. Unknown keys are silently ignored so
 # future signals can be added to the frontend before the backend is updated.
-_ACCOUNT_STATE_KEYS = frozenset({
-    "first_login",
-    "teacher_count",
-    "student_count",
-    "classroom_count",
-    "curriculum_assigned",
-})
+_ACCOUNT_STATE_KEYS = frozenset(
+    {
+        "first_login",
+        "teacher_count",
+        "student_count",
+        "classroom_count",
+        "curriculum_assigned",
+    }
+)
 
 
 class HelpAskRequest(BaseModel):
@@ -29,13 +30,12 @@ class HelpAskRequest(BaseModel):
     page: str | None = Field(
         default=None,
         description="Current portal route, e.g. '/school/classrooms'. "
-                    "Used to skip irrelevant navigation steps in the answer.",
+        "Used to skip irrelevant navigation steps in the answer.",
         max_length=200,
     )
     role: str = Field(
         default="school_admin",
-        description="Persona for scoping retrieval. "
-                    "One of: school_admin, teacher, student.",
+        description="Persona for scoping retrieval. One of: school_admin, teacher, student.",
     )
     account_state: dict[str, Any] | None = Field(
         default=None,
@@ -66,7 +66,7 @@ class HelpAskResponse(BaseModel):
     interaction_id: str | None = Field(
         default=None,
         description="UUID of the logged help_interactions row. "
-                    "Pass to POST /help/feedback to record thumbs-up or thumbs-down.",
+        "Pass to POST /help/feedback to record thumbs-up or thumbs-down.",
     )
 
 

@@ -260,7 +260,10 @@ async def admin_unarchive_curriculum(
             if not curr:
                 raise HTTPException(
                     status_code=404,
-                    detail={"error": "not_found", "detail": f"Curriculum '{curriculum_id}' not found."},
+                    detail={
+                        "error": "not_found",
+                        "detail": f"Curriculum '{curriculum_id}' not found.",
+                    },
                 )
             if curr["retention_status"] != "archived":
                 raise HTTPException(
@@ -281,7 +284,9 @@ async def admin_unarchive_curriculum(
         new_status="active",
         reason=None,
     )
-    log.info("curriculum_unarchived curriculum_id=%s admin=%s", curriculum_id, admin.get("admin_id"))
+    log.info(
+        "curriculum_unarchived curriculum_id=%s admin=%s", curriculum_id, admin.get("admin_id")
+    )
     return ArchiveResponse(
         curriculum_id=curriculum_id,
         retention_status=updated["retention_status"],

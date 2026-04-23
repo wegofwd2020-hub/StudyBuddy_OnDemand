@@ -47,7 +47,7 @@ def _queue_retention_email(
       retention_service → tasks → retention_service
     """
     # Lazy import to avoid circular dependency.
-    from src.core.celery_app import celery_app  # noqa: PLC0415
+    from src.core.celery_app import celery_app
 
     celery_app.send_task(
         "src.auth.tasks.send_retention_email_task",
@@ -65,7 +65,9 @@ def _queue_retention_email(
     )
     log.info(
         "retention_email_queued school_id=%s curriculum_id=%s template=%s",
-        school_id, curriculum_id, template,
+        school_id,
+        curriculum_id,
+        template,
     )
 
 
@@ -277,7 +279,8 @@ async def purge_grace_expired(
         except Exception as exc:
             log.warning(
                 "retention_purge_file_delete_failed curriculum_id=%s err=%s",
-                cid, exc,
+                cid,
+                exc,
             )
 
         # Invalidate CloudFront edge cache so purged content is not served
@@ -291,7 +294,8 @@ async def purge_grace_expired(
             # the TTL expires (max 1 hour).
             log.warning(
                 "retention_purge_cdn_invalidation_failed curriculum_id=%s err=%s",
-                cid, exc,
+                cid,
+                exc,
             )
 
         _queue_retention_email(

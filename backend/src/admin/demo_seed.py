@@ -41,8 +41,8 @@ DEMO_CONTACT_EMAIL = "admin@riverside.demo"
 DEMO_PASSWORD = "Demo2026!"
 
 _TEACHER_ADMIN_ID = "e0000000-0000-0000-0000-000000000010"
-_TEACHER_MATH_ID  = "e0000000-0000-0000-0000-000000000011"
-_TEACHER_SCI_ID   = "e0000000-0000-0000-0000-000000000012"
+_TEACHER_MATH_ID = "e0000000-0000-0000-0000-000000000011"
+_TEACHER_SCI_ID = "e0000000-0000-0000-0000-000000000012"
 
 _TEACHERS = [
     {
@@ -67,38 +67,38 @@ _TEACHERS = [
 
 _STUDENTS: list[dict] = [
     # ── Grade 8 (n=1–12) ──────────────────────────────────────────────────────
-    {"n":  1, "name": "Aiden Park",       "grade": 8},
-    {"n":  2, "name": "Sophia Chen",      "grade": 8},
-    {"n":  3, "name": "Marcus Johnson",   "grade": 8},
-    {"n":  4, "name": "Isabella Garcia",  "grade": 8},
-    {"n":  5, "name": "Ethan Patel",      "grade": 8},
-    {"n":  6, "name": "Olivia Kim",       "grade": 8},
-    {"n":  7, "name": "Noah Williams",    "grade": 8},
-    {"n":  8, "name": "Emma Rodriguez",   "grade": 8},
-    {"n":  9, "name": "Liam Thompson",    "grade": 8},
-    {"n": 10, "name": "Ava Martinez",     "grade": 8},
-    {"n": 11, "name": "Mason Lee",        "grade": 8},
-    {"n": 12, "name": "Charlotte Brown",  "grade": 8},
+    {"n": 1, "name": "Aiden Park", "grade": 8},
+    {"n": 2, "name": "Sophia Chen", "grade": 8},
+    {"n": 3, "name": "Marcus Johnson", "grade": 8},
+    {"n": 4, "name": "Isabella Garcia", "grade": 8},
+    {"n": 5, "name": "Ethan Patel", "grade": 8},
+    {"n": 6, "name": "Olivia Kim", "grade": 8},
+    {"n": 7, "name": "Noah Williams", "grade": 8},
+    {"n": 8, "name": "Emma Rodriguez", "grade": 8},
+    {"n": 9, "name": "Liam Thompson", "grade": 8},
+    {"n": 10, "name": "Ava Martinez", "grade": 8},
+    {"n": 11, "name": "Mason Lee", "grade": 8},
+    {"n": 12, "name": "Charlotte Brown", "grade": 8},
     # ── Grade 9 (n=13–22) ────────────────────────────────────────────────────
-    {"n": 13, "name": "Jackson Davis",    "grade": 9},
-    {"n": 14, "name": "Mia Wilson",       "grade": 9},
-    {"n": 15, "name": "Lucas Taylor",     "grade": 9},
-    {"n": 16, "name": "Amelia Anderson",  "grade": 9},
-    {"n": 17, "name": "Benjamin Moore",   "grade": 9},
-    {"n": 18, "name": "Harper Jackson",   "grade": 9},
-    {"n": 19, "name": "Alexander White",  "grade": 9},
-    {"n": 20, "name": "Evelyn Harris",    "grade": 9},
-    {"n": 21, "name": "Daniel Lewis",     "grade": 9},
-    {"n": 22, "name": "Abigail Clark",    "grade": 9},
+    {"n": 13, "name": "Jackson Davis", "grade": 9},
+    {"n": 14, "name": "Mia Wilson", "grade": 9},
+    {"n": 15, "name": "Lucas Taylor", "grade": 9},
+    {"n": 16, "name": "Amelia Anderson", "grade": 9},
+    {"n": 17, "name": "Benjamin Moore", "grade": 9},
+    {"n": 18, "name": "Harper Jackson", "grade": 9},
+    {"n": 19, "name": "Alexander White", "grade": 9},
+    {"n": 20, "name": "Evelyn Harris", "grade": 9},
+    {"n": 21, "name": "Daniel Lewis", "grade": 9},
+    {"n": 22, "name": "Abigail Clark", "grade": 9},
     # ── Grade 10 (n=23–30) ───────────────────────────────────────────────────
-    {"n": 23, "name": "Henry Walker",     "grade": 10},
-    {"n": 24, "name": "Emily Hall",       "grade": 10},
-    {"n": 25, "name": "James Allen",      "grade": 10},
-    {"n": 26, "name": "Elizabeth Young",  "grade": 10},
-    {"n": 27, "name": "William King",     "grade": 10},
-    {"n": 28, "name": "Sofia Wright",     "grade": 10},
-    {"n": 29, "name": "Sebastian Scott",  "grade": 10},
-    {"n": 30, "name": "Chloe Green",      "grade": 10},
+    {"n": 23, "name": "Henry Walker", "grade": 10},
+    {"n": 24, "name": "Emily Hall", "grade": 10},
+    {"n": 25, "name": "James Allen", "grade": 10},
+    {"n": 26, "name": "Elizabeth Young", "grade": 10},
+    {"n": 27, "name": "William King", "grade": 10},
+    {"n": 28, "name": "Sofia Wright", "grade": 10},
+    {"n": 29, "name": "Sebastian Scott", "grade": 10},
+    {"n": 30, "name": "Chloe Green", "grade": 10},
 ]
 
 _CLASSROOMS = [
@@ -137,8 +137,8 @@ _CLASSROOMS = [
 ]
 
 _DEMO_CURRICULA = [
-    ("demo-2026-g8",  8,  "Grade 8 STEM"),
-    ("demo-2026-g9",  9,  "Grade 9 STEM"),
+    ("demo-2026-g8", 8, "Grade 8 STEM"),
+    ("demo-2026-g9", 9, "Grade 9 STEM"),
     ("demo-2026-g10", 10, "Grade 10 STEM"),
 ]
 
@@ -241,21 +241,15 @@ async def wipe_demo(conn: asyncpg.Connection) -> None:
     students.school_id is ON DELETE SET NULL (not CASCADE), so students must
     be deleted explicitly before the school row is removed.
     """
-    await conn.execute(
-        "DELETE FROM students WHERE school_id = $1", DEMO_SCHOOL_ID
-    )
-    await conn.execute(
-        "DELETE FROM teachers WHERE school_id = $1", DEMO_SCHOOL_ID
-    )
+    await conn.execute("DELETE FROM students WHERE school_id = $1", DEMO_SCHOOL_ID)
+    await conn.execute("DELETE FROM teachers WHERE school_id = $1", DEMO_SCHOOL_ID)
     await conn.execute(
         "DELETE FROM curricula WHERE curriculum_id = ANY($1::text[])",
         ["demo-2026-g8", "demo-2026-g9", "demo-2026-g10"],
     )
     # CASCADE removes: classrooms → classroom_students, classroom_packages
     # CASCADE removes: school_enrolments
-    await conn.execute(
-        "DELETE FROM schools WHERE school_id = $1", DEMO_SCHOOL_ID
-    )
+    await conn.execute("DELETE FROM schools WHERE school_id = $1", DEMO_SCHOOL_ID)
 
 
 async def seed_demo(conn: asyncpg.Connection) -> dict:
@@ -267,8 +261,12 @@ async def seed_demo(conn: asyncpg.Connection) -> dict:
     demo_hash = await _hash_once(DEMO_PASSWORD)
     school_uuid = DEMO_SCHOOL_ID
     counts: dict[str, int] = {
-        "schools": 0, "teachers": 0, "students": 0,
-        "curricula": 0, "units": 0, "classrooms": 0,
+        "schools": 0,
+        "teachers": 0,
+        "students": 0,
+        "curricula": 0,
+        "units": 0,
+        "classrooms": 0,
     }
 
     # ── School ────────────────────────────────────────────────────────────────

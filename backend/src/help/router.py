@@ -24,11 +24,11 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from src.core.db import get_db
 from src.core.rate_limit import ip_help_rate_limit
 from src.help.schemas import (
+    VALID_PERSONAS,
     HelpAskRequest,
     HelpAskResponse,
     HelpFeedbackRequest,
     HelpFeedbackResponse,
-    VALID_PERSONAS,
 )
 from src.help.service import ask_help, log_interaction, record_feedback
 from src.utils.logger import get_logger

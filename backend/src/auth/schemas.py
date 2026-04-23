@@ -183,9 +183,9 @@ class LocalLoginResponse(BaseModel):
 
     token: str
     refresh_token: str
-    role: str                # "teacher" | "school_admin" | "student"
-    first_login: bool        # True → client must redirect to password-reset page
-    user_id: UUID            # teacher_id or student_id
+    role: str  # "teacher" | "school_admin" | "student"
+    first_login: bool  # True → client must redirect to password-reset page
+    user_id: UUID  # teacher_id or student_id
 
 
 class ChangePasswordRequest(BaseModel):

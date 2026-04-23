@@ -46,15 +46,11 @@ async def get_db(request: Request) -> AsyncGenerator[asyncpg.Connection, None]:
     """
     school_id: str = getattr(request.state, "rls_school_id", None) or "bypass"
     async with request.app.state.pool.acquire() as conn:
-        await conn.execute(
-            "SELECT set_config('app.current_school_id', $1, false)", school_id
-        )
+        await conn.execute("SELECT set_config('app.current_school_id', $1, false)", school_id)
         try:
             yield conn
         finally:
             try:
-                await conn.execute(
-                    "SELECT set_config('app.current_school_id', '', false)"
-                )
+                await conn.execute("SELECT set_config('app.current_school_id', '', false)")
             except Exception:
                 pass

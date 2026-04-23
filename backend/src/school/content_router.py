@@ -303,9 +303,7 @@ async def get_school_unit_meta(
 # ── GET /schools/{school_id}/content/versions/{version_id}/unit/{unit_id}/{ct}
 
 
-@router.get(
-    "/schools/{school_id}/content/versions/{version_id}/unit/{unit_id}/{content_type}"
-)
+@router.get("/schools/{school_id}/content/versions/{version_id}/unit/{unit_id}/{content_type}")
 async def get_school_unit_content(
     school_id: str,
     version_id: str,

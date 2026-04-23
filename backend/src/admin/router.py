@@ -285,7 +285,9 @@ async def unit_content_file(
     """Read and return raw content JSON for the specified type from disk."""
     async with get_db(request) as conn:
         try:
-            data = await get_unit_content_file(conn, storage, version_id, unit_id, content_type, lang)
+            data = await get_unit_content_file(
+                conn, storage, version_id, unit_id, content_type, lang
+            )
         except FileNotFoundError:
             raise HTTPException(
                 status_code=404,
@@ -1188,8 +1190,8 @@ async def admin_pipeline_job_status(
     return dict(row)
 
 
-
 # ── Help interactions analytics (Deliver-4) ────────────────────────────────────
+
 
 @router.get("/admin/help/interactions")
 async def admin_help_interactions(

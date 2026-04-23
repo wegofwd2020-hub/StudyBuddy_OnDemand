@@ -44,7 +44,7 @@ from functools import partial
 
 import asyncpg
 
-from src.pricing import TEACHER_PLANS, get_teacher_plan
+from src.pricing import get_teacher_plan
 from src.utils.logger import get_logger
 
 log = get_logger("teacher.subscription")
@@ -56,6 +56,7 @@ log = get_logger("teacher.subscription")
 def _get_stripe():
     try:
         import stripe  # type: ignore
+
         return stripe
     except ImportError:
         raise RuntimeError("stripe package not installed — run: pip install stripe")
@@ -63,6 +64,7 @@ def _get_stripe():
 
 def _stripe_key() -> str:
     from config import settings
+
     key = getattr(settings, "STRIPE_SECRET_KEY", None)
     if not key:
         raise RuntimeError("STRIPE_SECRET_KEY is not configured")
@@ -77,16 +79,15 @@ async def _run_stripe(fn, *args, **kwargs):
 def _teacher_price_id(plan_id: str) -> str:
     """Return Stripe price ID for the given teacher plan. Raises RuntimeError if unset."""
     from config import settings
+
     mapping = {
-        "solo":   getattr(settings, "STRIPE_TEACHER_PRICE_SOLO_ID", None),
+        "solo": getattr(settings, "STRIPE_TEACHER_PRICE_SOLO_ID", None),
         "growth": getattr(settings, "STRIPE_TEACHER_PRICE_GROWTH_ID", None),
-        "pro":    getattr(settings, "STRIPE_TEACHER_PRICE_PRO_ID", None),
+        "pro": getattr(settings, "STRIPE_TEACHER_PRICE_PRO_ID", None),
     }
     price_id = mapping.get(plan_id)
     if not price_id:
-        raise RuntimeError(
-            f"STRIPE_TEACHER_PRICE_{plan_id.upper()}_ID is not configured"
-        )
+        raise RuntimeError(f"STRIPE_TEACHER_PRICE_{plan_id.upper()}_ID is not configured")
     return price_id
 
 
@@ -105,7 +106,7 @@ async def create_teacher_checkout_session(
     On checkout.session.completed the webhook calls handle_teacher_subscription_activated().
     Returns the Stripe-hosted checkout URL.
     """
-    get_teacher_plan(plan)   # validates plan_id; raises KeyError on unknown
+    get_teacher_plan(plan)  # validates plan_id; raises KeyError on unknown
 
     stripe = _get_stripe()
     stripe.api_key = _stripe_key()
@@ -207,8 +208,9 @@ async def check_student_seat_limit(
     # Count students currently enrolled by this independent teacher.
     # Independent-teacher students have no school_id and are linked via
     # student_teacher_assignments.
-    seats_used = await conn.fetchval(
-        """
+    seats_used = (
+        await conn.fetchval(
+            """
         SELECT COUNT(*)
         FROM student_teacher_assignments sta
         JOIN students s ON s.student_id = sta.student_id
@@ -216,8 +218,10 @@ async def check_student_seat_limit(
           AND s.school_id IS NULL
           AND s.account_status = 'active'
         """,
-        teacher_id,
-    ) or 0
+            teacher_id,
+        )
+        or 0
+    )
 
     if sub_row is None:
         return {
@@ -318,11 +322,14 @@ async def handle_teacher_subscription_activated(
     )
     await conn.execute(
         "UPDATE teachers SET teacher_plan = $1 WHERE teacher_id = $2::uuid",
-        plan, teacher_id,
+        plan,
+        teacher_id,
     )
     log.info(
         "teacher_subscription_activated teacher_id=%s plan=%s sub_id=%s",
-        teacher_id, plan, stripe_subscription_id,
+        teacher_id,
+        plan,
+        stripe_subscription_id,
     )
 
 
@@ -348,11 +355,14 @@ async def handle_teacher_subscription_updated(
             updated_at = NOW()
         WHERE stripe_subscription_id = $3
         """,
-        status, current_period_end, stripe_subscription_id,
+        status,
+        current_period_end,
+        stripe_subscription_id,
     )
     log.info(
         "teacher_subscription_updated sub_id=%s status=%s",
-        stripe_subscription_id, status,
+        stripe_subscription_id,
+        status,
     )
 
 
@@ -384,7 +394,8 @@ async def handle_teacher_subscription_deleted(
         )
         log.info(
             "teacher_subscription_deleted sub_id=%s teacher_id=%s",
-            stripe_subscription_id, teacher_id,
+            stripe_subscription_id,
+            teacher_id,
         )
 
 
@@ -481,11 +492,14 @@ async def upgrade_teacher_plan(
     )
     await conn.execute(
         "UPDATE teachers SET teacher_plan = $1 WHERE teacher_id = $2::uuid",
-        new_plan, teacher_id,
+        new_plan,
+        teacher_id,
     )
     log.info(
         "teacher_plan_upgraded teacher_id=%s new_plan=%s max_students=%d",
-        teacher_id, new_plan, new_max,
+        teacher_id,
+        new_plan,
+        new_max,
     )
 
 

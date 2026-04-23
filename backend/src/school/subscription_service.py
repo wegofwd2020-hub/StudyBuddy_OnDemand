@@ -26,7 +26,7 @@ from datetime import UTC, datetime, timedelta
 
 import asyncpg
 
-from src.core.cache_keys import school_ent_key, school_scan_pattern
+from src.core.cache_keys import school_ent_key
 from src.core.stripe_async import run_stripe
 from src.utils.logger import get_logger
 
@@ -41,6 +41,7 @@ _GRACE_PERIOD_DAYS = 3
 def _plan_seats(plan: str) -> dict[str, int]:
     """Return {max_students, max_teachers} for a plan from src/pricing.py."""
     from src.pricing import plan_seats
+
     return plan_seats(plan)
 
 
@@ -152,7 +153,9 @@ async def check_build_allowance(
         "builds_included": included,
         "builds_used": used,
         "builds_remaining": remaining,
-        "builds_period_end": row["builds_period_end"].isoformat() if row["builds_period_end"] else None,
+        "builds_period_end": row["builds_period_end"].isoformat()
+        if row["builds_period_end"]
+        else None,
         "builds_credits_balance": credits_balance,
     }
 
@@ -203,7 +206,8 @@ async def consume_build(
         )
         log.info(
             "build_consumed_plan school_id=%s builds_used=%d",
-            school_id, used + 1,
+            school_id,
+            used + 1,
         )
     else:
         # Plan exhausted — consume a rollover credit.
@@ -221,12 +225,14 @@ async def consume_build(
             log.warning(
                 "consume_build_credits_exhausted school_id=%s credits=%d "
                 "— allowance and credits both 0 at consume time",
-                school_id, credits_balance,
+                school_id,
+                credits_balance,
             )
         else:
             log.info(
                 "build_consumed_credit school_id=%s credits_remaining=%d",
-                school_id, credits_balance - 1,
+                school_id,
+                credits_balance - 1,
             )
 
 
@@ -472,11 +478,11 @@ async def update_school_subscription_status(
         return
 
     school_id = row["school_id"]
-    await _bulk_update_enrolled_student_entitlements(conn, school_id, row["plan"], current_period_end)
-    await expire_school_entitlement_cache(redis, school_id)
-    log.info(
-        "school_subscription_updated stripe_sub=%s status=%s", stripe_subscription_id, status
+    await _bulk_update_enrolled_student_entitlements(
+        conn, school_id, row["plan"], current_period_end
     )
+    await expire_school_entitlement_cache(redis, school_id)
+    log.info("school_subscription_updated stripe_sub=%s status=%s", stripe_subscription_id, status)
 
 
 async def cancel_school_subscription_db(
@@ -502,7 +508,9 @@ async def cancel_school_subscription_db(
     await _bulk_update_enrolled_student_entitlements(conn, school_id, "free", None)
     await expire_school_entitlement_cache(redis, school_id)
     log.info(
-        "school_subscription_cancelled stripe_sub=%s school_id=%s", stripe_subscription_id, school_id
+        "school_subscription_cancelled stripe_sub=%s school_id=%s",
+        stripe_subscription_id,
+        school_id,
     )
 
 
@@ -582,9 +590,7 @@ async def _bulk_update_enrolled_student_entitlements(
             plan,
             valid_until,
         )
-    log.debug(
-        "bulk_entitlement_update school_id=%s plan=%s count=%d", school_id, plan, len(rows)
-    )
+    log.debug("bulk_entitlement_update school_id=%s plan=%s count=%d", school_id, plan, len(rows))
 
 
 # ── Retention billing — Stripe Checkout sessions ──────────────────────────────
@@ -710,13 +716,15 @@ async def handle_curriculum_renewal_payment(
           AND school_id = $2::uuid
           AND owner_type = 'school'
         """,
-        curriculum_id, school_id,
+        curriculum_id,
+        school_id,
     )
 
     if row is None:
         log.warning(
             "retention_renewal_curriculum_not_found curriculum_id=%s school_id=%s",
-            curriculum_id, school_id,
+            curriculum_id,
+            school_id,
         )
         return
 
@@ -724,7 +732,8 @@ async def handle_curriculum_renewal_payment(
         log.warning(
             "retention_renewal_curriculum_already_purged curriculum_id=%s school_id=%s "
             "— payment succeeded but content was already purged; manual refund may be needed",
-            curriculum_id, school_id,
+            curriculum_id,
+            school_id,
         )
         return
 
@@ -741,7 +750,9 @@ async def handle_curriculum_renewal_payment(
     )
     log.info(
         "retention_renewal_payment_applied curriculum_id=%s school_id=%s grade=%d",
-        curriculum_id, school_id, row["grade"],
+        curriculum_id,
+        school_id,
+        row["grade"],
     )
 
 
@@ -766,17 +777,20 @@ async def handle_storage_addon_payment(
             updated_at   = NOW()
         WHERE school_id = $2::uuid
         """,
-        additional_gb, school_id,
+        additional_gb,
+        school_id,
     )
     if result == "UPDATE 0":
         log.warning(
             "storage_addon_no_quota_row school_id=%s additional_gb=%d",
-            school_id, additional_gb,
+            school_id,
+            additional_gb,
         )
     else:
         log.info(
             "storage_addon_applied school_id=%s additional_gb=%d",
-            school_id, additional_gb,
+            school_id,
+            additional_gb,
         )
 
 
@@ -825,7 +839,7 @@ def _credits_price_id(bundle_size: int) -> str:
     from config import settings
 
     price_map = {
-        3:  getattr(settings, "STRIPE_SCHOOL_PRICE_CREDITS_3_ID", None),
+        3: getattr(settings, "STRIPE_SCHOOL_PRICE_CREDITS_3_ID", None),
         10: getattr(settings, "STRIPE_SCHOOL_PRICE_CREDITS_10_ID", None),
         25: getattr(settings, "STRIPE_SCHOOL_PRICE_CREDITS_25_ID", None),
     }
@@ -853,7 +867,9 @@ async def create_credits_bundle_checkout_session(
     from src.pricing import VALID_CREDIT_BUNDLE_SIZES
 
     if bundle_size not in VALID_CREDIT_BUNDLE_SIZES:
-        raise ValueError(f"Invalid credit bundle size: {bundle_size}. Must be one of {sorted(VALID_CREDIT_BUNDLE_SIZES)}")
+        raise ValueError(
+            f"Invalid credit bundle size: {bundle_size}. Must be one of {sorted(VALID_CREDIT_BUNDLE_SIZES)}"
+        )
 
     stripe = _get_stripe()
     stripe.api_key = _stripe_key()
@@ -927,15 +943,18 @@ async def handle_credits_bundle_payment(
             updated_at = NOW()
         WHERE school_id = $2::uuid
         """,
-        credits, school_id,
+        credits,
+        school_id,
     )
     if result == "UPDATE 0":
         log.warning(
             "credits_bundle_no_quota_row school_id=%s credits=%d — credits not applied",
-            school_id, credits,
+            school_id,
+            credits,
         )
     else:
         log.info(
             "credits_bundle_applied school_id=%s credits=%d",
-            school_id, credits,
+            school_id,
+            credits,
         )

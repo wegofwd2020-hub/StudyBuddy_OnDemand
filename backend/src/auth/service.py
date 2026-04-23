@@ -388,9 +388,7 @@ async def login_local_user(
     # unauthenticated endpoint — we need to look up the user before we know their
     # school, so bypass is correct here.
     async with pool.acquire() as conn:
-        await conn.execute(
-            "SELECT set_config('app.current_school_id', 'bypass', false)"
-        )
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
         row = await conn.fetchrow(
             """
             SELECT teacher_id::text AS user_id, role, school_id::text, account_status,
@@ -413,9 +411,7 @@ async def login_local_user(
                 email,
             )
         # Reset session var before returning connection to pool.
-        await conn.execute(
-            "SELECT set_config('app.current_school_id', '', false)"
-        )
+        await conn.execute("SELECT set_config('app.current_school_id', '', false)")
 
     if row is None or not row["password_hash"]:
         # Always spend bcrypt time to prevent timing-based enumeration.

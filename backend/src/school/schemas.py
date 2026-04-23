@@ -427,15 +427,15 @@ class PipelineEstimateResponse(BaseModel):
     definition_id: str
     total_units: int
     languages: list[str]
-    unit_runs: int                    # total_units × len(languages)
+    unit_runs: int  # total_units × len(languages)
     estimated_input_tokens: int
     estimated_output_tokens: int
-    estimated_cost_usd: str           # decimal string, e.g. "12.34"
-    within_allowance: bool            # True if build is covered by plan allowance or credits
-    builds_remaining: int             # -1 = unlimited
+    estimated_cost_usd: str  # decimal string, e.g. "12.34"
+    within_allowance: bool  # True if build is covered by plan allowance or credits
+    builds_remaining: int  # -1 = unlimited
     builds_credits_balance: int
     extra_build_charge_usd: str | None  # non-null when within_allowance is False
-    card_last4: str | None            # last 4 digits of card on file (from Stripe)
+    card_last4: str | None  # last 4 digits of card on file (from Stripe)
 
 
 class PipelineTriggerFromDefinitionRequest(BaseModel):
@@ -494,9 +494,7 @@ class SchoolLLMConfigUpdateRequest(BaseModel):
             return v
         bad = [p for p in v if p not in _VALID_PROVIDERS]
         if bad:
-            raise ValueError(
-                f"Unknown providers: {bad}. Valid: {sorted(_VALID_PROVIDERS)}"
-            )
+            raise ValueError(f"Unknown providers: {bad}. Valid: {sorted(_VALID_PROVIDERS)}")
         if not v:
             raise ValueError("allowed_providers must contain at least one provider")
         return v
@@ -505,7 +503,5 @@ class SchoolLLMConfigUpdateRequest(BaseModel):
     @classmethod
     def valid_default(cls, v: str | None) -> str | None:
         if v is not None and v not in _VALID_PROVIDERS:
-            raise ValueError(
-                f"Unknown provider '{v}'. Valid: {sorted(_VALID_PROVIDERS)}"
-            )
+            raise ValueError(f"Unknown provider '{v}'. Valid: {sorted(_VALID_PROVIDERS)}")
         return v

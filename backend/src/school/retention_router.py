@@ -27,7 +27,6 @@ Auth:
 
 from __future__ import annotations
 
-import uuid
 from datetime import UTC, datetime
 from typing import Annotated
 
@@ -56,17 +55,18 @@ class DeleteVersionResponse(BaseModel):
 
 class RetentionVersion(BaseModel):
     """One curriculum version as shown on the retention dashboard."""
+
     curriculum_id: str
     grade: int
     name: str
     year: int
-    retention_status: str          # active | unavailable | purged
+    retention_status: str  # active | unavailable | purged
     expires_at: datetime | None
     grace_until: datetime | None
     renewed_at: datetime | None
-    is_assigned: bool              # currently assigned to grade via grade_curriculum_assignments
+    is_assigned: bool  # currently assigned to grade via grade_curriculum_assignments
     days_until_expiry: int | None  # positive = days left; None if already expired or purged
-    days_until_purge: int | None   # days left in grace period; None if not in grace
+    days_until_purge: int | None  # days left in grace period; None if not in grace
 
 
 class RetentionDashboard(BaseModel):
@@ -292,14 +292,19 @@ async def delete_curriculum_version(
             WHERE school_id = $1::uuid AND grade = $2
               AND retention_status <> 'purged'
             """,
-            school_id, grade,
+            school_id,
+            grade,
         )
 
     log.info(
         "school_curriculum_delete school_id=%s curriculum_id=%s grade=%d "
         "units=%d versions=%d remaining=%d",
-        school_id, curriculum_id, grade,
-        units_removed, versions_removed, remaining,
+        school_id,
+        curriculum_id,
+        grade,
+        units_removed,
+        versions_removed,
+        remaining,
     )
 
     return DeleteVersionResponse(
@@ -389,24 +394,29 @@ async def get_retention_dashboard(
             delta = (grace_until - now).days
             days_until_purge = max(delta, 0)
 
-        curricula.append(RetentionVersion(
-            curriculum_id=row["curriculum_id"],
-            grade=row["grade"],
-            name=row["name"],
-            year=row["year"],
-            retention_status=status,
-            expires_at=expires_at,
-            grace_until=grace_until,
-            renewed_at=row["renewed_at"],
-            is_assigned=row["is_assigned"],
-            days_until_expiry=days_until_expiry,
-            days_until_purge=days_until_purge,
-        ))
+        curricula.append(
+            RetentionVersion(
+                curriculum_id=row["curriculum_id"],
+                grade=row["grade"],
+                name=row["name"],
+                year=row["year"],
+                retention_status=status,
+                expires_at=expires_at,
+                grace_until=grace_until,
+                renewed_at=row["renewed_at"],
+                is_assigned=row["is_assigned"],
+                days_until_expiry=days_until_expiry,
+                days_until_purge=days_until_purge,
+            )
+        )
 
     log.info(
-        "school_retention_dashboard school_id=%s total=%d active=%d "
-        "unavailable=%d purged=%d",
-        school_id, len(curricula), active_count, unavailable_count, purged_count,
+        "school_retention_dashboard school_id=%s total=%d active=%d unavailable=%d purged=%d",
+        school_id,
+        len(curricula),
+        active_count,
+        unavailable_count,
+        purged_count,
     )
 
     return RetentionDashboard(
@@ -459,7 +469,8 @@ async def renew_curriculum_version(
               AND school_id = $2::uuid
               AND owner_type = 'school'
             """,
-            curriculum_id, school_id,
+            curriculum_id,
+            school_id,
         )
         if row is None:
             raise HTTPException(
@@ -502,7 +513,9 @@ async def renew_curriculum_version(
     log.info(
         "school_curriculum_renew school_id=%s curriculum_id=%s grade=%d "
         "old_expires=%s new_expires=%s",
-        school_id, curriculum_id, row["grade"],
+        school_id,
+        curriculum_id,
+        row["grade"],
         old_expires.isoformat() if old_expires else None,
         updated["expires_at"].isoformat(),
     )
@@ -560,7 +573,8 @@ async def assign_curriculum_to_grade(
               AND school_id = $2::uuid
               AND owner_type = 'school'
             """,
-            curriculum_id, school_id,
+            curriculum_id,
+            school_id,
         )
         if cur is None:
             raise HTTPException(
@@ -605,7 +619,8 @@ async def assign_curriculum_to_grade(
             SELECT curriculum_id FROM grade_curriculum_assignments
             WHERE school_id = $1::uuid AND grade = $2
             """,
-            school_id, grade,
+            school_id,
+            grade,
         )
         previous_curriculum_id = prev_row["curriculum_id"] if prev_row else None
 
@@ -621,13 +636,18 @@ async def assign_curriculum_to_grade(
                     assigned_by   = EXCLUDED.assigned_by
             RETURNING assigned_at
             """,
-            school_id, grade, curriculum_id, teacher.get("teacher_id"),
+            school_id,
+            grade,
+            curriculum_id,
+            teacher.get("teacher_id"),
         )
 
     log.info(
-        "school_grade_curriculum_assign school_id=%s grade=%d "
-        "curriculum_id=%s previous=%s",
-        school_id, grade, curriculum_id, previous_curriculum_id,
+        "school_grade_curriculum_assign school_id=%s grade=%d curriculum_id=%s previous=%s",
+        school_id,
+        grade,
+        curriculum_id,
+        previous_curriculum_id,
     )
 
     return AssignCurriculumResponse(

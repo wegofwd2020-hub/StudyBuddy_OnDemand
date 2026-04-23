@@ -27,7 +27,7 @@ from __future__ import annotations
 
 import asyncio
 import time
-from typing import Sequence
+from collections.abc import Sequence
 
 from src.utils.logger import get_logger
 
@@ -114,7 +114,9 @@ async def invalidate_curriculum(
       - Full curriculum rebuild / version bump
     """
     path = f"/curricula/{curriculum_id}/*"
-    return await invalidate_paths([path], distribution_id, caller_reference=f"purge-{curriculum_id}")
+    return await invalidate_paths(
+        [path], distribution_id, caller_reference=f"purge-{curriculum_id}"
+    )
 
 
 async def invalidate_unit(

@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import re
 import uuid
+from datetime import UTC
 
 import asyncpg
 from config import settings
@@ -284,8 +285,12 @@ async def reset_teacher_password(conn: asyncpg.Connection, school_id: str, teach
         return {}
 
     log.info("teacher_password_reset", teacher_id=teacher_id, school_id=school_id)
-    return {"teacher_id": row["teacher_id"], "name": row["name"], "email": row["email"],
-            "default_password": new_password}
+    return {
+        "teacher_id": row["teacher_id"],
+        "name": row["name"],
+        "email": row["email"],
+        "default_password": new_password,
+    }
 
 
 async def reset_student_password(conn: asyncpg.Connection, school_id: str, student_id: str) -> dict:
@@ -315,11 +320,17 @@ async def reset_student_password(conn: asyncpg.Connection, school_id: str, stude
         return {}
 
     log.info("student_password_reset", student_id=student_id, school_id=school_id)
-    return {"student_id": row["student_id"], "name": row["name"], "email": row["email"],
-            "default_password": new_password}
+    return {
+        "student_id": row["student_id"],
+        "name": row["name"],
+        "email": row["email"],
+        "default_password": new_password,
+    }
 
 
-async def promote_to_school_admin(conn: asyncpg.Connection, school_id: str, teacher_id: str) -> dict:
+async def promote_to_school_admin(
+    conn: asyncpg.Connection, school_id: str, teacher_id: str
+) -> dict:
     """
     Promote an existing teacher in the school to the school_admin role.
 
@@ -368,8 +379,14 @@ async def create_classroom(
     )
 
     log.info("classroom_created", classroom_id=classroom_id, school_id=school_id)
-    return {"classroom_id": classroom_id, "school_id": school_id, "teacher_id": teacher_id,
-            "name": name, "grade": grade, "status": "active"}
+    return {
+        "classroom_id": classroom_id,
+        "school_id": school_id,
+        "teacher_id": teacher_id,
+        "name": name,
+        "grade": grade,
+        "status": "active",
+    }
 
 
 async def list_classrooms(conn: asyncpg.Connection, school_id: str) -> list[dict]:
@@ -502,7 +519,7 @@ async def update_classroom(
     row = await conn.fetchrow(
         f"""
         UPDATE classrooms
-           SET {', '.join(updates)}
+           SET {", ".join(updates)}
          WHERE classroom_id = ${idx} AND school_id = ${idx + 1}
         RETURNING classroom_id::text, school_id::text, teacher_id::text, name, grade, status, created_at
         """,
@@ -802,6 +819,7 @@ async def submit_definition(
     d = dict(row)
     if isinstance(d["subjects"], str):
         import json as _json
+
         d["subjects"] = _json.loads(d["subjects"])
     log.info("definition_submitted", definition_id=definition_id, school_id=school_id)
     return d
@@ -861,6 +879,7 @@ async def list_definitions(
         d = dict(row)
         if isinstance(d.get("subjects"), str):
             import json
+
             d["subjects"] = json.loads(d["subjects"])
         result.append(d)
     return result
@@ -900,6 +919,7 @@ async def get_definition(
     d = dict(row)
     if isinstance(d.get("subjects"), str):
         import json
+
         d["subjects"] = json.loads(d["subjects"])
     return d
 
@@ -946,6 +966,7 @@ async def approve_definition(
     d = dict(row)
     if isinstance(d.get("subjects"), str):
         import json
+
         d["subjects"] = json.loads(d["subjects"])
     log.info("definition_approved", definition_id=definition_id, reviewed_by=reviewed_by)
     return d
@@ -983,10 +1004,7 @@ async def get_setup_status(conn: asyncpg.Connection, school_id: str) -> dict:
     classroom_count = row["classroom_count"]
     curriculum_assigned = bool(row["curriculum_assigned"])
     setup_complete = (
-        teacher_count > 0
-        and student_count > 0
-        and classroom_count > 0
-        and curriculum_assigned
+        teacher_count > 0 and student_count > 0 and classroom_count > 0 and curriculum_assigned
     )
     return {
         "teacher_count": teacher_count,
@@ -1044,6 +1062,7 @@ async def reject_definition(
     d = dict(row)
     if isinstance(d.get("subjects"), str):
         import json
+
         d["subjects"] = json.loads(d["subjects"])
     log.info(
         "definition_rejected",
@@ -1114,7 +1133,7 @@ async def update_llm_config(
     Returns the updated config row.
     """
     import json as _json
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     # Ensure row exists
     await conn.execute(
@@ -1149,7 +1168,7 @@ async def update_llm_config(
     if acknowledge_dpa:
         # Merge new timestamps into existing JSONB map using || (JSONB merge).
         # Build a single JSONB object with all acknowledged providers at once.
-        now_iso = datetime.now(tz=timezone.utc).isoformat()
+        now_iso = datetime.now(tz=UTC).isoformat()
         # One || per provider to keep the parameterised query straightforward.
         for provider_id in acknowledge_dpa:
             updates.append(
