@@ -721,13 +721,22 @@ async def _expire_content_cache(redis, curriculum_id: str, subject: str) -> None
 
 
 def _invalidate_cdn(curriculum_id: str) -> None:
-    """Fire-and-forget CloudFront invalidation for a curriculum."""
-    try:
-        from src.content.service import invalidate_cdn_path
+    """
+    Dispatch a Celery task to invalidate CloudFront paths for this curriculum.
 
-        invalidate_cdn_path(curriculum_id)
+    Fire-and-forget: runs on the `io` queue so the admin request path never
+    blocks on CloudFront.  Previous implementation called the async
+    `invalidate_cdn_path` without `await`, producing an unawaited coroutine
+    that was silently swallowed — meaning CDN invalidation never actually
+    ran (Issue #254 P1).
+    """
+    try:
+        from src.auth.tasks import invalidate_cdn_task
+
+        invalidate_cdn_task.apply_async(kwargs={"curriculum_id": curriculum_id}, queue="io")
     except Exception as exc:
-        log.warning("cdn_invalidation_failed curriculum_id=%s error=%s", curriculum_id, exc)
+        # Dispatch failure must never break the admin publish/rollback request.
+        log.warning("cdn_invalidation_dispatch_failed curriculum_id=%s error=%s", curriculum_id, exc)
 
 
 # ── Block version (creates block record + marks version blocked) ───────────────
