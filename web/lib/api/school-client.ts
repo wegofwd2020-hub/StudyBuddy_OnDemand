@@ -64,12 +64,16 @@ schoolApi.interceptors.response.use(
     ) {
       try {
         if (!refreshing) {
-          refreshing = attemptRefresh().finally(() => { refreshing = null; });
+          refreshing = attemptRefresh().finally(() => {
+            refreshing = null;
+          });
         }
         const newToken = await refreshing;
 
         // Retry the original request with the fresh token.
-        const retryConfig = { ...error.config, _retried: true } as typeof error.config & { _retried: boolean };
+        const retryConfig = { ...error.config, _retried: true } as typeof error.config & {
+          _retried: boolean;
+        };
         if (retryConfig.headers) {
           retryConfig.headers.Authorization = `Bearer ${newToken}`;
         }

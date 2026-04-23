@@ -5,7 +5,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { LinkButton } from "@/components/ui/link-button";
 import { DemoRequestModal } from "@/components/demo/DemoRequestModal";
 import { DemoTeacherRequestModal } from "@/components/demo/DemoTeacherRequestModal";
-import { Zap, Volume2, Globe, WifiOff, ClipboardList, School, ArrowRight } from "lucide-react";
+import {
+  Zap,
+  Volume2,
+  Globe,
+  WifiOff,
+  ClipboardList,
+  School,
+  ArrowRight,
+} from "lucide-react";
 
 export default function LandingPage() {
   return (
@@ -34,20 +42,27 @@ export default function LandingPage() {
 // Each phrase captures the "learning companion" concept in its language —
 // the intended meaning behind the StudyBuddy name.
 const STUDY_BUDDY_TRANSLATIONS = [
-  "Learning Companion",          // English
-  "Compañero de Aprendizaje",    // Spanish
-  "Напарник в обучении",         // Russian
-  "Compagnon d'Apprentissage",   // French
-  "Lernbegleiter",               // German
-  "கற்றல் தோழன்",                // Tamil
-  "सीखने का साथी",               // Hindi
-  "అభ్యాస సహచరుడు",             // Telugu
-  "ಕಲಿಕೆಯ ಸಂಗಾತಿ",              // Kannada
-  "പഠന സഹചാരി",                 // Malayalam
+  "Learning Companion", // English
+  "Compañero de Aprendizaje", // Spanish
+  "Напарник в обучении", // Russian
+  "Compagnon d'Apprentissage", // French
+  "Lernbegleiter", // German
+  "கற்றல் தோழன்", // Tamil
+  "सीखने का साथी", // Hindi
+  "అభ్యాస సహచరుడు", // Telugu
+  "ಕಲಿಕೆಯ ಸಂಗಾತಿ", // Kannada
+  "പഠന സഹചാരി", // Malayalam
 ];
 
 // Vary font sizes by position to give a natural scattered feel
-const SIZE_CLASSES = ["text-sm", "text-base", "text-lg", "text-xl", "text-sm", "text-base"];
+const SIZE_CLASSES = [
+  "text-sm",
+  "text-base",
+  "text-lg",
+  "text-xl",
+  "text-sm",
+  "text-base",
+];
 
 function HeroSection() {
   const t = useTranslations("landing");
@@ -58,12 +73,12 @@ function HeroSection() {
       {/* Decorative multilingual watermark — purely visual, hidden from assistive tech */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 flex flex-wrap content-start gap-x-10 gap-y-5 p-6 select-none opacity-[0.22]"
+        className="pointer-events-none absolute inset-0 flex flex-wrap content-start gap-x-10 gap-y-5 p-6 opacity-[0.22] select-none"
       >
         {repeated.map((phrase, i) => (
           <span
             key={i}
-            className={`${SIZE_CLASSES[i % SIZE_CLASSES.length]} font-semibold text-blue-800 whitespace-nowrap`}
+            className={`${SIZE_CLASSES[i % SIZE_CLASSES.length]} font-semibold whitespace-nowrap text-blue-800`}
           >
             {phrase}
           </span>
@@ -153,15 +168,15 @@ function TourGatewaySection() {
   return (
     <section className="border-y bg-violet-50 px-4 py-16">
       <div className="mx-auto max-w-3xl text-center">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-violet-500">
+        <p className="mb-2 text-xs font-semibold tracking-widest text-violet-500 uppercase">
           No account needed
         </p>
         <h2 className="mb-3 text-2xl font-bold text-gray-900 sm:text-3xl">
           See exactly what you can do
         </h2>
         <p className="mb-8 text-base text-gray-500">
-          Walk through the platform from the perspective of a School Admin, Teacher, or Student —
-          before you register.
+          Walk through the platform from the perspective of a School Admin, Teacher, or
+          Student — before you register.
         </p>
         <Link
           href="/tour"

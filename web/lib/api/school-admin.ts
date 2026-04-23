@@ -154,9 +154,7 @@ export async function getSchoolPipelineJob(
   schoolId: string,
   jobId: string,
 ): Promise<PipelineJob> {
-  const res = await schoolApi.get<PipelineJob>(
-    `/schools/${schoolId}/pipeline/${jobId}`,
-  );
+  const res = await schoolApi.get<PipelineJob>(`/schools/${schoolId}/pipeline/${jobId}`);
   return res.data;
 }
 
@@ -190,16 +188,20 @@ export interface SchoolSubscription {
   seats_used_teachers: number;
   current_period_end: string | null;
   // Curriculum build allowance (Option A — absorbed into plan)
-  builds_included: number;        // -1 = unlimited (Enterprise)
+  builds_included: number; // -1 = unlimited (Enterprise)
   builds_used: number;
-  builds_remaining: number;       // -1 = unlimited
+  builds_remaining: number; // -1 = unlimited
   builds_period_end: string | null;
   // Rollover credit balance (Option C, #107 — never expires)
   builds_credits_balance: number;
 }
 
-export async function getSchoolSubscription(schoolId: string): Promise<SchoolSubscription> {
-  const res = await schoolApi.get<SchoolSubscription>(`/schools/${schoolId}/subscription`);
+export async function getSchoolSubscription(
+  schoolId: string,
+): Promise<SchoolSubscription> {
+  const res = await schoolApi.get<SchoolSubscription>(
+    `/schools/${schoolId}/subscription`,
+  );
   return res.data;
 }
 
@@ -219,9 +221,10 @@ export async function createSchoolCheckout(
 export async function cancelSchoolSubscription(
   schoolId: string,
 ): Promise<{ status: string; current_period_end: string | null }> {
-  const res = await schoolApi.delete<{ status: string; current_period_end: string | null }>(
-    `/schools/${schoolId}/subscription`,
-  );
+  const res = await schoolApi.delete<{
+    status: string;
+    current_period_end: string | null;
+  }>(`/schools/${schoolId}/subscription`);
   return res.data;
 }
 
@@ -387,10 +390,9 @@ export async function assignTeacherGrades(
   teacherId: string,
   grades: number[],
 ): Promise<{ teacher_id: string; school_id: string; assigned_grades: number[] }> {
-  const res = await schoolApi.put(
-    `/schools/${schoolId}/teachers/${teacherId}/grades`,
-    { grades },
-  );
+  const res = await schoolApi.put(`/schools/${schoolId}/teachers/${teacherId}/grades`, {
+    grades,
+  });
   return res.data;
 }
 
@@ -541,7 +543,9 @@ export interface AssignCurriculumResponse {
   previous_curriculum_id: string | null;
 }
 
-export async function getRetentionDashboard(schoolId: string): Promise<RetentionDashboard> {
+export async function getRetentionDashboard(
+  schoolId: string,
+): Promise<RetentionDashboard> {
   const res = await schoolApi.get<RetentionDashboard>(`/schools/${schoolId}/retention`);
   return res.data;
 }
@@ -662,7 +666,10 @@ export async function listClassrooms(schoolId: string): Promise<ClassroomItem[]>
   return res.data;
 }
 
-export async function getClassroom(schoolId: string, classroomId: string): Promise<ClassroomDetail> {
+export async function getClassroom(
+  schoolId: string,
+  classroomId: string,
+): Promise<ClassroomDetail> {
   const res = await schoolApi.get<ClassroomDetail>(
     `/schools/${schoolId}/classrooms/${classroomId}`,
   );
@@ -673,14 +680,22 @@ export async function createClassroom(
   schoolId: string,
   body: { name: string; grade?: number | null; teacher_id?: string | null },
 ): Promise<ClassroomItem> {
-  const res = await schoolApi.post<ClassroomItem>(`/schools/${schoolId}/classrooms`, body);
+  const res = await schoolApi.post<ClassroomItem>(
+    `/schools/${schoolId}/classrooms`,
+    body,
+  );
   return res.data;
 }
 
 export async function updateClassroom(
   schoolId: string,
   classroomId: string,
-  body: { name?: string; grade?: number | null; teacher_id?: string | null; status?: string },
+  body: {
+    name?: string;
+    grade?: number | null;
+    teacher_id?: string | null;
+    status?: string;
+  },
 ): Promise<ClassroomItem> {
   const res = await schoolApi.patch<ClassroomItem>(
     `/schools/${schoolId}/classrooms/${classroomId}`,
@@ -695,10 +710,10 @@ export async function assignPackageToClassroom(
   curriculumId: string,
   sortOrder = 0,
 ): Promise<void> {
-  await schoolApi.post(
-    `/schools/${schoolId}/classrooms/${classroomId}/packages`,
-    { curriculum_id: curriculumId, sort_order: sortOrder },
-  );
+  await schoolApi.post(`/schools/${schoolId}/classrooms/${classroomId}/packages`, {
+    curriculum_id: curriculumId,
+    sort_order: sortOrder,
+  });
 }
 
 export async function reorderPackageInClassroom(
@@ -728,10 +743,9 @@ export async function assignStudentToClassroom(
   classroomId: string,
   studentId: string,
 ): Promise<void> {
-  await schoolApi.post(
-    `/schools/${schoolId}/classrooms/${classroomId}/students`,
-    { student_id: studentId },
-  );
+  await schoolApi.post(`/schools/${schoolId}/classrooms/${classroomId}/students`, {
+    student_id: studentId,
+  });
 }
 
 export async function removeStudentFromClassroom(

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useTeacher } from "@/lib/hooks/useTeacher";
 import Link from "next/link";
 import {
@@ -14,13 +14,36 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  FileText,
-  ChevronLeft,
-  CheckCircle2,
-  XCircle,
-  Clock,
-} from "lucide-react";
+import { FileText, ChevronLeft, CheckCircle2, XCircle, Clock } from "lucide-react";
+
+// ── Status chip (hoisted out of DefinitionDetailPage so it isn't re-created
+//    on every render — fixes react-hooks/immutability lint rule).
+// ─────────────────────────────────────────────────────────────────────────────
+
+function StatusChip({ status }: { status: string }) {
+  if (status === "approved") {
+    return (
+      <span className="flex items-center gap-1.5 rounded-full bg-green-50 px-3 py-1 text-sm font-medium text-green-700">
+        <CheckCircle2 className="h-4 w-4" />
+        Approved
+      </span>
+    );
+  }
+  if (status === "rejected") {
+    return (
+      <span className="flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1 text-sm font-medium text-red-700">
+        <XCircle className="h-4 w-4" />
+        Rejected
+      </span>
+    );
+  }
+  return (
+    <span className="flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-sm font-medium text-amber-700">
+      <Clock className="h-4 w-4" />
+      Pending approval
+    </span>
+  );
+}
 
 // ── Page ───────────────────────────────────────────────────────────────────────
 
@@ -28,7 +51,6 @@ export default function DefinitionDetailPage() {
   const params = useParams<{ definitionId: string }>();
   const definitionId = params.definitionId;
   const teacher = useTeacher();
-  const router = useRouter();
   const queryClient = useQueryClient();
   const schoolId = teacher?.school_id ?? "";
   const isAdmin = teacher?.role === "school_admin";
@@ -73,7 +95,10 @@ export default function DefinitionDetailPage() {
     return (
       <div className="max-w-2xl p-6">
         <p className="text-sm text-gray-500">Definition not found.</p>
-        <Link href="/school/curriculum/definitions" className="mt-2 text-sm text-indigo-600 hover:underline">
+        <Link
+          href="/school/curriculum/definitions"
+          className="mt-2 text-sm text-indigo-600 hover:underline"
+        >
           ← Back to definitions
         </Link>
       </div>
@@ -81,29 +106,6 @@ export default function DefinitionDetailPage() {
   }
 
   const totalUnits = defn.subjects.reduce((acc, s) => acc + s.units.length, 0);
-
-  function StatusChip() {
-    if (defn!.status === "approved")
-      return (
-        <span className="flex items-center gap-1.5 rounded-full bg-green-50 px-3 py-1 text-sm font-medium text-green-700">
-          <CheckCircle2 className="h-4 w-4" />
-          Approved
-        </span>
-      );
-    if (defn!.status === "rejected")
-      return (
-        <span className="flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1 text-sm font-medium text-red-700">
-          <XCircle className="h-4 w-4" />
-          Rejected
-        </span>
-      );
-    return (
-      <span className="flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-sm font-medium text-amber-700">
-        <Clock className="h-4 w-4" />
-        Pending approval
-      </span>
-    );
-  }
 
   return (
     <div className="max-w-2xl space-y-6 p-6">
@@ -127,7 +129,7 @@ export default function DefinitionDetailPage() {
             <p className="mt-0.5 text-sm text-gray-400">by {defn.submitted_by_name}</p>
           )}
         </div>
-        <StatusChip />
+        <StatusChip status={defn.status} />
       </div>
 
       {/* Summary card */}
@@ -164,7 +166,7 @@ export default function DefinitionDetailPage() {
 
       {/* Subject / unit list */}
       <div className="space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
+        <h2 className="text-sm font-semibold tracking-wide text-gray-500 uppercase">
           Subjects & units
         </h2>
         {defn.subjects.map((s, i) => (
@@ -176,7 +178,7 @@ export default function DefinitionDetailPage() {
               <ol className="space-y-1 pl-1">
                 {s.units.map((u, j) => (
                   <li key={j} className="flex items-start gap-2 text-sm text-gray-700">
-                    <span className="mt-0.5 text-xs font-mono text-gray-400">
+                    <span className="mt-0.5 font-mono text-xs text-gray-400">
                       {String(j + 1).padStart(2, "0")}
                     </span>
                     {u.title}
@@ -192,7 +194,9 @@ export default function DefinitionDetailPage() {
       {isAdmin && defn.status === "pending_approval" && (
         <Card className="border border-amber-200 bg-amber-50">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base text-amber-900">Review this definition</CardTitle>
+            <CardTitle className="text-base text-amber-900">
+              Review this definition
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {!showReject ? (
@@ -237,7 +241,8 @@ export default function DefinitionDetailPage() {
               </div>
             )}
             <p className="text-xs text-amber-700">
-              After approval, the school admin can trigger the pipeline to generate content.
+              After approval, the school admin can trigger the pipeline to generate
+              content.
             </p>
           </CardContent>
         </Card>

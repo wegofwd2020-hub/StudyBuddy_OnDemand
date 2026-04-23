@@ -11,23 +11,13 @@ import {
   removePackageFromClassroom,
   assignStudentToClassroom,
   removeStudentFromClassroom,
-  listClassrooms,
   type ClassroomPackageItem,
   type ClassroomStudentItem,
 } from "@/lib/api/school-admin";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  ArrowLeft,
-  BookOpen,
-  Users,
-  Trash2,
-  Plus,
-  GraduationCap,
-} from "lucide-react";
+import { ArrowLeft, BookOpen, Trash2, Plus, GraduationCap } from "lucide-react";
 
 // ── Package row ────────────────────────────────────────────────────────────────
 
@@ -45,7 +35,7 @@ function PackageRow({
   return (
     <div className="flex items-center justify-between rounded-lg border bg-white px-4 py-3 shadow-sm">
       <div className="min-w-0">
-        <p className="font-medium text-gray-900 truncate">
+        <p className="truncate font-medium text-gray-900">
           {pkg.curriculum_name ?? pkg.curriculum_id}
         </p>
         <p className="text-xs text-gray-400">
@@ -53,11 +43,11 @@ function PackageRow({
         </p>
       </div>
       {confirm ? (
-        <div className="flex items-center gap-2 ml-3 shrink-0">
+        <div className="ml-3 flex shrink-0 items-center gap-2">
           <Button
             size="sm"
             variant="outline"
-            className="h-7 border-red-200 text-red-600 text-xs hover:bg-red-50"
+            className="h-7 border-red-200 text-xs text-red-600 hover:bg-red-50"
             onClick={onRemove}
             disabled={removing}
           >
@@ -111,11 +101,11 @@ function StudentRow({
         )}
       </div>
       {confirm ? (
-        <div className="flex items-center gap-2 ml-3 shrink-0">
+        <div className="ml-3 flex shrink-0 items-center gap-2">
           <Button
             size="sm"
             variant="outline"
-            className="h-7 border-red-200 text-red-600 text-xs hover:bg-red-50"
+            className="h-7 border-red-200 text-xs text-red-600 hover:bg-red-50"
             onClick={onRemove}
             disabled={removing}
           >
@@ -163,13 +153,15 @@ export default function ClassroomDetailPage() {
   const [curriculumId, setCurriculumId] = useState("");
   const [pkgError, setPkgError] = useState<string | null>(null);
   const { mutate: addPackage, isPending: addingPkg } = useMutation({
-    mutationFn: () => assignPackageToClassroom(schoolId, classroomId, curriculumId.trim()),
+    mutationFn: () =>
+      assignPackageToClassroom(schoolId, classroomId, curriculumId.trim()),
     onSuccess: () => {
       setCurriculumId("");
       setPkgError(null);
       queryClient.invalidateQueries({ queryKey: ["classroom", schoolId, classroomId] });
     },
-    onError: () => setPkgError("Could not add package. Check the curriculum ID and try again."),
+    onError: () =>
+      setPkgError("Could not add package. Check the curriculum ID and try again."),
   });
 
   // ── Student assignment ──
@@ -193,7 +185,11 @@ export default function ClassroomDetailPage() {
   });
 
   // ── Remove package ──
-  const { mutate: removePkg, isPending: removingPkg, variables: removingPkgId } = useMutation({
+  const {
+    mutate: removePkg,
+    isPending: removingPkg,
+    variables: removingPkgId,
+  } = useMutation({
     mutationFn: (currId: string) =>
       removePackageFromClassroom(schoolId, classroomId, currId),
     onSuccess: () =>
@@ -201,7 +197,11 @@ export default function ClassroomDetailPage() {
   });
 
   // ── Remove student ──
-  const { mutate: removeStu, isPending: removingStu, variables: removingStuId } = useMutation({
+  const {
+    mutate: removeStu,
+    isPending: removingStu,
+    variables: removingStuId,
+  } = useMutation({
     mutationFn: (stuId: string) =>
       removeStudentFromClassroom(schoolId, classroomId, stuId),
     onSuccess: () =>
@@ -222,7 +222,10 @@ export default function ClassroomDetailPage() {
     return (
       <div className="p-6">
         <p className="text-sm text-gray-500">Classroom not found.</p>
-        <Link href="/school/classrooms" className="mt-3 text-sm text-indigo-600 hover:underline">
+        <Link
+          href="/school/classrooms"
+          className="mt-3 text-sm text-indigo-600 hover:underline"
+        >
           ← Back to classrooms
         </Link>
       </div>
@@ -254,7 +257,9 @@ export default function ClassroomDetailPage() {
           )}
         </div>
         {classroom.teacher_name && (
-          <p className="mt-1 text-sm text-gray-500">Lead teacher: {classroom.teacher_name}</p>
+          <p className="mt-1 text-sm text-gray-500">
+            Lead teacher: {classroom.teacher_name}
+          </p>
         )}
       </div>
 
@@ -262,7 +267,7 @@ export default function ClassroomDetailPage() {
       <section>
         <div className="mb-3 flex items-center gap-2">
           <BookOpen className="h-4 w-4 text-indigo-600" />
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
+          <h2 className="text-sm font-semibold tracking-wide text-gray-500 uppercase">
             Curriculum packages ({classroom.packages.length})
           </h2>
         </div>
@@ -284,17 +289,25 @@ export default function ClassroomDetailPage() {
 
         {/* Add package form */}
         <div className="mt-4 rounded-lg border border-indigo-100 bg-indigo-50 p-4">
-          <p className="mb-2 text-xs font-medium text-gray-600">Assign a curriculum package</p>
+          <p className="mb-2 text-xs font-medium text-gray-600">
+            Assign a curriculum package
+          </p>
           <div className="flex gap-2">
             <Input
               value={curriculumId}
-              onChange={(e) => { setCurriculumId(e.target.value); setPkgError(null); }}
+              onChange={(e) => {
+                setCurriculumId(e.target.value);
+                setPkgError(null);
+              }}
               placeholder="Curriculum ID (UUID)"
               className="flex-1 text-sm"
             />
             <Button
               size="sm"
-              onClick={() => { setPkgError(null); addPackage(); }}
+              onClick={() => {
+                setPkgError(null);
+                addPackage();
+              }}
               disabled={addingPkg || !curriculumId.trim()}
               className="gap-1"
             >
@@ -309,7 +322,10 @@ export default function ClassroomDetailPage() {
               Curriculum
             </Link>{" "}
             or{" "}
-            <Link href="/school/curriculum/content" className="text-indigo-600 hover:underline">
+            <Link
+              href="/school/curriculum/content"
+              className="text-indigo-600 hover:underline"
+            >
               Content viewer
             </Link>
             .
@@ -321,7 +337,7 @@ export default function ClassroomDetailPage() {
       <section>
         <div className="mb-3 flex items-center gap-2">
           <GraduationCap className="h-4 w-4 text-indigo-600" />
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
+          <h2 className="text-sm font-semibold tracking-wide text-gray-500 uppercase">
             Students ({classroom.students.length})
           </h2>
         </div>
@@ -347,13 +363,19 @@ export default function ClassroomDetailPage() {
           <div className="flex gap-2">
             <Input
               value={studentId}
-              onChange={(e) => { setStudentId(e.target.value); setStuError(null); }}
+              onChange={(e) => {
+                setStudentId(e.target.value);
+                setStuError(null);
+              }}
               placeholder="Student ID (UUID)"
               className="flex-1 text-sm"
             />
             <Button
               size="sm"
-              onClick={() => { setStuError(null); addStudent(); }}
+              onClick={() => {
+                setStuError(null);
+                addStudent();
+              }}
               disabled={addingStu || !studentId.trim()}
               className="gap-1 bg-green-600 hover:bg-green-700"
             >

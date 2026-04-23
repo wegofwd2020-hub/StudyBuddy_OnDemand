@@ -47,8 +47,14 @@ interface AnnotationItem {
   reviewer_email: string | null;
 }
 
-function AnnotationsPanel({ annotations, activeType }: { annotations: AnnotationItem[]; activeType: string }) {
-  const relevant = annotations.filter(a => a.content_type.includes(activeType));
+function AnnotationsPanel({
+  annotations,
+  activeType,
+}: {
+  annotations: AnnotationItem[];
+  activeType: string;
+}) {
+  const relevant = annotations.filter((a) => a.content_type.includes(activeType));
   if (relevant.length === 0) return null;
 
   return (
@@ -58,11 +64,17 @@ function AnnotationsPanel({ annotations, activeType }: { annotations: Annotation
         Review Notes ({relevant.length})
       </h3>
       <div className="space-y-2">
-        {relevant.map(a => (
-          <div key={a.annotation_id} className="rounded-md border border-amber-100 bg-white px-3 py-2">
-            <p className="text-sm text-gray-800 whitespace-pre-wrap">{a.annotation_text}</p>
+        {relevant.map((a) => (
+          <div
+            key={a.annotation_id}
+            className="rounded-md border border-amber-100 bg-white px-3 py-2"
+          >
+            <p className="text-sm whitespace-pre-wrap text-gray-800">
+              {a.annotation_text}
+            </p>
             <p className="mt-1 text-xs text-gray-400">
-              {a.reviewer_email ?? "Reviewer"} · {new Date(a.created_at).toLocaleDateString()}
+              {a.reviewer_email ?? "Reviewer"} ·{" "}
+              {new Date(a.created_at).toLocaleDateString()}
             </p>
           </div>
         ))}
@@ -118,7 +130,9 @@ function TutorialRenderer({ data }: { data: Record<string, unknown> }) {
   ];
 
   const [activeTab, setActiveTab] = useState<string>(tabs[0]?.key ?? "");
-  const activeSection = sections.find((s, i) => (s.section_id ?? String(i)) === activeTab);
+  const activeSection = sections.find(
+    (s, i) => (s.section_id ?? String(i)) === activeTab,
+  );
 
   return (
     <div>
@@ -144,7 +158,10 @@ function TutorialRenderer({ data }: { data: Record<string, unknown> }) {
       {activeTab === "__mistakes__" ? (
         <ul className="space-y-2">
           {mistakes.map((m, i) => (
-            <li key={i} className="flex gap-2 rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">
+            <li
+              key={i}
+              className="flex gap-2 rounded-md bg-red-50 px-3 py-2 text-sm text-red-600"
+            >
               <span className="shrink-0">⚠</span>
               <span>{m}</span>
             </li>
@@ -155,14 +172,11 @@ function TutorialRenderer({ data }: { data: Record<string, unknown> }) {
           <Prose text={activeSection.content} />
           {activeSection.examples && activeSection.examples.length > 0 && (
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              <p className="text-xs font-semibold tracking-wide text-gray-500 uppercase">
                 Examples
               </p>
               {activeSection.examples.map((ex, j) => (
-                <div
-                  key={j}
-                  className="rounded-md border border-gray-100 bg-gray-50 p-3"
-                >
+                <div key={j} className="rounded-md border border-gray-100 bg-gray-50 p-3">
                   <SBMarkdown className="text-xs text-gray-800">{ex}</SBMarkdown>
                 </div>
               ))}
@@ -194,7 +208,7 @@ function QuizRenderer({ data }: { data: Record<string, unknown> }) {
   return (
     <div className="space-y-5">
       {setNumber && (
-        <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
+        <p className="text-xs font-medium tracking-wide text-gray-400 uppercase">
           Quiz Set {setNumber} · {questions.length} questions
         </p>
       )}
@@ -204,7 +218,9 @@ function QuizRenderer({ data }: { data: Record<string, unknown> }) {
           className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
         >
           <div className="mb-3 flex gap-2">
-            <span className="mt-0.5 shrink-0 font-mono text-xs text-gray-400">Q{i + 1}.</span>
+            <span className="mt-0.5 shrink-0 font-mono text-xs text-gray-400">
+              Q{i + 1}.
+            </span>
             <Prose text={q.question_text} className="flex-1" />
           </div>
           <ul className="space-y-1.5">
@@ -223,7 +239,9 @@ function QuizRenderer({ data }: { data: Record<string, unknown> }) {
                 </span>
                 <span className="flex-1">{opt.text}</span>
                 {opt.option_id === q.correct_option && (
-                  <span className="ml-auto shrink-0 text-xs text-green-600">✓ correct</span>
+                  <span className="ml-auto shrink-0 text-xs text-green-600">
+                    ✓ correct
+                  </span>
                 )}
               </li>
             ))}
@@ -256,7 +274,9 @@ function ExperimentRenderer({ data }: { data: Record<string, unknown> }) {
           <h3 className="mb-2 text-sm font-semibold text-gray-800">Materials</h3>
           <ul className="grid grid-cols-2 gap-1">
             {materials.map((m, i) => (
-              <li key={i} className="text-sm text-gray-700">• {m}</li>
+              <li key={i} className="text-sm text-gray-700">
+                • {m}
+              </li>
             ))}
           </ul>
         </div>
@@ -406,14 +426,21 @@ export default function SchoolUnitContentPage() {
               ))}
             </div>
           ) : !resolvedType ? (
-            <p className="text-sm text-gray-400 italic">Select a content type on the left.</p>
+            <p className="text-sm text-gray-400 italic">
+              Select a content type on the left.
+            </p>
           ) : !content ? (
-            <p className="text-sm text-gray-400 italic">No content available for this type.</p>
+            <p className="text-sm text-gray-400 italic">
+              No content available for this type.
+            </p>
           ) : (
             <>
               <ContentRenderer contentType={resolvedType} data={content} />
               {meta?.annotations && resolvedType && (
-                <AnnotationsPanel annotations={meta.annotations} activeType={resolvedType} />
+                <AnnotationsPanel
+                  annotations={meta.annotations}
+                  activeType={resolvedType}
+                />
               )}
             </>
           )}

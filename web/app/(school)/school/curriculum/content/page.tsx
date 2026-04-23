@@ -72,9 +72,11 @@ export default function SchoolContentPage() {
   // Available grades for the filter pill row
   const availableGrades = useMemo(() => {
     if (!subjects) return [];
-    const base = isAdmin ? subjects : subjects.filter((s) =>
-      assignedGrades ? assignedGrades.includes(s.grade) : true,
-    );
+    const base = isAdmin
+      ? subjects
+      : subjects.filter((s) =>
+          assignedGrades ? assignedGrades.includes(s.grade) : true,
+        );
     return [...new Set(base.map((s) => s.grade))].sort((a, b) => a - b);
   }, [subjects, isAdmin, assignedGrades]);
 
@@ -142,7 +144,9 @@ export default function SchoolContentPage() {
       ) : grouped.length === 0 ? (
         <div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
           <FileText className="mx-auto mb-3 h-10 w-10 text-gray-300" />
-          <p className="text-sm font-medium text-gray-500">No curriculum content found.</p>
+          <p className="text-sm font-medium text-gray-500">
+            No curriculum content found.
+          </p>
           <p className="mt-1 text-xs text-gray-400">
             {!isAdmin && assignedGrades?.length === 0
               ? "You have no grades assigned yet. Ask your school admin to assign grades."
@@ -152,7 +156,7 @@ export default function SchoolContentPage() {
       ) : (
         grouped.map(([grade, items]) => (
           <section key={grade}>
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+            <h2 className="mb-3 text-sm font-semibold tracking-wide text-gray-500 uppercase">
               Grade {grade}
             </h2>
             <div className="space-y-2">
@@ -194,8 +198,9 @@ function SubjectRow({ item }: { item: SchoolContentSubject }) {
           )}
         </div>
         <p className="mt-0.5 text-xs text-gray-500">
-          v{item.version_number} · {item.unit_count} unit{item.unit_count !== 1 ? "s" : ""} ·{" "}
-          Generated {new Date(item.generated_at).toLocaleDateString()}
+          v{item.version_number} · {item.unit_count} unit
+          {item.unit_count !== 1 ? "s" : ""} · Generated{" "}
+          {new Date(item.generated_at).toLocaleDateString()}
         </p>
       </div>
       <ChevronRight className="ml-3 h-4 w-4 shrink-0 text-gray-400" />

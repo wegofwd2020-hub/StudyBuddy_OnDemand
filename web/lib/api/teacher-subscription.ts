@@ -67,8 +67,6 @@ export async function upgradeTeacherPlan(
 export async function cancelTeacherSubscription(
   teacherId: string,
 ): Promise<{ status: string; current_period_end: string | null }> {
-  const res = await schoolApi.delete(
-    `/teachers/${teacherId}/subscription`,
-  );
+  const res = await schoolApi.delete(`/teachers/${teacherId}/subscription`);
   return res.data;
 }

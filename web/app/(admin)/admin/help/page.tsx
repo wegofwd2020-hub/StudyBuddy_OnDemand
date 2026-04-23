@@ -55,7 +55,7 @@ export default function AdminHelpPage() {
 
       {/* Getting started steps */}
       <section>
-        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-400">
+        <h2 className="mb-4 text-sm font-semibold tracking-wide text-gray-400 uppercase">
           Getting Started
         </h2>
         <ol className="space-y-3">
@@ -75,12 +75,15 @@ export default function AdminHelpPage() {
 
       {/* Mind maps */}
       <section>
-        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-400">
+        <h2 className="mb-4 text-sm font-semibold tracking-wide text-gray-400 uppercase">
           Persona Mind Map
         </h2>
         <div className="space-y-4">
           {maps.map((map) => (
-            <div key={map.id} className="overflow-hidden rounded-xl border border-gray-700">
+            <div
+              key={map.id}
+              className="overflow-hidden rounded-xl border border-gray-700"
+            >
               <button
                 className={cn(
                   "flex w-full items-center justify-between px-5 py-4 text-left transition-colors",
@@ -112,7 +115,7 @@ export default function AdminHelpPage() {
 
       {/* Quick reference */}
       <section>
-        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-400">
+        <h2 className="mb-4 text-sm font-semibold tracking-wide text-gray-400 uppercase">
           Quick Reference
         </h2>
         <div className="overflow-hidden rounded-xl border border-gray-700">

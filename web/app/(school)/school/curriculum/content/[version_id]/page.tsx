@@ -72,13 +72,14 @@ export default function SchoolContentVersionPage() {
               </Badge>
             </div>
             <p className="mt-1 text-sm text-gray-500">
-              Grade {version.grade} · {version.curriculum_name} · v{version.version_number} ·{" "}
-              {version.units.length} unit{version.units.length !== 1 ? "s" : ""}
+              Grade {version.grade} · {version.curriculum_name} · v
+              {version.version_number} · {version.units.length} unit
+              {version.units.length !== 1 ? "s" : ""}
             </p>
           </div>
 
           <section>
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+            <h2 className="mb-3 text-sm font-semibold tracking-wide text-gray-500 uppercase">
               Units
             </h2>
             {version.units.length === 0 ? (

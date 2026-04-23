@@ -74,17 +74,31 @@ const STEPS: Step[] = [
     detail: (
       <>
         <p className="mb-3 text-sm leading-relaxed text-gray-600">
-          StudyBuddy provides a growing catalog of pre-built platform curriculum
-          packages. If your school needs custom content — a specific syllabus, regional
-          requirements, or a language not yet in the catalog — you can define and build
-          it yourself:
+          StudyBuddy provides a growing catalog of pre-built platform curriculum packages.
+          If your school needs custom content — a specific syllabus, regional
+          requirements, or a language not yet in the catalog — you can define and build it
+          yourself:
         </p>
-        <ol className="mb-3 space-y-1.5 pl-5 text-sm text-gray-600" style={{ listStyleType: "decimal" }}>
-          <li>Submit a <strong>Curriculum Definition</strong> — a structured list of subjects and units.</li>
-          <li>A platform reviewer approves the definition (typically within 24 hours).</li>
-          <li>You trigger the AI content build. A cost estimate is shown before you confirm.</li>
-          <li>The pipeline generates content in the background (15–60 minutes per grade).</li>
-          <li>The finished curriculum package appears in your catalog, ready to assign.</li>
+        <ol
+          className="mb-3 space-y-1.5 pl-5 text-sm text-gray-600"
+          style={{ listStyleType: "decimal" }}
+        >
+          <li>
+            Submit a <strong>Curriculum Definition</strong> — a structured list of
+            subjects and units.
+          </li>
+          <li>
+            A platform reviewer approves the definition (typically within 24 hours).
+          </li>
+          <li>
+            You trigger the AI content build. A cost estimate is shown before you confirm.
+          </li>
+          <li>
+            The pipeline generates content in the background (15–60 minutes per grade).
+          </li>
+          <li>
+            The finished curriculum package appears in your catalog, ready to assign.
+          </li>
         </ol>
         <p className="text-sm text-gray-500">
           Build costs depend on your subscription plan. Starter plans include a fixed
@@ -112,21 +126,36 @@ const STEPS: Step[] = [
           <table className="w-full text-sm">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <th className="px-4 py-2.5 text-left text-xs font-semibold tracking-wide text-gray-500 uppercase">
                   Action
                 </th>
-                <th className="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <th className="px-4 py-2.5 text-left text-xs font-semibold tracking-wide text-gray-500 uppercase">
                   Result
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y">
               {[
-                ["Create a classroom", "An empty container with a name, optional grade and teacher"],
-                ["Assign a curriculum package", "Students in the classroom can access that package's content"],
-                ["Reorder packages", "Controls the sequence students work through content"],
-                ["Enrol a student", "Student gains access to all packages assigned to the classroom"],
-                ["Archive a classroom", "Classroom hidden from active views; data preserved"],
+                [
+                  "Create a classroom",
+                  "An empty container with a name, optional grade and teacher",
+                ],
+                [
+                  "Assign a curriculum package",
+                  "Students in the classroom can access that package's content",
+                ],
+                [
+                  "Reorder packages",
+                  "Controls the sequence students work through content",
+                ],
+                [
+                  "Enrol a student",
+                  "Student gains access to all packages assigned to the classroom",
+                ],
+                [
+                  "Archive a classroom",
+                  "Classroom hidden from active views; data preserved",
+                ],
               ].map(([action, result]) => (
                 <tr key={action} className="bg-white">
                   <td className="px-4 py-2.5 font-medium text-gray-800">{action}</td>
@@ -146,30 +175,39 @@ const STEPS: Step[] = [
     detail: (
       <>
         <p className="mb-4 text-sm leading-relaxed text-gray-600">
-          StudyBuddy tracks every lesson view, quiz attempt, and session duration for
-          each student. School Admins see aggregate metrics across the whole school.
-          Teachers see metrics for their assigned students. An "at-risk" flag is raised
-          automatically when a student's activity falls below their class average for
-          seven consecutive days. Admins can download class-level and school-level
-          reports as CSV.
+          StudyBuddy tracks every lesson view, quiz attempt, and session duration for each
+          student. School Admins see aggregate metrics across the whole school. Teachers
+          see metrics for their assigned students. An &ldquo;at-risk&rdquo; flag is raised
+          automatically when a student&apos;s activity falls below their class average for
+          seven consecutive days. Admins can download class-level and school-level reports
+          as CSV.
         </p>
         <div className="overflow-hidden rounded-lg border">
           <table className="w-full text-sm">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <th className="px-4 py-2.5 text-left text-xs font-semibold tracking-wide text-gray-500 uppercase">
                   Report
                 </th>
-                <th className="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <th className="px-4 py-2.5 text-left text-xs font-semibold tracking-wide text-gray-500 uppercase">
                   Contents
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y">
               {[
-                ["Class overview", "Completion rate, quiz average, streak, last activity — per student"],
-                ["At-risk students", "Students flagged as at-risk with days since last activity"],
-                ["Unit performance", "Average quiz score per unit across all students in a class"],
+                [
+                  "Class overview",
+                  "Completion rate, quiz average, streak, last activity — per student",
+                ],
+                [
+                  "At-risk students",
+                  "Students flagged as at-risk with days since last activity",
+                ],
+                [
+                  "Unit performance",
+                  "Average quiz score per unit across all students in a class",
+                ],
                 ["School summary", "Aggregated metrics across all classrooms"],
               ].map(([report, contents]) => (
                 <tr key={report} className="bg-white">
@@ -205,9 +243,7 @@ export default function SchoolAdminTour() {
             <ArrowLeft className="h-4 w-4" />
             All roles
           </Link>
-          <span className="text-sm font-medium text-violet-700">
-            School Admin tour
-          </span>
+          <span className="text-sm font-medium text-violet-700">School Admin tour</span>
           <span className="text-sm text-gray-400">
             {current + 1} / {STEPS.length}
           </span>
@@ -227,8 +263,8 @@ export default function SchoolAdminTour() {
                   i < current
                     ? "h-1.5 bg-violet-400"
                     : i === current
-                    ? "h-2 bg-violet-600"
-                    : "h-1.5 bg-gray-200"
+                      ? "h-2 bg-violet-600"
+                      : "h-1.5 bg-gray-200"
                 }`}
               />
             ))}
@@ -250,7 +286,7 @@ export default function SchoolAdminTour() {
       {/* Step content */}
       <div className="mx-auto max-w-3xl px-6 py-10">
         {/* Step label */}
-        <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-violet-500">
+        <p className="mb-2 text-xs font-semibold tracking-widest text-violet-500 uppercase">
           Step {current + 1} of {STEPS.length}
         </p>
 
@@ -260,9 +296,7 @@ export default function SchoolAdminTour() {
         </h1>
 
         {/* Outcome — the "why it matters" sentence */}
-        <p className="mb-6 text-base font-medium text-violet-700">
-          {step.outcome}
-        </p>
+        <p className="mb-6 text-base font-medium text-violet-700">{step.outcome}</p>
 
         {/* Detail */}
         <div className="mb-8">
@@ -342,7 +376,7 @@ export default function SchoolAdminTour() {
       {/* Step index — quick jump on desktop */}
       <div className="border-t bg-white py-6">
         <div className="mx-auto max-w-3xl px-6">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-400">
+          <p className="mb-3 text-xs font-semibold tracking-widest text-gray-400 uppercase">
             All capabilities
           </p>
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -354,8 +388,8 @@ export default function SchoolAdminTour() {
                   i === current
                     ? "border-violet-300 bg-violet-50 font-semibold text-violet-800"
                     : i < current
-                    ? "border-gray-200 bg-gray-50 text-gray-500"
-                    : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50"
+                      ? "border-gray-200 bg-gray-50 text-gray-500"
+                      : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50"
                 }`}
               >
                 <span className="mr-1.5 text-xs text-gray-400">{i + 1}.</span>

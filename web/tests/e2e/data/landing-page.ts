@@ -23,8 +23,7 @@ export const BANNER = {
 export const HERO = {
   // Matches en.json "hero_heading". Update here if the i18n value changes.
   heading: "Study Buddy",
-  subheading:
-    "Instant lessons, quizzes, and audio where available. Just learning.",
+  subheading: "Instant lessons, quizzes, and audio where available. Just learning.",
   ctaPrimary: { text: "Start free trial", href: "/signup" },
   ctaSecondary: { text: "See how it works", href: "/#features" },
 } as const;
@@ -73,8 +72,7 @@ export const FEATURES: ReadonlyArray<{ title: string; description: string }> = [
 
 export const TESTIMONIALS: ReadonlyArray<{ quote: string; author: string }> = [
   {
-    quote:
-      "My daughter went from a C to a B+ in her favourite subject in one semester.",
+    quote: "My daughter went from a C to a B+ in her favourite subject in one semester.",
     author: "Maria T., Parent",
   },
   {

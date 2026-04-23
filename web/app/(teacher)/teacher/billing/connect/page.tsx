@@ -1,17 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   getConnectEarnings,
   getConnectStatus,
   refreshConnectLink,
   startConnectOnboarding,
   type ConnectStatus,
-  type EarningsItem,
 } from "@/lib/api/teacher";
 import { useTeacherIdFromToken } from "@/lib/hooks/useIndependentTeacher";
-import { cn } from "@/lib/utils";
 import {
   AlertTriangle,
   ArrowRight,
@@ -51,7 +48,9 @@ function OnboardingBanner({
             Stripe is sending {TEACHER_PCT}% of each student payment to your account.
           </p>
           {status.stripe_account_id && (
-            <p className="mt-1 font-mono text-xs text-green-600">{status.stripe_account_id}</p>
+            <p className="mt-1 font-mono text-xs text-green-600">
+              {status.stripe_account_id}
+            </p>
           )}
         </div>
       </div>
@@ -65,8 +64,8 @@ function OnboardingBanner({
         <div className="flex-1">
           <p className="text-sm font-semibold text-amber-900">Onboarding incomplete</p>
           <p className="mt-0.5 text-xs text-amber-700">
-            Your Stripe Connect account exists but payout capability is not yet
-            enabled. Complete onboarding to start receiving student payments.
+            Your Stripe Connect account exists but payout capability is not yet enabled.
+            Complete onboarding to start receiving student payments.
           </p>
           <button
             onClick={onRefresh}
@@ -105,7 +104,8 @@ function OnboardingBanner({
             </li>
             <li className="flex items-center gap-2">
               <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0 text-indigo-500" />
-              {PLATFORM_PCT}% platform fee covers hosting, content generation &amp; support
+              {PLATFORM_PCT}% platform fee covers hosting, content generation &amp;
+              support
             </li>
             <li className="flex items-center gap-2">
               <CheckCircle2 className="h-3.5 w-3.5 flex-shrink-0 text-indigo-500" />
@@ -206,7 +206,9 @@ function EarningsTable({ teacherId }: { teacherId: string }) {
             {earnings.map((t) => (
               <tr key={t.transfer_id} className="hover:bg-gray-50">
                 <td className="px-4 py-3 text-xs text-gray-500">{fmtDate(t.created)}</td>
-                <td className="px-4 py-3 font-mono text-xs text-gray-400">{t.transfer_id}</td>
+                <td className="px-4 py-3 font-mono text-xs text-gray-400">
+                  {t.transfer_id}
+                </td>
                 <td className="px-4 py-3 text-right font-mono text-sm font-medium text-gray-900">
                   {fmt(t.amount_cents, t.currency)}
                 </td>
@@ -223,7 +225,6 @@ function EarningsTable({ teacherId }: { teacherId: string }) {
 
 export default function TeacherConnectBillingPage() {
   const teacherId = useTeacherIdFromToken();
-  const queryClient = useQueryClient();
 
   const { data: status, isLoading: statusLoading } = useQuery({
     queryKey: ["teacher-connect-status", teacherId],
@@ -265,8 +266,8 @@ export default function TeacherConnectBillingPage() {
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Revenue-share billing</h1>
         <p className="mt-1 text-sm text-gray-500">
-          Receive {TEACHER_PCT}% of each student&apos;s ${STUDENT_PRICE_MONTHLY}/month payment directly
-          via Stripe Connect.
+          Receive {TEACHER_PCT}% of each student&apos;s ${STUDENT_PRICE_MONTHLY}/month
+          payment directly via Stripe Connect.
         </p>
       </div>
 
@@ -302,13 +303,18 @@ export default function TeacherConnectBillingPage() {
         <ol className="mt-2 list-decimal space-y-1.5 pl-4">
           <li>Complete Stripe Express onboarding (takes ~5 minutes).</li>
           <li>
-            Share your enrollment link with students — they pay ${STUDENT_PRICE_MONTHLY}/month.
+            Share your enrollment link with students — they pay ${STUDENT_PRICE_MONTHLY}
+            /month.
           </li>
           <li>
-            Stripe automatically sends {TEACHER_PCT}% (${(parseFloat(STUDENT_PRICE_MONTHLY) * TEACHER_PCT / 100).toFixed(2)}/student/month)
-            to your bank. The platform keeps {PLATFORM_PCT}%.
+            Stripe automatically sends {TEACHER_PCT}% ($
+            {((parseFloat(STUDENT_PRICE_MONTHLY) * TEACHER_PCT) / 100).toFixed(2)}
+            /student/month) to your bank. The platform keeps {PLATFORM_PCT}%.
           </li>
-          <li>Payouts arrive on your normal Stripe payout schedule (usually 2 business days).</li>
+          <li>
+            Payouts arrive on your normal Stripe payout schedule (usually 2 business
+            days).
+          </li>
         </ol>
         <p className="mt-3">
           Questions about Stripe Express?{" "}

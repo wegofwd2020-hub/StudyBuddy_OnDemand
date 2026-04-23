@@ -280,9 +280,9 @@ function AuthenticatedAbout({ data }: { data: AboutBuildData }) {
           About StudyBuddy
         </h1>
         <p className="mt-4 max-w-2xl text-lg text-gray-600">
-          StudyBuddy is an AI-powered learning platform for Grades 5–12. Lessons,
-          quizzes, and audio are pre-generated so students get instant responses — no API
-          keys, no wait time, and no internet required for cached content.
+          StudyBuddy is an AI-powered learning platform for Grades 5–12. Lessons, quizzes,
+          and audio are pre-generated so students get instant responses — no API keys, no
+          wait time, and no internet required for cached content.
         </p>
       </div>
 

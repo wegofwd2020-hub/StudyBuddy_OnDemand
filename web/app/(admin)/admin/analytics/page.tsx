@@ -64,7 +64,7 @@ export default function AdminAnalyticsPage() {
                 </tr>
                 <tr>
                   <td className="px-4 py-3 text-gray-700">MRR (CAD)</td>
-                  <td className="px-4 py-3 text-right font-mono tabular-nums text-gray-900">
+                  <td className="px-4 py-3 text-right font-mono text-gray-900 tabular-nums">
                     {sub.mrr_usd
                       ? `$${parseFloat(sub.mrr_usd).toLocaleString("en-CA", { minimumFractionDigits: 2 })}`
                       : "—"}
@@ -85,7 +85,9 @@ export default function AdminAnalyticsPage() {
                 <tr>
                   <td className="px-4 py-3 text-gray-700">Churn rate</td>
                   <td className="px-4 py-3 text-right font-mono text-gray-900">
-                    {sub.churn_rate != null ? `${(sub.churn_rate * 100).toFixed(2)}%` : "—"}
+                    {sub.churn_rate != null
+                      ? `${(sub.churn_rate * 100).toFixed(2)}%`
+                      : "—"}
                   </td>
                 </tr>
               </tbody>

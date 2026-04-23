@@ -70,15 +70,15 @@ export default function TourPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Hero */}
       <div className="border-b bg-white px-6 py-14 text-center">
-        <p className="mb-2 text-sm font-semibold uppercase tracking-widest text-violet-600">
+        <p className="mb-2 text-sm font-semibold tracking-widest text-violet-600 uppercase">
           No account needed
         </p>
         <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl">
           Explore the platform
         </h1>
         <p className="mx-auto mt-4 max-w-xl text-base text-gray-500">
-          Choose a role to see exactly what you can do with StudyBuddy OnDemand.
-          Each tour walks through the key capabilities, step by step.
+          Choose a role to see exactly what you can do with StudyBuddy OnDemand. Each tour
+          walks through the key capabilities, step by step.
         </p>
       </div>
 
@@ -96,9 +96,7 @@ export default function TourPage() {
                 <div className={`mb-4 inline-flex w-fit rounded-lg p-3 ${c.icon}`}>
                   <Icon className="h-6 w-6" />
                 </div>
-                <h2 className="mb-1 text-lg font-semibold text-gray-900">
-                  {role.label}
-                </h2>
+                <h2 className="mb-1 text-lg font-semibold text-gray-900">{role.label}</h2>
                 <p className="mb-6 flex-1 text-sm leading-relaxed text-gray-500">
                   {role.description}
                 </p>

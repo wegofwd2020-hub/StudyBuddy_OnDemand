@@ -49,9 +49,7 @@ export async function askHelp(body: HelpAskRequest): Promise<HelpAskResponse> {
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(
-      err?.detail ?? err?.error ?? `Help request failed (${res.status})`,
-    );
+    throw new Error(err?.detail ?? err?.error ?? `Help request failed (${res.status})`);
   }
 
   return res.json() as Promise<HelpAskResponse>;

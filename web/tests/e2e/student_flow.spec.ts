@@ -158,21 +158,15 @@ async function stubProgressApis(page: Page) {
 // Test 1 — Public landing page (no auth)
 // ---------------------------------------------------------------------------
 
-test("public landing page — hero heading and sign-in CTA visible", async ({
-  page,
-}) => {
+test("public landing page — hero heading and sign-in CTA visible", async ({ page }) => {
   await page.goto("/");
   await page.waitForLoadState("networkidle");
 
   // Hero heading
-  await expect(
-    page.getByRole("heading", { name: HERO.heading }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: HERO.heading })).toBeVisible();
 
   // Sign in link in nav
-  await expect(
-    page.getByRole("link", { name: NAV_LINKS[1].text }),
-  ).toBeVisible();
+  await expect(page.getByRole("link", { name: NAV_LINKS[1].text })).toBeVisible();
 });
 
 // ---------------------------------------------------------------------------
@@ -202,9 +196,7 @@ test("curriculum map → lesson navigation", async ({ page }) => {
   await expect(page.getByText(MOCK_LESSON_WITH_AUDIO.title)).toBeVisible();
 
   // First section heading
-  await expect(
-    page.getByText(MOCK_LESSON_WITH_AUDIO.sections[0].heading),
-  ).toBeVisible();
+  await expect(page.getByText(MOCK_LESSON_WITH_AUDIO.sections[0].heading)).toBeVisible();
 
   // Take Quiz CTA must be present
   await expect(
@@ -216,9 +208,7 @@ test("curriculum map → lesson navigation", async ({ page }) => {
 // Test 3 — Lesson → quiz → result screen → progress history
 // ---------------------------------------------------------------------------
 
-test("student learning loop: lesson → quiz → result → progress", async ({
-  page,
-}) => {
+test("student learning loop: lesson → quiz → result → progress", async ({ page }) => {
   await setupStudentAuth(page);
   await stubCommonApis(page);
   await stubLessonApis(page);
@@ -231,14 +221,10 @@ test("student learning loop: lesson → quiz → result → progress", async ({
   await expect(page.getByText(MOCK_LESSON_WITH_AUDIO.title)).toBeVisible();
 
   // Key Points section
-  await expect(
-    page.getByText(MOCK_LESSON_WITH_AUDIO.key_points[0]),
-  ).toBeVisible();
+  await expect(page.getByText(MOCK_LESSON_WITH_AUDIO.key_points[0])).toBeVisible();
 
   // ── Step 2: navigate to quiz ──────────────────────────────────────────────
-  await page
-    .getByRole("link", { name: LESSON_STRINGS.takeQuizBtn })
-    .click();
+  await page.getByRole("link", { name: LESSON_STRINGS.takeQuizBtn }).click();
   await page.waitForURL("**/quiz/G8-SCI-001**");
   await page.waitForLoadState("networkidle");
 
@@ -254,27 +240,19 @@ test("student learning loop: lesson → quiz → result → progress", async ({
     await expect(page.getByText(q.question)).toBeVisible();
 
     // Select the correct option
-    await page
-      .getByRole("button", { name: q.options[q.correct_index] })
-      .click();
+    await page.getByRole("button", { name: q.options[q.correct_index] }).click();
 
     // Submit
-    await page
-      .getByRole("button", { name: QUIZ_STRINGS.submitBtn })
-      .click();
+    await page.getByRole("button", { name: QUIZ_STRINGS.submitBtn }).click();
 
     // Explanation appears
     await expect(page.getByText(q.explanation)).toBeVisible();
 
     // Advance to next question or results
     if (isLast) {
-      await page
-        .getByRole("button", { name: QUIZ_STRINGS.seeResultsBtn })
-        .click();
+      await page.getByRole("button", { name: QUIZ_STRINGS.seeResultsBtn }).click();
     } else {
-      await page
-        .getByRole("button", { name: QUIZ_STRINGS.nextBtn })
-        .click();
+      await page.getByRole("button", { name: QUIZ_STRINGS.nextBtn }).click();
     }
   }
 

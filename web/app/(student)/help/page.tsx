@@ -94,7 +94,7 @@ export default function StudentHelpPage() {
 
       {/* Getting started */}
       <section>
-        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-500">
+        <h2 className="mb-4 text-sm font-semibold tracking-wide text-gray-500 uppercase">
           Getting Started
         </h2>
         <ol className="space-y-3">
@@ -118,7 +118,7 @@ export default function StudentHelpPage() {
       {/* Mind map */}
       {map && (
         <section>
-          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-500">
+          <h2 className="mb-4 text-sm font-semibold tracking-wide text-gray-500 uppercase">
             Your Role — Mind Map
           </h2>
           <div className="overflow-hidden rounded-xl border border-gray-200 shadow-sm">
@@ -152,7 +152,7 @@ export default function StudentHelpPage() {
 
       {/* Quick reference */}
       <section>
-        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-500">
+        <h2 className="mb-4 text-sm font-semibold tracking-wide text-gray-500 uppercase">
           Quick Reference
         </h2>
         <div className="overflow-hidden rounded-xl border border-gray-200 shadow-sm">
@@ -173,7 +173,10 @@ export default function StudentHelpPage() {
                 ["See subject totals", "/stats"],
                 !demo && ["Update language / notifications", "/account/settings"],
                 ["Toggle dyslexia font", "Eye icon in top-right header, or Alt+D"],
-                demo && ["Demo limitations", "Grade 8 only; audio download requires full account"],
+                demo && [
+                  "Demo limitations",
+                  "Grade 8 only; audio download requires full account",
+                ],
               ]
                 .filter((r): r is string[] => Boolean(r))
                 .map(([task, where]) => (

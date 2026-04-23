@@ -470,7 +470,8 @@ export default function AdminDemoAccountsPage() {
           </p>
           {!statusFilter && !emailSearch && (
             <p className="mt-1 text-xs text-gray-400">
-              Demo requests appear here when prospective users submit a trial request from the landing page.
+              Demo requests appear here when prospective users submit a trial request from
+              the landing page.
             </p>
           )}
         </div>

@@ -44,14 +44,20 @@ function ProgressBar({ pct }: { pct: number }) {
           style={{ width: `${clamped}%` }}
         />
       </div>
-      <span className="text-xs tabular-nums text-gray-500">{Math.round(clamped)}%</span>
+      <span className="text-xs text-gray-500 tabular-nums">{Math.round(clamped)}%</span>
     </div>
   );
 }
 
 // ── Teacher view (non-admin) ──────────────────────────────────────────────────
 
-function TeacherStudentView({ schoolId, teacherId }: { schoolId: string; teacherId: string }) {
+function TeacherStudentView({
+  schoolId,
+  teacherId,
+}: {
+  schoolId: string;
+  teacherId: string;
+}) {
   // Get this teacher's assigned grades
   const { data: teachers, isLoading: loadingTeachers } = useQuery({
     queryKey: ["teachers", schoolId],
@@ -127,12 +133,16 @@ function TeacherStudentView({ schoolId, teacherId }: { schoolId: string; teacher
               <tbody className="divide-y divide-gray-50">
                 {students.map((s) => (
                   <tr key={s.student_id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium text-gray-800">{s.student_name}</td>
+                    <td className="px-4 py-3 font-medium text-gray-800">
+                      {s.student_name}
+                    </td>
                     <td className="px-4 py-3 text-gray-600">Grade {s.grade}</td>
                     <td className="px-4 py-3">
-                      <ProgressBar pct={(s.units_completed / Math.max(s.total_units, 1)) * 100} />
+                      <ProgressBar
+                        pct={(s.units_completed / Math.max(s.total_units, 1)) * 100}
+                      />
                     </td>
-                    <td className="px-4 py-3 tabular-nums text-gray-600">
+                    <td className="px-4 py-3 text-gray-600 tabular-nums">
                       {s.avg_score_pct != null ? `${Math.round(s.avg_score_pct)}%` : "—"}
                     </td>
                     <td className="px-4 py-3 text-xs text-gray-400">
@@ -142,7 +152,10 @@ function TeacherStudentView({ schoolId, teacherId }: { schoolId: string; teacher
                 ))}
                 {students.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="px-4 py-8 text-center text-sm text-gray-400">
+                    <td
+                      colSpan={5}
+                      className="px-4 py-8 text-center text-sm text-gray-400"
+                    >
                       {assignedGrades && assignedGrades.length === 0
                         ? "No grades assigned yet. Ask your school admin to assign grades to your account."
                         : "No students found for your assigned grades."}
@@ -194,7 +207,10 @@ function RosterRow({ item, schoolId }: { item: RosterItem; schoolId: string }) {
           {item.student_id && item.status === "active" && (
             <button
               type="button"
-              onClick={() => { setConfirmReset(true); setMsg(null); }}
+              onClick={() => {
+                setConfirmReset(true);
+                setMsg(null);
+              }}
               className="rounded-md p-1 text-gray-400 hover:bg-amber-50 hover:text-amber-600"
               aria-label="Reset password"
               title="Reset password"
@@ -208,8 +224,8 @@ function RosterRow({ item, schoolId }: { item: RosterItem; schoolId: string }) {
         <tr>
           <td colSpan={4} className="bg-amber-50 px-4 py-3">
             <p className="mb-2 text-xs text-amber-800">
-              Reset password for <strong>{item.student_email}</strong>? A new
-              temporary password will be emailed to them.
+              Reset password for <strong>{item.student_email}</strong>? A new temporary
+              password will be emailed to them.
             </p>
             <div className="flex gap-2">
               <Button
@@ -282,7 +298,11 @@ function AdminStudentView({ schoolId }: { schoolId: string }) {
 
   const { mutate: doProvision, isPending: provisioning } = useMutation({
     mutationFn: () =>
-      provisionStudent(schoolId, { name: addName, email: addEmail, grade: Number(addGrade) }),
+      provisionStudent(schoolId, {
+        name: addName,
+        email: addEmail,
+        grade: Number(addGrade),
+      }),
     onSuccess: (res) => {
       setAddSuccess(res.email);
       setAddName("");
@@ -447,7 +467,10 @@ function AdminStudentView({ schoolId }: { schoolId: string }) {
                 id="student_email"
                 type="email"
                 value={addEmail}
-                onChange={(e) => { setAddEmail(e.target.value); setAddError(null); }}
+                onChange={(e) => {
+                  setAddEmail(e.target.value);
+                  setAddError(null);
+                }}
                 placeholder="alex@school.edu"
               />
             </div>
@@ -460,7 +483,9 @@ function AdminStudentView({ schoolId }: { schoolId: string }) {
                 className="h-9 w-full rounded-md border border-gray-200 bg-white px-3 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               >
                 {[5, 6, 7, 8, 9, 10, 11, 12].map((g) => (
-                  <option key={g} value={g}>Grade {g}</option>
+                  <option key={g} value={g}>
+                    Grade {g}
+                  </option>
                 ))}
               </select>
             </div>
@@ -471,13 +496,17 @@ function AdminStudentView({ schoolId }: { schoolId: string }) {
             <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
               <Check className="h-4 w-4 shrink-0" />
               Student added. A temporary password has been sent to{" "}
-              <span className="font-medium">{addSuccess}</span>. They must set a
-              new password on first login.
+              <span className="font-medium">{addSuccess}</span>. They must set a new
+              password on first login.
             </div>
           )}
 
           <Button
-            onClick={() => { setAddError(null); setAddSuccess(null); doProvision(); }}
+            onClick={() => {
+              setAddError(null);
+              setAddSuccess(null);
+              doProvision();
+            }}
             disabled={provisioning || !addName || !addEmail}
             className="gap-2"
           >

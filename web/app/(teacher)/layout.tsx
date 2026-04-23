@@ -28,7 +28,9 @@ export default async function TeacherLayout({ children }: { children: React.Reac
     <QueryProvider>
       <div className="flex min-h-screen flex-col bg-gray-50">
         <PortalHeader portal="school" userName={userName} />
-        <main id="main-content" className="flex-1">{children}</main>
+        <main id="main-content" className="flex-1">
+          {children}
+        </main>
         <PortalFooter />
       </div>
     </QueryProvider>

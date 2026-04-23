@@ -1,0 +1,16 @@
+# Generated files — do not format.
+lib/api/types.gen.ts
+openapi.json
+
+# Build output
+.next/
+out/
+dist/
+
+# Dependencies
+node_modules/
+
+# Test output
+test-results/
+playwright-report/
+coverage/

@@ -26,11 +26,7 @@ import type { Page } from "@playwright/test";
 import { makeTeacherToken, devSessionCookie } from "../helpers/tokens";
 
 const SCHOOL_ID = "test-school-001";
-const TEACHER_TOKEN = makeTeacherToken(
-  "test-teacher-001",
-  SCHOOL_ID,
-  "school_admin",
-);
+const TEACHER_TOKEN = makeTeacherToken("test-teacher-001", SCHOOL_ID, "school_admin");
 
 const DEFINITION_ID = "def-test-001";
 const SUBMITTED_DEFINITION = {
@@ -132,9 +128,7 @@ async function stubDefinitionApis(page: Page, opts: { overage?: boolean } = {}) 
   );
 
   // Catch-all
-  await page.route("**/api/v1/**", (route) =>
-    route.fulfill({ status: 200, json: {} }),
-  );
+  await page.route("**/api/v1/**", (route) => route.fulfill({ status: 200, json: {} }));
 }
 
 // ── Tests ────────────────────────────────────────────────────────────────────
@@ -151,16 +145,12 @@ test.describe("School admin — curriculum submission flow (#188)", () => {
     await expect(page.getByLabel(/^grade$/i)).toBeVisible();
   });
 
-  test("wizard submits and posts to the definitions endpoint", async ({
-    page,
-  }) => {
+  test("wizard submits and posts to the definitions endpoint", async ({ page }) => {
     // Capture the POST before navigation so no request is missed.
     const postBodyPromise = page.waitForRequest(
       (req) =>
         req.method() === "POST" &&
-        req.url().endsWith(
-          `/api/v1/schools/${SCHOOL_ID}/curriculum/definitions`,
-        ),
+        req.url().endsWith(`/api/v1/schools/${SCHOOL_ID}/curriculum/definitions`),
     );
 
     await page.goto("/school/curriculum/definitions/new");
@@ -173,9 +163,7 @@ test.describe("School admin — curriculum submission flow (#188)", () => {
     // Step 1 — Subjects. A default subject row with one empty unit is already
     // rendered by the page; validateStep(1) requires subject_label + unit title
     // to be non-empty. Selectors match SubjectCard + UnitRow placeholders.
-    await page
-      .getByPlaceholder("Subject name (e.g. Mathematics)")
-      .fill("Accountancy");
+    await page.getByPlaceholder("Subject name (e.g. Mathematics)").fill("Accountancy");
     await page.getByPlaceholder("Unit title").fill("Introduction to Accounting");
     await page.getByRole("button", { name: /^Next$/i }).click();
 
@@ -183,9 +171,7 @@ test.describe("School admin — curriculum submission flow (#188)", () => {
     await page.getByRole("button", { name: /^Next$/i }).click();
 
     // Step 3 — Review. Fire the mutation.
-    await page
-      .getByRole("button", { name: /submit for approval/i })
-      .click();
+    await page.getByRole("button", { name: /submit for approval/i }).click();
 
     // Assert the wizard collected the right shape.
     const req = await postBodyPromise;
@@ -204,9 +190,7 @@ test.describe("School admin — curriculum submission flow (#188)", () => {
     expect(body.subjects[0].units[0].title).toBe("Introduction to Accounting");
   });
 
-  test.fixme("approval queue lists the submitted definition", async ({
-    page,
-  }) => {
+  test.fixme("approval queue lists the submitted definition", async ({ page }) => {
     // UNBLOCK: run `cd web && npx playwright test -g "approval queue" --trace=on`
     // then `npx playwright show-trace test-results/.../trace.zip` and inspect the
     // Network tab. The list fetch is initiated by a React Query hook on the
@@ -219,9 +203,7 @@ test.describe("School admin — curriculum submission flow (#188)", () => {
     await expect(page.getByText(/pending/i).first()).toBeVisible();
   });
 
-  test.fixme("definition detail view shows grade, status, subjects", async ({
-    page,
-  }) => {
+  test.fixme("definition detail view shows grade, status, subjects", async ({ page }) => {
     // UNBLOCK: run `cd web && npx playwright test -g "detail view" --trace=on`
     // and inspect the trace Network tab for the single-definition fetch from
     // `web/app/(school)/school/curriculum/definitions/[definitionId]/page.tsx`.
@@ -247,11 +229,7 @@ test.describe("School admin — curriculum submission flow (#188)", () => {
     await page.goto(`/school/curriculum/definitions/${DEFINITION_ID}`);
 
     const estimatePromise = page.waitForResponse((res) =>
-      res
-        .url()
-        .endsWith(
-          `/definitions/${DEFINITION_ID}/estimate`,
-        ),
+      res.url().endsWith(`/definitions/${DEFINITION_ID}/estimate`),
     );
 
     const estimateBtn = page.getByRole("button", { name: /estimate|cost/i }).first();
@@ -278,11 +256,7 @@ test.describe("School admin — curriculum submission flow (#188)", () => {
     await page.goto(`/school/curriculum/definitions/${DEFINITION_ID}`);
 
     const triggerPromise = page.waitForResponse((res) =>
-      res
-        .url()
-        .endsWith(
-          `/definitions/${DEFINITION_ID}/trigger`,
-        ),
+      res.url().endsWith(`/definitions/${DEFINITION_ID}/trigger`),
     );
 
     const triggerBtn = page
@@ -322,11 +296,7 @@ test.describe("School admin — curriculum build overage gate", () => {
     await page.goto(`/school/curriculum/definitions/${DEFINITION_ID}`);
 
     const estimatePromise = page.waitForResponse((res) =>
-      res
-        .url()
-        .endsWith(
-          `/definitions/${DEFINITION_ID}/estimate`,
-        ),
+      res.url().endsWith(`/definitions/${DEFINITION_ID}/estimate`),
     );
 
     const estimateBtn = page.getByRole("button", { name: /estimate|cost/i }).first();

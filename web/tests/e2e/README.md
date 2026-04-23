@@ -60,12 +60,12 @@ npx playwright test
 
 Runs all **four** Playwright projects in parallel:
 
-| Project | Files | What it covers |
-|---|---|---|
-| `chromium` | `landing-page.spec.ts`, `login-pages.spec.ts`, `auth-redirects.spec.ts`, `admin-portal.spec.ts`, `public.spec.ts`, `pricing-page.spec.ts`, `static-pages.spec.ts`, `student_flow.spec.ts` | Public pages, login flows, auth-redirect rules, admin portal smoke |
-| `persona-student` | `personas/student-accessibility.spec.ts` | Student-role pages with mocked APIs + axe WCAG 2.1 AA checks |
-| `persona-teacher` | `personas/teacher-accessibility.spec.ts`, `personas/school-admin-curriculum-flow.spec.ts` | Teacher / school-admin pages with mocked APIs + axe; new school-admin curriculum-submission flow (#188) |
-| `persona-admin` | `personas/admin-accessibility.spec.ts` | Super-admin / product-admin / developer / tester pages; role-based nav differences |
+| Project           | Files                                                                                                                                                                                     | What it covers                                                                                          |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `chromium`        | `landing-page.spec.ts`, `login-pages.spec.ts`, `auth-redirects.spec.ts`, `admin-portal.spec.ts`, `public.spec.ts`, `pricing-page.spec.ts`, `static-pages.spec.ts`, `student_flow.spec.ts` | Public pages, login flows, auth-redirect rules, admin portal smoke                                      |
+| `persona-student` | `personas/student-accessibility.spec.ts`                                                                                                                                                  | Student-role pages with mocked APIs + axe WCAG 2.1 AA checks                                            |
+| `persona-teacher` | `personas/teacher-accessibility.spec.ts`, `personas/school-admin-curriculum-flow.spec.ts`                                                                                                 | Teacher / school-admin pages with mocked APIs + axe; new school-admin curriculum-submission flow (#188) |
+| `persona-admin`   | `personas/admin-accessibility.spec.ts`                                                                                                                                                    | Super-admin / product-admin / developer / tester pages; role-based nav differences                      |
 
 Expected outcome: **120 passing, ~8 `fixme`'d, 0 failing**. Run time: ~2 min.
 
@@ -98,6 +98,7 @@ npx playwright test --ui
 ```
 
 Opens a Chromium-based test runner with:
+
 - Time-travel: hover any step to see the DOM snapshot at that moment.
 - Pick-locator: click an element in the snapshot to auto-generate a
   Playwright locator expression.
@@ -138,14 +139,14 @@ Playwright fails loudly — the terminal output shows:
 
 ### 3.1 Common failure patterns
 
-| Symptom | Likely cause | Fix |
-|---|---|---|
-| `Error: element(s) not found` with a selector that worked yesterday | UI copy changed | Update the selector in the spec (prefer roles + accessible names over raw text) |
-| `Error: strict mode violation: getByRole(...) resolved to N elements` | Multiple elements match (e.g. duplicate sidebar + footer links) | Add `.first()` or narrow with a parent locator |
-| `Error: browserType.launch: Executable doesn't exist` | Browser binary missing | `npx playwright install chromium` |
-| `Error: spawn ... ENOENT` + `__memset_chk: symbol not found` | Running Playwright inside the Alpine container | Run on host instead — see §6 |
-| `Timeout: 5000ms` waiting for a network request | Mock route doesn't match the real URL pattern | Run with `--trace=on` and inspect the network panel; tighten the route glob |
-| Color-contrast axe failures | Known debt tracked in issue #189 | Do NOT add more rules to `KNOWN_A11Y_EXCLUSIONS` — fix the app |
+| Symptom                                                               | Likely cause                                                    | Fix                                                                             |
+| --------------------------------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `Error: element(s) not found` with a selector that worked yesterday   | UI copy changed                                                 | Update the selector in the spec (prefer roles + accessible names over raw text) |
+| `Error: strict mode violation: getByRole(...) resolved to N elements` | Multiple elements match (e.g. duplicate sidebar + footer links) | Add `.first()` or narrow with a parent locator                                  |
+| `Error: browserType.launch: Executable doesn't exist`                 | Browser binary missing                                          | `npx playwright install chromium`                                               |
+| `Error: spawn ... ENOENT` + `__memset_chk: symbol not found`          | Running Playwright inside the Alpine container                  | Run on host instead — see §6                                                    |
+| `Timeout: 5000ms` waiting for a network request                       | Mock route doesn't match the real URL pattern                   | Run with `--trace=on` and inspect the network panel; tighten the route glob     |
+| Color-contrast axe failures                                           | Known debt tracked in issue #189                                | Do NOT add more rules to `KNOWN_A11Y_EXCLUSIONS` — fix the app                  |
 
 ### 3.2 Debugging with trace
 
@@ -182,11 +183,11 @@ web/tests/e2e/
 
 ### 4.2 Pick the right project
 
-| If your test needs... | Put it here |
-|---|---|
-| A logged-out public page | New `*.spec.ts` under `tests/e2e/`; extend the `chromium` `testMatch` glob in `playwright.config.ts` |
-| A logged-in student | `personas/*.spec.ts`; use the `persona-student` project; reuse `setupStudentAuth()` from `student-accessibility.spec.ts` |
-| A logged-in teacher / school_admin | `personas/*.spec.ts`; use the `persona-teacher` project; reuse `setupTeacherAuth()` |
+| If your test needs...                               | Put it here                                                                                                                     |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| A logged-out public page                            | New `*.spec.ts` under `tests/e2e/`; extend the `chromium` `testMatch` glob in `playwright.config.ts`                            |
+| A logged-in student                                 | `personas/*.spec.ts`; use the `persona-student` project; reuse `setupStudentAuth()` from `student-accessibility.spec.ts`        |
+| A logged-in teacher / school_admin                  | `personas/*.spec.ts`; use the `persona-teacher` project; reuse `setupTeacherAuth()`                                             |
 | A logged-in super-admin / product-admin / developer | `personas/*.spec.ts`; use the `persona-admin` project; reuse `setupAdminAuth()` + `SUPER_TOKEN` / `PRODUCT_TOKEN` / `DEV_TOKEN` |
 
 ### 4.3 Auth setup for persona tests
@@ -209,6 +210,7 @@ async function setupAuth(page: Page) {
 ```
 
 `helpers/tokens.ts` exports:
+
 - `makeStudentToken()` → stored as `sb_token`
 - `makeTeacherToken(teacherId, schoolId, role)` → stored as `sb_teacher_token`
 - `makeAdminToken(role)` → stored as `sb_admin_token`
@@ -233,9 +235,7 @@ Always include a **catch-all** at the end so unexpected calls don't
 hang the test on a timeout:
 
 ```typescript
-await page.route("**/api/v1/**", (route) =>
-  route.fulfill({ status: 200, json: {} }),
-);
+await page.route("**/api/v1/**", (route) => route.fulfill({ status: 200, json: {} }));
 ```
 
 ### 4.5 Prefer role-based locators
@@ -276,9 +276,7 @@ specs without filing a GitHub issue first (currently tracked in #189).
 The three persona specs disable one axe rule:
 
 ```typescript
-const KNOWN_A11Y_EXCLUSIONS = [
-  "color-contrast",
-] as const;
+const KNOWN_A11Y_EXCLUSIONS = ["color-contrast"] as const;
 ```
 
 Each is tracked in GitHub issue **#189** with root-cause hypothesis +
@@ -308,6 +306,7 @@ Error relocating chrome-headless-shell: __memset_chk: symbol not found
 ```
 
 Options we rejected:
+
 - Switching the container base to Debian / Ubuntu — larger image, no
   other benefit given the host has Node installed already.
 - Using Playwright's official `mcr.microsoft.com/playwright` Docker image
@@ -325,11 +324,11 @@ install chromium` after cloning.
 Some tests are marked `test.fixme(...)` — they don't run, but the spec
 skeleton stays visible as a to-do list.
 
-| Spec | Test | Reason |
-|---|---|---|
-| `landing-page.spec.ts` | PUB-03 — primary CTA | Hero CTAs changed to `<DemoRequestModal />`; needs rewrite to assert modal behaviour |
-| `landing-page.spec.ts` | PUB-04 — secondary CTA | Same UX change; "See how it works" became a text link to `/tour` |
-| `school-admin-curriculum-flow.spec.ts` | (6 tests) | Wizard happy-path skeleton; each fixme carries notes on what the per-step field fills need |
+| Spec                                   | Test                   | Reason                                                                                     |
+| -------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------ |
+| `landing-page.spec.ts`                 | PUB-03 — primary CTA   | Hero CTAs changed to `<DemoRequestModal />`; needs rewrite to assert modal behaviour       |
+| `landing-page.spec.ts`                 | PUB-04 — secondary CTA | Same UX change; "See how it works" became a text link to `/tour`                           |
+| `school-admin-curriculum-flow.spec.ts` | (6 tests)              | Wizard happy-path skeleton; each fixme carries notes on what the per-step field fills need |
 
 To unfixme a test, change `test.fixme(...)` back to `test(...)` and make
 it pass.

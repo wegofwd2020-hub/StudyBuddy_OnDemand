@@ -88,7 +88,7 @@ export default function SchoolDashboard() {
 
   const assignedGrades = useMemo(() => {
     if (isAdmin || !teachers || !teacher?.teacher_id) return null;
-    const me = teachers.find(t => t.teacher_id === teacher.teacher_id);
+    const me = teachers.find((t) => t.teacher_id === teacher.teacher_id);
     return me?.assigned_grades ?? [];
   }, [teachers, teacher, isAdmin]);
 
@@ -136,13 +136,14 @@ export default function SchoolDashboard() {
         {/* My Classes — shown for non-admin teachers with assigned grades */}
         {!isAdmin && assignedGrades && assignedGrades.length > 0 && (
           <section>
-            <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-gray-500">
+            <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold tracking-wide text-gray-500 uppercase">
               <GraduationCap className="h-4 w-4" />
               My Classes
             </h2>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-              {assignedGrades.map(grade => {
-                const studentCount = classMetrics?.students.filter(s => s.grade === grade).length ?? 0;
+              {assignedGrades.map((grade) => {
+                const studentCount =
+                  classMetrics?.students.filter((s) => s.grade === grade).length ?? 0;
                 return (
                   <div key={grade} className="rounded-lg border bg-white p-4 shadow-sm">
                     <p className="text-3xl font-bold text-indigo-600">{grade}</p>
@@ -187,7 +188,9 @@ export default function SchoolDashboard() {
             />
             <KpiCard
               title="Active this week"
-              value={overview.active_pct != null ? `${overview.active_pct.toFixed(0)}%` : "—"}
+              value={
+                overview.active_pct != null ? `${overview.active_pct.toFixed(0)}%` : "—"
+              }
               subtitle={`${overview.active_students_period ?? 0} of ${overview.enrolled_students ?? 0}`}
               icon={<TrendingUp className="h-5 w-5" />}
               accent="green"
@@ -229,36 +232,38 @@ export default function SchoolDashboard() {
           </div>
         ) : null}
 
-        {overview && overview.units_with_struggles && overview.units_with_struggles.length > 0 && (
-          <Card className="border shadow-sm">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-base">
-                <AlertTriangle className="h-4 w-4 text-orange-500" />
-                Units needing attention
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-2">
-                {overview.units_with_struggles.map((uid) => (
-                  <Badge
-                    key={uid}
-                    className="border-orange-200 bg-orange-50 text-orange-700"
-                  >
-                    {uid}
-                  </Badge>
-                ))}
-              </div>
-              <LinkButton
-                href="/school/reports/at-risk"
-                variant="outline"
-                size="sm"
-                className="mt-3"
-              >
-                View at-risk report
-              </LinkButton>
-            </CardContent>
-          </Card>
-        )}
+        {overview &&
+          overview.units_with_struggles &&
+          overview.units_with_struggles.length > 0 && (
+            <Card className="border shadow-sm">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <AlertTriangle className="h-4 w-4 text-orange-500" />
+                  Units needing attention
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-wrap gap-2">
+                  {overview.units_with_struggles.map((uid) => (
+                    <Badge
+                      key={uid}
+                      className="border-orange-200 bg-orange-50 text-orange-700"
+                    >
+                      {uid}
+                    </Badge>
+                  ))}
+                </div>
+                <LinkButton
+                  href="/school/reports/at-risk"
+                  variant="outline"
+                  size="sm"
+                  className="mt-3"
+                >
+                  View at-risk report
+                </LinkButton>
+              </CardContent>
+            </Card>
+          )}
 
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
           {[

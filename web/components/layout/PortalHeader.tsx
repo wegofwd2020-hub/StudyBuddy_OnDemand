@@ -87,7 +87,7 @@ export function PortalHeader({
             </span>
           )}
           {now && (
-            <span className="whitespace-nowrap tabular-nums text-gray-500">
+            <span className="whitespace-nowrap text-gray-500 tabular-nums">
               {now.toLocaleDateString()}{" "}
               {now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
             </span>

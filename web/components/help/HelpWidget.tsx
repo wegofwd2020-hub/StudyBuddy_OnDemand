@@ -115,7 +115,7 @@ function StepList({ steps }: { steps: string[] }) {
           <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-violet-100 text-xs font-semibold text-violet-700">
             {i + 1}
           </span>
-          <span className="text-sm text-gray-700 leading-snug">{step}</span>
+          <span className="text-sm leading-snug text-gray-700">{step}</span>
         </li>
       ))}
     </ol>
@@ -165,14 +165,14 @@ function FeedbackBar({ interactionId }: { interactionId: string | null }) {
       <button
         onClick={() => handleFeedback(true)}
         aria-label="Thumbs up — this answer was helpful"
-        className="rounded p-1 text-gray-400 hover:bg-green-50 hover:text-green-600 focus:outline-none focus:ring-1 focus:ring-green-400"
+        className="rounded p-1 text-gray-400 hover:bg-green-50 hover:text-green-600 focus:ring-1 focus:ring-green-400 focus:outline-none"
       >
         <ThumbsUp className="h-3.5 w-3.5" />
       </button>
       <button
         onClick={() => handleFeedback(false)}
         aria-label="Thumbs down — this answer was not helpful"
-        className="rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-500 focus:outline-none focus:ring-1 focus:ring-red-400"
+        className="rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-500 focus:ring-1 focus:ring-red-400 focus:outline-none"
       >
         <ThumbsDown className="h-3.5 w-3.5" />
       </button>
@@ -191,7 +191,7 @@ function ResponseCard({ response }: { response: HelpAskResponse }) {
 
       {/* Result */}
       {response.result && (
-        <p className="rounded-md bg-green-50 px-3 py-2 text-xs text-green-800 leading-snug">
+        <p className="rounded-md bg-green-50 px-3 py-2 text-xs leading-snug text-green-800">
           {response.result}
         </p>
       )}
@@ -201,9 +201,7 @@ function ResponseCard({ response }: { response: HelpAskResponse }) {
 
       {/* Sources (small attribution) */}
       {response.sources.length > 0 && (
-        <p className="text-xs text-gray-400">
-          Sources: {response.sources.join(" · ")}
-        </p>
+        <p className="text-xs text-gray-400">Sources: {response.sources.join(" · ")}</p>
       )}
 
       {/* Thumbs feedback (Deliver-4) */}
@@ -214,7 +212,7 @@ function ResponseCard({ response }: { response: HelpAskResponse }) {
 
 function LoadingSkeleton() {
   return (
-    <div className="space-y-3 animate-pulse">
+    <div className="animate-pulse space-y-3">
       <div className="h-4 w-3/4 rounded bg-gray-200" />
       <div className="space-y-2">
         {[1, 2, 3].map((i) => (
@@ -279,9 +277,7 @@ export function HelpWidget() {
       setResponse(data);
     } catch (err) {
       setError(
-        err instanceof Error
-          ? err.message
-          : "Something went wrong. Please try again.",
+        err instanceof Error ? err.message : "Something went wrong. Please try again.",
       );
     } finally {
       setIsLoading(false);
@@ -305,7 +301,7 @@ export function HelpWidget() {
         <button
           onClick={handleOpen}
           aria-label="Open help"
-          className="fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-violet-600 text-white shadow-lg transition-transform hover:scale-105 hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2"
+          className="fixed right-6 bottom-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-violet-600 text-white shadow-lg transition-transform hover:scale-105 hover:bg-violet-700 focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:outline-none"
         >
           <HelpCircle className="h-6 w-6" />
         </button>
@@ -314,7 +310,7 @@ export function HelpWidget() {
       {/* ── Slide-up panel ──────────────────────────────────────────────── */}
       {isOpen && (
         <div
-          className="fixed bottom-6 right-6 z-50 flex w-[360px] flex-col rounded-2xl bg-white shadow-2xl ring-1 ring-gray-200"
+          className="fixed right-6 bottom-6 z-50 flex w-[360px] flex-col rounded-2xl bg-white shadow-2xl ring-1 ring-gray-200"
           style={{ maxHeight: "calc(100vh - 80px)" }}
           role="dialog"
           aria-label="StudyBuddy Help"
@@ -324,9 +320,7 @@ export function HelpWidget() {
           <div className="flex items-center justify-between rounded-t-2xl bg-violet-600 px-4 py-3">
             <div className="flex items-center gap-2">
               <HelpCircle className="h-4 w-4 text-violet-200" />
-              <span className="text-sm font-semibold text-white">
-                StudyBuddy Help
-              </span>
+              <span className="text-sm font-semibold text-white">StudyBuddy Help</span>
             </div>
             <button
               onClick={handleClose}
@@ -355,11 +349,9 @@ export function HelpWidget() {
                 onKeyDown={handleKeyDown}
                 placeholder="e.g. How do I add a teacher?"
                 rows={2}
-                className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 focus:outline-none"
               />
-              <p className="mt-1 text-right text-xs text-gray-400">
-                Ctrl+Enter to send
-              </p>
+              <p className="mt-1 text-right text-xs text-gray-400">Ctrl+Enter to send</p>
             </div>
 
             {/* Submit / Reset buttons */}

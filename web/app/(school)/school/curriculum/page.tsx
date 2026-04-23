@@ -161,7 +161,7 @@ function JsonPipelineSection({ schoolId }: { schoolId: string }) {
     setState("uploading");
     setError(null);
     try {
-      const uploaded = await uploadCurriculumJSON(schoolId, file, year);
+      await uploadCurriculumJSON(schoolId, file, year);
       const triggered = await triggerSchoolPipeline(schoolId, {
         langs: Array.from(langs).join(","),
         force,
@@ -212,8 +212,8 @@ function JsonPipelineSection({ schoolId }: { schoolId: string }) {
       {parsed && (
         <div className="flex items-center gap-2 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-xs text-blue-700">
           <CheckCircle className="h-3.5 w-3.5 shrink-0" />
-          Grade {parsed.grade} — {parsed.unitCount} unit{parsed.unitCount !== 1 ? "s" : ""}{" "}
-          detected
+          Grade {parsed.grade} — {parsed.unitCount} unit
+          {parsed.unitCount !== 1 ? "s" : ""} detected
         </div>
       )}
 
@@ -533,14 +533,15 @@ export default function CurriculumPage() {
       {/* Definitions panel */}
       <Link
         href="/school/curriculum/definitions"
-        className="flex items-center justify-between rounded-lg border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm hover:bg-indigo-100 transition-colors"
+        className="flex items-center justify-between rounded-lg border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm transition-colors hover:bg-indigo-100"
       >
         <div className="flex items-center gap-3">
           <FileText className="h-5 w-5 text-indigo-600" />
           <div>
             <p className="font-medium text-indigo-900">Curriculum Definitions</p>
             <p className="text-xs text-indigo-600">
-              Build a form-based definition and submit for approval before generating content.
+              Build a form-based definition and submit for approval before generating
+              content.
             </p>
           </div>
         </div>
@@ -581,7 +582,9 @@ export default function CurriculumPage() {
       {tab === "json" ? (
         <Card className="border shadow-sm">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Upload grade JSON &amp; trigger pipeline</CardTitle>
+            <CardTitle className="text-base">
+              Upload grade JSON &amp; trigger pipeline
+            </CardTitle>
             <p className="text-sm text-gray-500">
               Upload a pipeline-schema JSON file. Content will be generated for the
               selected languages.

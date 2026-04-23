@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTeacher } from "@/lib/hooks/useTeacher";
@@ -33,9 +34,7 @@ function SubjectRow({ s }: { s: CatalogSubjectSummary }) {
       ) : (
         <Circle className="h-3.5 w-3.5 shrink-0 text-gray-300" />
       )}
-      <span className="flex-1 text-gray-700">
-        {s.subject_name ?? s.subject}
-      </span>
+      <span className="flex-1 text-gray-700">{s.subject_name ?? s.subject}</span>
       <span className="text-xs text-gray-400">
         {s.unit_count} unit{s.unit_count !== 1 ? "s" : ""}
       </span>
@@ -67,8 +66,8 @@ function CatalogCard({ pkg }: { pkg: CatalogEntry }) {
               )}
             </div>
             <p className="mt-0.5 text-xs text-gray-400">
-              {pkg.year} · {pkg.subject_count} subject{pkg.subject_count !== 1 ? "s" : ""} ·{" "}
-              {pkg.unit_count} unit{pkg.unit_count !== 1 ? "s" : ""}
+              {pkg.year} · {pkg.subject_count} subject{pkg.subject_count !== 1 ? "s" : ""}{" "}
+              · {pkg.unit_count} unit{pkg.unit_count !== 1 ? "s" : ""}
             </p>
           </div>
 
@@ -148,11 +147,14 @@ export default function CatalogPage() {
 
       <p className="text-sm text-gray-500">
         Platform-built curriculum packages available for assignment to your classrooms.
-        Each package covers a full grade&apos;s content across multiple subjects and units.
-        Assign packages to classrooms from the{" "}
-        <a href="/school/classrooms" className="text-indigo-600 underline-offset-2 hover:underline">
+        Each package covers a full grade&apos;s content across multiple subjects and
+        units. Assign packages to classrooms from the{" "}
+        <Link
+          href="/school/classrooms"
+          className="text-indigo-600 underline-offset-2 hover:underline"
+        >
           Classrooms
-        </a>{" "}
+        </Link>{" "}
         page.
       </p>
 
@@ -167,7 +169,7 @@ export default function CatalogPage() {
           onChange={(e) =>
             setGradeFilter(e.target.value === "" ? "" : Number(e.target.value))
           }
-          className="h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          className="border-input focus-visible:ring-ring h-9 rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:ring-1 focus-visible:outline-none"
         >
           <option value="">All grades</option>
           {ALL_GRADES.map((g) => (

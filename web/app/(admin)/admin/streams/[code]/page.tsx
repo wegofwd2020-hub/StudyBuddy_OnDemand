@@ -198,10 +198,10 @@ export default function AdminStreamDetailPage() {
               deletable
                 ? "Delete"
                 : stream.is_system
-                ? "System streams can't be deleted"
-                : stream.curricula_count > 0
-                ? "Merge curricula away before deleting"
-                : "Archive before deleting"
+                  ? "System streams can't be deleted"
+                  : stream.curricula_count > 0
+                    ? "Merge curricula away before deleting"
+                    : "Archive before deleting"
             }
             className={
               deletable
@@ -235,7 +235,9 @@ export default function AdminStreamDetailPage() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500">Display name</label>
+            <label className="mb-1 block text-xs font-medium text-gray-500">
+              Display name
+            </label>
             <input
               type="text"
               value={displayValue}
@@ -244,7 +246,9 @@ export default function AdminStreamDetailPage() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-500">Description</label>
+            <label className="mb-1 block text-xs font-medium text-gray-500">
+              Description
+            </label>
             <textarea
               value={descValue}
               onChange={(e) => setEditDesc(e.target.value)}
@@ -274,7 +278,10 @@ export default function AdminStreamDetailPage() {
         ) : (
           <ul className="divide-y divide-gray-100">
             {curricula.map((c) => (
-              <li key={c.curriculum_id} className="flex items-center justify-between py-2 text-sm">
+              <li
+                key={c.curriculum_id}
+                className="flex items-center justify-between py-2 text-sm"
+              >
                 <div>
                   <p className="font-mono text-xs text-gray-500">{c.curriculum_id}</p>
                   <p className="text-gray-900">{c.name ?? `Grade ${c.grade}`}</p>

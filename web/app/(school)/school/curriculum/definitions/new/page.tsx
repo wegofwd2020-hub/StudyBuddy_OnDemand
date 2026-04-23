@@ -13,7 +13,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import {
   FileText,
   ChevronRight,
@@ -64,10 +63,8 @@ function StepBasics({
         <select
           id="def_grade"
           value={grade}
-          onChange={(e) =>
-            setGrade(e.target.value === "" ? "" : Number(e.target.value))
-          }
-          className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          onChange={(e) => setGrade(e.target.value === "" ? "" : Number(e.target.value))}
+          className="border-input focus-visible:ring-ring flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:ring-1 focus-visible:outline-none"
         >
           <option value="">Select grade</option>
           {ALL_GRADES.map((g) => (
@@ -211,7 +208,12 @@ function StepSubjects({
           onRemove={() => removeSubject(i)}
         />
       ))}
-      <Button type="button" variant="outline" onClick={addSubject} className="w-full gap-2">
+      <Button
+        type="button"
+        variant="outline"
+        onClick={addSubject}
+        className="w-full gap-2"
+      >
         <Plus className="h-4 w-4" />
         Add subject
       </Button>
@@ -240,8 +242,8 @@ function StepLanguages({
   return (
     <div className="space-y-3">
       <p className="text-sm text-gray-500">
-        Select the languages in which content should be generated. Each language is a separate
-        pipeline run.
+        Select the languages in which content should be generated. Each language is a
+        separate pipeline run.
       </p>
       <div className="flex flex-wrap gap-3">
         {SUPPORTED_LANGUAGES.map((lang) => {
@@ -264,7 +266,8 @@ function StepLanguages({
         })}
       </div>
       <p className="text-xs text-gray-400">
-        At least one language is required. Content cost scales with the number of languages.
+        At least one language is required. Content cost scales with the number of
+        languages.
       </p>
     </div>
   );
@@ -286,7 +289,7 @@ function StepReview({
   const totalUnits = subjects.reduce((acc, s) => acc + s.units.length, 0);
   return (
     <div className="space-y-4">
-      <div className="rounded-lg bg-gray-50 p-4 space-y-3 text-sm">
+      <div className="space-y-3 rounded-lg bg-gray-50 p-4 text-sm">
         <div className="flex justify-between">
           <span className="text-gray-500">Name</span>
           <span className="font-medium text-gray-900">{name}</span>
@@ -314,7 +317,9 @@ function StepReview({
       <div className="space-y-3">
         {subjects.map((s, i) => (
           <div key={i} className="rounded-lg border p-3">
-            <p className="text-sm font-medium text-gray-800">{s.subject_label || "(unnamed)"}</p>
+            <p className="text-sm font-medium text-gray-800">
+              {s.subject_label || "(unnamed)"}
+            </p>
             <ul className="mt-1.5 space-y-1">
               {s.units.map((u, j) => (
                 <li key={j} className="flex items-center gap-1.5 text-xs text-gray-500">
@@ -455,14 +460,17 @@ export default function NewDefinitionPage() {
           {step === 0 && (
             <StepBasics name={name} setName={setName} grade={grade} setGrade={setGrade} />
           )}
-          {step === 1 && (
-            <StepSubjects subjects={subjects} setSubjects={setSubjects} />
-          )}
+          {step === 1 && <StepSubjects subjects={subjects} setSubjects={setSubjects} />}
           {step === 2 && (
             <StepLanguages languages={languages} setLanguages={setLanguages} />
           )}
           {step === 3 && (
-            <StepReview name={name} grade={grade} languages={languages} subjects={subjects} />
+            <StepReview
+              name={name}
+              grade={grade}
+              languages={languages}
+              subjects={subjects}
+            />
           )}
 
           {validationError && (
@@ -480,7 +488,9 @@ export default function NewDefinitionPage() {
         <Button
           type="button"
           variant="ghost"
-          onClick={step === 0 ? () => router.push("/school/curriculum/definitions") : back}
+          onClick={
+            step === 0 ? () => router.push("/school/curriculum/definitions") : back
+          }
           className="gap-2"
         >
           <ChevronLeft className="h-4 w-4" />
@@ -493,7 +503,12 @@ export default function NewDefinitionPage() {
             <ChevronRight className="h-4 w-4" />
           </Button>
         ) : (
-          <Button type="button" onClick={() => mutate()} disabled={isPending} className="gap-2">
+          <Button
+            type="button"
+            onClick={() => mutate()}
+            disabled={isPending}
+            className="gap-2"
+          >
             {isPending ? "Submitting…" : "Submit for approval"}
           </Button>
         )}

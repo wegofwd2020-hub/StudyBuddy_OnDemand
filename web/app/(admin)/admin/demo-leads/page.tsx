@@ -76,13 +76,7 @@ function CopyButton({ text }: { text: string }) {
   );
 }
 
-function ApprovePanel({
-  lead,
-  onDone,
-}: {
-  lead: DemoLeadItem;
-  onDone: () => void;
-}) {
+function ApprovePanel({ lead, onDone }: { lead: DemoLeadItem; onDone: () => void }) {
   const [ttlHours, setTtlHours] = useState(24);
   const [result, setResult] = useState<DemoLeadApproveResponse | null>(null);
   const queryClient = useQueryClient();
@@ -101,7 +95,7 @@ function ApprovePanel({
         <p className="mb-3 font-medium text-green-800">
           Approved — email sent to {lead.email}
         </p>
-        <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <p className="mb-1 text-xs font-semibold tracking-wide text-gray-500 uppercase">
           Tour URLs
         </p>
         {(
@@ -132,10 +126,7 @@ function ApprovePanel({
             timeStyle: "short",
           })}
         </p>
-        <button
-          onClick={onDone}
-          className="mt-3 text-xs text-gray-500 hover:underline"
-        >
+        <button onClick={onDone} className="mt-3 text-xs text-gray-500 hover:underline">
           Close
         </button>
       </div>
@@ -145,8 +136,8 @@ function ApprovePanel({
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-4 text-sm">
       <p className="mb-3 font-medium text-gray-800">
-        Approve demo for{" "}
-        <span className="font-bold">{lead.name}</span> ({lead.school_org})
+        Approve demo for <span className="font-bold">{lead.name}</span> ({lead.school_org}
+        )
       </p>
       <label className="mb-3 flex items-center gap-3">
         <span className="text-xs text-gray-600">Token TTL (hours)</span>
@@ -178,21 +169,13 @@ function ApprovePanel({
         </button>
       </div>
       {approveMut.isError && (
-        <p className="mt-2 text-xs text-red-600">
-          Error approving lead. Try again.
-        </p>
+        <p className="mt-2 text-xs text-red-600">Error approving lead. Try again.</p>
       )}
     </div>
   );
 }
 
-function RejectPanel({
-  lead,
-  onDone,
-}: {
-  lead: DemoLeadItem;
-  onDone: () => void;
-}) {
+function RejectPanel({ lead, onDone }: { lead: DemoLeadItem; onDone: () => void }) {
   const [reason, setReason] = useState("");
   const queryClient = useQueryClient();
 
@@ -207,15 +190,14 @@ function RejectPanel({
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-4 text-sm">
       <p className="mb-3 font-medium text-gray-800">
-        Reject request from{" "}
-        <span className="font-bold">{lead.name}</span>
+        Reject request from <span className="font-bold">{lead.name}</span>
       </p>
       <textarea
         value={reason}
         onChange={(e) => setReason(e.target.value)}
         placeholder="Reason (optional — not shown to requester)"
         rows={2}
-        className="mb-3 w-full rounded border border-gray-200 px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-red-300"
+        className="mb-3 w-full rounded border border-gray-200 px-3 py-2 text-xs focus:ring-1 focus:ring-red-300 focus:outline-none"
       />
       <div className="flex gap-2">
         <button
@@ -244,9 +226,7 @@ function LeadRow({ lead }: { lead: DemoLeadItem }) {
     <div className="border-b last:border-0">
       <div className="flex items-center gap-3 px-4 py-3">
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium text-gray-900">
-            {lead.name}
-          </p>
+          <p className="truncate text-sm font-medium text-gray-900">{lead.name}</p>
           <p className="truncate text-xs text-gray-500">
             {lead.email} · {lead.school_org}
             {lead.ip_country && (
@@ -282,9 +262,7 @@ function LeadRow({ lead }: { lead: DemoLeadItem }) {
             </p>
           )}
           {lead.status === "rejected" && lead.rejected_reason && (
-            <p className="mb-2 text-xs text-gray-500">
-              Reason: {lead.rejected_reason}
-            </p>
+            <p className="mb-2 text-xs text-gray-500">Reason: {lead.rejected_reason}</p>
           )}
 
           {lead.status === "pending" && !action && (
@@ -340,8 +318,7 @@ export default function DemoLeadsPage() {
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["demo-leads", statusFilter],
-    queryFn: () =>
-      listDemoLeads(statusFilter === "all" ? undefined : statusFilter),
+    queryFn: () => listDemoLeads(statusFilter === "all" ? undefined : statusFilter),
   });
 
   return (
@@ -381,9 +358,7 @@ export default function DemoLeadsPage() {
       {/* Lead list */}
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
         {isLoading && (
-          <div className="px-4 py-8 text-center text-sm text-gray-400">
-            Loading…
-          </div>
+          <div className="px-4 py-8 text-center text-sm text-gray-400">Loading…</div>
         )}
         {isError && (
           <div className="px-4 py-8 text-center text-sm text-red-500">
@@ -392,19 +367,15 @@ export default function DemoLeadsPage() {
         )}
         {data && data.leads.length === 0 && (
           <div className="px-4 py-8 text-center text-sm text-gray-400">
-            No{" "}
-            {statusFilter !== "all" ? statusFilter + " " : ""}
+            No {statusFilter !== "all" ? statusFilter + " " : ""}
             leads.
           </div>
         )}
-        {data &&
-          data.leads.map((lead) => <LeadRow key={lead.lead_id} lead={lead} />)}
+        {data && data.leads.map((lead) => <LeadRow key={lead.lead_id} lead={lead} />)}
       </div>
 
       {data && (
-        <p className="mt-3 text-right text-xs text-gray-400">
-          {data.total} total
-        </p>
+        <p className="mt-3 text-right text-xs text-gray-400">{data.total} total</p>
       )}
     </div>
   );

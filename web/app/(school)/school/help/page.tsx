@@ -11,7 +11,7 @@ const GETTING_STARTED_TEACHER = [
   {
     step: "1",
     title: "Log in",
-    body: 'Go to /school/login and sign in with your teacher credentials. The portal loads your assigned grades automatically.',
+    body: "Go to /school/login and sign in with your teacher credentials. The portal loads your assigned grades automatically.",
   },
   {
     step: "2",
@@ -63,9 +63,7 @@ export default function SchoolHelpPage() {
   const teacher = useTeacher();
   const isAdmin = teacher?.role === "school_admin";
 
-  const personaIds = isAdmin
-    ? ["school-admin", "school-teacher"]
-    : ["school-teacher"];
+  const personaIds = isAdmin ? ["school-admin", "school-teacher"] : ["school-teacher"];
   const maps = HELP_MINDMAPS.filter((m) => personaIds.includes(m.id));
   const steps = isAdmin ? GETTING_STARTED_ADMIN : GETTING_STARTED_TEACHER;
 
@@ -88,12 +86,15 @@ export default function SchoolHelpPage() {
 
       {/* Getting started */}
       <section>
-        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-500">
+        <h2 className="mb-4 text-sm font-semibold tracking-wide text-gray-500 uppercase">
           Getting Started
         </h2>
         <ol className="space-y-3">
           {steps.map((s) => (
-            <li key={s.step} className="flex gap-4 rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
+            <li
+              key={s.step}
+              className="flex gap-4 rounded-lg border border-gray-100 bg-white p-4 shadow-sm"
+            >
               <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
                 {s.step}
               </span>
@@ -108,7 +109,7 @@ export default function SchoolHelpPage() {
 
       {/* Mind maps — one per persona, collapsible */}
       <section>
-        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-500">
+        <h2 className="mb-4 text-sm font-semibold tracking-wide text-gray-500 uppercase">
           {isAdmin ? "Persona Mind Maps" : "Your Role — Mind Map"}
         </h2>
         <div className="space-y-4">
@@ -148,7 +149,7 @@ export default function SchoolHelpPage() {
 
       {/* Quick reference */}
       <section>
-        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-500">
+        <h2 className="mb-4 text-sm font-semibold tracking-wide text-gray-500 uppercase">
           Quick Reference
         </h2>
         <div className="overflow-hidden rounded-xl border border-gray-200 shadow-sm">
@@ -162,13 +163,25 @@ export default function SchoolHelpPage() {
             <tbody className="divide-y divide-gray-100">
               {[
                 isAdmin && ["Invite a new teacher", "/school/teachers → Invite"],
-                isAdmin && ["Assign grades to a teacher", "/school/teachers → teacher row → Edit grades"],
+                isAdmin && [
+                  "Assign grades to a teacher",
+                  "/school/teachers → teacher row → Edit grades",
+                ],
                 isAdmin && ["Upload curriculum JSON", "/school/curriculum → Upload"],
-                isAdmin && ["Trigger pipeline build", "/school/curriculum/jobs → Trigger"],
+                isAdmin && [
+                  "Trigger pipeline build",
+                  "/school/curriculum/jobs → Trigger",
+                ],
                 isAdmin && ["View subscription plan", "/school/subscription"],
                 isAdmin && ["View / renew curriculum versions", "/school/retention"],
-                isAdmin && ["Purchase storage add-on", "/school/retention → Storage strip"],
-                isAdmin && ["Assign curriculum version to a grade", "/school/retention → row → Details → Assign"],
+                isAdmin && [
+                  "Purchase storage add-on",
+                  "/school/retention → Storage strip",
+                ],
+                isAdmin && [
+                  "Assign curriculum version to a grade",
+                  "/school/retention → row → Details → Assign",
+                ],
                 ["View AI-generated content", "/school/curriculum/content"],
                 ["Browse a unit's lesson", "/school/curriculum/content → subject → unit"],
                 ["See class performance", "/school/reports/overview"],

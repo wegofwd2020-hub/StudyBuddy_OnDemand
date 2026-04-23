@@ -3,20 +3,31 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTeacher } from "@/lib/hooks/useTeacher";
-import {
-  getSchoolStorage,
-  createStorageCheckout,
-  type StorageBreakdownItem,
-} from "@/lib/api/school-admin";
+import { getSchoolStorage, createStorageCheckout } from "@/lib/api/school-admin";
 import { STORAGE_PACKAGES } from "@/lib/pricing";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, HardDrive, AlertTriangle, CheckCircle, BookOpen, CreditCard } from "lucide-react";
+import {
+  Loader2,
+  HardDrive,
+  AlertTriangle,
+  CheckCircle,
+  BookOpen,
+  CreditCard,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // ── Quota bar ─────────────────────────────────────────────────────────────────
 
-function QuotaBar({ usedGb, totalGb, usedPct }: { usedGb: number; totalGb: number; usedPct: number }) {
+function QuotaBar({
+  usedGb,
+  totalGb,
+  usedPct,
+}: {
+  usedGb: number;
+  totalGb: number;
+  usedPct: number;
+}) {
   const isWarning = usedPct >= 80;
   const isFull = usedPct >= 100;
 
@@ -31,7 +42,9 @@ function QuotaBar({ usedGb, totalGb, usedPct }: { usedGb: number; totalGb: numbe
           )}
         >
           {usedGb.toFixed(2)} GB / {totalGb} GB
-          <span className="ml-1.5 text-xs font-normal text-gray-400">({usedPct.toFixed(1)}%)</span>
+          <span className="ml-1.5 text-xs font-normal text-gray-400">
+            ({usedPct.toFixed(1)}%)
+          </span>
         </span>
       </div>
       <div className="h-3 overflow-hidden rounded-full bg-gray-100">
@@ -52,43 +65,11 @@ function QuotaBar({ usedGb, totalGb, usedPct }: { usedGb: number; totalGb: numbe
       {isFull && (
         <p className="flex items-center gap-1.5 text-xs text-red-600">
           <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
-          Storage quota exceeded — new pipeline builds will fail until you add more storage.
+          Storage quota exceeded — new pipeline builds will fail until you add more
+          storage.
         </p>
       )}
     </div>
-  );
-}
-
-// ── Breakdown row ─────────────────────────────────────────────────────────────
-
-function BreakdownRow({ item, totalGb }: { item: StorageBreakdownItem; totalGb: number }) {
-  const pct = totalGb > 0 ? (item.gb_used / totalGb) * 100 : 0;
-
-  return (
-    <tr className="border-b last:border-0">
-      <td className="py-3 pr-4">
-        <div className="flex items-center gap-2">
-          <BookOpen className="h-3.5 w-3.5 shrink-0 text-gray-400" />
-          <span className="text-sm text-gray-800">{item.name}</span>
-        </div>
-      </td>
-      <td className="py-3 pr-4 text-center">
-        <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
-          Grade {item.grade}
-        </span>
-      </td>
-      <td className="py-3 pr-4 text-right font-mono text-sm tabular-nums text-gray-700">
-        {item.gb_used.toFixed(2)} GB
-      </td>
-      <td className="py-3 pr-4 text-right text-xs text-gray-400 tabular-nums">
-        {item.job_count} build{item.job_count !== 1 ? "s" : ""}
-      </td>
-      <td className="py-3 w-32">
-        <div className="h-1.5 overflow-hidden rounded-full bg-gray-100">
-          <div className="h-full rounded-full bg-blue-400" style={{ width: `${Math.min(pct, 100)}%` }} />
-        </div>
-      </td>
-    </tr>
   );
 }
 
@@ -97,13 +78,11 @@ function BreakdownRow({ item, totalGb }: { item: StorageBreakdownItem; totalGb: 
 function AddOnCard({
   gb,
   priceUsd,
-  label,
   onBuy,
   isLoading,
 }: {
   gb: number;
   priceUsd: string;
-  label: string;
   onBuy: () => void;
   isLoading: boolean;
 }) {
@@ -117,8 +96,18 @@ function AddOnCard({
         <span className="font-mono text-sm font-semibold text-gray-800">
           ${parseFloat(priceUsd).toFixed(0)}
         </span>
-        <Button size="sm" variant="outline" onClick={onBuy} disabled={isLoading} className="gap-1.5">
-          {isLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CreditCard className="h-3.5 w-3.5" />}
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={onBuy}
+          disabled={isLoading}
+          className="gap-1.5"
+        >
+          {isLoading ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <CreditCard className="h-3.5 w-3.5" />
+          )}
           Buy
         </Button>
       </div>
@@ -134,7 +123,9 @@ export default function StoragePage() {
   const isAdmin = teacher?.role === "school_admin";
 
   const [origin, setOrigin] = useState("");
-  useEffect(() => { setOrigin(window.location.origin); }, []);
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
 
   const [buyingGb, setBuyingGb] = useState<number | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
@@ -158,7 +149,7 @@ export default function StoragePage() {
         `${origin}/school/storage?success=1`,
         `${origin}/school/storage?cancelled=1`,
       );
-      window.location.href = checkout_url;
+      window.location.assign(checkout_url);
     } catch {
       setCheckoutError("Could not start checkout. Please try again.");
       setBuyingGb(null);
@@ -199,15 +190,20 @@ export default function StoragePage() {
               {/* Quota breakdown: base + purchased */}
               <div className="flex gap-6 text-xs text-gray-500">
                 <span>
-                  <span className="font-medium text-gray-700">{storage.base_gb} GB</span> base (plan)
+                  <span className="font-medium text-gray-700">{storage.base_gb} GB</span>{" "}
+                  base (plan)
                 </span>
                 {storage.purchased_gb > 0 && (
                   <span>
-                    <span className="font-medium text-gray-700">+{storage.purchased_gb} GB</span> purchased
+                    <span className="font-medium text-gray-700">
+                      +{storage.purchased_gb} GB
+                    </span>{" "}
+                    purchased
                   </span>
                 )}
                 <span>
-                  <span className="font-medium text-gray-700">{storage.total_gb} GB</span> total
+                  <span className="font-medium text-gray-700">{storage.total_gb} GB</span>{" "}
+                  total
                 </span>
               </div>
 
@@ -263,17 +259,19 @@ export default function StoragePage() {
                         Grade {item.grade}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-right font-mono text-sm tabular-nums text-gray-700">
+                    <td className="px-4 py-3 text-right font-mono text-sm text-gray-700 tabular-nums">
                       {item.gb_used.toFixed(2)} GB
                     </td>
                     <td className="px-4 py-3 text-right text-xs text-gray-400 tabular-nums">
                       {item.job_count} build{item.job_count !== 1 ? "s" : ""}
                     </td>
-                    <td className="px-4 py-3 w-32">
+                    <td className="w-32 px-4 py-3">
                       <div className="h-1.5 overflow-hidden rounded-full bg-gray-100">
                         <div
                           className="h-full rounded-full bg-blue-400"
-                          style={{ width: `${Math.min((item.gb_used / storage.total_gb) * 100, 100)}%` }}
+                          style={{
+                            width: `${Math.min((item.gb_used / storage.total_gb) * 100, 100)}%`,
+                          }}
                         />
                       </div>
                     </td>
@@ -299,7 +297,9 @@ export default function StoragePage() {
       {/* Add-on purchase — admins only */}
       {isAdmin && (
         <div className="space-y-3">
-          <h2 className="text-base font-semibold text-gray-900">Purchase additional storage</h2>
+          <h2 className="text-base font-semibold text-gray-900">
+            Purchase additional storage
+          </h2>
           <p className="text-sm text-gray-500">
             One-time purchases. Storage never expires and carries over on plan changes.
           </p>
@@ -317,7 +317,6 @@ export default function StoragePage() {
                 key={pkg.gb}
                 gb={pkg.gb}
                 priceUsd={pkg.priceUsd}
-                label={pkg.label}
                 onBuy={() => handleBuy(pkg.gb)}
                 isLoading={buyingGb === pkg.gb}
               />

@@ -173,7 +173,9 @@ export function DemoTeacherRequestModal() {
                             onClick={handleResend}
                             className="text-cyan-600 underline underline-offset-2 hover:text-cyan-800 disabled:opacity-50"
                           >
-                            {resendState === "sending" ? t("resend_sending") : t("resend_link")}
+                            {resendState === "sending"
+                              ? t("resend_sending")
+                              : t("resend_link")}
                           </button>
                         </p>
                       )}

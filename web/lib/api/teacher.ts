@@ -33,9 +33,7 @@ export interface EarningsItem {
 // ── API calls ─────────────────────────────────────────────────────────────────
 
 export async function getConnectStatus(teacherId: string): Promise<ConnectStatus> {
-  const res = await schoolApi.get<ConnectStatus>(
-    `/teachers/${teacherId}/connect/status`,
-  );
+  const res = await schoolApi.get<ConnectStatus>(`/teachers/${teacherId}/connect/status`);
   return res.data;
 }
 

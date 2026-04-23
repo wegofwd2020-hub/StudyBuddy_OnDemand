@@ -3,7 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { BatchApproveResult, assignReview, batchApproveGrade, getReviewQueue } from "@/lib/api/admin";
+import {
+  BatchApproveResult,
+  assignReview,
+  batchApproveGrade,
+  getReviewQueue,
+} from "@/lib/api/admin";
 import { useAdmin, hasPermission } from "@/lib/hooks/useAdmin";
 import { cn } from "@/lib/utils";
 import { AlertTriangle, CheckCheck, ClipboardList, UserCheck } from "lucide-react";
@@ -53,7 +58,7 @@ const PROVIDER_LABELS: Record<string, string> = {
 };
 
 function ProviderBadge({ provider }: { provider: string | null }) {
-  if (!provider) return <span className="text-gray-300 text-xs">—</span>;
+  if (!provider) return <span className="text-xs text-gray-300">—</span>;
   return (
     <span
       className={cn(
@@ -76,13 +81,16 @@ export default function AdminContentReviewPage() {
   const canSelfAssign = admin && hasPermission(admin.role, "tester");
 
   const assignedToParam =
-    assignFilter === "mine" && admin ? admin.admin_id :
-    assignFilter === "unassigned" ? "unassigned" :
-    undefined;
+    assignFilter === "mine" && admin
+      ? admin.admin_id
+      : assignFilter === "unassigned"
+        ? "unassigned"
+        : undefined;
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin", "content-review", statusFilter, assignFilter, admin?.admin_id],
-    queryFn: () => getReviewQueue(statusFilter || undefined, undefined, undefined, assignedToParam),
+    queryFn: () =>
+      getReviewQueue(statusFilter || undefined, undefined, undefined, assignedToParam),
     staleTime: 30_000,
   });
 
@@ -296,7 +304,9 @@ export default function AdminContentReviewPage() {
                                 {canSelfAssign &&
                                   item.assigned_to_admin_id !== admin?.admin_id && (
                                     <button
-                                      onClick={() => selfAssignMutation.mutate(item.version_id)}
+                                      onClick={() =>
+                                        selfAssignMutation.mutate(item.version_id)
+                                      }
                                       disabled={selfAssignMutation.isPending}
                                       className="rounded bg-indigo-50 px-1.5 py-0.5 text-xs font-medium text-indigo-600 hover:bg-indigo-100 disabled:opacity-50"
                                     >
@@ -369,10 +379,13 @@ export default function AdminContentReviewPage() {
             <h2 className="mb-1 text-lg font-semibold text-gray-900">
               Approve all clean subjects?
             </h2>
-            <p className="mb-4 text-xs text-gray-400 font-mono">{confirm.curriculumId}</p>
+            <p className="mb-4 font-mono text-xs text-gray-400">{confirm.curriculumId}</p>
             <ul className="mb-5 divide-y divide-gray-100 rounded-lg border border-gray-200">
               {confirm.items.map((item) => (
-                <li key={item.version_id} className="flex items-center gap-2 px-3 py-2 text-sm">
+                <li
+                  key={item.version_id}
+                  className="flex items-center gap-2 px-3 py-2 text-sm"
+                >
                   <CheckCheck className="h-3.5 w-3.5 shrink-0 text-green-500" />
                   <span className="font-medium text-gray-800">
                     {item.subject_name ?? item.subject}
@@ -401,7 +414,9 @@ export default function AdminContentReviewPage() {
                 disabled={batchMutation.isPending}
                 className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
               >
-                {batchMutation.isPending ? "Approving…" : `Approve ${confirm.items.length}`}
+                {batchMutation.isPending
+                  ? "Approving…"
+                  : `Approve ${confirm.items.length}`}
               </button>
             </div>
           </div>

@@ -2,10 +2,7 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import {
-  listAdminPrivateTeachers,
-  type AdminPrivateTeacherItem,
-} from "@/lib/api/admin";
+import { listAdminPrivateTeachers, type AdminPrivateTeacherItem } from "@/lib/api/admin";
 import { useAdmin, hasPermission } from "@/lib/hooks/useAdmin";
 import { ShieldOff, Users, CheckCircle2, XCircle, Clock } from "lucide-react";
 
@@ -23,9 +20,7 @@ function PlanBadge({ plan }: { plan: string | null }) {
   return (
     <span
       className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-        isProPlan
-          ? "bg-indigo-100 text-indigo-700"
-          : "bg-blue-100 text-blue-700"
+        isProPlan ? "bg-indigo-100 text-indigo-700" : "bg-blue-100 text-blue-700"
       }`}
     >
       {plan.charAt(0).toUpperCase() + plan.slice(1)}
@@ -35,12 +30,13 @@ function PlanBadge({ plan }: { plan: string | null }) {
 
 function SubStatusBadge({ status }: { status: string | null }) {
   if (!status) {
-    return (
-      <span className="text-xs text-gray-400">—</span>
-    );
+    return <span className="text-xs text-gray-400">—</span>;
   }
 
-  const meta: Record<string, { icon: React.ReactNode; className: string; label: string }> = {
+  const meta: Record<
+    string,
+    { icon: React.ReactNode; className: string; label: string }
+  > = {
     active: {
       icon: <CheckCircle2 className="h-3 w-3 shrink-0" aria-hidden="true" />,
       className: "bg-green-100 text-green-700",
@@ -87,8 +83,7 @@ export default function AdminPrivateTeachersPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin", "private-teachers", page, nameSearch],
-    queryFn: () =>
-      listAdminPrivateTeachers(page, PAGE_SIZE, nameSearch || undefined),
+    queryFn: () => listAdminPrivateTeachers(page, PAGE_SIZE, nameSearch || undefined),
     staleTime: 30_000,
   });
 
@@ -119,7 +114,8 @@ export default function AdminPrivateTeachersPage() {
     <div className="mx-auto max-w-6xl p-8">
       <h1 className="mb-1 text-2xl font-bold text-gray-900">Private Teachers</h1>
       <p className="mb-6 text-sm text-gray-500">
-        Teachers with their own subscription who upload custom curricula for their students.
+        Teachers with their own subscription who upload custom curricula for their
+        students.
       </p>
 
       {/* Search */}
@@ -193,9 +189,7 @@ export default function AdminPrivateTeachersPage() {
               <tbody className="divide-y divide-gray-100">
                 {teachers.map((item: AdminPrivateTeacherItem) => (
                   <tr key={item.teacher_id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium text-gray-900">
-                      {item.name}
-                    </td>
+                    <td className="px-4 py-3 font-medium text-gray-900">{item.name}</td>
                     <td className="max-w-[200px] truncate px-4 py-3 text-gray-600">
                       {item.email}
                     </td>
@@ -205,9 +199,7 @@ export default function AdminPrivateTeachersPage() {
                     <td className="px-4 py-3">
                       <SubStatusBadge status={item.subscription_status} />
                     </td>
-                    <td className="px-4 py-3 text-gray-500">
-                      {item.curricula_count}
-                    </td>
+                    <td className="px-4 py-3 text-gray-500">{item.curricula_count}</td>
                     <td className="px-4 py-3 text-gray-500">
                       {new Date(item.created_at).toLocaleDateString()}
                     </td>

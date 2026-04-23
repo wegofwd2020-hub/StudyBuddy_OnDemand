@@ -13,7 +13,17 @@ import {
 import { SCHOOL_PLANS_LIST, formatPlanPrice } from "@/lib/pricing";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, CheckCircle, XCircle, CreditCard, Users, GraduationCap, AlertTriangle, Hammer, PackagePlus } from "lucide-react";
+import {
+  Loader2,
+  CheckCircle,
+  XCircle,
+  CreditCard,
+  Users,
+  GraduationCap,
+  AlertTriangle,
+  Hammer,
+  PackagePlus,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // ── Seat usage bar ────────────────────────────────────────────────────────────
@@ -117,13 +127,13 @@ function CancelDialog({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="w-full max-w-md rounded-xl border bg-white p-6 shadow-xl">
         <div className="mb-4 flex items-center gap-3">
-          <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0" />
+          <AlertTriangle className="h-5 w-5 shrink-0 text-amber-500" />
           <h2 className="text-base font-semibold text-gray-900">Cancel subscription?</h2>
         </div>
         <p className="mb-1 text-sm text-gray-600">
           Your school will retain access until{" "}
-          <strong>{endDate ?? "the end of the billing period"}</strong>. After that, limits
-          revert to the Starter plan.
+          <strong>{endDate ?? "the end of the billing period"}</strong>. After that,
+          limits revert to the Starter plan.
         </p>
         <p className="mb-5 text-sm text-gray-500">
           You can resubscribe at any time before the period ends.
@@ -194,7 +204,7 @@ export default function SubscriptionPage() {
         `${origin}/school/subscription?success=1`,
         `${origin}/school/subscription?cancelled=1`,
       );
-      window.location.href = checkout_url;
+      window.location.assign(checkout_url);
     } catch (err: unknown) {
       const msg =
         err != null &&
@@ -284,7 +294,7 @@ export default function SubscriptionPage() {
           ) : (
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <span className="text-xl font-bold capitalize text-gray-900">
+                <span className="text-xl font-bold text-gray-900 capitalize">
                   {activePlan === "none" ? "No subscription" : activePlan}
                 </span>
                 {sub?.status && <StatusBadge status={sub.status} />}
@@ -326,12 +336,16 @@ export default function SubscriptionPage() {
                         <>
                           <span className="font-medium text-amber-600">Cancels</span> —
                           access continues until{" "}
-                          <span className="font-medium text-gray-700">{periodEndDate}</span>
+                          <span className="font-medium text-gray-700">
+                            {periodEndDate}
+                          </span>
                         </>
                       ) : (
                         <>
                           Renews on{" "}
-                          <span className="font-medium text-gray-700">{periodEndDate}</span>
+                          <span className="font-medium text-gray-700">
+                            {periodEndDate}
+                          </span>
                         </>
                       )}
                     </p>
@@ -360,8 +374,8 @@ export default function SubscriptionPage() {
 
               {!hasSub && (
                 <p className="text-sm text-gray-500">
-                  Your school is on the free Starter plan. Upgrade to unlock more students,
-                  teachers, and pipeline runs.
+                  Your school is on the free Starter plan. Upgrade to unlock more
+                  students, teachers, and pipeline runs.
                 </p>
               )}
             </div>
@@ -382,10 +396,13 @@ export default function SubscriptionPage() {
             <span className="font-medium text-gray-700">{sub.builds_used}</span>.
             {sub.builds_credits_balance > 0 && (
               <>
-                {" "}Rollover credit balance:{" "}
+                {" "}
+                Rollover credit balance:{" "}
                 <span className="font-medium text-blue-700">
-                  {sub.builds_credits_balance} credit{sub.builds_credits_balance !== 1 ? "s" : ""}
-                </span>.
+                  {sub.builds_credits_balance} credit
+                  {sub.builds_credits_balance !== 1 ? "s" : ""}
+                </span>
+                .
               </>
             )}
           </p>
@@ -403,7 +420,7 @@ export default function SubscriptionPage() {
               {sub.builds_credits_balance === 0 && (
                 <Button
                   size="sm"
-                  className="gap-2 shrink-0"
+                  className="shrink-0 gap-2"
                   disabled={buyingExtraBuild}
                   onClick={handleExtraBuild}
                 >
@@ -422,7 +439,7 @@ export default function SubscriptionPage() {
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             {(
               [
-                { size: 3,  price: "$39",  saving: null },
+                { size: 3, price: "$39", saving: null },
                 { size: 10, price: "$119", saving: "Save 21%" },
                 { size: 25, price: "$269", saving: "Save 28%" },
               ] as { size: 3 | 10 | 25; price: string; saving: string | null }[]
@@ -506,12 +523,17 @@ export default function SubscriptionPage() {
 
                   <div className="mb-1">
                     <h3 className="text-base font-semibold text-gray-900">{plan.name}</h3>
-                    <p className="mt-0.5 text-sm text-gray-500">{formatPlanPrice(plan)}</p>
+                    <p className="mt-0.5 text-sm text-gray-500">
+                      {formatPlanPrice(plan)}
+                    </p>
                   </div>
 
                   <ul className="mt-3 flex-1 space-y-1.5">
                     {plan.features.map((f) => (
-                      <li key={f} className="flex items-start gap-1.5 text-xs text-gray-600">
+                      <li
+                        key={f}
+                        className="flex items-start gap-1.5 text-xs text-gray-600"
+                      >
                         <CheckCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-500" />
                         {f}
                       </li>
@@ -520,12 +542,7 @@ export default function SubscriptionPage() {
 
                   <div className="mt-4">
                     {isCurrent ? (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full"
-                        disabled
-                      >
+                      <Button variant="outline" size="sm" className="w-full" disabled>
                         Current plan
                       </Button>
                     ) : isEnterprise ? (
@@ -534,7 +551,10 @@ export default function SubscriptionPage() {
                         size="sm"
                         className="w-full gap-2"
                         onClick={() =>
-                          window.open("mailto:sales@studybuddy.example.com?subject=Enterprise%20Plan", "_blank")
+                          window.open(
+                            "mailto:sales@studybuddy.example.com?subject=Enterprise%20Plan",
+                            "_blank",
+                          )
                         }
                       >
                         Contact sales

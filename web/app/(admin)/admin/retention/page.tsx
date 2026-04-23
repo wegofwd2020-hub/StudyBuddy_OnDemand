@@ -51,9 +51,17 @@ function StatusBadge({ status }: { status: AdminRetentionItem["retention_status"
     unavailable: { label: "Unavailable", cls: "bg-amber-100 text-amber-700" },
     purged: { label: "Purged", cls: "bg-red-100 text-red-600" },
   } as const;
-  const { label, cls } = map[status] ?? { label: status, cls: "bg-gray-100 text-gray-500" };
+  const { label, cls } = map[status] ?? {
+    label: status,
+    cls: "bg-gray-100 text-gray-500",
+  };
   return (
-    <span className={cn("inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium", cls)}>
+    <span
+      className={cn(
+        "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
+        cls,
+      )}
+    >
       {label}
     </span>
   );
@@ -63,7 +71,10 @@ function StatusBadge({ status }: { status: AdminRetentionItem["retention_status"
 
 type ActionType = "renew" | "force_expire" | "force_delete";
 
-const ACTION_META: Record<ActionType, { label: string; description: string; confirmWord?: string; danger: boolean }> = {
+const ACTION_META: Record<
+  ActionType,
+  { label: string; description: string; confirmWord?: string; danger: boolean }
+> = {
   renew: {
     label: "Renew",
     description: "Extend this curriculum's expiry by 1 year and reset status to active.",
@@ -71,12 +82,14 @@ const ACTION_META: Record<ActionType, { label: string; description: string; conf
   },
   force_expire: {
     label: "Force expire",
-    description: "Immediately mark this curriculum unavailable with a 180-day grace period. Students lose access now.",
+    description:
+      "Immediately mark this curriculum unavailable with a 180-day grace period. Students lose access now.",
     danger: true,
   },
   force_delete: {
     label: "Force delete",
-    description: "Permanently delete all content rows for this curriculum. This cannot be undone.",
+    description:
+      "Permanently delete all content rows for this curriculum. This cannot be undone.",
     confirmWord: "DELETE",
     danger: true,
   },
@@ -99,7 +112,8 @@ function ActionModal({
   const [confirm, setConfirm] = useState("");
   const meta = ACTION_META[action];
   const needsWord = !!meta.confirmWord;
-  const canSubmit = reason.trim().length >= 5 && (!needsWord || confirm === meta.confirmWord);
+  const canSubmit =
+    reason.trim().length >= 5 && (!needsWord || confirm === meta.confirmWord);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
@@ -113,14 +127,21 @@ function ActionModal({
             )}
             <h2 className="text-base font-semibold text-gray-900">{meta.label}</h2>
           </div>
-          <button onClick={onClose} className="rounded p-1 text-gray-400 hover:bg-gray-100">
+          <button
+            onClick={onClose}
+            className="rounded p-1 text-gray-400 hover:bg-gray-100"
+          >
             <X className="h-4 w-4" />
           </button>
         </div>
 
         <div className="mb-4 rounded-lg border bg-gray-50 p-3 text-sm text-gray-700">
-          <p className="font-medium">{item.school_name} — Grade {item.grade}</p>
-          <p className="text-xs text-gray-500 mt-0.5">{item.name} ({item.year}) · {item.curriculum_id.slice(0, 16)}…</p>
+          <p className="font-medium">
+            {item.school_name} — Grade {item.grade}
+          </p>
+          <p className="mt-0.5 text-xs text-gray-500">
+            {item.name} ({item.year}) · {item.curriculum_id.slice(0, 16)}…
+          </p>
         </div>
 
         <p className="mb-4 text-sm text-gray-600">{meta.description}</p>
@@ -132,13 +153,15 @@ function ActionModal({
             </label>
             <textarea
               rows={2}
-              className="w-full rounded border px-3 py-2 text-sm text-gray-800 placeholder:text-gray-400 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-300"
+              className="w-full rounded border px-3 py-2 text-sm text-gray-800 placeholder:text-gray-400 focus:border-indigo-400 focus:ring-1 focus:ring-indigo-300 focus:outline-none"
               placeholder="School requested removal via support ticket #12345…"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
             />
             {reason.trim().length > 0 && reason.trim().length < 5 && (
-              <p className="mt-0.5 text-xs text-red-500">Reason must be at least 5 characters.</p>
+              <p className="mt-0.5 text-xs text-red-500">
+                Reason must be at least 5 characters.
+              </p>
             )}
           </div>
 
@@ -149,7 +172,7 @@ function ActionModal({
               </label>
               <input
                 type="text"
-                className="w-full rounded border px-3 py-2 text-sm font-mono text-gray-800 placeholder:text-gray-400 focus:border-red-400 focus:outline-none focus:ring-1 focus:ring-red-300"
+                className="w-full rounded border px-3 py-2 font-mono text-sm text-gray-800 placeholder:text-gray-400 focus:border-red-400 focus:ring-1 focus:ring-red-300 focus:outline-none"
                 placeholder={meta.confirmWord}
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
@@ -193,7 +216,12 @@ function RowActions({
 }) {
   const [open, setOpen] = useState(false);
 
-  const actions: { action: ActionType; label: string; icon: React.ReactNode; disabled?: boolean }[] = [
+  const actions: {
+    action: ActionType;
+    label: string;
+    icon: React.ReactNode;
+    disabled?: boolean;
+  }[] = [
     {
       action: "renew",
       label: "Renew",
@@ -220,7 +248,9 @@ function RowActions({
         className="flex items-center gap-1 rounded px-2 py-1 text-xs text-gray-500 hover:bg-gray-100 hover:text-gray-800"
       >
         Actions
-        <ChevronRight className={cn("h-3 w-3 transition-transform", open && "rotate-90")} />
+        <ChevronRight
+          className={cn("h-3 w-3 transition-transform", open && "rotate-90")}
+        />
       </button>
 
       {open && (
@@ -275,7 +305,11 @@ function SummaryTiles({
         { label: "Active", value: active, cls: "text-green-700" },
         { label: "Unavailable", value: unavailable, cls: "text-amber-600" },
         { label: "Purged", value: purged, cls: "text-red-600" },
-        { label: "Expiring ≤30d", value: expiringSoon, cls: expiringSoon > 0 ? "text-red-600" : "text-gray-400" },
+        {
+          label: "Expiring ≤30d",
+          value: expiringSoon,
+          cls: expiringSoon > 0 ? "text-red-600" : "text-gray-400",
+        },
       ].map(({ label, value, cls }) => (
         <div key={label} className="rounded-xl border bg-white p-4 text-center shadow-sm">
           <p className={cn("text-2xl font-bold", cls)}>{value}</p>
@@ -299,7 +333,9 @@ function RetentionTable({
     return (
       <div className="rounded-xl border bg-white p-10 text-center">
         <Archive className="mx-auto mb-2 h-8 w-8 text-gray-300" />
-        <p className="text-sm text-gray-400">No curriculum versions match the current filters.</p>
+        <p className="text-sm text-gray-400">
+          No curriculum versions match the current filters.
+        </p>
       </div>
     );
   }
@@ -322,8 +358,10 @@ function RetentionTable({
           </thead>
           <tbody className="divide-y">
             {curricula.map((item) => {
-              const urgentExpiry = item.days_until_expiry !== null && item.days_until_expiry <= 30;
-              const urgentPurge = item.days_until_purge !== null && item.days_until_purge <= 30;
+              const urgentExpiry =
+                item.days_until_expiry !== null && item.days_until_expiry <= 30;
+              const urgentPurge =
+                item.days_until_purge !== null && item.days_until_purge <= 30;
 
               return (
                 <tr
@@ -337,12 +375,18 @@ function RetentionTable({
                     <div className="flex items-center gap-1.5">
                       <School className="h-3.5 w-3.5 shrink-0 text-gray-300" />
                       <div>
-                        <p className="font-medium text-gray-900 leading-tight">{item.school_name}</p>
-                        <p className="text-xs text-gray-400 leading-tight">{item.contact_email}</p>
+                        <p className="leading-tight font-medium text-gray-900">
+                          {item.school_name}
+                        </p>
+                        <p className="text-xs leading-tight text-gray-400">
+                          {item.contact_email}
+                        </p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 font-mono text-xs text-gray-600">G{item.grade}</td>
+                  <td className="px-4 py-3 font-mono text-xs text-gray-600">
+                    G{item.grade}
+                  </td>
                   <td className="px-4 py-3">
                     <p className="font-medium text-gray-900">{item.name}</p>
                     <p className="text-xs text-gray-400">{item.year}</p>
@@ -354,7 +398,9 @@ function RetentionTable({
                     <div className={cn("text-xs", urgencyClass(item.days_until_expiry))}>
                       {fmtDate(item.expires_at)}
                       {item.days_until_expiry !== null && (
-                        <span className="ml-1 text-gray-400">({item.days_until_expiry}d)</span>
+                        <span className="ml-1 text-gray-400">
+                          ({item.days_until_expiry}d)
+                        </span>
                       )}
                     </div>
                   </td>
@@ -362,7 +408,9 @@ function RetentionTable({
                     <div className={cn("text-xs", urgencyClass(item.days_until_purge))}>
                       {fmtDate(item.grace_until)}
                       {item.days_until_purge !== null && (
-                        <span className="ml-1 text-gray-400">({item.days_until_purge}d)</span>
+                        <span className="ml-1 text-gray-400">
+                          ({item.days_until_purge}d)
+                        </span>
                       )}
                     </div>
                   </td>
@@ -419,8 +467,15 @@ export default function AdminRetentionPage() {
   });
 
   const actionMutation = useMutation({
-    mutationFn: ({ item, action, reason }: { item: AdminRetentionItem; action: ActionType; reason: string }) =>
-      adminCurriculumAction(item.school_id, item.curriculum_id, action, reason),
+    mutationFn: ({
+      item,
+      action,
+      reason,
+    }: {
+      item: AdminRetentionItem;
+      action: ActionType;
+      reason: string;
+    }) => adminCurriculumAction(item.school_id, item.curriculum_id, action, reason),
     onSuccess: (res) => {
       void queryClient.invalidateQueries({ queryKey: ["admin-retention"] });
       setPendingAction(null);
@@ -493,7 +548,8 @@ export default function AdminRetentionPage() {
         <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
           <Clock className="h-4 w-4 shrink-0" />
           <strong>{data.summary.expiring_soon}</strong> curriculum version
-          {data.summary.expiring_soon > 1 ? "s" : ""} across all schools expire within 30 days.
+          {data.summary.expiring_soon > 1 ? "s" : ""} across all schools expire within 30
+          days.
         </div>
       )}
 
@@ -599,7 +655,10 @@ export default function AdminRetentionPage() {
           </Card>
 
           {/* Table */}
-          <RetentionTable curricula={filtered} onAction={(item, action) => setPendingAction({ item, action })} />
+          <RetentionTable
+            curricula={filtered}
+            onAction={(item, action) => setPendingAction({ item, action })}
+          />
 
           <p className="text-xs text-gray-400">
             Showing {filtered.length} of {data.summary.total} version
@@ -615,7 +674,11 @@ export default function AdminRetentionPage() {
           action={pendingAction.action}
           onClose={() => setPendingAction(null)}
           onConfirm={(reason) =>
-            actionMutation.mutate({ item: pendingAction.item, action: pendingAction.action, reason })
+            actionMutation.mutate({
+              item: pendingAction.item,
+              action: pendingAction.action,
+              reason,
+            })
           }
           isPending={actionMutation.isPending}
         />

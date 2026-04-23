@@ -161,10 +161,7 @@ export default function JobsListPage() {
                   {jobs.map((job) => {
                     const pct =
                       job.total && job.total > 0
-                        ? Math.min(
-                            ((job.built ?? 0) / job.total) * 100,
-                            100,
-                          )
+                        ? Math.min(((job.built ?? 0) / job.total) * 100, 100)
                         : 0;
                     return (
                       <tr key={job.job_id} className="hover:bg-gray-50">
@@ -236,7 +233,7 @@ export default function JobsListPage() {
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
-            className="rounded-md border border-gray-200 px-3 py-1.5 text-xs disabled:opacity-40 hover:bg-gray-50"
+            className="rounded-md border border-gray-200 px-3 py-1.5 text-xs hover:bg-gray-50 disabled:opacity-40"
           >
             ← Prev
           </button>
@@ -246,7 +243,7 @@ export default function JobsListPage() {
           <button
             onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
             disabled={page === pageCount}
-            className="rounded-md border border-gray-200 px-3 py-1.5 text-xs disabled:opacity-40 hover:bg-gray-50"
+            className="rounded-md border border-gray-200 px-3 py-1.5 text-xs hover:bg-gray-50 disabled:opacity-40"
           >
             Next →
           </button>

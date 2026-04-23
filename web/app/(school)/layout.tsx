@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth0 } from "@/lib/auth0";
-import { getDevSession, getDemoTeacherSession, getLocalTeacherSession } from "@/lib/dev-session";
+import {
+  getDevSession,
+  getDemoTeacherSession,
+  getLocalTeacherSession,
+} from "@/lib/dev-session";
 import { SchoolNav } from "@/components/layout/SchoolNav";
 import { LimitWarningBanner } from "@/components/school/LimitWarningBanner";
 import { LocalAuthGuard } from "@/components/school/LocalAuthGuard";
@@ -25,9 +29,7 @@ export default async function SchoolLayout({ children }: { children: React.React
         {/* LocalAuthGuard validates sb_teacher_token from localStorage,
             enforces first_login redirect (pitfall #24), and renders the
             full portal layout only once the JWT check passes. */}
-        <LocalAuthGuard userName={userName}>
-          {children}
-        </LocalAuthGuard>
+        <LocalAuthGuard userName={userName}>{children}</LocalAuthGuard>
       </QueryProvider>
     );
   }

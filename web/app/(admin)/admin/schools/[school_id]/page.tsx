@@ -62,7 +62,12 @@ function OverrideForm({
   onSaved,
 }: {
   schoolId: string;
-  existing: { max_students: number | null; max_teachers: number | null; pipeline_quota: number | null; override_reason: string } | null;
+  existing: {
+    max_students: number | null;
+    max_teachers: number | null;
+    pipeline_quota: number | null;
+    override_reason: string;
+  } | null;
   planDefaults: { max_students: number; max_teachers: number; pipeline_quota: number };
   onSaved: () => void;
 }) {
@@ -123,7 +128,9 @@ function OverrideForm({
         <div className="space-y-1.5">
           <Label htmlFor="ov_students">
             Max students
-            <span className="ml-1.5 text-gray-400">(plan: {planDefaults.max_students})</span>
+            <span className="ml-1.5 text-gray-400">
+              (plan: {planDefaults.max_students})
+            </span>
           </Label>
           <Input
             id="ov_students"
@@ -137,7 +144,9 @@ function OverrideForm({
         <div className="space-y-1.5">
           <Label htmlFor="ov_teachers">
             Max teachers
-            <span className="ml-1.5 text-gray-400">(plan: {planDefaults.max_teachers})</span>
+            <span className="ml-1.5 text-gray-400">
+              (plan: {planDefaults.max_teachers})
+            </span>
           </Label>
           <Input
             id="ov_teachers"
@@ -151,7 +160,9 @@ function OverrideForm({
         <div className="space-y-1.5">
           <Label htmlFor="ov_pipeline">
             Pipeline quota / mo
-            <span className="ml-1.5 text-gray-400">(plan: {planDefaults.pipeline_quota})</span>
+            <span className="ml-1.5 text-gray-400">
+              (plan: {planDefaults.pipeline_quota})
+            </span>
           </Label>
           <Input
             id="ov_pipeline"
@@ -176,15 +187,11 @@ function OverrideForm({
         />
       </div>
 
-      {error && (
-        <p className="text-xs text-red-600">{error}</p>
-      )}
+      {error && <p className="text-xs text-red-600">{error}</p>}
 
       <div className="flex items-center gap-3">
         <Button onClick={() => mutation.mutate()} disabled={!canSave} className="gap-2">
-          {mutation.isPending ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : null}
+          {mutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
           {existing ? "Update override" : "Set override"}
         </Button>
         {saved && (
@@ -219,7 +226,9 @@ export default function AdminSchoolDetailPage() {
       setClearSuccess(true);
       setClearError(null);
       setTimeout(() => setClearSuccess(false), 3000);
-      void queryClient.invalidateQueries({ queryKey: ["admin-school-limits", school_id] });
+      void queryClient.invalidateQueries({
+        queryKey: ["admin-school-limits", school_id],
+      });
       void queryClient.invalidateQueries({ queryKey: ["admin-schools"] });
     },
     onError: (err: unknown) => {
@@ -260,15 +269,16 @@ export default function AdminSchoolDetailPage() {
 
   // Derive plan defaults from effective limits and override (reverse-engineer for display)
   const planDefaults = {
-    max_students: data.override?.max_students != null
-      ? data.max_students  // overridden, so effective = override
-      : data.max_students, // not overridden, effective = plan default
-    max_teachers: data.override?.max_teachers != null
-      ? data.max_teachers
-      : data.max_teachers,
-    pipeline_quota: data.override?.pipeline_quota != null
-      ? data.pipeline_quota_monthly
-      : data.pipeline_quota_monthly,
+    max_students:
+      data.override?.max_students != null
+        ? data.max_students // overridden, so effective = override
+        : data.max_students, // not overridden, effective = plan default
+    max_teachers:
+      data.override?.max_teachers != null ? data.max_teachers : data.max_teachers,
+    pipeline_quota:
+      data.override?.pipeline_quota != null
+        ? data.pipeline_quota_monthly
+        : data.pipeline_quota_monthly,
   };
   // If override exists, plan default is the effective value only when that field is NOT overridden.
   // Since we don't store plan defaults separately in the response, show them as-is for non-overridden fields.
@@ -285,7 +295,9 @@ export default function AdminSchoolDetailPage() {
           ← Schools
         </LinkButton>
         <div>
-          <h1 className="text-xl font-bold text-gray-900">School Limits &amp; Override</h1>
+          <h1 className="text-xl font-bold text-gray-900">
+            School Limits &amp; Override
+          </h1>
           <p className="mt-0.5 font-mono text-xs text-gray-400">{school_id}</p>
         </div>
       </div>
@@ -295,7 +307,7 @@ export default function AdminSchoolDetailPage() {
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-base">
             Effective limits
-            <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium capitalize text-gray-600">
+            <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600 capitalize">
               {data.plan}
             </span>
             {data.has_override && (
@@ -333,8 +345,10 @@ export default function AdminSchoolDetailPage() {
             </span>
             <span>
               Seats used:{" "}
-              <strong className="text-gray-700">{data.seats_used_students}</strong> students,{" "}
-              <strong className="text-gray-700">{data.seats_used_teachers}</strong> teachers
+              <strong className="text-gray-700">{data.seats_used_students}</strong>{" "}
+              students,{" "}
+              <strong className="text-gray-700">{data.seats_used_teachers}</strong>{" "}
+              teachers
             </span>
           </div>
         </CardContent>
@@ -342,7 +356,7 @@ export default function AdminSchoolDetailPage() {
 
       {/* Current override detail */}
       {data.has_override && data.override && (
-        <Card className="border border-amber-200 shadow-sm bg-amber-50/40">
+        <Card className="border border-amber-200 bg-amber-50/40 shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-base text-amber-800">Current override</CardTitle>
           </CardHeader>
@@ -368,9 +382,12 @@ export default function AdminSchoolDetailPage() {
                 <dt className="text-xs text-gray-400">Overridden fields</dt>
                 <dd className="text-gray-700">
                   {[
-                    data.override.max_students != null && `students → ${data.override.max_students}`,
-                    data.override.max_teachers != null && `teachers → ${data.override.max_teachers}`,
-                    data.override.pipeline_quota != null && `pipeline → ${data.override.pipeline_quota}`,
+                    data.override.max_students != null &&
+                      `students → ${data.override.max_students}`,
+                    data.override.max_teachers != null &&
+                      `teachers → ${data.override.max_teachers}`,
+                    data.override.pipeline_quota != null &&
+                      `pipeline → ${data.override.pipeline_quota}`,
                   ]
                     .filter(Boolean)
                     .join(", ") || "none"}
@@ -399,9 +416,7 @@ export default function AdminSchoolDetailPage() {
                   Override cleared
                 </span>
               )}
-              {clearError && (
-                <span className="text-xs text-red-600">{clearError}</span>
-              )}
+              {clearError && <span className="text-xs text-red-600">{clearError}</span>}
             </div>
           </CardContent>
         </Card>

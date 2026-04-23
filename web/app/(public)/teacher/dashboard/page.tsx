@@ -77,9 +77,8 @@ export default function DemoTeacherDashboard() {
           </h1>
           {email && <p className="text-sm text-gray-500">{email}</p>}
           <p className="mt-3 text-sm text-gray-600">
-            This is a 48-hour demo environment. Explore the teacher features below.
-            Your account and any data created here will be removed after the demo
-            period ends.
+            This is a 48-hour demo environment. Explore the teacher features below. Your
+            account and any data created here will be removed after the demo period ends.
           </p>
         </div>
 

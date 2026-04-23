@@ -93,7 +93,7 @@ export function SBMarkdown({
             );
           },
           blockquote: ({ children }) => (
-            <blockquote className="my-3 border-l-4 border-indigo-200 bg-indigo-50/50 px-4 py-2 text-sm italic text-gray-700">
+            <blockquote className="my-3 border-l-4 border-indigo-200 bg-indigo-50/50 px-4 py-2 text-sm text-gray-700 italic">
               {children}
             </blockquote>
           ),

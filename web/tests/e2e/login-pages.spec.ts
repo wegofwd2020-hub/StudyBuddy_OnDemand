@@ -11,9 +11,7 @@ test.describe("School login page", () => {
     // Page was restructured from a redirect-link pattern to a form-with-submit
     // pattern; the primary affordance is now a submit <button>, matched by
     // role. Use .last() to pick the in-page form button over the nav link.
-    await expect(
-      page.getByRole("button", { name: /sign in/i }).last(),
-    ).toBeVisible();
+    await expect(page.getByRole("button", { name: /sign in/i }).last()).toBeVisible();
   });
 
   test("links to student login", async ({ page }) => {
