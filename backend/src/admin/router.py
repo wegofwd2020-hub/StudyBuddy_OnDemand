@@ -38,9 +38,11 @@ Routes (all prefixed /api/v1 in main.py):
 from __future__ import annotations
 
 import json
+import os
 import uuid
 from typing import Annotated
 
+from config import settings
 from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile
 
 from src.admin.schemas import (
@@ -873,7 +875,6 @@ async def upload_grade_json(
     Validate a grade JSON file, save it under /data/, and seed the curricula +
     curriculum_units tables.
     """
-    import os
 
     from src.admin.streams_router import resolve_stream_for_upload
 
@@ -943,8 +944,8 @@ async def upload_grade_json(
         # File naming: when stream is set, each stream lands in its own file so
         # a subsequent Commerce upload can't clobber an earlier Science upload.
         file_suffix = resolved_stream or "stem"
-        dest_path = f"/data/grade{grade}_{file_suffix}.json"
-        os.makedirs("/data", exist_ok=True)
+        dest_path = os.path.join(settings.DATA_DIR, f"grade{grade}_{file_suffix}.json")
+        os.makedirs(settings.DATA_DIR, exist_ok=True)
         with open(dest_path, "wb") as fh:
             fh.write(raw)
 

@@ -102,6 +102,13 @@ jobs:
       SENTRY_DSN: ""
       METRICS_TOKEN: test-metrics-token
       CONTENT_STORE_PATH: /tmp/studybuddy-test-content
+      # DATA_DIR — admin/router.py writes uploaded grade JSONs here (was hardcoded /data).
+      # Tests need a writable path; /data is read-only on CI runners.
+      DATA_DIR: /tmp/studybuddy-test-data
+      # ANTHROPIC_API_KEY — required at import time by pipeline/config.py's
+      # PipelineSettings (pydantic-settings). Tests mock the settings object, so
+      # no live API calls happen. Value just needs to be non-empty.
+      ANTHROPIC_API_KEY: sk-ant-dummy-for-tests
       APP_ENV: test
 
     steps:
