@@ -234,7 +234,7 @@ async def delete_curriculum_version(
         # ── Cascade delete (manual — content tables have no FK to curricula) ─
         async with conn.transaction():
             # 1. content_annotations — keyed by unit_id; unit_ids belong to this curriculum
-            annotations_deleted = await conn.execute(
+            await conn.execute(
                 """
                 DELETE FROM content_annotations
                 WHERE unit_id IN (
@@ -246,7 +246,7 @@ async def delete_curriculum_version(
             )
 
             # 2. content_reviews — keyed by version_id from content_subject_versions
-            reviews_deleted = await conn.execute(
+            await conn.execute(
                 """
                 DELETE FROM content_reviews
                 WHERE version_id IN (

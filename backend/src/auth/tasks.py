@@ -1914,7 +1914,7 @@ def purge_expired_curricula() -> None:
         try:
             await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
             storage = LocalStorage(
-                root=getattr(cfg, "CONTENT_STORE_PATH", "/tmp/studybuddy-content")
+                root=getattr(cfg, "CONTENT_STORE_PATH", "/tmp/studybuddy-content")  # noqa: S108 — dev fallback only; production always sets CONTENT_STORE_PATH
             )
             await purge_grace_expired(
                 conn,
@@ -1952,8 +1952,6 @@ def send_payment_action_required_email_task(
         _run_async(send_payment_action_required_email(to_email=to_email, action_url=action_url))
     except Exception as exc:
         raise self.retry(exc=exc, countdown=30)
-
-    _run_async(_run())
 
 
 # ── Independent teacher seat-quota monitoring (#105) ─────────────────────────

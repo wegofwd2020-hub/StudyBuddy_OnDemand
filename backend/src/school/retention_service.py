@@ -51,16 +51,16 @@ def _queue_retention_email(
 
     celery_app.send_task(
         "src.auth.tasks.send_retention_email_task",
-        kwargs=dict(
-            to_email=contact_email,
-            template=template,
-            grade=grade,
-            curriculum_name=curriculum_name or curriculum_id,
-            expires_date=expires_at,
-            grace_date=grace_until,
-            purge_date=grace_until,  # grace expiry == purge date for template 5
-            days_remaining=days_remaining,
-        ),
+        kwargs={
+            "to_email": contact_email,
+            "template": template,
+            "grade": grade,
+            "curriculum_name": curriculum_name or curriculum_id,
+            "expires_date": expires_at,
+            "grace_date": grace_until,
+            "purge_date": grace_until,  # grace expiry == purge date for template 5
+            "days_remaining": days_remaining,
+        },
         queue="io",
     )
     log.info(

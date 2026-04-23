@@ -416,8 +416,6 @@ async def local_login(
     default password — the client must redirect to the password-change screen before
     allowing any other navigation.
     """
-    cid = getattr(request.state, "correlation_id", "")
-
     user = await login_local_user(request.app.state.pool, str(body.email), body.password)
 
     user_type: str = user["user_type"]

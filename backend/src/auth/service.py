@@ -20,6 +20,7 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import secrets
+import string as _string
 import uuid
 from datetime import UTC, datetime, timedelta
 from functools import partial
@@ -348,7 +349,6 @@ async def upsert_teacher(
 # Pre-hashed sentinel used to burn constant bcrypt time when a user is not found,
 # preventing timing-based email enumeration.  Generated once at import time with
 # rounds=4 (fast) — the only goal here is timing parity, not security.
-import string as _string
 
 _DEFAULT_PW_CHARS = _string.ascii_letters + _string.digits
 _TIMING_SENTINEL_HASH: str = bcrypt.hashpw(b"__sentinel__", bcrypt.gensalt(rounds=4)).decode()

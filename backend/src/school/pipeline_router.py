@@ -870,7 +870,7 @@ async def trigger_pipeline_from_definition(
             stripe.api_key = _stripe_key()
             charge_cents = int(Decimal(EXTRA_BUILD_PRICE_USD) * 100)
             try:
-                pi = await run_stripe(
+                await run_stripe(
                     stripe.PaymentIntent.create,
                     amount=charge_cents,
                     currency="usd",

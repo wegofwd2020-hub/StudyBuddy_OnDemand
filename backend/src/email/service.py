@@ -486,7 +486,7 @@ _RESET_PASSWORD_HTML = """\
 async def send_welcome_teacher_email(to_email: str, name: str, password: str) -> None:
     """Send welcome credentials email to a school-provisioned teacher."""
     login_url = f"{settings.FRONTEND_URL}/login"
-    fmt = dict(name=name, login_url=login_url, email=to_email, password=password)
+    fmt = {"name": name, "login_url": login_url, "email": to_email, "password": password}
     await _send(
         to_email=to_email,
         subject=_WELCOME_TEACHER_SUBJECT,
@@ -498,7 +498,7 @@ async def send_welcome_teacher_email(to_email: str, name: str, password: str) ->
 async def send_welcome_student_email(to_email: str, name: str, password: str) -> None:
     """Send welcome credentials email to a school-provisioned student."""
     login_url = f"{settings.FRONTEND_URL}/login"
-    fmt = dict(name=name, login_url=login_url, email=to_email, password=password)
+    fmt = {"name": name, "login_url": login_url, "email": to_email, "password": password}
     await _send(
         to_email=to_email,
         subject=_WELCOME_STUDENT_SUBJECT,
@@ -510,7 +510,7 @@ async def send_welcome_student_email(to_email: str, name: str, password: str) ->
 async def send_password_reset_email(to_email: str, name: str, password: str) -> None:
     """Send admin-initiated password reset email to a teacher or student."""
     login_url = f"{settings.FRONTEND_URL}/login"
-    fmt = dict(name=name, login_url=login_url, email=to_email, password=password)
+    fmt = {"name": name, "login_url": login_url, "email": to_email, "password": password}
     await _send(
         to_email=to_email,
         subject=_RESET_PASSWORD_SUBJECT,
@@ -830,15 +830,15 @@ async def send_retention_email(
     """
     dashboard_url = _retention_dashboard_url()
 
-    fmt = dict(
-        grade=grade,
-        curriculum_name=curriculum_name,
-        expires_date=expires_date,
-        grace_date=grace_date,
-        purge_date=purge_date,
-        days_remaining=days_remaining,
-        dashboard_url=dashboard_url,
-    )
+    fmt = {
+        "grade": grade,
+        "curriculum_name": curriculum_name,
+        "expires_date": expires_date,
+        "grace_date": grace_date,
+        "purge_date": purge_date,
+        "days_remaining": days_remaining,
+        "dashboard_url": dashboard_url,
+    }
 
     templates: dict[str, tuple[str, str, str]] = {
         "retention_pre_expiry_warning": (
@@ -1011,7 +1011,7 @@ async def send_payment_action_required_email(
     contains the 3DS challenge link.  Skips silently if SMTP is not configured.
     """
     support_email = getattr(settings, "EMAIL_FROM", "support@studybuddy.app")
-    fmt = dict(action_url=action_url, support_email=support_email)
+    fmt = {"action_url": action_url, "support_email": support_email}
     await _send(
         to_email=to_email,
         subject=_SCA_SUBJECT,
