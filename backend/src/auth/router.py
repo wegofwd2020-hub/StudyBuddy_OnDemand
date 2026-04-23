@@ -26,7 +26,6 @@ from config import settings
 from fastapi import APIRouter, Depends, HTTPException, Request
 
 from src.auth.dependencies import get_current_student
-from src.core.rate_limit import ip_auth_rate_limit
 from src.auth.schemas import (
     ChangePasswordRequest,
     ChangePasswordResponse,
@@ -59,6 +58,7 @@ from src.auth.service import (
 from src.core.db import get_db
 from src.core.events import emit_event, write_audit_log
 from src.core.observability import auth_exchanges_total, auth_failures_total
+from src.core.rate_limit import ip_auth_rate_limit
 from src.core.redis_client import get_redis
 from src.school.enrolment_service import link_student
 from src.utils.logger import get_logger
@@ -416,8 +416,6 @@ async def local_login(
     default password — the client must redirect to the password-change screen before
     allowing any other navigation.
     """
-    cid = getattr(request.state, "correlation_id", "")
-
     user = await login_local_user(request.app.state.pool, str(body.email), body.password)
 
     user_type: str = user["user_type"]
@@ -490,7 +488,6 @@ async def change_password(
     Both teacher and student JWTs are accepted here (this endpoint sits outside
     the role-specific dependency guards).
     """
-    from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
     from src.auth.service import verify_internal_jwt
 
     cid = getattr(request.state, "correlation_id", "")
@@ -498,7 +495,11 @@ async def change_password(
     if not auth_header.startswith("Bearer "):
         raise HTTPException(
             status_code=401,
-            detail={"error": "unauthenticated", "detail": "Authorization header required.", "correlation_id": cid},
+            detail={
+                "error": "unauthenticated",
+                "detail": "Authorization header required.",
+                "correlation_id": cid,
+            },
         )
     raw_token = auth_header.split(" ", 1)[1]
     payload = verify_internal_jwt(raw_token, settings.JWT_SECRET)
@@ -515,17 +516,26 @@ async def change_password(
             if not row or not row["password_hash"]:
                 raise HTTPException(
                     status_code=400,
-                    detail={"error": "bad_request", "detail": "Account does not use password login.", "correlation_id": cid},
+                    detail={
+                        "error": "bad_request",
+                        "detail": "Account does not use password login.",
+                        "correlation_id": cid,
+                    },
                 )
             if not await verify_password(body.current_password, row["password_hash"]):
                 raise HTTPException(
                     status_code=401,
-                    detail={"error": "unauthenticated", "detail": "Current password is incorrect.", "correlation_id": cid},
+                    detail={
+                        "error": "unauthenticated",
+                        "detail": "Current password is incorrect.",
+                        "correlation_id": cid,
+                    },
                 )
             new_hash = await hash_password(body.new_password)
             await conn.execute(
                 "UPDATE teachers SET password_hash = $1, first_login = FALSE WHERE teacher_id = $2",
-                new_hash, teacher_id,
+                new_hash,
+                teacher_id,
             )
             emit_event("auth", "password_changed", teacher_id=teacher_id)
             write_audit_log("password_changed", "teacher", teacher_id)
@@ -538,17 +548,26 @@ async def change_password(
             if not row or not row["password_hash"]:
                 raise HTTPException(
                     status_code=400,
-                    detail={"error": "bad_request", "detail": "Account does not use password login.", "correlation_id": cid},
+                    detail={
+                        "error": "bad_request",
+                        "detail": "Account does not use password login.",
+                        "correlation_id": cid,
+                    },
                 )
             if not await verify_password(body.current_password, row["password_hash"]):
                 raise HTTPException(
                     status_code=401,
-                    detail={"error": "unauthenticated", "detail": "Current password is incorrect.", "correlation_id": cid},
+                    detail={
+                        "error": "unauthenticated",
+                        "detail": "Current password is incorrect.",
+                        "correlation_id": cid,
+                    },
                 )
             new_hash = await hash_password(body.new_password)
             await conn.execute(
                 "UPDATE students SET password_hash = $1, first_login = FALSE WHERE student_id = $2",
-                new_hash, student_id,
+                new_hash,
+                student_id,
             )
             emit_event("auth", "password_changed", student_id=student_id)
             write_audit_log("password_changed", "student", student_id)
@@ -556,7 +575,11 @@ async def change_password(
         else:
             raise HTTPException(
                 status_code=403,
-                detail={"error": "forbidden", "detail": "Teacher or student token required.", "correlation_id": cid},
+                detail={
+                    "error": "forbidden",
+                    "detail": "Teacher or student token required.",
+                    "correlation_id": cid,
+                },
             )
 
     # Re-issue a fresh JWT with first_login=False so the client can update
@@ -635,7 +658,9 @@ async def update_student_profile(
         )
 
     if row is None:
-        raise HTTPException(status_code=404, detail={"error": "not_found", "detail": "Student not found."})
+        raise HTTPException(
+            status_code=404, detail={"error": "not_found", "detail": "Student not found."}
+        )
 
     emit_event("auth", "profile_updated", student_id=student_id)
     return {

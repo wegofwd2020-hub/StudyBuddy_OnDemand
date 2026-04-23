@@ -14,9 +14,9 @@ import uuid
 from datetime import UTC, datetime, timedelta
 
 from asyncpg import Connection
+from config import settings
 from jose import jwt
 
-from config import settings
 from src.utils.logger import get_logger
 
 log = get_logger("demo_leads")
@@ -27,7 +27,9 @@ _ALGO = "HS256"
 # ── Token helpers ─────────────────────────────────────────────────────────────
 
 
-def generate_demo_token(lead_id: str, name: str, school_org: str, ttl_hours: int) -> tuple[str, datetime]:
+def generate_demo_token(
+    lead_id: str, name: str, school_org: str, ttl_hours: int
+) -> tuple[str, datetime]:
     """Return (signed_jwt, expires_at) for a personalised tour URL."""
     now = datetime.now(tz=UTC)
     exp = now + timedelta(hours=ttl_hours)
@@ -187,9 +189,7 @@ async def list_leads(
     where = "WHERE status = $1" if status else ""
     args_filter = [status] if status else []
 
-    total = await conn.fetchval(
-        f"SELECT COUNT(*) FROM demo_leads {where}", *args_filter  # noqa: S608
-    )
+    total = await conn.fetchval(f"SELECT COUNT(*) FROM demo_leads {where}", *args_filter)
 
     rows = await conn.fetch(
         f"""
@@ -199,7 +199,7 @@ async def list_leads(
         {where}
         ORDER BY created_at DESC
         LIMIT {limit} OFFSET {offset}
-        """,  # noqa: S608
+        """,
         *args_filter,
     )
     return [dict(r) for r in rows], total

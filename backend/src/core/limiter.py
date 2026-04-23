@@ -14,6 +14,7 @@ Rate limits applied:
   - Admin login / password reset:   10 req/min per IP
   - Forgot-password (email layer):  5 req/hour per email (Redis, in-router)
 """
+
 from __future__ import annotations
 
 from slowapi import Limiter

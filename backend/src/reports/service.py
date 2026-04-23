@@ -1105,7 +1105,9 @@ async def get_at_risk_students(
             "grade": r["grade"],
             "last_active": r["last_active"],
             "inactive_days": r["inactive_days"],
-            "pass_rate_pct": round(float(r["pass_rate_pct"]), 1) if r["pass_rate_pct"] is not None else None,
+            "pass_rate_pct": round(float(r["pass_rate_pct"]), 1)
+            if r["pass_rate_pct"] is not None
+            else None,
             "units_completed": int(r["units_completed"]),
             "total_units": int(r["total_units"]),
             "risk_reasons": {
@@ -1148,7 +1150,12 @@ async def mark_at_risk_student_seen(
             uuid.UUID(student_id),
             uuid.UUID(teacher_id),
         )
-        return {"school_id": school_id, "student_id": student_id, "seen": True, "seen_at": row["seen_at"]}
+        return {
+            "school_id": school_id,
+            "student_id": student_id,
+            "seen": True,
+            "seen_at": row["seen_at"],
+        }
     else:
         await conn.execute(
             "DELETE FROM at_risk_seen WHERE school_id = $1 AND student_id = $2",

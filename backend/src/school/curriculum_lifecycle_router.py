@@ -23,8 +23,6 @@ from src.admin.curriculum_service import (
     ArchiveBlocker,
     archive_curriculum,
     assert_archivable,
-    fetch_curriculum_owner,
-    unarchive_curriculum,
 )
 from src.auth.dependencies import get_current_teacher
 from src.core.db import get_db

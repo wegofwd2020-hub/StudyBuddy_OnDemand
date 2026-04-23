@@ -28,9 +28,17 @@ from src.school.enrolment_service import (
     upload_roster,
 )
 from src.school.schemas import (
+    AssignPackageRequest,
+    AssignStudentRequest,
     BulkReassignRequest,
     BulkReassignResponse,
     CatalogResponse,
+    ClassroomCreateRequest,
+    ClassroomDetailResponse,
+    ClassroomItem,
+    ClassroomPackageItem,
+    ClassroomStudentItem,
+    ClassroomUpdateRequest,
     CurriculumDefinitionRequest,
     CurriculumDefinitionResponse,
     DefinitionListResponse,
@@ -41,24 +49,14 @@ from src.school.schemas import (
     PromoteTeacherResponse,
     ProvisionStudentRequest,
     ProvisionStudentResponse,
-    AssignPackageRequest,
-    AssignStudentRequest,
-    ClassroomCreateRequest,
-    ClassroomDetailResponse,
-    ClassroomItem,
-    ClassroomPackageItem,
-    ClassroomStudentItem,
-    ClassroomUpdateRequest,
-    ProvisionStudentRequest,
-    ProvisionStudentResponse,
     ProvisionTeacherRequest,
     ProvisionTeacherResponse,
     RejectDefinitionRequest,
     ReorderPackageRequest,
     ResetPasswordResponse,
-    SchoolProfileResponse,
     SchoolLLMConfigResponse,
     SchoolLLMConfigUpdateRequest,
+    SchoolProfileResponse,
     SchoolRegisterRequest,
     SchoolRegisterResponse,
     SetupStatusResponse,
@@ -87,16 +85,16 @@ from src.school.service import (
     promote_to_school_admin,
     provision_student,
     provision_teacher,
+    register_school,
     reject_definition,
     remove_package_from_classroom,
     remove_student_from_classroom,
     reorder_package_in_classroom,
+    reset_student_password,
+    reset_teacher_password,
     submit_definition,
     update_classroom,
     update_llm_config,
-    register_school,
-    reset_student_password,
-    reset_teacher_password,
 )
 from src.school.subscription_service import get_seat_usage
 from src.utils.logger import get_logger
@@ -129,7 +127,9 @@ async def register_school_endpoint(
     """
     async with get_db(request) as conn:
         try:
-            result = await register_school(conn, body.school_name, body.contact_email, body.country, body.password)
+            result = await register_school(
+                conn, body.school_name, body.contact_email, body.country, body.password
+            )
         except Exception as exc:
             if "unique" in str(exc).lower():
                 raise HTTPException(
@@ -423,14 +423,22 @@ async def get_student_assignment_endpoint(
     if teacher["school_id"] != school_id:
         raise HTTPException(
             status_code=403,
-            detail={"error": "forbidden", "detail": "Cannot view assignments for a different school.", "correlation_id": _cid(request)},
+            detail={
+                "error": "forbidden",
+                "detail": "Cannot view assignments for a different school.",
+                "correlation_id": _cid(request),
+            },
         )
     async with get_db(request) as conn:
         row = await get_student_assignment(conn, school_id, student_id)
     if not row:
         raise HTTPException(
             status_code=404,
-            detail={"error": "not_found", "detail": "No assignment found for this student.", "correlation_id": _cid(request)},
+            detail={
+                "error": "not_found",
+                "detail": "No assignment found for this student.",
+                "correlation_id": _cid(request),
+            },
         )
     return StudentAssignmentResponse(**row)
 
@@ -455,13 +463,21 @@ async def set_student_assignment_endpoint(
     async with get_db(request) as conn:
         try:
             row = await assign_student(
-                conn, school_id, student_id, body.grade, body.teacher_id,
+                conn,
+                school_id,
+                student_id,
+                body.grade,
+                body.teacher_id,
                 assigned_by=teacher["teacher_id"],
             )
         except ValueError as exc:
             raise HTTPException(
                 status_code=422,
-                detail={"error": "assignment_invalid", "detail": str(exc), "correlation_id": _cid(request)},
+                detail={
+                    "error": "assignment_invalid",
+                    "detail": str(exc),
+                    "correlation_id": _cid(request),
+                },
             )
     return StudentAssignmentResponse(**row)
 
@@ -485,13 +501,21 @@ async def bulk_reassign_students_endpoint(
     async with get_db(request) as conn:
         try:
             count = await reassign_students_bulk(
-                conn, school_id, from_teacher_id, body.to_teacher_id, body.grade,
+                conn,
+                school_id,
+                from_teacher_id,
+                body.to_teacher_id,
+                body.grade,
                 assigned_by=teacher["teacher_id"],
             )
         except ValueError as exc:
             raise HTTPException(
                 status_code=422,
-                detail={"error": "reassign_invalid", "detail": str(exc), "correlation_id": _cid(request)},
+                detail={
+                    "error": "reassign_invalid",
+                    "detail": str(exc),
+                    "correlation_id": _cid(request),
+                },
             )
     return BulkReassignResponse(reassigned=count)
 
@@ -595,7 +619,8 @@ async def assign_teacher_grades(
         # Verify the teacher belongs to this school
         exists = await conn.fetchval(
             "SELECT 1 FROM teachers WHERE teacher_id = $1 AND school_id = $2",
-            tid, sid,
+            tid,
+            sid,
         )
         if not exists:
             raise HTTPException(
@@ -607,9 +632,7 @@ async def assign_teacher_grades(
                 },
             )
         async with conn.transaction():
-            await conn.execute(
-                "DELETE FROM teacher_grade_assignments WHERE teacher_id = $1", tid
-            )
+            await conn.execute("DELETE FROM teacher_grade_assignments WHERE teacher_id = $1", tid)
             if body.grades:
                 await conn.executemany(
                     """
@@ -675,7 +698,9 @@ async def provision_teacher_endpoint(
             raise
 
     try:
-        await send_welcome_teacher_email(result["email"], result["name"], result["default_password"])
+        await send_welcome_teacher_email(
+            result["email"], result["name"], result["default_password"]
+        )
     except Exception:
         log.warning("welcome_email_failed", teacher_id=result["teacher_id"])
 
@@ -727,7 +752,9 @@ async def provision_student_endpoint(
             raise
 
     try:
-        await send_welcome_student_email(result["email"], result["name"], result["default_password"])
+        await send_welcome_student_email(
+            result["email"], result["name"], result["default_password"]
+        )
     except Exception:
         log.warning("welcome_email_failed", student_id=result["student_id"])
 
@@ -765,7 +792,11 @@ async def reset_teacher_password_endpoint(
     if not result:
         raise HTTPException(
             status_code=404,
-            detail={"error": "not_found", "detail": "Teacher not found in this school.", "correlation_id": _cid(request)},
+            detail={
+                "error": "not_found",
+                "detail": "Teacher not found in this school.",
+                "correlation_id": _cid(request),
+            },
         )
 
     try:
@@ -801,7 +832,11 @@ async def reset_student_password_endpoint(
     if not result:
         raise HTTPException(
             status_code=404,
-            detail={"error": "not_found", "detail": "Student not found in this school.", "correlation_id": _cid(request)},
+            detail={
+                "error": "not_found",
+                "detail": "Student not found in this school.",
+                "correlation_id": _cid(request),
+            },
         )
 
     try:
@@ -835,7 +870,11 @@ async def promote_teacher_endpoint(
     if not result:
         raise HTTPException(
             status_code=404,
-            detail={"error": "not_found", "detail": "Teacher not found in this school.", "correlation_id": _cid(request)},
+            detail={
+                "error": "not_found",
+                "detail": "Teacher not found in this school.",
+                "correlation_id": _cid(request),
+            },
         )
 
     return PromoteTeacherResponse(**result)
@@ -1082,9 +1121,7 @@ async def assign_student_endpoint(
         raise HTTPException(status_code=403, detail="Forbidden")
 
     async with get_db(request) as conn:
-        ok = await assign_student_to_classroom(
-            conn, school_id, classroom_id, body.student_id
-        )
+        ok = await assign_student_to_classroom(conn, school_id, classroom_id, body.student_id)
 
     if not ok:
         raise HTTPException(status_code=404, detail="Classroom or student not found")

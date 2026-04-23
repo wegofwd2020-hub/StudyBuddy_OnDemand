@@ -17,12 +17,10 @@ Covers:
 
 from __future__ import annotations
 
-import json
 import uuid
 
 import asyncpg
 import httpx
-from config import settings as _settings
 
 from src.core.storage import StorageBackend
 from src.utils.logger import get_logger
@@ -1254,8 +1252,7 @@ async def get_version_warnings(
         uuid.UUID(version_id),
     )
     ack_map: dict[tuple, dict] = {
-        (r["unit_id"], r["content_type"], r["warning_index"]): dict(r)
-        for r in ack_rows
+        (r["unit_id"], r["content_type"], r["warning_index"]): dict(r) for r in ack_rows
     }
 
     warnings: list[dict] = []
@@ -1271,18 +1268,20 @@ async def get_version_warnings(
         for content_type, detail_list in detail_by_type.items():
             for idx, w in enumerate(detail_list):
                 ack = ack_map.get((unit_id, content_type, idx))
-                warnings.append({
-                    "warning_index": idx,
-                    "unit_id": unit_id,
-                    "content_type": content_type,
-                    "message": w.get("message", ""),
-                    "line": w.get("line", 0),
-                    "column": w.get("column", 0),
-                    "acknowledged": ack is not None,
-                    "is_false_positive": ack["is_false_positive"] if ack else False,
-                    "acknowledged_by_email": ack["acknowledged_by_email"] if ack else None,
-                    "acknowledged_at": ack["acknowledged_at"] if ack else None,
-                })
+                warnings.append(
+                    {
+                        "warning_index": idx,
+                        "unit_id": unit_id,
+                        "content_type": content_type,
+                        "message": w.get("message", ""),
+                        "line": w.get("line", 0),
+                        "column": w.get("column", 0),
+                        "acknowledged": ack is not None,
+                        "is_false_positive": ack["is_false_positive"] if ack else False,
+                        "acknowledged_by_email": ack["acknowledged_by_email"] if ack else None,
+                        "acknowledged_at": ack["acknowledged_at"] if ack else None,
+                    }
+                )
 
     unacknowledged_count = sum(1 for w in warnings if not w["acknowledged"])
 

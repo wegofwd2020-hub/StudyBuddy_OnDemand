@@ -292,7 +292,9 @@ async def upgrade_teacher_subscription_plan(
     except Exception as exc:
         log.error(
             "teacher_plan_upgrade_error teacher_id=%s new_plan=%s error=%s",
-            teacher_id, body.new_plan, exc,
+            teacher_id,
+            body.new_plan,
+            exc,
         )
         raise HTTPException(
             status_code=502,
@@ -304,10 +306,12 @@ async def upgrade_teacher_subscription_plan(
         )
 
     from src.pricing import get_teacher_plan as _get_plan
+
     new_plan_obj = _get_plan(body.new_plan)
     log.info(
         "teacher_plan_upgraded teacher_id=%s new_plan=%s",
-        teacher_id, body.new_plan,
+        teacher_id,
+        body.new_plan,
     )
     return TeacherPlanUpgradeResponse(
         plan=body.new_plan,

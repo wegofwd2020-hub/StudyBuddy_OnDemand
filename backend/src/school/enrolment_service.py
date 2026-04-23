@@ -64,7 +64,8 @@ async def upload_roster(
 
             teacher_ok = await conn.fetchval(
                 "SELECT 1 FROM teachers WHERE teacher_id = $1 AND school_id = $2",
-                tid, sid,
+                tid,
+                sid,
             )
             if not teacher_ok:
                 errors.append({"email": email, "reason": "teacher not found in this school"})
@@ -77,13 +78,16 @@ async def upload_roster(
                     SELECT 1 FROM teacher_grade_assignments
                     WHERE teacher_id = $1 AND grade = $2
                     """,
-                    tid, grade,
+                    tid,
+                    grade,
                 )
                 if not grade_ok:
-                    errors.append({
-                        "email": email,
-                        "reason": f"teacher is not assigned to grade {grade}",
-                    })
+                    errors.append(
+                        {
+                            "email": email,
+                            "reason": f"teacher is not assigned to grade {grade}",
+                        }
+                    )
                     continue
         else:
             tid = None
@@ -92,7 +96,8 @@ async def upload_roster(
         existing = await conn.fetchrow(
             "SELECT enrolment_id, status FROM school_enrolments "
             "WHERE school_id = $1 AND student_email = $2",
-            sid, email,
+            sid,
+            email,
         )
         if existing:
             already_enrolled += 1
@@ -103,15 +108,17 @@ async def upload_roster(
                 )
                 if student_row:
                     await assign_student(
-                        conn, school_id, str(student_row["student_id"]),
-                        grade, str(tid), assigned_by=None,
+                        conn,
+                        school_id,
+                        str(student_row["student_id"]),
+                        grade,
+                        str(tid),
+                        assigned_by=None,
                     )
             continue
 
         # Resolve existing student account
-        student_row = await conn.fetchrow(
-            "SELECT student_id FROM students WHERE email = $1", email
-        )
+        student_row = await conn.fetchrow("SELECT student_id FROM students WHERE email = $1", email)
         student_id = student_row["student_id"] if student_row else None
         status = "active" if student_id else "pending"
 
@@ -122,7 +129,12 @@ async def upload_roster(
             VALUES ($1, $2, $3, $4, $5, $6)
             ON CONFLICT (school_id, student_email) DO NOTHING
             """,
-            sid, email, student_id, status, grade, tid,
+            sid,
+            email,
+            student_id,
+            status,
+            grade,
+            tid,
         )
 
         # Link student → school
@@ -133,13 +145,18 @@ async def upload_roster(
                 SET school_id = $1, enrolled_at = NOW()
                 WHERE student_id = $2 AND school_id IS NULL
                 """,
-                sid, student_id,
+                sid,
+                student_id,
             )
             # Create assignment if grade+teacher provided
             if grade and tid:
                 await assign_student(
-                    conn, school_id, str(student_id),
-                    grade, str(tid), assigned_by=None,
+                    conn,
+                    school_id,
+                    str(student_id),
+                    grade,
+                    str(tid),
+                    assigned_by=None,
                 )
 
         enrolled += 1
@@ -234,7 +251,8 @@ async def link_student(
         SET student_id = $1, status = 'active'
         WHERE enrolment_id = $2
         """,
-        uuid.UUID(student_id), enrolment_id,
+        uuid.UUID(student_id),
+        enrolment_id,
     )
 
     # Update students row — school is the authority on grade
@@ -255,9 +273,7 @@ async def link_student(
 
     # Create teacher assignment if present on enrolment
     if grade and teacher_id:
-        await assign_student(
-            conn, school_id, student_id, grade, teacher_id, assigned_by=None
-        )
+        await assign_student(conn, school_id, student_id, grade, teacher_id, assigned_by=None)
 
     log.info("student_enrolled", student_id=student_id, school_id=school_id, grade=grade)
     return school_id
@@ -295,7 +311,8 @@ async def assign_student(
     # Student must be enrolled in this school
     enrolled = await conn.fetchval(
         "SELECT 1 FROM school_enrolments WHERE school_id = $1 AND student_id = $2",
-        sid, stud,
+        sid,
+        stud,
     )
     if not enrolled:
         raise ValueError("student is not enrolled in this school")
@@ -303,7 +320,8 @@ async def assign_student(
     # Teacher must belong to this school
     teacher_ok = await conn.fetchval(
         "SELECT 1 FROM teachers WHERE teacher_id = $1 AND school_id = $2",
-        tid, sid,
+        tid,
+        sid,
     )
     if not teacher_ok:
         raise ValueError("teacher does not belong to this school")
@@ -311,7 +329,8 @@ async def assign_student(
     # Teacher must be assigned to the grade
     grade_ok = await conn.fetchval(
         "SELECT 1 FROM teacher_grade_assignments WHERE teacher_id = $1 AND grade = $2",
-        tid, grade,
+        tid,
+        grade,
     )
     if not grade_ok:
         raise ValueError(f"teacher is not assigned to grade {grade}")
@@ -336,13 +355,18 @@ async def assign_student(
             grade,
             assigned_at
         """,
-        stud, tid, sid, grade, assigned_by_id,
+        stud,
+        tid,
+        sid,
+        grade,
+        assigned_by_id,
     )
 
     # Keep students.grade in sync — school is the authority
     await conn.execute(
         "UPDATE students SET grade = $1 WHERE student_id = $2",
-        grade, stud,
+        grade,
+        stud,
     )
 
     log.info(
@@ -410,7 +434,9 @@ async def reassign_students_bulk(
         WHERE teacher_id = $1 AND grade = $2
           AND EXISTS (SELECT 1 FROM teachers WHERE teacher_id = $1 AND school_id = $3)
         """,
-        to_tid, grade, sid,
+        to_tid,
+        grade,
+        sid,
     )
     if not to_ok:
         raise ValueError("destination teacher not found or not assigned to this grade")
@@ -425,7 +451,11 @@ async def reassign_students_bulk(
           AND teacher_id  = $4
           AND grade       = $5
         """,
-        to_tid, by_id, sid, from_tid, grade,
+        to_tid,
+        by_id,
+        sid,
+        from_tid,
+        grade,
     )
 
     # Parse "UPDATE N" string

@@ -28,10 +28,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from decimal import Decimal
 
-
 # ─────────────────────────────────────────────────────────────────────────────
 # 1. School subscription plans
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 @dataclass(frozen=True)
 class SchoolPlan:
@@ -56,11 +56,11 @@ class SchoolPlan:
 
     id: str
     name: str
-    price_monthly: str          # decimal string, e.g. "49.00". "0.00" = free. "custom" = sales
+    price_monthly: str  # decimal string, e.g. "49.00". "0.00" = free. "custom" = sales
     max_students: int
     max_teachers: int
-    builds_per_year: int        # -1 = unlimited
-    storage_base_gb: int = 5    # 5 GB included in every plan
+    builds_per_year: int  # -1 = unlimited
+    storage_base_gb: int = 5  # 5 GB included in every plan
     features: tuple[str, ...] = field(default_factory=tuple)
     highlight: bool = False
 
@@ -107,8 +107,8 @@ SCHOOL_PLANS: dict[str, SchoolPlan] = {
         price_monthly="custom",
         max_students=9999,
         max_teachers=9999,
-        builds_per_year=-1,     # unlimited
-        storage_base_gb=5,      # base; typically negotiated higher
+        builds_per_year=-1,  # unlimited
+        storage_base_gb=5,  # base; typically negotiated higher
         features=(
             "Unlimited students & teachers",
             "Unlimited curriculum builds",
@@ -121,6 +121,7 @@ SCHOOL_PLANS: dict[str, SchoolPlan] = {
 }
 
 # ── Convenience accessors ─────────────────────────────────────────────────────
+
 
 def get_plan(plan_id: str) -> SchoolPlan:
     """Return the SchoolPlan for plan_id, falling back to 'starter' if unknown."""
@@ -142,6 +143,7 @@ def plan_seats(plan_id: str) -> dict[str, int]:
 # 2. Storage add-on packages
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 @dataclass(frozen=True)
 class StoragePackage:
     """
@@ -154,11 +156,11 @@ class StoragePackage:
     """
 
     gb: int
-    price_usd: str              # decimal string, e.g. "19.00"
+    price_usd: str  # decimal string, e.g. "19.00"
 
 
 STORAGE_PACKAGES: dict[int, StoragePackage] = {
-    5:  StoragePackage(gb=5,  price_usd="19.00"),
+    5: StoragePackage(gb=5, price_usd="19.00"),
     10: StoragePackage(gb=10, price_usd="35.00"),
     25: StoragePackage(gb=25, price_usd="79.00"),
 }
@@ -172,6 +174,7 @@ VALID_STORAGE_GB: frozenset[int] = frozenset(STORAGE_PACKAGES.keys())  # {5, 10,
 
 # One-time $15 charge for a single extra grade build beyond the plan allowance.
 EXTRA_BUILD_PRICE_USD: str = "15.00"
+
 
 @dataclass(frozen=True)
 class BuildCreditBundle:
@@ -188,11 +191,11 @@ class BuildCreditBundle:
     """
 
     credits: int
-    price_usd: str              # decimal string, e.g. "39.00"
+    price_usd: str  # decimal string, e.g. "39.00"
 
 
 BUILD_CREDIT_BUNDLES: dict[int, BuildCreditBundle] = {
-    3:  BuildCreditBundle(credits=3,  price_usd="39.00"),
+    3: BuildCreditBundle(credits=3, price_usd="39.00"),
     10: BuildCreditBundle(credits=10, price_usd="119.00"),
     25: BuildCreditBundle(credits=25, price_usd="269.00"),
 }
@@ -203,6 +206,7 @@ VALID_CREDIT_BUNDLE_SIZES: frozenset[int] = frozenset(BUILD_CREDIT_BUNDLES.keys(
 # ─────────────────────────────────────────────────────────────────────────────
 # 3. AI generation cost model  (pipeline / build_grade.py)
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 @dataclass(frozen=True)
 class AICostModel:
@@ -232,7 +236,7 @@ class AICostModel:
     model: str = "claude-sonnet-4-6"
 
     # API rates
-    input_per_million: Decimal = Decimal("3.00")    # $3 / 1M input tokens
+    input_per_million: Decimal = Decimal("3.00")  # $3 / 1M input tokens
     output_per_million: Decimal = Decimal("15.00")  # $15 / 1M output tokens
 
     # Pipeline safety cap
@@ -246,8 +250,14 @@ class AICostModel:
     @property
     def cost_per_unit_usd(self) -> Decimal:
         """Estimated Anthropic API cost per curriculum unit (one language)."""
-        input_cost  = Decimal(self.avg_input_tokens_per_unit)  / Decimal("1_000_000") * self.input_per_million
-        output_cost = Decimal(self.avg_output_tokens_per_unit) / Decimal("1_000_000") * self.output_per_million
+        input_cost = (
+            Decimal(self.avg_input_tokens_per_unit) / Decimal("1_000_000") * self.input_per_million
+        )
+        output_cost = (
+            Decimal(self.avg_output_tokens_per_unit)
+            / Decimal("1_000_000")
+            * self.output_per_million
+        )
         return (input_cost + output_cost).quantize(Decimal("0.0001"))
 
     @property
@@ -279,6 +289,7 @@ AI_COST = AICostModel()
 # 4. Independent teacher plans  (future — teacher tier rebuild, #57)
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 @dataclass(frozen=True)
 class TeacherPlan:
     """
@@ -300,7 +311,7 @@ class TeacherPlan:
 
     id: str
     name: str
-    price_monthly: str          # decimal string
+    price_monthly: str  # decimal string
     max_students: int
     features: tuple[str, ...] = field(default_factory=tuple)
     highlight: bool = False
@@ -354,7 +365,9 @@ VALID_TEACHER_PLAN_IDS: frozenset[str] = frozenset(TEACHER_PLANS.keys())
 def get_teacher_plan(plan_id: str) -> TeacherPlan:
     """Return TeacherPlan for plan_id. Raises KeyError for unknown IDs."""
     if plan_id not in TEACHER_PLANS:
-        raise KeyError(f"Unknown teacher plan: {plan_id!r}. Valid: {sorted(VALID_TEACHER_PLAN_IDS)}")
+        raise KeyError(
+            f"Unknown teacher plan: {plan_id!r}. Valid: {sorted(VALID_TEACHER_PLAN_IDS)}"
+        )
     return TEACHER_PLANS[plan_id]
 
 
@@ -377,8 +390,8 @@ class RevenueShare:
     student sees at checkout.
     """
 
-    teacher_pct: int = 70          # % forwarded to teacher's Connect account
-    platform_pct: int = 30         # % kept by platform as application fee
+    teacher_pct: int = 70  # % forwarded to teacher's Connect account
+    platform_pct: int = 30  # % kept by platform as application fee
     student_price_monthly: str = "9.99"  # USD, decimal string
 
 

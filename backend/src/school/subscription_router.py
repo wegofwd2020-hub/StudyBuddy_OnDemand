@@ -37,7 +37,6 @@ from src.core.db import get_db
 from src.core.redis_client import get_redis
 from src.school.subscription_service import (
     cancel_school_stripe_subscription,
-    cancel_school_subscription_db,
     create_credits_bundle_checkout_session,
     create_extra_build_checkout_session,
     create_renewal_checkout_session,
@@ -96,7 +95,7 @@ class ExtraBuildCheckoutRequest(BaseModel):
 
 
 class CreditsBundleCheckoutRequest(BaseModel):
-    bundle_size: int          # 3, 10, or 25
+    bundle_size: int  # 3, 10, or 25
     success_url: str
     cancel_url: str
 
@@ -117,9 +116,9 @@ class SchoolSubscriptionStatusResponse(BaseModel):
     seats_used_teachers: int = 0
     current_period_end: str | None = None
     # Build allowance (Option A — absorbed into plan)
-    builds_included: int = 0          # -1 = unlimited (Enterprise)
+    builds_included: int = 0  # -1 = unlimited (Enterprise)
     builds_used: int = 0
-    builds_remaining: int = 0         # -1 = unlimited
+    builds_remaining: int = 0  # -1 = unlimited
     builds_period_end: str | None = None
     # Rollover credit balance (Options B/C — never expires)
     builds_credits_balance: int = 0
@@ -268,6 +267,7 @@ async def school_subscription_cancel(
 
     async with get_db(request) as conn:
         import uuid as _uuid
+
         row = await conn.fetchrow(
             """
             SELECT stripe_subscription_id, current_period_end
@@ -368,7 +368,8 @@ async def curriculum_renewal_checkout(
               AND school_id = $2::uuid
               AND owner_type = 'school'
             """,
-            curriculum_id, school_id,
+            curriculum_id,
+            school_id,
         )
 
     if cur is None:
@@ -414,7 +415,9 @@ async def curriculum_renewal_checkout(
     except Exception as exc:
         log.error(
             "renewal_checkout_error school_id=%s curriculum_id=%s error=%s",
-            school_id, curriculum_id, exc,
+            school_id,
+            curriculum_id,
+            exc,
         )
         raise HTTPException(
             status_code=502,
@@ -427,7 +430,9 @@ async def curriculum_renewal_checkout(
 
     log.info(
         "renewal_checkout_created school_id=%s curriculum_id=%s grade=%d",
-        school_id, curriculum_id, cur["grade"],
+        school_id,
+        curriculum_id,
+        cur["grade"],
     )
     return SchoolCheckoutResponse(checkout_url=url)
 
@@ -483,7 +488,9 @@ async def storage_addon_checkout(
     except Exception as exc:
         log.error(
             "storage_checkout_error school_id=%s gb=%d error=%s",
-            school_id, body.gb_package, exc,
+            school_id,
+            body.gb_package,
+            exc,
         )
         raise HTTPException(
             status_code=502,
@@ -496,7 +503,8 @@ async def storage_addon_checkout(
 
     log.info(
         "storage_checkout_created school_id=%s gb_package=%d",
-        school_id, body.gb_package,
+        school_id,
+        body.gb_package,
     )
     return SchoolCheckoutResponse(checkout_url=url)
 
@@ -620,7 +628,9 @@ async def credits_bundle_checkout(
     except Exception as exc:
         log.error(
             "credits_bundle_checkout_error school_id=%s bundle_size=%d error=%s",
-            school_id, body.bundle_size, exc,
+            school_id,
+            body.bundle_size,
+            exc,
         )
         raise HTTPException(
             status_code=502,
@@ -633,6 +643,7 @@ async def credits_bundle_checkout(
 
     log.info(
         "credits_bundle_checkout_created school_id=%s bundle_size=%d",
-        school_id, body.bundle_size,
+        school_id,
+        body.bundle_size,
     )
     return SchoolCheckoutResponse(checkout_url=url)

@@ -12,14 +12,14 @@ Tasks:
 
 from __future__ import annotations
 
-import asyncio
 import json
 import logging
 import uuid
 from datetime import UTC
 
-from config import settings  # noqa: E402 — module-level import for patchability in tests
-from src.core.celery_app import _run_async, celery_app  # noqa: F401 — re-exported for callers
+from config import settings
+
+from src.core.celery_app import _run_async, celery_app
 
 log = logging.getLogger("auth.tasks")
 
@@ -764,7 +764,7 @@ def run_curriculum_pipeline_task(
         # Import the real generator + its config. Deferred to task-execution time
         # because pipeline.* depends on third-party SDKs (anthropic, openai,
         # google-genai) that should not load at api-boot time.
-        from pipeline.build_unit import build_unit, SpendCapExceeded
+        from pipeline.build_unit import SpendCapExceeded, build_unit
         from pipeline.config import settings as pipeline_config
 
         for unit in units:
@@ -781,7 +781,10 @@ def run_curriculum_pipeline_task(
                 try:
                     log.info(
                         "pipeline_build_unit job_id=%s curriculum_id=%s unit_id=%s lang=%s",
-                        job_id, curriculum_id, unit_id, lang,
+                        job_id,
+                        curriculum_id,
+                        unit_id,
+                        lang,
                     )
                     result = build_unit(
                         curriculum_id=curriculum_id,
@@ -793,24 +796,32 @@ def run_curriculum_pipeline_task(
                     )
                     # build_unit returns {status: "built" | "skipped" | "failed", ...}
                     if result.get("status") == "failed":
-                        failed_units.append({
-                            "unit_id": unit_id, "lang": lang,
-                            "error": result.get("error", "unknown"),
-                        })
+                        failed_units.append(
+                            {
+                                "unit_id": unit_id,
+                                "lang": lang,
+                                "error": result.get("error", "unknown"),
+                            }
+                        )
                     else:
                         built += 1
                 except SpendCapExceeded as cap_exc:
                     log.error("pipeline_spend_cap_exceeded job_id=%s error=%s", job_id, cap_exc)
-                    failed_units.append({
-                        "unit_id": unit_id, "lang": lang,
-                        "error": f"spend cap exceeded: {cap_exc}",
-                    })
+                    failed_units.append(
+                        {
+                            "unit_id": unit_id,
+                            "lang": lang,
+                            "error": f"spend cap exceeded: {cap_exc}",
+                        }
+                    )
                     # Stop dispatching further units once we hit the spend cap.
                     break
                 except Exception as unit_exc:
                     log.warning(
                         "pipeline_unit_failed unit_id=%s lang=%s error=%s",
-                        unit_id, lang, unit_exc,
+                        unit_id,
+                        lang,
+                        unit_exc,
                     )
                     failed_units.append({"unit_id": unit_id, "lang": lang, "error": str(unit_exc)})
 
@@ -954,13 +965,16 @@ def run_grade_pipeline_task(
             year,
         )
 
-        summary = run_grade(
-            grade=grade,
-            langs=langs.split(","),
-            year=year,
-            force=force,
-            stream=stream,
-        ) or {}
+        summary = (
+            run_grade(
+                grade=grade,
+                langs=langs.split(","),
+                year=year,
+                force=force,
+                stream=stream,
+            )
+            or {}
+        )
         # run_grade() returns {total_units, succeeded, failed, total_tokens,
         # total_cost_usd, duration_ms, ...}. Capture these so the admin UI
         # shows real built/failed/total counts instead of 0/0.
@@ -989,14 +1003,16 @@ def run_grade_pipeline_task(
         except Exception:
             pass
 
-        _update_job({
-            "status": "completed",
-            "progress_pct": 100.0,
-            "payload_bytes": payload_bytes,
-            "built": built,
-            "failed": failed_count,
-            "total": total,
-        })
+        _update_job(
+            {
+                "status": "completed",
+                "progress_pct": 100.0,
+                "payload_bytes": payload_bytes,
+                "built": built,
+                "failed": failed_count,
+                "total": total,
+            }
+        )
 
         async def _mark_done():
             conn = await _asyncpg.connect(settings.DATABASE_URL)
@@ -1012,7 +1028,11 @@ def run_grade_pipeline_task(
                            total=$5
                      WHERE job_id=$1
                     """,
-                    job_id, payload_bytes, built, failed_count, total,
+                    job_id,
+                    payload_bytes,
+                    built,
+                    failed_count,
+                    total,
                 )
             finally:
                 await conn.close()
@@ -1591,6 +1611,7 @@ def invalidate_school_entitlement_cache_task(school_id: str) -> None:
     student IDs from the DB; the namespace covers all per-student ent + cur keys.
     """
     from config import settings as cfg
+
     from src.core.cache_keys import school_scan_pattern
 
     async def _invalidate() -> None:
@@ -1648,9 +1669,7 @@ def reconcile_school_storage_task() -> None:
         try:
             async with pool.acquire() as conn:
                 # Bypass RLS — this is an internal admin operation.
-                await conn.execute(
-                    "SELECT set_config('app.current_school_id', 'bypass', false)"
-                )
+                await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
 
                 # Aggregate payload_bytes per school across all completed jobs.
                 rows = await conn.fetch(
@@ -1726,6 +1745,7 @@ def check_retention_pre_expiry_warnings() -> None:
     exactly 30 days. No DB state change — email notification only.
     """
     from config import settings as cfg
+
     from src.school.retention_service import send_pre_expiry_warnings
 
     async def _run() -> None:
@@ -1733,9 +1753,7 @@ def check_retention_pre_expiry_warnings() -> None:
 
         conn = await _asyncpg.connect(cfg.DATABASE_URL)
         try:
-            await conn.execute(
-                "SELECT set_config('app.current_school_id', 'bypass', false)"
-            )
+            await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
             await send_pre_expiry_warnings(conn)
         finally:
             await conn.close()
@@ -1754,6 +1772,7 @@ def sweep_expired_curricula() -> None:
     Idempotent — only 'active' rows are touched.
     """
     from config import settings as cfg
+
     from src.school.retention_service import expire_active_curricula
 
     async def _run() -> None:
@@ -1761,9 +1780,7 @@ def sweep_expired_curricula() -> None:
 
         conn = await _asyncpg.connect(cfg.DATABASE_URL)
         try:
-            await conn.execute(
-                "SELECT set_config('app.current_school_id', 'bypass', false)"
-            )
+            await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
             await expire_active_curricula(conn)
         finally:
             await conn.close()
@@ -1781,6 +1798,7 @@ def check_retention_grace_reminders() -> None:
     ((grace_until - 90 days)::date == today). No DB state change.
     """
     from config import settings as cfg
+
     from src.school.retention_service import send_grace_90day_reminders
 
     async def _run() -> None:
@@ -1788,9 +1806,7 @@ def check_retention_grace_reminders() -> None:
 
         conn = await _asyncpg.connect(cfg.DATABASE_URL)
         try:
-            await conn.execute(
-                "SELECT set_config('app.current_school_id', 'bypass', false)"
-            )
+            await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
             await send_grace_90day_reminders(conn)
         finally:
             await conn.close()
@@ -1808,6 +1824,7 @@ def check_retention_purge_warnings() -> None:
     ((grace_until - 30 days)::date == today). No DB state change.
     """
     from config import settings as cfg
+
     from src.school.retention_service import send_purge_30day_warnings
 
     async def _run() -> None:
@@ -1815,9 +1832,7 @@ def check_retention_purge_warnings() -> None:
 
         conn = await _asyncpg.connect(cfg.DATABASE_URL)
         try:
-            await conn.execute(
-                "SELECT set_config('app.current_school_id', 'bypass', false)"
-            )
+            await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
             await send_purge_30day_warnings(conn)
         finally:
             await conn.close()
@@ -1888,6 +1903,7 @@ def purge_expired_curricula() -> None:
     records are NOT deleted.
     """
     from config import settings as cfg
+
     from src.core.storage import LocalStorage
     from src.school.retention_service import purge_grace_expired
 
@@ -1896,10 +1912,8 @@ def purge_expired_curricula() -> None:
 
         conn = await _asyncpg.connect(cfg.DATABASE_URL)
         try:
-            await conn.execute(
-                "SELECT set_config('app.current_school_id', 'bypass', false)"
-            )
-            storage = LocalStorage(root=getattr(cfg, "CONTENT_STORE_PATH", "/tmp/studybuddy-content"))
+            await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+            storage = LocalStorage(root=cfg.CONTENT_STORE_PATH)
             await purge_grace_expired(
                 conn,
                 storage,
@@ -1937,8 +1951,6 @@ def send_payment_action_required_email_task(
     except Exception as exc:
         raise self.retry(exc=exc, countdown=30)
 
-    _run_async(_run())
-
 
 # ── Independent teacher seat-quota monitoring (#105) ─────────────────────────
 
@@ -1973,9 +1985,7 @@ def check_teacher_seat_quotas() -> None:
         try:
             async with pool.acquire() as conn:
                 # Bypass RLS for this cross-school admin scan.
-                await conn.execute(
-                    "SELECT set_config('app.current_school_id', 'bypass', false)"
-                )
+                await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
                 rows = await conn.fetch(
                     """
                     SELECT ts.teacher_id::text AS teacher_id,
@@ -2013,7 +2023,9 @@ def check_teacher_seat_quotas() -> None:
                     flagged += 1
                     logging.getLogger("tasks.check_teacher_seat_quotas").info(
                         "over_quota_flagged teacher_id=%s seats=%d max=%d",
-                        teacher_id, seats_used, max_s,
+                        teacher_id,
+                        seats_used,
+                        max_s,
                     )
                 elif seats_used <= max_s and currently_over:
                     async with pool.acquire() as conn:
@@ -2024,12 +2036,16 @@ def check_teacher_seat_quotas() -> None:
                     cleared += 1
                     logging.getLogger("tasks.check_teacher_seat_quotas").info(
                         "over_quota_cleared teacher_id=%s seats=%d max=%d",
-                        teacher_id, seats_used, max_s,
+                        teacher_id,
+                        seats_used,
+                        max_s,
                     )
 
             logging.getLogger("tasks.check_teacher_seat_quotas").info(
                 "check_teacher_seat_quotas_done flagged=%d cleared=%d total=%d",
-                flagged, cleared, len(rows),
+                flagged,
+                cleared,
+                len(rows),
             )
         finally:
             await pool.close()

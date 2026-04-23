@@ -62,7 +62,7 @@ class SchoolStorageResponse(BaseModel):
     total_gb: int
     used_bytes: int
     used_gb: float
-    used_pct: float           # percentage of total quota used (capped at 100 in display)
+    used_pct: float  # percentage of total quota used (capped at 100 in display)
     over_quota: bool
     breakdown: list[CurriculumStorageBreakdown]
 

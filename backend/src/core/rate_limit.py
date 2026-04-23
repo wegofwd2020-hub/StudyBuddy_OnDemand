@@ -12,6 +12,7 @@ State lives in shared Redis so limits are enforced across all workers.
 Limits:
   AUTH_LIMIT  — 10 requests per 60 s per IP on all auth token/login endpoints.
 """
+
 from __future__ import annotations
 
 from fastapi import HTTPException, Request

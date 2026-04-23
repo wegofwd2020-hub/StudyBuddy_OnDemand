@@ -67,7 +67,9 @@ async def stripe_webhook(request: Request) -> dict:
     # construct_event is CPU-bound (HMAC) — run in executor to keep the loop free.
     try:
         stripe_mod = _get_stripe_module()
-        event = await run_stripe(stripe_mod.Webhook.construct_event, payload, sig_header, webhook_secret)
+        event = await run_stripe(
+            stripe_mod.Webhook.construct_event, payload, sig_header, webhook_secret
+        )
     except Exception as exc:
         log.warning("stripe_signature_invalid error=%s", exc)
         raise HTTPException(
@@ -96,7 +98,9 @@ async def stripe_webhook(request: Request) -> dict:
         except Exception as exc:
             log.error(
                 "stripe_event_handler_failed event_id=%s event_type=%s error=%s",
-                stripe_event_id, event_type, exc,
+                stripe_event_id,
+                event_type,
+                exc,
             )
             outcome = "error"
             error_detail = str(exc)
@@ -138,6 +142,7 @@ async def _dispatch_event(conn, redis, event_type: str, obj: dict) -> None:
         if stripe_sub_id:
             # Check student Connect subscriptions first (Option B)
             from src.teacher.connect_service import find_teacher_by_student_subscription
+
             teacher_id = await find_teacher_by_student_subscription(conn, stripe_sub_id)
             if teacher_id:
                 await _dispatch_student_connect_lifecycle(conn, event_type, obj, stripe_sub_id)
@@ -145,6 +150,7 @@ async def _dispatch_event(conn, redis, event_type: str, obj: dict) -> None:
 
             # Then check teacher flat-fee subscriptions (Option A)
             from src.teacher.subscription_service import find_teacher_by_stripe_subscription
+
             teacher_id = await find_teacher_by_stripe_subscription(conn, stripe_sub_id)
             if teacher_id:
                 await _dispatch_teacher_lifecycle(conn, event_type, obj, stripe_sub_id)
@@ -157,15 +163,16 @@ async def _dispatch_event(conn, redis, event_type: str, obj: dict) -> None:
 async def _dispatch_teacher_checkout(conn, obj: dict, metadata: dict) -> None:
     """Handle checkout.session.completed for teacher_subscription product_type."""
     import datetime as _dt
+
     from src.teacher.subscription_service import handle_teacher_subscription_activated
 
     teacher_id = metadata.get("teacher_id", "")
     plan = metadata.get("plan", "")
     if not teacher_id or not plan:
         log.warning(
-            "teacher_checkout.session.completed missing metadata "
-            "teacher_id=%s plan=%s",
-            teacher_id, plan,
+            "teacher_checkout.session.completed missing metadata teacher_id=%s plan=%s",
+            teacher_id,
+            plan,
         )
         return
 
@@ -176,11 +183,10 @@ async def _dispatch_teacher_checkout(conn, obj: dict, metadata: dict) -> None:
     try:
         stripe_mod = _get_stripe_module()
         from config import settings as _settings
+
         stripe_mod.api_key = _settings.STRIPE_SECRET_KEY
         sub = await run_stripe(stripe_mod.Subscription.retrieve, stripe_subscription_id)
-        current_period_end = _dt.datetime.fromtimestamp(
-            sub["current_period_end"], tz=_dt.UTC
-        )
+        current_period_end = _dt.datetime.fromtimestamp(sub["current_period_end"], tz=_dt.UTC)
     except Exception as exc:
         log.warning("could_not_fetch_teacher_subscription_period error=%s", exc)
 
@@ -194,11 +200,10 @@ async def _dispatch_teacher_checkout(conn, obj: dict, metadata: dict) -> None:
     )
 
 
-async def _dispatch_teacher_lifecycle(
-    conn, event_type: str, obj: dict, stripe_sub_id: str
-) -> None:
+async def _dispatch_teacher_lifecycle(conn, event_type: str, obj: dict, stripe_sub_id: str) -> None:
     """Handle lifecycle events (updated / deleted / payment_failed) for teacher subscriptions."""
     import datetime as _dt
+
     from src.teacher.subscription_service import (
         handle_teacher_payment_failed,
         handle_teacher_subscription_deleted,
@@ -236,6 +241,7 @@ def _map_stripe_status(stripe_status: str) -> str:
 def _get_stripe_module():
     try:
         import stripe  # type: ignore
+
         return stripe
     except ImportError:
         raise RuntimeError("stripe package not installed")
@@ -268,7 +274,8 @@ async def _dispatch_school_event(conn, redis, event_type: str, obj: dict) -> Non
                 log.warning(
                     "renewal_checkout.session.completed missing metadata "
                     "school_id=%s curriculum_id=%s",
-                    school_id, curriculum_id,
+                    school_id,
+                    curriculum_id,
                 )
                 return
             await handle_curriculum_renewal_payment(conn, school_id, curriculum_id)
@@ -291,7 +298,8 @@ async def _dispatch_school_event(conn, redis, event_type: str, obj: dict) -> Non
                 log.warning(
                     "storage_addon_checkout.session.completed missing/invalid metadata "
                     "school_id=%s additional_gb=%d",
-                    school_id, additional_gb,
+                    school_id,
+                    additional_gb,
                 )
                 return
             await handle_storage_addon_payment(conn, school_id, additional_gb)
@@ -302,9 +310,7 @@ async def _dispatch_school_event(conn, redis, event_type: str, obj: dict) -> Non
             from src.school.subscription_service import handle_extra_build_payment
 
             if not school_id:
-                log.warning(
-                    "extra_build_checkout.session.completed missing school_id in metadata"
-                )
+                log.warning("extra_build_checkout.session.completed missing school_id in metadata")
                 return
             await handle_extra_build_payment(conn, school_id)
             return
@@ -326,7 +332,8 @@ async def _dispatch_school_event(conn, redis, event_type: str, obj: dict) -> Non
                 log.warning(
                     "build_credits_checkout.session.completed missing/invalid metadata "
                     "school_id=%s credits=%d",
-                    school_id, credits,
+                    school_id,
+                    credits,
                 )
                 return
             await handle_credits_bundle_payment(conn, school_id, credits)
@@ -337,7 +344,8 @@ async def _dispatch_school_event(conn, redis, event_type: str, obj: dict) -> Non
         if not school_id or not plan:
             log.warning(
                 "school_checkout.session.completed missing metadata school_id=%s plan=%s",
-                school_id, plan,
+                school_id,
+                plan,
             )
             return
 
@@ -348,15 +356,18 @@ async def _dispatch_school_event(conn, redis, event_type: str, obj: dict) -> Non
         try:
             stripe_mod = _get_stripe_module()
             from config import settings as _settings
+
             stripe_mod.api_key = _settings.STRIPE_SECRET_KEY
             sub = await run_stripe(stripe_mod.Subscription.retrieve, stripe_subscription_id)
             import datetime as _dt
+
             current_period_end = _dt.datetime.fromtimestamp(sub["current_period_end"], tz=_dt.UTC)
         except Exception as exc:
             log.warning("could_not_fetch_school_subscription_period error=%s", exc)
 
         await activate_school_subscription(
-            conn, redis,
+            conn,
+            redis,
             school_id=school_id,
             plan=plan,
             stripe_customer_id=stripe_customer_id,
@@ -368,6 +379,7 @@ async def _dispatch_school_event(conn, redis, event_type: str, obj: dict) -> Non
         stripe_subscription_id = obj.get("id", "")
         status = _map_stripe_status(obj.get("status", "active"))
         import datetime as _dt
+
         period_end_ts = obj.get("current_period_end")
         current_period_end = (
             _dt.datetime.fromtimestamp(period_end_ts, tz=_dt.UTC) if period_end_ts else None
@@ -461,6 +473,7 @@ async def _handle_payment_action_required(conn, obj: dict) -> None:
 async def _dispatch_student_connect_checkout(conn, obj: dict, metadata: dict) -> None:
     """Handle checkout.session.completed for product_type='student_connect_subscription'."""
     import datetime as _dt
+
     from src.teacher.connect_service import handle_student_subscription_activated
 
     student_id = metadata.get("student_id", "")
@@ -469,7 +482,8 @@ async def _dispatch_student_connect_checkout(conn, obj: dict, metadata: dict) ->
         log.warning(
             "student_connect_checkout.session.completed missing metadata "
             "student_id=%s teacher_id=%s",
-            student_id, teacher_id,
+            student_id,
+            teacher_id,
         )
         return
 
@@ -480,11 +494,10 @@ async def _dispatch_student_connect_checkout(conn, obj: dict, metadata: dict) ->
     try:
         stripe_mod = _get_stripe_module()
         from config import settings as _settings
+
         stripe_mod.api_key = _settings.STRIPE_SECRET_KEY
         sub = await run_stripe(stripe_mod.Subscription.retrieve, stripe_subscription_id)
-        current_period_end = _dt.datetime.fromtimestamp(
-            sub["current_period_end"], tz=_dt.UTC
-        )
+        current_period_end = _dt.datetime.fromtimestamp(sub["current_period_end"], tz=_dt.UTC)
     except Exception as exc:
         log.warning("could_not_fetch_student_connect_subscription_period error=%s", exc)
 
@@ -503,6 +516,7 @@ async def _dispatch_student_connect_lifecycle(
 ) -> None:
     """Handle lifecycle events for student Connect subscriptions."""
     import datetime as _dt
+
     from src.teacher.connect_service import (
         handle_student_payment_failed,
         handle_student_subscription_deleted,
@@ -582,7 +596,9 @@ async def stripe_connect_webhook(request: Request) -> dict:
         except Exception as exc:
             log.error(
                 "connect_event_handler_failed event_id=%s event_type=%s error=%s",
-                stripe_event_id, event_type, exc,
+                stripe_event_id,
+                event_type,
+                exc,
             )
             outcome = "error"
             error_detail = str(exc)
@@ -616,9 +632,7 @@ async def _dispatch_connect_account_updated(conn, obj: dict) -> None:
         stripe_account_id,
     )
     if not teacher_id:
-        log.warning(
-            "connect_account_updated unknown stripe_account_id=%s", stripe_account_id
-        )
+        log.warning("connect_account_updated unknown stripe_account_id=%s", stripe_account_id)
         return
 
     await sync_connect_account(
@@ -626,5 +640,7 @@ async def _dispatch_connect_account_updated(conn, obj: dict) -> None:
     )
     log.info(
         "connect_account_updated teacher_id=%s charges=%s payouts=%s",
-        teacher_id, charges_enabled, payouts_enabled,
+        teacher_id,
+        charges_enabled,
+        payouts_enabled,
     )

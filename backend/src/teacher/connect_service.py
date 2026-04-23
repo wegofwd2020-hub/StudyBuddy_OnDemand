@@ -70,6 +70,7 @@ log = get_logger("teacher.connect")
 def _get_stripe():
     try:
         import stripe  # type: ignore
+
         return stripe
     except ImportError:
         raise RuntimeError("stripe package not installed — run: pip install stripe")
@@ -77,6 +78,7 @@ def _get_stripe():
 
 def _stripe_key() -> str:
     from config import settings
+
     key = getattr(settings, "STRIPE_SECRET_KEY", None)
     if not key:
         raise RuntimeError("STRIPE_SECRET_KEY is not configured")
@@ -85,6 +87,7 @@ def _stripe_key() -> str:
 
 def _student_connect_price_id() -> str:
     from config import settings
+
     price_id = getattr(settings, "STRIPE_STUDENT_CONNECT_PRICE_ID", None)
     if not price_id:
         raise RuntimeError("STRIPE_STUDENT_CONNECT_PRICE_ID is not configured")
@@ -123,7 +126,8 @@ async def create_connect_account(teacher_id: str, email: str) -> str:
     )
     log.info(
         "connect_account_created teacher_id=%s stripe_account_id=%s",
-        teacher_id, account["id"],
+        teacher_id,
+        account["id"],
     )
     return account["id"]
 
@@ -152,7 +156,8 @@ async def create_onboarding_link(
     )
     log.info(
         "connect_onboarding_link_created teacher_id=%s account=%s",
-        teacher_id, stripe_account_id,
+        teacher_id,
+        stripe_account_id,
     )
     return link["url"]
 
@@ -228,7 +233,8 @@ async def sync_connect_account(
         )
         log.info(
             "connect_account_onboarding_complete teacher_id=%s account=%s",
-            teacher_id, stripe_account_id,
+            teacher_id,
+            stripe_account_id,
         )
 
 
@@ -279,7 +285,8 @@ async def create_student_checkout_session(
     )
     log.info(
         "student_connect_checkout_created teacher_id=%s student_id=%s",
-        teacher_id, student_id,
+        teacher_id,
+        student_id,
     )
     return session.url
 
@@ -306,13 +313,15 @@ async def get_earnings(stripe_account_id: str, limit: int = 25) -> list[dict]:
     )
     results = []
     for t in transfers.get("data", []):
-        results.append({
-            "transfer_id": t["id"],
-            "amount_cents": t["amount"],
-            "currency": t.get("currency", "usd"),
-            "created": t["created"],
-            "description": t.get("description") or "",
-        })
+        results.append(
+            {
+                "transfer_id": t["id"],
+                "amount_cents": t["amount"],
+                "currency": t.get("currency", "usd"),
+                "created": t["created"],
+                "description": t.get("description") or "",
+            }
+        )
     return results
 
 
@@ -353,7 +362,8 @@ async def handle_student_subscription_activated(
     )
     log.info(
         "student_connect_subscription_activated student_id=%s teacher_id=%s",
-        student_id, teacher_id,
+        student_id,
+        teacher_id,
     )
 
 
@@ -374,11 +384,14 @@ async def handle_student_subscription_updated(
             updated_at = NOW()
         WHERE stripe_subscription_id = $3
         """,
-        status, current_period_end, stripe_subscription_id,
+        status,
+        current_period_end,
+        stripe_subscription_id,
     )
     log.info(
         "student_connect_subscription_updated sub_id=%s status=%s",
-        stripe_subscription_id, status,
+        stripe_subscription_id,
+        status,
     )
 
 
@@ -396,7 +409,8 @@ async def handle_student_subscription_deleted(
         stripe_subscription_id,
     )
     log.info(
-        "student_connect_subscription_deleted sub_id=%s", stripe_subscription_id,
+        "student_connect_subscription_deleted sub_id=%s",
+        stripe_subscription_id,
     )
 
 

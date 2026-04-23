@@ -60,7 +60,7 @@ class EarningsItem(BaseModel):
     transfer_id: str
     amount_cents: int
     currency: str
-    created: int          # Unix timestamp
+    created: int  # Unix timestamp
     description: str
 
 
@@ -167,8 +167,11 @@ async def teacher_connect_onboard(
         # Persist the new account row (pre-onboarding, capabilities not yet enabled).
         async with get_db(request) as conn:
             await sync_connect_account(
-                conn, teacher_id, stripe_account_id,
-                charges_enabled=False, payouts_enabled=False,
+                conn,
+                teacher_id,
+                stripe_account_id,
+                charges_enabled=False,
+                payouts_enabled=False,
             )
 
     try:

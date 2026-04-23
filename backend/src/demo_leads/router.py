@@ -19,9 +19,9 @@ from __future__ import annotations
 
 from typing import Annotated
 
+from config import settings
 from fastapi import APIRouter, Depends, HTTPException, Request
 
-from config import settings
 from src.auth.dependencies import get_current_admin
 from src.core.db import get_db
 from src.core.permissions import require_permission
@@ -101,11 +101,11 @@ async def request_demo(
     """
     # Detect country from CF-IPCountry header (Cloudflare) or X-Country-Code
     ip_country: str | None = (
-        request.headers.get("CF-IPCountry")
-        or request.headers.get("X-Country-Code")
-        or None
+        request.headers.get("CF-IPCountry") or request.headers.get("X-Country-Code") or None
     )
-    ip_address: str | None = request.headers.get("X-Forwarded-For", request.client.host if request.client else None)
+    ip_address: str | None = request.headers.get(
+        "X-Forwarded-For", request.client.host if request.client else None
+    )
 
     async with get_db(request) as conn:
         # Geo-lock check
@@ -179,10 +179,15 @@ async def list_demo_leads(
     if status and status not in ("pending", "approved", "rejected"):
         raise HTTPException(
             status_code=400,
-            detail={"error": "invalid_status", "detail": "status must be pending, approved, or rejected"},
+            detail={
+                "error": "invalid_status",
+                "detail": "status must be pending, approved, or rejected",
+            },
         )
     async with get_db(request) as conn:
-        leads, total = await service.list_leads(conn, status=status, limit=min(limit, 200), offset=offset)
+        leads, total = await service.list_leads(
+            conn, status=status, limit=min(limit, 200), offset=offset
+        )
     return DemoLeadListResponse(leads=leads, total=total)
 
 

@@ -142,7 +142,9 @@ async def get_lesson(
     # Entitlement check — demo students get full access for the duration of their
     # 24-hour trial; the TTL on their account is the effective subscription limit.
     if student.get("role") != "demo_student":
-        entitlement = await get_entitlement(student_id, pool, redis, school_id=student.get("school_id"))
+        entitlement = await get_entitlement(
+            student_id, pool, redis, school_id=student.get("school_id")
+        )
         if (
             entitlement["plan"] == "free"
             and entitlement["lessons_accessed"] >= _FREE_TIER_LESSON_LIMIT
@@ -171,7 +173,9 @@ async def get_lesson(
     # Fire-and-forget: increment counter (async, no await-on-hot-path issues
     # since this is a simple DB upsert, not a Celery task in Phase 2)
     try:
-        await increment_lessons_accessed(student_id, pool, redis, school_id=student.get("school_id"))
+        await increment_lessons_accessed(
+            student_id, pool, redis, school_id=student.get("school_id")
+        )
     except Exception as exc:
         log.warning("increment_lessons_accessed_failed student_id=%s error=%s", student_id, exc)
 
@@ -275,7 +279,9 @@ async def get_tutorial(
         data = await get_content_file(curriculum_id, unit_id, filename, redis, storage)
     except FileNotFoundError:
         try:
-            data = await get_content_file(curriculum_id, unit_id, "tutorial_en.json", redis, storage)
+            data = await get_content_file(
+                curriculum_id, unit_id, "tutorial_en.json", redis, storage
+            )
         except FileNotFoundError:
             raise HTTPException(
                 status_code=404,
@@ -313,7 +319,9 @@ async def get_experiment(
         data = await get_content_file(curriculum_id, unit_id, filename, redis, storage)
     except FileNotFoundError:
         try:
-            data = await get_content_file(curriculum_id, unit_id, "experiment_en.json", redis, storage)
+            data = await get_content_file(
+                curriculum_id, unit_id, "experiment_en.json", redis, storage
+            )
         except FileNotFoundError:
             raise HTTPException(
                 status_code=404,
@@ -342,7 +350,9 @@ async def report_content(
     pool = request.app.state.pool
     redis = get_redis(request)
 
-    curriculum_id = await resolve_curriculum_id(student_id, student.get("grade", 8), pool, redis, school_id=student.get("school_id"))
+    curriculum_id = await resolve_curriculum_id(
+        student_id, student.get("grade", 8), pool, redis, school_id=student.get("school_id")
+    )
 
     async with pool.acquire() as conn:
         await conn.execute(
@@ -382,7 +392,9 @@ async def submit_marked_feedback(
     pool = request.app.state.pool
     redis = get_redis(request)
 
-    curriculum_id = await resolve_curriculum_id(student_id, student.get("grade", 8), pool, redis, school_id=student.get("school_id"))
+    curriculum_id = await resolve_curriculum_id(
+        student_id, student.get("grade", 8), pool, redis, school_id=student.get("school_id")
+    )
 
     async with pool.acquire() as conn:
         await conn.execute(

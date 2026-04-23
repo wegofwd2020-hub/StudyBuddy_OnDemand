@@ -16,10 +16,10 @@ handles L1 where applicable.
 from __future__ import annotations
 
 import json
+import uuid as _uuid
 
 import asyncpg
-
-import uuid as _uuid
+from config import settings
 
 from src.core.cache_keys import content_key, csv_key, cur_key, ent_key, quiz_set_key, school_ent_key
 from src.core.storage import StorageBackend

@@ -30,14 +30,13 @@ from __future__ import annotations
 import json
 import uuid
 from datetime import UTC, datetime
+from decimal import Decimal
 from typing import Annotated
 
+from config import settings
 from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile
 from pydantic import BaseModel
 
-from decimal import Decimal
-
-from config import settings
 from src.auth.dependencies import get_current_teacher
 from src.core.db import get_db
 from src.core.redis_client import get_redis
@@ -59,6 +58,7 @@ router = APIRouter(tags=["school-pipeline"])
 
 
 VERSION_CAP = 5
+
 
 class UploadCurriculumResponse(BaseModel):
     curriculum_id: str
@@ -219,7 +219,8 @@ async def upload_school_curriculum(
                 WHERE school_id = $1::uuid AND grade = $2
                   AND retention_status <> 'purged'
                 """,
-                school_id, grade,
+                school_id,
+                grade,
             )
             if version_count >= VERSION_CAP:
                 raise HTTPException(
@@ -245,7 +246,11 @@ async def upload_school_curriculum(
                     'school', $5::uuid, NOW() + INTERVAL '1 year')
             ON CONFLICT (curriculum_id) DO NOTHING
             """,
-            curriculum_id, grade, year, curriculum_name, school_id,
+            curriculum_id,
+            grade,
+            year,
+            curriculum_name,
+            school_id,
         )
         sort_order = 0
         for subj in subjects:
@@ -259,8 +264,11 @@ async def upload_school_curriculum(
                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
                     ON CONFLICT (unit_id, curriculum_id) DO NOTHING
                     """,
-                    unit["unit_id"], curriculum_id, subj_name,
-                    unit["title"], unit["title"],
+                    unit["unit_id"],
+                    curriculum_id,
+                    subj_name,
+                    unit["title"],
+                    unit["title"],
                     unit.get("description", ""),
                     bool(unit.get("has_lab", False)),
                     sort_order,
@@ -274,12 +282,17 @@ async def upload_school_curriculum(
             WHERE school_id = $1::uuid AND grade = $2
               AND retention_status <> 'purged'
             """,
-            school_id, grade,
+            school_id,
+            grade,
         )
 
     log.info(
         "school_curriculum_upload school_id=%s curriculum_id=%s grade=%d units=%d versions=%d",
-        school_id, curriculum_id, grade, unit_count, final_version_count,
+        school_id,
+        curriculum_id,
+        grade,
+        unit_count,
+        final_version_count,
     )
     return UploadCurriculumResponse(
         curriculum_id=curriculum_id,
@@ -347,11 +360,13 @@ async def trigger_school_pipeline(
             # Calculate first day of next month for resets_at
             now = datetime.now(UTC)
             if now.month == 12:
-                resets_at = now.replace(year=now.year + 1, month=1, day=1,
-                                        hour=0, minute=0, second=0, microsecond=0)
+                resets_at = now.replace(
+                    year=now.year + 1, month=1, day=1, hour=0, minute=0, second=0, microsecond=0
+                )
             else:
-                resets_at = now.replace(month=now.month + 1, day=1,
-                                        hour=0, minute=0, second=0, microsecond=0)
+                resets_at = now.replace(
+                    month=now.month + 1, day=1, hour=0, minute=0, second=0, microsecond=0
+                )
             raise HTTPException(
                 status_code=429,
                 detail={
@@ -395,7 +410,8 @@ async def trigger_school_pipeline(
               AND status IN ('queued', 'running')
             LIMIT 1
             """,
-            school_id, grade,
+            school_id,
+            grade,
         )
         if conflict_row:
             raise HTTPException(
@@ -417,7 +433,11 @@ async def trigger_school_pipeline(
                  school_id, triggered_by_teacher_id)
             VALUES ($1, $2, $3, $4, $5, 'queued', $6::uuid, $7::uuid)
             """,
-            job_id, curriculum_id, grade, body.langs, body.force,
+            job_id,
+            curriculum_id,
+            grade,
+            body.langs,
+            body.force,
             school_id,
             teacher_id if teacher_id else None,
         )
@@ -445,7 +465,11 @@ async def trigger_school_pipeline(
 
     log.info(
         "school_pipeline_trigger school_id=%s job_id=%s curriculum_id=%s grade=%d langs=%s",
-        school_id, job_id, curriculum_id, grade, body.langs,
+        school_id,
+        job_id,
+        curriculum_id,
+        grade,
+        body.langs,
     )
     return PipelineTriggerResponse(
         job_id=job_id,
@@ -483,9 +507,7 @@ async def list_school_pipeline_jobs(
     where = " AND ".join(conditions)
 
     async with get_db(request) as conn:
-        total = await conn.fetchval(
-            f"SELECT COUNT(*) FROM pipeline_jobs pj WHERE {where}", *params
-        )
+        total = await conn.fetchval(f"SELECT COUNT(*) FROM pipeline_jobs pj WHERE {where}", *params)
         rows = await conn.fetch(
             f"""
             SELECT pj.job_id, pj.curriculum_id, pj.grade, pj.langs, pj.force,
@@ -499,7 +521,9 @@ async def list_school_pipeline_jobs(
             ORDER BY pj.triggered_at DESC
             LIMIT ${idx} OFFSET ${idx + 1}
             """,
-            *params, page_size, offset,
+            *params,
+            page_size,
+            offset,
         )
 
     jobs = []
@@ -594,6 +618,7 @@ async def get_school_pipeline_job(
 def _get_stripe():
     try:
         import stripe  # type: ignore
+
         return stripe
     except ImportError:
         raise RuntimeError("stripe package not installed")
@@ -603,9 +628,12 @@ def _stripe_key() -> str:
     return settings.STRIPE_SECRET_KEY
 
 
-async def _get_definition_or_404(conn, definition_id: str, school_id: str, request: Request) -> dict:
+async def _get_definition_or_404(
+    conn, definition_id: str, school_id: str, request: Request
+) -> dict:
     """Fetch an approved curriculum definition or raise HTTP 404/409."""
     import json as _json
+
     row = await conn.fetchrow(
         """
         SELECT definition_id::text, school_id::text, name, grade, languages, subjects, status
@@ -710,9 +738,9 @@ async def estimate_definition_pipeline(
     languages = defn["languages"] or ["en"]
     unit_runs = total_units * len(languages)
 
-    est_input  = unit_runs * AI_COST.avg_input_tokens_per_unit
+    est_input = unit_runs * AI_COST.avg_input_tokens_per_unit
     est_output = unit_runs * AI_COST.avg_output_tokens_per_unit
-    est_cost   = (AI_COST.cost_per_unit_usd * unit_runs).quantize(Decimal("0.01"))
+    est_cost = (AI_COST.cost_per_unit_usd * unit_runs).quantize(Decimal("0.01"))
 
     within = allowance["allowed"]
     extra_charge = None if within else EXTRA_BUILD_PRICE_USD
@@ -803,7 +831,8 @@ async def trigger_pipeline_from_definition(
               AND status IN ('queued', 'running')
             LIMIT 1
             """,
-            school_id, grade,
+            school_id,
+            grade,
         )
         if conflict:
             raise HTTPException(
@@ -841,7 +870,7 @@ async def trigger_pipeline_from_definition(
             stripe.api_key = _stripe_key()
             charge_cents = int(Decimal(EXTRA_BUILD_PRICE_USD) * 100)
             try:
-                pi = await run_stripe(
+                await run_stripe(
                     stripe.PaymentIntent.create,
                     amount=charge_cents,
                     currency="usd",
@@ -867,11 +896,12 @@ async def trigger_pipeline_from_definition(
             charged_amount = EXTRA_BUILD_PRICE_USD
             log.info(
                 "definition_pipeline_charged school_id=%s definition_id=%s amount=%s",
-                school_id, definition_id, charged_amount,
+                school_id,
+                definition_id,
+                charged_amount,
             )
 
         # Build curricula + units from the definition
-        import json as _json
         year = datetime.now(UTC).year
         curriculum_id = f"{school_id}-def-{definition_id[:8]}-g{grade}"
         curriculum_name = defn["name"]
@@ -886,7 +916,11 @@ async def trigger_pipeline_from_definition(
                     'school', $5::uuid, NOW() + INTERVAL '1 year')
             ON CONFLICT (curriculum_id) DO NOTHING
             """,
-            curriculum_id, grade, year, curriculum_name, school_id,
+            curriculum_id,
+            grade,
+            year,
+            curriculum_name,
+            school_id,
         )
 
         sort_order = 0
@@ -902,8 +936,11 @@ async def trigger_pipeline_from_definition(
                     VALUES ($1, $2, $3, $4, $5, '', FALSE, $6)
                     ON CONFLICT (unit_id, curriculum_id) DO NOTHING
                     """,
-                    unit_id, curriculum_id, subj_label,
-                    unit.get("title", ""), unit.get("title", ""),
+                    unit_id,
+                    curriculum_id,
+                    subj_label,
+                    unit.get("title", ""),
+                    unit.get("title", ""),
                     sort_order,
                 )
                 sort_order += 1
@@ -921,7 +958,11 @@ async def trigger_pipeline_from_definition(
                  school_id, triggered_by_teacher_id)
             VALUES ($1, $2, $3, $4, $5, 'queued', $6::uuid, $7::uuid)
             """,
-            job_id, curriculum_id, grade, langs_str, body.force,
+            job_id,
+            curriculum_id,
+            grade,
+            langs_str,
+            body.force,
             school_id,
             teacher_id if teacher_id else None,
         )
@@ -931,16 +972,18 @@ async def trigger_pipeline_from_definition(
     await redis.setex(
         f"pipeline:job:{job_id}",
         86400 * 7,
-        json.dumps({
-            "job_id": job_id,
-            "curriculum_id": curriculum_id,
-            "status": "queued",
-            "built": 0,
-            "failed": 0,
-            "total": 0,
-            "progress_pct": 0.0,
-            "langs": langs_str,
-        }),
+        json.dumps(
+            {
+                "job_id": job_id,
+                "curriculum_id": curriculum_id,
+                "status": "queued",
+                "built": 0,
+                "failed": 0,
+                "total": 0,
+                "progress_pct": 0.0,
+                "langs": langs_str,
+            }
+        ),
     )
 
     # Dispatch to pipeline queue
@@ -958,7 +1001,11 @@ async def trigger_pipeline_from_definition(
     log.info(
         "definition_pipeline_triggered school_id=%s definition_id=%s "
         "job_id=%s curriculum_id=%s grade=%d",
-        school_id, definition_id, job_id, curriculum_id, grade,
+        school_id,
+        definition_id,
+        job_id,
+        curriculum_id,
+        grade,
     )
     return PipelineTriggerFromDefinitionResponse(
         job_id=job_id,

@@ -20,6 +20,7 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import secrets
+import string as _string
 import uuid
 from datetime import UTC, datetime, timedelta
 from functools import partial
@@ -348,7 +349,6 @@ async def upsert_teacher(
 # Pre-hashed sentinel used to burn constant bcrypt time when a user is not found,
 # preventing timing-based email enumeration.  Generated once at import time with
 # rounds=4 (fast) — the only goal here is timing parity, not security.
-import string as _string
 
 _DEFAULT_PW_CHARS = _string.ascii_letters + _string.digits
 _TIMING_SENTINEL_HASH: str = bcrypt.hashpw(b"__sentinel__", bcrypt.gensalt(rounds=4)).decode()
@@ -388,9 +388,7 @@ async def login_local_user(
     # unauthenticated endpoint — we need to look up the user before we know their
     # school, so bypass is correct here.
     async with pool.acquire() as conn:
-        await conn.execute(
-            "SELECT set_config('app.current_school_id', 'bypass', false)"
-        )
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
         row = await conn.fetchrow(
             """
             SELECT teacher_id::text AS user_id, role, school_id::text, account_status,
@@ -413,9 +411,7 @@ async def login_local_user(
                 email,
             )
         # Reset session var before returning connection to pool.
-        await conn.execute(
-            "SELECT set_config('app.current_school_id', '', false)"
-        )
+        await conn.execute("SELECT set_config('app.current_school_id', '', false)")
 
     if row is None or not row["password_hash"]:
         # Always spend bcrypt time to prevent timing-based enumeration.

@@ -171,6 +171,7 @@ class S3Storage(StorageBackend):
         self._prefix = prefix.rstrip("/")
         try:
             import boto3  # type: ignore
+
             self._s3 = boto3.client("s3")
         except ImportError:
             raise RuntimeError("boto3 is required for S3Storage — run: pip install boto3")
@@ -196,9 +197,7 @@ class S3Storage(StorageBackend):
 
     async def write(self, path: str, data: bytes) -> None:
         key = self._key(path)
-        await asyncio.to_thread(
-            self._s3.put_object, Bucket=self._bucket, Key=key, Body=data
-        )
+        await asyncio.to_thread(self._s3.put_object, Bucket=self._bucket, Key=key, Body=data)
 
     async def exists(self, path: str) -> bool:
         from botocore.exceptions import ClientError  # type: ignore
@@ -220,9 +219,7 @@ class S3Storage(StorageBackend):
         prefix = self._key(path) + "/"
 
         def _ls() -> list[str]:
-            resp = self._s3.list_objects_v2(
-                Bucket=self._bucket, Prefix=prefix, Delimiter="/"
-            )
+            resp = self._s3.list_objects_v2(Bucket=self._bucket, Prefix=prefix, Delimiter="/")
             entries: set[str] = set()
             # Immediate subdirectories (common prefixes)
             for cp in resp.get("CommonPrefixes", []):

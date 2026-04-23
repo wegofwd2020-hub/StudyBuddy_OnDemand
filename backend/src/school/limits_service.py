@@ -111,7 +111,9 @@ def _pipeline_resets_at() -> str:
     """Return ISO timestamp for the first instant of next month (UTC)."""
     now = datetime.now(UTC)
     if now.month == 12:
-        reset = now.replace(year=now.year + 1, month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+        reset = now.replace(
+            year=now.year + 1, month=1, day=1, hour=0, minute=0, second=0, microsecond=0
+        )
     else:
         reset = now.replace(month=now.month + 1, day=1, hour=0, minute=0, second=0, microsecond=0)
     return reset.isoformat()
@@ -221,9 +223,7 @@ async def set_school_limits_override(
         uuid.UUID(admin_id),
     )
 
-    log.info(
-        "school_limits_override_set school_id=%s admin_id=%s", school_id, admin_id
-    )
+    log.info("school_limits_override_set school_id=%s admin_id=%s", school_id, admin_id)
     return {
         "old_override": old_override,
         "new_override": {
@@ -257,7 +257,5 @@ async def clear_school_limits_override(
         uuid.UUID(school_id),
     )
 
-    log.info(
-        "school_limits_override_cleared school_id=%s admin_id=%s", school_id, admin_id
-    )
+    log.info("school_limits_override_cleared school_id=%s admin_id=%s", school_id, admin_id)
     return dict(old_row)

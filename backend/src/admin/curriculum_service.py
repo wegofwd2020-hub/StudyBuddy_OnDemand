@@ -96,9 +96,7 @@ async def get_curriculum_usage_summary(
     }
 
 
-async def fetch_curriculum_owner(
-    conn: asyncpg.Connection, curriculum_id: str
-) -> dict | None:
+async def fetch_curriculum_owner(conn: asyncpg.Connection, curriculum_id: str) -> dict | None:
     """Return owner_type / owner_id / school_id for a curriculum, or None if absent."""
     row = await conn.fetchrow(
         """
@@ -113,6 +111,7 @@ async def fetch_curriculum_owner(
 
 
 # ── Archive preconditions ────────────────────────────────────────────────────
+
 
 class ArchiveBlocker(Exception):
     """Raised when an archive pre-condition isn't met."""
@@ -203,9 +202,7 @@ async def archive_curriculum(
     return dict(row) if row else {}
 
 
-async def unarchive_curriculum(
-    conn: asyncpg.Connection, curriculum_id: str
-) -> dict:
+async def unarchive_curriculum(conn: asyncpg.Connection, curriculum_id: str) -> dict:
     """Reverse archive: retention_status='active', clear expires_at."""
     row = await conn.fetchrow(
         """

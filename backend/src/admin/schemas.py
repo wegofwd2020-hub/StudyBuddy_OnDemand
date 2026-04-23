@@ -7,7 +7,6 @@ Pydantic request/response schemas for all Phase 7 admin endpoints.
 from __future__ import annotations
 
 from datetime import datetime
-from decimal import Decimal
 
 from pydantic import BaseModel, Field
 

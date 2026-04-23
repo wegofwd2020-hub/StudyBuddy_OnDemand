@@ -159,7 +159,10 @@ async def resolve_stream_for_upload(
     if not code:
         raise HTTPException(
             status_code=400,
-            detail={"error": "validation_error", "detail": "Stream code is empty after normalising."},
+            detail={
+                "error": "validation_error",
+                "detail": "Stream code is empty after normalising.",
+            },
         )
 
     row = await conn.fetchrow(
@@ -226,7 +229,9 @@ async def list_streams(
         sql.append("   AND is_archived = false")
     if q:
         args.append(f"{q.strip().lower()}%")
-        sql.append(f"   AND (lower(code) LIKE ${len(args)} OR lower(display_name) LIKE ${len(args)})")
+        sql.append(
+            f"   AND (lower(code) LIKE ${len(args)} OR lower(display_name) LIKE ${len(args)})"
+        )
     sql.append(" ORDER BY is_archived ASC, code ASC")
 
     async with get_db(request) as conn:
@@ -444,7 +449,10 @@ async def merge_stream(
             if not target:
                 raise HTTPException(
                     status_code=404,
-                    detail={"error": "not_found", "detail": f"Target stream '{target_code}' not found."},
+                    detail={
+                        "error": "not_found",
+                        "detail": f"Target stream '{target_code}' not found.",
+                    },
                 )
             if target["is_archived"]:
                 raise HTTPException(
