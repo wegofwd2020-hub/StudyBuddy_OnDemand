@@ -1913,9 +1913,7 @@ def purge_expired_curricula() -> None:
         conn = await _asyncpg.connect(cfg.DATABASE_URL)
         try:
             await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
-            storage = LocalStorage(
-                root=getattr(cfg, "CONTENT_STORE_PATH", "/tmp/studybuddy-content")  # noqa: S108 — dev fallback only; production always sets CONTENT_STORE_PATH
-            )
+            storage = LocalStorage(root=cfg.CONTENT_STORE_PATH)
             await purge_grace_expired(
                 conn,
                 storage,
