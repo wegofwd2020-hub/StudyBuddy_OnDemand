@@ -31,7 +31,8 @@ jobs:
 
       - name: Install quality tools
         working-directory: backend
-        run: pip install ruff==0.9.10 bandit[toml]==1.8.3 pip-audit==2.7.3
+        # Pin to same versions as backend/requirements.txt so local and CI agree.
+        run: pip install ruff==0.15.10 bandit[toml]==1.9.4 pip-audit==2.10.0
 
       - name: Ruff — lint
         working-directory: backend
