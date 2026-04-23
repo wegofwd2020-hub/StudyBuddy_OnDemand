@@ -80,6 +80,10 @@ class Settings(BaseSettings):
     METRICS_TOKEN: str
 
     # ── Content Store ─────────────────────────────────────────────────────────
+    # DATA_DIR is the bind-mounted volume root in Docker (/data). It holds
+    # uploaded grade-JSON files and, by convention, the content store below it.
+    # Tests and non-Docker dev override via env.
+    DATA_DIR: str = "/data"
     CONTENT_STORE_PATH: str = "/data/content"
     # "local" uses CONTENT_STORE_PATH on the local filesystem (default, single-host).
     # "s3" uses S3_BUCKET_NAME + S3_KEY_PREFIX (multi-host production).
