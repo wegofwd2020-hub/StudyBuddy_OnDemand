@@ -343,9 +343,10 @@ $COMPOSE_CMD -f "$REPO_ROOT/docker-compose.yml" run --rm migrate
 ok "Migrations complete"
 
 # Start application services
+# celery-beat is split into primary + standby for HA with RedBeat — both must run.
 info "Starting application services..."
 $COMPOSE_CMD -f "$REPO_ROOT/docker-compose.yml" up -d $BUILD_FLAG \
-  api celery-worker celery-pipeline celery-beat web
+  api celery-worker celery-pipeline celery-beat-primary celery-beat-standby web
 
 # ---------------------------------------------------------------------------
 # Health check loop
