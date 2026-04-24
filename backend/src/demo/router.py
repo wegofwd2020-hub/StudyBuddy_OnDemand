@@ -308,6 +308,20 @@ async def demo_login(body: DemoLoginInput, request: Request):
         await update_last_login(conn, account["id"])
         expires_at = account["expires_at"]
 
+        # Pull the student's actual grade/locale/school_id so the JWT reflects
+        # per-student state. Older versions of this router hard-coded
+        # grade=8/locale=en, which broke for MilfordWaterford demo students at
+        # grade 11 and 12 (and for any content endpoint that resolves per-grade
+        # curricula). The resolver also reads ``students.stream`` server-side
+        # for stream-aware routing (Commerce / Science / Humanities / etc.).
+        student_row = await conn.fetchrow(
+            "SELECT grade, locale, school_id FROM students WHERE student_id = $1",
+            account["student_id"],
+        )
+        student_grade = (student_row["grade"] if student_row else None) or 8
+        student_locale = (student_row["locale"] if student_row else None) or "en"
+        student_school_id = student_row["school_id"] if student_row else None
+
     # JWT TTL: lesser of 15 min or remaining demo lifetime
     expires_at_aware = expires_at if expires_at.tzinfo else expires_at.replace(tzinfo=UTC)
     remaining_minutes = int((expires_at_aware - datetime.now(UTC)).total_seconds() / 60)
@@ -322,16 +336,20 @@ async def demo_login(body: DemoLoginInput, request: Request):
             },
         )
 
+    payload: dict = {
+        "student_id": str(account["student_id"]),
+        "grade": student_grade,
+        "locale": student_locale,
+        "role": "demo_student",
+        "account_status": "active",
+        "demo_account_id": str(account["id"]),
+        "demo_expires_at": expires_at_aware.isoformat(),
+    }
+    if student_school_id is not None:
+        payload["school_id"] = str(student_school_id)
+
     token = create_internal_jwt(
-        payload={
-            "student_id": str(account["student_id"]),
-            "grade": 8,
-            "locale": "en",
-            "role": "demo_student",
-            "account_status": "active",
-            "demo_account_id": str(account["id"]),
-            "demo_expires_at": expires_at_aware.isoformat(),
-        },
+        payload=payload,
         secret=settings.JWT_SECRET,
         expire_minutes=token_ttl,
     )

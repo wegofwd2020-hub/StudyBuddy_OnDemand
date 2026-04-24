@@ -121,23 +121,28 @@ STUDENTS: list[dict] = [
     },
     # Grade 11 Commerce students — pair with Warren Buffett / Indra Nooyi
     # teachers so the Commerce content pipeline can be tested end-to-end.
+    # stream='commerce' routes them to default-2026-g11-commerce via
+    # src/content/service.py::resolve_curriculum_id.
     {
         "name": "Anya Iyer",
         "email": "anya.iyer@milfordwaterford.edu",
         "password": "MWStudent-Anya-2026!",
         "grade": 11,
+        "stream": "commerce",
     },
     {
         "name": "Raj Kapoor",
         "email": "raj.kapoor@milfordwaterford.edu",
         "password": "MWStudent-Raj-2026!",
         "grade": 11,
+        "stream": "commerce",
     },
     {
         "name": "Mei Chen",
         "email": "mei.chen@milfordwaterford.edu",
         "password": "MWStudent-Mei-2026!",
         "grade": 11,
+        "stream": "commerce",
     },
 ]
 
@@ -328,6 +333,7 @@ async def _upsert_student(
     email = student["email"]
     name = student["name"]
     grade = student["grade"]
+    stream = student.get("stream")  # None for students without a stream assignment
     password = student["password"]
     password_hash = _hash(password)
 
@@ -353,17 +359,19 @@ async def _upsert_student(
             NEVER_EXPIRES,
             email,
         )
-        # Ensure student is linked to the correct school
+        # Ensure student is linked to the correct school + stream.
         await conn.execute(
             """
             UPDATE students
                SET school_id = $1,
                    grade     = $2,
+                   stream    = $3,
                    enrolled_at = COALESCE(enrolled_at, NOW())
-             WHERE student_id = $3
+             WHERE student_id = $4
             """,
             school_id,
             grade,
+            stream,
             existing_account["student_id"],
         )
         # Upsert enrolment
@@ -406,12 +414,13 @@ async def _upsert_student(
     student_id = await conn.fetchval(
         """
         INSERT INTO students
-            (external_auth_id, auth_provider, name, email, grade, locale,
+            (external_auth_id, auth_provider, name, email, grade, stream, locale,
              account_status, school_id, enrolled_at)
-        VALUES ($1, 'demo', $2, $3, $4, 'en', 'active', $5, NOW())
+        VALUES ($1, 'demo', $2, $3, $4, $5, 'en', 'active', $6, NOW())
         ON CONFLICT (email) DO UPDATE
             SET school_id   = EXCLUDED.school_id,
                 grade       = EXCLUDED.grade,
+                stream      = EXCLUDED.stream,
                 name        = EXCLUDED.name,
                 enrolled_at = COALESCE(students.enrolled_at, EXCLUDED.enrolled_at)
         RETURNING student_id
@@ -420,6 +429,7 @@ async def _upsert_student(
         name,
         email,
         grade,
+        stream,
         school_id,
     )
 

@@ -267,7 +267,14 @@ async def resolve_curriculum_id(
     Return the curriculum_id for a student.
 
     L2 cache: school:{school_id}:cur:{student_id} (or cur:{student_id} if unaffiliated).
-    On miss: queries school enrollment or falls back to default-{year}-g{grade}.
+
+    Resolution order:
+      1. School-custom curriculum matching the student's grade (via
+         ``curricula.school_id`` + ``c.grade``).
+      2. Stream-specific default when the student has ``students.stream`` set
+         and ``default-{year}-g{grade}-{stream}`` exists as an active platform
+         curriculum (e.g. ``default-2026-g11-commerce``).
+      3. Plain default ``default-{year}-g{grade}``.
     """
     key = cur_key(student_id, school_id)
     cached = await redis.get(key)
@@ -277,12 +284,12 @@ async def resolve_curriculum_id(
         except Exception:
             pass
 
-    # Check school enrollment for a custom curriculum
     curriculum_id: str | None = None
     async with pool.acquire() as conn:
+        # 1. School-custom curriculum match.
         row = await conn.fetchrow(
             """
-            SELECT c.curriculum_id
+            SELECT c.curriculum_id, s.stream
             FROM students s
             JOIN schools sc ON s.school_id = sc.school_id
             JOIN curricula c ON c.school_id = sc.school_id AND c.grade = s.grade
@@ -294,6 +301,31 @@ async def resolve_curriculum_id(
         if row:
             curriculum_id = row["curriculum_id"]
 
+        # 2. Stream-specific default. Only consulted when the school had no
+        #    custom curriculum for this grade. Requires the student to have a
+        #    non-null ``stream`` value and a matching platform curriculum in
+        #    the ``curricula`` table.
+        if not curriculum_id:
+            student_row = await conn.fetchrow(
+                "SELECT stream FROM students WHERE student_id = $1",
+                student_id,
+            )
+            stream = student_row["stream"] if student_row else None
+            if stream:
+                candidate = f"default-{year}-g{grade}-{stream}"
+                hit = await conn.fetchval(
+                    """
+                    SELECT curriculum_id FROM curricula
+                    WHERE curriculum_id = $1
+                      AND owner_type = 'platform'
+                      AND status = 'active'
+                    """,
+                    candidate,
+                )
+                if hit:
+                    curriculum_id = hit
+
+    # 3. Plain default.
     if not curriculum_id:
         curriculum_id = f"default-{year}-g{grade}"
 
