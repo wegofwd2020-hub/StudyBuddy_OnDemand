@@ -64,6 +64,78 @@ _FREE_TIER_LESSON_LIMIT = 2
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 
+def _normalize_lesson_dict(data: dict, *, unit_id: str) -> dict:
+    """Normalise two lesson-JSON shapes to the single ``LessonResponse`` shape.
+
+    **Legacy shape** (placeholder ``dev-placeholder`` seeds, e.g.
+    ``default-2026-g8``): already carries ``title``, ``grade``, ``lang``,
+    ``sections`` (list of {heading, body}), ``key_points``. Pass through
+    unchanged.
+
+    **New pipeline shape** (``claude-sonnet-4-6`` output from Epic 11 runs,
+    e.g. ``default-2026-g11-commerce``): carries ``topic``, ``synopsis``,
+    ``key_concepts``, ``learning_objectives``, ``reading_level``,
+    ``language``. Map onto the legacy-response fields so the existing
+    frontend renderer keeps working without a parallel schema.
+
+    This is the tactical normaliser for #295 — Option 2. Epic 12's
+    structured content blocks will eventually replace this layer; until
+    then the frontend contract is stable.
+    """
+    # Already legacy-shaped → short-circuit.
+    if "title" in data and "sections" in data:
+        return data
+
+    # Pull out the new-shape fields, tolerating missing ones so malformed
+    # pipeline output degrades into a readable-but-sparse lesson rather
+    # than a 500.
+    topic = data.get("topic") or data.get("title") or unit_id
+    synopsis = data.get("synopsis", "")
+    key_concepts = data.get("key_concepts") or []
+    learning_objectives = data.get("learning_objectives") or []
+    reading_level = data.get("reading_level", "")
+    language = data.get("language") or data.get("lang") or "en"
+
+    # Derive grade from unit_id prefix (e.g. "G11-ACC-001" → 11). The
+    # pipeline output doesn't carry grade; the resolver knows it but we
+    # don't have that context here. Fall back to 0 if unparseable so the
+    # response stays valid rather than 500-ing.
+    grade = 0
+    if unit_id.startswith("G") and "-" in unit_id:
+        head = unit_id.split("-", 1)[0].lstrip("G")
+        if head.isdigit():
+            grade = int(head)
+
+    sections: list[dict] = []
+    if synopsis:
+        sections.append({"heading": "Overview", "body": synopsis})
+    if learning_objectives:
+        bullets = "\n".join(f"- {obj}" for obj in learning_objectives)
+        sections.append({"heading": "Learning objectives", "body": bullets})
+    if key_concepts:
+        bullets = "\n".join(f"- {c}" for c in key_concepts)
+        sections.append({"heading": "Key concepts", "body": bullets})
+    if reading_level:
+        sections.append({"heading": "Reading level", "body": str(reading_level)})
+    if not sections:
+        # Last-resort: show something rather than fail validation.
+        sections.append({"heading": "Overview", "body": topic})
+
+    return {
+        "unit_id": data.get("unit_id", unit_id),
+        "title": topic,
+        "grade": grade,
+        "subject": data.get("subject", ""),
+        "lang": language,
+        "sections": sections,
+        "key_points": key_concepts,
+        "has_audio": bool(data.get("has_audio", False)),
+        "generated_at": data.get("generated_at"),
+        "model": data.get("model"),
+        "content_version": data.get("content_version"),
+    }
+
+
 async def _get_curriculum_and_check_published(
     request: Request,
     unit_id: str,
@@ -180,7 +252,7 @@ async def get_lesson(
         log.warning("increment_lessons_accessed_failed student_id=%s error=%s", student_id, exc)
 
     log.info("lesson_served unit_id=%s student_id=%s", unit_id, student_id)
-    return LessonResponse(**data)
+    return LessonResponse(**_normalize_lesson_dict(data, unit_id=unit_id))
 
 
 # ── GET /content/{unit_id}/lesson/audio ──────────────────────────────────────
