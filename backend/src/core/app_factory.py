@@ -297,7 +297,10 @@ def _register_routers(app: FastAPI) -> None:
 
     app.include_router(demo_leads_router, prefix="/api/v1")
 
-    if settings.APP_ENV == "development":
+    # Register in dev and test envs. CI runs with APP_ENV=test so tests can
+    # exercise the route + its handler-level 403 guard for prod. Production
+    # stays protected by the registration guard + the handler's own check.
+    if settings.APP_ENV in {"development", "test"}:
         from src.auth.dev_router import router as dev_router
 
         app.include_router(dev_router, prefix="/api/v1")
