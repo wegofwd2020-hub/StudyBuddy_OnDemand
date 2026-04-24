@@ -24,6 +24,7 @@ the decision notes become the spec and we develop from there.
 | 10 | Curriculum Lifecycle & Governance | [EPIC_10_curriculum_lifecycle.md](EPIC_10_curriculum_lifecycle.md) | 🚧 L-1–L-5 backend shipped (migrations 0046–0048, archive + unarchive + usage endpoints, audit events); L-6 sweeper paused; L-7 super-admin archive view + L-8 school UI + L-9 per-jurisdiction audit + L-10 TTL override pending |
 | 11 | Content Presentation & Formatting | [EPIC_11_content_formatting.md](EPIC_11_content_formatting.md) | 🚧 C-1 through C-4, C-6, C-9 shipped; C-5 regen in progress (Grade 11 Commerce done, Grade 11 Science resume in flight); C-7 PDF smoke + C-8 mobile parity pending |
 | 13 | Branding Refresh: STEM → Education Enhancement | [EPIC_13_branding_refresh.md](EPIC_13_branding_refresh.md) | 🚧 Scope locked 2026-04-21 (C+1 tagline + scoped-retrieval model); T-BR-1..5 pending execution |
+| 14 | Unified Landing Page & Sign-in Modal | [EPIC_14_unified_landing.md](EPIC_14_unified_landing.md) | 💭 Proposed 2026-04-24 — design approved (studybuddy-docs v0.1.0 + addendum); UL-1..13 tickets pending filing |
 
 ---
 
