@@ -11,8 +11,7 @@
  * (first_login, teacher_count, etc.) that the backend threads into the prompt.
  */
 
-export const HELP_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+export const HELP_BASE_URL = "/api/v1";
 
 /** Recognised account_state signal keys (mirrors backend schema). */
 export interface AccountState {
