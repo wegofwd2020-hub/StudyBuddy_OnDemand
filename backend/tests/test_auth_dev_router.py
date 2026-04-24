@@ -28,8 +28,9 @@ async def test_dev_login_forbidden_outside_development(client: AsyncClient):
         r = await client.post("/api/v1/auth/dev-login", json={"role": "student"})
 
     assert r.status_code == 403
-    detail = r.json()["detail"]
-    assert detail["error"] == "forbidden"
+    # The global HTTPException handler flattens dict details with an "error"
+    # key to the top level, so error lives at the envelope root.
+    assert r.json()["error"] == "forbidden"
 
 
 @pytest.mark.asyncio
