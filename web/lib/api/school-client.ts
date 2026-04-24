@@ -10,7 +10,7 @@
  */
 import axios, { AxiosError } from "axios";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+const BASE_URL = "/api/v1";
 
 const schoolApi = axios.create({
   baseURL: BASE_URL,

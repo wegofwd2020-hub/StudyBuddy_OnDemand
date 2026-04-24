@@ -67,11 +67,28 @@ class Settings(BaseSettings):
     AUTH0_MGMT_API_URL: str
 
     # ── CORS ──────────────────────────────────────────────────────────────────
+    # Exact-match origin allowlist (cloud hostnames, explicit dev URLs).
     ALLOWED_ORIGINS: str = "http://localhost:3000,http://localhost:8080"
+    # Additional exact-match origins (comma-separated) layered on top of
+    # ALLOWED_ORIGINS. Populated at deploy time for demo/preview hostnames
+    # before the edge layer is in place.
+    CORS_EXTRA_ORIGINS: str = ""
 
     @property
     def allowed_origins_list(self) -> list[str]:
         return [o.strip() for o in self.ALLOWED_ORIGINS.split(",") if o.strip()]
+
+    @property
+    def cors_extra_origins_list(self) -> list[str]:
+        return [o.strip() for o in self.CORS_EXTRA_ORIGINS.split(",") if o.strip()]
+
+    # ── Rate limiting (credential-stuffing defence on /auth/* and /help/*) ───
+    # Env-driven so ops can tighten at the edge without a code change.
+    # Defaults preserve the pre-hardening behaviour: 10 requests / 60 s / IP.
+    AUTH_RATE_LIMIT: int = 10
+    AUTH_RATE_WINDOW: int = 60
+    HELP_RATE_LIMIT: int = 10
+    HELP_RATE_WINDOW: int = 60
 
     # ── Sentry (optional) ─────────────────────────────────────────────────────
     SENTRY_DSN: str | None = None
