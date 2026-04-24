@@ -26,6 +26,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from slowapi.errors import RateLimitExceeded
 
+from src.core.cors import build_lan_origin_regex
 from src.core.limiter import limiter
 from src.core.middleware import AppVersionMiddleware
 from src.core.observability import CorrelationIdMiddleware
@@ -198,7 +199,8 @@ def _register_middleware(app: FastAPI) -> None:
     app.add_middleware(AppVersionMiddleware)
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=settings.allowed_origins_list,
+        allow_origins=settings.allowed_origins_list + settings.cors_extra_origins_list,
+        allow_origin_regex=build_lan_origin_regex(),
         allow_credentials=True,
         allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
         allow_headers=[
