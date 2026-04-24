@@ -3,7 +3,7 @@ import api from "./client";
 
 // Unauthenticated Axios instance for login endpoints (no Bearer token pre-injected)
 const publicApi = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1",
+  baseURL: "/api/v1",
   headers: { "Content-Type": "application/json" },
   timeout: 15_000,
 });

@@ -3,10 +3,12 @@ import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./lib/i18n/request.ts");
 
-// Derive the backend API origin so the CSP connect-src is scoped correctly.
-// NEXT_PUBLIC_API_URL is set in .env.local / CI / production deploy config.
-const apiOrigin = process.env.NEXT_PUBLIC_API_URL
-  ? new URL(process.env.NEXT_PUBLIC_API_URL).origin
+// Backend origin for the server-side rewrites() proxy. Browser code uses
+// same-origin relative paths (/api/v1/*); Next's server forwards them here.
+// INTERNAL_API_URL resolves to the Docker service name in compose and to a
+// reachable host in other deploys.
+const backendOrigin = process.env.INTERNAL_API_URL
+  ? new URL(process.env.INTERNAL_API_URL).origin
   : "http://localhost:8000";
 
 // Content-Security-Policy
@@ -15,7 +17,7 @@ const apiOrigin = process.env.NEXT_PUBLIC_API_URL
 //   nonce-based CSP is the correct long-term fix but is left for a dedicated hardening sprint.
 // - 'unsafe-eval' is added only in development: React dev builds use eval() for call-stack
 //   reconstruction and debugging features. React never uses eval() in production.
-// - connect-src: API origin + Stripe telemetry (JS.stripe.com requires it)
+// - connect-src 'self' covers the backend (proxied via rewrites) + Stripe telemetry
 // - img-src 'self' data: blob: *.cloudfront.net: lesson images served from CDN
 // - frame-src https://js.stripe.com: Stripe Checkout iframe
 // - frame-ancestors 'none': equivalent to X-Frame-Options DENY, but honoured by modern browsers
@@ -25,7 +27,8 @@ const csp = [
   isDev
     ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com"
     : "script-src 'self' 'unsafe-inline' https://js.stripe.com",
-  `connect-src 'self' ${apiOrigin} https://api.stripe.com`,
+  // Same-origin only — /api/v1/* is proxied by rewrites() to the backend.
+  `connect-src 'self' https://api.stripe.com`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://*.cloudfront.net",
   "font-src 'self'",
@@ -63,6 +66,14 @@ const nextConfig: NextConfig = {
         hostname: "**.cloudfront.net",
       },
     ],
+  },
+  async rewrites() {
+    return [
+      {
+        source: "/api/v1/:path*",
+        destination: `${backendOrigin}/api/v1/:path*`,
+      },
+    ];
   },
   async headers() {
     return [
