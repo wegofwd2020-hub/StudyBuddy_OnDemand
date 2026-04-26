@@ -31,10 +31,20 @@ _CONTENT_VERSION = {"type": "integer", "minimum": 1}
 
 # ── Lesson schema ─────────────────────────────────────────────────────────────
 
+_LESSON_SECTION_SCHEMA = {
+    "type": "object",
+    "required": ["heading", "body"],
+    "properties": {
+        "heading": {"type": "string", "minLength": 1},
+        "body": {"type": "string", "minLength": 10},
+    },
+}
+
 LESSON_SCHEMA: dict = {
     "type": "object",
     "required": [
-        "unit_id", "subject", "topic", "synopsis", "key_concepts",
+        "unit_id", "subject", "topic", "synopsis",
+        "sections", "key_points",
         "learning_objectives", "reading_level", "estimated_duration_minutes",
         "language", "generated_at", "model", "content_version",
     ],
@@ -44,10 +54,20 @@ LESSON_SCHEMA: dict = {
         "subject": {"type": "string", "minLength": 1},
         "topic": {"type": "string", "minLength": 1},
         "synopsis": {"type": "string", "minLength": 10},
-        "key_concepts": {
+        "sections": {
+            "type": "array",
+            "items": _LESSON_SECTION_SCHEMA,
+            "minItems": 1,
+        },
+        "key_points": {
             "type": "array",
             "items": {"type": "string"},
             "minItems": 1,
+        },
+        # key_concepts is the old field name — kept as optional for backward compat
+        "key_concepts": {
+            "type": "array",
+            "items": {"type": "string"},
         },
         "learning_objectives": {
             "type": "array",

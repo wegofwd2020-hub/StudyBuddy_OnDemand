@@ -404,7 +404,15 @@ async def get_curriculum_tree(
     """
     Return the full subject + unit tree for the authenticated student.
 
-    Resolves curriculum_id via enrollment (school custom) or default-{year}-g{grade}.
+    Resolves curriculum_id via the full 3-step resolver:
+      1. School-owned custom curriculum
+      2. Classroom package assignment (resolves stream-specific platform curricula)
+      3. Default STEM fallback
+
+    Loads units from curriculum_units DB table for the resolved curriculum.
+    Falls back to the grade JSON file only when no DB units are found (STEM
+    default curricula seeded before the DB table was populated).
+
     Returns the shape the web frontend expects:
       { curriculum_id, grade, subjects: [{ subject, units: [{ unit_id, title, subject, grade, sort_order, has_lab }] }] }
     """
@@ -412,15 +420,17 @@ async def get_curriculum_tree(
     student_id = student["student_id"]
     school_id = student.get("school_id")
     redis = request.app.state.redis
+    pool = request.app.state.pool
 
-    # Resolve curriculum_id (inlined to avoid circular import with content.service)
+    # ── Step 1: resolve curriculum_id (full 3-step, same as content.service) ──
     _cur_key = cur_key(student_id, school_id)
     cached = await redis.get(_cur_key)
     if cached:
         curriculum_id = cached.decode() if isinstance(cached, bytes) else cached
     else:
         curriculum_id = None
-        async with request.app.state.pool.acquire() as conn:
+        async with pool.acquire() as conn:
+            # 1a. School-owned custom curriculum
             row = await conn.fetchrow(
                 """
                 SELECT c.curriculum_id
@@ -434,27 +444,95 @@ async def get_curriculum_tree(
             )
             if row:
                 curriculum_id = row["curriculum_id"]
+
+            # 1b. Classroom package assignment (stream-specific platform curricula)
+            if not curriculum_id and school_id:
+                await conn.execute(
+                    "SELECT set_config('app.current_school_id', $1, false)", school_id
+                )
+                row = await conn.fetchrow(
+                    """
+                    SELECT cp.curriculum_id
+                    FROM classroom_students cs
+                    JOIN classrooms cl ON cl.classroom_id = cs.classroom_id
+                    JOIN classroom_packages cp ON cp.classroom_id = cl.classroom_id
+                    WHERE cs.student_id = $1
+                    ORDER BY cl.created_at DESC
+                    LIMIT 1
+                    """,
+                    student_id,
+                )
+                if row:
+                    curriculum_id = row["curriculum_id"]
+
+        # 1c. Default STEM fallback
         if not curriculum_id:
             curriculum_id = f"default-2026-g{grade}"
         await redis.set(_cur_key, curriculum_id, ex=300)
 
-    data = _load_grade(grade)
+    # ── Step 2: load units from curriculum_units DB table ─────────────────────
+    # Join content_subject_versions to get the human-readable subject display
+    # name (e.g. "Physics" instead of "G11-PHYS"). Falls back to the raw subject
+    # code when no CSV row exists (newly-seeded curriculum with no content yet).
+    async with pool.acquire() as conn:
+        rows = await conn.fetch(
+            """
+            SELECT cu.unit_id, cu.title, cu.subject,
+                   COALESCE(MAX(csv.subject_name), cu.subject) AS subject_display,
+                   cu.has_lab, cu.sort_order
+            FROM curriculum_units cu
+            LEFT JOIN content_subject_versions csv
+                ON csv.curriculum_id = cu.curriculum_id
+               AND csv.subject = cu.subject
+            WHERE cu.curriculum_id = $1
+            GROUP BY cu.unit_id, cu.title, cu.subject, cu.has_lab, cu.sort_order
+            ORDER BY cu.subject, cu.sort_order, cu.unit_id
+            """,
+            curriculum_id,
+        )
 
-    subjects = []
-    for subj in data.get("subjects", []):
-        subject_name = subj.get("name", subj.get("subject", ""))
-        units = [
-            {
-                "unit_id": u["unit_id"],
-                "title": u["title"],
-                "subject": subject_name,
-                "grade": grade,
-                "sort_order": idx,
-                "has_lab": u.get("has_lab", False),
-            }
-            for idx, u in enumerate(subj.get("units", []))
-        ]
-        subjects.append({"subject": subject_name, "units": units})
+    if rows:
+        # Build subjects dict preserving subject order from first encounter
+        subjects_map: dict[str, list[dict]] = {}
+        for row in rows:
+            subj = row["subject_display"]
+            if subj not in subjects_map:
+                subjects_map[subj] = []
+            subjects_map[subj].append(
+                {
+                    "unit_id": row["unit_id"],
+                    "title": row["title"],
+                    "subject": subj,
+                    "grade": grade,
+                    "sort_order": row["sort_order"],
+                    "has_lab": row["has_lab"],
+                }
+            )
+        subjects = [{"subject": s, "units": u} for s, u in subjects_map.items()]
+        log.info("curriculum_tree_from_db", curriculum_id=curriculum_id, unit_count=len(rows))
+    else:
+        # Fallback: STEM default curricula may not have curriculum_units rows yet
+        data = _load_grade(grade)
+        subjects = []
+        for subj in data.get("subjects", []):
+            subject_name = subj.get("name", subj.get("subject", ""))
+            units = [
+                {
+                    "unit_id": u["unit_id"],
+                    "title": u["title"],
+                    "subject": subject_name,
+                    "grade": grade,
+                    "sort_order": idx,
+                    "has_lab": u.get("has_lab", False),
+                }
+                for idx, u in enumerate(subj.get("units", []))
+            ]
+            subjects.append({"subject": subject_name, "units": units})
+        log.info(
+            "curriculum_tree_from_json",
+            curriculum_id=curriculum_id,
+            grade=grade,
+        )
 
     return {"curriculum_id": curriculum_id, "grade": grade, "subjects": subjects}
 

@@ -270,10 +270,32 @@ The JSON must exactly match this schema:
   "subject": "{subject}",
   "topic": "{topic}",
   "synopsis": "<2–3 sentence overview of the lesson>",
-  "key_concepts": ["<concept 1>", "<concept 2>", "..."],
+  "sections": [
+    {{
+      "heading": "Introduction",
+      "body": "<2–3 paragraphs introducing the topic, its significance, and how it fits into the broader subject. Use markdown for emphasis, lists, or tables where appropriate.>"
+    }},
+    {{
+      "heading": "Core Concepts",
+      "body": "<3–5 paragraphs explaining the fundamental ideas, definitions, principles, and theory. Use KaTeX for any formulae. Use GFM tables for comparisons or structured data.>"
+    }},
+    {{
+      "heading": "Worked Examples",
+      "body": "<2–4 step-by-step worked examples that apply the core concepts. Number each example. Show each calculation step using KaTeX where relevant.>"
+    }},
+    {{
+      "heading": "Real-World Applications",
+      "body": "<2–3 paragraphs or a list describing where and how this topic appears in the real world. Make it concrete and relatable to the student's age group.>"
+    }},
+    {{
+      "heading": "Summary",
+      "body": "<A concise 1–2 paragraph recap of what was covered and why it matters. Bridge to the next topic where natural.>"
+    }}
+  ],
+  "key_points": ["<concise key takeaway 1>", "<concise key takeaway 2>", "..."],
   "learning_objectives": ["<objective 1>", "<objective 2>", "..."],
   "reading_level": "<e.g., Grade {grade} reading level>",
-  "estimated_duration_minutes": <integer between 20 and 45>,
+  "estimated_duration_minutes": <integer between 30 and 50>,
   "language": "{lang}",
   "generated_at": "<ISO 8601 timestamp>",
   "model": "<model name used>",
@@ -281,9 +303,11 @@ The JSON must exactly match this schema:
 }}
 
 Requirements:
-- key_concepts: 4–8 items
-- learning_objectives: 3–5 items, starting with action verbs (e.g., "Explain...", "Calculate...", "Identify...")
-- synopsis: engaging and age-appropriate
+- sections: exactly 5 sections in the order shown (Introduction, Core Concepts, Worked Examples, Real-World Applications, Summary)
+- Each section body must be substantive — at least 2 full paragraphs or equivalent structured content
+- key_points: 4–8 concise bullet-style takeaways (not duplicating sections verbatim)
+- learning_objectives: 3–5 items starting with action verbs (e.g., "Explain...", "Calculate...", "Identify...")
+- synopsis: engaging and age-appropriate 2–3 sentence summary
 - Do NOT include any text outside the JSON object
 """
 

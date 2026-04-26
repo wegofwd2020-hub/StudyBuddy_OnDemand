@@ -66,17 +66,42 @@ _GRADE_RE = re.compile(r"^G(\d+)-")
 
 def _normalize_lesson(data: dict) -> dict:
     """
-    Normalise new-pipeline lesson JSON (topic/synopsis/key_concepts schema) to
-    the LessonResponse wire format (title/sections/key_points schema).
-    Old-format files that already have 'title' pass through unchanged.
+    Normalise pipeline lesson JSON to the LessonResponse wire format.
+
+    Three input formats are handled in priority order:
+
+    1. Old format (has 'title'): pass through — already in wire format.
+    2. New rich format (has 'sections'): use sections + key_points directly.
+    3. Legacy minimal format (synopsis/key_concepts only, no sections): synthesize
+       sections from synopsis/learning_objectives/reading_level so existing
+       pre-C5-regen content renders as well as possible until regenerated.
     """
     if "title" in data:
+        # Old format — already in wire format
         return data
 
     uid = data.get("unit_id", "")
     m = _GRADE_RE.match(uid)
     grade = int(m.group(1)) if m else 0
+    base = {
+        "unit_id": uid,
+        "title": data.get("topic", uid),
+        "grade": grade,
+        "subject": data.get("subject", ""),
+        "lang": data.get("language", "en"),
+        "has_audio": data.get("has_audio", False),
+        "generated_at": data.get("generated_at"),
+        "model": data.get("model"),
+        "content_version": data.get("content_version"),
+    }
 
+    if "sections" in data:
+        # New rich format — sections and key_points are already correct shape
+        base["sections"] = data["sections"]
+        base["key_points"] = data.get("key_points") or data.get("key_concepts", [])
+        return base
+
+    # Legacy minimal format: synthesize sections from available metadata fields
     sections = []
     if synopsis := data.get("synopsis"):
         sections.append({"heading": "Overview", "body": synopsis})
@@ -85,20 +110,9 @@ def _normalize_lesson(data: dict) -> dict:
         sections.append({"heading": "Learning Objectives", "body": body})
     if reading_level := data.get("reading_level"):
         sections.append({"heading": "Reading Level", "body": reading_level})
-
-    return {
-        "unit_id": uid,
-        "title": data.get("topic", uid),
-        "grade": grade,
-        "subject": data.get("subject", ""),
-        "lang": data.get("language", "en"),
-        "sections": sections,
-        "key_points": data.get("key_concepts", []),
-        "has_audio": data.get("has_audio", False),
-        "generated_at": data.get("generated_at"),
-        "model": data.get("model"),
-        "content_version": data.get("content_version"),
-    }
+    base["sections"] = sections
+    base["key_points"] = data.get("key_concepts", [])
+    return base
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────

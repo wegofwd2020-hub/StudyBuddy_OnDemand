@@ -74,8 +74,22 @@ function AnnotationsPanel({ annotations, activeType }: { annotations: Annotation
 // ── Content renderers (read-only — no annotation controls) ────────────────────
 
 function LessonRenderer({ data }: { data: Record<string, unknown> }) {
-  const sections = (data.sections ?? []) as Array<{ heading: string; body: string }>;
-  const keyPoints = (data.key_points ?? []) as string[];
+  // Handle three formats: old (sections+key_points), new rich (sections+key_points),
+  // and legacy minimal (synopsis/learning_objectives only, no sections).
+  const rawSections = (data.sections ?? []) as Array<{ heading: string; body: string }>;
+  const keyPoints = ((data.key_points ?? data.key_concepts ?? []) as string[]);
+
+  // Legacy minimal format: synthesize display sections from available metadata
+  const sections: Array<{ heading: string; body: string }> =
+    rawSections.length > 0
+      ? rawSections
+      : [
+          ...(data.synopsis ? [{ heading: "Overview", body: data.synopsis as string }] : []),
+          ...(Array.isArray(data.learning_objectives) && (data.learning_objectives as string[]).length > 0
+            ? [{ heading: "Learning Objectives", body: (data.learning_objectives as string[]).map((o) => `- ${o}`).join("\n") }]
+            : []),
+          ...(data.reading_level ? [{ heading: "Reading Level", body: data.reading_level as string }] : []),
+        ];
 
   return (
     <div className="space-y-6">
