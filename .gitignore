@@ -45,3 +45,10 @@ bin/
 
 # AI-generated lesson content (bind-mounted into containers; grows large, not for git)
 content_store_data/
+
+# Local dev config (contains Redis dev credentials + local paths)
+.mcp.json
+
+# Pipeline build logs
+data/*.log
+data/*.log.*
