@@ -325,8 +325,9 @@ async def demo_login(body: DemoLoginInput, request: Request):
     token = create_internal_jwt(
         payload={
             "student_id": str(account["student_id"]),
-            "grade": 8,
-            "locale": "en",
+            "grade": account["grade"],
+            "locale": account["locale"] or "en",
+            "school_id": str(account["school_id"]) if account["school_id"] else None,
             "role": "demo_student",
             "account_status": "active",
             "demo_account_id": str(account["id"]),

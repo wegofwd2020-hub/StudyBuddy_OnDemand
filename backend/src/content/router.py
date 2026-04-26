@@ -26,6 +26,7 @@ Rate limiting: 100 req/min per student JWT via slowapi.
 
 from __future__ import annotations
 
+import re
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -59,6 +60,45 @@ log = get_logger("content")
 router = APIRouter(tags=["content"])
 
 _FREE_TIER_LESSON_LIMIT = 2
+
+_GRADE_RE = re.compile(r"^G(\d+)-")
+
+
+def _normalize_lesson(data: dict) -> dict:
+    """
+    Normalise new-pipeline lesson JSON (topic/synopsis/key_concepts schema) to
+    the LessonResponse wire format (title/sections/key_points schema).
+    Old-format files that already have 'title' pass through unchanged.
+    """
+    if "title" in data:
+        return data
+
+    uid = data.get("unit_id", "")
+    m = _GRADE_RE.match(uid)
+    grade = int(m.group(1)) if m else 0
+
+    sections = []
+    if synopsis := data.get("synopsis"):
+        sections.append({"heading": "Overview", "body": synopsis})
+    if objectives := data.get("learning_objectives"):
+        body = "\n".join(f"- {o}" for o in objectives)
+        sections.append({"heading": "Learning Objectives", "body": body})
+    if reading_level := data.get("reading_level"):
+        sections.append({"heading": "Reading Level", "body": reading_level})
+
+    return {
+        "unit_id": uid,
+        "title": data.get("topic", uid),
+        "grade": grade,
+        "subject": data.get("subject", ""),
+        "lang": data.get("language", "en"),
+        "sections": sections,
+        "key_points": data.get("key_concepts", []),
+        "has_audio": data.get("has_audio", False),
+        "generated_at": data.get("generated_at"),
+        "model": data.get("model"),
+        "content_version": data.get("content_version"),
+    }
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -180,7 +220,7 @@ async def get_lesson(
         log.warning("increment_lessons_accessed_failed student_id=%s error=%s", student_id, exc)
 
     log.info("lesson_served unit_id=%s student_id=%s", unit_id, student_id)
-    return LessonResponse(**data)
+    return LessonResponse(**_normalize_lesson(data))
 
 
 # ── GET /content/{unit_id}/lesson/audio ──────────────────────────────────────

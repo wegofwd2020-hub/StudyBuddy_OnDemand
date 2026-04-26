@@ -195,14 +195,16 @@ async def mark_request_verified(conn: asyncpg.Connection, request_id: uuid.UUID)
 
 
 async def get_demo_account_for_login(conn: asyncpg.Connection, email: str) -> asyncpg.Record | None:
-    """Return the active demo_account row for login (includes password_hash)."""
+    """Return the active demo_account row for login (includes grade and school_id from students)."""
     return await conn.fetchrow(
         """
-        SELECT id, student_id, email, password_hash, expires_at
-        FROM demo_accounts
-        WHERE email = $1
-          AND expires_at > NOW()
-          AND revoked_at IS NULL
+        SELECT da.id, da.student_id, da.email, da.password_hash, da.expires_at,
+               s.grade, s.locale, s.school_id
+        FROM demo_accounts da
+        JOIN students s ON s.student_id = da.student_id
+        WHERE da.email = $1
+          AND da.expires_at > NOW()
+          AND da.revoked_at IS NULL
         """,
         email,
     )

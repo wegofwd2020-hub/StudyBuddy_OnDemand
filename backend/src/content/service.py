@@ -277,9 +277,9 @@ async def resolve_curriculum_id(
         except Exception:
             pass
 
-    # Check school enrollment for a custom curriculum
     curriculum_id: str | None = None
     async with pool.acquire() as conn:
+        # 1. School-owned custom curriculum (school uploaded their own content)
         row = await conn.fetchrow(
             """
             SELECT c.curriculum_id
@@ -294,6 +294,30 @@ async def resolve_curriculum_id(
         if row:
             curriculum_id = row["curriculum_id"]
 
+        # 2. Classroom package assignment — resolves stream-specific platform curricula
+        #    (e.g. default-2026-g11-commerce for a Commerce classroom student).
+        #    classroom_students/classrooms/classroom_packages are RLS-protected by
+        #    school_id, so we must set the session variable before querying.
+        if not curriculum_id and school_id:
+            await conn.execute(
+                "SELECT set_config('app.current_school_id', $1, false)", school_id
+            )
+            row = await conn.fetchrow(
+                """
+                SELECT cp.curriculum_id
+                FROM classroom_students cs
+                JOIN classrooms cl ON cl.classroom_id = cs.classroom_id
+                JOIN classroom_packages cp ON cp.classroom_id = cl.classroom_id
+                WHERE cs.student_id = $1
+                ORDER BY cl.created_at DESC
+                LIMIT 1
+                """,
+                student_id,
+            )
+            if row:
+                curriculum_id = row["curriculum_id"]
+
+    # 3. Default STEM fallback
     if not curriculum_id:
         curriculum_id = f"default-{year}-g{grade}"
 

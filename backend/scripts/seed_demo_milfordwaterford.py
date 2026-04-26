@@ -18,11 +18,19 @@ Accounts created
   Students (login via POST /demo/auth/login):
     samjr@milfordwaterford.edu          / MWStudent-SamJr-2026!    Grade 8
     jose.herbert@milfordwaterford.edu   / MWStudent-Jose-2026!     Grade 8
+    priya.sharma@milfordwaterford.edu   / MWStudent-Priya-2026!    Grade 10
+    carlos.mendez@milfordwaterford.edu  / MWStudent-Carlos-2026!   Grade 10
+    emma.thompson@milfordwaterford.edu  / MWStudent-Emma-2026!     Grade 11 (STEM)
+    david.chen@milfordwaterford.edu     / MWStudent-David-2026!    Grade 11 (STEM)
     anya.iyer@milfordwaterford.edu      / MWStudent-Anya-2026!     Grade 11 (Commerce)
     raj.kapoor@milfordwaterford.edu     / MWStudent-Raj-2026!      Grade 11 (Commerce)
     mei.chen@milfordwaterford.edu       / MWStudent-Mei-2026!      Grade 11 (Commerce)
-    samsr@milfordwaterford.edu          / MWStudent-SamSr-2026!    Grade 12
-    linda.herbert@milfordwaterford.edu  / MWStudent-Linda-2026!    Grade 12
+    fatima.alhassan@milfordwaterford.edu / MWStudent-Fatima-2026!  Grade 11 (Science)
+    liam.obrien@milfordwaterford.edu    / MWStudent-Liam-2026!     Grade 11 (Science)
+    isabella.costa@milfordwaterford.edu / MWStudent-Isabella-2026! Grade 12 (Commerce)
+    james.adeyemi@milfordwaterford.edu  / MWStudent-James-2026!    Grade 12 (Commerce)
+    samsr@milfordwaterford.edu          / MWStudent-SamSr-2026!    Grade 12 (Science)
+    linda.herbert@milfordwaterford.edu  / MWStudent-Linda-2026!    Grade 12 (Science)
 
 All accounts expire 2099-12-31 (effectively non-expiring).
 
@@ -70,7 +78,7 @@ TEACHERS: list[dict] = [
         "name": "Sam Houston",
         "email": "sam.houston@milfordwaterford.edu",
         "password": "MWTeacher-Sam-2026!",
-        "role": "teacher",
+        "role": "school_admin",
     },
     {
         "name": "Linda Ronstad",
@@ -91,6 +99,90 @@ TEACHERS: list[dict] = [
         "email": "indra.nooyi@milfordwaterford.edu",
         "password": "MWTeacher-Indra-2026!",
         "role": "teacher",
+    },
+]
+
+# Classrooms: group students by grade, assign lead teachers.
+# curriculum_ids reference the default platform curricula that must already
+# exist (seeded by seed_default.py / build_grade.py).
+CLASSROOMS: list[dict] = [
+    {
+        "name": "Grade 8 — General STEM",
+        "grade": 8,
+        "teacher_email": "sam.houston@milfordwaterford.edu",
+        "curriculum_id": "default-2026-g8",
+        "curriculum_name": "Grade 8 STEM 2026",
+        "student_emails": [
+            "samjr@milfordwaterford.edu",
+            "jose.herbert@milfordwaterford.edu",
+        ],
+    },
+    {
+        "name": "Grade 10 — STEM",
+        "grade": 10,
+        "teacher_email": "indra.nooyi@milfordwaterford.edu",
+        "curriculum_id": "default-2026-g10",
+        "curriculum_name": "Grade 10 STEM 2026",
+        "student_emails": [
+            "priya.sharma@milfordwaterford.edu",
+            "carlos.mendez@milfordwaterford.edu",
+        ],
+    },
+    {
+        "name": "Grade 11 — STEM",
+        "grade": 11,
+        "teacher_email": "sam.houston@milfordwaterford.edu",
+        "curriculum_id": "default-2026-g11",
+        "curriculum_name": "Grade 11 STEM 2026",
+        "student_emails": [
+            "emma.thompson@milfordwaterford.edu",
+            "david.chen@milfordwaterford.edu",
+        ],
+    },
+    {
+        "name": "Grade 11 — Commerce",
+        "grade": 11,
+        "teacher_email": "warren.buffett@milfordwaterford.edu",
+        "curriculum_id": "default-2026-g11-commerce",
+        "curriculum_name": "Grade 11 Commerce 2026",
+        "student_emails": [
+            "anya.iyer@milfordwaterford.edu",
+            "raj.kapoor@milfordwaterford.edu",
+            "mei.chen@milfordwaterford.edu",
+        ],
+    },
+    {
+        "name": "Grade 11 — Science",
+        "grade": 11,
+        "teacher_email": "linda.ronstad@milfordwaterford.edu",
+        "curriculum_id": "default-2026-g11-science",
+        "curriculum_name": "Grade 11 Science 2026",
+        "student_emails": [
+            "fatima.alhassan@milfordwaterford.edu",
+            "liam.obrien@milfordwaterford.edu",
+        ],
+    },
+    {
+        "name": "Grade 12 — Commerce",
+        "grade": 12,
+        "teacher_email": "warren.buffett@milfordwaterford.edu",
+        "curriculum_id": "default-2026-g12-commerce",
+        "curriculum_name": "Grade 12 Commerce 2026",
+        "student_emails": [
+            "isabella.costa@milfordwaterford.edu",
+            "james.adeyemi@milfordwaterford.edu",
+        ],
+    },
+    {
+        "name": "Grade 12 — Science",
+        "grade": 12,
+        "teacher_email": "linda.ronstad@milfordwaterford.edu",
+        "curriculum_id": "default-2026-g12-science",
+        "curriculum_name": "Grade 12 Science 2026",
+        "student_emails": [
+            "samsr@milfordwaterford.edu",
+            "linda.herbert@milfordwaterford.edu",
+        ],
     },
 ]
 
@@ -119,8 +211,33 @@ STUDENTS: list[dict] = [
         "password": "MWStudent-Linda-2026!",
         "grade": 12,
     },
-    # Grade 11 Commerce students — pair with Warren Buffett / Indra Nooyi
-    # teachers so the Commerce content pipeline can be tested end-to-end.
+    # Grade 10 STEM
+    {
+        "name": "Priya Sharma",
+        "email": "priya.sharma@milfordwaterford.edu",
+        "password": "MWStudent-Priya-2026!",
+        "grade": 10,
+    },
+    {
+        "name": "Carlos Mendez",
+        "email": "carlos.mendez@milfordwaterford.edu",
+        "password": "MWStudent-Carlos-2026!",
+        "grade": 10,
+    },
+    # Grade 11 STEM
+    {
+        "name": "Emma Thompson",
+        "email": "emma.thompson@milfordwaterford.edu",
+        "password": "MWStudent-Emma-2026!",
+        "grade": 11,
+    },
+    {
+        "name": "David Chen",
+        "email": "david.chen@milfordwaterford.edu",
+        "password": "MWStudent-David-2026!",
+        "grade": 11,
+    },
+    # Grade 11 Commerce students — pair with Warren Buffett teacher
     {
         "name": "Anya Iyer",
         "email": "anya.iyer@milfordwaterford.edu",
@@ -138,6 +255,32 @@ STUDENTS: list[dict] = [
         "email": "mei.chen@milfordwaterford.edu",
         "password": "MWStudent-Mei-2026!",
         "grade": 11,
+    },
+    # Grade 11 Science
+    {
+        "name": "Fatima Al-Hassan",
+        "email": "fatima.alhassan@milfordwaterford.edu",
+        "password": "MWStudent-Fatima-2026!",
+        "grade": 11,
+    },
+    {
+        "name": "Liam O'Brien",
+        "email": "liam.obrien@milfordwaterford.edu",
+        "password": "MWStudent-Liam-2026!",
+        "grade": 11,
+    },
+    # Grade 12 Commerce
+    {
+        "name": "Isabella Costa",
+        "email": "isabella.costa@milfordwaterford.edu",
+        "password": "MWStudent-Isabella-2026!",
+        "grade": 12,
+    },
+    {
+        "name": "James Adeyemi",
+        "email": "james.adeyemi@milfordwaterford.edu",
+        "password": "MWStudent-James-2026!",
+        "grade": 12,
     },
 ]
 
@@ -269,7 +412,8 @@ async def _upsert_teacher(
         VALUES ($1, $2, 'demo', $3, $4, $5, 'active')
         ON CONFLICT (email) DO UPDATE
             SET school_id = EXCLUDED.school_id,
-                name      = EXCLUDED.name
+                name      = EXCLUDED.name,
+                role      = EXCLUDED.role
         RETURNING teacher_id
         """,
         school_id,
@@ -467,6 +611,117 @@ async def _upsert_student(
     }
 
 
+# ── Classrooms ────────────────────────────────────────────────────────────────
+
+
+async def _upsert_classrooms(
+    conn: asyncpg.Connection,
+    school_id: str,
+) -> list[dict]:
+    """
+    Create (or skip existing) classrooms, package assignments, and student
+    enrolments for MilfordWaterford.
+
+    Teacher and student rows must already exist before calling this.
+    curriculum_id rows are inserted as stubs if they don't exist yet so the
+    classroom package link doesn't fail on a fresh DB.
+    """
+    results = []
+    for cl in CLASSROOMS:
+        # Resolve teacher_id from email
+        teacher_id = await conn.fetchval(
+            "SELECT teacher_id FROM teachers WHERE email = $1", cl["teacher_email"]
+        )
+        if not teacher_id:
+            print(f"  [warn] teacher not found for classroom '{cl['name']}' — skipping")
+            continue
+
+        # Ensure curriculum row exists so classroom_packages FK succeeds.
+        # The pipeline (build_grade.py) will have already inserted the real row;
+        # this is a no-op in that case.  On a fresh DB it inserts a stub so the
+        # classroom can be linked before content is generated.
+        await conn.execute(
+            """
+            INSERT INTO curricula (curriculum_id, grade, year, name, is_default)
+            VALUES ($1, $2, 2026, $3, FALSE)
+            ON CONFLICT (curriculum_id) DO NOTHING
+            """,
+            cl["curriculum_id"],
+            cl["grade"],
+            cl["curriculum_name"],
+        )
+
+        # Classroom row
+        classroom_id = await conn.fetchval(
+            """
+            INSERT INTO classrooms (school_id, teacher_id, name, grade, status)
+            VALUES ($1, $2, $3, $4, 'active')
+            ON CONFLICT DO NOTHING
+            RETURNING classroom_id
+            """,
+            school_id,
+            teacher_id,
+            cl["name"],
+            cl["grade"],
+        )
+        if classroom_id is None:
+            # Already exists — look it up
+            classroom_id = await conn.fetchval(
+                "SELECT classroom_id FROM classrooms WHERE school_id = $1 AND name = $2",
+                school_id,
+                cl["name"],
+            )
+            action = "existing"
+        else:
+            action = "created"
+
+        # Package assignment — remove any stale packages then (re)insert the correct one
+        await conn.execute(
+            "DELETE FROM classroom_packages WHERE classroom_id = $1",
+            classroom_id,
+        )
+        await conn.execute(
+            """
+            INSERT INTO classroom_packages (classroom_id, curriculum_id, sort_order)
+            VALUES ($1, $2, 0)
+            ON CONFLICT (classroom_id, curriculum_id) DO UPDATE SET sort_order = 0
+            """,
+            classroom_id,
+            cl["curriculum_id"],
+        )
+
+        # Student enrolments
+        enrolled = 0
+        for email in cl["student_emails"]:
+            student_id = await conn.fetchval(
+                "SELECT student_id FROM students WHERE email = $1", email
+            )
+            if not student_id:
+                print(f"    [warn] student {email} not found — skipping")
+                continue
+            await conn.execute(
+                """
+                INSERT INTO classroom_students (classroom_id, student_id)
+                VALUES ($1, $2)
+                ON CONFLICT (classroom_id, student_id) DO NOTHING
+                """,
+                classroom_id,
+                student_id,
+            )
+            enrolled += 1
+
+        results.append(
+            {
+                "name": cl["name"],
+                "classroom_id": str(classroom_id),
+                "teacher": cl["teacher_email"],
+                "students": enrolled,
+                "action": action,
+            }
+        )
+    return results
+
+
 # ── Main ───────────────────────────────────────────────────────────────────────
 
 
@@ -482,6 +737,10 @@ async def seed(dry_run: bool) -> None:
         print("  Students:")
         for s in STUDENTS:
             print(f"    {s['name']:<20} {s['email']:<45} {s['password']}  (Grade {s['grade']})")
+        print()
+        print("  Classrooms:")
+        for cl in CLASSROOMS:
+            print(f"    Grade {cl['grade']} — {cl['name']}  ({len(cl['student_emails'])} students)")
         print()
         print("  expires_at: 2099-12-31 (non-expiring)")
         return
@@ -524,6 +783,17 @@ async def seed(dry_run: bool) -> None:
                     print(_col("student_id", result["student_id"]))
                     print(_col("demo_account_id", result["account_id"]))
                     print(_col("login endpoint", "POST /api/v1/demo/auth/login"))
+                    print()
+
+                print("Classrooms")
+                print("─" * 70)
+                classroom_results = await _upsert_classrooms(conn, school_id)
+                for cl in classroom_results:
+                    tag = f"[{cl['action']}]"
+                    print(f"  {cl['name']:<30} {tag}")
+                    print(_col("classroom_id", cl["classroom_id"]))
+                    print(_col("teacher", cl["teacher"]))
+                    print(_col("students enrolled", cl["students"]))
                     print()
 
                 print("─" * 70)
