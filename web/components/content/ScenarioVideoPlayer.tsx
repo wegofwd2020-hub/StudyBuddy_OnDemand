@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { CheckCircle2, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScenarioPlayer, type ScenarioData } from "./ScenarioPlayer";
@@ -50,17 +50,24 @@ function VideoDialogPlayer({
   const charMap = Object.fromEntries(scenario.characters.map((c) => [c.id, c]));
   const charColorIdx = Object.fromEntries(scenario.characters.map((c, i) => [c.id, i]));
 
+  // Call play() whenever a new clip becomes active. This covers both the first
+  // clip (phase transitions to "playing") and subsequent clips (clipIdx advances).
+  // Using useEffect rather than autoPlay so the browser sees the initial play()
+  // as originating from the click-handler user gesture (50ms still within the
+  // activation window), and each clip transition fires consistently.
+  useEffect(() => {
+    if (phase !== "playing") return;
+    const timer = setTimeout(() => videoRef.current?.play(), 50);
+    return () => clearTimeout(timer);
+  }, [clipIdx, phase]);
+
   function handleStart() {
     setPhase("playing");
-    // play() must be called from a user gesture — this click handler qualifies
-    setTimeout(() => videoRef.current?.play(), 50);
   }
 
   function handleClipEnded() {
     if (clipIdx < clips.length - 1) {
       setClipIdx((i) => i + 1);
-      // next clip auto-plays via the key change + autoPlay attribute,
-      // which is allowed because we're already in a user-initiated session
     } else {
       setTimeout(() => {
         setPhase("quiz");
