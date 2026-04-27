@@ -57,7 +57,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     label: "Scenarios",
-    href: "/admin/scenarios",
+    href: "/scenarios/new",
     icon: <Clapperboard className="h-4 w-4" />,
     minRole: "product_admin" as AdminRole,
   },
