@@ -2075,3 +2075,120 @@ def check_teacher_seat_quotas() -> None:
         logging.getLogger("tasks.check_teacher_seat_quotas").warning(
             "check_teacher_seat_quotas_failed: %s", exc
         )
+
+
+# ── Scenario avatar generation ────────────────────────────────────────────────
+
+
+@celery_app.task(name="src.auth.tasks.generate_scenario_clips_task")
+def generate_scenario_clips_task(
+    scenario_id: str,
+    job_id: str,
+    content_store_path: str,
+) -> None:
+    """
+    Generate D-ID talking-avatar clips for every dialog turn in a scenario.
+
+    Reads scenario.json from {content_store_path}/scenarios/{scenario_id}/,
+    calls pipeline.avatar_worker.generate_scenario_clips(), downloads each MP4
+    to turn{n}.mp4 in the same directory, and writes per-clip status to Redis.
+    Runs in the 'pipeline' queue.
+    """
+    import json
+    from pathlib import Path
+
+    import redis as redis_sync
+
+    _log = logging.getLogger("tasks.generate_scenario_clips")
+    redis_key = f"scenario:job:{job_id}"
+    r = redis_sync.from_url(settings.REDIS_URL, decode_responses=True)
+
+    def _set_status(status: str, **extra: object) -> None:
+        mapping: dict = {"status": status}
+        mapping.update({k: str(v) for k, v in extra.items()})
+        r.hset(redis_key, mapping=mapping)
+
+    def _update_clip(turn_index: int, clip_status: str, error: str | None = None) -> None:
+        clips_raw = json.loads(r.hget(redis_key, "clips") or "[]")
+        for c in clips_raw:
+            if c["turn_index"] == turn_index:
+                c["status"] = clip_status
+                if error:
+                    c["error"] = error
+        completed = sum(1 for c in clips_raw if c["status"] in ("ready", "error"))
+        r.hset(
+            redis_key,
+            mapping={
+                "clips": json.dumps(clips_raw),
+                "completed_clips": completed,
+            },
+        )
+
+    scenario_dir = Path(content_store_path) / "scenarios" / scenario_id
+    scenario_path = scenario_dir / "scenario.json"
+
+    if not scenario_path.exists():
+        _log.error("scenario_json_missing scenario_id=%s", scenario_id)
+        _set_status("failed", error="scenario.json not found on worker")
+        return
+
+    try:
+        scenario = json.loads(scenario_path.read_text())
+    except Exception as exc:
+        _log.error("scenario_json_parse_error scenario_id=%s: %s", scenario_id, exc)
+        _set_status("failed", error=str(exc))
+        return
+
+    _set_status("running")
+    _log.info("scenario_clips_start scenario_id=%s job_id=%s", scenario_id, job_id)
+
+    try:
+        # Lazily import pipeline deps — only available on pipeline workers.
+        from pipeline.avatar_worker import generate_scenario_clips  # type: ignore
+    except ImportError as exc:
+        _log.error("avatar_worker_import_failed: %s", exc)
+        _set_status("failed", error="pipeline.avatar_worker not available on this worker")
+        return
+
+    # Generate clips via D-ID (returns list of dicts with d-id result_url / video_url)
+    clips = generate_scenario_clips(scenario, str(scenario_dir), lang=scenario.get("language", "en"))
+
+    if not clips:
+        _log.error("avatar_worker_returned_no_clips scenario_id=%s", scenario_id)
+        _set_status("failed", error="D-ID generation returned no clips — check D_ID_API_KEY and logs")
+        return
+
+    # Download each MP4 locally so the browser can load them same-origin
+    try:
+        import httpx
+    except ImportError:
+        _log.error("httpx_not_installed")
+        _set_status("failed", error="httpx not installed on pipeline worker")
+        return
+
+    for clip in clips:
+        turn_index = clip["turn_index"]
+        remote_url = clip.get("video_url") or clip.get("result_url", "")
+        dest = scenario_dir / f"turn{turn_index}.mp4"
+
+        _log.info("downloading_clip turn=%d url=%s", turn_index, remote_url)
+        try:
+            with httpx.stream("GET", remote_url, timeout=60, follow_redirects=True) as resp:
+                resp.raise_for_status()
+                with open(dest, "wb") as fh:
+                    for chunk in resp.iter_bytes(chunk_size=65536):
+                        fh.write(chunk)
+            _update_clip(turn_index, "ready")
+            _log.info("clip_downloaded turn=%d dest=%s", turn_index, dest)
+        except Exception as exc:
+            _log.error("clip_download_failed turn=%d: %s", turn_index, exc)
+            _update_clip(turn_index, "error", error=str(exc))
+
+    clips_state = json.loads(r.hget(redis_key, "clips") or "[]")
+    any_error = any(c["status"] == "error" for c in clips_state)
+    _set_status("failed" if any_error else "done")
+    _log.info(
+        "scenario_clips_complete scenario_id=%s status=%s",
+        scenario_id,
+        "failed" if any_error else "done",
+    )

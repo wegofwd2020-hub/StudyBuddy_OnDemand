@@ -98,6 +98,7 @@ celery_app.conf.update(
         "src.auth.tasks.purge_expired_curricula": {"queue": "default"},
         "src.auth.tasks.send_retention_email_task": {"queue": "io"},
         "src.auth.tasks.send_payment_action_required_email_task": {"queue": "io"},
+        "src.auth.tasks.generate_scenario_clips_task": {"queue": "pipeline"},
     },
     beat_schedule={
         # Poll DB pool state + Celery queue depth every 30 seconds.

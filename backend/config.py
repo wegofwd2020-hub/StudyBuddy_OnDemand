@@ -120,6 +120,13 @@ class Settings(BaseSettings):
     S3_BUCKET_NAME: str | None = None
     CLOUDFRONT_DISTRIBUTION_ID: str | None = None
 
+    # ── Scenario builder ─────────────────────────────────────────────────────
+    # Shared key between the /scenarios/* API and the web builder. Defaults to
+    # the same passphrase used by the /jt page gate so one code covers both.
+    SCENARIO_API_KEY: str = "jt2026"
+    # D-ID API key for talking-avatar generation (T2 secret — env var is fine).
+    D_ID_API_KEY: str | None = None
+
     # ── Celery ────────────────────────────────────────────────────────────────
     CELERY_BROKER_URL: str | None = None
 
