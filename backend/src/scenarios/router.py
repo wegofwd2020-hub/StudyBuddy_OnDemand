@@ -108,9 +108,15 @@ async def clips_status(
     _check_key(x_scenario_key)
 
     redis = get_redis(request)
-    data = await redis.hgetall(_job_redis_key(job_id))
-    if not data:
+    raw = await redis.hgetall(_job_redis_key(job_id))
+    if not raw:
         raise HTTPException(status_code=404, detail="Job not found or expired")
+
+    # App-wide Redis client uses decode_responses=False — decode bytes here.
+    data: dict[str, str] = {
+        (k.decode() if isinstance(k, bytes) else k): (v.decode() if isinstance(v, bytes) else v)
+        for k, v in raw.items()
+    }
 
     clips_raw = json.loads(data.get("clips", "[]"))
     clips = [ClipStatus(**c) for c in clips_raw]
