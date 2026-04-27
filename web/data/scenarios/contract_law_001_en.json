@@ -33,6 +33,22 @@
     "correct_answer": false,
     "explanation": "The client's proposal to route the contract through an unnamed subsidiary raises serious red flags under the US Foreign Corrupt Practices Act (FCPA) and anti-money-laundering (AML) regulations. US-registered vendors must conduct Know Your Customer (KYC) due diligence and cannot knowingly proceed with arrangements that obscure the ultimate beneficial owner. Accepting this proposal without verifying the subsidiary's ownership and legitimacy exposes the vendor to significant legal and regulatory liability."
   },
+  "video_clips": [
+    {
+      "turn_index": 0,
+      "speaker": "user1",
+      "video_url": "https://d-id-talks-prod.s3.us-west-2.amazonaws.com/google-oauth2%7C110476159209809451322/tlk__wHnzy8feGlNWJ8PzSf9T/1777293507889.mp4?AWSAccessKeyId=AKIA5CUMPJBIK65W6FGA&Expires=1777379914&Signature=XGNHBa%2F9eZ62aPNMEmHMfR5H%2Bw4%3D",
+      "duration_seconds": 6.9375,
+      "status": "ready"
+    },
+    {
+      "turn_index": 1,
+      "speaker": "user2",
+      "video_url": "https://d-id-talks-prod.s3.us-west-2.amazonaws.com/google-oauth2%7C110476159209809451322/tlk_f8oNuZRwM5dKdVR9I86wv/1777293527470.mp4?AWSAccessKeyId=AKIA5CUMPJBIK65W6FGA&Expires=1777379937&Signature=NRyv0KmtfSiEhlsS%2Fp1DlvY0Ins%3D",
+      "duration_seconds": 15.9625,
+      "status": "ready"
+    }
+  ],
   "language": "en",
   "generated_at": "2026-04-27T00:00:00Z",
   "model": "human_authored",

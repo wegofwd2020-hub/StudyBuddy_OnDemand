@@ -46,9 +46,11 @@ _POLL_INTERVAL = 4       # seconds between status polls
 _POLL_TIMEOUT  = 120     # seconds before giving up on a clip
 
 # Default presenter image URLs — override per speaker via D_ID_AVATAR_0, D_ID_AVATAR_1 env vars.
+# Both fall back to alice.jpg (confirmed working); override with your own hosted images for
+# different-looking characters.
 _DEFAULT_AVATARS = {
     "female": "https://d-id-public-bucket.s3.us-east-1.amazonaws.com/alice.jpg",
-    "male":   "https://d-id-public-bucket.s3.us-east-1.amazonaws.com/ali.jpg",
+    "male":   "https://d-id-public-bucket.s3.us-east-1.amazonaws.com/alice.jpg",
 }
 
 # Microsoft Azure Neural voices available through D-ID — indexed by speaker position.
@@ -150,7 +152,9 @@ def _api_key() -> str | None:
 
 
 def _auth_header(api_key: str) -> str:
-    encoded = base64.b64encode(f"{api_key}:".encode()).decode()
+    # D-ID keys are already in "base64(email):password" format — the full
+    # string is the Basic auth credential, so encode it directly.
+    encoded = base64.b64encode(api_key.encode()).decode()
     return f"Basic {encoded}"
 
 
