@@ -2150,15 +2150,29 @@ def generate_scenario_clips_task(
         _set_status("failed", error="pipeline.avatar_worker not available on this worker")
         return
 
-    # Generate clips via D-ID (returns list of dicts with d-id result_url / video_url)
-    clips = generate_scenario_clips(scenario, str(scenario_dir), lang=scenario.get("language", "en"))
+    # Callbacks fire during parallel generation so the UI shows live progress.
+    def _on_submitted(turn_index: int) -> None:
+        _update_clip(turn_index, "generating")
+
+    def _on_ready(turn_index: int) -> None:
+        # D-ID finished for this clip; download is about to start.
+        _update_clip(turn_index, "downloading")
+
+    # Generate clips via D-ID (parallel submit + parallel poll).
+    clips = generate_scenario_clips(
+        scenario,
+        str(scenario_dir),
+        lang=scenario.get("language", "en"),
+        on_clip_submitted=_on_submitted,
+        on_clip_ready=_on_ready,
+    )
 
     if not clips:
         _log.error("avatar_worker_returned_no_clips scenario_id=%s", scenario_id)
         _set_status("failed", error="D-ID generation returned no clips — check D_ID_API_KEY and logs")
         return
 
-    # Download each MP4 locally so the browser can load them same-origin
+    # Download each MP4 locally so the browser can load them same-origin.
     try:
         import httpx
     except ImportError:
