@@ -30,7 +30,7 @@ export function ScenarioVideoPlayer({ scenario }: { scenario: ScenarioWithClips 
 
 // ─── Video player ─────────────────────────────────────────────────────────────
 
-type Phase = "playing" | "quiz" | "result";
+type Phase = "idle" | "playing" | "quiz" | "result";
 
 const AVATAR_COLORS = ["bg-blue-500", "bg-emerald-500", "bg-violet-500", "bg-amber-500"];
 
@@ -42,7 +42,7 @@ function VideoDialogPlayer({
   clips: VideoClip[];
 }) {
   const [clipIdx, setClipIdx] = useState(0);
-  const [phase, setPhase] = useState<Phase>("playing");
+  const [phase, setPhase] = useState<Phase>("idle");
   const [quizVisible, setQuizVisible] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<boolean | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -50,9 +50,17 @@ function VideoDialogPlayer({
   const charMap = Object.fromEntries(scenario.characters.map((c) => [c.id, c]));
   const charColorIdx = Object.fromEntries(scenario.characters.map((c, i) => [c.id, i]));
 
+  function handleStart() {
+    setPhase("playing");
+    // play() must be called from a user gesture — this click handler qualifies
+    setTimeout(() => videoRef.current?.play(), 50);
+  }
+
   function handleClipEnded() {
     if (clipIdx < clips.length - 1) {
       setClipIdx((i) => i + 1);
+      // next clip auto-plays via the key change + autoPlay attribute,
+      // which is allowed because we're already in a user-initiated session
     } else {
       setTimeout(() => {
         setPhase("quiz");
@@ -68,7 +76,7 @@ function VideoDialogPlayer({
 
   function handleReplay() {
     setClipIdx(0);
-    setPhase("playing");
+    setPhase("idle");
     setSelectedAnswer(null);
     setQuizVisible(false);
   }
@@ -90,8 +98,24 @@ function VideoDialogPlayer({
         <h2 className="text-lg font-semibold text-gray-900">{scenario.title}</h2>
       </div>
 
+      {/* Idle state — play button */}
+      {phase === "idle" && (
+        <div className="flex flex-col items-center justify-center gap-4 rounded-xl border bg-gray-900 py-16 shadow-lg">
+          <p className="text-sm text-gray-400">Watch the scenario unfold, then answer the compliance question</p>
+          <button
+            onClick={handleStart}
+            className="flex items-center gap-3 rounded-full bg-indigo-600 px-8 py-4 text-base font-bold text-white shadow-lg transition-colors hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+          >
+            <svg className="h-6 w-6 fill-current" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            Play Scenario
+          </button>
+        </div>
+      )}
+
       {/* Video player */}
-      {phase === "playing" && clip && (
+      {(phase === "playing") && clip && (
         <div className="overflow-hidden rounded-xl border shadow-lg">
           {/* Speaker label bar */}
           <div className={cn("flex items-center gap-3 px-4 py-2", avatarColor)}>
@@ -117,7 +141,6 @@ function VideoDialogPlayer({
               key={clip.video_url}
               ref={videoRef}
               src={clip.video_url}
-              autoPlay
               playsInline
               onEnded={handleClipEnded}
               className="mx-auto max-h-80 w-full object-contain"
