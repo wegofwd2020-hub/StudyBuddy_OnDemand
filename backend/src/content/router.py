@@ -41,6 +41,7 @@ from src.content.schemas import (
     LessonResponse,
     QuizResponse,
     ReportRequest,
+    ScenarioResponse,
     TutorialResponse,
 )
 from src.content.service import (
