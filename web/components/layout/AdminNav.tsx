@@ -24,6 +24,7 @@ import {
   Archive,
   Sparkles,
   Layers,
+  Clapperboard,
 } from "lucide-react";
 
 interface NavItem {
@@ -53,6 +54,12 @@ const NAV_ITEMS: NavItem[] = [
     label: "Streams",
     href: "/admin/streams",
     icon: <Layers className="h-4 w-4" />,
+  },
+  {
+    label: "Scenarios",
+    href: "/admin/scenarios",
+    icon: <Clapperboard className="h-4 w-4" />,
+    minRole: "product_admin" as AdminRole,
   },
   {
     label: "Content Review",
