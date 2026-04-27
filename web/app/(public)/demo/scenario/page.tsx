@@ -1,6 +1,6 @@
-import { ScenarioPlayer } from "@/components/content/ScenarioPlayer";
+import { ScenarioVideoPlayer } from "@/components/content/ScenarioVideoPlayer";
 import contractLaw001 from "@/data/scenarios/contract_law_001_en.json";
-import type { ScenarioData } from "@/components/content/ScenarioPlayer";
+import type { ScenarioWithClips } from "@/components/content/ScenarioVideoPlayer";
 
 export const metadata = {
   title: "Scenario Training Demo — StudyBuddy",
@@ -21,7 +21,7 @@ export default function ScenarioDemoPage() {
         </div>
 
         {/* Player */}
-        <ScenarioPlayer scenario={contractLaw001 as ScenarioData} />
+        <ScenarioVideoPlayer scenario={contractLaw001 as ScenarioWithClips} />
 
         {/* Footer note */}
         <p className="mt-10 text-center text-xs text-gray-400">

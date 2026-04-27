@@ -420,7 +420,22 @@ async def get_scenario(
                 detail={"error": "not_found", "detail": "No scenario available for this unit."},
             )
 
-    log.info("scenario_served unit_id=%s student_id=%s", unit_id, student_id)
+    # Optionally merge in video clips if avatar_worker has generated them.
+    clips_file = f"scenario_clips_{locale}.json"
+    try:
+        clips_data = await get_content_file(curriculum_id, unit_id, clips_file, redis, storage)
+        data["video_clips"] = clips_data.get("clips", [])
+    except FileNotFoundError:
+        try:
+            clips_data = await get_content_file(
+                curriculum_id, unit_id, "scenario_clips_en.json", redis, storage
+            )
+            data["video_clips"] = clips_data.get("clips", [])
+        except FileNotFoundError:
+            data["video_clips"] = None
+
+    log.info("scenario_served unit_id=%s student_id=%s clips=%s",
+             unit_id, student_id, len(data.get("video_clips") or []))
     return ScenarioResponse(**data)
 
 

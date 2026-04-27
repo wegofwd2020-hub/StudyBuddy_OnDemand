@@ -69,6 +69,11 @@ class PipelineSettings(BaseSettings):
     # ── Content version (target version for idempotency check) ───────────────
     CONTENT_VERSION: int = 1
 
+    # ── Talking avatar (D-ID) ─────────────────────────────────────────────────
+    # If set, avatar_worker generates MP4 clips for scenario dialog turns.
+    # Override per-speaker avatar images via D_ID_AVATAR_0, D_ID_AVATAR_1 env vars.
+    D_ID_API_KEY: Optional[str] = None
+
     # ── AWS / CDN ─────────────────────────────────────────────────────────────
     # If set, built content is uploaded to S3 after local write.
     S3_BUCKET_NAME: Optional[str] = None

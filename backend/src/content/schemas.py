@@ -159,6 +159,14 @@ class ScenarioQuiz(BaseModel):
     options: list[str] | None = None
 
 
+class ScenarioVideoClip(BaseModel):
+    turn_index: int
+    speaker: str
+    video_url: str
+    duration_seconds: float
+    status: str
+
+
 class ScenarioResponse(BaseModel):
     scenario_id: str
     title: str
@@ -171,6 +179,7 @@ class ScenarioResponse(BaseModel):
     generated_at: str
     model: str
     content_version: int
+    video_clips: list[ScenarioVideoClip] | None = None
 
 
 # ── App version ───────────────────────────────────────────────────────────────
