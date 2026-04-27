@@ -151,8 +151,10 @@ export function ScenarioPlayer({
             <div
               key={i}
               className={cn(
-                "flex gap-3 transition-all duration-500",
-                isLeft ? "justify-start" : "flex-row-reverse justify-start",
+                "flex gap-3 animate-in fade-in duration-500 fill-mode-both",
+                isLeft
+                  ? "justify-start slide-in-from-left-4"
+                  : "flex-row-reverse justify-start slide-in-from-right-4",
               )}
             >
               {/* Avatar */}
