@@ -43,6 +43,10 @@ from typing import Callable
 
 log = logging.getLogger("pipeline.avatar_worker")
 
+
+class AvatarWorkerError(Exception):
+    """Raised when D-ID returns a known API error (credits exhausted, auth failure, etc.)."""
+
 _D_ID_BASE = "https://api.d-id.com"
 _POLL_INTERVAL = 3       # seconds between status polls per clip
 _POLL_TIMEOUT  = 120     # seconds before giving up on a clip
@@ -67,7 +71,7 @@ def generate_scenario_clips(
     lang: str = "en",
     on_clip_submitted: Callable[[int], None] | None = None,
     on_clip_ready: Callable[[int], None] | None = None,
-) -> list[dict]:
+) -> tuple[list[dict], str | None]:
     """
     Generate talking-avatar clips for every dialog turn, in parallel.
 
@@ -79,19 +83,19 @@ def generate_scenario_clips(
         on_clip_ready:     Optional callback(turn_index) fired after each clip is ready.
 
     Returns:
-        List of clip metadata dicts ordered by turn_index.
-        Empty list if D-ID is disabled or any clip fails.
+        (clips, error): clips is a list of clip metadata dicts ordered by turn_index
+        (empty on failure); error is a human-readable message on failure, else None.
     """
     api_key = _api_key()
     if not api_key:
         log.info("avatar_skip: D_ID_API_KEY not configured")
-        return []
+        return [], "D_ID_API_KEY is not configured"
 
     try:
         import httpx  # noqa: F401
     except ImportError:
         log.warning("avatar_skip: httpx not installed")
-        return []
+        return [], "httpx is not installed on this worker"
 
     auth = _auth_header(api_key)
     chars = scenario.get("characters", [])
@@ -102,25 +106,27 @@ def generate_scenario_clips(
     log.info("avatar_submit_all count=%d", len(dialog))
     talk_ids: dict[int, str] = {}  # turn_index → talk_id
 
-    def _submit(turn_index: int, turn: dict) -> tuple[int, str | None]:
+    def _submit(turn_index: int, turn: dict) -> tuple[int, str]:
         speaker_id = turn["speaker"]
         idx = char_index.get(speaker_id, 0)
         char = chars[idx] if idx < len(chars) else {}
         avatar_url = _avatar_url(char, idx)
         voice_id = _voice(idx, lang)
         log.info("avatar_generating turn=%d speaker=%s voice=%s", turn_index, speaker_id, voice_id)
+        # Raises AvatarWorkerError on API-level failures (credits, auth, etc.)
         talk_id = _create_talk(auth, turn["text"], avatar_url, voice_id)
-        if talk_id and on_clip_submitted:
+        if on_clip_submitted:
             on_clip_submitted(turn_index)
         return turn_index, talk_id
 
     with ThreadPoolExecutor(max_workers=_MAX_WORKERS) as pool:
         futures = {pool.submit(_submit, i, turn): i for i, turn in enumerate(dialog)}
         for future in as_completed(futures):
-            turn_index, talk_id = future.result()
-            if not talk_id:
-                log.error("avatar_create_failed turn=%d", turn_index)
-                return []
+            try:
+                turn_index, talk_id = future.result()
+            except AvatarWorkerError as exc:
+                log.error("avatar_create_failed: %s", exc)
+                return [], str(exc)
             talk_ids[turn_index] = talk_id
 
     # ── Phase 2: Poll all talks in parallel ───────────────────────────────────
@@ -139,7 +145,7 @@ def generate_scenario_clips(
             turn_index, result = future.result()
             if not result:
                 log.error("avatar_timeout turn=%d", turn_index)
-                return []
+                return [], f"Timed out waiting for D-ID clip (turn {turn_index})"
             results[turn_index] = result
             log.info("avatar_ready turn=%d url=%s", turn_index, result["result_url"])
 
@@ -165,7 +171,7 @@ def generate_scenario_clips(
     }, indent=2))
     log.info("avatar_clips_written path=%s count=%d", out_path, len(clips))
 
-    return clips
+    return clips, None
 
 
 # ── Internals ─────────────────────────────────────────────────────────────────
@@ -198,7 +204,7 @@ def _voice(idx: int, lang: str) -> str:
     return voices[min(idx, len(voices) - 1)]
 
 
-def _create_talk(auth: str, text: str, source_url: str, voice_id: str) -> str | None:
+def _create_talk(auth: str, text: str, source_url: str, voice_id: str) -> str:
     import httpx
 
     payload = {
@@ -217,11 +223,28 @@ def _create_talk(auth: str, text: str, source_url: str, voice_id: str) -> str | 
             headers={"Authorization": auth, "Content-Type": "application/json"},
             timeout=30,
         )
-        resp.raise_for_status()
-        return resp.json().get("id")
     except Exception as exc:
-        log.error("avatar_create_error: %s", exc)
-        return None
+        raise AvatarWorkerError(f"D-ID request failed: {exc}") from exc
+
+    if not resp.is_success:
+        try:
+            body = resp.json()
+            kind = body.get("kind", "")
+            desc = body.get("description", "") or body.get("message", "") or resp.text[:300]
+            msg = f"D-ID {resp.status_code}"
+            if kind:
+                msg += f" {kind}"
+            if desc:
+                msg += f": {desc}"
+        except Exception:
+            msg = f"D-ID {resp.status_code}: {resp.text[:300]}"
+        log.error("avatar_create_error status=%d body=%s", resp.status_code, resp.text[:300])
+        raise AvatarWorkerError(msg)
+
+    talk_id = resp.json().get("id")
+    if not talk_id:
+        raise AvatarWorkerError("D-ID response missing talk id")
+    return talk_id
 
 
 def _poll_talk(auth: str, talk_id: str) -> dict | None:

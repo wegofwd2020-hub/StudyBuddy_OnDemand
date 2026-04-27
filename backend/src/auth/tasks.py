@@ -2159,7 +2159,7 @@ def generate_scenario_clips_task(
         _update_clip(turn_index, "downloading")
 
     # Generate clips via D-ID (parallel submit + parallel poll).
-    clips = generate_scenario_clips(
+    clips, d_id_error = generate_scenario_clips(
         scenario,
         str(scenario_dir),
         lang=scenario.get("language", "en"),
@@ -2168,8 +2168,9 @@ def generate_scenario_clips_task(
     )
 
     if not clips:
-        _log.error("avatar_worker_returned_no_clips scenario_id=%s", scenario_id)
-        _set_status("failed", error="D-ID generation returned no clips — check D_ID_API_KEY and logs")
+        error_msg = d_id_error or "D-ID generation returned no clips — check D_ID_API_KEY and logs"
+        _log.error("avatar_worker_returned_no_clips scenario_id=%s error=%s", scenario_id, error_msg)
+        _set_status("failed", error=error_msg)
         return
 
     # Download each MP4 locally so the browser can load them same-origin.
