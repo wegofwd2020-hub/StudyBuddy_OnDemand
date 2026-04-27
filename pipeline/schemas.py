@@ -9,6 +9,7 @@ Schemas:
   QUIZ_SCHEMA         — quiz set JSON (enforces exactly 8 questions)
   TUTORIAL_SCHEMA     — tutorial JSON
   EXPERIMENT_SCHEMA   — lab experiment JSON (for has_lab units)
+  SCENARIO_SCHEMA     — scenario-based compliance training JSON
   META_SCHEMA         — meta.json per unit
 
 Functions:
@@ -16,6 +17,7 @@ Functions:
   validate_quiz(data)        → raises jsonschema.ValidationError on failure
   validate_tutorial(data)    → raises jsonschema.ValidationError on failure
   validate_experiment(data)  → raises jsonschema.ValidationError on failure
+  validate_scenario(data)    → raises jsonschema.ValidationError on failure
   validate_meta(data)        → raises jsonschema.ValidationError on failure
 """
 
@@ -244,6 +246,77 @@ EXPERIMENT_SCHEMA: dict = {
     },
 }
 
+# ── Scenario schema ───────────────────────────────────────────────────────────
+
+_CHARACTER_SCHEMA = {
+    "type": "object",
+    "required": ["id", "name", "role_label"],
+    "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "name": {"type": "string", "minLength": 1},
+        "org": {"type": "string"},
+        "role_label": {"type": "string", "minLength": 1},
+    },
+}
+
+_DIALOG_TURN_SCHEMA = {
+    "type": "object",
+    "required": ["speaker", "text"],
+    "properties": {
+        "speaker": {"type": "string", "minLength": 1},
+        "text": {"type": "string", "minLength": 1},
+    },
+}
+
+_SCENARIO_QUIZ_SCHEMA = {
+    "type": "object",
+    "required": ["question", "format", "correct_answer", "explanation"],
+    "properties": {
+        "question": {"type": "string", "minLength": 5},
+        "format": {"type": "string", "enum": ["true_false", "multiple_choice"]},
+        "correct_answer": {},
+        "explanation": {"type": "string", "minLength": 10},
+        "options": {
+            "type": "array",
+            "items": {"type": "string"},
+            "minItems": 2,
+        },
+    },
+}
+
+SCENARIO_SCHEMA: dict = {
+    "type": "object",
+    "required": [
+        "scenario_id", "title", "domain", "characters", "dialog", "quiz",
+        "language", "generated_at", "model", "content_version",
+    ],
+    "additionalProperties": True,
+    "properties": {
+        "scenario_id": {"type": "string", "minLength": 1},
+        "title": {"type": "string", "minLength": 1},
+        "domain": {"type": "string", "minLength": 1},
+        "content_source": {
+            "type": "string",
+            "enum": ["ai_generated", "human_authored", "ai_assisted"],
+        },
+        "characters": {
+            "type": "array",
+            "items": _CHARACTER_SCHEMA,
+            "minItems": 2,
+        },
+        "dialog": {
+            "type": "array",
+            "items": _DIALOG_TURN_SCHEMA,
+            "minItems": 2,
+        },
+        "quiz": _SCENARIO_QUIZ_SCHEMA,
+        "language": {"type": "string", "minLength": 2},
+        "generated_at": _GENERATED_AT,
+        "model": _MODEL,
+        "content_version": _CONTENT_VERSION,
+    },
+}
+
 # ── Meta schema ───────────────────────────────────────────────────────────────
 
 META_SCHEMA: dict = {
@@ -288,6 +361,11 @@ def validate_tutorial(data: dict) -> None:
 def validate_experiment(data: dict) -> None:
     """Validate an experiment dict against EXPERIMENT_SCHEMA. Raises jsonschema.ValidationError on failure."""
     jsonschema.validate(instance=data, schema=EXPERIMENT_SCHEMA)
+
+
+def validate_scenario(data: dict) -> None:
+    """Validate a scenario dict against SCENARIO_SCHEMA. Raises jsonschema.ValidationError on failure."""
+    jsonschema.validate(instance=data, schema=SCENARIO_SCHEMA)
 
 
 def validate_meta(data: dict) -> None:

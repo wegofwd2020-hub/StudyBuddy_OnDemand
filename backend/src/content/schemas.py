@@ -136,6 +136,43 @@ class FeedbackRequest(BaseModel):
     feedback_text: str
 
 
+# ── Scenario ──────────────────────────────────────────────────────────────────
+
+
+class ScenarioCharacter(BaseModel):
+    id: str
+    name: str
+    org: str | None = None
+    role_label: str
+
+
+class ScenarioDialogTurn(BaseModel):
+    speaker: str
+    text: str
+
+
+class ScenarioQuiz(BaseModel):
+    question: str
+    format: str
+    correct_answer: bool | str
+    explanation: str
+    options: list[str] | None = None
+
+
+class ScenarioResponse(BaseModel):
+    scenario_id: str
+    title: str
+    domain: str
+    content_source: str | None = None
+    characters: list[ScenarioCharacter]
+    dialog: list[ScenarioDialogTurn]
+    quiz: ScenarioQuiz
+    language: str
+    generated_at: str
+    model: str
+    content_version: int
+
+
 # ── App version ───────────────────────────────────────────────────────────────
 
 

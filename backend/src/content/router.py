@@ -12,6 +12,7 @@ Routes:
   GET  /content/{unit_id}/quiz             → QuizResponse (rotated set)
   GET  /content/{unit_id}/tutorial         → TutorialResponse
   GET  /content/{unit_id}/experiment       → ExperimentResponse
+  GET  /content/{unit_id}/scenario         → ScenarioResponse
   POST /content/{unit_id}/report           → 200
   POST /content/{unit_id}/feedback/marked  → 200
   GET  /app/version                        → AppVersionResponse
@@ -384,6 +385,43 @@ async def get_experiment(
 
     log.info("experiment_served unit_id=%s student_id=%s", unit_id, student_id)
     return ExperimentResponse(**data)
+
+
+# ── GET /content/{unit_id}/scenario ──────────────────────────────────────────
+
+
+@router.get("/content/{unit_id}/scenario", response_model=ScenarioResponse)
+async def get_scenario(
+    unit_id: str,
+    request: Request,
+    student: Annotated[dict, Depends(get_current_student)],
+    storage: StorageBackend = Depends(get_storage),
+):
+    """Serve the scenario-based training module for a unit."""
+    redis = get_redis(request)
+    locale = student.get("locale", "en")
+    student_id = student["student_id"]
+
+    curriculum_id, _subject = await _get_curriculum_and_check_published(
+        request, unit_id, "scenario", student
+    )
+
+    filename = f"scenario_{locale}.json"
+    try:
+        data = await get_content_file(curriculum_id, unit_id, filename, redis, storage)
+    except FileNotFoundError:
+        try:
+            data = await get_content_file(
+                curriculum_id, unit_id, "scenario_en.json", redis, storage
+            )
+        except FileNotFoundError:
+            raise HTTPException(
+                status_code=404,
+                detail={"error": "not_found", "detail": "No scenario available for this unit."},
+            )
+
+    log.info("scenario_served unit_id=%s student_id=%s", unit_id, student_id)
+    return ScenarioResponse(**data)
 
 
 # ── POST /content/{unit_id}/report ────────────────────────────────────────────

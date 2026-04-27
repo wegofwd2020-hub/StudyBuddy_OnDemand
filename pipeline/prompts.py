@@ -487,3 +487,71 @@ Requirements:
 - All materials and procedures must be safe for the target age group
 - Do NOT include any text outside the JSON object
 """
+
+
+def build_scenario_prompt(
+    scenario_id: str,
+    domain: str,
+    topic: str,
+    characters: list[dict],
+    learning_objective: str,
+    lang: str = "en",
+) -> str:
+    """Return the prompt for generating a scenario-based compliance training JSON document."""
+    lang_instruction = f"Write all content in {lang.upper()} language." if lang != "en" else "Write all content in English."
+    char_descriptions = "\n".join(
+        f'  - id: "{c["id"]}", name: "{c["name"]}", org: "{c.get("org", "")}", role_label: "{c["role_label"]}"'
+        for c in characters
+    )
+    char_json = "\n    ".join(
+        f'{{"id": "{c["id"]}", "name": "{c["name"]}", "org": "{c.get("org", "")}", "role_label": "{c["role_label"]}"}}'
+        for c in characters
+    )
+
+    return f"""You are an expert corporate compliance trainer creating a scenario-based training module.
+
+{lang_instruction}
+
+Domain: {domain}
+Topic: {topic}
+Learning objective: {learning_objective}
+Scenario ID: {scenario_id}
+
+Characters:
+{char_descriptions}
+
+You MUST respond with ONLY valid JSON — no markdown fences, no extra text, no explanation.
+
+The JSON must exactly match this schema:
+
+{{
+  "scenario_id": "{scenario_id}",
+  "title": "<concise scenario title, 5-10 words>",
+  "domain": "{domain}",
+  "content_source": "ai_generated",
+  "characters": [
+    {char_json}
+  ],
+  "dialog": [
+    {{"speaker": "<character id>", "text": "<what this character says>"}},
+    ...
+  ],
+  "quiz": {{
+    "question": "<compliance/legal question anchored to the dialog above>",
+    "format": "true_false",
+    "correct_answer": <true or false>,
+    "explanation": "<2–4 sentence explanation of why the answer is correct, citing the relevant regulation or principle>"
+  }},
+  "language": "{lang}",
+  "generated_at": "<ISO 8601 timestamp>",
+  "model": "<model name used>",
+  "content_version": 1
+}}
+
+Requirements:
+- dialog: 3–6 turns; must feel like a realistic workplace conversation
+- The scenario must contain an actual compliance risk or decision point — not a trivial exchange
+- quiz.question must be clearly answerable from the dialog context alone
+- quiz.explanation must reference a real regulation, law, or compliance principle by name
+- Do NOT include any text outside the JSON object
+"""

@@ -1,0 +1,40 @@
+{
+  "scenario_id": "contract-law-001",
+  "title": "Subsidiary Contract Routing — Legal or Not?",
+  "domain": "contract_law",
+  "content_source": "human_authored",
+  "characters": [
+    {
+      "id": "user1",
+      "name": "Alex Rivera",
+      "org": "Vendor Co.",
+      "role_label": "SALES DIRECTOR — VENDOR"
+    },
+    {
+      "id": "user2",
+      "name": "Jamie Park",
+      "org": "Client Corp.",
+      "role_label": "DIRECTOR — CLIENT"
+    }
+  ],
+  "dialog": [
+    {
+      "speaker": "user1",
+      "text": "Since you are satisfied with the performance and service support of our service, could you consider signing up a contract?"
+    },
+    {
+      "speaker": "user2",
+      "text": "I think we are good to move forward. As for the transaction of the contract, we may need to sign the contract with a subsidiary of mine and they will manage the contract with the Company. You will have to make the necessary transaction arrangements with that subsidiary."
+    }
+  ],
+  "quiz": {
+    "question": "As a VENDOR organization registered in the USA, servicing an overseas client, is the above proposal by the client legal?",
+    "format": "true_false",
+    "correct_answer": false,
+    "explanation": "The client's proposal to route the contract through an unnamed subsidiary raises serious red flags under the US Foreign Corrupt Practices Act (FCPA) and anti-money-laundering (AML) regulations. US-registered vendors must conduct Know Your Customer (KYC) due diligence and cannot knowingly proceed with arrangements that obscure the ultimate beneficial owner. Accepting this proposal without verifying the subsidiary's ownership and legitimacy exposes the vendor to significant legal and regulatory liability."
+  },
+  "language": "en",
+  "generated_at": "2026-04-27T00:00:00Z",
+  "model": "human_authored",
+  "content_version": 1
+}
