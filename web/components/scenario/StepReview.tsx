@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { CheckCircle2, XCircle, Download, Copy, Loader2, Video, AlertCircle } from "lucide-react";
+import { CheckCircle2, XCircle, Download, Copy, Loader2, Video, AlertCircle, PlayCircle, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ScenarioDraft, ScenarioFile } from "./types";
 import {
@@ -10,6 +10,7 @@ import {
   clipVideoUrl,
   type ClipsStatusResponse,
 } from "@/lib/api/scenarios";
+import { ScenarioVideoPlayer } from "@/components/content/ScenarioVideoPlayer";
 
 interface Props {
   draft: ScenarioDraft;
@@ -71,6 +72,7 @@ const STATUS_ICON: Record<string, React.ReactNode> = {
 
 export function StepReview({ draft }: Props) {
   const [copied, setCopied] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const [genState, setGenState] = useState<"idle" | "submitting" | "polling" | "done" | "failed">("idle");
   const [jobResult, setJobResult] = useState<ClipsStatusResponse | null>(null);
   const [genError, setGenError] = useState<string | null>(null);
@@ -279,8 +281,17 @@ export function StepReview({ draft }: Props) {
         )}
       </div>
 
-      {/* JSON export */}
+      {/* JSON export + preview */}
       <div className="flex gap-3 flex-wrap">
+        <button
+          type="button"
+          onClick={() => setShowPreview((v) => !v)}
+          disabled={!allOk}
+          className="flex items-center gap-2 rounded-lg bg-indigo-50 border border-indigo-200 px-5 py-2.5 text-sm font-semibold text-indigo-700 hover:bg-indigo-100 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+        >
+          {showPreview ? <X className="h-4 w-4" /> : <PlayCircle className="h-4 w-4" />}
+          {showPreview ? "Close Preview" : "Preview Scenario"}
+        </button>
         <button
           type="button"
           onClick={download}
@@ -302,6 +313,14 @@ export function StepReview({ draft }: Props) {
 
       {!allOk && (
         <p className="text-xs text-red-500">Fix the validation issues above before generating or downloading.</p>
+      )}
+
+      {/* Inline preview */}
+      {showPreview && allOk && (
+        <div className="rounded-xl border bg-white p-5 shadow-sm">
+          <p className="text-xs font-bold uppercase tracking-wide text-gray-500 mb-4">Preview</p>
+          <ScenarioVideoPlayer scenario={file as any} />
+        </div>
       )}
     </div>
   );
