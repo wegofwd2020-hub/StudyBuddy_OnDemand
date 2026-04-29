@@ -2231,6 +2231,75 @@ async def list_unit_override_status(
     ).model_dump()
 
 
+# ── Get override body ─────────────────────────────────────────────────────────
+
+
+@router.get(
+    "/schools/{school_id}/content/{curriculum_id}/units/{unit_id}/overrides/{content_type}",
+)
+async def get_unit_override(
+    school_id: str,
+    curriculum_id: str,
+    unit_id: str,
+    content_type: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+    lang: str = "en",
+) -> dict:
+    """Return the latest override row (including body) for one content type."""
+    if teacher["school_id"] != school_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    async with get_db(request) as conn:
+        await _assert_school_owns_curriculum(conn, school_id, curriculum_id)
+
+        row = await conn.fetchrow(
+            """
+            SELECT uco.override_id, uco.review_status, uco.version_number,
+                   uco.content_source, uco.body, uco.edited_at, uco.lang,
+                   uco.bundle_id,
+                   t.name AS last_edited_by_name
+            FROM unit_content_overrides uco
+            LEFT JOIN teachers t ON t.teacher_id = uco.last_edited_by
+            WHERE uco.curriculum_id = $1 AND uco.unit_id = $2
+              AND uco.lang = $3 AND uco.content_type = $4
+            ORDER BY uco.version_number DESC
+            LIMIT 1
+            """,
+            curriculum_id,
+            unit_id,
+            lang,
+            content_type,
+        )
+
+        if not row:
+            raise HTTPException(
+                status_code=404,
+                detail="No override found — import the unit first",
+            )
+
+        import json as _json
+
+        body_raw = row["body"]
+        body = _json.loads(body_raw) if isinstance(body_raw, str) else body_raw
+
+        return {
+            "override_id": str(row["override_id"]),
+            "school_id": school_id,
+            "curriculum_id": curriculum_id,
+            "unit_id": unit_id,
+            "content_type": content_type,
+            "lang": row["lang"],
+            "review_status": row["review_status"],
+            "version_number": row["version_number"],
+            "content_source": row["content_source"],
+            "bundle_id": str(row["bundle_id"]) if row["bundle_id"] else None,
+            "edited_at": row["edited_at"].isoformat(),
+            "last_edited_by_name": row["last_edited_by_name"],
+            "body": body,
+        }
+
+
 # ── Save draft ────────────────────────────────────────────────────────────────
 
 

@@ -984,6 +984,67 @@ export async function importUnit(
   return res.data;
 }
 
+// ── Unit override edit ────────────────────────────────────────────────────────
+
+export interface UnitOverrideDetail {
+  override_id: string;
+  school_id: string;
+  curriculum_id: string;
+  unit_id: string;
+  content_type: string;
+  lang: string;
+  review_status: "draft" | "pending_review" | "approved" | "rejected";
+  version_number: number;
+  content_source: string;
+  bundle_id: string | null;
+  edited_at: string;
+  last_edited_by_name: string | null;
+  body: Record<string, unknown>;
+}
+
+export async function getUnitOverride(
+  schoolId: string,
+  curriculumId: string,
+  unitId: string,
+  contentType: string,
+  lang = "en",
+): Promise<UnitOverrideDetail> {
+  const res = await schoolApi.get<UnitOverrideDetail>(
+    `/schools/${schoolId}/content/${curriculumId}/units/${unitId}/overrides/${contentType}`,
+    { params: { lang } },
+  );
+  return res.data;
+}
+
+export async function saveDraft(
+  schoolId: string,
+  curriculumId: string,
+  unitId: string,
+  contentType: string,
+  body: Record<string, unknown>,
+  lang = "en",
+): Promise<UnitOverrideStatus> {
+  const res = await schoolApi.put<UnitOverrideStatus>(
+    `/schools/${schoolId}/content/${curriculumId}/units/${unitId}/overrides/${contentType}`,
+    { body, lang },
+  );
+  return res.data;
+}
+
+export async function submitForReview(
+  schoolId: string,
+  curriculumId: string,
+  unitId: string,
+  contentType: string | null = null,
+  lang = "en",
+): Promise<{ updated: number }> {
+  const res = await schoolApi.post<{ updated: number }>(
+    `/schools/${schoolId}/content/${curriculumId}/units/${unitId}/review`,
+    { content_type: contentType, lang },
+  );
+  return res.data;
+}
+
 // ── Setup status (Layer 1.5 onboarding checklist) ────────────────────────────
 
 export interface SetupStatus {
