@@ -378,7 +378,13 @@ export default function UnitEditPage() {
 
   // 5. Approve mutation (school_admin only)
   const approveMutation = useMutation({
-    mutationFn: () => approveUnitContent(schoolId, curriculumId, unitId, true),
+    mutationFn: () => {
+      const ok = window.confirm(
+        "Approve and publish this content? It will be immediately visible to students.",
+      );
+      if (!ok) return Promise.reject(new Error("cancelled"));
+      return approveUnitContent(schoolId, curriculumId, unitId, true);
+    },
     onSuccess: (data) => {
       setNotice({
         kind: "success",
@@ -390,7 +396,9 @@ export default function UnitEditPage() {
       refetchDetail();
     },
     onError: (err: Error) => {
-      setNotice({ kind: "error", msg: err.message || "Approval failed." });
+      if (err.message !== "cancelled") {
+        setNotice({ kind: "error", msg: err.message || "Approval failed." });
+      }
     },
   });
 
@@ -528,6 +536,21 @@ export default function UnitEditPage() {
             <AlertCircle className="h-4 w-4 shrink-0" />
           )}
           {notice.msg}
+        </div>
+      )}
+
+      {/* Rejection reason — shown to teacher when their submission was rejected */}
+      {currentStatus === "rejected" && overrideDetail?.rejection_reason && (
+        <div className="flex gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3">
+          <ThumbsDown className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+          <div>
+            <p className="text-sm font-semibold text-red-800">
+              Returned for revision
+            </p>
+            <p className="mt-0.5 text-sm text-red-700">
+              {overrideDetail.rejection_reason}
+            </p>
+          </div>
         </div>
       )}
 

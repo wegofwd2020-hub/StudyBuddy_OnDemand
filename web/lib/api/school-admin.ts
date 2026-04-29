@@ -999,6 +999,7 @@ export interface UnitOverrideDetail {
   bundle_id: string | null;
   edited_at: string;
   last_edited_by_name: string | null;
+  rejection_reason: string | null;
   body: Record<string, unknown>;
 }
 

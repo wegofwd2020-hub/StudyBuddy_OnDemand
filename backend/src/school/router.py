@@ -2257,7 +2257,7 @@ async def get_unit_override(
             """
             SELECT uco.override_id, uco.review_status, uco.version_number,
                    uco.content_source, uco.body, uco.edited_at, uco.lang,
-                   uco.bundle_id,
+                   uco.bundle_id, uco.rejection_reason,
                    t.name AS last_edited_by_name
             FROM unit_content_overrides uco
             LEFT JOIN teachers t ON t.teacher_id = uco.last_edited_by
@@ -2296,6 +2296,7 @@ async def get_unit_override(
             "bundle_id": str(row["bundle_id"]) if row["bundle_id"] else None,
             "edited_at": row["edited_at"].isoformat(),
             "last_edited_by_name": row["last_edited_by_name"],
+            "rejection_reason": row["rejection_reason"],
             "body": body,
         }
 
