@@ -583,6 +583,28 @@ class UnitStatusResponse(BaseModel):
     forked_curriculum_id: str | None = None
 
 
+class ReviewQueueItem(BaseModel):
+    override_id: str
+    forked_curriculum_id: str
+    oob_curriculum_id: str | None = None
+    curriculum_name: str | None = None
+    grade: int | None = None
+    adoption_id: str | None = None
+    unit_id: str
+    unit_title: str | None = None
+    subject_name: str | None = None
+    content_type: str
+    version_number: int
+    submitted_at: str
+    submitted_by_name: str | None = None
+    lang: str
+
+
+class ReviewQueueResponse(BaseModel):
+    items: list[ReviewQueueItem]
+    total: int
+
+
 class ReviewActionRequest(BaseModel):
     """Shared base for submit/approve/reject — acts on all content types when content_type is None."""
 

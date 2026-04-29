@@ -1003,6 +1003,41 @@ export interface UnitOverrideDetail {
   body: Record<string, unknown>;
 }
 
+// ── Review queue ──────────────────────────────────────────────────────────────
+
+export interface ReviewQueueItem {
+  override_id: string;
+  forked_curriculum_id: string;
+  oob_curriculum_id: string | null;
+  curriculum_name: string | null;
+  grade: number | null;
+  adoption_id: string | null;
+  unit_id: string;
+  unit_title: string | null;
+  subject_name: string | null;
+  content_type: string;
+  version_number: number;
+  submitted_at: string;
+  submitted_by_name: string | null;
+  lang: string;
+}
+
+export interface ReviewQueueResponse {
+  items: ReviewQueueItem[];
+  total: number;
+}
+
+export async function listReviewQueue(
+  schoolId: string,
+  lang = "en",
+): Promise<ReviewQueueResponse> {
+  const res = await schoolApi.get<ReviewQueueResponse>(
+    `/schools/${schoolId}/content/review-queue`,
+    { params: { lang } },
+  );
+  return res.data;
+}
+
 export async function getUnitOverride(
   schoolId: string,
   curriculumId: string,

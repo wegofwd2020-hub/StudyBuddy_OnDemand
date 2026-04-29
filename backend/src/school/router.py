@@ -2122,6 +2122,96 @@ async def _latest_overrides_for_unit(
 
 
 @router.get(
+    "/schools/{school_id}/content/review-queue",
+)
+async def get_review_queue(
+    school_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+    lang: str = "en",
+) -> dict:
+    """
+    Return all pending-review unit content overrides for the school.
+
+    Joins across all school-owned fork curricula so admins see the full queue
+    in one place without navigating curriculum-by-curriculum.
+    school_admin only.
+    """
+    from src.school.schemas import ReviewQueueItem, ReviewQueueResponse
+
+    _require_school_admin(teacher, school_id, request)
+
+    async with get_db(request) as conn:
+        rows = await conn.fetch(
+            """
+            SELECT
+                uco.override_id,
+                uco.curriculum_id          AS forked_curriculum_id,
+                c.source_curriculum_id     AS oob_curriculum_id,
+                c.name                     AS curriculum_name,
+                c.grade,
+                sac.adoption_id,
+                uco.unit_id,
+                cu.title                   AS unit_title,
+                COALESCE(MAX(csv.subject_name), cu.subject) AS subject_name,
+                uco.content_type,
+                uco.version_number,
+                uco.edited_at              AS submitted_at,
+                uco.lang,
+                t.name                     AS submitted_by_name
+            FROM unit_content_overrides uco
+            JOIN curricula c
+                ON c.curriculum_id = uco.curriculum_id
+            LEFT JOIN school_adopted_curricula sac
+                ON sac.forked_curriculum_id = uco.curriculum_id
+                AND sac.school_id = $1
+            LEFT JOIN curriculum_units cu
+                ON cu.curriculum_id = COALESCE(c.source_curriculum_id, uco.curriculum_id)
+                AND cu.unit_id = uco.unit_id
+            LEFT JOIN content_subject_versions csv
+                ON csv.curriculum_id = COALESCE(c.source_curriculum_id, uco.curriculum_id)
+                AND csv.subject = cu.subject
+            LEFT JOIN teachers t
+                ON t.teacher_id = uco.last_edited_by
+            WHERE uco.school_id = $1
+              AND uco.review_status = 'pending_review'
+              AND uco.lang = $2
+            GROUP BY
+                uco.override_id, uco.curriculum_id,
+                c.source_curriculum_id, c.name, c.grade,
+                sac.adoption_id,
+                uco.unit_id, cu.title, cu.subject,
+                uco.content_type, uco.version_number, uco.edited_at, uco.lang,
+                t.name
+            ORDER BY uco.edited_at ASC
+            """,
+            school_id,
+            lang,
+        )
+
+    items = [
+        ReviewQueueItem(
+            override_id=str(r["override_id"]),
+            forked_curriculum_id=str(r["forked_curriculum_id"]),
+            oob_curriculum_id=str(r["oob_curriculum_id"]) if r["oob_curriculum_id"] else None,
+            curriculum_name=r["curriculum_name"],
+            grade=r["grade"],
+            adoption_id=str(r["adoption_id"]) if r["adoption_id"] else None,
+            unit_id=r["unit_id"],
+            unit_title=r["unit_title"],
+            subject_name=r["subject_name"],
+            content_type=r["content_type"],
+            version_number=r["version_number"],
+            submitted_at=r["submitted_at"].isoformat(),
+            submitted_by_name=r["submitted_by_name"],
+            lang=r["lang"],
+        )
+        for r in rows
+    ]
+    return ReviewQueueResponse(items=items, total=len(items)).model_dump()
+
+
+@router.get(
     "/schools/{school_id}/content/{curriculum_id}/units",
 )
 async def list_unit_override_status(

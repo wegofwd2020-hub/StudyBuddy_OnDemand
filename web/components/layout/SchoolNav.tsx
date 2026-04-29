@@ -24,7 +24,9 @@ import {
   HardDrive,
   DoorOpen,
   LayoutGrid,
+  ClipboardCheck,
 } from "lucide-react";
+import { listReviewQueue } from "@/lib/api/school-admin";
 
 interface NavItem {
   label: string;
@@ -69,6 +71,12 @@ const NAV_ITEMS: NavItem[] = [
     label: "Our Library",
     href: "/school/library",
     icon: <BookMarked className="h-4 w-4" />,
+  },
+  {
+    label: "Review Queue",
+    href: "/school/review",
+    icon: <ClipboardCheck className="h-4 w-4" />,
+    adminOnly: true,
   },
   {
     label: "Content Library",
@@ -133,7 +141,16 @@ export function SchoolNav() {
     staleTime: 60_000,
   });
 
+  const { data: reviewQueueData } = useQuery({
+    queryKey: ["review-queue", schoolId],
+    queryFn: () => listReviewQueue(schoolId),
+    enabled: !!schoolId && teacher?.role === "school_admin",
+    staleTime: 60_000,
+    refetchInterval: 60_000,
+  });
+
   const unreadAlerts = alertsData?.alerts?.filter((a) => !a.acknowledged).length ?? 0;
+  const pendingReviews = reviewQueueData?.total ?? 0;
   const inReports = pathname.startsWith("/school/reports");
 
   function handleLogout() {
@@ -163,6 +180,7 @@ export function SchoolNav() {
           (item) => !item.adminOnly || teacher?.role === "school_admin",
         ).map((item) => {
           const isAlerts = item.href === "/school/alerts";
+          const isReviewQueue = item.href === "/school/review";
           const isReports = item.href.startsWith("/school/reports");
           const isContentLib = item.href === "/school/curriculum/content";
           const isCurriculumUpload = item.href === "/school/curriculum";
@@ -192,6 +210,11 @@ export function SchoolNav() {
                 {isAlerts && unreadAlerts > 0 && (
                   <span className="ml-auto flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs font-medium text-white">
                     {unreadAlerts > 9 ? "9+" : unreadAlerts}
+                  </span>
+                )}
+                {isReviewQueue && pendingReviews > 0 && (
+                  <span className="ml-auto flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-xs font-medium text-white">
+                    {pendingReviews > 9 ? "9+" : pendingReviews}
                   </span>
                 )}
               </Link>
