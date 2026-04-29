@@ -3,10 +3,12 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { diffWords } from "diff";
 import { useTeacher } from "@/lib/hooks/useTeacher";
 import {
   listUnitOverrideStatus,
   getUnitOverride,
+  getUnitOverrideSource,
   saveDraft,
   submitForReview,
   approveUnitContent,
@@ -16,6 +18,7 @@ import {
 import {
   ArrowLeft,
   BookOpen,
+  GitCompare,
   Save,
   Send,
   CheckCircle2,
@@ -641,6 +644,115 @@ function ExperimentEditor({
   );
 }
 
+// ── Diff ──────────────────────────────────────────────────────────────────────
+
+function DiffText({ oldText, newText }: { oldText: string; newText: string }) {
+  if (oldText === newText) return <span className="text-gray-700">{oldText}</span>;
+  const parts = diffWords(oldText, newText);
+  return (
+    <>
+      {parts.map((part, i) => {
+        if (part.added)
+          return <mark key={i} className="rounded bg-green-100 px-0.5 text-green-800">{part.value}</mark>;
+        if (part.removed)
+          return <del key={i} className="rounded bg-red-100 px-0.5 text-red-700 line-through">{part.value}</del>;
+        return <span key={i} className="text-gray-700">{part.value}</span>;
+      })}
+    </>
+  );
+}
+
+function extractDiffFields(
+  contentType: string,
+  data: Record<string, unknown>,
+): Array<{ label: string; text: string }> {
+  const fields: Array<{ label: string; text: string }> = [];
+  if (contentType === "lesson") {
+    const sections = (data.sections ?? []) as Array<{ heading: string; body: string }>;
+    sections.forEach((s) => fields.push({ label: s.heading, text: s.body }));
+    const kp = (data.key_points ?? []) as string[];
+    if (kp.length) fields.push({ label: "Key points", text: kp.join("\n") });
+  } else if (contentType === "tutorial") {
+    const sections = (data.sections ?? []) as Array<{ title: string; content: string; examples?: string[] }>;
+    sections.forEach((s) => {
+      fields.push({ label: s.title, text: s.content });
+      if (s.examples?.length) fields.push({ label: `${s.title} — Examples`, text: s.examples.join("\n\n") });
+    });
+    const mistakes = (data.common_mistakes ?? []) as string[];
+    if (mistakes.length) fields.push({ label: "Common mistakes", text: mistakes.join("\n") });
+  } else if (contentType.startsWith("quiz_set_")) {
+    const questions = (data.questions ?? []) as Array<{
+      question_text: string;
+      options: Array<{ option_id: string; text: string }>;
+      explanation?: string;
+    }>;
+    questions.forEach((q, i) => {
+      fields.push({ label: `Q${i + 1}`, text: q.question_text });
+      fields.push({ label: `Q${i + 1} Options`, text: q.options.map((o) => `${o.option_id}. ${o.text}`).join("\n") });
+      if (q.explanation) fields.push({ label: `Q${i + 1} Explanation`, text: q.explanation });
+    });
+  } else if (contentType === "experiment") {
+    const steps = (data.steps ?? []) as Array<{ instruction: string }>;
+    steps.forEach((s, i) => fields.push({ label: `Step ${i + 1}`, text: s.instruction }));
+    const safety = (data.safety_notes ?? []) as string[];
+    if (safety.length) fields.push({ label: "Safety notes", text: safety.join("\n") });
+    if (data.conclusion_prompt)
+      fields.push({ label: "Conclusion prompt", text: data.conclusion_prompt as string });
+  }
+  return fields;
+}
+
+function DiffView({
+  contentType,
+  sourceBody,
+  currentBody,
+}: {
+  contentType: string;
+  sourceBody: Record<string, unknown>;
+  currentBody: Record<string, unknown>;
+}) {
+  const sourceFields = extractDiffFields(contentType, sourceBody);
+  const currentFields = extractDiffFields(contentType, currentBody);
+  const hasChanges = currentFields.some((f, i) => f.text !== (sourceFields[i]?.text ?? ""));
+
+  if (currentFields.length === 0)
+    return <p className="py-12 text-center text-sm text-gray-400">No diffable fields for this content type.</p>;
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-4 text-xs text-gray-500">
+        {hasChanges ? (
+          <>
+            <span className="inline-block rounded bg-green-100 px-1.5 py-0.5 text-green-800">added</span>
+            <span className="inline-block rounded bg-red-100 px-1.5 py-0.5 text-red-700 line-through">removed</span>
+          </>
+        ) : (
+          <span className="font-medium text-green-600">No changes from original</span>
+        )}
+      </div>
+      {currentFields.map((field, i) => {
+        const sourceField = sourceFields.find((s) => s.label === field.label) ?? sourceFields[i];
+        const oldText = sourceField?.text ?? "";
+        const changed = oldText !== field.text;
+        return (
+          <div key={field.label}
+            className={`rounded-lg border p-4 ${changed ? "border-amber-200 bg-amber-50/40" : "border-gray-100 bg-gray-50"}`}>
+            <div className="mb-2 flex items-center gap-2">
+              <p className="text-xs font-semibold text-gray-600">{field.label}</p>
+              {changed && (
+                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">changed</span>
+              )}
+            </div>
+            <p className="whitespace-pre-wrap text-sm leading-relaxed">
+              <DiffText oldText={oldText} newText={field.text} />
+            </p>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 // ── Shared UI ─────────────────────────────────────────────────────────────────
 
 const STATUS_STYLES: Record<string, string> = {
@@ -704,6 +816,7 @@ export default function UnitEditPage() {
   const [notice, setNotice] = useState<{ kind: "success" | "error"; msg: string } | null>(null);
   const [rejectReason, setRejectReason] = useState("");
   const [showRejectBox, setShowRejectBox] = useState(false);
+  const [showDiff, setShowDiff] = useState(false);
 
   // 1. List all overrides for this unit (tab availability)
   const { data: unitData, isLoading: unitsLoading } = useQuery({
@@ -756,6 +869,18 @@ export default function UnitEditPage() {
   const readOnly =
     overrideDetail?.review_status === "pending_review" ||
     overrideDetail?.review_status === "approved";
+
+  // Show diff toggle whenever teacher has edited beyond the imported snapshot
+  const canShowDiff = !!(overrideDetail?.version_number && overrideDetail.version_number > 1);
+
+  // Fetch OOB imported snapshot — only when diff panel is open
+  const { data: sourceData, isLoading: sourceLoading } = useQuery({
+    queryKey: ["override-source", schoolId, curriculumId, unitId, activeType],
+    queryFn: () => getUnitOverrideSource(schoolId, curriculumId, unitId, activeType),
+    enabled: showDiff && canShowDiff && !!schoolId,
+    staleTime: 120_000,
+    retry: false,
+  });
 
   // 3. Save draft
   const saveMutation = useMutation({
@@ -842,6 +967,7 @@ export default function UnitEditPage() {
     if (dirty && !confirm("You have unsaved changes. Discard and switch tab?")) return;
     setActiveType(ct);
     setDirty(false);
+    setShowDiff(false);
     setLessonDraft(null);
     setTutorialDraft(null);
     setQuizDraft(null);
@@ -989,26 +1115,49 @@ export default function UnitEditPage() {
         </div>
       ) : (
         <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
-          {/* Content type tabs */}
-          {availableTypes.length > 1 && (
-            <div className="flex gap-0 border-b border-gray-200">
-              {availableTypes.map((ct) => (
-                <button key={ct} type="button" onClick={() => switchTab(ct)}
-                  className={`px-4 py-2.5 text-sm font-medium transition-colors ${activeType === ct ? "border-b-2 border-indigo-600 text-indigo-700" : "text-gray-500 hover:text-gray-700"}`}>
-                  {CONTENT_TYPE_LABELS[ct] ?? ct}
-                  {overridesByType[ct] && (
-                    <span className={`ml-1.5 inline-flex items-center rounded-full px-1.5 py-0.5 text-xs font-medium ${STATUS_STYLES[overridesByType[ct].review_status] ?? "bg-gray-100 text-gray-500"}`}>
-                      {STATUS_LABELS[overridesByType[ct].review_status] ?? overridesByType[ct].review_status}
-                    </span>
-                  )}
+          {/* Content type tabs + diff toggle */}
+          {(availableTypes.length > 1 || canShowDiff) && (
+            <div className="flex items-center border-b border-gray-200">
+              <div className="flex">
+                {availableTypes.length > 1 && availableTypes.map((ct) => (
+                  <button key={ct} type="button" onClick={() => switchTab(ct)}
+                    className={`px-4 py-2.5 text-sm font-medium transition-colors ${activeType === ct ? "border-b-2 border-indigo-600 text-indigo-700" : "text-gray-500 hover:text-gray-700"}`}>
+                    {CONTENT_TYPE_LABELS[ct] ?? ct}
+                    {overridesByType[ct] && (
+                      <span className={`ml-1.5 inline-flex items-center rounded-full px-1.5 py-0.5 text-xs font-medium ${STATUS_STYLES[overridesByType[ct].review_status] ?? "bg-gray-100 text-gray-500"}`}>
+                        {STATUS_LABELS[overridesByType[ct].review_status] ?? overridesByType[ct].review_status}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+              {canShowDiff && (
+                <button type="button" onClick={() => setShowDiff((v) => !v)}
+                  className={`ml-auto mr-3 inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${showDiff ? "bg-indigo-100 text-indigo-700 hover:bg-indigo-200" : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"}`}>
+                  <GitCompare className="h-3.5 w-3.5" />
+                  {showDiff ? "Hide changes" : "Compare with original"}
                 </button>
-              ))}
+              )}
             </div>
           )}
 
           {/* Editor body */}
           <div className="p-6">
-            {detailLoading ? (
+            {showDiff ? (
+              sourceLoading ? (
+                <div className="space-y-3 py-4">
+                  {[1, 2, 3].map((i) => <div key={i} className="h-16 animate-pulse rounded-lg bg-gray-100" />)}
+                </div>
+              ) : sourceData && overrideDetail ? (
+                <DiffView
+                  contentType={activeType}
+                  sourceBody={sourceData.body}
+                  currentBody={overrideDetail.body}
+                />
+              ) : (
+                <p className="py-12 text-center text-sm text-gray-400">Original content not available.</p>
+              )
+            ) : detailLoading ? (
               <div className="space-y-3 py-4">
                 {[1, 2, 3].map((i) => <div key={i} className="h-16 animate-pulse rounded-lg bg-gray-100" />)}
               </div>

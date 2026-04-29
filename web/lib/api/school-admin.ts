@@ -1053,6 +1053,20 @@ export async function getUnitOverride(
   return res.data;
 }
 
+export async function getUnitOverrideSource(
+  schoolId: string,
+  curriculumId: string,
+  unitId: string,
+  contentType: string,
+  lang = "en",
+): Promise<{ body: Record<string, unknown> }> {
+  const res = await schoolApi.get<{ body: Record<string, unknown> }>(
+    `/schools/${schoolId}/content/${curriculumId}/units/${unitId}/overrides/${contentType}/source`,
+    { params: { lang } },
+  );
+  return res.data;
+}
+
 export async function saveDraft(
   schoolId: string,
   curriculumId: string,

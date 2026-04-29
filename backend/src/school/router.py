@@ -2403,6 +2403,55 @@ async def get_unit_override(
         }
 
 
+# ── Override source (OOB snapshot for diff) ───────────────────────────────────
+
+
+@router.get(
+    "/schools/{school_id}/content/{curriculum_id}/units/{unit_id}/overrides/{content_type}/source",
+)
+async def get_unit_override_source(
+    school_id: str,
+    curriculum_id: str,
+    unit_id: str,
+    content_type: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+    lang: str = "en",
+) -> dict:
+    """Return the original imported body (version 1) used to diff against teacher edits."""
+    if teacher["school_id"] != school_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    async with get_db(request) as conn:
+        await _assert_school_owns_curriculum(conn, school_id, curriculum_id)
+
+        row = await conn.fetchrow(
+            """
+            SELECT body
+            FROM unit_content_overrides
+            WHERE curriculum_id = $1 AND unit_id = $2
+              AND lang = $3 AND content_type = $4
+              AND content_source = 'imported'
+            ORDER BY version_number ASC
+            LIMIT 1
+            """,
+            curriculum_id,
+            unit_id,
+            lang,
+            content_type,
+        )
+
+        if not row:
+            raise HTTPException(
+                status_code=404,
+                detail="No imported source found for this content type",
+            )
+
+        body_raw = row["body"]
+        body = json.loads(body_raw) if isinstance(body_raw, str) else body_raw
+        return {"body": body}
+
+
 # ── Save draft ────────────────────────────────────────────────────────────────
 
 
