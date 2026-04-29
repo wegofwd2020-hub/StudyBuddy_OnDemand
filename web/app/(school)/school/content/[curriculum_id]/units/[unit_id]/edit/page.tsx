@@ -13,6 +13,7 @@ import {
   submitForReview,
   approveUnitContent,
   rejectUnitContent,
+  revertUnitContent,
   type UnitOverrideStatus,
 } from "@/lib/api/school-admin";
 import {
@@ -794,7 +795,7 @@ export default function UnitEditPage() {
   const router = useRouter();
   const curriculumId = params.curriculum_id as string;
   const unitId = params.unit_id as string;
-  const adoptionId = searchParams.get("aid") ?? "";
+  const adoptionId = searchParams.get("aid") || "";
 
   const teacher = useTeacher();
   const schoolId = teacher?.school_id ?? "";
@@ -948,6 +949,30 @@ export default function UnitEditPage() {
     onError: (err: Error) => setNotice({ kind: "error", msg: err.message || "Rejection failed." }),
   });
 
+  // 7. Revert to original imported content
+  const revertMutation = useMutation({
+    mutationFn: () => {
+      const label = CONTENT_TYPE_LABELS[activeType] ?? activeType;
+      const msg = currentStatus === "approved"
+        ? `Unpublish and revert ${label} to the original platform content? Students will immediately see the original.`
+        : `Discard all edits and revert ${label} to the original imported content?`;
+      if (!window.confirm(msg)) return Promise.reject(new Error("cancelled"));
+      return revertUnitContent(schoolId, curriculumId, unitId, activeType);
+    },
+    onSuccess: () => {
+      setDirty(false);
+      setShowDiff(false);
+      const label = CONTENT_TYPE_LABELS[activeType] ?? activeType;
+      setNotice({ kind: "success", msg: `${label} reverted to original.` });
+      queryClient.invalidateQueries({ queryKey: ["unit-status", schoolId, curriculumId] });
+      refetchDetail();
+    },
+    onError: (err: Error) => {
+      if (err.message !== "cancelled")
+        setNotice({ kind: "error", msg: err.message || "Revert failed." });
+    },
+  });
+
   const currentStatus = overrideDetail?.review_status;
   const canSubmit = currentStatus === "draft" || currentStatus === "rejected";
   const canSave =
@@ -958,9 +983,15 @@ export default function UnitEditPage() {
       (activeType === "experiment" && !!experimentDraft));
   const isAdmin = teacher?.role === "school_admin";
   const canApprove = isAdmin && currentStatus === "pending_review";
+  const canRevert =
+    canShowDiff &&
+    currentStatus !== "pending_review" &&
+    (currentStatus !== "approved" || isAdmin);
 
-  const backHref = adoptionId
-    ? `/school/content/${curriculumId}?aid=${adoptionId}`
+  // UX-09: recover adoption ID from loaded data when URL param is absent
+  const resolvedAdoptionId = adoptionId || unitData?.adoption_id || "";
+  const backHref = resolvedAdoptionId
+    ? `/school/content/${curriculumId}?aid=${resolvedAdoptionId}`
     : `/school/content/${curriculumId}`;
 
   function switchTab(ct: string) {
@@ -986,7 +1017,11 @@ export default function UnitEditPage() {
         <div className="flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <BookOpen className="h-5 w-5 text-indigo-600" />
-            <h1 className="text-xl font-bold text-gray-900">{unitMeta?.title ?? unitId}</h1>
+            <h1 className="text-xl font-bold text-gray-900">
+              {unitsLoading && !unitMeta
+                ? <span className="inline-block h-6 w-48 animate-pulse rounded bg-gray-200" />
+                : (unitMeta?.title ?? unitId)}
+            </h1>
             {unitMeta?.subject_name && (
               <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700">
                 {unitMeta.subject_name}
@@ -1036,6 +1071,15 @@ export default function UnitEditPage() {
               </button>
             </>
           )}
+          {canRevert && (
+            <button type="button" onClick={() => revertMutation.mutate()}
+              disabled={revertMutation.isPending}
+              className="inline-flex items-center gap-1.5 rounded-md bg-white px-3 py-1.5 text-sm font-medium text-gray-600 shadow-sm ring-1 ring-gray-200 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+              title="Reset to the original imported content">
+              <GitCompare className="h-4 w-4" />
+              {revertMutation.isPending ? "Reverting…" : "Revert to original"}
+            </button>
+          )}
         </div>
       </div>
 
@@ -1082,7 +1126,12 @@ export default function UnitEditPage() {
       {currentStatus === "pending_review" && (
         <div className="flex items-center gap-2 rounded-md border border-blue-200 bg-blue-50 px-4 py-2.5 text-sm text-blue-800">
           <Clock className="h-4 w-4 shrink-0" />
-          This unit is pending review and cannot be edited until the review is complete.
+          <span>
+            This unit is pending review and cannot be edited until the review is complete.
+            {overrideDetail?.school_admin_name && (
+              <> Contact <strong>{overrideDetail.school_admin_name}</strong> to expedite.</>
+            )}
+          </span>
         </div>
       )}
 

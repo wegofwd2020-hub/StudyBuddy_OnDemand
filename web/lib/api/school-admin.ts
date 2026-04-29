@@ -948,6 +948,7 @@ export interface UnitStatusResponse {
   curriculum_name: string | null;
   grade: number | null;
   forked_curriculum_id: string | null;
+  adoption_id: string | null;
 }
 
 export async function listUnitOverrideStatus(
@@ -1001,6 +1002,7 @@ export interface UnitOverrideDetail {
   edited_at: string;
   last_edited_by_name: string | null;
   rejection_reason: string | null;
+  school_admin_name: string | null;
   body: Record<string, unknown>;
 }
 
@@ -1122,6 +1124,21 @@ export async function rejectUnitContent(
   const res = await schoolApi.post<{ updated: number }>(
     `/schools/${schoolId}/content/${curriculumId}/units/${unitId}/reject`,
     { content_type: contentType, lang, reason },
+  );
+  return res.data;
+}
+
+export async function revertUnitContent(
+  schoolId: string,
+  curriculumId: string,
+  unitId: string,
+  contentType: string,
+  lang = "en",
+): Promise<{ override_id: string; review_status: string; version_number: number }> {
+  const res = await schoolApi.post(
+    `/schools/${schoolId}/content/${curriculumId}/units/${unitId}/overrides/${contentType}/revert`,
+    null,
+    { params: { lang } },
   );
   return res.data;
 }

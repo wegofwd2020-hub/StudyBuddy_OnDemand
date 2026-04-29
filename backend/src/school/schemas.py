@@ -582,6 +582,7 @@ class UnitStatusResponse(BaseModel):
     curriculum_name: str | None = None
     grade: int | None = None
     forked_curriculum_id: str | None = None
+    adoption_id: str | None = None
 
 
 class ReviewQueueItem(BaseModel):

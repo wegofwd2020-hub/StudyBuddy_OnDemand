@@ -2286,6 +2286,13 @@ async def list_unit_override_status(
             lang,
         )
 
+        adoption_row = await conn.fetchrow(
+            "SELECT adoption_id FROM school_adopted_curricula "
+            "WHERE school_id = $1 AND forked_curriculum_id = $2 LIMIT 1",
+            school_id,
+            curriculum_id,
+        )
+
     active_set = {(r["unit_id"], r["content_type"]): str(r["override_id"]) for r in active}
     override_map: dict[str, list] = {}
     for o in overrides:
@@ -2330,6 +2337,7 @@ async def list_unit_override_status(
         total=len(items),
         curriculum_name=meta_row["name"] if meta_row else None,
         grade=meta_row["grade"] if meta_row else None,
+        adoption_id=str(adoption_row["adoption_id"]) if adoption_row else None,
     ).model_dump()
 
 
@@ -2380,6 +2388,12 @@ async def get_unit_override(
                 detail="No override found — import the unit first",
             )
 
+        admin_row = await conn.fetchrow(
+            "SELECT name FROM teachers WHERE school_id = $1 AND role = 'school_admin' "
+            "ORDER BY teacher_id ASC LIMIT 1",
+            school_id,
+        )
+
         import json as _json
 
         body_raw = row["body"]
@@ -2399,6 +2413,7 @@ async def get_unit_override(
             "edited_at": row["edited_at"].isoformat(),
             "last_edited_by_name": row["last_edited_by_name"],
             "rejection_reason": row["rejection_reason"],
+            "school_admin_name": admin_row["name"] if admin_row else None,
             "body": body,
         }
 
@@ -2450,6 +2465,145 @@ async def get_unit_override_source(
         body_raw = row["body"]
         body = json.loads(body_raw) if isinstance(body_raw, str) else body_raw
         return {"body": body}
+
+
+# ── Revert to original ────────────────────────────────────────────────────────
+
+
+@router.post(
+    "/schools/{school_id}/content/{curriculum_id}/units/{unit_id}/overrides/{content_type}/revert",
+)
+async def revert_unit_override(
+    school_id: str,
+    curriculum_id: str,
+    unit_id: str,
+    content_type: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+    lang: str = "en",
+) -> dict:
+    """
+    Revert teacher edits to the original imported (OOB) content.
+
+    - draft / rejected: inserts a new draft version with the imported body.
+    - approved: repoints unit_content_active_versions to the imported snapshot
+      and marks the current override as draft (admin only).
+    - pending_review: 409 — must be approved or rejected first.
+    """
+    from src.school.schemas import OverrideItem
+
+    if teacher["school_id"] != school_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    async with get_db(request) as conn:
+        await _assert_school_owns_curriculum(conn, school_id, curriculum_id)
+
+        async with conn.transaction():
+            source_row = await conn.fetchrow(
+                """
+                SELECT override_id, body, bundle_id
+                FROM unit_content_overrides
+                WHERE curriculum_id = $1 AND unit_id = $2
+                  AND lang = $3 AND content_type = $4
+                  AND content_source = 'imported'
+                ORDER BY version_number ASC LIMIT 1
+                """,
+                curriculum_id, unit_id, lang, content_type,
+            )
+
+            if not source_row:
+                raise HTTPException(
+                    status_code=404,
+                    detail="No imported source to revert to",
+                )
+
+            latest = await conn.fetchrow(
+                """
+                SELECT override_id, review_status, version_number
+                FROM unit_content_overrides
+                WHERE curriculum_id = $1 AND unit_id = $2
+                  AND lang = $3 AND content_type = $4
+                ORDER BY version_number DESC LIMIT 1
+                FOR UPDATE
+                """,
+                curriculum_id, unit_id, lang, content_type,
+            )
+
+            if not latest:
+                raise HTTPException(status_code=404, detail="No content to revert")
+
+            status = latest["review_status"]
+
+            if status == "pending_review":
+                raise HTTPException(
+                    status_code=409,
+                    detail="Cannot revert content that is pending review — approve or reject first",
+                )
+
+            if status == "approved":
+                if teacher["role"] != "school_admin":
+                    raise HTTPException(
+                        status_code=403,
+                        detail="Only a school admin can revert published content",
+                    )
+                # Repoint the active version to the original imported snapshot
+                await conn.execute(
+                    """
+                    INSERT INTO unit_content_active_versions
+                        (curriculum_id, unit_id, lang, content_type, override_id)
+                    VALUES ($1, $2, $3, $4, $5)
+                    ON CONFLICT (curriculum_id, unit_id, lang, content_type)
+                    DO UPDATE SET override_id = EXCLUDED.override_id
+                    """,
+                    curriculum_id, unit_id, lang, content_type, source_row["override_id"],
+                )
+                row = await conn.fetchrow(
+                    """
+                    UPDATE unit_content_overrides
+                    SET review_status = 'draft', last_edited_by = $1, edited_at = now()
+                    WHERE override_id = $2
+                    RETURNING override_id, review_status, version_number,
+                              bundle_id, edited_at, content_source
+                    """,
+                    teacher["teacher_id"],
+                    latest["override_id"],
+                )
+            else:
+                # draft / rejected — insert a new draft version with the imported body
+                new_version = latest["version_number"] + 1
+                row = await conn.fetchrow(
+                    """
+                    INSERT INTO unit_content_overrides
+                        (school_id, curriculum_id, unit_id, lang, content_type,
+                         bundle_id, content_source, source_override_id, body,
+                         last_edited_by, review_status, version_number)
+                    VALUES ($1, $2, $3, $4, $5,
+                            $6, 'teacher_edit', $7, $8,
+                            $9, 'draft', $10)
+                    RETURNING override_id, review_status, version_number,
+                              bundle_id, edited_at, content_source
+                    """,
+                    school_id, curriculum_id, unit_id, lang, content_type,
+                    source_row["bundle_id"],
+                    str(source_row["override_id"]),
+                    source_row["body"],
+                    teacher["teacher_id"],
+                    new_version,
+                )
+
+    return OverrideItem(
+        override_id=str(row["override_id"]),
+        school_id=school_id,
+        curriculum_id=curriculum_id,
+        unit_id=unit_id,
+        lang=lang,
+        content_type=content_type,
+        bundle_id=str(row["bundle_id"]) if row["bundle_id"] else None,
+        content_source=row["content_source"],
+        review_status=row["review_status"],
+        version_number=row["version_number"],
+        edited_at=row["edited_at"].isoformat(),
+    ).model_dump()
 
 
 # ── Save draft ────────────────────────────────────────────────────────────────
