@@ -761,6 +761,37 @@ TA-8 lives within TA-6b; build TA-6b first.
 
 ---
 
+## UX Issues — content edit / approval flow
+
+Identified during first end-to-end test of the shipped TA-0…TA-4 implementation
+(2026-04-29). Numbered for tracking; priority column reflects user impact.
+
+| # | Area | Issue | Priority |
+|---|---|---|---|
+| UX-01 | Rejection reason | Teacher reopens a rejected unit and sees only the "Rejected" badge — no reason text visible. The rejection reason is stored in the DB but not surfaced on the edit page. Teacher is left guessing what to fix. | High |
+| UX-02 | Admin review queue | School admin must navigate curriculum → unit → edit page for each unit to find pending reviews. There is no `/school/review` dashboard listing all `pending_review` overrides across all curricula. | High |
+| UX-03 | Approve publishes instantly with no confirmation | "Approve & publish" goes live in a single click. No "Are you sure? This will be visible to students immediately" dialog. A mis-click publishes unfinished content. | High |
+| UX-04 | Rejection reason not shown on re-open | Closely related to UX-01. The `unit_content_overrides` table stores `rejection_reason` but the GET override endpoint and edit page do not return or display it. Separate from UX-01 in that this is a data-layer gap, not just a UI gap. | High |
+| UX-05 | Submit for review submits all content types | `POST .../review` with `content_type=null` transitions every draft override for the unit. If only the lesson was edited, quiz set 1/2/3 (which are still unedited imports) also become `pending_review`. Admin then sees four items to review when only one changed. | Medium |
+| UX-06 | Tutorial / quiz / experiment tabs say "coming soon" | The edit page shows tabs for all imported content types but only lesson editing is wired. Clicking quiz or tutorial tab shows a placeholder. Teacher expectation: "I can edit all my content here." | Medium |
+| UX-07 | No diff against OOB source | Admins reviewing a teacher's lesson edit have no way to see what changed versus the original platform content. A side-by-side diff (like the admin content-review version diff) would make reviews faster. | Medium |
+| UX-08 | No status-change notifications | Teachers don't know their submission was approved or rejected without checking the UI. Admins don't know a unit is pending review without checking. Notifications are deferred to a notifications epic but the pain is real. | Medium |
+| UX-09 | Back button loses adoption context | If a teacher navigates directly to the edit URL (e.g. from a browser bookmark) without `?aid=` in the query string, the back button lands on the unit list page without the adoption ID — which hides the Import buttons and shows a warning banner instead. | Low |
+| UX-10 | No rollback to OOB content from UI | Once a teacher import is approved and published, there is no "Revert to platform original" button. The data model supports it (source content is in `unit_content_overrides` at version 1, `content_source='imported'`) but the UI does not expose it. | Low |
+| UX-11 | Edit page heading shows raw unit_id on slow load | While `listUnitOverrideStatus` is fetching, the page heading shows the raw unit ID (e.g. `G11-HIST-001`) instead of the human-readable title. Low severity but jarring on first load. | Low |
+| UX-12 | Pending review banner does not name the reviewer | The blue "cannot be edited" banner does not tell the teacher who the school admin is or how to reach them to expedite the review. | Low |
+
+### Recommended build order
+
+1. **UX-04 + UX-01** together — add `rejection_reason` to the GET override response and show it inline on the edit page when status is `rejected`. One backend field + one UI string.
+2. **UX-03** — add a confirmation dialog to "Approve & publish". `window.confirm()` is enough for now.
+3. **UX-02** — new `/school/review` page listing all `pending_review` overrides; reuses existing `listUnitOverrideStatus` API extended with a `status_filter=pending_review` param.
+4. **UX-05** — pass the specific `content_type` to `submitForReview` instead of `null`; only submit the tab the teacher is currently viewing, or add checkboxes per type.
+5. **UX-06** — wire quiz / tutorial tab editors (quiz is read-only with inline annotation; tutorial uses same section-based editor as lesson).
+6. **UX-07** — reuse the word-diff renderer from the admin content-review diff page.
+
+---
+
 ## Relationship to BriefCase
 
 `unit_content_overrides`, `unit_content_active_versions`, the fork model,
