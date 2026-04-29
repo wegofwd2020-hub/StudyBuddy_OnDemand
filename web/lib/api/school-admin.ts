@@ -1045,6 +1045,36 @@ export async function submitForReview(
   return res.data;
 }
 
+export async function approveUnitContent(
+  schoolId: string,
+  curriculumId: string,
+  unitId: string,
+  publish = true,
+  contentType: string | null = null,
+  lang = "en",
+): Promise<{ approved: number; published: number }> {
+  const res = await schoolApi.post<{ approved: number; published: number }>(
+    `/schools/${schoolId}/content/${curriculumId}/units/${unitId}/approve`,
+    { content_type: contentType, lang, publish },
+  );
+  return res.data;
+}
+
+export async function rejectUnitContent(
+  schoolId: string,
+  curriculumId: string,
+  unitId: string,
+  reason: string,
+  contentType: string | null = null,
+  lang = "en",
+): Promise<{ updated: number }> {
+  const res = await schoolApi.post<{ updated: number }>(
+    `/schools/${schoolId}/content/${curriculumId}/units/${unitId}/reject`,
+    { content_type: contentType, lang, reason },
+  );
+  return res.data;
+}
+
 // ── Setup status (Layer 1.5 onboarding checklist) ────────────────────────────
 
 export interface SetupStatus {

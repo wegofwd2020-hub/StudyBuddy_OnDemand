@@ -9,6 +9,8 @@ import {
   getUnitOverride,
   saveDraft,
   submitForReview,
+  approveUnitContent,
+  rejectUnitContent,
   type UnitOverrideStatus,
 } from "@/lib/api/school-admin";
 import {
@@ -19,6 +21,8 @@ import {
   CheckCircle2,
   AlertCircle,
   Clock,
+  ThumbsUp,
+  ThumbsDown,
 } from "lucide-react";
 
 // ── Lesson form ────────────────────────────────────────────────────────────────
@@ -280,6 +284,8 @@ export default function UnitEditPage() {
     kind: "success" | "error";
     msg: string;
   } | null>(null);
+  const [rejectReason, setRejectReason] = useState("");
+  const [showRejectBox, setShowRejectBox] = useState(false);
 
   // 1. List all overrides for this unit (to know which tabs to show)
   const { data: unitData, isLoading: unitsLoading } = useQuery({
@@ -370,11 +376,49 @@ export default function UnitEditPage() {
     },
   });
 
+  // 5. Approve mutation (school_admin only)
+  const approveMutation = useMutation({
+    mutationFn: () => approveUnitContent(schoolId, curriculumId, unitId, true),
+    onSuccess: (data) => {
+      setNotice({
+        kind: "success",
+        msg: `Approved and published ${data.published} content item${data.published !== 1 ? "s" : ""}.`,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["unit-status", schoolId, curriculumId],
+      });
+      refetchDetail();
+    },
+    onError: (err: Error) => {
+      setNotice({ kind: "error", msg: err.message || "Approval failed." });
+    },
+  });
+
+  // 6. Reject mutation (school_admin only)
+  const rejectMutation = useMutation({
+    mutationFn: () =>
+      rejectUnitContent(schoolId, curriculumId, unitId, rejectReason),
+    onSuccess: () => {
+      setNotice({ kind: "success", msg: "Rejected — teacher can revise and resubmit." });
+      setShowRejectBox(false);
+      setRejectReason("");
+      queryClient.invalidateQueries({
+        queryKey: ["unit-status", schoolId, curriculumId],
+      });
+      refetchDetail();
+    },
+    onError: (err: Error) => {
+      setNotice({ kind: "error", msg: err.message || "Rejection failed." });
+    },
+  });
+
   const isLoading = unitsLoading || detailLoading;
   const currentStatus = overrideDetail?.review_status;
   const canSubmit =
     currentStatus === "draft" || currentStatus === "rejected";
   const canSave = !readOnly && activeType === "lesson";
+  const isAdmin = teacher?.role === "school_admin";
+  const canApprove = isAdmin && currentStatus === "pending_review";
 
   const backHref = adoptionId
     ? `/school/content/${curriculumId}?aid=${adoptionId}`
@@ -444,6 +488,28 @@ export default function UnitEditPage() {
               {reviewMutation.isPending ? "Submitting…" : "Submit for review"}
             </button>
           )}
+          {canApprove && (
+            <>
+              <button
+                type="button"
+                onClick={() => setShowRejectBox((v) => !v)}
+                disabled={rejectMutation.isPending}
+                className="inline-flex items-center gap-1.5 rounded-md bg-white px-3 py-1.5 text-sm font-medium text-red-600 shadow-sm ring-1 ring-red-200 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <ThumbsDown className="h-4 w-4" />
+                Reject
+              </button>
+              <button
+                type="button"
+                onClick={() => approveMutation.mutate()}
+                disabled={approveMutation.isPending}
+                className="inline-flex items-center gap-1.5 rounded-md bg-green-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <ThumbsUp className="h-4 w-4" />
+                {approveMutation.isPending ? "Approving…" : "Approve & publish"}
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -462,6 +528,42 @@ export default function UnitEditPage() {
             <AlertCircle className="h-4 w-4 shrink-0" />
           )}
           {notice.msg}
+        </div>
+      )}
+
+      {/* Reject reason box */}
+      {showRejectBox && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+          <p className="mb-2 text-sm font-medium text-red-800">
+            Reason for rejection
+          </p>
+          <textarea
+            rows={3}
+            className="w-full rounded-md border border-red-200 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-red-400 focus:outline-none focus:ring-1 focus:ring-red-400"
+            placeholder="Tell the teacher what needs to be revised…"
+            value={rejectReason}
+            onChange={(e) => setRejectReason(e.target.value)}
+          />
+          <div className="mt-2 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => rejectMutation.mutate()}
+              disabled={rejectMutation.isPending || !rejectReason.trim()}
+              className="inline-flex items-center gap-1.5 rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {rejectMutation.isPending ? "Rejecting…" : "Confirm rejection"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setShowRejectBox(false);
+                setRejectReason("");
+              }}
+              className="text-sm text-gray-500 hover:text-gray-700"
+            >
+              Cancel
+            </button>
+          </div>
         </div>
       )}
 
