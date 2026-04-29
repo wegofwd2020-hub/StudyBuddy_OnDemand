@@ -360,12 +360,13 @@ export default function UnitEditPage() {
     },
   });
 
-  // 4. Submit for review mutation
+  // 4. Submit for review mutation — scoped to the active content type only (UX-05)
   const reviewMutation = useMutation({
     mutationFn: () =>
-      submitForReview(schoolId, curriculumId, unitId, null),
+      submitForReview(schoolId, curriculumId, unitId, activeType),
     onSuccess: () => {
-      setNotice({ kind: "success", msg: "Submitted for review." });
+      const label = CONTENT_TYPE_LABELS[activeType] ?? activeType;
+      setNotice({ kind: "success", msg: `${label} submitted for review.` });
       queryClient.invalidateQueries({
         queryKey: ["unit-status", schoolId, curriculumId],
       });
@@ -493,7 +494,9 @@ export default function UnitEditPage() {
               title={dirty ? "Save your changes before submitting" : undefined}
             >
               <Send className="h-4 w-4" />
-              {reviewMutation.isPending ? "Submitting…" : "Submit for review"}
+              {reviewMutation.isPending
+                ? "Submitting…"
+                : `Submit ${CONTENT_TYPE_LABELS[activeType] ?? activeType} for review`}
             </button>
           )}
           {canApprove && (
@@ -697,8 +700,8 @@ export default function UnitEditPage() {
                   coming soon
                 </p>
                 <p className="max-w-xs text-xs text-gray-400">
-                  Only lesson content can be edited here for now. Submit the
-                  lesson for review using the button above.
+                  Editing this content type is not yet supported. You can
+                  still submit it for review using the button above.
                 </p>
               </div>
             ) : (
