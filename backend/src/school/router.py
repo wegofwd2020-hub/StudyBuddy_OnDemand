@@ -2291,12 +2291,24 @@ async def list_unit_override_status(
     for o in overrides:
         override_map.setdefault(o["unit_id"], []).append(o)
 
+    # Check content availability concurrently — one storage probe per unit.
+    # A unit has importable content when its lesson file exists in the OOB store.
+    storage = get_storage(request)
+
+    async def _has_content(unit_id: str) -> bool:
+        path = f"curricula/{units_curriculum_id}/{unit_id}/lesson_{lang}.json"
+        return await storage.exists(path)
+
+    content_flags = await asyncio.gather(*(_has_content(u["unit_id"]) for u in units))
+    content_map = {u["unit_id"]: flag for u, flag in zip(units, content_flags)}
+
     items = [
         UnitStatusItem(
             unit_id=u["unit_id"],
             title=u["title"],
             subject=u["subject"],
             subject_name=u["subject_name"],
+            has_content=content_map[u["unit_id"]],
             overrides=[
                 UnitOverrideStatus(
                     content_type=o["content_type"],

@@ -939,6 +939,7 @@ export interface UnitStatusItem {
   subject: string;
   subject_name: string | null;
   overrides: UnitOverrideStatus[];
+  has_content: boolean;
 }
 
 export interface UnitStatusResponse {

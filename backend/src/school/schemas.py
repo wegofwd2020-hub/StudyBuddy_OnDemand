@@ -573,6 +573,7 @@ class UnitStatusItem(BaseModel):
     subject: str
     subject_name: str | None = None
     overrides: list[UnitOverrideStatus]
+    has_content: bool = True
 
 
 class UnitStatusResponse(BaseModel):

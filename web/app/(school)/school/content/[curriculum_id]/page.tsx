@@ -116,7 +116,8 @@ function UnitRow({
     onSuccess: onImported,
   });
 
-  const canImport = state === "oob" && !!adoptionId;
+  const canImport = state === "oob" && !!adoptionId && unit.has_content;
+  const noContent = state === "oob" && !!adoptionId && !unit.has_content;
   const canEdit = state === "imported" || state === "draft" || state === "rejected";
   const canView = state === "published" || state === "pending_review";
 
@@ -158,6 +159,15 @@ function UnitRow({
               <Download className="h-3 w-3" />
               {importMutation.isPending ? "Importing…" : "Import"}
             </button>
+          )}
+          {noContent && (
+            <span
+              title="Content not yet generated for this unit"
+              className="inline-flex cursor-not-allowed items-center gap-1 rounded-md border border-gray-100 bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-300"
+            >
+              <Download className="h-3 w-3" />
+              Import
+            </span>
           )}
           {canEdit && (
             <LinkButton
