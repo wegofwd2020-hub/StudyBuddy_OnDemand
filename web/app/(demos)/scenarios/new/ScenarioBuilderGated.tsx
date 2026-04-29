@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ScenarioBuilder } from "@/components/scenario/ScenarioBuilder";
+import { ScenarioBuilder } from "@/components/demos/scenario/ScenarioBuilder";
 
 const PASSPHRASE = "jt2026";
 const SESSION_KEY = "jt_access";

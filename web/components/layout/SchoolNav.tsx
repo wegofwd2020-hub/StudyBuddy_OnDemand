@@ -66,6 +66,11 @@ const NAV_ITEMS: NavItem[] = [
     icon: <LayoutGrid className="h-4 w-4" />,
   },
   {
+    label: "Our Library",
+    href: "/school/library",
+    icon: <BookMarked className="h-4 w-4" />,
+  },
+  {
     label: "Content Library",
     href: "/school/curriculum/content",
     icon: <Library className="h-4 w-4" />,

@@ -20,7 +20,14 @@ import uuid as _uuid
 
 import asyncpg
 
-from src.core.cache_keys import content_key, csv_key, cur_key, ent_key, quiz_set_key, school_ent_key
+from src.core.cache_keys import (
+    content_key,
+    csv_key,
+    cur_key,
+    ent_key,
+    quiz_set_key,
+    school_ent_key,
+)
 from src.core.storage import StorageBackend
 from src.utils.logger import get_logger
 
@@ -279,7 +286,17 @@ async def resolve_curriculum_id(
 
     curriculum_id: str | None = None
     async with pool.acquire() as conn:
-        # 1. School-owned custom curriculum (school uploaded their own content)
+        # Set RLS session variable upfront so both step 1 and step 2 can see
+        # school-owned rows. Without this, curricula with owner_type='school'
+        # are filtered out by the RLS USING clause even though the JOIN
+        # condition references the correct school_id FK column.
+        if school_id:
+            await conn.execute(
+                "SELECT set_config('app.current_school_id', $1, false)", school_id
+            )
+
+        # 1. School-owned curriculum for this student's grade — includes school
+        #    fork curricula created by the teacher authoring flow (TA-0/TA-2).
         row = await conn.fetchrow(
             """
             SELECT c.curriculum_id
@@ -294,14 +311,10 @@ async def resolve_curriculum_id(
         if row:
             curriculum_id = row["curriculum_id"]
 
-        # 2. Classroom package assignment — resolves stream-specific platform curricula
-        #    (e.g. default-2026-g11-commerce for a Commerce classroom student).
-        #    classroom_students/classrooms/classroom_packages are RLS-protected by
-        #    school_id, so we must set the session variable before querying.
+        # 2. Classroom package assignment — resolves stream-specific platform
+        #    curricula (e.g. default-2026-g11-commerce). Session variable already
+        #    set above if school_id is present.
         if not curriculum_id and school_id:
-            await conn.execute(
-                "SELECT set_config('app.current_school_id', $1, false)", school_id
-            )
             row = await conn.fetchrow(
                 """
                 SELECT cp.curriculum_id
@@ -402,3 +415,83 @@ async def get_unit_subject(
             curriculum_id,
         )
     return row["subject"] if row else None
+
+
+# ── Teacher content overrides ─────────────────────────────────────────────────
+
+
+async def get_active_override(
+    school_id: str,
+    curriculum_id: str,
+    unit_id: str,
+    lang: str,
+    content_type: str,
+    pool: asyncpg.Pool,
+    redis,
+) -> dict | None:
+    """
+    Return the active teacher override body for (school, curriculum, unit, lang,
+    content_type), or None if no active override exists.
+
+    L2 cache: school:{school_id}:override:... TTL=3600.
+    A Redis value of JSON null is the miss sentinel — avoids a DB hit on every
+    content request for units that don't have teacher overrides.
+    """
+    from src.core.cache_keys import override_key as _override_key
+
+    key = _override_key(school_id, curriculum_id, unit_id, lang, content_type)
+    raw = await redis.get(key)
+    if raw is not None:
+        try:
+            return json.loads(raw)  # None for "null" sentinel, dict for override
+        except Exception:
+            pass
+
+    async with pool.acquire() as conn:
+        await conn.execute(
+            "SELECT set_config('app.current_school_id', $1, false)", school_id
+        )
+        row = await conn.fetchrow(
+            """
+            SELECT uco.body
+            FROM unit_content_active_versions ucav
+            JOIN unit_content_overrides uco ON uco.override_id = ucav.override_id
+            WHERE ucav.school_id = $1::UUID
+              AND ucav.curriculum_id = $2
+              AND ucav.unit_id = $3
+              AND ucav.lang = $4
+              AND ucav.content_type = $5
+            """,
+            school_id,
+            curriculum_id,
+            unit_id,
+            lang,
+            content_type,
+        )
+
+    body: dict | None = dict(row["body"]) if row else None
+    await redis.set(key, json.dumps(body), ex=_CONTENT_TTL)
+    return body
+
+
+async def get_fork_source_curriculum(
+    curriculum_id: str,
+    school_id: str,
+    pool: asyncpg.Pool,
+) -> str | None:
+    """
+    Return the source OOB curriculum_id for a school fork, or None.
+
+    School fork curricula have no rows in curriculum_units or content_subject_versions
+    — both live under the source OOB curriculum_id. This is used by the content
+    serving path to fall back to OOB files for units without active teacher overrides.
+    """
+    async with pool.acquire() as conn:
+        await conn.execute(
+            "SELECT set_config('app.current_school_id', $1, false)", school_id
+        )
+        row = await conn.fetchrow(
+            "SELECT source_curriculum_id FROM curricula WHERE curriculum_id = $1",
+            curriculum_id,
+        )
+    return row["source_curriculum_id"] if (row and row["source_curriculum_id"]) else None

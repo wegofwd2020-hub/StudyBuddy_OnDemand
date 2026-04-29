@@ -99,3 +99,19 @@ def csv_key(curriculum_id: str, subject: str) -> str:
 def quiz_set_key(student_id: str, unit_id: str) -> str:
     """quiz_set:{student_id}:{unit_id}"""
     return f"quiz_set:{student_id}:{unit_id}"
+
+
+def override_key(
+    school_id: str,
+    curriculum_id: str,
+    unit_id: str,
+    lang: str,
+    content_type: str,
+) -> str:
+    """
+    school:{school_id}:override:{curriculum_id}:{unit_id}:{lang}:{content_type}
+
+    School-scoped so school_scan_pattern(school_id) bulk-evicts all override
+    cache entries for a school on subscription change or curriculum reassignment.
+    """
+    return f"school:{school_id}:override:{curriculum_id}:{unit_id}:{lang}:{content_type}"

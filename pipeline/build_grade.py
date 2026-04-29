@@ -177,6 +177,7 @@ def run_grade(
     """
     from pipeline.config import settings as config
     from pipeline.build_unit import build_unit, SpendCapExceeded
+    from pipeline.guard import check_school_overrides
     from pipeline.providers import get_provider
 
     start_ms = time.monotonic()
@@ -277,6 +278,28 @@ def run_grade(
                 }
 
                 for lang in langs:
+                    # ── TA-4 guard — warn if schools have imported this unit ──
+                    if db_conn:
+                        schools = asyncio.get_event_loop().run_until_complete(
+                            check_school_overrides(db_conn, curriculum_id, unit_id, lang)
+                        )
+                        if schools:
+                            log.warning(
+                                json.dumps({
+                                    "event": "school_overrides_exist",
+                                    "curriculum_id": curriculum_id,
+                                    "unit_id": unit_id,
+                                    "lang": lang,
+                                    "school_count": len(schools),
+                                    "school_ids": schools,
+                                    "note": (
+                                        "OOB content will be updated. School customisations "
+                                        "in unit_content_overrides are unaffected (stored in DB). "
+                                        "Notify affected schools if base content has changed materially."
+                                    ),
+                                })
+                            )
+
                     try:
                         result = build_unit(
                             curriculum_id=curriculum_id,

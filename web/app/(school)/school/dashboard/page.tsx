@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useTeacher } from "@/lib/hooks/useTeacher";
 import { getOverviewReport, getAlerts, getClassMetrics } from "@/lib/api/reports";
-import { listTeachers } from "@/lib/api/school-admin";
+import { listTeachers, getLibrary } from "@/lib/api/school-admin";
 import { SetupChecklist } from "@/components/school/SetupChecklist";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -20,6 +20,8 @@ import {
   TrendingUp,
   AlertTriangle,
   GraduationCap,
+  LayoutGrid,
+  BookMarked,
 } from "lucide-react";
 
 function KpiCard({
@@ -79,6 +81,16 @@ export default function SchoolDashboard() {
 
   const isAdmin = teacher?.role === "school_admin";
 
+  const { data: libraryData } = useQuery({
+    queryKey: ["library", schoolId],
+    queryFn: () => getLibrary(schoolId),
+    enabled: !!schoolId && isAdmin,
+    staleTime: 120_000,
+  });
+
+  const hasNoLibrary =
+    isAdmin && libraryData !== undefined && libraryData.total === 0;
+
   const { data: teachers } = useQuery({
     queryKey: ["teachers", schoolId],
     queryFn: () => listTeachers(schoolId),
@@ -115,6 +127,35 @@ export default function SchoolDashboard() {
       <div className="max-w-5xl space-y-8 p-6">
         {/* Layer 1.5 — first-run setup checklist (school_admin only) */}
         {isAdmin && schoolId && <SetupChecklist schoolId={schoolId} />}
+
+        {/* Empty library nudge — shown to school_admin when no curricula adopted yet */}
+        {hasNoLibrary && (
+          <Card className="border border-indigo-100 bg-indigo-50 shadow-sm">
+            <CardContent className="flex items-start gap-4 p-5">
+              <div className="rounded-lg bg-indigo-100 p-2.5">
+                <BookMarked className="h-5 w-5 text-indigo-600" />
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-indigo-900">
+                  Your curriculum library is empty
+                </p>
+                <p className="mt-0.5 text-sm text-indigo-700">
+                  Browse the platform catalog and add curricula to your library so
+                  teachers can import and customize content for their classes.
+                </p>
+                <div className="mt-3 flex gap-2">
+                  <LinkButton href="/school/catalog" size="sm">
+                    <LayoutGrid className="mr-1.5 h-4 w-4" />
+                    Browse catalog
+                  </LinkButton>
+                  <LinkButton href="/school/library" variant="outline" size="sm">
+                    View library
+                  </LinkButton>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <div className="flex items-center justify-between">
           <h1 className="w-full text-center text-2xl font-bold text-gray-900">

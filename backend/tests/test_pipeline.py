@@ -12,11 +12,10 @@ from __future__ import annotations
 import json
 import os
 import tempfile
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import jsonschema
 import pytest
-
 
 # ── Prompt tests ──────────────────────────────────────────────────────────────
 
@@ -28,10 +27,10 @@ def test_prompts_return_strings():
         sys.path.insert(0, repo_root)
 
     from pipeline.prompts import (
+        build_experiment_prompt,
         build_lesson_prompt,
         build_quiz_prompt,
         build_tutorial_prompt,
-        build_experiment_prompt,
     )
 
     lesson_p = build_lesson_prompt("G8-SCI-001", "Science", "Density", 8, "en")
@@ -72,6 +71,13 @@ def test_schema_validation_lesson():
         "subject": "Science",
         "topic": "Density",
         "synopsis": "Learn about density and buoyancy.",
+        "sections": [
+            {
+                "heading": "Introduction",
+                "body": "Density is mass divided by volume, measured in kg/m³.",
+            }
+        ],
+        "key_points": ["Density = mass / volume"],
         "key_concepts": ["density", "buoyancy"],
         "learning_objectives": ["Explain density"],
         "reading_level": "Grade 8",
@@ -228,7 +234,7 @@ def test_spend_cap_raises():
     if repo_root not in sys.path:
         sys.path.insert(0, repo_root)
 
-    from pipeline.build_unit import build_unit, SpendCapExceeded
+    from pipeline.build_unit import SpendCapExceeded, build_unit
 
     # Build a minimal valid lesson response
     valid_lesson = {
@@ -236,6 +242,13 @@ def test_spend_cap_raises():
         "subject": "Science",
         "topic": "Density",
         "synopsis": "Learn about density and buoyancy in this lesson.",
+        "sections": [
+            {
+                "heading": "Introduction",
+                "body": "Density is mass divided by volume, measured in kg/m³.",
+            }
+        ],
+        "key_points": ["Density = mass / volume"],
         "key_concepts": ["density", "buoyancy"],
         "learning_objectives": ["Explain density"],
         "reading_level": "Grade 8",

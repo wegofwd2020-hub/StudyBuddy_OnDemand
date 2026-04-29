@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { Play, Pause, RotateCcw, SkipForward, CheckCircle2, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScenarioPlayer, type ScenarioData } from "./ScenarioPlayer";
-import type { QuizQuestion } from "@/components/scenario/types";
+import type { QuizQuestion } from "@/components/demos/scenario/types";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

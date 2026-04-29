@@ -1,5 +1,5 @@
 """
-backend/src/scenarios/router.py
+backend/src/demos/scenarios/router.py
 
 Routes:
   POST /scenarios/generate-clips                      — submit scenario JSON, dispatch Celery task
@@ -19,7 +19,7 @@ from fastapi import APIRouter, Header, HTTPException, Request
 from fastapi.responses import FileResponse
 
 from src.core.redis_client import get_redis
-from src.scenarios.schemas import (
+from src.demos.scenarios.schemas import (
     ClipsStatusResponse,
     ClipStatus,
     GenerateClipsRequest,

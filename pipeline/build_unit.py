@@ -622,6 +622,36 @@ def main() -> None:
         "grade": args.grade,
     }
 
+    # ── TA-4 guard — warn if schools have overrides for this unit ─────────────
+    if config.DATABASE_URL and not args.dry_run:
+        try:
+            import asyncio
+
+            import asyncpg  # type: ignore
+
+            from pipeline.guard import check_school_overrides
+
+            async def _guard() -> list[str]:
+                conn = await asyncpg.connect(config.DATABASE_URL)
+                await conn.execute("SET app.current_school_id = 'bypass'")
+                try:
+                    return await check_school_overrides(
+                        conn, args.curriculum_id, args.unit, args.lang
+                    )
+                finally:
+                    await conn.close()
+
+            schools = asyncio.get_event_loop().run_until_complete(_guard())
+            if schools:
+                log.warning(
+                    "school_overrides_exist curriculum_id=%s unit_id=%s lang=%s "
+                    "school_count=%d school_ids=%s — OOB files will be updated; "
+                    "school DB overrides are unaffected",
+                    args.curriculum_id, args.unit, args.lang, len(schools), schools,
+                )
+        except Exception as exc:
+            log.warning("guard_check_failed: %s", exc)
+
     result = build_unit(
         curriculum_id=args.curriculum_id,
         unit_id=args.unit,

@@ -14,6 +14,7 @@ Routes (all prefixed /api/v1 in main.py):
 
 from __future__ import annotations
 
+import json
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -28,6 +29,9 @@ from src.school.enrolment_service import (
     upload_roster,
 )
 from src.school.schemas import (
+    AdoptCurriculumRequest,
+    AdoptionItem,
+    ApproveRequest,
     AssignPackageRequest,
     AssignStudentRequest,
     BulkReassignRequest,
@@ -46,14 +50,19 @@ from src.school.schemas import (
     EnrolmentRosterResponse,
     EnrolmentUploadRequest,
     EnrolmentUploadResponse,
+    LibraryResponse,
+    OverrideItem,
     PromoteTeacherResponse,
     ProvisionStudentRequest,
     ProvisionStudentResponse,
     ProvisionTeacherRequest,
     ProvisionTeacherResponse,
     RejectDefinitionRequest,
+    RejectRequest,
     ReorderPackageRequest,
     ResetPasswordResponse,
+    ReviewActionRequest,
+    SaveDraftRequest,
     SchoolLLMConfigResponse,
     SchoolLLMConfigUpdateRequest,
     SchoolProfileResponse,
@@ -67,6 +76,7 @@ from src.school.schemas import (
     TeacherInviteRequest,
     TeacherInviteResponse,
     TeacherRosterResponse,
+    UpdateAdoptionRequest,
 )
 from src.school.service import (
     approve_definition,
@@ -1431,3 +1441,1186 @@ async def update_school_llm_config(
         )
 
     return SchoolLLMConfigResponse(**updated)
+
+
+# ── School curriculum library (TA-0) ─────────────────────────────────────────
+
+
+@router.get(
+    "/schools/{school_id}/library",
+    response_model=LibraryResponse,
+)
+async def list_library(
+    school_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> LibraryResponse:
+    """
+    List all OOB curricula adopted by this school.
+
+    Accessible to all teachers in the school — admins and regular teachers
+    both need to browse what has been adopted before importing content.
+    """
+    if teacher["school_id"] != school_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    async with get_db(request) as conn:
+        rows = await conn.fetch(
+            """
+            SELECT
+                sac.adoption_id,
+                sac.curriculum_id,
+                sac.forked_curriculum_id,
+                c.name,
+                c.grade,
+                c.year,
+                sac.status,
+                sac.notes,
+                sac.adopted_at,
+                EXISTS (
+                    SELECT 1 FROM unit_content_overrides uco
+                    WHERE uco.school_id = $1
+                      AND uco.curriculum_id = sac.forked_curriculum_id
+                ) AS has_overrides
+            FROM school_adopted_curricula sac
+            JOIN curricula c ON c.curriculum_id = sac.curriculum_id
+            WHERE sac.school_id = $1
+            ORDER BY c.grade, c.name
+            """,
+            school_id,
+        )
+
+    items = [
+        AdoptionItem(
+            adoption_id=str(row["adoption_id"]),
+            curriculum_id=row["curriculum_id"],
+            forked_curriculum_id=row["forked_curriculum_id"],
+            name=row["name"],
+            grade=row["grade"],
+            year=row["year"],
+            status=row["status"],
+            notes=row["notes"],
+            adopted_at=row["adopted_at"].isoformat(),
+            has_overrides=row["has_overrides"],
+        )
+        for row in rows
+    ]
+    return LibraryResponse(adoptions=items, total=len(items))
+
+
+@router.post(
+    "/schools/{school_id}/library",
+    response_model=AdoptionItem,
+    status_code=201,
+)
+async def adopt_curriculum(
+    school_id: str,
+    body: AdoptCurriculumRequest,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> AdoptionItem:
+    """
+    Adopt an OOB curriculum into the school's library.
+
+    school_admin only. Creates a school_adopted_curricula row. The fork
+    (school-owned curricula row) is NOT created here — it is created lazily
+    on the first teacher import (TA-2). This endpoint is intentionally
+    idempotent: if the curriculum is already adopted, it returns the existing
+    adoption record.
+    """
+    _require_school_admin(teacher, school_id, request)
+
+    async with get_db(request) as conn:
+        # Verify the curriculum exists and is a platform OOB curriculum.
+        pkg = await conn.fetchrow(
+            "SELECT curriculum_id, name, grade, year, is_default, owner_type "
+            "FROM curricula WHERE curriculum_id = $1",
+            body.curriculum_id,
+        )
+        if not pkg:
+            raise HTTPException(status_code=404, detail="Curriculum not found")
+        if not pkg["is_default"] or pkg["owner_type"] != "platform":
+            raise HTTPException(
+                status_code=422,
+                detail="Only platform OOB curricula can be adopted via this endpoint",
+            )
+
+        # Idempotent insert — return existing row if already adopted.
+        existing = await conn.fetchrow(
+            "SELECT adoption_id, curriculum_id, forked_curriculum_id, status, "
+            "notes, adopted_at FROM school_adopted_curricula "
+            "WHERE school_id = $1 AND curriculum_id = $2",
+            school_id,
+            body.curriculum_id,
+        )
+        if existing:
+            return AdoptionItem(
+                adoption_id=str(existing["adoption_id"]),
+                curriculum_id=existing["curriculum_id"],
+                forked_curriculum_id=existing["forked_curriculum_id"],
+                name=pkg["name"],
+                grade=pkg["grade"],
+                year=pkg["year"],
+                status=existing["status"],
+                notes=existing["notes"],
+                adopted_at=existing["adopted_at"].isoformat(),
+                has_overrides=False,
+            )
+
+        row = await conn.fetchrow(
+            """
+            INSERT INTO school_adopted_curricula
+                (school_id, curriculum_id, grade, adopted_by, notes)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING adoption_id, adopted_at, status
+            """,
+            school_id,
+            body.curriculum_id,
+            pkg["grade"],
+            teacher["teacher_id"],
+            body.notes,
+        )
+
+    log.info(
+        "curriculum_adopted",
+        school_id=school_id,
+        curriculum_id=body.curriculum_id,
+        adoption_id=str(row["adoption_id"]),
+    )
+    return AdoptionItem(
+        adoption_id=str(row["adoption_id"]),
+        curriculum_id=body.curriculum_id,
+        forked_curriculum_id=None,
+        name=pkg["name"],
+        grade=pkg["grade"],
+        year=pkg["year"],
+        status=row["status"],
+        notes=body.notes,
+        adopted_at=row["adopted_at"].isoformat(),
+        has_overrides=False,
+    )
+
+
+@router.patch(
+    "/schools/{school_id}/library/{adoption_id}",
+    response_model=AdoptionItem,
+)
+async def update_adoption(
+    school_id: str,
+    adoption_id: str,
+    body: UpdateAdoptionRequest,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> AdoptionItem:
+    """
+    Update an adoption record (deactivate / reactivate / update notes).
+
+    school_admin only. Deactivating does NOT delete the fork or any overrides —
+    it only hides the curriculum from the active library view.
+    """
+    _require_school_admin(teacher, school_id, request)
+
+    if body.status is None and body.notes is None:
+        raise HTTPException(status_code=422, detail="Nothing to update")
+
+    async with get_db(request) as conn:
+        existing = await conn.fetchrow(
+            "SELECT sac.adoption_id, sac.curriculum_id, sac.forked_curriculum_id, "
+            "sac.status, sac.notes, sac.adopted_at, c.name, c.grade, c.year "
+            "FROM school_adopted_curricula sac "
+            "JOIN curricula c ON c.curriculum_id = sac.curriculum_id "
+            "WHERE sac.school_id = $1 AND sac.adoption_id = $2",
+            school_id,
+            adoption_id,
+        )
+        if not existing:
+            raise HTTPException(status_code=404, detail="Adoption not found")
+
+        new_status = body.status if body.status is not None else existing["status"]
+        new_notes = body.notes if body.notes is not None else existing["notes"]
+
+        await conn.execute(
+            "UPDATE school_adopted_curricula SET status = $1, notes = $2 "
+            "WHERE school_id = $3 AND adoption_id = $4",
+            new_status,
+            new_notes,
+            school_id,
+            adoption_id,
+        )
+
+        has_overrides = (
+            await conn.fetchval(
+                "SELECT EXISTS (SELECT 1 FROM unit_content_overrides "
+                "WHERE school_id = $1 AND curriculum_id = $2)",
+                school_id,
+                existing["forked_curriculum_id"],
+            )
+            if existing["forked_curriculum_id"]
+            else False
+        )
+
+    return AdoptionItem(
+        adoption_id=str(existing["adoption_id"]),
+        curriculum_id=existing["curriculum_id"],
+        forked_curriculum_id=existing["forked_curriculum_id"],
+        name=existing["name"],
+        grade=existing["grade"],
+        year=existing["year"],
+        status=new_status,
+        notes=new_notes,
+        adopted_at=existing["adopted_at"].isoformat(),
+        has_overrides=has_overrides,
+    )
+
+
+# ── Adoption unit-status list (TA-6a pre-fork entry point) ───────────────────
+
+
+@router.get(
+    "/schools/{school_id}/library/{adoption_id}/units",
+)
+async def list_adoption_unit_status(
+    school_id: str,
+    adoption_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+    lang: str = "en",
+) -> dict:
+    """
+    List all OOB units for an adopted curriculum with their override status.
+
+    Works before the school fork exists (forked_curriculum_id=null) — shows
+    OOB units with empty override lists. Once the fork exists (after the first
+    unit import), shows override status per unit alongside the fork curriculum ID.
+
+    This is the primary entry point from the Library page. The fork-based
+    endpoint (GET /schools/{id}/content/{curriculum_id}/units) requires a
+    fork to already exist; this one does not.
+    """
+    from src.school.schemas import UnitOverrideStatus, UnitStatusItem, UnitStatusResponse
+
+    if teacher["school_id"] != school_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    async with get_db(request) as conn:
+        adoption = await conn.fetchrow(
+            """
+            SELECT sac.adoption_id, sac.curriculum_id, sac.forked_curriculum_id,
+                   c.name, c.grade
+            FROM school_adopted_curricula sac
+            JOIN curricula c ON c.curriculum_id = sac.curriculum_id
+            WHERE sac.school_id = $1 AND sac.adoption_id = $2
+            """,
+            school_id,
+            adoption_id,
+        )
+        if not adoption:
+            raise HTTPException(status_code=404, detail="Adoption not found")
+
+        oob_curriculum_id = adoption["curriculum_id"]
+        forked_curriculum_id = adoption["forked_curriculum_id"]
+
+        units = await conn.fetch(
+            """
+            SELECT cu.unit_id, cu.title, cu.subject,
+                   COALESCE(MAX(csv.subject_name), cu.subject) AS subject_name
+            FROM curriculum_units cu
+            LEFT JOIN content_subject_versions csv
+                ON csv.curriculum_id = $1 AND csv.subject = cu.subject
+            WHERE cu.curriculum_id = $1
+            GROUP BY cu.unit_id, cu.title, cu.subject
+            ORDER BY cu.subject, cu.unit_id
+            """,
+            oob_curriculum_id,
+        )
+
+        overrides = []
+        active = []
+        if forked_curriculum_id:
+            overrides = await conn.fetch(
+                """
+                SELECT DISTINCT ON (uco.unit_id, uco.content_type)
+                    uco.override_id, uco.unit_id, uco.content_type,
+                    uco.review_status, uco.version_number, uco.edited_at,
+                    uco.content_source, t.name AS last_edited_by_name
+                FROM unit_content_overrides uco
+                LEFT JOIN teachers t ON t.teacher_id = uco.last_edited_by
+                WHERE uco.curriculum_id = $1 AND uco.lang = $2
+                ORDER BY uco.unit_id, uco.content_type, uco.version_number DESC
+                """,
+                forked_curriculum_id,
+                lang,
+            )
+            active = await conn.fetch(
+                """
+                SELECT unit_id, content_type, override_id
+                FROM unit_content_active_versions
+                WHERE curriculum_id = $1 AND lang = $2
+                """,
+                forked_curriculum_id,
+                lang,
+            )
+
+    active_set = {(r["unit_id"], r["content_type"]): str(r["override_id"]) for r in active}
+    override_map: dict[str, list] = {}
+    for o in overrides:
+        override_map.setdefault(o["unit_id"], []).append(o)
+
+    items = [
+        UnitStatusItem(
+            unit_id=u["unit_id"],
+            title=u["title"],
+            subject=u["subject"],
+            subject_name=u["subject_name"],
+            overrides=[
+                UnitOverrideStatus(
+                    content_type=o["content_type"],
+                    review_status=o["review_status"],
+                    version_number=o["version_number"],
+                    override_id=str(o["override_id"]),
+                    edited_at=o["edited_at"].isoformat(),
+                    is_active=active_set.get((u["unit_id"], o["content_type"])) == str(o["override_id"]),
+                    content_source=o["content_source"],
+                    last_edited_by_name=o["last_edited_by_name"],
+                )
+                for o in override_map.get(u["unit_id"], [])
+            ],
+        )
+        for u in units
+    ]
+    return UnitStatusResponse(
+        units=items,
+        total=len(items),
+        curriculum_name=adoption["name"],
+        grade=adoption["grade"],
+        forked_curriculum_id=forked_curriculum_id,
+    ).model_dump()
+
+
+# ── School curriculum library — import (TA-2) ─────────────────────────────────
+
+# Content types probed in order; tutorial package (tutorial + quiz sets) share
+# a bundle_id so their review-status transitions are atomic.
+_IMPORT_CONTENT_TYPES: list[tuple[str, str]] = [
+    ("lesson", "lesson_{lang}.json"),
+    ("tutorial", "tutorial_{lang}.json"),
+    ("quiz_set_1", "quiz_set_1_{lang}.json"),
+    ("quiz_set_2", "quiz_set_2_{lang}.json"),
+    ("quiz_set_3", "quiz_set_3_{lang}.json"),
+    ("experiment", "experiment_{lang}.json"),
+]
+_TUTORIAL_BUNDLE_TYPES = {"tutorial", "quiz_set_1", "quiz_set_2", "quiz_set_3"}
+
+
+@router.post(
+    "/schools/{school_id}/library/{adoption_id}/units/{unit_id}/import",
+    status_code=201,
+)
+async def import_unit_content(
+    school_id: str,
+    adoption_id: str,
+    unit_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+    lang: str = "en",
+) -> dict:
+    """
+    Import OOB content for one unit into the school's fork as draft overrides.
+
+    Pre-flight (TA-2):
+      1. Checks adoption gate — 403 if not adopted or deactivated.
+      2. Creates the school's forked curricula row on first call (lazy fork).
+      3. Probes the Content Store for available content types for this unit/lang.
+      4. Inserts unit_content_overrides rows for each type not yet imported.
+         Tutorial package rows (tutorial + quiz_set_*) share a bundle_id.
+      5. Returns the full set of override rows for this unit (created + pre-existing).
+
+    Idempotent: re-calling for a unit that is already imported returns the
+    existing rows with skipped=True.
+    """
+    import uuid as _uuid
+
+    from src.core.storage import get_storage
+    from src.school.schemas import ImportUnitResponse, OverrideItem
+
+    if teacher["school_id"] != school_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    storage = get_storage(request)
+
+    async with get_db(request) as conn:
+        # 1. Adoption gate ─────────────────────────────────────────────────────
+        adoption = await conn.fetchrow(
+            "SELECT sac.adoption_id, sac.curriculum_id, sac.forked_curriculum_id, "
+            "sac.status, c.name, c.grade, c.year, c.owner_id "
+            "FROM school_adopted_curricula sac "
+            "JOIN curricula c ON c.curriculum_id = sac.curriculum_id "
+            "WHERE sac.school_id = $1 AND sac.adoption_id = $2",
+            school_id,
+            adoption_id,
+        )
+        if not adoption:
+            raise HTTPException(status_code=404, detail="Adoption not found")
+        if adoption["status"] != "active":
+            raise HTTPException(
+                status_code=403,
+                detail="This curriculum has been deactivated in your library",
+            )
+
+        oob_curriculum_id = adoption["curriculum_id"]
+        forked_curriculum_id = adoption["forked_curriculum_id"]
+        fork_created = False
+
+        # 2. Lazy fork creation ────────────────────────────────────────────────
+        if forked_curriculum_id is None:
+            new_id = str(_uuid.uuid4())
+            async with conn.transaction():
+                await conn.execute(
+                    """
+                    INSERT INTO curricula
+                        (curriculum_id, name, grade, year, is_default,
+                         owner_type, owner_id, school_id, source_curriculum_id)
+                    VALUES ($1, $2, $3, $4, FALSE, 'school', $5, $5, $6)
+                    """,
+                    new_id,
+                    adoption["name"],
+                    adoption["grade"],
+                    adoption["year"],
+                    school_id,
+                    oob_curriculum_id,
+                )
+                await conn.execute(
+                    "UPDATE school_adopted_curricula "
+                    "SET forked_curriculum_id = $1 "
+                    "WHERE school_id = $2 AND adoption_id = $3",
+                    new_id,
+                    school_id,
+                    adoption_id,
+                )
+                # Point this grade at the school fork (UPSERT — grade is PK per school)
+                if adoption["grade"] is not None:
+                    await conn.execute(
+                        """
+                        INSERT INTO grade_curriculum_assignments
+                            (school_id, grade, curriculum_id, assigned_by)
+                        VALUES ($1, $2, $3, $4)
+                        ON CONFLICT (school_id, grade)
+                        DO UPDATE SET curriculum_id = EXCLUDED.curriculum_id,
+                                      assigned_by  = EXCLUDED.assigned_by
+                        """,
+                        school_id,
+                        adoption["grade"],
+                        new_id,
+                        teacher["teacher_id"],
+                    )
+            forked_curriculum_id = new_id
+            fork_created = True
+            log.info(
+                "curriculum_fork_created",
+                school_id=school_id,
+                oob_curriculum_id=oob_curriculum_id,
+                forked_curriculum_id=forked_curriculum_id,
+            )
+
+        # 3. Probe Content Store for available types ───────────────────────────
+        available: list[tuple[str, dict]] = []
+        for content_type, filename_tpl in _IMPORT_CONTENT_TYPES:
+            filename = filename_tpl.replace("{lang}", lang)
+            path = f"curricula/{oob_curriculum_id}/{unit_id}/{filename}"
+            try:
+                body = await storage.read_json(path)
+                available.append((content_type, body))
+            except FileNotFoundError:
+                pass
+
+        if not available:
+            raise HTTPException(
+                status_code=404,
+                detail=f"No content found for unit {unit_id!r} lang={lang!r}",
+            )
+
+        # 4. Insert override rows (skip already-imported types) ────────────────
+        bundle_id = str(_uuid.uuid4())
+        overrides: list[OverrideItem] = []
+
+        for content_type, body in available:
+            # Check if any version already exists (idempotent guard)
+            existing_row = await conn.fetchrow(
+                "SELECT override_id, review_status, version_number, "
+                "bundle_id, edited_at "
+                "FROM unit_content_overrides "
+                "WHERE curriculum_id = $1 AND unit_id = $2 "
+                "  AND lang = $3 AND content_type = $4 "
+                "ORDER BY version_number DESC LIMIT 1",
+                forked_curriculum_id,
+                unit_id,
+                lang,
+                content_type,
+            )
+            if existing_row:
+                overrides.append(
+                    OverrideItem(
+                        override_id=str(existing_row["override_id"]),
+                        school_id=school_id,
+                        curriculum_id=forked_curriculum_id,
+                        unit_id=unit_id,
+                        lang=lang,
+                        content_type=content_type,
+                        bundle_id=(
+                            str(existing_row["bundle_id"])
+                            if existing_row["bundle_id"]
+                            else None
+                        ),
+                        content_source="imported",
+                        review_status=existing_row["review_status"],
+                        version_number=existing_row["version_number"],
+                        edited_at=existing_row["edited_at"].isoformat(),
+                        skipped=True,
+                    )
+                )
+                continue
+
+            row_bundle_id = (
+                bundle_id if content_type in _TUTORIAL_BUNDLE_TYPES else None
+            )
+            new_row = await conn.fetchrow(
+                """
+                INSERT INTO unit_content_overrides
+                    (school_id, curriculum_id, unit_id, lang, content_type,
+                     bundle_id, content_source, source_override_id, body,
+                     last_edited_by, review_status, version_number)
+                VALUES ($1, $2, $3, $4, $5,
+                        $6, 'imported', NULL, $7,
+                        $8, 'draft', 1)
+                RETURNING override_id, review_status, version_number,
+                          bundle_id, edited_at
+                """,
+                school_id,
+                forked_curriculum_id,
+                unit_id,
+                lang,
+                content_type,
+                row_bundle_id,
+                json.dumps(body),
+                teacher["teacher_id"],
+            )
+            overrides.append(
+                OverrideItem(
+                    override_id=str(new_row["override_id"]),
+                    school_id=school_id,
+                    curriculum_id=forked_curriculum_id,
+                    unit_id=unit_id,
+                    lang=lang,
+                    content_type=content_type,
+                    bundle_id=(
+                        str(new_row["bundle_id"]) if new_row["bundle_id"] else None
+                    ),
+                    content_source="imported",
+                    review_status=new_row["review_status"],
+                    version_number=new_row["version_number"],
+                    edited_at=new_row["edited_at"].isoformat(),
+                    skipped=False,
+                )
+            )
+
+    log.info(
+        "unit_content_imported",
+        school_id=school_id,
+        unit_id=unit_id,
+        lang=lang,
+        created=sum(1 for o in overrides if not o.skipped),
+        skipped=sum(1 for o in overrides if o.skipped),
+    )
+    return ImportUnitResponse(
+        forked_curriculum_id=forked_curriculum_id,
+        fork_created=fork_created,
+        overrides=overrides,
+    ).model_dump()
+
+
+# ── TA-3 helpers ──────────────────────────────────────────────────────────────
+
+
+async def _assert_school_owns_curriculum(
+    conn, school_id: str, curriculum_id: str
+) -> None:
+    """403 if curriculum_id is not a school-owned fork belonging to school_id."""
+    row = await conn.fetchrow(
+        "SELECT owner_type, school_id FROM curricula WHERE curriculum_id = $1",
+        curriculum_id,
+    )
+    if not row or row["owner_type"] != "school" or str(row["school_id"]) != school_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Curriculum does not belong to this school",
+        )
+
+
+async def _latest_overrides_for_unit(
+    conn,
+    curriculum_id: str,
+    unit_id: str,
+    lang: str,
+    content_type_filter: str | None,
+) -> list:
+    """
+    Return the latest version row for each content_type in this unit.
+
+    If content_type_filter is given, return only that content_type's latest
+    row PLUS any bundle-mates that share the same bundle_id.
+    """
+    if content_type_filter:
+        anchor = await conn.fetchrow(
+            """
+            SELECT override_id, content_type, review_status, version_number,
+                   bundle_id, last_edited_by, edited_at, rejection_reason
+            FROM unit_content_overrides
+            WHERE curriculum_id = $1 AND unit_id = $2
+              AND lang = $3 AND content_type = $4
+            ORDER BY version_number DESC
+            LIMIT 1
+            """,
+            curriculum_id,
+            unit_id,
+            lang,
+            content_type_filter,
+        )
+        if not anchor:
+            return []
+        if not anchor["bundle_id"]:
+            return [anchor]
+        # Expand to full bundle
+        return await conn.fetch(
+            """
+            SELECT DISTINCT ON (content_type)
+                override_id, content_type, review_status, version_number,
+                bundle_id, last_edited_by, edited_at, rejection_reason
+            FROM unit_content_overrides
+            WHERE bundle_id = $1
+            ORDER BY content_type, version_number DESC
+            """,
+            anchor["bundle_id"],
+        )
+
+    # All content types — latest version each
+    return await conn.fetch(
+        """
+        SELECT DISTINCT ON (content_type)
+            override_id, content_type, review_status, version_number,
+            bundle_id, last_edited_by, edited_at, rejection_reason
+        FROM unit_content_overrides
+        WHERE curriculum_id = $1 AND unit_id = $2 AND lang = $3
+        ORDER BY content_type, version_number DESC
+        """,
+        curriculum_id,
+        unit_id,
+        lang,
+    )
+
+
+# ── Unit status list ──────────────────────────────────────────────────────────
+
+
+@router.get(
+    "/schools/{school_id}/content/{curriculum_id}/units",
+)
+async def list_unit_override_status(
+    school_id: str,
+    curriculum_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+    lang: str = "en",
+) -> dict:
+    """
+    List all units in a school fork curriculum with their override status.
+
+    Shows, per unit, which content types have overrides and at what review stage.
+    Also flags whether each type is currently active (published to students).
+    """
+    from src.school.schemas import UnitOverrideStatus, UnitStatusItem, UnitStatusResponse
+
+    if teacher["school_id"] != school_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    async with get_db(request) as conn:
+        await _assert_school_owns_curriculum(conn, school_id, curriculum_id)
+
+        # Resolve source OOB curriculum_id — fork curricula have no curriculum_units rows;
+        # those live under the source OOB curriculum_id.
+        meta_row = await conn.fetchrow(
+            "SELECT name, grade, source_curriculum_id FROM curricula WHERE curriculum_id = $1",
+            curriculum_id,
+        )
+        source_id = meta_row["source_curriculum_id"] if meta_row else None
+        units_curriculum_id = source_id or curriculum_id
+
+        units = await conn.fetch(
+            """
+            SELECT cu.unit_id, cu.title, cu.subject,
+                   COALESCE(MAX(csv.subject_name), cu.subject) AS subject_name
+            FROM curriculum_units cu
+            LEFT JOIN content_subject_versions csv
+                ON csv.curriculum_id = $1 AND csv.subject = cu.subject
+            WHERE cu.curriculum_id = $1
+            GROUP BY cu.unit_id, cu.title, cu.subject
+            ORDER BY cu.subject, cu.unit_id
+            """,
+            units_curriculum_id,
+        )
+
+        # DISTINCT ON (unit_id, content_type) — latest version per unit/type combination.
+        # (Previous implementation had DISTINCT ON (content_type) which collapsed all
+        # units to a single row per content type.)
+        overrides = await conn.fetch(
+            """
+            SELECT DISTINCT ON (uco.unit_id, uco.content_type)
+                uco.override_id, uco.unit_id, uco.content_type,
+                uco.review_status, uco.version_number, uco.edited_at,
+                uco.content_source, t.name AS last_edited_by_name
+            FROM unit_content_overrides uco
+            LEFT JOIN teachers t ON t.teacher_id = uco.last_edited_by
+            WHERE uco.curriculum_id = $1 AND uco.lang = $2
+            ORDER BY uco.unit_id, uco.content_type, uco.version_number DESC
+            """,
+            curriculum_id,
+            lang,
+        )
+
+        active = await conn.fetch(
+            """
+            SELECT unit_id, content_type, override_id
+            FROM unit_content_active_versions
+            WHERE curriculum_id = $1 AND lang = $2
+            """,
+            curriculum_id,
+            lang,
+        )
+
+    active_set = {(r["unit_id"], r["content_type"]): str(r["override_id"]) for r in active}
+    override_map: dict[str, list] = {}
+    for o in overrides:
+        override_map.setdefault(o["unit_id"], []).append(o)
+
+    items = [
+        UnitStatusItem(
+            unit_id=u["unit_id"],
+            title=u["title"],
+            subject=u["subject"],
+            subject_name=u["subject_name"],
+            overrides=[
+                UnitOverrideStatus(
+                    content_type=o["content_type"],
+                    review_status=o["review_status"],
+                    version_number=o["version_number"],
+                    override_id=str(o["override_id"]),
+                    edited_at=o["edited_at"].isoformat(),
+                    is_active=active_set.get((u["unit_id"], o["content_type"])) == str(o["override_id"]),
+                    content_source=o["content_source"],
+                    last_edited_by_name=o["last_edited_by_name"],
+                )
+                for o in override_map.get(u["unit_id"], [])
+            ],
+        )
+        for u in units
+    ]
+    return UnitStatusResponse(
+        units=items,
+        total=len(items),
+        curriculum_name=meta_row["name"] if meta_row else None,
+        grade=meta_row["grade"] if meta_row else None,
+    ).model_dump()
+
+
+# ── Save draft ────────────────────────────────────────────────────────────────
+
+
+@router.put(
+    "/schools/{school_id}/content/{curriculum_id}/units/{unit_id}/overrides/{content_type}",
+)
+async def save_draft(
+    school_id: str,
+    curriculum_id: str,
+    unit_id: str,
+    content_type: str,
+    body: SaveDraftRequest,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> dict:
+    """
+    Save an edited draft for one content type in a unit.
+
+    - While review_status = 'draft': updates body in place (same row).
+    - While review_status = 'rejected': inserts a new version (MAX+1).
+      Uses SELECT FOR UPDATE to prevent version_number races.
+    - While 'pending_review' or 'approved': returns 409 — must be
+      rejected or published before re-editing.
+    - No existing override (not yet imported): returns 404.
+    """
+    from src.school.schemas import OverrideItem, SaveDraftRequest
+
+    if teacher["school_id"] != school_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    if not isinstance(body, SaveDraftRequest):
+        raise HTTPException(status_code=422, detail="Invalid body")
+
+    lang = body.lang
+
+    async with get_db(request) as conn:
+        await _assert_school_owns_curriculum(conn, school_id, curriculum_id)
+
+        async with conn.transaction():
+            latest = await conn.fetchrow(
+                """
+                SELECT override_id, review_status, version_number, bundle_id, edited_at
+                FROM unit_content_overrides
+                WHERE curriculum_id = $1 AND unit_id = $2
+                  AND lang = $3 AND content_type = $4
+                ORDER BY version_number DESC
+                LIMIT 1
+                FOR UPDATE
+                """,
+                curriculum_id,
+                unit_id,
+                lang,
+                content_type,
+            )
+
+            if not latest:
+                raise HTTPException(
+                    status_code=404,
+                    detail="No imported content found — import the unit first",
+                )
+
+            status = latest["review_status"]
+
+            if status in ("pending_review", "approved"):
+                raise HTTPException(
+                    status_code=409,
+                    detail=f"Cannot edit content in '{status}' state — reject it first",
+                )
+
+            if status == "draft":
+                # Update body in place
+                row = await conn.fetchrow(
+                    """
+                    UPDATE unit_content_overrides
+                    SET body = $1, last_edited_by = $2, edited_at = now()
+                    WHERE override_id = $3
+                    RETURNING override_id, review_status, version_number,
+                              bundle_id, edited_at, content_source
+                    """,
+                    json.dumps(body.body),
+                    teacher["teacher_id"],
+                    latest["override_id"],
+                )
+            else:
+                # 'rejected' — insert new version
+                import uuid as _uuid
+
+                new_version = latest["version_number"] + 1
+                row_bundle_id = (
+                    str(_uuid.uuid4())
+                    if content_type in _TUTORIAL_BUNDLE_TYPES
+                    else None
+                )
+                row = await conn.fetchrow(
+                    """
+                    INSERT INTO unit_content_overrides
+                        (school_id, curriculum_id, unit_id, lang, content_type,
+                         bundle_id, content_source, source_override_id, body,
+                         last_edited_by, review_status, version_number)
+                    VALUES ($1, $2, $3, $4, $5,
+                            $6, 'teacher_authored', $7, $8,
+                            $9, 'draft', $10)
+                    RETURNING override_id, review_status, version_number,
+                              bundle_id, edited_at, content_source
+                    """,
+                    school_id,
+                    curriculum_id,
+                    unit_id,
+                    lang,
+                    content_type,
+                    row_bundle_id,
+                    latest["override_id"],
+                    json.dumps(body.body),
+                    teacher["teacher_id"],
+                    new_version,
+                )
+
+    return OverrideItem(
+        override_id=str(row["override_id"]),
+        school_id=school_id,
+        curriculum_id=curriculum_id,
+        unit_id=unit_id,
+        lang=lang,
+        content_type=content_type,
+        bundle_id=str(row["bundle_id"]) if row["bundle_id"] else None,
+        content_source=row["content_source"],
+        review_status=row["review_status"],
+        version_number=row["version_number"],
+        edited_at=row["edited_at"].isoformat(),
+    ).model_dump()
+
+
+# ── Submit for review ─────────────────────────────────────────────────────────
+
+
+@router.post(
+    "/schools/{school_id}/content/{curriculum_id}/units/{unit_id}/review",
+)
+async def submit_for_review(
+    school_id: str,
+    curriculum_id: str,
+    unit_id: str,
+    body: ReviewActionRequest,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> dict:
+    """
+    Submit draft overrides for admin review.
+
+    Transitions review_status: draft → pending_review.
+    If content_type targets a bundle member, all bundle rows transition atomically.
+    If content_type is None, all draft rows for this unit+lang are submitted.
+    """
+    from src.school.schemas import ReviewActionRequest
+
+    if teacher["school_id"] != school_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    if not isinstance(body, ReviewActionRequest):
+        raise HTTPException(status_code=422, detail="Invalid body")
+
+    async with get_db(request) as conn:
+        await _assert_school_owns_curriculum(conn, school_id, curriculum_id)
+
+        rows = await _latest_overrides_for_unit(
+            conn, curriculum_id, unit_id, body.lang, body.content_type
+        )
+        draft_ids = [r["override_id"] for r in rows if r["review_status"] == "draft"]
+
+        if not draft_ids:
+            raise HTTPException(
+                status_code=409,
+                detail="No draft content found to submit for review",
+            )
+
+        async with conn.transaction():
+            await conn.execute(
+                """
+                UPDATE unit_content_overrides
+                SET review_status = 'pending_review'
+                WHERE override_id = ANY($1::uuid[])
+                """,
+                draft_ids,
+            )
+
+    return {"submitted": len(draft_ids), "override_ids": [str(i) for i in draft_ids]}
+
+
+# ── Approve ───────────────────────────────────────────────────────────────────
+
+
+@router.post(
+    "/schools/{school_id}/content/{curriculum_id}/units/{unit_id}/approve",
+)
+async def approve_unit_content(
+    school_id: str,
+    curriculum_id: str,
+    unit_id: str,
+    body: ApproveRequest,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> dict:
+    """
+    Approve pending-review overrides. school_admin only.
+
+    If body.publish=True, also publishes (upserts into unit_content_active_versions)
+    in the same transaction — the combined "Approve and publish" action.
+    """
+    from src.school.schemas import ApproveRequest
+
+    _require_school_admin(teacher, school_id, request)
+
+    if not isinstance(body, ApproveRequest):
+        raise HTTPException(status_code=422, detail="Invalid body")
+
+    async with get_db(request) as conn:
+        await _assert_school_owns_curriculum(conn, school_id, curriculum_id)
+
+        rows = await _latest_overrides_for_unit(
+            conn, curriculum_id, unit_id, body.lang, body.content_type
+        )
+        pending_rows = [r for r in rows if r["review_status"] == "pending_review"]
+        pending_ids = [r["override_id"] for r in pending_rows]
+
+        if not pending_ids:
+            raise HTTPException(
+                status_code=409,
+                detail="No pending-review content found to approve",
+            )
+
+        async with conn.transaction():
+            await conn.execute(
+                """
+                UPDATE unit_content_overrides
+                SET review_status = 'approved'
+                WHERE override_id = ANY($1::uuid[])
+                """,
+                pending_ids,
+            )
+
+            if body.publish:
+                for row in pending_rows:
+                    await conn.execute(
+                        """
+                        INSERT INTO unit_content_active_versions
+                            (school_id, curriculum_id, unit_id, lang,
+                             content_type, override_id, activated_by)
+                        VALUES ($1, $2, $3, $4, $5, $6, $7)
+                        ON CONFLICT (school_id, curriculum_id, unit_id, lang, content_type)
+                        DO UPDATE SET override_id   = EXCLUDED.override_id,
+                                      activated_by  = EXCLUDED.activated_by,
+                                      activated_at  = now()
+                        """,
+                        school_id,
+                        curriculum_id,
+                        unit_id,
+                        body.lang,
+                        row["content_type"],
+                        row["override_id"],
+                        teacher["teacher_id"],
+                    )
+
+    return {
+        "approved": len(pending_ids),
+        "published": len(pending_ids) if body.publish else 0,
+        "override_ids": [str(i) for i in pending_ids],
+    }
+
+
+# ── Reject ────────────────────────────────────────────────────────────────────
+
+
+@router.post(
+    "/schools/{school_id}/content/{curriculum_id}/units/{unit_id}/reject",
+)
+async def reject_unit_content(
+    school_id: str,
+    curriculum_id: str,
+    unit_id: str,
+    body: RejectRequest,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> dict:
+    """
+    Reject pending-review overrides with a reason. school_admin only.
+
+    Transitions review_status: pending_review → rejected.
+    Teacher can then re-edit: the next save on a rejected row creates a new version.
+    """
+    from src.school.schemas import RejectRequest
+
+    _require_school_admin(teacher, school_id, request)
+
+    if not isinstance(body, RejectRequest):
+        raise HTTPException(status_code=422, detail="Invalid body")
+
+    async with get_db(request) as conn:
+        await _assert_school_owns_curriculum(conn, school_id, curriculum_id)
+
+        rows = await _latest_overrides_for_unit(
+            conn, curriculum_id, unit_id, body.lang, body.content_type
+        )
+        pending_ids = [r["override_id"] for r in rows if r["review_status"] == "pending_review"]
+
+        if not pending_ids:
+            raise HTTPException(
+                status_code=409,
+                detail="No pending-review content found to reject",
+            )
+
+        async with conn.transaction():
+            await conn.execute(
+                """
+                UPDATE unit_content_overrides
+                SET review_status = 'rejected', rejection_reason = $2
+                WHERE override_id = ANY($1::uuid[])
+                """,
+                pending_ids,
+                body.reason,
+            )
+
+    return {"rejected": len(pending_ids), "override_ids": [str(i) for i in pending_ids]}
+
+
+# ── Publish approved ──────────────────────────────────────────────────────────
+
+
+@router.post(
+    "/schools/{school_id}/content/{curriculum_id}/units/{unit_id}/publish",
+)
+async def publish_unit_content(
+    school_id: str,
+    curriculum_id: str,
+    unit_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+    lang: str = "en",
+    content_type: str | None = None,
+) -> dict:
+    """
+    Publish all approved overrides for a unit to students. school_admin only.
+
+    Upserts into unit_content_active_versions. Separate from approve() so the
+    admin can batch-approve many units and then publish in one sweep.
+    """
+    _require_school_admin(teacher, school_id, request)
+
+    async with get_db(request) as conn:
+        await _assert_school_owns_curriculum(conn, school_id, curriculum_id)
+
+        rows = await _latest_overrides_for_unit(
+            conn, curriculum_id, unit_id, lang, content_type
+        )
+        approved_rows = [r for r in rows if r["review_status"] == "approved"]
+
+        if not approved_rows:
+            raise HTTPException(
+                status_code=409,
+                detail="No approved content found to publish",
+            )
+
+        async with conn.transaction():
+            for row in approved_rows:
+                await conn.execute(
+                    """
+                    INSERT INTO unit_content_active_versions
+                        (school_id, curriculum_id, unit_id, lang,
+                         content_type, override_id, activated_by)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7)
+                    ON CONFLICT (school_id, curriculum_id, unit_id, lang, content_type)
+                    DO UPDATE SET override_id   = EXCLUDED.override_id,
+                                  activated_by  = EXCLUDED.activated_by,
+                                  activated_at  = now()
+                    """,
+                    school_id,
+                    curriculum_id,
+                    unit_id,
+                    lang,
+                    row["content_type"],
+                    row["override_id"],
+                    teacher["teacher_id"],
+                )
+
+    # Invalidate L2 override cache for each published content type so students
+    # see the new content on the next request without waiting for TTL expiry.
+    from src.core.cache_keys import override_key as _override_key
+    from src.core.redis_client import get_redis as _get_redis
+
+    redis = _get_redis(request)
+    for row in approved_rows:
+        await redis.delete(_override_key(school_id, curriculum_id, unit_id, lang, row["content_type"]))
+
+    return {"published": len(approved_rows), "override_ids": [str(r["override_id"]) for r in approved_rows]}

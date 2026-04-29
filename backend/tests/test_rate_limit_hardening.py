@@ -94,7 +94,7 @@ async def test_enforce_fail_open_on_redis_error(monkeypatch) -> None:
     req = _make_request(client_host="10.0.0.1")
     redis = AsyncMock()
     redis.incr.side_effect = RedisConnectionError("redis down")
-    req.app = type("App", (), {"state": type("S", (), {"redis": redis})()})()
+    req.scope["app"] = type("App", (), {"state": type("S", (), {"redis": redis})()})()
 
     # Should NOT raise — fail open.
     await _enforce_rate_limit(req, key_prefix="auth_rate", limit=10, window=60)
@@ -106,7 +106,7 @@ async def test_enforce_no_ip_passes_through() -> None:
     """No resolvable client IP → pass through rather than bucket everyone."""
     req = _make_request(client_host=None)
     redis = AsyncMock()
-    req.app = type("App", (), {"state": type("S", (), {"redis": redis})()})()
+    req.scope["app"] = type("App", (), {"state": type("S", (), {"redis": redis})()})()
 
     await _enforce_rate_limit(req, key_prefix="auth_rate", limit=10, window=60)
     redis.incr.assert_not_called()
@@ -121,7 +121,7 @@ async def test_enforce_raises_429_with_retry_after() -> None:
     redis = AsyncMock()
     redis.incr.return_value = 11  # one past the limit
     redis.ttl.return_value = 42
-    req.app = type("App", (), {"state": type("S", (), {"redis": redis})()})()
+    req.scope["app"] = type("App", (), {"state": type("S", (), {"redis": redis})()})()
 
     with pytest.raises(HTTPException) as exc_info:
         await _enforce_rate_limit(req, key_prefix="auth_rate", limit=10, window=60)
@@ -138,7 +138,7 @@ async def test_enforce_retry_after_falls_back_to_window() -> None:
     redis = AsyncMock()
     redis.incr.return_value = 11
     redis.ttl.return_value = -1
-    req.app = type("App", (), {"state": type("S", (), {"redis": redis})()})()
+    req.scope["app"] = type("App", (), {"state": type("S", (), {"redis": redis})()})()
 
     with pytest.raises(HTTPException) as exc_info:
         await _enforce_rate_limit(req, key_prefix="auth_rate", limit=10, window=60)
@@ -151,7 +151,7 @@ async def test_enforce_below_limit_passes_and_sets_ttl_on_first_hit() -> None:
     req = _make_request(client_host="10.0.0.4")
     redis = AsyncMock()
     redis.incr.return_value = 1  # first hit
-    req.app = type("App", (), {"state": type("S", (), {"redis": redis})()})()
+    req.scope["app"] = type("App", (), {"state": type("S", (), {"redis": redis})()})()
 
     await _enforce_rate_limit(req, key_prefix="auth_rate", limit=10, window=60)
     redis.expire.assert_awaited_once_with("auth_rate:10.0.0.4", 60)
@@ -162,7 +162,7 @@ async def test_enforce_subsequent_hits_do_not_re_set_ttl() -> None:
     req = _make_request(client_host="10.0.0.5")
     redis = AsyncMock()
     redis.incr.return_value = 5  # mid-window
-    req.app = type("App", (), {"state": type("S", (), {"redis": redis})()})()
+    req.scope["app"] = type("App", (), {"state": type("S", (), {"redis": redis})()})()
 
     await _enforce_rate_limit(req, key_prefix="auth_rate", limit=10, window=60)
     redis.expire.assert_not_called()

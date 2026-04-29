@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Play, Pause, RotateCcw, CheckCircle2, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { QuizQuestion } from "@/components/scenario/types";
+import type { QuizQuestion } from "@/components/demos/scenario/types";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

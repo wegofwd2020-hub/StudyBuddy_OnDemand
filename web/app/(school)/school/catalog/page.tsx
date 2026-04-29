@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTeacher } from "@/lib/hooks/useTeacher";
 import {
   getCatalog,
+  getLibrary,
+  adoptCurriculum,
   type CatalogEntry,
   type CatalogSubjectSummary,
 } from "@/lib/api/school-admin";
@@ -19,6 +21,8 @@ import {
   Circle,
   ChevronDown,
   ChevronRight,
+  BookMarked,
+  Plus,
 } from "lucide-react";
 
 const ALL_GRADES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
@@ -45,7 +49,19 @@ function SubjectRow({ s }: { s: CatalogSubjectSummary }) {
 
 // ── Catalog card ───────────────────────────────────────────────────────────────
 
-function CatalogCard({ pkg }: { pkg: CatalogEntry }) {
+function CatalogCard({
+  pkg,
+  adopted,
+  isAdmin,
+  onAdopt,
+  adopting,
+}: {
+  pkg: CatalogEntry;
+  adopted: boolean;
+  isAdmin: boolean;
+  onAdopt: (curriculumId: string) => void;
+  adopting: boolean;
+}) {
   const [expanded, setExpanded] = useState(false);
 
   const readySubjects = pkg.subjects.filter((s) => s.has_content).length;
@@ -72,18 +88,38 @@ function CatalogCard({ pkg }: { pkg: CatalogEntry }) {
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={() => setExpanded((v) => !v)}
-            className="shrink-0 rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-            aria-label={expanded ? "Collapse subjects" : "Expand subjects"}
-          >
-            {expanded ? (
-              <ChevronDown className="h-4 w-4" />
-            ) : (
-              <ChevronRight className="h-4 w-4" />
+          <div className="flex shrink-0 items-center gap-1">
+            {isAdmin && (
+              adopted ? (
+                <span className="flex items-center gap-1 rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700">
+                  <BookMarked className="h-3.5 w-3.5" />
+                  In library
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => onAdopt(pkg.curriculum_id)}
+                  disabled={adopting}
+                  className="flex items-center gap-1 rounded-md bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  {adopting ? "Adding…" : "Add to library"}
+                </button>
+              )
             )}
-          </button>
+            <button
+              type="button"
+              onClick={() => setExpanded((v) => !v)}
+              className="rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+              aria-label={expanded ? "Collapse subjects" : "Expand subjects"}
+            >
+              {expanded ? (
+                <ChevronDown className="h-4 w-4" />
+              ) : (
+                <ChevronRight className="h-4 w-4" />
+              )}
+            </button>
+          </div>
         </CardTitle>
       </CardHeader>
 
@@ -127,13 +163,37 @@ function CatalogCard({ pkg }: { pkg: CatalogEntry }) {
 
 export default function CatalogPage() {
   const teacher = useTeacher();
+  const schoolId = teacher?.school_id ?? "";
+  const isAdmin = teacher?.role === "school_admin";
+  const queryClient = useQueryClient();
   const [gradeFilter, setGradeFilter] = useState<number | "">("");
+  const [adoptingId, setAdoptingId] = useState<string | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["catalog", gradeFilter],
     queryFn: () => getCatalog(gradeFilter === "" ? undefined : gradeFilter),
     staleTime: 60_000,
     enabled: !!teacher,
+  });
+
+  const { data: libraryData } = useQuery({
+    queryKey: ["library", schoolId],
+    queryFn: () => getLibrary(schoolId),
+    enabled: !!schoolId && isAdmin,
+    staleTime: 60_000,
+  });
+
+  const adoptedIds = new Set(
+    (libraryData?.adoptions ?? []).map((a) => a.curriculum_id),
+  );
+
+  const adoptMutation = useMutation({
+    mutationFn: (curriculumId: string) => adoptCurriculum(schoolId, curriculumId),
+    onMutate: (curriculumId) => setAdoptingId(curriculumId),
+    onSettled: () => {
+      setAdoptingId(null);
+      queryClient.invalidateQueries({ queryKey: ["library", schoolId] });
+    },
   });
 
   const packages = data?.packages ?? [];
@@ -194,7 +254,14 @@ export default function CatalogPage() {
       ) : packages.length > 0 ? (
         <div className="space-y-4">
           {packages.map((pkg) => (
-            <CatalogCard key={pkg.curriculum_id} pkg={pkg} />
+            <CatalogCard
+              key={pkg.curriculum_id}
+              pkg={pkg}
+              adopted={adoptedIds.has(pkg.curriculum_id)}
+              isAdmin={isAdmin}
+              onAdopt={(id) => adoptMutation.mutate(id)}
+              adopting={adoptingId === pkg.curriculum_id}
+            />
           ))}
         </div>
       ) : (

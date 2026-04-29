@@ -477,6 +477,127 @@ class SchoolLLMConfigResponse(BaseModel):
     dpa_acknowledged_at: dict  # {provider_id: ISO timestamp}
 
 
+# ── School curriculum library (TA-0 / TA-2) ──────────────────────────────────
+
+
+class AdoptCurriculumRequest(BaseModel):
+    """POST /schools/{school_id}/library"""
+
+    curriculum_id: str
+    notes: str | None = None
+
+
+class AdoptionItem(BaseModel):
+    """One row returned from GET /schools/{school_id}/library"""
+
+    adoption_id: str
+    curriculum_id: str
+    forked_curriculum_id: str | None
+    name: str
+    grade: int | None
+    year: int | None
+    status: str
+    notes: str | None
+    adopted_at: str
+    has_overrides: bool
+
+
+class LibraryResponse(BaseModel):
+    adoptions: list[AdoptionItem]
+    total: int
+
+
+class UpdateAdoptionRequest(BaseModel):
+    """PATCH /schools/{school_id}/library/{adoption_id}"""
+
+    status: str | None = None
+    notes: str | None = None
+
+    @field_validator("status")
+    @classmethod
+    def valid_status(cls, v: str | None) -> str | None:
+        if v is not None and v not in {"active", "deactivated"}:
+            raise ValueError("status must be 'active' or 'deactivated'")
+        return v
+
+
+class OverrideItem(BaseModel):
+    """One row from unit_content_overrides."""
+
+    override_id: str
+    school_id: str
+    curriculum_id: str
+    unit_id: str
+    lang: str
+    content_type: str
+    bundle_id: str | None
+    content_source: str
+    review_status: str
+    version_number: int
+    edited_at: str
+    skipped: bool = False
+
+
+class ImportUnitResponse(BaseModel):
+    """POST /schools/{school_id}/library/{adoption_id}/units/{unit_id}/import"""
+
+    forked_curriculum_id: str
+    fork_created: bool
+    overrides: list[OverrideItem]
+
+
+# ── TA-3 — Edit + governance schemas ─────────────────────────────────────────
+
+
+class SaveDraftRequest(BaseModel):
+    """PUT .../units/{unit_id}/overrides/{content_type}"""
+
+    body: dict
+    lang: str = "en"
+
+
+class UnitOverrideStatus(BaseModel):
+    content_type: str
+    review_status: str
+    version_number: int
+    override_id: str
+    edited_at: str
+    is_active: bool
+    content_source: str
+    last_edited_by_name: str | None = None
+
+
+class UnitStatusItem(BaseModel):
+    unit_id: str
+    title: str
+    subject: str
+    subject_name: str | None = None
+    overrides: list[UnitOverrideStatus]
+
+
+class UnitStatusResponse(BaseModel):
+    units: list[UnitStatusItem]
+    total: int
+    curriculum_name: str | None = None
+    grade: int | None = None
+    forked_curriculum_id: str | None = None
+
+
+class ReviewActionRequest(BaseModel):
+    """Shared base for submit/approve/reject — acts on all content types when content_type is None."""
+
+    content_type: str | None = None
+    lang: str = "en"
+
+
+class ApproveRequest(ReviewActionRequest):
+    publish: bool = False
+
+
+class RejectRequest(ReviewActionRequest):
+    reason: str
+
+
 class SchoolLLMConfigUpdateRequest(BaseModel):
     """PUT /schools/{school_id}/llm-config"""
 

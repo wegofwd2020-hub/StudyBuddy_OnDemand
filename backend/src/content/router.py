@@ -125,22 +125,40 @@ async def _get_curriculum_and_check_published(
     unit_id: str,
     content_type: str,
     student_payload: dict,
+    pre_resolved_curriculum_id: str | None = None,
 ) -> tuple[str, str]:
     """
     Resolve curriculum_id and subject, then check published + block guards.
 
-    Returns (curriculum_id, subject).
+    Returns (serving_curriculum_id, subject). For school fork curricula,
+    serving_curriculum_id is the source OOB curriculum_id so that
+    curriculum_units and content_subject_versions lookups work correctly.
     Raises HTTPException 404 if not published, 403 if blocked.
     """
+    from src.content.service import get_fork_source_curriculum as _gfsc
+
     redis = get_redis(request)
     pool = request.app.state.pool
     student_id = student_payload["student_id"]
     grade = student_payload.get("grade", 8)
     school_id = student_payload.get("school_id")
 
-    curriculum_id = await resolve_curriculum_id(student_id, grade, pool, redis, school_id=school_id)
+    curriculum_id = pre_resolved_curriculum_id or await resolve_curriculum_id(
+        student_id, grade, pool, redis, school_id=school_id
+    )
 
     subject = await get_unit_subject(unit_id, curriculum_id, pool)
+
+    # Fork→OOB fallback: school fork curricula have no rows in curriculum_units
+    # (those live under the source OOB curriculum_id). Swap to the OOB id so
+    # that the published check and content store reads work correctly.
+    if subject is None and school_id:
+        source_id = await _gfsc(curriculum_id, school_id, pool)
+        if source_id:
+            subject = await get_unit_subject(unit_id, source_id, pool)
+            if subject is not None:
+                curriculum_id = source_id
+
     if subject is None:
         raise HTTPException(
             status_code=404,
@@ -186,21 +204,39 @@ async def get_lesson(
     Entitlement guard: free-tier students are limited to 2 lessons.
     Increments lessons_accessed after serving.
     """
+    from src.content.service import get_active_override as _gao
+
     redis = get_redis(request)
     pool = request.app.state.pool
     student_id = student["student_id"]
     locale = student.get("locale", "en")
+    school_id = student.get("school_id")
+
+    # Active override path: school students may have teacher-authored content.
+    pre_resolved: str | None = None
+    if school_id:
+        pre_resolved = await resolve_curriculum_id(
+            student_id, student.get("grade", 8), pool, redis, school_id=school_id
+        )
+        override = await _gao(school_id, pre_resolved, unit_id, locale, "lesson", pool, redis)
+        if override:
+            try:
+                await increment_lessons_accessed(student_id, pool, redis, school_id=school_id)
+            except Exception as exc:
+                log.warning(
+                    "increment_lessons_accessed_failed student_id=%s error=%s", student_id, exc
+                )
+            log.info("lesson_override_served unit_id=%s student_id=%s", unit_id, student_id)
+            return LessonResponse(**_normalize_lesson(override))
 
     curriculum_id, _subject = await _get_curriculum_and_check_published(
-        request, unit_id, "lesson", student
+        request, unit_id, "lesson", student, pre_resolved_curriculum_id=pre_resolved
     )
 
     # Entitlement check — demo students get full access for the duration of their
     # 24-hour trial; the TTL on their account is the effective subscription limit.
     if student.get("role") != "demo_student":
-        entitlement = await get_entitlement(
-            student_id, pool, redis, school_id=student.get("school_id")
-        )
+        entitlement = await get_entitlement(student_id, pool, redis, school_id=school_id)
         if (
             entitlement["plan"] == "free"
             and entitlement["lessons_accessed"] >= _FREE_TIER_LESSON_LIMIT
@@ -217,7 +253,6 @@ async def get_lesson(
     try:
         data = await get_content_file(curriculum_id, unit_id, filename, redis, storage)
     except FileNotFoundError:
-        # Try English fallback
         try:
             data = await get_content_file(curriculum_id, unit_id, "lesson_en.json", redis, storage)
         except FileNotFoundError:
@@ -226,12 +261,8 @@ async def get_lesson(
                 detail={"error": "not_found", "detail": "Lesson content not found."},
             )
 
-    # Fire-and-forget: increment counter (async, no await-on-hot-path issues
-    # since this is a simple DB upsert, not a Celery task in Phase 2)
     try:
-        await increment_lessons_accessed(
-            student_id, pool, redis, school_id=student.get("school_id")
-        )
+        await increment_lessons_accessed(student_id, pool, redis, school_id=school_id)
     except Exception as exc:
         log.warning("increment_lessons_accessed_failed student_id=%s error=%s", student_id, exc)
 
@@ -283,17 +314,38 @@ async def get_quiz(
     """
     Serve a quiz set, rotating through sets 1→2→3→1 per student per unit.
     """
+    from src.content.service import get_active_override as _gao
+
     redis = get_redis(request)
+    pool = request.app.state.pool
     student_id = student["student_id"]
     locale = student.get("locale", "en")
-
-    curriculum_id, _subject = await _get_curriculum_and_check_published(
-        request, unit_id, "quiz", student
-    )
+    school_id = student.get("school_id")
 
     set_number = await get_next_quiz_set(student_id, unit_id, redis)
-    filename = f"quiz_set_{set_number}_{locale}.json"
+    quiz_content_type = f"quiz_set_{set_number}"
 
+    # Active override path: school students may have teacher-authored quiz sets.
+    pre_resolved: str | None = None
+    if school_id:
+        pre_resolved = await resolve_curriculum_id(
+            student_id, student.get("grade", 8), pool, redis, school_id=school_id
+        )
+        override = await _gao(
+            school_id, pre_resolved, unit_id, locale, quiz_content_type, pool, redis
+        )
+        if override:
+            log.info(
+                "quiz_override_served unit_id=%s set=%d student_id=%s",
+                unit_id, set_number, student_id,
+            )
+            return QuizResponse(**override)
+
+    curriculum_id, _subject = await _get_curriculum_and_check_published(
+        request, unit_id, "quiz", student, pre_resolved_curriculum_id=pre_resolved
+    )
+
+    filename = f"quiz_set_{set_number}_{locale}.json"
     try:
         data = await get_content_file(curriculum_id, unit_id, filename, redis, storage)
     except FileNotFoundError:
@@ -322,12 +374,27 @@ async def get_tutorial(
     storage: StorageBackend = Depends(get_storage),
 ):
     """Serve the tutorial for a unit."""
+    from src.content.service import get_active_override as _gao
+
     redis = get_redis(request)
+    pool = request.app.state.pool
     locale = student.get("locale", "en")
     student_id = student["student_id"]
+    school_id = student.get("school_id")
+
+    # Active override path for school students.
+    pre_resolved: str | None = None
+    if school_id:
+        pre_resolved = await resolve_curriculum_id(
+            student_id, student.get("grade", 8), pool, redis, school_id=school_id
+        )
+        override = await _gao(school_id, pre_resolved, unit_id, locale, "tutorial", pool, redis)
+        if override:
+            log.info("tutorial_override_served unit_id=%s student_id=%s", unit_id, student_id)
+            return TutorialResponse(**override)
 
     curriculum_id, _subject = await _get_curriculum_and_check_published(
-        request, unit_id, "tutorial", student
+        request, unit_id, "tutorial", student, pre_resolved_curriculum_id=pre_resolved
     )
 
     filename = f"tutorial_{locale}.json"
@@ -362,12 +429,27 @@ async def get_experiment(
     Serve the lab experiment for a unit.
     Returns 404 if no experiment file exists (non-lab unit).
     """
+    from src.content.service import get_active_override as _gao
+
     redis = get_redis(request)
+    pool = request.app.state.pool
     locale = student.get("locale", "en")
     student_id = student["student_id"]
+    school_id = student.get("school_id")
+
+    # Active override path for school students.
+    pre_resolved: str | None = None
+    if school_id:
+        pre_resolved = await resolve_curriculum_id(
+            student_id, student.get("grade", 8), pool, redis, school_id=school_id
+        )
+        override = await _gao(school_id, pre_resolved, unit_id, locale, "experiment", pool, redis)
+        if override:
+            log.info("experiment_override_served unit_id=%s student_id=%s", unit_id, student_id)
+            return ExperimentResponse(**override)
 
     curriculum_id, _subject = await _get_curriculum_and_check_published(
-        request, unit_id, "experiment", student
+        request, unit_id, "experiment", student, pre_resolved_curriculum_id=pre_resolved
     )
 
     filename = f"experiment_{locale}.json"

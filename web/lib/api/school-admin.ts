@@ -777,6 +777,55 @@ export async function getCatalog(grade?: number): Promise<CatalogResponse> {
   return res.data;
 }
 
+// ── School curriculum library (TA-0) ─────────────────────────────────────────
+
+export interface AdoptionItem {
+  adoption_id: string;
+  curriculum_id: string;
+  forked_curriculum_id: string | null;
+  name: string;
+  grade: number | null;
+  year: number | null;
+  status: "active" | "deactivated";
+  notes: string | null;
+  adopted_at: string;
+  has_overrides: boolean;
+}
+
+export interface LibraryResponse {
+  adoptions: AdoptionItem[];
+  total: number;
+}
+
+export async function getLibrary(schoolId: string): Promise<LibraryResponse> {
+  const res = await schoolApi.get<LibraryResponse>(`/schools/${schoolId}/library`);
+  return res.data;
+}
+
+export async function adoptCurriculum(
+  schoolId: string,
+  curriculumId: string,
+  notes?: string,
+): Promise<AdoptionItem> {
+  const res = await schoolApi.post<AdoptionItem>(`/schools/${schoolId}/library`, {
+    curriculum_id: curriculumId,
+    notes: notes ?? null,
+  });
+  return res.data;
+}
+
+export async function updateAdoption(
+  schoolId: string,
+  adoptionId: string,
+  patch: { status?: "active" | "deactivated"; notes?: string },
+): Promise<AdoptionItem> {
+  const res = await schoolApi.patch<AdoptionItem>(
+    `/schools/${schoolId}/library/${adoptionId}`,
+    patch,
+  );
+  return res.data;
+}
+
 // ── Phase D — Curriculum Definitions ──────────────────────────────────────────
 
 export interface DefinitionUnit {
@@ -867,6 +916,70 @@ export async function rejectDefinition(
   const res = await schoolApi.post<CurriculumDefinition>(
     `/schools/${schoolId}/curriculum/definitions/${definitionId}/reject`,
     { reason },
+  );
+  return res.data;
+}
+
+// ── TA-6a — Unit override status list ────────────────────────────────────────
+
+export interface UnitOverrideStatus {
+  content_type: string;
+  review_status: "draft" | "pending_review" | "approved" | "rejected";
+  version_number: number;
+  override_id: string;
+  edited_at: string;
+  is_active: boolean;
+  content_source: "imported" | "ai_assisted" | "teacher_authored";
+  last_edited_by_name: string | null;
+}
+
+export interface UnitStatusItem {
+  unit_id: string;
+  title: string;
+  subject: string;
+  subject_name: string | null;
+  overrides: UnitOverrideStatus[];
+}
+
+export interface UnitStatusResponse {
+  units: UnitStatusItem[];
+  total: number;
+  curriculum_name: string | null;
+  grade: number | null;
+  forked_curriculum_id: string | null;
+}
+
+export async function listUnitOverrideStatus(
+  schoolId: string,
+  curriculumId: string,
+  lang = "en",
+): Promise<UnitStatusResponse> {
+  const res = await schoolApi.get<UnitStatusResponse>(
+    `/schools/${schoolId}/content/${curriculumId}/units`,
+    { params: { lang } },
+  );
+  return res.data;
+}
+
+export async function listAdoptionUnits(
+  schoolId: string,
+  adoptionId: string,
+  lang = "en",
+): Promise<UnitStatusResponse> {
+  const res = await schoolApi.get<UnitStatusResponse>(
+    `/schools/${schoolId}/library/${adoptionId}/units`,
+    { params: { lang } },
+  );
+  return res.data;
+}
+
+export async function importUnit(
+  schoolId: string,
+  adoptionId: string,
+  unitId: string,
+): Promise<{ forked_curriculum_id: string; fork_created: boolean }> {
+  const res = await schoolApi.post(
+    `/schools/${schoolId}/library/${adoptionId}/units/${unitId}/import`,
   );
   return res.data;
 }

@@ -296,7 +296,7 @@ def _register_routers(app: FastAPI) -> None:
     from src.demo_leads.router import router as demo_leads_router
 
     app.include_router(demo_leads_router, prefix="/api/v1")
-    from src.scenarios.router import router as scenarios_router
+    from src.demos.scenarios.router import router as scenarios_router
 
     app.include_router(scenarios_router, prefix="/api/v1")
 

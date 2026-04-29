@@ -18,7 +18,7 @@ import json
 import os
 import sys
 import tempfile
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -56,6 +56,13 @@ _VALID_LESSON = {
     "subject": "Science",
     "topic": "Density",
     "synopsis": "Learn about density.",
+    "sections": [
+        {
+            "heading": "Introduction",
+            "body": "Density is mass divided by volume, measured in kg/m³.",
+        }
+    ],
+    "key_points": ["Density = mass / volume"],
     "key_concepts": ["density", "buoyancy"],
     "learning_objectives": ["Explain density"],
     "reading_level": "Grade 8",
