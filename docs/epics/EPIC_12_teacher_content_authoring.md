@@ -82,7 +82,29 @@ Experiment) are explicitly out of scope for this epic.
 
 ## Current state
 
-### What exists
+### Curriculum–school association — what already exists and where it falls short
+
+Three tables partially address the school–curriculum relationship:
+
+| Table | What it tracks | Limitation |
+|---|---|---|
+| `grade_curriculum_assignments` (migration 0029) | One `curriculum_id` per `(school_id, grade)` | One curriculum per grade only; no record of OOB adoption; no status or provenance |
+| `classroom_packages` (migration 0038) | Many-to-many: `(classroom_id, curriculum_id)` | Classroom-level, not school-level; no record of who chose the curriculum or why |
+| `GET /curricula/catalog` (Phase C) | Reads OOB curricula and their content readiness | Browse-only endpoint; no selection is persisted |
+
+**The gap:** there is no school-level table that records "this school has adopted OOB curriculum X."
+As a result:
+
+- The school portal has no "our library" view — no way to see which OOB curricula the
+  school is currently using.
+- The import step (TA-2 below) has no gate to check against — a school could attempt
+  to import from any OOB curriculum, not just one they have intentionally selected.
+- There is no lifecycle for the association (active / deactivated / replaced).
+- There is no record of who at the school made the selection and when.
+
+This gap is addressed in TA-0 below, which is a prerequisite for TA-2.
+
+### What exists (content layer)
 
 | Component | State |
 |---|---|
@@ -142,7 +164,8 @@ here, BriefCase inherits it.
 
 | Phase | What gets built | Size |
 |---|---|---|
-| **TA-1** | **Migration 0050 — `unit_content_overrides` table.** Schema: `override_id UUID PK`, `school_id UUID NOT NULL REFERENCES schools`, `curriculum_id TEXT NOT NULL`, `unit_id TEXT NOT NULL`, `lang TEXT NOT NULL DEFAULT 'en'`, `content_type TEXT NOT NULL DEFAULT 'lesson'`, `content_source TEXT NOT NULL CHECK (content_source IN ('imported','ai_assisted','teacher_authored'))`, `source_curriculum_id TEXT` (nullable — which OOB curriculum was imported from), `body JSONB NOT NULL`, `ai_model TEXT` (nullable — which LLM if `ai_assisted`), `last_edited_by UUID REFERENCES teachers`, `edited_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`, `review_status TEXT NOT NULL DEFAULT 'draft' CHECK (review_status IN ('draft','pending_review','approved','rejected'))`, `version_number INT NOT NULL DEFAULT 1`. Unique index on `(curriculum_id, unit_id, lang, content_type, version_number)`. RLS: school session can INSERT/UPDATE/SELECT rows WHERE `school_id = current_school_id`; service role bypass for serving path. | S |
+| **TA-0** | **School curriculum library — adoption tracking.** New `school_adopted_curricula` table + endpoints + school portal "Our Library" page. Gate for the import step. | M |
+| **TA-1** | **Migration 0051 — `unit_content_overrides` table.** Schema: `override_id UUID PK`, `school_id UUID NOT NULL REFERENCES schools`, `curriculum_id TEXT NOT NULL`, `unit_id TEXT NOT NULL`, `lang TEXT NOT NULL DEFAULT 'en'`, `content_type TEXT NOT NULL DEFAULT 'lesson'`, `content_source TEXT NOT NULL CHECK (content_source IN ('imported','ai_assisted','teacher_authored'))`, `source_curriculum_id TEXT` (nullable — which OOB curriculum was imported from), `body JSONB NOT NULL`, `ai_model TEXT` (nullable — which LLM if `ai_assisted`), `last_edited_by UUID REFERENCES teachers`, `edited_at TIMESTAMPTZ NOT NULL DEFAULT NOW()`, `review_status TEXT NOT NULL DEFAULT 'draft' CHECK (review_status IN ('draft','pending_review','approved','rejected'))`, `version_number INT NOT NULL DEFAULT 1`. Unique index on `(curriculum_id, unit_id, lang, content_type, version_number)`. RLS: school session can INSERT/UPDATE/SELECT rows WHERE `school_id = current_school_id`; service role bypass for serving path. | S |
 | **TA-2** | **Import endpoint.** `POST /schools/{school_id}/curricula/{curriculum_id}/units/{unit_id}/import` — body: `{source_curriculum_id, lang, content_type}`. Reads the OOB lesson file from the Content Store for `source_curriculum_id` / `unit_id` / `lang`. Creates a new `unit_content_overrides` row with `content_source='imported'`, `source_curriculum_id` recorded, `version_number=1`. Returns 201 with the new override row. Returns 409 if an override already exists for `(curriculum_id, unit_id, lang, content_type)` — must call the edit endpoint instead. Fires `write_audit_log` event `content.imported`. | S |
 | **TA-3** | **Write (edit) endpoint.** `PUT /schools/{school_id}/curricula/{curriculum_id}/units/{unit_id}/content` — body: `{lang, content_type, body, content_source}`. Validates `body` against the existing Pydantic schema for the `content_type` (e.g. `LessonResponse`). If an override row exists, creates a new version row (`version_number = MAX + 1`) — never updates in place. Stamps `last_edited_by`, `edited_at`, `ai_model` (if `content_source='ai_assisted'`). Sets `review_status='draft'`. Fires `content.edited` audit event. Returns 200 with the new version row. | M |
 | **TA-4** | **Pipeline guard.** In `pipeline/build_unit.py::build_unit()`, after generating content and before `_write_json()`, query `unit_content_overrides` for any row with `(curriculum_id, unit_id, lang, content_type)` — any `content_source` value qualifies. If found, skip `_write_json()` and log `unit_skip_school_override unit_id=%s lang=%s`. Uses `SET app.current_school_id = 'bypass'` per pitfall #28. | S |
@@ -151,7 +174,72 @@ here, BriefCase inherits it.
 | **TA-7** | **Admin review queue — provenance badge.** Add `content_source` badge to each unit row in `/admin/content-review` and the version detail page. Values and colours match TA-6. Source: query `unit_content_overrides` for the highest approved/draft version; fall back to `'ai_generated'`. Visibility only — no workflow change in this phase. | S |
 | **TA-8** | **Version history in school portal.** On the unit viewer, below the content, add a **Version history** collapsible panel listing all `unit_content_overrides` rows for `(curriculum_id, unit_id, lang, content_type)` ordered by `version_number` desc. Each row shows: version number, `content_source` badge, editor name, `edited_at`. **Restore** button calls TA-3 with the selected version's `body`, creating a new `version_number = MAX + 1` row. No version is ever deleted. | M |
 
-**Total estimated size: 3S + 4M ≈ 5–7 engineer-weeks**
+**Total estimated size: 1S + 5M ≈ 6–8 engineer-weeks** (TA-0 adds one M to the prior estimate)
+
+---
+
+### TA-0 detail — School curriculum library
+
+**TA-0a — Migration 0050 (prerequisite): `school_adopted_curricula` table.**
+
+```sql
+CREATE TABLE school_adopted_curricula (
+    adoption_id    UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
+    school_id      UUID         NOT NULL REFERENCES schools(school_id) ON DELETE CASCADE,
+    curriculum_id  TEXT         NOT NULL REFERENCES curricula(curriculum_id) ON DELETE RESTRICT,
+    grade          INTEGER      CHECK (grade BETWEEN 1 AND 12),
+    adopted_by     UUID         REFERENCES teachers(teacher_id) ON DELETE SET NULL,
+    adopted_at     TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+    status         TEXT         NOT NULL DEFAULT 'active'
+                                CHECK (status IN ('active', 'deactivated')),
+    notes          TEXT,
+    UNIQUE (school_id, curriculum_id)
+);
+```
+
+RLS: school session can SELECT/INSERT/UPDATE rows WHERE `school_id = current_school_id`.
+Service role bypass for serving path and admin queries.
+
+> **Relationship to existing tables:**
+> `grade_curriculum_assignments` (`school_id, grade` → one `curriculum_id`) records
+> *which curriculum a grade is currently assigned to*. `school_adopted_curricula`
+> records *which curricula the school has ever chosen to use* — a school-level
+> catalog membership, independent of grade assignment. A curriculum can be in the
+> library without being actively assigned to a grade (e.g., being evaluated), and
+> a grade can be assigned to a curriculum that was adopted earlier. The two tables
+> serve different queries: "what is Grade 8 studying?" vs. "what curricula has
+> this school ever adopted?".
+
+**TA-0b — Backend endpoints.**
+
+| Endpoint | What it does |
+|---|---|
+| `GET /schools/{school_id}/library` | Returns all `school_adopted_curricula` rows for the school, joined with `curricula` metadata (name, grade, owner_type, content readiness). Filterable by `status`, `grade`. |
+| `POST /schools/{school_id}/library` | Body: `{curriculum_id, grade?, notes?}`. Adopts an OOB or school-owned curriculum into the school's library. Creates a row with `status='active'`. Returns 409 if already adopted. Fires `audit_log` event `curriculum.adopted`. |
+| `PATCH /schools/{school_id}/library/{adoption_id}` | Body: `{status?, notes?}`. Deactivates or reactivates an adoption. Fires `curriculum.adoption_status_changed`. |
+
+**TA-0c — School portal "Our Library" page** at `/school/library`.
+
+Displays a table of all adopted curricula with columns: Curriculum name, Grade,
+Owner (Platform / Our school), Content readiness bar (reuses Phase C component),
+Status badge (Active / Deactivated), Adopted by, Adopted at.
+
+Actions per row:
+- **Assign to grade** → shortcut to update `grade_curriculum_assignments` for the
+  specified grade.
+- **Browse content** → navigates to the existing catalog detail / content viewer.
+- **Deactivate** → marks the adoption inactive; curriculum stays in history.
+
+A **Browse OOB catalog** button links to the existing `/school/catalog` page, where
+an **Add to our library** button (new) calls TA-0b `POST /schools/{id}/library`.
+
+**TA-0 gate for TA-2 (import):**
+The import endpoint checks that `school_adopted_curricula` contains a row for
+`(school_id, source_curriculum_id)` with `status='active'` before proceeding.
+If not adopted, returns 403 with `{"detail": "Curriculum not in school library.
+Add it from the catalog first."}`.
+
+---
 
 ---
 
@@ -349,6 +437,10 @@ Replaces TC-VP-01…06 in `studybuddy-docs/market_research/demo_feedback.md`
 
 | ID | Scenario | What is asserted |
 |---|---|---|
+| TA-TC-00a | School admin adds an OOB curriculum to their library | `school_adopted_curricula` row created with `status='active'`; curriculum appears in `/school/library` |
+| TA-TC-00b | School admin deactivates an adopted curriculum | Row updated to `status='deactivated'`; curriculum no longer shown as active in library; existing grade assignments and overrides unaffected |
+| TA-TC-00c | School attempts to import from an OOB curriculum not in their library | Import endpoint returns 403 with "not in school library" detail; no override row created |
+| TA-TC-00d | Two schools independently adopt the same OOB curriculum | Each school has their own `school_adopted_curricula` row; no collision; each sees only their own row |
 | TA-TC-01 | Teacher opens a unit with no school override | Badge shows `ai_generated`; **Import** button visible; no **Edit** button |
 | TA-TC-02 | Teacher clicks **Import to our curriculum** | `unit_content_overrides` row created with `content_source='imported'`, `source_curriculum_id` set, `version_number=1`; badge updates to `imported` |
 | TA-TC-03 | Student fetches the lesson after import (no edits yet) | `GET /content/{unit_id}/lesson` returns the imported DB row; `content_source='imported'` in response; original OOB file untouched |
@@ -369,19 +461,20 @@ Replaces TC-VP-01…06 in `studybuddy-docs/market_research/demo_feedback.md`
 ## Dependencies and sequencing
 
 ```
-TA-1 (migration)
-  └──► TA-2 (import endpoint)
-  └──► TA-3 (edit endpoint)  ┐
-  └──► TA-4 (pipeline guard) │ can build in parallel after TA-1
-  └──► TA-5 (serving path)   ┘
-         └──► TA-6 (school portal UI — import + edit)
-                └──► TA-8 (version history UI)
-  └──► TA-7 (admin badge — can build any time after TA-1)
+TA-0 (school_adopted_curricula migration + endpoints + library UI)
+  └──► TA-1 (unit_content_overrides migration)
+         └──► TA-2 (import endpoint — gates on TA-0 adoption check)
+         └──► TA-3 (edit endpoint)  ┐
+         └──► TA-4 (pipeline guard) │ can build in parallel after TA-1
+         └──► TA-5 (serving path)   ┘
+                └──► TA-6 (school portal — import + edit UI)
+                       └──► TA-8 (version history UI)
+         └──► TA-7 (admin badge — any time after TA-1)
 ```
 
+TA-0 is a hard prerequisite for TA-2 (the import gate checks the library).
 TA-2, TA-3, TA-4, TA-5 are all independent backend tasks that can proceed in
-parallel after TA-1 lands. TA-6 and TA-7 require both the endpoints (TA-2/TA-3)
-and the serving path (TA-5) to be complete.
+parallel once TA-1 lands. TA-6 requires TA-2, TA-3, and TA-5 to be complete.
 
 ---
 
