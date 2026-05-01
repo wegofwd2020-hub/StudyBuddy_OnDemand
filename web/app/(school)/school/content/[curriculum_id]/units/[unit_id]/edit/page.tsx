@@ -820,7 +820,7 @@ export default function UnitEditPage() {
   const [showDiff, setShowDiff] = useState(false);
 
   // 1. List all overrides for this unit (tab availability)
-  const { data: unitData, isLoading: unitsLoading } = useQuery({
+  const { data: unitData, isLoading: unitsLoading, error: unitsError } = useQuery({
     queryKey: ["unit-status", schoolId, curriculumId],
     queryFn: () => listUnitOverrideStatus(schoolId, curriculumId),
     enabled: !!schoolId && !!curriculumId,
@@ -1144,11 +1144,23 @@ export default function UnitEditPage() {
       )}
 
       {/* Main content */}
-      {unitsLoading && availableTypes.length === 0 ? (
+      {(!teacher || unitsLoading) && availableTypes.length === 0 ? (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="h-20 animate-pulse rounded-lg bg-gray-100" />
           ))}
+        </div>
+      ) : unitsError && availableTypes.length === 0 ? (
+        <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-red-200 py-12 text-center">
+          <AlertCircle className="h-8 w-8 text-red-300" />
+          <p className="text-sm font-medium text-gray-500">Failed to load content</p>
+          <p className="max-w-xs text-xs text-gray-400">
+            Could not load override data. Please refresh or go back and try again.
+          </p>
+          <button type="button" onClick={() => router.push(backHref)}
+            className="mt-2 rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700">
+            Back to unit list
+          </button>
         </div>
       ) : availableTypes.length === 0 ? (
         <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-gray-200 py-12 text-center">
