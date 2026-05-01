@@ -2999,3 +2999,50 @@ async def publish_unit_content(
         await redis.delete(_override_key(school_id, curriculum_id, unit_id, lang, row["content_type"]))
 
     return {"published": len(approved_rows), "override_ids": [str(r["override_id"]) for r in approved_rows]}
+
+
+# ── Per-school theming (Epic 13) ──────────────────────────────────────────────
+
+
+@router.get("/schools/{school_id}/theme", response_model=SchoolThemeResponse)
+async def get_theme_endpoint(
+    school_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> SchoolThemeResponse:
+    """Return the school's stored theme. Falls back to null when not set (clients use defaults)."""
+    async with get_db(request) as conn:
+        theme = await get_school_theme(conn, school_id, teacher["school_id"])
+    if theme is None and school_id != teacher["school_id"]:
+        raise HTTPException(status_code=403, detail="Access denied")
+    return SchoolThemeResponse(theme=theme)
+
+
+@router.put("/schools/{school_id}/theme", response_model=SchoolThemeResponse)
+async def put_theme_endpoint(
+    school_id: str,
+    body: SchoolThemeUpdateRequest,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> SchoolThemeResponse:
+    """Persist the school's theme. school_admin only."""
+    if teacher.get("role") != "school_admin":
+        raise HTTPException(status_code=403, detail="school_admin role required")
+    if school_id != teacher["school_id"]:
+        raise HTTPException(status_code=403, detail="Access denied")
+    theme_dict = body.theme.model_dump()
+    async with get_db(request) as conn:
+        await update_school_theme(conn, school_id, teacher["school_id"], theme_dict)
+    log.info("school_theme_updated school_id=%s actor=%s", school_id, teacher.get("teacher_id"))
+    return SchoolThemeResponse(theme=theme_dict)
+
+
+@router.get("/student/school-theme", response_model=SchoolThemeResponse)
+async def get_student_theme_endpoint(
+    request: Request,
+    student: Annotated[dict, Depends(get_current_student)],
+) -> SchoolThemeResponse:
+    """Return the theme for the student's enrolled school. Returns null theme if not enrolled."""
+    pool = request.app.state.db_pool
+    theme = await get_student_school_theme(pool, student["student_id"])
+    return SchoolThemeResponse(theme=theme)

@@ -1157,3 +1157,19 @@ export async function getSetupStatus(schoolId: string): Promise<SetupStatus> {
   const res = await schoolApi.get<SetupStatus>(`/schools/${schoolId}/setup-status`);
   return res.data;
 }
+
+// ── Per-school theming ────────────────────────────────────────────────────────
+
+export async function getSchoolTheme(schoolId: string) {
+  const res = await schoolApi.get<{ theme: Record<string, unknown> | null }>(
+    `/schools/${schoolId}/theme`,
+  );
+  return res.data.theme;
+}
+
+export async function updateSchoolTheme(
+  schoolId: string,
+  theme: Record<string, unknown>,
+): Promise<void> {
+  await schoolApi.put(`/schools/${schoolId}/theme`, { theme });
+}

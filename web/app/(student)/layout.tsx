@@ -8,6 +8,7 @@ import { TrialBanner } from "@/components/student/TrialBanner";
 import { DemoBanner } from "@/components/demo/DemoBanner";
 import { PortalHeader } from "@/components/layout/PortalHeader";
 import { PortalFooter } from "@/components/layout/PortalFooter";
+import { StudentPortalThemeProvider } from "@/lib/theme/SchoolThemeContext";
 
 export const metadata: Metadata = {
   title: "Student | StudyBuddy",
@@ -24,18 +25,20 @@ export default async function StudentLayout({ children }: { children: React.Reac
 
   return (
     <QueryProvider>
-      <div className="flex min-h-screen bg-gray-50">
-        <StudentNav />
-        <div className="flex flex-1 flex-col overflow-auto">
-          <PortalHeader portal="student" userName={userName} />
-          <DemoBanner />
-          <TrialBanner />
-          <main id="main-content" className="flex-1">
-            {children}
-          </main>
-          <PortalFooter />
+      <StudentPortalThemeProvider>
+        <div className="flex min-h-screen bg-gray-50">
+          <StudentNav />
+          <div className="flex flex-1 flex-col overflow-auto">
+            <PortalHeader portal="student" userName={userName} />
+            <DemoBanner />
+            <TrialBanner />
+            <main id="main-content" className="flex-1">
+              {children}
+            </main>
+            <PortalFooter />
+          </div>
         </div>
-      </div>
+      </StudentPortalThemeProvider>
     </QueryProvider>
   );
 }

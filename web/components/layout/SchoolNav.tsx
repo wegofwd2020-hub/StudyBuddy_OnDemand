@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTeacher } from "@/lib/hooks/useTeacher";
+import { useSchoolTheme } from "@/lib/theme/SchoolThemeContext";
 import { useQuery } from "@tanstack/react-query";
 import { getAlerts } from "@/lib/api/reports";
 import { cn } from "@/lib/utils";
@@ -18,6 +19,7 @@ import {
   BookMarked,
   GraduationCap,
   Settings,
+  Palette,
   CreditCard,
   Library,
   Archive,
@@ -115,6 +117,7 @@ const NAV_ITEMS: NavItem[] = [
     adminOnly: true,
   },
   { label: "Settings", href: "/school/settings", icon: <Settings className="h-4 w-4" /> },
+  { label: "Customize", href: "/school/settings/customize", icon: <Palette className="h-4 w-4" /> },
   { label: "Help", href: "/school/help", icon: <HelpCircle className="h-4 w-4" /> },
 ];
 
@@ -133,6 +136,8 @@ export function SchoolNav() {
   const pathname = rawPathname ?? "";
   const teacher = useTeacher();
   const schoolId = teacher?.school_id ?? "";
+  const schoolTheme = useSchoolTheme();
+  const schoolLogoText = schoolTheme.school.logoText;
 
   const { data: alertsData } = useQuery({
     queryKey: ["alerts", schoolId],
@@ -169,7 +174,7 @@ export function SchoolNav() {
       <div className="flex h-14 items-center border-b border-gray-100 px-4">
         <Link href="/school/dashboard" className="flex items-center gap-2">
           <BookOpen className="h-5 w-5 text-blue-600" />
-          <span className="text-sm font-bold text-gray-900">StudyBuddy</span>
+          <span className="text-sm font-bold text-gray-900">{schoolLogoText}</span>
           <span className="text-xs font-medium text-gray-400">School</span>
         </Link>
       </div>

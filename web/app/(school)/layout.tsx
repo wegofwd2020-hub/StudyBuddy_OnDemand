@@ -9,6 +9,7 @@ import { QueryProvider } from "@/lib/providers/QueryProvider";
 import { PortalHeader } from "@/components/layout/PortalHeader";
 import { PortalFooter } from "@/components/layout/PortalFooter";
 import { HelpWidget } from "@/components/help/HelpWidget";
+import { SchoolPortalThemeProvider } from "@/lib/theme/SchoolThemeContext";
 
 export const metadata: Metadata = {
   title: "School | StudyBuddy",
@@ -22,12 +23,14 @@ export default async function SchoolLayout({ children }: { children: React.React
     const userName = localSession.user.name ?? localSession.user.email;
     return (
       <QueryProvider>
-        {/* LocalAuthGuard validates sb_teacher_token from localStorage,
-            enforces first_login redirect (pitfall #24), and renders the
-            full portal layout only once the JWT check passes. */}
-        <LocalAuthGuard userName={userName}>
-          {children}
-        </LocalAuthGuard>
+        <SchoolPortalThemeProvider>
+          {/* LocalAuthGuard validates sb_teacher_token from localStorage,
+              enforces first_login redirect (pitfall #24), and renders the
+              full portal layout only once the JWT check passes. */}
+          <LocalAuthGuard userName={userName}>
+            {children}
+          </LocalAuthGuard>
+        </SchoolPortalThemeProvider>
       </QueryProvider>
     );
   }
@@ -46,18 +49,20 @@ export default async function SchoolLayout({ children }: { children: React.React
 
   return (
     <QueryProvider>
-      <div className="flex min-h-screen bg-gray-50">
-        <SchoolNav />
-        <div className="flex flex-1 flex-col overflow-auto">
-          <PortalHeader portal="school" userName={userName} />
-          <main id="main-content" className="flex-1">
-            <LimitWarningBanner />
-            {children}
-          </main>
-          <PortalFooter />
+      <SchoolPortalThemeProvider>
+        <div className="flex min-h-screen bg-gray-50">
+          <SchoolNav />
+          <div className="flex flex-1 flex-col overflow-auto">
+            <PortalHeader portal="school" userName={userName} />
+            <main id="main-content" className="flex-1">
+              <LimitWarningBanner />
+              {children}
+            </main>
+            <PortalFooter />
+          </div>
+          <HelpWidget />
         </div>
-        <HelpWidget />
-      </div>
+      </SchoolPortalThemeProvider>
     </QueryProvider>
   );
 }

@@ -15,6 +15,7 @@ Teacher invite:
 
 from __future__ import annotations
 
+import json
 import re
 import uuid
 from datetime import UTC
@@ -786,7 +787,6 @@ async def submit_definition(
     Status starts at 'pending_approval'.  A school_admin must approve it
     before the pipeline can be triggered (Phase E).
     """
-    import json
 
     definition_id = str(uuid.uuid4())
     row = await conn.fetchrow(
@@ -1195,3 +1195,65 @@ async def update_llm_config(
     )
 
     return await get_llm_config(conn, school_id)
+
+
+# ── Per-school theming (Epic 13) ──────────────────────────────────────────────
+
+
+async def get_school_theme(
+    conn: asyncpg.Connection,
+    school_id: str,
+    requesting_school_id: str,
+) -> dict | None:
+    """Return the school's theme JSON. School members only; returns None if unset."""
+    if school_id != requesting_school_id:
+        return None
+    row = await conn.fetchrow(
+        "SELECT theme FROM schools WHERE school_id = $1",
+        uuid.UUID(school_id),
+    )
+    if row is None or row["theme"] is None:
+        return None
+    return dict(row["theme"])
+
+
+async def update_school_theme(
+    conn: asyncpg.Connection,
+    school_id: str,
+    requesting_school_id: str,
+    theme: dict,
+) -> None:
+    """Persist the school's theme. school_admin only."""
+    if school_id != requesting_school_id:
+        raise ValueError("school mismatch")
+    await conn.execute(
+        "UPDATE schools SET theme = $1::jsonb WHERE school_id = $2",
+        json.dumps(theme),
+        uuid.UUID(school_id),
+    )
+
+
+async def get_student_school_theme(pool: asyncpg.Pool, student_id: str) -> dict | None:
+    """
+    Return the theme for a student's enrolled school.
+
+    Uses bypass mode because the student JWT carries no school_id — the school
+    is resolved via school_enrolments. Returns None if the student has no
+    active school enrollment or the school hasn't set a theme yet.
+    """
+    async with pool.acquire() as conn:
+        await conn.execute("SET app.current_school_id = 'bypass'")
+        row = await conn.fetchrow(
+            """
+            SELECT s.theme
+            FROM schools s
+            JOIN school_enrolments se ON se.school_id = s.school_id
+            WHERE se.student_id = $1
+              AND se.status = 'active'
+            LIMIT 1
+            """,
+            uuid.UUID(student_id),
+        )
+    if row is None or row["theme"] is None:
+        return None
+    return dict(row["theme"])

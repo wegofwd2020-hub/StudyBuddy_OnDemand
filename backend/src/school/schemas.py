@@ -650,3 +650,39 @@ class SchoolLLMConfigUpdateRequest(BaseModel):
         if v is not None and v not in _VALID_PROVIDERS:
             raise ValueError(f"Unknown provider '{v}'. Valid: {sorted(_VALID_PROVIDERS)}")
         return v
+
+
+# ── Per-school theming (Epic 13) ──────────────────────────────────────────────
+
+_HEX_RE = re.compile(r"^#[0-9a-fA-F]{6}$")
+
+
+class SubjectThemeEntry(BaseModel):
+    accent: str
+    label: str
+
+    @field_validator("accent")
+    @classmethod
+    def valid_hex(cls, v: str) -> str:
+        if not _HEX_RE.match(v):
+            raise ValueError("accent must be a 6-digit hex color (e.g. #ea580c)")
+        return v.lower()
+
+
+class SchoolIdentityEntry(BaseModel):
+    name: str
+    logoText: str
+    logoUrl: str | None = None
+
+
+class SchoolThemePayload(BaseModel):
+    school: SchoolIdentityEntry
+    subjects: dict[str, SubjectThemeEntry]
+
+
+class SchoolThemeResponse(BaseModel):
+    theme: dict | None = None
+
+
+class SchoolThemeUpdateRequest(BaseModel):
+    theme: SchoolThemePayload
