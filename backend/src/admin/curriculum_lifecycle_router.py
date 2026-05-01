@@ -294,6 +294,57 @@ async def admin_unarchive_curriculum(
     )
 
 
+# ── L-7: Archive list view ────────────────────────────────────────────────────
+
+
+class ArchivedCurriculumItem(BaseModel):
+    curriculum_id: str
+    owner_type: str
+    school_id: str | None = None
+    school_name: str | None = None
+    grade: int | None = None
+    year: int | None = None
+    name: str | None = None
+    expires_at: str | None = None
+    days_until_ttl: int | None = None
+    archive_event_type: str | None = None
+    archived_by: str | None = None
+    archived_at: str | None = None
+    archive_reason: str | None = None
+
+
+@router.get(
+    "/admin/archive/curricula",
+    response_model=list[ArchivedCurriculumItem],
+)
+async def get_archived_curricula(
+    request: Request,
+    admin: Annotated[dict, Depends(_require("content:publish"))],
+    owner_type: str | None = None,
+    school_id: str | None = None,
+    grade: int | None = None,
+    days_until_ttl_max: int | None = None,
+) -> list[ArchivedCurriculumItem]:
+    """
+    List all archived curricula across the platform.
+
+    Filters (all optional):
+      - owner_type: 'platform' | 'school'
+      - school_id:  UUID of a specific school
+      - grade:      integer grade level (5-12)
+      - days_until_ttl_max: only curricula expiring within N days
+    """
+    async with get_db(request) as conn:
+        rows = await list_archived_curricula(
+            conn,
+            owner_type=owner_type,
+            school_id=school_id,
+            grade=grade,
+            days_until_ttl_max=days_until_ttl_max,
+        )
+    return [ArchivedCurriculumItem(**r) for r in rows]
+
+
 @router.delete("/admin/curricula/{curriculum_id}", response_model=ArchiveResponse)
 async def admin_delete_curriculum(
     curriculum_id: str,

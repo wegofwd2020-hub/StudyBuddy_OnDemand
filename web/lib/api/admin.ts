@@ -1028,3 +1028,54 @@ export async function removeDemoGeoBlock(
   );
   return res.data;
 }
+
+// ── Curriculum Archive (Epic 10 L-7) ─────────────────────────────────────────
+
+export interface ArchivedCurriculumItem {
+  curriculum_id: string;
+  owner_type: "platform" | "school";
+  school_id: string | null;
+  school_name: string | null;
+  grade: number | null;
+  year: number | null;
+  name: string | null;
+  expires_at: string | null;
+  days_until_ttl: number | null;
+  archive_event_type: string | null;
+  archived_by: string | null;
+  archived_at: string | null;
+  archive_reason: string | null;
+}
+
+export interface ArchiveCurriculaFilters {
+  owner_type?: "platform" | "school";
+  school_id?: string;
+  grade?: number;
+  days_until_ttl_max?: number;
+}
+
+export async function listArchivedCurricula(
+  filters: ArchiveCurriculaFilters = {},
+): Promise<ArchivedCurriculumItem[]> {
+  const params = new URLSearchParams();
+  if (filters.owner_type) params.set("owner_type", filters.owner_type);
+  if (filters.school_id) params.set("school_id", filters.school_id);
+  if (filters.grade != null) params.set("grade", String(filters.grade));
+  if (filters.days_until_ttl_max != null)
+    params.set("days_until_ttl_max", String(filters.days_until_ttl_max));
+  const qs = params.toString();
+  const res = await adminApi.get<ArchivedCurriculumItem[]>(
+    `/admin/archive/curricula${qs ? `?${qs}` : ""}`,
+  );
+  return res.data;
+}
+
+export async function unarchiveCurriculum(
+  curriculumId: string,
+): Promise<{ curriculum_id: string; retention_status: string }> {
+  const res = await adminApi.post<{
+    curriculum_id: string;
+    retention_status: string;
+  }>(`/admin/curricula/${curriculumId}/unarchive`);
+  return res.data;
+}

@@ -217,3 +217,110 @@ async def unarchive_curriculum(conn: asyncpg.Connection, curriculum_id: str) -> 
         curriculum_id,
     )
     return dict(row) if row else {}
+
+
+# ── L-7: Archive view list ───────────────────────────────────────────────────
+
+
+async def list_archived_curricula(
+    conn: asyncpg.Connection,
+    *,
+    owner_type: str | None = None,
+    school_id: str | None = None,
+    grade: int | None = None,
+    days_until_ttl_max: int | None = None,
+) -> list[dict]:
+    """
+    Return all archived curricula platform-wide with optional filters.
+
+    Joins schools for display name and laterally joins audit_log to surface
+    the most recent archive event (actor, reason, timestamp) per row.
+    The audit join covers both target_id-based entries (retention_router
+    pattern) and metadata-based entries (lifecycle_router pattern).
+    """
+    import json as _json
+
+    conditions = ["c.retention_status = 'archived'"]
+    params: list = []
+
+    if owner_type:
+        params.append(owner_type)
+        conditions.append(f"c.owner_type = ${len(params)}")
+    if school_id:
+        params.append(school_id)
+        conditions.append(f"c.school_id = ${len(params)}::uuid")
+    if grade is not None:
+        params.append(grade)
+        conditions.append(f"c.grade = ${len(params)}")
+    if days_until_ttl_max is not None:
+        params.append(days_until_ttl_max)
+        conditions.append(
+            f"c.expires_at <= NOW() + (${len(params)} * INTERVAL '1 day')"
+        )
+
+    where = " AND ".join(conditions)
+
+    rows = await conn.fetch(
+        f"""
+        SELECT
+            c.curriculum_id,
+            c.owner_type,
+            c.school_id::text            AS school_id,
+            s.name                       AS school_name,
+            c.grade,
+            c.year,
+            c.name,
+            c.expires_at,
+            GREATEST(
+                0,
+                EXTRACT(DAY FROM (c.expires_at - NOW()))::int
+            )                            AS days_until_ttl,
+            al.event_type                AS archive_event_type,
+            al.actor_id::text            AS archived_by,
+            al.timestamp                 AS archived_at,
+            al.metadata                  AS archive_metadata
+        FROM curricula c
+        LEFT JOIN schools s ON s.school_id = c.school_id
+        LEFT JOIN LATERAL (
+            SELECT event_type, actor_id, timestamp, metadata
+              FROM audit_log
+             WHERE target_type = 'curriculum'
+               AND (
+                   target_id = c.curriculum_id
+                   OR metadata->>'curriculum_id' = c.curriculum_id
+               )
+               AND event_type LIKE 'curriculum.archive%'
+             ORDER BY timestamp DESC
+             LIMIT 1
+        ) al ON TRUE
+        WHERE {where}
+        ORDER BY c.expires_at ASC NULLS LAST
+        """,
+        *params,
+    )
+
+    result = []
+    for r in rows:
+        raw_meta = r["archive_metadata"]
+        if isinstance(raw_meta, str):
+            meta = _json.loads(raw_meta)
+        elif raw_meta is None:
+            meta = {}
+        else:
+            meta = dict(raw_meta)
+        result.append({
+            "curriculum_id": r["curriculum_id"],
+            "owner_type": r["owner_type"],
+            "school_id": r["school_id"],
+            "school_name": r["school_name"],
+            "grade": r["grade"],
+            "year": r["year"],
+            "name": r["name"],
+            "expires_at": r["expires_at"].isoformat() if r["expires_at"] else None,
+            "days_until_ttl": r["days_until_ttl"],
+            "archive_event_type": r["archive_event_type"],
+            "archived_by": r["archived_by"],
+            "archived_at": r["archived_at"].isoformat() if r["archived_at"] else None,
+            "archive_reason": meta.get("reason"),
+        })
+    return result

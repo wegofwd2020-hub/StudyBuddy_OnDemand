@@ -22,6 +22,7 @@ import {
   School,
   Users,
   Archive,
+  ArchiveX,
   Sparkles,
   Layers,
   Clapperboard,
@@ -117,6 +118,12 @@ const NAV_ITEMS: NavItem[] = [
     label: "Retention Monitor",
     href: "/admin/retention",
     icon: <Archive className="h-4 w-4" />,
+    minRole: "product_admin",
+  },
+  {
+    label: "Archived Curricula",
+    href: "/admin/archive/curricula",
+    icon: <ArchiveX className="h-4 w-4" />,
     minRole: "product_admin",
   },
   {
