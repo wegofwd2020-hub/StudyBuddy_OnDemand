@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+<meta charset="UTF-8">
+<title>{{ unit_title }} — Study Pack</title>
+<style>
+/* ── Page setup ──────────────────────────────────────────────────────────── */
+@page {
+  size: A4;
+  margin: 2.2cm 2cm 2.8cm 2cm;
+  @bottom-left {
+    content: "StudyBuddy  ·  {{ unit_title | truncate(55) | e }}";
+    font-size: 7.5pt;
+    color: #9ca3af;
+    font-family: Arial, sans-serif;
+  }
+  @bottom-right {
+    content: counter(page) " / " counter(pages);
+    font-size: 7.5pt;
+    color: #9ca3af;
+    font-family: Arial, sans-serif;
+  }
+}
+@page :first {
+  @bottom-left  { content: ""; }
+  @bottom-right { content: ""; }
+}
+
+/* ── Reset ───────────────────────────────────────────────────────────────── */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Base typography ─────────────────────────────────────────────────────── */
+body {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 10.5pt;
+  line-height: 1.7;
+  color: #1f2937;
+  background: white;
+}
+h1, h2, h3, h4, h5 {
+  font-family: Arial, "Helvetica Neue", sans-serif;
+  font-weight: 700;
+  line-height: 1.3;
+}
+p { margin-bottom: 0.65em; }
+ul, ol { padding-left: 1.5em; margin-bottom: 0.65em; }
+li { margin-bottom: 0.3em; }
+strong { font-weight: 700; }
+em { font-style: italic; }
+code {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 9pt;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 3px;
+  padding: 0.1em 0.35em;
+}
+pre {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 9pt;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  padding: 0.7em 0.9em;
+  margin-bottom: 0.8em;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+pre code { background: none; border: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin-bottom: 0.8em; font-size: 10pt; }
+th {
+  background: #1e3a5f;
+  color: white;
+  padding: 0.4em 0.7em;
+  text-align: left;
+  font-family: Arial, sans-serif;
+  font-size: 9.5pt;
+}
+td { border: 1px solid #d1d5db; padding: 0.35em 0.7em; }
+tr:nth-child(even) td { background: #f9fafb; }
+blockquote {
+  border-left: 3px solid #2563eb;
+  padding-left: 1em;
+  margin: 0.7em 0;
+  color: #4b5563;
+  font-style: italic;
+}
+
+/* ── Utility ─────────────────────────────────────────────────────────────── */
+.page-break  { page-break-before: always; }
+.avoid-break { page-break-inside: avoid; }
+.mt-sm { margin-top: 0.6em; }
+.mt-md { margin-top: 1em; }
+.mt-lg { margin-top: 1.6em; }
+.mb-md { margin-bottom: 1em; }
+
+/* ── Cover ───────────────────────────────────────────────────────────────── */
+.cover { page-break-after: always; padding-bottom: 2cm; }
+.cover-rule-top {
+  background: #1e3a5f;
+  height: 6pt;
+  margin-bottom: 2.4cm;
+}
+.cover-badge {
+  display: inline-block;
+  background: #2563eb;
+  color: white;
+  font-family: Arial, sans-serif;
+  font-size: 8.5pt;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.25em 0.75em;
+  border-radius: 3px;
+  margin-bottom: 1cm;
+}
+.cover-title {
+  font-family: Arial, sans-serif;
+  font-size: 26pt;
+  font-weight: 900;
+  color: #1e3a5f;
+  line-height: 1.2;
+  margin-bottom: 0.5cm;
+}
+.cover-subject {
+  font-family: Arial, sans-serif;
+  font-size: 13pt;
+  font-weight: 600;
+  color: #2563eb;
+  margin-bottom: 0.25cm;
+}
+.cover-ids {
+  font-family: "Courier New", monospace;
+  font-size: 9pt;
+  color: #6b7280;
+  margin-bottom: 0;
+}
+.cover-rule-mid {
+  border: none;
+  border-top: 1.5px solid #e5e7eb;
+  margin: 0.9cm 0;
+}
+.cover-meta {
+  font-family: Arial, sans-serif;
+  font-size: 9pt;
+  color: #9ca3af;
+  margin-bottom: 1.2cm;
+}
+.cover-toc h3 {
+  font-family: Arial, sans-serif;
+  font-size: 8.5pt;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #6b7280;
+  margin-bottom: 0.5em;
+}
+.cover-toc ul { list-style: none; padding: 0; }
+.cover-toc li {
+  font-family: Arial, sans-serif;
+  font-size: 10pt;
+  color: #374151;
+  padding: 0.22em 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+.cover-toc li::before { content: "→  "; color: #2563eb; font-weight: 700; }
+
+/* ── Section headers ─────────────────────────────────────────────────────── */
+.section-header {
+  font-family: Arial, sans-serif;
+  font-size: 17pt;
+  font-weight: 800;
+  color: white;
+  padding: 0.45em 0.8em;
+  border-radius: 4px;
+  margin-bottom: 1em;
+  page-break-after: avoid;
+}
+.section-header .sub {
+  font-size: 11pt;
+  font-weight: 400;
+  opacity: 0.85;
+}
+.sh-lesson     { background: #1d4ed8; }
+.sh-quiz       { background: #7c3aed; }
+.sh-tutorial   { background: #0f766e; }
+.sh-experiment { background: #c2410c; }
+
+/* ── Badges ──────────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-block;
+  font-family: Arial, sans-serif;
+  font-size: 7.5pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  padding: 0.12em 0.5em;
+  border-radius: 3px;
+}
+.b-easy   { background: #dcfce7; color: #15803d; }
+.b-medium { background: #fef9c3; color: #a16207; }
+.b-hard   { background: #fee2e2; color: #b91c1c; }
+
+/* ── Lesson ──────────────────────────────────────────────────────────────── */
+.lesson-meta {
+  font-family: Arial, sans-serif;
+  font-size: 9pt;
+  color: #6b7280;
+  margin-bottom: 1em;
+}
+.lesson-meta span { margin-right: 1.8em; }
+.objectives-box {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-left: 4px solid #1d4ed8;
+  border-radius: 4px;
+  padding: 0.75em 1em;
+  margin-bottom: 1.2em;
+}
+.objectives-box h3 {
+  font-family: Arial, sans-serif;
+  font-size: 8.5pt;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: #1d4ed8;
+  margin-bottom: 0.45em;
+}
+.objectives-box ul { margin: 0; }
+.objectives-box li { font-size: 10pt; color: #1e3a5f; }
+.synopsis {
+  font-size: 11pt;
+  font-style: italic;
+  color: #374151;
+  border-left: 3px solid #1d4ed8;
+  padding: 0.4em 1em;
+  margin-bottom: 1.3em;
+  background: #f8faff;
+}
+.lesson-section { margin-bottom: 1.3em; }
+.lesson-section h3 {
+  font-family: Arial, sans-serif;
+  font-size: 12pt;
+  color: #1e3a5f;
+  border-bottom: 1.5px solid #dbeafe;
+  padding-bottom: 0.2em;
+  margin-bottom: 0.6em;
+  page-break-after: avoid;
+}
+.key-points-box {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-left: 4px solid #16a34a;
+  border-radius: 4px;
+  padding: 0.75em 1em;
+  margin-top: 1.2em;
+}
+.key-points-box h3 {
+  font-family: Arial, sans-serif;
+  font-size: 8.5pt;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: #15803d;
+  margin-bottom: 0.45em;
+}
+.key-points-box ul { margin: 0; }
+
+/* ── Quiz ────────────────────────────────────────────────────────────────── */
+.quiz-meta {
+  font-family: Arial, sans-serif;
+  font-size: 9pt;
+  color: #5b21b6;
+  background: #f5f3ff;
+  border: 1px solid #ddd6fe;
+  border-radius: 4px;
+  padding: 0.55em 0.9em;
+  margin-bottom: 1.2em;
+}
+.quiz-meta span { margin-right: 2em; }
+.question-block {
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  margin-bottom: 1.1em;
+  page-break-inside: avoid;
+}
+.question-head {
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 0.4em 0.8em;
+  font-family: Arial, sans-serif;
+  font-size: 9pt;
+  color: #6b7280;
+}
+.question-num { font-weight: 700; color: #374151; }
+.question-text {
+  padding: 0.65em 0.85em 0.35em;
+  font-size: 10.5pt;
+  line-height: 1.5;
+}
+.question-text p { margin-bottom: 0; }
+.options { padding: 0.2em 0.85em 0.6em; }
+.option {
+  padding: 0.2em 0.45em;
+  border-radius: 3px;
+  margin-bottom: 0.12em;
+  font-size: 10pt;
+  line-height: 1.5;
+}
+.option.correct {
+  background: #dcfce7;
+  font-weight: 700;
+  color: #15803d;
+}
+.opt-id {
+  font-family: Arial, sans-serif;
+  font-weight: 700;
+  display: inline-block;
+  min-width: 1.3em;
+}
+.explanation {
+  background: #fffbeb;
+  border-top: 1px solid #fde68a;
+  padding: 0.5em 0.85em;
+  font-size: 9.5pt;
+  color: #92400e;
+}
+.explanation strong { color: #78350f; font-style: normal; }
+
+/* ── Tutorial ────────────────────────────────────────────────────────────── */
+.tutorial-section { margin-bottom: 1.3em; }
+.tutorial-section h3 {
+  font-family: Arial, sans-serif;
+  font-size: 12pt;
+  color: #134e4a;
+  border-bottom: 1.5px solid #99f6e4;
+  padding-bottom: 0.2em;
+  margin-bottom: 0.6em;
+  page-break-after: avoid;
+}
+.examples-box {
+  background: #f0fdfa;
+  border: 1px solid #99f6e4;
+  border-radius: 4px;
+  padding: 0.6em 0.85em;
+  margin: 0.6em 0;
+}
+.examples-box h4 {
+  font-family: Arial, sans-serif;
+  font-size: 8pt;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #0f766e;
+  margin-bottom: 0.35em;
+}
+.examples-box ul { margin: 0; font-size: 10pt; }
+.practice-q {
+  background: #f8fafc;
+  border-left: 3px solid #0f766e;
+  padding: 0.45em 0.85em;
+  margin-top: 0.55em;
+  font-size: 10pt;
+  color: #374151;
+}
+.practice-q::before {
+  content: "Practice: ";
+  font-weight: 700;
+  font-style: normal;
+  color: #0f766e;
+  font-family: Arial, sans-serif;
+}
+.common-mistakes-box {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-left: 4px solid #ef4444;
+  border-radius: 4px;
+  padding: 0.75em 1em;
+  margin-top: 1.2em;
+}
+.common-mistakes-box h3 {
+  font-family: Arial, sans-serif;
+  font-size: 8.5pt;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: #dc2626;
+  margin-bottom: 0.45em;
+}
+.common-mistakes-box ul { margin: 0; }
+
+/* ── Experiment ──────────────────────────────────────────────────────────── */
+.safety-box {
+  background: #fff7ed;
+  border: 2px solid #fed7aa;
+  border-left: 5px solid #f97316;
+  border-radius: 4px;
+  padding: 0.7em 1em;
+  margin-bottom: 1.2em;
+}
+.safety-box h3 {
+  font-family: Arial, sans-serif;
+  font-size: 8.5pt;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: #c2410c;
+  margin-bottom: 0.4em;
+}
+.safety-box ul { margin: 0; font-size: 10pt; }
+.materials-list ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 1.2em;
+}
+.materials-list li {
+  display: inline-block;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 3px;
+  padding: 0.15em 0.55em;
+  font-family: Arial, sans-serif;
+  font-size: 9.5pt;
+  color: #c2410c;
+  margin-right: 0.4em;
+  margin-bottom: 0.35em;
+}
+.exp-subheading {
+  font-family: Arial, sans-serif;
+  font-size: 11pt;
+  color: #c2410c;
+  margin-bottom: 0.6em;
+  margin-top: 1em;
+  page-break-after: avoid;
+}
+.step-row {
+  margin-bottom: 0.85em;
+  padding-left: 2.6em;
+  position: relative;
+  page-break-inside: avoid;
+}
+.step-num-circle {
+  position: absolute;
+  left: 0;
+  top: 0.1em;
+  background: #c2410c;
+  color: white;
+  font-family: Arial, sans-serif;
+  font-weight: 700;
+  font-size: 9pt;
+  width: 1.8em;
+  height: 1.8em;
+  line-height: 1.8em;
+  text-align: center;
+  border-radius: 2px;
+}
+.step-instruction { font-size: 10.5pt; margin-bottom: 0.2em; }
+.step-observation {
+  font-size: 9.5pt;
+  color: #6b7280;
+  font-style: italic;
+}
+.step-observation::before {
+  content: "Expected: ";
+  font-style: normal;
+  color: #9ca3af;
+  font-family: Arial, sans-serif;
+}
+.exp-q-block {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 4px;
+  padding: 0.6em 0.85em;
+  margin-bottom: 0.6em;
+  page-break-inside: avoid;
+}
+.exp-q-block .eq { font-size: 10pt; font-weight: 700; margin-bottom: 0.2em; }
+.exp-q-block .ea { font-size: 10pt; color: #374151; }
+.exp-q-block .ea::before {
+  content: "A: ";
+  font-weight: 700;
+  color: #c2410c;
+  font-family: Arial, sans-serif;
+}
+.conclusion-box {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-left: 4px solid #c2410c;
+  border-radius: 4px;
+  padding: 0.7em 1em;
+  margin-top: 1.2em;
+  font-size: 10pt;
+}
+.conclusion-label {
+  font-family: Arial, sans-serif;
+  font-weight: 700;
+  color: #c2410c;
+  font-size: 8.5pt;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  display: block;
+  margin-bottom: 0.3em;
+}
+</style>
+</head>
+<body>
+
+{# ── Cover ──────────────────────────────────────────────────────────────── #}
+<div class="cover">
+  <div class="cover-rule-top"></div>
+  <span class="cover-badge">Full Study Pack</span>
+  <h1 class="cover-title mt-md">{{ unit_title }}</h1>
+  <p class="cover-subject">{{ subject }}</p>
+  <p class="cover-ids">{{ curriculum_id }}  ·  {{ unit_id }}</p>
+  <hr class="cover-rule-mid">
+  <p class="cover-meta">Generated {{ generated_at }}  ·  Language: {{ lang | upper }}</p>
+  <div class="cover-toc">
+    <h3>Contents</h3>
+    <ul>
+      {% if lesson %}
+      <li>Lesson — {{ lesson.topic }}</li>
+      {% endif %}
+      {% for set_num, quiz in quiz_sets %}
+      <li>Quiz Set {{ set_num }} of {{ quiz_sets | length }} — {{ quiz.total_questions }} questions</li>
+      {% endfor %}
+      {% if tutorial %}
+      <li>Tutorial — {{ tutorial.title }}</li>
+      {% endif %}
+      {% if experiment %}
+      <li>Hands-On Experiment — {{ experiment.experiment_title }}</li>
+      {% endif %}
+    </ul>
+  </div>
+</div>
+
+{# ── Lesson ─────────────────────────────────────────────────────────────── #}
+{% if lesson %}
+<section>
+  <h2 class="section-header sh-lesson">
+    Lesson <span class="sub">/ {{ lesson.topic }}</span>
+  </h2>
+
+  <p class="lesson-meta">
+    <span>Reading level: {{ lesson.reading_level }}</span>
+    <span>Estimated time: {{ lesson.estimated_duration_minutes }} min</span>
+  </p>
+
+  <div class="objectives-box avoid-break">
+    <h3>Learning Objectives</h3>
+    <ul>
+      {% for obj in lesson.learning_objectives %}
+      <li>{{ obj }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <p class="synopsis">{{ lesson.synopsis }}</p>
+
+  {% for sec in lesson.sections %}
+  <div class="lesson-section">
+    <h3>{{ sec.heading }}</h3>
+    {{ md(sec.body) }}
+  </div>
+  {% endfor %}
+
+  <div class="key-points-box avoid-break">
+    <h3>Key Points</h3>
+    <ul>
+      {% for kp in lesson.key_points %}
+      <li>{{ kp }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+{% endif %}
+
+{# ── Quiz Sets ──────────────────────────────────────────────────────────── #}
+{% for set_num, quiz in quiz_sets %}
+<section class="page-break">
+  <h2 class="section-header sh-quiz">
+    Quiz Set {{ set_num }} of {{ quiz_sets | length }}
+    <span class="sub">/ {{ quiz.total_questions }} questions</span>
+  </h2>
+
+  <p class="quiz-meta">
+    <span>Estimated time: {{ quiz.estimated_duration_minutes }} min</span>
+    <span>Passing score: {{ quiz.passing_score }} / {{ quiz.total_questions }}</span>
+  </p>
+
+  {% for q in quiz.questions %}
+  <div class="question-block">
+    <div class="question-head">
+      <span class="question-num">Q{{ loop.index }}</span>
+      <span class="badge b-{{ q.difficulty }}">{{ q.difficulty }}</span>
+    </div>
+    <div class="question-text">{{ md(q.question_text) }}</div>
+    <div class="options">
+      {% for opt in q.options %}
+      <div class="option {% if opt.option_id == q.correct_option %}correct{% endif %}">
+        <span class="opt-id">{{ opt.option_id }}.</span>
+        {{ opt.text }}
+      </div>
+      {% endfor %}
+    </div>
+    <div class="explanation">
+      <strong>Explanation:</strong> {{ q.explanation }}
+    </div>
+  </div>
+  {% endfor %}
+</section>
+{% endfor %}
+
+{# ── Tutorial ───────────────────────────────────────────────────────────── #}
+{% if tutorial %}
+<section class="page-break">
+  <h2 class="section-header sh-tutorial">
+    Tutorial <span class="sub">/ {{ tutorial.title }}</span>
+  </h2>
+
+  {% for sec in tutorial.sections %}
+  <div class="tutorial-section">
+    <h3>{{ sec.title }}</h3>
+    {{ md(sec.content) }}
+    {% if sec.examples %}
+    <div class="examples-box">
+      <h4>Examples</h4>
+      <ul>
+        {% for ex in sec.examples %}
+        <li>{{ md(ex) }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+    {% if sec.practice_question %}
+    <div class="practice-q">{{ sec.practice_question }}</div>
+    {% endif %}
+  </div>
+  {% endfor %}
+
+  {% if tutorial.common_mistakes %}
+  <div class="common-mistakes-box avoid-break">
+    <h3>Common Mistakes</h3>
+    <ul>
+      {% for m in tutorial.common_mistakes %}
+      <li>{{ m }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+</section>
+{% endif %}
+
+{# ── Experiment ─────────────────────────────────────────────────────────── #}
+{% if experiment %}
+<section class="page-break">
+  <h2 class="section-header sh-experiment">
+    Hands-On Experiment <span class="sub">/ {{ experiment.experiment_title }}</span>
+  </h2>
+
+  {% if experiment.safety_notes %}
+  <div class="safety-box avoid-break">
+    <h3>⚠ Safety Notes</h3>
+    <ul>
+      {% for note in experiment.safety_notes %}
+      <li>{{ note }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  {% if experiment.materials %}
+  <p class="exp-subheading">Materials</p>
+  <div class="materials-list">
+    <ul>
+      {% for m in experiment.materials %}
+      <li>{{ m }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <p class="exp-subheading">Procedure</p>
+  {% for step in experiment.steps %}
+  <div class="step-row">
+    <div class="step-num-circle">{{ step.step_number }}</div>
+    <p class="step-instruction">{{ step.instruction }}</p>
+    {% if step.expected_observation %}
+    <p class="step-observation">{{ step.expected_observation }}</p>
+    {% endif %}
+  </div>
+  {% endfor %}
+
+  {% if experiment.questions %}
+  <p class="exp-subheading mt-lg">Reflection Questions</p>
+  {% for eq in experiment.questions %}
+  <div class="exp-q-block">
+    <p class="eq">{{ loop.index }}. {{ eq.question }}</p>
+    <p class="ea">{{ eq.answer }}</p>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <div class="conclusion-box">
+    <span class="conclusion-label">Conclusion Prompt</span>
+    {{ experiment.conclusion_prompt }}
+  </div>
+</section>
+{% endif %}
+
+</body>
+</html>

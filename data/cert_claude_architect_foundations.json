@@ -1,0 +1,245 @@
+{
+  "grade": "cert-architect-foundations",
+  "subjects": [
+    {
+      "subject_id": "CCA-D1",
+      "name": "Agentic Architecture & Orchestration",
+      "units": [
+        {
+          "unit_id": "CCA-D1-001",
+          "title": "Agentic Loop Design",
+          "description": "Agentic loop lifecycle: sending requests, inspecting stop_reason (tool_use vs end_turn), executing tools, and appending results. Avoiding anti-patterns like natural-language termination signals or iteration caps as the primary stopping mechanism.",
+          "has_lab": true,
+          "num_quiz_sets": 5
+        },
+        {
+          "unit_id": "CCA-D1-002",
+          "title": "Multi-Agent Coordinator-Subagent Orchestration",
+          "description": "Hub-and-spoke architecture where the coordinator manages all inter-subagent communication. Subagent context isolation, task decomposition and delegation, result aggregation, iterative refinement loops, and routing all communication through the coordinator for observability.",
+          "has_lab": true,
+          "num_quiz_sets": 5
+        },
+        {
+          "unit_id": "CCA-D1-003",
+          "title": "Subagent Invocation, Context Passing, and Spawning",
+          "description": "Task tool as the mechanism for spawning subagents, allowedTools requirement for coordinator invocation, explicit context injection in subagent prompts, AgentDefinition configuration, fork-based session management, and parallel subagent execution via multiple Task calls in a single response.",
+          "has_lab": true,
+          "num_quiz_sets": 5
+        },
+        {
+          "unit_id": "CCA-D1-004",
+          "title": "Multi-Step Workflow Enforcement and Handoff Patterns",
+          "description": "Programmatic enforcement (hooks, prerequisite gates) vs prompt-based guidance for workflow ordering. Blocking downstream tool calls until prerequisites complete. Structured handoff protocols including customer details, root cause analysis, and recommended actions for human escalation.",
+          "has_lab": false,
+          "num_quiz_sets": 5
+        },
+        {
+          "unit_id": "CCA-D1-005",
+          "title": "Agent SDK Hooks for Tool Interception and Data Normalization",
+          "description": "PostToolUse hooks for normalizing heterogeneous data formats before the model processes them. Tool call interception hooks to enforce compliance rules and redirect to alternative workflows. Deterministic guarantees via hooks vs probabilistic compliance via prompt instructions.",
+          "has_lab": true,
+          "num_quiz_sets": 5
+        },
+        {
+          "unit_id": "CCA-D1-006",
+          "title": "Task Decomposition Strategies for Complex Workflows",
+          "description": "Fixed sequential pipelines (prompt chaining) for predictable multi-aspect reviews vs dynamic adaptive decomposition for open-ended investigation tasks. Splitting large reviews into per-file local analysis passes plus a cross-file integration pass to avoid attention dilution.",
+          "has_lab": false,
+          "num_quiz_sets": 5
+        },
+        {
+          "unit_id": "CCA-D1-007",
+          "title": "Session State, Resumption, and Forking",
+          "description": "Named session resumption using --resume to continue prior conversations. fork_session for creating independent exploration branches from a shared analysis baseline. Choosing between session resumption (prior context still valid) and fresh sessions with injected summaries (tool results are stale).",
+          "has_lab": false,
+          "num_quiz_sets": 5
+        }
+      ]
+    },
+    {
+      "subject_id": "CCA-D2",
+      "name": "Tool Design & MCP Integration",
+      "units": [
+        {
+          "unit_id": "CCA-D2-001",
+          "title": "Effective Tool Interface Design",
+          "description": "Tool descriptions as the primary mechanism LLMs use for tool selection. Including input formats, example queries, edge cases, and boundary explanations. Resolving overlapping tool descriptions that cause misrouting. Impact of system prompt wording on unintended tool associations.",
+          "has_lab": true,
+          "num_quiz_sets": 5
+        },
+        {
+          "unit_id": "CCA-D2-002",
+          "title": "Structured Error Responses for MCP Tools",
+          "description": "The isError flag pattern for communicating tool failures. Distinguishing transient, validation, business, and permission errors. Structured error metadata with errorCategory and isRetryable boolean. Distinguishing access failures from valid empty results so the coordinator can make informed decisions.",
+          "has_lab": false,
+          "num_quiz_sets": 5
+        },
+        {
+          "unit_id": "CCA-D2-003",
+          "title": "Tool Distribution and tool_choice Configuration",
+          "description": "Scoped tool access per agent role to prevent cross-specialization misuse. tool_choice options: auto, any, and forced selection. Replacing generic tools with constrained purpose-specific alternatives. Setting tool_choice: any to guarantee the model calls a tool rather than returning conversational text.",
+          "has_lab": false,
+          "num_quiz_sets": 5
+        },
+        {
+          "unit_id": "CCA-D2-004",
+          "title": "MCP Server Integration in Claude Code and Agent Workflows",
+          "description": "Project-level (.mcp.json) vs user-level (~/.claude.json) MCP scoping. Environment variable expansion for credential management without committing secrets. MCP resources as content catalogs to reduce exploratory tool calls. Choosing community MCP servers over custom implementations for standard integrations.",
+          "has_lab": true,
+          "num_quiz_sets": 5
+        },
+        {
+          "unit_id": "CCA-D2-005",
+          "title": "Built-In Tools: Read, Write, Edit, Bash, Grep, and Glob",
+          "description": "Selecting the correct built-in tool: Grep for content search across a codebase, Glob for file path pattern matching, Edit for targeted modifications using unique text matching, Read+Write as fallback when Edit cannot find unique anchor text. Building codebase understanding incrementally starting from entry points.",
+          "has_lab": false,
+          "num_quiz_sets": 5
+        }
+      ]
+    },
+    {
+      "subject_id": "CCA-D3",
+      "name": "Claude Code Configuration & Workflows",
+      "units": [
+        {
+          "unit_id": "CCA-D3-001",
+          "title": "CLAUDE.md Hierarchy and Modular Organization",
+          "description": "CLAUDE.md configuration hierarchy: user-level (~/.claude/CLAUDE.md), project-level (.claude/CLAUDE.md or root CLAUDE.md), and directory-level files. The @import syntax for referencing external rule files. .claude/rules/ directory as an alternative to monolithic CLAUDE.md for topic-specific rule files.",
+          "has_lab": false,
+          "num_quiz_sets": 5
+        },
+        {
+          "unit_id": "CCA-D3-002",
+          "title": "Custom Slash Commands and Skills",
+          "description": "Project-scoped commands in .claude/commands/ vs user-scoped in ~/.claude/commands/. Skills in .claude/skills/ with SKILL.md frontmatter: context: fork for isolated sub-agent execution, allowed-tools to restrict tool access, argument-hint to prompt for required parameters. Choosing skills over CLAUDE.md for on-demand task-specific workflows.",
+          "has_lab": true,
+          "num_quiz_sets": 5
+        },
+        {
+          "unit_id": "CCA-D3-003",
+          "title": "Path-Specific Rules for Conditional Convention Loading",
+          "description": ".claude/rules/ files with YAML frontmatter paths fields containing glob patterns for conditional rule activation. Rules load only when editing matching files, reducing irrelevant context and token usage. Glob patterns for conventions that span multiple directories, such as test files spread throughout a codebase.",
+          "has_lab": false,
+          "num_quiz_sets": 5
+        },
+        {
+          "unit_id": "CCA-D3-004",
+          "title": "Plan Mode vs Direct Execution",
+          "description": "Plan mode for complex tasks involving large-scale changes, multiple valid approaches, architectural decisions, and multi-file modifications. Direct execution for simple, well-scoped single-file changes. Using the Explore subagent to isolate verbose discovery output and preserve main conversation context.",
+          "has_lab": false,
+          "num_quiz_sets": 5
+        },
+        {
+          "unit_id": "CCA-D3-005",
+          "title": "Iterative Refinement Techniques",
+          "description": "Concrete input/output examples as the most effective way to communicate expected transformations. Test-driven iteration: write the test suite first, then share test failures to guide improvement. The interview pattern for surfacing unanticipated design considerations. Batching interacting issues in one message vs sequential fixes for independent issues.",
+          "has_lab": false,
+          "num_quiz_sets": 5
+        },
+        {
+          "unit_id": "CCA-D3-006",
+          "title": "Claude Code in CI/CD Pipelines",
+          "description": "The -p (--print) flag for non-interactive mode in automated pipelines. --output-format json and --json-schema for machine-parseable structured findings. CLAUDE.md for providing project context to CI-invoked instances. Session context isolation: why an independent review instance catches more issues than self-review.",
+          "has_lab": true,
+          "num_quiz_sets": 5
+        }
+      ]
+    },
+    {
+      "subject_id": "CCA-D4",
+      "name": "Prompt Engineering & Structured Output",
+      "units": [
+        {
+          "unit_id": "CCA-D4-001",
+          "title": "Explicit Criteria for Precision and False Positive Reduction",
+          "description": "Explicit categorical criteria over vague confidence-based instructions. Defining which issue types to report vs skip rather than relying on 'be conservative' instructions. Impact of high false positive rates on developer trust. Temporarily disabling high false-positive categories while improving prompts for those categories.",
+          "has_lab": false,
+          "num_quiz_sets": 5
+        },
+        {
+          "unit_id": "CCA-D4-002",
+          "title": "Few-Shot Prompting for Output Consistency",
+          "description": "Few-shot examples as the most effective technique for consistently formatted output when detailed instructions alone produce inconsistent results. Using examples to demonstrate correct handling of ambiguous cases. Providing examples that distinguish acceptable code patterns from genuine issues to reduce false positives.",
+          "has_lab": false,
+          "num_quiz_sets": 5
+        },
+        {
+          "unit_id": "CCA-D4-003",
+          "title": "Structured Output via tool_use and JSON Schemas",
+          "description": "tool_use with JSON schemas as the most reliable approach for guaranteed schema-compliant output, eliminating JSON syntax errors. tool_choice options: auto, any, and forced tool selection. Designing nullable fields when source documents may not contain information to prevent the model from fabricating values.",
+          "has_lab": true,
+          "num_quiz_sets": 5
+        },
+        {
+          "unit_id": "CCA-D4-004",
+          "title": "Validation, Retry, and Feedback Loops for Extraction Quality",
+          "description": "Retry-with-error-feedback: appending specific validation errors to the prompt on retry. Limits of retry when information is simply absent from the source document. detected_pattern fields for systematic false positive dismissal analysis. Self-correction flows using calculated_total vs stated_total to flag discrepancies.",
+          "has_lab": true,
+          "num_quiz_sets": 5
+        },
+        {
+          "unit_id": "CCA-D4-005",
+          "title": "Batch Processing with the Message Batches API",
+          "description": "Message Batches API characteristics: 50% cost savings, up to 24-hour processing window, no guaranteed latency SLA, no multi-turn tool calling support. Matching API choice to workflow latency requirements. Handling batch failures by resubmitting only failed documents identified by custom_id.",
+          "has_lab": false,
+          "num_quiz_sets": 5
+        },
+        {
+          "unit_id": "CCA-D4-006",
+          "title": "Multi-Instance and Multi-Pass Review Architectures",
+          "description": "Self-review limitations: a model retains reasoning context from generation, making it less likely to question its own decisions. Independent review instances without prior reasoning context catch more subtle issues. Splitting large multi-file reviews into per-file local analysis passes plus separate cross-file integration passes.",
+          "has_lab": false,
+          "num_quiz_sets": 5
+        }
+      ]
+    },
+    {
+      "subject_id": "CCA-D5",
+      "name": "Context Management & Reliability",
+      "units": [
+        {
+          "unit_id": "CCA-D5-001",
+          "title": "Conversation Context Preservation Across Long Interactions",
+          "description": "Progressive summarization risks: condensing numerical values, dates, and customer-stated expectations into vague summaries. The lost-in-the-middle effect for long inputs. Trimming verbose tool outputs to only relevant fields. Extracting transactional facts into a persistent case facts block outside summarized history.",
+          "has_lab": false,
+          "num_quiz_sets": 5
+        },
+        {
+          "unit_id": "CCA-D5-002",
+          "title": "Escalation and Ambiguity Resolution Patterns",
+          "description": "Appropriate escalation triggers: explicit customer requests, policy exceptions or gaps, and inability to make meaningful progress. Honoring customer escalation requests immediately without first attempting investigation. Why sentiment-based escalation and self-reported confidence scores are unreliable proxies for case complexity.",
+          "has_lab": false,
+          "num_quiz_sets": 5
+        },
+        {
+          "unit_id": "CCA-D5-003",
+          "title": "Error Propagation Across Multi-Agent Systems",
+          "description": "Structured error context (failure type, attempted query, partial results, alternative approaches) for intelligent coordinator recovery. Distinguishing access failures from valid empty results. Local recovery within subagents before propagating errors to the coordinator. Silent suppression and workflow termination as anti-patterns.",
+          "has_lab": true,
+          "num_quiz_sets": 5
+        },
+        {
+          "unit_id": "CCA-D5-004",
+          "title": "Context Management in Large Codebase Exploration",
+          "description": "Context degradation in extended sessions: models reference typical patterns rather than specific classes discovered earlier. Scratchpad files for persisting key findings across context boundaries. Structured state persistence for crash recovery: each agent exports state to a known location for coordinator reload on resume.",
+          "has_lab": false,
+          "num_quiz_sets": 5
+        },
+        {
+          "unit_id": "CCA-D5-005",
+          "title": "Human Review Workflows and Confidence Calibration",
+          "description": "Aggregate accuracy metrics masking poor performance on specific document types or fields. Stratified random sampling for error rate measurement and novel pattern detection. Field-level confidence scores calibrated using labeled validation sets. Routing low-confidence or ambiguous extractions to human review to prioritize limited reviewer capacity.",
+          "has_lab": false,
+          "num_quiz_sets": 5
+        },
+        {
+          "unit_id": "CCA-D5-006",
+          "title": "Information Provenance in Multi-Source Synthesis",
+          "description": "Source attribution loss during summarization when findings are compressed without preserving claim-source mappings. Handling conflicting statistics from credible sources by annotating conflicts rather than arbitrarily selecting one value. Requiring publication dates in structured outputs to prevent temporal differences from being misinterpreted as contradictions.",
+          "has_lab": false,
+          "num_quiz_sets": 5
+        }
+      ]
+    }
+  ]
+}

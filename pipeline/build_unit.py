@@ -5,7 +5,7 @@ Core unit build logic for the StudyBuddy content pipeline.
 
 build_unit(curriculum_id, unit_id, unit_data, lang, config, force=False) -> dict
 
-Generates lesson, 3 quiz sets, tutorial, and (if has_lab) experiment content
+Generates lesson, N quiz sets (default 3; controlled by unit_data["num_quiz_sets"]), tutorial, and (if has_lab) experiment content
 for a single unit + language combination using the Claude API.
 
 CLI usage:
@@ -36,6 +36,7 @@ if _REPO_ROOT not in sys.path:
     sys.path.insert(0, _REPO_ROOT)
 
 from pipeline.alex_runner import run_alex
+from pipeline.pdf_worker import generate_pdf
 from pipeline.content_format_validator import FormatWarning, check_content
 from pipeline.prompts import (
     build_experiment_prompt,
@@ -125,17 +126,14 @@ def _generate_and_validate(
     )
 
 
-def _all_files_exist(store_path: str, lang: str, has_lab: bool) -> bool:
+def _all_files_exist(store_path: str, lang: str, has_lab: bool, num_quiz_sets: int = 3) -> bool:
     """Check whether all expected content files exist for this unit/lang."""
-    expected = [
-        f"lesson_{lang}.json",
-        f"quiz_set_1_{lang}.json",
-        f"quiz_set_2_{lang}.json",
-        f"quiz_set_3_{lang}.json",
-        f"tutorial_{lang}.json",
-    ]
+    expected = [f"lesson_{lang}.json"] + [
+        f"quiz_set_{n}_{lang}.json" for n in range(1, num_quiz_sets + 1)
+    ] + [f"tutorial_{lang}.json"]
     if has_lab:
         expected.append(f"experiment_{lang}.json")
+    expected.append(f"study_pack_{lang}.pdf")
 
     return all(os.path.exists(os.path.join(store_path, f)) for f in expected)
 
@@ -181,6 +179,7 @@ def build_unit(
     subject = unit_data.get("subject", "")
     has_lab = unit_data.get("has_lab", False)
     grade = unit_data.get("grade", 8)
+    num_quiz_sets = unit_data.get("num_quiz_sets", 3)
 
     # Resolve which provider to use
     resolved_provider_id = provider_id or getattr(config, "DEFAULT_PROVIDER", "anthropic")
@@ -194,7 +193,7 @@ def build_unit(
             meta.get("content_version") == config.CONTENT_VERSION
             and lang in meta.get("langs_built", [])
             and meta.get("provider", "anthropic") == resolved_provider_id
-            and _all_files_exist(store_path, lang, has_lab)
+            and _all_files_exist(store_path, lang, has_lab, num_quiz_sets)
         ):
             log.info(
                 "unit_skip unit_id=%s lang=%s provider=%s content_version=%d (already built)",
@@ -252,10 +251,10 @@ def build_unit(
         total_output_tokens += out_tok
         generated_content["lesson"] = lesson_data
 
-        # ── 3 Quiz sets ───────────────────────────────────────────────────────
-        for set_num in range(1, 4):
+        # ── Quiz sets (num_quiz_sets, default 3) ──────────────────────────────
+        for set_num in range(1, num_quiz_sets + 1):
             log.info("generating quiz set=%d unit_id=%s lang=%s provider=%s", set_num, unit_id, lang, resolved_provider_id)
-            prompt = build_quiz_prompt(unit_id, subject, title, grade, lang, set_num)
+            prompt = build_quiz_prompt(unit_id, subject, title, grade, lang, set_num, num_quiz_sets)
             quiz_data, in_tok, out_tok = _generate_and_validate(
                 provider, prompt, validate_quiz, f"quiz_set_{set_num}"
             )
@@ -353,11 +352,26 @@ def build_unit(
     os.makedirs(store_path, exist_ok=True)
 
     _write_json(store_path, f"lesson_{lang}.json", generated_content["lesson"])
-    for set_num in range(1, 4):
+    for set_num in range(1, num_quiz_sets + 1):
         _write_json(store_path, f"quiz_set_{set_num}_{lang}.json", generated_content[f"quiz_{set_num}"])
     _write_json(store_path, f"tutorial_{lang}.json", generated_content["tutorial"])
     if has_lab and "experiment" in generated_content:
         _write_json(store_path, f"experiment_{lang}.json", generated_content["experiment"])
+
+    # ── PDF study pack ────────────────────────────────────────────────────────
+    pdf_path = os.path.join(store_path, f"study_pack_{lang}.pdf")
+    try:
+        generate_pdf(
+            unit_id=unit_id,
+            unit_title=title,
+            subject=subject,
+            curriculum_id=curriculum_id,
+            generated_content=generated_content,
+            output_path=pdf_path,
+            lang=lang,
+        )
+    except Exception as exc:
+        log.warning("pdf_generation_failed unit_id=%s lang=%s error=%s", unit_id, lang, exc)
 
     # ── TTS synthesis ─────────────────────────────────────────────────────────
     lesson_text = _lesson_to_speech_text(generated_content["lesson"])
@@ -365,7 +379,7 @@ def build_unit(
     synthesize_lesson(lesson_text, lang, audio_path)
 
     # ── Upload to S3 (if configured) ──────────────────────────────────────────
-    _upload_unit_to_s3(curriculum_id, unit_id, store_path, lang, has_lab)
+    _upload_unit_to_s3(curriculum_id, unit_id, store_path, lang, has_lab, num_quiz_sets)
 
     # ── Update meta.json ──────────────────────────────────────────────────────
     _update_meta(
@@ -417,7 +431,7 @@ def _write_json(directory: str, filename: str, data: dict) -> None:
     log.debug("wrote %s", path)
 
 
-def _upload_unit_to_s3(curriculum_id: str, unit_id: str, store_path: str, lang: str, has_lab: bool) -> None:
+def _upload_unit_to_s3(curriculum_id: str, unit_id: str, store_path: str, lang: str, has_lab: bool, num_quiz_sets: int = 3) -> None:
     """
     Upload all content files for a unit to S3 with correct Cache-Control headers.
 
@@ -445,13 +459,9 @@ def _upload_unit_to_s3(curriculum_id: str, unit_id: str, store_path: str, lang: 
         s3 = boto3.client("s3")
         prefix = f"curricula/{curriculum_id}/{unit_id}"
 
-        json_files = [
-            f"lesson_{lang}.json",
-            f"quiz_set_1_{lang}.json",
-            f"quiz_set_2_{lang}.json",
-            f"quiz_set_3_{lang}.json",
-            f"tutorial_{lang}.json",
-        ]
+        json_files = [f"lesson_{lang}.json"] + [
+            f"quiz_set_{n}_{lang}.json" for n in range(1, num_quiz_sets + 1)
+        ] + [f"tutorial_{lang}.json"]
         if has_lab:
             json_files.append(f"experiment_{lang}.json")
 
@@ -469,6 +479,21 @@ def _upload_unit_to_s3(curriculum_id: str, unit_id: str, store_path: str, lang: 
                 },
             )
             log.debug("s3_uploaded key=%s/%s", prefix, filename)
+
+        # PDF study pack — 1hr Cache-Control
+        pdf_filename = f"study_pack_{lang}.pdf"
+        pdf_local = os.path.join(store_path, pdf_filename)
+        if os.path.exists(pdf_local):
+            s3.upload_file(
+                pdf_local,
+                bucket,
+                f"{prefix}/{pdf_filename}",
+                ExtraArgs={
+                    "ContentType": "application/pdf",
+                    "CacheControl": "max-age=3600",
+                },
+            )
+            log.debug("s3_uploaded key=%s/%s", prefix, pdf_filename)
 
         # MP3 — 24hr Cache-Control
         mp3_filename = f"lesson_{lang}.mp3"
@@ -502,16 +527,15 @@ def _extract_text_for_alex_by_type(content: dict) -> dict[str, str]:
         parts.extend(lesson.get("learning_objectives", []))
         result["lesson"] = "\n".join(p for p in parts if p)
 
-    for set_num in range(1, 4):
-        key = f"quiz_{set_num}"
-        if key in content:
-            parts = []
-            for q in content[key].get("questions", []):
-                parts.append(q.get("question_text", ""))
-                parts.append(q.get("explanation", ""))
-                for opt in q.get("options", []):
-                    parts.append(opt.get("text", ""))
-            result[f"quiz_set_{set_num}"] = "\n".join(p for p in parts if p)
+    for key in sorted(k for k in content if k.startswith("quiz_")):
+        set_num = key.split("_")[1]
+        parts = []
+        for q in content[key].get("questions", []):
+            parts.append(q.get("question_text", ""))
+            parts.append(q.get("explanation", ""))
+            for opt in q.get("options", []):
+                parts.append(opt.get("text", ""))
+        result[f"quiz_set_{set_num}"] = "\n".join(p for p in parts if p)
 
     if "tutorial" in content:
         tutorial = content["tutorial"]

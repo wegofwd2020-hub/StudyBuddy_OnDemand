@@ -142,6 +142,79 @@ Epic 3 can start as soon as Epic 2 hosting is settled. Monorepo extraction (Wave
 
 ---
 
+## Wave 7 — On-demand tutor mode (future scope, not yet scheduled)
+
+This is the Phase 3 product vision referenced in CLAUDE.md's positioning section:
+*"AI Agent where students query and learn more on demand."*
+
+### What it is
+
+Right now StudyBuddy works like a textbook — content is pre-generated once and
+every student reads the same pages. On-demand tutor mode flips that: a student
+finishes a unit and asks a follow-up question live, and a Claude instance answers
+it in real time.
+
+The key distinction from a general-purpose chatbot: **the response is scoped**.
+It is not "ask Claude anything" — it is "ask Claude within the boundaries of what
+you are currently studying, at your grade level, in your language." The same six
+scope dimensions that govern the pipeline (topic, grade, language, curriculum
+context, format, real-world framing) become the system prompt that constrains every
+live response. The LLM is the commodity; the scoping layer is the product IP.
+
+### How it integrates with the mobile app
+
+| Trigger | Where in the app |
+|---|---|
+| Student taps "Ask a question" after finishing a lesson | Bottom sheet on the lesson viewer screen |
+| Student gets a quiz question wrong | "Explain this to me" button on the result card |
+| Student finishes a unit | "I have questions" CTA on the unit completion screen |
+
+Each entry point pre-populates the tutor with full context: `curriculum_id`,
+`unit_id`, `grade`, `lang`, and the specific content the student was viewing.
+
+### Architecture sketch
+
+```
+Student tap → POST /api/v1/tutor/ask
+  body: { unit_id, curriculum_id, question, lang }
+  auth: student JWT (grade + curriculum context extracted server-side)
+
+Backend:
+  1. Verify entitlement (tutor tier required)
+  2. Build scoped system prompt from unit_data + grade_descriptor
+  3. Stream Anthropic response back via SSE
+  4. Log question + response for teacher insight feed
+
+Mobile:
+  expo-av (or custom SSE hook) renders streamed tokens as they arrive
+```
+
+### Why it is not built yet — economics
+
+Pre-generated content costs fractions of a cent per student view (paid once at
+pipeline time, amortized across all students). Live LLM calls cost real money per
+question — roughly $0.002–$0.01 per exchange depending on context length.
+
+At 100 students asking 10 questions each per week that is $2–$10/week per school,
+which is significant relative to school subscription pricing. This needs either:
+
+- A separate "tutor add-on" subscription tier, or
+- Per-query credits billed through Stripe, or
+- A volume threshold where the school subscription already justifies the cost
+
+**This is a pricing and monetization decision, not a technical blocker.** The
+technical work (SSE endpoint, scoped system prompt, mobile streaming UI) is
+straightforward once the commercial model is decided.
+
+### Dependencies before scheduling
+
+- Epic 2 (Hosting) — production backend needed for latency-sensitive streaming
+- Epic 5 (District admin) or a new tutor tier in Epic 5's subscription model
+- Wave 3 of this epic (M-7 through M-11) must ship first — tutor is an enhancement
+  layered on top of the existing lesson/quiz surface, not a replacement
+
+---
+
 ## Your decisions / notes
 
 > Add your thoughts here. Even rough bullet points are enough to start.

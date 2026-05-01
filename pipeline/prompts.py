@@ -11,8 +11,10 @@ Prompts are grade-appropriate (Grade 5 simpler vocabulary; Grade 12 university-p
 from __future__ import annotations
 
 
-def _grade_descriptor(grade: int) -> str:
+def _grade_descriptor(grade) -> str:
     """Return a language-level descriptor suitable for the prompt."""
+    if not isinstance(grade, int):
+        return "a working professional preparing for a technical certification. Use rigorous, precise language with full technical terminology and real-world implementation context."
     if grade <= 6:
         return "a Grade 5–6 student (age 10–12). Use simple, clear language, short sentences, and relatable everyday examples."
     elif grade <= 8:
@@ -319,6 +321,7 @@ def build_quiz_prompt(
     grade: int,
     lang: str,
     set_number: int,
+    total_sets: int = 3,
 ) -> str:
     """Return the prompt for generating a quiz set JSON document."""
     grade_desc = _grade_descriptor(grade)
@@ -328,7 +331,7 @@ def build_quiz_prompt(
 
 {lang_instruction}
 
-Generate quiz set {set_number} of 3 for the topic: "{topic}" (subject: {subject}, grade: {grade})
+Generate quiz set {set_number} of {total_sets} for the topic: "{topic}" (subject: {subject}, grade: {grade})
 Unit ID: {unit_id}
 
 You MUST respond with ONLY valid JSON — no markdown fences, no extra text, no explanation.

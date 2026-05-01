@@ -128,7 +128,7 @@ QUIZ_SCHEMA: dict = {
     "additionalProperties": True,
     "properties": {
         "unit_id": {"type": "string", "minLength": 1},
-        "set_number": {"type": "integer", "minimum": 1, "maximum": 3},
+        "set_number": {"type": "integer", "minimum": 1},
         "language": {"type": "string", "minLength": 2},
         "questions": {
             "type": "array",
