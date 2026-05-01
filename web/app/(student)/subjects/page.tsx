@@ -2,11 +2,73 @@
 
 import { useCurriculumTree } from "@/lib/hooks/useCurriculumTree";
 import { LinkButton } from "@/components/ui/link-button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
 import { Skeleton } from "@/components/ui/skeleton";
 import { FlaskConical } from "lucide-react";
 import { OfflineBanner } from "@/components/student/OfflineBanner";
+import { useSubjectPalette } from "@/lib/theme/SchoolThemeContext";
+
+// ── Per-subject card — uses theme palette for tinted header ───────────────────
+
+type SubjectData = {
+  subject: string;
+  units: { unit_id: string; title: string; has_lab?: boolean }[];
+};
+
+function SubjectCard({ subject }: { subject: SubjectData }) {
+  const palette = useSubjectPalette(subject.subject);
+
+  return (
+    <div
+      className="overflow-hidden rounded-xl border shadow-sm"
+      style={{ borderColor: palette.border }}
+    >
+      <div className="px-5 py-4" style={{ background: palette.bg1 }}>
+        <h2 className="text-base font-bold" style={{ color: palette.ink }}>
+          {subject.subject}
+        </h2>
+        <p className="text-xs" style={{ color: palette.ink, opacity: 0.65 }}>
+          {subject.units.length} unit{subject.units.length !== 1 ? "s" : ""}
+        </p>
+      </div>
+
+      <div className="divide-y bg-white">
+        {subject.units.map((unit) => (
+          <div
+            key={unit.unit_id}
+            className="flex items-center justify-between px-5 py-2"
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-700">{unit.title}</span>
+              {unit.has_lab && (
+                <FlaskConical className="h-3.5 w-3.5 text-purple-500" />
+              )}
+            </div>
+            <div className="flex items-center gap-1">
+              <LinkButton
+                href={`/lesson/${unit.unit_id}`}
+                variant="ghost"
+                size="sm"
+                className="h-7 text-xs"
+              >
+                Lesson
+              </LinkButton>
+              <LinkButton
+                href={`/quiz/${unit.unit_id}`}
+                variant="ghost"
+                size="sm"
+                className="h-7 text-xs"
+              >
+                Quiz
+              </LinkButton>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function SubjectsPage() {
   const { data: tree, isLoading, isError } = useCurriculumTree();
@@ -20,7 +82,7 @@ export default function SubjectsPage() {
         {isLoading && (
           <div className="grid gap-4 sm:grid-cols-2">
             {[...Array(4)].map((_, i) => (
-              <Skeleton key={i} className="h-48 rounded-lg" />
+              <Skeleton key={i} className="h-48 rounded-xl" />
             ))}
           </div>
         )}
@@ -29,48 +91,10 @@ export default function SubjectsPage() {
           <p className="text-sm text-red-500">Could not load curriculum. Please retry.</p>
         )}
 
-        {tree && tree.subjects && (
+        {tree?.subjects && (
           <div className="grid gap-6 sm:grid-cols-2">
             {tree.subjects.map((subject) => (
-              <Card key={subject.subject} className="border shadow-sm">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base">{subject.subject}</CardTitle>
-                  <p className="text-xs text-gray-400">{subject.units.length} units</p>
-                </CardHeader>
-                <CardContent className="space-y-1">
-                  {subject.units.map((unit) => (
-                    <div
-                      key={unit.unit_id}
-                      className="flex items-center justify-between border-b py-1.5 last:border-0"
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-700">{unit.title}</span>
-                        {unit.has_lab && (
-                          <FlaskConical className="h-3.5 w-3.5 text-purple-500" />
-                        )}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <LinkButton
-                          href={`/lesson/${unit.unit_id}`}
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 text-xs"
-                        >
-                          Lesson
-                        </LinkButton>
-                        <LinkButton
-                          href={`/quiz/${unit.unit_id}`}
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 text-xs"
-                        >
-                          Quiz
-                        </LinkButton>
-                      </div>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
+              <SubjectCard key={subject.subject} subject={subject} />
             ))}
           </div>
         )}

@@ -9,6 +9,7 @@ import { useTranslations } from "next-intl";
 import { FlaskConical, CheckCircle2, Circle, AlertCircle, Clock, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { UnitStatus } from "@/lib/types/api";
+import { useSubjectPalette } from "@/lib/theme/SchoolThemeContext";
 
 const STATUS_CONFIG: Record<
   UnitStatus,
@@ -19,6 +20,18 @@ const STATUS_CONFIG: Record<
   in_progress: { icon: Clock, color: "text-blue-500", label: "In progress" },
   not_started: { icon: Circle, color: "text-gray-300", label: "Not started" },
 };
+
+function SubjectHeading({ name }: { name: string }) {
+  const palette = useSubjectPalette(name);
+  return (
+    <h2
+      className="mb-3 border-l-4 pl-3 text-lg font-semibold"
+      style={{ borderColor: palette.accent, color: palette.ink }}
+    >
+      {name}
+    </h2>
+  );
+}
 
 export default function CurriculumMapPage() {
   const t = useTranslations("curriculum_map_screen");
@@ -66,9 +79,7 @@ export default function CurriculumMapPage() {
         ) : (
           tree.subjects.map((subject) => (
             <section key={subject.subject}>
-              <h2 className="mb-3 text-lg font-semibold text-gray-800">
-                {subject.subject}
-              </h2>
+              <SubjectHeading name={subject.subject} />
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {subject.units.map((unit) => {
                   const status = statusMap.get(unit.unit_id) ?? "not_started";
