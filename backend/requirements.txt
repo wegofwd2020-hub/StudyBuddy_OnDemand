@@ -36,6 +36,9 @@ openpyxl==3.1.5
 # Pipeline dependencies (needed by celery-pipeline worker)
 anthropic==0.28.0
 tiktoken>=0.7.0
+Markdown>=3.6
+Jinja2>=3.1.0
+weasyprint>=62.0
 
 # Help system — Deliver-1
 voyageai>=0.3.0         # Anthropic-recommended embedding model for Claude RAG
