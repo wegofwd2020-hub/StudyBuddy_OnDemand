@@ -45,6 +45,22 @@ export async function getDemoTeacherSession(): Promise<DevSession | null> {
 }
 
 /**
+ * Read the Phase A local-auth session cookie set for school-provisioned students.
+ */
+export async function getLocalStudentSession(): Promise<DevSession | null> {
+  try {
+    const store = await cookies();
+    const raw = store.get("sb_local_student_session")?.value;
+    if (!raw) return null;
+    const data = JSON.parse(atob(raw));
+    if (!data?.email) return null;
+    return { user: { name: data.name ?? data.email, email: data.email } };
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Read the Phase A local-auth session cookie set by the school login page.
  * The cookie payload is base64-encoded JSON: { name, email }.
  *

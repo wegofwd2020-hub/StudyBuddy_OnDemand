@@ -25,6 +25,7 @@ the decision notes become the spec and we develop from there.
 | 11 | Content Presentation & Formatting | [EPIC_11_content_formatting.md](EPIC_11_content_formatting.md) | 🚧 C-1 through C-4, C-6, C-9 shipped; C-5 regen in progress (Grade 11 Commerce done, Grade 11 Science resume in flight); C-7 PDF smoke + C-8 mobile parity pending |
 | 12 | Teacher Content Authoring | [EPIC_12_teacher_content_authoring.md](EPIC_12_teacher_content_authoring.md) | ✅ Go — all questions resolved; Option B (fork model) adopted; ready to build TA-0 |
 | 13 | Branding Refresh: STEM → Education Enhancement | [EPIC_13_branding_refresh.md](EPIC_13_branding_refresh.md) | 🚧 Scope locked 2026-04-21 (C+1 tagline + scoped-retrieval model); T-BR-1..5 pending execution |
+| 15 | School Curriculum Backup & Restore | [EPIC_15_backup_restore.md](EPIC_15_backup_restore.md) | ✅ Go — spec locked; ready to build BR-1 through BR-6 |
 
 ---
 

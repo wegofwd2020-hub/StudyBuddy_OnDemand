@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTeacher } from "@/lib/hooks/useTeacher";
 import { getSchoolTheme, updateSchoolTheme } from "@/lib/api/school-admin";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -138,6 +138,7 @@ function SubjectColorRow({
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export default function CustomizeSchoolPage() {
+  const queryClient = useQueryClient();
   const teacher = useTeacher();
   const schoolId = teacher?.school_id ?? "";
   const isAdmin = teacher?.role === "school_admin";
@@ -201,6 +202,7 @@ export default function CustomizeSchoolPage() {
       const before = savedTheme;
       const published = workingTheme;
       setSavedTheme(published);
+      queryClient.invalidateQueries({ queryKey: ["school-theme", schoolId] });
       setSaveState("saved");
       toast.success("Changes saved · Students will see this on next sign-in", {
         action: {
