@@ -26,6 +26,7 @@ the decision notes become the spec and we develop from there.
 | 12 | Teacher Content Authoring | [EPIC_12_teacher_content_authoring.md](EPIC_12_teacher_content_authoring.md) | ✅ Go — all questions resolved; Option B (fork model) adopted; ready to build TA-0 |
 | 13 | Branding Refresh: STEM → Education Enhancement | [EPIC_13_branding_refresh.md](EPIC_13_branding_refresh.md) | 🚧 Scope locked 2026-04-21 (C+1 tagline + scoped-retrieval model); T-BR-1..5 pending execution |
 | 15 | School Curriculum Backup & Restore | [EPIC_15_backup_restore.md](EPIC_15_backup_restore.md) | ✅ Go — spec locked; ready to build BR-1 through BR-6 |
+| 16 | Public Site Redesign: School-First Marketing | [EPIC_16_public_site_redesign.md](EPIC_16_public_site_redesign.md) | 🔜 Ready to build — start 2026-05-03 (S-1 PublicNav → S-2 Landing → S-3 For Schools → S-4 About → S-5 a11y pass) |
 
 ---
 
