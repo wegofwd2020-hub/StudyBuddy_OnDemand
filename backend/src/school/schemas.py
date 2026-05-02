@@ -6,6 +6,7 @@ Pydantic request/response models for Phase 8–9 school endpoints.
 
 from __future__ import annotations
 
+import re
 from datetime import datetime
 
 from pydantic import BaseModel, EmailStr, field_validator
@@ -194,6 +195,7 @@ class ProvisionStudentResponse(BaseModel):
 
 class ResetPasswordResponse(BaseModel):
     detail: str
+    temp_password: str
 
 
 class PromoteTeacherResponse(BaseModel):

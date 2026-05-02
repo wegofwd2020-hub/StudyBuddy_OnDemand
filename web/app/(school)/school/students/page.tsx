@@ -163,12 +163,14 @@ function TeacherStudentView({ schoolId, teacherId }: { schoolId: string; teacher
 function RosterRow({ item, schoolId }: { item: RosterItem; schoolId: string }) {
   const [confirmReset, setConfirmReset] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [tempPassword, setTempPassword] = useState<string | null>(null);
 
   const { mutate: doReset, isPending: resetting } = useMutation({
     mutationFn: () => resetStudentPassword(schoolId, item.student_id!),
-    onSuccess: () => {
+    onSuccess: (data) => {
       setConfirmReset(false);
-      setMsg("Password reset. New credentials have been emailed to the student.");
+      setTempPassword(data.temp_password);
+      setMsg(null);
     },
     onError: () => {
       setConfirmReset(false);
@@ -231,6 +233,37 @@ function RosterRow({ item, schoolId }: { item: RosterItem; schoolId: string }) {
                 Cancel
               </Button>
             </div>
+          </td>
+        </tr>
+      )}
+      {tempPassword && (
+        <tr>
+          <td colSpan={4} className="bg-green-50 px-4 py-3">
+            <p className="text-xs font-medium text-green-800 mb-1">
+              Password reset — share this with the student:
+            </p>
+            <div className="flex items-center gap-2">
+              <code className="rounded bg-white px-3 py-1.5 font-mono text-sm font-semibold tracking-wide text-green-900 border border-green-200">
+                {tempPassword}
+              </code>
+              <button
+                type="button"
+                onClick={() => navigator.clipboard.writeText(tempPassword)}
+                className="text-xs text-green-700 underline hover:no-underline"
+              >
+                Copy
+              </button>
+              <button
+                type="button"
+                onClick={() => setTempPassword(null)}
+                className="text-xs text-green-600 underline hover:no-underline ml-2"
+              >
+                Dismiss
+              </button>
+            </div>
+            <p className="mt-1 text-xs text-green-700">
+              They will be required to set a new password on first login.
+            </p>
           </td>
         </tr>
       )}

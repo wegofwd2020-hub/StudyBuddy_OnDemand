@@ -322,8 +322,8 @@ export async function provisionStudent(
 export async function resetTeacherPassword(
   schoolId: string,
   teacherId: string,
-): Promise<{ detail: string }> {
-  const res = await schoolApi.post<{ detail: string }>(
+): Promise<{ detail: string; temp_password: string }> {
+  const res = await schoolApi.post<{ detail: string; temp_password: string }>(
     `/schools/${schoolId}/teachers/${teacherId}/reset-password`,
   );
   return res.data;
@@ -331,13 +331,13 @@ export async function resetTeacherPassword(
 
 /**
  * Admin-initiated password reset for a student.
- * Generates a new default password, emails it, and sets first_login=true.
+ * Generates a new default password and sets first_login=true.
  */
 export async function resetStudentPassword(
   schoolId: string,
   studentId: string,
-): Promise<{ detail: string }> {
-  const res = await schoolApi.post<{ detail: string }>(
+): Promise<{ detail: string; temp_password: string }> {
+  const res = await schoolApi.post<{ detail: string; temp_password: string }>(
     `/schools/${schoolId}/students/${studentId}/reset-password`,
   );
   return res.data;

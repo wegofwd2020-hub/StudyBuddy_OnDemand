@@ -68,6 +68,8 @@ from src.school.schemas import (
     SchoolProfileResponse,
     SchoolRegisterRequest,
     SchoolRegisterResponse,
+    SchoolThemeResponse,
+    SchoolThemeUpdateRequest,
     SetupStatusResponse,
     StudentAssignmentRequest,
     StudentAssignmentResponse,
@@ -87,7 +89,9 @@ from src.school.service import (
     get_classroom_detail,
     get_definition,
     get_llm_config,
+    get_school_theme,
     get_setup_status,
+    get_student_school_theme,
     invite_teacher,
     list_catalog,
     list_classrooms,
@@ -105,6 +109,7 @@ from src.school.service import (
     submit_definition,
     update_classroom,
     update_llm_config,
+    update_school_theme,
 )
 from src.school.subscription_service import get_seat_usage
 from src.utils.logger import get_logger
@@ -814,7 +819,10 @@ async def reset_teacher_password_endpoint(
     except Exception:
         log.warning("reset_email_failed", teacher_id=target_teacher_id)
 
-    return ResetPasswordResponse(detail="Password reset. New credentials emailed to the teacher.")
+    return ResetPasswordResponse(
+        detail="Password reset.",
+        temp_password=result["default_password"],
+    )
 
 
 @router.post(
@@ -854,7 +862,10 @@ async def reset_student_password_endpoint(
     except Exception:
         log.warning("reset_email_failed", student_id=target_student_id)
 
-    return ResetPasswordResponse(detail="Password reset. New credentials emailed to the student.")
+    return ResetPasswordResponse(
+        detail="Password reset.",
+        temp_password=result["default_password"],
+    )
 
 
 @router.post(

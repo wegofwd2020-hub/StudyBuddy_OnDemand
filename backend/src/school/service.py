@@ -248,6 +248,21 @@ async def provision_student(
         grade,
     )
 
+    # Provisioned students are immediately enrolled — write the enrolments row so
+    # downstream assignment checks (assign_student) can find them.
+    await conn.execute(
+        """
+        INSERT INTO school_enrolments
+            (school_id, student_email, student_id, status, grade)
+        VALUES ($1, $2, $3, 'active', $4)
+        ON CONFLICT DO NOTHING
+        """,
+        uuid.UUID(school_id),
+        email,
+        uuid.UUID(student_id),
+        grade,
+    )
+
     log.info("student_provisioned", student_id=student_id, school_id=school_id, grade=grade)
     return {
         "student_id": student_id,
@@ -1214,7 +1229,7 @@ async def get_school_theme(
     )
     if row is None or row["theme"] is None:
         return None
-    return dict(row["theme"])
+    return json.loads(row["theme"])
 
 
 async def update_school_theme(
@@ -1256,4 +1271,4 @@ async def get_student_school_theme(pool: asyncpg.Pool, student_id: str) -> dict 
         )
     if row is None or row["theme"] is None:
         return None
-    return dict(row["theme"])
+    return json.loads(row["theme"])
