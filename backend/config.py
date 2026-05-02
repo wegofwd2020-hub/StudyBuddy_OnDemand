@@ -332,6 +332,14 @@ class Settings(BaseSettings):
     # Bump this when a breaking API change ships; give field devices 90 days to update.
     MINIMUM_SUPPORTED_APP_VERSION: str = "2.0.0"
 
+    # ── Backup storage ────────────────────────────────────────────────────────
+    # "local" uses BACKUP_LOCAL_PATH on the local filesystem (default, single-host).
+    # "s3" uses BACKUP_S3_BUCKET (multi-host production).
+    BACKUP_STORAGE_BACKEND: str = "local"   # "local" | "s3"
+    BACKUP_S3_BUCKET: str = ""
+    BACKUP_LOCAL_PATH: str = "/data/backups"
+    BACKUP_MAX_PER_SCHOOL: int = 10
+
     # ── Feature flags ─────────────────────────────────────────────────────────
     REVIEW_AUTO_APPROVE: bool = False
 

@@ -40,7 +40,7 @@ celery_app = Celery(
     # worker boot and every incoming task is silently discarded as
     # "unregistered" — which is exactly what was happening to
     # run_curriculum_pipeline_task.
-    include=["src.auth.tasks"],
+    include=["src.auth.tasks", "src.backup.tasks"],
 )
 
 celery_app.conf.update(
@@ -99,6 +99,12 @@ celery_app.conf.update(
         "src.auth.tasks.send_retention_email_task": {"queue": "io"},
         "src.auth.tasks.send_payment_action_required_email_task": {"queue": "io"},
         "src.auth.tasks.generate_scenario_clips_task": {"queue": "pipeline"},
+        # ── Backup & restore tasks (Epic 15) ─────────────────────────────────
+        "src.backup.tasks.backup_school_task": {"queue": "default"},
+        "src.backup.tasks.dry_run_restore_task": {"queue": "default"},
+        "src.backup.tasks.execute_restore_task": {"queue": "default"},
+        "src.backup.tasks.send_backup_notification_task": {"queue": "io"},
+        "src.backup.tasks.dispatch_scheduled_backups": {"queue": "default"},
     },
     beat_schedule={
         # Poll DB pool state + Celery queue depth every 30 seconds.
@@ -182,6 +188,11 @@ celery_app.conf.update(
         "check-teacher-seat-quotas-daily": {
             "task": "src.auth.tasks.check_teacher_seat_quotas",
             "schedule": crontab(hour=7, minute=0),
+        },
+        # Nightly backup coordinator at 02:30 UTC — dispatches per-school backups.
+        "dispatch-scheduled-backups-nightly": {
+            "task": "src.backup.tasks.dispatch_scheduled_backups",
+            "schedule": crontab(hour=2, minute=30),
         },
     },
 )

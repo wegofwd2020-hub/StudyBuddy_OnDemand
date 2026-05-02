@@ -1000,6 +1000,310 @@ async def send_demo_approval_email(
     await _send(to_email=to_email, subject=subject, text_body=text_body, html_body=html_body)
 
 
+# ── Backup & restore notification emails (Epic 15) ───────────────────────────
+
+_BACKUP_COMPLETE_SUBJECT = "StudyBuddy: Curriculum backup completed"
+
+_BACKUP_COMPLETE_TEXT = """\
+Hi,
+
+Your curriculum backup has completed successfully.
+
+School ID   : {school_id}
+Backup ID   : {backup_id}
+Scope       : {scope_label}
+Files saved : {file_count}
+Total size  : {total_bytes_human}
+
+You can manage your backups from the admin console.
+
+— The StudyBuddy Team
+"""
+
+_BACKUP_COMPLETE_HTML = """\
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8" /></head>
+<body style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:24px">
+  <div style="background:#f0fdf4;border-left:4px solid #16a34a;padding:12px 16px;margin-bottom:20px">
+    <strong style="color:#15803d">Curriculum backup completed</strong>
+  </div>
+  <table style="border-collapse:collapse;width:100%;margin:16px 0">
+    <tr>
+      <td style="padding:10px;background:#f3f4f6;font-weight:bold;width:140px">School ID</td>
+      <td style="padding:10px;background:#f9fafb;font-family:monospace;font-size:13px">{school_id}</td>
+    </tr>
+    <tr>
+      <td style="padding:10px;background:#f3f4f6;font-weight:bold">Backup ID</td>
+      <td style="padding:10px;background:#f9fafb;font-family:monospace;font-size:13px">{backup_id}</td>
+    </tr>
+    <tr>
+      <td style="padding:10px;background:#f3f4f6;font-weight:bold">Scope</td>
+      <td style="padding:10px;background:#f9fafb">{scope_label}</td>
+    </tr>
+    <tr>
+      <td style="padding:10px;background:#f3f4f6;font-weight:bold">Files saved</td>
+      <td style="padding:10px;background:#f9fafb">{file_count}</td>
+    </tr>
+    <tr>
+      <td style="padding:10px;background:#f3f4f6;font-weight:bold">Total size</td>
+      <td style="padding:10px;background:#f9fafb">{total_bytes_human}</td>
+    </tr>
+  </table>
+  <p style="color:#6b7280;font-size:13px">— The StudyBuddy Team</p>
+</body>
+</html>
+"""
+
+_BACKUP_FAILED_SUBJECT = "StudyBuddy: Curriculum backup FAILED"
+
+_BACKUP_FAILED_TEXT = """\
+Hi,
+
+A curriculum backup has FAILED.
+
+School ID : {school_id}
+Backup ID : {backup_id}
+Scope     : {scope_label}
+Error     : {error_msg}
+
+Please review the admin console and retry or contact support.
+
+— The StudyBuddy Team
+"""
+
+_BACKUP_FAILED_HTML = """\
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8" /></head>
+<body style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:24px">
+  <div style="background:#fef2f2;border-left:4px solid #dc2626;padding:12px 16px;margin-bottom:20px">
+    <strong style="color:#991b1b">Curriculum backup FAILED</strong>
+  </div>
+  <table style="border-collapse:collapse;width:100%;margin:16px 0">
+    <tr>
+      <td style="padding:10px;background:#f3f4f6;font-weight:bold;width:140px">School ID</td>
+      <td style="padding:10px;background:#f9fafb;font-family:monospace;font-size:13px">{school_id}</td>
+    </tr>
+    <tr>
+      <td style="padding:10px;background:#f3f4f6;font-weight:bold">Backup ID</td>
+      <td style="padding:10px;background:#f9fafb;font-family:monospace;font-size:13px">{backup_id}</td>
+    </tr>
+    <tr>
+      <td style="padding:10px;background:#f3f4f6;font-weight:bold">Scope</td>
+      <td style="padding:10px;background:#f9fafb">{scope_label}</td>
+    </tr>
+    <tr>
+      <td style="padding:10px;background:#f3f4f6;font-weight:bold">Error</td>
+      <td style="padding:10px;background:#fef2f2;color:#dc2626">{error_msg}</td>
+    </tr>
+  </table>
+  <p style="color:#6b7280;font-size:13px">— The StudyBuddy Team</p>
+</body>
+</html>
+"""
+
+_RESTORE_COMPLETE_SUBJECT = "StudyBuddy: Curriculum restore completed"
+
+_RESTORE_COMPLETE_TEXT = """\
+Hi,
+
+Your curriculum restore has completed successfully.
+
+School ID  : {school_id}
+Backup ID  : {backup_id}
+Scope      : {scope_label}
+
+Student access to restored curricula has been reinstated.
+
+— The StudyBuddy Team
+"""
+
+_RESTORE_COMPLETE_HTML = """\
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8" /></head>
+<body style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:24px">
+  <div style="background:#f0fdf4;border-left:4px solid #16a34a;padding:12px 16px;margin-bottom:20px">
+    <strong style="color:#15803d">Curriculum restore completed</strong>
+  </div>
+  <table style="border-collapse:collapse;width:100%;margin:16px 0">
+    <tr>
+      <td style="padding:10px;background:#f3f4f6;font-weight:bold;width:140px">School ID</td>
+      <td style="padding:10px;background:#f9fafb;font-family:monospace;font-size:13px">{school_id}</td>
+    </tr>
+    <tr>
+      <td style="padding:10px;background:#f3f4f6;font-weight:bold">Backup ID</td>
+      <td style="padding:10px;background:#f9fafb;font-family:monospace;font-size:13px">{backup_id}</td>
+    </tr>
+    <tr>
+      <td style="padding:10px;background:#f3f4f6;font-weight:bold">Scope</td>
+      <td style="padding:10px;background:#f9fafb">{scope_label}</td>
+    </tr>
+  </table>
+  <p style="color:#6b7280;font-size:13px">— The StudyBuddy Team</p>
+</body>
+</html>
+"""
+
+_RESTORE_FAILED_SUBJECT = "StudyBuddy: Curriculum restore FAILED"
+
+_RESTORE_FAILED_TEXT = """\
+Hi,
+
+A curriculum restore has FAILED.
+
+School ID : {school_id}
+Backup ID : {backup_id}
+Scope     : {scope_label}
+Error     : {error_msg}
+
+Please review the admin console and contact support if the issue persists.
+
+— The StudyBuddy Team
+"""
+
+_RESTORE_FAILED_HTML = """\
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8" /></head>
+<body style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:24px">
+  <div style="background:#fef2f2;border-left:4px solid #dc2626;padding:12px 16px;margin-bottom:20px">
+    <strong style="color:#991b1b">Curriculum restore FAILED</strong>
+  </div>
+  <table style="border-collapse:collapse;width:100%;margin:16px 0">
+    <tr>
+      <td style="padding:10px;background:#f3f4f6;font-weight:bold;width:140px">School ID</td>
+      <td style="padding:10px;background:#f9fafb;font-family:monospace;font-size:13px">{school_id}</td>
+    </tr>
+    <tr>
+      <td style="padding:10px;background:#f3f4f6;font-weight:bold">Backup ID</td>
+      <td style="padding:10px;background:#f9fafb;font-family:monospace;font-size:13px">{backup_id}</td>
+    </tr>
+    <tr>
+      <td style="padding:10px;background:#f3f4f6;font-weight:bold">Scope</td>
+      <td style="padding:10px;background:#f9fafb">{scope_label}</td>
+    </tr>
+    <tr>
+      <td style="padding:10px;background:#f3f4f6;font-weight:bold">Error</td>
+      <td style="padding:10px;background:#fef2f2;color:#dc2626">{error_msg}</td>
+    </tr>
+  </table>
+  <p style="color:#6b7280;font-size:13px">— The StudyBuddy Team</p>
+</body>
+</html>
+"""
+
+
+def _fmt_bytes(n: int) -> str:
+    """Human-readable byte count for backup notification emails."""
+    if n < 1024:
+        return f"{n} B"
+    if n < 1024 * 1024:
+        return f"{n / 1024:.1f} KB"
+    if n < 1024 * 1024 * 1024:
+        return f"{n / (1024 * 1024):.1f} MB"
+    return f"{n / (1024 * 1024 * 1024):.2f} GB"
+
+
+async def send_backup_email(
+    to_email: str,
+    event: str,
+    school_id: str,
+    backup_id: str,
+    scope_type: str,
+    scope_value: str | None = None,
+    file_count: int = 0,
+    total_bytes: int = 0,
+    error_msg: str | None = None,
+) -> None:
+    """
+    Send a backup lifecycle notification email.
+
+    event must be one of:
+      backup_completed
+      backup_failed
+
+    Delegates to _send() which skips silently when SMTP is not configured.
+    """
+    scope_label = scope_type + (f": {scope_value}" if scope_value else "")
+    fmt = {
+        "school_id": school_id,
+        "backup_id": backup_id,
+        "scope_label": scope_label,
+        "file_count": file_count,
+        "total_bytes_human": _fmt_bytes(total_bytes),
+        "error_msg": error_msg or "",
+    }
+
+    templates: dict[str, tuple[str, str, str]] = {
+        "backup_completed": (
+            _BACKUP_COMPLETE_SUBJECT,
+            _BACKUP_COMPLETE_TEXT.format(**fmt),
+            _BACKUP_COMPLETE_HTML.format(**fmt),
+        ),
+        "backup_failed": (
+            _BACKUP_FAILED_SUBJECT,
+            _BACKUP_FAILED_TEXT.format(**fmt),
+            _BACKUP_FAILED_HTML.format(**fmt),
+        ),
+    }
+
+    if event not in templates:
+        log.warning("backup_email_unknown_event", event=event)
+        return
+
+    subject, text_body, html_body = templates[event]
+    await _send(to_email=to_email, subject=subject, text_body=text_body, html_body=html_body)
+
+
+async def send_restore_email(
+    to_email: str,
+    event: str,
+    school_id: str,
+    backup_id: str,
+    scope_type: str,
+    scope_value: str | None = None,
+    error_msg: str | None = None,
+) -> None:
+    """
+    Send a restore lifecycle notification email.
+
+    event must be one of:
+      restore_completed
+      restore_failed
+
+    Delegates to _send() which skips silently when SMTP is not configured.
+    """
+    scope_label = scope_type + (f": {scope_value}" if scope_value else "")
+    fmt = {
+        "school_id": school_id,
+        "backup_id": backup_id,
+        "scope_label": scope_label,
+        "error_msg": error_msg or "",
+    }
+
+    templates: dict[str, tuple[str, str, str]] = {
+        "restore_completed": (
+            _RESTORE_COMPLETE_SUBJECT,
+            _RESTORE_COMPLETE_TEXT.format(**fmt),
+            _RESTORE_COMPLETE_HTML.format(**fmt),
+        ),
+        "restore_failed": (
+            _RESTORE_FAILED_SUBJECT,
+            _RESTORE_FAILED_TEXT.format(**fmt),
+            _RESTORE_FAILED_HTML.format(**fmt),
+        ),
+    }
+
+    if event not in templates:
+        log.warning("restore_email_unknown_event", event=event)
+        return
+
+    subject, text_body, html_body = templates[event]
+    await _send(to_email=to_email, subject=subject, text_body=text_body, html_body=html_body)
+
+
 async def send_payment_action_required_email(
     to_email: str,
     action_url: str,
