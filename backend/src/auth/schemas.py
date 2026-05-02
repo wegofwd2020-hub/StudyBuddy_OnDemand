@@ -186,6 +186,7 @@ class LocalLoginResponse(BaseModel):
     role: str  # "teacher" | "school_admin" | "student"
     first_login: bool  # True → client must redirect to password-reset page
     user_id: UUID  # teacher_id or student_id
+    name: str  # display name for the portal header
 
 
 class ChangePasswordRequest(BaseModel):

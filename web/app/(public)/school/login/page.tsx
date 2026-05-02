@@ -27,6 +27,8 @@ export default function SchoolLoginPage() {
       // Store token in the key each portal reads from localStorage
       if (res.role === "student") {
         localStorage.setItem("sb_token", res.token);
+        const studentPayload = btoa(JSON.stringify({ name: res.name || email, email }));
+        document.cookie = `sb_local_student_session=${studentPayload}; path=/; SameSite=Strict; Max-Age=86400`;
       } else {
         // school_admin and teacher both use sb_teacher_token — school Axios
         // client and useTeacher hook read from this key.
@@ -35,13 +37,13 @@ export default function SchoolLoginPage() {
         // Set a lightweight session cookie so the server layout can detect the
         // local-auth session and skip the Auth0 redirect. Encoded the same way
         // as sb_teacher_session (base64 JSON) for consistency.
-        const sessionPayload = btoa(JSON.stringify({ name: email, email }));
+        const sessionPayload = btoa(JSON.stringify({ name: res.name || email, email }));
         document.cookie = `sb_local_teacher_session=${sessionPayload}; path=/; SameSite=Strict; Max-Age=86400`;
       }
       if (res.first_login) {
         router.push("/school/change-password?required=1");
       } else if (res.role === "student") {
-        router.push("/student");
+        router.push("/dashboard");
       } else {
         router.push("/school/dashboard");
       }

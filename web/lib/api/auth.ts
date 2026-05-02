@@ -58,6 +58,7 @@ export interface LocalLoginResponse {
   /** When true the client must redirect to /school/change-password before any nav */
   first_login: boolean;
   user_id: string;
+  name: string;
 }
 
 /**

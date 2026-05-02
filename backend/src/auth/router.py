@@ -467,6 +467,7 @@ async def local_login(
         role=role,
         first_login=first_login,
         user_id=user_id,
+        name=user.get("name") or body.email,
     )
 
 

@@ -391,7 +391,7 @@ async def login_local_user(
         await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
         row = await conn.fetchrow(
             """
-            SELECT teacher_id::text AS user_id, role, school_id::text, account_status,
+            SELECT teacher_id::text AS user_id, name, role, school_id::text, account_status,
                    password_hash, first_login, 'teacher' AS user_type
             FROM teachers
             WHERE email = $1 AND auth_provider = 'local'
@@ -402,7 +402,7 @@ async def login_local_user(
         if row is None:
             row = await conn.fetchrow(
                 """
-                SELECT student_id::text AS user_id, 'student' AS role,
+                SELECT student_id::text AS user_id, name, 'student' AS role,
                        school_id::text, account_status,
                        password_hash, first_login, 'student' AS user_type
                 FROM students
