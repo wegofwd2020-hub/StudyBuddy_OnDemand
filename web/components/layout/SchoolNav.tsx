@@ -27,6 +27,7 @@ import {
   DoorOpen,
   LayoutGrid,
   ClipboardCheck,
+  Database,
 } from "lucide-react";
 import { listReviewQueue } from "@/lib/api/school-admin";
 
@@ -114,6 +115,12 @@ const NAV_ITEMS: NavItem[] = [
     label: "Content Retention",
     href: "/school/retention",
     icon: <Archive className="h-4 w-4" />,
+    adminOnly: true,
+  },
+  {
+    label: "Backups",
+    href: "/school/backups",
+    icon: <Database className="h-4 w-4" />,
     adminOnly: true,
   },
   { label: "Settings", href: "/school/settings", icon: <Settings className="h-4 w-4" /> },

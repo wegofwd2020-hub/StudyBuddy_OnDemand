@@ -398,6 +398,49 @@ async def school_submit_restore_request(
 
 
 @router.get(
+    "/schools/{school_id}/restore-requests/{request_id}",
+    response_model=RestoreRequestResponse,
+)
+async def school_get_restore_request(
+    school_id: str,
+    request_id: str,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+    conn=Depends(get_db),
+):
+    """Get a single restore request for the school."""
+    _require_school_admin(teacher, school_id)
+    row = await get_restore_request(conn=conn, request_id=request_id)
+    if not row or str(row["school_id"]) != school_id:
+        raise HTTPException(status_code=404, detail="Restore request not found")
+    return _restore_row_to_response(row)
+
+
+@router.patch(
+    "/schools/{school_id}/restore-requests/{request_id}/cancel",
+    response_model=RestoreRequestResponse,
+)
+async def school_cancel_restore_request(
+    school_id: str,
+    request_id: str,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+    conn=Depends(get_db),
+):
+    """School admin cancels their own restore request (submitted state only)."""
+    _require_school_admin(teacher, school_id)
+    row = await get_restore_request(conn=conn, request_id=request_id)
+    if not row or str(row["school_id"]) != school_id:
+        raise HTTPException(status_code=404, detail="Restore request not found")
+    if row["status"] not in ("submitted",):
+        raise HTTPException(
+            status_code=400,
+            detail="Only submitted requests can be cancelled by the school",
+        )
+    await cancel_restore_request(conn=conn, request_id=request_id)
+    row["status"] = "cancelled"
+    return _restore_row_to_response(row)
+
+
+@router.get(
     "/schools/{school_id}/restore-requests",
     response_model=RestoreRequestListResponse,
 )

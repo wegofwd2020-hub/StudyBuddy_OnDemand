@@ -1,4 +1,5 @@
-import { adminClient } from "./admin-client";
+import adminClient from "./admin-client";
+import schoolApi from "./school-client";
 
 export interface Backup {
   id: string;
@@ -23,6 +24,7 @@ export interface RestoreRequest {
   side_by_side: boolean;
   conflict_catalog_id: string | null;
   notes: string | null;
+  scheduled_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -77,4 +79,51 @@ export const listBackupSchedules = () =>
 export const updateBackupSchedule = (schoolId: string, cron: string) =>
   adminClient
     .put(`/admin/backup-schedules/${schoolId}`, { cron })
+    .then((r) => r.data);
+
+// ── School portal API calls ───────────────────────────────────────────────────
+
+export const schoolListBackups = (schoolId: string) =>
+  schoolApi.get(`/schools/${schoolId}/backups`).then((r) => r.data);
+
+export const schoolListRestoreRequests = (schoolId: string) =>
+  schoolApi.get(`/schools/${schoolId}/restore-requests`).then((r) => r.data);
+
+export const schoolGetRestoreRequest = (schoolId: string, requestId: string) =>
+  schoolApi
+    .get(`/schools/${schoolId}/restore-requests/${requestId}`)
+    .then((r) => r.data);
+
+export const schoolSubmitRestoreRequest = (
+  schoolId: string,
+  data: {
+    backup_id: string;
+    scope_type: string;
+    scope_value?: string;
+    notes?: string;
+    side_by_side?: boolean;
+    scheduled_at?: string;
+  },
+) =>
+  schoolApi
+    .post(`/schools/${schoolId}/restore-requests`, data)
+    .then((r) => r.data);
+
+export const schoolConfirmRestore = (
+  schoolId: string,
+  requestId: string,
+  sideBySide: boolean,
+) =>
+  schoolApi
+    .patch(`/schools/${schoolId}/restore-requests/${requestId}/confirm`, {
+      side_by_side: sideBySide,
+    })
+    .then((r) => r.data);
+
+export const schoolCancelRestoreRequest = (
+  schoolId: string,
+  requestId: string,
+) =>
+  schoolApi
+    .patch(`/schools/${schoolId}/restore-requests/${requestId}/cancel`)
     .then((r) => r.data);

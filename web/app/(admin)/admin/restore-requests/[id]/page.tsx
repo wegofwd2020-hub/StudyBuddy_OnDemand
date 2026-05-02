@@ -10,7 +10,7 @@ import {
   executeRestoreRequest,
   cancelRestoreRequest,
 } from "@/lib/api/backup";
-import { adminClient } from "@/lib/api/admin-client";
+import adminClient from "@/lib/api/admin-client";
 
 const STATUS_STYLES: Record<string, string> = {
   submitted: "bg-yellow-100 text-yellow-700",
