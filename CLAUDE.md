@@ -75,7 +75,7 @@ do not swap the word.
 
 ## Project Status
 
-**Phases 1–11 complete. Phase A (local auth) shipped. Phases B–E complete. Epic 1 complete. Epic 8 H-8/H-9/H-10 (Stream layer) shipped. Epic 10 L-1 through L-5 shipped. Epic 11 C-1 through C-6 + C-9 shipped; C-5 in progress. Epic 12 TA-0 through TA-4 shipped.**
+**Phases 1–11 complete. Phase A (local auth) shipped. Phases B–E complete. Epic 1 complete. Epic 8 H-8/H-9/H-10 (Stream layer) shipped. Epic 10 L-1 through L-5 shipped. Epic 11 C-1 through C-6 + C-9 shipped; C-5 in progress. Epic 12 TA-0 through TA-4 shipped. Epic 15 BR-1 through BR-5 shipped.**
 
 | Phase | Status |
 |---|---|
@@ -100,6 +100,7 @@ do not swap the word.
 | Epic 10 L-1…L-5 — Curriculum lifecycle (archive) | ✅ Backend complete (migrations 0046, 0047, 0048; archive/unarchive/usage endpoints; audit events). L-6 sweeper paused; L-7 super-admin archive view + L-8 school UI pending |
 | Epic 11 C-1…C-4, C-6, C-9 — Content formatting | ✅ Pipeline + renderer complete (GFM tables, KaTeX math, per-subject guidelines, format-drift validator, attributed quotes). C-5 in progress (regen); C-7/C-8 pending |
 | Epic 12 TA-0…TA-4 — School curriculum library | ✅ Backend + web complete (migrations 0050, 0051; adopt/deactivate, fork-on-import, draft/review/approve/reject workflow; pipeline guard; 27 tests; /school/library + /school/content UI) |
+| Epic 15 BR-1…BR-5 — Curriculum backup & restore | 🚧 Backend + admin UI complete (migrations 0053–0055; BackupStorageBackend, SHA-256 manifest, Celery tasks, 14 REST endpoints, 5 admin pages). BR-6 school portal UI pending. Tests pending. |
 
 **Active branch:** `main` (next: see `docs/epics/` — product backlog)
 
@@ -121,6 +122,7 @@ do not swap the word.
 - **Epic 10 Curriculum lifecycle (L-1…L-5)**: Migration 0046 adds three per-command RESTRICTIVE RLS policies on `curricula` refusing INSERT/UPDATE/DELETE on `owner_type='platform'` rows from non-bypass sessions (schools still SELECT via the existing permissive policy). Migration 0047 adds `retention_status='archived'` + partial index for the TTL sweeper. Migration 0048 drops stale policies from the L-1 debug draft. `is_curriculum_in_use()` + `get_curriculum_usage_summary()` helpers gate archive on active-enrolment count via `grade_curriculum_assignments`. `POST /admin/curricula/{id}/archive` (super-admin-for-platform, super-admin-archives-school with required reason); `POST /schools/{school_id}/curricula/{curriculum_id}/archive` (school_admin own-content only). Fire-and-forget audit events via `write_audit_log`: `curriculum.archive`, `curriculum.archive_by_platform_admin`, `curriculum.unarchive`, `curriculum.hard_delete_by_sweeper` (sweeper unimplemented yet). 1-year TTL. L-6 sweeper paused per user call; L-7 super-admin archive view + L-8 school UI pending
 - **Epic 11 Content Formatting (C-1…C-4, C-6, C-9)**: `pipeline/prompts.py` now embeds a universal formatting block (GFM tables with alignment markers, KaTeX `$...$` delimiters, currency-escape rules, fenced code blocks, attributed blockquotes with no invented citations) plus a per-subject block keyed by subject name (Commerce → Balance Sheet / P&L templates; Natural Sciences → KaTeX formulae + reaction mechanisms; Mathematics → every expression in KaTeX; CS → truth tables + Big-O). Web renderer: shared `<SBMarkdown>` component at `web/components/content/Markdown.tsx` with `remark-math` + `rehype-katex` wired; KaTeX CSS imported globally; Examples in tutorials now route through markdown rather than `<pre>` (previously rendered GFM tables as ASCII art). `max_tokens` raised from 8192 → 16384 on both Anthropic + OpenAI providers to prevent mid-string JSON truncation under richer prompts. `pipeline/content_format_validator.py` emits `format_drift` warnings when a section title suggests tabular/formula content but the output lacks it. C-5 targeted regen in progress (Grade 11 Commerce done; Grade 11 Science in flight). C-7 PDF smoke-check + C-8 mobile parity pending
 - **Epic 12 School Curriculum Library (TA-0…TA-4)**: Fork/import content model — schools adopt OOB platform curricula (`school_adopted_curricula` table, migration 0050); on first teacher import a school-owned fork is created (`curricula.source_curriculum_id`) and overrides stored in `unit_content_overrides` (append-only version table) + `unit_content_active_versions` (active pointer), migration 0051. Content lifecycle: draft → pending_review → approved/rejected → active. `pipeline/guard.py` advisory check warns when pending school overrides exist for an OOB unit being regenerated. School portal: `/school/library` adoption browser, `/school/content/[curriculum_id]` unit list + import entry, `/school/content/adopt/[adoption_id]` draft editor + review UI. 27 tests (914 total; 0 failing)
+- **Epic 15 Backup & Restore (BR-1…BR-5)**: Migrations 0053–0055 (`curriculum_backups` + `backup_restore_requests` + `schools.backup_cron`, all RLS-scoped per school). `src/backup/` package: `BackupStorageBackend` ABC with `LocalBackupStorage` + `S3BackupStorage`; SHA-256 manifest; 5 Celery tasks (`backup_school_task`, `dry_run_restore_task`, `execute_restore_task`, `send_backup_notification_task`, `dispatch_scheduled_backups` nightly coordinator); 11 service functions (deduplication, 8-state machine); 14 REST endpoints (10 admin, 4 school). Admin UI: `/admin/backups`, `/admin/backups/[school_id]`, `/admin/restore-requests`, `/admin/restore-requests/[id]`, `/admin/backup-schedules`. BR-6 school portal pending; tests pending.
 
 **Open tasks:**
 - See `docs/epics/` for the full product backlog (11 epics; see `INDEX.md`)
@@ -139,6 +141,11 @@ do not swap the word.
   - C-5 regen (Grade 11 Science resume in flight; Grade 12 Commerce + Grade 12 Science + Maths-heavy units pending)
   - C-7 PDF smoke check
   - C-8 mobile renderer parity (waits on Epic 3)
+- Epic 15 — Backup & Restore remaining:
+  - BR-6 school portal UI (`/school/backups`, `/school/restore-requests`, `/school/restore-requests/new`, `/school/restore-requests/[id]/confirm`)
+  - Tests for `src/backup/` service + tasks
+  - BR-DOC-1 Sys Admin Operations Guide (depends on BR-1…BR-4 final)
+  - BR-DOC-2 School Admin User Guide (depends on BR-6)
 - Tracked issues:
   - #188 — e2e test case: school-admin curriculum submission → pipeline → student-visible content
   - #189 — a11y debt: `color-contrast`, `html-has-lang`, `document-title` axe rules disabled in persona Playwright specs
@@ -396,6 +403,13 @@ Current migrations (as of last commit):
 | 0046 | Epic 10 L-1 — per-command RESTRICTIVE write-guard RLS on `curricula` for `owner_type='platform'` rows |
 | 0047 | Epic 10 L-3 — `retention_status='archived'` CHECK value + partial index for TTL sweeper |
 | 0048 | Hotfix — drop stale RLS policies left on `curriculum_units` / `content_subject_versions` by the L-1 debug draft |
+| 0049 | Fix unique index on materialized view `class_summary` |
+| 0050 | Epic 12 — `school_adopted_curricula` + `unit_content_active_versions` tables with RLS |
+| 0051 | Epic 12 — `unit_content_overrides` append-only version table with RLS |
+| 0052 | Epic 13 — per-school theming (`school_theme` table with color palette + logo) |
+| 0053 | Epic 15 — `curriculum_backups` table with RLS (scope, status, manifest, retention) |
+| 0054 | Epic 15 — `backup_restore_requests` table with RLS (8-state machine, conflict catalog) |
+| 0055 | Epic 15 — `schools.backup_cron` column (default `0 2 * * *` nightly at 02:00 UTC) |
 
 ---
 
