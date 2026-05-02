@@ -286,7 +286,7 @@ async def list_archived_curricula(
               FROM audit_log
              WHERE target_type = 'curriculum'
                AND (
-                   target_id = c.curriculum_id
+                   target_id::text = c.curriculum_id
                    OR metadata->>'curriculum_id' = c.curriculum_id
                )
                AND event_type LIKE 'curriculum.archive%'
