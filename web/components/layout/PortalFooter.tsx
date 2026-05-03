@@ -21,6 +21,7 @@ export function PortalFooter() {
         <nav aria-label="Footer links">
           <ul className="flex flex-wrap items-center gap-x-4 gap-y-1">
             {[
+              { href: "/for-schools", label: "For Schools" },
               { href: "/about", label: "About" },
               { href: "/accessibility", label: "Accessibility" },
               { href: "/privacy", label: "Privacy" },

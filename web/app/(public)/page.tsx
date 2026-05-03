@@ -1,11 +1,23 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
 import { Card, CardContent } from "@/components/ui/card";
 import { LinkButton } from "@/components/ui/link-button";
-import { DemoRequestModal } from "@/components/demo/DemoRequestModal";
-import { DemoTeacherRequestModal } from "@/components/demo/DemoTeacherRequestModal";
-import { Zap, Volume2, Globe, WifiOff, ClipboardList, School, ArrowRight } from "lucide-react";
+import {
+  Zap,
+  BookOpen,
+  Globe,
+  BarChart2,
+  Upload,
+  ShieldCheck,
+  ArrowRight,
+} from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "StudyBuddy — AI-powered learning for your whole school",
+  description:
+    "Register your school once. Every student gets instant AI-powered lessons, quizzes, and audio — aligned to your curriculum, in English, French, and Spanish.",
+};
 
 export default function LandingPage() {
   return (
@@ -14,7 +26,7 @@ export default function LandingPage() {
       <div className="relative h-[240px] w-full">
         <Image
           src="/assets/home_banner.png"
-          alt="StudyBuddy — learning for every family"
+          alt="StudyBuddy — learning for every school"
           fill
           priority
           className="object-contain object-center"
@@ -31,27 +43,22 @@ export default function LandingPage() {
 
 // "Study Buddy" translated into 8 languages — shown as a decorative background
 // watermark to convey the meaning: a companion that helps a student learn.
-// Each phrase captures the "learning companion" concept in its language —
-// the intended meaning behind the StudyBuddy name.
 const STUDY_BUDDY_TRANSLATIONS = [
-  "Learning Companion",          // English
-  "Compañero de Aprendizaje",    // Spanish
-  "Напарник в обучении",         // Russian
-  "Compagnon d'Apprentissage",   // French
-  "Lernbegleiter",               // German
-  "கற்றல் தோழன்",                // Tamil
-  "सीखने का साथी",               // Hindi
-  "అభ్యాస సహచరుడు",             // Telugu
-  "ಕಲಿಕೆಯ ಸಂಗಾತಿ",              // Kannada
-  "പഠന സഹചാരി",                 // Malayalam
+  "Learning Companion",
+  "Compañero de Aprendizaje",
+  "Напарник в обучении",
+  "Compagnon d'Apprentissage",
+  "Lernbegleiter",
+  "கற்றல் தோழன்",
+  "सीखने का साथी",
+  "అభ్యాస సహచరుడు",
+  "ಕಲಿಕೆಯ ಸಂಗಾತಿ",
+  "പഠന സഹചാരി",
 ];
 
-// Vary font sizes by position to give a natural scattered feel
 const SIZE_CLASSES = ["text-sm", "text-base", "text-lg", "text-xl", "text-sm", "text-base"];
 
 function HeroSection() {
-  const t = useTranslations("landing");
-  // Repeat enough times to fill the background across all viewport sizes
   const repeated = Array.from({ length: 5 }, () => STUDY_BUDDY_TRANSLATIONS).flat();
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-blue-50 to-white px-4 py-20 text-center sm:py-28">
@@ -72,20 +79,26 @@ function HeroSection() {
 
       <div className="relative mx-auto max-w-3xl">
         <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
-          {t("hero_heading")}
+          Your bridge from lessons to a world that&apos;s always current.
         </h1>
-        <p className="mt-3 text-xl font-medium text-blue-600">{t("hero_tagline")}</p>
-        <p className="mt-4 text-lg text-gray-600">{t("hero_subheading")}</p>
+        <p className="mt-6 text-xl text-gray-600">
+          Give every student at your school instant AI-powered lessons, quizzes, and audio —
+          aligned to your curriculum, in English, French, and Spanish.
+        </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <DemoRequestModal />
-          <DemoTeacherRequestModal />
+          <LinkButton size="lg" href="/school/register">
+            Register your school — it&apos;s free
+          </LinkButton>
+          <LinkButton size="lg" variant="outline" href="/tour/school-admin">
+            See how it works
+          </LinkButton>
         </div>
         <div className="mt-4">
           <Link
-            href="/tour"
+            href="/school/login"
             className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:underline"
           >
-            Explore the platform first
+            Already a teacher? Sign in
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
@@ -95,35 +108,54 @@ function HeroSection() {
 }
 
 const FEATURES = [
-  { icon: Zap, key: "instant" },
-  { icon: Volume2, key: "audio" },
-  { icon: Globe, key: "multilang" },
-  { icon: WifiOff, key: "offline" },
-  { icon: ClipboardList, key: "experiments" },
-  { icon: School, key: "schools" },
+  {
+    icon: Zap,
+    title: "Live in minutes",
+    desc: "Register once. Every teacher and student at your school gets instant access — no per-account setup.",
+  },
+  {
+    icon: BookOpen,
+    title: "Curricula ready on day one",
+    desc: "Pre-built Grades 5–12 content loads immediately. No waiting for AI to generate anything.",
+  },
+  {
+    icon: Globe,
+    title: "Three languages, one platform",
+    desc: "Every lesson, quiz, and audio narration in English, French, and Spanish. Students switch any time.",
+  },
+  {
+    icon: BarChart2,
+    title: "Teachers stay informed",
+    desc: "Real-time progress reports, at-risk alerts, and weekly digests — all without leaving the portal.",
+  },
+  {
+    icon: Upload,
+    title: "Your curriculum, your way",
+    desc: "Upload your own curriculum definition. We build the content. Your school owns it.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Built for compliance",
+    desc: "FERPA, COPPA, and WCAG 2.1 AA — not afterthoughts. Baked into the data model from day one.",
+  },
 ] as const;
 
 function FeaturesSection() {
-  const t = useTranslations("landing");
   return (
     <section id="features" className="bg-white px-4 py-20">
       <div className="mx-auto max-w-7xl">
         <h2 className="text-center text-3xl font-bold text-gray-900">
-          {t("features_heading")}
+          Everything your school needs, on day one
         </h2>
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {FEATURES.map(({ icon: Icon, key }) => (
-            <Card key={key} className="border shadow-sm">
+          {FEATURES.map(({ icon: Icon, title, desc }) => (
+            <Card key={title} className="border shadow-sm">
               <CardContent className="p-6">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
                   <Icon className="h-5 w-5 text-blue-600" />
                 </div>
-                <h3 className="mt-4 font-semibold text-gray-900">
-                  {t(`feature_${key}_title` as Parameters<typeof t>[0])}
-                </h3>
-                <p className="mt-2 text-sm text-gray-500">
-                  {t(`feature_${key}_desc` as Parameters<typeof t>[0])}
-                </p>
+                <h3 className="mt-4 font-semibold text-gray-900">{title}</h3>
+                <p className="mt-2 text-sm text-gray-500">{desc}</p>
               </CardContent>
             </Card>
           ))}
@@ -135,12 +167,13 @@ function FeaturesSection() {
 
 const TESTIMONIALS = [
   {
-    quote: "My daughter went from a C to a B+ in her favourite subject in one semester.",
-    author: "Maria T., Parent",
+    quote:
+      "We were live across the whole school in under 20 minutes. The pre-built curricula meant every class had content on day one.",
+    author: "Sarah M., School Principal",
   },
   {
     quote:
-      "The audio lessons are a game-changer for my students with reading difficulties.",
+      "The audio lessons are a game-changer for my students with reading difficulties. Three languages in one platform is unheard of at this price.",
     author: "James K., Grade 8 Teacher",
   },
   {
@@ -176,12 +209,11 @@ function TourGatewaySection() {
 }
 
 function SocialProofSection() {
-  const t = useTranslations("landing");
   return (
     <section className="bg-gray-50 px-4 py-20">
       <div className="mx-auto max-w-7xl">
         <h2 className="text-center text-3xl font-bold text-gray-900">
-          {t("social_proof_heading")}
+          Trusted by schools, teachers, and students
         </h2>
         <div className="mt-10 grid gap-6 sm:grid-cols-3">
           {TESTIMONIALS.map((item) => (
@@ -199,14 +231,15 @@ function SocialProofSection() {
 }
 
 function CtaSection() {
-  const t = useTranslations("landing");
   return (
     <section className="bg-blue-600 px-4 py-20 text-center text-white">
       <div className="mx-auto max-w-2xl">
-        <h2 className="text-3xl font-bold">{t("cta_heading")}</h2>
-        <p className="mt-4 text-blue-100">{t("cta_subheading")}</p>
-        <LinkButton size="lg" variant="secondary" className="mt-8" href="/signup">
-          {t("cta_btn")}
+        <h2 className="text-3xl font-bold">Ready to bring StudyBuddy to your school?</h2>
+        <p className="mt-4 text-blue-100">
+          Free to start. No credit card. Full access to Grades 5–12 content on day one.
+        </p>
+        <LinkButton size="lg" variant="secondary" className="mt-8" href="/school/register">
+          Register your school free
         </LinkButton>
       </div>
     </section>

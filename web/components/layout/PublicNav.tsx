@@ -1,13 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useTranslations } from "next-intl";
 import { LinkButton } from "@/components/ui/link-button";
 import { BookOpen, Menu, X } from "lucide-react";
 import { useState } from "react";
 
 export function PublicNav() {
-  const t = useTranslations("nav");
   const [open, setOpen] = useState(false);
 
   return (
@@ -21,26 +19,26 @@ export function PublicNav() {
 
         {/* Desktop nav */}
         <nav className="hidden items-center gap-6 text-sm font-medium text-gray-600 md:flex">
-          <Link href="/#features" className="transition-colors hover:text-gray-900">
-            {t("features")}
+          <Link href="/for-schools" className="transition-colors hover:text-gray-900">
+            For Schools
           </Link>
           <Link href="/pricing" className="transition-colors hover:text-gray-900">
-            {t("pricing")}
-          </Link>
-          <Link href="/pricing#schools" className="transition-colors hover:text-gray-900">
-            {t("for_schools")}
+            Pricing
           </Link>
           <Link href="/about" className="transition-colors hover:text-gray-900">
-            {t("about")}
+            About
+          </Link>
+          <Link href="/contact" className="transition-colors hover:text-gray-900">
+            Contact
           </Link>
         </nav>
 
-        {/* Desktop CTA */}
+        {/* Desktop CTAs — school-first */}
         <div className="hidden items-center gap-3 md:flex">
-          <LinkButton variant="ghost" href="/login">
-            {t("sign_in")}
+          <LinkButton variant="ghost" href="/school/login">
+            School sign-in
           </LinkButton>
-          <LinkButton href="/signup">{t("start_free")}</LinkButton>
+          <LinkButton href="/school/register">Register your school</LinkButton>
         </div>
 
         {/* Mobile hamburger */}
@@ -57,38 +55,38 @@ export function PublicNav() {
       {open && (
         <div className="space-y-3 border-t bg-white px-4 py-4 md:hidden">
           <Link
-            href="/#features"
+            href="/for-schools"
             className="block text-sm font-medium text-gray-600 hover:text-gray-900"
             onClick={() => setOpen(false)}
           >
-            {t("features")}
+            For Schools
           </Link>
           <Link
             href="/pricing"
             className="block text-sm font-medium text-gray-600 hover:text-gray-900"
             onClick={() => setOpen(false)}
           >
-            {t("pricing")}
-          </Link>
-          <Link
-            href="/pricing#schools"
-            className="block text-sm font-medium text-gray-600 hover:text-gray-900"
-            onClick={() => setOpen(false)}
-          >
-            {t("for_schools")}
+            Pricing
           </Link>
           <Link
             href="/about"
             className="block text-sm font-medium text-gray-600 hover:text-gray-900"
             onClick={() => setOpen(false)}
           >
-            {t("about")}
+            About
+          </Link>
+          <Link
+            href="/contact"
+            className="block text-sm font-medium text-gray-600 hover:text-gray-900"
+            onClick={() => setOpen(false)}
+          >
+            Contact
           </Link>
           <div className="flex flex-col gap-2 pt-2">
-            <LinkButton variant="outline" href="/login">
-              {t("sign_in")}
+            <LinkButton variant="outline" href="/school/login">
+              School sign-in
             </LinkButton>
-            <LinkButton href="/signup">{t("start_free")}</LinkButton>
+            <LinkButton href="/school/register">Register your school</LinkButton>
           </div>
         </div>
       )}

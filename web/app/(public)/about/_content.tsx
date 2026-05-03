@@ -589,6 +589,47 @@ function PublicAbout() {
         </ol>
       </div>
 
+      {/* Built for schools — trust signals */}
+      <div className="mb-16 rounded-2xl border border-blue-100 bg-blue-50 px-8 py-8">
+        <div className="mb-6 flex items-center gap-3">
+          <ShieldCheck className="h-6 w-6 shrink-0 text-blue-600" aria-hidden="true" />
+          <h2 className="text-xl font-bold text-gray-900">Built for schools</h2>
+        </div>
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {[
+            {
+              title: "FERPA compliant",
+              body: "Student educational records — quiz scores, progress, session history — are scoped to the student's own institution and never shared across school boundaries.",
+            },
+            {
+              title: "COPPA under-13 consent",
+              body: "Students under 13 require verifiable parental consent before account activation. Content access is blocked until consent is recorded.",
+            },
+            {
+              title: "WCAG 2.1 Level AA",
+              body: "All student-facing interfaces target WCAG 2.1 AA, including minimum 4.5:1 colour contrast, keyboard navigation, and a dyslexia-friendly font toggle.",
+            },
+            {
+              title: "Data minimization",
+              body: "We collect only what's necessary: name, email, grade, and locale. No device identifiers, no location data, no behavioural fingerprinting.",
+            },
+            {
+              title: "Content moderation",
+              body: "Every AI-generated lesson, quiz, and tutorial passes an automated AlexJS content check in the pipeline before it can be published to students.",
+            },
+            {
+              title: "No third-party tracking",
+              body: "No advertising pixels, no analytics SDKs, no cross-site tracking. Student data stays within the platform.",
+            },
+          ].map(({ title, body }) => (
+            <div key={title} className="rounded-xl bg-white p-5 shadow-sm">
+              <h3 className="mb-1.5 font-semibold text-gray-900">{title}</h3>
+              <p className="text-sm text-gray-600">{body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Compliance callout */}
       <div className="rounded-2xl border border-gray-200 bg-gray-50 px-8 py-8">
         <div className="flex items-start gap-4">
