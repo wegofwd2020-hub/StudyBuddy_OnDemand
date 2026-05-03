@@ -54,7 +54,7 @@ function VideoDialogPlayer({
 
   // Normalise quiz_questions: prefer the new array, fall back to the legacy single question
   const questions: QuizQuestion[] = (() => {
-    const qs = (scenario as any).quiz_questions as QuizQuestion[] | undefined;
+    const qs = (scenario as unknown as { quiz_questions?: QuizQuestion[] }).quiz_questions;
     if (qs && qs.length > 0) return qs;
     if (scenario.quiz) {
       return [{
@@ -63,8 +63,8 @@ function VideoDialogPlayer({
         format: scenario.quiz.format,
         correct_answer: scenario.quiz.correct_answer,
         explanation: scenario.quiz.explanation,
-        options: (scenario.quiz as any).options,
-      }];
+        options: (scenario.quiz as unknown as { options?: string[] }).options,
+      } as unknown as QuizQuestion];
     }
     return [];
   })();
@@ -365,7 +365,6 @@ function QuizResult({
   question,
   answer,
   hasNext,
-  allAnswered,
   onNext,
   onReplay,
 }: {

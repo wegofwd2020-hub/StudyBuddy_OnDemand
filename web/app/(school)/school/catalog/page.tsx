@@ -10,6 +10,7 @@ import {
   type CatalogEntry,
   type CatalogSubjectSummary,
 } from "@/lib/api/school-admin";
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -210,9 +211,9 @@ export default function CatalogPage() {
         Platform-built curriculum packages available for assignment to your classrooms.
         Each package covers a full grade&apos;s content across multiple subjects and units.
         Assign packages to classrooms from the{" "}
-        <a href="/school/classrooms" className="text-indigo-600 underline-offset-2 hover:underline">
+        <Link href="/school/classrooms" className="text-indigo-600 underline-offset-2 hover:underline">
           Classrooms
-        </a>{" "}
+        </Link>{" "}
         page.
       </p>
 

@@ -14,13 +14,15 @@ Routes (all prefixed /api/v1 in main.py):
 
 from __future__ import annotations
 
+import asyncio
 import json
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 
-from src.auth.dependencies import get_current_teacher
+from src.auth.dependencies import get_current_student, get_current_teacher
 from src.core.db import get_db
+from src.core.storage import get_storage
 from src.school.enrolment_service import (
     assign_student,
     get_roster,
@@ -2332,7 +2334,7 @@ async def list_unit_override_status(
         return await storage.exists(path)
 
     content_flags = await asyncio.gather(*(_has_content(u["unit_id"]) for u in units))
-    content_map = {u["unit_id"]: flag for u, flag in zip(units, content_flags)}
+    content_map = {u["unit_id"]: flag for u, flag in zip(units, content_flags, strict=True)}
 
     items = [
         UnitStatusItem(

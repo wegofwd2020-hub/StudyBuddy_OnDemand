@@ -96,7 +96,7 @@ const STEPS: Step[] = [
       <>
         <p className="mb-3 text-sm leading-relaxed text-gray-600">
           The classroom is the central unit of content delivery. You can have as
-          many classrooms as you need. Here's the lifecycle of a classroom:
+          many classrooms as you need. Here&apos;s the lifecycle of a classroom:
         </p>
         <ol className="mb-4 space-y-2 pl-5 text-sm text-gray-600" style={{ listStyleType: "decimal" }}>
           <li>
@@ -105,7 +105,7 @@ const STEPS: Step[] = [
           </li>
           <li>
             Click <strong>Assign package</strong>. Browse the catalog — platform
-            packages and your school's own custom packages are both listed. Assign
+            packages and your school&apos;s own custom packages are both listed. Assign
             one or more.
           </li>
           <li>
@@ -178,7 +178,7 @@ const STEPS: Step[] = [
           </table>
         </div>
         <p className="mt-3 text-sm text-gray-500">
-          Click any student's name to see their full progress detail — unit by unit, quiz by quiz.
+          Click any student&apos;s name to see their full progress detail — unit by unit, quiz by quiz.
           All reports can be downloaded as CSV for your grade book or admin reports.
         </p>
       </>

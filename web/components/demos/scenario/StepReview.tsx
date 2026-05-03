@@ -10,7 +10,7 @@ import {
   clipVideoUrl,
   type ClipsStatusResponse,
 } from "@/lib/api/scenarios";
-import { ScenarioVideoPlayer } from "@/components/content/ScenarioVideoPlayer";
+import { ScenarioVideoPlayer, type ScenarioWithClips } from "@/components/content/ScenarioVideoPlayer";
 
 interface Props {
   draft: ScenarioDraft;
@@ -319,7 +319,7 @@ export function StepReview({ draft }: Props) {
       {showPreview && allOk && (
         <div className="rounded-xl border bg-white p-5 shadow-sm">
           <p className="text-xs font-bold uppercase tracking-wide text-gray-500 mb-4">Preview</p>
-          <ScenarioVideoPlayer scenario={file as any} />
+          <ScenarioVideoPlayer scenario={file as unknown as ScenarioWithClips} />
         </div>
       )}
     </div>

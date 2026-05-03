@@ -46,8 +46,6 @@ export default function BackupsPage() {
   const teacher = useTeacher();
   const schoolId = teacher?.school_id ?? "";
 
-  const hasActive = true; // refetch while any backup is pending/running
-
   const { data, isLoading } = useQuery({
     queryKey: ["school-backups", schoolId],
     queryFn: () => schoolListBackups(schoolId),

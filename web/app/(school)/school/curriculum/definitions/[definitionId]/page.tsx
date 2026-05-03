@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useTeacher } from "@/lib/hooks/useTeacher";
 import Link from "next/link";
 import {
@@ -22,13 +22,37 @@ import {
   Clock,
 } from "lucide-react";
 
+// ── Status chip ────────────────────────────────────────────────────────────────
+
+function StatusChip({ status }: { status: string }) {
+  if (status === "approved")
+    return (
+      <span className="flex items-center gap-1.5 rounded-full bg-green-50 px-3 py-1 text-sm font-medium text-green-700">
+        <CheckCircle2 className="h-4 w-4" />
+        Approved
+      </span>
+    );
+  if (status === "rejected")
+    return (
+      <span className="flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1 text-sm font-medium text-red-700">
+        <XCircle className="h-4 w-4" />
+        Rejected
+      </span>
+    );
+  return (
+    <span className="flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-sm font-medium text-amber-700">
+      <Clock className="h-4 w-4" />
+      Pending approval
+    </span>
+  );
+}
+
 // ── Page ───────────────────────────────────────────────────────────────────────
 
 export default function DefinitionDetailPage() {
   const params = useParams<{ definitionId: string }>();
   const definitionId = params.definitionId;
   const teacher = useTeacher();
-  const router = useRouter();
   const queryClient = useQueryClient();
   const schoolId = teacher?.school_id ?? "";
   const isAdmin = teacher?.role === "school_admin";
@@ -82,29 +106,6 @@ export default function DefinitionDetailPage() {
 
   const totalUnits = defn.subjects.reduce((acc, s) => acc + s.units.length, 0);
 
-  function StatusChip() {
-    if (defn!.status === "approved")
-      return (
-        <span className="flex items-center gap-1.5 rounded-full bg-green-50 px-3 py-1 text-sm font-medium text-green-700">
-          <CheckCircle2 className="h-4 w-4" />
-          Approved
-        </span>
-      );
-    if (defn!.status === "rejected")
-      return (
-        <span className="flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1 text-sm font-medium text-red-700">
-          <XCircle className="h-4 w-4" />
-          Rejected
-        </span>
-      );
-    return (
-      <span className="flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-sm font-medium text-amber-700">
-        <Clock className="h-4 w-4" />
-        Pending approval
-      </span>
-    );
-  }
-
   return (
     <div className="max-w-2xl space-y-6 p-6">
       {/* Back */}
@@ -127,7 +128,7 @@ export default function DefinitionDetailPage() {
             <p className="mt-0.5 text-sm text-gray-400">by {defn.submitted_by_name}</p>
           )}
         </div>
-        <StatusChip />
+        <StatusChip status={defn!.status} />
       </div>
 
       {/* Summary card */}

@@ -6,7 +6,6 @@ import { useTeacher } from "@/lib/hooks/useTeacher";
 import {
   getSchoolStorage,
   createStorageCheckout,
-  type StorageBreakdownItem,
 } from "@/lib/api/school-admin";
 import { STORAGE_PACKAGES } from "@/lib/pricing";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -59,45 +58,11 @@ function QuotaBar({ usedGb, totalGb, usedPct }: { usedGb: number; totalGb: numbe
   );
 }
 
-// ── Breakdown row ─────────────────────────────────────────────────────────────
-
-function BreakdownRow({ item, totalGb }: { item: StorageBreakdownItem; totalGb: number }) {
-  const pct = totalGb > 0 ? (item.gb_used / totalGb) * 100 : 0;
-
-  return (
-    <tr className="border-b last:border-0">
-      <td className="py-3 pr-4">
-        <div className="flex items-center gap-2">
-          <BookOpen className="h-3.5 w-3.5 shrink-0 text-gray-400" />
-          <span className="text-sm text-gray-800">{item.name}</span>
-        </div>
-      </td>
-      <td className="py-3 pr-4 text-center">
-        <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
-          Grade {item.grade}
-        </span>
-      </td>
-      <td className="py-3 pr-4 text-right font-mono text-sm tabular-nums text-gray-700">
-        {item.gb_used.toFixed(2)} GB
-      </td>
-      <td className="py-3 pr-4 text-right text-xs text-gray-400 tabular-nums">
-        {item.job_count} build{item.job_count !== 1 ? "s" : ""}
-      </td>
-      <td className="py-3 w-32">
-        <div className="h-1.5 overflow-hidden rounded-full bg-gray-100">
-          <div className="h-full rounded-full bg-blue-400" style={{ width: `${Math.min(pct, 100)}%` }} />
-        </div>
-      </td>
-    </tr>
-  );
-}
-
 // ── Storage add-on card ───────────────────────────────────────────────────────
 
 function AddOnCard({
   gb,
   priceUsd,
-  label,
   onBuy,
   isLoading,
 }: {
@@ -158,7 +123,7 @@ export default function StoragePage() {
         `${origin}/school/storage?success=1`,
         `${origin}/school/storage?cancelled=1`,
       );
-      window.location.href = checkout_url;
+      window.location.assign(checkout_url);
     } catch {
       setCheckoutError("Could not start checkout. Please try again.");
       setBuyingGb(null);

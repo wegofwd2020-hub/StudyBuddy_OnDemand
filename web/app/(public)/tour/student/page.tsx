@@ -38,7 +38,7 @@ const STEPS: Step[] = [
     detail: (
       <>
         <p className="mb-3 text-sm leading-relaxed text-gray-600">
-          You don't sign up for StudyBuddy — your school does. Here's how your
+          You don&apos;t sign up for StudyBuddy — your school does. Here&apos;s how your
           account reaches you:
         </p>
         <ol
@@ -116,7 +116,7 @@ const STEPS: Step[] = [
           </table>
         </div>
         <p className="mt-3 text-sm text-gray-500">
-          If your home screen is empty or shows "No content available", your
+          If your home screen is empty or shows &quot;No content available&quot;, your
           teacher may not have assigned a curriculum package yet — contact them.
         </p>
       </>
@@ -243,7 +243,7 @@ const STEPS: Step[] = [
           </table>
         </div>
         <p className="mt-3 text-sm text-gray-500">
-          If you haven't been active for 7 or more days, your teacher sees an
+          If you haven&apos;t been active for 7 or more days, your teacher sees an
           at-risk flag next to your name. It clears automatically the moment you
           study again — no action needed on your part.
         </p>
@@ -380,7 +380,7 @@ export default function StudentTour() {
             </p>
             <p className="mb-5 text-sm text-green-700">
               Student accounts are set up by your school. Ask your teacher or
-              School Admin for your login details — they'll send you an email
+              School Admin for your login details — they&apos;ll send you an email
               with your temporary password.
             </p>
             <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">

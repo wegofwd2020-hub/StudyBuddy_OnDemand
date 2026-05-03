@@ -18,7 +18,6 @@ import {
 import { useAdmin, hasPermission } from "@/lib/hooks/useAdmin";
 import { cn } from "@/lib/utils";
 import {
-  AlertTriangle,
   ArrowLeft,
   CheckCircle,
   XCircle,

@@ -161,7 +161,7 @@ function JsonPipelineSection({ schoolId }: { schoolId: string }) {
     setState("uploading");
     setError(null);
     try {
-      const uploaded = await uploadCurriculumJSON(schoolId, file, year);
+      await uploadCurriculumJSON(schoolId, file, year);
       const triggered = await triggerSchoolPipeline(schoolId, {
         langs: Array.from(langs).join(","),
         force,

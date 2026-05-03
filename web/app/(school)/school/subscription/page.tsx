@@ -194,7 +194,7 @@ export default function SubscriptionPage() {
         `${origin}/school/subscription?success=1`,
         `${origin}/school/subscription?cancelled=1`,
       );
-      window.location.href = checkout_url;
+      window.location.assign(checkout_url);
     } catch (err: unknown) {
       const msg =
         err != null &&
@@ -223,7 +223,7 @@ export default function SubscriptionPage() {
         `${origin}/school/subscription?success=1`,
         `${origin}/school/subscription?cancelled=1`,
       );
-      window.location.href = checkout_url;
+      window.location.assign(checkout_url);
     } catch {
       setCheckoutError("Could not start checkout. Please try again.");
       setBuyingExtraBuild(false);
@@ -241,7 +241,7 @@ export default function SubscriptionPage() {
         `${origin}/school/subscription?success=1`,
         `${origin}/school/subscription?cancelled=1`,
       );
-      window.location.href = checkout_url;
+      window.location.assign(checkout_url);
     } catch {
       setCheckoutError("Could not start checkout. Please try again.");
       setBuyingBundle(null);
@@ -434,7 +434,7 @@ export default function SubscriptionPage() {
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="text-sm font-semibold text-gray-900">
-                      {size} build credit{size !== 1 ? "s" : ""}
+                      {size} build credit{"s"}
                     </p>
                     <p className="text-xs text-gray-500">Roll over — never expire</p>
                   </div>

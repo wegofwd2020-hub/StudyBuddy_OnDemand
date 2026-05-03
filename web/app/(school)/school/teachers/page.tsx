@@ -69,7 +69,7 @@ function GradeEditor({
   function toggle(grade: number) {
     setSelected((prev) => {
       const next = new Set(prev);
-      next.has(grade) ? next.delete(grade) : next.add(grade);
+      if (next.has(grade)) { next.delete(grade); } else { next.add(grade); }
       return next;
     });
   }

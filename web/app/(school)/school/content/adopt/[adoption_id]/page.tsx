@@ -248,7 +248,7 @@ export default function AdoptContentPage() {
           </div>
           <p className="mt-1 text-sm text-gray-500">
             Click <strong>Import</strong> on any unit to copy the platform content
-            into your school's workspace — you can then edit it freely.
+            into your school&apos;s workspace — you can then edit it freely.
           </p>
         </div>
       </div>

@@ -152,7 +152,7 @@ export default function CustomizeSchoolPage() {
 
   const [workingTheme, setWorkingTheme] = useState<SchoolTheme>(DEFAULT_THEME);
   const [savedTheme, setSavedTheme] = useState<SchoolTheme>(DEFAULT_THEME);
-  const [history, setHistory] = useState<SchoolTheme[]>([]);
+  const [, setHistory] = useState<SchoolTheme[]>([]);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
 
   // Sync fetched theme into local state on first load

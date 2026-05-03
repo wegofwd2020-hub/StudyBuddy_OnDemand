@@ -837,7 +837,7 @@ export default function UnitEditPage() {
     if (availableTypes.length > 0 && !availableTypes.includes(activeType)) {
       setActiveType(availableTypes[0]);
     }
-  }, [availableTypes.join(",")]);
+  }, [availableTypes, activeType]);
 
   // 2. Fetch body for active content type
   const { data: overrideDetail, isLoading: detailLoading, refetch: refetchDetail } = useQuery({

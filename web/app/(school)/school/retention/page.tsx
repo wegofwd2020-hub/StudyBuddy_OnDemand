@@ -152,7 +152,6 @@ function VersionDrawer({
   version,
   schoolId,
   origin,
-  gradesForThisVersion,
   onClose,
   onRenewed,
 }: {

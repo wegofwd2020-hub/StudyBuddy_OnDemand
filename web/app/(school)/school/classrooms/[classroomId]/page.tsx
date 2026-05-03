@@ -11,19 +11,15 @@ import {
   removePackageFromClassroom,
   assignStudentToClassroom,
   removeStudentFromClassroom,
-  listClassrooms,
   type ClassroomPackageItem,
   type ClassroomStudentItem,
 } from "@/lib/api/school-admin";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   ArrowLeft,
   BookOpen,
-  Users,
   Trash2,
   Plus,
   GraduationCap,

@@ -63,7 +63,7 @@ export default function AdminStreamsNewPage() {
       </Link>
       <h1 className="mb-1 text-2xl font-bold text-gray-900">New Stream</h1>
       <p className="mb-6 text-sm text-gray-500">
-        Custom streams can be referenced from the Upload page as soon as they're created.
+        Custom streams can be referenced from the Upload page as soon as they&apos;re created.
       </p>
 
       <form

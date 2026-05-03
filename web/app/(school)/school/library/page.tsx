@@ -8,6 +8,7 @@ import {
   updateAdoption,
   type AdoptionItem,
 } from "@/lib/api/school-admin";
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -204,12 +205,12 @@ export default function LibraryPage() {
         Curricula your school has adopted from the platform catalog. Teachers can import
         and customize content from these packages. Assign packages to classrooms from
         the{" "}
-        <a
+        <Link
           href="/school/classrooms"
           className="text-indigo-600 underline-offset-2 hover:underline"
         >
           Classrooms
-        </a>{" "}
+        </Link>{" "}
         page.
       </p>
 

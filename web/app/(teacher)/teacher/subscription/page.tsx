@@ -10,14 +10,13 @@
  * - Cancel subscription link
  */
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   cancelTeacherSubscription,
   getTeacherSubscription,
   startTeacherCheckout,
   upgradeTeacherPlan,
-  type TeacherSubscriptionStatus,
 } from "@/lib/api/teacher-subscription";
 import { useTeacherIdFromToken } from "@/lib/hooks/useIndependentTeacher";
 import { cn } from "@/lib/utils";

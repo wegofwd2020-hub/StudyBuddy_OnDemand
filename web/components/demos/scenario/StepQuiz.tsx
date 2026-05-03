@@ -1,7 +1,7 @@
 "use client";
 
 import { Plus, Trash2 } from "lucide-react";
-import type { ScenarioDraft, QuizQuestion, QuizOption } from "./types";
+import type { ScenarioDraft, QuizQuestion } from "./types";
 import { emptyQuestion } from "./types";
 
 interface Props {

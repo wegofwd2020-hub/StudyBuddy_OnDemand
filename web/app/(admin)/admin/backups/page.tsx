@@ -7,7 +7,6 @@ import { RefreshCw, Plus, Archive } from "lucide-react";
 import {
   Backup,
   listAllBackups,
-  listSchoolBackups,
   createBackup,
 } from "@/lib/api/backup";
 

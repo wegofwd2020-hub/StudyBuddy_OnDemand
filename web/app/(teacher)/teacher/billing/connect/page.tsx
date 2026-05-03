@@ -1,17 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   getConnectEarnings,
   getConnectStatus,
   refreshConnectLink,
   startConnectOnboarding,
   type ConnectStatus,
-  type EarningsItem,
 } from "@/lib/api/teacher";
 import { useTeacherIdFromToken } from "@/lib/hooks/useIndependentTeacher";
-import { cn } from "@/lib/utils";
 import {
   AlertTriangle,
   ArrowRight,
@@ -223,8 +220,6 @@ function EarningsTable({ teacherId }: { teacherId: string }) {
 
 export default function TeacherConnectBillingPage() {
   const teacherId = useTeacherIdFromToken();
-  const queryClient = useQueryClient();
-
   const { data: status, isLoading: statusLoading } = useQuery({
     queryKey: ["teacher-connect-status", teacherId],
     queryFn: () => getConnectStatus(teacherId!),
@@ -235,14 +230,14 @@ export default function TeacherConnectBillingPage() {
   const onboardMutation = useMutation({
     mutationFn: () => startConnectOnboarding(teacherId!),
     onSuccess: (data) => {
-      window.location.href = data.onboarding_url;
+      window.location.assign(data.onboarding_url);
     },
   });
 
   const refreshMutation = useMutation({
     mutationFn: () => refreshConnectLink(teacherId!),
     onSuccess: (data) => {
-      window.location.href = data.onboarding_url;
+      window.location.assign(data.onboarding_url);
     },
   });
 

@@ -22,6 +22,7 @@ from src.admin.curriculum_service import (
     assert_archivable,
     fetch_curriculum_owner,
     get_curriculum_usage_summary,
+    list_archived_curricula,
     unarchive_curriculum,
 )
 from src.auth.dependencies import get_current_admin

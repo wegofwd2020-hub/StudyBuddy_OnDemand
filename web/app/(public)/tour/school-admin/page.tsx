@@ -148,8 +148,8 @@ const STEPS: Step[] = [
         <p className="mb-4 text-sm leading-relaxed text-gray-600">
           StudyBuddy tracks every lesson view, quiz attempt, and session duration for
           each student. School Admins see aggregate metrics across the whole school.
-          Teachers see metrics for their assigned students. An "at-risk" flag is raised
-          automatically when a student's activity falls below their class average for
+          Teachers see metrics for their assigned students. An &quot;at-risk&quot; flag is raised
+          automatically when a student&apos;s activity falls below their class average for
           seven consecutive days. Admins can download class-level and school-level
           reports as CSV.
         </p>
