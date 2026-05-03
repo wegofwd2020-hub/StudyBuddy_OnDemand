@@ -502,6 +502,8 @@ class AdoptionItem(BaseModel):
     notes: str | None
     adopted_at: str
     has_overrides: bool
+    is_source_archived: bool = False
+    archive_reason: str | None = None
 
 
 class LibraryResponse(BaseModel):

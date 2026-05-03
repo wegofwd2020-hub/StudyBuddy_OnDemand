@@ -19,7 +19,49 @@ import {
   PlayCircle,
   PenLine,
   LayoutGrid,
+  AlertTriangle,
 } from "lucide-react";
+
+// ── Archived-source notice card ───────────────────────────────────────────────
+
+function ArchivedSourceCard({ item }: { item: AdoptionItem }) {
+  return (
+    <Card className="border border-amber-200 bg-amber-50 shadow-sm opacity-75">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-start gap-2 text-base">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-semibold text-gray-700">{item.name}</span>
+              {item.grade !== null && (
+                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+                  Grade {item.grade}
+                </span>
+              )}
+              {item.year !== null && (
+                <span className="text-xs text-gray-400">{item.year}</span>
+              )}
+              <Badge className="border-amber-300 bg-amber-100 text-xs text-amber-700">
+                Archived by platform admin
+              </Badge>
+            </div>
+            {item.archive_reason && (
+              <p className="mt-1 text-xs text-amber-700">
+                Reason: {item.archive_reason}
+              </p>
+            )}
+          </div>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <p className="text-xs text-amber-600">
+          This curriculum has been archived by the platform. New imports are unavailable.
+          {item.has_overrides && " Your customized content is preserved and students retain access."}
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
 
 // ── Adoption card ─────────────────────────────────────────────────────────────
 
@@ -137,10 +179,12 @@ export default function LibraryPage() {
   });
 
   const adoptions = data?.adoptions ?? [];
-  const visible = adoptions.filter(
+  const activeAdoptions = adoptions.filter((a) => !a.is_source_archived);
+  const archivedSourceAdoptions = adoptions.filter((a) => a.is_source_archived);
+  const visible = activeAdoptions.filter(
     (a) => showDeactivated || a.status === "active",
   );
-  const deactivatedCount = adoptions.filter((a) => a.status === "deactivated").length;
+  const deactivatedCount = activeAdoptions.filter((a) => a.status === "deactivated").length;
 
   return (
     <div className="max-w-3xl space-y-6 p-6">
@@ -215,6 +259,22 @@ export default function LibraryPage() {
               Browse catalog
             </LinkButton>
           )}
+        </div>
+      )}
+
+      {/* Archived-source section */}
+      {!isLoading && archivedSourceAdoptions.length > 0 && (
+        <div className="mt-8 space-y-3">
+          <div className="flex items-center gap-2">
+            <div className="h-px flex-1 bg-amber-200" />
+            <span className="text-xs font-medium text-amber-600">
+              Archived by platform ({archivedSourceAdoptions.length})
+            </span>
+            <div className="h-px flex-1 bg-amber-200" />
+          </div>
+          {archivedSourceAdoptions.map((item) => (
+            <ArchivedSourceCard key={item.adoption_id} item={item} />
+          ))}
         </div>
       )}
     </div>

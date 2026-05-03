@@ -1488,15 +1488,27 @@ async def list_library(
                 sac.status,
                 sac.notes,
                 sac.adopted_at,
+                c.retention_status,
                 EXISTS (
                     SELECT 1 FROM unit_content_overrides uco
                     WHERE uco.school_id = $1
                       AND uco.curriculum_id = sac.forked_curriculum_id
-                ) AS has_overrides
+                ) AS has_overrides,
+                al.metadata->>'reason' AS archive_reason
             FROM school_adopted_curricula sac
             JOIN curricula c ON c.curriculum_id = sac.curriculum_id
+            LEFT JOIN LATERAL (
+                SELECT metadata
+                FROM audit_log
+                WHERE target_type = 'curriculum'
+                  AND target_id IS NULL
+                  AND metadata->>'curriculum_id' = sac.curriculum_id::text
+                  AND event_type LIKE 'curriculum.archive%'
+                ORDER BY timestamp DESC
+                LIMIT 1
+            ) al ON true
             WHERE sac.school_id = $1
-            ORDER BY c.grade, c.name
+            ORDER BY c.retention_status = 'archived' ASC, c.grade, c.name
             """,
             school_id,
         )
@@ -1513,6 +1525,8 @@ async def list_library(
             notes=row["notes"],
             adopted_at=row["adopted_at"].isoformat(),
             has_overrides=row["has_overrides"],
+            is_source_archived=row["retention_status"] == "archived",
+            archive_reason=row["archive_reason"],
         )
         for row in rows
     ]

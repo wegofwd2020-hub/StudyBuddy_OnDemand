@@ -790,6 +790,8 @@ export interface AdoptionItem {
   notes: string | null;
   adopted_at: string;
   has_overrides: boolean;
+  is_source_archived?: boolean;
+  archive_reason?: string | null;
 }
 
 export interface LibraryResponse {

@@ -756,6 +756,7 @@ async def list_catalog(
             GROUP BY csv.subject
         ) csv_sub ON csv_sub.subject = cu.subject
         WHERE c.owner_type = 'platform'
+          AND c.retention_status != 'archived'
           {grade_filter}
         GROUP BY c.curriculum_id, c.name, c.grade, c.year, c.is_default,
                  c.owner_type, c.created_at
