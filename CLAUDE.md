@@ -75,7 +75,7 @@ do not swap the word.
 
 ## Project Status
 
-**Phases 1–11 complete. Phase A (local auth) shipped. Phases B–E complete. Epic 1 complete. Epic 8 H-8/H-9/H-10 (Stream layer) shipped. Epic 10 L-1 through L-5 shipped. Epic 11 C-1 through C-6 + C-9 shipped; C-5 in progress. Epic 12 TA-0 through TA-4 shipped. Epic 15 BR-1 through BR-6 complete. Epic 16 S-1 through S-5 shipped.**
+**Phases 1–11 complete. Phase A (local auth) shipped. Phases B–E complete. Epic 1 complete. Epic 8 H-8/H-9/H-10 (Stream layer) shipped. Epic 10 L-1 through L-5 + L-7 + L-8 shipped. Epic 11 C-1 through C-6 + C-9 shipped; C-5 in progress. Epic 12 TA-0 through TA-4 shipped. Epic 15 BR-1 through BR-6 complete. Epic 16 S-1 through S-5 shipped.**
 
 | Phase | Status |
 |---|---|
@@ -97,7 +97,7 @@ do not swap the word.
 | Phase E — Pipeline Billing | ✅ Complete (10 tests, cost estimate + Stripe-gated trigger) |
 | Epic 1 — Multi-Provider LLM Pipeline | ✅ Complete (migration 0043, 19 tests, F-1–F-5) |
 | Epic 8 H-8/9/10 — Stream layer + registry | ✅ Complete (migrations 0044, 0045, 18 tests; admin CRUD, upsert-on-use) |
-| Epic 10 L-1…L-5 — Curriculum lifecycle (archive) | ✅ Backend complete (migrations 0046, 0047, 0048; archive/unarchive/usage endpoints; audit events). L-6 sweeper paused; L-7 super-admin archive view + L-8 school UI pending |
+| Epic 10 L-1…L-5 + L-7 + L-8 — Curriculum lifecycle (archive) | ✅ Complete. L-7: `/admin/archive/curricula` with filters, TTL badge, unarchive action. L-8: catalog filters archived; library shows amber banner with reason for platform-archived adoptions; fork content still served. L-6 sweeper paused; L-9/L-10 pending. |
 | Epic 11 C-1…C-4, C-6, C-9 — Content formatting | ✅ Pipeline + renderer complete (GFM tables, KaTeX math, per-subject guidelines, format-drift validator, attributed quotes). C-5 in progress (regen); C-7/C-8 pending |
 | Epic 12 TA-0…TA-4 — School curriculum library | ✅ Backend + web complete (migrations 0050, 0051; adopt/deactivate, fork-on-import, draft/review/approve/reject workflow; pipeline guard; 27 tests; /school/library + /school/content UI) |
 | Epic 15 BR-1…BR-6 — Curriculum backup & restore | ✅ Complete (migrations 0053–0055; BackupStorageBackend, SHA-256 manifest, Celery tasks, 14 REST endpoints, 5 admin pages + 4 school portal pages; 27 tests; router bug fixed: `async with get_db(request)` pattern). |
@@ -134,8 +134,6 @@ do not swap the word.
 - Epic 6 — Platform hardening (K-4/K-5 need staging)
 - Epic 10 — Curriculum lifecycle remaining phases:
   - L-6 TTL sweeper (paused per user)
-  - L-7 `/admin/archive/curricula` super-admin view
-  - L-8 school UI treatment (hidden-from-library, serve-to-pre-existing-assignments)
   - L-9 per-jurisdiction read-audit mode
   - L-10 TTL override endpoint
 - Epic 11 — Content formatting remaining phases:
