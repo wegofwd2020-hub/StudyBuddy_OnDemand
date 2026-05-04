@@ -1,6 +1,6 @@
 # StudyBuddy OnDemand — Progress Chart
 
-_Auto-generated 2026-05-03T05:19:40+00:00. Regenerated nightly at 21:00 EST._
+_Auto-generated 2026-05-04T05:22:32+00:00. Regenerated nightly at 21:00 EST._
 
 Source: `docs/epics/` (feature manifest) + `git log` (activity). Script: `scripts/generate_progress.py`.
 
@@ -16,11 +16,11 @@ gantt
     Epic 3  :done, e3, 2026-04-14, 2026-04-15
     Epic 6  :active, e6, 2026-04-12, 2026-04-13
     Epic 8  :active, e8, 2026-04-14, 2026-04-15
-    Epic 10 :done, e10, 2026-04-15, 2026-05-02
+    Epic 10 :done, e10, 2026-04-15, 2026-05-03
     Epic 11 :done, e11, 2026-04-15, 2026-04-16
     Epic 12 :done, e12, 2026-04-29, 2026-05-01
     Epic 13 :done, e13, 2026-04-21, 2026-05-01
-    Epic 16 :active, e16, 2026-04-15, 2026-05-02
+    Epic 16 :active, e16, 2026-04-15, 2026-05-03
 ```
 
 ## Summary
@@ -36,11 +36,11 @@ gantt
 | 7 | [Self-Serve Demo System](epics/EPIC_07_self_serve_demo.md) | ✅ Complete | — | — | 0 | 0 | — |
 | 8 | [Onboarding Completeness (Address & Measurement Units)](epics/EPIC_08_onboarding_completeness.md) | 💭 Your call | 2026-04-14 | 2026-04-15 | 3 | 5 | H-10×2 |
 | 9 | [Accessibility & Personalization](epics/EPIC_09_accessibility_personalization.md) | 💭 Your call | — | — | 0 | 0 | — |
-| 10 | [Curriculum Lifecycle & Governance](epics/EPIC_10_curriculum_lifecycle.md) | ✅ Go — all 8 questions + 2 follow-ups resolved 2026-04-15 | 2026-04-15 | 2026-05-02 | 12 | 8 | L-1×4, L-5×2 |
+| 10 | [Curriculum Lifecycle & Governance](epics/EPIC_10_curriculum_lifecycle.md) | ✅ Go — all 8 questions + 2 follow-ups resolved 2026-04-15 | 2026-04-15 | 2026-05-03 | 14 | 9 | L-1×4, L-7×3, L-8×2, L-5×2 |
 | 11 | [Content Presentation & Formatting](epics/EPIC_11_content_formatting.md) | ✅ Go — 9 questions resolved 2026-04-15 | 2026-04-15 | 2026-04-15 | 8 | 7 | C-9×2 |
 | 12 | [Teacher Content Authoring](epics/EPIC_12_teacher_content_authoring.md) | ✅ Go — all questions resolved; ready to build from TA-0 | 2026-04-29 | 2026-05-01 | 13 | 0 | — |
 | 13 | [Branding Refresh: STEM → Education Enhancement](epics/EPIC_13_branding_refresh.md) | ✅ Complete 2026-04-21 — all five tickets shipped. Minimum-scope PR #246 landed T | 2026-04-21 | 2026-05-01 | 3 | 0 | — |
-| 16 | [Public Site Redesign: School-First Marketing Pages](epics/EPIC_16_public_site_redesign.md) | 🔜 Ready to build — start 2026-05-03 | 2026-04-15 | 2026-05-02 | 4 | 3 | — |
+| 16 | [Public Site Redesign: School-First Marketing Pages](epics/EPIC_16_public_site_redesign.md) | 🔜 Ready to build — start 2026-05-03 | 2026-04-15 | 2026-05-03 | 5 | 4 | S-1×2 |
 
 ## Redesign leaderboard
 
@@ -49,9 +49,12 @@ Tickets with 2+ commits — each extra commit is an iteration or rework.
 | Ticket | Epic | Commits | First | Last | Span (days) |
 |---|---|---|---|---|---|
 | L-1 | Epic 10 | 4 | 2026-04-15 | 2026-04-15 | 0 |
+| L-7 | Epic 10 | 3 | 2026-05-01 | 2026-05-03 | 2 |
 | H-10 | Epic 8 | 2 | 2026-04-14 | 2026-04-15 | 1 |
+| L-8 | Epic 10 | 2 | 2026-05-03 | 2026-05-03 | 0 |
 | L-5 | Epic 10 | 2 | 2026-04-15 | 2026-04-15 | 0 |
 | C-9 | Epic 11 | 2 | 2026-04-15 | 2026-04-15 | 0 |
+| S-1 | Epic 16 | 2 | 2026-04-15 | 2026-05-03 | 18 |
 
 ## Per-epic detail
 
@@ -147,7 +150,7 @@ Tickets with 2+ commits — each extra commit is an iteration or rework.
 - **Status:** ✅ Go — all 8 questions + 2 follow-ups resolved 2026-04-15
 - **Epic file:** [EPIC_10_curriculum_lifecycle.md](epics/EPIC_10_curriculum_lifecycle.md)
 - **Ticket prefix:** `L`
-- **Commits attributed:** 12
+- **Commits attributed:** 14
 
 | Ticket | Commits | First | Last |
 |---|---|---|---|
@@ -157,7 +160,8 @@ Tickets with 2+ commits — each extra commit is an iteration or rework.
 | L-3 | 1 | 2026-04-15 | 2026-04-15 |
 | L-4 | 1 | 2026-04-15 | 2026-04-15 |
 | L-5 | 2 | 2026-04-15 | 2026-04-15 |
-| L-7 | 1 | 2026-05-01 | 2026-05-01 |
+| L-7 | 3 | 2026-05-01 | 2026-05-03 |
+| L-8 | 2 | 2026-05-03 | 2026-05-03 |
 | L-10 | 1 | 2026-04-15 | 2026-04-15 |
 
 ### Epic 11 — Content Presentation & Formatting
@@ -196,11 +200,12 @@ Tickets with 2+ commits — each extra commit is an iteration or rework.
 - **Status:** 🔜 Ready to build — start 2026-05-03
 - **Epic file:** [EPIC_16_public_site_redesign.md](epics/EPIC_16_public_site_redesign.md)
 - **Ticket prefix:** `S`
-- **Commits attributed:** 4
+- **Commits attributed:** 5
 
 | Ticket | Commits | First | Last |
 |---|---|---|---|
-| S-1 | 1 | 2026-04-15 | 2026-04-15 |
+| S-1 | 2 | 2026-04-15 | 2026-05-03 |
 | S-2 | 1 | 2026-04-15 | 2026-04-15 |
 | S-3 | 1 | 2026-04-15 | 2026-04-15 |
+| S-5 | 1 | 2026-05-03 | 2026-05-03 |
 
