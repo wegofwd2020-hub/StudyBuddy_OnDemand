@@ -61,6 +61,14 @@ async def _get_school_sub(school_id: str, pool: asyncpg.Pool, redis) -> dict | N
             pass
 
     async with pool.acquire() as conn:
+        # school_subscriptions is RLS-protected (FORCE ROW LEVEL SECURITY).
+        # Stamp app.current_school_id with the school we're querying so the
+        # tenant_isolation policy lets us see the row. Without this the SELECT
+        # silently returns None and every school is treated as inactive/free.
+        await conn.execute(
+            "SELECT set_config('app.current_school_id', $1, false)",
+            school_id,
+        )
         row = await conn.fetchrow(
             """
             SELECT plan, status, current_period_end, grace_period_end

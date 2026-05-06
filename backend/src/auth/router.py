@@ -305,12 +305,13 @@ async def refresh_token(body: RefreshRequest, request: Request):
     # Determine user type by querying DB.
     async with get_db(request) as conn:
         student = await conn.fetchrow(
-            "SELECT student_id, grade, locale, account_status FROM students WHERE student_id = $1",
+            "SELECT student_id, school_id, grade, locale, account_status FROM students WHERE student_id = $1",
             user_id,
         )
         if student:
             payload = {
                 "student_id": str(student["student_id"]),
+                "school_id": str(student["school_id"]) if student["school_id"] else None,
                 "grade": student["grade"],
                 "locale": student["locale"],
                 "role": "student",
@@ -434,11 +435,16 @@ async def local_login(
     else:
         # student
         student_row = await request.app.state.pool.fetchrow(
-            "SELECT grade, locale FROM students WHERE student_id = $1",
+            "SELECT grade, locale, school_id FROM students WHERE student_id = $1",
             user_id,
         )
+        # school_id must be in the JWT so get_entitlement() can take the
+        # school_subscriptions branch — otherwise school-enrolled students
+        # silently fall through to the free-tier cap.
+        sid = student_row["school_id"] if student_row else None
         jwt_payload = {
             "student_id": user_id,
+            "school_id": str(sid) if sid else None,
             "grade": student_row["grade"] if student_row else 8,
             "locale": student_row["locale"] if student_row else "en",
             "role": "student",

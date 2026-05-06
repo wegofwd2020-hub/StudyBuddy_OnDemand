@@ -3070,6 +3070,6 @@ async def get_student_theme_endpoint(
     student: Annotated[dict, Depends(get_current_student)],
 ) -> SchoolThemeResponse:
     """Return the theme for the student's enrolled school. Returns null theme if not enrolled."""
-    pool = request.app.state.db_pool
+    pool = request.app.state.pool
     theme = await get_student_school_theme(pool, student["student_id"])
     return SchoolThemeResponse(theme=theme)
