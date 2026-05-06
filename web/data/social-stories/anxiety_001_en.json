@@ -1,0 +1,55 @@
+{
+  "scenario_id": "anxiety-001",
+  "title": "Handling unexpected change",
+  "domain": "anxiety_coping",
+  "content_source": "human_authored",
+  "characters": [
+    {
+      "id": "user2",
+      "name": "Narrator",
+      "org": "—",
+      "role_label": "ADULT NARRATOR · AUTISM CONTEXT"
+    }
+  ],
+  "dialog": [
+    {
+      "speaker": "user2",
+      "text": "Sometimes my plan changes without warning. The meeting moves, the route is closed, the day looks different than I expected. When that happens, my chest gets tight. My thoughts speed up. This is anxiety. It is not a flaw. It is my brain working hard to handle something unexpected."
+    },
+    {
+      "speaker": "user2",
+      "text": "Here is what I can do. I find a quiet spot, even just my desk or a corner. I put both feet flat on the floor. I press my palms together for ten seconds. Then I breathe in slowly while I count five. I breathe out for five. I do this five times. The signals quiet down."
+    },
+    {
+      "speaker": "user2",
+      "text": "I have handled changes before. The schedule shift last month. The new manager last year. The train delay last week. I figured each one out. I do not have to like change to be capable of change. I can take this one step at a time."
+    }
+  ],
+  "video_clips": [
+    {
+      "turn_index": 0,
+      "speaker": "user2",
+      "video_url": "/scenarios/anxiety-001/turn0.mp4",
+      "duration_seconds": 21.225,
+      "status": "ready"
+    },
+    {
+      "turn_index": 1,
+      "speaker": "user2",
+      "video_url": "/scenarios/anxiety-001/turn1.mp4",
+      "duration_seconds": 22.8125,
+      "status": "ready"
+    },
+    {
+      "turn_index": 2,
+      "speaker": "user2",
+      "video_url": "/scenarios/anxiety-001/turn2.mp4",
+      "duration_seconds": 18.7875,
+      "status": "ready"
+    }
+  ],
+  "language": "en",
+  "generated_at": "2026-05-05T16:00:00Z",
+  "model": "human_authored",
+  "content_version": 1
+}

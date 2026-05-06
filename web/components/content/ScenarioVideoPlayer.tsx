@@ -31,7 +31,7 @@ export function ScenarioVideoPlayer({ scenario }: { scenario: ScenarioWithClips 
 
 // ─── Video player ─────────────────────────────────────────────────────────────
 
-type Phase = "idle" | "playing" | "paused" | "quiz" | "result";
+type Phase = "idle" | "playing" | "paused" | "quiz" | "result" | "done";
 
 const AVATAR_COLORS = ["bg-blue-500", "bg-emerald-500", "bg-violet-500", "bg-amber-500"];
 
@@ -113,6 +113,10 @@ function VideoDialogPlayer({
   }
 
   function transitionToQuiz() {
+    if (questions.length === 0) {
+      setTimeout(() => setPhase("done"), 500);
+      return;
+    }
     setTimeout(() => {
       setPhase("quiz");
       setTimeout(() => setQuizVisible(true), 30);
@@ -276,6 +280,20 @@ function VideoDialogPlayer({
       {/* Summary after all questions answered */}
       {allAnswered && phase === "result" && quizIdx === questions.length - 1 && questions.length > 1 && (
         <ScoreSummary questions={questions} answers={answers} onReplay={handleReplay} />
+      )}
+
+      {/* Done state — no-quiz scenarios (e.g. social stories) */}
+      {phase === "done" && (
+        <div className="rounded-xl border-2 border-indigo-200 bg-indigo-50 p-6 shadow-md text-center space-y-3">
+          <p className="text-base font-semibold text-gray-900">End of story</p>
+          <p className="text-sm text-gray-600">You can replay it any time.</p>
+          <button
+            onClick={handleReplay}
+            className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+          >
+            <RotateCcw className="h-4 w-4" /> Replay
+          </button>
+        </div>
       )}
     </div>
   );
