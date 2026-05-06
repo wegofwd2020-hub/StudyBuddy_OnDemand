@@ -58,18 +58,19 @@ export interface QuizContent {
   questions: QuizQuestion[];
 }
 
-export interface TutorialStep {
-  step: number;
+export interface TutorialSection {
+  section_id: string;
   title: string;
-  body: string;
+  content: string;
+  examples: string[];
+  practice_question: string;
 }
 
 export interface TutorialContent {
   unit_id: string;
   title: string;
-  objective: string;
-  steps: TutorialStep[];
-  summary: string;
+  sections: TutorialSection[];
+  common_mistakes: string[];
 }
 
 export interface ExperimentStep {

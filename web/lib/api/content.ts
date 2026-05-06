@@ -63,19 +63,17 @@ export async function getQuiz(unitId: string): Promise<QuizContent> {
   };
 }
 
-// Backend tutorial shape differs from the simpler TutorialContent type the UI uses.
-interface BackendTutorialSection {
-  section_id: string;
-  title: string;
-  content: string;
-  examples: string[];
-  practice_question: string;
-}
 interface BackendTutorialResponse {
   unit_id: string;
   language: string;
   title: string;
-  sections: BackendTutorialSection[];
+  sections: Array<{
+    section_id: string;
+    title: string;
+    content: string;
+    examples: string[];
+    practice_question: string;
+  }>;
   common_mistakes: string[];
   generated_at: string;
   model: string;
@@ -88,15 +86,14 @@ export async function getTutorial(unitId: string): Promise<TutorialContent> {
   return {
     unit_id: raw.unit_id,
     title: raw.title,
-    objective: raw.sections[0]?.content ?? "",
-    steps: raw.sections.map((s, i) => ({
-      step: i + 1,
+    sections: raw.sections.map((s) => ({
+      section_id: s.section_id,
       title: s.title,
-      body: [s.content, ...s.examples, s.practice_question].filter(Boolean).join("\n\n"),
+      content: s.content,
+      examples: s.examples,
+      practice_question: s.practice_question,
     })),
-    summary: raw.common_mistakes.length
-      ? "Common mistakes: " + raw.common_mistakes.join("; ")
-      : "",
+    common_mistakes: raw.common_mistakes,
   };
 }
 

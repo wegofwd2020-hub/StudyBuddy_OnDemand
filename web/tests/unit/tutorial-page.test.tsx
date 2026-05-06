@@ -7,7 +7,7 @@
  */
 
 import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent, within } from "@testing-library/react";
 import { TutorialRenderer } from "@/components/content/TutorialRenderer";
 import {
   MOCK_TUTORIAL,
@@ -15,10 +15,6 @@ import {
   TUTORIAL_STRINGS,
   quizHref,
 } from "../e2e/data/tutorial-page";
-
-// ---------------------------------------------------------------------------
-// Shared mocks
-// ---------------------------------------------------------------------------
 
 vi.mock("next-intl", () => ({
   useTranslations: vi.fn(() => (key: string) => key),
@@ -31,10 +27,10 @@ vi.mock("next/link", () => ({
 }));
 
 // ---------------------------------------------------------------------------
-// STU-26 — TutorialRenderer: tutorial content loads
+// STU-26 — TutorialRenderer: title + section disclosures
 // ---------------------------------------------------------------------------
 
-describe("STU-26 — TutorialRenderer: tutorial content loads", () => {
+describe("STU-26 — TutorialRenderer: title + section disclosures", () => {
   it("renders the tutorial title as H1", () => {
     render(<TutorialRenderer tutorial={MOCK_TUTORIAL} />);
     expect(
@@ -42,71 +38,71 @@ describe("STU-26 — TutorialRenderer: tutorial content loads", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders the tutorial objective", () => {
+  it("renders one disclosure button per section", () => {
     render(<TutorialRenderer tutorial={MOCK_TUTORIAL} />);
-    expect(screen.getByText(MOCK_TUTORIAL.objective)).toBeInTheDocument();
-  });
-
-  it("renders all step numbers in the ordered list", () => {
-    render(<TutorialRenderer tutorial={MOCK_TUTORIAL} />);
-    for (const step of MOCK_TUTORIAL.steps) {
-      expect(screen.getByText(String(step.step))).toBeInTheDocument();
+    for (const section of MOCK_TUTORIAL.sections) {
+      expect(
+        screen.getByRole("button", { name: new RegExp(section.title) }),
+      ).toBeInTheDocument();
     }
   });
 
-  it("renders all step titles as headings", () => {
+  it("first section is expanded by default; others are collapsed", () => {
     render(<TutorialRenderer tutorial={MOCK_TUTORIAL} />);
-    for (const step of MOCK_TUTORIAL.steps) {
-      expect(screen.getByRole("heading", { name: step.title })).toBeInTheDocument();
-    }
+    const buttons = screen.getAllByRole("button", { expanded: true });
+    expect(buttons).toHaveLength(1);
+    expect(buttons[0]).toHaveAccessibleName(
+      new RegExp(MOCK_TUTORIAL.sections[0].title),
+    );
   });
 
-  it("renders all step body text", () => {
+  it("clicking a collapsed section expands it (aria-expanded toggles)", () => {
     render(<TutorialRenderer tutorial={MOCK_TUTORIAL} />);
-    for (const step of MOCK_TUTORIAL.steps) {
-      expect(screen.getByText(step.body)).toBeInTheDocument();
-    }
+    const second = screen.getByRole("button", {
+      name: new RegExp(MOCK_TUTORIAL.sections[1].title),
+    });
+    expect(second).toHaveAttribute("aria-expanded", "false");
+    fireEvent.click(second);
+    expect(second).toHaveAttribute("aria-expanded", "true");
   });
 
-  it("renders Summary heading when summary is present", () => {
+  it("Expand all toggles every section open", () => {
     render(<TutorialRenderer tutorial={MOCK_TUTORIAL} />);
-    expect(
-      screen.getByRole("heading", { name: TUTORIAL_STRINGS.summaryHeading }),
-    ).toBeInTheDocument();
-  });
-
-  it("renders summary body text", () => {
-    render(<TutorialRenderer tutorial={MOCK_TUTORIAL} />);
-    expect(screen.getByText(MOCK_TUTORIAL.summary)).toBeInTheDocument();
-  });
-
-  it("does not render Summary section when summary is empty", () => {
-    render(<TutorialRenderer tutorial={MOCK_TUTORIAL_NO_SUMMARY} />);
-    expect(
-      screen.queryByRole("heading", { name: TUTORIAL_STRINGS.summaryHeading }),
-    ).toBeNull();
-  });
-
-  it("renders steps in an ordered list", () => {
-    const { container } = render(<TutorialRenderer tutorial={MOCK_TUTORIAL} />);
-    expect(container.querySelector("ol")).toBeTruthy();
-  });
-
-  it("correct number of list items matches step count", () => {
-    const { container } = render(<TutorialRenderer tutorial={MOCK_TUTORIAL} />);
-    const items = container.querySelectorAll("li");
-    expect(items).toHaveLength(MOCK_TUTORIAL.steps.length);
-  });
-
-  it("each step number renders inside a blue circle badge", () => {
-    const { container } = render(<TutorialRenderer tutorial={MOCK_TUTORIAL} />);
-    const badges = container.querySelectorAll("div.bg-blue-600");
-    expect(badges).toHaveLength(MOCK_TUTORIAL.steps.length);
+    fireEvent.click(screen.getByRole("button", { name: /expand all/i }));
+    const expanded = screen.getAllByRole("button", { expanded: true });
+    expect(expanded.length).toBe(MOCK_TUTORIAL.sections.length);
   });
 });
 
 // ---------------------------------------------------------------------------
-// STU-26 — CTA: Take Quiz href construction
+// STU-26 — Common mistakes card
+// ---------------------------------------------------------------------------
+
+describe("STU-26 — Common mistakes card", () => {
+  it("renders Common mistakes heading when list is non-empty", () => {
+    render(<TutorialRenderer tutorial={MOCK_TUTORIAL} />);
+    expect(
+      screen.getByRole("heading", { name: TUTORIAL_STRINGS.commonMistakesHeading }),
+    ).toBeInTheDocument();
+  });
+
+  it("renders every common-mistake bullet", () => {
+    render(<TutorialRenderer tutorial={MOCK_TUTORIAL} />);
+    for (const m of MOCK_TUTORIAL.common_mistakes) {
+      expect(screen.getByText(m)).toBeInTheDocument();
+    }
+  });
+
+  it("does not render Common mistakes card when list is empty", () => {
+    render(<TutorialRenderer tutorial={MOCK_TUTORIAL_NO_SUMMARY} />);
+    expect(
+      screen.queryByRole("heading", { name: TUTORIAL_STRINGS.commonMistakesHeading }),
+    ).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// STU-26 — Take Quiz CTA href
 // ---------------------------------------------------------------------------
 
 describe("STU-26 — Take Quiz CTA href", () => {
@@ -138,3 +134,6 @@ describe("STU-26 — Error state string", () => {
     expect(TUTORIAL_STRINGS.takeQuizBtn).toBe("Take Quiz");
   });
 });
+
+// Suppress unused import warning in test environments
+void within;

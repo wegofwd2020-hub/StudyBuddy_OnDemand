@@ -1,77 +1,72 @@
 "use client";
 
+import { useState } from "react";
 import { useCurriculumTree } from "@/lib/hooks/useCurriculumTree";
 import { LinkButton } from "@/components/ui/link-button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FlaskConical } from "lucide-react";
 import { OfflineBanner } from "@/components/student/OfflineBanner";
-import { useSubjectPalette } from "@/lib/theme/SchoolThemeContext";
+import {
+  Shelf,
+  BookSpine,
+  BookOpen,
+  deriveSubjectAccent,
+} from "@/components/library";
 
-// ── Per-subject card — uses theme palette for tinted header ───────────────────
+type SubjectUnit = { unit_id: string; title: string; has_lab?: boolean };
 
-type SubjectData = {
-  subject: string;
-  units: { unit_id: string; title: string; has_lab?: boolean }[];
-};
-
-function SubjectCard({ subject }: { subject: SubjectData }) {
-  const palette = useSubjectPalette(subject.subject);
-
+function SubjectUnitList({ units }: { units: SubjectUnit[] }) {
+  if (units.length === 0) {
+    return (
+      <p className="text-xs italic text-gray-400">No units in this subject yet.</p>
+    );
+  }
   return (
-    <div
-      className="overflow-hidden rounded-xl border shadow-sm"
-      style={{ borderColor: palette.border }}
-    >
-      <div className="px-5 py-4" style={{ background: palette.bg1 }}>
-        <h2 className="text-base font-bold" style={{ color: palette.ink }}>
-          {subject.subject}
-        </h2>
-        <p className="text-xs" style={{ color: palette.ink, opacity: 0.65 }}>
-          {subject.units.length} unit{subject.units.length !== 1 ? "s" : ""}
-        </p>
-      </div>
-
-      <div className="divide-y bg-white">
-        {subject.units.map((unit) => (
-          <div
-            key={unit.unit_id}
-            className="flex items-center justify-between px-5 py-2"
-          >
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-700">{unit.title}</span>
-              {unit.has_lab && (
-                <FlaskConical className="h-3.5 w-3.5 text-purple-500" />
-              )}
-            </div>
-            <div className="flex items-center gap-1">
-              <LinkButton
-                href={`/lesson/${unit.unit_id}`}
-                variant="ghost"
-                size="sm"
-                className="h-7 text-xs"
-              >
-                Lesson
-              </LinkButton>
-              <LinkButton
-                href={`/quiz/${unit.unit_id}`}
-                variant="ghost"
-                size="sm"
-                className="h-7 text-xs"
-              >
-                Quiz
-              </LinkButton>
-            </div>
+    <ol role="list" className="divide-y divide-gray-100">
+      {units.map((unit) => (
+        <li
+          key={unit.unit_id}
+          className="flex items-center justify-between gap-3 py-2"
+        >
+          <div className="flex min-w-0 items-center gap-2">
+            <span className="truncate text-sm text-gray-700">{unit.title}</span>
+            {unit.has_lab && (
+              <FlaskConical
+                className="h-3.5 w-3.5 shrink-0 text-purple-500"
+                aria-hidden="true"
+              />
+            )}
           </div>
-        ))}
-      </div>
-    </div>
+          <div className="flex shrink-0 items-center gap-1">
+            <LinkButton
+              href={`/lesson/${unit.unit_id}`}
+              variant="ghost"
+              size="sm"
+              className="h-7 text-xs"
+            >
+              Lesson
+            </LinkButton>
+            <LinkButton
+              href={`/quiz/${unit.unit_id}`}
+              variant="ghost"
+              size="sm"
+              className="h-7 text-xs"
+            >
+              Quiz
+            </LinkButton>
+          </div>
+        </li>
+      ))}
+    </ol>
   );
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
-
 export default function SubjectsPage() {
   const { data: tree, isLoading, isError } = useCurriculumTree();
+  const [openSubject, setOpenSubject] = useState<string | null>(null);
+
+  const subjects = tree?.subjects ?? [];
+  const open = subjects.find((s) => s.subject === openSubject) ?? null;
 
   return (
     <div className="flex flex-col">
@@ -80,23 +75,52 @@ export default function SubjectsPage() {
         <h1 className="text-2xl font-bold text-gray-900">Subjects</h1>
 
         {isLoading && (
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="flex gap-3">
             {[...Array(4)].map((_, i) => (
-              <Skeleton key={i} className="h-48 rounded-xl" />
+              <Skeleton key={i} className="h-56 w-24 rounded-md" />
             ))}
           </div>
         )}
 
         {isError && (
-          <p className="text-sm text-red-500">Could not load curriculum. Please retry.</p>
+          <p className="text-sm text-red-500">
+            Could not load curriculum. Please retry.
+          </p>
         )}
 
-        {tree?.subjects && (
-          <div className="grid gap-6 sm:grid-cols-2">
-            {tree.subjects.map((subject) => (
-              <SubjectCard key={subject.subject} subject={subject} />
-            ))}
-          </div>
+        {!isLoading && !isError && subjects.length === 0 && (
+          <p className="text-sm text-gray-500">
+            Your curriculum hasn&apos;t been published yet.
+          </p>
+        )}
+
+        {!isLoading && !isError && subjects.length > 0 && (
+          <>
+            <Shelf ariaLabel="Subjects">
+              {subjects.map((subject) => (
+                <BookSpine
+                  key={subject.subject}
+                  unitId={subject.subject}
+                  title={subject.subject}
+                  subjectKey={subject.subject}
+                  accentOverride={deriveSubjectAccent(subject.subject)}
+                  isOpen={openSubject === subject.subject}
+                  onToggle={(id) =>
+                    setOpenSubject((cur) => (cur === id ? null : id))
+                  }
+                />
+              ))}
+            </Shelf>
+            {open ? (
+              <BookOpen
+                title={open.subject}
+                subheading={`${open.units.length} unit${open.units.length !== 1 ? "s" : ""}`}
+                onClose={() => setOpenSubject(null)}
+              >
+                <SubjectUnitList units={open.units} />
+              </BookOpen>
+            ) : null}
+          </>
         )}
       </div>
     </div>

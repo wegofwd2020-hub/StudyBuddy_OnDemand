@@ -12,61 +12,79 @@
 import type { TutorialContent } from "@/lib/types/api";
 
 // ---------------------------------------------------------------------------
-// Mock tutorial — 4 steps with summary (STU-26)
+// Mock tutorial — 4 sections + common mistakes (STU-26)
 // ---------------------------------------------------------------------------
 
 export const MOCK_TUTORIAL: TutorialContent = {
   unit_id: "G8-SCI-001",
   title: "Cell Biology Tutorial",
-  objective: "Understand the structure and function of cells in living organisms.",
-  steps: [
+  sections: [
     {
-      step: 1,
+      section_id: "s1",
       title: "Introduction to Cells",
-      body: "Every living thing — from bacteria to blue whales — is made of cells. A cell is the smallest unit that can carry out the basic processes of life.",
+      content:
+        "Every living thing — from bacteria to blue whales — is made of cells. A cell is the smallest unit that can carry out the basic processes of life.",
+      examples: ["Bacteria are single-celled organisms.", "Humans have ~37 trillion cells."],
+      practice_question: "What is the smallest unit of life?",
     },
     {
-      step: 2,
+      section_id: "s2",
       title: "The Cell Membrane",
-      body: "The cell membrane is a thin, flexible barrier that surrounds the cell. It controls what enters and exits the cell, maintaining the internal environment.",
+      content:
+        "The cell membrane is a thin, flexible barrier that surrounds the cell. It controls what enters and exits the cell, maintaining the internal environment.",
+      examples: ["Oxygen passes through freely; large proteins cannot."],
+      practice_question: "Name one molecule that crosses the membrane freely.",
     },
     {
-      step: 3,
+      section_id: "s3",
       title: "The Nucleus",
-      body: "The nucleus is the control centre of the cell. It contains DNA, which carries the instructions for building proteins and directing cell activities.",
+      content:
+        "The nucleus is the control centre of the cell. It contains DNA, which carries the instructions for building proteins and directing cell activities.",
+      examples: [],
+      practice_question: "Where is DNA stored in a eukaryotic cell?",
     },
     {
-      step: 4,
+      section_id: "s4",
       title: "Mitochondria",
-      body: "Mitochondria are the powerhouses of the cell. They convert glucose and oxygen into ATP — the energy currency cells use to do work.",
+      content:
+        "Mitochondria are the powerhouses of the cell. They convert glucose and oxygen into ATP — the energy currency cells use to do work.",
+      examples: ["Muscle cells have many mitochondria."],
+      practice_question: "What energy molecule do mitochondria produce?",
     },
   ],
-  summary:
-    "Cells are the building blocks of life. Key organelles include the membrane (boundary), nucleus (control), and mitochondria (energy).",
+  common_mistakes: [
+    "Confusing cell membrane with cell wall (only plants have cell walls).",
+    "Thinking the nucleus produces ATP — it doesn't; mitochondria do.",
+  ],
 };
 
 // ---------------------------------------------------------------------------
-// Mock tutorial — no summary (edge case)
+// Mock tutorial — no common mistakes (edge case)
 // ---------------------------------------------------------------------------
 
 export const MOCK_TUTORIAL_NO_SUMMARY: TutorialContent = {
   ...MOCK_TUTORIAL,
   unit_id: "G8-MATH-001",
   title: "Linear Equations Tutorial",
-  objective: "Learn to solve linear equations by isolating the variable.",
-  steps: [
+  sections: [
     {
-      step: 1,
+      section_id: "s1",
       title: "What is a Linear Equation?",
-      body: "A linear equation is an equation where the highest power of the variable is 1. Example: 2x + 3 = 7.",
+      content:
+        "A linear equation is an equation where the highest power of the variable is 1. Example: 2x + 3 = 7.",
+      examples: ["2x + 3 = 7", "x - 5 = 10"],
+      practice_question: "Is x^2 + 1 = 5 a linear equation?",
     },
     {
-      step: 2,
+      section_id: "s2",
       title: "Solving by Isolation",
-      body: "To solve, perform the same operation on both sides until the variable is alone. For 2x + 3 = 7: subtract 3, then divide by 2.",
+      content:
+        "To solve, perform the same operation on both sides until the variable is alone. For 2x + 3 = 7: subtract 3, then divide by 2.",
+      examples: ["2x + 3 = 7  →  2x = 4  →  x = 2"],
+      practice_question: "Solve 3x - 4 = 11.",
     },
   ],
-  summary: "",
+  common_mistakes: [],
 };
 
 // ---------------------------------------------------------------------------
@@ -74,7 +92,7 @@ export const MOCK_TUTORIAL_NO_SUMMARY: TutorialContent = {
 // ---------------------------------------------------------------------------
 
 export const TUTORIAL_STRINGS = {
-  summaryHeading: "Summary",
+  commonMistakesHeading: "Common mistakes",
   takeQuizBtn: "Take Quiz",
   errorMessage: "Could not load tutorial. Please try again.",
 } as const;

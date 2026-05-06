@@ -10,10 +10,10 @@ export function ExperimentRenderer({ experiment }: ExperimentRendererProps) {
   const t = useTranslations("experiment_screen");
 
   return (
-    <article className="space-y-8">
+    <article className="space-y-8 rounded-lg border border-gray-300 bg-stone-50 p-6 font-heading shadow-md">
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-50">
-          <FlaskConical className="h-5 w-5 text-purple-600" />
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100">
+          <FlaskConical className="h-5 w-5 text-purple-600" aria-hidden="true" />
         </div>
         <h1 className="text-2xl font-bold text-gray-900">{experiment.title}</h1>
       </div>
@@ -21,13 +21,13 @@ export function ExperimentRenderer({ experiment }: ExperimentRendererProps) {
       {/* Materials */}
       <section>
         <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold text-gray-800">
-          <Package className="h-4 w-4" />
+          <Package className="h-4 w-4" aria-hidden="true" />
           {t("materials_heading")}
         </h2>
         <ul className="grid gap-2 sm:grid-cols-2">
           {experiment.materials.map((m, i) => (
-            <li key={i} className="flex items-center gap-2 text-sm text-gray-600">
-              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-gray-400" />
+            <li key={i} className="flex items-center gap-2 text-sm text-gray-700">
+              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-gray-500" />
               {m}
             </li>
           ))}
@@ -36,14 +36,14 @@ export function ExperimentRenderer({ experiment }: ExperimentRendererProps) {
 
       {/* Safety notes */}
       {experiment.safety_notes.length > 0 && (
-        <section className="rounded-lg border border-amber-200 bg-amber-50 p-4">
+        <section className="rounded-lg border border-amber-300 bg-amber-50 p-4 shadow-sm">
           <h2 className="mb-2 flex items-center gap-2 font-semibold text-amber-800">
-            <AlertTriangle className="h-4 w-4" />
+            <AlertTriangle className="h-4 w-4" aria-hidden="true" />
             {t("safety_heading")}
           </h2>
           <ul className="space-y-1">
             {experiment.safety_notes.map((note, i) => (
-              <li key={i} className="text-sm text-amber-700">
+              <li key={i} className="text-sm text-amber-900">
                 {note}
               </li>
             ))}
@@ -53,14 +53,16 @@ export function ExperimentRenderer({ experiment }: ExperimentRendererProps) {
 
       {/* Steps */}
       <section>
-        <h2 className="mb-4 text-lg font-semibold text-gray-800">{t("steps_heading")}</h2>
+        <h2 className="mb-4 text-lg font-semibold text-gray-800">
+          {t("steps_heading")}
+        </h2>
         <ol className="space-y-4">
           {experiment.steps.map((step) => (
             <li key={step.step} className="flex gap-4">
               <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-purple-600 text-xs font-bold text-white">
                 {step.step}
               </div>
-              <p className="pt-0.5 text-sm leading-relaxed text-gray-600">
+              <p className="pt-0.5 text-sm leading-relaxed text-gray-700">
                 {step.instruction}
               </p>
             </li>
@@ -70,12 +72,12 @@ export function ExperimentRenderer({ experiment }: ExperimentRendererProps) {
 
       {/* Expected outcome */}
       {experiment.expected_outcome && (
-        <section className="rounded-lg border border-green-100 bg-green-50 p-4">
+        <section className="rounded-lg border border-green-200 bg-green-50 p-4 shadow-sm">
           <h2 className="mb-1 flex items-center gap-2 font-semibold text-green-800">
-            <CheckCircle2 className="h-4 w-4" />
+            <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
             {t("expected_outcome_heading")}
           </h2>
-          <p className="text-sm text-green-700">{experiment.expected_outcome}</p>
+          <p className="text-sm text-green-900">{experiment.expected_outcome}</p>
         </section>
       )}
     </article>

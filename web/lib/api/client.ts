@@ -24,9 +24,9 @@ api.interceptors.response.use(
       if (status === 401) {
         localStorage.removeItem("sb_token");
         window.location.href = "/login";
-      } else if (status === 402) {
-        window.location.href = "/paywall";
       }
+      // 402 → /paywall redirect intentionally disabled while the library-metaphor
+      // redesign is being iterated. Re-enable when subscription gating is ready.
     }
     return Promise.reject(error);
   },
