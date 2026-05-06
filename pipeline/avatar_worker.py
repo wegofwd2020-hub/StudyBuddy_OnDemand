@@ -193,6 +193,9 @@ def _auth_header(api_key: str) -> str:
 
 
 def _avatar_url(char: dict, idx: int) -> str:
+    # Per-character override on the scenario (preferred — survives across runs and is scenario-scoped).
+    if url := char.get("source_image_url"):
+        return url
     if url := os.environ.get(f"D_ID_AVATAR_{idx}"):
         return url
     gender = char.get("gender", "female" if idx % 2 == 0 else "male")
