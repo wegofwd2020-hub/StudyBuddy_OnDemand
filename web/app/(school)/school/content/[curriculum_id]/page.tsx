@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTeacher } from "@/lib/hooks/useTeacher";
@@ -13,8 +13,15 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { LinkButton } from "@/components/ui/link-button";
 import {
-  ArrowLeft,
+  Aisle,
+  Shelf,
+  BookSpine,
   BookOpen,
+  deriveSubjectAccent,
+} from "@/components/library";
+import {
+  ArrowLeft,
+  BookOpen as BookOpenIcon,
   Download,
   Pencil,
   Eye,
@@ -86,8 +93,6 @@ function OverrideBadge({ overrides }: { overrides: UnitOverrideStatus[] }) {
   );
 }
 
-// ── Unit row ───────────────────────────────────────────────────────────────────
-
 function latestOverride(overrides: UnitOverrideStatus[]): UnitOverrideStatus | null {
   if (overrides.length === 0) return null;
   return overrides.reduce((a, b) =>
@@ -95,18 +100,22 @@ function latestOverride(overrides: UnitOverrideStatus[]): UnitOverrideStatus | n
   );
 }
 
-function UnitRow({
+// ── Unit detail (rendered inside <BookOpen>) ─────────────────────────────────
+
+function UnitDetail({
   unit,
   schoolId,
   curriculumId,
   adoptionId,
   onImported,
+  onError,
 }: {
   unit: UnitStatusItem;
   schoolId: string;
   curriculumId: string;
   adoptionId: string;
   onImported: () => void;
+  onError: (message: string) => void;
 }) {
   const state = computeBadgeState(unit.overrides);
   const latest = latestOverride(unit.overrides);
@@ -114,6 +123,11 @@ function UnitRow({
   const importMutation = useMutation({
     mutationFn: () => importUnit(schoolId, adoptionId, unit.unit_id),
     onSuccess: onImported,
+    onError: (err: unknown) => {
+      const message =
+        err instanceof Error ? err.message : "Failed to import unit.";
+      onError(message);
+    },
   });
 
   const canImport = state === "oob" && !!adoptionId && unit.has_content;
@@ -122,78 +136,78 @@ function UnitRow({
   const canView = state === "published" || state === "pending_review";
 
   return (
-    <tr className="border-b border-gray-100 hover:bg-gray-50">
-      <td className="py-3 pl-4 pr-3 text-sm font-medium text-gray-900">
-        {unit.title}
-      </td>
-      <td className="px-3 py-3 text-sm text-gray-500">
-        {unit.subject_name ?? unit.subject}
-      </td>
-      <td className="px-3 py-3">
+    <div className="space-y-3">
+      {/* Metadata row */}
+      <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
         <OverrideBadge overrides={unit.overrides} />
-      </td>
-      <td className="px-3 py-3 text-sm text-gray-500 tabular-nums">
-        {latest ? `v${latest.version_number}` : "—"}
-      </td>
-      <td className="px-3 py-3 text-sm text-gray-400">
-        {latest?.last_edited_by_name ?? "—"}
-      </td>
-      <td className="px-3 py-3 text-xs text-gray-400">
-        {latest
-          ? new Date(latest.edited_at).toLocaleDateString(undefined, {
+        {latest ? (
+          <span className="rounded-full bg-stone-100 px-2 py-0.5 font-medium text-stone-600 tabular-nums">
+            v{latest.version_number}
+          </span>
+        ) : null}
+        {latest?.last_edited_by_name ? (
+          <span>by {latest.last_edited_by_name}</span>
+        ) : null}
+        {latest ? (
+          <span className="text-gray-400">
+            {new Date(latest.edited_at).toLocaleDateString(undefined, {
               month: "short",
               day: "numeric",
               year: "numeric",
-            })
-          : "—"}
-      </td>
-      <td className="py-3 pl-3 pr-4 text-right">
-        <div className="flex items-center justify-end gap-2">
-          {canImport && (
-            <button
-              type="button"
-              onClick={() => importMutation.mutate()}
-              disabled={importMutation.isPending}
-              className="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-600 shadow-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <Download className="h-3 w-3" />
-              {importMutation.isPending ? "Importing…" : "Import"}
-            </button>
-          )}
-          {noContent && (
-            <span
-              title="Content not yet generated for this unit"
-              className="inline-flex cursor-not-allowed items-center gap-1 rounded-md border border-gray-100 bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-300"
-            >
-              <Download className="h-3 w-3" />
-              Import
-            </span>
-          )}
-          {canEdit && (
-            <LinkButton
-              href={`/school/content/${curriculumId}/units/${unit.unit_id}/edit`}
-              size="sm"
-              variant="outline"
-              className="text-xs"
-            >
-              <Pencil className="mr-1 h-3 w-3" />
-              Edit
-            </LinkButton>
-          )}
-          {canView && (
-            <LinkButton
-              href={`/school/content/${curriculumId}/units/${unit.unit_id}/edit`}
-              size="sm"
-              variant="outline"
-              className="text-xs"
-            >
-              <Eye className="mr-1 h-3 w-3" />
-              View
-            </LinkButton>
-          )}
-        </div>
-      </td>
-    </tr>
+            })}
+          </span>
+        ) : null}
+        <span className="text-gray-400">
+          {unit.subject_name ?? unit.subject}
+        </span>
+      </div>
+
+      {/* Action buttons */}
+      <div className="flex flex-wrap items-center gap-2">
+        {canImport && (
+          <button
+            type="button"
+            onClick={() => importMutation.mutate()}
+            disabled={importMutation.isPending}
+            className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Download className="h-3 w-3" aria-hidden="true" />
+            {importMutation.isPending ? "Importing…" : "Import"}
+          </button>
+        )}
+        {noContent && (
+          <span
+            title="Content not yet generated for this unit"
+            className="inline-flex cursor-not-allowed items-center gap-1.5 rounded-md border border-gray-100 bg-gray-50 px-2.5 py-1.5 text-xs font-medium text-gray-300"
+          >
+            <Download className="h-3 w-3" aria-hidden="true" />
+            Import
+          </span>
+        )}
+        {canEdit && (
+          <LinkButton
+            href={`/school/content/${curriculumId}/units/${unit.unit_id}/edit`}
+            size="sm"
+            variant="outline"
+            className="text-xs"
+          >
+            <Pencil className="mr-1 h-3 w-3" />
+            Edit
+          </LinkButton>
+        )}
+        {canView && (
+          <LinkButton
+            href={`/school/content/${curriculumId}/units/${unit.unit_id}/edit`}
+            size="sm"
+            variant="outline"
+            className="text-xs"
+          >
+            <Eye className="mr-1 h-3 w-3" />
+            View
+          </LinkButton>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -211,6 +225,7 @@ export default function ContentUnitsPage() {
   const queryClient = useQueryClient();
 
   const [importError, setImportError] = useState<string | null>(null);
+  const [openUnitId, setOpenUnitId] = useState<string | null>(null);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["unit-status", schoolId, curriculumId],
@@ -226,8 +241,11 @@ export default function ContentUnitsPage() {
 
   const units = data?.units ?? [];
 
-  // Group by subject for section headers
+  // Group by subject — preserve current ordering pattern
   const subjects = Array.from(new Set(units.map((u) => u.subject)));
+
+  const onToggleSpine = (id: string) =>
+    setOpenUnitId((cur) => (cur === id ? null : id));
 
   return (
     <div className="max-w-5xl space-y-6 p-6">
@@ -244,7 +262,7 @@ export default function ContentUnitsPage() {
 
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <BookOpen className="h-5 w-5 text-indigo-600" />
+            <BookOpenIcon className="h-5 w-5 text-indigo-600" />
             <h1 className="text-xl font-bold text-gray-900">
               {data?.curriculum_name ?? "Curriculum Content"}
             </h1>
@@ -279,7 +297,7 @@ export default function ContentUnitsPage() {
         </div>
       )}
 
-      {/* Table */}
+      {/* Body */}
       {isLoading ? (
         <div className="space-y-3">
           {[1, 2, 3, 4, 5].map((i) => (
@@ -300,82 +318,54 @@ export default function ContentUnitsPage() {
           </p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-          <table className="min-w-full divide-y divide-gray-100">
-            <thead className="bg-gray-50">
-              <tr>
-                <th
-                  scope="col"
-                  className="py-3 pl-4 pr-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500"
-                >
-                  Unit
-                </th>
-                <th
-                  scope="col"
-                  className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500"
-                >
-                  Subject
-                </th>
-                <th
-                  scope="col"
-                  className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500"
-                >
-                  Status
-                </th>
-                <th
-                  scope="col"
-                  className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500"
-                >
-                  Version
-                </th>
-                <th
-                  scope="col"
-                  className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500"
-                >
-                  Last edited by
-                </th>
-                <th
-                  scope="col"
-                  className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500"
-                >
-                  Last edited
-                </th>
-                <th scope="col" className="relative py-3 pl-3 pr-4">
-                  <span className="sr-only">Actions</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 bg-white">
-              {subjects.map((subject) => {
-                const subjectUnits = units.filter((u) => u.subject === subject);
-                const subjectName =
-                  subjectUnits[0]?.subject_name ?? subject;
-                return (
-                  <Fragment key={`subj-${subject}`}>
-                    <tr className="bg-gray-50">
-                      <td
-                        colSpan={7}
-                        className="py-2 pl-4 pr-3 text-xs font-semibold uppercase tracking-wider text-gray-500"
-                      >
-                        {subjectName}
-                      </td>
-                    </tr>
-                    {subjectUnits.map((unit) => (
-                      <UnitRow
-                        key={unit.unit_id}
-                        unit={unit}
-                        schoolId={schoolId}
-                        curriculumId={curriculumId}
-                        adoptionId={adoptionId}
-                        onImported={handleImported}
-                      />
-                    ))}
-                  </Fragment>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        <>
+          {subjects.map((subject) => {
+            const subjectUnits = units.filter((u) => u.subject === subject);
+            const subjectName = subjectUnits[0]?.subject_name ?? subject;
+            const accent = deriveSubjectAccent(subjectName);
+            const openInSubject =
+              subjectUnits.find((u) => u.unit_id === openUnitId) ?? null;
+            return (
+              <Aisle
+                key={`aisle-subj-${subject}`}
+                subject={subjectName}
+                ariaId={`aisle-subj-${subject}`}
+                headingAccent={accent}
+              >
+                <Shelf ariaLabel={`${subjectName} units`}>
+                  {subjectUnits.map((unit) => (
+                    <BookSpine
+                      key={unit.unit_id}
+                      unitId={unit.unit_id}
+                      title={unit.title}
+                      subjectKey={subject}
+                      accentOverride={accent}
+                      dim={!unit.has_content}
+                      isOpen={openUnitId === unit.unit_id}
+                      onToggle={onToggleSpine}
+                    />
+                  ))}
+                </Shelf>
+                {openInSubject ? (
+                  <BookOpen
+                    title={openInSubject.title}
+                    subheading="Unit details"
+                    onClose={() => setOpenUnitId(null)}
+                  >
+                    <UnitDetail
+                      unit={openInSubject}
+                      schoolId={schoolId}
+                      curriculumId={curriculumId}
+                      adoptionId={adoptionId}
+                      onImported={handleImported}
+                      onError={setImportError}
+                    />
+                  </BookOpen>
+                ) : null}
+              </Aisle>
+            );
+          })}
+        </>
       )}
 
       {/* Legend */}
