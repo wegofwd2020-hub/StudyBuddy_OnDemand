@@ -1,0 +1,67 @@
+{
+  "scenario_id": "in-office-behavior",
+  "title": "Inappropriate Workplace Talk — Code of Conduct",
+  "domain": "code_of_conduct",
+  "content_source": "human_authored",
+  "characters": [
+    {
+      "id": "user1",
+      "name": "Jon Samual",
+      "org": "SmallThings.com",
+      "role_label": "IT MANAGER"
+    },
+    {
+      "id": "user2",
+      "name": "Jack Riaz",
+      "org": "SmallThings.com",
+      "role_label": "IT OPERATOR"
+    }
+  ],
+  "dialog": [
+    {
+      "speaker": "user1",
+      "text": "Did you check out the dress Jane is wearing today?"
+    },
+    {
+      "speaker": "user2",
+      "text": "Phew... any shorter and I'll take her to the beach."
+    },
+    {
+      "speaker": "user1",
+      "text": "Man, she gives me the hots."
+    }
+  ],
+  "quiz": {
+    "question": "Is this appropriate office conversation, even though no derogatory language or slurs were used?",
+    "format": "true_false",
+    "correct_answer": false,
+    "explanation": "Commenting on a colleague's attire or making suggestive remarks is inappropriate workplace behavior, regardless of whether explicit derogatory language is used. It contributes to a hostile work environment and may violate company codes of conduct as well as harassment laws."
+  },
+  "video_clips": [
+    {
+      "turn_index": 0,
+      "speaker": "user1",
+      "video_url": "/scenarios/in-office-behavior/turn0.mp4",
+      "duration_seconds": 3.1875,
+      "status": "ready"
+    },
+    {
+      "turn_index": 1,
+      "speaker": "user2",
+      "video_url": "/scenarios/in-office-behavior/turn1.mp4",
+      "duration_seconds": 2.7875,
+      "status": "ready"
+    },
+    {
+      "turn_index": 2,
+      "speaker": "user1",
+      "video_url": "/scenarios/in-office-behavior/turn2.mp4",
+      "duration_seconds": 2.575,
+      "status": "ready"
+    }
+  ],
+  "language": "en",
+  "generated_at": "2026-04-27T14:50:43.468Z",
+  "model": "human_authored",
+  "content_version": 1
+}

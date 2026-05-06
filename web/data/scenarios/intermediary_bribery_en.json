@@ -1,0 +1,78 @@
+{
+  "scenario_id": "intermediary-bribery",
+  "title": "Hiring a Local Fixer — Where's the Line?",
+  "domain": "fcpa_anti_bribery",
+  "content_source": "human_authored",
+  "characters": [
+    {
+      "id": "user1",
+      "name": "David Whitman",
+      "org": "TerraForm Equipment Co.",
+      "role_label": "VP, INTERNATIONAL SALES"
+    },
+    {
+      "id": "user2",
+      "name": "Mark Connolly",
+      "org": "Connolly Strategies",
+      "role_label": "REGIONAL CONSULTANT"
+    }
+  ],
+  "dialog": [
+    {
+      "speaker": "user1",
+      "text": "Mark, the technical proposal is solid — that's not the problem. We're up against three local players with fifteen-year incumbencies. How do we actually move the needle in the next sixty days?"
+    },
+    {
+      "speaker": "user2",
+      "text": "Look, you've got the better product, no question. What you don't have is the relationships. I've been working this region for twenty years. Give me a six percent success fee on the contract and I'll handle the local arrangements — introductions, the dinners, the small things that grease the way. You won't need to be involved in the details."
+    },
+    {
+      "speaker": "user1",
+      "text": "Six percent of a fifty-million tender is significant. What exactly does that cover? Can you give me an itemised scope?"
+    },
+    {
+      "speaker": "user2",
+      "text": "David, in this market, the people who win don't ask for invoices. Trust me. Wire the engagement fee to the Cayman entity I sent over and we'll get this done. The tender awards in eight weeks."
+    }
+  ],
+  "quiz": {
+    "question": "Is engaging this consultant under the described terms acceptable under the US Foreign Corrupt Practices Act (FCPA)?",
+    "format": "true_false",
+    "correct_answer": false,
+    "explanation": "This proposal contains multiple FCPA red flags that any compliant vendor must reject:\n\n1. **Vague scope of services** — 'introductions, dinners, the small things' with no itemised list of legitimate work product.\n2. **Percentage-of-deal commission with no fixed-fee anchor** — six percent of a $50M tender is $3M with no breakdown; this is a textbook channel for funnelling bribe payments.\n3. **Offshore payment structure** — wiring the engagement fee to a Cayman entity is a classic mechanism to obscure beneficial ownership and end-recipients.\n4. **Resistance to documentation** — 'people who win don't ask for invoices' is an explicit attempt to evade the FCPA's books-and-records provision (15 U.S.C. §78m).\n5. **Wilful-blindness invitation** — 'You won't need to be involved in the details' invites the conduct the DOJ treats as actual knowledge under the 'knew or should have known' standard (15 U.S.C. §78dd-1(f)(2)(A)).\n\nEngaging Mark on these terms exposes TerraForm to criminal FCPA liability for the consultant's conduct under the third-party-liability doctrine. Compliant practice requires: written agreement with itemised deliverables, fixed or reasonable hourly fees benchmarked to market, payments only to the contracting entity in its country of registration, anti-corruption representations and warranties, and right-to-audit provisions."
+  },
+  "video_clips": [
+    {
+      "turn_index": 0,
+      "speaker": "user1",
+      "video_url": "/scenarios/intermediary-bribery/turn0.mp4",
+      "duration_seconds": 12.775,
+      "status": "ready"
+    },
+    {
+      "turn_index": 1,
+      "speaker": "user2",
+      "video_url": "/scenarios/intermediary-bribery/turn1.mp4",
+      "duration_seconds": 21.3375,
+      "status": "ready"
+    },
+    {
+      "turn_index": 2,
+      "speaker": "user1",
+      "video_url": "/scenarios/intermediary-bribery/turn2.mp4",
+      "duration_seconds": 9.0125,
+      "status": "ready"
+    },
+    {
+      "turn_index": 3,
+      "speaker": "user2",
+      "video_url": "/scenarios/intermediary-bribery/turn3.mp4",
+      "duration_seconds": 13.8375,
+      "status": "ready"
+    }
+  ],
+  "language": "en",
+  "generated_at": "2026-05-04T12:45:00.000Z",
+  "model": "human_authored",
+  "content_version": 1
+}
