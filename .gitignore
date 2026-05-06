@@ -52,3 +52,11 @@ content_store_data/
 # Pipeline build logs
 data/*.log
 data/*.log.*
+
+# Scratch / working dirs (never commit)
+TRASH/
+TRASH-FILES.md
+backups/
+ux_test_data/
+.claire/
+.claude/worktrees/
