@@ -27,6 +27,8 @@ the decision notes become the spec and we develop from there.
 | 13 | Branding Refresh: STEM → Education Enhancement | [EPIC_13_branding_refresh.md](EPIC_13_branding_refresh.md) | 🚧 Scope locked 2026-04-21 (C+1 tagline + scoped-retrieval model); T-BR-1..5 pending execution |
 | 15 | School Curriculum Backup & Restore | [EPIC_15_backup_restore.md](EPIC_15_backup_restore.md) | ✅ Go — spec locked; ready to build BR-1 through BR-6 |
 | 16 | Public Site Redesign: School-First Marketing | [EPIC_16_public_site_redesign.md](EPIC_16_public_site_redesign.md) | 🔜 Ready to build — start 2026-05-03 (S-1 PublicNav → S-2 Landing → S-3 For Schools → S-4 About → S-5 a11y pass) |
+| 17 | Corporate L&D Fork (vs Engine-and-Wrappers) | [EPIC_17_corporate_ld_fork.md](EPIC_17_corporate_ld_fork.md) | ⏸ Contested — advisor recommends Path A (validate first via tenant_type + design-partner pilot); user picks A/B/C |
+| 18 | Corporate Compliance Scenario Catalog | [EPIC_18_corporate_scenario_catalog.md](EPIC_18_corporate_scenario_catalog.md) | 🚧 2 scenarios live (`contract-law-001`, `in-office-behavior`); 48 seed scenarios across 9 domains catalogued; Phase A coverage spike pending Epic 17 trigger |
 
 ---
 
