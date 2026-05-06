@@ -29,7 +29,7 @@ from slowapi.errors import RateLimitExceeded
 from src.core.cors import build_lan_origin_regex
 from src.core.limiter import limiter
 from src.core.middleware import AppVersionMiddleware
-from src.core.observability import CorrelationIdMiddleware
+from src.core.observability import CorrelationIdMiddleware, PrometheusMiddleware
 from src.core.observability import router as obs_router
 from src.utils.logger import get_logger
 
@@ -212,6 +212,10 @@ def _register_middleware(app: FastAPI) -> None:
         ],
         expose_headers=["X-Correlation-Id"],
     )
+    # PrometheusMiddleware registered last → innermost wrapper, closest to the
+    # handler. Measures actual handler latency without CORS preflight noise or
+    # version-check overhead in the timing.
+    app.add_middleware(PrometheusMiddleware)
 
 
 # ── Routers ───────────────────────────────────────────────────────────────────

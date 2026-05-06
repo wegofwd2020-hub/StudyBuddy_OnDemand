@@ -21,6 +21,7 @@ Metrics exported:
 
 from __future__ import annotations
 
+import time
 import uuid
 from collections.abc import Callable
 from contextvars import ContextVar
@@ -107,6 +108,43 @@ class CorrelationIdMiddleware(BaseHTTPMiddleware):
 
         response.headers["X-Correlation-Id"] = cid
         return response
+
+
+# ── Prometheus per-request middleware ────────────────────────────────────────
+
+
+class PrometheusMiddleware(BaseHTTPMiddleware):
+    """
+    Increment sb_requests_total and observe sb_request_duration_seconds for
+    every HTTP request. Path label uses the FastAPI route template
+    (e.g. "/api/v1/content/{unit_id}/lesson") so cardinality stays bounded —
+    we never label by the raw URL, which would explode the time series count.
+
+    Excludes /metrics itself (would self-spam) and /healthz (constant noise).
+    """
+
+    EXCLUDE_PATHS = frozenset({"/metrics", "/healthz", "/readyz", "/health"})
+
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+        if request.url.path in self.EXCLUDE_PATHS:
+            return await call_next(request)
+
+        start = time.perf_counter()
+        status = 500
+        try:
+            response: Response = await call_next(request)
+            status = response.status_code
+            return response
+        finally:
+            elapsed = time.perf_counter() - start
+            route = request.scope.get("route")
+            handler = "unmatched"
+            if route is not None:
+                handler = getattr(route, "path", None) or getattr(route, "name", "unmatched")
+            requests_total.labels(
+                method=request.method, path=handler, status=str(status)
+            ).inc()
+            request_duration.labels(method=request.method, path=handler).observe(elapsed)
 
 
 # ── Health + metrics router ───────────────────────────────────────────────────
