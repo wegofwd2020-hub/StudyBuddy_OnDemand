@@ -30,7 +30,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "StudyBuddy \u2014 Your bridge from lessons to a world that's always current",
+    default: "StudyBuddy \u2014 Lessons, always current",
     template: "%s | StudyBuddy",
   },
   description:

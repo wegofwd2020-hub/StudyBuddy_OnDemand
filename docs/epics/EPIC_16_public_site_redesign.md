@@ -33,7 +33,7 @@ a "Student sign-in" nav, and no clear school journey. This is the GTM gap to clo
 Every page should reflect both framings consistently:
 
 **Consumer (school admins, teachers, parents):**
-> *"Your bridge from lessons to a world that's always current."*
+> *"Lessons, always current."*
 > An AI study buddy that connects your lessons to the world — and keeps learning alongside you.
 
 **What to lead with on every school-facing surface:**
@@ -72,7 +72,7 @@ Every page should reflect both framings consistently:
 **Hero section — replace current with:**
 
 ```
-Headline:   Your bridge from lessons to a world that's always current.
+Headline:   Lessons, always current.
 Sub-head:   Give every student at your school instant AI-powered lessons,
             quizzes, and audio — aligned to your curriculum, in English,
             French, and Spanish.

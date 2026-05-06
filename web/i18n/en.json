@@ -27,7 +27,8 @@
   },
   "landing": {
     "hero_heading": "Study Buddy",
-    "hero_tagline": "Your bridge from lessons to a world that's always current.",
+    "hero_tagline": "Lessons, always current.",
+    "hero_subtagline": "AI-powered lessons, quizzes, and tutorials — your bridge from classroom to a world that won't sit still.",
     "hero_subheading": "An AI study buddy that connects your lessons to the world — and keeps learning alongside you.",
     "hero_cta_primary": "Start free trial",
     "hero_cta_secondary": "See how it works",
@@ -288,7 +289,7 @@
     "500_body": "We're working on fixing this. Please try again shortly."
   },
   "footer": {
-    "tagline": "Your bridge from lessons to a world that's always current.",
+    "tagline": "Lessons, always current.",
     "product": "Product",
     "company": "Company",
     "legal": "Legal",

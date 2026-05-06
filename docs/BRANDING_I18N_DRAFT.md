@@ -24,13 +24,13 @@ After T-BR-5 lands, the English copy will be:
 | Key | New English |
 |---|---|
 | `landing.hero_heading` | `Study Buddy` (brand name — unchanged) |
-| `landing.hero_tagline` | `Your bridge from lessons to a world that's always current.` |
+| `landing.hero_tagline` | `Lessons, always current.` |
 | `landing.hero_subheading` | `An AI study buddy that connects your lessons to the world — and keeps learning alongside you.` |
 | `landing.features_heading` | `A teacher can set their own study material using AI` (unchanged) |
 | `landing.social_proof_heading` | `Trusted by students, teachers, and parents` (unchanged) |
 | `landing.cta_heading` | `Ready to get started?` (unchanged) |
 | `landing.cta_subheading` | `Join thousands of students mastering their subjects.` (unchanged in English — was never STEM in `en.json`) |
-| `tagline` (line 291) | `Your bridge from lessons to a world that's always current.` |
+| `tagline` (line 291) | `Lessons, always current.` |
 
 All FR / ES translations below are targeted at **this** English, not the current interim copy.
 

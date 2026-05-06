@@ -17,8 +17,8 @@ in [`docs/epics/EPIC_13_branding_refresh.md`](docs/epics/EPIC_13_branding_refres
 
 ### Consumer framing — "information bridge"
 
-- **Tagline:** *"Your bridge from lessons to a world that's always current."*
-- **Sub-headline:** *"An AI study buddy that connects your lessons to the world — and keeps learning alongside you."*
+- **Tagline:** *"Lessons, always current."*
+- **Sub-headline:** *"AI-powered lessons, quizzes, and tutorials — your bridge from classroom to a world that won't sit still."*
 
 Use this framing on: landing page, emails, help-widget responses, marketing
 pages, anything user-facing for parents / students / teachers / school admins.
@@ -167,6 +167,9 @@ All documentation has moved to **[studybuddy-docs](https://github.com/wegofwd202
 | [AGENTS.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/AGENTS.md) | Conventions, layer rules, 35 pitfalls, phase-by-phase checklists |
 | [CHANGES.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/CHANGES.md) | Design decisions log and pending work items |
 | [OPERATIONS.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/OPERATIONS.md) | Runbooks, incident response, disaster recovery, deployment procedures |
+| [CLOUD_HOSTING.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/CLOUD_HOSTING.md) | Cloud-hosting shopping list — components, sizing tiers, cost ballpark, phased rollout, AWS/GCP/Azure decision matrix |
+| [OBSERVABILITY.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/OBSERVABILITY.md) | Local Grafana + Prometheus setup, instrumented metrics, dashboard generator, cardinality rules, alert roadmap |
+| [CHEATSHEET.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/CHEATSHEET.md) | Operator one-liners — dev stack, RLS-aware DB queries, password reset, demo accounts, pipeline triggers, smoke tests, Redis ops, deck regeneration |
 | [SCALABILITY.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/SCALABILITY.md) | Capacity planning, multi-region, load testing, academic year transitions, API versioning |
 | [GLOSSARY.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/GLOSSARY.md) | Acronym and term definitions for all abbreviations used across the project |
 

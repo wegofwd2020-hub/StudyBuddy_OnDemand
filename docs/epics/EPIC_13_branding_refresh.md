@@ -28,7 +28,7 @@ decision log.
 
 ### Canonical copy
 
-- **Tagline (H1):** *"Your bridge from lessons to a world that's always current."*
+- **Tagline (H1):** *"Lessons, always current."*
 - **Sub-headline:** *"An AI study buddy that connects your lessons to the world — and keeps learning alongside you."*
 
 ### Why "current" and not "today's"
@@ -215,7 +215,7 @@ Canonical tagline translations:
 three surfaces so hero, SEO metadata, and README all convey the same positioning.
 The canonical pair:
 
-- **H1:** *"Your bridge from lessons to a world that's always current."*
+- **H1:** *"Lessons, always current."*
 - **Sub:** *"An AI study buddy that connects your lessons to the world — and keeps learning alongside you."*
 
 Note: `README.md` line 3 already reads *"Backend-powered education enhancement

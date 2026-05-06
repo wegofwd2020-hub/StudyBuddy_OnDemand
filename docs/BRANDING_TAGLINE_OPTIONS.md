@@ -7,11 +7,14 @@
 > `README.md`, `CLAUDE.md`, `web/app/layout.tsx` metadata, `web/i18n/{en,fr,es}.json`,
 > `backend/src/help/service.py` system prompt, and `backend/src/email/service.py`.
 >
-> Status: **✅ DECIDED 2026-04-21** — pick is **C+1**. Execution tracked in
+> Status: **✅ DECIDED 2026-04-21 → REVISED 2026-05-06** — original pick (C+1) was
+> too long for hero presence; shortened during demo prep. Execution tracked in
 > [EPIC_13_branding_refresh.md](epics/EPIC_13_branding_refresh.md).
 >
-> **Canonical tagline:** *"Your bridge from lessons to a world that's always current."*
-> **Canonical sub-headline:** *"An AI study buddy that connects your lessons to the world — and keeps learning alongside you."*
+> **Canonical tagline (live as of 2026-05-06):** *"Lessons, always current."*
+> **Canonical sub-headline:** *"AI-powered lessons, quizzes, and tutorials — your bridge from classroom to a world that won't sit still."*
+>
+> **Previous tagline (2026-04-21 → 2026-05-05):** *"Your bridge from lessons to a world that's always current."* — preserved here for audit. The bridge metaphor moved into the sub-headline; the load-bearing word "current" is retained in the new H1. See `studybuddy-docs/docs/promos/TaglineOptions.md` for the full candidate library.
 
 ---
 
