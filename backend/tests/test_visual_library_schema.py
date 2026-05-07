@@ -1,14 +1,13 @@
 """
-Tests for migration 0056 + backend/src/visuals/library.py — issue #321 (319a).
+Tests for migrations 0056+0057 + backend/src/visuals/library.py — issue #321 (319a).
 
 Covers:
   - Schema invariants (CHECK constraints, indexes, defaults)
   - RLS policies (bypass writes; non-bypass reads non-archived only)
   - Soft-unique on s3_path among non-archived rows
   - Pydantic LibraryEntry model + library_path helpers
-
-The pgvector embedding column lands in a follow-up migration (0057);
-embedding-related queries are out of scope here.
+  - pgvector embedding column (512 dims) + ivfflat index + cosine query
+  - compute_embedding() and embedding_text_for_entry() helpers
 """
 
 from __future__ import annotations
@@ -262,3 +261,123 @@ async def test_rls_school_cannot_write(school_conn) -> None:
             "INSERT INTO visual_library_entries (kind, subject, topic_phrase, s3_path) "
             "VALUES ('image', 'physics', 'should-fail', 'visual_library/x.svg')"
         )
+
+
+# ── Embedding column (migration 0057) ────────────────────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_embedding_column_present(bypass_conn) -> None:
+    """0057 added a `vector(512)` embedding column."""
+    row = await bypass_conn.fetchrow(
+        """
+        SELECT data_type, udt_name
+        FROM information_schema.columns
+        WHERE table_name='visual_library_entries' AND column_name='embedding'
+        """
+    )
+    assert row is not None
+    assert row["udt_name"] == "vector"
+
+
+@pytest.mark.asyncio
+async def test_ivfflat_index_present(bypass_conn) -> None:
+    """0057 created an ivfflat index on the embedding column."""
+    name = await bypass_conn.fetchval(
+        "SELECT indexname FROM pg_indexes WHERE indexname='vle_embedding_ivfflat_idx'"
+    )
+    assert name == "vle_embedding_ivfflat_idx"
+
+
+@pytest.mark.asyncio
+async def test_embedding_roundtrip_and_cosine_query(bypass_conn) -> None:
+    """Insert two rows with distinct 512-d embeddings; cosine query
+    returns them ranked by similarity to a probe vector."""
+
+    # Construct two simple unit vectors that point in different directions
+    # so cosine distance between them is well-defined and nonzero.
+    e1 = [1.0] + [0.0] * 511
+    e2 = [0.0] + [1.0] + [0.0] * 510
+    probe = e1  # closer to e1 than e2
+
+    rows = []
+    for vec, slug in [(e1, "embed-rt-a.svg"), (e2, "embed-rt-b.svg")]:
+        # asyncpg can't directly bind list[float] to vector — pgvector
+        # accepts a string literal "[v1,v2,...]" cast to vector via ::vector
+        vec_lit = "[" + ",".join(f"{x:.6f}" for x in vec) + "]"
+        eid = await bypass_conn.fetchval(
+            "INSERT INTO visual_library_entries "
+            "(kind, subject, topic_phrase, s3_path, embedding) "
+            "VALUES ('image', 'physics', 'roundtrip', $1, $2::vector) "
+            "RETURNING entry_id",
+            f"visual_library/physics/{slug}",
+            vec_lit,
+        )
+        rows.append(eid)
+
+    try:
+        probe_lit = "[" + ",".join(f"{x:.6f}" for x in probe) + "]"
+        ranked = await bypass_conn.fetch(
+            """
+            SELECT entry_id, s3_path, embedding <=> $1::vector AS cosine_distance
+            FROM visual_library_entries
+            WHERE entry_id = ANY($2::uuid[])
+            ORDER BY embedding <=> $1::vector
+            """,
+            probe_lit,
+            rows,
+        )
+        assert len(ranked) == 2
+        # Probe == e1, so a is closer than b
+        assert ranked[0]["s3_path"].endswith("embed-rt-a.svg")
+        assert ranked[1]["s3_path"].endswith("embed-rt-b.svg")
+        assert ranked[0]["cosine_distance"] < ranked[1]["cosine_distance"]
+    finally:
+        await bypass_conn.execute(
+            "DELETE FROM visual_library_entries WHERE entry_id = ANY($1::uuid[])",
+            rows,
+        )
+
+
+# ── compute_embedding() / embedding_text_for_entry() ────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_compute_embedding_returns_none_without_key(monkeypatch) -> None:
+    """compute_embedding() returns None when VOYAGE_API_KEY is empty —
+    callers fall back to keyword search (or fail with a clear message)."""
+    from config import settings
+
+    from src.visuals.library import compute_embedding
+
+    monkeypatch.setattr(settings, "VOYAGE_API_KEY", "", raising=False)
+    out = await compute_embedding("projectile motion physics")
+    assert out is None
+
+
+def test_embedding_text_for_entry_shape() -> None:
+    """The canonical embedding text is `topic_phrase + " " + keywords.join(" ")`."""
+    from datetime import datetime
+
+    from src.visuals.library import embedding_text_for_entry
+
+    e = LibraryEntry(
+        entry_id="x",
+        kind="image",
+        subject="physics",
+        topic_phrase="projectile motion",
+        keywords=["projectile", "trajectory", "parabola"],
+        s3_path="visual_library/physics/projectile.svg",
+        created_at=datetime.now(UTC),
+        updated_at=datetime.now(UTC),
+    )
+    assert (
+        embedding_text_for_entry(e)
+        == "projectile motion projectile trajectory parabola"
+    )
+
+
+def test_embedding_dim_constant() -> None:
+    from src.visuals.library import EMBEDDING_DIM
+
+    assert EMBEDDING_DIM == 512

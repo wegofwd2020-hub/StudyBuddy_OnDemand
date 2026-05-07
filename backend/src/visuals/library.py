@@ -7,14 +7,15 @@ ${CONTENT_STORE_PATH}/visual_library/{subject}/{slug}.{ext} and carries
 metadata used by the pipeline resolver (#319c) to match tutorial
 sections to library entries.
 
-Public surface (this slice):
-  - LibraryEntry  Pydantic model mirroring visual_library_entries
-  - library_path(subject, slug, ext) -> str
-  - LIBRARY_PREFIX  storage-relative root for library assets
-  - SUBJECTS  closed enum of allowed subject values
-
-Out of this slice (next sub-commit of 319a):
-  - compute_embedding()  — needs pgvector + embedding column to be useful
+Public surface:
+  - LibraryEntry              Pydantic model mirroring visual_library_entries
+  - library_path()            storage-relative path for a library asset
+  - metadata_path()           sidecar metadata.yaml path
+  - compute_embedding()       async — 512-d voyage-3-lite cosine embedding
+  - embedding_text_for_entry  canonical text shape for embedding
+  - LIBRARY_PREFIX            storage-relative root for library assets
+  - EMBEDDING_DIM             int (512 — matches voyage-3-lite)
+  - SUBJECTS                  closed enum of allowed subject values
 """
 
 from __future__ import annotations
@@ -79,3 +80,45 @@ def library_path(subject: str, slug: str, ext: str) -> str:
 def metadata_path(subject: str, slug: str) -> str:
     """Sidecar metadata.yaml path for a library asset."""
     return f"{LIBRARY_PREFIX}/{subject}/{slug}.metadata.yaml"
+
+
+# ── Embedding helper ──────────────────────────────────────────────────────────
+#
+# Matches the Voyage convention from the help-retrieval pipeline (migration
+# 0040 + backend/src/help/service.py): voyage-3-lite, 512 dims, cosine.
+
+EMBEDDING_DIM = 512
+_EMBEDDING_MODEL = "voyage-3-lite"
+
+
+async def compute_embedding(text: str) -> list[float] | None:
+    """Return a 512-d cosine embedding for `text`, or None if VOYAGE_API_KEY
+    is not configured.
+
+    Caller behaviour on None:
+      - Promotion CI (#322): fail the run with a clear "VOYAGE_API_KEY
+        required for library embeddings" message.
+      - Resolver (#323): fall back to keyword/topic_phrase exact-match
+        search; semantic ranking is unavailable.
+    """
+    from config import settings
+
+    if not getattr(settings, "VOYAGE_API_KEY", None):
+        return None
+
+    import voyageai  # lazy — not required for non-library callers
+
+    client = voyageai.AsyncClient(api_key=settings.VOYAGE_API_KEY)
+    result = await client.embed(
+        [text], model=_EMBEDDING_MODEL, input_type="document"
+    )
+    return result.embeddings[0]
+
+
+def embedding_text_for_entry(entry: LibraryEntry) -> str:
+    """Canonical text passed to compute_embedding() for an entry.
+
+    Resolver in #323 will embed section content with the same shape so
+    cosine distances are comparable: topic_phrase + " " + keywords.join(" ").
+    """
+    return f"{entry.topic_phrase} {' '.join(entry.keywords)}".strip()
