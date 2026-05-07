@@ -1,6 +1,6 @@
 # StudyBuddy OnDemand — Progress Chart
 
-_Auto-generated 2026-05-06T05:17:48+00:00. Regenerated nightly at 21:00 EST._
+_Auto-generated 2026-05-07T05:20:31+00:00. Regenerated nightly at 21:00 EST._
 
 Source: `docs/epics/` (feature manifest) + `git log` (activity). Script: `scripts/generate_progress.py`.
 
@@ -20,6 +20,7 @@ gantt
     Epic 11 :done, e11, 2026-04-15, 2026-04-16
     Epic 12 :done, e12, 2026-04-29, 2026-05-01
     Epic 13 :done, e13, 2026-04-21, 2026-05-01
+    Epic 15 :done, e15, 2026-05-02, 2026-05-03
     Epic 16 :active, e16, 2026-04-15, 2026-05-03
 ```
 
@@ -40,7 +41,10 @@ gantt
 | 11 | [Content Presentation & Formatting](epics/EPIC_11_content_formatting.md) | ✅ Go — 9 questions resolved 2026-04-15 | 2026-04-15 | 2026-04-15 | 8 | 7 | C-9×2 |
 | 12 | [Teacher Content Authoring](epics/EPIC_12_teacher_content_authoring.md) | ✅ Go — all questions resolved; ready to build from TA-0 | 2026-04-29 | 2026-05-01 | 13 | 0 | — |
 | 13 | [Branding Refresh: STEM → Education Enhancement](epics/EPIC_13_branding_refresh.md) | ✅ Complete 2026-04-21 — all five tickets shipped. Minimum-scope PR #246 landed T | 2026-04-21 | 2026-05-01 | 3 | 0 | — |
+| 15 | [School Curriculum Backup & Restore](epics/EPIC_15_backup_restore.md) | ✅ Go — spec locked; ready to build BR-1 through BR-6 | 2026-05-02 | 2026-05-03 | 4 | 0 | — |
 | 16 | [Public Site Redesign: School-First Marketing Pages](epics/EPIC_16_public_site_redesign.md) | 🔜 Ready to build — start 2026-05-03 | 2026-04-15 | 2026-05-03 | 5 | 4 | S-1×2 |
+| 17 | [Corporate L&D Fork](epics/EPIC_17_corporate_ld_fork.md) |  | — | — | 0 | 0 | — |
+| 18 | [Corporate Compliance Scenario Catalog](epics/EPIC_18_corporate_scenario_catalog.md) |  | — | — | 0 | 0 | — |
 
 ## Redesign leaderboard
 
@@ -195,6 +199,13 @@ Tickets with 2+ commits — each extra commit is an iteration or rework.
 - **Ticket prefix:** `K`
 - **Commits attributed:** 3
 
+### Epic 15 — School Curriculum Backup & Restore
+
+- **Status:** ✅ Go — spec locked; ready to build BR-1 through BR-6
+- **Epic file:** [EPIC_15_backup_restore.md](epics/EPIC_15_backup_restore.md)
+- **Ticket prefix:** `—`
+- **Commits attributed:** 4
+
 ### Epic 16 — Public Site Redesign: School-First Marketing Pages
 
 - **Status:** 🔜 Ready to build — start 2026-05-03
@@ -208,4 +219,18 @@ Tickets with 2+ commits — each extra commit is an iteration or rework.
 | S-2 | 1 | 2026-04-15 | 2026-04-15 |
 | S-3 | 1 | 2026-04-15 | 2026-04-15 |
 | S-5 | 1 | 2026-05-03 | 2026-05-03 |
+
+### Epic 17 — Corporate L&D Fork
+
+- **Status:** —
+- **Epic file:** [EPIC_17_corporate_ld_fork.md](epics/EPIC_17_corporate_ld_fork.md)
+- **Ticket prefix:** `K`
+- **Commits attributed:** 0
+
+### Epic 18 — Corporate Compliance Scenario Catalog
+
+- **Status:** —
+- **Epic file:** [EPIC_18_corporate_scenario_catalog.md](epics/EPIC_18_corporate_scenario_catalog.md)
+- **Ticket prefix:** `K`
+- **Commits attributed:** 0
 
