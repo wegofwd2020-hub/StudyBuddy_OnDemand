@@ -131,6 +131,16 @@ const VISUAL_MAP: Record<string, VisualBlock[]> = {
           caption: "a = constant  →  horizontal line" },
       ],
     },
+    {
+      kind: "video",
+      heading: "Watch — the three graphs build together",
+      items: [
+        { src: "/sample-visuals/G11-PHYS-002/Kinematics_UAM.mp4",
+          alt: "Uniformly Accelerated Motion — x, v, a animation",
+          duration: "0:24",
+          caption: "Each graph is the slope of the one to its left." },
+      ],
+    },
   ],
   "G11-PHYS-002::s3": [
     {
@@ -143,6 +153,16 @@ const VISUAL_MAP: Record<string, VisualBlock[]> = {
         { src: "/sample-visuals/G11-PHYS-002/velocity-vs-time.svg",
           alt: "Velocity vs time for object thrown straight up, crossing zero at peak",
           caption: "v(t) crosses zero at the peak — the sign change is the direction reversal." },
+      ],
+    },
+    {
+      kind: "video",
+      heading: "Watch — ball thrown up at 20 m/s, with live h(t) and v(t)",
+      items: [
+        { src: "/sample-visuals/G11-PHYS-002/Kinematics_FreeFall.mp4",
+          alt: "Free fall animation with live readouts",
+          duration: "0:28",
+          caption: "Ball rises, slows, peaks at 20.4 m, returns. Live readouts for t, h, v." },
       ],
     },
   ],
@@ -166,6 +186,16 @@ const VISUAL_MAP: Record<string, VisualBlock[]> = {
         { src: "/sample-visuals/G11-PHYS-002/key-results.svg",
           alt: "Three result cards summarising time of flight, range, max height",
           caption: "Three closed-form results — symmetry of θ ↔ 90°−θ pairs gives equal range." },
+      ],
+    },
+    {
+      kind: "video",
+      heading: "Watch — projectile trajectory with live velocity vectors",
+      items: [
+        { src: "/sample-visuals/G11-PHYS-002/Kinematics_Projectile.mp4",
+          alt: "Animated projectile trajectory with live vx and vy vectors",
+          duration: "0:22",
+          caption: "vₓ stays constant; v_y shrinks to 0 at the peak, then reverses sign." },
       ],
     },
   ],
@@ -198,6 +228,16 @@ const VISUAL_MAP: Record<string, VisualBlock[]> = {
         { src: "/sample-visuals/G11-PHYS-002/slope-area-summary.svg",
           alt: "Three boxes for x, v, a connected by slope and area arrows",
           caption: "Slope moves you to the next derivative; area integrates back." },
+      ],
+    },
+    {
+      kind: "video",
+      heading: "Watch — slope-and-area in motion",
+      items: [
+        { src: "/sample-visuals/G11-PHYS-002/Kinematics_GraphAnalysis.mp4",
+          alt: "Animated slope and area construction between x-t and v-t graphs",
+          duration: "0:26",
+          caption: "Tangent sweeps along x(t) to build v(t); area sweeps under v(t) to recover Δx." },
       ],
     },
   ],

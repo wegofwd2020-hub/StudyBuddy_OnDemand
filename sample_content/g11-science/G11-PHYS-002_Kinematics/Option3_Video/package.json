@@ -1,0 +1,24 @@
+{
+  "name": "kinematics-video",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "studio": "bunx remotion studio",
+    "render:uam":          "bunx remotion render kinematics-uam            ~/Downloads/Kinematics_UAM.mp4",
+    "render:freefall":     "bunx remotion render kinematics-freefall       ~/Downloads/Kinematics_FreeFall.mp4",
+    "render:projectile":   "bunx remotion render kinematics-projectile     ~/Downloads/Kinematics_Projectile.mp4",
+    "render:graphs":       "bunx remotion render kinematics-graphs         ~/Downloads/Kinematics_GraphAnalysis.mp4",
+    "render:all": "bun run render:uam && bun run render:freefall && bun run render:projectile && bun run render:graphs"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.260",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.260",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.0",
+    "typescript": "^5.4.0"
+  }
+}
