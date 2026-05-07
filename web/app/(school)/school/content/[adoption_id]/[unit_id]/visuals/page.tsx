@@ -24,8 +24,10 @@ import {
   Trash2,
   Image as ImageIcon,
   Film,
+  FolderOpen,
 } from "lucide-react";
 import type { VisualBlock, VisualItem } from "@/lib/types/api";
+import { AssetPicker } from "@/components/visuals/AssetPicker";
 
 /**
  * /school/content/{adoption_id}/{unit_id}/visuals
@@ -226,6 +228,8 @@ function SectionEditor({
             key={bi}
             index={bi}
             block={block}
+            schoolId={schoolId}
+            unitId={unitId}
             onChange={(patch) => updateBlock(bi, patch)}
             onRemove={() => removeBlock(bi)}
           />
@@ -304,11 +308,15 @@ function SectionEditor({
 function BlockEditor({
   index,
   block,
+  schoolId,
+  unitId,
   onChange,
   onRemove,
 }: {
   index: number;
   block: VisualBlock;
+  schoolId: string;
+  unitId: string;
   onChange: (patch: Partial<VisualBlock>) => void;
   onRemove: () => void;
 }) {
@@ -394,6 +402,8 @@ function BlockEditor({
             index={ii}
             item={item}
             isVideo={isVideo}
+            schoolId={schoolId}
+            unitId={unitId}
             onChange={(patch) => updateItem(ii, patch)}
             onRemove={() => removeItem(ii)}
           />
@@ -412,15 +422,21 @@ function ItemEditor({
   index,
   item,
   isVideo,
+  schoolId,
+  unitId,
   onChange,
   onRemove,
 }: {
   index: number;
   item: VisualItem;
   isVideo: boolean;
+  schoolId: string;
+  unitId: string;
   onChange: (patch: Partial<VisualItem>) => void;
   onRemove: () => void;
 }) {
+  const [pickerFor, setPickerFor] = useState<"src" | "poster" | null>(null);
+
   return (
     <div className="rounded border border-gray-100 bg-gray-50/40 p-2">
       <div className="mb-1.5 flex items-center justify-between">
@@ -439,17 +455,40 @@ function ItemEditor({
       </div>
 
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-        <div>
+        <div className="sm:col-span-2">
           <Label htmlFor={`src-${index}`} className="text-xs">
             src <span className="text-red-500">*</span>
           </Label>
-          <Input
-            id={`src-${index}`}
-            value={item.src}
-            onChange={(e) => onChange({ src: e.target.value })}
-            placeholder="/visuals/_legacy/G11-PHYS-002/xt-uam.svg"
-            className="font-mono text-xs"
-          />
+          <div className="flex items-stretch gap-1">
+            <Input
+              id={`src-${index}`}
+              value={item.src}
+              onChange={(e) => onChange({ src: e.target.value })}
+              placeholder="/visuals/_legacy/G11-PHYS-002/xt-uam.svg"
+              className="font-mono text-xs"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                setPickerFor((p) => (p === "src" ? null : "src"))
+              }
+              className="shrink-0"
+              title="Pick from uploaded assets"
+            >
+              <FolderOpen className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+          {pickerFor === "src" && (
+            <AssetPicker
+              schoolId={schoolId}
+              unitId={unitId}
+              currentSrc={item.src}
+              onSelect={(url) => onChange({ src: url })}
+              onClose={() => setPickerFor(null)}
+            />
+          )}
         </div>
         <div>
           <Label htmlFor={`alt-${index}`} className="text-xs">
@@ -462,7 +501,7 @@ function ItemEditor({
             placeholder="x-t parabola for UAM"
           />
         </div>
-        <div className="sm:col-span-2">
+        <div>
           <Label htmlFor={`caption-${index}`} className="text-xs">
             caption (optional)
           </Label>
@@ -493,13 +532,36 @@ function ItemEditor({
               <Label htmlFor={`poster-${index}`} className="text-xs">
                 poster (optional)
               </Label>
-              <Input
-                id={`poster-${index}`}
-                value={item.poster ?? ""}
-                onChange={(e) => onChange({ poster: e.target.value })}
-                placeholder="/visuals/_legacy/.../poster.jpg"
-                className="font-mono text-xs"
-              />
+              <div className="flex items-stretch gap-1">
+                <Input
+                  id={`poster-${index}`}
+                  value={item.poster ?? ""}
+                  onChange={(e) => onChange({ poster: e.target.value })}
+                  placeholder="/visuals/_legacy/.../poster.jpg"
+                  className="font-mono text-xs"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    setPickerFor((p) => (p === "poster" ? null : "poster"))
+                  }
+                  className="shrink-0"
+                  title="Pick from uploaded assets"
+                >
+                  <FolderOpen className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+              {pickerFor === "poster" && (
+                <AssetPicker
+                  schoolId={schoolId}
+                  unitId={unitId}
+                  currentSrc={item.poster}
+                  onSelect={(url) => onChange({ poster: url })}
+                  onClose={() => setPickerFor(null)}
+                />
+              )}
             </div>
           </>
         )}
