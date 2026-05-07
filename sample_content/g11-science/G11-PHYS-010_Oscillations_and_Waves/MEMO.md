@@ -7,7 +7,7 @@
 
 - **Phase 1 (Option 2 catalogue):** ✅ 12 SVGs + 12 sidecars shipped
 - **Phase 2 (Option 3 Remotion clips):** ✅ 3 clips rendered — `Oscillations_SHM.mp4` (3.6 MB / 24 s), `Oscillations_Superposition.mp4` (8.6 MB / 26 s), `Oscillations_Doppler.mp4` (14.3 MB / 22 s)
-- **Phase 3 (eval set + library promotion):** pending
+- **Phase 3 (eval set + library promotion):** ✅ 12 sidecars promoted via `seed_library_local.py` (all with non-NULL embeddings), 3 new known-positive eval records appended (`eval-051`/`052`/`053`)
 
 ## What was repetitive (= automatable)
 
@@ -97,13 +97,45 @@ Render emits a non-blocking warning:
 
 Identical warning fires for the kinematics project too — it's a Remotion 4.0.458 vs the older deps-pin in `package.json` (`"zod": "^3.23.8"`). Output is unaffected; renders complete. **#320 fix:** when the generator emits `package.json`, pin `zod` to whatever Remotion requires at the chosen `@remotion/cli` version (currently `4.3.6` for 4.0.458). One-line fix; left in place here for parity with the kinematics exemplar.
 
+## Phase 3 reflections — eval entries + library promotion
+
+Three new known-positive eval records appended to `backend/tests/eval/visual_resolver_eval.jsonl`:
+
+| eval id | section title | expected_entry_id |
+|---|---|---|
+| `eval-051` | Mass on a Spring Oscillating in Time | `physics-shm-displacement-time` |
+| `eval-052` | Two Waves Arriving in Phase | `physics-wave-superposition-constructive` |
+| `eval-053` | Why the Siren Changes Pitch | `physics-doppler-effect-moving-source` |
+
+Each section_content was hand-authored as plausible textbook prose without keyword-stuffing, on the principle that the resolver is meant to *infer* the visual need from natural language, not match keywords. Spot-test on scope: SHM-displacement (kinematics), wave-superposition (combination), Doppler (moving-source) — three distinct primitive classes from this unit.
+
+All 12 G11-PHYS-010 sidecars seeded into `visual_library_entries` via `scripts/seed_library_local.py`. Verified: 12 rows present with `source_unit='G11-PHYS-010'`, all with non-NULL embeddings; total rows = 42, NULL-embedding rows = 0.
+
+### What was repetitive (= automatable)
+
+1. **Eval-record shape is identical across categories.** Every record has the same eight fields with the same types. The variability is the prose + the expected_entry_id. **Recommendation for #320:** when authoring a unit's eval companion, ship a small generator that takes `[(visual_id, section_title, prose), ...]` and stamps the JSONL line.
+2. **Promotion is one-shot per unit.** `seed_library_local.py` is idempotent (skips already-seeded rows). #320's per-unit pipeline can simply call it after every catalogue change without bookkeeping.
+
+### What needed human judgment (= curator-only)
+
+1. **Eval prose authoring is the hard part.** The prose has to feel like real lesson content — long enough to be ambiguous (so the resolver's LLM has to do real inference), but unambiguous enough that the expected_entry_id is genuinely the right answer. Keyword-stuffed prose makes the eval green for the wrong reason. This stays curator-only.
+2. **Choosing which sidecars to add eval coverage for.** Three of twelve in this unit; the choice was driven by (a) primitive-class diversity (one each from kinematics / interference / source-motion), and (b) which library entries are most likely to face fuzzy or synonym-driven queries in the wild ("siren pitch shift" → Doppler is a classic resolver test).
+
+### Operational gotcha (blocked Phase 3 for several minutes)
+
+The repo-root `scripts/` and `sample_content/` directories are **not** bind-mounted into the `celery-pipeline` container — only `./backend:/app` is. A prior session had `docker cp`'d a copy of repo-root scripts and sample_content to `/tmp/seed/` inside the container; that copy was stale (predated G11-PHYS-010 entirely). Running the seeder against `/tmp/seed/` silently surfaced no G11-PHYS-010 sidecars.
+
+**Fix applied:** `docker cp` the up-to-date `sample_content/g11-science/G11-PHYS-010_*`, `scripts/seed_library_local.py`, and `scripts/promote_library_metadata.py` into `/tmp/seed/` before running. Then `docker compose exec -T celery-pipeline python3 /tmp/seed/scripts/seed_library_local.py`.
+
+**Permanent fix (recommendation, not done here — out of scope for #327):** add a bind-mount for `scripts/` and `sample_content/` in `docker-compose.yml`'s `celery-pipeline` service so the seeder always reads live code. Half a line of YAML; saves the next operator the same diagnosis.
+
 ## Time budget reconciliation (issue's 2-day estimate)
 
 - Phase 1: ~2 hours hand-authoring + iteration ✅
 - Phase 2: ~45 min authoring + ~3 min render time ✅ (was estimated at 6 hours; saved ~5 hours by mirroring kinematics infra)
-- Phase 3 (eval set + library promotion + final review): ~2 hours pending
+- Phase 3: ~25 min including the docker-cp diagnosis side-trip ✅ (was estimated at 2 hours)
 
-Total realistic at completion: ~5 working hours. Wave-1 cost padding holds for the *first* unit of a primitive class; subsequent same-class units (G8-SCI-002 Waves, G12-PHYS-005 Optics) should land in 2-3 hours each on top of the now-proven primitive set.
+Total realised: ~3 hours 15 min vs. 2-day issue estimate. Wave-1 cost padding correct for the *first* unit of a primitive class; subsequent same-class units (G8-SCI-002 Waves, G12-PHYS-005 Optics) should land in 2-3 hours each on top of the now-proven Kinematics+Oscillations primitive set.
 
 ---
-*Author: broker. Updated 2026-05-07 (Phase 2 complete).*
+*Author: broker. Updated 2026-05-07 (all phases complete; #327 ready to close).*
