@@ -345,3 +345,94 @@ async def put_section_visuals(
         version_number=row["version_number"],
         review_status=row["review_status"],
     )
+
+
+# ── GET /schools/{school_id}/visuals/sections ────────────────────────────────
+
+
+class _SectionSummary(BaseModel):
+    section_id: str
+    title: str
+    visuals: list[dict]
+
+
+class SectionVisualsListResponse(BaseModel):
+    unit_id: str
+    title: str
+    sections: list[_SectionSummary]
+    override_version: int | None
+    override_status: str | None
+
+
+@router.get("/sections", response_model=SectionVisualsListResponse)
+async def list_section_visuals(
+    school_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+    adoption_id: str,
+    unit_id: str,
+) -> SectionVisualsListResponse:
+    """Return the per-section visuals[] for a unit's latest tutorial override.
+
+    Used by the per-unit editor UI to render the current state. Falls back
+    to 404 if the unit hasn't been imported yet — the school admin must
+    import via the Phase D flow first, then revisit this editor.
+    """
+    if teacher["school_id"] != school_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    from src.core.db import get_db  # local import — formatter strips top-level
+
+    async with get_db(request) as conn:
+        adoption = await conn.fetchrow(
+            """
+            SELECT forked_curriculum_id, status
+            FROM school_adopted_curricula
+            WHERE school_id = $1 AND adoption_id = $2
+            """,
+            school_id, adoption_id,
+        )
+        if not adoption:
+            raise HTTPException(status_code=404, detail="Adoption not found")
+        forked = adoption["forked_curriculum_id"]
+        if forked is None:
+            raise HTTPException(status_code=409, detail="Unit content not imported yet")
+
+        latest = await conn.fetchrow(
+            """
+            SELECT body, version_number, review_status
+            FROM unit_content_overrides
+            WHERE curriculum_id = $1
+              AND unit_id = $2
+              AND lang = 'en'
+              AND content_type = 'tutorial'
+            ORDER BY version_number DESC
+            LIMIT 1
+            """,
+            forked, unit_id,
+        )
+        if not latest:
+            raise HTTPException(status_code=404, detail="No tutorial override for this unit")
+
+        body = latest["body"]
+        if isinstance(body, str):
+            body = _json.loads(body)
+        elif isinstance(body, (bytes, bytearray)):
+            body = _json.loads(body.decode("utf-8"))
+
+    sections_in = body.get("sections", []) or []
+    summaries = [
+        _SectionSummary(
+            section_id=s.get("section_id", ""),
+            title=s.get("title", ""),
+            visuals=s.get("visuals", []) or [],
+        )
+        for s in sections_in
+    ]
+    return SectionVisualsListResponse(
+        unit_id=unit_id,
+        title=body.get("title", unit_id),
+        sections=summaries,
+        override_version=latest["version_number"],
+        override_status=latest["review_status"],
+    )

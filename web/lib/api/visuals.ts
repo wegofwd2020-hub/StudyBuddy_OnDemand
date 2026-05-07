@@ -5,6 +5,7 @@
  * All calls auth via the school-portal Axios instance (sb_teacher_token).
  */
 import schoolApi from "./school-client";
+import type { VisualBlock } from "@/lib/types/api";
 
 export interface VisualAsset {
   path: string;
@@ -60,4 +61,59 @@ export async function deleteVisual(
   // axios's serializer keeps the slashes intact when we hand-build the URL.
   const url = `/schools/${schoolId}/visuals/${assetPath}`;
   await schoolApi.delete(url);
+}
+
+// ── Per-unit visual editor (issue #318 phase 2c-3) ─────────────────────────
+
+export interface SectionSummary {
+  section_id: string;
+  title: string;
+  visuals: VisualBlock[];
+}
+
+export interface SectionVisualsListResponse {
+  unit_id: string;
+  title: string;
+  sections: SectionSummary[];
+  override_version: number | null;
+  override_status: string | null;
+}
+
+export interface SectionVisualsUpdateResponse {
+  override_id: string;
+  version_number: number;
+  review_status: string;
+}
+
+export async function listSectionVisuals(
+  schoolId: string,
+  adoptionId: string,
+  unitId: string,
+): Promise<SectionVisualsListResponse> {
+  const res = await schoolApi.get<SectionVisualsListResponse>(
+    `/schools/${schoolId}/visuals/sections`,
+    { params: { adoption_id: adoptionId, unit_id: unitId } },
+  );
+  return res.data;
+}
+
+export async function putSectionVisuals(
+  schoolId: string,
+  payload: {
+    adoptionId: string;
+    unitId: string;
+    sectionId: string;
+    visuals: VisualBlock[];
+  },
+): Promise<SectionVisualsUpdateResponse> {
+  const res = await schoolApi.put<SectionVisualsUpdateResponse>(
+    `/schools/${schoolId}/visuals/sections`,
+    {
+      adoption_id: payload.adoptionId,
+      unit_id: payload.unitId,
+      section_id: payload.sectionId,
+      visuals: payload.visuals,
+    },
+  );
+  return res.data;
 }
