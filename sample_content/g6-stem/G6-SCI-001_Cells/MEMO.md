@@ -11,7 +11,7 @@
 ## Status
 
 - **Phase 1 (Option 2 catalogue):** ✅ 10 SVGs + 10 sidecars shipped
-- **Phase 2 (eval set + library promotion):** pending
+- **Phase 2 (eval set + library promotion):** ✅ 10 sidecars promoted (all with non-NULL embeddings); 3 new known-positive eval records appended (`eval-060` / `061` / `062`)
 
 ## Phase 1 reflections — Option 2 catalogue
 
@@ -73,9 +73,51 @@ This catalogue is fully code-renderable, but I want to flag a *category* that fu
 
 2. **Visual organicism > geometric precision.** The animal cell SVG places three mitochondria at hand-tuned angles (`-20°`, `35°`, `-50°`) so they look organically scattered, not geometrically arranged. This is *deliberate visual variation* — the LLM tends to produce evenly-spaced regular layouts, which look wrong for biology. **Recommendation for #320 templates:** when a biology figure asks for "N organelles", randomise their positions/angles within bounds rather than gridding them.
 
-### Time budget
+### Time budget (Phase 1)
 
 Phase 1: ~50 minutes (helper toolkit + 10 figure functions + sidecar specs + biology-palette setup). The figures themselves were less geometric and more *artistic* than physics or chemistry — more time spent eyeballing visual feel, less on math.
 
+## Phase 2 reflections — eval entries + library promotion
+
+Three new known-positive eval records appended to `backend/tests/eval/visual_resolver_eval.jsonl`:
+
+| eval id | section title | expected_entry_id |
+|---|---|---|
+| `eval-060` | What's Inside an Animal Cell | `biology-animal-cell-labeled` |
+| `eval-061` | Inside the Cell's Power Bean | `biology-mitochondrion-anatomy` |
+| `eval-062` | How Big Are All the Tiny Things | `biology-cell-size-scale-chart` |
+
+Choices were driven by primitive-class diversity: one whole-cell anatomy chart, one organelle close-up, one scale/conceptual visual. Each section's prose deliberately avoids the words "animal cell", "mitochondrion", or "logarithmic scale" — instead the prose describes what the *student would see* (a bean-shaped structure with two skins; a horizontal line where each step is ten times the previous). The resolver should win on what-the-visual-looks-like, not name-matching.
+
+All 10 G6-SCI-001 sidecars seeded into `visual_library_entries` via `scripts/seed_library_local.py` (run inside celery-pipeline after the docker-cp step from #339's gotcha). Verified: 10 rows present with `source_unit='G6-SCI-001'`, all with non-NULL embeddings; total rows = 75, NULL-embedding rows = 0.
+
+### What was repetitive (= templatable)
+
+The Phase 2 (here-Phase 3-equivalent) workflow is now **identical across four units** (#327, #328, #329, #330):
+
+1. Append eval records → validate JSON
+2. `docker cp sample_content/<unit_dir>` into `/tmp/seed/sample_content/`
+3. Run `python3 /tmp/seed/scripts/seed_library_local.py`
+4. SELECT verify rows + embeddings
+
+This is the **fourth proof point** for #339's bind-mount fix. At this point the manual docker-cp dance has consumed ~5 minutes per unit × 4 units = 20 minutes of pure ceremony that a one-line YAML change would have eliminated. The fix is overdue.
+
+### What needed human judgment
+
+Same as in prior units — eval prose authoring stays curator-only. New pattern observed this run:
+
+- **"Show before tell" prose alignment.** The biology eval prose deliberately runs "imagine you'd see X / a roundish dark patch off to one side" before any organelle is named. This forces the resolver-LLM to identify the visual from its *appearance* not its label. The Rutherford eval (#057) used the same pattern with "small positively-charged particles", as did the SHM eval (#051) with "traces out a perfect cosine curve in time". Across three subjects this prose-style consistently maps to known-positive resolver hits — worth promoting to the canonical eval-prose template.
+
+- **G6-friendly framings stay inside the prose.** "The brain of the operation" (nucleus), "power bean" (mitochondrion), "stack of curved plates" (Golgi). G6-level metaphors. Resolver still hits the right entry — the embedding model is robust to friendly paraphrasing.
+
+## Time budget summary
+
+| Phase | Issue estimate | Actual |
+|---|---|---|
+| Phase 1 | ~1 day | ~50 min |
+| Phase 2 | ~1 day (rolled in) | ~15 min |
+
+Total: ~1 h 5 m vs. 2-day issue estimate. **Smallest wall-clock yet** for a first-of-class generator-building unit (#327 was 3h 15m, #329 was 1h 45m). The savings come from no Remotion phase: the issue's "no animation" call removed an entire build step that's normally 30–45 minutes for a primitive class. Future units that genuinely don't need motion (anatomy, table-driven concept maps, side-by-side comparisons) should explicitly opt out — the time saving is real.
+
 ---
-*Author: broker. Updated 2026-05-07 (Phase 1 complete).*
+*Author: broker. Updated 2026-05-07 (all phases complete; #330 ready to close).*
