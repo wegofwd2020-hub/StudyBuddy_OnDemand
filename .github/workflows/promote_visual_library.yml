@@ -1,0 +1,113 @@
+name: Promote Visual Library
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "sample_content/**/Option2_Catalogue/**/*.metadata.yaml"
+      - "sample_content/**/Option2_Catalogue/**/*.metadata.yml"
+      - "sample_content/**/Option2_Catalogue/**/*.svg"
+      - "sample_content/**/Option2_Catalogue/**/*.png"
+      - "sample_content/**/Option2_Catalogue/**/*.jpg"
+      - "sample_content/**/Option2_Catalogue/**/*.jpeg"
+      - "sample_content/**/Option2_Catalogue/**/*.webp"
+      - "sample_content/**/Option2_Catalogue/**/*.mp4"
+      - "sample_content/**/Option2_Catalogue/**/*.webm"
+      - "scripts/promote_library_metadata.py"
+      - "scripts/validate_library_metadata.ts"
+      - ".github/workflows/promote_visual_library.yml"
+
+  # Manual dispatch — useful for the first run that backfills the
+  # 30 already-merged sidecars, and for any out-of-band re-promotion.
+  workflow_dispatch:
+    inputs:
+      glob:
+        description: "Sidecar glob to promote (default: all)"
+        required: false
+        default: "sample_content/**/Option2_Catalogue/**/*.metadata.yaml"
+
+# Required secrets (configure under Settings → Secrets and variables → Actions):
+#   AWS_ACCESS_KEY_ID
+#   AWS_SECRET_ACCESS_KEY
+#   AWS_REGION                  (e.g. us-east-1)
+#   VISUAL_STORAGE_S3_BUCKET
+#   VISUAL_STORAGE_S3_PREFIX    (defaults to "visuals" if absent)
+#   VOYAGE_API_KEY
+#   DATABASE_URL                (postgresql://... — must be reachable from runner)
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout (with prev commit for diff)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install boto3 asyncpg voyageai
+
+      - name: Determine changed sidecars
+        id: changed
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            # Manual run — promote everything matching the input glob.
+            FILES=$(bash -c 'shopt -s globstar; ls -1 ${{ github.event.inputs.glob }} 2>/dev/null || true')
+          else
+            # Push — diff against parent commit, filter to *.metadata.yaml.
+            FILES=$(git diff --name-only --diff-filter=AM \
+                ${{ github.event.before }} ${{ github.sha }} \
+                | grep -E 'Option2_Catalogue/.*\.metadata\.ya?ml$' || true)
+          fi
+          if [[ -z "$FILES" ]]; then
+            echo "No sidecars to promote."
+            echo "files=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "Changed sidecars:"
+          echo "$FILES"
+          # Squash to a single space-separated line for downstream steps
+          {
+            echo "files<<EOF"
+            echo "$FILES"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Validate sidecars
+        if: steps.changed.outputs.files != ''
+        run: |
+          # Read newline-separated list back into args
+          mapfile -t FILES <<< "${{ steps.changed.outputs.files }}"
+          bun scripts/validate_library_metadata.ts "${FILES[@]}"
+
+      - name: Promote sidecars (upload + embed + UPSERT)
+        if: steps.changed.outputs.files != ''
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          VISUAL_STORAGE_S3_BUCKET: ${{ secrets.VISUAL_STORAGE_S3_BUCKET }}
+          VISUAL_STORAGE_S3_PREFIX: ${{ secrets.VISUAL_STORAGE_S3_PREFIX }}
+          VOYAGE_API_KEY: ${{ secrets.VOYAGE_API_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          mapfile -t FILES <<< "${{ steps.changed.outputs.files }}"
+          python3 scripts/promote_library_metadata.py "${FILES[@]}"
+
+      - name: Skip notice
+        if: steps.changed.outputs.files == ''
+        run: echo "No sidecars changed — nothing to promote."
