@@ -6,7 +6,7 @@
 ## Status
 
 - **Phase 1 (Option 2 catalogue):** ✅ 12 SVGs + 12 sidecars shipped
-- **Phase 2 (Option 3 Remotion clips):** pending — SHM, wave superposition, Doppler
+- **Phase 2 (Option 3 Remotion clips):** ✅ 3 clips rendered — `Oscillations_SHM.mp4` (3.6 MB / 24 s), `Oscillations_Superposition.mp4` (8.6 MB / 26 s), `Oscillations_Doppler.mp4` (14.3 MB / 22 s)
 - **Phase 3 (eval set + library promotion):** pending
 
 ## What was repetitive (= automatable)
@@ -58,13 +58,52 @@ This is well below the per-unit cost ceiling. **Code-gen is economically obvious
 3. **Doppler-wavefront / wave-source template** is more niche; ship after the bulk-template work.
 4. The Kinematics templates carry over directly. **Conjecture: most G11/G12 physics units will fit on top of the Kinematics+Oscillations template set.** Verifiable when we ship #335 (G8-SCI-002 Waves) and #336 (G12-PHYS-005 Optics).
 
+## Phase 2 reflections — Remotion clips
+
+The three clips ship from a project that mirrors `G11-PHYS-002_Kinematics/Option3_Video/` verbatim for `theme.ts`, `plot.tsx`, `Root.tsx`, `index.ts`, `package.json`, `tsconfig.json`, and `remotion.config.ts`. The only meaningfully new code lives in `src/scenes/{ShmScene,WaveSuperpositionScene,DopplerScene}.tsx`. Confirms the conjecture from Phase 1 that the kinematics template set carries.
+
+### What was repetitive (= templatable for #320)
+
+1. **The whole infra layer is boilerplate.** `package.json` (dep set + render scripts), `tsconfig.json`, `remotion.config.ts`, `theme.ts`, `plot.tsx`, `index.ts` are byte-for-byte mechanical from one unit to the next. Only `Root.tsx` is per-unit (composition list + durations). **Recommendation for #320:** a single generator `pipeline/visual_templates/remotion_project.ts` that takes `{slug, scenes: [{id, durationSec, component}]}` and stamps the entire infra. Per-unit human work shrinks to writing the scenes.
+
+2. **Title + subtitle fade-in pattern is identical in every scene.** `titleScale = spring(...)`, `titleOp = interpolate([0,30], [0,1])`, `subOp = interpolate([20,60], [0,1])`. Three call sites in three scenes, byte-identical. **Recommendation:** extract a `<SceneTitle title={..} subtitle={..} />` component into a shared `src/components/`. Reduces per-scene LoC ~25.
+
+3. **Stacked-plot layout** (used in WaveSuperpositionScene — three SVGs stacked) reuses the Phase-1 stacked-plots primitive directly. Same `makePlot()` shape, same Plot-frame call. **#320 carries the kinematics+oscillations primitives without modification.**
+
+4. **Reveal-fraction phase plotting** (used in ShmScene — `buildPath(plot, fn, range, reveal)`) is the same pattern as kinematics' x(t)/v(t)/a(t) reveal. The math function changes (`A cos(ωt)` instead of `2t + t²`); the rendering loop is identical.
+
+### What needed human judgment (= curator-only)
+
+1. **ShmScene spring drawing.** The zigzag spring (`springPath()` helper inside the scene) is a small piece of coordinate geometry — N coils between (x0, y) and (x1, y) with alternating ±amp triangles — that is trivially correct once you sketch it but mildly fiddly to write. **Recommendation:** ship a `<Spring fromX endX y coils amp />` primitive in shared components; very reusable (other oscillator units, Hooke's law diagrams, mechanical-energy clips will all want it).
+
+2. **DopplerScene wavefront accumulation.** The active-frame loop `for (let n = 0; n <= lastEmissionN; n++) { ... wavefronts.push(...) }` requires the author to think about *what's emitted vs what's still on screen*. Specifically: source position at emission time `te`, wavefront radius growing as `c·(t−te)`, and the off-canvas cull. Templatable as `<MovingSourceWavefronts vs cs Ttick xStart yBaseline />`, but the LLM needs to be told the formulae explicitly — it cannot infer them from the section text. **Recommendation:** ship as a parameterised primitive with the physics encoded; LLM tunes the visual constants only.
+
+3. **WaveSuperpositionScene phase-difference sweep.** The decision to sweep `φ(t) = 2π·t / T_sweep` continuously instead of switching between fixed-phase frames is a pedagogical call: it gives one continuous clip showing the full constructive→destructive→constructive cycle, plus an in-frame caption that names the regime currently visible. The "regime threshold" logic (sum is constructive when phase < π/4 from 0 mod 2π, destructive when within π/4 of π) is hand-tuned for visual feel. **Recommendation:** keep as a hand-authored authoring choice; don't generalise.
+
+### What fell outside code-gen entirely
+
+Nothing in this Phase-2 clip set. The video pipeline is fully code-renderable. No live-action footage, no photographs.
+
+### Time budget reconciliation (Phase 2 alone)
+
+Estimated 6 hours in the Phase 1 memo. **Actual: ~45 minutes of authoring + 3 minutes of total render time + bun install.** The big saver was that the kinematics infra mirrored cleanly — the only original code is the three scenes (~120, ~110, ~140 LoC respectively, all with hand-authored physics). The "6 hours" estimate assumed authoring infra from scratch.
+
+This compresses #327's full 2-day estimate to about half a day if Phase 3 follows the same pattern (the seeder is shrink-wrapped; only the eval JSONL records are author-time).
+
+### Known papercut — zod version mismatch warning
+
+Render emits a non-blocking warning:
+> `zod: installed 3.25.76, required 4.3.6`
+
+Identical warning fires for the kinematics project too — it's a Remotion 4.0.458 vs the older deps-pin in `package.json` (`"zod": "^3.23.8"`). Output is unaffected; renders complete. **#320 fix:** when the generator emits `package.json`, pin `zod` to whatever Remotion requires at the chosen `@remotion/cli` version (currently `4.3.6` for 4.0.458). One-line fix; left in place here for parity with the kinematics exemplar.
+
 ## Time budget reconciliation (issue's 2-day estimate)
 
-- Phase 1 (this commit): ~2 hours hand-authoring + iteration
-- Phase 2 (Remotion clips): ~6 hours expected — three clips with `useCurrentFrame()` driving SHM, superposition, and Doppler
-- Phase 3 (eval set + library promotion + final review): ~2 hours
+- Phase 1: ~2 hours hand-authoring + iteration ✅
+- Phase 2: ~45 min authoring + ~3 min render time ✅ (was estimated at 6 hours; saved ~5 hours by mirroring kinematics infra)
+- Phase 3 (eval set + library promotion + final review): ~2 hours pending
 
-Total realistic: ~10 hours = ~1.5 working days, beating the 2-day estimate. Wave 1 cost padding looks correct.
+Total realistic at completion: ~5 working hours. Wave-1 cost padding holds for the *first* unit of a primitive class; subsequent same-class units (G8-SCI-002 Waves, G12-PHYS-005 Optics) should land in 2-3 hours each on top of the now-proven primitive set.
 
 ---
-*Author: broker. Updated 2026-05-07 (Phase 1 complete).*
+*Author: broker. Updated 2026-05-07 (Phase 2 complete).*

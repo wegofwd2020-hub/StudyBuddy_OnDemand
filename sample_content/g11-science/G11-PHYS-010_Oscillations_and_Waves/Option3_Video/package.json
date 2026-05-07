@@ -1,0 +1,23 @@
+{
+  "name": "oscillations-and-waves-video",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "studio": "bunx remotion studio",
+    "render:shm":           "bunx remotion render oscillations-shm           ~/Downloads/Oscillations_SHM.mp4",
+    "render:superposition": "bunx remotion render oscillations-superposition ~/Downloads/Oscillations_Superposition.mp4",
+    "render:doppler":       "bunx remotion render oscillations-doppler       ~/Downloads/Oscillations_Doppler.mp4",
+    "render:all": "bun run render:shm && bun run render:superposition && bun run render:doppler"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.260",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.260",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.0",
+    "typescript": "^5.4.0"
+  }
+}
