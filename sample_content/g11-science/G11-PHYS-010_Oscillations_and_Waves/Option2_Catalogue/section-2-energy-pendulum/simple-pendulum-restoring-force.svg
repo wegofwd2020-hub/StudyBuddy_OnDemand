@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 380" width="460" height="380" role="img" aria-label="Simple pendulum forces">
+  <title>Simple pendulum forces</title>
+  <desc>A pendulum bob displaced by angle theta with weight mg, tension T, and the tangential restoring component -mg sin theta annotated.</desc>
+<defs>
+    <marker id="arrR" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M 0 0 L 8 4 L 0 8 z" fill="#dc2626" />
+    </marker>
+    <marker id="arrG" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M 0 0 L 8 4 L 0 8 z" fill="#15803d" />
+    </marker>
+    <marker id="arrT" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M 0 0 L 8 4 L 0 8 z" fill="#319795" />
+    </marker>
+  </defs>
+<text x="230" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Simple pendulum: restoring force = -mg sin θ</text>
+<line x1="230" y1="60" x2="230" y2="330" stroke="#4a5568" stroke-width="1" stroke-dasharray="3 4" />
+<line x1="230" y1="60" x2="333.28" y2="254.25" stroke="#1a202c" stroke-width="2" />
+<circle cx="230" cy="60" r="5" fill="#1a202c" />
+<line x1="200" y1="55" x2="260" y2="55" stroke="#1a202c" stroke-width="2" />
+<circle cx="333.28" cy="254.25" r="20" fill="#2b6cb0" stroke="#1a202c" stroke-width="1.5" />
+<path d="M 230 110 A 50 50 0 0 0 253.47 104.15" fill="none" stroke="#dd6b20" stroke-width="1.5" />
+<text x="244" y="126" font="12px system-ui" font-size="12" font-style="italic" fill="#dd6b20">θ</text>
+<line x1="333.28" y1="254.25" x2="333.28" y2="344.25" stroke="#dc2626" stroke-width="2" marker-end="url(#arrR)" />
+<text x="341.28" y="303.25" font="12px system-ui" font-size="12" fill="#dc2626">mg</text>
+<line x1="333.28" y1="254.25" x2="295.98" y2="274.08" stroke="#15803d" stroke-width="2.5" marker-end="url(#arrG)" />
+<text x="259.98" y="268.08" font="12px system-ui" font-size="12" font-weight="600" fill="#15803d">−mg sin θ</text>
+<line x1="333.28" y1="254.25" x2="305.12" y2="201.27" stroke="#319795" stroke-width="2" marker-end="url(#arrT)" />
+<text x="311.12" y="197.27" font="12px system-ui" font-size="12" fill="#319795">T</text>
+</svg>
