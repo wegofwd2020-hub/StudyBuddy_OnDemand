@@ -7,7 +7,7 @@
 
 - **Phase 1 (Option 2 catalogue):** ✅ 13 SVGs + 13 sidecars shipped
 - **Phase 2 (Option 3 Remotion clips):** ✅ 2 clips rendered — `StructureOfAtom_BohrTransition.mp4` (2.1 MB / 24 s), `StructureOfAtom_ElectronFill.mp4` (1.8 MB / 24 s)
-- **Phase 3 (eval set + library promotion):** pending
+- **Phase 3 (eval set + library promotion):** ✅ 13 sidecars promoted (all with non-NULL embeddings); 3 new known-positive eval records appended (`eval-057` / `058` / `059`)
 
 ## Phase 1 reflections — Option 2 catalogue
 
@@ -102,15 +102,49 @@ Nothing in this clip set. Pure 2D animations + math.
 
 Estimated half-of-2-days-roughly = ~1 day; **actual: ~40 minutes authoring + ~3 minutes render time**. The infra-mirror-from-prior-units pattern continues to compress wall time. The new content is the two scene files (~285 LoC for Bohr, ~265 LoC for ElectronFill) plus a small theme.ts addition for the chemistry particle palette.
 
+## Phase 3 reflections — eval entries + library promotion
+
+Three new known-positive eval records appended to `backend/tests/eval/visual_resolver_eval.jsonl`:
+
+| eval id | section title | expected_entry_id |
+|---|---|---|
+| `eval-057` | Firing Particles at a Gold Sheet | `chemistry-rutherford-gold-foil` |
+| `eval-058` | Three Perpendicular Dumbbell Orbitals | `chemistry-p-orbitals-three-dumbbells` |
+| `eval-059` | The Diagonal Rule for Filling Subshells | `chemistry-aufbau-diagonal-filling-order` |
+
+Choices were driven by primitive-class diversity: one experimental-apparatus diagram (Rutherford), one orbital-shape figure (p), one rule/algorithm visual (Aufbau diagonal). Each prose entry is plausible textbook content without keyword-stuffing — none of them use the words "Rutherford", "p-orbital", or "Aufbau" verbatim. The resolver should recognise:
+- "small positively-charged particles at a sheet of gold" → Rutherford
+- "pair of opposing lobes... three of these dumbbell shapes" → p-orbitals
+- "sweep diagonally from upper-right toward lower-left" → Aufbau diagonal rule
+
+All 13 G11-CHEM-002 sidecars seeded into `visual_library_entries` via `scripts/seed_library_local.py` (run inside celery-pipeline after the docker-cp step from #339's gotcha). Verified: 13 rows present with `source_unit='G11-CHEM-002'`, all with non-NULL embeddings; total rows = 65, NULL-embedding rows = 0.
+
+### What was repetitive (= templatable)
+
+The Phase 3 workflow is now **identical across three units** (#327, #328, #329):
+1. Append eval records → validate JSON
+2. `docker cp sample_content/<unit_dir>` into `/tmp/seed/sample_content/`
+3. Run `python3 /tmp/seed/scripts/seed_library_local.py`
+4. SELECT verify rows + embeddings
+
+This is the third proof point for the bind-mount fix in #339. The recommended permanent fix (mount `scripts/` and `sample_content/` as read-only inside celery-pipeline) would collapse steps 2-3 into a single command and remove the snapshot-staleness class of failures entirely.
+
+### What needed human judgment
+
+Same as in #327 and #328 — eval prose authoring stays curator-only. Two patterns reinforced this run:
+
+- **Period-detail anchors recognition.** "In the early 1900s a famous tabletop experiment fired a stream of small positively-charged particles..." — the "early 1900s" + "tabletop experiment" + "small positively-charged particles" combination uniquely identifies Rutherford even without naming him. The resolver picks up these compound anchors better than any single keyword would.
+- **Procedural prose works for rule visuals.** The Aufbau record describes the diagonal sweep step-by-step ("sweep diagonally from upper-right toward lower-left, picking off subshells in that diagonal order") — the prose mirrors what the diagram does, which is exactly the alignment that maximises resolver hit-rate.
+
 ## Time budget summary
 
 | Phase | Issue estimate | Actual |
 |---|---|---|
 | Phase 1 | ~1 day | ~50 min |
 | Phase 2 | ~0.5 day | ~40 min |
-| Phase 3 | (rolled into 2 d) | pending |
+| Phase 3 | (rolled into 2 d) | ~15 min |
 
-This is the **first chemistry primitive class**, so naïvely it should track #327 (~3h 15m for the first oscillations unit). Tracking comparable so far. Subsequent same-class chemistry units (G7-SCI-001 atoms, G12-CHEM-004 transition metals) should land in <30% of this unit's time once #320 lifts the orbital + Bohr + spin-arrow primitives into shared templates.
+Total realised: ~1 h 45 m vs. 2-day issue estimate. Compared to #327 (~3 h 15 m for the first oscillations unit) — this first chemistry primitive class came in at ~54% of #327's time, despite being a fresh primitive class. The reason: helper-toolkit reuse (svgWrap, write, makePlot conventions) and Phase 3 workflow reuse, even though every single visual primitive was new. Same-class chemistry downstream units (G7-SCI-001, G12-CHEM-004) should land in <30% of this unit's time once #320 lifts the orbital / Bohr / spin-arrow primitives into shared templates.
 
 ---
-*Author: broker. Updated 2026-05-07 (Phase 2 complete).*
+*Author: broker. Updated 2026-05-07 (all phases complete; #329 ready to close).*
