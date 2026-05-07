@@ -24,6 +24,7 @@ import {
   Library,
   Archive,
   HardDrive,
+  Images,
   DoorOpen,
   LayoutGrid,
   ClipboardCheck,
@@ -109,6 +110,12 @@ const NAV_ITEMS: NavItem[] = [
     label: "Storage",
     href: "/school/storage",
     icon: <HardDrive className="h-4 w-4" />,
+    adminOnly: true,
+  },
+  {
+    label: "Visual Library",
+    href: "/school/visuals",
+    icon: <Images className="h-4 w-4" />,
     adminOnly: true,
   },
   {
