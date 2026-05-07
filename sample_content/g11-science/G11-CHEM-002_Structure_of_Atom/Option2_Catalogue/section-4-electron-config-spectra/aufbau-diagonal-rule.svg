@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 360" width="480" height="360" role="img" aria-label="Aufbau diagonal filling order">
+  <title>Aufbau diagonal filling order</title>
+  <desc>A grid of orbital labels arranged by row (n = 1..7) and column (s, p, d, f). Diagonal red arrows sweep through the cells from top-left toward bottom-right indicating the Aufbau filling order: 1s, 2s, 2p, 3s, 3p, 4s, 3d, 4p, 5s, ...</desc>
+  
+  <text x="240" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Aufbau — Diagonal Filling Order</text>
+  <text x="240" y="40" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Fill orbitals in diagonal sweeps: 1s → 2s → 2p → 3s → 3p → 4s → 3d → 4p → 5s ...</text>
+
+  <text x="70" y="58" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#4a5568" text-anchor="middle">s</text>
+  <text x="150" y="58" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#4a5568" text-anchor="middle">p</text>
+  <text x="230" y="58" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#4a5568" text-anchor="middle">d</text>
+  <text x="310" y="58" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#4a5568" text-anchor="middle">f</text>
+
+    <rect x="60" y="56" width="60" height="28" rx="4" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1.5" />
+    <text x="90" y="75" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">1s</text>
+    <rect x="60" y="94" width="60" height="28" rx="4" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1.5" />
+    <text x="90" y="113" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">2s</text>
+    <rect x="140" y="94" width="60" height="28" rx="4" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1.5" />
+    <text x="170" y="113" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">2p</text>
+    <rect x="60" y="132" width="60" height="28" rx="4" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1.5" />
+    <text x="90" y="151" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">3s</text>
+    <rect x="140" y="132" width="60" height="28" rx="4" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1.5" />
+    <text x="170" y="151" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">3p</text>
+    <rect x="220" y="132" width="60" height="28" rx="4" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1.5" />
+    <text x="250" y="151" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">3d</text>
+    <rect x="60" y="170" width="60" height="28" rx="4" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1.5" />
+    <text x="90" y="189" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">4s</text>
+    <rect x="140" y="170" width="60" height="28" rx="4" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1.5" />
+    <text x="170" y="189" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">4p</text>
+    <rect x="220" y="170" width="60" height="28" rx="4" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1.5" />
+    <text x="250" y="189" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">4d</text>
+    <rect x="300" y="170" width="60" height="28" rx="4" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1.5" />
+    <text x="330" y="189" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">4f</text>
+    <rect x="60" y="208" width="60" height="28" rx="4" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1.5" />
+    <text x="90" y="227" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">5s</text>
+    <rect x="140" y="208" width="60" height="28" rx="4" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1.5" />
+    <text x="170" y="227" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">5p</text>
+    <rect x="220" y="208" width="60" height="28" rx="4" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1.5" />
+    <text x="250" y="227" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">5d</text>
+    <rect x="300" y="208" width="60" height="28" rx="4" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1.5" />
+    <text x="330" y="227" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">5f</text>
+    <rect x="60" y="246" width="60" height="28" rx="4" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1.5" />
+    <text x="90" y="265" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">6s</text>
+    <rect x="140" y="246" width="60" height="28" rx="4" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1.5" />
+    <text x="170" y="265" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">6p</text>
+    <rect x="220" y="246" width="60" height="28" rx="4" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1.5" />
+    <text x="250" y="265" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">6d</text>
+    <rect x="60" y="284" width="60" height="28" rx="4" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1.5" />
+    <text x="90" y="303" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">7s</text>
+    <rect x="140" y="284" width="60" height="28" rx="4" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1.5" />
+    <text x="170" y="303" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">7p</text><defs><marker id="aufbau-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626" /></marker></defs><line x1="170" y1="104" x2="90" y2="150" stroke="#dc2626" stroke-width="1.5" marker-end="url(#aufbau-arr)" opacity="0.75" /><line x1="170" y1="142" x2="90" y2="188" stroke="#dc2626" stroke-width="1.5" marker-end="url(#aufbau-arr)" opacity="0.75" /><line x1="250" y1="142" x2="90" y2="226" stroke="#dc2626" stroke-width="1.5" marker-end="url(#aufbau-arr)" opacity="0.75" /><line x1="250" y1="180" x2="90" y2="264" stroke="#dc2626" stroke-width="1.5" marker-end="url(#aufbau-arr)" opacity="0.75" /><line x1="330" y1="180" x2="90" y2="302" stroke="#dc2626" stroke-width="1.5" marker-end="url(#aufbau-arr)" opacity="0.75" /><line x1="330" y1="218" x2="170" y2="302" stroke="#dc2626" stroke-width="1.5" marker-end="url(#aufbau-arr)" opacity="0.75" />
+  <text x="240" y="340" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Diagonal arrows indicate the order; each arrow's start is the next orbital to fill after the previous one ended.</text>
+
+</svg>

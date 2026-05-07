@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 280" width="480" height="280" role="img" aria-label="Thomson plum-pudding model">
+  <title>Thomson plum-pudding model</title>
+  <desc>A diffuse positive sphere with eight small negative electrons embedded throughout, illustrating Thomson's 1904 plum-pudding model of the atom.</desc>
+  
+  <text x="240" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Thomson's "Plum-Pudding" Model (1904)</text>
+  <text x="240" y="40" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">A diffuse positive sphere with electrons embedded throughout, like raisins in a pudding.</text>
+
+  <circle cx="240" cy="160" r="90" fill="#dc2626" opacity="0.18" stroke="#dc2626" stroke-width="2" />
+  <text x="338" y="164" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dc2626">+ + + + +</text>
+  <text x="338" y="182" font="10px system-ui" font-size="10" fill="#4a5568">diffuse + charge</text>
+<circle cx="200" cy="130" r="7" fill="#2b6cb0" stroke="#1a202c" stroke-width="1.2" /><circle cx="270" cy="110" r="7" fill="#2b6cb0" stroke="#1a202c" stroke-width="1.2" /><circle cx="180" cy="180" r="7" fill="#2b6cb0" stroke="#1a202c" stroke-width="1.2" /><circle cx="290" cy="190" r="7" fill="#2b6cb0" stroke="#1a202c" stroke-width="1.2" /><circle cx="230" cy="210" r="7" fill="#2b6cb0" stroke="#1a202c" stroke-width="1.2" /><circle cx="250" cy="150" r="7" fill="#2b6cb0" stroke="#1a202c" stroke-width="1.2" /><circle cx="215" cy="100" r="7" fill="#2b6cb0" stroke="#1a202c" stroke-width="1.2" /><circle cx="300" cy="155" r="7" fill="#2b6cb0" stroke="#1a202c" stroke-width="1.2" />
+  <text x="142" y="164" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#2b6cb0" text-anchor="end">e⁻ e⁻ e⁻</text>
+  <text x="142" y="182" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="end">embedded electrons</text>
+  <text x="240" y="270" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Refuted by Rutherford's gold-foil experiment — the atom isn't a uniform sphere of charge.</text>
+
+</svg>

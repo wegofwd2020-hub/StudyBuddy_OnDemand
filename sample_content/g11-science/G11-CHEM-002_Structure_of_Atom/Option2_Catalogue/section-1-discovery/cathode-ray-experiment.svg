@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 320" width="540" height="320" role="img" aria-label="Thomson cathode-ray experiment">
+  <title>Thomson cathode-ray experiment</title>
+  <desc>Cathode-ray tube with cathode at left, anode, and a pair of horizontal deflection plates. The beam from the cathode bends upward toward the positive plate, identifying the rays as negatively-charged particles (electrons).</desc>
+  
+  <defs>
+    <marker id="cr-beam-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2b6cb0" />
+    </marker>
+  </defs>
+
+  <text x="270" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Thomson's Cathode-Ray Experiment</text>
+
+  <!-- Glass tube outline -->
+  <rect x="60" y="80" width="420" height="180" rx="14" ry="14" fill="#f7fafc" stroke="#1a202c" stroke-width="2" />
+
+  <!-- Cathode (left) -->
+  <rect x="50" y="155" width="20" height="30" fill="#dc2626" stroke="#1a202c" stroke-width="1.5" />
+  <text x="60" y="220" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">cathode (−)</text>
+
+  <!-- Anode (right of cathode) -->
+  <rect x="125" y="160" width="6" height="20" fill="#4a5568" />
+  <text x="128" y="200" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">anode</text>
+
+  <!-- Deflection plates -->
+  <rect x="240" y="100" width="60" height="10" fill="#15803d" stroke="#1a202c" stroke-width="1" />
+  <text x="270" y="96" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle">+ plate</text>
+  <rect x="240" y="230" width="60" height="10" fill="#dc2626" stroke="#1a202c" stroke-width="1" />
+  <text x="270" y="258" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">− plate</text>
+
+  <!-- Undeflected (dotted) beam path -->
+  <line x1="70" y1="170" x2="450" y2="170" stroke="#4a5568" stroke-width="1.5" stroke-dasharray="4 4" />
+  <text x="430" y="186" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">no field</text>
+
+  <!-- Deflected beam path (curves up toward + plate) -->
+  <path d="M 70 170 L 240 170 Q 290 170, 320 142 L 460 110" fill="none" stroke="#2b6cb0" stroke-width="3" marker-end="url(#cr-beam-arrow)" />
+
+  <!-- Phosphorescent screen -->
+  <line x1="465" y1="80" x2="465" y2="260" stroke="#319795" stroke-width="3" />
+  <text x="465" y="278" font="11px system-ui" font-size="11" fill="#319795" text-anchor="middle">screen</text>
+  <circle cx="465" cy="110" r="6" fill="#2b6cb0" opacity="0.9" />
+
+  <!-- Caption -->
+  <text x="270" y="300" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Negatively-charged particles bend toward the + plate → cathode rays carry negative charge → these are electrons.</text>
+
+</svg>

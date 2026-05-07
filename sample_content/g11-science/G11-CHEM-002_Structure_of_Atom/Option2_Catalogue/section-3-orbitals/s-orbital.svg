@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 320" width="360" height="320" role="img" aria-label="s orbital — spherical shape">
+  <title>s orbital — spherical shape</title>
+  <desc>A spherically-symmetric electron cloud rendered with radial-gradient fading from a dense centre to a faint edge. Caption notes l = 0, holds 2 electrons, examples 1s, 2s, 3s, with an isotropic probability description.</desc>
+  
+  <text x="180" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">s Orbital — Spherical</text>
+
+  <!-- Nucleus marker -->
+  <circle cx="180" cy="165" r="3" fill="#1a202c" />
+  <text x="188" y="169" font="10px system-ui" font-size="10" fill="#4a5568">nucleus</text>
+
+  <!-- Spherical electron cloud (radial gradient) -->
+  <defs>
+    <radialGradient id="s-orbital-grad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#2b6cb0" stop-opacity="0.9" />
+      <stop offset="60%" stop-color="#2b6cb0" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#2b6cb0" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <circle cx="180" cy="165" r="100" fill="url(#s-orbital-grad)" />
+  <circle cx="180" cy="165" r="100" fill="none" stroke="#2b6cb0" stroke-width="1.5" stroke-dasharray="3 4" />
+
+  <!-- Axes -->
+  <line x1="50" y1="165" x2="310" y2="165" stroke="#4a5568" stroke-width="1" />
+  <line x1="180" y1="35" x2="180" y2="295" stroke="#4a5568" stroke-width="1" />
+  <text x="315" y="169" font="11px system-ui" font-size="11" fill="#4a5568">x</text>
+  <text x="184" y="33" font="11px system-ui" font-size="11" fill="#4a5568">y</text>
+
+  <text x="180" y="290" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#2b6cb0" text-anchor="middle">l = 0 · holds 2 electrons · 1s, 2s, 3s, ...</text>
+  <text x="180" y="306" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Probability of finding the electron is the same in every direction.</text>
+
+</svg>

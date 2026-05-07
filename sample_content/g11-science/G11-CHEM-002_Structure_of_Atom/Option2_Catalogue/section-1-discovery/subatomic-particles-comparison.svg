@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 280" width="540" height="280" role="img" aria-label="Subatomic particles comparison">
+  <title>Subatomic particles comparison</title>
+  <desc>Three labeled cards comparing proton (positive, in nucleus, defines element), neutron (neutral, in nucleus, defines isotope), and electron (negative, much lighter, in shells, does the chemistry).</desc>
+  
+  <text x="270" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Subatomic Particles — At a Glance</text>
+
+  <!-- Three columns -->
+  <!-- Proton -->
+  <g transform="translate(60, 70)">
+    <rect x="0" y="0" width="130" height="180" rx="10" fill="#f7fafc" stroke="#dc2626" stroke-width="2" />
+    <circle cx="65" cy="42" r="22" fill="#dc2626" stroke="#1a202c" stroke-width="2" />
+    <text x="65" y="48" font="bold 16px system-ui" font-size="16" font-weight="700" fill="white" text-anchor="middle">p⁺</text>
+    <text x="65" y="86" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Proton</text>
+    <text x="65" y="108" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">charge: +1</text>
+    <text x="65" y="126" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">mass: 1 u</text>
+    <text x="65" y="146" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">in nucleus</text>
+    <text x="65" y="164" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#dc2626" text-anchor="middle">defines element</text>
+  </g>
+
+  <!-- Neutron -->
+  <g transform="translate(205, 70)">
+    <rect x="0" y="0" width="130" height="180" rx="10" fill="#f7fafc" stroke="#64748b" stroke-width="2" />
+    <circle cx="65" cy="42" r="22" fill="#64748b" stroke="#1a202c" stroke-width="2" />
+    <text x="65" y="48" font="bold 16px system-ui" font-size="16" font-weight="700" fill="white" text-anchor="middle">n⁰</text>
+    <text x="65" y="86" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Neutron</text>
+    <text x="65" y="108" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">charge: 0</text>
+    <text x="65" y="126" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">mass: 1 u</text>
+    <text x="65" y="146" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">in nucleus</text>
+    <text x="65" y="164" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#64748b" text-anchor="middle">defines isotope</text>
+  </g>
+
+  <!-- Electron -->
+  <g transform="translate(350, 70)">
+    <rect x="0" y="0" width="130" height="180" rx="10" fill="#f7fafc" stroke="#2b6cb0" stroke-width="2" />
+    <circle cx="65" cy="42" r="14" fill="#2b6cb0" stroke="#1a202c" stroke-width="2" />
+    <text x="65" y="47" font="bold 13px system-ui" font-size="13" font-weight="700" fill="white" text-anchor="middle">e⁻</text>
+    <text x="65" y="86" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Electron</text>
+    <text x="65" y="108" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">charge: −1</text>
+    <text x="65" y="126" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">mass: 1/1836 u</text>
+    <text x="65" y="146" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">in shells</text>
+    <text x="65" y="164" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#2b6cb0" text-anchor="middle">does the chemistry</text>
+  </g>
+
+  <text x="270" y="270" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Three particles. Two live in the nucleus, one orbits. Charges add: a neutral atom has equal protons and electrons.</text>
+
+</svg>

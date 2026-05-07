@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 320" width="520" height="320" role="img" aria-label="Rutherford gold-foil experiment">
+  <title>Rutherford gold-foil experiment</title>
+  <desc>Alpha particle source on the left fires a beam at a thin gold foil. Most particles pass nearly straight through (showing the atom is mostly empty space); a small fraction are deflected at large angles or bounce back, indicating a tiny dense positive nucleus.</desc>
+  
+  <defs>
+    <marker id="ru-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dd6b20" />
+    </marker>
+  </defs>
+
+  <text x="260" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Rutherford's Gold-Foil Experiment</text>
+
+  <!-- Alpha source -->
+  <rect x="40" y="135" width="56" height="56" rx="6" fill="#f7fafc" stroke="#1a202c" stroke-width="2" />
+  <text x="68" y="155" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">α source</text>
+  <text x="68" y="170" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">(radium)</text>
+  <text x="68" y="184" font="9px system-ui" font-size="9" fill="#15803d" text-anchor="middle">+2 charge</text>
+
+  <!-- Gold foil -->
+  <line x1="220" y1="80" x2="220" y2="240" stroke="#dd6b20" stroke-width="6" />
+  <text x="220" y="68" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dd6b20" text-anchor="middle">gold foil</text>
+
+  <!-- Alpha particle paths -->
+  <!-- Most pass straight through -->
+  <line x1="100" y1="155" x2="460" y2="155" stroke="#2b6cb0" stroke-width="2" marker-end="url(#ru-arrow)" />
+  <line x1="100" y1="170" x2="460" y2="170" stroke="#2b6cb0" stroke-width="2" marker-end="url(#ru-arrow)" />
+  <line x1="100" y1="140" x2="460" y2="140" stroke="#2b6cb0" stroke-width="2" marker-end="url(#ru-arrow)" />
+  <!-- Slight deflection -->
+  <path d="M 100 120 L 220 120 L 460 95" fill="none" stroke="#2b6cb0" stroke-width="2" marker-end="url(#ru-arrow)" />
+  <path d="M 100 195 L 220 195 L 460 215" fill="none" stroke="#2b6cb0" stroke-width="2" marker-end="url(#ru-arrow)" />
+  <!-- Strong back-scatter (the "rare event") -->
+  <path d="M 100 105 L 220 165 Q 200 165, 110 75" fill="none" stroke="#dc2626" stroke-width="2.5" marker-end="url(#ru-arrow)" />
+
+  <!-- Detector screen (curved) -->
+  <path d="M 470 60 Q 510 160, 470 260" fill="none" stroke="#4a5568" stroke-width="2" stroke-dasharray="6 4" />
+  <text x="492" y="160" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle" transform="rotate(90 492 160)">detector</text>
+
+  <!-- Annotations -->
+  <text x="280" y="155" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#2b6cb0" text-anchor="middle">most pass through</text>
+  <text x="120" y="60" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dc2626">a few bounce back!</text>
+  <text x="260" y="298" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Most α particles pass through nearly empty space; a tiny fraction recoil → atoms have a small, dense, positive nucleus.</text>
+
+</svg>

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 280" width="600" height="280" role="img" aria-label="p orbitals — three dumbbells along x y z">
+  <title>p orbitals — three dumbbells along x y z</title>
+  <desc>Three p-orbital dumbbells rendered side by side: p_x oriented along the x-axis, p_y along the y-axis, p_z projected along z. Each is shown as two opposing lobes around a central nucleus.</desc>
+  
+  <text x="300" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">p Orbitals — Three Dumbbells</text>
+  <text x="300" y="40" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Three perpendicular dumbbells: pₓ along x, p_y along y, p_z along z. Each holds 2 electrons; total = 6.</text>
+
+    <line x1="40" y1="150" x2="200" y2="150" stroke="#4a5568" stroke-width="1" />
+    <line x1="120" y1="80" x2="120" y2="220" stroke="#4a5568" stroke-width="1" />
+    <ellipse cx="85" cy="150" rx="30" ry="18" fill="#dd6b20" opacity="0.45" stroke="#dd6b20" stroke-width="2" />
+    <ellipse cx="155" cy="150" rx="30" ry="18" fill="#dd6b20" opacity="0.45" stroke="#dd6b20" stroke-width="2" />
+    <text x="206" y="154" font="11px system-ui" font-size="11" fill="#4a5568">x</text>
+    <circle cx="120" cy="150" r="3" fill="#1a202c" />
+    <text x="120" y="255" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#dd6b20" text-anchor="middle">p_x</text>
+    <line x1="220" y1="150" x2="380" y2="150" stroke="#4a5568" stroke-width="1" />
+    <line x1="300" y1="80" x2="300" y2="220" stroke="#4a5568" stroke-width="1" />
+    <ellipse cx="300" cy="115" rx="18" ry="30" fill="#dd6b20" opacity="0.45" stroke="#dd6b20" stroke-width="2" />
+    <ellipse cx="300" cy="185" rx="18" ry="30" fill="#dd6b20" opacity="0.45" stroke="#dd6b20" stroke-width="2" />
+    <text x="300" y="74" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">y</text>
+    <circle cx="300" cy="150" r="3" fill="#1a202c" />
+    <text x="300" y="255" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#dd6b20" text-anchor="middle">p_y</text>
+    <line x1="400" y1="150" x2="560" y2="150" stroke="#4a5568" stroke-width="1" />
+    <line x1="430" y1="210" x2="530" y2="90" stroke="#4a5568" stroke-width="1" stroke-dasharray="3 3" />
+    <ellipse cx="468" cy="122" rx="22" ry="30" fill="#dd6b20" opacity="0.45" stroke="#dd6b20" stroke-width="2" transform="rotate(-30 480 150)" />
+    <ellipse cx="492" cy="178" rx="22" ry="30" fill="#dd6b20" opacity="0.45" stroke="#dd6b20" stroke-width="2" transform="rotate(-30 480 150)" />
+    <text x="536" y="90" font="11px system-ui" font-size="11" fill="#4a5568">z</text>
+    <circle cx="480" cy="150" r="3" fill="#1a202c" />
+    <text x="480" y="255" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#dd6b20" text-anchor="middle">p_z</text>
+  <text x="300" y="270" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#dd6b20" text-anchor="middle">l = 1 · 2p, 3p, 4p, ... · 3 orbitals × 2 electrons each = 6 total</text>
+
+</svg>

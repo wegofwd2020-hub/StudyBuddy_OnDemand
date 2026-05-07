@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 240" width="700" height="240" role="img" aria-label="d orbitals — five shapes">
+  <title>d orbitals — five shapes</title>
+  <desc>Five d-orbital cartoons arranged in a row: four cloverleaves (d_xy, d_yz, d_xz, d_x²−y²) and the d_z² (vertical dumbbell with horizontal doughnut). Caption gives l = 2 and total of 10 electrons.</desc>
+  
+  <text x="350" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">d Orbitals — Five Shapes</text>
+  <text x="350" y="40" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Four cloverleaf shapes (d_xy, d_yz, d_xz, d_x²−y²) and one dumbbell-with-doughnut (d_z²). Total: 5 × 2 = 10 electrons.</text>
+
+    <g transform="translate(80 130) rotate(0)">
+      <ellipse cx="22" cy="22" rx="16" ry="22" fill="#319795" opacity="0.5" stroke="#319795" stroke-width="1.8" transform="rotate(45)" />
+      <ellipse cx="-22" cy="-22" rx="16" ry="22" fill="#319795" opacity="0.5" stroke="#319795" stroke-width="1.8" transform="rotate(45)" />
+      <ellipse cx="22" cy="-22" rx="16" ry="22" fill="#319795" opacity="0.5" stroke="#319795" stroke-width="1.8" transform="rotate(-45)" />
+      <ellipse cx="-22" cy="22" rx="16" ry="22" fill="#319795" opacity="0.5" stroke="#319795" stroke-width="1.8" transform="rotate(-45)" />
+      <circle cx="0" cy="0" r="3" fill="#1a202c" />
+    </g>
+    <text x="80" y="205" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#319795" text-anchor="middle">d_xy</text>
+    <g transform="translate(220 130) rotate(0)">
+      <ellipse cx="22" cy="22" rx="16" ry="22" fill="#319795" opacity="0.5" stroke="#319795" stroke-width="1.8" transform="rotate(45)" />
+      <ellipse cx="-22" cy="-22" rx="16" ry="22" fill="#319795" opacity="0.5" stroke="#319795" stroke-width="1.8" transform="rotate(45)" />
+      <ellipse cx="22" cy="-22" rx="16" ry="22" fill="#319795" opacity="0.5" stroke="#319795" stroke-width="1.8" transform="rotate(-45)" />
+      <ellipse cx="-22" cy="22" rx="16" ry="22" fill="#319795" opacity="0.5" stroke="#319795" stroke-width="1.8" transform="rotate(-45)" />
+      <circle cx="0" cy="0" r="3" fill="#1a202c" />
+    </g>
+    <text x="220" y="205" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#319795" text-anchor="middle">d_yz</text>
+    <g transform="translate(360 130) rotate(0)">
+      <ellipse cx="22" cy="22" rx="16" ry="22" fill="#319795" opacity="0.5" stroke="#319795" stroke-width="1.8" transform="rotate(45)" />
+      <ellipse cx="-22" cy="-22" rx="16" ry="22" fill="#319795" opacity="0.5" stroke="#319795" stroke-width="1.8" transform="rotate(45)" />
+      <ellipse cx="22" cy="-22" rx="16" ry="22" fill="#319795" opacity="0.5" stroke="#319795" stroke-width="1.8" transform="rotate(-45)" />
+      <ellipse cx="-22" cy="22" rx="16" ry="22" fill="#319795" opacity="0.5" stroke="#319795" stroke-width="1.8" transform="rotate(-45)" />
+      <circle cx="0" cy="0" r="3" fill="#1a202c" />
+    </g>
+    <text x="360" y="205" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#319795" text-anchor="middle">d_xz</text>
+    <g transform="translate(500, 130)">
+      <ellipse cx="34" cy="0" rx="20" ry="15" fill="#319795" opacity="0.5" stroke="#319795" stroke-width="1.8" />
+      <ellipse cx="-34" cy="0" rx="20" ry="15" fill="#319795" opacity="0.5" stroke="#319795" stroke-width="1.8" />
+      <ellipse cx="0" cy="-34" rx="15" ry="20" fill="#319795" opacity="0.5" stroke="#319795" stroke-width="1.8" />
+      <ellipse cx="0" cy="34" rx="15" ry="20" fill="#319795" opacity="0.5" stroke="#319795" stroke-width="1.8" />
+      <circle cx="0" cy="0" r="3" fill="#1a202c" />
+    </g>
+    <text x="500" y="205" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#319795" text-anchor="middle">d_x²−y²</text>
+  
+    <g transform="translate(630, 130)">
+      <ellipse cx="0" cy="-30" rx="14" ry="22" fill="#319795" opacity="0.5" stroke="#319795" stroke-width="1.8" />
+      <ellipse cx="0" cy="30" rx="14" ry="22" fill="#319795" opacity="0.5" stroke="#319795" stroke-width="1.8" />
+      <ellipse cx="0" cy="0" rx="32" ry="11" fill="#319795" opacity="0.4" stroke="#319795" stroke-width="1.5" />
+      <circle cx="0" cy="0" r="3" fill="#1a202c" />
+    </g>
+    <text x="630" y="205" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#319795" text-anchor="middle">d_z²</text>
+  
+  <text x="350" y="232" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#319795" text-anchor="middle">l = 2 · 3d, 4d, 5d, ... · 5 orbitals × 2 electrons = 10 total</text>
+
+</svg>
