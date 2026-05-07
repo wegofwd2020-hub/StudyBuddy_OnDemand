@@ -1,13 +1,16 @@
 "use client";
 
-import { Eye } from "lucide-react";
+import { useState } from "react";
+import { Eye, PlayCircle, Film } from "lucide-react";
 
-type VisualKind = "image" | "image-grid" | "animated-svg";
+type VisualKind = "image" | "image-grid" | "animated-svg" | "video";
 
 interface VisualItem {
   src: string;
   caption?: string;
   alt: string;
+  poster?: string;       // optional still image to show before play
+  duration?: string;     // human-readable duration label, e.g. "1:57"
 }
 
 interface VisualBlock {
@@ -82,6 +85,16 @@ const VISUAL_MAP: Record<string, VisualBlock[]> = {
           caption: "Ball traces the parabola in real time. Auto-plays in any modern browser." },
       ],
     },
+    {
+      kind: "video",
+      heading: "Watch the full chapter explainer",
+      items: [
+        { src: "/sample-visuals/G11-MATH-001/Sets_and_Functions_Demo.mp4",
+          alt: "Sets and Functions — animated chapter explainer",
+          duration: "1:57",
+          caption: "9-scene Remotion render walking through every section of the chapter." },
+      ],
+    },
   ],
 };
 
@@ -119,6 +132,12 @@ function VisualBlockRender({ block }: { block: VisualBlock }) {
             <VisualImage key={i} item={item} />
           ))}
         </div>
+      ) : block.kind === "video" ? (
+        <div className="space-y-3">
+          {block.items.map((item, i) => (
+            <VisualVideo key={i} item={item} />
+          ))}
+        </div>
       ) : (
         <div className="space-y-3">
           {block.items.map((item, i) => (
@@ -127,6 +146,73 @@ function VisualBlockRender({ block }: { block: VisualBlock }) {
         </div>
       )}
     </div>
+  );
+}
+
+function VisualVideo({ item }: { item: VisualItem }) {
+  const [playing, setPlaying] = useState(false);
+
+  if (!playing) {
+    return (
+      <figure className="overflow-hidden rounded border border-emerald-200 bg-white">
+        <button
+          type="button"
+          onClick={() => setPlaying(true)}
+          aria-label={`Play video: ${item.alt}`}
+          className="group relative flex w-full items-center justify-center gap-3 bg-gradient-to-br from-slate-900 to-slate-700 px-6 py-10 text-emerald-50 transition-colors hover:from-slate-800 hover:to-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2"
+        >
+          {item.poster && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={item.poster}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 h-full w-full object-cover opacity-50"
+            />
+          )}
+          <span className="relative flex items-center gap-3">
+            <PlayCircle
+              className="h-12 w-12 text-emerald-300 transition-transform group-hover:scale-110"
+              aria-hidden="true"
+            />
+            <span className="flex flex-col items-start">
+              <span className="text-base font-semibold">Play video</span>
+              <span className="flex items-center gap-2 text-xs text-emerald-200">
+                <Film className="h-3 w-3" aria-hidden="true" />
+                <span>{item.alt}</span>
+                {item.duration && <span className="text-emerald-300">· {item.duration}</span>}
+              </span>
+            </span>
+          </span>
+        </button>
+        {item.caption && (
+          <figcaption className="border-t border-emerald-100 bg-emerald-50/40 px-2 py-1 text-xs text-emerald-900">
+            {item.caption}
+          </figcaption>
+        )}
+      </figure>
+    );
+  }
+
+  return (
+    <figure className="overflow-hidden rounded border border-emerald-200 bg-black">
+      {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+      <video
+        controls
+        autoPlay
+        preload="metadata"
+        className="h-auto w-full"
+        src={item.src}
+        poster={item.poster}
+      >
+        Your browser does not support embedded video.
+      </video>
+      {item.caption && (
+        <figcaption className="border-t border-emerald-100 bg-emerald-50/40 px-2 py-1 text-xs text-emerald-900">
+          {item.caption}
+        </figcaption>
+      )}
+    </figure>
   );
 }
 
