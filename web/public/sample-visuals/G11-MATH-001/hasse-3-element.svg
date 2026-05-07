@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360" role="img" aria-label="Hasse diagram of power set of a 3 element set">
+  <title>Power set lattice for {a, b, c}</title>
+  <desc>Hasse diagram showing 8 nodes (subsets of {a,b,c}) arranged by cardinality. Edges connect subsets that differ by exactly one element.</desc>
+  <defs>
+    <style>
+      .edge { stroke: #a0aec0; stroke-width: 1.5; }
+      .node { fill: #ebf4ff; stroke: #2b6cb0; stroke-width: 1.5; }
+      .node-label { font: 14px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; dominant-baseline: middle; }
+      .level-label { font: italic 12px system-ui, sans-serif; fill: #718096; }
+      .title { font: bold 16px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <text class="title" x="300" y="22">Power set 𝒫({a, b, c}) — 2³ = 8 subsets</text>
+
+  <!-- Level brackets -->
+  <text class="level-label" x="20" y="60">|S| = 3</text>
+  <text class="level-label" x="20" y="140">|S| = 2</text>
+  <text class="level-label" x="20" y="220">|S| = 1</text>
+  <text class="level-label" x="20" y="300">|S| = 0</text>
+
+  <!-- Edges (drawn first so nodes sit on top) -->
+  <line class="edge" x1="300" y1="290" x2="160" y2="220"/>
+  <line class="edge" x1="300" y1="290" x2="300" y2="220"/>
+  <line class="edge" x1="300" y1="290" x2="440" y2="220"/>
+
+  <line class="edge" x1="160" y1="220" x2="160" y2="140"/>
+  <line class="edge" x1="160" y1="220" x2="300" y2="140"/>
+  <line class="edge" x1="300" y1="220" x2="160" y2="140"/>
+  <line class="edge" x1="300" y1="220" x2="440" y2="140"/>
+  <line class="edge" x1="440" y1="220" x2="300" y2="140"/>
+  <line class="edge" x1="440" y1="220" x2="440" y2="140"/>
+
+  <line class="edge" x1="160" y1="140" x2="300" y2="60"/>
+  <line class="edge" x1="300" y1="140" x2="300" y2="60"/>
+  <line class="edge" x1="440" y1="140" x2="300" y2="60"/>
+
+  <!-- Nodes (ellipses with text) -->
+  <g>
+    <ellipse class="node" cx="300" cy="290" rx="32" ry="20"/><text class="node-label" x="300" y="290">∅</text>
+    <ellipse class="node" cx="160" cy="220" rx="32" ry="20"/><text class="node-label" x="160" y="220">{a}</text>
+    <ellipse class="node" cx="300" cy="220" rx="32" ry="20"/><text class="node-label" x="300" y="220">{b}</text>
+    <ellipse class="node" cx="440" cy="220" rx="32" ry="20"/><text class="node-label" x="440" y="220">{c}</text>
+    <ellipse class="node" cx="160" cy="140" rx="40" ry="20"/><text class="node-label" x="160" y="140">{a, b}</text>
+    <ellipse class="node" cx="300" cy="140" rx="40" ry="20"/><text class="node-label" x="300" y="140">{a, c}</text>
+    <ellipse class="node" cx="440" cy="140" rx="40" ry="20"/><text class="node-label" x="440" y="140">{b, c}</text>
+    <ellipse class="node" cx="300" cy="60"  rx="50" ry="20"/><text class="node-label" x="300" y="60">{a, b, c}</text>
+  </g>
+
+  <text x="300" y="345" text-anchor="middle" font="13px system-ui" fill="#4a5568">Edges connect subsets differing by exactly one element.</text>
+</svg>

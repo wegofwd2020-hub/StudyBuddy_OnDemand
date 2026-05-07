@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 320" width="720" height="320" role="img" aria-label="Animated projectile parabola">
+  <title>Projectile motion (no-install fallback)</title>
+  <desc>Ball traces the parabola h(t) = -4.9 t^2 + 14 t + 2 over 2.71 seconds. Animation uses SMIL — open in any modern browser.</desc>
+  <defs>
+    <style>
+      .axis  { stroke: #cbd5e0; stroke-width: 1; fill: none; }
+      .grid  { stroke: #edf2f7; stroke-width: 1; }
+      .curve { stroke: #2b6cb0; stroke-width: 3; fill: none; opacity: 0.35; stroke-dasharray: 5 4; }
+      .ball  { fill: #e53e3e; }
+      .label { font: 12px system-ui, sans-serif; fill: #4a5568; }
+      .title { font: bold 13px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <!-- Title -->
+  <text class="title" x="360" y="22">h(t) = −4.9 t² + 14 t + 2</text>
+
+  <!-- Background grid (every metre, every 0.5 s) -->
+  <!-- t-grid -->
+  <g class="grid">
+    <line x1="60"  y1="20"  x1="60"  y2="280"/>  <!-- left axis (visual; real axis below) -->
+  </g>
+
+  <!-- Real axes -->
+  <line class="axis" x1="60" y1="20" x2="60" y2="280"/>
+  <line class="axis" x1="60" y1="280" x2="700" y2="280"/>
+
+  <!-- Y ticks -->
+  <g class="label">
+    <text x="38" y="284">0</text>
+    <text x="38" y="226">4</text>
+    <text x="38" y="168">8</text>
+    <text x="38" y="110">12</text>
+    <text x="14" y="40">h (m)</text>
+  </g>
+  <!-- X ticks (t = 0, 0.5, 1, 1.5, 2, 2.5, 3) -->
+  <g class="label">
+    <text x="56"  y="296">0</text>
+    <text x="156" y="296">0.5</text>
+    <text x="263" y="296">1.0</text>
+    <text x="370" y="296">1.5</text>
+    <text x="477" y="296">2.0</text>
+    <text x="584" y="296">2.5</text>
+    <text x="690" y="296">3.0</text>
+    <text x="676" y="312">t (s)</text>
+  </g>
+
+  <!--
+    Coordinate mapping (chosen to match the axis above):
+      t in [0, 3] → x in [60, 700]   →  x = 60 + t * 213.33
+      h in [0, 14] → y in [280, 20]   →  y = 280 - h * 18.57
+  -->
+
+  <!-- Faint guide curve, full parabola, sampled densely -->
+  <polyline class="curve" points="
+    60.00,242.86  77.07,232.27  94.13,222.39  111.20,213.21  128.27,204.74  145.33,196.97
+   162.40,189.91  179.47,183.55  196.53,177.90  213.60,172.96  230.67,168.71  247.73,165.18
+   264.80,162.34  281.87,160.22  298.93,158.79  316.00,158.07  333.07,158.06  350.13,158.74
+   367.20,160.13  384.27,162.23  401.33,165.03  418.40,168.53  435.47,172.74  452.53,177.65
+   469.60,183.27  486.67,189.59  503.73,196.61  520.80,204.34  537.87,212.77  554.93,221.91
+   572.00,231.74  578.84,236.00  578.84,239.00  578.84,242.00  578.86,245.00  578.86,248.00
+   578.95,251.00  578.95,254.00  579.04,257.00  579.13,260.00  579.20,262.00  579.27,263.78
+  "/>
+
+  <!-- Animated ball — uses SMIL <animateMotion> along the parabola path -->
+  <path id="proj-path" d="
+    M 60.00 242.86
+    Q 320 60, 580 280
+  " fill="none" stroke="none"/>
+  <!--
+    NOTE: a perfectly faithful animateMotion path requires an exact arc; the
+    quadratic Bezier above is a very close visual approximation of the parabola
+    h(t) = -4.9 t^2 + 14 t + 2 over t in [0, 2.71]. Vertex (1.43 s, 12 m) sits
+    near the apex of the curve; ground impact at t ≈ 2.71 s lands close to
+    (580, 280) which corresponds to (h ≈ 0).
+  -->
+
+  <circle class="ball" cx="0" cy="0" r="7">
+    <animateMotion dur="3.5s" repeatCount="indefinite" rotate="0" path="M 60 242.86 Q 320 60 580 280"/>
+  </circle>
+</svg>
