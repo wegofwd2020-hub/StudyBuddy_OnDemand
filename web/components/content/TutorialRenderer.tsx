@@ -12,7 +12,6 @@ interface TutorialRendererProps {
 }
 
 export function TutorialRenderer({ tutorial }: TutorialRendererProps) {
-  const unitId = tutorial.unit_id;
   const allIds = useMemo(
     () => tutorial.sections.map((s) => s.section_id),
     [tutorial.sections],
@@ -54,7 +53,6 @@ export function TutorialRenderer({ tutorial }: TutorialRendererProps) {
         {tutorial.sections.map((section) => (
           <SectionDisclosure
             key={section.section_id}
-            unitId={unitId}
             section={section}
             isOpen={openIds.has(section.section_id)}
             onToggle={() => toggle(section.section_id)}
@@ -80,12 +78,10 @@ export function TutorialRenderer({ tutorial }: TutorialRendererProps) {
 }
 
 function SectionDisclosure({
-  unitId,
   section,
   isOpen,
   onToggle,
 }: {
-  unitId: string;
   section: TutorialSection;
   isOpen: boolean;
   onToggle: () => void;
@@ -127,7 +123,7 @@ function SectionDisclosure({
             </SBMarkdown>
           </div>
 
-          <VisualSlot unitId={unitId} sectionId={section.section_id} />
+          <VisualSlot visuals={section.visuals} />
 
           {section.examples.length > 0 && (
             <div className="mt-4 rounded-md border border-blue-200 bg-blue-50 p-3 font-heading">

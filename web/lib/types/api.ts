@@ -58,10 +58,25 @@ export interface QuizContent {
   questions: QuizQuestion[];
 }
 
+export interface VisualItem {
+  src: string;
+  alt: string;
+  caption?: string;
+  poster?: string;        // for kind="video"
+  duration?: string;      // for kind="video"
+}
+
+export interface VisualBlock {
+  kind: "image" | "image-grid" | "animated-svg" | "video";
+  heading?: string;
+  items: VisualItem[];
+}
+
 export interface TutorialSection {
   section_id: string;
   title: string;
   content: string;
+  visuals?: VisualBlock[];
   examples: string[];
   practice_question: string;
 }
