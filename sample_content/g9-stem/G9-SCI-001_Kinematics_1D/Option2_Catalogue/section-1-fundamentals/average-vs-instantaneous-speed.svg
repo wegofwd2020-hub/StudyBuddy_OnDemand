@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 240" width="480" height="240" role="img" aria-label="Average vs instantaneous speed">
+  <title>Average vs instantaneous speed</title>
+  <desc>Top: the whole trip's average speed (60 km/h). Bottom: five different speedometer readings during the same trip, each varying from 30 to 85 km/h.</desc>
+  
+  <text x="240" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Average Speed vs. Instantaneous Speed</text>
+
+  <text x="60" y="58" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#2b6cb0">Average speed</text>
+  <text x="60" y="74" font="11px system-ui" font-size="11" fill="#4a5568">total distance ÷ total time over the whole trip</text>
+  <text x="60" y="92" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c">120 km in 2 h → 60 km/h</text>
+  <rect x="60" y="100" width="360" height="20" fill="#2b6cb0" opacity="0.25" stroke="#2b6cb0" stroke-width="1.5" />
+  <text x="240" y="115" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#2b6cb0" text-anchor="middle">2 hours · one number for the whole trip</text>
+
+  <text x="60" y="158" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#dd6b20">Instantaneous speed</text>
+  <text x="60" y="174" font="11px system-ui" font-size="11" fill="#4a5568">the speedometer reading at one instant</text>
+
+  <rect x="60" y="186" width="70" height="20" fill="#dd6b20" opacity="0.25" stroke="#dd6b20" stroke-width="1.2" />
+  <text x="95" y="201" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">75 km/h</text>
+  <rect x="130" y="186" width="90" height="20" fill="#dd6b20" opacity="0.4" stroke="#dd6b20" stroke-width="1.2" />
+  <text x="175" y="201" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">85 km/h</text>
+  <rect x="220" y="186" width="50" height="20" fill="#dd6b20" opacity="0.25" stroke="#dd6b20" stroke-width="1.2" />
+  <text x="245" y="201" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">30 km/h</text>
+  <rect x="270" y="186" width="80" height="20" fill="#dd6b20" opacity="0.4" stroke="#dd6b20" stroke-width="1.2" />
+  <text x="310" y="201" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">70 km/h</text>
+  <rect x="350" y="186" width="70" height="20" fill="#dd6b20" opacity="0.25" stroke="#dd6b20" stroke-width="1.2" />
+  <text x="385" y="201" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">55 km/h</text>
+  <text x="240" y="226" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">five different instants in the same trip — each speedometer snapshot is different</text>
+
+</svg>

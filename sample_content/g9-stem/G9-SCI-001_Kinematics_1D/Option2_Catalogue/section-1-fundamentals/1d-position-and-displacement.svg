@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 220" width="480" height="220" role="img" aria-label="Position on a straight road">
+  <title>Position on a straight road</title>
+  <desc>A horizontal number line marked in metres with two example positions: x = −2 m on the negative side and x = +3 m on the positive side.</desc>
+  
+  <text x="240" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Position on a Straight Road</text>
+  <text x="240" y="40" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">A position is a single number telling you where along the road, measured from a chosen origin.</text>
+
+  <line x1="36" y1="130" x2="444" y2="130" stroke="#1a202c" stroke-width="2" />
+  <polygon points="444,130 434,125 434,135" fill="#1a202c" />
+  <polygon points="36,130 46,125 46,135" fill="#1a202c" />
+
+  <line x1="40" y1="124" x2="40" y2="136" stroke="#1a202c" stroke-width="1" />
+  <text x="40" y="158" font="12px system-ui" font-size="12" font-weight="500" fill="#4a5568" text-anchor="middle">-3</text>
+  <line x1="90" y1="124" x2="90" y2="136" stroke="#1a202c" stroke-width="1" />
+  <text x="90" y="158" font="12px system-ui" font-size="12" font-weight="500" fill="#4a5568" text-anchor="middle">-2</text>
+  <line x1="140" y1="124" x2="140" y2="136" stroke="#1a202c" stroke-width="1" />
+  <text x="140" y="158" font="12px system-ui" font-size="12" font-weight="500" fill="#4a5568" text-anchor="middle">-1</text>
+  <line x1="190" y1="120" x2="190" y2="140" stroke="#1a202c" stroke-width="2" />
+  <text x="190" y="158" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">0</text>
+  <line x1="240" y1="124" x2="240" y2="136" stroke="#1a202c" stroke-width="1" />
+  <text x="240" y="158" font="12px system-ui" font-size="12" font-weight="500" fill="#4a5568" text-anchor="middle">1</text>
+  <line x1="290" y1="124" x2="290" y2="136" stroke="#1a202c" stroke-width="1" />
+  <text x="290" y="158" font="12px system-ui" font-size="12" font-weight="500" fill="#4a5568" text-anchor="middle">2</text>
+  <line x1="340" y1="124" x2="340" y2="136" stroke="#1a202c" stroke-width="1" />
+  <text x="340" y="158" font="12px system-ui" font-size="12" font-weight="500" fill="#4a5568" text-anchor="middle">3</text>
+  <line x1="390" y1="124" x2="390" y2="136" stroke="#1a202c" stroke-width="1" />
+  <text x="390" y="158" font="12px system-ui" font-size="12" font-weight="500" fill="#4a5568" text-anchor="middle">4</text>
+  <line x1="440" y1="124" x2="440" y2="136" stroke="#1a202c" stroke-width="1" />
+  <text x="440" y="158" font="12px system-ui" font-size="12" font-weight="500" fill="#4a5568" text-anchor="middle">5</text>
+  <circle cx="90" cy="130" r="6" fill="#dd6b20" stroke="#1a202c" stroke-width="1.5" />
+  <text x="90" y="112" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#dd6b20" text-anchor="middle">x = −2 m</text>
+  <circle cx="340" cy="130" r="6" fill="#2b6cb0" stroke="#1a202c" stroke-width="1.5" />
+  <text x="340" y="112" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#2b6cb0" text-anchor="middle">x = +3 m</text>
+  <text x="190" y="180" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">origin (x = 0)</text>
+  <text x="444" y="180" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">positive direction →</text>
+
+</svg>

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 280" width="480" height="280" role="img" aria-label="Distance walked vs displacement">
+  <title>Distance walked vs displacement</title>
+  <desc>A curved walking path from point A to point B, with the straight-line displacement vector overlaid in dashed blue. Total distance walked along the curve is greater than the straight-line displacement.</desc>
+  
+  <defs>
+    <marker id="arr-disp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2b6cb0" />
+    </marker>
+  </defs>
+
+  <text x="240" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Distance Walked vs. Displacement</text>
+
+  <path d="M 80 200 Q 160 70, 260 140 T 400 90" fill="none" stroke="#dd6b20" stroke-width="3.5" />
+  <line x1="80" y1="200" x2="400" y2="90" stroke="#2b6cb0" stroke-width="3" stroke-dasharray="6 4" marker-end="url(#arr-disp)" />
+
+  <circle cx="80" cy="200" r="6" fill="#1a202c" />
+  <text x="68" y="220" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c">A</text>
+  <circle cx="400" cy="90" r="6" fill="#1a202c" />
+  <text x="408" y="88" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c">B</text>
+
+  <text x="180" y="100" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#dd6b20">curved walked path → total distance ≈ 460 m</text>
+  <text x="180" y="170" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#2b6cb0">straight A→B → displacement ≈ 340 m</text>
+
+  <text x="240" y="252" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Distance is how far you walked along the path. Displacement is how far you ended up from the start, in a straight line.</text>
+  <text x="240" y="268" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Distance ≥ Displacement, always.</text>
+
+</svg>

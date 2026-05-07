@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 200" width="480" height="200" role="img" aria-label="Motion strip — uniform motion">
+  <title>Motion strip — uniform motion</title>
+  <desc>Seven equally-spaced dots along a horizontal axis, one per second from t = 0 to t = 6 s, with green tick marks above showing all gaps are equal — the hallmark of uniform motion.</desc>
+  
+  <text x="240" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Motion Strip — Uniform Motion</text>
+  <text x="240" y="40" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Strobe snapshots taken every 1 second show the object at equal spacing — its speed is constant.</text>
+
+  <line x1="40" y1="110" x2="440" y2="110" stroke="#4a5568" stroke-width="1.5" stroke-dasharray="4 4" />
+
+  <circle cx="40" cy="110" r="9" fill="#2b6cb0" stroke="#1a202c" stroke-width="1.5" />
+  <text x="40" y="140" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">t = 0 s</text>
+  <circle cx="106.66666666666666" cy="110" r="9" fill="#2b6cb0" stroke="#1a202c" stroke-width="1.5" />
+  <text x="106.66666666666666" y="140" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">t = 1 s</text>
+  <circle cx="173.33333333333331" cy="110" r="9" fill="#2b6cb0" stroke="#1a202c" stroke-width="1.5" />
+  <text x="173.33333333333331" y="140" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">t = 2 s</text>
+  <circle cx="240" cy="110" r="9" fill="#2b6cb0" stroke="#1a202c" stroke-width="1.5" />
+  <text x="240" y="140" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">t = 3 s</text>
+  <circle cx="306.66666666666663" cy="110" r="9" fill="#2b6cb0" stroke="#1a202c" stroke-width="1.5" />
+  <text x="306.66666666666663" y="140" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">t = 4 s</text>
+  <circle cx="373.33333333333337" cy="110" r="9" fill="#2b6cb0" stroke="#1a202c" stroke-width="1.5" />
+  <text x="373.33333333333337" y="140" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">t = 5 s</text>
+  <circle cx="440" cy="110" r="9" fill="#2b6cb0" stroke="#1a202c" stroke-width="1.5" />
+  <text x="440" y="140" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">t = 6 s</text>
+  <line x1="50" y1="85" x2="96.66666666666666" y2="85" stroke="#15803d" stroke-width="1.5" />
+  <line x1="50" y1="80" x2="50" y2="90" stroke="#15803d" stroke-width="1.5" />
+  <line x1="96.66666666666666" y1="80" x2="96.66666666666666" y2="90" stroke="#15803d" stroke-width="1.5" />
+  <line x1="116.66666666666666" y1="85" x2="163.33333333333331" y2="85" stroke="#15803d" stroke-width="1.5" />
+  <line x1="116.66666666666666" y1="80" x2="116.66666666666666" y2="90" stroke="#15803d" stroke-width="1.5" />
+  <line x1="163.33333333333331" y1="80" x2="163.33333333333331" y2="90" stroke="#15803d" stroke-width="1.5" />
+  <line x1="183.33333333333331" y1="85" x2="230" y2="85" stroke="#15803d" stroke-width="1.5" />
+  <line x1="183.33333333333331" y1="80" x2="183.33333333333331" y2="90" stroke="#15803d" stroke-width="1.5" />
+  <line x1="230" y1="80" x2="230" y2="90" stroke="#15803d" stroke-width="1.5" />
+  <line x1="250" y1="85" x2="296.66666666666663" y2="85" stroke="#15803d" stroke-width="1.5" />
+  <line x1="250" y1="80" x2="250" y2="90" stroke="#15803d" stroke-width="1.5" />
+  <line x1="296.66666666666663" y1="80" x2="296.66666666666663" y2="90" stroke="#15803d" stroke-width="1.5" />
+  <line x1="316.66666666666663" y1="85" x2="363.33333333333337" y2="85" stroke="#15803d" stroke-width="1.5" />
+  <line x1="316.66666666666663" y1="80" x2="316.66666666666663" y2="90" stroke="#15803d" stroke-width="1.5" />
+  <line x1="363.33333333333337" y1="80" x2="363.33333333333337" y2="90" stroke="#15803d" stroke-width="1.5" />
+  <line x1="383.33333333333337" y1="85" x2="430" y2="85" stroke="#15803d" stroke-width="1.5" />
+  <line x1="383.33333333333337" y1="80" x2="383.33333333333337" y2="90" stroke="#15803d" stroke-width="1.5" />
+  <line x1="430" y1="80" x2="430" y2="90" stroke="#15803d" stroke-width="1.5" />
+  <text x="240" y="72" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">all gaps equal — equal distance per second → uniform speed</text>
+
+</svg>
