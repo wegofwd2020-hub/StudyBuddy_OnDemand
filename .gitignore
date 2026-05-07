@@ -67,3 +67,13 @@ node_modules/
 # Remotion rendered output (always lands in ~/Downloads first; never commit MP4s)
 sample_content/**/*.mp4
 sample_content/**/.remotion/
+
+# Visual assets — the legacy /sample-visuals/ tree was migrated to
+# /visuals/_legacy/ under content_store_data/ (issue #318 phase 2d). The
+# working-tree copy remains for backward-compat during the transition but
+# is no longer tracked.
+web/public/sample-visuals/
+# Future school-uploaded visuals also land under web/public/visuals/ if
+# the dev backend is configured to write there directly; gitignored so
+# uploads don't land in commits.
+web/public/visuals/
