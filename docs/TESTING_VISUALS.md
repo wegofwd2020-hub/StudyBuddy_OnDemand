@@ -36,11 +36,34 @@ After seed, three roles you'll need:
 | **G11 Science student** | `fatima.alhassan@milfordwaterford.edu` | `MWStudent-Fatima-2026!` | Verifying that students *see* the visuals on `/tutorial/G11-MATH-001` and `/tutorial/G11-PHYS-002` |
 | **Backup G11 Science student** | `liam.obrien@milfordwaterford.edu` | `MWStudent-Liam-2026!` | Same as above; useful for a second pair of eyes |
 
-**Login URLs:**
-- School admin: `http://localhost:3000/school/login`
-- Demo students: `http://localhost:3000/demo/login` (the MilfordWaterford students are seeded as demo accounts)
+**Login URLs (auth track matters — using the wrong page returns "Incorrect email or password"):**
 
-> **If Sam Houston isn't a school_admin yet:** older seed runs created Sam as a plain teacher. Promote with the snippet under "Section 2.6 — Promote Sam Houston to school_admin" in `DEV_ACCOUNTS.md` and re-login.
+| Account | Login URL | Auth track |
+|---|---|---|
+| MilfordWaterford teachers (Sam, Linda, Warren, Indra) | `http://localhost:3000/demo/teacher/login` | demo (`auth_provider='demo'`) |
+| MilfordWaterford students (Fatima, Liam, Anya, …) | `http://localhost:3000/demo/login` | demo |
+| Phase A local-auth schools (Dev School, school self-register) | `http://localhost:3000/school/login` | local (`auth_provider='local'`) — **NOT** the MilfordWaterford accounts |
+
+> **Why Sam Houston gets rejected at `/school/login`:** the MilfordWaterford teachers
+> are seeded with `auth_provider='demo'` and no `password_hash` on the `teachers` row;
+> their credentials live in `demo_teacher_accounts`. The local-auth `/school/login`
+> handler queries `teachers.password_hash` and finds nothing → "Incorrect email or
+> password." Use `/demo/teacher/login` for Sam.
+
+> **Promote Sam to `school_admin`** (one-time, required for the Visual Library page
+> which is admin-only):
+> ```bash
+> docker compose exec api python3 - <<'EOF'
+> import asyncio, asyncpg, os
+> async def main():
+>     c = await asyncpg.connect(os.environ["DATABASE_URL"].replace("@pgbouncer:", "@db:"))
+>     await c.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+>     await c.execute("UPDATE teachers SET role='school_admin' WHERE email='sam.houston@milfordwaterford.edu'")
+>     await c.close()
+> asyncio.run(main())
+> EOF
+> ```
+> Then logout + log back in so the new role is in the JWT.
 
 ---
 
@@ -77,7 +100,7 @@ GET /visuals/_legacy/G11-MATH-001/Sets_and_Functions_Demo.mp4   200 OK   video/m
 
 Verifies the school-scoped asset endpoints (`POST /upload`, `GET /`, `DELETE /{path}`).
 
-1. Logout if needed; login as **Sam Houston** at `http://localhost:3000/school/login`.
+1. Logout if needed; login as **Sam Houston** at `http://localhost:3000/demo/teacher/login`.
 2. Sidebar → **Visual Library** (admin-only nav entry).
 3. **Upload an asset:**
    - Curriculum ID: `default-2026-g11-science`
