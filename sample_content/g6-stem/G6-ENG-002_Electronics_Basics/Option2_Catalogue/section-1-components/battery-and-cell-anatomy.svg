@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 260" width="480" height="260" role="img" aria-label="Battery single-cell versus multi-cell comparison">
+  <title>Battery single-cell versus multi-cell comparison</title>
+  <desc>Two-panel comparison. Left: a single AA cell (1.5 V) with its real-component drawing and one-cell schematic symbol below. Right: two AAs end-to-end in series (3 V total) with both the real depiction and the two-cell schematic symbol.</desc>
+  
+  <text x="240" y="22" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Battery — Single Cell vs Multi-Cell</text>
+
+  <!-- Single cell (left) -->
+  <text x="120" y="62" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">one cell  ·  1.5 V</text>
+  <!-- Real cell -->
+  <rect x="80" y="100" width="80" height="40" rx="6" fill="#f7fafc" stroke="#1a202c" stroke-width="2" />
+  <rect x="158" y="112" width="6" height="16" fill="#1a202c" />
+  <text x="120" y="125" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">AA</text>
+  <text x="166" y="125" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dc2626" text-anchor="start">+</text>
+  <text x="74" y="125" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="end">−</text>
+
+  <!-- Symbol -->
+  <line x1="60" y1="200" x2="105" y2="200" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  
+  <line x1="116" y1="186" x2="116" y2="214" stroke="#1a202c" stroke-width="2.5" />
+  <line x1="126" y1="178" x2="126" y2="222" stroke="#dc2626" stroke-width="3.5" />
+  
+  
+  
+  <text x="115" y="178" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dc2626">+</text>
+  <text x="124" y="178" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c">−</text>
+  <line x1="135" y1="200" x2="180" y2="200" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+
+  <!-- Multi-cell (right): two cells in series -->
+  <text x="370" y="62" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">two cells in a row  ·  3 V</text>
+  <!-- Real two AAs end-to-end -->
+  <rect x="290" y="100" width="60" height="40" rx="6" fill="#f7fafc" stroke="#1a202c" stroke-width="2" />
+  <rect x="348" y="112" width="6" height="16" fill="#1a202c" />
+  <rect x="354" y="100" width="60" height="40" rx="6" fill="#f7fafc" stroke="#1a202c" stroke-width="2" />
+  <rect x="412" y="112" width="6" height="16" fill="#1a202c" />
+  <text x="320" y="125" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">AA</text>
+  <text x="384" y="125" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">AA</text>
+
+  <!-- Symbol -->
+  <line x1="290" y1="200" x2="345" y2="200" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  
+  <line x1="355" y1="186" x2="355" y2="214" stroke="#1a202c" stroke-width="2.5" />
+  <line x1="365" y1="178" x2="365" y2="222" stroke="#dc2626" stroke-width="3.5" />
+  <line x1="375" y1="186" x2="375" y2="214" stroke="#1a202c" stroke-width="2.5" />
+  <line x1="385" y1="178" x2="385" y2="222" stroke="#dc2626" stroke-width="3.5" />
+  
+  
+  
+  <text x="361" y="178" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dc2626">+</text>
+  <text x="380" y="178" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dc2626">+</text>
+  <line x1="390" y1="200" x2="445" y2="200" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+
+  <text x="240" y="248" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Each cell adds its voltage. Two 1.5 V cells in series = 3 V. Long line on the symbol = the + terminal.</text>
+
+</svg>

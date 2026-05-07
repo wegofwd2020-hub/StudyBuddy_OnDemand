@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 320" width="540" height="320" role="img" aria-label="Parallel circuit with two lamps in branches">
+  <title>Parallel circuit with two lamps in branches</title>
+  <desc>A circuit with two parallel branches between two horizontal wires. Each branch contains a lit lamp. A 9-volt battery is on the bottom wire. Three green current arrows: one for I_total along the top wire, one for I₁ entering the left branch, one for I₂ entering the right branch.</desc>
+  
+  <text x="270" y="22" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Parallel Circuit — Two Lamps in Branches</text>
+
+  <!-- Outer wires -->
+  <line x1="80" y1="240" x2="80" y2="90" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="80" y1="90" x2="200" y2="90" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="460" y1="90" x2="460" y2="240" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="80" y1="240" x2="460" y2="240" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+
+  <!-- Top junction nodes -->
+  <circle cx="200" cy="90" r="4" fill="#1a202c" />
+  <circle cx="380" cy="90" r="4" fill="#1a202c" />
+  <line x1="380" y1="90" x2="460" y2="90" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="200" y1="90" x2="380" y2="90" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+
+  <!-- Branch 1: lamp 1 (left vertical) -->
+  <line x1="220" y1="90" x2="220" y2="130" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  
+  <circle cx="220" cy="152" r="32" fill="#fbbf24" opacity="0.18" />
+  <circle cx="220" cy="152" r="18" fill="#fbbf24" fill-opacity="0.55" stroke="#1a202c" stroke-width="2" />
+  <line x1="207.4" y1="139.4" x2="232.6" y2="164.6" stroke="#1a202c" stroke-width="2" />
+  <line x1="207.4" y1="164.6" x2="232.6" y2="139.4" stroke="#1a202c" stroke-width="2" />
+  <text x="220" y="188" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">lamp 1</text>
+  <line x1="220" y1="174" x2="220" y2="220" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  <circle cx="220" cy="220" r="4" fill="#1a202c" />
+  <line x1="80" y1="220" x2="460" y2="220" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+
+  <!-- Branch 2: lamp 2 (right vertical) -->
+  <line x1="360" y1="90" x2="360" y2="130" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  
+  <circle cx="360" cy="152" r="32" fill="#fbbf24" opacity="0.18" />
+  <circle cx="360" cy="152" r="18" fill="#fbbf24" fill-opacity="0.55" stroke="#1a202c" stroke-width="2" />
+  <line x1="347.4" y1="139.4" x2="372.6" y2="164.6" stroke="#1a202c" stroke-width="2" />
+  <line x1="347.4" y1="164.6" x2="372.6" y2="139.4" stroke="#1a202c" stroke-width="2" />
+  <text x="360" y="188" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">lamp 2</text>
+  <line x1="360" y1="174" x2="360" y2="220" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  <circle cx="360" cy="220" r="4" fill="#1a202c" />
+
+  <!-- Battery on bottom wire -->
+  
+  <line x1="126" y1="226" x2="126" y2="254" stroke="#1a202c" stroke-width="2.5" />
+  <line x1="136" y1="218" x2="136" y2="262" stroke="#dc2626" stroke-width="3.5" />
+  <line x1="146" y1="226" x2="146" y2="254" stroke="#1a202c" stroke-width="2.5" />
+  <line x1="156" y1="218" x2="156" y2="262" stroke="#dc2626" stroke-width="3.5" />
+  <text x="141" y="282" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">9 V</text>
+  <text x="156" y="212" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">+</text>
+  <text x="126" y="220" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">−</text>
+
+  <!-- Current arrows -->
+  
+  <polygon points="180,81 180,99 190.8,90" fill="#15803d" />
+  <text x="180" y="74" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">I_total</text>
+  
+  <polygon points="211,113 229,113 220,123.8" fill="#15803d" />
+  <text x="234" y="117" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">I₁</text>
+  
+  <polygon points="351,113 369,113 360,123.8" fill="#15803d" />
+  <text x="374" y="117" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">I₂</text>
+
+  <!-- Caption -->
+  <text x="270" y="270" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">SAME voltage across both lamps  ·  current SPLITS between them</text>
+  <text x="270" y="288" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">If one lamp breaks, the other stays on — the second branch is still a loop.</text>
+  <text x="270" y="306" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Both lamps get the full 9 V — each is as bright as a single lamp would be.</text>
+
+</svg>

@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380" role="img" aria-label="Circuit component symbols reference card">
+  <title>Circuit component symbols reference card</title>
+  <desc>An 8-cell grid showing the standard schematic symbols: wire (straight black line), resistor (zigzag), battery (long-and-short paired lines), lamp (circle with X), switch (open hinged lever), capacitor (two parallel lines), LED (triangle pointing into a bar with light arrows), and ground (three stacked horizontal lines). Each cell labels the component below the symbol.</desc>
+  
+  <text x="360" y="22" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Circuit Component Symbols — Reference Card</text>
+  <text x="360" y="42" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">The standard shapes you'll see on every circuit diagram. Wires connect them at the open ends.</text>
+
+    <rect x="20" y="60" width="165" height="120" rx="8" fill="#f7fafc" stroke="#4a5568" stroke-width="1.5" />
+    <text x="102.5" y="168" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Wire</text>
+    <g transform="translate(30 70)"><line x1="40" y1="65" x2="130" y2="65" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /></g>
+    <rect x="195" y="60" width="165" height="120" rx="8" fill="#f7fafc" stroke="#4a5568" stroke-width="1.5" />
+    <text x="277.5" y="168" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Resistor</text>
+    <g transform="translate(205 70)">
+  <path d="M 55,65 L 60.0,57 L 70.0,73 L 80.0,57 L 90.0,73 L 100.0,57 L 110.0,73 L 115,65" fill="none" stroke="#92400e" stroke-width="2.5" stroke-linejoin="miter" />
+  </g>
+    <rect x="370" y="60" width="165" height="120" rx="8" fill="#f7fafc" stroke="#4a5568" stroke-width="1.5" />
+    <text x="452.5" y="168" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Battery</text>
+    <g transform="translate(380 70)"><line x1="20" y1="65" x2="70" y2="65" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="71" y1="51" x2="71" y2="79" stroke="#1a202c" stroke-width="2.5" />
+  <line x1="81" y1="43" x2="81" y2="87" stroke="#dc2626" stroke-width="3.5" />
+  <line x1="91" y1="51" x2="91" y2="79" stroke="#1a202c" stroke-width="2.5" />
+  <line x1="101" y1="43" x2="101" y2="87" stroke="#dc2626" stroke-width="3.5" />
+  
+  
+  <line x1="101" y1="65" x2="150" y2="65" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /></g>
+    <rect x="545" y="60" width="165" height="120" rx="8" fill="#f7fafc" stroke="#4a5568" stroke-width="1.5" />
+    <text x="627.5" y="168" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Lamp</text>
+    <g transform="translate(555 70)"><line x1="20" y1="65" x2="65" y2="65" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  
+  <circle cx="85" cy="65" r="18" fill="white" fill-opacity="1" stroke="#1a202c" stroke-width="2" />
+  <line x1="72.4" y1="52.4" x2="97.6" y2="77.6" stroke="#1a202c" stroke-width="2" />
+  <line x1="72.4" y1="77.6" x2="97.6" y2="52.4" stroke="#1a202c" stroke-width="2" />
+  <line x1="105" y1="65" x2="150" y2="65" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /></g>
+    <rect x="20" y="190" width="165" height="120" rx="8" fill="#f7fafc" stroke="#4a5568" stroke-width="1.5" />
+    <text x="102.5" y="298" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Switch</text>
+    <g transform="translate(30 200)"><line x1="20" y1="65" x2="65" y2="65" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  <circle cx="67" cy="65" r="3" fill="#4a5568" />
+  <circle cx="103" cy="65" r="3" fill="#4a5568" />
+  <line x1="67" y1="65" x2="99" y2="49" stroke="#4a5568" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="105" y1="65" x2="150" y2="65" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /></g>
+    <rect x="195" y="190" width="165" height="120" rx="8" fill="#f7fafc" stroke="#4a5568" stroke-width="1.5" />
+    <text x="277.5" y="298" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Capacitor</text>
+    <g transform="translate(205 200)"><line x1="20" y1="65" x2="81" y2="65" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="81" y1="49" x2="81" y2="81" stroke="#2b6cb0" stroke-width="3" />
+  <line x1="89" y1="49" x2="89" y2="81" stroke="#2b6cb0" stroke-width="3" />
+  <line x1="89" y1="65" x2="150" y2="65" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /></g>
+    <rect x="370" y="190" width="165" height="120" rx="8" fill="#f7fafc" stroke="#4a5568" stroke-width="1.5" />
+    <text x="452.5" y="298" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">LED</text>
+    <g transform="translate(380 200)"><line x1="20" y1="65" x2="70" y2="65" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  
+  <polygon points="73,53 73,77 93,65" fill="white" stroke="#dc2626" stroke-width="2.5" />
+  <line x1="93" y1="53" x2="93" y2="77" stroke="#dc2626" stroke-width="2.5" />
+  <!-- Two outgoing-light arrows -->
+  <line x1="89" y1="47" x2="103" y2="35" stroke="#fbbf24" stroke-width="1.8" opacity="0.3" />
+  <polygon points="103,35 99,41 107,41" fill="#fbbf24" opacity="0.3" />
+  <line x1="97" y1="51" x2="111" y2="41" stroke="#fbbf24" stroke-width="1.8" opacity="0.3" />
+  <polygon points="111,41 107,47 115,47" fill="#fbbf24" opacity="0.3" />
+  <line x1="102" y1="65" x2="150" y2="65" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /></g>
+    <rect x="545" y="190" width="165" height="120" rx="8" fill="#f7fafc" stroke="#4a5568" stroke-width="1.5" />
+    <text x="627.5" y="298" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Ground</text>
+    <g transform="translate(555 200)">
+      <line x1="85" y1="35" x2="85" y2="65" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+      <line x1="65" y1="65" x2="105" y2="65" stroke="#1a202c" stroke-width="2.5" />
+      <line x1="72" y1="73" x2="98" y2="73" stroke="#1a202c" stroke-width="2.5" />
+      <line x1="80" y1="81" x2="90" y2="81" stroke="#1a202c" stroke-width="2.5" /></g>
+  <text x="360" y="366" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Same shape every time. Different drawings of the same circuit will use these exact symbols.</text>
+
+</svg>

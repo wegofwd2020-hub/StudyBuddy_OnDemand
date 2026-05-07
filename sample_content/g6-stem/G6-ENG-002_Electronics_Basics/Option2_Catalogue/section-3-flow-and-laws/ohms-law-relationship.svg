@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 320" width="540" height="320" role="img" aria-label="Ohms law triangle and rearrangements">
+  <title>Ohms law triangle and rearrangements</title>
+  <desc>On the left, a triangle mnemonic with V on top and I, R below the dividing line. On the right, the three rearranged formulas (V = IR, I = V/R, R = V/I) each with a plain-English caption. A worked example below: 9 V battery + 330 Ω → 27 mA.</desc>
+  
+  <text x="270" y="22" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Ohm's Law — Voltage, Current, Resistance</text>
+
+  <!-- Triangle mnemonic on the left -->
+  <g transform="translate(80, 70)">
+    <polygon points="0,160 220,160 110,0" fill="#f7fafc" stroke="#2b6cb0" stroke-width="2.5" />
+    <line x1="60" y1="80" x2="160" y2="80" stroke="#2b6cb0" stroke-width="2" />
+    <line x1="110" y1="80" x2="110" y2="160" stroke="#2b6cb0" stroke-width="2" />
+    <text x="110" y="55" font="bold 32px system-ui" font-size="32" font-weight="700" fill="#dc2626" text-anchor="middle">V</text>
+    <text x="78" y="135" font="bold 32px system-ui" font-size="32" font-weight="700" fill="#15803d" text-anchor="middle">I</text>
+    <text x="142" y="135" font="bold 32px system-ui" font-size="32" font-weight="700" fill="#92400e" text-anchor="middle">R</text>
+  </g>
+
+  <!-- Three rearrangements on the right -->
+  <g transform="translate(340, 80)">
+    <text x="0" y="0" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c">cover any letter to find its formula</text>
+    <text x="0" y="40" font="bold 22px system-ui" font-size="22" font-weight="700" fill="#dc2626">V = I × R</text>
+    <text x="0" y="56" font="11px system-ui" font-size="11" fill="#4a5568">voltage = current × resistance</text>
+    <text x="0" y="100" font="bold 22px system-ui" font-size="22" font-weight="700" fill="#15803d">I = V / R</text>
+    <text x="0" y="116" font="11px system-ui" font-size="11" fill="#4a5568">current = voltage ÷ resistance</text>
+    <text x="0" y="160" font="bold 22px system-ui" font-size="22" font-weight="700" fill="#92400e">R = V / I</text>
+    <text x="0" y="176" font="11px system-ui" font-size="11" fill="#4a5568">resistance = voltage ÷ current</text>
+  </g>
+
+  <!-- Worked example at the bottom -->
+  <g transform="translate(40, 250)">
+    <rect x="0" y="0" width="460" height="50" rx="8" fill="#fef3c7" stroke="#92400e" stroke-width="1.5" />
+    <text x="14" y="20" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c">example:</text>
+    <text x="14" y="40" font="13px system-ui" font-size="13" fill="#1a202c">9 V battery + 330 Ω resistor → I = 9 / 330 ≈ 0.027 A = 27 mA</text>
+  </g>
+
+  <text x="270" y="308" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">More voltage → more push → more current. More resistance → more pushback → less current.</text>
+
+</svg>

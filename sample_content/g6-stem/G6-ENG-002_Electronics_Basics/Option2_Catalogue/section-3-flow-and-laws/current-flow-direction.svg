@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 280" width="540" height="280" role="img" aria-label="Conventional current versus electron flow direction">
+  <title>Conventional current versus electron flow direction</title>
+  <desc>A simple resistor circuit shown twice: green solid arrows on the wires pointing in the conventional-current direction (battery + to −), and blue dashed arrows on the same wires pointing the opposite direction for electron flow (− to +). Both describe the same physical circuit.</desc>
+  
+  <text x="270" y="22" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Two Ways to Talk About Current Flow</text>
+
+  <!-- Loop -->
+  <line x1="80" y1="200" x2="80" y2="90" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="80" y1="90" x2="460" y2="90" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="460" y1="90" x2="460" y2="200" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="460" y1="200" x2="80" y2="200" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+
+  <!-- Resistor -->
+  
+  <path d="M 240,90 L 245.0,82 L 255.0,98 L 265.0,82 L 275.0,98 L 285.0,82 L 295.0,98 L 300,90" fill="none" stroke="#92400e" stroke-width="2.5" stroke-linejoin="miter" />
+  
+  <line x1="80" y1="90" x2="240" y2="90" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="300" y1="90" x2="460" y2="90" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+
+  <!-- Battery -->
+  
+  <line x1="206" y1="186" x2="206" y2="214" stroke="#1a202c" stroke-width="2.5" />
+  <line x1="216" y1="178" x2="216" y2="222" stroke="#dc2626" stroke-width="3.5" />
+  <line x1="226" y1="186" x2="226" y2="214" stroke="#1a202c" stroke-width="2.5" />
+  <line x1="236" y1="178" x2="236" y2="222" stroke="#dc2626" stroke-width="3.5" />
+  
+  
+  
+
+  <!-- Conventional current (green arrows on top, going right out of + terminal) -->
+  
+  <polygon points="150,81 150,99 160.8,90" fill="#15803d" />
+  
+  
+  <polygon points="380,81 380,99 390.8,90" fill="#15803d" />
+  
+  
+  <polygon points="451,145 469,145 460,155.8" fill="#15803d" />
+  
+  
+  <polygon points="380,191 380,209 369.2,200" fill="#15803d" />
+  
+  
+  <polygon points="71,145 89,145 80,134.2" fill="#15803d" />
+  
+  <text x="270" y="68" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">conventional current  →  + to − (the way the symbol shows it)</text>
+
+  <!-- Electron flow (blue dashes, opposite direction) -->
+  <line x1="180" y1="105" x2="120" y2="105" stroke="#2b6cb0" stroke-width="2" stroke-dasharray="6 4" />
+  <polygon points="120,105 130,99 130,111" fill="#2b6cb0" />
+  <line x1="420" y1="105" x2="360" y2="105" stroke="#2b6cb0" stroke-width="2" stroke-dasharray="6 4" />
+  <polygon points="360,105 370,99 370,111" fill="#2b6cb0" />
+  <text x="270" y="234" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">electron flow  ←  − to + (the actual physical direction)</text>
+
+  <text x="270" y="268" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Both arrows describe the same circuit. Convention came before we knew electrons were negative. We kept the convention.</text>
+
+</svg>
