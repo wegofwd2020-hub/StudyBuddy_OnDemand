@@ -1,0 +1,22 @@
+{
+  "name": "structure-of-atom-video",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "studio": "bunx remotion studio",
+    "render:bohr-transition":  "bunx remotion render structure-of-atom-bohr-transition  ~/Downloads/StructureOfAtom_BohrTransition.mp4",
+    "render:electron-fill":    "bunx remotion render structure-of-atom-electron-fill    ~/Downloads/StructureOfAtom_ElectronFill.mp4",
+    "render:all": "bun run render:bohr-transition && bun run render:electron-fill"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.260",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.260",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.0",
+    "typescript": "^5.4.0"
+  }
+}
