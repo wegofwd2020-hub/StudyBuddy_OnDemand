@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 360" width="480" height="360" role="img" aria-label="Nucleus close-up">
+  <title>Nucleus close-up</title>
+  <desc>A purple oval nucleus with a darker purple nucleolus inside, dashed chromatin squiggles representing DNA, and five small white nuclear pores dotted around the double-membrane envelope. Leader-line labels point to nucleolus, nuclear envelope, nuclear pore, and chromatin.</desc>
+  
+  <text x="240" y="22" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Nucleus — The Control Center</text>
+
+  <!-- Outer nuclear envelope (double membrane) -->
+  <ellipse cx="240" cy="180" rx="150" ry="120" fill="none" stroke="#7c3aed" stroke-width="3" />
+  <ellipse cx="240" cy="180" rx="143" ry="113" fill="#7c3aed" fill-opacity="0.18" stroke="#7c3aed" stroke-width="2" />
+
+  <!-- Nuclear pores (gaps in the envelope, drawn as small white circles) -->
+  <circle cx="390" cy="175" r="6" fill="#f7fafc" stroke="#7c3aed" stroke-width="1.5" />
+  <circle cx="350" cy="275" r="6" fill="#f7fafc" stroke="#7c3aed" stroke-width="1.5" />
+  <circle cx="110" cy="230" r="6" fill="#f7fafc" stroke="#7c3aed" stroke-width="1.5" />
+  <circle cx="160" cy="70" r="6" fill="#f7fafc" stroke="#7c3aed" stroke-width="1.5" />
+  <circle cx="300" cy="63" r="6" fill="#f7fafc" stroke="#7c3aed" stroke-width="1.5" />
+
+  <!-- Nucleolus -->
+  <circle cx="210" cy="170" r="36" fill="#a855f7" stroke="#1a202c" stroke-width="1.5" />
+  <text x="210" y="174" font="bold 11px system-ui" font-size="11" font-weight="700" fill="white" text-anchor="middle">nucleolus</text>
+
+  <!-- Chromatin (squiggles) -->
+  <path d="M 270 120 Q 300 150, 330 130 T 350 190 T 300 230"
+    fill="none" stroke="#1a202c" stroke-width="1.8" stroke-dasharray="2 2" />
+  <path d="M 170 210 Q 140 230, 160 260 T 210 275"
+    fill="none" stroke="#1a202c" stroke-width="1.8" stroke-dasharray="2 2" />
+
+  <!-- Labels -->
+  
+  <line x1="390" y1="175" x2="460" y2="120" stroke="#7c3aed" stroke-width="1.5" />
+  <text x="464" y="124"
+    font="bold 12px system-ui" font-size="12" font-weight="700"
+    fill="#7c3aed" text-anchor="start">nuclear pore</text>
+  
+  <line x1="390" y1="180" x2="460" y2="180" stroke="#7c3aed" stroke-width="1.5" />
+  <text x="464" y="184"
+    font="bold 12px system-ui" font-size="12" font-weight="700"
+    fill="#7c3aed" text-anchor="start">nuclear envelope</text>
+  
+  <line x1="210" y1="170" x2="20" y2="100" stroke="#a855f7" stroke-width="1.5" />
+  <text x="16" y="104"
+    font="bold 12px system-ui" font-size="12" font-weight="700"
+    fill="#a855f7" text-anchor="end">nucleolus</text>
+  
+  <line x1="320" y1="150" x2="20" y2="200" stroke="#1a202c" stroke-width="1.5" />
+  <text x="16" y="204"
+    font="bold 12px system-ui" font-size="12" font-weight="700"
+    fill="#1a202c" text-anchor="end">chromatin (DNA)</text>
+
+  <text x="240" y="346" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Holds the cell's instructions. The double membrane has tiny "pores" that let messengers in and out.</text>
+
+</svg>

@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 380" width="760" height="380" role="img" aria-label="Animal vs plant cell comparison">
+  <title>Animal vs plant cell comparison</title>
+  <desc>Side-by-side simplified cells: a soft round animal cell on the left, a rectangular plant cell with cell wall on the right. A central panel lists the three things plant cells have that animal cells don't: cell wall, chloroplasts, and a large vacuole. A footnote notes the organelles both share.</desc>
+  
+  <text x="380" y="22" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Animal vs Plant Cell — At a Glance</text>
+
+  <!-- Animal cell (left) -->
+  <ellipse cx="130" cy="200" rx="100" ry="80" fill="#fef9c3" stroke="#94a3b8" stroke-width="3" />
+  <ellipse cx="140" cy="190" rx="32" ry="26" fill="#7c3aed" opacity="0.85" />
+  <ellipse cx="95" cy="230" rx="14" ry="8" fill="#dc2626" opacity="0.85" />
+  <ellipse cx="180" cy="235" rx="14" ry="8" fill="#dc2626" opacity="0.85" />
+  <text x="130" y="310" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#1a202c" text-anchor="middle">Animal</text>
+
+  <!-- Plant cell (right) -->
+  <rect x="520" y="110" width="220" height="180" rx="14" fill="#a16207" />
+  <rect x="528" y="118" width="204" height="164" rx="10" fill="#fef9c3" stroke="#94a3b8" stroke-width="2" />
+  <rect x="550" y="150" width="160" height="100" rx="14" fill="#7dd3fc" opacity="0.55" stroke="#2b6cb0" stroke-width="1.5" />
+  <ellipse cx="560" cy="135" rx="22" ry="18" fill="#7c3aed" opacity="0.85" />
+  <ellipse cx="695" cy="140" rx="14" ry="8" fill="#16a34a" opacity="0.85" />
+  <ellipse cx="700" cy="250" rx="14" ry="8" fill="#16a34a" opacity="0.85" />
+  <ellipse cx="550" cy="260" rx="14" ry="8" fill="#16a34a" opacity="0.85" />
+  <text x="630" y="310" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#1a202c" text-anchor="middle">Plant</text>
+
+  <!-- Comparison list (center) -->
+  <g transform="translate(270 80)">
+    <rect x="0" y="0" width="220" height="220" rx="10" fill="#f7fafc" stroke="#4a5568" stroke-width="1.5" />
+    <text x="110" y="22" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Plant cell ALSO has</text>
+    <text x="20" y="56" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#a16207">+ cell wall</text>
+    <text x="20" y="80" font="11px system-ui" font-size="11" fill="#4a5568">stiff outer layer</text>
+    <text x="20" y="116" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#16a34a">+ chloroplasts</text>
+    <text x="20" y="140" font="11px system-ui" font-size="11" fill="#4a5568">make food from sunlight</text>
+    <text x="20" y="176" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#2b6cb0">+ big vacuole</text>
+    <text x="20" y="200" font="11px system-ui" font-size="11" fill="#4a5568">water + storage</text>
+  </g>
+
+  <text x="380" y="368" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Both have a nucleus, mitochondria, ribosomes, ER, Golgi, and a cell membrane.</text>
+
+</svg>

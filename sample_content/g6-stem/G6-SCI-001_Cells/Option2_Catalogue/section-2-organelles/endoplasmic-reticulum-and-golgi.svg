@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 320" width="540" height="320" role="img" aria-label="Endoplasmic reticulum and Golgi apparatus">
+  <title>Endoplasmic reticulum and Golgi apparatus</title>
+  <desc>A protein-processing pipeline from left to right: a purple nucleus, the orange rough ER (two squiggly tubes covered in brown ribosome dots) emerging from it, transport vesicles, an amber Golgi apparatus with four stacked curves, and outgoing vesicles. Flow arrows label the stages: 'make' at the ER, 'package' at the Golgi, 'ship' as vesicles depart.</desc>
+  
+  <text x="270" y="22" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Endoplasmic Reticulum + Golgi — The Protein Pipeline</text>
+
+  <!-- Nucleus (left edge) -->
+  <ellipse cx="80" cy="160" rx="48" ry="40" fill="#7c3aed" opacity="0.85" stroke="#1a202c" stroke-width="1.5" />
+  <text x="80" y="220" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#7c3aed" text-anchor="middle">nucleus</text>
+
+  <!-- Rough ER (with ribosomes) — squiggly path emerging from nucleus -->
+  <path d="M 130 140 Q 170 110, 220 130 T 280 140" fill="none" stroke="#ea580c" stroke-width="8" stroke-linecap="round" />
+  <path d="M 130 175 Q 175 195, 215 175 T 280 165" fill="none" stroke="#ea580c" stroke-width="8" stroke-linecap="round" />
+  <circle cx="272.0" cy="130.0" r="2.2" fill="#7c2d12" /><circle cx="208.3" cy="134.0" r="2.2" fill="#7c2d12" /><circle cx="182.2" cy="132.6" r="2.2" fill="#7c2d12" /><circle cx="137.9" cy="123.6" r="2.2" fill="#7c2d12" /><circle cx="204.6" cy="125.6" r="2.2" fill="#7c2d12" /><circle cx="221.8" cy="129.4" r="2.2" fill="#7c2d12" /><circle cx="235.2" cy="141.0" r="2.2" fill="#7c2d12" /><circle cx="182.5" cy="133.6" r="2.2" fill="#7c2d12" /><circle cx="180.4" cy="128.7" r="2.2" fill="#7c2d12" /><circle cx="201.2" cy="117.4" r="2.2" fill="#7c2d12" /><circle cx="226.6" cy="128.4" r="2.2" fill="#7c2d12" /><circle cx="212.5" cy="132.7" r="2.2" fill="#7c2d12" />
+  <circle cx="272.0" cy="180.0" r="2.2" fill="#7c2d12" /><circle cx="204.7" cy="183.3" r="2.2" fill="#7c2d12" /><circle cx="170.1" cy="182.8" r="2.2" fill="#7c2d12" /><circle cx="154.6" cy="171.1" r="2.2" fill="#7c2d12" /><circle cx="205.9" cy="178.5" r="2.2" fill="#7c2d12" /><circle cx="246.2" cy="183.0" r="2.2" fill="#7c2d12" /><circle cx="193.3" cy="190.0" r="2.2" fill="#7c2d12" /><circle cx="191.9" cy="180.2" r="2.2" fill="#7c2d12" /><circle cx="177.4" cy="169.8" r="2.2" fill="#7c2d12" /><circle cx="235.3" cy="175.7" r="2.2" fill="#7c2d12" />
+
+  <!-- Golgi apparatus (center-right, stacked curves) -->
+  <g>
+    <path d="M 320 110 Q 360 90, 410 110" fill="none" stroke="#f59e0b" stroke-width="6" stroke-linecap="round" />
+    <path d="M 320 130 Q 360 110, 410 130" fill="none" stroke="#f59e0b" stroke-width="6" stroke-linecap="round" />
+    <path d="M 320 150 Q 360 130, 410 150" fill="none" stroke="#f59e0b" stroke-width="6" stroke-linecap="round" />
+    <path d="M 320 170 Q 360 150, 410 170" fill="none" stroke="#f59e0b" stroke-width="6" stroke-linecap="round" />
+  </g>
+
+  <!-- Vesicles (small bubbles between ER and Golgi, and after Golgi) -->
+  <circle cx="300" cy="155" r="7" fill="#ea580c" opacity="0.7" stroke="#1a202c" stroke-width="1" />
+  <circle cx="430" cy="135" r="7" fill="#f59e0b" opacity="0.85" stroke="#1a202c" stroke-width="1" />
+  <circle cx="455" cy="155" r="7" fill="#f59e0b" opacity="0.85" stroke="#1a202c" stroke-width="1" />
+  <circle cx="475" cy="180" r="7" fill="#f59e0b" opacity="0.85" stroke="#1a202c" stroke-width="1" />
+
+  <!-- Flow arrows -->
+  <line x1="290" y1="240" x2="320" y2="240" stroke="#2b6cb0" stroke-width="2" marker-end="url(#flow-arr)" />
+  <line x1="420" y1="240" x2="450" y2="240" stroke="#2b6cb0" stroke-width="2" marker-end="url(#flow-arr)" />
+  <defs>
+    <marker id="flow-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2b6cb0" />
+    </marker>
+  </defs>
+
+  <!-- Stage labels -->
+  <text x="200" y="245" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#ea580c" text-anchor="middle">make</text>
+  <text x="200" y="262" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">protein built on ribosomes</text>
+
+  <text x="365" y="245" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#f59e0b" text-anchor="middle">package</text>
+  <text x="365" y="262" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">label + sort + bag</text>
+
+  <text x="475" y="245" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#2b6cb0" text-anchor="middle">ship</text>
+  <text x="475" y="262" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">vesicle delivers it</text>
+
+  <!-- Labels for organelles -->
+  
+  <line x1="200" y1="145" x2="90" y2="70" stroke="#ea580c" stroke-width="1.5" />
+  <text x="94" y="74"
+    font="bold 12px system-ui" font-size="12" font-weight="700"
+    fill="#ea580c" text-anchor="start">Rough ER</text>
+  
+  <line x1="365" y1="110" x2="460" y2="50" stroke="#f59e0b" stroke-width="1.5" />
+  <text x="456" y="54"
+    font="bold 12px system-ui" font-size="12" font-weight="700"
+    fill="#f59e0b" text-anchor="end">Golgi apparatus</text>
+  
+  <line x1="220" y1="130" x2="320" y2="100" stroke="#7c2d12" stroke-width="1.5" />
+  <text x="324" y="104"
+    font="bold 11px system-ui" font-size="11" font-weight="700"
+    fill="#7c2d12" text-anchor="start">ribosomes (dots)</text>
+
+  <text x="270" y="306" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">A protein factory pipeline. Built on the ER, customised in the Golgi, shipped in vesicles to wherever it's needed.</text>
+
+</svg>

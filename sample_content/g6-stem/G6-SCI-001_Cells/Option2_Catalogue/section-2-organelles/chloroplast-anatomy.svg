@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 320" width="480" height="320" role="img" aria-label="Chloroplast close-up">
+  <title>Chloroplast close-up</title>
+  <desc>A green lens-shaped chloroplast with several internal stacks of small green disks (grana made of thylakoids), connected by thin lamellae across the stroma. A yellow sunlight arrow enters from upper left; a green sugar arrow exits to lower right. Leader lines label grana, stroma, and the double membrane.</desc>
+  
+  <text x="240" y="22" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Chloroplast — The Solar Panel</text>
+
+  <!-- Outer envelope (lens-shape) -->
+  <ellipse cx="240" cy="160" rx="170" ry="80" fill="#16a34a" fill-opacity="0.22" stroke="#16a34a" stroke-width="3" />
+  <ellipse cx="240" cy="160" rx="163" ry="73" fill="none" stroke="#16a34a" stroke-width="2" />
+
+  <!-- Thylakoid stacks (grana) — small green disks stacked -->
+  <g fill="#16a34a" stroke="#1a202c" stroke-width="1">
+    <ellipse cx="140" cy="152" rx="20" ry="6" />
+    <ellipse cx="140" cy="165" rx="20" ry="6" />
+    <ellipse cx="140" cy="178" rx="20" ry="6" />
+    <ellipse cx="140" cy="191" rx="20" ry="6" />
+
+    <ellipse cx="210" cy="140" rx="22" ry="6.5" />
+    <ellipse cx="210" cy="154" rx="22" ry="6.5" />
+    <ellipse cx="210" cy="168" rx="22" ry="6.5" />
+    <ellipse cx="210" cy="182" rx="22" ry="6.5" />
+    <ellipse cx="210" cy="196" rx="22" ry="6.5" />
+
+    <ellipse cx="290" cy="148" rx="20" ry="6" />
+    <ellipse cx="290" cy="161" rx="20" ry="6" />
+    <ellipse cx="290" cy="174" rx="20" ry="6" />
+
+    <ellipse cx="350" cy="156" rx="20" ry="6" />
+    <ellipse cx="350" cy="169" rx="20" ry="6" />
+    <ellipse cx="350" cy="182" rx="20" ry="6" />
+  </g>
+
+  <!-- Stromal lamellae connecting the stacks -->
+  <line x1="160" y1="165" x2="190" y2="168" stroke="#16a34a" stroke-width="2" />
+  <line x1="232" y1="168" x2="270" y2="161" stroke="#16a34a" stroke-width="2" />
+  <line x1="310" y1="161" x2="330" y2="169" stroke="#16a34a" stroke-width="2" />
+
+  <!-- Sunlight arrow coming in -->
+  <line x1="-10" y1="70" x2="110" y2="115" stroke="#f59e0b" stroke-width="3" />
+  <polygon points="110,115 95,110 100,125" fill="#f59e0b" />
+  <text x="0" y="65" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#f59e0b">sunlight</text>
+
+  <!-- Sugar (glucose) coming out -->
+  <line x1="390" y1="195" x2="480" y2="250" stroke="#15803d" stroke-width="3" />
+  <polygon points="480,250 470,238 462,252" fill="#15803d" />
+  <text x="480" y="270" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#15803d">sugar</text>
+
+  <!-- Labels -->
+  
+  <line x1="210" y1="140" x2="240" y2="60" stroke="#16a34a" stroke-width="1.5" />
+  <text x="240" y="64"
+    font="bold 12px system-ui" font-size="12" font-weight="700"
+    fill="#16a34a" text-anchor="middle">grana (stacked thylakoids)</text>
+  
+  <line x1="370" y1="156" x2="460" y2="80" stroke="#166534" stroke-width="1.5" />
+  <text x="464" y="84"
+    font="bold 12px system-ui" font-size="12" font-weight="700"
+    fill="#166534" text-anchor="start">stroma (the fluid)</text>
+  
+  <line x1="75" y1="160" x2="20" y2="240" stroke="#16a34a" stroke-width="1.5" />
+  <text x="16" y="244"
+    font="bold 12px system-ui" font-size="12" font-weight="700"
+    fill="#16a34a" text-anchor="end">double membrane</text>
+
+  <text x="240" y="306" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Captures sunlight and turns it into sugar. Plants only — animals can't do this.</text>
+
+</svg>

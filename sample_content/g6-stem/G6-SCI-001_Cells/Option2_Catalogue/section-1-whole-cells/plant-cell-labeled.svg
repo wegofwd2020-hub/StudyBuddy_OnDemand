@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 480" width="720" height="480" role="img" aria-label="Labeled plant cell with major organelles">
+  <title>Labeled plant cell with major organelles</title>
+  <desc>A plant cell shown as a rectangular shape with rounded corners, surrounded by a thick brown cell wall and a thinner inner cell membrane. Inside: a small purple nucleus with nucleolus, five distinctive green chloroplasts, two small red mitochondria, and a large dominant blue central vacuole. Each organelle has a leader-line label on the right side.</desc>
+  
+  <text x="360" y="22" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Plant Cell — Major Parts</text>
+
+  <!-- Cell wall (thick brown outer rectangle) -->
+  <rect x="82" y="52" width="556" height="376" rx="20" fill="#a16207" />
+  <!-- Cell membrane (thinner inside the wall) -->
+  <rect x="90" y="60" width="540" height="360" rx="14" fill="#fef9c3" stroke="#94a3b8" stroke-width="2.5" />
+
+  <!-- Large central vacuole (dominates) -->
+  <rect x="160" y="120" width="400" height="240" rx="36"
+    fill="#7dd3fc" opacity="0.55" stroke="#2b6cb0" stroke-width="2" />
+  <text x="360" y="248" font="bold 18px system-ui" font-size="18" font-weight="700"
+    fill="#2b6cb0" text-anchor="middle" opacity="0.85">vacuole (water)</text>
+
+  <!-- Nucleus (top-left corner, smaller because vacuole is big) -->
+  <ellipse cx="160" cy="110" rx="50" ry="42" fill="#7c3aed" opacity="0.85" stroke="#1a202c" stroke-width="1.5" />
+  <circle cx="150" cy="102" r="11" fill="#a855f7" />
+
+  <!-- Chloroplasts (5 of them, distinctive green) -->
+  <g>
+    <ellipse cx="560" cy="110" rx="34" ry="20" fill="#16a34a" opacity="0.85" stroke="#1a202c" stroke-width="1.5" />
+    <ellipse cx="590" cy="180" rx="32" ry="18" fill="#16a34a" opacity="0.85" stroke="#1a202c" stroke-width="1.5" transform="rotate(-25 590 180)" />
+    <ellipse cx="160" cy="370" rx="32" ry="18" fill="#16a34a" opacity="0.85" stroke="#1a202c" stroke-width="1.5" />
+    <ellipse cx="580" cy="370" rx="32" ry="18" fill="#16a34a" opacity="0.85" stroke="#1a202c" stroke-width="1.5" transform="rotate(20 580 370)" />
+    <ellipse cx="140" cy="180" rx="30" ry="17" fill="#16a34a" opacity="0.85" stroke="#1a202c" stroke-width="1.5" transform="rotate(40 140 180)" />
+  </g>
+
+  <!-- Mitochondria (a couple) -->
+  <ellipse cx="230" cy="95" rx="22" ry="11" fill="#dc2626" opacity="0.85" stroke="#1a202c" stroke-width="1.2" transform="rotate(-15 230 95)" />
+  <ellipse cx="420" cy="385" rx="22" ry="11" fill="#dc2626" opacity="0.85" stroke="#1a202c" stroke-width="1.2" transform="rotate(20 420 385)" />
+
+  <!-- Leader-line labels (right side) -->
+  
+  <line x1="634" y1="110" x2="720" y2="10" stroke="#92400e" stroke-width="1.5" />
+  <text x="724" y="14"
+    font="bold 13px system-ui" font-size="13" font-weight="700"
+    fill="#92400e" text-anchor="start">Cell wall (cellulose)</text>
+  
+  <line x1="624" y1="210" x2="720" y2="60" stroke="#94a3b8" stroke-width="1.5" />
+  <text x="724" y="64"
+    font="bold 13px system-ui" font-size="13" font-weight="700"
+    fill="#94a3b8" text-anchor="start">Cell membrane</text>
+  
+  <line x1="560" y1="110" x2="720" y2="110" stroke="#16a34a" stroke-width="1.5" />
+  <text x="724" y="114"
+    font="bold 13px system-ui" font-size="13" font-weight="700"
+    fill="#16a34a" text-anchor="start">Chloroplast (food maker)</text>
+  
+  <line x1="420" y1="385" x2="720" y2="160" stroke="#dc2626" stroke-width="1.5" />
+  <text x="724" y="164"
+    font="bold 13px system-ui" font-size="13" font-weight="700"
+    fill="#dc2626" text-anchor="start">Mitochondrion</text>
+  
+  <line x1="360" y1="240" x2="720" y2="210" stroke="#2b6cb0" stroke-width="1.5" />
+  <text x="724" y="214"
+    font="bold 13px system-ui" font-size="13" font-weight="700"
+    fill="#2b6cb0" text-anchor="start">Vacuole (storage)</text>
+  
+  <line x1="160" y1="110" x2="720" y2="260" stroke="#7c3aed" stroke-width="1.5" />
+  <text x="724" y="264"
+    font="bold 13px system-ui" font-size="13" font-weight="700"
+    fill="#7c3aed" text-anchor="start">Nucleus</text>
+  
+  <line x1="160" y1="300" x2="720" y2="310" stroke="#854d0e" stroke-width="1.5" />
+  <text x="724" y="314"
+    font="bold 13px system-ui" font-size="13" font-weight="700"
+    fill="#854d0e" text-anchor="start">Cytoplasm</text>
+
+</svg>

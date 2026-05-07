@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 320" width="480" height="320" role="img" aria-label="Mitochondrion close-up">
+  <title>Mitochondrion close-up</title>
+  <desc>A red bean-shaped mitochondrion showing its outer membrane and inner folded membrane (cristae). Five scalloped folds project from the inner edge into the matrix. Three small yellow ATP particles emerge to the right with an 'ATP' label, indicating energy production. Leader lines label the outer membrane, cristae, and matrix.</desc>
+  
+  <text x="240" y="22" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Mitochondrion — The Powerhouse</text>
+
+  <!-- Outer membrane (bean shape) -->
+  <ellipse cx="240" cy="160" rx="170" ry="80" fill="#dc2626" fill-opacity="0.18" stroke="#dc2626" stroke-width="3" />
+
+  <!-- Inner membrane with cristae (folds) -->
+  <path d="M 90 160 Q 110 110, 140 160 T 190 160 T 240 160 T 290 160 T 340 160 T 390 160"
+    fill="none" stroke="#dc2626" stroke-width="2.5" />
+  <path d="M 90 160 Q 110 210, 140 160 T 190 160 T 240 160 T 290 160 T 340 160 T 390 160"
+    fill="none" stroke="#dc2626" stroke-width="2.5" />
+  <!-- The cristae proper: scalloped folds -->
+  <g stroke="#dc2626" stroke-width="2" fill="none">
+    <path d="M 110 130 Q 125 180, 140 130" />
+    <path d="M 160 130 Q 175 180, 190 130" />
+    <path d="M 210 130 Q 225 180, 240 130" />
+    <path d="M 260 130 Q 275 180, 290 130" />
+    <path d="M 310 130 Q 325 180, 340 130" />
+  </g>
+
+  <!-- ATP energy bursts (small yellow stars) -->
+  <g fill="#f59e0b" stroke="#1a202c" stroke-width="0.5">
+    <circle cx="415" cy="110" r="6" />
+    <circle cx="435" cy="130" r="5" />
+    <circle cx="440" cy="180" r="6" />
+    <text x="415" y="107" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#1a202c" text-anchor="middle">ATP</text>
+  </g>
+
+  <!-- Labels -->
+  
+  <line x1="390" y1="110" x2="120" y2="50" stroke="#dc2626" stroke-width="1.5" />
+  <text x="124" y="54"
+    font="bold 12px system-ui" font-size="12" font-weight="700"
+    fill="#dc2626" text-anchor="start">outer membrane</text>
+  
+  <line x1="330" y1="160" x2="420" y2="240" stroke="#dc2626" stroke-width="1.5" />
+  <text x="424" y="244"
+    font="bold 12px system-ui" font-size="12" font-weight="700"
+    fill="#dc2626" text-anchor="start">cristae (folded inner membrane)</text>
+  
+  <line x1="240" y1="180" x2="40" y2="260" stroke="#7c2d12" stroke-width="1.5" />
+  <text x="44" y="264"
+    font="bold 12px system-ui" font-size="12" font-weight="700"
+    fill="#7c2d12" text-anchor="start">matrix (inside)</text>
+
+  <text x="240" y="306" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Burns sugar with oxygen to make ATP — the cell's energy currency. More folds = more energy.</text>
+
+</svg>
