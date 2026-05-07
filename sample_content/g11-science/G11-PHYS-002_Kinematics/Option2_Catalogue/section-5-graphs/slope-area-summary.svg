@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 280" width="520" height="280" role="img" aria-label="Slope-area chain summary">
+  <title>Slope-area chain summary</title>
+  <desc>Three boxes (x, v, a) connected by 'slope' arrows going forward and 'area' arrows going backward, summarising the calculus relationships.</desc>
+  
+  <text x="260" y="24" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">The Slope ↔ Area Chain</text>
+
+  <!-- Three boxes -->
+  <g transform="translate(20, 70)">
+    <rect x="0" y="0" width="140" height="140" rx="8" fill="#f7fafc" stroke="#2b6cb0" stroke-width="2" />
+    <text x="70" y="32" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">x(t)</text>
+    <text x="70" y="78" font="11px system-ui" font-size="11" fill="#1a202c" text-anchor="middle">position</text>
+    <text x="70" y="115" font="10px system-ui" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">measured</text>
+  </g>
+
+  <g transform="translate(190, 70)">
+    <rect x="0" y="0" width="140" height="140" rx="8" fill="#f7fafc" stroke="#dd6b20" stroke-width="2" />
+    <text x="70" y="32" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#dd6b20" text-anchor="middle">v(t)</text>
+    <text x="70" y="78" font="11px system-ui" font-size="11" fill="#1a202c" text-anchor="middle">velocity</text>
+    <text x="70" y="115" font="10px system-ui" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">= dx/dt</text>
+  </g>
+
+  <g transform="translate(360, 70)">
+    <rect x="0" y="0" width="140" height="140" rx="8" fill="#f7fafc" stroke="#319795" stroke-width="2" />
+    <text x="70" y="32" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#319795" text-anchor="middle">a(t)</text>
+    <text x="70" y="78" font="11px system-ui" font-size="11" fill="#1a202c" text-anchor="middle">acceleration</text>
+    <text x="70" y="115" font="10px system-ui" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">= dv/dt</text>
+  </g>
+
+  <!-- Forward arrows (slope) -->
+  <defs>
+    <marker id="ah-fwd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4a5568" />
+    </marker>
+  </defs>
+  <line x1="160" y1="120" x2="190" y2="120" stroke="#4a5568" stroke-width="2" marker-end="url(#ah-fwd)" />
+  <text x="175" y="113" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">slope</text>
+  <line x1="330" y1="120" x2="360" y2="120" stroke="#4a5568" stroke-width="2" marker-end="url(#ah-fwd)" />
+  <text x="345" y="113" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">slope</text>
+
+  <!-- Reverse arrows (area) -->
+  <line x1="190" y1="160" x2="160" y2="160" stroke="#15803d" stroke-width="2" marker-end="url(#ah-fwd)" />
+  <text x="175" y="178" font="10px system-ui" font-size="10" fill="#15803d" text-anchor="middle">area</text>
+  <line x1="360" y1="160" x2="330" y2="160" stroke="#15803d" stroke-width="2" marker-end="url(#ah-fwd)" />
+  <text x="345" y="178" font="10px system-ui" font-size="10" fill="#15803d" text-anchor="middle">area</text>
+
+  <text x="260" y="266" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Slope moves you to the next derivative; area integrates back.</text>
+
+</svg>
