@@ -186,3 +186,48 @@ async def test_delete_rejects_other_schools_asset(client: AsyncClient, visuals_r
     )
     # 403 — the path-prefix guard catches it before storage
     assert res.status_code == 403
+
+
+# ── PUT /sections (override-workflow integration) ────────────────────────────
+#
+# Happy path covering the full Phase D fixture (school + adoption + import +
+# override) is parked for a follow-up; that path is deeply intertwined with
+# Epic 12's authoring flow. The error-path tests below exercise the auth gate
+# and the missing-adoption branch without a full content-import fixture.
+
+
+@pytest.mark.asyncio
+async def test_put_section_visuals_rejects_other_school(client: AsyncClient):
+    school_a = str(uuid.uuid4())
+    school_b = str(uuid.uuid4())
+    token = make_teacher_token(school_id=school_a, role="teacher")
+    res = await client.put(
+        f"/api/v1/schools/{school_b}/visuals/sections",
+        json={
+            "adoption_id": str(uuid.uuid4()),
+            "unit_id": "U-1",
+            "section_id": "s1",
+            "visuals": [],
+        },
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert res.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_put_section_visuals_404_when_adoption_missing(client: AsyncClient):
+    """PUT against a non-existent adoption returns 404 (no school_adopted_curricula row)."""
+    school_id = str(uuid.uuid4())
+    token = make_teacher_token(school_id=school_id, role="teacher")
+    bogus_adoption = str(uuid.uuid4())
+    res = await client.put(
+        f"/api/v1/schools/{school_id}/visuals/sections",
+        json={
+            "adoption_id": bogus_adoption,
+            "unit_id": "U-1",
+            "section_id": "s1",
+            "visuals": [{"kind": "image", "items": [{"src": "/x.svg", "alt": "x"}]}],
+        },
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert res.status_code == 404

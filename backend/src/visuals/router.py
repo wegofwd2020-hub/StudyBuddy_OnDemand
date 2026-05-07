@@ -180,3 +180,168 @@ async def delete_visual(
         "visual_deleted school_id=%s teacher_id=%s path=%s",
         school_id, teacher.get("teacher_id"), asset_path,
     )
+
+
+# ── PUT /schools/{school_id}/content/.../section/{section_id}/visuals ────────
+#
+# Issue #318 phase 2c — override-workflow integration.
+# Replaces the visuals[] array on one section of a unit's tutorial in a
+# school's draft override. Creates a new draft override row (append-only
+# versioning per Phase D), source_override_id pointing at the previous
+# version. The school's review queue picks up the new draft.
+#
+# Body (JSON): { adoption_id, unit_id, section_id, visuals: [VisualBlock] }
+# Returns:     { override_id, version_number, review_status }
+
+
+import json as _json  # local alias avoids reformatter dropping the import
+
+
+class _VisualItemIn(BaseModel):
+    src: str
+    alt: str
+    caption: str | None = None
+    poster: str | None = None
+    duration: str | None = None
+
+
+class _VisualBlockIn(BaseModel):
+    kind: str
+    heading: str | None = None
+    items: list[_VisualItemIn]
+
+
+class SectionVisualsUpdate(BaseModel):
+    adoption_id: str
+    unit_id: str
+    section_id: str
+    visuals: list[_VisualBlockIn]
+
+
+class SectionVisualsUpdateResponse(BaseModel):
+    override_id: str
+    version_number: int
+    review_status: str
+
+
+@router.put("/sections", response_model=SectionVisualsUpdateResponse)
+async def put_section_visuals(
+    school_id: str,
+    payload: SectionVisualsUpdate,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> SectionVisualsUpdateResponse:
+    """Replace the visuals[] array on one section of a tutorial draft override.
+
+    Pre-conditions:
+      - The school owns the adoption (RLS scoping + adoption.school_id check).
+      - The unit's tutorial has been imported (`POST /schools/{school_id}/library/{adoption_id}/units/{unit_id}/import`).
+      - The current latest version is editable (status in draft / pending_review / rejected).
+        Once `approved`, edits create a new draft cycle.
+
+    Effect:
+      - Reads the latest tutorial override row for this (forked_curriculum, unit, lang='en').
+      - Mutates body["sections"][section_id_match]["visuals"] = payload.visuals.
+      - Inserts a new override row with version_number+1 and status='draft'.
+      - The serving path keeps showing the previous active version until the
+        school admin transitions the new draft through pending_review → approved.
+    """
+    if teacher["school_id"] != school_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    from src.core.db import get_db  # local import — formatter strips top-level
+
+    async with get_db(request) as conn:
+        adoption = await conn.fetchrow(
+            """
+            SELECT forked_curriculum_id, status
+            FROM school_adopted_curricula
+            WHERE school_id = $1 AND adoption_id = $2
+            """,
+            school_id, payload.adoption_id,
+        )
+        if not adoption:
+            raise HTTPException(status_code=404, detail="Adoption not found")
+        if adoption["status"] != "active":
+            raise HTTPException(status_code=403, detail="Adoption is not active")
+        forked = adoption["forked_curriculum_id"]
+        if forked is None:
+            raise HTTPException(
+                status_code=409,
+                detail="Unit content has not been imported yet. POST to "
+                       f"/schools/{school_id}/library/{payload.adoption_id}/units/"
+                       f"{payload.unit_id}/import first.",
+            )
+
+        latest = await conn.fetchrow(
+            """
+            SELECT override_id, body, version_number, review_status, bundle_id
+            FROM unit_content_overrides
+            WHERE curriculum_id = $1
+              AND unit_id = $2
+              AND lang = 'en'
+              AND content_type = 'tutorial'
+            ORDER BY version_number DESC
+            LIMIT 1
+            """,
+            forked, payload.unit_id,
+        )
+        if not latest:
+            raise HTTPException(
+                status_code=409,
+                detail="No tutorial override found for this unit. Import it first.",
+            )
+
+        # Body is JSONB; asyncpg returns it as a JSON-encoded string.
+        body = latest["body"]
+        if isinstance(body, str):
+            body = _json.loads(body)
+        elif isinstance(body, (bytes, bytearray)):
+            body = _json.loads(body.decode("utf-8"))
+
+        sections = body.get("sections", [])
+        target = next(
+            (s for s in sections if s.get("section_id") == payload.section_id),
+            None,
+        )
+        if target is None:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Section {payload.section_id!r} not found in tutorial",
+            )
+
+        # Replace visuals[]
+        target["visuals"] = [block.model_dump() for block in payload.visuals]
+        new_version = latest["version_number"] + 1
+
+        row = await conn.fetchrow(
+            """
+            INSERT INTO unit_content_overrides
+                (school_id, curriculum_id, unit_id, lang, content_type,
+                 bundle_id, content_source, source_override_id, body,
+                 last_edited_by, review_status, version_number)
+            VALUES ($1, $2, $3, 'en', 'tutorial',
+                    $4, 'teacher_authored', $5, $6,
+                    $7, 'draft', $8)
+            RETURNING override_id, review_status, version_number
+            """,
+            school_id,
+            forked,
+            payload.unit_id,
+            latest["bundle_id"],
+            latest["override_id"],
+            _json.dumps(body),
+            teacher["teacher_id"],
+            new_version,
+        )
+
+    log.info(
+        "visual_section_updated school=%s unit=%s section=%s version=%s blocks=%d",
+        school_id, payload.unit_id, payload.section_id,
+        row["version_number"], len(payload.visuals),
+    )
+    return SectionVisualsUpdateResponse(
+        override_id=str(row["override_id"]),
+        version_number=row["version_number"],
+        review_status=row["review_status"],
+    )
