@@ -1,0 +1,21 @@
+{
+  "name": "g9-kinematics-1d-video",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "studio": "bunx remotion studio",
+    "render:motion-strip": "bunx remotion render g9-motion-along-strip ~/Downloads/G9_Kinematics_MotionAlongStrip.mp4",
+    "render:all": "bun run render:motion-strip"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.260",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.260",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.0",
+    "typescript": "^5.4.0"
+  }
+}
