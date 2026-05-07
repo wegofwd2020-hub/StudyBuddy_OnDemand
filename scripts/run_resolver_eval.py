@@ -62,6 +62,11 @@ DEFAULT_HIT_THRESHOLD = float(os.environ.get("VISUAL_RESOLVER_THRESHOLD", "0.85"
 DEFAULT_TOP_K = int(os.environ.get("VISUAL_EVAL_TOP_K", "3"))
 DEFAULT_PROBES = int(os.environ.get("VISUAL_RESOLVER_IVFFLAT_PROBES", "100"))
 
+# Voyage free-tier rate limit is 3 RPM. Set to 22s spacing by default for
+# safety margin; if the operator has added a payment method, set
+# VOYAGE_THROTTLE_SECONDS=0 to disable throttling.
+VOYAGE_THROTTLE_SECONDS = float(os.environ.get("VOYAGE_THROTTLE_SECONDS", "22"))
+
 
 # ── Eval record ───────────────────────────────────────────────────────────────
 
@@ -411,6 +416,12 @@ async def main(argv: list[str]) -> int:
 
         results: list[dict] = []
         for i, rec in enumerate(records, 1):
+            # Throttle Voyage calls — free tier is 3 RPM. The previous
+            # iteration always made one Voyage call (one embed for the
+            # highest-confidence VisualNeed), so spacing-per-record is
+            # the right granularity.
+            if i > 1 and VOYAGE_THROTTLE_SECONDS > 0:
+                await asyncio.sleep(VOYAGE_THROTTLE_SECONDS)
             if not args.quiet:
                 print(f"  [{i:2d}/{len(records)}] {rec['id']} ({rec['category']})...",
                       end="", flush=True)
