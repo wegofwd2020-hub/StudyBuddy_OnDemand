@@ -7,7 +7,7 @@
 
 - **Phase 1 (Option 2 catalogue):** ✅ 10 SVGs + 10 sidecars shipped
 - **Phase 2 (Option 3 Remotion clip):** ✅ `G9_Kinematics_MotionAlongStrip.mp4` (1.7 MB / 24 s)
-- **Phase 3 (eval set + library promotion):** pending
+- **Phase 3 (eval set + library promotion):** ✅ 10 sidecars promoted (all with non-NULL embeddings); 3 new known-positive eval records appended (`eval-054` / `055` / `056`)
 
 ## Phase 1 reflections — Option 2 catalogue
 
@@ -79,15 +79,41 @@ Nothing. Pure 2D primitives + math.
 
 Phase 1 estimated 1 day, Phase 2 estimated half a day in the issue's 1.5-day total. **Actual Phase 2: ~20 minutes authoring + 1 minute render.** The generator-reuse conjecture continues to hold: every infra file mirrored a known-good template, so authoring effort collapsed onto the single new scene file (~210 LoC including the `Strip` component).
 
+## Phase 3 reflections — eval entries + library promotion
+
+Three new known-positive eval records appended to `backend/tests/eval/visual_resolver_eval.jsonl`:
+
+| eval id | section title | expected_entry_id |
+|---|---|---|
+| `eval-054` | Riding at a Steady Pace | `physics-g9-distance-vs-time-uniform` |
+| `eval-055` | Strobe Trail of a Rolling Ball | `physics-g9-motion-strip-accelerated` |
+| `eval-056` | Two Cars, Same Finish, Different Stories | `physics-g9-uniform-vs-accelerated-comparison` |
+
+Choices were driven by primitive-class diversity: one straight-line plot, one new-to-G9 motion-strip primitive, one comparison-grid primitive. Each section's prose is plausible G9 textbook content (cyclist, ramp+ball, two cars) without keyword-stuffing — the resolver is meant to *infer* the visual need from natural language.
+
+All 10 G9-SCI-001 sidecars seeded into `visual_library_entries` via `scripts/seed_library_local.py` (run inside `celery-pipeline` after the docker-cp dance). Verified: 10 rows present with `source_unit='G9-SCI-001'`, all with non-NULL embeddings; total rows = 52, NULL-embedding rows = 0.
+
+### What was repetitive (= templatable)
+
+1. **Eval-record pattern is identical to #327 Phase 3.** Same 8-field schema, same prose-prose-rationale shape. **Recommendation for #320 (already filed):** ship a per-unit eval-record generator that takes `[(visual_id, section_title, prose), ...]` and stamps the JSONL.
+2. **Seeder workflow is byte-identical to #327 Phase 3.** `docker cp sample_content/g9-stem` → `python3 /tmp/seed/scripts/seed_library_local.py` → SELECT verify. Same five steps every time. The recommended permanent fix (issue #339 — bind-mount `scripts/` and `sample_content/` into celery-pipeline) is now justified by *two* units' worth of friction; the next unit will be the third proof point.
+
+### What needed human judgment
+
+Same as #327's Phase 3 — the eval prose authoring is the only curator-only piece. Two patterns observed across both units' eval prose:
+
+- **Always describe the visual the student is *about to be shown*, not the visual itself.** "Plot speed against time and the points fall on a straight line that climbs through the origin" reads as a description of the *graph being built*; "a straight line on a speed-time plot" reads as a label. The resolver-LLM behaviour observed in #327 validation suggests it picks up the former more reliably.
+- **Don't keyword-stuff.** None of these three prose entries use the word "motion-strip", "stroboscope", or "uniform" verbatim. The resolver should win on semantics, not word-match.
+
 ## Time budget
 
 | Phase | Issue estimate | Actual |
 |---|---|---|
 | Phase 1 | ~1 day | ~30 min |
 | Phase 2 | ~0.5 day | ~20 min |
-| Phase 3 | (rolled into 1.5 d) | pending |
+| Phase 3 | (rolled into 1.5 d) | ~15 min |
 
-Wave-1 padding is correctly budgeting for the *first* unit per primitive class. Same-class downstream units (G11-PHYS-010 → G9-SCI-001 in this case) routinely come in at <20% of the first unit's wall time.
+Total: ~65 minutes vs. 1.5-day issue estimate. Compared to #327 (~3h 15m for the first oscillations unit), this G9 unit landed in ~1/3 the time. Wave-1 padding is correct for the *first* unit per primitive class — same-class downstream units routinely come in at <20% of the first unit's wall time.
 
 ---
-*Author: broker. Updated 2026-05-07 (Phase 2 complete).*
+*Author: broker. Updated 2026-05-07 (all phases complete; #328 ready to close).*
