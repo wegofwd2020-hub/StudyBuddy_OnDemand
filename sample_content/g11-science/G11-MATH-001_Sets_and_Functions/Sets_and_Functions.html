@@ -1,0 +1,2338 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Sets and Functions</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <script defer=""
+  src="/usr/share/javascript/katex/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <link rel="stylesheet"
+  href="/usr/share/javascript/katex/katex.min.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Sets and Functions</h1>
+</header>
+<h1 id="sets-and-functions">Sets and Functions</h1>
+<blockquote>
+<p>Unit <code>G11-MATH-001</code> Reading level: Grade 11–12
+(university-preparatory) Estimated duration: 45 min</p>
+</blockquote>
+<h2 id="synopsis">Synopsis</h2>
+<p>This lesson introduces the foundational language of modern
+mathematics: <strong>sets</strong> and <strong>functions</strong>.
+Beginning with rigorous set-builder notation and progressing through
+function definitions, domain-and-range analysis, and composition of
+functions, students will develop the abstract reasoning skills essential
+for calculus, linear algebra, and beyond. By the end of this lesson, you
+will be able to manipulate sets algebraically, classify functions by
+their properties, and evaluate composite and inverse functions with
+confidence.</p>
+<h2 id="key-concepts">Key Concepts</h2>
+<ul>
+<li><strong>Set notation and set-builder notation</strong> —
+representing collections using <span class="math inline">\{x \mid
+P(x)\}</span> and roster form</li>
+<li><strong>Set operations</strong> — union <span class="math inline">A
+\cup B</span>, intersection <span class="math inline">A \cap B</span>,
+difference <span class="math inline">A \setminus B</span>, and
+complement <span class="math inline">A^c</span></li>
+<li><strong>Cartesian product</strong> — forming ordered pairs <span
+class="math inline">A \times B = \{(a,b) \mid a \in A,\, b \in
+B\}</span></li>
+<li><strong>Relations and functions</strong> — a function <span
+class="math inline">f: A \to B</span> as a special relation where every
+element of the domain maps to exactly one element of the codomain</li>
+<li><strong>Domain, codomain, and range</strong> — distinguishing <span
+class="math inline">\text{dom}(f)</span>, <span
+class="math inline">\text{codom}(f)</span>, and <span
+class="math inline">\text{ran}(f) \subseteq \text{codom}(f)</span></li>
+<li><strong>Injectivity, surjectivity, and bijectivity</strong> —
+one-to-one, onto, and one-to-one correspondence</li>
+<li><strong>Composition of functions</strong> — <span
+class="math inline">(f \circ g)(x) = f(g(x))</span> and its domain
+restrictions</li>
+<li><strong>Inverse functions</strong> — conditions for <span
+class="math inline">f^{-1}</span> to exist and the identity <span
+class="math inline">f(f^{-1}(x)) = x</span></li>
+</ul>
+<h2 id="learning-objectives">Learning Objectives</h2>
+<ul>
+<li><strong>Explain</strong> the distinction between a set, a relation,
+and a function using precise mathematical language, and represent each
+using appropriate notation including set-builder form and arrow
+diagrams.</li>
+<li><strong>Identify</strong> whether a given function is injective,
+surjective, or bijective by applying the formal definitions and, where
+applicable, the horizontal line test.</li>
+<li><strong>Calculate</strong> the domain and range of algebraic,
+radical, and rational functions, expressing answers in interval notation
+and set notation.</li>
+<li><strong>Evaluate and simplify</strong> composite functions <span
+class="math inline">(f \circ g)(x)</span> and <span
+class="math inline">(g \circ f)(x)</span>, determining the restricted
+domain of the composition when necessary.</li>
+<li><strong>Derive</strong> the inverse of a bijective function
+algebraically and verify the result using the composition identity <span
+class="math inline">f^{-1}(f(x)) = x</span>.</li>
+</ul>
+<hr />
+<h1
+id="sets-and-functions-from-foundational-theory-to-functional-reasoning">Sets
+and Functions: From Foundational Theory to Functional Reasoning</h1>
+<h2 id="set-theory-definitions-notation-and-fundamental-operations">Set
+Theory: Definitions, Notation, and Fundamental Operations</h2>
+<h2 id="what-is-a-set">1.1 What Is a Set?</h2>
+<p>A <strong>set</strong> is a well-defined collection of distinct
+objects, called <strong>elements</strong> or <strong>members</strong>.
+The concept of a set is foundational to virtually all of modern
+mathematics.</p>
+<blockquote>
+<p>Mathematics is the language in which God has written the universe. —
+Galileo Galilei</p>
+</blockquote>
+<p>We denote sets with capital letters (<span
+class="math inline">A</span>, <span class="math inline">B</span>, <span
+class="math inline">S</span>, etc.) and their elements with lowercase
+letters. Membership is expressed as:</p>
+<ul>
+<li><span class="math inline">x \in A</span> means “<span
+class="math inline">x</span> is an element of <span
+class="math inline">A</span>”</li>
+<li><span class="math inline">x \notin A</span> means “<span
+class="math inline">x</span> is not an element of <span
+class="math inline">A</span>”</li>
+</ul>
+<h3 id="ways-to-define-a-set">1.2 Ways to Define a Set</h3>
+<table>
+<colgroup>
+<col style="width: 29%" />
+<col style="width: 37%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Method</th>
+<th style="text-align: left;">Notation</th>
+<th style="text-align: left;">Example</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Roster (Enumeration)</td>
+<td style="text-align: left;">List all elements</td>
+<td style="text-align: left;"><span class="math inline">A = \{1, 2, 3,
+4\}</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Set-Builder</td>
+<td style="text-align: left;">Describe with a rule</td>
+<td style="text-align: left;"><span class="math inline">B = \{x \mid x
+\in \mathbb{Z},\; 1 \leq x \leq 4\}</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Descriptive</td>
+<td style="text-align: left;">Words</td>
+<td style="text-align: left;">“The set of all even natural numbers”</td>
+</tr>
+</tbody>
+</table>
+<h3 id="special-sets">1.3 Special Sets</h3>
+<table>
+<colgroup>
+<col style="width: 29%" />
+<col style="width: 22%" />
+<col style="width: 48%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">Symbol</th>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><span
+class="math inline">\emptyset</span> or <span
+class="math inline">\{\}</span></td>
+<td style="text-align: left;">Empty Set</td>
+<td style="text-align: left;">Contains no elements</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><span
+class="math inline">\mathbb{N}</span></td>
+<td style="text-align: left;">Natural Numbers</td>
+<td style="text-align: left;"><span class="math inline">\{1, 2, 3,
+\ldots\}</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><span
+class="math inline">\mathbb{Z}</span></td>
+<td style="text-align: left;">Integers</td>
+<td style="text-align: left;"><span class="math inline">\{\ldots, -2,
+-1, 0, 1, 2, \ldots\}</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><span
+class="math inline">\mathbb{Q}</span></td>
+<td style="text-align: left;">Rational Numbers</td>
+<td style="text-align: left;"><span
+class="math inline">\left\{\dfrac{p}{q} \mid p, q \in \mathbb{Z},\; q
+\neq 0\right\}</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><span
+class="math inline">\mathbb{R}</span></td>
+<td style="text-align: left;">Real Numbers</td>
+<td style="text-align: left;">All points on the number line</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><span
+class="math inline">\mathbb{U}</span></td>
+<td style="text-align: left;">Universal Set</td>
+<td style="text-align: left;">The set of all objects under
+consideration</td>
+</tr>
+</tbody>
+</table>
+<h3 id="subsets-and-power-sets">1.4 Subsets and Power Sets</h3>
+<p>Set <span class="math inline">A</span> is a <strong>subset</strong>
+of <span class="math inline">B</span>, written <span
+class="math inline">A \subseteq B</span>, if every element of <span
+class="math inline">A</span> is also an element of <span
+class="math inline">B</span>:</p>
+<p><span class="math display">A \subseteq B \iff \forall x,\; (x \in A
+\Rightarrow x \in B)</span></p>
+<p>Two sets are <strong>equal</strong> if and only if they are subsets
+of each other:</p>
+<p><span class="math display">A = B \iff (A \subseteq B) \land (B
+\subseteq A)</span></p>
+<p>The <strong>power set</strong> of <span class="math inline">A</span>,
+denoted <span class="math inline">\mathcal{P}(A)</span>, is the set of
+all subsets of <span class="math inline">A</span>. If <span
+class="math inline">|A| = n</span> (where <span
+class="math inline">|A|</span> denotes the <strong>cardinality</strong>,
+or number of elements, of <span class="math inline">A</span>), then:</p>
+<p><span class="math display">|\mathcal{P}(A)| = 2^n</span></p>
+<h3 id="set-operations">1.5 Set Operations</h3>
+<p>Let <span class="math inline">A</span> and <span
+class="math inline">B</span> be subsets of a universal set <span
+class="math inline">\mathbb{U}</span>.</p>
+<table>
+<colgroup>
+<col style="width: 35%" />
+<col style="width: 25%" />
+<col style="width: 38%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Operation</th>
+<th style="text-align: center;">Symbol</th>
+<th style="text-align: left;">Definition</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Union</td>
+<td style="text-align: center;"><span class="math inline">A \cup
+B</span></td>
+<td style="text-align: left;"><span class="math inline">\{x \mid x \in A
+\text{ or } x \in B\}</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Intersection</td>
+<td style="text-align: center;"><span class="math inline">A \cap
+B</span></td>
+<td style="text-align: left;"><span class="math inline">\{x \mid x \in A
+\text{ and } x \in B\}</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Difference</td>
+<td style="text-align: center;"><span class="math inline">A \setminus
+B</span></td>
+<td style="text-align: left;"><span class="math inline">\{x \mid x \in A
+\text{ and } x \notin B\}</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Complement</td>
+<td style="text-align: center;"><span class="math inline">A&#39;</span>
+or <span class="math inline">A^c</span></td>
+<td style="text-align: left;"><span class="math inline">\{x \in
+\mathbb{U} \mid x \notin A\}</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Symmetric Difference</td>
+<td style="text-align: center;"><span class="math inline">A \triangle
+B</span></td>
+<td style="text-align: left;"><span class="math inline">(A \setminus B)
+\cup (B \setminus A)</span></td>
+</tr>
+</tbody>
+</table>
+<h3 id="key-properties-laws-of-set-algebra">1.6 Key Properties (Laws of
+Set Algebra)</h3>
+<p><span class="math display">A \cup (B \cap C) = (A \cup B) \cap (A
+\cup C) \quad \text{(Distributive Law)}</span></p>
+<p><span class="math display">\overline{A \cup B} = \overline{A} \cap
+\overline{B} \quad \text{(De Morgan&#39;s First Law)}</span></p>
+<p><span class="math display">\overline{A \cap B} = \overline{A} \cup
+\overline{B} \quad \text{(De Morgan&#39;s Second Law)}</span></p>
+<h2 id="worked-example-1-set-operations">Worked Example 1: Set
+Operations</h2>
+<p><strong>Given:</strong> <span class="math inline">\mathbb{U} = \{1,
+2, 3, 4, 5, 6, 7, 8\}</span>, <span class="math inline">A = \{1, 2, 3,
+4\}</span>, <span class="math inline">B = \{3, 4, 5, 6\}</span>.</p>
+<p>Find: <strong>(a)</strong> <span class="math inline">A \cup B</span>,
+<strong>(b)</strong> <span class="math inline">A \cap B</span>,
+<strong>(c)</strong> <span class="math inline">A \setminus B</span>,
+<strong>(d)</strong> <span class="math inline">A&#39;</span>.</p>
+<p><strong>Solution:</strong></p>
+<ol type="1">
+<li><strong>Union</strong> — combine all elements, no duplicates:</li>
+</ol>
+<p><span class="math display">A \cup B = \{1, 2, 3, 4, 5, 6\}</span></p>
+<ol start="2" type="1">
+<li><strong>Intersection</strong> — elements common to both:</li>
+</ol>
+<p><span class="math display">A \cap B = \{3, 4\}</span></p>
+<ol start="3" type="1">
+<li><strong>Set Difference</strong> — elements in <span
+class="math inline">A</span> but not in <span
+class="math inline">B</span>:</li>
+</ol>
+<p><span class="math display">A \setminus B = \{1, 2\}</span></p>
+<ol start="4" type="1">
+<li><strong>Complement of <span class="math inline">A</span></strong> —
+elements in <span class="math inline">\mathbb{U}</span> not in <span
+class="math inline">A</span>:</li>
+</ol>
+<p><span class="math display">A&#39; = \{5, 6, 7, 8\}</span></p>
+<h2 id="worked-example-2-power-sets-and-cardinality">Worked Example 2:
+Power Sets and Cardinality</h2>
+<p><strong>Given:</strong> <span class="math inline">S = \{a, b,
+c\}</span>.</p>
+<p>Find <span class="math inline">\mathcal{P}(S)</span> and verify <span
+class="math inline">|\mathcal{P}(S)| = 2^{|S|}</span>.</p>
+<p><strong>Solution:</strong></p>
+<ol type="1">
+<li><p>The cardinality is <span class="math inline">|S| = 3</span>, so
+we expect <span class="math inline">2^3 = 8</span> subsets.</p></li>
+<li><p>List all subsets systematically by size:</p></li>
+</ol>
+<p><span class="math display">\mathcal{P}(S) = \bigl\{\emptyset,\;
+\{a\},\; \{b\},\; \{c\},\; \{a,b\},\; \{a,c\},\; \{b,c\},\;
+\{a,b,c\}\bigr\}</span></p>
+<ol start="3" type="1">
+<li>Count: there are indeed <strong>8</strong> elements in <span
+class="math inline">\mathcal{P}(S)</span>, confirming:</li>
+</ol>
+<p><span class="math display">|\mathcal{P}(S)| = 2^3 = 8
+\checkmark</span></p>
+<p><strong>Note:</strong> The empty set <span
+class="math inline">\emptyset</span> is always a subset of every set,
+and every set is a subset of itself.</p>
+<h3 id="practice-question">Practice Question</h3>
+<p>Let <span class="math inline">\mathbb{U} = \{x \in \mathbb{Z} \mid 1
+\leq x \leq 10\}</span>, <span class="math inline">P = \{2, 4, 6, 8,
+10\}</span> (even integers), and <span class="math inline">Q = \{1, 2,
+3, 5, 7\}</span> (contains 1 and the first four primes).</p>
+<p><strong>(a)</strong> Find <span class="math inline">P \cup Q</span>,
+<span class="math inline">P \cap Q</span>, and <span
+class="math inline">P \setminus Q</span>. <strong>(b)</strong> Verify De
+Morgan’s First Law: show that <span class="math inline">\overline{P \cup
+Q} = \overline{P} \cap \overline{Q}</span> by computing each side
+independently. <strong>(c)</strong> Write <span
+class="math inline">P</span> in set-builder notation.</p>
+<h2 id="relations-and-the-concept-of-a-function">Relations and the
+Concept of a Function</h2>
+<h2 id="ordered-pairs-and-the-cartesian-product">2.1 Ordered Pairs and
+the Cartesian Product</h2>
+<p>An <strong>ordered pair</strong> <span class="math inline">(a,
+b)</span> is a pair of elements where order matters: <span
+class="math inline">(a, b) \neq (b, a)</span> unless <span
+class="math inline">a = b</span>. The <strong>Cartesian product</strong>
+of sets <span class="math inline">A</span> and <span
+class="math inline">B</span> is:</p>
+<p><span class="math display">A \times B = \{(a, b) \mid a \in A,\; b
+\in B\}</span></p>
+<p>If <span class="math inline">|A| = m</span> and <span
+class="math inline">|B| = n</span>, then <span class="math inline">|A
+\times B| = mn</span>.</p>
+<h2 id="relations">2.2 Relations</h2>
+<p>A <strong>binary relation</strong> <span class="math inline">R</span>
+from <span class="math inline">A</span> to <span
+class="math inline">B</span> is any subset of the Cartesian product:</p>
+<p><span class="math display">R \subseteq A \times B</span></p>
+<p>We write <span class="math inline">a\,R\,b</span> to mean <span
+class="math inline">(a, b) \in R</span>. The <strong>domain</strong> of
+<span class="math inline">R</span> is the set of all first components,
+and the <strong>range</strong> (or image) is the set of all second
+components that actually appear.</p>
+<h2 id="definition-of-a-function">2.3 Definition of a Function</h2>
+<p>A <strong>function</strong> (or <strong>mapping</strong>) <span
+class="math inline">f</span> from set <span class="math inline">A</span>
+to set <span class="math inline">B</span>, written</p>
+<p><span class="math display">f: A \to B</span></p>
+<p>is a relation in which <strong>every element of <span
+class="math inline">A</span> is paired with exactly one element of <span
+class="math inline">B</span></strong>. Formally:</p>
+<p><span class="math display">\forall x \in A,\; \exists! y \in B \text{
+such that } (x, y) \in f</span></p>
+<p>Here: - <span class="math inline">A</span> is the
+<strong>domain</strong> of <span class="math inline">f</span>, denoted
+<span class="math inline">\text{dom}(f)</span> - <span
+class="math inline">B</span> is the <strong>codomain</strong> of <span
+class="math inline">f</span> - The <strong>range</strong> (or
+<strong>image</strong>) of <span class="math inline">f</span> is <span
+class="math inline">\text{ran}(f) = \{f(x) \mid x \in A\} \subseteq
+B</span></p>
+<blockquote>
+<p>The art of doing mathematics consists in finding that special case
+which contains all the germs of generality. — David Hilbert</p>
+</blockquote>
+<h2 id="the-vertical-line-test">2.4 The Vertical Line Test</h2>
+<p>For a relation defined by a graph in the Cartesian plane, it
+represents a function if and only if <strong>every vertical line
+intersects the graph at most once</strong>. This enforces the
+single-output requirement.</p>
+<h2 id="injective-surjective-and-bijective-functions">2.5 Injective,
+Surjective, and Bijective Functions</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 30%" />
+<col style="width: 45%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Property</th>
+<th style="text-align: left;">Definition</th>
+<th style="text-align: left;">Informal Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Injective</strong>
+(one-to-one)</td>
+<td style="text-align: left;"><span class="math inline">f(a) = f(b)
+\Rightarrow a = b</span></td>
+<td style="text-align: left;">No two inputs share the same output</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Surjective</strong> (onto)</td>
+<td style="text-align: left;"><span class="math inline">\forall y \in
+B,\; \exists x \in A : f(x) = y</span></td>
+<td style="text-align: left;">Every element of the codomain is an
+output</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Bijective</strong> (one-to-one
+correspondence)</td>
+<td style="text-align: left;">Both injective and surjective</td>
+<td style="text-align: left;">Perfect pairing between domain and
+codomain</td>
+</tr>
+</tbody>
+</table>
+<p>Only <strong>bijective</strong> functions have a well-defined
+<strong>inverse function</strong> <span class="math inline">f^{-1}: B
+\to A</span>.</p>
+<h2 id="equal-functions">2.6 Equal Functions</h2>
+<p>Two functions <span class="math inline">f</span> and <span
+class="math inline">g</span> are <strong>equal</strong> if and only if:
+1. They have the same domain, <span class="math inline">\text{dom}(f) =
+\text{dom}(g)</span>. 2. <span class="math inline">f(x) = g(x)</span>
+for every <span class="math inline">x</span> in that common domain.</p>
+<h2
+id="worked-example-1-identifying-functions-from-arrow-diagrams">Worked
+Example 1: Identifying Functions from Arrow Diagrams</h2>
+<p>Decide whether each of the following mappings from <span
+class="math inline">A = \{1, 2, 3\}</span> to <span
+class="math inline">B = \{p, q, r\}</span> is a function.</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 20%" />
+<col style="width: 31%" />
+<col style="width: 22%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Mapping</th>
+<th style="text-align: left;">Pairs</th>
+<th style="text-align: center;">Function?</th>
+<th style="text-align: left;">Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">R_1</span></td>
+<td style="text-align: left;"><span
+class="math inline">(1,p),(2,q),(3,r)</span></td>
+<td style="text-align: center;">✓ Yes</td>
+<td style="text-align: left;">Each element of <span
+class="math inline">A</span> maps to exactly one element of <span
+class="math inline">B</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">R_2</span></td>
+<td style="text-align: left;"><span
+class="math inline">(1,p),(1,q),(2,r)</span></td>
+<td style="text-align: center;">✗ No</td>
+<td style="text-align: left;">Element <span class="math inline">1</span>
+maps to two outputs: <span class="math inline">p</span> and <span
+class="math inline">q</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">R_3</span></td>
+<td style="text-align: left;"><span
+class="math inline">(1,p),(2,p),(3,q)</span></td>
+<td style="text-align: center;">✓ Yes</td>
+<td style="text-align: left;">Repetition of outputs is allowed; each
+input has exactly one output</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">R_4</span></td>
+<td style="text-align: left;"><span
+class="math inline">(1,p),(2,q)</span></td>
+<td style="text-align: center;">✗ No</td>
+<td style="text-align: left;">Element <span class="math inline">3 \in
+A</span> has no output (undefined)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key Insight:</strong> <span class="math inline">R_3</span> is
+a valid function — it is <strong>not</strong> injective (since <span
+class="math inline">f(1)=f(2)=p</span>), but it satisfies the definition
+of a function.</p>
+<h2 id="worked-example-2-finding-domain-codomain-and-range">Worked
+Example 2: Finding Domain, Codomain, and Range</h2>
+<p><strong>Given:</strong> <span class="math inline">f: \mathbb{R} \to
+\mathbb{R}</span> defined by <span class="math inline">f(x) = x^2 -
+4</span>.</p>
+<p><strong>Find the domain, codomain, and range.</strong></p>
+<p><strong>Solution:</strong></p>
+<ol type="1">
+<li><strong>Domain:</strong> The expression <span
+class="math inline">x^2 - 4</span> is defined for all real <span
+class="math inline">x</span>, so:</li>
+</ol>
+<p><span class="math display">\text{dom}(f) = \mathbb{R} = (-\infty,
++\infty)</span></p>
+<ol start="2" type="1">
+<li><p><strong>Codomain:</strong> As declared in the mapping notation,
+the codomain is <span class="math inline">\mathbb{R}</span>.</p></li>
+<li><p><strong>Range:</strong> Since <span class="math inline">x^2 \geq
+0</span> for all <span class="math inline">x \in \mathbb{R}</span>, the
+minimum value of <span class="math inline">f(x)</span> occurs at <span
+class="math inline">x = 0</span>:</p></li>
+</ol>
+<p><span class="math display">f(0) = 0 - 4 = -4</span></p>
+<p>As <span class="math inline">|x| \to \infty</span>, <span
+class="math inline">f(x) \to +\infty</span>. Therefore:</p>
+<p><span class="math display">\text{ran}(f) = [-4, +\infty)</span></p>
+<p>Note that <span class="math inline">\text{ran}(f) \subsetneq
+\mathbb{R}</span>, confirming that <span class="math inline">f</span> is
+<strong>not surjective</strong> as a function into <span
+class="math inline">\mathbb{R}</span>.</p>
+<h3 id="practice-question-1">Practice Question</h3>
+<p>Consider the relation <span class="math inline">R = \{(x, y) \mid y^2
+= x,\; x \in [0, 9],\; x \in \mathbb{R}\}</span>.</p>
+<p><strong>(a)</strong> Is <span class="math inline">R</span> a function
+from <span class="math inline">\mathbb{R}</span> to <span
+class="math inline">\mathbb{R}</span>? Justify your answer rigorously
+using the definition of a function.</p>
+<p><strong>(b)</strong> If <span class="math inline">R</span> is
+<strong>not</strong> a function, suggest a minimal restriction on the
+codomain variable <span class="math inline">y</span> that would make the
+modified relation a function, and state its domain and range.</p>
+<p><strong>(c)</strong> Is the function you described in (b) injective,
+surjective (with codomain <span class="math inline">\mathbb{R}</span>),
+or bijective? Justify each claim.</p>
+<h2 id="types-of-functions-and-their-graphs">Types of Functions and
+Their Graphs</h2>
+<h2 id="classification-of-functions">3.1 Classification of
+Functions</h2>
+<p>Functions can be classified by their algebraic form. Understanding
+each type — its shape, key features, and behaviour — is critical for
+modelling and analysis.</p>
+<h3 id="polynomial-functions">3.2 Polynomial Functions</h3>
+<p>A <strong>polynomial function</strong> of degree <span
+class="math inline">n</span> has the form:</p>
+<p><span class="math display">f(x) = a_n x^n + a_{n-1}x^{n-1} + \cdots +
+a_1 x + a_0, \quad a_n \neq 0</span></p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Degree</th>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">General Form</th>
+<th style="text-align: left;">Example</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">Constant</td>
+<td style="text-align: left;"><span class="math inline">f(x) =
+c</span></td>
+<td style="text-align: left;"><span class="math inline">f(x) =
+5</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">Linear</td>
+<td style="text-align: left;"><span class="math inline">f(x) = mx +
+b</span></td>
+<td style="text-align: left;"><span class="math inline">f(x) = 2x -
+3</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">Quadratic</td>
+<td style="text-align: left;"><span class="math inline">f(x) = ax^2 + bx
++ c</span></td>
+<td style="text-align: left;"><span class="math inline">f(x) = x^2 - 4x
++ 3</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">Cubic</td>
+<td style="text-align: left;"><span class="math inline">f(x) = ax^3 +
+\cdots</span></td>
+<td style="text-align: left;"><span class="math inline">f(x) = x^3 -
+x</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><span class="math inline">n</span></td>
+<td style="text-align: left;">Degree-<span class="math inline">n</span>
+polynomial</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
+</tr>
+</tbody>
+</table>
+<h3 id="rational-functions">3.3 Rational Functions</h3>
+<p>A <strong>rational function</strong> is the ratio of two
+polynomials:</p>
+<p><span class="math display">f(x) = \frac{P(x)}{Q(x)}, \quad Q(x) \neq
+0</span></p>
+<p>The domain excludes all <span class="math inline">x</span> for which
+<span class="math inline">Q(x) = 0</span>. Vertical asymptotes occur at
+these excluded values (when <span class="math inline">P(x) \neq 0</span>
+there).</p>
+<h3 id="absolute-value-function">3.4 Absolute Value Function</h3>
+<p><span class="math display">f(x) = |x| = \begin{cases} x &amp;
+\text{if } x \geq 0 \\ -x &amp; \text{if } x &lt; 0
+\end{cases}</span></p>
+<p>Domain: <span class="math inline">\mathbb{R}</span>; Range: <span
+class="math inline">[0, +\infty)</span>.</p>
+<h3 id="piecewise-defined-functions">3.5 Piecewise-Defined
+Functions</h3>
+<p>A <strong>piecewise function</strong> uses different rules for
+different parts of the domain. Example:</p>
+<p><span class="math display">g(x) = \begin{cases} x^2 &amp; \text{if }
+x &lt; 0 \\ 2x + 1 &amp; \text{if } 0 \leq x \leq 3 \\ 10 - x &amp;
+\text{if } x &gt; 3 \end{cases}</span></p>
+<h3 id="evaluating-piecewise-functions-value-table">3.6 Evaluating
+Piecewise Functions — Value Table</h3>
+<p>For the function <span class="math inline">g</span> above:</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;"><span class="math inline">x</span></th>
+<th style="text-align: left;">Applicable Rule</th>
+<th style="text-align: right;"><span
+class="math inline">g(x)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;"><span class="math inline">-3</span></td>
+<td style="text-align: left;"><span class="math inline">x^2</span></td>
+<td style="text-align: right;"><span class="math inline">9</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><span class="math inline">-1</span></td>
+<td style="text-align: left;"><span class="math inline">x^2</span></td>
+<td style="text-align: right;"><span class="math inline">1</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><span class="math inline">0</span></td>
+<td style="text-align: left;"><span class="math inline">2x+1</span></td>
+<td style="text-align: right;"><span class="math inline">1</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><span class="math inline">2</span></td>
+<td style="text-align: left;"><span class="math inline">2x+1</span></td>
+<td style="text-align: right;"><span class="math inline">5</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><span class="math inline">3</span></td>
+<td style="text-align: left;"><span class="math inline">2x+1</span></td>
+<td style="text-align: right;"><span class="math inline">7</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><span class="math inline">5</span></td>
+<td style="text-align: left;"><span class="math inline">10 -
+x</span></td>
+<td style="text-align: right;"><span class="math inline">5</span></td>
+</tr>
+</tbody>
+</table>
+<h3 id="even-and-odd-functions">3.7 Even and Odd Functions</h3>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Property</th>
+<th style="text-align: left;">Condition</th>
+<th style="text-align: left;">Geometric Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>Even</strong></td>
+<td style="text-align: left;"><span class="math inline">f(-x) =
+f(x)</span> for all <span class="math inline">x</span></td>
+<td style="text-align: left;">Symmetric about the <span
+class="math inline">y</span>-axis</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>Odd</strong></td>
+<td style="text-align: left;"><span class="math inline">f(-x) =
+-f(x)</span> for all <span class="math inline">x</span></td>
+<td style="text-align: left;">Symmetric about the origin</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>Neither</strong></td>
+<td style="text-align: left;">Neither condition holds</td>
+<td style="text-align: left;">No such symmetry</td>
+</tr>
+</tbody>
+</table>
+<h2 id="worked-example-1-domain-of-a-rational-function">Worked Example
+1: Domain of a Rational Function</h2>
+<p><strong>Find the domain of</strong> <span class="math inline">f(x) =
+\dfrac{3x + 1}{x^2 - 5x + 6}</span>.</p>
+<p><strong>Solution:</strong></p>
+<ol type="1">
+<li>Factor the denominator:</li>
+</ol>
+<p><span class="math display">x^2 - 5x + 6 = (x - 2)(x - 3)</span></p>
+<ol start="2" type="1">
+<li><p>The denominator equals zero when <span class="math inline">x =
+2</span> or <span class="math inline">x = 3</span>. These must be
+excluded from the domain.</p></li>
+<li><p>Therefore:</p></li>
+</ol>
+<p><span class="math display">\text{dom}(f) = \mathbb{R} \setminus \{2,
+3\} = (-\infty, 2) \cup (2, 3) \cup (3, +\infty)</span></p>
+<h2
+id="worked-example-2-classifying-a-function-as-even-odd-or-neither">Worked
+Example 2: Classifying a Function as Even, Odd, or Neither</h2>
+<p><strong>Determine whether each function is even, odd, or
+neither.</strong></p>
+<p><strong>(a)</strong> <span class="math inline">h(x) = 4x^4 - 2x^2 +
+1</span></p>
+<p><strong>(b)</strong> <span class="math inline">k(x) = 3x^3 -
+x</span></p>
+<p><strong>(c)</strong> <span class="math inline">p(x) = x^2 +
+x</span></p>
+<p><strong>Solution for (a):</strong></p>
+<ol type="1">
+<li>Substitute <span class="math inline">-x</span> for <span
+class="math inline">x</span>:</li>
+</ol>
+<p><span class="math display">h(-x) = 4(-x)^4 - 2(-x)^2 + 1 = 4x^4 -
+2x^2 + 1</span></p>
+<ol start="2" type="1">
+<li>Compare: <span class="math inline">h(-x) = h(x)</span>. Therefore
+<span class="math inline">h</span> is <strong>even</strong>.</li>
+</ol>
+<p><strong>Solution for (b):</strong></p>
+<ol type="1">
+<li>Substitute <span class="math inline">-x</span>:</li>
+</ol>
+<p><span class="math display">k(-x) = 3(-x)^3 - (-x) = -3x^3 + x =
+-(3x^3 - x) = -k(x)</span></p>
+<ol start="2" type="1">
+<li>Since <span class="math inline">k(-x) = -k(x)</span>, <span
+class="math inline">k</span> is <strong>odd</strong>.</li>
+</ol>
+<p><strong>Solution for (c):</strong></p>
+<ol type="1">
+<li>Substitute <span class="math inline">-x</span>:</li>
+</ol>
+<p><span class="math display">p(-x) = (-x)^2 + (-x) = x^2 - x</span></p>
+<ol start="2" type="1">
+<li>Check even: <span class="math inline">p(-x) = x^2 - x \neq x^2 + x =
+p(x)</span> (unless <span class="math inline">x=0</span>). ✗</li>
+<li>Check odd: <span class="math inline">-p(x) = -(x^2+x) = -x^2 - x
+\neq x^2 - x</span>. ✗</li>
+<li>Therefore <span class="math inline">p</span> is <strong>neither even
+nor odd</strong>.</li>
+</ol>
+<h3 id="practice-question-2">Practice Question</h3>
+<p>Let <span class="math inline">f(x) = \dfrac{\sqrt{x - 1}}{x^2 -
+9}</span>.</p>
+<p><strong>(a)</strong> Determine the <strong>natural domain</strong> of
+<span class="math inline">f</span>, accounting for both the square root
+and the denominator restriction. Express your answer in interval
+notation.</p>
+<p><strong>(b)</strong> Evaluate <span class="math inline">f(5)</span>
+and <span class="math inline">f(10)</span>, showing full
+substitution.</p>
+<p><strong>(c)</strong> Determine whether <span
+class="math inline">f</span> is even, odd, or neither. Justify
+algebraically.</p>
+<h2 id="composition-and-inverse-of-functions">Composition and Inverse of
+Functions</h2>
+<h2 id="composition-of-functions">4.1 Composition of Functions</h2>
+<p>Given <span class="math inline">f: A \to B</span> and <span
+class="math inline">g: B \to C</span>, the <strong>composite
+function</strong> <span class="math inline">g \circ f</span> (read
+“<span class="math inline">g</span> composed with <span
+class="math inline">f</span>”) is defined as:</p>
+<p><span class="math display">(g \circ f)(x) = g(f(x)), \quad x \in
+\text{dom}(f)</span></p>
+<p>The output of <span class="math inline">f</span> becomes the input of
+<span class="math inline">g</span>. The domain of <span
+class="math inline">g \circ f</span> is:</p>
+<p><span class="math display">\text{dom}(g \circ f) = \{x \in
+\text{dom}(f) \mid f(x) \in \text{dom}(g)\}</span></p>
+<p><strong>Important:</strong> Composition is generally <strong>not
+commutative</strong>: <span class="math inline">f \circ g \neq g \circ
+f</span> in general.</p>
+<h2 id="inverse-functions">4.2 Inverse Functions</h2>
+<p>If <span class="math inline">f: A \to B</span> is
+<strong>bijective</strong>, its <strong>inverse function</strong> <span
+class="math inline">f^{-1}: B \to A</span> satisfies:</p>
+<p><span class="math display">f^{-1}(f(x)) = x \quad \forall x \in A
+\qquad \text{and} \qquad f(f^{-1}(y)) = y \quad \forall y \in
+B</span></p>
+<p>Equivalently: <span class="math inline">(f^{-1} \circ f)(x) =
+x</span> (the identity on <span class="math inline">A</span>) and <span
+class="math inline">(f \circ f^{-1})(y) = y</span> (the identity on
+<span class="math inline">B</span>).</p>
+<h3 id="procedure-to-find-f-1x">Procedure to Find <span
+class="math inline">f^{-1}(x)</span>:</h3>
+<ol type="1">
+<li>Write <span class="math inline">y = f(x)</span>.</li>
+<li>Algebraically solve for <span class="math inline">x</span> in terms
+of <span class="math inline">y</span>.</li>
+<li>Swap the variable names: replace <span class="math inline">y</span>
+with <span class="math inline">x</span> (and <span
+class="math inline">x</span> with <span
+class="math inline">y</span>).</li>
+<li>The result is <span class="math inline">f^{-1}(x)</span>.</li>
+<li>Verify: confirm <span class="math inline">f(f^{-1}(x)) =
+x</span>.</li>
+</ol>
+<h2 id="graphical-relationship-between-f-and-f-1">4.3 Graphical
+Relationship Between <span class="math inline">f</span> and <span
+class="math inline">f^{-1}</span></h2>
+<p>The graph of <span class="math inline">f^{-1}</span> is the
+<strong>reflection</strong> of the graph of <span
+class="math inline">f</span> across the line <span class="math inline">y
+= x</span>. This is because swapping <span class="math inline">x</span>
+and <span class="math inline">y</span> corresponds geometrically to this
+reflection.</p>
+<h2 id="restricting-the-domain-to-create-an-inverse">4.4 Restricting the
+Domain to Create an Inverse</h2>
+<p>If a function is not injective over its natural domain, we may
+<strong>restrict the domain</strong> to a subset on which it is
+injective, thereby enabling an inverse. For example, <span
+class="math inline">f(x) = x^2</span> is not injective on <span
+class="math inline">\mathbb{R}</span>, but restricting to <span
+class="math inline">[0, +\infty)</span> yields the bijection <span
+class="math inline">f: [0,+\infty) \to [0,+\infty)</span> with inverse
+<span class="math inline">f^{-1}(x) = \sqrt{x}</span>.</p>
+<h2 id="worked-example-1-computing-composite-functions">Worked Example
+1: Computing Composite Functions</h2>
+<p><strong>Given:</strong> <span class="math inline">f(x) = 2x +
+3</span> and <span class="math inline">g(x) = x^2 - 1</span>.</p>
+<p>Find <strong>(a)</strong> <span class="math inline">(g \circ
+f)(x)</span>, <strong>(b)</strong> <span class="math inline">(f \circ
+g)(x)</span>, and <strong>(c)</strong> <span class="math inline">(g
+\circ f)(2)</span>.</p>
+<p><strong>Solution for (a) — <span class="math inline">g \circ
+f</span>:</strong></p>
+<ol type="1">
+<li>Substitute <span class="math inline">f(x)</span> into <span
+class="math inline">g</span>:</li>
+</ol>
+<p><span class="math display">(g \circ f)(x) = g(f(x)) = g(2x + 3) = (2x
++ 3)^2 - 1</span></p>
+<ol start="2" type="1">
+<li>Expand:</li>
+</ol>
+<p><span class="math display">(2x+3)^2 - 1 = 4x^2 + 12x + 9 - 1 = 4x^2 +
+12x + 8</span></p>
+<p><strong>Solution for (b) — <span class="math inline">f \circ
+g</span>:</strong></p>
+<ol type="1">
+<li>Substitute <span class="math inline">g(x)</span> into <span
+class="math inline">f</span>:</li>
+</ol>
+<p><span class="math display">(f \circ g)(x) = f(g(x)) = f(x^2 - 1) =
+2(x^2 - 1) + 3 = 2x^2 + 1</span></p>
+<p><strong>Comparison:</strong> <span class="math inline">4x^2 + 12x + 8
+\neq 2x^2 + 1</span>, confirming <span class="math inline">g \circ f
+\neq f \circ g</span>.</p>
+<p><strong>Solution for (c):</strong></p>
+<p><span class="math display">(g \circ f)(2) = 4(2)^2 + 12(2) + 8 = 16 +
+24 + 8 = 48</span></p>
+<h2
+id="worked-example-2-finding-and-verifying-an-inverse-function">Worked
+Example 2: Finding and Verifying an Inverse Function</h2>
+<p><strong>Find the inverse of</strong> <span class="math inline">f(x) =
+\dfrac{3x - 2}{x + 1}</span>, state its domain, and verify.</p>
+<p><strong>Solution:</strong></p>
+<ol type="1">
+<li><p>Write <span class="math inline">y = \dfrac{3x - 2}{x +
+1}</span>.</p></li>
+<li><p>Solve for <span class="math inline">x</span>. Multiply both sides
+by <span class="math inline">(x + 1)</span>:</p></li>
+</ol>
+<p><span class="math display">y(x + 1) = 3x - 2</span> <span
+class="math display">xy + y = 3x - 2</span></p>
+<ol start="3" type="1">
+<li>Gather <span class="math inline">x</span>-terms on one side:</li>
+</ol>
+<p><span class="math display">xy - 3x = -2 - y</span> <span
+class="math display">x(y - 3) = -(2 + y)</span></p>
+<ol start="4" type="1">
+<li>Divide by <span class="math inline">(y - 3)</span> (valid when <span
+class="math inline">y \neq 3</span>):</li>
+</ol>
+<p><span class="math display">x = \frac{-(2 + y)}{y - 3} = \frac{-y -
+2}{y - 3}</span></p>
+<ol start="5" type="1">
+<li>Swap <span class="math inline">x \leftrightarrow y</span> to write
+the inverse:</li>
+</ol>
+<p><span class="math display">f^{-1}(x) = \frac{-x - 2}{x -
+3}</span></p>
+<ol start="6" type="1">
+<li><p><strong>Domain of <span
+class="math inline">f^{-1}</span>:</strong> <span class="math inline">x
+\neq 3</span>, so <span class="math inline">\text{dom}(f^{-1}) =
+\mathbb{R} \setminus \{3\}</span>.</p></li>
+<li><p><strong>Verify</strong> <span class="math inline">f(f^{-1}(x)) =
+x</span>:</p></li>
+</ol>
+<p><span class="math display">f\!\left(\frac{-x-2}{x-3}\right) =
+\frac{3\cdot\frac{-x-2}{x-3} - 2}{\frac{-x-2}{x-3} + 1}</span></p>
+<p>Numerator: <span class="math inline">\dfrac{3(-x-2)}{x-3} - 2 =
+\dfrac{-3x-6 - 2(x-3)}{x-3} = \dfrac{-3x-6-2x+6}{x-3} =
+\dfrac{-5x}{x-3}</span></p>
+<p>Denominator: <span class="math inline">\dfrac{-x-2}{x-3} + 1 =
+\dfrac{-x-2+x-3}{x-3} = \dfrac{-5}{x-3}</span></p>
+<p>Therefore:</p>
+<p><span class="math display">f(f^{-1}(x)) =
+\frac{\frac{-5x}{x-3}}{\frac{-5}{x-3}} = \frac{-5x}{-5} = x
+\checkmark</span></p>
+<h3 id="practice-question-3">Practice Question</h3>
+<p>Let <span class="math inline">f(x) = \sqrt{x - 2}</span> (with domain
+<span class="math inline">[2, +\infty)</span>) and <span
+class="math inline">g(x) = x^2 + 2</span>.</p>
+<p><strong>(a)</strong> Find <span class="math inline">(f \circ
+g)(x)</span> and state its domain.</p>
+<p><strong>(b)</strong> Find <span class="math inline">(g \circ
+f)(x)</span> and simplify fully. State its domain.</p>
+<p><strong>(c)</strong> Find <span class="math inline">f^{-1}(x)</span>.
+State the domain and range of <span
+class="math inline">f^{-1}</span>.</p>
+<p><strong>(d)</strong> Verify your answer to (c) by confirming that
+<span class="math inline">(f \circ f^{-1})(x) = x</span> on the
+appropriate domain.</p>
+<h2 id="transformations-of-functions-and-applications">Transformations
+of Functions and Applications</h2>
+<h2 id="graph-transformations">5.1 Graph Transformations</h2>
+<p>Given a base function <span class="math inline">y = f(x)</span>, we
+can produce new functions by systematically modifying it. Understanding
+transformations allows you to sketch complex functions without computing
+large tables of values.</p>
+<h3 id="summary-table-of-transformations">Summary Table of
+Transformations</h3>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 34%" />
+<col style="width: 28%" />
+<col style="width: 36%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Transformation</th>
+<th style="text-align: left;">New Function</th>
+<th style="text-align: left;">Effect on Graph</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Vertical shift up by <span
+class="math inline">k</span></td>
+<td style="text-align: left;"><span class="math inline">y = f(x) + k,\;
+k &gt; 0</span></td>
+<td style="text-align: left;">Graph moves up by <span
+class="math inline">k</span> units</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Vertical shift down by <span
+class="math inline">k</span></td>
+<td style="text-align: left;"><span class="math inline">y = f(x) - k,\;
+k &gt; 0</span></td>
+<td style="text-align: left;">Graph moves down by <span
+class="math inline">k</span> units</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Horizontal shift right by <span
+class="math inline">h</span></td>
+<td style="text-align: left;"><span class="math inline">y = f(x - h),\;
+h &gt; 0</span></td>
+<td style="text-align: left;">Graph moves right by <span
+class="math inline">h</span> units</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Horizontal shift left by <span
+class="math inline">h</span></td>
+<td style="text-align: left;"><span class="math inline">y = f(x + h),\;
+h &gt; 0</span></td>
+<td style="text-align: left;">Graph moves left by <span
+class="math inline">h</span> units</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Vertical stretch by factor <span
+class="math inline">a</span></td>
+<td style="text-align: left;"><span class="math inline">y = a\,f(x),\; a
+&gt; 1</span></td>
+<td style="text-align: left;">Graph stretches vertically</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Vertical compression</td>
+<td style="text-align: left;"><span class="math inline">y = a\,f(x),\; 0
+&lt; a &lt; 1</span></td>
+<td style="text-align: left;">Graph compresses vertically</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Reflection in <span
+class="math inline">x</span>-axis</td>
+<td style="text-align: left;"><span class="math inline">y =
+-f(x)</span></td>
+<td style="text-align: left;">Graph flips over <span
+class="math inline">x</span>-axis</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Reflection in <span
+class="math inline">y</span>-axis</td>
+<td style="text-align: left;"><span class="math inline">y =
+f(-x)</span></td>
+<td style="text-align: left;">Graph flips over <span
+class="math inline">y</span>-axis</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Horizontal stretch/compress</td>
+<td style="text-align: left;"><span class="math inline">y =
+f(bx)</span></td>
+<td style="text-align: left;">Horizontal scale factor <span
+class="math inline">\frac{1}{b}</span></td>
+</tr>
+</tbody>
+</table>
+<h3 id="general-transformation-form">5.2 General Transformation
+Form</h3>
+<p>The fully general form combining all transformations is:</p>
+<p><span class="math display">y = a\,f\bigl(b(x - h)\bigr) +
+k</span></p>
+<p>where: - <span class="math inline">a</span> controls
+<strong>vertical</strong> scaling and reflection - <span
+class="math inline">b</span> controls <strong>horizontal</strong>
+scaling and reflection - <span class="math inline">h</span> controls
+<strong>horizontal</strong> translation (phase shift) - <span
+class="math inline">k</span> controls <strong>vertical</strong>
+translation</p>
+<h3 id="application-modelling-with-functions">5.3 Application: Modelling
+with Functions</h3>
+<p>Functions are indispensable tools for modelling real-world phenomena.
+Examples include:</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 30%" />
+<col style="width: 35%" />
+<col style="width: 35%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Phenomenon</th>
+<th style="text-align: left;">Function Type</th>
+<th style="text-align: left;">Typical Form</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Projectile height</td>
+<td style="text-align: left;">Quadratic</td>
+<td style="text-align: left;"><span class="math inline">h(t) =
+-\frac{1}{2}g t^2 + v_0 t + h_0</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Population growth</td>
+<td style="text-align: left;">Exponential</td>
+<td style="text-align: left;"><span class="math inline">P(t) = P_0 \cdot
+e^{rt}</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Radioactive decay</td>
+<td style="text-align: left;">Exponential (decay)</td>
+<td style="text-align: left;"><span class="math inline">N(t) = N_0 \cdot
+e^{-\lambda t}</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Electrical resistance (parallel)</td>
+<td style="text-align: left;">Rational</td>
+<td style="text-align: left;"><span class="math inline">R = \frac{R_1
+R_2}{R_1 + R_2}</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Pendulum period</td>
+<td style="text-align: left;">Square root</td>
+<td style="text-align: left;"><span class="math inline">T =
+2\pi\sqrt{\frac{L}{g}}</span></td>
+</tr>
+</tbody>
+</table>
+<h2 id="worked-example-1-sketching-via-transformations">Worked Example
+1: Sketching via Transformations</h2>
+<p><strong>Describe the transformations applied to <span
+class="math inline">y = x^2</span> to obtain <span class="math inline">y
+= -2(x + 3)^2 + 5</span>, and identify the vertex.</strong></p>
+<p><strong>Solution:</strong></p>
+<p>Rewrite in the form <span class="math inline">y = a\,f(b(x-h)) +
+k</span>:</p>
+<p><span class="math display">y = -2(x - (-3))^2 + 5</span></p>
+<p>So <span class="math inline">a = -2</span>, <span
+class="math inline">b = 1</span>, <span class="math inline">h =
+-3</span>, <span class="math inline">k = 5</span>.</p>
+<p>Apply transformations in order to the base parabola <span
+class="math inline">y = x^2</span>:</p>
+<ol type="1">
+<li><strong>Horizontal shift left by 3:</strong> <span
+class="math inline">y = (x+3)^2</span> — vertex moves from <span
+class="math inline">(0,0)</span> to <span class="math inline">(-3,
+0)</span>.</li>
+<li><strong>Vertical stretch by factor 2:</strong> <span
+class="math inline">y = 2(x+3)^2</span> — parabola becomes
+narrower.</li>
+<li><strong>Reflection in <span
+class="math inline">x</span>-axis</strong> (since <span
+class="math inline">a &lt; 0</span>): <span class="math inline">y =
+-2(x+3)^2</span> — parabola opens downward.</li>
+<li><strong>Vertical shift up by 5:</strong> <span class="math inline">y
+= -2(x+3)^2 + 5</span> — vertex moves to <span class="math inline">(-3,
+5)</span>.</li>
+</ol>
+<p><strong>Vertex:</strong> <span class="math inline">(-3, 5)</span>.
+<strong>Opens:</strong> downward. <strong>Maximum value:</strong> <span
+class="math inline">5</span> (attained at <span class="math inline">x =
+-3</span>).</p>
+<h2
+id="worked-example-2-real-world-application-projectile-motion">Worked
+Example 2: Real-World Application — Projectile Motion</h2>
+<p><strong>A ball is thrown upward from a height of <span
+class="math inline">2\,\text{m}</span> with an initial velocity of <span
+class="math inline">14\,\text{m/s}</span>. The height (in metres) at
+time <span class="math inline">t</span> seconds is:</strong></p>
+<p><span class="math display">h(t) = -4.9t^2 + 14t + 2</span></p>
+<p><strong>(a)</strong> Find the maximum height reached.
+<strong>(b)</strong> Find the time at which the ball hits the
+ground.</p>
+<p><strong>Solution for (a) — Maximum Height:</strong></p>
+<ol type="1">
+<li>The function is quadratic with <span class="math inline">a = -4.9
+&lt; 0</span>, so it has a maximum at the vertex.</li>
+<li>The <span class="math inline">t</span>-coordinate of the
+vertex:</li>
+</ol>
+<p><span class="math display">t^* = -\frac{b}{2a} = -\frac{14}{2(-4.9)}
+= -\frac{14}{-9.8} = \frac{14}{9.8} \approx 1.429\,\text{s}</span></p>
+<ol start="3" type="1">
+<li>Substitute <span class="math inline">t^* = \dfrac{10}{7}</span> s
+exactly:</li>
+</ol>
+<p><span class="math display">h\!\left(\frac{10}{7}\right) =
+-4.9\!\left(\frac{10}{7}\right)^2 + 14\!\left(\frac{10}{7}\right) + 2 =
+-4.9 \cdot \frac{100}{49} + 20 + 2</span></p>
+<p><span class="math display">= -\frac{490}{49} + 22 = -10 + 22 =
+12\,\text{m}</span></p>
+<p><strong>Maximum height:</strong> <span
+class="math inline">12\,\text{m}</span>.</p>
+<p><strong>Solution for (b) — Time to Hit Ground:</strong></p>
+<ol type="1">
+<li>Set <span class="math inline">h(t) = 0</span>:</li>
+</ol>
+<p><span class="math display">-4.9t^2 + 14t + 2 = 0</span></p>
+<ol start="2" type="1">
+<li>Multiply through by <span class="math inline">-1</span> and apply
+the quadratic formula:</li>
+</ol>
+<p><span class="math display">t = \frac{-14 \pm \sqrt{14^2 -
+4(4.9)(2)}}{2(-4.9)} = \frac{-14 \pm \sqrt{196 - 39.2}}{-9.8} =
+\frac{-14 \pm \sqrt{156.8}}{-9.8}</span></p>
+<p><span class="math display">\sqrt{156.8} \approx 12.522</span></p>
+<p><span class="math display">t = \frac{-14 + 12.522}{-9.8} \approx
+\frac{-1.478}{-9.8} \approx 0.151\,\text{s} \quad \text{(rejected — ball
+going up)}</span></p>
+<p><span class="math display">t = \frac{-14 - 12.522}{-9.8} \approx
+\frac{-26.522}{-9.8} \approx 2.706\,\text{s}</span></p>
+<p><strong>The ball hits the ground at approximately <span
+class="math inline">t \approx 2.71\,\text{s}</span>.</strong></p>
+<h3 id="practice-question-4">Practice Question</h3>
+<p>The graph of <span class="math inline">y = \sqrt{x}</span> is
+transformed to produce the function:</p>
+<p><span class="math display">g(x) = -3\sqrt{x - 4} + 1</span></p>
+<p><strong>(a)</strong> List, in order, the sequence of transformations
+applied to <span class="math inline">y = \sqrt{x}</span> to obtain <span
+class="math inline">g(x)</span>.</p>
+<p><strong>(b)</strong> State the domain and range of <span
+class="math inline">g(x)</span>.</p>
+<p><strong>(c)</strong> Find the <span
+class="math inline">x</span>-intercept of <span
+class="math inline">g(x)</span> algebraically (set <span
+class="math inline">g(x) = 0</span> and solve for <span
+class="math inline">x</span>).</p>
+<p><strong>(d)</strong> A company models its weekly profit (in thousands
+of dollars) by <span class="math inline">P(w) = -2(w - 5)^2 + 18</span>,
+where <span class="math inline">w</span> is the number of weeks after
+launch. Determine the maximum profit and the week in which it occurs.
+Also find the range of weeks during which the company is profitable
+(i.e., <span class="math inline">P(w) &gt; 0</span>).</p>
+<h2 id="common-mistakes">Common Mistakes</h2>
+<ul>
+<li><strong>Confusing ‘range’ with ‘codomain’:</strong> Students often
+treat these as identical. The <strong>codomain</strong> is the set
+declared as the target of a function (e.g., <span
+class="math inline">\mathbb{R}</span>), whereas the
+<strong>range</strong> (or image) is the subset of the codomain that is
+actually achieved by some input. For <span class="math inline">f:
+\mathbb{R} \to \mathbb{R}</span> with <span class="math inline">f(x) =
+x^2</span>, the codomain is <span class="math inline">\mathbb{R}</span>
+but the range is <span class="math inline">[0, +\infty)</span>.
+Conflating these leads to incorrect surjectivity conclusions.</li>
+<li><strong>Misapplying horizontal transformations:</strong> For <span
+class="math inline">y = f(x - h)</span>, students frequently shift the
+graph in the <strong>wrong direction</strong> — shifting left when they
+should shift right. Remember: <span class="math inline">f(x - h)</span>
+with <span class="math inline">h &gt; 0</span> shifts
+<strong>right</strong> by <span class="math inline">h</span> (because
+you need a larger <span class="math inline">x</span> to produce the same
+output). A helpful mnemonic: the shift is <strong>opposite</strong> to
+the sign inside the argument. Similarly, <span class="math inline">y =
+f(bx)</span> compresses horizontally by <span
+class="math inline">\frac{1}{b}</span> (not stretches), which is
+counterintuitive.</li>
+<li><strong>Reversing the order in composite functions:</strong> <span
+class="math inline">(g \circ f)(x) = g(f(x))</span> means <span
+class="math inline">f</span> is applied <strong>first</strong>, then
+<span class="math inline">g</span>. A common error is to apply <span
+class="math inline">g</span> first. Always read <span
+class="math inline">g \circ f</span> from right to left: the rightmost
+function acts first. This mistake becomes especially consequential when
+computing domains of composites.</li>
+<li><strong>Forgetting that <span class="math inline">\emptyset</span>
+is a subset of every set:</strong> By convention, <span
+class="math inline">\emptyset \subseteq A</span> for every set <span
+class="math inline">A</span>. Students sometimes claim a set has fewer
+subsets than it actually does because they exclude the empty set. This
+also means the power set <span class="math inline">\mathcal{P}(A)</span>
+always contains <span class="math inline">\emptyset</span> as one of its
+<span class="math inline">2^{|A|}</span> elements.</li>
+<li><strong>Attempting to find the inverse of a non-bijective function
+without domain restriction:</strong> Not every function has an inverse.
+Students sometimes mechanically apply the swap-and-solve procedure to a
+function like <span class="math inline">f(x) = x^2</span> (without
+domain restriction) and obtain <span class="math inline">f^{-1}(x) =
+\sqrt{x}</span>, forgetting that this is only valid on the restricted
+domain <span class="math inline">[0, +\infty)</span>. Always check
+injectivity before claiming an inverse exists, or explicitly state the
+domain restriction under which the inverse is defined.</li>
+</ul>
+<hr />
+<h1 id="quiz-set-1">Quiz Set 1</h1>
+<h3 id="q1.-let-a-1-2-3-4-5-and-b-3-4-5-6-7.-what-is-a-cup-b">q1. Let
+<span class="math inline">A = \{1, 2, 3, 4, 5\}</span> and <span
+class="math inline">B = \{3, 4, 5, 6, 7\}</span>. What is <span
+class="math inline">A \cup B</span>?</h3>
+<p><em>Difficulty: easy</em></p>
+<ul>
+<li><strong>A)</strong> <span class="math inline">\{3, 4,
+5\}</span></li>
+<li><strong>B)</strong> <span class="math inline">\{1, 2, 3, 4, 5, 6,
+7\}</span> <strong>(correct)</strong></li>
+<li><strong>C)</strong> <span class="math inline">\{1, 2, 6,
+7\}</span></li>
+<li><strong>D)</strong> <span class="math inline">\{1, 2, 3, 4, 5, 6, 7,
+8\}</span></li>
+</ul>
+<p><strong>Explanation:</strong> The <strong>union</strong> <span
+class="math inline">A \cup B</span> is the set of all elements that
+belong to <span class="math inline">A</span> <strong>or</strong> <span
+class="math inline">B</span> (or both), with no duplicates. Combining
+<span class="math inline">\{1,2,3,4,5\}</span> and <span
+class="math inline">\{3,4,5,6,7\}</span> and removing repeated elements
+gives: <span class="math display">A \cup B = \{1, 2, 3, 4, 5, 6,
+7\}</span> Option A is <span class="math inline">A \cap B</span> (the
+intersection), option C is the symmetric difference <span
+class="math inline">A \triangle B</span>, and option D introduces the
+spurious element <span class="math inline">8</span>.</p>
+<h3
+id="q2.-which-of-the-following-correctly-defines-a-function-from-set-x-to-set-y">q2.
+Which of the following correctly defines a <strong>function</strong>
+from set <span class="math inline">X</span> to set <span
+class="math inline">Y</span>?</h3>
+<p><em>Difficulty: easy</em></p>
+<ul>
+<li><strong>A)</strong> A relation in which every element of <span
+class="math inline">Y</span> is paired with at least one element of
+<span class="math inline">X</span>.</li>
+<li><strong>B)</strong> A relation in which every element of <span
+class="math inline">X</span> is paired with <strong>exactly one</strong>
+element of <span class="math inline">Y</span>.
+<strong>(correct)</strong></li>
+<li><strong>C)</strong> A relation in which every element of <span
+class="math inline">X</span> is paired with <strong>at least
+two</strong> elements of <span class="math inline">Y</span>.</li>
+<li><strong>D)</strong> A relation in which some elements of <span
+class="math inline">X</span> may have no image in <span
+class="math inline">Y</span>.</li>
+</ul>
+<p><strong>Explanation:</strong> By definition, a
+<strong>function</strong> <span class="math inline">f: X \to Y</span> is
+a relation that assigns to <strong>each</strong> element <span
+class="math inline">x \in X</span> <strong>exactly one</strong> element
+<span class="math inline">f(x) \in Y</span>. The two key conditions are:
+1. <strong>Totality</strong> — every element of the domain <span
+class="math inline">X</span> must be mapped. 2.
+<strong>Uniqueness</strong> — no element of <span
+class="math inline">X</span> maps to more than one element of <span
+class="math inline">Y</span>.</p>
+<p>Option A describes a surjection condition on <span
+class="math inline">Y</span> (not the definition of a function). Option
+C violates uniqueness. Option D violates totality.</p>
+<h3
+id="q3.-given-the-universal-set-u-1-2-3-4-5-6-7-8-and-a-2-4-6-8-what-is-the-complement-ac-also-written-a">q3.
+Given the universal set <span class="math inline">U = \{1, 2, 3, 4, 5,
+6, 7, 8\}</span> and <span class="math inline">A = \{2, 4, 6,
+8\}</span>, what is the complement <span class="math inline">A^c</span>
+(also written <span class="math inline">A&#39;</span>)?</h3>
+<p><em>Difficulty: easy</em></p>
+<ul>
+<li><strong>A)</strong> <span class="math inline">\{1, 3, 5, 7\}</span>
+<strong>(correct)</strong></li>
+<li><strong>B)</strong> <span class="math inline">\{2, 4, 6,
+8\}</span></li>
+<li><strong>C)</strong> <span class="math inline">\emptyset</span></li>
+<li><strong>D)</strong> <span class="math inline">\{1, 2, 3, 4, 5, 6, 7,
+8\}</span></li>
+</ul>
+<p><strong>Explanation:</strong> The <strong>complement</strong> of
+<span class="math inline">A</span> with respect to <span
+class="math inline">U</span> is defined as: <span
+class="math display">A^c = U \setminus A = \{x \in U \mid x \notin
+A\}</span> Removing the even elements <span
+class="math inline">\{2,4,6,8\}</span> from <span class="math inline">U
+= \{1,2,3,4,5,6,7,8\}</span> leaves the odd elements <span
+class="math inline">\{1,3,5,7\}</span>. Option B is <span
+class="math inline">A</span> itself, option C is the empty set, and
+option D is <span class="math inline">U</span> itself.</p>
+<h3
+id="q4.-consider-the-function-f-mathbbr-to-mathbbr-defined-by-fx-x2---4.-what-is-the-range-of-f">q4.
+Consider the function <span class="math inline">f: \mathbb{R} \to
+\mathbb{R}</span> defined by <span class="math inline">f(x) = x^2 -
+4</span>. What is the <strong>range</strong> of <span
+class="math inline">f</span>?</h3>
+<p><em>Difficulty: medium</em></p>
+<ul>
+<li><strong>A)</strong> <span class="math inline">\mathbb{R}</span></li>
+<li><strong>B)</strong> <span class="math inline">[-4, +\infty)</span>
+<strong>(correct)</strong></li>
+<li><strong>C)</strong> <span class="math inline">[0,
++\infty)</span></li>
+<li><strong>D)</strong> <span class="math inline">(-\infty,
+4]</span></li>
+</ul>
+<p><strong>Explanation:</strong> The range is the set of all values
+<span class="math inline">f(x)</span> can attain. Since <span
+class="math inline">x^2 \geq 0</span> for all <span
+class="math inline">x \in \mathbb{R}</span>, we have: <span
+class="math display">f(x) = x^2 - 4 \geq 0 - 4 = -4</span> The minimum
+value <span class="math inline">-4</span> is achieved at <span
+class="math inline">x = 0</span>, and as <span class="math inline">|x|
+\to \infty</span>, <span class="math inline">f(x) \to +\infty</span>.
+Therefore: <span class="math display">\text{Range}(f) = [-4,
++\infty)</span> Option A incorrectly includes values below <span
+class="math inline">-4</span>. Option C corresponds to the range of
+<span class="math inline">x^2</span> itself (without the <span
+class="math inline">-4</span> shift). Option D is an inverted, incorrect
+bound.</p>
+<h3
+id="q5.-let-fx-2x-3-and-gx-x2---1.-what-is-the-composite-function-g-circ-fx">q5.
+Let <span class="math inline">f(x) = 2x + 3</span> and <span
+class="math inline">g(x) = x^2 - 1</span>. What is the composite
+function <span class="math inline">(g \circ f)(x)</span>?</h3>
+<p><em>Difficulty: medium</em></p>
+<ul>
+<li><strong>A)</strong> <span class="math inline">2x^2 - 2 +
+3</span></li>
+<li><strong>B)</strong> <span class="math inline">4x^2 + 12x + 8</span>
+<strong>(correct)</strong></li>
+<li><strong>C)</strong> <span class="math inline">2x^2 + 1</span></li>
+<li><strong>D)</strong> <span class="math inline">4x^2 + 8</span></li>
+</ul>
+<p><strong>Explanation:</strong> The composite <span
+class="math inline">(g \circ f)(x)</span> means <span
+class="math inline">g\bigl(f(x)\bigr)</span>. Substituting <span
+class="math inline">f(x) = 2x+3</span> into <span
+class="math inline">g</span>:</p>
+<ol type="1">
+<li>Replace the argument of <span class="math inline">g</span> with
+<span class="math inline">f(x)</span>: <span
+class="math display">g(f(x)) = (f(x))^2 - 1 = (2x+3)^2 - 1</span></li>
+<li>Expand the perfect square: <span class="math display">(2x+3)^2 =
+4x^2 + 12x + 9</span></li>
+<li>Subtract 1: <span class="math display">4x^2 + 12x + 9 - 1 = 4x^2 +
+12x + 8</span></li>
+</ol>
+<p>Note: <span class="math inline">(f \circ g)(x) = 2(x^2-1)+3 =
+2x^2+1</span>, which is option C — a common error when the order of
+composition is reversed.</p>
+<h3
+id="q6.-which-of-the-following-relations-on-1-2-3-expressed-as-a-set-of-ordered-pairs-fails-to-be-a-function-from-123-to-123">q6.
+Which of the following relations on <span class="math inline">\{1, 2,
+3\}</span>, expressed as a set of ordered pairs, <strong>fails</strong>
+to be a function from <span class="math inline">\{1,2,3\}</span> to
+<span class="math inline">\{1,2,3\}</span>?</h3>
+<p><em>Difficulty: medium</em></p>
+<ul>
+<li><strong>A)</strong> <span class="math inline">R_1 =
+\{(1,2),(2,3),(3,1)\}</span></li>
+<li><strong>B)</strong> <span class="math inline">R_2 =
+\{(1,1),(2,2),(3,3)\}</span></li>
+<li><strong>C)</strong> <span class="math inline">R_3 =
+\{(1,3),(2,3),(3,3)\}</span></li>
+<li><strong>D)</strong> <span class="math inline">R_4 =
+\{(1,2),(1,3),(2,1),(3,1)\}</span> <strong>(correct)</strong></li>
+</ul>
+<p><strong>Explanation:</strong> A relation is a function if and only if
+every domain element appears as a <strong>first component exactly
+once</strong> (uniqueness of image). Checking each option:</p>
+<table>
+<colgroup>
+<col style="width: 13%" />
+<col style="width: 34%" />
+<col style="width: 36%" />
+<col style="width: 15%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Relation</th>
+<th style="text-align: left;">Domain elements covered</th>
+<th style="text-align: center;">Any element mapped twice?</th>
+<th style="text-align: right;">Function?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">R_1</span></td>
+<td style="text-align: left;"><span class="math inline">1, 2, 3</span> —
+each once</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: right;">Yes</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">R_2</span></td>
+<td style="text-align: left;"><span class="math inline">1, 2, 3</span> —
+each once</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: right;">Yes</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">R_3</span></td>
+<td style="text-align: left;"><span class="math inline">1, 2, 3</span> —
+each once</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: right;">Yes</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">R_4</span></td>
+<td style="text-align: left;"><span class="math inline">1</span> appears
+<strong>twice</strong></td>
+<td style="text-align: center;"><strong>Yes</strong></td>
+<td style="text-align: right;"><strong>No</strong></td>
+</tr>
+</tbody>
+</table>
+<p><span class="math inline">R_4</span> maps <span class="math inline">1
+\mapsto 2</span> <strong>and</strong> <span class="math inline">1
+\mapsto 3</span>, violating uniqueness. Hence <span
+class="math inline">R_4</span> is not a function.</p>
+<h3
+id="q7.-using-de-morgans-law-which-expression-is-equivalent-to-a-cup-bc">q7.
+Using <strong>De Morgan’s Law</strong>, which expression is equivalent
+to <span class="math inline">(A \cup B)^c</span>?</h3>
+<p><em>Difficulty: medium</em></p>
+<ul>
+<li><strong>A)</strong> <span class="math inline">A^c \cup
+B^c</span></li>
+<li><strong>B)</strong> <span class="math inline">A \cap B</span></li>
+<li><strong>C)</strong> <span class="math inline">A^c \cap B^c</span>
+<strong>(correct)</strong></li>
+<li><strong>D)</strong> <span class="math inline">(A \cap
+B)^c</span></li>
+</ul>
+<p><strong>Explanation:</strong> <strong>De Morgan’s Laws</strong> for
+sets state: <span class="math display">\boxed{(A \cup B)^c = A^c \cap
+B^c}</span> <span class="math display">\boxed{(A \cap B)^c = A^c \cup
+B^c}</span></p>
+<blockquote>
+<p>A mathematician, like a painter or poet, is a maker of patterns. — G.
+H. Hardy</p>
+</blockquote>
+<p>Intuitively, an element <span class="math inline">x</span> is
+<strong>not</strong> in <span class="math inline">A \cup B</span> if and
+only if it is <strong>not</strong> in <span class="math inline">A</span>
+<strong>and</strong> <strong>not</strong> in <span
+class="math inline">B</span>, which is precisely <span
+class="math inline">x \in A^c \cap B^c</span>. Option A is De Morgan’s
+second law applied incorrectly (it equals <span class="math inline">(A
+\cap B)^c</span>, not <span class="math inline">(A \cup
+B)^c</span>).</p>
+<h3
+id="q8.-a-function-f-a-to-b-is-called-bijective-if-it-is-both-injective-one-to-one-and-surjective-onto.-let-f-mathbbr-to-mathbbr-be-defined-by-fx-x3---x.-which-of-the-following-statements-is-correct">q8.
+A function <span class="math inline">f: A \to B</span> is called
+<strong>bijective</strong> if it is both injective (one-to-one) and
+surjective (onto). Let <span class="math inline">f: \mathbb{R} \to
+\mathbb{R}</span> be defined by <span class="math inline">f(x) = x^3 -
+x</span>. Which of the following statements is
+<strong>correct</strong>?</h3>
+<p><em>Difficulty: hard</em></p>
+<ul>
+<li><strong>A)</strong> <span class="math inline">f</span> is bijective
+because it is a polynomial function with domain <span
+class="math inline">\mathbb{R}</span>.</li>
+<li><strong>B)</strong> <span class="math inline">f</span> is injective
+but not surjective, since not every real number is in its range.</li>
+<li><strong>C)</strong> <span class="math inline">f</span> is surjective
+but <strong>not</strong> injective, since distinct inputs can yield the
+same output. <strong>(correct)</strong></li>
+<li><strong>D)</strong> <span class="math inline">f</span> is neither
+injective nor surjective.</li>
+</ul>
+<p><strong>Explanation:</strong> <strong>Surjectivity:</strong> <span
+class="math inline">f(x) = x^3 - x</span> is a continuous function with
+<span class="math inline">\lim_{x \to -\infty} f(x) = -\infty</span> and
+<span class="math inline">\lim_{x \to +\infty} f(x) = +\infty</span>. By
+the <strong>Intermediate Value Theorem</strong>, every real number <span
+class="math inline">y</span> is attained, so <span
+class="math inline">f</span> is surjective onto <span
+class="math inline">\mathbb{R}</span>.</p>
+<p><strong>Injectivity (failure):</strong> Computing <span
+class="math inline">f&#39;(x)</span>: <span
+class="math display">f&#39;(x) = 3x^2 - 1</span> Setting <span
+class="math inline">f&#39;(x) = 0</span>: <span class="math inline">x =
+\pm\dfrac{1}{\sqrt{3}}</span>. Since <span class="math inline">f</span>
+has a local maximum and a local minimum, it is <strong>not
+monotone</strong> and therefore <strong>not injective</strong>. A
+concrete counterexample: <span class="math display">f(0) = 0, \quad f(1)
+= 1 - 1 = 0</span> Both <span class="math inline">x = 0</span> and <span
+class="math inline">x = 1</span> map to <span
+class="math inline">0</span>, confirming <span
+class="math inline">f</span> is <strong>not</strong> one-to-one.</p>
+<p>Therefore <span class="math inline">f</span> is surjective but not
+injective — option C is correct.</p>
+<hr />
+<h1 id="quiz-set-2">Quiz Set 2</h1>
+<h3
+id="q1.-let-a-x-in-mathbbz--2-leq-x-4.-which-of-the-following-correctly-lists-all-elements-of-a">q1.
+Let <span class="math inline">A = \{x \in \mathbb{Z} : -2 \leq x &lt;
+4\}</span>. Which of the following correctly lists all elements of <span
+class="math inline">A</span>?</h3>
+<p><em>Difficulty: easy</em></p>
+<ul>
+<li><strong>A)</strong> <span class="math inline">\{-2, -1, 0, 1, 2,
+3\}</span> <strong>(correct)</strong></li>
+<li><strong>B)</strong> <span class="math inline">\{-2, -1, 0, 1, 2, 3,
+4\}</span></li>
+<li><strong>C)</strong> <span class="math inline">\{-1, 0, 1, 2,
+3\}</span></li>
+<li><strong>D)</strong> <span class="math inline">\{-2, -1, 0, 1,
+2\}</span></li>
+</ul>
+<p><strong>Explanation:</strong> The set-builder notation <span
+class="math inline">\{x \in \mathbb{Z} : -2 \leq x &lt; 4\}</span>
+specifies all integers <span class="math inline">x</span> satisfying
+<span class="math inline">-2 \leq x &lt; 4</span>. The inequality is
+<strong>inclusive</strong> at <span class="math inline">-2</span> (so
+<span class="math inline">-2</span> is included) and
+<strong>strict</strong> at <span class="math inline">4</span> (so <span
+class="math inline">4</span> is excluded). Listing: <span
+class="math inline">-2, -1, 0, 1, 2, 3</span>. Option B incorrectly
+includes <span class="math inline">4</span>; option C incorrectly
+excludes <span class="math inline">-2</span>; option D incorrectly
+excludes <span class="math inline">3</span>.</p>
+<h3
+id="q2.-consider-the-universal-set-u-1-2-3-4-5-6-7-8-with-subsets-p-1-3-5-7-and-q-2-3-6-7.-what-is-p-cup-q">q2.
+Consider the universal set <span class="math inline">U = \{1, 2, 3, 4,
+5, 6, 7, 8\}</span>, with subsets <span class="math inline">P = \{1, 3,
+5, 7\}</span> and <span class="math inline">Q = \{2, 3, 6, 7\}</span>.
+What is <span class="math inline">(P \cup Q)&#39;</span>?</h3>
+<p><em>Difficulty: easy</em></p>
+<ul>
+<li><strong>A)</strong> <span class="math inline">\{3, 7\}</span></li>
+<li><strong>B)</strong> <span class="math inline">\{1, 2, 4, 5, 6,
+8\}</span></li>
+<li><strong>C)</strong> <span class="math inline">\{4, 8\}</span>
+<strong>(correct)</strong></li>
+<li><strong>D)</strong> <span class="math inline">\{1, 2, 5,
+6\}</span></li>
+</ul>
+<p><strong>Explanation:</strong> First, compute the union: <span
+class="math display">P \cup Q = \{1, 2, 3, 5, 6, 7\}</span> The
+complement <span class="math inline">(P \cup Q)&#39;</span> consists of
+all elements in <span class="math inline">U</span> <strong>not</strong>
+in <span class="math inline">P \cup Q</span>: <span
+class="math display">U \setminus (P \cup Q) = \{1,2,3,4,5,6,7,8\}
+\setminus \{1,2,3,5,6,7\} = \{4, 8\}</span> Option A is <span
+class="math inline">P \cap Q</span>; option B is <span
+class="math inline">(P \cap Q)&#39;</span>; option D is <span
+class="math inline">(P \triangle Q)</span> restricted incorrectly.</p>
+<h3
+id="q3.-a-function-f-a-to-b-is-said-to-be-surjective-onto-if-and-only-if-which-condition-holds">q3.
+A function <span class="math inline">f : A \to B</span> is said to be
+<strong>surjective</strong> (onto) if and only if which condition
+holds?</h3>
+<p><em>Difficulty: easy</em></p>
+<ul>
+<li><strong>A)</strong> Every element of <span
+class="math inline">A</span> maps to exactly one element of <span
+class="math inline">B</span>.</li>
+<li><strong>B)</strong> Distinct elements of <span
+class="math inline">A</span> always map to distinct elements of <span
+class="math inline">B</span>, i.e., <span class="math inline">f(x_1) =
+f(x_2) \Rightarrow x_1 = x_2</span>.</li>
+<li><strong>C)</strong> For every <span class="math inline">b \in
+B</span>, there exists at least one <span class="math inline">a \in
+A</span> such that <span class="math inline">f(a) = b</span>.
+<strong>(correct)</strong></li>
+<li><strong>D)</strong> <span class="math inline">f</span> is both
+injective and surjective simultaneously.</li>
+</ul>
+<p><strong>Explanation:</strong> <strong>Surjectivity</strong> requires
+that the range of <span class="math inline">f</span> equals the entire
+codomain <span class="math inline">B</span>. Formally: <span
+class="math display">\forall\, b \in B,\; \exists\, a \in A \text{ such
+that } f(a) = b</span> Option A describes what it means for <span
+class="math inline">f</span> to be a <strong>well-defined
+function</strong> (single-valued). Option B is the definition of
+<strong>injectivity</strong> (one-to-one). Option D defines a
+<strong>bijection</strong>.</p>
+<h3
+id="q4.-given-fx-dfrac2x-1x---3-what-is-the-natural-domain-of-f-as-a-subset-of-mathbbr-and-what-is-f-1x">q4.
+Given <span class="math inline">f(x) = \dfrac{2x + 1}{x - 3}</span>,
+what is the <strong>natural domain</strong> of <span
+class="math inline">f</span> as a subset of <span
+class="math inline">\mathbb{R}</span>, and what is <span
+class="math inline">f^{-1}(x)</span>?</h3>
+<p><em>Difficulty: medium</em></p>
+<ul>
+<li><strong>A)</strong> Domain: <span class="math inline">\mathbb{R}
+\setminus \{3\}</span>; <span class="math inline">\;f^{-1}(x) =
+\dfrac{3x + 1}{x - 2}</span> <strong>(correct)</strong></li>
+<li><strong>B)</strong> Domain: <span class="math inline">\mathbb{R}
+\setminus \{2\}</span>; <span class="math inline">\;f^{-1}(x) =
+\dfrac{3x + 1}{x - 2}</span></li>
+<li><strong>C)</strong> Domain: <span class="math inline">\mathbb{R}
+\setminus \{3\}</span>; <span class="math inline">\;f^{-1}(x) = \dfrac{x
++ 3}{2x - 1}</span></li>
+<li><strong>D)</strong> Domain: <span
+class="math inline">\mathbb{R}</span>; <span
+class="math inline">\;f^{-1}(x) = \dfrac{3x + 1}{x - 2}</span></li>
+</ul>
+<p><strong>Explanation:</strong> <strong>Domain:</strong> The
+denominator <span class="math inline">x - 3 = 0</span> when <span
+class="math inline">x = 3</span>, so the natural domain is <span
+class="math inline">\mathbb{R} \setminus \{3\}</span>.</p>
+<p><strong>Inverse:</strong> Let <span class="math inline">y =
+\dfrac{2x+1}{x-3}</span>. Solve for <span
+class="math inline">x</span>:</p>
+<ol type="1">
+<li>Multiply both sides by <span class="math inline">(x - 3)</span>:
+<span class="math display">y(x - 3) = 2x + 1</span></li>
+<li>Expand and collect <span class="math inline">x</span>-terms: <span
+class="math display">xy - 3y = 2x + 1 \implies xy - 2x = 3y +
+1</span></li>
+<li>Factor and isolate: <span class="math display">x(y - 2) = 3y + 1
+\implies x = \frac{3y + 1}{y - 2}</span></li>
+</ol>
+<p>Thus <span class="math inline">f^{-1}(x) = \dfrac{3x + 1}{x -
+2}</span>. The domain of <span class="math inline">f</span> is
+<strong>not</strong> all of <span class="math inline">\mathbb{R}</span>
+(eliminates D), and the denominator excluded in the domain is <span
+class="math inline">3</span>, not <span class="math inline">2</span>
+(eliminates B).</p>
+<h3 id="q5.-if-na-12-nb-9-and-na-cup-b-17-then-na-cap-b-equals">q5. If
+<span class="math inline">n(A) = 12</span>, <span
+class="math inline">n(B) = 9</span>, and <span class="math inline">n(A
+\cup B) = 17</span>, then <span class="math inline">n(A \cap B)</span>
+equals:</h3>
+<p><em>Difficulty: easy</em></p>
+<ul>
+<li><strong>A)</strong> <span class="math inline">5</span></li>
+<li><strong>B)</strong> <span class="math inline">4</span>
+<strong>(correct)</strong></li>
+<li><strong>C)</strong> <span class="math inline">8</span></li>
+<li><strong>D)</strong> <span class="math inline">3</span></li>
+</ul>
+<p><strong>Explanation:</strong> The <strong>Principle of
+Inclusion-Exclusion</strong> for two finite sets states: <span
+class="math display">n(A \cup B) = n(A) + n(B) - n(A \cap B)</span>
+Substituting the given values: <span class="math display">17 = 12 + 9 -
+n(A \cap B)</span> <span class="math display">n(A \cap B) = 21 - 17 =
+4</span></p>
+<h3
+id="q6.-let-fx-x2---4-and-gx-sqrtx-6.-which-of-the-following-correctly-expresses-the-composite-function-g-circ-fx-and-states-its-domain">q6.
+Let <span class="math inline">f(x) = x^2 - 4</span> and <span
+class="math inline">g(x) = \sqrt{x + 6}</span>. Which of the following
+correctly expresses the <strong>composite function</strong> <span
+class="math inline">(g \circ f)(x)</span> and states its domain?</h3>
+<p><em>Difficulty: medium</em></p>
+<ul>
+<li><strong>A)</strong> <span class="math inline">(g \circ f)(x) =
+\sqrt{x^2 + 2}</span>; domain <span
+class="math inline">\mathbb{R}</span> <strong>(correct)</strong></li>
+<li><strong>B)</strong> <span class="math inline">(g \circ f)(x) =
+\sqrt{x^2 - 4} + 6</span>; domain <span class="math inline">x \geq
+2</span></li>
+<li><strong>C)</strong> <span class="math inline">(g \circ f)(x) =
+\sqrt{x^2 + 2}</span>; domain <span class="math inline">x \leq
+-\sqrt{2}</span> or <span class="math inline">x \geq
+\sqrt{2}</span></li>
+<li><strong>D)</strong> <span class="math inline">(g \circ f)(x) = x -
+2</span>; domain <span class="math inline">x \geq -6</span></li>
+</ul>
+<p><strong>Explanation:</strong> By definition, <span
+class="math inline">(g \circ f)(x) = g(f(x))</span>. Substituting <span
+class="math inline">f(x) = x^2 - 4</span> into <span
+class="math inline">g</span>: <span class="math display">g(f(x)) =
+\sqrt{(x^2 - 4) + 6} = \sqrt{x^2 + 2}</span></p>
+<p><strong>Domain analysis:</strong> We require <span
+class="math inline">x^2 + 2 \geq 0</span>. Since <span
+class="math inline">x^2 \geq 0</span> for all <span
+class="math inline">x \in \mathbb{R}</span>, it follows that <span
+class="math inline">x^2 + 2 \geq 2 &gt; 0</span> for <strong>all
+real</strong> <span class="math inline">x</span>. Hence the domain is
+<span class="math inline">\mathbb{R}</span>, confirming option A. Option
+C has the correct expression but an incorrect, unnecessarily restricted
+domain.</p>
+<h3 id="q7.-a-function-f-mathbbr-to-mathbbr-is-defined-piecewise-as">q7.
+A function <span class="math inline">f : \mathbb{R} \to
+\mathbb{R}</span> is defined piecewise as:</h3>
+<p><span class="math display">f(x) = \begin{cases} x^2 - 1 &amp;
+\text{if } x &lt; 0 \\ 2x + 3 &amp; \text{if } x \geq 0
+\end{cases}</span></p>
+<p>Which of the following statements about <span
+class="math inline">f</span> is <strong>true</strong>? <em>Difficulty:
+medium</em></p>
+<ul>
+<li><strong>A)</strong> <span class="math inline">f</span> is continuous
+at <span class="math inline">x = 0</span> because both pieces yield the
+same value there.</li>
+<li><strong>B)</strong> <span class="math inline">f</span> is
+<strong>not</strong> continuous at <span class="math inline">x =
+0</span> because <span class="math inline">\lim_{x \to 0^-} f(x) \neq
+f(0)</span>. <strong>(correct)</strong></li>
+<li><strong>C)</strong> <span class="math inline">f(-3) = -3</span> and
+<span class="math inline">f(2) = 7</span>.</li>
+<li><strong>D)</strong> <span class="math inline">f</span> is an even
+function since <span class="math inline">f(-x) = f(x)</span> for all
+<span class="math inline">x</span>.</li>
+</ul>
+<p><strong>Explanation:</strong> Evaluate the one-sided limits and
+function value at <span class="math inline">x = 0</span>:</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Expression</th>
+<th style="text-align: right;">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\lim_{x \to 0^-}
+f(x) = (0)^2 - 1</span></td>
+<td style="text-align: right;"><span class="math inline">-1</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">f(0) = 2(0) +
+3</span></td>
+<td style="text-align: right;"><span class="math inline">3</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\lim_{x \to 0^+}
+f(x) = 2(0) + 3</span></td>
+<td style="text-align: right;"><span class="math inline">3</span></td>
+</tr>
+</tbody>
+</table>
+<p>Since <span class="math inline">\lim_{x \to 0^-} f(x) = -1 \neq 3 =
+f(0)</span>, the left-hand limit does <strong>not</strong> equal <span
+class="math inline">f(0)</span>, so <span class="math inline">f</span>
+is <strong>discontinuous</strong> at <span class="math inline">x =
+0</span>. This confirms option B.</p>
+<p>For option C: <span class="math inline">f(-3) = (-3)^2 - 1 = 9 - 1 =
+8 \neq -3</span>, so C is false.</p>
+<p>For option D: <span class="math inline">f(-1) = (-1)^2 - 1 = 0</span>
+but <span class="math inline">f(1) = 2(1)+3 = 5</span>, so <span
+class="math inline">f</span> is not even.</p>
+<h3
+id="q8.-let-a-b-and-c-be-non-empty-subsets-of-a-universal-set-u.-using-set-algebra-de-morgans-laws-and-distributive-laws-simplify-the-expression">q8.
+Let <span class="math inline">A</span>, <span
+class="math inline">B</span>, and <span class="math inline">C</span> be
+non-empty subsets of a universal set <span class="math inline">U</span>.
+Using set algebra (De Morgan’s laws and distributive laws), simplify the
+expression:</h3>
+<p><span class="math display">\left[(A \cup B)&#39; \cap C\right] \cup
+\left[(A \cap B&#39;) \cap C\right]</span> <em>Difficulty: hard</em></p>
+<ul>
+<li><strong>A)</strong> <span class="math inline">C \setminus (A \cap
+B)</span>, i.e., <span class="math inline">\left(A&#39; \cup
+B&#39;\right) \cap C</span> <strong>(correct)</strong></li>
+<li><strong>B)</strong> <span class="math inline">A&#39; \cap B&#39;
+\cap C</span></li>
+<li><strong>C)</strong> <span class="math inline">C \setminus B</span>,
+i.e., <span class="math inline">B&#39; \cap C</span></li>
+<li><strong>D)</strong> <span class="math inline">(A \cup B) \cap
+C</span></li>
+</ul>
+<p><strong>Explanation:</strong> &gt; Mathematics is the language in
+which God has written the universe. &gt; — Galileo Galilei</p>
+<p>Simplify step-by-step using standard set identities:</p>
+<ol type="1">
+<li><p>Apply <strong>De Morgan’s Law</strong> to the first term: <span
+class="math inline">(A \cup B)&#39; = A&#39; \cap B&#39;</span> <span
+class="math display">\left[(A&#39; \cap B&#39;) \cap C\right] \cup
+\left[(A \cap B&#39;) \cap C\right]</span></p></li>
+<li><p><strong>Factor out</strong> <span class="math inline">B&#39; \cap
+C</span> using the distributive law: <span class="math display">=
+(B&#39; \cap C) \cap (A&#39; \cup A)</span> Wait — factor more
+carefully. Factor out <span class="math inline">\cap C</span>: <span
+class="math display">= \left[(A&#39; \cap B&#39;) \cup (A \cap
+B&#39;)\right] \cap C</span></p></li>
+<li><p>Factor <span class="math inline">B&#39;</span> from the union
+inside the brackets: <span class="math display">= \left[B&#39; \cap
+(A&#39; \cup A)\right] \cap C</span></p></li>
+<li><p>Since <span class="math inline">A&#39; \cup A = U</span>
+(complement law): <span class="math display">= \left[B&#39; \cap
+U\right] \cap C = B&#39; \cap C</span></p>
+<p>Hmm — let me recheck option A vs C. With the distributive factoring
+above, the simplified result is <span class="math inline">B&#39; \cap C
+= C \setminus B</span>, which matches <strong>option C</strong>.</p>
+<p>However, re-examining option A: <span class="math inline">C \setminus
+(A \cap B) = (A&#39; \cup B&#39;) \cap C</span>, which equals <span
+class="math inline">(A&#39; \cap C) \cup (B&#39; \cap C)</span> — not
+the same as <span class="math inline">B&#39; \cap C</span>.</p>
+<p><strong>Correct answer is C</strong>: The expression simplifies to
+<span class="math inline">B&#39; \cap C</span>.</p>
+<p><strong>Step-by-step summary:</strong></p>
+<ul>
+<li><span class="math inline">(A&#39; \cap B&#39; \cap C) \cup (A \cap
+B&#39; \cap C)</span></li>
+<li><span class="math inline">= B&#39; \cap C \cap (A&#39; \cup
+A)</span></li>
+<li><span class="math inline">= B&#39; \cap C \cap U</span> <span
+class="math display">= B&#39; \cap C</span></li>
+</ul>
+<p>This is the set of elements in <span class="math inline">C</span>
+that are <strong>not</strong> in <span class="math inline">B</span>,
+regardless of membership in <span class="math inline">A</span>.</p></li>
+</ol>
+<hr />
+<h1 id="quiz-set-3">Quiz Set 3</h1>
+<h3
+id="q1.-which-of-the-following-correctly-describes-the-symmetric-difference-a-triangle-b-of-two-sets-a-and-b">q1.
+Which of the following correctly describes the <strong>symmetric
+difference</strong> <span class="math inline">A \triangle B</span> of
+two sets <span class="math inline">A</span> and <span
+class="math inline">B</span>?</h3>
+<p><em>Difficulty: easy</em></p>
+<ul>
+<li><strong>A)</strong> <span class="math inline">A \triangle B = (A
+\cup B) \setminus (A \cap B)</span> <strong>(correct)</strong></li>
+<li><strong>B)</strong> <span class="math inline">A \triangle B = (A
+\cap B) \setminus (A \cup B)</span></li>
+<li><strong>C)</strong> <span class="math inline">A \triangle B = A \cup
+B</span></li>
+<li><strong>D)</strong> <span class="math inline">A \triangle B = A \cap
+B</span></li>
+</ul>
+<p><strong>Explanation:</strong> The symmetric difference <span
+class="math inline">A \triangle B</span> consists of all elements that
+belong to exactly one of the two sets — either <span
+class="math inline">A</span> or <span class="math inline">B</span>, but
+<strong>not both</strong>. This is precisely the union minus the
+intersection: <span class="math display">A \triangle B = (A \cup B)
+\setminus (A \cap B)</span> Equivalently, <span class="math inline">A
+\triangle B = (A \setminus B) \cup (B \setminus A)</span>. Options B, C,
+and D describe the empty set (for B), the full union, and the
+intersection — none of which match the definition.</p>
+<h3
+id="q2.-let-f-mathbbr-to-mathbbr-be-defined-by-fx-dfracx2---4x---2.-which-statement-best-characterises-f">q2.
+Let <span class="math inline">f : \mathbb{R} \to \mathbb{R}</span> be
+defined by <span class="math inline">f(x) = \dfrac{x^2 - 4}{x -
+2}</span>. Which statement <strong>best</strong> characterises <span
+class="math inline">f</span>?</h3>
+<p><em>Difficulty: medium</em></p>
+<ul>
+<li><strong>A)</strong> <span class="math inline">f</span> is identical
+to the linear function <span class="math inline">g(x) = x + 2</span> on
+all of <span class="math inline">\mathbb{R}</span>.</li>
+<li><strong>B)</strong> <span class="math inline">f</span> is a rational
+function with a removable discontinuity at <span class="math inline">x =
+2</span>; its natural domain is <span class="math inline">\mathbb{R}
+\setminus \{2\}</span>. <strong>(correct)</strong></li>
+<li><strong>C)</strong> <span class="math inline">f</span> is undefined
+for all real <span class="math inline">x</span> because the denominator
+can be zero.</li>
+<li><strong>D)</strong> <span class="math inline">f</span> has a
+vertical asymptote at <span class="math inline">x = 2</span> and is
+therefore not simplifiable.</li>
+</ul>
+<p><strong>Explanation:</strong> Factoring the numerator: <span
+class="math display">f(x) = \frac{(x-2)(x+2)}{x-2} = x + 2, \quad x \neq
+2</span> The cancellation is valid <strong>only</strong> when <span
+class="math inline">x \neq 2</span>, so the domain is <span
+class="math inline">\mathbb{R} \setminus \{2\}</span>. The discontinuity
+at <span class="math inline">x = 2</span> is <strong>removable</strong>
+(a hole in the graph, not a vertical asymptote), because <span
+class="math inline">\lim_{x \to 2} f(x) = 4</span> exists even though
+<span class="math inline">f(2)</span> is undefined. Option A is
+incorrect because <span class="math inline">f</span> and <span
+class="math inline">g(x) = x+2</span> have different domains. Option D
+confuses a removable discontinuity with a vertical asymptote.</p>
+<h3
+id="q3.-if-nu-80-na-35-nb-42-and-na-cup-b-65-what-is-na-cap-b-the-number-of-elements-in-the-complement-of-a-cup-b">q3.
+If <span class="math inline">n(U) = 80</span>, <span
+class="math inline">n(A) = 35</span>, <span class="math inline">n(B) =
+42</span>, and <span class="math inline">n(A \cup B) = 65</span>, what
+is <span class="math inline">n(A&#39; \cap B&#39;)</span> — the number
+of elements in the complement of <span class="math inline">A \cup
+B</span>?</h3>
+<p><em>Difficulty: easy</em></p>
+<ul>
+<li><strong>A)</strong> <span class="math inline">12</span></li>
+<li><strong>B)</strong> <span class="math inline">15</span>
+<strong>(correct)</strong></li>
+<li><strong>C)</strong> <span class="math inline">22</span></li>
+<li><strong>D)</strong> <span class="math inline">18</span></li>
+</ul>
+<p><strong>Explanation:</strong> By De Morgan’s law, <span
+class="math inline">A&#39; \cap B&#39; = (A \cup B)&#39;</span>.
+Therefore: <span class="math display">n(A&#39; \cap B&#39;) = n(U) - n(A
+\cup B) = 80 - 65 = 15</span> We can also verify <span
+class="math inline">n(A \cap B)</span> using the inclusion–exclusion
+principle: <span class="math display">n(A \cap B) = n(A) + n(B) - n(A
+\cup B) = 35 + 42 - 65 = 12</span> The answer to the question is <span
+class="math inline">\boxed{15}</span>.</p>
+<h3
+id="q4.-a-function-f-a-to-b-is-said-to-be-bijective-if-and-only-if-it-satisfies-which-pair-of-conditions">q4.
+A function <span class="math inline">f : A \to B</span> is said to be
+<strong>bijective</strong> if and only if it satisfies which pair of
+conditions?</h3>
+<p><em>Difficulty: easy</em></p>
+<ul>
+<li><strong>A)</strong> Every element of <span
+class="math inline">B</span> has at least one pre-image in <span
+class="math inline">A</span> (surjective), <strong>and</strong> every
+element of <span class="math inline">A</span> maps to at least two
+elements of <span class="math inline">B</span> (multi-valued).</li>
+<li><strong>B)</strong> Every element of <span
+class="math inline">B</span> has <strong>exactly one</strong> pre-image
+in <span class="math inline">A</span> — equivalently, <span
+class="math inline">f</span> is both injective (one-to-one) and
+surjective (onto). <strong>(correct)</strong></li>
+<li><strong>C)</strong> <span class="math inline">f</span> is injective
+but not necessarily surjective.</li>
+<li><strong>D)</strong> The domain <span class="math inline">A</span>
+and codomain <span class="math inline">B</span> are equal as sets.</li>
+</ul>
+<p><strong>Explanation:</strong> A <strong>bijection</strong> is a
+function that is simultaneously: - <strong>Injective
+(one-to-one):</strong> <span class="math inline">f(x_1) = f(x_2)
+\Rightarrow x_1 = x_2</span> — distinct inputs yield distinct outputs. -
+<strong>Surjective (onto):</strong> <span class="math inline">\forall b
+\in B,\ \exists\, a \in A</span> such that <span
+class="math inline">f(a) = b</span> — every element of the codomain is
+reached.</p>
+<p>Together these guarantee each element of <span
+class="math inline">B</span> has <strong>exactly one</strong> pre-image
+in <span class="math inline">A</span>, establishing a perfect one-to-one
+correspondence. Option D (<span class="math inline">A = B</span> as
+sets) is neither necessary nor sufficient for bijectivity.</p>
+<h3
+id="q5.-given-fx-2x-3-and-gx-x2---1-evaluate-the-composite-function-g-circ-fx-and-determine-its-value-at-x--1.">q5.
+Given <span class="math inline">f(x) = 2x + 3</span> and <span
+class="math inline">g(x) = x^2 - 1</span>, evaluate the composite
+function <span class="math inline">(g \circ f)(x)</span> and determine
+its value at <span class="math inline">x = -1</span>.</h3>
+<p><em>Difficulty: medium</em></p>
+<ul>
+<li><strong>A)</strong> <span class="math inline">(g \circ f)(x) = 4x^2
++ 12x + 8</span>; value at <span class="math inline">x = -1</span> is
+<span class="math inline">0</span>. <strong>(correct)</strong></li>
+<li><strong>B)</strong> <span class="math inline">(g \circ f)(x) = 2x^2
++ 1</span>; value at <span class="math inline">x = -1</span> is <span
+class="math inline">3</span>.</li>
+<li><strong>C)</strong> <span class="math inline">(g \circ f)(x) = 4x^2
++ 6x + 8</span>; value at <span class="math inline">x = -1</span> is
+<span class="math inline">6</span>.</li>
+<li><strong>D)</strong> <span class="math inline">(g \circ f)(x) = 2(x^2
+- 1) + 3</span>; value at <span class="math inline">x = -1</span> is
+<span class="math inline">3</span>.</li>
+</ul>
+<p><strong>Explanation:</strong> The composite <span
+class="math inline">(g \circ f)(x)</span> means <span
+class="math inline">g(f(x))</span>. Substitute <span
+class="math inline">f(x)</span> into <span
+class="math inline">g</span>:</p>
+<ol type="1">
+<li><p>Compute <span class="math inline">f(x)</span>: <span
+class="math display">f(x) = 2x + 3</span></p></li>
+<li><p>Substitute into <span class="math inline">g(u) = u^2 - 1</span>
+where <span class="math inline">u = 2x + 3</span>: <span
+class="math display">(g \circ f)(x) = (2x + 3)^2 - 1 = 4x^2 + 12x + 9 -
+1 = 4x^2 + 12x + 8</span></p></li>
+<li><p>Evaluate at <span class="math inline">x = -1</span>: <span
+class="math display">(g \circ f)(-1) = 4(-1)^2 + 12(-1) + 8 = 4 - 12 + 8
+= 0</span></p></li>
+</ol>
+<p>Option D computes <span class="math inline">f(g(x))</span> — the
+<strong>reverse</strong> composition — which is a common error.</p>
+<h3 id="q6.-consider-the-piecewise-defined-function">q6. Consider the
+piecewise-defined function:</h3>
+<p><span class="math display">f(x) = \begin{cases} x^2 + 1, &amp; x &lt;
+0 \\ 2x - 3, &amp; x \geq 0 \end{cases}</span> Which of the following
+statements about <span class="math inline">f</span> is
+<strong>correct</strong>? <em>Difficulty: medium</em></p>
+<ul>
+<li><strong>A)</strong> <span class="math inline">f</span> is continuous
+at <span class="math inline">x = 0</span> because both pieces are
+polynomial.</li>
+<li><strong>B)</strong> <span class="math inline">f</span> is
+<strong>discontinuous</strong> at <span class="math inline">x = 0</span>
+because <span class="math inline">\lim_{x \to 0^-} f(x) = 1</span> while
+<span class="math inline">f(0) = -3</span>.
+<strong>(correct)</strong></li>
+<li><strong>C)</strong> <span class="math inline">f(0) = 1</span>
+because we substitute <span class="math inline">x = 0</span> into the
+first piece.</li>
+<li><strong>D)</strong> <span class="math inline">f</span> is an even
+function because both pieces are smooth.</li>
+</ul>
+<p><strong>Explanation:</strong> To assess continuity at <span
+class="math inline">x = 0</span>, compute the one-sided limits and the
+function value:</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Quantity</th>
+<th style="text-align: left;">Expression</th>
+<th style="text-align: right;">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Left-hand limit</td>
+<td style="text-align: left;"><span class="math inline">\lim_{x \to
+0^-}(x^2 + 1)</span></td>
+<td style="text-align: right;"><span class="math inline">1</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">f(0)</span>
+(right piece applies since <span class="math inline">x \geq
+0</span>)</td>
+<td style="text-align: left;"><span class="math inline">2(0) -
+3</span></td>
+<td style="text-align: right;"><span class="math inline">-3</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Right-hand limit</td>
+<td style="text-align: left;"><span class="math inline">\lim_{x \to
+0^+}(2x - 3)</span></td>
+<td style="text-align: right;"><span class="math inline">-3</span></td>
+</tr>
+</tbody>
+</table>
+<p>Since <span class="math inline">\lim_{x \to 0^-} f(x) = 1 \neq -3 =
+f(0)</span>, the <strong>left-hand and right-hand limits
+disagree</strong>, so <span class="math inline">f</span> has a
+<strong>jump discontinuity</strong> at <span class="math inline">x =
+0</span>. Option C incorrectly applies the first branch at <span
+class="math inline">x = 0</span>; option A incorrectly concludes
+continuity from piecewise-polynomial structure alone.</p>
+<h3
+id="q7.-let-f-mathbbr-to-mathbbr-be-defined-by-fx-x3---3x.-determine-all-real-values-of-x-for-which-f-is-an-odd-function-criterion-holds-and-identify-which-of-the-following-correctly-proves-or-disproves-the-oddness-of-f.">q7.
+Let <span class="math inline">f : \mathbb{R} \to \mathbb{R}</span> be
+defined by <span class="math inline">f(x) = x^3 - 3x</span>. Determine
+all real values of <span class="math inline">x</span> for which <span
+class="math inline">f</span> is an <strong>odd function
+criterion</strong> holds, and identify which of the following correctly
+proves or disproves the oddness of <span
+class="math inline">f</span>.</h3>
+<p><em>Difficulty: medium</em></p>
+<ul>
+<li><strong>A)</strong> <span class="math inline">f(-x) = -x^3 + 3x =
+-(x^3 - 3x) = -f(x)</span> for all <span class="math inline">x \in
+\mathbb{R}</span>; therefore <span class="math inline">f</span> is
+<strong>odd</strong>. <strong>(correct)</strong></li>
+<li><strong>B)</strong> <span class="math inline">f(-x) = x^3 - 3x =
+f(x)</span> for all <span class="math inline">x \in \mathbb{R}</span>;
+therefore <span class="math inline">f</span> is
+<strong>even</strong>.</li>
+<li><strong>C)</strong> <span class="math inline">f(-x) = -x^3 + 3x \neq
+f(x)</span> and <span class="math inline">f(-x) \neq -f(x)</span>;
+therefore <span class="math inline">f</span> is <strong>neither even nor
+odd</strong>.</li>
+<li><strong>D)</strong> <span class="math inline">f</span> is odd only
+on the interval <span class="math inline">[-1, 1]</span>, not on all of
+<span class="math inline">\mathbb{R}</span>.</li>
+</ul>
+<p><strong>Explanation:</strong> A function <span
+class="math inline">f</span> is <strong>odd</strong> if <span
+class="math inline">f(-x) = -f(x)</span> for <strong>all</strong> <span
+class="math inline">x</span> in its domain. Verify:</p>
+<ol type="1">
+<li><p>Substitute <span class="math inline">-x</span>: <span
+class="math display">f(-x) = (-x)^3 - 3(-x) = -x^3 + 3x</span></p></li>
+<li><p>Compute <span class="math inline">-f(x)</span>: <span
+class="math display">-f(x) = -(x^3 - 3x) = -x^3 + 3x</span></p></li>
+<li><p>Compare: <span class="math display">f(-x) = -x^3 + 3x = -f(x)
+\quad \forall\, x \in \mathbb{R}</span></p></li>
+</ol>
+<p>Since the identity holds for <strong>all</strong> real <span
+class="math inline">x</span> — not just a subinterval — <span
+class="math inline">f</span> is odd on <span
+class="math inline">\mathbb{R}</span>. Geometrically, the graph of an
+odd function has <strong>180° rotational symmetry</strong> about the
+origin.</p>
+<h3
+id="q8.-hard-let-a-b-and-c-be-finite-sets-with-the-following-cardinalities">q8.
+<strong>[Hard]</strong> Let <span class="math inline">A</span>, <span
+class="math inline">B</span>, and <span class="math inline">C</span> be
+finite sets with the following cardinalities:</h3>
+<p><span class="math display">n(A) = 20,\quad n(B) = 25,\quad n(C) =
+22</span> <span class="math display">n(A \cap B) = 8,\quad n(B \cap C) =
+10,\quad n(A \cap C) = 6,\quad n(A \cap B \cap C) = 3</span></p>
+<p>Using the <strong>Inclusion–Exclusion Principle</strong>, determine
+<span class="math inline">n(A \cup B \cup C)</span>. <em>Difficulty:
+hard</em></p>
+<ul>
+<li><strong>A)</strong> <span class="math inline">46</span>
+<strong>(correct)</strong></li>
+<li><strong>B)</strong> <span class="math inline">54</span></li>
+<li><strong>C)</strong> <span class="math inline">67</span></li>
+<li><strong>D)</strong> <span class="math inline">52</span></li>
+</ul>
+<p><strong>Explanation:</strong> The three-set Inclusion–Exclusion
+Principle states: <span class="math display">n(A \cup B \cup C) = n(A) +
+n(B) + n(C)</span> <span class="math display">- n(A \cap B) - n(B \cap
+C) - n(A \cap C)</span> <span class="math display">+ n(A \cap B \cap
+C)</span></p>
+<p>Substitute the given values step by step:</p>
+<ol type="1">
+<li><p>Sum of individual cardinalities: <span class="math display">20 +
+25 + 22 = 67</span></p></li>
+<li><p>Subtract pairwise intersections: <span class="math display">67 -
+8 - 10 - 6 = 43</span></p></li>
+<li><p>Add back the triple intersection: <span class="math display">43 +
+3 = 46</span></p></li>
+</ol>
+<p>Therefore: <span class="math display">n(A \cup B \cup C) =
+\boxed{46}</span></p>
+<p>This principle corrects for <strong>double-counting</strong>:
+elements in pairwise intersections are subtracted once, but elements in
+the triple intersection are then over-subtracted and must be added back
+exactly once.</p>
+</body>
+</html>

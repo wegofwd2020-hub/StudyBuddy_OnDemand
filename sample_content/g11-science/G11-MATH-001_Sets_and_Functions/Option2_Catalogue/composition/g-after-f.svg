@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 140" width="600" height="140" role="img" aria-label="Composition g after f at x=2">
+  <title>(g ∘ f)(2) — pipeline view</title>
+  <desc>Input 2 flows through f to produce 7, then through g to produce 48.</desc>
+  <defs>
+    <marker id="ah1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2b6cb0"/>
+    </marker>
+    <style>
+      .input  { fill: #ebf4ff; stroke: #2b6cb0; stroke-width: 1.5; }
+      .fbox   { fill: #fffaf0; stroke: #dd6b20; stroke-width: 1.5; }
+      .gbox   { fill: #f0fff4; stroke: #2f855a; stroke-width: 1.5; }
+      .label  { font: 14px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .formula { font: italic 13px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .title  { font: bold 14px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <text class="title" x="300" y="20">(g ∘ f)(2) = g(f(2)) = 48</text>
+
+  <!-- Input -->
+  <circle class="input" cx="50" cy="80" r="28"/>
+  <text class="label" x="50" y="78">x = 2</text>
+  <text class="formula" x="50" y="120">input</text>
+
+  <!-- f box -->
+  <rect class="fbox" x="120" y="55" width="130" height="50" rx="6"/>
+  <text class="label" x="185" y="78">f(x) = 2x + 3</text>
+  <text class="formula" x="185" y="120">step 1</text>
+
+  <!-- intermediate -->
+  <circle class="input" cx="320" cy="80" r="28"/>
+  <text class="label" x="320" y="78">7</text>
+  <text class="formula" x="320" y="120">f(2)</text>
+
+  <!-- g box -->
+  <rect class="gbox" x="370" y="55" width="130" height="50" rx="6"/>
+  <text class="label" x="435" y="78">g(y) = y² − 1</text>
+  <text class="formula" x="435" y="120">step 2</text>
+
+  <!-- Output -->
+  <circle class="input" cx="555" cy="80" r="28"/>
+  <text class="label" x="555" y="78">48</text>
+  <text class="formula" x="555" y="120">output</text>
+
+  <!-- Arrows -->
+  <line x1="79"  y1="80" x2="118" y2="80" stroke="#2b6cb0" stroke-width="2" marker-end="url(#ah1)"/>
+  <line x1="251" y1="80" x2="290" y2="80" stroke="#2b6cb0" stroke-width="2" marker-end="url(#ah1)"/>
+  <line x1="349" y1="80" x2="368" y2="80" stroke="#2b6cb0" stroke-width="2" marker-end="url(#ah1)"/>
+  <line x1="501" y1="80" x2="525" y2="80" stroke="#2b6cb0" stroke-width="2" marker-end="url(#ah1)"/>
+</svg>

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 220" width="320" height="220" role="img" aria-label="Complement of A shaded">
+  <title>A complement</title>
+  <desc>Universal set rectangle entirely shaded except for circle A, which is left unshaded.</desc>
+  <defs>
+    <style>
+      .universe-fill { fill: #c084fc; fill-opacity: 0.7; stroke: #888; stroke-width: 1; }
+      .ring { fill: white; stroke: #6b46c1; stroke-width: 1.5; }
+      .label { font: bold 16px system-ui, sans-serif; fill: #1a202c; }
+      .universe-label { font: 13px system-ui, sans-serif; fill: #4a5568; }
+      .caption { font: 14px system-ui, sans-serif; fill: #2d3748; }
+    </style>
+    <mask id="cutA">
+      <rect x="0" y="0" width="320" height="220" fill="white"/>
+      <circle cx="160" cy="100" r="55" fill="black"/>
+    </mask>
+  </defs>
+  <rect class="universe-fill" x="10" y="10" width="300" height="170" rx="4" mask="url(#cutA)"/>
+  <rect fill="none" stroke="#888" x="10" y="10" width="300" height="170" rx="4"/>
+  <text class="universe-label" x="20" y="30">𝕌</text>
+  <circle class="ring" cx="160" cy="100" r="55"/>
+  <text class="label" x="153" y="105">A</text>
+  <text class="caption" x="160" y="205" text-anchor="middle">Aᶜ  =  everything in 𝕌 that is not in A</text>
+</svg>

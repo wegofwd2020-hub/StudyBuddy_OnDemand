@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Sets and Functions — Visual Demonstrations</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- KaTeX for math typography -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {
+      delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$',  right: '$',  display: false}
+      ]
+    });"></script>
+
+  <!-- Plotly for function graphs -->
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+  <!-- Mermaid for arrow / pipeline diagrams -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true, theme: 'default', flowchart: { curve: 'basis' } });</script>
+
+  <style>
+    :root {
+      --ink: #1a202c;
+      --muted: #4a5568;
+      --bg: #fafafa;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --accent: #2b6cb0;
+      --accent-soft: #ebf4ff;
+      --setA: rgba(255, 99, 132, 0.45);
+      --setB: rgba(54, 162, 235, 0.45);
+      --setU: #f7fafc;
+    }
+    html, body { background: var(--bg); color: var(--ink); }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif;
+      line-height: 1.55;
+    }
+    header {
+      background: linear-gradient(135deg, #2b6cb0, #4299e1);
+      color: white;
+      padding: 28px 32px;
+      box-shadow: 0 2px 4px rgba(0,0,0,.08);
+    }
+    header h1 { margin: 0; font-size: 28px; font-weight: 700; }
+    header p  { margin: 6px 0 0; opacity: .9; font-size: 15px; }
+
+    .layout { display: grid; grid-template-columns: 240px 1fr; gap: 24px; max-width: 1280px; margin: 0 auto; padding: 24px; }
+    nav.toc {
+      position: sticky; top: 16px; align-self: start;
+      background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+      padding: 16px; font-size: 14px; max-height: calc(100vh - 32px); overflow-y: auto;
+    }
+    nav.toc h3 { margin: 0 0 8px; font-size: 12px; text-transform: uppercase; color: var(--muted); letter-spacing: .05em; }
+    nav.toc ol { margin: 0; padding-left: 20px; }
+    nav.toc li { margin: 4px 0; }
+    nav.toc a { color: var(--ink); text-decoration: none; }
+    nav.toc a:hover { color: var(--accent); }
+
+    main { min-width: 0; }
+    section.demo {
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 24px; margin-bottom: 24px; box-shadow: 0 1px 2px rgba(0,0,0,.03);
+    }
+    section.demo h2 { margin: 0 0 4px; font-size: 22px; }
+    .technique {
+      display: inline-block; background: var(--accent-soft); color: var(--accent);
+      padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600;
+      margin-bottom: 12px;
+    }
+    p.preface { color: var(--muted); margin-top: 4px; }
+
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    @media (max-width: 900px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
+
+    figure { margin: 0; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: #fff; text-align: center; }
+    figcaption { margin-top: 8px; font-size: 13px; color: var(--muted); }
+
+    .plot { width: 100%; height: 320px; }
+    .plot-tall { width: 100%; height: 420px; }
+
+    .controls { margin: 12px 0; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .controls button {
+      padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border);
+      background: var(--accent); color: white; font-weight: 600; cursor: pointer;
+    }
+    .controls button:hover { background: #2c5282; }
+    .controls button.ghost { background: var(--card); color: var(--ink); }
+    .controls input[type=range] { flex: 1; min-width: 140px; }
+    .controls label { font-size: 13px; color: var(--muted); }
+
+    pre.example {
+      background: #f7fafc; border-left: 3px solid var(--accent); padding: 12px 16px;
+      border-radius: 4px; white-space: pre-wrap; font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size: 13px; margin: 12px 0;
+    }
+    .keyrow { display: flex; gap: 16px; flex-wrap: wrap; font-size: 14px; margin-top: 8px; }
+    .keyrow span { display: inline-flex; align-items: center; gap: 6px; }
+    .swatch { width: 14px; height: 14px; border-radius: 3px; display: inline-block; border: 1px solid #888; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Sets and Functions — Visual Demonstrations</h1>
+  <p>Twelve worked examples from <code>Sets_and_Functions.md</code>, each rendered in a different presentation idiom for comparison. Open the page; scroll to compare.</p>
+</header>
+
+<div class="layout">
+  <nav class="toc">
+    <h3>Demonstrations</h3>
+    <ol>
+      <li><a href="#set-ops">Set operations (Venn — SVG)</a></li>
+      <li><a href="#power-set">Power set (SVG lattice)</a></li>
+      <li><a href="#arrow-diagrams">Arrow diagrams (Mermaid)</a></li>
+      <li><a href="#inj-surj-bij">Inj / Surj / Bij (Mermaid)</a></li>
+      <li><a href="#vertical-line-test">Vertical line test (Plotly)</a></li>
+      <li><a href="#polynomial-plots">Polynomial / rational / abs (Plotly)</a></li>
+      <li><a href="#piecewise">Piecewise function (Plotly)</a></li>
+      <li><a href="#even-odd">Even / odd / neither (Plotly)</a></li>
+      <li><a href="#composition">Composition pipeline (Mermaid)</a></li>
+      <li><a href="#inverse">Inverse and reflection (Plotly)</a></li>
+      <li><a href="#transformations">Transformations (animated Plotly)</a></li>
+      <li><a href="#projectile">Projectile motion (canvas anim)</a></li>
+    </ol>
+  </nav>
+
+  <main>
+
+  <!-- 1. SET OPERATIONS — Venn diagrams in SVG -->
+  <section class="demo" id="set-ops">
+    <h2>1. Set operations — Venn diagrams</h2>
+    <span class="technique">Inline SVG, no library</span>
+    <p class="preface">Worked Example 1 (lesson § 1.5). $\mathbb{U} = \{1,...,8\}$, $A = \{1,2,3,4\}$, $B = \{3,4,5,6\}$.</p>
+
+    <div class="grid-4">
+      <figure>
+        <svg viewBox="0 0 200 140" width="100%" id="venn-union"></svg>
+        <figcaption>$A \cup B = \{1,2,3,4,5,6\}$</figcaption>
+      </figure>
+      <figure>
+        <svg viewBox="0 0 200 140" width="100%" id="venn-inter"></svg>
+        <figcaption>$A \cap B = \{3,4\}$</figcaption>
+      </figure>
+      <figure>
+        <svg viewBox="0 0 200 140" width="100%" id="venn-diff"></svg>
+        <figcaption>$A \setminus B = \{1,2\}$</figcaption>
+      </figure>
+      <figure>
+        <svg viewBox="0 0 200 140" width="100%" id="venn-comp"></svg>
+        <figcaption>$A^c = \{5,6,7,8\}$</figcaption>
+      </figure>
+    </div>
+
+    <div class="keyrow">
+      <span><span class="swatch" style="background: var(--setA)"></span> A</span>
+      <span><span class="swatch" style="background: var(--setB)"></span> B</span>
+      <span><span class="swatch" style="background: var(--setU); border-color: #888"></span> Universe $\mathbb{U}$</span>
+    </div>
+  </section>
+
+
+  <!-- 2. POWER SET — lattice (Hasse diagram) in SVG -->
+  <section class="demo" id="power-set">
+    <h2>2. Power set lattice</h2>
+    <span class="technique">Inline SVG (Hasse diagram)</span>
+    <p class="preface">Worked Example 2 (lesson § 1.4). $S = \{a, b, c\}$ — the lattice $\mathcal{P}(S)$ ordered by inclusion. There are $2^3 = 8$ subsets, arranged by cardinality.</p>
+
+    <figure>
+      <svg viewBox="0 0 600 280" width="100%" id="hasse"></svg>
+      <figcaption>Edges connect sets that differ by exactly one element. Cardinality increases from bottom ($\emptyset$) to top ($\{a,b,c\}$).</figcaption>
+    </figure>
+  </section>
+
+
+  <!-- 3. ARROW DIAGRAMS R1..R4 -->
+  <section class="demo" id="arrow-diagrams">
+    <h2>3. Arrow diagrams — function or not?</h2>
+    <span class="technique">Mermaid flowchart</span>
+    <p class="preface">Worked Example 1 (tutorial § 2.5). Mappings from $A = \{1,2,3\}$ to $B = \{p,q,r\}$.</p>
+
+    <div class="grid-4">
+      <figure>
+        <div class="mermaid">
+flowchart LR
+  subgraph A["A"]; 1; 2; 3; end
+  subgraph B["B"]; p; q; r; end
+  1 --> p
+  2 --> q
+  3 --> r
+        </div>
+        <figcaption><strong>R₁</strong> — function ✓</figcaption>
+      </figure>
+      <figure>
+        <div class="mermaid">
+flowchart LR
+  subgraph A["A"]; 1a[1]; 2a[2]; 3a[3]; end
+  subgraph B["B"]; pa[p]; qa[q]; ra[r]; end
+  1a --> pa
+  1a --> qa
+  2a --> ra
+        </div>
+        <figcaption><strong>R₂</strong> — <em>not</em> a function (1 → p and q)</figcaption>
+      </figure>
+      <figure>
+        <div class="mermaid">
+flowchart LR
+  subgraph A["A"]; 1b[1]; 2b[2]; 3b[3]; end
+  subgraph B["B"]; pb[p]; qb[q]; rb[r]; end
+  1b --> pb
+  2b --> pb
+  3b --> qb
+        </div>
+        <figcaption><strong>R₃</strong> — function ✓ (not injective)</figcaption>
+      </figure>
+      <figure>
+        <div class="mermaid">
+flowchart LR
+  subgraph A["A"]; 1c[1]; 2c[2]; 3c[3]; end
+  subgraph B["B"]; pc[p]; qc[q]; rc[r]; end
+  1c --> pc
+  2c --> qc
+        </div>
+        <figcaption><strong>R₄</strong> — <em>not</em> a function (3 has no image)</figcaption>
+      </figure>
+    </div>
+  </section>
+
+
+  <!-- 4. INJ / SURJ / BIJ side-by-side -->
+  <section class="demo" id="inj-surj-bij">
+    <h2>4. Injective / surjective / bijective</h2>
+    <span class="technique">Mermaid flowchart</span>
+    <p class="preface">Three diagrams, side by side, illustrate the three classifications.</p>
+
+    <div class="grid-3">
+      <figure>
+        <div class="mermaid">
+flowchart LR
+  subgraph A1["A"]; a1[1]; a2[2]; a3[3]; end
+  subgraph B1["B"]; b1[p]; b2[q]; b3[r]; b4[s]; end
+  a1 --> b1
+  a2 --> b2
+  a3 --> b3
+        </div>
+        <figcaption><strong>Injective only</strong> — distinct inputs → distinct outputs; some of $B$ is unreached ($s$).</figcaption>
+      </figure>
+      <figure>
+        <div class="mermaid">
+flowchart LR
+  subgraph A2["A"]; c1[1]; c2[2]; c3[3]; c4[4]; end
+  subgraph B2["B"]; d1[p]; d2[q]; d3[r]; end
+  c1 --> d1
+  c2 --> d1
+  c3 --> d2
+  c4 --> d3
+        </div>
+        <figcaption><strong>Surjective only</strong> — every $B$ element is hit, but $1$ and $2$ collide.</figcaption>
+      </figure>
+      <figure>
+        <div class="mermaid">
+flowchart LR
+  subgraph A3["A"]; e1[1]; e2[2]; e3[3]; end
+  subgraph B3["B"]; f1[p]; f2[q]; f3[r]; end
+  e1 --> f1
+  e2 --> f2
+  e3 --> f3
+        </div>
+        <figcaption><strong>Bijective</strong> — perfect pairing; only bijections have inverses.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+
+  <!-- 5. VERTICAL LINE TEST -->
+  <section class="demo" id="vertical-line-test">
+    <h2>5. Vertical line test</h2>
+    <span class="technique">Plotly (interactive)</span>
+    <p class="preface">A graph is a function iff every vertical line crosses it at most once. Hover the plots — the dashed line is a sweep.</p>
+
+    <div class="grid-2">
+      <figure>
+        <div id="plot-vlt-fn" class="plot"></div>
+        <figcaption>$y = x^2 - 1$ — function ✓ (each $x$ has one $y$).</figcaption>
+      </figure>
+      <figure>
+        <div id="plot-vlt-notfn" class="plot"></div>
+        <figcaption>$y^2 = x$ — <em>not</em> a function (each positive $x$ has two $y$'s).</figcaption>
+      </figure>
+    </div>
+  </section>
+
+
+  <!-- 6. POLYNOMIAL / RATIONAL / ABSOLUTE VALUE -->
+  <section class="demo" id="polynomial-plots">
+    <h2>6. Polynomial / rational / absolute value</h2>
+    <span class="technique">Plotly (interactive)</span>
+    <p class="preface">Three function families from tutorial § 3.2–3.4 plotted on the same scale. Vertical asymptotes on the rational appear as dashed grey lines.</p>
+
+    <div class="grid-3">
+      <figure>
+        <div id="plot-poly" class="plot"></div>
+        <figcaption>Cubic: $f(x) = x^3 - x$</figcaption>
+      </figure>
+      <figure>
+        <div id="plot-rational" class="plot"></div>
+        <figcaption>Rational: $f(x) = \dfrac{3x+1}{(x-2)(x-3)}$</figcaption>
+      </figure>
+      <figure>
+        <div id="plot-abs" class="plot"></div>
+        <figcaption>Absolute value: $f(x) = |x|$</figcaption>
+      </figure>
+    </div>
+  </section>
+
+
+  <!-- 7. PIECEWISE -->
+  <section class="demo" id="piecewise">
+    <h2>7. Piecewise function</h2>
+    <span class="technique">Plotly (interactive)</span>
+    <p class="preface">Tutorial § 3.5. $g(x) = x^2$ for $x &lt; 0$; $2x+1$ for $0 \le x \le 3$; $10 - x$ for $x &gt; 3$. Each piece is a separate trace; closed/open dots mark boundary inclusion.</p>
+    <figure>
+      <div id="plot-piecewise" class="plot-tall"></div>
+      <figcaption>The three pieces are colour-coded; circles mark the value at piece boundaries.</figcaption>
+    </figure>
+  </section>
+
+
+  <!-- 8. EVEN / ODD / NEITHER -->
+  <section class="demo" id="even-odd">
+    <h2>8. Even / odd / neither</h2>
+    <span class="technique">Plotly (interactive)</span>
+    <p class="preface">Worked Example 2 (tutorial § 3.7). The dashed reflection of each curve highlights the symmetry test.</p>
+
+    <div class="grid-3">
+      <figure>
+        <div id="plot-even" class="plot"></div>
+        <figcaption><strong>Even:</strong> $h(x) = 4x^4 - 2x^2 + 1$ — symmetric about the $y$-axis.</figcaption>
+      </figure>
+      <figure>
+        <div id="plot-odd" class="plot"></div>
+        <figcaption><strong>Odd:</strong> $k(x) = 3x^3 - x$ — symmetric about the origin.</figcaption>
+      </figure>
+      <figure>
+        <div id="plot-neither" class="plot"></div>
+        <figcaption><strong>Neither:</strong> $p(x) = x^2 + x$ — no symmetry.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+
+  <!-- 9. COMPOSITION PIPELINE -->
+  <section class="demo" id="composition">
+    <h2>9. Composition of functions</h2>
+    <span class="technique">Mermaid flowchart</span>
+    <p class="preface">Worked Example 1 (tutorial § 4.1). $f(x) = 2x+3$, $g(x) = x^2 - 1$. The composition $g \circ f$ is read right-to-left: $f$ first, then $g$.</p>
+
+    <div class="grid-2">
+      <figure>
+        <div class="mermaid">
+flowchart LR
+  x((x = 2)) --> f["f(x) = 2x + 3"]
+  f --> mid((7))
+  mid --> g["g(y) = y² − 1"]
+  g --> y((48))
+        </div>
+        <figcaption>$(g \circ f)(2) = g(f(2)) = g(7) = 48$</figcaption>
+      </figure>
+      <figure>
+        <div class="mermaid">
+flowchart LR
+  x((x = 2)) --> g["g(x) = x² − 1"]
+  g --> mid((3))
+  mid --> f["f(y) = 2y + 3"]
+  f --> y((9))
+        </div>
+        <figcaption>$(f \circ g)(2) = f(g(2)) = f(3) = 9$</figcaption>
+      </figure>
+    </div>
+    <p style="color: var(--muted); font-size: 14px; margin-top: 12px;">$48 \neq 9$ — composition is not commutative.</p>
+  </section>
+
+
+  <!-- 10. INVERSE — reflection across y = x -->
+  <section class="demo" id="inverse">
+    <h2>10. Inverse function — reflection across $y = x$</h2>
+    <span class="technique">Plotly (interactive)</span>
+    <p class="preface">Tutorial § 4.3. $f(x) = e^x$ and $f^{-1}(x) = \ln x$ are reflections of each other across the dashed line $y = x$.</p>
+    <figure>
+      <div id="plot-inverse" class="plot-tall"></div>
+      <figcaption>Pick any point on one curve, swap its coordinates — you land on the other.</figcaption>
+    </figure>
+  </section>
+
+
+  <!-- 11. TRANSFORMATIONS — animated -->
+  <section class="demo" id="transformations">
+    <h2>11. Transformations of $y = x^2$</h2>
+    <span class="technique">Plotly + JS frame loop</span>
+    <p class="preface">Worked Example 1 (tutorial § 5.1). Watch $y = x^2$ become $y = -2(x+3)^2 + 5$ in four discrete steps. Use the controls to step through; dwell to compare.</p>
+
+    <div class="controls">
+      <button id="tx-play">Play sequence</button>
+      <button id="tx-reset" class="ghost">Reset</button>
+      <label for="tx-step">Step:</label>
+      <span id="tx-step-label">0 / 4</span>
+    </div>
+    <figure>
+      <div id="plot-transform" class="plot-tall"></div>
+      <figcaption id="tx-caption">Step 0 — base parabola $y = x^2$.</figcaption>
+    </figure>
+  </section>
+
+
+  <!-- 12. PROJECTILE — animated -->
+  <section class="demo" id="projectile">
+    <h2>12. Projectile motion</h2>
+    <span class="technique">HTML canvas + requestAnimationFrame</span>
+    <p class="preface">Worked Example 2 (tutorial § 5.3). $h(t) = -4.9t^2 + 14t + 2$. Maximum height $\approx 12$ m at $t \approx 1.43$ s; ground impact at $t \approx 2.71$ s.</p>
+
+    <div class="controls">
+      <button id="proj-play">Play</button>
+      <button id="proj-reset" class="ghost">Reset</button>
+      <label for="proj-speed">Speed</label>
+      <input type="range" id="proj-speed" min="0.25" max="2" step="0.25" value="1">
+      <span id="proj-readout" style="font-family: ui-monospace, Menlo, monospace; font-size: 13px;">t = 0.00 s · h = 2.00 m</span>
+    </div>
+    <figure>
+      <canvas id="proj-canvas" width="720" height="320" style="width:100%; max-width:720px; height:auto; background: #f7fafc; border-radius: 6px;"></canvas>
+      <figcaption>Red dot tracks $(t, h(t))$ in real time. The full parabola is drawn as a faint guide.</figcaption>
+    </figure>
+  </section>
+
+  </main>
+</div>
+
+<script>
+/* ============================================================
+   1. VENN DIAGRAMS — Set operations
+   Each variant uses SVG <clipPath> tricks for shading specific regions.
+   ============================================================ */
+function venn(svgId, mode) {
+  const svg = document.getElementById(svgId);
+  const NS = 'http://www.w3.org/2000/svg';
+  const W = 200, H = 140;
+  const cxA = 75, cxB = 125, cy = 70, r = 45;
+
+  // Universal rectangle
+  const rect = document.createElementNS(NS, 'rect');
+  rect.setAttribute('x', 5); rect.setAttribute('y', 5);
+  rect.setAttribute('width', W - 10); rect.setAttribute('height', H - 10);
+  rect.setAttribute('fill', mode === 'comp' ? 'var(--setA)' : 'var(--setU)');
+  rect.setAttribute('stroke', '#888');
+  svg.appendChild(rect);
+
+  // Build clip path for intersection (used by inter / diff)
+  const defs = document.createElementNS(NS, 'defs');
+  const clipInter = document.createElementNS(NS, 'clipPath');
+  clipInter.setAttribute('id', svgId + '-inter');
+  const ci = document.createElementNS(NS, 'circle');
+  ci.setAttribute('cx', cxB); ci.setAttribute('cy', cy); ci.setAttribute('r', r);
+  clipInter.appendChild(ci);
+  defs.appendChild(clipInter);
+  svg.appendChild(defs);
+
+  // Helper to draw a circle
+  function makeCircle(cx, label, fill) {
+    const c = document.createElementNS(NS, 'circle');
+    c.setAttribute('cx', cx); c.setAttribute('cy', cy); c.setAttribute('r', r);
+    c.setAttribute('fill', fill); c.setAttribute('stroke', '#666');
+    c.setAttribute('stroke-width', 1.2);
+    return c;
+  }
+
+  let aFill = 'transparent', bFill = 'transparent';
+  if (mode === 'union') { aFill = 'var(--setA)'; bFill = 'var(--setB)'; }
+  if (mode === 'comp')  { aFill = 'white';        bFill = 'transparent'; }
+  if (mode === 'diff')  { aFill = 'var(--setA)';  bFill = 'transparent'; }
+  if (mode === 'inter') { aFill = 'transparent';  bFill = 'transparent'; }
+
+  const A = makeCircle(cxA, 'A', aFill);
+  const B = makeCircle(cxB, 'B', bFill);
+  svg.appendChild(A);
+  svg.appendChild(B);
+
+  // For 'diff' mode, paint over the intersection with white
+  if (mode === 'diff') {
+    const overlay = makeCircle(cxA, '', 'var(--setA)');
+    overlay.setAttribute('clip-path', 'url(#' + svgId + '-inter)');
+    overlay.setAttribute('fill', 'white');
+    svg.appendChild(overlay);
+  }
+
+  // For 'inter' mode, paint the overlap purple
+  if (mode === 'inter') {
+    const overlap = makeCircle(cxA, '', '#7c3aed88');
+    overlap.setAttribute('clip-path', 'url(#' + svgId + '-inter)');
+    svg.appendChild(overlap);
+  }
+
+  // Labels
+  for (const [x, txt] of [[cxA - r + 12, 'A'], [cxB + r - 18, 'B']]) {
+    const t = document.createElementNS(NS, 'text');
+    t.setAttribute('x', x); t.setAttribute('y', cy - r + 14);
+    t.setAttribute('font-family', 'system-ui'); t.setAttribute('font-size', 14);
+    t.setAttribute('font-weight', 700); t.textContent = txt;
+    svg.appendChild(t);
+  }
+  const u = document.createElementNS(NS, 'text');
+  u.setAttribute('x', 12); u.setAttribute('y', 22);
+  u.setAttribute('font-family', 'system-ui'); u.setAttribute('font-size', 12);
+  u.setAttribute('fill', '#666'); u.textContent = '𝕌';
+  svg.appendChild(u);
+}
+venn('venn-union', 'union');
+venn('venn-inter', 'inter');
+venn('venn-diff',  'diff');
+venn('venn-comp',  'comp');
+
+
+/* ============================================================
+   2. POWER SET LATTICE (Hasse diagram for P({a,b,c}))
+   ============================================================ */
+(function() {
+  const svg = document.getElementById('hasse');
+  const NS = 'http://www.w3.org/2000/svg';
+  const nodes = [
+    { id: 'empty',  label: '∅',       x: 300, y: 240 },
+    { id: 'a',      label: '{a}',     x: 150, y: 170 },
+    { id: 'b',      label: '{b}',     x: 300, y: 170 },
+    { id: 'c',      label: '{c}',     x: 450, y: 170 },
+    { id: 'ab',     label: '{a,b}',   x: 150, y:  90 },
+    { id: 'ac',     label: '{a,c}',   x: 300, y:  90 },
+    { id: 'bc',     label: '{b,c}',   x: 450, y:  90 },
+    { id: 'abc',    label: '{a,b,c}', x: 300, y:  20 },
+  ];
+  const edges = [
+    ['empty','a'],['empty','b'],['empty','c'],
+    ['a','ab'],['a','ac'],['b','ab'],['b','bc'],['c','ac'],['c','bc'],
+    ['ab','abc'],['ac','abc'],['bc','abc'],
+  ];
+  const map = Object.fromEntries(nodes.map(n => [n.id, n]));
+  for (const [u, v] of edges) {
+    const ln = document.createElementNS(NS, 'line');
+    ln.setAttribute('x1', map[u].x); ln.setAttribute('y1', map[u].y);
+    ln.setAttribute('x2', map[v].x); ln.setAttribute('y2', map[v].y);
+    ln.setAttribute('stroke', '#a0aec0'); ln.setAttribute('stroke-width', 1.5);
+    svg.appendChild(ln);
+  }
+  for (const n of nodes) {
+    const c = document.createElementNS(NS, 'circle');
+    c.setAttribute('cx', n.x); c.setAttribute('cy', n.y);
+    c.setAttribute('r', 22); c.setAttribute('fill', '#ebf4ff');
+    c.setAttribute('stroke', 'var(--accent)'); c.setAttribute('stroke-width', 1.5);
+    svg.appendChild(c);
+    const t = document.createElementNS(NS, 'text');
+    t.setAttribute('x', n.x); t.setAttribute('y', n.y + 4);
+    t.setAttribute('text-anchor', 'middle'); t.setAttribute('font-family', 'system-ui');
+    t.setAttribute('font-size', 12); t.textContent = n.label;
+    svg.appendChild(t);
+  }
+})();
+
+
+/* ============================================================
+   5. VERTICAL LINE TEST plots
+   ============================================================ */
+(function() {
+  const xs = []; for (let x = -3; x <= 3; x += 0.05) xs.push(x);
+  // function: y = x^2 - 1
+  const ys1 = xs.map(x => x * x - 1);
+  Plotly.newPlot('plot-vlt-fn', [
+    { x: xs, y: ys1, mode: 'lines', line: { color: '#2b6cb0', width: 3 }, name: 'y = x²−1' },
+    { x: [1, 1], y: [-2, 2], mode: 'lines', line: { color: '#888', dash: 'dot' }, name: 'sweep', showlegend: false }
+  ], plotLayout('y = x² − 1', '', '', [-3, 3], [-2, 8]), {responsive:true, displayModeBar: false});
+
+  // not-function: y² = x → two branches
+  const xs2 = []; for (let x = 0; x <= 6; x += 0.05) xs2.push(x);
+  const upper = xs2.map(x => Math.sqrt(x));
+  const lower = xs2.map(x => -Math.sqrt(x));
+  Plotly.newPlot('plot-vlt-notfn', [
+    { x: xs2, y: upper, mode: 'lines', line: { color: '#dd6b20', width: 3 }, name: '+√x' },
+    { x: xs2, y: lower, mode: 'lines', line: { color: '#dd6b20', width: 3 }, name: '−√x', showlegend: false },
+    { x: [3, 3], y: [-3, 3], mode: 'lines', line: { color: '#888', dash: 'dot' }, name: 'sweep', showlegend: false }
+  ], plotLayout('y² = x', '', '', [0, 6], [-3, 3]), {responsive:true, displayModeBar: false});
+})();
+
+
+/* ============================================================
+   6. POLYNOMIAL / RATIONAL / ABSOLUTE VALUE
+   ============================================================ */
+(function() {
+  const xs = []; for (let x = -3; x <= 3; x += 0.04) xs.push(x);
+  const poly = xs.map(x => x*x*x - x);
+  Plotly.newPlot('plot-poly', [
+    { x: xs, y: poly, mode: 'lines', line: { color: '#2b6cb0', width: 3 } }
+  ], plotLayout('', '', '', [-3, 3], [-6, 6]), {responsive:true, displayModeBar: false});
+
+  // rational with two asymptotes at x=2,3
+  function rational(x) { const d = (x - 2) * (x - 3); return Math.abs(d) < 0.04 ? null : (3*x+1)/d; }
+  const xs2 = []; for (let x = -1; x <= 5; x += 0.02) xs2.push(x);
+  const ys2 = xs2.map(rational);
+  Plotly.newPlot('plot-rational', [
+    { x: xs2, y: ys2, mode: 'lines', connectgaps: false, line: { color: '#dd6b20', width: 3 } },
+    { x: [2, 2], y: [-12, 12], mode: 'lines', line: { color: '#888', dash: 'dot' }, showlegend: false },
+    { x: [3, 3], y: [-12, 12], mode: 'lines', line: { color: '#888', dash: 'dot' }, showlegend: false }
+  ], plotLayout('', '', '', [-1, 5], [-12, 12]), {responsive:true, displayModeBar: false});
+
+  const abs = xs.map(x => Math.abs(x));
+  Plotly.newPlot('plot-abs', [
+    { x: xs, y: abs, mode: 'lines', line: { color: '#319795', width: 3 } }
+  ], plotLayout('', '', '', [-3, 3], [0, 3]), {responsive:true, displayModeBar: false});
+})();
+
+
+/* ============================================================
+   7. PIECEWISE
+   ============================================================ */
+(function() {
+  const xs1 = []; for (let x = -3; x < 0; x += 0.05) xs1.push(x);
+  const ys1 = xs1.map(x => x * x);
+
+  const xs2 = []; for (let x = 0; x <= 3; x += 0.05) xs2.push(x);
+  const ys2 = xs2.map(x => 2*x + 1);
+
+  const xs3 = []; for (let x = 3; x <= 6; x += 0.05) xs3.push(x);
+  const ys3 = xs3.map(x => 10 - x);
+
+  Plotly.newPlot('plot-piecewise', [
+    { x: xs1, y: ys1, mode: 'lines', line: { color: '#dd6b20', width: 3 }, name: 'x² (x<0)' },
+    { x: xs2, y: ys2, mode: 'lines', line: { color: '#2b6cb0', width: 3 }, name: '2x+1 (0≤x≤3)' },
+    { x: xs3, y: ys3, mode: 'lines', line: { color: '#319795', width: 3 }, name: '10−x (x>3)' },
+    // Boundary dots
+    { x: [0], y: [1], mode: 'markers', marker: { color: '#2b6cb0', size: 12 }, showlegend: false }, // closed
+    { x: [3], y: [7], mode: 'markers', marker: { color: '#2b6cb0', size: 12 }, showlegend: false }, // closed
+    { x: [3], y: [7], mode: 'markers', marker: { color: '#fff', size: 8, line: { color: '#319795', width: 2 } }, showlegend: false }  // open (3 belongs to middle, not right)
+  ], plotLayout('', '', '', [-3, 6], [-1, 10]), {responsive:true, displayModeBar: false});
+})();
+
+
+/* ============================================================
+   8. EVEN / ODD / NEITHER
+   ============================================================ */
+(function() {
+  const xs = []; for (let x = -2; x <= 2; x += 0.04) xs.push(x);
+  const yEven = xs.map(x => 4*x**4 - 2*x**2 + 1);
+  Plotly.newPlot('plot-even', [
+    { x: xs, y: yEven, mode: 'lines', line: { color: '#2b6cb0', width: 3 }, name: 'h(x)' },
+    { x: [0, 0], y: [-2, 6], mode: 'lines', line: { color: '#888', dash: 'dot' }, showlegend: false }
+  ], plotLayout('', '', '', [-2, 2], [-1, 5]), {responsive:true, displayModeBar: false});
+
+  const yOdd = xs.map(x => 3*x**3 - x);
+  Plotly.newPlot('plot-odd', [
+    { x: xs, y: yOdd, mode: 'lines', line: { color: '#dd6b20', width: 3 }, name: 'k(x)' },
+    { x: [0], y: [0], mode: 'markers', marker: { color: '#888', size: 6 }, showlegend: false }
+  ], plotLayout('', '', '', [-2, 2], [-12, 12]), {responsive:true, displayModeBar: false});
+
+  const yNeither = xs.map(x => x*x + x);
+  Plotly.newPlot('plot-neither', [
+    { x: xs, y: yNeither, mode: 'lines', line: { color: '#319795', width: 3 }, name: 'p(x)' }
+  ], plotLayout('', '', '', [-2, 2], [-1, 6]), {responsive:true, displayModeBar: false});
+})();
+
+
+/* ============================================================
+   10. INVERSE — f and f^-1 reflected across y = x
+   ============================================================ */
+(function() {
+  const xs = []; for (let x = -3; x <= 3; x += 0.05) xs.push(x);
+  const exp = xs.map(x => Math.exp(x));
+
+  const xsLn = []; for (let x = 0.05; x <= 5; x += 0.05) xsLn.push(x);
+  const ln = xsLn.map(x => Math.log(x));
+
+  Plotly.newPlot('plot-inverse', [
+    { x: xs, y: exp, mode: 'lines', line: { color: '#2b6cb0', width: 3 }, name: 'f(x) = eˣ' },
+    { x: xsLn, y: ln, mode: 'lines', line: { color: '#dd6b20', width: 3 }, name: 'f⁻¹(x) = ln x' },
+    { x: [-3, 5], y: [-3, 5], mode: 'lines', line: { color: '#888', dash: 'dash' }, name: 'y = x' }
+  ], plotLayout('', '', '', [-3, 5], [-3, 5]), {responsive:true, displayModeBar: false});
+})();
+
+
+/* ============================================================
+   11. TRANSFORMATIONS — animated stepping
+   ============================================================ */
+(function() {
+  const xs = []; for (let x = -8; x <= 4; x += 0.05) xs.push(x);
+  const steps = [
+    { ys: xs.map(x => x*x),                       label: 'Step 0 — base $y = x^2$' },
+    { ys: xs.map(x => (x + 3) ** 2),              label: 'Step 1 — shift LEFT by 3: $y = (x+3)^2$' },
+    { ys: xs.map(x => 2 * (x + 3) ** 2),          label: 'Step 2 — vertical stretch ×2: $y = 2(x+3)^2$' },
+    { ys: xs.map(x => -2 * (x + 3) ** 2),         label: 'Step 3 — reflect across x-axis: $y = -2(x+3)^2$' },
+    { ys: xs.map(x => -2 * (x + 3) ** 2 + 5),     label: 'Step 4 — shift UP by 5: $y = -2(x+3)^2 + 5$ (vertex at (−3, 5))' }
+  ];
+  let cur = 0;
+  const div = document.getElementById('plot-transform');
+  const cap = document.getElementById('tx-caption');
+  const stepLabel = document.getElementById('tx-step-label');
+
+  function draw() {
+    Plotly.newPlot(div, [
+      { x: xs, y: steps[0].ys,    mode: 'lines', line: { color: '#cbd5e0', width: 2, dash: 'dot' }, name: 'base' },
+      { x: xs, y: steps[cur].ys,  mode: 'lines', line: { color: '#2b6cb0', width: 4 }, name: 'current' }
+    ], plotLayout('', '', '', [-8, 4], [-15, 15]), {responsive:true, displayModeBar: false});
+    cap.innerHTML = steps[cur].label;
+    stepLabel.textContent = cur + ' / 4';
+    if (window.renderMathInElement) renderMathInElement(cap);
+  }
+  draw();
+
+  document.getElementById('tx-play').addEventListener('click', () => {
+    let n = 0;
+    const tick = () => {
+      cur = n;
+      draw();
+      if (n < steps.length - 1) { n++; setTimeout(tick, 1100); }
+    };
+    cur = 0; tick();
+  });
+  document.getElementById('tx-reset').addEventListener('click', () => { cur = 0; draw(); });
+})();
+
+
+/* ============================================================
+   12. PROJECTILE — canvas + rAF
+   ============================================================ */
+(function() {
+  const cv = document.getElementById('proj-canvas');
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+
+  // model: h(t) = -4.9 t^2 + 14 t + 2
+  const tMax = 2.706;
+  const tMaxPad = 3.0;
+  const hMaxAxis = 14;
+
+  function tToX(t) { return 60 + (t / tMaxPad) * (W - 90); }
+  function hToY(h) { return H - 40 - (h / hMaxAxis) * (H - 80); }
+
+  function drawAxesAndCurve() {
+    ctx.clearRect(0, 0, W, H);
+    // Axes
+    ctx.strokeStyle = '#cbd5e0'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(60, 20); ctx.lineTo(60, H - 40); ctx.lineTo(W - 30, H - 40); ctx.stroke();
+    // Labels
+    ctx.fillStyle = '#4a5568'; ctx.font = '12px system-ui';
+    ctx.fillText('h (m)', 28, 30);
+    ctx.fillText('t (s)',  W - 60, H - 22);
+    // y ticks
+    for (let h = 0; h <= 12; h += 4) {
+      const y = hToY(h);
+      ctx.fillText(h.toString(), 38, y + 4);
+      ctx.beginPath(); ctx.moveTo(58, y); ctx.lineTo(62, y); ctx.stroke();
+    }
+    // x ticks
+    for (let t = 0; t <= 3; t += 0.5) {
+      const x = tToX(t);
+      ctx.fillText(t.toFixed(1), x - 8, H - 22);
+      ctx.beginPath(); ctx.moveTo(x, H - 42); ctx.lineTo(x, H - 38); ctx.stroke();
+    }
+    // Faint full-curve guide
+    ctx.strokeStyle = '#a0aec0'; ctx.setLineDash([4, 4]); ctx.beginPath();
+    for (let t = 0, first = true; t <= tMax; t += 0.02) {
+      const h = -4.9 * t * t + 14 * t + 2;
+      const x = tToX(t), y = hToY(h);
+      if (first) { ctx.moveTo(x, y); first = false; } else ctx.lineTo(x, y);
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  let t = 0, playing = false, last = 0, speed = 1;
+  const readout = document.getElementById('proj-readout');
+
+  function frame(now) {
+    if (!playing) return;
+    const dt = Math.min(0.05, (now - last) / 1000) * speed;
+    last = now;
+    t += dt;
+    if (t > tMax) { t = tMax; playing = false; }
+    render();
+    if (playing) requestAnimationFrame(frame);
+  }
+
+  function render() {
+    drawAxesAndCurve();
+    const h = -4.9 * t * t + 14 * t + 2;
+    const x = tToX(t), y = hToY(h);
+    // trace up to t
+    ctx.strokeStyle = '#2b6cb0'; ctx.lineWidth = 3; ctx.beginPath();
+    for (let s = 0, first = true; s <= t; s += 0.02) {
+      const hs = -4.9 * s * s + 14 * s + 2;
+      const xs2 = tToX(s), ys2 = hToY(hs);
+      if (first) { ctx.moveTo(xs2, ys2); first = false; } else ctx.lineTo(xs2, ys2);
+    }
+    ctx.stroke();
+    // dot
+    ctx.fillStyle = '#e53e3e';
+    ctx.beginPath(); ctx.arc(x, y, 7, 0, 2 * Math.PI); ctx.fill();
+    readout.textContent = 't = ' + t.toFixed(2) + ' s · h = ' + Math.max(0, h).toFixed(2) + ' m';
+  }
+
+  document.getElementById('proj-play').addEventListener('click', () => {
+    if (playing) return;
+    if (t >= tMax) t = 0;
+    playing = true; last = performance.now();
+    requestAnimationFrame(frame);
+  });
+  document.getElementById('proj-reset').addEventListener('click', () => {
+    playing = false; t = 0; render();
+  });
+  document.getElementById('proj-speed').addEventListener('input', (e) => {
+    speed = parseFloat(e.target.value);
+  });
+  render();
+})();
+
+
+/* ============================================================
+   Plotly default layout helper
+   ============================================================ */
+function plotLayout(title, xtitle, ytitle, xRange, yRange) {
+  return {
+    title: title ? { text: title, font: { size: 14 } } : undefined,
+    margin: { l: 40, r: 16, t: title ? 32 : 12, b: 36 },
+    xaxis: { title: xtitle, range: xRange, zerolinecolor: '#888', gridcolor: '#edf2f7' },
+    yaxis: { title: ytitle, range: yRange, zerolinecolor: '#888', gridcolor: '#edf2f7' },
+    paper_bgcolor: '#fff', plot_bgcolor: '#fff',
+    showlegend: false
+  };
+}
+</script>
+
+</body>
+</html>

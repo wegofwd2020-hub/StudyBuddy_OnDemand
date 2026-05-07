@@ -1,0 +1,22 @@
+<!--
+Arrow-diagram template — each diagram in this folder follows the same skeleton:
+
+ ┌────────┐               ┌────────┐
+ │   A    │  →  arrows →  │   B    │
+ │  ●  ●  │               │  ●  ●  │
+ │   ●    │               │   ●    │
+ └────────┘               └────────┘
+
+Two ovals as set boundaries, dots inside as elements (with adjacent text labels),
+arrows between dots. Arrowhead via marker at the tail of the line.
+
+Color conventions used in the catalogue:
+  - Function arrows:   #2b6cb0  (blue, solid)
+  - Highlighted edge:  #dd6b20  (orange, used to flag the property at hand)
+  - Multi-output (bad): #e53e3e (red, dashed)
+
+Coordinates are stable across the 7 diagrams in this folder so the eye can move
+horizontally between siblings without re-orienting. Set A column at x=110;
+set B column at x=290.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" width="400" height="240"></svg>

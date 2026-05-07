@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Sets and Functions — Notation Cheatsheet</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, { delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}] });"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+           color: #1a202c; max-width: 880px; margin: 32px auto; padding: 0 24px; line-height: 1.55; }
+    h1 { font-size: 28px; margin: 0 0 6px; }
+    .lede { color: #4a5568; margin-top: 0; }
+    section { margin-top: 28px; }
+    h2 { font-size: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; }
+    table { border-collapse: collapse; width: 100%; margin: 8px 0 16px; }
+    th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #edf2f7; vertical-align: top; }
+    th { background: #f7fafc; font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: #4a5568; }
+    code { background: #f7fafc; padding: 1px 5px; border-radius: 3px; font-size: 13px; }
+    .display-row td:first-child { width: 35%; }
+  </style>
+</head>
+<body>
+  <h1>Sets and Functions — Notation Cheatsheet</h1>
+  <p class="lede">All KaTeX-rendered notation that appears in the chapter, grouped by topic, with the LaTeX source you'd type to reproduce it.</p>
+
+  <section>
+    <h2>1. Set notation</h2>
+    <table>
+      <tr><th>Rendered</th><th>LaTeX</th><th>Meaning</th></tr>
+      <tr><td>$x \in A$</td><td><code>x \in A</code></td><td>$x$ is an element of $A$</td></tr>
+      <tr><td>$x \notin A$</td><td><code>x \notin A</code></td><td>$x$ is not an element of $A$</td></tr>
+      <tr><td>$\{x \mid P(x)\}$</td><td><code>\{x \mid P(x)\}</code></td><td>set-builder notation</td></tr>
+      <tr><td>$A \subseteq B$</td><td><code>A \subseteq B</code></td><td>subset (allows equality)</td></tr>
+      <tr><td>$A \subsetneq B$</td><td><code>A \subsetneq B</code></td><td>proper subset</td></tr>
+      <tr><td>$\mathcal{P}(A)$</td><td><code>\mathcal{P}(A)</code></td><td>power set of $A$</td></tr>
+      <tr><td>$|A|$</td><td><code>|A|</code></td><td>cardinality of $A$</td></tr>
+      <tr><td>$\emptyset$</td><td><code>\emptyset</code></td><td>empty set</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h2>2. Special sets</h2>
+    <table>
+      <tr><th>Rendered</th><th>LaTeX</th><th>Description</th></tr>
+      <tr><td>$\mathbb{N}$</td><td><code>\mathbb{N}</code></td><td>natural numbers $\{1, 2, 3, \ldots\}$</td></tr>
+      <tr><td>$\mathbb{Z}$</td><td><code>\mathbb{Z}</code></td><td>integers</td></tr>
+      <tr><td>$\mathbb{Q}$</td><td><code>\mathbb{Q}</code></td><td>rationals</td></tr>
+      <tr><td>$\mathbb{R}$</td><td><code>\mathbb{R}</code></td><td>reals</td></tr>
+      <tr><td>$\mathbb{U}$</td><td><code>\mathbb{U}</code></td><td>universal set in context</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h2>3. Set operations</h2>
+    <table class="display-row">
+      <tr><th>Rendered</th><th>LaTeX</th></tr>
+      <tr><td>$$A \cup B = \{x \mid x \in A \;\text{or}\; x \in B\}$$</td><td><code>A \cup B = \{x \mid x \in A \;\text{or}\; x \in B\}</code></td></tr>
+      <tr><td>$$A \cap B = \{x \mid x \in A \;\text{and}\; x \in B\}$$</td><td><code>A \cap B = \{x \mid x \in A \;\text{and}\; x \in B\}</code></td></tr>
+      <tr><td>$$A \setminus B = \{x \mid x \in A \;\text{and}\; x \notin B\}$$</td><td><code>A \setminus B</code></td></tr>
+      <tr><td>$$A^c = \{x \in \mathbb{U} \mid x \notin A\}$$</td><td><code>A^c</code></td></tr>
+      <tr><td>$$A \triangle B = (A \setminus B) \cup (B \setminus A)$$</td><td><code>A \triangle B</code></td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h2>4. Functions</h2>
+    <table class="display-row">
+      <tr><th>Rendered</th><th>LaTeX</th></tr>
+      <tr><td>$f: A \to B$</td><td><code>f: A \to B</code></td></tr>
+      <tr><td>$\text{dom}(f)$, $\text{ran}(f)$, $\text{codom}(f)$</td><td><code>\text{dom}(f)</code>, <code>\text{ran}(f)</code></td></tr>
+      <tr><td>$$\forall x \in A,\ \exists! y \in B : (x, y) \in f$$</td><td><code>\forall x \in A,\ \exists! y \in B : (x, y) \in f</code></td></tr>
+      <tr><td>$$f(a) = f(b) \Rightarrow a = b$$</td><td><code>f(a) = f(b) \Rightarrow a = b</code> (injective)</td></tr>
+      <tr><td>$$\forall y \in B,\ \exists x \in A : f(x) = y$$</td><td><code>\forall y \in B,\ \exists x \in A : f(x) = y</code> (surjective)</td></tr>
+      <tr><td>$(g \circ f)(x) = g(f(x))$</td><td><code>(g \circ f)(x) = g(f(x))</code></td></tr>
+      <tr><td>$f^{-1}(f(x)) = x$</td><td><code>f^{-1}(f(x)) = x</code></td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h2>5. Function families</h2>
+    <table class="display-row">
+      <tr><th>Rendered</th><th>LaTeX</th></tr>
+      <tr><td>$$f(x) = a_n x^n + a_{n-1}x^{n-1} + \cdots + a_0$$</td><td><code>f(x) = a_n x^n + a_{n-1}x^{n-1} + \cdots + a_0</code></td></tr>
+      <tr><td>$$f(x) = \frac{P(x)}{Q(x)}, \quad Q(x) \neq 0$$</td><td><code>f(x) = \frac{P(x)}{Q(x)}, \quad Q(x) \neq 0</code></td></tr>
+      <tr><td>$$|x| = \begin{cases} x & x \geq 0 \\ -x & x < 0 \end{cases}$$</td><td><code>|x| = \begin{cases} x &amp; x \geq 0 \\ -x &amp; x &lt; 0 \end{cases}</code></td></tr>
+      <tr><td>$$y = a\,f\bigl(b(x - h)\bigr) + k$$</td><td><code>y = a\,f\bigl(b(x - h)\bigr) + k</code> (general transform)</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h2>6. Set algebra laws</h2>
+    <table class="display-row">
+      <tr><th>Rendered</th><th>Name</th></tr>
+      <tr><td>$$A \cup (B \cap C) = (A \cup B) \cap (A \cup C)$$</td><td>Distributive law</td></tr>
+      <tr><td>$$\overline{A \cup B} = \overline{A} \cap \overline{B}$$</td><td>De Morgan's first law</td></tr>
+      <tr><td>$$\overline{A \cap B} = \overline{A} \cup \overline{B}$$</td><td>De Morgan's second law</td></tr>
+    </table>
+  </section>
+</body>
+</html>

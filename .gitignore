@@ -60,3 +60,10 @@ backups/
 ux_test_data/
 .claire/
 .claude/worktrees/
+
+# Node / Bun deps for Remotion projects under sample_content/
+node_modules/
+
+# Remotion rendered output (always lands in ~/Downloads first; never commit MP4s)
+sample_content/**/*.mp4
+sample_content/**/.remotion/
