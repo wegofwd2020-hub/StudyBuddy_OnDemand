@@ -91,7 +91,8 @@ Two reusable TypeScript generators live under `scripts/` and apply to any unit, 
 ```
 sample_content/
 └── g11-science/
-    └── G11-MATH-001_Sets_and_Functions/
+    ├── visual_enhancement_plan.md          (full G11 Science catalog — 29 units)
+    └── G11-MATH-001_Sets_and_Functions/    (reference exemplar)
         ├── Sets_and_Functions.md                (extracted source)
         ├── Sets_and_Functions.html              (pandoc + KaTeX render)
         ├── Demonstration_Options.md             (the three-option design memo)
@@ -102,10 +103,19 @@ sample_content/
 
 The rendered MP4 lives at `~/Downloads/Sets_and_Functions_Demo.mp4`, **not** in the repo (gitignored — keeps the repo lean).
 
+## Full G11 Science catalog
+
+`G11-MATH-001 Sets and Functions` was the proof-of-concept exemplar — Options 1, 2, and 3 all built and shipped against that one chapter so we could compare them side-by-side. The follow-up assessment of *all 29* G11 Science units against the same three techniques lives at:
+
+→ [`sample_content/g11-science/visual_enhancement_plan.md`](../sample_content/g11-science/visual_enhancement_plan.md)
+
+Headline: **26 of 29 units (90 %)** have moderate or large lift from visual enhancement. Build order if extending the exemplar pattern: PHYS-002 Kinematics → PHYS-010 Oscillations & Waves → BIO-003 Cell Structure → CHEM-002 Structure of Atom → MATH-004 Calculus.
+
 ## Next decisions
 
-1. Pick winning idiom per visual category from the Option 1 page → drives the production renderer choice.
+1. Pick winning idiom per visual category from the Option 1 page → drives the production renderer choice. Tracked at [issue #316](https://github.com/wegofwd2020-hub/StudyBuddy_OnDemand/issues/316).
 2. Decide whether Manim stays as a separate render path or gets ported to Remotion / TS-only. (Lean: port to Remotion if we end up using more than one or two animations across chapters.)
 3. Decide whether `sample_content/` is a research-only area or becomes the ingestion source for an "exemplar gallery" surfaced inside the admin / school portal.
+4. Walk the catalog priorities (top 5 units listed in `visual_enhancement_plan.md`) once the renderer-format decision in #316 lands.
 
 Decisions 1 and 2 are blocked on Epic 3 / Epic 11 C-8 unparking.
