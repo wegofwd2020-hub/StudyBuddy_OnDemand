@@ -263,11 +263,18 @@ def get_visual_storage() -> VisualStorageBackend:
         _active_backend = S3VisualStorage(bucket=bucket, prefix=prefix, public_base_url=public)
         log.info("visual_storage backend=s3 bucket=%s prefix=%s", bucket, prefix)
     else:
+        # In dev the storage backend writes under web/public/visuals so the
+        # Next.js dev server serves the assets at /visuals/* without needing
+        # an additional FastAPI mount or reverse-proxy configuration. In
+        # production VISUAL_STORAGE_LOCAL_PATH and VISUAL_STORAGE_PUBLIC_BASE_URL
+        # are set explicitly to point at the CDN-fronted bucket; this default
+        # is only the dev convenience.
         content_root = os.environ.get("CONTENT_STORE_PATH", "/data/content")
-        root = os.environ.get("VISUAL_STORAGE_LOCAL_PATH", f"{content_root}/visuals")
-        # In dev, default the public URL to /sample-visuals so existing exemplar
-        # paths keep working until the asset migration lands. Override for prod.
-        public = os.environ.get("VISUAL_STORAGE_PUBLIC_BASE_URL", "/sample-visuals")
+        root = os.environ.get(
+            "VISUAL_STORAGE_LOCAL_PATH",
+            f"{content_root}/visuals",
+        )
+        public = os.environ.get("VISUAL_STORAGE_PUBLIC_BASE_URL", "/visuals")
         _active_backend = LocalVisualStorage(root=root, public_base_url=public)
         log.info("visual_storage backend=local root=%s public=%s", root, public)
 

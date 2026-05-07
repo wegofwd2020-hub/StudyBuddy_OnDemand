@@ -344,5 +344,31 @@ def create_app() -> FastAPI:
     _register_middleware(app)
     _register_exception_handlers(app)
     _register_routers(app)
+    _mount_visual_assets(app)
 
     return app
+
+
+def _mount_visual_assets(app: FastAPI) -> None:
+    """Mount /visuals/* at the visual-storage local root (dev-only path).
+
+    In production VISUAL_STORAGE_BACKEND=s3 and visuals are served directly
+    from the CDN — this mount is inert. In dev the same path is proxied
+    by Next.js (web/next.config.ts) so images render at /visuals/* from
+    the browser regardless of which origin is serving them.
+    """
+    import os
+    from pathlib import Path
+
+    from fastapi.staticfiles import StaticFiles
+
+    backend = os.environ.get("VISUAL_STORAGE_BACKEND", "local").lower()
+    if backend != "local":
+        return
+
+    content_root = os.environ.get("CONTENT_STORE_PATH", "/data/content")
+    visuals_root = os.environ.get(
+        "VISUAL_STORAGE_LOCAL_PATH", f"{content_root}/visuals"
+    )
+    Path(visuals_root).mkdir(parents=True, exist_ok=True)
+    app.mount("/visuals", StaticFiles(directory=visuals_root), name="visuals")

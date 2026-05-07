@@ -73,6 +73,13 @@ const nextConfig: NextConfig = {
         source: "/api/v1/:path*",
         destination: `${backendOrigin}/api/v1/:path*`,
       },
+      // Visual asset serving — backend mounts ${CONTENT_STORE_PATH}/visuals/
+      // at /visuals; Next.js proxies the same path so images render from the
+      // browser without a separate origin / port.
+      {
+        source: "/visuals/:path*",
+        destination: `${backendOrigin}/visuals/:path*`,
+      },
     ];
   },
   async headers() {
