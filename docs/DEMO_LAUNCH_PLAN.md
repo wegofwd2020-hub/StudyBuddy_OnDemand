@@ -2,7 +2,7 @@
 
 **Audience:** Sivakumar (operator) · future on-call deputy
 **Document type:** End-to-end runbook from "today's main branch" → "live demo on `demo.studybuddy.app`"
-**Companion docs:** [`studybuddy-docs/docs/dev/DEMO_HOSTING_GUIDE.md`](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/docs/demo-walkthrough/docs/dev/DEMO_HOSTING_GUIDE.md) (Hetzner-based architecture) · [`studybuddy-docs/docs/dev/DEMO_WALKTHROUGH.md`](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/docs/demo-walkthrough/docs/dev/DEMO_WALKTHROUGH.md) (click-by-click demo script) · [`studybuddy-docs/docs/dev/DEV_ACCOUNTS.md`](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/docs/dev/DEV_ACCOUNTS.md) (account inventory)
+**Companion docs:** [`studybuddy-docs/docs/dev/DEMO_HOSTING_GUIDE.md`](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/docs/demo-walkthrough/docs/dev/DEMO_HOSTING_GUIDE.md) (Hetzner-based architecture) · [`studybuddy-docs/docs/dev/DEMO_WALKTHROUGH.md`](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/docs/demo-walkthrough/docs/dev/DEMO_WALKTHROUGH.md) (click-by-click demo script) · [`studybuddy-docs/docs/operations/dns-and-email-setup.md`](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/docs/demo-walkthrough/docs/operations/dns-and-email-setup.md) (domain registration + Cloudflare DNS + Zoho Mail step-by-step) · [`studybuddy-docs/docs/dev/DEV_ACCOUNTS.md`](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/docs/dev/DEV_ACCOUNTS.md) (account inventory)
 
 ---
 
@@ -40,6 +40,24 @@ These ship with this PR. Use them as-is; no further code work needed.
 | Post-deploy smoke check | [`scripts/demo/smoke.sh`](../scripts/demo/smoke.sh) | Curl-based: `/healthz`, login as 4 persona types, fetch one lesson + one quiz, exit 1 on any 4xx/5xx |
 | Daily DB + content backup | [`scripts/demo/backup.sh`](../scripts/demo/backup.sh) | `pg_dump` compressed + `rsync` content_store to local backup dir; retains last 7 days; cron-friendly |
 | Auto-deploy on merge to main | [`.github/workflows/deploy-demo.yml`](../.github/workflows/deploy-demo.yml) | Build → GHCR push → SSH to Hetzner → `docker compose pull && up -d` → smoke test |
+
+### 1.A.bis Domain + Email — must-have
+
+These are out-of-repo deliverables (DNS + Zoho), so they don't ship in
+this commit, but they're required for the May 16 cutover. Step-by-step
+in [`studybuddy-docs/docs/operations/dns-and-email-setup.md`](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/docs/demo-walkthrough/docs/operations/dns-and-email-setup.md).
+
+| Item | Owner | Verify by |
+|---|---|---|
+| Domain registered (Cloudflare Registrar — `studybuddy.app` recommended) | Operator | `dig NS studybuddy.app` returns Cloudflare nameservers |
+| Demo subdomain A record `demo.studybuddy.app` → VPS IP, Proxied | Operator | `dig demo.studybuddy.app +short` returns Cloudflare-edge IP |
+| Cloudflare SSL/TLS = Full (strict) + Always-HTTPS on | Operator | `curl -vI https://demo.studybuddy.app` shows valid TLS |
+| Origin Cert generated + installed at `/etc/ssl/cloudflare/` on VPS | Operator | Nginx container starts cleanly; `curl /healthz` works |
+| Zoho Mail account verified for the domain | Operator | `dig TXT studybuddy.app +short` shows `zoho-verification=...` |
+| Two mailboxes live: `support@`, `sales@` | Operator | Send + receive a test email round-trip via Zoho webmail |
+| MX + SPF + DKIM + DMARC records in Cloudflare DNS | Operator | All three show green checkmarks in Zoho's verification UI |
+| App SMTP wired to Zoho (`SMTP_HOST=smtp.zoho.com`) in `.env.demo` | Operator | Forgot-password test email arrives from `support@<domain>` |
+| Gmail send-as configured for `support@` (and `sales@` if used) | Operator | Reply from Gmail interface — From line shows custom domain |
 
 ### 1.B Content — must-have
 
