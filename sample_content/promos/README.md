@@ -1,0 +1,126 @@
+# Promo Videos — Operator Guide
+
+Two ~3:12 product-showcase videos used on the public landing pages
+`/demo/teacher-story` and `/demo/student-story`. Built with Remotion
+4 + AWS Polly neural voices.
+
+| Story | Path | Voice | Audience |
+|---|---|---|---|
+| Teacher — *How a Lesson Gets Built* | `teacher-story/Option3_Video/` | Polly Joanna | School admins, teachers, prospects |
+| Student — *What's Inside a Lesson* | `student-story/Option3_Video/` | Polly Salli | Students, parents |
+
+Both use the same kinetic visual vocabulary:
+`TypeInText`, `ScopingHexagon`, `SlideInPanel`, `InsetVideoFrame`,
+`StreamMontage`, `CursorTrace`, `ConfettiBurst` — all defined in
+`<story>/Option3_Video/src/components/`.
+
+---
+
+## Render workflow
+
+### 1. Render the narration MP3s (Polly)
+
+```bash
+cd sample_content/promos
+./render_narration.sh teacher-story Joanna
+./render_narration.sh student-story Salli
+```
+
+This drops 12 per-slide MP3s into
+`<story>/Option3_Video/public/audio/slide-NN.mp3`. Each scene's
+`<SceneFrame audioFile="slide-NN.mp3" />` references them by name.
+
+Cost: ~$0.10 per full render (Polly neural is $0.000016 per char).
+
+### 2. Preview in Remotion Studio (interactive)
+
+```bash
+cd sample_content/promos/teacher-story/Option3_Video
+bun install      # first time only
+bun run studio   # opens http://localhost:3000
+```
+
+Studio gives you a scrubbable timeline + per-frame preview. Use this
+to QA scene timings before rendering.
+
+### 3. Render the final MP4
+
+```bash
+cd sample_content/promos/teacher-story/Option3_Video
+bun run render        # MP4 → ~/Downloads/StudyBuddy_TeacherStory.mp4
+bun run render:webm   # WebM (smaller, modern browsers only)
+```
+
+The default output path drops the file at `~/Downloads/`. Override
+with the `--output` flag passed through to `remotion render`.
+
+### 4. Publish to the demo site
+
+The web landing pages reference each MP4 at
+`/content/promos/StudyBuddy_TeacherStory.mp4` and
+`/content/promos/StudyBuddy_StudentStory.mp4`. Copy the rendered
+MP4s into the content store under those paths:
+
+```bash
+cp ~/Downloads/StudyBuddy_TeacherStory.mp4 \
+  /data/content/promos/StudyBuddy_TeacherStory.mp4
+cp ~/Downloads/StudyBuddy_StudentStory.mp4 \
+  /data/content/promos/StudyBuddy_StudentStory.mp4
+```
+
+(Adjust path to match `CONTENT_STORE_PATH` on the deployment target.)
+
+---
+
+## Editing scenes
+
+Each slide is one self-contained component under `src/scenes/`.
+The 12 components are wired into `src/Root.tsx` as sequential
+`<Sequence>` blocks at 16-second intervals (480 frames at 30 fps).
+
+To change the cadence — e.g., make slide 5 last 20 seconds instead
+of 16 — edit `src/Root.tsx` directly:
+
+```tsx
+<Sequence from={4 * 480} durationInFrames={600}>  // 600 = 20s × 30fps
+  <Slide05_LessonImages />
+</Sequence>
+```
+
+Then update the slide's narration block in `audio/narration.ssml`
+to fit the new duration.
+
+---
+
+## Visual vocabulary — when to use which component
+
+| Component | Use for | Used in |
+|---|---|---|
+| `TypeInText` | Building anticipation, simulating real-time generation | Story A: 1, 2, 4 · Story B: 1, 2, 3 |
+| `ScopingHexagon` | The six-dimension scoped-retrieval reveal | Story A: 3 |
+| `SlideInPanel` | Image / quiz / feedback panels with motion-blur | Story A: 5, 7 · Story B: 4, 6 |
+| `InsetVideoFrame` | "There's a video inside the lesson" beat | Story A: 6 · Story B: 5 |
+| `StreamMontage` | "Same engine, different stream" rapid-cut sequence | Story A: 9 · Story B: 11 |
+| `CursorTrace` | Demonstrating a UI interaction (toggle, click-to-expand) | Story A: 10, 11 · Story B: 10 |
+| `ConfettiBurst` | Earned celebration — used **once** per video at most | Story B: 9 (12-night streak) |
+
+---
+
+## Captions / accessibility
+
+Every `SceneFrame` renders a lower-third caption mirroring the
+narration. Captions fade in over frames 15–30 and hold through 450,
+giving silent / muted-autoplay viewers full content access.
+
+The two CTA pills on slide 12 are large, high-contrast, and
+center-stacked to meet WCAG 2.1 AA contrast requirements.
+
+---
+
+## Costs (per regenerate)
+
+| Item | Cost |
+|---|---|
+| Polly neural narration (12 slides × ~14s × 2 stories) | ~$0.20 |
+| Remotion render (local CPU; no cloud charges) | $0.00 |
+| **Total per regen** | **~$0.20** |

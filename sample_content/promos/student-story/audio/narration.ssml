@@ -1,0 +1,144 @@
+<!-- Student-story narration source.
+     One <speak> block per slide.
+     Render via scripts/render_narration.sh (operator workflow).
+     Voice: Polly Salli (neural). -->
+
+<!-- slide-01.mp3 -->
+<speak>
+  <prosody rate="medium">
+    Five layers, one lesson.
+    <break time="350ms"/>
+    Text. <break time="180ms"/> Images. <break time="180ms"/> Animation. <break time="180ms"/> Quiz. <break time="180ms"/> Tutorial.
+    <break time="400ms"/>
+    Built for the student who'll use it — not for everyone at once.
+  </prosody>
+</speak>
+
+<!-- slide-02.mp3 -->
+<speak>
+  <prosody rate="medium">
+    Meet Maya — Grade eleven Science.
+    <break time="350ms"/>
+    Tonight she's working through Newton's laws on her phone.
+    <break time="400ms"/>
+    Her lesson is already waiting — five layers, about twenty-five minutes of focused study.
+  </prosody>
+</speak>
+
+<!-- slide-03.mp3 -->
+<speak>
+  <prosody rate="medium">
+    Layer one — text.
+    <break time="350ms"/>
+    Plain language. Pitched two grades below her own so it never feels like a wall of jargon.
+    <break time="400ms"/>
+    Heavy terms get defined inline — inertia gets a one-line gloss the first time it appears.
+  </prosody>
+</speak>
+
+<!-- slide-04.mp3 -->
+<speak>
+  <prosody rate="medium">
+    Layer two — images.
+    <break time="350ms"/>
+    Force diagrams. A position-time graph.
+    <break time="300ms"/>
+    And the hurricane evacuation map from this week's news,
+    drawn for her grade level — connecting Newton's laws to something she actually saw on TV.
+  </prosody>
+</speak>
+
+<!-- slide-05.mp3 -->
+<speak>
+  <prosody rate="medium">
+    Layer three — animation.
+    <break time="350ms"/>
+    For motion topics, a short clip plays right inside the lesson.
+    <break time="400ms"/>
+    Two motion strips: uniform motion with equal gaps, accelerated motion with growing gaps.
+    <break time="300ms"/>
+    No tab to chase. No video to find.
+  </prosody>
+</speak>
+
+<!-- slide-06.mp3 -->
+<speak>
+  <prosody rate="medium">
+    Layer four — quiz.
+    <break time="350ms"/>
+    Eight questions. Maya gets one wrong on her first try.
+    <break time="400ms"/>
+    There's no red X. Instead — a friendly two-sentence explanation written for the misconception,
+    not the topic.
+  </prosody>
+</speak>
+
+<!-- slide-07.mp3 -->
+<speak>
+  <prosody rate="medium">
+    Layer five — tutorial.
+    <break time="350ms"/>
+    When the quiz says she's stuck, the lesson opens up the steps.
+    <break time="400ms"/>
+    Equation, substitution, solve. Every line shown. Every reason explained.
+  </prosody>
+</speak>
+
+<!-- slide-08.mp3 -->
+<speak>
+  <prosody rate="medium">
+    Five layers — one lesson.
+    <break time="400ms"/>
+    Read. <break time="200ms"/> Look. <break time="200ms"/> Watch. <break time="200ms"/> Test. <break time="200ms"/> Fix.
+    <break time="400ms"/>
+    All in the same place — no twenty tabs, no guessing what to do next.
+  </prosody>
+</speak>
+
+<!-- slide-09.mp3 -->
+<speak>
+  <prosody rate="medium">
+    Twelve nights in a row.
+    <break time="350ms"/>
+    The streak counter knows.
+    <break time="400ms"/>
+    The encouragement nudge knows too — but it only fires when it's earned.
+    No fake pep talks.
+  </prosody>
+</speak>
+
+<!-- slide-10.mp3 -->
+<speak>
+  <prosody rate="medium">
+    Maya has dyslexia — and accessibility is one toggle away.
+    <break time="400ms"/>
+    Wider letter spacing. Broader line height. OpenDyslexic mode whenever she needs it.
+    <break time="400ms"/>
+    The setting follows her account — phone, laptop, library kiosk.
+  </prosody>
+</speak>
+
+<!-- slide-11.mp3 -->
+<speak>
+  <prosody rate="medium">
+    Maya gets Grade eleven Science.
+    <break time="350ms"/>
+    Her cousin gets Grade eleven Commerce.
+    <break time="350ms"/>
+    Her sister gets Grade eight STEM.
+    <break time="400ms"/>
+    Same engine. Different lesson. Every time.
+  </prosody>
+</speak>
+
+<!-- slide-12.mp3 -->
+<speak>
+  <prosody rate="medium">
+    StudyBuddy.
+    <break time="200ms"/>
+    Lessons, always current.
+    <break time="600ms"/>
+    Try it tonight at demo dot studybuddy dot app —
+    or have your school reach out to support at studybuddy dot app.
+  </prosody>
+</speak>

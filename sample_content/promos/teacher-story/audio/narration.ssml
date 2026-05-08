@@ -1,0 +1,142 @@
+<!-- Teacher-story narration source.
+     One <speak> block per slide.
+     Render via scripts/render_narration.sh (operator workflow).
+     Voice: Polly Joanna (neural). -->
+
+<!-- slide-01.mp3 -->
+<speak>
+  <prosody rate="medium">
+    Watch a Grade eleven Physics lesson assemble itself.
+    <break time="400ms"/>
+    Text. <break time="200ms"/> Diagrams. <break time="200ms"/> An animation. <break time="200ms"/> A quiz.
+    <break time="500ms"/>
+    All scoped to one teacher's curriculum, in real time.
+  </prosody>
+</speak>
+
+<!-- slide-02.mp3 -->
+<speak>
+  <prosody rate="medium">
+    Linda teaches Grade eleven Science at MilfordWaterford.
+    <break time="400ms"/>
+    She wants Newton's laws — for her class, anchored to this week's news.
+    <break time="500ms"/>
+    She types her request and presses generate.
+  </prosody>
+</speak>
+
+<!-- slide-03.mp3 -->
+<speak>
+  <prosody rate="medium">
+    The system scopes the query against six dimensions —
+    <break time="200ms"/>
+    topic, <break time="120ms"/> grade, <break time="120ms"/> language,
+    <break time="120ms"/> curriculum context, <break time="120ms"/> format,
+    <break time="120ms"/> and the real-world framing.
+    <break time="400ms"/>
+    That tuple makes the lesson hers — not generic.
+  </prosody>
+</speak>
+
+<!-- slide-04.mp3 -->
+<speak>
+  <prosody rate="medium">
+    Text first.
+    <break time="350ms"/>
+    A clear overview. Three learning objectives.
+    <break time="300ms"/>
+    Key concepts in plain language — pitched two grades below her students for accessibility.
+  </prosody>
+</speak>
+
+<!-- slide-05.mp3 -->
+<speak>
+  <prosody rate="medium">
+    Then images.
+    <break time="350ms"/>
+    Force-body diagrams. <break time="200ms"/> A motion graph.
+    <break time="300ms"/>
+    And a hurricane evacuation map drawn from this week's news —
+    so the lesson connects to a world Linda's class is already watching.
+  </prosody>
+</speak>
+
+<!-- slide-06.mp3 -->
+<speak>
+  <prosody rate="medium">
+    For motion topics, the lesson embeds a short animation.
+    <break time="400ms"/>
+    The animation lives in the lesson — not behind a link, not in a separate tab.
+    <break time="400ms"/>
+    Same engine that builds the lesson, builds the clip.
+  </prosody>
+</speak>
+
+<!-- slide-07.mp3 -->
+<speak>
+  <prosody rate="medium">
+    Then a quiz.
+    <break time="350ms"/>
+    Eight questions. Multiple choice and short answer.
+    <break time="400ms"/>
+    Wrong answers don't get a red X — they get a two-sentence explanation
+    written for the misconception, not the topic.
+  </prosody>
+</speak>
+
+<!-- slide-08.mp3 -->
+<speak>
+  <prosody rate="medium">
+    For the students who get stuck — a tutorial section.
+    <break time="350ms"/>
+    Step by step. Algebra worked out. Common mistakes called out by name.
+    <break time="400ms"/>
+    Linda doesn't have to write any of it. The lesson does.
+  </prosody>
+</speak>
+
+<!-- slide-09.mp3 -->
+<speak>
+  <prosody rate="medium">
+    One engine — every audience.
+    <break time="350ms"/>
+    The same Newton's laws topic regenerates for Grade twelve Science,
+    Grade eleven Commerce, Grade eight STEM —
+    each scoped to its own curriculum, its own reading level, its own framing.
+  </prosody>
+</speak>
+
+<!-- slide-10.mp3 -->
+<speak>
+  <prosody rate="medium">
+    On Linda's reports page, students whose first-attempt pass rate slips
+    get flagged automatically.
+    <break time="400ms"/>
+    No spreadsheet. No guessing.
+    <break time="300ms"/>
+    She clicks one row to see the trend, the attempts, and the topics.
+  </prosody>
+</speak>
+
+<!-- slide-11.mp3 -->
+<speak>
+  <prosody rate="medium">
+    Accessibility is one toggle.
+    <break time="350ms"/>
+    Wider letter spacing. Broader line height. OpenDyslexic mode at the click of an eye-icon.
+    <break time="400ms"/>
+    The setting follows the student across every page, every device.
+  </prosody>
+</speak>
+
+<!-- slide-12.mp3 -->
+<speak>
+  <prosody rate="medium">
+    StudyBuddy.
+    <break time="200ms"/>
+    Lessons, always current.
+    <break time="600ms"/>
+    Visit demo dot studybuddy dot app to see it for yourself —
+    or email support at studybuddy dot app to talk.
+  </prosody>
+</speak>
