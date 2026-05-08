@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 280" width="600" height="280" role="img" aria-label="Visible light spectrum with named colours and wavelengths">
+  <title>Visible light spectrum with named colours and wavelengths</title>
+  <desc>A horizontal rainbow gradient strip from violet on the left to red on the right. Six labelled tick marks beneath the strip identify violet (380 nm), blue (470 nm), green (525 nm), yellow (580 nm), orange (610 nm), and red (700 nm).</desc>
+  
+  <text x="300" y="32" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#1a202c" text-anchor="middle">Visible Light — One Wavelength per Colour</text>
+  <text x="300" y="54" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">From 380 nm (violet) to 700 nm (red), with each colour pinned at its peak wavelength.</text>
+
+  <!-- Big rainbow strip -->
+  <defs>
+    <linearGradient id="rainbow-g" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#7c3aed" />
+      <stop offset="20%" stop-color="#2563eb" />
+      <stop offset="40%" stop-color="#16a34a" />
+      <stop offset="55%" stop-color="#facc15" />
+      <stop offset="75%" stop-color="#ea580c" />
+      <stop offset="100%" stop-color="#dc2626" />
+    </linearGradient>
+  </defs>
+  <rect x="60" y="100" width="480" height="80" fill="url(#rainbow-g)" stroke="#1a202c" stroke-width="2" />
+
+  <!-- Wavelength tick labels under -->
+
+    <line x1="60" y1="180" x2="60" y2="194" stroke="#1a202c" stroke-width="1.5" />
+    <text x="60" y="210" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">violet</text>
+    <text x="60" y="226" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">380 nm</text>
+    <line x1="156" y1="180" x2="156" y2="194" stroke="#1a202c" stroke-width="1.5" />
+    <text x="156" y="210" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">blue</text>
+    <text x="156" y="226" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">470 nm</text>
+    <line x1="232.79999999999998" y1="180" x2="232.79999999999998" y2="194" stroke="#1a202c" stroke-width="1.5" />
+    <text x="232.79999999999998" y="210" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">green</text>
+    <text x="232.79999999999998" y="226" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">525 nm</text>
+    <line x1="324" y1="180" x2="324" y2="194" stroke="#1a202c" stroke-width="1.5" />
+    <text x="324" y="210" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">yellow</text>
+    <text x="324" y="226" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">580 nm</text>
+    <line x1="372" y1="180" x2="372" y2="194" stroke="#1a202c" stroke-width="1.5" />
+    <text x="372" y="210" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">orange</text>
+    <text x="372" y="226" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">610 nm</text>
+    <line x1="540" y1="180" x2="540" y2="194" stroke="#1a202c" stroke-width="1.5" />
+    <text x="540" y="210" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">red</text>
+    <text x="540" y="226" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">700 nm</text>
+  <text x="300" y="264" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Mnemonic: VIBGYOR — Violet, Indigo, Blue, Green, Yellow, Orange, Red.</text>
+
+</svg>

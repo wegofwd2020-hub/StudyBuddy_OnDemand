@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 320" width="760" height="320" role="img" aria-label="Electromagnetic spectrum strip with visible-light inset">
+  <title>Electromagnetic spectrum strip with visible-light inset</title>
+  <desc>A horizontal coloured strip showing the seven main bands of the EM spectrum: radio, microwave, infrared, visible, ultraviolet, X-rays, gamma rays. Each band is labelled with its wavelength range. A magnified inset below shows the visible portion split into the six colours violet, blue, green, yellow, orange, red.</desc>
+  
+  <text x="380" y="32" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#1a202c" text-anchor="middle">Electromagnetic Spectrum — All "Light" Is Light</text>
+  <text x="380" y="54" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Same wave, different wavelength. The bit your eye can see is a tiny slice in the middle.</text>
+
+    <rect x="60" y="130" width="118.8" height="70" fill="#7c3aed" stroke="#1a202c" stroke-width="0.8" />
+    <text x="119.4" y="169" font="bold 11px system-ui" font-size="11" font-weight="700" fill="white" text-anchor="middle">Radio</text>
+    <text x="119.4" y="222" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">>1 m</text>
+    <rect x="178.8" y="130" width="105.60000000000002" height="70" fill="#5b21b6" stroke="#1a202c" stroke-width="0.8" />
+    <text x="231.60000000000002" y="169" font="bold 11px system-ui" font-size="11" font-weight="700" fill="white" text-anchor="middle">Microwave</text>
+    <text x="231.60000000000002" y="222" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">1 m – 1 mm</text>
+    <rect x="284.4" y="130" width="105.59999999999998" height="70" fill="#dc2626" stroke="#1a202c" stroke-width="0.8" />
+    <text x="337.2" y="169" font="bold 11px system-ui" font-size="11" font-weight="700" fill="white" text-anchor="middle">Infrared</text>
+    <text x="337.2" y="222" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">1 mm – 700 nm</text>
+    <rect x="390" y="130" width="33.00000000000003" height="70" fill="#fde047" stroke="#1a202c" stroke-width="0.8" />
+    <text x="406.5" y="169" font="bold 11px system-ui" font-size="11" font-weight="700" fill="white" text-anchor="middle">Visible</text>
+    <text x="406.5" y="222" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">700–380 nm</text>
+    <rect x="423.00000000000006" y="130" width="85.8" height="70" fill="#7c3aed" stroke="#1a202c" stroke-width="0.8" />
+    <text x="465.90000000000003" y="169" font="bold 11px system-ui" font-size="11" font-weight="700" fill="white" text-anchor="middle">Ultraviolet</text>
+    <text x="465.90000000000003" y="222" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">380–10 nm</text>
+    <rect x="508.8" y="130" width="105.59999999999995" height="70" fill="#1e40af" stroke="#1a202c" stroke-width="0.8" />
+    <text x="561.6" y="169" font="bold 11px system-ui" font-size="11" font-weight="700" fill="white" text-anchor="middle">X-rays</text>
+    <text x="561.6" y="222" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">10 nm – 0.01 nm</text>
+    <rect x="614.4" y="130" width="105.60000000000002" height="70" fill="#16a34a" stroke="#1a202c" stroke-width="0.8" />
+    <text x="667.2" y="169" font="bold 11px system-ui" font-size="11" font-weight="700" fill="white" text-anchor="middle">Gamma rays</text>
+    <text x="667.2" y="222" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle"><0.01 nm</text>
+  <line x1="390" y1="200" x2="126" y2="250" stroke="#4a5568" stroke-width="1" stroke-dasharray="3 3" />
+  <line x1="423.00000000000006" y1="200" x2="423.00000000000006" y2="250" stroke="#4a5568" stroke-width="1" stroke-dasharray="3 3" />
+    <rect x="126" y="250" width="49.50000000000001" height="36" fill="#7c3aed" stroke="#1a202c" stroke-width="0.5" />
+    <text x="150.75" y="274" font="bold 11px system-ui" font-size="11" font-weight="700" fill="white" text-anchor="middle">violet</text>
+    <rect x="175.5" y="250" width="49.50000000000001" height="36" fill="#2563eb" stroke="#1a202c" stroke-width="0.5" />
+    <text x="200.25" y="274" font="bold 11px system-ui" font-size="11" font-weight="700" fill="white" text-anchor="middle">blue</text>
+    <rect x="225" y="250" width="49.50000000000001" height="36" fill="#16a34a" stroke="#1a202c" stroke-width="0.5" />
+    <text x="249.75" y="274" font="bold 11px system-ui" font-size="11" font-weight="700" fill="white" text-anchor="middle">green</text>
+    <rect x="274.5" y="250" width="49.50000000000001" height="36" fill="#facc15" stroke="#1a202c" stroke-width="0.5" />
+    <text x="299.25" y="274" font="bold 11px system-ui" font-size="11" font-weight="700" fill="white" text-anchor="middle">yellow</text>
+    <rect x="324" y="250" width="49.50000000000001" height="36" fill="#ea580c" stroke="#1a202c" stroke-width="0.5" />
+    <text x="348.75" y="274" font="bold 11px system-ui" font-size="11" font-weight="700" fill="white" text-anchor="middle">orange</text>
+    <rect x="373.5" y="250" width="49.50000000000001" height="36" fill="#dc2626" stroke="#1a202c" stroke-width="0.5" />
+    <text x="398.25" y="274" font="bold 11px system-ui" font-size="11" font-weight="700" fill="white" text-anchor="middle">red</text>
+  <text x="271.20000000000005" y="310" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">visible light · 380 nm (violet) → 700 nm (red)</text>
+
+  <text x="380" y="310" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">All of these travel at the speed of light c = 3 × 10⁸ m/s. They differ only in wavelength (and frequency).</text>
+
+</svg>

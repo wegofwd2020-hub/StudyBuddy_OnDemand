@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 320" width="540" height="320" role="img" aria-label="Wave equation v equals f times lambda">
+  <title>Wave equation v equals f times lambda</title>
+  <desc>A highlighted formula card showing v = f · λ with two worked examples beneath: sound in air at 440 Hz with 0.78 m wavelength giving v = 343 m/s, and red light at 4.6 × 10¹⁴ Hz with 656 nm wavelength giving v ≈ 3 × 10⁸ m/s.</desc>
+  
+  <text x="270" y="32" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#1a202c" text-anchor="middle">Wave Equation — v = f × λ</text>
+  <text x="270" y="54" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Speed equals frequency times wavelength. Holds for every kind of wave.</text>
+
+  <rect x="80" y="80" width="380" height="60" rx="10" fill="#fef3c7" stroke="#dd6b20" stroke-width="2" />
+  <text x="270" y="120" font="bold 30px system-ui" font-size="30" font-weight="700" fill="#1a202c" text-anchor="middle">v = f · λ</text>
+
+  <!-- Three example rows -->
+  <text x="100" y="180" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c">Example: sound in air</text>
+  <text x="100" y="202" font="13px system-ui" font-size="13" fill="#4a5568">f = 440 Hz (concert A) · λ = 0.78 m</text>
+  <text x="100" y="222" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#15803d">→ v = 343 m/s ✓ (speed of sound)</text>
+
+  <text x="100" y="252" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c">Example: red light in vacuum</text>
+  <text x="100" y="274" font="13px system-ui" font-size="13" fill="#4a5568">f = 4.6 × 10¹⁴ Hz · λ = 656 nm = 6.56 × 10⁻⁷ m</text>
+  <text x="100" y="294" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#15803d">→ v ≈ 3 × 10⁸ m/s ✓ (speed of light)</text>
+
+</svg>
