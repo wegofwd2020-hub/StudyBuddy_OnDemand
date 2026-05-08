@@ -316,6 +316,33 @@ ${body}
 </svg>`;
 }
 
+/**
+ * Pretty-formatted variant of `svgWrap` — adds 2-space indent before the
+ * body and a trailing newline. Used by generators whose original local
+ * `svgWrap` shipped with this format (electronics_circuit,
+ * organic_chemistry, periodic_table, biology_cells, optics, derivatives,
+ * g8_waves, g9_kinematics, kinematics).
+ *
+ * Functionally equivalent to `svgWrap` (same rendered SVG); the extra
+ * whitespace is purely stylistic. Maintained here to preserve byte-
+ * equivalence when lifting helpers like `makeHeatmapSvg` from these
+ * generators into class modules.
+ */
+export function svgWrapPretty(
+  viewBoxW: number,
+  viewBoxH: number,
+  title: string,
+  desc: string,
+  body: string,
+): string {
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${viewBoxW} ${viewBoxH}" width="${viewBoxW}" height="${viewBoxH}" role="img" aria-label="${title}">
+  <title>${title}</title>
+  <desc>${desc}</desc>
+  ${body}
+</svg>
+`;
+}
+
 // ─────────────────────────────────────────────────────────────────────────
 // File output — makeWriter
 //

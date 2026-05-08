@@ -20,7 +20,7 @@
  *    legend gradient at a per-figure level. Lift to #344 (Wave 6).
  */
 
-import { INK, MUTED } from "./shared.ts";
+import { INK, MUTED, svgWrapPretty } from "./shared.ts";
 
 // ─────────────────────────────────────────────────────────────────────────
 // Particle palette — carries from G11-CHEM-002
@@ -153,6 +153,62 @@ export function elementTile(
   <text x="${x + TILE_W / 2}" y="${y + 30}" font="bold 16px system-ui" font-size="16" font-weight="700" fill="${INK}" text-anchor="middle">${el.symbol}</text>
   ${opts.showName ? `<text x="${x + TILE_W / 2}" y="${y + 44}" font="7px system-ui" font-size="7" fill="${MUTED}" text-anchor="middle">${el.name.slice(0, 7)}</text>` : ""}
   ${opts.showShellCount ? `<text x="${x + TILE_W / 2}" y="${y + 50}" font="bold 7px system-ui" font-size="7" font-weight="700" fill="${MUTED}" text-anchor="middle">${el.shells.join("·")}</text>` : `<text x="${x + TILE_W / 2}" y="${y + 48}" font="7px system-ui" font-size="7" fill="${MUTED}" text-anchor="middle">${el.mass.toFixed(1)}</text>`}`;
+}
+
+/**
+ * Stamp a complete periodic-trend heatmap SVG for a given trend key.
+ * Composes `heatmapTile` over the full ELEMENTS array, plus a gradient
+ * legend bar at the bottom. Used by the three trend figures in
+ * G7-SCI-001 (atomic radius, ionization energy, electronegativity).
+ *
+ * Lifted from the periodic_table generator per #345 phase D-3.
+ */
+export function makeHeatmapSvg(
+  title: string,
+  subtitle: string,
+  trendKey: "atomicRadiusPm" | "ionizationEnergyEv" | "electronegativity",
+  unit: string,
+  palette: "redToBlue" | "blueToRed",
+  legendLow: string,
+  legendHigh: string,
+  description: string,
+): string {
+  const W = TABLE_OFFSET_X * 2 + 18 * (TILE_W + TILE_GAP);
+  const H = TABLE_OFFSET_Y + 4 * (TILE_H + TILE_GAP) + 100;
+  const values = ELEMENTS.map((el) => el[trendKey]).filter(
+    (v): v is number => v != null,
+  );
+  const minV = Math.min(...values);
+  const maxV = Math.max(...values);
+
+  let body = `
+  <text x="${W / 2}" y="32" font="bold 18px system-ui" font-size="18" font-weight="700" fill="${INK}" text-anchor="middle">${title}</text>
+  <text x="${W / 2}" y="54" font="11px system-ui" font-size="11" fill="${MUTED}" text-anchor="middle">${subtitle}</text>
+`;
+  for (const el of ELEMENTS) {
+    body += heatmapTile(el, el[trendKey], minV, maxV, palette);
+  }
+  // Heatmap legend (gradient bar)
+  const legX = TABLE_OFFSET_X;
+  const legY = H - 60;
+  const legW = 380;
+  body += `<defs>
+    <linearGradient id="${trendKey}-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+`;
+  if (palette === "redToBlue") {
+    body += `<stop offset="0%" stop-color="rgb(220,220,220)" />
+             <stop offset="100%" stop-color="rgb(255,90,90)" />`;
+  } else {
+    body += `<stop offset="0%" stop-color="rgb(255,140,140)" />
+             <stop offset="100%" stop-color="rgb(70,140,255)" />`;
+  }
+  body += `</linearGradient></defs>
+  <rect x="${legX}" y="${legY}" width="${legW}" height="16" fill="url(#${trendKey}-grad)" stroke="${MUTED}" />
+  <text x="${legX}" y="${legY + 32}" font="11px system-ui" font-size="11" fill="${INK}">${legendLow} (${minV.toFixed(1)} ${unit})</text>
+  <text x="${legX + legW}" y="${legY + 32}" font="11px system-ui" font-size="11" fill="${INK}" text-anchor="end">${legendHigh} (${maxV.toFixed(1)} ${unit})</text>
+  <text x="${TABLE_OFFSET_X + (18 * (TILE_W + TILE_GAP)) / 2 + 200}" y="${legY + 32}" font="bold 12px system-ui" font-size="12" font-weight="700" fill="${INK}">unit: ${unit}</text>
+`;
+  return svgWrapPretty(W, H, title, description, body);
 }
 
 /** Render a heatmap version of an element tile based on a value (with min/max). */

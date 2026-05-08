@@ -51,6 +51,7 @@ import {
   tileXY,
   elementTile,
   heatmapTile,
+  makeHeatmapSvg,
   type Element,
 } from "../pipeline/visual_templates/periodic_table.ts";
 
@@ -286,52 +287,6 @@ function s1_metalNonmetalMetalloid() {
 // ────────────────────────────────────────────────────────────────────────────
 // SECTION 2 — Periodic Trends (4 SVGs)
 // ────────────────────────────────────────────────────────────────────────────
-
-function makeHeatmapSvg(
-  title: string,
-  subtitle: string,
-  trendKey: 'atomicRadiusPm' | 'ionizationEnergyEv' | 'electronegativity',
-  unit: string,
-  palette: 'redToBlue' | 'blueToRed',
-  legendLow: string,
-  legendHigh: string,
-  description: string,
-): string {
-  const W = TABLE_OFFSET_X * 2 + 18 * (TILE_W + TILE_GAP);
-  const H = TABLE_OFFSET_Y + 4 * (TILE_H + TILE_GAP) + 100;
-  const values = ELEMENTS.map(el => el[trendKey]).filter((v): v is number => v != null);
-  const minV = Math.min(...values);
-  const maxV = Math.max(...values);
-
-  let body = `
-  <text x="${W / 2}" y="32" font="bold 18px system-ui" font-size="18" font-weight="700" fill="${INK}" text-anchor="middle">${title}</text>
-  <text x="${W / 2}" y="54" font="11px system-ui" font-size="11" fill="${MUTED}" text-anchor="middle">${subtitle}</text>
-`;
-  for (const el of ELEMENTS) {
-    body += heatmapTile(el, el[trendKey], minV, maxV, palette);
-  }
-  // Heatmap legend (gradient bar)
-  const legX = TABLE_OFFSET_X;
-  const legY = H - 60;
-  const legW = 380;
-  body += `<defs>
-    <linearGradient id="${trendKey}-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-`;
-  if (palette === 'redToBlue') {
-    body += `<stop offset="0%" stop-color="rgb(220,220,220)" />
-             <stop offset="100%" stop-color="rgb(255,90,90)" />`;
-  } else {
-    body += `<stop offset="0%" stop-color="rgb(255,140,140)" />
-             <stop offset="100%" stop-color="rgb(70,140,255)" />`;
-  }
-  body += `</linearGradient></defs>
-  <rect x="${legX}" y="${legY}" width="${legW}" height="16" fill="url(#${trendKey}-grad)" stroke="${MUTED}" />
-  <text x="${legX}" y="${legY + 32}" font="11px system-ui" font-size="11" fill="${INK}">${legendLow} (${minV.toFixed(1)} ${unit})</text>
-  <text x="${legX + legW}" y="${legY + 32}" font="11px system-ui" font-size="11" fill="${INK}" text-anchor="end">${legendHigh} (${maxV.toFixed(1)} ${unit})</text>
-  <text x="${TABLE_OFFSET_X + 18 * (TILE_W + TILE_GAP) / 2 + 200}" y="${legY + 32}" font="bold 12px system-ui" font-size="12" font-weight="700" fill="${INK}">unit: ${unit}</text>
-`;
-  return svgWrap(W, H, title, description, body);
-}
 
 function s2_atomicRadiusHeatmap() {
   return makeHeatmapSvg(
