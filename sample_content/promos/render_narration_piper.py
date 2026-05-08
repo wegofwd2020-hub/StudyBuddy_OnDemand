@@ -24,9 +24,17 @@ from __future__ import annotations
 
 import re
 import shutil
+import struct
 import subprocess
 import sys
+import wave
 from pathlib import Path
+
+# Target headroom — 0.85 × 32767 ≈ 27851 — leaves 15 % below the 16-bit
+# ceiling. Lower is quieter / more conservative; higher risks the
+# inter-sample peaks Piper occasionally produces still saturating.
+PEAK_HEADROOM_RATIO = 0.85
+TARGET_PEAK_INT16 = int(32767 * PEAK_HEADROOM_RATIO)
 
 PIPER_BIN = Path("/tmp/piper-venv/bin/piper")
 VOICES_DIR = Path("/tmp/piper-voices")
@@ -90,6 +98,46 @@ def parse_ssml_blocks(narration_path: Path) -> list[tuple[str, str]]:
     return out
 
 
+def normalize_wav_peak(path: Path, target_peak: int = TARGET_PEAK_INT16) -> tuple[int, int]:
+    """Re-scale a 16-bit mono PCM WAV so peak amplitude == `target_peak`.
+
+    Piper's `--volume` flag is applied before int16 conversion; on some
+    inputs the model produces inter-sample peaks that overflow int16
+    anyway, leaving a flat-topped waveform with audible digital clipping.
+    Post-processing the rendered WAV is the only reliable fix.
+
+    Returns (original_peak, new_peak) for telemetry.
+    """
+    with wave.open(str(path), "rb") as r:
+        n_channels = r.getnchannels()
+        sample_width = r.getsampwidth()
+        frame_rate = r.getframerate()
+        n_frames = r.getnframes()
+        raw = r.readframes(n_frames)
+
+    if sample_width != 2 or n_channels != 1:
+        # We only handle 16-bit mono. Piper's defaults match this; refuse
+        # silently rather than corrupting an unexpected file.
+        return (0, 0)
+
+    samples = list(struct.unpack(f"<{len(raw) // 2}h", raw))
+    original_peak = max(abs(s) for s in samples) or 1
+    if original_peak <= target_peak:
+        return (original_peak, original_peak)
+
+    scale = target_peak / original_peak
+    scaled = [max(-32768, min(32767, int(s * scale))) for s in samples]
+    new_peak = max(abs(s) for s in scaled)
+    new_raw = struct.pack(f"<{len(scaled)}h", *scaled)
+
+    with wave.open(str(path), "wb") as w:
+        w.setnchannels(n_channels)
+        w.setsampwidth(sample_width)
+        w.setframerate(frame_rate)
+        w.writeframes(new_raw)
+    return (original_peak, new_peak)
+
+
 def render_block(slide_name: str, text: str, voice: str, out_dir: Path) -> Path:
     out_path = out_dir / f"{slide_name}.wav"
     model = VOICES_DIR / f"{voice}.onnx"
@@ -145,10 +193,16 @@ def main() -> int:
     print(f"rendering {len(blocks)} blocks to {out_dir} (voice={voice})")
     for slide_name, text in blocks:
         path = render_block(slide_name, text, voice, out_dir)
-        # Brief preview of what Piper saw: first 70 chars of the cleaned text.
-        preview = text[:70] + ("…" if len(text) > 70 else "")
+        original_peak, new_peak = normalize_wav_peak(path)
+        # Brief preview of what Piper saw: first 60 chars of the cleaned text.
+        preview = text[:60].replace("\n", " ⏎ ") + ("…" if len(text) > 60 else "")
         size_kb = path.stat().st_size // 1024
-        print(f"  {slide_name}: {size_kb} KB  ({preview})")
+        norm_note = (
+            ""
+            if original_peak == new_peak
+            else f"  (normalised {original_peak} → {new_peak})"
+        )
+        print(f"  {slide_name}: {size_kb} KB  peak={new_peak}{norm_note}  | {preview}")
 
     print(f"done — {len(blocks)} clips in {out_dir}")
     return 0
