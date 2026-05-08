@@ -41,28 +41,11 @@ import {
   HIGHLIGHT,
   makePlot as makePlotShared,
   VARIANT_B,
+  plotPolyline,
   type PlotConfig,
 } from "../pipeline/visual_templates/shared.ts";
 
 const makePlot = (c: PlotConfig) => makePlotShared(c, VARIANT_B);
-
-function plotPolyline(
-  fn: (x: number) => number,
-  xRange: [number, number],
-  xToPx: (x: number) => number,
-  yToPx: (y: number) => number,
-  options: { color?: string; width?: number; samples?: number; dash?: string } = {},
-) {
-  const { color = ACCENT, width = 3, samples = 200, dash = "" } = options;
-  const pts: string[] = [];
-  for (let i = 0; i <= samples; i++) {
-    const x = xRange[0] + (i / samples) * (xRange[1] - xRange[0]);
-    const y = fn(x);
-    if (!Number.isFinite(y)) continue;
-    pts.push(`${xToPx(x).toFixed(2)},${yToPx(y).toFixed(2)}`);
-  }
-  return `<polyline points="${pts.join(" ")}" fill="none" stroke="${color}" stroke-width="${width}" stroke-linecap="round" ${dash ? `stroke-dasharray="${dash}"` : ""} />`;
-}
 
 /** Secant line through two points on a curve, drawn the full plot width. */
 function secantLine(

@@ -258,6 +258,42 @@ export function polyline(
   );
 }
 
+/**
+ * `plotPolyline` — sample a function across xRange and emit an SVG polyline.
+ *
+ * Differs from `polyline` (above) in the input shape: takes a function +
+ * x-range and samples internally rather than accepting pre-computed points.
+ * Skips non-finite y values (NaN, Infinity) so functions with vertical
+ * asymptotes plot cleanly across their domain.
+ *
+ * Lifted from 4 byte-identical copies across kinematics, g9_kinematics,
+ * derivatives, and g8_waves generators (#341 phase C-partial). The output
+ * format preserves the exact two-space gap before `/>` in the no-dash case
+ * for byte-equivalence with the local helper it replaces.
+ */
+export function plotPolyline(
+  fn: (x: number) => number,
+  xRange: [number, number],
+  xToPx: (x: number) => number,
+  yToPx: (y: number) => number,
+  options: {
+    color?: string;
+    width?: number;
+    samples?: number;
+    dash?: string;
+  } = {},
+): string {
+  const { color = ACCENT, width = 3, samples = 200, dash = "" } = options;
+  const pts: string[] = [];
+  for (let i = 0; i <= samples; i++) {
+    const x = xRange[0] + (i / samples) * (xRange[1] - xRange[0]);
+    const y = fn(x);
+    if (!Number.isFinite(y)) continue;
+    pts.push(`${xToPx(x).toFixed(2)},${yToPx(y).toFixed(2)}`);
+  }
+  return `<polyline points="${pts.join(" ")}" fill="none" stroke="${color}" stroke-width="${width}" stroke-linecap="round" ${dash ? `stroke-dasharray="${dash}"` : ""} />`;
+}
+
 // ─────────────────────────────────────────────────────────────────────────
 // SVG envelope — svgWrap
 //

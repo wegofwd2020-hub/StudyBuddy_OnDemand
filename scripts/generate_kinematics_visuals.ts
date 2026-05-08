@@ -31,6 +31,7 @@ import {
   BG,
   makePlot as makePlotShared,
   VARIANT_B,
+  plotPolyline,
   type PlotConfig,
 } from "../pipeline/visual_templates/shared.ts";
 
@@ -44,24 +45,6 @@ const ROOT = join(
   "G11-PHYS-002_Kinematics",
   "Option2_Catalogue",
 );
-
-function plotPolyline(
-  fn: (x: number) => number,
-  xRange: [number, number],
-  xToPx: (x: number) => number,
-  yToPx: (y: number) => number,
-  options: { color?: string; width?: number; samples?: number; dash?: string } = {},
-) {
-  const { color = ACCENT, width = 3, samples = 200, dash = "" } = options;
-  const pts: string[] = [];
-  for (let i = 0; i <= samples; i++) {
-    const x = xRange[0] + (i / samples) * (xRange[1] - xRange[0]);
-    const y = fn(x);
-    if (!Number.isFinite(y)) continue;
-    pts.push(`${xToPx(x).toFixed(2)},${yToPx(y).toFixed(2)}`);
-  }
-  return `<polyline points="${pts.join(" ")}" fill="none" stroke="${color}" stroke-width="${width}" stroke-linecap="round" ${dash ? `stroke-dasharray="${dash}"` : ""} />`;
-}
 
 function svgWrap(viewBoxW: number, viewBoxH: number, title: string, desc: string, body: string) {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${viewBoxW} ${viewBoxH}" width="${viewBoxW}" height="${viewBoxH}" role="img" aria-label="${title}">
