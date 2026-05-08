@@ -1,0 +1,21 @@
+{
+  "name": "electronics-basics-video",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "studio": "bunx remotion studio",
+    "render:current-flow": "bunx remotion render electronics-current-flow ~/Downloads/Electronics_CurrentFlow.mp4",
+    "render:all": "bun run render:current-flow"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.260",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.260",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.0",
+    "typescript": "^5.4.0"
+  }
+}

@@ -6,7 +6,7 @@
 ## Status
 
 - **Phase 1 (Option 2 catalogue):** ✅ 13 SVGs + 13 sidecars shipped
-- **Phase 2 (Option 3 Remotion clip):** pending — current-flow visualisation under voltage
+- **Phase 2 (Option 3 Remotion clip):** ✅ `Electronics_CurrentFlow.mp4` (3.1 MB / 24 s)
 - **Phase 3 (eval set + library promotion):** pending
 
 ## Phase 1 reflections — Option 2 catalogue
@@ -83,5 +83,56 @@ This catalogue is fully code-renderable. Real-world photos of circuits-on-breadb
 
 Phase 1: ~70 minutes (helpers — 9 reusable circuit primitives — took ~35 min; figures took ~35 min). The reusable primitives are doing all the work — `simple-circuit-with-lamp` is ~25 lines of declarative function calls, not raw SVG. **The investment in helpers will pay back across 6+ downstream units.** This is the highest leverage Phase 1 yet.
 
+## Phase 2 reflections — Option 3 Remotion clip
+
+One composition (`electronics-current-flow`, 24 s, 3.1 MB):
+
+A simple battery + switch + resistor + LED loop with **green charge dots flowing around the rectangular wire**. Three regimes play out in sequence:
+- **A** (frames 60–150): switch open, no current, LED dark, dots not visible
+- **B** (frames 150–300): switch closes; V = 5 V, R = 330 Ω → I = 15 mA. Dots flow at baseline rate (one full loop every 4 s).
+- **C** (frames 300–450): voltage doubles to 10 V → current doubles to 30 mA. **Dots flow visibly twice as fast** (one loop every 2 s). LED brightens with the brighter glow.
+- **D** (frames 450–600): resistance doubles to 660 Ω → current halves back to 15 mA. Dots return to baseline rate. LED dims back.
+- **E** (frames 600–720): hold final tableau.
+
+A live V/I/R readout panel on the right updates with each regime. A caption fades in/out under the circuit telling the student which regime is active. Ohm's law `I = V / R` is rendered statically in the readout panel.
+
+### What was repetitive (= templatable for #320)
+
+1. **Cumulative-phase integral** (`cumulativePhase(frame)`) — a piecewise integral of speed over time that gives smooth motion across regime transitions. Same exact pattern as the wave-superposition phase sweep in #327's `WaveSuperpositionScene` and the strobe-dot accumulation in #328's `MotionAlongStripScene`. **Recommendation:** ship a `useCumulativeIntegral(speedByRegime)` hook in shared components — three units now use this pattern.
+
+2. **`loopXY(phase)`** — maps a phase ∈ [0, 1) to (x, y) on a rectangular loop's perimeter. Reusable for any "object travels around a closed wire/path" animation: cyclic chemistry (Krebs cycle, in future biology units), water-cycle physics, any process diagram. **Recommendation:** generalise to `loopXY(phase, vertices)` taking an arbitrary closed polygon, ship as `<DotsAroundPath path dots speed />`.
+
+3. **Live-value readout panel.** Right-side rectangle with three label-value rows + an equation at the bottom. Same shape as the Bohr-transition energy ladder (#329). Same shape as future Ohm's-law / Newton's-law / chemistry-equation-with-live-values clips. **Recommendation:** `<LiveValuesPanel rows={[{label,value,unit,color}]} equation />`.
+
+4. **Component-with-state primitives.** The LED has `lit?: boolean`; the switch has `closed: boolean`; the lamp had `lit?: boolean` in the SVG generator. Each component should ship as `<Component state />` where state captures every visual variation. **Recommendation:** lift `<Resistor />`, `<Battery />`, `<LED state />`, `<Switch state />` from the generator into Remotion-shared components — they're already factored out in the SVG generator, just need a Remotion-flavoured wrapper.
+
+### What needed human judgment (= curator-only)
+
+1. **Choosing the regimes.** The sequence "baseline → V doubles → R doubles" is a deliberate pedagogical arc that lets the student watch each variable's effect *separately*. A "V and R both change" regime would obscure the relationship. The order matters too — voltage first, because students intuit "more push = more flow" before they intuit "more friction = less flow". Curator-only.
+
+2. **Dot density (12 dots).** Fewer dots make the flow look sparse and trackable; more dots make it look like a continuous river. 12 around a 2400-px perimeter (one every 200 px) is the sweet spot for "I can see individual dots move but the flow feels populated". Hand-tuned. The LLM has no good prior here.
+
+3. **Speed multiplier choices (0.25 / 0.50 / 0.25 loops/sec).** Four-second loop time at baseline is slow enough to follow but fast enough that you don't get bored. Doubling to two-second loops is *visibly* faster but not so fast it blurs. Pure perceptual hand-tuning.
+
+4. **No physics during regime A.** The clip explicitly shows the circuit *with no flow* for 3 seconds before the switch closes. This is curatorial — the student needs to see "no current" as a state to contrast against, not just an absence. A naïve LLM-driven version would skip this and start at I > 0.
+
+### What fell outside code-gen entirely
+
+Nothing. Pure 2D animation + math.
+
+### Time budget reconciliation (Phase 2)
+
+Estimated ~0.5 day (rolled into 2-day issue total); **actual: ~30 minutes authoring + 1 minute render**. The Phase-1 circuit-schematic palette + the loopXY/cumulativePhase math both lifted cleanly into the Remotion theme. Per-scene LoC: ~280 (one scene file) — comparable to the G9 motion-along-strip scene (~260) but with more pedagogical state to track.
+
+## Time budget summary
+
+| Phase | Issue estimate | Actual |
+|---|---|---|
+| Phase 1 | ~1 day | ~70 min |
+| Phase 2 | ~0.5 day | ~30 min |
+| Phase 3 | (rolled into 2 d) | pending |
+
+Tracking on pace with #329 (chemistry first-of-class). The investment in helpers in Phase 1 paid off cleanly in Phase 2 — every component primitive translated to a corresponding Remotion drawing call, and the cumulative-phase pattern was already proven from physics units.
+
 ---
-*Author: broker. Updated 2026-05-07 (Phase 1 complete).*
+*Author: broker. Updated 2026-05-08 (Phase 2 complete).*
