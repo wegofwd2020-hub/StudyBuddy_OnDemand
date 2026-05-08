@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360" role="img" aria-label="Related rates balloon inflating">
+  <title>Related rates balloon inflating</title>
+  <desc>Three transparent blue circles in a row representing a balloon at t=1, 4, and 8 seconds with radii 1.0, 1.6, and 2.0 cm respectively. Below: the volume formula V = (4/3)πr³ leads to dV/dt = 4πr² · dr/dt, with the worked answer dr/dt ≈ 0.10 cm/s when r = 2 cm.</desc>
+  
+  <text x="300" y="32" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#1a202c" text-anchor="middle">Related Rates — Balloon Inflating</text>
+  <text x="300" y="54" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Air pumps in at a known rate. How fast does the radius grow?</text>
+
+  <!-- Three balloons at three times -->
+  <g transform="translate(120, 170)">
+    <circle cx="0" cy="0" r="30" fill="#2b6cb0" opacity="0.35" stroke="#2b6cb0" stroke-width="2" />
+    <text x="0" y="55" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">t = 1 s</text>
+    <text x="0" y="73" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">r = 1.0 cm</text>
+  </g>
+  <g transform="translate(280, 170)">
+    <circle cx="0" cy="0" r="50" fill="#2b6cb0" opacity="0.35" stroke="#2b6cb0" stroke-width="2" />
+    <text x="0" y="75" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">t = 4 s</text>
+    <text x="0" y="93" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">r = 1.6 cm</text>
+  </g>
+  <g transform="translate(460, 170)">
+    <circle cx="0" cy="0" r="70" fill="#2b6cb0" opacity="0.35" stroke="#2b6cb0" stroke-width="2" />
+    <text x="0" y="95" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">t = 8 s</text>
+    <text x="0" y="113" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">r = 2.0 cm</text>
+  </g>
+
+  <!-- Pump arrow + dV/dt label -->
+  <text x="60" y="230" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#15803d">dV/dt = 5 cm³/s</text>
+  <text x="60" y="246" font="11px system-ui" font-size="11" fill="#4a5568">(constant pump rate)</text>
+
+  <!-- Math reasoning -->
+  <g transform="translate(60, 280)">
+    <text x="0" y="0" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c">V = (4/3) π r³  →  dV/dt = 4π r² · dr/dt</text>
+    <text x="0" y="22" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#15803d">→  dr/dt = (dV/dt) / (4π r²)</text>
+    <text x="0" y="42" font="13px system-ui" font-size="13" fill="#4a5568">at r = 2 cm: dr/dt = 5 / (4π · 4) ≈ 0.10 cm/s</text>
+  </g>
+
+  <text x="300" y="352" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Volume grows at a steady rate; radius grows much slower (and slower as the balloon gets bigger).</text>
+
+</svg>

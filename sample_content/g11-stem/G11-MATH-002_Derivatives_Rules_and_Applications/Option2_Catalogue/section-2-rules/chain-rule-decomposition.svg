@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 380" width="600" height="380" role="img" aria-label="Chain rule decomposition">
+  <title>Chain rule decomposition</title>
+  <desc>The chain-rule formula d/dx (f(g(x))) = f'(g(x)) · g'(x) in a highlighted card, followed by a worked example y = (3x+2)⁵ shown as a decomposition tree (outer u⁵ over inner 3x+2) on the left and the step-by-step computation on the right ending at y' = 15(3x+2)⁴.</desc>
+  
+  <text x="300" y="32" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#1a202c" text-anchor="middle">Chain Rule — Compose Outer · Inner</text>
+  <text x="300" y="54" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Differentiate the outer function (leaving the inner alone), then multiply by the derivative of the inner.</text>
+
+  <!-- Formula card -->
+  <rect x="80" y="80" width="440" height="60" rx="10" fill="#fef3c7" stroke="#dd6b20" stroke-width="2" />
+  <text x="300" y="120" font="bold 22px system-ui" font-size="22" font-weight="700" fill="#1a202c" text-anchor="middle">d/dx (f(g(x))) = f'(g(x)) · g'(x)</text>
+
+  <!-- Worked example: y = (3x + 2)⁵ -->
+  <text x="80" y="180" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c">Worked example: y = (3x + 2)⁵</text>
+
+  <!-- Decomposition tree -->
+  <g transform="translate(80, 200)">
+    <rect x="0" y="0" width="180" height="40" rx="6" fill="#f7fafc" stroke="#2b6cb0" stroke-width="2" />
+    <text x="90" y="26" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">outer: f(u) = u⁵</text>
+
+    <line x1="90" y1="40" x2="90" y2="60" stroke="#4a5568" stroke-width="2" />
+
+    <rect x="0" y="60" width="180" height="40" rx="6" fill="#f7fafc" stroke="#319795" stroke-width="2" />
+    <text x="90" y="86" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">inner: g(x) = 3x + 2</text>
+  </g>
+
+  <!-- Computation column -->
+  <g transform="translate(300, 200)">
+    <text x="0" y="20" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0">f'(u) = 5u⁴ → f'(g(x)) = 5(3x+2)⁴</text>
+    <text x="0" y="60" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#319795">g'(x) = 3</text>
+    <text x="0" y="100" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#15803d">y' = 5(3x+2)⁴ · 3</text>
+    <text x="0" y="120" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#15803d">    = 15(3x+2)⁴</text>
+  </g>
+
+  <text x="300" y="362" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">The "chain" metaphor: each link is a function. To differentiate, walk the chain outside-in, multiplying.</text>
+
+</svg>

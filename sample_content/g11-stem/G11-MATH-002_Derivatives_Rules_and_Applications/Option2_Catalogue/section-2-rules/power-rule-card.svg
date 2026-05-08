@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 320" width="540" height="320" role="img" aria-label="Power rule for differentiation">
+  <title>Power rule for differentiation</title>
+  <desc>A highlighted formula card 'd/dx (xⁿ) = n · xⁿ⁻¹' followed by four worked examples: derivative of x³ is 3x², of x⁵ is 5x⁴, of x is 1, of x⁻² is −2x⁻³.</desc>
+  
+  <text x="270" y="32" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#1a202c" text-anchor="middle">Power Rule — d/dx (xⁿ) = n·xⁿ⁻¹</text>
+  <text x="270" y="54" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">"Bring the exponent down in front, then drop it by one."</text>
+
+  <!-- Big formula card -->
+  <rect x="80" y="80" width="380" height="60" rx="10" fill="#fef3c7" stroke="#dd6b20" stroke-width="2" />
+  <text x="270" y="120" font="bold 30px system-ui" font-size="30" font-weight="700" fill="#1a202c" text-anchor="middle">d/dx (xⁿ) = n · xⁿ⁻¹</text>
+
+  <!-- Examples -->
+  <text x="100" y="180" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c">Examples</text>
+
+  <text x="100" y="208" font="14px system-ui" font-size="14" fill="#1a202c">d/dx (x³)</text>
+  <text x="240" y="208" font="14px system-ui" font-size="14" fill="#1a202c" text-anchor="middle">=</text>
+  <text x="380" y="208" font="14px system-ui" font-size="14" fill="#15803d" font-weight="700">3 · x²</text>
+
+  <text x="100" y="234" font="14px system-ui" font-size="14" fill="#1a202c">d/dx (x⁵)</text>
+  <text x="240" y="234" font="14px system-ui" font-size="14" fill="#1a202c" text-anchor="middle">=</text>
+  <text x="380" y="234" font="14px system-ui" font-size="14" fill="#15803d" font-weight="700">5 · x⁴</text>
+
+  <text x="100" y="260" font="14px system-ui" font-size="14" fill="#1a202c">d/dx (x¹) = d/dx (x)</text>
+  <text x="240" y="260" font="14px system-ui" font-size="14" fill="#1a202c" text-anchor="middle">=</text>
+  <text x="380" y="260" font="14px system-ui" font-size="14" fill="#15803d" font-weight="700">1 · x⁰ = 1</text>
+
+  <text x="100" y="286" font="14px system-ui" font-size="14" fill="#1a202c">d/dx (x⁻²)</text>
+  <text x="240" y="286" font="14px system-ui" font-size="14" fill="#1a202c" text-anchor="middle">=</text>
+  <text x="380" y="286" font="14px system-ui" font-size="14" fill="#15803d" font-weight="700">−2 · x⁻³</text>
+
+  <text x="270" y="310" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Works for any real n — positive, negative, fractional. Constants? d/dx (constant) = 0.</text>
+
+</svg>

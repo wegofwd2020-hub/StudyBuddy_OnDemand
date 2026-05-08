@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 320" width="720" height="320" role="img" aria-label="Product and quotient rules">
+  <title>Product and quotient rules</title>
+  <desc>Side-by-side cards: left side shows the product rule (uv)' = u'v + uv' with worked example y = x²sin(x). Right side shows the quotient rule (u/v)' = (u'v − uv') / v² with worked example y = x / (x² + 1).</desc>
+  
+  <text x="360" y="32" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#1a202c" text-anchor="middle">Product Rule + Quotient Rule</text>
+
+  <!-- Product rule -->
+  <text x="180" y="80" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#2b6cb0" text-anchor="middle">Product Rule</text>
+  <rect x="40" y="100" width="280" height="60" rx="10" fill="#fef3c7" stroke="#2b6cb0" stroke-width="2" />
+  <text x="180" y="138" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#1a202c" text-anchor="middle">(uv)' = u'v + uv'</text>
+
+  <text x="40" y="190" font="13px system-ui" font-size="13" fill="#1a202c">Example: y = x² · sin(x)</text>
+  <text x="40" y="216" font="13px system-ui" font-size="13" fill="#4a5568">u = x², u' = 2x</text>
+  <text x="40" y="234" font="13px system-ui" font-size="13" fill="#4a5568">v = sin(x), v' = cos(x)</text>
+  <text x="40" y="262" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#15803d">y' = 2x · sin(x) + x² · cos(x)</text>
+
+  <!-- Quotient rule -->
+  <text x="540" y="80" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#dd6b20" text-anchor="middle">Quotient Rule</text>
+  <rect x="380" y="100" width="320" height="60" rx="10" fill="#fef3c7" stroke="#dd6b20" stroke-width="2" />
+  <text x="540" y="138" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#1a202c" text-anchor="middle">(u/v)' = (u'v − uv') / v²</text>
+
+  <text x="400" y="190" font="13px system-ui" font-size="13" fill="#1a202c">Example: y = x / (x² + 1)</text>
+  <text x="400" y="216" font="13px system-ui" font-size="13" fill="#4a5568">u = x, u' = 1</text>
+  <text x="400" y="234" font="13px system-ui" font-size="13" fill="#4a5568">v = x² + 1, v' = 2x</text>
+  <text x="400" y="262" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#15803d">y' = (1·(x²+1) − x·2x) / (x²+1)²</text>
+
+  <text x="360" y="308" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Mnemonic: "low-D-high minus high-D-low, all over the square of what's below."</text>
+
+</svg>
