@@ -30,10 +30,30 @@ from src.utils.logger import get_logger
 log = get_logger("dependencies")
 
 _bearer = HTTPBearer(auto_error=True)
+_bearer_optional = HTTPBearer(auto_error=False)
 
 
 def _get_correlation_id(request: Request) -> str:
     return getattr(request.state, "correlation_id", "")
+
+
+async def get_current_student_optional(
+    request: Request,
+    credentials: Annotated[
+        HTTPAuthorizationCredentials | None, Depends(_bearer_optional)
+    ] = None,
+) -> dict | None:
+    """
+    Like get_current_student but returns None when no Authorization header is
+    present. Use for endpoints that personalise their response when a student
+    JWT is supplied but still serve a sensible default to anonymous callers.
+
+    A *malformed* or *expired* token still raises — only the missing-header
+    case is treated as "anonymous".
+    """
+    if credentials is None:
+        return None
+    return await get_current_student(request, credentials)
 
 
 async def get_current_student(

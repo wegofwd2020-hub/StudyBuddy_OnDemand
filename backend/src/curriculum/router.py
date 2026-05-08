@@ -28,7 +28,11 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
 from fastapi.responses import Response
 
-from src.auth.dependencies import get_current_student, get_current_teacher
+from src.auth.dependencies import (
+    get_current_student,
+    get_current_student_optional,
+    get_current_teacher,
+)
 from src.core.cache import curriculum_cache
 from src.core.cache_keys import cur_key
 from src.core.db import get_db
@@ -541,8 +545,21 @@ async def get_curriculum_tree(
 
 
 @router.get("/curriculum/{grade}", response_model=GradeCurriculum)
-async def get_grade_curriculum(grade: int, request: Request):
-    """Return the full subject + unit tree for a grade (5–12)."""
+async def get_grade_curriculum(
+    grade: int,
+    request: Request,
+    student: dict | None = Depends(get_current_student_optional),
+):
+    """
+    Return the full subject + unit tree for a grade (5–12).
+
+    Stream-aware when an authenticated student token is supplied AND the path
+    grade matches the student's grade: resolves the student's actual
+    curriculum_id (school-owned → classroom packages → STEM fallback) and
+    builds the response from `curriculum_units` rows. Otherwise falls back to
+    the legacy `data/grade{N}_stem.json` fixture for backwards compatibility
+    with anonymous callers and out-of-grade lookups.
+    """
     cid = _cid(request)
     if not (5 <= grade <= 12):
         raise HTTPException(
@@ -553,5 +570,118 @@ async def get_grade_curriculum(grade: int, request: Request):
                 "correlation_id": cid,
             },
         )
+
+    # Stream-aware path: only when an authenticated student is asking for
+    # *their own* grade. Anonymous callers and admin/demo-data lookups for
+    # other grades still get the STEM JSON fallback.
+    if student and student.get("grade") == grade:
+        built = await _build_grade_curriculum_for_student(student, grade, request)
+        if built is not None:
+            return built
+
     data = _load_grade(grade)
     return GradeCurriculum(**data)
+
+
+async def _build_grade_curriculum_for_student(
+    student: dict, grade: int, request: Request
+) -> GradeCurriculum | None:
+    """
+    Resolve the student's actual curriculum_id (3-step resolver), fetch the
+    units from `curriculum_units`, and build a `GradeCurriculum` payload.
+
+    Returns None when no DB rows exist for the resolved curriculum so the
+    caller can fall back to the legacy JSON fixture.
+    """
+    student_id = student["student_id"]
+    school_id = student.get("school_id")
+    redis = request.app.state.redis
+    pool = request.app.state.pool
+
+    # Step 1: resolve curriculum_id (mirrors get_curriculum_tree).
+    _cur_key = cur_key(student_id, school_id)
+    cached = await redis.get(_cur_key)
+    if cached:
+        curriculum_id = cached.decode() if isinstance(cached, bytes) else cached
+    else:
+        curriculum_id = None
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(
+                """
+                SELECT c.curriculum_id
+                FROM students s
+                JOIN schools sc ON s.school_id = sc.school_id
+                JOIN curricula c ON c.school_id = sc.school_id AND c.grade = s.grade
+                WHERE s.student_id = $1
+                LIMIT 1
+                """,
+                student_id,
+            )
+            if row:
+                curriculum_id = row["curriculum_id"]
+            if not curriculum_id and school_id:
+                await conn.execute(
+                    "SELECT set_config('app.current_school_id', $1, false)", school_id
+                )
+                row = await conn.fetchrow(
+                    """
+                    SELECT cp.curriculum_id
+                    FROM classroom_students cs
+                    JOIN classrooms cl ON cl.classroom_id = cs.classroom_id
+                    JOIN classroom_packages cp ON cp.classroom_id = cl.classroom_id
+                    WHERE cs.student_id = $1
+                    ORDER BY cl.created_at DESC
+                    LIMIT 1
+                    """,
+                    student_id,
+                )
+                if row:
+                    curriculum_id = row["curriculum_id"]
+        if not curriculum_id:
+            curriculum_id = f"default-2026-g{grade}"
+        await redis.set(_cur_key, curriculum_id, ex=300)
+
+    # Step 2: load units from DB; abort to JSON fallback if none.
+    async with pool.acquire() as conn:
+        rows = await conn.fetch(
+            """
+            SELECT cu.unit_id, cu.title, cu.subject,
+                   COALESCE(MAX(csv.subject_name), cu.subject) AS subject_display,
+                   cu.has_lab, cu.sort_order
+            FROM curriculum_units cu
+            LEFT JOIN content_subject_versions csv
+                ON csv.curriculum_id = cu.curriculum_id
+               AND csv.subject = cu.subject
+            WHERE cu.curriculum_id = $1
+            GROUP BY cu.unit_id, cu.title, cu.subject, cu.has_lab, cu.sort_order
+            ORDER BY cu.subject, cu.sort_order, cu.unit_id
+            """,
+            curriculum_id,
+        )
+    if not rows:
+        return None
+
+    # Step 3: build the GradeCurriculum payload.
+    subjects_map: dict[str, list[dict]] = {}
+    for row in rows:
+        subj_name = row["subject_display"]
+        if subj_name not in subjects_map:
+            subjects_map[subj_name] = []
+        subjects_map[subj_name].append(
+            {
+                "unit_id": row["unit_id"],
+                "title": row["title"],
+                "description": "",
+                "has_lab": row["has_lab"],
+            }
+        )
+    subjects = [
+        {"subject_id": name.lower().replace(" ", "-"), "name": name, "units": units}
+        for name, units in subjects_map.items()
+    ]
+    log.info(
+        "grade_curriculum_from_db",
+        curriculum_id=curriculum_id,
+        unit_count=len(rows),
+    )
+    return GradeCurriculum(grade=grade, subjects=subjects)

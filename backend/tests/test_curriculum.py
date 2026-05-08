@@ -9,6 +9,8 @@ from __future__ import annotations
 import pytest
 from httpx import AsyncClient
 
+from tests.helpers.token_factory import make_student_token
+
 
 @pytest.mark.asyncio
 async def test_list_curriculum_returns_all_grades(client: AsyncClient):
@@ -72,6 +74,49 @@ async def test_get_grade_12_curriculum(client: AsyncClient):
     response = await client.get("/api/v1/curriculum/12")
     assert response.status_code == 200
     assert response.json()["grade"] == 12
+
+
+@pytest.mark.asyncio
+async def test_get_grade_curriculum_with_student_token_falls_back_when_no_db_units(
+    client: AsyncClient,
+):
+    """
+    /curriculum/{grade} accepts an authenticated student token (issue #297).
+
+    When the resolved curriculum has no `curriculum_units` rows, the endpoint
+    falls back to the legacy STEM JSON fixture — same shape, same content.
+    Tests that the optional-auth dependency wires through correctly without
+    breaking unauthenticated callers.
+    """
+    token = make_student_token(grade=11)
+    response = await client.get(
+        "/api/v1/curriculum/11",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert data["grade"] == 11
+    assert isinstance(data["subjects"], list)
+    assert len(data["subjects"]) >= 1
+
+
+@pytest.mark.asyncio
+async def test_get_grade_curriculum_with_mismatched_grade_returns_stem(
+    client: AsyncClient,
+):
+    """
+    When the path grade does not match the student's own grade, fall back to
+    the STEM JSON fixture rather than mis-resolving the student's curriculum
+    against an unrelated grade. Demo-data + admin-preview lookups depend on
+    this behaviour.
+    """
+    token = make_student_token(grade=11)
+    response = await client.get(
+        "/api/v1/curriculum/8",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 200, response.text
+    assert response.json()["grade"] == 8
 
 
 @pytest.mark.asyncio
