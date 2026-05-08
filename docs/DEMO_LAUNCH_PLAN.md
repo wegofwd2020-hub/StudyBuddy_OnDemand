@@ -323,6 +323,30 @@ These need a decision before May 12 — flagging now so they don't surface on Ma
 4. **Stripe environment.** Test mode is the recommended default. If a paying-customer demo is planned, decide whether to swap to live mode for that specific demo (and back).
 5. **Sentry project.** Reuse the existing prod project with a `demo` environment tag, or create a separate `studybuddy-demo` project? Recommend: reuse + tag.
 
+### Decided 2026-05-08 — closed for the launch
+
+**GitHub tier — stay on Free.** No upgrade needed before May 16.
+
+| Repo | Visibility | Implication for the deploy workflow |
+|---|---|---|
+| `StudyBuddy_OnDemand` | **public** | Unlimited Actions minutes, unlimited GHCR storage + bandwidth, full branch-protection rules |
+| `studybuddy-docs` | private | 2,000 min/mo Actions cap + 500 MB Packages cap — does not affect demo deployment (no Docker images here) |
+| `studybuddy_free` | public | Same unlimited capacity as the main repo |
+
+The deploy-demo workflow (`.github/workflows/deploy-demo.yml`) builds + pushes Docker images to GHCR and runs CI on every merge to `main` — both happen against the **public** `StudyBuddy_OnDemand` repo, where Free tier covers everything the demo needs.
+
+**Triggers that will warrant an upgrade later** (none apply on May 16):
+
+| Trigger | Recommended tier | Cost |
+|---|---|---|
+| `StudyBuddy_OnDemand` goes private (e.g. to hide competitive details when paying customers arrive) | Team | $4/user/month |
+| `studybuddy-docs` private-repo Actions usage exceeds 2,000 min/month (very unlikely — markdown CI is cheap) | Team | $4/user/month |
+| Second developer joins and needs branch protection + required reviewers in private repos | Team | $4/user/month |
+| First school customer asks for SOC 2 evidence / SAML SSO / IP allow lists / audit-log streaming | Enterprise | $21/user/month |
+| Want Dependabot security-update auto-merge in private repos | Team | $4/user/month |
+
+**Re-evaluate after first paying customer.** Until then, Free tier saves ~$50–250/month with zero functional cost to the demo path. The only operational note: the deploy workflow uses `secrets.GITHUB_TOKEN` for GHCR pushes (right scopes on Free); if a future workflow in `studybuddy-docs` ever needs to push to GHCR, that one will need a personal access token with `write:packages` scope (still Free, just an extra step).
+
 ---
 
 ## Change Log
@@ -330,3 +354,4 @@ These need a decision before May 12 — flagging now so they don't surface on Ma
 | Date | Change |
 |---|---|
 | 2026-05-08 | Initial — comprehensive plan for May 16 launch (4 days code freeze + 4 days test phase) |
+| 2026-05-08 | §6 — Closed the GitHub-tier decision: stay on Free; document upgrade triggers for future-self |
