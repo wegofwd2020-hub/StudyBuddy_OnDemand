@@ -25,14 +25,16 @@ const ROOT = join(
   "Option2_Catalogue",
 );
 
-// ── Styling tokens ─────────────────────────────────────────────────────────
-const INK = "#1a202c";
-const MUTED = "#4a5568";
-const ACCENT = "#2b6cb0";
-const ACCENT_2 = "#dd6b20";
-const POSITIVE = "#15803d";
-const NEGATIVE = "#dc2626";
-const BG = "#f7fafc";
+// Style tokens lifted to pipeline/visual_templates/shared.ts (#341 phase A).
+import {
+  INK,
+  MUTED,
+  ACCENT,
+  ACCENT_2,
+  POSITIVE,
+  NEGATIVE,
+  BG,
+} from "../pipeline/visual_templates/shared.ts";
 const HIGHLIGHT = "#fef3c7";
 const BOND = "#1a202c";
 

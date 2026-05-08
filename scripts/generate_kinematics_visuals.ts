@@ -14,10 +14,10 @@
 import { writeFileSync, mkdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 
-// Style tokens lifted to pipeline/visual_templates/shared.ts per #340.
-// makePlot + plotPolyline kept local: this generator uses the variant-B
-// makePlot which differs from the variant-A makePlot in shared.ts.
-// Consolidation is followup work — see the post-#340 issue.
+// Style tokens + makePlot lifted to pipeline/visual_templates/shared.ts.
+// This generator uses the variant-B preset for makePlot (#341 phase B).
+// plotPolyline kept local — script-specific signature (fn + xRange instead
+// of pre-computed points).
 import {
   INK,
   MUTED,
@@ -29,7 +29,12 @@ import {
   GRID,
   AXIS,
   BG,
+  makePlot as makePlotShared,
+  VARIANT_B,
+  type PlotConfig,
 } from "../pipeline/visual_templates/shared.ts";
+
+const makePlot = (c: PlotConfig) => makePlotShared(c, VARIANT_B);
 
 const ROOT = join(
   import.meta.dir,
@@ -39,70 +44,6 @@ const ROOT = join(
   "G11-PHYS-002_Kinematics",
   "Option2_Catalogue",
 );
-
-// ── Plot helper ────────────────────────────────────────────────────────────
-
-type PlotConfig = {
-  width: number;
-  height: number;
-  pad: { l: number; r: number; t: number; b: number };
-  xRange: [number, number];
-  yRange: [number, number];
-  xTicks: number[];
-  yTicks: number[];
-  xLabel: string;
-  yLabel: string;
-  title?: string;
-};
-
-function makePlot(c: PlotConfig) {
-  const W = c.width, H = c.height;
-  const innerW = W - c.pad.l - c.pad.r;
-  const innerH = H - c.pad.t - c.pad.b;
-  const x0 = c.pad.l;
-  const y0 = c.pad.t;
-
-  const xToPx = (x: number) =>
-    x0 + ((x - c.xRange[0]) / (c.xRange[1] - c.xRange[0])) * innerW;
-  const yToPx = (y: number) =>
-    y0 + innerH - ((y - c.yRange[0]) / (c.yRange[1] - c.yRange[0])) * innerH;
-
-  const pieces: string[] = [];
-  // Background
-  pieces.push(`<rect x="${x0}" y="${y0}" width="${innerW}" height="${innerH}" fill="${BG}" stroke="${GRID}" />`);
-
-  // Grid + tick labels
-  for (const x of c.xTicks) {
-    const px = xToPx(x);
-    pieces.push(`<line x1="${px}" y1="${y0}" x2="${px}" y2="${y0 + innerH}" stroke="${GRID}" stroke-width="0.6" />`);
-    pieces.push(`<text x="${px}" y="${y0 + innerH + 14}" font="11px system-ui" font-size="11" fill="${MUTED}" text-anchor="middle">${x}</text>`);
-  }
-  for (const y of c.yTicks) {
-    const py = yToPx(y);
-    pieces.push(`<line x1="${x0}" y1="${py}" x2="${x0 + innerW}" y2="${py}" stroke="${GRID}" stroke-width="0.6" />`);
-    pieces.push(`<text x="${x0 - 6}" y="${py + 4}" font="11px system-ui" font-size="11" fill="${MUTED}" text-anchor="end">${y}</text>`);
-  }
-
-  // Zero axes (in addition to grid)
-  if (c.yRange[0] <= 0 && c.yRange[1] >= 0) {
-    const py = yToPx(0);
-    pieces.push(`<line x1="${x0}" y1="${py}" x2="${x0 + innerW}" y2="${py}" stroke="${AXIS}" stroke-width="1.2" />`);
-  }
-  if (c.xRange[0] <= 0 && c.xRange[1] >= 0) {
-    const px = xToPx(0);
-    pieces.push(`<line x1="${px}" y1="${y0}" x2="${px}" y2="${y0 + innerH}" stroke="${AXIS}" stroke-width="1.2" />`);
-  }
-
-  // Axis labels
-  pieces.push(`<text x="${x0 + innerW / 2}" y="${y0 + innerH + 32}" font="13px system-ui" font-size="13" font-weight="600" fill="${INK}" text-anchor="middle">${c.xLabel}</text>`);
-  pieces.push(`<text x="${x0 - 36}" y="${y0 + innerH / 2}" font="13px system-ui" font-size="13" font-weight="600" fill="${INK}" text-anchor="middle" transform="rotate(-90 ${x0 - 36} ${y0 + innerH / 2})">${c.yLabel}</text>`);
-
-  if (c.title) {
-    pieces.push(`<text x="${W / 2}" y="20" font="bold 14px system-ui" font-size="14" font-weight="700" fill="${INK}" text-anchor="middle">${c.title}</text>`);
-  }
-
-  return { pieces, xToPx, yToPx, x0, y0, innerW, innerH };
-}
 
 function plotPolyline(
   fn: (x: number) => number,

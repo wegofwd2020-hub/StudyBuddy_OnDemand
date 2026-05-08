@@ -25,55 +25,35 @@ const ROOT = join(
   "Option2_Catalogue",
 );
 
-const INK = "#1a202c";
-const MUTED = "#4a5568";
-const ACCENT = "#2b6cb0";
-const ACCENT_2 = "#dd6b20";
-const ACCENT_3 = "#319795";
-const POSITIVE = "#15803d";
-const NEGATIVE = "#dc2626";
-const GRID = "#e2e8f0";
-const AXIS = "#94a3b8";
-const BG = "#f7fafc";
-const HIGHLIGHT = "#fef3c7";
+// Style tokens + makePlot lifted to pipeline/visual_templates/shared.ts.
+// This generator uses the variant-B-Y preset: same as variant-B but
+// suppresses the x=0 axis line (the original local makePlot here only
+// checked yRange for zero-axis rendering, never xRange).
+import {
+  INK,
+  MUTED,
+  ACCENT,
+  ACCENT_2,
+  ACCENT_3,
+  POSITIVE,
+  NEGATIVE,
+  GRID,
+  AXIS,
+  BG,
+  HIGHLIGHT,
+  makePlot as makePlotShared,
+  VARIANT_B,
+  type PlotConfig,
+  type MakePlotOptions,
+} from "../pipeline/visual_templates/shared.ts";
 
-// ── Plot helpers (lifted) ───────────────────────────────────────────────────
-type PlotConfig = {
-  width: number; height: number;
-  pad: { l: number; r: number; t: number; b: number };
-  xRange: [number, number]; yRange: [number, number];
-  xTicks: number[]; yTicks: number[];
-  xLabel: string; yLabel: string;
-  title?: string;
+// Variant-B-Y preset — like VARIANT_B but renders only the y-zero axis,
+// not the x-zero axis. Preserves byte-equivalence with the local helper.
+const VARIANT_B_Y_ONLY: MakePlotOptions = {
+  ...VARIANT_B,
+  axisStyle: "when-y-zero-only",
 };
-function makePlot(c: PlotConfig) {
-  const W = c.width, H = c.height;
-  const innerW = W - c.pad.l - c.pad.r;
-  const innerH = H - c.pad.t - c.pad.b;
-  const x0 = c.pad.l, y0 = c.pad.t;
-  const xToPx = (x: number) => x0 + ((x - c.xRange[0]) / (c.xRange[1] - c.xRange[0])) * innerW;
-  const yToPx = (y: number) => y0 + innerH - ((y - c.yRange[0]) / (c.yRange[1] - c.yRange[0])) * innerH;
-  const pieces: string[] = [];
-  pieces.push(`<rect x="${x0}" y="${y0}" width="${innerW}" height="${innerH}" fill="${BG}" stroke="${GRID}" />`);
-  for (const x of c.xTicks) {
-    const px = xToPx(x);
-    pieces.push(`<line x1="${px}" y1="${y0}" x2="${px}" y2="${y0 + innerH}" stroke="${GRID}" stroke-width="0.6" />`);
-    pieces.push(`<text x="${px}" y="${y0 + innerH + 14}" font="11px system-ui" font-size="11" fill="${MUTED}" text-anchor="middle">${x}</text>`);
-  }
-  for (const y of c.yTicks) {
-    const py = yToPx(y);
-    pieces.push(`<line x1="${x0}" y1="${py}" x2="${x0 + innerW}" y2="${py}" stroke="${GRID}" stroke-width="0.6" />`);
-    pieces.push(`<text x="${x0 - 6}" y="${py + 4}" font="11px system-ui" font-size="11" fill="${MUTED}" text-anchor="end">${y}</text>`);
-  }
-  if (c.yRange[0] <= 0 && c.yRange[1] >= 0) {
-    const py = yToPx(0);
-    pieces.push(`<line x1="${x0}" y1="${py}" x2="${x0 + innerW}" y2="${py}" stroke="${AXIS}" stroke-width="1.2" />`);
-  }
-  pieces.push(`<text x="${x0 + innerW / 2}" y="${y0 + innerH + 32}" font="13px system-ui" font-size="13" font-weight="600" fill="${INK}" text-anchor="middle">${c.xLabel}</text>`);
-  pieces.push(`<text x="${x0 - 36}" y="${y0 + innerH / 2}" font="13px system-ui" font-size="13" font-weight="600" fill="${INK}" text-anchor="middle" transform="rotate(-90 ${x0 - 36} ${y0 + innerH / 2})">${c.yLabel}</text>`);
-  if (c.title) pieces.push(`<text x="${W / 2}" y="20" font="bold 14px system-ui" font-size="14" font-weight="700" fill="${INK}" text-anchor="middle">${c.title}</text>`);
-  return { pieces, xToPx, yToPx, x0, y0, innerW, innerH };
-}
+const makePlot = (c: PlotConfig) => makePlotShared(c, VARIANT_B_Y_ONLY);
 function plotPolyline(fn: (x: number) => number, xRange: [number, number], xToPx: (x: number) => number, yToPx: (y: number) => number, options: { color?: string; width?: number; samples?: number; dash?: string } = {}) {
   const { color = ACCENT, width = 3, samples = 200, dash = "" } = options;
   const pts: string[] = [];

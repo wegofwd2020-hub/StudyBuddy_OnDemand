@@ -24,16 +24,19 @@ const ROOT = join(
   "Option2_Catalogue",
 );
 
-const INK = "#1a202c";
-const MUTED = "#4a5568";
-const ACCENT = "#2b6cb0";
-const ACCENT_2 = "#dd6b20";
-const ACCENT_3 = "#319795";
-const POSITIVE = "#15803d";
-const NEGATIVE = "#dc2626";
-const GRID = "#e2e8f0";
-const BG = "#f7fafc";
-const HIGHLIGHT = "#fef3c7";
+// Style tokens lifted to pipeline/visual_templates/shared.ts (#341 phase A).
+import {
+  INK,
+  MUTED,
+  ACCENT,
+  ACCENT_2,
+  ACCENT_3,
+  POSITIVE,
+  NEGATIVE,
+  GRID,
+  BG,
+  HIGHLIGHT,
+} from "../pipeline/visual_templates/shared.ts";
 
 // Optics-specific palette
 const RAY = "#dc2626";              // light rays — red

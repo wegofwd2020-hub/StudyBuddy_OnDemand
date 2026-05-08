@@ -43,6 +43,7 @@ export const NEGATIVE = "#dc2626";  // warning / opposing direction
 export const GRID = "#e2e8f0";      // grid lines
 export const AXIS = "#94a3b8";      // axis lines
 export const BG = "#f7fafc";        // plot background
+export const HIGHLIGHT = "#fef3c7"; // pale-yellow callout / formula card
 
 // ─────────────────────────────────────────────────────────────────────────
 // Plot infra — makePlot + polyline
@@ -79,7 +80,59 @@ export type PlotResult = {
   y0: number;
 };
 
-export function makePlot(c: PlotConfig): PlotResult {
+/**
+ * Two `makePlot` variants existed across the Wave 1+2 generators. They
+ * differ in three behaviours; this options object captures the diff so a
+ * single function produces byte-equivalent output for either variant.
+ *
+ * - `axisStyle`:
+ *     `'always'` (variant-A — oscillations) renders both x-axis and y-axis
+ *     lines unconditionally as the bottom and left edge of the plot area.
+ *     `'when-zero-in-range'` (variant-B — kinematics, derivatives, g8_waves,
+ *     g9_kinematics) renders an axis line only if 0 falls inside the
+ *     corresponding range, so the line passes through y=0 / x=0.
+ *
+ * - `yLabelOffset`:
+ *     Pixel offset between the plot's left edge and the rotated y-axis
+ *     label. Variant-A uses `-32`, variant-B uses `-36`.
+ *
+ * - `titlePosition`:
+ *     `'above-plot'` (variant-A) places the title at `(x0 + innerW/2, y0 - 10)`
+ *     — centred over the plot region, immediately above it.
+ *     `'absolute-top'` (variant-B) places the title at `(W/2, 20)` — centred
+ *     in the viewBox, near the top edge. Differs from `'above-plot'` only
+ *     when `pad.l != pad.r` or when the plot region is not at the top.
+ */
+export type MakePlotOptions = {
+  /**
+   * - `'always'` (variant-A) — always draws bottom-and-left axis lines as
+   *   the plot border.
+   * - `'when-zero-in-range'` (variant-B) — draws axis lines through y=0 and
+   *   x=0 if those values fall inside the respective ranges.
+   * - `'when-y-zero-only'` (variant-B-Y) — like variant-B but suppresses
+   *   the x=0 axis line. Used by the g8_waves generator whose local helper
+   *   only ever checked yRange.
+   */
+  axisStyle?: "always" | "when-zero-in-range" | "when-y-zero-only";
+  yLabelOffset?: number;
+  titlePosition?: "above-plot" | "absolute-top";
+};
+
+const DEFAULT_OPTS: Required<MakePlotOptions> = {
+  axisStyle: "always",
+  yLabelOffset: -32,
+  titlePosition: "above-plot",
+};
+
+/** Variant-B preset: kinematics, derivatives, g8_waves, g9_kinematics. */
+export const VARIANT_B: Required<MakePlotOptions> = {
+  axisStyle: "when-zero-in-range",
+  yLabelOffset: -36,
+  titlePosition: "absolute-top",
+};
+
+export function makePlot(c: PlotConfig, opts?: MakePlotOptions): PlotResult {
+  const o = { ...DEFAULT_OPTS, ...(opts ?? {}) };
   const W = c.width;
   const H = c.height;
   const innerW = W - c.pad.l - c.pad.r;
@@ -122,33 +175,66 @@ export function makePlot(c: PlotConfig): PlotResult {
     );
   }
 
-  pieces.push(
-    `<line x1="${x0}" y1="${y0 + innerH}" x2="${x0 + innerW}" ` +
-      `y2="${y0 + innerH}" stroke="${AXIS}" stroke-width="1.2" />`,
-  );
-  pieces.push(
-    `<line x1="${x0}" y1="${y0}" x2="${x0}" y2="${y0 + innerH}" ` +
-      `stroke="${AXIS}" stroke-width="1.2" />`,
-  );
+  // Axis lines — variant-A always; variant-B only when 0 is inside the range;
+  // variant-B-Y like variant-B but suppresses the x=0 axis line.
+  if (o.axisStyle === "always") {
+    pieces.push(
+      `<line x1="${x0}" y1="${y0 + innerH}" x2="${x0 + innerW}" ` +
+        `y2="${y0 + innerH}" stroke="${AXIS}" stroke-width="1.2" />`,
+    );
+    pieces.push(
+      `<line x1="${x0}" y1="${y0}" x2="${x0}" y2="${y0 + innerH}" ` +
+        `stroke="${AXIS}" stroke-width="1.2" />`,
+    );
+  } else {
+    if (c.yRange[0] <= 0 && c.yRange[1] >= 0) {
+      const py = yToPx(0);
+      pieces.push(
+        `<line x1="${x0}" y1="${py}" x2="${x0 + innerW}" y2="${py}" ` +
+          `stroke="${AXIS}" stroke-width="1.2" />`,
+      );
+    }
+    if (
+      o.axisStyle === "when-zero-in-range" &&
+      c.xRange[0] <= 0 &&
+      c.xRange[1] >= 0
+    ) {
+      const px = xToPx(0);
+      pieces.push(
+        `<line x1="${px}" y1="${y0}" x2="${px}" y2="${y0 + innerH}" ` +
+          `stroke="${AXIS}" stroke-width="1.2" />`,
+      );
+    }
+  }
 
   pieces.push(
     `<text x="${x0 + innerW / 2}" y="${y0 + innerH + 32}" ` +
       `font="13px system-ui" font-size="13" font-weight="600" ` +
       `fill="${INK}" text-anchor="middle">${c.xLabel}</text>`,
   );
+  const yLx = x0 + o.yLabelOffset;
   pieces.push(
-    `<text x="${x0 - 32}" y="${y0 + innerH / 2}" ` +
+    `<text x="${yLx}" y="${y0 + innerH / 2}" ` +
       `font="13px system-ui" font-size="13" font-weight="600" ` +
       `fill="${INK}" text-anchor="middle" ` +
-      `transform="rotate(-90 ${x0 - 32} ${y0 + innerH / 2})">${c.yLabel}</text>`,
+      `transform="rotate(-90 ${yLx} ${y0 + innerH / 2})">${c.yLabel}</text>`,
   );
 
   if (c.title) {
-    pieces.push(
-      `<text x="${x0 + innerW / 2}" y="${y0 - 10}" ` +
-        `font="bold 14px system-ui" font-size="14" font-weight="700" ` +
-        `fill="${INK}" text-anchor="middle">${c.title}</text>`,
-    );
+    if (o.titlePosition === "above-plot") {
+      pieces.push(
+        `<text x="${x0 + innerW / 2}" y="${y0 - 10}" ` +
+          `font="bold 14px system-ui" font-size="14" font-weight="700" ` +
+          `fill="${INK}" text-anchor="middle">${c.title}</text>`,
+      );
+    } else {
+      // 'absolute-top' — variant-B convention; viewBox-centred, y=20.
+      pieces.push(
+        `<text x="${W / 2}" y="20" ` +
+          `font="bold 14px system-ui" font-size="14" font-weight="700" ` +
+          `fill="${INK}" text-anchor="middle">${c.title}</text>`,
+      );
+    }
   }
 
   return { pieces, xToPx, yToPx, innerW, innerH, x0, y0 };
