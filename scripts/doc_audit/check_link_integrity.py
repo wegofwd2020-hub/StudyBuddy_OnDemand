@@ -47,6 +47,7 @@ SKIP_DIRS = {
     "build",
     ".cache",
     "sample_content",  # massive, unrelated to doc-integrity
+    "worktrees",  # .claude/worktrees/<agent>/ — agent scratch copies of the repo
 }
 
 # Markdown link regex: [label](target) where target starts with / or ./ or
@@ -66,8 +67,13 @@ INLINE_PATH_RE = re.compile(
 # require a known top-level directory prefix to avoid false positives on
 # every slash-containing string. Top-level dirs in the repo + common
 # subpaths the docs reference.
+#
+# The lookbehind rejects matches immediately preceded by a word char or
+# a hyphen — so `studybuddy-docs/UX_REQUIREMENTS.md` does NOT extract a
+# bare `docs/UX_REQUIREMENTS.md` candidate (the `-docs/` prefix
+# disqualifies it).
 PROSE_PATH_RE = re.compile(
-    r"(?<!`)(?<!\w)("
+    r"(?<!`)(?<![\w-])(?<!/)("
     r"backend/[\w./-]+"
     r"|pipeline/[\w./-]+"
     r"|scripts/[\w./-]+"
@@ -79,8 +85,22 @@ PROSE_PATH_RE = re.compile(
     r")(?!\w)"
 )
 
+# URL-stripping regex — collapses any http(s):// link to a placeholder so
+# its path component (e.g. `playwright.dev/docs/intro`) doesn't leak into
+# the prose-path matcher. Used after fenced-code + inline-backtick + MD
+# link-target stripping.
+URL_RE = re.compile(r"https?://\S+")
+
 # External-URL prefixes — skip these in MD link checking.
 EXTERNAL_PREFIXES = ("http://", "https://", "mailto:", "ftp://", "tel:")
+
+# Ignore-marker convention. A line containing this token suppresses every
+# finding on the same line OR the line immediately following. Useful for:
+#   - Historic CHANGES.md entries describing files since renamed/deleted
+#   - URL endpoints in docs that look like file paths but aren't
+#   - Cross-repo references that resolve in studybuddy-docs but not here
+#   - Planned-but-not-built file paths in epic specs
+IGNORE_MARKER = "<!-- doc-audit:ignore -->"
 
 
 def walk_md_files() -> Iterator[Path]:
@@ -91,25 +111,64 @@ def walk_md_files() -> Iterator[Path]:
         yield p
 
 
+def _replace_preserving_newlines(pattern: re.Pattern, text: str) -> str:
+    """re.sub variant that replaces each match with a newline-equivalent.
+
+    For the prose-path matcher, line numbers reported back to the user
+    must match the *original* document. If we strip a fenced code block
+    out, the newlines inside it must remain so subsequent lines keep
+    their original line numbers.
+    """
+
+    def repl(m: re.Match) -> str:
+        content = m.group(0)
+        return "\n" * content.count("\n")
+
+    return pattern.sub(repl, text)
+
+
+_FENCE_RE = re.compile(r"```.*?```", re.DOTALL)
+_MD_TARGET_RE = re.compile(r"\]\([^)]+\)")
+_INLINE_BACKTICK_RE = re.compile(r"`[^`\n]*`")
+
+
 def strip_code_fences(text: str) -> str:
     """Remove fenced code blocks so we don't pull paths out of code samples.
 
-    Inline backticks are KEPT — those are intentional path mentions.
+    Newline-preserving so subsequent prose-pass line numbers remain
+    correct.
     """
-    return re.sub(r"```.*?```", "", text, flags=re.DOTALL)
+    return _replace_preserving_newlines(_FENCE_RE, text)
 
 
 def strip_markdown_link_targets(text: str) -> str:
-    """Remove the `(target)` portion of every `[label](target)` link.
+    """Replace the `(target)` portion of every `[label](target)` link.
 
     The prose-path matcher should only see bare path mentions in prose,
     not paths embedded inside markdown link targets. Markdown link
     targets are validated separately by the `MD_LINK_RE` pass — so
     stripping them here prevents double-counting and prevents URL
     fragments like `docs/blob/main/X.md` (inside a GitHub URL) from
-    being mis-matched as repo paths.
+    being mis-matched as repo paths. Newline-preserving (link targets
+    are typically single-line, so this is usually a no-op for newline
+    counts, but kept for correctness).
     """
-    return re.sub(r"\]\([^)]+\)", "]()", text)
+    return _replace_preserving_newlines(_MD_TARGET_RE, text)
+
+
+def strip_inline_backticks(text: str) -> str:
+    """Remove the contents of every inline `<code>` backtick span.
+
+    Inline backticks are scanned separately by `INLINE_PATH_RE` (with
+    strict file-extension checking). The prose path-matcher should NOT
+    see inline-backtick contents, otherwise a URL endpoint like
+    `\\`/admin/pipeline/trigger\\`` lights up `pipeline/trigger` as a
+    candidate prose-path even though the surrounding backticks signal
+    "this is code, not prose".
+
+    Newline-preserving so prose-pass line numbers remain correct.
+    """
+    return _replace_preserving_newlines(_INLINE_BACKTICK_RE, text)
 
 
 def resolve_link_target(doc_path: Path, target: str) -> Path:
@@ -125,6 +184,19 @@ def resolve_link_target(doc_path: Path, target: str) -> Path:
     return p
 
 
+def _ignored_lines(text: str) -> set[int]:
+    """Return the set of 1-indexed line numbers that should be ignored.
+
+    A line N is ignored if line N or line N-1 contains IGNORE_MARKER.
+    """
+    ignored: set[int] = set()
+    for i, line in enumerate(text.splitlines(), start=1):
+        if IGNORE_MARKER in line:
+            ignored.add(i)
+            ignored.add(i + 1)
+    return ignored
+
+
 def check_doc(doc_path: Path) -> list[dict]:
     """Run both checks against a single markdown file.
 
@@ -138,14 +210,28 @@ def check_doc(doc_path: Path) -> list[dict]:
     findings: list[dict] = []
     text = doc_path.read_text(encoding="utf-8", errors="replace")
     rel_doc = doc_path.relative_to(REPO).as_posix()
+    ignored = _ignored_lines(text)
 
-    # Strip fenced code blocks AND markdown-link targets for prose-path
-    # matching. Inline backticks are kept (they're separately scanned by
-    # INLINE_PATH_RE). Markdown-link targets are validated by MD_LINK_RE
-    # above; stripping their `(target)` here prevents prose-matcher
-    # double-counting and avoids false positives on URL fragments
-    # (e.g. `docs/blob/main/X.md` inside a GitHub URL).
-    prose_text = strip_markdown_link_targets(strip_code_fences(text))
+    # Strip fenced code blocks, markdown-link targets, inline-backtick
+    # contents, AND bare http(s):// URLs before applying the prose-path
+    # matcher.
+    #
+    # Inline backticks are validated separately by INLINE_PATH_RE (which
+    # uses strict=True file-extension checking). Markdown-link targets are
+    # validated by MD_LINK_RE above. Each of these strippers removes a
+    # class of false positives:
+    #   - fences: paths inside ``` blocks are code samples, not real refs
+    #   - link targets: avoid double-counting + URL-fragment false positives
+    #   - inline backticks: avoid URL endpoints (`/admin/pipeline/trigger`)
+    #     leaking into the prose pass
+    #   - bare URLs: avoid URL path fragments like `playwright.dev/docs/intro`
+    #     being matched as `docs/intro` (a repo-prefixed candidate)
+    prose_text = URL_RE.sub(
+        "",
+        strip_inline_backticks(
+            strip_markdown_link_targets(strip_code_fences(text))
+        ),
+    )
 
     # ── 1. Markdown links ──────────────────────────────────────────────────
     for m in MD_LINK_RE.finditer(text):
@@ -173,6 +259,8 @@ def check_doc(doc_path: Path) -> list[dict]:
 
         if not resolved.exists():
             line = text[: m.start()].count("\n") + 1
+            if line in ignored:
+                continue
             findings.append(
                 {
                     "kind": "broken_link",
@@ -187,10 +275,15 @@ def check_doc(doc_path: Path) -> list[dict]:
             )
 
     # ── 2. Inline code-path references ────────────────────────────────────
+    #
+    # Inline backticks have a higher false-positive rate because URL
+    # endpoints (`POST /admin/pipeline/trigger`, `/api/v1/foo`) and
+    # bash command examples (`docker compose exec api pytest`) all
+    # legitimately appear in inline code. We use a tighter check:
+    # require either a known file extension or trailing slash.
     for m in INLINE_PATH_RE.finditer(text):
         target = m.group(1)
-        # Skip if the target looks like a URL slug (no extension, no known prefix)
-        if not _looks_like_repo_path(target):
+        if not _looks_like_repo_path(target, strict=True):
             continue
         resolved = (REPO / target).resolve()
         try:
@@ -199,6 +292,8 @@ def check_doc(doc_path: Path) -> list[dict]:
             continue
         if not resolved.exists():
             line = text[: m.start()].count("\n") + 1
+            if line in ignored:
+                continue
             findings.append(
                 {
                     "kind": "missing_path",
@@ -211,7 +306,11 @@ def check_doc(doc_path: Path) -> list[dict]:
 
     # ── 3. Prose-mention path references ──────────────────────────────────
     for m in PROSE_PATH_RE.finditer(prose_text):
-        target = m.group(1).rstrip(".,;:)")  # strip trailing punctuation
+        # Strip trailing punctuation + emphasis markers. The regex's
+        # `[\w./-]+` is greedy and happily consumes the trailing `.` of
+        # a sentence, the `_` of an italic-emphasised line, and similar
+        # noise chars adjacent to but not part of the actual path.
+        target = m.group(1).rstrip(".,;:)_")
         resolved = (REPO / target).resolve()
         try:
             resolved.relative_to(REPO)
@@ -219,6 +318,8 @@ def check_doc(doc_path: Path) -> list[dict]:
             continue
         if not resolved.exists():
             line = prose_text[: m.start()].count("\n") + 1
+            if line in ignored:
+                continue
             findings.append(
                 {
                     "kind": "missing_path",
@@ -232,19 +333,31 @@ def check_doc(doc_path: Path) -> list[dict]:
     return findings
 
 
-def _looks_like_repo_path(target: str) -> bool:
+REPO_FILE_EXTENSIONS = (
+    ".py", ".ts", ".tsx", ".js", ".jsx",
+    ".yaml", ".yml", ".json", ".toml",
+    ".md", ".rst", ".txt",
+    ".sql", ".sh", ".bash",
+    ".html", ".css", ".scss",
+    ".env", ".cfg", ".ini",
+)
+
+
+def _looks_like_repo_path(target: str, strict: bool = False) -> bool:
     """Heuristic: target should be an unambiguous repo-rooted path.
 
-    To minimise false positives the checker ONLY flags paths starting
-    with a known top-level directory. Bare relative paths like
-    `tests/test_foo.py` (which could be relative to backend/, web/, or
-    something else entirely) are not flagged — they're ambiguous, not
-    verifiably broken.
+    Common case (strict=False): target starts with a known top-level
+    directory. Bare relative paths like `tests/test_foo.py` are
+    ambiguous and pass through unchecked.
+
+    strict=True (used inside inline backticks where false-positive rate
+    is higher): require ALSO that the target ends in a recognised file
+    extension or with a trailing slash. This rejects URL endpoints like
+    `pipeline/trigger` and command snippets like `bun run start`.
     """
     if "/" not in target:
         return False
     if "@" in target:
-        # Package@version refs aren't repo paths.
         return False
     top_levels = (
         "backend/",
@@ -258,7 +371,14 @@ def _looks_like_repo_path(target: str) -> bool:
         ".github/",
         "alembic/",
     )
-    return target.startswith(top_levels)
+    if not target.startswith(top_levels):
+        return False
+    if strict:
+        # Must look like a real file or directory reference.
+        if target.endswith("/"):
+            return True
+        return any(target.endswith(ext) for ext in REPO_FILE_EXTENSIONS)
+    return True
 
 
 def main() -> int:

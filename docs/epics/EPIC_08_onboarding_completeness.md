@@ -49,6 +49,7 @@ Full specification lives in
 | H-1 | Migration `0044_school_address` — add `address_line1/2`, `city`, `state_region`, `postal_code`; normalise `country` to ISO-3166-α2 with whitelist validation | S |
 | H-2 | API — extend `POST /schools/register`, `PUT /schools/{id}`, `GET /schools/{id}` with address payload + validation | S |
 | H-3 | UI — school self-registration Address step (country dropdown first, adapts label "State"/"Province"); new **Address** card on `/school/settings` with inline edit | M |
+<!-- doc-audit:ignore -->
 | H-4 | `web/lib/units.ts` helper — `getUnitSystem(country)` returning `"imperial"` / `"metric"`; React context `SchoolPreferencesProvider` exposes school country + unit system | S |
 | H-5 | `<Measurement value={250} unit="ml" />` component — consumes unit-system context; fallback to raw string if JSON still holds inline value | S |
 | H-6 | Experiment JSON schema update — canonical metric storage format; migrate existing content lazily (component handles both shapes) | M |

@@ -63,6 +63,7 @@ Full specification lives in
 |---|---|---|
 | I-1 | Migration `0045_locale_preferences` — `schools.default_locale TEXT NOT NULL DEFAULT 'en'`; `teachers.locale TEXT NOT NULL DEFAULT 'en'` | S |
 | I-2 | Migration `0046_user_preferences` — `users.preferences JSONB DEFAULT '{}'` (or split per-role) for theme, text_size, reduced_motion, dyslexia backup | S |
+<!-- doc-audit:ignore -->
 | I-3 | `web/lib/preferences.ts` — single hook + one cookie family (`sb_dyslexic`, `sb_theme`, `sb_text_size`, `sb_reduced_motion`, `sb_locale`); SSR-safe reads in root layout; sets `data-*` attributes on `<html>` | M |
 
 ### Wave 2 — Multi-language UX

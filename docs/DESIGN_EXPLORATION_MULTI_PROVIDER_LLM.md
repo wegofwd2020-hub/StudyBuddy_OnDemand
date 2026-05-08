@@ -291,7 +291,9 @@ agreements become the gating factor.
 
 ## Related Documents
 
-- [ARCHITECTURE.md](ARCHITECTURE.md) — Pipeline section, Content Store layout
-- [BACKEND_ARCHITECTURE.md](BACKEND_ARCHITECTURE.md) — Celery dispatcher, pipeline jobs
-- [REQUIREMENTS.md](REQUIREMENTS.md) — Phase 8 school/curriculum requirements
-- [CHANGES.md](CHANGES.md) — Log design decisions here when this moves to implementation
+These live in the [`studybuddy-docs`](https://github.com/wegofwd2020-hub/studybuddy-docs) sister repo:
+
+- [ARCHITECTURE.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/ARCHITECTURE.md) — Pipeline section, Content Store layout
+- [BACKEND_ARCHITECTURE.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/BACKEND_ARCHITECTURE.md) — Celery dispatcher, pipeline jobs
+- [REQUIREMENTS.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/REQUIREMENTS.md) — Phase 8 school/curriculum requirements
+- [CHANGES.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/CHANGES.md) — Log design decisions here when this moves to implementation

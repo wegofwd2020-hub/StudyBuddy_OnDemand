@@ -237,6 +237,7 @@ Three decisions shipped together under `security(adr-001)`:
 | `backend/alembic/versions/0024_student_teacher_assignments.py` | New `student_teacher_assignments` table; adds `grade` + `teacher_id` columns to `school_enrolments` |
 | `backend/src/school/router.py` | `PUT /schools/{id}/students/{student_id}/assignment` — per-student grade + teacher assignment; bulk reassign endpoint |
 | `backend/src/school/service.py` | Grade self-change guard: returns 403 on `PATCH /student/profile` if student has `school_id` |
+<!-- doc-audit:ignore -->
 | `backend/tests/test_school_roster.py` | Migrated roster tests to `{students: [...]}` format (old `{student_emails: [...]}` removed in 0024) |
 
 **Decision 2 — School-only billing (migrations 0025–0027)**
@@ -254,6 +255,7 @@ Three decisions shipped together under `security(adr-001)`:
 
 | File | Change |
 |---|---|
+<!-- doc-audit:ignore -->
 | `backend/alembic/versions/0028_rls.py` | `ENABLE/FORCE ROW LEVEL SECURITY` + `tenant_isolation` policy on 7 tables; `app.current_school_id` session variable |
 | `backend/src/core/db.py` | `get_db()` stamps `app.current_school_id` from `request.state.rls_school_id` before yielding; resets in `finally` |
 | `backend/src/auth/dependencies.py` | `get_current_teacher()` sets `request.state.rls_school_id = payload["school_id"]` |

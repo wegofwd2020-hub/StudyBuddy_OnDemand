@@ -74,5 +74,6 @@ Show the complete draft. **Do not commit until I approve it.**
 ## Step 5 — After approval
 
 - Write the file to `docs/ADR_NNN_<slug>.md`
+<!-- doc-audit:ignore -->
 - If `docs/adr/index.md` or a similar index exists, add an entry. (Currently the project has only ADR-001; there's no index yet. If this is ADR-002, ask whether to create an index now.)
 - The status flips from `Proposed` → `Accepted` only after the corresponding code lands. Don't pre-flip.

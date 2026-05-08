@@ -49,6 +49,7 @@ Pick the stack that matches the layer:
 Copy-paste-ready checklist to run against the PR:
 
 - [ ] Test(s) from §1 pass
+<!-- doc-audit:ignore -->
 - [ ] Contract from §2 matches the implementation (`scripts/export_openapi.py` + `npm run gen:types` show no unexpected drift)
 - [ ] Migration applies cleanly on a fresh DB **and** downgrades cleanly — run full downgrade→upgrade cycle (pitfall #27)
 - [ ] RLS behaviour verified with the `studybuddy_rls_tester` non-superuser role — `studybuddy` bypasses `FORCE ROW LEVEL SECURITY`

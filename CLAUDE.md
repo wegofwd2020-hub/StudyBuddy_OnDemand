@@ -702,6 +702,7 @@ phases A–D):
 
 | Checker | What it catches |
 |---|---|
+<!-- doc-audit:ignore -->
 | `check_link_integrity.py` | Broken `[label](path)` links in any `*.md` file; bare repo-path mentions in prose or inline backticks (e.g. `backend/src/foo.py`) that don't exist on disk |
 | `check_migrations_table.py` | Migration files in `backend/alembic/versions/` not listed in this CLAUDE.md table; rows in the table referring to non-existent migrations; numbering gaps |
 | `check_test_counts.py` | The `(NNN total)` claim near the latest epic line vs `pytest --collect-only` actual (uses docker compose if local pytest unavailable) |
@@ -721,6 +722,24 @@ python3 scripts/doc_audit/run_all.py --skip test_counts
 
 Each checker exits 0 (clean) or 1 (drift). The orchestrator's exit code is
 the worst of any checker.
+
+### `<!-- doc-audit:ignore -->` marker
+
+A line containing `<!-- doc-audit:ignore -->` suppresses all
+link_integrity findings on that line OR the line immediately following.
+Use sparingly — for:
+
+- **Historic CHANGES.md entries** — files since renamed/deleted whose references are an accurate frozen record
+<!-- doc-audit:ignore -->
+- **Aspirational paths in epic specs** — `web/lib/units.ts` etc. referenced before they're built
+<!-- doc-audit:ignore -->
+- **Known-absent files mentioned by their absence** — e.g. mobile ARCHITECTURE.md notes "no mobile/README.md" as a gap
+- **Cross-repo references that resolve in studybuddy-docs** — prefer rewriting as full GitHub URLs; the ignore marker is for cases where the bare path mention is genuinely the right form
+<!-- doc-audit:ignore -->
+- **Examples in doc-audit's own description** — e.g. the `backend/src/foo.py` placeholder in the table above
+
+Do not use the marker to silence real drift. The convention is
+deliberately verbose so it's grep-able for periodic review.
 
 **Out of scope today:** the GitHub Actions nightly workflow + auto-PR for
 mechanical sections + `<!-- AUTOGEN:* -->` markers + the Celery Beat

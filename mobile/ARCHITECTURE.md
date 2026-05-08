@@ -1131,5 +1131,6 @@ Student copies the URL from the browser address bar → pastes → continue
 | `CurriculumResolver` not implemented | No client-side entitlement filtering; all units shown regardless of subscription; backend enforces via HTTP 402 on tap | High |
 | No automatic network state listener | SyncManager only flushes on app resume (manual trigger); events not flushed immediately when Wi-Fi reconnects | Medium |
 | No centralized error types | Error handling spread across screen files; no exponential backoff or circuit breaker | Medium |
+<!-- doc-audit:ignore -->
 | No `mobile/README.md` | Build/run/test instructions absent; onboarding friction for new developers | Low |
 | `auth0_client.py` is empty stub | Auth0 integration done inline in LoginScreen; module creates confusion | Low |
