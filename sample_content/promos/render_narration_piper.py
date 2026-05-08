@@ -46,10 +46,20 @@ from piper.config import SynthesisConfig
 PEAK_HEADROOM_RATIO = 0.90
 TARGET_PEAK_INT16 = int(32767 * PEAK_HEADROOM_RATIO)
 
+# Leading silence prepended to every clip. Keeps the first word from
+# feeling clipped — Piper starts speaking immediately, and the AAC
+# encoder Remotion uses adds ~21 ms of priming silence that some
+# players fade in over, which can chew the first phoneme. 1 s gives
+# both a clear lead-in for the listener and headroom for codec quirks.
+LEADING_SILENCE_SEC = 1.00
+
 # Inter-line silence (seconds). One newline → silence_short. A blank line
 # (two consecutive newlines) → silence_long, mapping the SSML 500ms+ break.
-SILENCE_SHORT_SEC = 0.30
-SILENCE_LONG_SEC = 0.60
+# Tuned to roughly match the original SSML break intent — 100 ms tracks
+# the common 120-200 ms breaks; 300 ms tracks the 400-500 ms breaks.
+# Larger values inflated several slides past the 16 s slide budget.
+SILENCE_SHORT_SEC = 0.10
+SILENCE_LONG_SEC = 0.30
 
 VOICES_DIR = Path("/tmp/piper-voices")
 
@@ -72,16 +82,22 @@ def ssml_to_text(ssml: str) -> str:
     All other tags are stripped. Punctuation that ends up adjacent to the
     newline (e.g. trailing comma from "topic," before a break) is preserved.
     """
+    # The SSML source uses indentation + literal newlines for readability.
+    # Those source-code newlines must NOT become inter-line silences;
+    # only the explicit `<break>` tags should. Strip whitespace runs
+    # (including newlines) BEFORE processing breaks so only break-induced
+    # newlines survive.
+    ssml = re.sub(r"\s+", " ", ssml)
+
     def break_repl(m: re.Match[str]) -> str:
         ms = int(m.group(1))
         return "\n\n" if ms >= 500 else "\n"
 
     text = BREAK_RE.sub(break_repl, ssml)
     text = TAG_RE.sub("", text)
-    # Collapse runs of intra-line whitespace, but preserve newline structure.
+    # Collapse runs of intra-line whitespace, preserving newline structure.
     lines = [re.sub(r"[ \t]+", " ", ln).strip() for ln in text.splitlines()]
-    # Drop empty leading/trailing lines but keep internal blank lines (which
-    # Piper interprets as a longer pause).
+    # Drop empty leading/trailing lines but keep internal blank lines.
     while lines and not lines[0]:
         lines.pop(0)
     while lines and not lines[-1]:
@@ -147,20 +163,21 @@ def render_block(
 
     short_silence = np.zeros(int(sample_rate * SILENCE_SHORT_SEC), dtype=np.float32)
     long_silence = np.zeros(int(sample_rate * SILENCE_LONG_SEC), dtype=np.float32)
+    leading_silence = np.zeros(int(sample_rate * LEADING_SILENCE_SEC), dtype=np.float32)
 
-    pieces: list[np.ndarray] = []
+    pieces: list[np.ndarray] = [leading_silence]
     lines = text.split("\n")
-    prev_was_blank = False
-    for i, line in enumerate(lines):
+    prev_was_blank = True  # treat the leading silence as a "blank" so the
+                            # first synthesized line isn't preceded by a
+                            # short_silence on top of leading_silence.
+    for line in lines:
         stripped = line.strip()
         if not stripped:
-            # Two consecutive newlines collapse to one long silence so we
-            # don't stack `short + long + short` and over-pause.
             if not prev_was_blank and pieces:
                 pieces.append(long_silence)
             prev_was_blank = True
             continue
-        if i > 0 and not prev_was_blank:
+        if not prev_was_blank:
             pieces.append(short_silence)
         pieces.append(synth_line(voice_obj, stripped))
         prev_was_blank = False
