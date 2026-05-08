@@ -410,6 +410,8 @@ Current migrations (as of last commit):
 | 0053 | Epic 15 — `curriculum_backups` table with RLS (scope, status, manifest, retention) |
 | 0054 | Epic 15 — `backup_restore_requests` table with RLS (8-state machine, conflict catalog) |
 | 0055 | Epic 15 — `schools.backup_cron` column (default `0 2 * * *` nightly at 02:00 UTC) |
+| 0056 | Visual library — `visual_library_entries` table (kind, subject, topic_phrase, keywords, s3_path, license, source_unit, embedding) |
+| 0057 | Visual library — `embedding` column → pgvector type for cosine similarity search |
 
 ---
 

@@ -1,0 +1,185 @@
+# =============================================================================
+# .github/workflows/deploy-demo.yml — auto-deploy to demo VPS on merge to main
+#
+# Triggers:
+#   - push to main (auto)
+#   - workflow_dispatch (manual; useful for redeploying without a code change)
+#
+# Required repo secrets (configure under Settings → Secrets and variables → Actions):
+#   DEMO_VPS_HOST       — e.g. demo.studybuddy.app or the VPS public IP
+#   DEMO_VPS_USER       — e.g. deploy
+#   DEMO_VPS_SSH_KEY    — private SSH key matching authorized_keys on the VPS
+#                         (the public key is pasted into /home/deploy/.ssh/authorized_keys
+#                         by scripts/demo/provision.sh)
+#   GHCR_TOKEN          — personal access token with write:packages scope (for image push)
+#                         (alternatively, configure GITHUB_TOKEN with packages:write)
+#
+# Flow:
+#   1. CI tests pass first (the existing test.yml workflow does this on every push;
+#      this workflow waits for that one to succeed via `workflow_run` trigger if
+#      preferred, but here we re-check the basics inline to keep this one
+#      self-contained)
+#   2. Build api + web Docker images
+#   3. Push images to GHCR tagged :latest and :<short-sha>
+#   4. SSH to demo VPS; git pull; docker compose pull; up -d
+#   5. Wait for healthchecks
+#   6. Run scripts/demo/smoke.sh against the public domain
+#   7. On smoke failure: open a GitHub issue tagged `incident:demo`
+#   8. Post a deploy-summary comment on the most recent merge commit (success or failure)
+# =============================================================================
+
+name: Deploy — Demo
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-demo
+  cancel-in-progress: false   # never interrupt a running deploy mid-flight
+
+env:
+  GHCR_REGISTRY: ghcr.io
+  GHCR_REPO_OWNER: ${{ github.repository_owner }}
+  IMAGE_TAG: ${{ github.sha }}
+
+jobs:
+
+  # ── 1. Build + push images ─────────────────────────────────────────────────
+  build-and-push:
+    name: Build + push images
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set short SHA
+        id: sha
+        run: echo "short=${GITHUB_SHA::8}" >> "$GITHUB_OUTPUT"
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.GHCR_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build + push API image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/studybuddy-api:latest
+            ghcr.io/${{ github.repository_owner }}/studybuddy-api:${{ steps.sha.outputs.short }}
+          cache-from: type=gha,scope=api
+          cache-to: type=gha,scope=api,mode=max
+
+      - name: Build + push web image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./web
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/studybuddy-web:latest
+            ghcr.io/${{ github.repository_owner }}/studybuddy-web:${{ steps.sha.outputs.short }}
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,scope=web,mode=max
+
+  # ── 2. Deploy to VPS ────────────────────────────────────────────────────────
+  deploy:
+    name: Deploy to demo VPS
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    timeout-minutes: 15
+    steps:
+      - name: Checkout (for scripts/demo/smoke.sh)
+        uses: actions/checkout@v6
+
+      - name: Add SSH host to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H "${{ secrets.DEMO_VPS_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Set up SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEMO_VPS_SSH_KEY }}
+
+      - name: Pull latest code on VPS
+        run: |
+          ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} \
+            'cd /opt/studybuddy && sudo /usr/bin/git -C /opt/studybuddy pull --ff-only origin main'
+
+      - name: Pull new images + roll services
+        run: |
+          ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} '
+            cd /opt/studybuddy && \
+            sudo /usr/bin/docker compose \
+              -f docker-compose.yml \
+              -f docker-compose.demo.yml \
+              --env-file .env.demo \
+              pull && \
+            sudo /usr/bin/docker compose \
+              -f docker-compose.yml \
+              -f docker-compose.demo.yml \
+              --env-file .env.demo \
+              up -d --remove-orphans
+          '
+
+      - name: Wait for containers to settle
+        run: sleep 30
+
+      - name: Run smoke check
+        id: smoke
+        run: |
+          chmod +x scripts/demo/smoke.sh
+          scripts/demo/smoke.sh https://${{ secrets.DEMO_VPS_HOST }}
+        continue-on-error: true   # let us open an issue on failure
+
+      - name: Open incident issue on smoke failure
+        if: steps.smoke.outcome == 'failure'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const sha = context.sha.substring(0, 8);
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `incident:demo — smoke check failed after deploy ${sha}`,
+              labels: ['incident:demo', 'priority:high'],
+              body: [
+                `Smoke check failed after auto-deploy of \`${sha}\` to demo.studybuddy.app.`,
+                ``,
+                `**Workflow run:** ${runUrl}`,
+                ``,
+                `**Triage:**`,
+                `1. Visit the workflow run above; expand the "Run smoke check" step for the failed assertion.`,
+                `2. SSH to the demo VPS and inspect: \`docker compose logs --tail=200 api\``,
+                `3. If the issue is the deploy itself (not the code): roll back per the rollback section of \`docs/DEMO_LAUNCH_PLAN.md\` §2.`,
+                `4. If the issue is the code: revert the offending commit and merge to main; this workflow will redeploy.`,
+                ``,
+                `Auto-rollback is intentionally **not** wired — the operator should triage and decide.`,
+              ].join('\n'),
+            });
+
+      - name: Fail job if smoke failed
+        if: steps.smoke.outcome == 'failure'
+        run: exit 1
+
+      - name: Post-deploy summary
+        if: always()
+        run: |
+          echo "## Deploy summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Target:** https://${{ secrets.DEMO_VPS_HOST }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image tag:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Smoke result:** ${{ steps.smoke.outcome }}" >> $GITHUB_STEP_SUMMARY
