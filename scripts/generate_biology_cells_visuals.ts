@@ -24,7 +24,9 @@ const ROOT = join(
   "Option2_Catalogue",
 );
 
-// Style tokens lifted to pipeline/visual_templates/shared.ts (#341 phase A).
+// Style tokens + cross-class components lifted to pipeline/visual_templates.
+// `ribosomeDots` is the local name for the generalised `dotCluster` primitive
+// (#342 phase D-1); aliased here so call sites stay unchanged.
 import {
   INK,
   MUTED,
@@ -34,6 +36,10 @@ import {
   GRID,
   BG,
 } from "../pipeline/visual_templates/shared.ts";
+import {
+  leaderLabel,
+  dotCluster as ribosomeDots,
+} from "../pipeline/visual_templates/components.ts";
 
 // Biology organelle palette — locked-in convention for downstream units.
 const CYTOPLASM = "#fef9c3";       // very pale yellow-green
@@ -67,32 +73,6 @@ function write(rel: string, body: string) {
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, body);
   console.log("wrote", rel);
-}
-
-// Build a leader-line label (a short line + a text label at the line's end).
-function leaderLabel(
-  fromX: number, fromY: number, toX: number, toY: number,
-  text: string, color: string, anchor: 'start' | 'middle' | 'end' = 'start',
-  fontSize = 13, bold = true,
-): string {
-  return `
-  <line x1="${fromX}" y1="${fromY}" x2="${toX}" y2="${toY}" stroke="${color}" stroke-width="1.5" />
-  <text x="${toX + (anchor === 'start' ? 4 : anchor === 'end' ? -4 : 0)}" y="${toY + 4}"
-    font="${bold ? 'bold ' : ''}${fontSize}px system-ui" font-size="${fontSize}" font-weight="${bold ? 700 : 400}"
-    fill="${color}" text-anchor="${anchor}">${text}</text>`;
-}
-
-// Sprinkle small "ribosome" dots on a path bbox
-function ribosomeDots(cx: number, cy: number, rx: number, ry: number, count: number, color: string): string {
-  let s = '';
-  for (let i = 0; i < count; i++) {
-    const ang = (i / count) * Math.PI * 2 + i * 0.7;
-    const r = ry * (0.5 + 0.4 * Math.cos(ang * 1.7));
-    const x = cx + r * Math.cos(ang) * (rx / ry);
-    const y = cy + r * Math.sin(ang);
-    s += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.2" fill="${color}" />`;
-  }
-  return s;
 }
 
 // ────────────────────────────────────────────────────────────────────────────

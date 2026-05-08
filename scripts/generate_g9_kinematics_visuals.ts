@@ -41,6 +41,10 @@ import {
   plotPolyline,
   type PlotConfig,
 } from "../pipeline/visual_templates/shared.ts";
+import {
+  slopeTriangle,
+  motionStrip,
+} from "../pipeline/visual_templates/kinematics.ts";
 
 const makePlot = (c: PlotConfig) => makePlotShared(c, VARIANT_B);
 
@@ -181,35 +185,20 @@ function s1_avgVsInstantaneousSpeed() {
 // ────────────────────────────────────────────────────────────────────────────
 
 function s2_motionStripUniform() {
-  // Sequence of equally-spaced dots — a stroboscopic view of uniform motion.
+  // Equal-gap stroboscopic dot sequence — visual signature of uniform motion.
   const W = 480, H = 200;
-  const stripY = 110;
-  const x0 = 40, x1 = 440;
-  const N = 7;
-  let body = `
-  <text x="${W / 2}" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="${INK}" text-anchor="middle">Motion Strip — Uniform Motion</text>
-  <text x="${W / 2}" y="40" font="11px system-ui" font-size="11" fill="${MUTED}" text-anchor="middle">Strobe snapshots taken every 1 second show the object at equal spacing — its speed is constant.</text>
-
-  <line x1="${x0}" y1="${stripY}" x2="${x1}" y2="${stripY}" stroke="${MUTED}" stroke-width="1.5" stroke-dasharray="4 4" />
-`;
-  for (let i = 0; i < N; i++) {
-    const px = x0 + (i / (N - 1)) * (x1 - x0);
-    body += `
-  <circle cx="${px}" cy="${stripY}" r="9" fill="${ACCENT}" stroke="${INK}" stroke-width="1.5" />
-  <text x="${px}" y="${stripY + 30}" font="11px system-ui" font-size="11" fill="${MUTED}" text-anchor="middle">t = ${i} s</text>`;
-  }
-  // Spacing markers
-  for (let i = 0; i < N - 1; i++) {
-    const a = x0 + (i / (N - 1)) * (x1 - x0);
-    const b = x0 + ((i + 1) / (N - 1)) * (x1 - x0);
-    body += `
-  <line x1="${a + 10}" y1="${stripY - 25}" x2="${b - 10}" y2="${stripY - 25}" stroke="${POSITIVE}" stroke-width="1.5" />
-  <line x1="${a + 10}" y1="${stripY - 30}" x2="${a + 10}" y2="${stripY - 20}" stroke="${POSITIVE}" stroke-width="1.5" />
-  <line x1="${b - 10}" y1="${stripY - 30}" x2="${b - 10}" y2="${stripY - 20}" stroke="${POSITIVE}" stroke-width="1.5" />`;
-  }
-  body += `
-  <text x="${W / 2}" y="${stripY - 38}" font="bold 12px system-ui" font-size="12" font-weight="700" fill="${POSITIVE}" text-anchor="middle">all gaps equal — equal distance per second → uniform speed</text>
-`;
+  const body = motionStrip({
+    width: W, height: H,
+    title: "Motion Strip — Uniform Motion",
+    subtitle: "Strobe snapshots taken every 1 second show the object at equal spacing — its speed is constant.",
+    summaryText: "all gaps equal — equal distance per second → uniform speed",
+    N: 7,
+    positionFn: (i) => i,
+    dotColor: ACCENT,
+    markerColor: POSITIVE,
+    ink: INK,
+    muted: MUTED,
+  });
   return svgWrap(W, H, "Motion strip — uniform motion", "Seven equally-spaced dots along a horizontal axis, one per second from t = 0 to t = 6 s, with green tick marks above showing all gaps are equal — the hallmark of uniform motion.", body);
 }
 
@@ -231,10 +220,7 @@ function s2_xtUniform() {
   // Slope-triangle annotation between t=2 and t=4
   const xa = xToPx(2), ya = yToPx(10);
   const xb = xToPx(4), yb = yToPx(20);
-  pieces.push(`<line x1="${xa}" y1="${ya}" x2="${xb}" y2="${ya}" stroke="${ACCENT_2}" stroke-width="1.5" stroke-dasharray="4 3" />`);
-  pieces.push(`<line x1="${xb}" y1="${ya}" x2="${xb}" y2="${yb}" stroke="${ACCENT_2}" stroke-width="1.5" stroke-dasharray="4 3" />`);
-  pieces.push(`<text x="${(xa + xb) / 2}" y="${ya - 6}" font="11px system-ui" font-size="11" fill="${ACCENT_2}" text-anchor="middle">Δt = 2 s</text>`);
-  pieces.push(`<text x="${xb + 4}" y="${(ya + yb) / 2}" font="11px system-ui" font-size="11" fill="${ACCENT_2}" text-anchor="start">Δd = 10 m</text>`);
+  pieces.push(slopeTriangle(xa, ya, xb, yb, ACCENT_2, "Δt = 2 s", "Δd = 10 m"));
   pieces.push(`<text x="${W / 2}" y="${H - 8}" font="11px system-ui" font-size="11" fill="${MUTED}" text-anchor="middle">slope = Δd / Δt = 10 m / 2 s = 5 m/s — the constant speed</text>`);
   return svgWrap(W, H, "Distance vs time — uniform motion", "A straight line through the origin on a distance-vs-time plot, with a slope-triangle showing rise = 10 m over run = 2 s, identifying the constant speed of 5 m/s.", pieces.join(""));
 }
@@ -268,38 +254,18 @@ function s2_vtUniform() {
 
 function s3_motionStripAccelerated() {
   const W = 480, H = 200;
-  const stripY = 110;
-  const x0 = 40, x1 = 440;
-  const N = 7;
-  let body = `
-  <text x="${W / 2}" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="${INK}" text-anchor="middle">Motion Strip — Accelerated Motion</text>
-  <text x="${W / 2}" y="40" font="11px system-ui" font-size="11" fill="${MUTED}" text-anchor="middle">Strobe snapshots every 1 second — gaps grow each second because speed is increasing.</text>
-
-  <line x1="${x0}" y1="${stripY}" x2="${x1}" y2="${stripY}" stroke="${MUTED}" stroke-width="1.5" stroke-dasharray="4 4" />
-`;
-  // Positions follow x = 0.5 * t^2 (uniform acceleration), then mapped onto [x0, x1].
-  const xMax = 0.5 * (N - 1) * (N - 1);
-  for (let i = 0; i < N; i++) {
-    const xphys = 0.5 * i * i;
-    const px = x0 + (xphys / xMax) * (x1 - x0);
-    body += `
-  <circle cx="${px}" cy="${stripY}" r="9" fill="${NEGATIVE}" stroke="${INK}" stroke-width="1.5" />
-  <text x="${px}" y="${stripY + 30}" font="11px system-ui" font-size="11" fill="${MUTED}" text-anchor="middle">t = ${i} s</text>`;
-  }
-  // Spacing markers showing gap growth
-  for (let i = 0; i < N - 1; i++) {
-    const aPhys = 0.5 * i * i;
-    const bPhys = 0.5 * (i + 1) * (i + 1);
-    const a = x0 + (aPhys / xMax) * (x1 - x0);
-    const b = x0 + (bPhys / xMax) * (x1 - x0);
-    body += `
-  <line x1="${a + 10}" y1="${stripY - 25}" x2="${b - 10}" y2="${stripY - 25}" stroke="${NEGATIVE}" stroke-width="1.5" />
-  <line x1="${a + 10}" y1="${stripY - 30}" x2="${a + 10}" y2="${stripY - 20}" stroke="${NEGATIVE}" stroke-width="1.5" />
-  <line x1="${b - 10}" y1="${stripY - 30}" x2="${b - 10}" y2="${stripY - 20}" stroke="${NEGATIVE}" stroke-width="1.5" />`;
-  }
-  body += `
-  <text x="${W / 2}" y="${stripY - 38}" font="bold 12px system-ui" font-size="12" font-weight="700" fill="${NEGATIVE}" text-anchor="middle">gaps grow every second — speed is increasing → accelerated motion</text>
-`;
+  const body = motionStrip({
+    width: W, height: H,
+    title: "Motion Strip — Accelerated Motion",
+    subtitle: "Strobe snapshots every 1 second — gaps grow each second because speed is increasing.",
+    summaryText: "gaps grow every second — speed is increasing → accelerated motion",
+    N: 7,
+    positionFn: (i) => 0.5 * i * i,  // uniform acceleration: x = 0.5·a·t²
+    dotColor: NEGATIVE,
+    markerColor: NEGATIVE,
+    ink: INK,
+    muted: MUTED,
+  });
   return svgWrap(W, H, "Motion strip — accelerated motion", "Seven dots along a horizontal axis with progressively-increasing spacing, one per second from t = 0 to t = 6 s, showing the visual signature of uniformly-accelerated motion (gap growth ratio 1:3:5:7:9:11).", body);
 }
 
@@ -347,10 +313,7 @@ function s3_vtAccelerated() {
   // Slope-triangle for acceleration
   const xa = xToPx(2), ya = yToPx(4);
   const xb = xToPx(5), yb = yToPx(10);
-  pieces.push(`<line x1="${xa}" y1="${ya}" x2="${xb}" y2="${ya}" stroke="${ACCENT_2}" stroke-width="1.5" stroke-dasharray="4 3" />`);
-  pieces.push(`<line x1="${xb}" y1="${ya}" x2="${xb}" y2="${yb}" stroke="${ACCENT_2}" stroke-width="1.5" stroke-dasharray="4 3" />`);
-  pieces.push(`<text x="${(xa + xb) / 2}" y="${ya - 6}" font="11px system-ui" font-size="11" fill="${ACCENT_2}" text-anchor="middle">Δt = 3 s</text>`);
-  pieces.push(`<text x="${xb + 4}" y="${(ya + yb) / 2}" font="11px system-ui" font-size="11" fill="${ACCENT_2}" text-anchor="start">Δv = 6 m/s</text>`);
+  pieces.push(slopeTriangle(xa, ya, xb, yb, ACCENT_2, "Δt = 3 s", "Δv = 6 m/s"));
   pieces.push(`<text x="${W / 2}" y="${H - 8}" font="11px system-ui" font-size="11" fill="${MUTED}" text-anchor="middle">straight line climbing through origin — slope = acceleration = 6 m/s ÷ 3 s = 2 m/s²</text>`);
   return svgWrap(W, H, "Speed vs time — uniform acceleration", "A straight diagonal line from origin with slope 2 on a speed-vs-time plot, with a slope-triangle showing Δv = 6 m/s over Δt = 3 s, identifying acceleration of 2 m/s².", pieces.join(""));
 }
