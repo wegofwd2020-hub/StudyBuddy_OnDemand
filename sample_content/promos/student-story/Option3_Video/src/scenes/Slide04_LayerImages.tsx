@@ -108,7 +108,7 @@ export const Slide04_LayerImages: React.FC = () => {
     <SceneFrame
       slideNumber={4}
       totalSlides={12}
-      audioFile="slide-04.mp3"
+      audioFile="slide-04.wav"
       caption="Layer two — IMAGES. Force diagrams. A motion graph. The hurricane map from this week's news, drawn for her grade."
     >
       <AbsoluteFill

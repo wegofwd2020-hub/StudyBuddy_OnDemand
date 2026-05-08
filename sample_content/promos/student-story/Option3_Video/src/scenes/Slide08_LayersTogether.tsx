@@ -30,7 +30,7 @@ export const Slide08_LayersTogether: React.FC = () => {
     <SceneFrame
       slideNumber={8}
       totalSlides={12}
-      audioFile="slide-08.mp3"
+      audioFile="slide-08.wav"
       caption="Five layers, one lesson. Read, look, watch, test, fix — all in the same place."
     >
       <AbsoluteFill

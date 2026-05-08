@@ -27,7 +27,7 @@ export const Slide03_ScopingHexagon: React.FC = () => {
     <SceneFrame
       slideNumber={3}
       totalSlides={12}
-      audioFile="slide-03.mp3"
+      audioFile="slide-03.wav"
       caption="The system scopes the query against six dimensions — that tuple makes the lesson hers, not generic."
     >
       <AbsoluteFill>

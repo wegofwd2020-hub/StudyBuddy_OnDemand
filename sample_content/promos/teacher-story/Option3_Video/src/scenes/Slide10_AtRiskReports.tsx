@@ -24,7 +24,7 @@ export const Slide10_AtRiskReports: React.FC = () => {
     <SceneFrame
       slideNumber={10}
       totalSlides={12}
-      audioFile="slide-10.mp3"
+      audioFile="slide-10.wav"
       caption="Students whose first-attempt pass rate slips get flagged on the reports page. No spreadsheet, no guessing."
     >
       <AbsoluteFill

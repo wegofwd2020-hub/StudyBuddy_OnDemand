@@ -28,7 +28,7 @@ export const Slide09_StreamMontage: React.FC = () => {
     <SceneFrame
       slideNumber={9}
       totalSlides={12}
-      audioFile="slide-09.mp3"
+      audioFile="slide-09.wav"
       caption="One engine, every audience. Same topic, regenerated for G12 Science, G11 Commerce, G8 STEM."
     >
       <AbsoluteFill>

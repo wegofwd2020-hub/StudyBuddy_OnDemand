@@ -71,7 +71,7 @@ export const Slide05_LayerAnimation: React.FC = () => {
     <SceneFrame
       slideNumber={5}
       totalSlides={12}
-      audioFile="slide-05.mp3"
+      audioFile="slide-05.wav"
       caption="Layer three — ANIMATION. For motion topics, an embedded clip plays right inside the lesson. No tab to chase."
     >
       <AbsoluteFill

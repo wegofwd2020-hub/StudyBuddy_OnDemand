@@ -29,7 +29,7 @@ export const Slide11_Accessibility: React.FC = () => {
     <SceneFrame
       slideNumber={11}
       totalSlides={12}
-      audioFile="slide-11.mp3"
+      audioFile="slide-11.wav"
       caption="Accessibility is one toggle. Setting follows the student across every page, every device."
     >
       <AbsoluteFill

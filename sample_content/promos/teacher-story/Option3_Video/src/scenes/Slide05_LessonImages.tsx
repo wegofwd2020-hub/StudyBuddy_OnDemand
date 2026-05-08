@@ -59,7 +59,7 @@ export const Slide05_LessonImages: React.FC = () => {
     <SceneFrame
       slideNumber={5}
       totalSlides={12}
-      audioFile="slide-05.mp3"
+      audioFile="slide-05.wav"
       caption="Then images. Force-body diagrams. Motion graphs. A hurricane evacuation map drawn from this week's news."
     >
       <AbsoluteFill

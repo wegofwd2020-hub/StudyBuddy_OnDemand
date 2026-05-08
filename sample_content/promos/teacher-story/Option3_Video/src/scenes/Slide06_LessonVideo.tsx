@@ -26,7 +26,7 @@ export const Slide06_LessonVideo: React.FC = () => {
     <SceneFrame
       slideNumber={6}
       totalSlides={12}
-      audioFile="slide-06.mp3"
+      audioFile="slide-06.wav"
       caption="For motion topics, the lesson embeds a short animation. The animation lives in the lesson — no link to chase."
     >
       <AbsoluteFill

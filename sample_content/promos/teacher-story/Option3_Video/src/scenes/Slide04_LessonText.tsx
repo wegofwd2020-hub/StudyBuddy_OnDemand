@@ -21,7 +21,7 @@ export const Slide04_LessonText: React.FC = () => {
     <SceneFrame
       slideNumber={4}
       totalSlides={12}
-      audioFile="slide-04.mp3"
+      audioFile="slide-04.wav"
       caption="Text first. Overview. Three learning objectives. Key concepts in plain language."
     >
       <AbsoluteFill

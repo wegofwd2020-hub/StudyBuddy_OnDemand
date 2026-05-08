@@ -71,7 +71,7 @@ export const Slide07_LayerTutorial: React.FC = () => {
     <SceneFrame
       slideNumber={7}
       totalSlides={12}
-      audioFile="slide-07.mp3"
+      audioFile="slide-07.wav"
       caption="Layer five — TUTORIAL. When the quiz says you're stuck, the lesson opens up the steps."
     >
       <AbsoluteFill

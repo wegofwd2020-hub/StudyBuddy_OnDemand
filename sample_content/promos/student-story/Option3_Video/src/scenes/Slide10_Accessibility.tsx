@@ -33,7 +33,7 @@ export const Slide10_Accessibility: React.FC = () => {
     <SceneFrame
       slideNumber={10}
       totalSlides={12}
-      audioFile="slide-10.mp3"
+      audioFile="slide-10.wav"
       caption="Dyslexia mode is one toggle. The setting follows her — phone, laptop, library kiosk."
     >
       <AbsoluteFill

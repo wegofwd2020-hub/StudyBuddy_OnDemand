@@ -18,7 +18,36 @@ Both use the same kinetic visual vocabulary:
 
 ## Render workflow
 
-### 1. Render the narration MP3s (Polly)
+### 1. Render the narration WAVs
+
+Two equivalent paths — **Piper is the default** because it runs locally
+and needs no cloud account.
+
+#### Option A — Piper (free, local, recommended)
+
+One-time setup:
+
+```bash
+python3 -m venv /tmp/piper-venv
+/tmp/piper-venv/bin/pip install piper-tts
+mkdir -p /tmp/piper-voices && cd /tmp/piper-voices
+curl -fsSLO "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/amy/medium/en_US-amy-medium.onnx"
+curl -fsSLO "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/amy/medium/en_US-amy-medium.onnx.json"
+curl -fsSLO "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx"
+curl -fsSLO "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx.json"
+```
+
+Render:
+
+```bash
+cd sample_content/promos
+/tmp/piper-venv/bin/python3 render_narration_piper.py teacher-story en_US-amy-medium
+/tmp/piper-venv/bin/python3 render_narration_piper.py student-story en_US-lessac-medium
+```
+
+Cost: $0. Render time: ~30 seconds per story on CPU.
+
+#### Option B — AWS Polly (paid, slightly higher quality)
 
 ```bash
 cd sample_content/promos
@@ -26,11 +55,23 @@ cd sample_content/promos
 ./render_narration.sh student-story Salli
 ```
 
-This drops 12 per-slide MP3s into
-`<story>/Option3_Video/public/audio/slide-NN.mp3`. Each scene's
-`<SceneFrame audioFile="slide-NN.mp3" />` references them by name.
+Note: outputs MP3 instead of WAV. To use Polly, also rename
+`audioFile="slide-NN.wav"` → `slide-NN.mp3` in the 24 scene files
+(`find sample_content/promos/{teacher,student}-story/Option3_Video/src/scenes -name '*.tsx' -exec sed -i 's/slide-\([0-9]\+\)\.wav/slide-\1.mp3/g' {} +`).
 
-Cost: ~$0.10 per full render (Polly neural is $0.000016 per char).
+Cost: ~$0.10 per full render (Polly neural is $16 / 1M chars; both
+narration sources together are ~5 K chars).
+
+#### Why Piper outputs WAV (not MP3)
+
+Piper's native output is WAV. Conversion to MP3 needs `ffmpeg`, which
+isn't always installed. The Remotion `<Audio>` component plays WAV
+just as well; the trade-off is file size (~5–6× larger) which doesn't
+matter for the 12 MB-per-story scope here.
+
+Both stories together drop 24 WAVs (~12 MB total) into
+`<story>/Option3_Video/public/audio/slide-NN.wav`. Each scene's
+`<SceneFrame audioFile="slide-NN.wav" />` references them by name.
 
 ### 2. Preview in Remotion Studio (interactive)
 
@@ -119,8 +160,13 @@ center-stacked to meet WCAG 2.1 AA contrast requirements.
 
 ## Costs (per regenerate)
 
-| Item | Cost |
-|---|---|
-| Polly neural narration (12 slides × ~14s × 2 stories) | ~$0.20 |
-| Remotion render (local CPU; no cloud charges) | $0.00 |
-| **Total per regen** | **~$0.20** |
+| Item | Piper (default) | Polly (alternate) |
+|---|---|---|
+| Narration (12 slides × 2 stories) | $0.00 | ~$0.20 |
+| Remotion render (local CPU) | $0.00 | $0.00 |
+| **Total per regen** | **$0.00** | **~$0.20** |
+
+Both paths produce comparable audio quality for English content.
+Polly's neural voices have slightly more natural prosody on long
+sentences; Piper's `medium`-tier voices (Amy, Lessac) sound very
+close and are indistinguishable to most listeners on first pass.

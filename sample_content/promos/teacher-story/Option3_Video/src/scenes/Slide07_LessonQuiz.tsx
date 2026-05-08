@@ -31,7 +31,7 @@ export const Slide07_LessonQuiz: React.FC = () => {
     <SceneFrame
       slideNumber={7}
       totalSlides={12}
-      audioFile="slide-07.mp3"
+      audioFile="slide-07.wav"
       caption="Then a quiz. Wrong answers don't get a red X — they get a two-sentence explanation."
     >
       <AbsoluteFill

@@ -35,7 +35,7 @@ export const Slide09_StreakCounter: React.FC = () => {
     <SceneFrame
       slideNumber={9}
       totalSlides={12}
-      audioFile="slide-09.mp3"
+      audioFile="slide-09.wav"
       caption="Twelve nights in a row. The streak counter knows. So does the encouragement nudge — but only when it's earned."
     >
       <AbsoluteFill

@@ -23,7 +23,7 @@ export const Slide08_TutorialSection: React.FC = () => {
     <SceneFrame
       slideNumber={8}
       totalSlides={12}
-      audioFile="slide-08.mp3"
+      audioFile="slide-08.wav"
       caption="For students stuck on motion graphs — a tutorial section. Step-by-step. Common mistakes called out by name."
     >
       <AbsoluteFill

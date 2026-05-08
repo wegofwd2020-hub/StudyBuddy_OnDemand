@@ -29,7 +29,7 @@ export const Slide01_TitleCard: React.FC = () => {
     <SceneFrame
       slideNumber={1}
       totalSlides={12}
-      audioFile="slide-01.mp3"
+      audioFile="slide-01.wav"
       caption="Watch a Grade 11 Physics lesson assemble itself — text, diagrams, an animation, and a quiz."
     >
       <AbsoluteFill

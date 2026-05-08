@@ -26,7 +26,7 @@ export const Slide11_ScopedToHer: React.FC = () => {
     <SceneFrame
       slideNumber={11}
       totalSlides={12}
-      audioFile="slide-11.mp3"
+      audioFile="slide-11.wav"
       caption="Maya gets G11 Science. Her cousin, G11 Commerce. Her sister, G8 STEM. Same engine — different lesson, every time."
     >
       <AbsoluteFill>

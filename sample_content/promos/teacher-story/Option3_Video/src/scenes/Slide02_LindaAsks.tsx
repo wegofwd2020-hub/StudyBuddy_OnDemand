@@ -22,7 +22,7 @@ export const Slide02_LindaAsks: React.FC = () => {
     <SceneFrame
       slideNumber={2}
       totalSlides={12}
-      audioFile="slide-02.mp3"
+      audioFile="slide-02.wav"
       caption="Linda teaches Grade 11 Science. She wants Newton's laws — for her class, anchored to this week's news."
     >
       <AbsoluteFill

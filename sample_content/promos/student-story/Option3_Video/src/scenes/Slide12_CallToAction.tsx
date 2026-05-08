@@ -30,7 +30,7 @@ export const Slide12_CallToAction: React.FC = () => {
     <SceneFrame
       slideNumber={12}
       totalSlides={12}
-      audioFile="slide-12.mp3"
+      audioFile="slide-12.wav"
       caption="Try it tonight — demo.studybuddy.app — or have your school reach out to support@studybuddy.app."
     >
       <AbsoluteFill

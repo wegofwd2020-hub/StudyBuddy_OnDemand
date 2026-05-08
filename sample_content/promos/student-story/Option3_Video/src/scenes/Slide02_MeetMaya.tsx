@@ -21,7 +21,7 @@ export const Slide02_MeetMaya: React.FC = () => {
     <SceneFrame
       slideNumber={2}
       totalSlides={12}
-      audioFile="slide-02.mp3"
+      audioFile="slide-02.wav"
       caption="Meet Maya — Grade 11 Science. Tonight she's working through Newton's laws on her phone."
     >
       <AbsoluteFill
