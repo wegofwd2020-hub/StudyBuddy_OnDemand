@@ -47,17 +47,57 @@ These are out-of-repo deliverables (DNS + Zoho), so they don't ship in
 this commit, but they're required for the May 16 cutover. Step-by-step
 in [`studybuddy-docs/docs/operations/dns-and-email-setup.md`](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/docs/demo-walkthrough/docs/operations/dns-and-email-setup.md).
 
-| Item | Owner | Verify by |
-|---|---|---|
-| Domain registered (Cloudflare Registrar — `studybuddy.app` recommended) | Operator | `dig NS studybuddy.app` returns Cloudflare nameservers |
-| Demo subdomain A record `demo.studybuddy.app` → VPS IP, Proxied | Operator | `dig demo.studybuddy.app +short` returns Cloudflare-edge IP |
-| Cloudflare SSL/TLS = Full (strict) + Always-HTTPS on | Operator | `curl -vI https://demo.studybuddy.app` shows valid TLS |
-| Origin Cert generated + installed at `/etc/ssl/cloudflare/` on VPS | Operator | Nginx container starts cleanly; `curl /healthz` works |
-| Zoho Mail account verified for the domain | Operator | `dig TXT studybuddy.app +short` shows `zoho-verification=...` |
-| Two mailboxes live: `support@`, `sales@` | Operator | Send + receive a test email round-trip via Zoho webmail |
-| MX + SPF + DKIM + DMARC records in Cloudflare DNS | Operator | All three show green checkmarks in Zoho's verification UI |
-| App SMTP wired to Zoho (`SMTP_HOST=smtp.zoho.com`) in `.env.demo` | Operator | Forgot-password test email arrives from `support@<domain>` |
-| Gmail send-as configured for `support@` (and `sales@` if used) | Operator | Reply from Gmail interface — From line shows custom domain |
+Track each by ticking the checkbox; the "Verify by" column is the
+green-light command/check.
+
+#### Phase 1 — Domain registration (~15 min)
+
+- [ ] Domain registered (Cloudflare Registrar — `studybuddy.app` recommended)
+  · *verify:* `dig NS studybuddy.app` returns Cloudflare nameservers (`*.ns.cloudflare.com`)
+
+#### Phase 2 — Cloudflare DNS for `demo.studybuddy.app` (~10 min)
+
+- [ ] A record `demo` → VPS public IP, **Proxied** (orange cloud)
+  · *verify:* `dig demo.studybuddy.app +short` returns a Cloudflare-edge IP (104.21.x.x or 172.67.x.x), **NOT** the raw VPS IP
+- [ ] SSL/TLS mode set to **Full (strict)**; **Always Use HTTPS** toggled on
+  · *verify:* `curl -vI https://demo.studybuddy.app` shows a valid Cloudflare-edge TLS cert + 200/301 response
+- [ ] Cloudflare Origin Certificate generated; cert + key installed at `/etc/ssl/cloudflare/origin-{cert,key}.pem` on the VPS
+  · *verify:* nginx container starts cleanly; `curl https://demo.studybuddy.app/healthz` returns 200 with `db:ok`
+- [ ] Pre-launch (May 15 EOD): TTL on the `demo` A record lowered to 300s
+  · *verify:* Cloudflare DNS UI shows "TTL: 5 min" instead of "Auto"
+
+#### Phase 3 — Zoho Mail free-tier (~30 min)
+
+- [ ] Zoho Mail account created; domain verification TXT record added to Cloudflare DNS
+  · *verify:* `dig TXT studybuddy.app +short` shows `zoho-verification=zb...`
+- [ ] Two mailboxes live: `support@studybuddy.app`, `sales@studybuddy.app`
+  · *verify:* Send a test from each via Zoho webmail to your personal Gmail; reply arrives back in Zoho
+- [ ] MX records (mx.zoho.com priorities 10/20/50) added to Cloudflare DNS
+  · *verify:* `dig MX studybuddy.app +short` lists `mx.zoho.com`, `mx2.zoho.com`, `mx3.zoho.com`
+- [ ] SPF record `v=spf1 include:zoho.com ~all` added (single TXT at apex)
+  · *verify:* `dig TXT studybuddy.app +short | grep spf1` returns the record
+- [ ] DKIM record `zmail._domainkey` added with the Zoho-supplied public key
+  · *verify:* All three (MX, SPF, DKIM) show green checkmarks in Zoho's verification UI
+- [ ] DMARC record `_dmarc` added with `v=DMARC1; p=quarantine; rua=mailto:support@...`
+  · *verify:* `dig TXT _dmarc.studybuddy.app +short` returns the policy
+
+#### Phase 4 — Gmail send-as (~15 min)
+
+- [ ] Zoho App Password generated for the Gmail integration (NOT the regular Zoho login password)
+  · *verify:* App Password copied to a password manager (one-time display from Zoho)
+- [ ] `support@studybuddy.app` added as a send-as identity in Gmail (SMTP `smtp.zoho.com:465`, SSL on)
+  · *verify:* Compose new mail in Gmail, From dropdown shows `StudyBuddy Support <support@studybuddy.app>`
+- [ ] (Optional) `sales@studybuddy.app` added as a second send-as identity
+  · *verify:* same check for the sales address
+
+#### Phase 5 — Wire SMTP into the app (~5 min)
+
+- [ ] `.env.demo` SMTP block updated to Zoho values (`SMTP_HOST=smtp.zoho.com`, `SMTP_PORT=465`, `SMTP_USER=support@studybuddy.app`, `SMTP_PASSWORD=<app-password>`, `SMTP_USE_SSL=true`)
+  · *verify:* `docker compose exec api env | grep SMTP` shows the new values
+- [ ] api + celery-worker restarted to pick up the new env
+  · *verify:* `docker compose ps` shows recent restart timestamps
+- [ ] App-originated email arrives from the custom domain
+  · *verify:* Trigger a forgot-password from a demo student; the reset email arrives From `StudyBuddy <support@studybuddy.app>`
 
 ### 1.B Content — must-have
 
@@ -92,10 +132,11 @@ The pipeline runs offline and outputs are pushed to the demo VPS. No `ANTHROPIC_
 A green checkbox on each of these means we enter the test phase clean:
 
 - [ ] All Tier-1.A automation deliverables in `main`
+- [ ] All Tier-1.A.bis Domain + Email phases 1–5 ticked (every checkbox in §1.A.bis above is green)
 - [ ] All Tier-1.B content built and the catalogue pushed to a staging directory
 - [ ] `python3 scripts/doc_audit/run_all.py` exits clean (zero drift)
 - [ ] `bun run typecheck` (web) + `pytest` (backend) green on `main`
-- [ ] One **complete dry-run on a throwaway Hetzner VPS** (cheaper than figuring out failures live on May 16): provision → seed → smoke → tear down
+- [ ] One **complete dry-run on a throwaway Hetzner VPS** (cheaper than figuring out failures live on May 16): provision → seed → smoke → tear down — including the DNS + email phases against a throwaway subdomain (e.g. `dryrun.studybuddy.app`)
 
 ---
 
