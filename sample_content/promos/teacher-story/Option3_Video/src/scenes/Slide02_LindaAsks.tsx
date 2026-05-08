@@ -117,7 +117,7 @@ export const Slide02_LindaAsks: React.FC = () => {
             }}
           >
             <TypeInText
-              text='"Newton\'s laws of motion, Grade 11 Science, with a real-world example from this week."'
+              text={`"Newton's laws of motion, Grade 11 Science, with a real-world example from this week."`}
               cps={24}
               startAt={60}
             />

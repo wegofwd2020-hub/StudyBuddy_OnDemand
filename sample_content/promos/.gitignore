@@ -1,0 +1,13 @@
+# Build artefacts — regenerable from scene .tsx + .wav narration
+*.mp4
+*.webm
+*.mov
+
+# Bun / npm install artefacts (large, regenerable)
+**/node_modules/
+**/bun.lock
+**/package-lock.json
+
+# Remotion render cache + temp output
+**/.remotion-cache/
+**/out/
