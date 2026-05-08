@@ -694,6 +694,42 @@ curl -X POST http://localhost:8000/api/v1/admin/pipeline/trigger \
 
 ---
 
+## Doc Audit (drift checking)
+
+Local toolkit at `scripts/doc_audit/` for catching drift between the repo's
+documentation and its actual state. Three checkers ship today (issue #337,
+phases A–D):
+
+| Checker | What it catches |
+|---|---|
+| `check_link_integrity.py` | Broken `[label](path)` links in any `*.md` file; bare repo-path mentions in prose or inline backticks (e.g. `backend/src/foo.py`) that don't exist on disk |
+| `check_migrations_table.py` | Migration files in `backend/alembic/versions/` not listed in this CLAUDE.md table; rows in the table referring to non-existent migrations; numbering gaps |
+| `check_test_counts.py` | The `(NNN total)` claim near the latest epic line vs `pytest --collect-only` actual (uses docker compose if local pytest unavailable) |
+
+Run individually or via the orchestrator:
+
+```bash
+# Just link integrity:
+python3 scripts/doc_audit/check_link_integrity.py --quiet --out drift.json
+
+# Everything; aggregate JSON:
+python3 scripts/doc_audit/run_all.py --out drift-report.json
+
+# Skip the slow test-count check:
+python3 scripts/doc_audit/run_all.py --skip test_counts
+```
+
+Each checker exits 0 (clean) or 1 (drift). The orchestrator's exit code is
+the worst of any checker.
+
+**Out of scope today:** the GitHub Actions nightly workflow + auto-PR for
+mechanical sections + `<!-- AUTOGEN:* -->` markers + the Celery Beat
+companion task. Those land in the post-#337 successor (#347 to be filed)
+once the local toolkit's signal-to-noise has been validated against a
+clean main.
+
+---
+
 ## Phase Checklist Quick Reference
 
 See [AGENTS.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/AGENTS.md) for the full per-phase checklist. Build in this order:
