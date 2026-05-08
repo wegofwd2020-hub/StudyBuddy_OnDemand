@@ -1,0 +1,141 @@
+<!-- Bio-story narration source.
+     Voice: Polly Matthew / Piper en_US-ryan-high.
+     Persona: Daniel M., Grade 11 Biology student. -->
+
+<!-- slide-01.mp3 -->
+<speak>
+  <prosody rate="medium">
+    Inside a Grade eleven Biology lesson.
+    <break time="350ms"/>
+    Photosynthesis — the engine that turns sunlight into food and oxygen.
+    <break time="400ms"/>
+    Watch what Daniel sees on his laptop tonight.
+  </prosody>
+</speak>
+
+<!-- slide-02.mp3 -->
+<speak>
+  <prosody rate="medium">
+    Meet Daniel — Grade eleven Science, Biology stream.
+    <break time="350ms"/>
+    Tonight he's working through photosynthesis.
+    <break time="400ms"/>
+    Lesson, quiz, tutorial — about twenty-five minutes of focused study.
+  </prosody>
+</speak>
+
+<!-- slide-03.mp3 -->
+<speak>
+  <prosody rate="medium">
+    He opens his dashboard.
+    <break time="300ms"/>
+    Continue where you left off — photosynthesis is queued.
+    <break time="400ms"/>
+    One click. The lesson opens.
+  </prosody>
+</speak>
+
+<!-- slide-04.mp3 -->
+<speak>
+  <prosody rate="medium">
+    The lesson page opens.
+    <break time="350ms"/>
+    Title, the first section, the big-picture equation —
+    pitched two grades below his own so it never feels like a wall of jargon.
+  </prosody>
+</speak>
+
+<!-- slide-05.mp3 -->
+<speak>
+  <prosody rate="medium">
+    Stage one — the light reactions.
+    <break time="350ms"/>
+    Inside the thylakoid membranes, chlorophyll absorbs light energy.
+    <break time="300ms"/>
+    Water splits. Oxygen leaves. ATP and NADPH are made.
+  </prosody>
+</speak>
+
+<!-- slide-06.mp3 -->
+<speak>
+  <prosody rate="medium">
+    Stage two — the Calvin cycle.
+    <break time="350ms"/>
+    Out in the stroma, Ru-BIS-co grabs CO2 from the air.
+    <break time="300ms"/>
+    The energy from stage one fuels three turns of the cycle —
+    yielding one glucose molecule.
+  </prosody>
+</speak>
+
+<!-- slide-07.mp3 -->
+<speak>
+  <prosody rate="medium">
+    Why are plants green?
+    <break time="400ms"/>
+    Chlorophyll absorbs red and blue strongly — those are the high-energy peaks.
+    <break time="300ms"/>
+    But it reflects green.
+    <break time="300ms"/>
+    Green is what reaches our eyes.
+  </prosody>
+</speak>
+
+<!-- slide-08.mp3 -->
+<speak>
+  <prosody rate="medium">
+    Quiz time.
+    <break time="350ms"/>
+    Eight questions. Daniel hovers on red briefly, then lands on green —
+    that's the colour chlorophyll reflects.
+  </prosody>
+</speak>
+
+<!-- slide-09.mp3 -->
+<speak>
+  <prosody rate="medium">
+    Correct.
+    <break time="300ms"/>
+    The explanation appears below — chlorophyll reflects green,
+    which is what reaches our eyes.
+    <break time="350ms"/>
+    Two short sentences. No red X.
+  </prosody>
+</speak>
+
+<!-- slide-10.mp3 -->
+<speak>
+  <prosody rate="medium">
+    A tutorial section opens.
+    <break time="350ms"/>
+    Photon hits chlorophyll.
+    <break time="200ms"/>
+    Electron flows down the chain.
+    <break time="200ms"/>
+    Calvin cycle uses the energy to build glucose.
+  </prosody>
+</speak>
+
+<!-- slide-11.mp3 -->
+<speak>
+  <prosody rate="medium">
+    He finishes the unit.
+    <break time="350ms"/>
+    Eleven nights of biology in a row.
+    <break time="400ms"/>
+    The streak counter knows — and so does the encouragement nudge,
+    but only when it's earned.
+  </prosody>
+</speak>
+
+<!-- slide-12.mp3 -->
+<speak>
+  <prosody rate="medium">
+    StudyBuddy.
+    <break time="200ms"/>
+    Lessons, always current.
+    <break time="600ms"/>
+    See a biology lesson for yourself at demo dot studybuddy dot app —
+    or have your school reach out to support at studybuddy dot app.
+  </prosody>
+</speak>

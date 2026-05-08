@@ -1,0 +1,142 @@
+<!-- Chem-story narration source.
+     Voice: Polly Kristin / Piper en_US-kristin-medium.
+     Persona: Aditi K., Grade 11 Chemistry student. -->
+
+<!-- slide-01.mp3 -->
+<speak>
+  <prosody rate="medium">
+    Inside a Grade eleven Chemistry lesson.
+    <break time="350ms"/>
+    Alkenes — the building blocks of plastics, fuels, and a thousand reactions.
+    <break time="400ms"/>
+    Watch what Aditi sees on her laptop tonight.
+  </prosody>
+</speak>
+
+<!-- slide-02.mp3 -->
+<speak>
+  <prosody rate="medium">
+    Meet Aditi — Grade eleven Science, Chemistry stream.
+    <break time="350ms"/>
+    Tonight she's working through reactions of alkenes.
+    <break time="400ms"/>
+    Lesson, quiz, tutorial — about twenty-five minutes of focused study.
+  </prosody>
+</speak>
+
+<!-- slide-03.mp3 -->
+<speak>
+  <prosody rate="medium">
+    She opens her dashboard.
+    <break time="300ms"/>
+    Continue where you left off — reactions of alkenes is queued.
+    <break time="400ms"/>
+    One click. The lesson opens.
+  </prosody>
+</speak>
+
+<!-- slide-04.mp3 -->
+<speak>
+  <prosody rate="medium">
+    The lesson page opens.
+    <break time="350ms"/>
+    Title, the first section, a definition of alkenes —
+    pitched two grades below her own so it never feels like a wall of jargon.
+  </prosody>
+</speak>
+
+<!-- slide-05.mp3 -->
+<speak>
+  <prosody rate="medium">
+    Section two — electrophilic addition.
+    <break time="350ms"/>
+    The defining reaction class. Hydrogen with a palladium catalyst.
+    <break time="200ms"/>
+    H Br. Bromine. Water with sulfuric acid.
+    <break time="350ms"/>
+    All add across the double bond.
+  </prosody>
+</speak>
+
+<!-- slide-06.mp3 -->
+<speak>
+  <prosody rate="medium">
+    Markovnikov's rule.
+    <break time="350ms"/>
+    The rich get richer.
+    <break time="350ms"/>
+    The heavier fragment lands on the more substituted carbon.
+    <break time="400ms"/>
+    Below — key points she can scan before the quiz.
+  </prosody>
+</speak>
+
+<!-- slide-07.mp3 -->
+<speak>
+  <prosody rate="medium">
+    Worked example. Propene plus H Br.
+    <break time="400ms"/>
+    Two possible products — but Markovnikov's rule picks the winner.
+    <break time="400ms"/>
+    Two-bromopropane. The heavy bromine goes to the carbon with fewer H atoms.
+  </prosody>
+</speak>
+
+<!-- slide-08.mp3 -->
+<speak>
+  <prosody rate="medium">
+    Quiz time.
+    <break time="350ms"/>
+    Eight questions. She thinks about A briefly, lands on B.
+    <break time="400ms"/>
+    Two-bromopropane — the Markovnikov product.
+  </prosody>
+</speak>
+
+<!-- slide-09.mp3 -->
+<speak>
+  <prosody rate="medium">
+    Correct.
+    <break time="300ms"/>
+    The explanation appears below — Markovnikov's rule, in two short sentences.
+    <break time="400ms"/>
+    Wrong answers don't get a red X. They get the reasoning.
+  </prosody>
+</speak>
+
+<!-- slide-10.mp3 -->
+<speak>
+  <prosody rate="medium">
+    A tutorial section opens.
+    <break time="350ms"/>
+    Step one — identify the double bond and the electrophile.
+    <break time="200ms"/>
+    Step two — apply Markovnikov.
+    <break time="200ms"/>
+    Step three — write the new structure.
+  </prosody>
+</speak>
+
+<!-- slide-11.mp3 -->
+<speak>
+  <prosody rate="medium">
+    She finishes the unit.
+    <break time="350ms"/>
+    Eight nights of chemistry in a row.
+    <break time="400ms"/>
+    The streak counter knows — and so does the encouragement nudge,
+    but only when it's earned.
+  </prosody>
+</speak>
+
+<!-- slide-12.mp3 -->
+<speak>
+  <prosody rate="medium">
+    StudyBuddy.
+    <break time="200ms"/>
+    Lessons, always current.
+    <break time="600ms"/>
+    See a chemistry lesson for yourself at demo dot studybuddy dot app —
+    or have your school reach out to support at studybuddy dot app.
+  </prosody>
+</speak>
