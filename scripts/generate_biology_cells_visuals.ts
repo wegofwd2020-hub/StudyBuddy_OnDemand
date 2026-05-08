@@ -24,9 +24,9 @@ const ROOT = join(
   "Option2_Catalogue",
 );
 
-// Style tokens + cross-class components lifted to pipeline/visual_templates.
-// `ribosomeDots` is the local name for the generalised `dotCluster` primitive
-// (#342 phase D-1); aliased here so call sites stay unchanged.
+// Style tokens + cross-class components + biology palette lifted to
+// pipeline/visual_templates. `ribosomeDots` aliased from `dotCluster` to
+// preserve call-site spellings (#342 phase D-1; biology palette #344 phase C-8).
 import {
   INK,
   MUTED,
@@ -40,22 +40,22 @@ import {
   leaderLabel,
   dotCluster as ribosomeDots,
 } from "../pipeline/visual_templates/components.ts";
-
-// Biology organelle palette — locked-in convention for downstream units.
-const CYTOPLASM = "#fef9c3";       // very pale yellow-green
-const CELL_MEMBRANE = "#94a3b8";   // muted slate
-const CELL_WALL = "#a16207";       // amber-brown (plant only)
-const NUCLEUS = "#7c3aed";         // purple
-const NUCLEOLUS = "#a855f7";       // lighter purple
-const MITOCHONDRION = "#dc2626";   // red (energy)
-const CHLOROPLAST = "#16a34a";     // green
-const VACUOLE = "#7dd3fc";         // pale blue
-const GOLGI = "#f59e0b";           // amber
-const ER_ROUGH = "#ea580c";        // peach
-const ER_SMOOTH = "#fb923c";       // lighter peach
-const LYSOSOME = "#f472b6";        // pink
-const RIBOSOME = "#7c2d12";        // dark brown dots
-const CENTROSOME = "#64748b";      // slate
+import {
+  CYTOPLASM,
+  CELL_MEMBRANE,
+  CELL_WALL,
+  NUCLEUS,
+  NUCLEOLUS,
+  MITOCHONDRION,
+  CHLOROPLAST,
+  VACUOLE,
+  GOLGI,
+  ER_ROUGH,
+  ER_SMOOTH,
+  LYSOSOME,
+  RIBOSOME,
+  CENTROSOME,
+} from "../pipeline/visual_templates/biology_cells.ts";
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 

@@ -25,7 +25,9 @@ const ROOT = join(
   "Option2_Catalogue",
 );
 
-// Style tokens lifted to pipeline/visual_templates/shared.ts (#341 phase A).
+// Style tokens + particle palette lifted to pipeline/visual_templates.
+// Inline patterns (concentricShells, orbital, energyLadder, orbitalBoxRow)
+// remain in figure functions; refactor deferred to Wave-7 (#345).
 import {
   INK,
   MUTED,
@@ -38,12 +40,12 @@ import {
   AXIS,
   BG,
 } from "../pipeline/visual_templates/shared.ts";
-
-// Particle palette
-const PROTON = "#dc2626";    // red
-const NEUTRON = "#64748b";   // slate
-const ELECTRON = "#2b6cb0";  // blue
-const PHOTON = "#facc15";    // yellow
+import {
+  PROTON,
+  NEUTRON,
+  ELECTRON,
+  PHOTON,
+} from "../pipeline/visual_templates/chemistry_atom.ts";
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 

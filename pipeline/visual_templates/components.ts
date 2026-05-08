@@ -71,3 +71,31 @@ export function dotCluster(
   }
   return s;
 }
+
+// ─────────────────────────────────────────────────────────────────────────
+// Cross-class re-exports
+//
+// Primitives that live in class modules but are documented in
+// automation_readiness.md §1.2 as cross-class. Re-exporting here gives
+// #320 (and any future cross-class consumer) a single import surface for
+// "primitives that recur across 3+ subject classes" without forcing the
+// consumer to know which class module each lives in.
+// ─────────────────────────────────────────────────────────────────────────
+
+/**
+ * Re-exported from `./kinematics.ts`. Per `automation_readiness.md` §1.2,
+ * `motionStrip` is reused across G9 kinematics + future G6 forces, G7 energy,
+ * G9 Newton's-laws units. Cross-class.
+ */
+export {
+  motionStrip,
+  type MotionStripOptions,
+} from "./kinematics.ts";
+
+/**
+ * Re-exported from `./derivatives.ts`. Per the G11-MATH-002 MEMO, `secantLine`
+ * lifts from the SVG generator into the Remotion `<TangentEmergenceScene />`
+ * verbatim. Cross-class because the same helper produces both static and
+ * animated variants.
+ */
+export { secantLine } from "./derivatives.ts";
