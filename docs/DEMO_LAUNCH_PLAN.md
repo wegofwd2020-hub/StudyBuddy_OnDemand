@@ -119,6 +119,247 @@ A green checkbox on each of these means we enter the test phase clean:
 
 ---
 
+## §2.5 · Deployment Sequence (consolidated)
+
+The deployment story has **two distinct sequences** the operator must keep
+separate in their head:
+
+- **Cold start** — done once during the May 14–15 staging dry-run and again
+  on/around May 15 when the production demo VPS is provisioned. Manual
+  steps; the operator drives.
+- **Ongoing deploy** — fires automatically on every merge to `main` after
+  initial cold-start. CI drives; operator only intervenes on failure.
+
+### Sequence A — Cold start (manual; ~30 minutes the first time)
+
+Run this when standing up either the staging or production demo VPS from
+nothing.
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│  Operator action                                                      │
+└──────────────────────────────────────────────────────────────────────┘
+
+  1. Provision Hetzner CX22                                           [~3 min]
+     Hetzner console → + Add Server → CX22 + Ubuntu 22.04 + SSH key.
+     Note the public IP.
+
+  2. SSH in + run provision.sh                                        [~5 min]
+     ssh root@<public-ip>
+     curl -fsSL https://raw.githubusercontent.com/wegofwd2020-hub/StudyBuddy_OnDemand/main/scripts/demo/provision.sh \
+       | bash
+     Installs Docker, UFW, fail2ban, clones repo, creates `deploy` user,
+     drops .env.demo skeleton, sets up daily-backup cron.
+
+  3. Populate .env.demo                                               [~5 min]
+     Replace 5 placeholder secrets via `openssl rand -hex 32`
+     Paste Auth0 + Stripe-test + Gmail App Password values.
+
+  4. Paste Cloudflare Origin Cert                                     [~2 min]
+     /etc/ssl/cloudflare/origin-cert.pem
+     /etc/ssl/cloudflare/origin-key.pem
+
+  5. Paste GH Actions deploy SSH pubkey                               [~1 min]
+     /home/deploy/.ssh/authorized_keys
+     (matching private key → repo secret DEMO_VPS_SSH_KEY)
+
+  6. Upload pre-built content from dev machine                        [~5 min]
+     rsync -avz ./content_store/ deploy@<vps-ip>:/data/content/
+
+┌──────────────────────────────────────────────────────────────────────┐
+│  Container startup (docker compose handles dependencies)              │
+└──────────────────────────────────────────────────────────────────────┘
+
+  7. docker compose pull (fetch images from GHCR)                     [~3 min]
+     cd /opt/studybuddy
+     docker compose -f docker-compose.yml -f docker-compose.demo.yml \
+       --env-file .env.demo pull
+
+  8. docker compose up -d                                             [~2 min]
+     Same flags as step 7, with `up -d`.
+
+     Healthcheck-gated startup order:
+     ┌─ db (postgres)            healthcheck: pg_isready
+     ├─ redis                    healthcheck: redis-cli ping
+     │     ↓ (db + redis healthy)
+     ├─ migrate (one-shot)       runs alembic upgrade head, exits cleanly
+     │     ↓ (migrate exits with code 0)
+     ├─ api                      healthcheck: GET /healthz returns 200
+     ├─ celery-worker            depends on migrate completion
+     ├─ celery-beat-primary      depends on migrate completion
+     │     ↓ (api healthy)
+     ├─ web                      depends on api healthcheck
+     │     ↓ (api + web ready)
+     └─ nginx                    fronts api + web on :80 + :443
+
+  9. seed.sh — populate demo accounts + content rows                  [~3 min]
+     docker compose exec api bash /app/scripts/demo/seed.sh
+     Idempotent. Runs:
+       seed_super_admin → seed_demo_milfordwaterford →
+       seed_demo_test_account → seed_phase_a_dev → seed_dev_content
+
+ 10. smoke.sh — validate end-to-end                                   [~30 sec]
+     bash scripts/demo/smoke.sh https://<vps-ip>
+     (use IP first; switch to domain after step 11.)
+
+┌──────────────────────────────────────────────────────────────────────┐
+│  Make it public                                                       │
+└──────────────────────────────────────────────────────────────────────┘
+
+ 11. Cloudflare DNS A record → VPS public IP                          [~3 min]
+     Cloudflare dashboard → demo.studybuddy.app → A record.
+     SSL/TLS mode: Full (strict).
+     Set TTL to 300s in advance of any future cutover.
+
+ 12. smoke.sh against the public domain                               [~30 sec]
+     bash scripts/demo/smoke.sh https://demo.studybuddy.app
+     Cold-start complete when this exits 0.
+```
+
+**Total cold-start time:** ~30 minutes for a calm operator with all secrets
+already in hand.
+
+### Sequence B — Ongoing deploy (automatic; ~5 minutes per merge)
+
+Fires on every push to `main` via `.github/workflows/deploy-demo.yml`.
+No operator action unless the smoke check fails.
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│  GitHub Actions                                                       │
+└──────────────────────────────────────────────────────────────────────┘
+
+  1. Push lands on main                                               [event]
+
+  2. test.yml runs first (separate workflow)                          [~3 min]
+     Backend lint + pytest + web typecheck + Playwright smoke.
+     deploy-demo.yml does NOT wait on test.yml today — the operator
+     should ensure tests pass before merging. (Optional future
+     enhancement: gate deploy on test.yml success via workflow_run.)
+
+  3. deploy-demo.yml triggered                                        [event]
+
+  4. Build api + web images (parallel)                                [~3 min]
+     docker buildx build with GHA cache.
+
+  5. Push images to GHCR                                              [~30 sec]
+     Tagged :latest and :<short-sha> for every build.
+
+┌──────────────────────────────────────────────────────────────────────┐
+│  Demo VPS                                                             │
+└──────────────────────────────────────────────────────────────────────┘
+
+  6. SSH to VPS as deploy@DEMO_VPS_HOST                              [~1 sec]
+     Uses DEMO_VPS_SSH_KEY repo secret.
+
+  7. sudo git -C /opt/studybuddy pull origin main                     [~2 sec]
+     Picks up any new docker-compose.demo.yml / scripts/demo/* changes.
+
+  8. docker compose pull                                              [~30 sec]
+     Pulls the new :latest images for api, web (other services
+     unchanged — same compose pull is idempotent).
+
+  9. docker compose up -d --remove-orphans                            [~30 sec]
+     Rolling restart. Containers that match old image:
+     ├─ db, redis            no restart (image unchanged)
+     ├─ migrate              re-runs alembic upgrade head — idempotent;
+     │                        exits 0 quickly if at head
+     ├─ api (NEW IMAGE)      old api drains, new api starts;
+     │                        nginx routes to new once healthcheck OK
+     ├─ celery-worker        rolling restart
+     ├─ celery-beat-primary  rolling restart
+     ├─ web (NEW IMAGE)      old web drains, new web starts
+     └─ nginx                no restart needed (proxies to internal DNS)
+
+ 10. Wait 30 seconds                                                  [~30 sec]
+     Healthchecks settle. nginx upstream resolution catches up.
+
+ 11. scripts/demo/smoke.sh https://<DEMO_VPS_HOST>                    [~30 sec]
+     9 checks (healthz, readyz, 3 logins, lesson, quiz, /, /demo).
+     Run from the GH Actions runner, not the VPS.
+
+ 12a. (Smoke green)
+      Step summary posted to the GH Actions UI. Done.
+
+ 12b. (Smoke fails)
+      Auto-creates GitHub issue tagged `incident:demo` + `priority:high`
+      with the workflow-run URL and a triage checklist.
+      **Auto-rollback is intentionally NOT wired** — operator must
+      review logs and decide.
+```
+
+**Total auto-deploy time:** ~5 minutes from `git push` to live on demo URL.
+
+### Healthcheck dependency graph (runtime, both sequences)
+
+```
+                         ┌────────┐
+                         │   db   │  pg_isready
+                         └────┬───┘
+                              │ healthy
+                  ┌───────────┴───────────┐
+                  ▼                       ▼
+            ┌──────────┐            ┌────────────┐
+            │  redis   │            │  migrate   │
+            │ (ping)   │            │ (one-shot) │
+            └────┬─────┘            └──────┬─────┘
+                 │ healthy                 │ exit 0
+                 └────────────┬────────────┘
+                              ▼
+                   ┌──────────┴──────────────┬──────────────────┐
+                   ▼                         ▼                  ▼
+            ┌──────────┐              ┌─────────────┐    ┌─────────────┐
+            │   api    │              │  celery-    │    │  celery-    │
+            │ /healthz │              │   worker    │    │ beat-primary│
+            └────┬─────┘              └─────────────┘    └─────────────┘
+                 │ healthy
+                 ▼
+            ┌──────────┐
+            │   web    │
+            │  Next.js │
+            └────┬─────┘
+                 │ ready
+                 ▼
+            ┌──────────┐
+            │  nginx   │  exposes :80 + :443
+            └──────────┘
+```
+
+`docker-compose.demo.yml` keeps the same dependency graph as the local-dev
+compose; only the **services on the graph** change (PgBouncer + celery-pipeline +
+celery-beat-standby are dropped, nginx is added).
+
+### Rollback paths
+
+| When | Mechanism | Time to recover |
+|---|---|---|
+| Smoke fails after auto-deploy | Operator manually rolls back per issue triage: `ssh demo 'cd /opt/studybuddy && sudo git -C /opt/studybuddy reset --hard <previous-sha> && sudo docker compose --env-file .env.demo up -d'` | ~5 min |
+| Bad migration on auto-deploy | `docker compose exec api alembic downgrade -1` then redeploy with the migration reverted in code | ~10 min |
+| VPS itself unhealthy on launch day | DNS revert at Cloudflare to staging IP; investigate VPS post-mortem (TTL=300s set on May 15 means propagation ≤5 min) | ~5 min |
+| Breaking customer issue mid-demo (catastrophic) | Cloudflare → DNS → set demo.studybuddy.app to "under maintenance" page hosted on Cloudflare Pages | ~2 min |
+
+### When NOT to follow Sequence B
+
+There are three cases where the auto-deploy should be skipped or the operator
+should take over:
+
+1. **Schema-breaking migration.** Auto-deploy runs `alembic upgrade head` on
+   every push. If a new migration is destructive (data loss, table rename
+   without compatibility shim), pause auto-deploy via repo settings before
+   merging, run the migration manually with backups, then re-enable.
+
+2. **Image pull is mid-rollout.** GHCR push completes after the workflow's
+   `docker push` step succeeds. If the operator is also `docker compose pull`
+   on the VPS at that exact moment, two pulls race. Don't manually pull on
+   the VPS during a workflow run — let the workflow's SSH step do it.
+
+3. **`.env.demo` change.** Compose doesn't restart containers when only env
+   values change. After editing `.env.demo`, run `docker compose --env-file
+   .env.demo up -d --force-recreate` to pick up the new values. The deploy
+   workflow does NOT do this — it's deliberately a manual step.
+
+---
+
 ## §3 · Automation Scripts — Inventory + Usage
 
 All scripts live under `scripts/demo/` and are invoked from the **operator's laptop** or **Hetzner VPS** depending on the script. The deploy workflow is in `.github/workflows/`.
@@ -355,3 +596,4 @@ The deploy-demo workflow (`.github/workflows/deploy-demo.yml`) builds + pushes D
 |---|---|
 | 2026-05-08 | Initial — comprehensive plan for May 16 launch (4 days code freeze + 4 days test phase) |
 | 2026-05-08 | §6 — Closed the GitHub-tier decision: stay on Free; document upgrade triggers for future-self |
+| 2026-05-08 | §2.5 — Added consolidated Deployment Sequence (cold-start + ongoing-deploy flows + dependency graph + rollback paths + skip-auto-deploy cases) |
