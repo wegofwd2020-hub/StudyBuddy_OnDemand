@@ -1,20 +1,28 @@
 #!/usr/bin/env python3
 """Render per-slide narration WAVs from `narration.ssml` via Piper TTS.
 
-Piper does not parse SSML; we strip tags and convert `<break time="Xms"/>`
-to inline punctuation (commas / periods / ellipses) that Piper renders as
-audible pauses of comparable duration.
+Uses the Piper Python API (`PiperVoice.synthesize()`) rather than the CLI
+because Piper's CLI int16 conversion uses numpy `astype(int16)`, which
+wraps modulo when the model output exceeds [-1, 1] — producing sample-
+level wraparound corruption that's audible as crackle / digital noise
+and cannot be undone by post-process amplitude scaling. The Python API
+exposes `AudioChunk.audio_float_array` so we can clip floats to [-1, 1]
+*before* the int16 cast.
 
-Usage:
-    python3 render_narration_piper.py <story-dir> <voice-name>
+Piper does not parse SSML; we strip tags and convert `<break time="Xms"/>`
+to inline newlines, then synthesize each line with inter-line silence to
+mimic the SSML break.
+
+Usage (must be run inside the Piper venv so `piper` imports cleanly):
+    /tmp/piper-venv/bin/python3 render_narration_piper.py <story-dir> <voice>
 
 Examples:
-    python3 render_narration_piper.py teacher-story en_US-amy-medium
-    python3 render_narration_piper.py student-story en_US-lessac-medium
+    /tmp/piper-venv/bin/python3 render_narration_piper.py teacher-story en_US-amy-medium
+    /tmp/piper-venv/bin/python3 render_narration_piper.py student-story en_US-lessac-medium
 
 Pre-reqs:
-    - Piper installed at /tmp/piper-venv/bin/piper
-    - Voice model + config at /tmp/piper-voices/<voice-name>.onnx{,.json}
+    - Piper installed in /tmp/piper-venv (with onnxruntime)
+    - Voice model + config at /tmp/piper-voices/<voice>.onnx{,.json}
     - sample_content/promos/<story-dir>/audio/narration.ssml exists
 
 Outputs:
@@ -23,20 +31,26 @@ Outputs:
 from __future__ import annotations
 
 import re
-import shutil
 import struct
-import subprocess
 import sys
 import wave
 from pathlib import Path
 
-# Target headroom — 0.85 × 32767 ≈ 27851 — leaves 15 % below the 16-bit
-# ceiling. Lower is quieter / more conservative; higher risks the
-# inter-sample peaks Piper occasionally produces still saturating.
-PEAK_HEADROOM_RATIO = 0.85
+import numpy as np
+from piper import PiperVoice
+from piper.config import SynthesisConfig
+
+# Target headroom — peak amplitude after rendering.
+# 0.90 × 32767 ≈ 29490 — leaves enough headroom that no sample saturates
+# even on the noisy slides where the model output exceeds [-1, 1].
+PEAK_HEADROOM_RATIO = 0.90
 TARGET_PEAK_INT16 = int(32767 * PEAK_HEADROOM_RATIO)
 
-PIPER_BIN = Path("/tmp/piper-venv/bin/piper")
+# Inter-line silence (seconds). One newline → silence_short. A blank line
+# (two consecutive newlines) → silence_long, mapping the SSML 500ms+ break.
+SILENCE_SHORT_SEC = 0.30
+SILENCE_LONG_SEC = 0.60
+
 VOICES_DIR = Path("/tmp/piper-voices")
 
 
@@ -98,68 +112,91 @@ def parse_ssml_blocks(narration_path: Path) -> list[tuple[str, str]]:
     return out
 
 
-def normalize_wav_peak(path: Path, target_peak: int = TARGET_PEAK_INT16) -> tuple[int, int]:
-    """Re-scale a 16-bit mono PCM WAV so peak amplitude == `target_peak`.
+def synth_line(voice_obj: PiperVoice, line: str) -> np.ndarray:
+    """Synthesize one line of text → float32 audio array in [-1, 1].
 
-    Piper's `--volume` flag is applied before int16 conversion; on some
-    inputs the model produces inter-sample peaks that overflow int16
-    anyway, leaving a flat-topped waveform with audible digital clipping.
-    Post-processing the rendered WAV is the only reliable fix.
-
-    Returns (original_peak, new_peak) for telemetry.
+    Concatenates the float arrays from each AudioChunk so we operate on
+    raw model output, not Piper's pre-int16-cast representation.
     """
-    with wave.open(str(path), "rb") as r:
-        n_channels = r.getnchannels()
-        sample_width = r.getsampwidth()
-        frame_rate = r.getframerate()
-        n_frames = r.getnframes()
-        raw = r.readframes(n_frames)
-
-    if sample_width != 2 or n_channels != 1:
-        # We only handle 16-bit mono. Piper's defaults match this; refuse
-        # silently rather than corrupting an unexpected file.
-        return (0, 0)
-
-    samples = list(struct.unpack(f"<{len(raw) // 2}h", raw))
-    original_peak = max(abs(s) for s in samples) or 1
-    if original_peak <= target_peak:
-        return (original_peak, original_peak)
-
-    scale = target_peak / original_peak
-    scaled = [max(-32768, min(32767, int(s * scale))) for s in samples]
-    new_peak = max(abs(s) for s in scaled)
-    new_raw = struct.pack(f"<{len(scaled)}h", *scaled)
-
-    with wave.open(str(path), "wb") as w:
-        w.setnchannels(n_channels)
-        w.setsampwidth(sample_width)
-        w.setframerate(frame_rate)
-        w.writeframes(new_raw)
-    return (original_peak, new_peak)
+    chunks: list[np.ndarray] = []
+    for chunk in voice_obj.synthesize(line, syn_config=SynthesisConfig()):
+        chunks.append(chunk.audio_float_array)
+    if not chunks:
+        return np.zeros(0, dtype=np.float32)
+    return np.concatenate(chunks)
 
 
-def render_block(slide_name: str, text: str, voice: str, out_dir: Path) -> Path:
+def render_block(
+    slide_name: str,
+    text: str,
+    voice_obj: PiperVoice,
+    sample_rate: int,
+    out_dir: Path,
+) -> tuple[Path, float, float]:
+    """Render a multi-line text block to a WAV file.
+
+    Empty lines insert SILENCE_LONG_SEC of silence; line breaks insert
+    SILENCE_SHORT_SEC. Each non-empty line is synthesized separately so
+    inter-line silence is exact rather than relying on Piper's prosody.
+
+    Returns (path, raw_peak_float, output_peak_int16) for telemetry.
+    The raw float peak tells us whether the model overshot [-1, 1] on
+    this clip — values > 1.0 indicate the bug we're working around.
+    """
     out_path = out_dir / f"{slide_name}.wav"
-    model = VOICES_DIR / f"{voice}.onnx"
-    cmd = [
-        str(PIPER_BIN),
-        "-m", str(model),
-        "-f", str(out_path),
-        # Add ~250 ms of silence between sentences so the pauses we
-        # emitted as periods land naturally.
-        "--sentence-silence", "0.25",
-    ]
-    proc = subprocess.run(
-        cmd,
-        input=text,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    if proc.returncode != 0 or not out_path.exists():
-        sys.stderr.write(f"piper failed for {slide_name}:\n{proc.stderr}\n")
+
+    short_silence = np.zeros(int(sample_rate * SILENCE_SHORT_SEC), dtype=np.float32)
+    long_silence = np.zeros(int(sample_rate * SILENCE_LONG_SEC), dtype=np.float32)
+
+    pieces: list[np.ndarray] = []
+    lines = text.split("\n")
+    prev_was_blank = False
+    for i, line in enumerate(lines):
+        stripped = line.strip()
+        if not stripped:
+            # Two consecutive newlines collapse to one long silence so we
+            # don't stack `short + long + short` and over-pause.
+            if not prev_was_blank and pieces:
+                pieces.append(long_silence)
+            prev_was_blank = True
+            continue
+        if i > 0 and not prev_was_blank:
+            pieces.append(short_silence)
+        pieces.append(synth_line(voice_obj, stripped))
+        prev_was_blank = False
+
+    if not pieces:
+        sys.stderr.write(f"empty render for {slide_name}\n")
         raise SystemExit(1)
-    return out_path
+
+    audio = np.concatenate(pieces)
+    raw_peak = float(np.max(np.abs(audio))) if audio.size else 0.0
+
+    # Saturate (clip) to [-1, 1] BEFORE int16 conversion. This is the
+    # critical step that Piper's CLI gets wrong — np.clip + multiply +
+    # round + astype guarantees no wraparound.
+    audio = np.clip(audio, -1.0, 1.0)
+
+    # Scale so peak == TARGET_PEAK_INT16. If raw_peak < 1 already, this
+    # also normalises loudness across slides.
+    if raw_peak > 0:
+        # Use the *clipped* peak (capped at 1.0) so we get consistent
+        # loudness even when the model overshoots.
+        clipped_peak = min(raw_peak, 1.0)
+        scale = (TARGET_PEAK_INT16 / 32767.0) / clipped_peak
+        audio = audio * scale
+        # `audio` is now in [-PEAK_HEADROOM_RATIO, PEAK_HEADROOM_RATIO].
+
+    int16 = np.clip(np.round(audio * 32767.0), -32767, 32767).astype(np.int16)
+    output_peak = int(np.max(np.abs(int16))) if int16.size else 0
+
+    with wave.open(str(out_path), "wb") as w:
+        w.setnchannels(1)
+        w.setsampwidth(2)
+        w.setframerate(sample_rate)
+        w.writeframes(int16.tobytes())
+
+    return out_path, raw_peak, float(output_peak)
 
 
 def main() -> int:
@@ -177,11 +214,11 @@ def main() -> int:
     if not narration_path.exists():
         sys.stderr.write(f"narration source missing: {narration_path}\n")
         return 1
-    if not (VOICES_DIR / f"{voice}.onnx").exists():
-        sys.stderr.write(f"voice model missing: {VOICES_DIR / (voice + '.onnx')}\n")
-        return 1
-    if not PIPER_BIN.exists():
-        sys.stderr.write(f"piper binary missing: {PIPER_BIN}\n")
+
+    model_path = VOICES_DIR / f"{voice}.onnx"
+    config_path = VOICES_DIR / f"{voice}.onnx.json"
+    if not model_path.exists():
+        sys.stderr.write(f"voice model missing: {model_path}\n")
         return 1
 
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -190,21 +227,34 @@ def main() -> int:
         sys.stderr.write("no SSML blocks found in source\n")
         return 1
 
-    print(f"rendering {len(blocks)} blocks to {out_dir} (voice={voice})")
+    print(f"loading voice: {voice}")
+    voice_obj = PiperVoice.load(model_path, config_path=config_path)
+    sample_rate = voice_obj.config.sample_rate
+
+    print(f"rendering {len(blocks)} blocks to {out_dir}  (sample_rate={sample_rate})")
+    overshoots = 0
     for slide_name, text in blocks:
-        path = render_block(slide_name, text, voice, out_dir)
-        original_peak, new_peak = normalize_wav_peak(path)
-        # Brief preview of what Piper saw: first 60 chars of the cleaned text.
+        path, raw_peak, output_peak = render_block(
+            slide_name, text, voice_obj, sample_rate, out_dir,
+        )
         preview = text[:60].replace("\n", " ⏎ ") + ("…" if len(text) > 60 else "")
         size_kb = path.stat().st_size // 1024
-        norm_note = (
-            ""
-            if original_peak == new_peak
-            else f"  (normalised {original_peak} → {new_peak})"
+        overshoot_note = ""
+        if raw_peak > 1.0:
+            overshoots += 1
+            overshoot_note = f"  ⚠ raw float peak={raw_peak:.3f} (clipped pre-int16)"
+        print(
+            f"  {slide_name}: {size_kb} KB  out_peak={output_peak} "
+            f"raw_peak={raw_peak:.3f}{overshoot_note}  | {preview}"
         )
-        print(f"  {slide_name}: {size_kb} KB  peak={new_peak}{norm_note}  | {preview}")
 
     print(f"done — {len(blocks)} clips in {out_dir}")
+    if overshoots:
+        print(
+            f"note: {overshoots} blocks had raw float output > 1.0 — these "
+            "would have been corrupted by the CLI; the Python API path "
+            "saturates them cleanly."
+        )
     return 0
 
 
