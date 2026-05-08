@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" width="720" height="360" role="img" aria-label="Naming cheat sheet prefixes and suffixes">
+  <title>Naming cheat sheet prefixes and suffixes</title>
+  <desc>Two-column reference: left column lists the parent-chain prefixes meth- through dec- in two rows of small cards. Right column lists the functional-group suffixes in priority order: carboxylic acid (-oic acid) at the top, alkane (-ane) at the bottom.</desc>
+  
+  <text x="360" y="32" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#1a202c" text-anchor="middle">Naming Cheat Sheet — Prefixes and Suffixes</text>
+
+  <!-- Prefixes (number → name) -->
+  <text x="180" y="80" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#2b6cb0" text-anchor="middle">parent-chain prefixes (count the carbons)</text>
+<rect x="30" y="110" width="60" height="22" rx="4" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1" />
+    <text x="60" y="126" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">1: meth-</text><rect x="100" y="110" width="60" height="22" rx="4" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1" />
+    <text x="130" y="126" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">2: eth-</text><rect x="170" y="110" width="60" height="22" rx="4" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1" />
+    <text x="200" y="126" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">3: prop-</text><rect x="240" y="110" width="60" height="22" rx="4" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1" />
+    <text x="270" y="126" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">4: but-</text><rect x="310" y="110" width="60" height="22" rx="4" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1" />
+    <text x="340" y="126" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">5: pent-</text><rect x="30" y="140" width="60" height="22" rx="4" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1" />
+    <text x="60" y="156" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">6: hex-</text><rect x="100" y="140" width="60" height="22" rx="4" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1" />
+    <text x="130" y="156" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">7: hept-</text><rect x="170" y="140" width="60" height="22" rx="4" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1" />
+    <text x="200" y="156" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">8: oct-</text><rect x="240" y="140" width="60" height="22" rx="4" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1" />
+    <text x="270" y="156" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">9: non-</text><rect x="310" y="140" width="60" height="22" rx="4" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1" />
+    <text x="340" y="156" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">10: dec-</text>
+  <text x="500" y="80" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#15803d" text-anchor="middle">functional-group suffixes (priority order)</text>
+    <text x="380" y="114" font="13px system-ui" font-size="13" fill="#1a202c">carboxylic acid</text>
+    <text x="540" y="114" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#15803d">-oic acid</text>
+    <text x="660" y="114" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">highest</text>
+    <text x="380" y="138" font="13px system-ui" font-size="13" fill="#1a202c">ester</text>
+    <text x="540" y="138" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#15803d">-oate</text>
+    <text x="660" y="138" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">↓</text>
+    <text x="380" y="162" font="13px system-ui" font-size="13" fill="#1a202c">amide</text>
+    <text x="540" y="162" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#15803d">-amide</text>
+    <text x="660" y="162" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">↓</text>
+    <text x="380" y="186" font="13px system-ui" font-size="13" fill="#1a202c">aldehyde</text>
+    <text x="540" y="186" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#15803d">-al</text>
+    <text x="660" y="186" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">↓</text>
+    <text x="380" y="210" font="13px system-ui" font-size="13" fill="#1a202c">ketone</text>
+    <text x="540" y="210" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#15803d">-one</text>
+    <text x="660" y="210" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">↓</text>
+    <text x="380" y="234" font="13px system-ui" font-size="13" fill="#1a202c">alcohol</text>
+    <text x="540" y="234" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#15803d">-ol</text>
+    <text x="660" y="234" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">↓</text>
+    <text x="380" y="258" font="13px system-ui" font-size="13" fill="#1a202c">amine</text>
+    <text x="540" y="258" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#15803d">-amine</text>
+    <text x="660" y="258" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">↓</text>
+    <text x="380" y="282" font="13px system-ui" font-size="13" fill="#1a202c">alkene/alkyne</text>
+    <text x="540" y="282" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#15803d">-ene / -yne</text>
+    <text x="660" y="282" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">↓</text>
+    <text x="380" y="306" font="13px system-ui" font-size="13" fill="#1a202c">alkane</text>
+    <text x="540" y="306" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#15803d">-ane</text>
+    <text x="660" y="306" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">lowest</text>
+  <text x="360" y="330" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Example: 4-carbon chain with an alcohol group → "but" + "an" + "ol" = butanol.</text>
+  <text x="360" y="348" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">When two functional groups compete, use the higher-priority one as the suffix; the other becomes a prefix.</text>
+
+</svg>

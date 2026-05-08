@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 480" width="600" height="480" role="img" aria-label="IUPAC naming five step flowchart">
+  <title>IUPAC naming five step flowchart</title>
+  <desc>A vertical five-step flowchart titled 'IUPAC Naming'. Each step is a numbered card connected by a downward arrow to the next: 1) Find the longest carbon chain (parent name). 2) Identify any branches (substituents). 3) Number the chain to give the lowest locants. 4) Name each substituent and its position. 5) Add the suffix for the highest-priority group.</desc>
+  
+  <text x="300" y="32" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#1a202c" text-anchor="middle">IUPAC Naming — Five-Step Flowchart</text>
+  <text x="300" y="54" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Apply these in order. Most molecules can be named in under a minute once it's a habit.</text>
+
+    <rect x="60" y="90" width="480" height="56" rx="10" fill="#f7fafc" stroke="#2b6cb0" stroke-width="2" />
+    <circle cx="92" cy="118" r="20" fill="#2b6cb0" />
+    <text x="92" y="123" font="bold 16px system-ui" font-size="16" font-weight="700" fill="white" text-anchor="middle">1</text>
+    <text x="124" y="114" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c">Find the longest carbon chain</text>
+    <text x="124" y="132" font="11px system-ui" font-size="11" fill="#4a5568">this is the parent name</text>
+      <line x1="300" y1="146" x2="300" y2="160" stroke="#2b6cb0" stroke-width="2" marker-end="url(#step-arr)" />
+    <rect x="60" y="160" width="480" height="56" rx="10" fill="#f7fafc" stroke="#2b6cb0" stroke-width="2" />
+    <circle cx="92" cy="188" r="20" fill="#2b6cb0" />
+    <text x="92" y="193" font="bold 16px system-ui" font-size="16" font-weight="700" fill="white" text-anchor="middle">2</text>
+    <text x="124" y="184" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c">Identify any branches (substituents)</text>
+    <text x="124" y="202" font="11px system-ui" font-size="11" fill="#4a5568">methyl, ethyl, halogen, etc.</text>
+      <line x1="300" y1="216" x2="300" y2="230" stroke="#2b6cb0" stroke-width="2" marker-end="url(#step-arr)" />
+    <rect x="60" y="230" width="480" height="56" rx="10" fill="#f7fafc" stroke="#2b6cb0" stroke-width="2" />
+    <circle cx="92" cy="258" r="20" fill="#2b6cb0" />
+    <text x="92" y="263" font="bold 16px system-ui" font-size="16" font-weight="700" fill="white" text-anchor="middle">3</text>
+    <text x="124" y="254" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c">Number the chain to give the lowest locants</text>
+    <text x="124" y="272" font="11px system-ui" font-size="11" fill="#4a5568">to the substituents (and double bonds)</text>
+      <line x1="300" y1="286" x2="300" y2="300" stroke="#2b6cb0" stroke-width="2" marker-end="url(#step-arr)" />
+    <rect x="60" y="300" width="480" height="56" rx="10" fill="#f7fafc" stroke="#2b6cb0" stroke-width="2" />
+    <circle cx="92" cy="328" r="20" fill="#2b6cb0" />
+    <text x="92" y="333" font="bold 16px system-ui" font-size="16" font-weight="700" fill="white" text-anchor="middle">4</text>
+    <text x="124" y="324" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c">Name each substituent and its position</text>
+    <text x="124" y="342" font="11px system-ui" font-size="11" fill="#4a5568">alphabetically; use 2,3- or 1,1- for repeats</text>
+      <line x1="300" y1="356" x2="300" y2="370" stroke="#2b6cb0" stroke-width="2" marker-end="url(#step-arr)" />
+    <rect x="60" y="370" width="480" height="56" rx="10" fill="#f7fafc" stroke="#2b6cb0" stroke-width="2" />
+    <circle cx="92" cy="398" r="20" fill="#2b6cb0" />
+    <text x="92" y="403" font="bold 16px system-ui" font-size="16" font-weight="700" fill="white" text-anchor="middle">5</text>
+    <text x="124" y="394" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c">Add the suffix for the highest-priority group</text>
+    <text x="124" y="412" font="11px system-ui" font-size="11" fill="#4a5568">-ol > -al > -one > -ene > -ane (not strict)</text>
+  <defs>
+    <marker id="step-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2b6cb0" />
+    </marker>
+  </defs>
+
+</svg>

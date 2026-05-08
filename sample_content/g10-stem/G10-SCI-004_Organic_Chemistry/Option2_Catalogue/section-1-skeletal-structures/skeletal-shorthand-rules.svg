@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" width="720" height="360" role="img" aria-label="Three ways to draw butane: full, condensed, skeletal">
+  <title>Three ways to draw butane: full, condensed, skeletal</title>
+  <desc>Three side-by-side representations of the molecule butane (C₄H₁₀): a full structural formula on the left with every C and H atom drawn explicitly, a condensed formula CH₃-CH₂-CH₂-CH₃ in the middle, and the skeletal zigzag on the right with three connected line segments. A caption summarises the skeletal-shorthand rules.</desc>
+  
+  <text x="360" y="32" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#1a202c" text-anchor="middle">Three Ways to Draw the Same Molecule (Butane, C₄H₁₀)</text>
+
+  <!-- Full structural formula (every C and H drawn) -->
+  <text x="120" y="70" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Full structural</text>
+  <text x="120" y="86" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">every atom drawn</text>
+  <g transform="translate(40, 130)">
+    <text x="0" y="14" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">H</text>
+    <text x="0" y="60" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">H</text>
+    <text x="20" y="40" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">−C−</text>
+    <text x="0" y="40" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">H</text>
+    <line x1="0" y1="20" x2="0" y2="32" stroke="#1a202c" stroke-width="2" />
+    <line x1="0" y1="48" x2="0" y2="56" stroke="#1a202c" stroke-width="2" />
+
+    <!-- C2 -->
+    <text x="60" y="14" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">H</text>
+    <text x="60" y="60" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">H</text>
+    <text x="60" y="40" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">−C−</text>
+    <line x1="60" y1="20" x2="60" y2="32" stroke="#1a202c" stroke-width="2" />
+    <line x1="60" y1="48" x2="60" y2="56" stroke="#1a202c" stroke-width="2" />
+
+    <!-- C3 -->
+    <text x="120" y="14" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">H</text>
+    <text x="120" y="60" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">H</text>
+    <text x="120" y="40" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">−C−</text>
+    <line x1="120" y1="20" x2="120" y2="32" stroke="#1a202c" stroke-width="2" />
+    <line x1="120" y1="48" x2="120" y2="56" stroke="#1a202c" stroke-width="2" />
+
+    <!-- C4 -->
+    <text x="180" y="14" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">H</text>
+    <text x="180" y="60" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">H</text>
+    <text x="180" y="40" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">−C−H</text>
+    <line x1="180" y1="20" x2="180" y2="32" stroke="#1a202c" stroke-width="2" />
+    <line x1="180" y1="48" x2="180" y2="56" stroke="#1a202c" stroke-width="2" />
+  </g>
+
+  <!-- Condensed -->
+  <text x="380" y="70" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Condensed</text>
+  <text x="380" y="86" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">a string of symbols</text>
+  <g transform="translate(380, 170)">
+    <text x="0" y="0" font="bold 22px system-ui" font-size="22" font-weight="700" fill="#1a202c" text-anchor="middle">CH₃ − CH₂ − CH₂ − CH₃</text>
+  </g>
+
+  <!-- Skeletal -->
+  <text x="600" y="70" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">Skeletal (zigzag)</text>
+  <text x="600" y="86" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">corners + endpoints = carbons</text>
+  <g transform="translate(540, 170)">
+    <line x1="0.0" y1="0.0" x2="18.0" y2="-31.2" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="18.0" y1="-31.2" x2="36.0" y2="0.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="36.0" y1="0.0" x2="54.0" y2="-31.2" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  </g>
+
+  <text x="360" y="304" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">All three diagrams describe butane.</text>
+  <text x="360" y="322" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle">Skeletal rules: every corner is a carbon · endpoints are carbons · hydrogens are implied</text>
+  <text x="360" y="342" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">For each C, draw enough H to total four bonds — but you don't have to write them.</text>
+
+</svg>

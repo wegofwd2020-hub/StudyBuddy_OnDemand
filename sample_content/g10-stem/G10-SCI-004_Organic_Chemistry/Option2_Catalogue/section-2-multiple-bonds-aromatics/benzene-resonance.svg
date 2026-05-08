@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 320" width="720" height="320" role="img" aria-label="Benzene resonance forms and circle representation">
+  <title>Benzene resonance forms and circle representation</title>
+  <desc>Three depictions of benzene side by side: Kekulé form A (hexagon with alternating single-double bonds starting on one position), resonance double-arrow, Kekulé form B (alternation shifted by one position), equivalence symbol, and the modern circle-in-hexagon shorthand showing delocalised electrons.</desc>
+  
+  <text x="360" y="32" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#1a202c" text-anchor="middle">Benzene — Two Kekulé Forms and the Modern "Circle"</text>
+  <text x="360" y="54" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Six carbons in a ring, three double bonds — but the bonds aren't really "fixed" in place.</text>
+
+  <text x="150" y="100" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Kekulé form A</text>
+  <line x1="148.0" y1="133.5" x2="191.3" y2="158.5" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="151.0" y1="128.3" x2="194.3" y2="153.3" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="193.3" y1="155.0" x2="193.3" y2="205.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="191.3" y1="201.5" x2="148.0" y2="226.5" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="194.3" y1="206.7" x2="151.0" y2="231.7" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="150.0" y1="230.0" x2="106.7" y2="205.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="110.7" y1="205.0" x2="110.7" y2="155.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="104.7" y1="205.0" x2="104.7" y2="155.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="106.7" y1="155.0" x2="150.0" y2="130.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="220" y1="180" x2="280" y2="180" stroke="#dd6b20" stroke-width="2.5" />
+  <polygon points="280,180 270,174 270,186" fill="#dd6b20" />
+  <line x1="280" y1="186" x2="220" y2="186" stroke="#dd6b20" stroke-width="2.5" />
+  <polygon points="220,186 230,180 230,192" fill="#dd6b20" />
+  <text x="250" y="170" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dd6b20" text-anchor="middle">resonance</text>
+
+  <text x="360" y="100" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Kekulé form B</text><line x1="360.0" y1="130.0" x2="403.3" y2="155.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="399.3" y1="155.0" x2="399.3" y2="205.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="405.3" y1="155.0" x2="405.3" y2="205.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="403.3" y1="205.0" x2="360.0" y2="230.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="362.0" y1="226.5" x2="318.7" y2="201.5" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="359.0" y1="231.7" x2="315.7" y2="206.7" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="316.7" y1="205.0" x2="316.7" y2="155.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="318.7" y1="158.5" x2="362.0" y2="133.5" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="315.7" y1="153.3" x2="359.0" y2="128.3" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="430" y1="180" x2="500" y2="180" stroke="#15803d" stroke-width="2.5" />
+  <polygon points="500,180 490,174 490,186" fill="#15803d" />
+  <text x="465" y="170" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle">≡</text>
+
+  <text x="580" y="100" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#7c3aed" text-anchor="middle">Modern: circle</text><line x1="580.0" y1="130.0" x2="623.3" y2="155.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="623.3" y1="155.0" x2="623.3" y2="205.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="623.3" y1="205.0" x2="580.0" y2="230.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="580.0" y1="230.0" x2="536.7" y2="205.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="536.7" y1="205.0" x2="536.7" y2="155.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="536.7" y1="155.0" x2="580.0" y2="130.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><circle cx="580" cy="180" r="27.500000000000004" fill="none" stroke="#7c3aed" stroke-width="2.5" />
+  <text x="360" y="290" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">In reality, the six bonds are all the same length — somewhere between single and double.</text>
+  <text x="360" y="308" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#7c3aed" text-anchor="middle">The circle inside the hexagon is shorthand for "delocalised electrons all around the ring".</text>
+
+</svg>

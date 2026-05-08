@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 260" width="600" height="260" role="img" aria-label="Amine and amide functional groups">
+  <title>Amine and amide functional groups</title>
+  <desc>Two structures side by side: ethylamine (a two-carbon zigzag with −NH₂ on one end) and ethanamide (a two-carbon zigzag with =O double-bonded plus −NH₂ on the same terminal carbon).</desc>
+  
+  <text x="300" y="32" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#1a202c" text-anchor="middle">Amine vs Amide — Nitrogen-Containing Groups</text>
+
+  <!-- Amine: ethylamine -->
+  <text x="170" y="80" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#3b82f6" text-anchor="middle">amine</text>
+  <text x="170" y="96" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">ethylamine</text><line x1="120.0" y1="170.0" x2="138.0" y2="138.8" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="138.0" y1="138.8" x2="156.0" y2="170.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><text x="174.0" y="176.0" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#3b82f6" text-anchor="middle">NH₂</text>
+  <text x="430" y="80" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#3b82f6" text-anchor="middle">amide</text>
+  <text x="430" y="96" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">ethanamide</text><line x1="380.0" y1="170.0" x2="398.0" y2="138.8" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="401.5" y1="140.8" x2="419.5" y2="109.6" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="396.3" y1="137.8" x2="414.3" y2="106.6" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><text x="428.0" y="113.6" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#dc2626" text-anchor="middle">O</text><line x1="398.0" y1="138.8" x2="416.0" y2="170.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><text x="434.0" y="176.0" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#3b82f6" text-anchor="middle">NH₂</text>
+  <text x="300" y="228" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Amine = nitrogen attached to a carbon chain (like ammonia with a tail).</text>
+  <text x="300" y="246" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Amide = nitrogen attached to a carbonyl carbon (=O) — the building block of proteins.</text>
+
+</svg>

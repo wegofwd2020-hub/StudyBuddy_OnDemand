@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" width="720" height="360" role="img" aria-label="Worked example naming 3-bromo-2-methylbutane">
+  <title>Worked example naming 3-bromo-2-methylbutane</title>
+  <desc>Left side shows a four-carbon zigzag with carbon positions 1-2-3-4 labelled; a CH₃ methyl branch on C2 and a Br substituent on C3. Right side shows five labelled rows applying the IUPAC steps: parent chain butane, substituents methyl + bromo, lowest locants 2 and 3, alphabetise bromo-before-methyl, and final name highlighted in green: 3-bromo-2-methylbutane.</desc>
+  
+  <text x="360" y="32" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#1a202c" text-anchor="middle">Worked Example — Naming 3-bromo-2-methylbutane</text>
+
+  <!-- Structure on the left -->
+  <g transform="translate(120, 130)">
+<line x1="0.0" y1="0.0" x2="18.0" y2="-31.2" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="18.0" y1="-31.2" x2="36.0" y2="0.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="36.0" y1="0.0" x2="54.0" y2="-31.2" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="18.0" y1="-31.2" x2="18.0" y2="-62.4" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="36.0" y1="0.0" x2="36.0" y2="31.2" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><text x="36.0" y="54.5" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#16a34a" text-anchor="middle">Br</text><text x="18.000000000000004" y="-68.35382907247958" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#dd6b20" text-anchor="middle">CH₃</text><text x="0" y="-10" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">1</text><text x="18.000000000000004" y="-41.17691453623979" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">2</text><text x="36.00000000000001" y="-10" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">3</text><text x="54.000000000000014" y="-41.17691453623979" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">4</text></g>
+    <text x="380" y="94" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0">1. Parent chain</text>
+    <text x="380" y="112" font="13px system-ui" font-size="13" fill="#1a202c">4 carbons → butane</text><line x1="380" y1="122" x2="680" y2="122" stroke="#4a5568" stroke-width="0.6" stroke-dasharray="2 4" />
+    <text x="380" y="138" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0">2. Substituents</text>
+    <text x="380" y="156" font="13px system-ui" font-size="13" fill="#1a202c">methyl + bromo</text><line x1="380" y1="166" x2="680" y2="166" stroke="#4a5568" stroke-width="0.6" stroke-dasharray="2 4" />
+    <text x="380" y="182" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0">3. Lowest locants</text>
+    <text x="380" y="200" font="13px system-ui" font-size="13" fill="#1a202c">methyl on C2 · bromo on C3</text><line x1="380" y1="210" x2="680" y2="210" stroke="#4a5568" stroke-width="0.6" stroke-dasharray="2 4" />
+    <text x="380" y="226" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0">4. Alphabetise</text>
+    <text x="380" y="244" font="13px system-ui" font-size="13" fill="#1a202c">bromo before methyl</text><line x1="380" y1="254" x2="680" y2="254" stroke="#4a5568" stroke-width="0.6" stroke-dasharray="2 4" />
+    <text x="380" y="270" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0">5. Final name</text>
+    <text x="380" y="288" font="13px system-ui" font-size="13" fill="#1a202c">3-bromo-2-methylbutane</text>
+  <rect x="372" y="258" width="308" height="40" rx="8" fill="#fef3c7" stroke="#15803d" stroke-width="2" />
+  <text x="380" y="270" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#15803d">5. Final name</text>
+  <text x="380" y="288" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c">3-bromo-2-methylbutane</text>
+
+</svg>

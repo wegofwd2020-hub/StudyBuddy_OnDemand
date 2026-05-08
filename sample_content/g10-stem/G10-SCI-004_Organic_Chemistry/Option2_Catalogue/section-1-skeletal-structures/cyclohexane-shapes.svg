@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 320" width="720" height="320" role="img" aria-label="Cyclohexane hexagon and chair conformation">
+  <title>Cyclohexane hexagon and chair conformation</title>
+  <desc>Two side-by-side drawings of cyclohexane: a flat regular hexagon on the left as the skeletal shorthand, and an angular chair-shaped diagram on the right showing the molecule's true 3D conformation with two parallel zigzags connected vertically.</desc>
+  
+  <text x="360" y="32" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#1a202c" text-anchor="middle">Cyclohexane — Two Ways to Draw the Same Ring</text>
+
+  <!-- Hexagon (planar, 2D) -->
+  <text x="180" y="80" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Skeletal hexagon</text>
+  <text x="180" y="96" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">flat 2D shorthand</text>
+  <line x1="180.0" y1="140.0" x2="232.0" y2="170.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="232.0" y1="170.0" x2="232.0" y2="230.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="232.0" y1="230.0" x2="180.0" y2="260.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="180.0" y1="260.0" x2="128.0" y2="230.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="128.0" y1="230.0" x2="128.0" y2="170.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="128.0" y1="170.0" x2="180.0" y2="140.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+
+  <!-- Chair conformation -->
+  <text x="540" y="80" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#15803d" text-anchor="middle">Chair conformation</text>
+  <text x="540" y="96" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">actual 3D shape (zig-zag in space)</text>
+  <!-- Chair: 6 vertices in two parallel zigzags -->
+  <g>
+    <line x1="460" y1="190" x2="510" y2="170" stroke="#1a202c" stroke-width="2.5" />
+    <line x1="510" y1="170" x2="570" y2="170" stroke="#1a202c" stroke-width="2.5" />
+    <line x1="570" y1="170" x2="620" y2="190" stroke="#1a202c" stroke-width="2.5" />
+    <line x1="460" y1="230" x2="510" y2="250" stroke="#1a202c" stroke-width="2.5" />
+    <line x1="510" y1="250" x2="570" y2="250" stroke="#1a202c" stroke-width="2.5" />
+    <line x1="570" y1="250" x2="620" y2="230" stroke="#1a202c" stroke-width="2.5" />
+    <line x1="460" y1="190" x2="460" y2="230" stroke="#1a202c" stroke-width="2.5" />
+    <line x1="620" y1="190" x2="620" y2="230" stroke="#1a202c" stroke-width="2.5" />
+  </g>
+
+  <text x="360" y="290" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Both diagrams describe the same molecule (C₆H₁₂). The hexagon is shorthand; the chair is true 3D.</text>
+  <text x="360" y="308" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle">In real life cyclohexane is never flat — it puckers into the chair to reduce strain.</text>
+
+</svg>

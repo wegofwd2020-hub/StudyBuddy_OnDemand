@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 460" width="760" height="460" role="img" aria-label="Functional groups reference card">
+  <title>Functional groups reference card</title>
+  <desc>Seven coloured cards in a 4-by-2 grid (last cell blank), each labelling a functional group: alcohol (−OH), aldehyde (−CHO), ketone (C=O middle), carboxylic acid (−COOH), ester (−COO−), amine (−NH₂), and halide (−Cl/−Br...). Each card shows the group name, the R-group skeletal shorthand, the suffix added to the IUPAC name, and an example compound.</desc>
+  
+  <text x="380" y="32" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#1a202c" text-anchor="middle">Functional Groups — Reference Card</text>
+  <text x="380" y="54" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">A functional group is the bit of a molecule that decides how it reacts. Same group → same chemistry.</text>
+
+    <rect x="20" y="90" width="168" height="150" rx="8" fill="#f7fafc" stroke="#ef4444" stroke-width="2" />
+    <text x="104" y="112" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#ef4444" text-anchor="middle">alcohol</text>
+    <text x="104" y="150" font="bold 22px system-ui" font-size="22" font-weight="700" fill="#1a202c" text-anchor="middle">R −OH</text>
+    <text x="104" y="180" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">suffix: -ol</text>
+    <text x="104" y="200" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#4a5568" text-anchor="middle">e.g. ethanol</text>
+    <rect x="200" y="90" width="168" height="150" rx="8" fill="#f7fafc" stroke="#dc2626" stroke-width="2" />
+    <text x="284" y="112" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#dc2626" text-anchor="middle">aldehyde</text>
+    <text x="284" y="150" font="bold 22px system-ui" font-size="22" font-weight="700" fill="#1a202c" text-anchor="middle">R −CHO</text>
+    <text x="284" y="180" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">suffix: -al</text>
+    <text x="284" y="200" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#4a5568" text-anchor="middle">e.g. ethanal</text>
+    <rect x="380" y="90" width="168" height="150" rx="8" fill="#f7fafc" stroke="#dc2626" stroke-width="2" />
+    <text x="464" y="112" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#dc2626" text-anchor="middle">ketone</text>
+    <text x="464" y="150" font="bold 22px system-ui" font-size="22" font-weight="700" fill="#1a202c" text-anchor="middle">R C=O (mid)</text>
+    <text x="464" y="180" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">suffix: -one</text>
+    <text x="464" y="200" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#4a5568" text-anchor="middle">e.g. propan-2-one</text>
+    <rect x="560" y="90" width="168" height="150" rx="8" fill="#f7fafc" stroke="#dc2626" stroke-width="2" />
+    <text x="644" y="112" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#dc2626" text-anchor="middle">carboxylic acid</text>
+    <text x="644" y="150" font="bold 22px system-ui" font-size="22" font-weight="700" fill="#1a202c" text-anchor="middle">R −COOH</text>
+    <text x="644" y="180" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">suffix: -oic acid</text>
+    <text x="644" y="200" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#4a5568" text-anchor="middle">e.g. ethanoic acid</text>
+    <rect x="20" y="254" width="168" height="150" rx="8" fill="#f7fafc" stroke="#dc2626" stroke-width="2" />
+    <text x="104" y="276" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#dc2626" text-anchor="middle">ester</text>
+    <text x="104" y="314" font="bold 22px system-ui" font-size="22" font-weight="700" fill="#1a202c" text-anchor="middle">R −COO−</text>
+    <text x="104" y="344" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">suffix: -oate</text>
+    <text x="104" y="364" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#4a5568" text-anchor="middle">e.g. methyl ethanoate</text>
+    <rect x="200" y="254" width="168" height="150" rx="8" fill="#f7fafc" stroke="#3b82f6" stroke-width="2" />
+    <text x="284" y="276" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#3b82f6" text-anchor="middle">amine</text>
+    <text x="284" y="314" font="bold 22px system-ui" font-size="22" font-weight="700" fill="#1a202c" text-anchor="middle">R −NH₂</text>
+    <text x="284" y="344" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">suffix: -amine</text>
+    <text x="284" y="364" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#4a5568" text-anchor="middle">e.g. ethylamine</text>
+    <rect x="380" y="254" width="168" height="150" rx="8" fill="#f7fafc" stroke="#16a34a" stroke-width="2" />
+    <text x="464" y="276" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#16a34a" text-anchor="middle">halide</text>
+    <text x="464" y="314" font="bold 22px system-ui" font-size="22" font-weight="700" fill="#1a202c" text-anchor="middle">R −Cl, −Br...</text>
+    <text x="464" y="344" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">suffix: (no name change)</text>
+    <text x="464" y="364" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#4a5568" text-anchor="middle">e.g. chloroethane</text>
+  <text x="380" y="438" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">"R" stands for "the rest of the molecule" — usually a hydrocarbon chain.</text>
+  <text x="380" y="454" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Add the right suffix to the parent-chain name and you've named most simple organic compounds.</text>
+
+</svg>

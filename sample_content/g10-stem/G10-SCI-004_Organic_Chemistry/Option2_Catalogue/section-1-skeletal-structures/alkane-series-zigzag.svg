@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 320" width="760" height="320" role="img" aria-label="Alkane series methane to pentane">
+  <title>Alkane series methane to pentane</title>
+  <desc>Five rows from methane (CH₄, single-atom note) up through pentane (C₅H₁₂, four-segment zigzag). Each row shows the IUPAC name, molecular formula, and skeletal structure. The staircase pattern is visible as the zigzag grows by one bond per row.</desc>
+  
+  <text x="380" y="32" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#1a202c" text-anchor="middle">Alkane Series — Methane to Pentane</text>
+  <text x="380" y="54" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Each row adds one carbon. The pattern: name + "ane" suffix, formula CₙH₂ₙ₊₂.</text>
+
+    <text x="50" y="100" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c">methane</text>
+    <text x="170" y="100" font="13px system-ui" font-size="13" fill="#4a5568">CH₄</text><text x="320" y="100" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c">CH₄</text><text x="500" y="100" font="11px system-ui" font-size="11" fill="#4a5568">(too simple for skeletal)</text>
+    <text x="50" y="144" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c">ethane</text>
+    <text x="170" y="144" font="13px system-ui" font-size="13" fill="#4a5568">C₂H₆</text><g><line x1="320.0" y1="134.0" x2="338.0" y2="102.8" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /></g>
+    <text x="50" y="188" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c">propane</text>
+    <text x="170" y="188" font="13px system-ui" font-size="13" fill="#4a5568">C₃H₈</text><g><line x1="320.0" y1="178.0" x2="338.0" y2="146.8" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="338.0" y1="146.8" x2="356.0" y2="178.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /></g>
+    <text x="50" y="232" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c">butane</text>
+    <text x="170" y="232" font="13px system-ui" font-size="13" fill="#4a5568">C₄H₁₀</text><g><line x1="320.0" y1="222.0" x2="338.0" y2="190.8" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="338.0" y1="190.8" x2="356.0" y2="222.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="356.0" y1="222.0" x2="374.0" y2="190.8" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /></g>
+    <text x="50" y="276" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c">pentane</text>
+    <text x="170" y="276" font="13px system-ui" font-size="13" fill="#4a5568">C₅H₁₂</text><g><line x1="320.0" y1="266.0" x2="338.0" y2="234.8" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="338.0" y1="234.8" x2="356.0" y2="266.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="356.0" y1="266.0" x2="374.0" y2="234.8" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="374.0" y1="234.8" x2="392.0" y2="266.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /></g>
+  <text x="380" y="308" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Each step on the staircase = one more CH₂. Skeletal makes that pattern jump out.</text>
+
+</svg>

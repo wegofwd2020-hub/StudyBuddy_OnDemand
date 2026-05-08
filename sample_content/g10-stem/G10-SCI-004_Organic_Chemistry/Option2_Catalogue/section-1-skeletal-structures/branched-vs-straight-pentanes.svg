@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 320" width="760" height="320" role="img" aria-label="Three pentane isomers">
+  <title>Three pentane isomers</title>
+  <desc>Three constitutional isomers of pentane (C₅H₁₂) with their skeletal structures and boiling points: n-pentane (straight zigzag, 36 °C), isopentane (2-methylbutane, branched off the second carbon, 28 °C), and neopentane (2,2-dimethylpropane, central carbon with four methyls, 9 °C).</desc>
+  
+  <text x="380" y="32" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#1a202c" text-anchor="middle">Three Pentanes — Same C₅H₁₂, Different Shapes</text>
+  <text x="380" y="54" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Constitutional isomers — same atoms, different connectivity, different boiling points.</text>
+
+  <text x="120" y="100" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">n-pentane</text>
+  <text x="120" y="116" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">straight chain · bp 36 °C</text>
+  <g transform="translate(50, 160)">
+    <line x1="0.0" y1="0.0" x2="18.0" y2="-31.2" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="18.0" y1="-31.2" x2="36.0" y2="0.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="36.0" y1="0.0" x2="54.0" y2="-31.2" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="54.0" y1="-31.2" x2="72.0" y2="0.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  </g>
+  <text x="380" y="100" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">isopentane</text>
+  <text x="380" y="116" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">2-methylbutane · bp 28 °C</text>
+  <g transform="translate(310, 160)">
+    <line x1="0.0" y1="0.0" x2="18.0" y2="-31.2" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="18.0" y1="-31.2" x2="36.0" y2="0.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="36.0" y1="0.0" x2="54.0" y2="-31.2" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+    <line x1="18.0" y1="0.0" x2="18.0" y2="31.2" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  </g>
+  <text x="620" y="100" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">neopentane</text>
+  <text x="620" y="116" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">2,2-dimethylpropane · bp 9 °C</text>
+  <g>
+    <line x1="620.0" y1="175.0" x2="584.0" y2="175.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+    <line x1="620.0" y1="175.0" x2="656.0" y2="175.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+    <line x1="620.0" y1="175.0" x2="620.0" y2="139.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+    <line x1="620.0" y1="175.0" x2="620.0" y2="211.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  </g>
+  <text x="380" y="290" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Same molecular formula. Same number of each atom. Different bond pattern.</text>
+  <text x="380" y="308" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle">More branching → tighter ball shape → less surface contact → lower boiling point.</text>
+
+</svg>

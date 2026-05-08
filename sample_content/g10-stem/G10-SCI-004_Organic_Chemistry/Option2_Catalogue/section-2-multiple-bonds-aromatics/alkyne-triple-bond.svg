@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 260" width="600" height="260" role="img" aria-label="Alkyne series with triple bonds">
+  <title>Alkyne series with triple bonds</title>
+  <desc>Two alkyne structures: ethyne also called acetylene (C₂H₂, two carbons joined by a triple bond), and propyne (C₃H₄, three-carbon chain with a triple bond at one end).</desc>
+  
+  <text x="300" y="32" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#1a202c" text-anchor="middle">Alkynes — One Triple Bond (CₙH₂ₙ₋₂)</text>
+  <text x="300" y="54" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">"≡" between two carbons means triple bond. Suffix changes to -yne.</text>
+
+  <!-- Ethyne (acetylene) -->
+  <text x="180" y="120" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">ethyne (acetylene)</text>
+  <text x="180" y="136" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">C₂H₂</text>
+  
+  <line x1="162.0" y1="174.0" x2="198.0" y2="174.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="162.0" y1="170.0" x2="198.0" y2="170.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="162.0" y1="166.0" x2="198.0" y2="166.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+
+  <!-- Propyne -->
+  <text x="430" y="120" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">propyne</text>
+  <text x="430" y="136" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">C₃H₄</text>
+
+  <line x1="380.0" y1="174.0" x2="416.0" y2="174.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="380.0" y1="170.0" x2="416.0" y2="170.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  <line x1="380.0" y1="166.0" x2="416.0" y2="166.0" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" /><line x1="416.0" y1="170.0" x2="434.0" y2="138.8" stroke="#1a202c" stroke-width="2.5" stroke-linecap="round" />
+  <text x="300" y="244" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Triple bond = three lines drawn parallel between two carbons. Linear geometry — straight, not zigzag.</text>
+
+</svg>
