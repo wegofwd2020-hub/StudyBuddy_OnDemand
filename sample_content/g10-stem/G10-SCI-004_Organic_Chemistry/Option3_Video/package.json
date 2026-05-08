@@ -1,0 +1,24 @@
+{
+  "name": "g10-sci-004-organic-chemistry-video",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "studio": "bunx remotion studio",
+    "render:single-bond":     "bunx remotion render hydrocarbon-single-bond     ~/Downloads/Hydrocarbon_SingleBond.mp4",
+    "render:double-bond":     "bunx remotion render hydrocarbon-double-bond     ~/Downloads/Hydrocarbon_DoubleBond.mp4",
+    "render:triple-bond":     "bunx remotion render hydrocarbon-triple-bond     ~/Downloads/Hydrocarbon_TripleBond.mp4",
+    "render:aromatic":        "bunx remotion render hydrocarbon-aromatic        ~/Downloads/Hydrocarbon_Aromatic.mp4",
+    "render:all": "bun run render:single-bond && bun run render:double-bond && bun run render:triple-bond && bun run render:aromatic"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.260",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.260",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.0",
+    "typescript": "^5.4.0"
+  }
+}
