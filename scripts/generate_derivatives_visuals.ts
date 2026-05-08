@@ -44,28 +44,9 @@ import {
   plotPolyline,
   type PlotConfig,
 } from "../pipeline/visual_templates/shared.ts";
+import { secantLine } from "../pipeline/visual_templates/derivatives.ts";
 
 const makePlot = (c: PlotConfig) => makePlotShared(c, VARIANT_B);
-
-/** Secant line through two points on a curve, drawn the full plot width. */
-function secantLine(
-  fn: (x: number) => number,
-  x1: number,
-  x2: number,
-  xRange: [number, number],
-  xToPx: (x: number) => number,
-  yToPx: (y: number) => number,
-  color: string = ACCENT_2,
-  width: number = 2.5,
-  dash: string = "",
-): string {
-  const y1 = fn(x1), y2 = fn(x2);
-  const m = (y2 - y1) / (x2 - x1);
-  // Extend across the visible x range
-  const yL = y1 + m * (xRange[0] - x1);
-  const yR = y1 + m * (xRange[1] - x1);
-  return `<line x1="${xToPx(xRange[0]).toFixed(2)}" y1="${yToPx(yL).toFixed(2)}" x2="${xToPx(xRange[1]).toFixed(2)}" y2="${yToPx(yR).toFixed(2)}" stroke="${color}" stroke-width="${width}" stroke-linecap="round" ${dash ? `stroke-dasharray="${dash}"` : ""} />`;
-}
 
 function svgWrap(viewBoxW: number, viewBoxH: number, title: string, desc: string, body: string) {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${viewBoxW} ${viewBoxH}" width="${viewBoxW}" height="${viewBoxH}" role="img" aria-label="${title}">

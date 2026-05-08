@@ -25,7 +25,9 @@ const ROOT = join(
   "Option2_Catalogue",
 );
 
-// Style tokens lifted to pipeline/visual_templates/shared.ts (#341 phase A).
+// Style tokens + class primitives lifted to pipeline/visual_templates.
+// Skeletal-structure helpers + functional-group palette imported from the
+// class module per #343 phase C-3.
 import {
   INK,
   MUTED,
@@ -34,16 +36,26 @@ import {
   POSITIVE,
   NEGATIVE,
   BG,
+  HIGHLIGHT,
 } from "../pipeline/visual_templates/shared.ts";
-const HIGHLIGHT = "#fef3c7";
-const BOND = "#1a202c";
-
-// Functional group colour tags (locked-in convention)
-const FG_HYDROXYL = "#ef4444";    // OH — red
-const FG_CARBONYL = "#dc2626";    // C=O — deep red
-const FG_AMINE = "#3b82f6";       // NH2 — blue
-const FG_HALOGEN = "#16a34a";     // X — green
-const FG_RING = "#7c3aed";        // aromatic — purple
+import {
+  BOND,
+  FG_HYDROXYL,
+  FG_CARBONYL,
+  FG_AMINE,
+  FG_HALOGEN,
+  FG_RING,
+  BL,
+  ZIG,
+  ZAG,
+  zigzagPoints,
+  singleBond,
+  doubleBond,
+  tripleBond,
+  atomLabel,
+  alkaneZigzag,
+  hexagon,
+} from "../pipeline/visual_templates/organic_chemistry.ts";
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -61,92 +73,6 @@ function write(rel: string, body: string) {
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, body);
   console.log("wrote", rel);
-}
-
-// ── Skeletal-structure drawing primitives ───────────────────────────────────
-// The conventional zigzag: alternating up/down vertices, 30°/-30° from horizontal,
-// bond length BL. Each vertex = one carbon (implicit), endpoints also = carbons.
-
-const BL = 36;             // skeletal bond length
-const ZIG = BL * Math.sin(Math.PI / 3); // vertical step (60° angle)
-const ZAG = BL * Math.cos(Math.PI / 3); // horizontal step
-
-/**
- * Compute zigzag vertex positions for a chain of N carbons.
- * The chain runs left-to-right; first vertex is at (x0, y0).
- * Even-index vertices are "low", odd-index are "high" (or vice versa with parity).
- */
-function zigzagPoints(x0: number, y0: number, n: number, parity: 0 | 1 = 0): Array<{ x: number; y: number }> {
-  const pts: Array<{ x: number; y: number }> = [];
-  for (let i = 0; i < n; i++) {
-    const x = x0 + i * ZAG * 2;
-    const y = y0 + ((i + parity) % 2 === 0 ? 0 : -ZIG);
-    pts.push({ x, y });
-  }
-  // Adjust so we go up-down-up-down (alternating) at proper 60° angles
-  // Better implementation: each segment is a 60° zigzag step
-  return pts.map((_, i) => ({
-    x: x0 + i * ZAG,
-    y: y0 + (i % 2 === parity ? 0 : -ZIG),
-  }));
-}
-
-/** Single bond between two points. */
-function singleBond(x1: number, y1: number, x2: number, y2: number, color = BOND, width = 2.5): string {
-  return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${color}" stroke-width="${width}" stroke-linecap="round" />`;
-}
-
-/** Double bond — two parallel lines with a small gap. */
-function doubleBond(x1: number, y1: number, x2: number, y2: number, color = BOND): string {
-  // Compute perpendicular offset
-  const dx = x2 - x1, dy = y2 - y1;
-  const len = Math.sqrt(dx * dx + dy * dy);
-  const px = -dy / len * 4, py = dx / len * 4;
-  // Inner line is shorter (offset toward shape interior — for our zigzag, just centered second line)
-  return `
-  <line x1="${(x1 + px).toFixed(1)}" y1="${(y1 + py).toFixed(1)}" x2="${(x2 + px).toFixed(1)}" y2="${(y2 + py).toFixed(1)}" stroke="${color}" stroke-width="2.5" stroke-linecap="round" />
-  <line x1="${(x1 - px * 0.5).toFixed(1)}" y1="${(y1 - py * 0.5).toFixed(1)}" x2="${(x2 - px * 0.5).toFixed(1)}" y2="${(y2 - py * 0.5).toFixed(1)}" stroke="${color}" stroke-width="2.5" stroke-linecap="round" />`;
-}
-
-/** Triple bond — three parallel lines. */
-function tripleBond(x1: number, y1: number, x2: number, y2: number, color = BOND): string {
-  const dx = x2 - x1, dy = y2 - y1;
-  const len = Math.sqrt(dx * dx + dy * dy);
-  const px = -dy / len * 4, py = dx / len * 4;
-  return `
-  <line x1="${(x1 + px).toFixed(1)}" y1="${(y1 + py).toFixed(1)}" x2="${(x2 + px).toFixed(1)}" y2="${(y2 + py).toFixed(1)}" stroke="${color}" stroke-width="2.5" stroke-linecap="round" />
-  <line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${color}" stroke-width="2.5" stroke-linecap="round" />
-  <line x1="${(x1 - px).toFixed(1)}" y1="${(y1 - py).toFixed(1)}" x2="${(x2 - px).toFixed(1)}" y2="${(y2 - py).toFixed(1)}" stroke="${color}" stroke-width="2.5" stroke-linecap="round" />`;
-}
-
-/** Atom label at a position (e.g. "OH", "Cl", "NH₂"). */
-function atomLabel(x: number, y: number, text: string, color: string, fontSize = 18): string {
-  return `<text x="${x.toFixed(1)}" y="${(y + fontSize / 3).toFixed(1)}" font="bold ${fontSize}px system-ui" font-size="${fontSize}" font-weight="700" fill="${color}" text-anchor="middle">${text}</text>`;
-}
-
-/** Render an alkane zigzag of N carbons starting at (x0, y0). */
-function alkaneZigzag(x0: number, y0: number, n: number, startsLow: boolean = true): string {
-  const parity = startsLow ? 0 : 1;
-  const pts = zigzagPoints(x0, y0, n, parity);
-  let s = '';
-  for (let i = 0; i < pts.length - 1; i++) {
-    s += singleBond(pts[i].x, pts[i].y, pts[i + 1].x, pts[i + 1].y);
-  }
-  return s;
-}
-
-/** Hexagon ring (benzene/cyclohexane) at center (cx, cy) with radius r. */
-function hexagon(cx: number, cy: number, r: number, color = BOND): string {
-  const pts = Array.from({ length: 6 }, (_, i) => {
-    const ang = -Math.PI / 2 + i * (Math.PI / 3);
-    return { x: cx + r * Math.cos(ang), y: cy + r * Math.sin(ang) };
-  });
-  let s = '';
-  for (let i = 0; i < 6; i++) {
-    const next = (i + 1) % 6;
-    s += singleBond(pts[i].x, pts[i].y, pts[next].x, pts[next].y, color);
-  }
-  return s;
 }
 
 // ────────────────────────────────────────────────────────────────────────────

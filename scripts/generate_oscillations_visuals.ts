@@ -17,10 +17,10 @@
 import { writeFileSync, mkdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 
-// Universal helpers + style tokens lifted to pipeline/visual_templates/shared.ts
-// per #340 (Visual library close-out). The local svgWrap and write wrappers
-// retain their original signatures to minimise call-site churn during the
-// lift; the next pass folds them into shared.ts as well.
+// Universal helpers + style tokens lifted to pipeline/visual_templates/shared.ts.
+// Class-specific superpositionPlot lifted to oscillations.ts (#343 phase C-7).
+// The local svgWrap and write wrappers retain their original signatures to
+// minimise call-site churn at the figure level.
 import {
   INK,
   MUTED,
@@ -35,6 +35,7 @@ import {
   makePlot,
   polyline,
 } from "../pipeline/visual_templates/shared.ts";
+import { superpositionPlot } from "../pipeline/visual_templates/oscillations.ts";
 
 const ROOT = join(
   import.meta.dir,
@@ -384,54 +385,7 @@ function waveAnatomy() {
 }
 
 // ── Section 4 — Superposition + standing waves ─────────────────────────────
-
-function superpositionPlot(title: string, phase: number, name: string) {
-  const W = 600, H = 360;
-  const samples = 200;
-  const w1: Array<[number, number]> = [];
-  const w2: Array<[number, number]> = [];
-  const sum: Array<[number, number]> = [];
-  for (let i = 0; i <= samples; i++) {
-    const x = (i / samples) * 4;
-    const a = Math.sin(x * Math.PI);
-    const b = Math.sin(x * Math.PI + phase);
-    w1.push([x, a]);
-    w2.push([x, b]);
-    sum.push([x, a + b]);
-  }
-
-  const body: string[] = [];
-  body.push(`<text x="${W / 2}" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="${INK}" text-anchor="middle">${title}</text>`);
-
-  const plotH = 90, gap = 12;
-  const stacks = [
-    { data: w1, color: ACCENT, label: "wave 1", yRange: [-2.4, 2.4] as [number, number] },
-    { data: w2, color: ACCENT_2, label: "wave 2", yRange: [-2.4, 2.4] as [number, number] },
-    { data: sum, color: NEGATIVE, label: "sum (superposition)", yRange: [-2.4, 2.4] as [number, number] },
-  ];
-
-  let yOffset = 40;
-  for (const s of stacks) {
-    body.push(`<g transform="translate(0, ${yOffset})">`);
-    const p = makePlot({
-      width: W, height: plotH,
-      pad: { l: 60, r: 30, t: 12, b: 22 },
-      xRange: [0, 4], yRange: s.yRange,
-      xTicks: [0, 1, 2, 3, 4],
-      yTicks: [-2, 0, 2],
-      xLabel: "x", yLabel: "y",
-    });
-    body.push(...p.pieces);
-    body.push(polyline(s.data, p.xToPx, p.yToPx, s.color, 2));
-    body.push(`<text x="${W - 50}" y="${p.y0 + 12}" font="11px system-ui" font-size="11" font-weight="600" fill="${s.color}" text-anchor="end">${s.label}</text>`);
-    body.push(`</g>`);
-    yOffset += plotH + gap;
-  }
-
-  return svgWrap(`0 0 ${W} ${H}`, name,
-    "Three vertically-stacked plots showing two component waves and their superposition sum.",
-    body.join("\n"));
-}
+// (`superpositionPlot` lifted to pipeline/visual_templates/oscillations.ts.)
 
 function standingWaveModes() {
   const W = 660, H = 360;

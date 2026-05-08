@@ -24,7 +24,7 @@ const ROOT = join(
   "Option2_Catalogue",
 );
 
-// Style tokens lifted to pipeline/visual_templates/shared.ts (#341 phase A).
+// Style tokens + optics palette + primitives lifted to pipeline/visual_templates.
 import {
   INK,
   MUTED,
@@ -37,13 +37,16 @@ import {
   BG,
   HIGHLIGHT,
 } from "../pipeline/visual_templates/shared.ts";
-
-// Optics-specific palette
-const RAY = "#dc2626";              // light rays — red
-const NORMAL = "#94a3b8";           // normal lines — slate, dashed
-const SURFACE = "#1a202c";          // mirror/lens surface — black
-const VIRTUAL_RAY = "#dc2626";      // virtual rays — red dashed
-const REFRACTED = "#7c3aed";        // refracted ray — purple
+import {
+  RAY,
+  NORMAL,
+  SURFACE,
+  VIRTUAL_RAY,
+  REFRACTED,
+  rayArrow,
+  normalLine,
+  angleArc,
+} from "../pipeline/visual_templates/optics.ts";
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -60,37 +63,6 @@ function write(rel: string, body: string) {
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, body);
   console.log("wrote", rel);
-}
-
-/** Arrow-tipped ray segment from (x1,y1) to (x2,y2). */
-function rayArrow(x1: number, y1: number, x2: number, y2: number, color = RAY, width = 2.5, dash = ""): string {
-  const dx = x2 - x1, dy = y2 - y1;
-  const len = Math.sqrt(dx * dx + dy * dy);
-  const ux = dx / len, uy = dy / len;
-  const tip = 8;
-  const p = -ux * tip;
-  const q = -uy * tip;
-  // Place arrow head at midpoint for clarity
-  const mx = x1 + (x2 - x1) * 0.6;
-  const my = y1 + (y2 - y1) * 0.6;
-  return `
-  <line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${color}" stroke-width="${width}" stroke-linecap="round" ${dash ? `stroke-dasharray="${dash}"` : ""} />
-  <polygon points="${mx.toFixed(1)},${my.toFixed(1)} ${(mx + p - uy * 4).toFixed(1)},${(my + q + ux * 4).toFixed(1)} ${(mx + p + uy * 4).toFixed(1)},${(my + q - ux * 4).toFixed(1)}" fill="${color}" />`;
-}
-
-/** Plain dashed line (no arrow) — used for normals. */
-function normalLine(x1: number, y1: number, x2: number, y2: number, color = NORMAL): string {
-  return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${color}" stroke-width="1.5" stroke-dasharray="6 4" />`;
-}
-
-/** Angle-arc between two rays sharing a common vertex at (cx, cy). */
-function angleArc(cx: number, cy: number, r: number, ang1: number, ang2: number, color = INK): string {
-  const x1 = cx + r * Math.cos(ang1);
-  const y1 = cy + r * Math.sin(ang1);
-  const x2 = cx + r * Math.cos(ang2);
-  const y2 = cy + r * Math.sin(ang2);
-  const sweep = ang2 > ang1 ? 1 : 0;
-  return `<path d="M ${x1.toFixed(1)},${y1.toFixed(1)} A ${r},${r} 0 0 ${sweep} ${x2.toFixed(1)},${y2.toFixed(1)}" fill="none" stroke="${color}" stroke-width="1.5" />`;
 }
 
 // ────────────────────────────────────────────────────────────────────────────

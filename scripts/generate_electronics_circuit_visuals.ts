@@ -28,7 +28,9 @@ const ROOT = join(
   "Option2_Catalogue",
 );
 
-// Style tokens lifted to pipeline/visual_templates/shared.ts (#341 phase A).
+// Style tokens + circuit primitives lifted to pipeline/visual_templates.
+// Component primitives (#343 phase C-2) are imported from the class module;
+// only figure functions and per-figure layout remain in this script.
 import {
   INK,
   MUTED,
@@ -38,20 +40,30 @@ import {
   GRID,
   BG,
 } from "../pipeline/visual_templates/shared.ts";
+import {
+  WIRE,
+  BATTERY_POS,
+  BATTERY_NEG,
+  RESISTOR,
+  CAPACITOR,
+  LED_BODY,
+  LED_GLOW,
+  SWITCH,
+  LAMP_BODY,
+  CURRENT_ARROW,
+  wire,
+  node,
+  resistor,
+  batteryCell,
+  battery,
+  lamp,
+  switchSymbol,
+  capacitor,
+  led,
+  currentArrow,
+} from "../pipeline/visual_templates/electronics_circuit.ts";
 
-// Circuit-symbol palette — locked-in convention for downstream units.
-const WIRE = "#1a202c";              // black wires
-const BATTERY_POS = "#dc2626";       // red for + terminal
-const BATTERY_NEG = "#1a202c";       // black for − terminal
-const RESISTOR = "#92400e";          // brown (resistor body)
-const CAPACITOR = "#2b6cb0";         // blue
-const LED_BODY = "#dc2626";          // red LED
-const LED_GLOW = "#fbbf24";          // yellow glow
-const SWITCH = "#4a5568";            // slate
-const LAMP_BODY = "#fbbf24";         // amber lamp
-const CURRENT_ARROW = "#15803d";     // green flow indicator
-
-// ── Helpers ─────────────────────────────────────────────────────────────────
+// ── Helpers (svgWrap + write — script-local) ───────────────────────────────
 
 function svgWrap(viewBoxW: number, viewBoxH: number, title: string, desc: string, body: string) {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${viewBoxW} ${viewBoxH}" width="${viewBoxW}" height="${viewBoxH}" role="img" aria-label="${title}">
@@ -67,169 +79,6 @@ function write(rel: string, body: string) {
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, body);
   console.log("wrote", rel);
-}
-
-// ── Circuit-element helpers (reusable for every downstream unit) ───────────
-
-/** Straight wire from (x1,y1) to (x2,y2). */
-function wire(x1: number, y1: number, x2: number, y2: number, color = WIRE) {
-  return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="2.5" stroke-linecap="round" />`;
-}
-
-/** Junction dot. */
-function node(x: number, y: number, color = WIRE) {
-  return `<circle cx="${x}" cy="${y}" r="4" fill="${color}" />`;
-}
-
-/**
- * Horizontal zigzag resistor centred at (cx,cy), 60px wide.
- * orientation: "h" for horizontal, "v" for vertical
- */
-function resistor(cx: number, cy: number, orientation: "h" | "v" = "h", label = "") {
-  const halfW = 30;
-  let path: string;
-  if (orientation === "h") {
-    // 6 zigzag teeth between (cx-halfW, cy) and (cx+halfW, cy)
-    const dx = (2 * halfW) / 6;
-    let p = `M ${cx - halfW},${cy} `;
-    for (let i = 0; i < 6; i++) {
-      const x = cx - halfW + (i + 0.5) * dx;
-      const y = cy + (i % 2 === 0 ? -8 : 8);
-      p += `L ${x.toFixed(1)},${y} `;
-    }
-    p += `L ${cx + halfW},${cy}`;
-    path = p;
-  } else {
-    const dy = (2 * halfW) / 6;
-    let p = `M ${cx},${cy - halfW} `;
-    for (let i = 0; i < 6; i++) {
-      const y = cy - halfW + (i + 0.5) * dy;
-      const x = cx + (i % 2 === 0 ? -8 : 8);
-      p += `L ${x},${y.toFixed(1)} `;
-    }
-    p += `L ${cx},${cy + halfW}`;
-    path = p;
-  }
-  const labelEl = label ? (
-    orientation === "h"
-      ? `<text x="${cx}" y="${cy - 18}" font="bold 12px system-ui" font-size="12" font-weight="700" fill="${RESISTOR}" text-anchor="middle">${label}</text>`
-      : `<text x="${cx + 24}" y="${cy + 4}" font="bold 12px system-ui" font-size="12" font-weight="700" fill="${RESISTOR}" text-anchor="start">${label}</text>`
-  ) : "";
-  return `
-  <path d="${path}" fill="none" stroke="${RESISTOR}" stroke-width="2.5" stroke-linejoin="miter" />
-  ${labelEl}`;
-}
-
-/**
- * Battery cell symbol centred at (cx,cy). Long line = + terminal.
- * orientation: "h" — wires enter from left and right; "v" — top/bottom.
- * Single cell only (multi-cell variant is just battery() repeated).
- */
-function batteryCell(cx: number, cy: number, orientation: "h" | "v" = "h", label = "") {
-  if (orientation === "h") {
-    return `
-  <line x1="${cx - 4}" y1="${cy - 14}" x2="${cx - 4}" y2="${cy + 14}" stroke="${BATTERY_NEG}" stroke-width="2.5" />
-  <line x1="${cx + 6}" y1="${cy - 22}" x2="${cx + 6}" y2="${cy + 22}" stroke="${BATTERY_POS}" stroke-width="3.5" />
-  ${label ? `<text x="${cx}" y="${cy + 40}" font="bold 12px system-ui" font-size="12" font-weight="700" fill="${BATTERY_POS}" text-anchor="middle">${label}</text>` : ""}
-  ${label ? `<text x="${cx + 6}" y="${cy - 28}" font="bold 11px system-ui" font-size="11" font-weight="700" fill="${BATTERY_POS}" text-anchor="middle">+</text>` : ""}
-  ${label ? `<text x="${cx - 4}" y="${cy - 20}" font="bold 11px system-ui" font-size="11" font-weight="700" fill="${BATTERY_NEG}" text-anchor="middle">−</text>` : ""}`;
-  }
-  return `
-  <line x1="${cx - 14}" y1="${cy - 4}" x2="${cx + 14}" y2="${cy - 4}" stroke="${BATTERY_NEG}" stroke-width="2.5" />
-  <line x1="${cx - 22}" y1="${cy + 6}" x2="${cx + 22}" y2="${cy + 6}" stroke="${BATTERY_POS}" stroke-width="3.5" />
-  ${label ? `<text x="${cx + 30}" y="${cy + 4}" font="bold 12px system-ui" font-size="12" font-weight="700" fill="${BATTERY_POS}" text-anchor="start">${label}</text>` : ""}`;
-}
-
-/** Multi-cell battery (shows two cells stacked). */
-function battery(cx: number, cy: number, orientation: "h" | "v" = "h", label = "") {
-  if (orientation === "h") {
-    return `
-  <line x1="${cx - 14}" y1="${cy - 14}" x2="${cx - 14}" y2="${cy + 14}" stroke="${BATTERY_NEG}" stroke-width="2.5" />
-  <line x1="${cx - 4}" y1="${cy - 22}" x2="${cx - 4}" y2="${cy + 22}" stroke="${BATTERY_POS}" stroke-width="3.5" />
-  <line x1="${cx + 6}" y1="${cy - 14}" x2="${cx + 6}" y2="${cy + 14}" stroke="${BATTERY_NEG}" stroke-width="2.5" />
-  <line x1="${cx + 16}" y1="${cy - 22}" x2="${cx + 16}" y2="${cy + 22}" stroke="${BATTERY_POS}" stroke-width="3.5" />
-  ${label ? `<text x="${cx + 1}" y="${cy + 42}" font="bold 12px system-ui" font-size="12" font-weight="700" fill="${BATTERY_POS}" text-anchor="middle">${label}</text>` : ""}
-  ${label ? `<text x="${cx + 16}" y="${cy - 28}" font="bold 11px system-ui" font-size="11" font-weight="700" fill="${BATTERY_POS}" text-anchor="middle">+</text>` : ""}
-  ${label ? `<text x="${cx - 14}" y="${cy - 20}" font="bold 11px system-ui" font-size="11" font-weight="700" fill="${BATTERY_NEG}" text-anchor="middle">−</text>` : ""}`;
-  }
-  return `
-  <line x1="${cx - 14}" y1="${cy - 14}" x2="${cx + 14}" y2="${cy - 14}" stroke="${BATTERY_NEG}" stroke-width="2.5" />
-  <line x1="${cx - 22}" y1="${cy - 4}" x2="${cx + 22}" y2="${cy - 4}" stroke="${BATTERY_POS}" stroke-width="3.5" />
-  <line x1="${cx - 14}" y1="${cy + 6}" x2="${cx + 14}" y2="${cy + 6}" stroke="${BATTERY_NEG}" stroke-width="2.5" />
-  <line x1="${cx - 22}" y1="${cy + 16}" x2="${cx + 22}" y2="${cy + 16}" stroke="${BATTERY_POS}" stroke-width="3.5" />
-  ${label ? `<text x="${cx + 30}" y="${cy + 4}" font="bold 12px system-ui" font-size="12" font-weight="700" fill="${BATTERY_POS}" text-anchor="start">${label}</text>` : ""}`;
-}
-
-/** Lamp symbol — circle with X inside. */
-function lamp(cx: number, cy: number, radius = 18, lit = false, label = "") {
-  const fill = lit ? LAMP_BODY : "white";
-  const fillOp = lit ? "0.55" : "1";
-  return `
-  ${lit ? `<circle cx="${cx}" cy="${cy}" r="${radius + 14}" fill="${LAMP_BODY}" opacity="0.18" />` : ""}
-  <circle cx="${cx}" cy="${cy}" r="${radius}" fill="${fill}" fill-opacity="${fillOp}" stroke="${INK}" stroke-width="2" />
-  <line x1="${cx - radius * 0.7}" y1="${cy - radius * 0.7}" x2="${cx + radius * 0.7}" y2="${cy + radius * 0.7}" stroke="${INK}" stroke-width="2" />
-  <line x1="${cx - radius * 0.7}" y1="${cy + radius * 0.7}" x2="${cx + radius * 0.7}" y2="${cy - radius * 0.7}" stroke="${INK}" stroke-width="2" />
-  ${label ? `<text x="${cx}" y="${cy + radius + 18}" font="bold 12px system-ui" font-size="12" font-weight="700" fill="${INK}" text-anchor="middle">${label}</text>` : ""}`;
-}
-
-/** Switch — open or closed lever. */
-function switchSymbol(cx: number, cy: number, open: boolean, label = "") {
-  const leverEnd = open
-    ? `<line x1="${cx - 18}" y1="${cy}" x2="${cx + 14}" y2="${cy - 16}" stroke="${SWITCH}" stroke-width="2.5" stroke-linecap="round" />`
-    : `<line x1="${cx - 18}" y1="${cy}" x2="${cx + 18}" y2="${cy}" stroke="${SWITCH}" stroke-width="2.5" stroke-linecap="round" />`;
-  return `
-  <circle cx="${cx - 18}" cy="${cy}" r="3" fill="${SWITCH}" />
-  <circle cx="${cx + 18}" cy="${cy}" r="3" fill="${SWITCH}" />
-  ${leverEnd}
-  ${label ? `<text x="${cx}" y="${cy - 28}" font="bold 12px system-ui" font-size="12" font-weight="700" fill="${SWITCH}" text-anchor="middle">${label}</text>` : ""}`;
-}
-
-/** Capacitor — two short parallel lines perpendicular to the wire. */
-function capacitor(cx: number, cy: number, orientation: "h" | "v" = "h", label = "") {
-  if (orientation === "h") {
-    return `
-  <line x1="${cx - 4}" y1="${cy - 16}" x2="${cx - 4}" y2="${cy + 16}" stroke="${CAPACITOR}" stroke-width="3" />
-  <line x1="${cx + 4}" y1="${cy - 16}" x2="${cx + 4}" y2="${cy + 16}" stroke="${CAPACITOR}" stroke-width="3" />
-  ${label ? `<text x="${cx}" y="${cy - 24}" font="bold 12px system-ui" font-size="12" font-weight="700" fill="${CAPACITOR}" text-anchor="middle">${label}</text>` : ""}`;
-  }
-  return `
-  <line x1="${cx - 16}" y1="${cy - 4}" x2="${cx + 16}" y2="${cy - 4}" stroke="${CAPACITOR}" stroke-width="3" />
-  <line x1="${cx - 16}" y1="${cy + 4}" x2="${cx + 16}" y2="${cy + 4}" stroke="${CAPACITOR}" stroke-width="3" />
-  ${label ? `<text x="${cx + 24}" y="${cy + 4}" font="bold 12px system-ui" font-size="12" font-weight="700" fill="${CAPACITOR}" text-anchor="start">${label}</text>` : ""}`;
-}
-
-/** LED — a triangle pointing toward a vertical bar, plus two arrow-out marks. */
-function led(cx: number, cy: number, lit = false, label = "") {
-  const arrowOp = lit ? 1 : 0.3;
-  return `
-  ${lit ? `<circle cx="${cx}" cy="${cy}" r="34" fill="${LED_GLOW}" opacity="0.4" />` : ""}
-  <polygon points="${cx - 12},${cy - 12} ${cx - 12},${cy + 12} ${cx + 8},${cy}" fill="${lit ? LED_BODY : "white"}" stroke="${LED_BODY}" stroke-width="2.5" />
-  <line x1="${cx + 8}" y1="${cy - 12}" x2="${cx + 8}" y2="${cy + 12}" stroke="${LED_BODY}" stroke-width="2.5" />
-  <!-- Two outgoing-light arrows -->
-  <line x1="${cx + 4}" y1="${cy - 18}" x2="${cx + 18}" y2="${cy - 30}" stroke="${LED_GLOW}" stroke-width="1.8" opacity="${arrowOp}" />
-  <polygon points="${cx + 18},${cy - 30} ${cx + 14},${cy - 24} ${cx + 22},${cy - 24}" fill="${LED_GLOW}" opacity="${arrowOp}" />
-  <line x1="${cx + 12}" y1="${cy - 14}" x2="${cx + 26}" y2="${cy - 24}" stroke="${LED_GLOW}" stroke-width="1.8" opacity="${arrowOp}" />
-  <polygon points="${cx + 26},${cy - 24} ${cx + 22},${cy - 18} ${cx + 30},${cy - 18}" fill="${LED_GLOW}" opacity="${arrowOp}" />
-  ${label ? `<text x="${cx}" y="${cy + 28}" font="bold 12px system-ui" font-size="12" font-weight="700" fill="${LED_BODY}" text-anchor="middle">${label}</text>` : ""}`;
-}
-
-/** Current-flow arrow on a wire segment. */
-function currentArrow(x: number, y: number, dir: "right" | "left" | "up" | "down" = "right", label = "I") {
-  const size = 9;
-  let triangle: string;
-  if (dir === "right") {
-    triangle = `<polygon points="${x},${y - size} ${x},${y + size} ${x + size * 1.2},${y}" fill="${CURRENT_ARROW}" />`;
-  } else if (dir === "left") {
-    triangle = `<polygon points="${x},${y - size} ${x},${y + size} ${x - size * 1.2},${y}" fill="${CURRENT_ARROW}" />`;
-  } else if (dir === "up") {
-    triangle = `<polygon points="${x - size},${y} ${x + size},${y} ${x},${y - size * 1.2}" fill="${CURRENT_ARROW}" />`;
-  } else {
-    triangle = `<polygon points="${x - size},${y} ${x + size},${y} ${x},${y + size * 1.2}" fill="${CURRENT_ARROW}" />`;
-  }
-  const labelOffset = (dir === "right" || dir === "left") ? { dx: 0, dy: -16 } : { dx: 14, dy: 4 };
-  return `
-  ${triangle}
-  ${label ? `<text x="${x + labelOffset.dx}" y="${y + labelOffset.dy}" font="bold 13px system-ui" font-size="13" font-weight="700" fill="${CURRENT_ARROW}" text-anchor="middle">${label}</text>` : ""}`;
 }
 
 // ────────────────────────────────────────────────────────────────────────────
