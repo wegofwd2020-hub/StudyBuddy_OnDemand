@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 380" width="480" height="380" role="img" aria-label="Anatomy of a periodic-table tile">
+  <title>Anatomy of a periodic-table tile</title>
+  <desc>A close-up of the Carbon (C) tile from the periodic table, magnified, with leader lines pointing to its four pieces of information: atomic number 6 (number of protons), symbol C (one or two letters), name Carbon, and atomic mass 12.0 (protons plus neutrons).</desc>
+  
+  <text x="240" y="32" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Reading One Cell of the Table</text>
+  <text x="240" y="52" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Every tile carries the same four pieces of information.</text>
+
+  <!-- Big tile -->
+  <rect x="180" y="110" width="140" height="140" rx="10"
+    fill="#fecaca" stroke="#1a202c" stroke-width="2" />
+  <text x="190" y="136" font="bold 22px system-ui" font-size="22" font-weight="700" fill="#1a202c">6</text>
+  <text x="250" y="188" font="bold 56px system-ui" font-size="56" font-weight="700" fill="#1a202c" text-anchor="middle">C</text>
+  <text x="250" y="214" font="14px system-ui" font-size="14" fill="#1a202c" text-anchor="middle">Carbon</text>
+  <text x="250" y="234" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#4a5568" text-anchor="middle">12.0</text>
+
+  <!-- Leader-line labels -->
+  <line x1="204" y1="132" x2="100" y2="115" stroke="#1a202c" stroke-width="1.5" />
+  <text x="90" y="118" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="end">atomic number</text>
+  <text x="90" y="134" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">(number of protons)</text>
+
+  <line x1="250" y1="160" x2="400" y2="140" stroke="#1a202c" stroke-width="1.5" />
+  <text x="410" y="143" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c">symbol</text>
+  <text x="410" y="159" font="11px system-ui" font-size="11" fill="#4a5568">(1 or 2 letters)</text>
+
+  <line x1="250" y1="210" x2="100" y2="240" stroke="#1a202c" stroke-width="1.5" />
+  <text x="90" y="243" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="end">name</text>
+
+  <line x1="250" y1="234" x2="400" y2="244" stroke="#1a202c" stroke-width="1.5" />
+  <text x="410" y="247" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c">atomic mass</text>
+  <text x="410" y="263" font="11px system-ui" font-size="11" fill="#4a5568">(protons + neutrons)</text>
+
+  <text x="240" y="350" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Carbon: atomic number 6 (six protons), symbol C, atomic mass ~12.</text>
+  <text x="240" y="366" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">A neutral carbon atom has 6 protons + 6 electrons + (usually) 6 neutrons.</text>
+
+</svg>

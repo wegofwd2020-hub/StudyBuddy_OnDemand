@@ -1,0 +1,196 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1140 420" width="1140" height="420" role="img" aria-label="Atomic Radius — Periodic Trend">
+  <title>Atomic Radius — Periodic Trend</title>
+  <desc>A periodic-table heatmap colouring each element's tile by its atomic radius (in picometres). Larger atoms appear redder, smaller atoms bluer. The visual pattern shows radius shrinking from left to right within a period and growing from top to bottom within a group. A linear gradient legend at the bottom maps colour to value.</desc>
+  
+  <text x="570" y="32" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#1a202c" text-anchor="middle">Atomic Radius — Periodic Trend</text>
+  <text x="570" y="54" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">How big is each atom? Bigger atoms = redder. Trend: shrinks left-to-right, grows top-to-bottom.</text>
+
+  <rect x="30" y="80" width="56" height="56" rx="4"
+    fill="rgb(236,212,224)" stroke="#4a5568" stroke-width="1" />
+  <text x="34" y="92" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#1a202c">1</text>
+  <text x="58" y="108" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">H</text>
+  <text x="58" y="126" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#1a202c" text-anchor="middle">53</text>
+  <rect x="1050" y="80" width="56" height="56" rx="4"
+    fill="rgb(255,220,220)" stroke="#4a5568" stroke-width="1" />
+  <text x="1054" y="92" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#1a202c">2</text>
+  <text x="1078" y="108" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">He</text>
+  <text x="1078" y="126" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#1a202c" text-anchor="middle">31</text>
+  <rect x="30" y="140" width="56" height="56" rx="4"
+    fill="rgb(136,169,242)" stroke="#4a5568" stroke-width="1" />
+  <text x="34" y="152" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#fff">3</text>
+  <text x="58" y="168" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">Li</text>
+  <text x="58" y="186" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">167</text>
+  <rect x="90" y="140" width="56" height="56" rx="4"
+    fill="rgb(184,189,233)" stroke="#4a5568" stroke-width="1" />
+  <text x="94" y="152" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#1a202c">4</text>
+  <text x="118" y="168" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Be</text>
+  <text x="118" y="186" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#1a202c" text-anchor="middle">112</text>
+  <rect x="750" y="140" width="56" height="56" rx="4"
+    fill="rgb(206,199,229)" stroke="#4a5568" stroke-width="1" />
+  <text x="754" y="152" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#1a202c">5</text>
+  <text x="778" y="168" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">B</text>
+  <text x="778" y="186" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#1a202c" text-anchor="middle">87</text>
+  <rect x="810" y="140" width="56" height="56" rx="4"
+    fill="rgb(224,206,226)" stroke="#4a5568" stroke-width="1" />
+  <text x="814" y="152" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#1a202c">6</text>
+  <text x="838" y="168" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">C</text>
+  <text x="838" y="186" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#1a202c" text-anchor="middle">67</text>
+  <rect x="870" y="140" width="56" height="56" rx="4"
+    fill="rgb(233,211,224)" stroke="#4a5568" stroke-width="1" />
+  <text x="874" y="152" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#1a202c">7</text>
+  <text x="898" y="168" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">N</text>
+  <text x="898" y="186" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#1a202c" text-anchor="middle">56</text>
+  <rect x="930" y="140" width="56" height="56" rx="4"
+    fill="rgb(240,214,223)" stroke="#4a5568" stroke-width="1" />
+  <text x="934" y="152" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#1a202c">8</text>
+  <text x="958" y="168" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">O</text>
+  <text x="958" y="186" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#1a202c" text-anchor="middle">48</text>
+  <rect x="990" y="140" width="56" height="56" rx="4"
+    fill="rgb(245,216,222)" stroke="#4a5568" stroke-width="1" />
+  <text x="994" y="152" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#1a202c">9</text>
+  <text x="1018" y="168" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">F</text>
+  <text x="1018" y="186" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#1a202c" text-anchor="middle">42</text>
+  <rect x="1050" y="140" width="56" height="56" rx="4"
+    fill="rgb(249,217,221)" stroke="#4a5568" stroke-width="1" />
+  <text x="1054" y="152" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#1a202c">10</text>
+  <text x="1078" y="168" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Ne</text>
+  <text x="1078" y="186" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#1a202c" text-anchor="middle">38</text>
+  <rect x="30" y="200" width="56" height="56" rx="4"
+    fill="rgb(116,160,246)" stroke="#4a5568" stroke-width="1" />
+  <text x="34" y="212" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#fff">11</text>
+  <text x="58" y="228" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">Na</text>
+  <text x="58" y="246" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">190</text>
+  <rect x="90" y="200" width="56" height="56" rx="4"
+    fill="rgb(156,177,239)" stroke="#4a5568" stroke-width="1" />
+  <text x="94" y="212" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#fff">12</text>
+  <text x="118" y="228" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">Mg</text>
+  <text x="118" y="246" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">145</text>
+  <rect x="750" y="200" width="56" height="56" rx="4"
+    fill="rgb(179,187,234)" stroke="#4a5568" stroke-width="1" />
+  <text x="754" y="212" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#1a202c">13</text>
+  <text x="778" y="228" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Al</text>
+  <text x="778" y="246" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#1a202c" text-anchor="middle">118</text>
+  <rect x="810" y="200" width="56" height="56" rx="4"
+    fill="rgb(185,190,233)" stroke="#4a5568" stroke-width="1" />
+  <text x="814" y="212" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#1a202c">14</text>
+  <text x="838" y="228" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Si</text>
+  <text x="838" y="246" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#1a202c" text-anchor="middle">111</text>
+  <rect x="870" y="200" width="56" height="56" rx="4"
+    fill="rgb(197,195,231)" stroke="#4a5568" stroke-width="1" />
+  <text x="874" y="212" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#1a202c">15</text>
+  <text x="898" y="228" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">P</text>
+  <text x="898" y="246" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#1a202c" text-anchor="middle">98</text>
+  <rect x="930" y="200" width="56" height="56" rx="4"
+    fill="rgb(205,198,229)" stroke="#4a5568" stroke-width="1" />
+  <text x="934" y="212" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#1a202c">16</text>
+  <text x="958" y="228" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">S</text>
+  <text x="958" y="246" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#1a202c" text-anchor="middle">88</text>
+  <rect x="990" y="200" width="56" height="56" rx="4"
+    fill="rgb(213,202,228)" stroke="#4a5568" stroke-width="1" />
+  <text x="994" y="212" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#1a202c">17</text>
+  <text x="1018" y="228" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Cl</text>
+  <text x="1018" y="246" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#1a202c" text-anchor="middle">79</text>
+  <rect x="1050" y="200" width="56" height="56" rx="4"
+    fill="rgb(220,205,227)" stroke="#4a5568" stroke-width="1" />
+  <text x="1054" y="212" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#1a202c">18</text>
+  <text x="1078" y="228" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Ar</text>
+  <text x="1078" y="246" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#1a202c" text-anchor="middle">71</text>
+  <rect x="30" y="260" width="56" height="56" rx="4"
+    fill="rgb(70,140,255)" stroke="#4a5568" stroke-width="1" />
+  <text x="34" y="272" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#fff">19</text>
+  <text x="58" y="288" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">K</text>
+  <text x="58" y="306" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">243</text>
+  <rect x="90" y="260" width="56" height="56" rx="4"
+    fill="rgb(113,158,247)" stroke="#4a5568" stroke-width="1" />
+  <text x="94" y="272" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#fff">20</text>
+  <text x="118" y="288" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">Ca</text>
+  <text x="118" y="306" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">194</text>
+  <rect x="150" y="260" width="56" height="56" rx="4"
+    fill="rgb(121,162,245)" stroke="#4a5568" stroke-width="1" />
+  <text x="154" y="272" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#fff">21</text>
+  <text x="178" y="288" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">Sc</text>
+  <text x="178" y="306" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">184</text>
+  <rect x="210" y="260" width="56" height="56" rx="4"
+    fill="rgb(128,165,244)" stroke="#4a5568" stroke-width="1" />
+  <text x="214" y="272" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#fff">22</text>
+  <text x="238" y="288" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">Ti</text>
+  <text x="238" y="306" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">176</text>
+  <rect x="270" y="260" width="56" height="56" rx="4"
+    fill="rgb(133,167,243)" stroke="#4a5568" stroke-width="1" />
+  <text x="274" y="272" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#fff">23</text>
+  <text x="298" y="288" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">V</text>
+  <text x="298" y="306" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">171</text>
+  <rect x="330" y="260" width="56" height="56" rx="4"
+    fill="rgb(137,169,242)" stroke="#4a5568" stroke-width="1" />
+  <text x="334" y="272" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#fff">24</text>
+  <text x="358" y="288" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">Cr</text>
+  <text x="358" y="306" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">166</text>
+  <rect x="390" y="260" width="56" height="56" rx="4"
+    fill="rgb(142,171,241)" stroke="#4a5568" stroke-width="1" />
+  <text x="394" y="272" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#fff">25</text>
+  <text x="418" y="288" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">Mn</text>
+  <text x="418" y="306" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">161</text>
+  <rect x="450" y="260" width="56" height="56" rx="4"
+    fill="rgb(146,173,241)" stroke="#4a5568" stroke-width="1" />
+  <text x="454" y="272" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#fff">26</text>
+  <text x="478" y="288" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">Fe</text>
+  <text x="478" y="306" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">156</text>
+  <rect x="510" y="260" width="56" height="56" rx="4"
+    fill="rgb(149,174,240)" stroke="#4a5568" stroke-width="1" />
+  <text x="514" y="272" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#fff">27</text>
+  <text x="538" y="288" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">Co</text>
+  <text x="538" y="306" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">152</text>
+  <rect x="570" y="260" width="56" height="56" rx="4"
+    fill="rgb(152,175,239)" stroke="#4a5568" stroke-width="1" />
+  <text x="574" y="272" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#fff">28</text>
+  <text x="598" y="288" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">Ni</text>
+  <text x="598" y="306" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">149</text>
+  <rect x="630" y="260" width="56" height="56" rx="4"
+    fill="rgb(156,177,239)" stroke="#4a5568" stroke-width="1" />
+  <text x="634" y="272" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#fff">29</text>
+  <text x="658" y="288" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">Cu</text>
+  <text x="658" y="306" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">145</text>
+  <rect x="690" y="260" width="56" height="56" rx="4"
+    fill="rgb(158,178,238)" stroke="#4a5568" stroke-width="1" />
+  <text x="694" y="272" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#fff">30</text>
+  <text x="718" y="288" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">Zn</text>
+  <text x="718" y="306" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">142</text>
+  <rect x="750" y="260" width="56" height="56" rx="4"
+    fill="rgb(163,180,237)" stroke="#4a5568" stroke-width="1" />
+  <text x="754" y="272" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#1a202c">31</text>
+  <text x="778" y="288" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Ga</text>
+  <text x="778" y="306" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#1a202c" text-anchor="middle">136</text>
+  <rect x="810" y="260" width="56" height="56" rx="4"
+    fill="rgb(173,185,236)" stroke="#4a5568" stroke-width="1" />
+  <text x="814" y="272" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#1a202c">32</text>
+  <text x="838" y="288" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Ge</text>
+  <text x="838" y="306" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#1a202c" text-anchor="middle">125</text>
+  <rect x="870" y="260" width="56" height="56" rx="4"
+    fill="rgb(183,189,234)" stroke="#4a5568" stroke-width="1" />
+  <text x="874" y="272" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#1a202c">33</text>
+  <text x="898" y="288" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">As</text>
+  <text x="898" y="306" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#1a202c" text-anchor="middle">114</text>
+  <rect x="930" y="260" width="56" height="56" rx="4"
+    fill="rgb(192,193,232)" stroke="#4a5568" stroke-width="1" />
+  <text x="934" y="272" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#1a202c">34</text>
+  <text x="958" y="288" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Se</text>
+  <text x="958" y="306" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#1a202c" text-anchor="middle">103</text>
+  <rect x="990" y="260" width="56" height="56" rx="4"
+    fill="rgb(200,196,230)" stroke="#4a5568" stroke-width="1" />
+  <text x="994" y="272" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#1a202c">35</text>
+  <text x="1018" y="288" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Br</text>
+  <text x="1018" y="306" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#1a202c" text-anchor="middle">94</text>
+  <rect x="1050" y="260" width="56" height="56" rx="4"
+    fill="rgb(205,198,229)" stroke="#4a5568" stroke-width="1" />
+  <text x="1054" y="272" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#1a202c">36</text>
+  <text x="1078" y="288" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Kr</text>
+  <text x="1078" y="306" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#1a202c" text-anchor="middle">88</text><defs>
+    <linearGradient id="atomicRadiusPm-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+<stop offset="0%" stop-color="rgb(255,140,140)" />
+             <stop offset="100%" stop-color="rgb(70,140,255)" /></linearGradient></defs>
+  <rect x="30" y="360" width="380" height="16" fill="url(#atomicRadiusPm-grad)" stroke="#4a5568" />
+  <text x="30" y="392" font="11px system-ui" font-size="11" fill="#1a202c">small (31.0 pm)</text>
+  <text x="410" y="392" font="11px system-ui" font-size="11" fill="#1a202c" text-anchor="end">big (243.0 pm)</text>
+  <text x="770" y="392" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c">unit: pm</text>
+
+</svg>

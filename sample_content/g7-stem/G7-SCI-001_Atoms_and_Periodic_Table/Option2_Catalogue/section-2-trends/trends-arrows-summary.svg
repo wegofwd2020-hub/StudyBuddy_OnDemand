@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1140 450" width="1140" height="450" role="img" aria-label="Periodic trends arrows summary">
+  <title>Periodic trends arrows summary</title>
+  <desc>A faint outline of the periodic table with three big trend arrows annotated: a red right-pointing arrow above the table labelled 'ionization energy + electronegativity INCREASE →', a blue right-pointing arrow below the table labelled 'atomic radius SHRINKS →', and a blue down-pointing arrow on the left side labelled 'radius GROWS ↓, IE/EN SHRINK ↓'. A short caption explains the proton-pull reasoning.</desc>
+  
+  <text x="570" y="32" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#1a202c" text-anchor="middle">Periodic Trends — One-Page Summary</text>
+  <text x="570" y="54" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Three trends, one diagram. Arrow direction = "increases this way".</text>
+<rect x="30" y="80" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="58" y="112" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">H</text><rect x="1050" y="80" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="1078" y="112" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">He</text><rect x="30" y="140" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="58" y="172" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">Li</text><rect x="90" y="140" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="118" y="172" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">Be</text><rect x="750" y="140" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="778" y="172" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">B</text><rect x="810" y="140" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="838" y="172" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">C</text><rect x="870" y="140" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="898" y="172" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">N</text><rect x="930" y="140" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="958" y="172" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">O</text><rect x="990" y="140" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="1018" y="172" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">F</text><rect x="1050" y="140" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="1078" y="172" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">Ne</text><rect x="30" y="200" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="58" y="232" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">Na</text><rect x="90" y="200" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="118" y="232" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">Mg</text><rect x="750" y="200" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="778" y="232" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">Al</text><rect x="810" y="200" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="838" y="232" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">Si</text><rect x="870" y="200" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="898" y="232" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">P</text><rect x="930" y="200" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="958" y="232" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">S</text><rect x="990" y="200" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="1018" y="232" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">Cl</text><rect x="1050" y="200" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="1078" y="232" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">Ar</text><rect x="30" y="260" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="58" y="292" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">K</text><rect x="90" y="260" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="118" y="292" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">Ca</text><rect x="150" y="260" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="178" y="292" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">Sc</text><rect x="210" y="260" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="238" y="292" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">Ti</text><rect x="270" y="260" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="298" y="292" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">V</text><rect x="330" y="260" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="358" y="292" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">Cr</text><rect x="390" y="260" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="418" y="292" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">Mn</text><rect x="450" y="260" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="478" y="292" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">Fe</text><rect x="510" y="260" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="538" y="292" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">Co</text><rect x="570" y="260" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="598" y="292" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">Ni</text><rect x="630" y="260" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="658" y="292" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">Cu</text><rect x="690" y="260" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="718" y="292" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">Zn</text><rect x="750" y="260" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="778" y="292" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">Ga</text><rect x="810" y="260" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="838" y="292" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">Ge</text><rect x="870" y="260" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="898" y="292" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">As</text><rect x="930" y="260" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="958" y="292" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">Se</text><rect x="990" y="260" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="1018" y="292" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">Br</text><rect x="1050" y="260" width="56" height="56" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="0.6" />
+             <text x="1078" y="292" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">Kr</text>
+  <defs>
+    <marker id="trend-arr-up" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626" />
+    </marker>
+    <marker id="trend-arr-down" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2b6cb0" />
+    </marker>
+  </defs>
+
+  <!-- Increasing IE/EN/EA across the period (right-pointing red arrow above the table) -->
+  <line x1="30" y1="66" x2="1106" y2="66" stroke="#dc2626" stroke-width="3" marker-end="url(#trend-arr-up)" />
+  <text x="568" y="58" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">ionization energy + electronegativity INCREASE →</text>
+
+  <!-- Decreasing radius across the period (right-pointing blue arrow below the table) -->
+  <line x1="30" y1="336" x2="1106" y2="336" stroke="#2b6cb0" stroke-width="3" marker-end="url(#trend-arr-down)" />
+  <text x="568" y="356" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#2b6cb0" text-anchor="middle">atomic radius SHRINKS →</text>
+
+  <!-- Group trends: down arrow on the left side -->
+  <line x1="16" y1="80" x2="16" y2="320" stroke="#2b6cb0" stroke-width="3" marker-end="url(#trend-arr-down)" />
+  <text x="8" y="200" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#2b6cb0" text-anchor="end" transform="rotate(-90 8 200)">radius GROWS ↓ · IE/EN SHRINK ↓</text>
+
+  <text x="570" y="400" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Right and up → smaller, harder-to-ionize, more grabby. Left and down → bigger, easy to ionize, less grabby.</text>
+  <text x="570" y="418" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Why? More protons in the same shell → tighter pull on electrons → smaller radius and stronger grip.</text>
+  <text x="570" y="436" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Add a shell (down) → outer electrons are farther away → bigger atom, looser hold.</text>
+
+</svg>

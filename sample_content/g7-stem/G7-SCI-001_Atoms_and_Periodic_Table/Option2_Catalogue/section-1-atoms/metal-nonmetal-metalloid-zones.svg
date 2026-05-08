@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1140 400" width="1140" height="400" role="img" aria-label="Metals metalloids and non-metals zones">
+  <title>Metals metalloids and non-metals zones</title>
+  <desc>A periodic table with three distinct colour zones: metals (orange) on the left, non-metals (green) on the right, and a thin metalloid (purple) zone running diagonally between them. A red staircase line traces the diagonal boundary between metal and non-metal. Legend at the bottom labels each zone.</desc>
+  
+  <text x="570" y="32" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#1a202c" text-anchor="middle">Metals · Metalloids · Non-metals</text>
+  <text x="570" y="54" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">A diagonal "staircase" splits the table. Left of the line: metals. Right: non-metals. Touching the line: metalloids.</text>
+
+    <rect x="30" y="80" width="56" height="56" rx="4" fill="#bbf7d0" stroke="#4a5568" stroke-width="1" />
+    <text x="58" y="112" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">H</text>
+    <rect x="1050" y="80" width="56" height="56" rx="4" fill="#bbf7d0" stroke="#4a5568" stroke-width="1" />
+    <text x="1078" y="112" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">He</text>
+    <rect x="30" y="140" width="56" height="56" rx="4" fill="#fed7aa" stroke="#4a5568" stroke-width="1" />
+    <text x="58" y="172" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Li</text>
+    <rect x="90" y="140" width="56" height="56" rx="4" fill="#fed7aa" stroke="#4a5568" stroke-width="1" />
+    <text x="118" y="172" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Be</text>
+    <rect x="750" y="140" width="56" height="56" rx="4" fill="#ddd6fe" stroke="#4a5568" stroke-width="1" />
+    <text x="778" y="172" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">B</text>
+    <rect x="810" y="140" width="56" height="56" rx="4" fill="#bbf7d0" stroke="#4a5568" stroke-width="1" />
+    <text x="838" y="172" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">C</text>
+    <rect x="870" y="140" width="56" height="56" rx="4" fill="#bbf7d0" stroke="#4a5568" stroke-width="1" />
+    <text x="898" y="172" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">N</text>
+    <rect x="930" y="140" width="56" height="56" rx="4" fill="#bbf7d0" stroke="#4a5568" stroke-width="1" />
+    <text x="958" y="172" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">O</text>
+    <rect x="990" y="140" width="56" height="56" rx="4" fill="#bbf7d0" stroke="#4a5568" stroke-width="1" />
+    <text x="1018" y="172" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">F</text>
+    <rect x="1050" y="140" width="56" height="56" rx="4" fill="#bbf7d0" stroke="#4a5568" stroke-width="1" />
+    <text x="1078" y="172" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Ne</text>
+    <rect x="30" y="200" width="56" height="56" rx="4" fill="#fed7aa" stroke="#4a5568" stroke-width="1" />
+    <text x="58" y="232" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Na</text>
+    <rect x="90" y="200" width="56" height="56" rx="4" fill="#fed7aa" stroke="#4a5568" stroke-width="1" />
+    <text x="118" y="232" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Mg</text>
+    <rect x="750" y="200" width="56" height="56" rx="4" fill="#fed7aa" stroke="#4a5568" stroke-width="1" />
+    <text x="778" y="232" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Al</text>
+    <rect x="810" y="200" width="56" height="56" rx="4" fill="#ddd6fe" stroke="#4a5568" stroke-width="1" />
+    <text x="838" y="232" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Si</text>
+    <rect x="870" y="200" width="56" height="56" rx="4" fill="#bbf7d0" stroke="#4a5568" stroke-width="1" />
+    <text x="898" y="232" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">P</text>
+    <rect x="930" y="200" width="56" height="56" rx="4" fill="#bbf7d0" stroke="#4a5568" stroke-width="1" />
+    <text x="958" y="232" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">S</text>
+    <rect x="990" y="200" width="56" height="56" rx="4" fill="#bbf7d0" stroke="#4a5568" stroke-width="1" />
+    <text x="1018" y="232" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Cl</text>
+    <rect x="1050" y="200" width="56" height="56" rx="4" fill="#bbf7d0" stroke="#4a5568" stroke-width="1" />
+    <text x="1078" y="232" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Ar</text>
+    <rect x="30" y="260" width="56" height="56" rx="4" fill="#fed7aa" stroke="#4a5568" stroke-width="1" />
+    <text x="58" y="292" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">K</text>
+    <rect x="90" y="260" width="56" height="56" rx="4" fill="#fed7aa" stroke="#4a5568" stroke-width="1" />
+    <text x="118" y="292" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Ca</text>
+    <rect x="150" y="260" width="56" height="56" rx="4" fill="#fed7aa" stroke="#4a5568" stroke-width="1" />
+    <text x="178" y="292" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Sc</text>
+    <rect x="210" y="260" width="56" height="56" rx="4" fill="#fed7aa" stroke="#4a5568" stroke-width="1" />
+    <text x="238" y="292" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Ti</text>
+    <rect x="270" y="260" width="56" height="56" rx="4" fill="#fed7aa" stroke="#4a5568" stroke-width="1" />
+    <text x="298" y="292" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">V</text>
+    <rect x="330" y="260" width="56" height="56" rx="4" fill="#fed7aa" stroke="#4a5568" stroke-width="1" />
+    <text x="358" y="292" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Cr</text>
+    <rect x="390" y="260" width="56" height="56" rx="4" fill="#fed7aa" stroke="#4a5568" stroke-width="1" />
+    <text x="418" y="292" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Mn</text>
+    <rect x="450" y="260" width="56" height="56" rx="4" fill="#fed7aa" stroke="#4a5568" stroke-width="1" />
+    <text x="478" y="292" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Fe</text>
+    <rect x="510" y="260" width="56" height="56" rx="4" fill="#fed7aa" stroke="#4a5568" stroke-width="1" />
+    <text x="538" y="292" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Co</text>
+    <rect x="570" y="260" width="56" height="56" rx="4" fill="#fed7aa" stroke="#4a5568" stroke-width="1" />
+    <text x="598" y="292" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Ni</text>
+    <rect x="630" y="260" width="56" height="56" rx="4" fill="#fed7aa" stroke="#4a5568" stroke-width="1" />
+    <text x="658" y="292" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Cu</text>
+    <rect x="690" y="260" width="56" height="56" rx="4" fill="#fed7aa" stroke="#4a5568" stroke-width="1" />
+    <text x="718" y="292" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Zn</text>
+    <rect x="750" y="260" width="56" height="56" rx="4" fill="#fed7aa" stroke="#4a5568" stroke-width="1" />
+    <text x="778" y="292" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Ga</text>
+    <rect x="810" y="260" width="56" height="56" rx="4" fill="#ddd6fe" stroke="#4a5568" stroke-width="1" />
+    <text x="838" y="292" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Ge</text>
+    <rect x="870" y="260" width="56" height="56" rx="4" fill="#ddd6fe" stroke="#4a5568" stroke-width="1" />
+    <text x="898" y="292" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">As</text>
+    <rect x="930" y="260" width="56" height="56" rx="4" fill="#bbf7d0" stroke="#4a5568" stroke-width="1" />
+    <text x="958" y="292" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Se</text>
+    <rect x="990" y="260" width="56" height="56" rx="4" fill="#bbf7d0" stroke="#4a5568" stroke-width="1" />
+    <text x="1018" y="292" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Br</text>
+    <rect x="1050" y="260" width="56" height="56" rx="4" fill="#bbf7d0" stroke="#4a5568" stroke-width="1" />
+    <text x="1078" y="292" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Kr</text><line x1="750" y1="140" x2="750" y2="200" stroke="#dc2626" stroke-width="3" /><line x1="750" y1="200" x2="810" y2="200" stroke="#dc2626" stroke-width="3" /><line x1="810" y1="200" x2="810" y2="260" stroke="#dc2626" stroke-width="3" /><line x1="810" y1="260" x2="870" y2="260" stroke="#dc2626" stroke-width="3" /><line x1="870" y1="260" x2="930" y2="260" stroke="#dc2626" stroke-width="3" />
+  <rect x="30" y="344" width="22" height="14" rx="2" fill="#fed7aa" stroke="#4a5568" />
+  <text x="58" y="355" font="11px system-ui" font-size="11" fill="#1a202c">metal — shiny, conducts heat & electricity</text>
+  <rect x="390" y="344" width="22" height="14" rx="2" fill="#ddd6fe" stroke="#4a5568" />
+  <text x="418" y="355" font="11px system-ui" font-size="11" fill="#1a202c">metalloid — half-and-half (silicon!)</text>
+  <rect x="730" y="344" width="22" height="14" rx="2" fill="#bbf7d0" stroke="#4a5568" />
+  <text x="758" y="355" font="11px system-ui" font-size="11" fill="#1a202c">non-metal — dull, poor conductor</text>
+  <text x="390" y="374" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dc2626">red staircase = the dividing line</text>
+
+</svg>
