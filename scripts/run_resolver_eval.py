@@ -29,7 +29,13 @@ Required env (read at runtime):
   VOYAGE_API_KEY      — for compute_embedding inside the cosine query
   DATABASE_URL        — postgresql:// reachable from this host
 
-Run from repo root:
+Run inside the celery-pipeline container (after #339 bind mounts):
+  docker compose exec -T celery-pipeline python3 -u \\
+    /app/scripts-repo/run_resolver_eval.py \\
+    --eval-file /app/tests/eval/visual_resolver_eval.jsonl
+
+Or from the host repo root if you have ANTHROPIC_API_KEY + VOYAGE_API_KEY +
+DATABASE_URL exported in your shell:
   python3 scripts/run_resolver_eval.py
   python3 scripts/run_resolver_eval.py --threshold-gate 0.70 --top-k 3
   python3 scripts/run_resolver_eval.py --eval-file path/to/custom.jsonl --quiet
@@ -263,8 +269,10 @@ def _compute_metrics(results: list[dict]) -> dict:
         else:
             by_category[cat]["incorrect"] += 1
 
+    n_errored = sum(1 for r in results if r.get("error"))
     return {
         "n_records": len(results),
+        "n_errored": n_errored,
         "tp": tp,
         "fp": fp,
         "tn": tn,
@@ -311,6 +319,9 @@ def _print_report(
           f"(gate ≥ {threshold_gate:.2f})")
     print(f"  Recall    @ k  : {metrics['recall_at_k']:.4f}  "
           f"(over {sum(1 for r in results if r['expected_hit'])} expected hits)")
+    if metrics.get("n_errored"):
+        print(f"  Errored        : {metrics['n_errored']:>6d}  "
+              f"(records that didn't reach the cosine-query stage; see stderr)")
     print()
     print(f"  TP={metrics['tp']:3d}   FP={metrics['fp']:3d}   "
           f"TN={metrics['tn']:3d}   FN={metrics['fn']:3d}")
@@ -433,6 +444,10 @@ async def main(argv: list[str]) -> int:
                     print(f" {status}")
             except Exception as e:  # noqa: BLE001
                 print(f" ERROR: {e}", file=sys.stderr)
+                # Mirror the success-path schema so _compute_metrics can read
+                # every result with the same field set. Missing fields here
+                # were the cause of the historical KeyError on metrics-compute
+                # (issue #338).
                 results.append(
                     {
                         "eval_id": rec["id"],
@@ -440,7 +455,15 @@ async def main(argv: list[str]) -> int:
                         "subject": rec["subject"],
                         "expected_hit": rec["expected_hit"],
                         "expected_entry_id": rec.get("expected_entry_id"),
+                        "n_needs_extracted": 0,
+                        "needs": [],
+                        "top_k": [],
                         "predicted_hit": False,
+                        "predicted_top1_id": None,
+                        "predicted_top1_distance": None,
+                        "expected_in_top_k": False,
+                        "t_llm_s": None,
+                        "t_query_s": None,
                         "error": str(e),
                     }
                 )

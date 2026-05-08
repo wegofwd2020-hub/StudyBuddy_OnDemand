@@ -248,6 +248,14 @@ services:
       - ./data:/data
       - ./data:/app/data
       - ./content_store_data:/data/content
+      # Repo-root scripts/ + sample_content/ for visual-library seeding and
+      # resolver eval (issue #339). Read-only — these are authoring inputs,
+      # never written from the container. Canonical invocations:
+      #   python3 /app/scripts-repo/seed_library_local.py
+      #   python3 /app/scripts-repo/run_resolver_eval.py \
+      #     --eval-file /app/tests/eval/visual_resolver_eval.jsonl
+      - ./scripts:/app/scripts-repo:ro
+      - ./sample_content:/app/sample_content:ro
     depends_on:
       <<: *depends-all
 

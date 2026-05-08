@@ -31,11 +31,14 @@ Required env:
   VOYAGE_API_KEY   — for compute_embedding
   DATABASE_URL     — postgresql:// reachable from this host
 
-Usage from inside the celery-pipeline container:
-  docker compose exec -e DATABASE_URL=... celery-pipeline \\
-    python3 /app/scripts/seed_library_local.py
+Usage from inside the celery-pipeline container (after the bind mounts
+added by issue #339 — `./scripts:/app/scripts-repo:ro` and
+`./sample_content:/app/sample_content:ro`):
 
-  # idempotent — re-run replaces existing rows.
+  docker compose exec -T celery-pipeline \\
+    python3 /app/scripts-repo/seed_library_local.py
+
+  # idempotent — re-run UPSERTs existing rows; no docker cp needed.
 """
 
 from __future__ import annotations
