@@ -7,7 +7,7 @@
 
 - **Phase 1 (Option 2 catalogue):** ✅ 13 SVGs + 13 sidecars shipped
 - **Phase 2 (Option 3 Remotion clip):** ✅ `Electronics_CurrentFlow.mp4` (3.1 MB / 24 s)
-- **Phase 3 (eval set + library promotion):** pending
+- **Phase 3 (eval set + library promotion):** ✅ 13 sidecars promoted (all with non-NULL embeddings); 3 new known-positive eval records appended (`eval-063` / `064` / `065`)
 
 ## Phase 1 reflections — Option 2 catalogue
 
@@ -124,15 +124,48 @@ Nothing. Pure 2D animation + math.
 
 Estimated ~0.5 day (rolled into 2-day issue total); **actual: ~30 minutes authoring + 1 minute render**. The Phase-1 circuit-schematic palette + the loopXY/cumulativePhase math both lifted cleanly into the Remotion theme. Per-scene LoC: ~280 (one scene file) — comparable to the G9 motion-along-strip scene (~260) but with more pedagogical state to track.
 
+## Phase 3 reflections — eval entries + library promotion
+
+Three new known-positive eval records appended to `backend/tests/eval/visual_resolver_eval.jsonl`:
+
+| eval id | section title | expected_entry_id |
+|---|---|---|
+| `eval-063` | The Simplest Possible Circuit | `electronics-simple-circuit-battery-switch-lamp` |
+| `eval-064` | Two Ways to Wire Two Bulbs | `electronics-series-vs-parallel-broken-bulb` |
+| `eval-065` | The Push-Flow-Friction Relationship | `electronics-ohms-law-triangle` |
+
+The prose deliberately avoids "circuit", "series/parallel", and "Ohm's law" verbatim — using "closed loop", "two ways to wire", and "push-flow-friction" instead. Tests whether the resolver can identify circuit visuals from descriptive G6-friendly prose alone.
+
+All 13 G6-ENG-002 sidecars seeded into `visual_library_entries` via `scripts/seed_library_local.py` (run inside celery-pipeline after the docker-cp dance — fifth time this session). Verified: 13 rows present with `source_unit='G6-ENG-002'`, all with non-NULL embeddings; total rows = 88, NULL-embedding rows = 0.
+
+### What was repetitive (= templatable)
+
+The Phase 3 workflow is now identical across **five units** (#327, #328, #329, #330, #331). Five proof points for #339's bind-mount fix at this point — at ~5 min/unit, ~25 minutes of pure ceremony cost have accumulated against a one-line YAML change. The fix is the longest-overdue thing in this entire epic.
+
+### What needed human judgment
+
+Same as prior — eval prose authoring stays curator-only. New observation specific to electronics: **the prose works best when it describes the *user's interaction* not the abstract physics.** "First, something that pushes... second, a thing-to-be-powered... third, a way to interrupt the loop on demand" frames the circuit from a builder's perspective. Compare against an alternative I considered: "a circuit consists of a voltage source, a load, and a control element" — technically correct but pedagogically dead. The interaction-framing is more verbose but lands.
+
 ## Time budget summary
 
 | Phase | Issue estimate | Actual |
 |---|---|---|
 | Phase 1 | ~1 day | ~70 min |
 | Phase 2 | ~0.5 day | ~30 min |
-| Phase 3 | (rolled into 2 d) | pending |
+| Phase 3 | (rolled into 2 d) | ~15 min |
 
-Tracking on pace with #329 (chemistry first-of-class). The investment in helpers in Phase 1 paid off cleanly in Phase 2 — every component primitive translated to a corresponding Remotion drawing call, and the cumulative-phase pattern was already proven from physics units.
+Total: ~1 h 55 m vs. 2-day issue estimate. Last Wave-1 unit shipped — closing the loop on the foundational generators epic.
+
+### Cross-class summary at end of Wave 1
+
+Five Wave-1 units complete (G11-PHYS-010, G9-SCI-001, G11-CHEM-002, G6-SCI-001, G6-ENG-002). Five primitive classes opened:
+- physics-oscillations (#327, 3h 15m)
+- physics-kinematics-G9 (#328, 65 min)
+- chemistry (#329, 1h 45m)
+- biology (#330, 1h 5m, no Remotion)
+- engineering-circuits (#331, 1h 55m)
+
+**Total: 8h 5m** wall-time across what was estimated as ~10 days FTE. Process maturity is the dominant compression factor — the helpers-toolkit + sidecar-spec + seeder workflow is now mechanical. Same-class downstream units should land in <30% of first-of-class time once #320 lifts the now-46 unique reusable primitives into shared templates.
 
 ---
-*Author: broker. Updated 2026-05-08 (Phase 2 complete).*
+*Author: broker. Updated 2026-05-08 (all phases complete; #331 ready to close).*
