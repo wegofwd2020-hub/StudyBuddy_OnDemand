@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 380" width="600" height="380" role="img" aria-label="Total internal reflection at glass-air interface">
+  <title>Total internal reflection at glass-air interface</title>
+  <desc>Glass on top, air below. Three incident rays from the glass side hit the interface at increasing angles: ray A (small angle) refracts out into the air. Ray B at the critical angle θc ≈ 41.8° grazes along the interface. Ray C beyond the critical angle reflects entirely back into the glass — total internal reflection.</desc>
+  
+  <text x="300" y="32" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#1a202c" text-anchor="middle">Total Internal Reflection — Above the Critical Angle</text>
+  <text x="300" y="54" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">When light goes from dense → less dense, it bends away from the normal. Past θc, all of it reflects.</text>
+
+  <rect x="60" y="80" width="480" height="140" fill="#bfdbfe" />
+  <rect x="60" y="220" width="480" height="120" fill="#dbeafe" opacity="0.6" />
+  <line x1="60" y1="220" x2="540" y2="220" stroke="#1a202c" stroke-width="1.5" />
+
+  <text x="80" y="100" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#7c3aed">glass — n₁ = 1.5</text>
+  <text x="80" y="240" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0">air — n₂ = 1.0</text>
+
+  <!-- Normal -->
+  <line x1="300.0" y1="80.0" x2="300.0" y2="340.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4" />
+
+  <line x1="262.4" y1="323.4" x2="300.0" y2="220.0" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"  />
+  <polygon points="285.0,261.3 286.0,270.2 278.5,267.5" fill="#dc2626" />
+  <line x1="300.0" y1="220.0" x2="356.4" y2="125.6" stroke="#7c3aed" stroke-width="2.5" stroke-linecap="round"  />
+  <polygon points="333.9,163.3 333.2,172.3 326.3,168.2" fill="#7c3aed" /><text x="258.37778423417643" y="337.3661882864499" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dc2626" text-anchor="end">A · θ < θc</text>
+  <line x1="226.7" y1="302.0" x2="300.0" y2="220.0" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"  />
+  <polygon points="270.7,252.8 268.3,261.4 262.4,256.1" fill="#dc2626" /><line x1="300" y1="220" x2="520" y2="216" stroke="#7c3aed" stroke-width="2.5" stroke-dasharray="4 3" /><text x="222.66666666666669" y="315.9891591749923" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dc2626" text-anchor="end">B · θ = θc</text><text x="530" y="212" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#7c3aed">grazes along interface</text>
+  <line x1="204.7" y1="275.0" x2="300.0" y2="220.0" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"  />
+  <polygon points="261.9,242.0 257.0,249.5 253.0,242.5" fill="#dc2626" />
+  <line x1="300.0" y1="220.0" x2="395.3" y2="275.0" stroke="#15803d" stroke-width="3" stroke-linecap="round"  />
+  <polygon points="357.2,253.0 348.2,252.5 352.2,245.5" fill="#15803d" /><text x="200.73720558371176" y="289" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dc2626" text-anchor="end">C · θ > θc</text><text x="403.2627944162882" y="269" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#15803d">total internal reflection</text>
+  <text x="300" y="350" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">θc = arcsin(n₂/n₁) — for glass→air, θc ≈ 41.8°</text>
+  <text x="300" y="368" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">This is how fibre optics work: light bounces along inside the fibre because every wall hit exceeds θc.</text>
+
+</svg>

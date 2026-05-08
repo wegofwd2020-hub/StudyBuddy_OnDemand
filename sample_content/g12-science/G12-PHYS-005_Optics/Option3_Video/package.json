@@ -1,0 +1,22 @@
+{
+  "name": "optics-video",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "studio": "bunx remotion studio",
+    "render:interference": "bunx remotion render optics-interference ~/Downloads/Optics_Interference.mp4",
+    "render:diffraction":  "bunx remotion render optics-single-slit-diffraction ~/Downloads/Optics_SingleSlitDiffraction.mp4",
+    "render:all": "bun run render:interference && bun run render:diffraction"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.260",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.260",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.0",
+    "typescript": "^5.4.0"
+  }
+}

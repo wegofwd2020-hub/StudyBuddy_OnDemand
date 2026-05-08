@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 320" width="600" height="320" role="img" aria-label="Prism dispersion of white light">
+  <title>Prism dispersion of white light</title>
+  <desc>An equilateral prism in the centre with a black white-light ray entering its left face. Six coloured rays emerge from the right face fanned in order violet, blue, green, yellow, orange, red — violet bent most strongly downward, red least.</desc>
+  
+  <text x="300" y="32" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#1a202c" text-anchor="middle">Prism Dispersion — White Light Splits by Wavelength</text>
+
+  <!-- Prism triangle -->
+  <polygon points="280,58.756443470178596 210,220.4145188432738 350,220.4145188432738" fill="#dbeafe" stroke="#1a202c" stroke-width="2" />
+
+  <!-- Incoming white ray hitting left face -->
+  <line x1="60" y1="160" x2="230" y2="184" stroke="#1a202c" stroke-width="3" />
+  <text x="60" y="148" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c">white light</text>
+
+  <!-- Outgoing dispersed rays from right face — fan of colours -->
+<line x1="320.0" y1="139.6" x2="515.2" y2="183.2" stroke="#7c3aed" stroke-width="3" stroke-linecap="round" /><text x="523.1794898661211" y="187.23140577290008" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#7c3aed">violet</text><line x1="320.0" y1="139.6" x2="511.1" y2="198.7" stroke="#2563eb" stroke-width="3" stroke-linecap="round" /><text x="519.0672978251212" y="202.6895224889941" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#2563eb">blue</text><line x1="320.0" y1="139.6" x2="507.2" y2="210.0" stroke="#16a34a" stroke-width="3" stroke-linecap="round" /><text x="515.179364735587" y="214.0403278117442" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#16a34a">green</text><line x1="320.0" y1="139.6" x2="501.0" y2="224.8" stroke="#facc15" stroke-width="3" stroke-linecap="round" /><text x="508.9503326439927" y="228.77337416992611" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#facc15">yellow</text><line x1="320.0" y1="139.6" x2="495.5" y2="235.5" stroke="#ea580c" stroke-width="3" stroke-linecap="round" /><text x="503.51651237807454" y="239.4705888775668" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#ea580c">orange</text><line x1="320.0" y1="139.6" x2="487.3" y2="249.2" stroke="#dc2626" stroke-width="3" stroke-linecap="round" /><text x="495.2925299830374" y="253.1902685151009" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dc2626">red</text>
+  <text x="300" y="290" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Each colour bends by a slightly different angle because n depends on wavelength.</text>
+  <text x="300" y="306" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Violet bends most (highest n), red least (lowest n) — the rainbow comes out fanned.</text>
+
+</svg>

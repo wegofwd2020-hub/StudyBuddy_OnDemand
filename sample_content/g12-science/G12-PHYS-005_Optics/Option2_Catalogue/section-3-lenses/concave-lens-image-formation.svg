@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 320" width="600" height="320" role="img" aria-label="Concave lens image formation">
+  <title>Concave lens image formation</title>
+  <desc>A horizontal optical bench with a vertical diverging biconcave-lens shape in the centre, virtual focal points F and F' on either side. A green object arrow on the left; red rays diverge after the lens. The diverging rays appear to come from a small upright virtual image arrow between the lens and F.</desc>
+  
+  <text x="300" y="32" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#1a202c" text-anchor="middle">Concave (Diverging) Lens — Always Virtual, Smaller</text>
+
+  <line x1="60" y1="180" x2="540" y2="180" stroke="#4a5568" stroke-width="1.2" stroke-dasharray="4 4" />
+
+  <!-- Concave lens shape (biconcave) — two curves meeting at thin centre -->
+  <path d="M 286 80 Q 306 180, 286 280
+           L 314 280 Q 294 180, 314 80 Z"
+        fill="#bfdbfe" stroke="#1a202c" stroke-width="2" />
+
+  <!-- Focal points (virtual) -->
+  <circle cx="230" cy="180" r="4" fill="#2b6cb0" />
+  <text x="230" y="198" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#2b6cb0" text-anchor="middle">F</text>
+  <circle cx="370" cy="180" r="4" fill="#2b6cb0" />
+  <text x="370" y="198" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#2b6cb0" text-anchor="middle">F'</text>
+<line x1="130" y1="180" x2="130" y2="120" stroke="#15803d" stroke-width="3" /><polygon points="124,128 136,128 130,120" fill="#15803d" /><text x="130" y="112" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">object</text><line x1="240" y1="180" x2="240" y2="150" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="4 3" /><polygon points="235,156 245,156 240,150" fill="#dc2626" /><text x="240" y="144" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">virtual image</text>
+  <line x1="130.0" y1="120.0" x2="300.0" y2="120.0" stroke="#dc2626" stroke-width="2" stroke-linecap="round"  />
+  <polygon points="232.0,120.0 224.0,124.0 224.0,116.0" fill="#dc2626" /><line x1="300" y1="120" x2="490" y2="90" stroke="#dc2626" stroke-width="2" /><line x1="300" y1="120" x2="230" y2="180" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4 4" /><line x1="130" y1="120" x2="490" y2="192" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="6 3" opacity="0.7" /><text x="300" y="308" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Concave lens always: image virtual · upright · smaller — between F and the lens.</text>
+</svg>

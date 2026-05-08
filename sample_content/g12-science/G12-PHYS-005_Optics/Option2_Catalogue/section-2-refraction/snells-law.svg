@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360" role="img" aria-label="Snells law refraction at an interface">
+  <title>Snells law refraction at an interface</title>
+  <desc>Two horizontally-stacked media (light blue air on top, deeper blue glass on bottom) separated by a horizontal interface. A red incident ray approaches the boundary at θ₁ = 45° from the dashed normal; the purple refracted ray bends toward the normal at θ₂ ≈ 28° in the denser medium. A boxed worked example shows the ratio sin θ₁ / sin θ₂ = n₂ / n₁ = 1.5.</desc>
+  
+  <text x="300" y="32" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#1a202c" text-anchor="middle">Snell's Law — n₁ sin θ₁ = n₂ sin θ₂</text>
+  <text x="300" y="54" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Light bends toward the normal when entering a denser medium (higher n).</text>
+
+  <!-- Two media -->
+  <rect x="60" y="80" width="480" height="120" fill="#dbeafe" opacity="0.6" />
+  <rect x="60" y="200" width="480" height="120" fill="#bfdbfe" />
+  <line x1="60" y1="200" x2="540" y2="200" stroke="#1a202c" stroke-width="1.5" />
+
+  <!-- Medium labels -->
+  <text x="80" y="100" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0">medium 1 — air, n₁ = 1.00</text>
+  <text x="80" y="220" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#7c3aed">medium 2 — glass, n₂ = 1.50</text>
+
+  <!-- Normal -->
+  <line x1="300.0" y1="80.0" x2="300.0" y2="320.0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 4" />
+  <text x="292" y="88" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#4a5568" text-anchor="end">normal</text>
+
+  <!-- Incident ray -->
+  
+  <line x1="201.0" y1="101.0" x2="300.0" y2="200.0" stroke="#dc2626" stroke-width="3" stroke-linecap="round"  />
+  <polygon points="260.4,160.4 251.9,157.6 257.6,151.9" fill="#dc2626" />
+  <text x="193.00505063388334" y="95.00505063388334" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#dc2626" text-anchor="end">incident ray</text>
+
+  <!-- Refracted ray -->
+  
+  <line x1="300.0" y1="200.0" x2="366.0" y2="323.5" stroke="#7c3aed" stroke-width="3" stroke-linecap="round"  />
+  <polygon points="339.6,274.1 332.3,268.9 339.4,265.1" fill="#7c3aed" />
+  <text x="373.99663291074444" y="317.46839451634753" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#7c3aed">refracted ray</text>
+
+  <!-- Angle arcs -->
+  <path d="M 300.0,160.0 A 40,40 0 0 0 271.7,171.7" fill="none" stroke="#dc2626" stroke-width="1.5" />
+  <text x="282" y="150" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">θ₁</text>
+  <path d="M 318.9,235.3 A 40,40 0 0 1 300.0,240.0" fill="none" stroke="#7c3aed" stroke-width="1.5" />
+  <text x="314" y="256" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#7c3aed" text-anchor="middle">θ₂</text>
+
+  <!-- Worked example -->
+  <rect x="350" y="220" width="180" height="80" rx="8" fill="#fef3c7" stroke="#4a5568" stroke-width="1.5" />
+  <text x="440" y="244" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">θ₁ = 45° → θ₂ ≈ 28°</text>
+  <text x="440" y="262" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">sin(45°)/sin(28°) ≈ 1.5</text>
+  <text x="440" y="282" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">= n₂/n₁ ✓</text>
+
+</svg>

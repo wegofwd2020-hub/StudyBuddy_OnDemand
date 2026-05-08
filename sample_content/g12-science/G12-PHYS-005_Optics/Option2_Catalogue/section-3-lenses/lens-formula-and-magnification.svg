@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 320" width="540" height="320" role="img" aria-label="Lens formula and magnification card">
+  <title>Lens formula and magnification card</title>
+  <desc>A formula card showing 1/v − 1/u = 1/f highlighted at top, the magnification m = v/u underneath, and a worked example for a convex lens with f = +20 cm and u = −30 cm: solving gives v = +60 cm (real image) and m = −2 (inverted, twice as large).</desc>
+  
+  <text x="270" y="32" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#1a202c" text-anchor="middle">Lens Formula + Magnification</text>
+  <text x="270" y="54" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Cartesian sign convention: distances measured from the lens; light travels left → right is positive.</text>
+
+  <rect x="60" y="80" width="420" height="60" rx="10" fill="#fef3c7" stroke="#dd6b20" stroke-width="2" />
+  <text x="270" y="120" font="bold 26px system-ui" font-size="26" font-weight="700" fill="#1a202c" text-anchor="middle">1/v − 1/u = 1/f</text>
+
+  <text x="60" y="180" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c">Magnification: m = h'/h = v/u</text>
+
+  <text x="60" y="220" font="13px system-ui" font-size="13" fill="#1a202c">Worked example — convex lens, f = +20 cm, u = −30 cm:</text>
+  <text x="60" y="240" font="13px system-ui" font-size="13" fill="#4a5568">1/v = 1/f + 1/u = 1/20 + 1/(−30) = 1/60</text>
+  <text x="60" y="260" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#15803d">→ v = +60 cm  (real image, on the right)</text>
+  <text x="60" y="280" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#15803d">→ m = v/u = 60/(−30) = −2  (inverted, 2× larger)</text>
+
+  <text x="270" y="310" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Same formula handles convex (f &gt; 0) and concave (f &lt; 0). Negative m = inverted image.</text>
+
+</svg>
