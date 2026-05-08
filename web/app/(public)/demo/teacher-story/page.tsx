@@ -18,9 +18,9 @@ import { Mail, Download, ArrowLeft, Clock, GraduationCap, BookOpen } from "lucid
  */
 
 export const metadata: Metadata = {
-  title: "A Monday Morning with Linda — Grade 11 Science Teacher Story",
+  title: "How a Lesson Gets Built — Grade 11 Science Teacher Story",
   description:
-    "How a Grade 11 Science teacher cut her Monday-morning prep from 90 minutes to 20. A 3-minute walkthrough.",
+    "Watch a Grade 11 Physics lesson assemble itself. Text, diagrams, an animation, and a quiz — generated in seconds, scoped to one teacher's curriculum. A 3-minute walkthrough.",
 };
 
 const VIDEO_SRC = "/content/promos/StudyBuddy_TeacherStory.mp4";
@@ -82,11 +82,15 @@ function Hero() {
           For teachers
         </div>
         <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
-          A Monday Morning with Linda
+          How a Lesson Gets Built
         </h1>
         <p className="mt-6 text-xl text-slate-600">
-          How a Grade 11 Science teacher cut her Monday-morning prep
-          from <span className="font-semibold">90 minutes to 20</span>.
+          Watch a Grade 11 Physics lesson assemble itself —
+          <span className="font-semibold">
+            {" "}
+            text, diagrams, an animation, and a quiz
+          </span>
+          {" "}— scoped to one teacher's curriculum.
         </p>
         <p className="mt-3 text-sm text-slate-500">
           A 3-minute walkthrough · with captions · download to share with
@@ -161,30 +165,31 @@ function ContextSection() {
     <section className="border-t border-slate-200 bg-white px-4 py-16">
       <div className="mx-auto max-w-3xl">
         <h2 className="text-2xl font-bold text-slate-900">
-          Who this is for
+          What's actually inside a lesson
         </h2>
         <p className="mt-4 text-slate-600">
-          Grade 11 and 12 Science teachers in schools that already have a
-          curriculum and don't want to throw it out — they want their
-          existing curriculum to <em>age with the world</em>. Linda's
-          story is the canonical case for that.
+          Most "AI for teachers" pitches stop at the search-bar. The
+          interesting question is what comes <em>after</em>: how the
+          lesson is composed, what modalities it carries, how it stays
+          current, and how it adapts to the same teacher's other
+          classes. The video walks through the answer end-to-end.
         </p>
 
         <div className="mt-10 grid gap-6 sm:grid-cols-3">
           <ContextCard
-            icon={<Clock className="h-6 w-6 text-purple-600" />}
-            title="Less prep time"
-            body="Lessons that pull current examples mean Linda's Monday-morning prep ritual shrinks from 90 minutes to 20."
+            icon={<BookOpen className="h-6 w-6 text-purple-600" />}
+            title="Multi-modal lessons"
+            body="Every lesson carries text explanations, labeled images, an embedded animation for motion topics, a quiz with explanations, and a tutorial section for the stuck."
           />
           <ContextCard
-            icon={<BookOpen className="h-6 w-6 text-purple-600" />}
-            title="Same curriculum"
-            body="StudyBuddy fits her school's existing curriculum. The framework doesn't change; the examples stay current."
+            icon={<Clock className="h-6 w-6 text-purple-600" />}
+            title="Scoped to your curriculum"
+            body="Six-dimension scoping (topic × grade × language × curriculum context × format × real-world framing) means the same engine produces different lessons for G11 Science and G12 Commerce."
           />
           <ContextCard
             icon={<GraduationCap className="h-6 w-6 text-purple-600" />}
             title="Reports she trusts"
-            body="At-risk students surface automatically — no spreadsheet, no guessing, just the names that need a check-in."
+            body="At-risk students surface automatically — no spreadsheet, no guessing, just the names that need a check-in. Plus accessibility built in by default."
           />
         </div>
       </div>

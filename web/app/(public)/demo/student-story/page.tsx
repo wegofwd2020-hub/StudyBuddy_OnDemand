@@ -18,9 +18,9 @@ import { Mail, Download, ArrowLeft, Sparkles, BookOpen, Clock } from "lucide-rea
  */
 
 export const metadata: Metadata = {
-  title: "A Study Night with Fatima — Grade 11 Science Student Story",
+  title: "What's Inside a Lesson — Grade 11 Science Student Story",
   description:
-    "How a Grade 11 Science student moved from re-reading the textbook to walking into class confident. A 3-minute walkthrough.",
+    "A Grade 11 Science student opens a kinematics lesson the night before her test — and discovers five layers: text, images, an animation, a quiz, and a tutorial section. A 3-minute walkthrough.",
 };
 
 const VIDEO_SRC = "/content/promos/StudyBuddy_StudentStory.mp4";
@@ -87,11 +87,13 @@ function Hero() {
           For students
         </div>
         <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
-          A Study Night with Fatima
+          What's Inside a Lesson
         </h1>
         <p className="mt-6 text-xl text-slate-600">
-          From re-reading the textbook to walking into class
-          <span className="font-semibold"> confident</span>.
+          A Grade 11 Science student opens a kinematics lesson the
+          night before her test — and discovers
+          <span className="font-semibold"> five layers</span>: text,
+          images, an animation, a quiz, and a tutorial.
         </p>
         <p className="mt-3 text-sm text-slate-500">
           A 3-minute walkthrough · with captions · download to share with
@@ -163,30 +165,30 @@ function ContextSection() {
     <section className="border-t border-slate-200 bg-white px-4 py-16">
       <div className="mx-auto max-w-3xl">
         <h2 className="text-2xl font-bold text-slate-900">
-          Who this is for
+          Five layers, one lesson
         </h2>
         <p className="mt-4 text-slate-600">
-          Grade 11 and 12 Science students in their first year of stream-specific
-          coursework — Physics, Chemistry, Biology — when textbooks suddenly get
-          dense and the gap between "I read it" and "I understand it" widens fast.
-          Fatima's story shows how StudyBuddy closes that gap.
+          Most study apps are a wall of text or a deck of flashcards.
+          StudyBuddy lessons stack five distinct layers — each addressing
+          a different study gap. Open one and the layers reveal
+          themselves; the video walks through what each one looks like.
         </p>
 
         <div className="mt-10 grid gap-6 sm:grid-cols-3">
           <ContextCard
             icon={<BookOpen className="h-6 w-6 text-blue-600" />}
-            title="Lessons with priorities"
-            body="Each lesson opens with three learning objectives. You know what to focus on before the textbook tries to drown you."
+            title="Text + worked examples"
+            body="Three learning objectives at the top. Then key concepts in plain language. Worked examples where every line of algebra has a reason next to it."
           />
           <ContextCard
             icon={<Sparkles className="h-6 w-6 text-blue-600" />}
-            title="Worked examples that don't skip"
-            body="Every line of algebra has a reason next to it. No leaps of logic. You read it once, then you read it again — and it sticks."
+            title="Images, animations, quizzes"
+            body="Labeled diagrams. Embedded animations for motion topics. Quizzes that explain wrong answers in two sentences instead of just marking them red."
           />
           <ContextCard
             icon={<Clock className="h-6 w-6 text-blue-600" />}
-            title="Time back, sleep included"
-            body="A study session that gets you ready in 90 minutes is a study session that lets you sleep before the test."
+            title="Tutorials for the stuck"
+            body="When the lesson alone isn't enough: a tutorial section with step-by-step solutions and the five common mistakes called out by name."
           />
         </div>
       </div>
