@@ -1,6 +1,6 @@
 # StudyBuddy OnDemand — Progress Chart
 
-_Auto-generated 2026-05-08T04:46:40+00:00. Regenerated nightly at 21:00 EST._
+_Auto-generated 2026-05-09T04:58:41+00:00. Regenerated nightly at 21:00 EST._
 
 Source: `docs/epics/` (feature manifest) + `git log` (activity). Script: `scripts/generate_progress.py`.
 
@@ -17,7 +17,7 @@ gantt
     Epic 6  :active, e6, 2026-04-12, 2026-04-13
     Epic 8  :active, e8, 2026-04-14, 2026-04-15
     Epic 10 :done, e10, 2026-04-15, 2026-05-03
-    Epic 11 :done, e11, 2026-04-15, 2026-04-16
+    Epic 11 :done, e11, 2026-04-15, 2026-05-08
     Epic 12 :done, e12, 2026-04-29, 2026-05-01
     Epic 13 :done, e13, 2026-04-21, 2026-05-01
     Epic 15 :done, e15, 2026-05-02, 2026-05-03
@@ -38,7 +38,7 @@ gantt
 | 8 | [Onboarding Completeness (Address & Measurement Units)](epics/EPIC_08_onboarding_completeness.md) | 💭 Your call | 2026-04-14 | 2026-04-15 | 3 | 5 | H-10×2 |
 | 9 | [Accessibility & Personalization](epics/EPIC_09_accessibility_personalization.md) | 💭 Your call | — | — | 0 | 0 | — |
 | 10 | [Curriculum Lifecycle & Governance](epics/EPIC_10_curriculum_lifecycle.md) | ✅ Go — all 8 questions + 2 follow-ups resolved 2026-04-15 | 2026-04-15 | 2026-05-03 | 14 | 9 | L-1×4, L-7×3, L-8×2, L-5×2 |
-| 11 | [Content Presentation & Formatting](epics/EPIC_11_content_formatting.md) | ✅ Go — 9 questions resolved 2026-04-15 | 2026-04-15 | 2026-04-15 | 8 | 7 | C-9×2 |
+| 11 | [Content Presentation & Formatting](epics/EPIC_11_content_formatting.md) | ✅ Go — 9 questions resolved 2026-04-15 | 2026-04-15 | 2026-05-08 | 11 | 11 | C-9×3, C-2×2, C-1×2 |
 | 12 | [Teacher Content Authoring](epics/EPIC_12_teacher_content_authoring.md) | ✅ Go — all questions resolved; ready to build from TA-0 | 2026-04-29 | 2026-05-01 | 13 | 0 | — |
 | 13 | [Branding Refresh: STEM → Education Enhancement](epics/EPIC_13_branding_refresh.md) | ✅ Complete 2026-04-21 — all five tickets shipped. Minimum-scope PR #246 landed T | 2026-04-21 | 2026-05-01 | 3 | 0 | — |
 | 15 | [School Curriculum Backup & Restore](epics/EPIC_15_backup_restore.md) | ✅ Go — spec locked; ready to build BR-1 through BR-6 | 2026-05-02 | 2026-05-03 | 4 | 0 | — |
@@ -54,10 +54,12 @@ Tickets with 2+ commits — each extra commit is an iteration or rework.
 |---|---|---|---|---|---|
 | L-1 | Epic 10 | 4 | 2026-04-15 | 2026-04-15 | 0 |
 | L-7 | Epic 10 | 3 | 2026-05-01 | 2026-05-03 | 2 |
+| C-9 | Epic 11 | 3 | 2026-04-15 | 2026-05-08 | 23 |
 | H-10 | Epic 8 | 2 | 2026-04-14 | 2026-04-15 | 1 |
 | L-8 | Epic 10 | 2 | 2026-05-03 | 2026-05-03 | 0 |
 | L-5 | Epic 10 | 2 | 2026-04-15 | 2026-04-15 | 0 |
-| C-9 | Epic 11 | 2 | 2026-04-15 | 2026-04-15 | 0 |
+| C-2 | Epic 11 | 2 | 2026-04-15 | 2026-05-08 | 23 |
+| C-1 | Epic 11 | 2 | 2026-04-15 | 2026-05-08 | 23 |
 | S-1 | Epic 16 | 2 | 2026-04-15 | 2026-05-03 | 18 |
 
 ## Per-epic detail
@@ -173,17 +175,21 @@ Tickets with 2+ commits — each extra commit is an iteration or rework.
 - **Status:** ✅ Go — 9 questions resolved 2026-04-15
 - **Epic file:** [EPIC_11_content_formatting.md](epics/EPIC_11_content_formatting.md)
 - **Ticket prefix:** `C`
-- **Commits attributed:** 8
+- **Commits attributed:** 11
 
 | Ticket | Commits | First | Last |
 |---|---|---|---|
-| C-1 | 1 | 2026-04-15 | 2026-04-15 |
-| C-2 | 1 | 2026-04-15 | 2026-04-15 |
+| C-1 | 2 | 2026-04-15 | 2026-05-08 |
+| C-2 | 2 | 2026-04-15 | 2026-05-08 |
 | C-3 | 1 | 2026-04-15 | 2026-04-15 |
 | C-4 | 1 | 2026-04-15 | 2026-04-15 |
 | C-5 | 1 | 2026-04-15 | 2026-04-15 |
 | C-6 | 1 | 2026-04-15 | 2026-04-15 |
-| C-9 | 2 | 2026-04-15 | 2026-04-15 |
+| C-7 | 1 | 2026-05-08 | 2026-05-08 |
+| C-8 | 1 | 2026-05-08 | 2026-05-08 |
+| C-9 | 3 | 2026-04-15 | 2026-05-08 |
+| D-1 | 1 | 2026-05-08 | 2026-05-08 |
+| D-2 | 1 | 2026-05-08 | 2026-05-08 |
 
 ### Epic 12 — Teacher Content Authoring
 
