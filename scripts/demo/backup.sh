@@ -1,46 +1,92 @@
 #!/usr/bin/env bash
 # =============================================================================
-# scripts/demo/backup.sh — daily DB + content-store backup
+# scripts/demo/backup.sh — daily restic backup for StudyBuddy
 #
 # Runs from cron at 02:00 UTC (provisioned by scripts/demo/provision.sh).
 # Three-step routine:
-#   1. pg_dump compressed → /opt/studybuddy/backups/db-YYYYMMDD.dump.gz
-#   2. rsync content_store → /opt/studybuddy/backups/content-YYYYMMDD/
+#   1. pg_dump compressed → /opt/studybuddy/backups/staging/db-latest.dump.gz
+#      (always overwritten; restic snapshots the file in step 2 and dedupes
+#       blocks-against-blocks across days, so we don't need 30 separate
+#       dump files cluttering the disk)
+#   2. restic backup → /opt/studybuddy/backups/restic/
+#      sources: the staging dump from step 1, /data/content (content store),
+#               /opt/studybuddy/.env.demo
 #   3. (optional) trigger a Hetzner Cloud snapshot via API if HCLOUD_TOKEN set
-# Plus retention: prune backups older than RETENTION_DAYS (default 7).
+#
+# Why restic instead of timestamped tarballs / rsync:
+#   - Encryption-at-rest (AES-256). pg_dump output is plaintext PII once
+#     real users land. A stolen disk image is not immediately readable.
+#   - Content-addressed deduplication. The content_store changes by ~few MB
+#     per day on average; 30 daily snapshots take ~1.2x the size of one
+#     instead of 30x. Same story for pg_dump (most blocks are unchanged).
+#   - Per-snapshot `restic check` integrity verification.
+#
+# Repo lives at $RESTIC_REPO (default: $INSTALL_DIR/backups/restic). Same
+# disk as the originals (deliberate — operator chose local-only retention
+# for the demo; see Plans/BACKUPS.md residual-risk section).
+#
+# Password lives at $RESTIC_PASSWORD_FILE (default /etc/restic/studybuddy.password).
+# provision.sh generates and prints it once. If lost, the repo is unrecoverable
+# (this is a design property of restic, not a bug).
+#
+# Forget policy:
+#   --keep-daily 7 --keep-weekly 4 --keep-monthly 3 --keep-yearly 1
 #
 # Usage (typically via cron, but manual invocation works):
 #   sudo bash /opt/studybuddy/scripts/demo/backup.sh
 #
-# Cron entry installed by provision.sh:
-#   0 2 * * * root cd /opt/studybuddy && bash scripts/demo/backup.sh \
-#     >> /var/log/studybuddy-backup.log 2>&1
-#
 # Exit codes:
-#   0 — backup successful (or "nothing to do")
+#   0 — backup + forget successful (or "nothing to do")
 #   1 — pg_dump failed
-#   2 — rsync failed
-#   3 — Hetzner snapshot API call failed (still exits non-zero so cron emails)
+#   2 — restic backup failed
+#   3 — restic forget/prune failed
+#   4 — Hetzner snapshot API call failed
+#   5 — repo not initialised (run provision.sh)
+#   6 — password file missing or unreadable
 # =============================================================================
 
 set -euo pipefail
 
 INSTALL_DIR="${INSTALL_DIR:-/opt/studybuddy}"
 BACKUP_DIR="${BACKUP_DIR:-$INSTALL_DIR/backups}"
-RETENTION_DAYS="${RETENTION_DAYS:-7}"
-DATE_TAG="$(date -u +%Y%m%d)"
+STAGING_DIR="${STAGING_DIR:-$BACKUP_DIR/staging}"
+RESTIC_REPO="${RESTIC_REPO:-$BACKUP_DIR/restic}"
+RESTIC_PASSWORD_FILE="${RESTIC_PASSWORD_FILE:-/etc/restic/studybuddy.password}"
 ENV_FILE="${ENV_FILE:-$INSTALL_DIR/.env.demo}"
 
-# Source .env.demo so we have HCLOUD_TOKEN (if set) and POSTGRES_PASSWORD
+# Source .env.demo so we have HCLOUD_TOKEN (if set) and POSTGRES_PASSWORD.
 # shellcheck disable=SC1090
 [[ -f "$ENV_FILE" ]] && set -a && . "$ENV_FILE" && set +a
 
-mkdir -p "$BACKUP_DIR"
+HOSTNAME_TAG="$(hostname -s)"
+SNAPSHOT_TAG="daily"
+
+export RESTIC_REPOSITORY="$RESTIC_REPO"
+export RESTIC_PASSWORD_FILE
+
+mkdir -p "$BACKUP_DIR" "$STAGING_DIR"
 
 log() { echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] $*"; }
 
-# ── 1. pg_dump ──────────────────────────────────────────────────────────────
-DB_OUT="$BACKUP_DIR/db-${DATE_TAG}.dump.gz"
+# ── Pre-flight ──────────────────────────────────────────────────────────────
+if ! command -v restic >/dev/null 2>&1; then
+  log "FATAL: restic not installed. Run scripts/demo/provision.sh."
+  exit 5
+fi
+
+if [[ ! -r "$RESTIC_PASSWORD_FILE" ]]; then
+  log "FATAL: $RESTIC_PASSWORD_FILE missing or unreadable. Run provision.sh."
+  exit 6
+fi
+
+if [[ ! -f "$RESTIC_REPO/config" ]]; then
+  log "FATAL: restic repo not initialised at $RESTIC_REPO."
+  log "  Run: RESTIC_REPOSITORY=$RESTIC_REPO RESTIC_PASSWORD_FILE=$RESTIC_PASSWORD_FILE restic init"
+  exit 5
+fi
+
+# ── 1. pg_dump → staging file (overwritten daily) ──────────────────────────
+DB_OUT="$STAGING_DIR/db-latest.dump.gz"
 log "step 1/3  pg_dump → $DB_OUT"
 if docker compose -f "$INSTALL_DIR/docker-compose.yml" \
                  -f "$INSTALL_DIR/docker-compose.demo.yml" \
@@ -54,20 +100,46 @@ else
   exit 1
 fi
 
-# ── 2. content-store rsync ──────────────────────────────────────────────────
-CONTENT_OUT="$BACKUP_DIR/content-${DATE_TAG}"
-log "step 2/3  content-store rsync → $CONTENT_OUT"
-if rsync -a --delete /data/content/ "$CONTENT_OUT/"; then
-  log "  rsync OK ($(du -sh "$CONTENT_OUT" | cut -f1))"
-else
-  log "  rsync FAILED"
+# ── 2. restic backup ───────────────────────────────────────────────────────
+log "step 2/3  restic backup → $RESTIC_REPO"
+
+SOURCES=("$DB_OUT")
+[[ -d /data/content ]] && SOURCES+=(/data/content)
+[[ -f "$ENV_FILE" ]] && SOURCES+=("$ENV_FILE")
+
+log "  sources:"
+for src in "${SOURCES[@]}"; do log "    - $src"; done
+
+if ! restic backup \
+    --tag "$SNAPSHOT_TAG" \
+    --tag "host=$HOSTNAME_TAG" \
+    --exclude-caches \
+    "${SOURCES[@]}"; then
+  log "  restic backup FAILED"
   exit 2
 fi
 
-# ── 3. Hetzner snapshot trigger (optional) ─────────────────────────────────
+log "  backup OK"
+
+# ── 3. forget — apply retention policy ─────────────────────────────────────
+log "step 3/3  restic forget — keep 7d / 4w / 3m / 1y"
+if ! restic forget \
+    --tag "$SNAPSHOT_TAG" \
+    --keep-daily 7 \
+    --keep-weekly 4 \
+    --keep-monthly 3 \
+    --keep-yearly 1; then
+  log "  restic forget FAILED"
+  exit 3
+fi
+
+# ── (Optional) Hetzner snapshot trigger ────────────────────────────────────
+# Belt-and-braces: in addition to the local restic repo, take a same-account
+# Hetzner snapshot. Same-Hetzner-account, so doesn't help against account
+# compromise — but it does give a fast rollback point if the OS itself is
+# corrupted (vs. losing only application data, which restic alone protects).
 if [[ -n "${HCLOUD_TOKEN:-}" ]] && [[ "$HCLOUD_TOKEN" != "<your-hetzner-cloud-api-token-or-leave-blank>" ]]; then
-  log "step 3/3  Hetzner snapshot trigger"
-  # Get the server ID by hostname (assumes one Hetzner server matches `hostname -f`)
+  log "(optional) Hetzner snapshot trigger"
   SERVER_ID=$(curl -fsS \
     -H "Authorization: Bearer $HCLOUD_TOKEN" \
     "https://api.hetzner.cloud/v1/servers?name=$(hostname -f)" \
@@ -79,23 +151,23 @@ if [[ -n "${HCLOUD_TOKEN:-}" ]] && [[ "$HCLOUD_TOKEN" != "<your-hetzner-cloud-ap
       -H "Authorization: Bearer $HCLOUD_TOKEN" \
       -H "Content-Type: application/json" \
       -X POST \
-      -d "{\"description\":\"studybuddy-demo-${DATE_TAG}\",\"type\":\"snapshot\"}" \
+      -d "{\"description\":\"studybuddy-demo-$(date -u +%Y%m%d)\",\"type\":\"snapshot\"}" \
       "https://api.hetzner.cloud/v1/servers/$SERVER_ID/actions/create_image" \
       > /dev/null; then
       log "  snapshot triggered"
     else
-      log "  snapshot trigger FAILED — exiting non-zero so cron emails the failure"
-      exit 3
+      log "  snapshot trigger FAILED"
+      exit 4
     fi
   fi
 else
-  log "step 3/3  Hetzner snapshot trigger SKIPPED (HCLOUD_TOKEN not set)"
+  log "(optional) Hetzner snapshot SKIPPED (HCLOUD_TOKEN not set)"
 fi
 
-# ── Retention prune ─────────────────────────────────────────────────────────
-log "retention prune — removing backups older than ${RETENTION_DAYS} days"
-find "$BACKUP_DIR" -maxdepth 1 -name 'db-*.dump.gz'  -mtime +"$RETENTION_DAYS" -print -delete
-find "$BACKUP_DIR" -maxdepth 1 -name 'content-*' -type d -mtime +"$RETENTION_DAYS" -print -exec rm -rf {} +
+# ── Summary ────────────────────────────────────────────────────────────────
+log "current snapshots:"
+restic snapshots --compact | tail -10 | sed 's/^/  /'
 
-log "backup complete. Current artefacts:"
-ls -lh "$BACKUP_DIR" | tail -n +2 | awk '{printf "  %-40s  %s\n", $9, $5}'
+REPO_SIZE=$(du -sh "$RESTIC_REPO" 2>/dev/null | cut -f1 || echo "?")
+log "repo on-disk size: $REPO_SIZE"
+log "backup complete."
