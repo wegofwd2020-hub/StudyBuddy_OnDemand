@@ -124,8 +124,7 @@ function UnitDetail({
     mutationFn: () => importUnit(schoolId, adoptionId, unit.unit_id),
     onSuccess: onImported,
     onError: (err: unknown) => {
-      const message =
-        err instanceof Error ? err.message : "Failed to import unit.";
+      const message = err instanceof Error ? err.message : "Failed to import unit.";
       onError(message);
     },
   });
@@ -157,9 +156,7 @@ function UnitDetail({
             })}
           </span>
         ) : null}
-        <span className="text-gray-400">
-          {unit.subject_name ?? unit.subject}
-        </span>
+        <span className="text-gray-400">{unit.subject_name ?? unit.subject}</span>
       </div>
 
       {/* Action buttons */}
@@ -169,7 +166,7 @@ function UnitDetail({
             type="button"
             onClick={() => importMutation.mutate()}
             disabled={importMutation.isPending}
-            className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Download className="h-3 w-3" aria-hidden="true" />
             {importMutation.isPending ? "Importing…" : "Import"}
@@ -244,8 +241,7 @@ export default function ContentUnitsPage() {
   // Group by subject — preserve current ordering pattern
   const subjects = Array.from(new Set(units.map((u) => u.subject)));
 
-  const onToggleSpine = (id: string) =>
-    setOpenUnitId((cur) => (cur === id ? null : id));
+  const onToggleSpine = (id: string) => setOpenUnitId((cur) => (cur === id ? null : id));
 
   return (
     <div className="max-w-5xl space-y-6 p-6">
@@ -273,8 +269,7 @@ export default function ContentUnitsPage() {
             )}
           </div>
           <p className="mt-1 text-sm text-gray-500">
-            Import and customize units — each unit shows its current override
-            status.
+            Import and customize units — each unit shows its current override status.
           </p>
         </div>
       </div>
@@ -313,8 +308,7 @@ export default function ContentUnitsPage() {
           <CheckCircle2 className="h-8 w-8 text-gray-300" />
           <p className="text-sm font-medium text-gray-500">No units found</p>
           <p className="max-w-xs text-xs text-gray-400">
-            This curriculum has no units yet, or the content has not been
-            generated.
+            This curriculum has no units yet, or the content has not been generated.
           </p>
         </div>
       ) : (

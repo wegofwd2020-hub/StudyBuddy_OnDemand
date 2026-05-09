@@ -47,7 +47,8 @@ function ClassroomCard({
       updateClassroom(schoolId, item.classroom_id, {
         status: item.status === "active" ? "archived" : "active",
       }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["classrooms", schoolId] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["classrooms", schoolId] }),
   });
 
   return (
@@ -72,9 +73,7 @@ function ClassroomCard({
             )}
           </div>
           {item.teacher_name && (
-            <p className="mt-0.5 text-sm text-gray-500">
-              Lead: {item.teacher_name}
-            </p>
+            <p className="mt-0.5 text-sm text-gray-500">Lead: {item.teacher_name}</p>
           )}
           <div className="mt-2 flex items-center gap-4 text-xs text-gray-500">
             <span className="flex items-center gap-1">
@@ -96,7 +95,9 @@ function ClassroomCard({
                   type="button"
                   onClick={() => setConfirmArchive(true)}
                   className="rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-                  aria-label={item.status === "active" ? "Archive classroom" : "Restore classroom"}
+                  aria-label={
+                    item.status === "active" ? "Archive classroom" : "Restore classroom"
+                  }
                   title={item.status === "active" ? "Archive" : "Restore"}
                 >
                   {item.status === "active" ? (
@@ -111,7 +112,10 @@ function ClassroomCard({
                     size="sm"
                     variant="outline"
                     className="h-7 text-xs"
-                    onClick={() => { setConfirmArchive(false); toggleStatus(); }}
+                    onClick={() => {
+                      setConfirmArchive(false);
+                      toggleStatus();
+                    }}
                     disabled={isPending}
                   >
                     {isPending ? "…" : "Confirm"}
@@ -188,8 +192,10 @@ function CreateClassroomForm({ schoolId }: { schoolId: string }) {
             <select
               id="cls_grade"
               value={grade}
-              onChange={(e) => setGrade(e.target.value === "" ? "" : Number(e.target.value))}
-              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              onChange={(e) =>
+                setGrade(e.target.value === "" ? "" : Number(e.target.value))
+              }
+              className="border-input focus-visible:ring-ring flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:ring-1 focus-visible:outline-none"
             >
               <option value="">No specific grade</option>
               {ALL_GRADES.map((g) => (
@@ -204,7 +210,10 @@ function CreateClassroomForm({ schoolId }: { schoolId: string }) {
         {error && <p className="text-sm text-red-600">{error}</p>}
 
         <Button
-          onClick={() => { setError(null); mutate(); }}
+          onClick={() => {
+            setError(null);
+            mutate();
+          }}
           disabled={isPending || !name.trim()}
           className="gap-2"
         >
@@ -241,12 +250,13 @@ export default function ClassroomsPage() {
 
       <p className="text-sm text-gray-500">
         A classroom binds a group of students to one or more curriculum packages. Create a
-        classroom, assign packages from the catalog or your custom builds, then enrol students.
+        classroom, assign packages from the catalog or your custom builds, then enrol
+        students.
       </p>
 
       {/* ── Active classrooms ── */}
       <section>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+        <h2 className="mb-3 text-sm font-semibold tracking-wide text-gray-500 uppercase">
           Active classrooms
         </h2>
         {isLoading ? (
@@ -277,7 +287,7 @@ export default function ClassroomsPage() {
       {/* ── Archived classrooms ── */}
       {archived.length > 0 && (
         <section>
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+          <h2 className="mb-3 text-sm font-semibold tracking-wide text-gray-500 uppercase">
             Archived
           </h2>
           <div className="space-y-3">

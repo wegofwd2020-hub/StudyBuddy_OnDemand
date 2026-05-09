@@ -36,14 +36,19 @@ export function ScenarioBuilderGated() {
             <input
               type="password"
               value={input}
-              onChange={(e) => { setInput(e.target.value); setError(false); }}
+              onChange={(e) => {
+                setInput(e.target.value);
+                setError(false);
+              }}
               placeholder="Access code"
               autoFocus
               className="w-full rounded-lg border px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
             />
             {error && <p className="text-xs text-red-500">Incorrect code — try again.</p>}
-            <button type="submit"
-              className="w-full rounded-lg bg-indigo-600 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400">
+            <button
+              type="submit"
+              className="w-full rounded-lg bg-indigo-600 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+            >
               Continue
             </button>
           </form>
@@ -53,12 +58,13 @@ export function ScenarioBuilderGated() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
+    <div className="min-h-screen bg-gray-50 px-4 py-12">
       <div className="mx-auto max-w-4xl">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900">New Scenario</h1>
           <p className="mt-1 text-sm text-gray-500">
-            Define characters, dialog, and quiz questions. Export as JSON to trigger avatar generation.
+            Define characters, dialog, and quiz questions. Export as JSON to trigger
+            avatar generation.
           </p>
         </div>
         <ScenarioBuilder />

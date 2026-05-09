@@ -141,9 +141,7 @@ class PrometheusMiddleware(BaseHTTPMiddleware):
             handler = "unmatched"
             if route is not None:
                 handler = getattr(route, "path", None) or getattr(route, "name", "unmatched")
-            requests_total.labels(
-                method=request.method, path=handler, status=str(status)
-            ).inc()
+            requests_total.labels(method=request.method, path=handler, status=str(status)).inc()
             request_duration.labels(method=request.method, path=handler).observe(elapsed)
 
 

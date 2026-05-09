@@ -37,13 +37,15 @@ export function BookOpen({
       <div className="mb-3 flex items-center gap-2">
         <span className="text-sm font-semibold text-gray-900">{title}</span>
         {subheading ? (
-          <span className="text-xs uppercase tracking-wide text-gray-400">{subheading}</span>
+          <span className="text-xs tracking-wide text-gray-400 uppercase">
+            {subheading}
+          </span>
         ) : null}
         <button
           type="button"
           aria-label="Close"
           onClick={onClose}
-          className="ml-auto rounded p-1 text-gray-500 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+          className="ml-auto rounded p-1 text-gray-500 hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
         >
           <X className="h-4 w-4" aria-hidden="true" />
         </button>

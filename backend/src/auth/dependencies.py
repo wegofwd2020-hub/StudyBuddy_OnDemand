@@ -39,9 +39,7 @@ def _get_correlation_id(request: Request) -> str:
 
 async def get_current_student_optional(
     request: Request,
-    credentials: Annotated[
-        HTTPAuthorizationCredentials | None, Depends(_bearer_optional)
-    ] = None,
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(_bearer_optional)] = None,
 ) -> dict | None:
     """
     Like get_current_student but returns None when no Authorization header is

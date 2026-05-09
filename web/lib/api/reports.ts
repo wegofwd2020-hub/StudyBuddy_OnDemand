@@ -329,7 +329,9 @@ export interface SendReminderResponse {
 }
 
 export async function getAtRiskStudents(schoolId: string): Promise<AtRiskListResponse> {
-  const res = await schoolApi.get<AtRiskListResponse>(`/reports/school/${schoolId}/at-risk`);
+  const res = await schoolApi.get<AtRiskListResponse>(
+    `/reports/school/${schoolId}/at-risk`,
+  );
   return res.data;
 }
 

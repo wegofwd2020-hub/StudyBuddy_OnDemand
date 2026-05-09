@@ -47,11 +47,16 @@ function computeBadgeState(overrides: UnitOverrideStatus[]): BadgeState {
   const statuses = overrides.map((o) => o.review_status);
   if (statuses.includes("pending_review")) return "pending_review";
   if (statuses.includes("rejected")) return "rejected";
-  if (overrides.some((o) => o.review_status === "draft" && o.content_source !== "imported"))
+  if (
+    overrides.some((o) => o.review_status === "draft" && o.content_source !== "imported")
+  )
     return "draft";
-  if (overrides.some((o) => o.review_status === "draft" && o.content_source === "imported"))
+  if (
+    overrides.some((o) => o.review_status === "draft" && o.content_source === "imported")
+  )
     return "imported";
-  if (overrides.some((o) => o.review_status === "approved" && o.is_active)) return "published";
+  if (overrides.some((o) => o.review_status === "approved" && o.is_active))
+    return "published";
   return "oob";
 }
 
@@ -101,8 +106,8 @@ function UnitRow({
     },
     onError: (err: unknown) => {
       const msg =
-        (err as { response?: { data?: { detail?: string } } })?.response?.data
-          ?.detail ?? "Import failed — content may not be generated yet.";
+        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ??
+        "Import failed — content may not be generated yet.";
       setImportError(msg);
     },
   });
@@ -112,14 +117,11 @@ function UnitRow({
     forkedCurriculumId &&
     (state === "imported" || state === "draft" || state === "rejected");
   const canView =
-    forkedCurriculumId &&
-    (state === "published" || state === "pending_review");
+    forkedCurriculumId && (state === "published" || state === "pending_review");
 
   return (
     <tr className="border-b border-gray-100 hover:bg-gray-50">
-      <td className="py-3 pl-4 pr-3 text-sm font-medium text-gray-900">
-        {unit.title}
-      </td>
+      <td className="py-3 pr-3 pl-4 text-sm font-medium text-gray-900">{unit.title}</td>
       <td className="px-3 py-3 text-sm text-gray-500">
         {unit.subject_name ?? unit.subject}
       </td>
@@ -141,7 +143,7 @@ function UnitRow({
             })
           : "—"}
       </td>
-      <td className="py-3 pl-3 pr-4 text-right">
+      <td className="py-3 pr-4 pl-3 text-right">
         {importError && (
           <p className="mb-1 text-right text-xs text-red-600" title={importError}>
             {importError.length > 48 ? importError.slice(0, 48) + "…" : importError}
@@ -247,8 +249,8 @@ export default function AdoptContentPage() {
             )}
           </div>
           <p className="mt-1 text-sm text-gray-500">
-            Click <strong>Import</strong> on any unit to copy the platform content
-            into your school&apos;s workspace — you can then edit it freely.
+            Click <strong>Import</strong> on any unit to copy the platform content into
+            your school&apos;s workspace — you can then edit it freely.
           </p>
         </div>
       </div>
@@ -258,9 +260,8 @@ export default function AdoptContentPage() {
         <div className="rounded-lg border border-blue-100 bg-blue-50 px-4 py-3">
           <p className="text-sm text-blue-800">
             <strong>No customizations yet.</strong> Import any unit below to start.
-            Importing copies the platform content into a draft — your edits never
-            affect the original and students keep seeing the platform version until
-            you publish.
+            Importing copies the platform content into a draft — your edits never affect
+            the original and students keep seeing the platform version until you publish.
           </p>
         </div>
       )}
@@ -294,41 +295,41 @@ export default function AdoptContentPage() {
               <tr>
                 <th
                   scope="col"
-                  className="py-3 pl-4 pr-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500"
+                  className="py-3 pr-3 pl-4 text-left text-xs font-semibold tracking-wide text-gray-500 uppercase"
                 >
                   Unit
                 </th>
                 <th
                   scope="col"
-                  className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500"
+                  className="px-3 py-3 text-left text-xs font-semibold tracking-wide text-gray-500 uppercase"
                 >
                   Subject
                 </th>
                 <th
                   scope="col"
-                  className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500"
+                  className="px-3 py-3 text-left text-xs font-semibold tracking-wide text-gray-500 uppercase"
                 >
                   Status
                 </th>
                 <th
                   scope="col"
-                  className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500"
+                  className="px-3 py-3 text-left text-xs font-semibold tracking-wide text-gray-500 uppercase"
                 >
                   Version
                 </th>
                 <th
                   scope="col"
-                  className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500"
+                  className="px-3 py-3 text-left text-xs font-semibold tracking-wide text-gray-500 uppercase"
                 >
                   Last edited by
                 </th>
                 <th
                   scope="col"
-                  className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500"
+                  className="px-3 py-3 text-left text-xs font-semibold tracking-wide text-gray-500 uppercase"
                 >
                   Last edited
                 </th>
-                <th scope="col" className="relative py-3 pl-3 pr-4">
+                <th scope="col" className="relative py-3 pr-4 pl-3">
                   <span className="sr-only">Actions</span>
                 </th>
               </tr>
@@ -342,7 +343,7 @@ export default function AdoptContentPage() {
                     <tr className="bg-gray-50">
                       <td
                         colSpan={7}
-                        className="py-2 pl-4 pr-3 text-xs font-semibold uppercase tracking-wider text-gray-500"
+                        className="py-2 pr-3 pl-4 text-xs font-semibold tracking-wider text-gray-500 uppercase"
                       >
                         {subjectName}
                       </td>

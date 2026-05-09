@@ -65,8 +65,14 @@ function formToLessonBody(
     ...original,
     synopsis: form.synopsis,
     sections: form.sections,
-    key_points: form.key_points.split("\n").map((s) => s.trim()).filter(Boolean),
-    learning_objectives: form.learning_objectives.split("\n").map((s) => s.trim()).filter(Boolean),
+    key_points: form.key_points
+      .split("\n")
+      .map((s) => s.trim())
+      .filter(Boolean),
+    learning_objectives: form.learning_objectives
+      .split("\n")
+      .map((s) => s.trim())
+      .filter(Boolean),
   };
 }
 
@@ -80,24 +86,48 @@ function LessonEditor({
   readOnly: boolean;
 }) {
   function updateSection(i: number, field: keyof LessonSection, value: string) {
-    onChange({ ...draft, sections: draft.sections.map((s, idx) => idx === i ? { ...s, [field]: value } : s) });
+    onChange({
+      ...draft,
+      sections: draft.sections.map((s, idx) =>
+        idx === i ? { ...s, [field]: value } : s,
+      ),
+    });
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">Synopsis</label>
-        <textarea rows={3} className={TA} value={draft.synopsis} disabled={readOnly}
+        <label className="mb-1 block text-xs font-semibold tracking-wide text-gray-500 uppercase">
+          Synopsis
+        </label>
+        <textarea
+          rows={3}
+          className={TA}
+          value={draft.synopsis}
+          disabled={readOnly}
           onChange={(e) => onChange({ ...draft, synopsis: e.target.value })}
-          placeholder="A short summary of what this unit covers…" />
+          placeholder="A short summary of what this unit covers…"
+        />
       </div>
 
       <div>
         <div className="mb-2 flex items-center justify-between">
-          <label className="text-xs font-semibold uppercase tracking-wide text-gray-500">Sections</label>
+          <label className="text-xs font-semibold tracking-wide text-gray-500 uppercase">
+            Sections
+          </label>
           {!readOnly && (
-            <button type="button" onClick={() => onChange({ ...draft, sections: [...draft.sections, { heading: "", body: "" }] })}
-              className="text-xs font-medium text-indigo-600 hover:underline">+ Add section</button>
+            <button
+              type="button"
+              onClick={() =>
+                onChange({
+                  ...draft,
+                  sections: [...draft.sections, { heading: "", body: "" }],
+                })
+              }
+              className="text-xs font-medium text-indigo-600 hover:underline"
+            >
+              + Add section
+            </button>
           )}
         </div>
         <div className="space-y-4">
@@ -105,40 +135,70 @@ function LessonEditor({
             <div key={i} className="rounded-lg border border-gray-200 bg-gray-50 p-4">
               <div className="mb-2 flex items-center gap-2">
                 <span className="text-xs font-semibold text-gray-400">§{i + 1}</span>
-                <input type="text"
+                <input
+                  type="text"
                   className="flex-1 rounded border border-gray-200 bg-white px-2 py-1 text-sm font-medium text-gray-800 shadow-sm focus:border-indigo-400 focus:outline-none disabled:bg-gray-50 disabled:text-gray-500"
-                  value={section.heading} disabled={readOnly}
+                  value={section.heading}
+                  disabled={readOnly}
                   onChange={(e) => updateSection(i, "heading", e.target.value)}
-                  placeholder="Section heading" />
+                  placeholder="Section heading"
+                />
                 {!readOnly && draft.sections.length > 1 && (
-                  <button type="button" onClick={() => onChange({ ...draft, sections: draft.sections.filter((_, idx) => idx !== i) })}
-                    className="text-xs text-gray-400 hover:text-red-500">Remove</button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onChange({
+                        ...draft,
+                        sections: draft.sections.filter((_, idx) => idx !== i),
+                      })
+                    }
+                    className="text-xs text-gray-400 hover:text-red-500"
+                  >
+                    Remove
+                  </button>
                 )}
               </div>
-              <textarea rows={5} className={TA} value={section.body} disabled={readOnly}
+              <textarea
+                rows={5}
+                className={TA}
+                value={section.body}
+                disabled={readOnly}
                 onChange={(e) => updateSection(i, "body", e.target.value)}
-                placeholder="Section content — markdown supported" />
+                placeholder="Section content — markdown supported"
+              />
             </div>
           ))}
         </div>
       </div>
 
       <div>
-        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">
-          Key points <span className="font-normal normal-case text-gray-400">(one per line)</span>
+        <label className="mb-1 block text-xs font-semibold tracking-wide text-gray-500 uppercase">
+          Key points{" "}
+          <span className="font-normal text-gray-400 normal-case">(one per line)</span>
         </label>
-        <textarea rows={4} className={TA} value={draft.key_points} disabled={readOnly}
+        <textarea
+          rows={4}
+          className={TA}
+          value={draft.key_points}
+          disabled={readOnly}
           onChange={(e) => onChange({ ...draft, key_points: e.target.value })}
-          placeholder="Each key takeaway on its own line…" />
+          placeholder="Each key takeaway on its own line…"
+        />
       </div>
 
       <div>
-        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">
-          Learning objectives <span className="font-normal normal-case text-gray-400">(one per line)</span>
+        <label className="mb-1 block text-xs font-semibold tracking-wide text-gray-500 uppercase">
+          Learning objectives{" "}
+          <span className="font-normal text-gray-400 normal-case">(one per line)</span>
         </label>
-        <textarea rows={4} className={TA} value={draft.learning_objectives} disabled={readOnly}
+        <textarea
+          rows={4}
+          className={TA}
+          value={draft.learning_objectives}
+          disabled={readOnly}
           onChange={(e) => onChange({ ...draft, learning_objectives: e.target.value })}
-          placeholder="What students will be able to do after this unit…" />
+          placeholder="What students will be able to do after this unit…"
+        />
       </div>
     </div>
   );
@@ -150,7 +210,7 @@ interface TutorialSection {
   section_id: string;
   title: string;
   content: string;
-  examples: string;        // joined with \n for editing
+  examples: string; // joined with \n for editing
   practice_question: string;
 }
 
@@ -173,7 +233,15 @@ function tutorialBodyToForm(body: Record<string, unknown>): TutorialDraft {
             examples: ((s.examples as string[]) ?? []).join("\n"),
             practice_question: (s.practice_question as string) ?? "",
           }))
-        : [{ section_id: "s1", title: "", content: "", examples: "", practice_question: "" }],
+        : [
+            {
+              section_id: "s1",
+              title: "",
+              content: "",
+              examples: "",
+              practice_question: "",
+            },
+          ],
     common_mistakes: ((body.common_mistakes as string[]) ?? []).join("\n"),
   };
 }
@@ -189,10 +257,16 @@ function formToTutorialBody(
       section_id: s.section_id,
       title: s.title,
       content: s.content,
-      examples: s.examples.split("\n").map((e) => e.trim()).filter(Boolean),
+      examples: s.examples
+        .split("\n")
+        .map((e) => e.trim())
+        .filter(Boolean),
       practice_question: s.practice_question,
     })),
-    common_mistakes: form.common_mistakes.split("\n").map((s) => s.trim()).filter(Boolean),
+    common_mistakes: form.common_mistakes
+      .split("\n")
+      .map((s) => s.trim())
+      .filter(Boolean),
   };
 }
 
@@ -206,69 +280,129 @@ function TutorialEditor({
   readOnly: boolean;
 }) {
   function updateSection(i: number, field: keyof TutorialSection, value: string) {
-    onChange({ ...draft, sections: draft.sections.map((s, idx) => idx === i ? { ...s, [field]: value } : s) });
+    onChange({
+      ...draft,
+      sections: draft.sections.map((s, idx) =>
+        idx === i ? { ...s, [field]: value } : s,
+      ),
+    });
   }
 
   function addSection() {
     const newId = `s${draft.sections.length + 1}`;
-    onChange({ ...draft, sections: [...draft.sections, { section_id: newId, title: "", content: "", examples: "", practice_question: "" }] });
+    onChange({
+      ...draft,
+      sections: [
+        ...draft.sections,
+        {
+          section_id: newId,
+          title: "",
+          content: "",
+          examples: "",
+          practice_question: "",
+        },
+      ],
+    });
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">Tutorial title</label>
-        <input type="text"
-          className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 disabled:bg-gray-50 disabled:text-gray-500"
-          value={draft.title} disabled={readOnly}
+        <label className="mb-1 block text-xs font-semibold tracking-wide text-gray-500 uppercase">
+          Tutorial title
+        </label>
+        <input
+          type="text"
+          className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 focus:outline-none disabled:bg-gray-50 disabled:text-gray-500"
+          value={draft.title}
+          disabled={readOnly}
           onChange={(e) => onChange({ ...draft, title: e.target.value })}
-          placeholder="Tutorial title…" />
+          placeholder="Tutorial title…"
+        />
       </div>
 
       <div>
         <div className="mb-2 flex items-center justify-between">
-          <label className="text-xs font-semibold uppercase tracking-wide text-gray-500">Sections</label>
+          <label className="text-xs font-semibold tracking-wide text-gray-500 uppercase">
+            Sections
+          </label>
           {!readOnly && (
-            <button type="button" onClick={addSection} className="text-xs font-medium text-indigo-600 hover:underline">+ Add section</button>
+            <button
+              type="button"
+              onClick={addSection}
+              className="text-xs font-medium text-indigo-600 hover:underline"
+            >
+              + Add section
+            </button>
           )}
         </div>
         <div className="space-y-5">
           {draft.sections.map((section, i) => (
-            <div key={section.section_id || i} className="space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
+            <div
+              key={section.section_id || i}
+              className="space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-4"
+            >
               <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold text-gray-400">§{i + 1}</span>
-                <input type="text"
+                <input
+                  type="text"
                   className="flex-1 rounded border border-gray-200 bg-white px-2 py-1 text-sm font-medium text-gray-800 shadow-sm focus:border-indigo-400 focus:outline-none disabled:bg-gray-50 disabled:text-gray-500"
-                  value={section.title} disabled={readOnly}
+                  value={section.title}
+                  disabled={readOnly}
                   onChange={(e) => updateSection(i, "title", e.target.value)}
-                  placeholder="Section title" />
+                  placeholder="Section title"
+                />
                 {!readOnly && draft.sections.length > 1 && (
-                  <button type="button"
-                    onClick={() => onChange({ ...draft, sections: draft.sections.filter((_, idx) => idx !== i) })}
-                    className="text-xs text-gray-400 hover:text-red-500">Remove</button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onChange({
+                        ...draft,
+                        sections: draft.sections.filter((_, idx) => idx !== i),
+                      })
+                    }
+                    className="text-xs text-gray-400 hover:text-red-500"
+                  >
+                    Remove
+                  </button>
                 )}
               </div>
               <div>
                 <label className="mb-1 block text-xs text-gray-500">Content</label>
-                <textarea rows={4} className={TA} value={section.content} disabled={readOnly}
+                <textarea
+                  rows={4}
+                  className={TA}
+                  value={section.content}
+                  disabled={readOnly}
                   onChange={(e) => updateSection(i, "content", e.target.value)}
-                  placeholder="Section content — markdown supported" />
+                  placeholder="Section content — markdown supported"
+                />
               </div>
               <div>
                 <label className="mb-1 block text-xs text-gray-500">
                   Examples <span className="text-gray-400">(one per line)</span>
                 </label>
-                <textarea rows={3} className={TA} value={section.examples} disabled={readOnly}
+                <textarea
+                  rows={3}
+                  className={TA}
+                  value={section.examples}
+                  disabled={readOnly}
                   onChange={(e) => updateSection(i, "examples", e.target.value)}
-                  placeholder="Each worked example on its own line…" />
+                  placeholder="Each worked example on its own line…"
+                />
               </div>
               <div>
-                <label className="mb-1 block text-xs text-gray-500">Practice question</label>
-                <input type="text"
-                  className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 disabled:bg-gray-50 disabled:text-gray-500"
-                  value={section.practice_question} disabled={readOnly}
+                <label className="mb-1 block text-xs text-gray-500">
+                  Practice question
+                </label>
+                <input
+                  type="text"
+                  className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 focus:outline-none disabled:bg-gray-50 disabled:text-gray-500"
+                  value={section.practice_question}
+                  disabled={readOnly}
                   onChange={(e) => updateSection(i, "practice_question", e.target.value)}
-                  placeholder="A question to check understanding…" />
+                  placeholder="A question to check understanding…"
+                />
               </div>
             </div>
           ))}
@@ -276,12 +410,18 @@ function TutorialEditor({
       </div>
 
       <div>
-        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">
-          Common mistakes <span className="font-normal normal-case text-gray-400">(one per line)</span>
+        <label className="mb-1 block text-xs font-semibold tracking-wide text-gray-500 uppercase">
+          Common mistakes{" "}
+          <span className="font-normal text-gray-400 normal-case">(one per line)</span>
         </label>
-        <textarea rows={4} className={TA} value={draft.common_mistakes} disabled={readOnly}
+        <textarea
+          rows={4}
+          className={TA}
+          value={draft.common_mistakes}
+          disabled={readOnly}
           onChange={(e) => onChange({ ...draft, common_mistakes: e.target.value })}
-          placeholder="Each common mistake students make, one per line…" />
+          placeholder="Each common mistake students make, one per line…"
+        />
       </div>
     </div>
   );
@@ -375,15 +515,26 @@ function QuizEditor({
   onChange: (d: QuizDraft) => void;
   readOnly: boolean;
 }) {
-  function updateQuestion(qi: number, field: keyof Omit<QuizQuestion, "options">, value: string) {
-    onChange({ questions: draft.questions.map((q, i) => i === qi ? { ...q, [field]: value } : q) });
+  function updateQuestion(
+    qi: number,
+    field: keyof Omit<QuizQuestion, "options">,
+    value: string,
+  ) {
+    onChange({
+      questions: draft.questions.map((q, i) => (i === qi ? { ...q, [field]: value } : q)),
+    });
   }
 
   function updateOption(qi: number, optionId: string, value: string) {
     onChange({
       questions: draft.questions.map((q, i) => {
         if (i !== qi) return q;
-        return { ...q, options: q.options.map((o) => o.option_id === optionId ? { ...o, text: value } : o) };
+        return {
+          ...q,
+          options: q.options.map((o) =>
+            o.option_id === optionId ? { ...o, text: value } : o,
+          ),
+        };
       }),
     });
   }
@@ -391,14 +542,20 @@ function QuizEditor({
   return (
     <div className="space-y-6">
       {draft.questions.map((q, qi) => (
-        <div key={q.question_id} className="space-y-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
+        <div
+          key={q.question_id}
+          className="space-y-4 rounded-lg border border-gray-200 bg-gray-50 p-4"
+        >
           <div className="flex items-center gap-2">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-700">
               {qi + 1}
             </span>
-            <select value={q.difficulty} disabled={readOnly}
+            <select
+              value={q.difficulty}
+              disabled={readOnly}
               onChange={(e) => updateQuestion(qi, "difficulty", e.target.value)}
-              className="ml-auto rounded border border-gray-200 bg-white px-2 py-1 text-xs text-gray-600 focus:border-indigo-400 focus:outline-none disabled:bg-gray-50">
+              className="ml-auto rounded border border-gray-200 bg-white px-2 py-1 text-xs text-gray-600 focus:border-indigo-400 focus:outline-none disabled:bg-gray-50"
+            >
               <option value="easy">Easy</option>
               <option value="medium">Medium</option>
               <option value="hard">Hard</option>
@@ -407,37 +564,58 @@ function QuizEditor({
 
           <div>
             <label className="mb-1 block text-xs text-gray-500">Question</label>
-            <textarea rows={2} className={TA} value={q.question_text} disabled={readOnly}
+            <textarea
+              rows={2}
+              className={TA}
+              value={q.question_text}
+              disabled={readOnly}
               onChange={(e) => updateQuestion(qi, "question_text", e.target.value)}
-              placeholder="Enter the question…" />
+              placeholder="Enter the question…"
+            />
           </div>
 
           <div className="space-y-2">
-            <label className="block text-xs text-gray-500">Options — select the correct answer</label>
+            <label className="block text-xs text-gray-500">
+              Options — select the correct answer
+            </label>
             {q.options.map((opt) => (
               <div key={opt.option_id} className="flex items-center gap-2">
-                <input type="radio"
+                <input
+                  type="radio"
                   name={`correct-${qi}-${q.question_id}`}
                   value={opt.option_id}
                   checked={q.correct_option === opt.option_id}
                   disabled={readOnly}
                   onChange={() => updateQuestion(qi, "correct_option", opt.option_id)}
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500" />
-                <span className="w-5 text-xs font-bold text-gray-500">{opt.option_id}</span>
-                <input type="text"
+                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500"
+                />
+                <span className="w-5 text-xs font-bold text-gray-500">
+                  {opt.option_id}
+                </span>
+                <input
+                  type="text"
                   className="flex-1 rounded border border-gray-200 bg-white px-2 py-1.5 text-sm text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-indigo-400 focus:outline-none disabled:bg-gray-50 disabled:text-gray-500"
-                  value={opt.text} disabled={readOnly}
+                  value={opt.text}
+                  disabled={readOnly}
                   onChange={(e) => updateOption(qi, opt.option_id, e.target.value)}
-                  placeholder={`Option ${opt.option_id}…`} />
+                  placeholder={`Option ${opt.option_id}…`}
+                />
               </div>
             ))}
           </div>
 
           <div>
-            <label className="mb-1 block text-xs text-gray-500">Explanation (shown after answering)</label>
-            <textarea rows={2} className={TA} value={q.explanation} disabled={readOnly}
+            <label className="mb-1 block text-xs text-gray-500">
+              Explanation (shown after answering)
+            </label>
+            <textarea
+              rows={2}
+              className={TA}
+              value={q.explanation}
+              disabled={readOnly}
               onChange={(e) => updateQuestion(qi, "explanation", e.target.value)}
-              placeholder="Explain why the correct answer is correct…" />
+              placeholder="Explain why the correct answer is correct…"
+            />
           </div>
         </div>
       ))}
@@ -460,7 +638,7 @@ interface ExperimentQA {
 
 interface ExperimentDraft {
   experiment_title: string;
-  materials: string;    // joined with \n
+  materials: string; // joined with \n
   safety_notes: string; // joined with \n
   steps: ExperimentStep[];
   questions: ExperimentQA[];
@@ -500,8 +678,14 @@ function formToExperimentBody(
   return {
     ...original,
     experiment_title: form.experiment_title,
-    materials: form.materials.split("\n").map((s) => s.trim()).filter(Boolean),
-    safety_notes: form.safety_notes.split("\n").map((s) => s.trim()).filter(Boolean),
+    materials: form.materials
+      .split("\n")
+      .map((s) => s.trim())
+      .filter(Boolean),
+    safety_notes: form.safety_notes
+      .split("\n")
+      .map((s) => s.trim())
+      .filter(Boolean),
     steps: form.steps,
     questions: form.questions,
     conclusion_prompt: form.conclusion_prompt,
@@ -517,81 +701,153 @@ function ExperimentEditor({
   onChange: (d: ExperimentDraft) => void;
   readOnly: boolean;
 }) {
-  function updateStep(i: number, field: keyof Omit<ExperimentStep, "step_number">, value: string) {
-    onChange({ ...draft, steps: draft.steps.map((s, idx) => idx === i ? { ...s, [field]: value } : s) });
+  function updateStep(
+    i: number,
+    field: keyof Omit<ExperimentStep, "step_number">,
+    value: string,
+  ) {
+    onChange({
+      ...draft,
+      steps: draft.steps.map((s, idx) => (idx === i ? { ...s, [field]: value } : s)),
+    });
   }
 
   function addStep() {
-    onChange({ ...draft, steps: [...draft.steps, { step_number: draft.steps.length + 1, instruction: "", expected_observation: "" }] });
+    onChange({
+      ...draft,
+      steps: [
+        ...draft.steps,
+        {
+          step_number: draft.steps.length + 1,
+          instruction: "",
+          expected_observation: "",
+        },
+      ],
+    });
   }
 
   function removeStep(i: number) {
-    onChange({ ...draft, steps: draft.steps.filter((_, idx) => idx !== i).map((s, idx) => ({ ...s, step_number: idx + 1 })) });
+    onChange({
+      ...draft,
+      steps: draft.steps
+        .filter((_, idx) => idx !== i)
+        .map((s, idx) => ({ ...s, step_number: idx + 1 })),
+    });
   }
 
   function updateQuestion(i: number, field: keyof ExperimentQA, value: string) {
-    onChange({ ...draft, questions: draft.questions.map((q, idx) => idx === i ? { ...q, [field]: value } : q) });
+    onChange({
+      ...draft,
+      questions: draft.questions.map((q, idx) =>
+        idx === i ? { ...q, [field]: value } : q,
+      ),
+    });
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">Experiment title</label>
-        <input type="text"
-          className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 disabled:bg-gray-50 disabled:text-gray-500"
-          value={draft.experiment_title} disabled={readOnly}
+        <label className="mb-1 block text-xs font-semibold tracking-wide text-gray-500 uppercase">
+          Experiment title
+        </label>
+        <input
+          type="text"
+          className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 focus:outline-none disabled:bg-gray-50 disabled:text-gray-500"
+          value={draft.experiment_title}
+          disabled={readOnly}
           onChange={(e) => onChange({ ...draft, experiment_title: e.target.value })}
-          placeholder="Experiment title…" />
+          placeholder="Experiment title…"
+        />
       </div>
 
       <div>
-        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">
-          Materials <span className="font-normal normal-case text-gray-400">(one per line)</span>
+        <label className="mb-1 block text-xs font-semibold tracking-wide text-gray-500 uppercase">
+          Materials{" "}
+          <span className="font-normal text-gray-400 normal-case">(one per line)</span>
         </label>
-        <textarea rows={4} className={TA} value={draft.materials} disabled={readOnly}
+        <textarea
+          rows={4}
+          className={TA}
+          value={draft.materials}
+          disabled={readOnly}
           onChange={(e) => onChange({ ...draft, materials: e.target.value })}
-          placeholder="Each material item on its own line…" />
+          placeholder="Each material item on its own line…"
+        />
       </div>
 
       <div>
-        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">
-          Safety notes <span className="font-normal normal-case text-gray-400">(one per line)</span>
+        <label className="mb-1 block text-xs font-semibold tracking-wide text-gray-500 uppercase">
+          Safety notes{" "}
+          <span className="font-normal text-gray-400 normal-case">(one per line)</span>
         </label>
-        <textarea rows={3} className={TA} value={draft.safety_notes} disabled={readOnly}
+        <textarea
+          rows={3}
+          className={TA}
+          value={draft.safety_notes}
+          disabled={readOnly}
           onChange={(e) => onChange({ ...draft, safety_notes: e.target.value })}
-          placeholder="Each safety precaution on its own line…" />
+          placeholder="Each safety precaution on its own line…"
+        />
       </div>
 
       <div>
         <div className="mb-2 flex items-center justify-between">
-          <label className="text-xs font-semibold uppercase tracking-wide text-gray-500">Procedure steps</label>
+          <label className="text-xs font-semibold tracking-wide text-gray-500 uppercase">
+            Procedure steps
+          </label>
           {!readOnly && (
-            <button type="button" onClick={addStep} className="text-xs font-medium text-indigo-600 hover:underline">+ Add step</button>
+            <button
+              type="button"
+              onClick={addStep}
+              className="text-xs font-medium text-indigo-600 hover:underline"
+            >
+              + Add step
+            </button>
           )}
         </div>
         <div className="space-y-4">
           {draft.steps.map((step, i) => (
-            <div key={i} className="space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
+            <div
+              key={i}
+              className="space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-4"
+            >
               <div className="flex items-center gap-2">
                 <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">
                   {step.step_number}
                 </span>
                 {!readOnly && draft.steps.length > 1 && (
-                  <button type="button" onClick={() => removeStep(i)}
-                    className="ml-auto text-xs text-gray-400 hover:text-red-500">Remove</button>
+                  <button
+                    type="button"
+                    onClick={() => removeStep(i)}
+                    className="ml-auto text-xs text-gray-400 hover:text-red-500"
+                  >
+                    Remove
+                  </button>
                 )}
               </div>
               <div>
                 <label className="mb-1 block text-xs text-gray-500">Instruction</label>
-                <textarea rows={2} className={TA} value={step.instruction} disabled={readOnly}
+                <textarea
+                  rows={2}
+                  className={TA}
+                  value={step.instruction}
+                  disabled={readOnly}
                   onChange={(e) => updateStep(i, "instruction", e.target.value)}
-                  placeholder="What should the student do…" />
+                  placeholder="What should the student do…"
+                />
               </div>
               <div>
-                <label className="mb-1 block text-xs text-gray-500">Expected observation</label>
-                <textarea rows={2} className={TA} value={step.expected_observation} disabled={readOnly}
+                <label className="mb-1 block text-xs text-gray-500">
+                  Expected observation
+                </label>
+                <textarea
+                  rows={2}
+                  className={TA}
+                  value={step.expected_observation}
+                  disabled={readOnly}
                   onChange={(e) => updateStep(i, "expected_observation", e.target.value)}
-                  placeholder="What should the student observe…" />
+                  placeholder="What should the student observe…"
+                />
               </div>
             </div>
           ))}
@@ -600,35 +856,70 @@ function ExperimentEditor({
 
       <div>
         <div className="mb-2 flex items-center justify-between">
-          <label className="text-xs font-semibold uppercase tracking-wide text-gray-500">Reflection questions</label>
+          <label className="text-xs font-semibold tracking-wide text-gray-500 uppercase">
+            Reflection questions
+          </label>
           {!readOnly && (
-            <button type="button"
-              onClick={() => onChange({ ...draft, questions: [...draft.questions, { question: "", answer: "" }] })}
-              className="text-xs font-medium text-indigo-600 hover:underline">+ Add question</button>
+            <button
+              type="button"
+              onClick={() =>
+                onChange({
+                  ...draft,
+                  questions: [...draft.questions, { question: "", answer: "" }],
+                })
+              }
+              className="text-xs font-medium text-indigo-600 hover:underline"
+            >
+              + Add question
+            </button>
           )}
         </div>
         <div className="space-y-4">
           {draft.questions.map((q, i) => (
-            <div key={i} className="space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
+            <div
+              key={i}
+              className="space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-4"
+            >
               <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold text-gray-400">Q{i + 1}</span>
                 {!readOnly && draft.questions.length > 1 && (
-                  <button type="button"
-                    onClick={() => onChange({ ...draft, questions: draft.questions.filter((_, idx) => idx !== i) })}
-                    className="ml-auto text-xs text-gray-400 hover:text-red-500">Remove</button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onChange({
+                        ...draft,
+                        questions: draft.questions.filter((_, idx) => idx !== i),
+                      })
+                    }
+                    className="ml-auto text-xs text-gray-400 hover:text-red-500"
+                  >
+                    Remove
+                  </button>
                 )}
               </div>
               <div>
                 <label className="mb-1 block text-xs text-gray-500">Question</label>
-                <textarea rows={2} className={TA} value={q.question} disabled={readOnly}
+                <textarea
+                  rows={2}
+                  className={TA}
+                  value={q.question}
+                  disabled={readOnly}
                   onChange={(e) => updateQuestion(i, "question", e.target.value)}
-                  placeholder="Reflection question…" />
+                  placeholder="Reflection question…"
+                />
               </div>
               <div>
-                <label className="mb-1 block text-xs text-gray-500">Expected answer</label>
-                <textarea rows={2} className={TA} value={q.answer} disabled={readOnly}
+                <label className="mb-1 block text-xs text-gray-500">
+                  Expected answer
+                </label>
+                <textarea
+                  rows={2}
+                  className={TA}
+                  value={q.answer}
+                  disabled={readOnly}
                   onChange={(e) => updateQuestion(i, "answer", e.target.value)}
-                  placeholder="The ideal answer or key points…" />
+                  placeholder="The ideal answer or key points…"
+                />
               </div>
             </div>
           ))}
@@ -636,10 +927,17 @@ function ExperimentEditor({
       </div>
 
       <div>
-        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">Conclusion prompt</label>
-        <textarea rows={3} className={TA} value={draft.conclusion_prompt} disabled={readOnly}
+        <label className="mb-1 block text-xs font-semibold tracking-wide text-gray-500 uppercase">
+          Conclusion prompt
+        </label>
+        <textarea
+          rows={3}
+          className={TA}
+          value={draft.conclusion_prompt}
+          disabled={readOnly}
           onChange={(e) => onChange({ ...draft, conclusion_prompt: e.target.value })}
-          placeholder="Prompt students to write their conclusion…" />
+          placeholder="Prompt students to write their conclusion…"
+        />
       </div>
     </div>
   );
@@ -654,10 +952,22 @@ function DiffText({ oldText, newText }: { oldText: string; newText: string }) {
     <>
       {parts.map((part, i) => {
         if (part.added)
-          return <mark key={i} className="rounded bg-green-100 px-0.5 text-green-800">{part.value}</mark>;
+          return (
+            <mark key={i} className="rounded bg-green-100 px-0.5 text-green-800">
+              {part.value}
+            </mark>
+          );
         if (part.removed)
-          return <del key={i} className="rounded bg-red-100 px-0.5 text-red-700 line-through">{part.value}</del>;
-        return <span key={i} className="text-gray-700">{part.value}</span>;
+          return (
+            <del key={i} className="rounded bg-red-100 px-0.5 text-red-700 line-through">
+              {part.value}
+            </del>
+          );
+        return (
+          <span key={i} className="text-gray-700">
+            {part.value}
+          </span>
+        );
       })}
     </>
   );
@@ -674,13 +984,19 @@ function extractDiffFields(
     const kp = (data.key_points ?? []) as string[];
     if (kp.length) fields.push({ label: "Key points", text: kp.join("\n") });
   } else if (contentType === "tutorial") {
-    const sections = (data.sections ?? []) as Array<{ title: string; content: string; examples?: string[] }>;
+    const sections = (data.sections ?? []) as Array<{
+      title: string;
+      content: string;
+      examples?: string[];
+    }>;
     sections.forEach((s) => {
       fields.push({ label: s.title, text: s.content });
-      if (s.examples?.length) fields.push({ label: `${s.title} — Examples`, text: s.examples.join("\n\n") });
+      if (s.examples?.length)
+        fields.push({ label: `${s.title} — Examples`, text: s.examples.join("\n\n") });
     });
     const mistakes = (data.common_mistakes ?? []) as string[];
-    if (mistakes.length) fields.push({ label: "Common mistakes", text: mistakes.join("\n") });
+    if (mistakes.length)
+      fields.push({ label: "Common mistakes", text: mistakes.join("\n") });
   } else if (contentType.startsWith("quiz_set_")) {
     const questions = (data.questions ?? []) as Array<{
       question_text: string;
@@ -689,8 +1005,12 @@ function extractDiffFields(
     }>;
     questions.forEach((q, i) => {
       fields.push({ label: `Q${i + 1}`, text: q.question_text });
-      fields.push({ label: `Q${i + 1} Options`, text: q.options.map((o) => `${o.option_id}. ${o.text}`).join("\n") });
-      if (q.explanation) fields.push({ label: `Q${i + 1} Explanation`, text: q.explanation });
+      fields.push({
+        label: `Q${i + 1} Options`,
+        text: q.options.map((o) => `${o.option_id}. ${o.text}`).join("\n"),
+      });
+      if (q.explanation)
+        fields.push({ label: `Q${i + 1} Explanation`, text: q.explanation });
     });
   } else if (contentType === "experiment") {
     const steps = (data.steps ?? []) as Array<{ instruction: string }>;
@@ -714,37 +1034,52 @@ function DiffView({
 }) {
   const sourceFields = extractDiffFields(contentType, sourceBody);
   const currentFields = extractDiffFields(contentType, currentBody);
-  const hasChanges = currentFields.some((f, i) => f.text !== (sourceFields[i]?.text ?? ""));
+  const hasChanges = currentFields.some(
+    (f, i) => f.text !== (sourceFields[i]?.text ?? ""),
+  );
 
   if (currentFields.length === 0)
-    return <p className="py-12 text-center text-sm text-gray-400">No diffable fields for this content type.</p>;
+    return (
+      <p className="py-12 text-center text-sm text-gray-400">
+        No diffable fields for this content type.
+      </p>
+    );
 
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-4 text-xs text-gray-500">
         {hasChanges ? (
           <>
-            <span className="inline-block rounded bg-green-100 px-1.5 py-0.5 text-green-800">added</span>
-            <span className="inline-block rounded bg-red-100 px-1.5 py-0.5 text-red-700 line-through">removed</span>
+            <span className="inline-block rounded bg-green-100 px-1.5 py-0.5 text-green-800">
+              added
+            </span>
+            <span className="inline-block rounded bg-red-100 px-1.5 py-0.5 text-red-700 line-through">
+              removed
+            </span>
           </>
         ) : (
           <span className="font-medium text-green-600">No changes from original</span>
         )}
       </div>
       {currentFields.map((field, i) => {
-        const sourceField = sourceFields.find((s) => s.label === field.label) ?? sourceFields[i];
+        const sourceField =
+          sourceFields.find((s) => s.label === field.label) ?? sourceFields[i];
         const oldText = sourceField?.text ?? "";
         const changed = oldText !== field.text;
         return (
-          <div key={field.label}
-            className={`rounded-lg border p-4 ${changed ? "border-amber-200 bg-amber-50/40" : "border-gray-100 bg-gray-50"}`}>
+          <div
+            key={field.label}
+            className={`rounded-lg border p-4 ${changed ? "border-amber-200 bg-amber-50/40" : "border-gray-100 bg-gray-50"}`}
+          >
             <div className="mb-2 flex items-center gap-2">
               <p className="text-xs font-semibold text-gray-600">{field.label}</p>
               {changed && (
-                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">changed</span>
+                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+                  changed
+                </span>
               )}
             </div>
-            <p className="whitespace-pre-wrap text-sm leading-relaxed">
+            <p className="text-sm leading-relaxed whitespace-pre-wrap">
               <DiffText oldText={oldText} newText={field.text} />
             </p>
           </div>
@@ -772,7 +1107,9 @@ const STATUS_LABELS: Record<string, string> = {
 
 function StatusBadge({ status }: { status: string }) {
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_STYLES[status] ?? "bg-gray-100 text-gray-500"}`}>
+    <span
+      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_STYLES[status] ?? "bg-gray-100 text-gray-500"}`}
+    >
       {STATUS_LABELS[status] ?? status}
     </span>
   );
@@ -805,22 +1142,40 @@ export default function UnitEditPage() {
 
   // Per-type draft state
   const [lessonDraft, setLessonDraft] = useState<LessonDraft | null>(null);
-  const [lessonOriginalBody, setLessonOriginalBody] = useState<Record<string, unknown> | null>(null);
+  const [lessonOriginalBody, setLessonOriginalBody] = useState<Record<
+    string,
+    unknown
+  > | null>(null);
   const [tutorialDraft, setTutorialDraft] = useState<TutorialDraft | null>(null);
-  const [tutorialOriginalBody, setTutorialOriginalBody] = useState<Record<string, unknown> | null>(null);
+  const [tutorialOriginalBody, setTutorialOriginalBody] = useState<Record<
+    string,
+    unknown
+  > | null>(null);
   const [quizDraft, setQuizDraft] = useState<QuizDraft | null>(null);
-  const [quizOriginalBody, setQuizOriginalBody] = useState<Record<string, unknown> | null>(null);
+  const [quizOriginalBody, setQuizOriginalBody] = useState<Record<
+    string,
+    unknown
+  > | null>(null);
   const [experimentDraft, setExperimentDraft] = useState<ExperimentDraft | null>(null);
-  const [experimentOriginalBody, setExperimentOriginalBody] = useState<Record<string, unknown> | null>(null);
+  const [experimentOriginalBody, setExperimentOriginalBody] = useState<Record<
+    string,
+    unknown
+  > | null>(null);
 
   const [dirty, setDirty] = useState(false);
-  const [notice, setNotice] = useState<{ kind: "success" | "error"; msg: string } | null>(null);
+  const [notice, setNotice] = useState<{ kind: "success" | "error"; msg: string } | null>(
+    null,
+  );
   const [rejectReason, setRejectReason] = useState("");
   const [showRejectBox, setShowRejectBox] = useState(false);
   const [showDiff, setShowDiff] = useState(false);
 
   // 1. List all overrides for this unit (tab availability)
-  const { data: unitData, isLoading: unitsLoading, error: unitsError } = useQuery({
+  const {
+    data: unitData,
+    isLoading: unitsLoading,
+    error: unitsError,
+  } = useQuery({
     queryKey: ["unit-status", schoolId, curriculumId],
     queryFn: () => listUnitOverrideStatus(schoolId, curriculumId),
     enabled: !!schoolId && !!curriculumId,
@@ -831,7 +1186,9 @@ export default function UnitEditPage() {
   const overridesByType = Object.fromEntries(
     (unitMeta?.overrides ?? []).map((o) => [o.content_type, o]),
   ) as Record<string, UnitOverrideStatus>;
-  const availableTypes = Object.keys(overridesByType).filter((t) => t in CONTENT_TYPE_LABELS);
+  const availableTypes = Object.keys(overridesByType).filter(
+    (t) => t in CONTENT_TYPE_LABELS,
+  );
 
   useEffect(() => {
     if (availableTypes.length > 0 && !availableTypes.includes(activeType)) {
@@ -840,10 +1197,15 @@ export default function UnitEditPage() {
   }, [availableTypes, activeType]);
 
   // 2. Fetch body for active content type
-  const { data: overrideDetail, isLoading: detailLoading, refetch: refetchDetail } = useQuery({
+  const {
+    data: overrideDetail,
+    isLoading: detailLoading,
+    refetch: refetchDetail,
+  } = useQuery({
     queryKey: ["override-detail", schoolId, curriculumId, unitId, activeType],
     queryFn: () => getUnitOverride(schoolId, curriculumId, unitId, activeType),
-    enabled: !!schoolId && !!curriculumId && !!unitId && availableTypes.includes(activeType),
+    enabled:
+      !!schoolId && !!curriculumId && !!unitId && availableTypes.includes(activeType),
     staleTime: 0,
   });
 
@@ -872,7 +1234,9 @@ export default function UnitEditPage() {
     overrideDetail?.review_status === "approved";
 
   // Show diff toggle whenever teacher has edited beyond the imported snapshot
-  const canShowDiff = !!(overrideDetail?.version_number && overrideDetail.version_number > 1);
+  const canShowDiff = !!(
+    overrideDetail?.version_number && overrideDetail.version_number > 1
+  );
 
   // Fetch OOB imported snapshot — only when diff panel is open
   const { data: sourceData, isLoading: sourceLoading } = useQuery({
@@ -887,23 +1251,50 @@ export default function UnitEditPage() {
   const saveMutation = useMutation({
     mutationFn: () => {
       if (activeType === "lesson" && lessonDraft && lessonOriginalBody)
-        return saveDraft(schoolId, curriculumId, unitId, activeType, formToLessonBody(lessonOriginalBody, lessonDraft));
+        return saveDraft(
+          schoolId,
+          curriculumId,
+          unitId,
+          activeType,
+          formToLessonBody(lessonOriginalBody, lessonDraft),
+        );
       if (activeType === "tutorial" && tutorialDraft && tutorialOriginalBody)
-        return saveDraft(schoolId, curriculumId, unitId, activeType, formToTutorialBody(tutorialOriginalBody, tutorialDraft));
+        return saveDraft(
+          schoolId,
+          curriculumId,
+          unitId,
+          activeType,
+          formToTutorialBody(tutorialOriginalBody, tutorialDraft),
+        );
       if (activeType.startsWith("quiz_set_") && quizDraft && quizOriginalBody)
-        return saveDraft(schoolId, curriculumId, unitId, activeType, formToQuizBody(quizOriginalBody, quizDraft));
+        return saveDraft(
+          schoolId,
+          curriculumId,
+          unitId,
+          activeType,
+          formToQuizBody(quizOriginalBody, quizDraft),
+        );
       if (activeType === "experiment" && experimentDraft && experimentOriginalBody)
-        return saveDraft(schoolId, curriculumId, unitId, activeType, formToExperimentBody(experimentOriginalBody, experimentDraft));
+        return saveDraft(
+          schoolId,
+          curriculumId,
+          unitId,
+          activeType,
+          formToExperimentBody(experimentOriginalBody, experimentDraft),
+        );
       return Promise.reject(new Error("Nothing to save"));
     },
     onSuccess: () => {
       setDirty(false);
       setNotice({ kind: "success", msg: "Draft saved." });
-      queryClient.invalidateQueries({ queryKey: ["unit-status", schoolId, curriculumId] });
+      queryClient.invalidateQueries({
+        queryKey: ["unit-status", schoolId, curriculumId],
+      });
       refetchDetail();
       setTimeout(() => setNotice(null), 3000);
     },
-    onError: (err: Error) => setNotice({ kind: "error", msg: err.message || "Save failed." }),
+    onError: (err: Error) =>
+      setNotice({ kind: "error", msg: err.message || "Save failed." }),
   });
 
   // 4. Submit for review (scoped to active type)
@@ -912,22 +1303,32 @@ export default function UnitEditPage() {
     onSuccess: () => {
       const label = CONTENT_TYPE_LABELS[activeType] ?? activeType;
       setNotice({ kind: "success", msg: `${label} submitted for review.` });
-      queryClient.invalidateQueries({ queryKey: ["unit-status", schoolId, curriculumId] });
+      queryClient.invalidateQueries({
+        queryKey: ["unit-status", schoolId, curriculumId],
+      });
       refetchDetail();
     },
-    onError: (err: Error) => setNotice({ kind: "error", msg: err.message || "Submission failed." }),
+    onError: (err: Error) =>
+      setNotice({ kind: "error", msg: err.message || "Submission failed." }),
   });
 
   // 5. Approve (school_admin only)
   const approveMutation = useMutation({
     mutationFn: () => {
-      const ok = window.confirm("Approve and publish this content? It will be immediately visible to students.");
+      const ok = window.confirm(
+        "Approve and publish this content? It will be immediately visible to students.",
+      );
       if (!ok) return Promise.reject(new Error("cancelled"));
       return approveUnitContent(schoolId, curriculumId, unitId, true);
     },
     onSuccess: (data) => {
-      setNotice({ kind: "success", msg: `Approved and published ${data.published} content item${data.published !== 1 ? "s" : ""}.` });
-      queryClient.invalidateQueries({ queryKey: ["unit-status", schoolId, curriculumId] });
+      setNotice({
+        kind: "success",
+        msg: `Approved and published ${data.published} content item${data.published !== 1 ? "s" : ""}.`,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["unit-status", schoolId, curriculumId],
+      });
       refetchDetail();
     },
     onError: (err: Error) => {
@@ -943,19 +1344,23 @@ export default function UnitEditPage() {
       setNotice({ kind: "success", msg: "Rejected — teacher can revise and resubmit." });
       setShowRejectBox(false);
       setRejectReason("");
-      queryClient.invalidateQueries({ queryKey: ["unit-status", schoolId, curriculumId] });
+      queryClient.invalidateQueries({
+        queryKey: ["unit-status", schoolId, curriculumId],
+      });
       refetchDetail();
     },
-    onError: (err: Error) => setNotice({ kind: "error", msg: err.message || "Rejection failed." }),
+    onError: (err: Error) =>
+      setNotice({ kind: "error", msg: err.message || "Rejection failed." }),
   });
 
   // 7. Revert to original imported content
   const revertMutation = useMutation({
     mutationFn: () => {
       const label = CONTENT_TYPE_LABELS[activeType] ?? activeType;
-      const msg = currentStatus === "approved"
-        ? `Unpublish and revert ${label} to the original platform content? Students will immediately see the original.`
-        : `Discard all edits and revert ${label} to the original imported content?`;
+      const msg =
+        currentStatus === "approved"
+          ? `Unpublish and revert ${label} to the original platform content? Students will immediately see the original.`
+          : `Discard all edits and revert ${label} to the original imported content?`;
       if (!window.confirm(msg)) return Promise.reject(new Error("cancelled"));
       return revertUnitContent(schoolId, curriculumId, unitId, activeType);
     },
@@ -964,7 +1369,9 @@ export default function UnitEditPage() {
       setShowDiff(false);
       const label = CONTENT_TYPE_LABELS[activeType] ?? activeType;
       setNotice({ kind: "success", msg: `${label} reverted to original.` });
-      queryClient.invalidateQueries({ queryKey: ["unit-status", schoolId, curriculumId] });
+      queryClient.invalidateQueries({
+        queryKey: ["unit-status", schoolId, curriculumId],
+      });
       refetchDetail();
     },
     onError: (err: Error) => {
@@ -1009,8 +1416,12 @@ export default function UnitEditPage() {
     <div className="max-w-4xl space-y-6 p-6">
       {/* Header */}
       <div className="flex items-start gap-4">
-        <button type="button" onClick={() => router.push(backHref)}
-          className="mt-0.5 rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600" aria-label="Back">
+        <button
+          type="button"
+          onClick={() => router.push(backHref)}
+          className="mt-0.5 rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+          aria-label="Back"
+        >
           <ArrowLeft className="h-4 w-4" />
         </button>
 
@@ -1018,9 +1429,11 @@ export default function UnitEditPage() {
           <div className="flex flex-wrap items-center gap-2">
             <BookOpen className="h-5 w-5 text-indigo-600" />
             <h1 className="text-xl font-bold text-gray-900">
-              {unitsLoading && !unitMeta
-                ? <span className="inline-block h-6 w-48 animate-pulse rounded bg-gray-200" />
-                : (unitMeta?.title ?? unitId)}
+              {unitsLoading && !unitMeta ? (
+                <span className="inline-block h-6 w-48 animate-pulse rounded bg-gray-200" />
+              ) : (
+                (unitMeta?.title ?? unitId)
+              )}
             </h1>
             {unitMeta?.subject_name && (
               <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700">
@@ -1030,52 +1443,75 @@ export default function UnitEditPage() {
             {currentStatus && <StatusBadge status={currentStatus} />}
           </div>
           <p className="mt-1 text-sm text-gray-500">
-            {overrideDetail?.last_edited_by_name ? `Last edited by ${overrideDetail.last_edited_by_name}` : "Not yet edited"}
-            {overrideDetail?.edited_at ? ` · ${new Date(overrideDetail.edited_at).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}` : ""}
-            {overrideDetail?.version_number !== undefined ? ` · v${overrideDetail.version_number}` : ""}
+            {overrideDetail?.last_edited_by_name
+              ? `Last edited by ${overrideDetail.last_edited_by_name}`
+              : "Not yet edited"}
+            {overrideDetail?.edited_at
+              ? ` · ${new Date(overrideDetail.edited_at).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}`
+              : ""}
+            {overrideDetail?.version_number !== undefined
+              ? ` · v${overrideDetail.version_number}`
+              : ""}
           </p>
         </div>
 
         {/* Actions */}
         <div className="flex shrink-0 items-center gap-2">
           {canSave && (
-            <button type="button" onClick={() => saveMutation.mutate()}
+            <button
+              type="button"
+              onClick={() => saveMutation.mutate()}
               disabled={saveMutation.isPending || !dirty}
-              className="inline-flex items-center gap-1.5 rounded-md bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-gray-200 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50">
+              className="inline-flex items-center gap-1.5 rounded-md bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-gray-200 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
               <Save className="h-4 w-4" />
               {saveMutation.isPending ? "Saving…" : "Save draft"}
             </button>
           )}
           {canSubmit && (
-            <button type="button" onClick={() => reviewMutation.mutate()}
+            <button
+              type="button"
+              onClick={() => reviewMutation.mutate()}
               disabled={reviewMutation.isPending || dirty}
               title={dirty ? "Save your changes before submitting" : undefined}
-              className="inline-flex items-center gap-1.5 rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50">
+              className="inline-flex items-center gap-1.5 rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
               <Send className="h-4 w-4" />
-              {reviewMutation.isPending ? "Submitting…" : `Submit ${CONTENT_TYPE_LABELS[activeType] ?? activeType} for review`}
+              {reviewMutation.isPending
+                ? "Submitting…"
+                : `Submit ${CONTENT_TYPE_LABELS[activeType] ?? activeType} for review`}
             </button>
           )}
           {canApprove && (
             <>
-              <button type="button" onClick={() => setShowRejectBox((v) => !v)}
+              <button
+                type="button"
+                onClick={() => setShowRejectBox((v) => !v)}
                 disabled={rejectMutation.isPending}
-                className="inline-flex items-center gap-1.5 rounded-md bg-white px-3 py-1.5 text-sm font-medium text-red-600 shadow-sm ring-1 ring-red-200 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50">
+                className="inline-flex items-center gap-1.5 rounded-md bg-white px-3 py-1.5 text-sm font-medium text-red-600 shadow-sm ring-1 ring-red-200 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
                 <ThumbsDown className="h-4 w-4" />
                 Reject
               </button>
-              <button type="button" onClick={() => approveMutation.mutate()}
+              <button
+                type="button"
+                onClick={() => approveMutation.mutate()}
                 disabled={approveMutation.isPending}
-                className="inline-flex items-center gap-1.5 rounded-md bg-green-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50">
+                className="inline-flex items-center gap-1.5 rounded-md bg-green-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
                 <ThumbsUp className="h-4 w-4" />
                 {approveMutation.isPending ? "Approving…" : "Approve & publish"}
               </button>
             </>
           )}
           {canRevert && (
-            <button type="button" onClick={() => revertMutation.mutate()}
+            <button
+              type="button"
+              onClick={() => revertMutation.mutate()}
               disabled={revertMutation.isPending}
               className="inline-flex items-center gap-1.5 rounded-md bg-white px-3 py-1.5 text-sm font-medium text-gray-600 shadow-sm ring-1 ring-gray-200 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-              title="Reset to the original imported content">
+              title="Reset to the original imported content"
+            >
               <GitCompare className="h-4 w-4" />
               {revertMutation.isPending ? "Reverting…" : "Revert to original"}
             </button>
@@ -1085,8 +1521,14 @@ export default function UnitEditPage() {
 
       {/* Notice */}
       {notice && (
-        <div className={`flex items-center gap-2 rounded-md border px-4 py-2.5 text-sm ${notice.kind === "success" ? "border-green-200 bg-green-50 text-green-800" : "border-red-200 bg-red-50 text-red-700"}`}>
-          {notice.kind === "success" ? <CheckCircle2 className="h-4 w-4 shrink-0" /> : <AlertCircle className="h-4 w-4 shrink-0" />}
+        <div
+          className={`flex items-center gap-2 rounded-md border px-4 py-2.5 text-sm ${notice.kind === "success" ? "border-green-200 bg-green-50 text-green-800" : "border-red-200 bg-red-50 text-red-700"}`}
+        >
+          {notice.kind === "success" ? (
+            <CheckCircle2 className="h-4 w-4 shrink-0" />
+          ) : (
+            <AlertCircle className="h-4 w-4 shrink-0" />
+          )}
           {notice.msg}
         </div>
       )}
@@ -1097,7 +1539,9 @@ export default function UnitEditPage() {
           <ThumbsDown className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
           <div>
             <p className="text-sm font-semibold text-red-800">Returned for revision</p>
-            <p className="mt-0.5 text-sm text-red-700">{overrideDetail.rejection_reason}</p>
+            <p className="mt-0.5 text-sm text-red-700">
+              {overrideDetail.rejection_reason}
+            </p>
           </div>
         </div>
       )}
@@ -1106,18 +1550,32 @@ export default function UnitEditPage() {
       {showRejectBox && (
         <div className="rounded-lg border border-red-200 bg-red-50 p-4">
           <p className="mb-2 text-sm font-medium text-red-800">Reason for rejection</p>
-          <textarea rows={3}
-            className="w-full rounded-md border border-red-200 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-red-400 focus:outline-none focus:ring-1 focus:ring-red-400"
+          <textarea
+            rows={3}
+            className="w-full rounded-md border border-red-200 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-red-400 focus:ring-1 focus:ring-red-400 focus:outline-none"
             placeholder="Tell the teacher what needs to be revised…"
-            value={rejectReason} onChange={(e) => setRejectReason(e.target.value)} />
+            value={rejectReason}
+            onChange={(e) => setRejectReason(e.target.value)}
+          />
           <div className="mt-2 flex items-center gap-2">
-            <button type="button" onClick={() => rejectMutation.mutate()}
+            <button
+              type="button"
+              onClick={() => rejectMutation.mutate()}
               disabled={rejectMutation.isPending || !rejectReason.trim()}
-              className="inline-flex items-center gap-1.5 rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50">
+              className="inline-flex items-center gap-1.5 rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
               {rejectMutation.isPending ? "Rejecting…" : "Confirm rejection"}
             </button>
-            <button type="button" onClick={() => { setShowRejectBox(false); setRejectReason(""); }}
-              className="text-sm text-gray-500 hover:text-gray-700">Cancel</button>
+            <button
+              type="button"
+              onClick={() => {
+                setShowRejectBox(false);
+                setRejectReason("");
+              }}
+              className="text-sm text-gray-500 hover:text-gray-700"
+            >
+              Cancel
+            </button>
           </div>
         </div>
       )}
@@ -1129,7 +1587,10 @@ export default function UnitEditPage() {
           <span>
             This unit is pending review and cannot be edited until the review is complete.
             {overrideDetail?.school_admin_name && (
-              <> Contact <strong>{overrideDetail.school_admin_name}</strong> to expedite.</>
+              <>
+                {" "}
+                Contact <strong>{overrideDetail.school_admin_name}</strong> to expedite.
+              </>
             )}
           </span>
         </div>
@@ -1157,8 +1618,11 @@ export default function UnitEditPage() {
           <p className="max-w-xs text-xs text-gray-400">
             Could not load override data. Please refresh or go back and try again.
           </p>
-          <button type="button" onClick={() => router.push(backHref)}
-            className="mt-2 rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700">
+          <button
+            type="button"
+            onClick={() => router.push(backHref)}
+            className="mt-2 rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700"
+          >
             Back to unit list
           </button>
         </div>
@@ -1167,10 +1631,14 @@ export default function UnitEditPage() {
           <BookOpen className="h-8 w-8 text-gray-300" />
           <p className="text-sm font-medium text-gray-500">No content imported yet</p>
           <p className="max-w-xs text-xs text-gray-400">
-            Go back and use the Import button to pull this unit&apos;s content into your workspace.
+            Go back and use the Import button to pull this unit&apos;s content into your
+            workspace.
           </p>
-          <button type="button" onClick={() => router.push(backHref)}
-            className="mt-2 rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700">
+          <button
+            type="button"
+            onClick={() => router.push(backHref)}
+            className="mt-2 rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700"
+          >
             Back to unit list
           </button>
         </div>
@@ -1180,21 +1648,32 @@ export default function UnitEditPage() {
           {(availableTypes.length > 1 || canShowDiff) && (
             <div className="flex items-center border-b border-gray-200">
               <div className="flex">
-                {availableTypes.length > 1 && availableTypes.map((ct) => (
-                  <button key={ct} type="button" onClick={() => switchTab(ct)}
-                    className={`px-4 py-2.5 text-sm font-medium transition-colors ${activeType === ct ? "border-b-2 border-indigo-600 text-indigo-700" : "text-gray-500 hover:text-gray-700"}`}>
-                    {CONTENT_TYPE_LABELS[ct] ?? ct}
-                    {overridesByType[ct] && (
-                      <span className={`ml-1.5 inline-flex items-center rounded-full px-1.5 py-0.5 text-xs font-medium ${STATUS_STYLES[overridesByType[ct].review_status] ?? "bg-gray-100 text-gray-500"}`}>
-                        {STATUS_LABELS[overridesByType[ct].review_status] ?? overridesByType[ct].review_status}
-                      </span>
-                    )}
-                  </button>
-                ))}
+                {availableTypes.length > 1 &&
+                  availableTypes.map((ct) => (
+                    <button
+                      key={ct}
+                      type="button"
+                      onClick={() => switchTab(ct)}
+                      className={`px-4 py-2.5 text-sm font-medium transition-colors ${activeType === ct ? "border-b-2 border-indigo-600 text-indigo-700" : "text-gray-500 hover:text-gray-700"}`}
+                    >
+                      {CONTENT_TYPE_LABELS[ct] ?? ct}
+                      {overridesByType[ct] && (
+                        <span
+                          className={`ml-1.5 inline-flex items-center rounded-full px-1.5 py-0.5 text-xs font-medium ${STATUS_STYLES[overridesByType[ct].review_status] ?? "bg-gray-100 text-gray-500"}`}
+                        >
+                          {STATUS_LABELS[overridesByType[ct].review_status] ??
+                            overridesByType[ct].review_status}
+                        </span>
+                      )}
+                    </button>
+                  ))}
               </div>
               {canShowDiff && (
-                <button type="button" onClick={() => setShowDiff((v) => !v)}
-                  className={`ml-auto mr-3 inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${showDiff ? "bg-indigo-100 text-indigo-700 hover:bg-indigo-200" : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"}`}>
+                <button
+                  type="button"
+                  onClick={() => setShowDiff((v) => !v)}
+                  className={`mr-3 ml-auto inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${showDiff ? "bg-indigo-100 text-indigo-700 hover:bg-indigo-200" : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"}`}
+                >
                   <GitCompare className="h-3.5 w-3.5" />
                   {showDiff ? "Hide changes" : "Compare with original"}
                 </button>
@@ -1207,7 +1686,9 @@ export default function UnitEditPage() {
             {showDiff ? (
               sourceLoading ? (
                 <div className="space-y-3 py-4">
-                  {[1, 2, 3].map((i) => <div key={i} className="h-16 animate-pulse rounded-lg bg-gray-100" />)}
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="h-16 animate-pulse rounded-lg bg-gray-100" />
+                  ))}
                 </div>
               ) : sourceData && overrideDetail ? (
                 <DiffView
@@ -1216,30 +1697,56 @@ export default function UnitEditPage() {
                   currentBody={overrideDetail.body}
                 />
               ) : (
-                <p className="py-12 text-center text-sm text-gray-400">Original content not available.</p>
+                <p className="py-12 text-center text-sm text-gray-400">
+                  Original content not available.
+                </p>
               )
             ) : detailLoading ? (
               <div className="space-y-3 py-4">
-                {[1, 2, 3].map((i) => <div key={i} className="h-16 animate-pulse rounded-lg bg-gray-100" />)}
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-16 animate-pulse rounded-lg bg-gray-100" />
+                ))}
               </div>
             ) : activeType === "lesson" && lessonDraft ? (
-              <LessonEditor draft={lessonDraft}
-                onChange={(d) => { setLessonDraft(d); setDirty(true); }}
-                readOnly={readOnly} />
+              <LessonEditor
+                draft={lessonDraft}
+                onChange={(d) => {
+                  setLessonDraft(d);
+                  setDirty(true);
+                }}
+                readOnly={readOnly}
+              />
             ) : activeType === "tutorial" && tutorialDraft ? (
-              <TutorialEditor draft={tutorialDraft}
-                onChange={(d) => { setTutorialDraft(d); setDirty(true); }}
-                readOnly={readOnly} />
+              <TutorialEditor
+                draft={tutorialDraft}
+                onChange={(d) => {
+                  setTutorialDraft(d);
+                  setDirty(true);
+                }}
+                readOnly={readOnly}
+              />
             ) : activeType.startsWith("quiz_set_") && quizDraft ? (
-              <QuizEditor draft={quizDraft}
-                onChange={(d) => { setQuizDraft(d); setDirty(true); }}
-                readOnly={readOnly} />
+              <QuizEditor
+                draft={quizDraft}
+                onChange={(d) => {
+                  setQuizDraft(d);
+                  setDirty(true);
+                }}
+                readOnly={readOnly}
+              />
             ) : activeType === "experiment" && experimentDraft ? (
-              <ExperimentEditor draft={experimentDraft}
-                onChange={(d) => { setExperimentDraft(d); setDirty(true); }}
-                readOnly={readOnly} />
+              <ExperimentEditor
+                draft={experimentDraft}
+                onChange={(d) => {
+                  setExperimentDraft(d);
+                  setDirty(true);
+                }}
+                readOnly={readOnly}
+              />
             ) : (
-              <div className="py-12 text-center text-sm text-gray-400">Loading content…</div>
+              <div className="py-12 text-center text-sm text-gray-400">
+                Loading content…
+              </div>
             )}
           </div>
         </div>

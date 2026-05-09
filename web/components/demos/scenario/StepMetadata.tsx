@@ -12,7 +12,9 @@ export function StepMetadata({ draft, onChange }: Props) {
   return (
     <div className="space-y-6">
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1">Scenario Title *</label>
+        <label className="mb-1 block text-sm font-semibold text-gray-700">
+          Scenario Title *
+        </label>
         <input
           value={draft.title}
           onChange={(e) => onChange({ title: e.target.value })}
@@ -22,37 +24,45 @@ export function StepMetadata({ draft, onChange }: Props) {
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1">Short Description</label>
+        <label className="mb-1 block text-sm font-semibold text-gray-700">
+          Short Description
+        </label>
         <textarea
           value={draft.description}
           onChange={(e) => onChange({ description: e.target.value })}
           placeholder="One or two sentences describing the scenario and its learning objective."
           rows={3}
-          className="w-full rounded-lg border px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 resize-none"
+          className="w-full resize-none rounded-lg border px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
         />
       </div>
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">Compliance Domain *</label>
+          <label className="mb-1 block text-sm font-semibold text-gray-700">
+            Compliance Domain *
+          </label>
           <select
             value={draft.domain}
             onChange={(e) => onChange({ domain: e.target.value })}
-            className="w-full rounded-lg border px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 bg-white"
+            className="w-full rounded-lg border bg-white px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
           >
             <option value="">— select domain —</option>
             {COMPLIANCE_DOMAINS.map((d) => (
-              <option key={d} value={d}>{d}</option>
+              <option key={d} value={d}>
+                {d}
+              </option>
             ))}
           </select>
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">Language</label>
+          <label className="mb-1 block text-sm font-semibold text-gray-700">
+            Language
+          </label>
           <select
             value={draft.language}
             onChange={(e) => onChange({ language: e.target.value as Language })}
-            className="w-full rounded-lg border px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 bg-white"
+            className="w-full rounded-lg border bg-white px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
           >
             <option value="en">English</option>
             <option value="fr">French</option>
@@ -61,11 +71,13 @@ export function StepMetadata({ draft, onChange }: Props) {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">Difficulty</label>
+          <label className="mb-1 block text-sm font-semibold text-gray-700">
+            Difficulty
+          </label>
           <select
             value={draft.difficulty}
             onChange={(e) => onChange({ difficulty: e.target.value as Difficulty })}
-            className="w-full rounded-lg border px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 bg-white"
+            className="w-full rounded-lg border bg-white px-4 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
           >
             <option value="beginner">Beginner</option>
             <option value="intermediate">Intermediate</option>
@@ -74,7 +86,9 @@ export function StepMetadata({ draft, onChange }: Props) {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1">Target Seniority</label>
+          <label className="mb-1 block text-sm font-semibold text-gray-700">
+            Target Seniority
+          </label>
           <input
             value={draft.target_seniority}
             onChange={(e) => onChange({ target_seniority: e.target.value })}

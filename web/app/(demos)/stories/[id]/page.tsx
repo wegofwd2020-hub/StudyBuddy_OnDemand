@@ -27,7 +27,7 @@ export default async function SocialStoryPage({ params }: PageProps) {
   if (!story) notFound();
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
+    <div className="min-h-screen bg-gray-50 px-4 py-12">
       <div className="mx-auto max-w-2xl">
         <Link
           href="/stories"

@@ -90,14 +90,13 @@ function Hero() {
           What&apos;s Inside a Lesson
         </h1>
         <p className="mt-6 text-xl text-slate-600">
-          A Grade 11 Science student opens a kinematics lesson the
-          night before her test — and discovers
-          <span className="font-semibold"> five layers</span>: text,
-          images, an animation, a quiz, and a tutorial.
+          A Grade 11 Science student opens a kinematics lesson the night before her test —
+          and discovers
+          <span className="font-semibold"> five layers</span>: text, images, an animation,
+          a quiz, and a tutorial.
         </p>
         <p className="mt-3 text-sm text-slate-500">
-          A 3-minute walkthrough · with captions · download to share with
-          your study group
+          A 3-minute walkthrough · with captions · download to share with your study group
         </p>
       </div>
     </section>
@@ -153,8 +152,8 @@ function CtaSection() {
         </a>
       </div>
       <p className="mx-auto mt-3 max-w-3xl text-center text-xs text-slate-500">
-        The Request-a-demo button opens your email client with a
-        pre-filled message to <span className="font-mono">support@studybuddy.app</span>.
+        The Request-a-demo button opens your email client with a pre-filled message to{" "}
+        <span className="font-mono">support@studybuddy.app</span>.
       </p>
     </section>
   );
@@ -164,14 +163,11 @@ function ContextSection() {
   return (
     <section className="border-t border-slate-200 bg-white px-4 py-16">
       <div className="mx-auto max-w-3xl">
-        <h2 className="text-2xl font-bold text-slate-900">
-          Five layers, one lesson
-        </h2>
+        <h2 className="text-2xl font-bold text-slate-900">Five layers, one lesson</h2>
         <p className="mt-4 text-slate-600">
-          Most study apps are a wall of text or a deck of flashcards.
-          StudyBuddy lessons stack five distinct layers — each addressing
-          a different study gap. Open one and the layers reveal
-          themselves; the video walks through what each one looks like.
+          Most study apps are a wall of text or a deck of flashcards. StudyBuddy lessons
+          stack five distinct layers — each addressing a different study gap. Open one and
+          the layers reveal themselves; the video walks through what each one looks like.
         </p>
 
         <div className="mt-10 grid gap-6 sm:grid-cols-3">
@@ -218,9 +214,7 @@ function FootnoteSection() {
   return (
     <section className="bg-slate-50 px-4 py-12 text-center">
       <div className="mx-auto max-w-3xl space-y-4">
-        <p className="text-sm text-slate-600">
-          Want to study a unit yourself?
-        </p>
+        <p className="text-sm text-slate-600">Want to study a unit yourself?</p>
         <LinkButton href="/demo" size="lg" variant="secondary">
           Try the demo
         </LinkButton>

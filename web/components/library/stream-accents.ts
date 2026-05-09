@@ -6,14 +6,14 @@
 // for the student curriculum tree).
 
 export const STREAM_ACCENT: Record<string, string> = {
-  STEM: "#0891b2",        // cyan-600
-  Science: "#059669",      // emerald-600
-  Commerce: "#ca8a04",     // yellow-600
-  Humanities: "#7c3aed",   // violet-600
-  English: "#db2777",      // pink-600
-  Advanced: "#dc2626",     // red-600
-  General: "#6b7280",      // gray-500
-  Other: "#4f46e5",        // indigo-600 fallback
+  STEM: "#0891b2", // cyan-600
+  Science: "#059669", // emerald-600
+  Commerce: "#ca8a04", // yellow-600
+  Humanities: "#7c3aed", // violet-600
+  English: "#db2777", // pink-600
+  Advanced: "#dc2626", // red-600
+  General: "#6b7280", // gray-500
+  Other: "#4f46e5", // indigo-600 fallback
 };
 
 const STREAM_PATTERNS: Array<[RegExp, keyof typeof STREAM_ACCENT]> = [

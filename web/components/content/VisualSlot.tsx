@@ -33,7 +33,7 @@ function VisualBlockRender({ block }: { block: VisualBlock }) {
     <div className="rounded-md border border-emerald-200 bg-emerald-50 p-3">
       <div className="mb-2 flex items-center gap-2">
         <Eye className="h-3.5 w-3.5 text-emerald-700" aria-hidden="true" />
-        <h4 className="text-xs font-semibold uppercase tracking-wide text-emerald-800">
+        <h4 className="text-xs font-semibold tracking-wide text-emerald-800 uppercase">
           {block.heading ?? "Visual explanation"}
         </h4>
       </div>
@@ -70,7 +70,7 @@ function VisualVideo({ item }: { item: VisualItem }) {
           type="button"
           onClick={() => setPlaying(true)}
           aria-label={`Play video: ${item.alt}`}
-          className="group relative flex w-full items-center justify-center gap-3 bg-gradient-to-br from-slate-900 to-slate-700 px-6 py-10 text-emerald-50 transition-colors hover:from-slate-800 hover:to-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2"
+          className="group relative flex w-full items-center justify-center gap-3 bg-gradient-to-br from-slate-900 to-slate-700 px-6 py-10 text-emerald-50 transition-colors hover:from-slate-800 hover:to-slate-600 focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:outline-none"
         >
           {item.poster && (
             // eslint-disable-next-line @next/next/no-img-element
@@ -91,7 +91,9 @@ function VisualVideo({ item }: { item: VisualItem }) {
               <span className="flex items-center gap-2 text-xs text-emerald-200">
                 <Film className="h-3 w-3" aria-hidden="true" />
                 <span>{item.alt}</span>
-                {item.duration && <span className="text-emerald-300">· {item.duration}</span>}
+                {item.duration && (
+                  <span className="text-emerald-300">· {item.duration}</span>
+                )}
               </span>
             </span>
           </span>
@@ -130,12 +132,7 @@ function VisualImage({ item }: { item: VisualItem }) {
   return (
     <figure className="overflow-hidden rounded border border-emerald-200 bg-white">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={item.src}
-        alt={item.alt}
-        loading="lazy"
-        className="h-auto w-full"
-      />
+      <img src={item.src} alt={item.alt} loading="lazy" className="h-auto w-full" />
       {item.caption && (
         <figcaption className="border-t border-emerald-100 bg-emerald-50/40 px-2 py-1 text-xs text-emerald-900">
           {item.caption}

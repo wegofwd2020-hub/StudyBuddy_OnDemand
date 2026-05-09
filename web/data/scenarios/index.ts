@@ -4,11 +4,11 @@ import intermediaryBribery from "./intermediary_bribery_en.json";
 import type { ScenarioWithClips } from "@/components/content/ScenarioVideoPlayer";
 
 export interface ScenarioMetrics {
-  authoring_time_min: number;   // broker wall-clock minutes from spec → shipped
-  llm_cost_usd: number;         // estimated Claude-token cost for broker authoring
-  image_cost_usd: number;       // image-gen API cost for stylized portraits (0 if default photo used)
-  video_cost_usd: number;       // D-ID /talks credits cost (0 if no videos yet)
-  ship_status: "live" | "preview";  // 'live' = videos rendered; 'preview' = text-only fallback
+  authoring_time_min: number; // broker wall-clock minutes from spec → shipped
+  llm_cost_usd: number; // estimated Claude-token cost for broker authoring
+  image_cost_usd: number; // image-gen API cost for stylized portraits (0 if default photo used)
+  video_cost_usd: number; // D-ID /talks credits cost (0 if no videos yet)
+  ship_status: "live" | "preview"; // 'live' = videos rendered; 'preview' = text-only fallback
 }
 
 export interface ScenarioListItem {

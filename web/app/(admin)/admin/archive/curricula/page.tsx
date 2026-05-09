@@ -11,7 +11,7 @@ import {
 import { useAdmin } from "@/lib/hooks/useAdmin";
 
 function ttlBadge(days: number | null) {
-  if (days === null) return <span className="text-gray-400 text-xs">—</span>;
+  if (days === null) return <span className="text-xs text-gray-400">—</span>;
   const cls =
     days < 30
       ? "bg-red-100 text-red-700"
@@ -74,7 +74,8 @@ export default function ArchivedCurriculaPage() {
             Archived Curricula
           </h1>
           <p className="mt-1 text-sm text-gray-500">
-            Platform-wide view of archived curricula. Rows are hard-deleted 1 year after archive.
+            Platform-wide view of archived curricula. Rows are hard-deleted 1 year after
+            archive.
           </p>
         </div>
         <span className="rounded bg-gray-100 px-3 py-1 text-sm font-medium text-gray-600">
@@ -94,7 +95,7 @@ export default function ArchivedCurriculaPage() {
           placeholder="Search name / ID / school…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="rounded border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="rounded border border-gray-300 px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
         />
 
         <select
@@ -102,10 +103,12 @@ export default function ArchivedCurriculaPage() {
           onChange={(e) =>
             setFilters((f) => ({
               ...f,
-              owner_type: e.target.value ? (e.target.value as "platform" | "school") : undefined,
+              owner_type: e.target.value
+                ? (e.target.value as "platform" | "school")
+                : undefined,
             }))
           }
-          className="rounded border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="rounded border border-gray-300 px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
         >
           <option value="">All owners</option>
           <option value="platform">Platform</option>
@@ -120,7 +123,7 @@ export default function ArchivedCurriculaPage() {
               grade: e.target.value ? Number(e.target.value) : undefined,
             }))
           }
-          className="rounded border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="rounded border border-gray-300 px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
         >
           <option value="">All grades</option>
           {[5, 6, 7, 8, 9, 10, 11, 12].map((g) => (
@@ -138,7 +141,7 @@ export default function ArchivedCurriculaPage() {
               days_until_ttl_max: e.target.value ? Number(e.target.value) : undefined,
             }))
           }
-          className="rounded border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="rounded border border-gray-300 px-3 py-1.5 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
         >
           <option value="">Any TTL</option>
           <option value="30">Expiring &lt; 30 days</option>
@@ -146,7 +149,10 @@ export default function ArchivedCurriculaPage() {
           <option value="180">Expiring &lt; 180 days</option>
         </select>
 
-        {(filters.owner_type || filters.grade || filters.days_until_ttl_max || search) && (
+        {(filters.owner_type ||
+          filters.grade ||
+          filters.days_until_ttl_max ||
+          search) && (
           <button
             onClick={() => {
               setFilters({});
@@ -188,7 +194,7 @@ export default function ArchivedCurriculaPage() {
                 ].map((h) => (
                   <th
                     key={h}
-                    className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500"
+                    className="px-4 py-3 text-left text-xs font-semibold tracking-wide text-gray-500 uppercase"
                   >
                     {h}
                   </th>
@@ -200,7 +206,9 @@ export default function ArchivedCurriculaPage() {
                 <tr key={r.curriculum_id} className="hover:bg-gray-50">
                   <td className="px-4 py-3">
                     <div className="font-medium text-gray-900">{r.name ?? "—"}</div>
-                    <div className="font-mono text-xs text-gray-400">{r.curriculum_id}</div>
+                    <div className="font-mono text-xs text-gray-400">
+                      {r.curriculum_id}
+                    </div>
                   </td>
                   <td className="px-4 py-3">
                     {r.owner_type === "platform" ? (
@@ -208,7 +216,9 @@ export default function ArchivedCurriculaPage() {
                         Platform
                       </span>
                     ) : (
-                      <span className="text-gray-700">{r.school_name ?? r.school_id ?? "—"}</span>
+                      <span className="text-gray-700">
+                        {r.school_name ?? r.school_id ?? "—"}
+                      </span>
                     )}
                   </td>
                   <td className="px-4 py-3 text-gray-700">
@@ -218,7 +228,9 @@ export default function ArchivedCurriculaPage() {
                   <td className="px-4 py-3">
                     <div className="text-gray-700">{fmtDate(r.archived_at)}</div>
                     {r.archive_event_type === "curriculum.archive_by_platform_admin" && (
-                      <div className="mt-0.5 text-xs text-orange-600">by platform admin</div>
+                      <div className="mt-0.5 text-xs text-orange-600">
+                        by platform admin
+                      </div>
                     )}
                   </td>
                   <td className="max-w-xs px-4 py-3 text-gray-500">

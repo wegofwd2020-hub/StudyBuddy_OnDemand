@@ -10,7 +10,7 @@ export function ExperimentRenderer({ experiment }: ExperimentRendererProps) {
   const t = useTranslations("experiment_screen");
 
   return (
-    <article className="space-y-8 rounded-lg border border-gray-300 bg-stone-50 p-6 font-heading shadow-md">
+    <article className="font-heading space-y-8 rounded-lg border border-gray-300 bg-stone-50 p-6 shadow-md">
       <div className="flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100">
           <FlaskConical className="h-5 w-5 text-purple-600" aria-hidden="true" />
@@ -53,9 +53,7 @@ export function ExperimentRenderer({ experiment }: ExperimentRendererProps) {
 
       {/* Steps */}
       <section>
-        <h2 className="mb-4 text-lg font-semibold text-gray-800">
-          {t("steps_heading")}
-        </h2>
+        <h2 className="mb-4 text-lg font-semibold text-gray-800">{t("steps_heading")}</h2>
         <ol className="space-y-4">
           {experiment.steps.map((step) => (
             <li key={step.step} className="flex gap-4">

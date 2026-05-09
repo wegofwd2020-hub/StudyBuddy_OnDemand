@@ -118,9 +118,12 @@ export default function AlertsPage() {
       {!isLoading && visibleAlerts.length === 0 && (
         <div className="flex flex-col items-center gap-3 rounded-xl border border-gray-100 bg-gray-50 py-14 text-gray-400">
           <Bell className="h-10 w-10 opacity-50" />
-          <p className="text-sm font-medium text-gray-600">No active alerts — all clear.</p>
+          <p className="text-sm font-medium text-gray-600">
+            No active alerts — all clear.
+          </p>
           <p className="text-xs text-gray-400">
-            Alerts fire when pass rates, inactivity, or feedback exceed your configured thresholds.
+            Alerts fire when pass rates, inactivity, or feedback exceed your configured
+            thresholds.
           </p>
           <Link
             href="/school/reports/alerts/settings"

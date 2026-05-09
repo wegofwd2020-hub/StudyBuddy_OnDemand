@@ -256,9 +256,7 @@ test.describe("Student persona — smoke & accessibility", () => {
     // first nav explicitly to avoid Playwright's strict-mode violation.
     const nav = page.getByRole("navigation").first();
     await expect(nav).toBeVisible();
-    await expect(
-      nav.getByRole("link", { name: /dashboard/i }).first(),
-    ).toBeVisible();
+    await expect(nav.getByRole("link", { name: /dashboard/i }).first()).toBeVisible();
   });
 
   // ── Paywall page ──────────────────────────────────────────────────────────

@@ -49,11 +49,7 @@ export async function checkA11y(
   label: string,
   excludeRules: readonly string[] = [],
 ): Promise<A11yReport> {
-  let builder = new AxeBuilder({ page }).withTags([
-    "wcag2a",
-    "wcag2aa",
-    "best-practice",
-  ]);
+  let builder = new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "best-practice"]);
   if (excludeRules.length > 0) {
     builder = builder.disableRules([...excludeRules]);
   }

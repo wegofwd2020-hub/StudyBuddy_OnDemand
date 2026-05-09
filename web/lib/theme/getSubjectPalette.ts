@@ -4,9 +4,9 @@
 
 export interface SubjectPalette {
   accent: string;
-  bg1: string;   // ~96% lightness — soft card/section backgrounds
-  bg2: string;   // ~80% lightness — hover states
-  ink: string;   // ~22% lightness — text on light backgrounds
+  bg1: string; // ~96% lightness — soft card/section backgrounds
+  bg2: string; // ~80% lightness — hover states
+  ink: string; // ~22% lightness — text on light backgrounds
   border: string; // ~88% lightness — subtle rule/ring
 }
 

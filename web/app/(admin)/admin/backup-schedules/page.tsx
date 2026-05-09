@@ -25,7 +25,15 @@ function humanCron(cron: string | null): string {
     }
   }
   if (dom === "*" && month === "*" && dow !== "*") {
-    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const days = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
     const dayNum = parseInt(dow, 10);
     if (!isNaN(dayNum) && dayNum >= 0 && dayNum <= 6) {
       const h = parseInt(hour, 10);
@@ -109,46 +117,42 @@ export default function BackupSchedulesPage() {
   if (!token) return null;
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+    <div className="mx-auto max-w-5xl p-6">
+      <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Clock className="w-5 h-5 text-gray-600" />
-          <h1 className="text-xl font-semibold text-gray-900">
-            Backup Schedules
-          </h1>
-          <span className="text-sm text-gray-500 ml-2">
-            ({schedules.length} schools)
-          </span>
+          <Clock className="h-5 w-5 text-gray-600" />
+          <h1 className="text-xl font-semibold text-gray-900">Backup Schedules</h1>
+          <span className="ml-2 text-sm text-gray-500">({schedules.length} schools)</span>
         </div>
         <button
           onClick={load}
-          className="flex items-center gap-1 px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
+          className="flex items-center gap-1 rounded-md border border-gray-300 px-3 py-1.5 text-sm hover:bg-gray-50"
         >
-          <RefreshCw className="w-4 h-4" />
+          <RefreshCw className="h-4 w-4" />
           Refresh
         </button>
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+        <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
           {error}
         </div>
       )}
 
-      <p className="text-sm text-gray-500 mb-4">
+      <p className="mb-4 text-sm text-gray-500">
         Cron expressions are in standard 5-field format (minute hour day month weekday).
-        Leave blank to disable scheduled backups for a school.
-        The nightly coordinator runs at{" "}
-        <span className="font-mono text-xs bg-gray-100 px-1 rounded">02:30 UTC</span>{" "}
-        and triggers a full backup for every school with a non-empty schedule.
+        Leave blank to disable scheduled backups for a school. The nightly coordinator
+        runs at{" "}
+        <span className="rounded bg-gray-100 px-1 font-mono text-xs">02:30 UTC</span> and
+        triggers a full backup for every school with a non-empty schedule.
       </p>
 
       {loading ? (
-        <div className="text-center py-12 text-gray-500">Loading schedules…</div>
+        <div className="py-12 text-center text-gray-500">Loading schedules…</div>
       ) : schedules.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">No schools found.</div>
+        <div className="py-12 text-center text-gray-500">No schools found.</div>
       ) : (
-        <div className="space-y-0 border border-gray-200 rounded-lg overflow-hidden">
+        <div className="space-y-0 overflow-hidden rounded-lg border border-gray-200">
           {schedules.map((s, idx) => (
             <div
               key={s.school_id}
@@ -157,7 +161,7 @@ export default function BackupSchedulesPage() {
               }`}
             >
               {/* School ID */}
-              <span className="font-mono text-xs text-gray-600 w-48 flex-shrink-0 truncate">
+              <span className="w-48 flex-shrink-0 truncate font-mono text-xs text-gray-600">
                 {s.school_id}
               </span>
 
@@ -173,15 +177,13 @@ export default function BackupSchedulesPage() {
                     }))
                   }
                   placeholder="0 2 * * *"
-                  className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full rounded-md border border-gray-300 px-3 py-1.5 font-mono text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 />
-                <p className="text-xs text-gray-400 mt-0.5">
+                <p className="mt-0.5 text-xs text-gray-400">
                   {humanCron(drafts[s.school_id] || null)}
                 </p>
                 {saveErrors[s.school_id] && (
-                  <p className="text-xs text-red-600 mt-0.5">
-                    {saveErrors[s.school_id]}
-                  </p>
+                  <p className="mt-0.5 text-xs text-red-600">{saveErrors[s.school_id]}</p>
                 )}
               </div>
 
@@ -189,18 +191,18 @@ export default function BackupSchedulesPage() {
               <button
                 onClick={() => handleSave(s.school_id)}
                 disabled={saving[s.school_id]}
-                className={`flex items-center gap-1 px-3 py-1.5 text-sm rounded-md flex-shrink-0 transition-colors ${
+                className={`flex flex-shrink-0 items-center gap-1 rounded-md px-3 py-1.5 text-sm transition-colors ${
                   saveSuccess[s.school_id]
                     ? "bg-green-600 text-white"
                     : "bg-indigo-600 text-white hover:bg-indigo-700"
                 } disabled:opacity-50`}
               >
-                <Save className="w-3.5 h-3.5" />
+                <Save className="h-3.5 w-3.5" />
                 {saving[s.school_id]
                   ? "Saving…"
                   : saveSuccess[s.school_id]
-                  ? "Saved"
-                  : "Save"}
+                    ? "Saved"
+                    : "Save"}
               </button>
             </div>
           ))}

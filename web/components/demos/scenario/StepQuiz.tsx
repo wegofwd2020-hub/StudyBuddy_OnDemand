@@ -17,7 +17,9 @@ export function StepQuiz({ draft, onChange }: Props) {
   }
 
   function updateQuestion(idx: number, patch: Partial<QuizQuestion>) {
-    onChange({ quiz_questions: questions.map((q, i) => (i === idx ? { ...q, ...patch } : q)) });
+    onChange({
+      quiz_questions: questions.map((q, i) => (i === idx ? { ...q, ...patch } : q)),
+    });
   }
 
   function removeQuestion(idx: number) {
@@ -45,70 +47,99 @@ export function StepQuiz({ draft, onChange }: Props) {
   return (
     <div className="space-y-6">
       {questions.length === 0 && (
-        <p className="text-sm text-gray-500 text-center py-6 rounded-xl border border-dashed bg-gray-50">
+        <p className="rounded-xl border border-dashed bg-gray-50 py-6 text-center text-sm text-gray-500">
           No questions yet. Add at least one compliance check question.
         </p>
       )}
 
       {questions.map((q, qIdx) => (
-        <div key={q.id} className="rounded-xl border bg-white p-5 shadow-sm space-y-4">
+        <div key={q.id} className="space-y-4 rounded-xl border bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wide text-indigo-600">
+            <span className="text-xs font-bold tracking-wide text-indigo-600 uppercase">
               Question {qIdx + 1}
             </span>
-            <button type="button" onClick={() => removeQuestion(qIdx)}
-              className="text-gray-400 hover:text-red-500">
+            <button
+              type="button"
+              onClick={() => removeQuestion(qIdx)}
+              className="text-gray-400 hover:text-red-500"
+            >
               <Trash2 className="h-4 w-4" />
             </button>
           </div>
 
           {/* Question text */}
           <div>
-            <label className="block text-xs font-semibold text-gray-600 mb-1">Question *</label>
+            <label className="mb-1 block text-xs font-semibold text-gray-600">
+              Question *
+            </label>
             <textarea
               value={q.question}
               onChange={(e) => updateQuestion(qIdx, { question: e.target.value })}
               placeholder="What compliance question should the learner answer after watching?"
               rows={2}
-              className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 resize-none"
+              className="w-full resize-none rounded-lg border px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
             />
           </div>
 
           {/* Format */}
           <div>
-            <label className="block text-xs font-semibold text-gray-600 mb-1">Answer Format</label>
-            <div className="flex gap-3 flex-wrap">
-              {(["true_false", "single_choice", "multiple_choice"] as const).map((fmt) => (
-                <label key={fmt} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name={`format-${q.id}`}
-                    value={fmt}
-                    checked={q.format === fmt}
-                    onChange={() => updateQuestion(qIdx, {
-                      format: fmt,
-                      correct_answer: fmt === "true_false" ? true : fmt === "multiple_choice" ? [] : "",
-                      options: fmt === "true_false" ? undefined : (q.options ?? [{ id: crypto.randomUUID(), text: "" }, { id: crypto.randomUUID(), text: "" }]),
-                    })}
-                    className="accent-indigo-600"
-                  />
-                  <span className="text-sm">
-                    {fmt === "true_false" ? "True / False"
-                      : fmt === "single_choice" ? "Single choice"
-                      : "Multiple choice"}
-                  </span>
-                </label>
-              ))}
+            <label className="mb-1 block text-xs font-semibold text-gray-600">
+              Answer Format
+            </label>
+            <div className="flex flex-wrap gap-3">
+              {(["true_false", "single_choice", "multiple_choice"] as const).map(
+                (fmt) => (
+                  <label key={fmt} className="flex cursor-pointer items-center gap-2">
+                    <input
+                      type="radio"
+                      name={`format-${q.id}`}
+                      value={fmt}
+                      checked={q.format === fmt}
+                      onChange={() =>
+                        updateQuestion(qIdx, {
+                          format: fmt,
+                          correct_answer:
+                            fmt === "true_false"
+                              ? true
+                              : fmt === "multiple_choice"
+                                ? []
+                                : "",
+                          options:
+                            fmt === "true_false"
+                              ? undefined
+                              : (q.options ?? [
+                                  { id: crypto.randomUUID(), text: "" },
+                                  { id: crypto.randomUUID(), text: "" },
+                                ]),
+                        })
+                      }
+                      className="accent-indigo-600"
+                    />
+                    <span className="text-sm">
+                      {fmt === "true_false"
+                        ? "True / False"
+                        : fmt === "single_choice"
+                          ? "Single choice"
+                          : "Multiple choice"}
+                    </span>
+                  </label>
+                ),
+              )}
             </div>
           </div>
 
           {/* True/False correct answer */}
           {q.format === "true_false" && (
             <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1">Correct Answer</label>
+              <label className="mb-1 block text-xs font-semibold text-gray-600">
+                Correct Answer
+              </label>
               <div className="flex gap-4">
                 {([true, false] as const).map((v) => (
-                  <label key={String(v)} className="flex items-center gap-2 cursor-pointer">
+                  <label
+                    key={String(v)}
+                    className="flex cursor-pointer items-center gap-2"
+                  >
                     <input
                       type="radio"
                       name={`tf-${q.id}`}
@@ -128,9 +159,10 @@ export function StepQuiz({ draft, onChange }: Props) {
             <div className="space-y-3">
               <label className="block text-xs font-semibold text-gray-600">Options</label>
               {(q.options ?? []).map((opt, oIdx) => {
-                const isCorrect = q.format === "multiple_choice"
-                  ? (q.correct_answer as string[]).includes(opt.id)
-                  : q.correct_answer === opt.id;
+                const isCorrect =
+                  q.format === "multiple_choice"
+                    ? (q.correct_answer as string[]).includes(opt.id)
+                    : q.correct_answer === opt.id;
 
                 function toggleCorrect() {
                   if (q.format === "single_choice") {
@@ -153,7 +185,7 @@ export function StepQuiz({ draft, onChange }: Props) {
                       checked={isCorrect}
                       onChange={toggleCorrect}
                       title="Mark as correct answer"
-                      className="accent-indigo-600 flex-shrink-0"
+                      className="flex-shrink-0 accent-indigo-600"
                     />
                     <input
                       value={opt.text}
@@ -161,8 +193,11 @@ export function StepQuiz({ draft, onChange }: Props) {
                       placeholder={`Option ${oIdx + 1}`}
                       className="flex-1 rounded-lg border px-3 py-1.5 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
                     />
-                    <button type="button" onClick={() => removeOption(qIdx, oIdx)}
-                      className="text-gray-400 hover:text-red-500 flex-shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => removeOption(qIdx, oIdx)}
+                      className="flex-shrink-0 text-gray-400 hover:text-red-500"
+                    >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </div>
@@ -171,7 +206,7 @@ export function StepQuiz({ draft, onChange }: Props) {
               <button
                 type="button"
                 onClick={() => addOption(qIdx)}
-                className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800 font-semibold"
+                className="flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-800"
               >
                 <Plus className="h-3 w-3" /> Add option
               </button>
@@ -185,13 +220,15 @@ export function StepQuiz({ draft, onChange }: Props) {
 
           {/* Explanation */}
           <div>
-            <label className="block text-xs font-semibold text-gray-600 mb-1">Explanation (shown after answering)</label>
+            <label className="mb-1 block text-xs font-semibold text-gray-600">
+              Explanation (shown after answering)
+            </label>
             <textarea
               value={q.explanation}
               onChange={(e) => updateQuestion(qIdx, { explanation: e.target.value })}
               placeholder="Explain why the correct answer is correct — cite the relevant regulation or policy."
               rows={3}
-              className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 resize-none"
+              className="w-full resize-none rounded-lg border px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
             />
           </div>
         </div>
@@ -200,7 +237,7 @@ export function StepQuiz({ draft, onChange }: Props) {
       <button
         type="button"
         onClick={addQuestion}
-        className="flex items-center gap-2 rounded-lg border-2 border-dashed border-indigo-300 px-5 py-3 text-sm font-semibold text-indigo-600 hover:border-indigo-500 hover:bg-indigo-50 transition-colors"
+        className="flex items-center gap-2 rounded-lg border-2 border-dashed border-indigo-300 px-5 py-3 text-sm font-semibold text-indigo-600 transition-colors hover:border-indigo-500 hover:bg-indigo-50"
       >
         <Plus className="h-4 w-4" />
         Add Question

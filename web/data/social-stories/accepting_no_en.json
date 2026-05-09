@@ -30,32 +30,122 @@
     }
   ],
   "dialog": [
-    {"speaker": "user1", "text": "Mom, can I get this toy car, please?"},
-    {"speaker": "user2", "text": "No, Daniel. I would love to get it for you, but we bought a toy yesterday. If you want to buy another one, you will need your own money."},
-    {"speaker": "user1", "text": "But I really want it now."},
-    {"speaker": "user1", "text": "Mom, can we stop off and get a hamburger?"},
-    {"speaker": "user2", "text": "Daniel, it is almost five o'clock. We are going to be having dinner when we get home."},
-    {"speaker": "user1", "text": "Dad, can I sleep over at George's tonight?"},
-    {"speaker": "user4", "text": "No, Daniel. We are going hiking tomorrow."},
-    {"speaker": "user3", "text": "Daniel is having a hard time hearing the word no. While nobody wants to hear no, it is something we are going to hear from time to time. The good news is, no is not forever. We hear yes a lot too."},
-    {"speaker": "user3", "text": "When we feel ourselves getting upset, we can take some deep breaths. Deep breathing slows our thinking and helps our brains make better decisions. We can also count down from ten to one to bring us back into the present moment."},
-    {"speaker": "user1", "text": "I really want this toy. What if I take some deep breaths and try to calm down?"},
-    {"speaker": "user2", "text": "Good job, Daniel."},
-    {"speaker": "user1", "text": "Thanks, Mom. I just need to do some chores. Then I can earn the money. I will buy the toy car when I get my allowance on Friday."}
+    { "speaker": "user1", "text": "Mom, can I get this toy car, please?" },
+    {
+      "speaker": "user2",
+      "text": "No, Daniel. I would love to get it for you, but we bought a toy yesterday. If you want to buy another one, you will need your own money."
+    },
+    { "speaker": "user1", "text": "But I really want it now." },
+    { "speaker": "user1", "text": "Mom, can we stop off and get a hamburger?" },
+    {
+      "speaker": "user2",
+      "text": "Daniel, it is almost five o'clock. We are going to be having dinner when we get home."
+    },
+    { "speaker": "user1", "text": "Dad, can I sleep over at George's tonight?" },
+    { "speaker": "user4", "text": "No, Daniel. We are going hiking tomorrow." },
+    {
+      "speaker": "user3",
+      "text": "Daniel is having a hard time hearing the word no. While nobody wants to hear no, it is something we are going to hear from time to time. The good news is, no is not forever. We hear yes a lot too."
+    },
+    {
+      "speaker": "user3",
+      "text": "When we feel ourselves getting upset, we can take some deep breaths. Deep breathing slows our thinking and helps our brains make better decisions. We can also count down from ten to one to bring us back into the present moment."
+    },
+    {
+      "speaker": "user1",
+      "text": "I really want this toy. What if I take some deep breaths and try to calm down?"
+    },
+    { "speaker": "user2", "text": "Good job, Daniel." },
+    {
+      "speaker": "user1",
+      "text": "Thanks, Mom. I just need to do some chores. Then I can earn the money. I will buy the toy car when I get my allowance on Friday."
+    }
   ],
   "video_clips": [
-    {"turn_index": 0,  "speaker": "user1", "video_url": "/scenarios/accepting-no/turn0.mp4",  "duration_seconds": 3.4625,  "status": "ready"},
-    {"turn_index": 1,  "speaker": "user2", "video_url": "/scenarios/accepting-no/turn1.mp4",  "duration_seconds": 9.7875,  "status": "ready"},
-    {"turn_index": 2,  "speaker": "user1", "video_url": "/scenarios/accepting-no/turn2.mp4",  "duration_seconds": 2.5625,  "status": "ready"},
-    {"turn_index": 3,  "speaker": "user1", "video_url": "/scenarios/accepting-no/turn3.mp4",  "duration_seconds": 3.5875,  "status": "ready"},
-    {"turn_index": 4,  "speaker": "user2", "video_url": "/scenarios/accepting-no/turn4.mp4",  "duration_seconds": 6.325,   "status": "ready"},
-    {"turn_index": 5,  "speaker": "user1", "video_url": "/scenarios/accepting-no/turn5.mp4",  "duration_seconds": 3.5125,  "status": "ready"},
-    {"turn_index": 6,  "speaker": "user4", "video_url": "/scenarios/accepting-no/turn6.mp4",  "duration_seconds": 4.8,     "status": "ready"},
-    {"turn_index": 7,  "speaker": "user3", "video_url": "/scenarios/accepting-no/turn7.mp4",  "duration_seconds": 14.575,  "status": "ready"},
-    {"turn_index": 8,  "speaker": "user3", "video_url": "/scenarios/accepting-no/turn8.mp4",  "duration_seconds": 14.5875, "status": "ready"},
-    {"turn_index": 9,  "speaker": "user1", "video_url": "/scenarios/accepting-no/turn9.mp4",  "duration_seconds": 5.85,    "status": "ready"},
-    {"turn_index": 10, "speaker": "user2", "video_url": "/scenarios/accepting-no/turn10.mp4", "duration_seconds": 2.4625,  "status": "ready"},
-    {"turn_index": 11, "speaker": "user1", "video_url": "/scenarios/accepting-no/turn11.mp4", "duration_seconds": 10.8625, "status": "ready"}
+    {
+      "turn_index": 0,
+      "speaker": "user1",
+      "video_url": "/scenarios/accepting-no/turn0.mp4",
+      "duration_seconds": 3.4625,
+      "status": "ready"
+    },
+    {
+      "turn_index": 1,
+      "speaker": "user2",
+      "video_url": "/scenarios/accepting-no/turn1.mp4",
+      "duration_seconds": 9.7875,
+      "status": "ready"
+    },
+    {
+      "turn_index": 2,
+      "speaker": "user1",
+      "video_url": "/scenarios/accepting-no/turn2.mp4",
+      "duration_seconds": 2.5625,
+      "status": "ready"
+    },
+    {
+      "turn_index": 3,
+      "speaker": "user1",
+      "video_url": "/scenarios/accepting-no/turn3.mp4",
+      "duration_seconds": 3.5875,
+      "status": "ready"
+    },
+    {
+      "turn_index": 4,
+      "speaker": "user2",
+      "video_url": "/scenarios/accepting-no/turn4.mp4",
+      "duration_seconds": 6.325,
+      "status": "ready"
+    },
+    {
+      "turn_index": 5,
+      "speaker": "user1",
+      "video_url": "/scenarios/accepting-no/turn5.mp4",
+      "duration_seconds": 3.5125,
+      "status": "ready"
+    },
+    {
+      "turn_index": 6,
+      "speaker": "user4",
+      "video_url": "/scenarios/accepting-no/turn6.mp4",
+      "duration_seconds": 4.8,
+      "status": "ready"
+    },
+    {
+      "turn_index": 7,
+      "speaker": "user3",
+      "video_url": "/scenarios/accepting-no/turn7.mp4",
+      "duration_seconds": 14.575,
+      "status": "ready"
+    },
+    {
+      "turn_index": 8,
+      "speaker": "user3",
+      "video_url": "/scenarios/accepting-no/turn8.mp4",
+      "duration_seconds": 14.5875,
+      "status": "ready"
+    },
+    {
+      "turn_index": 9,
+      "speaker": "user1",
+      "video_url": "/scenarios/accepting-no/turn9.mp4",
+      "duration_seconds": 5.85,
+      "status": "ready"
+    },
+    {
+      "turn_index": 10,
+      "speaker": "user2",
+      "video_url": "/scenarios/accepting-no/turn10.mp4",
+      "duration_seconds": 2.4625,
+      "status": "ready"
+    },
+    {
+      "turn_index": 11,
+      "speaker": "user1",
+      "video_url": "/scenarios/accepting-no/turn11.mp4",
+      "duration_seconds": 10.8625,
+      "status": "ready"
+    }
   ],
   "language": "en",
   "generated_at": "2026-05-05T17:00:00Z",

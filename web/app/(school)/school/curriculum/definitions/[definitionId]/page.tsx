@@ -14,13 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  FileText,
-  ChevronLeft,
-  CheckCircle2,
-  XCircle,
-  Clock,
-} from "lucide-react";
+import { FileText, ChevronLeft, CheckCircle2, XCircle, Clock } from "lucide-react";
 
 // ── Status chip ────────────────────────────────────────────────────────────────
 
@@ -97,7 +91,10 @@ export default function DefinitionDetailPage() {
     return (
       <div className="max-w-2xl p-6">
         <p className="text-sm text-gray-500">Definition not found.</p>
-        <Link href="/school/curriculum/definitions" className="mt-2 text-sm text-indigo-600 hover:underline">
+        <Link
+          href="/school/curriculum/definitions"
+          className="mt-2 text-sm text-indigo-600 hover:underline"
+        >
           ← Back to definitions
         </Link>
       </div>
@@ -165,7 +162,7 @@ export default function DefinitionDetailPage() {
 
       {/* Subject / unit list */}
       <div className="space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
+        <h2 className="text-sm font-semibold tracking-wide text-gray-500 uppercase">
           Subjects & units
         </h2>
         {defn.subjects.map((s, i) => (
@@ -177,7 +174,7 @@ export default function DefinitionDetailPage() {
               <ol className="space-y-1 pl-1">
                 {s.units.map((u, j) => (
                   <li key={j} className="flex items-start gap-2 text-sm text-gray-700">
-                    <span className="mt-0.5 text-xs font-mono text-gray-400">
+                    <span className="mt-0.5 font-mono text-xs text-gray-400">
                       {String(j + 1).padStart(2, "0")}
                     </span>
                     {u.title}
@@ -193,7 +190,9 @@ export default function DefinitionDetailPage() {
       {isAdmin && defn.status === "pending_approval" && (
         <Card className="border border-amber-200 bg-amber-50">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base text-amber-900">Review this definition</CardTitle>
+            <CardTitle className="text-base text-amber-900">
+              Review this definition
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {!showReject ? (
@@ -238,7 +237,8 @@ export default function DefinitionDetailPage() {
               </div>
             )}
             <p className="text-xs text-amber-700">
-              After approval, the school admin can trigger the pipeline to generate content.
+              After approval, the school admin can trigger the pipeline to generate
+              content.
             </p>
           </CardContent>
         </Card>

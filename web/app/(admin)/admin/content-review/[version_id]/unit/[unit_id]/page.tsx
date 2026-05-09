@@ -68,8 +68,8 @@ function useAnnotations(effectiveKey: string) {
 // ── AlexJS warnings banner ────────────────────────────────────────────────────
 
 const ALEX_CHECKLIST = [
-  "Ableist or euphemistic language (e.g. \"crazy\", \"lame\", \"blind to\")",
-  "Gendered terms where neutral alternatives exist (e.g. \"mankind\", \"stewardess\")",
+  'Ableist or euphemistic language (e.g. "crazy", "lame", "blind to")',
+  'Gendered terms where neutral alternatives exist (e.g. "mankind", "stewardess")',
   "Potentially insensitive cultural or racial references",
   "Overly binary gender assumptions in examples",
   "Medical or mental-health language used casually",
@@ -131,16 +131,12 @@ function AlexWarningsBanner({ count }: { count: number }) {
     <>
       <div
         ref={bannerRef}
-        className={cn(
-          "mb-6 rounded-xl border-2 p-4",
-          colours.border,
-          colours.bg,
-        )}
+        className={cn("mb-6 rounded-xl border-2 p-4", colours.border, colours.bg)}
       >
         <div className="flex items-start gap-3">
           <ShieldAlert className={cn("mt-0.5 h-5 w-5 flex-shrink-0", colours.icon)} />
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
               <p className={cn("text-sm font-bold", colours.title)}>
                 {count} AlexJS warning{count !== 1 ? "s" : ""} — {severity} severity
               </p>
@@ -165,14 +161,20 @@ function AlexWarningsBanner({ count }: { count: number }) {
                 colours.toggle,
               )}
             >
-              {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+              {expanded ? (
+                <ChevronUp className="h-3.5 w-3.5" />
+              ) : (
+                <ChevronDown className="h-3.5 w-3.5" />
+              )}
               {expanded ? "Hide" : "Show"} what to look for
             </button>
             {expanded && (
               <ul className={cn("mt-2 space-y-1 text-xs", colours.body)}>
                 {ALEX_CHECKLIST.map((item) => (
                   <li key={item} className="flex items-start gap-1.5">
-                    <AlertTriangle className={cn("mt-0.5 h-3 w-3 flex-shrink-0", colours.icon)} />
+                    <AlertTriangle
+                      className={cn("mt-0.5 h-3 w-3 flex-shrink-0", colours.icon)}
+                    />
                     {item}
                   </li>
                 ))}
@@ -184,9 +186,14 @@ function AlexWarningsBanner({ count }: { count: number }) {
 
       {/* Sticky pill visible when banner is out of view */}
       {sticky && (
-        <div className="fixed right-6 top-4 z-50 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold text-white shadow-lg cursor-pointer"
-          style={{ backgroundColor: isHigh ? "#dc2626" : isMedium ? "#d97706" : "#f97316" }}
-          onClick={() => bannerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+        <div
+          className="fixed top-4 right-6 z-50 flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold text-white shadow-lg"
+          style={{
+            backgroundColor: isHigh ? "#dc2626" : isMedium ? "#d97706" : "#f97316",
+          }}
+          onClick={() =>
+            bannerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+          }
           title="AlexJS warnings — click to scroll to banner"
         >
           <ShieldAlert className="h-3.5 w-3.5" />
@@ -610,7 +617,8 @@ function InlineWarningsPanel({
   return (
     <div className="mb-5 rounded-lg border border-red-200 bg-red-50 p-4">
       <p className="mb-3 text-xs font-semibold text-red-800">
-        {warnings.length} AlexJS warning{warnings.length !== 1 ? "s" : ""} in this content type
+        {warnings.length} AlexJS warning{warnings.length !== 1 ? "s" : ""} in this content
+        type
         {unacked.length > 0 && (
           <span className="ml-1.5 rounded-full bg-red-200 px-1.5 py-0.5 text-red-800">
             {unacked.length} unacknowledged
@@ -804,9 +812,7 @@ export default function AdminUnitContentPage() {
             </div>
 
             {meta.alex_warnings_count > 0 && (
-              <AlexWarningsBanner
-                count={meta.alex_warnings_count}
-              />
+              <AlexWarningsBanner count={meta.alex_warnings_count} />
             )}
 
             <div className="flex gap-6">

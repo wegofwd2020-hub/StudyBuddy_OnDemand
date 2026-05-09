@@ -354,7 +354,7 @@ def backup_school_task(
                         school_uuid,
                     )
                     if len(all_backups) > cfg.BACKUP_MAX_PER_SCHOOL:
-                        excess = all_backups[cfg.BACKUP_MAX_PER_SCHOOL:]
+                        excess = all_backups[cfg.BACKUP_MAX_PER_SCHOOL :]
                         for old in excess:
                             old_id = str(old["id"])
                             old_path = old["storage_path"] or ""
@@ -738,9 +738,7 @@ def execute_restore_task(request_id: str) -> None:
                     )
 
             # Load backup data
-            backup_data_bytes = await storage.download(
-                f"{school_id}/{backup_id}/backup_data.json"
-            )
+            backup_data_bytes = await storage.download(f"{school_id}/{backup_id}/backup_data.json")
             backup_data = json.loads(backup_data_bytes)
 
             content_root = Path(settings.CONTENT_STORE_PATH)
@@ -819,9 +817,7 @@ def execute_restore_task(request_id: str) -> None:
 
                     # Write content files from backup storage to content store
                     content_prefix = f"{school_id}/{backup_id}/content/"
-                    content_keys = await storage.list_prefix(
-                        f"{school_id}/{backup_id}/content"
-                    )
+                    content_keys = await storage.list_prefix(f"{school_id}/{backup_id}/content")
                     for key in content_keys:
                         file_bytes = await storage.download(key)
                         # key is like: {school_id}/{backup_id}/content/curricula/{cur_id}/...

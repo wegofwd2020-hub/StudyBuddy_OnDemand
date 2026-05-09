@@ -11,7 +11,7 @@ class GenerateClipsRequest(BaseModel):
 
 class ClipStatus(BaseModel):
     turn_index: int
-    status: str          # pending | generating | ready | error
+    status: str  # pending | generating | ready | error
     error: str | None = None
 
 
@@ -23,7 +23,7 @@ class GenerateClipsResponse(BaseModel):
 class ClipsStatusResponse(BaseModel):
     job_id: str
     scenario_id: str
-    status: str          # pending | running | done | failed
+    status: str  # pending | running | done | failed
     total_clips: int
     completed_clips: int
     clips: list[ClipStatus]

@@ -25,7 +25,8 @@ export default function ChangePasswordPage() {
 
   // Read token from localStorage (safe — runs client-side only)
   useEffect(() => {
-    const t = localStorage.getItem("sb_teacher_token") ?? localStorage.getItem("sb_token");
+    const t =
+      localStorage.getItem("sb_teacher_token") ?? localStorage.getItem("sb_token");
     if (!t) {
       router.replace("/school/login");
     } else {
@@ -85,9 +86,7 @@ export default function ChangePasswordPage() {
           {isRequired && (
             <div className="mt-2 flex items-start gap-2 rounded-md bg-amber-50 px-3 py-2 text-left text-sm text-amber-800">
               <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
-              <span>
-                You must set a new password before you can access the portal.
-              </span>
+              <span>You must set a new password before you can access the portal.</span>
             </div>
           )}
         </CardHeader>
@@ -103,17 +102,24 @@ export default function ChangePasswordPage() {
                   autoComplete="current-password"
                   required
                   value={currentPassword}
-                  onChange={(e) => { setCurrentPassword(e.target.value); setError(null); }}
+                  onChange={(e) => {
+                    setCurrentPassword(e.target.value);
+                    setError(null);
+                  }}
                   placeholder="Your current / temporary password"
                   className="pr-10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowCurrent((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   aria-label={showCurrent ? "Hide password" : "Show password"}
                 >
-                  {showCurrent ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showCurrent ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
                 </button>
               </div>
             </div>
@@ -127,14 +133,17 @@ export default function ChangePasswordPage() {
                   autoComplete="new-password"
                   required
                   value={newPassword}
-                  onChange={(e) => { setNewPassword(e.target.value); setError(null); }}
+                  onChange={(e) => {
+                    setNewPassword(e.target.value);
+                    setError(null);
+                  }}
                   placeholder="At least 12 characters"
                   className="pr-10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowNew((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   aria-label={showNew ? "Hide password" : "Show password"}
                 >
                   {showNew ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -151,13 +160,18 @@ export default function ChangePasswordPage() {
                 autoComplete="new-password"
                 required
                 value={confirmPassword}
-                onChange={(e) => { setConfirmPassword(e.target.value); setError(null); }}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  setError(null);
+                }}
                 placeholder="Repeat new password"
               />
             </div>
 
             {error && (
-              <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
+              <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+                {error}
+              </p>
             )}
 
             <Button

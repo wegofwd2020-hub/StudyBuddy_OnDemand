@@ -72,7 +72,7 @@ export default function PerUnitVisualEditorPage({ params }: PageProps) {
   return (
     <div className="mx-auto max-w-5xl space-y-4 p-6">
       <header>
-        <p className="text-xs uppercase tracking-wide text-gray-500">
+        <p className="text-xs tracking-wide text-gray-500 uppercase">
           Edit visuals · {unit_id}
         </p>
         <h1 className="text-2xl font-bold text-gray-900">
@@ -112,8 +112,8 @@ export default function PerUnitVisualEditorPage({ params }: PageProps) {
               <div>
                 <p className="font-semibold">No tutorial override loaded.</p>
                 <p className="mt-1 text-amber-800">
-                  Most likely you have not imported this unit&apos;s content
-                  into your school yet. Import the unit first, then return here.
+                  Most likely you have not imported this unit&apos;s content into your
+                  school yet. Import the unit first, then return here.
                 </p>
               </div>
             </div>
@@ -180,10 +180,7 @@ function SectionEditor({
   });
 
   function addBlock() {
-    setBlocks([
-      ...blocks,
-      { kind: "image", heading: "", items: [{ src: "", alt: "" }] },
-    ]);
+    setBlocks([...blocks, { kind: "image", heading: "", items: [{ src: "", alt: "" }] }]);
   }
 
   function updateBlock(idx: number, patch: Partial<VisualBlock>) {
@@ -286,7 +283,7 @@ function SectionEditor({
 
         {showPreview && (
           <div className="rounded-md border border-gray-200 bg-gray-50 p-3">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-600">
+            <p className="mb-2 text-xs font-semibold tracking-wide text-gray-600 uppercase">
               Live preview
             </p>
             {validation ? (
@@ -348,7 +345,7 @@ function BlockEditor({
           ) : (
             <ImageIcon className="h-4 w-4 text-gray-500" />
           )}
-          <span className="text-xs font-semibold uppercase tracking-wide text-gray-600">
+          <span className="text-xs font-semibold tracking-wide text-gray-600 uppercase">
             Block {index + 1}
           </span>
         </div>
@@ -369,10 +366,8 @@ function BlockEditor({
           <select
             id={`kind-${index}`}
             value={block.kind}
-            onChange={(e) =>
-              onChange({ kind: e.target.value as VisualKind })
-            }
-            className="mt-1 block h-9 w-full rounded-md border border-gray-300 bg-white px-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            onChange={(e) => onChange({ kind: e.target.value as VisualKind })}
+            className="mt-1 block h-9 w-full rounded-md border border-gray-300 bg-white px-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
           >
             {VISUAL_KINDS.map((k) => (
               <option key={k} value={k}>
@@ -440,9 +435,7 @@ function ItemEditor({
   return (
     <div className="rounded border border-gray-100 bg-gray-50/40 p-2">
       <div className="mb-1.5 flex items-center justify-between">
-        <span className="text-xs font-semibold text-gray-600">
-          Item {index + 1}
-        </span>
+        <span className="text-xs font-semibold text-gray-600">Item {index + 1}</span>
         <Button
           type="button"
           variant="outline"
@@ -471,9 +464,7 @@ function ItemEditor({
               type="button"
               variant="outline"
               size="sm"
-              onClick={() =>
-                setPickerFor((p) => (p === "src" ? null : "src"))
-              }
+              onClick={() => setPickerFor((p) => (p === "src" ? null : "src"))}
               className="shrink-0"
               title="Pick from uploaded assets"
             >
@@ -544,9 +535,7 @@ function ItemEditor({
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() =>
-                    setPickerFor((p) => (p === "poster" ? null : "poster"))
-                  }
+                  onClick={() => setPickerFor((p) => (p === "poster" ? null : "poster"))}
                   className="shrink-0"
                   title="Pick from uploaded assets"
                 >

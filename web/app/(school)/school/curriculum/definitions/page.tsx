@@ -15,14 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  FileText,
-  Plus,
-  CheckCircle2,
-  XCircle,
-  Clock,
-  ChevronRight,
-} from "lucide-react";
+import { FileText, Plus, CheckCircle2, XCircle, Clock, ChevronRight } from "lucide-react";
 
 const STATUS_TABS = [
   { label: "Pending", value: "pending_approval" },
@@ -71,7 +64,8 @@ function DefinitionRow({
 
   const { mutate: approve, isPending: approving } = useMutation({
     mutationFn: () => approveDefinition(schoolId, defn.definition_id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["definitions", schoolId] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["definitions", schoolId] }),
   });
 
   const { mutate: reject, isPending: rejecting } = useMutation({
@@ -98,12 +92,14 @@ function DefinitionRow({
           </div>
 
           <div className="mt-1 flex flex-wrap gap-3 text-xs text-gray-500">
-            <span>{subjectCount} subject{subjectCount !== 1 ? "s" : ""}</span>
-            <span>{unitCount} unit{unitCount !== 1 ? "s" : ""}</span>
+            <span>
+              {subjectCount} subject{subjectCount !== 1 ? "s" : ""}
+            </span>
+            <span>
+              {unitCount} unit{unitCount !== 1 ? "s" : ""}
+            </span>
             <span>{defn.languages.join(", ").toUpperCase()}</span>
-            {defn.submitted_by_name && (
-              <span>by {defn.submitted_by_name}</span>
-            )}
+            {defn.submitted_by_name && <span>by {defn.submitted_by_name}</span>}
           </div>
 
           {defn.status === "rejected" && defn.rejection_reason && (
@@ -160,7 +156,7 @@ function DefinitionRow({
               <Button
                 size="sm"
                 variant="outline"
-                className="h-7 gap-1 text-xs text-red-600 border-red-200 hover:bg-red-50"
+                className="h-7 gap-1 border-red-200 text-xs text-red-600 hover:bg-red-50"
                 onClick={() => setShowReject(true)}
               >
                 <XCircle className="h-3 w-3" />
@@ -214,9 +210,9 @@ export default function DefinitionsPage() {
       </div>
 
       <p className="text-sm text-gray-500">
-        A Curriculum Definition specifies the grade, subjects, and units for a custom content
-        build. Submit one for school admin approval — after approval the pipeline can be
-        triggered to generate the full Curriculum Package.
+        A Curriculum Definition specifies the grade, subjects, and units for a custom
+        content build. Submit one for school admin approval — after approval the pipeline
+        can be triggered to generate the full Curriculum Package.
       </p>
 
       {/* Status tabs */}

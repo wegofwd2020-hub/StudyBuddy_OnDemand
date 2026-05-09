@@ -304,8 +304,8 @@ async def demo_teacher_login(body: DemoLoginInput, request: Request):
             "teacher_id": str(account["teacher_id"]),
             "school_id": str(account["school_id"]) if account["school_id"] else None,
             "teacher_name": account["teacher_name"],
-            "role": account["role"],          # real DB role (school_admin / teacher)
-            "auth_track": "demo_teacher",     # identifies this as a demo-track token
+            "role": account["role"],  # real DB role (school_admin / teacher)
+            "auth_track": "demo_teacher",  # identifies this as a demo-track token
             "account_status": "active",
             "demo_account_id": str(account["id"]),
             "demo_expires_at": expires_at_aware.isoformat(),

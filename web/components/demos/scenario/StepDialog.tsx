@@ -9,19 +9,31 @@ interface Props {
 }
 
 const AVATAR_COLORS = [
-  "bg-blue-500", "bg-emerald-500", "bg-violet-500", "bg-amber-500",
-  "bg-rose-500", "bg-cyan-500",
+  "bg-blue-500",
+  "bg-emerald-500",
+  "bg-violet-500",
+  "bg-amber-500",
+  "bg-rose-500",
+  "bg-cyan-500",
 ];
 
 function initials(name: string) {
-  return name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase() || "?";
+  return (
+    name
+      .split(" ")
+      .map((w) => w[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase() || "?"
+  );
 }
 
 export function StepDialog({ draft, onChange }: Props) {
   const { characters, dialog } = draft;
 
   function addTurn() {
-    const defaultSpeaker = characters[dialog.length % Math.max(characters.length, 1)]?.id ?? "";
+    const defaultSpeaker =
+      characters[dialog.length % Math.max(characters.length, 1)]?.id ?? "";
     onChange({
       dialog: [...dialog, { id: crypto.randomUUID(), speaker: defaultSpeaker, text: "" }],
     });
@@ -48,29 +60,33 @@ export function StepDialog({ draft, onChange }: Props) {
 
   if (characters.length === 0) {
     return (
-      <p className="text-sm text-gray-500 text-center py-6 rounded-xl border border-dashed bg-gray-50">
+      <p className="rounded-xl border border-dashed bg-gray-50 py-6 text-center text-sm text-gray-500">
         Add characters in the previous step before defining the dialog.
       </p>
     );
   }
 
   // Estimated reading time: ~130 wpm
-  const totalWords = dialog.reduce((n, t) => n + t.text.split(/\s+/).filter(Boolean).length, 0);
+  const totalWords = dialog.reduce(
+    (n, t) => n + t.text.split(/\s+/).filter(Boolean).length,
+    0,
+  );
   const estSeconds = Math.round((totalWords / 130) * 60);
 
   return (
     <div className="space-y-4">
       {dialog.length > 0 && (
-        <p className="text-xs text-gray-500 text-right">
-          {dialog.length} turn{dialog.length !== 1 ? "s" : ""} ·{" "}
-          ~{estSeconds < 60
+        <p className="text-right text-xs text-gray-500">
+          {dialog.length} turn{dialog.length !== 1 ? "s" : ""} · ~
+          {estSeconds < 60
             ? `${estSeconds}s`
-            : `${Math.floor(estSeconds / 60)}m ${estSeconds % 60}s`} estimated
+            : `${Math.floor(estSeconds / 60)}m ${estSeconds % 60}s`}{" "}
+          estimated
         </p>
       )}
 
       {dialog.length === 0 && (
-        <p className="text-sm text-gray-500 text-center py-6 rounded-xl border border-dashed bg-gray-50">
+        <p className="rounded-xl border border-dashed bg-gray-50 py-6 text-center text-sm text-gray-500">
           No dialog turns yet. Add the first line.
         </p>
       )}
@@ -81,9 +97,11 @@ export function StepDialog({ draft, onChange }: Props) {
         const char = charMap[turn.speaker];
 
         return (
-          <div key={turn.id} className="flex gap-3 items-start">
+          <div key={turn.id} className="flex items-start gap-3">
             {/* Avatar dot */}
-            <div className={`${color} flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold text-white mt-1`}>
+            <div
+              className={`${color} mt-1 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold text-white`}
+            >
               {initials(char?.name ?? turn.speaker)}
             </div>
 
@@ -92,7 +110,7 @@ export function StepDialog({ draft, onChange }: Props) {
               <select
                 value={turn.speaker}
                 onChange={(e) => updateTurn(idx, { speaker: e.target.value })}
-                className="rounded-lg border px-3 py-1.5 text-xs font-semibold outline-none focus:border-indigo-500 bg-white"
+                className="rounded-lg border bg-white px-3 py-1.5 text-xs font-semibold outline-none focus:border-indigo-500"
               >
                 {characters.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -107,22 +125,33 @@ export function StepDialog({ draft, onChange }: Props) {
                 onChange={(e) => updateTurn(idx, { text: e.target.value })}
                 placeholder="What does this character say?"
                 rows={3}
-                className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 resize-none"
+                className="w-full resize-none rounded-lg border px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
               />
             </div>
 
             {/* Controls */}
-            <div className="flex flex-col gap-1 mt-1">
-              <button type="button" onClick={() => moveTurn(idx, -1)} disabled={idx === 0}
-                className="rounded p-1 text-gray-400 hover:text-gray-700 disabled:opacity-20">
+            <div className="mt-1 flex flex-col gap-1">
+              <button
+                type="button"
+                onClick={() => moveTurn(idx, -1)}
+                disabled={idx === 0}
+                className="rounded p-1 text-gray-400 hover:text-gray-700 disabled:opacity-20"
+              >
                 <ArrowUp className="h-3.5 w-3.5" />
               </button>
-              <button type="button" onClick={() => moveTurn(idx, 1)} disabled={idx === dialog.length - 1}
-                className="rounded p-1 text-gray-400 hover:text-gray-700 disabled:opacity-20">
+              <button
+                type="button"
+                onClick={() => moveTurn(idx, 1)}
+                disabled={idx === dialog.length - 1}
+                className="rounded p-1 text-gray-400 hover:text-gray-700 disabled:opacity-20"
+              >
                 <ArrowDown className="h-3.5 w-3.5" />
               </button>
-              <button type="button" onClick={() => removeTurn(idx)}
-                className="rounded p-1 text-gray-400 hover:text-red-500">
+              <button
+                type="button"
+                onClick={() => removeTurn(idx)}
+                className="rounded p-1 text-gray-400 hover:text-red-500"
+              >
                 <Trash2 className="h-3.5 w-3.5" />
               </button>
             </div>
@@ -133,7 +162,7 @@ export function StepDialog({ draft, onChange }: Props) {
       <button
         type="button"
         onClick={addTurn}
-        className="flex items-center gap-2 rounded-lg border-2 border-dashed border-indigo-300 px-5 py-3 text-sm font-semibold text-indigo-600 hover:border-indigo-500 hover:bg-indigo-50 transition-colors"
+        className="flex items-center gap-2 rounded-lg border-2 border-dashed border-indigo-300 px-5 py-3 text-sm font-semibold text-indigo-600 transition-colors hover:border-indigo-500 hover:bg-indigo-50"
       >
         <Plus className="h-4 w-4" />
         Add Dialog Turn

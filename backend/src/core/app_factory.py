@@ -367,8 +367,6 @@ def _mount_visual_assets(app: FastAPI) -> None:
         return
 
     content_root = os.environ.get("CONTENT_STORE_PATH", "/data/content")
-    visuals_root = os.environ.get(
-        "VISUAL_STORAGE_LOCAL_PATH", f"{content_root}/visuals"
-    )
+    visuals_root = os.environ.get("VISUAL_STORAGE_LOCAL_PATH", f"{content_root}/visuals")
     Path(visuals_root).mkdir(parents=True, exist_ok=True)
     app.mount("/visuals", StaticFiles(directory=visuals_root), name="visuals")

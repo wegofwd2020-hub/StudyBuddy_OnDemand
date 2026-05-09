@@ -34,7 +34,9 @@ function resolveLoginError(
 /** Decode the teacher_name claim from a JWT (base64url payload, no verification needed client-side). */
 function decodeTeacherName(token: string): string | null {
   try {
-    const payload = JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+    const payload = JSON.parse(
+      atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")),
+    );
     return typeof payload.teacher_name === "string" ? payload.teacher_name : null;
   } catch {
     return null;

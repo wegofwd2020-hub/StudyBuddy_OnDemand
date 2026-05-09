@@ -80,7 +80,8 @@ export default function AdminContentReviewDetailPage() {
     enabled: !!item && item.alex_warnings_count > 0,
   });
 
-  const unacknowledgedCount = warnings?.unacknowledged_count ?? item?.alex_warnings_count ?? 0;
+  const unacknowledgedCount =
+    warnings?.unacknowledged_count ?? item?.alex_warnings_count ?? 0;
   const approveBlocked = (item?.alex_warnings_count ?? 0) > 0 && unacknowledgedCount > 0;
 
   const canSelfAssign = admin && hasPermission(admin.role, "tester");
@@ -145,7 +146,7 @@ export default function AdminContentReviewDetailPage() {
                 {item.status}
               </span>
             </div>
-            <div className="mt-1 flex items-center gap-2 flex-wrap">
+            <div className="mt-1 flex flex-wrap items-center gap-2">
               <p className="text-sm text-gray-500">
                 {item.curriculum_id} · Version {item.version_number}
               </p>
@@ -161,7 +162,8 @@ export default function AdminContentReviewDetailPage() {
                   )}
                 >
                   <ShieldAlert className="h-3 w-3" />
-                  {item.alex_warnings_count} AlexJS warning{item.alex_warnings_count !== 1 ? "s" : ""}
+                  {item.alex_warnings_count} AlexJS warning
+                  {item.alex_warnings_count !== 1 ? "s" : ""}
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-semibold text-green-700">
@@ -189,11 +191,13 @@ export default function AdminContentReviewDetailPage() {
 
           {/* Assignment panel */}
           <div className="rounded-xl border border-gray-200 bg-white px-4 py-3">
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex flex-wrap items-center gap-2">
               <UserCheck className="h-4 w-4 flex-shrink-0 text-gray-400" />
               <span className="text-sm font-medium text-gray-700">Assigned reviewer</span>
               {item.assigned_to_email ? (
-                <span className="ml-1 text-sm text-gray-900">{item.assigned_to_email}</span>
+                <span className="ml-1 text-sm text-gray-900">
+                  {item.assigned_to_email}
+                </span>
               ) : (
                 <span className="ml-1 text-sm text-gray-400">Unassigned</span>
               )}
@@ -261,8 +265,8 @@ export default function AdminContentReviewDetailPage() {
                     {item.alex_warnings_count !== 1 ? "s" : ""} — review before approving
                   </p>
                   <p className="mt-0.5 text-xs text-red-700">
-                    Open each unit&apos;s viewer and acknowledge or mark false-positive every
-                    warning before the Approve button becomes available.
+                    Open each unit&apos;s viewer and acknowledge or mark false-positive
+                    every warning before the Approve button becomes available.
                   </p>
                   {warnings && (
                     <div className="mt-2 flex items-center gap-2">
@@ -274,8 +278,9 @@ export default function AdminContentReviewDetailPage() {
                           }}
                         />
                       </div>
-                      <span className="whitespace-nowrap text-xs font-medium text-red-800">
-                        {warnings.total_count - warnings.unacknowledged_count} / {warnings.total_count} acknowledged
+                      <span className="text-xs font-medium whitespace-nowrap text-red-800">
+                        {warnings.total_count - warnings.unacknowledged_count} /{" "}
+                        {warnings.total_count} acknowledged
                       </span>
                     </div>
                   )}
@@ -382,7 +387,11 @@ export default function AdminContentReviewDetailPage() {
                   <button
                     disabled={acting || approveBlocked}
                     onClick={() => performAction(() => approveReview(version_id))}
-                    title={approveBlocked ? `${unacknowledgedCount} warning${unacknowledgedCount !== 1 ? "s" : ""} must be acknowledged first` : undefined}
+                    title={
+                      approveBlocked
+                        ? `${unacknowledgedCount} warning${unacknowledgedCount !== 1 ? "s" : ""} must be acknowledged first`
+                        : undefined
+                    }
                     className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     <CheckCircle className="h-4 w-4" />
@@ -390,7 +399,8 @@ export default function AdminContentReviewDetailPage() {
                   </button>
                   {approveBlocked && (
                     <p className="text-xs text-red-600">
-                      {unacknowledgedCount} warning{unacknowledgedCount !== 1 ? "s" : ""} unacknowledged
+                      {unacknowledgedCount} warning{unacknowledgedCount !== 1 ? "s" : ""}{" "}
+                      unacknowledged
                     </p>
                   )}
                 </div>

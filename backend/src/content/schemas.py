@@ -68,16 +68,17 @@ class QuizResponse(BaseModel):
 # Visual block schema (issue #318). Backwards-compatible: tutorial JSON without
 # `visuals` keeps working — the field defaults to an empty list.
 
+
 class VisualItem(BaseModel):
     src: str
     alt: str
     caption: str | None = None
-    poster: str | None = None       # for kind="video"
-    duration: str | None = None     # for kind="video"
+    poster: str | None = None  # for kind="video"
+    duration: str | None = None  # for kind="video"
 
 
 class VisualBlock(BaseModel):
-    kind: str                        # image | image-grid | animated-svg | video
+    kind: str  # image | image-grid | animated-svg | video
     heading: str | None = None
     items: list[VisualItem]
 

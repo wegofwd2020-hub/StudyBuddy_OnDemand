@@ -42,7 +42,8 @@ const STEPS: ChecklistItem[] = [
   },
   {
     label: "Assign a curriculum",
-    description: "Browse the catalog or build a custom curriculum, then assign it to a classroom.",
+    description:
+      "Browse the catalog or build a custom curriculum, then assign it to a classroom.",
     href: "/school/catalog",
     done: (s) => s.curriculum_assigned,
   },
@@ -68,9 +69,7 @@ export function SetupChecklist({ schoolId }: { schoolId: string }) {
       {/* Header */}
       <div className="mb-4 flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-base font-semibold text-violet-900">
-            Set up your school
-          </h2>
+          <h2 className="text-base font-semibold text-violet-900">Set up your school</h2>
           <p className="mt-0.5 text-sm text-violet-700">
             Complete these steps to get your school ready for students.{" "}
             <span className="font-medium">
@@ -117,9 +116,7 @@ export function SetupChecklist({ schoolId }: { schoolId: string }) {
                 >
                   <Circle className="mt-0.5 h-5 w-5 shrink-0 text-violet-300 group-hover:text-violet-500" />
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-violet-900">
-                      {step.label}
-                    </p>
+                    <p className="text-sm font-medium text-violet-900">{step.label}</p>
                     <p className="text-xs text-violet-600">{step.description}</p>
                   </div>
                   <ChevronRight className="mt-0.5 h-4 w-4 shrink-0 text-violet-300 group-hover:text-violet-500" />

@@ -88,8 +88,8 @@ export const SCHOOL_PLANS: Record<string, SchoolPlan> = {
     priceMonthly: "custom",
     maxStudents: null,
     maxTeachers: null,
-    buildsPerYear: -1,          // unlimited
-    storageBaseGb: 5,           // base; typically negotiated higher
+    buildsPerYear: -1, // unlimited
+    storageBaseGb: 5, // base; typically negotiated higher
     features: [
       "Unlimited students & teachers",
       "Unlimited curriculum builds",
@@ -115,7 +115,6 @@ export function formatPlanPrice(plan: SchoolPlan): string {
   return `$${parseFloat(plan.priceMonthly).toFixed(0)} / month`;
 }
 
-
 // ─────────────────────────────────────────────────────────────────────────────
 // 2. Storage add-on packages
 // ─────────────────────────────────────────────────────────────────────────────
@@ -130,13 +129,12 @@ export interface StoragePackage {
 }
 
 export const STORAGE_PACKAGES: StoragePackage[] = [
-  { gb: 5,  priceUsd: "19.00", label: "+5 GB — $19" },
+  { gb: 5, priceUsd: "19.00", label: "+5 GB — $19" },
   { gb: 10, priceUsd: "35.00", label: "+10 GB — $35" },
   { gb: 25, priceUsd: "79.00", label: "+25 GB — $79" },
 ];
 
 export const VALID_STORAGE_GB = new Set([5, 10, 25] as const);
-
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 3. AI generation cost model  (for internal dashboards / cost projection)
@@ -147,13 +145,13 @@ export const AI_COST_MODEL = {
   model: "claude-sonnet-4-6" as const,
 
   /** USD per 1 million input tokens */
-  inputPerMillionUsd: 3.00,
+  inputPerMillionUsd: 3.0,
 
   /** USD per 1 million output tokens */
-  outputPerMillionUsd: 15.00,
+  outputPerMillionUsd: 15.0,
 
   /** Pipeline abort threshold — never exceed this per run */
-  maxRunUsd: 50.00,
+  maxRunUsd: 50.0,
 
   /** Estimated average input tokens per curriculum unit */
   avgInputTokensPerUnit: 1_800,
@@ -166,8 +164,9 @@ export const AI_COST_MODEL = {
 
   /** Estimated Anthropic API cost to build one grade in English */
   get costPerGradeEnUsd(): number {
-    const inputCost  = (this.avgInputTokensPerUnit  / 1_000_000) * this.inputPerMillionUsd;
-    const outputCost = (this.avgOutputTokensPerUnit / 1_000_000) * this.outputPerMillionUsd;
+    const inputCost = (this.avgInputTokensPerUnit / 1_000_000) * this.inputPerMillionUsd;
+    const outputCost =
+      (this.avgOutputTokensPerUnit / 1_000_000) * this.outputPerMillionUsd;
     return Math.round((inputCost + outputCost) * this.avgUnitsPerGrade * 100) / 100;
   },
 
@@ -176,7 +175,6 @@ export const AI_COST_MODEL = {
     return Math.round(this.costPerGradeEnUsd * 3 * 100) / 100;
   },
 } as const;
-
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 4. Independent teacher plans  (future — teacher tier rebuild, #57)
@@ -190,7 +188,7 @@ export interface TeacherPlan {
 }
 
 export const TEACHER_PLANS: TeacherPlan[] = [
-  { id: "solo",   name: "Solo",   priceMonthly: "29.00", maxStudents: 25  },
-  { id: "growth", name: "Growth", priceMonthly: "59.00", maxStudents: 75  },
-  { id: "pro",    name: "Pro",    priceMonthly: "99.00", maxStudents: 200 },
+  { id: "solo", name: "Solo", priceMonthly: "29.00", maxStudents: 25 },
+  { id: "growth", name: "Growth", priceMonthly: "59.00", maxStudents: 75 },
+  { id: "pro", name: "Pro", priceMonthly: "99.00", maxStudents: 200 },
 ];

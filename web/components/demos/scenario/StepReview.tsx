@@ -1,7 +1,17 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { CheckCircle2, XCircle, Download, Copy, Loader2, Video, AlertCircle, PlayCircle, X } from "lucide-react";
+import {
+  CheckCircle2,
+  XCircle,
+  Download,
+  Copy,
+  Loader2,
+  Video,
+  AlertCircle,
+  PlayCircle,
+  X,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ScenarioDraft, ScenarioFile } from "./types";
 import {
@@ -10,17 +20,26 @@ import {
   clipVideoUrl,
   type ClipsStatusResponse,
 } from "@/lib/api/scenarios";
-import { ScenarioVideoPlayer, type ScenarioWithClips } from "@/components/content/ScenarioVideoPlayer";
+import {
+  ScenarioVideoPlayer,
+  type ScenarioWithClips,
+} from "@/components/content/ScenarioVideoPlayer";
 
 interface Props {
   draft: ScenarioDraft;
 }
 
 function slugify(s: string) {
-  return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  return s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
 }
 
-function buildScenarioFile(draft: ScenarioDraft, clipOverrides?: { turn_index: number; video_url: string }[]): ScenarioFile {
+function buildScenarioFile(
+  draft: ScenarioDraft,
+  clipOverrides?: { turn_index: number; video_url: string }[],
+): ScenarioFile {
   const id = slugify(draft.title) || "scenario-001";
   return {
     scenario_id: id,
@@ -31,9 +50,31 @@ function buildScenarioFile(draft: ScenarioDraft, clipOverrides?: { turn_index: n
     target_seniority: draft.target_seniority,
     description: draft.description,
     content_source: "human_authored",
-    characters: draft.characters.map(({ id, name, role_label, org, gender, ethnicity, approx_age, animation_style, voice_id, background }) => ({
-      id, name, role_label, org, gender, ethnicity, approx_age, animation_style, voice_id, background,
-    })),
+    characters: draft.characters.map(
+      ({
+        id,
+        name,
+        role_label,
+        org,
+        gender,
+        ethnicity,
+        approx_age,
+        animation_style,
+        voice_id,
+        background,
+      }) => ({
+        id,
+        name,
+        role_label,
+        org,
+        gender,
+        ethnicity,
+        approx_age,
+        animation_style,
+        voice_id,
+        background,
+      }),
+    ),
     dialog: draft.dialog.map(({ speaker, text }) => ({ speaker, text })),
     quiz_questions: draft.quiz_questions,
     quiz: draft.quiz_questions[0]
@@ -46,7 +87,12 @@ function buildScenarioFile(draft: ScenarioDraft, clipOverrides?: { turn_index: n
         }
       : undefined,
     video_clips: clipOverrides
-      ? clipOverrides.map((c) => ({ ...c, speaker: draft.dialog[c.turn_index]?.speaker ?? "", duration_seconds: 0, status: "ready" }))
+      ? clipOverrides.map((c) => ({
+          ...c,
+          speaker: draft.dialog[c.turn_index]?.speaker ?? "",
+          duration_seconds: 0,
+          status: "ready",
+        }))
       : null,
     generated_at: new Date().toISOString(),
     model: "human_authored",
@@ -64,40 +110,53 @@ function ValidationRow({ ok, label }: { ok: boolean; label: string }) {
 }
 
 const STATUS_ICON: Record<string, React.ReactNode> = {
-  pending:    <div className="h-4 w-4 rounded-full bg-gray-200" />,
+  pending: <div className="h-4 w-4 rounded-full bg-gray-200" />,
   generating: <Loader2 className="h-4 w-4 animate-spin text-indigo-500" />,
-  ready:      <CheckCircle2 className="h-4 w-4 text-green-600" />,
-  error:      <XCircle className="h-4 w-4 text-red-500" />,
+  ready: <CheckCircle2 className="h-4 w-4 text-green-600" />,
+  error: <XCircle className="h-4 w-4 text-red-500" />,
 };
 
 export function StepReview({ draft }: Props) {
   const [copied, setCopied] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-  const [genState, setGenState] = useState<"idle" | "submitting" | "polling" | "done" | "failed">("idle");
+  const [genState, setGenState] = useState<
+    "idle" | "submitting" | "polling" | "done" | "failed"
+  >("idle");
   const [jobResult, setJobResult] = useState<ClipsStatusResponse | null>(null);
   const [genError, setGenError] = useState<string | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  useEffect(() => () => { if (pollRef.current) clearInterval(pollRef.current); }, []);
+  useEffect(
+    () => () => {
+      if (pollRef.current) clearInterval(pollRef.current);
+    },
+    [],
+  );
 
   const checks = {
-    hasTitle:     draft.title.trim().length > 0,
-    hasDomain:    draft.domain.trim().length > 0,
-    hasChars:     draft.characters.length >= 2,
-    charsNamed:   draft.characters.every((c) => c.name.trim() && c.role_label.trim()),
-    hasDialog:    draft.dialog.length >= 2,
+    hasTitle: draft.title.trim().length > 0,
+    hasDomain: draft.domain.trim().length > 0,
+    hasChars: draft.characters.length >= 2,
+    charsNamed: draft.characters.every((c) => c.name.trim() && c.role_label.trim()),
+    hasDialog: draft.dialog.length >= 2,
     dialogFilled: draft.dialog.every((t) => t.text.trim()),
-    hasQuiz:      draft.quiz_questions.length > 0,
-    quizFilled:   draft.quiz_questions.every((q) => q.question.trim() && q.explanation.trim()),
+    hasQuiz: draft.quiz_questions.length > 0,
+    quizFilled: draft.quiz_questions.every(
+      (q) => q.question.trim() && q.explanation.trim(),
+    ),
   };
   const allOk = Object.values(checks).every(Boolean);
 
   // Build clip overrides once generation is done so download JSON has backend URLs
-  const clipOverrides = jobResult?.status === "done"
-    ? jobResult.clips
-        .filter((c) => c.status === "ready")
-        .map((c) => ({ turn_index: c.turn_index, video_url: clipVideoUrl(jobResult.scenario_id, c.turn_index) }))
-    : undefined;
+  const clipOverrides =
+    jobResult?.status === "done"
+      ? jobResult.clips
+          .filter((c) => c.status === "ready")
+          .map((c) => ({
+            turn_index: c.turn_index,
+            video_url: clipVideoUrl(jobResult.scenario_id, c.turn_index),
+          }))
+      : undefined;
 
   const file = buildScenarioFile(draft, clipOverrides);
   const json = JSON.stringify(file, null, 2);
@@ -160,29 +219,41 @@ export function StepReview({ draft }: Props) {
   return (
     <div className="space-y-6">
       {/* Validation */}
-      <div className="rounded-xl border bg-white p-5 shadow-sm space-y-2">
-        <p className="text-xs font-bold uppercase tracking-wide text-gray-500 mb-3">Validation</p>
-        <ValidationRow ok={checks.hasTitle}     label="Scenario has a title" />
-        <ValidationRow ok={checks.hasDomain}    label="Compliance domain selected" />
-        <ValidationRow ok={checks.hasChars}     label="At least 2 characters defined" />
-        <ValidationRow ok={checks.charsNamed}   label="All characters have a name and role" />
-        <ValidationRow ok={checks.hasDialog}    label="At least 2 dialog turns" />
+      <div className="space-y-2 rounded-xl border bg-white p-5 shadow-sm">
+        <p className="mb-3 text-xs font-bold tracking-wide text-gray-500 uppercase">
+          Validation
+        </p>
+        <ValidationRow ok={checks.hasTitle} label="Scenario has a title" />
+        <ValidationRow ok={checks.hasDomain} label="Compliance domain selected" />
+        <ValidationRow ok={checks.hasChars} label="At least 2 characters defined" />
+        <ValidationRow
+          ok={checks.charsNamed}
+          label="All characters have a name and role"
+        />
+        <ValidationRow ok={checks.hasDialog} label="At least 2 dialog turns" />
         <ValidationRow ok={checks.dialogFilled} label="All dialog turns have text" />
-        <ValidationRow ok={checks.hasQuiz}      label="At least 1 quiz question" />
-        <ValidationRow ok={checks.quizFilled}   label="All questions have text and explanation" />
+        <ValidationRow ok={checks.hasQuiz} label="At least 1 quiz question" />
+        <ValidationRow
+          ok={checks.quizFilled}
+          label="All questions have text and explanation"
+        />
       </div>
 
       {/* Summary */}
-      <div className="rounded-xl border bg-gray-50 p-5 text-sm space-y-1">
+      <div className="space-y-1 rounded-xl border bg-gray-50 p-5 text-sm">
         <p className="font-semibold text-gray-900">{draft.title || "(untitled)"}</p>
-        <p className="text-gray-500">{draft.domain || "—"} · {draft.language.toUpperCase()} · {draft.difficulty}</p>
         <p className="text-gray-500">
-          {draft.characters.length} characters · {draft.dialog.length} turns · {draft.quiz_questions.length} question{draft.quiz_questions.length !== 1 ? "s" : ""}
+          {draft.domain || "—"} · {draft.language.toUpperCase()} · {draft.difficulty}
+        </p>
+        <p className="text-gray-500">
+          {draft.characters.length} characters · {draft.dialog.length} turns ·{" "}
+          {draft.quiz_questions.length} question
+          {draft.quiz_questions.length !== 1 ? "s" : ""}
         </p>
       </div>
 
       {/* Avatar generation panel */}
-      <div className="rounded-xl border bg-white p-5 shadow-sm space-y-4">
+      <div className="space-y-4 rounded-xl border bg-white p-5 shadow-sm">
         <div className="flex items-center gap-2">
           <Video className="h-4 w-4 text-indigo-500" />
           <p className="text-sm font-bold text-gray-900">Avatar Video Generation</p>
@@ -190,8 +261,8 @@ export function StepReview({ draft }: Props) {
 
         {genState === "idle" && (
           <p className="text-sm text-gray-500">
-            Click <strong>Generate Avatars</strong> to send each dialog turn to D-ID and produce
-            talking-avatar MP4 clips. This takes ~30–60 s per turn.
+            Click <strong>Generate Avatars</strong> to send each dialog turn to D-ID and
+            produce talking-avatar MP4 clips. This takes ~30–60 s per turn.
           </p>
         )}
 
@@ -199,7 +270,9 @@ export function StepReview({ draft }: Props) {
         {jobResult && (
           <div className="space-y-2">
             {jobResult.clips.map((clip) => {
-              const char = draft.characters.find((c) => c.id === draft.dialog[clip.turn_index]?.speaker);
+              const char = draft.characters.find(
+                (c) => c.id === draft.dialog[clip.turn_index]?.speaker,
+              );
               return (
                 <div key={clip.turn_index} className="flex items-center gap-3 text-sm">
                   {STATUS_ICON[clip.status] ?? STATUS_ICON.pending}
@@ -207,15 +280,25 @@ export function StepReview({ draft }: Props) {
                     Turn {clip.turn_index + 1}
                     {char ? ` — ${char.name}` : ""}
                   </span>
-                  <span className={cn(
-                    "ml-auto text-xs font-semibold capitalize",
-                    clip.status === "ready"  ? "text-green-600" :
-                    clip.status === "error"  ? "text-red-500"   :
-                    clip.status === "generating" ? "text-indigo-500" : "text-gray-400",
-                  )}>
+                  <span
+                    className={cn(
+                      "ml-auto text-xs font-semibold capitalize",
+                      clip.status === "ready"
+                        ? "text-green-600"
+                        : clip.status === "error"
+                          ? "text-red-500"
+                          : clip.status === "generating"
+                            ? "text-indigo-500"
+                            : "text-gray-400",
+                    )}
+                  >
                     {clip.status}
                   </span>
-                  {clip.error && <span className="text-xs text-red-400 truncate max-w-xs">{clip.error}</span>}
+                  {clip.error && (
+                    <span className="max-w-xs truncate text-xs text-red-400">
+                      {clip.error}
+                    </span>
+                  )}
                 </div>
               );
             })}
@@ -228,10 +311,12 @@ export function StepReview({ draft }: Props) {
             <div className="h-1.5 w-full rounded-full bg-gray-100">
               <div
                 className="h-1.5 rounded-full bg-indigo-500 transition-all duration-500"
-                style={{ width: `${Math.round((jobResult.completed_clips / Math.max(jobResult.total_clips, 1)) * 100)}%` }}
+                style={{
+                  width: `${Math.round((jobResult.completed_clips / Math.max(jobResult.total_clips, 1)) * 100)}%`,
+                }}
               />
             </div>
-            <p className="text-xs text-gray-400 text-right">
+            <p className="text-right text-xs text-gray-400">
               {jobResult.completed_clips} / {jobResult.total_clips} clips complete
             </p>
           </div>
@@ -240,16 +325,17 @@ export function StepReview({ draft }: Props) {
         {genState === "done" && (
           <div className="flex items-center gap-2 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-800">
             <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-green-600" />
-            All clips ready. Download the JSON below — video URLs now point to the backend.
+            All clips ready. Download the JSON below — video URLs now point to the
+            backend.
           </div>
         )}
 
         {genState === "failed" && (
           <div className="flex items-start gap-2 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-800">
-            <AlertCircle className="h-4 w-4 flex-shrink-0 text-red-500 mt-0.5" />
+            <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-500" />
             <div>
               <p className="font-semibold">Generation failed</p>
-              {genError && <p className="text-xs mt-0.5">{genError}</p>}
+              {genError && <p className="mt-0.5 text-xs">{genError}</p>}
             </div>
           </div>
         )}
@@ -259,7 +345,7 @@ export function StepReview({ draft }: Props) {
             type="button"
             onClick={handleGenerate}
             disabled={!allOk}
-            className="flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+            className="flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 disabled:cursor-not-allowed disabled:opacity-40"
           >
             <Video className="h-4 w-4" />
             {genState === "failed" ? "Retry Generation" : "Generate Avatars"}
@@ -282,12 +368,12 @@ export function StepReview({ draft }: Props) {
       </div>
 
       {/* JSON export + preview */}
-      <div className="flex gap-3 flex-wrap">
+      <div className="flex flex-wrap gap-3">
         <button
           type="button"
           onClick={() => setShowPreview((v) => !v)}
           disabled={!allOk}
-          className="flex items-center gap-2 rounded-lg bg-indigo-50 border border-indigo-200 px-5 py-2.5 text-sm font-semibold text-indigo-700 hover:bg-indigo-100 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+          className="flex items-center gap-2 rounded-lg border border-indigo-200 bg-indigo-50 px-5 py-2.5 text-sm font-semibold text-indigo-700 hover:bg-indigo-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {showPreview ? <X className="h-4 w-4" /> : <PlayCircle className="h-4 w-4" />}
           {showPreview ? "Close Preview" : "Preview Scenario"}
@@ -296,7 +382,7 @@ export function StepReview({ draft }: Props) {
           type="button"
           onClick={download}
           disabled={!allOk}
-          className="flex items-center gap-2 rounded-lg bg-gray-800 px-5 py-2.5 text-sm font-semibold text-white hover:bg-gray-900 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
+          className="flex items-center gap-2 rounded-lg bg-gray-800 px-5 py-2.5 text-sm font-semibold text-white hover:bg-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 disabled:cursor-not-allowed disabled:opacity-40"
         >
           <Download className="h-4 w-4" />
           Download JSON
@@ -306,19 +392,27 @@ export function StepReview({ draft }: Props) {
           onClick={copyJson}
           className="flex items-center gap-2 rounded-lg border px-5 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
         >
-          {copied ? <CheckCircle2 className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
+          {copied ? (
+            <CheckCircle2 className="h-4 w-4 text-green-600" />
+          ) : (
+            <Copy className="h-4 w-4" />
+          )}
           {copied ? "Copied!" : "Copy JSON"}
         </button>
       </div>
 
       {!allOk && (
-        <p className="text-xs text-red-500">Fix the validation issues above before generating or downloading.</p>
+        <p className="text-xs text-red-500">
+          Fix the validation issues above before generating or downloading.
+        </p>
       )}
 
       {/* Inline preview */}
       {showPreview && allOk && (
         <div className="rounded-xl border bg-white p-5 shadow-sm">
-          <p className="text-xs font-bold uppercase tracking-wide text-gray-500 mb-4">Preview</p>
+          <p className="mb-4 text-xs font-bold tracking-wide text-gray-500 uppercase">
+            Preview
+          </p>
           <ScenarioVideoPlayer scenario={file as unknown as ScenarioWithClips} />
         </div>
       )}

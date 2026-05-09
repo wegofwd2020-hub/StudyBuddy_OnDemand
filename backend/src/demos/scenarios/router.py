@@ -51,6 +51,7 @@ def _job_redis_key(job_id: str) -> str:
 
 # ── POST /scenarios/generate-clips ───────────────────────────────────────────
 
+
 @router.post("/scenarios/generate-clips", response_model=GenerateClipsResponse)
 async def generate_clips(
     body: GenerateClipsRequest,
@@ -76,9 +77,7 @@ async def generate_clips(
         "scenario_id": scenario_id,
         "total_clips": len(dialog),
         "completed_clips": 0,
-        "clips": json.dumps(
-            [{"turn_index": i, "status": "pending"} for i in range(len(dialog))]
-        ),
+        "clips": json.dumps([{"turn_index": i, "status": "pending"} for i in range(len(dialog))]),
     }
     await redis.hset(_job_redis_key(job_id), mapping=initial)
     await redis.expire(_job_redis_key(job_id), 3600)
@@ -97,6 +96,7 @@ async def generate_clips(
 
 
 # ── GET /scenarios/{scenario_id}/clips/status ────────────────────────────────
+
 
 @router.get("/scenarios/{scenario_id}/clips/status", response_model=ClipsStatusResponse)
 async def clips_status(
@@ -133,6 +133,7 @@ async def clips_status(
 
 
 # ── GET /scenarios/{scenario_id}/clips/{turn_index} ──────────────────────────
+
 
 @router.get("/scenarios/{scenario_id}/clips/{turn_index}")
 async def get_clip(

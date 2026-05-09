@@ -264,7 +264,8 @@ async def resolve(
                 except Exception as e:
                     log.warning(
                         "resolver: lookup failed for %r: %s",
-                        getattr(need, "topic_phrase", "<?>"), e,
+                        getattr(need, "topic_phrase", "<?>"),
+                        e,
                     )
                     out.append(
                         ResolvedVisual(

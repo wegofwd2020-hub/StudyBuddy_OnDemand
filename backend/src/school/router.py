@@ -1806,7 +1806,8 @@ async def list_adoption_unit_status(
                     version_number=o["version_number"],
                     override_id=str(o["override_id"]),
                     edited_at=o["edited_at"].isoformat(),
-                    is_active=active_set.get((u["unit_id"], o["content_type"])) == str(o["override_id"]),
+                    is_active=active_set.get((u["unit_id"], o["content_type"]))
+                    == str(o["override_id"]),
                     content_source=o["content_source"],
                     last_edited_by_name=o["last_edited_by_name"],
                 )
@@ -1994,9 +1995,7 @@ async def import_unit_content(
                         lang=lang,
                         content_type=content_type,
                         bundle_id=(
-                            str(existing_row["bundle_id"])
-                            if existing_row["bundle_id"]
-                            else None
+                            str(existing_row["bundle_id"]) if existing_row["bundle_id"] else None
                         ),
                         content_source="imported",
                         review_status=existing_row["review_status"],
@@ -2007,9 +2006,7 @@ async def import_unit_content(
                 )
                 continue
 
-            row_bundle_id = (
-                bundle_id if content_type in _TUTORIAL_BUNDLE_TYPES else None
-            )
+            row_bundle_id = bundle_id if content_type in _TUTORIAL_BUNDLE_TYPES else None
             new_row = await conn.fetchrow(
                 """
                 INSERT INTO unit_content_overrides
@@ -2039,9 +2036,7 @@ async def import_unit_content(
                     unit_id=unit_id,
                     lang=lang,
                     content_type=content_type,
-                    bundle_id=(
-                        str(new_row["bundle_id"]) if new_row["bundle_id"] else None
-                    ),
+                    bundle_id=(str(new_row["bundle_id"]) if new_row["bundle_id"] else None),
                     content_source="imported",
                     review_status=new_row["review_status"],
                     version_number=new_row["version_number"],
@@ -2068,9 +2063,7 @@ async def import_unit_content(
 # ── TA-3 helpers ──────────────────────────────────────────────────────────────
 
 
-async def _assert_school_owns_curriculum(
-    conn, school_id: str, curriculum_id: str
-) -> None:
+async def _assert_school_owns_curriculum(conn, school_id: str, curriculum_id: str) -> None:
     """403 if curriculum_id is not a school-owned fork belonging to school_id."""
     row = await conn.fetchrow(
         "SELECT owner_type, school_id FROM curricula WHERE curriculum_id = $1",
@@ -2350,7 +2343,8 @@ async def list_unit_override_status(
                     version_number=o["version_number"],
                     override_id=str(o["override_id"]),
                     edited_at=o["edited_at"].isoformat(),
-                    is_active=active_set.get((u["unit_id"], o["content_type"])) == str(o["override_id"]),
+                    is_active=active_set.get((u["unit_id"], o["content_type"]))
+                    == str(o["override_id"]),
                     content_source=o["content_source"],
                     last_edited_by_name=o["last_edited_by_name"],
                 )
@@ -2535,7 +2529,10 @@ async def revert_unit_override(
                   AND content_source = 'imported'
                 ORDER BY version_number ASC LIMIT 1
                 """,
-                curriculum_id, unit_id, lang, content_type,
+                curriculum_id,
+                unit_id,
+                lang,
+                content_type,
             )
 
             if not source_row:
@@ -2553,7 +2550,10 @@ async def revert_unit_override(
                 ORDER BY version_number DESC LIMIT 1
                 FOR UPDATE
                 """,
-                curriculum_id, unit_id, lang, content_type,
+                curriculum_id,
+                unit_id,
+                lang,
+                content_type,
             )
 
             if not latest:
@@ -2582,7 +2582,11 @@ async def revert_unit_override(
                     ON CONFLICT (curriculum_id, unit_id, lang, content_type)
                     DO UPDATE SET override_id = EXCLUDED.override_id
                     """,
-                    curriculum_id, unit_id, lang, content_type, source_row["override_id"],
+                    curriculum_id,
+                    unit_id,
+                    lang,
+                    content_type,
+                    source_row["override_id"],
                 )
                 row = await conn.fetchrow(
                     """
@@ -2610,7 +2614,11 @@ async def revert_unit_override(
                     RETURNING override_id, review_status, version_number,
                               bundle_id, edited_at, content_source
                     """,
-                    school_id, curriculum_id, unit_id, lang, content_type,
+                    school_id,
+                    curriculum_id,
+                    unit_id,
+                    lang,
+                    content_type,
                     source_row["bundle_id"],
                     str(source_row["override_id"]),
                     source_row["body"],
@@ -2722,9 +2730,7 @@ async def save_draft(
 
                 new_version = latest["version_number"] + 1
                 row_bundle_id = (
-                    str(_uuid.uuid4())
-                    if content_type in _TUTORIAL_BUNDLE_TYPES
-                    else None
+                    str(_uuid.uuid4()) if content_type in _TUTORIAL_BUNDLE_TYPES else None
                 )
                 row = await conn.fetchrow(
                     """
@@ -2983,9 +2989,7 @@ async def publish_unit_content(
     async with get_db(request) as conn:
         await _assert_school_owns_curriculum(conn, school_id, curriculum_id)
 
-        rows = await _latest_overrides_for_unit(
-            conn, curriculum_id, unit_id, lang, content_type
-        )
+        rows = await _latest_overrides_for_unit(conn, curriculum_id, unit_id, lang, content_type)
         approved_rows = [r for r in rows if r["review_status"] == "approved"]
 
         if not approved_rows:
@@ -3023,9 +3027,14 @@ async def publish_unit_content(
 
     redis = _get_redis(request)
     for row in approved_rows:
-        await redis.delete(_override_key(school_id, curriculum_id, unit_id, lang, row["content_type"]))
+        await redis.delete(
+            _override_key(school_id, curriculum_id, unit_id, lang, row["content_type"])
+        )
 
-    return {"published": len(approved_rows), "override_ids": [str(r["override_id"]) for r in approved_rows]}
+    return {
+        "published": len(approved_rows),
+        "override_ids": [str(r["override_id"]) for r in approved_rows],
+    }
 
 
 # ── Per-school theming (Epic 13) ──────────────────────────────────────────────

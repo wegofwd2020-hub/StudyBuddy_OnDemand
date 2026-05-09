@@ -53,7 +53,7 @@ export const STORY_LIST: SocialStoryListItem[] = [
     language: "en",
     audience: "Child / family — adapted from Autism Behavior Services Inc.",
     description:
-      "Daniel struggles to hear the word \"no\" — at the supermarket, at the diner, with Dad. The ABSI narrator teaches that \"no isn't forever,\" deep breathing, and counting down. In the resolution, Daniel applies the tool and proposes earning his own money for the toy.",
+      'Daniel struggles to hear the word "no" — at the supermarket, at the diner, with Dad. The ABSI narrator teaches that "no isn\'t forever," deep breathing, and counting down. In the resolution, Daniel applies the tool and proposes earning his own money for the toy.',
     metrics: {
       authoring_time_min: 10,
       llm_cost_usd: 4.0,

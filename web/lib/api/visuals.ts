@@ -53,10 +53,7 @@ export async function listVisuals(
   return res.data.assets;
 }
 
-export async function deleteVisual(
-  schoolId: string,
-  assetPath: string,
-): Promise<void> {
+export async function deleteVisual(schoolId: string, assetPath: string): Promise<void> {
   // assetPath may contain slashes; the backend route uses `:path` matching.
   // axios's serializer keeps the slashes intact when we hand-build the URL.
   const url = `/schools/${schoolId}/visuals/${assetPath}`;

@@ -40,9 +40,7 @@ async def get_school_backups(conn: asyncpg.Connection, school_id: str) -> list[d
     return [dict(r) for r in rows]
 
 
-async def get_backup(
-    conn: asyncpg.Connection, backup_id: str, school_id: str
-) -> dict | None:
+async def get_backup(conn: asyncpg.Connection, backup_id: str, school_id: str) -> dict | None:
     """Return a single backup row, scoped to school_id."""
     row = await conn.fetchrow(
         """
@@ -219,9 +217,7 @@ async def cancel_restore_request(conn: asyncpg.Connection, request_id: str) -> N
     log.info("restore_request_cancelled", request_id=request_id)
 
 
-async def get_restore_request(
-    conn: asyncpg.Connection, request_id: str
-) -> dict | None:
+async def get_restore_request(conn: asyncpg.Connection, request_id: str) -> dict | None:
     """Return a single restore request row."""
     row = await conn.fetchrow(
         "SELECT * FROM backup_restore_requests WHERE id = $1",
@@ -244,9 +240,7 @@ async def list_restore_requests(
             uuid.UUID(school_id),
         )
     else:
-        rows = await conn.fetch(
-            "SELECT * FROM backup_restore_requests ORDER BY created_at DESC"
-        )
+        rows = await conn.fetch("SELECT * FROM backup_restore_requests ORDER BY created_at DESC")
     return [dict(r) for r in rows]
 
 
@@ -262,9 +256,7 @@ async def get_backup_schedule(conn: asyncpg.Connection, school_id: str) -> str |
     return row["backup_cron"] if row else None
 
 
-async def set_backup_schedule(
-    conn: asyncpg.Connection, school_id: str, cron: str
-) -> None:
+async def set_backup_schedule(conn: asyncpg.Connection, school_id: str, cron: str) -> None:
     """Update schools.backup_cron."""
     await conn.execute(
         "UPDATE schools SET backup_cron = $1 WHERE school_id = $2",

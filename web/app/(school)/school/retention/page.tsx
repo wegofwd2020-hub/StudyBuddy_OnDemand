@@ -55,9 +55,17 @@ function StatusBadge({ status }: { status: RetentionVersion["retention_status"] 
     unavailable: { label: "Unavailable", cls: "bg-amber-100 text-amber-700" },
     purged: { label: "Purged", cls: "bg-red-100 text-red-600" },
   } as const;
-  const { label, cls } = map[status] ?? { label: status, cls: "bg-gray-100 text-gray-500" };
+  const { label, cls } = map[status] ?? {
+    label: status,
+    cls: "bg-gray-100 text-gray-500",
+  };
   return (
-    <span className={cn("inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium", cls)}>
+    <span
+      className={cn(
+        "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
+        cls,
+      )}
+    >
       {label}
     </span>
   );
@@ -65,13 +73,7 @@ function StatusBadge({ status }: { status: RetentionVersion["retention_status"] 
 
 // ── Storage strip ─────────────────────────────────────────────────────────────
 
-function StorageStrip({
-  schoolId,
-  origin,
-}: {
-  schoolId: string;
-  origin: string;
-}) {
+function StorageStrip({ schoolId, origin }: { schoolId: string; origin: string }) {
   // The backend doesn't yet expose storage_used_gb / storage_purchased_gb in the
   // retention dashboard (it's in school_storage_quotas), but we include this
   // component for the UI skeleton and the add-on checkout flow.
@@ -120,7 +122,7 @@ function StorageStrip({
           {([5, 10, 25] as const).map((gb) => (
             <div
               key={gb}
-              className="flex flex-col items-center gap-1.5 rounded-xl border border-gray-200 p-4 min-w-[110px]"
+              className="flex min-w-[110px] flex-col items-center gap-1.5 rounded-xl border border-gray-200 p-4"
             >
               <span className="text-lg font-bold text-gray-900">{gb} GB</span>
               <span className="text-xs text-gray-400">add-on</span>
@@ -268,11 +270,18 @@ function VersionDrawer({
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-lg border bg-gray-50 p-3">
               <p className="text-xs text-gray-400">Expires</p>
-              <p className={cn("mt-0.5 text-sm", urgencyClass(version.days_until_expiry))}>
+              <p
+                className={cn("mt-0.5 text-sm", urgencyClass(version.days_until_expiry))}
+              >
                 {fmtDate(version.expires_at)}
               </p>
               {version.days_until_expiry !== null && (
-                <p className={cn("text-xs mt-0.5", urgencyClass(version.days_until_expiry))}>
+                <p
+                  className={cn(
+                    "mt-0.5 text-xs",
+                    urgencyClass(version.days_until_expiry),
+                  )}
+                >
                   {version.days_until_expiry === 0
                     ? "Expires today"
                     : `${version.days_until_expiry}d left`}
@@ -285,7 +294,9 @@ function VersionDrawer({
                 {fmtDate(version.grace_until)}
               </p>
               {version.days_until_purge !== null && (
-                <p className={cn("text-xs mt-0.5", urgencyClass(version.days_until_purge))}>
+                <p
+                  className={cn("mt-0.5 text-xs", urgencyClass(version.days_until_purge))}
+                >
                   {version.days_until_purge === 0
                     ? "Purge pending"
                     : `${version.days_until_purge}d until purge`}
@@ -295,7 +306,9 @@ function VersionDrawer({
             {version.renewed_at && (
               <div className="col-span-2 rounded-lg border bg-gray-50 p-3">
                 <p className="text-xs text-gray-400">Last renewed</p>
-                <p className="mt-0.5 text-sm text-gray-700">{fmtDate(version.renewed_at)}</p>
+                <p className="mt-0.5 text-sm text-gray-700">
+                  {fmtDate(version.renewed_at)}
+                </p>
               </div>
             )}
           </div>
@@ -303,7 +316,7 @@ function VersionDrawer({
           {/* Curriculum ID */}
           <div>
             <p className="mb-1 text-xs font-medium text-gray-500">Curriculum ID</p>
-            <p className="rounded border bg-gray-50 px-2 py-1.5 font-mono text-xs text-gray-600 break-all">
+            <p className="rounded border bg-gray-50 px-2 py-1.5 font-mono text-xs break-all text-gray-600">
               {version.curriculum_id}
             </p>
           </div>
@@ -349,9 +362,7 @@ function VersionDrawer({
                   </Button>
                 </div>
               )}
-              {checkoutError && (
-                <p className="text-xs text-red-600">{checkoutError}</p>
-              )}
+              {checkoutError && <p className="text-xs text-red-600">{checkoutError}</p>}
               {renewMutation.isError && (
                 <p className="text-xs text-red-600">Renewal failed. Please try again.</p>
               )}
@@ -376,7 +387,8 @@ function VersionDrawer({
             ) : (
               <>
                 <p className="text-xs text-gray-500">
-                  Select this version as the live content source for Grade {version.grade}.
+                  Select this version as the live content source for Grade {version.grade}
+                  .
                 </p>
                 {assignSuccess && (
                   <div className="flex items-center gap-2 text-sm text-green-600">
@@ -384,9 +396,7 @@ function VersionDrawer({
                     {assignSuccess}
                   </div>
                 )}
-                {assignError && (
-                  <p className="text-xs text-red-600">{assignError}</p>
-                )}
+                {assignError && <p className="text-xs text-red-600">{assignError}</p>}
                 <Button
                   size="sm"
                   className="gap-2"
@@ -403,7 +413,9 @@ function VersionDrawer({
                   ) : (
                     <CheckCircle className="h-3.5 w-3.5" />
                   )}
-                  {version.is_assigned ? "Already assigned" : `Assign to Grade ${version.grade}`}
+                  {version.is_assigned
+                    ? "Already assigned"
+                    : `Assign to Grade ${version.grade}`}
                 </Button>
               </>
             )}
@@ -479,7 +491,8 @@ function CurriculumTable({
           </thead>
           <tbody className="divide-y">
             {curricula.map((v) => {
-              const urgentExpiry = v.days_until_expiry !== null && v.days_until_expiry <= 30;
+              const urgentExpiry =
+                v.days_until_expiry !== null && v.days_until_expiry <= 30;
               const urgentPurge = v.days_until_purge !== null && v.days_until_purge <= 30;
 
               return (
@@ -604,9 +617,9 @@ export default function RetentionPage() {
 
   const [selectedVersion, setSelectedVersion] = useState<RetentionVersion | null>(null);
   const [gradeFilter, setGradeFilter] = useState<number | null>(null);
-  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "unavailable" | "purged">(
-    "all",
-  );
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "active" | "unavailable" | "purged"
+  >("all");
   const [renewedAlert, setRenewedAlert] = useState(false);
 
   const { data, isLoading, error, refetch } = useQuery({
@@ -623,9 +636,9 @@ export default function RetentionPage() {
     setTimeout(() => setRenewedAlert(false), 5000);
   }
 
-  const allGrades = Array.from(
-    new Set((data?.curricula ?? []).map((c) => c.grade)),
-  ).sort((a, b) => a - b);
+  const allGrades = Array.from(new Set((data?.curricula ?? []).map((c) => c.grade))).sort(
+    (a, b) => a - b,
+  );
 
   const filtered = (data?.curricula ?? []).filter(
     (c) =>
@@ -670,8 +683,8 @@ export default function RetentionPage() {
       {!isLoading && urgentCount > 0 && (
         <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
           <Clock className="h-4 w-4 shrink-0" />
-          <strong>{urgentCount}</strong> curriculum version{urgentCount > 1 ? "s" : ""} expire or
-          enter purge within 30 days. Review and renew them below.
+          <strong>{urgentCount}</strong> curriculum version{urgentCount > 1 ? "s" : ""}{" "}
+          expire or enter purge within 30 days. Review and renew them below.
         </div>
       )}
 
@@ -688,10 +701,7 @@ export default function RetentionPage() {
         <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           <AlertTriangle className="h-4 w-4 shrink-0" />
           Failed to load retention data.{" "}
-          <button
-            onClick={() => void refetch()}
-            className="underline hover:no-underline"
-          >
+          <button onClick={() => void refetch()} className="underline hover:no-underline">
             Retry
           </button>
         </div>
@@ -738,10 +748,7 @@ export default function RetentionPage() {
           </div>
 
           {/* Curriculum table */}
-          <CurriculumTable
-            curricula={filtered}
-            onSelect={setSelectedVersion}
-          />
+          <CurriculumTable curricula={filtered} onSelect={setSelectedVersion} />
 
           {filtered.length > 0 && (
             <p className="text-xs text-gray-400">

@@ -44,7 +44,9 @@ function StepPickBackup({
 
   return (
     <div className="space-y-4">
-      <h2 className="text-base font-semibold text-gray-800">Step 1 of 3 — Select a backup</h2>
+      <h2 className="text-base font-semibold text-gray-800">
+        Step 1 of 3 — Select a backup
+      </h2>
       <p className="text-sm text-gray-500">
         Choose the backup to restore from. Only completed backups are available.
       </p>
@@ -130,11 +132,17 @@ function StepConfigureScope({
 
   return (
     <div className="space-y-5">
-      <h2 className="text-base font-semibold text-gray-800">Step 2 of 3 — Restore scope</h2>
+      <h2 className="text-base font-semibold text-gray-800">
+        Step 2 of 3 — Restore scope
+      </h2>
 
       <div className="rounded-lg border border-gray-100 bg-gray-50 p-3 text-sm text-gray-600">
-        Restoring from: <span className="font-medium text-gray-900">{backup.label || scopeLabel(backup)}</span>
-        {" · "}{new Date(backup.created_at).toLocaleDateString()}
+        Restoring from:{" "}
+        <span className="font-medium text-gray-900">
+          {backup.label || scopeLabel(backup)}
+        </span>
+        {" · "}
+        {new Date(backup.created_at).toLocaleDateString()}
       </div>
 
       <div className="space-y-2">
@@ -146,12 +154,17 @@ function StepConfigureScope({
               name="scope_type"
               value="full"
               checked={scopeType === "full"}
-              onChange={() => { setScopeType("full"); setScopeValue(""); }}
+              onChange={() => {
+                setScopeType("full");
+                setScopeValue("");
+              }}
               className="mt-0.5"
             />
             <div>
-              <p className="font-medium text-gray-900 text-sm">Full restore</p>
-              <p className="text-xs text-gray-500">Restore all curricula from this backup</p>
+              <p className="text-sm font-medium text-gray-900">Full restore</p>
+              <p className="text-xs text-gray-500">
+                Restore all curricula from this backup
+              </p>
             </div>
           </label>
 
@@ -167,8 +180,10 @@ function StepConfigureScope({
                   className="mt-0.5"
                 />
                 <div className="flex-1">
-                  <p className="font-medium text-gray-900 text-sm">Grade only</p>
-                  <p className="text-xs text-gray-500">Restore curricula for a specific grade</p>
+                  <p className="text-sm font-medium text-gray-900">Grade only</p>
+                  <p className="text-xs text-gray-500">
+                    Restore curricula for a specific grade
+                  </p>
                   {scopeType === "grade" && (
                     <input
                       type="number"
@@ -193,8 +208,10 @@ function StepConfigureScope({
                   className="mt-0.5"
                 />
                 <div className="flex-1">
-                  <p className="font-medium text-gray-900 text-sm">Curriculum name</p>
-                  <p className="text-xs text-gray-500">Restore a specific curriculum by name</p>
+                  <p className="text-sm font-medium text-gray-900">Curriculum name</p>
+                  <p className="text-xs text-gray-500">
+                    Restore a specific curriculum by name
+                  </p>
                   {scopeType === "name" && (
                     <input
                       type="text"
@@ -221,10 +238,11 @@ function StepConfigureScope({
             className="mt-0.5"
           />
           <div>
-            <p className="font-medium text-gray-900 text-sm">Side-by-side restore</p>
+            <p className="text-sm font-medium text-gray-900">Side-by-side restore</p>
             <p className="text-xs text-gray-500">
-              Restore to a new versioned catalog (<code className="text-xs">{"{name}.{yyyymmdd}"}</code>)
-              without touching the live curriculum. Recommended if you&apos;re unsure.
+              Restore to a new versioned catalog (
+              <code className="text-xs">{"{name}.{yyyymmdd}"}</code>) without touching the
+              live curriculum. Recommended if you&apos;re unsure.
             </p>
           </div>
         </label>
@@ -271,11 +289,14 @@ function StepNotesSubmit({
 }) {
   return (
     <div className="space-y-5">
-      <h2 className="text-base font-semibold text-gray-800">Step 3 of 3 — Review & submit</h2>
+      <h2 className="text-base font-semibold text-gray-800">
+        Step 3 of 3 — Review & submit
+      </h2>
 
       <div className="space-y-2">
         <label className="block text-sm font-medium text-gray-700">
-          Notes for the administrator <span className="font-normal text-gray-400">(optional)</span>
+          Notes for the administrator{" "}
+          <span className="font-normal text-gray-400">(optional)</span>
         </label>
         <textarea
           value={notes}
@@ -288,7 +309,10 @@ function StepNotesSubmit({
 
       <div className="space-y-2">
         <label className="block text-sm font-medium text-gray-700">
-          Schedule for <span className="font-normal text-gray-400">(optional — leave blank for ASAP)</span>
+          Schedule for{" "}
+          <span className="font-normal text-gray-400">
+            (optional — leave blank for ASAP)
+          </span>
         </label>
         <input
           type="datetime-local"
@@ -353,15 +377,13 @@ export default function NewRestoreRequestPage() {
         scope_value: scopeValue || undefined,
         notes: notes || undefined,
         side_by_side: sideBySide,
-        scheduled_at: scheduledAt
-          ? new Date(scheduledAt).toISOString()
-          : undefined,
+        scheduled_at: scheduledAt ? new Date(scheduledAt).toISOString() : undefined,
       }),
     onSuccess: () => router.push("/school/restore-requests"),
     onError: (err: unknown) => {
       const msg =
-        (err as { response?: { data?: { detail?: string } } })?.response?.data
-          ?.detail ?? "Failed to submit request. Please try again.";
+        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ??
+        "Failed to submit request. Please try again.";
       setSubmitError(msg);
     },
   });

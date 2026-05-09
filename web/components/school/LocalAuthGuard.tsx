@@ -37,8 +37,7 @@ function decodeJwtPayload(token: string): Record<string, unknown> | null {
 }
 
 function clearLocalSession() {
-  document.cookie =
-    "sb_local_teacher_session=; path=/; SameSite=Strict; Max-Age=0";
+  document.cookie = "sb_local_teacher_session=; path=/; SameSite=Strict; Max-Age=0";
 }
 
 export function LocalAuthGuard({

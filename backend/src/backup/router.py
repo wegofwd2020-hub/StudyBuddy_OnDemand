@@ -318,9 +318,7 @@ async def admin_list_backup_schedules(
     """List all schools with their backup_cron setting."""
     _require_super_admin(admin)
     async with get_db(request) as conn:
-        rows = await conn.fetch(
-            "SELECT school_id, backup_cron FROM schools ORDER BY school_id"
-        )
+        rows = await conn.fetch("SELECT school_id, backup_cron FROM schools ORDER BY school_id")
     return [
         BackupScheduleResponse(
             school_id=str(r["school_id"]),

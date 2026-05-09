@@ -95,7 +95,9 @@ class LocalVisualStorage(VisualStorageBackend):
         await asyncio.to_thread(_write)
         log.debug(
             "visual_upload_local path=%s bytes=%d content_type=%s",
-            path, len(data), content_type or "?",
+            path,
+            len(data),
+            content_type or "?",
         )
 
     async def download(self, path: str) -> bytes:
@@ -177,7 +179,10 @@ class S3VisualStorage(VisualStorageBackend):
         await asyncio.to_thread(_put)
         log.debug(
             "visual_upload_s3 bucket=%s key=%s bytes=%d content_type=%s",
-            self._bucket, key, len(data), content_type or "?",
+            self._bucket,
+            key,
+            len(data),
+            content_type or "?",
         )
 
     async def download(self, path: str) -> bytes:
@@ -225,7 +230,7 @@ class S3VisualStorage(VisualStorageBackend):
                 for obj in page.get("Contents", []):
                     k = obj["Key"]
                     if self._prefix:
-                        k = k[len(self._prefix) + 1:]  # strip "{prefix}/"
+                        k = k[len(self._prefix) + 1 :]  # strip "{prefix}/"
                     keys.append(k)
             return sorted(keys)
 

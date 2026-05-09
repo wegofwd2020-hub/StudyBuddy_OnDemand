@@ -6,9 +6,7 @@ test.describe("Public pages", () => {
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     // Header CTA label is now "Start free" (not "Start free trial");
     // bottom CTA section still reads "Start your free trial". Regex covers both.
-    await expect(
-      page.getByRole("link", { name: /start.*free/i }).first(),
-    ).toBeVisible();
+    await expect(page.getByRole("link", { name: /start.*free/i }).first()).toBeVisible();
   });
 
   test("pricing page shows three plan cards", async ({ page }) => {

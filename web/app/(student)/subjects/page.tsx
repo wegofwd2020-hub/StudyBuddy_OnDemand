@@ -6,28 +6,18 @@ import { LinkButton } from "@/components/ui/link-button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FlaskConical } from "lucide-react";
 import { OfflineBanner } from "@/components/student/OfflineBanner";
-import {
-  Shelf,
-  BookSpine,
-  BookOpen,
-  deriveSubjectAccent,
-} from "@/components/library";
+import { Shelf, BookSpine, BookOpen, deriveSubjectAccent } from "@/components/library";
 
 type SubjectUnit = { unit_id: string; title: string; has_lab?: boolean };
 
 function SubjectUnitList({ units }: { units: SubjectUnit[] }) {
   if (units.length === 0) {
-    return (
-      <p className="text-xs italic text-gray-400">No units in this subject yet.</p>
-    );
+    return <p className="text-xs text-gray-400 italic">No units in this subject yet.</p>;
   }
   return (
     <ol role="list" className="divide-y divide-gray-100">
       {units.map((unit) => (
-        <li
-          key={unit.unit_id}
-          className="flex items-center justify-between gap-3 py-2"
-        >
+        <li key={unit.unit_id} className="flex items-center justify-between gap-3 py-2">
           <div className="flex min-w-0 items-center gap-2">
             <span className="truncate text-sm text-gray-700">{unit.title}</span>
             {unit.has_lab && (
@@ -83,9 +73,7 @@ export default function SubjectsPage() {
         )}
 
         {isError && (
-          <p className="text-sm text-red-500">
-            Could not load curriculum. Please retry.
-          </p>
+          <p className="text-sm text-red-500">Could not load curriculum. Please retry.</p>
         )}
 
         {!isLoading && !isError && subjects.length === 0 && (
@@ -105,9 +93,7 @@ export default function SubjectsPage() {
                   subjectKey={subject.subject}
                   accentOverride={deriveSubjectAccent(subject.subject)}
                   isOpen={openSubject === subject.subject}
-                  onToggle={(id) =>
-                    setOpenSubject((cur) => (cur === id ? null : id))
-                  }
+                  onToggle={(id) => setOpenSubject((cur) => (cur === id ? null : id))}
                 />
               ))}
             </Shelf>

@@ -145,9 +145,7 @@ class S3BackupStorage(BackupStorageBackend):
 
     async def upload(self, path: str, data: bytes) -> None:
         key = self._key(path)
-        await asyncio.to_thread(
-            self._s3.put_object, Bucket=self._bucket, Key=key, Body=data
-        )
+        await asyncio.to_thread(self._s3.put_object, Bucket=self._bucket, Key=key, Body=data)
         log.debug("backup_upload_s3", key=key, bytes=len(data))
 
     async def download(self, path: str) -> bytes:
@@ -168,9 +166,7 @@ class S3BackupStorage(BackupStorageBackend):
 
     async def delete(self, path: str) -> None:
         key = self._key(path)
-        await asyncio.to_thread(
-            self._s3.delete_object, Bucket=self._bucket, Key=key
-        )
+        await asyncio.to_thread(self._s3.delete_object, Bucket=self._bucket, Key=key)
 
     async def exists(self, path: str) -> bool:
         from botocore.exceptions import ClientError  # type: ignore
@@ -221,8 +217,6 @@ def get_backup_storage() -> BackupStorageBackend:
 
     if settings.BACKUP_STORAGE_BACKEND == "s3":
         if not settings.BACKUP_S3_BUCKET:
-            raise RuntimeError(
-                "BACKUP_S3_BUCKET must be set when BACKUP_STORAGE_BACKEND=s3"
-            )
+            raise RuntimeError("BACKUP_S3_BUCKET must be set when BACKUP_STORAGE_BACKEND=s3")
         return S3BackupStorage(bucket=settings.BACKUP_S3_BUCKET)
     return LocalBackupStorage(root=settings.BACKUP_LOCAL_PATH)

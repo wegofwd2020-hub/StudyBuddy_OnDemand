@@ -131,7 +131,11 @@ const NAV_ITEMS: NavItem[] = [
     adminOnly: true,
   },
   { label: "Settings", href: "/school/settings", icon: <Settings className="h-4 w-4" /> },
-  { label: "Customize", href: "/school/settings/customize", icon: <Palette className="h-4 w-4" /> },
+  {
+    label: "Customize",
+    href: "/school/settings/customize",
+    icon: <Palette className="h-4 w-4" />,
+  },
   { label: "Help", href: "/school/help", icon: <HelpCircle className="h-4 w-4" /> },
 ];
 

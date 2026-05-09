@@ -177,11 +177,7 @@ const TIERS = [
     name: "Platform Starter",
     price: "Free",
     highlight: false,
-    bullets: [
-      "Full access to Grades 5–12 content",
-      "Up to 30 students",
-      "English only",
-    ],
+    bullets: ["Full access to Grades 5–12 content", "Up to 30 students", "English only"],
     cta: "Get started free",
     href: "/school/register",
   },
@@ -248,7 +244,9 @@ function PricingSection() {
                         highlight ? "text-blue-200" : "text-blue-600"
                       }`}
                     />
-                    <span className={highlight ? "text-blue-100" : "text-gray-600"}>{b}</span>
+                    <span className={highlight ? "text-blue-100" : "text-gray-600"}>
+                      {b}
+                    </span>
                   </li>
                 ))}
               </ul>

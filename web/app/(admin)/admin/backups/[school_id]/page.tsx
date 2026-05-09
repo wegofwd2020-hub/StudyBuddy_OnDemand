@@ -4,11 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, RefreshCw, Plus, Archive } from "lucide-react";
-import {
-  Backup,
-  listSchoolBackups,
-  createBackup,
-} from "@/lib/api/backup";
+import { Backup, listSchoolBackups, createBackup } from "@/lib/api/backup";
 
 const STATUS_STYLES: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-700",
@@ -79,7 +75,7 @@ export default function SchoolBackupsPage() {
   // Auto-refresh if any backup is active
   useEffect(() => {
     const hasActive = backups.some(
-      (b) => b.status === "running" || b.status === "pending"
+      (b) => b.status === "running" || b.status === "pending",
     );
     if (!hasActive) return;
     const timer = setInterval(load, 5000);
@@ -116,60 +112,58 @@ export default function SchoolBackupsPage() {
   const retentionPct = Math.round((retentionUsed / MAX_BACKUPS) * 100);
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
-      <div className="flex items-center gap-2 mb-4">
+    <div className="mx-auto max-w-5xl p-6">
+      <div className="mb-4 flex items-center gap-2">
         <Link
           href="/admin/backups"
           className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="h-4 w-4" />
           All Backups
         </Link>
       </div>
 
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-4 flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <Archive className="w-5 h-5 text-gray-600" />
-            <h1 className="text-xl font-semibold text-gray-900">
-              School Backups
-            </h1>
+            <Archive className="h-5 w-5 text-gray-600" />
+            <h1 className="text-xl font-semibold text-gray-900">School Backups</h1>
           </div>
-          <p className="text-xs text-gray-500 font-mono mt-0.5">{schoolId}</p>
+          <p className="mt-0.5 font-mono text-xs text-gray-500">{schoolId}</p>
         </div>
         <div className="flex gap-2">
           <button
             onClick={load}
-            className="flex items-center gap-1 px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
+            className="flex items-center gap-1 rounded-md border border-gray-300 px-3 py-1.5 text-sm hover:bg-gray-50"
           >
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className="h-4 w-4" />
             Refresh
           </button>
           <button
             onClick={() => setShowModal(true)}
-            className="flex items-center gap-1 px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+            className="flex items-center gap-1 rounded-md bg-indigo-600 px-3 py-1.5 text-sm text-white hover:bg-indigo-700"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="h-4 w-4" />
             Create Backup
           </button>
         </div>
       </div>
 
       {/* Retention indicator */}
-      <div className="mb-5 p-3 bg-gray-50 border border-gray-200 rounded-md">
-        <div className="flex justify-between text-sm mb-1">
+      <div className="mb-5 rounded-md border border-gray-200 bg-gray-50 p-3">
+        <div className="mb-1 flex justify-between text-sm">
           <span className="font-medium text-gray-700">
             Backup retention: {retentionUsed} of {MAX_BACKUPS} used
           </span>
           <span
             className={
-              retentionPct >= 80 ? "text-orange-600 font-medium" : "text-gray-500"
+              retentionPct >= 80 ? "font-medium text-orange-600" : "text-gray-500"
             }
           >
             {retentionPct}%
           </span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
+        <div className="h-2 w-full rounded-full bg-gray-200">
           <div
             className={`h-2 rounded-full transition-all ${
               retentionPct >= 80 ? "bg-orange-500" : "bg-indigo-500"
@@ -178,35 +172,35 @@ export default function SchoolBackupsPage() {
           />
         </div>
         {retentionPct >= 80 && (
-          <p className="text-xs text-orange-600 mt-1">
+          <p className="mt-1 text-xs text-orange-600">
             Oldest backups will be pruned automatically when the limit is reached.
           </p>
         )}
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+        <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
           {error}
         </div>
       )}
 
       {loading ? (
-        <div className="text-center py-12 text-gray-500">Loading backups…</div>
+        <div className="py-12 text-center text-gray-500">Loading backups…</div>
       ) : backups.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">
+        <div className="py-12 text-center text-gray-500">
           No backups yet for this school.
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full text-sm border-collapse">
+          <table className="w-full border-collapse text-sm">
             <thead>
               <tr className="bg-gray-50 text-left">
-                <th className="px-4 py-2 font-medium text-gray-700 border-b">Label</th>
-                <th className="px-4 py-2 font-medium text-gray-700 border-b">Scope</th>
-                <th className="px-4 py-2 font-medium text-gray-700 border-b">Status</th>
-                <th className="px-4 py-2 font-medium text-gray-700 border-b">Files</th>
-                <th className="px-4 py-2 font-medium text-gray-700 border-b">Size</th>
-                <th className="px-4 py-2 font-medium text-gray-700 border-b">Created</th>
+                <th className="border-b px-4 py-2 font-medium text-gray-700">Label</th>
+                <th className="border-b px-4 py-2 font-medium text-gray-700">Scope</th>
+                <th className="border-b px-4 py-2 font-medium text-gray-700">Status</th>
+                <th className="border-b px-4 py-2 font-medium text-gray-700">Files</th>
+                <th className="border-b px-4 py-2 font-medium text-gray-700">Size</th>
+                <th className="border-b px-4 py-2 font-medium text-gray-700">Created</th>
               </tr>
             </thead>
             <tbody>
@@ -219,7 +213,7 @@ export default function SchoolBackupsPage() {
                   </td>
                   <td className="px-4 py-2">
                     <span
-                      className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${
+                      className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
                         STATUS_STYLES[b.status] ?? "bg-gray-100 text-gray-600"
                       }`}
                     >
@@ -244,13 +238,13 @@ export default function SchoolBackupsPage() {
 
       {/* Create backup modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
-            <h2 className="text-lg font-semibold mb-4">Create Backup</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+            <h2 className="mb-4 text-lg font-semibold">Create Backup</h2>
 
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="mb-1 block text-sm font-medium text-gray-700">
                   Scope
                 </label>
                 <div className="flex gap-4">
@@ -271,21 +265,23 @@ export default function SchoolBackupsPage() {
 
               {modalScopeType !== "full" && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {modalScopeType === "grade" ? "Grade number" : "Curriculum name pattern"}
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    {modalScopeType === "grade"
+                      ? "Grade number"
+                      : "Curriculum name pattern"}
                   </label>
                   <input
                     type="text"
                     value={modalScopeValue}
                     onChange={(e) => setModalScopeValue(e.target.value)}
                     placeholder={modalScopeType === "grade" ? "8" : "Science"}
-                    className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full rounded-md border px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                   />
                 </div>
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="mb-1 block text-sm font-medium text-gray-700">
                   Label (optional)
                 </label>
                 <input
@@ -293,14 +289,12 @@ export default function SchoolBackupsPage() {
                   value={modalLabel}
                   onChange={(e) => setModalLabel(e.target.value)}
                   placeholder="e.g. before migration"
-                  className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full rounded-md border px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 />
               </div>
             </div>
 
-            {createError && (
-              <p className="mt-3 text-sm text-red-600">{createError}</p>
-            )}
+            {createError && <p className="mt-3 text-sm text-red-600">{createError}</p>}
 
             <div className="mt-5 flex justify-end gap-2">
               <button
@@ -308,14 +302,14 @@ export default function SchoolBackupsPage() {
                   setShowModal(false);
                   setCreateError(null);
                 }}
-                className="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
+                className="rounded-md border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreate}
                 disabled={creating}
-                className="px-4 py-2 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
+                className="rounded-md bg-indigo-600 px-4 py-2 text-sm text-white hover:bg-indigo-700 disabled:opacity-50"
               >
                 {creating ? "Creating…" : "Create Backup"}
               </button>

@@ -78,8 +78,7 @@ export default function VisualLibraryPage() {
 
   const remove = useMutation({
     mutationFn: (path: string) => deleteVisual(schoolId!, path),
-    onSuccess: () =>
-      qc.invalidateQueries({ queryKey: ["visuals", schoolId] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["visuals", schoolId] }),
   });
 
   const canSubmit = useMemo(
@@ -105,7 +104,8 @@ export default function VisualLibraryPage() {
         <h1 className="text-2xl font-bold text-gray-900">Visual asset library</h1>
         <p className="mt-1 text-sm text-gray-600">
           Upload SVG, PNG, JPG, WebP, MP4, or WebM assets for your curricula. Once
-          uploaded, the URL can be added to a tutorial section&apos;s <code className="rounded bg-gray-100 px-1 py-0.5 text-xs">visuals</code> array.
+          uploaded, the URL can be added to a tutorial section&apos;s{" "}
+          <code className="rounded bg-gray-100 px-1 py-0.5 text-xs">visuals</code> array.
         </p>
       </header>
 
@@ -229,9 +229,7 @@ export default function VisualLibraryPage() {
           ) : list.isError ? (
             <p className="text-sm text-red-600">Failed to load assets.</p>
           ) : (list.data ?? []).length === 0 ? (
-            <p className="text-sm text-gray-500">
-              No assets yet. Upload one above.
-            </p>
+            <p className="text-sm text-gray-500">No assets yet. Upload one above.</p>
           ) : (
             <ul className="divide-y divide-gray-100 rounded-md border border-gray-200 bg-white">
               {(list.data ?? []).map((a) => (
@@ -239,9 +237,7 @@ export default function VisualLibraryPage() {
                   key={a.path}
                   asset={a}
                   onDelete={() => remove.mutate(a.path)}
-                  deleting={
-                    remove.isPending && remove.variables === a.path
-                  }
+                  deleting={remove.isPending && remove.variables === a.path}
                 />
               ))}
             </ul>
@@ -269,9 +265,7 @@ function AssetRow({
     <li className="flex items-center gap-3 px-3 py-2">
       <Icon className="h-4 w-4 shrink-0 text-gray-400" aria-hidden="true" />
       <div className="min-w-0 flex-1">
-        <div className="truncate text-sm font-mono text-gray-800">
-          {asset.path}
-        </div>
+        <div className="truncate font-mono text-sm text-gray-800">{asset.path}</div>
         <a
           href={asset.url}
           target="_blank"

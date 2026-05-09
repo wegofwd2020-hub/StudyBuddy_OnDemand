@@ -99,8 +99,7 @@ async def upload_visual(
     if content_type not in ALLOWED_MIME:
         raise HTTPException(
             status_code=415,
-            detail=f"Unsupported MIME type: {content_type}. "
-            f"Allowed: {sorted(ALLOWED_MIME.keys())}",
+            detail=f"Unsupported MIME type: {content_type}. Allowed: {sorted(ALLOWED_MIME.keys())}",
         )
 
     body = await file.read()
@@ -123,7 +122,11 @@ async def upload_visual(
 
     log.info(
         "visual_uploaded school_id=%s teacher_id=%s path=%s bytes=%d content_type=%s",
-        school_id, teacher.get("teacher_id"), path, len(body), content_type,
+        school_id,
+        teacher.get("teacher_id"),
+        path,
+        len(body),
+        content_type,
     )
     return UploadResponse(path=path, url=url, bytes=len(body), content_type=content_type)
 
@@ -149,9 +152,7 @@ async def list_visuals(
 
     storage = get_visual_storage()
     paths = await storage.list_prefix(prefix)
-    return ListResponse(assets=[
-        AssetEntry(path=p, url=storage.public_url(p)) for p in paths
-    ])
+    return ListResponse(assets=[AssetEntry(path=p, url=storage.public_url(p)) for p in paths])
 
 
 @router.delete("/{asset_path:path}", status_code=204)
@@ -178,7 +179,9 @@ async def delete_visual(
     await storage.delete(asset_path)
     log.info(
         "visual_deleted school_id=%s teacher_id=%s path=%s",
-        school_id, teacher.get("teacher_id"), asset_path,
+        school_id,
+        teacher.get("teacher_id"),
+        asset_path,
     )
 
 
@@ -258,7 +261,8 @@ async def put_section_visuals(
             FROM school_adopted_curricula
             WHERE school_id = $1 AND adoption_id = $2
             """,
-            school_id, payload.adoption_id,
+            school_id,
+            payload.adoption_id,
         )
         if not adoption:
             raise HTTPException(status_code=404, detail="Adoption not found")
@@ -269,8 +273,8 @@ async def put_section_visuals(
             raise HTTPException(
                 status_code=409,
                 detail="Unit content has not been imported yet. POST to "
-                       f"/schools/{school_id}/library/{payload.adoption_id}/units/"
-                       f"{payload.unit_id}/import first.",
+                f"/schools/{school_id}/library/{payload.adoption_id}/units/"
+                f"{payload.unit_id}/import first.",
             )
 
         latest = await conn.fetchrow(
@@ -284,7 +288,8 @@ async def put_section_visuals(
             ORDER BY version_number DESC
             LIMIT 1
             """,
-            forked, payload.unit_id,
+            forked,
+            payload.unit_id,
         )
         if not latest:
             raise HTTPException(
@@ -337,8 +342,11 @@ async def put_section_visuals(
 
     log.info(
         "visual_section_updated school=%s unit=%s section=%s version=%s blocks=%d",
-        school_id, payload.unit_id, payload.section_id,
-        row["version_number"], len(payload.visuals),
+        school_id,
+        payload.unit_id,
+        payload.section_id,
+        row["version_number"],
+        len(payload.visuals),
     )
     return SectionVisualsUpdateResponse(
         override_id=str(row["override_id"]),
@@ -390,7 +398,8 @@ async def list_section_visuals(
             FROM school_adopted_curricula
             WHERE school_id = $1 AND adoption_id = $2
             """,
-            school_id, adoption_id,
+            school_id,
+            adoption_id,
         )
         if not adoption:
             raise HTTPException(status_code=404, detail="Adoption not found")
@@ -409,7 +418,8 @@ async def list_section_visuals(
             ORDER BY version_number DESC
             LIMIT 1
             """,
-            forked, unit_id,
+            forked,
+            unit_id,
         )
         if not latest:
             raise HTTPException(status_code=404, detail="No tutorial override for this unit")

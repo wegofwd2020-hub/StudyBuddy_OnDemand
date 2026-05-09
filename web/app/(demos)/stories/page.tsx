@@ -8,12 +8,13 @@ export const metadata = {
 
 export default function StoriesLandingPage() {
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
+    <div className="min-h-screen bg-gray-50 px-4 py-12">
       <div className="mx-auto max-w-2xl">
         <div className="mb-10 text-center">
           <h1 className="text-3xl font-bold text-gray-900">Social Stories</h1>
           <p className="mt-3 text-gray-500">
-            Carol Gray-style stories for self-regulation and anxiety coping — pick a story to play.
+            Carol Gray-style stories for self-regulation and anxiety coping — pick a story
+            to play.
           </p>
         </div>
 
@@ -44,7 +45,7 @@ export default function StoriesLandingPage() {
                           </span>
                         )}
                       </div>
-                      <p className="mb-1 text-xs font-medium uppercase tracking-wide text-emerald-700">
+                      <p className="mb-1 text-xs font-medium tracking-wide text-emerald-700 uppercase">
                         Audience: {s.audience}
                       </p>
                       <p className="text-sm text-gray-500">{s.description}</p>
@@ -52,19 +53,27 @@ export default function StoriesLandingPage() {
                       {/* Metrics row */}
                       <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
                         <span title="broker authoring time, wall-clock">
-                          ⏱  ~{m.authoring_time_min} min build
+                          ⏱ ~{m.authoring_time_min} min build
                         </span>
-                        <span aria-hidden className="text-gray-300">·</span>
+                        <span aria-hidden className="text-gray-300">
+                          ·
+                        </span>
                         <span title="estimated total cost: LLM authoring + image generation + D-ID video">
-                          💵  ~${total.toFixed(2)} total
+                          💵 ~${total.toFixed(2)} total
                         </span>
-                        <span aria-hidden className="text-gray-300">·</span>
+                        <span aria-hidden className="text-gray-300">
+                          ·
+                        </span>
                         <span className="text-gray-400">
-                          LLM ${m.llm_cost_usd.toFixed(2)} · img ${m.image_cost_usd.toFixed(2)} · D-ID ${m.video_cost_usd.toFixed(2)}
+                          LLM ${m.llm_cost_usd.toFixed(2)} · img $
+                          {m.image_cost_usd.toFixed(2)} · D-ID $
+                          {m.video_cost_usd.toFixed(2)}
                         </span>
                       </div>
 
-                      <p className="mt-3 text-sm font-medium text-emerald-600">Play story →</p>
+                      <p className="mt-3 text-sm font-medium text-emerald-600">
+                        Play story →
+                      </p>
                     </div>
                   </div>
                 </Link>
@@ -78,19 +87,25 @@ export default function StoriesLandingPage() {
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
             <span className="font-semibold text-gray-700">Catalog so far:</span>
             <span>{STORY_LIST.length} stories</span>
-            <span aria-hidden className="text-gray-300">·</span>
-            <span>
-              ~{STORY_LIST.reduce((acc, s) => acc + s.metrics.authoring_time_min, 0)} min total build
+            <span aria-hidden className="text-gray-300">
+              ·
             </span>
-            <span aria-hidden className="text-gray-300">·</span>
             <span>
-              ~${STORY_LIST.reduce((acc, s) => acc + totalCost(s.metrics), 0).toFixed(2)} total cost
+              ~{STORY_LIST.reduce((acc, s) => acc + s.metrics.authoring_time_min, 0)} min
+              total build
+            </span>
+            <span aria-hidden className="text-gray-300">
+              ·
+            </span>
+            <span>
+              ~${STORY_LIST.reduce((acc, s) => acc + totalCost(s.metrics), 0).toFixed(2)}{" "}
+              total cost
             </span>
           </div>
           <p className="mt-1 text-[11px] text-gray-400">
             Same engine as the JT use cases, no quiz. Each story preserves the Carol Gray
-            <em> name → tool → affirm</em> arc. Audio includes a corner &quot;AI&quot; or &quot;D-iD&quot; watermark
-            from the rendering tier.
+            <em> name → tool → affirm</em> arc. Audio includes a corner &quot;AI&quot; or
+            &quot;D-iD&quot; watermark from the rendering tier.
           </p>
         </div>
 

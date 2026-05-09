@@ -210,10 +210,10 @@ export async function mergeStream(
   code: string,
   targetCode: string,
 ): Promise<{ affected_curricula: number; source_archived: boolean }> {
-  const res = await adminApi.post<{ affected_curricula: number; source_archived: boolean }>(
-    `/admin/streams/${code}/merge`,
-    { target_code: targetCode },
-  );
+  const res = await adminApi.post<{
+    affected_curricula: number;
+    source_archived: boolean;
+  }>(`/admin/streams/${code}/merge`, { target_code: targetCode });
   return res.data;
 }
 
@@ -1003,9 +1003,7 @@ export async function rejectDemoLead(
 }
 
 export async function listDemoGeoBlocks(): Promise<{ blocks: GeoBlockItem[] }> {
-  const res = await adminApi.get<{ blocks: GeoBlockItem[] }>(
-    "/admin/demo-geo-blocks",
-  );
+  const res = await adminApi.get<{ blocks: GeoBlockItem[] }>("/admin/demo-geo-blocks");
   return res.data;
 }
 

@@ -20,13 +20,7 @@ import {
 } from "@/lib/api/teacher-subscription";
 import { useTeacherIdFromToken } from "@/lib/hooks/useIndependentTeacher";
 import { cn } from "@/lib/utils";
-import {
-  AlertTriangle,
-  CheckCircle2,
-  ChevronRight,
-  Loader2,
-  Users,
-} from "lucide-react";
+import { AlertTriangle, CheckCircle2, ChevronRight, Loader2, Users } from "lucide-react";
 
 // ── Plan definitions (mirrors pricing.py TEACHER_PLANS) ──────────────────────
 
@@ -130,9 +124,9 @@ function OverQuotaBanner({ since }: { since: string | null }) {
         <p className="text-sm font-semibold text-red-900">Student limit exceeded</p>
         <p className="mt-0.5 text-xs text-red-700">
           You have more enrolled students than your plan allows.
-          {sinceStr && ` This has been the case since ${sinceStr}.`}
-          {" "}Upgrade your plan to restore full access, or remove students to get back within your limit.
-          After 7 days over-limit, new content access may be restricted.
+          {sinceStr && ` This has been the case since ${sinceStr}.`} Upgrade your plan to
+          restore full access, or remove students to get back within your limit. After 7
+          days over-limit, new content access may be restricted.
         </p>
       </div>
     </div>
@@ -207,11 +201,13 @@ function PlanCard({
         </div>
       ) : (
         <button
-          onClick={() =>
-            hasSubscription ? onUpgrade(plan.id) : onCheckout(plan.id)
-          }
+          onClick={() => (hasSubscription ? onUpgrade(plan.id) : onCheckout(plan.id))}
           disabled={isPending || (tooSmall && hasSubscription)}
-          title={tooSmall && hasSubscription ? `You already have ${seatsUsed} students — this plan only allows ${plan.max_students}` : undefined}
+          title={
+            tooSmall && hasSubscription
+              ? `You already have ${seatsUsed} students — this plan only allows ${plan.max_students}`
+              : undefined
+          }
           className={cn(
             "inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
             tooSmall && hasSubscription
@@ -285,14 +281,11 @@ export default function TeacherSubscriptionPage() {
   });
 
   const isPending =
-    upgradeMutation.isPending ||
-    checkoutMutation.isPending ||
-    cancelMutation.isPending;
+    upgradeMutation.isPending || checkoutMutation.isPending || cancelMutation.isPending;
   const mutationError =
     upgradeMutation.error ?? checkoutMutation.error ?? cancelMutation.error;
 
-  const hasSubscription =
-    !!sub && sub.plan !== "none" && sub.status !== "cancelled";
+  const hasSubscription = !!sub && sub.plan !== "none" && sub.status !== "cancelled";
 
   const handleUpgrade = (planId: PlanId) => {
     setPendingPlanId(planId);
@@ -337,8 +330,7 @@ export default function TeacherSubscriptionPage() {
           <div className="mb-3 flex items-center gap-2">
             <Users className="h-5 w-5 text-gray-400" />
             <h2 className="text-base font-semibold text-gray-900">
-              Student seats —{" "}
-              <span className="capitalize">{sub.plan}</span> plan
+              Student seats — <span className="capitalize">{sub.plan}</span> plan
             </h2>
           </div>
           <SeatUsageBar
@@ -394,9 +386,7 @@ export default function TeacherSubscriptionPage() {
             </button>
           ) : (
             <div className="flex items-center gap-3">
-              <p className="text-sm text-gray-600">
-                Cancel at end of billing period?
-              </p>
+              <p className="text-sm text-gray-600">Cancel at end of billing period?</p>
               <button
                 onClick={() => cancelMutation.mutate()}
                 disabled={cancelMutation.isPending}

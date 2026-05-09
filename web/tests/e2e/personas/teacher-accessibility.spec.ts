@@ -238,9 +238,7 @@ test.describe("Teacher persona — smoke & accessibility", () => {
   test("students page loads and lists enrolled students", async ({ page }) => {
     await page.goto("/school/students");
     // Page h1 is "Student Roster".
-    await expect(
-      page.getByRole("heading", { name: /student roster/i }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: /student roster/i })).toBeVisible();
   });
 
   test("students — no critical WCAG violations", async ({ page }) => {
@@ -277,9 +275,7 @@ test.describe("Teacher persona — smoke & accessibility", () => {
   test("alerts page loads and shows alert", async ({ page }) => {
     await page.goto("/school/alerts");
     // Page h1 is "Alert Inbox".
-    await expect(
-      page.getByRole("heading", { name: /alert inbox/i }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: /alert inbox/i })).toBeVisible();
   });
 
   test("alerts — no critical WCAG violations", async ({ page }) => {
@@ -295,9 +291,7 @@ test.describe("Teacher persona — smoke & accessibility", () => {
     // Multiple nav elements (sidebar + footer) — disambiguate.
     const nav = page.getByRole("navigation").first();
     await expect(nav).toBeVisible();
-    await expect(
-      nav.getByRole("link", { name: /dashboard/i }).first(),
-    ).toBeVisible();
+    await expect(nav.getByRole("link", { name: /dashboard/i }).first()).toBeVisible();
   });
 
   // ── RBAC: teacher vs school_admin ─────────────────────────────────────────

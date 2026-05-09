@@ -299,9 +299,7 @@ async def resolve_curriculum_id(
         # are filtered out by the RLS USING clause even though the JOIN
         # condition references the correct school_id FK column.
         if school_id:
-            await conn.execute(
-                "SELECT set_config('app.current_school_id', $1, false)", school_id
-            )
+            await conn.execute("SELECT set_config('app.current_school_id', $1, false)", school_id)
 
         # 1. School-owned curriculum for this student's grade — includes school
         #    fork curricula created by the teacher authoring flow (TA-0/TA-2).
@@ -456,9 +454,7 @@ async def get_active_override(
             pass
 
     async with pool.acquire() as conn:
-        await conn.execute(
-            "SELECT set_config('app.current_school_id', $1, false)", school_id
-        )
+        await conn.execute("SELECT set_config('app.current_school_id', $1, false)", school_id)
         row = await conn.fetchrow(
             """
             SELECT uco.body
@@ -495,9 +491,7 @@ async def get_fork_source_curriculum(
     serving path to fall back to OOB files for units without active teacher overrides.
     """
     async with pool.acquire() as conn:
-        await conn.execute(
-            "SELECT set_config('app.current_school_id', $1, false)", school_id
-        )
+        await conn.execute("SELECT set_config('app.current_school_id', $1, false)", school_id)
         row = await conn.fetchrow(
             "SELECT source_curriculum_id FROM curricula WHERE curriculum_id = $1",
             curriculum_id,

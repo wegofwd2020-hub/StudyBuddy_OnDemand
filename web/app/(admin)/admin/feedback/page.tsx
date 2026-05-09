@@ -163,7 +163,8 @@ export default function AdminFeedbackPage() {
           </p>
           {!showResolved && (
             <p className="mt-1 text-xs text-gray-400">
-              Students can submit feedback after completing a quiz. It will appear here once received.
+              Students can submit feedback after completing a quiz. It will appear here
+              once received.
             </p>
           )}
         </div>

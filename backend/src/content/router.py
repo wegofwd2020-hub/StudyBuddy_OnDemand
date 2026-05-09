@@ -337,7 +337,9 @@ async def get_quiz(
         if override:
             log.info(
                 "quiz_override_served unit_id=%s set=%d student_id=%s",
-                unit_id, set_number, student_id,
+                unit_id,
+                set_number,
+                student_id,
             )
             return QuizResponse(**override)
 
@@ -517,8 +519,12 @@ async def get_scenario(
         except FileNotFoundError:
             data["video_clips"] = None
 
-    log.info("scenario_served unit_id=%s student_id=%s clips=%s",
-             unit_id, student_id, len(data.get("video_clips") or []))
+    log.info(
+        "scenario_served unit_id=%s student_id=%s clips=%s",
+        unit_id,
+        student_id,
+        len(data.get("video_clips") or []),
+    )
     return ScenarioResponse(**data)
 
 

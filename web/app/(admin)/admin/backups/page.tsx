@@ -4,11 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { RefreshCw, Plus, Archive } from "lucide-react";
-import {
-  Backup,
-  listAllBackups,
-  createBackup,
-} from "@/lib/api/backup";
+import { Backup, listAllBackups, createBackup } from "@/lib/api/backup";
 
 const STATUS_STYLES: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-700",
@@ -78,7 +74,7 @@ export default function BackupsPage() {
   // Auto-refresh every 5s if any backup is running/pending
   useEffect(() => {
     const hasActive = backups.some(
-      (b) => b.status === "running" || b.status === "pending"
+      (b) => b.status === "running" || b.status === "pending",
     );
     if (!hasActive) return;
     const timer = setInterval(load, 5000);
@@ -120,55 +116,55 @@ export default function BackupsPage() {
   if (!token) return null;
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+    <div className="mx-auto max-w-6xl p-6">
+      <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Archive className="w-5 h-5 text-gray-600" />
-          <h1 className="text-xl font-semibold text-gray-900">
-            Curriculum Backups
-          </h1>
-          <span className="text-sm text-gray-500 ml-2">({total} total)</span>
+          <Archive className="h-5 w-5 text-gray-600" />
+          <h1 className="text-xl font-semibold text-gray-900">Curriculum Backups</h1>
+          <span className="ml-2 text-sm text-gray-500">({total} total)</span>
         </div>
         <div className="flex gap-2">
           <button
             onClick={load}
-            className="flex items-center gap-1 px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
+            className="flex items-center gap-1 rounded-md border border-gray-300 px-3 py-1.5 text-sm hover:bg-gray-50"
           >
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className="h-4 w-4" />
             Refresh
           </button>
           <button
             onClick={() => setShowModal(true)}
-            className="flex items-center gap-1 px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+            className="flex items-center gap-1 rounded-md bg-indigo-600 px-3 py-1.5 text-sm text-white hover:bg-indigo-700"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="h-4 w-4" />
             Create Backup
           </button>
         </div>
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+        <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
           {error}
         </div>
       )}
 
       {loading ? (
-        <div className="text-center py-12 text-gray-500">Loading backups…</div>
+        <div className="py-12 text-center text-gray-500">Loading backups…</div>
       ) : backups.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">No backups found.</div>
+        <div className="py-12 text-center text-gray-500">No backups found.</div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full text-sm border-collapse">
+          <table className="w-full border-collapse text-sm">
             <thead>
               <tr className="bg-gray-50 text-left">
-                <th className="px-4 py-2 font-medium text-gray-700 border-b">School ID</th>
-                <th className="px-4 py-2 font-medium text-gray-700 border-b">Label</th>
-                <th className="px-4 py-2 font-medium text-gray-700 border-b">Scope</th>
-                <th className="px-4 py-2 font-medium text-gray-700 border-b">Status</th>
-                <th className="px-4 py-2 font-medium text-gray-700 border-b">Size</th>
-                <th className="px-4 py-2 font-medium text-gray-700 border-b">Date</th>
-                <th className="px-4 py-2 font-medium text-gray-700 border-b">Actions</th>
+                <th className="border-b px-4 py-2 font-medium text-gray-700">
+                  School ID
+                </th>
+                <th className="border-b px-4 py-2 font-medium text-gray-700">Label</th>
+                <th className="border-b px-4 py-2 font-medium text-gray-700">Scope</th>
+                <th className="border-b px-4 py-2 font-medium text-gray-700">Status</th>
+                <th className="border-b px-4 py-2 font-medium text-gray-700">Size</th>
+                <th className="border-b px-4 py-2 font-medium text-gray-700">Date</th>
+                <th className="border-b px-4 py-2 font-medium text-gray-700">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -177,7 +173,7 @@ export default function BackupsPage() {
                   <td className="px-4 py-2 font-mono text-xs text-gray-600">
                     <Link
                       href={`/admin/backups/${b.school_id}`}
-                      className="hover:underline text-indigo-600"
+                      className="text-indigo-600 hover:underline"
                     >
                       {b.school_id.slice(0, 8)}…
                     </Link>
@@ -189,7 +185,7 @@ export default function BackupsPage() {
                   </td>
                   <td className="px-4 py-2">
                     <span
-                      className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${
+                      className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
                         STATUS_STYLES[b.status] ?? "bg-gray-100 text-gray-600"
                       }`}
                     >
@@ -205,7 +201,7 @@ export default function BackupsPage() {
                   <td className="px-4 py-2">
                     <Link
                       href={`/admin/backups/${b.school_id}`}
-                      className="text-indigo-600 hover:underline text-xs"
+                      className="text-xs text-indigo-600 hover:underline"
                     >
                       View school
                     </Link>
@@ -219,11 +215,11 @@ export default function BackupsPage() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex justify-center gap-2 mt-4">
+        <div className="mt-4 flex justify-center gap-2">
           <button
             disabled={page <= 1}
             onClick={() => setPage((p) => p - 1)}
-            className="px-3 py-1 border rounded text-sm disabled:opacity-40"
+            className="rounded border px-3 py-1 text-sm disabled:opacity-40"
           >
             Prev
           </button>
@@ -233,7 +229,7 @@ export default function BackupsPage() {
           <button
             disabled={page >= totalPages}
             onClick={() => setPage((p) => p + 1)}
-            className="px-3 py-1 border rounded text-sm disabled:opacity-40"
+            className="rounded border px-3 py-1 text-sm disabled:opacity-40"
           >
             Next
           </button>
@@ -242,13 +238,13 @@ export default function BackupsPage() {
 
       {/* Create backup modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
-            <h2 className="text-lg font-semibold mb-4">Create Backup</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+            <h2 className="mb-4 text-lg font-semibold">Create Backup</h2>
 
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="mb-1 block text-sm font-medium text-gray-700">
                   School ID
                 </label>
                 <input
@@ -256,12 +252,12 @@ export default function BackupsPage() {
                   value={modalSchoolId}
                   onChange={(e) => setModalSchoolId(e.target.value)}
                   placeholder="UUID"
-                  className="w-full border rounded-md px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full rounded-md border px-3 py-2 font-mono text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="mb-1 block text-sm font-medium text-gray-700">
                   Scope
                 </label>
                 <div className="flex gap-4">
@@ -282,21 +278,23 @@ export default function BackupsPage() {
 
               {modalScopeType !== "full" && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {modalScopeType === "grade" ? "Grade number" : "Curriculum name pattern"}
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    {modalScopeType === "grade"
+                      ? "Grade number"
+                      : "Curriculum name pattern"}
                   </label>
                   <input
                     type="text"
                     value={modalScopeValue}
                     onChange={(e) => setModalScopeValue(e.target.value)}
                     placeholder={modalScopeType === "grade" ? "8" : "Science"}
-                    className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full rounded-md border px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                   />
                 </div>
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="mb-1 block text-sm font-medium text-gray-700">
                   Label (optional)
                 </label>
                 <input
@@ -304,14 +302,12 @@ export default function BackupsPage() {
                   value={modalLabel}
                   onChange={(e) => setModalLabel(e.target.value)}
                   placeholder="e.g. pre-migration backup"
-                  className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full rounded-md border px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 />
               </div>
             </div>
 
-            {createError && (
-              <p className="mt-3 text-sm text-red-600">{createError}</p>
-            )}
+            {createError && <p className="mt-3 text-sm text-red-600">{createError}</p>}
 
             <div className="mt-5 flex justify-end gap-2">
               <button
@@ -319,14 +315,14 @@ export default function BackupsPage() {
                   setShowModal(false);
                   setCreateError(null);
                 }}
-                className="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
+                className="rounded-md border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleCreate}
                 disabled={creating}
-                className="px-4 py-2 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
+                className="rounded-md bg-indigo-600 px-4 py-2 text-sm text-white hover:bg-indigo-700 disabled:opacity-50"
               >
                 {creating ? "Creating…" : "Create Backup"}
               </button>

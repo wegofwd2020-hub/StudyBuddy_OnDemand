@@ -68,15 +68,14 @@ export function AssetPicker({
     if (!query.trim()) return all;
     const q = query.toLowerCase();
     return all.filter(
-      (a) =>
-        a.path.toLowerCase().includes(q) || a.url.toLowerCase().includes(q),
+      (a) => a.path.toLowerCase().includes(q) || a.url.toLowerCase().includes(q),
     );
   }, [list.data, query]);
 
   return (
     <div className="mt-1 rounded-md border border-blue-200 bg-blue-50/40 p-3 shadow-sm">
       <div className="mb-2 flex items-center justify-between">
-        <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-blue-800">
+        <span className="flex items-center gap-1.5 text-xs font-semibold tracking-wide text-blue-800 uppercase">
           <FolderOpen className="h-3.5 w-3.5" />
           Pick from uploaded assets
           {(curriculumId || unitId) && (
@@ -97,7 +96,7 @@ export function AssetPicker({
       </div>
 
       <div className="relative mb-2">
-        <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400" />
+        <Search className="absolute top-1/2 left-2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400" />
         <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -113,9 +112,7 @@ export function AssetPicker({
       )}
 
       {list.isError && (
-        <p className="px-2 py-2 text-xs text-red-700">
-          Failed to load assets.
-        </p>
+        <p className="px-2 py-2 text-xs text-red-700">Failed to load assets.</p>
       )}
 
       {!list.isLoading && !list.isError && filtered.length === 0 && (

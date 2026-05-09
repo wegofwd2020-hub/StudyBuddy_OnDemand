@@ -26,8 +26,7 @@ export default function AdminStreamsNewPage() {
   const [error, setError] = useState<string | null>(null);
 
   const clientError = validateCode(code);
-  const canSubmit =
-    !clientError && displayName.trim().length > 0 && !submitting;
+  const canSubmit = !clientError && displayName.trim().length > 0 && !submitting;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -63,7 +62,8 @@ export default function AdminStreamsNewPage() {
       </Link>
       <h1 className="mb-1 text-2xl font-bold text-gray-900">New Stream</h1>
       <p className="mb-6 text-sm text-gray-500">
-        Custom streams can be referenced from the Upload page as soon as they&apos;re created.
+        Custom streams can be referenced from the Upload page as soon as they&apos;re
+        created.
       </p>
 
       <form
@@ -71,9 +71,7 @@ export default function AdminStreamsNewPage() {
         className="space-y-5 rounded-xl border border-gray-200 bg-white p-6"
       >
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-gray-700">
-            Code
-          </label>
+          <label className="mb-1.5 block text-sm font-medium text-gray-700">Code</label>
           <input
             type="text"
             value={code}

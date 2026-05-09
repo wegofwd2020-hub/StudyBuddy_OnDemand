@@ -27,7 +27,7 @@ export default async function JTScenarioPage({ params }: PageProps) {
   if (!scenario) notFound();
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
+    <div className="min-h-screen bg-gray-50 px-4 py-12">
       <div className="mx-auto max-w-2xl">
         <Link
           href="/jt"
@@ -39,7 +39,8 @@ export default async function JTScenarioPage({ params }: PageProps) {
         <div className="mb-10 text-center">
           <h1 className="text-3xl font-bold text-gray-900">{scenario.title}</h1>
           <p className="mt-3 text-gray-500">
-            Scenario-based compliance training — watch the conversation, then answer the compliance question.
+            Scenario-based compliance training — watch the conversation, then answer the
+            compliance question.
           </p>
         </div>
 

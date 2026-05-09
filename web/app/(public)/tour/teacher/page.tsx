@@ -38,17 +38,17 @@ const STEPS: Step[] = [
     detail: (
       <>
         <p className="mb-4 text-sm leading-relaxed text-gray-600">
-          As a teacher in the school portal you have access to everything needed
-          to run a personalised, self-paced learning experience for your students:
+          As a teacher in the school portal you have access to everything needed to run a
+          personalised, self-paced learning experience for your students:
         </p>
         <div className="overflow-hidden rounded-lg border">
           <table className="w-full text-sm">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <th className="px-4 py-2.5 text-left text-xs font-semibold tracking-wide text-gray-500 uppercase">
                   You can
                 </th>
-                <th className="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <th className="px-4 py-2.5 text-left text-xs font-semibold tracking-wide text-gray-500 uppercase">
                   Your School Admin handles
                 </th>
               </tr>
@@ -56,9 +56,15 @@ const STEPS: Step[] = [
             <tbody className="divide-y">
               {[
                 ["Create and manage classrooms", "Provisioning teacher accounts"],
-                ["Assign curriculum packages to classrooms", "Provisioning student accounts"],
+                [
+                  "Assign curriculum packages to classrooms",
+                  "Provisioning student accounts",
+                ],
                 ["Enrol students in classrooms", "School subscription and billing"],
-                ["Track per-student progress and quiz scores", "Approving curriculum builds"],
+                [
+                  "Track per-student progress and quiz scores",
+                  "Approving curriculum builds",
+                ],
                 ["Act on at-risk student alerts", "School-wide settings"],
                 ["Download CSV reports", "Promoting teachers to admin"],
               ].map(([can, admin]) => (
@@ -95,22 +101,25 @@ const STEPS: Step[] = [
     detail: (
       <>
         <p className="mb-3 text-sm leading-relaxed text-gray-600">
-          The classroom is the central unit of content delivery. You can have as
-          many classrooms as you need. Here&apos;s the lifecycle of a classroom:
+          The classroom is the central unit of content delivery. You can have as many
+          classrooms as you need. Here&apos;s the lifecycle of a classroom:
         </p>
-        <ol className="mb-4 space-y-2 pl-5 text-sm text-gray-600" style={{ listStyleType: "decimal" }}>
+        <ol
+          className="mb-4 space-y-2 pl-5 text-sm text-gray-600"
+          style={{ listStyleType: "decimal" }}
+        >
           <li>
             Go to <strong>Classrooms → Create classroom</strong>. Enter a name (e.g.{" "}
             <em>Grade 8 — Section A</em>) and an optional grade.
           </li>
           <li>
-            Click <strong>Assign package</strong>. Browse the catalog — platform
-            packages and your school&apos;s own custom packages are both listed. Assign
-            one or more.
+            Click <strong>Assign package</strong>. Browse the catalog — platform packages
+            and your school&apos;s own custom packages are both listed. Assign one or
+            more.
           </li>
           <li>
-            Reorder packages using the drag handles. Students work through them
-            in that order.
+            Reorder packages using the drag handles. Students work through them in that
+            order.
           </li>
           <li>
             Go to the <strong>Students</strong> tab and enrol your students. Once
@@ -118,8 +127,8 @@ const STEPS: Step[] = [
           </li>
         </ol>
         <p className="text-sm text-gray-500">
-          A classroom with no packages shows no content to students — always
-          assign at least one package before enrolling.
+          A classroom with no packages shows no content to students — always assign at
+          least one package before enrolling.
         </p>
       </>
     ),
@@ -136,7 +145,8 @@ const STEPS: Step[] = [
       "If a student you expect is not in the search results when enrolling, ask your School Admin " +
       "to assign that student to you via Students → the student's name → Assignment.",
     svgSrc: "/assets/tour/student-enrolment-flow.svg",
-    svgAlt: "Student provisioned by admin → assigned to teacher → enrolled in classroom → accesses content",
+    svgAlt:
+      "Student provisioned by admin → assigned to teacher → enrolled in classroom → accesses content",
     svgHeight: 480,
   },
   {
@@ -146,28 +156,40 @@ const STEPS: Step[] = [
     detail: (
       <>
         <p className="mb-4 text-sm leading-relaxed text-gray-600">
-          StudyBuddy records every lesson view, quiz attempt, and session. You see
-          reports scoped to your students only — not the whole school. Each metric
-          is precisely defined so you can interpret it consistently:
+          StudyBuddy records every lesson view, quiz attempt, and session. You see reports
+          scoped to your students only — not the whole school. Each metric is precisely
+          defined so you can interpret it consistently:
         </p>
         <div className="overflow-hidden rounded-lg border">
           <table className="w-full text-sm">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <th className="px-4 py-2.5 text-left text-xs font-semibold tracking-wide text-gray-500 uppercase">
                   Metric
                 </th>
-                <th className="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <th className="px-4 py-2.5 text-left text-xs font-semibold tracking-wide text-gray-500 uppercase">
                   Definition
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y">
               {[
-                ["Completion rate", "% of units in assigned packages the student has opened at least once"],
-                ["Quiz average", "Average of best score per quiz — only the best attempt per quiz counts"],
-                ["Streak", "Consecutive calendar days with at least one lesson view or quiz answer"],
-                ["Last active", "Most recent date of any recorded activity (lesson, quiz, or tutorial)"],
+                [
+                  "Completion rate",
+                  "% of units in assigned packages the student has opened at least once",
+                ],
+                [
+                  "Quiz average",
+                  "Average of best score per quiz — only the best attempt per quiz counts",
+                ],
+                [
+                  "Streak",
+                  "Consecutive calendar days with at least one lesson view or quiz answer",
+                ],
+                [
+                  "Last active",
+                  "Most recent date of any recorded activity (lesson, quiz, or tutorial)",
+                ],
               ].map(([metric, def]) => (
                 <tr key={metric} className="bg-white">
                   <td className="px-4 py-2.5 font-medium text-gray-800">{metric}</td>
@@ -178,8 +200,9 @@ const STEPS: Step[] = [
           </table>
         </div>
         <p className="mt-3 text-sm text-gray-500">
-          Click any student&apos;s name to see their full progress detail — unit by unit, quiz by quiz.
-          All reports can be downloaded as CSV for your grade book or admin reports.
+          Click any student&apos;s name to see their full progress detail — unit by unit,
+          quiz by quiz. All reports can be downloaded as CSV for your grade book or admin
+          reports.
         </p>
       </>
     ),
@@ -199,19 +222,28 @@ const STEPS: Step[] = [
           <table className="w-full text-sm">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <th className="px-4 py-2.5 text-left text-xs font-semibold tracking-wide text-gray-500 uppercase">
                   Report
                 </th>
-                <th className="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <th className="px-4 py-2.5 text-left text-xs font-semibold tracking-wide text-gray-500 uppercase">
                   Contents
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y">
               {[
-                ["Overview", "Completion rate, quiz average, streak, last activity — one row per student"],
-                ["At-risk", "Flagged students with days since last activity and their classroom"],
-                ["Unit performance", "Average quiz score per unit — highlights units students find difficult"],
+                [
+                  "Overview",
+                  "Completion rate, quiz average, streak, last activity — one row per student",
+                ],
+                [
+                  "At-risk",
+                  "Flagged students with days since last activity and their classroom",
+                ],
+                [
+                  "Unit performance",
+                  "Average quiz score per unit — highlights units students find difficult",
+                ],
               ].map(([report, contents]) => (
                 <tr key={report} className="bg-white">
                   <td className="px-4 py-2.5 font-medium text-gray-800">{report}</td>
@@ -223,7 +255,8 @@ const STEPS: Step[] = [
         </div>
         <p className="mt-3 text-sm text-gray-500">
           Use the Unit performance report alongside the At-risk report: if a student
-          stopped logging in right after a low quiz score, that unit is the likely barrier.
+          stopped logging in right after a low quiz score, that unit is the likely
+          barrier.
         </p>
       </>
     ),
@@ -250,9 +283,7 @@ export default function TeacherTour() {
             <ArrowLeft className="h-4 w-4" />
             All roles
           </Link>
-          <span className="text-sm font-medium text-blue-700">
-            Teacher tour
-          </span>
+          <span className="text-sm font-medium text-blue-700">Teacher tour</span>
           <span className="text-sm text-gray-400">
             {current + 1} / {STEPS.length}
           </span>
@@ -272,8 +303,8 @@ export default function TeacherTour() {
                   i < current
                     ? "h-1.5 bg-blue-400"
                     : i === current
-                    ? "h-2 bg-blue-600"
-                    : "h-1.5 bg-gray-200"
+                      ? "h-2 bg-blue-600"
+                      : "h-1.5 bg-gray-200"
                 }`}
               />
             ))}
@@ -294,7 +325,7 @@ export default function TeacherTour() {
 
       {/* Step content */}
       <div className="mx-auto max-w-3xl px-6 py-10">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-blue-500">
+        <p className="mb-2 text-xs font-semibold tracking-widest text-blue-500 uppercase">
           Step {current + 1} of {STEPS.length}
         </p>
 
@@ -302,9 +333,7 @@ export default function TeacherTour() {
           {step.title}
         </h1>
 
-        <p className="mb-6 text-base font-medium text-blue-700">
-          {step.outcome}
-        </p>
+        <p className="mb-6 text-base font-medium text-blue-700">{step.outcome}</p>
 
         <div className="mb-8">
           {typeof step.detail === "string" ? (
@@ -353,12 +382,10 @@ export default function TeacherTour() {
         ) : (
           /* Final step CTA */
           <div className="rounded-xl border border-blue-200 bg-blue-50 p-6 text-center">
-            <p className="mb-1 text-lg font-bold text-blue-900">
-              Ready to log in?
-            </p>
+            <p className="mb-1 text-lg font-bold text-blue-900">Ready to log in?</p>
             <p className="mb-5 text-sm text-blue-700">
-              Your School Admin has provisioned your account. Check your email
-              for your temporary password and log in to get started.
+              Your School Admin has provisioned your account. Check your email for your
+              temporary password and log in to get started.
             </p>
             <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <Link
@@ -383,7 +410,7 @@ export default function TeacherTour() {
       {/* Step index — quick jump */}
       <div className="border-t bg-white py-6">
         <div className="mx-auto max-w-3xl px-6">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-gray-400">
+          <p className="mb-3 text-xs font-semibold tracking-widest text-gray-400 uppercase">
             All capabilities
           </p>
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -395,8 +422,8 @@ export default function TeacherTour() {
                   i === current
                     ? "border-blue-300 bg-blue-50 font-semibold text-blue-800"
                     : i < current
-                    ? "border-gray-200 bg-gray-50 text-gray-500"
-                    : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50"
+                      ? "border-gray-200 bg-gray-50 text-gray-500"
+                      : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50"
                 }`}
               >
                 <span className="mr-1.5 text-xs text-gray-400">{i + 1}.</span>

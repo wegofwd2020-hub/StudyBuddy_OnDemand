@@ -109,9 +109,7 @@ async def compute_embedding(text: str) -> list[float] | None:
     import voyageai  # lazy — not required for non-library callers
 
     client = voyageai.AsyncClient(api_key=settings.VOYAGE_API_KEY)
-    result = await client.embed(
-        [text], model=_EMBEDDING_MODEL, input_type="document"
-    )
+    result = await client.embed([text], model=_EMBEDDING_MODEL, input_type="document")
     return result.embeddings[0]
 
 

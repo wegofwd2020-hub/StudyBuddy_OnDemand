@@ -30,11 +30,11 @@ function fmtDate(s: string | null): string {
 
 function Field({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="flex gap-2 py-2 border-b last:border-b-0">
+    <div className="flex gap-2 border-b py-2 last:border-b-0">
       <span className="w-40 flex-shrink-0 text-sm font-medium text-gray-600">
         {label}
       </span>
-      <span className="text-sm text-gray-900 break-all">{value ?? "—"}</span>
+      <span className="text-sm break-all text-gray-900">{value ?? "—"}</span>
     </div>
   );
 }
@@ -65,12 +65,8 @@ export default function RestoreRequestDetailPage() {
     setLoading(true);
     setError(null);
     try {
-      const data = await adminClient
-        .get(`/admin/restore-requests`)
-        .then((r) => r.data);
-      const found = (data.requests as RestoreRequest[]).find(
-        (r) => r.id === requestId
-      );
+      const data = await adminClient.get(`/admin/restore-requests`).then((r) => r.data);
+      const found = (data.requests as RestoreRequest[]).find((r) => r.id === requestId);
       if (!found) {
         setError("Restore request not found");
       } else {
@@ -130,45 +126,43 @@ export default function RestoreRequestDetailPage() {
   if (!token) return null;
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <div className="flex items-center gap-2 mb-4">
+    <div className="mx-auto max-w-3xl p-6">
+      <div className="mb-4 flex items-center gap-2">
         <Link
           href="/admin/restore-requests"
           className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="h-4 w-4" />
           Restore Requests
         </Link>
       </div>
 
-      <div className="flex items-center gap-2 mb-6">
-        <RotateCcw className="w-5 h-5 text-gray-600" />
-        <h1 className="text-xl font-semibold text-gray-900">
-          Restore Request Detail
-        </h1>
+      <div className="mb-6 flex items-center gap-2">
+        <RotateCcw className="h-5 w-5 text-gray-600" />
+        <h1 className="text-xl font-semibold text-gray-900">Restore Request Detail</h1>
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+        <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
           {error}
         </div>
       )}
       {actionError && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+        <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
           {actionError}
         </div>
       )}
 
       {loading ? (
-        <div className="text-center py-12 text-gray-500">Loading…</div>
+        <div className="py-12 text-center text-gray-500">Loading…</div>
       ) : !request ? (
-        <div className="text-center py-12 text-gray-500">Request not found.</div>
+        <div className="py-12 text-center text-gray-500">Request not found.</div>
       ) : (
         <>
           {/* Status banner */}
-          <div className="mb-6 flex items-center gap-3 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+          <div className="mb-6 flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
             <span
-              className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
+              className={`inline-block rounded-full px-3 py-1 text-sm font-semibold ${
                 STATUS_STYLES[request.status] ?? "bg-gray-100 text-gray-600"
               }`}
             >
@@ -180,9 +174,15 @@ export default function RestoreRequestDetailPage() {
           </div>
 
           {/* Detail fields */}
-          <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6">
-            <Field label="Request ID" value={<span className="font-mono text-xs">{request.id}</span>} />
-            <Field label="School ID" value={<span className="font-mono text-xs">{request.school_id}</span>} />
+          <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4">
+            <Field
+              label="Request ID"
+              value={<span className="font-mono text-xs">{request.id}</span>}
+            />
+            <Field
+              label="School ID"
+              value={<span className="font-mono text-xs">{request.school_id}</span>}
+            />
             <Field
               label="Backup ID"
               value={
@@ -193,7 +193,10 @@ export default function RestoreRequestDetailPage() {
                 )
               }
             />
-            <Field label="Scope" value={`${request.scope_type}${request.scope_value ? `: ${request.scope_value}` : ""}`} />
+            <Field
+              label="Scope"
+              value={`${request.scope_type}${request.scope_value ? `: ${request.scope_value}` : ""}`}
+            />
             <Field label="Side-by-side" value={request.side_by_side ? "Yes" : "No"} />
             <Field
               label="Conflict catalog"
@@ -211,12 +214,12 @@ export default function RestoreRequestDetailPage() {
           </div>
 
           {/* Actions */}
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex flex-wrap gap-2">
             {request.status === "submitted" && (
               <button
                 onClick={handleAcknowledge}
                 disabled={actionLoading === "ack"}
-                className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                className="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 disabled:opacity-50"
               >
                 {actionLoading === "ack" ? "Acknowledging…" : "Acknowledge"}
               </button>
@@ -225,7 +228,7 @@ export default function RestoreRequestDetailPage() {
               <button
                 onClick={handleExecute}
                 disabled={actionLoading === "exec"}
-                className="px-4 py-2 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
+                className="rounded-md bg-indigo-600 px-4 py-2 text-sm text-white hover:bg-indigo-700 disabled:opacity-50"
               >
                 {actionLoading === "exec" ? "Dispatching…" : "Execute Restore"}
               </button>
@@ -234,7 +237,7 @@ export default function RestoreRequestDetailPage() {
               <button
                 onClick={handleCancel}
                 disabled={actionLoading === "cancel"}
-                className="px-4 py-2 text-sm bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
+                className="rounded-md bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-700 disabled:opacity-50"
               >
                 {actionLoading === "cancel" ? "Cancelling…" : "Cancel"}
               </button>

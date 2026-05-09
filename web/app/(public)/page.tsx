@@ -56,7 +56,14 @@ const STUDY_BUDDY_TRANSLATIONS = [
   "പഠന സഹചാരി",
 ];
 
-const SIZE_CLASSES = ["text-sm", "text-base", "text-lg", "text-xl", "text-sm", "text-base"];
+const SIZE_CLASSES = [
+  "text-sm",
+  "text-base",
+  "text-lg",
+  "text-xl",
+  "text-sm",
+  "text-base",
+];
 
 function HeroSection() {
   const repeated = Array.from({ length: 5 }, () => STUDY_BUDDY_TRANSLATIONS).flat();
@@ -65,12 +72,12 @@ function HeroSection() {
       {/* Decorative multilingual watermark — purely visual, hidden from assistive tech */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 flex flex-wrap content-start gap-x-10 gap-y-5 p-6 select-none opacity-[0.22]"
+        className="pointer-events-none absolute inset-0 flex flex-wrap content-start gap-x-10 gap-y-5 p-6 opacity-[0.22] select-none"
       >
         {repeated.map((phrase, i) => (
           <span
             key={i}
-            className={`${SIZE_CLASSES[i % SIZE_CLASSES.length]} font-semibold text-blue-800 whitespace-nowrap`}
+            className={`${SIZE_CLASSES[i % SIZE_CLASSES.length]} font-semibold whitespace-nowrap text-blue-800`}
           >
             {phrase}
           </span>
@@ -78,11 +85,12 @@ function HeroSection() {
       </div>
 
       <div className="relative mx-auto max-w-3xl">
-        <h1 className="whitespace-nowrap text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
+        <h1 className="text-4xl font-bold tracking-tight whitespace-nowrap text-gray-900 sm:text-5xl lg:text-6xl">
           Lessons, always current.
         </h1>
         <p className="mt-6 text-xl text-gray-600">
-          AI-powered lessons, quizzes, and tutorials — your bridge from classroom to a world that won&apos;t sit still.
+          AI-powered lessons, quizzes, and tutorials — your bridge from classroom to a
+          world that won&apos;t sit still.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <LinkButton size="lg" href="/school/register">
@@ -185,15 +193,15 @@ function TourGatewaySection() {
   return (
     <section className="border-y bg-violet-50 px-4 py-16">
       <div className="mx-auto max-w-3xl text-center">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-violet-500">
+        <p className="mb-2 text-xs font-semibold tracking-widest text-violet-500 uppercase">
           No account needed
         </p>
         <h2 className="mb-3 text-2xl font-bold text-gray-900 sm:text-3xl">
           See exactly what you can do
         </h2>
         <p className="mb-8 text-base text-gray-500">
-          Walk through the platform from the perspective of a School Admin, Teacher, or Student —
-          before you register.
+          Walk through the platform from the perspective of a School Admin, Teacher, or
+          Student — before you register.
         </p>
         <Link
           href="/tour"
@@ -237,7 +245,12 @@ function CtaSection() {
         <p className="mt-4 text-blue-100">
           Free to start. No credit card. Full access to Grades 5–12 content on day one.
         </p>
-        <LinkButton size="lg" variant="secondary" className="mt-8" href="/school/register">
+        <LinkButton
+          size="lg"
+          variant="secondary"
+          className="mt-8"
+          href="/school/register"
+        >
           Register your school free
         </LinkButton>
       </div>

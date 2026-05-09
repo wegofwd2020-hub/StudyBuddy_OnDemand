@@ -35,9 +35,7 @@ function GeoBlockRow({ block }: { block: GeoBlockItem }) {
       <span className="w-12 font-mono text-sm font-bold text-gray-700">
         {block.country_code}
       </span>
-      <span className="flex-1 text-sm text-gray-600">
-        {block.country_name ?? "—"}
-      </span>
+      <span className="flex-1 text-sm text-gray-600">{block.country_name ?? "—"}</span>
       <span className="text-xs text-gray-400">
         {new Date(block.added_at).toLocaleDateString()}
       </span>
@@ -78,10 +76,7 @@ function AddBlockForm() {
 
   const addMut = useMutation({
     mutationFn: () =>
-      addDemoGeoBlock(
-        countryCode.toUpperCase().trim(),
-        countryName.trim() || undefined,
-      ),
+      addDemoGeoBlock(countryCode.toUpperCase().trim(), countryName.trim() || undefined),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["demo-geo-blocks"] });
       setCountryCode("");
@@ -115,7 +110,7 @@ function AddBlockForm() {
           onChange={(e) => setCountryCode(e.target.value)}
           placeholder="e.g. CN"
           maxLength={2}
-          className="w-20 rounded border border-gray-200 px-2.5 py-1.5 font-mono text-sm uppercase focus:outline-none focus:ring-1 focus:ring-gray-400"
+          className="w-20 rounded border border-gray-200 px-2.5 py-1.5 font-mono text-sm uppercase focus:ring-1 focus:ring-gray-400 focus:outline-none"
         />
       </div>
       <div className="flex-1">
@@ -126,7 +121,7 @@ function AddBlockForm() {
           value={countryName}
           onChange={(e) => setCountryName(e.target.value)}
           placeholder="e.g. China"
-          className="w-full rounded border border-gray-200 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-gray-400"
+          className="w-full rounded border border-gray-200 px-2.5 py-1.5 text-sm focus:ring-1 focus:ring-gray-400 focus:outline-none"
         />
       </div>
       <button
@@ -137,9 +132,7 @@ function AddBlockForm() {
         <Plus className="h-4 w-4" />
         {addMut.isPending ? "Adding…" : "Add block"}
       </button>
-      {error && (
-        <p className="ml-1 text-xs text-red-600">{error}</p>
-      )}
+      {error && <p className="ml-1 text-xs text-red-600">{error}</p>}
     </form>
   );
 }
@@ -165,8 +158,8 @@ export default function DemoSettingsPage() {
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Geo-block settings</h1>
             <p className="mt-0.5 text-sm text-gray-500">
-              Demo tour requests from blocked countries are silently rejected at
-              the IP-lookup stage.
+              Demo tour requests from blocked countries are silently rejected at the
+              IP-lookup stage.
             </p>
           </div>
         </div>
@@ -174,15 +167,13 @@ export default function DemoSettingsPage() {
 
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
         <div className="border-b bg-gray-50 px-4 py-2.5">
-          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+          <p className="text-xs font-semibold tracking-wide text-gray-500 uppercase">
             Blocked countries ({data?.blocks.length ?? 0})
           </p>
         </div>
 
         {isLoading && (
-          <div className="px-4 py-6 text-center text-sm text-gray-400">
-            Loading…
-          </div>
+          <div className="px-4 py-6 text-center text-sm text-gray-400">Loading…</div>
         )}
         {isError && (
           <div className="px-4 py-6 text-center text-sm text-red-500">

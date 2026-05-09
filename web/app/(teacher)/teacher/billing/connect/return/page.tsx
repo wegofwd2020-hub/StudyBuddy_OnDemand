@@ -41,8 +41,10 @@ export default function ConnectReturnPage() {
         }
       });
 
-    return () => { cancelled = true; };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [teacherId]);
 
   return (
@@ -59,7 +61,9 @@ export default function ConnectReturnPage() {
             <p className="text-base font-semibold text-gray-900">
               Connect account active!
             </p>
-            <p className="mt-1 text-sm text-gray-500">Redirecting to your billing page…</p>
+            <p className="mt-1 text-sm text-gray-500">
+              Redirecting to your billing page…
+            </p>
           </>
         ) : (
           <>

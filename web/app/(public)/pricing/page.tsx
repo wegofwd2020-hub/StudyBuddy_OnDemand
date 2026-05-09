@@ -98,7 +98,6 @@ export default function PricingPage() {
   return (
     <div className="px-4 py-16 sm:py-24">
       <div className="mx-auto max-w-7xl">
-
         {/* Header */}
         <div className="text-center">
           <h1 className="text-4xl font-bold tracking-tight text-gray-900">
@@ -111,11 +110,10 @@ export default function PricingPage() {
 
         {/* Plans */}
         <div id="plans" className="mt-14 grid items-stretch gap-6 md:grid-cols-3">
-
           {/* Platform Starter — Free */}
           <Card className="flex flex-col border shadow-sm">
             <CardHeader className="pb-4">
-              <div className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-gray-400">
+              <div className="mb-2 flex items-center gap-2 text-sm font-semibold tracking-wide text-gray-400 uppercase">
                 <Zap className="h-4 w-4" />
                 Platform Starter
               </div>
@@ -129,7 +127,11 @@ export default function PricingPage() {
             </CardHeader>
             <CardContent className="flex flex-1 flex-col justify-between space-y-6">
               <FeatureList features={STARTER_FEATURES} />
-              <LinkButton variant="outline" className="w-full justify-center" href="/schools/register">
+              <LinkButton
+                variant="outline"
+                className="w-full justify-center"
+                href="/schools/register"
+              >
                 Get started free
               </LinkButton>
             </CardContent>
@@ -141,7 +143,7 @@ export default function PricingPage() {
               Most popular
             </Badge>
             <CardHeader className="pb-4">
-              <div className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-indigo-600">
+              <div className="mb-2 flex items-center gap-2 text-sm font-semibold tracking-wide text-indigo-600 uppercase">
                 <School className="h-4 w-4" />
                 School Pro
               </div>
@@ -164,7 +166,7 @@ export default function PricingPage() {
           {/* Enterprise */}
           <Card className="flex flex-col border bg-gray-900 text-white shadow-sm">
             <CardHeader className="pb-4">
-              <div className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-gray-400">
+              <div className="mb-2 flex items-center gap-2 text-sm font-semibold tracking-wide text-gray-400 uppercase">
                 <Building2 className="h-4 w-4" />
                 School Enterprise
               </div>
@@ -191,9 +193,9 @@ export default function PricingPage() {
         {/* Comparison callout */}
         <div className="mt-10 rounded-xl border border-indigo-100 bg-indigo-50 px-6 py-5 text-center">
           <p className="text-sm text-indigo-700">
-            <span className="font-semibold">Not sure which plan fits?</span>{" "}
-            Our pre-built content costs you nothing to serve — you only pay when you need
-            custom curriculum builds, advanced analytics, or room to grow.{" "}
+            <span className="font-semibold">Not sure which plan fits?</span> Our pre-built
+            content costs you nothing to serve — you only pay when you need custom
+            curriculum builds, advanced analytics, or room to grow.{" "}
             <a href="/contact" className="underline hover:no-underline">
               Talk to us
             </a>{" "}
@@ -215,7 +217,6 @@ export default function PricingPage() {
             ))}
           </Accordion>
         </div>
-
       </div>
     </div>
   );

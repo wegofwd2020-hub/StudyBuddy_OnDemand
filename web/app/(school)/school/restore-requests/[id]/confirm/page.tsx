@@ -41,8 +41,8 @@ export default function ConfirmRestorePage() {
     },
     onError: (err: unknown) => {
       const msg =
-        (err as { response?: { data?: { detail?: string } } })?.response?.data
-          ?.detail ?? "Failed to confirm. Please try again.";
+        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ??
+        "Failed to confirm. Please try again.";
       setActionError(msg);
     },
   });
@@ -55,8 +55,8 @@ export default function ConfirmRestorePage() {
     },
     onError: (err: unknown) => {
       const msg =
-        (err as { response?: { data?: { detail?: string } } })?.response?.data
-          ?.detail ?? "Failed to cancel. Please try again.";
+        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ??
+        "Failed to cancel. Please try again.";
       setActionError(msg);
     },
   });
@@ -100,8 +100,8 @@ export default function ConfirmRestorePage() {
       </div>
 
       {/* Summary card */}
-      <div className="rounded-lg border border-gray-200 bg-white p-5 space-y-3">
-        <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+      <div className="space-y-3 rounded-lg border border-gray-200 bg-white p-5">
+        <h2 className="text-sm font-semibold tracking-wide text-gray-700 uppercase">
           Request summary
         </h2>
         <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
@@ -116,14 +116,14 @@ export default function ConfirmRestorePage() {
               ? "Full restore"
               : request.scope_type === "grade"
                 ? `Grade ${request.scope_value}`
-                : request.scope_value ?? request.scope_type}
+                : (request.scope_value ?? request.scope_type)}
           </dd>
 
           <dt className="text-gray-500">Side-by-side</dt>
           <dd className="text-gray-900">{request.side_by_side ? "Yes" : "No"}</dd>
 
           <dt className="text-gray-500">Submitted</dt>
-          <dd className="tabular-nums text-gray-900">
+          <dd className="text-gray-900 tabular-nums">
             {new Date(request.created_at).toLocaleString()}
           </dd>
 
@@ -139,10 +139,8 @@ export default function ConfirmRestorePage() {
       {/* Conflicts section */}
       {canConfirm && (
         <div
-          className={`rounded-lg border p-5 space-y-4 ${
-            hasConflicts
-              ? "border-orange-200 bg-orange-50"
-              : "border-blue-200 bg-blue-50"
+          className={`space-y-4 rounded-lg border p-5 ${
+            hasConflicts ? "border-orange-200 bg-orange-50" : "border-blue-200 bg-blue-50"
           }`}
         >
           <div className="flex items-start gap-3">
@@ -153,7 +151,7 @@ export default function ConfirmRestorePage() {
             )}
             <div>
               <p
-                className={`font-semibold text-sm ${
+                className={`text-sm font-semibold ${
                   hasConflicts ? "text-orange-800" : "text-blue-800"
                 }`}
               >
@@ -185,10 +183,11 @@ export default function ConfirmRestorePage() {
               className="mt-0.5"
             />
             <div>
-              <p className="font-medium text-gray-900 text-sm">Side-by-side restore</p>
+              <p className="text-sm font-medium text-gray-900">Side-by-side restore</p>
               <p className="text-xs text-gray-500">
-                Restore to a new versioned catalog (<code className="text-xs">{"{name}.{yyyymmdd}"}</code>)
-                instead of overwriting the live curriculum. Recommended if you want to compare first.
+                Restore to a new versioned catalog (
+                <code className="text-xs">{"{name}.{yyyymmdd}"}</code>) instead of
+                overwriting the live curriculum. Recommended if you want to compare first.
               </p>
             </div>
           </label>
@@ -204,7 +203,7 @@ export default function ConfirmRestorePage() {
             <Button
               onClick={() => confirmMutation.mutate()}
               disabled={busy}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white"
+              className="bg-indigo-600 text-white hover:bg-indigo-700"
             >
               <CheckCircle2 className="mr-1.5 h-4 w-4" />
               {confirmMutation.isPending ? "Confirming…" : "Confirm restore"}
@@ -222,7 +221,7 @@ export default function ConfirmRestorePage() {
 
       {/* Cancel option for submitted requests */}
       {canCancel && (
-        <div className="rounded-lg border border-gray-200 bg-white p-5 space-y-3">
+        <div className="space-y-3 rounded-lg border border-gray-200 bg-white p-5">
           <p className="text-sm text-gray-600">
             Your request has been submitted and is awaiting review by the administrator.
           </p>
@@ -247,14 +246,16 @@ export default function ConfirmRestorePage() {
       {request.status === "completed" && (
         <div className="flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-4">
           <CheckCircle2 className="h-5 w-5 text-green-600" />
-          <p className="text-sm text-green-800 font-medium">Restore completed successfully.</p>
+          <p className="text-sm font-medium text-green-800">
+            Restore completed successfully.
+          </p>
         </div>
       )}
 
       {request.status === "failed" && (
         <div className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
           <XCircle className="h-5 w-5 text-red-600" />
-          <p className="text-sm text-red-800 font-medium">
+          <p className="text-sm font-medium text-red-800">
             Restore failed. Contact your administrator for details.
           </p>
         </div>

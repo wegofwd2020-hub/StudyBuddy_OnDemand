@@ -73,7 +73,8 @@ export default function DashboardPage() {
                 Welcome to StudyBuddy!
               </p>
               <p className="mb-4 text-xs text-indigo-600">
-                Pick a subject below to start your first lesson. Your progress will appear here.
+                Pick a subject below to start your first lesson. Your progress will appear
+                here.
               </p>
               <LinkButton href="/subjects" className="mx-auto w-fit text-xs">
                 Browse Subjects

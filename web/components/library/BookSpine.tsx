@@ -42,7 +42,7 @@ export function BookSpine({
   const ringStyle = { ["--tw-ring-color" as string]: accent } as CSSProperties;
 
   return (
-    <li role="listitem" className="snap-start shrink-0">
+    <li role="listitem" className="shrink-0 snap-start">
       <button
         data-spine="true"
         type="button"
@@ -56,16 +56,16 @@ export function BookSpine({
           "shadow-[1px_0_0_#d4d4d8,0_1px_2px_rgba(0,0,0,0.08)]",
           "hover:bg-stone-100 hover:shadow-[1px_0_0_#a8a29e,0_4px_10px_rgba(0,0,0,0.12)]",
           "transition-[width,box-shadow,background-color] duration-150 ease-out motion-reduce:transition-none",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
-          "max-sm:w-full max-sm:h-auto",
-          "sm:w-[88px] sm:h-56 lg:w-24",
+          "focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none",
+          "max-sm:h-auto max-sm:w-full",
+          "sm:h-56 sm:w-[88px] lg:w-24",
           isOpen &&
-            "sm:w-40 lg:w-44 bg-white shadow-[1px_0_0_#a8a29e,3px_0_0_#fafaf9,4px_0_0_#d4d4d8,0_4px_10px_rgba(0,0,0,0.14)]",
+            "bg-white shadow-[1px_0_0_#a8a29e,3px_0_0_#fafaf9,4px_0_0_#d4d4d8,0_4px_10px_rgba(0,0,0,0.14)] sm:w-40 lg:w-44",
           dim && "opacity-60 hover:opacity-100",
         )}
       >
         <span
-          className="font-medium text-xs leading-tight line-clamp-4 text-gray-900"
+          className="line-clamp-4 text-xs leading-tight font-medium text-gray-900"
           aria-hidden="true"
         >
           {title}

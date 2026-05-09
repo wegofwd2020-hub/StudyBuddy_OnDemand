@@ -45,12 +45,31 @@ function RiskBadge({ reasons }: { reasons: AtRiskStudent["risk_reasons"] }) {
   );
 }
 
-function LastActiveCell({ lastActive, inactiveDays }: { lastActive: string | null; inactiveDays: number | null }) {
+function LastActiveCell({
+  lastActive,
+  inactiveDays,
+}: {
+  lastActive: string | null;
+  inactiveDays: number | null;
+}) {
   if (!lastActive) {
     return <span className="text-gray-400">Never active</span>;
   }
-  const label = inactiveDays != null ? `${inactiveDays}d ago` : new Date(lastActive).toLocaleDateString();
-  return <span className={cn(inactiveDays != null && inactiveDays > 21 ? "font-semibold text-red-600" : "text-gray-600")}>{label}</span>;
+  const label =
+    inactiveDays != null
+      ? `${inactiveDays}d ago`
+      : new Date(lastActive).toLocaleDateString();
+  return (
+    <span
+      className={cn(
+        inactiveDays != null && inactiveDays > 21
+          ? "font-semibold text-red-600"
+          : "text-gray-600",
+      )}
+    >
+      {label}
+    </span>
+  );
 }
 
 export default function AtRiskPage() {
@@ -68,7 +87,8 @@ export default function AtRiskPage() {
   const seenMutation = useMutation({
     mutationFn: ({ studentId, seen }: { studentId: string; seen: boolean }) =>
       markAtRiskSeen(schoolId, studentId, seen),
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["at-risk", schoolId] }),
+    onSuccess: () =>
+      void queryClient.invalidateQueries({ queryKey: ["at-risk", schoolId] }),
   });
 
   const reminderMutation = useMutation({
@@ -83,13 +103,13 @@ export default function AtRiskPage() {
       <div>
         <h1 className="text-2xl font-bold text-gray-900">At-Risk Students</h1>
         <p className="mt-1 text-sm text-gray-500">
-          Students who are inactive or have a low pass rate. Mark as seen once
-          you&apos;ve followed up, or send a push reminder.
+          Students who are inactive or have a low pass rate. Mark as seen once you&apos;ve
+          followed up, or send a push reminder.
         </p>
         {data && (
           <p className="mt-0.5 text-xs text-gray-400">
-            Thresholds: inactive &gt; {data.inactive_days_threshold} days ·
-            pass rate &lt; {data.pass_rate_threshold}%
+            Thresholds: inactive &gt; {data.inactive_days_threshold} days · pass rate &lt;{" "}
+            {data.pass_rate_threshold}%
           </p>
         )}
       </div>
@@ -107,8 +127,8 @@ export default function AtRiskPage() {
           <CheckCircle className="mx-auto mb-3 h-10 w-10 text-green-400" />
           <p className="text-sm font-medium text-green-700">No at-risk students</p>
           <p className="mt-1 text-xs text-gray-500">
-            All enrolled students are active and passing. Check back later or
-            adjust thresholds in{" "}
+            All enrolled students are active and passing. Check back later or adjust
+            thresholds in{" "}
             <Link href="/school/reports/alerts" className="underline hover:text-gray-700">
               Alert Settings
             </Link>
@@ -130,16 +150,21 @@ export default function AtRiskPage() {
                 <table className="w-full text-sm">
                   <thead className="border-b border-gray-100 bg-gray-50">
                     <tr>
-                      {["Student", "Grade", "Last active", "Pass rate", "Risk", "Actions"].map(
-                        (h) => (
-                          <th
-                            key={h}
-                            className="px-4 py-3 text-left text-xs font-medium text-gray-500"
-                          >
-                            {h}
-                          </th>
-                        ),
-                      )}
+                      {[
+                        "Student",
+                        "Grade",
+                        "Last active",
+                        "Pass rate",
+                        "Risk",
+                        "Actions",
+                      ].map((h) => (
+                        <th
+                          key={h}
+                          className="px-4 py-3 text-left text-xs font-medium text-gray-500"
+                        >
+                          {h}
+                        </th>
+                      ))}
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
@@ -182,9 +207,7 @@ export default function AtRiskPage() {
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
                             <button
-                              onClick={() =>
-                                reminderMutation.mutate(s.student_id)
-                              }
+                              onClick={() => reminderMutation.mutate(s.student_id)}
                               disabled={reminderMutation.isPending}
                               title="Send push reminder"
                               className="inline-flex items-center gap-1 rounded bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-600 hover:bg-indigo-100 disabled:opacity-50"
@@ -227,14 +250,16 @@ export default function AtRiskPage() {
                 <table className="w-full text-sm">
                   <thead className="border-b border-gray-100 bg-gray-50">
                     <tr>
-                      {["Student", "Grade", "Last active", "Pass rate", "Risk", ""].map((h) => (
-                        <th
-                          key={h}
-                          className="px-4 py-3 text-left text-xs font-medium text-gray-400"
-                        >
-                          {h}
-                        </th>
-                      ))}
+                      {["Student", "Grade", "Last active", "Pass rate", "Risk", ""].map(
+                        (h) => (
+                          <th
+                            key={h}
+                            className="px-4 py-3 text-left text-xs font-medium text-gray-400"
+                          >
+                            {h}
+                          </th>
+                        ),
+                      )}
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
@@ -256,7 +281,9 @@ export default function AtRiskPage() {
                           />
                         </td>
                         <td className="px-4 py-3 text-gray-400">
-                          {s.pass_rate_pct != null ? `${s.pass_rate_pct.toFixed(0)}%` : "—"}
+                          {s.pass_rate_pct != null
+                            ? `${s.pass_rate_pct.toFixed(0)}%`
+                            : "—"}
                         </td>
                         <td className="px-4 py-3">
                           <RiskBadge reasons={s.risk_reasons} />

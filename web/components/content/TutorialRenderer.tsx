@@ -39,10 +39,8 @@ export function TutorialRenderer({ tutorial }: TutorialRendererProps) {
         {allIds.length > 1 && (
           <button
             type="button"
-            onClick={() =>
-              setOpenIds(allOpen ? new Set() : new Set(allIds))
-            }
-            className="shrink-0 rounded-md border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+            onClick={() => setOpenIds(allOpen ? new Set() : new Set(allIds))}
+            className="shrink-0 rounded-md border border-gray-200 px-2.5 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
           >
             {allOpen ? "Collapse all" : noneOpen ? "Expand all" : "Expand all"}
           </button>
@@ -66,7 +64,7 @@ export function TutorialRenderer({ tutorial }: TutorialRendererProps) {
             <AlertTriangle className="h-4 w-4 text-amber-600" aria-hidden="true" />
             <h2 className="text-sm font-semibold text-amber-800">Common mistakes</h2>
           </div>
-          <ul className="list-disc space-y-1 pl-5 font-heading text-sm text-amber-900">
+          <ul className="font-heading list-disc space-y-1 pl-5 text-sm text-amber-900">
             {tutorial.common_mistakes.map((m, i) => (
               <li key={i}>{m}</li>
             ))}
@@ -96,7 +94,7 @@ function SectionDisclosure({
         aria-expanded={isOpen}
         aria-controls={panelId}
         onClick={onToggle}
-        className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left hover:bg-stone-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+        className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left hover:bg-stone-100 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
       >
         <h3 className="text-sm font-semibold text-gray-900 sm:text-base">
           {section.title}
@@ -115,9 +113,9 @@ function SectionDisclosure({
           id={panelId}
           role="region"
           aria-labelledby={buttonId}
-          className="border-t border-gray-200 bg-stone-50 px-4 py-4 font-heading"
+          className="font-heading border-t border-gray-200 bg-stone-50 px-4 py-4"
         >
-          <div className="prose prose-sm max-w-none font-heading text-gray-800">
+          <div className="prose prose-sm font-heading max-w-none text-gray-800">
             <SBMarkdown className="font-heading text-gray-800">
               {section.content}
             </SBMarkdown>
@@ -126,22 +124,17 @@ function SectionDisclosure({
           <VisualSlot visuals={section.visuals} />
 
           {section.examples.length > 0 && (
-            <div className="mt-4 rounded-md border border-blue-200 bg-blue-50 p-3 font-heading">
+            <div className="font-heading mt-4 rounded-md border border-blue-200 bg-blue-50 p-3">
               <div className="mb-2 flex items-center gap-2">
-                <Lightbulb
-                  className="h-3.5 w-3.5 text-blue-600"
-                  aria-hidden="true"
-                />
-                <h4 className="text-xs font-semibold uppercase tracking-wide text-blue-700">
+                <Lightbulb className="h-3.5 w-3.5 text-blue-600" aria-hidden="true" />
+                <h4 className="text-xs font-semibold tracking-wide text-blue-700 uppercase">
                   Examples
                 </h4>
               </div>
               <ul className="list-disc space-y-2 pl-5 text-sm text-blue-900">
                 {section.examples.map((ex, i) => (
                   <li key={i}>
-                    <SBMarkdown className="font-heading text-blue-900">
-                      {ex}
-                    </SBMarkdown>
+                    <SBMarkdown className="font-heading text-blue-900">{ex}</SBMarkdown>
                   </li>
                 ))}
               </ul>
@@ -149,17 +142,14 @@ function SectionDisclosure({
           )}
 
           {section.practice_question && (
-            <div className="mt-4 rounded-md border border-purple-200 bg-purple-50 p-3 font-heading">
+            <div className="font-heading mt-4 rounded-md border border-purple-200 bg-purple-50 p-3">
               <div className="mb-2 flex items-center gap-2">
-                <HelpCircle
-                  className="h-3.5 w-3.5 text-purple-600"
-                  aria-hidden="true"
-                />
-                <h4 className="text-xs font-semibold uppercase tracking-wide text-purple-700">
+                <HelpCircle className="h-3.5 w-3.5 text-purple-600" aria-hidden="true" />
+                <h4 className="text-xs font-semibold tracking-wide text-purple-700 uppercase">
                   Practice question
                 </h4>
               </div>
-              <div className="prose prose-sm max-w-none font-heading text-purple-900">
+              <div className="prose prose-sm font-heading max-w-none text-purple-900">
                 <SBMarkdown className="font-heading text-purple-900">
                   {section.practice_question}
                 </SBMarkdown>

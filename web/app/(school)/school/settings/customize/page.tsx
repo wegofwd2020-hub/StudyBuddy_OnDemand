@@ -47,7 +47,7 @@ function MiniSubjectCard({ subjectKey }: { subjectKey: string }) {
         <span style={{ fontSize: 13, fontWeight: 600, color: palette.ink }}>{label}</span>
       </div>
       <div style={{ marginTop: 6, display: "flex", gap: 4 }}>
-        {[1, 2, 3].map(i => (
+        {[1, 2, 3].map((i) => (
           <div
             key={i}
             style={{ height: 6, flex: 1, borderRadius: 3, background: palette.bg2 }}
@@ -61,12 +61,16 @@ function MiniSubjectCard({ subjectKey }: { subjectKey: string }) {
 function MiniLibraryPreview({ schoolName }: { schoolName: string }) {
   return (
     <div className="sticky top-6 space-y-3">
-      <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Live preview</p>
+      <p className="text-xs font-semibold tracking-wide text-gray-400 uppercase">
+        Live preview
+      </p>
       <div className="rounded-xl border bg-white p-5 shadow-sm">
         <p className="mb-1 text-xs font-medium text-gray-400">Student library</p>
-        <p className="mb-4 text-sm font-bold text-gray-900">{schoolName || "Your school"}</p>
+        <p className="mb-4 text-sm font-bold text-gray-900">
+          {schoolName || "Your school"}
+        </p>
         <div className="grid grid-cols-2 gap-2">
-          {SUBJECT_ORDER.map(key => (
+          {SUBJECT_ORDER.map((key) => (
             <MiniSubjectCard key={key} subjectKey={key} />
           ))}
         </div>
@@ -107,7 +111,7 @@ function SubjectColorRow({
         type="color"
         value={valid ? localHex : accent}
         disabled={disabled}
-        onChange={e => {
+        onChange={(e) => {
           setLocalHex(e.target.value);
           onChange(e.target.value);
         }}
@@ -117,9 +121,9 @@ function SubjectColorRow({
       <Input
         value={localHex}
         disabled={disabled}
-        onChange={e => setLocalHex(e.target.value)}
-        onBlur={e => commitHex(e.target.value)}
-        onKeyDown={e => {
+        onChange={(e) => setLocalHex(e.target.value)}
+        onBlur={(e) => commitHex(e.target.value)}
+        onKeyDown={(e) => {
           if (e.key === "Enter") commitHex(localHex);
         }}
         className="h-9 w-32 font-mono text-sm"
@@ -171,7 +175,7 @@ export default function CustomizeSchoolPage() {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "z") {
         e.preventDefault();
-        setHistory(h => {
+        setHistory((h) => {
           if (h.length === 0) return h;
           const prev = h[h.length - 1];
           setWorkingTheme(prev);
@@ -224,11 +228,11 @@ export default function CustomizeSchoolPage() {
   });
 
   function pushHistory(prev: SchoolTheme) {
-    setHistory(h => [...h.slice(-19), prev]);
+    setHistory((h) => [...h.slice(-19), prev]);
   }
 
   function updateTheme(updater: (t: SchoolTheme) => SchoolTheme) {
-    setWorkingTheme(t => {
+    setWorkingTheme((t) => {
       pushHistory(t);
       return updater(t);
     });
@@ -264,7 +268,7 @@ export default function CustomizeSchoolPage() {
       {/* Header */}
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-blue-700">
+          <p className="mb-1 text-xs font-semibold tracking-wider text-blue-700 uppercase">
             Settings · Customize
           </p>
           <h1 className="flex items-center gap-2 text-2xl font-bold text-gray-900">
@@ -329,41 +333,49 @@ export default function CustomizeSchoolPage() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-base">School identity</CardTitle>
-              <p className="text-xs text-gray-500">Shown in the sidebar and on lesson covers.</p>
+              <p className="text-xs text-gray-500">
+                Shown in the sidebar and on lesson covers.
+              </p>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+                <label className="text-xs font-semibold tracking-wide text-gray-400 uppercase">
                   School name
                 </label>
                 <Input
                   value={workingTheme.school.name}
                   disabled={!isAdmin}
-                  onChange={e =>
-                    updateTheme(t => ({
+                  onChange={(e) =>
+                    updateTheme((t) => ({
                       ...t,
-                      school: { ...t.school, name: e.target.value, logoText: e.target.value },
+                      school: {
+                        ...t.school,
+                        name: e.target.value,
+                        logoText: e.target.value,
+                      },
                     }))
                   }
                   placeholder="Your school name"
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+                <label className="text-xs font-semibold tracking-wide text-gray-400 uppercase">
                   Logo URL
                 </label>
                 <Input
                   value={workingTheme.school.logoUrl ?? ""}
                   disabled={!isAdmin}
-                  onChange={e =>
-                    updateTheme(t => ({
+                  onChange={(e) =>
+                    updateTheme((t) => ({
                       ...t,
                       school: { ...t.school, logoUrl: e.target.value || null },
                     }))
                   }
                   placeholder="https://… (PNG or SVG, 200×200 or larger)"
                 />
-                <p className="text-xs text-gray-400">Leave blank to use the default logo.</p>
+                <p className="text-xs text-gray-400">
+                  Leave blank to use the default logo.
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -377,16 +389,17 @@ export default function CustomizeSchoolPage() {
               </p>
             </CardHeader>
             <CardContent className="space-y-4">
-              {SUBJECT_ORDER.map(key => (
+              {SUBJECT_ORDER.map((key) => (
                 <SubjectColorRow
                   key={key}
                   subjectKey={key}
                   accent={
-                    workingTheme.subjects[key]?.accent ?? DEFAULT_THEME.subjects[key].accent
+                    workingTheme.subjects[key]?.accent ??
+                    DEFAULT_THEME.subjects[key].accent
                   }
                   disabled={!isAdmin}
-                  onChange={hex =>
-                    updateTheme(t => ({
+                  onChange={(hex) =>
+                    updateTheme((t) => ({
                       ...t,
                       subjects: {
                         ...t.subjects,

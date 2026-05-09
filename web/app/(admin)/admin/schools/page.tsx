@@ -46,10 +46,13 @@ export default function AdminSchoolsPage() {
   function handleSearch(value: string) {
     setSearch(value);
     clearTimeout((handleSearch as unknown as { _t?: ReturnType<typeof setTimeout> })._t);
-    (handleSearch as unknown as { _t?: ReturnType<typeof setTimeout> })._t = setTimeout(() => {
-      setDebouncedSearch(value);
-      setPage(1);
-    }, 300);
+    (handleSearch as unknown as { _t?: ReturnType<typeof setTimeout> })._t = setTimeout(
+      () => {
+        setDebouncedSearch(value);
+        setPage(1);
+      },
+      300,
+    );
   }
 
   const { data, isLoading } = useQuery({
@@ -124,11 +127,13 @@ export default function AdminSchoolsPage() {
                         <div className="flex items-center gap-2">
                           <div>
                             <p className="font-medium text-gray-800">{school.name}</p>
-                            <p className="text-xs text-gray-400">{school.contact_email}</p>
+                            <p className="text-xs text-gray-400">
+                              {school.contact_email}
+                            </p>
                           </div>
                           {school.has_override && (
                             <span title="Has limit override">
-                              <AlertTriangle className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+                              <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-400" />
                             </span>
                           )}
                         </div>
@@ -177,7 +182,7 @@ export default function AdminSchoolsPage() {
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
-            className="rounded-md border border-gray-200 px-3 py-1.5 text-xs disabled:opacity-40 hover:bg-gray-50"
+            className="rounded-md border border-gray-200 px-3 py-1.5 text-xs hover:bg-gray-50 disabled:opacity-40"
           >
             ← Prev
           </button>
@@ -187,7 +192,7 @@ export default function AdminSchoolsPage() {
           <button
             onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
             disabled={page === pageCount}
-            className="rounded-md border border-gray-200 px-3 py-1.5 text-xs disabled:opacity-40 hover:bg-gray-50"
+            className="rounded-md border border-gray-200 px-3 py-1.5 text-xs hover:bg-gray-50 disabled:opacity-40"
           >
             Next →
           </button>

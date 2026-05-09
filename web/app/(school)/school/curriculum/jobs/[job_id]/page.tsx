@@ -17,7 +17,8 @@ import { useRouter } from "next/navigation";
 function StatusIcon({ status }: { status: string }) {
   if (status === "done") return <CheckCircle className="h-5 w-5 text-green-500" />;
   if (status === "failed") return <XCircle className="h-5 w-5 text-red-500" />;
-  if (status === "running") return <Loader2 className="h-5 w-5 animate-spin text-blue-500" />;
+  if (status === "running")
+    return <Loader2 className="h-5 w-5 animate-spin text-blue-500" />;
   return <Clock className="h-5 w-5 text-gray-400" />;
 }
 
@@ -192,11 +193,13 @@ export default function JobDetailPage() {
                 </div>
                 <div>
                   <dt className="text-xs text-gray-400">Languages</dt>
-                  <dd className="font-mono text-xs text-gray-700 uppercase">{data.langs}</dd>
+                  <dd className="font-mono text-xs text-gray-700 uppercase">
+                    {data.langs}
+                  </dd>
                 </div>
                 <div>
                   <dt className="text-xs text-gray-400">Curriculum ID</dt>
-                  <dd className="font-mono text-xs text-gray-500 break-all">
+                  <dd className="font-mono text-xs break-all text-gray-500">
                     {data.curriculum_id}
                   </dd>
                 </div>
@@ -236,7 +239,12 @@ export default function JobDetailPage() {
           {isFinished && (
             <div className="flex gap-2">
               {isFailed && (
-                <Button onClick={handleRetry} disabled={retrying} variant="outline" className="gap-2">
+                <Button
+                  onClick={handleRetry}
+                  disabled={retrying}
+                  variant="outline"
+                  className="gap-2"
+                >
                   {retrying ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (

@@ -51,9 +51,7 @@ describe("STU-26 — TutorialRenderer: title + section disclosures", () => {
     render(<TutorialRenderer tutorial={MOCK_TUTORIAL} />);
     const buttons = screen.getAllByRole("button", { expanded: true });
     expect(buttons).toHaveLength(1);
-    expect(buttons[0]).toHaveAccessibleName(
-      new RegExp(MOCK_TUTORIAL.sections[0].title),
-    );
+    expect(buttons[0]).toHaveAccessibleName(new RegExp(MOCK_TUTORIAL.sections[0].title));
   });
 
   it("clicking a collapsed section expands it (aria-expanded toggles)", () => {

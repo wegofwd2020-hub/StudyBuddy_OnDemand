@@ -76,9 +76,7 @@ export function SchoolThemeProvider({
   value: SchoolTheme;
 }) {
   return (
-    <SchoolThemeContext.Provider value={value}>
-      {children}
-    </SchoolThemeContext.Provider>
+    <SchoolThemeContext.Provider value={value}>{children}</SchoolThemeContext.Provider>
   );
 }
 
@@ -91,6 +89,7 @@ export function useSchoolTheme(): SchoolTheme {
 export function useSubjectPalette(subjectKey: string): SubjectPalette {
   const theme = useSchoolTheme();
   const subject = theme.subjects[subjectKey];
-  const accent = subject?.accent ?? DEFAULT_THEME.subjects[subjectKey]?.accent ?? "#4f46e5";
+  const accent =
+    subject?.accent ?? DEFAULT_THEME.subjects[subjectKey]?.accent ?? "#4f46e5";
   return getSubjectPalette(accent);
 }

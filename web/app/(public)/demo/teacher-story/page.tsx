@@ -86,15 +86,11 @@ function Hero() {
         </h1>
         <p className="mt-6 text-xl text-slate-600">
           Watch a Grade 11 Physics lesson assemble itself —
-          <span className="font-semibold">
-            {" "}
-            text, diagrams, an animation, and a quiz
-          </span>
-          {" "}— scoped to one teacher&apos;s curriculum.
+          <span className="font-semibold"> text, diagrams, an animation, and a quiz</span>{" "}
+          — scoped to one teacher&apos;s curriculum.
         </p>
         <p className="mt-3 text-sm text-slate-500">
-          A 3-minute walkthrough · with captions · download to share with
-          your principal
+          A 3-minute walkthrough · with captions · download to share with your principal
         </p>
       </div>
     </section>
@@ -153,8 +149,8 @@ function CtaSection() {
         </a>
       </div>
       <p className="mx-auto mt-3 max-w-3xl text-center text-xs text-slate-500">
-        The Request-a-demo button opens your email client with a
-        pre-filled message to <span className="font-mono">support@studybuddy.app</span>.
+        The Request-a-demo button opens your email client with a pre-filled message to{" "}
+        <span className="font-mono">support@studybuddy.app</span>.
       </p>
     </section>
   );
@@ -169,10 +165,9 @@ function ContextSection() {
         </h2>
         <p className="mt-4 text-slate-600">
           Most &ldquo;AI for teachers&rdquo; pitches stop at the search-bar. The
-          interesting question is what comes <em>after</em>: how the
-          lesson is composed, what modalities it carries, how it stays
-          current, and how it adapts to the same teacher&apos;s other
-          classes. The video walks through the answer end-to-end.
+          interesting question is what comes <em>after</em>: how the lesson is composed,
+          what modalities it carries, how it stays current, and how it adapts to the same
+          teacher&apos;s other classes. The video walks through the answer end-to-end.
         </p>
 
         <div className="mt-10 grid gap-6 sm:grid-cols-3">

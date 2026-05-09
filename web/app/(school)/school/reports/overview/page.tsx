@@ -56,10 +56,7 @@ export default function OverviewReportPage() {
               { label: "Enrolled", value: data.enrolled_students ?? 0 },
               {
                 label: "Active",
-                value:
-                  data.active_pct != null
-                    ? `${data.active_pct.toFixed(0)}%`
-                    : "—",
+                value: data.active_pct != null ? `${data.active_pct.toFixed(0)}%` : "—",
                 sub: `${data.active_students_period ?? 0} students`,
               },
               { label: "Lessons viewed", value: data.lessons_viewed ?? 0 },
@@ -71,7 +68,8 @@ export default function OverviewReportPage() {
                     ? `${data.first_attempt_pass_rate_pct.toFixed(0)}%`
                     : "—",
                 highlight:
-                  data.first_attempt_pass_rate_pct != null && data.first_attempt_pass_rate_pct < 60
+                  data.first_attempt_pass_rate_pct != null &&
+                  data.first_attempt_pass_rate_pct < 60
                     ? "red"
                     : "green",
               },

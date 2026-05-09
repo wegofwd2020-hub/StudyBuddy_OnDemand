@@ -1,6 +1,11 @@
 "use client";
 
-import { BookOpen as BookOpenIcon, GraduationCap, ListChecks, FlaskConical } from "lucide-react";
+import {
+  BookOpen as BookOpenIcon,
+  GraduationCap,
+  ListChecks,
+  FlaskConical,
+} from "lucide-react";
 import { LinkButton } from "@/components/ui/link-button";
 
 interface TocProps {

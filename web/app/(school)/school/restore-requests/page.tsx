@@ -40,7 +40,7 @@ const STATUS_LABEL: Record<string, string> = {
 function StatusBadge({ status }: { status: string }) {
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium ${STATUS_STYLE[status] ?? "bg-gray-50 text-gray-600 border-gray-200"}`}
+      className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium ${STATUS_STYLE[status] ?? "border-gray-200 bg-gray-50 text-gray-600"}`}
     >
       {status === "awaiting_school_confirm" && <AlertCircle className="h-3 w-3" />}
       {STATUS_LABEL[status] ?? status}
@@ -132,9 +132,13 @@ export default function RestoreRequestsPage() {
           <table className="min-w-full divide-y divide-gray-200 text-sm">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-3 text-left font-semibold text-gray-700">Submitted</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700">
+                  Submitted
+                </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">Scope</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-700">Status</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700">
+                  Status
+                </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">Notes</th>
                 <th className="px-4 py-3" />
               </tr>
@@ -145,14 +149,14 @@ export default function RestoreRequestsPage() {
                   key={r.id}
                   className={`hover:bg-gray-50 ${r.status === "awaiting_school_confirm" ? "bg-orange-50/40" : ""}`}
                 >
-                  <td className="px-4 py-3 tabular-nums text-gray-600">
+                  <td className="px-4 py-3 text-gray-600 tabular-nums">
                     {new Date(r.created_at).toLocaleDateString()}
                   </td>
                   <td className="px-4 py-3 text-gray-900">{scopeLabel(r)}</td>
                   <td className="px-4 py-3">
                     <StatusBadge status={r.status} />
                   </td>
-                  <td className="px-4 py-3 text-gray-500 text-xs max-w-xs truncate">
+                  <td className="max-w-xs truncate px-4 py-3 text-xs text-gray-500">
                     {r.notes ?? "—"}
                   </td>
                   <td className="px-4 py-3 text-right">
@@ -174,8 +178,8 @@ export default function RestoreRequestsPage() {
       )}
 
       <p className="text-xs text-gray-400">
-        Restore requests are reviewed and executed by the platform administrator.
-        You will be notified by email at each stage.
+        Restore requests are reviewed and executed by the platform administrator. You will
+        be notified by email at each stage.
       </p>
     </div>
   );

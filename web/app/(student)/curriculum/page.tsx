@@ -78,17 +78,12 @@ export default function CurriculumMapPage() {
                       status={statusMap.get(unit.unit_id) ?? "not_started"}
                       hasLab={unit.has_lab}
                       isOpen={openUnitId === unit.unit_id}
-                      onToggle={(id) =>
-                        setOpenUnitId((cur) => (cur === id ? null : id))
-                      }
+                      onToggle={(id) => setOpenUnitId((cur) => (cur === id ? null : id))}
                     />
                   ))}
                 </Shelf>
                 {open ? (
-                  <BookOpen
-                    title={open.title}
-                    onClose={() => setOpenUnitId(null)}
-                  >
+                  <BookOpen title={open.title} onClose={() => setOpenUnitId(null)}>
                     <Toc unitId={open.unit_id} hasLab={open.has_lab} />
                   </BookOpen>
                 ) : null}

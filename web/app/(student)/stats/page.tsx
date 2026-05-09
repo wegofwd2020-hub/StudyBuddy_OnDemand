@@ -72,9 +72,7 @@ export default function StatsPage() {
         ) : !stats || stats.quizzes_completed === 0 ? (
           <div className="rounded-xl border border-gray-200 bg-white py-16 text-center">
             <BarChart2 className="mx-auto mb-3 h-10 w-10 text-gray-300" />
-            <p className="mb-1 text-sm font-medium text-gray-600">
-              No stats yet
-            </p>
+            <p className="mb-1 text-sm font-medium text-gray-600">No stats yet</p>
             <p className="mb-4 text-xs text-gray-400">
               Complete your first quiz to start tracking your progress here.
             </p>

@@ -1,26 +1,26 @@
 // Shared types for the scenario builder and players
 
 export type QuizFormat = "true_false" | "single_choice" | "multiple_choice";
-export type Language   = "en" | "fr" | "es";
+export type Language = "en" | "fr" | "es";
 export type Difficulty = "beginner" | "intermediate" | "advanced";
 export type AnimationStyle = "realistic" | "animated";
 
 export interface ScenarioCharacter {
-  id: string;           // "user1", "user2", …
+  id: string; // "user1", "user2", …
   name: string;
-  role_label: string;   // "Sales Director — Vendor"
+  role_label: string; // "Sales Director — Vendor"
   org?: string;
   gender: "male" | "female" | "non-binary";
   ethnicity?: string;
   approx_age?: number;
   animation_style: AnimationStyle;
-  voice_id?: string;    // D-ID / Azure Neural voice
-  background?: string;  // D-ID virtual background key
+  voice_id?: string; // D-ID / Azure Neural voice
+  background?: string; // D-ID virtual background key
 }
 
 export interface DialogTurn {
-  id: string;           // uuid — stable key for React lists / drag-drop
-  speaker: string;      // character id
+  id: string; // uuid — stable key for React lists / drag-drop
+  speaker: string; // character id
   text: string;
 }
 
@@ -33,7 +33,7 @@ export interface QuizQuestion {
   id: string;
   question: string;
   format: QuizFormat;
-  options?: QuizOption[];                      // single_choice | multiple_choice
+  options?: QuizOption[]; // single_choice | multiple_choice
   correct_answer: boolean | string | string[]; // bool | option id | option ids
   explanation: string;
 }
@@ -87,16 +87,16 @@ export interface VideoClip {
 
 // Voices available through D-ID / Azure Neural
 export const VOICES_EN = [
-  { id: "en-US-JennyNeural",  label: "Jenny (US Female)" },
-  { id: "en-US-GuyNeural",    label: "Guy (US Male)" },
-  { id: "en-US-AriaNeural",   label: "Aria (US Female)" },
-  { id: "en-GB-SoniaNeural",  label: "Sonia (UK Female)" },
-  { id: "en-GB-RyanNeural",   label: "Ryan (UK Male)" },
+  { id: "en-US-JennyNeural", label: "Jenny (US Female)" },
+  { id: "en-US-GuyNeural", label: "Guy (US Male)" },
+  { id: "en-US-AriaNeural", label: "Aria (US Female)" },
+  { id: "en-GB-SoniaNeural", label: "Sonia (UK Female)" },
+  { id: "en-GB-RyanNeural", label: "Ryan (UK Male)" },
 ] as const;
 
 export const VOICES_FR = [
   { id: "fr-FR-DeniseNeural", label: "Denise (FR Female)" },
-  { id: "fr-FR-HenriNeural",  label: "Henri (FR Male)" },
+  { id: "fr-FR-HenriNeural", label: "Henri (FR Male)" },
 ] as const;
 
 export const VOICES_ES = [
@@ -104,11 +104,12 @@ export const VOICES_ES = [
   { id: "es-ES-AlvaroNeural", label: "Alvaro (ES Male)" },
 ] as const;
 
-export const VOICES_BY_LANG: Record<Language, readonly { id: string; label: string }[]> = {
-  en: VOICES_EN,
-  fr: VOICES_FR,
-  es: VOICES_ES,
-};
+export const VOICES_BY_LANG: Record<Language, readonly { id: string; label: string }[]> =
+  {
+    en: VOICES_EN,
+    fr: VOICES_FR,
+    es: VOICES_ES,
+  };
 
 export const COMPLIANCE_DOMAINS = [
   "Contract Law",
@@ -126,11 +127,11 @@ export const COMPLIANCE_DOMAINS = [
 ] as const;
 
 export const BACKGROUNDS = [
-  { id: "office",      label: "Office" },
-  { id: "boardroom",   label: "Boardroom" },
-  { id: "lobby",       label: "Lobby" },
-  { id: "outdoor",     label: "Outdoor" },
-  { id: "none",        label: "Plain background" },
+  { id: "office", label: "Office" },
+  { id: "boardroom", label: "Boardroom" },
+  { id: "lobby", label: "Lobby" },
+  { id: "outdoor", label: "Outdoor" },
+  { id: "none", label: "Plain background" },
 ] as const;
 
 export function emptyDraft(): ScenarioDraft {

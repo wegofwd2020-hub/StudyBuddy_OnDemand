@@ -24,7 +24,10 @@ export const MOCK_TUTORIAL: TutorialContent = {
       title: "Introduction to Cells",
       content:
         "Every living thing — from bacteria to blue whales — is made of cells. A cell is the smallest unit that can carry out the basic processes of life.",
-      examples: ["Bacteria are single-celled organisms.", "Humans have ~37 trillion cells."],
+      examples: [
+        "Bacteria are single-celled organisms.",
+        "Humans have ~37 trillion cells.",
+      ],
       practice_question: "What is the smallest unit of life?",
     },
     {

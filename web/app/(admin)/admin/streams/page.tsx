@@ -3,14 +3,7 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-import {
-  Archive,
-  ArchiveRestore,
-  Layers,
-  Plus,
-  Search,
-  Trash2,
-} from "lucide-react";
+import { Archive, ArchiveRestore, Layers, Plus, Search, Trash2 } from "lucide-react";
 import {
   archiveStream,
   deleteStream,
@@ -51,9 +44,7 @@ export default function AdminStreamsPage() {
     });
     if (!f) return sorted;
     return sorted.filter(
-      (s) =>
-        s.code.toLowerCase().includes(f) ||
-        s.display_name.toLowerCase().includes(f),
+      (s) => s.code.toLowerCase().includes(f) || s.display_name.toLowerCase().includes(f),
     );
   }, [data, filter]);
 
@@ -114,14 +105,12 @@ export default function AdminStreamsPage() {
       </div>
 
       {isLoading && <p className="text-sm text-gray-500">Loading…</p>}
-      {error && (
-        <p className="text-sm text-red-600">Failed to load streams.</p>
-      )}
+      {error && <p className="text-sm text-red-600">Failed to load streams.</p>}
 
       {data && (
         <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
           <table className="w-full text-sm">
-            <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
+            <thead className="border-b border-gray-200 bg-gray-50 text-xs tracking-wide text-gray-500 uppercase">
               <tr>
                 <th className="px-4 py-3 text-left font-medium">Code</th>
                 <th className="px-4 py-3 text-left font-medium">Display name</th>
@@ -194,7 +183,9 @@ export default function AdminStreamsPage() {
                         )}
                         <button
                           onClick={() => {
-                            if (confirm(`Delete stream '${s.code}'? This cannot be undone.`)) {
+                            if (
+                              confirm(`Delete stream '${s.code}'? This cannot be undone.`)
+                            ) {
                               deleteMut.mutate(s.code);
                             }
                           }}
@@ -203,10 +194,10 @@ export default function AdminStreamsPage() {
                             deletable
                               ? "Delete"
                               : s.is_system
-                              ? "System streams can't be deleted"
-                              : s.curricula_count > 0
-                              ? `${s.curricula_count} curriculum(s) still use this stream — merge first`
-                              : "Archive before deleting"
+                                ? "System streams can't be deleted"
+                                : s.curricula_count > 0
+                                  ? `${s.curricula_count} curriculum(s) still use this stream — merge first`
+                                  : "Archive before deleting"
                           }
                           className={cn(
                             "inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs",
@@ -224,7 +215,10 @@ export default function AdminStreamsPage() {
               })}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-10 text-center text-sm text-gray-500">
+                  <td
+                    colSpan={6}
+                    className="px-4 py-10 text-center text-sm text-gray-500"
+                  >
                     No streams match.
                   </td>
                 </tr>

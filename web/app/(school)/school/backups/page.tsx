@@ -33,7 +33,7 @@ const STATUS_STYLE: Record<string, string> = {
 function StatusBadge({ status }: { status: string }) {
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium capitalize ${STATUS_STYLE[status] ?? "bg-gray-50 text-gray-600 border-gray-200"}`}
+      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium capitalize ${STATUS_STYLE[status] ?? "border-gray-200 bg-gray-50 text-gray-600"}`}
     >
       {status}
     </span>
@@ -77,8 +77,9 @@ export default function BackupsPage() {
 
       <p className="text-sm text-gray-500">
         Read-only view of your school&apos;s curriculum backups. Backups are created
-        automatically on the configured schedule and can also be triggered by your platform
-        administrator. To recover content from a backup, submit a restore request.
+        automatically on the configured schedule and can also be triggered by your
+        platform administrator. To recover content from a backup, submit a restore
+        request.
       </p>
 
       {/* Table */}
@@ -92,9 +93,9 @@ export default function BackupsPage() {
         <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-gray-200 py-12 text-center">
           <Database className="h-8 w-8 text-gray-300" />
           <p className="text-sm font-medium text-gray-500">No backups yet</p>
-          <p className="text-xs text-gray-400 max-w-xs">
-            Backups are created automatically overnight. Contact your administrator
-            if you need an immediate backup.
+          <p className="max-w-xs text-xs text-gray-400">
+            Backups are created automatically overnight. Contact your administrator if you
+            need an immediate backup.
           </p>
         </div>
       ) : (
@@ -102,10 +103,18 @@ export default function BackupsPage() {
           <table className="min-w-full divide-y divide-gray-200 text-sm">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-3 text-left font-semibold text-gray-700">Created</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-700">Label / Scope</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-700">Status</th>
-                <th className="px-4 py-3 text-right font-semibold text-gray-700">Files</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700">
+                  Created
+                </th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700">
+                  Label / Scope
+                </th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700">
+                  Status
+                </th>
+                <th className="px-4 py-3 text-right font-semibold text-gray-700">
+                  Files
+                </th>
                 <th className="px-4 py-3 text-right font-semibold text-gray-700">Size</th>
                 <th className="px-4 py-3" />
               </tr>
@@ -113,7 +122,7 @@ export default function BackupsPage() {
             <tbody className="divide-y divide-gray-100 bg-white">
               {backups.map((b) => (
                 <tr key={b.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 tabular-nums text-gray-600">
+                  <td className="px-4 py-3 text-gray-600 tabular-nums">
                     {new Date(b.created_at).toLocaleDateString()}{" "}
                     <span className="text-xs text-gray-400">
                       {new Date(b.created_at).toLocaleTimeString([], {
@@ -131,10 +140,10 @@ export default function BackupsPage() {
                   <td className="px-4 py-3">
                     <StatusBadge status={b.status} />
                   </td>
-                  <td className="px-4 py-3 text-right tabular-nums text-gray-600">
+                  <td className="px-4 py-3 text-right text-gray-600 tabular-nums">
                     {b.file_count > 0 ? b.file_count : "—"}
                   </td>
-                  <td className="px-4 py-3 text-right tabular-nums text-gray-600">
+                  <td className="px-4 py-3 text-right text-gray-600 tabular-nums">
                     {fmtBytes(b.total_bytes)}
                   </td>
                   <td className="px-4 py-3 text-right">

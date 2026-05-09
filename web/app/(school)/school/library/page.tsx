@@ -3,11 +3,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTeacher } from "@/lib/hooks/useTeacher";
-import {
-  getLibrary,
-  updateAdoption,
-  type AdoptionItem,
-} from "@/lib/api/school-admin";
+import { getLibrary, updateAdoption, type AdoptionItem } from "@/lib/api/school-admin";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -83,15 +79,16 @@ function AdoptionDetail({
       </div>
 
       {/* Notes */}
-      {item.notes && (
-        <p className="text-xs italic text-gray-500">{item.notes}</p>
-      )}
+      {item.notes && <p className="text-xs text-gray-500 italic">{item.notes}</p>}
 
       {/* Archived source notice — replaces action buttons */}
       {isArchivedSource ? (
         <div className="rounded-md border border-amber-200 bg-amber-50 p-3">
           <div className="flex items-start gap-2">
-            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" aria-hidden="true" />
+            <AlertTriangle
+              className="mt-0.5 h-4 w-4 shrink-0 text-amber-600"
+              aria-hidden="true"
+            />
             <div className="min-w-0">
               {item.archive_reason && (
                 <p className="mb-1 text-xs font-medium text-amber-700">
@@ -122,7 +119,7 @@ function AdoptionDetail({
               type="button"
               onClick={() => onToggle(item)}
               disabled={toggling}
-              className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 px-2.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 px-2.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
               aria-label={isActive ? "Deactivate" : "Reactivate"}
             >
               {isActive ? (
@@ -217,7 +214,7 @@ export default function LibraryPage() {
             const gradeKey = grade === null ? "ungraded" : `g${grade}`;
             return (
               <div key={`${ariaId}-${gradeKey}`} className="space-y-2">
-                <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <h3 className="text-xs font-semibold tracking-wide text-gray-500 uppercase">
                   {gradeLabel}
                 </h3>
                 <Shelf ariaLabel={`${label} ${gradeLabel} adoptions`}>
@@ -228,9 +225,7 @@ export default function LibraryPage() {
                       title={item.name}
                       subjectKey={deriveStreamKey(item.name)}
                       accentOverride={deriveStreamAccent(item.name)}
-                      dim={
-                        item.is_source_archived || item.status !== "active"
-                      }
+                      dim={item.is_source_archived || item.status !== "active"}
                       isOpen={openAdoptionId === item.adoption_id}
                       onToggle={onToggleSpine}
                     />
@@ -274,8 +269,7 @@ export default function LibraryPage() {
 
       <p className="text-sm text-gray-500">
         Curricula your school has adopted from the platform catalog. Teachers can import
-        and customize content from these packages. Assign packages to classrooms from
-        the{" "}
+        and customize content from these packages. Assign packages to classrooms from the{" "}
         <Link
           href="/school/classrooms"
           className="text-indigo-600 underline-offset-2 hover:underline"
@@ -297,8 +291,8 @@ export default function LibraryPage() {
           <CheckCircle2 className="h-8 w-8 text-gray-300" />
           <p className="text-sm font-medium text-gray-500">No curricula adopted yet</p>
           <p className="max-w-xs text-xs text-gray-400">
-            Browse the platform catalog and add curricula to your library so teachers
-            can import and customize content for their classes.
+            Browse the platform catalog and add curricula to your library so teachers can
+            import and customize content for their classes.
           </p>
           {isAdmin && (
             <LinkButton href="/school/catalog" size="sm" className="mt-2">

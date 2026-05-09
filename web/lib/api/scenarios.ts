@@ -33,7 +33,9 @@ export interface ClipsStatusResponse {
 }
 
 export async function generateClips(scenario: object): Promise<GenerateClipsResponse> {
-  const res = await api.post<GenerateClipsResponse>("/scenarios/generate-clips", { scenario });
+  const res = await api.post<GenerateClipsResponse>("/scenarios/generate-clips", {
+    scenario,
+  });
   return res.data;
 }
 

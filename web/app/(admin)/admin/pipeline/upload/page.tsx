@@ -32,8 +32,7 @@ const RESERVED_CODES = new Set(["none", "other", "all", "default", "null"]);
 function validateCustomCode(code: string): string | null {
   if (!code) return "Required.";
   if (code.length < 3 || code.length > 30) return "3–30 characters.";
-  if (!CODE_PATTERN.test(code))
-    return "Lowercase letters, digits, and hyphens only.";
+  if (!CODE_PATTERN.test(code)) return "Lowercase letters, digits, and hyphens only.";
   if (RESERVED_CODES.has(code)) return `'${code}' is reserved.`;
   return null;
 }
@@ -104,7 +103,10 @@ export default function AdminPipelineUploadPage() {
   // Typeahead: debounced prefix query against the registry.
   const [debouncedCustomCode, setDebouncedCustomCode] = useState("");
   useEffect(() => {
-    const t = setTimeout(() => setDebouncedCustomCode(customCode.trim().toLowerCase()), 200);
+    const t = setTimeout(
+      () => setDebouncedCustomCode(customCode.trim().toLowerCase()),
+      200,
+    );
     return () => clearTimeout(t);
   }, [customCode]);
 
@@ -123,7 +125,9 @@ export default function AdminPipelineUploadPage() {
   }, [streams]);
 
   const isOther = streamSelect === OTHER_VALUE;
-  const customCodeError = isOther ? validateCustomCode(customCode.trim().toLowerCase()) : null;
+  const customCodeError = isOther
+    ? validateCustomCode(customCode.trim().toLowerCase())
+    : null;
   const streamReady =
     streamSelect !== "" &&
     (!isOther || (!customCodeError && customDisplayName.trim().length > 0));

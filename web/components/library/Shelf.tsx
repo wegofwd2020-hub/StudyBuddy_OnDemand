@@ -66,7 +66,7 @@ export function Shelf({ children, ariaLabel }: ShelfProps) {
       onKeyDown={onKeyDown}
       className={cn(
         "relative flex flex-col gap-3 pb-2",
-        "sm:flex-row sm:overflow-x-auto sm:snap-x sm:snap-mandatory",
+        "sm:snap-x sm:snap-mandatory sm:flex-row sm:overflow-x-auto",
         "sm:border-b-2 sm:border-stone-400/70 sm:pb-3",
         "sm:shadow-[0_5px_6px_-5px_rgba(0,0,0,0.18)]",
       )}

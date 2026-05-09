@@ -69,7 +69,11 @@ function GradeEditor({
   function toggle(grade: number) {
     setSelected((prev) => {
       const next = new Set(prev);
-      if (next.has(grade)) { next.delete(grade); } else { next.add(grade); }
+      if (next.has(grade)) {
+        next.delete(grade);
+      } else {
+        next.add(grade);
+      }
       return next;
     });
   }
@@ -188,7 +192,10 @@ function TeacherRow({
           {isAdmin && item.role !== "school_admin" && (
             <button
               type="button"
-              onClick={() => { setConfirmPromote(true); setActionMsg(null); }}
+              onClick={() => {
+                setConfirmPromote(true);
+                setActionMsg(null);
+              }}
               className="rounded-md p-1.5 text-gray-400 hover:bg-purple-50 hover:text-purple-600"
               aria-label="Promote to school admin"
               title="Promote to admin"
@@ -199,7 +206,10 @@ function TeacherRow({
           {isAdmin && (
             <button
               type="button"
-              onClick={() => { setConfirmReset(true); setActionMsg(null); }}
+              onClick={() => {
+                setConfirmReset(true);
+                setActionMsg(null);
+              }}
               className="rounded-md p-1.5 text-gray-400 hover:bg-amber-50 hover:text-amber-600"
               aria-label="Reset password"
               title="Reset password"
@@ -279,9 +289,11 @@ function TeacherRow({
       {/* Temp password reveal */}
       {tempPassword && (
         <div className="mt-3 rounded-lg border border-green-200 bg-green-50 p-3 text-sm">
-          <p className="font-medium text-green-800">Password reset — share this with {item.name}:</p>
+          <p className="font-medium text-green-800">
+            Password reset — share this with {item.name}:
+          </p>
           <div className="mt-1.5 flex items-center gap-2">
-            <code className="rounded bg-white px-3 py-1.5 font-mono text-sm font-semibold tracking-wide text-green-900 border border-green-200">
+            <code className="rounded border border-green-200 bg-white px-3 py-1.5 font-mono text-sm font-semibold tracking-wide text-green-900">
               {tempPassword}
             </code>
             <button
@@ -358,8 +370,8 @@ export default function TeachersPage() {
       if (status === 409) {
         setAddError("A teacher with that email already exists.");
       } else {
-        const detail = (err as { response?: { data?: { detail?: string } } })
-          ?.response?.data?.detail;
+        const detail = (err as { response?: { data?: { detail?: string } } })?.response
+          ?.data?.detail;
         setAddError(detail ?? "Could not add teacher. Please try again.");
       }
     },
@@ -374,7 +386,7 @@ export default function TeachersPage() {
 
       {/* ── Teacher roster ── */}
       <section>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+        <h2 className="mb-3 text-sm font-semibold tracking-wide text-gray-500 uppercase">
           Teachers at this school
         </h2>
         {isLoading ? (
@@ -440,8 +452,8 @@ export default function TeachersPage() {
                 <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
                   <Check className="h-4 w-4 shrink-0" />
                   Teacher added. A temporary password has been sent to{" "}
-                  <span className="font-medium">{addSuccess}</span>. They must set
-                  a new password on first login.
+                  <span className="font-medium">{addSuccess}</span>. They must set a new
+                  password on first login.
                 </div>
               )}
 

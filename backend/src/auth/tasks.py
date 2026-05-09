@@ -2169,7 +2169,9 @@ def generate_scenario_clips_task(
 
     if not clips:
         error_msg = d_id_error or "D-ID generation returned no clips — check D_ID_API_KEY and logs"
-        _log.error("avatar_worker_returned_no_clips scenario_id=%s error=%s", scenario_id, error_msg)
+        _log.error(
+            "avatar_worker_returned_no_clips scenario_id=%s error=%s", scenario_id, error_msg
+        )
         _set_status("failed", error=error_msg)
         return
 

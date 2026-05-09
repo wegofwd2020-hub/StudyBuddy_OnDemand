@@ -62,8 +62,8 @@ export interface VisualItem {
   src: string;
   alt: string;
   caption?: string;
-  poster?: string;        // for kind="video"
-  duration?: string;      // for kind="video"
+  poster?: string; // for kind="video"
+  duration?: string; // for kind="video"
 }
 
 export interface VisualBlock {

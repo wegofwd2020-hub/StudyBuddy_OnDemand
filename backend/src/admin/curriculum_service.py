@@ -254,9 +254,7 @@ async def list_archived_curricula(
         conditions.append(f"c.grade = ${len(params)}")
     if days_until_ttl_max is not None:
         params.append(days_until_ttl_max)
-        conditions.append(
-            f"c.expires_at <= NOW() + (${len(params)} * INTERVAL '1 day')"
-        )
+        conditions.append(f"c.expires_at <= NOW() + (${len(params)} * INTERVAL '1 day')")
 
     where = " AND ".join(conditions)
 
@@ -308,19 +306,21 @@ async def list_archived_curricula(
             meta = {}
         else:
             meta = dict(raw_meta)
-        result.append({
-            "curriculum_id": r["curriculum_id"],
-            "owner_type": r["owner_type"],
-            "school_id": r["school_id"],
-            "school_name": r["school_name"],
-            "grade": r["grade"],
-            "year": r["year"],
-            "name": r["name"],
-            "expires_at": r["expires_at"].isoformat() if r["expires_at"] else None,
-            "days_until_ttl": r["days_until_ttl"],
-            "archive_event_type": r["archive_event_type"],
-            "archived_by": r["archived_by"],
-            "archived_at": r["archived_at"].isoformat() if r["archived_at"] else None,
-            "archive_reason": meta.get("reason"),
-        })
+        result.append(
+            {
+                "curriculum_id": r["curriculum_id"],
+                "owner_type": r["owner_type"],
+                "school_id": r["school_id"],
+                "school_name": r["school_name"],
+                "grade": r["grade"],
+                "year": r["year"],
+                "name": r["name"],
+                "expires_at": r["expires_at"].isoformat() if r["expires_at"] else None,
+                "days_until_ttl": r["days_until_ttl"],
+                "archive_event_type": r["archive_event_type"],
+                "archived_by": r["archived_by"],
+                "archived_at": r["archived_at"].isoformat() if r["archived_at"] else None,
+                "archive_reason": meta.get("reason"),
+            }
+        )
     return result

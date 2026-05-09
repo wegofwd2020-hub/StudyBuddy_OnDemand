@@ -87,10 +87,7 @@ function CatalogDetail({
       {pkg.subjects.length > 0 ? (
         <ul className="divide-y divide-gray-50">
           {pkg.subjects.map((s) => (
-            <li
-              key={s.subject}
-              className="flex items-center gap-3 py-1.5 text-sm"
-            >
+            <li key={s.subject} className="flex items-center gap-3 py-1.5 text-sm">
               {s.has_content ? (
                 <CheckCircle2
                   className="h-3.5 w-3.5 shrink-0 text-green-500"
@@ -102,9 +99,7 @@ function CatalogDetail({
                   aria-hidden="true"
                 />
               )}
-              <span className="flex-1 text-gray-700">
-                {s.subject_name ?? s.subject}
-              </span>
+              <span className="flex-1 text-gray-700">{s.subject_name ?? s.subject}</span>
               <span className="text-xs text-gray-400">
                 {s.unit_count} unit{s.unit_count !== 1 ? "s" : ""}
               </span>
@@ -112,7 +107,7 @@ function CatalogDetail({
           ))}
         </ul>
       ) : (
-        <p className="text-xs italic text-gray-400">No subjects yet.</p>
+        <p className="text-xs text-gray-400 italic">No subjects yet.</p>
       )}
 
       {/* Adopt action */}
@@ -128,7 +123,7 @@ function CatalogDetail({
               type="button"
               onClick={() => onAdopt(pkg.curriculum_id)}
               disabled={adopting}
-              className="inline-flex items-center gap-1.5 rounded-md bg-indigo-50 px-2.5 py-1.5 text-xs font-medium text-indigo-700 hover:bg-indigo-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-md bg-indigo-50 px-2.5 py-1.5 text-xs font-medium text-indigo-700 hover:bg-indigo-100 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Plus className="h-3.5 w-3.5" aria-hidden="true" />
               {adopting ? "Adding…" : "Add to library"}
@@ -165,9 +160,7 @@ export default function CatalogPage() {
     staleTime: 60_000,
   });
 
-  const adoptedIds = new Set(
-    (libraryData?.adoptions ?? []).map((a) => a.curriculum_id),
-  );
+  const adoptedIds = new Set((libraryData?.adoptions ?? []).map((a) => a.curriculum_id));
 
   const adoptMutation = useMutation({
     mutationFn: (curriculumId: string) => adoptCurriculum(schoolId, curriculumId),
@@ -207,8 +200,8 @@ export default function CatalogPage() {
 
       <p className="text-sm text-gray-500">
         Platform-built curriculum packages available for assignment to your classrooms.
-        Each package covers a full grade&apos;s content across multiple subjects and units.
-        Assign packages to classrooms from the{" "}
+        Each package covers a full grade&apos;s content across multiple subjects and
+        units. Assign packages to classrooms from the{" "}
         <Link
           href="/school/classrooms"
           className="text-indigo-600 underline-offset-2 hover:underline"
@@ -229,7 +222,7 @@ export default function CatalogPage() {
           onChange={(e) =>
             setGradeFilter(e.target.value === "" ? "" : Number(e.target.value))
           }
-          className="h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          className="border-input focus-visible:ring-ring h-9 rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:ring-1 focus-visible:outline-none"
         >
           <option value="">All grades</option>
           {ALL_GRADES.map((g) => (
