@@ -105,7 +105,7 @@ export default function VisualLibraryPage() {
         <h1 className="text-2xl font-bold text-gray-900">Visual asset library</h1>
         <p className="mt-1 text-sm text-gray-600">
           Upload SVG, PNG, JPG, WebP, MP4, or WebM assets for your curricula. Once
-          uploaded, the URL can be added to a tutorial section's <code className="rounded bg-gray-100 px-1 py-0.5 text-xs">visuals</code> array.
+          uploaded, the URL can be added to a tutorial section&apos;s <code className="rounded bg-gray-100 px-1 py-0.5 text-xs">visuals</code> array.
         </p>
       </header>
 

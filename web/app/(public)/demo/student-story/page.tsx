@@ -87,7 +87,7 @@ function Hero() {
           For students
         </div>
         <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
-          What's Inside a Lesson
+          What&apos;s Inside a Lesson
         </h1>
         <p className="mt-6 text-xl text-slate-600">
           A Grade 11 Science student opens a kinematics lesson the

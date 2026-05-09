@@ -194,7 +194,7 @@ async def delete_visual(
 # Returns:     { override_id, version_number, review_status }
 
 
-import json as _json  # local alias avoids reformatter dropping the import
+import json as _json  # noqa: E402 — local alias avoids reformatter dropping the import
 
 
 class _VisualItemIn(BaseModel):

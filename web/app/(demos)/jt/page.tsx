@@ -85,7 +85,7 @@ export default function JTLandingPage() {
             </span>
           </div>
           <p className="mt-1 text-[11px] text-gray-400">
-            Costs are estimates. LLM = broker (Claude Opus 4.7) authoring tokens. img = image-generation API for stylized portraits (0 if default photo used). D-ID = `/talks` API credits for talking-avatar video. "Preview" scenarios have no D-ID cost yet because videos haven't been generated.
+            Costs are estimates. LLM = broker (Claude Opus 4.7) authoring tokens. img = image-generation API for stylized portraits (0 if default photo used). D-ID = `/talks` API credits for talking-avatar video. &ldquo;Preview&rdquo; scenarios have no D-ID cost yet because videos haven&apos;t been generated.
           </p>
         </div>
 

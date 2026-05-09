@@ -107,7 +107,6 @@ function VisualVideo({ item }: { item: VisualItem }) {
 
   return (
     <figure className="overflow-hidden rounded border border-emerald-200 bg-black">
-      {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
       <video
         controls
         autoPlay

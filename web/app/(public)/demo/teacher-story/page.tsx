@@ -90,7 +90,7 @@ function Hero() {
             {" "}
             text, diagrams, an animation, and a quiz
           </span>
-          {" "}— scoped to one teacher's curriculum.
+          {" "}— scoped to one teacher&apos;s curriculum.
         </p>
         <p className="mt-3 text-sm text-slate-500">
           A 3-minute walkthrough · with captions · download to share with
@@ -165,13 +165,13 @@ function ContextSection() {
     <section className="border-t border-slate-200 bg-white px-4 py-16">
       <div className="mx-auto max-w-3xl">
         <h2 className="text-2xl font-bold text-slate-900">
-          What's actually inside a lesson
+          What&apos;s actually inside a lesson
         </h2>
         <p className="mt-4 text-slate-600">
-          Most "AI for teachers" pitches stop at the search-bar. The
+          Most &ldquo;AI for teachers&rdquo; pitches stop at the search-bar. The
           interesting question is what comes <em>after</em>: how the
           lesson is composed, what modalities it carries, how it stays
-          current, and how it adapts to the same teacher's other
+          current, and how it adapts to the same teacher&apos;s other
           classes. The video walks through the answer end-to-end.
         </p>
 
@@ -220,7 +220,7 @@ function FootnoteSection() {
     <section className="bg-slate-50 px-4 py-12 text-center">
       <div className="mx-auto max-w-3xl space-y-4">
         <p className="text-sm text-slate-600">
-          Want to walk through Linda's day yourself?
+          Want to walk through Linda&apos;s day yourself?
         </p>
         <LinkButton href="/demo" size="lg" variant="secondary">
           Try the demo
