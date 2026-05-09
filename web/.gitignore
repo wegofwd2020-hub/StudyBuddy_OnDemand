@@ -43,3 +43,8 @@ next-env.d.ts
 # playwright
 playwright-report/
 test-results/
+
+# video binaries — present locally in public/videos/ for `npm run dev` +
+# rsynced separately to the VPS on deploy, but not committed (36 MB across
+# 6 files would bloat repo + git ops). See docs/DESIGN_demo_videos.md.
+public/videos/*.mp4

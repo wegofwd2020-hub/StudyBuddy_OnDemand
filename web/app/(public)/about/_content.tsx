@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { IS_DEMO_MODE } from "@/lib/demo-mode";
 import {
   CheckCircle2,
   Clock,
@@ -500,14 +501,16 @@ function PublicAbout() {
           audio are pre-generated so students get instant responses — no wait time, no
           internet required for cached content.
         </p>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <LinkButton href="/signup" size="lg">
-            Start free trial
-          </LinkButton>
-          <LinkButton href="/" size="lg" variant="outline">
-            See a demo
-          </LinkButton>
-        </div>
+        {!IS_DEMO_MODE && (
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <LinkButton href="/signup" size="lg">
+              Start free trial
+            </LinkButton>
+            <LinkButton href="/" size="lg" variant="outline">
+              See a demo
+            </LinkButton>
+          </div>
+        )}
       </div>
 
       {/* Stats strip */}

@@ -3,6 +3,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { LinkButton } from "@/components/ui/link-button";
+import { FeatureVideos } from "@/components/marketing/feature-videos";
+import { SampleVisuals } from "@/components/marketing/sample-visuals";
+import { IS_DEMO_MODE } from "@/lib/demo-mode";
 import {
   Zap,
   BookOpen,
@@ -11,6 +14,7 @@ import {
   Upload,
   ShieldCheck,
   ArrowRight,
+  Play,
 } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -31,12 +35,36 @@ export default function LandingPage() {
           priority
           className="object-contain object-center"
         />
+        {/* Right-side CTAs: two pills, one per demo video. Each anchors to the
+            matching card below and the FeatureVideos client component
+            auto-opens the corresponding modal on hashchange. Stacked on
+            small screens; side-by-side on sm+. */}
+        <div className="absolute top-1/2 right-4 flex -translate-y-1/2 flex-col items-end gap-2 sm:right-8 sm:flex-row sm:items-center">
+          <Link
+            href="#video-biostory"
+            className="inline-flex items-center gap-2 rounded-full bg-emerald-600/95 px-4 py-2.5 text-sm font-semibold text-white shadow-lg backdrop-blur-sm transition hover:bg-emerald-700 hover:shadow-xl sm:px-5 sm:py-3"
+            aria-label="Watch: Biology demo"
+          >
+            <Play className="h-4 w-4 fill-current" />
+            <span>Biology</span>
+          </Link>
+          <Link
+            href="#video-chemstory"
+            className="inline-flex items-center gap-2 rounded-full bg-blue-600/95 px-4 py-2.5 text-sm font-semibold text-white shadow-lg backdrop-blur-sm transition hover:bg-blue-700 hover:shadow-xl sm:px-5 sm:py-3"
+            aria-label="Watch: Chemistry demo"
+          >
+            <Play className="h-4 w-4 fill-current" />
+            <span>Chemistry</span>
+          </Link>
+        </div>
       </div>
       <HeroSection />
       <FeaturesSection />
+      <FeatureVideos />
+      <SampleVisuals />
       <TourGatewaySection />
       <SocialProofSection />
-      <CtaSection />
+      {!IS_DEMO_MODE && <CtaSection />}
     </>
   );
 }
@@ -93,9 +121,11 @@ function HeroSection() {
           world that won&apos;t sit still.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <LinkButton size="lg" href="/school/register">
-            Register your school — it&apos;s free
-          </LinkButton>
+          {!IS_DEMO_MODE && (
+            <LinkButton size="lg" href="/school/register">
+              Register your school — it&apos;s free
+            </LinkButton>
+          )}
           <LinkButton size="lg" variant="outline" href="/tour/school-admin">
             See how it works
           </LinkButton>

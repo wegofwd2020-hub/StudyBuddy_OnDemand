@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { BookOpen } from "lucide-react";
+import { IS_DEMO_MODE } from "@/lib/demo-mode";
 
 export function Footer() {
   const t = useTranslations("footer");
@@ -28,16 +29,20 @@ export function Footer() {
                   {t("features")}
                 </Link>
               </li>
-              <li>
-                <Link href="/pricing" className="hover:text-gray-900">
-                  {t("pricing")}
-                </Link>
-              </li>
-              <li>
-                <Link href="/pricing#schools" className="hover:text-gray-900">
-                  {t("for_schools")}
-                </Link>
-              </li>
+              {!IS_DEMO_MODE && (
+                <>
+                  <li>
+                    <Link href="/pricing" className="hover:text-gray-900">
+                      {t("pricing")}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/pricing#schools" className="hover:text-gray-900">
+                      {t("for_schools")}
+                    </Link>
+                  </li>
+                </>
+              )}
             </ul>
           </div>
 

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { LinkButton } from "@/components/ui/link-button";
 import { BookOpen, Menu, X } from "lucide-react";
 import { useState } from "react";
+import { IS_DEMO_MODE } from "@/lib/demo-mode";
 
 export function PublicNav() {
   const [open, setOpen] = useState(false);
@@ -19,12 +20,16 @@ export function PublicNav() {
 
         {/* Desktop nav */}
         <nav className="hidden items-center gap-6 text-sm font-medium text-gray-600 md:flex">
-          <Link href="/for-schools" className="transition-colors hover:text-gray-900">
-            For Schools
-          </Link>
-          <Link href="/pricing" className="transition-colors hover:text-gray-900">
-            Pricing
-          </Link>
+          {!IS_DEMO_MODE && (
+            <>
+              <Link href="/for-schools" className="transition-colors hover:text-gray-900">
+                For Schools
+              </Link>
+              <Link href="/pricing" className="transition-colors hover:text-gray-900">
+                Pricing
+              </Link>
+            </>
+          )}
           <Link href="/about" className="transition-colors hover:text-gray-900">
             About
           </Link>
@@ -33,12 +38,16 @@ export function PublicNav() {
           </Link>
         </nav>
 
-        {/* Desktop CTAs — school-first */}
+        {/* Desktop CTAs — school-first. Register hidden in demo mode;
+            sign-in stays (the demo-request flow uses /school/login) and is
+            relabelled "Let us Start" so it reads as the entry CTA. */}
         <div className="hidden items-center gap-3 md:flex">
           <LinkButton variant="ghost" href="/school/login">
-            School sign-in
+            {IS_DEMO_MODE ? "Let us Start" : "School sign-in"}
           </LinkButton>
-          <LinkButton href="/school/register">Register your school</LinkButton>
+          {!IS_DEMO_MODE && (
+            <LinkButton href="/school/register">Register your school</LinkButton>
+          )}
         </div>
 
         {/* Mobile hamburger */}
@@ -54,20 +63,24 @@ export function PublicNav() {
       {/* Mobile menu */}
       {open && (
         <div className="space-y-3 border-t bg-white px-4 py-4 md:hidden">
-          <Link
-            href="/for-schools"
-            className="block text-sm font-medium text-gray-600 hover:text-gray-900"
-            onClick={() => setOpen(false)}
-          >
-            For Schools
-          </Link>
-          <Link
-            href="/pricing"
-            className="block text-sm font-medium text-gray-600 hover:text-gray-900"
-            onClick={() => setOpen(false)}
-          >
-            Pricing
-          </Link>
+          {!IS_DEMO_MODE && (
+            <>
+              <Link
+                href="/for-schools"
+                className="block text-sm font-medium text-gray-600 hover:text-gray-900"
+                onClick={() => setOpen(false)}
+              >
+                For Schools
+              </Link>
+              <Link
+                href="/pricing"
+                className="block text-sm font-medium text-gray-600 hover:text-gray-900"
+                onClick={() => setOpen(false)}
+              >
+                Pricing
+              </Link>
+            </>
+          )}
           <Link
             href="/about"
             className="block text-sm font-medium text-gray-600 hover:text-gray-900"
@@ -84,9 +97,11 @@ export function PublicNav() {
           </Link>
           <div className="flex flex-col gap-2 pt-2">
             <LinkButton variant="outline" href="/school/login">
-              School sign-in
+              {IS_DEMO_MODE ? "Let us Start" : "School sign-in"}
             </LinkButton>
-            <LinkButton href="/school/register">Register your school</LinkButton>
+            {!IS_DEMO_MODE && (
+              <LinkButton href="/school/register">Register your school</LinkButton>
+            )}
           </div>
         </div>
       )}

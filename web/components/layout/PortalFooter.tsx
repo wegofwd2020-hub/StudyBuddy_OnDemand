@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { IS_DEMO_MODE } from "@/lib/demo-mode";
 
 /**
  * Sitewide footer.
@@ -10,6 +11,15 @@ import Link from "next/link";
 export function PortalFooter() {
   const year = new Date().getFullYear();
 
+  const links = [
+    { href: "/for-schools", label: "For Schools", demoHidden: true },
+    { href: "/about", label: "About" },
+    { href: "/accessibility", label: "Accessibility" },
+    { href: "/privacy", label: "Privacy" },
+    { href: "/terms", label: "Terms" },
+    { href: "/contact", label: "Contact" },
+  ].filter((link) => !(IS_DEMO_MODE && link.demoHidden));
+
   return (
     <footer
       aria-label="Footer"
@@ -20,14 +30,7 @@ export function PortalFooter() {
 
         <nav aria-label="Footer links">
           <ul className="flex flex-wrap items-center gap-x-4 gap-y-1">
-            {[
-              { href: "/for-schools", label: "For Schools" },
-              { href: "/about", label: "About" },
-              { href: "/accessibility", label: "Accessibility" },
-              { href: "/privacy", label: "Privacy" },
-              { href: "/terms", label: "Terms" },
-              { href: "/contact", label: "Contact" },
-            ].map(({ href, label }) => (
+            {links.map(({ href, label }) => (
               <li key={href}>
                 <Link
                   href={href}

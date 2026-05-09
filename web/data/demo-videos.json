@@ -1,0 +1,42 @@
+{
+  "feature_videos": [
+    {
+      "slug": "biostory",
+      "title": "StudyBuddy: Biology",
+      "description": "How a Grade 11 biology lesson comes together — content, visuals, voiceover.",
+      "src": "/videos/StudyBuddy_BioStory.mp4"
+    },
+    {
+      "slug": "chemstory",
+      "title": "StudyBuddy: Chemistry",
+      "description": "From an organic-chemistry concept to a fully-rendered lesson with quizzes.",
+      "src": "/videos/StudyBuddy_ChemStory.mp4"
+    }
+  ],
+  "sample_visuals": [
+    {
+      "slug": "hc-single",
+      "label": "Single bond",
+      "alt": "Single bond animation",
+      "src": "/videos/Hydrocarbon_SingleBond.mp4"
+    },
+    {
+      "slug": "hc-double",
+      "label": "Double bond",
+      "alt": "Double bond animation",
+      "src": "/videos/Hydrocarbon_DoubleBond.mp4"
+    },
+    {
+      "slug": "hc-triple",
+      "label": "Triple bond",
+      "alt": "Triple bond animation",
+      "src": "/videos/Hydrocarbon_TripleBond.mp4"
+    },
+    {
+      "slug": "hc-aromatic",
+      "label": "Aromatic ring",
+      "alt": "Aromatic ring animation",
+      "src": "/videos/Hydrocarbon_Aromatic.mp4"
+    }
+  ]
+}
