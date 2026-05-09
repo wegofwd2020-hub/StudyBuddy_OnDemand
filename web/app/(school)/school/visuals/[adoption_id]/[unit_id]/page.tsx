@@ -30,7 +30,7 @@ import type { VisualBlock, VisualItem } from "@/lib/types/api";
 import { AssetPicker } from "@/components/visuals/AssetPicker";
 
 /**
- * /school/content/{adoption_id}/{unit_id}/visuals
+ * /school/visuals/{adoption_id}/{unit_id}
  *
  * Per-unit visual editor (issue #318 phase 2c-3 + form-based polish).
  *
