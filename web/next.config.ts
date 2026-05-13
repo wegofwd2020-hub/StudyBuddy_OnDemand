@@ -42,6 +42,10 @@ const csp = [
   .trimEnd();
 
 const nextConfig: NextConfig = {
+  // Emit a self-contained server bundle at .next/standalone for the Docker
+  // runner stage to COPY. Without this, `npm run build` only writes the
+  // dev/SSR caches and the production image fails on missing standalone path.
+  output: "standalone",
   // Stamp build metadata into the bundle so the About page reflects each deployment.
   //
   // SNYK_HIGH_COUNT / SNYK_CRITICAL_COUNT / SNYK_SCAN_DATE are injected by the
