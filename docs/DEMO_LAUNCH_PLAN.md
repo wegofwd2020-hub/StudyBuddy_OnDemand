@@ -77,7 +77,8 @@ These ship with this PR. Use them as-is; no further code work needed.
 | Content sync (one command) | [`scripts/demo/sync-content.sh`](../scripts/demo/sync-content.sh) | Inject G11 visuals + rsync content_store_data/ → /data/content/ + rsync web/public/sample-visuals/ → /data/sample-visuals/. Optional --dry-run, --skip-inject, --smoke flags. Covers all three asset classes (TEXT + GRAPHICS + VIDEO) in one operator step. |
 | Seeding orchestrator | [`scripts/demo/seed.sh`](../scripts/demo/seed.sh) | Runs the 5 demo seed scripts in dependency order (super_admin → milfordwaterford → demo_test_account → phase_a_dev → content_db) |
 | Post-deploy smoke check | [`scripts/demo/smoke.sh`](../scripts/demo/smoke.sh) | Curl-based: `/healthz`, login as 4 persona types, fetch one lesson + one quiz, exit 1 on any 4xx/5xx |
-| Daily DB + content backup | [`scripts/demo/backup.sh`](../scripts/demo/backup.sh) | `pg_dump` compressed + `rsync` content_store to local backup dir; retains last 7 days; cron-friendly |
+| Daily DB + content backup | [`scripts/demo/backup.sh`](../scripts/demo/backup.sh) | restic-based, encrypted at-rest. `pg_dump` → staging file → restic snapshot of (dump + `/data/content` + `.env.demo`) → `restic forget` with 7d/4w/3m/1y policy → optional Hetzner snapshot trigger. Cron 02:00 UTC. |
+| Weekly restic check + prune | [`scripts/demo/backup-check.sh`](../scripts/demo/backup-check.sh) | `restic check --read-data-subset 5%` (catches silent bit-rot) → `restic prune --max-unused 5%` (reclaims disk that daily `forget`s marked unreferenced). Cron Sun 03:00 UTC, 1h after the daily so they don't compete for the repo lock. |
 | Auto-deploy on merge to main | [`.github/workflows/deploy-demo.yml`](../.github/workflows/deploy-demo.yml) | Build → GHCR push → SSH to Hetzner → `docker compose pull && up -d` → smoke test. **Web image build receives `NEXT_PUBLIC_DEMO_MODE=true` as a Docker `build-arg`** so the flag is baked into the client bundle at build time (NEXT_PUBLIC_* vars are not read at runtime). |
 | Universal sign-in entry point | `web/app/(public)/signin/` + `POST /api/v1/auth/universal-login` | All three auth tracks (Auth0 students/teachers, Phase A local school users, admin bcrypt) resolve through the same `/signin` page now. Old `/school/login`, `/demo/login`, `/demo/teacher/login` redirect here. Affects every persona walkthrough in §4 — the entry URL is `/signin`, never the old per-track pages. |
 
@@ -651,13 +652,14 @@ Exits 0 if all green; exits 1 with a structured failure summary if any check fai
 0 3 * * 0  /opt/studybuddy/scripts/demo/backup-check.sh >> /var/log/studybuddy-backup.log 2>&1
 ```
 
-**Daily — `backup.sh`** (3 steps):
+**Daily — `backup.sh`** (3 numbered steps + an optional 4th):
 
-1. `pg_dump -Fc` → `/opt/studybuddy/backups/staging/db-latest.dump.gz` (always overwritten; restic dedupes blocks-against-blocks across days so 30 daily dumps take ~1.2× the size of one, not 30×).
-2. `restic backup` → `/opt/studybuddy/backups/restic/` covering three sources: the staging dump from step 1, `/data/content` (the content store), and `/opt/studybuddy/.env.demo`. Encrypted at-rest with AES-256; password at `/etc/restic/studybuddy.password` (generated and printed once by `provision.sh` step 8 — record it in your password manager, otherwise the repo is unrecoverable).
-3. `restic forget --prune` with policy **7 daily / 4 weekly / 3 monthly / 1 yearly**. Then, optionally, trigger a Hetzner Cloud snapshot via the Hetzner API if `HCLOUD_TOKEN` is set in `.env.demo` (belt-and-braces; the restic repo is the primary).
+1. `pg_dump -Fc | gzip -9` → `/opt/studybuddy/backups/staging/db-latest.dump.gz` (always overwritten; restic dedupes blocks-against-blocks across days so 30 daily dumps take ~1.2× the size of one, not 30×).
+2. `restic backup` → `/opt/studybuddy/backups/restic/` covering up to three sources: the staging dump from step 1, `/data/content` (if present), and `/opt/studybuddy/.env.demo` (if present). Tags: `daily` + `host=<short hostname>`. Encrypted at-rest with AES-256; password at `/etc/restic/studybuddy.password` (generated and printed once by `provision.sh` step 8 — record it in your password manager, otherwise the repo is unrecoverable).
+3. `restic forget --tag daily --keep-daily 7 --keep-weekly 4 --keep-monthly 3 --keep-yearly 1`. **`forget` only marks snapshots unreferenced** — actual disk reclamation happens in the weekly `restic prune` (step 5.2 below), not here.
+4. *(Optional)* If `HCLOUD_TOKEN` is set in `.env.demo` and not the placeholder, resolve the server ID via the Hetzner API and POST a `create_image` action. Belt-and-braces against OS-level corruption; the restic repo is the primary backup.
 
-Exit codes: 0 success / 1 pg_dump failed / 2 restic backup failed / 3 restic forget failed / 5 missing repo / 6 missing password file. The high exit codes hard-fail the cron — `provision.sh` documents this in the comment block.
+Exit codes: **0** success / **1** pg_dump failed / **2** restic backup failed / **3** restic forget failed / **4** Hetzner snapshot API call failed / **5** repo not initialised / **6** password file missing or unreadable. The cron line redirects all output to `/var/log/studybuddy-backup.log`, so a non-zero exit shows up there (and via Promtail → Loki) rather than via cron mail.
 
 **Weekly — `backup-check.sh`** (2 steps):
 
@@ -666,17 +668,17 @@ Exit codes: 0 success / 1 pg_dump failed / 2 restic backup failed / 3 restic for
 
 Exit codes: 0 success / 1 check failed (**possible bit-rot — investigate immediately**) / 2 prune failed / 3 repo not initialised / 4 password file unreadable.
 
-**Log routing.** Both scripts write to `/var/log/studybuddy-backup.log`. Promtail (running in the monitoring stack — see §8) ships that log to Grafana Cloud Loki. Query:
+**Log routing.** Both scripts write to `/var/log/studybuddy-backup.log` (via the cron redirect). Promtail (running in the monitoring stack — see §8) ships that log to Grafana Cloud Loki. Canonical query (matches the comment in `backup-check.sh`):
 
 ```logql
-{job="backups", which="studybuddy"} |~ "(?i)check|prune|error|fatal"
+{job="backups", which="studybuddy"} |~ "(?i)check|prune|error"
 ```
 
-The `BackupSilent`, `ResticCheckFailed`, `ResticPruneFailed`, and `BackupSizeRunaway` alerts (see §10) hard-fire on this stream.
+The `BackupSilent`, `ResticCheckFailed`, `ResticPruneFailed`, and `BackupSizeRunaway` alerts (see §10) fire on this stream.
 
-**Local-only repo.** The restic repo lives on the same disk as the originals — deliberate choice for the demo. Off-box backups (S3 / B2 / R2) are deferred until the first paying customer per the residual-risk note in [`mambakkam-net/Plans/BACKUPS.md`](https://github.com/wegofwd2020-hub/mambakkam-net/blob/main/Plans/BACKUPS.md). Until then, a Hetzner snapshot (triggered by step 3 above if `HCLOUD_TOKEN` is set) is the only off-box copy.
+**Local-only repo.** The restic repo lives on the same disk as the originals — deliberate choice for the demo. Off-box backups (S3 / B2 / R2) are deferred until the first paying customer per the residual-risk note in [`mambakkam-net/Plans/BACKUPS.md`](https://github.com/wegofwd2020-hub/mambakkam-net/blob/main/Plans/BACKUPS.md). Until then, the optional same-account Hetzner snapshot (triggered by step 4 above if `HCLOUD_TOKEN` is set) is the only off-box copy — and only protects against OS-level corruption, not against Hetzner-account compromise.
 
-**Companion runbook.** The 5-scenario restore drill (single-unit content recovery, full DB restore, .env.demo recovery, repo-corruption recovery, full-disk recovery) lives in `Plans/BACKUPS.md`. Scenario 2 (single content-unit restore) is rehearsed in §4 Day -2 of this plan; the other four are documentation only until the demo is live.
+**Companion runbook.** [`Plans/BACKUPS.md`](https://github.com/wegofwd2020-hub/mambakkam-net/blob/main/Plans/BACKUPS.md) documents 5 restore scenarios: (1) full Postgres restore, (2) single content-unit restore, (3) recover `.env.demo` after disk loss, (4) recover the Cloudflare Origin Cert + key, (5) historical access-log search (mambakkam only — StudyBuddy's logs go to Loki, not restic). All five are documentation only until the demo is live — there is **no** restore drill row in §4 Day -2 today. Adding one (rehearse Scenario 2 against the staging box) is a known gap to close before launch.
 
 ### 3.6 Auto-deploy CI — `.github/workflows/deploy-demo.yml`
 
