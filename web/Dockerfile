@@ -8,7 +8,11 @@
 FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json* ./
-RUN npm ci --prefer-offline
+# --legacy-peer-deps: npm install (lenient) and npm ci (strict) disagree on
+# peer-dep resolution for @swc/helpers (next pins 0.5.15; some peers want
+# >=0.5.17 optionally). Without this flag npm ci aborts with a "lock file
+# does not satisfy" error even when the lockfile installs cleanly.
+RUN npm ci --prefer-offline --legacy-peer-deps
 
 # Stage 2: build the Next.js application
 FROM node:20-alpine AS builder
