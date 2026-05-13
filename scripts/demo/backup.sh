@@ -3,7 +3,7 @@
 # scripts/demo/backup.sh — daily restic backup for StudyBuddy
 #
 # Runs from cron at 02:00 UTC (provisioned by scripts/demo/provision.sh).
-# Three-step routine:
+# Three numbered steps + one optional follow-on:
 #   1. pg_dump compressed → /opt/studybuddy/backups/staging/db-latest.dump.gz
 #      (always overwritten; restic snapshots the file in step 2 and dedupes
 #       blocks-against-blocks across days, so we don't need 30 separate
@@ -11,7 +11,15 @@
 #   2. restic backup → /opt/studybuddy/backups/restic/
 #      sources: the staging dump from step 1, /data/content (content store),
 #               /opt/studybuddy/.env.demo
-#   3. (optional) trigger a Hetzner Cloud snapshot via API if HCLOUD_TOKEN set
+#   3. restic forget --tag daily --keep-daily 7 --keep-weekly 4
+#                    --keep-monthly 3 --keep-yearly 1
+#      Note: `forget` ONLY marks snapshots unreferenced. Actual disk
+#      reclamation runs weekly via scripts/demo/backup-check.sh
+#      (`restic prune --max-unused 5%`). Splitting these keeps the
+#      daily run fast (forget is O(snapshots); prune scans every pack).
+#   (optional) trigger a Hetzner Cloud snapshot via the Hetzner API if
+#      HCLOUD_TOKEN is set in .env.demo. Has its own exit code (4)
+#      because it can fail independently of the restic repo being fine.
 #
 # Why restic instead of timestamped tarballs / rsync:
 #   - Encryption-at-rest (AES-256). pg_dump output is plaintext PII once
@@ -19,7 +27,8 @@
 #   - Content-addressed deduplication. The content_store changes by ~few MB
 #     per day on average; 30 daily snapshots take ~1.2x the size of one
 #     instead of 30x. Same story for pg_dump (most blocks are unchanged).
-#   - Per-snapshot `restic check` integrity verification.
+#   - Per-snapshot `restic check` integrity verification (weekly, via
+#     backup-check.sh).
 #
 # Repo lives at $RESTIC_REPO (default: $INSTALL_DIR/backups/restic). Same
 # disk as the originals (deliberate — operator chose local-only retention
@@ -29,9 +38,6 @@
 # provision.sh generates and prints it once. If lost, the repo is unrecoverable
 # (this is a design property of restic, not a bug).
 #
-# Forget policy:
-#   --keep-daily 7 --keep-weekly 4 --keep-monthly 3 --keep-yearly 1
-#
 # Usage (typically via cron, but manual invocation works):
 #   sudo bash /opt/studybuddy/scripts/demo/backup.sh
 #
@@ -39,8 +45,8 @@
 #   0 — backup + forget successful (or "nothing to do")
 #   1 — pg_dump failed
 #   2 — restic backup failed
-#   3 — restic forget/prune failed
-#   4 — Hetzner snapshot API call failed
+#   3 — restic forget failed
+#   4 — Hetzner snapshot API call failed (optional step; restic repo is fine)
 #   5 — repo not initialised (run provision.sh)
 #   6 — password file missing or unreadable
 # =============================================================================
