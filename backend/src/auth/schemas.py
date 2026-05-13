@@ -211,3 +211,31 @@ class ChangePasswordResponse(BaseModel):
     token: str
     refresh_token: str
     role: str
+
+
+# ── Universal login (unified entry point) ─────────────────────────────────────
+
+
+class UniversalLoginResponse(BaseModel):
+    """
+    Response for POST /auth/universal-login.
+
+    Single endpoint that dispatches across local-auth + demo-student + demo-teacher
+    stores so the frontend can present one sign-in form regardless of role. The
+    `auth_track` field tells the client which localStorage key + session cookie
+    to use; `refresh_token`/`first_login`/`demo_expires_at` are only populated for
+    the tracks they apply to.
+    """
+
+    token: str
+    auth_track: Literal["local", "demo_student", "demo_teacher"]
+    role: str  # "student" | "teacher" | "school_admin"
+    user_id: UUID  # student_id or teacher_id
+    name: str  # display name for the portal header
+    refresh_token: str | None = None  # local only
+    first_login: bool | None = None  # local only — forced password reset gate
+    # ISO 8601 string (e.g. "2026-05-13T09:00:00Z"); demo tracks only. Kept as
+    # `str` rather than `datetime` to avoid a Pydantic forward-reference issue
+    # with `from __future__ import annotations` — the response is serialised to
+    # JSON anyway, and the frontend just renders the string.
+    demo_expires_at: str | None = None

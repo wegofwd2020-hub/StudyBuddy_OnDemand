@@ -28,7 +28,7 @@ const SCHOOL_ID = "test-school-001";
 const TEACHER_TOKEN = makeTeacherToken("test-teacher-001", SCHOOL_ID, "school_admin");
 
 async function setupTeacherAuth(page: Page) {
-  // Server-side: dev-session cookie so layout doesn't redirect to /school/login
+  // Server-side: dev-session cookie so layout doesn't redirect to /signin
   await page
     .context()
     .addCookies([devSessionCookie("Ms. Rivera", "teacher@test.invalid")]);

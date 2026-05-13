@@ -28,7 +28,7 @@ export default function ChangePasswordPage() {
     const t =
       localStorage.getItem("sb_teacher_token") ?? localStorage.getItem("sb_token");
     if (!t) {
-      router.replace("/school/login");
+      router.replace("/signin");
     } else {
       setToken(t);
     }

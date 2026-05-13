@@ -14,7 +14,7 @@ export default function DemoTeacherDashboard() {
   useEffect(() => {
     const token = localStorage.getItem("sb_teacher_token");
     if (!token) {
-      router.replace("/demo/teacher/login");
+      router.replace("/signin");
       return;
     }
     // Decode email from session cookie written at login
@@ -42,7 +42,7 @@ export default function DemoTeacherDashboard() {
     } finally {
       localStorage.removeItem("sb_teacher_token");
       document.cookie = "sb_teacher_session=; path=/; max-age=0";
-      router.replace("/demo/teacher/login");
+      router.replace("/signin");
     }
   }
 

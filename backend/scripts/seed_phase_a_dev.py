@@ -217,7 +217,7 @@ def _print_summary() -> None:
         print(f"\n{divider}")
         print(f"  {label} — {school['name']}")
         print(divider)
-        print("  Login URL : http://localhost:3000/school/login")
+        print("  Login URL : http://localhost:3000/signin")
         print()
         print("  School Admin")
         print(f"    email    : {admin['email']}")

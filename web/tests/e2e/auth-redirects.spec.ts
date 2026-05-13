@@ -25,18 +25,16 @@ test.describe("Student portal auth redirects", () => {
 });
 
 test.describe("School portal auth redirects", () => {
-  test("/school/dashboard redirects to /school/login when no session", async ({
-    page,
-  }) => {
+  test("/school/dashboard redirects to /signin when no session", async ({ page }) => {
     await page.goto("/school/dashboard");
-    await expect(page).toHaveURL(/\/school\/login/);
+    await expect(page).toHaveURL(/\/signin/);
   });
 
-  test("/school/reports/overview redirects to /school/login when no session", async ({
+  test("/school/reports/overview redirects to /signin when no session", async ({
     page,
   }) => {
     await page.goto("/school/reports/overview");
-    await expect(page).toHaveURL(/\/school\/login/);
+    await expect(page).toHaveURL(/\/signin/);
   });
 });
 

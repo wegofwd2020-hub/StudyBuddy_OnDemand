@@ -20,6 +20,7 @@ All prefixed with /api/v1 in main.py.
 from __future__ import annotations
 
 import hashlib
+from datetime import UTC, datetime
 from typing import Annotated
 
 from config import settings
@@ -41,8 +42,10 @@ from src.auth.schemas import (
     TeacherTokenExchangeResponse,
     TokenExchangeRequest,
     TokenExchangeResponse,
+    UniversalLoginResponse,
 )
 from src.auth.service import (
+    _TIMING_SENTINEL_HASH,
     _hash_refresh_token,
     create_internal_jwt,
     generate_refresh_token,
@@ -474,6 +477,298 @@ async def local_login(
         first_login=first_login,
         user_id=user_id,
         name=user.get("name") or body.email,
+    )
+
+
+# ── Universal login (single entry point for demo + local users) ──────────────
+
+
+@router.post("/auth/universal-login", response_model=UniversalLoginResponse)
+async def universal_login(
+    body: LocalLoginRequest,
+    request: Request,
+    _: None = Depends(ip_auth_rate_limit),
+):
+    """
+    Single sign-in endpoint that dispatches across all password-based auth tracks.
+
+    Probe order: local users (school-provisioned teachers/students) → demo teachers
+    → demo students. Local takes precedence if the same email exists in more than
+    one store. Returns a uniform 401 on any miss to prevent email enumeration.
+
+    Lookup is split from password verification so exactly one bcrypt cycle runs
+    per request — against the matched row's hash if found, or a sentinel hash
+    otherwise. This keeps wall-clock timing the same whether or not the email
+    exists in any store.
+    """
+    from src.demo.service import (
+        get_demo_account_for_login,
+        update_last_login,
+    )
+    from src.demo.teacher_service import (
+        get_demo_teacher_account_for_login,
+        update_demo_teacher_last_login,
+    )
+
+    cid = getattr(request.state, "correlation_id", "")
+    email = str(body.email)
+
+    # ── Step 1: probe all three stores (DB only — no bcrypt yet) ──
+    pool = request.app.state.pool
+    local_row = None
+    demo_teacher_row = None
+    demo_student_row = None
+    async with pool.acquire() as conn:
+        # RLS bypass: login is unauthenticated, must read across schools.
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        try:
+            local_row = await conn.fetchrow(
+                """
+                SELECT teacher_id::text AS user_id, name, role, school_id::text,
+                       account_status, password_hash, first_login,
+                       'teacher' AS user_type
+                FROM teachers
+                WHERE email = $1 AND auth_provider = 'local'
+                """,
+                email,
+            )
+            if local_row is None:
+                local_row = await conn.fetchrow(
+                    """
+                    SELECT student_id::text AS user_id, name, 'student' AS role,
+                           school_id::text, account_status, password_hash,
+                           first_login, 'student' AS user_type
+                    FROM students
+                    WHERE email = $1 AND auth_provider = 'local'
+                    """,
+                    email,
+                )
+            if local_row is None:
+                demo_teacher_row = await get_demo_teacher_account_for_login(conn, email)
+            if local_row is None and demo_teacher_row is None:
+                demo_student_row = await get_demo_account_for_login(conn, email)
+        finally:
+            await conn.execute("SELECT set_config('app.current_school_id', '', false)")
+
+    # ── Step 2: pick the match and verify password (constant-time) ──
+    matched_hash = None
+    if local_row and local_row["password_hash"]:
+        matched_hash = local_row["password_hash"]
+    elif demo_teacher_row and demo_teacher_row["password_hash"]:
+        matched_hash = demo_teacher_row["password_hash"]
+    elif demo_student_row and demo_student_row["password_hash"]:
+        matched_hash = demo_student_row["password_hash"]
+
+    hash_to_check = matched_hash or _TIMING_SENTINEL_HASH
+    password_ok = await verify_password(body.password, hash_to_check)
+
+    if matched_hash is None or not password_ok:
+        auth_failures_total.labels(reason="universal_login_invalid").inc()
+        raise HTTPException(
+            status_code=401,
+            detail={
+                "error": "unauthenticated",
+                "detail": "Invalid email or password.",
+                "correlation_id": cid,
+            },
+        )
+
+    # ── Step 3: issue track-specific token ──
+    redis = get_redis(request)
+
+    if local_row is not None:
+        # Status gates apply to local accounts only — demo accounts are always
+        # 'active' by construction (expiry handled separately via demo_expires_at).
+        if local_row["account_status"] == "suspended":
+            raise HTTPException(
+                status_code=403,
+                detail={
+                    "error": "account_suspended",
+                    "detail": "Account has been suspended.",
+                    "correlation_id": cid,
+                },
+            )
+        if local_row["account_status"] == "deleted":
+            raise HTTPException(
+                status_code=401,
+                detail={
+                    "error": "unauthenticated",
+                    "detail": "Account has been deleted.",
+                    "correlation_id": cid,
+                },
+            )
+
+        user_type = local_row["user_type"]
+        user_id = local_row["user_id"]
+        role = local_row["role"]
+        first_login = bool(local_row["first_login"])
+
+        if user_type == "teacher":
+            jwt_payload = {
+                "teacher_id": user_id,
+                "school_id": local_row["school_id"],
+                "role": role,
+                "account_status": local_row["account_status"],
+                "first_login": first_login,
+            }
+        else:
+            student_row = await pool.fetchrow(
+                "SELECT grade, locale, school_id FROM students WHERE student_id = $1",
+                user_id,
+            )
+            sid = student_row["school_id"] if student_row else None
+            jwt_payload = {
+                "student_id": user_id,
+                "school_id": str(sid) if sid else None,
+                "grade": student_row["grade"] if student_row else 8,
+                "locale": student_row["locale"] if student_row else "en",
+                "role": "student",
+                "account_status": local_row["account_status"],
+                "first_login": first_login,
+            }
+
+        token = create_internal_jwt(
+            jwt_payload, settings.JWT_SECRET, settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES
+        )
+        refresh = generate_refresh_token()
+        await redis.set(
+            f"refresh:{_hash_refresh_token(refresh)}",
+            user_id,
+            ex=_REFRESH_TTL,
+        )
+
+        auth_exchanges_total.labels(track="local").inc()
+        emit_event("auth", "universal_login", user_id=user_id, track="local", role=role)
+        write_audit_log("local_login", user_type, user_id)
+
+        return UniversalLoginResponse(
+            token=token,
+            auth_track="local",
+            role=role,
+            user_id=user_id,
+            name=local_row["name"] or email,
+            refresh_token=refresh,
+            first_login=first_login,
+        )
+
+    if demo_teacher_row is not None:
+        expires_at = demo_teacher_row["expires_at"]
+        expires_at_aware = (
+            expires_at if expires_at.tzinfo else expires_at.replace(tzinfo=UTC)
+        )
+        remaining_minutes = int(
+            (expires_at_aware - datetime.now(UTC)).total_seconds() / 60
+        )
+        token_ttl = min(settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES, remaining_minutes)
+        if token_ttl <= 0:
+            raise HTTPException(
+                status_code=401,
+                detail={
+                    "error": "unauthenticated",
+                    "detail": "Demo teacher account has expired.",
+                    "correlation_id": cid,
+                },
+            )
+
+        async with pool.acquire() as conn:
+            await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+            try:
+                await update_demo_teacher_last_login(conn, demo_teacher_row["id"])
+            finally:
+                await conn.execute("SELECT set_config('app.current_school_id', '', false)")
+
+        token = create_internal_jwt(
+            payload={
+                "teacher_id": str(demo_teacher_row["teacher_id"]),
+                "school_id": str(demo_teacher_row["school_id"])
+                if demo_teacher_row["school_id"]
+                else None,
+                "teacher_name": demo_teacher_row["teacher_name"],
+                "role": demo_teacher_row["role"],
+                "auth_track": "demo_teacher",
+                "account_status": "active",
+                "demo_account_id": str(demo_teacher_row["id"]),
+                "demo_expires_at": expires_at_aware.isoformat(),
+            },
+            secret=settings.JWT_SECRET,
+            expire_minutes=token_ttl,
+        )
+
+        auth_exchanges_total.labels(track="demo_teacher").inc()
+        emit_event(
+            "auth",
+            "universal_login",
+            teacher_id=str(demo_teacher_row["teacher_id"]),
+            track="demo_teacher",
+        )
+
+        return UniversalLoginResponse(
+            token=token,
+            auth_track="demo_teacher",
+            role=demo_teacher_row["role"],
+            user_id=demo_teacher_row["teacher_id"],
+            name=demo_teacher_row["teacher_name"] or email,
+            demo_expires_at=expires_at_aware.isoformat(),
+        )
+
+    # demo_student_row branch
+    expires_at = demo_student_row["expires_at"]
+    expires_at_aware = (
+        expires_at if expires_at.tzinfo else expires_at.replace(tzinfo=UTC)
+    )
+    remaining_minutes = int(
+        (expires_at_aware - datetime.now(UTC)).total_seconds() / 60
+    )
+    token_ttl = min(settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES, remaining_minutes)
+    if token_ttl <= 0:
+        raise HTTPException(
+            status_code=401,
+            detail={
+                "error": "unauthenticated",
+                "detail": "Demo account has expired.",
+                "correlation_id": cid,
+            },
+        )
+
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        try:
+            await update_last_login(conn, demo_student_row["id"])
+        finally:
+            await conn.execute("SELECT set_config('app.current_school_id', '', false)")
+
+    token = create_internal_jwt(
+        payload={
+            "student_id": str(demo_student_row["student_id"]),
+            "grade": demo_student_row["grade"],
+            "locale": demo_student_row["locale"] or "en",
+            "school_id": str(demo_student_row["school_id"])
+            if demo_student_row["school_id"]
+            else None,
+            "role": "demo_student",
+            "account_status": "active",
+            "demo_account_id": str(demo_student_row["id"]),
+            "demo_expires_at": expires_at_aware.isoformat(),
+        },
+        secret=settings.JWT_SECRET,
+        expire_minutes=token_ttl,
+    )
+
+    auth_exchanges_total.labels(track="demo_student").inc()
+    emit_event(
+        "auth",
+        "universal_login",
+        student_id=str(demo_student_row["student_id"]),
+        track="demo_student",
+    )
+
+    return UniversalLoginResponse(
+        token=token,
+        auth_track="demo_student",
+        role="student",
+        user_id=demo_student_row["student_id"],
+        name=email.split("@", 1)[0],
+        demo_expires_at=expires_at_aware.isoformat(),
     )
 
 

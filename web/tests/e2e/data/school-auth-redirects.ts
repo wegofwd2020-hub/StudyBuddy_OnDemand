@@ -2,13 +2,14 @@
  * Test data for section 3.1 — School Portal Auth Redirects
  * Covers TC-IDs: SCH-01, SCH-02 (+ auxiliary school routes)
  *
- * Precondition: no Auth0 session — (school)/layout.tsx calls redirect("/school/login").
+ * Precondition: no Auth0 session — (school)/layout.tsx calls redirect("/signin").
  *
  * All school portal routes are protected by the server-side (school)/layout.tsx.
- * Without a session, every route in the (school) group redirects to /school/login.
+ * Without a session, every route in the (school) group redirects to /signin
+ * (the unified entry point — was /school/login before the universal-login refactor).
  */
 
-export const REDIRECT_TARGET = "/school/login";
+export const REDIRECT_TARGET = "/signin";
 
 export const SCHOOL_PROTECTED_ROUTES: ReadonlyArray<{
   tcId: string;

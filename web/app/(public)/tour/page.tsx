@@ -123,7 +123,7 @@ export default function TourPage() {
         {/* Bottom nudge */}
         <p className="mt-10 text-center text-sm text-gray-400">
           Already have a school?{" "}
-          <Link href="/school/login" className="text-violet-600 hover:underline">
+          <Link href="/signin" className="text-violet-600 hover:underline">
             Log in to your school portal
           </Link>
         </p>

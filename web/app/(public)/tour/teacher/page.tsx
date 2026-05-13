@@ -389,7 +389,7 @@ export default function TeacherTour() {
             </p>
             <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <Link
-                href="/school/login"
+                href="/signin"
                 className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-sm hover:bg-blue-700"
               >
                 Log in to school portal

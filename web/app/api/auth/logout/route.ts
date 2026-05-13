@@ -3,8 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(request: NextRequest) {
   const isLocalAuth = request.cookies.has("sb_local_teacher_session");
 
-  // Local-auth users go back to the school login page; everyone else to home.
-  const destination = isLocalAuth ? "/school/login" : "/";
+  // Local-auth users go back to the unified sign-in page; everyone else to home.
+  const destination = isLocalAuth ? "/signin" : "/";
 
   const response = NextResponse.redirect(
     new URL(destination, process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),

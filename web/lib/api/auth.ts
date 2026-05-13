@@ -104,6 +104,44 @@ export async function changePassword(
   return res.data;
 }
 
+// ── Universal sign-in (demo + local) ──────────────────────────────────────────
+
+export type AuthTrack = "local" | "demo_student" | "demo_teacher";
+
+export interface UniversalLoginResponse {
+  token: string;
+  /** Tells the client which localStorage key + session cookie to use. */
+  auth_track: AuthTrack;
+  /** "student" | "teacher" | "school_admin" */
+  role: string;
+  user_id: string;
+  name: string;
+  /** Local-auth only. Demo accounts get no refresh token. */
+  refresh_token: string | null;
+  /** Local-auth only. When true the client must redirect to /school/change-password. */
+  first_login: boolean | null;
+  /** Demo-only ISO 8601 timestamp marking when the demo account expires. */
+  demo_expires_at: string | null;
+}
+
+/**
+ * Single sign-in entry point covering all three password-based auth tracks:
+ * school-provisioned local users, demo teachers, and demo students.
+ *
+ * Backend dispatches by probing each store in turn; the `auth_track` field on
+ * the response tells the caller which localStorage key + session cookie to
+ * write. See web/app/(public)/signin/page.tsx for the canonical mapping.
+ */
+export async function universalLogin(
+  body: LocalLoginRequest,
+): Promise<UniversalLoginResponse> {
+  const res = await publicApi.post<UniversalLoginResponse>(
+    "/auth/universal-login",
+    body,
+  );
+  return res.data;
+}
+
 // ── School self-registration ──────────────────────────────────────────────────
 
 export interface RegisterSchoolRequest {

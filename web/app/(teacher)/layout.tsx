@@ -19,7 +19,7 @@ export default async function TeacherLayout({ children }: { children: React.Reac
   const session = (await auth0.getSession()) ?? (await getDevSession());
 
   if (!session) {
-    redirect("/school/login");
+    redirect("/signin");
   }
 
   const userName = session.user.name ?? session.user.email ?? undefined;

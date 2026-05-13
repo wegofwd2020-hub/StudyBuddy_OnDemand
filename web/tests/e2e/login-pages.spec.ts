@@ -5,24 +5,27 @@ import { test, expect } from "@playwright/test";
  * Neither page requires an active session.
  */
 
-test.describe("School login page", () => {
-  test("renders Sign In button", async ({ page }) => {
-    await page.goto("/school/login");
-    // Page was restructured from a redirect-link pattern to a form-with-submit
-    // pattern; the primary affordance is now a submit <button>, matched by
-    // role. Use .last() to pick the in-page form button over the nav link.
+test.describe("Sign-in page", () => {
+  test("renders Sign In button on /signin", async ({ page }) => {
+    await page.goto("/signin");
+    // The unified /signin page exposes a submit <button>. Use .last() to pick
+    // the in-page form button over any nav link.
     await expect(page.getByRole("button", { name: /sign in/i }).last()).toBeVisible();
   });
 
-  test("links to student login", async ({ page }) => {
+  test("/school/login redirects to /signin", async ({ page }) => {
     await page.goto("/school/login");
-    await expect(page.getByRole("link", { name: /student login/i })).toBeVisible();
+    await expect(page).toHaveURL(/\/signin$/);
   });
 
-  test("links to contact page", async ({ page }) => {
-    await page.goto("/school/login");
-    // Footer now renders the link label as just "Contact" (not "Contact us").
-    await expect(page.getByRole("link", { name: /^contact$/i })).toBeVisible();
+  test("/demo/login redirects to /signin", async ({ page }) => {
+    await page.goto("/demo/login");
+    await expect(page).toHaveURL(/\/signin$/);
+  });
+
+  test("/demo/teacher/login redirects to /signin", async ({ page }) => {
+    await page.goto("/demo/teacher/login");
+    await expect(page).toHaveURL(/\/signin$/);
   });
 });
 

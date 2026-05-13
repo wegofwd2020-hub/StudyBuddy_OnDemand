@@ -10,8 +10,8 @@
  *   1. Reads `sb_teacher_token` from localStorage (SSR-safe — runs in useEffect).
  *   2. Decodes the JWT and checks `first_login`.
  *   3. Redirects to /school/change-password?required=1 if first_login=true.
- *   4. Redirects to /school/login (clearing the cookie) if the token is absent
- *      or invalid, so the server layout re-evaluates on next load.
+ *   4. Redirects to /signin (clearing the cookie) if the token is absent or
+ *      invalid, so the server layout re-evaluates on next load.
  *   5. Renders the full portal layout (nav, header, main, footer) once verified.
  *
  * Returns null during the initial client-side check to avoid a flash of content
@@ -57,14 +57,14 @@ export function LocalAuthGuard({
     if (!token) {
       // No token — session cookie is stale. Clear it and force re-login.
       clearLocalSession();
-      router.replace("/school/login");
+      router.replace("/signin");
       return;
     }
 
     const payload = decodeJwtPayload(token);
     if (!payload) {
       clearLocalSession();
-      router.replace("/school/login");
+      router.replace("/signin");
       return;
     }
 
@@ -73,7 +73,7 @@ export function LocalAuthGuard({
     if (exp && Date.now() / 1000 > exp) {
       clearLocalSession();
       localStorage.removeItem("sb_teacher_token");
-      router.replace("/school/login");
+      router.replace("/signin");
       return;
     }
 

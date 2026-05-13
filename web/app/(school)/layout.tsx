@@ -44,7 +44,7 @@ export default async function SchoolLayout({ children }: { children: React.React
     (await getDemoTeacherSession());
 
   if (!session) {
-    redirect("/school/login");
+    redirect("/signin");
   }
 
   const userName = session.user.name ?? session.user.email ?? undefined;

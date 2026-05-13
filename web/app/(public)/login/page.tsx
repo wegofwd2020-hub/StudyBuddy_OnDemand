@@ -47,9 +47,9 @@ export default function LoginPage() {
             </div>
           </div>
           <p className="text-center text-sm text-gray-500">
-            Are you a teacher or school admin?{" "}
-            <Link href="/school/login" className="text-blue-600 hover:underline">
-              School sign in
+            School-provided email and password?{" "}
+            <Link href="/signin" className="text-blue-600 hover:underline">
+              Sign in here
             </Link>
           </p>
         </CardContent>

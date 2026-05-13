@@ -3,7 +3,7 @@
  * Covers TC-IDs: SCH-01, SCH-02 (+ auxiliary school routes)
  *
  * Precondition: no Auth0 session (test env uses fake env vars; getSession()
- * returns null → server-side layout calls redirect("/school/login")).
+ * returns null → server-side layout calls redirect("/signin")).
  *
  * Run with:
  *   npx playwright test school-auth-redirects
@@ -18,7 +18,7 @@ for (const { tcId, path, description } of SCHOOL_PROTECTED_ROUTES) {
   }) => {
     const response = await page.goto(path);
 
-    // Must land on /school/login — not a 500
+    // Must land on /signin — not a 500
     await expect(page).toHaveURL(new RegExp(REDIRECT_TARGET));
     expect(response?.status()).not.toBe(500);
   });

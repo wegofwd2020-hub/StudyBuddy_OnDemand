@@ -28,6 +28,7 @@ export default defineConfig({
         "**/e2e/login-pages.spec.ts",
         "**/e2e/student-login-page.spec.ts",
         "**/e2e/school-login-page.spec.ts",
+        "**/e2e/signin-page.spec.ts",
         "**/e2e/pricing-page.spec.ts",
         "**/e2e/public.spec.ts",
         "**/e2e/static-pages.spec.ts",
