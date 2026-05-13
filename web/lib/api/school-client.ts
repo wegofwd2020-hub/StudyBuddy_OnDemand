@@ -6,7 +6,7 @@
  * POST /auth/refresh. On success the new access token is stored and the
  * original request is retried. On refresh failure (expired / revoked) all
  * local-auth tokens and the session cookie are cleared and the user is
- * redirected to /school/login.
+ * redirected to /signin.
  */
 import axios, { AxiosError } from "axios";
 
@@ -81,7 +81,7 @@ schoolApi.interceptors.response.use(
       } catch {
         // Refresh failed — clear everything and force re-login.
         clearLocalAuthSession();
-        window.location.href = "/school/login";
+        window.location.href = "/signin";
         return Promise.reject(error);
       }
     }
@@ -89,7 +89,7 @@ schoolApi.interceptors.response.use(
     // Non-401 or no refresh token available: clear session if 401 and redirect.
     if (typeof window !== "undefined" && status === 401) {
       clearLocalAuthSession();
-      window.location.href = "/school/login";
+      window.location.href = "/signin";
     }
 
     return Promise.reject(error);

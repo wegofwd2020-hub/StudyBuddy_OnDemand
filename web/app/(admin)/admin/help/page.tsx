@@ -12,17 +12,17 @@ const GETTING_STARTED = [
   {
     step: "1",
     title: "Log in",
-    body: "Go to /admin/login and sign in with your admin credentials. Your role (developer / tester / product_admin / super_admin) determines which pages are visible.",
+    body: "Go to /admin/login and sign in with your admin credentials. The admin console uses a separate bcrypt-backed login from the school / student /signin page. Your role (developer / tester / product_admin / super_admin) determines which pages are visible.",
   },
   {
     step: "2",
     title: "Dashboard",
-    body: "The dashboard shows live subscription KPIs — total active students, MRR, new sign-ups, and churn. The pipeline section shows recent job status.",
+    body: "Live subscription KPIs — total active students, MRR, new sign-ups, and churn. The pipeline section shows recent job status.",
   },
   {
     step: "3",
     title: "Content Review",
-    body: "Open the review queue, filter by status (pending / in_review / approved), and click Review to open a version. Browse units, add inline annotations, then approve or reject.",
+    body: "Open the review queue, filter by status (pending / in_review / approved), and click Review to open a version. Browse units, add inline annotations, then approve or reject. Tutorial sections now render embedded images + videos (matching the student experience) and lesson images open in a click-to-zoom lightbox.",
   },
   {
     step: "4",
@@ -31,8 +31,8 @@ const GETTING_STARTED = [
   },
   {
     step: "5",
-    title: "Demo Accounts",
-    body: "Student and teacher demo requests appear here. Approve a request to provision a temporary account. Extend expiry or revoke at any time.",
+    title: "Demo Accounts & Test Runs",
+    body: "Student-only and teacher-only demo requests still appear on /admin/demo-accounts and /admin/demo-teacher-accounts. The new visitor-facing \"Try a test run\" form (one click → both teacher AND student credentials in one email) is managed on /admin/test-runs. Click Reset on a test-run row to purge the visitor's accounts AND their per-visitor classroom so they can re-submit a fresh request.",
   },
 ];
 
@@ -133,6 +133,7 @@ export default function AdminHelpPage() {
                 ["View subscription MRR", "/admin/dashboard or /admin/analytics"],
                 ["Manage demo student accounts", "/admin/demo-accounts"],
                 ["Manage demo teacher accounts", "/admin/demo-teacher-accounts"],
+                ["Manage visitor test runs (one form → both teacher + student demo)", "/admin/test-runs"],
                 ["View audit log", "/admin/audit"],
                 ["Check system health", "/admin/health"],
                 ["View student feedback", "/admin/feedback"],

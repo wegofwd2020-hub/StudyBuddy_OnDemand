@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueries, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTeacher } from "@/lib/hooks/useTeacher";
 import {
   getRoster,
   uploadRoster,
   getSchoolProfile,
-  listTeachers,
+  listClassrooms,
+  getClassroom,
   provisionStudent,
   resetStudentPassword,
   type RosterItem,
@@ -20,6 +21,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Copy, Check, Users, UserPlus, BookOpen, KeyRound } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+type ScopeFilter = "mine" | "all";
 
 function parseEmails(raw: string): string[] {
   return raw
@@ -58,21 +62,11 @@ function TeacherStudentView({
   schoolId: string;
   teacherId: string;
 }) {
-  // Get this teacher's assigned grades
-  const { data: teachers, isLoading: loadingTeachers } = useQuery({
-    queryKey: ["teachers", schoolId],
-    queryFn: () => listTeachers(schoolId),
-    enabled: !!schoolId,
-    staleTime: 30_000,
-  });
+  const [scope, setScope] = useState<ScopeFilter>("mine");
+  const [gradeFilter, setGradeFilter] = useState<number | "">("");
 
-  const assignedGrades = useMemo(() => {
-    if (!teachers) return null;
-    const me = teachers.find((t) => t.teacher_id === teacherId);
-    return me?.assigned_grades ?? [];
-  }, [teachers, teacherId]);
-
-  // Fetch class metrics (all grades — we'll filter on the frontend)
+  // School-wide metrics fuels the table rows; scope (mine/all) is applied
+  // client-side using the classroom_students of classrooms the user leads.
   const { data: metrics, isLoading: loadingMetrics } = useQuery({
     queryKey: ["class-metrics", schoolId],
     queryFn: () => getClassMetrics(schoolId),
@@ -80,26 +74,152 @@ function TeacherStudentView({
     staleTime: 60_000,
   });
 
-  const students = useMemo(() => {
-    if (!metrics) return [];
-    if (!assignedGrades || assignedGrades.length === 0) return metrics.students;
-    return metrics.students.filter((s) => assignedGrades.includes(s.grade));
-  }, [metrics, assignedGrades]);
+  // Look up which classrooms the logged-in teacher leads so we can compute
+  // "my students" = students enrolled in any of those classrooms.
+  const { data: classrooms, isLoading: loadingClassrooms } = useQuery({
+    queryKey: ["classrooms", schoolId],
+    queryFn: () => listClassrooms(schoolId),
+    enabled: !!schoolId,
+    staleTime: 60_000,
+  });
+  const myClassrooms = (classrooms ?? []).filter(
+    (c) => c.teacher_id === teacherId,
+  );
 
-  const isLoading = loadingTeachers || loadingMetrics;
+  // Pull per-classroom rosters in parallel — listClassrooms only returns
+  // counts; getClassroom returns the full students array.
+  const myClassroomDetails = useQueries({
+    queries: myClassrooms.map((c) => ({
+      queryKey: ["classroom-detail", schoolId, c.classroom_id],
+      queryFn: () => getClassroom(schoolId, c.classroom_id),
+      enabled: !!schoolId,
+      staleTime: 60_000,
+    })),
+  });
+
+  const myStudentIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const q of myClassroomDetails) {
+      for (const s of q.data?.students ?? []) {
+        ids.add(s.student_id);
+      }
+    }
+    return ids;
+  }, [myClassroomDetails]);
+
+  const myCount = myStudentIds.size;
+  const effectiveScope: ScopeFilter =
+    scope === "mine" && myCount === 0 ? "all" : scope;
+
+  // Apply scope first, then grade.
+  const scopedStudents = useMemo(() => {
+    if (!metrics) return [];
+    return metrics.students.filter((s) => {
+      const scopeOk =
+        effectiveScope === "all" || myStudentIds.has(s.student_id);
+      const gradeOk = gradeFilter === "" || s.grade === gradeFilter;
+      return scopeOk && gradeOk;
+    });
+  }, [metrics, effectiveScope, myStudentIds, gradeFilter]);
+
+  // Grade pills derived from the current scope, not all students.
+  const presentGrades = useMemo(() => {
+    if (!metrics) return [];
+    const base =
+      effectiveScope === "all"
+        ? metrics.students
+        : metrics.students.filter((s) => myStudentIds.has(s.student_id));
+    return [...new Set(base.map((s) => s.grade))].sort((a, b) => a - b);
+  }, [metrics, effectiveScope, myStudentIds]);
+
+  const isLoading = loadingMetrics || loadingClassrooms;
+  const allCount = metrics?.students.length ?? 0;
 
   return (
     <Card className="border shadow-sm">
       <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2 text-base">
-          <BookOpen className="h-4 w-4 text-indigo-600" />
-          My Students
-          {assignedGrades && assignedGrades.length > 0 && (
-            <span className="text-xs font-normal text-gray-400">
-              — Grades {assignedGrades.join(", ")}
-            </span>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <BookOpen className="h-4 w-4 text-indigo-600" />
+            Students
+          </CardTitle>
+
+          {allCount > 0 && (
+            <div className="flex flex-wrap items-center gap-3">
+              {/* Scope toggle — default to "My students" (students enrolled in
+                  classrooms the user leads). Auto-collapses to "All" if the
+                  user leads no rosters yet. */}
+              <div className="inline-flex rounded-md border border-gray-200 bg-gray-50 p-0.5 text-xs font-medium">
+                <button
+                  type="button"
+                  onClick={() => setScope("mine")}
+                  disabled={myCount === 0}
+                  className={cn(
+                    "rounded px-2.5 py-1 transition-colors",
+                    effectiveScope === "mine"
+                      ? "bg-white text-indigo-700 shadow-sm"
+                      : "text-gray-500 hover:text-gray-700",
+                    myCount === 0 && "cursor-not-allowed opacity-40",
+                  )}
+                  title={
+                    myCount === 0
+                      ? "You aren't the lead of any classrooms with students."
+                      : undefined
+                  }
+                >
+                  My students ({myCount})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setScope("all")}
+                  className={cn(
+                    "rounded px-2.5 py-1 transition-colors",
+                    effectiveScope === "all"
+                      ? "bg-white text-indigo-700 shadow-sm"
+                      : "text-gray-500 hover:text-gray-700",
+                  )}
+                >
+                  All school ({allCount})
+                </button>
+              </div>
+
+              {presentGrades.length > 0 && (
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs text-gray-500">Grade:</span>
+                  <button
+                    type="button"
+                    onClick={() => setGradeFilter("")}
+                    className={cn(
+                      "rounded px-2 py-1 text-xs font-medium transition-colors",
+                      gradeFilter === ""
+                        ? "bg-blue-600 text-white"
+                        : "border bg-white text-gray-500 hover:text-gray-900",
+                    )}
+                  >
+                    All
+                  </button>
+                  {presentGrades.map((g) => (
+                    <button
+                      type="button"
+                      key={g}
+                      onClick={() =>
+                        setGradeFilter(g === gradeFilter ? "" : g)
+                      }
+                      className={cn(
+                        "rounded px-2 py-1 text-xs font-medium transition-colors",
+                        gradeFilter === g
+                          ? "bg-blue-600 text-white"
+                          : "border bg-white text-gray-500 hover:text-gray-900",
+                      )}
+                    >
+                      {g}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
-        </CardTitle>
+        </div>
       </CardHeader>
       <CardContent className="p-0">
         {isLoading ? (
@@ -131,7 +251,7 @@ function TeacherStudentView({
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {students.map((s) => (
+                {scopedStudents.map((s) => (
                   <tr key={s.student_id} className="hover:bg-gray-50">
                     <td className="px-4 py-3 font-medium text-gray-800">
                       {s.student_name}
@@ -150,15 +270,17 @@ function TeacherStudentView({
                     </td>
                   </tr>
                 ))}
-                {students.length === 0 && (
+                {scopedStudents.length === 0 && (
                   <tr>
                     <td
                       colSpan={5}
                       className="px-4 py-8 text-center text-sm text-gray-400"
                     >
-                      {assignedGrades && assignedGrades.length === 0
-                        ? "No grades assigned yet. Ask your school admin to assign grades to your account."
-                        : "No students found for your assigned grades."}
+                      {effectiveScope === "mine"
+                        ? "No students in classrooms you lead. Switch to \"All school\" to browse the wider roster."
+                        : gradeFilter !== ""
+                          ? `No Grade ${gradeFilter} students at this school.`
+                          : "No students enrolled yet."}
                     </td>
                   </tr>
                 )}

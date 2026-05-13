@@ -33,6 +33,8 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { IS_DEMO_MODE } from "@/lib/demo-mode";
+import { PendingSubscriptionBanner } from "@/components/demo/PendingSubscriptionBanner";
 
 type UploadState = "idle" | "uploading" | "success" | "error";
 type Tab = "json" | "xlsx";
@@ -188,7 +190,11 @@ function JsonPipelineSection({ schoolId }: { schoolId: string }) {
   }
 
   const canTrigger =
-    !quotaExhausted && langs.size > 0 && !!fileRef.current?.files?.[0] && !error;
+    !IS_DEMO_MODE &&
+    !quotaExhausted &&
+    langs.size > 0 &&
+    !!fileRef.current?.files?.[0] &&
+    !error;
 
   return (
     <div className="space-y-4">
@@ -202,7 +208,8 @@ function JsonPipelineSection({ schoolId }: { schoolId: string }) {
           type="file"
           accept=".json"
           onChange={handleFileChange}
-          className="block w-full cursor-pointer text-sm text-gray-600 file:mr-3 file:rounded file:border file:border-gray-200 file:bg-white file:px-3 file:py-1.5 file:text-xs file:font-medium hover:file:bg-gray-50"
+          disabled={IS_DEMO_MODE}
+          className="block w-full cursor-pointer text-sm text-gray-600 file:mr-3 file:rounded file:border file:border-gray-200 file:bg-white file:px-3 file:py-1.5 file:text-xs file:font-medium hover:file:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
         />
         <p className="text-xs text-gray-400">
           Must match the pipeline JSON schema — <code>{`{ grade, units: [...] }`}</code>
@@ -432,13 +439,14 @@ function XlsxSection({ schoolId }: { schoolId: string }) {
               ref={fileRef}
               type="file"
               accept=".xlsx,.xls"
-              className="block w-full cursor-pointer text-sm text-gray-600 file:mr-3 file:rounded file:border file:border-gray-200 file:bg-white file:px-3 file:py-1.5 file:text-xs file:font-medium hover:file:bg-gray-50"
+              disabled={IS_DEMO_MODE}
+              className="block w-full cursor-pointer text-sm text-gray-600 file:mr-3 file:rounded file:border file:border-gray-200 file:bg-white file:px-3 file:py-1.5 file:text-xs file:font-medium hover:file:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
             />
           </div>
 
           <Button
             onClick={handleUpload}
-            disabled={uploadState === "uploading"}
+            disabled={IS_DEMO_MODE || uploadState === "uploading"}
             className="gap-2"
           >
             {uploadState === "uploading" ? (
@@ -529,6 +537,11 @@ export default function CurriculumPage() {
           View all jobs
         </LinkButton>
       </div>
+
+      <PendingSubscriptionBanner
+        message="Custom curriculum upload is available to schools with an active subscription. You can still explore the layout — uploads are disabled in this demo."
+      />
+
 
       {/* Definitions panel */}
       <Link

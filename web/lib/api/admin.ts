@@ -571,6 +571,58 @@ export async function adminResendDemoVerification(
   return res.data;
 }
 
+// ── Demo Test Runs (one form → both teacher + student demo accounts) ─────────
+
+export interface TestRunItem {
+  name: string | null;
+  email: string; // un-tagged original email
+  requested_at: string;
+  status: "pending" | "verified" | "expired" | "revoked";
+  student_email: string;
+  teacher_email: string;
+  student_expires_at: string | null;
+  teacher_expires_at: string | null;
+  verification_expires_at: string | null;
+  revoked_at: string | null;
+}
+
+export interface TestRunListResponse {
+  items: TestRunItem[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
+export async function getTestRuns(
+  page: number = 1,
+  pageSize: number = 50,
+  email?: string,
+): Promise<TestRunListResponse> {
+  const params: Record<string, string | number> = { page, page_size: pageSize };
+  if (email) params.email = email;
+  const res = await adminApi.get<TestRunListResponse>("/admin/demo/test-runs", {
+    params,
+  });
+  return res.data;
+}
+
+export interface TestRunDeleteResponse {
+  student_requests_deleted: number;
+  teacher_requests_deleted: number;
+  students_deleted: number;
+  teachers_deleted: number;
+}
+
+export async function deleteTestRunByEmail(
+  email: string,
+): Promise<TestRunDeleteResponse> {
+  const res = await adminApi.delete<TestRunDeleteResponse>(
+    "/admin/demo/test-runs/by-email",
+    { params: { email } },
+  );
+  return res.data;
+}
+
 // ── Demo Teacher Accounts ─────────────────────────────────────────────────────
 
 export interface DemoTeacherAccountItem {

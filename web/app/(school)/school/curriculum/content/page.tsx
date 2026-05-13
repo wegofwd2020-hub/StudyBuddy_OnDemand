@@ -2,11 +2,12 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueries } from "@tanstack/react-query";
 import { useTeacher } from "@/lib/hooks/useTeacher";
 import {
   listSchoolContentSubjects,
-  listTeachers,
+  listClassrooms,
+  getClassroom,
   type SchoolContentSubject,
 } from "@/lib/api/school-admin";
 import { Badge } from "@/components/ui/badge";
@@ -28,26 +29,15 @@ function statusLabel(status: string): string {
   return status.charAt(0).toUpperCase() + status.slice(1).replace(/_/g, " ");
 }
 
+type ScopeFilter = "mine" | "all";
+
 export default function SchoolContentPage() {
   const teacher = useTeacher();
   const schoolId = teacher?.school_id ?? "";
-  const isAdmin = teacher?.role === "school_admin";
-
-  // Get this teacher's assigned grades (to default the grade filter)
-  const { data: teachers } = useQuery({
-    queryKey: ["teachers", schoolId],
-    queryFn: () => listTeachers(schoolId),
-    enabled: !!schoolId && !isAdmin,
-    staleTime: 30_000,
-  });
-
-  const assignedGrades = useMemo(() => {
-    if (isAdmin || !teachers || !teacher?.teacher_id) return null;
-    const me = teachers.find((t) => t.teacher_id === teacher.teacher_id);
-    return me?.assigned_grades ?? [];
-  }, [teachers, teacher, isAdmin]);
+  const teacherId = teacher?.teacher_id ?? null;
 
   const [gradeFilter, setGradeFilter] = useState<number | "all">("all");
+  const [scope, setScope] = useState<ScopeFilter>("mine");
 
   const { data: subjects, isLoading } = useQuery({
     queryKey: ["school-content-subjects", schoolId],
@@ -56,40 +46,116 @@ export default function SchoolContentPage() {
     staleTime: 60_000,
   });
 
-  // Filter: admins see all, teachers see only their assigned grades (with override via UI)
-  const visibleSubjects = useMemo(() => {
+  // Look up the logged-in teacher's classrooms so we can scope "My content"
+  // to the curricula those classrooms have adopted.
+  const { data: classrooms } = useQuery({
+    queryKey: ["classrooms", schoolId],
+    queryFn: () => listClassrooms(schoolId),
+    enabled: !!schoolId,
+    staleTime: 60_000,
+  });
+  const myClassrooms = (classrooms ?? []).filter(
+    (c) => c.teacher_id === teacherId,
+  );
+
+  // Pull full classroom details in parallel so we can read each one's package
+  // list. listClassrooms only returns counts; getClassroom returns packages.
+  const myClassroomDetails = useQueries({
+    queries: myClassrooms.map((c) => ({
+      queryKey: ["classroom-detail", schoolId, c.classroom_id],
+      queryFn: () => getClassroom(schoolId, c.classroom_id),
+      enabled: !!schoolId,
+      staleTime: 60_000,
+    })),
+  });
+
+  const myCurriculaIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const q of myClassroomDetails) {
+      for (const p of q.data?.packages ?? []) {
+        ids.add(p.curriculum_id);
+      }
+    }
+    return ids;
+  }, [myClassroomDetails]);
+
+  // Roll multiple versions of the same subject up to a single row. Pick the
+  // highest version_number as the "current" version, count the rest as
+  // history. Without this, Grade 11 Chemistry v1..v4 shows up as four rows
+  // and clutters the library page.
+  const rollupKey = (s: SchoolContentSubject) =>
+    `${s.curriculum_id}::${s.subject}`;
+
+  const rolledSubjects = useMemo(() => {
     if (!subjects) return [];
-    let list = subjects;
-    if (!isAdmin && assignedGrades && assignedGrades.length > 0) {
-      list = list.filter((s) => assignedGrades.includes(s.grade));
+    const byKey = new Map<
+      string,
+      { latest: SchoolContentSubject; versionCount: number }
+    >();
+    for (const s of subjects) {
+      const k = rollupKey(s);
+      const existing = byKey.get(k);
+      if (!existing) {
+        byKey.set(k, { latest: s, versionCount: 1 });
+      } else {
+        existing.versionCount += 1;
+        if (s.version_number > existing.latest.version_number) {
+          existing.latest = s;
+        }
+      }
+    }
+    return [...byKey.values()];
+  }, [subjects]);
+
+  // "My content" count drives the auto-fallback when the teacher leads
+  // nothing (e.g. school_admin browsing the school's full library). Count
+  // rolled-up topics, not raw version rows.
+  const myCount = useMemo(
+    () =>
+      rolledSubjects.filter((r) => myCurriculaIds.has(r.latest.curriculum_id))
+        .length,
+    [rolledSubjects, myCurriculaIds],
+  );
+
+  const effectiveScope: ScopeFilter =
+    scope === "mine" && myCount === 0 ? "all" : scope;
+
+  // Apply scope first, then grade — narrows the rolled-up topic list step by step.
+  const visibleRolledSubjects = useMemo(() => {
+    let list = rolledSubjects;
+    if (effectiveScope === "mine") {
+      list = list.filter((r) => myCurriculaIds.has(r.latest.curriculum_id));
     }
     if (gradeFilter !== "all") {
-      list = list.filter((s) => s.grade === gradeFilter);
+      list = list.filter((r) => r.latest.grade === gradeFilter);
     }
     return list;
-  }, [subjects, isAdmin, assignedGrades, gradeFilter]);
+  }, [rolledSubjects, effectiveScope, myCurriculaIds, gradeFilter]);
 
-  // Available grades for the filter pill row
+  // Grade pills derived from the current scope, not all topics — keeps the
+  // filter rail focused as the visible set narrows.
   const availableGrades = useMemo(() => {
-    if (!subjects) return [];
-    const base = isAdmin
-      ? subjects
-      : subjects.filter((s) =>
-          assignedGrades ? assignedGrades.includes(s.grade) : true,
-        );
-    return [...new Set(base.map((s) => s.grade))].sort((a, b) => a - b);
-  }, [subjects, isAdmin, assignedGrades]);
+    const base =
+      effectiveScope === "mine"
+        ? rolledSubjects.filter((r) =>
+            myCurriculaIds.has(r.latest.curriculum_id),
+          )
+        : rolledSubjects;
+    return [...new Set(base.map((r) => r.latest.grade))].sort((a, b) => a - b);
+  }, [rolledSubjects, effectiveScope, myCurriculaIds]);
 
-  // Group by grade for display
+  const totalCount = rolledSubjects.length;
+
+  // Group rolled-up topics by grade for display.
   const grouped = useMemo(() => {
-    const map = new Map<number, typeof visibleSubjects>();
-    for (const s of visibleSubjects) {
-      const list = map.get(s.grade) ?? [];
-      list.push(s);
-      map.set(s.grade, list);
+    const map = new Map<number, typeof visibleRolledSubjects>();
+    for (const r of visibleRolledSubjects) {
+      const list = map.get(r.latest.grade) ?? [];
+      list.push(r);
+      map.set(r.latest.grade, list);
     }
     return [...map.entries()].sort((a, b) => a[0] - b[0]);
-  }, [visibleSubjects]);
+  }, [visibleRolledSubjects]);
 
   return (
     <div className="max-w-4xl space-y-6 p-6">
@@ -103,35 +169,76 @@ export default function SchoolContentPage() {
         </div>
       </div>
 
-      {/* Grade filter pills */}
-      {availableGrades.length > 1 && (
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-medium text-gray-500">Filter:</span>
-          <button
-            onClick={() => setGradeFilter("all")}
-            className={cn(
-              "rounded-full px-3 py-1 text-xs font-medium transition-colors",
-              gradeFilter === "all"
-                ? "bg-indigo-600 text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200",
-            )}
-          >
-            All grades
-          </button>
-          {availableGrades.map((g) => (
+      {/* Scope toggle + grade filter row */}
+      {totalCount > 0 && (
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Scope toggle — defaults to "my content" (curricula adopted by
+              classrooms the user leads). Auto-collapses to "All" if the user
+              leads no relevant classrooms. */}
+          <div className="inline-flex rounded-md border border-gray-200 bg-gray-50 p-0.5 text-xs font-medium">
             <button
-              key={g}
-              onClick={() => setGradeFilter(g === gradeFilter ? "all" : g)}
+              type="button"
+              onClick={() => setScope("mine")}
+              disabled={myCount === 0}
               className={cn(
-                "rounded-full px-3 py-1 text-xs font-medium transition-colors",
-                gradeFilter === g
-                  ? "bg-indigo-600 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200",
+                "rounded px-2.5 py-1 transition-colors",
+                effectiveScope === "mine"
+                  ? "bg-white text-indigo-700 shadow-sm"
+                  : "text-gray-500 hover:text-gray-700",
+                myCount === 0 && "cursor-not-allowed opacity-40",
+              )}
+              title={
+                myCount === 0
+                  ? "Your classrooms haven't adopted any content packages yet."
+                  : undefined
+              }
+            >
+              My content ({myCount})
+            </button>
+            <button
+              type="button"
+              onClick={() => setScope("all")}
+              className={cn(
+                "rounded px-2.5 py-1 transition-colors",
+                effectiveScope === "all"
+                  ? "bg-white text-indigo-700 shadow-sm"
+                  : "text-gray-500 hover:text-gray-700",
               )}
             >
-              Grade {g}
+              All school ({totalCount})
             </button>
-          ))}
+          </div>
+
+          {availableGrades.length > 1 && (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-medium text-gray-500">Grade:</span>
+              <button
+                onClick={() => setGradeFilter("all")}
+                className={cn(
+                  "rounded-full px-3 py-1 text-xs font-medium transition-colors",
+                  gradeFilter === "all"
+                    ? "bg-indigo-600 text-white"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200",
+                )}
+              >
+                All
+              </button>
+              {availableGrades.map((g) => (
+                <button
+                  key={g}
+                  onClick={() => setGradeFilter(g === gradeFilter ? "all" : g)}
+                  className={cn(
+                    "rounded-full px-3 py-1 text-xs font-medium transition-colors",
+                    gradeFilter === g
+                      ? "bg-indigo-600 text-white"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200",
+                  )}
+                >
+                  Grade {g}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -148,8 +255,8 @@ export default function SchoolContentPage() {
             No curriculum content found.
           </p>
           <p className="mt-1 text-xs text-gray-400">
-            {!isAdmin && assignedGrades?.length === 0
-              ? "You have no grades assigned yet. Ask your school admin to assign grades."
+            {effectiveScope === "mine"
+              ? "Your classrooms haven't adopted any content packages yet. Switch to \"All school\" to browse what's available."
               : "Upload a curriculum and trigger the pipeline to generate content."}
           </p>
         </div>
@@ -160,8 +267,12 @@ export default function SchoolContentPage() {
               Grade {grade}
             </h2>
             <div className="space-y-2">
-              {items.map((item) => (
-                <SubjectRow key={item.version_id} item={item} />
+              {items.map((rolled) => (
+                <SubjectRow
+                  key={rollupKey(rolled.latest)}
+                  item={rolled.latest}
+                  versionCount={rolled.versionCount}
+                />
               ))}
             </div>
           </section>
@@ -171,7 +282,13 @@ export default function SchoolContentPage() {
   );
 }
 
-function SubjectRow({ item }: { item: SchoolContentSubject }) {
+function SubjectRow({
+  item,
+  versionCount,
+}: {
+  item: SchoolContentSubject;
+  versionCount: number;
+}) {
   return (
     <Link
       href={`/school/curriculum/content/${item.version_id}`}
@@ -193,12 +310,20 @@ function SubjectRow({ item }: { item: SchoolContentSubject }) {
           >
             {statusLabel(item.status)}
           </Badge>
+          {versionCount > 1 && (
+            <span
+              className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500"
+              title={`${versionCount} versions of this subject — click to open the latest (v${item.version_number}).`}
+            >
+              {versionCount} versions
+            </span>
+          )}
           {!item.has_content && (
             <span className="text-xs text-gray-400 italic">No files yet</span>
           )}
         </div>
         <p className="mt-0.5 text-xs text-gray-500">
-          v{item.version_number} · {item.unit_count} unit
+          Latest v{item.version_number} · {item.unit_count} unit
           {item.unit_count !== 1 ? "s" : ""} · Generated{" "}
           {new Date(item.generated_at).toLocaleDateString()}
         </p>

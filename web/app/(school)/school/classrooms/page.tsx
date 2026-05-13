@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   DoorOpen,
@@ -226,10 +227,14 @@ function CreateClassroomForm({ schoolId }: { schoolId: string }) {
 
 // ── Page ───────────────────────────────────────────────────────────────────────
 
+type ScopeFilter = "mine" | "all";
+
 export default function ClassroomsPage() {
   const teacher = useTeacher();
   const schoolId = teacher?.school_id ?? "";
+  const teacherId = teacher?.teacher_id ?? null;
   const isAdmin = teacher?.role === "school_admin";
+  const [gradeFilter, setGradeFilter] = useState<number | "">("");
 
   const { data: classrooms, isLoading } = useQuery({
     queryKey: ["classrooms", schoolId],
@@ -238,8 +243,40 @@ export default function ClassroomsPage() {
     staleTime: 30_000,
   });
 
-  const active = classrooms?.filter((c) => c.status === "active") ?? [];
-  const archived = classrooms?.filter((c) => c.status === "archived") ?? [];
+  // How many classrooms the logged-in teacher leads. If zero (e.g. a brand-new
+  // teacher account that hasn't been assigned anywhere), default to "all" so
+  // the page isn't empty on first load.
+  const myCount =
+    classrooms?.filter((c) => c.teacher_id === teacherId).length ?? 0;
+  const [scope, setScope] = useState<ScopeFilter>("mine");
+
+  // Auto-fallback to "all" when the teacher leads nothing — once we know the
+  // counts. Without this, a brand-new teacher would land on an empty Classrooms
+  // page even though the school has plenty to show.
+  const effectiveScope: ScopeFilter =
+    scope === "mine" && myCount === 0 ? "all" : scope;
+
+  // Only offer grades that actually have at least one classroom — empty grades
+  // would just give the dropdown stale clutter.
+  const presentGrades = Array.from(
+    new Set(
+      (classrooms ?? [])
+        .map((c) => c.grade)
+        .filter((g): g is number => typeof g === "number"),
+    ),
+  ).sort((a, b) => a - b);
+
+  // Apply scope + grade filters before splitting active/archived.
+  // - "mine" → only classrooms where the lead teacher is the logged-in user
+  // - grade  → only classrooms at the picked grade (gradeless rows hidden when filtering)
+  const filtered =
+    classrooms?.filter(
+      (c) =>
+        (effectiveScope === "all" || c.teacher_id === teacherId) &&
+        (gradeFilter === "" || c.grade === gradeFilter),
+    ) ?? [];
+  const active = filtered.filter((c) => c.status === "active");
+  const archived = filtered.filter((c) => c.status === "archived");
 
   return (
     <div className="max-w-3xl space-y-6 p-6">
@@ -253,6 +290,79 @@ export default function ClassroomsPage() {
         classroom, assign packages from the catalog or your custom builds, then enrol
         students.
       </p>
+
+      {/* Scope toggle — default to "my classrooms" so a teacher who leads
+          even a single class lands on a focused view. Auto-collapses to
+          "All" when the teacher leads nothing (e.g. school_admin browsing). */}
+      {(classrooms?.length ?? 0) > 0 && (
+        <div className="flex flex-wrap items-center gap-2 text-sm">
+          <span className="text-gray-700">Show:</span>
+          <div className="inline-flex rounded-md border border-gray-200 bg-gray-50 p-0.5">
+            <button
+              type="button"
+              onClick={() => setScope("mine")}
+              disabled={myCount === 0}
+              className={cn(
+                "rounded px-3 py-1 text-xs font-medium transition-colors",
+                effectiveScope === "mine"
+                  ? "bg-white text-indigo-700 shadow-sm"
+                  : "text-gray-500 hover:text-gray-700",
+                myCount === 0 && "cursor-not-allowed opacity-40",
+              )}
+              title={
+                myCount === 0
+                  ? "You aren't the lead of any classrooms yet."
+                  : undefined
+              }
+            >
+              My classrooms ({myCount})
+            </button>
+            <button
+              type="button"
+              onClick={() => setScope("all")}
+              className={cn(
+                "rounded px-3 py-1 text-xs font-medium transition-colors",
+                effectiveScope === "all"
+                  ? "bg-white text-indigo-700 shadow-sm"
+                  : "text-gray-500 hover:text-gray-700",
+              )}
+            >
+              All classrooms ({classrooms?.length ?? 0})
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Grade filter — only lists grades that have at least one classroom
+          today, so the dropdown stays tight as the school's roster grows. */}
+      {presentGrades.length > 0 && (
+        <div className="flex items-center gap-3">
+          <label
+            htmlFor="classroom_grade_filter"
+            className="text-sm font-medium text-gray-700"
+          >
+            Filter by grade
+          </label>
+          <select
+            id="classroom_grade_filter"
+            value={gradeFilter}
+            onChange={(e) =>
+              setGradeFilter(e.target.value === "" ? "" : Number(e.target.value))
+            }
+            className="border-input focus-visible:ring-ring h-9 rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:ring-1 focus-visible:outline-none"
+          >
+            <option value="">All grades</option>
+            {presentGrades.map((g) => (
+              <option key={g} value={g}>
+                Grade {g}
+              </option>
+            ))}
+          </select>
+          <span className="text-sm text-gray-400">
+            {filtered.length} classroom{filtered.length !== 1 ? "s" : ""}
+          </span>
+        </div>
+      )}
 
       {/* ── Active classrooms ── */}
       <section>

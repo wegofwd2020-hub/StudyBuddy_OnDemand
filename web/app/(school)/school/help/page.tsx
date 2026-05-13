@@ -11,25 +11,30 @@ const GETTING_STARTED_TEACHER = [
   {
     step: "1",
     title: "Log in",
-    body: "Go to /school/login and sign in with your teacher credentials. The portal loads your assigned grades automatically.",
+    body: "Go to /signin and enter your school-issued email and password. The same page handles teachers, school admins, and students — the system routes you to the right portal automatically based on your account.",
   },
   {
     step: "2",
-    title: "Dashboard — My Classes",
-    body: "The dashboard shows your assigned grades and a quick class summary. Grades are assigned by your school admin.",
+    title: "Classrooms — focus on yours",
+    body: "Classrooms list defaults to a \"My classrooms\" view showing the rooms you lead. Toggle to \"All classrooms\" to peek at the rest of the school. The grade filter only lists grades that actually have a classroom — no clutter.",
   },
   {
     step: "3",
-    title: "Content Library",
-    body: "Browse AI-generated lessons, tutorials, quizzes, and activities for your assigned grades. Click a subject to see its units, then click a unit to view the full content.",
+    title: "Class Overview — students you teach",
+    body: "Same toggle pattern: \"My students\" shows everyone enrolled in classrooms you lead; \"All school\" shows the wider roster. Grade pills auto-narrow to grades present in the current view.",
   },
   {
     step: "4",
+    title: "Content Library",
+    body: "Browse AI-generated lessons, tutorials, quizzes, and activities. Default view is \"My content\" — the subjects your classrooms have adopted. Each subject row rolls up multiple regenerations into one — if you see a \"4 versions\" chip, the link opens the latest. Lesson images are clickable — tap to enlarge in a lightbox.",
+  },
+  {
+    step: "5",
     title: "Reports",
     body: "Check the Overview for class-level stats, drill into At-Risk to spot struggling students, or view Unit Performance to find difficult content.",
   },
   {
-    step: "5",
+    step: "6",
     title: "Alerts & Digest",
     body: "Alerts notify you when thresholds are breached (e.g. class average drops below 60%). Digest Settings let you subscribe to a weekly email summary.",
   },
@@ -38,22 +43,22 @@ const GETTING_STARTED_TEACHER = [
 const GETTING_STARTED_ADMIN = [
   ...GETTING_STARTED_TEACHER,
   {
-    step: "6",
+    step: "7",
     title: "Teachers",
-    body: "Invite new teachers, view the full teacher roster, and assign grades. A teacher only sees content and students for their assigned grades.",
+    body: "Provision new teachers, view the full teacher roster, and promote a teacher to School Admin. Provisioned accounts get a temporary password emailed to them and are forced to reset on first login.",
   },
   {
-    step: "7",
+    step: "8",
     title: "Curriculum Upload",
     body: "Upload a grade curriculum JSON file, then trigger the AI pipeline to generate lessons and quizzes. Monitor job progress in the Pipeline Jobs tab.",
   },
   {
-    step: "8",
+    step: "9",
     title: "Subscription",
     body: "View your current plan limits (students, teachers, pipeline quota). Upgrade or cancel via the Subscription page.",
   },
   {
-    step: "9",
+    step: "10",
     title: "Content Retention",
     body: "Manage curriculum version lifecycle from the Content Retention page. See which versions are active, unavailable (expired), or purged. Renew expiring content with one click, pay for a renewal via Stripe, or purchase additional storage. Assign a specific curriculum version as the live content source for each grade.",
   },

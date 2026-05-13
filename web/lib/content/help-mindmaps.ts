@@ -179,26 +179,35 @@ export const HELP_MINDMAPS: PersonaMindMap[] = [
   {
     id: "school-teacher",
     title: "School Teacher",
-    subtitle: "Browse content and monitor student progress for your assigned grades",
+    subtitle: "Browse content and monitor student progress in your classrooms",
     color: "bg-teal-700",
     diagram: `mindmap
   root((School Teacher))
-    Dashboard
-      My Classes
-        Assigned grades shown
-      Quick class stats
+    Sign in
+      Unified /signin
+      Same page for teachers + students
+    Classrooms
+      My classrooms (default)
+      All classrooms toggle
+      Grade filter (only grades present)
+    Class Overview
+      My students (default)
+      All school toggle
+      Grade pills auto-narrow
     Content Library
-      Filtered to assigned grades
-      Grade filter pills
-      Browse by subject
+      My content (default)
+      All school toggle
+      Subject rows roll up versions
+      Click image → lightbox
       Subject → Unit list
         Unit Viewer
           Lesson text
-          Tutorial sections
+          Tutorial sections (images + video)
           Quiz questions
           Experiment steps
     Students
-      Grade-scoped roster
+      My students (default)
+      All school toggle
       Individual student report
         Units completed
         Quiz scores
