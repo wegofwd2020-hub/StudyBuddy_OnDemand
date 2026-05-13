@@ -332,21 +332,17 @@ mambakkam.net yet), run mambakkam.net's `provision.sh` first — see
      # the latter being gitignored so it never ships in the Docker image).
      # See `--help` for --dry-run, --skip-inject, and --smoke flags.
 
-  6. Reload host nginx to pick up the new vhost                       [~10 sec]
-     sudo nginx -t && sudo systemctl reload nginx
-     (do NOT restart — reload preserves mambakkam.net traffic)
-
 ┌──────────────────────────────────────────────────────────────────────┐
 │  Container startup (docker compose handles dependencies)              │
 └──────────────────────────────────────────────────────────────────────┘
 
-  7. docker compose pull (fetch images from GHCR)                     [~3 min]
+  6. docker compose pull (fetch images from GHCR)                     [~3 min]
      cd /opt/studybuddy
      docker compose -f docker-compose.yml -f docker-compose.demo.yml \
        --env-file .env.demo pull
 
-  8. docker compose up -d                                             [~2 min]
-     Same flags as step 7, with `up -d`.
+  7. docker compose up -d                                             [~2 min]
+     Same flags as step 6, with `up -d`.
 
      Healthcheck-gated startup order:
      ┌─ db (postgres)            healthcheck: pg_isready
@@ -361,6 +357,12 @@ mambakkam.net yet), run mambakkam.net's `provision.sh` first — see
      ├─ web                      depends on api healthcheck
      │     ↓ (api + web ready)
      └─ nginx                    compose-internal nginx on 127.0.0.1:8443
+
+  8. Reload host nginx to pick up the new vhost                       [~10 sec]
+     sudo nginx -t && sudo systemctl reload nginx
+     (do NOT restart — reload preserves mambakkam.net traffic. Reload
+      AFTER compose is up so the 127.0.0.1:8443 upstream is reachable
+      the moment the vhost is enabled. Matches §2 timing.)
 
   9. seed.sh — populate demo accounts + content rows                  [~3 min]
      docker compose exec api bash /app/scripts/demo/seed.sh

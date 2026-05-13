@@ -46,9 +46,9 @@
 2. `curl -fsSL .../scripts/demo/provision.sh | bash` — second-tenant variant
 3. Edit `/opt/studybuddy/.env.demo` — replace 5 `<REPLACE_WITH_openssl_rand_hex_32>` placeholders + paste real Auth0/Stripe/SMTP/Sentry values
 4. Append GH Actions deploy SSH pubkey to `/home/deploy/.ssh/authorized_keys` (append — don't overwrite mambakkam's)
-5. `rsync -avz ./content_store/ deploy@<vps>:/data/content/` — pre-built pipeline output
-6. `sudo nginx -t && sudo systemctl reload nginx` — host nginx picks up StudyBuddy vhost
-7. `docker compose -f docker-compose.yml -f docker-compose.demo.yml --env-file .env.demo pull && up -d`
+5. `bash scripts/demo/sync-content.sh deploy@<vps>` — inject G11 visuals + rsync `content_store_data/` → `/data/content/` + rsync `web/public/sample-visuals/` → `/data/sample-visuals/` (the 44 tutorial MP4s, gitignored, never in the Docker image)
+6. `docker compose -f docker-compose.yml -f docker-compose.demo.yml --env-file .env.demo pull && up -d`
+7. `sudo nginx -t && sudo systemctl reload nginx` — host nginx picks up StudyBuddy vhost (reload **after** compose so the 127.0.0.1:8443 upstream is reachable)
 8. `docker compose exec api alembic upgrade head && bash /app/scripts/demo/seed.sh`
 9. `bash scripts/demo/smoke.sh http://127.0.0.1:8443` (loopback first)
 10. Cloudflare DNS: update A record to real VPS IP, enable proxy
