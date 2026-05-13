@@ -279,10 +279,21 @@ service cron reload
 info "cron entry installed at $CRON_FILE"
 
 # ── 7. content store directory ──────────────────────────────────────────────
-step "7/9  content store directory"
-mkdir -p /data/content
-chown -R "$DEPLOY_USER:$DEPLOY_USER" /data/content
-info "/data/content is ready for rsync from the operator's dev machine"
+# Two trees land here, both rsync'd from the operator's dev machine:
+#   /data/content/        ← from local content_store_data/  (lesson/quiz/
+#                           tutorial JSON + audio MP3 + visuals/_legacy SVGs)
+#                           mounted into compose as $CONTENT_STORE_PATH and
+#                           served via nginx location /content/.
+#   /data/sample-visuals/ ← from local web/public/sample-visuals/  (44 MP4
+#                           tutorial videos referenced from tutorial_en.json
+#                           via /sample-visuals/<unit>/<file>.mp4 URLs).
+#                           Gitignored so they never reach the Docker image;
+#                           must be deployed out-of-band. Served via nginx
+#                           location /sample-visuals/.
+step "7/9  content store directories"
+mkdir -p /data/content /data/sample-visuals
+chown -R "$DEPLOY_USER:$DEPLOY_USER" /data/content /data/sample-visuals
+info "/data/content and /data/sample-visuals are ready for rsync from the operator's dev machine"
 
 # ── 8. restic — encrypted backup repository ────────────────────────────────
 # Separate repo from mambakkam's so password compromise on one doesn't
@@ -395,8 +406,14 @@ Next steps (in order):
    nginx vhost installed in step 5 above proxies demo.studybuddy.app
    traffic to 127.0.0.1:8443.
 
-4. Upload pre-built content from your dev machine:
-   rsync -avz ./content_store/ deploy@$PUBLIC_IP:/data/content/
+4. Upload pre-built content from your dev machine (local dir is
+   content_store_data/ — do NOT use content_store/ which doesn't exist):
+   # First make G11 visuals discoverable inside content_store_data/visuals/
+   python scripts/inject_g11_visuals.py
+   # Then push the full content store + the sample-visuals tree (44 MP4s,
+   # 219 MB — gitignored so neither rsync target ships in the Docker image)
+   rsync -avz ./content_store_data/      deploy@$PUBLIC_IP:/data/content/
+   rsync -avz ./web/public/sample-visuals/ deploy@$PUBLIC_IP:/data/sample-visuals/
 
 5. Bring the StudyBuddy stack up:
    cd $INSTALL_DIR

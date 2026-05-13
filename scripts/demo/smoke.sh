@@ -22,6 +22,12 @@
 #   - POST /api/v1/auth/login         (Anya Iyer / G11 Commerce)      (200, returns token)
 #   - GET  /api/v1/content/G8-MATH-001/lesson  (with student token)   (200, has sections)
 #   - GET  /api/v1/content/G8-MATH-001/quiz/1  (with student token)   (200, has questions)
+#   - HEAD /content/curricula/default-2026-g11-science/G11-BIO-001/lesson_en.json
+#                                              (200, served by nginx alias)
+#   - HEAD /sample-visuals/G11-BIO-001/bacteriophage-anatomy.svg      (200, tutorial SVG)
+#   - HEAD /sample-visuals/G11-BIO-001/Diversity_TaxonomicHierarchy.mp4
+#                                              (200, tutorial MP4 — catches the gitignored
+#                                               sample-visuals tree if rsync was skipped)
 #   - GET  /                                                          (200, web up)
 #   - GET  /demo                                                      (200, demo route)
 #
@@ -57,6 +63,11 @@ http_get() {
   local url="$1"
   local extra_args=("${@:2}")
   curl -s -m 10 -w '::status::%{http_code}' "${extra_args[@]}" "$url" 2>&1
+}
+
+http_head() {
+  local url="$1"
+  curl -s -m 10 -o /dev/null -w '%{http_code}' -I "$url" 2>&1
 }
 
 http_post() {
@@ -168,6 +179,39 @@ if [[ -n "$STUDENT_TOKEN" ]]; then
   fi
 else
   fail "content fetch" "no student token (login above failed)"
+fi
+
+# ── Static content delivery (rsync targets) ────────────────────────────────
+# Catches:
+#   - operator forgot to rsync content_store_data/ (lesson JSON 404)
+#   - operator forgot to rsync web/public/sample-visuals/ (tutorial videos 404 —
+#     this tree is gitignored so it's NOT in the Docker image)
+#   - nginx /content/ or /sample-visuals/ location blocks missing on a fresh box
+echo ""
+echo "Static content delivery:"
+
+LESSON_URL="$BASE_URL/content/curricula/default-2026-g11-science/G11-BIO-001/lesson_en.json"
+STATUS=$(http_head "$LESSON_URL")
+if [[ "$STATUS" == "200" ]]; then
+  pass "HEAD /content/.../G11-BIO-001/lesson_en.json returns 200"
+else
+  fail "HEAD lesson_en.json" "status=$STATUS — is content_store_data/ rsync'd to /data/content/?"
+fi
+
+SVG_URL="$BASE_URL/sample-visuals/G11-BIO-001/bacteriophage-anatomy.svg"
+STATUS=$(http_head "$SVG_URL")
+if [[ "$STATUS" == "200" ]]; then
+  pass "HEAD /sample-visuals/G11-BIO-001/bacteriophage-anatomy.svg returns 200"
+else
+  fail "HEAD tutorial SVG" "status=$STATUS — is web/public/sample-visuals/ rsync'd to /data/sample-visuals/?"
+fi
+
+MP4_URL="$BASE_URL/sample-visuals/G11-BIO-001/Diversity_TaxonomicHierarchy.mp4"
+STATUS=$(http_head "$MP4_URL")
+if [[ "$STATUS" == "200" ]]; then
+  pass "HEAD /sample-visuals/G11-BIO-001/Diversity_TaxonomicHierarchy.mp4 returns 200"
+else
+  fail "HEAD tutorial MP4" "status=$STATUS — sample-visuals tree is gitignored; rsync from web/public/sample-visuals/"
 fi
 
 # ── Web frontend ────────────────────────────────────────────────────────────

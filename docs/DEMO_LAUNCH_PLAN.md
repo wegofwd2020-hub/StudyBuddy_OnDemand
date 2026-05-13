@@ -153,7 +153,7 @@ The pipeline runs offline and outputs are pushed to the demo VPS. No `ANTHROPIC_
 | **Grade 11 Science** content built (en) — Fatima, Liam | Operator | same on `g11-science/G11-PHYS-002` etc. |
 | **Grade 12 Commerce** content built (en) — Isabella, James | Operator | same on `g12-commerce/` |
 | **Grade 12 Science** content built (en) — Sam Sr, Linda | Operator | same on `g12-science/` |
-| Pipeline output uploaded to demo VPS | CI (deploy workflow) | `ssh demo 'ls /opt/studybuddy/content_store/'` shows current set |
+| Pipeline output uploaded to demo VPS | Operator (rsync — see §2.5 step 5) | `ssh demo 'ls /data/content/curricula/ && ls /data/sample-visuals/'` shows the 10 curricula + 44 tutorial MP4s |
 
 **One-time cost** to build all of the above: ~$215 (per `studybuddy-docs/COST_PLAN.md`). Already partially built; finish gaps locally before Day -5 (Tue May 12).
 
@@ -232,7 +232,8 @@ stability check) and cuts over at **T+4h = 13:00 EDT**.
 | 11:05 | sb T-2h | Run StudyBuddy's `scripts/demo/provision.sh` (second-tenant variant — ~5 min; see §2.5 below) | Operator | All 9 steps complete; pre-flight (step 0) confirms mambakkam first-tenant artefacts |
 | 11:15 | sb T-1h45m | Edit `/opt/studybuddy/.env.demo` — paste real Auth0 / Stripe-test / Gmail App Password / Sentry DSN values from your password manager; replace 5 `<REPLACE_WITH_openssl_rand_hex_32>` lines with `openssl rand -hex 32` outputs | Operator | `grep '<' /opt/studybuddy/.env.demo` returns no placeholders |
 | 11:30 | sb T-1h30m | Append GH Actions deploy SSH pubkey to `/home/deploy/.ssh/authorized_keys` (mambakkam's already there — append, do not overwrite) | Operator | `wc -l /home/deploy/.ssh/authorized_keys` shows 2+ keys |
-| 11:35 | sb T-1h25m | Final content sync from local pipeline: `rsync -avz ./content_store/ deploy@<vps-ip>:/data/content/` | Operator | rsync reports zero deltas |
+| 11:30 | sb T-1h30m | **Inject G11 visuals into the content store** before the rsync: `python scripts/inject_g11_visuals.py` (copies the SVGs committed under `sample_content/g11-science/**/Option2_Catalogue/` into `content_store_data/visuals/` so they're picked up by the next step) | Operator | Script reports "N visuals injected"; verify with `ls content_store_data/visuals/G11-BIO-001/` |
+| 11:35 | sb T-1h25m | Final content sync from local pipeline (note: local dir is `content_store_data/`, not `content_store/`; sample-visuals tree is gitignored so neither rsync target ships in the Docker image): `rsync -avz ./content_store_data/ deploy@<vps-ip>:/data/content/ && rsync -avz ./web/public/sample-visuals/ deploy@<vps-ip>:/data/sample-visuals/` | Operator | Both rsyncs report zero deltas |
 | 11:50 | sb T-1h10m | Bring the StudyBuddy stack up: `docker compose -f docker-compose.yml -f docker-compose.demo.yml --env-file .env.demo up -d` | Operator | `docker compose ps` shows all 7 services `Up (healthy)` within 60s |
 | 12:00 | sb T-1h | Reload host nginx so the StudyBuddy vhost picks up the new upstream: `sudo nginx -t && sudo systemctl reload nginx` | Operator | nginx reload OK; mambakkam still serving |
 | 12:05 | sb T-55m | Run migrations + seed: `docker compose exec api alembic upgrade head` then `bash scripts/demo/seed.sh` | Operator | All seed scripts emit `done` or `skip`; no errors |
@@ -325,7 +326,12 @@ mambakkam.net yet), run mambakkam.net's `provision.sh` first — see
      Append-only — do not overwrite mambakkam.net's deploy key.
 
   5. Upload pre-built content from dev machine                        [~5 min]
-     rsync -avz ./content_store/ deploy@<vps-ip>:/data/content/
+     # First inject the just-committed G11 SVGs into the content store
+     python scripts/inject_g11_visuals.py
+     # Two trees — local dir is content_store_data/ (NOT content_store/),
+     # and sample-visuals tree is gitignored so it's not in the Docker image
+     rsync -avz ./content_store_data/        deploy@<vps-ip>:/data/content/
+     rsync -avz ./web/public/sample-visuals/ deploy@<vps-ip>:/data/sample-visuals/
 
   6. Reload host nginx to pick up the new vhost                       [~10 sec]
      sudo nginx -t && sudo systemctl reload nginx
