@@ -1,7 +1,7 @@
 # Demo Hosting Readiness — StudyBuddy
 
 **Generated:** 2026-05-13
-**Companion doc:** [`DEMO_LAUNCH_PLAN.md`](DEMO_LAUNCH_PLAN.md) (the canonical runbook)
+**Companion docs:** [`DEMO_LAUNCH_PLAN.md`](DEMO_LAUNCH_PLAN.md) (the canonical runbook) · [`DEMO_EMAIL_INVENTORY.md`](DEMO_EMAIL_INVENTORY.md) (which mailboxes to create vs. reuse)
 **Purpose:** One-page status snapshot — what's ready, the steps to take, what will be live, and what stays open after the demo is up.
 
 ---
