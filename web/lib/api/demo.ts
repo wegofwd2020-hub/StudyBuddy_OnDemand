@@ -84,10 +84,7 @@ export interface TestRunRequestPayload {
 export async function requestTestRun(
   payload: TestRunRequestPayload,
 ): Promise<DemoRequestResponse> {
-  const res = await api.post<DemoRequestResponse>(
-    "/demo/test-run/request",
-    payload,
-  );
+  const res = await api.post<DemoRequestResponse>("/demo/test-run/request", payload);
   return res.data;
 }
 
@@ -95,12 +92,8 @@ export async function requestTestRun(
  * GET /demo/test-run/verify/{token}
  * Verify the test-run email and trigger the combined credentials email.
  */
-export async function verifyTestRunEmail(
-  token: string,
-): Promise<DemoRequestResponse> {
-  const res = await api.get<DemoRequestResponse>(
-    `/demo/test-run/verify/${token}`,
-  );
+export async function verifyTestRunEmail(token: string): Promise<DemoRequestResponse> {
+  const res = await api.get<DemoRequestResponse>(`/demo/test-run/verify/${token}`);
   return res.data;
 }
 

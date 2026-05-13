@@ -112,11 +112,7 @@ export function TestRunRequestModal({ trigger }: TestRunRequestModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger
-        render={
-          trigger ?? <Button size="default">Try a test run</Button>
-        }
-      />
+      <DialogTrigger render={trigger ?? <Button size="default">Try a test run</Button>} />
 
       <DialogContent className="sm:max-w-md">
         {submittedEmail ? (
@@ -129,9 +125,9 @@ export function TestRunRequestModal({ trigger }: TestRunRequestModalProps) {
               <DialogTitle className="text-center">Check your inbox</DialogTitle>
               <DialogDescription className="text-center">
                 We&apos;ve sent a verification link to{" "}
-                <span className="font-medium">{submittedEmail}</span>. Click the
-                link in the email — we&apos;ll then send you the teacher and
-                student login credentials in a second email.
+                <span className="font-medium">{submittedEmail}</span>. Click the link in
+                the email — we&apos;ll then send you the teacher and student login
+                credentials in a second email.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
@@ -146,9 +142,8 @@ export function TestRunRequestModal({ trigger }: TestRunRequestModalProps) {
             <DialogHeader>
               <DialogTitle>Try a test run</DialogTitle>
               <DialogDescription>
-                Enter your name and email. We&apos;ll send you teacher and
-                student login credentials so you can explore StudyBuddy from
-                both sides.
+                Enter your name and email. We&apos;ll send you teacher and student login
+                credentials so you can explore StudyBuddy from both sides.
               </DialogDescription>
             </DialogHeader>
 

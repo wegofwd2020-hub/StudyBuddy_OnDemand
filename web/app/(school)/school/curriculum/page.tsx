@@ -112,6 +112,7 @@ function JsonPipelineSection({ schoolId }: { schoolId: string }) {
   const [state, setState] = useState<UploadState>("idle");
   const [error, setError] = useState<string | null>(null);
   const [parsed, setParsed] = useState<{ grade: number; unitCount: number } | null>(null);
+  const [hasFile, setHasFile] = useState(false);
 
   const { data: limits } = useQuery({
     queryKey: ["school-limits", schoolId],
@@ -136,6 +137,7 @@ function JsonPipelineSection({ schoolId }: { schoolId: string }) {
 
   function handleFileChange() {
     const file = fileRef.current?.files?.[0];
+    setHasFile(!!file);
     if (!file) {
       setParsed(null);
       return;
@@ -190,11 +192,7 @@ function JsonPipelineSection({ schoolId }: { schoolId: string }) {
   }
 
   const canTrigger =
-    !IS_DEMO_MODE &&
-    !quotaExhausted &&
-    langs.size > 0 &&
-    !!fileRef.current?.files?.[0] &&
-    !error;
+    !IS_DEMO_MODE && !quotaExhausted && langs.size > 0 && hasFile && !error;
 
   return (
     <div className="space-y-4">
@@ -538,10 +536,7 @@ export default function CurriculumPage() {
         </LinkButton>
       </div>
 
-      <PendingSubscriptionBanner
-        message="Custom curriculum upload is available to schools with an active subscription. You can still explore the layout — uploads are disabled in this demo."
-      />
-
+      <PendingSubscriptionBanner message="Custom curriculum upload is available to schools with an active subscription. You can still explore the layout — uploads are disabled in this demo." />
 
       {/* Definitions panel */}
       <Link

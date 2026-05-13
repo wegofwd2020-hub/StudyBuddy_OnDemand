@@ -55,9 +55,7 @@ export default function DigestSettingsPage() {
       <p className="text-sm text-gray-500">
         Receive a weekly summary of your class performance every Monday morning.
       </p>
-      <PendingSubscriptionBanner
-        message="Weekly digest delivery is available to schools with an active subscription. You can preview the settings page, but saving is disabled in this demo."
-      />
+      <PendingSubscriptionBanner message="Weekly digest delivery is available to schools with an active subscription. You can preview the settings page, but saving is disabled in this demo." />
       <Card className="border shadow-sm">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-base">
@@ -113,10 +111,7 @@ export default function DigestSettingsPage() {
           </label>
           {error && <p className="text-sm text-red-600">{error}</p>}
           <div className="flex items-center gap-3 pt-1">
-            <Button
-              onClick={handleSave}
-              disabled={IS_DEMO_MODE || saving || !email}
-            >
+            <Button onClick={handleSave} disabled={IS_DEMO_MODE || saving || !email}>
               {saving ? "Saving…" : "Save settings"}
             </Button>
             {saved && (

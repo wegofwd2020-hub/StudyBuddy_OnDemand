@@ -16,17 +16,17 @@ const GETTING_STARTED_TEACHER = [
   {
     step: "2",
     title: "Classrooms — focus on yours",
-    body: "Classrooms list defaults to a \"My classrooms\" view showing the rooms you lead. Toggle to \"All classrooms\" to peek at the rest of the school. The grade filter only lists grades that actually have a classroom — no clutter.",
+    body: 'Classrooms list defaults to a "My classrooms" view showing the rooms you lead. Toggle to "All classrooms" to peek at the rest of the school. The grade filter only lists grades that actually have a classroom — no clutter.',
   },
   {
     step: "3",
     title: "Class Overview — students you teach",
-    body: "Same toggle pattern: \"My students\" shows everyone enrolled in classrooms you lead; \"All school\" shows the wider roster. Grade pills auto-narrow to grades present in the current view.",
+    body: 'Same toggle pattern: "My students" shows everyone enrolled in classrooms you lead; "All school" shows the wider roster. Grade pills auto-narrow to grades present in the current view.',
   },
   {
     step: "4",
     title: "Content Library",
-    body: "Browse AI-generated lessons, tutorials, quizzes, and activities. Default view is \"My content\" — the subjects your classrooms have adopted. Each subject row rolls up multiple regenerations into one — if you see a \"4 versions\" chip, the link opens the latest. Lesson images are clickable — tap to enlarge in a lightbox.",
+    body: 'Browse AI-generated lessons, tutorials, quizzes, and activities. Default view is "My content" — the subjects your classrooms have adopted. Each subject row rolls up multiple regenerations into one — if you see a "4 versions" chip, the link opens the latest. Lesson images are clickable — tap to enlarge in a lightbox.',
   },
   {
     step: "5",

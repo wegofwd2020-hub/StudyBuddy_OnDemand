@@ -32,7 +32,7 @@ const GETTING_STARTED = [
   {
     step: "5",
     title: "Demo Accounts & Test Runs",
-    body: "Student-only and teacher-only demo requests still appear on /admin/demo-accounts and /admin/demo-teacher-accounts. The new visitor-facing \"Try a test run\" form (one click → both teacher AND student credentials in one email) is managed on /admin/test-runs. Click Reset on a test-run row to purge the visitor's accounts AND their per-visitor classroom so they can re-submit a fresh request.",
+    body: 'Student-only and teacher-only demo requests still appear on /admin/demo-accounts and /admin/demo-teacher-accounts. The new visitor-facing "Try a test run" form (one click → both teacher AND student credentials in one email) is managed on /admin/test-runs. Click Reset on a test-run row to purge the visitor\'s accounts AND their per-visitor classroom so they can re-submit a fresh request.',
   },
 ];
 
@@ -133,7 +133,10 @@ export default function AdminHelpPage() {
                 ["View subscription MRR", "/admin/dashboard or /admin/analytics"],
                 ["Manage demo student accounts", "/admin/demo-accounts"],
                 ["Manage demo teacher accounts", "/admin/demo-teacher-accounts"],
-                ["Manage visitor test runs (one form → both teacher + student demo)", "/admin/test-runs"],
+                [
+                  "Manage visitor test runs (one form → both teacher + student demo)",
+                  "/admin/test-runs",
+                ],
                 ["View audit log", "/admin/audit"],
                 ["Check system health", "/admin/health"],
                 ["View student feedback", "/admin/feedback"],

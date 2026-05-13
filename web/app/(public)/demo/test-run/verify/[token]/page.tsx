@@ -87,9 +87,7 @@ function resolveState(err: unknown): Exclude<VerifyState, "loading" | "success">
 
 export default function TestRunVerifyPage() {
   const { token } = useParams<{ token: string }>();
-  const [state, setState] = useState<VerifyState>(() =>
-    token ? "loading" : "invalid",
-  );
+  const [state, setState] = useState<VerifyState>(() => (token ? "loading" : "invalid"));
 
   useEffect(() => {
     if (!token) return;

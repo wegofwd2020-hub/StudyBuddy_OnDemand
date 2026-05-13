@@ -54,9 +54,7 @@ export default function SchoolContentPage() {
     enabled: !!schoolId,
     staleTime: 60_000,
   });
-  const myClassrooms = (classrooms ?? []).filter(
-    (c) => c.teacher_id === teacherId,
-  );
+  const myClassrooms = (classrooms ?? []).filter((c) => c.teacher_id === teacherId);
 
   // Pull full classroom details in parallel so we can read each one's package
   // list. listClassrooms only returns counts; getClassroom returns packages.
@@ -83,8 +81,7 @@ export default function SchoolContentPage() {
   // highest version_number as the "current" version, count the rest as
   // history. Without this, Grade 11 Chemistry v1..v4 shows up as four rows
   // and clutters the library page.
-  const rollupKey = (s: SchoolContentSubject) =>
-    `${s.curriculum_id}::${s.subject}`;
+  const rollupKey = (s: SchoolContentSubject) => `${s.curriculum_id}::${s.subject}`;
 
   const rolledSubjects = useMemo(() => {
     if (!subjects) return [];
@@ -111,14 +108,11 @@ export default function SchoolContentPage() {
   // nothing (e.g. school_admin browsing the school's full library). Count
   // rolled-up topics, not raw version rows.
   const myCount = useMemo(
-    () =>
-      rolledSubjects.filter((r) => myCurriculaIds.has(r.latest.curriculum_id))
-        .length,
+    () => rolledSubjects.filter((r) => myCurriculaIds.has(r.latest.curriculum_id)).length,
     [rolledSubjects, myCurriculaIds],
   );
 
-  const effectiveScope: ScopeFilter =
-    scope === "mine" && myCount === 0 ? "all" : scope;
+  const effectiveScope: ScopeFilter = scope === "mine" && myCount === 0 ? "all" : scope;
 
   // Apply scope first, then grade — narrows the rolled-up topic list step by step.
   const visibleRolledSubjects = useMemo(() => {
@@ -137,9 +131,7 @@ export default function SchoolContentPage() {
   const availableGrades = useMemo(() => {
     const base =
       effectiveScope === "mine"
-        ? rolledSubjects.filter((r) =>
-            myCurriculaIds.has(r.latest.curriculum_id),
-          )
+        ? rolledSubjects.filter((r) => myCurriculaIds.has(r.latest.curriculum_id))
         : rolledSubjects;
     return [...new Set(base.map((r) => r.latest.grade))].sort((a, b) => a - b);
   }, [rolledSubjects, effectiveScope, myCurriculaIds]);

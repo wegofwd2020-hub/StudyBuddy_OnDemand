@@ -82,9 +82,7 @@ function TeacherStudentView({
     enabled: !!schoolId,
     staleTime: 60_000,
   });
-  const myClassrooms = (classrooms ?? []).filter(
-    (c) => c.teacher_id === teacherId,
-  );
+  const myClassrooms = (classrooms ?? []).filter((c) => c.teacher_id === teacherId);
 
   // Pull per-classroom rosters in parallel — listClassrooms only returns
   // counts; getClassroom returns the full students array.
@@ -108,15 +106,13 @@ function TeacherStudentView({
   }, [myClassroomDetails]);
 
   const myCount = myStudentIds.size;
-  const effectiveScope: ScopeFilter =
-    scope === "mine" && myCount === 0 ? "all" : scope;
+  const effectiveScope: ScopeFilter = scope === "mine" && myCount === 0 ? "all" : scope;
 
   // Apply scope first, then grade.
   const scopedStudents = useMemo(() => {
     if (!metrics) return [];
     return metrics.students.filter((s) => {
-      const scopeOk =
-        effectiveScope === "all" || myStudentIds.has(s.student_id);
+      const scopeOk = effectiveScope === "all" || myStudentIds.has(s.student_id);
       const gradeOk = gradeFilter === "" || s.grade === gradeFilter;
       return scopeOk && gradeOk;
     });
@@ -202,9 +198,7 @@ function TeacherStudentView({
                     <button
                       type="button"
                       key={g}
-                      onClick={() =>
-                        setGradeFilter(g === gradeFilter ? "" : g)
-                      }
+                      onClick={() => setGradeFilter(g === gradeFilter ? "" : g)}
                       className={cn(
                         "rounded px-2 py-1 text-xs font-medium transition-colors",
                         gradeFilter === g
@@ -277,7 +271,7 @@ function TeacherStudentView({
                       className="px-4 py-8 text-center text-sm text-gray-400"
                     >
                       {effectiveScope === "mine"
-                        ? "No students in classrooms you lead. Switch to \"All school\" to browse the wider roster."
+                        ? 'No students in classrooms you lead. Switch to "All school" to browse the wider roster.'
                         : gradeFilter !== ""
                           ? `No Grade ${gradeFilter} students at this school.`
                           : "No students enrolled yet."}
