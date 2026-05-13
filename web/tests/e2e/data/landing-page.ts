@@ -21,8 +21,10 @@ export const BANNER = {
 // ---------------------------------------------------------------------------
 
 export const HERO = {
-  // Matches en.json "hero_heading". Update here if the i18n value changes.
-  heading: "Study Buddy",
+  // Matches the rendered <h1> on app/(public)/page.tsx (en.json "hero_tagline").
+  // "Study Buddy" itself appears only as an aria-hidden decorative watermark,
+  // not as an addressable heading. Update here if the H1 copy changes.
+  heading: "Lessons, always current.",
   subheading: "Instant lessons, quizzes, and audio where available. Just learning.",
   ctaPrimary: { text: "Start free trial", href: "/signup" },
   ctaSecondary: { text: "See how it works", href: "/#features" },

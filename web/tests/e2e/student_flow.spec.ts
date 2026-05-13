@@ -183,8 +183,11 @@ test("curriculum map → lesson navigation", async ({ page }) => {
   await page.goto("/curriculum");
   await page.waitForLoadState("networkidle");
 
-  // Cell Biology unit must be visible
-  await expect(page.getByText("Cell Biology")).toBeVisible();
+  // Cell Biology unit must be visible. Locate via the button's accessible
+  // name (computed from the sr-only label) — getByText('Cell Biology') would
+  // match both the visible label span and the sr-only span inside the same
+  // button, triggering strict-mode.
+  await expect(page.getByRole("button", { name: /^Cell Biology/ })).toBeVisible();
 
   // Click the Lesson link for G8-SCI-001 and land on the lesson page.
   // The link href is /lesson/G8-SCI-001; we navigate directly to be
