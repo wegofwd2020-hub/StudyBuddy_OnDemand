@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 480" width="760" height="480" role="img" aria-label="Alveolar gas exchange — partial pressure gradients of O2 and CO2">
+  <title>Gas exchange at the alveolus — partial-pressure gradients</title>
+  <desc>A magnified cross-section of one alveolus and an adjacent pulmonary capillary. The alveolar lumen is filled with air at PO2 100 mmHg and PCO2 40 mmHg. A red blood cell entering the capillary on the left arrives from the body with deoxygenated blood (PO2 40, PCO2 46). As it passes the alveolar wall, oxygen diffuses INTO the cell (high PO2 to low PO2) and carbon dioxide diffuses OUT of the blood into the alveolus (high PCO2 to low PCO2). On the right, the red cell exits as oxygenated blood with PO2 100 and PCO2 40. The respiratory membrane is shown as the alveolar epithelium, fused basement membrane, and capillary endothelium — total thickness about 0.5 µm. Below, the partial-pressure differences driving each gas are stated explicitly: O2 gradient ~60 mmHg in, CO2 gradient ~6 mmHg out — the smaller gradient for CO2 is offset by its 20× higher solubility in plasma.</desc>
+
+  <text x="380" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Gas Exchange at the Alveolus — Partial-Pressure Gradients Drive Diffusion</text>
+  <text x="380" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Each gas moves down ITS OWN partial-pressure gradient — independent of the other. No active transport · no ATP needed.</text>
+
+  <!-- Background -->
+  <rect x="20" y="56" width="720" height="404" rx="14" fill="#f7fafc" stroke="#cbd5e1" stroke-width="1"/>
+
+  <!-- ── Alveolus (large lumen on top) ──────────────────────── -->
+  <ellipse cx="380" cy="160" rx="280" ry="80" fill="#fef3c7" stroke="#92400e" stroke-width="2.4"/>
+
+  <text x="380" y="116" font-size="13" font-weight="700" fill="#78350f" text-anchor="middle">ALVEOLUS — air-filled space</text>
+  <text x="380" y="138" font-size="14" font-weight="700" fill="#92400e" text-anchor="middle">P O₂ = 100 mmHg     ·     P CO₂ = 40 mmHg</text>
+  <text x="380" y="156" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">~480 M alveoli · 70 m² total surface · refreshed every breath</text>
+
+  <!-- Surfactant film (wavy line) -->
+  <path d="M 130 200 Q 160 196 190 200 T 250 200 T 310 200 T 370 200 T 430 200 T 490 200 T 550 200 T 610 200"
+        fill="none" stroke="#f59e0b" stroke-width="1.4"/>
+  <text x="600" y="194" font-size="9" font-style="italic" fill="#92400e">surfactant film</text>
+
+  <!-- Respiratory membrane (3 layers) -->
+  <rect x="100" y="218" width="560" height="6" fill="#fbbf24"/>
+  <rect x="100" y="224" width="560" height="6" fill="#fde68a"/>
+  <rect x="100" y="230" width="560" height="6" fill="#fcd34d"/>
+
+  <line x1="664" y1="220" x2="700" y2="216" stroke="#4a5568" stroke-width="0.8"/>
+  <text x="704" y="216" font-size="9" font-weight="700" fill="#1a202c">alveolar epithelium</text>
+  <line x1="664" y1="227" x2="700" y2="232" stroke="#4a5568" stroke-width="0.8"/>
+  <text x="704" y="232" font-size="9" font-weight="700" fill="#1a202c">fused basement membrane</text>
+  <line x1="664" y1="234" x2="700" y2="248" stroke="#4a5568" stroke-width="0.8"/>
+  <text x="704" y="248" font-size="9" font-weight="700" fill="#1a202c">capillary endothelium</text>
+  <text x="704" y="262" font-size="9" font-style="italic" fill="#4a5568">total ≈ 0.5 µm thick</text>
+
+  <!-- ── Pulmonary capillary (lumen below) ──────────────────── -->
+  <rect x="80" y="240" width="600" height="120" rx="14" fill="rgba(220,38,38,0.06)" stroke="#7f1d1d" stroke-width="2.2"/>
+  <text x="380" y="260" font-size="13" font-weight="700" fill="#7f1d1d" text-anchor="middle">PULMONARY CAPILLARY — blood</text>
+
+  <!-- Three RBCs at different stages -->
+  <!-- 1. Entering — deoxygenated -->
+  <g transform="translate(150,310)">
+    <ellipse cx="0" cy="0" rx="34" ry="22" fill="#1e40af" stroke="#1e3a8a" stroke-width="2"/>
+    <ellipse cx="0" cy="0" rx="14" ry="9" fill="rgba(255,255,255,0.18)"/>
+    <text x="0" y="36" font-size="10" font-weight="700" fill="#1e3a8a" text-anchor="middle">deoxygenated</text>
+    <text x="0" y="48" font-size="9" fill="#1a202c" text-anchor="middle">P O₂ = 40   ·   P CO₂ = 46</text>
+  </g>
+
+  <!-- 2. Mid-exchange — purple/transitional -->
+  <g transform="translate(380,310)">
+    <ellipse cx="0" cy="0" rx="34" ry="22" fill="#7e22ce" stroke="#581c87" stroke-width="2"/>
+    <ellipse cx="0" cy="0" rx="14" ry="9" fill="rgba(255,255,255,0.18)"/>
+    <text x="0" y="36" font-size="10" font-weight="700" fill="#581c87" text-anchor="middle">exchanging</text>
+    <text x="0" y="48" font-size="9" fill="#1a202c" text-anchor="middle">P O₂ ↑   ·   P CO₂ ↓</text>
+  </g>
+
+  <!-- 3. Exiting — oxygenated -->
+  <g transform="translate(610,310)">
+    <ellipse cx="0" cy="0" rx="34" ry="22" fill="#dc2626" stroke="#7f1d1d" stroke-width="2"/>
+    <ellipse cx="0" cy="0" rx="14" ry="9" fill="rgba(255,255,255,0.22)"/>
+    <text x="0" y="36" font-size="10" font-weight="700" fill="#7f1d1d" text-anchor="middle">oxygenated</text>
+    <text x="0" y="48" font-size="9" fill="#1a202c" text-anchor="middle">P O₂ = 100   ·   P CO₂ = 40</text>
+  </g>
+
+  <!-- Flow direction arrow -->
+  <line x1="100" y1="280" x2="660" y2="280" stroke="#7f1d1d" stroke-width="1" stroke-dasharray="3 3"/>
+  <polygon points="656,276 666,280 656,284" fill="#7f1d1d"/>
+  <text x="380" y="276" font-size="9" font-style="italic" fill="#7f1d1d" text-anchor="middle">capillary blood flow →</text>
+
+  <!-- O2 diffusion arrow (alveolus → blood) — multiple downward arrows -->
+  <g stroke="#15803d" stroke-width="2" fill="#15803d">
+    <line x1="280" y1="186" x2="280" y2="232"/>
+    <polygon points="276,228 280,238 284,228"/>
+    <line x1="320" y1="186" x2="320" y2="232"/>
+    <polygon points="316,228 320,238 324,228"/>
+  </g>
+  <text x="300" y="180" font-size="11" font-weight="700" fill="#14532d" text-anchor="middle">O₂  diffuses IN</text>
+  <text x="300" y="216" font-size="10" font-weight="700" fill="#14532d" text-anchor="middle">ΔP O₂ ≈ 60 mmHg</text>
+
+  <!-- CO2 diffusion arrow (blood → alveolus) — upward -->
+  <g stroke="#dc2626" stroke-width="2" fill="#dc2626">
+    <line x1="440" y1="232" x2="440" y2="186"/>
+    <polygon points="436,190 440,180 444,190"/>
+    <line x1="480" y1="232" x2="480" y2="186"/>
+    <polygon points="476,190 480,180 484,190"/>
+  </g>
+  <text x="460" y="180" font-size="11" font-weight="700" fill="#7f1d1d" text-anchor="middle">CO₂  diffuses OUT</text>
+  <text x="460" y="216" font-size="10" font-weight="700" fill="#7f1d1d" text-anchor="middle">ΔP CO₂ ≈ 6 mmHg</text>
+
+  <!-- Pre-arrow / post-arrow brackets for two RBCs -->
+  <line x1="184" y1="310" x2="346" y2="310" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <polygon points="342,306 350,310 342,314" fill="#94a3b8"/>
+  <line x1="414" y1="310" x2="576" y2="310" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <polygon points="572,306 580,310 572,314" fill="#94a3b8"/>
+
+  <!-- ── Bottom strip — the equation + driving forces ──────── -->
+  <rect x="40" y="380" width="680" height="68" rx="8" fill="#fff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="54" y="400" font-size="11" font-weight="700" fill="#1a202c">Why does CO₂ exchange just as effectively despite a 10× SMALLER pressure gradient?</text>
+  <text x="54" y="416" font-size="10" fill="#4a5568">Fick's Law: rate ∝ (area × ΔP × solubility) / thickness. CO₂ is ~20× more soluble in plasma than O₂, so its smaller ΔP still drives</text>
+  <text x="54" y="428" font-size="10" fill="#4a5568">enough flux to balance metabolic CO₂ production. The tiny membrane thickness (≤ 1 µm) and huge surface area (70 m²) keep both gases at equilibrium</text>
+  <text x="54" y="440" font-size="10" font-style="italic" fill="#4a5568">in the ~0.75 s an erythrocyte spends in a pulmonary capillary at rest.</text>
+</svg>

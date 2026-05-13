@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 320" width="640" height="320" role="img" aria-label="Venn diagrams contrasting mutually exclusive events and independent events">
+  <title>Mutually Exclusive vs Independent Events</title>
+  <desc>Two Venn diagrams.  On the left, events A and B are mutually exclusive — their circles do not overlap, so P(A ∩ B) = 0 and P(A ∪ B) = P(A) + P(B).  On the right, events A and B are independent — their circles overlap, and P(A ∩ B) = P(A) · P(B).  Mutually exclusive and independent are different concepts and (for events of positive probability) cannot both hold.</desc>
+
+  <defs>
+    <style>
+      .universe { fill: #f7fafc; stroke: #888; stroke-width: 1; }
+      .setA   { fill: #c084fc; fill-opacity: 0.45; stroke: #6b46c1; stroke-width: 2; }
+      .setB   { fill: #f6ad55; fill-opacity: 0.45; stroke: #c05621; stroke-width: 2; }
+      .label  { font: bold 17px system-ui, sans-serif; fill: #1a202c; }
+      .ulbl   { font: 13px system-ui, sans-serif; fill: #4a5568; }
+      .caption{ font: 13px system-ui, sans-serif; fill: #2d3748; text-anchor: middle; }
+      .heading{ font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .subhead{ font: bold 13px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .formula{ font: italic 13px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <text class="heading" x="320" y="22">Mutually exclusive  vs.  Independent</text>
+
+  <!-- ===== LEFT: mutually exclusive ===== -->
+  <rect class="universe" x="20" y="40" width="290" height="180" rx="4"/>
+  <text class="ulbl" x="32" y="60">𝕌</text>
+
+  <!-- A and B do NOT overlap -->
+  <circle class="setA" cx="100" cy="130" r="50"/>
+  <circle class="setB" cx="240" cy="130" r="50"/>
+  <text class="label" x="80"  y="135">A</text>
+  <text class="label" x="232" y="135">B</text>
+
+  <text class="subhead" x="165" y="240">Mutually exclusive  (disjoint)</text>
+  <text class="formula" x="165" y="262">P(A ∩ B) = 0</text>
+  <text class="formula" x="165" y="282">P(A ∪ B) = P(A) + P(B)</text>
+  <text class="caption" x="165" y="304">Example:  rolling a 1  vs  rolling a 6 on one die</text>
+
+  <!-- ===== RIGHT: independent (overlapping) ===== -->
+  <rect class="universe" x="330" y="40" width="290" height="180" rx="4"/>
+  <text class="ulbl" x="342" y="60">𝕌</text>
+
+  <!-- A and B overlap with intersection -->
+  <circle class="setA" cx="430" cy="130" r="55"/>
+  <circle class="setB" cx="520" cy="130" r="55"/>
+  <text class="label" x="400" y="135">A</text>
+  <text class="label" x="546" y="135">B</text>
+  <text class="ulbl"  x="475" y="135" text-anchor="middle">A ∩ B</text>
+
+  <text class="subhead" x="475" y="240">Independent</text>
+  <text class="formula" x="475" y="262">P(A ∩ B) = P(A) · P(B)</text>
+  <text class="formula" x="475" y="282">P(A | B) = P(A)</text>
+  <text class="caption" x="475" y="304">Example:  toss-1 = H  and  toss-2 = H  on two coins</text>
+</svg>

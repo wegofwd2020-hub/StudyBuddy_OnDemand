@@ -1,0 +1,13 @@
+schema_version: 1
+id: physics-bulk-matter-pascal-hydraulic-press
+kind: image
+subject: physics
+topic_phrase: "Pascal's principle illustrated by a hydraulic press multiplying input force via differing piston areas"
+keywords:
+  - fluid-statics
+  - pascals-principle
+  - hydraulic-press
+  - mechanical-advantage
+  - pressure
+license: platform-cc-by-sa
+source_unit: G11-PHYS-007

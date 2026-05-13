@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" width="720" height="360" role="img" aria-label="Equilibrium applications gallery — industrial, biological, environmental">
+  <title>Equilibrium Beyond the Textbook — Where You Actually Meet K</title>
+  <desc>Six small cards each describing a real equilibrium and the dominant Le Chatelier consideration. Cards: Haber process for fertiliser, Contact process for sulfuric acid, hemoglobin and oxygen, carbonic acid buffer in blood, ocean acidification from CO₂, and altitude sickness from low pO₂.</desc>
+
+  <text x="360" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Equilibria You Live Inside Every Day</text>
+  <text x="360" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Same idea — an equation with a "⇌" — running on industrial, biological, and planetary scales.</text>
+
+  <!-- Six cards, 3 columns × 2 rows -->
+  <!-- (1) Haber -->
+  <g transform="translate(40, 60)">
+    <rect x="0" y="0" width="200" height="120" rx="8" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+    <text x="100" y="20" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">Haber process</text>
+    <text x="14" y="42" font-size="11" fill="#1a202c">N₂ + 3 H₂ ⇌ 2 NH₃</text>
+    <text x="14" y="60" font-size="10" fill="#4a5568">200 atm, 450 °C, Fe catalyst</text>
+    <text x="14" y="80" font-size="10" font-weight="700" fill="#dc2626">→ fertiliser</text>
+    <text x="14" y="100" font-size="10" font-style="italic" fill="#4a5568">"high P" Le Chatelier</text>
+    <text x="14" y="115" font-size="10" font-style="italic" fill="#4a5568">~ half of world food N</text>
+  </g>
+
+  <!-- (2) Contact process -->
+  <g transform="translate(260, 60)">
+    <rect x="0" y="0" width="200" height="120" rx="8" fill="#fef3c7" stroke="#92400e" stroke-width="1.5"/>
+    <text x="100" y="20" font-size="12" font-weight="700" fill="#92400e" text-anchor="middle">Contact process</text>
+    <text x="14" y="42" font-size="11" fill="#1a202c">2 SO₂ + O₂ ⇌ 2 SO₃</text>
+    <text x="14" y="60" font-size="10" fill="#4a5568">~ 450 °C, V₂O₅ catalyst</text>
+    <text x="14" y="80" font-size="10" font-weight="700" fill="#92400e">→ H₂SO₄</text>
+    <text x="14" y="100" font-size="10" font-style="italic" fill="#4a5568">moderate T compromise</text>
+    <text x="14" y="115" font-size="10" font-style="italic" fill="#4a5568">most-made industrial chem.</text>
+  </g>
+
+  <!-- (3) Hemoglobin -->
+  <g transform="translate(480, 60)">
+    <rect x="0" y="0" width="200" height="120" rx="8" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5"/>
+    <text x="100" y="20" font-size="12" font-weight="700" fill="#2b6cb0" text-anchor="middle">Hemoglobin – O₂</text>
+    <text x="14" y="42" font-size="11" fill="#1a202c">Hb + 4 O₂ ⇌ Hb(O₂)₄</text>
+    <text x="14" y="60" font-size="10" fill="#4a5568">37 °C, blood pH 7.4</text>
+    <text x="14" y="80" font-size="10" font-weight="700" fill="#2b6cb0">→ tissue O₂ delivery</text>
+    <text x="14" y="100" font-size="10" font-style="italic" fill="#4a5568">[O₂] high in lungs (load)</text>
+    <text x="14" y="115" font-size="10" font-style="italic" fill="#4a5568">[O₂] low in muscle (release)</text>
+  </g>
+
+  <!-- (4) Carbonic acid buffer -->
+  <g transform="translate(40, 200)">
+    <rect x="0" y="0" width="200" height="120" rx="8" fill="#f0fdf4" stroke="#15803d" stroke-width="1.5"/>
+    <text x="100" y="20" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">Blood pH buffer</text>
+    <text x="14" y="42" font-size="11" fill="#1a202c">CO₂ + H₂O ⇌ HCO₃⁻ + H⁺</text>
+    <text x="14" y="60" font-size="10" fill="#4a5568">pH held near 7.40</text>
+    <text x="14" y="80" font-size="10" font-weight="700" fill="#15803d">→ stops fatal pH swings</text>
+    <text x="14" y="100" font-size="10" font-style="italic" fill="#4a5568">add H⁺ → shift left, exhale CO₂</text>
+    <text x="14" y="115" font-size="10" font-style="italic" fill="#4a5568">classic Le Chatelier</text>
+  </g>
+
+  <!-- (5) Ocean acidification -->
+  <g transform="translate(260, 200)">
+    <rect x="0" y="0" width="200" height="120" rx="8" fill="#dbeafe" stroke="#1e40af" stroke-width="1.5"/>
+    <text x="100" y="20" font-size="12" font-weight="700" fill="#1e40af" text-anchor="middle">Ocean acidification</text>
+    <text x="14" y="42" font-size="11" fill="#1a202c">CO₂ + H₂O ⇌ H₂CO₃</text>
+    <text x="14" y="58" font-size="11" fill="#1a202c">⇌ HCO₃⁻ + H⁺</text>
+    <text x="14" y="78" font-size="10" font-weight="700" fill="#1e40af">→ coral &amp; shell loss</text>
+    <text x="14" y="98" font-size="10" font-style="italic" fill="#4a5568">↑ atmospheric CO₂</text>
+    <text x="14" y="113" font-size="10" font-style="italic" fill="#4a5568">→ shift right, ↓ ocean pH</text>
+  </g>
+
+  <!-- (6) Altitude sickness -->
+  <g transform="translate(480, 200)">
+    <rect x="0" y="0" width="200" height="120" rx="8" fill="#fef3c7" stroke="#a16207" stroke-width="1.5"/>
+    <text x="100" y="20" font-size="12" font-weight="700" fill="#a16207" text-anchor="middle">Altitude sickness</text>
+    <text x="14" y="42" font-size="11" fill="#1a202c">Hb + 4 O₂ ⇌ Hb(O₂)₄</text>
+    <text x="14" y="60" font-size="10" fill="#4a5568">low pO₂ at high altitude</text>
+    <text x="14" y="80" font-size="10" font-weight="700" fill="#a16207">→ less O₂ to tissues</text>
+    <text x="14" y="100" font-size="10" font-style="italic" fill="#4a5568">body adapts: makes more</text>
+    <text x="14" y="115" font-size="10" font-style="italic" fill="#4a5568">red cells over weeks</text>
+  </g>
+
+  <text x="360" y="350" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">One principle, everywhere — every "⇌" is just K and Le Chatelier in a different costume.</text>
+</svg>

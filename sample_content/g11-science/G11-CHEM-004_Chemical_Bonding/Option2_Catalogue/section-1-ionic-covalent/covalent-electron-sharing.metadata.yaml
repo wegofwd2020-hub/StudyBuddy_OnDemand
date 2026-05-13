@@ -1,0 +1,13 @@
+schema_version: 1
+id: chemistry-covalent-electron-sharing
+kind: image
+subject: chemistry
+topic_phrase: "covalent bond electron sharing hydrogen molecule overlap"
+keywords:
+  - covalent-bond
+  - electron-sharing
+  - hydrogen-molecule
+  - orbital-overlap
+  - shared-pair
+license: platform-cc-by-sa
+source_unit: G11-CHEM-004

@@ -1,0 +1,14 @@
+schema_version: 1
+id: physics-thermodynamics-entropy-heat-transfer
+kind: image
+subject: physics
+topic_phrase: "entropy change calculation when heat flows from a hot body to a cold body, showing total entropy increase"
+keywords:
+  - entropy
+  - clausius-equality
+  - delta-s
+  - heat-transfer
+  - second-law
+  - reversible-vs-irreversible
+license: platform-cc-by-sa
+source_unit: G11-PHYS-008

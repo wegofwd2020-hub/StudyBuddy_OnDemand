@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 320" width="720" height="320" role="img" aria-label="Lewis structures of O₂, CO₂ and N₂ showing double and triple bonds">
+  <title>Lewis structures with multiple bonds — O₂, CO₂, N₂</title>
+  <desc>Three Lewis structures showing multiple bonds. O₂ has a double bond and two lone pairs per oxygen. CO₂ has two C=O double bonds and is linear. N₂ has a triple bond and one lone pair per nitrogen.</desc>
+
+  <text x="360" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Multiple Bonds — Double and Triple Sharing</text>
+  <text x="360" y="40" font-size="11" fill="#4a5568" text-anchor="middle">2 lines = double bond (4 e⁻ shared) · 3 lines = triple bond (6 e⁻ shared)</text>
+
+  <!-- ── O₂ ───────────────────────────────────────────────────────── -->
+  <g transform="translate(140, 170)">
+    <text x="0" y="-90" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Oxygen · O₂</text>
+
+    <!-- Double bond — two parallel lines -->
+    <line x1="-30" y1="-3" x2="30" y2="-3" stroke="#1a202c" stroke-width="2.2" />
+    <line x1="-30" y1="3"  x2="30" y2="3"  stroke="#1a202c" stroke-width="2.2" />
+
+    <!-- O symbols -->
+    <text x="-50" y="6" font-size="28" font-weight="700" fill="#dc2626" text-anchor="middle">O</text>
+    <text x="50"  y="6" font-size="28" font-weight="700" fill="#dc2626" text-anchor="middle">O</text>
+
+    <!-- Lone pairs on each O (2 pairs each, opposite the bond) -->
+    <circle cx="-72" cy="-8" r="2.5" fill="#0f172a" />
+    <circle cx="-72" cy="0"  r="2.5" fill="#0f172a" />
+    <circle cx="-58" cy="-22" r="2.5" fill="#0f172a" />
+    <circle cx="-50" cy="-22" r="2.5" fill="#0f172a" />
+
+    <circle cx="72" cy="-8" r="2.5" fill="#0f172a" />
+    <circle cx="72" cy="0"  r="2.5" fill="#0f172a" />
+    <circle cx="50" cy="-22" r="2.5" fill="#0f172a" />
+    <circle cx="58" cy="-22" r="2.5" fill="#0f172a" />
+
+    <text x="0" y="56"  font-size="11" font-weight="700" fill="#14532d" text-anchor="middle">double bond  (O=O)</text>
+    <text x="0" y="74"  font-size="10" fill="#4a5568" text-anchor="middle">2 bond pairs + 2 lone pairs/atom</text>
+    <text x="0" y="92"  font-size="10" fill="#4a5568" text-anchor="middle">total valence e⁻ = 12</text>
+  </g>
+
+  <!-- ── CO₂ ───────────────────────────────────────────────────────── -->
+  <g transform="translate(360, 170)">
+    <text x="0" y="-90" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Carbon dioxide · CO₂</text>
+
+    <!-- Left double bond -->
+    <line x1="-58" y1="-3" x2="-22" y2="-3" stroke="#1a202c" stroke-width="2.2" />
+    <line x1="-58" y1="3"  x2="-22" y2="3"  stroke="#1a202c" stroke-width="2.2" />
+    <!-- Right double bond -->
+    <line x1="22" y1="-3" x2="58" y2="-3" stroke="#1a202c" stroke-width="2.2" />
+    <line x1="22" y1="3"  x2="58" y2="3"  stroke="#1a202c" stroke-width="2.2" />
+
+    <!-- Atom labels -->
+    <text x="-78" y="6" font-size="28" font-weight="700" fill="#dc2626" text-anchor="middle">O</text>
+    <text x="0"   y="6" font-size="28" font-weight="700" fill="#1a202c" text-anchor="middle">C</text>
+    <text x="78"  y="6" font-size="28" font-weight="700" fill="#dc2626" text-anchor="middle">O</text>
+
+    <!-- Lone pairs on each O (2 pairs) -->
+    <circle cx="-100" cy="-8" r="2.5" fill="#0f172a" />
+    <circle cx="-100" cy="0"  r="2.5" fill="#0f172a" />
+    <circle cx="-86"  cy="-22" r="2.5" fill="#0f172a" />
+    <circle cx="-78"  cy="-22" r="2.5" fill="#0f172a" />
+
+    <circle cx="100" cy="-8" r="2.5" fill="#0f172a" />
+    <circle cx="100" cy="0"  r="2.5" fill="#0f172a" />
+    <circle cx="78"  cy="-22" r="2.5" fill="#0f172a" />
+    <circle cx="86"  cy="-22" r="2.5" fill="#0f172a" />
+
+    <text x="0" y="56"  font-size="11" font-weight="700" fill="#14532d" text-anchor="middle">two C=O double bonds  ·  linear (180°)</text>
+    <text x="0" y="74"  font-size="10" fill="#4a5568" text-anchor="middle">no lone pairs on C → AX₂ → linear</text>
+    <text x="0" y="92"  font-size="10" fill="#4a5568" text-anchor="middle">total valence e⁻ = 16</text>
+  </g>
+
+  <!-- ── N₂ ───────────────────────────────────────────────────────── -->
+  <g transform="translate(600, 170)">
+    <text x="0" y="-90" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Nitrogen · N₂</text>
+
+    <!-- Triple bond — three parallel lines -->
+    <line x1="-30" y1="-7" x2="30" y2="-7" stroke="#1a202c" stroke-width="2.2" />
+    <line x1="-30" y1="0"  x2="30" y2="0"  stroke="#1a202c" stroke-width="2.2" />
+    <line x1="-30" y1="7"  x2="30" y2="7"  stroke="#1a202c" stroke-width="2.2" />
+
+    <!-- N symbols -->
+    <text x="-50" y="6" font-size="28" font-weight="700" fill="#2b6cb0" text-anchor="middle">N</text>
+    <text x="50"  y="6" font-size="28" font-weight="700" fill="#2b6cb0" text-anchor="middle">N</text>
+
+    <!-- Lone pair on each N (1 pair) -->
+    <circle cx="-72" cy="-2" r="2.5" fill="#0f172a" />
+    <circle cx="-72" cy="6"  r="2.5" fill="#0f172a" />
+    <circle cx="72"  cy="-2" r="2.5" fill="#0f172a" />
+    <circle cx="72"  cy="6"  r="2.5" fill="#0f172a" />
+
+    <text x="0" y="56"  font-size="11" font-weight="700" fill="#14532d" text-anchor="middle">triple bond  (N≡N)</text>
+    <text x="0" y="74"  font-size="10" fill="#4a5568" text-anchor="middle">3 bond pairs + 1 lone pair/atom</text>
+    <text x="0" y="92"  font-size="10" fill="#4a5568" text-anchor="middle">strongest bond: 945 kJ mol⁻¹</text>
+  </g>
+
+  <!-- Bottom note -->
+  <line x1="40" y1="280" x2="680" y2="280" stroke="#cbd5e1" stroke-width="1" />
+  <text x="360" y="300" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">As bond order rises (1 → 2 → 3): bond shortens, bond enthalpy grows.</text>
+</svg>

@@ -1,0 +1,15 @@
+# Auto-generated style sidecar — paired with com-l-shape-integration.svg
+schema_version: 1
+id: physics-systems-of-particles-com-l-shape-integration
+kind: image
+subject: physics
+topic_phrase: "centre of mass of an L-shaped uniform plate by decomposition into rectangles"
+keywords:
+  - centre-of-mass
+  - composite-body
+  - lamina
+  - integration
+  - centroid
+  - rigid-body
+license: platform-cc-by-sa
+source_unit: G11-PHYS-005

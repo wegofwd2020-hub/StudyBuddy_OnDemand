@@ -1,0 +1,16 @@
+# Auto-generated for sample-content seeding — edit with the SVG and re-run sidecar build.
+schema_version: 1
+id: chemistry-iupac-but-2-ene
+kind: image
+subject: chemistry
+topic_phrase: "iupac nomenclature but-2-ene alkene double bond locant lowest"
+keywords:
+  - iupac
+  - nomenclature
+  - but-2-ene
+  - alkene
+  - double-bond
+  - locant
+  - parent-chain
+license: platform-cc-by-sa
+source_unit: G11-CHEM-009

@@ -1,0 +1,15 @@
+schema_version: 1
+id: physics-kinetic-theory-molecules-in-box-pressure
+kind: image
+subject: physics
+topic_phrase: "kinetic theory derivation of gas pressure showing a molecule of mass m bouncing inside a cubical box of side L with momentum change 2 m v_x per impact and the result P equals one third N over V times m mean-square-speed"
+keywords:
+  - kinetic-theory
+  - pressure-derivation
+  - molecular-collision
+  - momentum
+  - mean-square-speed
+  - microscopic-foundation
+  - isotropy
+license: platform-cc-by-sa
+source_unit: G11-PHYS-009

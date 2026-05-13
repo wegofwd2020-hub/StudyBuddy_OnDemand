@@ -1,0 +1,13 @@
+schema_version: 1
+id: physics-gravitation-problem-solving-flowchart
+kind: image
+subject: physics
+topic_phrase: "decision tree to pick the right gravitation formula based on whether the problem is near the planet surface or general and whether it asks for force energy or orbital quantity"
+keywords:
+  - gravitation
+  - flowchart
+  - decision-tree
+  - problem-solving
+  - revision
+license: platform-cc-by-sa
+source_unit: G11-PHYS-006

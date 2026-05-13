@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380" role="img" aria-label="Classification of matter tree">
+  <title>Classification of matter</title>
+  <desc>Hierarchical tree: Matter splits into Pure Substances and Mixtures. Pure Substances split into Elements and Compounds; Mixtures split into Homogeneous and Heterogeneous. Each leaf has two example labels.</desc>
+
+  <defs>
+    <marker id="mc-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4a5568" />
+    </marker>
+  </defs>
+
+  <text x="360" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Classification of Matter</text>
+  <text x="360" y="40" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Anything with mass and volume — sorted first by composition, then by uniformity.</text>
+
+  <!-- Root: Matter -->
+  <rect x="300" y="60" width="120" height="46" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="2" />
+  <text x="360" y="82" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#92400e" text-anchor="middle">Matter</text>
+  <text x="360" y="98" font="10px system-ui" font-size="10" fill="#92400e" text-anchor="middle">mass + volume</text>
+
+  <!-- Connectors level 1 -->
+  <line x1="320" y1="106" x2="180" y2="148" stroke="#4a5568" stroke-width="1.5" marker-end="url(#mc-arr)" />
+  <line x1="400" y1="106" x2="540" y2="148" stroke="#4a5568" stroke-width="1.5" marker-end="url(#mc-arr)" />
+
+  <!-- Level 1: Pure substance -->
+  <rect x="100" y="150" width="160" height="50" rx="10" fill="#dbeafe" stroke="#2b6cb0" stroke-width="2" />
+  <text x="180" y="172" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1e3a8a" text-anchor="middle">Pure Substance</text>
+  <text x="180" y="190" font="10px system-ui" font-size="10" fill="#1e3a8a" text-anchor="middle">fixed composition</text>
+
+  <!-- Level 1: Mixture -->
+  <rect x="460" y="150" width="160" height="50" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="2" />
+  <text x="540" y="172" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#14532d" text-anchor="middle">Mixture</text>
+  <text x="540" y="190" font="10px system-ui" font-size="10" fill="#14532d" text-anchor="middle">variable composition</text>
+
+  <!-- Connectors level 2 -->
+  <line x1="140" y1="200" x2="80" y2="240" stroke="#4a5568" stroke-width="1.5" marker-end="url(#mc-arr)" />
+  <line x1="220" y1="200" x2="280" y2="240" stroke="#4a5568" stroke-width="1.5" marker-end="url(#mc-arr)" />
+  <line x1="500" y1="200" x2="440" y2="240" stroke="#4a5568" stroke-width="1.5" marker-end="url(#mc-arr)" />
+  <line x1="580" y1="200" x2="640" y2="240" stroke="#4a5568" stroke-width="1.5" marker-end="url(#mc-arr)" />
+
+  <!-- Leaves -->
+  <rect x="20" y="244" width="120" height="44" rx="8" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1.5" />
+  <text x="80" y="264" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1e3a8a" text-anchor="middle">Element</text>
+  <text x="80" y="280" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">one kind of atom</text>
+
+  <rect x="220" y="244" width="120" height="44" rx="8" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1.5" />
+  <text x="280" y="264" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1e3a8a" text-anchor="middle">Compound</text>
+  <text x="280" y="280" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">two+ atoms, fixed ratio</text>
+
+  <rect x="380" y="244" width="120" height="44" rx="8" fill="#f7fafc" stroke="#15803d" stroke-width="1.5" />
+  <text x="440" y="264" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#14532d" text-anchor="middle">Homogeneous</text>
+  <text x="440" y="280" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">uniform throughout</text>
+
+  <rect x="580" y="244" width="120" height="44" rx="8" fill="#f7fafc" stroke="#15803d" stroke-width="1.5" />
+  <text x="640" y="264" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#14532d" text-anchor="middle">Heterogeneous</text>
+  <text x="640" y="280" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">visibly non-uniform</text>
+
+  <!-- Examples -->
+  <text x="80" y="306" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">e.g. Cu, O₂, He</text>
+  <text x="80" y="320" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">on periodic table</text>
+
+  <text x="280" y="306" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">e.g. H₂O, NaCl, CO₂</text>
+  <text x="280" y="320" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">decompose chemically</text>
+
+  <text x="440" y="306" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">e.g. salt water, air</text>
+  <text x="440" y="320" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">solutions</text>
+
+  <text x="640" y="306" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">e.g. sand+iron, oil+water</text>
+  <text x="640" y="320" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">phases visible</text>
+
+  <text x="360" y="358" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Test: can it be separated by a physical method (filter, distil, magnet)? If yes → mixture. If no → pure substance.</text>
+
+</svg>

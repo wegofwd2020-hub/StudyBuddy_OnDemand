@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 320" width="520" height="320" role="img" aria-label="Balanced forces — no net force, body at rest or constant velocity">
+  <title>Balanced forces — no net force</title>
+  <desc>A block at rest on a horizontal surface with weight mg pulling down, normal force N pushing up, applied force F pushing right, and friction f pushing left. All four forces sum to zero.</desc>
+
+  <defs>
+    <marker id="arr-N1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#319795" />
+    </marker>
+    <marker id="arr-W1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626" />
+    </marker>
+    <marker id="arr-F1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2b6cb0" />
+    </marker>
+    <marker id="arr-f1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dd6b20" />
+    </marker>
+  </defs>
+
+  <text x="260" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Balanced Forces: ΣF = 0  →  body at rest or constant velocity</text>
+
+  <!-- Ground -->
+  <line x1="40" y1="220" x2="480" y2="220" stroke="#1a202c" stroke-width="1.5" />
+  <!-- Ground hatching -->
+  <g stroke="#94a3b8" stroke-width="1">
+    <line x1="50" y1="220" x2="42" y2="232" />
+    <line x1="80" y1="220" x2="72" y2="232" />
+    <line x1="110" y1="220" x2="102" y2="232" />
+    <line x1="140" y1="220" x2="132" y2="232" />
+    <line x1="170" y1="220" x2="162" y2="232" />
+    <line x1="200" y1="220" x2="192" y2="232" />
+    <line x1="230" y1="220" x2="222" y2="232" />
+    <line x1="260" y1="220" x2="252" y2="232" />
+    <line x1="290" y1="220" x2="282" y2="232" />
+    <line x1="320" y1="220" x2="312" y2="232" />
+    <line x1="350" y1="220" x2="342" y2="232" />
+    <line x1="380" y1="220" x2="372" y2="232" />
+    <line x1="410" y1="220" x2="402" y2="232" />
+    <line x1="440" y1="220" x2="432" y2="232" />
+    <line x1="470" y1="220" x2="462" y2="232" />
+  </g>
+
+  <!-- Block -->
+  <rect x="220" y="160" width="80" height="60" rx="4" fill="#bee3f8" stroke="#1a202c" stroke-width="1.5" />
+  <text x="260" y="195" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">m</text>
+
+  <!-- Normal force N (up) -->
+  <line x1="260" y1="160" x2="260" y2="90" stroke="#319795" stroke-width="3" marker-end="url(#arr-N1)" />
+  <text x="270" y="105" font="13px system-ui" font-size="13" font-weight="700" fill="#319795">N</text>
+
+  <!-- Weight mg (down) -->
+  <line x1="260" y1="220" x2="260" y2="290" stroke="#dc2626" stroke-width="3" marker-end="url(#arr-W1)" />
+  <text x="270" y="275" font="13px system-ui" font-size="13" font-weight="700" fill="#dc2626">mg</text>
+
+  <!-- Applied F (right) -->
+  <line x1="300" y1="190" x2="380" y2="190" stroke="#2b6cb0" stroke-width="3" marker-end="url(#arr-F1)" />
+  <text x="340" y="182" font="13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">F</text>
+
+  <!-- Friction f (left) -->
+  <line x1="220" y1="190" x2="140" y2="190" stroke="#dd6b20" stroke-width="3" marker-end="url(#arr-f1)" />
+  <text x="180" y="182" font="13px system-ui" font-size="13" font-weight="700" fill="#dd6b20" text-anchor="middle">f</text>
+
+  <!-- Sum equation -->
+  <rect x="60" y="252" width="400" height="48" rx="6" fill="#f0fdf4" stroke="#15803d" stroke-width="1.2" />
+  <text x="260" y="272" font="13px system-ui" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">N − mg = 0    and    F − f = 0    ⇒    ΣF = 0</text>
+  <text x="260" y="290" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Newton's First Law: with zero net force, an object's velocity does not change.</text>
+</svg>

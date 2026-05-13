@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" role="img" aria-label="Family of antiderivatives differing by a constant of integration">
+  <title>Family of Antiderivatives: F(x) + C</title>
+  <desc>Three vertical translates of F(x) = x²/2 (with C = −1, 0, 2) shown together. All have the same derivative f(x) = x; differentiation discards the constant of integration.</desc>
+
+  <defs>
+    <style>
+      .panel    { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1; }
+      .axis     { stroke: #94a3b8; stroke-width: 1.4; }
+      .grid     { stroke: #e2e8f0; stroke-width: 0.6; }
+      .heading  { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .axislbl  { font: 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .lbl      { font: bold 12px system-ui, sans-serif; }
+      .note     { font: 11px system-ui, sans-serif; fill: #4a5568; }
+      .tangentLine { stroke: #94a3b8; stroke-width: 1.2; stroke-dasharray: 3 3; }
+    </style>
+  </defs>
+
+  <text class="heading" x="320" y="22">Antiderivative family of  f(x) = x:   F(x) = x²/2 + C</text>
+
+  <!-- Plot frame: x in [-3, 3] mapped to [60, 380] (320/6 = 53.33 px/unit), y in [-3, 6] mapped to [260, 60] (200/9 ≈ 22.22 px/unit) -->
+  <rect class="panel" x="60" y="60" width="320" height="200"/>
+
+  <!-- xToPx(x) = 220 + 53.33·x ; yToPx(y) = 260 - 22.22·(y + 3) = 193.33 - 22.22·y -->
+  <!-- y=0 → py = 193.33; x=0 → px = 220 -->
+
+  <!-- grid x = -3, -2, -1, 0, 1, 2, 3 → 60, 113, 167, 220, 273, 327, 380 -->
+  <line class="grid" x1="113" y1="60" x2="113" y2="260"/>
+  <line class="grid" x1="167" y1="60" x2="167" y2="260"/>
+  <line class="grid" x1="273" y1="60" x2="273" y2="260"/>
+  <line class="grid" x1="327" y1="60" x2="327" y2="260"/>
+
+  <!-- y grid lines at -2, 2, 4 → py = 237.78, 148.89, 104.44 -->
+  <line class="grid" x1="60" y1="238" x2="380" y2="238"/>
+  <line class="grid" x1="60" y1="149" x2="380" y2="149"/>
+  <line class="grid" x1="60" y1="104" x2="380" y2="104"/>
+
+  <!-- axes -->
+  <line class="axis" x1="60" y1="193" x2="380" y2="193"/>
+  <line class="axis" x1="220" y1="60" x2="220" y2="260"/>
+
+  <text class="axislbl" x="113" y="207">−2</text>
+  <text class="axislbl" x="167" y="207">−1</text>
+  <text class="axislbl" x="273" y="207">1</text>
+  <text class="axislbl" x="327" y="207">2</text>
+  <text class="axislbl" x="220" y="207">0</text>
+  <text class="axislbl" x="212" y="242" text-anchor="end">−2</text>
+  <text class="axislbl" x="212" y="153" text-anchor="end">2</text>
+  <text class="axislbl" x="212" y="108" text-anchor="end">4</text>
+  <text class="axislbl" x="392" y="197">x</text>
+  <text class="axislbl" x="220" y="55">y</text>
+
+  <!-- Three parabolas: F(x) = x²/2 + C with C = -1, 0, 2.
+       Map: at x in [-3, 3], y = x²/2 + C, py = 193.33 - 22.22·y.
+       Sample for x = -3, -2, -1, 0, 1, 2, 3.
+       C = -1: y = x²/2 - 1.  values: x=-3 y=3.5; x=-2 y=1; x=-1 y=-0.5; x=0 y=-1; x=1 y=-0.5; x=2 y=1; x=3 y=3.5.
+         py: 115.55, 171.11, 204.44, 215.56, 204.44, 171.11, 115.55.
+       C = 0: y = x²/2.  values: x=-3 y=4.5; -2 y=2; -1 y=0.5; 0 y=0; 1 y=0.5; 2 y=2; 3 y=4.5.
+         py: 93.34, 148.89, 182.22, 193.33, 182.22, 148.89, 93.34.
+       C = 2: y = x²/2 + 2.  values: x=-3 y=6.5; -2 y=4; -1 y=2.5; 0 y=2; 1 y=2.5; 2 y=4; 3 y=6.5.
+         py: 49.13 (clip to 60); 104.44; 137.78; 148.89; 137.78; 104.44; 49.13 (clip).
+       Clip top at y=6 → py=60: x²/2+2=6 → x²=8 → x≈±2.828 (px = 220 ± 150.85 = 69 or 371). -->
+
+  <!-- C = -1 (red) -->
+  <polyline fill="none" stroke="#c05621" stroke-width="2.5" stroke-linecap="round"
+            points="60,115 87,144 113,171 140,189 167,204 194,213 220,216 247,213 273,204 300,189 327,171 354,144 380,115"/>
+  <text class="lbl" x="78" y="111" fill="#c05621">C = −1</text>
+
+  <!-- C = 0 (blue) -->
+  <polyline fill="none" stroke="#2b6cb0" stroke-width="2.5" stroke-linecap="round"
+            points="60,93 87,121 113,149 140,166 167,182 194,189 220,193 247,189 273,182 300,166 327,149 354,121 380,93"/>
+  <text class="lbl" x="80" y="89" fill="#2b6cb0">C = 0</text>
+
+  <!-- C = 2 (purple) - clip x to ~[-2.828, 2.828] at top -->
+  <polyline fill="none" stroke="#6b46c1" stroke-width="2.5" stroke-linecap="round"
+            points="69,60 113,104 167,138 220,149 273,138 327,104 371,60"/>
+  <text class="lbl" x="160" y="76" fill="#6b46c1">C = 2</text>
+
+  <!-- Tangent indicators at x=1: all three curves have slope 1 there. Show a small tangent arrow on each. -->
+  <line class="tangentLine" x1="247" y1="220" x2="307" y2="200"/>
+  <line class="tangentLine" x1="247" y1="195" x2="307" y2="175"/>
+  <line class="tangentLine" x1="247" y1="145" x2="307" y2="125"/>
+  <text class="note" x="313" y="172" fill="#4a5568">all slopes = 1 at x = 1</text>
+
+  <!-- Right panel: indefinite integral notation -->
+  <g transform="translate(410, 60)">
+    <rect x="0" y="0" width="200" height="200" rx="8" fill="#fffaf0" stroke="#dd6b20" stroke-width="1.4"/>
+    <text font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" x="100" y="22" text-anchor="middle">Indefinite integral</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="46">If  F'(x) = f(x),  then F</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="62">is an antiderivative of f.</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="14" y="86" font-style="italic">∫ f(x) dx = F(x) + C</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="110">For f(x) = x:</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="14" y="126" font-style="italic">∫ x dx = x²/2 + C</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="154">Constant rule (power+1):</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="14" y="170" font-style="italic">∫ xⁿ dx = xⁿ⁺¹/(n+1) + C</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="186" font-style="italic">(for  n ≠ −1)</text>
+  </g>
+
+  <text x="220" y="296" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Three curves, one slope at each x:  differentiation forgets the vertical shift.</text>
+</svg>

@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" role="img" aria-label="One-sided limits and a jump discontinuity">
+  <title>One-Sided Limits: when left and right disagree</title>
+  <desc>Piecewise function f(x) = x + 1 for x &lt; 1 and f(x) = 4 − x for x ≥ 1, illustrating left-hand limit 2, right-hand limit 3 — limit does not exist due to a jump discontinuity at x = 1.</desc>
+
+  <defs>
+    <style>
+      .panel    { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1; }
+      .axis     { stroke: #94a3b8; stroke-width: 1.4; }
+      .grid     { stroke: #e2e8f0; stroke-width: 0.6; }
+      .leftCurve  { fill: none; stroke: #2b6cb0; stroke-width: 3; stroke-linecap: round; }
+      .rightCurve { fill: none; stroke: #2f855a; stroke-width: 3; stroke-linecap: round; }
+      .vline    { stroke: #6b46c1; stroke-width: 1.4; stroke-dasharray: 4 4; }
+      .heading  { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .axislbl  { font: 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .lbl      { font: bold 12px system-ui, sans-serif; }
+      .note     { font: 11px system-ui, sans-serif; fill: #4a5568; }
+      .holept   { fill: white; stroke-width: 2.5; }
+      .filledpt { stroke: white; stroke-width: 2; }
+    </style>
+  </defs>
+
+  <text class="heading" x="320" y="22">One-sided limits at x = 1:  left = 2,  right = 3</text>
+
+  <!-- Plot frame: x ∈ [-1, 4] mapped to [60, 380] (64 px/unit), y ∈ [0, 5] mapped to [260, 60] (40 px/unit) -->
+  <rect class="panel" x="60" y="60" width="320" height="200"/>
+
+  <!-- grid -->
+  <line class="grid" x1="124" y1="60" x2="124" y2="260"/>
+  <line class="grid" x1="188" y1="60" x2="188" y2="260"/>
+  <line class="grid" x1="252" y1="60" x2="252" y2="260"/>
+  <line class="grid" x1="316" y1="60" x2="316" y2="260"/>
+  <line class="grid" x1="60" y1="220" x2="380" y2="220"/>
+  <line class="grid" x1="60" y1="180" x2="380" y2="180"/>
+  <line class="grid" x1="60" y1="140" x2="380" y2="140"/>
+  <line class="grid" x1="60" y1="100" x2="380" y2="100"/>
+
+  <!-- axes (x-axis y=0 → py=260; y-axis x=0 → px=124) -->
+  <line class="axis" x1="60" y1="260" x2="380" y2="260"/>
+  <line class="axis" x1="124" y1="60" x2="124" y2="260"/>
+
+  <!-- ticks -->
+  <text class="axislbl" x="124" y="276">0</text>
+  <text class="axislbl" x="188" y="276">1</text>
+  <text class="axislbl" x="252" y="276">2</text>
+  <text class="axislbl" x="316" y="276">3</text>
+  <text class="axislbl" x="118" y="265" text-anchor="end">0</text>
+  <text class="axislbl" x="118" y="225" text-anchor="end">1</text>
+  <text class="axislbl" x="118" y="185" text-anchor="end">2</text>
+  <text class="axislbl" x="118" y="145" text-anchor="end">3</text>
+  <text class="axislbl" x="118" y="105" text-anchor="end">4</text>
+  <text class="axislbl" x="392" y="265">x</text>
+  <text class="axislbl" x="124" y="55">y</text>
+
+  <!-- Left branch: y = x + 1 for x in [-1, 1) — points (-1, 0) → (60, 260); (1, 2) → (188, 180) -->
+  <line class="leftCurve" x1="60" y1="260" x2="186" y2="180"/>
+  <!-- hollow at (1, 2) -->
+  <circle class="holept" cx="188" cy="180" r="5" stroke="#2b6cb0"/>
+
+  <!-- Right branch: y = 4 - x for x in [1, 3.5] — (1, 3) → (188, 140); (3.5, 0.5) → (348, 240) -->
+  <line class="rightCurve" x1="188" y1="140" x2="348" y2="240"/>
+  <!-- filled point at (1, 3) -->
+  <circle class="filledpt" cx="188" cy="140" r="5" fill="#2f855a"/>
+
+  <!-- Vertical dashed line at x = 1 -->
+  <line class="vline" x1="188" y1="60" x2="188" y2="260"/>
+  <text class="lbl" x="194" y="74" fill="#6b46c1">x = 1</text>
+
+  <!-- Horizontal dashed marks for left/right limits -->
+  <line stroke="#2b6cb0" stroke-width="1.2" stroke-dasharray="4 4" x1="60" y1="180" x2="188" y2="180"/>
+  <line stroke="#2f855a" stroke-width="1.2" stroke-dasharray="4 4" x1="60" y1="140" x2="188" y2="140"/>
+  <text class="lbl" x="80" y="176" fill="#2b6cb0">L⁻ = 2</text>
+  <text class="lbl" x="80" y="136" fill="#2f855a">L⁺ = 3</text>
+
+  <!-- Right panel: definitions -->
+  <g transform="translate(410, 60)">
+    <rect x="0" y="0" width="200" height="200" rx="8" fill="#fffaf0" stroke="#dd6b20" stroke-width="1.4"/>
+    <text font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" x="100" y="22" text-anchor="middle">One-sided limits</text>
+    <text font="11px system-ui" font-size="11" fill="#2b6cb0" x="14" y="46" font-weight="600">From the left:</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="14" y="62" font-style="italic">lim (x → 1⁻) f(x) = 2</text>
+    <text font="11px system-ui" font-size="11" fill="#2f855a" x="14" y="86" font-weight="600">From the right:</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="14" y="102" font-style="italic">lim (x → 1⁺) f(x) = 3</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="130">The two-sided limit exists</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="144">only if both agree.</text>
+    <text font="11px system-ui" font-size="11" fill="#c05621" x="14" y="170" font-weight="600">Here L⁻ ≠ L⁺,  so</text>
+    <text font="11px system-ui" font-size="11" fill="#c05621" x="14" y="186" font-style="italic">lim (x → 1) f(x)  DNE.</text>
+  </g>
+
+  <text x="320" y="296" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">A jump discontinuity is the most common reason a limit fails to exist.</text>
+</svg>

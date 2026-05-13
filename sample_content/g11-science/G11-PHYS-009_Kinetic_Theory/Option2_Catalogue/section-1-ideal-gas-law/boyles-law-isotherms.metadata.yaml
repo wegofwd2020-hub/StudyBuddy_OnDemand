@@ -1,0 +1,15 @@
+schema_version: 1
+id: physics-kinetic-theory-boyles-law-isotherms
+kind: image
+subject: physics
+topic_phrase: "Boyle's Law P-V isotherms at constant temperature with three hyperbolae and piston compression diagram"
+keywords:
+  - boyles-law
+  - ideal-gas-law
+  - pressure
+  - volume
+  - isotherm
+  - state-variables
+  - hyperbola
+license: platform-cc-by-sa
+source_unit: G11-PHYS-009

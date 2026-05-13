@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" role="img" aria-label="Tree diagram of the sample space for tossing a fair coin twice">
+  <title>Sample Space Tree: Two Coin Tosses</title>
+  <desc>Tossing a fair coin twice produces a sample space S = {HH, HT, TH, TT} of size 4.  The first toss branches into Heads or Tails (each with probability one half); the second toss branches the same way from each first-toss outcome.  Each of the four leaves has probability one quarter, since the two tosses are independent.</desc>
+
+  <defs>
+    <style>
+      .panel   { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1; }
+      .node    { fill: #fffaf0; stroke: #6b46c1; stroke-width: 2; }
+      .nodeH   { fill: #c6f6d5; stroke: #2f855a; stroke-width: 2; }
+      .nodeT   { fill: #bee3f8; stroke: #2b6cb0; stroke-width: 2; }
+      .nodeRoot{ fill: #fefcbf; stroke: #b7791f; stroke-width: 2; }
+      .branch  { stroke: #6b46c1; stroke-width: 1.8; fill: none; }
+      .lblbr   { font: bold 11px system-ui, sans-serif; fill: #6b46c1; }
+      .lblnode { font: bold 14px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .lblleaf { font: bold 12px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .lblP    { font: 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .heading { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <text class="heading" x="320" y="22">Sample-space tree:  toss a fair coin twice</text>
+
+  <rect class="panel" x="20" y="40" width="600" height="290"/>
+
+  <!-- Root: at (80, 180) -->
+  <circle class="nodeRoot" cx="80" cy="180" r="22"/>
+  <text class="lblnode" x="80" y="184">start</text>
+
+  <!-- Toss 1 nodes: at (260, 100) and (260, 260) -->
+  <line class="branch" x1="100" y1="170" x2="240" y2="110"/>
+  <line class="branch" x1="100" y1="190" x2="240" y2="250"/>
+
+  <!-- Branch labels for toss 1 -->
+  <text class="lblbr" x="160" y="130">P(H) = ½</text>
+  <text class="lblbr" x="160" y="232">P(T) = ½</text>
+
+  <circle class="nodeH" cx="260" cy="100" r="22"/>
+  <text class="lblnode" x="260" y="105">H</text>
+
+  <circle class="nodeT" cx="260" cy="260" r="22"/>
+  <text class="lblnode" x="260" y="265">T</text>
+
+  <!-- Toss 2 nodes: from each toss-1 node branch into HH/HT (top sub-tree) and TH/TT (bottom sub-tree) -->
+  <!-- From H @ (260,100) -->
+  <line class="branch" x1="280" y1="92"  x2="420" y2="60"/>
+  <line class="branch" x1="280" y1="108" x2="420" y2="140"/>
+  <text class="lblbr" x="345" y="72">½</text>
+  <text class="lblbr" x="345" y="134">½</text>
+  <circle class="nodeH" cx="440" cy="60"  r="20"/>
+  <text class="lblnode" x="440" y="65">H</text>
+  <circle class="nodeT" cx="440" cy="140" r="20"/>
+  <text class="lblnode" x="440" y="145">T</text>
+
+  <!-- From T @ (260,260) -->
+  <line class="branch" x1="280" y1="252" x2="420" y2="220"/>
+  <line class="branch" x1="280" y1="268" x2="420" y2="300"/>
+  <text class="lblbr" x="345" y="232">½</text>
+  <text class="lblbr" x="345" y="294">½</text>
+  <circle class="nodeH" cx="440" cy="220" r="20"/>
+  <text class="lblnode" x="440" y="225">H</text>
+  <circle class="nodeT" cx="440" cy="300" r="20"/>
+  <text class="lblnode" x="440" y="305">T</text>
+
+  <!-- Leaf-outcome boxes -->
+  <g>
+    <rect x="478" y="46" width="60" height="28" rx="6" fill="#fffaf0" stroke="#6b46c1" stroke-width="1.4"/>
+    <text class="lblleaf" x="508" y="65">HH</text>
+    <text class="lblP"    x="508" y="82">¼</text>
+  </g>
+  <g>
+    <rect x="478" y="126" width="60" height="28" rx="6" fill="#fffaf0" stroke="#6b46c1" stroke-width="1.4"/>
+    <text class="lblleaf" x="508" y="145">HT</text>
+    <text class="lblP"    x="508" y="162">¼</text>
+  </g>
+  <g>
+    <rect x="478" y="206" width="60" height="28" rx="6" fill="#fffaf0" stroke="#6b46c1" stroke-width="1.4"/>
+    <text class="lblleaf" x="508" y="225">TH</text>
+    <text class="lblP"    x="508" y="242">¼</text>
+  </g>
+  <g>
+    <rect x="478" y="286" width="60" height="28" rx="6" fill="#fffaf0" stroke="#6b46c1" stroke-width="1.4"/>
+    <text class="lblleaf" x="508" y="305">TT</text>
+    <text class="lblP"    x="508" y="322">¼</text>
+  </g>
+
+  <!-- Right summary -->
+  <g transform="translate(548, 46)">
+    <rect x="0" y="0" width="84" height="270" rx="8" fill="#fffaf0" stroke="#dd6b20" stroke-width="1.4"/>
+    <text font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" x="42" y="20" text-anchor="middle">Sum check</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="42" y="42" text-anchor="middle">¼ + ¼</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="42" y="58" text-anchor="middle">+ ¼ + ¼</text>
+    <text font="bold 12px system-ui" font-size="12" font-weight="700" fill="#2f855a" x="42" y="80" text-anchor="middle">= 1  ✓</text>
+
+    <line x1="6" y1="98" x2="78" y2="98" stroke="#cbd5e0"/>
+
+    <text font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" x="42" y="118" text-anchor="middle">|S| = 4</text>
+    <text font="italic 11px system-ui" font-size="11" font-style="italic" fill="#4a5568" x="42" y="138" text-anchor="middle">equally likely</text>
+    <text font="italic 11px system-ui" font-size="11" font-style="italic" fill="#4a5568" x="42" y="154" text-anchor="middle">outcomes</text>
+
+    <line x1="6" y1="170" x2="78" y2="170" stroke="#cbd5e0"/>
+
+    <text font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" x="42" y="190" text-anchor="middle">P(exactly 1 H)</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="42" y="206" text-anchor="middle">= P(HT) + P(TH)</text>
+    <text font="bold 11px system-ui" font-size="11" font-weight="700" fill="#2f855a" x="42" y="222" text-anchor="middle">= ½</text>
+
+    <text font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" x="42" y="244" text-anchor="middle">P(at least 1 H)</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="42" y="260" text-anchor="middle">= 1 − P(TT)</text>
+  </g>
+
+  <text x="320" y="350" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Independent tosses ⇒ branch probabilities multiply along a path: P(HH) = ½ · ½ = ¼.</text>
+</svg>

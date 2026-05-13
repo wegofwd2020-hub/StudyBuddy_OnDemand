@@ -1,0 +1,14 @@
+schema_version: 1
+id: math-stats-bayes-formula-anatomy
+kind: image
+subject: math
+topic_phrase: "Bayes' theorem with each term labelled posterior likelihood prior and evidence"
+keywords:
+  - bayes-theorem
+  - posterior
+  - prior
+  - likelihood
+  - evidence
+  - law-of-total-probability
+license: platform-cc-by-sa
+source_unit: G11-MATH-005

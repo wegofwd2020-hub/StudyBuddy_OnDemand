@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-stats-normal-curve-empirical-rule
+kind: image
+subject: math
+topic_phrase: "standard normal curve with shaded one, two, and three sigma bands and 68-95-99.7 percent labels"
+keywords:
+  - normal-distribution
+  - empirical-rule
+  - 68-95-99.7
+  - bell-curve
+  - standard-deviation
+license: platform-cc-by-sa
+source_unit: G11-MATH-005

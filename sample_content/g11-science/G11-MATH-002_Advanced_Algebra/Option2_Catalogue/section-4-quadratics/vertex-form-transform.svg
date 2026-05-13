@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 320" width="600" height="320" role="img" aria-label="Vertex form parabolic transformations: shift right and down">
+  <title>Vertex Form Transformations</title>
+  <desc>Three parabolas: y = x² base, y = (x − 2)² shifted right by 2, and y = (x − 2)² − 3 shifted down by 3 to vertex (2, −3).</desc>
+
+  <defs>
+    <marker id="ah-vf" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dd6b20"/>
+    </marker>
+    <style>
+      .axis    { stroke: #94a3b8; stroke-width: 1.4; }
+      .grid    { stroke: #e2e8f0; stroke-width: 0.6; }
+      .base    { fill: none; stroke: #94a3b8; stroke-width: 2; stroke-dasharray: 5 4; }
+      .step1   { fill: none; stroke: #6b46c1; stroke-width: 2.5; }
+      .step2   { fill: none; stroke: #2b6cb0; stroke-width: 3; stroke-linecap: round; }
+      .v0      { fill: #94a3b8; stroke: white; stroke-width: 2; }
+      .v1      { fill: #6b46c1; stroke: white; stroke-width: 2; }
+      .v2      { fill: #2b6cb0; stroke: white; stroke-width: 2; }
+      .axislbl { font: 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .heading { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .lbl     { font: bold 12px system-ui, sans-serif; }
+      .panel   { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1; }
+    </style>
+  </defs>
+
+  <text class="heading" x="300" y="22">Vertex form  f(x) = a(x − h)² + k   places the vertex at (h, k)</text>
+
+  <!-- Plot frame -->
+  <rect class="panel" x="60" y="40" width="320" height="220"/>
+
+  <!-- vertical grid -->
+  <line class="grid" x1="100" y1="40" x2="100" y2="260"/>
+  <line class="grid" x1="140" y1="40" x2="140" y2="260"/>
+  <line class="grid" x1="180" y1="40" x2="180" y2="260"/>
+  <line class="grid" x1="220" y1="40" x2="220" y2="260"/>
+  <line class="grid" x1="260" y1="40" x2="260" y2="260"/>
+  <line class="grid" x1="300" y1="40" x2="300" y2="260"/>
+  <line class="grid" x1="340" y1="40" x2="340" y2="260"/>
+
+  <!-- horizontal grid y = -2,0,2,4 → py = 216,172,128,84 -->
+  <line class="grid" x1="60" y1="216" x2="380" y2="216"/>
+  <line class="grid" x1="60" y1="128" x2="380" y2="128"/>
+  <line class="grid" x1="60" y1="84"  x2="380" y2="84"/>
+
+  <!-- axes -->
+  <line class="axis" x1="60" y1="172" x2="380" y2="172"/>
+  <line class="axis" x1="180" y1="40" x2="180" y2="260"/>
+
+  <!-- ticks -->
+  <text class="axislbl" x="100" y="186">−2</text>
+  <text class="axislbl" x="140" y="186">−1</text>
+  <text class="axislbl" x="220" y="186">1</text>
+  <text class="axislbl" x="260" y="186">2</text>
+  <text class="axislbl" x="300" y="186">3</text>
+  <text class="axislbl" x="340" y="186">4</text>
+  <text class="axislbl" x="170" y="88"  text-anchor="end">4</text>
+  <text class="axislbl" x="170" y="132" text-anchor="end">2</text>
+  <text class="axislbl" x="170" y="220" text-anchor="end">−2</text>
+  <text class="axislbl" x="392" y="176">x</text>
+  <text class="axislbl" x="180" y="35">y</text>
+
+  <!-- Base: y = x^2 (dashed) -->
+  <polyline class="base" points="100,84 140,150 180,172 220,150 260,84"/>
+
+  <!-- Step 1: y = (x-2)^2 -->
+  <polyline class="step1" points="180,84 220,150 260,172 300,150 340,84"/>
+
+  <!-- Step 2: y = (x-2)^2 - 3 -->
+  <polyline class="step2" points="180,150 220,216 260,238 300,216 340,150"/>
+
+  <!-- Vertices -->
+  <circle class="v0" cx="180" cy="172" r="6"/>
+  <text class="lbl" x="146" y="178" fill="#94a3b8">(0, 0)</text>
+  <circle class="v1" cx="260" cy="172" r="6"/>
+  <text class="lbl" x="266" y="166" fill="#6b46c1">(2, 0)</text>
+  <circle class="v2" cx="260" cy="238" r="7"/>
+  <text class="lbl" x="270" y="242" fill="#2b6cb0">(2, −3)</text>
+
+  <!-- Translation arrows -->
+  <line x1="186" y1="172" x2="252" y2="172" stroke="#dd6b20" stroke-width="2" marker-end="url(#ah-vf)"/>
+  <text x="220" y="166" font="11px system-ui" font-size="11" fill="#dd6b20" text-anchor="middle" font-style="italic">h = 2  →  right</text>
+
+  <line x1="260" y1="180" x2="260" y2="232" stroke="#dd6b20" stroke-width="2" marker-end="url(#ah-vf)"/>
+  <text x="280" y="208" font="11px system-ui" font-size="11" fill="#dd6b20" font-style="italic">k = −3  →  down</text>
+
+  <!-- Right panel legend -->
+  <g transform="translate(410, 50)">
+    <rect x="0" y="0" width="180" height="220" rx="8" fill="#fffaf0" stroke="#dd6b20" stroke-width="1.4"/>
+    <text font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" x="90" y="22" text-anchor="middle">Three stages</text>
+
+    <line x1="14" y1="44" x2="40" y2="44" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5 4"/>
+    <text font="12px system-ui" font-size="12" fill="#1a202c" x="48" y="48">y = x²  base</text>
+
+    <line x1="14" y1="78" x2="40" y2="78" stroke="#6b46c1" stroke-width="2.5"/>
+    <text font="12px system-ui" font-size="12" fill="#1a202c" x="48" y="82">y = (x − 2)²</text>
+
+    <line x1="14" y1="112" x2="40" y2="112" stroke="#2b6cb0" stroke-width="3"/>
+    <text font="12px system-ui" font-size="12" fill="#1a202c" x="48" y="116">y = (x − 2)² − 3</text>
+
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="148">Sign convention:</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="166">(x − h)  shifts RIGHT by h</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="184">(x + h)  shifts LEFT by h</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="202">+k  shifts UP;   −k  shifts DOWN</text>
+  </g>
+
+  <text x="300" y="296" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Beware sign rule: (x − h) means the curve shifts to +h (counter-intuitive but correct).</text>
+</svg>

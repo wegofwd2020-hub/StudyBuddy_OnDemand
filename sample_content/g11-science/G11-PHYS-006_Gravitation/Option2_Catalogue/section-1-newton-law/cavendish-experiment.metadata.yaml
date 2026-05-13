@@ -1,0 +1,13 @@
+schema_version: 1
+id: physics-gravitation-cavendish-experiment
+kind: image
+subject: physics
+topic_phrase: "Cavendish torsion balance for measuring the gravitational constant G"
+keywords:
+  - gravitation
+  - cavendish-experiment
+  - torsion-balance
+  - measurement-of-G
+  - history-of-physics
+license: platform-cc-by-sa
+source_unit: G11-PHYS-006

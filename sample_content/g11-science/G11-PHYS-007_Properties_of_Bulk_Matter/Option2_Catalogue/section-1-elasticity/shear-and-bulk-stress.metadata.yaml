@@ -1,0 +1,13 @@
+schema_version: 1
+id: physics-bulk-matter-shear-and-bulk-stress
+kind: image
+subject: physics
+topic_phrase: "shear modulus and bulk modulus diagrams comparing tangential and uniform compressive stress"
+keywords:
+  - elasticity
+  - shear-modulus
+  - bulk-modulus
+  - tangential-stress
+  - volumetric-strain
+license: platform-cc-by-sa
+source_unit: G11-PHYS-007

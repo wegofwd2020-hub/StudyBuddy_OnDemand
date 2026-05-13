@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" width="720" height="360" role="img" aria-label="SI derived units built from base units">
+  <title>SI Derived Units</title>
+  <desc>Diagram showing how seven important derived units (newton, joule, watt, pascal, hertz, coulomb, volt) are built by combination of the SI base units, with the dimensional formula shown for each.</desc>
+
+  <text x="360" y="26" font-family="system-ui" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">From SI Base to SI Derived Units</text>
+  <text x="360" y="46" font-family="system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">every derived unit is a product of integer powers of the seven base units</text>
+
+  <!-- Base unit nodes (left column) -->
+  <g font-family="system-ui">
+    <rect x="20"  y="74"  width="100" height="36" rx="6" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5" />
+    <text x="70"  y="92"  text-anchor="middle" font-size="12" font-weight="700" fill="#1a202c">metre</text>
+    <text x="70"  y="106" text-anchor="middle" font-size="11" fill="#2b6cb0" font-weight="700">m · [L]</text>
+
+    <rect x="20"  y="136" width="100" height="36" rx="6" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5" />
+    <text x="70"  y="154" text-anchor="middle" font-size="12" font-weight="700" fill="#1a202c">kilogram</text>
+    <text x="70"  y="168" text-anchor="middle" font-size="11" fill="#2b6cb0" font-weight="700">kg · [M]</text>
+
+    <rect x="20"  y="198" width="100" height="36" rx="6" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5" />
+    <text x="70"  y="216" text-anchor="middle" font-size="12" font-weight="700" fill="#1a202c">second</text>
+    <text x="70"  y="230" text-anchor="middle" font-size="11" fill="#2b6cb0" font-weight="700">s · [T]</text>
+
+    <rect x="20"  y="260" width="100" height="36" rx="6" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5" />
+    <text x="70"  y="278" text-anchor="middle" font-size="12" font-weight="700" fill="#1a202c">ampere</text>
+    <text x="70"  y="292" text-anchor="middle" font-size="11" fill="#2b6cb0" font-weight="700">A · [I]</text>
+  </g>
+
+  <!-- Derived unit cards (right two columns) -->
+  <g font-family="system-ui">
+    <!-- Column 1: Mechanical-ish -->
+    <!-- newton -->
+    <rect x="200" y="74" width="200" height="60" rx="8" fill="#fef3c7" stroke="#dd6b20" stroke-width="1.5" />
+    <text x="300" y="92" text-anchor="middle" font-size="12" font-weight="700" fill="#1a202c">newton (force)</text>
+    <text x="300" y="110" text-anchor="middle" font-size="11" fill="#4a5568">1 N = 1 kg·m·s⁻²</text>
+    <text x="300" y="125" text-anchor="middle" font-size="11" fill="#dd6b20" font-weight="700">[M L T⁻²]</text>
+
+    <!-- joule -->
+    <rect x="200" y="148" width="200" height="60" rx="8" fill="#fef3c7" stroke="#dd6b20" stroke-width="1.5" />
+    <text x="300" y="166" text-anchor="middle" font-size="12" font-weight="700" fill="#1a202c">joule (energy)</text>
+    <text x="300" y="184" text-anchor="middle" font-size="11" fill="#4a5568">1 J = 1 kg·m²·s⁻² = 1 N·m</text>
+    <text x="300" y="199" text-anchor="middle" font-size="11" fill="#dd6b20" font-weight="700">[M L² T⁻²]</text>
+
+    <!-- watt -->
+    <rect x="200" y="222" width="200" height="60" rx="8" fill="#fef3c7" stroke="#dd6b20" stroke-width="1.5" />
+    <text x="300" y="240" text-anchor="middle" font-size="12" font-weight="700" fill="#1a202c">watt (power)</text>
+    <text x="300" y="258" text-anchor="middle" font-size="11" fill="#4a5568">1 W = 1 kg·m²·s⁻³ = 1 J/s</text>
+    <text x="300" y="273" text-anchor="middle" font-size="11" fill="#dd6b20" font-weight="700">[M L² T⁻³]</text>
+
+    <!-- pascal -->
+    <rect x="200" y="296" width="200" height="46" rx="8" fill="#fef3c7" stroke="#dd6b20" stroke-width="1.5" />
+    <text x="300" y="314" text-anchor="middle" font-size="12" font-weight="700" fill="#1a202c">pascal (pressure)</text>
+    <text x="300" y="332" text-anchor="middle" font-size="11" fill="#4a5568">1 Pa = 1 N/m² · [M L⁻¹ T⁻²]</text>
+
+    <!-- Column 2: Wave / electrical -->
+    <!-- hertz -->
+    <rect x="440" y="74" width="240" height="60" rx="8" fill="#e9d5ff" stroke="#7c3aed" stroke-width="1.5" />
+    <text x="560" y="92" text-anchor="middle" font-size="12" font-weight="700" fill="#1a202c">hertz (frequency)</text>
+    <text x="560" y="110" text-anchor="middle" font-size="11" fill="#4a5568">1 Hz = 1 s⁻¹</text>
+    <text x="560" y="125" text-anchor="middle" font-size="11" fill="#7c3aed" font-weight="700">[T⁻¹]</text>
+
+    <!-- coulomb -->
+    <rect x="440" y="148" width="240" height="60" rx="8" fill="#e9d5ff" stroke="#7c3aed" stroke-width="1.5" />
+    <text x="560" y="166" text-anchor="middle" font-size="12" font-weight="700" fill="#1a202c">coulomb (charge)</text>
+    <text x="560" y="184" text-anchor="middle" font-size="11" fill="#4a5568">1 C = 1 A·s</text>
+    <text x="560" y="199" text-anchor="middle" font-size="11" fill="#7c3aed" font-weight="700">[I T]</text>
+
+    <!-- volt -->
+    <rect x="440" y="222" width="240" height="60" rx="8" fill="#e9d5ff" stroke="#7c3aed" stroke-width="1.5" />
+    <text x="560" y="240" text-anchor="middle" font-size="12" font-weight="700" fill="#1a202c">volt (potential)</text>
+    <text x="560" y="258" text-anchor="middle" font-size="11" fill="#4a5568">1 V = 1 W/A = 1 kg·m²·s⁻³·A⁻¹</text>
+    <text x="560" y="273" text-anchor="middle" font-size="11" fill="#7c3aed" font-weight="700">[M L² T⁻³ I⁻¹]</text>
+
+    <!-- ohm -->
+    <rect x="440" y="296" width="240" height="46" rx="8" fill="#e9d5ff" stroke="#7c3aed" stroke-width="1.5" />
+    <text x="560" y="314" text-anchor="middle" font-size="12" font-weight="700" fill="#1a202c">ohm (resistance)</text>
+    <text x="560" y="332" text-anchor="middle" font-size="11" fill="#4a5568">1 Ω = 1 V/A · [M L² T⁻³ I⁻²]</text>
+  </g>
+
+  <!-- Connection arrows (light, suggestive) -->
+  <g stroke="#94a3b8" stroke-width="1" fill="none">
+    <line x1="120" y1="92"  x2="200" y2="100" />
+    <line x1="120" y1="92"  x2="200" y2="174" />
+    <line x1="120" y1="92"  x2="200" y2="248" />
+    <line x1="120" y1="92"  x2="200" y2="318" />
+    <line x1="120" y1="154" x2="200" y2="100" />
+    <line x1="120" y1="154" x2="200" y2="174" />
+    <line x1="120" y1="154" x2="200" y2="248" />
+    <line x1="120" y1="154" x2="200" y2="318" />
+    <line x1="120" y1="216" x2="200" y2="100" />
+    <line x1="120" y1="216" x2="200" y2="174" />
+    <line x1="120" y1="216" x2="200" y2="248" />
+    <line x1="120" y1="216" x2="200" y2="318" />
+    <line x1="120" y1="216" x2="440" y2="100" />
+    <line x1="120" y1="216" x2="440" y2="174" />
+    <line x1="120" y1="278" x2="440" y2="174" />
+    <line x1="120" y1="216" x2="440" y2="248" />
+    <line x1="120" y1="278" x2="440" y2="248" />
+    <line x1="120" y1="216" x2="440" y2="318" />
+    <line x1="120" y1="278" x2="440" y2="318" />
+  </g>
+</svg>

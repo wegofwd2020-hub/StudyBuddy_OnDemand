@@ -1,0 +1,13 @@
+schema_version: 1
+id: chemistry-sp3-tetrahedral-carbon
+kind: image
+subject: chemistry
+topic_phrase: "sp3 hybridised carbon tetrahedral geometry methane bond angle"
+keywords:
+  - sp3-hybridisation
+  - tetrahedral-geometry
+  - bond-angle
+  - methane
+  - tetravalent-carbon
+license: platform-cc-by-sa
+source_unit: G11-CHEM-008

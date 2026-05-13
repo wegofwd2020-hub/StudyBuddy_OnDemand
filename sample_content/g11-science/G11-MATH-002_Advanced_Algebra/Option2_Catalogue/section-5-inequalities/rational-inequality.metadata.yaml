@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-advanced-algebra-rational-inequality
+kind: image
+subject: math
+topic_phrase: "rational inequality with vertical asymptote and split solution set"
+keywords:
+  - inequality
+  - rational
+  - asymptote
+  - critical-point
+  - solution-set
+license: platform-cc-by-sa
+source_unit: G11-MATH-002

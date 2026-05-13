@@ -1,0 +1,15 @@
+schema_version: 1
+id: physics-thermodynamics-temperature-scales-comparison
+kind: image
+subject: physics
+topic_phrase: "comparison of Kelvin, Celsius, and Fahrenheit temperature scales at four reference points with conversion formulas"
+keywords:
+  - temperature
+  - kelvin
+  - celsius
+  - fahrenheit
+  - absolute-zero
+  - temperature-scale
+  - unit-conversion
+license: platform-cc-by-sa
+source_unit: G11-PHYS-008

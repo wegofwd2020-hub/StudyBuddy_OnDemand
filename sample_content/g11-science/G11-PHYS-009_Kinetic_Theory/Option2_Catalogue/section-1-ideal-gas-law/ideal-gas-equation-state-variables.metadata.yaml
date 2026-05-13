@@ -1,0 +1,15 @@
+schema_version: 1
+id: physics-kinetic-theory-ideal-gas-equation-state-variables
+kind: image
+subject: physics
+topic_phrase: "Ideal gas equation PV equals nRT with the four state variables pressure volume amount temperature their SI units and the universal gas constant"
+keywords:
+  - ideal-gas-law
+  - state-variables
+  - universal-gas-constant
+  - mole
+  - kelvin
+  - pascal
+  - avogadro-number
+license: platform-cc-by-sa
+source_unit: G11-PHYS-009

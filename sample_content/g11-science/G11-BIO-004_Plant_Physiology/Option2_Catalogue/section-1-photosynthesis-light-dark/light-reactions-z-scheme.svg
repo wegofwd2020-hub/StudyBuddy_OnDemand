@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 460" width="760" height="460" role="img" aria-label="Light reactions Z-scheme — PSII to PSI to NADPH">
+  <title>Light Reactions — Z-Scheme</title>
+  <desc>The non-cyclic light reactions of photosynthesis, plotted as the Z-scheme of redox potential. Light strikes Photosystem II (P680). The excited electron rises in energy, then passes downhill through the plastoquinone pool, the cytochrome b6f complex, and plastocyanin. A second photon strikes Photosystem I (P700); the re-excited electron rises again and passes through ferredoxin and FNR to reduce NADP+ into NADPH. Water is split at PSII (releasing O2 and H+), and proton movement powers ATP synthase. The shape on a redox-potential axis traces a Z, hence the name.</desc>
+
+  <text x="380" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Light Reactions — the Z-Scheme</text>
+  <text x="380" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Two photosystems · two photon kicks · electrons travel from H₂O to NADPH</text>
+
+  <!-- Y-axis: redox potential -->
+  <line x1="68" y1="68" x2="68" y2="380" stroke="#4a5568" stroke-width="1.5"/>
+  <polygon points="64,68 68,58 72,68" fill="#4a5568"/>
+  <text x="22" y="74" font-size="10" font-weight="700" fill="#4a5568">more reducing</text>
+  <text x="22" y="86" font-size="9" fill="#4a5568">(–)</text>
+  <text x="22" y="372" font-size="10" font-weight="700" fill="#4a5568">more oxidising</text>
+  <text x="22" y="384" font-size="9" fill="#4a5568">(+)</text>
+
+  <!-- Photosystem II ground state -->
+  <rect x="100" y="300" width="86" height="34" rx="6" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="143" y="318" font-size="11" font-weight="700" fill="#14532d" text-anchor="middle">PSII</text>
+  <text x="143" y="330" font-size="9" fill="#14532d" text-anchor="middle">P680</text>
+
+  <!-- Photon arrow into PSII -->
+  <line x1="140" y1="240" x2="140" y2="296" stroke="#f59e0b" stroke-width="2.5"/>
+  <polygon points="136,294 140,302 144,294" fill="#f59e0b"/>
+  <text x="140" y="232" font-size="10" font-weight="700" fill="#b45309" text-anchor="middle">hν</text>
+  <text x="140" y="220" font-size="9" font-style="italic" fill="#b45309" text-anchor="middle">photon 1</text>
+
+  <!-- Excited PSII* (top of first peak) -->
+  <rect x="100" y="86" width="86" height="34" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+  <text x="143" y="106" font-size="11" font-weight="700" fill="#78350f" text-anchor="middle">PSII*</text>
+  <text x="143" y="116" font-size="9" fill="#78350f" text-anchor="middle">excited</text>
+
+  <!-- Vertical jump arrow PSII -> PSII* -->
+  <line x1="186" y1="300" x2="186" y2="120" stroke="#dc2626" stroke-width="2" stroke-dasharray="4 3"/>
+  <polygon points="182,124 186,114 190,124" fill="#dc2626"/>
+  <text x="200" y="210" font-size="9" fill="#dc2626">e⁻ kicked up</text>
+
+  <!-- Down the chain — Plastoquinone -->
+  <circle cx="240" cy="148" r="14" fill="#86efac" stroke="#14532d" stroke-width="1.5"/>
+  <text x="240" y="151" font-size="9" font-weight="700" fill="#14532d" text-anchor="middle">PQ</text>
+  <text x="240" y="132" font-size="9" fill="#14532d" text-anchor="middle">plastoquinone</text>
+
+  <!-- Cytochrome b6f -->
+  <rect x="280" y="170" width="64" height="28" rx="6" fill="#bbf7d0" stroke="#14532d" stroke-width="1.5"/>
+  <text x="312" y="188" font-size="9" font-weight="700" fill="#14532d" text-anchor="middle">Cyt b₆f</text>
+
+  <!-- Plastocyanin -->
+  <circle cx="380" cy="210" r="14" fill="#86efac" stroke="#14532d" stroke-width="1.5"/>
+  <text x="380" y="213" font-size="9" font-weight="700" fill="#14532d" text-anchor="middle">PC</text>
+  <text x="380" y="246" font-size="9" fill="#14532d" text-anchor="middle">plastocyanin</text>
+
+  <!-- Connecting curves PSII* -> PQ -> b6f -> PC -->
+  <path d="M 186 105 Q 220 120 226 138" fill="none" stroke="#15803d" stroke-width="2"/>
+  <polygon points="222,138 226,146 230,138" fill="#15803d"/>
+  <path d="M 254 148 Q 280 160 282 174" fill="none" stroke="#15803d" stroke-width="2"/>
+  <polygon points="278,174 282,182 286,174" fill="#15803d"/>
+  <path d="M 344 188 Q 366 198 372 206" fill="none" stroke="#15803d" stroke-width="2"/>
+  <polygon points="368,206 372,214 376,206" fill="#15803d"/>
+
+  <!-- Photosystem I ground state -->
+  <rect x="404" y="270" width="86" height="34" rx="6" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="447" y="288" font-size="11" font-weight="700" fill="#14532d" text-anchor="middle">PSI</text>
+  <text x="447" y="300" font-size="9" fill="#14532d" text-anchor="middle">P700</text>
+
+  <!-- PC -> PSI -->
+  <path d="M 392 218 Q 420 240 426 268" fill="none" stroke="#15803d" stroke-width="2"/>
+  <polygon points="422,266 426,274 430,266" fill="#15803d"/>
+
+  <!-- Photon arrow into PSI -->
+  <line x1="447" y1="232" x2="447" y2="266" stroke="#f59e0b" stroke-width="2.5"/>
+  <polygon points="443,264 447,272 451,264" fill="#f59e0b"/>
+  <text x="447" y="222" font-size="10" font-weight="700" fill="#b45309" text-anchor="middle">hν</text>
+  <text x="447" y="210" font-size="9" font-style="italic" fill="#b45309" text-anchor="middle">photon 2</text>
+
+  <!-- Excited PSI* (top of second peak) -->
+  <rect x="404" y="80" width="86" height="34" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+  <text x="447" y="100" font-size="11" font-weight="700" fill="#78350f" text-anchor="middle">PSI*</text>
+  <text x="447" y="110" font-size="9" fill="#78350f" text-anchor="middle">excited</text>
+
+  <!-- Vertical jump PSI -> PSI* -->
+  <line x1="490" y1="270" x2="490" y2="114" stroke="#dc2626" stroke-width="2" stroke-dasharray="4 3"/>
+  <polygon points="486,118 490,108 494,118" fill="#dc2626"/>
+  <text x="504" y="200" font-size="9" fill="#dc2626">e⁻ kicked up</text>
+
+  <!-- Ferredoxin -->
+  <circle cx="556" cy="120" r="14" fill="#86efac" stroke="#14532d" stroke-width="1.5"/>
+  <text x="556" y="123" font-size="9" font-weight="700" fill="#14532d" text-anchor="middle">Fd</text>
+  <text x="556" y="104" font-size="9" fill="#14532d" text-anchor="middle">ferredoxin</text>
+
+  <!-- FNR -->
+  <rect x="592" y="138" width="60" height="28" rx="6" fill="#bbf7d0" stroke="#14532d" stroke-width="1.5"/>
+  <text x="622" y="156" font-size="9" font-weight="700" fill="#14532d" text-anchor="middle">FNR</text>
+
+  <!-- NADPH product -->
+  <rect x="660" y="172" width="80" height="34" rx="6" fill="#fce7f3" stroke="#be185d" stroke-width="2"/>
+  <text x="700" y="190" font-size="11" font-weight="700" fill="#831843" text-anchor="middle">NADPH</text>
+  <text x="700" y="202" font-size="9" fill="#831843" text-anchor="middle">reducing power</text>
+
+  <!-- PSI* -> Fd -> FNR -> NADPH -->
+  <path d="M 490 100 Q 526 108 542 116" fill="none" stroke="#15803d" stroke-width="2"/>
+  <polygon points="538,116 542,124 546,116" fill="#15803d"/>
+  <path d="M 570 122 Q 588 130 594 142" fill="none" stroke="#15803d" stroke-width="2"/>
+  <polygon points="590,142 594,150 598,142" fill="#15803d"/>
+  <path d="M 652 158 Q 668 168 674 174" fill="none" stroke="#15803d" stroke-width="2"/>
+  <polygon points="670,174 674,182 678,174" fill="#15803d"/>
+
+  <!-- Water splitting (oxygen-evolving complex) on PSII -->
+  <rect x="40" y="350" width="120" height="56" rx="6" fill="#dbeafe" stroke="#2b6cb0" stroke-width="2"/>
+  <text x="100" y="368" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">Water splitting</text>
+  <text x="100" y="384" font-size="10" fill="#1e3a8a" text-anchor="middle">2 H₂O → 4 H⁺ + 4 e⁻ + O₂</text>
+  <text x="100" y="400" font-size="9" font-style="italic" fill="#1e3a8a" text-anchor="middle">at PSII (Mn cluster)</text>
+
+  <!-- arrow water -> PSII -->
+  <line x1="143" y1="350" x2="143" y2="338" stroke="#2b6cb0" stroke-width="1.5"/>
+  <polygon points="139,340 143,332 147,340" fill="#2b6cb0"/>
+  <text x="160" y="346" font-size="9" fill="#2b6cb0">e⁻ replace</text>
+
+  <!-- O2 release symbol -->
+  <text x="36" y="338" font-size="14" font-weight="700" fill="#2b6cb0">O₂↑</text>
+
+  <!-- ATP synthesis from H+ gradient -->
+  <rect x="240" y="350" width="180" height="56" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+  <text x="330" y="368" font-size="11" font-weight="700" fill="#78350f" text-anchor="middle">ATP synthase (chemiosmosis)</text>
+  <text x="330" y="384" font-size="10" fill="#78350f" text-anchor="middle">H⁺ flow back to stroma → ATP</text>
+  <text x="330" y="400" font-size="9" font-style="italic" fill="#78350f" text-anchor="middle">photophosphorylation</text>
+
+  <!-- arrow Cyt b6f -> ATP synthase -->
+  <line x1="312" y1="200" x2="312" y2="346" stroke="#d97706" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <polygon points="308,346 312,354 316,346" fill="#d97706"/>
+  <text x="324" y="280" font-size="9" font-style="italic" fill="#d97706">H⁺ pumped</text>
+
+  <!-- Z trace highlight (the "Z" shape) -->
+  <text x="700" y="386" font-size="9" font-style="italic" fill="#4a5568" text-anchor="end">PSII → PSII* → ↘ → PSI → PSI* → ↘ → NADPH</text>
+  <text x="700" y="402" font-size="9" font-style="italic" fill="#4a5568" text-anchor="end">two upward kicks · two slides down · shape spells "Z"</text>
+
+  <!-- Caption strip -->
+  <text x="380" y="436" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Light reactions output: ATP + NADPH + O₂.  These power the Calvin cycle in the stroma.</text>
+  <text x="380" y="452" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">Net flow of electrons: H₂O → PSII → PQ → Cyt b₆f → PC → PSI → Fd → FNR → NADP⁺.</text>
+</svg>

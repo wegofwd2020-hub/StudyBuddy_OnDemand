@@ -1,0 +1,14 @@
+schema_version: 1
+id: physics-physical-world-random-vs-systematic
+kind: image
+subject: physics
+topic_phrase: "random versus systematic errors visualised on four target diagrams"
+keywords:
+  - random-error
+  - systematic-error
+  - accuracy
+  - precision
+  - bias
+  - target-diagram
+license: platform-cc-by-sa
+source_unit: G11-PHYS-001

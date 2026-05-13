@@ -1,0 +1,141 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 460" width="760" height="460" role="img" aria-label="Blood pressure profile along the systemic vasculature">
+  <title>Blood pressure along the vasculature — aorta to vena cava</title>
+  <desc>A two-row figure showing how mean blood pressure falls as blood flows from the left ventricle through the systemic circulation back to the right atrium. The top row schematically draws each vessel category in sequence — aorta · large arteries · small arteries · arterioles · capillaries · venules · veins · vena cava. The bottom row plots the mean pressure (red line) and the pulsatile envelope (lighter band) along the same horizontal axis. The largest pressure drop occurs across the arterioles (resistance vessels), where the pulsatile pressure waveform is also damped. By the venous side pressure is near 0 mmHg.</desc>
+
+  <text x="380" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Blood Pressure Along the Systemic Circulation</text>
+  <text x="380" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Pressure falls in big steps where resistance is highest — across the arterioles. Pulses are damped to steady flow before reaching the capillaries.</text>
+
+  <!-- Background -->
+  <rect x="20" y="56" width="720" height="384" rx="14" fill="#f7fafc" stroke="#cbd5e1" stroke-width="1"/>
+
+  <!-- ── TOP: vasculature schematic ─────────────────────────── -->
+  <text x="40" y="86" font-size="11" font-weight="700" fill="#4a5568">Vessel category</text>
+
+  <!-- Aorta block (very wide lumen, thick wall) -->
+  <rect x="40" y="100" width="80" height="64" fill="#fee2e2" stroke="#7f1d1d" stroke-width="3"/>
+  <text x="80" y="180" font-size="10" font-weight="700" fill="#7f1d1d" text-anchor="middle">Aorta</text>
+
+  <!-- Large arteries -->
+  <rect x="135" y="108" width="76" height="48" fill="#fee2e2" stroke="#7f1d1d" stroke-width="2.5"/>
+  <text x="173" y="180" font-size="10" font-weight="700" fill="#7f1d1d" text-anchor="middle">Large arteries</text>
+
+  <!-- Small arteries -->
+  <rect x="226" y="116" width="68" height="32" fill="#fee2e2" stroke="#7f1d1d" stroke-width="2"/>
+  <text x="260" y="180" font-size="10" font-weight="700" fill="#7f1d1d" text-anchor="middle">Small arteries</text>
+
+  <!-- Arterioles (resistance) — narrow lumen + smooth-muscle ring -->
+  <rect x="309" y="124" width="52" height="16" fill="#fee2e2" stroke="#7f1d1d" stroke-width="3.5"/>
+  <text x="335" y="180" font-size="10" font-weight="700" fill="#dc2626" text-anchor="middle">Arterioles</text>
+  <text x="335" y="194" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">resistance vessels</text>
+
+  <!-- Capillaries — many thin parallel lines (network) -->
+  <g stroke="#7f1d1d" stroke-width="0.9" fill="none">
+    <line x1="378" y1="120" x2="438" y2="120"/>
+    <line x1="378" y1="128" x2="438" y2="128"/>
+    <line x1="378" y1="136" x2="438" y2="136"/>
+    <line x1="378" y1="144" x2="438" y2="144"/>
+  </g>
+  <text x="408" y="180" font-size="10" font-weight="700" fill="#7f1d1d" text-anchor="middle">Capillaries</text>
+  <text x="408" y="194" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">exchange · 1-cell wall</text>
+
+  <!-- Venules -->
+  <rect x="455" y="116" width="68" height="32" fill="#dbeafe" stroke="#1e3a8a" stroke-width="2"/>
+  <text x="489" y="180" font-size="10" font-weight="700" fill="#1e3a8a" text-anchor="middle">Venules</text>
+
+  <!-- Veins -->
+  <rect x="538" y="108" width="76" height="48" fill="#dbeafe" stroke="#1e3a8a" stroke-width="2"/>
+  <text x="576" y="180" font-size="10" font-weight="700" fill="#1e3a8a" text-anchor="middle">Veins</text>
+  <text x="576" y="194" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">have valves</text>
+
+  <!-- Vena cava -->
+  <rect x="629" y="100" width="84" height="64" fill="#dbeafe" stroke="#1e3a8a" stroke-width="3"/>
+  <text x="671" y="180" font-size="10" font-weight="700" fill="#1e3a8a" text-anchor="middle">Vena cava</text>
+
+  <!-- Direction-of-flow arrow under schematic -->
+  <line x1="50" y1="208" x2="700" y2="208" stroke="#4a5568" stroke-width="1"/>
+  <polygon points="696,204 706,208 696,212" fill="#4a5568"/>
+  <text x="378" y="220" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">flow direction (LV → RA)</text>
+
+  <!-- ── BOTTOM: pressure plot ──────────────────────────────── -->
+  <!-- Plot box: x = 40..720, y = 240..400; pressure 0..120 -->
+  <rect x="40" y="240" width="680" height="160" fill="#fff"/>
+  <line x1="40" y1="240" x2="40" y2="400" stroke="#1a202c" stroke-width="1.2"/>
+  <line x1="40" y1="400" x2="720" y2="400" stroke="#1a202c" stroke-width="1.2"/>
+
+  <!-- Y ticks 0,40,80,120 -->
+  <g font-size="9" fill="#4a5568" text-anchor="end">
+    <line x1="36" y1="400" x2="40" y2="400" stroke="#1a202c" stroke-width="1"/><text x="34" y="404">0</text>
+    <line x1="36" y1="346" x2="40" y2="346" stroke="#1a202c" stroke-width="1"/><text x="34" y="350">40</text>
+    <line x1="36" y1="293" x2="40" y2="293" stroke="#1a202c" stroke-width="1"/><text x="34" y="297">80</text>
+    <line x1="36" y1="240" x2="40" y2="240" stroke="#1a202c" stroke-width="1"/><text x="34" y="244">120</text>
+  </g>
+  <text x="14" y="320" font-size="11" font-weight="700" fill="#1a202c" transform="rotate(-90 14 320)" text-anchor="middle">Mean BP (mmHg)</text>
+
+  <!-- Faint gridlines -->
+  <g stroke="#e2e8f0" stroke-width="1">
+    <line x1="40" y1="346" x2="720" y2="346"/>
+    <line x1="40" y1="293" x2="720" y2="293"/>
+  </g>
+
+  <!-- Pulse pressure envelope (light red band) — thickest at large arteries, vanishing into capillaries -->
+  <!-- Approximate vessel x centres: aorta 80, large 173, small 260, arteriole 335, cap 408, venule 489, vein 576, vena cava 671 -->
+
+  <!-- Mean pressure: 95, 90, 85, 50, 25, 15, 8, 2 mmHg
+       Map mmHg → y: y = 400 − (mmHg/120)*160
+       95→273, 90→280, 85→287, 50→333, 25→367, 15→380, 8→389, 2→397 -->
+
+  <!-- Pulse band (between systolic & diastolic envelopes) -->
+  <!-- Systolic: 120, 117, 110, 60, 28, 16, 8, 2 ; Diastolic: 80, 78, 75, 40, 22, 14, 8, 2 -->
+  <!-- Convert: sys 120→240, 117→244, 110→253, 60→320, 28→363, 16→379, 8→389, 2→397
+       dia: 80→293, 78→296, 75→300, 40→347, 22→371, 14→381, 8→389, 2→397 -->
+  <path d="M 80 240 L 173 244 L 260 253 L 335 320 L 408 363 L 489 379 L 576 389 L 671 397
+           L 671 397 L 576 389 L 489 381 L 408 371 L 335 347 L 260 300 L 173 296 L 80 293 Z"
+        fill="rgba(220,38,38,0.18)" stroke="none"/>
+
+  <!-- Mean pressure curve -->
+  <path d="M 80 273 L 173 280 L 260 287 L 335 333 L 408 367 L 489 380 L 576 389 L 671 397"
+        fill="none" stroke="#dc2626" stroke-width="2.6"/>
+
+  <!-- Mean point markers -->
+  <g fill="#dc2626">
+    <circle cx="80"  cy="273" r="4"/>
+    <circle cx="173" cy="280" r="4"/>
+    <circle cx="260" cy="287" r="4"/>
+    <circle cx="335" cy="333" r="4"/>
+    <circle cx="408" cy="367" r="4"/>
+    <circle cx="489" cy="380" r="4"/>
+    <circle cx="576" cy="389" r="4"/>
+    <circle cx="671" cy="397" r="4"/>
+  </g>
+
+  <!-- mmHg callouts beside markers -->
+  <g font-size="9" fill="#7f1d1d" text-anchor="middle">
+    <text x="80"  y="266">95</text>
+    <text x="173" y="273">90</text>
+    <text x="260" y="280">85</text>
+    <text x="335" y="326">50</text>
+    <text x="408" y="360">25</text>
+    <text x="489" y="373">15</text>
+    <text x="576" y="382">8</text>
+    <text x="671" y="390">2</text>
+  </g>
+
+  <!-- Pulse-pressure annotation arrow on aorta -->
+  <line x1="80" y1="240" x2="80" y2="293" stroke="#7f1d1d" stroke-width="0.8" stroke-dasharray="3 2"/>
+  <text x="92" y="260" font-size="9" font-weight="700" fill="#7f1d1d">120/80 (Δ40)</text>
+
+  <line x1="335" y1="320" x2="335" y2="347" stroke="#7f1d1d" stroke-width="0.8" stroke-dasharray="3 2"/>
+  <text x="346" y="338" font-size="9" font-weight="700" fill="#7f1d1d">60/40 (Δ20)</text>
+
+  <line x1="408" y1="363" x2="408" y2="371" stroke="#7f1d1d" stroke-width="0.8" stroke-dasharray="3 2"/>
+  <text x="408" y="356" font-size="9" font-weight="700" fill="#7f1d1d" text-anchor="middle">pulses damped</text>
+
+  <!-- Take-away callout -->
+  <rect x="320" y="248" width="240" height="44" rx="6" fill="#fff" stroke="#94a3b8" stroke-width="0.8"/>
+  <text x="334" y="263" font-size="10" font-weight="700" fill="#1a202c">Where does most BP get spent?</text>
+  <text x="334" y="277" font-size="9" fill="#4a5568">Across the ARTERIOLES — they are the body's adjustable</text>
+  <text x="334" y="287" font-size="9" fill="#4a5568">resistance valve. Constrict → P upstream rises, flow falls.</text>
+
+  <!-- Bottom takeaway band -->
+  <rect x="20" y="416" width="720" height="0" stroke="none" fill="none"/>
+</svg>

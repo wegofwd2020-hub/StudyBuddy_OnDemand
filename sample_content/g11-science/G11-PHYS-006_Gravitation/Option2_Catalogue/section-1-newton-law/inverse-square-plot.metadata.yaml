@@ -1,0 +1,13 @@
+schema_version: 1
+id: physics-gravitation-inverse-square-plot
+kind: image
+subject: physics
+topic_phrase: "graph of gravitational force versus separation showing one over r squared decay"
+keywords:
+  - gravitation
+  - inverse-square
+  - F-vs-r-curve
+  - graph
+  - newton-universal-gravitation
+license: platform-cc-by-sa
+source_unit: G11-PHYS-006

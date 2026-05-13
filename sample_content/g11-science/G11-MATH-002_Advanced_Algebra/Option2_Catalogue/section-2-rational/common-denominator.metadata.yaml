@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-advanced-algebra-common-denominator
+kind: image
+subject: math
+topic_phrase: "common denominator for adding two rational expressions"
+keywords:
+  - rational-expression
+  - common-denominator
+  - LCD
+  - addition
+  - factor
+license: platform-cc-by-sa
+source_unit: G11-MATH-002

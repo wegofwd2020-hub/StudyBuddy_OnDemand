@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 320" width="520" height="320" role="img" aria-label="Surface gravity values for different solar system bodies as a bar chart">
+  <title>Surface gravity across the solar system</title>
+  <desc>Bar chart of surface gravity g for the Moon, Mars, Earth, Saturn, Neptune and Jupiter. Earth's 9.81 metres per second squared is reference; Jupiter is about 2.5 times stronger; the Moon about one sixth.</desc>
+
+  <text x="260" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Surface gravity g across the solar system</text>
+
+  <!-- Plot region -->
+  <rect x="60" y="40" width="430" height="220" fill="#f7fafc" stroke="#e2e8f0" />
+
+  <!-- Y axis ticks (0..28 m/s²) — 220 px tall, so 1 m/s² = 7.857 px from y=260 -->
+  <text x="54" y="264" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">0</text>
+  <line x1="60" y1="260" x2="490" y2="260" stroke="#94a3b8" stroke-width="1.2" />
+
+  <text x="54" y="225" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">5</text>
+  <line x1="60" y1="221.4" x2="490" y2="221.4" stroke="#e2e8f0" stroke-width="0.6" />
+
+  <text x="54" y="186" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">10</text>
+  <line x1="60" y1="182.7" x2="490" y2="182.7" stroke="#e2e8f0" stroke-width="0.6" />
+
+  <text x="54" y="146" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">15</text>
+  <line x1="60" y1="144.1" x2="490" y2="144.1" stroke="#e2e8f0" stroke-width="0.6" />
+
+  <text x="54" y="107" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">20</text>
+  <line x1="60" y1="105.5" x2="490" y2="105.5" stroke="#e2e8f0" stroke-width="0.6" />
+
+  <text x="54" y="68" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">25</text>
+  <line x1="60" y1="66.8" x2="490" y2="66.8" stroke="#e2e8f0" stroke-width="0.6" />
+
+  <text x="24" y="150" font="13px system-ui" font-size="13" font-weight="600" fill="#1a202c" text-anchor="middle" transform="rotate(-90 24 150)">g  (m/s²)</text>
+
+  <!-- Earth reference line -->
+  <line x1="60" y1="183.0" x2="490" y2="183.0" stroke="#dc2626" stroke-width="1" stroke-dasharray="4 3" />
+  <text x="486" y="180" font="10px system-ui" font-size="10" font-weight="700" fill="#dc2626" text-anchor="end">Earth (9.81)</text>
+
+  <!-- Bars: Moon 1.62, Mars 3.71, Earth 9.81, Saturn 10.44, Neptune 11.15, Jupiter 24.79 -->
+  <!-- Bar width 50, gap 18, start at x=88; baseline y=260; height = g * 7.857 -->
+
+  <!-- Moon: g=1.62 → height=12.7 → y = 260-12.7 = 247.3 -->
+  <rect x="88" y="247.3" width="50" height="12.7" fill="#cbd5e0" stroke="#1a202c" stroke-width="1" />
+  <text x="113" y="244" font="11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">1.62</text>
+  <text x="113" y="278" font="12px system-ui" font-size="12" font-weight="600" fill="#1a202c" text-anchor="middle">Moon</text>
+
+  <!-- Mars: g=3.71 → height=29.15 → y=230.85 -->
+  <rect x="156" y="230.85" width="50" height="29.15" fill="#fed7aa" stroke="#1a202c" stroke-width="1" />
+  <text x="181" y="227" font="11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">3.71</text>
+  <text x="181" y="278" font="12px system-ui" font-size="12" font-weight="600" fill="#1a202c" text-anchor="middle">Mars</text>
+
+  <!-- Earth: g=9.81 → height=77.07 → y=182.93 -->
+  <rect x="224" y="182.93" width="50" height="77.07" fill="#bee3f8" stroke="#1a202c" stroke-width="1" />
+  <text x="249" y="179" font="11px system-ui" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">9.81</text>
+  <text x="249" y="278" font="12px system-ui" font-size="12" font-weight="600" fill="#1a202c" text-anchor="middle">Earth</text>
+
+  <!-- Saturn: g=10.44 → height=82.03 → y=177.97 -->
+  <rect x="292" y="177.97" width="50" height="82.03" fill="#fde68a" stroke="#1a202c" stroke-width="1" />
+  <text x="317" y="174" font="11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">10.44</text>
+  <text x="317" y="278" font="12px system-ui" font-size="12" font-weight="600" fill="#1a202c" text-anchor="middle">Saturn</text>
+
+  <!-- Neptune: g=11.15 → height=87.61 → y=172.39 -->
+  <rect x="360" y="172.39" width="50" height="87.61" fill="#a5f3fc" stroke="#1a202c" stroke-width="1" />
+  <text x="385" y="169" font="11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">11.15</text>
+  <text x="385" y="278" font="12px system-ui" font-size="12" font-weight="600" fill="#1a202c" text-anchor="middle">Neptune</text>
+
+  <!-- Jupiter: g=24.79 → height=194.78 → y=65.22 -->
+  <rect x="428" y="65.22" width="50" height="194.78" fill="#fcd34d" stroke="#1a202c" stroke-width="1" />
+  <text x="453" y="61" font="11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">24.79</text>
+  <text x="453" y="278" font="12px system-ui" font-size="12" font-weight="600" fill="#1a202c" text-anchor="middle">Jupiter</text>
+
+  <line x1="60" y1="40" x2="60" y2="260" stroke="#94a3b8" stroke-width="1.2" />
+
+  <text x="260" y="304" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">g depends on both M and R: g = G M / R².  Jupiter is 318 × Earth's mass but only 11 × the radius, so g ≈ 2.5 × Earth.</text>
+</svg>

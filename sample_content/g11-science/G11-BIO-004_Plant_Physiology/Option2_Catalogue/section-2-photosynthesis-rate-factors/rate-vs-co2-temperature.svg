@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 460" width="760" height="460" role="img" aria-label="Photosynthesis rate vs CO2 concentration and temperature">
+  <title>Rate of Photosynthesis vs CO₂ and vs Temperature</title>
+  <desc>Two side-by-side graphs. Left: photosynthesis rate vs atmospheric CO2 concentration — the rate rises steeply with CO2, then plateaus. The vertical dashed line marks the ambient outdoor concentration of about 0.04 percent (400 parts per million). Greenhouses raise this to about 0.1 percent to push the rate higher. Right: photosynthesis rate vs leaf temperature — the rate has a clear bell-shaped optimum near 25 to 30 degrees Celsius. Below the optimum the curve rises because enzyme activity increases with warmth; above the optimum the curve falls sharply as Rubisco and other enzymes denature.</desc>
+
+  <text x="380" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Two More Limiting Factors — CO₂ and Temperature</text>
+  <text x="380" y="40" font-size="11" fill="#4a5568" text-anchor="middle">CO₂: rises then plateaus · Temperature: bell-shaped, sharp drop after optimum</text>
+
+  <!-- ═══════════════════ LEFT PANEL: CO2 ═══════════════════ -->
+  <g transform="translate(0, 60)">
+    <rect x="20" y="0" width="350" height="370" rx="10" fill="#f7fafc" stroke="#cbd5e0" stroke-width="1.5"/>
+    <text x="195" y="22" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Rate vs CO₂ concentration</text>
+
+    <!-- Axes -->
+    <line x1="64" y1="320" x2="340" y2="320" stroke="#1a202c" stroke-width="2"/>
+    <line x1="64" y1="320" x2="64" y2="50" stroke="#1a202c" stroke-width="2"/>
+    <polygon points="340,316 350,320 340,324" fill="#1a202c"/>
+    <polygon points="60,50 64,40 68,50" fill="#1a202c"/>
+
+    <!-- Axis labels -->
+    <text x="200" y="354" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">CO₂ concentration (%)</text>
+    <text x="34" y="180" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle" transform="rotate(-90 34 180)">Photosynthesis rate</text>
+
+    <!-- X tick marks -->
+    <line x1="120" y1="320" x2="120" y2="324" stroke="#1a202c" stroke-width="1.2"/>
+    <text x="120" y="338" font-size="9" fill="#4a5568" text-anchor="middle">0.04</text>
+    <line x1="180" y1="320" x2="180" y2="324" stroke="#1a202c" stroke-width="1.2"/>
+    <text x="180" y="338" font-size="9" fill="#4a5568" text-anchor="middle">0.1</text>
+    <line x1="240" y1="320" x2="240" y2="324" stroke="#1a202c" stroke-width="1.2"/>
+    <text x="240" y="338" font-size="9" fill="#4a5568" text-anchor="middle">0.2</text>
+    <line x1="300" y1="320" x2="300" y2="324" stroke="#1a202c" stroke-width="1.2"/>
+    <text x="300" y="338" font-size="9" fill="#4a5568" text-anchor="middle">0.4</text>
+
+    <!-- Curve (rises sharply then plateaus) -->
+    <path d="M 64 318 Q 100 280 130 220 Q 160 160 220 110 Q 280 96 340 92" fill="none" stroke="#15803d" stroke-width="3.5"/>
+
+    <!-- Ambient marker -->
+    <line x1="120" y1="320" x2="120" y2="50" stroke="#dc2626" stroke-width="1" stroke-dasharray="3 3"/>
+    <circle cx="120" cy="220" r="5" fill="#dc2626"/>
+    <text x="124" y="208" font-size="10" font-weight="700" fill="#dc2626">ambient (~400 ppm)</text>
+    <text x="124" y="220" font-size="9" fill="#dc2626">where most plants live</text>
+
+    <!-- Greenhouse marker -->
+    <line x1="180" y1="320" x2="180" y2="120" stroke="#d97706" stroke-width="1" stroke-dasharray="3 3"/>
+    <circle cx="180" cy="120" r="5" fill="#d97706"/>
+    <text x="184" y="115" font-size="10" font-weight="700" fill="#78350f">greenhouse (~1000 ppm)</text>
+
+    <!-- Plateau annotation -->
+    <text x="306" y="86" font-size="10" font-weight="700" fill="#15803d" text-anchor="end">plateau</text>
+    <text x="306" y="100" font-size="9" font-style="italic" fill="#4a5568" text-anchor="end">light or T limits now</text>
+
+    <!-- Bottom takeaway -->
+    <rect x="36" y="358" width="320" height="0" fill="none"/>
+  </g>
+
+  <!-- ═══════════════════ RIGHT PANEL: TEMPERATURE ═══════════════════ -->
+  <g transform="translate(390, 60)">
+    <rect x="0" y="0" width="350" height="370" rx="10" fill="#f7fafc" stroke="#cbd5e0" stroke-width="1.5"/>
+    <text x="175" y="22" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Rate vs Temperature</text>
+
+    <!-- Axes -->
+    <line x1="44" y1="320" x2="320" y2="320" stroke="#1a202c" stroke-width="2"/>
+    <line x1="44" y1="320" x2="44" y2="50" stroke="#1a202c" stroke-width="2"/>
+    <polygon points="320,316 330,320 320,324" fill="#1a202c"/>
+    <polygon points="40,50 44,40 48,50" fill="#1a202c"/>
+
+    <!-- Axis labels -->
+    <text x="180" y="354" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Leaf temperature (°C)</text>
+    <text x="14" y="180" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle" transform="rotate(-90 14 180)">Photosynthesis rate</text>
+
+    <!-- X tick marks -->
+    <line x1="80" y1="320" x2="80" y2="324" stroke="#1a202c" stroke-width="1.2"/>
+    <text x="80" y="338" font-size="9" fill="#4a5568" text-anchor="middle">0</text>
+    <line x1="140" y1="320" x2="140" y2="324" stroke="#1a202c" stroke-width="1.2"/>
+    <text x="140" y="338" font-size="9" fill="#4a5568" text-anchor="middle">15</text>
+    <line x1="200" y1="320" x2="200" y2="324" stroke="#1a202c" stroke-width="1.2"/>
+    <text x="200" y="338" font-size="9" fill="#4a5568" text-anchor="middle">25</text>
+    <line x1="240" y1="320" x2="240" y2="324" stroke="#1a202c" stroke-width="1.2"/>
+    <text x="240" y="338" font-size="9" fill="#4a5568" text-anchor="middle">35</text>
+    <line x1="290" y1="320" x2="290" y2="324" stroke="#1a202c" stroke-width="1.2"/>
+    <text x="290" y="338" font-size="9" fill="#4a5568" text-anchor="middle">45</text>
+
+    <!-- Bell curve -->
+    <path d="M 80 318 Q 130 290 180 200 Q 220 110 240 100 Q 260 110 280 220 Q 295 308 310 320" fill="none" stroke="#15803d" stroke-width="3.5"/>
+
+    <!-- Optimum marker -->
+    <circle cx="220" cy="100" r="6" fill="#dc2626"/>
+    <line x1="220" y1="100" x2="220" y2="320" stroke="#dc2626" stroke-width="1" stroke-dasharray="3 3"/>
+    <text x="220" y="84" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">optimum</text>
+    <text x="220" y="68" font-size="10" fill="#dc2626" text-anchor="middle">~25–30 °C</text>
+
+    <!-- Region 1: enzyme activity rising -->
+    <text x="100" y="240" font-size="10" font-weight="700" fill="#d97706">enzymes</text>
+    <text x="100" y="254" font-size="10" font-weight="700" fill="#d97706">speeding up</text>
+    <line x1="120" y1="244" x2="160" y2="248" stroke="#d97706" stroke-width="1.5"/>
+    <polygon points="156,244 164,248 156,252" fill="#d97706"/>
+
+    <!-- Region 2: denaturation -->
+    <text x="296" y="180" font-size="10" font-weight="700" fill="#be185d" text-anchor="end">enzymes</text>
+    <text x="296" y="194" font-size="10" font-weight="700" fill="#be185d" text-anchor="end">denaturing</text>
+    <line x1="284" y1="186" x2="270" y2="200" stroke="#be185d" stroke-width="1.5"/>
+    <polygon points="266,196 270,204 274,196" fill="#be185d"/>
+
+    <!-- C3 vs C4 hint -->
+    <rect x="56" y="60" width="120" height="42" rx="6" fill="#dcfce7" stroke="#15803d" stroke-width="1"/>
+    <text x="116" y="76" font-size="9" font-weight="700" fill="#14532d" text-anchor="middle">C₃ optimum: ~25 °C</text>
+    <text x="116" y="90" font-size="9" font-weight="700" fill="#14532d" text-anchor="middle">C₄ optimum: ~35 °C</text>
+    <text x="116" y="100" font-size="8" font-style="italic" fill="#4a5568" text-anchor="middle">(maize, sugarcane)</text>
+  </g>
+
+  <!-- Bottom comparison -->
+  <text x="380" y="446" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">Both curves change shape only inside their own factor — the plateau height of one is set by the level of the others.</text>
+</svg>

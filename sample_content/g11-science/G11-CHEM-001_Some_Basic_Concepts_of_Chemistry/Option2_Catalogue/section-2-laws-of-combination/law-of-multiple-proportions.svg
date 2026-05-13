@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" width="720" height="360" role="img" aria-label="Law of Multiple Proportions — CO and CO2">
+  <title>Law of Multiple Proportions</title>
+  <desc>Two compounds of carbon and oxygen — carbon monoxide CO and carbon dioxide CO₂. Holding carbon mass fixed at 12 g, oxygen masses are 16 g (CO) and 32 g (CO₂), giving a small whole-number ratio 1 : 2.</desc>
+
+  <text x="360" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Law of Multiple Proportions (Dalton, 1803)</text>
+  <text x="360" y="40" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">When two elements form more than one compound, the masses of one element combining with a fixed mass of the other are in small whole-number ratios.</text>
+
+  <!-- Carbon monoxide panel -->
+  <rect x="60" y="60" width="280" height="220" rx="10" fill="#dbeafe" stroke="#2b6cb0" stroke-width="2"/>
+  <text x="200" y="84" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1e3a8a" text-anchor="middle">Carbon monoxide — CO</text>
+
+  <!-- CO molecule -->
+  <circle cx="160" cy="140" r="18" fill="#1f2937" stroke="#1a202c" stroke-width="2"/>
+  <text x="160" y="146" font="bold 14px system-ui" font-size="14" font-weight="700" fill="white" text-anchor="middle">C</text>
+  <line x1="178" y1="140" x2="222" y2="140" stroke="#1a202c" stroke-width="3"/>
+  <line x1="178" y1="146" x2="222" y2="146" stroke="#1a202c" stroke-width="3"/>
+  <line x1="178" y1="134" x2="222" y2="134" stroke="#1a202c" stroke-width="3"/>
+  <circle cx="240" cy="140" r="18" fill="#dc2626" stroke="#1a202c" stroke-width="2"/>
+  <text x="240" y="146" font="bold 14px system-ui" font-size="14" font-weight="700" fill="white" text-anchor="middle">O</text>
+
+  <!-- mass bars -->
+  <rect x="100" y="200" width="60" height="32" fill="#1f2937" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="130" y="220" font="bold 11px system-ui" font-size="11" font-weight="700" fill="white" text-anchor="middle">C</text>
+  <text x="130" y="246" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#1a202c" text-anchor="middle">12 g</text>
+
+  <rect x="180" y="200" width="80" height="32" fill="#dc2626" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="220" y="220" font="bold 11px system-ui" font-size="11" font-weight="700" fill="white" text-anchor="middle">O</text>
+  <text x="220" y="246" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#1a202c" text-anchor="middle">16 g</text>
+
+  <text x="200" y="270" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">12 g C combines with 16 g O</text>
+
+  <!-- Carbon dioxide panel -->
+  <rect x="380" y="60" width="280" height="220" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="520" y="84" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#14532d" text-anchor="middle">Carbon dioxide — CO₂</text>
+
+  <!-- CO2 molecule: O=C=O -->
+  <circle cx="450" cy="140" r="18" fill="#dc2626" stroke="#1a202c" stroke-width="2"/>
+  <text x="450" y="146" font="bold 14px system-ui" font-size="14" font-weight="700" fill="white" text-anchor="middle">O</text>
+  <line x1="468" y1="136" x2="502" y2="136" stroke="#1a202c" stroke-width="3"/>
+  <line x1="468" y1="144" x2="502" y2="144" stroke="#1a202c" stroke-width="3"/>
+  <circle cx="520" cy="140" r="18" fill="#1f2937" stroke="#1a202c" stroke-width="2"/>
+  <text x="520" y="146" font="bold 14px system-ui" font-size="14" font-weight="700" fill="white" text-anchor="middle">C</text>
+  <line x1="538" y1="136" x2="572" y2="136" stroke="#1a202c" stroke-width="3"/>
+  <line x1="538" y1="144" x2="572" y2="144" stroke="#1a202c" stroke-width="3"/>
+  <circle cx="590" cy="140" r="18" fill="#dc2626" stroke="#1a202c" stroke-width="2"/>
+  <text x="590" y="146" font="bold 14px system-ui" font-size="14" font-weight="700" fill="white" text-anchor="middle">O</text>
+
+  <!-- mass bars -->
+  <rect x="420" y="200" width="60" height="32" fill="#1f2937" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="450" y="220" font="bold 11px system-ui" font-size="11" font-weight="700" fill="white" text-anchor="middle">C</text>
+  <text x="450" y="246" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#1a202c" text-anchor="middle">12 g</text>
+
+  <rect x="500" y="200" width="160" height="32" fill="#dc2626" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="580" y="220" font="bold 11px system-ui" font-size="11" font-weight="700" fill="white" text-anchor="middle">O</text>
+  <text x="580" y="246" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#1a202c" text-anchor="middle">32 g</text>
+
+  <text x="520" y="270" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#14532d" text-anchor="middle">12 g C combines with 32 g O</text>
+
+  <!-- Ratio summary -->
+  <rect x="120" y="298" width="480" height="50" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+  <text x="360" y="320" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#92400e" text-anchor="middle">Mass of O per 12 g C:    16 g  :  32 g    =    1 : 2</text>
+  <text x="360" y="340" font="11px system-ui" font-size="11" fill="#92400e" text-anchor="middle">A small whole-number ratio — strong evidence that atoms combine in fixed integer counts.</text>
+
+</svg>

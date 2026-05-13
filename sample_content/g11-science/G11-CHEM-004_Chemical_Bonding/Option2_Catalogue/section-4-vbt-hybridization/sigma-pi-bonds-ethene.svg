@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" width="720" height="360" role="img" aria-label="Sigma and pi bonds in ethene C2H4 — sp2 hybridisation">
+  <title>σ and π bonds in ethene (C₂H₄)</title>
+  <desc>Ethene C₂H₄ illustrating the σ and π contributions to the C=C double bond. Each carbon is sp² hybridised. Three sp² hybrids form σ bonds (one to the other C, two to H). The unhybridised 2p orbitals on each carbon overlap sideways above and below the molecular plane to form a π bond.</desc>
+
+  <text x="360" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">σ and π Bonds — Ethene (C₂H₄)</text>
+  <text x="360" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Each C is sp² · σ-framework lies in the plane · π bond formed by sideways overlap of unhybridised p orbitals</text>
+
+  <!-- σ-skeleton view (left) -->
+  <g transform="translate(180, 200)">
+    <rect x="-150" y="-110" width="300" height="240" rx="10" fill="#f7fafc" stroke="#94a3b8" stroke-width="1.5" />
+    <text x="0" y="-90" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">σ-bond framework (in plane)</text>
+
+    <!-- C-C σ bond (single line) -->
+    <line x1="-30" y1="0" x2="30" y2="0" stroke="#1a202c" stroke-width="3" />
+    <text x="0" y="-12" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">σ (C–C)</text>
+
+    <!-- 4 C-H σ bonds at 120° each -->
+    <line x1="-30" y1="0" x2="-78" y2="-30" stroke="#1a202c" stroke-width="2.5" />
+    <line x1="-30" y1="0" x2="-78" y2="30"  stroke="#1a202c" stroke-width="2.5" />
+    <line x1="30"  y1="0" x2="78"  y2="-30" stroke="#1a202c" stroke-width="2.5" />
+    <line x1="30"  y1="0" x2="78"  y2="30"  stroke="#1a202c" stroke-width="2.5" />
+
+    <!-- Atoms -->
+    <circle cx="-30" cy="0" r="14" fill="#1a202c" stroke="#1a202c" stroke-width="1.5" />
+    <text x="-30" y="4" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+    <circle cx="30"  cy="0" r="14" fill="#1a202c" stroke="#1a202c" stroke-width="1.5" />
+    <text x="30" y="4" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+    <circle cx="-78" cy="-30" r="11" fill="#fef3c7" stroke="#92400e" stroke-width="1.5" />
+    <text x="-78" y="-26" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <circle cx="-78" cy="30"  r="11" fill="#fef3c7" stroke="#92400e" stroke-width="1.5" />
+    <text x="-78" y="34" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <circle cx="78"  cy="-30" r="11" fill="#fef3c7" stroke="#92400e" stroke-width="1.5" />
+    <text x="78" y="-26" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <circle cx="78"  cy="30"  r="11" fill="#fef3c7" stroke="#92400e" stroke-width="1.5" />
+    <text x="78" y="34" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+
+    <!-- Angle indicator on a C -->
+    <path d="M -30 -8 A 14 14 0 0 1 -42 -6" fill="none" stroke="#dc2626" stroke-width="1" />
+    <text x="-50" y="-20" font-size="11" font-weight="700" fill="#dc2626">120°</text>
+
+    <text x="0" y="80"  font-size="10" fill="#4a5568" text-anchor="middle">3 σ bonds per C: 1× C–C + 2× C–H</text>
+    <text x="0" y="100" font-size="10" fill="#4a5568" text-anchor="middle">Each C: sp² hybridised · planar geometry</text>
+  </g>
+
+  <!-- π-bond view (right) -->
+  <g transform="translate(540, 200)">
+    <rect x="-150" y="-110" width="300" height="240" rx="10" fill="#f7fafc" stroke="#94a3b8" stroke-width="1.5" />
+    <text x="0" y="-90" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">π-bond (above + below plane)</text>
+
+    <!-- C-C internuclear axis (faded) -->
+    <line x1="-30" y1="0" x2="30" y2="0" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 3" />
+
+    <!-- p-orbital lobes on left C -->
+    <ellipse cx="-30" cy="-30" rx="14" ry="26" fill="#dc2626" opacity="0.45" stroke="#dc2626" stroke-width="2" />
+    <ellipse cx="-30" cy="30"  rx="14" ry="26" fill="#dc2626" opacity="0.45" stroke="#dc2626" stroke-width="2" />
+    <!-- p-orbital lobes on right C -->
+    <ellipse cx="30" cy="-30" rx="14" ry="26" fill="#dc2626" opacity="0.45" stroke="#dc2626" stroke-width="2" />
+    <ellipse cx="30" cy="30"  rx="14" ry="26" fill="#dc2626" opacity="0.45" stroke="#dc2626" stroke-width="2" />
+
+    <!-- π-cloud (joining the lobes top and bottom) -->
+    <ellipse cx="0" cy="-32" rx="48" ry="14" fill="#facc15" opacity="0.55" stroke="#92400e" stroke-width="1.5" />
+    <ellipse cx="0" cy="32"  rx="48" ry="14" fill="#facc15" opacity="0.55" stroke="#92400e" stroke-width="1.5" />
+
+    <!-- C atoms -->
+    <circle cx="-30" cy="0" r="14" fill="#1a202c" stroke="#1a202c" stroke-width="1.5" />
+    <text x="-30" y="4" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+    <circle cx="30"  cy="0" r="14" fill="#1a202c" stroke="#1a202c" stroke-width="1.5" />
+    <text x="30" y="4" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+
+    <text x="0" y="-58" font-size="11" font-weight="700" fill="#92400e" text-anchor="middle">π electron cloud</text>
+    <text x="0" y="64"  font-size="11" font-weight="700" fill="#92400e" text-anchor="middle">π electron cloud</text>
+
+    <text x="0" y="84"  font-size="10" fill="#4a5568" text-anchor="middle">Sideways (lateral) overlap of 2p_z on each C</text>
+    <text x="0" y="100" font-size="10" fill="#4a5568" text-anchor="middle">Total C=C bond = 1 σ + 1 π · stronger, shorter than C–C</text>
+  </g>
+</svg>

@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 340" width="660" height="340" role="img" aria-label="First law of thermodynamics: ΔU = q + w">
+  <title>First Law of Thermodynamics — Energy Bookkeeping</title>
+  <desc>A boxed system with two arrows: heat q flowing in (red, +q raises U) and work w done on the system by the surroundings (purple, +w raises U). Sign convention shown for q and w in two side panels.</desc>
+
+  <defs>
+    <marker id="fl-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626"/>
+    </marker>
+    <marker id="fl-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#7c3aed"/>
+    </marker>
+  </defs>
+
+  <text x="330" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">First Law: ΔU = q + w</text>
+  <text x="330" y="42" font-size="11" fill="#4a5568" text-anchor="middle">Energy is conserved. Whatever the system gains as heat or work shows up as a change in its internal energy.</text>
+
+  <!-- ─── System box ─── -->
+  <rect x="220" y="100" width="220" height="160" rx="14" fill="#f1f5f9" stroke="#1a202c" stroke-width="3"/>
+  <text x="330" y="135" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">SYSTEM</text>
+  <text x="330" y="170" font-size="22" font-weight="700" fill="#7c3aed" text-anchor="middle">ΔU</text>
+  <text x="330" y="200" font-size="13" fill="#4a5568" text-anchor="middle">change in</text>
+  <text x="330" y="218" font-size="13" fill="#4a5568" text-anchor="middle">internal energy</text>
+  <text x="330" y="248" font-size="11" fill="#64748b" text-anchor="middle" font-style="italic">(state function)</text>
+
+  <!-- ─── Heat arrow IN (red, from left) ─── -->
+  <line x1="80" y1="160" x2="216" y2="160" stroke="#dc2626" stroke-width="4" marker-end="url(#fl-red)"/>
+  <text x="148" y="148" font-size="14" font-weight="700" fill="#dc2626" text-anchor="middle">+q (heat in)</text>
+  <text x="148" y="180" font-size="11" fill="#4a5568" text-anchor="middle">surroundings → system</text>
+
+  <!-- ─── Work arrow IN (purple, from right) ─── -->
+  <line x1="580" y1="200" x2="444" y2="200" stroke="#7c3aed" stroke-width="4" marker-end="url(#fl-purple)"/>
+  <text x="512" y="190" font-size="14" font-weight="700" fill="#7c3aed" text-anchor="middle">+w (work on)</text>
+  <text x="512" y="220" font-size="11" fill="#4a5568" text-anchor="middle">surroundings → system</text>
+
+  <!-- ─── Sign-convention table ─── -->
+  <rect x="55" y="280" width="280" height="50" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.5"/>
+  <text x="195" y="298" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Heat sign convention</text>
+  <text x="195" y="316" font-size="11" fill="#dc2626" text-anchor="middle"><tspan font-weight="700">+q</tspan> heat absorbed   ·   <tspan font-weight="700">−q</tspan> heat released</text>
+
+  <rect x="345" y="280" width="280" height="50" rx="6" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="485" y="298" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Work sign convention</text>
+  <text x="485" y="316" font-size="11" fill="#7c3aed" text-anchor="middle"><tspan font-weight="700">+w</tspan> work on system   ·   <tspan font-weight="700">−w</tspan> work by system</text>
+</svg>

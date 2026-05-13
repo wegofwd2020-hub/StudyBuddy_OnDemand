@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 280" width="560" height="280" role="img" aria-label="Two masses attracting each other with equal and opposite gravitational forces">
+  <title>Newton's Law of Universal Gravitation — two masses</title>
+  <desc>Two spherical masses m1 and m2 separated by distance r. Each pulls the other with force F = G m1 m2 / r squared. The forces are equal in magnitude, opposite in direction (Newton's third law), and act along the line joining the centres.</desc>
+
+  <defs>
+    <marker id="grav-arr-left" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#7c3aed" />
+    </marker>
+    <marker id="grav-arr-right" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#7c3aed" />
+    </marker>
+    <radialGradient id="grav-mass1" cx="0.35" cy="0.35" r="0.7">
+      <stop offset="0%" stop-color="#bee3f8" />
+      <stop offset="100%" stop-color="#2b6cb0" />
+    </radialGradient>
+    <radialGradient id="grav-mass2" cx="0.35" cy="0.35" r="0.7">
+      <stop offset="0%" stop-color="#fed7aa" />
+      <stop offset="100%" stop-color="#dd6b20" />
+    </radialGradient>
+  </defs>
+
+  <text x="280" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Newton's Law of Universal Gravitation</text>
+
+  <!-- Mass 1 (left, smaller) -->
+  <circle cx="120" cy="140" r="32" fill="url(#grav-mass1)" stroke="#1a202c" stroke-width="1.5" />
+  <text x="120" y="145" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">m₁</text>
+
+  <!-- Mass 2 (right, larger) -->
+  <circle cx="440" cy="140" r="50" fill="url(#grav-mass2)" stroke="#1a202c" stroke-width="1.5" />
+  <text x="440" y="146" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">m₂</text>
+
+  <!-- Centre-to-centre distance line -->
+  <line x1="120" y1="180" x2="440" y2="180" stroke="#4a5568" stroke-width="1" stroke-dasharray="3 3" />
+  <line x1="120" y1="175" x2="120" y2="185" stroke="#4a5568" stroke-width="1" />
+  <line x1="440" y1="175" x2="440" y2="185" stroke="#4a5568" stroke-width="1" />
+  <text x="280" y="200" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">r  (centre-to-centre)</text>
+
+  <!-- Force on m1 from m2 (points right, toward m2) -->
+  <line x1="156" y1="120" x2="240" y2="120" stroke="#7c3aed" stroke-width="3.5" marker-end="url(#grav-arr-right)" />
+  <text x="198" y="112" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#7c3aed" text-anchor="middle">F₁₂</text>
+  <text x="198" y="138" font="11px system-ui" font-size="11" font-style="italic" fill="#7c3aed" text-anchor="middle">on m₁</text>
+
+  <!-- Force on m2 from m1 (points left, toward m1) -->
+  <line x1="404" y1="120" x2="320" y2="120" stroke="#7c3aed" stroke-width="3.5" marker-end="url(#grav-arr-left)" />
+  <text x="362" y="112" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#7c3aed" text-anchor="middle">F₂₁</text>
+  <text x="362" y="138" font="11px system-ui" font-size="11" font-style="italic" fill="#7c3aed" text-anchor="middle">on m₂</text>
+
+  <!-- Equation card -->
+  <rect x="60" y="222" width="440" height="44" rx="6" fill="#f0fdf4" stroke="#15803d" stroke-width="1.2" />
+  <text x="280" y="241" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">F  =  G · m₁ m₂ / r²        with  G = 6.674 × 10⁻¹¹ N·m²/kg²</text>
+  <text x="280" y="259" font="11px system-ui" font-size="11" font-style="italic" fill="#15803d" text-anchor="middle">|F₁₂| = |F₂₁|  (equal magnitude, opposite direction — Newton's 3rd law)</text>
+</svg>

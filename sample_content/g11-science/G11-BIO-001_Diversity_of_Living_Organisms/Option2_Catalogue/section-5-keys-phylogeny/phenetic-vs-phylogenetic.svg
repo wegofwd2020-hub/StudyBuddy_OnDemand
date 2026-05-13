@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 320" width="680" height="320" role="img" aria-label="Phenetic versus phylogenetic classification">
+  <title>Phenetic vs phylogenetic classification</title>
+  <desc>Two side-by-side panels comparing phenetic (artificial / similarity-based) classification with phylogenetic (natural / ancestry-based) classification. Phenetic groups by visible similarity (whale grouped with fish). Phylogenetic groups by shared ancestor (whale grouped with mammals).</desc>
+
+  <text x="340" y="22" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Phenetic vs Phylogenetic Classification</text>
+  <text x="340" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Same three organisms, two classification approaches, two different conclusions.</text>
+
+  <!-- Phenetic panel -->
+  <g transform="translate(40, 60)">
+    <rect x="0" y="0" width="280" height="220" rx="10" fill="#fef3c7" opacity="0.4" stroke="#d97706" stroke-width="2"/>
+    <text x="140" y="24" font-size="13" font-weight="700" fill="#d97706" text-anchor="middle">Phenetic — by similarity</text>
+    <text x="140" y="42" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">"They look alike, group them together."</text>
+
+    <!-- Three icons -->
+    <g transform="translate(40, 70)">
+      <ellipse cx="30" cy="20" rx="25" ry="13" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5"/>
+      <path d="M 55 20 L 65 12 L 65 28 Z" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5"/>
+      <text x="30" y="58" font-size="10" fill="#1a202c" text-anchor="middle">Salmon</text>
+    </g>
+    <g transform="translate(120, 70)">
+      <ellipse cx="30" cy="20" rx="28" ry="11" fill="#cbd5e1" stroke="#1e293b" stroke-width="1.5"/>
+      <path d="M 58 20 L 70 13 L 70 27 Z" fill="#cbd5e1" stroke="#1e293b" stroke-width="1.5"/>
+      <text x="30" y="58" font-size="10" fill="#1a202c" text-anchor="middle">Whale</text>
+    </g>
+    <g transform="translate(200, 70)">
+      <rect x="14" y="14" width="32" height="20" rx="3" fill="#fed7aa" stroke="#b45309" stroke-width="1.5"/>
+      <line x1="14" y1="36" x2="22" y2="44" stroke="#b45309" stroke-width="1.5"/>
+      <line x1="38" y1="36" x2="46" y2="44" stroke="#b45309" stroke-width="1.5"/>
+      <line x1="22" y1="36" x2="22" y2="44" stroke="#b45309" stroke-width="1.5"/>
+      <line x1="38" y1="36" x2="38" y2="44" stroke="#b45309" stroke-width="1.5"/>
+      <text x="30" y="58" font-size="10" fill="#1a202c" text-anchor="middle">Cow</text>
+    </g>
+
+    <!-- Brackets -->
+    <line x1="40" y1="148" x2="200" y2="148" stroke="#d97706" stroke-width="2"/>
+    <line x1="40" y1="148" x2="40" y2="143" stroke="#d97706" stroke-width="2"/>
+    <line x1="200" y1="148" x2="200" y2="143" stroke="#d97706" stroke-width="2"/>
+    <text x="120" y="166" font-size="11" font-weight="700" fill="#d97706" text-anchor="middle">grouped: aquatic streamlined</text>
+
+    <line x1="220" y1="148" x2="245" y2="148" stroke="#d97706" stroke-width="2"/>
+    <line x1="220" y1="148" x2="220" y2="143" stroke="#d97706" stroke-width="2"/>
+    <line x1="245" y1="148" x2="245" y2="143" stroke="#d97706" stroke-width="2"/>
+    <text x="232" y="166" font-size="11" font-weight="700" fill="#d97706" text-anchor="middle">alone</text>
+
+    <text x="140" y="200" font-size="11" fill="#4a5568" text-anchor="middle" font-weight="700">Verdict: Salmon + Whale together.</text>
+    <text x="140" y="214" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">Misses the deep mammalian biology of the whale.</text>
+  </g>
+
+  <!-- Phylogenetic panel -->
+  <g transform="translate(360, 60)">
+    <rect x="0" y="0" width="280" height="220" rx="10" fill="#dcfce7" opacity="0.4" stroke="#15803d" stroke-width="2"/>
+    <text x="140" y="24" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">Phylogenetic — by ancestry</text>
+    <text x="140" y="42" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">"What does their family tree say?"</text>
+
+    <!-- Three icons -->
+    <g transform="translate(40, 70)">
+      <ellipse cx="30" cy="20" rx="25" ry="13" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5"/>
+      <path d="M 55 20 L 65 12 L 65 28 Z" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5"/>
+      <text x="30" y="58" font-size="10" fill="#1a202c" text-anchor="middle">Salmon</text>
+    </g>
+    <g transform="translate(120, 70)">
+      <ellipse cx="30" cy="20" rx="28" ry="11" fill="#cbd5e1" stroke="#1e293b" stroke-width="1.5"/>
+      <path d="M 58 20 L 70 13 L 70 27 Z" fill="#cbd5e1" stroke="#1e293b" stroke-width="1.5"/>
+      <text x="30" y="58" font-size="10" fill="#1a202c" text-anchor="middle">Whale</text>
+    </g>
+    <g transform="translate(200, 70)">
+      <rect x="14" y="14" width="32" height="20" rx="3" fill="#fed7aa" stroke="#b45309" stroke-width="1.5"/>
+      <line x1="14" y1="36" x2="22" y2="44" stroke="#b45309" stroke-width="1.5"/>
+      <line x1="38" y1="36" x2="46" y2="44" stroke="#b45309" stroke-width="1.5"/>
+      <line x1="22" y1="36" x2="22" y2="44" stroke="#b45309" stroke-width="1.5"/>
+      <line x1="38" y1="36" x2="38" y2="44" stroke="#b45309" stroke-width="1.5"/>
+      <text x="30" y="58" font-size="10" fill="#1a202c" text-anchor="middle">Cow</text>
+    </g>
+
+    <!-- Brackets reversed: Whale + Cow together, Salmon alone -->
+    <line x1="40" y1="148" x2="65" y2="148" stroke="#15803d" stroke-width="2"/>
+    <line x1="40" y1="148" x2="40" y2="143" stroke="#15803d" stroke-width="2"/>
+    <line x1="65" y1="148" x2="65" y2="143" stroke="#15803d" stroke-width="2"/>
+    <text x="52" y="166" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle">alone</text>
+
+    <line x1="120" y1="148" x2="245" y2="148" stroke="#15803d" stroke-width="2"/>
+    <line x1="120" y1="148" x2="120" y2="143" stroke="#15803d" stroke-width="2"/>
+    <line x1="245" y1="148" x2="245" y2="143" stroke="#15803d" stroke-width="2"/>
+    <text x="182" y="166" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle">grouped: Mammalia</text>
+
+    <text x="140" y="200" font-size="11" fill="#4a5568" text-anchor="middle" font-weight="700">Verdict: Whale + Cow together.</text>
+    <text x="140" y="214" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">Captures shared ancestry, mammary glands, warm blood.</text>
+  </g>
+
+  <text x="340" y="306" font-size="11" fill="#4a5568" text-anchor="middle">Modern taxonomy is phylogenetic. Phenetic methods can mislead because of convergent evolution.</text>
+</svg>

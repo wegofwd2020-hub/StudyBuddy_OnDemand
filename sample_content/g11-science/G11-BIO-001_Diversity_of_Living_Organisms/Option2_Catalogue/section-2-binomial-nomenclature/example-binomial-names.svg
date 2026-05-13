@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 360" width="620" height="360" role="img" aria-label="Example binomial names of common organisms">
+  <title>Common organisms and their scientific names</title>
+  <desc>A reference table pairing common names of eight familiar organisms with their correctly formatted binomial names: Homo sapiens, Panthera tigris, Felis catus, Canis lupus familiaris, Apis mellifera, Mangifera indica, Oryza sativa, and Escherichia coli.</desc>
+
+  <text x="310" y="24" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Example Scientific Names</text>
+  <text x="310" y="42" font-size="11" fill="#4a5568" text-anchor="middle">Note: every binomial is italicised; subspecies (e.g. dog) adds a third epithet.</text>
+
+  <!-- Header row -->
+  <rect x="40" y="60" width="540" height="32" rx="4" fill="#1a202c"/>
+  <text x="60" y="80" font-size="12" font-weight="700" fill="#f7fafc">Common name</text>
+  <text x="240" y="80" font-size="12" font-weight="700" fill="#f7fafc">Scientific name</text>
+  <text x="450" y="80" font-size="12" font-weight="700" fill="#f7fafc">Group</text>
+
+  <!-- Row 1 -->
+  <rect x="40" y="92" width="540" height="32" fill="#f7fafc" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="60" y="112" font-size="12" fill="#1a202c">Human</text>
+  <text x="240" y="112" font-size="12" font-style="italic" fill="#1a202c">Homo sapiens</text>
+  <text x="450" y="112" font-size="11" fill="#4a5568">Mammal</text>
+
+  <!-- Row 2 -->
+  <rect x="40" y="124" width="540" height="32" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="60" y="144" font-size="12" fill="#1a202c">Bengal tiger</text>
+  <text x="240" y="144" font-size="12" font-style="italic" fill="#1a202c">Panthera tigris</text>
+  <text x="450" y="144" font-size="11" fill="#4a5568">Mammal</text>
+
+  <!-- Row 3 -->
+  <rect x="40" y="156" width="540" height="32" fill="#f7fafc" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="60" y="176" font-size="12" fill="#1a202c">Domestic cat</text>
+  <text x="240" y="176" font-size="12" font-style="italic" fill="#1a202c">Felis catus</text>
+  <text x="450" y="176" font-size="11" fill="#4a5568">Mammal</text>
+
+  <!-- Row 4 -->
+  <rect x="40" y="188" width="540" height="32" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="60" y="208" font-size="12" fill="#1a202c">Domestic dog</text>
+  <text x="240" y="208" font-size="12" font-style="italic" fill="#1a202c">Canis lupus familiaris</text>
+  <text x="450" y="208" font-size="11" fill="#4a5568">Mammal (subspecies)</text>
+
+  <!-- Row 5 -->
+  <rect x="40" y="220" width="540" height="32" fill="#f7fafc" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="60" y="240" font-size="12" fill="#1a202c">Honey bee</text>
+  <text x="240" y="240" font-size="12" font-style="italic" fill="#1a202c">Apis mellifera</text>
+  <text x="450" y="240" font-size="11" fill="#4a5568">Insect</text>
+
+  <!-- Row 6 -->
+  <rect x="40" y="252" width="540" height="32" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="60" y="272" font-size="12" fill="#1a202c">Mango tree</text>
+  <text x="240" y="272" font-size="12" font-style="italic" fill="#1a202c">Mangifera indica</text>
+  <text x="450" y="272" font-size="11" fill="#4a5568">Flowering plant</text>
+
+  <!-- Row 7 -->
+  <rect x="40" y="284" width="540" height="32" fill="#f7fafc" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="60" y="304" font-size="12" fill="#1a202c">Rice (paddy)</text>
+  <text x="240" y="304" font-size="12" font-style="italic" fill="#1a202c">Oryza sativa</text>
+  <text x="450" y="304" font-size="11" fill="#4a5568">Flowering plant (grass)</text>
+
+  <!-- Row 8 -->
+  <rect x="40" y="316" width="540" height="32" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="60" y="336" font-size="12" fill="#1a202c">Gut bacterium</text>
+  <text x="240" y="336" font-size="12" font-style="italic" fill="#1a202c">Escherichia coli</text>
+  <text x="450" y="336" font-size="11" fill="#4a5568">Bacterium</text>
+</svg>

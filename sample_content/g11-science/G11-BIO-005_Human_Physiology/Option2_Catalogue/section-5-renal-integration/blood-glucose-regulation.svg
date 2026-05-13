@@ -1,0 +1,178 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 580" width="760" height="580" role="img" aria-label="Blood glucose regulation by insulin and glucagon negative feedback">
+  <title>Blood glucose homeostasis — insulin / glucagon negative feedback</title>
+  <desc>A schematic showing how the pancreas regulates blood-glucose concentration around a set point of approximately 70-110 mg/dL using two opposing hormones. After a meal, blood glucose rises above the set point; the beta-cells of the pancreatic islets detect the rise and release insulin into the blood. Insulin acts on the liver (storing glucose as glycogen), on muscle (taking up glucose for use or storage), and on adipose tissue (storing energy as fat); the net effect is to lower blood glucose back toward the set point. During fasting or exercise, blood glucose falls below the set point; the alpha-cells of the pancreatic islets detect the fall and release glucagon. Glucagon acts mainly on the liver, causing it to break down glycogen back into glucose (glycogenolysis) and to manufacture new glucose from amino acids and lactate (gluconeogenesis); the net effect is to raise blood glucose back toward the set point. A central waveform plot shows blood-glucose concentration over time oscillating around 90 mg/dL with shaded zones marking the after-meal high (insulin active) and the fasting low (glucagon active). The diagram emphasises that this is a classic negative-feedback loop: a deviation from the set point is sensed, an opposite-acting response is triggered, the deviation is corrected, and the response is then turned off.</desc>
+
+  <text x="380" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Blood-Glucose Regulation — A Classic Negative Feedback Loop</text>
+  <text x="380" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Set point ≈ 70-110 mg/dL · Insulin lowers · Glucagon raises · Pancreatic islets are the sensor</text>
+
+  <!-- Background -->
+  <rect x="20" y="56" width="720" height="504" rx="14" fill="#f7fafc" stroke="#cbd5e1" stroke-width="1"/>
+
+  <!-- ══════════════════════════════════════════════════════════
+       TOP — central blood-glucose waveform
+       ═════════════════════════════════════════════════════════ -->
+  <rect x="60" y="76" width="640" height="180" rx="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="380" y="94" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Blood-glucose concentration over time</text>
+
+  <!-- Plot area: x = 100..680 (time 0..12 h), y = 230..110 (glucose 50..180 mg/dL inverted) -->
+  <!-- Axes -->
+  <line x1="100" y1="230" x2="680" y2="230" stroke="#1a202c" stroke-width="1.4"/>
+  <line x1="100" y1="230" x2="100" y2="110" stroke="#1a202c" stroke-width="1.4"/>
+
+  <!-- Y-axis labels (50, 90, 130, 170) -->
+  <g font-size="9" fill="#4a5568" text-anchor="end">
+    <line x1="96" y1="230" x2="100" y2="230" stroke="#1a202c"/><text x="92" y="234">50</text>
+    <line x1="96" y1="194" x2="100" y2="194" stroke="#1a202c"/><text x="92" y="198">90</text>
+    <line x1="96" y1="158" x2="100" y2="158" stroke="#1a202c"/><text x="92" y="162">130</text>
+    <line x1="96" y1="122" x2="100" y2="122" stroke="#1a202c"/><text x="92" y="126">170</text>
+  </g>
+  <text x="56" y="170" font-size="10" font-weight="700" fill="#1a202c" transform="rotate(-90 56 170)" text-anchor="middle">mg/dL</text>
+
+  <!-- X-axis labels (time) -->
+  <g font-size="9" fill="#4a5568" text-anchor="middle">
+    <text x="160" y="246">breakfast</text>
+    <text x="290" y="246">lunch</text>
+    <text x="420" y="246">snack</text>
+    <text x="550" y="246">dinner</text>
+    <text x="660" y="246">sleep</text>
+  </g>
+  <g stroke="#1a202c" stroke-width="1">
+    <line x1="160" y1="230" x2="160" y2="234"/>
+    <line x1="290" y1="230" x2="290" y2="234"/>
+    <line x1="420" y1="230" x2="420" y2="234"/>
+    <line x1="550" y1="230" x2="550" y2="234"/>
+    <line x1="660" y1="230" x2="660" y2="234"/>
+  </g>
+
+  <!-- Set-point band (70-110 mg/dL → y 212..194) -->
+  <rect x="100" y="194" width="580" height="22" fill="#dcfce7" opacity="0.7"/>
+  <line x1="100" y1="194" x2="680" y2="194" stroke="#15803d" stroke-width="1" stroke-dasharray="4 3"/>
+  <line x1="100" y1="216" x2="680" y2="216" stroke="#15803d" stroke-width="1" stroke-dasharray="4 3"/>
+  <text x="678" y="207" font-size="9" font-weight="700" fill="#15803d" text-anchor="end">SET POINT  70-110 mg/dL</text>
+
+  <!-- Wavy blood-glucose trace -->
+  <path d="M 100 205
+           Q 120 205 140 198
+           Q 150 165 180 140
+           Q 220 145 245 175
+           Q 270 200 290 205
+           Q 305 175 325 152
+           Q 360 158 388 185
+           Q 408 207 425 207
+           Q 440 184 460 170
+           Q 488 175 510 198
+           Q 530 207 552 200
+           Q 570 168 595 142
+           Q 622 150 645 180
+           Q 660 200 680 207"
+        fill="none" stroke="#dc2626" stroke-width="3"/>
+
+  <!-- Peak label "after meal — INSULIN" -->
+  <g>
+    <rect x="158" y="118" width="106" height="20" rx="3" fill="#dbeafe" stroke="#1e3a8a" stroke-width="1.2"/>
+    <text x="211" y="132" font-size="10" font-weight="700" fill="#1e3a8a" text-anchor="middle">↑ after meal → INSULIN</text>
+  </g>
+
+  <!-- Trough label "fasting — GLUCAGON" -->
+  <g>
+    <rect x="288" y="216" width="90" height="20" rx="3" fill="#fee2e2" stroke="#dc2626" stroke-width="1.2"/>
+    <text x="333" y="230" font-size="10" font-weight="700" fill="#7f1d1d" text-anchor="middle">↓ fasting → GLUCAGON</text>
+  </g>
+
+  <!-- ══════════════════════════════════════════════════════════
+       BOTTOM — two-branch feedback diagram
+       ═════════════════════════════════════════════════════════ -->
+
+  <!-- ── Central pancreas (middle) ───────────────────────────── -->
+  <ellipse cx="380" cy="385" rx="80" ry="32" fill="#f59e0b" stroke="#92400e" stroke-width="2"/>
+  <text x="380" y="380" font-size="12" font-weight="700" fill="#ffffff" text-anchor="middle">PANCREAS</text>
+  <text x="380" y="395" font-size="9" font-style="italic" fill="#ffffff" text-anchor="middle">islets of Langerhans</text>
+
+  <!-- Beta cells (left half) -->
+  <circle cx="340" cy="385" r="10" fill="#dbeafe" stroke="#1e3a8a" stroke-width="1.6"/>
+  <text x="340" y="389" font-size="9" font-weight="700" fill="#1e3a8a" text-anchor="middle">β</text>
+
+  <!-- Alpha cells (right half) -->
+  <circle cx="420" cy="385" r="10" fill="#fee2e2" stroke="#dc2626" stroke-width="1.6"/>
+  <text x="420" y="389" font-size="9" font-weight="700" fill="#dc2626" text-anchor="middle">α</text>
+
+  <!-- ── INSULIN branch (left) — when glucose HIGH ─────────── -->
+  <!-- Stimulus box -->
+  <rect x="50" y="290" width="160" height="40" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.6"/>
+  <text x="130" y="306" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">↑ Blood glucose</text>
+  <text x="130" y="320" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">(after meal)</text>
+
+  <!-- Arrow to beta cells -->
+  <path d="M 210 310 Q 270 320 332 380" stroke="#1e3a8a" stroke-width="2" fill="none"/>
+  <polygon points="332,380 325,374 332,372" fill="#1e3a8a"/>
+  <text x="245" y="338" font-size="9" font-style="italic" fill="#1e3a8a" text-anchor="middle">sensed by β-cells</text>
+
+  <!-- INSULIN hormone label -->
+  <rect x="200" y="430" width="120" height="32" rx="6" fill="#dbeafe" stroke="#1e3a8a" stroke-width="2"/>
+  <text x="260" y="446" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">INSULIN</text>
+  <text x="260" y="458" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">released to blood</text>
+
+  <!-- Arrow from beta to insulin label -->
+  <path d="M 340 398 L 280 430" stroke="#1e3a8a" stroke-width="2" fill="none"/>
+  <polygon points="280,430 287,427 285,435" fill="#1e3a8a"/>
+
+  <!-- Target effects (left) -->
+  <rect x="50" y="490" width="280" height="68" rx="6" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.4"/>
+  <text x="190" y="508" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">Insulin targets</text>
+  <text x="58" y="525" font-size="9" fill="#1a202c"><tspan font-weight="700">Liver:</tspan> glucose → glycogen (storage)</text>
+  <text x="58" y="540" font-size="9" fill="#1a202c"><tspan font-weight="700">Muscle:</tspan> glucose uptake (GLUT4)</text>
+  <text x="58" y="555" font-size="9" fill="#1a202c"><tspan font-weight="700">Fat:</tspan> energy stored as triglycerides</text>
+
+  <!-- Arrow insulin → targets -->
+  <path d="M 220 462 L 190 488" stroke="#1e3a8a" stroke-width="2" fill="none"/>
+  <polygon points="190,488 197,485 195,493" fill="#1e3a8a"/>
+
+  <!-- ── GLUCAGON branch (right) — when glucose LOW ────────── -->
+  <!-- Stimulus box -->
+  <rect x="550" y="290" width="160" height="40" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.6"/>
+  <text x="630" y="306" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">↓ Blood glucose</text>
+  <text x="630" y="320" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">(fasting / exercise)</text>
+
+  <!-- Arrow to alpha cells -->
+  <path d="M 550 310 Q 490 320 428 380" stroke="#dc2626" stroke-width="2" fill="none"/>
+  <polygon points="428,380 428,372 435,374" fill="#dc2626"/>
+  <text x="515" y="338" font-size="9" font-style="italic" fill="#dc2626" text-anchor="middle">sensed by α-cells</text>
+
+  <!-- GLUCAGON hormone label -->
+  <rect x="440" y="430" width="120" height="32" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+  <text x="500" y="446" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">GLUCAGON</text>
+  <text x="500" y="458" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">released to blood</text>
+
+  <!-- Arrow from alpha to glucagon label -->
+  <path d="M 420 398 L 480 430" stroke="#dc2626" stroke-width="2" fill="none"/>
+  <polygon points="480,430 472,427 474,435" fill="#dc2626"/>
+
+  <!-- Target effects (right) -->
+  <rect x="430" y="490" width="280" height="68" rx="6" fill="#ffffff" stroke="#dc2626" stroke-width="1.4"/>
+  <text x="570" y="508" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">Glucagon targets</text>
+  <text x="438" y="525" font-size="9" fill="#1a202c"><tspan font-weight="700">Liver:</tspan> glycogen → glucose (release)</text>
+  <text x="438" y="540" font-size="9" fill="#1a202c"><tspan font-weight="700">Liver:</tspan> amino acids → new glucose</text>
+  <text x="438" y="555" font-size="9" fill="#1a202c">  (gluconeogenesis)</text>
+
+  <!-- Arrow glucagon → targets -->
+  <path d="M 540 462 L 568 488" stroke="#dc2626" stroke-width="2" fill="none"/>
+  <polygon points="568,488 561,484 562,492" fill="#dc2626"/>
+
+  <!-- ── Negative-feedback return arrows (curving back to plot) ─ -->
+  <g>
+    <!-- Insulin lowers blood glucose: arrow back up to plot -->
+    <path d="M 190 490 Q 60 400 90 250" stroke="#15803d" stroke-width="2" stroke-dasharray="5 4" fill="none"/>
+    <polygon points="90,250 86,257 94,257" fill="#15803d"/>
+    <text x="50" y="380" font-size="9" font-weight="700" fill="#15803d" transform="rotate(-90 50 380)" text-anchor="middle">↓ glucose returns to set point</text>
+
+    <!-- Glucagon raises blood glucose -->
+    <path d="M 568 490 Q 700 400 670 250" stroke="#15803d" stroke-width="2" stroke-dasharray="5 4" fill="none"/>
+    <polygon points="670,250 666,257 674,257" fill="#15803d"/>
+    <text x="710" y="380" font-size="9" font-weight="700" fill="#15803d" transform="rotate(90 710 380)" text-anchor="middle">↑ glucose returns to set point</text>
+  </g>
+
+  <!-- Central note -->
+  <rect x="295" y="288" width="170" height="40" rx="6" fill="#dcfce7" stroke="#15803d" stroke-width="1.4"/>
+  <text x="380" y="304" font-size="10" font-weight="700" fill="#14532d" text-anchor="middle">Negative feedback</text>
+  <text x="380" y="318" font-size="9" font-style="italic" fill="#475569" text-anchor="middle">deviation triggers an opposite response</text>
+</svg>

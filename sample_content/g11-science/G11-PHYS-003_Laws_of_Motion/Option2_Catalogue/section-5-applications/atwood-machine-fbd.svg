@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 380" width="520" height="380" role="img" aria-label="Atwood machine — two masses on a pulley with free-body diagrams">
+  <title>Atwood machine</title>
+  <desc>An ideal Atwood machine: two masses m1 and m2 connected by a light, inextensible string over a frictionless pulley. Free-body diagrams for each mass and the resulting acceleration formula are shown.</desc>
+
+  <defs>
+    <marker id="atw-arr-T" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#7c3aed" />
+    </marker>
+    <marker id="atw-arr-W" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626" />
+    </marker>
+    <marker id="atw-arr-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#15803d" />
+    </marker>
+  </defs>
+
+  <text x="260" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Atwood Machine — Two Masses on a Pulley</text>
+
+  <!-- Ceiling support -->
+  <rect x="220" y="40" width="80" height="10" fill="#1a202c" />
+  <line x1="260" y1="50" x2="260" y2="65" stroke="#1a202c" stroke-width="1.5" />
+
+  <!-- Pulley -->
+  <circle cx="260" cy="80" r="20" fill="#fed7aa" stroke="#1a202c" stroke-width="1.5" />
+  <circle cx="260" cy="80" r="3" fill="#1a202c" />
+
+  <!-- Strings: left side from pulley top-left tangent down -->
+  <line x1="240" y1="80" x2="240" y2="220" stroke="#1a202c" stroke-width="1.5" />
+  <!-- Right side -->
+  <line x1="280" y1="80" x2="280" y2="270" stroke="#1a202c" stroke-width="1.5" />
+
+  <!-- Mass 1 (left, lighter, going up) -->
+  <rect x="218" y="220" width="44" height="44" rx="3" fill="#bee3f8" stroke="#1a202c" stroke-width="1.5" />
+  <text x="240" y="247" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">m₁</text>
+
+  <!-- Mass 2 (right, heavier, going down) -->
+  <rect x="252" y="270" width="56" height="56" rx="3" fill="#fed7aa" stroke="#1a202c" stroke-width="1.5" />
+  <text x="280" y="304" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">m₂</text>
+
+  <!-- FBD for m1 (mini, left) -->
+  <g transform="translate(60, 200)">
+    <text x="55" y="0" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">FBD (m₁)</text>
+    <rect x="35" y="14" width="40" height="40" rx="3" fill="#bee3f8" stroke="#1a202c" stroke-width="1.2" />
+    <text x="55" y="40" font="bold 12px system-ui" font-size="12" fill="#1a202c" text-anchor="middle">m₁</text>
+    <!-- T up -->
+    <line x1="55" y1="14" x2="55" y2="-14" stroke="#7c3aed" stroke-width="2.5" marker-end="url(#atw-arr-T)" />
+    <text x="63" y="0" font="12px system-ui" font-size="12" font-weight="700" fill="#7c3aed">T</text>
+    <!-- m1g down -->
+    <line x1="55" y1="54" x2="55" y2="92" stroke="#dc2626" stroke-width="2.5" marker-end="url(#atw-arr-W)" />
+    <text x="65" y="78" font="12px system-ui" font-size="12" font-weight="700" fill="#dc2626">m₁g</text>
+    <!-- a up (lighter mass goes up) -->
+    <line x1="100" y1="34" x2="125" y2="20" stroke="#15803d" stroke-width="2" marker-end="url(#atw-arr-a)" />
+    <text x="125" y="14" font="12px system-ui" font-size="12" font-weight="700" fill="#15803d">a</text>
+  </g>
+
+  <!-- FBD for m2 (mini, right) -->
+  <g transform="translate(390, 230)">
+    <text x="55" y="0" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">FBD (m₂)</text>
+    <rect x="30" y="14" width="50" height="50" rx="3" fill="#fed7aa" stroke="#1a202c" stroke-width="1.2" />
+    <text x="55" y="44" font="bold 12px system-ui" font-size="12" fill="#1a202c" text-anchor="middle">m₂</text>
+    <!-- T up -->
+    <line x1="55" y1="14" x2="55" y2="-14" stroke="#7c3aed" stroke-width="2.5" marker-end="url(#atw-arr-T)" />
+    <text x="63" y="0" font="12px system-ui" font-size="12" font-weight="700" fill="#7c3aed">T</text>
+    <!-- m2g down -->
+    <line x1="55" y1="64" x2="55" y2="100" stroke="#dc2626" stroke-width="2.5" marker-end="url(#atw-arr-W)" />
+    <text x="65" y="86" font="12px system-ui" font-size="12" font-weight="700" fill="#dc2626">m₂g</text>
+    <!-- a down -->
+    <line x1="0" y1="40" x2="-25" y2="56" stroke="#15803d" stroke-width="2" marker-end="url(#atw-arr-a)" />
+    <text x="-37" y="62" font="12px system-ui" font-size="12" font-weight="700" fill="#15803d">a</text>
+  </g>
+
+  <!-- Equations -->
+  <rect x="40" y="338" width="440" height="34" rx="6" fill="#f0fdf4" stroke="#15803d" stroke-width="1.2" />
+  <text x="260" y="356" font="13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">m₂ &gt; m₁  ⇒  a = (m₂ − m₁) g / (m₁ + m₂),     T = 2 m₁ m₂ g / (m₁ + m₂)</text>
+  <text x="260" y="370" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Same string ⇒ same tension T everywhere.  Same a (in magnitude) ⇒ inextensible string.</text>
+</svg>

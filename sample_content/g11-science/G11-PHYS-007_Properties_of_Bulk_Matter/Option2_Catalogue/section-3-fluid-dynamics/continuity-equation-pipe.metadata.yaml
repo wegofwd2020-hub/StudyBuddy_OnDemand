@@ -1,0 +1,13 @@
+schema_version: 1
+id: physics-bulk-matter-continuity-equation-pipe
+kind: image
+subject: physics
+topic_phrase: "continuity equation in a tapering pipe showing velocity increase where cross-section narrows"
+keywords:
+  - fluid-dynamics
+  - continuity-equation
+  - mass-conservation
+  - flow-rate
+  - incompressible-flow
+license: platform-cc-by-sa
+source_unit: G11-PHYS-007

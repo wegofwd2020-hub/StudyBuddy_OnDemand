@@ -1,0 +1,14 @@
+# Auto-generated sidecar — edit alongside the SVG.
+schema_version: 1
+id: math-calculus-derivative-rules-table
+kind: image
+subject: math
+topic_phrase: "table of basic differentiation rules — constant power constant-multiple sum product quotient"
+keywords:
+  - power-rule
+  - product-rule
+  - quotient-rule
+  - sum-rule
+  - differentiation
+license: platform-cc-by-sa
+source_unit: G11-MATH-004

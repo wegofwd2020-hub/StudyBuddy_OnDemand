@@ -1,0 +1,14 @@
+schema_version: 1
+id: physics-kinetic-theory-mean-free-path
+kind: image
+subject: physics
+topic_phrase: "mean free path between molecular collisions with tracer molecule zigzag path through gas, collision cylinder of diameter d, and the formula one over root two pi d squared n"
+keywords:
+  - kinetic-theory
+  - mean-free-path
+  - molecular-collision
+  - collision-rate
+  - molecular-diameter
+  - number-density
+license: platform-cc-by-sa
+source_unit: G11-PHYS-009

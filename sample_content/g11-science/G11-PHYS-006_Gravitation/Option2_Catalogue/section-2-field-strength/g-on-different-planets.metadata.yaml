@@ -1,0 +1,13 @@
+schema_version: 1
+id: physics-gravitation-g-on-different-planets
+kind: image
+subject: physics
+topic_phrase: "bar chart comparing surface gravity on Moon Mars Earth Saturn Neptune and Jupiter"
+keywords:
+  - gravitation
+  - surface-gravity
+  - planets
+  - comparison
+  - bar-chart
+license: platform-cc-by-sa
+source_unit: G11-PHYS-006

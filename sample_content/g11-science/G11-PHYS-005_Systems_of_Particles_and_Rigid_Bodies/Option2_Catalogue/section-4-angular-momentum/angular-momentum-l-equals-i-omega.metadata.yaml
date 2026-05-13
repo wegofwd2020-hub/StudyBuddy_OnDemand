@@ -1,0 +1,15 @@
+# Auto-generated style sidecar — paired with angular-momentum-l-equals-i-omega.svg
+schema_version: 1
+id: physics-systems-of-particles-angular-momentum-l-equals-i-omega
+kind: image
+subject: physics
+topic_phrase: "angular momentum L equals I omega — vector diagram and torque equals dL/dt"
+keywords:
+  - angular-momentum
+  - moment-of-inertia
+  - angular-velocity
+  - rotational-second-law
+  - tau-equals-dL-dt
+  - right-hand-rule
+license: platform-cc-by-sa
+source_unit: G11-PHYS-005

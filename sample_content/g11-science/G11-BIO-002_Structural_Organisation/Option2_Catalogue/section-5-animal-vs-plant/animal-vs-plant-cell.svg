@@ -1,0 +1,231 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 460" width="760" height="460" role="img" aria-label="Animal cell vs plant cell side-by-side">
+  <title>Animal cell vs plant cell — side-by-side comparison</title>
+  <desc>Two labelled cells drawn side by side. The animal cell on the left is a roundish blob with no cell wall; visible organelles include nucleus, mitochondria, rough endoplasmic reticulum, ribosomes, Golgi apparatus, lysosomes, small vacuoles, centrioles, and the plasma membrane. The plant cell on the right is a rectangular cell with a thick cellulose cell wall around the plasma membrane; visible organelles include nucleus, mitochondria, rough endoplasmic reticulum, ribosomes, Golgi apparatus, a single large central vacuole that takes up most of the cell, and many chloroplasts. A summary table at the bottom lists the four key differences: cell wall, large central vacuole, chloroplasts, and centrioles.</desc>
+
+  <text x="380" y="22" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Animal Cell vs Plant Cell — Side by Side</text>
+  <text x="380" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Same Eukarya. Different toolkits. Spot the four extras a plant cell has.</text>
+
+  <!-- ── Animal cell (left) ─────────────────────────────────── -->
+  <g transform="translate(40, 60)">
+    <rect x="0" y="0" width="340" height="280" rx="8" fill="#f7fafc" stroke="#cbd5e1" stroke-width="1"/>
+    <text x="170" y="22" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">Animal Cell</text>
+
+    <!-- Outer plasma membrane: roundish irregular blob -->
+    <path d="M 60 80 Q 50 60 80 50 Q 130 36 200 44 Q 270 50 290 70 Q 310 90 308 130 Q 312 180 290 220 Q 260 250 200 254 Q 130 254 80 240 Q 48 220 48 180 Q 44 130 60 80 Z" fill="#dbeafe" stroke="#2b6cb0" stroke-width="2.5"/>
+
+    <!-- Nucleus -->
+    <ellipse cx="180" cy="120" rx="42" ry="34" fill="#dbeafe" stroke="#1e3a8a" stroke-width="2"/>
+    <ellipse cx="180" cy="120" rx="42" ry="34" fill="none" stroke="#1e3a8a" stroke-width="0.6" stroke-dasharray="2 1.5"/>
+    <!-- Nucleolus -->
+    <circle cx="180" cy="120" r="9" fill="#1e3a8a" opacity="0.65"/>
+
+    <!-- Mitochondrion 1 -->
+    <ellipse cx="100" cy="100" rx="22" ry="11" fill="#fed7aa" stroke="#b45309" stroke-width="1.5"/>
+    <path d="M 84 100 Q 90 92 96 100 Q 102 92 108 100 Q 114 92 120 100" fill="none" stroke="#b45309" stroke-width="0.8"/>
+    <!-- Mitochondrion 2 -->
+    <ellipse cx="244" cy="84" rx="20" ry="10" fill="#fed7aa" stroke="#b45309" stroke-width="1.5"/>
+    <path d="M 230 84 Q 236 78 242 84 Q 248 78 254 84 Q 260 78 264 84" fill="none" stroke="#b45309" stroke-width="0.8"/>
+
+    <!-- Rough ER (folded ribbon with ribosomes) -->
+    <path d="M 70 168 Q 90 158 110 168 Q 130 178 150 168" fill="none" stroke="#7c3aed" stroke-width="2"/>
+    <path d="M 70 184 Q 90 174 110 184 Q 130 194 150 184" fill="none" stroke="#7c3aed" stroke-width="2"/>
+    <circle cx="80" cy="168" r="2" fill="#7c3aed"/>
+    <circle cx="100" cy="174" r="2" fill="#7c3aed"/>
+    <circle cx="120" cy="170" r="2" fill="#7c3aed"/>
+    <circle cx="140" cy="174" r="2" fill="#7c3aed"/>
+    <circle cx="80" cy="184" r="2" fill="#7c3aed"/>
+    <circle cx="100" cy="190" r="2" fill="#7c3aed"/>
+    <circle cx="120" cy="186" r="2" fill="#7c3aed"/>
+
+    <!-- Golgi apparatus (stacked curves) -->
+    <path d="M 220 180 Q 240 174 260 180" fill="none" stroke="#dc2626" stroke-width="2.5"/>
+    <path d="M 222 188 Q 240 184 258 188" fill="none" stroke="#dc2626" stroke-width="2.5"/>
+    <path d="M 224 196 Q 240 192 256 196" fill="none" stroke="#dc2626" stroke-width="2.5"/>
+    <circle cx="270" cy="184" r="3" fill="#dc2626" opacity="0.6"/>
+    <circle cx="276" cy="194" r="3" fill="#dc2626" opacity="0.6"/>
+
+    <!-- Lysosome -->
+    <circle cx="120" cy="218" r="8" fill="#fecaca" stroke="#dc2626" stroke-width="1.5"/>
+
+    <!-- Small vacuoles -->
+    <circle cx="80" cy="216" r="6" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1"/>
+    <circle cx="200" cy="220" r="7" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1"/>
+
+    <!-- Centrioles (paired, perpendicular tubes) -->
+    <g transform="translate(252, 144)">
+      <rect x="-3" y="-12" width="6" height="24" rx="1" fill="#fef3c7" stroke="#b45309" stroke-width="1.2"/>
+      <rect x="-12" y="-3" width="24" height="6" rx="1" fill="#fef3c7" stroke="#b45309" stroke-width="1.2"/>
+    </g>
+
+    <!-- Free ribosomes (dots) -->
+    <circle cx="150" cy="226" r="1.5" fill="#7c3aed"/>
+    <circle cx="166" cy="232" r="1.5" fill="#7c3aed"/>
+    <circle cx="184" cy="232" r="1.5" fill="#7c3aed"/>
+    <circle cx="170" cy="218" r="1.5" fill="#7c3aed"/>
+    <circle cx="98" cy="148" r="1.5" fill="#7c3aed"/>
+    <circle cx="240" cy="120" r="1.5" fill="#7c3aed"/>
+    <circle cx="248" cy="160" r="1.5" fill="#7c3aed"/>
+
+    <!-- Labels -->
+    <line x1="180" y1="86" x2="180" y2="262" stroke="#1e3a8a" stroke-width="0.6" stroke-dasharray="2 2"/>
+    <text x="180" y="276" font-size="9" font-weight="700" fill="#1e3a8a" text-anchor="middle">nucleus</text>
+
+    <line x1="100" y1="100" x2="48" y2="86" stroke="#4a5568" stroke-width="0.6"/>
+    <text x="44" y="86" font-size="9" font-weight="700" fill="#b45309" text-anchor="end">mitochondrion</text>
+
+    <line x1="110" y1="170" x2="60" y2="148" stroke="#4a5568" stroke-width="0.6"/>
+    <text x="56" y="146" font-size="9" font-weight="700" fill="#7c3aed" text-anchor="end">rough ER</text>
+
+    <line x1="240" y1="190" x2="290" y2="222" stroke="#4a5568" stroke-width="0.6"/>
+    <text x="294" y="222" font-size="9" font-weight="700" fill="#dc2626">Golgi</text>
+
+    <line x1="120" y1="218" x2="100" y2="262" stroke="#4a5568" stroke-width="0.6"/>
+    <text x="100" y="276" font-size="9" font-weight="700" fill="#dc2626" text-anchor="middle">lysosome</text>
+
+    <line x1="252" y1="144" x2="306" y2="120" stroke="#4a5568" stroke-width="0.6"/>
+    <text x="310" y="120" font-size="9" font-weight="700" fill="#b45309">centriole</text>
+
+    <line x1="60" y1="80" x2="36" y2="64" stroke="#4a5568" stroke-width="0.6"/>
+    <text x="32" y="62" font-size="9" font-weight="700" fill="#2b6cb0" text-anchor="end">plasma membrane</text>
+  </g>
+
+  <!-- ── Plant cell (right) ─────────────────────────────────── -->
+  <g transform="translate(400, 60)">
+    <rect x="0" y="0" width="340" height="280" rx="8" fill="#f7fafc" stroke="#cbd5e1" stroke-width="1"/>
+    <text x="170" y="22" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">Plant Cell</text>
+
+    <!-- Outer cell wall -->
+    <rect x="36" y="40" width="270" height="220" rx="8" fill="#fef3c7" stroke="#b45309" stroke-width="3"/>
+    <!-- Plasma membrane (just inside wall) -->
+    <rect x="44" y="48" width="254" height="204" rx="6" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+
+    <!-- Large central vacuole -->
+    <rect x="80" y="74" width="180" height="156" rx="14" fill="#bbf7d0" stroke="#15803d" stroke-width="2"/>
+    <text x="170" y="158" font-size="12" font-weight="700" fill="#14532d" text-anchor="middle">central</text>
+    <text x="170" y="174" font-size="12" font-weight="700" fill="#14532d" text-anchor="middle">vacuole</text>
+
+    <!-- Cytoplasm region around the vacuole — organelles only sit in the rim -->
+
+    <!-- Nucleus (top-left rim) -->
+    <ellipse cx="65" cy="84" rx="20" ry="16" fill="#dcfce7" stroke="#14532d" stroke-width="2"/>
+    <circle cx="65" cy="84" r="6" fill="#14532d" opacity="0.65"/>
+
+    <!-- Chloroplasts (4–5 around the rim, lens-shaped with stacked thylakoids) -->
+    <g>
+      <ellipse cx="65" cy="130" rx="14" ry="8" fill="#86efac" stroke="#15803d" stroke-width="1.5" transform="rotate(-15 65 130)"/>
+      <line x1="55" y1="130" x2="62" y2="124" stroke="#15803d" stroke-width="0.8"/>
+      <line x1="58" y1="134" x2="65" y2="128" stroke="#15803d" stroke-width="0.8"/>
+      <line x1="61" y1="138" x2="68" y2="132" stroke="#15803d" stroke-width="0.8"/>
+      <line x1="64" y1="142" x2="71" y2="136" stroke="#15803d" stroke-width="0.8"/>
+
+      <ellipse cx="65" cy="178" rx="14" ry="8" fill="#86efac" stroke="#15803d" stroke-width="1.5" transform="rotate(20 65 178)"/>
+      <line x1="55" y1="178" x2="62" y2="172" stroke="#15803d" stroke-width="0.8"/>
+      <line x1="58" y1="182" x2="65" y2="176" stroke="#15803d" stroke-width="0.8"/>
+      <line x1="61" y1="186" x2="68" y2="180" stroke="#15803d" stroke-width="0.8"/>
+
+      <ellipse cx="68" cy="220" rx="14" ry="8" fill="#86efac" stroke="#15803d" stroke-width="1.5"/>
+      <line x1="60" y1="218" x2="64" y2="222" stroke="#15803d" stroke-width="0.8"/>
+      <line x1="64" y1="218" x2="68" y2="222" stroke="#15803d" stroke-width="0.8"/>
+      <line x1="68" y1="218" x2="72" y2="222" stroke="#15803d" stroke-width="0.8"/>
+      <line x1="72" y1="218" x2="76" y2="222" stroke="#15803d" stroke-width="0.8"/>
+
+      <ellipse cx="276" cy="84" rx="14" ry="8" fill="#86efac" stroke="#15803d" stroke-width="1.5" transform="rotate(15 276 84)"/>
+      <line x1="266" y1="82" x2="272" y2="78" stroke="#15803d" stroke-width="0.8"/>
+      <line x1="270" y1="86" x2="276" y2="82" stroke="#15803d" stroke-width="0.8"/>
+      <line x1="274" y1="90" x2="280" y2="86" stroke="#15803d" stroke-width="0.8"/>
+
+      <ellipse cx="276" cy="130" rx="14" ry="8" fill="#86efac" stroke="#15803d" stroke-width="1.5" transform="rotate(-20 276 130)"/>
+      <line x1="266" y1="128" x2="272" y2="124" stroke="#15803d" stroke-width="0.8"/>
+      <line x1="270" y1="132" x2="276" y2="128" stroke="#15803d" stroke-width="0.8"/>
+
+      <ellipse cx="276" cy="174" rx="14" ry="8" fill="#86efac" stroke="#15803d" stroke-width="1.5"/>
+      <line x1="270" y1="172" x2="274" y2="176" stroke="#15803d" stroke-width="0.8"/>
+      <line x1="274" y1="172" x2="278" y2="176" stroke="#15803d" stroke-width="0.8"/>
+      <line x1="278" y1="172" x2="282" y2="176" stroke="#15803d" stroke-width="0.8"/>
+
+      <ellipse cx="276" cy="218" rx="14" ry="8" fill="#86efac" stroke="#15803d" stroke-width="1.5" transform="rotate(10 276 218)"/>
+      <line x1="266" y1="216" x2="272" y2="212" stroke="#15803d" stroke-width="0.8"/>
+      <line x1="270" y1="220" x2="276" y2="216" stroke="#15803d" stroke-width="0.8"/>
+
+      <ellipse cx="170" cy="60" rx="14" ry="7" fill="#86efac" stroke="#15803d" stroke-width="1.5"/>
+      <line x1="164" y1="58" x2="168" y2="62" stroke="#15803d" stroke-width="0.8"/>
+      <line x1="168" y1="58" x2="172" y2="62" stroke="#15803d" stroke-width="0.8"/>
+      <line x1="172" y1="58" x2="176" y2="62" stroke="#15803d" stroke-width="0.8"/>
+
+      <ellipse cx="170" cy="244" rx="14" ry="7" fill="#86efac" stroke="#15803d" stroke-width="1.5"/>
+      <line x1="164" y1="242" x2="168" y2="246" stroke="#15803d" stroke-width="0.8"/>
+      <line x1="168" y1="242" x2="172" y2="246" stroke="#15803d" stroke-width="0.8"/>
+      <line x1="172" y1="242" x2="176" y2="246" stroke="#15803d" stroke-width="0.8"/>
+    </g>
+
+    <!-- Mitochondrion -->
+    <ellipse cx="280" cy="58" rx="14" ry="6" fill="#fed7aa" stroke="#b45309" stroke-width="1.2"/>
+    <path d="M 270 58 Q 274 54 278 58 Q 282 54 286 58 Q 290 54 290 58" fill="none" stroke="#b45309" stroke-width="0.6"/>
+
+    <!-- Rough ER snippet -->
+    <path d="M 110 60 Q 122 56 135 62" fill="none" stroke="#7c3aed" stroke-width="1.5"/>
+    <circle cx="115" cy="60" r="1.5" fill="#7c3aed"/>
+    <circle cx="125" cy="60" r="1.5" fill="#7c3aed"/>
+    <circle cx="135" cy="62" r="1.5" fill="#7c3aed"/>
+
+    <!-- Golgi -->
+    <path d="M 110 246 Q 122 242 134 246" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+    <path d="M 112 252 Q 122 248 132 252" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+
+    <!-- Labels -->
+    <line x1="36" y1="56" x2="14" y2="40" stroke="#4a5568" stroke-width="0.6"/>
+    <text x="10" y="38" font-size="9" font-weight="700" fill="#b45309" text-anchor="end">cell wall</text>
+    <text x="10" y="50" font-size="8" fill="#4a5568" text-anchor="end">cellulose</text>
+
+    <line x1="44" y1="60" x2="14" y2="68" stroke="#4a5568" stroke-width="0.6"/>
+    <text x="10" y="78" font-size="8" fill="#15803d" text-anchor="end">plasma membrane</text>
+
+    <line x1="65" y1="100" x2="36" y2="116" stroke="#4a5568" stroke-width="0.6"/>
+    <text x="32" y="116" font-size="9" font-weight="700" fill="#14532d" text-anchor="end">nucleus</text>
+
+    <line x1="80" y1="146" x2="36" y2="146" stroke="#4a5568" stroke-width="0.6"/>
+    <text x="32" y="146" font-size="9" font-weight="700" fill="#14532d" text-anchor="end">central vacuole</text>
+    <text x="32" y="158" font-size="8" font-style="italic" fill="#4a5568" text-anchor="end">turgor pressure</text>
+
+    <line x1="280" y1="58" x2="316" y2="46" stroke="#4a5568" stroke-width="0.6"/>
+    <text x="320" y="46" font-size="9" font-weight="700" fill="#b45309">mitochondrion</text>
+
+    <line x1="276" y1="174" x2="316" y2="186" stroke="#4a5568" stroke-width="0.6"/>
+    <text x="320" y="186" font-size="9" font-weight="700" fill="#15803d">chloroplast</text>
+    <text x="320" y="198" font-size="8" font-style="italic" fill="#4a5568">photosynthesis</text>
+  </g>
+
+  <!-- ── Difference table at the bottom ───────────────────── -->
+  <g transform="translate(40, 360)">
+    <rect x="0" y="0" width="700" height="78" rx="8" fill="#f7fafc" stroke="#cbd5e1" stroke-width="1"/>
+
+    <!-- Headers -->
+    <rect x="0" y="0" width="280" height="22" fill="#1a202c"/>
+    <text x="140" y="16" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">Feature</text>
+    <rect x="280" y="0" width="210" height="22" fill="#2b6cb0"/>
+    <text x="385" y="16" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">Animal cell</text>
+    <rect x="490" y="0" width="210" height="22" fill="#15803d"/>
+    <text x="595" y="16" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">Plant cell</text>
+
+    <!-- Row: Cell wall -->
+    <text x="14" y="38" font-size="10" font-weight="700" fill="#1a202c">Cell wall</text>
+    <text x="385" y="38" font-size="10" fill="#4a5568" text-anchor="middle">absent</text>
+    <text x="595" y="38" font-size="10" fill="#15803d" text-anchor="middle">cellulose, rigid</text>
+
+    <!-- Row: Vacuole -->
+    <text x="14" y="52" font-size="10" font-weight="700" fill="#1a202c">Vacuole</text>
+    <text x="385" y="52" font-size="10" fill="#4a5568" text-anchor="middle">small, several</text>
+    <text x="595" y="52" font-size="10" fill="#15803d" text-anchor="middle">one large central vacuole</text>
+
+    <!-- Row: Chloroplasts -->
+    <text x="14" y="66" font-size="10" font-weight="700" fill="#1a202c">Chloroplasts</text>
+    <text x="385" y="66" font-size="10" fill="#4a5568" text-anchor="middle">absent</text>
+    <text x="595" y="66" font-size="10" fill="#15803d" text-anchor="middle">present (photosynthesis)</text>
+
+    <!-- Row: Centrioles -->
+    <text x="14" y="76" font-size="10" font-weight="700" fill="#1a202c">Centrioles</text>
+    <text x="385" y="76" font-size="10" fill="#2b6cb0" text-anchor="middle">present (cell division)</text>
+    <text x="595" y="76" font-size="10" fill="#4a5568" text-anchor="middle">absent in higher plants</text>
+  </g>
+  <text x="380" y="452" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">Both cells run on the same DNA toolkit. The differences track lifestyle: animals move and eat; plants stand still and make their own food.</text>
+</svg>

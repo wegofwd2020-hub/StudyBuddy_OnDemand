@@ -1,0 +1,15 @@
+# Auto-generated style sidecar — paired with rolling-without-slipping-kinematics.svg
+schema_version: 1
+id: physics-systems-of-particles-rolling-without-slipping-kinematics
+kind: image
+subject: physics
+topic_phrase: "rolling without slipping — v_cm equals omega R kinematic constraint and KE split"
+keywords:
+  - rolling-motion
+  - rolling-constraint
+  - translational-kinetic-energy
+  - rotational-kinetic-energy
+  - instantaneous-axis
+  - static-friction
+license: platform-cc-by-sa
+source_unit: G11-PHYS-005

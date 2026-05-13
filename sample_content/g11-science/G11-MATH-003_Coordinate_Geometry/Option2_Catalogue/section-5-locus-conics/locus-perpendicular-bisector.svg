@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 320" width="640" height="320" role="img" aria-label="Locus of points equidistant from two fixed points is the perpendicular bisector">
+  <title>Locus: Equidistant from Two Fixed Points</title>
+  <desc>The set of all points P(x, y) equidistant from A(−3, 0) and B(3, 0) is the perpendicular bisector of segment AB — the y-axis (x = 0). Three sample equidistant points (0, 0), (0, 4), and (0, −2) are marked.</desc>
+
+  <defs>
+    <style>
+      .axis    { stroke: #94a3b8; stroke-width: 1.4; }
+      .grid    { stroke: #e2e8f0; stroke-width: 0.6; }
+      .panel   { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1; }
+      .locus   { stroke: #6b46c1; stroke-width: 4; stroke-linecap: round; }
+      .focusPt { fill: #c05621; stroke: white; stroke-width: 2; }
+      .samplePt { fill: #2f855a; stroke: white; stroke-width: 2; }
+      .ray1    { stroke: #c05621; stroke-width: 1.5; stroke-dasharray: 5 4; }
+      .ray2    { stroke: #c05621; stroke-width: 1.5; stroke-dasharray: 5 4; }
+      .axislbl { font: 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .heading { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .lbl     { font: bold 12px system-ui, sans-serif; }
+    </style>
+  </defs>
+
+  <text class="heading" x="320" y="22">Locus problem:  the set of all P with  |PA|  =  |PB|</text>
+
+  <!-- Plot frame: x ∈ [-6, 6], y ∈ [-5, 5].  Frame width 12*23=276, height 10*23=230. Use 24 px/u: width 288, height 240.  Frame x:60..348, y:50..290. Origin (60+24*6, 290-24*5) = (204, 170) -->
+  <rect class="panel" x="60" y="50" width="288" height="240"/>
+
+  <!-- Vertical grid -->
+  <line class="grid" x1="84"  y1="50" x2="84"  y2="290"/>
+  <line class="grid" x1="108" y1="50" x2="108" y2="290"/>
+  <line class="grid" x1="132" y1="50" x2="132" y2="290"/>
+  <line class="grid" x1="156" y1="50" x2="156" y2="290"/>
+  <line class="grid" x1="180" y1="50" x2="180" y2="290"/>
+  <line class="grid" x1="228" y1="50" x2="228" y2="290"/>
+  <line class="grid" x1="252" y1="50" x2="252" y2="290"/>
+  <line class="grid" x1="276" y1="50" x2="276" y2="290"/>
+  <line class="grid" x1="300" y1="50" x2="300" y2="290"/>
+  <line class="grid" x1="324" y1="50" x2="324" y2="290"/>
+  <!-- Horizontal grid -->
+  <line class="grid" x1="60" y1="266" x2="348" y2="266"/>
+  <line class="grid" x1="60" y1="242" x2="348" y2="242"/>
+  <line class="grid" x1="60" y1="218" x2="348" y2="218"/>
+  <line class="grid" x1="60" y1="194" x2="348" y2="194"/>
+  <line class="grid" x1="60" y1="146" x2="348" y2="146"/>
+  <line class="grid" x1="60" y1="122" x2="348" y2="122"/>
+  <line class="grid" x1="60" y1="98"  x2="348" y2="98"/>
+  <line class="grid" x1="60" y1="74"  x2="348" y2="74"/>
+
+  <!-- Axes (origin at 204, 170) -->
+  <line class="axis" x1="60"  y1="170" x2="348" y2="170"/>
+  <line class="axis" x1="204" y1="50"  x2="204" y2="290"/>
+
+  <!-- Tick labels -->
+  <text class="axislbl" x="84"  y="184">−5</text>
+  <text class="axislbl" x="132" y="184">−3</text>
+  <text class="axislbl" x="204" y="184">0</text>
+  <text class="axislbl" x="276" y="184">3</text>
+  <text class="axislbl" x="324" y="184">5</text>
+  <text class="axislbl" x="196" y="266" text-anchor="end">−4</text>
+  <text class="axislbl" x="196" y="170" text-anchor="end">0</text>
+  <text class="axislbl" x="196" y="74"  text-anchor="end">4</text>
+  <text class="axislbl" x="356" y="174">x</text>
+  <text class="axislbl" x="204" y="44">y</text>
+
+  <!-- Locus: x = 0, y-axis from y=-4 to y=4 (highlighted) -->
+  <line class="locus" x1="204" y1="74" x2="204" y2="266"/>
+
+  <!-- A = (-3, 0) → (132, 170);  B = (3, 0) → (276, 170) -->
+  <circle class="focusPt" cx="132" cy="170" r="6"/>
+  <text class="lbl" x="120" y="190" fill="#c05621">A(−3, 0)</text>
+  <circle class="focusPt" cx="276" cy="170" r="6"/>
+  <text class="lbl" x="262" y="190" fill="#c05621">B(3, 0)</text>
+
+  <!-- Sample point P=(0, 4) → (204, 74).  Equal distances to A and B -->
+  <line class="ray1" x1="132" y1="170" x2="204" y2="74"/>
+  <line class="ray2" x1="276" y1="170" x2="204" y2="74"/>
+  <circle class="samplePt" cx="204" cy="74" r="5"/>
+  <text class="lbl" x="212" y="68" fill="#2f855a">P(0, 4)</text>
+
+  <!-- Tick marks indicating equal lengths.  Midpoint of A→P is (-1.5, 2) → (168, 122).  Midpoint of B→P is (1.5, 2) → (240, 122) -->
+  <line stroke="#c05621" stroke-width="2" x1="160" y1="116" x2="170" y2="124"/>
+  <line stroke="#c05621" stroke-width="2" x1="160" y1="120" x2="170" y2="128"/>
+  <line stroke="#c05621" stroke-width="2" x1="232" y1="116" x2="242" y2="124"/>
+  <line stroke="#c05621" stroke-width="2" x1="232" y1="120" x2="242" y2="128"/>
+
+  <!-- Label for locus -->
+  <text class="lbl" x="212" y="262" fill="#6b46c1">locus:  x = 0</text>
+
+  <!-- Right panel: derivation -->
+  <g transform="translate(360, 40)">
+    <rect x="0" y="0" width="270" height="250" rx="8" fill="#fffaf0" stroke="#dd6b20" stroke-width="1.4"/>
+    <text font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" x="135" y="22" text-anchor="middle">Set up |PA| = |PB|</text>
+
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="50">For P(x, y):</text>
+    <text font="italic 12px system-ui" font-size="12" fill="#1a202c" x="14" y="68">|PA|² = (x + 3)² + y²</text>
+    <text font="italic 12px system-ui" font-size="12" fill="#1a202c" x="14" y="86">|PB|² = (x − 3)² + y²</text>
+
+    <text font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dd6b20" x="14" y="110">Set them equal and expand:</text>
+    <text font="italic 12px system-ui" font-size="12" fill="#1a202c" x="14" y="130">(x + 3)² + y²  =  (x − 3)² + y²</text>
+    <text font="italic 12px system-ui" font-size="12" fill="#1a202c" x="14" y="148">x² + 6x + 9  =  x² − 6x + 9</text>
+    <text font="italic 12px system-ui" font-size="12" fill="#1a202c" x="14" y="166">12x  =  0</text>
+
+    <rect x="14" y="180" width="242" height="40" rx="6" fill="#faf5ff" stroke="#6b46c1" stroke-width="1.5"/>
+    <text font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" x="135" y="204" text-anchor="middle">x  =  0   (the y-axis)</text>
+
+    <text font="italic 11px system-ui" font-size="11" font-style="italic" fill="#4a5568" x="14" y="240">A locus is just an equation — the constraint translated into x and y.</text>
+  </g>
+
+  <text x="320" y="312" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">"Locus" is the curve traced by every point that satisfies a given geometric condition.</text>
+</svg>

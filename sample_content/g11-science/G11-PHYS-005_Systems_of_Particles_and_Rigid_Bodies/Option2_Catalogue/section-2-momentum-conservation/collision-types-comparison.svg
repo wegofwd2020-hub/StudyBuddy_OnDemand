@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" width="720" height="420" role="img" aria-label="Comparison of elastic, inelastic, and explosion collisions with momentum vectors">
+  <title>Collision types — momentum vectors before and after</title>
+  <desc>Three side-by-side scenarios. Elastic: two equal masses bounce, momentum and kinetic energy conserved. Perfectly inelastic: equal masses stick together. Explosion: a body at rest splits into two pieces. In every case total momentum is conserved.</desc>
+
+  <defs>
+    <marker id="arr-pa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2b6cb0" />
+    </marker>
+    <marker id="arr-pb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626" />
+    </marker>
+    <marker id="arr-pc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#7c3aed" />
+    </marker>
+  </defs>
+
+  <text x="360" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Collision types — total momentum is conserved in all three</text>
+
+  <!-- ───────── Panel A: Elastic collision ───────── -->
+  <g transform="translate(20, 50)">
+    <rect x="0" y="0" width="220" height="340" rx="8" fill="#f7fafc" stroke="#e2e8f0" />
+    <text x="110" y="22" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">Elastic</text>
+    <text x="110" y="38" font="10px system-ui" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">p conserved · KE conserved</text>
+
+    <!-- BEFORE -->
+    <text x="110" y="62" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">BEFORE</text>
+    <line x1="20" y1="105" x2="200" y2="105" stroke="#1a202c" stroke-width="1" />
+    <rect x="42" y="80" width="28" height="22" rx="3" fill="#bee3f8" stroke="#1a202c" stroke-width="1.4" />
+    <text x="56" y="96" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#1a202c" text-anchor="middle">m</text>
+    <line x1="76" y1="91" x2="106" y2="91" stroke="#2b6cb0" stroke-width="2.5" marker-end="url(#arr-pa)" />
+    <text x="91" y="84" font="10px system-ui" font-size="10" font-weight="700" fill="#2b6cb0" text-anchor="middle">v</text>
+
+    <rect x="150" y="80" width="28" height="22" rx="3" fill="#fed7aa" stroke="#1a202c" stroke-width="1.4" />
+    <text x="164" y="96" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#1a202c" text-anchor="middle">m</text>
+    <text x="164" y="74" font="10px system-ui" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">at rest</text>
+
+    <!-- AFTER -->
+    <text x="110" y="155" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">AFTER</text>
+    <line x1="20" y1="200" x2="200" y2="200" stroke="#1a202c" stroke-width="1" />
+    <rect x="42" y="175" width="28" height="22" rx="3" fill="#bee3f8" stroke="#1a202c" stroke-width="1.4" />
+    <text x="56" y="191" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#1a202c" text-anchor="middle">m</text>
+    <text x="56" y="169" font="10px system-ui" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">stops</text>
+
+    <rect x="150" y="175" width="28" height="22" rx="3" fill="#fed7aa" stroke="#1a202c" stroke-width="1.4" />
+    <text x="164" y="191" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#1a202c" text-anchor="middle">m</text>
+    <line x1="180" y1="186" x2="210" y2="186" stroke="#2b6cb0" stroke-width="2.5" marker-end="url(#arr-pa)" />
+    <text x="195" y="180" font="10px system-ui" font-size="10" font-weight="700" fill="#2b6cb0" text-anchor="middle">v</text>
+
+    <!-- Equations -->
+    <rect x="14" y="225" width="192" height="100" rx="6" fill="#eff6ff" stroke="#2b6cb0" stroke-width="1" />
+    <text x="110" y="244" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">p:  m v + 0  =  0 + m v  ✓</text>
+    <text x="110" y="266" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">KE: ½ m v² = ½ m v²  ✓</text>
+    <text x="110" y="290" font="10px system-ui" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">Equal masses, head-on:</text>
+    <text x="110" y="306" font="10px system-ui" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">velocities exchange.</text>
+    <text x="110" y="320" font="9px system-ui" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">(Newton's cradle)</text>
+  </g>
+
+  <!-- ───────── Panel B: Perfectly inelastic ───────── -->
+  <g transform="translate(250, 50)">
+    <rect x="0" y="0" width="220" height="340" rx="8" fill="#f7fafc" stroke="#e2e8f0" />
+    <text x="110" y="22" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">Perfectly inelastic</text>
+    <text x="110" y="38" font="10px system-ui" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">p conserved · KE NOT conserved</text>
+
+    <!-- BEFORE -->
+    <text x="110" y="62" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">BEFORE</text>
+    <line x1="20" y1="105" x2="200" y2="105" stroke="#1a202c" stroke-width="1" />
+    <rect x="42" y="80" width="28" height="22" rx="3" fill="#bee3f8" stroke="#1a202c" stroke-width="1.4" />
+    <text x="56" y="96" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#1a202c" text-anchor="middle">m</text>
+    <line x1="76" y1="91" x2="106" y2="91" stroke="#dc2626" stroke-width="2.5" marker-end="url(#arr-pb)" />
+    <text x="91" y="84" font="10px system-ui" font-size="10" font-weight="700" fill="#dc2626" text-anchor="middle">v</text>
+
+    <rect x="150" y="80" width="28" height="22" rx="3" fill="#fed7aa" stroke="#1a202c" stroke-width="1.4" />
+    <text x="164" y="96" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#1a202c" text-anchor="middle">m</text>
+    <text x="164" y="74" font="10px system-ui" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">at rest</text>
+
+    <!-- AFTER (stuck together, joint mass 2m) -->
+    <text x="110" y="155" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">AFTER</text>
+    <line x1="20" y1="200" x2="200" y2="200" stroke="#1a202c" stroke-width="1" />
+    <rect x="80" y="175" width="58" height="22" rx="3" fill="#fde68a" stroke="#1a202c" stroke-width="1.4" />
+    <text x="109" y="191" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#1a202c" text-anchor="middle">2m (stuck)</text>
+    <line x1="138" y1="186" x2="160" y2="186" stroke="#dc2626" stroke-width="2.5" marker-end="url(#arr-pb)" />
+    <text x="149" y="180" font="10px system-ui" font-size="10" font-weight="700" fill="#dc2626" text-anchor="middle">v/2</text>
+
+    <!-- Equations -->
+    <rect x="14" y="225" width="192" height="100" rx="6" fill="#fef2f2" stroke="#dc2626" stroke-width="1" />
+    <text x="110" y="244" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">p:  m v = 2m · (v/2)  ✓</text>
+    <text x="110" y="266" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">KE_f = ½ KE_i (lost as heat)</text>
+    <text x="110" y="290" font="10px system-ui" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">Maximum KE loss occurs</text>
+    <text x="110" y="306" font="10px system-ui" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">when bodies stick.</text>
+    <text x="110" y="320" font="9px system-ui" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">(car crash, clay on clay)</text>
+  </g>
+
+  <!-- ───────── Panel C: Explosion ───────── -->
+  <g transform="translate(480, 50)">
+    <rect x="0" y="0" width="220" height="340" rx="8" fill="#f7fafc" stroke="#e2e8f0" />
+    <text x="110" y="22" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#7c3aed" text-anchor="middle">Explosion</text>
+    <text x="110" y="38" font="10px system-ui" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">p conserved · KE increases</text>
+
+    <!-- BEFORE: single body at rest -->
+    <text x="110" y="62" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">BEFORE</text>
+    <line x1="20" y1="105" x2="200" y2="105" stroke="#1a202c" stroke-width="1" />
+    <rect x="92" y="80" width="44" height="22" rx="3" fill="#bee3f8" stroke="#1a202c" stroke-width="1.4" />
+    <text x="114" y="96" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#1a202c" text-anchor="middle">M</text>
+    <text x="114" y="74" font="10px system-ui" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">at rest, p = 0</text>
+
+    <!-- AFTER: 2m left and m right -->
+    <text x="110" y="155" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">AFTER</text>
+    <line x1="20" y1="200" x2="200" y2="200" stroke="#1a202c" stroke-width="1" />
+
+    <rect x="32" y="175" width="38" height="22" rx="3" fill="#fed7aa" stroke="#1a202c" stroke-width="1.4" />
+    <text x="51" y="191" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#1a202c" text-anchor="middle">2m</text>
+    <line x1="32" y1="186" x2="14" y2="186" stroke="#7c3aed" stroke-width="2.5" marker-end="url(#arr-pc)" />
+    <text x="22" y="180" font="10px system-ui" font-size="10" font-weight="700" fill="#7c3aed" text-anchor="middle">v</text>
+
+    <rect x="150" y="175" width="28" height="22" rx="3" fill="#bee3f8" stroke="#1a202c" stroke-width="1.4" />
+    <text x="164" y="191" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#1a202c" text-anchor="middle">m</text>
+    <line x1="178" y1="186" x2="208" y2="186" stroke="#7c3aed" stroke-width="2.5" marker-end="url(#arr-pc)" />
+    <text x="193" y="180" font="10px system-ui" font-size="10" font-weight="700" fill="#7c3aed" text-anchor="middle">2v</text>
+
+    <!-- Equations -->
+    <rect x="14" y="225" width="192" height="100" rx="6" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1" />
+    <text x="110" y="244" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">p:  0 = −(2m)v + m(2v) ✓</text>
+    <text x="110" y="266" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#7c3aed" text-anchor="middle">KE_f &gt; 0  (chemical → KE)</text>
+    <text x="110" y="290" font="10px system-ui" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">Heavy fragment moves</text>
+    <text x="110" y="306" font="10px system-ui" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">slower (recoil rule).</text>
+    <text x="110" y="320" font="9px system-ui" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">(rocket, gun, fireworks)</text>
+  </g>
+
+  <text x="360" y="408" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Total p_initial = total p_final whenever the net external force on the system is zero — the rule that ties all three together.</text>
+</svg>

@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 380" width="600" height="380" role="img" aria-label="Rules of binomial nomenclature">
+  <title>Six rules of binomial nomenclature</title>
+  <desc>A reference card listing six core rules of the International Code: Latin or Latinised words, two parts (genus + epithet), capitalisation pattern, italicisation, abbreviation conventions, and one valid name per species.</desc>
+
+  <text x="300" y="24" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Rules of Binomial Nomenclature</text>
+  <text x="300" y="42" font-size="11" fill="#4a5568" text-anchor="middle">Set by the International Code of Zoological / Botanical Nomenclature.</text>
+
+  <!-- Six rule rows -->
+  <g transform="translate(40, 60)">
+    <rect x="0" y="0" width="520" height="44" rx="6" fill="#f7fafc" stroke="#cbd5e1" stroke-width="1"/>
+    <circle cx="22" cy="22" r="14" fill="#2b6cb0"/>
+    <text x="22" y="27" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">1</text>
+    <text x="50" y="20" font-size="12" font-weight="700" fill="#1a202c">Latin or Latinised</text>
+    <text x="50" y="36" font-size="11" fill="#4a5568">Names are written in Latin or Latinised form, regardless of original language.</text>
+  </g>
+
+  <g transform="translate(40, 110)">
+    <rect x="0" y="0" width="520" height="44" rx="6" fill="#f7fafc" stroke="#cbd5e1" stroke-width="1"/>
+    <circle cx="22" cy="22" r="14" fill="#15803d"/>
+    <text x="22" y="27" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">2</text>
+    <text x="50" y="20" font-size="12" font-weight="700" fill="#1a202c">Two parts: genus + specific epithet</text>
+    <text x="50" y="36" font-size="11" fill="#4a5568">Always exactly two words. Subspecies adds a third (trinomial).</text>
+  </g>
+
+  <g transform="translate(40, 160)">
+    <rect x="0" y="0" width="520" height="44" rx="6" fill="#f7fafc" stroke="#cbd5e1" stroke-width="1"/>
+    <circle cx="22" cy="22" r="14" fill="#d97706"/>
+    <text x="22" y="27" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">3</text>
+    <text x="50" y="20" font-size="12" font-weight="700" fill="#1a202c">Capitalisation pattern</text>
+    <text x="50" y="36" font-size="11" fill="#4a5568">Genus is capitalised. Specific epithet is lowercase — even if derived from a proper noun.</text>
+  </g>
+
+  <g transform="translate(40, 210)">
+    <rect x="0" y="0" width="520" height="44" rx="6" fill="#f7fafc" stroke="#cbd5e1" stroke-width="1"/>
+    <circle cx="22" cy="22" r="14" fill="#dc2626"/>
+    <text x="22" y="27" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">4</text>
+    <text x="50" y="20" font-size="12" font-weight="700" fill="#1a202c">Italics in print, underline in handwriting</text>
+    <text x="50" y="36" font-size="11" fill="#4a5568">Both words italicised in print: </text>
+    <text x="220" y="36" font-size="11" font-style="italic" fill="#4a5568">Panthera tigris</text>
+    <text x="305" y="36" font-size="11" fill="#4a5568">. Underline both when handwritten.</text>
+  </g>
+
+  <g transform="translate(40, 260)">
+    <rect x="0" y="0" width="520" height="44" rx="6" fill="#f7fafc" stroke="#cbd5e1" stroke-width="1"/>
+    <circle cx="22" cy="22" r="14" fill="#319795"/>
+    <text x="22" y="27" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">5</text>
+    <text x="50" y="20" font-size="12" font-weight="700" fill="#1a202c">Abbreviation after first mention</text>
+    <text x="50" y="36" font-size="11" fill="#4a5568">After first full use, genus may be abbreviated — </text>
+    <text x="290" y="36" font-size="11" font-style="italic" fill="#4a5568">E. coli, H. sapiens</text>
+    <text x="382" y="36" font-size="11" fill="#4a5568">.</text>
+  </g>
+
+  <g transform="translate(40, 310)">
+    <rect x="0" y="0" width="520" height="44" rx="6" fill="#f7fafc" stroke="#cbd5e1" stroke-width="1"/>
+    <circle cx="22" cy="22" r="14" fill="#7c3aed"/>
+    <text x="22" y="27" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">6</text>
+    <text x="50" y="20" font-size="12" font-weight="700" fill="#1a202c">One valid name per species</text>
+    <text x="50" y="36" font-size="11" fill="#4a5568">If multiple names exist, the oldest validly published one wins (Principle of Priority).</text>
+  </g>
+
+  <text x="300" y="370" font-size="10" fill="#4a5568" text-anchor="middle" font-style="italic">First codified by Carl Linnaeus in Systema Naturae (1735) — still the global standard 290 years on.</text>
+</svg>

@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 320" width="600" height="320" role="img" aria-label="Three domains of life">
+  <title>Three domains of life — Bacteria, Archaea, Eukarya</title>
+  <desc>Three labelled cards comparing Bacteria (prokaryote, peptidoglycan cell wall), Archaea (prokaryote, no peptidoglycan, extreme habitats), and Eukarya (membrane-bound nucleus and organelles). The Eukarya card sits above on a wider footprint to show it contains the four eukaryotic kingdoms.</desc>
+
+  <text x="300" y="22" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">The Three Domains of Life</text>
+  <text x="300" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Modern taxonomy splits all living things into three domains based on cell type and ribosomal RNA.</text>
+
+  <!-- Bacteria -->
+  <g transform="translate(40,70)">
+    <rect x="0" y="0" width="160" height="200" rx="10" fill="#f7fafc" stroke="#7c3aed" stroke-width="2"/>
+    <circle cx="80" cy="48" r="22" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+    <path d="M 70 40 Q 80 30 90 40 Q 95 50 90 60 Q 80 70 70 60 Q 65 50 70 40 Z" fill="#7c3aed" opacity="0.7"/>
+    <text x="80" y="92" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Bacteria</text>
+    <text x="80" y="112" font-size="10" fill="#4a5568" text-anchor="middle">prokaryote</text>
+    <text x="80" y="128" font-size="10" fill="#4a5568" text-anchor="middle">peptidoglycan wall</text>
+    <text x="80" y="144" font-size="10" fill="#4a5568" text-anchor="middle">circular DNA, no nucleus</text>
+    <text x="80" y="160" font-size="10" fill="#4a5568" text-anchor="middle">70S ribosomes</text>
+    <text x="80" y="184" font-size="10" font-weight="700" fill="#7c3aed" text-anchor="middle">E. coli, Streptococcus</text>
+  </g>
+
+  <!-- Archaea -->
+  <g transform="translate(220,70)">
+    <rect x="0" y="0" width="160" height="200" rx="10" fill="#f7fafc" stroke="#319795" stroke-width="2"/>
+    <circle cx="80" cy="48" r="22" fill="#ccfbf1" stroke="#319795" stroke-width="1.5"/>
+    <path d="M 65 50 L 75 38 L 85 50 L 80 60 L 70 60 Z" fill="#319795" opacity="0.7"/>
+    <text x="80" y="92" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Archaea</text>
+    <text x="80" y="112" font-size="10" fill="#4a5568" text-anchor="middle">prokaryote</text>
+    <text x="80" y="128" font-size="10" fill="#4a5568" text-anchor="middle">no peptidoglycan</text>
+    <text x="80" y="144" font-size="10" fill="#4a5568" text-anchor="middle">extreme habitats</text>
+    <text x="80" y="160" font-size="10" fill="#4a5568" text-anchor="middle">unique lipids</text>
+    <text x="80" y="184" font-size="10" font-weight="700" fill="#319795" text-anchor="middle">methanogens, halophiles</text>
+  </g>
+
+  <!-- Eukarya -->
+  <g transform="translate(400,70)">
+    <rect x="0" y="0" width="160" height="200" rx="10" fill="#f7fafc" stroke="#15803d" stroke-width="2"/>
+    <circle cx="80" cy="48" r="22" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+    <circle cx="80" cy="48" r="9" fill="#15803d" opacity="0.85"/>
+    <circle cx="80" cy="48" r="3" fill="#fff"/>
+    <text x="80" y="92" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Eukarya</text>
+    <text x="80" y="112" font-size="10" fill="#4a5568" text-anchor="middle">true nucleus</text>
+    <text x="80" y="128" font-size="10" fill="#4a5568" text-anchor="middle">membrane organelles</text>
+    <text x="80" y="144" font-size="10" fill="#4a5568" text-anchor="middle">linear DNA, 80S ribosomes</text>
+    <text x="80" y="160" font-size="10" fill="#4a5568" text-anchor="middle">contains 4 kingdoms</text>
+    <text x="80" y="184" font-size="10" font-weight="700" fill="#15803d" text-anchor="middle">Protista, Fungi,</text>
+    <text x="80" y="198" font-size="10" font-weight="700" fill="#15803d" text-anchor="middle">Plantae, Animalia</text>
+  </g>
+
+  <text x="300" y="298" font-size="11" fill="#4a5568" text-anchor="middle">Carl Woese (1977) proposed the three-domain system after sequencing rRNA — the deepest split in the tree of life.</text>
+</svg>

@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-coordinate-geometry-circle-through-three-points
+kind: image
+subject: math
+topic_phrase: "circle through three non-collinear points found by intersecting perpendicular bisectors"
+keywords:
+  - circle
+  - three-points
+  - perpendicular-bisector
+  - chord
+  - circumscribed-circle
+license: platform-cc-by-sa
+source_unit: G11-MATH-003

@@ -1,0 +1,18 @@
+# Auto-generated for sample-content seeding — edit with the SVG and re-run sidecar build.
+schema_version: 1
+id: chemistry-alkane-prefix-table
+kind: image
+subject: chemistry
+topic_phrase: "alkane stem prefixes table c1 to c10 boiling points"
+keywords:
+  - alkane
+  - prefix
+  - homologous-series
+  - methane
+  - ethane
+  - propane
+  - butane
+  - pentane
+  - boiling-point
+license: platform-cc-by-sa
+source_unit: G11-CHEM-009

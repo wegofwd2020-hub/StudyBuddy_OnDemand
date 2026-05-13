@@ -1,0 +1,13 @@
+schema_version: 1
+id: physics-gravitation-pe-near-surface-vs-general
+kind: image
+subject: physics
+topic_phrase: "side-by-side comparison of mgh approximation and the general one over r gravitational potential energy"
+keywords:
+  - gravitation
+  - potential-energy
+  - mgh-approximation
+  - tangent-line
+  - linearization
+license: platform-cc-by-sa
+source_unit: G11-PHYS-006

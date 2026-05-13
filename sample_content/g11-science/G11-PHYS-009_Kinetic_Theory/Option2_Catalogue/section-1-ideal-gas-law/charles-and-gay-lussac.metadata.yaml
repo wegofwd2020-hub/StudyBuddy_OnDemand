@@ -1,0 +1,16 @@
+schema_version: 1
+id: physics-kinetic-theory-charles-and-gay-lussac
+kind: image
+subject: physics
+topic_phrase: "Charles's Law V vs T and Gay-Lussac's Law P vs T linear plots through absolute zero with multiple isobars and isochores"
+keywords:
+  - charles-law
+  - gay-lussac-law
+  - ideal-gas-law
+  - absolute-zero
+  - kelvin-scale
+  - isobar
+  - isochore
+  - state-variables
+license: platform-cc-by-sa
+source_unit: G11-PHYS-009

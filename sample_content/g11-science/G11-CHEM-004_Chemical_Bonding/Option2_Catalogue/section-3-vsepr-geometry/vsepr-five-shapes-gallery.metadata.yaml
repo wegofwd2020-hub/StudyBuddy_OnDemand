@@ -1,0 +1,16 @@
+schema_version: 1
+id: chemistry-vsepr-five-shapes-gallery
+kind: image
+subject: chemistry
+topic_phrase: "vsepr molecular geometry linear trigonal planar tetrahedral bipyramidal octahedral"
+keywords:
+  - vsepr
+  - molecular-geometry
+  - linear
+  - trigonal-planar
+  - tetrahedral
+  - trigonal-bipyramidal
+  - octahedral
+  - bond-angle
+license: platform-cc-by-sa
+source_unit: G11-CHEM-004

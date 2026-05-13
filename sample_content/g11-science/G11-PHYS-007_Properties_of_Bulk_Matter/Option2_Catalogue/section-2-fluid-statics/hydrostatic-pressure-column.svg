@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 320" width="540" height="320" role="img" aria-label="Hydrostatic Pressure increasing with depth">
+  <title>Hydrostatic Pressure with Depth</title>
+  <desc>A vertical column of fluid of density ρ. Pressure at depth h is P = P0 + ρgh. Three depth markers show pressure increasing linearly with depth.</desc>
+
+  <text x="270" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Hydrostatic Pressure  P = P₀ + ρgh</text>
+
+  <defs>
+    <marker id="hp-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1d4ed8" />
+    </marker>
+  </defs>
+
+  <!-- Container outline -->
+  <path d="M 100 60 L 100 280 L 280 280 L 280 60" fill="none" stroke="#1a202c" stroke-width="2.5" />
+
+  <!-- Water (gradient lighter near top, darker deep) -->
+  <defs>
+    <linearGradient id="watergrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#bfdbfe" />
+      <stop offset="100%" stop-color="#1e40af" />
+    </linearGradient>
+  </defs>
+  <rect x="100" y="80" width="180" height="200" fill="url(#watergrad)" />
+
+  <!-- Surface line -->
+  <line x1="100" y1="80" x2="280" y2="80" stroke="#1d4ed8" stroke-width="1.5" stroke-dasharray="4 4" />
+  <text x="190" y="74" font-size="11" font-weight="700" fill="#1d4ed8" text-anchor="middle">surface (P = P₀)</text>
+
+  <!-- Depth axis -->
+  <line x1="80" y1="80" x2="80" y2="280" stroke="#1a202c" stroke-width="1.5" />
+  <line x1="76" y1="80" x2="84" y2="80" stroke="#1a202c" stroke-width="1.5" />
+  <text x="68" y="84" font-size="10" fill="#1a202c" text-anchor="end">0</text>
+  <line x1="76" y1="146" x2="84" y2="146" stroke="#1a202c" stroke-width="1.5" />
+  <text x="68" y="150" font-size="10" fill="#1a202c" text-anchor="end">h₁</text>
+  <line x1="76" y1="213" x2="84" y2="213" stroke="#1a202c" stroke-width="1.5" />
+  <text x="68" y="217" font-size="10" fill="#1a202c" text-anchor="end">h₂</text>
+  <line x1="76" y1="280" x2="84" y2="280" stroke="#1a202c" stroke-width="1.5" />
+  <text x="68" y="284" font-size="10" fill="#1a202c" text-anchor="end">h₃</text>
+  <text x="55" y="180" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle" transform="rotate(-90 55 180)">depth h</text>
+
+  <!-- Pressure-arrow markers (lengths grow with depth) -->
+  <line x1="280" y1="146" x2="335" y2="146" stroke="#1d4ed8" stroke-width="3" marker-end="url(#hp-arr)" />
+  <line x1="280" y1="213" x2="365" y2="213" stroke="#1d4ed8" stroke-width="3" marker-end="url(#hp-arr)" />
+  <line x1="280" y1="280" x2="395" y2="280" stroke="#1d4ed8" stroke-width="3.5" marker-end="url(#hp-arr)" />
+
+  <!-- Density label -->
+  <text x="190" y="200" font-size="20" font-weight="700" fill="#f1f5f9" text-anchor="middle">ρ</text>
+
+  <!-- Right side equations / legend -->
+  <text x="345" y="100" font-size="13" font-weight="700" fill="#1a202c">at any depth h:</text>
+  <text x="345" y="122" font-size="14" font-weight="700" fill="#1d4ed8">P(h) = P₀ + ρ g h</text>
+
+  <text x="345" y="155" font-size="11" font-weight="700" fill="#1d4ed8">P₁ = P₀ + ρg·h₁</text>
+  <text x="345" y="220" font-size="11" font-weight="700" fill="#1d4ed8">P₂ = P₀ + ρg·h₂</text>
+  <text x="345" y="287" font-size="11" font-weight="700" fill="#1d4ed8">P₃ = P₀ + ρg·h₃</text>
+
+  <!-- Symbol legend -->
+  <rect x="345" y="240" width="170" height="30" fill="#f7fafc" stroke="#cbd5e1" />
+  <text x="350" y="252" font-size="10" fill="#4a5568">ρ = fluid density (kg/m³)</text>
+  <text x="350" y="265" font-size="10" fill="#4a5568">g = 9.8 m/s² · P₀ = atm pressure</text>
+
+  <text x="270" y="312" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Pressure depends only on depth — not the shape or width of the container.</text>
+</svg>

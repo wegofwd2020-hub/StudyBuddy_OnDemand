@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" role="img" aria-label="Horsepower comparison chart — typical power outputs in watts">
+  <title>Power outputs of common machines and activities</title>
+  <desc>Horizontal bar chart comparing the typical power outputs of seven different sources, from a person climbing stairs at about 200 watts up to a small commercial jet engine at about 100 megawatts. The chart uses a logarithmic horizontal axis because the range spans six orders of magnitude. 1 horsepower equals about 746 watts.</desc>
+
+  <text x="320" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Typical Power Outputs (log scale)</text>
+  <text x="320" y="40" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">1 horsepower (hp) ≈ 746 W.   Range spans 1 W to 100 MW — log axis is essential.</text>
+
+  <!-- Plot area: x in log10(W) from 0 to 8.5 mapped to [220, 600] -->
+  <rect x="220" y="60" width="380" height="260" fill="#f7fafc" stroke="#e2e8f0" />
+
+  <!-- Vertical grid: tick at every decade. 380 px / 8.5 decades = 44.7 px per decade. Origin at 220. -->
+  <line x1="220" y1="60" x2="220" y2="320" stroke="#94a3b8" stroke-width="1.2" />
+  <text x="220" y="338" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">1 W</text>
+  <line x1="264.7" y1="60" x2="264.7" y2="320" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="264.7" y="338" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">10 W</text>
+  <line x1="309.4" y1="60" x2="309.4" y2="320" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="309.4" y="338" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">100 W</text>
+  <line x1="354.1" y1="60" x2="354.1" y2="320" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="354.1" y="338" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">1 kW</text>
+  <line x1="398.8" y1="60" x2="398.8" y2="320" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="398.8" y="338" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">10 kW</text>
+  <line x1="443.5" y1="60" x2="443.5" y2="320" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="443.5" y="338" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">100 kW</text>
+  <line x1="488.2" y1="60" x2="488.2" y2="320" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="488.2" y="338" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">1 MW</text>
+  <line x1="532.9" y1="60" x2="532.9" y2="320" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="532.9" y="338" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">10 MW</text>
+  <line x1="577.6" y1="60" x2="577.6" y2="320" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="577.6" y="338" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">100 MW</text>
+
+  <!-- 7 bars, top→bottom, 24 px tall, 8 px gap. Start y=72.
+       Bar lengths: log10(W) * 44.7 px from x=220.
+
+       1) LED bulb — 10 W       → log=1   → length 44.7 → endX 264.7
+       2) Person climbing       — 200 W   → log=2.30  → length 102.8 → 322.8
+       3) Toaster               — 1 200 W → log=3.08  → length 137.7 → 357.7
+       4) Family car (cruise)   — 30 kW   → log=4.48  → length 200.2 → 420.2
+       5) Locomotive            — 4 MW    → log=6.60  → length 295.0 → 515.0
+       6) Hoover Dam (one turb) — 130 MW  → log=8.11  → length 362.5 → 582.5
+       7) Sun (per m²)          — 1.4 kW  → log=3.15  → length 140.8 → 360.8 — leave out, replace #7 with Olympic sprinter ~ 2 kW
+
+       Final list (top→bottom):
+         LED bulb  10 W
+         Olympic sprinter (peak)  2 kW   log=3.30 → 147.5 → endX 367.5
+         Person climbing 200 W  log=2.30
+         Toaster 1.2 kW
+         Family car (cruise) 30 kW
+         Locomotive 4 MW
+         Small jet engine (max thrust) 100 MW  log=8 → 357.6 → 577.6
+       Sort order: smallest at bottom for visual ladder.
+  -->
+
+  <!-- Bar 1 (top): Small jet engine ~100 MW -->
+  <rect x="220" y="72" width="357.6" height="24" fill="#7c3aed" stroke="#1a202c" stroke-width="1" />
+  <text x="216" y="89" font="11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="end">Small jet engine</text>
+  <text x="585" y="89" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#7c3aed">≈ 100 MW</text>
+
+  <!-- Bar 2: Locomotive ~4 MW -->
+  <rect x="220" y="104" width="295.0" height="24" fill="#a78bfa" stroke="#1a202c" stroke-width="1" />
+  <text x="216" y="121" font="11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="end">Diesel locomotive</text>
+  <text x="522" y="121" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#7c3aed">≈ 4 MW</text>
+
+  <!-- Bar 3: Family car cruise ~30 kW -->
+  <rect x="220" y="136" width="200.2" height="24" fill="#bee3f8" stroke="#1a202c" stroke-width="1" />
+  <text x="216" y="153" font="11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="end">Family car (cruise)</text>
+  <text x="426" y="153" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#2b6cb0">≈ 30 kW (≈ 40 hp)</text>
+
+  <!-- Bar 4: Toaster ~1.2 kW -->
+  <rect x="220" y="168" width="137.7" height="24" fill="#fef9c3" stroke="#1a202c" stroke-width="1" />
+  <text x="216" y="185" font="11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="end">Pop-up toaster</text>
+  <text x="362" y="185" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#a16207">≈ 1.2 kW</text>
+
+  <!-- Bar 5: Olympic sprinter peak ~2 kW -->
+  <rect x="220" y="200" width="147.5" height="24" fill="#fed7aa" stroke="#1a202c" stroke-width="1" />
+  <text x="216" y="217" font="11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="end">Olympic sprinter (peak)</text>
+  <text x="372" y="217" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#c2410c">≈ 2 kW</text>
+
+  <!-- Bar 6: Person climbing stairs ~200 W -->
+  <rect x="220" y="232" width="102.8" height="24" fill="#fee2e2" stroke="#1a202c" stroke-width="1" />
+  <text x="216" y="249" font="11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="end">Person climbing stairs</text>
+  <text x="328" y="249" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dc2626">≈ 200 W</text>
+
+  <!-- Bar 7: LED bulb ~10 W -->
+  <rect x="220" y="264" width="44.7" height="24" fill="#f0fdf4" stroke="#1a202c" stroke-width="1" />
+  <text x="216" y="281" font="11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="end">LED bulb</text>
+  <text x="270" y="281" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#15803d">≈ 10 W</text>
+
+  <!-- Footer -->
+  <text x="320" y="354" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Each tick on the axis is ×10. A jet engine outputs about 10 million times the power of an LED bulb.</text>
+</svg>

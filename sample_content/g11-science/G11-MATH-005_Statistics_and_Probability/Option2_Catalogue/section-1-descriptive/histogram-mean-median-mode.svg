@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" role="img" aria-label="Histogram of a right-skewed dataset with mean, median, and mode marked">
+  <title>Histogram with Mean, Median, and Mode</title>
+  <desc>A right-skewed dataset of 15 values (1, 2, 3, 3, 3, 4, 4, 5, 5, 6, 7, 8, 10, 12, 15) is grouped into 8 bins of width 2. Vertical reference lines mark the mode (3), the median (5), and the mean (5.87). Because the distribution has a long right tail, mode is less than median is less than mean.</desc>
+
+  <defs>
+    <marker id="ah-h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4a5568"/>
+    </marker>
+    <style>
+      .axis    { stroke: #4a5568; stroke-width: 1.6; }
+      .grid    { stroke: #e2e8f0; stroke-width: 0.6; }
+      .panel   { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1; }
+      .bar     { fill: #c084fc; fill-opacity: 0.55; stroke: #6b46c1; stroke-width: 1.2; }
+      .mode    { stroke: #2f855a; stroke-width: 2.4; stroke-dasharray: 6 4; }
+      .median  { stroke: #b7791f; stroke-width: 2.4; stroke-dasharray: 6 4; }
+      .mean    { stroke: #c53030; stroke-width: 2.4; stroke-dasharray: 6 4; }
+      .axislbl { font: 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .heading { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .lbl     { font: bold 12px system-ui, sans-serif; }
+      .barlbl  { font: 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <text class="heading" x="240" y="22">Histogram:  mode &lt; median &lt; mean  (right-skewed)</text>
+
+  <!-- Plot frame: 60..460 x (400 wide → 8 bins × 50 px), 50..300 y (250 tall → max count 4 → 60 px per unit) -->
+  <rect class="panel" x="60" y="50" width="400" height="250"/>
+
+  <!-- Horizontal grid (count = 1..4) -->
+  <line class="grid" x1="60" y1="240" x2="460" y2="240"/>
+  <line class="grid" x1="60" y1="180" x2="460" y2="180"/>
+  <line class="grid" x1="60" y1="120" x2="460" y2="120"/>
+  <line class="grid" x1="60" y1="60"  x2="460" y2="60"/>
+
+  <!-- y-axis count labels -->
+  <text class="axislbl" x="52" y="304" text-anchor="end">0</text>
+  <text class="axislbl" x="52" y="244" text-anchor="end">1</text>
+  <text class="axislbl" x="52" y="184" text-anchor="end">2</text>
+  <text class="axislbl" x="52" y="124" text-anchor="end">3</text>
+  <text class="axislbl" x="52" y="64"  text-anchor="end">4</text>
+  <text class="axislbl" x="40" y="40">freq</text>
+
+  <!-- Bars: each bin width 50 px, gap 4 px each side.  Bin x range maps [0,16] → [60,460], 25 px per unit. -->
+  <!-- Bin [0,2)  count 1  → height 60 -->
+  <rect class="bar" x="62" y="240" width="46" height="60"/>
+  <text class="barlbl" x="85" y="294">1</text>
+  <!-- Bin [2,4)  count 4  → height 240 -->
+  <rect class="bar" x="112" y="60" width="46" height="240"/>
+  <text class="barlbl" x="135" y="54">4</text>
+  <!-- Bin [4,6)  count 4  → height 240 -->
+  <rect class="bar" x="162" y="60" width="46" height="240"/>
+  <text class="barlbl" x="185" y="54">4</text>
+  <!-- Bin [6,8)  count 2  → height 120 -->
+  <rect class="bar" x="212" y="180" width="46" height="120"/>
+  <text class="barlbl" x="235" y="174">2</text>
+  <!-- Bin [8,10) count 1  → height 60 -->
+  <rect class="bar" x="262" y="240" width="46" height="60"/>
+  <text class="barlbl" x="285" y="234">1</text>
+  <!-- Bin [10,12) count 1 → height 60 -->
+  <rect class="bar" x="312" y="240" width="46" height="60"/>
+  <text class="barlbl" x="335" y="234">1</text>
+  <!-- Bin [12,14) count 1 → height 60 -->
+  <rect class="bar" x="362" y="240" width="46" height="60"/>
+  <text class="barlbl" x="385" y="234">1</text>
+  <!-- Bin [14,16) count 1 → height 60 -->
+  <rect class="bar" x="412" y="240" width="46" height="60"/>
+  <text class="barlbl" x="435" y="234">1</text>
+
+  <!-- x-axis -->
+  <line class="axis" x1="60" y1="300" x2="464" y2="300" marker-end="url(#ah-h)"/>
+  <line class="axis" x1="60" y1="300" x2="60"  y2="46"  marker-end="url(#ah-h)"/>
+
+  <!-- x tick labels at bin edges 0,2,4,6,8,10,12,14,16 → 60,110,160,210,260,310,360,410,460 -->
+  <text class="axislbl" x="60"  y="316">0</text>
+  <text class="axislbl" x="110" y="316">2</text>
+  <text class="axislbl" x="160" y="316">4</text>
+  <text class="axislbl" x="210" y="316">6</text>
+  <text class="axislbl" x="260" y="316">8</text>
+  <text class="axislbl" x="310" y="316">10</text>
+  <text class="axislbl" x="360" y="316">12</text>
+  <text class="axislbl" x="410" y="316">14</text>
+  <text class="axislbl" x="460" y="316">16</text>
+  <text class="axislbl" x="468" y="304">x</text>
+
+  <!-- Mode line at x = 3 → 60 + 25*3 = 135 -->
+  <line class="mode" x1="135" y1="50" x2="135" y2="300"/>
+  <text class="lbl" x="135" y="44" fill="#2f855a" text-anchor="middle">mode = 3</text>
+
+  <!-- Median line at x = 5 → 60 + 25*5 = 185 -->
+  <line class="median" x1="185" y1="50" x2="185" y2="300"/>
+  <text class="lbl" x="185" y="44" fill="#b7791f" text-anchor="middle">median = 5</text>
+
+  <!-- Mean line at x ≈ 5.87 → 60 + 25*5.87 = 206.7 -->
+  <line class="mean" x1="207" y1="50" x2="207" y2="300"/>
+  <text class="lbl" x="247" y="44" fill="#c53030" text-anchor="middle">mean ≈ 5.87</text>
+
+  <!-- Right legend panel -->
+  <g transform="translate(480, 56)">
+    <rect x="0" y="0" width="150" height="244" rx="8" fill="#fffaf0" stroke="#dd6b20" stroke-width="1.4"/>
+    <text font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" x="75" y="22" text-anchor="middle">Three centres</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="12" y="42">Data (n = 15):</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="12" y="58">1, 2, 3, 3, 3, 4, 4,</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="12" y="72">5, 5, 6, 7, 8, 10,</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="12" y="86">12, 15</text>
+
+    <line x1="12" y1="100" x2="138" y2="100" stroke="#cbd5e0"/>
+
+    <text font="bold 11px system-ui" font-size="11" font-weight="700" fill="#2f855a" x="12" y="118">mode</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="12" y="132">most frequent value</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="12" y="146">= 3 (appears 3×)</text>
+
+    <text font="bold 11px system-ui" font-size="11" font-weight="700" fill="#b7791f" x="12" y="168">median</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="12" y="182">middle value (8th)</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="12" y="196">= 5</text>
+
+    <text font="bold 11px system-ui" font-size="11" font-weight="700" fill="#c53030" x="12" y="218">mean</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="12" y="232">88 / 15  ≈  5.87</text>
+  </g>
+
+  <text x="320" y="350" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">A long right tail pulls the mean above the median; the mode sits at the tallest bar.</text>
+</svg>

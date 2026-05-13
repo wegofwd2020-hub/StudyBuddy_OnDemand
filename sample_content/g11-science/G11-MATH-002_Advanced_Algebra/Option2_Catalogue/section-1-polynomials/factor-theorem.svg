@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 320" width="640" height="320" role="img" aria-label="Factor Theorem: a root of P(x) corresponds to a factor (x − r)">
+  <title>Factor Theorem — Root ↔ Factor</title>
+  <desc>The polynomial P(x) = x³ − 2x² − 5x + 6 graphed with three roots labelled, each mapping to a linear factor.</desc>
+
+  <defs>
+    <marker id="ah-ft" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#6b46c1"/>
+    </marker>
+    <style>
+      .axis    { stroke: #94a3b8; stroke-width: 1.4; }
+      .grid    { stroke: #e2e8f0; stroke-width: 0.6; }
+      .curve   { fill: none; stroke: #2b6cb0; stroke-width: 3; stroke-linecap: round; }
+      .root    { fill: #dd6b20; stroke: white; stroke-width: 2; }
+      .factor  { fill: #fffaf0; stroke: #dd6b20; stroke-width: 1.5; }
+      .lbl     { font: 12px system-ui, sans-serif; fill: #1a202c; }
+      .axislbl { font: 12px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .heading { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .eq      { font: italic 13px system-ui, sans-serif; fill: #4a5568; }
+    </style>
+  </defs>
+
+  <text class="heading" x="320" y="22">Factor Theorem:  P(r) = 0  ⇔  (x − r) is a factor of P(x)</text>
+
+  <!-- Plot area: x in [-3, 4], y in [-6, 8].  px = 60 + (x+3)/7 * 320; py = 60 + (8-y)/14 * 200 -->
+  <g transform="translate(0,0)">
+    <!-- frame -->
+    <rect x="60" y="60" width="320" height="200" fill="#f7fafc" stroke="#cbd5e0"/>
+    <!-- vertical grid -->
+    <line class="grid" x1="106" y1="60" x2="106" y2="260"/>
+    <line class="grid" x1="151" y1="60" x2="151" y2="260"/>
+    <line class="grid" x1="197" y1="60" x2="197" y2="260"/>
+    <line class="grid" x1="243" y1="60" x2="243" y2="260"/>
+    <line class="grid" x1="289" y1="60" x2="289" y2="260"/>
+    <line class="grid" x1="334" y1="60" x2="334" y2="260"/>
+    <!-- horizontal grid -->
+    <line class="grid" x1="60" y1="89"  x2="380" y2="89"/>
+    <line class="grid" x1="60" y1="146" x2="380" y2="146"/>
+    <line class="grid" x1="60" y1="203" x2="380" y2="203"/>
+    <line class="grid" x1="60" y1="231" x2="380" y2="231"/>
+
+    <!-- x axis (y = 0 → py = 60 + 8/14*200 = 60+114.3 = 174.3) -->
+    <line class="axis" x1="60" y1="174" x2="380" y2="174"/>
+    <!-- y axis (x = 0 → px = 60 + 3/7*320 = 60 + 137.1 = 197.1) -->
+    <line class="axis" x1="197" y1="60" x2="197" y2="260"/>
+
+    <!-- x tick labels -->
+    <text class="axislbl" x="106" y="190">−2</text>
+    <text class="axislbl" x="151" y="190">−1</text>
+    <text class="axislbl" x="243" y="190">1</text>
+    <text class="axislbl" x="289" y="190">2</text>
+    <text class="axislbl" x="334" y="190">3</text>
+    <!-- y tick labels -->
+    <text class="axislbl" x="50" y="93"  text-anchor="end">6</text>
+    <text class="axislbl" x="50" y="150" text-anchor="end">2</text>
+    <text class="axislbl" x="50" y="207" text-anchor="end">−2</text>
+    <text class="axislbl" x="50" y="235" text-anchor="end">−4</text>
+    <text class="axislbl" x="392" y="178">x</text>
+    <text class="axislbl" x="197" y="55">y</text>
+
+    <!-- Curve: y = x^3 - 2x^2 - 5x + 6, sampled.  pixels ↔ math: px = 60 + (x+3)/7*320; py = 60 + (8-y)/14*200 -->
+    <!-- key sample points (x, y): (-3,-6),(-2.5,-9.6 clipped),(-2,0),(-1.5,5.6),(-1,8),(-0.5,7.9),(0,6),(0.5,3.1),(1,0),(1.5,-2.6),(2,-4),(2.5,-3.4),(3,0),(3.5,5.4),(4,18 clip) -->
+    <polyline class="curve" points="
+       60.0,260.0
+       82.9,260.0
+      105.7,174.3
+      128.6,114.3
+      151.4,60.0
+      174.3,61.4
+      197.1,88.6
+      220.0,130.0
+      242.9,174.3
+      265.7,211.4
+      288.6,231.4
+      311.4,222.9
+      334.3,174.3
+      357.1,98.6
+      370.0,60.0"/>
+
+    <!-- Roots: x = -2 (px=105.7), x = 1 (px=242.9), x = 3 (px=334.3); all on y=0 line py=174 -->
+    <circle class="root" cx="105.7" cy="174.3" r="6"/>
+    <circle class="root" cx="242.9" cy="174.3" r="6"/>
+    <circle class="root" cx="334.3" cy="174.3" r="6"/>
+    <text class="lbl" x="100" y="167" fill="#dd6b20" font-weight="700">r = −2</text>
+    <text class="lbl" x="237" y="167" fill="#dd6b20" font-weight="700">r = 1</text>
+    <text class="lbl" x="328" y="167" fill="#dd6b20" font-weight="700">r = 3</text>
+
+    <text class="eq" x="220" y="80">P(x) = x³ − 2x² − 5x + 6</text>
+  </g>
+
+  <!-- Right panel: factor mapping -->
+  <g transform="translate(420, 60)">
+    <text font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" x="0" y="0">Each root → one linear factor</text>
+
+    <!-- Mapping rows -->
+    <g transform="translate(0, 22)">
+      <rect class="factor" x="0" y="0" width="80" height="32" rx="6"/>
+      <text class="lbl" x="40" y="20" text-anchor="middle">root r = −2</text>
+      <line x1="84" y1="16" x2="115" y2="16" stroke="#6b46c1" stroke-width="2" marker-end="url(#ah-ft)"/>
+      <rect class="factor" x="118" y="0" width="80" height="32" rx="6"/>
+      <text class="lbl" x="158" y="20" text-anchor="middle" font-weight="700">(x + 2)</text>
+    </g>
+
+    <g transform="translate(0, 64)">
+      <rect class="factor" x="0" y="0" width="80" height="32" rx="6"/>
+      <text class="lbl" x="40" y="20" text-anchor="middle">root r = 1</text>
+      <line x1="84" y1="16" x2="115" y2="16" stroke="#6b46c1" stroke-width="2" marker-end="url(#ah-ft)"/>
+      <rect class="factor" x="118" y="0" width="80" height="32" rx="6"/>
+      <text class="lbl" x="158" y="20" text-anchor="middle" font-weight="700">(x − 1)</text>
+    </g>
+
+    <g transform="translate(0, 106)">
+      <rect class="factor" x="0" y="0" width="80" height="32" rx="6"/>
+      <text class="lbl" x="40" y="20" text-anchor="middle">root r = 3</text>
+      <line x1="84" y1="16" x2="115" y2="16" stroke="#6b46c1" stroke-width="2" marker-end="url(#ah-ft)"/>
+      <rect class="factor" x="118" y="0" width="80" height="32" rx="6"/>
+      <text class="lbl" x="158" y="20" text-anchor="middle" font-weight="700">(x − 3)</text>
+    </g>
+
+    <!-- Combined factorisation -->
+    <rect x="0" y="160" width="200" height="40" rx="6" fill="#f0fff4" stroke="#2f855a" stroke-width="1.5"/>
+    <text x="100" y="178" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">P(x) = (x + 2)(x − 1)(x − 3)</text>
+    <text x="100" y="194" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">leading coefficient = 1</text>
+  </g>
+
+  <text x="320" y="304" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Where the curve crosses the x-axis is a root.  Each root contributes one factor; multiplicities multiply.</text>
+</svg>

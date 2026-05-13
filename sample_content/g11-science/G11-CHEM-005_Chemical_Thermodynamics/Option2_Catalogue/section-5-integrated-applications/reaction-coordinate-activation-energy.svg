@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400" width="720" height="400" role="img" aria-label="Reaction-coordinate diagram with activation energy">
+  <title>Reaction-Coordinate Diagram — Activation Energy and ΔH</title>
+  <desc>An exothermic reaction-coordinate diagram. The reactant level sits high on the left, climbs over an activation-energy barrier (Ea) to the transition-state peak, then falls to the lower product level. The vertical drop from reactants to products is ΔH (negative, heat released). A dashed lower curve shows how a catalyst lowers Ea without changing ΔH.</desc>
+
+  <defs>
+    <marker id="rc-arrow-down" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626"/>
+    </marker>
+    <marker id="rc-arrow-up" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#7c3aed"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Reaction-Coordinate Diagram</text>
+  <text x="360" y="42" font-size="11" fill="#4a5568" text-anchor="middle">Spontaneity vs speed: ΔG decides <tspan font-style="italic">if</tspan> a reaction goes; activation energy E_a decides <tspan font-style="italic">how fast</tspan>.</text>
+
+  <!-- Axes -->
+  <line x1="60" y1="320" x2="60" y2="80" stroke="#1a202c" stroke-width="2"/>
+  <line x1="60" y1="320" x2="680" y2="320" stroke="#1a202c" stroke-width="2"/>
+  <text x="34" y="200" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle" transform="rotate(-90 34 200)">Energy</text>
+  <text x="370" y="345" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Reaction coordinate (progress) →</text>
+
+  <!-- Reactant baseline -->
+  <line x1="60" y1="180" x2="160" y2="180" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="60" y1="260" x2="600" y2="260" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3 3"/>
+
+  <!-- Energy curve (uncatalysed) — main bell -->
+  <path d="M 80 180 L 160 180 Q 230 180, 280 80 Q 330 80, 380 180 Q 440 230, 500 260 L 660 260"
+        fill="none" stroke="#dc2626" stroke-width="3.5"/>
+
+  <!-- Energy curve (catalysed, lower) — dashed -->
+  <path d="M 80 180 L 160 180 Q 220 180, 260 130 Q 330 130, 380 180 Q 440 230, 500 260 L 660 260"
+        fill="none" stroke="#7c3aed" stroke-width="2.5" stroke-dasharray="6 4"/>
+
+  <!-- Reactant label -->
+  <circle cx="120" cy="180" r="6" fill="#dc2626"/>
+  <text x="120" y="172" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">reactants</text>
+  <text x="120" y="158" font-size="10" fill="#4a5568" text-anchor="middle">A + B</text>
+
+  <!-- Transition state -->
+  <circle cx="305" cy="80" r="7" fill="#92400e"/>
+  <text x="305" y="68" font-size="12" font-weight="700" fill="#92400e" text-anchor="middle">transition state</text>
+  <text x="305" y="54" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">‡</text>
+
+  <!-- Product label -->
+  <circle cx="560" cy="260" r="6" fill="#15803d"/>
+  <text x="560" y="280" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">products</text>
+  <text x="560" y="296" font-size="10" fill="#4a5568" text-anchor="middle">C + D</text>
+
+  <!-- Ea (uncatalysed) bracket -->
+  <line x1="220" y1="180" x2="220" y2="80" stroke="#dc2626" stroke-width="2" marker-end="url(#rc-arrow-up)" stroke-dasharray="0"/>
+  <line x1="220" y1="180" x2="210" y2="180" stroke="#dc2626" stroke-width="1.5"/>
+  <line x1="220" y1="80" x2="210" y2="80" stroke="#dc2626" stroke-width="1.5"/>
+  <rect x="172" y="116" width="42" height="22" rx="3" fill="#ffffff" stroke="#dc2626" stroke-width="1"/>
+  <text x="193" y="131" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">E_a</text>
+
+  <!-- Ea (catalysed) -->
+  <line x1="240" y1="180" x2="240" y2="130" stroke="#7c3aed" stroke-width="2" stroke-dasharray="3 3"/>
+  <text x="244" y="160" font-size="10" font-weight="700" fill="#7c3aed">E_a (cat)</text>
+
+  <!-- ΔH bracket (reactants to products) -->
+  <line x1="630" y1="180" x2="630" y2="260" stroke="#1a202c" stroke-width="2" marker-end="url(#rc-arrow-down)"/>
+  <line x1="620" y1="180" x2="640" y2="180" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="620" y1="260" x2="640" y2="260" stroke="#1a202c" stroke-width="1.5"/>
+  <rect x="640" y="208" width="44" height="22" rx="3" fill="#ffffff" stroke="#1a202c" stroke-width="1"/>
+  <text x="662" y="223" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">ΔH</text>
+
+  <!-- Annotation: catalyst -->
+  <rect x="280" y="140" width="160" height="20" rx="3" fill="#ede9fe" stroke="#7c3aed" stroke-width="1"/>
+  <text x="360" y="154" font-size="10" font-weight="700" fill="#7c3aed" text-anchor="middle">with catalyst — lower E_a</text>
+
+  <!-- Bottom legend -->
+  <rect x="60" y="356" width="610" height="36" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.5"/>
+  <text x="365" y="380" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">A catalyst lowers E_a, speeding the reaction. It does NOT change ΔH or ΔG — start and end energies stay put.</text>
+</svg>

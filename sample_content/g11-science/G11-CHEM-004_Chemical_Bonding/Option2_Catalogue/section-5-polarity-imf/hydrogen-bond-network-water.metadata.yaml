@@ -1,0 +1,15 @@
+schema_version: 1
+id: chemistry-hydrogen-bond-network-water
+kind: image
+subject: chemistry
+topic_phrase: "hydrogen bond network water tetrahedral donor acceptor ice density"
+keywords:
+  - hydrogen-bond
+  - water
+  - tetrahedral-network
+  - donor
+  - acceptor
+  - ice
+  - boiling-point
+license: platform-cc-by-sa
+source_unit: G11-CHEM-004

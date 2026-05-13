@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-coordinate-geometry-hyperbola-two-foci
+kind: image
+subject: math
+topic_phrase: "hyperbola defined by constant absolute difference of distances from two foci"
+keywords:
+  - hyperbola
+  - foci
+  - asymptotes
+  - conic-section
+  - eccentricity
+license: platform-cc-by-sa
+source_unit: G11-MATH-003

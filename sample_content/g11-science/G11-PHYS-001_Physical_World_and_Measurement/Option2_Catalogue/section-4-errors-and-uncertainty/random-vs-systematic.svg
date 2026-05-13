@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380" role="img" aria-label="Random vs Systematic error scatter">
+  <title>Random vs Systematic Errors — accuracy and precision</title>
+  <desc>Four target diagrams arranged in a 2×2 grid showing the four combinations of high/low accuracy and high/low precision, illustrating the difference between random and systematic error.</desc>
+
+  <text x="360" y="26" font-family="system-ui" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Accuracy vs Precision — what random and systematic errors look like</text>
+  <text x="360" y="46" font-family="system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">accuracy = how close to truth · precision = how close to each other</text>
+
+  <!-- Common target template (drawn 4 times by translate) -->
+  <defs>
+    <g id="target">
+      <circle cx="80" cy="80" r="70" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" />
+      <circle cx="80" cy="80" r="50" fill="#fef3c7" stroke="#cbd5e1" stroke-width="1" />
+      <circle cx="80" cy="80" r="30" fill="#fed7aa" stroke="#cbd5e1" stroke-width="1" />
+      <circle cx="80" cy="80" r="12" fill="#dc2626" stroke="#7f1d1d" stroke-width="1" />
+      <line x1="10" y1="80" x2="150" y2="80" stroke="#94a3b8" stroke-width="0.5" />
+      <line x1="80" y1="10" x2="80" y2="150" stroke="#94a3b8" stroke-width="0.5" />
+    </g>
+  </defs>
+
+  <!-- Top-Left: high accuracy, high precision -->
+  <g transform="translate(40, 80)">
+    <use href="#target" />
+    <!-- Tight cluster on bullseye -->
+    <g fill="#1a202c">
+      <circle cx="78" cy="80" r="3.5" />
+      <circle cx="82" cy="78" r="3.5" />
+      <circle cx="80" cy="83" r="3.5" />
+      <circle cx="83" cy="82" r="3.5" />
+      <circle cx="77" cy="79" r="3.5" />
+      <circle cx="81" cy="80" r="3.5" />
+      <circle cx="79" cy="81" r="3.5" />
+    </g>
+    <text x="80" y="180" font-family="system-ui" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">Accurate &amp; Precise</text>
+    <text x="80" y="198" font-family="system-ui" font-size="11" fill="#4a5568" text-anchor="middle">low random error</text>
+    <text x="80" y="214" font-family="system-ui" font-size="11" fill="#4a5568" text-anchor="middle">low systematic error</text>
+  </g>
+
+  <!-- Top-Right: low accuracy, high precision (systematic error) -->
+  <g transform="translate(220, 80)">
+    <use href="#target" />
+    <!-- Tight cluster, off-centre -->
+    <g fill="#1a202c">
+      <circle cx="118" cy="50" r="3.5" />
+      <circle cx="122" cy="48" r="3.5" />
+      <circle cx="120" cy="52" r="3.5" />
+      <circle cx="123" cy="51" r="3.5" />
+      <circle cx="117" cy="49" r="3.5" />
+      <circle cx="121" cy="50" r="3.5" />
+      <circle cx="119" cy="51" r="3.5" />
+    </g>
+    <!-- Bias arrow -->
+    <line x1="80" y1="80" x2="115" y2="55" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="4 3" />
+    <text x="118" y="40" font-family="system-ui" font-size="10" fill="#7c3aed" font-style="italic">bias</text>
+    <text x="80" y="180" font-family="system-ui" font-size="13" font-weight="700" fill="#dd6b20" text-anchor="middle">Precise but Inaccurate</text>
+    <text x="80" y="198" font-family="system-ui" font-size="11" fill="#4a5568" text-anchor="middle">low random error</text>
+    <text x="80" y="214" font-family="system-ui" font-size="11" fill="#4a5568" text-anchor="middle">high systematic error (bias)</text>
+  </g>
+
+  <!-- Bottom-Left: accurate but imprecise (high random error, no bias) -->
+  <g transform="translate(400, 80)">
+    <use href="#target" />
+    <!-- Wide scatter centred on bullseye -->
+    <g fill="#1a202c">
+      <circle cx="60" cy="65" r="3.5" />
+      <circle cx="100" cy="70" r="3.5" />
+      <circle cx="55" cy="95" r="3.5" />
+      <circle cx="105" cy="98" r="3.5" />
+      <circle cx="80" cy="55" r="3.5" />
+      <circle cx="80" cy="110" r="3.5" />
+      <circle cx="73" cy="80" r="3.5" />
+    </g>
+    <text x="80" y="180" font-family="system-ui" font-size="13" font-weight="700" fill="#0891b2" text-anchor="middle">Accurate but Imprecise</text>
+    <text x="80" y="198" font-family="system-ui" font-size="11" fill="#4a5568" text-anchor="middle">high random error</text>
+    <text x="80" y="214" font-family="system-ui" font-size="11" fill="#4a5568" text-anchor="middle">low systematic error (mean ≈ truth)</text>
+  </g>
+
+  <!-- Bottom-Right: neither -->
+  <g transform="translate(580, 80)">
+    <use href="#target" />
+    <g fill="#1a202c">
+      <circle cx="115" cy="40" r="3.5" />
+      <circle cx="135" cy="60" r="3.5" />
+      <circle cx="100" cy="35" r="3.5" />
+      <circle cx="125" cy="75" r="3.5" />
+      <circle cx="140" cy="45" r="3.5" />
+      <circle cx="105" cy="55" r="3.5" />
+      <circle cx="118" cy="62" r="3.5" />
+    </g>
+    <line x1="80" y1="80" x2="120" y2="55" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="4 3" />
+    <text x="80" y="180" font-family="system-ui" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">Neither</text>
+    <text x="80" y="198" font-family="system-ui" font-size="11" fill="#4a5568" text-anchor="middle">high random error</text>
+    <text x="80" y="214" font-family="system-ui" font-size="11" fill="#4a5568" text-anchor="middle">high systematic error</text>
+  </g>
+
+  <!-- Definition strip -->
+  <rect x="20" y="304" width="680" height="64" rx="10" fill="#f7fafc" stroke="#e2e8f0" />
+  <text x="32" y="324" font-family="system-ui" font-size="12" font-weight="700" fill="#1a202c">
+    <tspan fill="#0891b2">Random error</tspan> — unpredictable, scatters around the true value; reduced by averaging many trials.
+  </text>
+  <text x="32" y="344" font-family="system-ui" font-size="12" font-weight="700" fill="#1a202c">
+    <tspan fill="#7c3aed">Systematic error</tspan> — consistent in direction (e.g. zero offset, calibration drift); not reduced by averaging — must be detected and corrected.
+  </text>
+  <text x="32" y="362" font-family="system-ui" font-size="11" font-style="italic" fill="#4a5568">
+    Take many readings, look at the spread vs the centre; the structure of the errors tells you which fix is needed.
+  </text>
+</svg>

@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 320" width="640" height="320" role="img" aria-label="Real-world examples of positive and negative work">
+  <title>Positive vs negative work — real examples</title>
+  <desc>Two everyday examples. Top: a person lifts a box upward — the lifting force is parallel to the displacement, doing positive work on the box. Gravity acts opposite to displacement, doing negative work on the box. Bottom: a sliding block decelerated by friction — friction acts opposite to motion, doing negative work and removing kinetic energy.</desc>
+
+  <defs>
+    <marker id="we3-arr-pos" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#15803d" />
+    </marker>
+    <marker id="we3-arr-neg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626" />
+    </marker>
+    <marker id="we3-arr-d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#7c3aed" />
+    </marker>
+  </defs>
+
+  <text x="320" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Two everyday examples — sign of W tells you the energy flow</text>
+
+  <!-- ─────────── Example 1: Lifting a box ─────────── -->
+  <g>
+    <text x="80" y="60" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c">Example 1 · Lifting a box</text>
+
+    <!-- Ground line -->
+    <line x1="60" y1="180" x2="280" y2="180" stroke="#94a3b8" stroke-width="1.5" />
+
+    <!-- Initial box (low), faded -->
+    <rect x="100" y="146" width="40" height="34" fill="#fef9c3" stroke="#1a202c" stroke-width="1.2" opacity="0.45" />
+    <text x="120" y="170" font="10px system-ui" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">start</text>
+
+    <!-- Final box (raised) -->
+    <rect x="100" y="80" width="40" height="34" fill="#fef9c3" stroke="#1a202c" stroke-width="1.5" />
+    <text x="120" y="102" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">m</text>
+
+    <!-- Displacement d (purple, upward) -->
+    <line x1="160" y1="160" x2="160" y2="100" stroke="#7c3aed" stroke-width="2.5" marker-end="url(#we3-arr-d)" />
+    <text x="172" y="135" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#7c3aed">d</text>
+
+    <!-- Lifting force (green, upward, on box) -->
+    <line x1="120" y1="80" x2="120" y2="40" stroke="#15803d" stroke-width="2.8" marker-end="url(#we3-arr-pos)" />
+    <text x="78" y="56" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#15803d">F_lift</text>
+
+    <!-- Gravity (red, downward, on box) -->
+    <line x1="140" y1="97" x2="220" y2="97" stroke="#dc2626" stroke-width="2.8" marker-end="url(#we3-arr-neg)" />
+    <text x="225" y="100" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#dc2626">mg</text>
+    <line x1="140" y1="97" x2="180" y2="97" stroke="none" />
+    <!-- Actually gravity points downward from the box -->
+    <line x1="120" y1="114" x2="120" y2="150" stroke="#dc2626" stroke-width="2.8" marker-end="url(#we3-arr-neg)" />
+    <text x="78" y="140" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#dc2626">mg</text>
+    <!-- (cleanup of stray gravity arrow above) -->
+
+    <!-- Result table -->
+    <rect x="320" y="50" width="300" height="110" rx="8" fill="#f7fafc" stroke="#1a202c" stroke-width="1.2" />
+    <text x="470" y="70" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Work done by each force</text>
+
+    <line x1="335" y1="80" x2="605" y2="80" stroke="#cbd5e0" stroke-width="1" />
+    <text x="345" y="98" font="11px system-ui" font-size="11" font-weight="700" fill="#15803d">F_lift  ↑   parallel to d ↑</text>
+    <text x="595" y="98" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#15803d" text-anchor="end">W = + F_lift · d</text>
+
+    <line x1="335" y1="108" x2="605" y2="108" stroke="#cbd5e0" stroke-width="1" />
+    <text x="345" y="125" font="11px system-ui" font-size="11" font-weight="700" fill="#dc2626">mg  ↓   anti-parallel to d ↑</text>
+    <text x="595" y="125" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dc2626" text-anchor="end">W = − m g · d</text>
+
+    <line x1="335" y1="135" x2="605" y2="135" stroke="#cbd5e0" stroke-width="1" />
+    <text x="345" y="151" font="11px system-ui" font-size="11" font-weight="700" fill="#1a202c">Net (constant v):</text>
+    <text x="595" y="151" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="end">W_net = 0</text>
+  </g>
+
+  <!-- ─────────── Example 2: Friction ─────────── -->
+  <g>
+    <text x="80" y="220" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c">Example 2 · Sliding block decelerated by friction</text>
+
+    <!-- Floor with hatching -->
+    <line x1="60" y1="280" x2="280" y2="280" stroke="#94a3b8" stroke-width="1.5" />
+    <g stroke="#94a3b8" stroke-width="1">
+      <line x1="80" y1="280" x2="72" y2="290" />
+      <line x1="120" y1="280" x2="112" y2="290" />
+      <line x1="160" y1="280" x2="152" y2="290" />
+      <line x1="200" y1="280" x2="192" y2="290" />
+      <line x1="240" y1="280" x2="232" y2="290" />
+      <line x1="280" y1="280" x2="272" y2="290" />
+    </g>
+
+    <!-- Initial block (left), faded -->
+    <rect x="80" y="244" width="40" height="36" fill="#bee3f8" stroke="#1a202c" stroke-width="1.2" opacity="0.45" />
+    <!-- Final block (right) -->
+    <rect x="200" y="244" width="40" height="36" fill="#bee3f8" stroke="#1a202c" stroke-width="1.5" />
+    <text x="220" y="268" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">m</text>
+
+    <!-- Displacement d (rightward, purple) -->
+    <line x1="100" y1="298" x2="220" y2="298" stroke="#7c3aed" stroke-width="2.5" marker-end="url(#we3-arr-d)" />
+    <text x="160" y="312" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#7c3aed" text-anchor="middle">d</text>
+
+    <!-- Friction (red, leftward — opposes motion — on block) -->
+    <line x1="220" y1="262" x2="170" y2="262" stroke="#dc2626" stroke-width="2.8" marker-end="url(#we3-arr-neg)" />
+    <text x="155" y="258" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#dc2626">f</text>
+
+    <rect x="320" y="220" width="300" height="80" rx="8" fill="#fee2e2" stroke="#dc2626" stroke-width="1.4" />
+    <text x="470" y="240" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Friction is anti-parallel to motion</text>
+    <text x="470" y="262" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">W_friction = − f · d</text>
+    <text x="470" y="284" font="11px system-ui" font-size="11" font-style="italic" fill="#1a202c" text-anchor="middle">Kinetic energy → heat. Block slows down.</text>
+  </g>
+</svg>

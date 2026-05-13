@@ -1,0 +1,15 @@
+schema_version: 1
+id: physics-thermodynamics-pv-diagram-four-processes
+kind: image
+subject: physics
+topic_phrase: "PV diagram of four ideal-gas processes from a common starting point: isobaric, isochoric, isothermal, and adiabatic, with adiabatic steeper than isothermal"
+keywords:
+  - pv-diagram
+  - isobaric
+  - isochoric
+  - isothermal
+  - adiabatic
+  - quasi-static-process
+  - first-law
+license: platform-cc-by-sa
+source_unit: G11-PHYS-008

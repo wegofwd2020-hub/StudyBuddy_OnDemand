@@ -1,0 +1,14 @@
+schema_version: 1
+id: physics-kinetic-theory-maxwell-boltzmann-temperatures
+kind: image
+subject: physics
+topic_phrase: "Maxwell-Boltzmann molecular speed distribution at three temperatures showing the peak shifting to higher speed and lowering as temperature rises with a long high-speed tail"
+keywords:
+  - maxwell-boltzmann-distribution
+  - molecular-speed
+  - probability-density
+  - temperature-dependence
+  - high-speed-tail
+  - statistical-mechanics
+license: platform-cc-by-sa
+source_unit: G11-PHYS-009

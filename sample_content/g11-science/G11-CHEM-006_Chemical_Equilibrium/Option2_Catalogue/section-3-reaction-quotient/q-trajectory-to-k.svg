@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" width="720" height="360" role="img" aria-label="Q evolves toward K over time">
+  <title>Q Walks Toward K — Two Starting Conditions</title>
+  <desc>Plot of Q versus time with the equilibrium value K shown as a horizontal dashed line. Two trajectories converge to K from opposite sides: starting low (Q below K) climbs upward to K; starting high (Q above K) falls downward to K. Both end at the same equilibrium value because K is a property of temperature, not of starting amounts.</desc>
+
+  <defs>
+    <marker id="qt-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1a202c"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Q(t) Always Walks Toward K</text>
+  <text x="360" y="42" font-size="11" fill="#4a5568" text-anchor="middle">Two flasks of the same reaction at the same T — different starts, identical end.</text>
+
+  <!-- Plot frame -->
+  <line x1="80" y1="300" x2="640" y2="300" stroke="#1a202c" stroke-width="1.5" marker-end="url(#qt-arr)"/>
+  <line x1="80" y1="300" x2="80"  y2="70"  stroke="#1a202c" stroke-width="1.5" marker-end="url(#qt-arr)"/>
+  <text x="660" y="304" font-size="12" font-weight="700" fill="#1a202c">time</text>
+  <text x="48" y="76" font-size="12" font-weight="700" fill="#1a202c">Q (or K)</text>
+
+  <!-- K horizontal line -->
+  <line x1="80" y1="180" x2="640" y2="180" stroke="#15803d" stroke-width="2" stroke-dasharray="6 5"/>
+  <text x="650" y="184" font-size="13" font-weight="700" fill="#15803d">K</text>
+
+  <!-- Trajectory A: Q starts low (Q < K) -> climbs to K -->
+  <path d="M 80 280 Q 220 250, 320 220 Q 420 195, 540 184 L 620 182" fill="none" stroke="#2b6cb0" stroke-width="3"/>
+  <circle cx="80" cy="280" r="6" fill="#2b6cb0"/>
+  <text x="100" y="286" font-size="11" font-weight="700" fill="#2b6cb0">start A: Q₀ &lt; K  (mostly reactants)</text>
+
+  <!-- Trajectory B: Q starts high (Q > K) -> falls to K -->
+  <path d="M 80 100 Q 220 130, 320 150 Q 420 170, 540 178 L 620 180" fill="none" stroke="#dc2626" stroke-width="3"/>
+  <circle cx="80" cy="100" r="6" fill="#dc2626"/>
+  <text x="100" y="92" font-size="11" font-weight="700" fill="#dc2626">start B: Q₀ &gt; K  (mostly products)</text>
+
+  <!-- Convergence label -->
+  <ellipse cx="600" cy="180" rx="36" ry="18" fill="none" stroke="#15803d" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <text x="600" y="232" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle">both reach K</text>
+
+  <!-- Two side captions -->
+  <rect x="80" y="318" width="270" height="32" rx="6" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.2"/>
+  <text x="215" y="340" font-size="11" fill="#1a202c" text-anchor="middle">A reacts forward → makes products</text>
+
+  <rect x="370" y="318" width="270" height="32" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="1.2"/>
+  <text x="505" y="340" font-size="11" fill="#1a202c" text-anchor="middle">B reacts reverse → makes reactants</text>
+</svg>

@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" width="640" height="380" role="img" aria-label="Bar chart of the binomial distribution with parameters n equals ten and p equals one half">
+  <title>Binomial Distribution: n = 10, p = 0.5</title>
+  <desc>Probability mass function of X distributed as Binomial(n equals 10, p equals one half).  Each bar is P(X = k) = C(10, k) times one half to the tenth.  The distribution is symmetric and peaks at k = 5 with probability 252 / 1024 approximately 0.2461.  Mean equals n times p equals 5 and variance equals n times p times (1 minus p) equals 2.5.</desc>
+
+  <defs>
+    <marker id="ah-bn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4a5568"/>
+    </marker>
+    <style>
+      .axis    { stroke: #4a5568; stroke-width: 1.6; }
+      .grid    { stroke: #e2e8f0; stroke-width: 0.6; }
+      .panel   { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1; }
+      .bar     { fill: #c084fc; fill-opacity: 0.6; stroke: #6b46c1; stroke-width: 1.2; }
+      .barPeak { fill: #6b46c1; fill-opacity: 0.8; stroke: #44337a; stroke-width: 1.6; }
+      .meanLn  { stroke: #c53030; stroke-width: 2.4; stroke-dasharray: 6 4; }
+      .axislbl { font: 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .heading { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .lbl     { font: bold 12px system-ui, sans-serif; }
+      .barlbl  { font: 9.5px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <text class="heading" x="240" y="22">Binomial(n = 10, p = ½):  P(X = k) = C(10, k) · (½)¹⁰</text>
+
+  <!-- Plot frame: 60..460 x (400 wide → 11 bars).  y range 0..0.27, frame y 50..300 (250 tall).  Scale: y-px = 300 - p*900 (since 0.27*900 ≈ 243). -->
+  <rect class="panel" x="60" y="50" width="400" height="250"/>
+
+  <!-- Horizontal grid (probability ticks at 0.05, 0.10, 0.15, 0.20, 0.25) -->
+  <line class="grid" x1="60" y1="255" x2="460" y2="255"/>  <!-- 0.05 -->
+  <line class="grid" x1="60" y1="210" x2="460" y2="210"/>  <!-- 0.10 -->
+  <line class="grid" x1="60" y1="165" x2="460" y2="165"/>  <!-- 0.15 -->
+  <line class="grid" x1="60" y1="120" x2="460" y2="120"/>  <!-- 0.20 -->
+  <line class="grid" x1="60" y1="75"  x2="460" y2="75"/>   <!-- 0.25 -->
+
+  <!-- y-axis labels -->
+  <text class="axislbl" x="52" y="304" text-anchor="end">0.00</text>
+  <text class="axislbl" x="52" y="259" text-anchor="end">0.05</text>
+  <text class="axislbl" x="52" y="214" text-anchor="end">0.10</text>
+  <text class="axislbl" x="52" y="169" text-anchor="end">0.15</text>
+  <text class="axislbl" x="52" y="124" text-anchor="end">0.20</text>
+  <text class="axislbl" x="52" y="79"  text-anchor="end">0.25</text>
+  <text class="axislbl" x="40" y="40">P(X=k)</text>
+
+  <!-- 11 bars; bar slot width = 400/11 ≈ 36.4; bar width 28; left padding 4
+       k → centre x = 60 + (k+0.5) * 36.4
+       k → left x  = 60 + k*36.4 + 4
+  -->
+  <!-- Heights:
+       k=0: 0.000977 → 300 - 0.000977*900 = 299.12
+       k=1: 0.009766 → 291.21
+       k=2: 0.043945 → 260.45
+       k=3: 0.117188 → 194.53
+       k=4: 0.205078 → 115.43
+       k=5: 0.246094 → 78.52   (peak)
+       k=6: 0.205078 → 115.43
+       k=7: 0.117188 → 194.53
+       k=8: 0.043945 → 260.45
+       k=9: 0.009766 → 291.21
+       k=10: 0.000977 → 299.12
+       Width 28
+  -->
+  <rect class="bar" x="64"  y="299" width="28" height="1"/>
+  <text class="barlbl" x="78"  y="293">.001</text>
+  <rect class="bar" x="100" y="291" width="28" height="9"/>
+  <text class="barlbl" x="114" y="285">.010</text>
+  <rect class="bar" x="137" y="260" width="28" height="40"/>
+  <text class="barlbl" x="151" y="254">.044</text>
+  <rect class="bar" x="173" y="195" width="28" height="105"/>
+  <text class="barlbl" x="187" y="189">.117</text>
+  <rect class="bar" x="210" y="115" width="28" height="185"/>
+  <text class="barlbl" x="224" y="109">.205</text>
+  <rect class="barPeak" x="246" y="79" width="28" height="221"/>
+  <text class="barlbl" x="260" y="73" font-weight="700" fill="#44337a">.246</text>
+  <rect class="bar" x="282" y="115" width="28" height="185"/>
+  <text class="barlbl" x="296" y="109">.205</text>
+  <rect class="bar" x="319" y="195" width="28" height="105"/>
+  <text class="barlbl" x="333" y="189">.117</text>
+  <rect class="bar" x="355" y="260" width="28" height="40"/>
+  <text class="barlbl" x="369" y="254">.044</text>
+  <rect class="bar" x="392" y="291" width="28" height="9"/>
+  <text class="barlbl" x="406" y="285">.010</text>
+  <rect class="bar" x="428" y="299" width="28" height="1"/>
+  <text class="barlbl" x="442" y="293">.001</text>
+
+  <!-- x-axis -->
+  <line class="axis" x1="60" y1="300" x2="464" y2="300" marker-end="url(#ah-bn)"/>
+  <line class="axis" x1="60" y1="300" x2="60"  y2="46"  marker-end="url(#ah-bn)"/>
+
+  <!-- x tick labels k = 0..10 at bar centres -->
+  <text class="axislbl" x="78"  y="316">0</text>
+  <text class="axislbl" x="114" y="316">1</text>
+  <text class="axislbl" x="151" y="316">2</text>
+  <text class="axislbl" x="187" y="316">3</text>
+  <text class="axislbl" x="224" y="316">4</text>
+  <text class="axislbl" x="260" y="316">5</text>
+  <text class="axislbl" x="296" y="316">6</text>
+  <text class="axislbl" x="333" y="316">7</text>
+  <text class="axislbl" x="369" y="316">8</text>
+  <text class="axislbl" x="406" y="316">9</text>
+  <text class="axislbl" x="442" y="316">10</text>
+  <text class="axislbl" x="260" y="334">k  (number of successes)</text>
+
+  <!-- Mean line at k = np = 5 → x = 260 (centre of k=5 bar) -->
+  <line class="meanLn" x1="260" y1="50" x2="260" y2="300"/>
+  <text class="lbl" x="288" y="44" fill="#c53030">mean μ = 5</text>
+
+  <!-- Right legend -->
+  <g transform="translate(480, 56)">
+    <rect x="0" y="0" width="150" height="244" rx="8" fill="#fffaf0" stroke="#dd6b20" stroke-width="1.4"/>
+    <text font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" x="75" y="22" text-anchor="middle">Binomial PMF</text>
+
+    <text font="italic 12px system-ui" font-size="12" fill="#1a202c" x="75" y="46" text-anchor="middle">P(X = k)</text>
+    <text font="italic 12px system-ui" font-size="12" fill="#1a202c" x="75" y="64" text-anchor="middle">= C(n, k) pᵏ (1−p)ⁿ⁻ᵏ</text>
+
+    <line x1="12" y1="78" x2="138" y2="78" stroke="#cbd5e0"/>
+
+    <text font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" x="12" y="98">Parameters</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="12" y="114">n = 10  trials</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="12" y="128">p = ½    success prob</text>
+
+    <line x1="12" y1="142" x2="138" y2="142" stroke="#cbd5e0"/>
+
+    <text font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" x="12" y="160">Moments</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="12" y="176">μ = n·p = 5</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="12" y="190">σ² = n·p·(1−p) = 2.5</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="12" y="204">σ ≈ 1.58</text>
+
+    <line x1="12" y1="216" x2="138" y2="216" stroke="#cbd5e0"/>
+    <text font="italic 11px system-ui" font-size="11" font-style="italic" fill="#4a5568" x="12" y="234">Symmetric because p = ½</text>
+  </g>
+
+  <text x="320" y="370" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Example:  flip a fair coin 10 times — most likely outcome is 5 heads, but 4 or 6 heads each have probability ≈ 0.205.</text>
+</svg>

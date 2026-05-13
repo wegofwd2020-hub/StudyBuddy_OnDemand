@@ -1,0 +1,15 @@
+# Auto-generated style sidecar — paired with collision-types-comparison.svg
+schema_version: 1
+id: physics-systems-of-particles-collision-types-comparison
+kind: image
+subject: physics
+topic_phrase: "comparison of elastic, perfectly inelastic, and explosion collisions with momentum vectors"
+keywords:
+  - elastic-collision
+  - inelastic-collision
+  - explosion
+  - momentum-conservation
+  - kinetic-energy
+  - collision-types
+license: platform-cc-by-sa
+source_unit: G11-PHYS-005

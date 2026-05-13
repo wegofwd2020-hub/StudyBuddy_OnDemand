@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 320" width="480" height="320" role="img" aria-label="Gravitational potential energy as a function of separation showing the negative-energy well">
+  <title>Gravitational potential well — U(r) = − G M m / r</title>
+  <desc>Curve showing gravitational potential energy U as a negative function of separation r. U approaches zero from below as r tends to infinity (the chosen reference); U becomes more negative as r decreases, forming a well. Bound states have negative total energy; escape requires reaching U equal zero.</desc>
+
+  <rect x="60" y="32" width="390" height="238" fill="#f7fafc" stroke="#e2e8f0" />
+
+  <!-- Vertical grid (r: 0..6, every 1) -->
+  <line x1="60" y1="32" x2="60" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="60" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">0</text>
+  <line x1="125" y1="32" x2="125" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="125" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">1</text>
+  <line x1="190" y1="32" x2="190" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="190" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">2</text>
+  <line x1="255" y1="32" x2="255" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="255" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">3</text>
+  <line x1="320" y1="32" x2="320" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="320" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">4</text>
+  <line x1="385" y1="32" x2="385" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="385" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">5</text>
+  <line x1="450" y1="32" x2="450" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="450" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">6</text>
+
+  <!-- Horizontal grid (U: -12 to +2, every 2) -->
+  <line x1="60" y1="270" x2="450" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="274" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">−12</text>
+  <line x1="60" y1="236" x2="450" y2="236" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="240" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">−10</text>
+  <line x1="60" y1="202" x2="450" y2="202" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="206" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">−8</text>
+  <line x1="60" y1="168" x2="450" y2="168" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="172" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">−6</text>
+  <line x1="60" y1="134" x2="450" y2="134" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="138" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">−4</text>
+  <line x1="60" y1="100" x2="450" y2="100" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="104" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">−2</text>
+  <!-- zero -->
+  <line x1="60" y1="66" x2="450" y2="66" stroke="#1a202c" stroke-width="1.2" stroke-dasharray="4 3" />
+  <text x="54" y="70" font="11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="end">0</text>
+  <line x1="60" y1="32" x2="450" y2="32" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="36" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">+2</text>
+
+  <line x1="60" y1="270" x2="450" y2="270" stroke="#94a3b8" stroke-width="1.2" />
+  <line x1="60" y1="32" x2="60" y2="270" stroke="#94a3b8" stroke-width="1.2" />
+
+  <text x="255" y="302" font="13px system-ui" font-size="13" font-weight="600" fill="#1a202c" text-anchor="middle">r  (separation, arbitrary units)</text>
+  <text x="24" y="151" font="13px system-ui" font-size="13" font-weight="600" fill="#1a202c" text-anchor="middle" transform="rotate(-90 24 151)">U  (energy, arbitrary units)</text>
+
+  <text x="255" y="20" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Gravitational potential well:  U(r) = − G M m / r</text>
+
+  <!-- Curve: U = -10/r, sampled r=0.85..6, clamped at -11.5 -->
+  <polyline points="118.04,256.39 120.83,247.66 123.62,239.69 126.41,232.39 129.20,225.69 131.99,219.50 134.78,213.77 137.57,208.46 140.36,203.51 143.15,198.90 145.94,194.58 148.73,190.54 151.51,186.75 154.30,183.17 157.09,179.81 159.88,176.63 162.67,173.62 165.46,170.78 168.25,168.08 171.04,165.51 173.83,163.07 176.62,160.75 179.41,158.54 182.20,156.43 184.99,154.41 187.78,152.48 190.57,150.63 193.36,148.86 196.15,147.16 198.94,145.53 201.73,143.97 204.52,142.46 207.31,141.01 210.10,139.62 212.89,138.28 215.68,136.98 218.46,135.73 221.25,134.53 224.04,133.36 226.83,132.23 229.62,131.14 232.41,130.09 235.20,129.07 237.99,128.08 240.78,127.12 243.57,126.19 246.36,125.29 249.15,124.42 251.94,123.57 254.73,122.75 257.52,121.94 260.31,121.16 263.10,120.41 265.89,119.67 268.68,118.95 271.47,118.25 274.26,117.57 277.05,116.91 279.84,116.26 282.62,115.64 285.41,115.02 288.20,114.42 290.99,113.84 293.78,113.27 296.57,112.71 299.36,112.16 302.15,111.63 304.94,111.11 307.73,110.60 310.52,110.11 313.31,109.62 316.10,109.15 318.89,108.68 321.68,108.23 324.47,107.78 327.26,107.35 330.05,106.92 332.84,106.50 335.63,106.09 338.42,105.69 341.21,105.30 344.00,104.91 346.79,104.53 349.58,104.16 352.36,103.80 355.15,103.44 357.94,103.09 360.73,102.74 363.52,102.41 366.31,102.07 369.10,101.75 371.89,101.43 374.68,101.11 377.47,100.81 380.26,100.50 383.05,100.21 385.84,99.91 388.63,99.62 391.42,99.34 394.21,99.06 397.00,98.79 399.79,98.52 402.58,98.26 405.37,97.99 408.16,97.74 410.95,97.49 413.74,97.24 416.53,96.99 419.31,96.75 422.10,96.52 424.89,96.28 427.68,96.05 430.47,95.83 433.26,95.60 436.05,95.38 438.84,95.17 441.63,94.95 444.42,94.74 447.21,94.54 450.00,94.33"
+    fill="none" stroke="#7c3aed" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- Sample points -->
+  <circle cx="125" cy="236" r="4" fill="#7c3aed" />
+  <text x="135" y="232" font="11px system-ui" font-size="11" font-weight="600" fill="#7c3aed">r = 1: U = −10</text>
+
+  <circle cx="190" cy="151" r="4" fill="#7c3aed" />
+  <text x="200" y="148" font="11px system-ui" font-size="11" font-weight="600" fill="#7c3aed">r = 2: U = −5</text>
+
+  <circle cx="385" cy="100" r="4" fill="#7c3aed" />
+  <text x="395" y="96" font="11px system-ui" font-size="11" font-weight="600" fill="#7c3aed">r = 5: U = −2</text>
+
+  <!-- Annotation: bound region -->
+  <text x="270" y="50" font="12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">U → 0 as r → ∞   (reference at infinity)</text>
+
+  <!-- Bound state arrow -->
+  <line x1="190" y1="151" x2="190" y2="66" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="3 3" />
+  <text x="195" y="115" font="11px system-ui" font-size="11" font-weight="700" fill="#dc2626">|U| = energy needed to escape from r</text>
+
+  <text x="255" y="316" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Negative U means "bound": the orbiting body is in a well it cannot climb out of without acquiring kinetic energy ≥ |U|.</text>
+</svg>

@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 540" width="760" height="540" role="img" aria-label="Eleven organ systems of the human body">
+  <title>The eleven organ systems — function and key organs at a glance</title>
+  <desc>A 4 × 3 grid summarising the eleven organ systems of the human body. Each card lists the system name, its primary function, and the headline organs. The cards are colour-coded by functional family: support and movement (musculoskeletal), transport and exchange (cardiovascular, respiratory, lymphatic), regulation (nervous, endocrine), processing (digestive, urinary), and reproduction-and-defence (reproductive, integumentary). The integumentary system shares a card with the immune system at lower right.</desc>
+
+  <text x="380" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">The Eleven Organ Systems — Functional Map</text>
+  <text x="380" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Each system is a team of organs working toward one shared physiological job. Bodies stay alive only when all eleven cooperate.</text>
+
+  <!-- Background -->
+  <rect x="20" y="56" width="720" height="464" rx="14" fill="#f7fafc" stroke="#cbd5e1" stroke-width="1"/>
+
+  <!-- Family band -->
+  <text x="32" y="78" font-size="10" font-weight="700" fill="#4a5568">Support &amp; Movement</text>
+  <text x="380" y="78" font-size="10" font-weight="700" fill="#4a5568" text-anchor="middle">Transport &amp; Exchange</text>
+  <text x="728" y="78" font-size="10" font-weight="700" fill="#4a5568" text-anchor="end">Regulation · Processing · Defence</text>
+
+  <!-- ── Row 1 ────────────────────────────────────────────────── -->
+  <!-- Skeletal -->
+  <rect x="32" y="86" width="170" height="100" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+  <text x="46" y="106" font-size="12" font-weight="700" fill="#78350f">Skeletal</text>
+  <text x="46" y="124" font-size="10" fill="#4a5568">Frames the body, protects organs,</text>
+  <text x="46" y="136" font-size="10" fill="#4a5568">stores Ca²⁺/P, makes blood cells.</text>
+  <text x="46" y="156" font-size="9" font-weight="700" fill="#78350f">Bones · joints · cartilage · marrow</text>
+  <text x="46" y="172" font-size="9" font-style="italic" fill="#4a5568">~206 bones · 20% body mass</text>
+
+  <!-- Muscular -->
+  <rect x="212" y="86" width="170" height="100" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+  <text x="226" y="106" font-size="12" font-weight="700" fill="#78350f">Muscular</text>
+  <text x="226" y="124" font-size="10" fill="#4a5568">Generates movement and heat;</text>
+  <text x="226" y="136" font-size="10" fill="#4a5568">posture; pumps the heart.</text>
+  <text x="226" y="156" font-size="9" font-weight="700" fill="#78350f">Skeletal · cardiac · smooth</text>
+  <text x="226" y="172" font-size="9" font-style="italic" fill="#4a5568">~640 named skeletal muscles</text>
+
+  <!-- Cardiovascular -->
+  <rect x="392" y="86" width="170" height="100" rx="8" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="406" y="106" font-size="12" font-weight="700" fill="#7f1d1d">Cardiovascular</text>
+  <text x="406" y="124" font-size="10" fill="#4a5568">Transports O₂, CO₂, nutrients,</text>
+  <text x="406" y="136" font-size="10" fill="#4a5568">hormones, heat, immune cells.</text>
+  <text x="406" y="156" font-size="9" font-weight="700" fill="#7f1d1d">Heart · arteries · veins · capillaries</text>
+  <text x="406" y="172" font-size="9" font-style="italic" fill="#4a5568">~5 L blood · 100,000 km vessels</text>
+
+  <!-- Respiratory -->
+  <rect x="572" y="86" width="158" height="100" rx="8" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5"/>
+  <text x="586" y="106" font-size="12" font-weight="700" fill="#1e3a8a">Respiratory</text>
+  <text x="586" y="124" font-size="10" fill="#4a5568">Exchanges O₂ in / CO₂ out;</text>
+  <text x="586" y="136" font-size="10" fill="#4a5568">stabilises blood pH.</text>
+  <text x="586" y="156" font-size="9" font-weight="700" fill="#1e3a8a">Trachea · bronchi · alveoli · diaphragm</text>
+  <text x="586" y="172" font-size="9" font-style="italic" fill="#4a5568">~480 M alveoli · 70 m² surface</text>
+
+  <!-- ── Row 2 ────────────────────────────────────────────────── -->
+  <!-- Lymphatic / Immune -->
+  <rect x="32" y="196" width="170" height="100" rx="8" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5"/>
+  <text x="46" y="216" font-size="12" font-weight="700" fill="#1e3a8a">Lymphatic</text>
+  <text x="46" y="234" font-size="10" fill="#4a5568">Returns interstitial fluid;</text>
+  <text x="46" y="246" font-size="10" fill="#4a5568">filters pathogens; matures lymphocytes.</text>
+  <text x="46" y="266" font-size="9" font-weight="700" fill="#1e3a8a">Lymph nodes · spleen · thymus · ducts</text>
+  <text x="46" y="282" font-size="9" font-style="italic" fill="#4a5568">~600 nodes · ~3 L lymph/day</text>
+
+  <!-- Digestive -->
+  <rect x="212" y="196" width="170" height="100" rx="8" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+  <text x="226" y="216" font-size="12" font-weight="700" fill="#14532d">Digestive</text>
+  <text x="226" y="234" font-size="10" fill="#4a5568">Breaks food into absorbable</text>
+  <text x="226" y="246" font-size="10" fill="#4a5568">monomers; eliminates waste.</text>
+  <text x="226" y="266" font-size="9" font-weight="700" fill="#14532d">Mouth · stomach · intestines · liver</text>
+  <text x="226" y="282" font-size="9" font-style="italic" fill="#4a5568">~9 m alimentary canal</text>
+
+  <!-- Urinary / Renal -->
+  <rect x="392" y="196" width="170" height="100" rx="8" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+  <text x="406" y="216" font-size="12" font-weight="700" fill="#14532d">Urinary (Renal)</text>
+  <text x="406" y="234" font-size="10" fill="#4a5568">Filters blood; balances water,</text>
+  <text x="406" y="246" font-size="10" fill="#4a5568">salts, pH, BP; excretes urea.</text>
+  <text x="406" y="266" font-size="9" font-weight="700" fill="#14532d">Kidneys · ureters · bladder · urethra</text>
+  <text x="406" y="282" font-size="9" font-style="italic" fill="#4a5568">~180 L plasma filtered per day</text>
+
+  <!-- Nervous -->
+  <rect x="572" y="196" width="158" height="100" rx="8" fill="#e0e7ff" stroke="#6366f1" stroke-width="1.5"/>
+  <text x="586" y="216" font-size="12" font-weight="700" fill="#312e81">Nervous</text>
+  <text x="586" y="234" font-size="10" fill="#4a5568">Fast electrical signalling;</text>
+  <text x="586" y="246" font-size="10" fill="#4a5568">senses · integrates · responds.</text>
+  <text x="586" y="266" font-size="9" font-weight="700" fill="#312e81">Brain · cord · nerves · sense organs</text>
+  <text x="586" y="282" font-size="9" font-style="italic" fill="#4a5568">~86 billion neurons</text>
+
+  <!-- ── Row 3 ────────────────────────────────────────────────── -->
+  <!-- Endocrine -->
+  <rect x="32" y="306" width="170" height="100" rx="8" fill="#e0e7ff" stroke="#6366f1" stroke-width="1.5"/>
+  <text x="46" y="326" font-size="12" font-weight="700" fill="#312e81">Endocrine</text>
+  <text x="46" y="344" font-size="10" fill="#4a5568">Slow chemical signalling via</text>
+  <text x="46" y="356" font-size="10" fill="#4a5568">hormones in the bloodstream.</text>
+  <text x="46" y="376" font-size="9" font-weight="700" fill="#312e81">Pituitary · thyroid · adrenals · pancreas</text>
+  <text x="46" y="392" font-size="9" font-style="italic" fill="#4a5568">~50 hormones · effects last hr–day</text>
+
+  <!-- Reproductive -->
+  <rect x="212" y="306" width="170" height="100" rx="8" fill="#fce7f3" stroke="#be185d" stroke-width="1.5"/>
+  <text x="226" y="326" font-size="12" font-weight="700" fill="#831843">Reproductive</text>
+  <text x="226" y="344" font-size="10" fill="#4a5568">Produces gametes; supports</text>
+  <text x="226" y="356" font-size="10" fill="#4a5568">fertilisation, gestation, birth.</text>
+  <text x="226" y="376" font-size="9" font-weight="700" fill="#831843">Gonads · ducts · accessory glands</text>
+  <text x="226" y="392" font-size="9" font-style="italic" fill="#4a5568">Only system the individual can do without</text>
+
+  <!-- Integumentary -->
+  <rect x="392" y="306" width="170" height="100" rx="8" fill="#ccfbf1" stroke="#319795" stroke-width="1.5"/>
+  <text x="406" y="326" font-size="12" font-weight="700" fill="#134e4a">Integumentary</text>
+  <text x="406" y="344" font-size="10" fill="#4a5568">Barrier; thermo-regulation;</text>
+  <text x="406" y="356" font-size="10" fill="#4a5568">vitamin D synthesis; sensation.</text>
+  <text x="406" y="376" font-size="9" font-weight="700" fill="#134e4a">Skin · hair · nails · sweat glands</text>
+  <text x="406" y="392" font-size="9" font-style="italic" fill="#4a5568">Largest organ — ~2 m² surface</text>
+
+  <!-- Immune (functional overlay) -->
+  <rect x="572" y="306" width="158" height="100" rx="8" fill="#ccfbf1" stroke="#319795" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="586" y="326" font-size="12" font-weight="700" fill="#134e4a">Immune *</text>
+  <text x="586" y="344" font-size="10" fill="#4a5568">Defends against pathogens;</text>
+  <text x="586" y="356" font-size="10" fill="#4a5568">distributed across tissues.</text>
+  <text x="586" y="376" font-size="9" font-weight="700" fill="#134e4a">Leukocytes · antibodies · complement</text>
+  <text x="586" y="392" font-size="9" font-style="italic" fill="#4a5568">* not a single anatomical system</text>
+
+  <!-- ── Cooperation strip ───────────────────────────────────── -->
+  <rect x="32" y="420" width="698" height="86" rx="8" fill="#fff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="46" y="440" font-size="11" font-weight="700" fill="#1a202c">All eleven systems cooperate to maintain homeostasis</text>
+  <text x="46" y="456" font-size="10" fill="#4a5568">Example — climbing stairs: muscular &amp; skeletal move you · respiratory raises ventilation · cardiovascular raises cardiac output · nervous</text>
+  <text x="46" y="468" font-size="10" fill="#4a5568">controls breathing rate · endocrine releases adrenaline · integumentary sweats · urinary conserves water · digestive supplies fuel · immune patrols.</text>
+  <text x="46" y="492" font-size="10" font-style="italic" fill="#4a5568">No system works alone. The whole-organism level emerges from coordinated tissue-and-organ activity. → see homeostatic feedback loop</text>
+</svg>

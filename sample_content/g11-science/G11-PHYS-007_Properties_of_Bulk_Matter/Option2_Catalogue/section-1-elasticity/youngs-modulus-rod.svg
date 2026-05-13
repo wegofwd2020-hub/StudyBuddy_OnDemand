@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 280" width="540" height="280" role="img" aria-label="Young's Modulus: rod under tensile load">
+  <title>Young's Modulus — Rod under Tension</title>
+  <desc>Cylindrical rod of original length L0 and cross-section A is stretched by ΔL when tensile force F is applied. Young's modulus E = (F/A) divided by (ΔL/L0).</desc>
+
+  <text x="270" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Young's Modulus  E = (F/A) / (ΔL/L₀)</text>
+
+  <!-- Defs -->
+  <defs>
+    <marker id="ym-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626" />
+    </marker>
+    <marker id="ym-arr-blk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1a202c" />
+    </marker>
+    <marker id="ym-arr-blk-l" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 10 0 L 0 5 L 10 10 z" fill="#1a202c" />
+    </marker>
+  </defs>
+
+  <!-- BEFORE label -->
+  <text x="135" y="55" font-size="13" font-weight="700" fill="#4a5568" text-anchor="middle">Before</text>
+
+  <!-- Rod (before): length 200 px = L0 -->
+  <line x1="40" y1="100" x2="40" y2="140" stroke="#1a202c" stroke-width="3" />
+  <rect x="40" y="108" width="180" height="24" fill="#cbd5e1" stroke="#475569" stroke-width="1.5" />
+  <!-- Hatching at fixed wall left -->
+  <g stroke="#1a202c" stroke-width="1.2">
+    <line x1="30" y1="98" x2="40" y2="108" />
+    <line x1="30" y1="108" x2="40" y2="118" />
+    <line x1="30" y1="118" x2="40" y2="128" />
+    <line x1="30" y1="128" x2="40" y2="138" />
+    <line x1="30" y1="138" x2="40" y2="148" />
+  </g>
+
+  <!-- L0 dimension -->
+  <line x1="40" y1="160" x2="220" y2="160" stroke="#1a202c" stroke-width="1.2" marker-start="url(#ym-arr-blk-l)" marker-end="url(#ym-arr-blk)" />
+  <text x="130" y="178" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">L₀</text>
+
+  <!-- Cross-section A -->
+  <line x1="222" y1="108" x2="248" y2="92" stroke="#15803d" stroke-width="1.3" />
+  <text x="252" y="92" font-size="12" font-weight="700" fill="#15803d">area A</text>
+
+  <!-- AFTER label -->
+  <text x="135" y="210" font-size="13" font-weight="700" fill="#4a5568" text-anchor="middle">After applying F</text>
+
+  <!-- Rod (after): length 240 px = L0 + ΔL -->
+  <line x1="40" y1="225" x2="40" y2="265" stroke="#1a202c" stroke-width="3" />
+  <rect x="40" y="233" width="220" height="24" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="1.5" />
+  <g stroke="#1a202c" stroke-width="1.2">
+    <line x1="30" y1="223" x2="40" y2="233" />
+    <line x1="30" y1="233" x2="40" y2="243" />
+    <line x1="30" y1="243" x2="40" y2="253" />
+    <line x1="30" y1="253" x2="40" y2="263" />
+    <line x1="30" y1="263" x2="40" y2="273" />
+  </g>
+
+  <!-- Force F arrow -->
+  <line x1="262" y1="245" x2="345" y2="245" stroke="#dc2626" stroke-width="4" marker-end="url(#ym-arr)" />
+  <text x="305" y="237" font-size="14" font-weight="700" fill="#dc2626" text-anchor="middle">F</text>
+
+  <!-- ΔL bracket: original would have ended at x=220, now ends at 260; ΔL = 40 px -->
+  <line x1="220" y1="270" x2="260" y2="270" stroke="#15803d" stroke-width="1.4" marker-start="url(#ym-arr-blk-l)" marker-end="url(#ym-arr-blk)" />
+  <text x="240" y="262" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle">ΔL</text>
+  <line x1="220" y1="225" x2="220" y2="275" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3" />
+
+  <!-- Equation panel right side -->
+  <rect x="370" y="60" width="160" height="200" rx="8" fill="#f7fafc" stroke="#cbd5e1" />
+  <text x="450" y="82" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Definitions</text>
+
+  <text x="380" y="108" font-size="12" font-weight="700" fill="#1d4ed8">tensile stress</text>
+  <text x="380" y="124" font-size="14" fill="#1d4ed8">σ = F / A</text>
+
+  <text x="380" y="148" font-size="12" font-weight="700" fill="#15803d">tensile strain</text>
+  <text x="380" y="164" font-size="14" fill="#15803d">ε = ΔL / L₀</text>
+
+  <text x="380" y="188" font-size="12" font-weight="700" fill="#7c2d12">Young's modulus</text>
+  <text x="380" y="206" font-size="14" fill="#7c2d12">E = σ / ε</text>
+
+  <text x="380" y="232" font-size="11" fill="#4a5568">units of E:</text>
+  <text x="380" y="248" font-size="13" fill="#1a202c">N/m² = Pa</text>
+</svg>

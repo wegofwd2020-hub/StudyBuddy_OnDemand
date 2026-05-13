@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 320" width="600" height="320" role="img" aria-label="Parabola with vertex, axis of symmetry, and intercepts labelled">
+  <title>Parabola Anatomy: f(x) = x² − 2x − 3</title>
+  <desc>Parabola y = x² − 2x − 3 with axis of symmetry x = 1, vertex (1, −4), x-intercepts (−1, 0) and (3, 0), y-intercept (0, −3) all labelled.</desc>
+
+  <defs>
+    <style>
+      .axis    { stroke: #94a3b8; stroke-width: 1.4; }
+      .grid    { stroke: #e2e8f0; stroke-width: 0.6; }
+      .curve   { fill: none; stroke: #2b6cb0; stroke-width: 3; stroke-linecap: round; }
+      .axisOfSym { stroke: #6b46c1; stroke-width: 1.6; stroke-dasharray: 5 4; }
+      .vertex  { fill: #c05621; stroke: white; stroke-width: 2.5; }
+      .xint    { fill: #2f855a; stroke: white; stroke-width: 2; }
+      .yint    { fill: #dd6b20; stroke: white; stroke-width: 2; }
+      .axislbl { font: 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .heading { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .lbl     { font: bold 12px system-ui, sans-serif; }
+      .panel   { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1; }
+    </style>
+  </defs>
+
+  <text class="heading" x="300" y="22">Parabola anatomy:  vertex, axis of symmetry, intercepts</text>
+
+  <!-- Plot frame -->
+  <rect class="panel" x="60" y="60" width="320" height="200"/>
+
+  <!-- vertical grid x = -2,-1,0,1,2,3,4 -->
+  <line class="grid" x1="100" y1="60" x2="100" y2="260"/>
+  <line class="grid" x1="140" y1="60" x2="140" y2="260"/>
+  <line class="grid" x1="180" y1="60" x2="180" y2="260"/>
+  <line class="grid" x1="220" y1="60" x2="220" y2="260"/>
+  <line class="grid" x1="260" y1="60" x2="260" y2="260"/>
+  <line class="grid" x1="300" y1="60" x2="300" y2="260"/>
+  <line class="grid" x1="340" y1="60" x2="340" y2="260"/>
+
+  <!-- horizontal grid y = -4,-2,0,2,4 → py = 240,200,160,120,80 -->
+  <line class="grid" x1="60" y1="240" x2="380" y2="240"/>
+  <line class="grid" x1="60" y1="200" x2="380" y2="200"/>
+  <line class="grid" x1="60" y1="120" x2="380" y2="120"/>
+  <line class="grid" x1="60" y1="80"  x2="380" y2="80"/>
+
+  <!-- axes -->
+  <line class="axis" x1="60" y1="160" x2="380" y2="160"/>
+  <line class="axis" x1="180" y1="60" x2="180" y2="260"/>
+
+  <!-- Axis of symmetry x = 1 → px = 220 -->
+  <line class="axisOfSym" x1="220" y1="60" x2="220" y2="260"/>
+
+  <!-- Tick labels -->
+  <text class="axislbl" x="100" y="174">−2</text>
+  <text class="axislbl" x="140" y="174">−1</text>
+  <text class="axislbl" x="180" y="174">0</text>
+  <text class="axislbl" x="220" y="174">1</text>
+  <text class="axislbl" x="260" y="174">2</text>
+  <text class="axislbl" x="300" y="174">3</text>
+  <text class="axislbl" x="340" y="174">4</text>
+  <text class="axislbl" x="170" y="84"  text-anchor="end">4</text>
+  <text class="axislbl" x="170" y="124" text-anchor="end">2</text>
+  <text class="axislbl" x="170" y="204" text-anchor="end">−2</text>
+  <text class="axislbl" x="170" y="244" text-anchor="end">−4</text>
+  <text class="axislbl" x="392" y="164">x</text>
+  <text class="axislbl" x="180" y="55">y</text>
+
+  <!-- Parabola points: (100,60),(140,160),(180,220),(220,240),(260,220),(300,160),(340,60) -->
+  <polyline class="curve" points="100,60 120,107 140,160 160,193 180,220 200,233 220,240 240,233 260,220 280,193 300,160 320,107 340,60"/>
+
+  <!-- Vertex at (1, -4) → (220, 240) -->
+  <circle class="vertex" cx="220" cy="240" r="7"/>
+  <text class="lbl" x="232" y="252" fill="#c05621">vertex (1, −4)</text>
+
+  <!-- x-intercepts: (-1,0) → (140, 160); (3,0) → (300, 160) -->
+  <circle class="xint" cx="140" cy="160" r="6"/>
+  <text class="lbl" x="120" y="148" fill="#2f855a">(−1, 0)</text>
+  <circle class="xint" cx="300" cy="160" r="6"/>
+  <text class="lbl" x="312" y="148" fill="#2f855a">(3, 0)</text>
+
+  <!-- y-intercept: (0, -3) → (180, 220) -->
+  <circle class="yint" cx="180" cy="220" r="6"/>
+  <text class="lbl" x="135" y="226" fill="#dd6b20">y-int (0, −3)</text>
+
+  <!-- Axis of symmetry label -->
+  <text class="lbl" x="226" y="74" fill="#6b46c1">axis  x = 1</text>
+
+  <!-- Right panel: forms -->
+  <g transform="translate(410, 60)">
+    <rect x="0" y="0" width="180" height="200" rx="8" fill="#fffaf0" stroke="#dd6b20" stroke-width="1.4"/>
+    <text font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" x="90" y="22" text-anchor="middle">Three useful forms</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="46">Standard form:</text>
+    <text font="13px system-ui" font-size="13" fill="#1a202c" x="14" y="64" font-style="italic">f(x) = x² − 2x − 3</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="92">Vertex form:</text>
+    <text font="13px system-ui" font-size="13" fill="#1a202c" x="14" y="110" font-style="italic">f(x) = (x − 1)² − 4</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="138">Factored form:</text>
+    <text font="13px system-ui" font-size="13" fill="#1a202c" x="14" y="156" font-style="italic">f(x) = (x − 3)(x + 1)</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="184" font-style="italic">a = 1 &gt; 0  →  opens up</text>
+  </g>
+
+  <text x="300" y="296" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Each form exposes a different feature: standard → y-intercept; vertex → vertex; factored → x-intercepts.</text>
+</svg>

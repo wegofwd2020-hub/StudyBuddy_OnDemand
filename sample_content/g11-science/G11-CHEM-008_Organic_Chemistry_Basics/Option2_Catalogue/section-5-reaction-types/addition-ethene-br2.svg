@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 360" width="760" height="360" role="img" aria-label="Electrophilic addition reaction — ethene plus bromine gives 1,2-dibromoethane">
+  <title>Electrophilic Addition — Ethene + Bromine</title>
+  <desc>The π bond of ethene is electron-rich; it attacks an Br2 molecule. The double bond is broken and one Br adds to each carbon, giving 1,2-dibromoethane. The classic test: red-brown bromine water decolourises in seconds when an alkene is present.</desc>
+
+  <text x="380" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Addition — Two Atoms Add Across a Double Bond</text>
+  <text x="380" y="40" font-size="11" fill="#4a5568" text-anchor="middle">CH₂=CH₂ + Br₂ → BrCH₂–CH₂Br · classic alkene test (bromine water decolourises)</text>
+
+  <!-- Reactants -->
+  <g transform="translate(80, 100)">
+    <text x="0" y="-12" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Ethene</text>
+
+    <!-- C=C double bond -->
+    <line x1="-30" y1="50" x2="30" y2="50" stroke="#1a202c" stroke-width="2.5" />
+    <line x1="-30" y1="58" x2="30" y2="58" stroke="#1a202c" stroke-width="2.5" />
+    <text x="-30" y="56" font-size="16" font-weight="700" fill="#1a202c" text-anchor="end">C</text>
+    <text x="30" y="56" font-size="16" font-weight="700" fill="#1a202c" text-anchor="start">C</text>
+
+    <!-- 4 H atoms -->
+    <line x1="-32" y1="40" x2="-50" y2="22" stroke="#1a202c" stroke-width="1.5" />
+    <text x="-58" y="20" font-size="13" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <line x1="-32" y1="68" x2="-50" y2="86" stroke="#1a202c" stroke-width="1.5" />
+    <text x="-58" y="98" font-size="13" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <line x1="32" y1="40" x2="50" y2="22" stroke="#1a202c" stroke-width="1.5" />
+    <text x="58" y="20" font-size="13" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <line x1="32" y1="68" x2="50" y2="86" stroke="#1a202c" stroke-width="1.5" />
+    <text x="58" y="98" font-size="13" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+
+    <text x="0" y="120" font-size="10" fill="#4a5568" text-anchor="middle">π bond — electron rich</text>
+  </g>
+
+  <!-- + sign -->
+  <text x="220" y="158" font-size="28" font-weight="700" fill="#1a202c" text-anchor="middle">+</text>
+
+  <!-- Br2 -->
+  <g transform="translate(290, 100)">
+    <text x="0" y="-12" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Bromine (red-brown)</text>
+
+    <circle cx="-22" cy="56" r="20" fill="#dc2626" stroke="#7f1d1d" stroke-width="1.5" />
+    <text x="-22" y="60" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">Br</text>
+    <line x1="-2" y1="56" x2="2" y2="56" stroke="#1a202c" stroke-width="2.5" />
+    <circle cx="22" cy="56" r="20" fill="#dc2626" stroke="#7f1d1d" stroke-width="1.5" />
+    <text x="22" y="60" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">Br</text>
+
+    <text x="0" y="120" font-size="10" fill="#4a5568" text-anchor="middle">non-polar but polarisable</text>
+  </g>
+
+  <!-- arrow -->
+  <line x1="370" y1="156" x2="470" y2="156" stroke="#1a202c" stroke-width="2" />
+  <polygon points="470,150 484,156 470,162" fill="#1a202c" />
+  <text x="420" y="142" font-size="10" font-weight="700" fill="#1a202c" text-anchor="middle">room temp</text>
+  <text x="420" y="174" font-size="10" font-weight="700" fill="#1a202c" text-anchor="middle">CCl₄ solvent</text>
+
+  <!-- Product: 1,2-dibromoethane -->
+  <g transform="translate(620, 100)">
+    <text x="0" y="-12" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">1,2-dibromoethane</text>
+
+    <!-- now C-C single bond -->
+    <line x1="-30" y1="56" x2="30" y2="56" stroke="#1a202c" stroke-width="2.5" />
+    <text x="-30" y="60" font-size="16" font-weight="700" fill="#1a202c" text-anchor="end">C</text>
+    <text x="30" y="60" font-size="16" font-weight="700" fill="#1a202c" text-anchor="start">C</text>
+
+    <!-- 4 H atoms -->
+    <line x1="-32" y1="46" x2="-50" y2="28" stroke="#1a202c" stroke-width="1.5" />
+    <text x="-58" y="26" font-size="13" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <line x1="-32" y1="68" x2="-50" y2="86" stroke="#1a202c" stroke-width="1.5" />
+    <text x="-58" y="98" font-size="13" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <line x1="32" y1="46" x2="50" y2="28" stroke="#1a202c" stroke-width="1.5" />
+    <text x="58" y="26" font-size="13" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <line x1="32" y1="68" x2="50" y2="86" stroke="#1a202c" stroke-width="1.5" />
+    <text x="58" y="98" font-size="13" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+
+    <!-- Two Br atoms (replace 2 H... no, ADD across C=C, so each C now has only 2 H + 1 Br -->
+    <!-- Reposition: For accuracy, only 4H total stay (2 per C). But ethene had 4H already, after addition only 4H remain (still 2 per C) + 2 Br -->
+    <!-- I drew 4H... but that's wrong. Should be 2 H per C plus 1 Br per C = 4H + 2Br -->
+    <!-- The 4H in my drawing actually correctly represent the 4 Hs that remain. Need to ADD 2 Br atoms -->
+
+    <!-- Brs -->
+    <line x1="-32" y1="58" x2="-32" y2="100" stroke="#1a202c" stroke-width="1.5" />
+    <circle cx="-32" cy="118" r="14" fill="#dc2626" stroke="#7f1d1d" stroke-width="1.2" />
+    <text x="-32" y="122" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">Br</text>
+    <line x1="32" y1="58" x2="32" y2="100" stroke="#1a202c" stroke-width="1.5" />
+    <circle cx="32" cy="118" r="14" fill="#dc2626" stroke="#7f1d1d" stroke-width="1.2" />
+    <text x="32" y="122" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">Br</text>
+
+    <text x="0" y="160" font-size="10" fill="#4a5568" text-anchor="middle">colourless · 1 σ + saturated</text>
+  </g>
+
+  <!-- bottom: mechanism summary -->
+  <g transform="translate(40, 270)">
+    <rect x="0" y="0" width="680" height="76" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5" />
+    <text x="340" y="20" font-size="12" font-weight="700" fill="#4c1d95" text-anchor="middle">Mechanism — electrophilic addition</text>
+    <text x="20"  y="42" font-size="11" fill="#5b21b6">①  π bond pushes electrons toward Br₂ · induces dipole</text>
+    <text x="20"  y="58" font-size="11" fill="#5b21b6">②  Cyclic <tspan font-weight="700">bromonium ion</tspan> intermediate · Br⁻ leaves</text>
+    <text x="380" y="42" font-size="11" fill="#5b21b6">③  Br⁻ attacks the back face of the carbon</text>
+    <text x="380" y="58" font-size="11" fill="#5b21b6">④  Product = anti-addition (Br on opposite faces)</text>
+  </g>
+</svg>

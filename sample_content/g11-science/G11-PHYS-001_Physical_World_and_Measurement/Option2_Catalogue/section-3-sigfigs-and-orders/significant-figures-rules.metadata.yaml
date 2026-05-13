@@ -1,0 +1,14 @@
+schema_version: 1
+id: physics-physical-world-significant-figures-rules
+kind: image
+subject: physics
+topic_phrase: "five rules for counting significant figures with worked examples"
+keywords:
+  - significant-figures
+  - precision
+  - leading-zeros
+  - captive-zeros
+  - trailing-zeros
+  - rounding-rules
+license: platform-cc-by-sa
+source_unit: G11-PHYS-001

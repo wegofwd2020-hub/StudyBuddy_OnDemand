@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-advanced-algebra-substitution-method
+kind: image
+subject: math
+topic_phrase: "substitution method for solving a linear system step pipeline"
+keywords:
+  - linear-system
+  - substitution
+  - back-substitution
+  - solving-equations
+  - algebra
+license: platform-cc-by-sa
+source_unit: G11-MATH-002

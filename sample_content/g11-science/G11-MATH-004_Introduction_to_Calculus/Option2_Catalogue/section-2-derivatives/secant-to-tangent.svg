@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" width="640" height="380" role="img" aria-label="Secant line approaches tangent line as second point approaches the first">
+  <title>Secant → Tangent: geometric definition of the derivative</title>
+  <desc>Curve y = x² with a fixed point P = (1, 1) and a moving point Q. As Q slides toward P along the curve, the secant line PQ rotates and approaches the tangent line at P with slope f'(1) = 2.</desc>
+
+  <defs>
+    <style>
+      .panel    { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1; }
+      .axis     { stroke: #94a3b8; stroke-width: 1.4; }
+      .grid     { stroke: #e2e8f0; stroke-width: 0.6; }
+      .curve    { fill: none; stroke: #2b6cb0; stroke-width: 3; stroke-linecap: round; }
+      .secant   { stroke: #94a3b8; stroke-width: 1.6; opacity: 0.85; }
+      .secLast  { stroke: #6b46c1; stroke-width: 2;   opacity: 0.95; }
+      .tangent  { stroke: #c05621; stroke-width: 3;   stroke-linecap: round; }
+      .heading  { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .axislbl  { font: 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .lbl      { font: bold 12px system-ui, sans-serif; }
+      .note     { font: 11px system-ui, sans-serif; fill: #4a5568; }
+      .ptP      { fill: #c05621; stroke: white; stroke-width: 2; }
+      .ptQ      { fill: #6b46c1; stroke: white; stroke-width: 2; }
+    </style>
+  </defs>
+
+  <text class="heading" x="320" y="22">Secant slope → tangent slope as Q → P  on  y = x²</text>
+
+  <!-- Plot frame: x ∈ [-0.5, 3.5] mapped to [60, 380] (80 px/unit), y ∈ [-1, 9] mapped to [260, 60] (20 px/unit) -->
+  <rect class="panel" x="60" y="60" width="320" height="200"/>
+
+  <!-- grid lines: x = 0,1,2,3 (px = 100, 180, 260, 340); y = 0,2,4,6,8 (py = 240, 200, 160, 120, 80) -->
+  <line class="grid" x1="100" y1="60" x2="100" y2="260"/>
+  <line class="grid" x1="180" y1="60" x2="180" y2="260"/>
+  <line class="grid" x1="260" y1="60" x2="260" y2="260"/>
+  <line class="grid" x1="340" y1="60" x2="340" y2="260"/>
+  <line class="grid" x1="60" y1="240" x2="380" y2="240"/>
+  <line class="grid" x1="60" y1="200" x2="380" y2="200"/>
+  <line class="grid" x1="60" y1="160" x2="380" y2="160"/>
+  <line class="grid" x1="60" y1="120" x2="380" y2="120"/>
+  <line class="grid" x1="60" y1="80"  x2="380" y2="80"/>
+
+  <!-- axes (x-axis y=0 → py=240; y-axis x=0 → px=100) -->
+  <line class="axis" x1="60" y1="240" x2="380" y2="240"/>
+  <line class="axis" x1="100" y1="60" x2="100" y2="260"/>
+
+  <!-- tick labels -->
+  <text class="axislbl" x="100" y="254">0</text>
+  <text class="axislbl" x="180" y="254">1</text>
+  <text class="axislbl" x="260" y="254">2</text>
+  <text class="axislbl" x="340" y="254">3</text>
+  <text class="axislbl" x="92"  y="244" text-anchor="end">0</text>
+  <text class="axislbl" x="92"  y="204" text-anchor="end">2</text>
+  <text class="axislbl" x="92"  y="164" text-anchor="end">4</text>
+  <text class="axislbl" x="92"  y="124" text-anchor="end">6</text>
+  <text class="axislbl" x="92"  y="84"  text-anchor="end">8</text>
+  <text class="axislbl" x="392" y="244">x</text>
+  <text class="axislbl" x="100" y="55">y</text>
+
+  <!-- y = x² polyline. Plot points x = 0, 0.25, 0.5, ..., 3.0; px = 100 + 80x, py = 240 - 20x²
+       (0,0)→(100,240); (0.5,0.25)→(140,235); (1,1)→(180,220); (1.5,2.25)→(220,195); (2,4)→(260,160);
+       (2.5,6.25)→(300,115); (3,9)→(340,60) -->
+  <polyline class="curve" points="100,240 120,238.75 140,235 160,228.75 180,220 200,208.75 220,195 240,178.75 260,160 280,138.75 300,115 320,88.75 340,60"/>
+
+  <!-- Fixed point P = (1, 1) → (180, 220) -->
+
+  <!-- Three secant lines through P, with Q at x = 3, 2, 1.5
+       Q at x=3, y=9: (340, 60); slope = (9-1)/(3-1)=4
+       Q at x=2, y=4: (260, 160); slope = (4-1)/(2-1)=3
+       Q at x=1.5, y=2.25: (220, 195); slope = (2.25-1)/(0.5)=2.5
+       Tangent slope at x=1: 2.
+       Extend each secant across the plot for clarity. -->
+
+  <!-- Secant Q at (3, 9) — slope 4 in (x, y) space. Cross plot from x=0 to x=3.5
+       y - 1 = 4(x - 1) → y = 4x - 3. At x=0: y = -3 (below plot, so clip to plot edge);
+       at the plot edges: y_at_xMin where x = -0.5: y = -5. We need to clip to plot.
+       Better: line from x near 0.4 (y = -1.4 below plot) → use plot bounds.
+       Solve y = 4x - 3 inside x∈[~1, 3.4]. At x=1, y=1 (px=180,py=220). At x=3.4, y=10.6 (out of plot top y=9).
+       Clip top: y=9 → x=3 → (340,60). So secant Q=(3,9): from (180,220) to (340,60). -->
+  <line class="secant" x1="180" y1="220" x2="340" y2="60"/>
+
+  <!-- Secant Q at (2, 4) — slope 3. y = 3x - 2. At x=1, y=1 (180,220). At x=2, y=4 (260,160).
+       Extend to x=3.5: y=8.5 (px=380, py=70). At x=0.5: y=-0.5 (px=140, py=250). Stay within plot. -->
+  <line class="secant" x1="180" y1="220" x2="380" y2="70"/>
+
+  <!-- Secant Q at (1.5, 2.25) — slope 2.5. y = 2.5x - 1.5. At x=1, y=1 (180,220). At x=3.5, y=7.25 (px=380, py=95). -->
+  <line class="secLast" x1="180" y1="220" x2="380" y2="95"/>
+
+  <!-- Tangent at P (slope 2). y = 2x - 1. At x=1, y=1 (180,220). At x=3.5, y=6 (380, 120). At x=-0.5, y=-2 (60, 280, clipped). -->
+  <line class="tangent" x1="60" y1="260" x2="380" y2="120"/>
+
+  <!-- Q markers (annotated with slopes) -->
+  <circle class="ptQ" cx="340" cy="60"  r="5"/>
+  <text class="lbl" x="332" y="54" fill="#6b46c1" text-anchor="end">Q₁ slope 4</text>
+
+  <circle class="ptQ" cx="260" cy="160" r="5"/>
+  <text class="lbl" x="252" y="156" fill="#6b46c1" text-anchor="end">Q₂ slope 3</text>
+
+  <circle class="ptQ" cx="220" cy="195" r="5"/>
+  <text class="lbl" x="212" y="191" fill="#6b46c1" text-anchor="end">Q₃ slope 2.5</text>
+
+  <!-- P marker -->
+  <circle class="ptP" cx="180" cy="220" r="6"/>
+  <text class="lbl" x="170" y="234" fill="#c05621" text-anchor="end">P (1, 1)</text>
+
+  <!-- Tangent slope label -->
+  <text class="lbl" x="370" y="116" fill="#c05621" text-anchor="end">tangent slope 2</text>
+
+  <!-- Right panel: difference quotient -->
+  <g transform="translate(410, 60)">
+    <rect x="0" y="0" width="200" height="200" rx="8" fill="#fffaf0" stroke="#dd6b20" stroke-width="1.4"/>
+    <text font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" x="100" y="22" text-anchor="middle">Difference quotient → derivative</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="46">Slope of secant PQ:</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="14" y="64" font-style="italic">m = (f(x+h) − f(x)) / h</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="92">Take h → 0:</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="14" y="110" font-style="italic">f'(x) = lim (h → 0)</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="20" y="124" font-style="italic">(f(x+h) − f(x)) / h</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="152">For f(x) = x² at x = 1:</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="14" y="168" font-style="italic">((1+h)² − 1) / h = 2 + h</text>
+    <text font="11px system-ui" font-size="11" fill="#c05621" x="14" y="186" font-weight="600">→ f'(1) = 2.</text>
+  </g>
+
+  <!-- Caption -->
+  <text x="220" y="296" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Q slides down the curve toward P; the grey/purple secants pivot toward the orange tangent.</text>
+  <text x="220" y="316" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Slopes 4 → 3 → 2.5 are converging on the limiting slope 2.</text>
+</svg>

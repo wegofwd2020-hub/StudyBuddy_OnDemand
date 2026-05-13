@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 440" width="760" height="440" role="img" aria-label="Limiting factors of photosynthesis summary table">
+  <title>Limiting Factors of Photosynthesis — Summary</title>
+  <desc>Summary table of the four main external factors that affect the rate of photosynthesis: light intensity, carbon dioxide concentration, temperature, and water availability. Each row gives the factor, its typical effect on the rate curve, the threshold or optimum, and a real-world condition where it becomes the rate limiter. Blackman's principle of limiting factors states that at any moment, the slowest factor sets the overall rate.</desc>
+
+  <text x="380" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Limiting Factors — At-a-Glance Summary</text>
+  <text x="380" y="40" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Blackman's principle: the slowest factor sets the overall rate.</text>
+
+  <!-- Header row -->
+  <rect x="30" y="60" width="700" height="34" rx="6" fill="#14532d" stroke="#14532d" stroke-width="1.5"/>
+  <text x="120" y="82" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">Factor</text>
+  <text x="290" y="82" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">Effect on rate</text>
+  <text x="460" y="82" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">Optimum / threshold</text>
+  <text x="630" y="82" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">When it limits</text>
+
+  <!-- Row 1: Light intensity -->
+  <rect x="30" y="96" width="700" height="68" fill="#fef3c7" stroke="#d97706" stroke-width="1"/>
+  <circle cx="62" cy="130" r="14" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+  <line x1="62" y1="120" x2="62" y2="116" stroke="#d97706" stroke-width="1.5"/>
+  <line x1="62" y1="140" x2="62" y2="144" stroke="#d97706" stroke-width="1.5"/>
+  <line x1="48" y1="130" x2="44" y2="130" stroke="#d97706" stroke-width="1.5"/>
+  <line x1="76" y1="130" x2="80" y2="130" stroke="#d97706" stroke-width="1.5"/>
+  <text x="120" y="124" font-size="11" font-weight="700" fill="#78350f" text-anchor="middle">Light intensity</text>
+  <text x="120" y="138" font-size="9" fill="#78350f" text-anchor="middle">drives ATP + NADPH</text>
+  <text x="290" y="124" font-size="10" fill="#1a202c" text-anchor="middle">rises steeply, then</text>
+  <text x="290" y="138" font-size="10" fill="#1a202c" text-anchor="middle">plateaus at saturation</text>
+  <text x="290" y="152" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">below compensation: net loss</text>
+  <text x="460" y="124" font-size="10" fill="#1a202c" text-anchor="middle">10–20% of full sunlight</text>
+  <text x="460" y="138" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">(varies: shade vs sun plants)</text>
+  <text x="630" y="124" font-size="10" fill="#1a202c" text-anchor="middle">cloudy day · forest understorey</text>
+  <text x="630" y="138" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">dawn / dusk · winter</text>
+
+  <!-- Row 2: CO2 -->
+  <rect x="30" y="164" width="700" height="68" fill="#dcfce7" stroke="#15803d" stroke-width="1"/>
+  <g transform="translate(62, 198)">
+    <text x="0" y="0" font-size="14" font-weight="700" fill="#15803d" text-anchor="middle">CO₂</text>
+    <text x="0" y="14" font-size="9" fill="#14532d" text-anchor="middle">0.04% air</text>
+  </g>
+  <text x="120" y="192" font-size="11" font-weight="700" fill="#14532d" text-anchor="middle">CO₂ concentration</text>
+  <text x="120" y="206" font-size="9" fill="#14532d" text-anchor="middle">substrate for Rubisco</text>
+  <text x="290" y="192" font-size="10" fill="#1a202c" text-anchor="middle">steep rise; plateau at</text>
+  <text x="290" y="206" font-size="10" fill="#1a202c" text-anchor="middle">~0.1–0.2%</text>
+  <text x="290" y="220" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">very high: stomata may close</text>
+  <text x="460" y="192" font-size="10" fill="#1a202c" text-anchor="middle">~1000 ppm (greenhouse)</text>
+  <text x="460" y="206" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">ambient outdoor: ~400 ppm</text>
+  <text x="630" y="192" font-size="10" fill="#1a202c" text-anchor="middle">midday sun · cool air</text>
+  <text x="630" y="206" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">CO₂ becomes the bottleneck</text>
+
+  <!-- Row 3: Temperature -->
+  <rect x="30" y="232" width="700" height="68" fill="#fce7f3" stroke="#be185d" stroke-width="1"/>
+  <g transform="translate(62, 266)">
+    <rect x="-12" y="-12" width="6" height="22" rx="2" fill="#be185d"/>
+    <circle cx="-9" cy="14" r="6" fill="#be185d"/>
+    <text x="6" y="-2" font-size="10" font-weight="700" fill="#be185d">25°</text>
+  </g>
+  <text x="120" y="260" font-size="11" font-weight="700" fill="#831843" text-anchor="middle">Temperature</text>
+  <text x="120" y="274" font-size="9" fill="#831843" text-anchor="middle">controls enzymes</text>
+  <text x="290" y="260" font-size="10" fill="#1a202c" text-anchor="middle">bell-shaped optimum;</text>
+  <text x="290" y="274" font-size="10" fill="#1a202c" text-anchor="middle">sharp drop above optimum</text>
+  <text x="290" y="288" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">enzymes denature &gt;~40 °C</text>
+  <text x="460" y="260" font-size="10" fill="#1a202c" text-anchor="middle">C₃: ~25 °C · C₄: ~35 °C</text>
+  <text x="460" y="274" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">CAM: cool nights for stomata</text>
+  <text x="630" y="260" font-size="10" fill="#1a202c" text-anchor="middle">winter cold · summer heat-stress</text>
+  <text x="630" y="274" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">heat-wave: net rate falls</text>
+
+  <!-- Row 4: Water -->
+  <rect x="30" y="300" width="700" height="68" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1"/>
+  <g transform="translate(62, 334)">
+    <path d="M 0 -14 Q -10 -2 -10 6 Q -10 14 0 14 Q 10 14 10 6 Q 10 -2 0 -14 Z" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5"/>
+  </g>
+  <text x="120" y="328" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">Water availability</text>
+  <text x="120" y="342" font-size="9" fill="#1e3a8a" text-anchor="middle">indirect via stomata</text>
+  <text x="290" y="328" font-size="10" fill="#1a202c" text-anchor="middle">drought → stomata close</text>
+  <text x="290" y="342" font-size="10" fill="#1a202c" text-anchor="middle">→ CO₂ blocked → rate drops</text>
+  <text x="290" y="356" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">water itself = electron source</text>
+  <text x="460" y="328" font-size="10" fill="#1a202c" text-anchor="middle">soil water available, leaves turgid</text>
+  <text x="460" y="342" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">no wilting, no ABA spike</text>
+  <text x="630" y="328" font-size="10" fill="#1a202c" text-anchor="middle">drought · noon midday wilting</text>
+  <text x="630" y="342" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">monsoon-break dry spells</text>
+
+  <!-- Bottom: Blackman -->
+  <rect x="30" y="380" width="700" height="46" rx="6" fill="#f7fafc" stroke="#15803d" stroke-width="1.5"/>
+  <text x="380" y="400" font-size="11" font-weight="700" fill="#14532d" text-anchor="middle">Blackman's principle of limiting factors (1905)</text>
+  <text x="380" y="416" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">Increasing any non-limiting factor will not raise the rate. Increase the slowest one — and a new factor will become the limiter.</text>
+</svg>

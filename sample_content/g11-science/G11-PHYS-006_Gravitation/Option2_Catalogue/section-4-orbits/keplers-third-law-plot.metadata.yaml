@@ -1,0 +1,13 @@
+schema_version: 1
+id: physics-gravitation-keplers-third-law-plot
+kind: image
+subject: physics
+topic_phrase: "Kepler's third law shown on a log log plot of orbital period versus semi-major axis for the eight planets, slope of three over two"
+keywords:
+  - keplers-third-law
+  - orbital-period
+  - solar-system
+  - log-log-plot
+  - planetary-motion
+license: platform-cc-by-sa
+source_unit: G11-PHYS-006

@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 340" width="600" height="340" role="img" aria-label="Boyle's Law: P-V Isotherms at Constant Temperature">
+  <title>Boyle's Law — Pressure vs Volume at Constant Temperature</title>
+  <desc>For a fixed mass of an ideal gas at constant temperature, pressure is inversely proportional to volume: P V = constant. The graph shows three rectangular hyperbolae (isotherms) at increasing temperatures T1 less than T2 less than T3. A small piston-cylinder schematic illustrates compression at constant T.</desc>
+
+  <text x="300" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Boyle's Law:  P V = constant   (T, n fixed)</text>
+
+  <!-- Plot area -->
+  <rect x="60" y="50" width="340" height="240" fill="#f7fafc" stroke="#e2e8f0" />
+
+  <!-- Grid lines -->
+  <g stroke="#e2e8f0" stroke-width="0.6">
+    <line x1="60" y1="240" x2="400" y2="240" />
+    <line x1="60" y1="190" x2="400" y2="190" />
+    <line x1="60" y1="140" x2="400" y2="140" />
+    <line x1="60" y1="90" x2="400" y2="90" />
+    <line x1="140" y1="50" x2="140" y2="290" />
+    <line x1="220" y1="50" x2="220" y2="290" />
+    <line x1="300" y1="50" x2="300" y2="290" />
+    <line x1="380" y1="50" x2="380" y2="290" />
+  </g>
+
+  <!-- Axes -->
+  <line x1="60" y1="290" x2="400" y2="290" stroke="#1a202c" stroke-width="1.5" />
+  <line x1="60" y1="50" x2="60" y2="290" stroke="#1a202c" stroke-width="1.5" />
+
+  <!-- Axis labels -->
+  <text x="230" y="318" font-size="13" font-weight="600" fill="#1a202c" text-anchor="middle">Volume  V</text>
+  <text x="22" y="170" font-size="13" font-weight="600" fill="#1a202c" text-anchor="middle" transform="rotate(-90 22 170)">Pressure  P</text>
+
+  <!-- Origin marker -->
+  <text x="55" y="304" font-size="10" fill="#4a5568" text-anchor="end">0</text>
+
+  <!-- Isotherm T1 (coolest, k=1.0): hyperbola P = 1/V -->
+  <path d="M 80 200 Q 87 215 93 227 Q 103 240 113 247 Q 130 257 147 263 Q 180 271 220 277 Q 280 282 380 286"
+        fill="none" stroke="#1d4ed8" stroke-width="2.6" stroke-linecap="round" />
+  <text x="305" y="282" font-size="11" font-weight="700" fill="#1d4ed8">T₁  (cold)</text>
+
+  <!-- Isotherm T2 (intermediate, k=2.0): P = 2/V -->
+  <path d="M 80 107 Q 87 138 93 160 Q 103 184 113 200 Q 130 218 147 232 Q 180 248 220 258 Q 280 268 380 275"
+        fill="none" stroke="#dd6b20" stroke-width="2.6" stroke-linecap="round" />
+  <text x="305" y="270" font-size="11" font-weight="700" fill="#dd6b20">T₂</text>
+
+  <!-- Isotherm T3 (hottest, k=3.5): P = 3.5/V (starts off-graph at left) -->
+  <path d="M 93 60 Q 103 100 113 130 Q 130 162 147 185 Q 180 213 220 234 Q 280 250 380 262"
+        fill="none" stroke="#dc2626" stroke-width="2.6" stroke-linecap="round" />
+  <text x="305" y="257" font-size="11" font-weight="700" fill="#dc2626">T₃  (hot)</text>
+
+  <!-- Highlight a point on T2: V=1, P=2 → (113, 200) -->
+  <circle cx="113" cy="200" r="4" fill="#15803d" />
+  <text x="118" y="196" font-size="10" font-weight="700" fill="#15803d">(V₁, P₁)</text>
+
+  <!-- Highlight: V=2, P=1 → (180, 247) on T2 -->
+  <circle cx="180" cy="247" r="4" fill="#15803d" />
+  <text x="184" y="243" font-size="10" font-weight="700" fill="#15803d">(V₂, P₂)</text>
+
+  <!-- Connect with dashed segment -->
+  <line x1="113" y1="200" x2="180" y2="247" stroke="#15803d" stroke-width="1" stroke-dasharray="4 3" />
+
+  <!-- Right panel: piston diagram -->
+  <rect x="420" y="50" width="170" height="240" rx="8" fill="#f7fafc" stroke="#cbd5e1" />
+  <text x="505" y="68" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Compress at constant T</text>
+
+  <!-- Cylinder 1 (large V) -->
+  <rect x="438" y="86" width="64" height="70" fill="#bfdbfe" stroke="#1a202c" stroke-width="2" />
+  <rect x="438" y="80" width="64" height="8" fill="#94a3b8" stroke="#1a202c" stroke-width="1.5" />
+  <text x="470" y="125" font-size="10" font-weight="700" fill="#1a202c" text-anchor="middle">V₁</text>
+  <text x="470" y="140" font-size="9" fill="#1d4ed8" text-anchor="middle">P₁ low</text>
+  <!-- Molecules -->
+  <circle cx="450" cy="105" r="2" fill="#1d4ed8" />
+  <circle cx="475" cy="115" r="2" fill="#1d4ed8" />
+  <circle cx="490" cy="100" r="2" fill="#1d4ed8" />
+  <circle cx="455" cy="135" r="2" fill="#1d4ed8" />
+  <circle cx="485" cy="145" r="2" fill="#1d4ed8" />
+
+  <!-- Compression arrow -->
+  <line x1="510" y1="115" x2="540" y2="115" stroke="#dd6b20" stroke-width="2.5"
+        marker-end="url(#bl-arr)" />
+  <text x="525" y="108" font-size="10" font-weight="700" fill="#dd6b20" text-anchor="middle">push</text>
+
+  <!-- Cylinder 2 (small V) -->
+  <rect x="548" y="116" width="36" height="40" fill="#fde68a" stroke="#1a202c" stroke-width="2" />
+  <rect x="548" y="110" width="36" height="8" fill="#94a3b8" stroke="#1a202c" stroke-width="1.5" />
+  <text x="566" y="138" font-size="10" font-weight="700" fill="#1a202c" text-anchor="middle">V₂</text>
+  <text x="566" y="152" font-size="9" fill="#dc2626" text-anchor="middle">P₂ high</text>
+  <!-- Crowded molecules -->
+  <circle cx="555" cy="125" r="2" fill="#dc2626" />
+  <circle cx="565" cy="130" r="2" fill="#dc2626" />
+  <circle cx="575" cy="125" r="2" fill="#dc2626" />
+  <circle cx="560" cy="145" r="2" fill="#dc2626" />
+  <circle cx="572" cy="148" r="2" fill="#dc2626" />
+  <circle cx="580" cy="135" r="2" fill="#dc2626" />
+
+  <defs>
+    <marker id="bl-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dd6b20" />
+    </marker>
+  </defs>
+
+  <!-- Equation in panel -->
+  <rect x="430" y="180" width="150" height="58" rx="6" fill="#fff" stroke="#cbd5e1" />
+  <text x="505" y="200" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">P₁ V₁ = P₂ V₂</text>
+  <text x="505" y="218" font-size="10" fill="#1a202c" text-anchor="middle">at fixed T, n</text>
+  <text x="505" y="232" font-size="10" fill="#4a5568" text-anchor="middle">smaller V → larger P</text>
+
+  <!-- Caption -->
+  <text x="505" y="258" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">Each curve is</text>
+  <text x="505" y="270" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">an isotherm:</text>
+  <text x="505" y="282" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">all (P,V) at one T.</text>
+
+  <text x="300" y="332" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Squeeze a fixed amount of gas at the same temperature and its pressure rises in inverse proportion.</text>
+</svg>

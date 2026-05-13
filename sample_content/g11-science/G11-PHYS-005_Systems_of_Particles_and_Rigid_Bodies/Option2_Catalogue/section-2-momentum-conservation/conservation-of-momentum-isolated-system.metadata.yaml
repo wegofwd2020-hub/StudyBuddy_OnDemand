@@ -1,0 +1,15 @@
+# Auto-generated style sidecar — paired with conservation-of-momentum-isolated-system.svg
+schema_version: 1
+id: physics-systems-of-particles-conservation-of-momentum-isolated-system
+kind: image
+subject: physics
+topic_phrase: "conservation of linear momentum derived from Newton's third law for an isolated system"
+keywords:
+  - momentum-conservation
+  - newtons-third-law
+  - isolated-system
+  - internal-forces
+  - derivation
+  - vector-conservation
+license: platform-cc-by-sa
+source_unit: G11-PHYS-005

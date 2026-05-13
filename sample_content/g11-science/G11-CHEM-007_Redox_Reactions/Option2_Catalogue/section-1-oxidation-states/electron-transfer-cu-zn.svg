@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" width="720" height="360" role="img" aria-label="Electron transfer in the zinc and copper-ion reaction">
+  <title>Electron transfer: Zn(s) + Cu²⁺(aq) → Zn²⁺(aq) + Cu(s)</title>
+  <desc>A schematic of the spontaneous redox reaction between metallic zinc and aqueous copper(II) ions, showing two electrons transferred from each Zn atom to each Cu²⁺ ion. Half-reactions and oxidation states are labeled.</desc>
+
+  <defs>
+    <marker id="cuzn-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626" />
+    </marker>
+    <marker id="cuzn-arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2b6cb0" />
+    </marker>
+  </defs>
+
+  <text x="360" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Electron Transfer — Zn metal reduces Cu²⁺</text>
+  <text x="360" y="40" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Drop a strip of zinc into blue copper(II) sulfate solution. Zn loses 2 e⁻; Cu²⁺ gains 2 e⁻; copper plates out and the blue colour fades.</text>
+
+  <!-- Left: Zn atom losing electrons -->
+  <circle cx="160" cy="170" r="50" fill="#94a3b8" stroke="#1a202c" stroke-width="2" />
+  <text x="160" y="178" font="bold 22px system-ui" font-size="22" font-weight="700" fill="#0f172a" text-anchor="middle">Zn</text>
+  <text x="160" y="240" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Zn(s)</text>
+  <text x="160" y="256" font="11px system-ui" font-size="11" fill="#15803d" text-anchor="middle">oxidation state: 0</text>
+
+  <!-- Two electrons leaving Zn -->
+  <circle cx="225" cy="155" r="9" fill="#3b82f6" stroke="#1a202c" stroke-width="1" />
+  <text x="225" y="159" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">e⁻</text>
+  <circle cx="225" cy="185" r="9" fill="#3b82f6" stroke="#1a202c" stroke-width="1" />
+  <text x="225" y="189" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">e⁻</text>
+
+  <!-- Electron transfer arrow -->
+  <line x1="240" y1="170" x2="475" y2="170" stroke="#dc2626" stroke-width="3" marker-end="url(#cuzn-arrow)" />
+  <text x="358" y="160" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">2 e⁻ transferred</text>
+
+  <!-- Right: Cu²⁺ gaining electrons -->
+  <circle cx="540" cy="170" r="50" fill="#fef3c7" stroke="#d97706" stroke-width="2" />
+  <text x="540" y="172" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#92400e" text-anchor="middle">Cu²⁺</text>
+  <text x="540" y="194" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#92400e" text-anchor="middle">(aq)</text>
+  <text x="540" y="240" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Cu²⁺(aq)</text>
+  <text x="540" y="256" font="11px system-ui" font-size="11" fill="#dc2626" text-anchor="middle">oxidation state: +2</text>
+
+  <!-- After-the-arrow products row -->
+  <line x1="60" y1="290" x2="660" y2="290" stroke="#cbd5e1" stroke-width="1" />
+
+  <!-- Zn²⁺ product (left) -->
+  <circle cx="160" cy="320" r="22" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5" />
+  <text x="160" y="324" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">Zn²⁺</text>
+  <text x="160" y="350" font="11px system-ui" font-size="11" fill="#1e3a8a" text-anchor="middle">+2 — oxidised  (LEO)</text>
+
+  <!-- Cu metal product (right) -->
+  <circle cx="540" cy="320" r="22" fill="#fef3c7" stroke="#d97706" stroke-width="1.5" />
+  <text x="540" y="324" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#92400e" text-anchor="middle">Cu</text>
+  <text x="540" y="350" font="11px system-ui" font-size="11" fill="#92400e" text-anchor="middle">0 — reduced  (GER)</text>
+
+  <!-- Half-reactions panel -->
+  <rect x="240" y="295" width="240" height="58" rx="6" fill="#f7fafc" stroke="#1a202c" stroke-width="1" />
+  <text x="360" y="312" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Half-reactions</text>
+  <text x="360" y="328" font="11px system-ui" font-size="11" fill="#1e3a8a" text-anchor="middle">Zn → Zn²⁺ + 2 e⁻   (oxidation)</text>
+  <text x="360" y="346" font="11px system-ui" font-size="11" fill="#15803d" text-anchor="middle">Cu²⁺ + 2 e⁻ → Cu   (reduction)</text>
+</svg>

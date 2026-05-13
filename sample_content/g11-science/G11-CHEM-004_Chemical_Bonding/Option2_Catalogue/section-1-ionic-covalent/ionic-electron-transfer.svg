@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 340" width="640" height="340" role="img" aria-label="Ionic bond — sodium transfers an electron to chlorine">
+  <title>Ionic bond — Na transfers an electron to Cl</title>
+  <desc>Sodium (Na, 2,8,1) transfers its single 3s valence electron to chlorine (Cl, 2,8,7). The result is Na+ (2,8) and Cl- (2,8,8); the two ions are held together by electrostatic attraction in NaCl.</desc>
+
+  <defs>
+    <marker id="ie-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626" />
+    </marker>
+  </defs>
+
+  <text x="320" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Ionic Bond — Electron Transfer (Na + Cl → NaCl)</text>
+  <text x="320" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Metal loses an electron · non-metal gains it · oppositely charged ions attract</text>
+
+  <!-- Sodium atom (left) -->
+  <g>
+    <text x="120" y="68" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">Sodium (Na)</text>
+    <text x="120" y="84" font-size="10" fill="#4a5568" text-anchor="middle">Z = 11 · 2, 8, 1</text>
+
+    <!-- Shells -->
+    <circle cx="120" cy="190" r="78" fill="none" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3" />
+    <circle cx="120" cy="190" r="52" fill="none" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3" />
+    <circle cx="120" cy="190" r="26" fill="none" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3" />
+    <!-- Nucleus -->
+    <circle cx="120" cy="190" r="14" fill="#2b6cb0" stroke="#1a202c" stroke-width="1.5" />
+    <text x="120" y="194" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">Na</text>
+    <!-- K shell electrons (2) -->
+    <circle cx="146" cy="190" r="4" fill="#1e3a8a" />
+    <circle cx="94"  cy="190" r="4" fill="#1e3a8a" />
+    <!-- L shell electrons (8) -->
+    <circle cx="172" cy="190" r="4" fill="#1e3a8a" />
+    <circle cx="68"  cy="190" r="4" fill="#1e3a8a" />
+    <circle cx="120" cy="138" r="4" fill="#1e3a8a" />
+    <circle cx="120" cy="242" r="4" fill="#1e3a8a" />
+    <circle cx="157" cy="153" r="4" fill="#1e3a8a" />
+    <circle cx="83"  cy="227" r="4" fill="#1e3a8a" />
+    <circle cx="83"  cy="153" r="4" fill="#1e3a8a" />
+    <circle cx="157" cy="227" r="4" fill="#1e3a8a" />
+    <!-- M shell — 1 valence electron (the one that leaves) -->
+    <circle cx="198" cy="190" r="6" fill="#facc15" stroke="#92400e" stroke-width="1.5" />
+    <text x="198" y="174" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">3s¹</text>
+  </g>
+
+  <!-- Transfer arrow -->
+  <path d="M 210 190 Q 320 110 430 190" fill="none" stroke="#dc2626" stroke-width="2.5" marker-end="url(#ie-arrow)" />
+  <text x="320" y="125" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">e⁻ transfer</text>
+
+  <!-- Chlorine atom (right) -->
+  <g>
+    <text x="520" y="68" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">Chlorine (Cl)</text>
+    <text x="520" y="84" font-size="10" fill="#4a5568" text-anchor="middle">Z = 17 · 2, 8, 7</text>
+
+    <circle cx="520" cy="190" r="78" fill="none" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3" />
+    <circle cx="520" cy="190" r="52" fill="none" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3" />
+    <circle cx="520" cy="190" r="26" fill="none" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4 3" />
+    <circle cx="520" cy="190" r="14" fill="#15803d" stroke="#1a202c" stroke-width="1.5" />
+    <text x="520" y="194" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">Cl</text>
+    <!-- K (2) -->
+    <circle cx="546" cy="190" r="4" fill="#14532d" />
+    <circle cx="494" cy="190" r="4" fill="#14532d" />
+    <!-- L (8) -->
+    <circle cx="572" cy="190" r="4" fill="#14532d" />
+    <circle cx="468" cy="190" r="4" fill="#14532d" />
+    <circle cx="520" cy="138" r="4" fill="#14532d" />
+    <circle cx="520" cy="242" r="4" fill="#14532d" />
+    <circle cx="557" cy="153" r="4" fill="#14532d" />
+    <circle cx="483" cy="227" r="4" fill="#14532d" />
+    <circle cx="483" cy="153" r="4" fill="#14532d" />
+    <circle cx="557" cy="227" r="4" fill="#14532d" />
+    <!-- M shell — 7 valence electrons -->
+    <circle cx="598" cy="190" r="4" fill="#15803d" />
+    <circle cx="442" cy="190" r="4" fill="#15803d" />
+    <circle cx="520" cy="112" r="4" fill="#15803d" />
+    <circle cx="520" cy="268" r="4" fill="#15803d" />
+    <circle cx="575" cy="135" r="4" fill="#15803d" />
+    <circle cx="465" cy="245" r="4" fill="#15803d" />
+    <circle cx="465" cy="135" r="4" fill="#15803d" />
+    <!-- 8th spot empty — will be filled by Na's electron -->
+    <circle cx="575" cy="245" r="6" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="2 2" />
+    <text x="595" y="248" font-size="10" font-weight="700" fill="#dc2626">vacancy</text>
+  </g>
+
+  <!-- Result arrow -->
+  <path d="M 250 295 L 390 295" fill="none" stroke="#1a202c" stroke-width="1.5" marker-end="url(#ie-arrow)" />
+  <text x="320" y="290" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">→</text>
+
+  <!-- Result ions -->
+  <text x="120" y="320" font-size="14" font-weight="700" fill="#2b6cb0" text-anchor="middle">Na⁺ (2, 8) — Ne config</text>
+  <text x="520" y="320" font-size="14" font-weight="700" fill="#15803d" text-anchor="middle">Cl⁻ (2, 8, 8) — Ar config</text>
+  <text x="320" y="320" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">+ ⇌ −  electrostatic</text>
+</svg>

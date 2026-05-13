@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" role="img" aria-label="Two datasets with the same mean but different standard deviations, plotted as dot plots with deviation arrows">
+  <title>Standard Deviation: Same Mean, Different Spread</title>
+  <desc>Two five-value datasets are plotted on parallel number lines.  Set A is 8, 9, 10, 11, 12 with mean 10 and deviations of −2, −1, 0, 1, 2; Set B is 4, 7, 10, 13, 16 with mean 10 and deviations −6, −3, 0, 3, 6.  Both share mean 10 but Set B has standard deviation about 4.74 versus 1.58 for Set A — visualising why the standard deviation measures how far values typically lie from the mean.</desc>
+
+  <defs>
+    <marker id="ah-sd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4a5568"/>
+    </marker>
+    <style>
+      .axis    { stroke: #4a5568; stroke-width: 1.6; }
+      .grid    { stroke: #e2e8f0; stroke-width: 0.6; }
+      .panel   { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1; }
+      .meanLn  { stroke: #c53030; stroke-width: 2.4; stroke-dasharray: 6 4; }
+      .ptA     { fill: #2f855a; stroke: white; stroke-width: 2; }
+      .ptB     { fill: #2b6cb0; stroke: white; stroke-width: 2; }
+      .devA    { stroke: #2f855a; stroke-width: 1.8; opacity: 0.8; }
+      .devB    { stroke: #2b6cb0; stroke-width: 1.8; opacity: 0.8; }
+      .axislbl { font: 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .heading { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .subhead { font: bold 13px system-ui, sans-serif; }
+      .lbl     { font: bold 12px system-ui, sans-serif; }
+    </style>
+  </defs>
+
+  <text class="heading" x="240" y="22">Same mean, different spread:  the standard deviation</text>
+
+  <!-- Number line domain x ∈ [0, 20] over frame x: 60..460 → 20 px per unit; mean at x=10 → 60+200=260 -->
+
+  <!-- ===== Top panel:  Set A (tight) ===== -->
+  <rect class="panel" x="60" y="46" width="400" height="120"/>
+  <text class="subhead" x="76" y="64" fill="#2f855a">Set A:  8, 9, 10, 11, 12</text>
+
+  <!-- mean line -->
+  <line class="meanLn" x1="260" y1="58" x2="260" y2="146"/>
+  <text class="axislbl" x="260" y="74" fill="#c53030">mean = 10</text>
+
+  <!-- deviation arrows from mean to each data point along y = 110 -->
+  <line class="devA" x1="260" y1="110" x2="220" y2="110"/>  <!-- to 8 -->
+  <line class="devA" x1="260" y1="110" x2="240" y2="110"/>  <!-- to 9 -->
+  <line class="devA" x1="260" y1="110" x2="280" y2="110"/>  <!-- to 11 -->
+  <line class="devA" x1="260" y1="110" x2="300" y2="110"/>  <!-- to 12 -->
+
+  <!-- data dots -->
+  <circle class="ptA" cx="220" cy="110" r="6"/>
+  <circle class="ptA" cx="240" cy="110" r="6"/>
+  <circle class="ptA" cx="260" cy="110" r="6"/>
+  <circle class="ptA" cx="280" cy="110" r="6"/>
+  <circle class="ptA" cx="300" cy="110" r="6"/>
+
+  <!-- value labels -->
+  <text class="axislbl" x="220" y="98">8</text>
+  <text class="axislbl" x="240" y="98">9</text>
+  <text class="axislbl" x="260" y="98">10</text>
+  <text class="axislbl" x="280" y="98">11</text>
+  <text class="axislbl" x="300" y="98">12</text>
+
+  <!-- number-line -->
+  <line class="axis" x1="60" y1="146" x2="464" y2="146" marker-end="url(#ah-sd)"/>
+  <text class="axislbl" x="60"  y="160">0</text>
+  <text class="axislbl" x="160" y="160">5</text>
+  <text class="axislbl" x="260" y="160">10</text>
+  <text class="axislbl" x="360" y="160">15</text>
+  <text class="axislbl" x="460" y="160">20</text>
+
+  <!-- ===== Bottom panel:  Set B (wide) ===== -->
+  <rect class="panel" x="60" y="184" width="400" height="120"/>
+  <text class="subhead" x="76" y="202" fill="#2b6cb0">Set B:  4, 7, 10, 13, 16</text>
+
+  <!-- mean line -->
+  <line class="meanLn" x1="260" y1="196" x2="260" y2="284"/>
+  <text class="axislbl" x="260" y="212" fill="#c53030">mean = 10</text>
+
+  <!-- deviation arrows from mean to each data point along y = 248 -->
+  <line class="devB" x1="260" y1="248" x2="140" y2="248"/>  <!-- to 4 -->
+  <line class="devB" x1="260" y1="248" x2="200" y2="248"/>  <!-- to 7 -->
+  <line class="devB" x1="260" y1="248" x2="320" y2="248"/>  <!-- to 13 -->
+  <line class="devB" x1="260" y1="248" x2="380" y2="248"/>  <!-- to 16 -->
+
+  <!-- data dots -->
+  <circle class="ptB" cx="140" cy="248" r="6"/>
+  <circle class="ptB" cx="200" cy="248" r="6"/>
+  <circle class="ptB" cx="260" cy="248" r="6"/>
+  <circle class="ptB" cx="320" cy="248" r="6"/>
+  <circle class="ptB" cx="380" cy="248" r="6"/>
+
+  <!-- value labels -->
+  <text class="axislbl" x="140" y="236">4</text>
+  <text class="axislbl" x="200" y="236">7</text>
+  <text class="axislbl" x="260" y="236">10</text>
+  <text class="axislbl" x="320" y="236">13</text>
+  <text class="axislbl" x="380" y="236">16</text>
+
+  <!-- number-line -->
+  <line class="axis" x1="60" y1="284" x2="464" y2="284" marker-end="url(#ah-sd)"/>
+  <text class="axislbl" x="60"  y="298">0</text>
+  <text class="axislbl" x="160" y="298">5</text>
+  <text class="axislbl" x="260" y="298">10</text>
+  <text class="axislbl" x="360" y="298">15</text>
+  <text class="axislbl" x="460" y="298">20</text>
+
+  <!-- ===== Right legend ===== -->
+  <g transform="translate(480, 46)">
+    <rect x="0" y="0" width="150" height="258" rx="8" fill="#fffaf0" stroke="#dd6b20" stroke-width="1.4"/>
+    <text font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" x="75" y="22" text-anchor="middle">Sample SD formula</text>
+
+    <text font="italic 13px system-ui" font-size="13" fill="#1a202c" x="75" y="46" text-anchor="middle">s  =  √( Σ(xᵢ − x̄)² / (n − 1) )</text>
+
+    <line x1="12" y1="62" x2="138" y2="62" stroke="#cbd5e0"/>
+
+    <text font="bold 11px system-ui" font-size="11" font-weight="700" fill="#2f855a" x="12" y="80">Set A  (n = 5)</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="12" y="96">Σ(xᵢ − 10)² = 10</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="12" y="112">s² = 10 / 4 = 2.5</text>
+    <text font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" x="12" y="128">s ≈ 1.58</text>
+
+    <text font="bold 11px system-ui" font-size="11" font-weight="700" fill="#2b6cb0" x="12" y="156">Set B  (n = 5)</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="12" y="172">Σ(xᵢ − 10)² = 90</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="12" y="188">s² = 90 / 4 = 22.5</text>
+    <text font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" x="12" y="204">s ≈ 4.74</text>
+
+    <line x1="12" y1="216" x2="138" y2="216" stroke="#cbd5e0"/>
+    <text font="italic 11px system-ui" font-size="11" font-style="italic" fill="#4a5568" x="12" y="234">Same centre, but B's</text>
+    <text font="italic 11px system-ui" font-size="11" font-style="italic" fill="#4a5568" x="12" y="248">spread is ~3× wider.</text>
+  </g>
+
+  <text x="320" y="334" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">The standard deviation s is the typical distance from a value to the mean — the dashes above show |xᵢ − x̄| for each point.</text>
+  <text x="320" y="350" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Squaring (then √) avoids cancellation between positive and negative deviations.</text>
+</svg>

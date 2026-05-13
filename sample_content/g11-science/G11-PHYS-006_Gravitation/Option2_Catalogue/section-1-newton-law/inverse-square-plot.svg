@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 320" width="480" height="320" role="img" aria-label="Gravitational force versus separation showing inverse-square decay">
+  <title>Inverse-square law: F vs r</title>
+  <desc>Curve of gravitational force F as a function of separation r, with F = k over r squared. At r equal one unit the force is 20 N; doubling r quarters F; tripling r reduces F to one ninth.</desc>
+
+  <rect x="60" y="32" width="390" height="238" fill="#f7fafc" stroke="#e2e8f0" />
+
+  <!-- Vertical grid (r: 0..5, every 1) -->
+  <line x1="60" y1="32" x2="60" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="60" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">0</text>
+  <line x1="138" y1="32" x2="138" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="138" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">1</text>
+  <line x1="216" y1="32" x2="216" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="216" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">2</text>
+  <line x1="294" y1="32" x2="294" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="294" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">3</text>
+  <line x1="372" y1="32" x2="372" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="372" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">4</text>
+  <line x1="450" y1="32" x2="450" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="450" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">5</text>
+
+  <!-- Horizontal grid (F: 0..24, every 4) -->
+  <line x1="60" y1="270" x2="450" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="274" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">0</text>
+  <line x1="60" y1="230.33" x2="450" y2="230.33" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="234.33" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">4</text>
+  <line x1="60" y1="190.67" x2="450" y2="190.67" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="194.67" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">8</text>
+  <line x1="60" y1="151" x2="450" y2="151" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="155" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">12</text>
+  <line x1="60" y1="111.33" x2="450" y2="111.33" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="115.33" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">16</text>
+  <line x1="60" y1="71.67" x2="450" y2="71.67" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="75.67" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">20</text>
+  <line x1="60" y1="32" x2="450" y2="32" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="36" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">24</text>
+
+  <line x1="60" y1="270" x2="450" y2="270" stroke="#94a3b8" stroke-width="1.2" />
+  <line x1="60" y1="32" x2="60" y2="270" stroke="#94a3b8" stroke-width="1.2" />
+
+  <text x="255" y="302" font="13px system-ui" font-size="13" font-weight="600" fill="#1a202c" text-anchor="middle">r  (separation, arbitrary units)</text>
+  <text x="24" y="151" font="13px system-ui" font-size="13" font-weight="600" fill="#1a202c" text-anchor="middle" transform="rotate(-90 24 151)">F  (force, arbitrary units)</text>
+
+  <text x="255" y="20" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Inverse-square law:  F  ∝  1 / r²</text>
+
+  <!-- Curve: F = 20 / r^2 (sampled, capped at 23.5 to stay on plot) -->
+  <polyline points="91.20,36.96 94.19,36.96 97.18,36.96 100.17,36.96 103.16,36.96 106.15,36.96 109.14,36.96 112.13,36.96 115.12,36.96 118.11,36.96 121.10,36.96 124.09,36.96 127.08,36.96 130.07,36.96 133.06,43.94 136.05,61.37 139.04,76.85 142.03,90.68 145.02,103.07 148.01,114.22 151.00,124.29 153.99,133.41 156.98,141.70 159.97,149.26 162.96,156.17 165.95,162.51 168.94,168.33 171.93,173.69 174.92,178.63 177.91,183.21 180.90,187.45 183.89,191.38 186.88,195.05 189.87,198.46 192.86,201.64 195.85,204.62 198.84,207.40 201.83,210.01 204.82,212.47 207.81,214.77 210.80,216.94 213.79,218.98 216.78,220.91 219.77,222.73 222.76,224.45 225.75,226.08 228.74,227.62 231.73,229.08 234.72,230.47 237.71,231.79 240.70,233.05 243.69,234.24 246.68,235.38 249.67,236.46 252.66,237.49 255.65,238.48 258.64,239.42 261.63,240.32 264.62,241.18 267.61,242.00 270.60,242.79 273.59,243.55 276.58,244.28 279.57,244.97 282.56,245.64 285.55,246.28 288.54,246.90 291.53,247.49 294.52,248.06 297.51,248.61 300.50,249.14 303.49,249.65 306.48,250.14 309.47,250.61 312.46,251.07 315.45,251.51 318.44,251.93 321.43,252.34 324.42,252.74 327.41,253.13 330.40,253.50 333.39,253.86 336.38,254.20 339.37,254.54 342.36,254.87 345.35,255.18 348.34,255.49 351.33,255.78 354.32,256.07 357.31,256.35 360.30,256.62 363.29,256.88 366.28,257.14 369.27,257.38 372.26,257.62 375.25,257.86 378.24,258.09 381.23,258.31 384.22,258.52 387.21,258.73 390.20,258.93 393.19,259.13 396.18,259.32 399.17,259.51 402.16,259.69 405.15,259.87 408.14,260.04 411.13,260.21 414.12,260.38 417.11,260.54 420.10,260.69 423.09,260.85 426.08,261.00 429.07,261.14 432.06,261.28 435.05,261.42 438.04,261.56 441.03,261.69 444.02,261.82 447.01,261.94 450.00,262.07"
+    fill="none" stroke="#7c3aed" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- Sample points -->
+  <circle cx="138" cy="71.67" r="4" fill="#7c3aed" />
+  <text x="148" y="68" font="11px system-ui" font-size="11" font-weight="600" fill="#7c3aed">r = 1  →  F = 20</text>
+
+  <circle cx="216" cy="220.83" r="4" fill="#7c3aed" />
+  <text x="226" y="217" font="11px system-ui" font-size="11" font-weight="600" fill="#7c3aed">r = 2  →  F = 5  (¼)</text>
+
+  <circle cx="294" cy="247.97" r="4" fill="#7c3aed" />
+  <text x="304" y="244" font="11px system-ui" font-size="11" font-weight="600" fill="#7c3aed">r = 3  →  F ≈ 2.2  (1/9)</text>
+
+  <!-- Annotation -->
+  <text x="320" y="100" font="12px system-ui" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">Doubling r → quarters F</text>
+  <text x="320" y="118" font="11px system-ui" font-size="11" font-style="italic" fill="#15803d" text-anchor="middle">Tripling r → reduces F to 1/9</text>
+
+  <text x="255" y="316" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Doubling separation reduces gravitational force by a factor of four — the steep falloff that makes orbital mechanics work.</text>
+</svg>

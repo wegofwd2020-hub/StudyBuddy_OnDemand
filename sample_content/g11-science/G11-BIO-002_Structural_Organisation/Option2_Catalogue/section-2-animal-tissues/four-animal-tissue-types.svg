@@ -1,0 +1,218 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 480" width="760" height="480" role="img" aria-label="Four animal tissue types compared">
+  <title>Four animal tissue types — epithelial, connective, muscle, nervous</title>
+  <desc>A 2x2 quadrant chart with one panel per tissue type. Top-left shows epithelial: a tightly packed sheet of columnar cells on a basement membrane. Top-right shows connective: scattered cells embedded in fibrous extracellular matrix with collagen fibres. Bottom-left shows muscle: a striated multinucleate skeletal-muscle fibre. Bottom-right shows nervous: a neuron with cell body, dendrites, and a long axon ending in terminals.</desc>
+
+  <text x="380" y="22" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">The Four Animal Tissue Types</text>
+  <text x="380" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Every animal tissue belongs to one of these four families, distinguished by cell shape, packing, and matrix.</text>
+
+  <!-- ── Epithelial (top-left) ─────────────────────────────── -->
+  <g transform="translate(40, 60)">
+    <rect x="0" y="0" width="330" height="190" rx="10" fill="#f7fafc" stroke="#2b6cb0" stroke-width="2"/>
+    <text x="20" y="24" font-size="13" font-weight="700" fill="#2b6cb0">1. Epithelial</text>
+    <text x="20" y="40" font-size="10" fill="#4a5568">Sheets of cells. Cover surfaces; form glands.</text>
+
+    <!-- Basement membrane -->
+    <line x1="30" y1="148" x2="300" y2="148" stroke="#7f1d1d" stroke-width="2.5"/>
+    <text x="305" y="153" font-size="9" fill="#7f1d1d">basement membrane</text>
+
+    <!-- Columnar cells, tightly packed -->
+    <g>
+      <rect x="40" y="74" width="22" height="74" rx="4" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.2"/>
+      <ellipse cx="51" cy="128" rx="6" ry="8" fill="#1e3a8a"/>
+      <rect x="62" y="74" width="22" height="74" rx="4" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.2"/>
+      <ellipse cx="73" cy="128" rx="6" ry="8" fill="#1e3a8a"/>
+      <rect x="84" y="74" width="22" height="74" rx="4" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.2"/>
+      <ellipse cx="95" cy="128" rx="6" ry="8" fill="#1e3a8a"/>
+      <rect x="106" y="74" width="22" height="74" rx="4" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.2"/>
+      <ellipse cx="117" cy="128" rx="6" ry="8" fill="#1e3a8a"/>
+      <rect x="128" y="74" width="22" height="74" rx="4" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.2"/>
+      <ellipse cx="139" cy="128" rx="6" ry="8" fill="#1e3a8a"/>
+      <rect x="150" y="74" width="22" height="74" rx="4" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.2"/>
+      <ellipse cx="161" cy="128" rx="6" ry="8" fill="#1e3a8a"/>
+      <rect x="172" y="74" width="22" height="74" rx="4" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.2"/>
+      <ellipse cx="183" cy="128" rx="6" ry="8" fill="#1e3a8a"/>
+      <rect x="194" y="74" width="22" height="74" rx="4" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.2"/>
+      <ellipse cx="205" cy="128" rx="6" ry="8" fill="#1e3a8a"/>
+    </g>
+
+    <!-- Microvilli (apical) -->
+    <line x1="42" y1="74" x2="42" y2="68" stroke="#2b6cb0" stroke-width="1"/>
+    <line x1="48" y1="74" x2="48" y2="68" stroke="#2b6cb0" stroke-width="1"/>
+    <line x1="54" y1="74" x2="54" y2="68" stroke="#2b6cb0" stroke-width="1"/>
+    <line x1="60" y1="74" x2="60" y2="68" stroke="#2b6cb0" stroke-width="1"/>
+    <line x1="66" y1="74" x2="66" y2="68" stroke="#2b6cb0" stroke-width="1"/>
+    <line x1="72" y1="74" x2="72" y2="68" stroke="#2b6cb0" stroke-width="1"/>
+    <line x1="78" y1="74" x2="78" y2="68" stroke="#2b6cb0" stroke-width="1"/>
+    <line x1="84" y1="74" x2="84" y2="68" stroke="#2b6cb0" stroke-width="1"/>
+    <line x1="90" y1="74" x2="90" y2="68" stroke="#2b6cb0" stroke-width="1"/>
+    <line x1="96" y1="74" x2="96" y2="68" stroke="#2b6cb0" stroke-width="1"/>
+    <line x1="102" y1="74" x2="102" y2="68" stroke="#2b6cb0" stroke-width="1"/>
+    <line x1="108" y1="74" x2="108" y2="68" stroke="#2b6cb0" stroke-width="1"/>
+
+    <text x="240" y="92" font-size="10" font-weight="700" fill="#1a202c">Cells</text>
+    <text x="240" y="106" font-size="9" fill="#4a5568">tightly packed,</text>
+    <text x="240" y="118" font-size="9" fill="#4a5568">no matrix between</text>
+    <text x="240" y="138" font-size="10" font-weight="700" fill="#1a202c">Examples</text>
+    <text x="240" y="152" font-size="9" fill="#4a5568">skin, gut lining,</text>
+    <text x="240" y="164" font-size="9" fill="#4a5568">kidney tubules</text>
+  </g>
+
+  <!-- ── Connective (top-right) ───────────────────────────── -->
+  <g transform="translate(390, 60)">
+    <rect x="0" y="0" width="330" height="190" rx="10" fill="#f7fafc" stroke="#b45309" stroke-width="2"/>
+    <text x="20" y="24" font-size="13" font-weight="700" fill="#b45309">2. Connective</text>
+    <text x="20" y="40" font-size="10" fill="#4a5568">Few cells, lots of matrix. Supports + connects.</text>
+
+    <!-- Collagen fibre matrix (wavy) -->
+    <path d="M 30 70 Q 60 65 90 75 Q 120 80 150 72 Q 180 65 210 75" fill="none" stroke="#fdba74" stroke-width="2"/>
+    <path d="M 30 84 Q 70 80 100 90 Q 140 92 180 84 Q 200 80 220 86" fill="none" stroke="#fdba74" stroke-width="2"/>
+    <path d="M 26 102 Q 60 98 92 108 Q 128 110 160 100 Q 190 95 220 102" fill="none" stroke="#fdba74" stroke-width="2"/>
+    <path d="M 30 122 Q 70 116 102 126 Q 140 130 174 120 Q 200 114 220 122" fill="none" stroke="#fdba74" stroke-width="2"/>
+    <path d="M 28 142 Q 60 138 96 148 Q 130 152 164 140 Q 200 134 220 142" fill="none" stroke="#fdba74" stroke-width="2"/>
+    <!-- Elastic fibres (thinner, dashed) -->
+    <path d="M 30 76 Q 80 80 130 76 Q 180 72 220 78" fill="none" stroke="#b45309" stroke-width="1" stroke-dasharray="3 3"/>
+    <path d="M 30 116 Q 80 120 130 116 Q 180 112 220 118" fill="none" stroke="#b45309" stroke-width="1" stroke-dasharray="3 3"/>
+
+    <!-- Fibroblasts: scattered, elongated star-shaped cells -->
+    <g>
+      <ellipse cx="60" cy="92" rx="9" ry="5" fill="#fed7aa" stroke="#b45309" stroke-width="1.2" transform="rotate(15 60 92)"/>
+      <circle cx="60" cy="92" r="2.5" fill="#78350f"/>
+      <line x1="68" y1="92" x2="76" y2="98" stroke="#b45309" stroke-width="0.8"/>
+      <line x1="52" y1="92" x2="44" y2="86" stroke="#b45309" stroke-width="0.8"/>
+
+      <ellipse cx="138" cy="106" rx="9" ry="5" fill="#fed7aa" stroke="#b45309" stroke-width="1.2" transform="rotate(-10 138 106)"/>
+      <circle cx="138" cy="106" r="2.5" fill="#78350f"/>
+      <line x1="146" y1="106" x2="154" y2="100" stroke="#b45309" stroke-width="0.8"/>
+      <line x1="130" y1="106" x2="122" y2="112" stroke="#b45309" stroke-width="0.8"/>
+
+      <ellipse cx="100" cy="134" rx="9" ry="5" fill="#fed7aa" stroke="#b45309" stroke-width="1.2" transform="rotate(8 100 134)"/>
+      <circle cx="100" cy="134" r="2.5" fill="#78350f"/>
+      <line x1="108" y1="134" x2="116" y2="130" stroke="#b45309" stroke-width="0.8"/>
+      <line x1="92" y1="134" x2="84" y2="138" stroke="#b45309" stroke-width="0.8"/>
+
+      <ellipse cx="180" cy="128" rx="9" ry="5" fill="#fed7aa" stroke="#b45309" stroke-width="1.2" transform="rotate(20 180 128)"/>
+      <circle cx="180" cy="128" r="2.5" fill="#78350f"/>
+    </g>
+
+    <text x="240" y="92" font-size="10" font-weight="700" fill="#1a202c">Cells</text>
+    <text x="240" y="106" font-size="9" fill="#4a5568">scattered in</text>
+    <text x="240" y="118" font-size="9" fill="#4a5568">matrix of fibres</text>
+    <text x="240" y="138" font-size="10" font-weight="700" fill="#1a202c">Examples</text>
+    <text x="240" y="152" font-size="9" fill="#4a5568">bone, cartilage,</text>
+    <text x="240" y="164" font-size="9" fill="#4a5568">blood, tendon</text>
+  </g>
+
+  <!-- ── Muscle (bottom-left) ─────────────────────────────── -->
+  <g transform="translate(40, 270)">
+    <rect x="0" y="0" width="330" height="190" rx="10" fill="#f7fafc" stroke="#dc2626" stroke-width="2"/>
+    <text x="20" y="24" font-size="13" font-weight="700" fill="#dc2626">3. Muscle</text>
+    <text x="20" y="40" font-size="10" fill="#4a5568">Long contractile fibres. Generate movement.</text>
+
+    <!-- Skeletal muscle fibre — long cylinder with striations + multiple peripheral nuclei -->
+    <rect x="30" y="76" width="270" height="50" rx="8" fill="#fee2e2" stroke="#dc2626" stroke-width="1.8"/>
+    <!-- Striations -->
+    <g stroke="#dc2626" stroke-width="0.7">
+      <line x1="42" y1="78" x2="42" y2="124"/>
+      <line x1="50" y1="78" x2="50" y2="124"/>
+      <line x1="58" y1="78" x2="58" y2="124"/>
+      <line x1="66" y1="78" x2="66" y2="124"/>
+      <line x1="74" y1="78" x2="74" y2="124"/>
+      <line x1="82" y1="78" x2="82" y2="124"/>
+      <line x1="90" y1="78" x2="90" y2="124"/>
+      <line x1="98" y1="78" x2="98" y2="124"/>
+      <line x1="106" y1="78" x2="106" y2="124"/>
+      <line x1="114" y1="78" x2="114" y2="124"/>
+      <line x1="122" y1="78" x2="122" y2="124"/>
+      <line x1="130" y1="78" x2="130" y2="124"/>
+      <line x1="138" y1="78" x2="138" y2="124"/>
+      <line x1="146" y1="78" x2="146" y2="124"/>
+      <line x1="154" y1="78" x2="154" y2="124"/>
+      <line x1="162" y1="78" x2="162" y2="124"/>
+      <line x1="170" y1="78" x2="170" y2="124"/>
+      <line x1="178" y1="78" x2="178" y2="124"/>
+      <line x1="186" y1="78" x2="186" y2="124"/>
+      <line x1="194" y1="78" x2="194" y2="124"/>
+      <line x1="202" y1="78" x2="202" y2="124"/>
+      <line x1="210" y1="78" x2="210" y2="124"/>
+      <line x1="218" y1="78" x2="218" y2="124"/>
+      <line x1="226" y1="78" x2="226" y2="124"/>
+      <line x1="234" y1="78" x2="234" y2="124"/>
+      <line x1="242" y1="78" x2="242" y2="124"/>
+      <line x1="250" y1="78" x2="250" y2="124"/>
+      <line x1="258" y1="78" x2="258" y2="124"/>
+      <line x1="266" y1="78" x2="266" y2="124"/>
+      <line x1="274" y1="78" x2="274" y2="124"/>
+      <line x1="282" y1="78" x2="282" y2="124"/>
+      <line x1="290" y1="78" x2="290" y2="124"/>
+    </g>
+    <!-- Peripheral nuclei -->
+    <ellipse cx="60" cy="86" rx="6" ry="4" fill="#7f1d1d"/>
+    <ellipse cx="120" cy="84" rx="6" ry="4" fill="#7f1d1d"/>
+    <ellipse cx="180" cy="86" rx="6" ry="4" fill="#7f1d1d"/>
+    <ellipse cx="240" cy="84" rx="6" ry="4" fill="#7f1d1d"/>
+    <ellipse cx="90" cy="118" rx="6" ry="4" fill="#7f1d1d"/>
+    <ellipse cx="150" cy="116" rx="6" ry="4" fill="#7f1d1d"/>
+    <ellipse cx="210" cy="118" rx="6" ry="4" fill="#7f1d1d"/>
+    <ellipse cx="270" cy="116" rx="6" ry="4" fill="#7f1d1d"/>
+
+    <!-- Pointer to nucleus -->
+    <line x1="60" y1="74" x2="50" y2="60" stroke="#7f1d1d" stroke-width="0.8"/>
+    <text x="48" y="56" font-size="9" fill="#7f1d1d" text-anchor="end">peripheral nuclei</text>
+
+    <text x="50" y="148" font-size="10" font-weight="700" fill="#1a202c">Cells</text>
+    <text x="50" y="162" font-size="9" fill="#4a5568">long, multinucleate, striated</text>
+    <text x="200" y="148" font-size="10" font-weight="700" fill="#1a202c">Examples</text>
+    <text x="200" y="162" font-size="9" fill="#4a5568">biceps, calf, tongue (skeletal)</text>
+    <text x="200" y="176" font-size="9" fill="#4a5568">heart wall (cardiac); gut wall (smooth)</text>
+  </g>
+
+  <!-- ── Nervous (bottom-right) ───────────────────────────── -->
+  <g transform="translate(390, 270)">
+    <rect x="0" y="0" width="330" height="190" rx="10" fill="#f7fafc" stroke="#7c3aed" stroke-width="2"/>
+    <text x="20" y="24" font-size="13" font-weight="700" fill="#7c3aed">4. Nervous</text>
+    <text x="20" y="40" font-size="10" fill="#4a5568">Excitable cells. Conduct electrical impulses.</text>
+
+    <!-- Neuron: dendrites left, cell body middle-left, long axon right with terminals -->
+    <!-- Dendrites -->
+    <line x1="30" y1="86" x2="60" y2="106" stroke="#7c3aed" stroke-width="2"/>
+    <line x1="36" y1="68" x2="62" y2="104" stroke="#7c3aed" stroke-width="2"/>
+    <line x1="30" y1="118" x2="60" y2="110" stroke="#7c3aed" stroke-width="2"/>
+    <line x1="36" y1="138" x2="62" y2="116" stroke="#7c3aed" stroke-width="2"/>
+    <!-- Sub-branches -->
+    <line x1="38" y1="76" x2="32" y2="64" stroke="#7c3aed" stroke-width="1.2"/>
+    <line x1="38" y1="76" x2="44" y2="60" stroke="#7c3aed" stroke-width="1.2"/>
+    <line x1="34" y1="100" x2="22" y2="92" stroke="#7c3aed" stroke-width="1.2"/>
+    <line x1="38" y1="130" x2="28" y2="142" stroke="#7c3aed" stroke-width="1.2"/>
+
+    <!-- Cell body (soma) -->
+    <ellipse cx="76" cy="110" rx="20" ry="16" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+    <circle cx="76" cy="110" r="7" fill="#7c3aed" opacity="0.7"/>
+    <circle cx="76" cy="110" r="2.5" fill="#fff"/>
+
+    <!-- Axon hillock + long axon -->
+    <path d="M 96 110 Q 110 110 130 110 L 240 110" fill="none" stroke="#7c3aed" stroke-width="3.5"/>
+    <!-- Myelin sheath segments -->
+    <ellipse cx="138" cy="110" rx="14" ry="6" fill="#fef3c7" stroke="#b45309" stroke-width="1"/>
+    <ellipse cx="170" cy="110" rx="14" ry="6" fill="#fef3c7" stroke="#b45309" stroke-width="1"/>
+    <ellipse cx="202" cy="110" rx="14" ry="6" fill="#fef3c7" stroke="#b45309" stroke-width="1"/>
+    <ellipse cx="234" cy="110" rx="14" ry="6" fill="#fef3c7" stroke="#b45309" stroke-width="1"/>
+
+    <!-- Axon terminals -->
+    <line x1="248" y1="110" x2="270" y2="92" stroke="#7c3aed" stroke-width="2"/>
+    <line x1="248" y1="110" x2="278" y2="110" stroke="#7c3aed" stroke-width="2"/>
+    <line x1="248" y1="110" x2="270" y2="128" stroke="#7c3aed" stroke-width="2"/>
+    <circle cx="272" cy="90" r="3.5" fill="#7c3aed"/>
+    <circle cx="282" cy="110" r="3.5" fill="#7c3aed"/>
+    <circle cx="272" cy="130" r="3.5" fill="#7c3aed"/>
+
+    <!-- Labels -->
+    <text x="38" y="162" font-size="9" fill="#7c3aed">dendrites</text>
+    <text x="76" y="148" font-size="9" fill="#7c3aed" text-anchor="middle">cell body</text>
+    <text x="170" y="92" font-size="9" fill="#b45309" text-anchor="middle">myelin sheath</text>
+    <text x="276" y="148" font-size="9" fill="#7c3aed" text-anchor="middle">axon terminals</text>
+
+    <text x="170" y="174" font-size="9" fill="#4a5568" text-anchor="middle">Examples: brain, spinal cord, peripheral nerves</text>
+  </g>
+
+  <text x="380" y="476" font-size="10" fill="#4a5568" text-anchor="middle">Same four families occur in every animal — the cell shape and matrix tell you the family at a glance.</text>
+</svg>

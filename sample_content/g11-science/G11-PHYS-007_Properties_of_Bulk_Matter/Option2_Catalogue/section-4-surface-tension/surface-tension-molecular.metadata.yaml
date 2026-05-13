@@ -1,0 +1,13 @@
+schema_version: 1
+id: physics-bulk-matter-surface-tension-molecular
+kind: image
+subject: physics
+topic_phrase: "molecular origin of surface tension showing balanced bulk forces and net inward force on surface molecules"
+keywords:
+  - surface-tension
+  - cohesive-forces
+  - molecular-forces
+  - liquid-surface
+  - skin-effect
+license: platform-cc-by-sa
+source_unit: G11-PHYS-007

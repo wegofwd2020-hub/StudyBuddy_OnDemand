@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 320" width="600" height="320" role="img" aria-label="Synthetic division of x³ − 2x² − 5x + 6 by (x − 3)">
+  <title>Synthetic Division Layout</title>
+  <desc>Step-by-step synthetic division using r = 3 to divide x³ − 2x² − 5x + 6 by (x − 3), showing remainder zero confirms (x − 3) is a factor.</desc>
+
+  <defs>
+    <marker id="ah-sd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2f855a"/>
+    </marker>
+    <style>
+      .heading { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .sub     { font: italic 12px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .cell    { font: 18px ui-monospace, monospace; fill: #1a202c; text-anchor: middle; font-weight: 700; }
+      .small   { font: 12px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .annot   { font: 11px system-ui, sans-serif; fill: #6b46c1; text-anchor: middle; font-style: italic; }
+      .quotient{ font: bold 13px system-ui, sans-serif; fill: #2f855a; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <text class="heading" x="300" y="22">Synthetic Division: dividing x³ − 2x² − 5x + 6 by (x − 3)</text>
+  <text class="sub"     x="300" y="42">Use r = 3.  Bring down the leading 1, then "multiply, add" across each column.</text>
+
+  <!-- Layout: rows at y=80 (coefficients), y=130 (multiplied), y=180 (sum).  cols at x=160,230,300,370. r-box at x=100. -->
+
+  <!-- r value box -->
+  <rect x="78" y="65" width="44" height="44" rx="6" fill="#fffaf0" stroke="#dd6b20" stroke-width="1.5"/>
+  <text class="cell" x="100" y="94" fill="#dd6b20">3</text>
+  <text class="small" x="100" y="125">r = 3</text>
+
+  <!-- Coefficient header row -->
+  <text class="small" x="160" y="70">x³</text>
+  <text class="small" x="230" y="70">x²</text>
+  <text class="small" x="300" y="70">x¹</text>
+  <text class="small" x="370" y="70">x⁰</text>
+
+  <text class="cell" x="160" y="92">1</text>
+  <text class="cell" x="230" y="92">−2</text>
+  <text class="cell" x="300" y="92">−5</text>
+  <text class="cell" x="370" y="92">6</text>
+
+  <!-- Vertical divider -->
+  <line x1="135" y1="60" x2="135" y2="200" stroke="#94a3b8" stroke-width="1.2"/>
+
+  <!-- Horizontal under the bottom row -->
+  <line x1="145" y1="155" x2="400" y2="155" stroke="#94a3b8" stroke-width="1.2"/>
+
+  <!-- Multiplied row (y=140) -->
+  <text class="cell" x="230" y="142" fill="#dd6b20">3</text>
+  <text class="cell" x="300" y="142" fill="#dd6b20">3</text>
+  <text class="cell" x="370" y="142" fill="#dd6b20">−6</text>
+
+  <!-- Sum row (y=180) -->
+  <text class="cell" x="160" y="180" fill="#2f855a">1</text>
+  <text class="cell" x="230" y="180" fill="#2f855a">1</text>
+  <text class="cell" x="300" y="180" fill="#2f855a">−2</text>
+  <text class="cell" x="370" y="180" fill="#2f855a">0</text>
+
+  <!-- Down-arrow for first leading -->
+  <line x1="160" y1="100" x2="160" y2="170" stroke="#2f855a" stroke-width="2" marker-end="url(#ah-sd)"/>
+
+  <!-- Diagonal multiply arrows: from sum_i to mult_{i+1} (3*1=3, 3*1=3, 3*-2=-6) -->
+  <path d="M 168 178 Q 200 165, 222 145" fill="none" stroke="#dd6b20" stroke-width="1.8" marker-end="url(#ah-sd)"/>
+  <path d="M 238 178 Q 270 165, 292 145" fill="none" stroke="#dd6b20" stroke-width="1.8" marker-end="url(#ah-sd)"/>
+  <path d="M 308 178 Q 340 165, 362 145" fill="none" stroke="#dd6b20" stroke-width="1.8" marker-end="url(#ah-sd)"/>
+
+  <!-- Annotation labels for multiply step -->
+  <text class="annot" x="195" y="120">×3</text>
+  <text class="annot" x="265" y="120">×3</text>
+  <text class="annot" x="335" y="120">×3</text>
+
+  <!-- Quotient + remainder box -->
+  <rect x="60" y="220" width="480" height="76" rx="8" fill="#f0fff4" stroke="#2f855a" stroke-width="1.5"/>
+  <text class="quotient" x="300" y="244">Quotient: x² + x − 2,    Remainder: 0</text>
+  <text class="small"    x="300" y="266">Since the remainder is 0,  (x − 3) is a factor of x³ − 2x² − 5x + 6.</text>
+  <text class="small"    x="300" y="284" font-style="italic">Factor the quadratic:  x² + x − 2 = (x + 2)(x − 1)  →  P(x) = (x + 2)(x − 1)(x − 3)</text>
+</svg>

@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380" role="img" aria-label="Geometric isomerism — cis and trans forms of but-2-ene">
+  <title>Geometric (cis–trans) Isomerism — but-2-ene</title>
+  <desc>The C=C double bond restricts rotation, locking substituents in place. cis-but-2-ene has both methyl groups on the same side of the double bond. trans-but-2-ene has the methyl groups on opposite sides. cis is less stable (steric clash) and has a slightly lower boiling point gap, but a higher melting point because trans packs better in the solid. The rigid double bond is what makes geometric isomers distinct molecules.</desc>
+
+  <text x="360" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Geometric Isomerism — cis vs trans but-2-ene</text>
+  <text x="360" y="40" font-size="11" fill="#4a5568" text-anchor="middle">The π-bond locks rotation · same connectivity, different 3-D arrangement</text>
+
+  <!-- divider -->
+  <line x1="360" y1="60" x2="360" y2="340" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3 3"/>
+
+  <!-- ── cis-but-2-ene (left): both CH3 on same side -->
+  <text x="180" y="80" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">cis-but-2-ene (Z)</text>
+  <text x="180" y="98" font-size="10" fill="#dc2626" text-anchor="middle">both methyls on same side</text>
+
+  <g transform="translate(180 200)">
+    <!-- C1=C2 double bond horizontal -->
+    <circle cx="-50" cy="0" r="18" fill="#1f2937" stroke="#0f172a" stroke-width="1.5"/>
+    <text x="-50" y="4" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+    <circle cx="50" cy="0" r="18" fill="#1f2937" stroke="#0f172a" stroke-width="1.5"/>
+    <text x="50" y="4" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+    <!-- double bond -->
+    <line x1="-32" y1="-5" x2="32" y2="-5" stroke="#1a202c" stroke-width="3"/>
+    <line x1="-32" y1="5" x2="32" y2="5" stroke="#1a202c" stroke-width="3"/>
+    <!-- both CH3 groups UP -->
+    <line x1="-50" y1="-18" x2="-50" y2="-50" stroke="#dc2626" stroke-width="2.5"/>
+    <circle cx="-50" cy="-66" r="16" fill="#dc2626" stroke="#7f1d1d" stroke-width="1.5"/>
+    <text x="-50" y="-62" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">CH₃</text>
+
+    <line x1="50" y1="-18" x2="50" y2="-50" stroke="#dc2626" stroke-width="2.5"/>
+    <circle cx="50" cy="-66" r="16" fill="#dc2626" stroke="#7f1d1d" stroke-width="1.5"/>
+    <text x="50" y="-62" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">CH₃</text>
+
+    <!-- both H atoms DOWN -->
+    <line x1="-50" y1="18" x2="-50" y2="46" stroke="#1a202c" stroke-width="2"/>
+    <circle cx="-50" cy="58" r="12" fill="#fde68a" stroke="#92400e" stroke-width="1.5"/>
+    <text x="-50" y="62" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+
+    <line x1="50" y1="18" x2="50" y2="46" stroke="#1a202c" stroke-width="2"/>
+    <circle cx="50" cy="58" r="12" fill="#fde68a" stroke="#92400e" stroke-width="1.5"/>
+    <text x="50" y="62" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+
+    <!-- "same side" highlight -->
+    <path d="M -68 -78 Q 0 -110 68 -78" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="3 2"/>
+    <text x="0" y="-115" font-size="10" font-weight="700" fill="#dc2626" text-anchor="middle">same side</text>
+  </g>
+
+  <text x="180" y="298" font-size="10" fill="#1a202c" text-anchor="middle">CH₃ and CH₃ on the same side of C=C</text>
+  <text x="180" y="318" font-size="10" font-weight="700" fill="#dc2626" text-anchor="middle">b.p. = 4 °C · m.p. = −139 °C</text>
+  <text x="180" y="334" font-size="10" fill="#4a5568" text-anchor="middle">μ ≠ 0 (slightly polar) · strained (Me–Me clash)</text>
+
+  <!-- ── trans-but-2-ene (right): CH3 on opposite sides -->
+  <text x="540" y="80" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">trans-but-2-ene (E)</text>
+  <text x="540" y="98" font-size="10" fill="#15803d" text-anchor="middle">methyls on opposite sides</text>
+
+  <g transform="translate(540 200)">
+    <circle cx="-50" cy="0" r="18" fill="#1f2937" stroke="#0f172a" stroke-width="1.5"/>
+    <text x="-50" y="4" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+    <circle cx="50" cy="0" r="18" fill="#1f2937" stroke="#0f172a" stroke-width="1.5"/>
+    <text x="50" y="4" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+    <line x1="-32" y1="-5" x2="32" y2="-5" stroke="#1a202c" stroke-width="3"/>
+    <line x1="-32" y1="5" x2="32" y2="5" stroke="#1a202c" stroke-width="3"/>
+    <!-- left C: CH3 up, H down -->
+    <line x1="-50" y1="-18" x2="-50" y2="-50" stroke="#15803d" stroke-width="2.5"/>
+    <circle cx="-50" cy="-66" r="16" fill="#15803d" stroke="#14532d" stroke-width="1.5"/>
+    <text x="-50" y="-62" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">CH₃</text>
+
+    <line x1="-50" y1="18" x2="-50" y2="46" stroke="#1a202c" stroke-width="2"/>
+    <circle cx="-50" cy="58" r="12" fill="#fde68a" stroke="#92400e" stroke-width="1.5"/>
+    <text x="-50" y="62" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+
+    <!-- right C: H up, CH3 down -->
+    <line x1="50" y1="-18" x2="50" y2="-46" stroke="#1a202c" stroke-width="2"/>
+    <circle cx="50" cy="-58" r="12" fill="#fde68a" stroke="#92400e" stroke-width="1.5"/>
+    <text x="50" y="-54" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+
+    <line x1="50" y1="18" x2="50" y2="50" stroke="#15803d" stroke-width="2.5"/>
+    <circle cx="50" cy="66" r="16" fill="#15803d" stroke="#14532d" stroke-width="1.5"/>
+    <text x="50" y="70" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">CH₃</text>
+
+    <!-- "opposite sides" highlight -->
+    <path d="M -50 -86 L 50 86" fill="none" stroke="#15803d" stroke-width="1.5" stroke-dasharray="3 2"/>
+    <text x="0" y="-115" font-size="10" font-weight="700" fill="#15803d" text-anchor="middle">opposite sides</text>
+  </g>
+
+  <text x="540" y="298" font-size="10" fill="#1a202c" text-anchor="middle">CH₃ groups across the C=C from each other</text>
+  <text x="540" y="318" font-size="10" font-weight="700" fill="#15803d" text-anchor="middle">b.p. = 1 °C · m.p. = −106 °C</text>
+  <text x="540" y="334" font-size="10" fill="#4a5568" text-anchor="middle">μ = 0 (non-polar) · packs better — higher m.p.</text>
+</svg>

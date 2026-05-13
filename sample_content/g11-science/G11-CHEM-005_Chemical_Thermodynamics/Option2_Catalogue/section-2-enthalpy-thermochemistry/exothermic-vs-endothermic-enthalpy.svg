@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380" role="img" aria-label="Exothermic vs endothermic enthalpy diagrams">
+  <title>Exothermic vs Endothermic Reactions</title>
+  <desc>Two side-by-side enthalpy diagrams. Left: exothermic — products lower than reactants, ΔH negative, heat released to surroundings. Right: endothermic — products higher than reactants, ΔH positive, heat absorbed from surroundings.</desc>
+
+  <defs>
+    <marker id="exo-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626"/>
+    </marker>
+    <marker id="endo-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2b6cb0"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Enthalpy Change ΔH — Heat at Constant Pressure</text>
+  <text x="360" y="42" font-size="11" fill="#4a5568" text-anchor="middle">ΔH = H(products) − H(reactants).  Sign tells us which way the heat flows.</text>
+
+  <!-- ═══ EXOTHERMIC (left) ═══ -->
+  <g transform="translate(0, 60)">
+    <text x="180" y="14" font-size="14" font-weight="700" fill="#dc2626" text-anchor="middle">Exothermic — heat released</text>
+
+    <!-- axes -->
+    <line x1="60" y1="220" x2="60" y2="40" stroke="#1a202c" stroke-width="1.5"/>
+    <line x1="60" y1="220" x2="320" y2="220" stroke="#1a202c" stroke-width="1.5"/>
+    <text x="34" y="130" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle" transform="rotate(-90 34 130)">Enthalpy H</text>
+    <text x="190" y="240" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">reaction progress →</text>
+
+    <!-- Reactant level (high) -->
+    <line x1="80" y1="80" x2="160" y2="80" stroke="#dc2626" stroke-width="3"/>
+    <text x="120" y="72" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">reactants</text>
+    <text x="120" y="60" font-size="10" fill="#4a5568" text-anchor="middle">CH₄ + 2 O₂</text>
+
+    <!-- Product level (low) -->
+    <line x1="220" y1="180" x2="300" y2="180" stroke="#dc2626" stroke-width="3"/>
+    <text x="260" y="200" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">products</text>
+    <text x="260" y="214" font-size="10" fill="#4a5568" text-anchor="middle">CO₂ + 2 H₂O</text>
+
+    <!-- Reaction curve -->
+    <path d="M 160 80 Q 175 40, 195 80 Q 215 130, 220 180" fill="none" stroke="#fb923c" stroke-width="2.5"/>
+
+    <!-- ΔH arrow (downward) -->
+    <line x1="345" y1="80" x2="345" y2="180" stroke="#dc2626" stroke-width="2.5" marker-end="url(#exo-arrow)"/>
+    <text x="370" y="135" font-size="14" font-weight="700" fill="#dc2626">ΔH &lt; 0</text>
+    <text x="370" y="155" font-size="10" fill="#4a5568">heat OUT</text>
+
+    <!-- Equation -->
+    <rect x="40" y="260" width="320" height="36" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+    <text x="200" y="282" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">CH₄ + 2 O₂ → CO₂ + 2 H₂O   ΔH = −890 kJ/mol</text>
+  </g>
+
+  <!-- ═══ ENDOTHERMIC (right) ═══ -->
+  <g transform="translate(360, 60)">
+    <text x="180" y="14" font-size="14" font-weight="700" fill="#2b6cb0" text-anchor="middle">Endothermic — heat absorbed</text>
+
+    <!-- axes -->
+    <line x1="60" y1="220" x2="60" y2="40" stroke="#1a202c" stroke-width="1.5"/>
+    <line x1="60" y1="220" x2="320" y2="220" stroke="#1a202c" stroke-width="1.5"/>
+    <text x="34" y="130" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle" transform="rotate(-90 34 130)">Enthalpy H</text>
+    <text x="190" y="240" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">reaction progress →</text>
+
+    <!-- Reactant level (low) -->
+    <line x1="80" y1="180" x2="160" y2="180" stroke="#2b6cb0" stroke-width="3"/>
+    <text x="120" y="200" font-size="11" font-weight="700" fill="#2b6cb0" text-anchor="middle">reactants</text>
+    <text x="120" y="214" font-size="10" fill="#4a5568" text-anchor="middle">N₂ + O₂</text>
+
+    <!-- Product level (high) -->
+    <line x1="220" y1="80" x2="300" y2="80" stroke="#2b6cb0" stroke-width="3"/>
+    <text x="260" y="72" font-size="11" font-weight="700" fill="#2b6cb0" text-anchor="middle">products</text>
+    <text x="260" y="60" font-size="10" fill="#4a5568" text-anchor="middle">2 NO</text>
+
+    <!-- Reaction curve (uphill) -->
+    <path d="M 160 180 Q 175 140, 195 130 Q 215 90, 220 80" fill="none" stroke="#60a5fa" stroke-width="2.5"/>
+
+    <!-- ΔH arrow (upward) -->
+    <line x1="345" y1="180" x2="345" y2="80" stroke="#2b6cb0" stroke-width="2.5" marker-end="url(#endo-arrow)"/>
+    <text x="370" y="130" font-size="14" font-weight="700" fill="#2b6cb0">ΔH &gt; 0</text>
+    <text x="370" y="150" font-size="10" fill="#4a5568">heat IN</text>
+
+    <!-- Equation -->
+    <rect x="40" y="260" width="320" height="36" rx="6" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5"/>
+    <text x="200" y="282" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">N₂ + O₂ → 2 NO   ΔH = +180 kJ/mol</text>
+  </g>
+
+  <text x="360" y="365" font-size="11" fill="#4a5568" text-anchor="middle" font-style="italic">Negative ΔH = surroundings warm up.   Positive ΔH = surroundings cool down.</text>
+</svg>

@@ -1,0 +1,14 @@
+schema_version: 1
+id: math-stats-box-plot-five-number-summary
+kind: image
+subject: math
+topic_phrase: "box plot showing the five-number summary and interquartile range"
+keywords:
+  - box-plot
+  - quartiles
+  - median
+  - interquartile-range
+  - five-number-summary
+  - outliers
+license: platform-cc-by-sa
+source_unit: G11-MATH-005

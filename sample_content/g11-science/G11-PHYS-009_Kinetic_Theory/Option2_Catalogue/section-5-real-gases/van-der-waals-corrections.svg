@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 360" width="620" height="360" role="img" aria-label="Van der Waals Equation: Two Corrections to the Ideal Gas Law">
+  <title>Van der Waals Equation — Two Corrections to PV = nRT</title>
+  <desc>The van der Waals equation modifies the ideal gas law with two physically motivated corrections. The b correction subtracts the volume occupied by the molecules themselves (excluded volume): V minus n b. The a correction adds an effective attractive pressure that pulls molecules inward and reduces the pressure on the wall: P plus a n squared over V squared. Two side schematics illustrate finite molecular size and pairwise attraction.</desc>
+
+  <text x="310" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Van der Waals Equation:  ( P + a n² / V² ) ( V − n b ) = n R T</text>
+
+  <!-- Central equation banner -->
+  <rect x="100" y="48" width="420" height="60" rx="10" fill="#fff7ed" stroke="#dd6b20" stroke-width="2.4" />
+  <text x="310" y="78" font-size="22" font-weight="700" fill="#7c2d12" text-anchor="middle">( P + a n² / V² )  ( V − n b )  =  n R T</text>
+  <text x="310" y="98" font-size="11" fill="#7c2d12" text-anchor="middle">two empirical corrections to the ideal gas equation of state</text>
+
+  <!-- Underline highlights for the two corrections -->
+  <path d="M 152 92 L 240 92" stroke="#dc2626" stroke-width="2" />
+  <path d="M 320 92 L 410 92" stroke="#1d4ed8" stroke-width="2" />
+
+  <!-- ============== LEFT: 'b' correction (molecular size) ============== -->
+  <rect x="30" y="125" width="280" height="200" rx="8" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.6" />
+  <text x="170" y="145" font-size="13" font-weight="700" fill="#1d4ed8" text-anchor="middle">b — finite molecular volume</text>
+
+  <!-- Inside container, molecules occupying volume -->
+  <rect x="50" y="160" width="240" height="100" fill="#fff" stroke="#1a202c" stroke-width="1.6" />
+
+  <!-- Crowd of molecules with visible size -->
+  <g fill="#1d4ed8" stroke="#1e3a8a" stroke-width="1">
+    <circle cx="70" cy="180" r="7" />
+    <circle cx="100" cy="200" r="7" />
+    <circle cx="130" cy="180" r="7" />
+    <circle cx="170" cy="195" r="7" />
+    <circle cx="205" cy="180" r="7" />
+    <circle cx="240" cy="195" r="7" />
+    <circle cx="275" cy="180" r="7" />
+    <circle cx="80" cy="225" r="7" />
+    <circle cx="115" cy="240" r="7" />
+    <circle cx="155" cy="225" r="7" />
+    <circle cx="195" cy="240" r="7" />
+    <circle cx="230" cy="225" r="7" />
+    <circle cx="265" cy="240" r="7" />
+  </g>
+
+  <!-- Excluded-volume highlight -->
+  <circle cx="170" cy="195" r="14" fill="none" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="3 2" />
+  <text x="170" y="153" font-size="9" fill="#dc2626" text-anchor="middle" display="none">excluded</text>
+
+  <!-- Label text -->
+  <text x="50" y="278" font-size="11" font-weight="700" fill="#1d4ed8">Effect:</text>
+  <text x="100" y="278" font-size="11" fill="#1a202c">molecules can't overlap</text>
+
+  <text x="50" y="294" font-size="11" font-weight="700" fill="#1d4ed8">Correction:</text>
+  <text x="125" y="294" font-size="11" fill="#1a202c">free volume = V − n b</text>
+
+  <text x="50" y="312" font-size="10" fill="#4a5568">b = 4 N_A · v_mol  ≈ molar excluded volume</text>
+
+  <!-- ============== RIGHT: 'a' correction (attraction) ============== -->
+  <rect x="320" y="125" width="280" height="200" rx="8" fill="#fee2e2" stroke="#dc2626" stroke-width="1.6" />
+  <text x="460" y="145" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">a — attractive forces</text>
+
+  <!-- Inside container -->
+  <rect x="340" y="160" width="240" height="100" fill="#fff" stroke="#1a202c" stroke-width="1.6" />
+
+  <!-- Wall molecule with attraction arrows pointing inward -->
+  <circle cx="565" cy="200" r="8" fill="#dc2626" stroke="#7c2d12" stroke-width="1.5" />
+  <text x="572" y="194" font-size="9" font-weight="700" fill="#7c2d12">m*</text>
+
+  <defs>
+    <marker id="vdw-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626" />
+    </marker>
+  </defs>
+
+  <!-- Bulk molecules pulling wall molecule inward -->
+  <g fill="#dc2626" stroke="#7c2d12" stroke-width="1">
+    <circle cx="430" cy="180" r="5" />
+    <circle cx="465" cy="200" r="5" />
+    <circle cx="495" cy="220" r="5" />
+    <circle cx="455" cy="225" r="5" />
+    <circle cx="510" cy="190" r="5" />
+    <circle cx="475" cy="240" r="5" />
+    <circle cx="535" cy="225" r="5" />
+    <circle cx="525" cy="180" r="5" />
+    <circle cx="395" cy="210" r="5" />
+    <circle cx="380" cy="235" r="5" />
+    <circle cx="425" cy="245" r="5" />
+  </g>
+
+  <!-- Attraction arrows on wall molecule pointing inward -->
+  <line x1="555" y1="200" x2="535" y2="200" stroke="#dc2626" stroke-width="1.6" marker-end="url(#vdw-arr)" />
+  <line x1="558" y1="208" x2="540" y2="222" stroke="#dc2626" stroke-width="1.6" marker-end="url(#vdw-arr)" />
+  <line x1="558" y1="192" x2="540" y2="178" stroke="#dc2626" stroke-width="1.6" marker-end="url(#vdw-arr)" />
+
+  <!-- Pressure reduction arrow at wall -->
+  <line x1="578" y1="200" x2="595" y2="200" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="3 2" />
+  <text x="580" y="218" font-size="9" fill="#94a3b8">wall</text>
+
+  <!-- Label text -->
+  <text x="340" y="278" font-size="11" font-weight="700" fill="#dc2626">Effect:</text>
+  <text x="385" y="278" font-size="11" fill="#1a202c">surface molecule is pulled inward</text>
+
+  <text x="340" y="294" font-size="11" font-weight="700" fill="#dc2626">Correction:</text>
+  <text x="412" y="294" font-size="11" fill="#1a202c">P_wall = P_actual − a n² / V²</text>
+
+  <text x="340" y="312" font-size="10" fill="#4a5568">a = strength of pairwise attractive interaction</text>
+
+  <!-- Bottom note -->
+  <text x="310" y="345" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Set a = 0 and b = 0 → recover the ideal gas law.  Larger a, b → bigger deviation from PV = nRT.</text>
+</svg>

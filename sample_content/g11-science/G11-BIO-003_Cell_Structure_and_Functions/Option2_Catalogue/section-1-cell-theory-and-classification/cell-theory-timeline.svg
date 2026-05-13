@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 440" width="820" height="440" role="img" aria-label="Cell theory historical timeline from Hooke 1665 to Virchow 1855">
+  <title>The Cell Theory — Four Founding Observations (1665–1855)</title>
+  <desc>A horizontal timeline showing the four scientists whose observations established the modern cell theory: Robert Hooke (1665) first saw and named cells in cork; Schleiden (1838) showed all plants are made of cells; Schwann (1839) extended this to animals; Virchow (1855) added that every cell comes from a pre-existing cell. The three pillars of modern cell theory are summarised at the bottom.</desc>
+
+  <text x="410" y="26" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">The Cell Theory — Four Observations That Built It (1665–1855)</text>
+  <text x="410" y="44" font-size="11" fill="#4a5568" text-anchor="middle">Each scientist added one piece. Together their work became modern cell theory.</text>
+
+  <!-- Timeline backbone -->
+  <line x1="80" y1="170" x2="740" y2="170" stroke="#4a5568" stroke-width="3"/>
+  <polygon points="740,170 730,165 730,175" fill="#4a5568"/>
+  <text x="755" y="174" font-size="11" font-weight="700" fill="#4a5568">time</text>
+
+  <!-- Year ticks -->
+  <line x1="140" y1="165" x2="140" y2="175" stroke="#4a5568" stroke-width="2"/>
+  <line x1="350" y1="165" x2="350" y2="175" stroke="#4a5568" stroke-width="2"/>
+  <line x1="500" y1="165" x2="500" y2="175" stroke="#4a5568" stroke-width="2"/>
+  <line x1="650" y1="165" x2="650" y2="175" stroke="#4a5568" stroke-width="2"/>
+
+  <!-- 1665 Hooke -->
+  <g>
+    <line x1="140" y1="170" x2="140" y2="100" stroke="#7c3aed" stroke-width="2"/>
+    <rect x="60" y="60" width="160" height="60" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.8"/>
+    <text x="140" y="80" font-size="13" font-weight="700" fill="#5b21b6" text-anchor="middle">Robert Hooke</text>
+    <text x="140" y="96" font-size="10" fill="#4a5568" text-anchor="middle">Examined cork under microscope</text>
+    <text x="140" y="110" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">named the boxes "cells"</text>
+    <text x="140" y="194" font-size="13" font-weight="700" fill="#7c3aed" text-anchor="middle">1665</text>
+    <!-- Hooke icon: dead cork cells (empty boxes) -->
+    <g transform="translate(140, 230)">
+      <rect x="-30" y="-12" width="18" height="14" fill="none" stroke="#7c3aed" stroke-width="1.5"/>
+      <rect x="-12" y="-12" width="18" height="14" fill="none" stroke="#7c3aed" stroke-width="1.5"/>
+      <rect x="6"   y="-12" width="18" height="14" fill="none" stroke="#7c3aed" stroke-width="1.5"/>
+      <rect x="-30" y="2" width="18" height="14" fill="none" stroke="#7c3aed" stroke-width="1.5"/>
+      <rect x="-12" y="2" width="18" height="14" fill="none" stroke="#7c3aed" stroke-width="1.5"/>
+      <rect x="6"   y="2" width="18" height="14" fill="none" stroke="#7c3aed" stroke-width="1.5"/>
+    </g>
+    <text x="140" y="270" font-size="10" fill="#4a5568" text-anchor="middle">cork = dead empty boxes</text>
+  </g>
+
+  <!-- 1838 Schleiden -->
+  <g>
+    <line x1="350" y1="170" x2="350" y2="100" stroke="#15803d" stroke-width="2"/>
+    <rect x="270" y="60" width="160" height="60" rx="8" fill="#dcfce7" stroke="#15803d" stroke-width="1.8"/>
+    <text x="350" y="80" font-size="13" font-weight="700" fill="#14532d" text-anchor="middle">Matthias Schleiden</text>
+    <text x="350" y="96" font-size="10" fill="#4a5568" text-anchor="middle">Studied plants of every kind</text>
+    <text x="350" y="110" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">all plants are made of cells</text>
+    <text x="350" y="194" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">1838</text>
+    <!-- Plant cells icon -->
+    <g transform="translate(350, 230)">
+      <rect x="-28" y="-14" width="20" height="14" rx="2" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+      <circle cx="-18" cy="-7" r="3" fill="#15803d"/>
+      <rect x="-8"  y="-14" width="20" height="14" rx="2" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+      <circle cx="2" cy="-7" r="3" fill="#15803d"/>
+      <rect x="12"  y="-14" width="20" height="14" rx="2" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+      <circle cx="22" cy="-7" r="3" fill="#15803d"/>
+      <rect x="-18" y="2" width="20" height="14" rx="2" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+      <circle cx="-8" cy="9" r="3" fill="#15803d"/>
+      <rect x="2"   y="2" width="20" height="14" rx="2" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+      <circle cx="12" cy="9" r="3" fill="#15803d"/>
+    </g>
+    <text x="350" y="270" font-size="10" fill="#4a5568" text-anchor="middle">plant cells (with nuclei)</text>
+  </g>
+
+  <!-- 1839 Schwann -->
+  <g>
+    <line x1="500" y1="170" x2="500" y2="100" stroke="#2b6cb0" stroke-width="2"/>
+    <rect x="420" y="60" width="160" height="60" rx="8" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.8"/>
+    <text x="500" y="80" font-size="13" font-weight="700" fill="#1e3a8a" text-anchor="middle">Theodor Schwann</text>
+    <text x="500" y="96" font-size="10" fill="#4a5568" text-anchor="middle">Examined animal tissues</text>
+    <text x="500" y="110" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">all animals are made of cells too</text>
+    <text x="500" y="194" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">1839</text>
+    <!-- Animal cells icon: rounded irregular blobs -->
+    <g transform="translate(500, 230)">
+      <ellipse cx="-22" cy="-6" rx="11" ry="9" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5"/>
+      <circle cx="-22" cy="-6" r="3" fill="#2b6cb0"/>
+      <ellipse cx="0" cy="-3" rx="11" ry="9" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5"/>
+      <circle cx="0" cy="-3" r="3" fill="#2b6cb0"/>
+      <ellipse cx="22" cy="-7" rx="11" ry="9" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5"/>
+      <circle cx="22" cy="-7" r="3" fill="#2b6cb0"/>
+      <ellipse cx="-12" cy="10" rx="11" ry="9" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5"/>
+      <circle cx="-12" cy="10" r="3" fill="#2b6cb0"/>
+      <ellipse cx="12" cy="11" rx="11" ry="9" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5"/>
+      <circle cx="12" cy="11" r="3" fill="#2b6cb0"/>
+    </g>
+    <text x="500" y="270" font-size="10" fill="#4a5568" text-anchor="middle">animal cells (no rigid wall)</text>
+  </g>
+
+  <!-- 1855 Virchow -->
+  <g>
+    <line x1="650" y1="170" x2="650" y2="100" stroke="#b45309" stroke-width="2"/>
+    <rect x="570" y="60" width="160" height="60" rx="8" fill="#fef3c7" stroke="#b45309" stroke-width="1.8"/>
+    <text x="650" y="80" font-size="13" font-weight="700" fill="#78350f" text-anchor="middle">Rudolf Virchow</text>
+    <text x="650" y="96" font-size="10" fill="#4a5568" text-anchor="middle">Where do new cells come from?</text>
+    <text x="650" y="110" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">Omnis cellula e cellula</text>
+    <text x="650" y="194" font-size="13" font-weight="700" fill="#b45309" text-anchor="middle">1855</text>
+    <!-- Division icon -->
+    <g transform="translate(650, 230)">
+      <ellipse cx="-18" cy="0" rx="13" ry="11" fill="#fef3c7" stroke="#b45309" stroke-width="1.6"/>
+      <circle cx="-18" cy="0" r="4" fill="#b45309"/>
+      <text x="0" y="4" font-size="20" font-weight="700" fill="#b45309" text-anchor="middle">→</text>
+      <ellipse cx="14" cy="-6" rx="9" ry="7" fill="#fef3c7" stroke="#b45309" stroke-width="1.6"/>
+      <circle cx="14" cy="-6" r="2.5" fill="#b45309"/>
+      <ellipse cx="22" cy="8" rx="9" ry="7" fill="#fef3c7" stroke="#b45309" stroke-width="1.6"/>
+      <circle cx="22" cy="8" r="2.5" fill="#b45309"/>
+    </g>
+    <text x="650" y="270" font-size="10" fill="#4a5568" text-anchor="middle">every cell from a previous cell</text>
+  </g>
+
+  <!-- Bottom: three pillars of modern cell theory -->
+  <text x="410" y="304" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">The Three Pillars of Modern Cell Theory</text>
+
+  <rect x="60" y="320" width="220" height="74" rx="8" fill="#f7fafc" stroke="#4a5568" stroke-width="1.5"/>
+  <text x="170" y="340" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">1. All living things…</text>
+  <text x="170" y="358" font-size="11" fill="#4a5568" text-anchor="middle">are made of one or more cells.</text>
+  <text x="170" y="378" font-size="10" font-style="italic" fill="#7c3aed" text-anchor="middle">Hooke + Schleiden + Schwann</text>
+
+  <rect x="300" y="320" width="220" height="74" rx="8" fill="#f7fafc" stroke="#4a5568" stroke-width="1.5"/>
+  <text x="410" y="340" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">2. The cell is…</text>
+  <text x="410" y="358" font-size="11" fill="#4a5568" text-anchor="middle">the basic unit of structure</text>
+  <text x="410" y="372" font-size="11" fill="#4a5568" text-anchor="middle">and function of life.</text>
+  <text x="410" y="388" font-size="10" font-style="italic" fill="#15803d" text-anchor="middle">Schleiden + Schwann</text>
+
+  <rect x="540" y="320" width="220" height="74" rx="8" fill="#f7fafc" stroke="#4a5568" stroke-width="1.5"/>
+  <text x="650" y="340" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">3. New cells arise…</text>
+  <text x="650" y="358" font-size="11" fill="#4a5568" text-anchor="middle">only by division of</text>
+  <text x="650" y="372" font-size="11" fill="#4a5568" text-anchor="middle">pre-existing cells.</text>
+  <text x="650" y="388" font-size="10" font-style="italic" fill="#b45309" text-anchor="middle">Virchow</text>
+
+  <text x="410" y="422" font-size="11" fill="#4a5568" text-anchor="middle">Cell theory is one of biology's three unifying ideas — alongside evolution and gene-based inheritance.</text>
+</svg>

@@ -1,0 +1,14 @@
+schema_version: 1
+id: physics-kinetic-theory-three-characteristic-speeds
+kind: image
+subject: physics
+topic_phrase: "Maxwell-Boltzmann distribution showing three characteristic speeds most-probable v_p mean and root-mean-square v_rms with their formulas and the universal ratio 1 to 1.128 to 1.224"
+keywords:
+  - maxwell-boltzmann-distribution
+  - most-probable-speed
+  - mean-speed
+  - rms-speed
+  - molecular-speeds
+  - characteristic-speeds
+license: platform-cc-by-sa
+source_unit: G11-PHYS-009

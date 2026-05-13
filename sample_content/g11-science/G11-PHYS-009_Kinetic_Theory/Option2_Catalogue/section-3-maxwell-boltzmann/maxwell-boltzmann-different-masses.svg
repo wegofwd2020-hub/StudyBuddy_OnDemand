@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 360" width="620" height="360" role="img" aria-label="Maxwell-Boltzmann Distribution for Different Molecular Masses at the Same Temperature">
+  <title>Same Temperature, Different Masses — H₂, N₂, CO₂ at 300 K</title>
+  <desc>Maxwell-Boltzmann distributions for three gases at the same temperature 300 K. Hydrogen (small mass) shows a very broad low curve with most-probable speed ~1579 m/s. Nitrogen has a medium narrower peak at ~422 m/s. Carbon dioxide (heaviest) has the narrowest tallest peak at ~337 m/s. Lighter molecules move faster on average; heavier molecules cluster around lower speeds.</desc>
+
+  <text x="310" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Same T, Different Mass:  v_p = √(2 k_B T / m)   at  T = 300 K</text>
+
+  <!-- Plot area -->
+  <rect x="70" y="60" width="490" height="220" fill="#f7fafc" stroke="#e2e8f0" />
+
+  <!-- Grid -->
+  <g stroke="#e2e8f0" stroke-width="0.6">
+    <line x1="70" y1="225" x2="560" y2="225" />
+    <line x1="70" y1="170" x2="560" y2="170" />
+    <line x1="70" y1="115" x2="560" y2="115" />
+    <line x1="151.7" y1="60" x2="151.7" y2="280" />
+    <line x1="233.3" y1="60" x2="233.3" y2="280" />
+    <line x1="315" y1="60" x2="315" y2="280" />
+    <line x1="396.7" y1="60" x2="396.7" y2="280" />
+    <line x1="478.3" y1="60" x2="478.3" y2="280" />
+  </g>
+
+  <!-- Axes -->
+  <line x1="70" y1="280" x2="560" y2="280" stroke="#1a202c" stroke-width="1.5" />
+  <line x1="70" y1="60" x2="70" y2="280" stroke="#1a202c" stroke-width="1.5" />
+
+  <text x="315" y="306" font-size="13" font-weight="600" fill="#1a202c" text-anchor="middle">Molecular speed  v  (m/s)</text>
+  <text x="32" y="170" font-size="13" font-weight="600" fill="#1a202c" text-anchor="middle" transform="rotate(-90 32 170)">f(v)</text>
+
+  <text x="70" y="296" font-size="10" fill="#1a202c" text-anchor="middle">0</text>
+  <text x="151.7" y="296" font-size="10" fill="#1a202c" text-anchor="middle">500</text>
+  <text x="233.3" y="296" font-size="10" fill="#1a202c" text-anchor="middle">1000</text>
+  <text x="315" y="296" font-size="10" fill="#1a202c" text-anchor="middle">1500</text>
+  <text x="396.7" y="296" font-size="10" fill="#1a202c" text-anchor="middle">2000</text>
+  <text x="478.3" y="296" font-size="10" fill="#1a202c" text-anchor="middle">2500</text>
+  <text x="560" y="296" font-size="10" fill="#1a202c" text-anchor="middle">3000</text>
+
+  <!-- CO2 (heaviest, tallest narrowest, magenta) -->
+  <path d="M 70,280 L 86.3,236 L 102.7,145 L 119,85 L 125,80 L 135.3,93 L 151.7,148 L 168,208 L 184.3,248 L 200.6,269 L 217,277 L 233.3,280 L 560,280"
+        fill="none" stroke="#9333ea" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M 70,280 L 86.3,236 L 102.7,145 L 119,85 L 125,80 L 135.3,93 L 151.7,148 L 168,208 L 184.3,248 L 200.6,269 L 217,277 L 233.3,280 Z"
+        fill="#9333ea" opacity="0.10" />
+  <text x="125" y="72" font-size="12" font-weight="700" fill="#9333ea" text-anchor="middle">CO₂  (M = 44)</text>
+
+  <!-- N2 (medium, blue) -->
+  <path d="M 70,280 L 86.3,257 L 102.7,202 L 119,147 L 135.3,121 L 139,120 L 151.7,130 L 168,164 L 184.3,203 L 200.6,237 L 217,259 L 233.3,271 L 249.6,277 L 265.9,280 L 560,280"
+        fill="none" stroke="#1d4ed8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M 70,280 L 86.3,257 L 102.7,202 L 119,147 L 135.3,121 L 139,120 L 151.7,130 L 168,164 L 184.3,203 L 200.6,237 L 217,259 L 233.3,271 L 249.6,277 L 265.9,280 Z"
+        fill="#1d4ed8" opacity="0.10" />
+  <text x="200" y="115" font-size="12" font-weight="700" fill="#1d4ed8" text-anchor="middle">N₂  (M = 28)</text>
+
+  <!-- H2 (lightest, broad and low, red/orange) -->
+  <path d="M 70,280 L 102.7,278 L 135.3,273 L 168,265 L 200.6,257 L 233.3,249 L 265.9,242 L 298.6,238 L 327.8,237 L 331.3,237 L 363.9,239 L 396.6,242 L 429.3,247 L 461.9,253 L 494.6,259 L 527.2,264 L 559.9,269"
+        fill="none" stroke="#dc2626" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M 70,280 L 102.7,278 L 135.3,273 L 168,265 L 200.6,257 L 233.3,249 L 265.9,242 L 298.6,238 L 327.8,237 L 331.3,237 L 363.9,239 L 396.6,242 L 429.3,247 L 461.9,253 L 494.6,259 L 527.2,264 L 559.9,269 L 559.9,280 L 70,280 Z"
+        fill="#dc2626" opacity="0.10" />
+  <text x="395" y="232" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">H₂  (M = 2)</text>
+
+  <!-- v_p markers (small triangles on x-axis) -->
+  <polygon points="125,280 121,288 129,288" fill="#9333ea" />
+  <text x="125" y="298" font-size="9" font-weight="700" fill="#9333ea" text-anchor="middle">337</text>
+
+  <polygon points="139,280 135,288 143,288" fill="#1d4ed8" />
+  <text x="142" y="298" font-size="9" font-weight="700" fill="#1d4ed8" text-anchor="middle">422</text>
+
+  <polygon points="328,280 324,288 332,288" fill="#dc2626" />
+  <text x="328" y="298" font-size="9" font-weight="700" fill="#dc2626" text-anchor="middle">1579</text>
+
+  <!-- Bottom note -->
+  <rect x="70" y="318" width="490" height="32" rx="6" fill="#f7fafc" stroke="#cbd5e1" />
+  <text x="80" y="336" font-size="11" fill="#1a202c">All three gases share the same ⟨KE⟩ = ³⁄₂ k_B T per molecule —</text>
+  <text x="370" y="336" font-size="11" font-weight="700" fill="#dc2626">but lighter molecules need higher speeds to carry it.</text>
+</svg>

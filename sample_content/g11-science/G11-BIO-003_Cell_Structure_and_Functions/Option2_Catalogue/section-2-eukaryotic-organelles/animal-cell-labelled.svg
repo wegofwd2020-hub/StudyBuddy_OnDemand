@@ -1,0 +1,231 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 540" width="820" height="540" role="img" aria-label="Labelled diagram of an animal cell showing all major organelles">
+  <title>The Animal Cell — Major Organelles Labelled</title>
+  <desc>A schematic diagram of a typical animal cell with its principal organelles drawn in correct shape and approximate position. Labelled: plasma membrane, cytoplasm/cytosol, nucleus with nuclear envelope, nuclear pores, nucleolus and chromatin; rough endoplasmic reticulum (with ribosomes); smooth endoplasmic reticulum; Golgi apparatus (cis and trans faces) with vesicles; mitochondria (with cristae); lysosomes; peroxisome; centrosome (paired centrioles); free ribosomes; cytoskeleton (microtubules and microfilaments); vesicles. A function key on the right names each organelle's job.</desc>
+
+  <text x="410" y="24" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">The Animal Cell — Major Organelles</text>
+  <text x="410" y="42" font-size="11" fill="#4a5568" text-anchor="middle">A typical eukaryotic animal cell. No cell wall, no chloroplasts, no large central vacuole.</text>
+
+  <!-- Plasma membrane (cell outline) -->
+  <ellipse cx="280" cy="290" rx="260" ry="200" fill="#f0f9ff" stroke="#2b6cb0" stroke-width="3"/>
+  <!-- Inner membrane line -->
+  <ellipse cx="280" cy="290" rx="256" ry="196" fill="none" stroke="#1e3a8a" stroke-width="1" stroke-dasharray="3 3"/>
+
+  <!-- Cytoskeleton (background) -->
+  <g stroke="#94a3b8" stroke-width="1" opacity="0.6">
+    <line x1="80" y1="220" x2="240" y2="280"/>
+    <line x1="100" y1="360" x2="280" y2="320"/>
+    <line x1="350" y1="160" x2="450" y2="280"/>
+    <line x1="380" y1="400" x2="500" y2="320"/>
+    <line x1="180" y1="180" x2="320" y2="280"/>
+    <line x1="200" y1="420" x2="340" y2="320"/>
+  </g>
+
+  <!-- ── Nucleus (centre-left) ──────────────────────────────────── -->
+  <circle cx="240" cy="280" r="78" fill="#dbeafe" stroke="#2b6cb0" stroke-width="3"/>
+  <!-- Inner nuclear envelope -->
+  <circle cx="240" cy="280" r="74" fill="none" stroke="#1e3a8a" stroke-width="1.5"/>
+  <!-- Nuclear pores -->
+  <circle cx="162" cy="280" r="3" fill="#1e3a8a"/>
+  <circle cx="318" cy="280" r="3" fill="#1e3a8a"/>
+  <circle cx="240" cy="202" r="3" fill="#1e3a8a"/>
+  <circle cx="240" cy="358" r="3" fill="#1e3a8a"/>
+  <circle cx="295" cy="225" r="3" fill="#1e3a8a"/>
+  <circle cx="185" cy="225" r="3" fill="#1e3a8a"/>
+  <circle cx="295" cy="335" r="3" fill="#1e3a8a"/>
+  <circle cx="185" cy="335" r="3" fill="#1e3a8a"/>
+  <!-- Chromatin (squiggly threads) -->
+  <g stroke="#1e3a8a" stroke-width="1.4" fill="none" opacity="0.6">
+    <path d="M 200 250 Q 220 240 240 260 Q 260 280 280 270"/>
+    <path d="M 200 290 Q 230 310 260 290 Q 290 270 290 300"/>
+    <path d="M 210 320 Q 240 330 270 320"/>
+    <path d="M 220 230 Q 250 240 270 220"/>
+  </g>
+  <!-- Nucleolus -->
+  <circle cx="248" cy="284" r="20" fill="#2b6cb0" opacity="0.55"/>
+  <text x="248" y="288" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">nucleolus</text>
+
+  <!-- Rough ER (continuous with nuclear envelope) -->
+  <g fill="#fef3c7" stroke="#b45309" stroke-width="2">
+    <path d="M 320 200 Q 360 190 400 200 Q 380 215 360 210 Q 340 218 320 210 Z"/>
+    <path d="M 320 220 Q 360 232 400 224 Q 380 240 360 236 Q 340 244 320 236 Z"/>
+    <path d="M 332 244 Q 372 252 408 244 Q 388 262 366 256 Q 344 264 332 260 Z"/>
+  </g>
+  <!-- Ribosomes on rough ER -->
+  <g fill="#dc2626">
+    <circle cx="328" cy="200" r="2"/><circle cx="346" cy="196" r="2"/><circle cx="368" cy="198" r="2"/>
+    <circle cx="384" cy="196" r="2"/><circle cx="396" cy="200" r="2"/>
+    <circle cx="328" cy="212" r="2"/><circle cx="356" cy="212" r="2"/><circle cx="380" cy="216" r="2"/>
+    <circle cx="328" cy="222" r="2"/><circle cx="350" cy="226" r="2"/><circle cx="378" cy="225" r="2"/><circle cx="396" cy="225" r="2"/>
+    <circle cx="328" cy="237" r="2"/><circle cx="350" cy="241" r="2"/><circle cx="380" cy="240" r="2"/>
+    <circle cx="338" cy="246" r="2"/><circle cx="365" cy="252" r="2"/><circle cx="395" cy="248" r="2"/>
+  </g>
+
+  <!-- Smooth ER (no ribosomes, tubular network below rough ER) -->
+  <g fill="none" stroke="#b45309" stroke-width="2">
+    <path d="M 340 274 Q 360 290 380 282 Q 400 274 420 290 Q 410 308 388 304 Q 366 300 348 312 Q 332 296 340 274 Z"/>
+    <path d="M 360 294 Q 380 296 396 304"/>
+  </g>
+
+  <!-- Golgi apparatus (right of rough ER) -->
+  <g transform="translate(370, 360)">
+    <path d="M -38 0 Q 0 -10 38 0" fill="none" stroke="#15803d" stroke-width="2.4"/>
+    <path d="M -38 8 Q 0 -2 38 8" fill="none" stroke="#15803d" stroke-width="2.4"/>
+    <path d="M -38 16 Q 0 6 38 16" fill="none" stroke="#15803d" stroke-width="2.4"/>
+    <path d="M -38 24 Q 0 14 38 24" fill="none" stroke="#15803d" stroke-width="2.4"/>
+    <path d="M -38 32 Q 0 22 38 32" fill="none" stroke="#15803d" stroke-width="2.4"/>
+    <text x="-44" y="20" font-size="9" fill="#15803d" font-weight="700" text-anchor="end">cis</text>
+    <text x="44" y="20" font-size="9" fill="#15803d" font-weight="700">trans</text>
+    <!-- Vesicles budding off -->
+    <circle cx="-46" cy="-2" r="4" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+    <circle cx="46" cy="36" r="5" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+    <circle cx="56" cy="22" r="4" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+  </g>
+
+  <!-- Mitochondria (×2 — one large with cristae, one smaller) -->
+  <g transform="translate(110, 200)">
+    <ellipse cx="0" cy="0" rx="46" ry="20" fill="#fee2e2" stroke="#dc2626" stroke-width="2.4"/>
+    <!-- Outer membrane label hint with inner -->
+    <ellipse cx="0" cy="0" rx="42" ry="16" fill="none" stroke="#dc2626" stroke-width="1" stroke-dasharray="2 2"/>
+    <!-- Cristae (folds) -->
+    <path d="M -36 -2 Q -30 -14 -22 -2 Q -14 12 -6 -2 Q 2 -14 10 -2 Q 18 12 26 -2 Q 32 -14 36 -2" fill="none" stroke="#dc2626" stroke-width="1.6"/>
+    <path d="M -36 4 Q -30 16 -22 4 Q -14 -8 -6 4 Q 2 16 10 4 Q 18 -8 26 4 Q 32 16 36 4" fill="none" stroke="#dc2626" stroke-width="1.4" opacity="0.6"/>
+  </g>
+  <g transform="translate(450, 410)">
+    <ellipse cx="0" cy="0" rx="32" ry="14" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+    <path d="M -24 -1 Q -18 -10 -10 -1 Q -2 8 6 -1 Q 14 -10 22 -1" fill="none" stroke="#dc2626" stroke-width="1.4"/>
+  </g>
+
+  <!-- Lysosomes (×2) -->
+  <circle cx="180" cy="420" r="12" fill="#fed7aa" stroke="#b45309" stroke-width="2"/>
+  <g fill="#b45309" opacity="0.7">
+    <circle cx="178" cy="418" r="1.4"/>
+    <circle cx="184" cy="422" r="1.4"/>
+    <circle cx="180" cy="424" r="1.4"/>
+    <circle cx="176" cy="422" r="1.4"/>
+  </g>
+  <circle cx="120" cy="380" r="9" fill="#fed7aa" stroke="#b45309" stroke-width="1.6"/>
+
+  <!-- Peroxisome -->
+  <circle cx="350" cy="430" r="11" fill="#e0f2fe" stroke="#0e7490" stroke-width="1.8"/>
+  <rect x="346" y="426" width="8" height="8" fill="#0e7490" opacity="0.6"/>
+
+  <!-- Centrosome (two centrioles, perpendicular) -->
+  <g transform="translate(380, 130)">
+    <rect x="-20" y="-6" width="20" height="12" fill="#fff" stroke="#7c3aed" stroke-width="2"/>
+    <line x1="-20" y1="-6" x2="-20" y2="6" stroke="#7c3aed" stroke-width="1.4"/>
+    <line x1="-15" y1="-6" x2="-15" y2="6" stroke="#7c3aed" stroke-width="1.4"/>
+    <line x1="-10" y1="-6" x2="-10" y2="6" stroke="#7c3aed" stroke-width="1.4"/>
+    <line x1="-5" y1="-6" x2="-5" y2="6" stroke="#7c3aed" stroke-width="1.4"/>
+    <rect x="4" y="-12" width="12" height="20" fill="#fff" stroke="#7c3aed" stroke-width="2"/>
+    <line x1="4" y1="-8" x2="16" y2="-8" stroke="#7c3aed" stroke-width="1.4"/>
+    <line x1="4" y1="-3" x2="16" y2="-3" stroke="#7c3aed" stroke-width="1.4"/>
+    <line x1="4" y1="2" x2="16" y2="2" stroke="#7c3aed" stroke-width="1.4"/>
+  </g>
+
+  <!-- Free ribosomes scattered -->
+  <g fill="#dc2626">
+    <circle cx="80" cy="280" r="2.5"/>
+    <circle cx="100" cy="320" r="2.5"/>
+    <circle cx="160" cy="180" r="2.5"/>
+    <circle cx="220" cy="160" r="2.5"/>
+    <circle cx="320" cy="160" r="2.5"/>
+    <circle cx="440" cy="180" r="2.5"/>
+    <circle cx="490" cy="240" r="2.5"/>
+    <circle cx="500" cy="350" r="2.5"/>
+    <circle cx="290" cy="450" r="2.5"/>
+    <circle cx="220" cy="460" r="2.5"/>
+    <circle cx="80" cy="380" r="2.5"/>
+  </g>
+
+  <!-- Vesicles (transport) -->
+  <circle cx="430" cy="350" r="6" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+  <circle cx="460" cy="320" r="5" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+
+  <!-- ── LEADER LINES + LABELS ─────────────────────────────────── -->
+  <g font-size="10" font-weight="700">
+    <!-- Plasma membrane -->
+    <line x1="540" y1="290" x2="556" y2="290" stroke="#2b6cb0" stroke-width="1"/>
+    <text x="558" y="294" fill="#1e3a8a">plasma membrane</text>
+    <!-- Cytoplasm -->
+    <line x1="80" y1="280" x2="48" y2="280" stroke="#4a5568" stroke-width="1"/>
+    <text x="44" y="284" fill="#4a5568" text-anchor="end">cytosol</text>
+    <!-- Nucleus -->
+    <line x1="248" y1="284" x2="180" y2="120" stroke="#2b6cb0" stroke-width="1"/>
+    <text x="178" y="114" fill="#1e3a8a" text-anchor="end">nucleus + chromatin</text>
+    <!-- Nuclear envelope/pores -->
+    <line x1="240" y1="358" x2="180" y2="450" stroke="#2b6cb0" stroke-width="1"/>
+    <text x="180" y="464" fill="#1e3a8a" text-anchor="end">nuclear envelope (with pores)</text>
+    <!-- Rough ER -->
+    <line x1="370" y1="200" x2="430" y2="120" stroke="#b45309" stroke-width="1"/>
+    <text x="430" y="114" fill="#b45309">rough ER (ribosome-studded)</text>
+    <!-- Smooth ER -->
+    <line x1="385" y1="295" x2="450" y2="270" stroke="#b45309" stroke-width="1"/>
+    <text x="455" y="274" fill="#b45309">smooth ER</text>
+    <!-- Golgi -->
+    <line x1="408" y1="376" x2="455" y2="385" stroke="#15803d" stroke-width="1"/>
+    <text x="460" y="389" fill="#15803d">Golgi apparatus</text>
+    <!-- Mitochondrion -->
+    <line x1="110" y1="180" x2="110" y2="120" stroke="#dc2626" stroke-width="1"/>
+    <text x="108" y="114" fill="#dc2626" text-anchor="middle">mitochondrion</text>
+    <!-- Lysosome -->
+    <line x1="180" y1="432" x2="180" y2="478" stroke="#b45309" stroke-width="1"/>
+    <text x="180" y="490" fill="#b45309" text-anchor="middle">lysosome</text>
+    <!-- Peroxisome -->
+    <line x1="350" y1="441" x2="350" y2="478" stroke="#0e7490" stroke-width="1"/>
+    <text x="350" y="490" fill="#0e7490" text-anchor="middle">peroxisome</text>
+    <!-- Centrioles -->
+    <line x1="384" y1="124" x2="408" y2="92" stroke="#7c3aed" stroke-width="1"/>
+    <text x="412" y="92" fill="#7c3aed">centrioles (centrosome)</text>
+    <!-- Free ribosome -->
+    <line x1="100" y1="320" x2="48" y2="340" stroke="#dc2626" stroke-width="1"/>
+    <text x="44" y="344" fill="#dc2626" text-anchor="end">free ribosomes (80S)</text>
+    <!-- Cytoskeleton -->
+    <line x1="200" y1="420" x2="100" y2="450" stroke="#94a3b8" stroke-width="1"/>
+    <text x="98" y="464" fill="#4a5568" text-anchor="end">cytoskeleton (microtubules)</text>
+  </g>
+
+  <!-- ── FUNCTION KEY (right column) ───────────────────────────── -->
+  <rect x="556" y="60" width="240" height="442" fill="#f7fafc" stroke="#cbd5e0" stroke-width="1" rx="8"/>
+  <text x="676" y="80" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">What each organelle does</text>
+
+  <g font-size="10">
+    <text x="568" y="106" font-weight="700" fill="#1e3a8a">Nucleus</text>
+    <text x="568" y="120" fill="#4a5568">Stores DNA · runs transcription · controls</text>
+    <text x="568" y="132" fill="#4a5568">which genes are expressed.</text>
+
+    <text x="568" y="152" font-weight="700" fill="#1e3a8a">Nucleolus</text>
+    <text x="568" y="166" fill="#4a5568">Builds ribosome subunits from rRNA.</text>
+
+    <text x="568" y="186" font-weight="700" fill="#b45309">Rough ER</text>
+    <text x="568" y="200" fill="#4a5568">Synthesises + folds membrane &amp;</text>
+    <text x="568" y="212" fill="#4a5568">secretory proteins. Studded with ribosomes.</text>
+
+    <text x="568" y="232" font-weight="700" fill="#b45309">Smooth ER</text>
+    <text x="568" y="246" fill="#4a5568">Lipid synthesis · detoxification ·</text>
+    <text x="568" y="258" fill="#4a5568">Ca²⁺ storage. No ribosomes.</text>
+
+    <text x="568" y="278" font-weight="700" fill="#15803d">Golgi apparatus</text>
+    <text x="568" y="292" fill="#4a5568">Modifies · sorts · packages proteins</text>
+    <text x="568" y="304" fill="#4a5568">into vesicles. cis-face in, trans-face out.</text>
+
+    <text x="568" y="324" font-weight="700" fill="#dc2626">Mitochondrion</text>
+    <text x="568" y="338" fill="#4a5568">Aerobic respiration · ATP synthesis.</text>
+    <text x="568" y="350" fill="#4a5568">"Powerhouse." Has its own DNA + 70S ribosomes.</text>
+
+    <text x="568" y="370" font-weight="700" fill="#b45309">Lysosome</text>
+    <text x="568" y="384" fill="#4a5568">Digests waste · old organelles · pathogens</text>
+    <text x="568" y="396" fill="#4a5568">using acid hydrolases (pH ~4.5).</text>
+
+    <text x="568" y="416" font-weight="700" fill="#0e7490">Peroxisome</text>
+    <text x="568" y="430" fill="#4a5568">Fatty-acid breakdown · neutralises H₂O₂.</text>
+
+    <text x="568" y="450" font-weight="700" fill="#7c3aed">Centrosome (centrioles)</text>
+    <text x="568" y="464" fill="#4a5568">Organises microtubules · forms</text>
+    <text x="568" y="476" fill="#4a5568">spindle in cell division.</text>
+
+    <text x="568" y="496" font-weight="700" fill="#4a5568">Cytoskeleton</text>
+    <text x="568" y="500" fill="#4a5568" font-size="9">microtubules · microfilaments · IFs — shape &amp; transport</text>
+  </g>
+
+  <text x="410" y="528" font-size="10" font-style="italic" fill="#718096" text-anchor="middle">A typical cell is a busy chemical factory — every organelle has a defined job, and most are membrane-bound to keep their reactions separate.</text>
+</svg>

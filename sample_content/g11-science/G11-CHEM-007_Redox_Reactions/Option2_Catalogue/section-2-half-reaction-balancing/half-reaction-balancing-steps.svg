@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 460" width="720" height="460" role="img" aria-label="Six-step half-reaction balancing flowchart for acidic solution">
+  <title>Half-reaction method — six steps (acidic solution)</title>
+  <desc>A flowchart of the six steps to balance a redox equation by the half-reaction method in acidic aqueous solution: split, balance non-O/H atoms, balance O with water, balance H with H+, balance charge with electrons, multiply and add.</desc>
+
+  <defs>
+    <marker id="hrm-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4a5568" />
+    </marker>
+  </defs>
+
+  <text x="360" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Half-Reaction Method — Six Steps (Acidic Solution)</text>
+  <text x="360" y="40" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Atoms balance first, charges last. Electrons cancel only when both half-reactions carry equal numbers.</text>
+
+  <!-- Step 1 -->
+  <rect x="40" y="60" width="640" height="48" rx="8" fill="#dbeafe" stroke="#1e3a8a" stroke-width="1.5" />
+  <circle cx="68" cy="84" r="14" fill="#1e3a8a" />
+  <text x="68" y="89" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#ffffff" text-anchor="middle">1</text>
+  <text x="92" y="80" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1e3a8a">Split into two half-reactions</text>
+  <text x="92" y="98" font="11px system-ui" font-size="11" fill="#1a202c">Identify which species is oxidised (loses e⁻); which is reduced (gains e⁻). Write each half-reaction skeleton.</text>
+
+  <line x1="360" y1="108" x2="360" y2="124" stroke="#4a5568" stroke-width="1.5" marker-end="url(#hrm-arr)" />
+
+  <!-- Step 2 -->
+  <rect x="40" y="124" width="640" height="48" rx="8" fill="#dcfce7" stroke="#15803d" stroke-width="1.5" />
+  <circle cx="68" cy="148" r="14" fill="#15803d" />
+  <text x="68" y="153" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#ffffff" text-anchor="middle">2</text>
+  <text x="92" y="144" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#15803d">Balance atoms other than O and H</text>
+  <text x="92" y="162" font="11px system-ui" font-size="11" fill="#1a202c">Use coefficients on the species themselves. Don't touch O or H yet.</text>
+
+  <line x1="360" y1="172" x2="360" y2="188" stroke="#4a5568" stroke-width="1.5" marker-end="url(#hrm-arr)" />
+
+  <!-- Step 3 -->
+  <rect x="40" y="188" width="640" height="48" rx="8" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5" />
+  <circle cx="68" cy="212" r="14" fill="#2b6cb0" />
+  <text x="68" y="217" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#ffffff" text-anchor="middle">3</text>
+  <text x="92" y="208" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#2b6cb0">Balance oxygen with H₂O</text>
+  <text x="92" y="226" font="11px system-ui" font-size="11" fill="#1a202c">Add H₂O on whichever side is short of oxygen. One H₂O = one O atom.</text>
+
+  <line x1="360" y1="236" x2="360" y2="252" stroke="#4a5568" stroke-width="1.5" marker-end="url(#hrm-arr)" />
+
+  <!-- Step 4 -->
+  <rect x="40" y="252" width="640" height="48" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="1.5" />
+  <circle cx="68" cy="276" r="14" fill="#d97706" />
+  <text x="68" y="281" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#ffffff" text-anchor="middle">4</text>
+  <text x="92" y="272" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#92400e">Balance hydrogen with H⁺</text>
+  <text x="92" y="290" font="11px system-ui" font-size="11" fill="#1a202c">Add H⁺ on whichever side is short. (For basic solution: add OH⁻ to both sides afterwards to cancel H⁺.)</text>
+
+  <line x1="360" y1="300" x2="360" y2="316" stroke="#4a5568" stroke-width="1.5" marker-end="url(#hrm-arr)" />
+
+  <!-- Step 5 -->
+  <rect x="40" y="316" width="640" height="48" rx="8" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5" />
+  <circle cx="68" cy="340" r="14" fill="#dc2626" />
+  <text x="68" y="345" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#ffffff" text-anchor="middle">5</text>
+  <text x="92" y="336" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#991b1b">Balance charge with electrons</text>
+  <text x="92" y="354" font="11px system-ui" font-size="11" fill="#1a202c">Add e⁻ to the more-positive side. Oxidation half: e⁻ on right; reduction half: e⁻ on left.</text>
+
+  <line x1="360" y1="364" x2="360" y2="380" stroke="#4a5568" stroke-width="1.5" marker-end="url(#hrm-arr)" />
+
+  <!-- Step 6 -->
+  <rect x="40" y="380" width="640" height="48" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5" />
+  <circle cx="68" cy="404" r="14" fill="#7c3aed" />
+  <text x="68" y="409" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#ffffff" text-anchor="middle">6</text>
+  <text x="92" y="400" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#5b21b6">Multiply to equalise e⁻, then add</text>
+  <text x="92" y="418" font="11px system-ui" font-size="11" fill="#1a202c">Scale each half so e⁻ cancel out. Add. Cross out species appearing on both sides. Verify atoms + charges.</text>
+
+  <text x="360" y="450" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Output: one fully balanced equation with no spectator electrons. Charge sums must agree on both sides.</text>
+</svg>

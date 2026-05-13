@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" width="640" height="380" role="img" aria-label="Local maxima and minima identified by first and second derivative tests">
+  <title>Local Extrema: classifying critical points</title>
+  <desc>Curve f(x) = x⁴/4 − x² + 1 with critical points at x = −√2, 0, √2. The second-derivative test confirms x = 0 is a local maximum and x = ±√2 are local minima.</desc>
+
+  <defs>
+    <style>
+      .panel    { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1; }
+      .axis     { stroke: #94a3b8; stroke-width: 1.4; }
+      .grid     { stroke: #e2e8f0; stroke-width: 0.6; }
+      .curve    { fill: none; stroke: #2b6cb0; stroke-width: 3; stroke-linecap: round; }
+      .heading  { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .axislbl  { font: 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .lbl      { font: bold 12px system-ui, sans-serif; }
+      .note     { font: 11px system-ui, sans-serif; fill: #4a5568; }
+      .vline    { stroke: #6b46c1; stroke-width: 1.2; stroke-dasharray: 4 4; }
+      .maxpt    { fill: #c05621; stroke: white; stroke-width: 2; }
+      .minpt    { fill: #2f855a; stroke: white; stroke-width: 2; }
+    </style>
+  </defs>
+
+  <text class="heading" x="320" y="22">Local extrema of  f(x) = x⁴/4 − x² + 1</text>
+
+  <!-- Plot frame: x in [-2.2, 2.2] mapped to [60, 380] (320/4.4 = 72.73 px/unit), y in [-0.5, 1.5] mapped to [240, 60] (180/2 = 90 px/unit) -->
+  <rect class="panel" x="60" y="60" width="320" height="180"/>
+
+  <!-- xToPx(x) = 220 + 72.73·x ; yToPx(y) = 195 - 90·y -->
+  <!-- y=0 → py = 195;  y=1 → py = 105;  y=0.5 → py = 150 -->
+
+  <!-- grid: x integers -2..2 → 75, 147, 220, 293, 365 -->
+  <line class="grid" x1="75"  y1="60" x2="75"  y2="240"/>
+  <line class="grid" x1="147" y1="60" x2="147" y2="240"/>
+  <line class="grid" x1="293" y1="60" x2="293" y2="240"/>
+  <line class="grid" x1="365" y1="60" x2="365" y2="240"/>
+  <line class="grid" x1="60" y1="105" x2="380" y2="105"/>
+  <line class="grid" x1="60" y1="150" x2="380" y2="150"/>
+
+  <!-- axes: y=0 → py=195; x=0 → px=220 -->
+  <line class="axis" x1="60" y1="195" x2="380" y2="195"/>
+  <line class="axis" x1="220" y1="60" x2="220" y2="240"/>
+
+  <text class="axislbl" x="75"  y="262">−2</text>
+  <text class="axislbl" x="147" y="262">−1</text>
+  <text class="axislbl" x="220" y="262">0</text>
+  <text class="axislbl" x="293" y="262">1</text>
+  <text class="axislbl" x="365" y="262">2</text>
+  <text class="axislbl" x="212" y="199" text-anchor="end">0</text>
+  <text class="axislbl" x="212" y="154" text-anchor="end">0.5</text>
+  <text class="axislbl" x="212" y="109" text-anchor="end">1</text>
+  <text class="axislbl" x="392" y="199">x</text>
+  <text class="axislbl" x="220" y="55">y</text>
+
+  <!-- Plot f(x) = x⁴/4 − x² + 1 with sampled values:
+       x=-2.0 y=1.0     (75, 105)
+       x=-1.75 y=0.2822 (93, 169.6)
+       x=-1.50 y=0.0156 (111, 193.6)
+       x=-√2≈-1.414 y=0  (117, 195)  local min
+       x=-1.25 y=0.0479 (129, 190.7)
+       x=-1.00 y=0.25  (147, 172.5)
+       x=-0.75 y=0.5166 (165, 148.5)
+       x=-0.50 y=0.766 (184, 126.1)
+       x=-0.25 y=0.9385 (202, 110.5)
+       x= 0    y=1.0   (220, 105)   local max
+       x= 0.25 y=0.9385 (238, 110.5)
+       x= 0.50 y=0.766 (256, 126.1)
+       x= 0.75 y=0.5166 (275, 148.5)
+       x= 1.00 y=0.25  (293, 172.5)
+       x= 1.25 y=0.0479 (311, 190.7)
+       x= √2≈1.414 y=0  (323, 195)  local min
+       x= 1.50 y=0.0156 (329, 193.6)
+       x= 1.75 y=0.2822 (347, 169.6)
+       x= 2.00 y=1.0   (365, 105) -->
+  <polyline class="curve" points="75,105 93,170 111,194 117,195 129,191 147,173 165,149 184,126 202,111 220,105 238,111 256,126 275,149 293,173 311,191 323,195 329,194 347,170 365,105"/>
+
+  <!-- Critical-point dashed verticals -->
+  <line class="vline" x1="117" y1="60" x2="117" y2="240"/>
+  <line class="vline" x1="220" y1="60" x2="220" y2="240"/>
+  <line class="vline" x1="323" y1="60" x2="323" y2="240"/>
+
+  <!-- Critical points -->
+  <circle class="minpt" cx="117" cy="195" r="6"/>
+  <circle class="maxpt" cx="220" cy="105" r="6"/>
+  <circle class="minpt" cx="323" cy="195" r="6"/>
+
+  <!-- Labels -->
+  <text class="lbl" x="115" y="216" fill="#2f855a" text-anchor="middle">min  (−√2, 0)</text>
+  <text class="lbl" x="220" y="96"  fill="#c05621" text-anchor="middle">max  (0, 1)</text>
+  <text class="lbl" x="325" y="216" fill="#2f855a" text-anchor="middle">min  (√2, 0)</text>
+
+  <!-- Right panel: tests -->
+  <g transform="translate(410, 60)">
+    <rect x="0" y="0" width="200" height="220" rx="8" fill="#fffaf0" stroke="#dd6b20" stroke-width="1.4"/>
+    <text font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" x="100" y="22" text-anchor="middle">Tests for extrema</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="14" y="44" font-style="italic">f'(x) = x³ − 2x = x(x² − 2)</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="14" y="60" font-style="italic">f'(x) = 0  →  x = 0, ±√2</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="14" y="84" font-style="italic">f''(x) = 3x² − 2</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="108">Second-derivative test:</text>
+    <text font="11px system-ui" font-size="11" fill="#c05621" x="14" y="124" font-style="italic">f''(0) = −2 &lt; 0  → max</text>
+    <text font="11px system-ui" font-size="11" fill="#2f855a" x="14" y="140" font-style="italic">f''(±√2) = 4 &gt; 0  → mins</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="166">Function values:</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="14" y="182" font-style="italic">f(0) = 1   (local max)</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="14" y="198" font-style="italic">f(±√2) = 4/4 − 2 + 1 = 0</text>
+  </g>
+
+  <text x="220" y="324" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">f' changes sign + → − at a local max,  − → + at a local min.</text>
+  <text x="220" y="344" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">If f' = 0 but no sign change, the point is a horizontal inflection, not an extremum.</text>
+</svg>

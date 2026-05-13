@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-stats-bayes-natural-frequencies-1000
+kind: image
+subject: math
+topic_phrase: "natural-frequency icon array of 1 000 people for the medical-test Bayes problem"
+keywords:
+  - bayes-theorem
+  - natural-frequencies
+  - icon-array
+  - base-rate
+  - false-positive
+license: platform-cc-by-sa
+source_unit: G11-MATH-005

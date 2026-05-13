@@ -1,0 +1,13 @@
+schema_version: 1
+id: physics-gravitation-circular-orbit-diagram
+kind: image
+subject: physics
+topic_phrase: "satellite in circular orbit with gravity acting as centripetal force and tangential velocity v equals square root of GM over r"
+keywords:
+  - gravitation
+  - circular-orbit
+  - centripetal-force
+  - orbital-velocity
+  - satellite
+license: platform-cc-by-sa
+source_unit: G11-PHYS-006

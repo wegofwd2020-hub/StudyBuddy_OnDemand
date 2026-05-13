@@ -1,0 +1,14 @@
+schema_version: 1
+id: math-stats-venn-mutually-exclusive-vs-independent
+kind: image
+subject: math
+topic_phrase: "Venn diagrams contrasting mutually exclusive and independent events"
+keywords:
+  - venn-diagram
+  - mutually-exclusive
+  - independent-events
+  - intersection
+  - union
+  - probability
+license: platform-cc-by-sa
+source_unit: G11-MATH-005

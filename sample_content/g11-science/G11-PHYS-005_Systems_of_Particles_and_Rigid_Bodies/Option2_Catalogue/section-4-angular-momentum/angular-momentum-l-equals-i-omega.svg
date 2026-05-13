@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 320" width="600" height="320" role="img" aria-label="Angular momentum L equals I times omega — vector diagram and conservation rule">
+  <title>Angular momentum L = I ω — vector and conservation rule</title>
+  <desc>A spinning disk illustrating the angular momentum vector L pointing along the rotation axis. L = I ω. The conservation rule: if no net external torque acts, L is constant. The right-hand rule fixes the sign of L.</desc>
+
+  <defs>
+    <marker id="arr-Lvec" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#7c3aed" />
+    </marker>
+    <marker id="arr-omega" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#15803d" />
+    </marker>
+  </defs>
+
+  <text x="300" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Angular Momentum  L = I ω   (and  τ_ext = dL/dt)</text>
+
+  <!-- ─── Spinning disk panel ─── -->
+  <g transform="translate(20, 50)">
+    <rect x="0" y="0" width="320" height="240" rx="8" fill="#f7fafc" stroke="#e2e8f0" />
+    <text x="160" y="20" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Spinning rigid body</text>
+
+    <!-- Disk: tilted ellipse + side view to suggest 3D -->
+    <ellipse cx="160" cy="160" rx="80" ry="22" fill="#bee3f8" stroke="#1a202c" stroke-width="1.5" />
+    <ellipse cx="160" cy="160" rx="80" ry="22" fill="none" stroke="#1a202c" stroke-width="0.6" stroke-dasharray="3 3" opacity="0.5" />
+
+    <!-- Rotation arrow ω drawn as curved arrow on the disk surface -->
+    <path d="M 100 160 A 60 18 0 0 1 220 160"
+      fill="none" stroke="#15803d" stroke-width="2.5" marker-end="url(#arr-omega)" />
+    <text x="160" y="194" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">ω</text>
+
+    <!-- L vector pointing up along axis (right-hand rule) -->
+    <line x1="160" y1="160" x2="160" y2="50" stroke="#7c3aed" stroke-width="3.5" marker-end="url(#arr-Lvec)" />
+    <text x="170" y="60" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#7c3aed">L</text>
+
+    <!-- Axis line -->
+    <line x1="160" y1="50" x2="160" y2="220" stroke="#7c3aed" stroke-width="1" stroke-dasharray="3 3" opacity="0.4" />
+
+    <!-- Axis label -->
+    <text x="160" y="234" font="10px system-ui" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">axis of rotation</text>
+
+    <!-- Right-hand rule note -->
+    <text x="50" y="92" font="10px system-ui" font-size="10" font-style="italic" fill="#7c3aed">curl fingers</text>
+    <text x="50" y="104" font="10px system-ui" font-size="10" font-style="italic" fill="#7c3aed">with ω</text>
+    <text x="50" y="120" font="10px system-ui" font-size="10" font-weight="700" font-style="italic" fill="#7c3aed">thumb → L</text>
+  </g>
+
+  <!-- ─── Equations panel ─── -->
+  <g transform="translate(360, 50)">
+    <rect x="0" y="0" width="220" height="240" rx="8" fill="#f0fdf4" stroke="#15803d" stroke-width="1.3" />
+
+    <text x="110" y="22" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">Definitions</text>
+
+    <text x="14" y="46" font="11px system-ui" font-size="11" fill="#1a202c">For a rigid body about a fixed</text>
+    <text x="14" y="60" font="11px system-ui" font-size="11" fill="#1a202c">axis of rotation:</text>
+
+    <text x="110" y="86" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#7c3aed" text-anchor="middle">L = I ω</text>
+
+    <text x="14" y="110" font="11px system-ui" font-size="11" fill="#1a202c">  L  : angular momentum (kg·m²/s)</text>
+    <text x="14" y="124" font="11px system-ui" font-size="11" fill="#1a202c">  I  : moment of inertia about</text>
+    <text x="14" y="136" font="11px system-ui" font-size="11" fill="#1a202c">       the same axis</text>
+    <text x="14" y="150" font="11px system-ui" font-size="11" fill="#1a202c">  ω  : angular velocity (rad/s)</text>
+
+    <line x1="14" y1="166" x2="206" y2="166" stroke="#94a3b8" stroke-width="0.8" />
+
+    <text x="110" y="184" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">Newton's 2nd law (rotational)</text>
+    <text x="110" y="206" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#7c3aed" text-anchor="middle">τ_ext = dL/dt</text>
+    <text x="110" y="226" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">If τ_ext = 0  ⇒  L = constant</text>
+  </g>
+
+  <!-- Bottom takeaway -->
+  <rect x="20" y="296" width="560" height="22" rx="6" fill="#fef3c7" stroke="#dd6b20" stroke-width="1.2" />
+  <text x="300" y="312" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Conservation of L is a third pillar of mechanics — alongside conservation of p and conservation of E.</text>
+</svg>

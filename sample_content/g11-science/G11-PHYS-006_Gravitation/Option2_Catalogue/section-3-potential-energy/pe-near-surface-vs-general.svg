@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 320" width="560" height="320" role="img" aria-label="Comparison of mgh near-surface approximation versus the general gravitational potential energy">
+  <title>Near-surface mgh vs general −GMm/r</title>
+  <desc>Two side-by-side panels. Left: zoomed view near Earth's surface where U is approximately linear in altitude h, giving the familiar U equals m g h. Right: full curve showing the true negative one-over-r form. The mgh formula is a tangent-line approximation valid only when h is small compared with R.</desc>
+
+  <text x="280" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Near-surface  U = m g h    is the tangent line of  U = − G M m / r</text>
+
+  <!-- ============== Left panel: linear regime ============== -->
+  <g transform="translate(20, 40)">
+    <rect x="0" y="0" width="250" height="240" fill="#f7fafc" stroke="#e2e8f0" />
+    <text x="125" y="16" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#2b6cb0" text-anchor="middle">Near surface (h ≪ R)</text>
+
+    <!-- Axes: h: 0..1000m horizontal, U: 0..10 kJ vertical -->
+    <line x1="40" y1="220" x2="230" y2="220" stroke="#94a3b8" stroke-width="1.2" />
+    <line x1="40" y1="40" x2="40" y2="220" stroke="#94a3b8" stroke-width="1.2" />
+
+    <!-- y ticks 0..10 kJ -->
+    <text x="34" y="224" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="end">0</text>
+    <text x="34" y="188" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="end">2</text>
+    <text x="34" y="152" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="end">4</text>
+    <text x="34" y="116" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="end">6</text>
+    <text x="34" y="80" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="end">8</text>
+    <text x="34" y="44" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="end">10</text>
+    <line x1="40" y1="184" x2="230" y2="184" stroke="#e2e8f0" stroke-width="0.6" />
+    <line x1="40" y1="148" x2="230" y2="148" stroke="#e2e8f0" stroke-width="0.6" />
+    <line x1="40" y1="112" x2="230" y2="112" stroke="#e2e8f0" stroke-width="0.6" />
+    <line x1="40" y1="76" x2="230" y2="76" stroke="#e2e8f0" stroke-width="0.6" />
+    <line x1="40" y1="40" x2="230" y2="40" stroke="#e2e8f0" stroke-width="0.6" />
+
+    <!-- x ticks 0..1000m -->
+    <text x="40" y="234" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">0</text>
+    <text x="135" y="234" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">500</text>
+    <text x="230" y="234" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">1000</text>
+    <line x1="135" y1="40" x2="135" y2="220" stroke="#e2e8f0" stroke-width="0.6" />
+
+    <text x="135" y="252" font="11px system-ui" font-size="11" font-weight="600" fill="#1a202c" text-anchor="middle">altitude h  (m)</text>
+    <text x="14" y="130" font="11px system-ui" font-size="11" font-weight="600" fill="#1a202c" text-anchor="middle" transform="rotate(-90 14 130)">U − U₀  (kJ, m=1 kg)</text>
+
+    <!-- Linear: U = mgh.  At h=1000m, U=9.81 kJ (m=1).  Slope: 1000m → 9.81 kJ on chart. -->
+    <!-- 0..1000m maps 40..230 (190 px). 0..10 kJ maps 220..40 (180 px). At h=1000, U=9.81 → y = 220 - 9.81/10 * 180 = 43.42 -->
+    <line x1="40" y1="220" x2="230" y2="43.42" stroke="#2b6cb0" stroke-width="3" stroke-linecap="round" />
+    <text x="170" y="98" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#2b6cb0">U ≈ m g h</text>
+    <text x="170" y="115" font="10px system-ui" font-size="10" font-style="italic" fill="#2b6cb0">slope = m g</text>
+
+    <!-- Sample: 500 m, 4.9 kJ -->
+    <circle cx="135" cy="131.8" r="3.5" fill="#2b6cb0" />
+    <text x="80" y="156" font="10px system-ui" font-size="10" font-weight="600" fill="#2b6cb0">500 m → 4.9 kJ</text>
+  </g>
+
+  <!-- ============== Right panel: full curve ============== -->
+  <g transform="translate(290, 40)">
+    <rect x="0" y="0" width="250" height="240" fill="#f7fafc" stroke="#e2e8f0" />
+    <text x="125" y="16" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#7c3aed" text-anchor="middle">Whole range — full curve</text>
+
+    <!-- Axes: r: 0..6 R_⊕ horizontal, U: -12 to +2 vertical -->
+    <line x1="40" y1="220" x2="230" y2="220" stroke="#94a3b8" stroke-width="1.2" />
+    <line x1="40" y1="40" x2="40" y2="220" stroke="#94a3b8" stroke-width="1.2" />
+
+    <!-- zero line -->
+    <line x1="40" y1="65.71" x2="230" y2="65.71" stroke="#1a202c" stroke-width="1" stroke-dasharray="3 3" />
+    <text x="34" y="69.71" font="10px system-ui" font-size="10" font-weight="700" fill="#1a202c" text-anchor="end">0</text>
+
+    <!-- y ticks -->
+    <text x="34" y="44" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="end">+2</text>
+    <text x="34" y="111" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="end">−4</text>
+    <text x="34" y="156" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="end">−8</text>
+    <text x="34" y="201" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="end">−12</text>
+
+    <!-- x ticks: r/R = 1..6 -->
+    <text x="71.67" y="234" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">1</text>
+    <text x="103.33" y="234" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">2</text>
+    <text x="135" y="234" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">3</text>
+    <text x="166.67" y="234" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">4</text>
+    <text x="198.33" y="234" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">5</text>
+    <text x="230" y="234" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">6</text>
+
+    <text x="135" y="252" font="11px system-ui" font-size="11" font-weight="600" fill="#1a202c" text-anchor="middle">r / R_⊕</text>
+    <text x="14" y="130" font="11px system-ui" font-size="11" font-weight="600" fill="#1a202c" text-anchor="middle" transform="rotate(-90 14 130)">U  (× G M m / R)</text>
+
+    <!-- Curve U = -1/(r/R), x range 1..6. At r=1: U=-1, at r=2: U=-0.5, etc -->
+    <!-- y = 65.71 - U/14 * 180 — but U is in units of -1, so e.g. U=-1 → y = 65.71 + 1/14*180 = 65.71 + 12.86 = 78.57.
+         Wait: yRange (-12,+2) maps to (220,40). Total range 14, total px 180. So y = 220 - (U-(-12))/14*180 = 220 - (U+12)*12.857
+         U=-1: 220 - 11*12.857 = 220 - 141.43 = 78.57 ✓
+         U=-0.5: 220 - 11.5*12.857 = 220 - 147.86 = 72.14
+         U=-0.333: 220 - 11.667*12.857 = 220 - 150.0 = 70.0
+         U=-0.25: 220 - 11.75*12.857 = 220 - 151.07 = 68.93
+         U=-0.2: 220 - 11.8*12.857 = 220 - 151.71 = 68.29
+         U=-0.1667: 68.0
+         At r=1, x=71.67, y=78.57
+         At r=2, x=103.33, y=72.14
+         At r=3, x=135, y=70.0
+         At r=4, x=166.67, y=68.93
+         At r=5, x=198.33, y=68.29
+         At r=6, x=230, y=67.86
+    -->
+    <polyline points="71.67,78.57 75.83,76.79 80.00,75.36 84.17,74.18 88.33,73.21 92.50,72.38 96.67,71.67 100.83,71.05 105.00,70.51 109.17,70.04 113.33,69.62 117.50,69.24 121.67,68.91 125.83,68.61 130.00,68.33 134.17,68.09 138.33,67.86 142.50,67.66 146.67,67.47 150.83,67.30 155.00,67.14 159.17,66.99 163.33,66.86 167.50,66.74 171.67,66.62 175.83,66.51 180.00,66.41 184.17,66.32 188.33,66.23 192.50,66.15 196.67,66.07 200.83,66.00 205.00,65.94 209.17,65.87 213.33,65.81 217.50,65.76 221.67,65.71 225.83,65.66 230.00,65.61"
+      fill="none" stroke="#7c3aed" stroke-width="3" stroke-linecap="round" />
+
+    <!-- Tangent line at r=R: slope at r=R is +GMm/R^2 in r-space. In our units, U' = +1 at r=1.
+         So line through (1, -1) with slope 1: y_world = -1 + (r-1) → at r=2, y=0.
+         pixels: At r=1 (x=71.67), y=78.57; At r=2 (x=103.33), y=65.71.
+         Extend to r=2.5 → y=0.5 (above zero, off chart so stop near r=2). -->
+    <line x1="46" y1="89.14" x2="103.33" y2="65.71" stroke="#2b6cb0" stroke-width="2" stroke-dasharray="4 3" />
+    <text x="58" y="103" font="10px system-ui" font-size="10" font-weight="700" fill="#2b6cb0">tangent ≈ m g h</text>
+
+    <!-- mark r=R surface -->
+    <circle cx="71.67" cy="78.57" r="3.5" fill="#7c3aed" />
+    <text x="76" y="84" font="10px system-ui" font-size="10" font-weight="700" fill="#7c3aed">surface (r = R)</text>
+  </g>
+
+  <text x="280" y="305" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">U = m g h is the linear approximation of − G M m / r near r = R.  It fails when h becomes comparable to R.</text>
+</svg>

@@ -1,0 +1,13 @@
+schema_version: 1
+id: physics-bulk-matter-hydrostatic-pressure-column
+kind: image
+subject: physics
+topic_phrase: "hydrostatic pressure increasing linearly with depth in a fluid column"
+keywords:
+  - fluid-statics
+  - hydrostatic-pressure
+  - depth
+  - density
+  - atmospheric-pressure
+license: platform-cc-by-sa
+source_unit: G11-PHYS-007

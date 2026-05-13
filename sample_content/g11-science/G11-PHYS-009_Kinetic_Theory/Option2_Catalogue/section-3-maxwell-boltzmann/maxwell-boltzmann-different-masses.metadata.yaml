@@ -1,0 +1,15 @@
+schema_version: 1
+id: physics-kinetic-theory-maxwell-boltzmann-different-masses
+kind: image
+subject: physics
+topic_phrase: "Maxwell-Boltzmann distribution at the same temperature 300 K for hydrogen nitrogen and carbon dioxide showing lighter molecules with broad low high-speed curves and heavier molecules with narrow tall low-speed peaks"
+keywords:
+  - maxwell-boltzmann-distribution
+  - molecular-mass
+  - same-temperature
+  - hydrogen
+  - nitrogen
+  - carbon-dioxide
+  - speed-distribution
+license: platform-cc-by-sa
+source_unit: G11-PHYS-009

@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 340" width="640" height="340" role="img" aria-label="Distance formula derived from a right triangle on the Cartesian plane">
+  <title>Distance Formula from the Pythagorean Theorem</title>
+  <desc>The distance between A(1, 2) and B(7, 10) is computed by drawing the right triangle with legs |Δx| = 6 and |Δy| = 8. The hypotenuse AB = √(6² + 8²) = √100 = 10.</desc>
+
+  <defs>
+    <style>
+      .axis    { stroke: #94a3b8; stroke-width: 1.4; }
+      .grid    { stroke: #e2e8f0; stroke-width: 0.6; }
+      .panel   { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1; }
+      .legX    { stroke: #2b6cb0; stroke-width: 3.5; stroke-linecap: round; }
+      .legY    { stroke: #2f855a; stroke-width: 3.5; stroke-linecap: round; }
+      .hyp     { stroke: #6b46c1; stroke-width: 3.5; stroke-linecap: round; }
+      .pt      { fill: #c05621; stroke: white; stroke-width: 2; }
+      .axislbl { font: 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .heading { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .lbl     { font: bold 12px system-ui, sans-serif; }
+      .triFill { fill: #6b46c1; opacity: 0.06; }
+    </style>
+  </defs>
+
+  <text class="heading" x="320" y="22">Distance formula:  d  =  √((x₂ − x₁)² + (y₂ − y₁)²)</text>
+
+  <!-- Plot frame: 60..380 x, 50..290 y; origin at (60, 290); grid 30 px per unit -->
+  <!-- Show x in [0, 10], y in [0, 12].  But plot area 320 wide × 240 tall → 32 px/unit on x, 20 px/unit on y.  Use 30 each by tightening: width = 30*10=300; height = 30*12=360 too tall. Use 28 px on both.  Frame: 60..340 (width 280, x range 0..10 → 28 px/u) and 50..286 (height 236, y range 0..12 wouldn't fit; cap y at 11 → 28*11=308 too tall). Keep 28 px/u with x∈[0,10] (280 wide) and y∈[0,11] (308 tall).  Origin (px,py)=(60, 358)?  Better: keep simple grid 30 px/unit, x∈[0,9], y∈[0,11].  Plot area 60..330 wide (270), 30..360 tall (330). Use viewBox already 640×340 -->
+  <!-- Final layout: scale = 26 px/unit, x∈[0,11] → frame width 11*26=286, y∈[0,11] → frame height 286. Frame x: 60..346, y: 36..322. Origin px = 60, py = 322. -->
+  <rect class="panel" x="60" y="36" width="286" height="286"/>
+
+  <!-- Vertical grid: x = 1..10 → 60+26x -->
+  <line class="grid" x1="86"  y1="36" x2="86"  y2="322"/>
+  <line class="grid" x1="112" y1="36" x2="112" y2="322"/>
+  <line class="grid" x1="138" y1="36" x2="138" y2="322"/>
+  <line class="grid" x1="164" y1="36" x2="164" y2="322"/>
+  <line class="grid" x1="190" y1="36" x2="190" y2="322"/>
+  <line class="grid" x1="216" y1="36" x2="216" y2="322"/>
+  <line class="grid" x1="242" y1="36" x2="242" y2="322"/>
+  <line class="grid" x1="268" y1="36" x2="268" y2="322"/>
+  <line class="grid" x1="294" y1="36" x2="294" y2="322"/>
+  <line class="grid" x1="320" y1="36" x2="320" y2="322"/>
+  <!-- Horizontal grid: y = 1..10 → 322 - 26y -->
+  <line class="grid" x1="60" y1="296" x2="346" y2="296"/>
+  <line class="grid" x1="60" y1="270" x2="346" y2="270"/>
+  <line class="grid" x1="60" y1="244" x2="346" y2="244"/>
+  <line class="grid" x1="60" y1="218" x2="346" y2="218"/>
+  <line class="grid" x1="60" y1="192" x2="346" y2="192"/>
+  <line class="grid" x1="60" y1="166" x2="346" y2="166"/>
+  <line class="grid" x1="60" y1="140" x2="346" y2="140"/>
+  <line class="grid" x1="60" y1="114" x2="346" y2="114"/>
+  <line class="grid" x1="60" y1="88"  x2="346" y2="88"/>
+  <line class="grid" x1="60" y1="62"  x2="346" y2="62"/>
+
+  <!-- Axes (origin at 60,322; x-axis along bottom, y-axis along left) -->
+  <line class="axis" x1="60" y1="322" x2="350" y2="322"/>
+  <line class="axis" x1="60" y1="32"  x2="60"  y2="322"/>
+
+  <!-- Axis tick labels (a few) -->
+  <text class="axislbl" x="60"  y="336">0</text>
+  <text class="axislbl" x="86"  y="336">1</text>
+  <text class="axislbl" x="190" y="336">5</text>
+  <text class="axislbl" x="242" y="336">7</text>
+  <text class="axislbl" x="320" y="336">10</text>
+  <text class="axislbl" x="52"  y="326" text-anchor="end">0</text>
+  <text class="axislbl" x="52"  y="270" text-anchor="end">2</text>
+  <text class="axislbl" x="52"  y="218" text-anchor="end">4</text>
+  <text class="axislbl" x="52"  y="166" text-anchor="end">6</text>
+  <text class="axislbl" x="52"  y="114" text-anchor="end">8</text>
+  <text class="axislbl" x="52"  y="62"  text-anchor="end">10</text>
+  <text class="axislbl" x="354" y="326">x</text>
+  <text class="axislbl" x="60"  y="28">y</text>
+
+  <!-- A = (1, 2) → (86, 270);  B = (7, 10) → (242, 62);  C = (7, 2) [right angle] → (242, 270) -->
+
+  <!-- Right-triangle interior fill -->
+  <polygon class="triFill" points="86,270 242,270 242,62"/>
+
+  <!-- Horizontal leg AC: from (86,270) to (242,270) -->
+  <line class="legX" x1="86" y1="270" x2="242" y2="270"/>
+  <text class="lbl" x="164" y="288" fill="#2b6cb0" text-anchor="middle">|Δx| = |7 − 1| = 6</text>
+
+  <!-- Vertical leg CB: from (242,270) to (242,62) -->
+  <line class="legY" x1="242" y1="270" x2="242" y2="62"/>
+  <text class="lbl" x="252" y="170" fill="#2f855a">|Δy| = |10 − 2| = 8</text>
+
+  <!-- Hypotenuse AB -->
+  <line class="hyp" x1="86" y1="270" x2="242" y2="62"/>
+  <text class="lbl" x="148" y="160" fill="#6b46c1" transform="rotate(-53 148 160)">d = AB</text>
+
+  <!-- Right-angle square at C -->
+  <rect x="232" y="260" width="10" height="10" fill="none" stroke="#1a202c" stroke-width="1"/>
+
+  <!-- Points -->
+  <circle class="pt" cx="86"  cy="270" r="6"/>
+  <text class="lbl" x="62" y="262" fill="#c05621">A(1, 2)</text>
+  <circle class="pt" cx="242" cy="62"  r="6"/>
+  <text class="lbl" x="252" y="56" fill="#c05621">B(7, 10)</text>
+  <circle cx="242" cy="270" r="4" fill="#4a5568"/>
+  <text class="axislbl" x="252" y="284">C(7, 2)</text>
+
+  <!-- Right panel: derivation -->
+  <g transform="translate(370, 36)">
+    <rect x="0" y="0" width="260" height="286" rx="8" fill="#fffaf0" stroke="#dd6b20" stroke-width="1.4"/>
+    <text font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" x="130" y="24" text-anchor="middle">From triangle to formula</text>
+
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="54">Step 1.  Drop a perpendicular at C(7, 2).</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="74">Triangle ABC is right-angled at C.</text>
+
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="106">Step 2.  Apply Pythagoras:</text>
+    <text font="italic 13px system-ui" font-size="13" fill="#1a202c" x="22" y="126">AB²  =  AC²  +  CB²</text>
+    <text font="italic 13px system-ui" font-size="13" fill="#1a202c" x="22" y="146">AB²  =  6²  +  8²  =  100</text>
+    <text font="italic 13px system-ui" font-size="13" fill="#1a202c" x="22" y="166">AB   =  10</text>
+
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="194">Step 3.  Generalise:</text>
+    <text font="italic 13px system-ui" font-size="13" fill="#1a202c" x="22" y="214">AC = |x₂ − x₁|,   CB = |y₂ − y₁|</text>
+
+    <rect x="14" y="228" width="232" height="46" rx="6" fill="#f0fff4" stroke="#2f855a" stroke-width="1.5"/>
+    <text font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" x="130" y="248" text-anchor="middle">d  =  √((x₂ − x₁)² + (y₂ − y₁)²)</text>
+    <text font="italic 11px system-ui" font-size="11" font-style="italic" fill="#4a5568" x="130" y="266" text-anchor="middle">distance is always non-negative</text>
+  </g>
+
+  <text x="320" y="334" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Squaring removes the absolute-value bars: (x₂ − x₁)² = (x₁ − x₂)², so order of A and B doesn't matter.</text>
+</svg>

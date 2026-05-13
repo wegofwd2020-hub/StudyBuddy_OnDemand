@@ -1,0 +1,14 @@
+# Auto-generated sidecar — edit alongside the SVG.
+schema_version: 1
+id: math-calculus-one-sided-limits
+kind: image
+subject: math
+topic_phrase: "one-sided limits and a jump discontinuity where the two-sided limit does not exist"
+keywords:
+  - one-sided-limit
+  - left-limit
+  - right-limit
+  - jump-discontinuity
+  - DNE
+license: platform-cc-by-sa
+source_unit: G11-MATH-004

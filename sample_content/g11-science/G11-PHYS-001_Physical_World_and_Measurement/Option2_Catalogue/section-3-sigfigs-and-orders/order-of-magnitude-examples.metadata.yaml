@@ -1,0 +1,13 @@
+schema_version: 1
+id: physics-physical-world-order-of-magnitude-examples
+kind: image
+subject: physics
+topic_phrase: "order of magnitude estimation with three Fermi-style worked examples"
+keywords:
+  - order-of-magnitude
+  - fermi-estimation
+  - estimation
+  - powers-of-ten
+  - back-of-envelope
+license: platform-cc-by-sa
+source_unit: G11-PHYS-001

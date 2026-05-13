@@ -1,0 +1,14 @@
+schema_version: 1
+id: physics-bulk-matter-youngs-modulus-rod
+kind: image
+subject: physics
+topic_phrase: "rod under tensile load illustrating Young's modulus, stress, and strain"
+keywords:
+  - elasticity
+  - youngs-modulus
+  - tensile-stress
+  - tensile-strain
+  - hookes-law
+  - rod
+license: platform-cc-by-sa
+source_unit: G11-PHYS-007

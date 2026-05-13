@@ -1,0 +1,16 @@
+schema_version: 1
+id: physics-kinetic-theory-equipartition-and-cv
+kind: image
+subject: physics
+topic_phrase: "equipartition theorem one half k_B T per quadratic mode internal energy U equals f over 2 nRT and molar specific heats C_v C_p and adiabatic index gamma for monatomic diatomic and polyatomic gases"
+keywords:
+  - equipartition
+  - internal-energy
+  - molar-specific-heat
+  - cv
+  - cp
+  - adiabatic-index
+  - mayers-relation
+  - degrees-of-freedom
+license: platform-cc-by-sa
+source_unit: G11-PHYS-009

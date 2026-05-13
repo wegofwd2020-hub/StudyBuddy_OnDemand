@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 340" width="560" height="340" role="img" aria-label="Two connected blocks pulled by an external force — internal tension in the string">
+  <title>Connected blocks — internal tension</title>
+  <desc>Two masses m1 and m2 connected by a light string. An external force F pulls m2 to the right; the system accelerates together, and the internal tension T pulls m1 forward and m2 backward.</desc>
+
+  <defs>
+    <marker id="cb-arr-F" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2b6cb0" />
+    </marker>
+    <marker id="cb-arr-T" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#7c3aed" />
+    </marker>
+    <marker id="cb-arr-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#15803d" />
+    </marker>
+  </defs>
+
+  <text x="280" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Connected Blocks — Same Acceleration, Internal Tension</text>
+
+  <!-- System sketch on top -->
+  <g transform="translate(0, 40)">
+    <!-- Ground -->
+    <line x1="40" y1="80" x2="520" y2="80" stroke="#1a202c" stroke-width="1.5" />
+    <g stroke="#94a3b8" stroke-width="1">
+      <line x1="60" y1="80" x2="52" y2="92" />
+      <line x1="100" y1="80" x2="92" y2="92" />
+      <line x1="140" y1="80" x2="132" y2="92" />
+      <line x1="180" y1="80" x2="172" y2="92" />
+      <line x1="220" y1="80" x2="212" y2="92" />
+      <line x1="260" y1="80" x2="252" y2="92" />
+      <line x1="300" y1="80" x2="292" y2="92" />
+      <line x1="340" y1="80" x2="332" y2="92" />
+      <line x1="380" y1="80" x2="372" y2="92" />
+      <line x1="420" y1="80" x2="412" y2="92" />
+      <line x1="460" y1="80" x2="452" y2="92" />
+      <line x1="500" y1="80" x2="492" y2="92" />
+    </g>
+    <!-- m1 -->
+    <rect x="120" y="40" width="50" height="40" rx="3" fill="#bee3f8" stroke="#1a202c" stroke-width="1.5" />
+    <text x="145" y="64" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">m₁</text>
+    <!-- string -->
+    <line x1="170" y1="60" x2="280" y2="60" stroke="#1a202c" stroke-width="1.5" />
+    <!-- m2 -->
+    <rect x="280" y="35" width="60" height="45" rx="3" fill="#fed7aa" stroke="#1a202c" stroke-width="1.5" />
+    <text x="310" y="62" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">m₂</text>
+    <!-- External F to the right -->
+    <line x1="340" y1="58" x2="430" y2="58" stroke="#2b6cb0" stroke-width="3.5" marker-end="url(#cb-arr-F)" />
+    <text x="385" y="50" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">F</text>
+
+    <!-- Common acceleration label -->
+    <line x1="240" y1="14" x2="320" y2="14" stroke="#15803d" stroke-width="3" marker-end="url(#cb-arr-a)" />
+    <text x="200" y="18" font="13px system-ui" font-size="13" font-weight="700" fill="#15803d" text-anchor="end">a (same for both)</text>
+  </g>
+
+  <!-- FBD splits -->
+  <text x="155" y="170" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">FBD: m₁  (only T pulls it)</text>
+  <g transform="translate(110, 180)">
+    <rect x="30" y="20" width="50" height="40" rx="3" fill="#bee3f8" stroke="#1a202c" stroke-width="1.2" />
+    <text x="55" y="44" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">m₁</text>
+    <!-- T to the right -->
+    <line x1="80" y1="40" x2="135" y2="40" stroke="#7c3aed" stroke-width="3" marker-end="url(#cb-arr-T)" />
+    <text x="105" y="32" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#7c3aed" text-anchor="middle">T</text>
+  </g>
+
+  <text x="405" y="170" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">FBD: m₂  (F forward, T backward)</text>
+  <g transform="translate(335, 180)">
+    <rect x="40" y="15" width="60" height="50" rx="3" fill="#fed7aa" stroke="#1a202c" stroke-width="1.2" />
+    <text x="70" y="44" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">m₂</text>
+    <!-- F to the right -->
+    <line x1="100" y1="40" x2="160" y2="40" stroke="#2b6cb0" stroke-width="3" marker-end="url(#cb-arr-F)" />
+    <text x="130" y="32" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">F</text>
+    <!-- T to the left -->
+    <line x1="40" y1="40" x2="-15" y2="40" stroke="#7c3aed" stroke-width="3" marker-end="url(#cb-arr-T)" />
+    <text x="12" y="32" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#7c3aed" text-anchor="middle">T</text>
+  </g>
+
+  <!-- Equations -->
+  <rect x="60" y="280" width="440" height="50" rx="6" fill="#f0fdf4" stroke="#15803d" stroke-width="1.2" />
+  <text x="280" y="298" font="12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">m₁:  T = m₁ a       m₂:  F − T = m₂ a       Add ⇒  F = (m₁ + m₂) a</text>
+  <text x="280" y="316" font="13px system-ui" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">a = F / (m₁ + m₂),     T = m₁ F / (m₁ + m₂)</text>
+</svg>

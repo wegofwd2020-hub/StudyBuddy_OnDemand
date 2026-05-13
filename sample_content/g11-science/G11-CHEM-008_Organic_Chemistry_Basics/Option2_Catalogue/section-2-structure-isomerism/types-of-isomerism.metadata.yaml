@@ -1,0 +1,13 @@
+schema_version: 1
+id: chemistry-types-of-isomerism
+kind: image
+subject: chemistry
+topic_phrase: "structural isomerism types chain position functional metamerism"
+keywords:
+  - structural-isomerism
+  - chain-isomer
+  - position-isomer
+  - functional-isomer
+  - metamerism
+license: platform-cc-by-sa
+source_unit: G11-CHEM-008

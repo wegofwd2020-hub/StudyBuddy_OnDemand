@@ -1,0 +1,161 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" width="640" height="380" role="img" aria-label="Natural-frequency icon array of 1000 people illustrating Bayes' theorem for a medical test">
+  <title>Bayes by Natural Frequencies: 1 000 People</title>
+  <desc>An icon array of 1 000 people partitioned into four groups by disease status and test result.  The top-left chip holds 10 people who have the disease and test positive (true positives).  Below it, 0 people have the disease but test negative (rounded from 0.1).  The right side: about 50 people do not have the disease but test positive (false positives), and 940 do not have the disease and test negative (true negatives).  Of the 60 people who test positive, only 10 actually have the disease, giving P of Disease given Positive approximately 10 over 60 equals one sixth, about 16.7 percent.</desc>
+
+  <defs>
+    <style>
+      .panel    { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1; }
+      .heading  { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .subhead  { font: bold 13px system-ui, sans-serif; fill: #1a202c; }
+      .lbl      { font: 11px system-ui, sans-serif; fill: #4a5568; }
+      .big      { font: bold 22px ui-serif, Georgia, serif; }
+      .desc     { font: italic 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .formula  { font: italic 13px system-ui, sans-serif; fill: #1a202c; }
+    </style>
+  </defs>
+
+  <text class="heading" x="320" y="22">Bayes by counting:  imagine 1 000 people</text>
+
+  <!-- Two-by-two grid of group chips -->
+  <!-- Cell layout: TL (D, +), TR (¬D, +), BL (D, −), BR (¬D, −).  But order = (top → tested positive, bottom → tested negative).  Helps the student "filter on positive" visually. -->
+
+  <!-- Outer frame -->
+  <rect class="panel" x="20" y="40" width="420" height="280"/>
+
+  <!-- Column headers -->
+  <text class="subhead" x="120" y="62" text-anchor="middle">Has disease  (D)</text>
+  <text class="lbl"     x="120" y="78" text-anchor="middle">10 people  (1 %)</text>
+
+  <text class="subhead" x="320" y="62" text-anchor="middle">No disease  (¬D)</text>
+  <text class="lbl"     x="320" y="78" text-anchor="middle">990 people  (99 %)</text>
+
+  <!-- Row labels (left side) -->
+  <text class="subhead" x="32" y="148">Test +</text>
+  <text class="subhead" x="32" y="248">Test −</text>
+
+  <!-- ===== Cell (D, +): 10 people, test+, true positives ===== -->
+  <g transform="translate(50, 90)">
+    <rect x="0" y="0" width="140" height="100" rx="8" fill="#fed7d7" stroke="#c53030" stroke-width="1.8"/>
+    <!-- 10 dots in 2 rows of 5 -->
+    <g fill="#c53030">
+      <circle cx="20" cy="30" r="6"/>
+      <circle cx="44" cy="30" r="6"/>
+      <circle cx="68" cy="30" r="6"/>
+      <circle cx="92" cy="30" r="6"/>
+      <circle cx="116" cy="30" r="6"/>
+      <circle cx="20" cy="56" r="6"/>
+      <circle cx="44" cy="56" r="6"/>
+      <circle cx="68" cy="56" r="6"/>
+      <circle cx="92" cy="56" r="6"/>
+      <circle cx="116" cy="56" r="6"/>
+    </g>
+    <text class="big" x="70" y="92" text-anchor="middle" fill="#1a202c">10</text>
+    <text class="lbl" x="70" y="-2" text-anchor="middle" fill="#c53030" font-weight="700">true positives</text>
+  </g>
+
+  <!-- ===== Cell (¬D, +): 50 people, false positives ===== -->
+  <g transform="translate(220, 90)">
+    <rect x="0" y="0" width="200" height="100" rx="8" fill="#fed7d7" stroke="#c53030" stroke-width="1.8"/>
+    <!-- 50 dots in 5 rows of 10 -->
+    <g fill="#c53030">
+      <!-- row 1 -->
+      <circle cx="14" cy="14" r="4"/>
+      <circle cx="32" cy="14" r="4"/>
+      <circle cx="50" cy="14" r="4"/>
+      <circle cx="68" cy="14" r="4"/>
+      <circle cx="86" cy="14" r="4"/>
+      <circle cx="104" cy="14" r="4"/>
+      <circle cx="122" cy="14" r="4"/>
+      <circle cx="140" cy="14" r="4"/>
+      <circle cx="158" cy="14" r="4"/>
+      <circle cx="176" cy="14" r="4"/>
+      <!-- row 2 -->
+      <circle cx="14" cy="30" r="4"/>
+      <circle cx="32" cy="30" r="4"/>
+      <circle cx="50" cy="30" r="4"/>
+      <circle cx="68" cy="30" r="4"/>
+      <circle cx="86" cy="30" r="4"/>
+      <circle cx="104" cy="30" r="4"/>
+      <circle cx="122" cy="30" r="4"/>
+      <circle cx="140" cy="30" r="4"/>
+      <circle cx="158" cy="30" r="4"/>
+      <circle cx="176" cy="30" r="4"/>
+      <!-- row 3 -->
+      <circle cx="14" cy="46" r="4"/>
+      <circle cx="32" cy="46" r="4"/>
+      <circle cx="50" cy="46" r="4"/>
+      <circle cx="68" cy="46" r="4"/>
+      <circle cx="86" cy="46" r="4"/>
+      <circle cx="104" cy="46" r="4"/>
+      <circle cx="122" cy="46" r="4"/>
+      <circle cx="140" cy="46" r="4"/>
+      <circle cx="158" cy="46" r="4"/>
+      <circle cx="176" cy="46" r="4"/>
+      <!-- row 4 -->
+      <circle cx="14" cy="62" r="4"/>
+      <circle cx="32" cy="62" r="4"/>
+      <circle cx="50" cy="62" r="4"/>
+      <circle cx="68" cy="62" r="4"/>
+      <circle cx="86" cy="62" r="4"/>
+      <circle cx="104" cy="62" r="4"/>
+      <circle cx="122" cy="62" r="4"/>
+      <circle cx="140" cy="62" r="4"/>
+      <circle cx="158" cy="62" r="4"/>
+      <circle cx="176" cy="62" r="4"/>
+      <!-- row 5 -->
+      <circle cx="14" cy="78" r="4"/>
+      <circle cx="32" cy="78" r="4"/>
+      <circle cx="50" cy="78" r="4"/>
+      <circle cx="68" cy="78" r="4"/>
+      <circle cx="86" cy="78" r="4"/>
+      <circle cx="104" cy="78" r="4"/>
+      <circle cx="122" cy="78" r="4"/>
+      <circle cx="140" cy="78" r="4"/>
+      <circle cx="158" cy="78" r="4"/>
+      <circle cx="176" cy="78" r="4"/>
+    </g>
+    <text class="big" x="100" y="-2" text-anchor="middle" fill="#1a202c">~50</text>
+    <text class="lbl" x="100" y="-16" text-anchor="middle" fill="#c53030" font-weight="700">false positives</text>
+  </g>
+
+  <!-- ===== Cell (D, −): 0 people (rounded), false negative ===== -->
+  <g transform="translate(50, 220)">
+    <rect x="0" y="0" width="140" height="80" rx="8" fill="#e2e8f0" stroke="#4a5568" stroke-width="1.4"/>
+    <text class="big" x="70" y="50" text-anchor="middle" fill="#4a5568">0</text>
+    <text class="lbl" x="70" y="68" text-anchor="middle" fill="#4a5568">(rounded from 0.1)</text>
+  </g>
+
+  <!-- ===== Cell (¬D, −): 940 people, true negatives ===== -->
+  <g transform="translate(220, 220)">
+    <rect x="0" y="0" width="200" height="80" rx="8" fill="#c6f6d5" stroke="#2f855a" stroke-width="1.8"/>
+    <text class="big" x="100" y="50" text-anchor="middle" fill="#1a202c">940</text>
+    <text class="lbl" x="100" y="68" text-anchor="middle" fill="#2f855a" font-weight="700">true negatives</text>
+  </g>
+
+  <!-- ===== Right summary ===== -->
+  <g transform="translate(456, 56)">
+    <rect x="0" y="0" width="170" height="264" rx="8" fill="#fffaf0" stroke="#dd6b20" stroke-width="1.4"/>
+    <text font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" x="85" y="22" text-anchor="middle">Filter on  "Test +"</text>
+
+    <text class="lbl" x="14" y="46">Positives total :  60</text>
+    <text class="lbl" x="14" y="64">  • with disease  : 10</text>
+    <text class="lbl" x="14" y="82">  • without          : 50</text>
+
+    <line x1="14" y1="98" x2="156" y2="98" stroke="#cbd5e0"/>
+
+    <text font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" x="14" y="118">Posterior</text>
+    <text class="formula" x="14" y="138">P(D | +)  =  10 / 60</text>
+    <text font="bold 13px system-ui" font-size="13" font-weight="700" fill="#c53030" x="14" y="160">≈  0.167</text>
+
+    <line x1="14" y1="174" x2="156" y2="174" stroke="#cbd5e0"/>
+
+    <text font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" x="14" y="194">Inputs (1 000 people)</text>
+    <text class="lbl" x="14" y="210">P(D)         = 0.01</text>
+    <text class="lbl" x="14" y="226">P(+ | D)    = 0.99</text>
+    <text class="lbl" x="14" y="242">P(+ | ¬D) = 0.05</text>
+    <text font="italic 11px system-ui" font-size="11" font-style="italic" fill="#4a5568" x="14" y="258">same as the tree diagram</text>
+  </g>
+
+  <text x="320" y="350" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Counting people in 4 boxes is often easier than chained conditional probabilities — same answer, no formula required.</text>
+  <text x="320" y="368" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">P(D | +) ≈ 10 / (10 + 50) = 1/6.  The 50 false positives swamp the 10 true positives because the prevalence is small.</text>
+</svg>

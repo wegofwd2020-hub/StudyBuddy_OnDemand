@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" width="720" height="420" role="img" aria-label="Vertebrate phylogenetic cladogram">
+  <title>Phylogenetic cladogram — vertebrate evolution</title>
+  <desc>A simple cladogram showing common ancestry of six vertebrate groups: lamprey, shark, salmon, frog, lizard, and human. Branching points (nodes) are labelled with the shared derived characteristics that emerged at each split: jaws, bony skeleton, four limbs, amniotic egg, mammary glands.</desc>
+
+  <text x="360" y="22" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Phylogenetic Cladogram — Vertebrate Evolution</text>
+  <text x="360" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Each node = a common ancestor with a new shared derived trait. Modern groups appear at the right.</text>
+
+  <!-- Tip labels (right side) -->
+  <text x="660" y="96" font-size="12" font-weight="700" fill="#1a202c">Lamprey</text>
+  <text x="660" y="148" font-size="12" font-weight="700" fill="#1a202c">Shark</text>
+  <text x="660" y="200" font-size="12" font-weight="700" fill="#1a202c">Salmon</text>
+  <text x="660" y="252" font-size="12" font-weight="700" fill="#1a202c">Frog</text>
+  <text x="660" y="304" font-size="12" font-weight="700" fill="#1a202c">Lizard</text>
+  <text x="660" y="356" font-size="12" font-weight="700" fill="#1a202c">Human</text>
+
+  <!-- Tip taxa (sub-labels) -->
+  <text x="660" y="110" font-size="9" font-style="italic" fill="#4a5568">Petromyzon</text>
+  <text x="660" y="162" font-size="9" font-style="italic" fill="#4a5568">Carcharodon</text>
+  <text x="660" y="214" font-size="9" font-style="italic" fill="#4a5568">Salmo</text>
+  <text x="660" y="266" font-size="9" font-style="italic" fill="#4a5568">Rana</text>
+  <text x="660" y="318" font-size="9" font-style="italic" fill="#4a5568">Hemidactylus</text>
+  <text x="660" y="370" font-size="9" font-style="italic" fill="#4a5568">Homo sapiens</text>
+
+  <!-- Tip horizontal lines -->
+  <line x1="120" y1="92" x2="650" y2="92" stroke="#1a202c" stroke-width="2"/>
+  <line x1="180" y1="144" x2="650" y2="144" stroke="#1a202c" stroke-width="2"/>
+  <line x1="240" y1="196" x2="650" y2="196" stroke="#1a202c" stroke-width="2"/>
+  <line x1="300" y1="248" x2="650" y2="248" stroke="#1a202c" stroke-width="2"/>
+  <line x1="360" y1="300" x2="650" y2="300" stroke="#1a202c" stroke-width="2"/>
+  <line x1="420" y1="352" x2="650" y2="352" stroke="#1a202c" stroke-width="2"/>
+
+  <!-- Vertical splits (each one comes from earlier branch level) -->
+  <line x1="120" y1="92" x2="120" y2="222" stroke="#1a202c" stroke-width="2"/>
+  <line x1="180" y1="144" x2="180" y2="248" stroke="#1a202c" stroke-width="2"/>
+  <line x1="240" y1="196" x2="240" y2="274" stroke="#1a202c" stroke-width="2"/>
+  <line x1="300" y1="248" x2="300" y2="326" stroke="#1a202c" stroke-width="2"/>
+  <line x1="360" y1="300" x2="360" y2="352" stroke="#1a202c" stroke-width="2"/>
+
+  <!-- Backbone diagonal (root → first node) -->
+  <line x1="60" y1="222" x2="120" y2="222" stroke="#1a202c" stroke-width="2"/>
+  <line x1="120" y1="222" x2="180" y2="248" stroke="#1a202c" stroke-width="2"/>
+  <line x1="180" y1="248" x2="240" y2="274" stroke="#1a202c" stroke-width="2"/>
+  <line x1="240" y1="274" x2="300" y2="326" stroke="#1a202c" stroke-width="2"/>
+  <line x1="300" y1="326" x2="360" y2="352" stroke="#1a202c" stroke-width="2"/>
+
+  <!-- Common-ancestor label -->
+  <text x="50" y="218" font-size="10" font-weight="700" fill="#4a5568" text-anchor="end">common</text>
+  <text x="50" y="232" font-size="10" font-weight="700" fill="#4a5568" text-anchor="end">ancestor</text>
+
+  <!-- Synapomorphy labels at each node -->
+  <g>
+    <circle cx="120" cy="118" r="5" fill="#dc2626" stroke="#1a202c" stroke-width="1.5"/>
+    <line x1="125" y1="118" x2="155" y2="118" stroke="#dc2626" stroke-width="1" stroke-dasharray="2 2"/>
+    <text x="158" y="122" font-size="10" font-weight="700" fill="#dc2626">jaws</text>
+  </g>
+  <g>
+    <circle cx="180" cy="170" r="5" fill="#dc2626" stroke="#1a202c" stroke-width="1.5"/>
+    <line x1="185" y1="170" x2="215" y2="170" stroke="#dc2626" stroke-width="1" stroke-dasharray="2 2"/>
+    <text x="218" y="174" font-size="10" font-weight="700" fill="#dc2626">bony skeleton</text>
+  </g>
+  <g>
+    <circle cx="240" cy="222" r="5" fill="#dc2626" stroke="#1a202c" stroke-width="1.5"/>
+    <line x1="245" y1="222" x2="275" y2="222" stroke="#dc2626" stroke-width="1" stroke-dasharray="2 2"/>
+    <text x="278" y="226" font-size="10" font-weight="700" fill="#dc2626">four limbs</text>
+  </g>
+  <g>
+    <circle cx="300" cy="274" r="5" fill="#dc2626" stroke="#1a202c" stroke-width="1.5"/>
+    <line x1="305" y1="274" x2="335" y2="274" stroke="#dc2626" stroke-width="1" stroke-dasharray="2 2"/>
+    <text x="338" y="278" font-size="10" font-weight="700" fill="#dc2626">amniotic egg</text>
+  </g>
+  <g>
+    <circle cx="360" cy="326" r="5" fill="#dc2626" stroke="#1a202c" stroke-width="1.5"/>
+    <line x1="365" y1="326" x2="395" y2="326" stroke="#dc2626" stroke-width="1" stroke-dasharray="2 2"/>
+    <text x="398" y="330" font-size="10" font-weight="700" fill="#dc2626">mammary glands</text>
+  </g>
+
+  <!-- Time arrow at bottom -->
+  <line x1="60" y1="395" x2="650" y2="395" stroke="#1a202c" stroke-width="1.5"/>
+  <path d="M 650 395 L 642 391 L 642 399 Z" fill="#1a202c"/>
+  <text x="60" y="412" font-size="10" font-weight="700" fill="#4a5568">past</text>
+  <text x="650" y="412" font-size="10" font-weight="700" fill="#4a5568" text-anchor="end">present</text>
+  <text x="360" y="412" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">time → (branches show order of trait acquisition, not exact ages)</text>
+</svg>

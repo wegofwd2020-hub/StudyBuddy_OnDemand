@@ -1,0 +1,16 @@
+schema_version: 1
+id: physics-physical-world-si-prefixes-ladder
+kind: image
+subject: physics
+topic_phrase: "SI metric prefixes from femto to peta with everyday examples"
+keywords:
+  - si-prefixes
+  - kilo
+  - mega
+  - giga
+  - milli
+  - micro
+  - nano
+  - powers-of-ten
+license: platform-cc-by-sa
+source_unit: G11-PHYS-001

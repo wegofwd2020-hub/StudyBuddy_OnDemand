@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-coordinate-geometry-three-forms-of-a-line
+kind: image
+subject: math
+topic_phrase: "three equivalent forms of the equation of a straight line"
+keywords:
+  - line-equation
+  - slope-intercept-form
+  - point-slope-form
+  - two-point-form
+  - linear-equation
+license: platform-cc-by-sa
+source_unit: G11-MATH-003

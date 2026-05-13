@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 340" width="640" height="340" role="img" aria-label="Parabola defined as the locus of points equidistant from a focus and a directrix">
+  <title>Parabola: Focus + Directrix Definition</title>
+  <desc>The parabola y² = 4x has focus F(1, 0), directrix x = −1, and vertex at the origin. For any point P(x, y) on the curve, the distance to the focus equals the perpendicular distance to the directrix. Verified at sample point P(4, 4): |PF| = 5 = horizontal distance to the line x = −1.</desc>
+
+  <defs>
+    <style>
+      .axis      { stroke: #94a3b8; stroke-width: 1.4; }
+      .grid      { stroke: #e2e8f0; stroke-width: 0.6; }
+      .panel     { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1; }
+      .parabola  { fill: none; stroke: #2b6cb0; stroke-width: 3; stroke-linecap: round; }
+      .directrix { stroke: #c53030; stroke-width: 2.5; stroke-dasharray: 7 5; }
+      .focusPt   { fill: #c05621; stroke: white; stroke-width: 2.5; }
+      .vertex    { fill: #2f855a; stroke: white; stroke-width: 2; }
+      .samplePt  { fill: #6b46c1; stroke: white; stroke-width: 2; }
+      .rayF      { stroke: #c05621; stroke-width: 2; stroke-linecap: round; }
+      .rayD      { stroke: #c53030; stroke-width: 2; stroke-linecap: round; }
+      .axislbl   { font: 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .heading   { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .lbl       { font: bold 12px system-ui, sans-serif; }
+    </style>
+  </defs>
+
+  <text class="heading" x="320" y="22">Parabola y² = 4x:  every point is equidistant from focus F and directrix d</text>
+
+  <!-- Plot frame: x ∈ [-2, 6], y ∈ [-5, 5].  Frame width 8*30=240, height 10*28=280 (using different scales is awkward).  Use 26 px/u uniform: 8*26=208 wide, 10*26=260 tall.  Frame x:80..288 (208), y:30..290 (260). Origin x=0 → 80+26*2=132; y=0 → 290-26*5=160 -->
+  <rect class="panel" x="80" y="30" width="208" height="260"/>
+
+  <!-- Vertical grid -->
+  <line class="grid" x1="106" y1="30" x2="106" y2="290"/>
+  <line class="grid" x1="158" y1="30" x2="158" y2="290"/>
+  <line class="grid" x1="184" y1="30" x2="184" y2="290"/>
+  <line class="grid" x1="210" y1="30" x2="210" y2="290"/>
+  <line class="grid" x1="236" y1="30" x2="236" y2="290"/>
+  <line class="grid" x1="262" y1="30" x2="262" y2="290"/>
+  <!-- Horizontal grid -->
+  <line class="grid" x1="80" y1="264" x2="288" y2="264"/>
+  <line class="grid" x1="80" y1="238" x2="288" y2="238"/>
+  <line class="grid" x1="80" y1="212" x2="288" y2="212"/>
+  <line class="grid" x1="80" y1="186" x2="288" y2="186"/>
+  <line class="grid" x1="80" y1="134" x2="288" y2="134"/>
+  <line class="grid" x1="80" y1="108" x2="288" y2="108"/>
+  <line class="grid" x1="80" y1="82"  x2="288" y2="82"/>
+  <line class="grid" x1="80" y1="56"  x2="288" y2="56"/>
+
+  <!-- Axes -->
+  <line class="axis" x1="80"  y1="160" x2="288" y2="160"/>
+  <line class="axis" x1="132" y1="30"  x2="132" y2="290"/>
+
+  <!-- Tick labels -->
+  <text class="axislbl" x="106" y="174">−1</text>
+  <text class="axislbl" x="132" y="174">0</text>
+  <text class="axislbl" x="158" y="174">1</text>
+  <text class="axislbl" x="184" y="174">2</text>
+  <text class="axislbl" x="236" y="174">4</text>
+  <text class="axislbl" x="124" y="58"  text-anchor="end">5</text>
+  <text class="axislbl" x="124" y="84"  text-anchor="end">4</text>
+  <text class="axislbl" x="124" y="164" text-anchor="end">0</text>
+  <text class="axislbl" x="124" y="266" text-anchor="end">−4</text>
+  <text class="axislbl" x="296" y="164">x</text>
+  <text class="axislbl" x="132" y="24">y</text>
+
+  <!-- Parabola y² = 4x; sample x in [0, 6]. Points: (x, ±2√x).  px = 132 + 26x; py = 160 − 26y -->
+  <!-- Top branch: x = 0,0.25,0.5,1,1.5,2,3,4,5,6 → y = 0,1,sqrt2,2,sqrt6,sqrt8,sqrt12,4,sqrt20,sqrt24 -->
+  <!-- (0,0)→(132,160); (0.25,1)→(138.5,134); (1,2)→(158,108); (2,2.83)→(184,86.4); (3,3.46)→(210,70); (4,4)→(236,56); (5,4.47)→(262,43.8); (6,4.9)→(288,32.6) -->
+  <polyline class="parabola" points="132,160 138.5,134 158,108 184,86.4 210,70 236,56 262,43.8 288,32.6"/>
+  <!-- Bottom branch (mirror): -->
+  <polyline class="parabola" points="132,160 138.5,186 158,212 184,233.6 210,250 236,264 262,276.2 288,287.4"/>
+
+  <!-- Directrix x = -1 → px = 106 -->
+  <line class="directrix" x1="106" y1="30" x2="106" y2="290"/>
+  <text class="lbl" x="100" y="44" fill="#c53030" text-anchor="end">d:  x = −1</text>
+
+  <!-- Vertex (0, 0) -->
+  <circle class="vertex" cx="132" cy="160" r="5"/>
+  <text class="lbl" x="116" y="178" fill="#2f855a">vertex</text>
+
+  <!-- Focus (1, 0) → (158, 160) -->
+  <circle class="focusPt" cx="158" cy="160" r="6"/>
+  <text class="lbl" x="166" y="178" fill="#c05621">F(1, 0)</text>
+
+  <!-- Sample point P(4, 4) → (236, 56) -->
+  <circle class="samplePt" cx="236" cy="56" r="6"/>
+  <text class="lbl" x="244" y="50" fill="#6b46c1">P(4, 4)</text>
+
+  <!-- |PF| -->
+  <line class="rayF" x1="158" y1="160" x2="236" y2="56"/>
+  <text class="lbl" x="184" y="92" fill="#c05621">|PF| = 5</text>
+
+  <!-- |PD| (perpendicular to directrix) -->
+  <line class="rayD" x1="106" y1="56" x2="236" y2="56"/>
+  <text class="lbl" x="170" y="50" fill="#c53030">|PD| = 5</text>
+
+  <!-- Foot D on directrix -->
+  <circle cx="106" cy="56" r="4" fill="#c53030" stroke="white" stroke-width="1.5"/>
+  <text class="axislbl" x="84" y="60" text-anchor="end">D(−1, 4)</text>
+
+  <!-- Right panel -->
+  <g transform="translate(310, 40)">
+    <rect x="0" y="0" width="320" height="260" rx="8" fill="#fffaf0" stroke="#dd6b20" stroke-width="1.4"/>
+    <text font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" x="160" y="22" text-anchor="middle">Definition  ⇒  equation</text>
+
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="48">A parabola is the locus of P with</text>
+    <text font="italic 13px system-ui" font-size="13" fill="#1a202c" x="14" y="68">|PF|  =  |PD|</text>
+
+    <text font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dd6b20" x="14" y="94">Set up the equation</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="112">F = (1, 0),  d : x = −1.  For P = (x, y):</text>
+    <text font="italic 12px system-ui" font-size="12" fill="#1a202c" x="14" y="130">√((x − 1)² + y²)  =  |x + 1|</text>
+    <text font="italic 12px system-ui" font-size="12" fill="#1a202c" x="14" y="148">(x − 1)² + y²  =  (x + 1)²</text>
+    <text font="italic 12px system-ui" font-size="12" fill="#1a202c" x="14" y="166">y²  =  (x + 1)² − (x − 1)²  =  4x</text>
+
+    <rect x="14" y="180" width="292" height="42" rx="6" fill="#ebf8ff" stroke="#2b6cb0" stroke-width="1.5"/>
+    <text font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" x="160" y="200" text-anchor="middle">y²  =  4x       (4p = 4 ⇒ p = 1)</text>
+    <text font="italic 11px system-ui" font-size="11" font-style="italic" fill="#4a5568" x="160" y="216" text-anchor="middle">vertex (0, 0),  focus (p, 0),  directrix x = −p</text>
+
+    <text font="italic 11px system-ui" font-size="11" font-style="italic" fill="#4a5568" x="14" y="244">Check P(4, 4):  |PF| = √(9 + 16) = 5;  |PD| = 4 − (−1) = 5.  ✓</text>
+  </g>
+
+  <text x="320" y="328" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Eccentricity e = 1 — exactly the boundary case between an ellipse (e &lt; 1) and a hyperbola (e &gt; 1).</text>
+</svg>

@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360" role="img" aria-label="First Law of Thermodynamics: change in internal energy equals heat added minus work done by the system">
+  <title>First Law of Thermodynamics — Energy Balance</title>
+  <desc>A central box represents a gas with internal energy U. Heat Q flows in from the left. The gas does work W on the surroundings by pushing a piston out to the right. The First Law states ΔU equals Q minus W. Sign conventions are listed below.</desc>
+
+  <text x="300" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">First Law of Thermodynamics:  ΔU = Q − W</text>
+  <text x="300" y="40" font-size="12" font-style="italic" fill="#4a5568" text-anchor="middle">Energy conservation applied to a thermodynamic system.</text>
+
+  <defs>
+    <marker id="fl-arr-r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626" />
+    </marker>
+    <marker id="fl-arr-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1d4ed8" />
+    </marker>
+  </defs>
+
+  <!-- The "system" box -->
+  <rect x="220" y="100" width="160" height="140" rx="14" fill="#fef3c7" stroke="#dd6b20" stroke-width="3" />
+  <text x="300" y="138" font-size="15" font-weight="700" fill="#7c2d12" text-anchor="middle">System</text>
+  <text x="300" y="160" font-size="13" font-weight="700" fill="#7c2d12" text-anchor="middle">(gas)</text>
+  <text x="300" y="190" font-size="22" font-weight="700" fill="#7c2d12" text-anchor="middle">U</text>
+  <text x="300" y="220" font-size="11" font-style="italic" fill="#7c2d12" text-anchor="middle">internal energy</text>
+
+  <!-- Heat IN arrow (red squiggle from left) -->
+  <g>
+    <path d="M 90 170 Q 110 160 130 170 Q 150 180 170 170 Q 190 160 210 170"
+      fill="none" stroke="#dc2626" stroke-width="3.5" marker-end="url(#fl-arr-r)" />
+  </g>
+  <text x="142" y="148" font-size="14" font-weight="700" fill="#dc2626" text-anchor="middle">Q  (heat in)</text>
+  <text x="142" y="200" font-size="11" font-style="italic" fill="#dc2626" text-anchor="middle">Q &gt; 0  if added</text>
+
+  <!-- Work OUT arrow (blue piston push to the right) -->
+  <line x1="385" y1="170" x2="510" y2="170" stroke="#1d4ed8" stroke-width="3.6" marker-end="url(#fl-arr-b)" />
+  <!-- Piston cartoon -->
+  <rect x="378" y="155" width="14" height="30" fill="#475569" stroke="#1a202c" stroke-width="1.5" />
+  <text x="448" y="148" font-size="14" font-weight="700" fill="#1d4ed8" text-anchor="middle">W  (work out)</text>
+  <text x="448" y="200" font-size="11" font-style="italic" fill="#1d4ed8" text-anchor="middle">W &gt; 0  if done BY gas</text>
+
+  <!-- Sign-convention panel -->
+  <rect x="40" y="258" width="520" height="58" rx="6" fill="#f7fafc" stroke="#cbd5e1" />
+  <text x="50" y="276" font-size="12" font-weight="700" fill="#1a202c">Sign conventions (physics / IUPAC chemistry differ — this is the physics convention):</text>
+  <text x="50" y="296" font-size="11" font-weight="700" fill="#dc2626">Q &gt; 0:</text><text x="92" y="296" font-size="11" fill="#1a202c">heat added TO the gas</text>
+  <text x="240" y="296" font-size="11" font-weight="700" fill="#dc2626">Q &lt; 0:</text><text x="282" y="296" font-size="11" fill="#1a202c">heat removed FROM the gas</text>
+
+  <text x="50" y="312" font-size="11" font-weight="700" fill="#1d4ed8">W &gt; 0:</text><text x="92" y="312" font-size="11" fill="#1a202c">work done BY the gas (expansion)</text>
+  <text x="320" y="312" font-size="11" font-weight="700" fill="#1d4ed8">W &lt; 0:</text><text x="362" y="312" font-size="11" fill="#1a202c">work done ON the gas (compression)</text>
+
+  <!-- Conclusion strip -->
+  <rect x="40" y="324" width="520" height="28" rx="6" fill="#dcfce7" stroke="#15803d" stroke-width="1.5" />
+  <text x="300" y="343" font-size="13" font-weight="700" fill="#14532d" text-anchor="middle">ΔU = Q − W   ·   energy is conserved · U is a state function (Q and W are not)</text>
+</svg>

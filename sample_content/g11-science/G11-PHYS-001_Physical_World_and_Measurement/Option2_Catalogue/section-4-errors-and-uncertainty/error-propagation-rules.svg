@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" width="720" height="360" role="img" aria-label="Error propagation rules">
+  <title>Error Propagation — combining uncertainties</title>
+  <desc>Four propagation rules for combining independent uncertainties: addition / subtraction (absolute), multiplication / division (relative), powers (relative × exponent), and a worked example computing density from mass and volume.</desc>
+
+  <text x="360" y="26" font-family="system-ui" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Error Propagation — how uncertainties combine</text>
+  <text x="360" y="46" font-family="system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">independent random uncertainties add in quadrature; for sums use absolute, for products use relative</text>
+
+  <!-- Rule 1: Sum / Difference -->
+  <rect x="20" y="62" width="220" height="120" rx="10" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1.5" />
+  <text x="32" y="84" font-family="system-ui" font-size="13" font-weight="700" fill="#2b6cb0">Rule 1: addition · subtraction</text>
+  <text x="32" y="106" font-family="system-ui" font-size="13" fill="#1a202c">If  Z = A ± B,</text>
+  <text x="32" y="128" font-family="system-ui" font-size="14" font-weight="700" fill="#1a202c">σ_Z = √(σ_A² + σ_B²)</text>
+  <text x="32" y="152" font-family="system-ui" font-size="11" fill="#4a5568">absolute uncertainties combine</text>
+  <text x="32" y="170" font-family="system-ui" font-size="11" fill="#4a5568">in quadrature</text>
+
+  <!-- Rule 2: Product / Quotient -->
+  <rect x="250" y="62" width="220" height="120" rx="10" fill="#f7fafc" stroke="#dd6b20" stroke-width="1.5" />
+  <text x="262" y="84" font-family="system-ui" font-size="13" font-weight="700" fill="#dd6b20">Rule 2: multiplication · division</text>
+  <text x="262" y="106" font-family="system-ui" font-size="13" fill="#1a202c">If  Z = A · B  or  A / B,</text>
+  <text x="262" y="128" font-family="system-ui" font-size="14" font-weight="700" fill="#1a202c">σ_Z / Z = √[(σ_A/A)² + (σ_B/B)²]</text>
+  <text x="262" y="152" font-family="system-ui" font-size="11" fill="#4a5568">relative uncertainties combine</text>
+  <text x="262" y="170" font-family="system-ui" font-size="11" fill="#4a5568">in quadrature</text>
+
+  <!-- Rule 3: Power -->
+  <rect x="480" y="62" width="220" height="120" rx="10" fill="#f7fafc" stroke="#7c3aed" stroke-width="1.5" />
+  <text x="492" y="84" font-family="system-ui" font-size="13" font-weight="700" fill="#7c3aed">Rule 3: power Z = Aⁿ</text>
+  <text x="492" y="106" font-family="system-ui" font-size="13" fill="#1a202c">If  Z = Aⁿ,</text>
+  <text x="492" y="128" font-family="system-ui" font-size="14" font-weight="700" fill="#1a202c">σ_Z / Z = |n| · σ_A / A</text>
+  <text x="492" y="152" font-family="system-ui" font-size="11" fill="#4a5568">exponent multiplies the</text>
+  <text x="492" y="170" font-family="system-ui" font-size="11" fill="#4a5568">relative uncertainty</text>
+
+  <!-- Worked example: density -->
+  <rect x="20" y="200" width="680" height="146" rx="10" fill="#fefce8" stroke="#ca8a04" stroke-width="1.5" />
+  <text x="32" y="222" font-family="system-ui" font-size="13" font-weight="700" fill="#1a202c">Worked example — density of a metal cube</text>
+  <text x="32" y="244" font-family="system-ui" font-size="12" fill="#1a202c">
+    m = (15.42 ± 0.02) g  ·  side L = (2.50 ± 0.01) cm  ·  V = L³  ·  ρ = m / V
+  </text>
+
+  <text x="32" y="270" font-family="system-ui" font-size="12" fill="#1a202c">
+    <tspan font-weight="700" fill="#7c3aed">step 1.</tspan>
+    σ_V / V = 3 · σ_L / L = 3 · (0.01/2.50) = 0.0120 (1.20%)
+  </text>
+  <text x="32" y="290" font-family="system-ui" font-size="12" fill="#1a202c">
+    <tspan font-weight="700" fill="#dd6b20">step 2.</tspan>
+    σ_ρ / ρ = √[(σ_m/m)² + (σ_V/V)²] = √[(0.02/15.42)² + 0.0120²] = 0.0121 (1.21%)
+  </text>
+  <text x="32" y="312" font-family="system-ui" font-size="12" fill="#1a202c">
+    <tspan font-weight="700" fill="#15803d">step 3.</tspan>
+    V = 15.625 cm³ ; ρ = 15.42 / 15.625 = 0.9869 g/cm³ ; σ_ρ = 0.0121 × 0.9869 = 0.012 g/cm³
+  </text>
+  <text x="32" y="336" font-family="system-ui" font-size="13" fill="#1a202c">
+    <tspan font-weight="700">Report:</tspan>
+    <tspan font-weight="700" fill="#15803d">ρ = (0.987 ± 0.012) g/cm³</tspan>
+    <tspan fill="#4a5568" font-size="11">  — keep s.f. consistent with the uncertainty</tspan>
+  </text>
+</svg>

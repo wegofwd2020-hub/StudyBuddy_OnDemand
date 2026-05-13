@@ -1,0 +1,15 @@
+# Auto-generated for sample-content seeding — edit with the SVG and re-run sidecar build.
+schema_version: 1
+id: chemistry-methane-combustion
+kind: image
+subject: chemistry
+topic_phrase: "methane combustion balanced equation exothermic CH4 O2 CO2 H2O"
+keywords:
+  - combustion
+  - methane
+  - oxidation
+  - exothermic
+  - balanced-equation
+  - natural-gas
+license: platform-cc-by-sa
+source_unit: G11-CHEM-009

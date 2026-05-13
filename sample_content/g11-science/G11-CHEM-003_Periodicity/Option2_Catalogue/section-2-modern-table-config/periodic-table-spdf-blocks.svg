@@ -1,0 +1,350 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 480" width="920" height="480" role="img" aria-label="Modern periodic table coloured by s p d f blocks">
+  <title>Modern Periodic Table — Coloured by s/p/d/f Blocks</title>
+  <desc>The 18-group long-form periodic table, with each element rendered as a small tile showing atomic number and symbol. Tiles are coloured by block: s-block (groups 1–2 plus He) in blue, p-block (groups 13–18 minus He) in orange, d-block (groups 3–12) in green, f-block (lanthanides + actinides) in purple. The two f-block rows sit below the main table.</desc>
+
+  <defs>
+    <style>
+      .sym { font: bold 11px system-ui; fill: #1a202c; text-anchor: middle; }
+      .num { font: 8px system-ui; fill: #4a5568; }
+      .tileS { fill: #dbeafe; stroke: #2b6cb0; }
+      .tileP { fill: #fed7aa; stroke: #c2410c; }
+      .tileD { fill: #dcfce7; stroke: #15803d; }
+      .tileF { fill: #ede9fe; stroke: #7c3aed; }
+    </style>
+  </defs>
+
+  <text x="460" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Modern Periodic Table — Coloured by Block (s · p · d · f)</text>
+  <text x="460" y="40" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Each block names the subshell where the last electron lands. The table's shape is the shape of orbital filling.</text>
+
+  <!-- Group numbers across top -->
+  <g font="bold 9px system-ui" font-size="9" font-weight="700" fill="#4a5568" text-anchor="middle">
+    <text x="55" y="60">1</text>
+    <text x="105" y="60">2</text>
+    <text x="155" y="60">3</text>
+    <text x="205" y="60">4</text>
+    <text x="255" y="60">5</text>
+    <text x="305" y="60">6</text>
+    <text x="355" y="60">7</text>
+    <text x="405" y="60">8</text>
+    <text x="455" y="60">9</text>
+    <text x="505" y="60">10</text>
+    <text x="555" y="60">11</text>
+    <text x="605" y="60">12</text>
+    <text x="655" y="60">13</text>
+    <text x="705" y="60">14</text>
+    <text x="755" y="60">15</text>
+    <text x="805" y="60">16</text>
+    <text x="855" y="60">17</text>
+    <text x="905" y="60">18</text>
+  </g>
+
+  <!-- Period 1: H, He -->
+  <g>
+    <rect x="35" y="68" width="40" height="40" rx="3" class="tileS" stroke-width="1.5"/>
+    <text x="38" y="80" class="num">1</text>
+    <text x="55" y="98" class="sym">H</text>
+
+    <rect x="885" y="68" width="40" height="40" rx="3" class="tileS" stroke-width="1.5"/>
+    <text x="888" y="80" class="num">2</text>
+    <text x="905" y="98" class="sym">He</text>
+  </g>
+
+  <!-- Period 2: Li Be ... B C N O F Ne -->
+  <g>
+    <rect x="35" y="113" width="40" height="40" rx="3" class="tileS" stroke-width="1.5"/>
+    <text x="38" y="125" class="num">3</text><text x="55" y="143" class="sym">Li</text>
+
+    <rect x="85" y="113" width="40" height="40" rx="3" class="tileS" stroke-width="1.5"/>
+    <text x="88" y="125" class="num">4</text><text x="105" y="143" class="sym">Be</text>
+
+    <rect x="635" y="113" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="638" y="125" class="num">5</text><text x="655" y="143" class="sym">B</text>
+
+    <rect x="685" y="113" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="688" y="125" class="num">6</text><text x="705" y="143" class="sym">C</text>
+
+    <rect x="735" y="113" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="738" y="125" class="num">7</text><text x="755" y="143" class="sym">N</text>
+
+    <rect x="785" y="113" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="788" y="125" class="num">8</text><text x="805" y="143" class="sym">O</text>
+
+    <rect x="835" y="113" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="838" y="125" class="num">9</text><text x="855" y="143" class="sym">F</text>
+
+    <rect x="885" y="113" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="888" y="125" class="num">10</text><text x="905" y="143" class="sym">Ne</text>
+  </g>
+
+  <!-- Period 3 -->
+  <g>
+    <rect x="35" y="158" width="40" height="40" rx="3" class="tileS" stroke-width="1.5"/>
+    <text x="38" y="170" class="num">11</text><text x="55" y="188" class="sym">Na</text>
+
+    <rect x="85" y="158" width="40" height="40" rx="3" class="tileS" stroke-width="1.5"/>
+    <text x="88" y="170" class="num">12</text><text x="105" y="188" class="sym">Mg</text>
+
+    <rect x="635" y="158" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="638" y="170" class="num">13</text><text x="655" y="188" class="sym">Al</text>
+
+    <rect x="685" y="158" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="688" y="170" class="num">14</text><text x="705" y="188" class="sym">Si</text>
+
+    <rect x="735" y="158" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="738" y="170" class="num">15</text><text x="755" y="188" class="sym">P</text>
+
+    <rect x="785" y="158" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="788" y="170" class="num">16</text><text x="805" y="188" class="sym">S</text>
+
+    <rect x="835" y="158" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="838" y="170" class="num">17</text><text x="855" y="188" class="sym">Cl</text>
+
+    <rect x="885" y="158" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="888" y="170" class="num">18</text><text x="905" y="188" class="sym">Ar</text>
+  </g>
+
+  <!-- Period 4 -->
+  <g>
+    <rect x="35" y="203" width="40" height="40" rx="3" class="tileS" stroke-width="1.5"/>
+    <text x="38" y="215" class="num">19</text><text x="55" y="233" class="sym">K</text>
+    <rect x="85" y="203" width="40" height="40" rx="3" class="tileS" stroke-width="1.5"/>
+    <text x="88" y="215" class="num">20</text><text x="105" y="233" class="sym">Ca</text>
+    <rect x="135" y="203" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="138" y="215" class="num">21</text><text x="155" y="233" class="sym">Sc</text>
+    <rect x="185" y="203" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="188" y="215" class="num">22</text><text x="205" y="233" class="sym">Ti</text>
+    <rect x="235" y="203" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="238" y="215" class="num">23</text><text x="255" y="233" class="sym">V</text>
+    <rect x="285" y="203" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="288" y="215" class="num">24</text><text x="305" y="233" class="sym">Cr</text>
+    <rect x="335" y="203" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="338" y="215" class="num">25</text><text x="355" y="233" class="sym">Mn</text>
+    <rect x="385" y="203" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="388" y="215" class="num">26</text><text x="405" y="233" class="sym">Fe</text>
+    <rect x="435" y="203" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="438" y="215" class="num">27</text><text x="455" y="233" class="sym">Co</text>
+    <rect x="485" y="203" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="488" y="215" class="num">28</text><text x="505" y="233" class="sym">Ni</text>
+    <rect x="535" y="203" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="538" y="215" class="num">29</text><text x="555" y="233" class="sym">Cu</text>
+    <rect x="585" y="203" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="588" y="215" class="num">30</text><text x="605" y="233" class="sym">Zn</text>
+    <rect x="635" y="203" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="638" y="215" class="num">31</text><text x="655" y="233" class="sym">Ga</text>
+    <rect x="685" y="203" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="688" y="215" class="num">32</text><text x="705" y="233" class="sym">Ge</text>
+    <rect x="735" y="203" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="738" y="215" class="num">33</text><text x="755" y="233" class="sym">As</text>
+    <rect x="785" y="203" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="788" y="215" class="num">34</text><text x="805" y="233" class="sym">Se</text>
+    <rect x="835" y="203" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="838" y="215" class="num">35</text><text x="855" y="233" class="sym">Br</text>
+    <rect x="885" y="203" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="888" y="215" class="num">36</text><text x="905" y="233" class="sym">Kr</text>
+  </g>
+
+  <!-- Period 5 -->
+  <g>
+    <rect x="35" y="248" width="40" height="40" rx="3" class="tileS" stroke-width="1.5"/>
+    <text x="38" y="260" class="num">37</text><text x="55" y="278" class="sym">Rb</text>
+    <rect x="85" y="248" width="40" height="40" rx="3" class="tileS" stroke-width="1.5"/>
+    <text x="88" y="260" class="num">38</text><text x="105" y="278" class="sym">Sr</text>
+    <rect x="135" y="248" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="138" y="260" class="num">39</text><text x="155" y="278" class="sym">Y</text>
+    <rect x="185" y="248" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="188" y="260" class="num">40</text><text x="205" y="278" class="sym">Zr</text>
+    <rect x="235" y="248" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="238" y="260" class="num">41</text><text x="255" y="278" class="sym">Nb</text>
+    <rect x="285" y="248" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="288" y="260" class="num">42</text><text x="305" y="278" class="sym">Mo</text>
+    <rect x="335" y="248" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="338" y="260" class="num">43</text><text x="355" y="278" class="sym">Tc</text>
+    <rect x="385" y="248" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="388" y="260" class="num">44</text><text x="405" y="278" class="sym">Ru</text>
+    <rect x="435" y="248" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="438" y="260" class="num">45</text><text x="455" y="278" class="sym">Rh</text>
+    <rect x="485" y="248" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="488" y="260" class="num">46</text><text x="505" y="278" class="sym">Pd</text>
+    <rect x="535" y="248" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="538" y="260" class="num">47</text><text x="555" y="278" class="sym">Ag</text>
+    <rect x="585" y="248" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="588" y="260" class="num">48</text><text x="605" y="278" class="sym">Cd</text>
+    <rect x="635" y="248" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="638" y="260" class="num">49</text><text x="655" y="278" class="sym">In</text>
+    <rect x="685" y="248" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="688" y="260" class="num">50</text><text x="705" y="278" class="sym">Sn</text>
+    <rect x="735" y="248" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="738" y="260" class="num">51</text><text x="755" y="278" class="sym">Sb</text>
+    <rect x="785" y="248" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="788" y="260" class="num">52</text><text x="805" y="278" class="sym">Te</text>
+    <rect x="835" y="248" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="838" y="260" class="num">53</text><text x="855" y="278" class="sym">I</text>
+    <rect x="885" y="248" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="888" y="260" class="num">54</text><text x="905" y="278" class="sym">Xe</text>
+  </g>
+
+  <!-- Period 6 (with La placeholder) -->
+  <g>
+    <rect x="35" y="293" width="40" height="40" rx="3" class="tileS" stroke-width="1.5"/>
+    <text x="38" y="305" class="num">55</text><text x="55" y="323" class="sym">Cs</text>
+    <rect x="85" y="293" width="40" height="40" rx="3" class="tileS" stroke-width="1.5"/>
+    <text x="88" y="305" class="num">56</text><text x="105" y="323" class="sym">Ba</text>
+    <rect x="135" y="293" width="40" height="40" rx="3" class="tileF" stroke-width="1.5"/>
+    <text x="138" y="305" class="num">57</text><text x="155" y="323" class="sym">La*</text>
+    <rect x="185" y="293" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="188" y="305" class="num">72</text><text x="205" y="323" class="sym">Hf</text>
+    <rect x="235" y="293" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="238" y="305" class="num">73</text><text x="255" y="323" class="sym">Ta</text>
+    <rect x="285" y="293" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="288" y="305" class="num">74</text><text x="305" y="323" class="sym">W</text>
+    <rect x="335" y="293" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="338" y="305" class="num">75</text><text x="355" y="323" class="sym">Re</text>
+    <rect x="385" y="293" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="388" y="305" class="num">76</text><text x="405" y="323" class="sym">Os</text>
+    <rect x="435" y="293" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="438" y="305" class="num">77</text><text x="455" y="323" class="sym">Ir</text>
+    <rect x="485" y="293" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="488" y="305" class="num">78</text><text x="505" y="323" class="sym">Pt</text>
+    <rect x="535" y="293" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="538" y="305" class="num">79</text><text x="555" y="323" class="sym">Au</text>
+    <rect x="585" y="293" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="588" y="305" class="num">80</text><text x="605" y="323" class="sym">Hg</text>
+    <rect x="635" y="293" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="638" y="305" class="num">81</text><text x="655" y="323" class="sym">Tl</text>
+    <rect x="685" y="293" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="688" y="305" class="num">82</text><text x="705" y="323" class="sym">Pb</text>
+    <rect x="735" y="293" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="738" y="305" class="num">83</text><text x="755" y="323" class="sym">Bi</text>
+    <rect x="785" y="293" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="788" y="305" class="num">84</text><text x="805" y="323" class="sym">Po</text>
+    <rect x="835" y="293" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="838" y="305" class="num">85</text><text x="855" y="323" class="sym">At</text>
+    <rect x="885" y="293" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="888" y="305" class="num">86</text><text x="905" y="323" class="sym">Rn</text>
+  </g>
+
+  <!-- Period 7 (with Ac placeholder) -->
+  <g>
+    <rect x="35" y="338" width="40" height="40" rx="3" class="tileS" stroke-width="1.5"/>
+    <text x="38" y="350" class="num">87</text><text x="55" y="368" class="sym">Fr</text>
+    <rect x="85" y="338" width="40" height="40" rx="3" class="tileS" stroke-width="1.5"/>
+    <text x="88" y="350" class="num">88</text><text x="105" y="368" class="sym">Ra</text>
+    <rect x="135" y="338" width="40" height="40" rx="3" class="tileF" stroke-width="1.5"/>
+    <text x="138" y="350" class="num">89</text><text x="155" y="368" class="sym">Ac†</text>
+    <rect x="185" y="338" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="188" y="350" class="num">104</text><text x="205" y="368" class="sym">Rf</text>
+    <rect x="235" y="338" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="238" y="350" class="num">105</text><text x="255" y="368" class="sym">Db</text>
+    <rect x="285" y="338" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="288" y="350" class="num">106</text><text x="305" y="368" class="sym">Sg</text>
+    <rect x="335" y="338" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="338" y="350" class="num">107</text><text x="355" y="368" class="sym">Bh</text>
+    <rect x="385" y="338" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="388" y="350" class="num">108</text><text x="405" y="368" class="sym">Hs</text>
+    <rect x="435" y="338" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="438" y="350" class="num">109</text><text x="455" y="368" class="sym">Mt</text>
+    <rect x="485" y="338" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="488" y="350" class="num">110</text><text x="505" y="368" class="sym">Ds</text>
+    <rect x="535" y="338" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="538" y="350" class="num">111</text><text x="555" y="368" class="sym">Rg</text>
+    <rect x="585" y="338" width="40" height="40" rx="3" class="tileD" stroke-width="1.5"/>
+    <text x="588" y="350" class="num">112</text><text x="605" y="368" class="sym">Cn</text>
+    <rect x="635" y="338" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="638" y="350" class="num">113</text><text x="655" y="368" class="sym">Nh</text>
+    <rect x="685" y="338" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="688" y="350" class="num">114</text><text x="705" y="368" class="sym">Fl</text>
+    <rect x="735" y="338" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="738" y="350" class="num">115</text><text x="755" y="368" class="sym">Mc</text>
+    <rect x="785" y="338" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="788" y="350" class="num">116</text><text x="805" y="368" class="sym">Lv</text>
+    <rect x="835" y="338" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="838" y="350" class="num">117</text><text x="855" y="368" class="sym">Ts</text>
+    <rect x="885" y="338" width="40" height="40" rx="3" class="tileP" stroke-width="1.5"/>
+    <text x="888" y="350" class="num">118</text><text x="905" y="368" class="sym">Og</text>
+  </g>
+
+  <!-- f-block: Lanthanides (Ce..Lu, 58..71) and Actinides (Th..Lr, 90..103) -->
+  <text x="155" y="395" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#7c3aed">* Lanthanides:</text>
+  <g>
+    <rect x="235" y="388" width="40" height="34" rx="3" class="tileF" stroke-width="1.2"/>
+    <text x="238" y="398" class="num">58</text><text x="255" y="412" class="sym">Ce</text>
+    <rect x="285" y="388" width="40" height="34" rx="3" class="tileF" stroke-width="1.2"/>
+    <text x="288" y="398" class="num">59</text><text x="305" y="412" class="sym">Pr</text>
+    <rect x="335" y="388" width="40" height="34" rx="3" class="tileF" stroke-width="1.2"/>
+    <text x="338" y="398" class="num">60</text><text x="355" y="412" class="sym">Nd</text>
+    <rect x="385" y="388" width="40" height="34" rx="3" class="tileF" stroke-width="1.2"/>
+    <text x="388" y="398" class="num">61</text><text x="405" y="412" class="sym">Pm</text>
+    <rect x="435" y="388" width="40" height="34" rx="3" class="tileF" stroke-width="1.2"/>
+    <text x="438" y="398" class="num">62</text><text x="455" y="412" class="sym">Sm</text>
+    <rect x="485" y="388" width="40" height="34" rx="3" class="tileF" stroke-width="1.2"/>
+    <text x="488" y="398" class="num">63</text><text x="505" y="412" class="sym">Eu</text>
+    <rect x="535" y="388" width="40" height="34" rx="3" class="tileF" stroke-width="1.2"/>
+    <text x="538" y="398" class="num">64</text><text x="555" y="412" class="sym">Gd</text>
+    <rect x="585" y="388" width="40" height="34" rx="3" class="tileF" stroke-width="1.2"/>
+    <text x="588" y="398" class="num">65</text><text x="605" y="412" class="sym">Tb</text>
+    <rect x="635" y="388" width="40" height="34" rx="3" class="tileF" stroke-width="1.2"/>
+    <text x="638" y="398" class="num">66</text><text x="655" y="412" class="sym">Dy</text>
+    <rect x="685" y="388" width="40" height="34" rx="3" class="tileF" stroke-width="1.2"/>
+    <text x="688" y="398" class="num">67</text><text x="705" y="412" class="sym">Ho</text>
+    <rect x="735" y="388" width="40" height="34" rx="3" class="tileF" stroke-width="1.2"/>
+    <text x="738" y="398" class="num">68</text><text x="755" y="412" class="sym">Er</text>
+    <rect x="785" y="388" width="40" height="34" rx="3" class="tileF" stroke-width="1.2"/>
+    <text x="788" y="398" class="num">69</text><text x="805" y="412" class="sym">Tm</text>
+    <rect x="835" y="388" width="40" height="34" rx="3" class="tileF" stroke-width="1.2"/>
+    <text x="838" y="398" class="num">70</text><text x="855" y="412" class="sym">Yb</text>
+    <rect x="885" y="388" width="40" height="34" rx="3" class="tileF" stroke-width="1.2"/>
+    <text x="888" y="398" class="num">71</text><text x="905" y="412" class="sym">Lu</text>
+  </g>
+
+  <text x="155" y="437" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#7c3aed">† Actinides:</text>
+  <g>
+    <rect x="235" y="430" width="40" height="34" rx="3" class="tileF" stroke-width="1.2"/>
+    <text x="238" y="440" class="num">90</text><text x="255" y="454" class="sym">Th</text>
+    <rect x="285" y="430" width="40" height="34" rx="3" class="tileF" stroke-width="1.2"/>
+    <text x="288" y="440" class="num">91</text><text x="305" y="454" class="sym">Pa</text>
+    <rect x="335" y="430" width="40" height="34" rx="3" class="tileF" stroke-width="1.2"/>
+    <text x="338" y="440" class="num">92</text><text x="355" y="454" class="sym">U</text>
+    <rect x="385" y="430" width="40" height="34" rx="3" class="tileF" stroke-width="1.2"/>
+    <text x="388" y="440" class="num">93</text><text x="405" y="454" class="sym">Np</text>
+    <rect x="435" y="430" width="40" height="34" rx="3" class="tileF" stroke-width="1.2"/>
+    <text x="438" y="440" class="num">94</text><text x="455" y="454" class="sym">Pu</text>
+    <rect x="485" y="430" width="40" height="34" rx="3" class="tileF" stroke-width="1.2"/>
+    <text x="488" y="440" class="num">95</text><text x="505" y="454" class="sym">Am</text>
+    <rect x="535" y="430" width="40" height="34" rx="3" class="tileF" stroke-width="1.2"/>
+    <text x="538" y="440" class="num">96</text><text x="555" y="454" class="sym">Cm</text>
+    <rect x="585" y="430" width="40" height="34" rx="3" class="tileF" stroke-width="1.2"/>
+    <text x="588" y="440" class="num">97</text><text x="605" y="454" class="sym">Bk</text>
+    <rect x="635" y="430" width="40" height="34" rx="3" class="tileF" stroke-width="1.2"/>
+    <text x="638" y="440" class="num">98</text><text x="655" y="454" class="sym">Cf</text>
+    <rect x="685" y="430" width="40" height="34" rx="3" class="tileF" stroke-width="1.2"/>
+    <text x="688" y="440" class="num">99</text><text x="705" y="454" class="sym">Es</text>
+    <rect x="735" y="430" width="40" height="34" rx="3" class="tileF" stroke-width="1.2"/>
+    <text x="738" y="440" class="num">100</text><text x="755" y="454" class="sym">Fm</text>
+    <rect x="785" y="430" width="40" height="34" rx="3" class="tileF" stroke-width="1.2"/>
+    <text x="788" y="440" class="num">101</text><text x="805" y="454" class="sym">Md</text>
+    <rect x="835" y="430" width="40" height="34" rx="3" class="tileF" stroke-width="1.2"/>
+    <text x="838" y="440" class="num">102</text><text x="855" y="454" class="sym">No</text>
+    <rect x="885" y="430" width="40" height="34" rx="3" class="tileF" stroke-width="1.2"/>
+    <text x="888" y="440" class="num">103</text><text x="905" y="454" class="sym">Lr</text>
+  </g>
+
+  <!-- Legend -->
+  <g transform="translate(35, 470)" font="bold 10px system-ui" font-size="10" font-weight="700">
+    <rect x="0" y="-9" width="14" height="10" class="tileS" stroke-width="1.2"/>
+    <text x="20" y="0" fill="#1e3a8a">s-block</text>
+    <text x="80" y="0" fill="#4a5568" font-weight="normal">groups 1–2 + He</text>
+
+    <rect x="220" y="-9" width="14" height="10" class="tileP" stroke-width="1.2"/>
+    <text x="240" y="0" fill="#7c2d12">p-block</text>
+    <text x="300" y="0" fill="#4a5568" font-weight="normal">groups 13–18 (minus He)</text>
+
+    <rect x="490" y="-9" width="14" height="10" class="tileD" stroke-width="1.2"/>
+    <text x="510" y="0" fill="#14532d">d-block</text>
+    <text x="570" y="0" fill="#4a5568" font-weight="normal">groups 3–12 (transition)</text>
+
+    <rect x="760" y="-9" width="14" height="10" class="tileF" stroke-width="1.2"/>
+    <text x="780" y="0" fill="#7c3aed">f-block</text>
+    <text x="830" y="0" fill="#4a5568" font-weight="normal">inner transition</text>
+  </g>
+
+</svg>

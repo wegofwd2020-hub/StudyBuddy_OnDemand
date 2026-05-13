@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 360" width="620" height="360" role="img" aria-label="Bernoulli's Equation in a Venturi Tube">
+  <title>Bernoulli's Principle — Venturi Tube</title>
+  <desc>A horizontal venturi pipe with a wide section then a narrowed throat. Fluid speeds up in the throat and pressure drops there. Vertical manometer tubes show high column on the wide side and low column on the narrow side.</desc>
+
+  <text x="310" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Bernoulli's Equation:  P + ½ρv² + ρgh = constant</text>
+
+  <defs>
+    <marker id="bv-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1d4ed8" />
+    </marker>
+    <linearGradient id="bv-fluid" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#bfdbfe" />
+      <stop offset="50%" stop-color="#60a5fa" />
+      <stop offset="100%" stop-color="#bfdbfe" />
+    </linearGradient>
+  </defs>
+
+  <!-- Manometer column 1 (over wide section) — TALL -->
+  <rect x="135" y="60" width="30" height="120" fill="none" stroke="#1a202c" stroke-width="2" />
+  <rect x="137" y="80" width="26" height="100" fill="#3b82f6" />
+  <text x="150" y="55" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">P₁ high</text>
+
+  <!-- Manometer column 2 (over throat) — SHORT -->
+  <rect x="320" y="60" width="30" height="120" fill="none" stroke="#1a202c" stroke-width="2" />
+  <rect x="322" y="140" width="26" height="40" fill="#3b82f6" />
+  <text x="335" y="55" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">P₂ LOW</text>
+
+  <!-- Manometer column 3 (over wide section again) — TALL -->
+  <rect x="490" y="60" width="30" height="120" fill="none" stroke="#1a202c" stroke-width="2" />
+  <rect x="492" y="82" width="26" height="98" fill="#3b82f6" />
+  <text x="505" y="55" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">P₃ ≈ P₁</text>
+
+  <!-- Pipe shape — wide → narrow → wide -->
+  <!-- Top wall -->
+  <path d="M 50 180 L 250 180 L 290 215 L 380 215 L 420 180 L 600 180"
+        fill="none" stroke="#1a202c" stroke-width="2.5" />
+  <!-- Bottom wall -->
+  <path d="M 50 280 L 250 280 L 290 245 L 380 245 L 420 280 L 600 280"
+        fill="none" stroke="#1a202c" stroke-width="2.5" />
+  <!-- Closed ends -->
+  <line x1="50" y1="180" x2="50" y2="280" stroke="#1a202c" stroke-width="2.5" />
+  <line x1="600" y1="180" x2="600" y2="280" stroke="#1a202c" stroke-width="2.5" />
+
+  <!-- Fluid fill inside pipe -->
+  <path d="M 50 180 L 250 180 L 290 215 L 380 215 L 420 180 L 600 180 L 600 280 L 420 280 L 380 245 L 290 245 L 250 280 L 50 280 Z"
+        fill="url(#bv-fluid)" opacity="0.6" />
+
+  <!-- Manometer connections (small tube into pipe) -->
+  <line x1="150" y1="180" x2="150" y2="180" />
+  <rect x="146" y="180" width="8" height="6" fill="#1a202c" />
+  <rect x="331" y="215" width="8" height="6" fill="#1a202c" />
+  <rect x="501" y="180" width="8" height="6" fill="#1a202c" />
+
+  <!-- Section labels under pipe -->
+  <text x="150" y="305" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Section 1: wide</text>
+  <text x="150" y="320" font-size="11" font-weight="700" fill="#1d4ed8" text-anchor="middle">v₁ slow · P₁ high</text>
+
+  <text x="335" y="305" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">Section 2: throat (narrow)</text>
+  <text x="335" y="320" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">v₂ FAST · P₂ LOW</text>
+
+  <text x="505" y="305" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Section 3: wide</text>
+  <text x="505" y="320" font-size="11" font-weight="700" fill="#1d4ed8" text-anchor="middle">v₃ slow · P₃ recovers</text>
+
+  <!-- Velocity arrows: short on wide, long on narrow -->
+  <line x1="80" y1="230" x2="120" y2="230" stroke="#1d4ed8" stroke-width="3" marker-end="url(#bv-arr)" />
+  <line x1="190" y1="230" x2="230" y2="230" stroke="#1d4ed8" stroke-width="3" marker-end="url(#bv-arr)" />
+
+  <line x1="295" y1="230" x2="375" y2="230" stroke="#dc2626" stroke-width="3.5" marker-end="url(#bv-arr)" />
+
+  <line x1="430" y1="230" x2="470" y2="230" stroke="#1d4ed8" stroke-width="3" marker-end="url(#bv-arr)" />
+  <line x1="540" y1="230" x2="580" y2="230" stroke="#1d4ed8" stroke-width="3" marker-end="url(#bv-arr)" />
+
+  <!-- Bottom equation panel -->
+  <rect x="40" y="335" width="560" height="22" rx="5" fill="#f7fafc" stroke="#cbd5e1" />
+  <text x="50" y="351" font-size="12" font-weight="700" fill="#15803d">Where speed is high, pressure is low.</text>
+  <text x="285" y="351" font-size="12" fill="#1a202c">Same fluid · same height · ΔP = ½ρ(v₂² − v₁²)</text>
+</svg>

@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400" width="720" height="400" role="img" aria-label="Alkane stem prefixes from C1 to C10 with formulas and physical state">
+  <title>Alkane Stem Prefixes (C₁–C₁₀)</title>
+  <desc>Table of the first ten n-alkanes: methane CH4, ethane C2H6, propane C3H8, butane C4H10, pentane C5H12, hexane C6H14, heptane C7H16, octane C8H18, nonane C9H20, decane C10H22. Phase at room temperature: C1-C4 gas, C5-C16 liquid (within shown range C5-C10 all liquid). The general formula CnH2n+2 holds throughout.</desc>
+
+  <text x="360" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Alkane Stem Prefixes — C₁ to C₁₀</text>
+  <text x="360" y="40" font-size="11" fill="#4a5568" text-anchor="middle">General formula CₙH₂ₙ₊₂ · learn these stems and you can name any straight-chain alkane.</text>
+
+  <!-- Table header -->
+  <rect x="40" y="60" width="640" height="32" rx="6" fill="#1e3a8a" stroke="#0f172a" stroke-width="1.5"/>
+  <text x="90" y="80" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">n</text>
+  <text x="200" y="80" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">Stem prefix</text>
+  <text x="320" y="80" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">IUPAC name</text>
+  <text x="450" y="80" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">Formula</text>
+  <text x="560" y="80" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">State (25 °C)</text>
+  <text x="650" y="80" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">b.p. (°C)</text>
+
+  <!-- 10 rows -->
+  <g font-size="11" fill="#1a202c">
+    <!-- Row 1 — methane -->
+    <rect x="40" y="92" width="640" height="28" fill="#f1f5f9"/>
+    <text x="90" y="112" text-anchor="middle">1</text>
+    <text x="200" y="112" text-anchor="middle">meth-</text>
+    <text x="320" y="112" text-anchor="middle">methane</text>
+    <text x="450" y="112" text-anchor="middle">CH₄</text>
+    <text x="560" y="112" text-anchor="middle" fill="#dc2626">gas</text>
+    <text x="650" y="112" text-anchor="middle">−162</text>
+    <!-- Row 2 — ethane -->
+    <rect x="40" y="120" width="640" height="28" fill="#fff"/>
+    <text x="90" y="140" text-anchor="middle">2</text>
+    <text x="200" y="140" text-anchor="middle">eth-</text>
+    <text x="320" y="140" text-anchor="middle">ethane</text>
+    <text x="450" y="140" text-anchor="middle">C₂H₆</text>
+    <text x="560" y="140" text-anchor="middle" fill="#dc2626">gas</text>
+    <text x="650" y="140" text-anchor="middle">−89</text>
+    <!-- Row 3 — propane -->
+    <rect x="40" y="148" width="640" height="28" fill="#f1f5f9"/>
+    <text x="90" y="168" text-anchor="middle">3</text>
+    <text x="200" y="168" text-anchor="middle">prop-</text>
+    <text x="320" y="168" text-anchor="middle">propane</text>
+    <text x="450" y="168" text-anchor="middle">C₃H₈</text>
+    <text x="560" y="168" text-anchor="middle" fill="#dc2626">gas</text>
+    <text x="650" y="168" text-anchor="middle">−42</text>
+    <!-- Row 4 — butane -->
+    <rect x="40" y="176" width="640" height="28" fill="#fff"/>
+    <text x="90" y="196" text-anchor="middle">4</text>
+    <text x="200" y="196" text-anchor="middle">but-</text>
+    <text x="320" y="196" text-anchor="middle">butane</text>
+    <text x="450" y="196" text-anchor="middle">C₄H₁₀</text>
+    <text x="560" y="196" text-anchor="middle" fill="#dc2626">gas</text>
+    <text x="650" y="196" text-anchor="middle">−1</text>
+    <!-- Row 5 — pentane -->
+    <rect x="40" y="204" width="640" height="28" fill="#f1f5f9"/>
+    <text x="90" y="224" text-anchor="middle">5</text>
+    <text x="200" y="224" text-anchor="middle">pent-</text>
+    <text x="320" y="224" text-anchor="middle">pentane</text>
+    <text x="450" y="224" text-anchor="middle">C₅H₁₂</text>
+    <text x="560" y="224" text-anchor="middle" fill="#1d4ed8">liquid</text>
+    <text x="650" y="224" text-anchor="middle">36</text>
+    <!-- Row 6 — hexane -->
+    <rect x="40" y="232" width="640" height="28" fill="#fff"/>
+    <text x="90" y="252" text-anchor="middle">6</text>
+    <text x="200" y="252" text-anchor="middle">hex-</text>
+    <text x="320" y="252" text-anchor="middle">hexane</text>
+    <text x="450" y="252" text-anchor="middle">C₆H₁₄</text>
+    <text x="560" y="252" text-anchor="middle" fill="#1d4ed8">liquid</text>
+    <text x="650" y="252" text-anchor="middle">69</text>
+    <!-- Row 7 — heptane -->
+    <rect x="40" y="260" width="640" height="28" fill="#f1f5f9"/>
+    <text x="90" y="280" text-anchor="middle">7</text>
+    <text x="200" y="280" text-anchor="middle">hept-</text>
+    <text x="320" y="280" text-anchor="middle">heptane</text>
+    <text x="450" y="280" text-anchor="middle">C₇H₁₆</text>
+    <text x="560" y="280" text-anchor="middle" fill="#1d4ed8">liquid</text>
+    <text x="650" y="280" text-anchor="middle">98</text>
+    <!-- Row 8 — octane -->
+    <rect x="40" y="288" width="640" height="28" fill="#fff"/>
+    <text x="90" y="308" text-anchor="middle">8</text>
+    <text x="200" y="308" text-anchor="middle">oct-</text>
+    <text x="320" y="308" text-anchor="middle">octane</text>
+    <text x="450" y="308" text-anchor="middle">C₈H₁₈</text>
+    <text x="560" y="308" text-anchor="middle" fill="#1d4ed8">liquid</text>
+    <text x="650" y="308" text-anchor="middle">126</text>
+    <!-- Row 9 — nonane -->
+    <rect x="40" y="316" width="640" height="28" fill="#f1f5f9"/>
+    <text x="90" y="336" text-anchor="middle">9</text>
+    <text x="200" y="336" text-anchor="middle">non-</text>
+    <text x="320" y="336" text-anchor="middle">nonane</text>
+    <text x="450" y="336" text-anchor="middle">C₉H₂₀</text>
+    <text x="560" y="336" text-anchor="middle" fill="#1d4ed8">liquid</text>
+    <text x="650" y="336" text-anchor="middle">151</text>
+    <!-- Row 10 — decane -->
+    <rect x="40" y="344" width="640" height="28" fill="#fff"/>
+    <text x="90" y="364" text-anchor="middle">10</text>
+    <text x="200" y="364" text-anchor="middle">dec-</text>
+    <text x="320" y="364" text-anchor="middle">decane</text>
+    <text x="450" y="364" text-anchor="middle">C₁₀H₂₂</text>
+    <text x="560" y="364" text-anchor="middle" fill="#1d4ed8">liquid</text>
+    <text x="650" y="364" text-anchor="middle">174</text>
+  </g>
+
+  <text x="360" y="392" font-size="10" font-style="italic" fill="#475569" text-anchor="middle">Replace ‑ane with ‑ene for alkene; ‑yne for alkyne. Branched-alkyl substituents: ‑yl (e.g. methyl from methane).</text>
+</svg>

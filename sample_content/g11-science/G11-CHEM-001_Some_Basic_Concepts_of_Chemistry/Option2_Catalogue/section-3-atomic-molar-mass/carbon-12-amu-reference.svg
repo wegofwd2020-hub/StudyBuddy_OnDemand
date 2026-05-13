@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 320" width="720" height="320" role="img" aria-label="Atomic mass unit defined relative to carbon-12">
+  <title>Atomic Mass Unit and Carbon-12</title>
+  <desc>The atomic mass unit (u or amu) is defined as exactly 1/12 the mass of a neutral carbon-12 atom. A diagram shows a ¹²C atom with 6 protons and 6 neutrons in the nucleus, divided into 12 equal slices; one slice = 1 u.</desc>
+
+  <text x="360" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">The Atomic Mass Unit (u) — Defined Relative to Carbon-12</text>
+  <text x="360" y="40" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">1 u  ≡  (1/12) × mass of one neutral ¹²C atom  ≈  1.66 × 10⁻²⁷ kg</text>
+
+  <!-- Carbon-12 atom on left -->
+  <g transform="translate(180, 180)">
+    <!-- nucleus: 6p + 6n -->
+    <circle cx="0" cy="0" r="34" fill="#fef3c7" stroke="#92400e" stroke-width="2"/>
+    <!-- protons -->
+    <circle cx="-14" cy="-12" r="7" fill="#dc2626" stroke="#1a202c" stroke-width="0.8"/>
+    <circle cx="0" cy="-15" r="7" fill="#dc2626" stroke="#1a202c" stroke-width="0.8"/>
+    <circle cx="14" cy="-12" r="7" fill="#dc2626" stroke="#1a202c" stroke-width="0.8"/>
+    <circle cx="-14" cy="12" r="7" fill="#dc2626" stroke="#1a202c" stroke-width="0.8"/>
+    <circle cx="0" cy="15" r="7" fill="#dc2626" stroke="#1a202c" stroke-width="0.8"/>
+    <circle cx="14" cy="12" r="7" fill="#dc2626" stroke="#1a202c" stroke-width="0.8"/>
+    <!-- neutrons (slate) - placed at offsets but inside the nucleus circle -->
+    <circle cx="-7" cy="-3" r="7" fill="#64748b" stroke="#1a202c" stroke-width="0.8"/>
+    <circle cx="7" cy="-3" r="7" fill="#64748b" stroke="#1a202c" stroke-width="0.8"/>
+    <circle cx="-7" cy="3" r="7" fill="#64748b" stroke="#1a202c" stroke-width="0.8"/>
+    <circle cx="7" cy="3" r="7" fill="#64748b" stroke="#1a202c" stroke-width="0.8"/>
+    <circle cx="0" cy="-7" r="7" fill="#64748b" stroke="#1a202c" stroke-width="0.8"/>
+    <circle cx="0" cy="7" r="7" fill="#64748b" stroke="#1a202c" stroke-width="0.8"/>
+    <!-- shells with electrons -->
+    <circle r="60" fill="none" stroke="#4a5568" stroke-width="1" stroke-dasharray="3 3"/>
+    <circle r="100" fill="none" stroke="#4a5568" stroke-width="1" stroke-dasharray="3 3"/>
+    <circle cx="-60" cy="0" r="5" fill="#2b6cb0" stroke="#1a202c" stroke-width="0.8"/>
+    <circle cx="60" cy="0" r="5" fill="#2b6cb0" stroke="#1a202c" stroke-width="0.8"/>
+    <circle cx="0" cy="-100" r="5" fill="#2b6cb0" stroke="#1a202c" stroke-width="0.8"/>
+    <circle cx="71" cy="-71" r="5" fill="#2b6cb0" stroke="#1a202c" stroke-width="0.8"/>
+    <circle cx="100" cy="0" r="5" fill="#2b6cb0" stroke="#1a202c" stroke-width="0.8"/>
+    <circle cx="71" cy="71" r="5" fill="#2b6cb0" stroke="#1a202c" stroke-width="0.8"/>
+    <circle cx="0" cy="100" r="5" fill="#2b6cb0" stroke="#1a202c" stroke-width="0.8"/>
+    <circle cx="-100" cy="0" r="5" fill="#2b6cb0" stroke="#1a202c" stroke-width="0.8"/>
+  </g>
+  <text x="180" y="80" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">¹²C</text>
+  <text x="180" y="100" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">6 protons · 6 neutrons · 6 electrons</text>
+  <text x="180" y="296" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">mass ≡ 12 u  (exact, by definition)</text>
+
+  <!-- Arrow -->
+  <line x1="290" y1="180" x2="350" y2="180" stroke="#1a202c" stroke-width="2" marker-end="url(#c12-arr)"/>
+  <text x="320" y="170" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">÷ 12</text>
+
+  <!-- Pie of 12 slices on right -->
+  <g transform="translate(540, 180)">
+    <circle r="80" fill="#f7fafc" stroke="#1a202c" stroke-width="2"/>
+    <!-- 12 radial slice lines -->
+    <line x1="0" y1="0" x2="80" y2="0" stroke="#4a5568" stroke-width="1"/>
+    <line x1="0" y1="0" x2="69.3" y2="-40" stroke="#4a5568" stroke-width="1"/>
+    <line x1="0" y1="0" x2="40" y2="-69.3" stroke="#4a5568" stroke-width="1"/>
+    <line x1="0" y1="0" x2="0" y2="-80" stroke="#4a5568" stroke-width="1"/>
+    <line x1="0" y1="0" x2="-40" y2="-69.3" stroke="#4a5568" stroke-width="1"/>
+    <line x1="0" y1="0" x2="-69.3" y2="-40" stroke="#4a5568" stroke-width="1"/>
+    <line x1="0" y1="0" x2="-80" y2="0" stroke="#4a5568" stroke-width="1"/>
+    <line x1="0" y1="0" x2="-69.3" y2="40" stroke="#4a5568" stroke-width="1"/>
+    <line x1="0" y1="0" x2="-40" y2="69.3" stroke="#4a5568" stroke-width="1"/>
+    <line x1="0" y1="0" x2="0" y2="80" stroke="#4a5568" stroke-width="1"/>
+    <line x1="0" y1="0" x2="40" y2="69.3" stroke="#4a5568" stroke-width="1"/>
+    <line x1="0" y1="0" x2="69.3" y2="40" stroke="#4a5568" stroke-width="1"/>
+    <!-- Highlight one slice -->
+    <path d="M 0 0 L 80 0 A 80 80 0 0 0 69.3 -40 Z" fill="#fde68a" stroke="#d97706" stroke-width="2"/>
+  </g>
+  <text x="540" y="80" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#92400e" text-anchor="middle">12 equal slices</text>
+  <text x="540" y="100" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">each slice = 1 atomic mass unit</text>
+
+  <!-- Highlighted slice label -->
+  <line x1="600" y1="160" x2="660" y2="120" stroke="#d97706" stroke-width="1.5"/>
+  <text x="666" y="116" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#92400e">1 u</text>
+
+  <text x="540" y="296" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">1 u ≈ 1.66 × 10⁻²⁷ kg</text>
+
+  <defs>
+    <marker id="c12-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1a202c"/>
+    </marker>
+  </defs>
+
+</svg>

@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-coordinate-geometry-ellipse-two-foci
+kind: image
+subject: math
+topic_phrase: "ellipse defined by constant sum of distances from two foci"
+keywords:
+  - ellipse
+  - foci
+  - locus
+  - conic-section
+  - eccentricity
+license: platform-cc-by-sa
+source_unit: G11-MATH-003

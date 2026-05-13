@@ -1,0 +1,13 @@
+schema_version: 1
+id: chemistry-elimination-and-redox
+kind: image
+subject: chemistry
+topic_phrase: "elimination dehydration ethanol oxidation reduction organic redox carbon oxidation state"
+keywords:
+  - elimination
+  - dehydration
+  - oxidation
+  - reduction
+  - oxidation-state
+license: platform-cc-by-sa
+source_unit: G11-CHEM-008

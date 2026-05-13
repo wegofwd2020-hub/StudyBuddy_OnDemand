@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 280" width="600" height="280" role="img" aria-label="Viscosity: Laminar Velocity Profile">
+  <title>Viscosity — Laminar Flow Velocity Profile</title>
+  <desc>A viscous fluid flows between two parallel plates. Velocity is zero at both stationary walls (no-slip condition) and maximum in the middle, producing a parabolic velocity profile. Newton's law of viscosity: F/A = η · (dv/dy).</desc>
+
+  <text x="300" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Viscosity:  Laminar Velocity Profile in a Pipe</text>
+
+  <defs>
+    <marker id="vs-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1d4ed8" />
+    </marker>
+  </defs>
+
+  <!-- Pipe walls -->
+  <line x1="60" y1="80" x2="500" y2="80" stroke="#1a202c" stroke-width="3" />
+  <line x1="60" y1="220" x2="500" y2="220" stroke="#1a202c" stroke-width="3" />
+
+  <!-- wall hatching (top) -->
+  <g stroke="#1a202c" stroke-width="1.2">
+    <line x1="68" y1="80" x2="58" y2="68" />
+    <line x1="98" y1="80" x2="88" y2="68" />
+    <line x1="128" y1="80" x2="118" y2="68" />
+    <line x1="158" y1="80" x2="148" y2="68" />
+    <line x1="188" y1="80" x2="178" y2="68" />
+    <line x1="218" y1="80" x2="208" y2="68" />
+    <line x1="248" y1="80" x2="238" y2="68" />
+    <line x1="278" y1="80" x2="268" y2="68" />
+    <line x1="308" y1="80" x2="298" y2="68" />
+    <line x1="338" y1="80" x2="328" y2="68" />
+    <line x1="368" y1="80" x2="358" y2="68" />
+    <line x1="398" y1="80" x2="388" y2="68" />
+    <line x1="428" y1="80" x2="418" y2="68" />
+    <line x1="458" y1="80" x2="448" y2="68" />
+    <line x1="488" y1="80" x2="478" y2="68" />
+  </g>
+  <!-- wall hatching (bottom) -->
+  <g stroke="#1a202c" stroke-width="1.2">
+    <line x1="68" y1="220" x2="58" y2="232" />
+    <line x1="98" y1="220" x2="88" y2="232" />
+    <line x1="128" y1="220" x2="118" y2="232" />
+    <line x1="158" y1="220" x2="148" y2="232" />
+    <line x1="188" y1="220" x2="178" y2="232" />
+    <line x1="218" y1="220" x2="208" y2="232" />
+    <line x1="248" y1="220" x2="238" y2="232" />
+    <line x1="278" y1="220" x2="268" y2="232" />
+    <line x1="308" y1="220" x2="298" y2="232" />
+    <line x1="338" y1="220" x2="328" y2="232" />
+    <line x1="368" y1="220" x2="358" y2="232" />
+    <line x1="398" y1="220" x2="388" y2="232" />
+    <line x1="428" y1="220" x2="418" y2="232" />
+    <line x1="458" y1="220" x2="448" y2="232" />
+    <line x1="488" y1="220" x2="478" y2="232" />
+  </g>
+
+  <!-- Velocity profile arrows (parabolic length) -->
+  <!-- Centre y=150, max length 130; arrow tail x = 200 - len, head x = 200 -->
+  <!-- y = 90, dy from centre = 60; v = vmax(1 - (60/70)^2) = vmax * 0.265; len ~ 35 -->
+  <!-- y = 110, dy = 40; v ~ vmax*(1 - 0.327) = 0.673; len ~ 87 -->
+  <!-- y = 130, dy = 20; v ~ vmax*(1 - 0.0816) = 0.918; len ~ 119 -->
+  <!-- y = 150, dy = 0; v = vmax; len = 130 -->
+  <!-- y = 170, dy = 20; len ~ 119 -->
+  <!-- y = 190, dy = 40; len ~ 87 -->
+  <!-- y = 210, dy = 60; len ~ 35 -->
+
+  <line x1="200" y1="85" x2="200" y2="85" stroke="#1d4ed8" stroke-width="0" />
+
+  <line x1="200" y1="90" x2="235" y2="90" stroke="#1d4ed8" stroke-width="2" marker-end="url(#vs-arr)" />
+  <line x1="200" y1="110" x2="287" y2="110" stroke="#1d4ed8" stroke-width="2.4" marker-end="url(#vs-arr)" />
+  <line x1="200" y1="130" x2="319" y2="130" stroke="#1d4ed8" stroke-width="2.6" marker-end="url(#vs-arr)" />
+  <line x1="200" y1="150" x2="330" y2="150" stroke="#1d4ed8" stroke-width="3" marker-end="url(#vs-arr)" />
+  <line x1="200" y1="170" x2="319" y2="170" stroke="#1d4ed8" stroke-width="2.6" marker-end="url(#vs-arr)" />
+  <line x1="200" y1="190" x2="287" y2="190" stroke="#1d4ed8" stroke-width="2.4" marker-end="url(#vs-arr)" />
+  <line x1="200" y1="210" x2="235" y2="210" stroke="#1d4ed8" stroke-width="2" marker-end="url(#vs-arr)" />
+
+  <!-- Vertical reference line for arrow tails -->
+  <line x1="200" y1="80" x2="200" y2="220" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3" />
+
+  <!-- Smooth parabolic profile envelope (closing the arrowheads) -->
+  <path d="M 235 90 Q 360 150 235 210" fill="none" stroke="#dc2626" stroke-width="2" stroke-dasharray="5 4" />
+  <text x="370" y="148" font-size="11" font-weight="700" fill="#dc2626">parabolic v(y)</text>
+
+  <!-- v_max marker -->
+  <text x="335" y="146" font-size="11" font-weight="700" fill="#1d4ed8">v_max</text>
+
+  <!-- "no-slip" labels -->
+  <text x="120" y="74" font-size="11" font-weight="700" fill="#7c2d12">v = 0 (no-slip)</text>
+  <text x="120" y="244" font-size="11" font-weight="700" fill="#7c2d12">v = 0 (no-slip)</text>
+
+  <!-- y axis on left -->
+  <line x1="60" y1="80" x2="60" y2="220" stroke="#1a202c" stroke-width="1.5" />
+  <text x="48" y="155" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle" transform="rotate(-90 48 155)">y</text>
+
+  <!-- Right panel -->
+  <rect x="430" y="80" width="160" height="140" rx="8" fill="#f7fafc" stroke="#cbd5e1" />
+  <text x="510" y="100" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Newton's law</text>
+  <text x="510" y="118" font-size="11" fill="#1a202c" text-anchor="middle">of viscosity</text>
+  <text x="510" y="146" font-size="14" font-weight="700" fill="#1d4ed8" text-anchor="middle">τ = η · (dv/dy)</text>
+  <text x="440" y="170" font-size="10" fill="#4a5568">τ : shear stress (Pa)</text>
+  <text x="440" y="184" font-size="10" fill="#4a5568">η : viscosity (Pa·s)</text>
+  <text x="440" y="198" font-size="10" fill="#4a5568">dv/dy : velocity gradient</text>
+  <text x="440" y="214" font-size="10" fill="#4a5568">water η ≈ 1 mPa·s, oil ≈ 100×</text>
+
+  <text x="300" y="265" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Viscosity is internal friction between adjacent fluid layers — higher η → flatter, slower profile.</text>
+</svg>

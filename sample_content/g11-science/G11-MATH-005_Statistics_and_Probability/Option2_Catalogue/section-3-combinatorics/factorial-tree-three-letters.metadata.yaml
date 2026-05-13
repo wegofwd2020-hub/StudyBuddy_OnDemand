@@ -1,0 +1,12 @@
+schema_version: 1
+id: math-stats-factorial-tree-three-letters
+kind: image
+subject: math
+topic_phrase: "tree diagram showing 3 factorial equals six permutations of three letters"
+keywords:
+  - factorial
+  - permutation-tree
+  - multiplication-rule
+  - counting-principle
+license: platform-cc-by-sa
+source_unit: G11-MATH-005

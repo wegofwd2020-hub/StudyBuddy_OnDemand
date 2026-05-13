@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 320" width="720" height="320" role="img" aria-label="Lewis structures of water, ammonia and methane">
+  <title>Lewis structures — H₂O, NH₃, CH₄</title>
+  <desc>Three Lewis dot/line structures: water (oxygen with two bonded hydrogens and two lone pairs), ammonia (nitrogen with three bonded hydrogens and one lone pair) and methane (carbon with four bonded hydrogens and no lone pairs). Bond pairs as lines, lone pairs as paired dots, octet satisfied on the central atom.</desc>
+
+  <text x="360" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Lewis Structures — Bonded Pairs (lines) and Lone Pairs (dots)</text>
+  <text x="360" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Each line = 1 shared pair (2 e⁻) · each pair of dots = 1 lone pair · central atom satisfies the octet (or duet for H)</text>
+
+  <!-- ── H₂O ───────────────────────────────────────────────────────── -->
+  <g transform="translate(120, 170)">
+    <text x="0" y="-90" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Water · H₂O</text>
+
+    <!-- Bonds at ~104.5° -->
+    <line x1="0" y1="0" x2="-46" y2="36" stroke="#1a202c" stroke-width="2.2" />
+    <line x1="0" y1="0" x2="46"  y2="36" stroke="#1a202c" stroke-width="2.2" />
+
+    <!-- O label -->
+    <text x="0" y="6" font-size="28" font-weight="700" fill="#dc2626" text-anchor="middle">O</text>
+
+    <!-- Lone pairs (two pairs on O — top and right of the symbol) -->
+    <circle cx="-7" cy="-26" r="2.5" fill="#0f172a" />
+    <circle cx="7"  cy="-26" r="2.5" fill="#0f172a" />
+    <circle cx="22" cy="-6" r="2.5" fill="#0f172a" />
+    <circle cx="22" cy="6"  r="2.5" fill="#0f172a" />
+
+    <!-- H atoms -->
+    <text x="-58" y="48" font-size="22" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <text x="58"  y="48" font-size="22" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+
+    <!-- Annotations -->
+    <text x="0" y="90" font-size="11" font-weight="700" fill="#14532d" text-anchor="middle">2 bond pairs + 2 lone pairs</text>
+    <text x="0" y="106" font-size="10" fill="#4a5568" text-anchor="middle">total valence e⁻ = 8 (O 6 + 2×H 1)</text>
+  </g>
+
+  <!-- ── NH₃ ───────────────────────────────────────────────────────── -->
+  <g transform="translate(360, 170)">
+    <text x="0" y="-90" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Ammonia · NH₃</text>
+
+    <!-- Three bonds (one up, two down-splayed) -->
+    <line x1="0" y1="0" x2="0"   y2="-44" stroke="#1a202c" stroke-width="2.2" />
+    <line x1="0" y1="0" x2="-46" y2="34"  stroke="#1a202c" stroke-width="2.2" />
+    <line x1="0" y1="0" x2="46"  y2="34"  stroke="#1a202c" stroke-width="2.2" />
+
+    <!-- N label -->
+    <text x="0" y="6" font-size="28" font-weight="700" fill="#2b6cb0" text-anchor="middle">N</text>
+
+    <!-- Lone pair (one pair) — to the right of N -->
+    <circle cx="22" cy="-2" r="2.5" fill="#0f172a" />
+    <circle cx="22" cy="6"  r="2.5" fill="#0f172a" />
+
+    <!-- H atoms -->
+    <text x="0"   y="-50" font-size="22" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <text x="-58" y="46"  font-size="22" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <text x="58"  y="46"  font-size="22" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+
+    <text x="0" y="90"  font-size="11" font-weight="700" fill="#14532d" text-anchor="middle">3 bond pairs + 1 lone pair</text>
+    <text x="0" y="106" font-size="10" fill="#4a5568" text-anchor="middle">total valence e⁻ = 8 (N 5 + 3×H 1)</text>
+  </g>
+
+  <!-- ── CH₄ ───────────────────────────────────────────────────────── -->
+  <g transform="translate(600, 170)">
+    <text x="0" y="-90" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Methane · CH₄</text>
+
+    <!-- Four bonds (cross/star pattern) -->
+    <line x1="0" y1="0" x2="0"   y2="-46" stroke="#1a202c" stroke-width="2.2" />
+    <line x1="0" y1="0" x2="0"   y2="46"  stroke="#1a202c" stroke-width="2.2" />
+    <line x1="0" y1="0" x2="-46" y2="0"   stroke="#1a202c" stroke-width="2.2" />
+    <line x1="0" y1="0" x2="46"  y2="0"   stroke="#1a202c" stroke-width="2.2" />
+
+    <!-- C label -->
+    <text x="0" y="6" font-size="28" font-weight="700" fill="#1a202c" text-anchor="middle">C</text>
+
+    <!-- H atoms -->
+    <text x="0"   y="-52" font-size="22" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <text x="0"   y="68"  font-size="22" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <text x="-58" y="6"   font-size="22" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <text x="58"  y="6"   font-size="22" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+
+    <text x="0" y="90"  font-size="11" font-weight="700" fill="#14532d" text-anchor="middle">4 bond pairs + 0 lone pairs</text>
+    <text x="0" y="106" font-size="10" fill="#4a5568" text-anchor="middle">total valence e⁻ = 8 (C 4 + 4×H 1)</text>
+  </g>
+
+  <!-- Bottom strip: AXE notation -->
+  <line x1="40" y1="280" x2="680" y2="280" stroke="#cbd5e1" stroke-width="1" />
+  <text x="120" y="300" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">AX₂E₂  → bent</text>
+  <text x="360" y="300" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">AX₃E   → trigonal pyramidal</text>
+  <text x="600" y="300" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">AX₄    → tetrahedral</text>
+</svg>

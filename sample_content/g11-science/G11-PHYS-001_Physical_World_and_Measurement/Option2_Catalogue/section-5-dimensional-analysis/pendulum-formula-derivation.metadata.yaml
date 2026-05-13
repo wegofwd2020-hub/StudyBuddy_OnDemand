@@ -1,0 +1,14 @@
+schema_version: 1
+id: physics-physical-world-pendulum-formula-derivation
+kind: image
+subject: physics
+topic_phrase: "deriving the simple pendulum period from dimensional analysis"
+keywords:
+  - dimensional-analysis
+  - pendulum
+  - period
+  - derivation
+  - mass-cancellation
+  - sqrt-l-over-g
+license: platform-cc-by-sa
+source_unit: G11-PHYS-001

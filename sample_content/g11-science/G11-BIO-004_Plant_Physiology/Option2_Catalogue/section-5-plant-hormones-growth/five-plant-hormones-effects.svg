@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 480" width="760" height="480" role="img" aria-label="Five major plant hormones and their effects">
+  <title>The Five Plant Hormones — Effects Table</title>
+  <desc>A summary table of the five classical groups of plant growth regulators (PGRs). Auxins (the prototype is IAA) cause cell elongation, apical dominance, and phototropic and gravitropic bending; commercial uses include rooting powders and selective herbicides. Gibberellins (GAs) drive stem elongation (so dwarf rice strains lack functional GA), break seed dormancy, and trigger alpha-amylase release in germinating barley. Cytokinins promote cell division and lateral bud growth, delay leaf senescence, and are used in tissue culture together with auxin to control whether a callus forms shoots or roots. Abscisic acid (ABA) is the stress hormone — it closes stomata under drought and maintains seed dormancy. Ethylene is a gaseous hormone that ripens fruit, induces leaf abscission, and triggers flowering in pineapple. Each row colour-codes growth-promoter (green) versus growth-inhibitor (red) functions.</desc>
+
+  <text x="380" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">The Five Plant Hormones — What Each One Does</text>
+  <text x="380" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Three growth promoters · two growth inhibitors · all act at very low concentrations</text>
+
+  <!-- Header row -->
+  <rect x="20" y="56" width="720" height="36" rx="6" fill="#14532d" stroke="#14532d" stroke-width="1.5"/>
+  <text x="100" y="80" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">Hormone</text>
+  <text x="280" y="80" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">Where made / signal</text>
+  <text x="500" y="80" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">Main effects</text>
+  <text x="678" y="80" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">Practical use</text>
+
+  <!-- ═══ AUXIN (promoter — green) ═══ -->
+  <rect x="20" y="92" width="720" height="68" fill="#dcfce7" stroke="#15803d" stroke-width="1"/>
+  <!-- icon: stem with apical bud -->
+  <g transform="translate(56, 124)">
+    <line x1="0" y1="-22" x2="0" y2="20" stroke="#15803d" stroke-width="2.5"/>
+    <ellipse cx="0" cy="-22" rx="6" ry="8" fill="#15803d"/>
+    <line x1="0" y1="-4" x2="-12" y2="-2" stroke="#15803d" stroke-width="1.2"/>
+    <line x1="0" y1="6" x2="12" y2="8" stroke="#15803d" stroke-width="1.2"/>
+  </g>
+  <text x="100" y="118" font-size="12" font-weight="700" fill="#14532d" text-anchor="middle">Auxin</text>
+  <text x="100" y="132" font-size="9" fill="#14532d" text-anchor="middle">(IAA)</text>
+  <text x="100" y="146" font-size="9" font-style="italic" fill="#14532d" text-anchor="middle">promoter</text>
+
+  <text x="170" y="116" font-size="10" fill="#1a202c">apical meristem,</text>
+  <text x="170" y="128" font-size="10" fill="#1a202c">young leaves</text>
+  <text x="170" y="144" font-size="9" font-style="italic" fill="#4a5568">downward gradient</text>
+
+  <text x="372" y="114" font-size="10" fill="#1a202c">• cell elongation (stems)</text>
+  <text x="372" y="128" font-size="10" fill="#1a202c">• apical dominance (suppresses laterals)</text>
+  <text x="372" y="142" font-size="10" fill="#1a202c">• phototropism / gravitropism bending</text>
+
+  <text x="640" y="116" font-size="10" fill="#1a202c">rooting powders</text>
+  <text x="640" y="128" font-size="10" fill="#1a202c">selective herbicide</text>
+  <text x="640" y="142" font-size="9" font-style="italic" fill="#4a5568">(2,4-D kills broadleaves)</text>
+
+  <!-- ═══ GIBBERELLIN (promoter — green) ═══ -->
+  <rect x="20" y="160" width="720" height="68" fill="#dcfce7" stroke="#15803d" stroke-width="1"/>
+  <!-- icon: tall stem -->
+  <g transform="translate(56, 192)">
+    <line x1="0" y1="-26" x2="0" y2="22" stroke="#15803d" stroke-width="3"/>
+    <line x1="0" y1="-26" x2="-8" y2="-30" stroke="#15803d" stroke-width="2"/>
+    <line x1="0" y1="-26" x2="8" y2="-30" stroke="#15803d" stroke-width="2"/>
+    <line x1="-12" y1="-12" x2="-22" y2="-18" stroke="#15803d" stroke-width="1"/>
+    <line x1="0" y1="-12" x2="-12" y2="-12" stroke="#15803d" stroke-width="1"/>
+    <line x1="12" y1="-2" x2="22" y2="-6" stroke="#15803d" stroke-width="1"/>
+    <line x1="0" y1="-2" x2="12" y2="-2" stroke="#15803d" stroke-width="1"/>
+  </g>
+  <text x="100" y="184" font-size="12" font-weight="700" fill="#14532d" text-anchor="middle">Gibberellin</text>
+  <text x="100" y="198" font-size="9" fill="#14532d" text-anchor="middle">(GA)</text>
+  <text x="100" y="214" font-size="9" font-style="italic" fill="#14532d" text-anchor="middle">promoter</text>
+
+  <text x="170" y="184" font-size="10" fill="#1a202c">young tissues,</text>
+  <text x="170" y="196" font-size="10" fill="#1a202c">developing seeds</text>
+  <text x="170" y="212" font-size="9" font-style="italic" fill="#4a5568">discovered via "foolish</text>
+  <text x="170" y="222" font-size="9" font-style="italic" fill="#4a5568">seedling" rice fungus</text>
+
+  <text x="372" y="182" font-size="10" fill="#1a202c">• stem elongation (whole internodes)</text>
+  <text x="372" y="196" font-size="10" fill="#1a202c">• breaks seed + bud dormancy</text>
+  <text x="372" y="210" font-size="10" fill="#1a202c">• triggers α-amylase in barley grain</text>
+
+  <text x="640" y="184" font-size="10" fill="#1a202c">malting (beer)</text>
+  <text x="640" y="196" font-size="10" fill="#1a202c">larger seedless</text>
+  <text x="640" y="208" font-size="10" fill="#1a202c">grapes</text>
+
+  <!-- ═══ CYTOKININ (promoter — green) ═══ -->
+  <rect x="20" y="228" width="720" height="68" fill="#dcfce7" stroke="#15803d" stroke-width="1"/>
+  <!-- icon: dividing cells -->
+  <g transform="translate(56, 260)">
+    <ellipse cx="-10" cy="0" rx="10" ry="9" fill="none" stroke="#15803d" stroke-width="2"/>
+    <circle cx="-10" cy="0" r="3" fill="#15803d"/>
+    <ellipse cx="12" cy="0" rx="10" ry="9" fill="none" stroke="#15803d" stroke-width="2"/>
+    <circle cx="12" cy="0" r="3" fill="#15803d"/>
+    <line x1="0" y1="-12" x2="0" y2="12" stroke="#15803d" stroke-width="1.2" stroke-dasharray="2 2"/>
+  </g>
+  <text x="100" y="252" font-size="12" font-weight="700" fill="#14532d" text-anchor="middle">Cytokinin</text>
+  <text x="100" y="266" font-size="9" fill="#14532d" text-anchor="middle">(zeatin, kinetin)</text>
+  <text x="100" y="282" font-size="9" font-style="italic" fill="#14532d" text-anchor="middle">promoter</text>
+
+  <text x="170" y="252" font-size="10" fill="#1a202c">root tips, fruits,</text>
+  <text x="170" y="264" font-size="10" fill="#1a202c">developing seeds</text>
+  <text x="170" y="280" font-size="9" font-style="italic" fill="#4a5568">moves up via xylem</text>
+
+  <text x="372" y="250" font-size="10" fill="#1a202c">• cell division (cytokinesis)</text>
+  <text x="372" y="264" font-size="10" fill="#1a202c">• lateral bud growth (opposes auxin)</text>
+  <text x="372" y="278" font-size="10" fill="#1a202c">• delays leaf senescence</text>
+
+  <text x="640" y="252" font-size="10" fill="#1a202c">tissue culture</text>
+  <text x="640" y="264" font-size="9" fill="#1a202c">(high cyt + low aux</text>
+  <text x="640" y="276" font-size="9" fill="#1a202c">→ shoots)</text>
+
+  <!-- ═══ ABSCISIC ACID (inhibitor — red) ═══ -->
+  <rect x="20" y="296" width="720" height="68" fill="#fee2e2" stroke="#dc2626" stroke-width="1"/>
+  <!-- icon: closed stoma -->
+  <g transform="translate(56, 328)">
+    <ellipse cx="-8" cy="0" rx="8" ry="5" fill="#dc2626" stroke="#7f1d1d" stroke-width="1.2"/>
+    <ellipse cx="8" cy="0" rx="8" ry="5" fill="#dc2626" stroke="#7f1d1d" stroke-width="1.2"/>
+    <line x1="-16" y1="0" x2="16" y2="0" stroke="#7f1d1d" stroke-width="1.5"/>
+  </g>
+  <text x="100" y="320" font-size="12" font-weight="700" fill="#7f1d1d" text-anchor="middle">Abscisic acid</text>
+  <text x="100" y="334" font-size="9" fill="#7f1d1d" text-anchor="middle">(ABA)</text>
+  <text x="100" y="350" font-size="9" font-style="italic" fill="#7f1d1d" text-anchor="middle">stress / inhibitor</text>
+
+  <text x="170" y="320" font-size="10" fill="#1a202c">leaves, root cap</text>
+  <text x="170" y="332" font-size="10" fill="#1a202c">(under stress)</text>
+  <text x="170" y="348" font-size="9" font-style="italic" fill="#4a5568">"hard times" hormone</text>
+
+  <text x="372" y="318" font-size="10" fill="#1a202c">• closes stomata (drought response)</text>
+  <text x="372" y="332" font-size="10" fill="#1a202c">• maintains seed dormancy</text>
+  <text x="372" y="346" font-size="10" fill="#1a202c">• inhibits germination, growth, senescence trigger</text>
+
+  <text x="640" y="320" font-size="10" fill="#1a202c">drought-tolerance</text>
+  <text x="640" y="332" font-size="10" fill="#1a202c">crop sprays</text>
+
+  <!-- ═══ ETHYLENE (inhibitor / ripener — red) ═══ -->
+  <rect x="20" y="364" width="720" height="68" fill="#fee2e2" stroke="#dc2626" stroke-width="1"/>
+  <!-- icon: ripening fruit -->
+  <g transform="translate(56, 396)">
+    <circle cx="0" cy="0" r="14" fill="#dc2626" stroke="#7f1d1d" stroke-width="1.5"/>
+    <path d="M -2 -14 Q 0 -22 4 -14" fill="none" stroke="#15803d" stroke-width="2"/>
+    <text x="22" y="0" font-size="9" fill="#7f1d1d">↗</text>
+    <text x="22" y="-10" font-size="9" fill="#7f1d1d">↗</text>
+  </g>
+  <text x="100" y="388" font-size="12" font-weight="700" fill="#7f1d1d" text-anchor="middle">Ethylene</text>
+  <text x="100" y="402" font-size="9" fill="#7f1d1d" text-anchor="middle">(C₂H₄, gas)</text>
+  <text x="100" y="418" font-size="9" font-style="italic" fill="#7f1d1d" text-anchor="middle">ripening / abscission</text>
+
+  <text x="170" y="388" font-size="10" fill="#1a202c">ripening fruit,</text>
+  <text x="170" y="400" font-size="10" fill="#1a202c">stressed tissues</text>
+  <text x="170" y="416" font-size="9" font-style="italic" fill="#4a5568">only gaseous hormone</text>
+
+  <text x="372" y="386" font-size="10" fill="#1a202c">• fruit ripening (climacteric burst)</text>
+  <text x="372" y="400" font-size="10" fill="#1a202c">• leaf + fruit abscission</text>
+  <text x="372" y="414" font-size="10" fill="#1a202c">• flowering trigger (pineapple, mango)</text>
+
+  <text x="640" y="388" font-size="10" fill="#1a202c">commercial fruit</text>
+  <text x="640" y="400" font-size="10" fill="#1a202c">ripening rooms</text>
+  <text x="640" y="412" font-size="9" font-style="italic" fill="#4a5568">("one bad apple…")</text>
+
+  <!-- Bottom strip -->
+  <rect x="20" y="438" width="720" height="34" rx="4" fill="#f7fafc" stroke="#15803d" stroke-width="1.5"/>
+  <text x="380" y="456" font-size="11" font-weight="700" fill="#14532d" text-anchor="middle">Hormone balance, not absolute amount, controls plant behaviour.</text>
+  <text x="380" y="468" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">High auxin / low cytokinin → roots from a callus.  High cytokinin / low auxin → shoots.  ABA + ethylene rise together under stress.</text>
+</svg>

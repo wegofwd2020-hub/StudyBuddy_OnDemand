@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-coordinate-geometry-parabola-focus-directrix
+kind: image
+subject: math
+topic_phrase: "parabola defined as the locus of points equidistant from a focus and a directrix"
+keywords:
+  - parabola
+  - focus
+  - directrix
+  - locus
+  - conic-section
+license: platform-cc-by-sa
+source_unit: G11-MATH-003

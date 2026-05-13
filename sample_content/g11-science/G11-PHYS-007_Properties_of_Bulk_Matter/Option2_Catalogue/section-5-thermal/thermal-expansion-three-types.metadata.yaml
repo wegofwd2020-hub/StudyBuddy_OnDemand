@@ -1,0 +1,13 @@
+schema_version: 1
+id: physics-bulk-matter-thermal-expansion-three-types
+kind: image
+subject: physics
+topic_phrase: "linear, area, and volume thermal expansion of solids with coefficients alpha beta gamma"
+keywords:
+  - thermal-expansion
+  - linear-expansion
+  - area-expansion
+  - volume-expansion
+  - coefficient-of-expansion
+license: platform-cc-by-sa
+source_unit: G11-PHYS-007

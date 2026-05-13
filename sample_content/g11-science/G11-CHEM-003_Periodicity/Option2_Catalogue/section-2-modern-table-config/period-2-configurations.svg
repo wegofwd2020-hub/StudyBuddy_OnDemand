@@ -1,0 +1,316 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" width="720" height="360" role="img" aria-label="Period 2 element configurations">
+  <title>Period 2 — Filling 2s and 2p One Electron at a Time</title>
+  <desc>The eight elements of period 2 (Li through Ne) shown in order. Each element has a card with its symbol, atomic number, full electron configuration, and a row of orbital boxes (1s, 2s, 2p_x, 2p_y, 2p_z) with up/down arrows showing the spin. Hund's rule is visible across B, C, N (parallel spins) and pairing begins at O.</desc>
+
+  <text x="360" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Period 2 — Building the Second Shell, Element by Element</text>
+  <text x="360" y="40" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Eight elements, eight electrons added in Aufbau order. Hund's rule: parallel spins fill 2p before pairing.</text>
+
+  <!-- Helper: each element card 165 wide × 132 tall, 4 columns × 2 rows -->
+
+  <!-- Card 1: Li -->
+  <g transform="translate(20, 60)">
+    <rect x="0" y="0" width="165" height="132" rx="8" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1.5"/>
+    <text x="14" y="20" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1e3a8a">Li</text>
+    <text x="40" y="20" font="11px system-ui" font-size="11" fill="#4a5568">Z = 3</text>
+    <text x="14" y="40" font="11px system-ui" font-size="11" fill="#1a202c">1s² 2s¹</text>
+
+    <!-- Orbital boxes: 1s | 2s | 2px | 2py | 2pz at y=54 -->
+    <g transform="translate(8, 54)">
+      <rect x="0" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="11" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">1s</text>
+      <!-- 1s: pair -->
+      <line x1="7" y1="34" x2="7" y2="6" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="4,8 10,8 7,2" fill="#3b82f6"/>
+      <line x1="15" y1="6" x2="15" y2="34" stroke="#f59e0b" stroke-width="2"/>
+      <polygon points="12,32 18,32 15,38" fill="#f59e0b"/>
+
+      <rect x="30" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="41" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2s</text>
+      <!-- 2s: single up -->
+      <line x1="41" y1="34" x2="41" y2="6" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="38,8 44,8 41,2" fill="#3b82f6"/>
+
+      <rect x="60" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="71" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2pₓ</text>
+      <rect x="90" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="101" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2p_y</text>
+      <rect x="120" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="131" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2p_z</text>
+    </g>
+  </g>
+
+  <!-- Card 2: Be (1s² 2s²) -->
+  <g transform="translate(195, 60)">
+    <rect x="0" y="0" width="165" height="132" rx="8" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1.5"/>
+    <text x="14" y="20" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1e3a8a">Be</text>
+    <text x="40" y="20" font="11px system-ui" font-size="11" fill="#4a5568">Z = 4</text>
+    <text x="14" y="40" font="11px system-ui" font-size="11" fill="#1a202c">1s² 2s²</text>
+
+    <g transform="translate(8, 54)">
+      <rect x="0" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="11" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">1s</text>
+      <line x1="7" y1="34" x2="7" y2="6" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="4,8 10,8 7,2" fill="#3b82f6"/>
+      <line x1="15" y1="6" x2="15" y2="34" stroke="#f59e0b" stroke-width="2"/>
+      <polygon points="12,32 18,32 15,38" fill="#f59e0b"/>
+
+      <rect x="30" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="41" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2s</text>
+      <line x1="37" y1="34" x2="37" y2="6" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="34,8 40,8 37,2" fill="#3b82f6"/>
+      <line x1="45" y1="6" x2="45" y2="34" stroke="#f59e0b" stroke-width="2"/>
+      <polygon points="42,32 48,32 45,38" fill="#f59e0b"/>
+
+      <rect x="60" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="71" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2pₓ</text>
+      <rect x="90" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="101" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2p_y</text>
+      <rect x="120" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="131" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2p_z</text>
+    </g>
+  </g>
+
+  <!-- Card 3: B (1s² 2s² 2p¹) -->
+  <g transform="translate(370, 60)">
+    <rect x="0" y="0" width="165" height="132" rx="8" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1.5"/>
+    <text x="14" y="20" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1e3a8a">B</text>
+    <text x="40" y="20" font="11px system-ui" font-size="11" fill="#4a5568">Z = 5</text>
+    <text x="14" y="40" font="11px system-ui" font-size="11" fill="#1a202c">1s² 2s² 2p¹</text>
+
+    <g transform="translate(8, 54)">
+      <rect x="0" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="11" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">1s</text>
+      <line x1="7" y1="34" x2="7" y2="6" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="4,8 10,8 7,2" fill="#3b82f6"/>
+      <line x1="15" y1="6" x2="15" y2="34" stroke="#f59e0b" stroke-width="2"/>
+      <polygon points="12,32 18,32 15,38" fill="#f59e0b"/>
+
+      <rect x="30" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="41" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2s</text>
+      <line x1="37" y1="34" x2="37" y2="6" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="34,8 40,8 37,2" fill="#3b82f6"/>
+      <line x1="45" y1="6" x2="45" y2="34" stroke="#f59e0b" stroke-width="2"/>
+      <polygon points="42,32 48,32 45,38" fill="#f59e0b"/>
+
+      <rect x="60" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="71" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2pₓ</text>
+      <line x1="67" y1="34" x2="67" y2="6" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="64,8 70,8 67,2" fill="#3b82f6"/>
+
+      <rect x="90" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="101" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2p_y</text>
+      <rect x="120" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="131" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2p_z</text>
+    </g>
+  </g>
+
+  <!-- Card 4: C (Hund: 2 parallel) -->
+  <g transform="translate(545, 60)">
+    <rect x="0" y="0" width="165" height="132" rx="8" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1.5"/>
+    <text x="14" y="20" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1e3a8a">C</text>
+    <text x="40" y="20" font="11px system-ui" font-size="11" fill="#4a5568">Z = 6</text>
+    <text x="14" y="40" font="11px system-ui" font-size="11" fill="#1a202c">1s² 2s² 2p²</text>
+
+    <g transform="translate(8, 54)">
+      <rect x="0" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="11" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">1s</text>
+      <line x1="7" y1="34" x2="7" y2="6" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="4,8 10,8 7,2" fill="#3b82f6"/>
+      <line x1="15" y1="6" x2="15" y2="34" stroke="#f59e0b" stroke-width="2"/>
+      <polygon points="12,32 18,32 15,38" fill="#f59e0b"/>
+
+      <rect x="30" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="41" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2s</text>
+      <line x1="37" y1="34" x2="37" y2="6" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="34,8 40,8 37,2" fill="#3b82f6"/>
+      <line x1="45" y1="6" x2="45" y2="34" stroke="#f59e0b" stroke-width="2"/>
+      <polygon points="42,32 48,32 45,38" fill="#f59e0b"/>
+
+      <rect x="60" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="71" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2pₓ</text>
+      <line x1="67" y1="34" x2="67" y2="6" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="64,8 70,8 67,2" fill="#3b82f6"/>
+
+      <rect x="90" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="101" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2p_y</text>
+      <line x1="97" y1="34" x2="97" y2="6" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="94,8 100,8 97,2" fill="#3b82f6"/>
+
+      <rect x="120" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="131" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2p_z</text>
+    </g>
+  </g>
+
+  <!-- Row 2: N, O, F, Ne -->
+
+  <!-- Card 5: N (Hund: 3 parallel; half-filled p) -->
+  <g transform="translate(20, 200)">
+    <rect x="0" y="0" width="165" height="132" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+    <text x="14" y="20" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#92400e">N</text>
+    <text x="40" y="20" font="11px system-ui" font-size="11" fill="#4a5568">Z = 7</text>
+    <text x="14" y="40" font="11px system-ui" font-size="11" fill="#1a202c">1s² 2s² 2p³</text>
+    <text x="138" y="20" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#dc2626" text-anchor="end">Hund: half-filled p</text>
+
+    <g transform="translate(8, 54)">
+      <rect x="0" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="11" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">1s</text>
+      <line x1="7" y1="34" x2="7" y2="6" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="4,8 10,8 7,2" fill="#3b82f6"/>
+      <line x1="15" y1="6" x2="15" y2="34" stroke="#f59e0b" stroke-width="2"/>
+      <polygon points="12,32 18,32 15,38" fill="#f59e0b"/>
+
+      <rect x="30" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="41" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2s</text>
+      <line x1="37" y1="34" x2="37" y2="6" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="34,8 40,8 37,2" fill="#3b82f6"/>
+      <line x1="45" y1="6" x2="45" y2="34" stroke="#f59e0b" stroke-width="2"/>
+      <polygon points="42,32 48,32 45,38" fill="#f59e0b"/>
+
+      <rect x="60" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="71" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2pₓ</text>
+      <line x1="67" y1="34" x2="67" y2="6" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="64,8 70,8 67,2" fill="#3b82f6"/>
+
+      <rect x="90" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="101" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2p_y</text>
+      <line x1="97" y1="34" x2="97" y2="6" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="94,8 100,8 97,2" fill="#3b82f6"/>
+
+      <rect x="120" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="131" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2p_z</text>
+      <line x1="127" y1="34" x2="127" y2="6" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="124,8 130,8 127,2" fill="#3b82f6"/>
+    </g>
+  </g>
+
+  <!-- Card 6: O (pairing begins) -->
+  <g transform="translate(195, 200)">
+    <rect x="0" y="0" width="165" height="132" rx="8" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1.5"/>
+    <text x="14" y="20" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1e3a8a">O</text>
+    <text x="40" y="20" font="11px system-ui" font-size="11" fill="#4a5568">Z = 8</text>
+    <text x="14" y="40" font="11px system-ui" font-size="11" fill="#1a202c">1s² 2s² 2p⁴</text>
+
+    <g transform="translate(8, 54)">
+      <rect x="0" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="11" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">1s</text>
+      <line x1="7" y1="34" x2="7" y2="6" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="4,8 10,8 7,2" fill="#3b82f6"/>
+      <line x1="15" y1="6" x2="15" y2="34" stroke="#f59e0b" stroke-width="2"/>
+      <polygon points="12,32 18,32 15,38" fill="#f59e0b"/>
+
+      <rect x="30" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="41" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2s</text>
+      <line x1="37" y1="34" x2="37" y2="6" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="34,8 40,8 37,2" fill="#3b82f6"/>
+      <line x1="45" y1="6" x2="45" y2="34" stroke="#f59e0b" stroke-width="2"/>
+      <polygon points="42,32 48,32 45,38" fill="#f59e0b"/>
+
+      <rect x="60" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="71" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2pₓ</text>
+      <line x1="67" y1="34" x2="67" y2="6" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="64,8 70,8 67,2" fill="#3b82f6"/>
+      <line x1="75" y1="6" x2="75" y2="34" stroke="#f59e0b" stroke-width="2"/>
+      <polygon points="72,32 78,32 75,38" fill="#f59e0b"/>
+
+      <rect x="90" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="101" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2p_y</text>
+      <line x1="97" y1="34" x2="97" y2="6" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="94,8 100,8 97,2" fill="#3b82f6"/>
+
+      <rect x="120" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="131" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2p_z</text>
+      <line x1="127" y1="34" x2="127" y2="6" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="124,8 130,8 127,2" fill="#3b82f6"/>
+    </g>
+  </g>
+
+  <!-- Card 7: F (1s² 2s² 2p⁵) -->
+  <g transform="translate(370, 200)">
+    <rect x="0" y="0" width="165" height="132" rx="8" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1.5"/>
+    <text x="14" y="20" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1e3a8a">F</text>
+    <text x="40" y="20" font="11px system-ui" font-size="11" fill="#4a5568">Z = 9</text>
+    <text x="14" y="40" font="11px system-ui" font-size="11" fill="#1a202c">1s² 2s² 2p⁵</text>
+
+    <g transform="translate(8, 54)">
+      <rect x="0" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="11" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">1s</text>
+      <line x1="7" y1="34" x2="7" y2="6" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="4,8 10,8 7,2" fill="#3b82f6"/>
+      <line x1="15" y1="6" x2="15" y2="34" stroke="#f59e0b" stroke-width="2"/>
+      <polygon points="12,32 18,32 15,38" fill="#f59e0b"/>
+
+      <rect x="30" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="41" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2s</text>
+      <line x1="37" y1="34" x2="37" y2="6" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="34,8 40,8 37,2" fill="#3b82f6"/>
+      <line x1="45" y1="6" x2="45" y2="34" stroke="#f59e0b" stroke-width="2"/>
+      <polygon points="42,32 48,32 45,38" fill="#f59e0b"/>
+
+      <rect x="60" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="71" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2pₓ</text>
+      <line x1="67" y1="34" x2="67" y2="6" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="64,8 70,8 67,2" fill="#3b82f6"/>
+      <line x1="75" y1="6" x2="75" y2="34" stroke="#f59e0b" stroke-width="2"/>
+      <polygon points="72,32 78,32 75,38" fill="#f59e0b"/>
+
+      <rect x="90" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="101" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2p_y</text>
+      <line x1="97" y1="34" x2="97" y2="6" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="94,8 100,8 97,2" fill="#3b82f6"/>
+      <line x1="105" y1="6" x2="105" y2="34" stroke="#f59e0b" stroke-width="2"/>
+      <polygon points="102,32 108,32 105,38" fill="#f59e0b"/>
+
+      <rect x="120" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="131" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2p_z</text>
+      <line x1="127" y1="34" x2="127" y2="6" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="124,8 130,8 127,2" fill="#3b82f6"/>
+    </g>
+  </g>
+
+  <!-- Card 8: Ne (full octet) -->
+  <g transform="translate(545, 200)">
+    <rect x="0" y="0" width="165" height="132" rx="8" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+    <text x="14" y="20" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#14532d">Ne</text>
+    <text x="40" y="20" font="11px system-ui" font-size="11" fill="#4a5568">Z = 10</text>
+    <text x="14" y="40" font="11px system-ui" font-size="11" fill="#1a202c">1s² 2s² 2p⁶</text>
+    <text x="158" y="20" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#15803d" text-anchor="end">full octet</text>
+
+    <g transform="translate(8, 54)">
+      <rect x="0" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="11" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">1s</text>
+      <line x1="7" y1="34" x2="7" y2="6" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="4,8 10,8 7,2" fill="#3b82f6"/>
+      <line x1="15" y1="6" x2="15" y2="34" stroke="#f59e0b" stroke-width="2"/>
+      <polygon points="12,32 18,32 15,38" fill="#f59e0b"/>
+
+      <rect x="30" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="41" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2s</text>
+      <line x1="37" y1="34" x2="37" y2="6" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="34,8 40,8 37,2" fill="#3b82f6"/>
+      <line x1="45" y1="6" x2="45" y2="34" stroke="#f59e0b" stroke-width="2"/>
+      <polygon points="42,32 48,32 45,38" fill="#f59e0b"/>
+
+      <rect x="60" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="71" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2pₓ</text>
+      <line x1="67" y1="34" x2="67" y2="6" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="64,8 70,8 67,2" fill="#3b82f6"/>
+      <line x1="75" y1="6" x2="75" y2="34" stroke="#f59e0b" stroke-width="2"/>
+      <polygon points="72,32 78,32 75,38" fill="#f59e0b"/>
+
+      <rect x="90" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="101" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2p_y</text>
+      <line x1="97" y1="34" x2="97" y2="6" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="94,8 100,8 97,2" fill="#3b82f6"/>
+      <line x1="105" y1="6" x2="105" y2="34" stroke="#f59e0b" stroke-width="2"/>
+      <polygon points="102,32 108,32 105,38" fill="#f59e0b"/>
+
+      <rect x="120" y="0" width="22" height="38" rx="3" fill="#fff" stroke="#4a5568" stroke-width="1"/>
+      <text x="131" y="64" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2p_z</text>
+      <line x1="127" y1="34" x2="127" y2="6" stroke="#3b82f6" stroke-width="2"/>
+      <polygon points="124,8 130,8 127,2" fill="#3b82f6"/>
+      <line x1="135" y1="6" x2="135" y2="34" stroke="#f59e0b" stroke-width="2"/>
+      <polygon points="132,32 138,32 135,38" fill="#f59e0b"/>
+    </g>
+  </g>
+
+</svg>

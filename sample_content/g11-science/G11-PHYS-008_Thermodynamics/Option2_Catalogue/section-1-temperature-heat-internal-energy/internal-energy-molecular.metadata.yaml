@@ -1,0 +1,14 @@
+schema_version: 1
+id: physics-thermodynamics-internal-energy-molecular
+kind: image
+subject: physics
+topic_phrase: "internal energy of a gas as the sum of molecular kinetic and potential energies, contrasted between cold and hot states"
+keywords:
+  - internal-energy
+  - kinetic-theory
+  - molecular-motion
+  - temperature
+  - microscopic-view
+  - kinetic-energy
+license: platform-cc-by-sa
+source_unit: G11-PHYS-008

@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" width="720" height="420" role="img" aria-label="Lead-acid car battery cell, discharge mode">
+  <title>Lead-acid battery — single cell, discharge</title>
+  <desc>One cell of a lead-acid battery during discharge: a metallic lead negative plate (anode) and a lead dioxide positive plate (cathode) immersed in dilute sulfuric acid. Both plates form lead sulfate during discharge. A standard car battery uses six such cells in series for a nominal 12 V.</desc>
+
+  <text x="360" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Lead-Acid Battery — One Cell, Discharging</text>
+  <text x="360" y="40" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Each cell ≈ 2.05 V. Six cells in series → 12 V car battery. Charging reverses every reaction.</text>
+
+  <!-- External load (light bulb) -->
+  <circle cx="360" cy="92" r="22" fill="#fef3c7" stroke="#d97706" stroke-width="2" />
+  <line x1="346" y1="78" x2="374" y2="106" stroke="#d97706" stroke-width="1.2" />
+  <line x1="374" y1="78" x2="346" y2="106" stroke="#d97706" stroke-width="1.2" />
+  <text x="360" y="135" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#92400e" text-anchor="middle">load (~ 2 V)</text>
+
+  <!-- Wires from load to plates -->
+  <line x1="338" y1="92" x2="200" y2="92" stroke="#1a202c" stroke-width="2.5" />
+  <line x1="200" y1="92" x2="200" y2="180" stroke="#1a202c" stroke-width="2.5" />
+
+  <line x1="382" y1="92" x2="520" y2="92" stroke="#1a202c" stroke-width="2.5" />
+  <line x1="520" y1="92" x2="520" y2="180" stroke="#1a202c" stroke-width="2.5" />
+
+  <!-- Electron flow -->
+  <line x1="210" y1="80" x2="338" y2="80" stroke="#3b82f6" stroke-width="2" stroke-dasharray="4 3" />
+  <text x="270" y="74" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#3b82f6" text-anchor="middle">e⁻ →</text>
+
+  <!-- Battery casing -->
+  <rect x="100" y="170" width="520" height="200" rx="10" fill="#e2e8f0" stroke="#0f172a" stroke-width="2" />
+
+  <!-- Sulfuric acid electrolyte -->
+  <rect x="110" y="180" width="500" height="180" fill="#dbeafe" stroke="none" />
+  <text x="360" y="350" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">H₂SO₄(aq) electrolyte (~ 5 M)</text>
+
+  <!-- Anode plate (Pb, − terminal during discharge) -->
+  <rect x="180" y="180" width="40" height="160" fill="#475569" stroke="#0f172a" stroke-width="1.5" />
+  <text x="200" y="172" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#3b82f6" text-anchor="middle">anode (−)</text>
+  <text x="200" y="358" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#0f172a" text-anchor="middle">Pb(s)</text>
+
+  <!-- Cathode plate (PbO2, + terminal during discharge) -->
+  <rect x="500" y="180" width="40" height="160" fill="#7c2d12" stroke="#0f172a" stroke-width="1.5" />
+  <text x="520" y="172" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">cathode (+)</text>
+  <text x="520" y="358" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#0f172a" text-anchor="middle">PbO₂(s)</text>
+
+  <!-- Ions in electrolyte -->
+  <circle cx="245" cy="220" r="11" fill="#fef3c7" stroke="#d97706" stroke-width="1.2" />
+  <text x="245" y="224" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#92400e" text-anchor="middle">SO₄²⁻</text>
+  <circle cx="290" cy="270" r="11" fill="#fef3c7" stroke="#d97706" stroke-width="1.2" />
+  <text x="290" y="274" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#92400e" text-anchor="middle">SO₄²⁻</text>
+  <circle cx="430" cy="220" r="9" fill="#fee2e2" stroke="#dc2626" stroke-width="1.2" />
+  <text x="430" y="224" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#991b1b" text-anchor="middle">H⁺</text>
+  <circle cx="465" cy="280" r="9" fill="#fee2e2" stroke="#dc2626" stroke-width="1.2" />
+  <text x="465" y="284" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#991b1b" text-anchor="middle">H⁺</text>
+
+  <!-- Half-reactions inset -->
+  <rect x="240" y="200" width="240" height="106" rx="8" fill="#ffffff" stroke="#1a202c" stroke-width="1" opacity="0.92" />
+  <text x="360" y="218" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Discharge half-reactions</text>
+  <line x1="250" y1="224" x2="470" y2="224" stroke="#cbd5e1" stroke-width="0.7" />
+  <text x="250" y="240" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#3b82f6">Anode (Pb → +2):</text>
+  <text x="250" y="256" font="11px monospace" font-size="11" fill="#1a202c">Pb + SO₄²⁻ → PbSO₄ + 2 e⁻</text>
+  <text x="250" y="276" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#dc2626">Cathode (Pb +4 → +2):</text>
+  <text x="250" y="292" font="11px monospace" font-size="11" fill="#1a202c">PbO₂ + 4H⁺ + SO₄²⁻ + 2 e⁻ → PbSO₄ + 2H₂O</text>
+
+  <!-- Bottom caption -->
+  <text x="360" y="392" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Net: Pb + PbO₂ + 2 H₂SO₄ → 2 PbSO₄ + 2 H₂O.   White PbSO₄ on both plates is "sulfation".</text>
+  <text x="360" y="408" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Recharging applies a higher external voltage that drives all of this in reverse — the alternator's job in a car.</text>
+</svg>

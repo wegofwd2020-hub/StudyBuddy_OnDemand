@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 320" width="640" height="320" role="img" aria-label="Completing the square: geometric visual">
+  <title>Completing the Square — Geometric View</title>
+  <desc>x² + 6x is shown as an x-by-x square plus two 3-by-x rectangles; adding the missing 3-by-3 corner completes the (x+3)-by-(x+3) square.</desc>
+
+  <defs>
+    <marker id="ah-cs" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2b6cb0"/>
+    </marker>
+    <style>
+      .heading { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .step    { font: 12px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; font-style: italic; }
+      .x2      { fill: #ebf4ff; stroke: #2b6cb0; stroke-width: 1.5; }
+      .x6      { fill: #fffaf0; stroke: #dd6b20; stroke-width: 1.5; }
+      .miss    { fill: #fed7d7; stroke: #c53030; stroke-width: 1.5; stroke-dasharray: 5 4; }
+      .corner  { fill: #f0fff4; stroke: #2f855a; stroke-width: 1.5; }
+      .lbl     { font: bold 13px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .small   { font: 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <text class="heading" x="320" y="22">Completing the square:  x² + 6x  →  (x + 3)² − 9</text>
+
+  <!-- Left figure: x² + 6x split as x² + 3x + 3x -->
+  <g transform="translate(40, 50)">
+    <text class="step" x="105" y="-6">Start: x² + 6x split into  x² + 2(3x)</text>
+    <!-- big x-by-x square at left, then two 3x bars on the right and bottom -->
+    <!-- x-by-x = 100x100 -->
+    <rect class="x2" x="0"   y="0"   width="100" height="100"/>
+    <text class="lbl" x="50" y="56">x²</text>
+    <text class="small" x="50" y="74">side x</text>
+    <!-- 3x rectangle on the right (50 wide, 100 tall = represents 3 by x) -->
+    <rect class="x6" x="100" y="0"   width="50"  height="100"/>
+    <text class="lbl" x="125" y="56">3x</text>
+    <!-- 3x rectangle on the bottom (100 wide, 50 tall = x by 3) -->
+    <rect class="x6" x="0"   y="100" width="100" height="50"/>
+    <text class="lbl" x="50"  y="130">3x</text>
+    <!-- side labels for the L-shape -->
+    <text class="small" x="-12" y="50"  text-anchor="end">x</text>
+    <text class="small" x="-12" y="125" text-anchor="end">3</text>
+    <text class="small" x="50"  y="170">x</text>
+    <text class="small" x="125" y="170">3</text>
+  </g>
+
+  <!-- Arrow -->
+  <line x1="265" y1="120" x2="305" y2="120" stroke="#2b6cb0" stroke-width="2.5" marker-end="url(#ah-cs)"/>
+  <text x="285" y="110" font="11px system-ui" font-size="11" fill="#2b6cb0" text-anchor="middle">add 3²</text>
+  <text x="285" y="135" font="11px system-ui" font-size="11" fill="#2b6cb0" text-anchor="middle" font-style="italic">(then subtract)</text>
+
+  <!-- Right figure: full (x+3)² square with red dashed corner -->
+  <g transform="translate(320, 50)">
+    <text class="step" x="105" y="-6">Add 3² = 9  →  (x + 3)²,  then subtract 9</text>
+    <!-- x² -->
+    <rect class="x2" x="0"   y="0"   width="100" height="100"/>
+    <text class="lbl" x="50" y="56">x²</text>
+    <!-- 3x right -->
+    <rect class="x6" x="100" y="0"   width="50"  height="100"/>
+    <text class="lbl" x="125" y="56">3x</text>
+    <!-- 3x bottom -->
+    <rect class="x6" x="0"   y="100" width="100" height="50"/>
+    <text class="lbl" x="50"  y="130">3x</text>
+    <!-- 3-by-3 corner -->
+    <rect class="corner" x="100" y="100" width="50" height="50"/>
+    <text class="lbl" x="125" y="130" fill="#2f855a">9</text>
+    <text class="small" x="125" y="145" fill="#2f855a">"+9"</text>
+    <!-- bracket labels for entire side -->
+    <text class="small" x="-12" y="80"  text-anchor="end">x + 3</text>
+    <text class="small" x="75"  y="170">x + 3</text>
+  </g>
+
+  <!-- Algebra summary at bottom -->
+  <g transform="translate(40, 240)">
+    <rect x="0" y="0" width="560" height="64" rx="8" fill="#f7fafc" stroke="#cbd5e0" stroke-width="1.2"/>
+    <text font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" x="280" y="22" text-anchor="middle">Algebraic identity</text>
+    <text font="13px system-ui" font-size="13" fill="#1a202c" x="280" y="44" text-anchor="middle" font-style="italic">x² + 6x = x² + 6x + 9 − 9 = (x + 3)² − 9</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="280" y="58" text-anchor="middle" font-style="italic">"Take half of 6, square it (= 9), add and subtract."</text>
+  </g>
+</svg>

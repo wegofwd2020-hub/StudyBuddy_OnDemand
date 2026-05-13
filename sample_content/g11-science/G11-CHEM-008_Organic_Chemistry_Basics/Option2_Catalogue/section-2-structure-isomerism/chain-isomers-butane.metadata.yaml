@@ -1,0 +1,13 @@
+schema_version: 1
+id: chemistry-chain-isomers-butane
+kind: image
+subject: chemistry
+topic_phrase: "chain isomers butane isobutane structural isomerism C4H10"
+keywords:
+  - structural-isomerism
+  - chain-isomer
+  - n-butane
+  - isobutane
+  - 2-methylpropane
+license: platform-cc-by-sa
+source_unit: G11-CHEM-008

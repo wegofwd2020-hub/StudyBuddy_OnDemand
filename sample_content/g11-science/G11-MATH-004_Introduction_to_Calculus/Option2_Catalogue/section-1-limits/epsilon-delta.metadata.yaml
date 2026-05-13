@@ -1,0 +1,14 @@
+# Auto-generated sidecar — edit alongside the SVG.
+schema_version: 1
+id: math-calculus-epsilon-delta
+kind: image
+subject: math
+topic_phrase: "epsilon-delta formal definition of a limit with horizontal and vertical bands"
+keywords:
+  - limit
+  - epsilon-delta
+  - formal-definition
+  - bands
+  - rigor
+license: platform-cc-by-sa
+source_unit: G11-MATH-004

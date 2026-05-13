@@ -1,0 +1,15 @@
+schema_version: 1
+id: physics-thermodynamics-carnot-four-strokes-piston
+kind: image
+subject: physics
+topic_phrase: "the four strokes of the Carnot cycle illustrated as cylinder-and-piston diagrams: isothermal expansion, adiabatic expansion, isothermal compression, and adiabatic compression"
+keywords:
+  - carnot-cycle
+  - piston
+  - cylinder
+  - four-strokes
+  - reversible-cycle
+  - isothermal
+  - adiabatic
+license: platform-cc-by-sa
+source_unit: G11-PHYS-008

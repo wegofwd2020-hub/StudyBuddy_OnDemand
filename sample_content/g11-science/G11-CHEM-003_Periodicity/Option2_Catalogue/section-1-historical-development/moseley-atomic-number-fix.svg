@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 340" width="720" height="340" role="img" aria-label="Moseley reordering by atomic number">
+  <title>Moseley's Reordering — Atomic Number Beats Atomic Mass</title>
+  <desc>Two stacked rows comparing the order of three element pairs that were anomalous when ordered by atomic mass. Top row (by mass): Te(127.6) before I(126.9), Co(58.93) before Ni(58.69), Ar(39.95) before K(39.10) — masses are out of order. Bottom row (by atomic number): Te(52) before I(53), Co(27) before Ni(28), Ar(18) before K(19) — Z values increase strictly. Each fix is highlighted with a green check.</desc>
+
+  <text x="360" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Moseley (1913) — Atomic Number Fixes the Anomalies</text>
+  <text x="360" y="40" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Three pairs where atomic mass disagreed with chemistry. Atomic number Z resolves all three.</text>
+
+  <!-- Section header: Mendeleev's order (by mass) -->
+  <text x="60" y="74" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#dc2626">Order by atomic mass — three anomalies</text>
+
+  <!-- Pair 1: Te / I -->
+  <g transform="translate(60, 90)">
+    <rect x="0" y="0" width="80" height="60" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+    <text x="40" y="20" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#991b1b" text-anchor="middle">Te</text>
+    <text x="40" y="38" font="10px system-ui" font-size="10" fill="#1a202c" text-anchor="middle">mass 127.60</text>
+    <text x="40" y="52" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">non-metal</text>
+
+    <text x="100" y="34" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#dc2626" text-anchor="middle">→</text>
+
+    <rect x="120" y="0" width="80" height="60" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+    <text x="160" y="20" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#991b1b" text-anchor="middle">I</text>
+    <text x="160" y="38" font="10px system-ui" font-size="10" fill="#1a202c" text-anchor="middle">mass 126.90</text>
+    <text x="160" y="52" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">halogen</text>
+
+    <text x="100" y="78" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">heavier first?</text>
+  </g>
+
+  <!-- Pair 2: Co / Ni -->
+  <g transform="translate(280, 90)">
+    <rect x="0" y="0" width="80" height="60" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+    <text x="40" y="20" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#991b1b" text-anchor="middle">Co</text>
+    <text x="40" y="38" font="10px system-ui" font-size="10" fill="#1a202c" text-anchor="middle">mass 58.93</text>
+    <text x="40" y="52" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">cobalt</text>
+
+    <text x="100" y="34" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#dc2626" text-anchor="middle">→</text>
+
+    <rect x="120" y="0" width="80" height="60" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+    <text x="160" y="20" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#991b1b" text-anchor="middle">Ni</text>
+    <text x="160" y="38" font="10px system-ui" font-size="10" fill="#1a202c" text-anchor="middle">mass 58.69</text>
+    <text x="160" y="52" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">nickel</text>
+
+    <text x="100" y="78" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">heavier first?</text>
+  </g>
+
+  <!-- Pair 3: Ar / K -->
+  <g transform="translate(500, 90)">
+    <rect x="0" y="0" width="80" height="60" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+    <text x="40" y="20" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#991b1b" text-anchor="middle">Ar</text>
+    <text x="40" y="38" font="10px system-ui" font-size="10" fill="#1a202c" text-anchor="middle">mass 39.95</text>
+    <text x="40" y="52" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">noble gas</text>
+
+    <text x="100" y="34" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#dc2626" text-anchor="middle">→</text>
+
+    <rect x="120" y="0" width="80" height="60" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+    <text x="160" y="20" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#991b1b" text-anchor="middle">K</text>
+    <text x="160" y="38" font="10px system-ui" font-size="10" fill="#1a202c" text-anchor="middle">mass 39.10</text>
+    <text x="160" y="52" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">alkali metal</text>
+
+    <text x="100" y="78" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">heavier first?</text>
+  </g>
+
+  <!-- Divider -->
+  <line x1="60" y1="200" x2="660" y2="200" stroke="#cbd5e0" stroke-width="1" stroke-dasharray="4 4"/>
+
+  <text x="60" y="222" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#15803d">Order by atomic number Z — anomalies vanish</text>
+
+  <!-- By Z, same pairs -->
+  <g transform="translate(60, 238)">
+    <rect x="0" y="0" width="80" height="50" rx="6" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+    <text x="40" y="20" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#14532d" text-anchor="middle">Te</text>
+    <text x="40" y="40" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#14532d" text-anchor="middle">Z = 52</text>
+
+    <text x="100" y="28" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#15803d" text-anchor="middle">→</text>
+
+    <rect x="120" y="0" width="80" height="50" rx="6" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+    <text x="160" y="20" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#14532d" text-anchor="middle">I</text>
+    <text x="160" y="40" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#14532d" text-anchor="middle">Z = 53</text>
+
+    <text x="100" y="74" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">✓ 52 &lt; 53</text>
+  </g>
+
+  <g transform="translate(280, 238)">
+    <rect x="0" y="0" width="80" height="50" rx="6" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+    <text x="40" y="20" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#14532d" text-anchor="middle">Co</text>
+    <text x="40" y="40" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#14532d" text-anchor="middle">Z = 27</text>
+
+    <text x="100" y="28" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#15803d" text-anchor="middle">→</text>
+
+    <rect x="120" y="0" width="80" height="50" rx="6" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+    <text x="160" y="20" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#14532d" text-anchor="middle">Ni</text>
+    <text x="160" y="40" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#14532d" text-anchor="middle">Z = 28</text>
+
+    <text x="100" y="74" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">✓ 27 &lt; 28</text>
+  </g>
+
+  <g transform="translate(500, 238)">
+    <rect x="0" y="0" width="80" height="50" rx="6" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+    <text x="40" y="20" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#14532d" text-anchor="middle">Ar</text>
+    <text x="40" y="40" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#14532d" text-anchor="middle">Z = 18</text>
+
+    <text x="100" y="28" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#15803d" text-anchor="middle">→</text>
+
+    <rect x="120" y="0" width="80" height="50" rx="6" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+    <text x="160" y="20" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#14532d" text-anchor="middle">K</text>
+    <text x="160" y="40" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#14532d" text-anchor="middle">Z = 19</text>
+
+    <text x="100" y="74" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">✓ 18 &lt; 19</text>
+  </g>
+
+  <text x="360" y="332" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Atomic number Z = number of protons. It is the true periodic variable; mass is a noisy proxy.</text>
+
+</svg>

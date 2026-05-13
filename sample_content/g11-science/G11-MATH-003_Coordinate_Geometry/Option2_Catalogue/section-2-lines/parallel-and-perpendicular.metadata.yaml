@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-coordinate-geometry-parallel-and-perpendicular
+kind: image
+subject: math
+topic_phrase: "parallel lines have equal slopes and perpendicular lines have negative-reciprocal slopes"
+keywords:
+  - parallel-lines
+  - perpendicular-lines
+  - slope
+  - negative-reciprocal
+  - line-equation
+license: platform-cc-by-sa
+source_unit: G11-MATH-003

@@ -1,0 +1,225 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 480" width="920" height="480" role="img" aria-label="Five phases of mitosis: prophase, prometaphase, metaphase, anaphase, telophase plus cytokinesis">
+  <title>Mitosis — Five Phases of Nuclear Division</title>
+  <desc>Six labelled cell pictures shown left-to-right. Phase 1 Prophase: chromatin condenses into visible chromosomes (each two sister chromatids joined at a centromere); the nuclear envelope begins to break down; centrosomes move to opposite poles and the spindle starts forming. Phase 2 Prometaphase: nuclear envelope completely fragments; spindle microtubules attach to kinetochores at each chromosome's centromere. Phase 3 Metaphase: chromosomes line up along the metaphase plate at the cell's equator. Phase 4 Anaphase: sister chromatids separate at the centromeres and are pulled by shortening microtubules to opposite poles. Phase 5 Telophase: nuclear envelopes reform around each set of chromosomes; chromatin re-decondenses; spindle disassembles. Phase 6 Cytokinesis: animal cells form a contractile ring of actin that pinches the cell in two (cleavage furrow); plant cells form a cell plate down the middle that becomes new cell wall.</desc>
+
+  <text x="460" y="22" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Mitosis — Five Phases + Cytokinesis (one cell → two identical cells)</text>
+  <text x="460" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Each phase shown with chromosomes (red), spindle (purple), nuclear envelope (blue), and centrosomes (yellow).</text>
+
+  <!-- Helper: a circular cell at given (cx, cy, r). Will be drawn separately for each phase. -->
+
+  <!-- ──────────── Phase 1: PROPHASE ──────────── -->
+  <g transform="translate(80, 200)">
+    <circle cx="0" cy="0" r="64" fill="#f0f9ff" stroke="#2b6cb0" stroke-width="2.4"/>
+    <!-- Nuclear envelope (dashed, breaking) -->
+    <circle cx="0" cy="0" r="44" fill="#dbeafe" stroke="#1e3a8a" stroke-width="1.8" stroke-dasharray="5 3"/>
+    <!-- Condensed chromosomes (X-shaped, each = 2 sister chromatids) -->
+    <g stroke="#dc2626" stroke-width="2.4" fill="#dc2626">
+      <!-- Chromosome 1 -->
+      <line x1="-20" y1="-20" x2="-10" y2="-12"/><line x1="-10" y1="-20" x2="-20" y2="-12"/>
+      <!-- Chromosome 2 -->
+      <line x1="6" y1="-16" x2="20" y2="-6"/><line x1="20" y1="-16" x2="6" y2="-6"/>
+      <!-- Chromosome 3 -->
+      <line x1="-22" y1="6" x2="-8" y2="14"/><line x1="-8" y1="6" x2="-22" y2="14"/>
+      <!-- Chromosome 4 -->
+      <line x1="8" y1="10" x2="22" y2="20"/><line x1="22" y1="10" x2="8" y2="20"/>
+    </g>
+    <!-- Centrosomes at poles -->
+    <rect x="-66" y="-4" width="8" height="6" fill="#f59e0b" stroke="#78350f" stroke-width="1"/>
+    <rect x="58" y="-4" width="8" height="6" fill="#f59e0b" stroke="#78350f" stroke-width="1"/>
+    <!-- Astral microtubules from centrosomes -->
+    <g stroke="#7c3aed" stroke-width="1" opacity="0.6">
+      <line x1="-58" y1="0" x2="-30" y2="-20"/>
+      <line x1="-58" y1="0" x2="-30" y2="0"/>
+      <line x1="-58" y1="0" x2="-30" y2="20"/>
+      <line x1="58" y1="0" x2="30" y2="-20"/>
+      <line x1="58" y1="0" x2="30" y2="0"/>
+      <line x1="58" y1="0" x2="30" y2="20"/>
+    </g>
+  </g>
+  <text x="80" y="100" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">1. Prophase</text>
+  <text x="80" y="282" font-size="9" fill="#4a5568" text-anchor="middle">chromatin condenses to chromosomes</text>
+  <text x="80" y="294" font-size="9" fill="#4a5568" text-anchor="middle">nuclear envelope breaks down</text>
+  <text x="80" y="306" font-size="9" fill="#4a5568" text-anchor="middle">spindle begins forming</text>
+
+
+  <!-- ──────────── Phase 2: PROMETAPHASE ──────────── -->
+  <g transform="translate(232, 200)">
+    <circle cx="0" cy="0" r="64" fill="#f0f9ff" stroke="#2b6cb0" stroke-width="2.4"/>
+    <!-- Nuclear envelope: fragments (dashed scattered) -->
+    <g stroke="#1e3a8a" stroke-width="1.4" stroke-dasharray="3 3" fill="none">
+      <path d="M -36 -28 Q -28 -20 -20 -28"/>
+      <path d="M 36 -28 Q 28 -20 20 -28"/>
+      <path d="M -36 28 Q -28 20 -20 28"/>
+      <path d="M 36 28 Q 28 20 20 28"/>
+    </g>
+    <!-- Chromosomes scattered, attached to spindle -->
+    <g stroke="#dc2626" stroke-width="2.4" fill="#dc2626">
+      <line x1="-26" y1="-22" x2="-12" y2="-12"/><line x1="-12" y1="-22" x2="-26" y2="-12"/>
+      <line x1="14" y1="-16" x2="28" y2="-6"/><line x1="28" y1="-16" x2="14" y2="-6"/>
+      <line x1="-20" y1="14" x2="-6" y2="22"/><line x1="-6" y1="14" x2="-20" y2="22"/>
+      <line x1="10" y1="6" x2="24" y2="16"/><line x1="24" y1="6" x2="10" y2="16"/>
+    </g>
+    <!-- Kinetochores -->
+    <g fill="#7c3aed">
+      <circle cx="-19" cy="-17" r="2.5"/>
+      <circle cx="21" cy="-11" r="2.5"/>
+      <circle cx="-13" cy="18" r="2.5"/>
+      <circle cx="17" cy="11" r="2.5"/>
+    </g>
+    <!-- Spindle (microtubules attached) -->
+    <g stroke="#7c3aed" stroke-width="1.4">
+      <line x1="-58" y1="0" x2="-19" y2="-17"/>
+      <line x1="-58" y1="0" x2="-13" y2="18"/>
+      <line x1="58" y1="0" x2="21" y2="-11"/>
+      <line x1="58" y1="0" x2="17" y2="11"/>
+    </g>
+    <!-- Centrosomes -->
+    <rect x="-66" y="-4" width="8" height="6" fill="#f59e0b" stroke="#78350f" stroke-width="1"/>
+    <rect x="58" y="-4" width="8" height="6" fill="#f59e0b" stroke="#78350f" stroke-width="1"/>
+  </g>
+  <text x="232" y="100" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">2. Prometaphase</text>
+  <text x="232" y="282" font-size="9" fill="#4a5568" text-anchor="middle">envelope fully fragments</text>
+  <text x="232" y="294" font-size="9" fill="#4a5568" text-anchor="middle">spindle attaches to kinetochores</text>
+
+
+  <!-- ──────────── Phase 3: METAPHASE ──────────── -->
+  <g transform="translate(384, 200)">
+    <circle cx="0" cy="0" r="64" fill="#f0f9ff" stroke="#2b6cb0" stroke-width="2.4"/>
+    <!-- Metaphase plate (dashed central line) -->
+    <line x1="0" y1="-50" x2="0" y2="50" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 3"/>
+    <!-- Chromosomes aligned at equator -->
+    <g stroke="#dc2626" stroke-width="2.4" fill="#dc2626">
+      <line x1="-7" y1="-32" x2="7" y2="-22"/><line x1="7" y1="-32" x2="-7" y2="-22"/>
+      <line x1="-7" y1="-12" x2="7" y2="-2"/><line x1="7" y1="-12" x2="-7" y2="-2"/>
+      <line x1="-7" y1="8" x2="7" y2="18"/><line x1="7" y1="8" x2="-7" y2="18"/>
+      <line x1="-7" y1="22" x2="7" y2="32"/><line x1="7" y1="22" x2="-7" y2="32"/>
+    </g>
+    <!-- Spindle from poles -->
+    <g stroke="#7c3aed" stroke-width="1.4">
+      <line x1="-58" y1="0" x2="-3" y2="-26"/>
+      <line x1="-58" y1="0" x2="-3" y2="-6"/>
+      <line x1="-58" y1="0" x2="-3" y2="14"/>
+      <line x1="-58" y1="0" x2="-3" y2="28"/>
+      <line x1="58" y1="0" x2="3" y2="-26"/>
+      <line x1="58" y1="0" x2="3" y2="-6"/>
+      <line x1="58" y1="0" x2="3" y2="14"/>
+      <line x1="58" y1="0" x2="3" y2="28"/>
+    </g>
+    <rect x="-66" y="-4" width="8" height="6" fill="#f59e0b" stroke="#78350f" stroke-width="1"/>
+    <rect x="58" y="-4" width="8" height="6" fill="#f59e0b" stroke="#78350f" stroke-width="1"/>
+  </g>
+  <text x="384" y="100" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">3. Metaphase</text>
+  <text x="384" y="282" font-size="9" fill="#4a5568" text-anchor="middle">chromosomes align at the</text>
+  <text x="384" y="294" font-size="9" fill="#4a5568" text-anchor="middle">metaphase plate (equator)</text>
+
+
+  <!-- ──────────── Phase 4: ANAPHASE ──────────── -->
+  <g transform="translate(536, 200)">
+    <circle cx="0" cy="0" r="64" fill="#f0f9ff" stroke="#2b6cb0" stroke-width="2.4"/>
+    <!-- Sister chromatids separating - half going to each pole, drawn as Vs -->
+    <g stroke="#dc2626" stroke-width="2.4" fill="#dc2626">
+      <!-- Left pole -->
+      <line x1="-30" y1="-26" x2="-22" y2="-22"/>
+      <line x1="-30" y1="-12" x2="-22" y2="-8"/>
+      <line x1="-30" y1="6" x2="-22" y2="10"/>
+      <line x1="-30" y1="20" x2="-22" y2="24"/>
+      <!-- Right pole -->
+      <line x1="22" y1="-22" x2="30" y2="-26"/>
+      <line x1="22" y1="-8" x2="30" y2="-12"/>
+      <line x1="22" y1="10" x2="30" y2="6"/>
+      <line x1="22" y1="24" x2="30" y2="20"/>
+    </g>
+    <!-- Spindle shortening (V-shape arrows) -->
+    <g stroke="#7c3aed" stroke-width="1.4">
+      <line x1="-58" y1="0" x2="-26" y2="-24"/>
+      <line x1="-58" y1="0" x2="-26" y2="-10"/>
+      <line x1="-58" y1="0" x2="-26" y2="8"/>
+      <line x1="-58" y1="0" x2="-26" y2="22"/>
+      <line x1="58" y1="0" x2="26" y2="-24"/>
+      <line x1="58" y1="0" x2="26" y2="-10"/>
+      <line x1="58" y1="0" x2="26" y2="8"/>
+      <line x1="58" y1="0" x2="26" y2="22"/>
+    </g>
+    <!-- Direction arrows -->
+    <line x1="0" y1="-44" x2="-20" y2="-44" stroke="#dc2626" stroke-width="2"/>
+    <polygon points="-20,-44 -14,-40 -14,-48" fill="#dc2626"/>
+    <line x1="0" y1="-44" x2="20" y2="-44" stroke="#dc2626" stroke-width="2"/>
+    <polygon points="20,-44 14,-40 14,-48" fill="#dc2626"/>
+    <!-- Cell elongating (dotted hint) -->
+    <ellipse cx="0" cy="0" rx="74" ry="56" fill="none" stroke="#2b6cb0" stroke-width="1" stroke-dasharray="3 3"/>
+    <rect x="-66" y="-4" width="8" height="6" fill="#f59e0b" stroke="#78350f" stroke-width="1"/>
+    <rect x="58" y="-4" width="8" height="6" fill="#f59e0b" stroke="#78350f" stroke-width="1"/>
+  </g>
+  <text x="536" y="100" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">4. Anaphase</text>
+  <text x="536" y="282" font-size="9" fill="#4a5568" text-anchor="middle">sister chromatids separate</text>
+  <text x="536" y="294" font-size="9" fill="#4a5568" text-anchor="middle">pulled to opposite poles</text>
+
+
+  <!-- ──────────── Phase 5: TELOPHASE ──────────── -->
+  <g transform="translate(688, 200)">
+    <ellipse cx="0" cy="0" rx="78" ry="56" fill="#f0f9ff" stroke="#2b6cb0" stroke-width="2.4"/>
+    <!-- Two reforming nuclear envelopes -->
+    <ellipse cx="-38" cy="0" rx="22" ry="22" fill="#dbeafe" stroke="#1e3a8a" stroke-width="2"/>
+    <ellipse cx="38" cy="0" rx="22" ry="22" fill="#dbeafe" stroke="#1e3a8a" stroke-width="2"/>
+    <!-- Chromosomes inside, decondensing (lines + dots) -->
+    <g stroke="#dc2626" stroke-width="1.6" fill="none">
+      <path d="M -48 -8 Q -42 -14 -36 -8 Q -30 -2 -24 -8"/>
+      <path d="M -48 4 Q -42 -2 -36 4 Q -30 10 -24 4"/>
+      <path d="M 24 -8 Q 30 -14 36 -8 Q 42 -2 48 -8"/>
+      <path d="M 24 4 Q 30 -2 36 4 Q 42 10 48 4"/>
+    </g>
+    <!-- Cleavage furrow forming -->
+    <path d="M 0 -56 Q -8 -50 -8 -40" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="2 2"/>
+    <path d="M 0 -56 Q 8 -50 8 -40" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="2 2"/>
+    <path d="M 0 56 Q -8 50 -8 40" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="2 2"/>
+    <path d="M 0 56 Q 8 50 8 40" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="2 2"/>
+  </g>
+  <text x="688" y="100" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">5. Telophase</text>
+  <text x="688" y="282" font-size="9" fill="#4a5568" text-anchor="middle">nuclear envelopes reform</text>
+  <text x="688" y="294" font-size="9" fill="#4a5568" text-anchor="middle">chromosomes decondense</text>
+
+
+  <!-- ──────────── Phase 6: CYTOKINESIS ──────────── -->
+  <g transform="translate(840, 200)">
+    <!-- Two daughter cells -->
+    <circle cx="-24" cy="0" r="36" fill="#f0f9ff" stroke="#2b6cb0" stroke-width="2.4"/>
+    <circle cx="24" cy="0" r="36" fill="#f0f9ff" stroke="#2b6cb0" stroke-width="2.4"/>
+    <ellipse cx="-24" cy="0" rx="14" ry="14" fill="#dbeafe" stroke="#1e3a8a" stroke-width="2"/>
+    <ellipse cx="24" cy="0" rx="14" ry="14" fill="#dbeafe" stroke="#1e3a8a" stroke-width="2"/>
+    <!-- Decondensed chromatin -->
+    <g stroke="#dc2626" stroke-width="1.2" fill="none" opacity="0.7">
+      <path d="M -32 -4 Q -28 -8 -24 -4 Q -20 0 -16 -4"/>
+      <path d="M -32 4 Q -28 0 -24 4 Q -20 8 -16 4"/>
+      <path d="M 16 -4 Q 20 -8 24 -4 Q 28 0 32 -4"/>
+      <path d="M 16 4 Q 20 0 24 4 Q 28 8 32 4"/>
+    </g>
+    <!-- Cleavage line / contractile ring -->
+    <line x1="0" y1="-36" x2="0" y2="36" stroke="#15803d" stroke-width="2" stroke-dasharray="4 2"/>
+  </g>
+  <text x="840" y="100" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">6. Cytokinesis</text>
+  <text x="840" y="282" font-size="9" fill="#4a5568" text-anchor="middle">cytoplasm splits → two cells</text>
+  <text x="840" y="294" font-size="9" fill="#4a5568" text-anchor="middle">animal: cleavage furrow</text>
+  <text x="840" y="306" font-size="9" fill="#4a5568" text-anchor="middle">plant: cell plate</text>
+
+  <!-- Bottom progression arrow -->
+  <line x1="40" y1="350" x2="884" y2="350" stroke="#4a5568" stroke-width="2"/>
+  <polygon points="884,350 876,346 876,354" fill="#4a5568"/>
+  <text x="460" y="368" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Mitosis is continuous — these phases blend smoothly into each other.</text>
+
+  <!-- Key points box -->
+  <rect x="40" y="386" width="844" height="74" rx="8" fill="#f7fafc" stroke="#cbd5e0" stroke-width="1.5"/>
+  <text x="460" y="406" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">What stays the same — and what changes</text>
+  <g font-size="10">
+    <text x="60" y="426" font-weight="700" fill="#15803d">Stays constant:</text>
+    <text x="60" y="440" fill="#4a5568">- chromosome number (2n in · 2n out)</text>
+    <text x="60" y="452" fill="#4a5568">- DNA sequence (faithful copies)</text>
+
+    <text x="320" y="426" font-weight="700" fill="#dc2626">Changes:</text>
+    <text x="320" y="440" fill="#4a5568">- chromatin → condensed chromosomes (and back)</text>
+    <text x="320" y="452" fill="#4a5568">- nuclear envelope dissolves and reforms</text>
+
+    <text x="610" y="426" font-weight="700" fill="#7c3aed">End result:</text>
+    <text x="610" y="440" fill="#4a5568">- 2 genetically identical daughter cells</text>
+    <text x="610" y="452" fill="#4a5568">- mitotic divisions = growth, repair, asexual repro.</text>
+  </g>
+</svg>

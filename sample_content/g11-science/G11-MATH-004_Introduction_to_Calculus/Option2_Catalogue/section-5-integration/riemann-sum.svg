@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" width="640" height="380" role="img" aria-label="Riemann sum rectangles approximating the area under a curve">
+  <title>Riemann Sum: rectangles approximating area under a curve</title>
+  <desc>Curve y = x² with left-endpoint Riemann sum on [0, 2] using n = 8 subintervals; left rectangles under-approximate the true area 8/3 ≈ 2.667. As n → ∞ the sum converges to the definite integral.</desc>
+
+  <defs>
+    <style>
+      .panel    { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1; }
+      .axis     { stroke: #94a3b8; stroke-width: 1.4; }
+      .grid     { stroke: #e2e8f0; stroke-width: 0.6; }
+      .curve    { fill: none; stroke: #2b6cb0; stroke-width: 3; stroke-linecap: round; }
+      .rect     { fill: #6b46c1; fill-opacity: 0.30; stroke: #6b46c1; stroke-width: 1.2; }
+      .heading  { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .axislbl  { font: 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .lbl      { font: bold 12px system-ui, sans-serif; }
+      .note     { font: 11px system-ui, sans-serif; fill: #4a5568; }
+    </style>
+  </defs>
+
+  <text class="heading" x="320" y="22">Left Riemann sum on [0, 2]:  n = 8 rectangles approximating ∫₀² x² dx</text>
+
+  <!-- Plot frame: x in [0, 2.2] mapped to [60, 380] (320/2.2 = 145.45 px/unit). y in [0, 4.4] mapped to [260, 60] (200/4.4 = 45.45 px/unit). -->
+  <rect class="panel" x="60" y="60" width="320" height="200"/>
+
+  <!-- xToPx(x) = 60 + 145.45·x; yToPx(y) = 260 - 45.45·y -->
+
+  <!-- grid: x = 0, 0.5, 1, 1.5, 2 → 60, 132.7, 205.5, 278.2, 351 -->
+  <line class="grid" x1="133" y1="60" x2="133" y2="260"/>
+  <line class="grid" x1="206" y1="60" x2="206" y2="260"/>
+  <line class="grid" x1="278" y1="60" x2="278" y2="260"/>
+  <line class="grid" x1="351" y1="60" x2="351" y2="260"/>
+  <!-- y grid: 1,2,3,4 → 214.5, 169, 124, 78.5 -->
+  <line class="grid" x1="60" y1="215" x2="380" y2="215"/>
+  <line class="grid" x1="60" y1="169" x2="380" y2="169"/>
+  <line class="grid" x1="60" y1="124" x2="380" y2="124"/>
+  <line class="grid" x1="60" y1="78"  x2="380" y2="78"/>
+
+  <line class="axis" x1="60" y1="260" x2="380" y2="260"/>
+  <line class="axis" x1="60" y1="60"  x2="60"  y2="260"/>
+
+  <text class="axislbl" x="60"  y="276">0</text>
+  <text class="axislbl" x="133" y="276">0.5</text>
+  <text class="axislbl" x="206" y="276">1.0</text>
+  <text class="axislbl" x="278" y="276">1.5</text>
+  <text class="axislbl" x="351" y="276">2.0</text>
+  <text class="axislbl" x="54"  y="264" text-anchor="end">0</text>
+  <text class="axislbl" x="54"  y="219" text-anchor="end">1</text>
+  <text class="axislbl" x="54"  y="173" text-anchor="end">2</text>
+  <text class="axislbl" x="54"  y="128" text-anchor="end">3</text>
+  <text class="axislbl" x="54"  y="82"  text-anchor="end">4</text>
+  <text class="axislbl" x="392" y="264">x</text>
+  <text class="axislbl" x="60"  y="55">y</text>
+
+  <!-- 8 left-endpoint rectangles. Δx = 0.25. Heights: f(0)=0, f(0.25)=0.0625, f(0.5)=0.25, f(0.75)=0.5625, f(1)=1, f(1.25)=1.5625, f(1.5)=2.25, f(1.75)=3.0625.
+       Sum × Δx = 0.25·(0+0.0625+0.25+0.5625+1+1.5625+2.25+3.0625) = 0.25·8.75 = 2.1875.
+       Each rect: width = 145.45·0.25 = 36.36 px. Heights: y_top = 260 - 45.45·height. -->
+
+  <!-- rect 1: x=[0, 0.25], h=0       → height_px = 0 (skipped or invisible) -->
+  <!-- rect 2: x=[0.25, 0.5], h=0.0625 → top=260-2.84=257.16, height=2.84 -->
+  <rect class="rect" x="96.36"  y="257.16" width="36.36" height="2.84"/>
+  <!-- rect 3: x=[0.5, 0.75], h=0.25  → top=260-11.36=248.64, height=11.36 -->
+  <rect class="rect" x="132.73" y="248.64" width="36.36" height="11.36"/>
+  <!-- rect 4: x=[0.75, 1.0], h=0.5625 → top=260-25.57=234.43, height=25.57 -->
+  <rect class="rect" x="169.09" y="234.43" width="36.36" height="25.57"/>
+  <!-- rect 5: x=[1.0, 1.25], h=1.0   → top=260-45.45=214.55, height=45.45 -->
+  <rect class="rect" x="205.45" y="214.55" width="36.36" height="45.45"/>
+  <!-- rect 6: x=[1.25, 1.5], h=1.5625 → top=260-71.02=188.98, height=71.02 -->
+  <rect class="rect" x="241.82" y="188.98" width="36.36" height="71.02"/>
+  <!-- rect 7: x=[1.5, 1.75], h=2.25  → top=260-102.27=157.73, height=102.27 -->
+  <rect class="rect" x="278.18" y="157.73" width="36.36" height="102.27"/>
+  <!-- rect 8: x=[1.75, 2.0], h=3.0625 → top=260-139.20=120.80, height=139.20 -->
+  <rect class="rect" x="314.55" y="120.80" width="36.36" height="139.20"/>
+
+  <!-- Curve y = x². Sample x in 0..2.0 step 0.1; y = x²; clip top y=4.4.
+       (0,0)→(60,260); (0.5,0.25)→(133, 248.64); (1,1)→(206, 214.55); (1.5,2.25)→(278, 157.73); (2,4)→(351, 78.18). -->
+  <polyline class="curve" points="60,260 75,259.32 89,257.16 104,253.55 118,248.64 133,242.27 147,234.43 162,225.16 176,214.55 191,202.50 206,189.09 220,174.20 235,157.73 250,140.00 264,120.80 279,99.84 293,77.52"/>
+
+  <!-- Numerical results panel -->
+  <g transform="translate(410, 60)">
+    <rect x="0" y="0" width="200" height="200" rx="8" fill="#fffaf0" stroke="#dd6b20" stroke-width="1.4"/>
+    <text font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" x="100" y="22" text-anchor="middle">Riemann sum → integral</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="46">Left sum (n = 8):</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="14" y="62" font-style="italic">L₈ = Σ f(xᵢ)·Δx = 2.1875</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="86">Right sum (n = 8):</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="14" y="102" font-style="italic">R₈ = 3.1875</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="124">Limit as n → ∞:</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="14" y="140" font-style="italic">∫₀² x² dx = [x³/3]₀²</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="14" y="156" font-style="italic">         = 8/3 ≈ 2.667</text>
+    <text font="11px system-ui" font-size="11" fill="#c05621" x="14" y="184" font-weight="600">L₈ &lt; ∫ &lt; R₈ on increasing f.</text>
+  </g>
+
+  <text x="220" y="296" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Each rectangle has width Δx and height equal to f at its left endpoint (left-Riemann choice).</text>
+  <text x="220" y="316" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Make Δx smaller (n larger) and the staircase converges to the smooth area.</text>
+</svg>

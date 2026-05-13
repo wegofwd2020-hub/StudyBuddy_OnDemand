@@ -1,0 +1,14 @@
+schema_version: 1
+id: physics-bulk-matter-archimedes-buoyancy
+kind: image
+subject: physics
+topic_phrase: "Archimedes' principle showing buoyant force equal to weight of displaced fluid"
+keywords:
+  - fluid-statics
+  - archimedes-principle
+  - buoyancy
+  - displaced-volume
+  - floating
+  - sinking
+license: platform-cc-by-sa
+source_unit: G11-PHYS-007

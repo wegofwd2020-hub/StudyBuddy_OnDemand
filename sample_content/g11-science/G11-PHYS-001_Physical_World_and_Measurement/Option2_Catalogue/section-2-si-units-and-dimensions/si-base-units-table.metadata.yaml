@@ -1,0 +1,18 @@
+schema_version: 1
+id: physics-physical-world-si-base-units-table
+kind: image
+subject: physics
+topic_phrase: "the seven SI base units, their symbols, dimensions, and 2019 defining constants"
+keywords:
+  - si-units
+  - base-units
+  - metre
+  - kilogram
+  - second
+  - ampere
+  - kelvin
+  - mole
+  - candela
+  - 2019-redefinition
+license: platform-cc-by-sa
+source_unit: G11-PHYS-001

@@ -1,0 +1,16 @@
+# Auto-generated for sample-content seeding — edit with the SVG and re-run sidecar build.
+schema_version: 1
+id: chemistry-cis-trans-but-2-ene
+kind: image
+subject: chemistry
+topic_phrase: "geometric isomerism cis trans but-2-ene E Z double bond"
+keywords:
+  - isomerism
+  - geometric-isomer
+  - cis
+  - trans
+  - but-2-ene
+  - E-Z
+  - restricted-rotation
+license: platform-cc-by-sa
+source_unit: G11-CHEM-009

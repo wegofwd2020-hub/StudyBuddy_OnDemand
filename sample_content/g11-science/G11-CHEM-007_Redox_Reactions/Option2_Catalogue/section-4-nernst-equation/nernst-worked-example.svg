@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380" role="img" aria-label="Nernst equation worked example for non-standard Daniell cell">
+  <title>Nernst worked example — non-standard Daniell cell at 25 °C</title>
+  <desc>Calculation of the cell voltage of a Daniell cell when the zinc ion concentration is 0.10 M and the copper ion concentration is 0.0010 M. Five steps from balanced reaction to final voltage.</desc>
+
+  <text x="360" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Worked: Daniell Cell at Non-Standard Concentrations</text>
+  <text x="360" y="40" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Given: [Zn²⁺] = 0.10 M, [Cu²⁺] = 0.0010 M, T = 25 °C. Find E.</text>
+
+  <!-- Step 1: balanced cell reaction -->
+  <rect x="40" y="60" width="640" height="44" rx="6" fill="#dbeafe" stroke="#1e3a8a" stroke-width="1.2" />
+  <text x="56" y="82" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1e3a8a">Step 1.</text>
+  <text x="120" y="82" font="11px system-ui" font-size="11" fill="#1a202c">Write the balanced cell reaction; identify n.</text>
+  <text x="120" y="98" font="12px monospace" font-size="12" fill="#1a202c">Zn(s) + Cu²⁺(aq) → Zn²⁺(aq) + Cu(s)</text>
+  <text x="500" y="98" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#dc2626">n = 2</text>
+
+  <!-- Step 2: Q -->
+  <rect x="40" y="114" width="640" height="44" rx="6" fill="#dcfce7" stroke="#15803d" stroke-width="1.2" />
+  <text x="56" y="136" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#15803d">Step 2.</text>
+  <text x="120" y="136" font="11px system-ui" font-size="11" fill="#1a202c">Reaction quotient — solids and pure liquids dropped.</text>
+  <text x="120" y="152" font="12px monospace" font-size="12" fill="#1a202c">Q = [Zn²⁺] ⁄ [Cu²⁺] = (0.10) ⁄ (0.0010) = 100</text>
+
+  <!-- Step 3: E° -->
+  <rect x="40" y="168" width="640" height="44" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="1.2" />
+  <text x="56" y="190" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#92400e">Step 3.</text>
+  <text x="120" y="190" font="11px system-ui" font-size="11" fill="#1a202c">Standard cell voltage from Section 3.</text>
+  <text x="120" y="206" font="12px monospace" font-size="12" fill="#1a202c">E° = E°(Cu²⁺/Cu) − E°(Zn²⁺/Zn) = (+0.34) − (−0.76) = +1.10 V</text>
+
+  <!-- Step 4: plug into Nernst -->
+  <rect x="40" y="222" width="640" height="58" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="1.2" />
+  <text x="56" y="244" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#991b1b">Step 4.</text>
+  <text x="120" y="244" font="11px system-ui" font-size="11" fill="#1a202c">Plug into the Nernst equation (25 °C form).</text>
+  <text x="120" y="262" font="12px monospace" font-size="12" fill="#1a202c">E = E° − (0.0592 ⁄ n) · log Q</text>
+  <text x="120" y="278" font="12px monospace" font-size="12" fill="#1a202c">E = 1.10 − (0.0592 ⁄ 2) · log(100)  =  1.10 − (0.0296) · (2)</text>
+
+  <!-- Step 5: Answer -->
+  <rect x="40" y="294" width="640" height="46" rx="8" fill="#0f172a" stroke="#0f172a" stroke-width="2" />
+  <text x="56" y="318" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#fef3c7">Step 5.</text>
+  <text x="120" y="318" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#fef3c7">Final voltage</text>
+  <text x="360" y="322" font="bold 18px monospace" font-size="18" font-weight="700" fill="#ffffff" text-anchor="middle">E = 1.10 − 0.0592 = +1.04 V</text>
+
+  <!-- Bottom interpretive caption -->
+  <text x="360" y="362" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Q is large (100) because product Zn²⁺ is more concentrated than reactant Cu²⁺ — the reaction is closer to equilibrium,</text>
+  <text x="360" y="376" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">so E drops below E°. As the cell discharges, [Cu²⁺] falls further, Q grows, and E continues to fall — that's why batteries fade.</text>
+</svg>

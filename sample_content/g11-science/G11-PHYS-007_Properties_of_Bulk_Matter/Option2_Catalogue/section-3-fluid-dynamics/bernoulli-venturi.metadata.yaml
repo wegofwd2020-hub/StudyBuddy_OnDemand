@@ -1,0 +1,13 @@
+schema_version: 1
+id: physics-bulk-matter-bernoulli-venturi
+kind: image
+subject: physics
+topic_phrase: "Bernoulli's principle in a venturi tube showing pressure drop where flow accelerates"
+keywords:
+  - fluid-dynamics
+  - bernoulli-equation
+  - venturi
+  - pressure-velocity
+  - manometer
+license: platform-cc-by-sa
+source_unit: G11-PHYS-007

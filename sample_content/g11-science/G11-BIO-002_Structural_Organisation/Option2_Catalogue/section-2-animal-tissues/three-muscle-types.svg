@@ -1,0 +1,167 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 340" width="760" height="340" role="img" aria-label="Three muscle tissue types compared">
+  <title>Three muscle tissue types — skeletal, cardiac, smooth</title>
+  <desc>Three side-by-side panels comparing the three muscle tissue types. Skeletal muscle: long unbranched fibres, peripheral multiple nuclei, prominent striations, voluntary control. Cardiac muscle: branched fibres joined by intercalated discs, single central nucleus, faint striations, involuntary. Smooth muscle: spindle-shaped cells, single central nucleus, no striations, involuntary. Each panel notes location and control type.</desc>
+
+  <text x="380" y="22" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Three Muscle Tissue Types</text>
+  <text x="380" y="40" font-size="11" fill="#4a5568" text-anchor="middle">All three contract — but cell shape, nuclei, and striation tell them apart instantly under a microscope.</text>
+
+  <!-- ── Skeletal ─────────────────────────────────────────── -->
+  <g transform="translate(20, 60)">
+    <rect x="0" y="0" width="240" height="240" rx="10" fill="#f7fafc" stroke="#dc2626" stroke-width="2"/>
+    <text x="120" y="22" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">Skeletal</text>
+
+    <!-- Two parallel long unbranched fibres -->
+    <rect x="20" y="48" width="200" height="44" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+    <rect x="20" y="100" width="200" height="44" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+    <!-- Striations -->
+    <g stroke="#dc2626" stroke-width="0.7">
+      <line x1="30" y1="50" x2="30" y2="90"/><line x1="38" y1="50" x2="38" y2="90"/>
+      <line x1="46" y1="50" x2="46" y2="90"/><line x1="54" y1="50" x2="54" y2="90"/>
+      <line x1="62" y1="50" x2="62" y2="90"/><line x1="70" y1="50" x2="70" y2="90"/>
+      <line x1="78" y1="50" x2="78" y2="90"/><line x1="86" y1="50" x2="86" y2="90"/>
+      <line x1="94" y1="50" x2="94" y2="90"/><line x1="102" y1="50" x2="102" y2="90"/>
+      <line x1="110" y1="50" x2="110" y2="90"/><line x1="118" y1="50" x2="118" y2="90"/>
+      <line x1="126" y1="50" x2="126" y2="90"/><line x1="134" y1="50" x2="134" y2="90"/>
+      <line x1="142" y1="50" x2="142" y2="90"/><line x1="150" y1="50" x2="150" y2="90"/>
+      <line x1="158" y1="50" x2="158" y2="90"/><line x1="166" y1="50" x2="166" y2="90"/>
+      <line x1="174" y1="50" x2="174" y2="90"/><line x1="182" y1="50" x2="182" y2="90"/>
+      <line x1="190" y1="50" x2="190" y2="90"/><line x1="198" y1="50" x2="198" y2="90"/>
+      <line x1="206" y1="50" x2="206" y2="90"/><line x1="214" y1="50" x2="214" y2="90"/>
+
+      <line x1="30" y1="102" x2="30" y2="142"/><line x1="38" y1="102" x2="38" y2="142"/>
+      <line x1="46" y1="102" x2="46" y2="142"/><line x1="54" y1="102" x2="54" y2="142"/>
+      <line x1="62" y1="102" x2="62" y2="142"/><line x1="70" y1="102" x2="70" y2="142"/>
+      <line x1="78" y1="102" x2="78" y2="142"/><line x1="86" y1="102" x2="86" y2="142"/>
+      <line x1="94" y1="102" x2="94" y2="142"/><line x1="102" y1="102" x2="102" y2="142"/>
+      <line x1="110" y1="102" x2="110" y2="142"/><line x1="118" y1="102" x2="118" y2="142"/>
+      <line x1="126" y1="102" x2="126" y2="142"/><line x1="134" y1="102" x2="134" y2="142"/>
+      <line x1="142" y1="102" x2="142" y2="142"/><line x1="150" y1="102" x2="150" y2="142"/>
+      <line x1="158" y1="102" x2="158" y2="142"/><line x1="166" y1="102" x2="166" y2="142"/>
+      <line x1="174" y1="102" x2="174" y2="142"/><line x1="182" y1="102" x2="182" y2="142"/>
+      <line x1="190" y1="102" x2="190" y2="142"/><line x1="198" y1="102" x2="198" y2="142"/>
+      <line x1="206" y1="102" x2="206" y2="142"/><line x1="214" y1="102" x2="214" y2="142"/>
+    </g>
+    <!-- Peripheral nuclei (along edges) -->
+    <ellipse cx="50" cy="56" rx="5" ry="3.5" fill="#7f1d1d"/>
+    <ellipse cx="100" cy="56" rx="5" ry="3.5" fill="#7f1d1d"/>
+    <ellipse cx="160" cy="56" rx="5" ry="3.5" fill="#7f1d1d"/>
+    <ellipse cx="80" cy="86" rx="5" ry="3.5" fill="#7f1d1d"/>
+    <ellipse cx="140" cy="86" rx="5" ry="3.5" fill="#7f1d1d"/>
+    <ellipse cx="190" cy="86" rx="5" ry="3.5" fill="#7f1d1d"/>
+    <ellipse cx="60" cy="108" rx="5" ry="3.5" fill="#7f1d1d"/>
+    <ellipse cx="120" cy="108" rx="5" ry="3.5" fill="#7f1d1d"/>
+    <ellipse cx="180" cy="108" rx="5" ry="3.5" fill="#7f1d1d"/>
+    <ellipse cx="80" cy="138" rx="5" ry="3.5" fill="#7f1d1d"/>
+    <ellipse cx="140" cy="138" rx="5" ry="3.5" fill="#7f1d1d"/>
+    <ellipse cx="200" cy="138" rx="5" ry="3.5" fill="#7f1d1d"/>
+
+    <!-- Property labels -->
+    <text x="20" y="172" font-size="11" font-weight="700" fill="#1a202c">Shape:</text>
+    <text x="78" y="172" font-size="11" fill="#4a5568">long, unbranched</text>
+    <text x="20" y="190" font-size="11" font-weight="700" fill="#1a202c">Nuclei:</text>
+    <text x="78" y="190" font-size="11" fill="#4a5568">many, peripheral</text>
+    <text x="20" y="208" font-size="11" font-weight="700" fill="#1a202c">Striations:</text>
+    <text x="92" y="208" font-size="11" fill="#4a5568">prominent</text>
+    <text x="20" y="226" font-size="11" font-weight="700" fill="#1a202c">Control:</text>
+    <text x="78" y="226" font-size="11" fill="#4a5568">voluntary</text>
+  </g>
+
+  <!-- ── Cardiac ──────────────────────────────────────────── -->
+  <g transform="translate(280, 60)">
+    <rect x="0" y="0" width="200" height="240" rx="10" fill="#f7fafc" stroke="#be185d" stroke-width="2"/>
+    <text x="100" y="22" font-size="13" font-weight="700" fill="#be185d" text-anchor="middle">Cardiac</text>
+
+    <!-- Branched cells joined by intercalated discs -->
+    <path d="M 20 70 Q 30 60 60 64 Q 80 66 76 86 Q 78 100 60 100 Q 36 102 22 92 Z" fill="#fce7f3" stroke="#be185d" stroke-width="1.5"/>
+    <path d="M 80 66 Q 110 60 130 70 Q 140 86 132 96 Q 110 102 90 100 Q 78 96 80 86 Z" fill="#fce7f3" stroke="#be185d" stroke-width="1.5"/>
+    <path d="M 138 72 Q 168 64 180 80 Q 184 96 168 102 Q 148 100 140 96 Z" fill="#fce7f3" stroke="#be185d" stroke-width="1.5"/>
+
+    <path d="M 22 110 Q 30 102 60 108 Q 78 110 76 130 Q 70 142 50 142 Q 28 142 22 130 Z" fill="#fce7f3" stroke="#be185d" stroke-width="1.5"/>
+    <path d="M 80 110 Q 100 104 130 110 Q 140 122 130 138 Q 110 144 88 142 Q 78 134 80 122 Z" fill="#fce7f3" stroke="#be185d" stroke-width="1.5"/>
+    <path d="M 138 116 Q 162 108 180 122 Q 184 138 170 144 Q 150 144 142 138 Z" fill="#fce7f3" stroke="#be185d" stroke-width="1.5"/>
+
+    <!-- Faint striations -->
+    <g stroke="#be185d" stroke-width="0.5" opacity="0.8">
+      <line x1="30" y1="68" x2="30" y2="98"/><line x1="40" y1="68" x2="40" y2="98"/>
+      <line x1="50" y1="68" x2="50" y2="98"/><line x1="60" y1="68" x2="60" y2="98"/>
+      <line x1="90" y1="68" x2="90" y2="98"/><line x1="100" y1="68" x2="100" y2="98"/>
+      <line x1="110" y1="68" x2="110" y2="98"/><line x1="120" y1="68" x2="120" y2="98"/>
+      <line x1="150" y1="74" x2="150" y2="98"/><line x1="160" y1="74" x2="160" y2="98"/>
+      <line x1="170" y1="74" x2="170" y2="98"/>
+      <line x1="30" y1="112" x2="30" y2="140"/><line x1="40" y1="112" x2="40" y2="140"/>
+      <line x1="50" y1="112" x2="50" y2="140"/><line x1="60" y1="112" x2="60" y2="140"/>
+      <line x1="90" y1="112" x2="90" y2="140"/><line x1="100" y1="112" x2="100" y2="140"/>
+      <line x1="110" y1="112" x2="110" y2="140"/><line x1="120" y1="112" x2="120" y2="140"/>
+      <line x1="150" y1="118" x2="150" y2="140"/><line x1="160" y1="118" x2="160" y2="140"/>
+    </g>
+    <!-- Central nuclei (one per cell) -->
+    <ellipse cx="48" cy="84" rx="4.5" ry="3.5" fill="#831843"/>
+    <ellipse cx="106" cy="84" rx="4.5" ry="3.5" fill="#831843"/>
+    <ellipse cx="160" cy="86" rx="4.5" ry="3.5" fill="#831843"/>
+    <ellipse cx="48" cy="126" rx="4.5" ry="3.5" fill="#831843"/>
+    <ellipse cx="106" cy="124" rx="4.5" ry="3.5" fill="#831843"/>
+    <ellipse cx="160" cy="128" rx="4.5" ry="3.5" fill="#831843"/>
+    <!-- Intercalated discs (thick dark lines at junctions) -->
+    <line x1="78" y1="70" x2="80" y2="98" stroke="#831843" stroke-width="2.5"/>
+    <line x1="134" y1="74" x2="138" y2="100" stroke="#831843" stroke-width="2.5"/>
+    <line x1="78" y1="112" x2="80" y2="140" stroke="#831843" stroke-width="2.5"/>
+    <line x1="134" y1="116" x2="138" y2="142" stroke="#831843" stroke-width="2.5"/>
+
+    <!-- Pointer to intercalated disc -->
+    <line x1="80" y1="84" x2="60" y2="48" stroke="#831843" stroke-width="0.8"/>
+    <text x="58" y="46" font-size="9" fill="#831843" text-anchor="end">intercalated disc</text>
+
+    <text x="20" y="172" font-size="11" font-weight="700" fill="#1a202c">Shape:</text>
+    <text x="78" y="172" font-size="11" fill="#4a5568">branched</text>
+    <text x="20" y="190" font-size="11" font-weight="700" fill="#1a202c">Nuclei:</text>
+    <text x="78" y="190" font-size="11" fill="#4a5568">one, central</text>
+    <text x="20" y="208" font-size="11" font-weight="700" fill="#1a202c">Striations:</text>
+    <text x="92" y="208" font-size="11" fill="#4a5568">faint</text>
+    <text x="20" y="226" font-size="11" font-weight="700" fill="#1a202c">Control:</text>
+    <text x="78" y="226" font-size="11" fill="#4a5568">involuntary</text>
+  </g>
+
+  <!-- ── Smooth ───────────────────────────────────────────── -->
+  <g transform="translate(500, 60)">
+    <rect x="0" y="0" width="240" height="240" rx="10" fill="#f7fafc" stroke="#319795" stroke-width="2"/>
+    <text x="120" y="22" font-size="13" font-weight="700" fill="#319795" text-anchor="middle">Smooth</text>
+
+    <!-- Spindle-shaped cells, no striations, single central nucleus -->
+    <g>
+      <path d="M 20 64 Q 50 56 80 64 Q 100 70 80 76 Q 50 84 20 76 Q 8 70 20 64 Z" fill="#ccfbf1" stroke="#319795" stroke-width="1.5"/>
+      <ellipse cx="50" cy="70" rx="6" ry="3" fill="#134e4a"/>
+
+      <path d="M 110 60 Q 140 52 170 60 Q 190 66 170 72 Q 140 80 110 72 Q 98 66 110 60 Z" fill="#ccfbf1" stroke="#319795" stroke-width="1.5"/>
+      <ellipse cx="140" cy="66" rx="6" ry="3" fill="#134e4a"/>
+
+      <path d="M 30 90 Q 60 82 92 90 Q 112 96 92 102 Q 60 110 30 102 Q 18 96 30 90 Z" fill="#ccfbf1" stroke="#319795" stroke-width="1.5"/>
+      <ellipse cx="60" cy="96" rx="6" ry="3" fill="#134e4a"/>
+
+      <path d="M 122 88 Q 150 80 184 88 Q 204 94 184 100 Q 152 108 122 100 Q 110 94 122 88 Z" fill="#ccfbf1" stroke="#319795" stroke-width="1.5"/>
+      <ellipse cx="152" cy="94" rx="6" ry="3" fill="#134e4a"/>
+
+      <path d="M 22 116 Q 52 108 84 116 Q 104 122 84 128 Q 52 136 22 128 Q 10 122 22 116 Z" fill="#ccfbf1" stroke="#319795" stroke-width="1.5"/>
+      <ellipse cx="52" cy="122" rx="6" ry="3" fill="#134e4a"/>
+
+      <path d="M 116 114 Q 146 106 178 114 Q 198 120 178 126 Q 146 134 116 126 Q 104 120 116 114 Z" fill="#ccfbf1" stroke="#319795" stroke-width="1.5"/>
+      <ellipse cx="146" cy="120" rx="6" ry="3" fill="#134e4a"/>
+
+      <path d="M 32 142 Q 62 134 92 142 Q 112 148 92 154 Q 62 162 32 154 Q 20 148 32 142 Z" fill="#ccfbf1" stroke="#319795" stroke-width="1.5"/>
+      <ellipse cx="62" cy="148" rx="6" ry="3" fill="#134e4a"/>
+
+      <path d="M 124 138 Q 156 130 188 138 Q 208 144 188 150 Q 156 158 124 150 Q 112 144 124 138 Z" fill="#ccfbf1" stroke="#319795" stroke-width="1.5"/>
+      <ellipse cx="156" cy="144" rx="6" ry="3" fill="#134e4a"/>
+    </g>
+
+    <text x="20" y="172" font-size="11" font-weight="700" fill="#1a202c">Shape:</text>
+    <text x="78" y="172" font-size="11" fill="#4a5568">spindle, tapered</text>
+    <text x="20" y="190" font-size="11" font-weight="700" fill="#1a202c">Nuclei:</text>
+    <text x="78" y="190" font-size="11" fill="#4a5568">one, central</text>
+    <text x="20" y="208" font-size="11" font-weight="700" fill="#1a202c">Striations:</text>
+    <text x="92" y="208" font-size="11" fill="#4a5568">none</text>
+    <text x="20" y="226" font-size="11" font-weight="700" fill="#1a202c">Control:</text>
+    <text x="78" y="226" font-size="11" fill="#4a5568">involuntary</text>
+  </g>
+
+  <text x="380" y="320" font-size="11" fill="#4a5568" text-anchor="middle">Skeletal — moves bones (biceps, calf). Cardiac — pumps blood (heart wall only). Smooth — moves substances through hollow organs (gut, blood vessels).</text>
+</svg>

@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 340" width="640" height="340" role="img" aria-label="A unique circle passes through any three non-collinear points">
+  <title>Circle Through Three Points</title>
+  <desc>Three non-collinear points A(0, 0), B(6, 0), and C(0, 8) determine a unique circle whose center is the intersection of the perpendicular bisectors of any two chords. The center is (3, 4) and the radius is 5.</desc>
+
+  <defs>
+    <style>
+      .axis    { stroke: #94a3b8; stroke-width: 1.4; }
+      .grid    { stroke: #e2e8f0; stroke-width: 0.6; }
+      .panel   { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1; }
+      .circle  { fill: rgba(43, 108, 176, 0.07); stroke: #2b6cb0; stroke-width: 3; }
+      .chord   { stroke: #4a5568; stroke-width: 2; stroke-linecap: round; }
+      .bisX    { stroke: #2f855a; stroke-width: 2; stroke-dasharray: 6 5; }
+      .bisY    { stroke: #dd6b20; stroke-width: 2; stroke-dasharray: 6 5; }
+      .center  { fill: #6b46c1; stroke: white; stroke-width: 2.5; }
+      .ptA     { fill: #c05621; stroke: white; stroke-width: 2; }
+      .axislbl { font: 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .heading { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .lbl     { font: bold 12px system-ui, sans-serif; }
+    </style>
+  </defs>
+
+  <text class="heading" x="320" y="22">A circle through 3 non-collinear points  =  intersection of perpendicular bisectors</text>
+
+  <!-- Plot frame: x ∈ [-2, 8], y ∈ [-2, 10].  Frame width 280 px (28 px/u), height 26*12=312 too tall; use 24 px/u: width 240, height 288.  Actually keep both 24: x ∈ [-2,8] = 10 → 240 wide; y ∈ [-2, 10] = 12 → 288 tall.  Frame x:60..300, y:30..318. Origin (60+24*2, 318-24*2) = (108, 270) -->
+  <rect class="panel" x="60" y="30" width="240" height="288"/>
+
+  <!-- Vertical grid (omit origin) -->
+  <line class="grid" x1="84"  y1="30" x2="84"  y2="318"/>
+  <line class="grid" x1="132" y1="30" x2="132" y2="318"/>
+  <line class="grid" x1="156" y1="30" x2="156" y2="318"/>
+  <line class="grid" x1="180" y1="30" x2="180" y2="318"/>
+  <line class="grid" x1="204" y1="30" x2="204" y2="318"/>
+  <line class="grid" x1="228" y1="30" x2="228" y2="318"/>
+  <line class="grid" x1="276" y1="30" x2="276" y2="318"/>
+  <line class="grid" x1="300" y1="30" x2="300" y2="318"/>
+  <!-- Horizontal grid (omit origin) -->
+  <line class="grid" x1="60" y1="294" x2="300" y2="294"/>
+  <line class="grid" x1="60" y1="246" x2="300" y2="246"/>
+  <line class="grid" x1="60" y1="222" x2="300" y2="222"/>
+  <line class="grid" x1="60" y1="198" x2="300" y2="198"/>
+  <line class="grid" x1="60" y1="150" x2="300" y2="150"/>
+  <line class="grid" x1="60" y1="126" x2="300" y2="126"/>
+  <line class="grid" x1="60" y1="102" x2="300" y2="102"/>
+  <line class="grid" x1="60" y1="78"  x2="300" y2="78"/>
+  <line class="grid" x1="60" y1="54"  x2="300" y2="54"/>
+
+  <!-- Axes (origin at 108, 270) -->
+  <line class="axis" x1="60"  y1="270" x2="300" y2="270"/>
+  <line class="axis" x1="108" y1="30"  x2="108" y2="318"/>
+
+  <!-- Tick labels x -->
+  <text class="axislbl" x="84"  y="284">−1</text>
+  <text class="axislbl" x="108" y="284">0</text>
+  <text class="axislbl" x="156" y="284">2</text>
+  <text class="axislbl" x="180" y="284">3</text>
+  <text class="axislbl" x="252" y="284">6</text>
+  <!-- Tick labels y -->
+  <text class="axislbl" x="100" y="298" text-anchor="end">−1</text>
+  <text class="axislbl" x="100" y="174" text-anchor="end">4</text>
+  <text class="axislbl" x="100" y="78"  text-anchor="end">8</text>
+  <text class="axislbl" x="100" y="54"  text-anchor="end">9</text>
+  <text class="axislbl" x="308" y="274">x</text>
+  <text class="axislbl" x="108" y="24">y</text>
+
+  <!-- Circle.  Center (3, 4) → (180, 174); radius 5 → 24*5 = 120 -->
+  <circle class="circle" cx="180" cy="174" r="120"/>
+
+  <!-- Three points: A(0,0)→(108,270);  B(6,0)→(252,270);  C(0,8)→(108,78) -->
+
+  <!-- Chords AB and AC -->
+  <line class="chord" x1="108" y1="270" x2="252" y2="270"/>
+  <line class="chord" x1="108" y1="270" x2="108" y2="78"/>
+
+  <!-- Perpendicular bisector of AB is the vertical line x = 3 (px = 180).  Drawn within frame -->
+  <line class="bisX" x1="180" y1="60" x2="180" y2="318"/>
+  <text class="lbl" x="186" y="50" fill="#2f855a">x = 3</text>
+
+  <!-- Perpendicular bisector of AC is the horizontal line y = 4 (py = 174). -->
+  <line class="bisY" x1="60" y1="174" x2="300" y2="174"/>
+  <text class="lbl" x="304" y="170" fill="#dd6b20">y = 4</text>
+
+  <!-- Midpoint of AB at (3, 0) → (180, 270) -->
+  <circle cx="180" cy="270" r="3.5" fill="#2f855a"/>
+  <!-- Midpoint of AC at (0, 4) → (108, 174) -->
+  <circle cx="108" cy="174" r="3.5" fill="#dd6b20"/>
+
+  <!-- Three vertices -->
+  <circle class="ptA" cx="108" cy="270" r="6"/>
+  <text class="lbl" x="86" y="262" fill="#c05621">A(0, 0)</text>
+  <circle class="ptA" cx="252" cy="270" r="6"/>
+  <text class="lbl" x="262" y="262" fill="#c05621">B(6, 0)</text>
+  <circle class="ptA" cx="108" cy="78" r="6"/>
+  <text class="lbl" x="74" y="68" fill="#c05621">C(0, 8)</text>
+
+  <!-- Center -->
+  <circle class="center" cx="180" cy="174" r="7"/>
+  <text class="lbl" x="190" y="170" fill="#6b46c1">center (3, 4)</text>
+
+  <!-- Right panel: derivation -->
+  <g transform="translate(320, 36)">
+    <rect x="0" y="0" width="300" height="284" rx="8" fill="#fffaf0" stroke="#dd6b20" stroke-width="1.4"/>
+    <text font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" x="150" y="22" text-anchor="middle">Find the centre and radius</text>
+
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="46">Pick chord AB:  midpoint (3, 0); AB is horizontal,</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="62">so its ⊥ bisector is the vertical line</text>
+    <text font="italic 12px system-ui" font-size="12" fill="#1a202c" x="22" y="80">x  =  3.</text>
+
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="106">Pick chord AC:  midpoint (0, 4); AC is vertical,</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="122">so its ⊥ bisector is the horizontal line</text>
+    <text font="italic 12px system-ui" font-size="12" fill="#1a202c" x="22" y="140">y  =  4.</text>
+
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="166">Centre = intersection of the two bisectors:</text>
+    <text font="italic 12px system-ui" font-size="12" fill="#1a202c" x="22" y="184">centre  =  (3, 4)</text>
+
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="208">Radius = distance from centre to any vertex:</text>
+    <text font="italic 12px system-ui" font-size="12" fill="#1a202c" x="22" y="226">|CA|  =  √(3² + 4²)  =  √25  =  5</text>
+
+    <rect x="14" y="240" width="272" height="36" rx="6" fill="#ebf8ff" stroke="#2b6cb0" stroke-width="1.5"/>
+    <text font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" x="150" y="262" text-anchor="middle">(x − 3)² + (y − 4)² = 25</text>
+  </g>
+
+  <text x="320" y="332" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">If A, B, C are collinear, no circle passes through them — the perpendicular bisectors are parallel.</text>
+</svg>

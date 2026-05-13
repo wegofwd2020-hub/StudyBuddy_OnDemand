@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" width="720" height="360" role="img" aria-label="Reactivity comparison — alkanes substitute, alkenes/alkynes add, arenes substitute">
+  <title>Three Reactivity Patterns — Substitution vs Addition</title>
+  <desc>Side-by-side comparison of how alkanes, alkenes/alkynes, and aromatic rings react. Alkanes undergo free-radical substitution under UV (CH4 + Cl2 to CH3Cl + HCl). Alkenes and alkynes undergo electrophilic addition (CH2=CH2 + Br2 to CH2BrCH2Br) — the pi bond opens up. Arenes undergo electrophilic substitution despite having pi bonds, because preserving aromaticity is favoured (C6H6 + Br2/FeBr3 to C6H5Br + HBr).</desc>
+
+  <text x="360" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Three Patterns of Hydrocarbon Reactivity</text>
+  <text x="360" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Bond type controls mechanism: σ-only substitutes; π adds; aromatic π substitutes</text>
+
+  <!-- ALKANE column -->
+  <rect x="20" y="60" width="220" height="280" rx="8" fill="#bbf7d0" stroke="#15803d" stroke-width="1.5"/>
+  <text x="130" y="84" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">Alkanes (saturated)</text>
+  <text x="130" y="102" font-size="10" fill="#15803d" text-anchor="middle">σ-bonds only</text>
+  <text x="130" y="130" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Free-radical SUBSTITUTION</text>
+  <text x="130" y="150" font-size="10" fill="#1a202c" text-anchor="middle">requires UV / heat</text>
+  <line x1="40" y1="166" x2="220" y2="166" stroke="#15803d" stroke-width="1" stroke-dasharray="3 2"/>
+
+  <text x="130" y="186" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Example</text>
+  <text x="130" y="208" font-size="11" fill="#1a202c" text-anchor="middle">CH₄ + Cl₂  →(hν)</text>
+  <text x="130" y="226" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle">CH₃Cl + HCl</text>
+  <text x="130" y="252" font-size="10" font-style="italic" fill="#475569" text-anchor="middle">an H is replaced by Cl</text>
+
+  <line x1="40" y1="270" x2="220" y2="270" stroke="#15803d" stroke-width="1" stroke-dasharray="3 2"/>
+  <text x="130" y="290" font-size="10" font-weight="700" fill="#1a202c" text-anchor="middle">Reactivity: LOW</text>
+  <text x="130" y="306" font-size="10" fill="#4a5568" text-anchor="middle">strong σ-bonds; need radical</text>
+  <text x="130" y="322" font-size="10" fill="#4a5568" text-anchor="middle">initiator to react</text>
+
+  <!-- ALKENE/ALKYNE column -->
+  <rect x="250" y="60" width="220" height="280" rx="8" fill="#fecaca" stroke="#b91c1c" stroke-width="1.5"/>
+  <text x="360" y="84" font-size="13" font-weight="700" fill="#b91c1c" text-anchor="middle">Alkenes &amp; Alkynes</text>
+  <text x="360" y="102" font-size="10" fill="#b91c1c" text-anchor="middle">have π-bonds (unsaturated)</text>
+  <text x="360" y="130" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Electrophilic ADDITION</text>
+  <text x="360" y="150" font-size="10" fill="#1a202c" text-anchor="middle">no UV needed; π is rich in e⁻</text>
+  <line x1="270" y1="166" x2="450" y2="166" stroke="#b91c1c" stroke-width="1" stroke-dasharray="3 2"/>
+
+  <text x="360" y="186" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Examples</text>
+  <text x="360" y="208" font-size="11" fill="#1a202c" text-anchor="middle">CH₂=CH₂ + Br₂  →</text>
+  <text x="360" y="226" font-size="11" font-weight="700" fill="#b91c1c" text-anchor="middle">BrCH₂–CH₂Br</text>
+  <text x="360" y="246" font-size="10" fill="#1a202c" text-anchor="middle">CH₃–CH=CH₂ + HBr →</text>
+  <text x="360" y="264" font-size="11" font-weight="700" fill="#b91c1c" text-anchor="middle">CH₃CHBrCH₃ (Mark.)</text>
+
+  <line x1="270" y1="280" x2="450" y2="280" stroke="#b91c1c" stroke-width="1" stroke-dasharray="3 2"/>
+  <text x="360" y="298" font-size="10" font-weight="700" fill="#1a202c" text-anchor="middle">Reactivity: HIGH</text>
+  <text x="360" y="314" font-size="10" fill="#4a5568" text-anchor="middle">π-bond is weaker; opens to</text>
+  <text x="360" y="330" font-size="10" fill="#4a5568" text-anchor="middle">form 2 new σ-bonds</text>
+
+  <!-- ARENE column -->
+  <rect x="480" y="60" width="220" height="280" rx="8" fill="#fde68a" stroke="#92400e" stroke-width="1.5"/>
+  <text x="590" y="84" font-size="13" font-weight="700" fill="#92400e" text-anchor="middle">Arenes (aromatic)</text>
+  <text x="590" y="102" font-size="10" fill="#92400e" text-anchor="middle">delocalised π-cloud</text>
+  <text x="590" y="130" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Electrophilic SUBSTITUTION</text>
+  <text x="590" y="150" font-size="10" fill="#1a202c" text-anchor="middle">needs Lewis-acid catalyst</text>
+  <line x1="500" y1="166" x2="680" y2="166" stroke="#92400e" stroke-width="1" stroke-dasharray="3 2"/>
+
+  <text x="590" y="186" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Example</text>
+  <text x="590" y="208" font-size="11" fill="#1a202c" text-anchor="middle">C₆H₆ + Br₂  →(FeBr₃)</text>
+  <text x="590" y="226" font-size="11" font-weight="700" fill="#92400e" text-anchor="middle">C₆H₅Br + HBr</text>
+  <text x="590" y="252" font-size="10" font-style="italic" fill="#475569" text-anchor="middle">an H is replaced by Br</text>
+
+  <line x1="500" y1="270" x2="680" y2="270" stroke="#92400e" stroke-width="1" stroke-dasharray="3 2"/>
+  <text x="590" y="290" font-size="10" font-weight="700" fill="#1a202c" text-anchor="middle">Reactivity: MODERATE</text>
+  <text x="590" y="306" font-size="10" fill="#4a5568" text-anchor="middle">addition would destroy</text>
+  <text x="590" y="322" font-size="10" fill="#4a5568" text-anchor="middle">~150 kJ/mol stabilisation</text>
+</svg>

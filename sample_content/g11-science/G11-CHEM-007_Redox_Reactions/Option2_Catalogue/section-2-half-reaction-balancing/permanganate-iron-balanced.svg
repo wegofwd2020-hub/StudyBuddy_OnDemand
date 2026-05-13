@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 460" width="720" height="460" role="img" aria-label="Worked example balancing permanganate and iron(II) in acidic solution">
+  <title>Worked: MnO₄⁻ + Fe²⁺ → Mn²⁺ + Fe³⁺ in acid</title>
+  <desc>Side-by-side derivation of the balanced redox equation for permanganate ion reducing iron(II) in acidic solution. Shows the oxidation and reduction half-reactions through each balancing step.</desc>
+
+  <text x="360" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Worked Example — MnO₄⁻ + Fe²⁺ in Acid</text>
+  <text x="360" y="40" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Track each step in two columns. Five electrons must transfer per Mn atom, so the Fe half-reaction is multiplied by 5.</text>
+
+  <!-- Two column headers -->
+  <rect x="30" y="60" width="320" height="32" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5" />
+  <text x="190" y="80" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#991b1b" text-anchor="middle">Reduction half-reaction (Mn: +7 → +2)</text>
+
+  <rect x="370" y="60" width="320" height="32" rx="6" fill="#dbeafe" stroke="#1e3a8a" stroke-width="1.5" />
+  <text x="530" y="80" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1e3a8a" text-anchor="middle">Oxidation half-reaction (Fe: +2 → +3)</text>
+
+  <!-- Step 1 row -->
+  <text x="36" y="116" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c">Step 1: skeleton</text>
+  <text x="160" y="116" font="12px monospace" font-size="12" fill="#1a202c">MnO₄⁻ → Mn²⁺</text>
+  <text x="376" y="116" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c">Step 1: skeleton</text>
+  <text x="500" y="116" font="12px monospace" font-size="12" fill="#1a202c">Fe²⁺ → Fe³⁺</text>
+  <line x1="30" y1="125" x2="690" y2="125" stroke="#cbd5e1" stroke-width="0.7" />
+
+  <!-- Step 2 -->
+  <text x="36" y="146" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c">Step 2: Mn balanced</text>
+  <text x="170" y="146" font="11px monospace" font-size="11" fill="#15803d">(1 Mn each side)</text>
+  <text x="376" y="146" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c">Step 2: Fe balanced</text>
+  <text x="510" y="146" font="11px monospace" font-size="11" fill="#15803d">(1 Fe each side)</text>
+  <line x1="30" y1="156" x2="690" y2="156" stroke="#cbd5e1" stroke-width="0.7" />
+
+  <!-- Step 3 (oxygen with water) -->
+  <text x="36" y="176" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c">Step 3: O via H₂O</text>
+  <text x="160" y="176" font="12px monospace" font-size="12" fill="#1a202c">MnO₄⁻ → Mn²⁺ + 4 H₂O</text>
+  <text x="376" y="176" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#94a3b8">Step 3: no O</text>
+  <text x="476" y="176" font="11px monospace" font-size="11" fill="#94a3b8">— skip —</text>
+  <line x1="30" y1="186" x2="690" y2="186" stroke="#cbd5e1" stroke-width="0.7" />
+
+  <!-- Step 4 (hydrogen with H+) -->
+  <text x="36" y="206" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c">Step 4: H via H⁺</text>
+  <text x="160" y="206" font="12px monospace" font-size="12" fill="#1a202c">8 H⁺ + MnO₄⁻ → Mn²⁺ + 4 H₂O</text>
+  <text x="376" y="206" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#94a3b8">Step 4: no H</text>
+  <text x="476" y="206" font="11px monospace" font-size="11" fill="#94a3b8">— skip —</text>
+  <line x1="30" y1="216" x2="690" y2="216" stroke="#cbd5e1" stroke-width="0.7" />
+
+  <!-- Step 5 (charge with e-) -->
+  <text x="36" y="236" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c">Step 5: charge via e⁻</text>
+  <text x="36" y="252" font="10px system-ui" font-size="10" fill="#4a5568">left: 8(+1) + (−1) = +7</text>
+  <text x="36" y="266" font="10px system-ui" font-size="10" fill="#4a5568">right: +2 + 0 = +2</text>
+  <text x="36" y="280" font="10px system-ui" font-size="10" fill="#4a5568">add 5 e⁻ to the left</text>
+  <rect x="155" y="240" width="195" height="46" rx="4" fill="#fef3c7" stroke="#d97706" stroke-width="1.2" />
+  <text x="252" y="258" font="bold 11px monospace" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">8 H⁺ + MnO₄⁻ + 5 e⁻ →</text>
+  <text x="252" y="276" font="bold 11px monospace" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Mn²⁺ + 4 H₂O</text>
+
+  <text x="376" y="236" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c">Step 5: charge via e⁻</text>
+  <text x="376" y="252" font="10px system-ui" font-size="10" fill="#4a5568">left: +2; right: +3</text>
+  <text x="376" y="266" font="10px system-ui" font-size="10" fill="#4a5568">add 1 e⁻ to the right</text>
+  <rect x="490" y="244" width="195" height="36" rx="4" fill="#dcfce7" stroke="#15803d" stroke-width="1.2" />
+  <text x="587" y="266" font="bold 11px monospace" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Fe²⁺ → Fe³⁺ + e⁻</text>
+  <line x1="30" y1="296" x2="690" y2="296" stroke="#cbd5e1" stroke-width="0.7" />
+
+  <!-- Step 6: multiply -->
+  <text x="36" y="316" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#7c3aed">Step 6a: multiply</text>
+  <text x="36" y="332" font="11px system-ui" font-size="11" fill="#1a202c">Reduction × 1 (already 5 e⁻).</text>
+  <text x="376" y="316" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#7c3aed">Step 6a: multiply</text>
+  <text x="376" y="332" font="11px system-ui" font-size="11" fill="#1a202c">Oxidation × 5  →  5 Fe²⁺ → 5 Fe³⁺ + 5 e⁻</text>
+
+  <!-- Net equation -->
+  <rect x="30" y="350" width="660" height="60" rx="8" fill="#1e3a8a" stroke="#0f172a" stroke-width="2" />
+  <text x="360" y="372" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#fef3c7" text-anchor="middle">Step 6b: add and cancel the 5 e⁻ from each side  →  Net equation:</text>
+  <text x="360" y="396" font="bold 14px monospace" font-size="14" font-weight="700" fill="#ffffff" text-anchor="middle">MnO₄⁻ + 8 H⁺ + 5 Fe²⁺  →  Mn²⁺ + 5 Fe³⁺ + 4 H₂O</text>
+
+  <!-- Verification -->
+  <text x="30" y="432" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#15803d">Check atoms:</text>
+  <text x="125" y="432" font="11px system-ui" font-size="11" fill="#1a202c">Mn 1=1, O 4=4, H 8=8, Fe 5=5  ✓</text>
+  <text x="380" y="432" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#15803d">Check charge:</text>
+  <text x="475" y="432" font="11px system-ui" font-size="11" fill="#1a202c">left −1+8+10=+17; right +2+15=+17  ✓</text>
+
+  <text x="360" y="452" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Five electrons cross the half-reaction boundary. This is the same number that flows through the wire in a galvanic cell built on this chemistry.</text>
+</svg>

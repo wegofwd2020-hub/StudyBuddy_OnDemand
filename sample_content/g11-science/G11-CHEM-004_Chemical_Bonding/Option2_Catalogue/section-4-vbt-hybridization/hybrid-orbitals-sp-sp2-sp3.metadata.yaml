@@ -1,0 +1,16 @@
+schema_version: 1
+id: chemistry-hybrid-orbitals-sp-sp2-sp3
+kind: image
+subject: chemistry
+topic_phrase: "hybrid orbitals sp sp2 sp3 valence bond theory geometry"
+keywords:
+  - hybridization
+  - sp
+  - sp2
+  - sp3
+  - valence-bond-theory
+  - linear
+  - trigonal-planar
+  - tetrahedral
+license: platform-cc-by-sa
+source_unit: G11-CHEM-004

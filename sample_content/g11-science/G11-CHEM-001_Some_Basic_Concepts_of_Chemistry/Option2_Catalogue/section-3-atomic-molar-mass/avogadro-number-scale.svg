@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" width="720" height="360" role="img" aria-label="Avogadro's number — scale comparisons">
+  <title>Avogadro's Number 6.022 × 10²³ — Scale Comparisons</title>
+  <desc>One mole equals 6.022 × 10²³ particles. Three relatable comparisons: a mole of marbles would cover Earth knee-deep; a mole of seconds is older than the universe; one mole of carbon atoms weighs 12 g and fits in a teaspoon.</desc>
+
+  <text x="360" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">How Big Is a Mole?  ·  Nₐ = 6.022 × 10²³ particles</text>
+  <text x="360" y="40" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">A counting unit, like "dozen", but absurdly large — chemistry uses it because individual atoms are absurdly small.</text>
+
+  <!-- Center number badge -->
+  <g transform="translate(360, 90)">
+    <rect x="-160" y="-22" width="320" height="44" rx="22" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+    <text x="0" y="6" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#92400e" text-anchor="middle">1 mol  =  6.022 × 10²³</text>
+  </g>
+
+  <!-- Three panels -->
+  <g>
+    <!-- Panel 1: marbles cover earth -->
+    <rect x="40" y="155" width="200" height="180" rx="10" fill="#dbeafe" stroke="#2b6cb0" stroke-width="2"/>
+    <text x="140" y="178" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1e3a8a" text-anchor="middle">A mole of marbles</text>
+
+    <!-- earth -->
+    <circle cx="140" cy="240" r="44" fill="#bfdbfe" stroke="#1e3a8a" stroke-width="2"/>
+    <path d="M 110 220 Q 130 215 150 225 Q 170 215 175 235" fill="#15803d" opacity="0.7"/>
+    <path d="M 105 250 Q 125 248 150 255 Q 165 252 175 248" fill="#15803d" opacity="0.7"/>
+
+    <!-- marble layer ring -->
+    <circle cx="140" cy="240" r="58" fill="none" stroke="#d97706" stroke-width="6" stroke-dasharray="2 3"/>
+
+    <text x="140" y="312" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">would cover Earth</text>
+    <text x="140" y="328" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">~80 km deep</text>
+  </g>
+
+  <g>
+    <!-- Panel 2: seconds older than universe -->
+    <rect x="260" y="155" width="200" height="180" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+    <text x="360" y="178" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#14532d" text-anchor="middle">A mole of seconds</text>
+
+    <!-- clock -->
+    <circle cx="360" cy="240" r="40" fill="#dcfce7" stroke="#14532d" stroke-width="2.5"/>
+    <line x1="360" y1="240" x2="360" y2="210" stroke="#14532d" stroke-width="2.5"/>
+    <line x1="360" y1="240" x2="382" y2="252" stroke="#14532d" stroke-width="2.5"/>
+    <circle cx="360" cy="240" r="2.5" fill="#14532d"/>
+    <text x="360" y="207" font="9px system-ui" font-size="9" fill="#14532d" text-anchor="middle">12</text>
+    <text x="395" y="244" font="9px system-ui" font-size="9" fill="#14532d" text-anchor="middle">3</text>
+    <text x="360" y="280" font="9px system-ui" font-size="9" fill="#14532d" text-anchor="middle">6</text>
+    <text x="324" y="244" font="9px system-ui" font-size="9" fill="#14532d" text-anchor="middle">9</text>
+
+    <text x="360" y="306" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#14532d" text-anchor="middle">≈ 1.9 × 10¹⁶ years</text>
+    <text x="360" y="322" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">~1 million × age of universe</text>
+  </g>
+
+  <g>
+    <!-- Panel 3: 12 g of carbon -->
+    <rect x="480" y="155" width="200" height="180" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+    <text x="580" y="178" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#92400e" text-anchor="middle">A mole of ¹²C atoms</text>
+
+    <!-- spoon outline -->
+    <ellipse cx="580" cy="245" rx="48" ry="22" fill="#f7fafc" stroke="#92400e" stroke-width="2"/>
+    <line x1="623" y1="246" x2="660" y2="240" stroke="#92400e" stroke-width="3"/>
+    <!-- carbon (charcoal) heap -->
+    <ellipse cx="580" cy="240" rx="36" ry="14" fill="#1f2937" opacity="0.85"/>
+    <circle cx="567" cy="234" r="3" fill="#000"/>
+    <circle cx="585" cy="232" r="3" fill="#000"/>
+    <circle cx="595" cy="240" r="3" fill="#000"/>
+    <circle cx="572" cy="244" r="3" fill="#000"/>
+
+    <text x="580" y="298" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#92400e" text-anchor="middle">weighs exactly 12 g</text>
+    <text x="580" y="316" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">fits in a teaspoon</text>
+    <text x="580" y="330" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">(this is the bridge: mass ↔ count)</text>
+  </g>
+
+</svg>

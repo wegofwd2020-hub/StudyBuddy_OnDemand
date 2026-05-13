@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 360" width="620" height="360" role="img" aria-label="Compressibility Factor Z vs Pressure for Real Gases">
+  <title>Compressibility Factor  Z = PV / nRT  for Real Gases</title>
+  <desc>Plot of compressibility factor Z against pressure for several gases at room temperature. The ideal gas line is horizontal at Z = 1. Real gases dip below 1 at moderate pressures because of intermolecular attraction, then rise above 1 at high pressures because the molecules' own volume becomes important. Hydrogen and helium (weak attraction) stay above 1; methane and CO2 dip more strongly.</desc>
+
+  <text x="310" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Compressibility Factor:  Z = P V / (n R T)   at T = 273 K</text>
+
+  <!-- Plot area -->
+  <rect x="70" y="60" width="490" height="220" fill="#f7fafc" stroke="#e2e8f0" />
+
+  <!-- Grid -->
+  <g stroke="#e2e8f0" stroke-width="0.6">
+    <line x1="70" y1="225" x2="560" y2="225" />
+    <line x1="70" y1="170" x2="560" y2="170" />
+    <line x1="70" y1="115" x2="560" y2="115" />
+    <line x1="168" y1="60" x2="168" y2="280" />
+    <line x1="266" y1="60" x2="266" y2="280" />
+    <line x1="364" y1="60" x2="364" y2="280" />
+    <line x1="462" y1="60" x2="462" y2="280" />
+  </g>
+
+  <!-- Axes -->
+  <line x1="70" y1="280" x2="560" y2="280" stroke="#1a202c" stroke-width="1.5" />
+  <line x1="70" y1="60" x2="70" y2="280" stroke="#1a202c" stroke-width="1.5" />
+
+  <!-- Y-axis labels: Z = 0.0 to 2.0 mapped 280..60 → scale: 110 px per Z=1 -->
+  <text x="62" y="284" font-size="10" fill="#1a202c" text-anchor="end">0</text>
+  <text x="62" y="229" font-size="10" fill="#1a202c" text-anchor="end">0.5</text>
+  <text x="62" y="174" font-size="10" fill="#1a202c" text-anchor="end">1.0</text>
+  <text x="62" y="119" font-size="10" fill="#1a202c" text-anchor="end">1.5</text>
+  <text x="62" y="64" font-size="10" fill="#1a202c" text-anchor="end">2.0</text>
+
+  <!-- X-axis labels: P = 0 to 1000 atm -->
+  <text x="70" y="296" font-size="10" fill="#1a202c" text-anchor="middle">0</text>
+  <text x="168" y="296" font-size="10" fill="#1a202c" text-anchor="middle">200</text>
+  <text x="266" y="296" font-size="10" fill="#1a202c" text-anchor="middle">400</text>
+  <text x="364" y="296" font-size="10" fill="#1a202c" text-anchor="middle">600</text>
+  <text x="462" y="296" font-size="10" fill="#1a202c" text-anchor="middle">800</text>
+  <text x="560" y="296" font-size="10" fill="#1a202c" text-anchor="middle">1000</text>
+
+  <text x="315" y="316" font-size="13" font-weight="600" fill="#1a202c" text-anchor="middle">Pressure  P  (atm)</text>
+  <text x="32" y="170" font-size="13" font-weight="600" fill="#1a202c" text-anchor="middle" transform="rotate(-90 32 170)">Compressibility  Z = PV / nRT</text>
+
+  <!-- Ideal-gas line at Z=1 (y=170) -->
+  <line x1="70" y1="170" x2="560" y2="170" stroke="#15803d" stroke-width="2.4" stroke-dasharray="6 4" />
+  <text x="510" y="164" font-size="11" font-weight="700" fill="#15803d">ideal gas (Z = 1)</text>
+
+  <!-- H2 curve: starts ~1, rises smoothly to ~1.4 at 1000 atm -->
+  <!-- Sample: P=0→Z=1; P=200→Z=1.10; P=400→Z=1.18; P=600→Z=1.25; P=800→Z=1.32; P=1000→Z=1.39 -->
+  <!-- y = 280 - 110·Z -->
+  <path d="M 70,170 Q 130,160 168,159 Q 230,153 266,151 Q 320,144 364,141 Q 420,136 462,134 Q 510,130 560,127"
+        fill="none" stroke="#9333ea" stroke-width="2.6" stroke-linecap="round" />
+  <text x="500" y="120" font-size="11" font-weight="700" fill="#9333ea">H₂</text>
+
+  <!-- He curve: similar shape, slightly less rise -->
+  <path d="M 70,170 Q 130,164 168,162 Q 230,159 266,158 Q 320,154 364,152 Q 420,148 462,146 Q 510,143 560,141"
+        fill="none" stroke="#1d4ed8" stroke-width="2.6" stroke-linecap="round" />
+  <text x="500" y="135" font-size="11" font-weight="700" fill="#1d4ed8">He</text>
+
+  <!-- N2 curve: dips below 1, then rises back -->
+  <!-- Sample: P=0→1; P=100→0.97; P=200→0.94; P=300→0.92; P=400→0.92; P=500→0.94; P=600→0.97; P=800→1.05; P=1000→1.18 -->
+  <path d="M 70,170 Q 100,173 119,174 Q 145,177 168,177 Q 195,180 217,181 Q 245,179 266,178 Q 300,175 364,165 Q 420,158 462,154 Q 510,149 560,144"
+        fill="none" stroke="#dd6b20" stroke-width="2.6" stroke-linecap="round" />
+  <text x="180" y="194" font-size="11" font-weight="700" fill="#dd6b20">N₂</text>
+
+  <!-- CH4 curve: stronger dip -->
+  <path d="M 70,170 Q 100,178 119,182 Q 145,190 168,194 Q 195,197 217,196 Q 245,193 266,190 Q 300,184 364,170 Q 420,158 462,150 Q 510,142 560,135"
+        fill="none" stroke="#15803d" stroke-width="2.6" stroke-linecap="round" />
+  <text x="180" y="206" font-size="11" font-weight="700" fill="#15803d">CH₄</text>
+
+  <!-- CO2 curve: deepest dip (gas near critical region) -->
+  <path d="M 70,170 Q 100,184 119,194 Q 145,210 168,218 Q 195,222 217,222 Q 245,217 266,212 Q 300,200 364,180 Q 420,162 462,150 Q 510,138 560,128"
+        fill="none" stroke="#dc2626" stroke-width="2.6" stroke-linecap="round" />
+  <text x="195" y="232" font-size="11" font-weight="700" fill="#dc2626">CO₂</text>
+
+  <!-- Annotations: attractive vs repulsive regions -->
+  <text x="225" y="86" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Z &gt; 1: finite molecular size dominates  →  PV greater than ideal</text>
+  <text x="295" y="262" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Z &lt; 1: attractions dominate  →  PV less than ideal</text>
+
+  <!-- Bottom note -->
+  <rect x="70" y="318" width="490" height="32" rx="6" fill="#f7fafc" stroke="#cbd5e1" />
+  <text x="80" y="336" font-size="11" fill="#1a202c">Real gases approach ideal behaviour at</text>
+  <text x="270" y="336" font-size="11" font-weight="700" fill="#15803d">low P  &amp;  high T</text>
+  <text x="378" y="336" font-size="11" fill="#1a202c">— far from condensation, molecules are sparse and fast.</text>
+</svg>

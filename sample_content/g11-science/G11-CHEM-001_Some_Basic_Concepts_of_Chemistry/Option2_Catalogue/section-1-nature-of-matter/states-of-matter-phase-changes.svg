@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 340" width="720" height="340" role="img" aria-label="States of matter and phase changes">
+  <title>States of matter and phase changes</title>
+  <desc>Three particle-arrangement panels for solid, liquid and gas, with named transition arrows between them: melting, freezing, vaporisation, condensation, sublimation, deposition.</desc>
+
+  <defs>
+    <marker id="pc-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626" />
+    </marker>
+    <marker id="pc-arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2b6cb0" />
+    </marker>
+  </defs>
+
+  <text x="360" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">States of Matter and Phase Changes</text>
+  <text x="360" y="40" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Heating loosens particle arrangement; cooling tightens it. The substance is the same — only the energy and order change.</text>
+
+  <!-- Solid panel -->
+  <rect x="40" y="70" width="180" height="160" rx="10" fill="#dbeafe" stroke="#2b6cb0" stroke-width="2" />
+  <text x="130" y="92" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1e3a8a" text-anchor="middle">Solid</text>
+  <!-- 4x4 ordered lattice -->
+  <g fill="#2b6cb0" stroke="#1a202c" stroke-width="1">
+    <circle cx="76" cy="118" r="7"/><circle cx="106" cy="118" r="7"/><circle cx="136" cy="118" r="7"/><circle cx="166" cy="118" r="7"/><circle cx="196" cy="118" r="7"/>
+    <circle cx="76" cy="148" r="7"/><circle cx="106" cy="148" r="7"/><circle cx="136" cy="148" r="7"/><circle cx="166" cy="148" r="7"/><circle cx="196" cy="148" r="7"/>
+    <circle cx="76" cy="178" r="7"/><circle cx="106" cy="178" r="7"/><circle cx="136" cy="178" r="7"/><circle cx="166" cy="178" r="7"/><circle cx="196" cy="178" r="7"/>
+  </g>
+  <text x="130" y="210" font="11px system-ui" font-size="11" fill="#1e3a8a" text-anchor="middle">fixed shape · fixed volume</text>
+  <text x="130" y="224" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">vibrate in place</text>
+
+  <!-- Liquid panel -->
+  <rect x="270" y="70" width="180" height="160" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="2" />
+  <text x="360" y="92" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#14532d" text-anchor="middle">Liquid</text>
+  <!-- looser, slightly random arrangement -->
+  <g fill="#15803d" stroke="#1a202c" stroke-width="1">
+    <circle cx="298" cy="120" r="7"/><circle cx="328" cy="135" r="7"/><circle cx="356" cy="118" r="7"/><circle cx="386" cy="132" r="7"/><circle cx="416" cy="118" r="7"/>
+    <circle cx="306" cy="155" r="7"/><circle cx="338" cy="170" r="7"/><circle cx="368" cy="155" r="7"/><circle cx="398" cy="170" r="7"/><circle cx="428" cy="155" r="7"/>
+    <circle cx="296" cy="190" r="7"/><circle cx="326" cy="200" r="7"/><circle cx="358" cy="188" r="7"/><circle cx="388" cy="200" r="7"/><circle cx="418" cy="190" r="7"/>
+  </g>
+  <text x="360" y="219" font="11px system-ui" font-size="11" fill="#14532d" text-anchor="middle">takes container's shape · fixed volume</text>
+
+  <!-- Gas panel -->
+  <rect x="500" y="70" width="180" height="160" rx="10" fill="#fee2e2" stroke="#dc2626" stroke-width="2" />
+  <text x="590" y="92" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#991b1b" text-anchor="middle">Gas</text>
+  <!-- sparse random scatter -->
+  <g fill="#dc2626" stroke="#1a202c" stroke-width="1">
+    <circle cx="528" cy="120" r="6"/>
+    <circle cx="585" cy="115" r="6"/>
+    <circle cx="650" cy="130" r="6"/>
+    <circle cx="555" cy="155" r="6"/>
+    <circle cx="618" cy="160" r="6"/>
+    <circle cx="525" cy="195" r="6"/>
+    <circle cx="595" cy="200" r="6"/>
+    <circle cx="660" cy="195" r="6"/>
+    <circle cx="572" cy="178" r="6"/>
+  </g>
+  <!-- motion arrows -->
+  <line x1="528" y1="120" x2="540" y2="108" stroke="#dc2626" stroke-width="1.2" marker-end="url(#pc-arr)" />
+  <line x1="650" y1="130" x2="638" y2="142" stroke="#dc2626" stroke-width="1.2" marker-end="url(#pc-arr)" />
+  <line x1="595" y1="200" x2="610" y2="208" stroke="#dc2626" stroke-width="1.2" marker-end="url(#pc-arr)" />
+  <text x="590" y="219" font="11px system-ui" font-size="11" fill="#991b1b" text-anchor="middle">fills container · variable volume</text>
+
+  <!-- Phase-change arrows below panels -->
+  <!-- solid <-> liquid -->
+  <line x1="225" y1="246" x2="265" y2="246" stroke="#dc2626" stroke-width="1.8" marker-end="url(#pc-arr)" />
+  <text x="245" y="240" font="10px system-ui" font-size="10" fill="#dc2626" text-anchor="middle">melting</text>
+  <line x1="265" y1="266" x2="225" y2="266" stroke="#2b6cb0" stroke-width="1.8" marker-end="url(#pc-arr-blue)" />
+  <text x="245" y="282" font="10px system-ui" font-size="10" fill="#2b6cb0" text-anchor="middle">freezing</text>
+
+  <!-- liquid <-> gas -->
+  <line x1="455" y1="246" x2="495" y2="246" stroke="#dc2626" stroke-width="1.8" marker-end="url(#pc-arr)" />
+  <text x="475" y="240" font="10px system-ui" font-size="10" fill="#dc2626" text-anchor="middle">vaporisation</text>
+  <line x1="495" y1="266" x2="455" y2="266" stroke="#2b6cb0" stroke-width="1.8" marker-end="url(#pc-arr-blue)" />
+  <text x="475" y="282" font="10px system-ui" font-size="10" fill="#2b6cb0" text-anchor="middle">condensation</text>
+
+  <!-- Sublimation / deposition (long arrow under everything) -->
+  <path d="M 130 290 Q 360 320 590 290" fill="none" stroke="#dc2626" stroke-width="1.5" marker-end="url(#pc-arr)" />
+  <text x="260" y="316" font="10px system-ui" font-size="10" fill="#dc2626">sublimation (solid → gas)</text>
+  <path d="M 590 305 Q 360 335 130 305" fill="none" stroke="#2b6cb0" stroke-width="1.5" marker-end="url(#pc-arr-blue)" />
+  <text x="430" y="332" font="10px system-ui" font-size="10" fill="#2b6cb0">deposition (gas → solid)</text>
+
+</svg>

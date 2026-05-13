@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360" role="img" aria-label="Gyroscope precession — torque perpendicular to angular momentum causes precession">
+  <title>Gyroscope precession — dL/dt = τ acts perpendicular to L</title>
+  <desc>A spinning gyroscope wheel pivoted at one end. Gravity provides a torque τ about the pivot. The torque is perpendicular to the angular-momentum vector L, so dL/dt is perpendicular to L — the tip of L sweeps out a horizontal circle. The wheel does not fall; it precesses with angular speed Ω = M g r / (I ω).</desc>
+
+  <defs>
+    <marker id="arr-Lgyro" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#7c3aed" />
+    </marker>
+    <marker id="arr-tau" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626" />
+    </marker>
+    <marker id="arr-mg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1a202c" />
+    </marker>
+    <marker id="arr-precession" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#15803d" />
+    </marker>
+  </defs>
+
+  <text x="300" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Gyroscope precession  —  τ ⊥ L  causes L to rotate, not shrink</text>
+
+  <!-- ─── Diagram (left) ─── -->
+  <g transform="translate(20, 50)">
+    <rect x="0" y="0" width="340" height="290" rx="8" fill="#f7fafc" stroke="#e2e8f0" />
+
+    <!-- Floor + pivot post -->
+    <line x1="20" y1="250" x2="320" y2="250" stroke="#1a202c" stroke-width="1.5" />
+    <g stroke="#94a3b8" stroke-width="1">
+      <line x1="40"  y1="250" x2="32"  y2="262" />
+      <line x1="80"  y1="250" x2="72"  y2="262" />
+      <line x1="120" y1="250" x2="112" y2="262" />
+      <line x1="160" y1="250" x2="152" y2="262" />
+      <line x1="200" y1="250" x2="192" y2="262" />
+      <line x1="240" y1="250" x2="232" y2="262" />
+      <line x1="280" y1="250" x2="272" y2="262" />
+    </g>
+    <!-- Vertical pivot post -->
+    <rect x="86" y="186" width="8" height="64" fill="#cbd5e1" stroke="#1a202c" stroke-width="1" />
+    <circle cx="90" cy="186" r="5" fill="#1a202c" />
+    <text x="76" y="200" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#1a202c" text-anchor="end">pivot</text>
+
+    <!-- Horizontal axle from pivot to wheel centre at (220, 186), length 130 -->
+    <line x1="90" y1="186" x2="220" y2="186" stroke="#1a202c" stroke-width="3" />
+
+    <!-- r distance label -->
+    <line x1="90" y1="208" x2="220" y2="208" stroke="#dd6b20" stroke-width="1" />
+    <line x1="90" y1="204" x2="90" y2="212" stroke="#dd6b20" stroke-width="1" />
+    <line x1="220" y1="204" x2="220" y2="212" stroke="#dd6b20" stroke-width="1" />
+    <text x="155" y="222" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dd6b20" text-anchor="middle">r</text>
+
+    <!-- Wheel: ellipse for tilted view -->
+    <ellipse cx="220" cy="186" rx="14" ry="46" fill="#bee3f8" stroke="#1a202c" stroke-width="1.5" />
+    <ellipse cx="220" cy="186" rx="14" ry="46" fill="none" stroke="#1a202c" stroke-width="0.6" />
+
+    <!-- Spin: ω indicator (curved arrow on the wheel face) -->
+    <path d="M 232 152 A 16 16 0 0 1 232 220"
+      fill="none" stroke="#15803d" stroke-width="2" />
+    <text x="240" y="162" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#15803d">ω</text>
+
+    <!-- L vector along axle (purple, pointing right toward wheel — "into" wheel direction is +L by RH rule) -->
+    <line x1="220" y1="186" x2="320" y2="186" stroke="#7c3aed" stroke-width="3.5" marker-end="url(#arr-Lgyro)" />
+    <text x="328" y="190" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#7c3aed">L</text>
+
+    <!-- Gravity force at centre of wheel: mg downward -->
+    <line x1="220" y1="186" x2="220" y2="246" stroke="#1a202c" stroke-width="2.5" marker-end="url(#arr-mg)" />
+    <text x="232" y="240" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c">M g</text>
+
+    <!-- Torque τ at the pivot = r × Mg.  r points right, Mg points down. r × Mg = right × down = into page (−ẑ).
+         For a 2D figure use a circle-with-cross to denote "into page". -->
+    <g transform="translate(56, 186)">
+      <circle r="14" fill="#fff" stroke="#dc2626" stroke-width="2" />
+      <line x1="-10" y1="-10" x2="10" y2="10" stroke="#dc2626" stroke-width="2" />
+      <line x1="-10" y1="10" x2="10" y2="-10" stroke="#dc2626" stroke-width="2" />
+    </g>
+    <text x="56" y="166" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">τ</text>
+    <text x="56" y="218" font="9px system-ui" font-size="9" font-style="italic" fill="#dc2626" text-anchor="middle">(into page)</text>
+
+    <!-- Precession circle: dashed horizontal ellipse traced by the wheel's centre as the axle sweeps -->
+    <ellipse cx="160" cy="186" rx="125" ry="22" fill="none" stroke="#15803d" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.7" />
+
+    <!-- Precession Ω arrow as small curve at front of ellipse -->
+    <path d="M 230 200 A 70 14 0 0 1 110 200"
+      fill="none" stroke="#15803d" stroke-width="2" marker-end="url(#arr-precession)" />
+    <text x="118" y="216" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#15803d">Ω (precession)</text>
+  </g>
+
+  <!-- ─── Equations panel (right) ─── -->
+  <g transform="translate(380, 50)">
+    <rect x="0" y="0" width="200" height="290" rx="8" fill="#f0fdf4" stroke="#15803d" stroke-width="1.3" />
+    <text x="100" y="22" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">Why it doesn't fall</text>
+
+    <text x="14" y="46" font="11px system-ui" font-size="11" fill="#1a202c">Newton's 2nd law (rotational):</text>
+    <text x="100" y="68" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#7c3aed" text-anchor="middle">τ = dL/dt</text>
+
+    <text x="14" y="92" font="11px system-ui" font-size="11" fill="#1a202c">τ is horizontal, L is horizontal,</text>
+    <text x="14" y="106" font="11px system-ui" font-size="11" fill="#1a202c">but τ ⊥ L.</text>
+
+    <text x="14" y="130" font="11px system-ui" font-size="11" fill="#1a202c">⇒  dL is perpendicular to L</text>
+    <text x="14" y="144" font="11px system-ui" font-size="11" fill="#1a202c">⇒  L's tip moves on a circle</text>
+    <text x="14" y="158" font="11px system-ui" font-size="11" fill="#1a202c">⇒  axle sweeps horizontally</text>
+
+    <line x1="14" y1="174" x2="186" y2="174" stroke="#94a3b8" stroke-width="0.8" />
+
+    <text x="100" y="194" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Precession rate</text>
+    <text x="100" y="220" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#7c3aed" text-anchor="middle">Ω = M g r / (I ω)</text>
+
+    <text x="14" y="244" font="11px system-ui" font-size="11" fill="#1a202c">Faster spin (ω↑) ⇒ slower</text>
+    <text x="14" y="258" font="11px system-ui" font-size="11" fill="#1a202c">precession.</text>
+
+    <text x="100" y="282" font="10px system-ui" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">Same idea: tops, planets'</text>
+  </g>
+</svg>

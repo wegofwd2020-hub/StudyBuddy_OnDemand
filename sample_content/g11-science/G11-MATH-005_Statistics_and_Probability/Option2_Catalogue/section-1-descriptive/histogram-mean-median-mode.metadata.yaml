@@ -1,0 +1,14 @@
+schema_version: 1
+id: math-stats-histogram-mean-median-mode
+kind: image
+subject: math
+topic_phrase: "histogram with mean, median, and mode marked on a right-skewed dataset"
+keywords:
+  - histogram
+  - mean
+  - median
+  - mode
+  - skewness
+  - central-tendency
+license: platform-cc-by-sa
+source_unit: G11-MATH-005

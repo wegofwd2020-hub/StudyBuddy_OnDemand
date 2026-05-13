@@ -1,0 +1,13 @@
+schema_version: 1
+id: chemistry-iupac-naming-flowchart
+kind: image
+subject: chemistry
+topic_phrase: "IUPAC nomenclature five-step flowchart parent chain locants substituents"
+keywords:
+  - iupac-nomenclature
+  - parent-chain
+  - locants
+  - substituents
+  - principal-functional-group
+license: platform-cc-by-sa
+source_unit: G11-CHEM-008

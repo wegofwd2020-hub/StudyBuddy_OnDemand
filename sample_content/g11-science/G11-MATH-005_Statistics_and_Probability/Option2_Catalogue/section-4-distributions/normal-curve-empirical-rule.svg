@@ -1,0 +1,170 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" width="640" height="380" role="img" aria-label="Standard normal distribution showing the 68-95-99.7 empirical rule with shaded regions">
+  <title>Standard Normal Curve and the 68–95–99.7 Empirical Rule</title>
+  <desc>The bell-shaped probability density function of a standard normal random variable Z, centred at zero with standard deviation one.  Within one standard deviation of the mean lies about 68 percent of the area; within two standard deviations, about 95 percent; within three standard deviations, about 99.7 percent.  Vertical lines mark z equals minus three, minus two, minus one, zero, plus one, plus two, plus three.</desc>
+
+  <defs>
+    <marker id="ah-nc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4a5568"/>
+    </marker>
+    <style>
+      .axis     { stroke: #4a5568; stroke-width: 1.6; }
+      .grid     { stroke: #e2e8f0; stroke-width: 0.6; }
+      .panel    { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1; }
+      .curve    { fill: none; stroke: #44337a; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+      .band1    { fill: #6b46c1; fill-opacity: 0.55; }
+      .band2    { fill: #6b46c1; fill-opacity: 0.30; }
+      .band3    { fill: #6b46c1; fill-opacity: 0.12; }
+      .sigmaLn  { stroke: #4a5568; stroke-width: 1.4; stroke-dasharray: 5 4; }
+      .meanLn   { stroke: #c53030; stroke-width: 2.4; stroke-dasharray: 6 4; }
+      .axislbl  { font: 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .heading  { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .pct      { font: bold 13px system-ui, sans-serif; fill: #ffffff; text-anchor: middle; }
+      .lbl      { font: bold 12px system-ui, sans-serif; }
+    </style>
+  </defs>
+
+  <text class="heading" x="240" y="22">Empirical rule for the standard normal:  68 – 95 – 99.7</text>
+
+  <!-- Plot frame -->
+  <rect class="panel" x="60" y="50" width="400" height="230"/>
+
+  <!-- Coordinate mapping:
+       z ∈ [-4, 4] → x_px ∈ [60, 460]   (50 px per σ; centre at 260)
+       φ(z) ∈ [0, 0.3989] → y_px = 270 - φ*500 ; baseline y = 270
+  -->
+
+  <!-- ===== Shaded bands =====   (drawn back-to-front so widest is bottom) -->
+  <!-- 3-sigma band:  z ∈ [-3, 3] -->
+  <path class="band3" d="
+    M 110 270
+    L 110 267.78
+    L 135 261.24
+    L 160 243.00
+    L 185 205.24
+    L 210 149.01
+    L 235 93.97
+    L 260 70.53
+    L 285 93.97
+    L 310 149.01
+    L 335 205.24
+    L 360 243.00
+    L 385 261.24
+    L 410 267.78
+    L 410 270
+    Z
+  "/>
+
+  <!-- 2-sigma band:  z ∈ [-2, 2] -->
+  <path class="band2" d="
+    M 160 270
+    L 160 243.00
+    L 185 205.24
+    L 210 149.01
+    L 235 93.97
+    L 260 70.53
+    L 285 93.97
+    L 310 149.01
+    L 335 205.24
+    L 360 243.00
+    L 360 270
+    Z
+  "/>
+
+  <!-- 1-sigma band:  z ∈ [-1, 1] -->
+  <path class="band1" d="
+    M 210 270
+    L 210 149.01
+    L 235 93.97
+    L 260 70.53
+    L 285 93.97
+    L 310 149.01
+    L 310 270
+    Z
+  "/>
+
+  <!-- ===== Sigma vertical lines (z = -3..3 except 0) ===== -->
+  <line class="sigmaLn" x1="110" y1="50"  x2="110" y2="270"/>
+  <line class="sigmaLn" x1="160" y1="50"  x2="160" y2="270"/>
+  <line class="sigmaLn" x1="210" y1="50"  x2="210" y2="270"/>
+  <line class="sigmaLn" x1="310" y1="50"  x2="310" y2="270"/>
+  <line class="sigmaLn" x1="360" y1="50"  x2="360" y2="270"/>
+  <line class="sigmaLn" x1="410" y1="50"  x2="410" y2="270"/>
+
+  <!-- mean line -->
+  <line class="meanLn" x1="260" y1="50"  x2="260" y2="270"/>
+
+  <!-- ===== Curve ===== -->
+  <path class="curve" d="
+    M 60  269.93
+    L 85  269.56
+    L 110 267.78
+    L 135 261.24
+    L 160 243.00
+    L 185 205.24
+    L 210 149.01
+    L 235 93.97
+    L 260 70.53
+    L 285 93.97
+    L 310 149.01
+    L 335 205.24
+    L 360 243.00
+    L 385 261.24
+    L 410 267.78
+    L 435 269.56
+    L 460 269.93
+  "/>
+
+  <!-- x-axis -->
+  <line class="axis" x1="60" y1="270" x2="464" y2="270" marker-end="url(#ah-nc)"/>
+
+  <!-- σ tick labels -->
+  <text class="axislbl" x="110" y="284">μ−3σ</text>
+  <text class="axislbl" x="160" y="284">μ−2σ</text>
+  <text class="axislbl" x="210" y="284">μ−σ</text>
+  <text class="axislbl" x="260" y="284">μ</text>
+  <text class="axislbl" x="310" y="284">μ+σ</text>
+  <text class="axislbl" x="360" y="284">μ+2σ</text>
+  <text class="axislbl" x="410" y="284">μ+3σ</text>
+
+  <!-- Percentage labels in the bands -->
+  <!-- 1σ band: 68% — place near peak -->
+  <text class="pct" x="260" y="200">68 %</text>
+  <!-- 2σ wings (between 1σ and 2σ): 13.5% each side, but combined band shows 95% -->
+  <text class="pct" x="187" y="248" fill="#1a202c">13.5%</text>
+  <text class="pct" x="333" y="248" fill="#1a202c">13.5%</text>
+  <!-- 3σ wings (between 2σ and 3σ): ≈2.35% each side -->
+  <text class="axislbl" x="135" y="261" fill="#1a202c">2.35%</text>
+  <text class="axislbl" x="385" y="261" fill="#1a202c">2.35%</text>
+
+  <!-- Mean label -->
+  <text class="lbl" x="260" y="44" fill="#c53030" text-anchor="middle">μ</text>
+
+  <!-- Right legend -->
+  <g transform="translate(480, 56)">
+    <rect x="0" y="0" width="150" height="220" rx="8" fill="#fffaf0" stroke="#dd6b20" stroke-width="1.4"/>
+    <text font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" x="75" y="22" text-anchor="middle">Empirical rule</text>
+
+    <rect x="12" y="36" width="14" height="14" class="band1"/>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="32" y="47">μ ± 1σ  ≈ 68 %</text>
+
+    <rect x="12" y="60" width="14" height="14" class="band2"/>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="32" y="71">μ ± 2σ  ≈ 95 %</text>
+
+    <rect x="12" y="84" width="14" height="14" class="band3"/>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="32" y="95">μ ± 3σ  ≈ 99.7 %</text>
+
+    <line x1="12" y1="108" x2="138" y2="108" stroke="#cbd5e0"/>
+
+    <text font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" x="12" y="128">Standard normal</text>
+    <text font="italic 12px system-ui" font-size="12" fill="#1a202c" x="12" y="150">φ(z) = e^(−z²⁄2) / √(2π)</text>
+
+    <line x1="12" y1="164" x2="138" y2="164" stroke="#cbd5e0"/>
+
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="12" y="184">μ = 0,    σ = 1</text>
+    <text font="italic 11px system-ui" font-size="11" font-style="italic" fill="#4a5568" x="12" y="204">total area = 1</text>
+  </g>
+
+  <text x="320" y="320" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Tail beyond μ ± 3σ:  about 0.3 % of the total area, split evenly between left and right.</text>
+  <text x="320" y="340" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">For any normal X with mean μ and standard deviation σ, the same percentages apply after standardising  Z = (X − μ)/σ.</text>
+  <text x="320" y="360" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Heights have been scaled relative to the peak φ(0) ≈ 0.399; horizontal axis is in σ-units.</text>
+</svg>

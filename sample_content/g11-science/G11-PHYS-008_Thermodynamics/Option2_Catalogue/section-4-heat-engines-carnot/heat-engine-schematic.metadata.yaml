@@ -1,0 +1,15 @@
+schema_version: 1
+id: physics-thermodynamics-heat-engine-schematic
+kind: image
+subject: physics
+topic_phrase: "heat engine schematic showing heat absorbed from hot reservoir, work output, and heat rejected to cold reservoir, with efficiency formula"
+keywords:
+  - heat-engine
+  - efficiency
+  - hot-reservoir
+  - cold-reservoir
+  - work-output
+  - second-law
+  - thermodynamic-cycle
+license: platform-cc-by-sa
+source_unit: G11-PHYS-008

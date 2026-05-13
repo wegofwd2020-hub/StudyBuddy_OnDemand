@@ -1,0 +1,15 @@
+schema_version: 1
+id: chemistry-functional-groups-table
+kind: image
+subject: chemistry
+topic_phrase: "functional groups organic chemistry alkane alkene alcohol aldehyde ketone carboxylic acid ester amine"
+keywords:
+  - functional-groups
+  - alkane
+  - alkene
+  - alcohol
+  - carboxylic-acid
+  - ester
+  - amine
+license: platform-cc-by-sa
+source_unit: G11-CHEM-008

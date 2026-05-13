@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-coordinate-geometry-cartesian-plane-quadrants
+kind: image
+subject: math
+topic_phrase: "Cartesian plane with four quadrants and ordered-pair points"
+keywords:
+  - cartesian-plane
+  - quadrants
+  - ordered-pair
+  - coordinate-axes
+  - origin
+license: platform-cc-by-sa
+source_unit: G11-MATH-003

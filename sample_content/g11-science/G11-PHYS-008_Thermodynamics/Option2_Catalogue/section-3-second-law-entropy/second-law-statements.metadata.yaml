@@ -1,0 +1,14 @@
+schema_version: 1
+id: physics-thermodynamics-second-law-statements
+kind: image
+subject: physics
+topic_phrase: "two equivalent statements of the Second Law of Thermodynamics, Kelvin-Planck and Clausius, with impossibility diagrams"
+keywords:
+  - second-law
+  - kelvin-planck
+  - clausius-statement
+  - perpetual-motion
+  - heat-flow
+  - irreversibility
+license: platform-cc-by-sa
+source_unit: G11-PHYS-008

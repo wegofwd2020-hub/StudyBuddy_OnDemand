@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380" role="img" aria-label="First ionisation enthalpy across period 2">
+  <title>First Ionisation Enthalpy — Period 2 (Li → Ne)</title>
+  <desc>Line plot of first ionisation enthalpy in kJ/mol for the eight period-2 elements: Li 520, Be 899, B 801, C 1086, N 1402, O 1314, F 1681, Ne 2081. The general trend is upward, with two visible dips: B (after Be) and O (after N). Two callouts explain the dips — B starts a 2p subshell and N has a half-filled 2p that O destabilises.</desc>
+
+  <text x="360" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">First Ionisation Enthalpy — Period 2</text>
+  <text x="360" y="40" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Energy (kJ/mol) to remove the outermost electron. Trend rises across, with dips at B and O.</text>
+
+  <!-- Plot area: x 60..680, y 70..280; y 0..2200 kJ/mol mapped 280→70 -->
+  <!-- mapY(v) = 280 - v/2200 * 210 = 280 - v * 0.0955 -->
+
+  <!-- Y-axis -->
+  <line x1="60" y1="70" x2="60" y2="280" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="60" y1="280" x2="680" y2="280" stroke="#1a202c" stroke-width="1.5"/>
+
+  <!-- Y-axis ticks: 0, 500, 1000, 1500, 2000 -->
+  <g font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="end">
+    <line x1="56" y1="280" x2="60" y2="280" stroke="#1a202c" stroke-width="1"/>
+    <text x="54" y="283">0</text>
+    <line x1="56" y1="232.3" x2="60" y2="232.3" stroke="#1a202c" stroke-width="1"/>
+    <text x="54" y="235">500</text>
+    <line x1="56" y1="184.5" x2="60" y2="184.5" stroke="#1a202c" stroke-width="1"/>
+    <text x="54" y="187">1000</text>
+    <line x1="56" y1="136.8" x2="60" y2="136.8" stroke="#1a202c" stroke-width="1"/>
+    <text x="54" y="140">1500</text>
+    <line x1="56" y1="89" x2="60" y2="89" stroke="#1a202c" stroke-width="1"/>
+    <text x="54" y="92">2000</text>
+  </g>
+
+  <text x="22" y="180" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#4a5568" transform="rotate(-90 22 180)" text-anchor="middle">IE₁ (kJ/mol)</text>
+
+  <!-- Gridlines (light) -->
+  <line x1="60" y1="232.3" x2="680" y2="232.3" stroke="#e2e8f0" stroke-width="1"/>
+  <line x1="60" y1="184.5" x2="680" y2="184.5" stroke="#e2e8f0" stroke-width="1"/>
+  <line x1="60" y1="136.8" x2="680" y2="136.8" stroke="#e2e8f0" stroke-width="1"/>
+  <line x1="60" y1="89" x2="680" y2="89" stroke="#e2e8f0" stroke-width="1"/>
+
+  <!-- Data points: x positions evenly: Li 110, Be 190, B 270, C 350, N 430, O 510, F 590, Ne 670 -->
+  <!-- Values mapped:
+       Li 520  → 280 - 49.7  = 230.3
+       Be 899  → 280 - 85.9  = 194.1
+       B 801   → 280 - 76.5  = 203.5
+       C 1086  → 280 - 103.7 = 176.3
+       N 1402  → 280 - 133.9 = 146.1
+       O 1314  → 280 - 125.5 = 154.5
+       F 1681  → 280 - 160.6 = 119.4
+       Ne 2081 → 280 - 198.8 =  81.2
+  -->
+
+  <!-- Line connecting points -->
+  <polyline points="110,230.3 190,194.1 270,203.5 350,176.3 430,146.1 510,154.5 590,119.4 670,81.2"
+            fill="none" stroke="#2b6cb0" stroke-width="2.5"/>
+
+  <!-- Data points -->
+  <g>
+    <circle cx="110" cy="230.3" r="6" fill="#2b6cb0" stroke="#1e3a8a" stroke-width="1.5"/>
+    <text x="110" y="298" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">Li</text>
+    <text x="110" y="220" font="9px system-ui" font-size="9" fill="#1a202c" text-anchor="middle">520</text>
+
+    <circle cx="190" cy="194.1" r="6" fill="#2b6cb0" stroke="#1e3a8a" stroke-width="1.5"/>
+    <text x="190" y="298" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">Be</text>
+    <text x="190" y="184" font="9px system-ui" font-size="9" fill="#1a202c" text-anchor="middle">899</text>
+
+    <!-- B: dip -->
+    <circle cx="270" cy="203.5" r="7" fill="#dc2626" stroke="#991b1b" stroke-width="2"/>
+    <text x="270" y="298" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#991b1b" text-anchor="middle">B</text>
+    <text x="270" y="194" font="9px system-ui" font-size="9" fill="#1a202c" text-anchor="middle">801</text>
+
+    <circle cx="350" cy="176.3" r="6" fill="#2b6cb0" stroke="#1e3a8a" stroke-width="1.5"/>
+    <text x="350" y="298" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">C</text>
+    <text x="350" y="166" font="9px system-ui" font-size="9" fill="#1a202c" text-anchor="middle">1086</text>
+
+    <circle cx="430" cy="146.1" r="6" fill="#2b6cb0" stroke="#1e3a8a" stroke-width="1.5"/>
+    <text x="430" y="298" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">N</text>
+    <text x="430" y="136" font="9px system-ui" font-size="9" fill="#1a202c" text-anchor="middle">1402</text>
+
+    <!-- O: dip -->
+    <circle cx="510" cy="154.5" r="7" fill="#dc2626" stroke="#991b1b" stroke-width="2"/>
+    <text x="510" y="298" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#991b1b" text-anchor="middle">O</text>
+    <text x="510" y="144" font="9px system-ui" font-size="9" fill="#1a202c" text-anchor="middle">1314</text>
+
+    <circle cx="590" cy="119.4" r="6" fill="#2b6cb0" stroke="#1e3a8a" stroke-width="1.5"/>
+    <text x="590" y="298" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">F</text>
+    <text x="590" y="109" font="9px system-ui" font-size="9" fill="#1a202c" text-anchor="middle">1681</text>
+
+    <circle cx="670" cy="81.2" r="6" fill="#2b6cb0" stroke="#1e3a8a" stroke-width="1.5"/>
+    <text x="670" y="298" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">Ne</text>
+    <text x="670" y="71" font="9px system-ui" font-size="9" fill="#1a202c" text-anchor="middle">2081</text>
+  </g>
+
+  <text x="370" y="316" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">element (Z = 3 → 10)</text>
+
+  <!-- Callout 1: Be → B dip -->
+  <g transform="translate(220, 60)">
+    <line x1="50" y1="6" x2="50" y2="143" stroke="#dc2626" stroke-width="1" stroke-dasharray="3 3"/>
+    <rect x="0" y="-6" width="180" height="46" rx="8" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+    <text x="90" y="10" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#991b1b" text-anchor="middle">Dip 1: Be → B</text>
+    <text x="90" y="24" font="9px system-ui" font-size="9" fill="#7c2d12" text-anchor="middle">B starts a new (2p) subshell —</text>
+    <text x="90" y="36" font="9px system-ui" font-size="9" fill="#7c2d12" text-anchor="middle">2p electron is easier to remove.</text>
+  </g>
+
+  <!-- Callout 2: N → O dip -->
+  <g transform="translate(460, 60)">
+    <line x1="50" y1="6" x2="50" y2="94" stroke="#dc2626" stroke-width="1" stroke-dasharray="3 3"/>
+    <rect x="0" y="-6" width="180" height="46" rx="8" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+    <text x="90" y="10" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#991b1b" text-anchor="middle">Dip 2: N → O</text>
+    <text x="90" y="24" font="9px system-ui" font-size="9" fill="#7c2d12" text-anchor="middle">O pairs the 4th 2p electron —</text>
+    <text x="90" y="36" font="9px system-ui" font-size="9" fill="#7c2d12" text-anchor="middle">e⁻–e⁻ repulsion eases removal.</text>
+  </g>
+
+  <!-- Bottom strip -->
+  <g transform="translate(40, 332)">
+    <rect x="0" y="0" width="640" height="40" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+    <text x="320" y="18" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#92400e" text-anchor="middle">Trend: IE₁ rises across (more Z_eff, smaller atom).  Dips: subshell change (Be→B), spin-pair penalty (N→O).</text>
+    <text x="320" y="32" font="11px system-ui" font-size="11" fill="#92400e" text-anchor="middle">Going down a group, IE₁ falls — outer electron is in a bigger shell, more shielded, easier to remove.</text>
+  </g>
+
+</svg>

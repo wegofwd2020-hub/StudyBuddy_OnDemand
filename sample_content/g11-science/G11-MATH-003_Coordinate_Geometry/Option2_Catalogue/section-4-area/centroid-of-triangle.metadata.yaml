@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-coordinate-geometry-centroid-of-triangle
+kind: image
+subject: math
+topic_phrase: "centroid of a triangle as the average of its vertex coordinates"
+keywords:
+  - centroid
+  - triangle
+  - median
+  - average-coordinates
+  - coordinate-geometry
+license: platform-cc-by-sa
+source_unit: G11-MATH-003

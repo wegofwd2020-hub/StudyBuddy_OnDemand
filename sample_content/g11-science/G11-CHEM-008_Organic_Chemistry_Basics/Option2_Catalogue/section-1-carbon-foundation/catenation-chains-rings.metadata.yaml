@@ -1,0 +1,13 @@
+schema_version: 1
+id: chemistry-catenation-chains-rings
+kind: image
+subject: chemistry
+topic_phrase: "catenation carbon chains branched rings n-pentane cyclopentane"
+keywords:
+  - catenation
+  - straight-chain
+  - branched-chain
+  - cyclic
+  - skeletal-formula
+license: platform-cc-by-sa
+source_unit: G11-CHEM-008

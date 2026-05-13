@@ -1,0 +1,17 @@
+schema_version: 1
+id: chemistry-vsepr-lone-pair-effect
+kind: image
+subject: chemistry
+topic_phrase: "vsepr lone pair bond angle compression methane ammonia water"
+keywords:
+  - vsepr
+  - lone-pair
+  - bond-angle
+  - methane
+  - ammonia
+  - water
+  - tetrahedral
+  - bent
+  - trigonal-pyramidal
+license: platform-cc-by-sa
+source_unit: G11-CHEM-004

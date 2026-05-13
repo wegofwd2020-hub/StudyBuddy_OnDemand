@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 320" width="600" height="320" role="img" aria-label="Zeroth Law of Thermodynamics: thermal equilibrium is transitive">
+  <title>Zeroth Law — Thermal Equilibrium is Transitive</title>
+  <desc>Three bodies A, B, and C. A is in thermal equilibrium with C, and B is in thermal equilibrium with C. The Zeroth Law states that A must therefore also be in thermal equilibrium with B. This justifies the use of a thermometer.</desc>
+
+  <text x="300" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Zeroth Law of Thermodynamics</text>
+  <text x="300" y="40" font-size="12" font-style="italic" fill="#4a5568" text-anchor="middle">If A and B are each in thermal equilibrium with C, then A and B are in equilibrium with each other.</text>
+
+  <!-- Body A (top-left) -->
+  <rect x="60" y="78" width="120" height="100" rx="10" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2.5" />
+  <text x="120" y="105" font-size="22" font-weight="700" fill="#1d4ed8" text-anchor="middle">A</text>
+  <text x="120" y="135" font-size="12" font-weight="700" fill="#1d4ed8" text-anchor="middle">T = 25 °C</text>
+  <text x="120" y="160" font-size="10" fill="#1e3a8a" text-anchor="middle">cup of water</text>
+
+  <!-- Body B (top-right) -->
+  <rect x="420" y="78" width="120" height="100" rx="10" fill="#fed7aa" stroke="#dd6b20" stroke-width="2.5" />
+  <text x="480" y="105" font-size="22" font-weight="700" fill="#dd6b20" text-anchor="middle">B</text>
+  <text x="480" y="135" font-size="12" font-weight="700" fill="#dd6b20" text-anchor="middle">T = 25 °C</text>
+  <text x="480" y="160" font-size="10" fill="#7c2d12" text-anchor="middle">metal block</text>
+
+  <!-- Body C (bottom centre — thermometer) -->
+  <rect x="240" y="200" width="120" height="100" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="2.5" />
+  <text x="300" y="228" font-size="22" font-weight="700" fill="#15803d" text-anchor="middle">C</text>
+  <text x="300" y="258" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">T = 25 °C</text>
+  <text x="300" y="280" font-size="10" fill="#14532d" text-anchor="middle">thermometer</text>
+
+  <!-- Equilibrium connector A — C -->
+  <line x1="120" y1="178" x2="270" y2="200" stroke="#15803d" stroke-width="2" stroke-dasharray="4 4" />
+  <rect x="170" y="183" width="36" height="14" rx="3" fill="#dcfce7" stroke="#15803d" stroke-width="1" />
+  <text x="188" y="194" font-size="9" font-weight="700" fill="#15803d" text-anchor="middle">A ≡ C</text>
+
+  <!-- Equilibrium connector B — C -->
+  <line x1="480" y1="178" x2="330" y2="200" stroke="#15803d" stroke-width="2" stroke-dasharray="4 4" />
+  <rect x="395" y="183" width="36" height="14" rx="3" fill="#dcfce7" stroke="#15803d" stroke-width="1" />
+  <text x="413" y="194" font-size="9" font-weight="700" fill="#15803d" text-anchor="middle">B ≡ C</text>
+
+  <!-- Implied connector A — B (the conclusion) -->
+  <line x1="180" y1="128" x2="420" y2="128" stroke="#dc2626" stroke-width="2.6" />
+  <polygon points="420,128 410,123 410,133" fill="#dc2626" />
+  <polygon points="180,128 190,123 190,133" fill="#dc2626" />
+  <rect x="265" y="116" width="70" height="20" rx="4" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5" />
+  <text x="300" y="130" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">∴ A ≡ B</text>
+
+  <!-- Bottom caption -->
+  <rect x="30" y="284" width="540" height="30" rx="6" fill="#f7fafc" stroke="#cbd5e1" />
+  <text x="42" y="302" font-size="11" font-weight="700" fill="#1a202c">Why it matters:</text>
+  <text x="135" y="302" font-size="11" fill="#1a202c">temperature is well-defined — a thermometer reads the same value for any two bodies in equilibrium.</text>
+</svg>

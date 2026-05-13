@@ -1,0 +1,14 @@
+schema_version: 1
+id: chemistry-vsepr-electron-pair-geometry-table
+kind: image
+subject: chemistry
+topic_phrase: "vsepr table steric number electron pair geometry molecular shape lookup"
+keywords:
+  - vsepr
+  - steric-number
+  - electron-pair-geometry
+  - molecular-shape
+  - bond-angle
+  - reference-table
+license: platform-cc-by-sa
+source_unit: G11-CHEM-004

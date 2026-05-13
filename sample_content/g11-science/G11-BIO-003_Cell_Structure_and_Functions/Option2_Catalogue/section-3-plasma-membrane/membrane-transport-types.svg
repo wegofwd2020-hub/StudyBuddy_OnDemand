@@ -1,0 +1,233 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 540" width="880" height="540" role="img" aria-label="Five mechanisms of transport across the plasma membrane: simple diffusion, facilitated diffusion, osmosis, active transport, endocytosis and exocytosis">
+  <title>Transport Across the Membrane — Five Mechanisms</title>
+  <desc>A grid of five panels showing how molecules cross the plasma membrane. Top row (passive transport — no ATP cost, moves down concentration gradient): simple diffusion of small non-polar molecules straight through the bilayer; facilitated diffusion of glucose or ions through a channel or carrier protein; osmosis — water through aquaporins down a water-potential gradient. Bottom row (active transport — ATP-powered, moves up gradient): primary active transport via a pump, e.g. Na+/K+ ATPase pumping 3 Na+ out and 2 K+ in per ATP; bulk transport — endocytosis (membrane invaginates around large material to form a vesicle) and exocytosis (a vesicle fuses with the membrane to release its contents). A summary table at the bottom contrasts passive vs active.</desc>
+
+  <text x="440" y="24" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">How Things Cross the Plasma Membrane — Five Mechanisms</text>
+  <text x="440" y="42" font-size="11" fill="#4a5568" text-anchor="middle">Top row: passive (no ATP cost). Bottom row: active (ATP-powered) and bulk transport.</text>
+
+  <!-- ────────────────────────────── -->
+  <!-- TOP ROW: Passive               -->
+  <!-- ────────────────────────────── -->
+
+  <!-- Panel 1: Simple Diffusion -->
+  <g transform="translate(20, 60)">
+    <rect x="0" y="0" width="280" height="220" fill="#f0fdf4" stroke="#15803d" stroke-width="1.5" rx="8"/>
+    <text x="140" y="20" font-size="13" font-weight="700" fill="#14532d" text-anchor="middle">1. Simple Diffusion</text>
+    <text x="140" y="36" font-size="9" fill="#4a5568" text-anchor="middle">passive · O₂, CO₂, small non-polar</text>
+
+    <!-- Bilayer -->
+    <rect x="20" y="100" width="240" height="50" fill="#fef3c7" stroke="#b45309" stroke-width="1"/>
+    <line x1="20" y1="110" x2="260" y2="110" stroke="#b45309" stroke-width="1.5"/>
+    <line x1="20" y1="140" x2="260" y2="140" stroke="#b45309" stroke-width="1.5"/>
+    <text x="140" y="92" font-size="9" fill="#1e3a8a" text-anchor="middle">OUTSIDE (high concentration)</text>
+    <text x="140" y="170" font-size="9" fill="#78350f" text-anchor="middle">INSIDE (low concentration)</text>
+
+    <!-- Particles outside (many) -->
+    <g fill="#dc2626">
+      <circle cx="40" cy="60" r="4"/><circle cx="70" cy="68" r="4"/><circle cx="100" cy="56" r="4"/>
+      <circle cx="130" cy="64" r="4"/><circle cx="160" cy="58" r="4"/><circle cx="190" cy="66" r="4"/>
+      <circle cx="220" cy="60" r="4"/><circle cx="250" cy="68" r="4"/>
+      <circle cx="55" cy="80" r="4"/><circle cx="115" cy="84" r="4"/><circle cx="175" cy="80" r="4"/><circle cx="235" cy="84" r="4"/>
+    </g>
+    <!-- One particle crossing -->
+    <circle cx="140" cy="125" r="4" fill="#dc2626"/>
+    <!-- Particles inside (few) -->
+    <g fill="#dc2626">
+      <circle cx="80" cy="180" r="4"/><circle cx="200" cy="190" r="4"/>
+    </g>
+    <!-- Arrow -->
+    <line x1="140" y1="80" x2="140" y2="180" stroke="#15803d" stroke-width="2"/>
+    <polygon points="140,180 134,172 146,172" fill="#15803d"/>
+
+    <text x="140" y="208" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">straight through the bilayer</text>
+  </g>
+
+  <!-- Panel 2: Facilitated Diffusion -->
+  <g transform="translate(310, 60)">
+    <rect x="0" y="0" width="280" height="220" fill="#f0fdf4" stroke="#15803d" stroke-width="1.5" rx="8"/>
+    <text x="140" y="20" font-size="13" font-weight="700" fill="#14532d" text-anchor="middle">2. Facilitated Diffusion</text>
+    <text x="140" y="36" font-size="9" fill="#4a5568" text-anchor="middle">passive · glucose, ions through a protein</text>
+
+    <!-- Bilayer -->
+    <rect x="20" y="100" width="240" height="50" fill="#fef3c7" stroke="#b45309" stroke-width="1"/>
+    <line x1="20" y1="110" x2="260" y2="110" stroke="#b45309" stroke-width="1.5"/>
+    <line x1="20" y1="140" x2="260" y2="140" stroke="#b45309" stroke-width="1.5"/>
+
+    <!-- Channel protein -->
+    <rect x="120" y="100" width="40" height="50" rx="4" fill="#bfdbfe" stroke="#1e3a8a" stroke-width="2"/>
+    <rect x="130" y="108" width="20" height="34" fill="#dbeafe" stroke="#1e3a8a" stroke-width="1"/>
+
+    <!-- Glucose particles outside (many) -->
+    <g fill="#7c3aed">
+      <circle cx="40" cy="60" r="5"/><circle cx="70" cy="70" r="5"/><circle cx="200" cy="60" r="5"/>
+      <circle cx="230" cy="70" r="5"/><circle cx="100" cy="60" r="5"/><circle cx="170" cy="70" r="5"/>
+      <circle cx="55" cy="84" r="5"/><circle cx="220" cy="84" r="5"/>
+    </g>
+    <!-- Glucose moving through channel -->
+    <circle cx="140" cy="125" r="5" fill="#7c3aed"/>
+    <!-- Few inside -->
+    <circle cx="100" cy="190" r="5" fill="#7c3aed"/>
+
+    <!-- Arrow through channel -->
+    <line x1="140" y1="84" x2="140" y2="180" stroke="#15803d" stroke-width="2"/>
+    <polygon points="140,180 134,172 146,172" fill="#15803d"/>
+
+    <text x="140" y="208" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">through a channel — still down gradient</text>
+  </g>
+
+  <!-- Panel 3: Osmosis -->
+  <g transform="translate(600, 60)">
+    <rect x="0" y="0" width="260" height="220" fill="#f0fdf4" stroke="#15803d" stroke-width="1.5" rx="8"/>
+    <text x="130" y="20" font-size="13" font-weight="700" fill="#14532d" text-anchor="middle">3. Osmosis</text>
+    <text x="130" y="36" font-size="9" fill="#4a5568" text-anchor="middle">passive · water through aquaporins</text>
+
+    <!-- Bilayer -->
+    <rect x="20" y="100" width="220" height="50" fill="#fef3c7" stroke="#b45309" stroke-width="1"/>
+    <line x1="20" y1="110" x2="240" y2="110" stroke="#b45309" stroke-width="1.5"/>
+    <line x1="20" y1="140" x2="240" y2="140" stroke="#b45309" stroke-width="1.5"/>
+
+    <!-- Aquaporin -->
+    <rect x="110" y="100" width="40" height="50" rx="20" fill="#bfdbfe" stroke="#0e7490" stroke-width="2"/>
+    <text x="130" y="130" font-size="9" fill="#0e7490" font-weight="700" text-anchor="middle">AQP</text>
+
+    <!-- Water molecules (small blue tear shapes) outside -->
+    <g fill="#0e7490">
+      <circle cx="40" cy="60" r="3"/><circle cx="60" cy="68" r="3"/><circle cx="80" cy="60" r="3"/>
+      <circle cx="100" cy="68" r="3"/><circle cx="160" cy="60" r="3"/><circle cx="180" cy="68" r="3"/>
+      <circle cx="200" cy="60" r="3"/><circle cx="220" cy="68" r="3"/>
+      <circle cx="50" cy="84" r="3"/><circle cx="110" cy="84" r="3"/><circle cx="170" cy="84" r="3"/><circle cx="210" cy="84" r="3"/>
+      <text x="40" y="62" font-size="6" fill="#fff" text-anchor="middle">w</text>
+    </g>
+    <!-- Water through aquaporin -->
+    <circle cx="130" cy="125" r="3" fill="#0e7490"/>
+    <!-- Few inside (with solute making lower water potential) -->
+    <g fill="#0e7490">
+      <circle cx="60" cy="190" r="3"/><circle cx="200" cy="190" r="3"/>
+    </g>
+    <g fill="#dc2626">
+      <circle cx="100" cy="180" r="5"/><circle cx="160" cy="190" r="5"/><circle cx="130" cy="200" r="5"/>
+    </g>
+    <text x="130" y="172" font-size="8" fill="#dc2626" text-anchor="middle">solute</text>
+
+    <line x1="130" y1="84" x2="130" y2="180" stroke="#15803d" stroke-width="2"/>
+    <polygon points="130,180 124,172 136,172" fill="#15803d"/>
+
+    <text x="130" y="208" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">water → lower water potential</text>
+  </g>
+
+
+  <!-- ────────────────────────────── -->
+  <!-- BOTTOM ROW: Active             -->
+  <!-- ────────────────────────────── -->
+
+  <!-- Panel 4: Primary Active Transport (Na+/K+ ATPase) -->
+  <g transform="translate(20, 296)">
+    <rect x="0" y="0" width="420" height="180" fill="#fef2f2" stroke="#dc2626" stroke-width="1.5" rx="8"/>
+    <text x="210" y="20" font-size="13" font-weight="700" fill="#7f1d1d" text-anchor="middle">4. Active Transport (pump)</text>
+    <text x="210" y="36" font-size="9" fill="#4a5568" text-anchor="middle">requires ATP · moves up the concentration gradient</text>
+
+    <!-- Bilayer -->
+    <rect x="20" y="78" width="380" height="48" fill="#fef3c7" stroke="#b45309" stroke-width="1"/>
+    <line x1="20" y1="86" x2="400" y2="86" stroke="#b45309" stroke-width="1.5"/>
+    <line x1="20" y1="118" x2="400" y2="118" stroke="#b45309" stroke-width="1.5"/>
+
+    <!-- Pump (Na+/K+ ATPase) -->
+    <rect x="170" y="78" width="80" height="48" rx="6" fill="#bbf7d0" stroke="#15803d" stroke-width="2"/>
+    <text x="210" y="106" font-size="10" font-weight="700" fill="#15803d" text-anchor="middle">Na⁺/K⁺ pump</text>
+
+    <!-- ATP marker -->
+    <circle cx="296" cy="102" r="8" fill="#15803d"/>
+    <text x="296" y="106" font-size="9" fill="#fff" text-anchor="middle">ATP</text>
+    <line x1="288" y1="102" x2="252" y2="102" stroke="#15803d" stroke-width="2"/>
+    <polygon points="252,102 258,98 258,106" fill="#15803d"/>
+    <text x="296" y="80" font-size="9" font-weight="700" fill="#15803d" text-anchor="middle">→ ADP + Pᵢ</text>
+
+    <!-- Na+ moving OUT (3 going up) -->
+    <text x="100" y="160" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">3 Na⁺ out</text>
+    <line x1="100" y1="138" x2="100" y2="60" stroke="#1e3a8a" stroke-width="2.5"/>
+    <polygon points="100,60 94,68 106,68" fill="#1e3a8a"/>
+    <g fill="#1e3a8a">
+      <circle cx="80" cy="60" r="6"/><text x="80" y="64" font-size="7" fill="#fff" text-anchor="middle">Na</text>
+      <circle cx="100" cy="60" r="6"/><text x="100" y="64" font-size="7" fill="#fff" text-anchor="middle">Na</text>
+      <circle cx="120" cy="60" r="6"/><text x="120" y="64" font-size="7" fill="#fff" text-anchor="middle">Na</text>
+    </g>
+
+    <!-- K+ moving IN (2 coming down) -->
+    <text x="340" y="160" font-size="11" font-weight="700" fill="#7c3aed" text-anchor="middle">2 K⁺ in</text>
+    <line x1="340" y1="60" x2="340" y2="138" stroke="#7c3aed" stroke-width="2.5"/>
+    <polygon points="340,138 334,130 346,130" fill="#7c3aed"/>
+    <g fill="#7c3aed">
+      <circle cx="320" cy="160" r="6"/><text x="320" y="164" font-size="7" fill="#fff" text-anchor="middle">K</text>
+      <circle cx="360" cy="160" r="6"/><text x="360" y="164" font-size="7" fill="#fff" text-anchor="middle">K</text>
+    </g>
+
+    <text x="40" y="76" font-size="9" font-weight="700" fill="#1e3a8a">OUTSIDE</text>
+    <text x="40" y="142" font-size="9" font-weight="700" fill="#78350f">INSIDE</text>
+  </g>
+
+  <!-- Panel 5: Endocytosis / Exocytosis -->
+  <g transform="translate(450, 296)">
+    <rect x="0" y="0" width="410" height="180" fill="#fef2f2" stroke="#dc2626" stroke-width="1.5" rx="8"/>
+    <text x="205" y="20" font-size="13" font-weight="700" fill="#7f1d1d" text-anchor="middle">5. Bulk Transport — endocytosis &amp; exocytosis</text>
+    <text x="205" y="36" font-size="9" fill="#4a5568" text-anchor="middle">membrane invagination · large particles · ATP cost</text>
+
+    <!-- ENDOCYTOSIS (left side) -->
+    <text x="100" y="58" font-size="10" font-weight="700" fill="#15803d" text-anchor="middle">Endocytosis (in)</text>
+
+    <!-- Three stages -->
+    <!-- Stage A: particle approaches -->
+    <line x1="22" y1="100" x2="78" y2="100" stroke="#b45309" stroke-width="2"/>
+    <line x1="22" y1="106" x2="78" y2="106" stroke="#b45309" stroke-width="2"/>
+    <circle cx="50" cy="80" r="6" fill="#dc2626"/>
+    <line x1="50" y1="86" x2="50" y2="92" stroke="#dc2626" stroke-width="2"/>
+    <polygon points="50,92 46,86 54,86" fill="#dc2626"/>
+
+    <!-- Stage B: invagination -->
+    <path d="M 88 100 Q 100 100 110 116 Q 116 130 130 116 Q 138 100 156 100" fill="none" stroke="#b45309" stroke-width="2"/>
+    <path d="M 88 106 Q 100 106 110 122 Q 116 134 130 122 Q 138 106 156 106" fill="none" stroke="#b45309" stroke-width="2"/>
+    <circle cx="118" cy="120" r="5" fill="#dc2626"/>
+
+    <!-- Stage C: vesicle inside -->
+    <line x1="166" y1="100" x2="222" y2="100" stroke="#b45309" stroke-width="2"/>
+    <line x1="166" y1="106" x2="222" y2="106" stroke="#b45309" stroke-width="2"/>
+    <circle cx="194" cy="138" r="14" fill="#fef3c7" stroke="#b45309" stroke-width="2"/>
+    <circle cx="194" cy="138" r="4" fill="#dc2626"/>
+
+    <text x="100" y="170" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">membrane wraps around → vesicle pinches off inward</text>
+
+    <!-- EXOCYTOSIS (right side) -->
+    <text x="320" y="58" font-size="10" font-weight="700" fill="#15803d" text-anchor="middle">Exocytosis (out)</text>
+
+    <!-- Vesicle approaches from inside -->
+    <line x1="240" y1="100" x2="296" y2="100" stroke="#b45309" stroke-width="2"/>
+    <line x1="240" y1="106" x2="296" y2="106" stroke="#b45309" stroke-width="2"/>
+    <circle cx="268" cy="138" r="14" fill="#bbf7d0" stroke="#15803d" stroke-width="2"/>
+    <circle cx="268" cy="138" r="4" fill="#dc2626"/>
+    <line x1="268" y1="124" x2="268" y2="116" stroke="#15803d" stroke-width="2"/>
+    <polygon points="268,116 264,122 272,122" fill="#15803d"/>
+
+    <!-- Vesicle fusing -->
+    <path d="M 306 100 Q 320 100 330 86 Q 336 70 350 86 Q 358 100 374 100" fill="none" stroke="#b45309" stroke-width="2"/>
+    <path d="M 306 106 Q 320 106 330 92 Q 336 76 350 92 Q 358 106 374 106" fill="none" stroke="#b45309" stroke-width="2"/>
+    <circle cx="342" cy="86" r="4" fill="#dc2626"/>
+
+    <!-- Released outside -->
+    <line x1="384" y1="100" x2="404" y2="100" stroke="#b45309" stroke-width="2"/>
+    <line x1="384" y1="106" x2="404" y2="106" stroke="#b45309" stroke-width="2"/>
+    <circle cx="394" cy="76" r="5" fill="#dc2626"/>
+    <line x1="394" y1="86" x2="394" y2="80" stroke="#dc2626" stroke-width="2"/>
+    <polygon points="394,80 390,86 398,86" fill="#dc2626"/>
+
+    <text x="320" y="170" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">vesicle fuses with membrane → contents released outside</text>
+  </g>
+
+
+  <!-- ── COMPARISON TABLE ─────────────────────────────────── -->
+  <text x="440" y="500" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Passive vs Active</text>
+  <rect x="40" y="510" width="220" height="22" fill="#f0fdf4" stroke="#15803d" stroke-width="1"/>
+  <rect x="260" y="510" width="280" height="22" fill="#fef2f2" stroke="#dc2626" stroke-width="1"/>
+  <rect x="540" y="510" width="280" height="22" fill="#fef2f2" stroke="#dc2626" stroke-width="1"/>
+  <text x="150" y="525" font-size="10" font-weight="700" fill="#14532d" text-anchor="middle">Passive — no ATP, down gradient</text>
+  <text x="400" y="525" font-size="10" font-weight="700" fill="#7f1d1d" text-anchor="middle">Active (pump) — ATP, up gradient</text>
+  <text x="680" y="525" font-size="10" font-weight="700" fill="#7f1d1d" text-anchor="middle">Bulk — vesicle + ATP, very large</text>
+</svg>

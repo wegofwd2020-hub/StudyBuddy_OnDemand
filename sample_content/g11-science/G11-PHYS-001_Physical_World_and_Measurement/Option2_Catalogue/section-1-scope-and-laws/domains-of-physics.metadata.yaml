@@ -1,0 +1,17 @@
+schema_version: 1
+id: physics-physical-world-domains-of-physics
+kind: image
+subject: physics
+topic_phrase: "tree diagram of classical and modern domains of physics"
+keywords:
+  - physical-world
+  - domains
+  - classical-physics
+  - modern-physics
+  - mechanics
+  - thermodynamics
+  - electromagnetism
+  - relativity
+  - quantum
+license: platform-cc-by-sa
+source_unit: G11-PHYS-001

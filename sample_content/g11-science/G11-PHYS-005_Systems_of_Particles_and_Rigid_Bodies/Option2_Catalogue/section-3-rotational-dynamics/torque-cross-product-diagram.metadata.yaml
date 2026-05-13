@@ -1,0 +1,15 @@
+# Auto-generated style sidecar — paired with torque-cross-product-diagram.svg
+schema_version: 1
+id: physics-systems-of-particles-torque-cross-product-diagram
+kind: image
+subject: physics
+topic_phrase: "torque as the cross product of position vector r and force F with right-hand rule"
+keywords:
+  - torque
+  - cross-product
+  - lever-arm
+  - right-hand-rule
+  - rotational-dynamics
+  - r-cross-f
+license: platform-cc-by-sa
+source_unit: G11-PHYS-005

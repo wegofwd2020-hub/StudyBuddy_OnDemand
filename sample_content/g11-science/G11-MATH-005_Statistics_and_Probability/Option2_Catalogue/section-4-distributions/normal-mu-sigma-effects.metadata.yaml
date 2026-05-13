@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-stats-normal-mu-sigma-effects
+kind: image
+subject: math
+topic_phrase: "three normal density curves illustrating how the mean shifts the bell and the standard deviation rescales it"
+keywords:
+  - normal-distribution
+  - parameters
+  - mean-shift
+  - standard-deviation
+  - probability-density-function
+license: platform-cc-by-sa
+source_unit: G11-MATH-005

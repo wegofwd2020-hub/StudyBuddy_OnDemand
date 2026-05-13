@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 320" width="480" height="320" role="img" aria-label="Acceleration versus mass at fixed net force">
+  <title>Acceleration vs mass at fixed net force</title>
+  <desc>Hyperbolic curve a = F/m for F = 12 N, showing that acceleration is inversely proportional to mass when the net force is held constant.</desc>
+
+  <rect x="60" y="32" width="390" height="238" fill="#f7fafc" stroke="#e2e8f0" />
+
+  <!-- Vertical grid (m: 0..6, every 1) -->
+  <line x1="60" y1="32" x2="60" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="60" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">0</text>
+  <line x1="125" y1="32" x2="125" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="125" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">1</text>
+  <line x1="190" y1="32" x2="190" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="190" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">2</text>
+  <line x1="255" y1="32" x2="255" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="255" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">3</text>
+  <line x1="320" y1="32" x2="320" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="320" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">4</text>
+  <line x1="385" y1="32" x2="385" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="385" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">5</text>
+  <line x1="450" y1="32" x2="450" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="450" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">6</text>
+
+  <!-- Horizontal grid (a: 0..12, every 2) -->
+  <line x1="60" y1="270" x2="450" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="274" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">0</text>
+  <line x1="60" y1="230.33" x2="450" y2="230.33" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="234.33" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">2</text>
+  <line x1="60" y1="190.67" x2="450" y2="190.67" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="194.67" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">4</text>
+  <line x1="60" y1="151" x2="450" y2="151" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="155" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">6</text>
+  <line x1="60" y1="111.33" x2="450" y2="111.33" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="115.33" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">8</text>
+  <line x1="60" y1="71.67" x2="450" y2="71.67" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="75.67" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">10</text>
+  <line x1="60" y1="32" x2="450" y2="32" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="36" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">12</text>
+
+  <line x1="60" y1="270" x2="450" y2="270" stroke="#94a3b8" stroke-width="1.2" />
+  <line x1="60" y1="32" x2="60" y2="270" stroke="#94a3b8" stroke-width="1.2" />
+
+  <text x="255" y="302" font="13px system-ui" font-size="13" font-weight="600" fill="#1a202c" text-anchor="middle">m (kg)</text>
+  <text x="24" y="151" font="13px system-ui" font-size="13" font-weight="600" fill="#1a202c" text-anchor="middle" transform="rotate(-90 24 151)">a (m/s²)</text>
+
+  <text x="255" y="20" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">a vs m at fixed force (F = 12 N)</text>
+
+  <!-- Hyperbolic curve a = 12/m -->
+  <polyline points="126.46,37.24 128.25,43.33 130.04,49.12 131.82,54.62 133.61,59.85 135.40,64.83 137.19,69.58 138.98,74.12 140.76,78.45 142.55,82.60 144.34,86.57 146.12,90.38 147.91,94.03 149.70,97.54 151.49,100.91 153.28,104.15 155.06,107.26 156.85,110.27 158.64,113.16 160.43,115.95 162.21,118.65 164.00,121.25 165.79,123.76 167.57,126.19 169.36,128.54 171.15,130.82 172.94,133.02 174.73,135.16 176.51,137.22 178.30,139.23 180.09,141.18 181.88,143.07 183.66,144.90 185.45,146.68 187.24,148.42 189.03,150.10 190.81,151.74 192.60,153.33 194.39,154.89 196.17,156.40 197.96,157.87 199.75,159.30 201.54,160.70 203.32,162.06 205.11,163.39 206.90,164.69 208.69,165.96 210.48,167.19 212.26,168.40 214.05,169.58 215.84,170.73 217.62,171.86 219.41,172.96 221.20,174.03 222.99,175.08 224.78,176.11 226.56,177.12 228.35,178.11 230.14,179.07 231.93,180.02 233.71,180.94 235.50,181.85 237.29,182.74 239.07,183.61 240.86,184.47 242.65,185.30 244.44,186.12 246.22,186.93 248.01,187.72 249.80,188.49 251.59,189.25 253.38,190.00 255.16,190.73 256.95,191.45 258.74,192.16 260.52,192.85 262.31,193.53 264.10,194.20 265.89,194.86 267.67,195.51 269.46,196.14 271.25,196.77 273.04,197.38 274.83,197.99 276.61,198.58 278.40,199.17 280.19,199.74 281.98,200.31 283.76,200.86 285.55,201.41 287.34,201.95 289.12,202.48 290.91,203.00 292.70,203.52 294.49,204.03 296.27,204.53 298.06,205.02 299.85,205.50 301.64,205.98 303.42,206.45 305.21,206.91 307.00,207.37 308.79,207.82 310.57,208.26 312.36,208.70 314.15,209.13 315.94,209.56 317.72,209.97 319.51,210.39 321.30,210.80 323.09,211.20 324.88,211.60 326.66,211.99 328.45,212.37 330.24,212.75 332.03,213.13 333.81,213.50 335.60,213.87 337.39,214.23 339.18,214.59 340.96,214.94 342.75,215.29 344.54,215.63 346.32,215.97 348.11,216.31 349.90,216.64 351.69,216.96 353.47,217.29 355.26,217.61 357.05,217.92 358.84,218.23 360.62,218.54 362.41,218.84 364.20,219.15 365.99,219.44 367.78,219.74 369.56,220.03 371.35,220.31 373.14,220.60 374.93,220.88 376.71,221.15 378.50,221.43 380.29,221.70 382.07,221.97 383.86,222.23 385.65,222.50 387.44,222.75 389.22,223.01 391.01,223.26 392.80,223.52 394.59,223.76 396.38,224.01 398.16,224.25 399.95,224.49 401.74,224.73 403.53,224.97 405.31,225.20 407.10,225.43 408.89,225.66 410.68,225.89 412.46,226.11 414.25,226.33 416.04,226.55 417.82,226.77 419.61,226.98 421.40,227.19 423.19,227.40 424.98,227.61 426.76,227.82 428.55,228.02 430.34,228.23 432.12,228.43 433.91,228.63 435.70,228.82 437.49,229.02 439.28,229.21 441.06,229.40 442.85,229.59 444.64,229.78 446.43,229.97 448.21,230.15 450.00,230.33"
+    fill="none" stroke="#dd6b20" stroke-width="3.5" stroke-linecap="round" />
+
+  <!-- Sample points -->
+  <circle cx="125" cy="32" r="4" fill="#dd6b20" />
+  <text x="135" y="34" font="11px system-ui" font-size="11" font-weight="600" fill="#dd6b20">1 kg → 12 m/s²</text>
+  <circle cx="190" cy="151" r="4" fill="#dd6b20" />
+  <text x="200" y="148" font="11px system-ui" font-size="11" font-weight="600" fill="#dd6b20">2 kg → 6 m/s²</text>
+  <circle cx="320" cy="210.33" r="4" fill="#dd6b20" />
+  <text x="330" y="207" font="11px system-ui" font-size="11" font-weight="600" fill="#dd6b20">4 kg → 3 m/s²</text>
+
+  <text x="255" y="316" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">a is inversely proportional to mass at fixed force.  Doubling m halves a.</text>
+</svg>

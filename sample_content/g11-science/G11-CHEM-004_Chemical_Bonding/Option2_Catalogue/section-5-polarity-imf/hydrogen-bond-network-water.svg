@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380" role="img" aria-label="Hydrogen-bond network in liquid water — central H2O acceptor with up to four neighbours">
+  <title>Hydrogen-bond network in liquid water</title>
+  <desc>A central water molecule acts as both donor (through its 2 O–H bonds) and acceptor (through its 2 lone pairs), engaging up to 4 neighbouring waters. This 3D tetrahedral network explains liquid water's high boiling point, high specific heat, and the lower density of ice compared to liquid water.</desc>
+
+  <text x="360" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Hydrogen Bonding in Water — A Tetrahedral Network</text>
+  <text x="360" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Each water can donate 2 H-bonds (its 2 O–H) and accept 2 (via its 2 lone pairs) → up to 4 neighbours</text>
+
+  <!-- Central H₂O at (360, 200) -->
+  <g transform="translate(360, 200)">
+    <!-- Central O -->
+    <line x1="0" y1="0" x2="-32" y2="24" stroke="#1a202c" stroke-width="2.5" />
+    <line x1="0" y1="0" x2="32"  y2="24" stroke="#1a202c" stroke-width="2.5" />
+    <circle cx="0" cy="0" r="20" fill="#dc2626" stroke="#1a202c" stroke-width="2" />
+    <text x="0" y="5" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">O</text>
+    <circle cx="-32" cy="24" r="13" fill="#fef3c7" stroke="#92400e" stroke-width="1.5" />
+    <text x="-32" y="28" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <circle cx="32"  cy="24" r="13" fill="#fef3c7" stroke="#92400e" stroke-width="1.5" />
+    <text x="32" y="28" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <text x="0" y="-30" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">central H₂O</text>
+  </g>
+
+  <!-- Neighbour 1 — top-left (acceptor, lone pair on its O receives H-bond from central H) -->
+  <!-- BUT actually: central donates via H to neighbour's O. So neighbour O is at top-left, its H atoms point away. -->
+  <!-- Neighbour 1: top-left. Central H (at 360-32, 200+24) = (328, 224)? wait — that's bottom-left -->
+  <!-- Re-route: central O at (360,200). Central H atoms at (-32,24) below — i.e. (328, 224) and (392, 224). So central H's point DOWN-LEFT and DOWN-RIGHT. Donor H-bonds go DOWN-LEFT and DOWN-RIGHT to neighbour Os. The 2 lone pairs of central O accept H-bonds from above (TOP-LEFT and TOP-RIGHT). -->
+
+  <!-- Neighbour TOP-LEFT — donates an H to central O via H-bond -->
+  <g transform="translate(220, 110)">
+    <line x1="0" y1="0" x2="44" y2="38" stroke="#1a202c" stroke-width="2" />
+    <line x1="0" y1="0" x2="-30" y2="-18" stroke="#1a202c" stroke-width="2" />
+    <circle cx="0" cy="0" r="16" fill="#dc2626" stroke="#1a202c" stroke-width="1.5" />
+    <text x="0" y="4" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">O</text>
+    <!-- H pointing toward central O -->
+    <circle cx="44" cy="38" r="10" fill="#fef3c7" stroke="#92400e" stroke-width="1" />
+    <text x="44" y="41" font-size="9" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <circle cx="-30" cy="-18" r="10" fill="#fef3c7" stroke="#92400e" stroke-width="1" />
+    <text x="-30" y="-15" font-size="9" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+  </g>
+  <!-- H-bond from neighbour-TL's H (220+44=264, 110+38=148) to central O (360,200) -->
+  <line x1="276" y1="156" x2="346" y2="194" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="4 3" />
+
+  <!-- Neighbour TOP-RIGHT — donates to central O -->
+  <g transform="translate(500, 110)">
+    <line x1="0" y1="0" x2="-44" y2="38" stroke="#1a202c" stroke-width="2" />
+    <line x1="0" y1="0" x2="30" y2="-18" stroke="#1a202c" stroke-width="2" />
+    <circle cx="0" cy="0" r="16" fill="#dc2626" stroke="#1a202c" stroke-width="1.5" />
+    <text x="0" y="4" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">O</text>
+    <circle cx="-44" cy="38" r="10" fill="#fef3c7" stroke="#92400e" stroke-width="1" />
+    <text x="-44" y="41" font-size="9" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <circle cx="30" cy="-18" r="10" fill="#fef3c7" stroke="#92400e" stroke-width="1" />
+    <text x="30" y="-15" font-size="9" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+  </g>
+  <!-- H-bond from (500-44=456, 110+38=148) to central O (360,200) -->
+  <line x1="444" y1="156" x2="374" y2="194" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="4 3" />
+
+  <!-- Neighbour BOTTOM-LEFT — accepts H-bond from central H -->
+  <g transform="translate(220, 290)">
+    <line x1="0" y1="0" x2="44" y2="-22" stroke="#1a202c" stroke-width="2" />
+    <line x1="0" y1="0" x2="-30" y2="20" stroke="#1a202c" stroke-width="2" />
+    <circle cx="0" cy="0" r="16" fill="#dc2626" stroke="#1a202c" stroke-width="1.5" />
+    <text x="0" y="4" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">O</text>
+    <circle cx="44" cy="-22" r="10" fill="#fef3c7" stroke="#92400e" stroke-width="1" />
+    <text x="44" y="-19" font-size="9" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <circle cx="-30" cy="20" r="10" fill="#fef3c7" stroke="#92400e" stroke-width="1" />
+    <text x="-30" y="23" font-size="9" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+  </g>
+  <!-- H-bond from central H (328,224) to neighbour-BL's O (220,290) -->
+  <line x1="320" y1="232" x2="232" y2="282" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="4 3" />
+
+  <!-- Neighbour BOTTOM-RIGHT — accepts -->
+  <g transform="translate(500, 290)">
+    <line x1="0" y1="0" x2="-44" y2="-22" stroke="#1a202c" stroke-width="2" />
+    <line x1="0" y1="0" x2="30" y2="20" stroke="#1a202c" stroke-width="2" />
+    <circle cx="0" cy="0" r="16" fill="#dc2626" stroke="#1a202c" stroke-width="1.5" />
+    <text x="0" y="4" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">O</text>
+    <circle cx="-44" cy="-22" r="10" fill="#fef3c7" stroke="#92400e" stroke-width="1" />
+    <text x="-44" y="-19" font-size="9" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <circle cx="30" cy="20" r="10" fill="#fef3c7" stroke="#92400e" stroke-width="1" />
+    <text x="30" y="23" font-size="9" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+  </g>
+  <!-- H-bond from central H (392,224) to neighbour-BR (500,290) -->
+  <line x1="400" y1="232" x2="488" y2="282" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="4 3" />
+
+  <!-- Legend -->
+  <rect x="40"  y="346" width="20" height="6" fill="#1a202c" />
+  <text x="68" y="352" font-size="11" fill="#1a202c">covalent O–H bond</text>
+
+  <line x1="220" y1="349" x2="240" y2="349" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="4 3" />
+  <text x="248" y="352" font-size="11" fill="#dc2626" font-weight="700">hydrogen bond (~ 21 kJ mol⁻¹)</text>
+
+  <text x="500" y="352" font-size="11" font-weight="700" fill="#14532d">→ Why ice floats: open tetrahedral lattice, lower density than liquid</text>
+</svg>

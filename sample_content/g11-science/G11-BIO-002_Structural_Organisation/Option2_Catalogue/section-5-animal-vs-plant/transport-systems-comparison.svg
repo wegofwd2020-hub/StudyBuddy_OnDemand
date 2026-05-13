@@ -1,0 +1,141 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 460" width="760" height="460" role="img" aria-label="Animal blood vessels vs plant xylem and phloem">
+  <title>Transport systems compared — animal blood vessels vs plant xylem + phloem</title>
+  <desc>A side-by-side schematic. Left panel shows an animal silhouette with a heart, an outgoing red artery branching to capillaries, and a returning blue vein. Substances pumped (blood, oxygen, glucose, hormones) and the pump (heart) are listed below. Right panel shows a plant silhouette with leaves and roots; a green xylem channel runs upward from roots to leaves carrying water + minerals, and a red phloem channel runs in both directions carrying sugars from source (leaves) to sink (roots, fruits, growing tips). The drivers (transpiration pull for xylem; pressure-flow for phloem) are listed below. A table at the bottom contrasts the two systems on five rows: pump or driver, what flows, direction, vessel cell status, and energy source.</desc>
+
+  <text x="380" y="22" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Transport Systems — Animal vs Plant</text>
+  <text x="380" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Both move materials through tubes. One has a pump; the other lets physics do the work.</text>
+
+  <!-- ── Animal panel ────────────────────────────────────────── -->
+  <g transform="translate(40, 60)">
+    <rect x="0" y="0" width="340" height="240" rx="10" fill="#f7fafc" stroke="#2b6cb0" stroke-width="2"/>
+    <text x="170" y="22" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">Animal — circulatory system</text>
+
+    <!-- Body silhouette -->
+    <path d="M 170 44 Q 184 44 184 58 Q 184 68 178 72 L 182 92 L 210 110 L 218 168 L 210 210 L 192 210 L 188 180 L 170 180 L 152 180 L 148 210 L 130 210 L 122 168 L 130 110 L 158 92 L 162 72 Q 156 68 156 58 Q 156 44 170 44 Z" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5"/>
+
+    <!-- Heart icon -->
+    <path d="M 170 116 Q 162 108 152 114 Q 144 124 152 138 Q 162 152 170 158 Q 178 152 188 138 Q 196 124 188 114 Q 178 108 170 116 Z" fill="#dc2626" stroke="#7f1d1d" stroke-width="1.5"/>
+
+    <!-- Artery (red, outgoing) - branching -->
+    <path d="M 170 158 Q 156 168 146 188 Q 138 208 130 226" fill="none" stroke="#dc2626" stroke-width="3"/>
+    <path d="M 156 184 Q 142 192 134 200" fill="none" stroke="#dc2626" stroke-width="2"/>
+    <path d="M 150 200 Q 138 208 132 218" fill="none" stroke="#dc2626" stroke-width="1.5"/>
+    <!-- Vein (blue, incoming) -->
+    <path d="M 170 158 Q 184 168 196 188 Q 204 208 212 226" fill="none" stroke="#2b6cb0" stroke-width="3"/>
+    <path d="M 184 184 Q 198 192 206 200" fill="none" stroke="#2b6cb0" stroke-width="2"/>
+    <path d="M 192 200 Q 204 208 210 218" fill="none" stroke="#2b6cb0" stroke-width="1.5"/>
+
+    <!-- Arrows showing direction -->
+    <polygon points="128,224 132,232 136,224" fill="#dc2626"/>
+    <polygon points="208,224 212,232 216,224" fill="#2b6cb0"/>
+
+    <!-- Capillary bed (mesh) -->
+    <g stroke="#7c3aed" stroke-width="0.8" fill="none">
+      <line x1="120" y1="232" x2="220" y2="232"/>
+      <line x1="120" y1="232" x2="125" y2="220"/>
+      <line x1="220" y1="232" x2="215" y2="220"/>
+    </g>
+
+    <!-- Annotations -->
+    <line x1="170" y1="138" x2="280" y2="100" stroke="#4a5568" stroke-width="0.6"/>
+    <text x="284" y="100" font-size="10" font-weight="700" fill="#dc2626">heart (pump)</text>
+
+    <line x1="142" y1="200" x2="60" y2="180" stroke="#4a5568" stroke-width="0.6"/>
+    <text x="56" y="180" font-size="9" font-weight="700" fill="#dc2626" text-anchor="end">artery</text>
+    <text x="56" y="192" font-size="9" font-style="italic" fill="#4a5568" text-anchor="end">heart → tissues</text>
+
+    <line x1="200" y1="200" x2="280" y2="180" stroke="#4a5568" stroke-width="0.6"/>
+    <text x="284" y="180" font-size="9" font-weight="700" fill="#2b6cb0">vein</text>
+    <text x="284" y="192" font-size="9" font-style="italic" fill="#4a5568">tissues → heart</text>
+
+    <line x1="170" y1="232" x2="220" y2="220" stroke="#4a5568" stroke-width="0.6"/>
+    <text x="224" y="220" font-size="9" font-weight="700" fill="#7c3aed">capillary bed</text>
+  </g>
+
+  <!-- ── Plant panel ─────────────────────────────────────────── -->
+  <g transform="translate(400, 60)">
+    <rect x="0" y="0" width="320" height="240" rx="10" fill="#f7fafc" stroke="#15803d" stroke-width="2"/>
+    <text x="160" y="22" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">Plant — vascular tissues</text>
+
+    <!-- Soil line -->
+    <line x1="20" y1="170" x2="300" y2="170" stroke="#78350f" stroke-width="1.5" stroke-dasharray="4 3"/>
+    <rect x="20" y="170" width="280" height="56" fill="#fef3c7" opacity="0.5"/>
+
+    <!-- Stem -->
+    <rect x="155" y="56" width="14" height="114" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+
+    <!-- Leaves -->
+    <path d="M 155 86 Q 130 78 110 90 Q 102 100 116 108 Q 138 110 155 100 Z" fill="#bbf7d0" stroke="#15803d" stroke-width="1.5"/>
+    <path d="M 169 86 Q 194 78 214 90 Q 222 100 208 108 Q 186 110 169 100 Z" fill="#bbf7d0" stroke="#15803d" stroke-width="1.5"/>
+    <path d="M 155 130 Q 130 124 112 134 Q 104 144 116 152 Q 138 154 155 144 Z" fill="#bbf7d0" stroke="#15803d" stroke-width="1.5"/>
+    <path d="M 169 130 Q 194 124 212 134 Q 220 144 208 152 Q 186 154 169 144 Z" fill="#bbf7d0" stroke="#15803d" stroke-width="1.5"/>
+
+    <!-- Roots -->
+    <path d="M 155 170 Q 140 196 120 218" fill="none" stroke="#78350f" stroke-width="2.5"/>
+    <path d="M 169 170 Q 184 196 204 218" fill="none" stroke="#78350f" stroke-width="2.5"/>
+    <line x1="162" y1="170" x2="162" y2="222" stroke="#78350f" stroke-width="2.5"/>
+    <path d="M 145 196 Q 130 200 118 210" fill="none" stroke="#78350f" stroke-width="1"/>
+    <path d="M 178 196 Q 192 200 204 210" fill="none" stroke="#78350f" stroke-width="1"/>
+
+    <!-- Xylem track (turquoise, upward) -->
+    <line x1="160" y1="220" x2="160" y2="60" stroke="#319795" stroke-width="3"/>
+    <polygon points="156,60 160,52 164,60" fill="#319795"/>
+    <text x="160" y="48" font-size="9" font-weight="700" fill="#319795" text-anchor="middle">↑ xylem</text>
+
+    <!-- Phloem track (red, bidirectional) -->
+    <line x1="166" y1="60" x2="166" y2="220" stroke="#dc2626" stroke-width="3" stroke-dasharray="4 2"/>
+    <polygon points="162,60 166,52 170,60" fill="#dc2626"/>
+    <polygon points="162,220 166,228 170,220" fill="#dc2626"/>
+    <text x="200" y="138" font-size="9" font-weight="700" fill="#dc2626">↕ phloem</text>
+
+    <!-- Source / sink labels -->
+    <text x="106" y="78" font-size="9" font-style="italic" fill="#15803d" text-anchor="end">source</text>
+    <text x="106" y="90" font-size="9" fill="#4a5568" text-anchor="end">(leaves make sugar)</text>
+    <text x="218" y="222" font-size="9" font-style="italic" fill="#dc2626">sink</text>
+    <text x="218" y="234" font-size="9" fill="#4a5568">(roots, fruits use sugar)</text>
+
+    <!-- Driver labels -->
+    <line x1="160" y1="100" x2="60" y2="100" stroke="#4a5568" stroke-width="0.6"/>
+    <text x="56" y="100" font-size="9" font-weight="700" fill="#319795" text-anchor="end">transpiration pull</text>
+    <text x="56" y="112" font-size="8" fill="#4a5568" text-anchor="end">(no pump — physics)</text>
+  </g>
+
+  <!-- ── Comparison table ──────────────────────────────────── -->
+  <g transform="translate(40, 320)">
+    <rect x="0" y="0" width="700" height="118" rx="8" fill="#f7fafc" stroke="#cbd5e1" stroke-width="1"/>
+
+    <!-- Headers -->
+    <rect x="0" y="0" width="220" height="22" fill="#1a202c"/>
+    <text x="110" y="16" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">Property</text>
+    <rect x="220" y="0" width="240" height="22" fill="#2b6cb0"/>
+    <text x="340" y="16" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">Animal blood vessels</text>
+    <rect x="460" y="0" width="240" height="22" fill="#15803d"/>
+    <text x="580" y="16" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">Plant xylem + phloem</text>
+
+    <!-- Row 1: Pump -->
+    <text x="14" y="40" font-size="10" font-weight="700" fill="#1a202c">Pump / driver</text>
+    <text x="340" y="40" font-size="10" fill="#4a5568" text-anchor="middle">heart (active, ATP)</text>
+    <text x="580" y="40" font-size="10" fill="#15803d" text-anchor="middle">transpiration + osmotic flow</text>
+
+    <!-- Row 2: What flows -->
+    <text x="14" y="58" font-size="10" font-weight="700" fill="#1a202c">What flows</text>
+    <text x="340" y="58" font-size="10" fill="#4a5568" text-anchor="middle">blood (cells + plasma)</text>
+    <text x="580" y="58" font-size="10" fill="#15803d" text-anchor="middle">water + minerals (xylem); sugars (phloem)</text>
+
+    <!-- Row 3: Direction -->
+    <text x="14" y="76" font-size="10" font-weight="700" fill="#1a202c">Direction</text>
+    <text x="340" y="76" font-size="10" fill="#4a5568" text-anchor="middle">circular (heart → tissues → heart)</text>
+    <text x="580" y="76" font-size="10" fill="#15803d" text-anchor="middle">xylem ↑ only; phloem ↕ source-to-sink</text>
+
+    <!-- Row 4: Cells alive? -->
+    <text x="14" y="94" font-size="10" font-weight="700" fill="#1a202c">Vessel cells</text>
+    <text x="340" y="94" font-size="10" fill="#4a5568" text-anchor="middle">living endothelium</text>
+    <text x="580" y="94" font-size="10" fill="#15803d" text-anchor="middle">xylem dead; phloem alive</text>
+
+    <!-- Row 5: Energy -->
+    <text x="14" y="112" font-size="10" font-weight="700" fill="#1a202c">Energy source</text>
+    <text x="340" y="112" font-size="10" fill="#4a5568" text-anchor="middle">heart muscle ATP</text>
+    <text x="580" y="112" font-size="10" fill="#15803d" text-anchor="middle">solar (drives evaporation)</text>
+  </g>
+  <text x="380" y="452" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">Same problem (move stuff around the body), two different solutions — animals built a pump; plants outsourced the work to the sun.</text>
+</svg>

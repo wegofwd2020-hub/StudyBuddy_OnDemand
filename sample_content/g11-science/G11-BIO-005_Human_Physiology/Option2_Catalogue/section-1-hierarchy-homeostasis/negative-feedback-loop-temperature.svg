@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 480" width="760" height="480" role="img" aria-label="Negative feedback loop for body temperature">
+  <title>Negative feedback — body temperature regulation</title>
+  <desc>A circular flow diagram showing the four canonical components of a negative feedback loop applied to body temperature: stimulus (variable changes), sensor (thermoreceptors), control centre (hypothalamus), effector (sweat glands, blood vessels, skeletal muscle). Two opposing branches are shown — the cooling branch on the right (when core temperature rises above 37.0 °C) and the warming branch on the left (when core temperature falls below 37.0 °C). The set point at the centre is 37.0 °C ± 0.5. Arrows indicate signal direction; the response always opposes the original change, returning the variable toward set point.</desc>
+
+  <text x="380" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Negative Feedback — Keeping Core Body Temperature at 37.0 °C</text>
+  <text x="380" y="40" font-size="11" fill="#4a5568" text-anchor="middle">The response always OPPOSES the original change. Stimulus → Sensor → Integrator → Effector → Response → variable returns to set point.</text>
+
+  <!-- Background -->
+  <rect x="20" y="56" width="720" height="404" rx="14" fill="#f7fafc" stroke="#cbd5e1" stroke-width="1"/>
+
+  <!-- ── Set point block (centre) ────────────────────────────────── -->
+  <rect x="320" y="208" width="120" height="64" rx="10" fill="#1a202c" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="380" y="232" font-size="12" font-weight="700" fill="#f7fafc" text-anchor="middle">SET POINT</text>
+  <text x="380" y="252" font-size="20" font-weight="700" fill="#86efac" text-anchor="middle">37.0 °C</text>
+  <text x="380" y="266" font-size="9" fill="#cbd5e1" text-anchor="middle">± 0.5 °C tolerance</text>
+
+  <!-- ── COOLING branch (right) — too hot ─────────────────────── -->
+  <text x="600" y="84" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">Stimulus: core T rises &gt; 37 °C</text>
+  <text x="600" y="98" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">e.g. exercise, hot day</text>
+
+  <rect x="520" y="108" width="160" height="50" rx="8" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="600" y="128" font-size="11" font-weight="700" fill="#7f1d1d" text-anchor="middle">SENSOR</text>
+  <text x="600" y="144" font-size="10" fill="#4a5568" text-anchor="middle">Skin + hypothalamic</text>
+  <text x="600" y="154" font-size="10" fill="#4a5568" text-anchor="middle">thermoreceptors fire</text>
+
+  <line x1="600" y1="158" x2="600" y2="180" stroke="#dc2626" stroke-width="2"/>
+  <polygon points="596,178 600,188 604,178" fill="#dc2626"/>
+
+  <rect x="520" y="190" width="160" height="50" rx="8" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="600" y="210" font-size="11" font-weight="700" fill="#7f1d1d" text-anchor="middle">CONTROL CENTRE</text>
+  <text x="600" y="226" font-size="10" fill="#4a5568" text-anchor="middle">Pre-optic area of</text>
+  <text x="600" y="236" font-size="10" fill="#4a5568" text-anchor="middle">hypothalamus</text>
+
+  <line x1="600" y1="240" x2="600" y2="262" stroke="#dc2626" stroke-width="2"/>
+  <polygon points="596,260 600,270 604,260" fill="#dc2626"/>
+
+  <rect x="520" y="272" width="160" height="60" rx="8" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="600" y="292" font-size="11" font-weight="700" fill="#7f1d1d" text-anchor="middle">EFFECTORS</text>
+  <text x="600" y="308" font-size="10" fill="#4a5568" text-anchor="middle">• Sweat glands ON</text>
+  <text x="600" y="320" font-size="10" fill="#4a5568" text-anchor="middle">• Skin arterioles dilate</text>
+
+  <text x="600" y="354" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">RESPONSE: heat lost</text>
+  <text x="600" y="368" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">evaporation + radiation</text>
+
+  <!-- Return arrow from cooling response back toward set point -->
+  <path d="M 520 354 Q 460 354 440 270" fill="none" stroke="#dc2626" stroke-width="2" stroke-dasharray="6 4"/>
+  <polygon points="436,272 440,260 446,270" fill="#dc2626"/>
+  <text x="476" y="392" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">core T falls back to 37 °C</text>
+
+  <!-- ── WARMING branch (left) — too cold ─────────────────────── -->
+  <text x="160" y="84" font-size="12" font-weight="700" fill="#2b6cb0" text-anchor="middle">Stimulus: core T falls &lt; 37 °C</text>
+  <text x="160" y="98" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">e.g. cold air, immersion</text>
+
+  <rect x="80" y="108" width="160" height="50" rx="8" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5"/>
+  <text x="160" y="128" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">SENSOR</text>
+  <text x="160" y="144" font-size="10" fill="#4a5568" text-anchor="middle">Skin + hypothalamic</text>
+  <text x="160" y="154" font-size="10" fill="#4a5568" text-anchor="middle">thermoreceptors fire</text>
+
+  <line x1="160" y1="158" x2="160" y2="180" stroke="#2b6cb0" stroke-width="2"/>
+  <polygon points="156,178 160,188 164,178" fill="#2b6cb0"/>
+
+  <rect x="80" y="190" width="160" height="50" rx="8" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5"/>
+  <text x="160" y="210" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">CONTROL CENTRE</text>
+  <text x="160" y="226" font-size="10" fill="#4a5568" text-anchor="middle">Pre-optic area of</text>
+  <text x="160" y="236" font-size="10" fill="#4a5568" text-anchor="middle">hypothalamus</text>
+
+  <line x1="160" y1="240" x2="160" y2="262" stroke="#2b6cb0" stroke-width="2"/>
+  <polygon points="156,260 160,270 164,260" fill="#2b6cb0"/>
+
+  <rect x="80" y="272" width="160" height="60" rx="8" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5"/>
+  <text x="160" y="292" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">EFFECTORS</text>
+  <text x="160" y="308" font-size="10" fill="#4a5568" text-anchor="middle">• Skin arterioles constrict</text>
+  <text x="160" y="320" font-size="10" fill="#4a5568" text-anchor="middle">• Skeletal muscles shiver</text>
+
+  <text x="160" y="354" font-size="11" font-weight="700" fill="#2b6cb0" text-anchor="middle">RESPONSE: heat retained + made</text>
+  <text x="160" y="368" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">vasoconstriction + thermogenesis</text>
+
+  <!-- Return arrow from warming response back toward set point -->
+  <path d="M 240 354 Q 300 354 320 270" fill="none" stroke="#2b6cb0" stroke-width="2" stroke-dasharray="6 4"/>
+  <polygon points="316,272 320,260 326,270" fill="#2b6cb0"/>
+  <text x="284" y="392" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">core T rises back to 37 °C</text>
+
+  <!-- Pointers from set point block out to each branch's "stimulus" arrow -->
+  <line x1="320" y1="222" x2="240" y2="138" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="440" y1="222" x2="520" y2="138" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+
+  <!-- Bottom legend -->
+  <rect x="60" y="412" width="640" height="38" rx="6" fill="#fff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="74" y="430" font-size="10" font-weight="700" fill="#1a202c">Why "negative" feedback?</text>
+  <text x="74" y="444" font-size="10" fill="#4a5568">Each effector response opposes the original disturbance, so the variable swings DOWN toward set point — never amplifies it. Compare with positive feedback (childbirth, blood-clotting cascade), which AMPLIFIES the change until a terminating event halts it.</text>
+</svg>

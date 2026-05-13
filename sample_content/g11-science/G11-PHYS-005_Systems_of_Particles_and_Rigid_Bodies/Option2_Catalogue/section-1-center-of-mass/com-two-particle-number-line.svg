@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 280" width="560" height="280" role="img" aria-label="Centre of mass of a two-particle system on a number line">
+  <title>Centre of mass — two particles on a number line</title>
+  <desc>A 2 kg particle at x = 1 m and a 6 kg particle at x = 5 m sit on a 1D number line. The centre of mass falls at x = 4 m, closer to the heavier particle. The weighted-average formula x_cm = (m1 x1 + m2 x2) / (m1 + m2) is shown.</desc>
+
+  <defs>
+    <marker id="arr-com1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#7c3aed" />
+    </marker>
+  </defs>
+
+  <text x="280" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Centre of Mass — two-particle system on a number line</text>
+
+  <!-- Number line -->
+  <line x1="60" y1="140" x2="500" y2="140" stroke="#1a202c" stroke-width="1.8" />
+  <!-- Tick marks 0..6 -->
+  <g stroke="#1a202c" stroke-width="1.2" font="11px system-ui" font-size="11" fill="#1a202c">
+    <line x1="80"  y1="135" x2="80"  y2="148" />
+    <text x="80"  y="162" text-anchor="middle">0</text>
+    <line x1="150" y1="135" x2="150" y2="148" />
+    <text x="150" y="162" text-anchor="middle">1</text>
+    <line x1="220" y1="135" x2="220" y2="148" />
+    <text x="220" y="162" text-anchor="middle">2</text>
+    <line x1="290" y1="135" x2="290" y2="148" />
+    <text x="290" y="162" text-anchor="middle">3</text>
+    <line x1="360" y1="135" x2="360" y2="148" />
+    <text x="360" y="162" text-anchor="middle">4</text>
+    <line x1="430" y1="135" x2="430" y2="148" />
+    <text x="430" y="162" text-anchor="middle">5</text>
+    <line x1="500" y1="135" x2="500" y2="148" />
+    <text x="500" y="162" text-anchor="middle">6</text>
+  </g>
+  <text x="500" y="180" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="end">x (metres)</text>
+
+  <!-- Particle 1: 2 kg at x = 1 -->
+  <circle cx="150" cy="140" r="12" fill="#bee3f8" stroke="#1a202c" stroke-width="1.5" />
+  <text x="150" y="118" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#2b6cb0" text-anchor="middle">m₁ = 2 kg</text>
+  <text x="150" y="104" font="11px system-ui" font-size="11" fill="#2b6cb0" text-anchor="middle">x₁ = 1 m</text>
+
+  <!-- Particle 2: 6 kg at x = 5 (drawn larger to suggest more mass) -->
+  <circle cx="430" cy="140" r="22" fill="#fed7aa" stroke="#1a202c" stroke-width="1.5" />
+  <text x="430" y="108" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#dd6b20" text-anchor="middle">m₂ = 6 kg</text>
+  <text x="430" y="94" font="11px system-ui" font-size="11" fill="#dd6b20" text-anchor="middle">x₂ = 5 m</text>
+
+  <!-- COM marker at x = 4 (=> px 360) -->
+  <line x1="360" y1="100" x2="360" y2="140" stroke="#7c3aed" stroke-width="2.5" marker-end="url(#arr-com1)" />
+  <polygon points="350,140 370,140 360,156" fill="#7c3aed" />
+  <text x="360" y="92" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#7c3aed" text-anchor="middle">CM</text>
+  <text x="360" y="78" font="11px system-ui" font-size="11" font-style="italic" fill="#7c3aed" text-anchor="middle">closer to heavier mass</text>
+
+  <!-- Worked formula card -->
+  <rect x="40" y="200" width="480" height="68" rx="8" fill="#f0fdf4" stroke="#15803d" stroke-width="1.4" />
+  <text x="280" y="222" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">x_cm = (m₁ x₁ + m₂ x₂) / (m₁ + m₂)</text>
+  <text x="280" y="244" font="13px system-ui" font-size="13" fill="#1a202c" text-anchor="middle">x_cm = (2·1 + 6·5) / (2 + 6) = 32 / 8 = 4 m</text>
+  <text x="280" y="260" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">CM is the mass-weighted average of the particle positions — never outside the line joining them.</text>
+</svg>

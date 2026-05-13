@@ -1,0 +1,163 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 480" width="760" height="480" role="img" aria-label="Macronutrients vs micronutrients table for plants">
+  <title>Plant Mineral Nutrition — Macro vs Micro</title>
+  <desc>A two-panel table comparing the essential mineral elements plants need from the soil. Macronutrients are required in large amounts (more than 10 millimoles per kilogram of dry mass) and include nitrogen, phosphorus, potassium, calcium, magnesium, and sulphur. Micronutrients are needed in trace amounts but are still essential, and include iron, manganese, zinc, copper, boron, molybdenum, chlorine, and nickel. For each element the table gives its symbol, primary role in the plant, and a typical deficiency symptom that helps a farmer or gardener diagnose the problem visually. The bottom strip lists the two non-mineral elements carbon and oxygen, taken from air, plus hydrogen from water — these are not minerals but make up the bulk of plant tissue.</desc>
+
+  <text x="380" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Mineral Nutrition — Macro vs Micro</text>
+  <text x="380" y="40" font-size="11" fill="#4a5568" text-anchor="middle">17 essential elements: 9 macros and 8 micros · roles · deficiency signs</text>
+
+  <!-- ═══════════════ MACRONUTRIENTS ═══════════════ -->
+  <g transform="translate(20, 56)">
+    <rect x="0" y="0" width="360" height="380" rx="10" fill="#f7fafc" stroke="#15803d" stroke-width="2"/>
+    <rect x="0" y="0" width="360" height="32" rx="10" fill="#15803d"/>
+    <text x="180" y="22" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">Macronutrients (&gt; 10 mmol / kg dry mass)</text>
+
+    <!-- Sub-header -->
+    <text x="22" y="50" font-size="10" font-weight="700" fill="#14532d">Element</text>
+    <text x="100" y="50" font-size="10" font-weight="700" fill="#14532d">Role</text>
+    <text x="280" y="50" font-size="10" font-weight="700" fill="#14532d">Deficiency</text>
+    <line x1="14" y1="56" x2="346" y2="56" stroke="#15803d" stroke-width="1.5"/>
+
+    <!-- N -->
+    <rect x="14" y="62" width="38" height="34" rx="4" fill="#dcfce7" stroke="#15803d" stroke-width="1"/>
+    <text x="33" y="84" font-size="13" font-weight="700" fill="#14532d" text-anchor="middle">N</text>
+    <text x="60" y="78" font-size="10" font-weight="700" fill="#1a202c">Nitrogen</text>
+    <text x="60" y="91" font-size="9" fill="#4a5568">amino acids, chlorophyll, DNA</text>
+    <text x="280" y="80" font-size="9" font-weight="700" fill="#dc2626">general yellowing</text>
+    <text x="280" y="92" font-size="9" fill="#7f1d1d">(chlorosis, older leaves first)</text>
+
+    <!-- P -->
+    <rect x="14" y="102" width="38" height="34" rx="4" fill="#dcfce7" stroke="#15803d" stroke-width="1"/>
+    <text x="33" y="124" font-size="13" font-weight="700" fill="#14532d" text-anchor="middle">P</text>
+    <text x="60" y="118" font-size="10" font-weight="700" fill="#1a202c">Phosphorus</text>
+    <text x="60" y="131" font-size="9" fill="#4a5568">ATP, nucleic acids, membranes</text>
+    <text x="280" y="120" font-size="9" font-weight="700" fill="#dc2626">purplish leaves</text>
+    <text x="280" y="132" font-size="9" fill="#7f1d1d">stunted root growth</text>
+
+    <!-- K -->
+    <rect x="14" y="142" width="38" height="34" rx="4" fill="#dcfce7" stroke="#15803d" stroke-width="1"/>
+    <text x="33" y="164" font-size="13" font-weight="700" fill="#14532d" text-anchor="middle">K</text>
+    <text x="60" y="158" font-size="10" font-weight="700" fill="#1a202c">Potassium</text>
+    <text x="60" y="171" font-size="9" fill="#4a5568">stomatal opening, enzyme activator</text>
+    <text x="280" y="160" font-size="9" font-weight="700" fill="#dc2626">leaf-margin scorching</text>
+    <text x="280" y="172" font-size="9" fill="#7f1d1d">weak stems, lodging</text>
+
+    <!-- Ca -->
+    <rect x="14" y="182" width="38" height="34" rx="4" fill="#dcfce7" stroke="#15803d" stroke-width="1"/>
+    <text x="33" y="204" font-size="12" font-weight="700" fill="#14532d" text-anchor="middle">Ca</text>
+    <text x="60" y="198" font-size="10" font-weight="700" fill="#1a202c">Calcium</text>
+    <text x="60" y="211" font-size="9" fill="#4a5568">middle lamella (cell wall), signalling</text>
+    <text x="280" y="200" font-size="9" font-weight="700" fill="#dc2626">blossom-end rot</text>
+    <text x="280" y="212" font-size="9" fill="#7f1d1d">tip burn (lettuce)</text>
+
+    <!-- Mg -->
+    <rect x="14" y="222" width="38" height="34" rx="4" fill="#dcfce7" stroke="#15803d" stroke-width="1"/>
+    <text x="33" y="244" font-size="12" font-weight="700" fill="#14532d" text-anchor="middle">Mg</text>
+    <text x="60" y="238" font-size="10" font-weight="700" fill="#1a202c">Magnesium</text>
+    <text x="60" y="251" font-size="9" fill="#4a5568">central atom of chlorophyll</text>
+    <text x="280" y="240" font-size="9" font-weight="700" fill="#dc2626">interveinal chlorosis</text>
+    <text x="280" y="252" font-size="9" fill="#7f1d1d">(veins stay green)</text>
+
+    <!-- S -->
+    <rect x="14" y="262" width="38" height="34" rx="4" fill="#dcfce7" stroke="#15803d" stroke-width="1"/>
+    <text x="33" y="284" font-size="13" font-weight="700" fill="#14532d" text-anchor="middle">S</text>
+    <text x="60" y="278" font-size="10" font-weight="700" fill="#1a202c">Sulphur</text>
+    <text x="60" y="291" font-size="9" fill="#4a5568">cysteine, methionine, vitamins</text>
+    <text x="280" y="280" font-size="9" font-weight="700" fill="#dc2626">young-leaf chlorosis</text>
+    <text x="280" y="292" font-size="9" fill="#7f1d1d">(opposite of N)</text>
+
+    <!-- C -->
+    <rect x="14" y="302" width="38" height="34" rx="4" fill="#fef3c7" stroke="#d97706" stroke-width="1"/>
+    <text x="33" y="324" font-size="13" font-weight="700" fill="#78350f" text-anchor="middle">C</text>
+    <text x="60" y="318" font-size="10" font-weight="700" fill="#1a202c">Carbon</text>
+    <text x="60" y="331" font-size="9" fill="#4a5568">organic skeleton (from CO₂ in air)</text>
+    <text x="280" y="320" font-size="9" fill="#78350f">non-mineral</text>
+    <text x="280" y="332" font-size="9" font-style="italic" fill="#78350f">(from atmosphere)</text>
+
+    <!-- O -->
+    <rect x="14" y="342" width="38" height="34" rx="4" fill="#fef3c7" stroke="#d97706" stroke-width="1"/>
+    <text x="33" y="364" font-size="13" font-weight="700" fill="#78350f" text-anchor="middle">O</text>
+    <text x="60" y="358" font-size="10" font-weight="700" fill="#1a202c">Oxygen + Hydrogen</text>
+    <text x="60" y="371" font-size="9" fill="#4a5568">water, sugars (from H₂O + air)</text>
+    <text x="280" y="360" font-size="9" fill="#78350f">non-mineral</text>
+    <text x="280" y="372" font-size="9" font-style="italic" fill="#78350f">(from H₂O + atmosphere)</text>
+  </g>
+
+  <!-- ═══════════════ MICRONUTRIENTS ═══════════════ -->
+  <g transform="translate(390, 56)">
+    <rect x="0" y="0" width="350" height="380" rx="10" fill="#f7fafc" stroke="#319795" stroke-width="2"/>
+    <rect x="0" y="0" width="350" height="32" rx="10" fill="#319795"/>
+    <text x="175" y="22" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">Micronutrients (&lt; 10 mmol / kg)</text>
+
+    <!-- Sub-header -->
+    <text x="22" y="50" font-size="10" font-weight="700" fill="#0e7490">Element</text>
+    <text x="100" y="50" font-size="10" font-weight="700" fill="#0e7490">Role</text>
+    <text x="270" y="50" font-size="10" font-weight="700" fill="#0e7490">Deficiency</text>
+    <line x1="14" y1="56" x2="336" y2="56" stroke="#319795" stroke-width="1.5"/>
+
+    <g font-family="system-ui">
+      <!-- Fe -->
+      <rect x="14" y="62" width="38" height="32" rx="4" fill="#ccfbf1" stroke="#319795" stroke-width="1"/>
+      <text x="33" y="83" font-size="12" font-weight="700" fill="#0e7490" text-anchor="middle">Fe</text>
+      <text x="60" y="76" font-size="9" font-weight="700" fill="#1a202c">Iron</text>
+      <text x="60" y="89" font-size="8" fill="#4a5568">e-transport, chlorophyll synth</text>
+      <text x="270" y="76" font-size="8" font-weight="700" fill="#dc2626">young-leaf chlorosis</text>
+      <text x="270" y="88" font-size="8" fill="#7f1d1d">(immobile)</text>
+
+      <!-- Mn -->
+      <rect x="14" y="100" width="38" height="32" rx="4" fill="#ccfbf1" stroke="#319795" stroke-width="1"/>
+      <text x="33" y="121" font-size="12" font-weight="700" fill="#0e7490" text-anchor="middle">Mn</text>
+      <text x="60" y="114" font-size="9" font-weight="700" fill="#1a202c">Manganese</text>
+      <text x="60" y="127" font-size="8" fill="#4a5568">water-splitting (PSII)</text>
+      <text x="270" y="114" font-size="8" font-weight="700" fill="#dc2626">interveinal yellowing</text>
+      <text x="270" y="126" font-size="8" fill="#7f1d1d">(young leaves)</text>
+
+      <!-- Zn -->
+      <rect x="14" y="138" width="38" height="32" rx="4" fill="#ccfbf1" stroke="#319795" stroke-width="1"/>
+      <text x="33" y="159" font-size="12" font-weight="700" fill="#0e7490" text-anchor="middle">Zn</text>
+      <text x="60" y="152" font-size="9" font-weight="700" fill="#1a202c">Zinc</text>
+      <text x="60" y="165" font-size="8" fill="#4a5568">enzymes, auxin synthesis</text>
+      <text x="270" y="152" font-size="8" font-weight="700" fill="#dc2626">stunted, "rosette" leaves</text>
+
+      <!-- Cu -->
+      <rect x="14" y="176" width="38" height="32" rx="4" fill="#ccfbf1" stroke="#319795" stroke-width="1"/>
+      <text x="33" y="197" font-size="12" font-weight="700" fill="#0e7490" text-anchor="middle">Cu</text>
+      <text x="60" y="190" font-size="9" font-weight="700" fill="#1a202c">Copper</text>
+      <text x="60" y="203" font-size="8" fill="#4a5568">plastocyanin, lignin formation</text>
+      <text x="270" y="190" font-size="8" font-weight="700" fill="#dc2626">wilting young leaves</text>
+
+      <!-- B -->
+      <rect x="14" y="214" width="38" height="32" rx="4" fill="#ccfbf1" stroke="#319795" stroke-width="1"/>
+      <text x="33" y="235" font-size="12" font-weight="700" fill="#0e7490" text-anchor="middle">B</text>
+      <text x="60" y="228" font-size="9" font-weight="700" fill="#1a202c">Boron</text>
+      <text x="60" y="241" font-size="8" fill="#4a5568">cell-wall integrity, pollen tube</text>
+      <text x="270" y="228" font-size="8" font-weight="700" fill="#dc2626">die-back of growing tips</text>
+
+      <!-- Mo -->
+      <rect x="14" y="252" width="38" height="32" rx="4" fill="#ccfbf1" stroke="#319795" stroke-width="1"/>
+      <text x="33" y="273" font-size="12" font-weight="700" fill="#0e7490" text-anchor="middle">Mo</text>
+      <text x="60" y="266" font-size="9" font-weight="700" fill="#1a202c">Molybdenum</text>
+      <text x="60" y="279" font-size="8" fill="#4a5568">nitrate reductase, N fixation</text>
+      <text x="270" y="266" font-size="8" font-weight="700" fill="#dc2626">whiptail (cabbage)</text>
+
+      <!-- Cl -->
+      <rect x="14" y="290" width="38" height="32" rx="4" fill="#ccfbf1" stroke="#319795" stroke-width="1"/>
+      <text x="33" y="311" font-size="12" font-weight="700" fill="#0e7490" text-anchor="middle">Cl</text>
+      <text x="60" y="304" font-size="9" font-weight="700" fill="#1a202c">Chlorine</text>
+      <text x="60" y="317" font-size="8" fill="#4a5568">water-splitting, osmotic balance</text>
+      <text x="270" y="304" font-size="8" font-weight="700" fill="#dc2626">wilting + chlorosis</text>
+
+      <!-- Ni -->
+      <rect x="14" y="328" width="38" height="32" rx="4" fill="#ccfbf1" stroke="#319795" stroke-width="1"/>
+      <text x="33" y="349" font-size="12" font-weight="700" fill="#0e7490" text-anchor="middle">Ni</text>
+      <text x="60" y="342" font-size="9" font-weight="700" fill="#1a202c">Nickel</text>
+      <text x="60" y="355" font-size="8" fill="#4a5568">urease activity</text>
+      <text x="270" y="342" font-size="8" font-weight="700" fill="#dc2626">rare; legume yield drop</text>
+    </g>
+
+    <text x="14" y="372" font-size="9" font-style="italic" fill="#0e7490">Trace ≠ unimportant — even μmol/L matters.</text>
+  </g>
+
+  <!-- Bottom: mnemonic / takeaway -->
+  <rect x="20" y="448" width="720" height="24" rx="4" fill="#dcfce7" stroke="#15803d" stroke-width="1"/>
+  <text x="380" y="464" font-size="10" font-style="italic" fill="#14532d" text-anchor="middle">Mnemonic — macros: "C HOPKNS CaFe Mg" → C, H, O, P, K, N, S, Ca, Fe, Mg.  (Fe straddles macro/micro by mass.)</text>
+</svg>

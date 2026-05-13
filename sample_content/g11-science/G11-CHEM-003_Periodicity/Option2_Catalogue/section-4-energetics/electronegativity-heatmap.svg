@@ -1,0 +1,184 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380" role="img" aria-label="Electronegativity heatmap periodic table excerpt">
+  <title>Electronegativity (Pauling) — Heatmap of the First Four Periods</title>
+  <desc>Periodic table excerpt covering periods 1–4, main groups only. Each tile shows the element symbol and its Pauling electronegativity. Tile colour is mapped: deep red for highest electronegativity (F = 3.98), pale yellow for middle, blue for lowest (Cs class). Trend arrows show electronegativity rising up and to the right; F is the peak.</desc>
+
+  <text x="360" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Electronegativity (Pauling) — Heatmap</text>
+  <text x="360" y="40" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">An atom's pull on shared electrons in a bond. Rises right and up; F is the global maximum (3.98).</text>
+
+  <defs>
+    <style>
+      .en-tile { stroke: #1a202c; stroke-width: 1; }
+      .en-sym { font: bold 12px system-ui; fill: #1a202c; text-anchor: middle; }
+      .en-val { font: 9px system-ui; fill: #1a202c; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <!-- Group numbers -->
+  <g font="bold 10px system-ui" font-size="10" font-weight="700" fill="#4a5568" text-anchor="middle">
+    <text x="100" y="68">1</text>
+    <text x="160" y="68">2</text>
+    <text x="380" y="68">13</text>
+    <text x="440" y="68">14</text>
+    <text x="500" y="68">15</text>
+    <text x="560" y="68">16</text>
+    <text x="620" y="68">17</text>
+    <text x="680" y="68">18</text>
+  </g>
+
+  <!-- Color palette: low=blue, mid=yellow, high=red. Pauling 0.7–4.0. -->
+  <!-- Tile colour function (manual map):
+       0.7-1.0: #93c5fd (light blue)
+       1.0-1.5: #bfdbfe / #fef3c7 (pale)
+       1.5-2.0: #fef3c7 (yellow)
+       2.0-2.5: #fed7aa (peach)
+       2.5-3.0: #fca5a5 (light red)
+       3.0-3.5: #f87171
+       3.5-4.0: #dc2626
+       (no value, e.g. He, Ne, Ar): grey
+  -->
+
+  <!-- Tile size 56x56, gap 4, x positions: G1=72, G2=132, G13=352, G14=412, G15=472, G16=532, G17=592, G18=652 -->
+  <!-- Y rows: P1=76, P2=136, P3=196, P4=256 -->
+
+  <!-- Period 1 -->
+  <rect x="72" y="76" width="56" height="56" rx="4" class="en-tile" fill="#fed7aa"/>
+  <text x="100" y="100" class="en-sym">H</text>
+  <text x="100" y="120" class="en-val">2.20</text>
+
+  <rect x="652" y="76" width="56" height="56" rx="4" class="en-tile" fill="#cbd5e0"/>
+  <text x="680" y="100" class="en-sym" fill="#64748b">He</text>
+  <text x="680" y="120" class="en-val" fill="#64748b">—</text>
+
+  <!-- Period 2 -->
+  <rect x="72" y="136" width="56" height="56" rx="4" class="en-tile" fill="#bfdbfe"/>
+  <text x="100" y="160" class="en-sym">Li</text>
+  <text x="100" y="180" class="en-val">0.98</text>
+
+  <rect x="132" y="136" width="56" height="56" rx="4" class="en-tile" fill="#fef3c7"/>
+  <text x="160" y="160" class="en-sym">Be</text>
+  <text x="160" y="180" class="en-val">1.57</text>
+
+  <rect x="352" y="136" width="56" height="56" rx="4" class="en-tile" fill="#fed7aa"/>
+  <text x="380" y="160" class="en-sym">B</text>
+  <text x="380" y="180" class="en-val">2.04</text>
+
+  <rect x="412" y="136" width="56" height="56" rx="4" class="en-tile" fill="#fca5a5"/>
+  <text x="440" y="160" class="en-sym">C</text>
+  <text x="440" y="180" class="en-val">2.55</text>
+
+  <rect x="472" y="136" width="56" height="56" rx="4" class="en-tile" fill="#f87171"/>
+  <text x="500" y="160" class="en-sym" fill="#fff">N</text>
+  <text x="500" y="180" class="en-val" fill="#fff">3.04</text>
+
+  <rect x="532" y="136" width="56" height="56" rx="4" class="en-tile" fill="#f87171"/>
+  <text x="560" y="160" class="en-sym" fill="#fff">O</text>
+  <text x="560" y="180" class="en-val" fill="#fff">3.44</text>
+
+  <!-- F: peak -->
+  <rect x="592" y="136" width="56" height="56" rx="4" stroke="#1a202c" stroke-width="2.5" fill="#dc2626"/>
+  <text x="620" y="160" class="en-sym" fill="#fff">F ★</text>
+  <text x="620" y="180" class="en-val" fill="#fff">3.98</text>
+
+  <rect x="652" y="136" width="56" height="56" rx="4" class="en-tile" fill="#cbd5e0"/>
+  <text x="680" y="160" class="en-sym" fill="#64748b">Ne</text>
+  <text x="680" y="180" class="en-val" fill="#64748b">—</text>
+
+  <!-- Period 3 -->
+  <rect x="72" y="196" width="56" height="56" rx="4" class="en-tile" fill="#93c5fd"/>
+  <text x="100" y="220" class="en-sym">Na</text>
+  <text x="100" y="240" class="en-val">0.93</text>
+
+  <rect x="132" y="196" width="56" height="56" rx="4" class="en-tile" fill="#bfdbfe"/>
+  <text x="160" y="220" class="en-sym">Mg</text>
+  <text x="160" y="240" class="en-val">1.31</text>
+
+  <rect x="352" y="196" width="56" height="56" rx="4" class="en-tile" fill="#fef3c7"/>
+  <text x="380" y="220" class="en-sym">Al</text>
+  <text x="380" y="240" class="en-val">1.61</text>
+
+  <rect x="412" y="196" width="56" height="56" rx="4" class="en-tile" fill="#fed7aa"/>
+  <text x="440" y="220" class="en-sym">Si</text>
+  <text x="440" y="240" class="en-val">1.90</text>
+
+  <rect x="472" y="196" width="56" height="56" rx="4" class="en-tile" fill="#fed7aa"/>
+  <text x="500" y="220" class="en-sym">P</text>
+  <text x="500" y="240" class="en-val">2.19</text>
+
+  <rect x="532" y="196" width="56" height="56" rx="4" class="en-tile" fill="#fca5a5"/>
+  <text x="560" y="220" class="en-sym">S</text>
+  <text x="560" y="240" class="en-val">2.58</text>
+
+  <rect x="592" y="196" width="56" height="56" rx="4" class="en-tile" fill="#f87171"/>
+  <text x="620" y="220" class="en-sym" fill="#fff">Cl</text>
+  <text x="620" y="240" class="en-val" fill="#fff">3.16</text>
+
+  <rect x="652" y="196" width="56" height="56" rx="4" class="en-tile" fill="#cbd5e0"/>
+  <text x="680" y="220" class="en-sym" fill="#64748b">Ar</text>
+  <text x="680" y="240" class="en-val" fill="#64748b">—</text>
+
+  <!-- Period 4 (main groups only) -->
+  <rect x="72" y="256" width="56" height="56" rx="4" class="en-tile" fill="#93c5fd"/>
+  <text x="100" y="280" class="en-sym">K</text>
+  <text x="100" y="300" class="en-val">0.82</text>
+
+  <rect x="132" y="256" width="56" height="56" rx="4" class="en-tile" fill="#bfdbfe"/>
+  <text x="160" y="280" class="en-sym">Ca</text>
+  <text x="160" y="300" class="en-val">1.00</text>
+
+  <rect x="352" y="256" width="56" height="56" rx="4" class="en-tile" fill="#fef3c7"/>
+  <text x="380" y="280" class="en-sym">Ga</text>
+  <text x="380" y="300" class="en-val">1.81</text>
+
+  <rect x="412" y="256" width="56" height="56" rx="4" class="en-tile" fill="#fed7aa"/>
+  <text x="440" y="280" class="en-sym">Ge</text>
+  <text x="440" y="300" class="en-val">2.01</text>
+
+  <rect x="472" y="256" width="56" height="56" rx="4" class="en-tile" fill="#fed7aa"/>
+  <text x="500" y="280" class="en-sym">As</text>
+  <text x="500" y="300" class="en-val">2.18</text>
+
+  <rect x="532" y="256" width="56" height="56" rx="4" class="en-tile" fill="#fca5a5"/>
+  <text x="560" y="280" class="en-sym">Se</text>
+  <text x="560" y="300" class="en-val">2.55</text>
+
+  <rect x="592" y="256" width="56" height="56" rx="4" class="en-tile" fill="#fca5a5"/>
+  <text x="620" y="280" class="en-sym">Br</text>
+  <text x="620" y="300" class="en-val">2.96</text>
+
+  <rect x="652" y="256" width="56" height="56" rx="4" class="en-tile" fill="#cbd5e0"/>
+  <text x="680" y="280" class="en-sym" fill="#64748b">Kr</text>
+  <text x="680" y="300" class="en-val" fill="#64748b">3.0*</text>
+
+  <!-- Trend arrows -->
+  <!-- Across-period arrow: bottom -->
+  <g transform="translate(72, 327)">
+    <line x1="0" y1="0" x2="616" y2="0" stroke="#dc2626" stroke-width="2" stroke-dasharray="4 3"/>
+    <polygon points="616,0 608,-5 608,5" fill="#dc2626"/>
+    <text x="308" y="-4" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#dc2626" text-anchor="middle">across period — EN ↑</text>
+  </g>
+
+  <!-- Down-group: vertical -->
+  <g transform="translate(40, 76)">
+    <line x1="0" y1="0" x2="0" y2="240" stroke="#2b6cb0" stroke-width="2" stroke-dasharray="4 3"/>
+    <polygon points="0,240 -5,232 5,232" fill="#2b6cb0"/>
+    <text x="-12" y="170" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#2b6cb0" transform="rotate(-90 -12 170)" text-anchor="middle">down group — EN ↓</text>
+  </g>
+
+  <!-- Legend strip -->
+  <g transform="translate(72, 350)">
+    <rect x="0" y="0" width="616" height="22" rx="4" fill="url(#en-grad)"/>
+    <text x="0" y="-2" font="9px system-ui" font-size="9" fill="#4a5568">low (≈ 0.7)</text>
+    <text x="616" y="-2" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="end">high (≈ 4.0)</text>
+    <text x="308" y="14" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#1a202c" text-anchor="middle">Pauling electronegativity scale</text>
+  </g>
+
+  <defs>
+    <linearGradient id="en-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#93c5fd"/>
+      <stop offset="33%" stop-color="#fef3c7"/>
+      <stop offset="66%" stop-color="#fca5a5"/>
+      <stop offset="100%" stop-color="#dc2626"/>
+    </linearGradient>
+  </defs>
+
+</svg>

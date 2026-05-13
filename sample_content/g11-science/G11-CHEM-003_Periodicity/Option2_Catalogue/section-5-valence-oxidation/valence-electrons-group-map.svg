@@ -1,0 +1,177 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" width="720" height="360" role="img" aria-label="Valence electrons by main group">
+  <title>Valence Electrons → Group Number — Main-Group Pattern</title>
+  <desc>A row of eight tiles representing main groups 1, 2, 13, 14, 15, 16, 17, 18. Each tile shows: the group number, a shell diagram with the right number of valence electrons (1, 2, 3, 4, 5, 6, 7, 8), the typical valence (1, 2, 3, 4, 3, 2, 1, 0), and an example element. Below: a callout — for main groups, valence electrons = group number (mod 10) for groups 13–18.</desc>
+
+  <text x="360" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Valence Electrons &amp; Group Number — Main-Group Pattern</text>
+  <text x="360" y="40" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">For main-group elements, valence-shell electrons map directly to the group label.</text>
+
+  <!-- 8 tiles. width 80, height 220, gap 8. Total width = 8*80 + 7*8 = 696. Start x = (720-696)/2 = 12 -->
+  <!-- Each tile: header (group #), atom diagram, valence count, example -->
+
+  <!-- Row palette by stable octet distance: 1,2,3,4 → blue (will give); 5,6,7 → orange (will take); 8 → green (stable) -->
+
+  <!-- Group 1 -->
+  <g transform="translate(12, 60)">
+    <rect x="0" y="0" width="80" height="240" rx="8" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5"/>
+    <text x="40" y="20" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1e3a8a" text-anchor="middle">Group 1</text>
+    <!-- shell diagram: nucleus + 1 outer e -->
+    <circle cx="40" cy="80" r="32" fill="none" stroke="#1e3a8a" stroke-width="1" stroke-dasharray="3 2"/>
+    <circle cx="40" cy="80" r="10" fill="#dc2626" stroke="#1a202c" stroke-width="1.5"/>
+    <text x="40" y="84" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">+</text>
+    <circle cx="72" cy="80" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+
+    <text x="40" y="138" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#1e3a8a" text-anchor="middle">1</text>
+    <text x="40" y="156" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">valence e⁻</text>
+    <text x="40" y="178" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">valence = 1</text>
+    <text x="40" y="200" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1e3a8a" text-anchor="middle">Na</text>
+    <text x="40" y="218" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">3s¹</text>
+  </g>
+
+  <!-- Group 2 -->
+  <g transform="translate(100, 60)">
+    <rect x="0" y="0" width="80" height="240" rx="8" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5"/>
+    <text x="40" y="20" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1e3a8a" text-anchor="middle">Group 2</text>
+    <circle cx="40" cy="80" r="32" fill="none" stroke="#1e3a8a" stroke-width="1" stroke-dasharray="3 2"/>
+    <circle cx="40" cy="80" r="10" fill="#dc2626" stroke="#1a202c" stroke-width="1.5"/>
+    <text x="40" y="84" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">+</text>
+    <circle cx="72" cy="80" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+    <circle cx="8" cy="80" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+
+    <text x="40" y="138" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#1e3a8a" text-anchor="middle">2</text>
+    <text x="40" y="156" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">valence e⁻</text>
+    <text x="40" y="178" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">valence = 2</text>
+    <text x="40" y="200" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1e3a8a" text-anchor="middle">Mg</text>
+    <text x="40" y="218" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">3s²</text>
+  </g>
+
+  <!-- Group 13 -->
+  <g transform="translate(188, 60)">
+    <rect x="0" y="0" width="80" height="240" rx="8" fill="#fed7aa" stroke="#c2410c" stroke-width="1.5"/>
+    <text x="40" y="20" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#7c2d12" text-anchor="middle">Group 13</text>
+    <circle cx="40" cy="80" r="32" fill="none" stroke="#7c2d12" stroke-width="1" stroke-dasharray="3 2"/>
+    <circle cx="40" cy="80" r="10" fill="#dc2626" stroke="#1a202c" stroke-width="1.5"/>
+    <text x="40" y="84" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">+</text>
+    <circle cx="72" cy="80" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+    <circle cx="8" cy="80" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+    <circle cx="40" cy="48" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+
+    <text x="40" y="138" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#7c2d12" text-anchor="middle">3</text>
+    <text x="40" y="156" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">valence e⁻</text>
+    <text x="40" y="178" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">valence = 3</text>
+    <text x="40" y="200" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#7c2d12" text-anchor="middle">Al</text>
+    <text x="40" y="218" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">3s² 3p¹</text>
+  </g>
+
+  <!-- Group 14 -->
+  <g transform="translate(276, 60)">
+    <rect x="0" y="0" width="80" height="240" rx="8" fill="#fed7aa" stroke="#c2410c" stroke-width="1.5"/>
+    <text x="40" y="20" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#7c2d12" text-anchor="middle">Group 14</text>
+    <circle cx="40" cy="80" r="32" fill="none" stroke="#7c2d12" stroke-width="1" stroke-dasharray="3 2"/>
+    <circle cx="40" cy="80" r="10" fill="#dc2626" stroke="#1a202c" stroke-width="1.5"/>
+    <text x="40" y="84" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">+</text>
+    <circle cx="72" cy="80" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+    <circle cx="8" cy="80" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+    <circle cx="40" cy="48" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+    <circle cx="40" cy="112" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+
+    <text x="40" y="138" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#7c2d12" text-anchor="middle">4</text>
+    <text x="40" y="156" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">valence e⁻</text>
+    <text x="40" y="178" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">valence = 4</text>
+    <text x="40" y="200" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#7c2d12" text-anchor="middle">C</text>
+    <text x="40" y="218" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2s² 2p²</text>
+  </g>
+
+  <!-- Group 15 -->
+  <g transform="translate(364, 60)">
+    <rect x="0" y="0" width="80" height="240" rx="8" fill="#fed7aa" stroke="#c2410c" stroke-width="1.5"/>
+    <text x="40" y="20" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#7c2d12" text-anchor="middle">Group 15</text>
+    <circle cx="40" cy="80" r="32" fill="none" stroke="#7c2d12" stroke-width="1" stroke-dasharray="3 2"/>
+    <circle cx="40" cy="80" r="10" fill="#dc2626" stroke="#1a202c" stroke-width="1.5"/>
+    <text x="40" y="84" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">+</text>
+    <circle cx="72" cy="80" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+    <circle cx="8" cy="80" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+    <circle cx="40" cy="48" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+    <circle cx="40" cy="112" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+    <circle cx="63" cy="103" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+
+    <text x="40" y="138" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#7c2d12" text-anchor="middle">5</text>
+    <text x="40" y="156" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">valence e⁻</text>
+    <text x="40" y="178" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">valence = 3</text>
+    <text x="40" y="200" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#7c2d12" text-anchor="middle">N</text>
+    <text x="40" y="218" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2s² 2p³</text>
+  </g>
+
+  <!-- Group 16 -->
+  <g transform="translate(452, 60)">
+    <rect x="0" y="0" width="80" height="240" rx="8" fill="#fed7aa" stroke="#c2410c" stroke-width="1.5"/>
+    <text x="40" y="20" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#7c2d12" text-anchor="middle">Group 16</text>
+    <circle cx="40" cy="80" r="32" fill="none" stroke="#7c2d12" stroke-width="1" stroke-dasharray="3 2"/>
+    <circle cx="40" cy="80" r="10" fill="#dc2626" stroke="#1a202c" stroke-width="1.5"/>
+    <text x="40" y="84" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">+</text>
+    <circle cx="72" cy="80" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+    <circle cx="8" cy="80" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+    <circle cx="40" cy="48" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+    <circle cx="40" cy="112" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+    <circle cx="63" cy="103" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+    <circle cx="63" cy="57" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+
+    <text x="40" y="138" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#7c2d12" text-anchor="middle">6</text>
+    <text x="40" y="156" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">valence e⁻</text>
+    <text x="40" y="178" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">valence = 2</text>
+    <text x="40" y="200" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#7c2d12" text-anchor="middle">O</text>
+    <text x="40" y="218" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2s² 2p⁴</text>
+  </g>
+
+  <!-- Group 17 -->
+  <g transform="translate(540, 60)">
+    <rect x="0" y="0" width="80" height="240" rx="8" fill="#fed7aa" stroke="#c2410c" stroke-width="1.5"/>
+    <text x="40" y="20" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#7c2d12" text-anchor="middle">Group 17</text>
+    <circle cx="40" cy="80" r="32" fill="none" stroke="#7c2d12" stroke-width="1" stroke-dasharray="3 2"/>
+    <circle cx="40" cy="80" r="10" fill="#dc2626" stroke="#1a202c" stroke-width="1.5"/>
+    <text x="40" y="84" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">+</text>
+    <circle cx="72" cy="80" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+    <circle cx="8" cy="80" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+    <circle cx="40" cy="48" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+    <circle cx="40" cy="112" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+    <circle cx="63" cy="103" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+    <circle cx="63" cy="57" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+    <circle cx="17" cy="57" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+
+    <text x="40" y="138" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#7c2d12" text-anchor="middle">7</text>
+    <text x="40" y="156" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">valence e⁻</text>
+    <text x="40" y="178" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">valence = 1</text>
+    <text x="40" y="200" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#7c2d12" text-anchor="middle">Cl</text>
+    <text x="40" y="218" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">3s² 3p⁵</text>
+  </g>
+
+  <!-- Group 18 -->
+  <g transform="translate(628, 60)">
+    <rect x="0" y="0" width="80" height="240" rx="8" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+    <text x="40" y="20" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#14532d" text-anchor="middle">Group 18</text>
+    <circle cx="40" cy="80" r="32" fill="none" stroke="#14532d" stroke-width="1" stroke-dasharray="3 2"/>
+    <circle cx="40" cy="80" r="10" fill="#dc2626" stroke="#1a202c" stroke-width="1.5"/>
+    <text x="40" y="84" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">+</text>
+    <circle cx="72" cy="80" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+    <circle cx="8" cy="80" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+    <circle cx="40" cy="48" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+    <circle cx="40" cy="112" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+    <circle cx="63" cy="103" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+    <circle cx="63" cy="57" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+    <circle cx="17" cy="57" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+    <circle cx="17" cy="103" r="4" fill="#3b82f6" stroke="#1a202c" stroke-width="1"/>
+
+    <text x="40" y="138" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#14532d" text-anchor="middle">8</text>
+    <text x="40" y="156" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">valence e⁻</text>
+    <text x="40" y="178" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">valence = 0</text>
+    <text x="40" y="200" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#14532d" text-anchor="middle">Ar</text>
+    <text x="40" y="218" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">3s² 3p⁶</text>
+  </g>
+
+  <!-- Bottom callout -->
+  <g transform="translate(40, 312)">
+    <rect x="0" y="0" width="640" height="40" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+    <text x="320" y="18" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#92400e" text-anchor="middle">Main-group rule of thumb: groups 1, 2 — valence-electron count = group #.  Groups 13–18 — count = group # − 10.</text>
+    <text x="320" y="32" font="11px system-ui" font-size="11" fill="#92400e" text-anchor="middle">Combining valence: groups 1–4 give electrons (valence = e⁻ count); groups 15–17 take (valence = 8 − e⁻ count); group 18 = inert.</text>
+  </g>
+
+</svg>

@@ -1,0 +1,13 @@
+schema_version: 1
+id: chemistry-iupac-worked-example
+kind: image
+subject: chemistry
+topic_phrase: "IUPAC naming worked example methylbutanol alcohol branched"
+keywords:
+  - iupac-naming
+  - worked-example
+  - alcohol
+  - methylbutan-2-ol
+  - branched-alkane
+license: platform-cc-by-sa
+source_unit: G11-CHEM-008

@@ -1,0 +1,156 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 500" width="880" height="500" role="img" aria-label="Photosynthesis showing light reactions on thylakoid membrane and Calvin cycle in stroma">
+  <title>Photosynthesis — Light Reactions + Calvin Cycle</title>
+  <desc>The two stages of photosynthesis drawn side-by-side inside one chloroplast. Left: the light-dependent reactions on the thylakoid membrane. Photons strike Photosystem II, splitting water (photolysis) and releasing O2 as a by-product, plus H+ into the thylakoid lumen and high-energy electrons that travel down an electron transport chain to Photosystem I. PSI re-energises electrons that reduce NADP+ to NADPH. The H+ gradient across the thylakoid membrane drives ATP synthase, producing ATP. Right: the light-independent Calvin cycle in the stroma — three turns required per G3P, six per glucose. CO2 fixation onto RuBP by RuBisCO produces 3-PGA, which is reduced using ATP and NADPH from the light reactions to G3P. Most G3P is recycled to regenerate RuBP; one in six exits as the photosynthesis output. The summary equation 6 CO2 + 6 H2O + light → C6H12O6 + 6 O2 is shown at the bottom.</desc>
+
+  <text x="440" y="24" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Photosynthesis — Two Stages, One Chloroplast</text>
+  <text x="440" y="42" font-size="11" fill="#4a5568" text-anchor="middle">Light reactions on the thylakoid → Calvin cycle in the stroma. ATP and NADPH link them.</text>
+
+  <!-- Outer chloroplast envelope -->
+  <ellipse cx="440" cy="248" rx="420" ry="180" fill="#f0fdf4" stroke="#15803d" stroke-width="3"/>
+  <ellipse cx="440" cy="248" rx="412" ry="172" fill="#dcfce7" stroke="#14532d" stroke-width="1.5"/>
+
+  <!-- ── LEFT: Thylakoid (light reactions) ────────────────── -->
+  <g transform="translate(60, 90)">
+    <!-- Thylakoid membrane (drawn as horizontal band, lumen inside) -->
+    <rect x="0" y="40" width="320" height="120" fill="#bbf7d0" stroke="#14532d" stroke-width="2.4"/>
+    <text x="160" y="34" font-size="10" font-weight="700" fill="#14532d" text-anchor="middle">stroma side (low H⁺)</text>
+    <text x="160" y="180" font-size="10" font-weight="700" fill="#14532d" text-anchor="middle">thylakoid lumen (high H⁺)</text>
+
+    <!-- Sunlight rays into PSII -->
+    <g stroke="#f59e0b" stroke-width="2" stroke-linecap="round">
+      <line x1="20" y1="6" x2="44" y2="40"/>
+      <line x1="40" y1="0" x2="56" y2="40"/>
+      <line x1="60" y1="6" x2="68" y2="40"/>
+    </g>
+    <text x="14" y="6" font-size="9" font-weight="700" fill="#f59e0b">light</text>
+
+    <!-- PSII complex -->
+    <rect x="40" y="40" width="36" height="120" rx="4" fill="#2b6cb0" stroke="#1e3a8a" stroke-width="2"/>
+    <text x="58" y="78" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">PSII</text>
+    <!-- Water splitting -->
+    <text x="20" y="200" font-size="10" font-weight="700" fill="#0e7490">2 H₂O</text>
+    <line x1="40" y1="200" x2="58" y2="166" stroke="#0e7490" stroke-width="1.6"/>
+    <polygon points="58,166 50,168 56,176" fill="#0e7490"/>
+    <text x="20" y="218" font-size="9" fill="#4a5568">→ 4 H⁺ + 4 e⁻ + O₂</text>
+    <!-- O2 out -->
+    <text x="92" y="200" font-size="11" font-weight="700" fill="#dc2626">O₂↑</text>
+    <line x1="80" y1="160" x2="80" y2="184" stroke="#dc2626" stroke-width="1.6"/>
+    <polygon points="80,184 76,176 84,176" fill="#dc2626"/>
+
+    <!-- Plastoquinone / cytochrome -->
+    <rect x="100" y="50" width="28" height="100" rx="4" fill="#fde68a" stroke="#b45309" stroke-width="1.6"/>
+    <text x="114" y="82" font-size="9" font-weight="700" fill="#78350f" text-anchor="middle">PQ</text>
+    <text x="114" y="118" font-size="9" font-weight="700" fill="#78350f" text-anchor="middle">b₆f</text>
+
+    <!-- Sunlight rays into PSI -->
+    <g stroke="#f59e0b" stroke-width="2" stroke-linecap="round">
+      <line x1="170" y1="6" x2="178" y2="40"/>
+      <line x1="186" y1="0" x2="190" y2="40"/>
+      <line x1="200" y1="6" x2="200" y2="40"/>
+    </g>
+
+    <!-- PSI -->
+    <rect x="160" y="40" width="36" height="120" rx="4" fill="#dc2626" stroke="#7f1d1d" stroke-width="2"/>
+    <text x="178" y="78" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">PSI</text>
+
+    <!-- Electron path arrow -->
+    <line x1="58" y1="50" x2="178" y2="50" stroke="#7c3aed" stroke-width="1.6" stroke-dasharray="4 3"/>
+    <polygon points="178,50 170,46 170,54" fill="#7c3aed"/>
+    <text x="118" y="36" font-size="9" font-style="italic" fill="#7c3aed" text-anchor="middle">e⁻ flow (downhill energy)</text>
+
+    <!-- NADP+ to NADPH -->
+    <text x="226" y="34" font-size="10" font-weight="700" fill="#15803d" text-anchor="start">NADP⁺ + H⁺</text>
+    <line x1="196" y1="60" x2="232" y2="42" stroke="#15803d" stroke-width="1.6"/>
+    <polygon points="232,42 224,42 228,50" fill="#15803d"/>
+    <text x="226" y="58" font-size="10" font-weight="700" fill="#15803d" text-anchor="start">→ NADPH</text>
+
+    <!-- ATP synthase -->
+    <rect x="240" y="40" width="36" height="120" rx="4" fill="#bbf7d0" stroke="#15803d" stroke-width="2"/>
+    <text x="258" y="78" font-size="9" font-weight="700" fill="#15803d" text-anchor="middle">ATP</text>
+    <text x="258" y="98" font-size="9" font-weight="700" fill="#15803d" text-anchor="middle">synth.</text>
+
+    <!-- H+ moving up through ATP synthase -->
+    <line x1="258" y1="160" x2="258" y2="40" stroke="#7c3aed" stroke-width="2.4"/>
+    <polygon points="258,40 254,48 262,48" fill="#7c3aed"/>
+    <text x="258" y="20" font-size="10" font-weight="700" fill="#7c3aed" text-anchor="middle">H⁺</text>
+
+    <!-- ATP output -->
+    <text x="296" y="100" font-size="10" font-weight="700" fill="#15803d" text-anchor="middle">→ ATP</text>
+  </g>
+
+  <text x="220" y="80" font-size="14" font-weight="700" fill="#15803d" text-anchor="middle">LIGHT REACTIONS</text>
+  <text x="220" y="290" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">Inputs: light · H₂O · NADP⁺ · ADP+Pᵢ</text>
+  <text x="220" y="304" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">Outputs: O₂ (waste) · NADPH · ATP</text>
+
+  <!-- ── ATP/NADPH conveyor (centre) ──────────────────────── -->
+  <g>
+    <line x1="396" y1="170" x2="500" y2="170" stroke="#15803d" stroke-width="2.4"/>
+    <polygon points="500,170 492,166 492,174" fill="#15803d"/>
+    <text x="448" y="158" font-size="10" font-weight="700" fill="#15803d" text-anchor="middle">ATP</text>
+
+    <line x1="396" y1="200" x2="500" y2="200" stroke="#15803d" stroke-width="2.4"/>
+    <polygon points="500,200 492,196 492,204" fill="#15803d"/>
+    <text x="448" y="216" font-size="10" font-weight="700" fill="#15803d" text-anchor="middle">NADPH</text>
+
+    <!-- Return: ADP + NADP+ -->
+    <line x1="500" y1="240" x2="396" y2="240" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 3"/>
+    <polygon points="396,240 404,236 404,244" fill="#94a3b8"/>
+    <text x="448" y="258" font-size="9" fill="#4a5568" text-anchor="middle">ADP+Pᵢ · NADP⁺ recycled back</text>
+  </g>
+
+  <!-- ── RIGHT: Calvin cycle ──────────────────────────────── -->
+  <text x="660" y="80" font-size="14" font-weight="700" fill="#dc2626" text-anchor="middle">CALVIN CYCLE</text>
+  <text x="660" y="96" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">light-independent · runs in stroma</text>
+
+  <g transform="translate(660, 220)">
+    <!-- Cycle ring -->
+    <circle cx="0" cy="0" r="80" fill="#fef2f2" stroke="#dc2626" stroke-width="2.4"/>
+    <circle cx="0" cy="0" r="68" fill="none" stroke="#dc2626" stroke-width="1" stroke-dasharray="3 3"/>
+
+    <!-- Three stages on the ring -->
+    <circle cx="0" cy="-58" r="22" fill="#fee2e2" stroke="#dc2626" stroke-width="1.6"/>
+    <text x="0" y="-62" font-size="9" font-weight="700" fill="#7f1d1d" text-anchor="middle">1. Fix</text>
+    <text x="0" y="-50" font-size="8" fill="#7f1d1d" text-anchor="middle">RuBP+CO₂</text>
+
+    <circle cx="50" cy="30" r="22" fill="#fee2e2" stroke="#dc2626" stroke-width="1.6"/>
+    <text x="50" y="26" font-size="9" font-weight="700" fill="#7f1d1d" text-anchor="middle">2. Reduce</text>
+    <text x="50" y="38" font-size="8" fill="#7f1d1d" text-anchor="middle">3-PGA→G3P</text>
+
+    <circle cx="-50" cy="30" r="22" fill="#fee2e2" stroke="#dc2626" stroke-width="1.6"/>
+    <text x="-50" y="26" font-size="9" font-weight="700" fill="#7f1d1d" text-anchor="middle">3. Regen.</text>
+    <text x="-50" y="38" font-size="8" fill="#7f1d1d" text-anchor="middle">→ RuBP</text>
+
+    <!-- Direction arrows on ring -->
+    <path d="M 24 -50 Q 60 -20 56 8" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+    <polygon points="56,8 50,-2 64,2" fill="#dc2626"/>
+    <path d="M -28 50 Q -60 30 -54 8" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+    <polygon points="-54,8 -64,4 -50,-2" fill="#dc2626"/>
+    <path d="M -28 -52 Q -54 -22 -52 6" fill="none" stroke="#dc2626" stroke-width="1.8" opacity="0"/>
+
+    <!-- RuBisCO label -->
+    <text x="0" y="-90" font-size="9" font-weight="700" fill="#7f1d1d" text-anchor="middle">RuBisCO enzyme</text>
+  </g>
+
+  <!-- CO2 input -->
+  <text x="660" y="118" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">CO₂ ↓</text>
+  <line x1="660" y1="124" x2="660" y2="138" stroke="#1e3a8a" stroke-width="2"/>
+  <polygon points="660,138 656,130 664,130" fill="#1e3a8a"/>
+
+  <!-- G3P out -->
+  <line x1="720" y1="252" x2="780" y2="252" stroke="#15803d" stroke-width="2.4"/>
+  <polygon points="780,252 772,248 772,256" fill="#15803d"/>
+  <rect x="780" y="234" width="60" height="36" rx="6" fill="#fde68a" stroke="#b45309" stroke-width="2"/>
+  <text x="810" y="252" font-size="11" font-weight="700" fill="#78350f" text-anchor="middle">G3P</text>
+  <text x="810" y="266" font-size="8" fill="#4a5568" text-anchor="middle">→ glucose</text>
+
+  <!-- Stoichiometry -->
+  <text x="800" y="222" font-size="9" fill="#4a5568" text-anchor="middle">1 of 6 G3P leaves</text>
+  <text x="800" y="290" font-size="9" fill="#4a5568" text-anchor="middle">others recycle to RuBP</text>
+
+  <!-- ── Footer: net equation ─────────────────────────────── -->
+  <rect x="40" y="426" width="800" height="56" rx="8" fill="#f7fafc" stroke="#cbd5e0" stroke-width="1.5"/>
+  <text x="440" y="448" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Net equation of photosynthesis</text>
+  <text x="440" y="468" font-size="14" font-weight="700" fill="#15803d" text-anchor="middle">6 CO₂ + 6 H₂O + light energy → C₆H₁₂O₆ (glucose) + 6 O₂</text>
+
+  <text x="440" y="494" font-size="9" font-style="italic" fill="#718096" text-anchor="middle">Per glucose: 18 ATP + 12 NADPH consumed in the Calvin cycle (3 ATP + 2 NADPH per G3P × 2 G3P per glucose).</text>
+</svg>

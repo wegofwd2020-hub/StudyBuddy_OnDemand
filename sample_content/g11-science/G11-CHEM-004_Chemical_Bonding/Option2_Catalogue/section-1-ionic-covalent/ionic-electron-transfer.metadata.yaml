@@ -1,0 +1,15 @@
+# Auto-generated for sample-content seeding — edit with the SVG and re-run sidecar build.
+schema_version: 1
+id: chemistry-ionic-electron-transfer
+kind: image
+subject: chemistry
+topic_phrase: "ionic bond electron transfer sodium chloride formation"
+keywords:
+  - ionic-bond
+  - electron-transfer
+  - sodium-chloride
+  - cation
+  - anion
+  - octet
+license: platform-cc-by-sa
+source_unit: G11-CHEM-004

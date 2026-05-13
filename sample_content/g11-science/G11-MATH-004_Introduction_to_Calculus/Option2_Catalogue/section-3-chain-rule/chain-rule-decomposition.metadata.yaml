@@ -1,0 +1,14 @@
+# Auto-generated sidecar — edit alongside the SVG.
+schema_version: 1
+id: math-calculus-chain-rule-decomposition
+kind: image
+subject: math
+topic_phrase: "chain rule decomposition of a composite function into inner and outer with formula application"
+keywords:
+  - chain-rule
+  - composite-function
+  - inner-function
+  - outer-function
+  - leibniz-form
+license: platform-cc-by-sa
+source_unit: G11-MATH-004

@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" width="720" height="420" role="img" aria-label="Daniell cell schematic showing zinc anode, copper cathode, salt bridge, and external wire with voltmeter">
+  <title>Daniell cell — zinc | zinc sulfate || copper sulfate | copper</title>
+  <desc>A galvanic cell with a zinc electrode immersed in zinc sulfate solution on the left and a copper electrode in copper sulfate on the right. The two beakers are connected by a U-shaped salt bridge containing potassium nitrate. An external wire with a voltmeter connects the electrodes. Electrons flow externally from anode to cathode; cations and anions migrate through the salt bridge to maintain electroneutrality.</desc>
+
+  <defs>
+    <marker id="dc-arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626" />
+    </marker>
+    <marker id="dc-arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2b6cb0" />
+    </marker>
+  </defs>
+
+  <text x="360" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Daniell Cell — Galvanic Cell with Salt Bridge</text>
+  <text x="360" y="40" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Anode oxidation on the left, cathode reduction on the right. Cell notation: Zn(s) | Zn²⁺(aq, 1 M) ‖ Cu²⁺(aq, 1 M) | Cu(s).</text>
+
+  <!-- Voltmeter at top -->
+  <circle cx="360" cy="90" r="36" fill="#f7fafc" stroke="#1a202c" stroke-width="2" />
+  <text x="360" y="86" font="bold 22px system-ui" font-size="22" font-weight="700" fill="#dc2626" text-anchor="middle">V</text>
+  <text x="360" y="106" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">+1.10 V</text>
+
+  <!-- Wires from voltmeter to electrodes -->
+  <line x1="324" y1="90" x2="170" y2="90" stroke="#1a202c" stroke-width="2.5" />
+  <line x1="170" y1="90" x2="170" y2="160" stroke="#1a202c" stroke-width="2.5" />
+
+  <line x1="396" y1="90" x2="550" y2="90" stroke="#1a202c" stroke-width="2.5" />
+  <line x1="550" y1="90" x2="550" y2="160" stroke="#1a202c" stroke-width="2.5" />
+
+  <!-- Electron flow indication on wire -->
+  <line x1="180" y1="80" x2="320" y2="80" stroke="#3b82f6" stroke-width="2.5" marker-end="url(#dc-arr-blue)" />
+  <text x="250" y="74" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#3b82f6" text-anchor="middle">e⁻ flow (anode → cathode)</text>
+
+  <!-- Two electron labels -->
+  <circle cx="220" cy="90" r="6" fill="#3b82f6" stroke="#1a202c" stroke-width="1" />
+  <text x="220" y="93" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#ffffff" text-anchor="middle">e⁻</text>
+  <circle cx="280" cy="90" r="6" fill="#3b82f6" stroke="#1a202c" stroke-width="1" />
+  <text x="280" y="93" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#ffffff" text-anchor="middle">e⁻</text>
+
+  <!-- Left beaker (anode, ZnSO4) -->
+  <path d="M 80 160 L 80 340 Q 80 360 100 360 L 240 360 Q 260 360 260 340 L 260 160" fill="#dbeafe" stroke="#1a202c" stroke-width="2" />
+  <text x="170" y="376" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1e3a8a" text-anchor="middle">ZnSO₄(aq) · 1 M</text>
+
+  <!-- Zn electrode -->
+  <rect x="160" y="160" width="20" height="170" fill="#94a3b8" stroke="#0f172a" stroke-width="1.5" />
+  <text x="170" y="155" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Zn(s)</text>
+  <text x="170" y="142" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">anode (−)</text>
+
+  <!-- Zn2+ ions in left beaker -->
+  <circle cx="115" cy="240" r="10" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.2" />
+  <text x="115" y="244" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#1e3a8a" text-anchor="middle">Zn²⁺</text>
+  <circle cx="200" cy="270" r="10" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.2" />
+  <text x="200" y="274" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#1e3a8a" text-anchor="middle">Zn²⁺</text>
+  <circle cx="120" cy="310" r="10" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.2" />
+  <text x="120" y="314" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#1e3a8a" text-anchor="middle">Zn²⁺</text>
+  <!-- SO4 anions -->
+  <circle cx="220" cy="220" r="10" fill="#fee2e2" stroke="#dc2626" stroke-width="1.2" />
+  <text x="220" y="224" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#991b1b" text-anchor="middle">SO₄²⁻</text>
+
+  <!-- Right beaker (cathode, CuSO4) -->
+  <path d="M 460 160 L 460 340 Q 460 360 480 360 L 620 360 Q 640 360 640 340 L 640 160" fill="#fee2e2" stroke="#1a202c" stroke-width="2" />
+  <text x="550" y="376" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#991b1b" text-anchor="middle">CuSO₄(aq) · 1 M</text>
+
+  <!-- Cu electrode -->
+  <rect x="540" y="160" width="20" height="170" fill="#d97706" stroke="#0f172a" stroke-width="1.5" />
+  <text x="550" y="155" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Cu(s)</text>
+  <text x="550" y="142" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">cathode (+)</text>
+
+  <!-- Cu2+ ions in right beaker -->
+  <circle cx="495" cy="240" r="10" fill="#fef3c7" stroke="#d97706" stroke-width="1.2" />
+  <text x="495" y="244" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#92400e" text-anchor="middle">Cu²⁺</text>
+  <circle cx="580" cy="280" r="10" fill="#fef3c7" stroke="#d97706" stroke-width="1.2" />
+  <text x="580" y="284" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#92400e" text-anchor="middle">Cu²⁺</text>
+  <circle cx="500" cy="310" r="10" fill="#fef3c7" stroke="#d97706" stroke-width="1.2" />
+  <text x="500" y="314" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#92400e" text-anchor="middle">Cu²⁺</text>
+  <!-- SO4 anions -->
+  <circle cx="600" cy="225" r="10" fill="#fee2e2" stroke="#dc2626" stroke-width="1.2" />
+  <text x="600" y="229" font="bold 8px system-ui" font-size="8" font-weight="700" fill="#991b1b" text-anchor="middle">SO₄²⁻</text>
+
+  <!-- Salt bridge (U shape) -->
+  <path d="M 220 180 L 220 140 L 500 140 L 500 180" fill="none" stroke="#15803d" stroke-width="2" />
+  <path d="M 220 180 Q 220 200 240 200 L 480 200 Q 500 200 500 180" fill="#dcfce7" stroke="#15803d" stroke-width="2" />
+  <rect x="225" y="148" width="270" height="30" fill="#dcfce7" stroke="#15803d" stroke-width="1.5" />
+  <text x="360" y="167" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#14532d" text-anchor="middle">salt bridge — KNO₃(aq)</text>
+
+  <!-- Salt-bridge ion arrows -->
+  <line x1="320" y1="170" x2="270" y2="170" stroke="#dc2626" stroke-width="1.6" marker-end="url(#dc-arr-red)" />
+  <text x="295" y="184" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#dc2626" text-anchor="middle">NO₃⁻ →</text>
+
+  <line x1="400" y1="170" x2="450" y2="170" stroke="#2b6cb0" stroke-width="1.6" marker-end="url(#dc-arr-blue)" />
+  <text x="425" y="184" font="bold 9px system-ui" font-size="9" font-weight="700" fill="#2b6cb0" text-anchor="middle">K⁺ →</text>
+
+  <!-- Half-reaction labels under each beaker -->
+  <text x="170" y="395" font="11px system-ui" font-size="11" fill="#dc2626" text-anchor="middle">Zn → Zn²⁺ + 2 e⁻   (oxidation)</text>
+  <text x="550" y="395" font="11px system-ui" font-size="11" fill="#15803d" text-anchor="middle">Cu²⁺ + 2 e⁻ → Cu   (reduction)</text>
+
+  <!-- Bottom caption -->
+  <text x="360" y="412" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">E°cell = E°cathode − E°anode = (+0.34) − (−0.76) = +1.10 V. Positive ⇒ spontaneous.</text>
+</svg>

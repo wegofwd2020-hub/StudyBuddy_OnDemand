@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 280" width="560" height="280" role="img" aria-label="F = ma — central relationship of Newton's Second Law">
+  <title>F = ma — Newton's Second Law</title>
+  <desc>A schematic showing the three quantities of Newton's Second Law (mass, acceleration, net force) and their relationship F = m a, plus the SI unit, the newton.</desc>
+
+  <defs>
+    <marker id="arr-fma" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2b6cb0" />
+    </marker>
+    <marker id="arr-ama" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#15803d" />
+    </marker>
+  </defs>
+
+  <text x="280" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Newton's Second Law:  F_net = m a</text>
+
+  <!-- Big block -->
+  <rect x="220" y="80" width="120" height="80" rx="6" fill="#bee3f8" stroke="#1a202c" stroke-width="1.8" />
+  <text x="280" y="120" font="bold 26px system-ui" font-size="26" font-weight="700" fill="#1a202c" text-anchor="middle">m</text>
+  <text x="280" y="148" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">mass (kg)</text>
+
+  <!-- Net force arrow into block -->
+  <line x1="100" y1="120" x2="218" y2="120" stroke="#2b6cb0" stroke-width="5" marker-end="url(#arr-fma)" />
+  <text x="159" y="108" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#2b6cb0" text-anchor="middle">F_net</text>
+  <text x="159" y="142" font="11px system-ui" font-size="11" font-style="italic" fill="#2b6cb0" text-anchor="middle">net force (N)</text>
+
+  <!-- Resulting acceleration arrow out of block -->
+  <line x1="342" y1="120" x2="460" y2="120" stroke="#15803d" stroke-width="5" marker-end="url(#arr-ama)" />
+  <text x="401" y="108" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#15803d" text-anchor="middle">a</text>
+  <text x="401" y="142" font="11px system-ui" font-size="11" font-style="italic" fill="#15803d" text-anchor="middle">acceleration (m/s²)</text>
+
+  <!-- Key equation card -->
+  <rect x="50" y="190" width="460" height="50" rx="8" fill="#f0fdf4" stroke="#15803d" stroke-width="1.4" />
+  <text x="280" y="216" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#1a202c" text-anchor="middle">F_net = m · a    ⇔    a = F_net / m</text>
+  <text x="280" y="234" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Acceleration points the same way as the net force; magnitude scales linearly.</text>
+
+  <text x="280" y="262" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">SI unit:  1 newton (N) = 1 kg · m/s² — the force that gives a 1 kg mass an acceleration of 1 m/s².</text>
+</svg>

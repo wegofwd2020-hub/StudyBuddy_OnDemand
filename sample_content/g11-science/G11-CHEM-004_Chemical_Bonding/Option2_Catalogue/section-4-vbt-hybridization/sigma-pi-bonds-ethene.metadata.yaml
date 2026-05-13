@@ -1,0 +1,15 @@
+schema_version: 1
+id: chemistry-sigma-pi-bonds-ethene
+kind: image
+subject: chemistry
+topic_phrase: "sigma pi bond ethene double bond sp2 lateral overlap"
+keywords:
+  - sigma-bond
+  - pi-bond
+  - ethene
+  - double-bond
+  - sp2
+  - lateral-overlap
+  - valence-bond-theory
+license: platform-cc-by-sa
+source_unit: G11-CHEM-004

@@ -1,0 +1,191 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 360" width="760" height="360" role="img" aria-label="Parenchyma, collenchyma, and sclerenchyma compared">
+  <title>Three simple permanent plant tissues — parenchyma, collenchyma, sclerenchyma</title>
+  <desc>Three side-by-side panels comparing the three simple permanent plant tissues. Parenchyma: thin-walled isodiametric cells with intercellular spaces, alive, used for storage and photosynthesis. Collenchyma: cells with unevenly thickened cellulose+pectin corner walls, alive, providing flexible support to growing stems and leaf petioles. Sclerenchyma: dead cells with uniformly thick lignified walls (fibres or sclereids), providing rigid mechanical support. Each panel notes the wall composition, living-or-dead status, and a typical location.</desc>
+
+  <text x="380" y="22" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Three Simple Permanent Plant Tissues</text>
+  <text x="380" y="40" font-size="11" fill="#4a5568" text-anchor="middle">All-one-cell-type tissues. Cell-wall thickness tells the story.</text>
+
+  <!-- ── Parenchyma ─────────────────────────────────────────── -->
+  <g transform="translate(20, 60)">
+    <rect x="0" y="0" width="240" height="260" rx="10" fill="#f7fafc" stroke="#15803d" stroke-width="2"/>
+    <text x="120" y="22" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">Parenchyma</text>
+    <text x="120" y="38" font-size="10" fill="#4a5568" text-anchor="middle">storage · photosynthesis · alive</text>
+
+    <!-- Roundish cells with thin walls + intercellular spaces -->
+    <g fill="#dcfce7" stroke="#15803d" stroke-width="1.2">
+      <circle cx="50" cy="80" r="20"/>
+      <circle cx="100" cy="80" r="20"/>
+      <circle cx="150" cy="80" r="20"/>
+      <circle cx="200" cy="80" r="20"/>
+      <circle cx="50" cy="124" r="20"/>
+      <circle cx="100" cy="124" r="20"/>
+      <circle cx="150" cy="124" r="20"/>
+      <circle cx="200" cy="124" r="20"/>
+      <circle cx="50" cy="168" r="20"/>
+      <circle cx="100" cy="168" r="20"/>
+      <circle cx="150" cy="168" r="20"/>
+      <circle cx="200" cy="168" r="20"/>
+    </g>
+    <!-- Nuclei -->
+    <g fill="#14532d">
+      <circle cx="50" cy="80" r="5"/>
+      <circle cx="100" cy="80" r="5"/>
+      <circle cx="150" cy="80" r="5"/>
+      <circle cx="200" cy="80" r="5"/>
+      <circle cx="50" cy="124" r="5"/>
+      <circle cx="100" cy="124" r="5"/>
+      <circle cx="150" cy="124" r="5"/>
+      <circle cx="200" cy="124" r="5"/>
+      <circle cx="50" cy="168" r="5"/>
+      <circle cx="100" cy="168" r="5"/>
+      <circle cx="150" cy="168" r="5"/>
+      <circle cx="200" cy="168" r="5"/>
+    </g>
+    <!-- Intercellular space markers (between cells) -->
+    <text x="75" y="105" font-size="8" fill="#dc2626" text-anchor="middle">·</text>
+    <text x="125" y="105" font-size="8" fill="#dc2626" text-anchor="middle">·</text>
+    <text x="175" y="105" font-size="8" fill="#dc2626" text-anchor="middle">·</text>
+    <text x="75" y="148" font-size="8" fill="#dc2626" text-anchor="middle">·</text>
+    <text x="125" y="148" font-size="8" fill="#dc2626" text-anchor="middle">·</text>
+    <text x="175" y="148" font-size="8" fill="#dc2626" text-anchor="middle">·</text>
+
+    <!-- Pointer to wall -->
+    <line x1="120" y1="100" x2="146" y2="200" stroke="#4a5568" stroke-width="0.8"/>
+    <text x="146" y="214" font-size="9" fill="#4a5568">thin uniform wall</text>
+
+    <text x="20" y="232" font-size="10" font-weight="700" fill="#1a202c">Wall:</text>
+    <text x="56" y="232" font-size="10" fill="#4a5568">cellulose, thin, even</text>
+    <text x="20" y="246" font-size="10" font-weight="700" fill="#1a202c">Found in:</text>
+    <text x="74" y="246" font-size="10" fill="#4a5568">leaf mesophyll, fruit pulp</text>
+  </g>
+
+  <!-- ── Collenchyma ────────────────────────────────────────── -->
+  <g transform="translate(280, 60)">
+    <rect x="0" y="0" width="200" height="260" rx="10" fill="#f7fafc" stroke="#319795" stroke-width="2"/>
+    <text x="100" y="22" font-size="13" font-weight="700" fill="#319795" text-anchor="middle">Collenchyma</text>
+    <text x="100" y="38" font-size="10" fill="#4a5568" text-anchor="middle">flexible support · alive</text>
+
+    <!-- Hexagonal cells with thickened corner walls -->
+    <g>
+      <!-- Cell 1: hexagon with thick corner inner shapes -->
+      <polygon points="40,76 60,64 80,76 80,98 60,110 40,98" fill="#ccfbf1" stroke="#319795" stroke-width="1.2"/>
+      <path d="M 44 76 Q 48 80 52 76" fill="#319795"/>
+      <path d="M 76 76 Q 72 80 68 76" fill="#319795"/>
+      <path d="M 44 98 Q 48 94 52 98" fill="#319795"/>
+      <path d="M 76 98 Q 72 94 68 98" fill="#319795"/>
+      <circle cx="60" cy="87" r="4" fill="#134e4a"/>
+
+      <polygon points="100,76 120,64 140,76 140,98 120,110 100,98" fill="#ccfbf1" stroke="#319795" stroke-width="1.2"/>
+      <path d="M 104 76 Q 108 80 112 76" fill="#319795"/>
+      <path d="M 136 76 Q 132 80 128 76" fill="#319795"/>
+      <path d="M 104 98 Q 108 94 112 98" fill="#319795"/>
+      <path d="M 136 98 Q 132 94 128 98" fill="#319795"/>
+      <circle cx="120" cy="87" r="4" fill="#134e4a"/>
+
+      <polygon points="160,76 180,64 200,76 200,98 180,110 160,98" fill="#ccfbf1" stroke="#319795" stroke-width="1.2"/>
+      <path d="M 164 76 Q 168 80 172 76" fill="#319795"/>
+      <path d="M 196 76 Q 192 80 188 76" fill="#319795"/>
+      <path d="M 164 98 Q 168 94 172 98" fill="#319795"/>
+      <path d="M 196 98 Q 192 94 188 98" fill="#319795"/>
+      <circle cx="180" cy="87" r="4" fill="#134e4a"/>
+
+      <!-- Row 2 -->
+      <polygon points="40,124 60,112 80,124 80,146 60,158 40,146" fill="#ccfbf1" stroke="#319795" stroke-width="1.2"/>
+      <path d="M 44 124 Q 48 128 52 124" fill="#319795"/>
+      <path d="M 76 124 Q 72 128 68 124" fill="#319795"/>
+      <path d="M 44 146 Q 48 142 52 146" fill="#319795"/>
+      <path d="M 76 146 Q 72 142 68 146" fill="#319795"/>
+      <circle cx="60" cy="135" r="4" fill="#134e4a"/>
+
+      <polygon points="100,124 120,112 140,124 140,146 120,158 100,146" fill="#ccfbf1" stroke="#319795" stroke-width="1.2"/>
+      <path d="M 104 124 Q 108 128 112 124" fill="#319795"/>
+      <path d="M 136 124 Q 132 128 128 124" fill="#319795"/>
+      <path d="M 104 146 Q 108 142 112 146" fill="#319795"/>
+      <path d="M 136 146 Q 132 142 128 146" fill="#319795"/>
+      <circle cx="120" cy="135" r="4" fill="#134e4a"/>
+
+      <polygon points="160,124 180,112 200,124 200,146 180,158 160,146" fill="#ccfbf1" stroke="#319795" stroke-width="1.2"/>
+      <path d="M 164 124 Q 168 128 172 124" fill="#319795"/>
+      <path d="M 196 124 Q 192 128 188 124" fill="#319795"/>
+      <path d="M 164 146 Q 168 142 172 146" fill="#319795"/>
+      <path d="M 196 146 Q 192 142 188 146" fill="#319795"/>
+      <circle cx="180" cy="135" r="4" fill="#134e4a"/>
+
+      <!-- Row 3 -->
+      <polygon points="40,172 60,160 80,172 80,194 60,206 40,194" fill="#ccfbf1" stroke="#319795" stroke-width="1.2"/>
+      <path d="M 44 172 Q 48 176 52 172" fill="#319795"/>
+      <path d="M 76 172 Q 72 176 68 172" fill="#319795"/>
+      <circle cx="60" cy="183" r="4" fill="#134e4a"/>
+
+      <polygon points="100,172 120,160 140,172 140,194 120,206 100,194" fill="#ccfbf1" stroke="#319795" stroke-width="1.2"/>
+      <path d="M 104 172 Q 108 176 112 172" fill="#319795"/>
+      <path d="M 136 172 Q 132 176 128 172" fill="#319795"/>
+      <circle cx="120" cy="183" r="4" fill="#134e4a"/>
+
+      <polygon points="160,172 180,160 200,172 200,194 180,206 160,194" fill="#ccfbf1" stroke="#319795" stroke-width="1.2"/>
+      <path d="M 164 172 Q 168 176 172 172" fill="#319795"/>
+      <path d="M 196 172 Q 192 176 188 172" fill="#319795"/>
+      <circle cx="180" cy="183" r="4" fill="#134e4a"/>
+    </g>
+
+    <line x1="76" y1="76" x2="100" y2="56" stroke="#4a5568" stroke-width="0.8"/>
+    <text x="120" y="56" font-size="9" fill="#4a5568" text-anchor="middle">thick at corners</text>
+
+    <text x="20" y="232" font-size="10" font-weight="700" fill="#1a202c">Wall:</text>
+    <text x="56" y="232" font-size="10" fill="#4a5568">cellulose + pectin (corners)</text>
+    <text x="20" y="246" font-size="10" font-weight="700" fill="#1a202c">Found in:</text>
+    <text x="74" y="246" font-size="10" fill="#4a5568">stem hypodermis, leaf petioles</text>
+  </g>
+
+  <!-- ── Sclerenchyma ───────────────────────────────────────── -->
+  <g transform="translate(500, 60)">
+    <rect x="0" y="0" width="240" height="260" rx="10" fill="#f7fafc" stroke="#b45309" stroke-width="2"/>
+    <text x="120" y="22" font-size="13" font-weight="700" fill="#b45309" text-anchor="middle">Sclerenchyma</text>
+    <text x="120" y="38" font-size="10" fill="#4a5568" text-anchor="middle">rigid support · dead</text>
+
+    <!-- Fibres: long narrow cells with very thick walls, tiny lumen -->
+    <g>
+      <ellipse cx="40" cy="138" rx="12" ry="80" fill="#fef3c7" stroke="#78350f" stroke-width="3.5"/>
+      <ellipse cx="40" cy="138" rx="3" ry="58" fill="#fff"/>
+
+      <ellipse cx="74" cy="138" rx="12" ry="80" fill="#fef3c7" stroke="#78350f" stroke-width="3.5"/>
+      <ellipse cx="74" cy="138" rx="3" ry="58" fill="#fff"/>
+
+      <ellipse cx="108" cy="138" rx="12" ry="80" fill="#fef3c7" stroke="#78350f" stroke-width="3.5"/>
+      <ellipse cx="108" cy="138" rx="3" ry="58" fill="#fff"/>
+    </g>
+
+    <!-- Sclereids: stone cells with thick concentric walls (like nutshells) -->
+    <g>
+      <circle cx="160" cy="98" r="20" fill="#fef3c7" stroke="#78350f" stroke-width="3.5"/>
+      <circle cx="160" cy="98" r="12" fill="#fff" stroke="#78350f" stroke-width="2"/>
+      <circle cx="160" cy="98" r="5" fill="#fef3c7" stroke="#78350f" stroke-width="1"/>
+      <line x1="148" y1="98" x2="172" y2="98" stroke="#78350f" stroke-width="1"/>
+      <line x1="160" y1="86" x2="160" y2="110" stroke="#78350f" stroke-width="1"/>
+
+      <circle cx="200" cy="120" r="18" fill="#fef3c7" stroke="#78350f" stroke-width="3.5"/>
+      <circle cx="200" cy="120" r="11" fill="#fff" stroke="#78350f" stroke-width="2"/>
+      <circle cx="200" cy="120" r="4" fill="#fef3c7" stroke="#78350f" stroke-width="1"/>
+
+      <circle cx="170" cy="160" r="18" fill="#fef3c7" stroke="#78350f" stroke-width="3.5"/>
+      <circle cx="170" cy="160" r="11" fill="#fff" stroke="#78350f" stroke-width="2"/>
+      <circle cx="170" cy="160" r="4" fill="#fef3c7" stroke="#78350f" stroke-width="1"/>
+
+      <circle cx="208" cy="180" r="18" fill="#fef3c7" stroke="#78350f" stroke-width="3.5"/>
+      <circle cx="208" cy="180" r="11" fill="#fff" stroke="#78350f" stroke-width="2"/>
+      <circle cx="208" cy="180" r="4" fill="#fef3c7" stroke="#78350f" stroke-width="1"/>
+    </g>
+
+    <line x1="74" y1="86" x2="60" y2="62" stroke="#78350f" stroke-width="0.8"/>
+    <text x="60" y="58" font-size="9" fill="#78350f" text-anchor="end">fibre</text>
+    <line x1="178" y1="86" x2="190" y2="62" stroke="#78350f" stroke-width="0.8"/>
+    <text x="190" y="58" font-size="9" fill="#78350f">sclereid</text>
+
+    <text x="20" y="232" font-size="10" font-weight="700" fill="#1a202c">Wall:</text>
+    <text x="56" y="232" font-size="10" fill="#4a5568">lignified, very thick</text>
+    <text x="20" y="246" font-size="10" font-weight="700" fill="#1a202c">Found in:</text>
+    <text x="74" y="246" font-size="10" fill="#4a5568">jute, hemp, peach pit, pear grit</text>
+  </g>
+
+  <text x="380" y="338" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">Wall thickness rises left → right. Parenchyma is the all-purpose worker; collenchyma is flexible scaffolding; sclerenchyma is rigid armour.</text>
+</svg>

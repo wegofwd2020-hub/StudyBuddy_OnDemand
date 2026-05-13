@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 320" width="480" height="320" role="img" aria-label="Rocket thrust as an action–reaction pair">
+  <title>Rocket thrust — action–reaction pair</title>
+  <desc>A rocket expels exhaust gases downward (action) and the gases push the rocket upward with an equal and opposite force (reaction). The two forces act on different bodies.</desc>
+
+  <defs>
+    <marker id="arr-rocket-up" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#15803d" />
+    </marker>
+    <marker id="arr-rocket-down" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626" />
+    </marker>
+  </defs>
+
+  <text x="240" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Newton's Third Law: Rocket Thrust</text>
+
+  <!-- Rocket body: nose cone -->
+  <path d="M 220 70 L 260 70 L 260 160 L 220 160 Z" fill="#bee3f8" stroke="#1a202c" stroke-width="1.5" />
+  <path d="M 220 70 L 240 40 L 260 70 Z" fill="#fed7aa" stroke="#1a202c" stroke-width="1.5" />
+  <!-- Fins -->
+  <path d="M 220 140 L 200 165 L 220 165 Z" fill="#bee3f8" stroke="#1a202c" stroke-width="1.2" />
+  <path d="M 260 140 L 280 165 L 260 165 Z" fill="#bee3f8" stroke="#1a202c" stroke-width="1.2" />
+  <!-- Window -->
+  <circle cx="240" cy="95" r="7" fill="#f7fafc" stroke="#1a202c" stroke-width="1" />
+
+  <!-- Exhaust plume -->
+  <path d="M 225 165 L 215 200 L 225 195 L 220 230 L 235 205 L 240 240 L 245 205 L 260 230 L 255 195 L 265 200 L 255 165 Z"
+        fill="#fde68a" stroke="#dd6b20" stroke-width="1" opacity="0.8" />
+
+  <!-- F_rocket-on-gas (action): downward, on the gas -->
+  <line x1="200" y1="200" x2="200" y2="270" stroke="#dc2626" stroke-width="3.5" marker-end="url(#arr-rocket-down)" />
+  <text x="180" y="240" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#dc2626" text-anchor="end">F_rocket→gas</text>
+  <text x="180" y="255" font="11px system-ui" font-size="11" font-style="italic" fill="#dc2626" text-anchor="end">(acts on gas)</text>
+
+  <!-- F_gas-on-rocket (reaction): upward, on the rocket -->
+  <line x1="290" y1="200" x2="290" y2="130" stroke="#15803d" stroke-width="3.5" marker-end="url(#arr-rocket-up)" />
+  <text x="300" y="170" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#15803d">F_gas→rocket</text>
+  <text x="300" y="185" font="11px system-ui" font-size="11" font-style="italic" fill="#15803d">(acts on rocket)</text>
+
+  <!-- Equation card -->
+  <rect x="40" y="280" width="400" height="34" rx="6" fill="#f0fdf4" stroke="#15803d" stroke-width="1.2" />
+  <text x="240" y="302" font="13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">F_rocket→gas  =  − F_gas→rocket    (equal magnitude, opposite direction)</text>
+</svg>

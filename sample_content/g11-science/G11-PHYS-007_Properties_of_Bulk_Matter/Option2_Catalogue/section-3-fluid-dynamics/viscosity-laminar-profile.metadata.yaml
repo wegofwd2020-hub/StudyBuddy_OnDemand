@@ -1,0 +1,14 @@
+schema_version: 1
+id: physics-bulk-matter-viscosity-laminar-profile
+kind: image
+subject: physics
+topic_phrase: "viscosity and the parabolic laminar velocity profile between two stationary walls"
+keywords:
+  - fluid-dynamics
+  - viscosity
+  - laminar-flow
+  - velocity-profile
+  - no-slip-condition
+  - newtons-law-of-viscosity
+license: platform-cc-by-sa
+source_unit: G11-PHYS-007

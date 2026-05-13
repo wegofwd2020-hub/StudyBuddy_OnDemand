@@ -1,0 +1,18 @@
+# Auto-generated for sample-content seeding — edit with the SVG and re-run sidecar build.
+schema_version: 1
+id: chemistry-hydrocarbon-classification-tree
+kind: image
+subject: chemistry
+topic_phrase: "hydrocarbon classification tree alkanes alkenes alkynes aromatic"
+keywords:
+  - hydrocarbon
+  - classification
+  - aliphatic
+  - aromatic
+  - alkane
+  - alkene
+  - alkyne
+  - saturated
+  - unsaturated
+license: platform-cc-by-sa
+source_unit: G11-CHEM-009

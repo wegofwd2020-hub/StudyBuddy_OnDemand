@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 460" width="760" height="460" role="img" aria-label="ECG waveform with P QRS T components annotated">
+  <title>ECG — one cardiac cycle, P QRS T explained</title>
+  <desc>A standard lead-II electrocardiogram trace covering one full cardiac cycle. The P wave (upright, ~0.08 s, ~0.2 mV) marks atrial depolarisation. The PR interval (~0.16 s) is the conduction delay through the AV node. The QRS complex (~0.08 s, large amplitude) marks ventricular depolarisation; the underlying atrial repolarisation is hidden inside the QRS. The ST segment (~0.10 s) is the plateau phase of ventricular contraction. The T wave (upright, ~0.16 s) marks ventricular repolarisation. Beneath the trace a labelled time-scale grid is shown with normal interval ranges. To the right is a side panel mapping each electrical event to the mechanical event in the heart it produces.</desc>
+
+  <text x="380" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Electrocardiogram (ECG) — One Cardiac Cycle, Lead II</text>
+  <text x="380" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Each wave is the body-surface signature of one electrical event inside the heart.</text>
+
+  <!-- Background -->
+  <rect x="20" y="56" width="720" height="384" rx="14" fill="#f7fafc" stroke="#cbd5e1" stroke-width="1"/>
+
+  <!-- ── ECG paper grid (red small squares, bold every 5) — left 2/3 ── -->
+  <!-- Plot area: x=60..540, y=80..280 -->
+  <defs>
+    <pattern id="ecgFine" x="60" y="80" width="10" height="10" patternUnits="userSpaceOnUse">
+      <path d="M 10 0 L 0 0 0 10" fill="none" stroke="#fda4af" stroke-width="0.5"/>
+    </pattern>
+    <pattern id="ecgBold" x="60" y="80" width="50" height="50" patternUnits="userSpaceOnUse">
+      <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#f43f5e" stroke-width="0.9"/>
+    </pattern>
+  </defs>
+
+  <rect x="60" y="80" width="480" height="200" fill="#fff7f7"/>
+  <rect x="60" y="80" width="480" height="200" fill="url(#ecgFine)"/>
+  <rect x="60" y="80" width="480" height="200" fill="url(#ecgBold)"/>
+  <rect x="60" y="80" width="480" height="200" fill="none" stroke="#1a202c" stroke-width="1.5"/>
+
+  <!-- Y-baseline (isoelectric) at y = 200 -->
+  <!-- Axis labels -->
+  <text x="56" y="84" font-size="9" fill="#4a5568" text-anchor="end">+1.0 mV</text>
+  <text x="56" y="204" font-size="9" fill="#4a5568" text-anchor="end">0</text>
+  <text x="56" y="284" font-size="9" fill="#4a5568" text-anchor="end">−0.4 mV</text>
+  <text x="60" y="298" font-size="9" fill="#4a5568">0 s</text>
+  <text x="190" y="298" font-size="9" fill="#4a5568" text-anchor="middle">0.2 s</text>
+  <text x="320" y="298" font-size="9" fill="#4a5568" text-anchor="middle">0.4 s</text>
+  <text x="450" y="298" font-size="9" fill="#4a5568" text-anchor="middle">0.6 s</text>
+  <text x="540" y="298" font-size="9" fill="#4a5568" text-anchor="end">0.8 s</text>
+
+  <!-- ── ECG trace ───────────────────────────────────────────── -->
+  <!-- baseline → P wave → PR segment → QRS → ST → T → baseline -->
+  <!-- Path crafted to look like a real ECG; coordinate space: 60..540 horizontally over ~0.8 s; baseline 200 -->
+
+  <path d="
+      M 60 200
+      L 90 200
+      Q 105 185 120 192
+      Q 135 200 150 200
+      L 195 200
+      L 210 195
+      L 220 230
+      L 230 100
+      L 240 250
+      L 248 200
+      L 295 200
+      Q 320 165 350 200
+      L 540 200"
+    fill="none" stroke="#1a202c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- ── Wave labels ─────────────────────────────────────────── -->
+  <!-- P wave label -->
+  <line x1="105" y1="180" x2="105" y2="62" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="105" y="76" font-size="14" font-weight="700" fill="#2b6cb0" text-anchor="middle">P</text>
+
+  <!-- Q dip label -->
+  <line x1="220" y1="234" x2="220" y2="316" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="220" y="330" font-size="12" font-weight="700" fill="#7c3aed" text-anchor="middle">Q</text>
+
+  <!-- R peak label -->
+  <line x1="230" y1="100" x2="230" y2="62" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="230" y="76" font-size="14" font-weight="700" fill="#dc2626" text-anchor="middle">R</text>
+
+  <!-- S dip label -->
+  <line x1="240" y1="254" x2="240" y2="316" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="240" y="330" font-size="12" font-weight="700" fill="#7c3aed" text-anchor="middle">S</text>
+
+  <!-- T peak label -->
+  <line x1="320" y1="165" x2="320" y2="62" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="320" y="76" font-size="14" font-weight="700" fill="#15803d" text-anchor="middle">T</text>
+
+  <!-- ── Interval brackets ───────────────────────────────────── -->
+  <!-- PR interval bracket: 90..220 -->
+  <line x1="90" y1="270" x2="220" y2="270" stroke="#1a202c" stroke-width="1"/>
+  <line x1="90" y1="266" x2="90" y2="274" stroke="#1a202c" stroke-width="1"/>
+  <line x1="220" y1="266" x2="220" y2="274" stroke="#1a202c" stroke-width="1"/>
+  <text x="155" y="263" font-size="9" font-weight="700" fill="#1a202c" text-anchor="middle">PR  ~0.16 s</text>
+
+  <!-- QRS bracket: 220..248 -->
+  <line x1="220" y1="270" x2="248" y2="270" stroke="#1a202c" stroke-width="1"/>
+  <line x1="248" y1="266" x2="248" y2="274" stroke="#1a202c" stroke-width="1"/>
+  <text x="234" y="263" font-size="9" font-weight="700" fill="#1a202c" text-anchor="middle">QRS</text>
+  <text x="234" y="252" font-size="8" fill="#4a5568" text-anchor="middle">~0.08 s</text>
+
+  <!-- ST segment (label inside): 248..295 -->
+  <line x1="248" y1="190" x2="295" y2="190" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 2"/>
+  <text x="271" y="184" font-size="9" fill="#4a5568" text-anchor="middle">ST seg.</text>
+
+  <!-- QT bracket: 220..350 -->
+  <line x1="220" y1="288" x2="350" y2="288" stroke="#1a202c" stroke-width="1"/>
+  <line x1="220" y1="284" x2="220" y2="292" stroke="#1a202c" stroke-width="1"/>
+  <line x1="350" y1="284" x2="350" y2="292" stroke="#1a202c" stroke-width="1"/>
+  <text x="285" y="282" font-size="9" font-weight="700" fill="#1a202c" text-anchor="middle">QT  ~0.36 s</text>
+
+  <!-- ── Right side mapping panel ─────────────────────────────── -->
+  <rect x="560" y="80" width="180" height="350" rx="8" fill="#fff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="572" y="98" font-size="11" font-weight="700" fill="#1a202c">Electrical → Mechanical</text>
+
+  <!-- P -->
+  <circle cx="572" cy="120" r="6" fill="#2b6cb0"/>
+  <text x="582" y="124" font-size="10" font-weight="700" fill="#1e3a8a">P wave</text>
+  <text x="572" y="140" font-size="9" fill="#4a5568">atria depolarise</text>
+  <text x="572" y="152" font-size="9" font-style="italic" fill="#4a5568">→ atrial systole begins</text>
+
+  <line x1="572" y1="166" x2="724" y2="166" stroke="#e2e8f0" stroke-width="1"/>
+
+  <!-- QRS -->
+  <circle cx="572" cy="184" r="6" fill="#dc2626"/>
+  <text x="582" y="188" font-size="10" font-weight="700" fill="#7f1d1d">QRS complex</text>
+  <text x="572" y="204" font-size="9" fill="#4a5568">ventricles depolarise</text>
+  <text x="572" y="216" font-size="9" font-style="italic" fill="#4a5568">→ ventricular systole begins</text>
+  <text x="572" y="228" font-size="9" fill="#4a5568">(atrial repolarisation</text>
+  <text x="572" y="240" font-size="9" fill="#4a5568">  is hidden inside)</text>
+
+  <line x1="572" y1="254" x2="724" y2="254" stroke="#e2e8f0" stroke-width="1"/>
+
+  <!-- ST -->
+  <circle cx="572" cy="272" r="6" fill="#94a3b8"/>
+  <text x="582" y="276" font-size="10" font-weight="700" fill="#4a5568">ST segment</text>
+  <text x="572" y="292" font-size="9" fill="#4a5568">all ventricle cells</text>
+  <text x="572" y="304" font-size="9" fill="#4a5568">depolarised together</text>
+  <text x="572" y="316" font-size="9" font-style="italic" fill="#4a5568">→ ejection phase</text>
+
+  <line x1="572" y1="330" x2="724" y2="330" stroke="#e2e8f0" stroke-width="1"/>
+
+  <!-- T -->
+  <circle cx="572" cy="348" r="6" fill="#15803d"/>
+  <text x="582" y="352" font-size="10" font-weight="700" fill="#14532d">T wave</text>
+  <text x="572" y="368" font-size="9" fill="#4a5568">ventricles repolarise</text>
+  <text x="572" y="380" font-size="9" font-style="italic" fill="#4a5568">→ relaxation begins</text>
+
+  <text x="572" y="408" font-size="9" font-weight="700" fill="#4a5568">HR (bpm) = 60 / RR(s)</text>
+  <text x="572" y="422" font-size="9" fill="#4a5568">e.g. RR = 0.8 s → 75 bpm</text>
+
+  <!-- Bottom interval reference -->
+  <rect x="20" y="448" width="720" height="0" stroke="none" fill="none"/>
+</svg>

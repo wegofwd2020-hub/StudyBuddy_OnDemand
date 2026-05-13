@@ -1,0 +1,16 @@
+schema_version: 1
+id: physics-kinetic-theory-degrees-of-freedom
+kind: image
+subject: physics
+topic_phrase: "degrees of freedom for monatomic diatomic and polyatomic gas molecules with translational and rotational motion modes shown"
+keywords:
+  - degrees-of-freedom
+  - monatomic
+  - diatomic
+  - polyatomic
+  - translation
+  - rotation
+  - vibration
+  - equipartition
+license: platform-cc-by-sa
+source_unit: G11-PHYS-009

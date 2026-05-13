@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360" role="img" aria-label="Refrigerator schematic with cold reservoir, working substance, hot reservoir, and external work input">
+  <title>Refrigerator (Heat Pump) — Schematic</title>
+  <desc>A refrigerator runs a heat engine in reverse. Heat Q_C is extracted from the cold space. External work W is supplied. Heat Q_H equals Q_C plus W is dumped to the hot surroundings. Coefficient of performance COP equals Q_C over W for cooling; for heating COP equals Q_H over W.</desc>
+
+  <text x="300" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Refrigerator / Heat Pump — Schematic</text>
+  <text x="300" y="40" font-size="12" font-style="italic" fill="#4a5568" text-anchor="middle">Heat is pumped from cold to hot — work input is required.</text>
+
+  <defs>
+    <marker id="rf-arr-r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626" />
+    </marker>
+    <marker id="rf-arr-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1d4ed8" />
+    </marker>
+    <marker id="rf-arr-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#15803d" />
+    </marker>
+  </defs>
+
+  <!-- Hot surroundings (top) -->
+  <rect x="180" y="60" width="240" height="50" fill="#fee2e2" stroke="#dc2626" stroke-width="2.5" rx="6" />
+  <text x="300" y="92" font-size="14" font-weight="700" fill="#dc2626" text-anchor="middle">Hot surroundings   T_H (room)</text>
+
+  <!-- Working substance -->
+  <circle cx="300" cy="200" r="55" fill="#fef3c7" stroke="#dd6b20" stroke-width="3" />
+  <text x="300" y="195" font-size="13" font-weight="700" fill="#7c2d12" text-anchor="middle">refrigerant</text>
+  <text x="300" y="213" font-size="13" font-weight="700" fill="#7c2d12" text-anchor="middle">(compressor)</text>
+
+  <!-- Cold space (bottom) -->
+  <rect x="180" y="290" width="240" height="50" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2.5" rx="6" />
+  <text x="300" y="322" font-size="14" font-weight="700" fill="#1d4ed8" text-anchor="middle">Cold space   T_C (interior)</text>
+
+  <!-- Q_H rejected UP (engine → hot) — wide red -->
+  <line x1="300" y1="143" x2="300" y2="113" stroke="#dc2626" stroke-width="14" marker-end="url(#rf-arr-r)" />
+  <text x="338" y="135" font-size="14" font-weight="700" fill="#dc2626">Q_H</text>
+
+  <!-- Q_C extracted from cold (cold → engine) — blue arrow up -->
+  <line x1="300" y1="288" x2="300" y2="258" stroke="#1d4ed8" stroke-width="9" marker-end="url(#rf-arr-b)" />
+  <text x="332" y="278" font-size="13" font-weight="700" fill="#1d4ed8">Q_C</text>
+
+  <!-- W work IN (electricity) from the right INTO the engine -->
+  <line x1="500" y1="200" x2="358" y2="200" stroke="#15803d" stroke-width="9" marker-end="url(#rf-arr-g)" />
+  <text x="430" y="190" font-size="14" font-weight="700" fill="#15803d" text-anchor="middle">W (input)</text>
+  <text x="430" y="220" font-size="11" fill="#15803d" text-anchor="middle">electrical work</text>
+
+  <!-- Energy balance -->
+  <text x="500" y="260" font-size="11" font-weight="700" fill="#1a202c" text-anchor="end">Q_H = Q_C + W</text>
+
+  <!-- COP panel (left side) -->
+  <rect x="40" y="118" width="120" height="170" rx="8" fill="#f7fafc" stroke="#cbd5e1" stroke-width="1.2" />
+  <text x="100" y="138" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Coefficient of</text>
+  <text x="100" y="152" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">performance</text>
+  <line x1="55" y1="160" x2="145" y2="160" stroke="#cbd5e1" />
+
+  <text x="100" y="184" font-size="11" font-weight="700" fill="#1d4ed8" text-anchor="middle">cooling:</text>
+  <text x="100" y="204" font-size="13" font-weight="700" fill="#1d4ed8" text-anchor="middle">COP_R = Q_C ⁄ W</text>
+
+  <text x="100" y="234" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">heating:</text>
+  <text x="100" y="254" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">COP_H = Q_H ⁄ W</text>
+
+  <text x="100" y="278" font-size="9" font-style="italic" fill="#15803d" text-anchor="middle">typical fridge ≈ 3</text>
+
+  <!-- Note panel -->
+  <rect x="40" y="298" width="120" height="48" rx="6" fill="#dcfce7" stroke="#15803d" stroke-width="1.2" />
+  <text x="100" y="313" font-size="10" font-weight="700" fill="#14532d" text-anchor="middle">Examples</text>
+  <text x="100" y="327" font-size="9" fill="#14532d" text-anchor="middle">refrigerator · A/C</text>
+  <text x="100" y="340" font-size="9" fill="#14532d" text-anchor="middle">heat pump</text>
+</svg>

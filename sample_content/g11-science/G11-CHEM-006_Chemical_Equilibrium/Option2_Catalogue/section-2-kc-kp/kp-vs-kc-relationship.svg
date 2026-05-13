@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380" role="img" aria-label="Relationship between Kp and Kc">
+  <title>Kp and Kc — Two Forms, One Equilibrium</title>
+  <desc>For gas-phase reactions, Kp uses partial pressures and Kc uses molar concentrations. They are linked by Kp = Kc (RT) raised to delta n, where delta n is the change in moles of gas (products minus reactants). When delta n is zero, Kp equals Kc.</desc>
+
+  <text x="360" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Kp vs Kc — Pressure Form vs Concentration Form</text>
+  <text x="360" y="42" font-size="11" fill="#4a5568" text-anchor="middle">For gases, you can describe equilibrium with either partial pressures or molar concentrations.</text>
+
+  <!-- Two side-by-side boxes -->
+  <!-- Kc box -->
+  <g transform="translate(40, 70)">
+    <rect x="0" y="0" width="290" height="170" rx="10" fill="#dbeafe" stroke="#2b6cb0" stroke-width="2"/>
+    <text x="145" y="22" font-size="14" font-weight="700" fill="#2b6cb0" text-anchor="middle">K_c — concentrations</text>
+
+    <!-- Generic reaction at top -->
+    <text x="145" y="50" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">a A(g) + b B(g) ⇌ c C(g) + d D(g)</text>
+
+    <!-- Kc fraction -->
+    <text x="80" y="100" font-size="20" font-weight="700" fill="#1a202c">K_c =</text>
+    <text x="200" y="88" font-size="16" font-weight="700" fill="#15803d" text-anchor="middle">[C]<tspan baseline-shift="super" font-size="11">c</tspan>[D]<tspan baseline-shift="super" font-size="11">d</tspan></text>
+    <line x1="155" y1="96" x2="245" y2="96" stroke="#1a202c" stroke-width="2"/>
+    <text x="200" y="115" font-size="16" font-weight="700" fill="#dd6b20" text-anchor="middle">[A]<tspan baseline-shift="super" font-size="11">a</tspan>[B]<tspan baseline-shift="super" font-size="11">b</tspan></text>
+
+    <text x="145" y="148" font-size="11" fill="#4a5568" text-anchor="middle" font-style="italic">[X] in mol·L⁻¹</text>
+  </g>
+
+  <!-- Kp box -->
+  <g transform="translate(390, 70)">
+    <rect x="0" y="0" width="290" height="170" rx="10" fill="#fef3c7" stroke="#92400e" stroke-width="2"/>
+    <text x="145" y="22" font-size="14" font-weight="700" fill="#92400e" text-anchor="middle">K_p — partial pressures</text>
+
+    <text x="145" y="50" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">a A(g) + b B(g) ⇌ c C(g) + d D(g)</text>
+
+    <text x="80" y="100" font-size="20" font-weight="700" fill="#1a202c">K_p =</text>
+    <text x="200" y="88" font-size="16" font-weight="700" fill="#15803d" text-anchor="middle">P_C<tspan baseline-shift="super" font-size="11">c</tspan> P_D<tspan baseline-shift="super" font-size="11">d</tspan></text>
+    <line x1="155" y1="96" x2="245" y2="96" stroke="#1a202c" stroke-width="2"/>
+    <text x="200" y="115" font-size="16" font-weight="700" fill="#dd6b20" text-anchor="middle">P_A<tspan baseline-shift="super" font-size="11">a</tspan> P_B<tspan baseline-shift="super" font-size="11">b</tspan></text>
+
+    <text x="145" y="148" font-size="11" fill="#4a5568" text-anchor="middle" font-style="italic">P in atm or bar</text>
+  </g>
+
+  <!-- Bridge equation -->
+  <rect x="100" y="265" width="520" height="58" rx="10" fill="#f0fdf4" stroke="#15803d" stroke-width="2"/>
+  <text x="360" y="290" font-size="14" font-weight="700" fill="#15803d" text-anchor="middle">Bridge from one to the other (using PV = nRT, so P = (n/V)·RT = c·RT):</text>
+  <text x="360" y="316" font-size="20" font-weight="700" fill="#1a202c" text-anchor="middle">K_p  =  K_c · (RT)<tspan baseline-shift="super" font-size="14">Δn_gas</tspan></text>
+
+  <!-- Δn explanation -->
+  <text x="360" y="345" font-size="11" fill="#4a5568" text-anchor="middle">Δn_gas = (moles of gaseous products) − (moles of gaseous reactants) = (c + d) − (a + b)</text>
+  <text x="360" y="362" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">When Δn = 0 (e.g. H₂ + I₂ ⇌ 2 HI), Kp = Kc exactly.</text>
+</svg>

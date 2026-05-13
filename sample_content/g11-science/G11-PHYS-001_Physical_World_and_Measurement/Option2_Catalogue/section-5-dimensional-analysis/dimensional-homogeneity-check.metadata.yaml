@@ -1,0 +1,13 @@
+schema_version: 1
+id: physics-physical-world-dimensional-homogeneity-check
+kind: image
+subject: physics
+topic_phrase: "checking dimensional homogeneity by comparing a correct and incorrect kinematic equation"
+keywords:
+  - dimensional-analysis
+  - dimensional-homogeneity
+  - kinematic-equation
+  - sanity-check
+  - dimensions
+license: platform-cc-by-sa
+source_unit: G11-PHYS-001

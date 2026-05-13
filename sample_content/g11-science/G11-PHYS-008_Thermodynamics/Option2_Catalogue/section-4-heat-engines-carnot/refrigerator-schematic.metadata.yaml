@@ -1,0 +1,15 @@
+schema_version: 1
+id: physics-thermodynamics-refrigerator-schematic
+kind: image
+subject: physics
+topic_phrase: "refrigerator and heat pump schematic showing heat extracted from cold space, work input, and heat rejected to hot surroundings, with COP formula"
+keywords:
+  - refrigerator
+  - heat-pump
+  - coefficient-of-performance
+  - cop
+  - reverse-cycle
+  - second-law
+  - work-input
+license: platform-cc-by-sa
+source_unit: G11-PHYS-008

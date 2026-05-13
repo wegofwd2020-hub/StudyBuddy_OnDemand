@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" width="720" height="360" role="img" aria-label="Order of magnitude estimation examples">
+  <title>Order-of-Magnitude Estimation</title>
+  <desc>Three Fermi-style worked estimations: hairs on a head, breaths per lifetime, and grains of sand on a beach. Each problem broken into multiplied estimates and the rounded order-of-magnitude answer.</desc>
+
+  <text x="360" y="26" font-family="system-ui" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Order-of-Magnitude Estimation — the "10ⁿ" answer</text>
+  <text x="360" y="46" font-family="system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">round each input to the nearest power of 10, multiply, and you get a "good-enough" answer instantly</text>
+
+  <!-- Three example panels -->
+  <g font-family="system-ui">
+
+    <!-- Example 1: hairs on head -->
+    <rect x="20" y="62" width="220" height="276" rx="10" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1.5" />
+    <text x="130" y="84" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">How many hairs on a head?</text>
+
+    <text x="32" y="112" font-size="11" fill="#1a202c">Step 1 — assume scalp area:</text>
+    <text x="32" y="126" font-size="11" font-weight="700" fill="#2b6cb0">A ≈ 0.05 m² ~ 10⁻¹·³ m²</text>
+
+    <text x="32" y="148" font-size="11" fill="#1a202c">Step 2 — hair density:</text>
+    <text x="32" y="162" font-size="11" font-weight="700" fill="#2b6cb0">n ≈ 200 / cm² = 2 × 10⁶ /m²</text>
+
+    <text x="32" y="184" font-size="11" fill="#1a202c">Step 3 — multiply:</text>
+    <text x="32" y="198" font-size="11" font-weight="700" fill="#2b6cb0">N ≈ 0.05 × 2 × 10⁶</text>
+    <text x="32" y="216" font-size="11" font-weight="700" fill="#2b6cb0">    ≈ 10⁵ hairs</text>
+
+    <line x1="32" y1="232" x2="228" y2="232" stroke="#cbd5e1" />
+    <text x="32" y="252" font-size="11" fill="#1a202c">Order of magnitude:</text>
+    <text x="130" y="280" font-size="22" font-weight="700" fill="#15803d" text-anchor="middle">10⁵</text>
+    <text x="130" y="304" font-size="11" fill="#4a5568" text-anchor="middle">~ 100 000 hairs</text>
+    <text x="130" y="322" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">measured: 100k–150k ✓</text>
+
+    <!-- Example 2: breaths in a lifetime -->
+    <rect x="250" y="62" width="220" height="276" rx="10" fill="#f7fafc" stroke="#dd6b20" stroke-width="1.5" />
+    <text x="360" y="84" font-size="13" font-weight="700" fill="#dd6b20" text-anchor="middle">Breaths in a lifetime?</text>
+
+    <text x="262" y="112" font-size="11" fill="#1a202c">Step 1 — breaths per minute:</text>
+    <text x="262" y="126" font-size="11" font-weight="700" fill="#dd6b20">f ≈ 16 /min ~ 10¹·²</text>
+
+    <text x="262" y="148" font-size="11" fill="#1a202c">Step 2 — minutes in 80 yr:</text>
+    <text x="262" y="162" font-size="11" font-weight="700" fill="#dd6b20">80 × 365 × 24 × 60</text>
+    <text x="262" y="180" font-size="11" font-weight="700" fill="#dd6b20">  ≈ 4.2 × 10⁷ min</text>
+
+    <text x="262" y="200" font-size="11" fill="#1a202c">Step 3 — multiply:</text>
+    <text x="262" y="214" font-size="11" font-weight="700" fill="#dd6b20">N ≈ 16 × 4 × 10⁷</text>
+    <text x="262" y="228" font-size="11" font-weight="700" fill="#dd6b20">  ≈ 6 × 10⁸ breaths</text>
+
+    <line x1="262" y1="244" x2="458" y2="244" stroke="#cbd5e1" />
+    <text x="262" y="262" font-size="11" fill="#1a202c">Order of magnitude:</text>
+    <text x="360" y="290" font-size="22" font-weight="700" fill="#15803d" text-anchor="middle">10⁸</text>
+    <text x="360" y="312" font-size="11" fill="#4a5568" text-anchor="middle">~ a billion breaths</text>
+    <text x="360" y="328" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">close to actual ~ 6 × 10⁸ ✓</text>
+
+    <!-- Example 3: grains of sand -->
+    <rect x="480" y="62" width="220" height="276" rx="10" fill="#f7fafc" stroke="#7c3aed" stroke-width="1.5" />
+    <text x="590" y="84" font-size="13" font-weight="700" fill="#7c3aed" text-anchor="middle">Grains of sand on a beach?</text>
+
+    <text x="492" y="112" font-size="11" fill="#1a202c">Step 1 — grain size:</text>
+    <text x="492" y="126" font-size="11" font-weight="700" fill="#7c3aed">d ≈ 0.5 mm = 5 × 10⁻⁴ m</text>
+
+    <text x="492" y="148" font-size="11" fill="#1a202c">Step 2 — beach volume:</text>
+    <text x="492" y="162" font-size="11" font-weight="700" fill="#7c3aed">100 m × 50 m × 1 m</text>
+    <text x="492" y="180" font-size="11" font-weight="700" fill="#7c3aed">  = 5 × 10³ m³</text>
+
+    <text x="492" y="200" font-size="11" fill="#1a202c">Step 3 — divide:</text>
+    <text x="492" y="214" font-size="11" font-weight="700" fill="#7c3aed">N ≈ 5 × 10³ / (5 × 10⁻⁴)³</text>
+    <text x="492" y="232" font-size="11" font-weight="700" fill="#7c3aed">  ≈ 4 × 10¹³ grains</text>
+
+    <line x1="492" y1="246" x2="688" y2="246" stroke="#cbd5e1" />
+    <text x="492" y="264" font-size="11" fill="#1a202c">Order of magnitude:</text>
+    <text x="590" y="290" font-size="22" font-weight="700" fill="#15803d" text-anchor="middle">10¹³</text>
+    <text x="590" y="312" font-size="11" fill="#4a5568" text-anchor="middle">~ ten trillion grains</text>
+    <text x="590" y="328" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">per small beach</text>
+  </g>
+</svg>

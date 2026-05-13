@@ -1,0 +1,21 @@
+{
+  "name": "thermo-video",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "studio": "bunx remotion studio",
+    "render:reaction-coordinate": "bunx remotion render thermo-reaction-coordinate ~/Downloads/ChemThermo_ReactionCoordinate.mp4",
+    "render:all": "bun run render:reaction-coordinate"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.260",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.260",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.0",
+    "typescript": "^5.4.0"
+  }
+}

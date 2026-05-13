@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 440" width="760" height="440" role="img" aria-label="Levels of biological organisation ladder">
+  <title>Levels of biological organisation — Cell to Organism</title>
+  <desc>A five-rung ladder showing the major levels of biological organisation from cell (smallest) to organism (whole body), tracked through one example: a cardiac muscle cell builds cardiac muscle tissue, which forms the heart, which sits inside the circulatory system, which functions inside the human body. Each rung widens visually to show increasing structural complexity.</desc>
+
+  <text x="380" y="24" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Levels of Biological Organisation — Cell to Organism</text>
+  <text x="380" y="42" font-size="11" fill="#4a5568" text-anchor="middle">Each level is built from the level below. Higher = more structural complexity, more functions integrated.</text>
+
+  <!-- Column headings -->
+  <text x="40" y="68" font-size="11" font-weight="700" fill="#1a202c">Level</text>
+  <text x="240" y="68" font-size="11" font-weight="700" fill="#1a202c">What it is</text>
+  <text x="600" y="68" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Heart-pathway example</text>
+
+  <!-- Rung 1: Cell (narrowest) -->
+  <rect x="240" y="80" width="240" height="50" rx="6" fill="#fce7f3" stroke="#be185d" stroke-width="1.5"/>
+  <text x="260" y="106" font-size="13" font-weight="700" fill="#831843">1. Cell</text>
+  <text x="260" y="122" font-size="10" fill="#4a5568">Basic unit of life</text>
+  <text x="600" y="106" font-size="12" font-weight="700" fill="#be185d" text-anchor="middle">Cardiac muscle cell</text>
+  <text x="600" y="122" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">branched, single nucleus, intercalated discs</text>
+
+  <!-- Rung 2: Tissue -->
+  <rect x="180" y="140" width="360" height="50" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="200" y="166" font-size="13" font-weight="700" fill="#7f1d1d">2. Tissue</text>
+  <text x="200" y="182" font-size="10" fill="#4a5568">Group of similar cells with shared function</text>
+  <text x="600" y="166" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">Cardiac muscle tissue</text>
+  <text x="600" y="182" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">contracts rhythmically without conscious control</text>
+
+  <!-- Rung 3: Organ -->
+  <rect x="120" y="200" width="480" height="50" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+  <text x="140" y="226" font-size="13" font-weight="700" fill="#78350f">3. Organ</text>
+  <text x="140" y="242" font-size="10" fill="#4a5568">Two or more tissues working together</text>
+  <text x="600" y="226" font-size="12" font-weight="700" fill="#d97706" text-anchor="middle">Heart</text>
+  <text x="600" y="242" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">muscle + connective + nervous + epithelial tissues</text>
+
+  <!-- Rung 4: Organ system -->
+  <rect x="60" y="260" width="600" height="50" rx="6" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+  <text x="80" y="286" font-size="13" font-weight="700" fill="#14532d">4. Organ system</text>
+  <text x="80" y="302" font-size="10" fill="#4a5568">Several organs cooperating on one job</text>
+  <text x="600" y="286" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">Circulatory system</text>
+  <text x="600" y="302" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">heart + arteries + veins + capillaries + blood</text>
+
+  <!-- Rung 5: Organism (widest) -->
+  <rect x="20" y="320" width="680" height="50" rx="6" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5"/>
+  <text x="40" y="346" font-size="13" font-weight="700" fill="#1e3a8a">5. Organism</text>
+  <text x="40" y="362" font-size="10" fill="#4a5568">All organ systems working as one living individual</text>
+  <text x="600" y="346" font-size="12" font-weight="700" fill="#2b6cb0" text-anchor="middle">Human body</text>
+  <text x="600" y="362" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">circulatory + respiratory + nervous + … = a living person</text>
+
+  <!-- Side bracket pointing widening direction -->
+  <line x1="14" y1="80" x2="14" y2="370" stroke="#4a5568" stroke-width="1.5"/>
+  <line x1="14" y1="80" x2="6" y2="80" stroke="#4a5568" stroke-width="1.5"/>
+  <line x1="14" y1="370" x2="6" y2="370" stroke="#4a5568" stroke-width="1.5"/>
+  <text x="9" y="225" font-size="10" font-weight="700" fill="#4a5568" text-anchor="middle" transform="rotate(-90 9 225)">simple → complex</text>
+
+  <!-- Tiny iconography column -->
+  <g transform="translate(110, 90)">
+    <ellipse cx="0" cy="0" rx="14" ry="10" fill="#fce7f3" stroke="#be185d" stroke-width="1.5"/>
+    <circle cx="0" cy="0" r="3.5" fill="#be185d"/>
+  </g>
+  <g transform="translate(110, 150)">
+    <ellipse cx="-10" cy="0" rx="9" ry="6" fill="#fee2e2" stroke="#dc2626" stroke-width="1.2"/>
+    <ellipse cx="0" cy="2" rx="9" ry="6" fill="#fee2e2" stroke="#dc2626" stroke-width="1.2"/>
+    <ellipse cx="10" cy="-2" rx="9" ry="6" fill="#fee2e2" stroke="#dc2626" stroke-width="1.2"/>
+    <line x1="-18" y1="0" x2="18" y2="0" stroke="#dc2626" stroke-width="0.8" stroke-dasharray="2 2"/>
+  </g>
+  <g transform="translate(110, 215)">
+    <path d="M -16 0 Q -16 -12 -6 -12 Q 0 -16 6 -12 Q 16 -12 16 0 Q 16 8 0 16 Q -16 8 -16 0 Z" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+  </g>
+  <g transform="translate(110, 275)">
+    <circle cx="0" cy="-2" r="6" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+    <line x1="0" y1="4" x2="0" y2="14" stroke="#15803d" stroke-width="1.5"/>
+    <line x1="-10" y1="-2" x2="-18" y2="6" stroke="#15803d" stroke-width="1.2"/>
+    <line x1="10" y1="-2" x2="18" y2="6" stroke="#15803d" stroke-width="1.2"/>
+    <line x1="-12" y1="14" x2="-6" y2="20" stroke="#15803d" stroke-width="1.2"/>
+    <line x1="12" y1="14" x2="6" y2="20" stroke="#15803d" stroke-width="1.2"/>
+  </g>
+  <g transform="translate(110, 335)">
+    <circle cx="0" cy="-8" r="5" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5"/>
+    <path d="M -7 -3 L -10 12 L -4 12 L -4 18 L 4 18 L 4 12 L 10 12 L 7 -3 Z" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5"/>
+  </g>
+
+  <text x="380" y="396" font-size="11" fill="#4a5568" text-anchor="middle">Cardiac muscle cells → cardiac muscle tissue → heart → circulatory system → human body.</text>
+  <text x="380" y="412" font-size="11" fill="#4a5568" text-anchor="middle">The same five-step ladder works for every organ system: nephron → kidney tissue → kidney → urinary system → human.</text>
+  <text x="380" y="430" font-size="10" fill="#718096" text-anchor="middle">Plants follow a parallel ladder (cell → tissue → organ such as leaf → shoot/root system → whole plant).</text>
+</svg>

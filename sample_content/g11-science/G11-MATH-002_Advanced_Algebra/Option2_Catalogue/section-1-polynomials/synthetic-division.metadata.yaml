@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-advanced-algebra-synthetic-division
+kind: image
+subject: math
+topic_phrase: "synthetic division layout dividing cubic by linear factor"
+keywords:
+  - polynomial
+  - synthetic-division
+  - division-algorithm
+  - remainder-theorem
+  - factoring
+license: platform-cc-by-sa
+source_unit: G11-MATH-002

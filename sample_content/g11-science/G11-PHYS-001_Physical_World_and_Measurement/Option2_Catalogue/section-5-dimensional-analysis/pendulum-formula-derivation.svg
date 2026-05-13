@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380" role="img" aria-label="Deriving the pendulum period formula from dimensional analysis">
+  <title>Dimensional analysis: pendulum period</title>
+  <desc>Step-by-step derivation showing how the period of a simple pendulum, T, depends on length L and gravity g via dimensional analysis. The mass cancels out, and T ∝ √(L/g).</desc>
+
+  <text x="360" y="24" font-family="system-ui" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Power of Dimensional Analysis — predicting the pendulum's period</text>
+  <text x="360" y="44" font-family="system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">guess what T can depend on, demand dimensional consistency, recover  T ∝ √(L/g)  without solving any ODE</text>
+
+  <!-- Pendulum diagram (left) -->
+  <g transform="translate(40, 70)">
+    <!-- Ceiling -->
+    <line x1="20" y1="0" x2="200" y2="0" stroke="#1a202c" stroke-width="2" />
+    <line x1="20" y1="0" x2="32" y2="-12" stroke="#1a202c" />
+    <line x1="40" y1="0" x2="52" y2="-12" stroke="#1a202c" />
+    <line x1="60" y1="0" x2="72" y2="-12" stroke="#1a202c" />
+    <line x1="80" y1="0" x2="92" y2="-12" stroke="#1a202c" />
+    <line x1="100" y1="0" x2="112" y2="-12" stroke="#1a202c" />
+    <line x1="120" y1="0" x2="132" y2="-12" stroke="#1a202c" />
+    <line x1="140" y1="0" x2="152" y2="-12" stroke="#1a202c" />
+    <line x1="160" y1="0" x2="172" y2="-12" stroke="#1a202c" />
+    <line x1="180" y1="0" x2="192" y2="-12" stroke="#1a202c" />
+
+    <!-- Pivot -->
+    <circle cx="110" cy="0" r="3" fill="#1a202c" />
+
+    <!-- String at angle -->
+    <line x1="110" y1="0" x2="155" y2="180" stroke="#4a5568" stroke-width="1.5" />
+    <!-- Equilibrium dotted -->
+    <line x1="110" y1="0" x2="110" y2="190" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3" />
+
+    <!-- Bob -->
+    <circle cx="155" cy="180" r="14" fill="#dd6b20" stroke="#9a3412" stroke-width="1.5" />
+    <text x="155" y="184" font-family="system-ui" font-size="11" font-weight="700" fill="white" text-anchor="middle">m</text>
+
+    <!-- Length L label -->
+    <text x="118" y="100" font-family="system-ui" font-size="13" font-style="italic" fill="#2b6cb0" font-weight="700">L</text>
+    <!-- angle theta -->
+    <path d="M 110 50 A 50 50 0 0 1 130 47" fill="none" stroke="#7c3aed" stroke-width="1.5" />
+    <text x="124" y="44" font-family="system-ui" font-size="11" fill="#7c3aed">θ</text>
+    <!-- gravity arrow -->
+    <line x1="220" y1="100" x2="220" y2="160" stroke="#dc2626" stroke-width="2" />
+    <polygon points="216,156 220,164 224,156" fill="#dc2626" />
+    <text x="226" y="135" font-family="system-ui" font-size="13" font-weight="700" fill="#dc2626">g</text>
+  </g>
+
+  <!-- Derivation (right) -->
+  <g font-family="system-ui">
+    <text x="290" y="84" font-size="13" font-weight="700" fill="#1a202c">Step 1 — guess what variables T can depend on</text>
+    <text x="290" y="104" font-size="12" fill="#1a202c">
+      Candidates: length <tspan font-weight="700" fill="#2b6cb0">L</tspan>, mass
+      <tspan font-weight="700" fill="#dd6b20">m</tspan>, gravity
+      <tspan font-weight="700" fill="#dc2626">g</tspan>.
+    </text>
+    <text x="290" y="120" font-size="12" fill="#1a202c">
+      Assume:  <tspan font-weight="700">T = k · Lᵃ · m^b · g^c</tspan>
+    </text>
+
+    <text x="290" y="148" font-size="13" font-weight="700" fill="#1a202c">Step 2 — write down the dimensions</text>
+    <text x="290" y="168" font-size="12" fill="#1a202c">[T] = [L]ᵃ · [M]^b · [L T⁻²]^c</text>
+    <text x="290" y="184" font-size="12" fill="#1a202c">[T] = [M]^b · [L]^(a+c) · [T]^(−2c)</text>
+
+    <text x="290" y="212" font-size="13" font-weight="700" fill="#1a202c">Step 3 — match exponents on both sides</text>
+    <text x="290" y="232" font-size="12" fill="#1a202c">
+      <tspan font-weight="700" fill="#dd6b20">b = 0</tspan> (no M on the left)
+      <tspan fill="#4a5568">  · so mass drops out!</tspan>
+    </text>
+    <text x="290" y="248" font-size="12" fill="#1a202c">a + c = 0  and  −2c = 1</text>
+    <text x="290" y="264" font-size="12" fill="#1a202c">⇒  c = −½,    a = +½</text>
+
+    <text x="290" y="290" font-size="13" font-weight="700" fill="#1a202c">Step 4 — assemble</text>
+    <text x="290" y="312" font-size="16" font-weight="700" fill="#15803d">T = k · L^(½) · g^(−½)  =  k √(L/g)</text>
+    <text x="290" y="334" font-size="11" fill="#4a5568">
+      Dimensional analysis fixes the form; the constant <tspan font-style="italic">k = 2π</tspan> comes from
+    </text>
+    <text x="290" y="350" font-size="11" fill="#4a5568">
+      solving the equation of motion (small-angle approximation).
+    </text>
+    <text x="290" y="370" font-size="12" font-weight="700" fill="#15803d">
+      Final:  T = 2π √(L/g)
+    </text>
+  </g>
+</svg>

@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 280" width="640" height="280" role="img" aria-label="Rational expression simplification flow">
+  <title>Simplifying a Rational Expression</title>
+  <desc>Step-by-step pipeline showing factoring numerator and denominator, then cancelling the common factor.</desc>
+
+  <defs>
+    <marker id="ah-rs" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2b6cb0"/>
+    </marker>
+    <style>
+      .heading { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .step    { font: 12px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; font-style: italic; }
+      .box     { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1.4; }
+      .frac-line { stroke: #1a202c; stroke-width: 1.4; }
+      .num     { font: 14px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; font-weight: 600; }
+      .strike  { stroke: #c53030; stroke-width: 2.5; }
+      .restriction { font: 11px system-ui, sans-serif; fill: #c53030; text-anchor: middle; font-style: italic; }
+    </style>
+  </defs>
+
+  <text class="heading" x="320" y="22">Simplify by factoring, then cancel common factors</text>
+
+  <!-- Step 1: original -->
+  <g transform="translate(40, 70)">
+    <rect class="box" x="0" y="0" width="160" height="100" rx="8"/>
+    <text class="step" x="80" y="-12">Step 1 — original</text>
+    <text class="num" x="80" y="44">x² − 4</text>
+    <line class="frac-line" x1="20" y1="52" x2="140" y2="52"/>
+    <text class="num" x="80" y="74">x² + 5x + 6</text>
+  </g>
+
+  <!-- Arrow 1 -->
+  <line x1="205" y1="120" x2="240" y2="120" stroke="#2b6cb0" stroke-width="2" marker-end="url(#ah-rs)"/>
+  <text x="222" y="110" font="11px system-ui" font-size="11" fill="#2b6cb0" text-anchor="middle">factor</text>
+
+  <!-- Step 2: factored -->
+  <g transform="translate(245, 70)">
+    <rect class="box" x="0" y="0" width="180" height="100" rx="8"/>
+    <text class="step" x="90" y="-12">Step 2 — factored</text>
+    <text class="num" x="90" y="44">(x − 2)(x + 2)</text>
+    <line class="frac-line" x1="15" y1="52" x2="165" y2="52"/>
+    <text class="num" x="90" y="74">(x + 2)(x + 3)</text>
+  </g>
+
+  <!-- Arrow 2 -->
+  <line x1="430" y1="120" x2="465" y2="120" stroke="#2b6cb0" stroke-width="2" marker-end="url(#ah-rs)"/>
+  <text x="447" y="110" font="11px system-ui" font-size="11" fill="#2b6cb0" text-anchor="middle">cancel</text>
+
+  <!-- Step 3: cancelled with strikethrough -->
+  <g transform="translate(470, 70)">
+    <rect class="box" x="0" y="0" width="160" height="100" rx="8"/>
+    <text class="step" x="80" y="-12">Step 3 — cancel (x + 2)</text>
+    <!-- numerator with strike on (x+2) -->
+    <text class="num" x="80" y="44"><tspan>(x − 2)</tspan><tspan fill="#c53030">(x + 2)</tspan></text>
+    <line class="strike" x1="92" y1="40" x2="138" y2="48"/>
+    <line class="frac-line" x1="20" y1="52" x2="140" y2="52"/>
+    <!-- denominator with strike on (x+2) -->
+    <text class="num" x="80" y="74"><tspan fill="#c53030">(x + 2)</tspan><tspan>(x + 3)</tspan></text>
+    <line class="strike" x1="22" y1="70" x2="68" y2="78"/>
+  </g>
+
+  <!-- Arrow down to result -->
+  <line x1="320" y1="190" x2="320" y2="220" stroke="#2b6cb0" stroke-width="2" marker-end="url(#ah-rs)"/>
+
+  <!-- Final result -->
+  <g transform="translate(220, 220)">
+    <rect x="0" y="0" width="200" height="50" rx="8" fill="#f0fff4" stroke="#2f855a" stroke-width="1.5"/>
+    <text x="100" y="20" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#2f855a" text-anchor="middle">x − 2</text>
+    <line x1="40" y1="26" x2="160" y2="26" stroke="#2f855a" stroke-width="1.4"/>
+    <text x="100" y="42" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#2f855a" text-anchor="middle">x + 3</text>
+  </g>
+
+  <text class="restriction" x="320" y="266">Restrictions stay from the ORIGINAL: x ≠ −2 and x ≠ −3</text>
+</svg>

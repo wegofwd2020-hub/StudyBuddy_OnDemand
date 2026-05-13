@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" role="img" aria-label="Kolmogorov probability axioms with a die example illustrating the addition rule">
+  <title>Probability Axioms and the Addition Rule</title>
+  <desc>The three Kolmogorov axioms of probability: P of any event is at least zero; P of the whole sample space S equals one; for mutually exclusive events the probability of the union equals the sum of the probabilities.  A die example shows the addition rule for not-necessarily-disjoint events: A is the event of an even roll equals one half, B is the event of a roll at most three equals one half, A and B share the outcome two so P of A and B equals one sixth, and P of A or B equals one half plus one half minus one sixth which equals five sixths.</desc>
+
+  <defs>
+    <style>
+      .panel   { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1; }
+      .universe{ fill: #f7fafc; stroke: #888; stroke-width: 1; }
+      .setA    { fill: #c084fc; fill-opacity: 0.45; stroke: #6b46c1; stroke-width: 1.8; }
+      .setB    { fill: #f6ad55; fill-opacity: 0.45; stroke: #c05621; stroke-width: 1.8; }
+      .die     { fill: #ffffff; stroke: #4a5568; stroke-width: 1.6; }
+      .pip     { fill: #1a202c; }
+      .heading { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .subhead { font: bold 13px system-ui, sans-serif; fill: #1a202c; }
+      .axiom   { font: 12px system-ui, sans-serif; fill: #2d3748; }
+      .formula { font: italic 13px system-ui, sans-serif; fill: #1a202c; }
+      .lbl     { font: bold 14px system-ui, sans-serif; fill: #1a202c; }
+      .caption { font: italic 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <text class="heading" x="320" y="22">Three axioms  &amp;  the addition rule  P(A ∪ B) = P(A) + P(B) − P(A ∩ B)</text>
+
+  <!-- ===== LEFT panel: axioms ===== -->
+  <rect class="panel" x="20" y="40" width="280" height="280"/>
+  <text class="subhead" x="34" y="64">Kolmogorov axioms</text>
+
+  <text class="axiom"   x="34" y="92">1.  Non-negativity</text>
+  <text class="formula" x="46" y="112">P(E)  ≥  0      for every event E</text>
+
+  <text class="axiom"   x="34" y="142">2.  Normalisation</text>
+  <text class="formula" x="46" y="162">P(S)  =  1      (sample space)</text>
+
+  <text class="axiom"   x="34" y="192">3.  Countable additivity</text>
+  <text class="formula" x="46" y="212">if E₁, E₂, … are pairwise disjoint</text>
+  <text class="formula" x="46" y="232">then  P(⋃ Eᵢ)  =  Σ P(Eᵢ)</text>
+
+  <line x1="34" y1="248" x2="286" y2="248" stroke="#cbd5e0"/>
+  <text class="axiom" x="34" y="268">Consequences:</text>
+  <text class="formula" x="46" y="288">P(Eᶜ) = 1 − P(E)</text>
+  <text class="formula" x="46" y="308">0 ≤ P(E) ≤ 1</text>
+
+  <!-- ===== RIGHT panel: die example ===== -->
+  <rect class="panel" x="320" y="40" width="300" height="280"/>
+  <text class="subhead" x="334" y="64">Die example  (S = {1, 2, 3, 4, 5, 6})</text>
+
+  <text class="formula" x="334" y="86">A = "even"   = {2, 4, 6}</text>
+  <text class="formula" x="334" y="104">B = "≤ 3"    = {1, 2, 3}</text>
+  <text class="formula" x="334" y="122">A ∩ B = {2}    A ∪ B = {1, 2, 3, 4, 6}</text>
+
+  <!-- 6 dice icons in two rows.  Faces labelled 1..6.  Highlight A and B colourings. -->
+  <!-- Row of dice from x=336 to 612, y center 168.  Each die 36×36, gap 8 → start 336, step 44 -->
+  <!-- Die 1: in B only -->
+  <g>
+    <rect class="die setB" x="336" y="148" width="36" height="36" rx="6"/>
+    <circle class="pip" cx="354" cy="166" r="3"/>
+  </g>
+  <!-- Die 2: in A and B (intersection) — fill purple+orange overlay; emphasise with border -->
+  <g>
+    <rect class="setA" x="380" y="148" width="36" height="36" rx="6"/>
+    <rect class="setB" x="380" y="148" width="36" height="36" rx="6"/>
+    <rect x="380" y="148" width="36" height="36" rx="6" fill="none" stroke="#1a202c" stroke-width="2.4"/>
+    <circle class="pip" cx="392" cy="160" r="2.6"/>
+    <circle class="pip" cx="404" cy="172" r="2.6"/>
+  </g>
+  <!-- Die 3: in B only -->
+  <g>
+    <rect class="die setB" x="424" y="148" width="36" height="36" rx="6"/>
+    <circle class="pip" cx="436" cy="160" r="2.6"/>
+    <circle class="pip" cx="442" cy="166" r="2.6"/>
+    <circle class="pip" cx="448" cy="172" r="2.6"/>
+  </g>
+  <!-- Die 4: in A only -->
+  <g>
+    <rect class="die setA" x="468" y="148" width="36" height="36" rx="6"/>
+    <circle class="pip" cx="478" cy="158" r="2.6"/>
+    <circle class="pip" cx="494" cy="158" r="2.6"/>
+    <circle class="pip" cx="478" cy="174" r="2.6"/>
+    <circle class="pip" cx="494" cy="174" r="2.6"/>
+  </g>
+  <!-- Die 5: in NEITHER -->
+  <g>
+    <rect class="die" x="512" y="148" width="36" height="36" rx="6"/>
+    <circle class="pip" cx="522" cy="158" r="2.6"/>
+    <circle class="pip" cx="538" cy="158" r="2.6"/>
+    <circle class="pip" cx="530" cy="166" r="2.6"/>
+    <circle class="pip" cx="522" cy="174" r="2.6"/>
+    <circle class="pip" cx="538" cy="174" r="2.6"/>
+  </g>
+  <!-- Die 6: in A only -->
+  <g>
+    <rect class="die setA" x="556" y="148" width="36" height="36" rx="6"/>
+    <circle class="pip" cx="566" cy="158" r="2.6"/>
+    <circle class="pip" cx="566" cy="166" r="2.6"/>
+    <circle class="pip" cx="566" cy="174" r="2.6"/>
+    <circle class="pip" cx="582" cy="158" r="2.6"/>
+    <circle class="pip" cx="582" cy="166" r="2.6"/>
+    <circle class="pip" cx="582" cy="174" r="2.6"/>
+  </g>
+
+  <!-- Legend chips beneath -->
+  <g transform="translate(334, 200)">
+    <rect class="setA" x="0" y="0" width="14" height="14" rx="3"/>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="20" y="11">A only</text>
+    <rect class="setB" x="74" y="0" width="14" height="14" rx="3"/>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="94" y="11">B only</text>
+    <rect class="setA" x="148" y="0" width="14" height="14" rx="3"/>
+    <rect class="setB" x="148" y="0" width="14" height="14" rx="3"/>
+    <rect x="148" y="0" width="14" height="14" rx="3" fill="none" stroke="#1a202c" stroke-width="1.6"/>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="168" y="11">A ∩ B</text>
+    <rect class="die" x="222" y="0" width="14" height="14" rx="3"/>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="242" y="11">neither</text>
+  </g>
+
+  <!-- Computation -->
+  <text class="formula" x="334" y="240">P(A) = 3/6,    P(B) = 3/6,    P(A ∩ B) = 1/6</text>
+  <text class="formula" x="334" y="262">P(A ∪ B) =  3/6 + 3/6 − 1/6  =  5/6</text>
+
+  <rect x="334" y="280" width="272" height="32" rx="6" fill="#ebf8ff" stroke="#2b6cb0" stroke-width="1.4"/>
+  <text class="formula" x="470" y="301" text-anchor="middle">|A ∪ B| = 5  ⇒  P(A ∪ B) = 5/6  ✓</text>
+
+  <text x="320" y="350" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Subtract P(A ∩ B) once to avoid counting the shared outcome twice.</text>
+</svg>

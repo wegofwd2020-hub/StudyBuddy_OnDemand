@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" width="720" height="420" role="img" aria-label="Markovnikov addition of HBr to propene — gives 2-bromopropane">
+  <title>Markovnikov's Rule — HBr + Propene → 2-Bromopropane</title>
+  <desc>Addition of hydrogen bromide to propene. The π-electrons of the C=C attack the proton (H+) to form a more stable secondary carbocation on C-2. Bromide then bonds to C-2. The H ends up on the carbon that already had more hydrogens (C-1, terminal), and the Br ends up on the more substituted carbon (C-2). The product is 2-bromopropane, not the anti-Markovnikov 1-bromopropane.</desc>
+
+  <defs>
+    <marker id="mk-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1a202c" />
+    </marker>
+    <marker id="mk-curve-arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#7e22ce" />
+    </marker>
+  </defs>
+
+  <text x="360" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Markovnikov Addition — HBr to Propene</text>
+  <text x="360" y="40" font-size="11" fill="#4a5568" text-anchor="middle">"H goes to the C with more H" — because the more-stable carbocation forms first</text>
+
+  <!-- STEP 1 — Reactants -->
+  <text x="80" y="80" font-size="12" font-weight="700" fill="#1e3a8a">Step 1 · Reactants</text>
+  <g transform="translate(140 130)">
+    <!-- propene CH2=CH-CH3 -->
+    <circle cx="-50" cy="0" r="16" fill="#1f2937" stroke="#0f172a" stroke-width="1.5"/>
+    <text x="-50" y="4" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+    <text x="-50" y="-26" font-size="9" font-weight="700" fill="#1e3a8a" text-anchor="middle">1</text>
+
+    <circle cx="20" cy="0" r="16" fill="#1f2937" stroke="#0f172a" stroke-width="1.5"/>
+    <text x="20" y="4" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+    <text x="20" y="-26" font-size="9" font-weight="700" fill="#1e3a8a" text-anchor="middle">2</text>
+
+    <circle cx="80" cy="0" r="16" fill="#1f2937" stroke="#0f172a" stroke-width="1.5"/>
+    <text x="80" y="4" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+    <text x="80" y="-26" font-size="9" font-weight="700" fill="#1e3a8a" text-anchor="middle">3</text>
+
+    <!-- C1=C2 double bond -->
+    <line x1="-34" y1="-5" x2="4" y2="-5" stroke="#dc2626" stroke-width="2.5"/>
+    <line x1="-34" y1="5" x2="4" y2="5" stroke="#dc2626" stroke-width="2.5"/>
+    <!-- C2-C3 single -->
+    <line x1="36" y1="0" x2="64" y2="0" stroke="#1a202c" stroke-width="2"/>
+    <!-- H labels -->
+    <text x="-72" y="4" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <text x="-50" y="32" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <text x="20" y="32" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <text x="80" y="32" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H₃</text>
+    <line x1="-66" y1="0" x2="-62" y2="0" stroke="#1a202c" stroke-width="1.5"/>
+    <line x1="-50" y1="16" x2="-50" y2="20" stroke="#1a202c" stroke-width="1.5"/>
+    <line x1="20" y1="16" x2="20" y2="20" stroke="#1a202c" stroke-width="1.5"/>
+    <line x1="80" y1="16" x2="80" y2="20" stroke="#1a202c" stroke-width="1.5"/>
+    <text x="20" y="58" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">propene CH₂=CH–CH₃</text>
+  </g>
+
+  <text x="280" y="130" font-size="22" font-weight="700" fill="#1a202c" text-anchor="middle">+</text>
+
+  <!-- HBr -->
+  <g transform="translate(340 130)">
+    <circle cx="-14" cy="0" r="11" fill="#fde68a" stroke="#92400e" stroke-width="1.5"/>
+    <text x="-14" y="4" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <circle cx="20" cy="0" r="14" fill="#7e22ce" stroke="#581c87" stroke-width="1.5"/>
+    <text x="20" y="4" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">Br</text>
+    <line x1="-3" y1="0" x2="6" y2="0" stroke="#1a202c" stroke-width="1.5"/>
+    <text x="0" y="-22" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">δ⁺  δ⁻</text>
+    <text x="0" y="58" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">HBr</text>
+  </g>
+
+  <!-- Curved arrow showing π attack on H -->
+  <path d="M 110 130 Q 250 60 320 130" fill="none" stroke="#7e22ce" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#mk-curve-arr)"/>
+  <text x="220" y="76" font-size="10" font-weight="700" fill="#7e22ce" text-anchor="middle">π electrons attack H⁺</text>
+
+  <!-- Reaction arrow down -->
+  <line x1="360" y1="170" x2="360" y2="220" stroke="#1a202c" stroke-width="2.5" marker-end="url(#mk-arr)"/>
+  <text x="380" y="200" font-size="10" font-weight="700" fill="#1a202c">slow</text>
+
+  <!-- STEP 2 — Carbocation intermediate -->
+  <text x="80" y="240" font-size="12" font-weight="700" fill="#dc2626">Step 2 · Secondary carbocation (more stable)</text>
+  <g transform="translate(140 290)">
+    <!-- now C1 has 3 H, C2 is sp2 with + charge, C3 has 3 H -->
+    <circle cx="-50" cy="0" r="16" fill="#1f2937" stroke="#0f172a" stroke-width="1.5"/>
+    <text x="-50" y="4" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+    <text x="-50" y="-26" font-size="9" font-weight="700" fill="#1e3a8a" text-anchor="middle">1</text>
+
+    <circle cx="20" cy="0" r="18" fill="#fee2e2" stroke="#dc2626" stroke-width="2.5"/>
+    <text x="20" y="4" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">C⁺</text>
+    <text x="20" y="-30" font-size="9" font-weight="700" fill="#dc2626" text-anchor="middle">2 (2°)</text>
+
+    <circle cx="80" cy="0" r="16" fill="#1f2937" stroke="#0f172a" stroke-width="1.5"/>
+    <text x="80" y="4" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+    <text x="80" y="-26" font-size="9" font-weight="700" fill="#1e3a8a" text-anchor="middle">3</text>
+
+    <!-- single bonds C1-C2 and C2-C3 -->
+    <line x1="-34" y1="0" x2="2" y2="0" stroke="#1a202c" stroke-width="2"/>
+    <line x1="38" y1="0" x2="64" y2="0" stroke="#1a202c" stroke-width="2"/>
+    <text x="-74" y="4" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H₃</text>
+    <text x="20" y="32" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <text x="80" y="32" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H₃</text>
+    <line x1="-66" y1="0" x2="-62" y2="0" stroke="#1a202c" stroke-width="1.5"/>
+    <line x1="20" y1="18" x2="20" y2="22" stroke="#1a202c" stroke-width="1.5"/>
+    <line x1="80" y1="16" x2="80" y2="20" stroke="#1a202c" stroke-width="1.5"/>
+    <text x="20" y="58" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">CH₃–C⁺H–CH₃  (sec. carbocation)</text>
+    <text x="20" y="76" font-size="9" fill="#475569" text-anchor="middle">stabilised by 2 alkyl groups (hyperconjugation)</text>
+  </g>
+
+  <!-- + Br- -->
+  <text x="320" y="296" font-size="22" font-weight="700" fill="#1a202c" text-anchor="middle">+</text>
+  <g transform="translate(370 296)">
+    <circle cx="0" cy="0" r="14" fill="#7e22ce" stroke="#581c87" stroke-width="1.5"/>
+    <text x="0" y="4" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">Br⁻</text>
+  </g>
+
+  <!-- Reaction arrow -->
+  <line x1="420" y1="296" x2="470" y2="296" stroke="#1a202c" stroke-width="2.5" marker-end="url(#mk-arr)"/>
+  <text x="445" y="286" font-size="9" fill="#1a202c">fast</text>
+
+  <!-- PRODUCT -->
+  <g transform="translate(560 290)">
+    <text x="0" y="-50" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">Step 3 · Product</text>
+    <circle cx="-50" cy="0" r="14" fill="#1f2937" stroke="#0f172a" stroke-width="1.5"/>
+    <text x="-50" y="4" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+    <circle cx="0" cy="0" r="14" fill="#1f2937" stroke="#0f172a" stroke-width="1.5"/>
+    <text x="0" y="4" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+    <circle cx="50" cy="0" r="14" fill="#1f2937" stroke="#0f172a" stroke-width="1.5"/>
+    <text x="50" y="4" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+    <line x1="-36" y1="0" x2="-14" y2="0" stroke="#1a202c" stroke-width="2"/>
+    <line x1="14" y1="0" x2="36" y2="0" stroke="#1a202c" stroke-width="2"/>
+    <!-- Br on C2 -->
+    <line x1="0" y1="-14" x2="0" y2="-30" stroke="#7e22ce" stroke-width="2.5"/>
+    <circle cx="0" cy="-42" r="12" fill="#7e22ce" stroke="#581c87" stroke-width="1.5"/>
+    <text x="0" y="-38" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">Br</text>
+
+    <text x="-70" y="4" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H₃</text>
+    <text x="0" y="32" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <text x="70" y="4" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H₃</text>
+    <text x="0" y="60" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle">2-bromopropane (CH₃CHBrCH₃)</text>
+    <text x="0" y="76" font-size="9" fill="#15803d" text-anchor="middle">Markovnikov product</text>
+  </g>
+
+  <!-- Anti-Markovnikov note -->
+  <rect x="40" y="380" width="640" height="32" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1"/>
+  <text x="360" y="400" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">Markovnikov's rule: H adds to the C with more H's; X adds to the C that gives the more-stable carbocation.</text>
+</svg>

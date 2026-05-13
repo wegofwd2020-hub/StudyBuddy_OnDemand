@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" width="720" height="360" role="img" aria-label="Benzene resonance — two Kekulé structures and the delocalised π-cloud hybrid">
+  <title>Benzene Resonance Structures</title>
+  <desc>Benzene (C6H6) drawn as two equivalent Kekulé structures (alternating C=C and C-C) on the left and centre, joined by a resonance double-headed arrow. The right shows the resonance hybrid: a hexagon with an inscribed circle representing the delocalised π electron cloud. All six C-C bond lengths are equal at 139 pm, intermediate between single (154 pm) and double (134 pm).</desc>
+
+  <defs>
+    <marker id="rh-arrow1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#7e22ce" />
+    </marker>
+    <marker id="rh-arrow2" viewBox="0 0 10 10" refX="0" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 10 0 L 0 5 L 10 10 z" fill="#7e22ce" />
+    </marker>
+  </defs>
+
+  <text x="360" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Benzene — Resonance &amp; the Delocalised π-Cloud</text>
+  <text x="360" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Two Kekulé structures contribute equally; the real molecule is the hybrid.</text>
+
+  <!-- ── Kekulé 1 (left) — single bonds: 1-2, 3-4, 5-6 are doubles -->
+  <g transform="translate(120 200)">
+    <text x="0" y="-110" font-size="12" font-weight="700" fill="#1e3a8a" text-anchor="middle">Kekulé I</text>
+    <!-- Hexagon vertices: angles 30, 90, 150, 210, 270, 330 with r=70 -->
+    <!-- top -->
+    <line x1="0" y1="-70" x2="60.6" y2="-35" stroke="#1a202c" stroke-width="2"/>
+    <line x1="60.6" y1="-35" x2="60.6" y2="35" stroke="#1a202c" stroke-width="2"/>
+    <line x1="60.6" y1="35" x2="0" y2="70" stroke="#1a202c" stroke-width="2"/>
+    <line x1="0" y1="70" x2="-60.6" y2="35" stroke="#1a202c" stroke-width="2"/>
+    <line x1="-60.6" y1="35" x2="-60.6" y2="-35" stroke="#1a202c" stroke-width="2"/>
+    <line x1="-60.6" y1="-35" x2="0" y2="-70" stroke="#1a202c" stroke-width="2"/>
+    <!-- Inner double-bond strokes — 1-2, 3-4, 5-6 (alternate). -->
+    <!-- bond 1-2 (top to upper-right): inner parallel -->
+    <line x1="6" y1="-58" x2="51" y2="-32" stroke="#1a202c" stroke-width="2"/>
+    <!-- bond 3-4 (lower-right to bottom) -->
+    <line x1="51" y1="32" x2="6" y2="58" stroke="#1a202c" stroke-width="2"/>
+    <!-- bond 5-6 (lower-left to upper-left)  -->
+    <line x1="-51" y1="32" x2="-51" y2="-32" stroke="#1a202c" stroke-width="2"/>
+    <!-- C labels at vertices -->
+    <g font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">
+      <circle cx="0" cy="-70" r="11" fill="#fff" stroke="#1a202c" stroke-width="1.5"/><text x="0" y="-66">C</text>
+      <circle cx="60.6" cy="-35" r="11" fill="#fff" stroke="#1a202c" stroke-width="1.5"/><text x="60.6" y="-31">C</text>
+      <circle cx="60.6" cy="35" r="11" fill="#fff" stroke="#1a202c" stroke-width="1.5"/><text x="60.6" y="39">C</text>
+      <circle cx="0" cy="70" r="11" fill="#fff" stroke="#1a202c" stroke-width="1.5"/><text x="0" y="74">C</text>
+      <circle cx="-60.6" cy="35" r="11" fill="#fff" stroke="#1a202c" stroke-width="1.5"/><text x="-60.6" y="39">C</text>
+      <circle cx="-60.6" cy="-35" r="11" fill="#fff" stroke="#1a202c" stroke-width="1.5"/><text x="-60.6" y="-31">C</text>
+    </g>
+    <!-- H labels outside each vertex -->
+    <g font-size="9" font-weight="600" fill="#92400e" text-anchor="middle">
+      <text x="0" y="-94">H</text>
+      <text x="84" y="-43">H</text>
+      <text x="84" y="48">H</text>
+      <text x="0" y="98">H</text>
+      <text x="-84" y="48">H</text>
+      <text x="-84" y="-43">H</text>
+    </g>
+  </g>
+
+  <!-- Resonance arrow ↔ -->
+  <line x1="220" y1="200" x2="320" y2="200" stroke="#7e22ce" stroke-width="2.5" marker-end="url(#rh-arrow1)" marker-start="url(#rh-arrow2)" />
+  <text x="270" y="190" font-size="13" font-weight="700" fill="#7e22ce" text-anchor="middle">↔</text>
+  <text x="270" y="220" font-size="10" fill="#7e22ce" text-anchor="middle">resonance</text>
+
+  <!-- ── Kekulé 2 (centre) — double bonds shifted: 2-3, 4-5, 6-1 -->
+  <g transform="translate(370 200)">
+    <text x="0" y="-110" font-size="12" font-weight="700" fill="#1e3a8a" text-anchor="middle">Kekulé II</text>
+    <line x1="0" y1="-70" x2="60.6" y2="-35" stroke="#1a202c" stroke-width="2"/>
+    <line x1="60.6" y1="-35" x2="60.6" y2="35" stroke="#1a202c" stroke-width="2"/>
+    <line x1="60.6" y1="35" x2="0" y2="70" stroke="#1a202c" stroke-width="2"/>
+    <line x1="0" y1="70" x2="-60.6" y2="35" stroke="#1a202c" stroke-width="2"/>
+    <line x1="-60.6" y1="35" x2="-60.6" y2="-35" stroke="#1a202c" stroke-width="2"/>
+    <line x1="-60.6" y1="-35" x2="0" y2="-70" stroke="#1a202c" stroke-width="2"/>
+    <!-- doubles: 2-3, 4-5, 6-1 -->
+    <line x1="51" y1="-32" x2="51" y2="32" stroke="#1a202c" stroke-width="2"/>
+    <line x1="-6" y1="58" x2="-51" y2="32" stroke="#1a202c" stroke-width="2"/>
+    <line x1="-51" y1="-32" x2="-6" y2="-58" stroke="#1a202c" stroke-width="2"/>
+    <g font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">
+      <circle cx="0" cy="-70" r="11" fill="#fff" stroke="#1a202c" stroke-width="1.5"/><text x="0" y="-66">C</text>
+      <circle cx="60.6" cy="-35" r="11" fill="#fff" stroke="#1a202c" stroke-width="1.5"/><text x="60.6" y="-31">C</text>
+      <circle cx="60.6" cy="35" r="11" fill="#fff" stroke="#1a202c" stroke-width="1.5"/><text x="60.6" y="39">C</text>
+      <circle cx="0" cy="70" r="11" fill="#fff" stroke="#1a202c" stroke-width="1.5"/><text x="0" y="74">C</text>
+      <circle cx="-60.6" cy="35" r="11" fill="#fff" stroke="#1a202c" stroke-width="1.5"/><text x="-60.6" y="39">C</text>
+      <circle cx="-60.6" cy="-35" r="11" fill="#fff" stroke="#1a202c" stroke-width="1.5"/><text x="-60.6" y="-31">C</text>
+    </g>
+    <g font-size="9" font-weight="600" fill="#92400e" text-anchor="middle">
+      <text x="0" y="-94">H</text>
+      <text x="84" y="-43">H</text>
+      <text x="84" y="48">H</text>
+      <text x="0" y="98">H</text>
+      <text x="-84" y="48">H</text>
+      <text x="-84" y="-43">H</text>
+    </g>
+  </g>
+
+  <!-- Equiv arrow → hybrid -->
+  <line x1="470" y1="200" x2="540" y2="200" stroke="#15803d" stroke-width="2.5" marker-end="url(#rh-arrow1)" />
+  <text x="505" y="190" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle">≡</text>
+  <text x="505" y="220" font-size="10" fill="#15803d" text-anchor="middle">hybrid</text>
+
+  <!-- ── Resonance hybrid (right) — hexagon with circle -->
+  <g transform="translate(610 200)">
+    <text x="0" y="-110" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">Hybrid (real)</text>
+    <line x1="0" y1="-70" x2="60.6" y2="-35" stroke="#1a202c" stroke-width="2"/>
+    <line x1="60.6" y1="-35" x2="60.6" y2="35" stroke="#1a202c" stroke-width="2"/>
+    <line x1="60.6" y1="35" x2="0" y2="70" stroke="#1a202c" stroke-width="2"/>
+    <line x1="0" y1="70" x2="-60.6" y2="35" stroke="#1a202c" stroke-width="2"/>
+    <line x1="-60.6" y1="35" x2="-60.6" y2="-35" stroke="#1a202c" stroke-width="2"/>
+    <line x1="-60.6" y1="-35" x2="0" y2="-70" stroke="#1a202c" stroke-width="2"/>
+    <!-- delocalised π circle -->
+    <circle cx="0" cy="0" r="40" fill="none" stroke="#7e22ce" stroke-width="2.5" stroke-dasharray="3 3"/>
+    <text x="0" y="4" font-size="11" font-weight="700" fill="#7e22ce" text-anchor="middle">π cloud</text>
+    <g font-size="9" font-weight="600" fill="#92400e" text-anchor="middle">
+      <text x="0" y="-86">H</text>
+      <text x="78" y="-39">H</text>
+      <text x="78" y="44">H</text>
+      <text x="0" y="92">H</text>
+      <text x="-78" y="44">H</text>
+      <text x="-78" y="-39">H</text>
+    </g>
+  </g>
+
+  <!-- Footer note -->
+  <rect x="40" y="306" width="640" height="40" rx="6" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1" />
+  <text x="360" y="324" font-size="11" font-weight="700" fill="#0f172a" text-anchor="middle">All six C–C bond lengths are equal: 139 pm</text>
+  <text x="360" y="338" font-size="10" fill="#334155" text-anchor="middle">Between single (154 pm) and double (134 pm). Six π-electrons delocalise over the ring — extra stability ~150 kJ/mol.</text>
+</svg>

@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-stats-sample-space-tree-two-coins
+kind: image
+subject: math
+topic_phrase: "tree diagram of the sample space when a fair coin is tossed twice"
+keywords:
+  - sample-space
+  - tree-diagram
+  - independent-events
+  - coin-toss
+  - equally-likely
+license: platform-cc-by-sa
+source_unit: G11-MATH-005

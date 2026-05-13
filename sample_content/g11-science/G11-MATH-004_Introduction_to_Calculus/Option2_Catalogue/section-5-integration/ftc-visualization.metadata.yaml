@@ -1,0 +1,14 @@
+# Auto-generated sidecar — edit alongside the SVG.
+schema_version: 1
+id: math-calculus-ftc-visualization
+kind: image
+subject: math
+topic_phrase: "fundamental theorem of calculus relating area under a curve to the difference of antiderivative values"
+keywords:
+  - fundamental-theorem-calculus
+  - definite-integral
+  - antiderivative
+  - area-under-curve
+  - evaluation
+license: platform-cc-by-sa
+source_unit: G11-MATH-004

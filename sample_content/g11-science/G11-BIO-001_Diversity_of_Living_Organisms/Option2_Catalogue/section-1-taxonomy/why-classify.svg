@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 280" width="600" height="280" role="img" aria-label="Why classify organisms">
+  <title>Why classify organisms — four reasons</title>
+  <desc>Four labelled cards: Identification (assign a known name), Communication (a shared global vocabulary), Prediction (related organisms share traits), and Evolutionary insight (classification mirrors common ancestry).</desc>
+
+  <text x="300" y="22" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Why Classify? — Four Reasons</text>
+
+  <g transform="translate(40, 60)">
+    <rect x="0" y="0" width="240" height="90" rx="10" fill="#f7fafc" stroke="#2b6cb0" stroke-width="2"/>
+    <circle cx="32" cy="32" r="18" fill="#dbeafe" stroke="#2b6cb0" stroke-width="2"/>
+    <text x="32" y="38" font-size="18" font-weight="700" fill="#2b6cb0" text-anchor="middle">1</text>
+    <text x="62" y="30" font-size="13" font-weight="700" fill="#1a202c">Identification</text>
+    <text x="62" y="50" font-size="11" fill="#4a5568">Assign a known name to an</text>
+    <text x="62" y="64" font-size="11" fill="#4a5568">unknown specimen using diagnostic</text>
+    <text x="62" y="78" font-size="11" fill="#4a5568">characteristics.</text>
+  </g>
+
+  <g transform="translate(320, 60)">
+    <rect x="0" y="0" width="240" height="90" rx="10" fill="#f7fafc" stroke="#15803d" stroke-width="2"/>
+    <circle cx="32" cy="32" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+    <text x="32" y="38" font-size="18" font-weight="700" fill="#15803d" text-anchor="middle">2</text>
+    <text x="62" y="30" font-size="13" font-weight="700" fill="#1a202c">Communication</text>
+    <text x="62" y="50" font-size="11" fill="#4a5568">One shared scientific name</text>
+    <text x="62" y="64" font-size="11" fill="#4a5568">prevents confusion across</text>
+    <text x="62" y="78" font-size="11" fill="#4a5568">languages and regions.</text>
+  </g>
+
+  <g transform="translate(40, 170)">
+    <rect x="0" y="0" width="240" height="90" rx="10" fill="#f7fafc" stroke="#d97706" stroke-width="2"/>
+    <circle cx="32" cy="32" r="18" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+    <text x="32" y="38" font-size="18" font-weight="700" fill="#d97706" text-anchor="middle">3</text>
+    <text x="62" y="30" font-size="13" font-weight="700" fill="#1a202c">Prediction</text>
+    <text x="62" y="50" font-size="11" fill="#4a5568">Related organisms share traits —</text>
+    <text x="62" y="64" font-size="11" fill="#4a5568">if a drug works on one species,</text>
+    <text x="62" y="78" font-size="11" fill="#4a5568">it may work on close relatives.</text>
+  </g>
+
+  <g transform="translate(320, 170)">
+    <rect x="0" y="0" width="240" height="90" rx="10" fill="#f7fafc" stroke="#be185d" stroke-width="2"/>
+    <circle cx="32" cy="32" r="18" fill="#fce7f3" stroke="#be185d" stroke-width="2"/>
+    <text x="32" y="38" font-size="18" font-weight="700" fill="#be185d" text-anchor="middle">4</text>
+    <text x="62" y="30" font-size="13" font-weight="700" fill="#1a202c">Evolutionary insight</text>
+    <text x="62" y="50" font-size="11" fill="#4a5568">Classification mirrors common</text>
+    <text x="62" y="64" font-size="11" fill="#4a5568">ancestry — the tree of life is the</text>
+    <text x="62" y="78" font-size="11" fill="#4a5568">map of evolutionary history.</text>
+  </g>
+</svg>

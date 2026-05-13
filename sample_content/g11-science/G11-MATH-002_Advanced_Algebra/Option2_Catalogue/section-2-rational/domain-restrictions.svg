@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 280" width="600" height="280" role="img" aria-label="Domain restrictions for a rational expression">
+  <title>Domain Restrictions on a Rational Expression</title>
+  <desc>The expression (x+1)/((x−2)(x+3)) has excluded values x = 2 and x = −3, drawn as open circles on the number line.</desc>
+
+  <defs>
+    <style>
+      .heading { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .nl    { stroke: #1a202c; stroke-width: 1.6; }
+      .tick  { stroke: #1a202c; stroke-width: 1; }
+      .lbl   { font: 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .excluded { fill: white; stroke: #c53030; stroke-width: 2.5; }
+      .ok-line  { stroke: #2f855a; stroke-width: 4; }
+      .badge { font: bold 12px system-ui, sans-serif; fill: #c53030; text-anchor: middle; }
+      .eq    { font: italic 14px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <text class="heading" x="300" y="24">Domain restrictions:  exclude any x that makes the denominator zero</text>
+
+  <!-- Expression -->
+  <g transform="translate(300, 60)">
+    <text class="eq" x="0" y="0">f(x) = </text>
+    <text x="56" y="-7" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">x + 1</text>
+    <line x1="32" y1="-2" x2="80" y2="-2" stroke="#1a202c" stroke-width="1.4"/>
+    <text x="56" y="14" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#c53030" text-anchor="middle">(x − 2)(x + 3)</text>
+  </g>
+
+  <!-- Setting denominator = 0 -->
+  <g transform="translate(60, 110)">
+    <text font="12px system-ui" font-size="12" fill="#4a5568" x="0" y="0">Denominator = 0  ⇒  x − 2 = 0  or  x + 3 = 0  ⇒  <tspan font-weight="700" fill="#c53030">x = 2</tspan>  or  <tspan font-weight="700" fill="#c53030">x = −3</tspan></text>
+    <text font="12px system-ui" font-size="12" fill="#4a5568" x="0" y="20">Domain:  <tspan font-weight="700" fill="#1a202c">{x ∈ ℝ : x ≠ −3, x ≠ 2}</tspan>   or in interval form  (−∞, −3) ∪ (−3, 2) ∪ (2, ∞)</text>
+  </g>
+
+  <!-- Number line: x in [-5, 4] mapped to x = 60 + (x+5)/9 * 480 -->
+  <g transform="translate(0, 0)">
+    <line class="nl" x1="60" y1="200" x2="540" y2="200"/>
+    <!-- ticks: -5,-4,-3,-2,-1,0,1,2,3,4 → 60, 113.3, 166.7, 220, 273.3, 326.7, 380, 433.3, 486.7, 540 -->
+    <line class="tick" x1="60"    y1="194" x2="60"    y2="206"/><text class="lbl" x="60"    y="222">−5</text>
+    <line class="tick" x1="113.3" y1="194" x2="113.3" y2="206"/><text class="lbl" x="113.3" y="222">−4</text>
+    <line class="tick" x1="166.7" y1="194" x2="166.7" y2="206"/><text class="lbl" x="166.7" y="222">−3</text>
+    <line class="tick" x1="220"   y1="194" x2="220"   y2="206"/><text class="lbl" x="220"   y="222">−2</text>
+    <line class="tick" x1="273.3" y1="194" x2="273.3" y2="206"/><text class="lbl" x="273.3" y="222">−1</text>
+    <line class="tick" x1="326.7" y1="194" x2="326.7" y2="206"/><text class="lbl" x="326.7" y="222">0</text>
+    <line class="tick" x1="380"   y1="194" x2="380"   y2="206"/><text class="lbl" x="380"   y="222">1</text>
+    <line class="tick" x1="433.3" y1="194" x2="433.3" y2="206"/><text class="lbl" x="433.3" y="222">2</text>
+    <line class="tick" x1="486.7" y1="194" x2="486.7" y2="206"/><text class="lbl" x="486.7" y="222">3</text>
+    <line class="tick" x1="540"   y1="194" x2="540"   y2="206"/><text class="lbl" x="540"   y="222">4</text>
+
+    <!-- Allowed segments (above line, green) -->
+    <line class="ok-line" x1="60"    y1="180" x2="161.7" y2="180"/>
+    <line class="ok-line" x1="171.7" y1="180" x2="428.3" y2="180"/>
+    <line class="ok-line" x1="438.3" y1="180" x2="540"   y2="180"/>
+
+    <!-- Excluded points (open circles) -->
+    <circle class="excluded" cx="166.7" cy="180" r="6"/>
+    <text class="badge" x="166.7" y="167">x ≠ −3</text>
+    <circle class="excluded" cx="433.3" cy="180" r="6"/>
+    <text class="badge" x="433.3" y="167">x ≠ 2</text>
+  </g>
+
+  <text x="300" y="262" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Open circles mark excluded x-values.  Green segments are the domain.</text>
+</svg>

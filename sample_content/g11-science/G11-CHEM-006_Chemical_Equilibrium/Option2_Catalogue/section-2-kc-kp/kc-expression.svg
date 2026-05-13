@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" width="720" height="360" role="img" aria-label="Equilibrium constant Kc expression">
+  <title>Kc — Equilibrium Constant in Terms of Concentrations</title>
+  <desc>For the generic reaction aA + bB ⇌ cC + dD, the equilibrium constant Kc equals the product concentrations raised to their stoichiometric coefficients, divided by the reactant concentrations raised to theirs. Concentrations are equilibrium concentrations in mol per litre.</desc>
+
+  <text x="360" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">The Equilibrium Constant Kc</text>
+  <text x="360" y="42" font-size="11" fill="#4a5568" text-anchor="middle">"Products over reactants, each raised to its coefficient." Concentrations at equilibrium only.</text>
+
+  <!-- General reaction box -->
+  <rect x="120" y="68" width="480" height="46" rx="8" fill="#dbeafe" stroke="#2b6cb0" stroke-width="2"/>
+  <text x="360" y="98" font-size="18" font-weight="700" fill="#1a202c" text-anchor="middle">a A  +  b B   ⇌   c C  +  d D</text>
+
+  <!-- Kc expression: drawn as bracketed division -->
+  <g transform="translate(0, 130)">
+    <!-- "Kc =" -->
+    <text x="170" y="80" font-size="28" font-weight="700" fill="#1a202c" text-anchor="end">K_c  =</text>
+
+    <!-- Numerator: [C]^c [D]^d -->
+    <text x="380" y="60" font-size="22" font-weight="700" fill="#15803d" text-anchor="middle">[C]<tspan baseline-shift="super" font-size="14">c</tspan>  [D]<tspan baseline-shift="super" font-size="14">d</tspan></text>
+
+    <!-- Fraction bar -->
+    <line x1="220" y1="78" x2="540" y2="78" stroke="#1a202c" stroke-width="3"/>
+
+    <!-- Denominator: [A]^a [B]^b -->
+    <text x="380" y="110" font-size="22" font-weight="700" fill="#dd6b20" text-anchor="middle">[A]<tspan baseline-shift="super" font-size="14">a</tspan>  [B]<tspan baseline-shift="super" font-size="14">b</tspan></text>
+
+    <!-- Side notes -->
+    <text x="560" y="60"  font-size="12" font-weight="700" fill="#15803d">products</text>
+    <text x="560" y="112" font-size="12" font-weight="700" fill="#dd6b20">reactants</text>
+  </g>
+
+  <!-- Worked example box -->
+  <rect x="60" y="262" width="600" height="80" rx="8" fill="#f0fdf4" stroke="#15803d" stroke-width="1.5"/>
+  <text x="360" y="282" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">Example — Haber Process</text>
+  <text x="360" y="304" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">N₂(g) + 3 H₂(g)  ⇌  2 NH₃(g)</text>
+
+  <!-- Kc with the actual species -->
+  <g transform="translate(220, 318)">
+    <text x="0" y="14" font-size="14" font-weight="700" fill="#1a202c">K_c =</text>
+    <text x="80" y="6" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">[NH₃]²</text>
+    <line x1="50" y1="10" x2="120" y2="10" stroke="#1a202c" stroke-width="2"/>
+    <text x="80" y="24" font-size="13" font-weight="700" fill="#dd6b20" text-anchor="middle">[N₂][H₂]³</text>
+    <text x="148" y="18" font-size="11" fill="#4a5568">at given T</text>
+  </g>
+
+  <!-- Footer rule -->
+  <text x="360" y="354" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">K_c depends only on temperature. Pure solids and pure liquids are NOT included — their activity is 1.</text>
+</svg>

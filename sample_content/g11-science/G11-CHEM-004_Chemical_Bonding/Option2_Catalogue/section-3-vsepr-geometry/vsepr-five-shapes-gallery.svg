@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" width="720" height="420" role="img" aria-label="VSEPR five basic molecular shapes — linear, trigonal planar, tetrahedral, trigonal bipyramidal, octahedral">
+  <title>VSEPR — five basic molecular shapes</title>
+  <desc>Five geometries arising from 2, 3, 4, 5 and 6 electron pairs around a central atom: linear (180°), trigonal planar (120°), tetrahedral (109.5°), trigonal bipyramidal (90°/120°/180°), octahedral (90°). Each panel shows a representative molecule and bond angles.</desc>
+
+  <text x="360" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">VSEPR — Five Basic Electron-Pair Geometries</text>
+  <text x="360" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Electron pairs repel and arrange to maximise separation. The shape depends on the number of pairs.</text>
+
+  <!-- ── Linear (BeCl₂ type) — 2 pairs, 180° ─────────────────────── -->
+  <g transform="translate(120, 130)">
+    <rect x="-90" y="-50" width="180" height="160" rx="10" fill="#f7fafc" stroke="#94a3b8" stroke-width="1.5" />
+    <text x="0" y="-30" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Linear · AX₂</text>
+
+    <line x1="-50" y1="40" x2="50" y2="40" stroke="#1a202c" stroke-width="2.5" />
+    <circle cx="-50" cy="40" r="14" fill="#dc2626" stroke="#1a202c" stroke-width="1.5" />
+    <text x="-50" y="44" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">Cl</text>
+    <circle cx="0"  cy="40" r="16" fill="#facc15" stroke="#1a202c" stroke-width="1.5" />
+    <text x="0" y="44" font-size="11" font-weight="700" fill="#0f172a" text-anchor="middle">Be</text>
+    <circle cx="50" cy="40" r="14" fill="#dc2626" stroke="#1a202c" stroke-width="1.5" />
+    <text x="50" y="44" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">Cl</text>
+
+    <text x="0" y="78" font-size="14" font-weight="700" fill="#dc2626" text-anchor="middle">180°</text>
+    <text x="0" y="98" font-size="10" fill="#4a5568" text-anchor="middle">e.g. BeCl₂, CO₂</text>
+  </g>
+
+  <!-- ── Trigonal planar (BF₃) — 3 pairs, 120° ───────────────────── -->
+  <g transform="translate(360, 130)">
+    <rect x="-90" y="-50" width="180" height="160" rx="10" fill="#f7fafc" stroke="#94a3b8" stroke-width="1.5" />
+    <text x="0" y="-30" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Trigonal planar · AX₃</text>
+
+    <!-- Three bonds at 120° (up, lower-left, lower-right) -->
+    <line x1="0" y1="40" x2="0"   y2="0"  stroke="#1a202c" stroke-width="2.5" />
+    <line x1="0" y1="40" x2="-44" y2="65" stroke="#1a202c" stroke-width="2.5" />
+    <line x1="0" y1="40" x2="44"  y2="65" stroke="#1a202c" stroke-width="2.5" />
+
+    <circle cx="0"   cy="0"  r="14" fill="#15803d" stroke="#1a202c" stroke-width="1.5" />
+    <text x="0" y="4" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">F</text>
+    <circle cx="-44" cy="65" r="14" fill="#15803d" stroke="#1a202c" stroke-width="1.5" />
+    <text x="-44" y="69" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">F</text>
+    <circle cx="44"  cy="65" r="14" fill="#15803d" stroke="#1a202c" stroke-width="1.5" />
+    <text x="44" y="69" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">F</text>
+
+    <circle cx="0" cy="40" r="16" fill="#fef3c7" stroke="#92400e" stroke-width="1.5" />
+    <text x="0" y="44" font-size="11" font-weight="700" fill="#92400e" text-anchor="middle">B</text>
+
+    <text x="32" y="34" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">120°</text>
+    <text x="0" y="98" font-size="10" fill="#4a5568" text-anchor="middle">e.g. BF₃, BCl₃</text>
+  </g>
+
+  <!-- ── Tetrahedral (CH₄) — 4 pairs, 109.5° ─────────────────────── -->
+  <g transform="translate(600, 130)">
+    <rect x="-90" y="-50" width="180" height="160" rx="10" fill="#f7fafc" stroke="#94a3b8" stroke-width="1.5" />
+    <text x="0" y="-30" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Tetrahedral · AX₄</text>
+
+    <!-- Wedge / dash style: 2 in plane, 1 wedge (out), 1 dash (in) -->
+    <!-- Central C -->
+    <line x1="0" y1="40" x2="-50" y2="20" stroke="#1a202c" stroke-width="2.5" />
+    <line x1="0" y1="40" x2="50"  y2="20" stroke="#1a202c" stroke-width="2.5" />
+    <!-- Wedge (front) -->
+    <polygon points="0,40 -8,80 8,80" fill="#1a202c" />
+    <!-- Dashed (back) -->
+    <line x1="0" y1="40" x2="0" y2="-2" stroke="#1a202c" stroke-width="2" stroke-dasharray="4 3" />
+
+    <circle cx="-50" cy="20" r="13" fill="#fef3c7" stroke="#92400e" stroke-width="1.5" />
+    <text x="-50" y="24" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <circle cx="50"  cy="20" r="13" fill="#fef3c7" stroke="#92400e" stroke-width="1.5" />
+    <text x="50" y="24" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <circle cx="0"   cy="-2" r="13" fill="#fef3c7" stroke="#92400e" stroke-width="1.5" />
+    <text x="0" y="2" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <circle cx="0"   cy="84" r="13" fill="#fef3c7" stroke="#92400e" stroke-width="1.5" />
+    <text x="0" y="88" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+
+    <circle cx="0" cy="40" r="16" fill="#1a202c" stroke="#1a202c" stroke-width="1.5" />
+    <text x="0" y="44" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+
+    <text x="36" y="48" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">109.5°</text>
+    <text x="0" y="106" font-size="10" fill="#4a5568" text-anchor="middle">e.g. CH₄, NH₄⁺</text>
+  </g>
+
+  <!-- ── Trigonal bipyramidal (PCl₅) — 5 pairs, 90/120/180° ──────── -->
+  <g transform="translate(220, 320)">
+    <rect x="-90" y="-50" width="180" height="160" rx="10" fill="#f7fafc" stroke="#94a3b8" stroke-width="1.5" />
+    <text x="0" y="-30" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Trigonal bipyramidal · AX₅</text>
+
+    <!-- Axial (up + down) and equatorial (3 around middle) -->
+    <line x1="0" y1="40" x2="0"   y2="-12" stroke="#1a202c" stroke-width="2.5" />
+    <line x1="0" y1="40" x2="0"   y2="92"  stroke="#1a202c" stroke-width="2.5" />
+    <line x1="0" y1="40" x2="-50" y2="55"  stroke="#1a202c" stroke-width="2.5" />
+    <line x1="0" y1="40" x2="35"  y2="20"  stroke="#1a202c" stroke-width="2.5" />
+    <line x1="0" y1="40" x2="35"  y2="60"  stroke="#1a202c" stroke-width="2.5" />
+
+    <circle cx="0"   cy="-12" r="13" fill="#15803d" stroke="#1a202c" stroke-width="1.5" />
+    <text x="0" y="-8" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">Cl</text>
+    <circle cx="0"   cy="92"  r="13" fill="#15803d" stroke="#1a202c" stroke-width="1.5" />
+    <text x="0" y="96" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">Cl</text>
+    <circle cx="-50" cy="55"  r="13" fill="#15803d" stroke="#1a202c" stroke-width="1.5" />
+    <text x="-50" y="59" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">Cl</text>
+    <circle cx="35"  cy="20"  r="13" fill="#15803d" stroke="#1a202c" stroke-width="1.5" />
+    <text x="35" y="24" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">Cl</text>
+    <circle cx="35"  cy="60"  r="13" fill="#15803d" stroke="#1a202c" stroke-width="1.5" />
+    <text x="35" y="64" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">Cl</text>
+
+    <circle cx="0" cy="40" r="16" fill="#7c3aed" stroke="#1a202c" stroke-width="1.5" />
+    <text x="0" y="44" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">P</text>
+
+    <text x="-30" y="34" font-size="11" font-weight="700" fill="#dc2626">90°</text>
+    <text x="55" y="44" font-size="11" font-weight="700" fill="#dc2626">120°</text>
+    <text x="0" y="106" font-size="10" fill="#4a5568" text-anchor="middle">e.g. PCl₅, PF₅</text>
+  </g>
+
+  <!-- ── Octahedral (SF₆) — 6 pairs, 90° ─────────────────────────── -->
+  <g transform="translate(500, 320)">
+    <rect x="-90" y="-50" width="180" height="160" rx="10" fill="#f7fafc" stroke="#94a3b8" stroke-width="1.5" />
+    <text x="0" y="-30" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Octahedral · AX₆</text>
+
+    <!-- 6 bonds: up, down, left, right, front-wedge, back-dash -->
+    <line x1="0" y1="40" x2="0"   y2="-12" stroke="#1a202c" stroke-width="2.5" />
+    <line x1="0" y1="40" x2="0"   y2="92"  stroke="#1a202c" stroke-width="2.5" />
+    <line x1="0" y1="40" x2="-52" y2="40"  stroke="#1a202c" stroke-width="2.5" />
+    <line x1="0" y1="40" x2="52"  y2="40"  stroke="#1a202c" stroke-width="2.5" />
+    <polygon points="0,40 -8,68 8,68" fill="#1a202c" />
+    <line x1="0" y1="40" x2="-22" y2="22" stroke="#1a202c" stroke-width="2" stroke-dasharray="4 3" />
+
+    <circle cx="0"   cy="-12" r="13" fill="#facc15" stroke="#1a202c" stroke-width="1.5" />
+    <text x="0" y="-8" font-size="10" font-weight="700" fill="#0f172a" text-anchor="middle">F</text>
+    <circle cx="0"   cy="92"  r="13" fill="#facc15" stroke="#1a202c" stroke-width="1.5" />
+    <text x="0" y="96" font-size="10" font-weight="700" fill="#0f172a" text-anchor="middle">F</text>
+    <circle cx="-52" cy="40"  r="13" fill="#facc15" stroke="#1a202c" stroke-width="1.5" />
+    <text x="-52" y="44" font-size="10" font-weight="700" fill="#0f172a" text-anchor="middle">F</text>
+    <circle cx="52"  cy="40"  r="13" fill="#facc15" stroke="#1a202c" stroke-width="1.5" />
+    <text x="52" y="44" font-size="10" font-weight="700" fill="#0f172a" text-anchor="middle">F</text>
+    <circle cx="0"   cy="72"  r="13" fill="#facc15" stroke="#1a202c" stroke-width="1.5" />
+    <text x="0" y="76" font-size="10" font-weight="700" fill="#0f172a" text-anchor="middle">F</text>
+    <circle cx="-22" cy="22"  r="13" fill="#facc15" stroke="#1a202c" stroke-width="1.5" />
+    <text x="-22" y="26" font-size="10" font-weight="700" fill="#0f172a" text-anchor="middle">F</text>
+
+    <circle cx="0" cy="40" r="16" fill="#dc2626" stroke="#1a202c" stroke-width="1.5" />
+    <text x="0" y="44" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">S</text>
+
+    <text x="38" y="20" font-size="13" font-weight="700" fill="#dc2626">90°</text>
+    <text x="0" y="106" font-size="10" fill="#4a5568" text-anchor="middle">e.g. SF₆, [PtCl₆]²⁻</text>
+  </g>
+</svg>

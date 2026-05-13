@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 320" width="600" height="320" role="img" aria-label="Calorimetry: heat lost equals heat gained">
+  <title>Calorimetry — Mixing Hot and Cold</title>
+  <desc>An insulated calorimeter contains a cold liquid at T_c. A hot solid at T_h is dropped in. Heat flows from hot to cold until they reach a common equilibrium temperature T_f. Energy balance: m_h c_h (T_h − T_f) = m_c c_c (T_f − T_c).</desc>
+
+  <text x="300" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Calorimetry — Conservation of Heat</text>
+
+  <defs>
+    <marker id="cal-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626" />
+    </marker>
+  </defs>
+
+  <!-- ============= LEFT: Before ============= -->
+  <text x="150" y="50" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Before mixing</text>
+
+  <!-- Hot block -->
+  <rect x="80" y="80" width="60" height="60" fill="#fecaca" stroke="#dc2626" stroke-width="2.5" />
+  <text x="110" y="115" font-size="11" font-weight="700" fill="#7c2d12" text-anchor="middle">m_h</text>
+  <text x="110" y="76" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">T_h (hot)</text>
+  <text x="110" y="156" font-size="10" fill="#7c2d12" text-anchor="middle">specific heat c_h</text>
+
+  <!-- Cold beaker -->
+  <path d="M 175 130 L 175 230 L 280 230 L 280 130" fill="none" stroke="#1a202c" stroke-width="2" />
+  <rect x="177" y="150" width="101" height="80" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="0" />
+  <text x="227" y="195" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">m_c · c_c</text>
+  <text x="227" y="125" font-size="11" font-weight="700" fill="#1d4ed8" text-anchor="middle">T_c (cold)</text>
+
+  <!-- Insulation hatch around beaker -->
+  <rect x="170" y="125" width="115" height="115" fill="none" stroke="#7c2d12" stroke-width="1.5" stroke-dasharray="3 3" />
+  <text x="227" y="252" font-size="9" fill="#7c2d12" text-anchor="middle">insulated calorimeter</text>
+
+  <!-- Drop arrow -->
+  <line x1="150" y1="150" x2="195" y2="170" stroke="#dc2626" stroke-width="2.5" marker-end="url(#cal-arr)" />
+
+  <!-- ============= RIGHT: After ============= -->
+  <text x="430" y="50" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">After mixing (equilibrium)</text>
+
+  <!-- Beaker -->
+  <path d="M 360 130 L 360 230 L 500 230 L 500 130" fill="none" stroke="#1a202c" stroke-width="2" />
+  <rect x="362" y="150" width="136" height="80" fill="#fed7aa" stroke="#dd6b20" stroke-width="0" />
+
+  <!-- Submerged block -->
+  <rect x="395" y="170" width="60" height="60" fill="#fed7aa" stroke="#9a3412" stroke-width="2" />
+
+  <text x="430" y="125" font-size="13" font-weight="700" fill="#dd6b20" text-anchor="middle">T_f  (final, common)</text>
+  <text x="430" y="195" font-size="11" font-weight="700" fill="#7c2d12" text-anchor="middle">m_h + m_c</text>
+  <text x="430" y="216" font-size="10" fill="#7c2d12" text-anchor="middle">at T_f</text>
+
+  <!-- Insulation -->
+  <rect x="355" y="125" width="150" height="115" fill="none" stroke="#7c2d12" stroke-width="1.5" stroke-dasharray="3 3" />
+
+  <!-- ============= Energy balance equations ============= -->
+  <rect x="60" y="265" width="510" height="40" rx="6" fill="#f7fafc" stroke="#cbd5e1" />
+  <text x="70" y="282" font-size="11" font-weight="700" fill="#1a202c">Heat lost by hot</text>
+  <text x="180" y="282" font-size="11" fill="#1a202c">=</text>
+  <text x="195" y="282" font-size="11" font-weight="700" fill="#1d4ed8">Heat gained by cold</text>
+  <text x="320" y="282" font-size="11" fill="#1a202c">(no heat escapes)</text>
+
+  <text x="70" y="300" font-size="13" font-weight="700" fill="#dc2626">m_h c_h (T_h − T_f)</text>
+  <text x="225" y="300" font-size="13" fill="#1a202c">=</text>
+  <text x="245" y="300" font-size="13" font-weight="700" fill="#1d4ed8">m_c c_c (T_f − T_c)</text>
+  <text x="410" y="300" font-size="11" fill="#15803d" font-style="italic">→ solve for T_f</text>
+
+  <!-- Heat-flow arrow between panels -->
+  <text x="320" y="170" font-size="20" fill="#dc2626" font-weight="700">→</text>
+  <text x="320" y="190" font-size="11" fill="#dc2626" font-weight="700">Q</text>
+</svg>

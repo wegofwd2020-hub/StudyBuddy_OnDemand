@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400" width="720" height="400" role="img" aria-label="Oxygen hemoglobin saturation curve">
+  <title>Oxygen–Hemoglobin Saturation Curve — Equilibrium in Your Blood</title>
+  <desc>Sigmoidal saturation curve plotting percent of hemoglobin saturated with O₂ versus partial pressure of O₂. The curve is steep in the middle and flat at high pO₂. At lung pO₂ (~100 mmHg) hemoglobin is about 98% saturated and binds O₂; at tissue pO₂ (~40 mmHg) it is about 75% saturated and releases O₂. The same equilibrium Hb + 4 O₂ ⇌ Hb(O₂)₄ shifts forward in the lungs and reverse in the tissues simply because [O₂] is different in each location.</desc>
+
+  <defs>
+    <marker id="hb-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1a202c"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Oxygen–Hemoglobin Equilibrium — Le Chatelier in Your Bloodstream</text>
+  <text x="360" y="42" font-size="11" fill="#4a5568" text-anchor="middle">Hb + 4 O₂  ⇌  Hb(O₂)₄  ·  same equilibrium, two locations, two opposite shifts.</text>
+
+  <!-- Plot frame -->
+  <line x1="80" y1="320" x2="640" y2="320" stroke="#1a202c" stroke-width="1.5" marker-end="url(#hb-arr)"/>
+  <line x1="80" y1="320" x2="80"  y2="80"  stroke="#1a202c" stroke-width="1.5" marker-end="url(#hb-arr)"/>
+
+  <!-- Axis labels -->
+  <text x="360" y="360" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">partial pressure of O₂   (mmHg)</text>
+  <text x="36" y="200" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle" transform="rotate(-90 36 200)">% Hb saturated with O₂</text>
+
+  <!-- X ticks: 0, 20, 40, 60, 80, 100 mmHg -->
+  <g font-size="10" fill="#4a5568" text-anchor="middle">
+    <line x1="80"  y1="320" x2="80"  y2="326" stroke="#1a202c"/>
+    <text x="80"  y="338">0</text>
+    <line x1="192" y1="320" x2="192" y2="326" stroke="#1a202c"/>
+    <text x="192" y="338">20</text>
+    <line x1="304" y1="320" x2="304" y2="326" stroke="#1a202c"/>
+    <text x="304" y="338">40</text>
+    <line x1="416" y1="320" x2="416" y2="326" stroke="#1a202c"/>
+    <text x="416" y="338">60</text>
+    <line x1="528" y1="320" x2="528" y2="326" stroke="#1a202c"/>
+    <text x="528" y="338">80</text>
+    <line x1="616" y1="320" x2="616" y2="326" stroke="#1a202c"/>
+    <text x="616" y="338">100</text>
+  </g>
+
+  <!-- Y ticks: 0, 25, 50, 75, 100 % -->
+  <g font-size="10" fill="#4a5568" text-anchor="end">
+    <line x1="74" y1="320" x2="80" y2="320" stroke="#1a202c"/>
+    <text x="70" y="324">0</text>
+    <line x1="74" y1="260" x2="80" y2="260" stroke="#1a202c"/>
+    <text x="70" y="264">25</text>
+    <line x1="74" y1="200" x2="80" y2="200" stroke="#1a202c"/>
+    <text x="70" y="204">50</text>
+    <line x1="74" y1="140" x2="80" y2="140" stroke="#1a202c"/>
+    <text x="70" y="144">75</text>
+    <line x1="74" y1="80"  x2="80" y2="80"  stroke="#1a202c"/>
+    <text x="70" y="84">100</text>
+  </g>
+
+  <!-- Sigmoidal saturation curve, hand-tuned cubic-like Béziers -->
+  <path d="
+    M 80 320
+    C 160 318, 240 305, 280 268
+    C 308 240, 330 200, 370 160
+    C 410 120, 470 96, 528 86
+    C 580 80, 620 80, 640 82
+  " fill="none" stroke="#dc2626" stroke-width="3.5"/>
+
+  <!-- Tissue point: pO2 = 40 mmHg, ~75% saturation -->
+  <circle cx="304" cy="140" r="7" fill="#2b6cb0" stroke="#1a202c" stroke-width="2"/>
+  <line x1="304" y1="140" x2="304" y2="320" stroke="#2b6cb0" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="80"  y1="140" x2="304" y2="140" stroke="#2b6cb0" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="316" y="134" font-size="11" font-weight="700" fill="#2b6cb0">tissues</text>
+  <text x="316" y="148" font-size="10" fill="#2b6cb0">~ 75% saturated</text>
+
+  <!-- Lung point: pO2 ≈ 100 mmHg, ~98% saturation -->
+  <circle cx="616" cy="86" r="7" fill="#15803d" stroke="#1a202c" stroke-width="2"/>
+  <line x1="616" y1="86" x2="616" y2="320" stroke="#15803d" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="80"  y1="86" x2="616" y2="86" stroke="#15803d" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="555" y="76" font-size="11" font-weight="700" fill="#15803d">lungs</text>
+  <text x="555" y="92" font-size="10" fill="#15803d">~ 98% saturated</text>
+
+  <!-- Side note: difference is the unloaded fraction -->
+  <rect x="100" y="370" width="540" height="24" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.2"/>
+  <text x="370" y="386" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Lungs (high pO₂) → forward shift, Hb loads O₂.   Tissues (low pO₂) → reverse shift, Hb releases O₂. Same K, different [O₂].</text>
+</svg>

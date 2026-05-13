@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380" role="img" aria-label="Anatomy of the Nernst equation">
+  <title>Nernst equation — anatomy</title>
+  <desc>The Nernst equation labelled term by term: cell potential under non-standard conditions equals the standard cell potential minus a logarithmic correction in concentration. The 25 degrees Celsius simplification gives 0.0592 over n times log Q.</desc>
+
+  <defs>
+    <marker id="ne-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4a5568" />
+    </marker>
+  </defs>
+
+  <text x="360" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">The Nernst Equation — Cell Voltage Under Non-Standard Conditions</text>
+  <text x="360" y="40" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">When concentrations or pressures aren't 1 M / 1 atm, the cell voltage shifts. This is the correction.</text>
+
+  <!-- Master equation -->
+  <rect x="60" y="70" width="600" height="80" rx="10" fill="#0f172a" />
+  <text x="360" y="120" font="bold 24px system-ui" font-size="26" font-weight="700" fill="#fef3c7" text-anchor="middle">
+    E  =  E°  −  (RT ⁄ nF) · ln Q
+  </text>
+
+  <!-- Below at 25°C simplification -->
+  <text x="360" y="174" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">At 25 °C (298 K) — substitute R, T, F:</text>
+  <rect x="160" y="184" width="400" height="46" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="2" />
+  <text x="360" y="214" font="bold 20px system-ui" font-size="20" font-weight="700" fill="#92400e" text-anchor="middle">E  =  E°  −  (0.0592 ⁄ n) · log₁₀ Q</text>
+
+  <!-- Annotations with arrows -->
+  <line x1="180" y1="105" x2="120" y2="260" stroke="#4a5568" stroke-width="1.2" marker-end="url(#ne-arr)" stroke-dasharray="3 3" />
+  <rect x="40" y="260" width="170" height="62" rx="6" fill="#dbeafe" stroke="#1e3a8a" stroke-width="1.2" />
+  <text x="125" y="278" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">E (V)</text>
+  <text x="125" y="294" font="10px system-ui" font-size="10" fill="#1a202c" text-anchor="middle">actual cell voltage</text>
+  <text x="125" y="308" font="10px system-ui" font-size="10" fill="#1a202c" text-anchor="middle">at the moment</text>
+
+  <line x1="260" y1="105" x2="240" y2="260" stroke="#4a5568" stroke-width="1.2" marker-end="url(#ne-arr)" stroke-dasharray="3 3" />
+  <rect x="220" y="260" width="170" height="62" rx="6" fill="#dcfce7" stroke="#15803d" stroke-width="1.2" />
+  <text x="305" y="278" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle">E° (V)</text>
+  <text x="305" y="294" font="10px system-ui" font-size="10" fill="#1a202c" text-anchor="middle">standard voltage</text>
+  <text x="305" y="308" font="10px system-ui" font-size="10" fill="#1a202c" text-anchor="middle">(1 M, 1 atm, 25 °C)</text>
+
+  <line x1="420" y1="105" x2="450" y2="260" stroke="#4a5568" stroke-width="1.2" marker-end="url(#ne-arr)" stroke-dasharray="3 3" />
+  <rect x="400" y="260" width="170" height="62" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="1.2" />
+  <text x="485" y="278" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#991b1b" text-anchor="middle">n  (no units)</text>
+  <text x="485" y="294" font="10px system-ui" font-size="10" fill="#1a202c" text-anchor="middle">moles of electrons</text>
+  <text x="485" y="308" font="10px system-ui" font-size="10" fill="#1a202c" text-anchor="middle">per mole of reaction</text>
+
+  <line x1="540" y1="105" x2="640" y2="260" stroke="#4a5568" stroke-width="1.2" marker-end="url(#ne-arr)" stroke-dasharray="3 3" />
+  <rect x="580" y="260" width="120" height="62" rx="6" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.2" />
+  <text x="640" y="278" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#5b21b6" text-anchor="middle">Q</text>
+  <text x="640" y="294" font="10px system-ui" font-size="10" fill="#1a202c" text-anchor="middle">reaction</text>
+  <text x="640" y="308" font="10px system-ui" font-size="10" fill="#1a202c" text-anchor="middle">quotient</text>
+
+  <!-- Constants line -->
+  <text x="360" y="346" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">R = 8.314 J K⁻¹ mol⁻¹     T in kelvin     F = 96 485 C mol⁻¹     ln 10 ≈ 2.303</text>
+
+  <!-- Bottom -->
+  <text x="360" y="368" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Q &lt; 1 → E &gt; E° (more reactant, more drive)     |     Q = K → E = 0 (battery dead)     |     Q &gt; 1 → E &lt; E°</text>
+</svg>

@@ -1,0 +1,15 @@
+schema_version: 1
+id: physics-thermodynamics-first-law-energy-balance
+kind: image
+subject: physics
+topic_phrase: "First Law of Thermodynamics energy balance diagram showing change in internal energy equals heat added minus work done by the gas, with sign conventions"
+keywords:
+  - first-law
+  - energy-conservation
+  - internal-energy
+  - heat
+  - work
+  - delta-u
+  - sign-convention
+license: platform-cc-by-sa
+source_unit: G11-PHYS-008

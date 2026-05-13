@@ -1,0 +1,209 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 600" width="760" height="600" role="img" aria-label="Nephron anatomy with filtration reabsorption and secretion">
+  <title>Nephron anatomy — glomerulus, tubule segments, peritubular capillaries</title>
+  <desc>A teaching diagram of one complete nephron, the functional unit of the kidney. Blood enters via the afferent arteriole, flows through the glomerulus (a tuft of capillaries inside Bowman's capsule), and exits via the efferent arteriole. Filtration occurs at the glomerulus: water, ions, glucose, urea, and other small molecules are forced into Bowman's space, while red blood cells and large proteins stay in the blood. The filtrate then passes sequentially through the proximal convoluted tubule (PCT), the descending limb of the loop of Henle, the ascending limb of the loop of Henle, the distal convoluted tubule (DCT), and finally the collecting duct. The efferent arteriole branches into peritubular capillaries that wrap around all the tubule segments and into the vasa recta that descend with the loop of Henle. Three labelled arrow types indicate the direction of substance movement: filtration arrows at the glomerulus (water and solutes leave blood, enter tubule); reabsorption arrows (water, glucose, salts return from tubule into peritubular capillaries — ~99% of filtered water is recovered); secretion arrows (waste molecules and excess H+ are actively transported from blood into the tubule fluid). The collecting duct empties into the renal pelvis as urine.</desc>
+
+  <text x="380" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Nephron Anatomy — One Functional Unit of the Kidney</text>
+  <text x="380" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Filtration → Reabsorption → Secretion · ~180 L filtered/day → ~1.5 L urine</text>
+
+  <!-- Background -->
+  <rect x="20" y="56" width="720" height="524" rx="14" fill="#f7fafc" stroke="#cbd5e1" stroke-width="1"/>
+
+  <!-- Cortex / medulla strip background -->
+  <rect x="40" y="80" width="540" height="200" fill="#fef3c7" opacity="0.45" stroke="none"/>
+  <rect x="40" y="280" width="540" height="220" fill="#fbcfe8" opacity="0.35" stroke="none"/>
+  <text x="555" y="105" font-size="10" font-weight="700" fill="#92400e" text-anchor="end">CORTEX</text>
+  <text x="555" y="490" font-size="10" font-weight="700" fill="#9f1239" text-anchor="end">MEDULLA</text>
+  <line x1="40" y1="280" x2="580" y2="280" stroke="#94a3b8" stroke-width="1" stroke-dasharray="6 5"/>
+
+  <!-- ── Glomerulus + Bowman's capsule (top-left) ───────────── -->
+  <!-- Bowman's capsule (cup) -->
+  <path d="M 80 140 Q 80 110 130 110 Q 175 110 175 140 L 175 200 Q 175 230 130 230 Q 80 230 80 200 Z"
+        fill="#dbeafe" stroke="#1e3a8a" stroke-width="2.5"/>
+  <text x="128" y="98" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">Bowman's capsule</text>
+
+  <!-- Glomerulus (capillary tuft) -->
+  <g fill="#dc2626" stroke="#7f1d1d" stroke-width="1.4">
+    <ellipse cx="115" cy="155" rx="14" ry="9"/>
+    <ellipse cx="138" cy="148" rx="14" ry="9"/>
+    <ellipse cx="125" cy="180" rx="14" ry="9"/>
+    <ellipse cx="148" cy="172" rx="14" ry="9"/>
+    <ellipse cx="105" cy="178" rx="12" ry="8"/>
+    <ellipse cx="138" cy="195" rx="12" ry="8"/>
+  </g>
+  <text x="128" y="248" font-size="10" font-weight="700" fill="#7f1d1d" text-anchor="middle">Glomerulus</text>
+  <text x="128" y="261" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">capillary tuft</text>
+
+  <!-- Afferent arteriole (bringing blood in from above) -->
+  <path d="M 76 96 Q 90 110 100 138" stroke="#dc2626" stroke-width="6" fill="none"/>
+  <polygon points="100,138 96,128 105,132" fill="#dc2626"/>
+  <text x="48" y="92" font-size="9" font-weight="700" fill="#7f1d1d">afferent</text>
+  <text x="48" y="103" font-size="9" font-weight="700" fill="#7f1d1d">arteriole</text>
+
+  <!-- Efferent arteriole (going out to peritubular) -->
+  <path d="M 162 152 Q 200 130 230 142" stroke="#7f1d1d" stroke-width="5" fill="none"/>
+  <polygon points="230,142 222,138 224,148" fill="#7f1d1d"/>
+  <text x="187" y="124" font-size="9" font-weight="700" fill="#7f1d1d">efferent arteriole</text>
+
+  <!-- Filtration arrows (from glomerulus to Bowman's space) -->
+  <g stroke="#15803d" stroke-width="2" fill="none">
+    <path d="M 95 168 L 86 168"/>
+    <polygon points="86,168 92,164 92,172" fill="#15803d"/>
+    <path d="M 95 198 L 86 200"/>
+    <polygon points="86,200 92,196 92,204" fill="#15803d"/>
+  </g>
+  <text x="84" y="218" font-size="9" font-weight="700" fill="#15803d" text-anchor="middle">filtrate</text>
+
+  <!-- ── Proximal Convoluted Tubule (PCT) ───────────────────── -->
+  <!-- Wavy tube coming out of Bowman's capsule top-right going right -->
+  <path d="M 175 175
+           Q 200 165 215 180
+           Q 230 195 245 175
+           Q 260 160 275 180
+           Q 290 200 305 180
+           Q 320 165 335 185"
+        fill="none" stroke="#1e3a8a" stroke-width="8"/>
+  <path d="M 175 175
+           Q 200 165 215 180
+           Q 230 195 245 175
+           Q 260 160 275 180
+           Q 290 200 305 180
+           Q 320 165 335 185"
+        fill="none" stroke="#dbeafe" stroke-width="5"/>
+  <text x="248" y="148" font-size="10" font-weight="700" fill="#1e3a8a" text-anchor="middle">Proximal convoluted tubule (PCT)</text>
+  <text x="248" y="160" font-size="8" font-style="italic" fill="#4a5568" text-anchor="middle">bulk reabsorption · ~65% of filtrate</text>
+
+  <!-- ── Loop of Henle ──────────────────────────────────────── -->
+  <!-- Descending limb (from PCT down into medulla) -->
+  <path d="M 335 185 L 360 460" fill="none" stroke="#1e3a8a" stroke-width="8"/>
+  <path d="M 335 185 L 360 460" fill="none" stroke="#dbeafe" stroke-width="5"/>
+  <text x="340" y="350" font-size="9" font-weight="700" fill="#1e3a8a" transform="rotate(-85 340 350)">descending limb</text>
+
+  <!-- Loop turn (U) -->
+  <path d="M 360 460 Q 380 490 400 460" fill="none" stroke="#1e3a8a" stroke-width="8"/>
+  <path d="M 360 460 Q 380 490 400 460" fill="none" stroke="#dbeafe" stroke-width="5"/>
+
+  <!-- Ascending limb (from loop bottom back up to DCT) -->
+  <path d="M 400 460 L 425 185" fill="none" stroke="#1e3a8a" stroke-width="8"/>
+  <path d="M 400 460 L 425 185" fill="none" stroke="#dbeafe" stroke-width="5"/>
+  <text x="430" y="340" font-size="9" font-weight="700" fill="#1e3a8a" transform="rotate(85 430 340)">ascending limb</text>
+
+  <text x="380" y="510" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">Loop of Henle</text>
+  <text x="380" y="524" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">counter-current concentration</text>
+
+  <!-- ── Distal Convoluted Tubule (DCT) ─────────────────────── -->
+  <path d="M 425 185
+           Q 440 165 455 180
+           Q 470 195 485 175
+           Q 500 160 515 180"
+        fill="none" stroke="#1e3a8a" stroke-width="8"/>
+  <path d="M 425 185
+           Q 440 165 455 180
+           Q 470 195 485 175
+           Q 500 160 515 180"
+        fill="none" stroke="#dbeafe" stroke-width="5"/>
+  <text x="465" y="148" font-size="10" font-weight="700" fill="#1e3a8a" text-anchor="middle">Distal convoluted tubule (DCT)</text>
+  <text x="465" y="160" font-size="8" font-style="italic" fill="#4a5568" text-anchor="middle">fine-tunes Na⁺, K⁺, pH · aldosterone target</text>
+
+  <!-- ── Collecting duct ────────────────────────────────────── -->
+  <path d="M 515 180 L 520 540" fill="none" stroke="#1e3a8a" stroke-width="10"/>
+  <path d="M 515 180 L 520 540" fill="none" stroke="#dbeafe" stroke-width="6"/>
+  <text x="540" y="350" font-size="10" font-weight="700" fill="#1e3a8a" transform="rotate(90 540 350)">Collecting duct</text>
+  <text x="557" y="350" font-size="8" font-style="italic" fill="#4a5568" transform="rotate(90 557 350)">ADH target · water out</text>
+
+  <!-- Urine arrow (out of bottom) -->
+  <path d="M 520 540 L 520 565" stroke="#fbbf24" stroke-width="6" fill="none"/>
+  <polygon points="520,565 514,555 526,555" fill="#fbbf24"/>
+  <text x="540" y="565" font-size="10" font-weight="700" fill="#92400e">→ urine to renal pelvis</text>
+
+  <!-- ── Peritubular capillaries (wrapping around tubules) ──── -->
+  <g stroke="#dc2626" stroke-width="2.5" fill="none" opacity="0.7">
+    <!-- Wraps near PCT -->
+    <path d="M 230 142 Q 245 160 235 200 Q 220 230 250 245 Q 290 240 310 220 Q 320 200 305 195"/>
+    <!-- Reaches down to DCT -->
+    <path d="M 460 200 Q 480 220 470 245 Q 460 270 490 280 Q 510 280 515 270"/>
+    <!-- Loop region vasa recta -->
+    <path d="M 305 195 L 320 470 Q 330 495 360 495"/>
+    <path d="M 460 200 L 446 470 Q 430 495 400 495"/>
+  </g>
+  <text x="282" y="307" font-size="10" font-weight="700" fill="#7f1d1d">Peritubular capillaries</text>
+  <text x="282" y="319" font-size="9" font-style="italic" fill="#4a5568">wrap every tubule segment</text>
+
+  <!-- ── Reabsorption arrows (tubule → blood) ───────────────── -->
+  <g stroke="#15803d" stroke-width="2" fill="none">
+    <path d="M 240 188 L 240 175"/>
+    <polygon points="240,175 236,182 244,182" fill="#15803d"/>
+    <path d="M 285 190 L 285 175"/>
+    <polygon points="285,175 281,182 289,182" fill="#15803d"/>
+    <path d="M 460 188 L 460 175"/>
+    <polygon points="460,175 456,182 464,182" fill="#15803d"/>
+    <path d="M 511 510 L 530 510"/>
+    <polygon points="530,510 521,506 521,514" fill="#15803d"/>
+  </g>
+
+  <!-- ── Secretion arrows (blood → tubule) ──────────────────── -->
+  <g stroke="#7c3aed" stroke-width="2" fill="none">
+    <path d="M 270 210 L 270 195"/>
+    <polygon points="270,195 266,202 274,202" fill="#7c3aed" transform="rotate(180 270 198)"/>
+    <path d="M 490 178 L 490 196"/>
+    <polygon points="490,196 486,189 494,189" fill="#7c3aed"/>
+  </g>
+
+  <!-- ── Legend (right side) ─────────────────────────────────── -->
+  <rect x="595" y="80" width="148" height="240" rx="6" fill="#ffffff" stroke="#1a202c" stroke-width="1.4"/>
+  <text x="669" y="98" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Three processes</text>
+
+  <!-- Filtration -->
+  <g transform="translate(605, 114)">
+    <line x1="0" y1="10" x2="22" y2="10" stroke="#15803d" stroke-width="2"/>
+    <polygon points="22,10 16,6 16,14" fill="#15803d"/>
+    <text x="28" y="13" font-size="10" font-weight="700" fill="#15803d">Filtration</text>
+    <text x="28" y="26" font-size="8.5" font-style="italic" fill="#4a5568">at glomerulus</text>
+    <text x="28" y="38" font-size="8.5" fill="#1a202c">blood → tubule</text>
+  </g>
+
+  <!-- Reabsorption -->
+  <g transform="translate(605, 162)">
+    <line x1="0" y1="10" x2="22" y2="10" stroke="#15803d" stroke-width="2"/>
+    <polygon points="22,10 16,6 16,14" fill="#15803d"/>
+    <text x="28" y="13" font-size="10" font-weight="700" fill="#15803d">Reabsorption</text>
+    <text x="28" y="26" font-size="8.5" font-style="italic" fill="#4a5568">tubule → blood</text>
+    <text x="28" y="38" font-size="8.5" fill="#1a202c">~99% of water</text>
+    <text x="28" y="50" font-size="8.5" fill="#1a202c">glucose · Na⁺ · K⁺</text>
+  </g>
+
+  <!-- Secretion -->
+  <g transform="translate(605, 226)">
+    <line x1="0" y1="10" x2="22" y2="10" stroke="#7c3aed" stroke-width="2"/>
+    <polygon points="22,10 16,6 16,14" fill="#7c3aed"/>
+    <text x="28" y="13" font-size="10" font-weight="700" fill="#7c3aed">Secretion</text>
+    <text x="28" y="26" font-size="8.5" font-style="italic" fill="#4a5568">blood → tubule</text>
+    <text x="28" y="38" font-size="8.5" fill="#1a202c">H⁺ · K⁺ · drugs</text>
+    <text x="28" y="50" font-size="8.5" fill="#1a202c">creatinine</text>
+  </g>
+
+  <!-- Daily numbers -->
+  <rect x="605" y="290" width="128" height="22" rx="3" fill="#fef3c7" stroke="#92400e" stroke-width="1.2"/>
+  <text x="669" y="305" font-size="9" font-weight="700" fill="#92400e" text-anchor="middle">Daily: 180 L → 1.5 L</text>
+
+  <!-- Blood-vessel legend -->
+  <rect x="595" y="332" width="148" height="100" rx="6" fill="#ffffff" stroke="#1a202c" stroke-width="1.4"/>
+  <text x="669" y="350" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Blood vessels</text>
+  <g transform="translate(605, 360)">
+    <line x1="0" y1="10" x2="20" y2="10" stroke="#dc2626" stroke-width="6"/>
+    <text x="28" y="13" font-size="9" font-weight="700" fill="#7f1d1d">arteriole</text>
+    <line x1="0" y1="32" x2="20" y2="32" stroke="#dc2626" stroke-width="2.5" opacity="0.7"/>
+    <text x="28" y="35" font-size="9" font-weight="700" fill="#7f1d1d">peritubular cap.</text>
+    <line x1="0" y1="54" x2="20" y2="54" stroke="#1e3a8a" stroke-width="6"/>
+    <text x="28" y="57" font-size="9" font-weight="700" fill="#1e3a8a">tubule</text>
+  </g>
+
+  <!-- Quick fact box -->
+  <rect x="595" y="446" width="148" height="124" rx="6" fill="#fff7ed" stroke="#f59e0b" stroke-width="1.4"/>
+  <text x="669" y="463" font-size="11" font-weight="700" fill="#92400e" text-anchor="middle">By the numbers</text>
+  <text x="605" y="481" font-size="9" fill="#1a202c">~1 million nephrons</text>
+  <text x="605" y="494" font-size="9" fill="#1a202c">per kidney</text>
+  <text x="605" y="512" font-size="9" fill="#1a202c">GFR ≈ 125 mL/min</text>
+  <text x="605" y="525" font-size="9" fill="#1a202c">(180 L/day filtered)</text>
+  <text x="605" y="543" font-size="9" fill="#1a202c">Urine output</text>
+  <text x="605" y="556" font-size="9" fill="#1a202c">~1-2 L/day</text>
+</svg>

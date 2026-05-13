@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 340" width="600" height="340" role="img" aria-label="Vector projection of force onto displacement — geometric meaning of W = F d cos theta">
+  <title>Vector projection — F cos θ is the working component</title>
+  <desc>A force F applied at angle θ above the horizontal is decomposed into a component F cos θ along the displacement and a component F sin θ perpendicular to it. Only the parallel component does work: W = (F cos θ) · d.</desc>
+
+  <defs>
+    <marker id="we2-arr-F" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2b6cb0" />
+    </marker>
+    <marker id="we2-arr-d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#15803d" />
+    </marker>
+    <marker id="we2-arr-comp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#7c3aed" />
+    </marker>
+  </defs>
+
+  <text x="300" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Geometric meaning of W = F · d · cos θ</text>
+  <text x="300" y="40" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Only the component of F along the displacement does work.</text>
+
+  <!-- Floor / displacement axis -->
+  <line x1="60" y1="220" x2="540" y2="220" stroke="#94a3b8" stroke-width="1.5" />
+
+  <!-- Block (start) -->
+  <rect x="80" y="180" width="40" height="40" fill="#bee3f8" stroke="#1a202c" stroke-width="1.5" />
+  <text x="100" y="205" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">m</text>
+
+  <!-- Block (end), faded -->
+  <rect x="380" y="180" width="40" height="40" fill="#bee3f8" stroke="#1a202c" stroke-width="1.2" opacity="0.4" />
+
+  <!-- Displacement vector d (along floor) -->
+  <line x1="120" y1="240" x2="380" y2="240" stroke="#15803d" stroke-width="3" marker-end="url(#we2-arr-d)" />
+  <text x="250" y="262" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">d   (displacement)</text>
+
+  <!-- Applied force F at angle θ (e.g. 35° above horizontal) from the block top.
+       Pivot at (100, 180). Length 220 px. cos35 ≈ 0.819, sin35 ≈ 0.574.
+       End-point: (100 + 220*0.819, 180 - 220*0.574) = (280.18, 53.72) -->
+  <line x1="100" y1="180" x2="280" y2="54" stroke="#2b6cb0" stroke-width="3.5" marker-end="url(#we2-arr-F)" />
+  <text x="220" y="100" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#2b6cb0">F</text>
+
+  <!-- Component along d (F cos θ) — purple, dashed -->
+  <line x1="100" y1="180" x2="280" y2="180" stroke="#7c3aed" stroke-width="2.4" stroke-dasharray="3 3" marker-end="url(#we2-arr-comp)" />
+  <text x="190" y="172" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#7c3aed" text-anchor="middle">F cos θ   (does work)</text>
+
+  <!-- Component perpendicular (F sin θ), drawn from end of horizontal projection up to the F tip -->
+  <line x1="280" y1="180" x2="280" y2="54" stroke="#7c3aed" stroke-width="2" stroke-dasharray="2 2" />
+  <text x="296" y="120" font="11px system-ui" font-size="11" font-weight="700" fill="#7c3aed">F sin θ</text>
+  <text x="296" y="135" font="10px system-ui" font-size="10" font-style="italic" fill="#4a5568">(no work)</text>
+
+  <!-- Right-angle marker at (280, 180) -->
+  <path d="M 270 180 L 270 170 L 280 170" fill="none" stroke="#1a202c" stroke-width="1" />
+
+  <!-- Angle θ arc -->
+  <path d="M 140 180 A 40 40 0 0 0 132.78 156.07" fill="none" stroke="#1a202c" stroke-width="1.4" />
+  <text x="146" y="170" font="13px system-ui" font-size="13" font-style="italic" fill="#1a202c">θ</text>
+
+  <!-- Result card -->
+  <rect x="60" y="285" width="480" height="42" rx="8" fill="#f0fdf4" stroke="#15803d" stroke-width="1.4" />
+  <text x="300" y="306" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">W = (F cos θ) · d   =   F · d · cos θ</text>
+  <text x="300" y="322" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">The perpendicular component F sin θ contributes zero work — it does not move the object along d.</text>
+</svg>

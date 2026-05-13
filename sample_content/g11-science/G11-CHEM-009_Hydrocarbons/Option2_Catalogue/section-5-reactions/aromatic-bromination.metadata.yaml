@@ -1,0 +1,16 @@
+# Auto-generated for sample-content seeding — edit with the SVG and re-run sidecar build.
+schema_version: 1
+id: chemistry-aromatic-bromination
+kind: image
+subject: chemistry
+topic_phrase: "aromatic substitution benzene bromination febr3 electrophilic"
+keywords:
+  - aromatic-substitution
+  - benzene
+  - bromobenzene
+  - febr3
+  - lewis-acid
+  - electrophilic
+  - bromination
+license: platform-cc-by-sa
+source_unit: G11-CHEM-009

@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 320" width="720" height="320" role="img" aria-label="Unit conversion flow with chain-link cancellation">
+  <title>Unit Conversion by Chain-Link Cancellation</title>
+  <desc>Worked conversion of 60 km/h to m/s and to mph, showing each conversion factor as a fraction whose numerator and denominator are dimensionally equivalent so units cancel cleanly.</desc>
+
+  <text x="360" y="24" font-family="system-ui" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Unit Conversion — multiply by "1" in disguise</text>
+  <text x="360" y="44" font-family="system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">a conversion factor is just 1 written as the ratio of two equal quantities; multiplying by it never changes the value, only its expression</text>
+
+  <!-- Conversion 1: 60 km/h to m/s -->
+  <text x="32" y="86" font-family="system-ui" font-size="13" font-weight="700" fill="#2b6cb0">60 km/h  →  m/s</text>
+
+  <g font-family="system-ui" font-size="14" fill="#1a202c">
+    <!-- Quantity term -->
+    <rect x="32" y="100" width="86" height="56" rx="6" fill="#dbeafe" stroke="#2b6cb0" />
+    <text x="75" y="130" text-anchor="middle">60 km</text>
+    <line x1="40" y1="138" x2="110" y2="138" stroke="#1a202c" />
+    <text x="75" y="152" text-anchor="middle">1 h</text>
+
+    <!-- × -->
+    <text x="135" y="135" font-size="20">×</text>
+
+    <!-- Conversion factor 1: 1 h / 3600 s -->
+    <rect x="150" y="100" width="116" height="56" rx="6" fill="#fef3c7" stroke="#dd6b20" />
+    <text x="208" y="124" text-anchor="middle">1 h</text>
+    <line x1="158" y1="132" x2="258" y2="132" stroke="#1a202c" />
+    <text x="208" y="150" text-anchor="middle">3600 s</text>
+
+    <!-- × -->
+    <text x="284" y="135" font-size="20">×</text>
+
+    <!-- Conversion factor 2: 1000 m / 1 km -->
+    <rect x="300" y="100" width="116" height="56" rx="6" fill="#fef3c7" stroke="#dd6b20" />
+    <text x="358" y="124" text-anchor="middle">1000 m</text>
+    <line x1="308" y1="132" x2="408" y2="132" stroke="#1a202c" />
+    <text x="358" y="150" text-anchor="middle">1 km</text>
+
+    <!-- = -->
+    <text x="432" y="135" font-size="20">=</text>
+
+    <!-- Result -->
+    <rect x="450" y="100" width="120" height="56" rx="6" fill="#dcfce7" stroke="#15803d" stroke-width="1.5" />
+    <text x="510" y="138" text-anchor="middle" font-weight="700" fill="#15803d">16.7 m/s</text>
+  </g>
+
+  <!-- Cancellation strikes -->
+  <g stroke="#dc2626" stroke-width="1.5">
+    <!-- Strike "km" in numerator and denominator: numerator at (75,130), denominator at (358, 150) -->
+    <line x1="63" y1="124" x2="86" y2="136" />
+    <line x1="346" y1="144" x2="370" y2="156" />
+    <!-- Strike "h" in denominator and numerator: 75,152 and 208,124 -->
+    <line x1="69" y1="146" x2="82" y2="158" />
+    <line x1="200" y1="118" x2="214" y2="130" />
+  </g>
+
+  <text x="600" y="135" font-family="system-ui" font-size="11" font-style="italic" fill="#4a5568">km cancels km;</text>
+  <text x="600" y="150" font-family="system-ui" font-size="11" font-style="italic" fill="#4a5568">h cancels h;</text>
+  <text x="600" y="165" font-family="system-ui" font-size="11" font-style="italic" fill="#4a5568">m and s remain.</text>
+
+  <!-- Conversion 2: 60 km/h to mph -->
+  <text x="32" y="206" font-family="system-ui" font-size="13" font-weight="700" fill="#7c3aed">60 km/h  →  mph</text>
+
+  <g font-family="system-ui" font-size="14" fill="#1a202c">
+    <rect x="32" y="220" width="86" height="56" rx="6" fill="#e9d5ff" stroke="#7c3aed" />
+    <text x="75" y="250" text-anchor="middle">60 km</text>
+    <line x1="40" y1="258" x2="110" y2="258" stroke="#1a202c" />
+    <text x="75" y="272" text-anchor="middle">1 h</text>
+
+    <text x="135" y="255" font-size="20">×</text>
+
+    <rect x="150" y="220" width="140" height="56" rx="6" fill="#fef3c7" stroke="#dd6b20" />
+    <text x="220" y="244" text-anchor="middle">1 mile</text>
+    <line x1="158" y1="252" x2="282" y2="252" stroke="#1a202c" />
+    <text x="220" y="270" text-anchor="middle">1.609 km</text>
+
+    <text x="306" y="255" font-size="20">=</text>
+
+    <rect x="324" y="220" width="120" height="56" rx="6" fill="#dcfce7" stroke="#15803d" stroke-width="1.5" />
+    <text x="384" y="258" text-anchor="middle" font-weight="700" fill="#15803d">37.3 mph</text>
+  </g>
+
+  <g stroke="#dc2626" stroke-width="1.5">
+    <line x1="63" y1="244" x2="86" y2="256" />
+    <line x1="208" y1="264" x2="232" y2="276" />
+  </g>
+
+  <!-- Footer note -->
+  <text x="32" y="304" font-family="system-ui" font-size="11" font-style="italic" fill="#4a5568">
+    Tip — write conversion factors as fractions and stack them; the SI / non-SI rules become a bookkeeping exercise.
+  </text>
+</svg>

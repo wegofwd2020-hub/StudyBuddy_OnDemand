@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 320" width="600" height="320" role="img" aria-label="Test-point method for a quadratic inequality">
+  <title>Test-Point Method:  x² − 4x + 3 ≤ 0</title>
+  <desc>Parabola y = x² − 4x + 3 with three test points; the region where the curve lies on or below the x-axis is shaded.</desc>
+
+  <defs>
+    <style>
+      .axis    { stroke: #94a3b8; stroke-width: 1.4; }
+      .grid    { stroke: #e2e8f0; stroke-width: 0.6; }
+      .curve   { fill: none; stroke: #2b6cb0; stroke-width: 3; stroke-linecap: round; }
+      .shade   { fill: #c6f6d5; opacity: 0.7; }
+      .root    { fill: #c05621; stroke: white; stroke-width: 2.5; }
+      .testpos { fill: #2f855a; stroke: white; stroke-width: 2; }
+      .testneg { fill: #c53030; stroke: white; stroke-width: 2; }
+      .axislbl { font: 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .heading { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .lbl     { font: bold 12px system-ui, sans-serif; }
+      .panel   { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1; }
+    </style>
+  </defs>
+
+  <text class="heading" x="300" y="22">Test-point method:  x² − 4x + 3 ≤ 0</text>
+
+  <!-- Plot frame -->
+  <rect class="panel" x="60" y="60" width="320" height="180"/>
+
+  <!-- vertical grid -->
+  <line class="grid" x1="113.3" y1="60" x2="113.3" y2="240"/>
+  <line class="grid" x1="166.7" y1="60" x2="166.7" y2="240"/>
+  <line class="grid" x1="220"   y1="60" x2="220"   y2="240"/>
+  <line class="grid" x1="273.3" y1="60" x2="273.3" y2="240"/>
+  <line class="grid" x1="326.7" y1="60" x2="326.7" y2="240"/>
+
+  <!-- horizontal grid y = -2,0,2,4 → py = 240,180,120,60 -->
+  <line class="grid" x1="60" y1="120" x2="380" y2="120"/>
+  <line class="grid" x1="60" y1="60"  x2="380" y2="60"/>
+
+  <!-- shaded region between roots, below x-axis  rectangle approximation under curve from x=1 to x=3 -->
+  <path class="shade" d="M 166.7 180 Q 220 240, 273.3 180 Z"/>
+
+  <!-- axes -->
+  <line class="axis" x1="60" y1="180" x2="380" y2="180"/>
+  <line class="axis" x1="113.3" y1="60" x2="113.3" y2="240"/>
+
+  <!-- ticks -->
+  <text class="axislbl" x="113.3" y="194">0</text>
+  <text class="axislbl" x="166.7" y="194">1</text>
+  <text class="axislbl" x="220"   y="194">2</text>
+  <text class="axislbl" x="273.3" y="194">3</text>
+  <text class="axislbl" x="326.7" y="194">4</text>
+  <text class="axislbl" x="103" y="64"  text-anchor="end">4</text>
+  <text class="axislbl" x="103" y="124" text-anchor="end">2</text>
+  <text class="axislbl" x="103" y="244" text-anchor="end">−2</text>
+  <text class="axislbl" x="392" y="184">x</text>
+  <text class="axislbl" x="113.3" y="55">y</text>
+
+  <!-- Curve -->
+  <polyline class="curve" points="113.3,90 140,138 166.7,180 193.3,205 220,210 246.7,205 273.3,180 300,138 326.7,90"/>
+
+  <!-- Roots: (1, 0) (3, 0) -->
+  <circle class="root" cx="166.7" cy="180" r="6"/>
+  <text class="lbl" x="146" y="174" fill="#c05621">x = 1</text>
+  <circle class="root" cx="273.3" cy="180" r="6"/>
+  <text class="lbl" x="294" y="174" fill="#c05621">x = 3</text>
+
+  <!-- Test points -->
+  <!-- x = 0, y = 3 → (113.3, 90); positive -->
+  <circle class="testneg" cx="113.3" cy="90" r="6"/>
+  <text class="lbl" x="125" y="84" fill="#c53030">y(0) = 3 &gt; 0</text>
+  <!-- x = 2, y = -1 → (220, 210); negative -->
+  <circle class="testpos" cx="220" cy="210" r="6"/>
+  <text class="lbl" x="232" y="226" fill="#2f855a">y(2) = −1 ≤ 0  ✓</text>
+  <!-- x = 4, y = 3 → (326.7, 90); positive -->
+  <circle class="testneg" cx="326.7" cy="90" r="6"/>
+  <text class="lbl" x="278" y="84" fill="#c53030">y(4) = 3 &gt; 0</text>
+
+  <!-- Right summary panel -->
+  <g transform="translate(410, 60)">
+    <rect x="0" y="0" width="180" height="180" rx="8" fill="#fffaf0" stroke="#dd6b20" stroke-width="1.4"/>
+    <text font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" x="90" y="22" text-anchor="middle">Procedure</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="14" y="46">1. Factor:  (x − 1)(x − 3)</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="14" y="64">2. Roots split ℝ into 3 zones</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="14" y="82">3. Test one point in each zone</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="14" y="100">4. Choose zones matching ≤ 0</text>
+    <text font="bold 12px system-ui" font-size="12" font-weight="700" fill="#2f855a" x="90" y="138" text-anchor="middle">Solution</text>
+    <text font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2f855a" x="90" y="160" text-anchor="middle">x ∈ [1, 3]</text>
+  </g>
+
+  <text x="300" y="290" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Closed brackets [1, 3] because the inequality is non-strict (≤ includes the roots).</text>
+</svg>

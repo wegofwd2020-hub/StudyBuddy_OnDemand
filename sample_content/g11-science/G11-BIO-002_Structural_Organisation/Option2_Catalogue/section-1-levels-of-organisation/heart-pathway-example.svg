@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 320" width="820" height="320" role="img" aria-label="Heart pathway from cell to organism">
+  <title>Heart pathway — one cell becomes one human</title>
+  <desc>A horizontal flow of five panels, each panel showing the same biological lineage at a different scale. Panel 1 is a single branched cardiac muscle cell. Panel 2 is several cells forming cardiac tissue. Panel 3 is the whole heart organ. Panel 4 is the circulatory system as a body silhouette with vessels. Panel 5 is a complete human silhouette with all systems implied. Arrows connect each level to the next.</desc>
+
+  <text x="410" y="22" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">From One Cell to One Human — the Heart Pathway</text>
+  <text x="410" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Same lineage, five magnifications. Each box adds one level of organisation.</text>
+
+  <!-- Panel 1: Cardiac muscle cell -->
+  <g transform="translate(20, 60)">
+    <rect x="0" y="0" width="140" height="200" rx="10" fill="#f7fafc" stroke="#be185d" stroke-width="2"/>
+    <text x="70" y="22" font-size="12" font-weight="700" fill="#be185d" text-anchor="middle">Cell</text>
+    <text x="70" y="38" font-size="10" fill="#4a5568" text-anchor="middle">cardiac myocyte</text>
+    <!-- Branched cardiac muscle cell -->
+    <path d="M 30 100 Q 28 80 50 78 Q 70 76 80 92 Q 90 78 108 82 Q 120 88 116 108 Q 118 122 100 124 Q 88 138 68 130 Q 48 142 32 128 Q 22 116 30 100 Z" fill="#fce7f3" stroke="#be185d" stroke-width="2"/>
+    <!-- Striations -->
+    <line x1="34" y1="96" x2="44" y2="92" stroke="#be185d" stroke-width="0.8"/>
+    <line x1="44" y1="104" x2="54" y2="100" stroke="#be185d" stroke-width="0.8"/>
+    <line x1="54" y1="112" x2="64" y2="108" stroke="#be185d" stroke-width="0.8"/>
+    <line x1="64" y1="120" x2="74" y2="116" stroke="#be185d" stroke-width="0.8"/>
+    <line x1="80" y1="100" x2="90" y2="96" stroke="#be185d" stroke-width="0.8"/>
+    <line x1="86" y1="110" x2="96" y2="106" stroke="#be185d" stroke-width="0.8"/>
+    <!-- Nucleus -->
+    <ellipse cx="70" cy="105" rx="9" ry="6" fill="#831843"/>
+    <text x="70" y="170" font-size="10" fill="#4a5568" text-anchor="middle">single central</text>
+    <text x="70" y="184" font-size="10" fill="#4a5568" text-anchor="middle">nucleus, branched</text>
+  </g>
+
+  <!-- Arrow 1 -->
+  <g transform="translate(165, 160)">
+    <line x1="0" y1="0" x2="20" y2="0" stroke="#4a5568" stroke-width="2"/>
+    <polygon points="20,-5 28,0 20,5" fill="#4a5568"/>
+  </g>
+
+  <!-- Panel 2: Cardiac muscle tissue -->
+  <g transform="translate(195, 60)">
+    <rect x="0" y="0" width="140" height="200" rx="10" fill="#f7fafc" stroke="#dc2626" stroke-width="2"/>
+    <text x="70" y="22" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">Tissue</text>
+    <text x="70" y="38" font-size="10" fill="#4a5568" text-anchor="middle">cardiac muscle</text>
+    <!-- Branched cells in a network -->
+    <path d="M 14 70 Q 30 64 46 70 Q 60 74 56 90 Q 50 100 36 96 Q 22 98 14 88 Z" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+    <path d="M 60 74 Q 80 70 96 78 Q 110 84 104 100 Q 96 110 78 104 Q 64 100 60 90 Z" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+    <path d="M 110 80 Q 122 84 126 100 Q 122 116 108 112 Q 102 108 104 96 Z" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+    <path d="M 14 96 Q 30 92 44 100 Q 56 110 50 124 Q 38 132 22 124 Q 12 116 14 100 Z" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+    <path d="M 56 108 Q 76 104 92 114 Q 108 124 102 138 Q 86 144 68 138 Q 56 132 56 116 Z" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+    <path d="M 100 116 Q 118 118 126 130 Q 124 144 110 144 Q 98 138 98 124 Z" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+    <!-- Nuclei -->
+    <ellipse cx="34" cy="82" rx="3" ry="2.2" fill="#7f1d1d"/>
+    <ellipse cx="82" cy="90" rx="3" ry="2.2" fill="#7f1d1d"/>
+    <ellipse cx="114" cy="96" rx="3" ry="2.2" fill="#7f1d1d"/>
+    <ellipse cx="32" cy="112" rx="3" ry="2.2" fill="#7f1d1d"/>
+    <ellipse cx="80" cy="124" rx="3" ry="2.2" fill="#7f1d1d"/>
+    <ellipse cx="112" cy="130" rx="3" ry="2.2" fill="#7f1d1d"/>
+    <!-- Intercalated discs -->
+    <line x1="56" y1="80" x2="58" y2="92" stroke="#7f1d1d" stroke-width="2"/>
+    <line x1="100" y1="86" x2="104" y2="98" stroke="#7f1d1d" stroke-width="2"/>
+    <text x="70" y="170" font-size="10" fill="#4a5568" text-anchor="middle">cells joined by</text>
+    <text x="70" y="184" font-size="10" fill="#4a5568" text-anchor="middle">intercalated discs</text>
+  </g>
+
+  <!-- Arrow 2 -->
+  <g transform="translate(340, 160)">
+    <line x1="0" y1="0" x2="20" y2="0" stroke="#4a5568" stroke-width="2"/>
+    <polygon points="20,-5 28,0 20,5" fill="#4a5568"/>
+  </g>
+
+  <!-- Panel 3: Heart organ -->
+  <g transform="translate(370, 60)">
+    <rect x="0" y="0" width="140" height="200" rx="10" fill="#f7fafc" stroke="#d97706" stroke-width="2"/>
+    <text x="70" y="22" font-size="12" font-weight="700" fill="#d97706" text-anchor="middle">Organ</text>
+    <text x="70" y="38" font-size="10" fill="#4a5568" text-anchor="middle">heart</text>
+    <!-- Heart silhouette (anatomical-ish) -->
+    <path d="M 70 60 Q 56 50 44 58 Q 28 70 32 96 Q 36 116 56 134 Q 68 146 70 154 Q 72 146 84 134 Q 104 116 108 96 Q 112 70 96 58 Q 84 50 70 60 Z" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+    <!-- Aorta arch -->
+    <path d="M 64 60 Q 60 44 78 40 Q 96 40 96 58" fill="none" stroke="#d97706" stroke-width="2"/>
+    <!-- Internal partition -->
+    <line x1="70" y1="68" x2="70" y2="146" stroke="#d97706" stroke-width="1.2" stroke-dasharray="3 2"/>
+    <!-- Coronary vessel hint -->
+    <path d="M 56 90 Q 64 100 60 120" fill="none" stroke="#7f1d1d" stroke-width="1.2"/>
+    <path d="M 88 90 Q 80 102 84 120" fill="none" stroke="#7f1d1d" stroke-width="1.2"/>
+    <text x="70" y="170" font-size="10" fill="#4a5568" text-anchor="middle">muscle + connective +</text>
+    <text x="70" y="184" font-size="10" fill="#4a5568" text-anchor="middle">nervous + epithelial</text>
+  </g>
+
+  <!-- Arrow 3 -->
+  <g transform="translate(515, 160)">
+    <line x1="0" y1="0" x2="20" y2="0" stroke="#4a5568" stroke-width="2"/>
+    <polygon points="20,-5 28,0 20,5" fill="#4a5568"/>
+  </g>
+
+  <!-- Panel 4: Circulatory system -->
+  <g transform="translate(545, 60)">
+    <rect x="0" y="0" width="140" height="200" rx="10" fill="#f7fafc" stroke="#15803d" stroke-width="2"/>
+    <text x="70" y="22" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">Organ system</text>
+    <text x="70" y="38" font-size="10" fill="#4a5568" text-anchor="middle">circulatory</text>
+    <!-- Body outline ghost -->
+    <path d="M 70 50 Q 78 50 78 58 Q 78 64 74 66 L 76 80 L 92 90 L 96 130 L 92 156 L 80 156 L 78 138 L 70 138 L 62 138 L 60 156 L 48 156 L 44 130 L 48 90 L 64 80 L 66 66 Q 62 64 62 58 Q 62 50 70 50 Z" fill="#dcfce7" stroke="#15803d" stroke-width="1.2"/>
+    <!-- Heart icon -->
+    <path d="M 70 96 Q 66 92 62 94 Q 58 98 62 104 Q 66 110 70 114 Q 74 110 78 104 Q 82 98 78 94 Q 74 92 70 96 Z" fill="#dc2626" stroke="#7f1d1d" stroke-width="1"/>
+    <!-- Arteries (red) -->
+    <line x1="70" y1="96" x2="58" y2="78" stroke="#dc2626" stroke-width="1.5"/>
+    <line x1="70" y1="96" x2="82" y2="78" stroke="#dc2626" stroke-width="1.5"/>
+    <line x1="64" y1="106" x2="54" y2="124" stroke="#dc2626" stroke-width="1.5"/>
+    <line x1="54" y1="124" x2="50" y2="148" stroke="#dc2626" stroke-width="1.2"/>
+    <line x1="76" y1="106" x2="86" y2="124" stroke="#dc2626" stroke-width="1.5"/>
+    <line x1="86" y1="124" x2="90" y2="148" stroke="#dc2626" stroke-width="1.2"/>
+    <!-- Veins (blue) -->
+    <line x1="68" y1="96" x2="56" y2="80" stroke="#2b6cb0" stroke-width="1"/>
+    <line x1="72" y1="96" x2="84" y2="80" stroke="#2b6cb0" stroke-width="1"/>
+    <line x1="62" y1="106" x2="52" y2="124" stroke="#2b6cb0" stroke-width="1"/>
+    <line x1="78" y1="106" x2="88" y2="124" stroke="#2b6cb0" stroke-width="1"/>
+    <text x="70" y="170" font-size="10" fill="#4a5568" text-anchor="middle">heart + arteries +</text>
+    <text x="70" y="184" font-size="10" fill="#4a5568" text-anchor="middle">veins + capillaries</text>
+  </g>
+
+  <!-- Arrow 4 -->
+  <g transform="translate(690, 160)">
+    <line x1="0" y1="0" x2="20" y2="0" stroke="#4a5568" stroke-width="2"/>
+    <polygon points="20,-5 28,0 20,5" fill="#4a5568"/>
+  </g>
+
+  <!-- Panel 5: Whole organism -->
+  <g transform="translate(720, 60)">
+    <rect x="0" y="0" width="90" height="200" rx="10" fill="#f7fafc" stroke="#2b6cb0" stroke-width="2"/>
+    <text x="45" y="22" font-size="12" font-weight="700" fill="#2b6cb0" text-anchor="middle">Organism</text>
+    <text x="45" y="38" font-size="10" fill="#4a5568" text-anchor="middle">human</text>
+    <!-- Body silhouette filled -->
+    <path d="M 45 56 Q 53 56 53 64 Q 53 70 49 72 L 51 86 L 64 96 L 68 134 L 64 162 L 54 162 L 52 144 L 45 144 L 38 144 L 36 162 L 26 162 L 22 134 L 26 96 L 39 86 L 41 72 Q 37 70 37 64 Q 37 56 45 56 Z" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5"/>
+    <text x="45" y="184" font-size="10" fill="#4a5568" text-anchor="middle">all systems integrated</text>
+  </g>
+
+  <text x="410" y="294" font-size="11" fill="#4a5568" text-anchor="middle">A single cardiac myocyte cannot pump blood. A heart cannot circulate without vessels. A circulatory system cannot exist without a body.</text>
+  <text x="410" y="310" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Each level adds emergent properties — abilities the level below cannot do alone.</text>
+</svg>

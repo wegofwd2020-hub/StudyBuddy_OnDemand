@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-advanced-algebra-rational-simplification-flow
+kind: image
+subject: math
+topic_phrase: "simplifying a rational expression by factoring and cancelling"
+keywords:
+  - rational-expression
+  - simplify
+  - factor
+  - cancel
+  - common-factor
+license: platform-cc-by-sa
+source_unit: G11-MATH-002

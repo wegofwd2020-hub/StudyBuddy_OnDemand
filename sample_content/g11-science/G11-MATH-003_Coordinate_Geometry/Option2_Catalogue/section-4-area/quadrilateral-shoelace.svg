@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 320" width="640" height="320" role="img" aria-label="Area of a quadrilateral via the shoelace formula">
+  <title>Quadrilateral Area: Shoelace Formula Generalised</title>
+  <desc>Quadrilateral with vertices P₁(1, 1), P₂(6, 2), P₃(7, 5), P₄(2, 6). Area = ½ |Σ x_i (y_{i+1} − y_{i−1})| = ½ · 40 = 20 square units.</desc>
+
+  <defs>
+    <style>
+      .axis    { stroke: #94a3b8; stroke-width: 1.4; }
+      .grid    { stroke: #e2e8f0; stroke-width: 0.6; }
+      .panel   { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1; }
+      .quadFill { fill: rgba(107, 70, 193, 0.14); stroke: #6b46c1; stroke-width: 3; stroke-linejoin: round; }
+      .pt      { fill: #c05621; stroke: white; stroke-width: 2; }
+      .axislbl { font: 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .heading { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .lbl     { font: bold 12px system-ui, sans-serif; }
+      .row     { font: 12px ui-monospace, monospace; fill: #1a202c; }
+      .rowHdr  { font: bold 12px ui-monospace, monospace; fill: #1a202c; }
+    </style>
+  </defs>
+
+  <text class="heading" x="320" y="22">Shoelace generalises to any simple polygon (vertices listed in order)</text>
+
+  <!-- Plot frame: x ∈ [0, 9], y ∈ [0, 8].  Frame width 252 (28 px/u), height 224 (28 px/u).  Frame x:60..312, y:50..274. Origin (60, 274) -->
+  <rect class="panel" x="60" y="50" width="252" height="224"/>
+
+  <!-- Vertical grid -->
+  <line class="grid" x1="88"  y1="50" x2="88"  y2="274"/>
+  <line class="grid" x1="116" y1="50" x2="116" y2="274"/>
+  <line class="grid" x1="144" y1="50" x2="144" y2="274"/>
+  <line class="grid" x1="172" y1="50" x2="172" y2="274"/>
+  <line class="grid" x1="200" y1="50" x2="200" y2="274"/>
+  <line class="grid" x1="228" y1="50" x2="228" y2="274"/>
+  <line class="grid" x1="256" y1="50" x2="256" y2="274"/>
+  <line class="grid" x1="284" y1="50" x2="284" y2="274"/>
+  <!-- Horizontal grid -->
+  <line class="grid" x1="60" y1="246" x2="312" y2="246"/>
+  <line class="grid" x1="60" y1="218" x2="312" y2="218"/>
+  <line class="grid" x1="60" y1="190" x2="312" y2="190"/>
+  <line class="grid" x1="60" y1="162" x2="312" y2="162"/>
+  <line class="grid" x1="60" y1="134" x2="312" y2="134"/>
+  <line class="grid" x1="60" y1="106" x2="312" y2="106"/>
+  <line class="grid" x1="60" y1="78"  x2="312" y2="78"/>
+
+  <!-- Axes -->
+  <line class="axis" x1="60" y1="274" x2="312" y2="274"/>
+  <line class="axis" x1="60" y1="50"  x2="60"  y2="274"/>
+
+  <!-- Tick labels -->
+  <text class="axislbl" x="60"  y="288">0</text>
+  <text class="axislbl" x="88"  y="288">1</text>
+  <text class="axislbl" x="172" y="288">4</text>
+  <text class="axislbl" x="256" y="288">7</text>
+  <text class="axislbl" x="52"  y="278" text-anchor="end">0</text>
+  <text class="axislbl" x="52"  y="222" text-anchor="end">2</text>
+  <text class="axislbl" x="52"  y="138" text-anchor="end">5</text>
+  <text class="axislbl" x="320" y="278">x</text>
+  <text class="axislbl" x="60"  y="44">y</text>
+
+  <!-- Vertices: P1=(1,1)→(88,246); P2=(6,2)→(228,218); P3=(7,5)→(256,134); P4=(2,6)→(116,106) -->
+  <polygon class="quadFill" points="88,246 228,218 256,134 116,106"/>
+
+  <!-- Vertex markers -->
+  <circle class="pt" cx="88"  cy="246" r="6"/>
+  <text class="lbl" x="64" y="240" fill="#c05621">P₁(1, 1)</text>
+  <circle class="pt" cx="228" cy="218" r="6"/>
+  <text class="lbl" x="238" y="214" fill="#c05621">P₂(6, 2)</text>
+  <circle class="pt" cx="256" cy="134" r="6"/>
+  <text class="lbl" x="266" y="130" fill="#c05621">P₃(7, 5)</text>
+  <circle class="pt" cx="116" cy="106" r="6"/>
+  <text class="lbl" x="76" y="100" fill="#c05621">P₄(2, 6)</text>
+
+  <!-- Right panel: shoelace table -->
+  <g transform="translate(330, 40)">
+    <rect x="0" y="0" width="290" height="240" rx="8" fill="#fffaf0" stroke="#dd6b20" stroke-width="1.4"/>
+    <text font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" x="145" y="22" text-anchor="middle">Shoelace table  (cyclic indices)</text>
+
+    <!-- Header -->
+    <text class="rowHdr" x="14"  y="52">i</text>
+    <text class="rowHdr" x="44"  y="52">x_i</text>
+    <text class="rowHdr" x="86"  y="52">y_i</text>
+    <text class="rowHdr" x="138" y="52">x_i (y_{i+1} − y_{i−1})</text>
+    <line x1="14" y1="60" x2="276" y2="60" stroke="#cbd5e0"/>
+
+    <!-- Row 1: x1(y2 − y4) = 1(2 − 6) = -4 -->
+    <text class="row" x="14"  y="78">1</text>
+    <text class="row" x="44"  y="78">1</text>
+    <text class="row" x="86"  y="78">1</text>
+    <text class="row" x="138" y="78">1 · (2 − 6)  =  −4</text>
+
+    <!-- Row 2: x2(y3 − y1) = 6(5 − 1) = 24 -->
+    <text class="row" x="14"  y="98">2</text>
+    <text class="row" x="44"  y="98">6</text>
+    <text class="row" x="86"  y="98">2</text>
+    <text class="row" x="138" y="98">6 · (5 − 1)  =  +24</text>
+
+    <!-- Row 3: x3(y4 − y2) = 7(6 − 2) = 28 -->
+    <text class="row" x="14"  y="118">3</text>
+    <text class="row" x="44"  y="118">7</text>
+    <text class="row" x="86"  y="118">5</text>
+    <text class="row" x="138" y="118">7 · (6 − 2)  =  +28</text>
+
+    <!-- Row 4: x4(y1 − y3) = 2(1 − 5) = -8 -->
+    <text class="row" x="14"  y="138">4</text>
+    <text class="row" x="44"  y="138">2</text>
+    <text class="row" x="86"  y="138">6</text>
+    <text class="row" x="138" y="138">2 · (1 − 5)  =  −8</text>
+
+    <line x1="14" y1="152" x2="276" y2="152" stroke="#cbd5e0"/>
+    <text class="rowHdr" x="138" y="170">sum  =  40</text>
+
+    <rect x="14" y="184" width="262" height="42" rx="6" fill="#faf5ff" stroke="#6b46c1" stroke-width="1.5"/>
+    <text font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" x="145" y="208" text-anchor="middle">Area  =  ½ · |40|  =  20  sq units</text>
+  </g>
+
+  <text x="320" y="312" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Indices wrap cyclically:  i + 1 after the last is 1; i − 1 before the first is the last vertex.</text>
+</svg>

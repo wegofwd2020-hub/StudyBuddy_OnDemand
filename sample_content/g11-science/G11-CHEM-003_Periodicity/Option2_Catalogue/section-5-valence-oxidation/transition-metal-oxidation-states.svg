@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" width="720" height="360" role="img" aria-label="Oxidation states of first row transition metals">
+  <title>Oxidation States of the First-Row Transition Metals</title>
+  <desc>Vertical ladder grid: rows are oxidation states from +1 (bottom) to +7 (top). Columns are the eight first-row transition metals Sc through Cu (Sc, Ti, V, Cr, Mn, Fe, Co, Ni, Cu). Filled circles mark the oxidation states each element shows; the most common state for each element is highlighted with a star and bold ring. Mn, with states +2 through +7, peaks at +7; Fe shows +2, +3, +6.</desc>
+
+  <text x="360" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Variable Oxidation States — First-Row Transition Metals</text>
+  <text x="360" y="40" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">d-electrons can be removed step-by-step. Mn shows the widest range (+2 to +7).</text>
+
+  <!-- Y-axis: oxidation states. Top = +7 at y=70, bottom = +1 at y=270. step=33.3. Use y(s) = 270 - (s-1)*33.3 -->
+  <g font="bold 11px system-ui" font-size="11" font-weight="700" fill="#4a5568" text-anchor="end">
+    <text x="56" y="74">+7</text>
+    <text x="56" y="107">+6</text>
+    <text x="56" y="140">+5</text>
+    <text x="56" y="174">+4</text>
+    <text x="56" y="207">+3</text>
+    <text x="56" y="240">+2</text>
+    <text x="56" y="274">+1</text>
+  </g>
+
+  <!-- Y-axis line -->
+  <line x1="62" y1="64" x2="62" y2="284" stroke="#1a202c" stroke-width="1.5"/>
+
+  <!-- X-axis: 9 elements. Width 70, gap 0. Total = 9*70=630. Start x = 70 -->
+  <!-- Element columns at x = 100, 170, 240, 310, 380, 450, 520, 590, 660 -->
+
+  <!-- Light row gridlines -->
+  <g stroke="#e2e8f0" stroke-width="1">
+    <line x1="62" y1="70" x2="700" y2="70"/>
+    <line x1="62" y1="103.3" x2="700" y2="103.3"/>
+    <line x1="62" y1="136.7" x2="700" y2="136.7"/>
+    <line x1="62" y1="170" x2="700" y2="170"/>
+    <line x1="62" y1="203.3" x2="700" y2="203.3"/>
+    <line x1="62" y1="236.7" x2="700" y2="236.7"/>
+    <line x1="62" y1="270" x2="700" y2="270"/>
+  </g>
+
+  <!-- Element labels at the top -->
+  <g font="bold 12px system-ui" font-size="12" font-weight="700" fill="#14532d" text-anchor="middle">
+    <text x="100" y="60">Sc</text>
+    <text x="170" y="60">Ti</text>
+    <text x="240" y="60">V</text>
+    <text x="310" y="60">Cr</text>
+    <text x="380" y="60">Mn</text>
+    <text x="450" y="60">Fe</text>
+    <text x="520" y="60">Co</text>
+    <text x="590" y="60">Ni</text>
+    <text x="660" y="60">Cu</text>
+  </g>
+
+  <!-- d-electron count beneath element row top -->
+  <g font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">
+    <text x="100" y="298">3d¹</text>
+    <text x="170" y="298">3d²</text>
+    <text x="240" y="298">3d³</text>
+    <text x="310" y="298">3d⁵</text>
+    <text x="380" y="298">3d⁵</text>
+    <text x="450" y="298">3d⁶</text>
+    <text x="520" y="298">3d⁷</text>
+    <text x="590" y="298">3d⁸</text>
+    <text x="660" y="298">3d¹⁰</text>
+  </g>
+
+  <!-- Markers: filled circles. Common = green star with bold ring. Otherwise small filled circle. -->
+
+  <!-- Sc: +3 (common) -->
+  <circle cx="100" cy="203.3" r="9" fill="#15803d" stroke="#14532d" stroke-width="2.5"/>
+  <text x="100" y="207" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">★</text>
+
+  <!-- Ti: +2, +3, +4 (common +4) -->
+  <circle cx="170" cy="240" r="6" fill="#94a3b8"/>
+  <circle cx="170" cy="207" r="6" fill="#94a3b8"/>
+  <circle cx="170" cy="170" r="9" fill="#15803d" stroke="#14532d" stroke-width="2.5"/>
+  <text x="170" y="174" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">★</text>
+
+  <!-- V: +2, +3, +4, +5 (common +5) -->
+  <circle cx="240" cy="240" r="6" fill="#94a3b8"/>
+  <circle cx="240" cy="207" r="6" fill="#94a3b8"/>
+  <circle cx="240" cy="170" r="6" fill="#94a3b8"/>
+  <circle cx="240" cy="137" r="9" fill="#15803d" stroke="#14532d" stroke-width="2.5"/>
+  <text x="240" y="141" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">★</text>
+
+  <!-- Cr: +2, +3, +6 (common +3 and +6, mark +3 as common) -->
+  <circle cx="310" cy="240" r="6" fill="#94a3b8"/>
+  <circle cx="310" cy="207" r="9" fill="#15803d" stroke="#14532d" stroke-width="2.5"/>
+  <text x="310" y="211" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">★</text>
+  <circle cx="310" cy="103.3" r="6" fill="#94a3b8"/>
+
+  <!-- Mn: +2 ... +7 (common +2 and +7) -->
+  <circle cx="380" cy="240" r="9" fill="#15803d" stroke="#14532d" stroke-width="2.5"/>
+  <text x="380" y="244" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">★</text>
+  <circle cx="380" cy="207" r="6" fill="#94a3b8"/>
+  <circle cx="380" cy="170" r="6" fill="#94a3b8"/>
+  <circle cx="380" cy="137" r="6" fill="#94a3b8"/>
+  <circle cx="380" cy="103.3" r="6" fill="#94a3b8"/>
+  <circle cx="380" cy="70" r="9" fill="#dc2626" stroke="#991b1b" stroke-width="2.5"/>
+  <text x="380" y="74" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">★</text>
+
+  <!-- Fe: +2, +3, +6 (common +3) -->
+  <circle cx="450" cy="240" r="6" fill="#94a3b8"/>
+  <circle cx="450" cy="207" r="9" fill="#15803d" stroke="#14532d" stroke-width="2.5"/>
+  <text x="450" y="211" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">★</text>
+  <circle cx="450" cy="103.3" r="6" fill="#94a3b8"/>
+
+  <!-- Co: +2, +3 (common +2) -->
+  <circle cx="520" cy="240" r="9" fill="#15803d" stroke="#14532d" stroke-width="2.5"/>
+  <text x="520" y="244" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">★</text>
+  <circle cx="520" cy="207" r="6" fill="#94a3b8"/>
+
+  <!-- Ni: +2, +3 (common +2) -->
+  <circle cx="590" cy="240" r="9" fill="#15803d" stroke="#14532d" stroke-width="2.5"/>
+  <text x="590" y="244" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">★</text>
+  <circle cx="590" cy="207" r="6" fill="#94a3b8"/>
+
+  <!-- Cu: +1, +2 (common +2) -->
+  <circle cx="660" cy="270" r="6" fill="#94a3b8"/>
+  <circle cx="660" cy="240" r="9" fill="#15803d" stroke="#14532d" stroke-width="2.5"/>
+  <text x="660" y="244" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">★</text>
+
+  <!-- Mn peak callout -->
+  <g transform="translate(420, 70)">
+    <line x1="0" y1="0" x2="40" y2="-30" stroke="#dc2626" stroke-width="1.5"/>
+    <rect x="40" y="-58" width="180" height="50" rx="8" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+    <text x="130" y="-42" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#991b1b" text-anchor="middle">Mn(+7) — peak</text>
+    <text x="130" y="-28" font="9px system-ui" font-size="9" fill="#7c2d12" text-anchor="middle">all 5 d-electrons + the 2 4s</text>
+    <text x="130" y="-16" font="9px system-ui" font-size="9" fill="#7c2d12" text-anchor="middle">used → MnO₄⁻ (purple)</text>
+  </g>
+
+  <!-- Legend -->
+  <g transform="translate(40, 326)">
+    <rect x="0" y="0" width="640" height="28" rx="6" fill="#f7fafc" stroke="#cbd5e0" stroke-width="1"/>
+    <circle cx="20" cy="14" r="5" fill="#94a3b8"/>
+    <text x="32" y="18" font="10px system-ui" font-size="10" fill="#4a5568">accessible state</text>
+
+    <circle cx="180" cy="14" r="7" fill="#15803d" stroke="#14532d" stroke-width="2"/>
+    <text x="194" y="18" font="10px system-ui" font-size="10" fill="#4a5568">most common state</text>
+
+    <circle cx="380" cy="14" r="7" fill="#dc2626" stroke="#991b1b" stroke-width="2"/>
+    <text x="394" y="18" font="10px system-ui" font-size="10" fill="#4a5568">extreme state (highlight)</text>
+
+    <text x="620" y="18" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="end" font-weight="700">d-electron count grows →</text>
+  </g>
+
+</svg>

@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-stats-binomial-distribution-bar
+kind: image
+subject: math
+topic_phrase: "binomial distribution bar chart for n equals ten and p equals one half"
+keywords:
+  - binomial-distribution
+  - probability-mass-function
+  - bernoulli-trial
+  - mean
+  - variance
+license: platform-cc-by-sa
+source_unit: G11-MATH-005

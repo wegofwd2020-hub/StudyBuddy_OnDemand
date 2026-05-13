@@ -1,0 +1,251 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 460" width="760" height="460" role="img" aria-label="Leaf cross-section labeled">
+  <title>Leaf — labelled cross-section (transverse)</title>
+  <desc>A transverse cross-section through a dicotyledonous leaf showing six labelled tissue layers from top to bottom: a waxy cuticle on the outside, the upper epidermis (single layer of clear cells with no chloroplasts), the palisade mesophyll (vertically aligned column-like cells densely packed with chloroplasts — the main photosynthesis layer), the spongy mesophyll (loosely arranged cells with large air spaces, allowing gas diffusion), a vascular bundle (vein) showing xylem on top and phloem on bottom enclosed in a bundle sheath, the lower epidermis with a stoma (a pore flanked by two bean-shaped guard cells) opening into the substomatal cavity, and a thin lower cuticle. Arrows show CO2 entering and O2/water-vapour exiting through the open stoma; sunlight strikes the upper surface.</desc>
+
+  <text x="380" y="22" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Leaf — Transverse Cross-Section</text>
+  <text x="380" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Six tissue layers, each shaped for one job in photosynthesis.</text>
+
+  <!-- Sunlight rays -->
+  <g stroke="#fbbf24" stroke-width="3">
+    <line x1="120" y1="56" x2="140" y2="86"/>
+    <line x1="200" y1="56" x2="220" y2="86"/>
+    <line x1="280" y1="56" x2="300" y2="86"/>
+    <line x1="360" y1="56" x2="380" y2="86"/>
+    <line x1="440" y1="56" x2="460" y2="86"/>
+    <line x1="520" y1="56" x2="540" y2="86"/>
+    <line x1="600" y1="56" x2="620" y2="86"/>
+  </g>
+  <text x="80" y="78" font-size="11" font-weight="700" fill="#d97706">sunlight</text>
+
+  <!-- Cuticle (top) -->
+  <rect x="100" y="86" width="540" height="10" fill="#fef3c7" stroke="#b45309" stroke-width="1.5"/>
+
+  <!-- Upper epidermis (one row of clear cells) -->
+  <g>
+    <rect x="100" y="96" width="60" height="34" fill="#f7fafc" stroke="#15803d" stroke-width="1.5"/>
+    <rect x="160" y="96" width="60" height="34" fill="#f7fafc" stroke="#15803d" stroke-width="1.5"/>
+    <rect x="220" y="96" width="60" height="34" fill="#f7fafc" stroke="#15803d" stroke-width="1.5"/>
+    <rect x="280" y="96" width="60" height="34" fill="#f7fafc" stroke="#15803d" stroke-width="1.5"/>
+    <rect x="340" y="96" width="60" height="34" fill="#f7fafc" stroke="#15803d" stroke-width="1.5"/>
+    <rect x="400" y="96" width="60" height="34" fill="#f7fafc" stroke="#15803d" stroke-width="1.5"/>
+    <rect x="460" y="96" width="60" height="34" fill="#f7fafc" stroke="#15803d" stroke-width="1.5"/>
+    <rect x="520" y="96" width="60" height="34" fill="#f7fafc" stroke="#15803d" stroke-width="1.5"/>
+    <rect x="580" y="96" width="60" height="34" fill="#f7fafc" stroke="#15803d" stroke-width="1.5"/>
+  </g>
+
+  <!-- Palisade mesophyll (vertical column cells, packed with chloroplasts) -->
+  <g>
+    <!-- Each cell is tall + narrow -->
+    <rect x="100" y="130" width="30" height="86" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+    <rect x="130" y="130" width="30" height="86" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+    <rect x="160" y="130" width="30" height="86" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+    <rect x="190" y="130" width="30" height="86" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+    <rect x="220" y="130" width="30" height="86" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+    <rect x="250" y="130" width="30" height="86" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+    <rect x="280" y="130" width="30" height="86" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+    <rect x="310" y="130" width="30" height="86" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+    <rect x="340" y="130" width="30" height="86" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+    <rect x="370" y="130" width="30" height="86" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+    <rect x="400" y="130" width="30" height="86" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+    <rect x="430" y="130" width="30" height="86" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+    <rect x="460" y="130" width="30" height="86" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+    <rect x="490" y="130" width="30" height="86" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+    <rect x="520" y="130" width="30" height="86" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+    <rect x="550" y="130" width="30" height="86" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+    <rect x="580" y="130" width="30" height="86" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+    <rect x="610" y="130" width="30" height="86" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+  </g>
+  <!-- Chloroplasts (small ovals densely packed) -->
+  <g fill="#15803d">
+    <ellipse cx="115" cy="146" rx="3.5" ry="2.5"/>
+    <ellipse cx="115" cy="160" rx="3.5" ry="2.5"/>
+    <ellipse cx="115" cy="174" rx="3.5" ry="2.5"/>
+    <ellipse cx="115" cy="188" rx="3.5" ry="2.5"/>
+    <ellipse cx="115" cy="202" rx="3.5" ry="2.5"/>
+    <ellipse cx="145" cy="146" rx="3.5" ry="2.5"/>
+    <ellipse cx="145" cy="160" rx="3.5" ry="2.5"/>
+    <ellipse cx="145" cy="174" rx="3.5" ry="2.5"/>
+    <ellipse cx="145" cy="188" rx="3.5" ry="2.5"/>
+    <ellipse cx="145" cy="202" rx="3.5" ry="2.5"/>
+    <ellipse cx="175" cy="146" rx="3.5" ry="2.5"/>
+    <ellipse cx="175" cy="160" rx="3.5" ry="2.5"/>
+    <ellipse cx="175" cy="174" rx="3.5" ry="2.5"/>
+    <ellipse cx="175" cy="188" rx="3.5" ry="2.5"/>
+    <ellipse cx="175" cy="202" rx="3.5" ry="2.5"/>
+    <ellipse cx="205" cy="148" rx="3.5" ry="2.5"/>
+    <ellipse cx="205" cy="162" rx="3.5" ry="2.5"/>
+    <ellipse cx="205" cy="176" rx="3.5" ry="2.5"/>
+    <ellipse cx="205" cy="190" rx="3.5" ry="2.5"/>
+    <ellipse cx="205" cy="204" rx="3.5" ry="2.5"/>
+    <ellipse cx="235" cy="146" rx="3.5" ry="2.5"/>
+    <ellipse cx="235" cy="160" rx="3.5" ry="2.5"/>
+    <ellipse cx="235" cy="174" rx="3.5" ry="2.5"/>
+    <ellipse cx="235" cy="188" rx="3.5" ry="2.5"/>
+    <ellipse cx="235" cy="202" rx="3.5" ry="2.5"/>
+    <ellipse cx="265" cy="146" rx="3.5" ry="2.5"/>
+    <ellipse cx="265" cy="160" rx="3.5" ry="2.5"/>
+    <ellipse cx="265" cy="174" rx="3.5" ry="2.5"/>
+    <ellipse cx="265" cy="188" rx="3.5" ry="2.5"/>
+    <ellipse cx="265" cy="202" rx="3.5" ry="2.5"/>
+    <ellipse cx="295" cy="148" rx="3.5" ry="2.5"/>
+    <ellipse cx="295" cy="162" rx="3.5" ry="2.5"/>
+    <ellipse cx="295" cy="176" rx="3.5" ry="2.5"/>
+    <ellipse cx="295" cy="190" rx="3.5" ry="2.5"/>
+    <ellipse cx="295" cy="204" rx="3.5" ry="2.5"/>
+    <ellipse cx="355" cy="148" rx="3.5" ry="2.5"/>
+    <ellipse cx="355" cy="162" rx="3.5" ry="2.5"/>
+    <ellipse cx="355" cy="176" rx="3.5" ry="2.5"/>
+    <ellipse cx="355" cy="190" rx="3.5" ry="2.5"/>
+    <ellipse cx="355" cy="204" rx="3.5" ry="2.5"/>
+    <ellipse cx="385" cy="146" rx="3.5" ry="2.5"/>
+    <ellipse cx="385" cy="160" rx="3.5" ry="2.5"/>
+    <ellipse cx="385" cy="174" rx="3.5" ry="2.5"/>
+    <ellipse cx="385" cy="188" rx="3.5" ry="2.5"/>
+    <ellipse cx="385" cy="202" rx="3.5" ry="2.5"/>
+    <ellipse cx="475" cy="148" rx="3.5" ry="2.5"/>
+    <ellipse cx="475" cy="162" rx="3.5" ry="2.5"/>
+    <ellipse cx="475" cy="176" rx="3.5" ry="2.5"/>
+    <ellipse cx="475" cy="190" rx="3.5" ry="2.5"/>
+    <ellipse cx="475" cy="204" rx="3.5" ry="2.5"/>
+    <ellipse cx="505" cy="146" rx="3.5" ry="2.5"/>
+    <ellipse cx="505" cy="160" rx="3.5" ry="2.5"/>
+    <ellipse cx="505" cy="174" rx="3.5" ry="2.5"/>
+    <ellipse cx="505" cy="188" rx="3.5" ry="2.5"/>
+    <ellipse cx="505" cy="202" rx="3.5" ry="2.5"/>
+    <ellipse cx="535" cy="148" rx="3.5" ry="2.5"/>
+    <ellipse cx="535" cy="162" rx="3.5" ry="2.5"/>
+    <ellipse cx="535" cy="176" rx="3.5" ry="2.5"/>
+    <ellipse cx="535" cy="190" rx="3.5" ry="2.5"/>
+    <ellipse cx="535" cy="204" rx="3.5" ry="2.5"/>
+    <ellipse cx="565" cy="146" rx="3.5" ry="2.5"/>
+    <ellipse cx="565" cy="160" rx="3.5" ry="2.5"/>
+    <ellipse cx="565" cy="174" rx="3.5" ry="2.5"/>
+    <ellipse cx="565" cy="188" rx="3.5" ry="2.5"/>
+    <ellipse cx="595" cy="148" rx="3.5" ry="2.5"/>
+    <ellipse cx="595" cy="162" rx="3.5" ry="2.5"/>
+    <ellipse cx="595" cy="176" rx="3.5" ry="2.5"/>
+    <ellipse cx="595" cy="190" rx="3.5" ry="2.5"/>
+    <ellipse cx="625" cy="148" rx="3.5" ry="2.5"/>
+    <ellipse cx="625" cy="162" rx="3.5" ry="2.5"/>
+    <ellipse cx="625" cy="176" rx="3.5" ry="2.5"/>
+    <ellipse cx="625" cy="190" rx="3.5" ry="2.5"/>
+  </g>
+
+  <!-- Spongy mesophyll (irregularly shaped cells with big air gaps) -->
+  <g fill="#bbf7d0" stroke="#15803d" stroke-width="1.3">
+    <circle cx="116" cy="240" r="14"/>
+    <ellipse cx="156" cy="244" rx="16" ry="12"/>
+    <circle cx="200" cy="242" r="13"/>
+    <ellipse cx="246" cy="246" rx="18" ry="13"/>
+    <circle cx="298" cy="244" r="14"/>
+    <ellipse cx="346" cy="248" rx="16" ry="12"/>
+    <ellipse cx="426" cy="246" rx="14" ry="11"/>
+    <circle cx="468" cy="244" r="14"/>
+    <ellipse cx="510" cy="248" rx="16" ry="12"/>
+    <circle cx="552" cy="246" r="13"/>
+    <ellipse cx="596" cy="244" rx="16" ry="12"/>
+    <circle cx="630" cy="252" r="11"/>
+
+    <ellipse cx="124" cy="278" rx="14" ry="11"/>
+    <circle cx="164" cy="280" r="13"/>
+    <ellipse cx="206" cy="276" rx="16" ry="12"/>
+    <circle cx="252" cy="280" r="14"/>
+    <ellipse cx="294" cy="278" rx="14" ry="12"/>
+    <circle cx="338" cy="282" r="13"/>
+    <ellipse cx="380" cy="278" rx="16" ry="11"/>
+    <circle cx="468" cy="282" r="13"/>
+    <ellipse cx="510" cy="280" rx="14" ry="11"/>
+    <circle cx="554" cy="278" r="14"/>
+    <ellipse cx="598" cy="280" rx="14" ry="11"/>
+  </g>
+  <!-- chloroplasts in spongy cells (fewer) -->
+  <g fill="#15803d">
+    <ellipse cx="116" cy="238" rx="3" ry="2"/>
+    <ellipse cx="156" cy="244" rx="3" ry="2"/>
+    <ellipse cx="200" cy="242" rx="3" ry="2"/>
+    <ellipse cx="298" cy="244" rx="3" ry="2"/>
+    <ellipse cx="468" cy="244" rx="3" ry="2"/>
+    <ellipse cx="552" cy="246" rx="3" ry="2"/>
+    <ellipse cx="124" cy="278" rx="3" ry="2"/>
+    <ellipse cx="252" cy="280" rx="3" ry="2"/>
+    <ellipse cx="380" cy="278" rx="3" ry="2"/>
+    <ellipse cx="554" cy="278" rx="3" ry="2"/>
+  </g>
+
+  <!-- ── Vascular bundle (vein) — central, between palisade and spongy boundary -->
+  <g transform="translate(380, 240)">
+    <!-- Bundle sheath (oval border) -->
+    <ellipse cx="0" cy="0" rx="40" ry="22" fill="#fef3c7" stroke="#15803d" stroke-width="2"/>
+    <!-- Xylem (top half — turquoise circles) -->
+    <circle cx="-22" cy="-6" r="6" fill="#ccfbf1" stroke="#319795" stroke-width="1.5"/>
+    <circle cx="-10" cy="-8" r="6" fill="#ccfbf1" stroke="#319795" stroke-width="1.5"/>
+    <circle cx="2" cy="-8" r="6" fill="#ccfbf1" stroke="#319795" stroke-width="1.5"/>
+    <circle cx="14" cy="-6" r="6" fill="#ccfbf1" stroke="#319795" stroke-width="1.5"/>
+    <circle cx="24" cy="-4" r="5" fill="#ccfbf1" stroke="#319795" stroke-width="1.5"/>
+    <!-- Phloem (bottom half — green pellets) -->
+    <rect x="-26" y="4" width="10" height="10" rx="2" fill="#dcfce7" stroke="#15803d" stroke-width="1.2"/>
+    <rect x="-14" y="6" width="10" height="10" rx="2" fill="#dcfce7" stroke="#15803d" stroke-width="1.2"/>
+    <rect x="-2" y="6" width="10" height="10" rx="2" fill="#dcfce7" stroke="#15803d" stroke-width="1.2"/>
+    <rect x="10" y="4" width="10" height="10" rx="2" fill="#dcfce7" stroke="#15803d" stroke-width="1.2"/>
+  </g>
+
+  <!-- Lower epidermis (with stoma) -->
+  <g>
+    <rect x="100" y="304" width="100" height="34" fill="#f7fafc" stroke="#15803d" stroke-width="1.5"/>
+    <rect x="200" y="304" width="100" height="34" fill="#f7fafc" stroke="#15803d" stroke-width="1.5"/>
+    <rect x="300" y="304" width="100" height="34" fill="#f7fafc" stroke="#15803d" stroke-width="1.5"/>
+    <!-- Stomatal pore + guard cells -->
+    <path d="M 400 304 Q 392 312 400 322 Q 408 312 400 304 Z" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+    <path d="M 440 304 Q 448 312 440 322 Q 432 312 440 304 Z" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+    <line x1="400" y1="324" x2="400" y2="338" stroke="#15803d" stroke-width="1.5"/>
+    <line x1="440" y1="324" x2="440" y2="338" stroke="#15803d" stroke-width="1.5"/>
+    <!-- Substomatal cavity (gap) -->
+    <ellipse cx="420" cy="332" rx="22" ry="6" fill="#fff" stroke="#15803d" stroke-width="1" stroke-dasharray="2 2"/>
+
+    <rect x="460" y="304" width="100" height="34" fill="#f7fafc" stroke="#15803d" stroke-width="1.5"/>
+    <rect x="560" y="304" width="80" height="34" fill="#f7fafc" stroke="#15803d" stroke-width="1.5"/>
+  </g>
+
+  <!-- Lower cuticle -->
+  <rect x="100" y="338" width="540" height="8" fill="#fef3c7" stroke="#b45309" stroke-width="1.5"/>
+
+  <!-- Gas exchange arrows through stoma -->
+  <line x1="420" y1="370" x2="420" y2="346" stroke="#1e3a8a" stroke-width="2"/>
+  <polygon points="416,346 420,338 424,346" fill="#1e3a8a"/>
+  <text x="420" y="384" font-size="10" font-weight="700" fill="#1e3a8a" text-anchor="middle">CO₂ in</text>
+
+  <line x1="396" y1="346" x2="384" y2="370" stroke="#dc2626" stroke-width="2"/>
+  <polygon points="396,346 392,348 400,348" fill="#dc2626"/>
+  <text x="378" y="384" font-size="10" font-weight="700" fill="#dc2626" text-anchor="middle">O₂ + H₂O out</text>
+
+  <!-- ── Side labels (with leader lines) -->
+  <line x1="640" y1="91" x2="700" y2="80" stroke="#4a5568" stroke-width="0.8"/>
+  <text x="708" y="80" font-size="11" font-weight="700" fill="#b45309">cuticle</text>
+  <text x="708" y="92" font-size="9" fill="#4a5568">waxy waterproof layer</text>
+
+  <line x1="640" y1="113" x2="700" y2="113" stroke="#4a5568" stroke-width="0.8"/>
+  <text x="708" y="113" font-size="11" font-weight="700" fill="#15803d">upper epidermis</text>
+  <text x="708" y="125" font-size="9" fill="#4a5568">no chloroplasts (clear)</text>
+
+  <line x1="640" y1="172" x2="700" y2="172" stroke="#4a5568" stroke-width="0.8"/>
+  <text x="708" y="172" font-size="11" font-weight="700" fill="#15803d">palisade mesophyll</text>
+  <text x="708" y="184" font-size="9" fill="#4a5568">main photosynthesis layer</text>
+
+  <line x1="640" y1="260" x2="700" y2="260" stroke="#4a5568" stroke-width="0.8"/>
+  <text x="708" y="260" font-size="11" font-weight="700" fill="#15803d">spongy mesophyll</text>
+  <text x="708" y="272" font-size="9" fill="#4a5568">air-spaced, gas exchange</text>
+
+  <line x1="380" y1="220" x2="320" y2="194" stroke="#4a5568" stroke-width="0.8"/>
+  <text x="312" y="190" font-size="10" font-weight="700" fill="#319795" text-anchor="end">vascular bundle</text>
+  <text x="312" y="202" font-size="9" fill="#4a5568" text-anchor="end">xylem ↑ + phloem ↓</text>
+
+  <line x1="640" y1="320" x2="700" y2="320" stroke="#4a5568" stroke-width="0.8"/>
+  <text x="708" y="320" font-size="11" font-weight="700" fill="#15803d">lower epidermis</text>
+  <text x="708" y="332" font-size="9" fill="#4a5568">contains the stomata</text>
+
+  <line x1="450" y1="312" x2="520" y2="392" stroke="#4a5568" stroke-width="0.8"/>
+  <text x="528" y="392" font-size="10" font-weight="700" fill="#15803d">stoma + guard cells</text>
+  <text x="528" y="404" font-size="9" fill="#4a5568">opens for gas exchange</text>
+
+  <text x="380" y="436" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">Each layer has a single job: cuticle waterproofs, palisade absorbs sunlight, spongy exchanges gases, vein moves water + sugar, stomata regulate transpiration.</text>
+</svg>

@@ -1,0 +1,15 @@
+# Auto-generated for sample-content seeding — edit with the SVG and re-run sidecar build.
+schema_version: 1
+id: chemistry-london-dispersion-forces
+kind: image
+subject: chemistry
+topic_phrase: "london dispersion forces hydrocarbon chains induced dipole"
+keywords:
+  - london-dispersion
+  - induced-dipole
+  - intermolecular-force
+  - hydrocarbon
+  - alkane
+  - non-polar
+license: platform-cc-by-sa
+source_unit: G11-CHEM-009

@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-advanced-algebra-linear-system-graphical
+kind: image
+subject: math
+topic_phrase: "linear system solved graphically by line intersection"
+keywords:
+  - linear-system
+  - simultaneous-equations
+  - graphical-solution
+  - intersection
+  - substitution
+license: platform-cc-by-sa
+source_unit: G11-MATH-002

@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-coordinate-geometry-distance-formula
+kind: image
+subject: math
+topic_phrase: "distance formula derived from right triangle and Pythagorean theorem"
+keywords:
+  - distance-formula
+  - pythagorean-theorem
+  - right-triangle
+  - coordinate-geometry
+  - hypotenuse
+license: platform-cc-by-sa
+source_unit: G11-MATH-003

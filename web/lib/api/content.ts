@@ -5,6 +5,7 @@ import type {
   QuizContent,
   TutorialContent,
   ExperimentContent,
+  VisualBlock,
 } from "@/lib/types/api";
 
 export async function getLesson(unitId: string): Promise<LessonContent> {
@@ -71,6 +72,7 @@ interface BackendTutorialResponse {
     section_id: string;
     title: string;
     content: string;
+    visuals?: VisualBlock[];
     examples: string[];
     practice_question: string;
   }>;
@@ -90,6 +92,7 @@ export async function getTutorial(unitId: string): Promise<TutorialContent> {
       section_id: s.section_id,
       title: s.title,
       content: s.content,
+      visuals: s.visuals,
       examples: s.examples,
       practice_question: s.practice_question,
     })),

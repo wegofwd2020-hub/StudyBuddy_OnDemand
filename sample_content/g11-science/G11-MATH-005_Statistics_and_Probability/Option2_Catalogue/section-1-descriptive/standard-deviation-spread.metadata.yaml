@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-stats-standard-deviation-spread
+kind: image
+subject: math
+topic_phrase: "two datasets sharing the same mean visualise different standard deviations"
+keywords:
+  - standard-deviation
+  - variance
+  - dispersion
+  - mean
+  - spread
+license: platform-cc-by-sa
+source_unit: G11-MATH-005

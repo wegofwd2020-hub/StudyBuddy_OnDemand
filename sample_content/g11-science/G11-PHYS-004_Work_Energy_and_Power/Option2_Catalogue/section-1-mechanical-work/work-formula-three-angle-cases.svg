@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" width="720" height="360" role="img" aria-label="Mechanical work W = F d cos theta — three angle cases">
+  <title>W = F d cos θ — three angle cases</title>
+  <desc>Three side-by-side scenarios showing how the angle between force and displacement determines the sign of work. Left: force parallel to displacement (θ = 0°), W = +Fd. Middle: force perpendicular to displacement (θ = 90°), W = 0. Right: force anti-parallel to displacement (θ = 180°), W = -Fd.</desc>
+
+  <defs>
+    <marker id="we1-arr-F" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2b6cb0" />
+    </marker>
+    <marker id="we1-arr-d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#15803d" />
+    </marker>
+    <marker id="we1-arr-Fneg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626" />
+    </marker>
+  </defs>
+
+  <text x="360" y="22" font="bold 15px system-ui" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Mechanical Work:  W = F · d · cos θ</text>
+  <text x="360" y="40" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">The sign of work depends on the angle between the applied force and the displacement.</text>
+
+  <!-- ─────────── Case 1 — parallel ─────────── -->
+  <g>
+    <text x="120" y="68" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Case 1:  θ = 0°</text>
+    <text x="120" y="84" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Force along motion</text>
+
+    <!-- Floor -->
+    <line x1="30" y1="180" x2="210" y2="180" stroke="#94a3b8" stroke-width="1.5" />
+    <!-- Block A (start), faded -->
+    <rect x="50" y="140" width="40" height="40" fill="#bee3f8" stroke="#1a202c" stroke-width="1.2" opacity="0.45" />
+    <!-- Block B (end) -->
+    <rect x="140" y="140" width="40" height="40" fill="#bee3f8" stroke="#1a202c" stroke-width="1.5" />
+    <text x="160" y="165" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">m</text>
+
+    <!-- Displacement d (green, below) -->
+    <line x1="70" y1="200" x2="160" y2="200" stroke="#15803d" stroke-width="2.5" marker-end="url(#we1-arr-d)" />
+    <text x="115" y="218" font="12px system-ui" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">d</text>
+
+    <!-- Force F (blue, on block, parallel) -->
+    <line x1="160" y1="160" x2="220" y2="160" stroke="#2b6cb0" stroke-width="3" marker-end="url(#we1-arr-F)" />
+    <text x="225" y="156" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#2b6cb0">F</text>
+
+    <!-- Result card -->
+    <rect x="20" y="240" width="200" height="86" rx="8" fill="#f0fdf4" stroke="#15803d" stroke-width="1.4" />
+    <text x="120" y="262" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">cos 0° = 1</text>
+    <text x="120" y="284" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#15803d" text-anchor="middle">W = + F d</text>
+    <text x="120" y="304" font="11px system-ui" font-size="11" font-style="italic" fill="#1a202c" text-anchor="middle">Positive work.</text>
+    <text x="120" y="318" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Energy added to the object.</text>
+  </g>
+
+  <!-- ─────────── Case 2 — perpendicular ─────────── -->
+  <g>
+    <text x="360" y="68" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Case 2:  θ = 90°</text>
+    <text x="360" y="84" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Force perpendicular to motion</text>
+
+    <line x1="270" y1="180" x2="450" y2="180" stroke="#94a3b8" stroke-width="1.5" />
+    <rect x="290" y="140" width="40" height="40" fill="#bee3f8" stroke="#1a202c" stroke-width="1.2" opacity="0.45" />
+    <rect x="380" y="140" width="40" height="40" fill="#bee3f8" stroke="#1a202c" stroke-width="1.5" />
+    <text x="400" y="165" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">m</text>
+
+    <!-- Displacement d -->
+    <line x1="310" y1="200" x2="400" y2="200" stroke="#15803d" stroke-width="2.5" marker-end="url(#we1-arr-d)" />
+    <text x="355" y="218" font="12px system-ui" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">d</text>
+
+    <!-- Force F: vertical (e.g., normal force / carrying suitcase horizontally) -->
+    <line x1="400" y1="140" x2="400" y2="100" stroke="#2b6cb0" stroke-width="3" marker-end="url(#we1-arr-F)" />
+    <text x="408" y="106" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#2b6cb0">F</text>
+    <!-- Right-angle marker -->
+    <path d="M 400 138 L 408 138 L 408 130" fill="none" stroke="#1a202c" stroke-width="1" />
+
+    <rect x="260" y="240" width="200" height="86" rx="8" fill="#fef9c3" stroke="#a16207" stroke-width="1.4" />
+    <text x="360" y="262" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">cos 90° = 0</text>
+    <text x="360" y="284" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#a16207" text-anchor="middle">W = 0</text>
+    <text x="360" y="304" font="11px system-ui" font-size="11" font-style="italic" fill="#1a202c" text-anchor="middle">Zero work.</text>
+    <text x="360" y="318" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Force does no work along d.</text>
+  </g>
+
+  <!-- ─────────── Case 3 — anti-parallel ─────────── -->
+  <g>
+    <text x="600" y="68" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Case 3:  θ = 180°</text>
+    <text x="600" y="84" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Force opposes motion (e.g. friction)</text>
+
+    <line x1="510" y1="180" x2="690" y2="180" stroke="#94a3b8" stroke-width="1.5" />
+    <rect x="530" y="140" width="40" height="40" fill="#bee3f8" stroke="#1a202c" stroke-width="1.2" opacity="0.45" />
+    <rect x="620" y="140" width="40" height="40" fill="#bee3f8" stroke="#1a202c" stroke-width="1.5" />
+    <text x="640" y="165" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">m</text>
+
+    <!-- Displacement d (rightward) -->
+    <line x1="550" y1="200" x2="640" y2="200" stroke="#15803d" stroke-width="2.5" marker-end="url(#we1-arr-d)" />
+    <text x="595" y="218" font="12px system-ui" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">d</text>
+
+    <!-- Force F (leftward — opposes motion) -->
+    <line x1="640" y1="160" x2="580" y2="160" stroke="#dc2626" stroke-width="3" marker-end="url(#we1-arr-Fneg)" />
+    <text x="565" y="156" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#dc2626">F</text>
+
+    <rect x="500" y="240" width="200" height="86" rx="8" fill="#fee2e2" stroke="#dc2626" stroke-width="1.4" />
+    <text x="600" y="262" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">cos 180° = −1</text>
+    <text x="600" y="284" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#dc2626" text-anchor="middle">W = − F d</text>
+    <text x="600" y="304" font="11px system-ui" font-size="11" font-style="italic" fill="#1a202c" text-anchor="middle">Negative work.</text>
+    <text x="600" y="318" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Energy removed from object.</text>
+  </g>
+
+  <text x="360" y="350" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">SI unit:  1 joule (J) = 1 N · m  —  the work done by 1 newton of force over 1 metre of displacement.</text>
+</svg>

@@ -1,0 +1,13 @@
+schema_version: 1
+id: physics-gravitation-unified-orbital-energy-diagram
+kind: image
+subject: physics
+topic_phrase: "unified orbital energy diagram showing how the sign of total mechanical energy E equals KE plus PE selects elliptic parabolic or hyperbolic trajectories"
+keywords:
+  - gravitation
+  - orbital-energy
+  - bound-orbit
+  - escape-trajectory
+  - hyperbolic-orbit
+license: platform-cc-by-sa
+source_unit: G11-PHYS-006

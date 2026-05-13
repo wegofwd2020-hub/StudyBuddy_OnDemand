@@ -1,0 +1,21 @@
+{
+  "name": "kinetic-theory-video",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "studio": "bunx remotion studio",
+    "render:maxwell-boltzmann": "bunx remotion render kinetic-theory-maxwell-boltzmann ~/Downloads/KineticTheory_MaxwellBoltzmann.mp4",
+    "render:all": "bun run render:maxwell-boltzmann"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.260",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.260",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.0",
+    "typescript": "^5.4.0"
+  }
+}

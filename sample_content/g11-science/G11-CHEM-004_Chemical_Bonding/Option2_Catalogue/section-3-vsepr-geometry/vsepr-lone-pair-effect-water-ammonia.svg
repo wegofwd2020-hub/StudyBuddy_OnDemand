@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" width="720" height="360" role="img" aria-label="Lone pairs squeeze bond angles — methane 109.5°, ammonia 107°, water 104.5°">
+  <title>Lone-pair effect on bond angle — CH₄, NH₃, H₂O</title>
+  <desc>Three molecules with the same parent (tetrahedral) electron-pair geometry but different molecular shapes. Methane has 0 lone pairs and bond angle 109.5°. Ammonia has 1 lone pair and the H–N–H angle is squeezed to 107°. Water has 2 lone pairs and the H–O–H angle is 104.5°.</desc>
+
+  <text x="360" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Lone Pairs Squeeze Bond Angles — Same Parent, Different Shapes</text>
+  <text x="360" y="40" font-size="11" fill="#4a5568" text-anchor="middle">All three start from a tetrahedral electron-pair arrangement. Lone-pair → bond-pair repulsion is stronger than bond-pair → bond-pair, so each lone pair compresses the remaining angles.</text>
+
+  <!-- ── CH₄ ───────────────────────────────────────────────────────── -->
+  <g transform="translate(140, 200)">
+    <rect x="-100" y="-80" width="200" height="200" rx="10" fill="#f7fafc" stroke="#94a3b8" stroke-width="1.5" />
+    <text x="0" y="-58" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">CH₄ — methane</text>
+    <text x="0" y="-42" font-size="10" fill="#4a5568" text-anchor="middle">AX₄ · 0 lone pairs · tetrahedral</text>
+
+    <!-- Bonds at tetrahedral projection (≈109.5°) -->
+    <line x1="0" y1="0" x2="0"   y2="-30" stroke="#1a202c" stroke-width="2.5" />
+    <line x1="0" y1="0" x2="0"   y2="50"  stroke="#1a202c" stroke-width="2.5" />
+    <line x1="0" y1="0" x2="-50" y2="-10" stroke="#1a202c" stroke-width="2.5" />
+    <line x1="0" y1="0" x2="50"  y2="-10" stroke="#1a202c" stroke-width="2.5" />
+
+    <circle cx="0"  cy="-30" r="13" fill="#fef3c7" stroke="#92400e" stroke-width="1.5" />
+    <text x="0" y="-26" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <circle cx="0"  cy="50"  r="13" fill="#fef3c7" stroke="#92400e" stroke-width="1.5" />
+    <text x="0" y="54" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <circle cx="-50" cy="-10" r="13" fill="#fef3c7" stroke="#92400e" stroke-width="1.5" />
+    <text x="-50" y="-6" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <circle cx="50"  cy="-10" r="13" fill="#fef3c7" stroke="#92400e" stroke-width="1.5" />
+    <text x="50" y="-6" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+
+    <circle cx="0" cy="0" r="16" fill="#1a202c" stroke="#1a202c" stroke-width="1.5" />
+    <text x="0" y="4" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+
+    <text x="0" y="100" font-size="22" font-weight="700" fill="#dc2626" text-anchor="middle">109.5°</text>
+  </g>
+
+  <!-- ── NH₃ ───────────────────────────────────────────────────────── -->
+  <g transform="translate(360, 200)">
+    <rect x="-100" y="-80" width="200" height="200" rx="10" fill="#f7fafc" stroke="#94a3b8" stroke-width="1.5" />
+    <text x="0" y="-58" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">NH₃ — ammonia</text>
+    <text x="0" y="-42" font-size="10" fill="#4a5568" text-anchor="middle">AX₃E · 1 lone pair · trigonal pyramidal</text>
+
+    <!-- Lone pair (top — symbolic balloon) -->
+    <ellipse cx="0" cy="-26" rx="14" ry="20" fill="#a78bfa" opacity="0.45" stroke="#7c3aed" stroke-width="1.5" />
+    <circle cx="-4" cy="-26" r="2.2" fill="#1a202c" />
+    <circle cx="4"  cy="-26" r="2.2" fill="#1a202c" />
+    <text x="32" y="-23" font-size="10" font-weight="700" fill="#7c3aed">lone pair</text>
+
+    <!-- Three bonds slightly compressed (≈107°) -->
+    <line x1="0" y1="0" x2="0"   y2="48" stroke="#1a202c" stroke-width="2.5" />
+    <line x1="0" y1="0" x2="-46" y2="20" stroke="#1a202c" stroke-width="2.5" />
+    <line x1="0" y1="0" x2="46"  y2="20" stroke="#1a202c" stroke-width="2.5" />
+
+    <circle cx="0"  cy="48" r="13" fill="#fef3c7" stroke="#92400e" stroke-width="1.5" />
+    <text x="0" y="52" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <circle cx="-46" cy="20" r="13" fill="#fef3c7" stroke="#92400e" stroke-width="1.5" />
+    <text x="-46" y="24" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <circle cx="46"  cy="20" r="13" fill="#fef3c7" stroke="#92400e" stroke-width="1.5" />
+    <text x="46" y="24" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+
+    <circle cx="0" cy="0" r="16" fill="#2b6cb0" stroke="#1a202c" stroke-width="1.5" />
+    <text x="0" y="4" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">N</text>
+
+    <text x="0" y="100" font-size="22" font-weight="700" fill="#dc2626" text-anchor="middle">107°</text>
+  </g>
+
+  <!-- ── H₂O ───────────────────────────────────────────────────────── -->
+  <g transform="translate(580, 200)">
+    <rect x="-100" y="-80" width="200" height="200" rx="10" fill="#f7fafc" stroke="#94a3b8" stroke-width="1.5" />
+    <text x="0" y="-58" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">H₂O — water</text>
+    <text x="0" y="-42" font-size="10" fill="#4a5568" text-anchor="middle">AX₂E₂ · 2 lone pairs · bent</text>
+
+    <!-- Two lone pairs (top-left and top-right balloons) -->
+    <ellipse cx="-14" cy="-22" rx="11" ry="17" fill="#a78bfa" opacity="0.45" stroke="#7c3aed" stroke-width="1.5" transform="rotate(-30 -14 -22)" />
+    <ellipse cx="14"  cy="-22" rx="11" ry="17" fill="#a78bfa" opacity="0.45" stroke="#7c3aed" stroke-width="1.5" transform="rotate(30 14 -22)" />
+    <text x="0" y="-50" font-size="10" font-weight="700" fill="#7c3aed" text-anchor="middle">2 lone pairs</text>
+
+    <!-- Two bonds (≈104.5°) -->
+    <line x1="0" y1="0" x2="-44" y2="36" stroke="#1a202c" stroke-width="2.5" />
+    <line x1="0" y1="0" x2="44"  y2="36" stroke="#1a202c" stroke-width="2.5" />
+
+    <circle cx="-44" cy="36" r="13" fill="#fef3c7" stroke="#92400e" stroke-width="1.5" />
+    <text x="-44" y="40" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <circle cx="44"  cy="36" r="13" fill="#fef3c7" stroke="#92400e" stroke-width="1.5" />
+    <text x="44" y="40" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+
+    <circle cx="0" cy="0" r="16" fill="#dc2626" stroke="#1a202c" stroke-width="1.5" />
+    <text x="0" y="4" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">O</text>
+
+    <text x="0" y="100" font-size="22" font-weight="700" fill="#dc2626" text-anchor="middle">104.5°</text>
+  </g>
+
+  <!-- Repulsion ranking strip -->
+  <line x1="40" y1="320" x2="680" y2="320" stroke="#cbd5e1" stroke-width="1" />
+  <text x="360" y="340" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Repulsion order:  lone-pair ↔ lone-pair  &gt;  lone-pair ↔ bond-pair  &gt;  bond-pair ↔ bond-pair</text>
+</svg>

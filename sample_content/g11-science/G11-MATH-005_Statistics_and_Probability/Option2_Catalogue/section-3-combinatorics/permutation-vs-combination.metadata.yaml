@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-stats-permutation-vs-combination
+kind: image
+subject: math
+topic_phrase: "permutations versus combinations of three letters chosen two at a time"
+keywords:
+  - permutation
+  - combination
+  - factorial
+  - counting
+  - ordered-vs-unordered
+license: platform-cc-by-sa
+source_unit: G11-MATH-005

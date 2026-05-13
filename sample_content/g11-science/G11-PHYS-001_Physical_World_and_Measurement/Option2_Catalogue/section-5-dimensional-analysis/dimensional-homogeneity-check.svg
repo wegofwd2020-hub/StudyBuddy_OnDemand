@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" width="720" height="360" role="img" aria-label="Dimensional homogeneity check">
+  <title>Dimensional Homogeneity — checking equations</title>
+  <desc>Two-column comparison: a correct kinematic equation passes the dimensional check; an incorrect one fails. Each term shown with its dimensional formula.</desc>
+
+  <text x="360" y="24" font-family="system-ui" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Dimensional Homogeneity — every term in a physical equation must share the same dimensions</text>
+  <text x="360" y="44" font-family="system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">a fast first sanity-check: if the dimensions don't match, the equation is wrong before you plug numbers in</text>
+
+  <!-- Left card: correct equation -->
+  <rect x="20" y="62" width="340" height="270" rx="12" fill="#f0fdf4" stroke="#15803d" stroke-width="2" />
+  <text x="190" y="84" font-family="system-ui" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">Correct ✓</text>
+  <text x="190" y="110" font-family="system-ui" font-size="20" font-weight="700" fill="#1a202c" text-anchor="middle">x = vᵢ t + ½ a t²</text>
+
+  <line x1="36" y1="124" x2="344" y2="124" stroke="#bbf7d0" />
+
+  <text x="36" y="148" font-family="system-ui" font-size="12" fill="#1a202c">
+    <tspan font-weight="700">x</tspan>      →   [L]
+  </text>
+  <text x="36" y="172" font-family="system-ui" font-size="12" fill="#1a202c">
+    <tspan font-weight="700">vᵢ t</tspan>  →   [L T⁻¹] · [T]    =   [L]
+  </text>
+  <text x="36" y="196" font-family="system-ui" font-size="12" fill="#1a202c">
+    <tspan font-weight="700">½ a t²</tspan> →   [L T⁻²] · [T²]   =   [L]
+  </text>
+
+  <line x1="36" y1="212" x2="344" y2="212" stroke="#bbf7d0" />
+
+  <text x="36" y="234" font-family="system-ui" font-size="12" fill="#1a202c">
+    All three terms reduce to <tspan font-weight="700" fill="#15803d">[L]</tspan>.
+  </text>
+  <text x="36" y="252" font-family="system-ui" font-size="12" fill="#1a202c">
+    The equation is dimensionally consistent.
+  </text>
+  <text x="36" y="278" font-family="system-ui" font-size="11" font-style="italic" fill="#15803d">
+    Caveat: dimensional consistency is necessary
+  </text>
+  <text x="36" y="294" font-family="system-ui" font-size="11" font-style="italic" fill="#15803d">
+    but <tspan font-weight="700">not sufficient</tspan> — the ½ coefficient
+  </text>
+  <text x="36" y="310" font-family="system-ui" font-size="11" font-style="italic" fill="#15803d">
+    is dimensionless and could be any number.
+  </text>
+
+  <!-- Right card: incorrect equation -->
+  <rect x="380" y="62" width="320" height="270" rx="12" fill="#fef2f2" stroke="#dc2626" stroke-width="2" />
+  <text x="540" y="84" font-family="system-ui" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">Incorrect ✗</text>
+  <text x="540" y="110" font-family="system-ui" font-size="20" font-weight="700" fill="#1a202c" text-anchor="middle">v² = vᵢ² + 2 a t</text>
+
+  <line x1="396" y1="124" x2="684" y2="124" stroke="#fecaca" />
+
+  <text x="396" y="148" font-family="system-ui" font-size="12" fill="#1a202c">
+    <tspan font-weight="700">v²</tspan>     →  [L T⁻¹]²    =  [L² T⁻²]
+  </text>
+  <text x="396" y="172" font-family="system-ui" font-size="12" fill="#1a202c">
+    <tspan font-weight="700">vᵢ²</tspan>    →  [L² T⁻²]
+  </text>
+  <text x="396" y="196" font-family="system-ui" font-size="12" fill="#1a202c">
+    <tspan font-weight="700">2 a t</tspan>  →  [L T⁻²] · [T]  =  [L T⁻¹]
+  </text>
+
+  <line x1="396" y1="212" x2="684" y2="212" stroke="#fecaca" />
+
+  <text x="396" y="234" font-family="system-ui" font-size="12" fill="#1a202c">
+    Two terms are <tspan font-weight="700" fill="#15803d">[L² T⁻²]</tspan>,
+  </text>
+  <text x="396" y="252" font-family="system-ui" font-size="12" fill="#1a202c">
+    but the third is <tspan font-weight="700" fill="#dc2626">[L T⁻¹]</tspan>.
+  </text>
+
+  <text x="396" y="280" font-family="system-ui" font-size="12" font-weight="700" fill="#dc2626">
+    Adding [L² T⁻²] + [L T⁻¹] is meaningless.
+  </text>
+
+  <text x="396" y="304" font-family="system-ui" font-size="11" font-style="italic" fill="#dc2626">
+    Likely typo — the correct form is
+  </text>
+  <text x="396" y="320" font-family="system-ui" font-size="13" font-weight="700" fill="#15803d">
+    v² = vᵢ² + 2 a Δx     ([L² T⁻²] all through)
+  </text>
+</svg>

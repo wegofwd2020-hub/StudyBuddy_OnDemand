@@ -1,0 +1,14 @@
+# Auto-generated style sidecar — edit alongside the SVG.
+schema_version: 1
+id: physics-gravitation-two-mass-attraction
+kind: image
+subject: physics
+topic_phrase: "two masses attract each other with equal and opposite gravitational forces along the line joining their centres"
+keywords:
+  - gravitation
+  - newton-universal-gravitation
+  - F=Gm1m2/r2
+  - action-reaction
+  - inverse-square
+license: platform-cc-by-sa
+source_unit: G11-PHYS-006

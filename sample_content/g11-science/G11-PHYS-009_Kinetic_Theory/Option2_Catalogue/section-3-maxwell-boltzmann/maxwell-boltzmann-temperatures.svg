@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 360" width="620" height="360" role="img" aria-label="Maxwell-Boltzmann Speed Distribution at Three Temperatures">
+  <title>Maxwell-Boltzmann Speed Distribution at Three Temperatures</title>
+  <desc>Probability density of molecular speeds f(v) for nitrogen-like molecules at three temperatures: T1 = 200 K (narrow tall peak near 350 m/s), T2 = 600 K (broader peak near 600 m/s), T3 = 1200 K (broad low peak near 900 m/s). As temperature rises the peak shifts to higher speed, lowers, and the distribution develops a long high-speed tail. The total area under each curve is the same (=1, total probability).</desc>
+
+  <text x="310" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Maxwell-Boltzmann Distribution  f(v)  vs  v   at three temperatures</text>
+
+  <!-- Plot area -->
+  <rect x="70" y="60" width="490" height="220" fill="#f7fafc" stroke="#e2e8f0" />
+
+  <!-- Grid -->
+  <g stroke="#e2e8f0" stroke-width="0.6">
+    <line x1="70" y1="225" x2="560" y2="225" />
+    <line x1="70" y1="170" x2="560" y2="170" />
+    <line x1="70" y1="115" x2="560" y2="115" />
+    <line x1="192.5" y1="60" x2="192.5" y2="280" />
+    <line x1="315" y1="60" x2="315" y2="280" />
+    <line x1="437.5" y1="60" x2="437.5" y2="280" />
+  </g>
+
+  <!-- Axes -->
+  <line x1="70" y1="280" x2="560" y2="280" stroke="#1a202c" stroke-width="1.5" />
+  <line x1="70" y1="60" x2="70" y2="280" stroke="#1a202c" stroke-width="1.5" />
+
+  <!-- Axis labels -->
+  <text x="315" y="306" font-size="13" font-weight="600" fill="#1a202c" text-anchor="middle">Molecular speed  v  (m/s)</text>
+  <text x="32" y="170" font-size="13" font-weight="600" fill="#1a202c" text-anchor="middle" transform="rotate(-90 32 170)">f(v)  ·  fraction per (m/s)</text>
+
+  <!-- Tick labels -->
+  <text x="70" y="296" font-size="10" fill="#1a202c" text-anchor="middle">0</text>
+  <text x="192.5" y="296" font-size="10" fill="#1a202c" text-anchor="middle">500</text>
+  <text x="315" y="296" font-size="10" fill="#1a202c" text-anchor="middle">1000</text>
+  <text x="437.5" y="296" font-size="10" fill="#1a202c" text-anchor="middle">1500</text>
+  <text x="560" y="296" font-size="10" fill="#1a202c" text-anchor="middle">2000</text>
+
+  <!-- T1 = 200 K: cold, narrow tall blue curve -->
+  <path d="M 70,280 L 94.5,241 L 119,158 L 143.5,98 L 155.75,90 L 168,97 L 192.5,143 L 217,200 L 241.5,242 L 266,265 L 290.5,275 L 315,279 L 339.5,280 L 560,280"
+        fill="none" stroke="#1d4ed8" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" />
+  <!-- subtle fill -->
+  <path d="M 70,280 L 94.5,241 L 119,158 L 143.5,98 L 155.75,90 L 168,97 L 192.5,143 L 217,200 L 241.5,242 L 266,265 L 290.5,275 L 315,279 L 339.5,280 Z"
+        fill="#1d4ed8" opacity="0.10" />
+  <text x="160" y="80" font-size="12" font-weight="700" fill="#1d4ed8" text-anchor="middle">T₁ = 200 K</text>
+
+  <!-- T2 = 600 K: warm, medium curve -->
+  <path d="M 70,280 L 94.5,272 L 119,250 L 143.5,222 L 168,195 L 192.5,176 L 217,170 L 241.5,176 L 266,190 L 290.5,209 L 315,228 L 339.5,245 L 364,258 L 388.5,267 L 413,273 L 437.5,276 L 462,279 L 560,280"
+        fill="none" stroke="#dd6b20" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M 70,280 L 94.5,272 L 119,250 L 143.5,222 L 168,195 L 192.5,176 L 217,170 L 241.5,176 L 266,190 L 290.5,209 L 315,228 L 339.5,245 L 364,258 L 388.5,267 L 413,273 L 437.5,276 L 462,279 L 560,280 Z"
+        fill="#dd6b20" opacity="0.10" />
+  <text x="240" y="160" font-size="12" font-weight="700" fill="#dd6b20" text-anchor="middle">T₂ = 600 K</text>
+
+  <!-- T3 = 1200 K: hot, broad low curve -->
+  <path d="M 70,280 L 94.5,278 L 119,271 L 143.5,261 L 168,248 L 192.5,236 L 217,224 L 241.5,215 L 266,210 L 290.5,208 L 315,210 L 339.5,214 L 364,221 L 388.5,229 L 413,238 L 437.5,246 L 462,254 L 486.5,260 L 511,266 L 535.5,270 L 560,275"
+        fill="none" stroke="#dc2626" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M 70,280 L 94.5,278 L 119,271 L 143.5,261 L 168,248 L 192.5,236 L 217,224 L 241.5,215 L 266,210 L 290.5,208 L 315,210 L 339.5,214 L 364,221 L 388.5,229 L 413,238 L 437.5,246 L 462,254 L 486.5,260 L 511,266 L 535.5,270 L 560,275 L 560,280 L 70,280 Z"
+        fill="#dc2626" opacity="0.10" />
+  <text x="380" y="200" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">T₃ = 1200 K</text>
+
+  <!-- Peak markers (most-probable speeds) -->
+  <line x1="155.75" y1="90" x2="155.75" y2="280" stroke="#1d4ed8" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.55" />
+  <line x1="217" y1="170" x2="217" y2="280" stroke="#dd6b20" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.55" />
+  <line x1="290.5" y1="208" x2="290.5" y2="280" stroke="#dc2626" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.55" />
+
+  <!-- Trend arrow: peak shifts right and lowers as T grows -->
+  <path d="M 156 86 Q 220 70 290 200" fill="none" stroke="#15803d" stroke-width="1.6" stroke-dasharray="6 4" />
+  <polygon points="282,194 295,202 285,210" fill="#15803d" />
+  <text x="226" y="60" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle">peak shifts right and lowers as T ↑</text>
+
+  <!-- Bottom annotation panel -->
+  <rect x="70" y="318" width="490" height="32" rx="6" fill="#f7fafc" stroke="#cbd5e1" />
+  <text x="80" y="336" font-size="11" fill="#1a202c">All three areas equal 1.</text>
+  <text x="200" y="336" font-size="11" font-weight="700" fill="#dc2626">f(v) = 4π n (m/2π k_B T)^{3/2} · v² · exp(−mv²/2k_B T)</text>
+</svg>

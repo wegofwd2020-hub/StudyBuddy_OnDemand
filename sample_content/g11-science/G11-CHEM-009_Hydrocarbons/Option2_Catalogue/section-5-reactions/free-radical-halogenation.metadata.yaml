@@ -1,0 +1,17 @@
+# Auto-generated for sample-content seeding — edit with the SVG and re-run sidecar build.
+schema_version: 1
+id: chemistry-free-radical-halogenation
+kind: image
+subject: chemistry
+topic_phrase: "free radical halogenation methane chlorination uv mechanism"
+keywords:
+  - halogenation
+  - free-radical
+  - chain-mechanism
+  - initiation
+  - propagation
+  - termination
+  - chlorination
+  - methane
+license: platform-cc-by-sa
+source_unit: G11-CHEM-009

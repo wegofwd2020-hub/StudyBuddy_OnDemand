@@ -1,0 +1,14 @@
+schema_version: 1
+id: math-stats-bayes-tree-medical-test
+kind: image
+subject: math
+topic_phrase: "Bayesian probability tree for a rare-disease medical-test base-rate problem"
+keywords:
+  - bayes-theorem
+  - probability-tree
+  - conditional-probability
+  - base-rate
+  - sensitivity
+  - specificity
+license: platform-cc-by-sa
+source_unit: G11-MATH-005

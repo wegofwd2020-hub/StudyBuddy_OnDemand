@@ -1,0 +1,13 @@
+schema_version: 1
+id: chemistry-methane-four-representations
+kind: image
+subject: chemistry
+topic_phrase: "methane molecular Lewis structural three-dimensional representations"
+keywords:
+  - methane
+  - molecular-formula
+  - lewis-structure
+  - structural-formula
+  - wedge-dash-3d
+license: platform-cc-by-sa
+source_unit: G11-CHEM-008

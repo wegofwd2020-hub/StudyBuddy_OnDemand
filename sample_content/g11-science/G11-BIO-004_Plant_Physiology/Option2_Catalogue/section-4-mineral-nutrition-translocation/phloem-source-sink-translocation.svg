@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 480" width="760" height="480" role="img" aria-label="Phloem translocation source to sink pressure flow model">
+  <title>Phloem Translocation — Source to Sink (Pressure-Flow)</title>
+  <desc>The Munch pressure-flow model of how sugars move through phloem. A diagram of a whole plant: a leaf at the top is the source — photosynthesis loads sucrose into companion cells and then into sieve-tube elements. The high sugar concentration draws water in from the adjacent xylem by osmosis, generating high turgor pressure at the source end. At the bottom, a sink — for example a root, fruit, or storage tuber — unloads the sugar (often converting it to starch). Water leaves the sieve tube there, lowering the turgor pressure. The pressure gradient between source (high) and sink (low) drives bulk flow of sap from source to sink. Direction of flow is bidirectional in the plant overall — phloem moves sugar wherever the source-sink gradient calls for it (in spring, roots act as sources sending stored sugar up to growing buds).</desc>
+
+  <text x="380" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Phloem Translocation — Source to Sink</text>
+  <text x="380" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Pressure-flow model (Münch): high turgor at source pushes sap toward low turgor at sink</text>
+
+  <!-- ── SOURCE: leaf at top ── -->
+  <g transform="translate(180, 70)">
+    <ellipse cx="0" cy="0" rx="88" ry="38" fill="#15803d" stroke="#14532d" stroke-width="2"/>
+    <line x1="-86" y1="0" x2="86" y2="0" stroke="#14532d" stroke-width="2"/>
+    <line x1="-50" y1="-2" x2="-30" y2="-30" stroke="#14532d" stroke-width="1"/>
+    <line x1="-20" y1="-2" x2="0" y2="-32" stroke="#14532d" stroke-width="1"/>
+    <line x1="14" y1="-2" x2="34" y2="-32" stroke="#14532d" stroke-width="1"/>
+    <line x1="44" y1="-2" x2="60" y2="-26" stroke="#14532d" stroke-width="1"/>
+    <text x="0" y="6" font-size="11" font-weight="700" fill="#fef3c7" text-anchor="middle">SOURCE</text>
+    <text x="0" y="18" font-size="9" fill="#fef3c7" text-anchor="middle">leaf · photosynthesis</text>
+  </g>
+
+  <!-- Source label -->
+  <rect x="20" y="60" width="120" height="40" rx="6" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+  <text x="80" y="78" font-size="10" font-weight="700" fill="#14532d" text-anchor="middle">High [sucrose]</text>
+  <text x="80" y="92" font-size="10" font-weight="700" fill="#1e3a8a" text-anchor="middle">→ water in (osmosis)</text>
+
+  <!-- ── PHLOEM TUBE (vertical) ── -->
+  <!-- Outer tube -->
+  <rect x="350" y="120" width="60" height="290" rx="4" fill="#dcfce7" stroke="#15803d" stroke-width="2.5"/>
+
+  <!-- Sieve plates dividing into 5 sieve-tube elements -->
+  <line x1="350" y1="180" x2="410" y2="180" stroke="#15803d" stroke-width="3"/>
+  <line x1="350" y1="240" x2="410" y2="240" stroke="#15803d" stroke-width="3"/>
+  <line x1="350" y1="300" x2="410" y2="300" stroke="#15803d" stroke-width="3"/>
+  <line x1="350" y1="360" x2="410" y2="360" stroke="#15803d" stroke-width="3"/>
+
+  <!-- Sieve plate perforations indicators -->
+  <g stroke="#fff" stroke-width="2">
+    <line x1="362" y1="178" x2="362" y2="182"/>
+    <line x1="372" y1="178" x2="372" y2="182"/>
+    <line x1="382" y1="178" x2="382" y2="182"/>
+    <line x1="392" y1="178" x2="392" y2="182"/>
+
+    <line x1="362" y1="238" x2="362" y2="242"/>
+    <line x1="372" y1="238" x2="372" y2="242"/>
+    <line x1="382" y1="238" x2="382" y2="242"/>
+    <line x1="392" y1="238" x2="392" y2="242"/>
+
+    <line x1="362" y1="298" x2="362" y2="302"/>
+    <line x1="372" y1="298" x2="372" y2="302"/>
+    <line x1="382" y1="298" x2="382" y2="302"/>
+    <line x1="392" y1="298" x2="392" y2="302"/>
+
+    <line x1="362" y1="358" x2="362" y2="362"/>
+    <line x1="372" y1="358" x2="372" y2="362"/>
+    <line x1="382" y1="358" x2="382" y2="362"/>
+    <line x1="392" y1="358" x2="392" y2="362"/>
+  </g>
+
+  <!-- Companion cells (small rectangles flanking sieve tube) -->
+  <g>
+    <rect x="328" y="124" width="18" height="50" fill="#86efac" stroke="#15803d" stroke-width="1"/>
+    <ellipse cx="337" cy="148" rx="4" ry="6" fill="#14532d"/>
+    <rect x="328" y="184" width="18" height="50" fill="#86efac" stroke="#15803d" stroke-width="1"/>
+    <ellipse cx="337" cy="208" rx="4" ry="6" fill="#14532d"/>
+    <rect x="328" y="244" width="18" height="50" fill="#86efac" stroke="#15803d" stroke-width="1"/>
+    <ellipse cx="337" cy="268" rx="4" ry="6" fill="#14532d"/>
+    <rect x="328" y="304" width="18" height="50" fill="#86efac" stroke="#15803d" stroke-width="1"/>
+    <ellipse cx="337" cy="328" rx="4" ry="6" fill="#14532d"/>
+    <rect x="328" y="364" width="18" height="50" fill="#86efac" stroke="#15803d" stroke-width="1"/>
+    <ellipse cx="337" cy="388" rx="4" ry="6" fill="#14532d"/>
+  </g>
+  <text x="296" y="146" font-size="9" font-weight="700" fill="#14532d" text-anchor="end">companion</text>
+  <text x="296" y="158" font-size="9" fill="#14532d" text-anchor="end">cells</text>
+
+  <!-- Sucrose loading at source -->
+  <text x="218" y="138" font-size="11" font-weight="700" fill="#15803d">sucrose loading</text>
+  <line x1="220" y1="142" x2="328" y2="142" stroke="#15803d" stroke-width="1.5"/>
+  <polygon points="324,138 332,142 324,146" fill="#15803d"/>
+  <text x="218" y="152" font-size="9" font-style="italic" fill="#15803d">(active transport)</text>
+
+  <!-- Bulk flow arrow inside sieve tube -->
+  <line x1="380" y1="170" x2="380" y2="370" stroke="#dc2626" stroke-width="3.5"/>
+  <polygon points="374,366 380,378 386,366" fill="#dc2626"/>
+  <text x="424" y="270" font-size="11" font-weight="700" fill="#dc2626">bulk flow</text>
+  <text x="424" y="284" font-size="11" font-weight="700" fill="#dc2626">of sap</text>
+
+  <!-- Pressure gradient label on right -->
+  <rect x="500" y="120" width="160" height="40" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+  <text x="580" y="138" font-size="10" font-weight="700" fill="#78350f" text-anchor="middle">High turgor pressure</text>
+  <text x="580" y="152" font-size="10" font-weight="700" fill="#78350f" text-anchor="middle">at source</text>
+
+  <rect x="500" y="370" width="160" height="40" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="580" y="388" font-size="10" font-weight="700" fill="#7f1d1d" text-anchor="middle">Low turgor pressure</text>
+  <text x="580" y="402" font-size="10" font-weight="700" fill="#7f1d1d" text-anchor="middle">at sink</text>
+
+  <line x1="500" y1="160" x2="500" y2="370" stroke="#d97706" stroke-width="2"/>
+  <polygon points="496,366 500,378 504,366" fill="#d97706"/>
+  <text x="495" y="270" font-size="10" font-weight="700" fill="#d97706" text-anchor="end">pressure gradient</text>
+
+  <!-- Water exchange with xylem (left, parallel) -->
+  <rect x="240" y="120" width="60" height="290" rx="4" fill="#dbeafe" stroke="#2b6cb0" stroke-width="2"/>
+  <text x="270" y="270" font-size="10" font-weight="700" fill="#1e3a8a" text-anchor="middle">XYLEM</text>
+  <text x="270" y="284" font-size="9" fill="#1e3a8a" text-anchor="middle">(parallel)</text>
+
+  <!-- Water enters phloem at source (from xylem) -->
+  <line x1="304" y1="146" x2="324" y2="146" stroke="#2b6cb0" stroke-width="2"/>
+  <polygon points="320,142 328,146 320,150" fill="#2b6cb0"/>
+  <text x="296" y="170" font-size="9" font-weight="700" fill="#2b6cb0" text-anchor="end">H₂O follows sugar in</text>
+
+  <!-- Water leaves phloem at sink (back to xylem) -->
+  <line x1="324" y1="386" x2="304" y2="386" stroke="#2b6cb0" stroke-width="2"/>
+  <polygon points="308,382 300,386 308,390" fill="#2b6cb0"/>
+  <text x="296" y="412" font-size="9" font-weight="700" fill="#2b6cb0" text-anchor="end">H₂O leaves at sink</text>
+
+  <!-- ── SINK: root / fruit at bottom ── -->
+  <g transform="translate(180, 420)">
+    <ellipse cx="0" cy="0" rx="62" ry="22" fill="#7c2d12" stroke="#451a03" stroke-width="2"/>
+    <text x="0" y="2" font-size="11" font-weight="700" fill="#fef3c7" text-anchor="middle">SINK</text>
+    <text x="0" y="14" font-size="9" fill="#fef3c7" text-anchor="middle">root · fruit · tuber</text>
+  </g>
+  <line x1="200" y1="412" x2="220" y2="402" stroke="#15803d" stroke-width="3"/>
+
+  <!-- Sink label -->
+  <rect x="500" y="430" width="160" height="40" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+  <text x="580" y="448" font-size="10" font-weight="700" fill="#78350f" text-anchor="middle">Low [sucrose]</text>
+  <text x="580" y="462" font-size="10" font-weight="700" fill="#78350f" text-anchor="middle">(unloaded → starch)</text>
+
+  <!-- Sucrose unloading at sink -->
+  <line x1="328" y1="386" x2="220" y2="406" stroke="#a16207" stroke-width="1.5"/>
+  <polygon points="226,402 218,408 224,412" fill="#a16207"/>
+  <text x="218" y="386" font-size="11" font-weight="700" fill="#a16207" text-anchor="end">sucrose unloading</text>
+  <text x="218" y="398" font-size="9" font-style="italic" fill="#a16207" text-anchor="end">(stored as starch)</text>
+
+  <!-- Bottom note: bidirectionality -->
+  <rect x="40" y="455" width="120" height="22" rx="4" fill="#dcfce7" stroke="#15803d" stroke-width="1"/>
+  <text x="100" y="470" font-size="9" font-style="italic" fill="#14532d" text-anchor="middle">in spring: roots → buds</text>
+</svg>

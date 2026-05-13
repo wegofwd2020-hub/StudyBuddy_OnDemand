@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 460" width="760" height="460" role="img" aria-label="IUPAC naming worked example — 3-methylbutan-2-ol">
+  <title>IUPAC Naming — Worked Example: 3-methylbutan-2-ol</title>
+  <desc>Apply the five-step procedure to a real molecule. The structure has four carbons in the main chain, an –OH on C2 and a methyl branch on C3. Final IUPAC name: 3-methylbutan-2-ol.</desc>
+
+  <text x="380" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Worked Example — Naming an Alcohol with a Branch</text>
+  <text x="380" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Given the skeletal structure, apply the five steps and arrive at the IUPAC name.</text>
+
+  <!-- the structure -->
+  <g transform="translate(380, 130)">
+    <text x="0" y="-28" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Structure given:</text>
+
+    <!-- 4-carbon chain zigzag with -OH on C2 and methyl branch on C3 -->
+    <!-- C1 left, C2, C3, C4 right -->
+    <polyline points="-100,30 -50,0 0,30 50,0" fill="none" stroke="#1a202c" stroke-width="2.5" />
+
+    <!-- OH on C2 (vertex at -50,0) -->
+    <line x1="-50" y1="0" x2="-50" y2="-30" stroke="#dc2626" stroke-width="2.5" />
+    <text x="-50" y="-38" font-size="14" font-weight="700" fill="#dc2626" text-anchor="middle">OH</text>
+
+    <!-- methyl branch on C3 (vertex at 0,30) -->
+    <line x1="0" y1="30" x2="0" y2="60" stroke="#15803d" stroke-width="2.5" />
+    <text x="0" y="76" font-size="14" font-weight="700" fill="#15803d" text-anchor="middle">CH₃</text>
+
+    <!-- numbered carbons -->
+    <text x="-105" y="46" font-size="10" font-weight="700" fill="#1e40af" text-anchor="middle">C1</text>
+    <text x="-50" y="-12" font-size="10" font-weight="700" fill="#1e40af" text-anchor="middle">C2</text>
+    <text x="0" y="46" font-size="10" font-weight="700" fill="#1e40af" text-anchor="middle">C3</text>
+    <text x="55" y="-12" font-size="10" font-weight="700" fill="#1e40af" text-anchor="middle">C4</text>
+  </g>
+
+  <!-- ── 5-step breakdown ────────────────────────────────────────── -->
+  <g transform="translate(40, 230)">
+    <!-- step 1 -->
+    <rect x="0" y="0" width="680" height="36" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1" />
+    <circle cx="22" cy="18" r="13" fill="#1e40af" />
+    <text x="22" y="22" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">1</text>
+    <text x="50" y="22" font-size="11" fill="#1a202c">
+      Principal group = <tspan font-weight="700" fill="#dc2626">–OH</tspan> (alcohol). Suffix → <tspan font-weight="700">-ol</tspan>.
+    </text>
+
+    <!-- step 2 -->
+    <rect x="0" y="44" width="680" height="36" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1" />
+    <circle cx="22" cy="62" r="13" fill="#15803d" />
+    <text x="22" y="66" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">2</text>
+    <text x="50" y="66" font-size="11" fill="#1a202c">
+      Longest chain through the –OH: <tspan font-weight="700">4 carbons</tspan> → root <tspan font-weight="700">but-</tspan>. (Methyl branch is NOT part of the parent chain.)
+    </text>
+
+    <!-- step 3 -->
+    <rect x="0" y="88" width="680" height="36" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1" />
+    <circle cx="22" cy="106" r="13" fill="#92400e" />
+    <text x="22" y="110" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">3</text>
+    <text x="50" y="110" font-size="11" fill="#1a202c">
+      Number from the end nearest –OH → C2 (left to right gives 2; right to left gives 3). Lower wins → <tspan font-weight="700">–OH on C2</tspan>.
+    </text>
+
+    <!-- step 4 -->
+    <rect x="0" y="132" width="680" height="36" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1" />
+    <circle cx="22" cy="150" r="13" fill="#5b21b6" />
+    <text x="22" y="154" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">4</text>
+    <text x="50" y="154" font-size="11" fill="#1a202c">
+      Substituents: one methyl (–CH₃) on <tspan font-weight="700">C3</tspan> → <tspan font-weight="700">3-methyl-</tspan>.
+    </text>
+
+    <!-- step 5 -->
+    <rect x="0" y="176" width="680" height="44" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="1.5" />
+    <circle cx="22" cy="198" r="13" fill="#991b1b" />
+    <text x="22" y="202" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">5</text>
+    <text x="50" y="194" font-size="11" font-weight="700" fill="#1a202c">Assemble:</text>
+    <text x="50" y="212" font-size="14" font-weight="700" fill="#7f1d1d">3-methyl + but + an + 2-ol  →  3-methylbutan-2-ol</text>
+  </g>
+</svg>

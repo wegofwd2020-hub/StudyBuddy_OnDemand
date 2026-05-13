@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" width="720" height="420" role="img" aria-label="Free-radical halogenation of methane — three-step mechanism">
+  <title>Free-Radical Halogenation — CH₄ + Cl₂ → CH₃Cl + HCl</title>
+  <desc>Three-step radical chain mechanism for the chlorination of methane under UV light. Initiation: UV light cleaves Cl-Cl bond homolytically to give two Cl radicals. Propagation step 1: Cl radical abstracts an H from methane to give HCl plus methyl radical. Propagation step 2: methyl radical reacts with another Cl2 to give chloromethane plus a fresh Cl radical (chain continues). Termination: any two radicals combine.</desc>
+
+  <text x="360" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Free-Radical Substitution — Chlorination of Methane (UV)</text>
+  <text x="360" y="40" font-size="11" fill="#4a5568" text-anchor="middle">A chain mechanism — one initiation event lets propagation cycle repeatedly</text>
+
+  <defs>
+    <marker id="halo-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1a202c" />
+    </marker>
+  </defs>
+
+  <!-- INITIATION -->
+  <rect x="20" y="60" width="680" height="80" rx="8" fill="#fde68a" stroke="#92400e" stroke-width="1.5"/>
+  <text x="58" y="84" font-size="12" font-weight="700" fill="#92400e" text-anchor="middle">Step 1</text>
+  <text x="58" y="100" font-size="11" fill="#92400e" text-anchor="middle">Initiation</text>
+
+  <text x="180" y="100" font-size="13" font-weight="700" fill="#1a202c">Cl–Cl</text>
+  <text x="240" y="80" font-size="9" fill="#7e22ce">UV (hν)</text>
+  <line x1="240" y1="98" x2="290" y2="98" stroke="#1a202c" stroke-width="2" marker-end="url(#halo-arr)"/>
+  <text x="320" y="100" font-size="13" font-weight="700" fill="#dc2626">2 Cl•</text>
+  <text x="450" y="100" font-size="11" font-style="italic" fill="#475569">UV light splits Cl₂ homolytically — one e⁻ each</text>
+  <text x="180" y="124" font-size="10" fill="#475569">σ-bond breaks symmetrically · each Cl gets one electron</text>
+
+  <!-- PROPAGATION 1 -->
+  <rect x="20" y="148" width="680" height="80" rx="8" fill="#dbeafe" stroke="#1e3a8a" stroke-width="1.5"/>
+  <text x="58" y="172" font-size="12" font-weight="700" fill="#1e3a8a" text-anchor="middle">Step 2a</text>
+  <text x="58" y="188" font-size="11" fill="#1e3a8a" text-anchor="middle">Propagation</text>
+
+  <text x="180" y="188" font-size="13" font-weight="700" fill="#dc2626">Cl•</text>
+  <text x="208" y="188" font-size="13" font-weight="700" fill="#1a202c">+ CH₄</text>
+  <line x1="270" y1="186" x2="320" y2="186" stroke="#1a202c" stroke-width="2" marker-end="url(#halo-arr)"/>
+  <text x="354" y="188" font-size="13" font-weight="700" fill="#1a202c">HCl  +</text>
+  <text x="424" y="188" font-size="13" font-weight="700" fill="#dc2626">•CH₃</text>
+  <text x="510" y="188" font-size="11" font-style="italic" fill="#475569">Cl• abstracts H — methyl radical formed</text>
+  <text x="180" y="212" font-size="10" fill="#475569">strong H–Cl bond forms (431 kJ/mol) · drives the step</text>
+
+  <!-- PROPAGATION 2 -->
+  <rect x="20" y="236" width="680" height="80" rx="8" fill="#dbeafe" stroke="#1e3a8a" stroke-width="1.5"/>
+  <text x="58" y="260" font-size="12" font-weight="700" fill="#1e3a8a" text-anchor="middle">Step 2b</text>
+  <text x="58" y="276" font-size="11" fill="#1e3a8a" text-anchor="middle">Propagation</text>
+
+  <text x="180" y="276" font-size="13" font-weight="700" fill="#dc2626">•CH₃</text>
+  <text x="220" y="276" font-size="13" font-weight="700" fill="#1a202c">+ Cl–Cl</text>
+  <line x1="290" y1="274" x2="340" y2="274" stroke="#1a202c" stroke-width="2" marker-end="url(#halo-arr)"/>
+  <text x="376" y="276" font-size="13" font-weight="700" fill="#1a202c">CH₃Cl  +</text>
+  <text x="466" y="276" font-size="13" font-weight="700" fill="#dc2626">Cl•</text>
+  <text x="552" y="276" font-size="11" font-style="italic" fill="#475569">a fresh Cl• → chain continues!</text>
+  <text x="180" y="300" font-size="10" fill="#475569">methyl radical attacks Cl₂ · regenerates a Cl radical · chain propagation</text>
+
+  <!-- TERMINATION -->
+  <rect x="20" y="324" width="680" height="56" rx="8" fill="#bbf7d0" stroke="#15803d" stroke-width="1.5"/>
+  <text x="58" y="348" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">Step 3</text>
+  <text x="58" y="364" font-size="11" fill="#15803d" text-anchor="middle">Termination</text>
+
+  <text x="180" y="356" font-size="12" font-weight="700" fill="#1a202c">Cl• + Cl• → Cl₂</text>
+  <text x="320" y="356" font-size="12" font-weight="700" fill="#1a202c">·  •CH₃ + Cl• → CH₃Cl</text>
+  <text x="500" y="356" font-size="12" font-weight="700" fill="#1a202c">·  •CH₃ + •CH₃ → C₂H₆</text>
+  <text x="360" y="372" font-size="10" font-style="italic" fill="#475569" text-anchor="middle">any two radicals combine — ends the chain</text>
+
+  <!-- Footer -->
+  <text x="360" y="402" font-size="11" font-weight="700" fill="#0f172a" text-anchor="middle">Net: CH₄ + Cl₂ → CH₃Cl + HCl   (further substitution gives CH₂Cl₂, CHCl₃, CCl₄)</text>
+</svg>

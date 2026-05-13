@@ -1,0 +1,165 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 500" width="760" height="500" role="img" aria-label="Ascent of sap — transpiration pull cohesion-tension theory">
+  <title>Ascent of Sap — Transpiration Pull</title>
+  <desc>The cohesion-tension model of how water rises from the soil all the way to the top of a tree. The figure shows a whole plant: roots in soil, stem with a vertical column of xylem vessels, and a leaf with stomata. At the leaf, water evaporates from mesophyll cell surfaces and exits through stomata as water vapour — the transpiration pull. Because water molecules cohere via hydrogen bonds, the loss at the top creates negative pressure (tension) that pulls the entire continuous water column upward like a rope. The column does not break thanks to cohesion (water-water bonds) and adhesion (water-xylem-wall bonds). At the root end, water enters the root hairs by osmosis from soil, generating root pressure that contributes a small push from below.</desc>
+
+  <text x="380" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Ascent of Sap — Transpiration Pull</text>
+  <text x="380" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Water leaves the leaf → tension pulls the whole column up → soil water enters at the root</text>
+
+  <!-- ── Soil ── -->
+  <rect x="40" y="400" width="680" height="80" fill="#a16207" stroke="#78350f" stroke-width="1.5"/>
+  <rect x="40" y="396" width="680" height="6" fill="#78350f"/>
+  <!-- Soil grain texture -->
+  <g fill="#78350f">
+    <circle cx="100" cy="430" r="3"/>
+    <circle cx="160" cy="445" r="2.5"/>
+    <circle cx="220" cy="425" r="3"/>
+    <circle cx="280" cy="450" r="2.5"/>
+    <circle cx="340" cy="430" r="3"/>
+    <circle cx="400" cy="445" r="2"/>
+    <circle cx="460" cy="425" r="3"/>
+    <circle cx="520" cy="450" r="2.5"/>
+    <circle cx="580" cy="430" r="3"/>
+    <circle cx="640" cy="445" r="2.5"/>
+  </g>
+  <text x="60" y="470" font-size="11" font-weight="700" fill="#fef3c7">SOIL</text>
+
+  <!-- Water droplets in soil -->
+  <g fill="#2b6cb0">
+    <ellipse cx="120" cy="445" rx="4" ry="3"/>
+    <ellipse cx="240" cy="438" rx="4" ry="3"/>
+    <ellipse cx="380" cy="448" rx="4" ry="3"/>
+    <ellipse cx="500" cy="438" rx="4" ry="3"/>
+    <ellipse cx="620" cy="446" rx="4" ry="3"/>
+  </g>
+  <text x="600" y="470" font-size="9" fill="#dbeafe">soil water</text>
+
+  <!-- ── Stem with xylem column ── -->
+  <rect x="320" y="120" width="60" height="280" fill="#86efac" stroke="#15803d" stroke-width="2"/>
+  <!-- Bark texture -->
+  <line x1="328" y1="160" x2="332" y2="380" stroke="#15803d" stroke-width="0.6"/>
+  <line x1="368" y1="160" x2="372" y2="380" stroke="#15803d" stroke-width="0.6"/>
+
+  <!-- Xylem vessel (single vertical column inside stem) -->
+  <rect x="338" y="120" width="24" height="280" fill="#dbeafe" stroke="#2b6cb0" stroke-width="2"/>
+
+  <!-- Stack of water molecule symbols inside xylem -->
+  <g>
+    <ellipse cx="350" cy="140" rx="8" ry="7" fill="#2b6cb0"/>
+    <ellipse cx="350" cy="170" rx="8" ry="7" fill="#2b6cb0"/>
+    <ellipse cx="350" cy="200" rx="8" ry="7" fill="#2b6cb0"/>
+    <ellipse cx="350" cy="230" rx="8" ry="7" fill="#2b6cb0"/>
+    <ellipse cx="350" cy="260" rx="8" ry="7" fill="#2b6cb0"/>
+    <ellipse cx="350" cy="290" rx="8" ry="7" fill="#2b6cb0"/>
+    <ellipse cx="350" cy="320" rx="8" ry="7" fill="#2b6cb0"/>
+    <ellipse cx="350" cy="350" rx="8" ry="7" fill="#2b6cb0"/>
+    <ellipse cx="350" cy="380" rx="8" ry="7" fill="#2b6cb0"/>
+  </g>
+
+  <!-- Hydrogen-bond connections between water molecules (cohesion) -->
+  <g stroke="#1e3a8a" stroke-width="1" stroke-dasharray="2 2">
+    <line x1="350" y1="147" x2="350" y2="163"/>
+    <line x1="350" y1="177" x2="350" y2="193"/>
+    <line x1="350" y1="207" x2="350" y2="223"/>
+    <line x1="350" y1="237" x2="350" y2="253"/>
+    <line x1="350" y1="267" x2="350" y2="283"/>
+    <line x1="350" y1="297" x2="350" y2="313"/>
+    <line x1="350" y1="327" x2="350" y2="343"/>
+    <line x1="350" y1="357" x2="350" y2="373"/>
+  </g>
+
+  <!-- Big upward arrow -->
+  <line x1="406" y1="380" x2="406" y2="140" stroke="#dc2626" stroke-width="3"/>
+  <polygon points="400,144 406,128 412,144" fill="#dc2626"/>
+  <text x="430" y="260" font-size="11" font-weight="700" fill="#dc2626">water column</text>
+  <text x="430" y="274" font-size="11" font-weight="700" fill="#dc2626">pulled upward</text>
+
+  <!-- Cohesion + adhesion labels -->
+  <text x="290" y="252" font-size="10" font-weight="700" fill="#1e3a8a" text-anchor="end">cohesion</text>
+  <text x="290" y="266" font-size="9" fill="#1e3a8a" text-anchor="end">(H-bonds)</text>
+  <line x1="295" y1="258" x2="338" y2="262" stroke="#1e3a8a" stroke-width="1.2"/>
+
+  <text x="290" y="300" font-size="10" font-weight="700" fill="#15803d" text-anchor="end">adhesion</text>
+  <text x="290" y="314" font-size="9" fill="#15803d" text-anchor="end">to xylem walls</text>
+  <line x1="295" y1="306" x2="340" y2="306" stroke="#15803d" stroke-width="1.2"/>
+
+  <!-- Xylem label -->
+  <text x="380" y="408" font-size="10" font-weight="700" fill="#2b6cb0" text-anchor="middle">XYLEM</text>
+
+  <!-- ── Leaf at the top ── -->
+  <g transform="translate(550, 130)">
+    <ellipse cx="0" cy="0" rx="80" ry="40" fill="#15803d" stroke="#14532d" stroke-width="2"/>
+    <!-- Mid-vein -->
+    <line x1="-78" y1="0" x2="78" y2="0" stroke="#14532d" stroke-width="2"/>
+    <!-- Side veins -->
+    <line x1="-50" y1="-2" x2="-30" y2="-30" stroke="#14532d" stroke-width="1"/>
+    <line x1="-20" y1="-2" x2="0" y2="-32" stroke="#14532d" stroke-width="1"/>
+    <line x1="14" y1="-2" x2="34" y2="-32" stroke="#14532d" stroke-width="1"/>
+    <line x1="44" y1="-2" x2="60" y2="-26" stroke="#14532d" stroke-width="1"/>
+    <line x1="-50" y1="2" x2="-30" y2="30" stroke="#14532d" stroke-width="1"/>
+    <line x1="-20" y1="2" x2="0" y2="32" stroke="#14532d" stroke-width="1"/>
+    <line x1="14" y1="2" x2="34" y2="32" stroke="#14532d" stroke-width="1"/>
+    <line x1="44" y1="2" x2="60" y2="26" stroke="#14532d" stroke-width="1"/>
+
+    <!-- Stomata on underside -->
+    <ellipse cx="-40" cy="32" rx="4" ry="2" fill="#1a202c"/>
+    <ellipse cx="-10" cy="34" rx="4" ry="2" fill="#1a202c"/>
+    <ellipse cx="20" cy="34" rx="4" ry="2" fill="#1a202c"/>
+    <ellipse cx="50" cy="32" rx="4" ry="2" fill="#1a202c"/>
+
+    <!-- Water vapour escaping arrows -->
+    <text x="-40" y="56" font-size="11" font-weight="700" fill="#2b6cb0" text-anchor="middle">↓</text>
+    <text x="-10" y="58" font-size="11" font-weight="700" fill="#2b6cb0" text-anchor="middle">↓</text>
+    <text x="20" y="58" font-size="11" font-weight="700" fill="#2b6cb0" text-anchor="middle">↓</text>
+    <text x="50" y="56" font-size="11" font-weight="700" fill="#2b6cb0" text-anchor="middle">↓</text>
+    <text x="0" y="76" font-size="10" font-weight="700" fill="#2b6cb0" text-anchor="middle">water vapour out</text>
+  </g>
+
+  <!-- Petiole connecting leaf to xylem -->
+  <line x1="380" y1="135" x2="470" y2="130" stroke="#15803d" stroke-width="6"/>
+
+  <!-- Transpiration callout -->
+  <rect x="460" y="60" width="180" height="48" rx="8" fill="#dbeafe" stroke="#2b6cb0" stroke-width="2"/>
+  <text x="550" y="78" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">Transpiration pull</text>
+  <text x="550" y="92" font-size="9" fill="#1e3a8a" text-anchor="middle">water loss at leaves creates</text>
+  <text x="550" y="104" font-size="9" fill="#1e3a8a" text-anchor="middle">tension in the xylem column</text>
+
+  <!-- ── Roots ── -->
+  <g transform="translate(350, 400)">
+    <!-- Main tap root -->
+    <line x1="0" y1="0" x2="0" y2="40" stroke="#a16207" stroke-width="6"/>
+    <!-- Lateral roots -->
+    <path d="M 0 8 Q -30 14 -60 26 Q -80 36 -90 50" fill="none" stroke="#a16207" stroke-width="3"/>
+    <path d="M 0 16 Q 30 20 60 30 Q 80 38 100 50" fill="none" stroke="#a16207" stroke-width="3"/>
+    <path d="M 0 28 Q -20 38 -40 60" fill="none" stroke="#a16207" stroke-width="2.5"/>
+    <path d="M 0 28 Q 20 38 40 60" fill="none" stroke="#a16207" stroke-width="2.5"/>
+    <!-- Root hairs (fine fuzz) -->
+    <g stroke="#a16207" stroke-width="0.6">
+      <line x1="-40" y1="60" x2="-50" y2="68"/>
+      <line x1="-44" y1="60" x2="-54" y2="64"/>
+      <line x1="-36" y1="60" x2="-46" y2="72"/>
+      <line x1="40" y1="60" x2="50" y2="68"/>
+      <line x1="44" y1="60" x2="54" y2="64"/>
+      <line x1="36" y1="60" x2="46" y2="72"/>
+      <line x1="-90" y1="50" x2="-100" y2="58"/>
+      <line x1="-86" y1="50" x2="-96" y2="62"/>
+      <line x1="100" y1="50" x2="110" y2="58"/>
+      <line x1="96" y1="50" x2="106" y2="62"/>
+    </g>
+  </g>
+
+  <!-- Water-uptake arrows at roots -->
+  <text x="180" y="448" font-size="14" font-weight="700" fill="#2b6cb0">→</text>
+  <text x="540" y="448" font-size="14" font-weight="700" fill="#2b6cb0">←</text>
+  <text x="200" y="448" font-size="11" font-weight="700" fill="#1e3a8a">H₂O in</text>
+  <text x="494" y="448" font-size="11" font-weight="700" fill="#1e3a8a">H₂O in</text>
+
+  <!-- Root pressure callout -->
+  <rect x="100" y="60" width="180" height="48" rx="8" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="190" y="78" font-size="11" font-weight="700" fill="#14532d" text-anchor="middle">Root pressure (small)</text>
+  <text x="190" y="92" font-size="9" fill="#14532d" text-anchor="middle">osmotic push from soil →</text>
+  <text x="190" y="104" font-size="9" fill="#14532d" text-anchor="middle">root cortex → xylem</text>
+  <line x1="190" y1="108" x2="350" y2="395" stroke="#15803d" stroke-width="1.2" stroke-dasharray="3 3"/>
+
+  <!-- Bottom equation strip -->
+  <text x="380" y="495" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">Cohesion (H-bonds) + Adhesion (to walls) + Tension (transpiration) = water rises 100+ m up a tall tree.</text>
+</svg>

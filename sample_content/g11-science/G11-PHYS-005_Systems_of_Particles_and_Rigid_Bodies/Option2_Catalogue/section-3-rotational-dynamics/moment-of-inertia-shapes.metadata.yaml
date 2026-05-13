@@ -1,0 +1,16 @@
+# Auto-generated style sidecar — paired with moment-of-inertia-shapes.svg
+schema_version: 1
+id: physics-systems-of-particles-moment-of-inertia-shapes
+kind: image
+subject: physics
+topic_phrase: "moment of inertia formulas for common rigid shapes — rod, disk, hoop, sphere, shell"
+keywords:
+  - moment-of-inertia
+  - rigid-body
+  - rod
+  - disk
+  - hoop
+  - sphere
+  - reference-card
+license: platform-cc-by-sa
+source_unit: G11-PHYS-005

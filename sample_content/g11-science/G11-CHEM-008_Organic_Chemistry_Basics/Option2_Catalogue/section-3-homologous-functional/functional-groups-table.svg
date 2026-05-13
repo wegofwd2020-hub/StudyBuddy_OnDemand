@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 660" width="880" height="660" role="img" aria-label="Eleven common organic functional groups — name, structure, suffix and example">
+  <title>Common Functional Groups — Reference Table</title>
+  <desc>Eleven functional groups grouped by family. Each row shows the family name, its structural fragment (R = rest of molecule), the IUPAC suffix or prefix, and a familiar example. Memorising this table unlocks half of organic chemistry.</desc>
+
+  <text x="440" y="22" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Functional Groups — The 11 You Must Know</text>
+  <text x="440" y="42" font-size="11" fill="#4a5568" text-anchor="middle">A "functional group" is the reactive bit; the rest of the molecule (R) just sits there. Same group → same reactions.</text>
+
+  <!-- table grid -->
+  <rect x="20" y="60" width="840" height="556" fill="#fff" stroke="#cbd5e1" stroke-width="1.5" />
+
+  <!-- header row -->
+  <rect x="20" y="60" width="840" height="40" fill="#1e293b" />
+  <text x="80"  y="86" font-size="12" font-weight="700" fill="#f8fafc" text-anchor="middle">Family</text>
+  <text x="280" y="86" font-size="12" font-weight="700" fill="#f8fafc" text-anchor="middle">Structure (R = rest)</text>
+  <text x="510" y="86" font-size="12" font-weight="700" fill="#f8fafc" text-anchor="middle">Suffix / prefix</text>
+  <text x="740" y="86" font-size="12" font-weight="700" fill="#f8fafc" text-anchor="middle">Familiar example</text>
+
+  <!-- column dividers -->
+  <line x1="160" y1="60"  x2="160" y2="616" stroke="#cbd5e1" stroke-width="1" />
+  <line x1="400" y1="60"  x2="400" y2="616" stroke="#cbd5e1" stroke-width="1" />
+  <line x1="620" y1="60"  x2="620" y2="616" stroke="#cbd5e1" stroke-width="1" />
+
+  <!-- ROW 1: alkane -->
+  <line x1="20" y1="100" x2="860" y2="100" stroke="#e2e8f0" stroke-width="1" />
+  <text x="90" y="124" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Alkane</text>
+  <text x="280" y="125" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">R–H · C–C single bonds</text>
+  <text x="510" y="125" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">-ane</text>
+  <text x="740" y="125" font-size="12" fill="#1a202c" text-anchor="middle">methane CH₄</text>
+
+  <!-- ROW 2: alkene -->
+  <line x1="20" y1="148" x2="860" y2="148" stroke="#e2e8f0" stroke-width="1" />
+  <text x="90" y="172" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Alkene</text>
+  <!-- C=C drawing -->
+  <line x1="240" y1="170" x2="270" y2="170" stroke="#1a202c" stroke-width="2" />
+  <line x1="240" y1="178" x2="270" y2="178" stroke="#1a202c" stroke-width="2" />
+  <text x="232" y="174" font-size="13" font-weight="700" fill="#1a202c" text-anchor="end">C</text>
+  <text x="280" y="174" font-size="13" font-weight="700" fill="#1a202c" text-anchor="start">C</text>
+  <text x="350" y="174" font-size="11" fill="#4a5568" text-anchor="middle">(double bond)</text>
+  <text x="510" y="172" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">-ene</text>
+  <text x="740" y="172" font-size="12" fill="#1a202c" text-anchor="middle">ethene C₂H₄ (ripening)</text>
+
+  <!-- ROW 3: alkyne -->
+  <line x1="20" y1="196" x2="860" y2="196" stroke="#e2e8f0" stroke-width="1" />
+  <text x="90" y="220" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Alkyne</text>
+  <line x1="240" y1="216" x2="270" y2="216" stroke="#1a202c" stroke-width="2" />
+  <line x1="240" y1="222" x2="270" y2="222" stroke="#1a202c" stroke-width="2" />
+  <line x1="240" y1="228" x2="270" y2="228" stroke="#1a202c" stroke-width="2" />
+  <text x="232" y="224" font-size="13" font-weight="700" fill="#1a202c" text-anchor="end">C</text>
+  <text x="280" y="224" font-size="13" font-weight="700" fill="#1a202c" text-anchor="start">C</text>
+  <text x="350" y="224" font-size="11" fill="#4a5568" text-anchor="middle">(triple bond)</text>
+  <text x="510" y="220" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">-yne</text>
+  <text x="740" y="220" font-size="12" fill="#1a202c" text-anchor="middle">ethyne C₂H₂ (welding)</text>
+
+  <!-- ROW 4: alcohol -->
+  <line x1="20" y1="244" x2="860" y2="244" stroke="#e2e8f0" stroke-width="1" />
+  <text x="90" y="268" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Alcohol</text>
+  <text x="280" y="270" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">R–O–H</text>
+  <text x="510" y="268" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">-ol</text>
+  <text x="740" y="268" font-size="12" fill="#1a202c" text-anchor="middle">ethanol CH₃CH₂OH</text>
+
+  <!-- ROW 5: ether -->
+  <line x1="20" y1="292" x2="860" y2="292" stroke="#e2e8f0" stroke-width="1" />
+  <text x="90" y="316" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Ether</text>
+  <text x="280" y="318" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">R–O–R'</text>
+  <text x="510" y="316" font-size="12" font-weight="700" fill="#1e40af" text-anchor="middle">alkoxy- (prefix)</text>
+  <text x="740" y="316" font-size="12" fill="#1a202c" text-anchor="middle">methoxymethane CH₃OCH₃</text>
+
+  <!-- ROW 6: aldehyde -->
+  <line x1="20" y1="340" x2="860" y2="340" stroke="#e2e8f0" stroke-width="1" />
+  <text x="90" y="364" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Aldehyde</text>
+  <!-- R-CHO drawing -->
+  <text x="240" y="368" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">R–C</text>
+  <text x="282" y="358" font-size="11" fill="#1a202c" text-anchor="middle">‖O</text>
+  <text x="282" y="378" font-size="13" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+  <text x="350" y="368" font-size="11" fill="#4a5568" text-anchor="middle">(C=O at end)</text>
+  <text x="510" y="364" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">-al</text>
+  <text x="740" y="364" font-size="12" fill="#1a202c" text-anchor="middle">methanal HCHO (formaldehyde)</text>
+
+  <!-- ROW 7: ketone -->
+  <line x1="20" y1="388" x2="860" y2="388" stroke="#e2e8f0" stroke-width="1" />
+  <text x="90" y="412" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Ketone</text>
+  <text x="240" y="416" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">R–C</text>
+  <text x="282" y="406" font-size="11" fill="#1a202c" text-anchor="middle">‖O</text>
+  <text x="282" y="426" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">R'</text>
+  <text x="350" y="416" font-size="11" fill="#4a5568" text-anchor="middle">(C=O middle)</text>
+  <text x="510" y="412" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">-one</text>
+  <text x="740" y="412" font-size="12" fill="#1a202c" text-anchor="middle">propan-2-one (acetone)</text>
+
+  <!-- ROW 8: carboxylic acid -->
+  <line x1="20" y1="436" x2="860" y2="436" stroke="#e2e8f0" stroke-width="1" />
+  <text x="90" y="460" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Carboxylic acid</text>
+  <text x="240" y="464" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">R–C</text>
+  <text x="282" y="454" font-size="11" fill="#dc2626" text-anchor="middle">‖O</text>
+  <text x="288" y="476" font-size="11" fill="#dc2626" text-anchor="middle">–O–H</text>
+  <text x="510" y="460" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">-oic acid</text>
+  <text x="740" y="460" font-size="12" fill="#1a202c" text-anchor="middle">ethanoic acid (vinegar)</text>
+
+  <!-- ROW 9: ester -->
+  <line x1="20" y1="484" x2="860" y2="484" stroke="#e2e8f0" stroke-width="1" />
+  <text x="90" y="508" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Ester</text>
+  <text x="240" y="512" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">R–C</text>
+  <text x="282" y="502" font-size="11" fill="#1a202c" text-anchor="middle">‖O</text>
+  <text x="290" y="524" font-size="11" fill="#1a202c" text-anchor="middle">–O–R'</text>
+  <text x="510" y="508" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">-oate</text>
+  <text x="740" y="508" font-size="12" fill="#1a202c" text-anchor="middle">ethyl ethanoate (fruit smell)</text>
+
+  <!-- ROW 10: amine -->
+  <line x1="20" y1="532" x2="860" y2="532" stroke="#e2e8f0" stroke-width="1" />
+  <text x="90" y="556" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Amine</text>
+  <text x="280" y="558" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">R–NH₂</text>
+  <text x="510" y="556" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">-amine</text>
+  <text x="740" y="556" font-size="12" fill="#1a202c" text-anchor="middle">methylamine CH₃NH₂</text>
+
+  <!-- ROW 11: halide -->
+  <line x1="20" y1="580" x2="860" y2="580" stroke="#e2e8f0" stroke-width="1" />
+  <text x="90" y="604" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Halide (alkyl)</text>
+  <text x="280" y="606" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">R–X · X = F, Cl, Br, I</text>
+  <text x="510" y="604" font-size="12" font-weight="700" fill="#1e40af" text-anchor="middle">halo- (prefix)</text>
+  <text x="740" y="604" font-size="12" fill="#1a202c" text-anchor="middle">chloromethane CH₃Cl</text>
+
+  <!-- legend -->
+  <text x="440" y="650" font-size="10" fill="#4a5568" text-anchor="middle">Same functional group → same reactions, regardless of how big R is. That's the whole point of the families.</text>
+</svg>

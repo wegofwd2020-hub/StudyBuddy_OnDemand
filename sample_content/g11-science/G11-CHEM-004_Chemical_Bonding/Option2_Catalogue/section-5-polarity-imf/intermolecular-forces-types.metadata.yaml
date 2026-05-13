@@ -1,0 +1,14 @@
+schema_version: 1
+id: chemistry-intermolecular-forces-types
+kind: image
+subject: chemistry
+topic_phrase: "intermolecular forces london dispersion dipole hydrogen bond strength comparison"
+keywords:
+  - intermolecular-forces
+  - london-dispersion
+  - dipole-dipole
+  - hydrogen-bond
+  - imf
+  - boiling-point
+license: platform-cc-by-sa
+source_unit: G11-CHEM-004

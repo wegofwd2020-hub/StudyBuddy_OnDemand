@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" width="720" height="420" role="img" aria-label="Four types of structural isomerism — chain, position, functional group and metamerism">
+  <title>Four Types of Structural Isomerism</title>
+  <desc>Structural isomers share a molecular formula but differ in how atoms are connected. Four flavours: chain (skeleton differs), position (substituent at a different carbon), functional (different functional group entirely), and metamerism (different alkyl groups on either side of the same functional group).</desc>
+
+  <text x="360" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Structural Isomerism — Four Patterns</text>
+  <text x="360" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Same molecular formula. Different connectivity. Each row shows one C₄ or C₃ formula split into two isomers.</text>
+
+  <!-- header -->
+  <line x1="20" y1="60" x2="700" y2="60" stroke="#475569" stroke-width="1" />
+  <text x="80" y="76" font-size="11" font-weight="700" fill="#1a202c">Type</text>
+  <text x="270" y="76" font-size="11" font-weight="700" fill="#1a202c">Isomer A</text>
+  <text x="490" y="76" font-size="11" font-weight="700" fill="#1a202c">Isomer B</text>
+  <line x1="20" y1="84" x2="700" y2="84" stroke="#475569" stroke-width="1" />
+
+  <!-- ROW 1: chain isomerism -->
+  <g transform="translate(0, 100)">
+    <text x="40" y="20" font-size="12" font-weight="700" fill="#1e40af">1 · Chain</text>
+    <text x="40" y="38" font-size="10" fill="#4a5568">skeleton differs</text>
+    <text x="40" y="54" font-size="10" fill="#4a5568">C₄H₁₀</text>
+
+    <!-- A: n-butane skeletal -->
+    <polyline points="200,32 230,12 260,32 290,12 320,32" fill="none" stroke="#1a202c" stroke-width="2" />
+    <text x="260" y="60" font-size="10" fill="#4a5568" text-anchor="middle">n-butane</text>
+
+    <!-- B: isobutane -->
+    <polyline points="430,32 460,12 490,32" fill="none" stroke="#1a202c" stroke-width="2" />
+    <line x1="460" y1="12" x2="460" y2="-15" stroke="#1a202c" stroke-width="2" />
+    <text x="460" y="60" font-size="10" fill="#4a5568" text-anchor="middle">2-methylpropane</text>
+  </g>
+  <line x1="20" y1="180" x2="700" y2="180" stroke="#cbd5e1" stroke-width="1" />
+
+  <!-- ROW 2: position isomerism -->
+  <g transform="translate(0, 200)">
+    <text x="40" y="20" font-size="12" font-weight="700" fill="#15803d">2 · Position</text>
+    <text x="40" y="38" font-size="10" fill="#4a5568">substituent at</text>
+    <text x="40" y="52" font-size="10" fill="#4a5568">a different C · C₃H₇OH</text>
+
+    <!-- A: 1-propanol -->
+    <text x="260" y="32" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">CH₃–CH₂–CH₂–OH</text>
+    <text x="260" y="60" font-size="10" fill="#4a5568" text-anchor="middle">propan-1-ol (–OH on C1)</text>
+
+    <!-- B: 2-propanol -->
+    <text x="490" y="32" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">CH₃–CH(OH)–CH₃</text>
+    <text x="490" y="60" font-size="10" fill="#4a5568" text-anchor="middle">propan-2-ol (–OH on C2)</text>
+  </g>
+  <line x1="20" y1="278" x2="700" y2="278" stroke="#cbd5e1" stroke-width="1" />
+
+  <!-- ROW 3: functional isomerism -->
+  <g transform="translate(0, 296)">
+    <text x="40" y="20" font-size="12" font-weight="700" fill="#92400e">3 · Functional</text>
+    <text x="40" y="38" font-size="10" fill="#4a5568">whole functional</text>
+    <text x="40" y="52" font-size="10" fill="#4a5568">group changes · C₂H₆O</text>
+
+    <text x="260" y="32" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">CH₃–CH₂–OH</text>
+    <text x="260" y="60" font-size="10" fill="#4a5568" text-anchor="middle">ethanol (alcohol)</text>
+
+    <text x="490" y="32" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">CH₃–O–CH₃</text>
+    <text x="490" y="60" font-size="10" fill="#4a5568" text-anchor="middle">dimethyl ether (ether)</text>
+  </g>
+  <line x1="20" y1="376" x2="700" y2="376" stroke="#cbd5e1" stroke-width="1" />
+
+  <!-- bottom blurb -->
+  <text x="360" y="402" font-size="10" font-weight="700" fill="#1a202c" text-anchor="middle">Two more types you'll meet later:</text>
+  <text x="360" y="416" font-size="10" fill="#4a5568" text-anchor="middle">metamerism (different alkyls on a heteroatom) · tautomerism (keto ⇌ enol equilibrium)</text>
+</svg>

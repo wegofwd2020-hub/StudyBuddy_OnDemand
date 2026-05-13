@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 460" width="720" height="460" role="img" aria-label="Standard reduction potential table excerpt">
+  <title>Standard reduction potentials (excerpt, 25 °C)</title>
+  <desc>An ordered table of selected half-reactions with their standard reduction potentials in volts at 25 degrees Celsius and 1 molar concentration. Strongest oxidising agents at the top; strongest reducing agents at the bottom. The hydrogen electrode at zero is the reference.</desc>
+
+  <text x="360" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Standard Reduction Potentials (E°, 25 °C, 1 M)</text>
+  <text x="360" y="40" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Top of the list = best oxidiser (eager to gain e⁻). Bottom of the list = best reducer (eager to lose e⁻). Reverse a row to read it as oxidation; flip its sign.</text>
+
+  <!-- Outer ladder labels -->
+  <text x="50" y="80" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">stronger</text>
+  <text x="50" y="94" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">oxidiser</text>
+  <text x="50" y="108" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">↑</text>
+
+  <text x="50" y="386" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle">↓</text>
+  <text x="50" y="400" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle">stronger</text>
+  <text x="50" y="414" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle">reducer</text>
+
+  <!-- Table -->
+  <rect x="100" y="60" width="600" height="350" rx="8" fill="#f7fafc" stroke="#1a202c" stroke-width="1.5" />
+
+  <!-- Header -->
+  <rect x="100" y="60" width="600" height="32" rx="8" fill="#0f172a" />
+  <text x="280" y="80" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#ffffff" text-anchor="middle">Half-reaction (reduction)</text>
+  <text x="600" y="80" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#ffffff" text-anchor="middle">E° / V</text>
+
+  <!-- F2 / F- -->
+  <text x="120" y="116" font="12px monospace" font-size="12" fill="#1a202c">F₂(g) + 2 e⁻ → 2 F⁻(aq)</text>
+  <text x="600" y="116" font="bold 12px monospace" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">+2.87</text>
+  <line x1="100" y1="124" x2="700" y2="124" stroke="#cbd5e1" stroke-width="0.7" />
+
+  <!-- MnO4-/Mn2+ -->
+  <text x="120" y="140" font="12px monospace" font-size="12" fill="#1a202c">MnO₄⁻ + 8 H⁺ + 5 e⁻ → Mn²⁺ + 4 H₂O</text>
+  <text x="600" y="140" font="bold 12px monospace" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">+1.51</text>
+  <line x1="100" y1="148" x2="700" y2="148" stroke="#cbd5e1" stroke-width="0.7" />
+
+  <!-- Cl2/Cl- -->
+  <text x="120" y="164" font="12px monospace" font-size="12" fill="#1a202c">Cl₂(g) + 2 e⁻ → 2 Cl⁻(aq)</text>
+  <text x="600" y="164" font="bold 12px monospace" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">+1.36</text>
+  <line x1="100" y1="172" x2="700" y2="172" stroke="#cbd5e1" stroke-width="0.7" />
+
+  <!-- O2/H2O -->
+  <text x="120" y="188" font="12px monospace" font-size="12" fill="#1a202c">O₂(g) + 4 H⁺ + 4 e⁻ → 2 H₂O</text>
+  <text x="600" y="188" font="bold 12px monospace" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">+1.23</text>
+  <line x1="100" y1="196" x2="700" y2="196" stroke="#cbd5e1" stroke-width="0.7" />
+
+  <!-- Ag+/Ag -->
+  <text x="120" y="212" font="12px monospace" font-size="12" fill="#1a202c">Ag⁺(aq) + e⁻ → Ag(s)</text>
+  <text x="600" y="212" font="bold 12px monospace" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">+0.80</text>
+  <line x1="100" y1="220" x2="700" y2="220" stroke="#cbd5e1" stroke-width="0.7" />
+
+  <!-- Fe3+/Fe2+ -->
+  <text x="120" y="236" font="12px monospace" font-size="12" fill="#1a202c">Fe³⁺(aq) + e⁻ → Fe²⁺(aq)</text>
+  <text x="600" y="236" font="bold 12px monospace" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">+0.77</text>
+  <line x1="100" y1="244" x2="700" y2="244" stroke="#cbd5e1" stroke-width="0.7" />
+
+  <!-- Cu2+/Cu — highlighted -->
+  <rect x="100" y="244" width="600" height="22" fill="#fef3c7" />
+  <text x="120" y="260" font="12px monospace" font-size="12" font-weight="700" fill="#92400e">Cu²⁺(aq) + 2 e⁻ → Cu(s)</text>
+  <text x="600" y="260" font="bold 12px monospace" font-size="12" font-weight="700" fill="#92400e" text-anchor="middle">+0.34</text>
+  <line x1="100" y1="266" x2="700" y2="266" stroke="#cbd5e1" stroke-width="0.7" />
+
+  <!-- 2H+/H2 reference -->
+  <rect x="100" y="266" width="600" height="22" fill="#dbeafe" />
+  <text x="120" y="282" font="12px monospace" font-size="12" font-weight="700" fill="#1e3a8a">2 H⁺(aq) + 2 e⁻ → H₂(g)</text>
+  <text x="600" y="282" font="bold 12px monospace" font-size="12" font-weight="700" fill="#1e3a8a" text-anchor="middle">0.00 (ref)</text>
+  <line x1="100" y1="288" x2="700" y2="288" stroke="#cbd5e1" stroke-width="0.7" />
+
+  <!-- Pb2+/Pb -->
+  <text x="120" y="304" font="12px monospace" font-size="12" fill="#1a202c">Pb²⁺(aq) + 2 e⁻ → Pb(s)</text>
+  <text x="600" y="304" font="bold 12px monospace" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">−0.13</text>
+  <line x1="100" y1="312" x2="700" y2="312" stroke="#cbd5e1" stroke-width="0.7" />
+
+  <!-- Fe2+/Fe -->
+  <text x="120" y="328" font="12px monospace" font-size="12" fill="#1a202c">Fe²⁺(aq) + 2 e⁻ → Fe(s)</text>
+  <text x="600" y="328" font="bold 12px monospace" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">−0.44</text>
+  <line x1="100" y1="336" x2="700" y2="336" stroke="#cbd5e1" stroke-width="0.7" />
+
+  <!-- Zn2+/Zn — highlighted -->
+  <rect x="100" y="336" width="600" height="22" fill="#fef3c7" />
+  <text x="120" y="352" font="12px monospace" font-size="12" font-weight="700" fill="#92400e">Zn²⁺(aq) + 2 e⁻ → Zn(s)</text>
+  <text x="600" y="352" font="bold 12px monospace" font-size="12" font-weight="700" fill="#92400e" text-anchor="middle">−0.76</text>
+  <line x1="100" y1="358" x2="700" y2="358" stroke="#cbd5e1" stroke-width="0.7" />
+
+  <!-- Al3+/Al -->
+  <text x="120" y="374" font="12px monospace" font-size="12" fill="#1a202c">Al³⁺(aq) + 3 e⁻ → Al(s)</text>
+  <text x="600" y="374" font="bold 12px monospace" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">−1.66</text>
+  <line x1="100" y1="382" x2="700" y2="382" stroke="#cbd5e1" stroke-width="0.7" />
+
+  <!-- Li+/Li -->
+  <text x="120" y="398" font="12px monospace" font-size="12" fill="#1a202c">Li⁺(aq) + e⁻ → Li(s)</text>
+  <text x="600" y="398" font="bold 12px monospace" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">−3.04</text>
+
+  <!-- Bottom caption -->
+  <text x="360" y="438" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Highlighted: the Cu and Zn rows used by the Daniell cell. E°cell = (+0.34) − (−0.76) = +1.10 V.</text>
+</svg>

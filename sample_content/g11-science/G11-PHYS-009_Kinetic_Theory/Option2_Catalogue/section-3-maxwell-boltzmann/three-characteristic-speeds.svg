@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 360" width="620" height="360" role="img" aria-label="Most-Probable, Mean, and RMS Speeds on a Maxwell-Boltzmann Curve">
+  <title>Three Characteristic Speeds: v_p, ⟨v⟩, v_rms</title>
+  <desc>A single Maxwell-Boltzmann distribution for nitrogen at 300 K with three vertical markers at v_p (most-probable, peak of curve, ~422 m/s), ⟨v⟩ (mean, slightly higher, ~476 m/s), and v_rms (root-mean-square, highest, ~517 m/s). They are always in the ratio v_p : ⟨v⟩ : v_rms = 1 : 1.128 : 1.224 for any ideal gas, independent of temperature.</desc>
+
+  <text x="310" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Three Characteristic Speeds  on the Maxwell-Boltzmann Curve  (N₂, 300 K)</text>
+
+  <!-- Plot area -->
+  <rect x="70" y="60" width="490" height="220" fill="#f7fafc" stroke="#e2e8f0" />
+
+  <!-- Grid -->
+  <g stroke="#e2e8f0" stroke-width="0.6">
+    <line x1="70" y1="225" x2="560" y2="225" />
+    <line x1="70" y1="170" x2="560" y2="170" />
+    <line x1="70" y1="115" x2="560" y2="115" />
+    <line x1="200.8" y1="60" x2="200.8" y2="280" />
+    <line x1="331.6" y1="60" x2="331.6" y2="280" />
+    <line x1="462.4" y1="60" x2="462.4" y2="280" />
+  </g>
+
+  <!-- Axes -->
+  <line x1="70" y1="280" x2="560" y2="280" stroke="#1a202c" stroke-width="1.5" />
+  <line x1="70" y1="60" x2="70" y2="280" stroke="#1a202c" stroke-width="1.5" />
+
+  <text x="315" y="306" font-size="13" font-weight="600" fill="#1a202c" text-anchor="middle">Molecular speed  v  (m/s)</text>
+  <text x="32" y="170" font-size="13" font-weight="600" fill="#1a202c" text-anchor="middle" transform="rotate(-90 32 170)">f(v)</text>
+
+  <text x="70" y="296" font-size="10" fill="#1a202c" text-anchor="middle">0</text>
+  <text x="200.8" y="296" font-size="10" fill="#1a202c" text-anchor="middle">400</text>
+  <text x="331.6" y="296" font-size="10" fill="#1a202c" text-anchor="middle">800</text>
+  <text x="462.4" y="296" font-size="10" fill="#1a202c" text-anchor="middle">1200</text>
+
+  <!-- M-B curve, T=300 K, N2 -->
+  <path d="M 70,280 L 102.7,253 L 135.4,187 L 168.1,122 L 200.8,91 L 208,90 L 233.5,102 L 266.2,142 L 298.9,189 L 331.6,229 L 364.3,255 L 397,270 L 429.7,276 L 462.4,279 L 495.1,280 L 560,280"
+        fill="none" stroke="#7c3aed" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M 70,280 L 102.7,253 L 135.4,187 L 168.1,122 L 200.8,91 L 208,90 L 233.5,102 L 266.2,142 L 298.9,189 L 331.6,229 L 364.3,255 L 397,270 L 429.7,276 L 462.4,279 L 495.1,280 L 560,280 Z"
+        fill="#7c3aed" opacity="0.10" />
+
+  <!-- v_p (most probable) at 422 m/s, x=208, peak y=90 -->
+  <line x1="208" y1="90" x2="208" y2="280" stroke="#1d4ed8" stroke-width="1.8" stroke-dasharray="5 3" />
+  <circle cx="208" cy="90" r="4" fill="#1d4ed8" />
+  <text x="208" y="80" font-size="12" font-weight="700" fill="#1d4ed8" text-anchor="middle">v_p = 422</text>
+
+  <!-- ⟨v⟩ (mean) at ~476 m/s, x=70+0.327*476=225.6, height ~ at 476 between 422 (90) and 500 (102): linear: ~96 -->
+  <line x1="225.6" y1="96" x2="225.6" y2="280" stroke="#dd6b20" stroke-width="1.8" stroke-dasharray="5 3" />
+  <circle cx="225.6" cy="96" r="4" fill="#dd6b20" />
+  <text x="234" y="120" font-size="12" font-weight="700" fill="#dd6b20">⟨v⟩ = 476</text>
+
+  <!-- v_rms at ~517 m/s, x=70+0.327*517=239.0, height ~ between 500(102) and 600(142): linear at 517 → 102+0.17*40 ≈ 109 -->
+  <line x1="239" y1="109" x2="239" y2="280" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="5 3" />
+  <circle cx="239" cy="109" r="4" fill="#dc2626" />
+  <text x="244" y="155" font-size="12" font-weight="700" fill="#dc2626">v_rms = 517</text>
+
+  <!-- Right side: formula card -->
+  <rect x="370" y="62" width="180" height="160" rx="8" fill="#fff" stroke="#cbd5e1" />
+  <text x="460" y="80" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Three speeds</text>
+
+  <text x="380" y="100" font-size="11" font-weight="700" fill="#1d4ed8">v_p = √(2 k_B T / m)</text>
+  <text x="380" y="115" font-size="9" fill="#4a5568">most-probable (peak)</text>
+
+  <text x="380" y="135" font-size="11" font-weight="700" fill="#dd6b20">⟨v⟩ = √(8 k_B T / π m)</text>
+  <text x="380" y="150" font-size="9" fill="#4a5568">mean (arithmetic)</text>
+
+  <text x="380" y="170" font-size="11" font-weight="700" fill="#dc2626">v_rms = √(3 k_B T / m)</text>
+  <text x="380" y="185" font-size="9" fill="#4a5568">root-mean-square</text>
+
+  <text x="380" y="208" font-size="11" font-weight="700" fill="#15803d">v_p : ⟨v⟩ : v_rms</text>
+  <text x="380" y="220" font-size="11" font-weight="700" fill="#15803d">  = 1 : 1.128 : 1.224</text>
+
+  <!-- Bottom note -->
+  <text x="310" y="332" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Three different averages of the same distribution. The ratio is fixed for every ideal gas at every temperature.</text>
+</svg>

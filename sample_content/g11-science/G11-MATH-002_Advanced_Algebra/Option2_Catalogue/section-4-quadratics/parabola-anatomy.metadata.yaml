@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-advanced-algebra-parabola-anatomy
+kind: image
+subject: math
+topic_phrase: "parabola anatomy with vertex, axis of symmetry, and intercepts"
+keywords:
+  - parabola
+  - quadratic-function
+  - vertex
+  - axis-of-symmetry
+  - intercepts
+license: platform-cc-by-sa
+source_unit: G11-MATH-002

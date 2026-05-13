@@ -1,0 +1,14 @@
+schema_version: 1
+id: physics-physical-world-scientific-method-cycle
+kind: image
+subject: physics
+topic_phrase: "scientific method as an iterative cycle from observation to refinement"
+keywords:
+  - scientific-method
+  - hypothesis
+  - prediction
+  - experiment
+  - falsifiability
+  - epistemology-of-science
+license: platform-cc-by-sa
+source_unit: G11-PHYS-001

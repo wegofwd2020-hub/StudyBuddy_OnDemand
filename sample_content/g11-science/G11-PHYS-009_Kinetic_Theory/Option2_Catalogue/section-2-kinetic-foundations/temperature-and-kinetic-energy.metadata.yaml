@@ -1,0 +1,14 @@
+schema_version: 1
+id: physics-kinetic-theory-temperature-and-kinetic-energy
+kind: image
+subject: physics
+topic_phrase: "temperature interpreted as average translational kinetic energy with cool and hot gas boxes showing slower and faster molecular velocity arrows and the formula three halves k_B T"
+keywords:
+  - kinetic-theory
+  - temperature
+  - translational-kinetic-energy
+  - boltzmann-constant
+  - rms-speed
+  - microscopic-foundation
+license: platform-cc-by-sa
+source_unit: G11-PHYS-009

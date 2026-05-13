@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 420" width="760" height="420" role="img" aria-label="Osmosis in plant cells — turgid, flaccid, and plasmolysed states">
+  <title>Osmosis — Turgid · Flaccid · Plasmolysed</title>
+  <desc>Three states of a plant cell shown side-by-side, each placed in a different external solution. Hypotonic (water in): the protoplast presses tightly against the rigid cellulose cell wall — turgid; the cell is full and firm. Isotonic (no net flow): the protoplast just touches the wall — flaccid; the cell is limp. Hypertonic (water out): the protoplast shrinks away from the wall and the membrane peels off the wall — plasmolysed; the cell is collapsed inside its rigid wall. The vacuole and tonoplast are highlighted because the central vacuole is where most cell water is stored. Direction-of-water-flow arrows are shown for each case.</desc>
+
+  <text x="380" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Osmosis in a Plant Cell — Three Outcomes</text>
+  <text x="380" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Same cell · three external solutions · the rigid cell wall lets the plant cell survive what would burst an animal cell</text>
+
+  <!-- ═══════════════ TURGID ═══════════════ -->
+  <g transform="translate(40, 60)">
+    <rect x="0" y="0" width="220" height="280" rx="10" fill="#dbeafe" stroke="#2b6cb0" stroke-width="2"/>
+    <text x="110" y="22" font-size="13" font-weight="700" fill="#1e3a8a" text-anchor="middle">Turgid</text>
+    <text x="110" y="38" font-size="10" font-style="italic" fill="#1e3a8a" text-anchor="middle">hypotonic outside</text>
+
+    <!-- Cell wall (square outer) -->
+    <rect x="40" y="56" width="140" height="170" fill="#fef3c7" stroke="#b45309" stroke-width="4"/>
+
+    <!-- Plasma membrane (just inside wall, pressed firm against it) -->
+    <rect x="44" y="60" width="132" height="162" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+
+    <!-- Cytoplasm thin band -->
+    <rect x="50" y="66" width="120" height="150" fill="#bbf7d0" stroke="#15803d" stroke-width="0.8" stroke-dasharray="3 2"/>
+
+    <!-- Large central vacuole (push out) -->
+    <rect x="58" y="74" width="104" height="134" rx="6" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5"/>
+    <text x="110" y="138" font-size="10" font-weight="700" fill="#1e3a8a" text-anchor="middle">large</text>
+    <text x="110" y="152" font-size="10" font-weight="700" fill="#1e3a8a" text-anchor="middle">vacuole</text>
+
+    <!-- Nucleus pushed to the side -->
+    <ellipse cx="68" cy="92" rx="9" ry="7" fill="#7c3aed" stroke="#4c1d95" stroke-width="1"/>
+
+    <!-- Water arrows entering from outside -->
+    <text x="20" y="146" font-size="14" fill="#2b6cb0" text-anchor="middle">→</text>
+    <text x="20" y="166" font-size="14" fill="#2b6cb0" text-anchor="middle">→</text>
+    <text x="190" y="146" font-size="14" fill="#2b6cb0" text-anchor="end">←</text>
+    <text x="190" y="166" font-size="14" fill="#2b6cb0" text-anchor="end">←</text>
+    <text x="110" y="244" font-size="9" font-weight="700" fill="#2b6cb0" text-anchor="middle">water enters (osmosis)</text>
+
+    <!-- Status badges -->
+    <rect x="14" y="252" width="78" height="18" rx="4" fill="#bbf7d0" stroke="#15803d" stroke-width="1"/>
+    <text x="53" y="265" font-size="9" font-weight="700" fill="#14532d" text-anchor="middle">firm + healthy</text>
+    <rect x="100" y="252" width="106" height="18" rx="4" fill="#fef3c7" stroke="#d97706" stroke-width="1"/>
+    <text x="153" y="265" font-size="9" font-weight="700" fill="#78350f" text-anchor="middle">turgor pressure ↑</text>
+  </g>
+
+  <!-- ═══════════════ FLACCID ═══════════════ -->
+  <g transform="translate(270, 60)">
+    <rect x="0" y="0" width="220" height="280" rx="10" fill="#f7fafc" stroke="#cbd5e0" stroke-width="2"/>
+    <text x="110" y="22" font-size="13" font-weight="700" fill="#4a5568" text-anchor="middle">Flaccid</text>
+    <text x="110" y="38" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">isotonic outside</text>
+
+    <!-- Cell wall -->
+    <rect x="40" y="56" width="140" height="170" fill="#fef3c7" stroke="#b45309" stroke-width="4"/>
+
+    <!-- Plasma membrane (just slightly pulled in) -->
+    <rect x="48" y="64" width="124" height="154" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+
+    <!-- Cytoplasm -->
+    <rect x="54" y="70" width="112" height="142" fill="#bbf7d0" stroke="#15803d" stroke-width="0.8" stroke-dasharray="3 2"/>
+
+    <!-- Vacuole (smaller than turgid) -->
+    <rect x="62" y="78" width="96" height="126" rx="6" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5"/>
+    <text x="110" y="138" font-size="10" font-weight="700" fill="#1e3a8a" text-anchor="middle">vacuole</text>
+    <text x="110" y="152" font-size="9" fill="#1e3a8a" text-anchor="middle">(smaller)</text>
+
+    <!-- Nucleus -->
+    <ellipse cx="72" cy="98" rx="9" ry="7" fill="#7c3aed" stroke="#4c1d95" stroke-width="1"/>
+
+    <!-- No-net flow indicator -->
+    <text x="20" y="146" font-size="14" fill="#4a5568" text-anchor="middle">⇌</text>
+    <text x="20" y="166" font-size="14" fill="#4a5568" text-anchor="middle">⇌</text>
+    <text x="190" y="146" font-size="14" fill="#4a5568" text-anchor="end">⇌</text>
+    <text x="190" y="166" font-size="14" fill="#4a5568" text-anchor="end">⇌</text>
+    <text x="110" y="244" font-size="9" font-weight="700" fill="#4a5568" text-anchor="middle">no net water flow</text>
+
+    <!-- Status badges -->
+    <rect x="14" y="252" width="86" height="18" rx="4" fill="#fef3c7" stroke="#d97706" stroke-width="1"/>
+    <text x="57" y="265" font-size="9" font-weight="700" fill="#78350f" text-anchor="middle">limp · drooping</text>
+    <rect x="106" y="252" width="100" height="18" rx="4" fill="#fef3c7" stroke="#d97706" stroke-width="1"/>
+    <text x="156" y="265" font-size="9" font-weight="700" fill="#78350f" text-anchor="middle">turgor pressure ≈ 0</text>
+  </g>
+
+  <!-- ═══════════════ PLASMOLYSED ═══════════════ -->
+  <g transform="translate(500, 60)">
+    <rect x="0" y="0" width="220" height="280" rx="10" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+    <text x="110" y="22" font-size="13" font-weight="700" fill="#7f1d1d" text-anchor="middle">Plasmolysed</text>
+    <text x="110" y="38" font-size="10" font-style="italic" fill="#7f1d1d" text-anchor="middle">hypertonic outside</text>
+
+    <!-- Cell wall stays rigid + same size -->
+    <rect x="40" y="56" width="140" height="170" fill="#fef3c7" stroke="#b45309" stroke-width="4"/>
+
+    <!-- Protoplast pulled away from the wall (smaller, rounded) -->
+    <ellipse cx="110" cy="142" rx="48" ry="50" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+    <ellipse cx="110" cy="142" rx="40" ry="42" fill="#bbf7d0" stroke="#15803d" stroke-width="0.8" stroke-dasharray="3 2"/>
+    <ellipse cx="110" cy="142" rx="30" ry="32" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5"/>
+    <text x="110" y="146" font-size="9" font-weight="700" fill="#1e3a8a" text-anchor="middle">shrunken</text>
+
+    <!-- Nucleus inside the shrunken protoplast -->
+    <ellipse cx="98" cy="120" rx="7" ry="5" fill="#7c3aed" stroke="#4c1d95" stroke-width="1"/>
+
+    <!-- Gaps between wall and protoplast (where water has left) -->
+    <text x="60" y="80" font-size="9" fill="#7f1d1d">gap (no protoplast here)</text>
+    <line x1="80" y1="84" x2="74" y2="100" stroke="#7f1d1d" stroke-width="0.8"/>
+
+    <!-- Water arrows leaving -->
+    <text x="20" y="146" font-size="14" fill="#dc2626" text-anchor="middle">←</text>
+    <text x="20" y="166" font-size="14" fill="#dc2626" text-anchor="middle">←</text>
+    <text x="190" y="146" font-size="14" fill="#dc2626" text-anchor="end">→</text>
+    <text x="190" y="166" font-size="14" fill="#dc2626" text-anchor="end">→</text>
+    <text x="110" y="244" font-size="9" font-weight="700" fill="#dc2626" text-anchor="middle">water leaves cell</text>
+
+    <!-- Status badges -->
+    <rect x="14" y="252" width="84" height="18" rx="4" fill="#fee2e2" stroke="#dc2626" stroke-width="1"/>
+    <text x="56" y="265" font-size="9" font-weight="700" fill="#7f1d1d" text-anchor="middle">collapsed</text>
+    <rect x="104" y="252" width="102" height="18" rx="4" fill="#fee2e2" stroke="#dc2626" stroke-width="1"/>
+    <text x="155" y="265" font-size="9" font-weight="700" fill="#7f1d1d" text-anchor="middle">turgor pressure = 0</text>
+  </g>
+
+  <!-- Bottom comparison -->
+  <rect x="40" y="354" width="680" height="56" rx="6" fill="#f7fafc" stroke="#cbd5e0" stroke-width="1"/>
+  <text x="60" y="372" font-size="11" font-weight="700" fill="#1a202c">Why plant cells don't burst:</text>
+  <text x="60" y="388" font-size="10" fill="#4a5568">The rigid cellulose cell wall provides outward push (turgor pressure). Even at maximum hydration, the wall stops further</text>
+  <text x="60" y="402" font-size="10" fill="#4a5568">expansion — so plant cells are turgid, not lysed (animal cells without walls would burst in hypotonic solution).</text>
+</svg>

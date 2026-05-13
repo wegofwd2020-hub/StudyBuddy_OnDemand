@@ -1,0 +1,13 @@
+schema_version: 1
+id: physics-gravitation-potential-energy-well
+kind: image
+subject: physics
+topic_phrase: "gravitational potential energy U equals minus G M m over r showing the negative-energy bound well"
+keywords:
+  - gravitation
+  - potential-energy
+  - U=-GMm/r
+  - bound-state
+  - graph
+license: platform-cc-by-sa
+source_unit: G11-PHYS-006

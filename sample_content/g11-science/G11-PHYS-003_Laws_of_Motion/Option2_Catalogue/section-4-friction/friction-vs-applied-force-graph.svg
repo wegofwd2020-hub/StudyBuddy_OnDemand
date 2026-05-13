@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 320" width="480" height="320" role="img" aria-label="Friction force versus applied force, static then kinetic regimes">
+  <title>Friction force vs applied force</title>
+  <desc>Graph showing friction force matching the applied force in the static regime, peaking at f_s,max, then dropping to a constant kinetic friction f_k once the body slips.</desc>
+
+  <rect x="60" y="32" width="390" height="238" fill="#f7fafc" stroke="#e2e8f0" />
+
+  <!-- Vertical grid: F_applied 0..10 N, every 2 -->
+  <line x1="60" y1="32" x2="60" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="60" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">0</text>
+  <line x1="138" y1="32" x2="138" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="138" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">2</text>
+  <line x1="216" y1="32" x2="216" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="216" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">4</text>
+  <line x1="294" y1="32" x2="294" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="294" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">6</text>
+  <line x1="372" y1="32" x2="372" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="372" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">8</text>
+  <line x1="450" y1="32" x2="450" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="450" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">10</text>
+
+  <!-- Horizontal grid: f 0..6 N, every 1 -->
+  <line x1="60" y1="270" x2="450" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="274" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">0</text>
+  <line x1="60" y1="230.33" x2="450" y2="230.33" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="234.33" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">1</text>
+  <line x1="60" y1="190.67" x2="450" y2="190.67" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="194.67" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">2</text>
+  <line x1="60" y1="151" x2="450" y2="151" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="155" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">3</text>
+  <line x1="60" y1="111.33" x2="450" y2="111.33" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="115.33" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">4</text>
+  <line x1="60" y1="71.67" x2="450" y2="71.67" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="75.67" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">5</text>
+  <line x1="60" y1="32" x2="450" y2="32" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="36" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">6</text>
+
+  <line x1="60" y1="270" x2="450" y2="270" stroke="#94a3b8" stroke-width="1.2" />
+  <line x1="60" y1="32" x2="60" y2="270" stroke="#94a3b8" stroke-width="1.2" />
+
+  <text x="255" y="302" font="13px system-ui" font-size="13" font-weight="600" fill="#1a202c" text-anchor="middle">F_applied (N)</text>
+  <text x="24" y="151" font="13px system-ui" font-size="13" font-weight="600" fill="#1a202c" text-anchor="middle" transform="rotate(-90 24 151)">f (friction, N)</text>
+
+  <text x="255" y="20" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Friction vs applied force — static then kinetic</text>
+
+  <!-- Static branch: f = F_applied, from (0,0) to (5,5). In px: (60,270) to (255, 71.67) -->
+  <line x1="60" y1="270" x2="255" y2="71.67" stroke="#2b6cb0" stroke-width="3.5" stroke-linecap="round" />
+  <!-- Drop at slip: from (255, 71.67) to (255, 151) — vertical down to f_k = 3 -->
+  <line x1="255" y1="71.67" x2="255" y2="151" stroke="#dd6b20" stroke-width="2.5" stroke-dasharray="4 3" />
+  <!-- Kinetic branch: from (255, 151) to (450, 151) — horizontal at f = 3 -->
+  <line x1="255" y1="151" x2="450" y2="151" stroke="#dd6b20" stroke-width="3.5" stroke-linecap="round" />
+
+  <!-- Annotations -->
+  <circle cx="255" cy="71.67" r="5" fill="#2b6cb0" />
+  <text x="265" y="62" font="11px system-ui" font-size="11" font-weight="700" fill="#2b6cb0">f_s,max = μ_s N</text>
+
+  <text x="155" y="180" font="12px system-ui" font-size="12" font-weight="700" fill="#2b6cb0" text-anchor="middle">Static  (no slip)</text>
+  <text x="155" y="196" font="11px system-ui" font-size="11" font-style="italic" fill="#2b6cb0" text-anchor="middle">f = F_applied</text>
+
+  <text x="355" y="138" font="12px system-ui" font-size="12" font-weight="700" fill="#dd6b20" text-anchor="middle">Kinetic  (sliding)</text>
+  <text x="355" y="170" font="11px system-ui" font-size="11" font-style="italic" fill="#dd6b20" text-anchor="middle">f_k = μ_k N  (constant)</text>
+
+  <!-- "slip" label at the discontinuity -->
+  <text x="270" y="120" font="11px system-ui" font-size="11" fill="#dc2626" font-weight="600">slip!</text>
+
+  <text x="255" y="316" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Below slip, friction adjusts to match the applied force.  Once moving, friction settles at the lower kinetic value.</text>
+</svg>

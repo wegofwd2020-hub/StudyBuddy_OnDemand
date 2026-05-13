@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360" role="img" aria-label="Heat engine schematic with hot reservoir, working substance, cold reservoir, and net work output">
+  <title>Heat Engine — Schematic</title>
+  <desc>A heat engine operates between a hot reservoir at T_H and a cold reservoir at T_C. Heat Q_H is absorbed from the hot reservoir. Net work W is produced. Heat Q_C equals Q_H minus W is rejected to the cold reservoir. Efficiency eta equals W over Q_H equals 1 minus Q_C over Q_H.</desc>
+
+  <text x="300" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Heat Engine — Schematic</text>
+  <text x="300" y="40" font-size="12" font-style="italic" fill="#4a5568" text-anchor="middle">Converts a fraction of input heat into useful work.</text>
+
+  <defs>
+    <marker id="he-arr-r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626" />
+    </marker>
+    <marker id="he-arr-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1d4ed8" />
+    </marker>
+    <marker id="he-arr-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#15803d" />
+    </marker>
+  </defs>
+
+  <!-- Hot reservoir (top) -->
+  <rect x="180" y="60" width="240" height="50" fill="#fee2e2" stroke="#dc2626" stroke-width="2.5" rx="6" />
+  <text x="300" y="92" font-size="14" font-weight="700" fill="#dc2626" text-anchor="middle">Hot reservoir   T_H</text>
+
+  <!-- Working substance: engine -->
+  <circle cx="300" cy="200" r="55" fill="#fef3c7" stroke="#dd6b20" stroke-width="3" />
+  <text x="300" y="195" font-size="13" font-weight="700" fill="#7c2d12" text-anchor="middle">working</text>
+  <text x="300" y="213" font-size="13" font-weight="700" fill="#7c2d12" text-anchor="middle">substance</text>
+
+  <!-- Cold reservoir (bottom) -->
+  <rect x="180" y="290" width="240" height="50" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2.5" rx="6" />
+  <text x="300" y="322" font-size="14" font-weight="700" fill="#1d4ed8" text-anchor="middle">Cold reservoir   T_C</text>
+
+  <!-- Q_H heat IN (top → engine) — wide red arrow -->
+  <line x1="300" y1="113" x2="300" y2="143" stroke="#dc2626" stroke-width="14" marker-end="url(#he-arr-r)" />
+  <text x="338" y="135" font-size="14" font-weight="700" fill="#dc2626">Q_H</text>
+
+  <!-- Q_C heat OUT (engine → cold) — narrower red/blue arrow -->
+  <line x1="300" y1="258" x2="300" y2="288" stroke="#1d4ed8" stroke-width="9" marker-end="url(#he-arr-b)" />
+  <text x="332" y="278" font-size="13" font-weight="700" fill="#1d4ed8">Q_C</text>
+
+  <!-- W work OUT to the right (mechanical work) -->
+  <line x1="358" y1="200" x2="500" y2="200" stroke="#15803d" stroke-width="9" marker-end="url(#he-arr-g)" />
+  <text x="430" y="190" font-size="14" font-weight="700" fill="#15803d" text-anchor="middle">W</text>
+  <text x="430" y="220" font-size="11" fill="#15803d" text-anchor="middle">useful work out</text>
+
+  <!-- Conservation arrow (energy balance) -->
+  <text x="500" y="260" font-size="11" font-weight="700" fill="#1a202c" text-anchor="end">W = Q_H − Q_C</text>
+
+  <!-- Efficiency formula box at the bottom -->
+  <rect x="40" y="118" width="120" height="170" rx="8" fill="#f7fafc" stroke="#cbd5e1" stroke-width="1.2" />
+  <text x="100" y="138" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Efficiency η</text>
+  <line x1="55" y1="148" x2="145" y2="148" stroke="#cbd5e1" />
+  <text x="100" y="170" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">η = W ⁄ Q_H</text>
+  <text x="100" y="200" font-size="13" fill="#1a202c" text-anchor="middle">= 1 − Q_C⁄Q_H</text>
+  <text x="100" y="230" font-size="11" fill="#7c2d12" text-anchor="middle">η &lt; 1 always</text>
+  <text x="100" y="252" font-size="10" fill="#7c2d12" text-anchor="middle">(2nd law forbids</text>
+  <text x="100" y="266" font-size="10" fill="#7c2d12" text-anchor="middle">η = 1)</text>
+
+  <text x="100" y="282" font-size="9" font-style="italic" fill="#15803d" text-anchor="middle">car ≈ 25–35%</text>
+
+  <!-- Examples panel -->
+  <rect x="40" y="298" width="120" height="48" rx="6" fill="#dcfce7" stroke="#15803d" stroke-width="1.2" />
+  <text x="100" y="313" font-size="10" font-weight="700" fill="#14532d" text-anchor="middle">Real engines</text>
+  <text x="100" y="327" font-size="9" fill="#14532d" text-anchor="middle">car · power plant</text>
+  <text x="100" y="340" font-size="9" fill="#14532d" text-anchor="middle">jet · steam turbine</text>
+</svg>

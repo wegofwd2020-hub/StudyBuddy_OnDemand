@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-coordinate-geometry-locus-perpendicular-bisector
+kind: image
+subject: math
+topic_phrase: "locus of points equidistant from two fixed points is the perpendicular bisector"
+keywords:
+  - locus
+  - perpendicular-bisector
+  - equidistant
+  - coordinate-geometry
+  - geometric-condition
+license: platform-cc-by-sa
+source_unit: G11-MATH-003

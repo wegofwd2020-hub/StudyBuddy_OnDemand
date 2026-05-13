@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 540" width="760" height="540" role="img" aria-label="Cell cycle wheel showing G1, S, G2 of interphase and the M phase of mitosis with checkpoints">
+  <title>The Cell Cycle — Interphase + M Phase</title>
+  <desc>A circular cell cycle wheel divided into four wedges. Going clockwise from the top: G1 phase (cell grows; organelles duplicate; ~11 hours typical); S phase (DNA replicates from 46 to 92 chromatids; ~8 hours); G2 phase (cell prepares for division; checks DNA; ~4 hours); M phase (mitosis + cytokinesis; ~1 hour). Together G1+S+G2 form interphase, which fills about 23 of every 24 hours of a fast-dividing cell's life. Three checkpoints are highlighted: the G1/S checkpoint (commit to division?), the G2/M checkpoint (DNA damage?), and the spindle assembly checkpoint inside M (chromosomes attached?). A side panel on the right summarises what the cell is doing in each phase. Cells that exit the cycle enter G0 — a non-dividing resting state shown as a small offshoot from G1.</desc>
+
+  <text x="380" y="24" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">The Cell Cycle — One Round of Life for One Cell</text>
+  <text x="380" y="42" font-size="11" fill="#4a5568" text-anchor="middle">Interphase (G1 → S → G2) takes ~95% of the time. M phase is the brief, dramatic finale.</text>
+
+  <!-- Cycle wheel -->
+  <g transform="translate(280, 280)">
+    <!-- G1 wedge (top-right) -->
+    <path d="M 0 0 L 0 -160 A 160 160 0 0 1 138.6 -80 Z" fill="#dbeafe" stroke="#2b6cb0" stroke-width="2.4"/>
+    <!-- S wedge (right) -->
+    <path d="M 0 0 L 138.6 -80 A 160 160 0 0 1 138.6 80 Z" fill="#bbf7d0" stroke="#15803d" stroke-width="2.4"/>
+    <!-- G2 wedge (bottom-right) -->
+    <path d="M 0 0 L 138.6 80 A 160 160 0 0 1 0 160 Z" fill="#fde68a" stroke="#b45309" stroke-width="2.4"/>
+    <!-- M wedge (left half — quarter) -->
+    <path d="M 0 0 L 0 160 A 160 160 0 0 1 -160 0 Z" fill="#fee2e2" stroke="#dc2626" stroke-width="2.4"/>
+    <!-- Top-left wedge: continuation of G1 (interphase wraps around) -->
+    <path d="M 0 0 L -160 0 A 160 160 0 0 1 0 -160 Z" fill="#dbeafe" stroke="#2b6cb0" stroke-width="2.4"/>
+
+    <!-- Phase labels -->
+    <text x="60" y="-110" font-size="22" font-weight="700" fill="#1e3a8a" text-anchor="middle">G₁</text>
+    <text x="60" y="-86" font-size="10" fill="#1e3a8a" text-anchor="middle">growth</text>
+    <text x="60" y="-72" font-size="9" fill="#4a5568" text-anchor="middle">~11 hr</text>
+
+    <text x="124" y="0" font-size="22" font-weight="700" fill="#15803d" text-anchor="middle">S</text>
+    <text x="124" y="22" font-size="10" fill="#15803d" text-anchor="middle">DNA synthesis</text>
+    <text x="124" y="36" font-size="9" fill="#4a5568" text-anchor="middle">~8 hr</text>
+
+    <text x="60" y="110" font-size="22" font-weight="700" fill="#b45309" text-anchor="middle">G₂</text>
+    <text x="60" y="130" font-size="10" fill="#b45309" text-anchor="middle">prep + check</text>
+    <text x="60" y="144" font-size="9" fill="#4a5568" text-anchor="middle">~4 hr</text>
+
+    <text x="-90" y="0" font-size="22" font-weight="700" fill="#dc2626" text-anchor="middle">M</text>
+    <text x="-90" y="22" font-size="10" fill="#dc2626" text-anchor="middle">mitosis +</text>
+    <text x="-90" y="34" font-size="10" fill="#dc2626" text-anchor="middle">cytokinesis</text>
+    <text x="-90" y="48" font-size="9" fill="#4a5568" text-anchor="middle">~1 hr</text>
+
+    <!-- Top-left wedge: still G1 (small portion before M ends) -->
+    <text x="-90" y="-90" font-size="10" font-style="italic" fill="#1e3a8a" text-anchor="middle">G₁ continues</text>
+
+    <!-- Direction arrow around cycle -->
+    <g stroke="#4a5568" stroke-width="2.4" fill="none">
+      <path d="M 100 -130 Q 150 -100 160 -10"/>
+    </g>
+    <polygon points="160,-10 152,-16 168,-12" fill="#4a5568"/>
+
+    <!-- Inner circle showing chromosomes + DNA content over time -->
+    <circle cx="0" cy="0" r="56" fill="#ffffff" stroke="#4a5568" stroke-width="1.5"/>
+    <text x="0" y="-22" font-size="10" font-weight="700" fill="#1a202c" text-anchor="middle">DNA content</text>
+    <text x="0" y="-8" font-size="9" fill="#1e3a8a" text-anchor="middle">G₁: 2C</text>
+    <text x="0" y="6" font-size="9" fill="#15803d" text-anchor="middle">S: 2C → 4C</text>
+    <text x="0" y="20" font-size="9" fill="#b45309" text-anchor="middle">G₂: 4C</text>
+    <text x="0" y="34" font-size="9" fill="#dc2626" text-anchor="middle">end of M: 2C each</text>
+
+    <!-- Checkpoints (gold stars at boundaries) -->
+    <!-- G1/S checkpoint (~12 o'clock to 1.5 o'clock boundary) -->
+    <g transform="translate(138.6, -80)">
+      <polygon points="0,-10 3,-3 10,-3 4,2 6,9 0,5 -6,9 -4,2 -10,-3 -3,-3" fill="#f59e0b" stroke="#78350f" stroke-width="1"/>
+    </g>
+    <!-- G2/M checkpoint (between G2 and M, at left transition) -->
+    <g transform="translate(0, 160)">
+      <polygon points="0,-10 3,-3 10,-3 4,2 6,9 0,5 -6,9 -4,2 -10,-3 -3,-3" fill="#f59e0b" stroke="#78350f" stroke-width="1"/>
+    </g>
+    <!-- Spindle checkpoint (inside M wedge) -->
+    <g transform="translate(-110, -64)">
+      <polygon points="0,-10 3,-3 10,-3 4,2 6,9 0,5 -6,9 -4,2 -10,-3 -3,-3" fill="#f59e0b" stroke="#78350f" stroke-width="1"/>
+    </g>
+
+    <!-- G0 offshoot (from G1) -->
+    <line x1="116" y1="-110" x2="170" y2="-150" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4 3"/>
+    <circle cx="190" cy="-160" r="22" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/>
+    <text x="190" y="-156" font-size="10" font-weight="700" fill="#4a5568" text-anchor="middle">G₀</text>
+    <text x="190" y="-130" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">resting / non-dividing</text>
+  </g>
+
+  <!-- ── INTERPHASE bracket label ────────────────────────── -->
+  <path d="M 380 100 Q 380 280 380 460" fill="none" stroke="#4a5568" stroke-width="0" />
+  <text x="280" y="476" font-size="12" font-weight="700" fill="#4a5568" text-anchor="middle">Interphase = G₁ + S + G₂  ≈ 23 hours of every 24</text>
+
+  <!-- ── Side panel: phase descriptions ─────────────────── -->
+  <rect x="500" y="80" width="240" height="380" rx="8" fill="#f7fafc" stroke="#cbd5e0" stroke-width="1.5"/>
+  <text x="620" y="102" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">What happens in each phase</text>
+
+  <g font-size="10">
+    <!-- G1 -->
+    <rect x="510" y="112" width="14" height="14" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1"/>
+    <text x="528" y="124" font-weight="700" fill="#1e3a8a">G₁ — gap 1</text>
+    <text x="528" y="138" fill="#4a5568">Cell grows. Builds organelles.</text>
+    <text x="528" y="150" fill="#4a5568">Decides whether to divide.</text>
+
+    <!-- S -->
+    <rect x="510" y="162" width="14" height="14" fill="#bbf7d0" stroke="#15803d" stroke-width="1"/>
+    <text x="528" y="174" font-weight="700" fill="#15803d">S — synthesis</text>
+    <text x="528" y="188" fill="#4a5568">DNA replicates. 46 chromosomes</text>
+    <text x="528" y="200" fill="#4a5568">become 46 doubled chromosomes</text>
+    <text x="528" y="212" fill="#4a5568">(92 sister chromatids).</text>
+
+    <!-- G2 -->
+    <rect x="510" y="222" width="14" height="14" fill="#fde68a" stroke="#b45309" stroke-width="1"/>
+    <text x="528" y="234" font-weight="700" fill="#b45309">G₂ — gap 2</text>
+    <text x="528" y="248" fill="#4a5568">Builds spindle proteins. Checks</text>
+    <text x="528" y="260" fill="#4a5568">DNA copies for damage.</text>
+
+    <!-- M -->
+    <rect x="510" y="270" width="14" height="14" fill="#fee2e2" stroke="#dc2626" stroke-width="1"/>
+    <text x="528" y="282" font-weight="700" fill="#dc2626">M — mitosis + cytokinesis</text>
+    <text x="528" y="296" fill="#4a5568">Chromosomes condense, align,</text>
+    <text x="528" y="308" fill="#4a5568">separate. Cytoplasm splits → 2 cells.</text>
+
+    <!-- G0 -->
+    <rect x="510" y="318" width="14" height="14" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+    <text x="528" y="330" font-weight="700" fill="#4a5568">G₀ — quiescent</text>
+    <text x="528" y="344" fill="#4a5568">Differentiated cells (e.g. neurons)</text>
+    <text x="528" y="356" fill="#4a5568">leave the cycle here. Some never return.</text>
+
+    <!-- Checkpoints -->
+    <polygon points="510,372 514,378 522,378 516,382 518,388 510,384 502,388 504,382 498,378 506,378" fill="#f59e0b" stroke="#78350f" stroke-width="0.6"/>
+    <text x="528" y="380" font-weight="700" fill="#78350f">3 Checkpoints</text>
+    <text x="528" y="394" fill="#4a5568">G₁/S — commit to division?</text>
+    <text x="528" y="406" fill="#4a5568">G₂/M — DNA damage?</text>
+    <text x="528" y="418" fill="#4a5568">Spindle — chromosomes attached?</text>
+
+    <text x="528" y="442" font-size="9" font-style="italic" fill="#7c3aed">Cancer = checkpoints failing.</text>
+  </g>
+
+  <!-- Footer hint -->
+  <text x="380" y="510" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Most of a cell's life is the slow, productive interphase — division is just the punctuation.</text>
+</svg>

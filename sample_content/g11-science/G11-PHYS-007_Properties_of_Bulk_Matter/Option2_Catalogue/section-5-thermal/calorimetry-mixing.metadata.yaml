@@ -1,0 +1,14 @@
+schema_version: 1
+id: physics-bulk-matter-calorimetry-mixing
+kind: image
+subject: physics
+topic_phrase: "calorimetry energy balance when a hot solid and cold liquid reach equilibrium temperature"
+keywords:
+  - thermal-properties
+  - calorimetry
+  - specific-heat
+  - heat-transfer
+  - thermal-equilibrium
+  - principle-of-calorimetry
+license: platform-cc-by-sa
+source_unit: G11-PHYS-007

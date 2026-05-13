@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 360" width="620" height="360" role="img" aria-label="Van der Waals Isotherms Showing the Critical Point">
+  <title>Van der Waals  P–V Isotherms and the Critical Point</title>
+  <desc>P-V isotherms predicted by the van der Waals equation. At temperatures below the critical temperature T_c the isotherm has an S-shaped wiggle that crosses a horizontal liquid-vapour coexistence line; the dome under that envelope is the two-phase region. Exactly at T_c the wiggle collapses to a single horizontal inflection point — the critical point C. Above T_c isotherms are smooth and monotonic, approaching ideal-gas hyperbolae at high T.</desc>
+
+  <text x="310" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Van der Waals  P–V Isotherms with Critical Point  C</text>
+
+  <!-- Plot area -->
+  <rect x="70" y="50" width="450" height="240" fill="#f7fafc" stroke="#e2e8f0" />
+
+  <!-- Grid -->
+  <g stroke="#e2e8f0" stroke-width="0.6">
+    <line x1="70" y1="240" x2="520" y2="240" />
+    <line x1="70" y1="190" x2="520" y2="190" />
+    <line x1="70" y1="140" x2="520" y2="140" />
+    <line x1="70" y1="90" x2="520" y2="90" />
+    <line x1="160" y1="50" x2="160" y2="290" />
+    <line x1="250" y1="50" x2="250" y2="290" />
+    <line x1="340" y1="50" x2="340" y2="290" />
+    <line x1="430" y1="50" x2="430" y2="290" />
+  </g>
+
+  <!-- Axes -->
+  <line x1="70" y1="290" x2="520" y2="290" stroke="#1a202c" stroke-width="1.5" />
+  <line x1="70" y1="50" x2="70" y2="290" stroke="#1a202c" stroke-width="1.5" />
+
+  <text x="295" y="316" font-size="13" font-weight="600" fill="#1a202c" text-anchor="middle">Volume  V</text>
+  <text x="32" y="170" font-size="13" font-weight="600" fill="#1a202c" text-anchor="middle" transform="rotate(-90 32 170)">Pressure  P</text>
+
+  <!-- Coexistence dome (parabola-like envelope under critical point) -->
+  <path d="M 110 240 Q 145 180 195 130 Q 240 100 290 130 Q 340 180 380 240"
+        fill="#fde68a" fill-opacity="0.55" stroke="#b45309" stroke-width="2" stroke-dasharray="6 4" />
+  <text x="245" y="220" font-size="11" font-weight="700" fill="#b45309" text-anchor="middle">two-phase</text>
+  <text x="245" y="234" font-size="11" font-weight="700" fill="#b45309" text-anchor="middle">(liquid + vapour)</text>
+
+  <!-- T1 (cold) isotherm: passes below dome with S-shaped wiggle -->
+  <!-- Steep drop on left (liquid), rises through wiggle (Maxwell construction shows constant), then drop on right -->
+  <path d="M 90 75 Q 110 110 130 175 Q 145 235 170 250 Q 200 246 235 220 Q 270 190 305 220 Q 340 250 380 250 Q 420 252 470 257 Q 500 261 510 263"
+        fill="none" stroke="#1d4ed8" stroke-width="2.4" stroke-linecap="round" />
+  <text x="98" y="68" font-size="11" font-weight="700" fill="#1d4ed8">T₁ &lt; T_c</text>
+
+  <!-- Maxwell horizontal coexistence segment for T1 (shown as a thin dashed line) -->
+  <line x1="170" y1="232" x2="380" y2="232" stroke="#1d4ed8" stroke-width="1.2" stroke-dasharray="3 3" />
+
+  <!-- T_c isotherm: smooth, with inflection at C -->
+  <path d="M 90 65 Q 130 110 195 130 Q 240 140 290 150 Q 340 165 400 195 Q 460 220 510 240"
+        fill="none" stroke="#dd6b20" stroke-width="3" stroke-linecap="round" />
+  <text x="180" y="105" font-size="11" font-weight="700" fill="#dd6b20">T = T_c</text>
+
+  <!-- Critical point C -->
+  <circle cx="240" cy="140" r="6" fill="#dc2626" stroke="#7c2d12" stroke-width="1.8" />
+  <text x="248" y="135" font-size="13" font-weight="700" fill="#dc2626">C</text>
+  <text x="248" y="148" font-size="9" fill="#7c2d12">critical point</text>
+
+  <!-- T2 (>T_c) isotherm: smooth hyperbola -->
+  <path d="M 95 60 Q 160 75 230 95 Q 305 115 380 145 Q 450 175 510 215"
+        fill="none" stroke="#15803d" stroke-width="2.4" stroke-linecap="round" />
+  <text x="380" y="135" font-size="11" font-weight="700" fill="#15803d">T₂ &gt; T_c</text>
+
+  <!-- T3 (>>T_c) isotherm -->
+  <path d="M 110 55 Q 200 75 290 90 Q 380 105 470 125 Q 510 132 519 134"
+        fill="none" stroke="#9333ea" stroke-width="2.4" stroke-linecap="round" />
+  <text x="430" y="115" font-size="11" font-weight="700" fill="#9333ea">T₃ ≫ T_c  (≈ ideal)</text>
+
+  <!-- Region labels -->
+  <text x="110" y="278" font-size="10" font-style="italic" fill="#4a5568">liquid</text>
+  <text x="455" y="278" font-size="10" font-style="italic" fill="#4a5568">gas</text>
+
+  <!-- Right info card on the side, kept narrow so it doesn't overlap data -->
+  <rect x="530" y="50" width="80" height="240" rx="6" fill="#f7fafc" stroke="#cbd5e1" />
+  <text x="570" y="68" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Critical</text>
+  <text x="570" y="80" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">point</text>
+
+  <text x="540" y="100" font-size="10" font-weight="700" fill="#dc2626">∂P/∂V = 0</text>
+  <text x="540" y="115" font-size="10" font-weight="700" fill="#dc2626">∂²P/∂V² = 0</text>
+
+  <text x="540" y="138" font-size="9" fill="#1a202c">vdW gives:</text>
+  <text x="540" y="152" font-size="10" font-weight="700" fill="#1d4ed8">V_c = 3 b</text>
+  <text x="540" y="166" font-size="10" font-weight="700" fill="#1d4ed8">P_c = a/27 b²</text>
+  <text x="540" y="180" font-size="10" font-weight="700" fill="#1d4ed8">k_B T_c = 8a/27b</text>
+
+  <text x="540" y="206" font-size="9" fill="#4a5568">For CO₂:</text>
+  <text x="540" y="220" font-size="9" fill="#4a5568">T_c = 304 K</text>
+  <text x="540" y="232" font-size="9" fill="#4a5568">P_c = 73 atm</text>
+
+  <text x="540" y="258" font-size="9" font-style="italic" fill="#4a5568">Above C the gas–liquid distinction</text>
+  <text x="540" y="270" font-size="9" font-style="italic" fill="#4a5568">vanishes — supercritical fluid.</text>
+
+  <!-- Bottom note -->
+  <text x="310" y="338" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">The critical point is where the gas–liquid distinction disappears — and where the ideal gas model fails most spectacularly.</text>
+</svg>

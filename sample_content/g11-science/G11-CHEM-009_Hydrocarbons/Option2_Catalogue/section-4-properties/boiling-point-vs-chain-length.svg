@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" width="720" height="420" role="img" aria-label="Boiling point of n-alkanes vs chain length C1 to C10">
+  <title>Boiling Point vs Chain Length — n-Alkanes</title>
+  <desc>Plot of boiling point (in °C) versus number of carbons for the first ten n-alkanes. Methane −162, ethane −89, propane −42, butane −1, pentane 36, hexane 69, heptane 98, octane 126, nonane 151, decane 174. Boiling point increases monotonically with chain length because longer chains have more surface area, which gives stronger London dispersion forces.</desc>
+
+  <text x="360" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Boiling Point of n-Alkanes vs Chain Length</text>
+  <text x="360" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Longer chain → larger surface → stronger London dispersion → higher b.p.</text>
+
+  <!-- axes & plot area: x = 80..680 ; y = 60..360 -->
+  <!-- bp range: -180 .. +200 ; total 380°C; map to 300px -->
+  <!-- y for bp: y(bp) = 360 - ((bp - (-180)) / 380) * 300 -->
+
+  <!-- Plot area background -->
+  <rect x="80" y="60" width="600" height="300" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1"/>
+
+  <!-- Y axis -->
+  <line x1="80" y1="60" x2="80" y2="360" stroke="#1a202c" stroke-width="1.5"/>
+  <!-- X axis (at bp = 0 → y = 360 - (180/380)*300 = 360 - 142 = 218) -->
+  <line x1="80" y1="218" x2="680" y2="218" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="688" y="222" font-size="9" fill="#94a3b8">0 °C</text>
+
+  <line x1="80" y1="360" x2="680" y2="360" stroke="#1a202c" stroke-width="1.5"/>
+
+  <!-- Y ticks: -160, -80, 0, 80, 160 -->
+  <g font-size="9" fill="#475569" text-anchor="end">
+    <line x1="74" y1="76" x2="80" y2="76" stroke="#1a202c" stroke-width="1"/><text x="70" y="80">+200</text>
+    <line x1="74" y1="139" x2="80" y2="139" stroke="#1a202c" stroke-width="1"/><text x="70" y="143">+120</text>
+    <line x1="74" y1="186" x2="80" y2="186" stroke="#1a202c" stroke-width="1"/><text x="70" y="190">+40</text>
+    <line x1="74" y1="218" x2="80" y2="218" stroke="#1a202c" stroke-width="1"/><text x="70" y="222">0</text>
+    <line x1="74" y1="265" x2="80" y2="265" stroke="#1a202c" stroke-width="1"/><text x="70" y="269">−80</text>
+    <line x1="74" y1="313" x2="80" y2="313" stroke="#1a202c" stroke-width="1"/><text x="70" y="317">−160</text>
+  </g>
+
+  <text x="30" y="210" font-size="11" font-weight="700" fill="#1a202c" transform="rotate(-90 30 210)" text-anchor="middle">Boiling point (°C)</text>
+
+  <!-- X ticks at C1..C10 (every 60 px from x=120) -->
+  <g font-size="10" fill="#475569" text-anchor="middle">
+    <line x1="120" y1="360" x2="120" y2="366" stroke="#1a202c" stroke-width="1"/><text x="120" y="378">1</text>
+    <line x1="180" y1="360" x2="180" y2="366" stroke="#1a202c" stroke-width="1"/><text x="180" y="378">2</text>
+    <line x1="240" y1="360" x2="240" y2="366" stroke="#1a202c" stroke-width="1"/><text x="240" y="378">3</text>
+    <line x1="300" y1="360" x2="300" y2="366" stroke="#1a202c" stroke-width="1"/><text x="300" y="378">4</text>
+    <line x1="360" y1="360" x2="360" y2="366" stroke="#1a202c" stroke-width="1"/><text x="360" y="378">5</text>
+    <line x1="420" y1="360" x2="420" y2="366" stroke="#1a202c" stroke-width="1"/><text x="420" y="378">6</text>
+    <line x1="480" y1="360" x2="480" y2="366" stroke="#1a202c" stroke-width="1"/><text x="480" y="378">7</text>
+    <line x1="540" y1="360" x2="540" y2="366" stroke="#1a202c" stroke-width="1"/><text x="540" y="378">8</text>
+    <line x1="600" y1="360" x2="600" y2="366" stroke="#1a202c" stroke-width="1"/><text x="600" y="378">9</text>
+    <line x1="660" y1="360" x2="660" y2="366" stroke="#1a202c" stroke-width="1"/><text x="660" y="378">10</text>
+  </g>
+  <text x="380" y="402" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Number of carbons (n)</text>
+
+  <!-- Data points and line.
+       y = 360 - ((bp + 180) / 380) * 300
+       C1 (-162) → 360 - (18/380)*300 = 360 - 14.21 = 345.79
+       C2 (-89)  → 360 - (91/380)*300 = 360 - 71.84 = 288.16
+       C3 (-42)  → 360 - (138/380)*300 = 360 - 108.95 = 251.05
+       C4 (-1)   → 360 - (179/380)*300 = 360 - 141.32 = 218.68
+       C5 (36)   → 360 - (216/380)*300 = 360 - 170.53 = 189.47
+       C6 (69)   → 360 - (249/380)*300 = 360 - 196.58 = 163.42
+       C7 (98)   → 360 - (278/380)*300 = 360 - 219.47 = 140.53
+       C8 (126)  → 360 - (306/380)*300 = 360 - 241.58 = 118.42
+       C9 (151)  → 360 - (331/380)*300 = 360 - 261.32 = 98.68
+       C10(174)  → 360 - (354/380)*300 = 360 - 279.47 = 80.53
+  -->
+  <polyline
+    points="120,346 180,288 240,251 300,219 360,189 420,163 480,141 540,118 600,99 660,81"
+    fill="none" stroke="#7e22ce" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" />
+
+  <g fill="#dc2626" stroke="#7f1d1d" stroke-width="1.5">
+    <circle cx="120" cy="346" r="5"/>
+    <circle cx="180" cy="288" r="5"/>
+    <circle cx="240" cy="251" r="5"/>
+    <circle cx="300" cy="219" r="5"/>
+    <circle cx="360" cy="189" r="5"/>
+    <circle cx="420" cy="163" r="5"/>
+    <circle cx="480" cy="141" r="5"/>
+    <circle cx="540" cy="118" r="5"/>
+    <circle cx="600" cy="99" r="5"/>
+    <circle cx="660" cy="81" r="5"/>
+  </g>
+
+  <!-- Phase shading: gas region (b.p. < 25°C → above the gas threshold line) -->
+  <!-- 25°C → y = 360 - (205/380)*300 = 360 - 161.84 = 198.16 -->
+  <line x1="80" y1="198" x2="680" y2="198" stroke="#15803d" stroke-width="1" stroke-dasharray="2 2"/>
+  <text x="600" y="194" font-size="9" fill="#15803d" text-anchor="end">25 °C — room temp</text>
+
+  <!-- Phase labels in plot -->
+  <text x="180" y="340" font-size="10" font-weight="700" fill="#dc2626" text-anchor="middle">GAS phase</text>
+  <text x="180" y="354" font-size="9" fill="#dc2626" text-anchor="middle">(b.p. &lt; 25°C)</text>
+  <text x="540" y="80" font-size="10" font-weight="700" fill="#1d4ed8" text-anchor="middle">LIQUID phase</text>
+  <text x="540" y="94" font-size="9" fill="#1d4ed8" text-anchor="middle">(b.p. &gt; 25°C)</text>
+
+  <!-- Annotation -->
+  <rect x="380" y="248" width="280" height="60" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1"/>
+  <text x="520" y="266" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">Why ascending?</text>
+  <text x="520" y="282" font-size="9" fill="#92400e" text-anchor="middle">Each extra –CH₂– adds ~2 nm² of surface area.</text>
+  <text x="520" y="296" font-size="9" fill="#92400e" text-anchor="middle">More surface → more London dispersion → higher b.p.</text>
+</svg>

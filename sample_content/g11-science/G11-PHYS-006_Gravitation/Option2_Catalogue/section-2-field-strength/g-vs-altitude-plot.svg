@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 320" width="480" height="320" role="img" aria-label="Gravitational field strength versus altitude above Earth's surface">
+  <title>g vs altitude above Earth's surface</title>
+  <desc>Curve showing how surface gravity g decreases with altitude h above Earth's surface, computed from g equals G M over R plus h squared. At the surface g equals 9.81 metres per second squared; at the ISS altitude (about 400 km) g is still 8.69; only at one Earth radius up does g drop to one quarter of its surface value.</desc>
+
+  <rect x="60" y="32" width="390" height="238" fill="#f7fafc" stroke="#e2e8f0" />
+
+  <!-- Vertical grid (h: 0..20000 km, every 4000) -->
+  <line x1="60" y1="32" x2="60" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="60" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">0</text>
+  <line x1="138" y1="32" x2="138" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="138" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">4 000</text>
+  <line x1="216" y1="32" x2="216" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="216" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">8 000</text>
+  <line x1="294" y1="32" x2="294" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="294" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">12 000</text>
+  <line x1="372" y1="32" x2="372" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="372" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">16 000</text>
+  <line x1="450" y1="32" x2="450" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="450" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">20 000</text>
+
+  <!-- Horizontal grid (g: 0..10, every 2) -->
+  <line x1="60" y1="270" x2="450" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="274" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">0</text>
+  <line x1="60" y1="222.4" x2="450" y2="222.4" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="226.4" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">2</text>
+  <line x1="60" y1="174.8" x2="450" y2="174.8" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="178.8" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">4</text>
+  <line x1="60" y1="127.2" x2="450" y2="127.2" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="131.2" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">6</text>
+  <line x1="60" y1="79.6" x2="450" y2="79.6" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="83.6" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">8</text>
+  <line x1="60" y1="32" x2="450" y2="32" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="36" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">10</text>
+
+  <line x1="60" y1="270" x2="450" y2="270" stroke="#94a3b8" stroke-width="1.2" />
+  <line x1="60" y1="32" x2="60" y2="270" stroke="#94a3b8" stroke-width="1.2" />
+
+  <text x="255" y="302" font="13px system-ui" font-size="13" font-weight="600" fill="#1a202c" text-anchor="middle">altitude h above Earth's surface  (km)</text>
+  <text x="24" y="151" font="13px system-ui" font-size="13" font-weight="600" fill="#1a202c" text-anchor="middle" transform="rotate(-90 24 151)">g  (m/s²)</text>
+
+  <text x="255" y="20" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Earth surface gravity g vs altitude  (R_⊕ ≈ 6 371 km)</text>
+
+  <!-- g(h) = 9.81 * (R/(R+h))^2 with R=6371, sampled -->
+  <polyline points="60.00,36.52 63.25,48.27 66.50,59.16 69.75,69.27 73.00,78.66 76.25,87.41 79.50,95.58 82.75,103.20 86.00,110.34 89.25,117.03 92.50,123.31 95.75,129.21 99.00,134.76 102.25,139.99 105.50,144.92 108.75,149.58 112.00,153.98 115.25,158.14 118.50,162.08 121.75,165.82 125.00,169.37 128.25,172.74 131.50,175.94 134.75,178.99 138.00,181.89 141.25,184.66 144.50,187.29 147.75,189.81 151.00,192.21 154.25,194.51 157.50,196.71 160.75,198.81 164.00,200.82 167.25,202.75 170.50,204.60 173.75,206.37 177.00,208.08 180.25,209.71 183.50,211.28 186.75,212.79 190.00,214.25 193.25,215.65 196.50,216.99 199.75,218.29 203.00,219.54 206.25,220.75 209.50,221.91 212.75,223.03 216.00,224.11 219.25,225.16 222.50,226.17 225.75,227.15 229.00,228.09 232.25,229.01 235.50,229.89 238.75,230.75 242.00,231.57 245.25,232.38 248.50,233.15 251.75,233.91 255.00,234.64 258.25,235.35 261.50,236.04 264.75,236.70 268.00,237.35 271.25,237.98 274.50,238.59 277.75,239.19 281.00,239.77 284.25,240.33 287.50,240.87 290.75,241.40 294.00,241.92 297.25,242.42 300.50,242.91 303.75,243.39 307.00,243.85 310.25,244.30 313.50,244.74 316.75,245.17 320.00,245.59 323.25,246.00 326.50,246.40 329.75,246.78 333.00,247.16 336.25,247.53 339.50,247.89 342.75,248.24 346.00,248.59 349.25,248.92 352.50,249.25 355.75,249.57 359.00,249.88 362.25,250.19 365.50,250.49 368.75,250.78 372.00,251.06 375.25,251.34 378.50,251.62 381.75,251.88 385.00,252.14 388.25,252.40 391.50,252.65 394.75,252.89 398.00,253.13 401.25,253.37 404.50,253.60 407.75,253.82 411.00,254.04 414.25,254.26 417.50,254.47 420.75,254.68 424.00,254.88 427.25,255.08 430.50,255.28 433.75,255.47 437.00,255.66 440.25,255.84 443.50,256.02 446.75,256.20 450.00,256.37"
+    fill="none" stroke="#2b6cb0" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- Surface point: h=0, g=9.81 -->
+  <circle cx="60" cy="36.52" r="4" fill="#dc2626" />
+  <text x="68" y="34" font="11px system-ui" font-size="11" font-weight="700" fill="#dc2626">surface: g = 9.81</text>
+
+  <!-- ISS altitude ~400 km -->
+  <circle cx="67.8" cy="63.29" r="4" fill="#dd6b20" />
+  <line x1="67.8" y1="63.29" x2="120" y2="55" stroke="#dd6b20" stroke-width="0.8" />
+  <text x="125" y="55" font="11px system-ui" font-size="11" font-weight="700" fill="#dd6b20">ISS (≈400 km): g = 8.69</text>
+
+  <!-- One Earth radius up: g = g0/4 = 2.45 -->
+  <circle cx="184.23" cy="211.63" r="4" fill="#15803d" />
+  <line x1="184.23" y1="211.63" x2="240" y2="195" stroke="#15803d" stroke-width="0.8" />
+  <text x="245" y="198" font="11px system-ui" font-size="11" font-weight="700" fill="#15803d">h = R_⊕: g = ¼ g₀ ≈ 2.45</text>
+
+  <!-- Equation block -->
+  <rect x="290" y="50" width="155" height="46" rx="6" fill="#f0fdf4" stroke="#15803d" stroke-width="1" />
+  <text x="367.5" y="68" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">g(h) = G M_⊕</text>
+  <text x="367.5" y="88" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">/ (R_⊕ + h)²</text>
+
+  <text x="255" y="316" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Astronauts on the ISS still feel ≈89% of surface gravity — they are weightless because they are in free fall, not because g is zero.</text>
+</svg>

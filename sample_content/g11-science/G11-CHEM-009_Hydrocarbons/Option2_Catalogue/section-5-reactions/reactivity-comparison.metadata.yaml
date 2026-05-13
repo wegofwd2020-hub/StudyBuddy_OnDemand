@@ -1,0 +1,17 @@
+# Auto-generated for sample-content seeding — edit with the SVG and re-run sidecar build.
+schema_version: 1
+id: chemistry-reactivity-comparison
+kind: image
+subject: chemistry
+topic_phrase: "hydrocarbon reactivity comparison alkane alkene alkyne aromatic substitution addition"
+keywords:
+  - reactivity
+  - substitution
+  - addition
+  - alkane
+  - alkene
+  - alkyne
+  - aromatic
+  - comparison
+license: platform-cc-by-sa
+source_unit: G11-CHEM-009

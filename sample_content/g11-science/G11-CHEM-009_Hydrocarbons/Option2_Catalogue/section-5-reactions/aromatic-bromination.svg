@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380" role="img" aria-label="Electrophilic aromatic substitution — bromination of benzene with FeBr3 catalyst">
+  <title>Aromatic Substitution — Bromination of Benzene (Br₂ / FeBr₃)</title>
+  <desc>Electrophilic aromatic substitution: benzene + Br2 with iron(III) bromide catalyst gives bromobenzene + HBr. FeBr3 activates Br2 by accepting a Br- to make a stronger Br+ electrophile. The benzene ring then attacks Br+ to form the arenium-ion intermediate; loss of H+ restores aromaticity. Substitution preserves the ring; addition would destroy the ~150 kJ/mol resonance stabilisation.</desc>
+
+  <defs>
+    <marker id="ar-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1a202c" />
+    </marker>
+  </defs>
+
+  <text x="360" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Electrophilic Aromatic Substitution — Bromination of Benzene</text>
+  <text x="360" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Substitution (not addition) — preserves the aromatic π system</text>
+
+  <!-- ── Reactants -->
+  <!-- Benzene (left) -->
+  <g transform="translate(120 180)">
+    <text x="0" y="-90" font-size="12" font-weight="700" fill="#92400e" text-anchor="middle">Benzene</text>
+    <line x1="0" y1="-60" x2="52" y2="-30" stroke="#1a202c" stroke-width="2"/>
+    <line x1="52" y1="-30" x2="52" y2="30" stroke="#1a202c" stroke-width="2"/>
+    <line x1="52" y1="30" x2="0" y2="60" stroke="#1a202c" stroke-width="2"/>
+    <line x1="0" y1="60" x2="-52" y2="30" stroke="#1a202c" stroke-width="2"/>
+    <line x1="-52" y1="30" x2="-52" y2="-30" stroke="#1a202c" stroke-width="2"/>
+    <line x1="-52" y1="-30" x2="0" y2="-60" stroke="#1a202c" stroke-width="2"/>
+    <circle cx="0" cy="0" r="32" fill="none" stroke="#7e22ce" stroke-width="2.5" stroke-dasharray="3 3"/>
+    <text x="0" y="74" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">C₆H₆</text>
+  </g>
+
+  <text x="200" y="184" font-size="20" font-weight="700" fill="#1a202c" text-anchor="middle">+</text>
+
+  <!-- Br2 -->
+  <g transform="translate(260 180)">
+    <text x="0" y="-90" font-size="12" font-weight="700" fill="#7e22ce" text-anchor="middle">Bromine</text>
+    <circle cx="-15" cy="0" r="14" fill="#7e22ce" stroke="#581c87" stroke-width="1.5"/>
+    <text x="-15" y="4" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">Br</text>
+    <circle cx="15" cy="0" r="14" fill="#7e22ce" stroke="#581c87" stroke-width="1.5"/>
+    <text x="15" y="4" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">Br</text>
+    <line x1="-1" y1="0" x2="1" y2="0" stroke="#1a202c" stroke-width="2"/>
+    <text x="0" y="48" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Br₂</text>
+  </g>
+
+  <!-- Reaction arrow with FeBr3 catalyst above -->
+  <line x1="320" y1="180" x2="430" y2="180" stroke="#1a202c" stroke-width="2.5" marker-end="url(#ar-arr)"/>
+  <text x="375" y="166" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">FeBr₃</text>
+  <text x="375" y="200" font-size="9" font-style="italic" fill="#475569" text-anchor="middle">Lewis-acid catalyst</text>
+
+  <!-- ── Products -->
+  <!-- Bromobenzene -->
+  <g transform="translate(500 180)">
+    <text x="0" y="-90" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">Bromobenzene</text>
+    <line x1="0" y1="-60" x2="52" y2="-30" stroke="#1a202c" stroke-width="2"/>
+    <line x1="52" y1="-30" x2="52" y2="30" stroke="#1a202c" stroke-width="2"/>
+    <line x1="52" y1="30" x2="0" y2="60" stroke="#1a202c" stroke-width="2"/>
+    <line x1="0" y1="60" x2="-52" y2="30" stroke="#1a202c" stroke-width="2"/>
+    <line x1="-52" y1="30" x2="-52" y2="-30" stroke="#1a202c" stroke-width="2"/>
+    <line x1="-52" y1="-30" x2="0" y2="-60" stroke="#1a202c" stroke-width="2"/>
+    <circle cx="0" cy="0" r="32" fill="none" stroke="#7e22ce" stroke-width="2.5" stroke-dasharray="3 3"/>
+    <!-- Br substituent on top vertex -->
+    <line x1="0" y1="-60" x2="0" y2="-78" stroke="#1a202c" stroke-width="2"/>
+    <circle cx="0" cy="-90" r="14" fill="#7e22ce" stroke="#581c87" stroke-width="1.5"/>
+    <text x="0" y="-86" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">Br</text>
+    <text x="0" y="76" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle">C₆H₅Br</text>
+  </g>
+
+  <text x="580" y="184" font-size="20" font-weight="700" fill="#1a202c" text-anchor="middle">+</text>
+
+  <!-- HBr -->
+  <g transform="translate(640 180)">
+    <text x="0" y="-90" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Hydrogen bromide</text>
+    <circle cx="-14" cy="0" r="10" fill="#fde68a" stroke="#92400e" stroke-width="1.5"/>
+    <text x="-14" y="4" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <circle cx="14" cy="0" r="14" fill="#7e22ce" stroke="#581c87" stroke-width="1.5"/>
+    <text x="14" y="4" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">Br</text>
+    <line x1="-4" y1="0" x2="0" y2="0" stroke="#1a202c" stroke-width="1.5"/>
+    <text x="0" y="40" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">HBr</text>
+  </g>
+
+  <!-- Mechanism callout -->
+  <rect x="40" y="280" width="640" height="86" rx="6" fill="#dbeafe" stroke="#1e3a8a" stroke-width="1.5"/>
+  <text x="360" y="300" font-size="12" font-weight="700" fill="#1e3a8a" text-anchor="middle">Why does the ring substitute, not add?</text>
+  <text x="360" y="320" font-size="11" fill="#1a202c" text-anchor="middle">FeBr₃ + Br₂ → Br⁺ + FeBr₄⁻  · Br⁺ attacks π-cloud → arenium-ion intermediate → loses H⁺ to FeBr₄⁻</text>
+  <text x="360" y="338" font-size="11" fill="#1a202c" text-anchor="middle">Loss of H⁺ restores aromaticity — addition would destroy ~150 kJ/mol of resonance stabilisation</text>
+  <text x="360" y="358" font-size="10" font-style="italic" fill="#475569" text-anchor="middle">Net: C₆H₆ + Br₂ →(FeBr₃) C₆H₅Br + HBr  · contrast with alkenes which always add Br₂</text>
+</svg>

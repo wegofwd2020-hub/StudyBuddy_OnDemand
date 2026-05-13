@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 480" width="760" height="480" role="img" aria-label="Elimination and oxidation–reduction reactions in organic chemistry">
+  <title>Elimination &amp; Redox — The Other Two Reaction Types</title>
+  <desc>Elimination is the opposite of addition: a small molecule (often H2O or HX) is removed and a multiple bond is created. Redox in organic chemistry is tracked by counting C–H and C–O bonds: gaining O or losing H = oxidation; losing O or gaining H = reduction.</desc>
+
+  <text x="380" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Elimination &amp; Redox in Organic Chemistry</text>
+  <text x="380" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Two more reaction types you must recognise: elimination (creates a multiple bond) and redox (changes C oxidation state).</text>
+
+  <!-- ── ELIMINATION ──────────────────────────────────────────────── -->
+  <g transform="translate(0, 60)">
+    <rect x="20" y="0" width="720" height="170" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="1.5" />
+    <text x="380" y="22" font-size="13" font-weight="700" fill="#92400e" text-anchor="middle">Elimination — opposite of addition</text>
+    <text x="380" y="40" font-size="11" fill="#92400e" text-anchor="middle">Acid-catalysed dehydration of ethanol → ethene + water</text>
+
+    <!-- ethanol structural -->
+    <g transform="translate(120, 100)">
+      <text x="-40" y="6" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">CH₃</text>
+      <text x="0" y="6" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">–CH₂</text>
+      <text x="40" y="6" font-size="14" font-weight="700" fill="#dc2626" text-anchor="middle">–OH</text>
+      <text x="0" y="32" font-size="10" fill="#4a5568" text-anchor="middle">ethanol</text>
+    </g>
+
+    <!-- arrow + conditions -->
+    <line x1="220" y1="100" x2="320" y2="100" stroke="#1a202c" stroke-width="2" />
+    <polygon points="320,94 332,100 320,106" fill="#1a202c" />
+    <text x="270" y="86" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">conc. H₂SO₄</text>
+    <text x="270" y="118" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">170 °C</text>
+
+    <!-- ethene -->
+    <g transform="translate(420, 100)">
+      <line x1="-20" y1="-4" x2="20" y2="-4" stroke="#1a202c" stroke-width="2.5" />
+      <line x1="-20" y1="4" x2="20" y2="4" stroke="#1a202c" stroke-width="2.5" />
+      <text x="-30" y="3" font-size="14" font-weight="700" fill="#1a202c" text-anchor="end">CH₂</text>
+      <text x="30" y="3" font-size="14" font-weight="700" fill="#1a202c" text-anchor="start">CH₂</text>
+      <text x="0" y="32" font-size="10" fill="#4a5568" text-anchor="middle">ethene</text>
+    </g>
+
+    <text x="510" y="103" font-size="20" font-weight="700" fill="#1a202c" text-anchor="middle">+</text>
+
+    <!-- water -->
+    <g transform="translate(580, 100)">
+      <text x="0" y="6" font-size="16" font-weight="700" fill="#1e40af" text-anchor="middle">H₂O</text>
+      <text x="0" y="32" font-size="10" fill="#4a5568" text-anchor="middle">water (eliminated)</text>
+    </g>
+
+    <text x="380" y="158" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">"–OH and –H lost from adjacent carbons → π bond forms in their place."</text>
+  </g>
+
+  <!-- ── REDOX ────────────────────────────────────────────────────── -->
+  <g transform="translate(0, 250)">
+    <rect x="20" y="0" width="720" height="200" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5" />
+    <text x="380" y="22" font-size="13" font-weight="700" fill="#14532d" text-anchor="middle">Oxidation–reduction — track the C oxidation state</text>
+    <text x="380" y="40" font-size="11" fill="#15803d" text-anchor="middle">Oxidation = gain O or lose H · Reduction = lose O or gain H</text>
+
+    <!-- chain: methane -> methanol -> methanal -> methanoic acid -> CO2 -->
+    <g transform="translate(60, 100)">
+      <text x="0" y="0" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">CH₄</text>
+      <text x="0" y="22" font-size="9" fill="#4a5568" text-anchor="middle">methane</text>
+      <text x="0" y="38" font-size="9" font-weight="700" fill="#1e40af" text-anchor="middle">−4</text>
+    </g>
+
+    <line x1="100" y1="98" x2="170" y2="98" stroke="#15803d" stroke-width="2" />
+    <polygon points="170,92 184,98 170,104" fill="#15803d" />
+    <text x="135" y="84" font-size="9" font-weight="700" fill="#15803d" text-anchor="middle">[O]</text>
+
+    <g transform="translate(220, 100)">
+      <text x="0" y="0" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">CH₃OH</text>
+      <text x="0" y="22" font-size="9" fill="#4a5568" text-anchor="middle">methanol</text>
+      <text x="0" y="38" font-size="9" font-weight="700" fill="#1e40af" text-anchor="middle">−2</text>
+    </g>
+
+    <line x1="280" y1="98" x2="350" y2="98" stroke="#15803d" stroke-width="2" />
+    <polygon points="350,92 364,98 350,104" fill="#15803d" />
+    <text x="315" y="84" font-size="9" font-weight="700" fill="#15803d" text-anchor="middle">[O]</text>
+
+    <g transform="translate(400, 100)">
+      <text x="0" y="0" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">HCHO</text>
+      <text x="0" y="22" font-size="9" fill="#4a5568" text-anchor="middle">methanal</text>
+      <text x="0" y="38" font-size="9" font-weight="700" fill="#1e40af" text-anchor="middle">0</text>
+    </g>
+
+    <line x1="455" y1="98" x2="525" y2="98" stroke="#15803d" stroke-width="2" />
+    <polygon points="525,92 539,98 525,104" fill="#15803d" />
+    <text x="490" y="84" font-size="9" font-weight="700" fill="#15803d" text-anchor="middle">[O]</text>
+
+    <g transform="translate(575, 100)">
+      <text x="0" y="0" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">HCOOH</text>
+      <text x="0" y="22" font-size="9" fill="#4a5568" text-anchor="middle">methanoic acid</text>
+      <text x="0" y="38" font-size="9" font-weight="700" fill="#1e40af" text-anchor="middle">+2</text>
+    </g>
+
+    <!-- back-arrow showing reduction direction -->
+    <g transform="translate(60, 158)">
+      <line x1="0" y1="0" x2="610" y2="0" stroke="#7f1d1d" stroke-width="2" />
+      <polygon points="0,-6 -14,0 0,6" fill="#7f1d1d" />
+      <text x="305" y="-6" font-size="11" font-weight="700" fill="#7f1d1d" text-anchor="middle">reduction · [H] · LiAlH₄, NaBH₄, H₂/Ni</text>
+    </g>
+    <text x="380" y="190" font-size="9" fill="#4a5568" text-anchor="middle">Each step: replace one C–H by one C–O (oxidation) or one C–O by one C–H (reduction). Combustion is the limit: −4 → +4.</text>
+  </g>
+</svg>

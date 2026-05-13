@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380" role="img" aria-label="Electron gain enthalpy comparison halogens">
+  <title>Electron Gain Enthalpy — How Eagerly an Atom Accepts an Electron</title>
+  <desc>Bar chart of electron gain enthalpy (kJ/mol) for the four halogens F, Cl, Br, I. Cl is the most negative (-349 kJ/mol, most exothermic). F is anomalously less negative (-328 kJ/mol) due to its small size and electron-electron repulsion. Br is -325, I is -295. Negative values mean energy is released when the atom gains an electron. Anomaly callout for F.</desc>
+
+  <text x="360" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Electron Gain Enthalpy — Halogens</text>
+  <text x="360" y="40" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Energy change when an atom gains 1 e⁻. More negative = more energy released = more eager.</text>
+
+  <!-- Bar chart -->
+  <!-- y-axis: 0 to -400 kJ/mol; 0 at top y=70; -400 at bottom y=270 -->
+  <!-- mapY(v) = 70 + |v| * 0.5  -->
+
+  <line x1="120" y1="70" x2="120" y2="270" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="120" y1="70" x2="640" y2="70" stroke="#1a202c" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="100" y="74" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="end">0</text>
+
+  <!-- Y-axis ticks: -100 -200 -300 -400 -->
+  <g font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="end">
+    <line x1="116" y1="120" x2="120" y2="120" stroke="#1a202c" stroke-width="1"/>
+    <text x="114" y="123">−100</text>
+    <line x1="116" y1="170" x2="120" y2="170" stroke="#1a202c" stroke-width="1"/>
+    <text x="114" y="173">−200</text>
+    <line x1="116" y1="220" x2="120" y2="220" stroke="#1a202c" stroke-width="1"/>
+    <text x="114" y="223">−300</text>
+    <line x1="116" y1="270" x2="120" y2="270" stroke="#1a202c" stroke-width="1"/>
+    <text x="114" y="273">−400</text>
+  </g>
+
+  <text x="46" y="170" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#4a5568" transform="rotate(-90 46 170)" text-anchor="middle">ΔH_eg (kJ/mol)</text>
+
+  <!-- X-axis -->
+  <line x1="120" y1="70" x2="640" y2="70" stroke="#1a202c" stroke-width="1.5"/>
+
+  <!-- Bars: F -328, Cl -349, Br -325, I -295. Width 80, gap 30 -->
+  <!-- F: x=170; bar from y=70 to 70+164=234 -->
+  <rect x="170" y="70" width="80" height="164" fill="#dc2626" opacity="0.65" stroke="#991b1b" stroke-width="1.5"/>
+  <text x="210" y="248" font="9px system-ui" font-size="9" fill="#1a202c" text-anchor="middle">−328</text>
+  <text x="210" y="288" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#7c2d12" text-anchor="middle">F</text>
+  <text x="210" y="304" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">2p⁵</text>
+
+  <!-- Cl: x=290; bar y=70 to 70+174.5=244.5 (most negative) -->
+  <rect x="290" y="70" width="80" height="174.5" fill="#15803d" opacity="0.85" stroke="#14532d" stroke-width="2"/>
+  <text x="330" y="258" font="9px system-ui" font-size="9" fill="#1a202c" text-anchor="middle">−349</text>
+  <text x="330" y="288" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#14532d" text-anchor="middle">Cl ★</text>
+  <text x="330" y="304" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">3p⁵</text>
+
+  <!-- Br: x=410; bar y=70 to 70+162.5=232.5 -->
+  <rect x="410" y="70" width="80" height="162.5" fill="#dc2626" opacity="0.65" stroke="#991b1b" stroke-width="1.5"/>
+  <text x="450" y="246" font="9px system-ui" font-size="9" fill="#1a202c" text-anchor="middle">−325</text>
+  <text x="450" y="288" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#7c2d12" text-anchor="middle">Br</text>
+  <text x="450" y="304" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">4p⁵</text>
+
+  <!-- I: x=530; bar y=70 to 70+147.5=217.5 -->
+  <rect x="530" y="70" width="80" height="147.5" fill="#dc2626" opacity="0.65" stroke="#991b1b" stroke-width="1.5"/>
+  <text x="570" y="231" font="9px system-ui" font-size="9" fill="#1a202c" text-anchor="middle">−295</text>
+  <text x="570" y="288" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#7c2d12" text-anchor="middle">I</text>
+  <text x="570" y="304" font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="middle">5p⁵</text>
+
+  <!-- Anomaly callout for F -->
+  <g transform="translate(160, 116)">
+    <rect x="0" y="0" width="180" height="46" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+    <text x="90" y="16" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#92400e" text-anchor="middle">Anomaly — F &lt; Cl</text>
+    <text x="90" y="30" font="9px system-ui" font-size="9" fill="#92400e" text-anchor="middle">F's 2p shell is so compact</text>
+    <text x="90" y="42" font="9px system-ui" font-size="9" fill="#92400e" text-anchor="middle">that incoming e⁻ is repelled.</text>
+    <line x1="90" y1="46" x2="90" y2="62" stroke="#d97706" stroke-width="1.5"/>
+  </g>
+
+  <!-- Bottom strip -->
+  <g transform="translate(40, 320)">
+    <rect x="0" y="0" width="640" height="50" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+    <text x="320" y="18" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#92400e" text-anchor="middle">Halogens (np⁵): one e⁻ short of a noble gas → grab the next one eagerly. Cl is the eagerness peak.</text>
+    <text x="320" y="36" font="11px system-ui" font-size="11" fill="#92400e" text-anchor="middle">Noble gases (np⁶): adding an e⁻ would need a new shell — endothermic, no eagerness at all.</text>
+  </g>
+
+</svg>

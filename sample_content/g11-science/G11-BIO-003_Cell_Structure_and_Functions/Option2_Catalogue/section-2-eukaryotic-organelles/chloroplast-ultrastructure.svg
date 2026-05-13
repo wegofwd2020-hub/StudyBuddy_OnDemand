@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 460" width="760" height="460" role="img" aria-label="Cutaway of a chloroplast showing outer and inner membranes, thylakoids, grana, stroma and stroma lamellae">
+  <title>Chloroplast Ultrastructure — Cutaway</title>
+  <desc>A magnified cutaway of one chloroplast. Two membranes drawn distinctly: a smooth outer membrane and a smooth inner membrane (no folds). Inside the inner membrane is the stroma — a thick fluid containing chloroplast DNA, 70S ribosomes, and the Calvin-cycle enzymes. Suspended in the stroma is a third internal membrane system: flat sacs called thylakoids, stacked into grana (one stack = one granum), interconnected by stroma lamellae. Each thylakoid encloses a thylakoid lumen where H+ accumulates during the light reactions. Photosystems and ATP synthase complexes are shown on the thylakoid membrane. A side panel maps the two stages of photosynthesis (light reactions, Calvin cycle) onto the corresponding compartments.</desc>
+
+  <text x="380" y="24" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Chloroplast — Where Sunlight Becomes Sugar</text>
+  <text x="380" y="42" font-size="11" fill="#4a5568" text-anchor="middle">Three membrane systems · two compartments · photosynthesis runs in stages.</text>
+
+  <!-- Outer envelope -->
+  <ellipse cx="280" cy="240" rx="220" ry="120" fill="#f0fdf4" stroke="#15803d" stroke-width="3"/>
+  <!-- Inner envelope -->
+  <ellipse cx="280" cy="240" rx="210" ry="110" fill="#dcfce7" stroke="#14532d" stroke-width="2"/>
+
+  <!-- ── Stroma (background fill, already given by inner envelope colour) ─ -->
+
+  <!-- ── Granum 1 (left) — stack of thylakoid disks ──────────────── -->
+  <g transform="translate(130, 240)">
+    <ellipse cx="0" cy="-30" rx="34" ry="9" fill="#86efac" stroke="#14532d" stroke-width="1.6"/>
+    <ellipse cx="0" cy="-15" rx="34" ry="9" fill="#86efac" stroke="#14532d" stroke-width="1.6"/>
+    <ellipse cx="0" cy="0"   rx="34" ry="9" fill="#86efac" stroke="#14532d" stroke-width="1.6"/>
+    <ellipse cx="0" cy="15"  rx="34" ry="9" fill="#86efac" stroke="#14532d" stroke-width="1.6"/>
+    <ellipse cx="0" cy="30"  rx="34" ry="9" fill="#86efac" stroke="#14532d" stroke-width="1.6"/>
+  </g>
+
+  <!-- ── Granum 2 (centre) ───────────────────────────────────────── -->
+  <g transform="translate(280, 250)">
+    <ellipse cx="0" cy="-44" rx="38" ry="10" fill="#86efac" stroke="#14532d" stroke-width="1.6"/>
+    <ellipse cx="0" cy="-26" rx="38" ry="10" fill="#86efac" stroke="#14532d" stroke-width="1.6"/>
+    <ellipse cx="0" cy="-8"  rx="38" ry="10" fill="#86efac" stroke="#14532d" stroke-width="1.6"/>
+    <ellipse cx="0" cy="10"  rx="38" ry="10" fill="#86efac" stroke="#14532d" stroke-width="1.6"/>
+    <ellipse cx="0" cy="28"  rx="38" ry="10" fill="#86efac" stroke="#14532d" stroke-width="1.6"/>
+    <ellipse cx="0" cy="46"  rx="38" ry="10" fill="#86efac" stroke="#14532d" stroke-width="1.6"/>
+  </g>
+
+  <!-- ── Granum 3 (right) ────────────────────────────────────────── -->
+  <g transform="translate(430, 230)">
+    <ellipse cx="0" cy="-30" rx="32" ry="9" fill="#86efac" stroke="#14532d" stroke-width="1.6"/>
+    <ellipse cx="0" cy="-15" rx="32" ry="9" fill="#86efac" stroke="#14532d" stroke-width="1.6"/>
+    <ellipse cx="0" cy="0"   rx="32" ry="9" fill="#86efac" stroke="#14532d" stroke-width="1.6"/>
+    <ellipse cx="0" cy="15"  rx="32" ry="9" fill="#86efac" stroke="#14532d" stroke-width="1.6"/>
+  </g>
+
+  <!-- Stroma lamellae — connecting tubes between grana -->
+  <g stroke="#14532d" stroke-width="2" fill="none">
+    <path d="M 164 240 Q 200 220 242 240"/>
+    <path d="M 164 224 Q 200 200 242 224"/>
+    <path d="M 318 250 Q 360 230 398 240"/>
+    <path d="M 318 240 Q 360 220 398 230"/>
+  </g>
+
+  <!-- Photosystems + ATP synthase on thylakoid membranes (small markers on top granum) -->
+  <g>
+    <!-- PSII -->
+    <rect x="266" y="200" width="6" height="6" fill="#2b6cb0"/>
+    <text x="269" y="194" font-size="7" fill="#1e3a8a" text-anchor="middle" font-weight="700">PSII</text>
+    <!-- PSI -->
+    <rect x="288" y="200" width="6" height="6" fill="#dc2626"/>
+    <text x="291" y="194" font-size="7" fill="#7f1d1d" text-anchor="middle" font-weight="700">PSI</text>
+    <!-- ATP synthase -->
+    <line x1="306" y1="206" x2="306" y2="196" stroke="#15803d" stroke-width="1.4"/>
+    <circle cx="306" cy="194" r="2.5" fill="#15803d"/>
+    <text x="306" y="186" font-size="7" fill="#15803d" text-anchor="middle" font-weight="700">ATP synth.</text>
+  </g>
+
+  <!-- Stroma items -->
+  <!-- Chloroplast DNA (cpDNA) -->
+  <path d="M 200 320 Q 220 312 232 320 Q 240 332 222 340 Q 204 344 196 332 Q 188 322 200 320 Z"
+        fill="none" stroke="#7c3aed" stroke-width="2"/>
+  <text x="216" y="326" font-size="9" font-weight="700" fill="#7c3aed" text-anchor="middle">cpDNA</text>
+
+  <!-- 70S ribosomes -->
+  <g fill="#7c3aed">
+    <circle cx="380" cy="320" r="3"/>
+    <circle cx="395" cy="305" r="3"/>
+    <circle cx="362" cy="298" r="3"/>
+    <circle cx="350" cy="330" r="3"/>
+  </g>
+
+  <!-- Starch grain -->
+  <ellipse cx="380" cy="170" rx="14" ry="8" fill="#fef3c7" stroke="#b45309" stroke-width="1.5"/>
+  <text x="380" y="160" font-size="9" font-weight="700" fill="#b45309" text-anchor="middle">starch grain</text>
+
+  <!-- Sun rays in (top-left) -->
+  <g stroke="#f59e0b" stroke-width="2" stroke-linecap="round">
+    <line x1="40" y1="80" x2="80" y2="120"/>
+    <line x1="20" y1="120" x2="70" y2="140"/>
+    <line x1="60" y1="60" x2="90" y2="100"/>
+  </g>
+  <text x="34" y="76" font-size="11" font-weight="700" fill="#f59e0b">sunlight</text>
+
+  <!-- ── Labels ────────────────────────────────────────────── -->
+  <g font-size="11" font-weight="700">
+    <line x1="498" y1="170" x2="540" y2="120" stroke="#15803d" stroke-width="1"/>
+    <text x="544" y="116" fill="#14532d">outer membrane</text>
+    <text x="544" y="130" fill="#4a5568" font-size="10" font-weight="400">smooth · permeable to small molecules</text>
+
+    <line x1="488" y1="200" x2="540" y2="160" stroke="#15803d" stroke-width="1"/>
+    <text x="544" y="156" fill="#14532d">inner membrane</text>
+    <text x="544" y="170" fill="#4a5568" font-size="10" font-weight="400">selective barrier (no folds)</text>
+
+    <line x1="324" y1="248" x2="540" y2="208" stroke="#15803d" stroke-width="1"/>
+    <text x="544" y="204" fill="#14532d">granum (stack of thylakoids)</text>
+    <text x="544" y="218" fill="#4a5568" font-size="10" font-weight="400">site of the light reactions</text>
+
+    <line x1="288" y1="252" x2="540" y2="252" stroke="#15803d" stroke-width="1"/>
+    <text x="544" y="252" fill="#14532d">thylakoid lumen</text>
+    <text x="544" y="266" fill="#4a5568" font-size="10" font-weight="400">H⁺ accumulates inside (proton gradient)</text>
+
+    <line x1="200" y1="226" x2="540" y2="296" stroke="#15803d" stroke-width="1"/>
+    <text x="544" y="296" fill="#14532d">stroma lamella</text>
+    <text x="544" y="310" fill="#4a5568" font-size="10" font-weight="400">tube connecting one granum to the next</text>
+
+    <line x1="220" y1="320" x2="540" y2="340" stroke="#15803d" stroke-width="1"/>
+    <text x="544" y="340" fill="#14532d">stroma</text>
+    <text x="544" y="354" fill="#4a5568" font-size="10" font-weight="400">fluid · runs the Calvin cycle · cpDNA · 70S</text>
+
+    <line x1="306" y1="194" x2="540" y2="384" stroke="#15803d" stroke-width="1"/>
+    <text x="544" y="384" fill="#15803d">ATP synthase + photosystems</text>
+    <text x="544" y="398" fill="#4a5568" font-size="10" font-weight="400">embedded in the thylakoid membrane</text>
+  </g>
+
+  <!-- ── Stage map (footer) ─────────────────────────────────── -->
+  <rect x="40" y="406" width="680" height="40" rx="8" fill="#f7fafc" stroke="#cbd5e0" stroke-width="1"/>
+  <g font-size="10">
+    <text x="60" y="424" font-weight="700" fill="#15803d">Light reactions</text>
+    <text x="60" y="438" fill="#4a5568">on thylakoid membrane (in grana) — make ATP + NADPH from sunlight</text>
+
+    <text x="420" y="424" font-weight="700" fill="#15803d">Calvin cycle (light-independent)</text>
+    <text x="420" y="438" fill="#4a5568">in stroma — uses ATP + NADPH to fix CO₂ into sugar (G3P)</text>
+  </g>
+</svg>

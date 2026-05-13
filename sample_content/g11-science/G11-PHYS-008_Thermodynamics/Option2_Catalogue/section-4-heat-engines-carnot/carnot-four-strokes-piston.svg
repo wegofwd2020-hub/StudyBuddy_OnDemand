@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360" role="img" aria-label="Four strokes of the Carnot cycle shown as piston-and-cylinder diagrams">
+  <title>Carnot Cycle — Four Strokes (Piston View)</title>
+  <desc>Four cylinder-and-piston panels show the Carnot cycle. Stroke 1: isothermal expansion in contact with the hot reservoir, gas absorbs Q_H. Stroke 2: adiabatic expansion, the cylinder is insulated and cools to T_C. Stroke 3: isothermal compression in contact with the cold reservoir, rejects Q_C. Stroke 4: adiabatic compression, insulated, returns to T_H.</desc>
+
+  <text x="300" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Carnot Cycle — Four Strokes</text>
+
+  <defs>
+    <pattern id="cs-insul" x="0" y="0" width="6" height="6" patternUnits="userSpaceOnUse">
+      <path d="M 0 6 L 6 0" stroke="#7c2d12" stroke-width="1.2" />
+    </pattern>
+  </defs>
+
+  <!-- Generic helper: each cell is 270 × 140, 4 of them in 2x2 grid -->
+
+  <!-- ============== Stroke 1 (top-left): isothermal expansion at T_H ============== -->
+  <g transform="translate(20,50)">
+    <rect width="270" height="140" rx="8" fill="#fff5f5" stroke="#dc2626" stroke-width="1.5" />
+    <text x="135" y="20" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">1.  Isothermal expansion (T_H)</text>
+
+    <!-- hot plate underneath -->
+    <rect x="50" y="115" width="170" height="14" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5" />
+    <text x="135" y="138" font-size="9" fill="#dc2626" text-anchor="middle">hot reservoir</text>
+
+    <!-- cylinder walls -->
+    <line x1="60" y1="40" x2="60" y2="115" stroke="#1a202c" stroke-width="2" />
+    <line x1="190" y1="40" x2="190" y2="115" stroke="#1a202c" stroke-width="2" />
+    <line x1="60" y1="115" x2="190" y2="115" stroke="#1a202c" stroke-width="2" />
+    <!-- gas (large after expansion) -->
+    <rect x="60" y="60" width="130" height="55" fill="#fee2e2" />
+    <!-- piston (right side, near top → has moved out a bit) -->
+    <rect x="60" y="50" width="130" height="10" fill="#475569" stroke="#1a202c" stroke-width="1.5" />
+    <line x1="125" y1="50" x2="125" y2="38" stroke="#1a202c" stroke-width="2" />
+    <!-- expand arrow -->
+    <line x1="195" y1="50" x2="220" y2="50" stroke="#15803d" stroke-width="2" />
+    <polygon points="220,50 213,46 213,54" fill="#15803d" />
+    <text x="210" y="42" font-size="9" fill="#15803d" text-anchor="middle">expand</text>
+
+    <!-- Q_H in -->
+    <text x="240" y="80" font-size="11" font-weight="700" fill="#dc2626">Q_H</text>
+    <line x1="232" y1="92" x2="232" y2="115" stroke="#dc2626" stroke-width="2.4" />
+    <polygon points="232,115 228,108 236,108" fill="#dc2626" transform="rotate(180 232 111)" />
+  </g>
+
+  <!-- ============== Stroke 2 (top-right): adiabatic expansion ============== -->
+  <g transform="translate(310,50)">
+    <rect width="270" height="140" rx="8" fill="#fff7ed" stroke="#dd6b20" stroke-width="1.5" />
+    <text x="135" y="20" font-size="12" font-weight="700" fill="#dd6b20" text-anchor="middle">2.  Adiabatic expansion (Q = 0)</text>
+
+    <!-- insulating sleeve underneath -->
+    <rect x="50" y="115" width="170" height="14" fill="url(#cs-insul)" stroke="#7c2d12" stroke-width="1.2" />
+    <text x="135" y="138" font-size="9" fill="#7c2d12" text-anchor="middle">insulated  ·  T  drops to T_C</text>
+
+    <!-- cylinder -->
+    <line x1="50" y1="40" x2="50" y2="115" stroke="#1a202c" stroke-width="2" />
+    <line x1="220" y1="40" x2="220" y2="115" stroke="#1a202c" stroke-width="2" />
+    <line x1="50" y1="115" x2="220" y2="115" stroke="#1a202c" stroke-width="2" />
+    <!-- gas (even larger now) -->
+    <rect x="50" y="68" width="170" height="47" fill="#fed7aa" />
+    <rect x="50" y="58" width="170" height="10" fill="#475569" stroke="#1a202c" stroke-width="1.5" />
+    <line x1="135" y1="58" x2="135" y2="46" stroke="#1a202c" stroke-width="2" />
+
+    <line x1="225" y1="58" x2="252" y2="58" stroke="#15803d" stroke-width="2" />
+    <polygon points="252,58 245,54 245,62" fill="#15803d" />
+    <text x="240" y="50" font-size="9" fill="#15803d" text-anchor="middle">expand</text>
+  </g>
+
+  <!-- ============== Stroke 3 (bottom-left): isothermal compression at T_C ============== -->
+  <g transform="translate(20,200)">
+    <rect width="270" height="140" rx="8" fill="#eff6ff" stroke="#1d4ed8" stroke-width="1.5" />
+    <text x="135" y="20" font-size="12" font-weight="700" fill="#1d4ed8" text-anchor="middle">3.  Isothermal compression (T_C)</text>
+
+    <!-- cold plate underneath -->
+    <rect x="50" y="115" width="170" height="14" fill="#dbeafe" stroke="#1d4ed8" stroke-width="1.5" />
+    <text x="135" y="138" font-size="9" fill="#1d4ed8" text-anchor="middle">cold reservoir</text>
+
+    <!-- cylinder -->
+    <line x1="60" y1="40" x2="60" y2="115" stroke="#1a202c" stroke-width="2" />
+    <line x1="190" y1="40" x2="190" y2="115" stroke="#1a202c" stroke-width="2" />
+    <line x1="60" y1="115" x2="190" y2="115" stroke="#1a202c" stroke-width="2" />
+    <!-- gas (smaller — being compressed) -->
+    <rect x="60" y="80" width="130" height="35" fill="#dbeafe" />
+    <rect x="60" y="70" width="130" height="10" fill="#475569" stroke="#1a202c" stroke-width="1.5" />
+    <line x1="125" y1="70" x2="125" y2="58" stroke="#1a202c" stroke-width="2" />
+
+    <!-- compress arrow (push down on piston) -->
+    <line x1="125" y1="38" x2="125" y2="54" stroke="#dc2626" stroke-width="2.4" />
+    <polygon points="125,54 121,48 129,48" fill="#dc2626" />
+    <text x="148" y="48" font-size="9" fill="#dc2626">compress</text>
+
+    <!-- Q_C out -->
+    <text x="232" y="80" font-size="11" font-weight="700" fill="#1d4ed8">Q_C</text>
+    <line x1="232" y1="92" x2="232" y2="115" stroke="#1d4ed8" stroke-width="2.4" />
+    <polygon points="232,115 228,108 236,108" fill="#1d4ed8" />
+  </g>
+
+  <!-- ============== Stroke 4 (bottom-right): adiabatic compression ============== -->
+  <g transform="translate(310,200)">
+    <rect width="270" height="140" rx="8" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.5" />
+    <text x="135" y="20" font-size="12" font-weight="700" fill="#7c3aed" text-anchor="middle">4.  Adiabatic compression (Q = 0)</text>
+
+    <!-- insulating sleeve -->
+    <rect x="50" y="115" width="170" height="14" fill="url(#cs-insul)" stroke="#7c2d12" stroke-width="1.2" />
+    <text x="135" y="138" font-size="9" fill="#7c2d12" text-anchor="middle">insulated  ·  T rises back to T_H</text>
+
+    <!-- cylinder -->
+    <line x1="50" y1="40" x2="50" y2="115" stroke="#1a202c" stroke-width="2" />
+    <line x1="220" y1="40" x2="220" y2="115" stroke="#1a202c" stroke-width="2" />
+    <line x1="50" y1="115" x2="220" y2="115" stroke="#1a202c" stroke-width="2" />
+
+    <!-- gas (smallest after final compression) -->
+    <rect x="50" y="92" width="170" height="23" fill="#ede9fe" />
+    <rect x="50" y="82" width="170" height="10" fill="#475569" stroke="#1a202c" stroke-width="1.5" />
+    <line x1="135" y1="82" x2="135" y2="70" stroke="#1a202c" stroke-width="2" />
+
+    <!-- compress arrow -->
+    <line x1="135" y1="44" x2="135" y2="66" stroke="#dc2626" stroke-width="2.4" />
+    <polygon points="135,66 131,60 139,60" fill="#dc2626" />
+    <text x="158" y="58" font-size="9" fill="#dc2626">compress</text>
+  </g>
+</svg>

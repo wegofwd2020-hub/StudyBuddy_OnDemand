@@ -1,0 +1,308 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 540" width="920" height="540" role="img" aria-label="Meiosis showing two divisions, homologous pairing, crossing over, and four haploid gamete daughter cells">
+  <title>Meiosis — Two Divisions, One Crossover, Four Haploid Cells</title>
+  <desc>The complete meiotic pathway laid out left-to-right. Starting cell is diploid (2n) with paternal chromosomes shown in red and maternal in blue. Prophase I: homologous chromosomes pair (synapsis) forming a tetrad/bivalent; non-sister chromatids physically exchange segments (crossing over) at chiasmata, creating recombinant chromosomes (now red+blue striped). Metaphase I: tetrads line up at the equator; orientation of each homolog pair is independent of the others (independent assortment). Anaphase I: whole homologs (still pairs of sister chromatids) separate to opposite poles. Telophase I and Cytokinesis I: two haploid cells form (n), each with replicated chromosomes. Meiosis II resembles mitosis. Metaphase II: chromosomes (each still 2 chromatids) align at each cell's equator. Anaphase II: sister chromatids separate. Telophase II + Cytokinesis II: four genetically distinct haploid daughter cells (gametes) emerge. A footer compares mitosis vs meiosis on three key axes: number of divisions, number of cells produced, and genetic outcome.</desc>
+
+  <text x="460" y="22" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Meiosis — How One Diploid Cell Makes Four Genetically Different Gametes</text>
+  <text x="460" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Two rounds of division (I and II). Crossing over + independent assortment generate variation.</text>
+
+  <!-- ─────── Stage 1: Diploid parent cell (2n) ─────── -->
+  <g transform="translate(80, 130)">
+    <circle cx="0" cy="0" r="44" fill="#f0f9ff" stroke="#2b6cb0" stroke-width="2.4"/>
+    <!-- 2 pairs of homologs (replicated, sister chromatids) -->
+    <!-- Pair 1: red (paternal) + blue (maternal) -->
+    <g stroke="#dc2626" stroke-width="2.4">
+      <line x1="-22" y1="-16" x2="-12" y2="-8"/>
+      <line x1="-12" y1="-16" x2="-22" y2="-8"/>
+    </g>
+    <g stroke="#2b6cb0" stroke-width="2.4">
+      <line x1="-22" y1="0" x2="-12" y2="8"/>
+      <line x1="-12" y1="0" x2="-22" y2="8"/>
+    </g>
+    <!-- Pair 2 -->
+    <g stroke="#dc2626" stroke-width="2.4">
+      <line x1="8" y1="-12" x2="22" y2="-2"/>
+      <line x1="22" y1="-12" x2="8" y2="-2"/>
+    </g>
+    <g stroke="#2b6cb0" stroke-width="2.4">
+      <line x1="8" y1="6" x2="22" y2="16"/>
+      <line x1="22" y1="6" x2="8" y2="16"/>
+    </g>
+  </g>
+  <text x="80" y="60" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Diploid (2n)</text>
+  <text x="80" y="76" font-size="10" fill="#4a5568" text-anchor="middle">parent cell · DNA replicated</text>
+  <text x="80" y="190" font-size="9" fill="#4a5568" text-anchor="middle">red = paternal · blue = maternal</text>
+
+
+  <!-- ─────── Arrow to Prophase I ─────── -->
+  <line x1="130" y1="130" x2="174" y2="130" stroke="#4a5568" stroke-width="2"/>
+  <polygon points="174,130 168,126 168,134" fill="#4a5568"/>
+
+
+  <!-- ─────── Stage 2: Prophase I — pairing & crossover ─────── -->
+  <g transform="translate(220, 130)">
+    <circle cx="0" cy="0" r="44" fill="#f0f9ff" stroke="#2b6cb0" stroke-width="2.4"/>
+    <!-- Homologs paired side-by-side (tetrad / bivalent) -->
+    <!-- Pair 1: vertical bivalent on left -->
+    <g>
+      <!-- Red homolog (2 chromatids) -->
+      <line x1="-22" y1="-22" x2="-22" y2="14" stroke="#dc2626" stroke-width="3"/>
+      <line x1="-18" y1="-22" x2="-18" y2="14" stroke="#dc2626" stroke-width="3"/>
+      <!-- Blue homolog (2 chromatids) -->
+      <line x1="-12" y1="-22" x2="-12" y2="14" stroke="#2b6cb0" stroke-width="3"/>
+      <line x1="-8" y1="-22" x2="-8" y2="14" stroke="#2b6cb0" stroke-width="3"/>
+      <!-- Centromeres -->
+      <circle cx="-20" cy="-4" r="2" fill="#1a202c"/>
+      <circle cx="-10" cy="-4" r="2" fill="#1a202c"/>
+      <!-- Crossover (X shape between two non-sister chromatids) -->
+      <line x1="-18" y1="-12" x2="-12" y2="-8" stroke="#f59e0b" stroke-width="2"/>
+      <line x1="-18" y1="-8" x2="-12" y2="-12" stroke="#f59e0b" stroke-width="2"/>
+      <text x="-15" y="22" font-size="8" font-weight="700" fill="#f59e0b" text-anchor="middle">chiasma</text>
+    </g>
+    <!-- Pair 2: vertical bivalent on right -->
+    <g>
+      <line x1="8" y1="-22" x2="8" y2="14" stroke="#dc2626" stroke-width="3"/>
+      <line x1="12" y1="-22" x2="12" y2="14" stroke="#dc2626" stroke-width="3"/>
+      <line x1="18" y1="-22" x2="18" y2="14" stroke="#2b6cb0" stroke-width="3"/>
+      <line x1="22" y1="-22" x2="22" y2="14" stroke="#2b6cb0" stroke-width="3"/>
+      <circle cx="10" cy="-4" r="2" fill="#1a202c"/>
+      <circle cx="20" cy="-4" r="2" fill="#1a202c"/>
+    </g>
+  </g>
+  <text x="220" y="60" font-size="12" font-weight="700" fill="#7c3aed" text-anchor="middle">Prophase I</text>
+  <text x="220" y="76" font-size="10" fill="#4a5568" text-anchor="middle">homologs pair · cross over</text>
+  <text x="220" y="190" font-size="9" fill="#4a5568" text-anchor="middle">tetrads form · genetic shuffling</text>
+
+
+  <!-- ─────── Arrow ─────── -->
+  <line x1="270" y1="130" x2="314" y2="130" stroke="#4a5568" stroke-width="2"/>
+  <polygon points="314,130 308,126 308,134" fill="#4a5568"/>
+
+
+  <!-- ─────── Stage 3: Metaphase I → Anaphase I ─────── -->
+  <g transform="translate(360, 130)">
+    <ellipse cx="0" cy="0" rx="58" ry="44" fill="#f0f9ff" stroke="#2b6cb0" stroke-width="2.4"/>
+    <!-- Pole landmarks -->
+    <rect x="-58" y="-4" width="6" height="6" fill="#f59e0b"/>
+    <rect x="52" y="-4" width="6" height="6" fill="#f59e0b"/>
+    <!-- Tetrad 1 splitting (red going right, blue going left — recombinant marked) -->
+    <!-- Recombinant red+blue (left) -->
+    <g>
+      <line x1="-30" y1="-20" x2="-30" y2="-4" stroke="#dc2626" stroke-width="3"/>
+      <line x1="-30" y1="-4" x2="-30" y2="6" stroke="#2b6cb0" stroke-width="3"/>
+      <line x1="-26" y1="-20" x2="-26" y2="-4" stroke="#dc2626" stroke-width="3"/>
+      <line x1="-26" y1="-4" x2="-26" y2="6" stroke="#dc2626" stroke-width="3"/>
+    </g>
+    <!-- Other half (right) -->
+    <g>
+      <line x1="22" y1="-20" x2="22" y2="-4" stroke="#2b6cb0" stroke-width="3"/>
+      <line x1="22" y1="-4" x2="22" y2="6" stroke="#dc2626" stroke-width="3"/>
+      <line x1="26" y1="-20" x2="26" y2="-4" stroke="#2b6cb0" stroke-width="3"/>
+      <line x1="26" y1="-4" x2="26" y2="6" stroke="#2b6cb0" stroke-width="3"/>
+    </g>
+    <!-- Tetrad 2: independent assortment — opposite orientation -->
+    <g>
+      <line x1="-30" y1="14" x2="-30" y2="30" stroke="#2b6cb0" stroke-width="3"/>
+      <line x1="-26" y1="14" x2="-26" y2="30" stroke="#2b6cb0" stroke-width="3"/>
+    </g>
+    <g>
+      <line x1="22" y1="14" x2="22" y2="30" stroke="#dc2626" stroke-width="3"/>
+      <line x1="26" y1="14" x2="26" y2="30" stroke="#dc2626" stroke-width="3"/>
+    </g>
+    <!-- Spindle arrows -->
+    <line x1="-50" y1="0" x2="-30" y2="-12" stroke="#7c3aed" stroke-width="1.4"/>
+    <line x1="-50" y1="0" x2="-30" y2="20" stroke="#7c3aed" stroke-width="1.4"/>
+    <line x1="50" y1="0" x2="30" y2="-12" stroke="#7c3aed" stroke-width="1.4"/>
+    <line x1="50" y1="0" x2="30" y2="20" stroke="#7c3aed" stroke-width="1.4"/>
+    <!-- Direction arrows -->
+    <line x1="-12" y1="-2" x2="-22" y2="-2" stroke="#dc2626" stroke-width="1.5"/>
+    <polygon points="-22,-2 -16,-6 -16,2" fill="#dc2626"/>
+    <line x1="12" y1="-2" x2="22" y2="-2" stroke="#dc2626" stroke-width="1.5"/>
+    <polygon points="22,-2 16,-6 16,2" fill="#dc2626"/>
+  </g>
+  <text x="360" y="60" font-size="12" font-weight="700" fill="#7c3aed" text-anchor="middle">Meta/Anaphase I</text>
+  <text x="360" y="76" font-size="10" fill="#4a5568" text-anchor="middle">homologs separate (not sisters!)</text>
+  <text x="360" y="190" font-size="9" fill="#4a5568" text-anchor="middle">independent assortment of pairs</text>
+
+
+  <!-- ─────── Arrow ─────── -->
+  <line x1="426" y1="130" x2="466" y2="130" stroke="#4a5568" stroke-width="2"/>
+  <polygon points="466,130 460,126 460,134" fill="#4a5568"/>
+
+
+  <!-- ─────── Stage 4: Telophase I → 2 haploid cells ─────── -->
+  <g transform="translate(516, 130)">
+    <circle cx="-22" cy="0" r="30" fill="#f0f9ff" stroke="#2b6cb0" stroke-width="2.4"/>
+    <circle cx="32" cy="0" r="30" fill="#f0f9ff" stroke="#2b6cb0" stroke-width="2.4"/>
+    <!-- Cell 1: 2 chromosomes (one recombinant red+blue, one blue) -->
+    <g>
+      <line x1="-30" y1="-12" x2="-30" y2="0" stroke="#dc2626" stroke-width="3"/>
+      <line x1="-30" y1="0" x2="-30" y2="8" stroke="#2b6cb0" stroke-width="3"/>
+      <line x1="-26" y1="-12" x2="-26" y2="0" stroke="#dc2626" stroke-width="3"/>
+      <line x1="-26" y1="0" x2="-26" y2="8" stroke="#dc2626" stroke-width="3"/>
+      <line x1="-14" y1="-8" x2="-14" y2="12" stroke="#2b6cb0" stroke-width="3"/>
+      <line x1="-10" y1="-8" x2="-10" y2="12" stroke="#2b6cb0" stroke-width="3"/>
+    </g>
+    <!-- Cell 2 -->
+    <g>
+      <line x1="22" y1="-10" x2="22" y2="0" stroke="#2b6cb0" stroke-width="3"/>
+      <line x1="22" y1="0" x2="22" y2="10" stroke="#dc2626" stroke-width="3"/>
+      <line x1="26" y1="-10" x2="26" y2="0" stroke="#2b6cb0" stroke-width="3"/>
+      <line x1="26" y1="0" x2="26" y2="10" stroke="#2b6cb0" stroke-width="3"/>
+      <line x1="38" y1="-10" x2="38" y2="10" stroke="#dc2626" stroke-width="3"/>
+      <line x1="42" y1="-10" x2="42" y2="10" stroke="#dc2626" stroke-width="3"/>
+    </g>
+  </g>
+  <text x="516" y="60" font-size="12" font-weight="700" fill="#7c3aed" text-anchor="middle">Telophase I</text>
+  <text x="516" y="76" font-size="10" fill="#4a5568" text-anchor="middle">2 haploid cells (n)</text>
+  <text x="516" y="190" font-size="9" fill="#4a5568" text-anchor="middle">DNA still replicated</text>
+
+
+  <!-- ─────── Arrow to Meiosis II ─────── -->
+  <line x1="572" y1="130" x2="612" y2="130" stroke="#4a5568" stroke-width="2"/>
+  <polygon points="612,130 606,126 606,134" fill="#4a5568"/>
+
+
+  <!-- ─────── Stage 5: Metaphase II → Anaphase II ─────── -->
+  <g transform="translate(660, 130)">
+    <ellipse cx="-22" cy="0" rx="30" ry="30" fill="#f0f9ff" stroke="#2b6cb0" stroke-width="2.4"/>
+    <ellipse cx="32" cy="0" rx="30" ry="30" fill="#f0f9ff" stroke="#2b6cb0" stroke-width="2.4"/>
+    <!-- Cell 1 chromatids aligned, separating -->
+    <g stroke="#dc2626" stroke-width="2.4">
+      <line x1="-32" y1="-10" x2="-26" y2="-4"/>
+      <line x1="-26" y1="-10" x2="-32" y2="-4"/>
+    </g>
+    <g stroke="#2b6cb0" stroke-width="2.4">
+      <line x1="-18" y1="-10" x2="-12" y2="-4"/>
+      <line x1="-12" y1="-10" x2="-18" y2="-4"/>
+    </g>
+    <line x1="-22" y1="14" x2="-22" y2="22" stroke="#dc2626" stroke-width="2"/>
+    <polygon points="-22,22 -26,16 -18,16" fill="#dc2626"/>
+    <!-- Cell 2 -->
+    <g stroke="#2b6cb0" stroke-width="2.4">
+      <line x1="22" y1="-10" x2="28" y2="-4"/>
+      <line x1="28" y1="-10" x2="22" y2="-4"/>
+    </g>
+    <g stroke="#dc2626" stroke-width="2.4">
+      <line x1="36" y1="-10" x2="42" y2="-4"/>
+      <line x1="42" y1="-10" x2="36" y2="-4"/>
+    </g>
+    <line x1="32" y1="14" x2="32" y2="22" stroke="#dc2626" stroke-width="2"/>
+    <polygon points="32,22 28,16 36,16" fill="#dc2626"/>
+  </g>
+  <text x="660" y="60" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">Meiosis II</text>
+  <text x="660" y="76" font-size="10" fill="#4a5568" text-anchor="middle">like mitosis · sisters split</text>
+  <text x="660" y="190" font-size="9" fill="#4a5568" text-anchor="middle">centromeres divide now</text>
+
+
+  <!-- ─────── Arrow ─────── -->
+  <line x1="716" y1="130" x2="756" y2="130" stroke="#4a5568" stroke-width="2"/>
+  <polygon points="756,130 750,126 750,134" fill="#4a5568"/>
+
+
+  <!-- ─────── Stage 6: Four haploid gametes ─────── -->
+  <g transform="translate(840, 130)">
+    <!-- 4 little cells in a 2x2 grid -->
+    <circle cx="-22" cy="-20" r="18" fill="#f0f9ff" stroke="#2b6cb0" stroke-width="2"/>
+    <circle cx="22" cy="-20" r="18" fill="#f0f9ff" stroke="#2b6cb0" stroke-width="2"/>
+    <circle cx="-22" cy="22" r="18" fill="#f0f9ff" stroke="#2b6cb0" stroke-width="2"/>
+    <circle cx="22" cy="22" r="18" fill="#f0f9ff" stroke="#2b6cb0" stroke-width="2"/>
+    <!-- Each cell has 2 unreplicated chromosomes -->
+    <!-- Top-left: red + blue -->
+    <line x1="-30" y1="-26" x2="-30" y2="-14" stroke="#dc2626" stroke-width="2.4"/>
+    <line x1="-14" y1="-26" x2="-14" y2="-14" stroke="#2b6cb0" stroke-width="2.4"/>
+    <!-- Top-right: recombinant + red -->
+    <line x1="14" y1="-26" x2="14" y2="-22" stroke="#dc2626" stroke-width="2.4"/>
+    <line x1="14" y1="-22" x2="14" y2="-14" stroke="#2b6cb0" stroke-width="2.4"/>
+    <line x1="30" y1="-26" x2="30" y2="-14" stroke="#dc2626" stroke-width="2.4"/>
+    <!-- Bottom-left: blue + recombinant -->
+    <line x1="-30" y1="16" x2="-30" y2="28" stroke="#2b6cb0" stroke-width="2.4"/>
+    <line x1="-14" y1="16" x2="-14" y2="20" stroke="#2b6cb0" stroke-width="2.4"/>
+    <line x1="-14" y1="20" x2="-14" y2="28" stroke="#dc2626" stroke-width="2.4"/>
+    <!-- Bottom-right: red + blue (different combo) -->
+    <line x1="14" y1="16" x2="14" y2="28" stroke="#dc2626" stroke-width="2.4"/>
+    <line x1="30" y1="16" x2="30" y2="28" stroke="#2b6cb0" stroke-width="2.4"/>
+  </g>
+  <text x="840" y="60" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">4 gametes</text>
+  <text x="840" y="76" font-size="10" fill="#4a5568" text-anchor="middle">all haploid (n) · all different</text>
+  <text x="840" y="200" font-size="9" fill="#4a5568" text-anchor="middle">→ sperm or eggs</text>
+
+
+  <!-- ── DNA Content ladder ─────────────────────────────── -->
+  <text x="80" y="240" font-size="10" fill="#4a5568" text-anchor="middle">2n · 4C</text>
+  <text x="220" y="240" font-size="10" fill="#7c3aed" text-anchor="middle">2n · 4C</text>
+  <text x="360" y="240" font-size="10" fill="#7c3aed" text-anchor="middle">2n · 4C → n+n</text>
+  <text x="516" y="240" font-size="10" fill="#7c3aed" text-anchor="middle">n · 2C each</text>
+  <text x="660" y="240" font-size="10" fill="#dc2626" text-anchor="middle">n · 2C → n+n</text>
+  <text x="840" y="240" font-size="10" fill="#dc2626" text-anchor="middle">n · 1C each</text>
+
+
+  <!-- ── COMPARISON TABLE: Mitosis vs Meiosis ─────────────── -->
+  <text x="460" y="280" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Mitosis vs Meiosis</text>
+
+  <rect x="40" y="294" width="280" height="22" fill="#f7fafc" stroke="#4a5568" stroke-width="1"/>
+  <rect x="320" y="294" width="280" height="22" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1"/>
+  <rect x="600" y="294" width="280" height="22" fill="#fee2e2" stroke="#dc2626" stroke-width="1"/>
+  <text x="180" y="310" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Feature</text>
+  <text x="460" y="310" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">Mitosis</text>
+  <text x="740" y="310" font-size="11" font-weight="700" fill="#7f1d1d" text-anchor="middle">Meiosis</text>
+
+  <g font-size="10" fill="#1a202c">
+    <rect x="40"  y="316" width="280" height="20" fill="#ffffff" stroke="#cbd5e0" stroke-width="0.6"/>
+    <rect x="320" y="316" width="280" height="20" fill="#ffffff" stroke="#cbd5e0" stroke-width="0.6"/>
+    <rect x="600" y="316" width="280" height="20" fill="#ffffff" stroke="#cbd5e0" stroke-width="0.6"/>
+    <text x="56" y="330">Number of divisions</text>
+    <text x="336" y="330">1</text>
+    <text x="616" y="330">2 (meiosis I + meiosis II)</text>
+
+    <rect x="40"  y="336" width="280" height="20" fill="#f7fafc" stroke="#cbd5e0" stroke-width="0.6"/>
+    <rect x="320" y="336" width="280" height="20" fill="#f7fafc" stroke="#cbd5e0" stroke-width="0.6"/>
+    <rect x="600" y="336" width="280" height="20" fill="#f7fafc" stroke="#cbd5e0" stroke-width="0.6"/>
+    <text x="56" y="350">Daughter cells</text>
+    <text x="336" y="350">2</text>
+    <text x="616" y="350">4</text>
+
+    <rect x="40"  y="356" width="280" height="20" fill="#ffffff" stroke="#cbd5e0" stroke-width="0.6"/>
+    <rect x="320" y="356" width="280" height="20" fill="#ffffff" stroke="#cbd5e0" stroke-width="0.6"/>
+    <rect x="600" y="356" width="280" height="20" fill="#ffffff" stroke="#cbd5e0" stroke-width="0.6"/>
+    <text x="56" y="370">Chromosome number per daughter</text>
+    <text x="336" y="370">2n (diploid — same as parent)</text>
+    <text x="616" y="370">n (haploid — half of parent)</text>
+
+    <rect x="40"  y="376" width="280" height="20" fill="#f7fafc" stroke="#cbd5e0" stroke-width="0.6"/>
+    <rect x="320" y="376" width="280" height="20" fill="#f7fafc" stroke="#cbd5e0" stroke-width="0.6"/>
+    <rect x="600" y="376" width="280" height="20" fill="#f7fafc" stroke="#cbd5e0" stroke-width="0.6"/>
+    <text x="56" y="390">Genetic identity</text>
+    <text x="336" y="390">identical to parent (clones)</text>
+    <text x="616" y="390">all different (crossover + assortment)</text>
+
+    <rect x="40"  y="396" width="280" height="20" fill="#ffffff" stroke="#cbd5e0" stroke-width="0.6"/>
+    <rect x="320" y="396" width="280" height="20" fill="#ffffff" stroke="#cbd5e0" stroke-width="0.6"/>
+    <rect x="600" y="396" width="280" height="20" fill="#ffffff" stroke="#cbd5e0" stroke-width="0.6"/>
+    <text x="56" y="410">Crossing over</text>
+    <text x="336" y="410">no</text>
+    <text x="616" y="410">yes (prophase I)</text>
+
+    <rect x="40"  y="416" width="280" height="20" fill="#f7fafc" stroke="#cbd5e0" stroke-width="0.6"/>
+    <rect x="320" y="416" width="280" height="20" fill="#f7fafc" stroke="#cbd5e0" stroke-width="0.6"/>
+    <rect x="600" y="416" width="280" height="20" fill="#f7fafc" stroke="#cbd5e0" stroke-width="0.6"/>
+    <text x="56" y="430">Homologs pair (synapsis)</text>
+    <text x="336" y="430">no</text>
+    <text x="616" y="430">yes (forms tetrads)</text>
+
+    <rect x="40"  y="436" width="280" height="20" fill="#ffffff" stroke="#cbd5e0" stroke-width="0.6"/>
+    <rect x="320" y="436" width="280" height="20" fill="#ffffff" stroke="#cbd5e0" stroke-width="0.6"/>
+    <rect x="600" y="436" width="280" height="20" fill="#ffffff" stroke="#cbd5e0" stroke-width="0.6"/>
+    <text x="56" y="450">Where it happens</text>
+    <text x="336" y="450">somatic (body) cells — all of you</text>
+    <text x="616" y="450">germ cells — testes, ovaries</text>
+
+    <rect x="40"  y="456" width="280" height="20" fill="#f7fafc" stroke="#cbd5e0" stroke-width="0.6"/>
+    <rect x="320" y="456" width="280" height="20" fill="#f7fafc" stroke="#cbd5e0" stroke-width="0.6"/>
+    <rect x="600" y="456" width="280" height="20" fill="#f7fafc" stroke="#cbd5e0" stroke-width="0.6"/>
+    <text x="56" y="470">Purpose</text>
+    <text x="336" y="470">growth · repair · asexual reproduction</text>
+    <text x="616" y="470">sexual reproduction · gamete production</text>
+  </g>
+
+  <text x="460" y="500" font-size="10" font-style="italic" fill="#718096" text-anchor="middle">Crossing over (prophase I) + independent assortment (metaphase I) + random fertilisation = the engine of genetic diversity in sexual reproduction.</text>
+</svg>

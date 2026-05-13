@@ -1,0 +1,165 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 500" width="880" height="500" role="img" aria-label="Flow chart of cellular respiration: glycolysis, Krebs cycle, and electron transport chain with ATP yields">
+  <title>Cellular Respiration — From Glucose to ATP</title>
+  <desc>A four-stage pipeline showing aerobic respiration. Glucose (a 6-carbon sugar) enters glycolysis in the cytoplasm and is split into two pyruvate (3C) molecules with a net gain of 2 ATP and 2 NADH. Each pyruvate is then converted into Acetyl-CoA in the mitochondrial matrix, releasing CO2 and producing 2 NADH total. Acetyl-CoA enters the Krebs cycle, which spins twice per glucose, releasing 4 CO2, generating 2 ATP, 6 NADH and 2 FADH2. The carriers NADH and FADH2 deliver high-energy electrons to the electron transport chain on the inner mitochondrial membrane (cristae), where their oxidation pumps H+ into the intermembrane space; H+ flowing back through ATP synthase produces ~28 ATP. Final electron acceptor is O2, which combines with H+ to form water. Total yield: ~30–32 ATP per glucose. Anaerobic side branches show fermentation pathways for when oxygen is absent.</desc>
+
+  <text x="440" y="24" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Cellular Respiration — How One Glucose Becomes ~30 ATP</text>
+  <text x="440" y="42" font-size="11" fill="#4a5568" text-anchor="middle">Glucose → Pyruvate → Acetyl-CoA → Krebs cycle → Electron Transport Chain → ATP</text>
+
+  <!-- Compartment bands: cytoplasm vs mitochondrion -->
+  <rect x="20" y="60" width="200" height="320" fill="#f7fafc" stroke="#94a3b8" stroke-width="1.5" rx="6"/>
+  <text x="120" y="80" font-size="11" font-weight="700" fill="#4a5568" text-anchor="middle">CYTOPLASM</text>
+
+  <rect x="240" y="60" width="620" height="320" fill="#fef2f2" stroke="#dc2626" stroke-width="2" rx="6"/>
+  <text x="550" y="80" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">MITOCHONDRION</text>
+
+  <!-- Inner mitochondrion divider: matrix vs inner membrane / IMS -->
+  <rect x="252" y="100" width="448" height="200" fill="#fee2e2" stroke="#dc2626" stroke-width="1" stroke-dasharray="3 3" rx="4"/>
+  <text x="476" y="118" font-size="10" font-weight="700" fill="#7f1d1d" text-anchor="middle">matrix</text>
+
+  <rect x="708" y="100" width="142" height="200" fill="#fef3c7" stroke="#b45309" stroke-width="1" stroke-dasharray="3 3" rx="4"/>
+  <text x="779" y="118" font-size="10" font-weight="700" fill="#b45309" text-anchor="middle">inner membrane / IMS</text>
+
+
+  <!-- ── STAGE 1: Glycolysis ──────────────────────────────── -->
+  <!-- Glucose -->
+  <circle cx="60" cy="200" r="22" fill="#fde68a" stroke="#b45309" stroke-width="2"/>
+  <text x="60" y="194" font-size="9" font-weight="700" fill="#78350f" text-anchor="middle">Glucose</text>
+  <text x="60" y="208" font-size="10" font-weight="700" fill="#78350f" text-anchor="middle">C₆</text>
+
+  <!-- Glycolysis box -->
+  <rect x="100" y="160" width="120" height="80" rx="8" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="160" y="180" font-size="11" font-weight="700" fill="#14532d" text-anchor="middle">Glycolysis</text>
+  <text x="160" y="196" font-size="9" fill="#4a5568" text-anchor="middle">10 enzyme steps</text>
+  <text x="160" y="212" font-size="9" fill="#4a5568" text-anchor="middle">C₆ → 2 × C₃</text>
+  <text x="160" y="226" font-size="9" font-weight="700" fill="#15803d" text-anchor="middle">+ 2 ATP · + 2 NADH</text>
+
+  <!-- arrow to pyruvate -->
+  <line x1="82" y1="200" x2="100" y2="200" stroke="#15803d" stroke-width="2"/>
+  <polygon points="100,200 94,196 94,204" fill="#15803d"/>
+
+  <line x1="220" y1="200" x2="252" y2="200" stroke="#15803d" stroke-width="2"/>
+  <polygon points="252,200 246,196 246,204" fill="#15803d"/>
+
+  <!-- ── STAGE 2: Pyruvate → Acetyl-CoA (link reaction) ────── -->
+  <g transform="translate(280, 200)">
+    <circle cx="0" cy="-12" r="14" fill="#fde68a" stroke="#b45309" stroke-width="1.5"/>
+    <text x="0" y="-8" font-size="9" font-weight="700" fill="#78350f" text-anchor="middle">C₃</text>
+    <circle cx="0" cy="14" r="14" fill="#fde68a" stroke="#b45309" stroke-width="1.5"/>
+    <text x="0" y="18" font-size="9" font-weight="700" fill="#78350f" text-anchor="middle">C₃</text>
+    <text x="0" y="-32" font-size="8" font-weight="700" fill="#78350f" text-anchor="middle">2 Pyruvate</text>
+  </g>
+
+  <line x1="296" y1="200" x2="334" y2="200" stroke="#dc2626" stroke-width="2"/>
+  <polygon points="334,200 328,196 328,204" fill="#dc2626"/>
+  <text x="316" y="190" font-size="9" font-weight="700" fill="#dc2626" text-anchor="middle">link rxn</text>
+
+  <!-- Link reaction box -->
+  <rect x="338" y="170" width="108" height="60" rx="6" fill="#fed7aa" stroke="#b45309" stroke-width="1.6"/>
+  <text x="392" y="186" font-size="10" font-weight="700" fill="#78350f" text-anchor="middle">→ Acetyl-CoA</text>
+  <text x="392" y="200" font-size="9" fill="#4a5568" text-anchor="middle">2 CO₂ released</text>
+  <text x="392" y="214" font-size="9" font-weight="700" fill="#dc2626" text-anchor="middle">+ 2 NADH</text>
+  <text x="392" y="226" font-size="8" fill="#4a5568" text-anchor="middle">(2 C₃ → 2 C₂)</text>
+
+  <line x1="446" y1="200" x2="478" y2="200" stroke="#dc2626" stroke-width="2"/>
+  <polygon points="478,200 472,196 472,204" fill="#dc2626"/>
+
+
+  <!-- ── STAGE 3: Krebs cycle ─────────────────────────────── -->
+  <g transform="translate(540, 200)">
+    <!-- Cycle ring -->
+    <circle cx="0" cy="0" r="58" fill="#fee2e2" stroke="#dc2626" stroke-width="2.4"/>
+    <circle cx="0" cy="0" r="48" fill="none" stroke="#dc2626" stroke-width="1" stroke-dasharray="3 3"/>
+    <text x="0" y="-6" font-size="11" font-weight="700" fill="#7f1d1d" text-anchor="middle">Krebs</text>
+    <text x="0" y="8" font-size="11" font-weight="700" fill="#7f1d1d" text-anchor="middle">cycle</text>
+    <text x="0" y="22" font-size="9" font-style="italic" fill="#7f1d1d" text-anchor="middle">×2 / glucose</text>
+    <!-- Direction arrows around cycle -->
+    <path d="M 48 -16 Q 56 0 48 16" fill="none" stroke="#dc2626" stroke-width="2"/>
+    <polygon points="48,16 53,8 42,12" fill="#dc2626"/>
+    <path d="M -48 16 Q -56 0 -48 -16" fill="none" stroke="#dc2626" stroke-width="2"/>
+    <polygon points="-48,-16 -53,-8 -42,-12" fill="#dc2626"/>
+  </g>
+
+  <!-- Krebs outputs (per glucose: 2 turns) -->
+  <text x="540" y="118" font-size="10" font-weight="700" fill="#dc2626" text-anchor="middle">per 2 turns:</text>
+
+  <!-- CO2 release -->
+  <line x1="540" y1="142" x2="540" y2="124" stroke="#dc2626" stroke-width="1.4"/>
+  <polygon points="540,124 536,130 544,130" fill="#dc2626"/>
+  <text x="540" y="106" font-size="9" font-weight="700" fill="#dc2626" text-anchor="middle">+ 4 CO₂</text>
+
+  <!-- ATP -->
+  <line x1="600" y1="200" x2="624" y2="200" stroke="#15803d" stroke-width="1.6"/>
+  <polygon points="624,200 618,196 618,204" fill="#15803d"/>
+  <text x="650" y="196" font-size="10" font-weight="700" fill="#15803d" text-anchor="middle">+ 2 ATP</text>
+  <text x="650" y="208" font-size="8" fill="#4a5568" text-anchor="middle">(substrate-level)</text>
+
+  <!-- NADH/FADH2 -->
+  <line x1="540" y1="258" x2="540" y2="280" stroke="#7c3aed" stroke-width="2"/>
+  <polygon points="540,280 536,272 544,272" fill="#7c3aed"/>
+  <text x="540" y="294" font-size="10" font-weight="700" fill="#7c3aed" text-anchor="middle">+ 6 NADH · + 2 FADH₂</text>
+
+
+  <!-- ── STAGE 4: Electron Transport Chain ────────────────── -->
+  <!-- Big arrow from carriers to ETC -->
+  <line x1="600" y1="294" x2="708" y2="240" stroke="#7c3aed" stroke-width="2.5"/>
+  <polygon points="708,240 700,238 704,248" fill="#7c3aed"/>
+
+  <!-- ETC box on inner membrane band -->
+  <rect x="716" y="138" width="124" height="160" rx="8" fill="#fef3c7" stroke="#b45309" stroke-width="2"/>
+  <text x="778" y="158" font-size="11" font-weight="700" fill="#78350f" text-anchor="middle">Electron</text>
+  <text x="778" y="172" font-size="11" font-weight="700" fill="#78350f" text-anchor="middle">Transport Chain</text>
+  <text x="778" y="186" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">on cristae</text>
+
+  <!-- Mini ETC complexes -->
+  <g>
+    <rect x="726" y="200" width="22" height="14" fill="#fbbf24" stroke="#b45309" stroke-width="1"/>
+    <text x="737" y="210" font-size="7" fill="#78350f" text-anchor="middle">I</text>
+    <rect x="754" y="200" width="22" height="14" fill="#fbbf24" stroke="#b45309" stroke-width="1"/>
+    <text x="765" y="210" font-size="7" fill="#78350f" text-anchor="middle">II</text>
+    <rect x="782" y="200" width="22" height="14" fill="#fbbf24" stroke="#b45309" stroke-width="1"/>
+    <text x="793" y="210" font-size="7" fill="#78350f" text-anchor="middle">III</text>
+    <rect x="810" y="200" width="22" height="14" fill="#fbbf24" stroke="#b45309" stroke-width="1"/>
+    <text x="821" y="210" font-size="7" fill="#78350f" text-anchor="middle">IV</text>
+    <!-- ATP synthase -->
+    <line x1="778" y1="240" x2="778" y2="252" stroke="#15803d" stroke-width="2"/>
+    <circle cx="778" cy="256" r="8" fill="#15803d"/>
+    <text x="778" y="260" font-size="7" fill="#fff" text-anchor="middle">ATP</text>
+    <text x="778" y="280" font-size="9" font-weight="700" fill="#15803d" text-anchor="middle">synthase</text>
+  </g>
+
+  <!-- Output arrow: ATP -->
+  <line x1="840" y1="220" x2="868" y2="220" stroke="#15803d" stroke-width="2.5"/>
+  <polygon points="868,220 862,216 862,224" fill="#15803d"/>
+
+  <!-- O2 in -->
+  <text x="868" y="160" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">O₂</text>
+  <line x1="868" y1="166" x2="840" y2="186" stroke="#1e3a8a" stroke-width="2"/>
+  <polygon points="840,186 848,182 844,192" fill="#1e3a8a"/>
+
+  <!-- H2O out -->
+  <text x="868" y="276" font-size="11" font-weight="700" fill="#0e7490" text-anchor="middle">H₂O</text>
+  <line x1="840" y1="260" x2="864" y2="270" stroke="#0e7490" stroke-width="2"/>
+  <polygon points="864,270 860,262 858,272" fill="#0e7490"/>
+
+
+  <!-- ── ATP TALLY ────────────────────────────────────────── -->
+  <rect x="40" y="396" width="800" height="60" rx="8" fill="#f7fafc" stroke="#cbd5e0" stroke-width="1.5"/>
+  <text x="440" y="416" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">ATP tally per 1 glucose</text>
+  <g font-size="11">
+    <text x="80" y="438" fill="#15803d" font-weight="700">Glycolysis:</text>
+    <text x="160" y="438" fill="#1a202c">2 ATP</text>
+    <text x="240" y="438" fill="#dc2626" font-weight="700">Krebs:</text>
+    <text x="296" y="438" fill="#1a202c">2 ATP</text>
+    <text x="380" y="438" fill="#b45309" font-weight="700">Oxidative phosphorylation:</text>
+    <text x="566" y="438" fill="#1a202c">~26–28 ATP</text>
+    <text x="700" y="438" fill="#1a202c" font-weight="700">Total:</text>
+    <text x="752" y="438" fill="#15803d" font-weight="700">~30–32 ATP</text>
+  </g>
+
+  <!-- ── ANAEROBIC fork (bottom) ──────────────────────────── -->
+  <text x="160" y="476" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">No O₂? Fermentation:</text>
+  <text x="160" y="492" font-size="10" fill="#4a5568" text-anchor="middle">pyruvate → lactate (animals) · ethanol + CO₂ (yeast)</text>
+
+  <text x="660" y="476" font-size="11" font-weight="700" fill="#0e7490" text-anchor="middle">Net redox balance:</text>
+  <text x="660" y="492" font-size="10" fill="#4a5568" text-anchor="middle">C₆H₁₂O₆ + 6 O₂ → 6 CO₂ + 6 H₂O + ATP</text>
+</svg>

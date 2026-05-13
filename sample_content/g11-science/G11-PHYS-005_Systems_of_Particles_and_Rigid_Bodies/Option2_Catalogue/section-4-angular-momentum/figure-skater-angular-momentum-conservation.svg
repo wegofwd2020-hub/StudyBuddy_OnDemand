@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" role="img" aria-label="Figure skater with arms extended versus arms tucked — conservation of angular momentum">
+  <title>Figure skater — arms out vs. arms in (L = I ω is conserved)</title>
+  <desc>Two stylised figure skaters spinning on the ice. With arms extended the moment of inertia I is large and the angular velocity ω is small. When the skater pulls arms in, I drops and ω increases such that the product L = I ω stays the same. Bar charts show I, ω, and the rotational kinetic energy ½Iω², which actually increases because the skater does work pulling arms in.</desc>
+
+  <defs>
+    <marker id="arr-skater-omega" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#15803d" />
+    </marker>
+  </defs>
+
+  <text x="320" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Figure skater spin — L = I ω is conserved (no external torque)</text>
+
+  <!-- ─── LEFT panel: arms extended ─── -->
+  <g transform="translate(20, 50)">
+    <rect x="0" y="0" width="280" height="280" rx="10" fill="#f7fafc" stroke="#e2e8f0" />
+    <text x="140" y="22" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">Arms extended</text>
+
+    <!-- Ice surface -->
+    <line x1="30" y1="218" x2="250" y2="218" stroke="#1a202c" stroke-width="1.2" />
+    <text x="140" y="234" font="9px system-ui" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">frictionless ice</text>
+
+    <!-- Skater stick figure: head, body, extended arms, single skate -->
+    <!-- Head -->
+    <circle cx="140" cy="78" r="10" fill="#fed7aa" stroke="#1a202c" stroke-width="1.2" />
+    <!-- Torso -->
+    <line x1="140" y1="88" x2="140" y2="178" stroke="#1a202c" stroke-width="3" />
+    <!-- Arms extended wide (fingertips at x = 60 and 220) -->
+    <line x1="140" y1="110" x2="60" y2="110" stroke="#2b6cb0" stroke-width="3" />
+    <circle cx="60" cy="110" r="4" fill="#2b6cb0" />
+    <line x1="140" y1="110" x2="220" y2="110" stroke="#2b6cb0" stroke-width="3" />
+    <circle cx="220" cy="110" r="4" fill="#2b6cb0" />
+    <!-- Skating leg -->
+    <line x1="140" y1="178" x2="140" y2="216" stroke="#1a202c" stroke-width="3" />
+    <!-- Trailing leg -->
+    <line x1="140" y1="178" x2="160" y2="216" stroke="#1a202c" stroke-width="2" />
+
+    <!-- Rotation axis dashed -->
+    <line x1="140" y1="56" x2="140" y2="240" stroke="#7c3aed" stroke-width="1.2" stroke-dasharray="3 3" />
+
+    <!-- ω curved arrow (small, slow) -->
+    <path d="M 100 250 A 40 12 0 0 1 180 250" fill="none" stroke="#15803d" stroke-width="2.5" marker-end="url(#arr-skater-omega)" />
+    <text x="140" y="262" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">ω small</text>
+  </g>
+
+  <!-- ─── RIGHT panel: arms tucked ─── -->
+  <g transform="translate(330, 50)">
+    <rect x="0" y="0" width="280" height="280" rx="10" fill="#f7fafc" stroke="#e2e8f0" />
+    <text x="140" y="22" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#dd6b20" text-anchor="middle">Arms tucked in</text>
+
+    <line x1="30" y1="218" x2="250" y2="218" stroke="#1a202c" stroke-width="1.2" />
+    <text x="140" y="234" font="9px system-ui" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">frictionless ice</text>
+
+    <!-- Skater stick figure with arms close to body -->
+    <circle cx="140" cy="78" r="10" fill="#fed7aa" stroke="#1a202c" stroke-width="1.2" />
+    <line x1="140" y1="88" x2="140" y2="178" stroke="#1a202c" stroke-width="3" />
+    <!-- Arms tucked: short arms ending close to torso (x = 122 and 158) -->
+    <line x1="140" y1="110" x2="122" y2="140" stroke="#dd6b20" stroke-width="3" />
+    <circle cx="122" cy="140" r="4" fill="#dd6b20" />
+    <line x1="140" y1="110" x2="158" y2="140" stroke="#dd6b20" stroke-width="3" />
+    <circle cx="158" cy="140" r="4" fill="#dd6b20" />
+    <line x1="140" y1="178" x2="140" y2="216" stroke="#1a202c" stroke-width="3" />
+    <line x1="140" y1="178" x2="148" y2="216" stroke="#1a202c" stroke-width="2" />
+
+    <line x1="140" y1="56" x2="140" y2="240" stroke="#7c3aed" stroke-width="1.2" stroke-dasharray="3 3" />
+
+    <!-- ω curved arrow (large, fast) — multiple turns -->
+    <path d="M 86 250 A 54 14 0 0 1 194 250" fill="none" stroke="#15803d" stroke-width="3.5" marker-end="url(#arr-skater-omega)" />
+    <text x="140" y="262" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">ω BIG</text>
+  </g>
+
+  <!-- ─── Bar comparison strip ─── -->
+  <g transform="translate(20, 340)">
+    <text x="310" y="0" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Conservation: L = I ω stays constant ⇒ I↓ × ω↑ — but KE_rot = ½ I ω² rises (skater does work pulling arms in).</text>
+  </g>
+</svg>

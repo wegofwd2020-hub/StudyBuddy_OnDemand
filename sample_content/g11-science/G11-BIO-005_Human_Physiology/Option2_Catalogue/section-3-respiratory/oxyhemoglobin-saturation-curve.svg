@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 520" width="760" height="520" role="img" aria-label="Oxyhemoglobin dissociation curve with Bohr shift annotations">
+  <title>Oxyhemoglobin saturation curve — sigmoid with Bohr shift</title>
+  <desc>The oxyhemoglobin dissociation curve. The horizontal axis shows arterial partial pressure of oxygen (PO2) from 0 to 100 mmHg; the vertical axis shows percent saturation of hemoglobin from 0 to 100. The reference (normal) curve is a sigmoid (S-shape) reflecting cooperative oxygen binding: when one O2 binds to a haem in the tetramer, the other three sites bind more easily. Two arterial milestones are highlighted: the lungs at PO2 100 mmHg (Hb is ~98% saturated) and the resting tissues at PO2 40 mmHg (Hb is ~75% saturated). The P50 — partial pressure at which Hb is half-saturated — is about 27 mmHg in the reference state. Two shifted curves are overlaid: the right-shifted curve (Bohr shift) labelled "low pH · high CO2 · high temperature · high 2,3-BPG" represents exercising tissue and releases more O2 at the same PO2; the left-shifted curve labelled "high pH · low CO2 · low temperature · fetal Hb" represents cooler tissue and holds onto O2 more tightly. Annotations explain that the Bohr right-shift is what lets working muscles draw extra oxygen from the same arterial blood.</desc>
+
+  <text x="380" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Oxyhemoglobin Dissociation Curve — Sigmoid Cooperativity and the Bohr Shift</text>
+  <text x="380" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Cooperative O₂ binding (S-shape) · right-shift releases more O₂ at working tissue (low pH, high CO₂, heat, 2,3-BPG)</text>
+
+  <!-- Background -->
+  <rect x="20" y="56" width="720" height="444" rx="14" fill="#f7fafc" stroke="#cbd5e1" stroke-width="1"/>
+
+  <!-- ── Plot box ─────────────────────────────────────────────── -->
+  <!-- x: 100..600 → PO2 0..100 mmHg → 5 px/mmHg
+       y: 410..90 → Sat 0..100 % → 3.2 px/% (inverted) -->
+  <line x1="100" y1="410" x2="600" y2="410" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="100" y1="410" x2="100" y2="90"  stroke="#1a202c" stroke-width="1.5"/>
+
+  <!-- Grid lines -->
+  <g stroke="#e2e8f0" stroke-width="0.7">
+    <line x1="200" y1="410" x2="200" y2="90"/>
+    <line x1="300" y1="410" x2="300" y2="90"/>
+    <line x1="400" y1="410" x2="400" y2="90"/>
+    <line x1="500" y1="410" x2="500" y2="90"/>
+    <line x1="100" y1="346" x2="600" y2="346"/>
+    <line x1="100" y1="282" x2="600" y2="282"/>
+    <line x1="100" y1="218" x2="600" y2="218"/>
+    <line x1="100" y1="154" x2="600" y2="154"/>
+  </g>
+
+  <!-- X-axis ticks + labels -->
+  <g font-size="10" fill="#4a5568" text-anchor="middle">
+    <line x1="100" y1="410" x2="100" y2="414" stroke="#1a202c"/><text x="100" y="426">0</text>
+    <line x1="200" y1="410" x2="200" y2="414" stroke="#1a202c"/><text x="200" y="426">20</text>
+    <line x1="300" y1="410" x2="300" y2="414" stroke="#1a202c"/><text x="300" y="426">40</text>
+    <line x1="400" y1="410" x2="400" y2="414" stroke="#1a202c"/><text x="400" y="426">60</text>
+    <line x1="500" y1="410" x2="500" y2="414" stroke="#1a202c"/><text x="500" y="426">80</text>
+    <line x1="600" y1="410" x2="600" y2="414" stroke="#1a202c"/><text x="600" y="426">100</text>
+  </g>
+  <text x="350" y="448" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Partial pressure of O₂ (PO₂, mmHg)</text>
+
+  <!-- Y-axis ticks + labels -->
+  <g font-size="10" fill="#4a5568" text-anchor="end">
+    <line x1="96" y1="410" x2="100" y2="410" stroke="#1a202c"/><text x="92" y="414">0</text>
+    <line x1="96" y1="346" x2="100" y2="346" stroke="#1a202c"/><text x="92" y="350">20</text>
+    <line x1="96" y1="282" x2="100" y2="282" stroke="#1a202c"/><text x="92" y="286">40</text>
+    <line x1="96" y1="218" x2="100" y2="218" stroke="#1a202c"/><text x="92" y="222">60</text>
+    <line x1="96" y1="154" x2="100" y2="154" stroke="#1a202c"/><text x="92" y="158">80</text>
+    <line x1="96" y1="90"  x2="100" y2="90"  stroke="#1a202c"/><text x="92" y="94">100</text>
+  </g>
+  <text x="44" y="250" font-size="12" font-weight="700" fill="#1a202c" transform="rotate(-90 44 250)" text-anchor="middle">Hb saturation (% SO₂)</text>
+
+  <!-- ── Left-shifted curve (high pH, low CO₂, cold, fetal Hb) ── -->
+  <!-- Sigmoid approximated. Steeper on the left → higher affinity. P50 ~ 19 mmHg -->
+  <path d="M 100 410
+           Q 130 408 150 400
+           Q 175 388 195 358
+           Q 215 320 240 268
+           Q 265 220 295 175
+           Q 330 140 370 122
+           Q 420 108 480 100
+           Q 540 96 600 94"
+        fill="none" stroke="#2b6cb0" stroke-width="3" stroke-dasharray="8 5"/>
+
+  <!-- ── Reference curve (normal arterial blood, 37°C, pH 7.4) ── -->
+  <!-- P50 ~ 27 mmHg, S-shape with inflection around PO2 30 mmHg -->
+  <path d="M 100 410
+           Q 140 410 175 405
+           Q 210 396 235 372
+           Q 260 340 290 295
+           Q 320 248 360 208
+           Q 405 168 460 142
+           Q 520 122 600 110"
+        fill="none" stroke="#15803d" stroke-width="4"/>
+
+  <!-- ── Right-shifted curve (Bohr shift — working tissue) ────── -->
+  <!-- P50 ~ 36 mmHg, shifted right meaning less saturation at same PO2 -->
+  <path d="M 100 410
+           Q 165 410 205 408
+           Q 245 400 280 380
+           Q 315 354 350 310
+           Q 385 264 425 222
+           Q 465 188 510 162
+           Q 555 142 600 132"
+        fill="none" stroke="#dc2626" stroke-width="3" stroke-dasharray="6 4"/>
+
+  <!-- ── Key milestone markers ────────────────────────────────── -->
+  <!-- Tissue point (PO2 40, Sat ~75) on reference curve -->
+  <line x1="300" y1="410" x2="300" y2="170" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="100" y1="170" x2="300" y2="170" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <circle cx="300" cy="170" r="6" fill="#fbbf24" stroke="#92400e" stroke-width="2"/>
+  <text x="312" y="166" font-size="11" font-weight="700" fill="#92400e">Resting tissue</text>
+  <text x="312" y="180" font-size="10" fill="#4a5568">PO₂ 40 · Sat 75%</text>
+
+  <!-- Lung / arterial point (PO2 100, Sat ~98) -->
+  <line x1="600" y1="410" x2="600" y2="112" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="100" y1="112" x2="600" y2="112" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <circle cx="600" cy="112" r="6" fill="#7f1d1d" stroke="#1a202c" stroke-width="2"/>
+  <text x="540" y="100" font-size="11" font-weight="700" fill="#7f1d1d">Lungs</text>
+  <text x="540" y="86" font-size="10" fill="#4a5568">PO₂ 100 · Sat 98%</text>
+
+  <!-- P50 marker (reference curve) -->
+  <line x1="235" y1="410" x2="235" y2="250" stroke="#15803d" stroke-width="1" stroke-dasharray="2 3"/>
+  <circle cx="235" cy="250" r="5" fill="#15803d" stroke="#14532d" stroke-width="2"/>
+  <text x="240" y="244" font-size="10" font-weight="700" fill="#15803d">P₅₀ ≈ 27 mmHg</text>
+  <text x="240" y="256" font-size="9" font-style="italic" fill="#4a5568">half-saturation point</text>
+
+  <!-- ── Curve labels ────────────────────────────────────────── -->
+  <rect x="448" y="124" width="142" height="20" rx="3" fill="#dcfce7" stroke="#15803d" stroke-width="1.4"/>
+  <text x="519" y="138" font-size="10" font-weight="700" fill="#14532d" text-anchor="middle">Reference (37 °C, pH 7.4)</text>
+
+  <rect x="450" y="160" width="142" height="20" rx="3" fill="#fee2e2" stroke="#dc2626" stroke-width="1.4"/>
+  <text x="521" y="174" font-size="10" font-weight="700" fill="#7f1d1d" text-anchor="middle">RIGHT-shift · Bohr</text>
+
+  <rect x="478" y="86" width="118" height="18" rx="3" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.4"/>
+  <text x="537" y="99" font-size="10" font-weight="700" fill="#1e3a8a" text-anchor="middle">LEFT-shift · fetal Hb</text>
+
+  <!-- ── Bohr-shift arrow ──────────────────────────────────────── -->
+  <g>
+    <path d="M 250 200 Q 290 188 330 200" fill="none" stroke="#dc2626" stroke-width="2"/>
+    <polygon points="330,200 322,194 322,206" fill="#dc2626"/>
+    <text x="290" y="184" font-size="10" font-weight="700" fill="#7f1d1d" text-anchor="middle">Bohr shift →</text>
+  </g>
+
+  <!-- ── Conditions panel (lower-right) ────────────────────────── -->
+  <rect x="612" y="90" width="138" height="200" rx="5" fill="#fff7ed" stroke="#f59e0b" stroke-width="1.4"/>
+  <text x="681" y="108" font-size="11" font-weight="700" fill="#92400e" text-anchor="middle">RIGHT-shift triggers</text>
+  <text x="620" y="128" font-size="10" font-weight="700" fill="#7f1d1d">↓ pH (acidic)</text>
+  <text x="620" y="143" font-size="9" fill="#4a5568">lactic acid · exercise</text>
+  <text x="620" y="162" font-size="10" font-weight="700" fill="#7f1d1d">↑ PCO₂</text>
+  <text x="620" y="177" font-size="9" fill="#4a5568">cellular respiration</text>
+  <text x="620" y="196" font-size="10" font-weight="700" fill="#7f1d1d">↑ Temperature</text>
+  <text x="620" y="211" font-size="9" fill="#4a5568">heat from working tissue</text>
+  <text x="620" y="230" font-size="10" font-weight="700" fill="#7f1d1d">↑ 2,3-BPG</text>
+  <text x="620" y="245" font-size="9" fill="#4a5568">RBC glycolysis intermediate</text>
+  <text x="620" y="264" font-size="9" font-style="italic" fill="#92400e">Result: more O₂</text>
+  <text x="620" y="276" font-size="9" font-style="italic" fill="#92400e">released to muscle</text>
+
+  <!-- ── Caption ─────────────────────────────────────────────── -->
+  <text x="380" y="470" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Cooperativity: binding of one O₂ raises affinity for the next three — produces the steep middle of the S-curve.</text>
+  <text x="380" y="486" font-size="10" fill="#4a5568" text-anchor="middle">Bohr right-shift in exercising tissue → at PO₂ 40 mmHg, Hb gives up ~20% more O₂ than at rest.</text>
+</svg>

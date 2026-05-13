@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380" role="img" aria-label="Lytic versus lysogenic cycle">
+  <title>Lytic vs lysogenic — two viral replication strategies</title>
+  <desc>Two side-by-side flow diagrams. Lytic cycle: virus attaches, injects DNA, hijacks host machinery to produce new viral parts, assembles them, then bursts the cell to release particles. Lysogenic cycle: virus injects DNA which integrates into the host chromosome as a prophage; the cell divides normally, copying the prophage with each replication, until a stress signal triggers the lytic phase.</desc>
+
+  <text x="360" y="22" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Lytic vs Lysogenic Cycle</text>
+  <text x="360" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Two strategies a virus can use after entering a host cell.</text>
+
+  <!-- ── LYTIC (left side) ─────────────────────────────── -->
+  <g transform="translate(20, 60)">
+    <rect x="0" y="0" width="320" height="300" rx="10" fill="#fee2e2" opacity="0.4" stroke="#dc2626" stroke-width="2"/>
+    <text x="160" y="26" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">LYTIC CYCLE — destroy the host</text>
+
+    <!-- Step 1 attach -->
+    <circle cx="60" cy="80" r="22" fill="#dbeafe" stroke="#2b6cb0" stroke-width="2"/>
+    <text x="60" y="85" font-size="11" font-weight="700" fill="#2b6cb0" text-anchor="middle">cell</text>
+    <circle cx="60" cy="55" r="8" fill="#fed7aa" stroke="#b45309" stroke-width="1.5"/>
+    <line x1="60" y1="62" x2="60" y2="70" stroke="#1a202c" stroke-width="2"/>
+    <text x="100" y="62" font-size="11" font-weight="700" fill="#1a202c">1. Attach</text>
+    <text x="100" y="76" font-size="10" fill="#4a5568">virus binds host receptor</text>
+
+    <!-- Step 2 inject -->
+    <circle cx="60" cy="140" r="22" fill="#dbeafe" stroke="#2b6cb0" stroke-width="2"/>
+    <path d="M 50 130 Q 60 132 70 140" fill="none" stroke="#dc2626" stroke-width="2"/>
+    <text x="100" y="135" font-size="11" font-weight="700" fill="#1a202c">2. Inject DNA</text>
+    <text x="100" y="149" font-size="10" fill="#4a5568">viral genome enters host</text>
+
+    <!-- Step 3 replicate -->
+    <circle cx="60" cy="200" r="22" fill="#dbeafe" stroke="#2b6cb0" stroke-width="2"/>
+    <circle cx="50" cy="195" r="4" fill="#fed7aa" stroke="#b45309" stroke-width="1"/>
+    <circle cx="65" cy="200" r="4" fill="#fed7aa" stroke="#b45309" stroke-width="1"/>
+    <circle cx="55" cy="208" r="4" fill="#fed7aa" stroke="#b45309" stroke-width="1"/>
+    <circle cx="68" cy="190" r="4" fill="#fed7aa" stroke="#b45309" stroke-width="1"/>
+    <text x="100" y="195" font-size="11" font-weight="700" fill="#1a202c">3. Replicate &amp; assemble</text>
+    <text x="100" y="209" font-size="10" fill="#4a5568">new virions built inside</text>
+
+    <!-- Step 4 lyse -->
+    <g transform="translate(60, 260)">
+      <!-- Burst rays -->
+      <line x1="0" y1="0" x2="-26" y2="-12" stroke="#dc2626" stroke-width="2"/>
+      <line x1="0" y1="0" x2="-22" y2="14" stroke="#dc2626" stroke-width="2"/>
+      <line x1="0" y1="0" x2="0" y2="-22" stroke="#dc2626" stroke-width="2"/>
+      <line x1="0" y1="0" x2="22" y2="-14" stroke="#dc2626" stroke-width="2"/>
+      <line x1="0" y1="0" x2="26" y2="10" stroke="#dc2626" stroke-width="2"/>
+      <line x1="0" y1="0" x2="0" y2="22" stroke="#dc2626" stroke-width="2"/>
+      <circle cx="-22" cy="-10" r="4" fill="#fed7aa" stroke="#b45309" stroke-width="1"/>
+      <circle cx="-18" cy="14" r="4" fill="#fed7aa" stroke="#b45309" stroke-width="1"/>
+      <circle cx="22" cy="-10" r="4" fill="#fed7aa" stroke="#b45309" stroke-width="1"/>
+      <circle cx="22" cy="12" r="4" fill="#fed7aa" stroke="#b45309" stroke-width="1"/>
+    </g>
+    <text x="100" y="255" font-size="11" font-weight="700" fill="#dc2626">4. Lyse</text>
+    <text x="100" y="269" font-size="10" fill="#4a5568">cell bursts — virions released</text>
+
+    <!-- Connecting arrows -->
+    <line x1="60" y1="102" x2="60" y2="118" stroke="#dc2626" stroke-width="1.5" marker-end="url(#arr)"/>
+    <line x1="60" y1="162" x2="60" y2="178" stroke="#dc2626" stroke-width="1.5" marker-end="url(#arr)"/>
+    <line x1="60" y1="222" x2="60" y2="238" stroke="#dc2626" stroke-width="1.5" marker-end="url(#arr)"/>
+  </g>
+
+  <!-- ── LYSOGENIC (right side) ──────────────────────────── -->
+  <g transform="translate(380, 60)">
+    <rect x="0" y="0" width="320" height="300" rx="10" fill="#dbeafe" opacity="0.4" stroke="#2b6cb0" stroke-width="2"/>
+    <text x="160" y="26" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">LYSOGENIC CYCLE — hide and wait</text>
+
+    <!-- Step 1 attach + inject -->
+    <circle cx="60" cy="80" r="22" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+    <circle cx="60" cy="55" r="8" fill="#fed7aa" stroke="#b45309" stroke-width="1.5"/>
+    <line x1="60" y1="62" x2="60" y2="70" stroke="#1a202c" stroke-width="2"/>
+    <text x="100" y="62" font-size="11" font-weight="700" fill="#1a202c">1. Inject DNA</text>
+    <text x="100" y="76" font-size="10" fill="#4a5568">same start as lytic</text>
+
+    <!-- Step 2 integrate -->
+    <circle cx="60" cy="140" r="22" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+    <path d="M 45 138 Q 55 130 65 138 Q 75 146 60 145" fill="none" stroke="#dc2626" stroke-width="2"/>
+    <circle cx="60" cy="142" r="3" fill="#dc2626"/>
+    <text x="100" y="135" font-size="11" font-weight="700" fill="#1a202c">2. Integrate as prophage</text>
+    <text x="100" y="149" font-size="10" fill="#4a5568">viral DNA joins host chromosome</text>
+
+    <!-- Step 3 host divides -->
+    <circle cx="42" cy="200" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+    <circle cx="42" cy="200" r="3" fill="#dc2626"/>
+    <circle cx="78" cy="200" r="18" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+    <circle cx="78" cy="200" r="3" fill="#dc2626"/>
+    <text x="100" y="195" font-size="11" font-weight="700" fill="#1a202c">3. Host divides normally</text>
+    <text x="100" y="209" font-size="10" fill="#4a5568">prophage copied with each division</text>
+
+    <!-- Step 4 trigger → lytic -->
+    <circle cx="60" cy="260" r="22" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+    <path d="M 50 258 L 70 258 L 65 268 L 70 268" fill="none" stroke="#dc2626" stroke-width="2"/>
+    <text x="100" y="255" font-size="11" font-weight="700" fill="#dc2626">4. Trigger → enter lytic</text>
+    <text x="100" y="269" font-size="10" fill="#4a5568">UV, stress, etc. excise prophage</text>
+
+    <!-- Connecting arrows -->
+    <line x1="60" y1="102" x2="60" y2="118" stroke="#2b6cb0" stroke-width="1.5" marker-end="url(#arr2)"/>
+    <line x1="60" y1="162" x2="60" y2="180" stroke="#2b6cb0" stroke-width="1.5" marker-end="url(#arr2)"/>
+    <line x1="60" y1="222" x2="60" y2="238" stroke="#2b6cb0" stroke-width="1.5" marker-end="url(#arr2)"/>
+  </g>
+
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626"/>
+    </marker>
+    <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2b6cb0"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="376" font-size="10" fill="#4a5568" text-anchor="middle">Same virus can switch — bacteriophage λ chooses lysogeny when host is healthy, lysis when host is starving.</text>
+</svg>

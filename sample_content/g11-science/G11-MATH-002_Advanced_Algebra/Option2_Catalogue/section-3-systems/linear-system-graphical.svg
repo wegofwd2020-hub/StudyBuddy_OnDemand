@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 320" width="600" height="320" role="img" aria-label="Linear system solved graphically as the intersection of two lines">
+  <title>Linear System: Intersection at (2, 3)</title>
+  <desc>Two lines y = 2x − 1 and y = −x + 5 meeting at the unique solution (2, 3).</desc>
+
+  <defs>
+    <style>
+      .axis    { stroke: #94a3b8; stroke-width: 1.4; }
+      .grid    { stroke: #e2e8f0; stroke-width: 0.6; }
+      .line1   { stroke: #2b6cb0; stroke-width: 3; stroke-linecap: round; }
+      .line2   { stroke: #dd6b20; stroke-width: 3; stroke-linecap: round; }
+      .pt      { fill: #2f855a; stroke: white; stroke-width: 2.5; }
+      .axislbl { font: 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .heading { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .lbl     { font: bold 12px system-ui, sans-serif; }
+      .panel   { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1; }
+    </style>
+  </defs>
+
+  <text class="heading" x="300" y="22">Solving a linear system: graph both lines, find the intersection</text>
+
+  <!-- Plot frame: 60..380 x, 60..260 y -->
+  <rect class="panel" x="60" y="60" width="320" height="200"/>
+
+  <!-- vertical grid lines, x = 0,1,2,3,4 → 113.3, 166.7, 220, 273.3, 326.7 -->
+  <line class="grid" x1="113.3" y1="60" x2="113.3" y2="260"/>
+  <line class="grid" x1="166.7" y1="60" x2="166.7" y2="260"/>
+  <line class="grid" x1="220"   y1="60" x2="220"   y2="260"/>
+  <line class="grid" x1="273.3" y1="60" x2="273.3" y2="260"/>
+  <line class="grid" x1="326.7" y1="60" x2="326.7" y2="260"/>
+  <!-- horizontal grid, y = 0,2,4,6 → 235, 185, 135, 85 -->
+  <line class="grid" x1="60" y1="235" x2="380" y2="235"/>
+  <line class="grid" x1="60" y1="185" x2="380" y2="185"/>
+  <line class="grid" x1="60" y1="135" x2="380" y2="135"/>
+  <line class="grid" x1="60" y1="85"  x2="380" y2="85"/>
+
+  <!-- axes -->
+  <line class="axis" x1="60" y1="235" x2="380" y2="235"/>
+  <line class="axis" x1="113.3" y1="60" x2="113.3" y2="260"/>
+
+  <!-- tick labels x -->
+  <text class="axislbl" x="113.3" y="252">0</text>
+  <text class="axislbl" x="166.7" y="252">1</text>
+  <text class="axislbl" x="220"   y="252">2</text>
+  <text class="axislbl" x="273.3" y="252">3</text>
+  <text class="axislbl" x="326.7" y="252">4</text>
+  <!-- tick labels y -->
+  <text class="axislbl" x="100" y="239" text-anchor="end">0</text>
+  <text class="axislbl" x="100" y="189" text-anchor="end">2</text>
+  <text class="axislbl" x="100" y="139" text-anchor="end">4</text>
+  <text class="axislbl" x="100" y="89"  text-anchor="end">6</text>
+  <text class="axislbl" x="392" y="240">x</text>
+  <text class="axislbl" x="113.3" y="55">y</text>
+
+  <!-- Line 1: y = 2x − 1 from (0,-1) → (4, 7).  In the visible window we go (0.5,0) to (4,7).  px = 60+(x+1)/6*320, py = 60+(7-y)/8*200 -->
+  <!-- (0, -1) → (113.3, 260); (4, 7) → (326.7, 60) -->
+  <line class="line1" x1="113.3" y1="260" x2="326.7" y2="60"/>
+
+  <!-- Line 2: y = −x + 5 from (-1, 6) → (5, 0).  (-1,6) → (60, 85); (5, 0) → (380, 235) -->
+  <line class="line2" x1="60" y1="85" x2="380" y2="235"/>
+
+  <!-- Intersection point at (2, 3) → (220, 160) -->
+  <circle class="pt" cx="220" cy="160" r="7"/>
+  <text class="lbl" x="232" y="155" fill="#2f855a">(2, 3)</text>
+
+  <!-- Line equations on plot -->
+  <text class="lbl" x="332" y="78"  fill="#2b6cb0">y = 2x − 1</text>
+  <text class="lbl" x="68"  y="103" fill="#dd6b20">y = −x + 5</text>
+
+  <!-- Algebraic verification side panel -->
+  <g transform="translate(410, 70)">
+    <rect x="0" y="0" width="180" height="180" rx="8" fill="#fffaf0" stroke="#dd6b20" stroke-width="1.4"/>
+    <text font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" x="90" y="22" text-anchor="middle">Substitution check</text>
+    <text font="12px system-ui" font-size="12" fill="#1a202c" x="14" y="48">Set them equal:</text>
+    <text font="13px system-ui" font-size="13" fill="#1a202c" x="14" y="68" font-style="italic">2x − 1 = −x + 5</text>
+    <text font="13px system-ui" font-size="13" fill="#1a202c" x="14" y="88" font-style="italic">3x = 6</text>
+    <text font="13px system-ui" font-size="13" fill="#1a202c" x="14" y="108" font-style="italic">x = 2</text>
+    <text font="13px system-ui" font-size="13" fill="#1a202c" x="14" y="128" font-style="italic">y = 2(2) − 1 = 3</text>
+    <text font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2f855a" x="90" y="158" text-anchor="middle">Solution: (2, 3)</text>
+  </g>
+
+  <text x="300" y="290" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Three cases: one intersection (consistent), parallel (no solution), or same line (infinite solutions).</text>
+</svg>

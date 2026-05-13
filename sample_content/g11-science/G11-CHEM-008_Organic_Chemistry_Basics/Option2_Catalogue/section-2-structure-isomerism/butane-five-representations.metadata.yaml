@@ -1,0 +1,13 @@
+schema_version: 1
+id: chemistry-butane-five-representations
+kind: image
+subject: chemistry
+topic_phrase: "butane molecular condensed structural skeletal three-dimensional representations"
+keywords:
+  - butane
+  - condensed-formula
+  - skeletal-formula
+  - structural-formula
+  - representations
+license: platform-cc-by-sa
+source_unit: G11-CHEM-008

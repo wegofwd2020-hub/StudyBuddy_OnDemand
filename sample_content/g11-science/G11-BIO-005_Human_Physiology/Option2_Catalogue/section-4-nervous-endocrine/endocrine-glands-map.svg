@@ -1,0 +1,175 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 600" width="760" height="600" role="img" aria-label="Human endocrine glands map with hormone reference panel">
+  <title>Major endocrine glands of the human body and their key hormones</title>
+  <desc>A teaching diagram showing the major endocrine glands of the human body on a front-view silhouette. From head to toe the glands shown and labelled are: pineal gland and hypothalamus (in the brain); pituitary gland (just beneath the hypothalamus, the master gland); thyroid (around the trachea in the neck) and parathyroid glands (four small glands embedded behind the thyroid); thymus (in the upper chest, behind the sternum); adrenal glands (perched atop each kidney); pancreas (mid-abdomen, behind the stomach); ovaries (in the female pelvis) or testes (in the scrotum) shown as paired gonads. To the right of the body silhouette a side panel lists each gland and its principal hormones with a one-line function: pituitary releases growth hormone and prolactin; thyroid releases thyroxine T4 and triiodothyronine T3 which set the basal metabolic rate; parathyroid releases parathyroid hormone PTH which raises blood calcium; adrenal medulla releases adrenaline for the fight-or-flight response and the adrenal cortex releases cortisol for stress and aldosterone for sodium balance; pancreas releases insulin and glucagon, which lower and raise blood glucose respectively; the gonads release oestrogen and progesterone or testosterone. A note explains that hormones travel in the bloodstream to distant target cells and act far more slowly but with much longer duration than nerve signals.</desc>
+
+  <text x="380" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Major Endocrine Glands and Their Hormones</text>
+  <text x="380" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Glands release hormones into the bloodstream → distant target tissues · slower but longer-lasting than nerves</text>
+
+  <!-- Background -->
+  <rect x="20" y="56" width="720" height="524" rx="14" fill="#f7fafc" stroke="#cbd5e1" stroke-width="1"/>
+
+  <!-- ══════════════════════════════════════════════════════════
+       LEFT — body silhouette (anterior view)
+       ═════════════════════════════════════════════════════════ -->
+  <!-- Head -->
+  <ellipse cx="195" cy="115" rx="44" ry="50" fill="#fef3c7" stroke="#92400e" stroke-width="2"/>
+  <!-- Neck -->
+  <rect x="178" y="156" width="34" height="32" rx="4" fill="#fef3c7" stroke="#92400e" stroke-width="2"/>
+  <!-- Torso (trapezoid-ish shoulders → narrower waist) -->
+  <path d="M 100 200 L 290 200 L 270 290 L 260 410 L 130 410 L 120 290 Z"
+        fill="#fef3c7" stroke="#92400e" stroke-width="2"/>
+  <!-- Hips -->
+  <path d="M 130 410 L 260 410 L 270 470 L 120 470 Z"
+        fill="#fef3c7" stroke="#92400e" stroke-width="2"/>
+  <!-- Upper legs -->
+  <rect x="135" y="470" width="50" height="80" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="2"/>
+  <rect x="205" y="470" width="50" height="80" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="2"/>
+  <!-- Arms (suggested) -->
+  <rect x="62" y="208" width="38" height="120" rx="14" fill="#fef3c7" stroke="#92400e" stroke-width="2"/>
+  <rect x="290" y="208" width="38" height="120" rx="14" fill="#fef3c7" stroke="#92400e" stroke-width="2"/>
+
+  <!-- ── Glands on the body ──────────────────────────────────── -->
+  <!-- Hypothalamus + pituitary (in head) -->
+  <ellipse cx="195" cy="118" rx="9" ry="7" fill="#9333ea" stroke="#581c87" stroke-width="1.6"/>
+  <circle cx="195" cy="130" r="5" fill="#7c3aed" stroke="#581c87" stroke-width="1.6"/>
+  <line x1="195" y1="125" x2="195" y2="128" stroke="#581c87" stroke-width="1"/>
+
+  <!-- Pineal -->
+  <circle cx="207" cy="100" r="4" fill="#f59e0b" stroke="#92400e" stroke-width="1.4"/>
+
+  <!-- Thyroid (butterfly shape in neck) -->
+  <path d="M 175 178 Q 195 168 215 178 Q 210 192 195 190 Q 180 192 175 178 Z"
+        fill="#dc2626" stroke="#7f1d1d" stroke-width="1.6"/>
+  <!-- Parathyroid (4 tiny dots behind thyroid) -->
+  <g fill="#fbbf24" stroke="#92400e" stroke-width="0.8">
+    <circle cx="183" cy="174" r="2"/>
+    <circle cx="183" cy="184" r="2"/>
+    <circle cx="207" cy="174" r="2"/>
+    <circle cx="207" cy="184" r="2"/>
+  </g>
+
+  <!-- Thymus (upper chest, small lobed) -->
+  <path d="M 180 220 Q 195 210 210 220 Q 208 240 195 244 Q 182 240 180 220 Z"
+        fill="#fbcfe8" stroke="#9f1239" stroke-width="1.4"/>
+
+  <!-- Adrenals (perched atop the kidneys) -->
+  <ellipse cx="170" cy="320" rx="9" ry="6" fill="#15803d" stroke="#14532d" stroke-width="1.6"/>
+  <ellipse cx="220" cy="320" rx="9" ry="6" fill="#15803d" stroke="#14532d" stroke-width="1.6"/>
+  <!-- Kidneys (faint, behind) -->
+  <ellipse cx="170" cy="340" rx="14" ry="20" fill="#dbeafe" stroke="#1e3a8a" stroke-width="1.2" opacity="0.55"/>
+  <ellipse cx="220" cy="340" rx="14" ry="20" fill="#dbeafe" stroke="#1e3a8a" stroke-width="1.2" opacity="0.55"/>
+
+  <!-- Pancreas (elongated, behind stomach) -->
+  <path d="M 158 388 Q 188 376 220 384 Q 240 388 246 396 Q 220 398 195 394 Q 170 396 158 388 Z"
+        fill="#f59e0b" stroke="#92400e" stroke-width="1.6"/>
+
+  <!-- Gonads — ovaries (pelvis) -->
+  <ellipse cx="173" cy="455" rx="7" ry="5" fill="#ec4899" stroke="#9f1239" stroke-width="1.4"/>
+  <ellipse cx="217" cy="455" rx="7" ry="5" fill="#ec4899" stroke="#9f1239" stroke-width="1.4"/>
+  <text x="195" y="490" font-size="8" font-style="italic" fill="#4a5568" text-anchor="middle">(ovaries or testes)</text>
+
+  <!-- ── Connection lines to labels ──────────────────────────── -->
+  <g stroke="#1a202c" stroke-width="1" stroke-dasharray="3 3">
+    <line x1="207" y1="100" x2="312" y2="78"/>   <!-- pineal -->
+    <line x1="201" y1="118" x2="312" y2="100"/>  <!-- hypothalamus -->
+    <line x1="200" y1="130" x2="312" y2="130"/>  <!-- pituitary -->
+    <line x1="215" y1="178" x2="312" y2="170"/>  <!-- thyroid -->
+    <line x1="207" y1="184" x2="312" y2="200"/>  <!-- parathyroid -->
+    <line x1="208" y1="225" x2="312" y2="232"/>  <!-- thymus -->
+    <line x1="228" y1="320" x2="312" y2="312"/>  <!-- adrenal -->
+    <line x1="240" y1="394" x2="312" y2="396"/>  <!-- pancreas -->
+    <line x1="220" y1="455" x2="312" y2="460"/>  <!-- gonads -->
+  </g>
+
+  <!-- ── Gland labels (close to body) ───────────────────────── -->
+  <g font-size="10" font-weight="700" fill="#1a202c">
+    <text x="316" y="80">Pineal gland</text>
+    <text x="316" y="103">Hypothalamus</text>
+    <text x="316" y="133">Pituitary  (master)</text>
+    <text x="316" y="173">Thyroid</text>
+    <text x="316" y="203">Parathyroids ×4</text>
+    <text x="316" y="235">Thymus</text>
+    <text x="316" y="315">Adrenal glands</text>
+    <text x="316" y="399">Pancreas</text>
+    <text x="316" y="463">Gonads</text>
+  </g>
+
+  <!-- ── Body-view legend ────────────────────────────────────── -->
+  <text x="195" y="572" font-size="9" font-weight="700" fill="#4a5568" text-anchor="middle">anterior view · not to scale</text>
+
+  <!-- ══════════════════════════════════════════════════════════
+       RIGHT — hormone reference panel
+       ═════════════════════════════════════════════════════════ -->
+  <rect x="440" y="68" width="296" height="510" rx="8" fill="#ffffff" stroke="#1e3a8a" stroke-width="1.6"/>
+  <text x="588" y="86" font-size="13" font-weight="700" fill="#1e3a8a" text-anchor="middle">Key hormones by gland</text>
+
+  <!-- Pituitary row -->
+  <g transform="translate(454, 102)">
+    <circle cx="0" cy="8" r="6" fill="#7c3aed"/>
+    <text x="14" y="6" font-size="11" font-weight="700" fill="#1a202c">Pituitary</text>
+    <text x="14" y="20" font-size="9" fill="#475569">GH (growth) · Prolactin (lactation)</text>
+    <text x="14" y="32" font-size="9" fill="#475569">ADH (water) · Oxytocin (bonding)</text>
+  </g>
+
+  <!-- Thyroid -->
+  <g transform="translate(454, 152)">
+    <circle cx="0" cy="8" r="6" fill="#dc2626"/>
+    <text x="14" y="6" font-size="11" font-weight="700" fill="#1a202c">Thyroid</text>
+    <text x="14" y="20" font-size="9" fill="#475569">T4 (thyroxine) · T3 (triiodothyronine)</text>
+    <text x="14" y="32" font-size="9" font-style="italic" fill="#475569">sets basal metabolic rate</text>
+  </g>
+
+  <!-- Parathyroid -->
+  <g transform="translate(454, 202)">
+    <circle cx="0" cy="8" r="6" fill="#fbbf24"/>
+    <text x="14" y="6" font-size="11" font-weight="700" fill="#1a202c">Parathyroid</text>
+    <text x="14" y="20" font-size="9" fill="#475569">PTH — parathyroid hormone</text>
+    <text x="14" y="32" font-size="9" font-style="italic" fill="#475569">raises blood Ca²⁺</text>
+  </g>
+
+  <!-- Adrenal -->
+  <g transform="translate(454, 252)">
+    <circle cx="0" cy="8" r="6" fill="#15803d"/>
+    <text x="14" y="6" font-size="11" font-weight="700" fill="#1a202c">Adrenal glands</text>
+    <text x="14" y="20" font-size="9" fill="#475569">Adrenaline — fight-or-flight</text>
+    <text x="14" y="32" font-size="9" fill="#475569">Cortisol (stress) · Aldosterone (Na⁺)</text>
+  </g>
+
+  <!-- Pancreas -->
+  <g transform="translate(454, 302)">
+    <circle cx="0" cy="8" r="6" fill="#f59e0b"/>
+    <text x="14" y="6" font-size="11" font-weight="700" fill="#1a202c">Pancreas (islets)</text>
+    <text x="14" y="20" font-size="9" fill="#475569">Insulin (β-cells) — lowers glucose</text>
+    <text x="14" y="32" font-size="9" fill="#475569">Glucagon (α-cells) — raises glucose</text>
+  </g>
+
+  <!-- Gonads -->
+  <g transform="translate(454, 352)">
+    <circle cx="0" cy="8" r="6" fill="#ec4899"/>
+    <text x="14" y="6" font-size="11" font-weight="700" fill="#1a202c">Gonads</text>
+    <text x="14" y="20" font-size="9" fill="#475569">Ovaries → Oestrogen · Progesterone</text>
+    <text x="14" y="32" font-size="9" fill="#475569">Testes → Testosterone</text>
+  </g>
+
+  <!-- Pineal -->
+  <g transform="translate(454, 402)">
+    <circle cx="0" cy="8" r="6" fill="#f59e0b"/>
+    <text x="14" y="6" font-size="11" font-weight="700" fill="#1a202c">Pineal</text>
+    <text x="14" y="20" font-size="9" fill="#475569">Melatonin — sleep-wake cycle</text>
+  </g>
+
+  <!-- Thymus -->
+  <g transform="translate(454, 438)">
+    <circle cx="0" cy="8" r="6" fill="#ec4899"/>
+    <text x="14" y="6" font-size="11" font-weight="700" fill="#1a202c">Thymus</text>
+    <text x="14" y="20" font-size="9" fill="#475569">Thymosin — T-cell maturation</text>
+  </g>
+
+  <!-- Comparison box -->
+  <rect x="454" y="484" width="268" height="80" rx="4" fill="#fff7ed" stroke="#f59e0b" stroke-width="1.4"/>
+  <text x="588" y="500" font-size="11" font-weight="700" fill="#92400e" text-anchor="middle">Nerves vs hormones</text>
+  <text x="464" y="516" font-size="9" fill="#1a202c"><tspan font-weight="700">Nerves:</tspan> millisecond · localised · brief</text>
+  <text x="464" y="530" font-size="9" fill="#1a202c"><tspan font-weight="700">Hormones:</tspan> seconds-hours · whole-body · sustained</text>
+  <text x="464" y="546" font-size="9" font-style="italic" fill="#4a5568">Both keep the internal environment stable —</text>
+  <text x="464" y="558" font-size="9" font-style="italic" fill="#4a5568">they cooperate, not compete.</text>
+</svg>

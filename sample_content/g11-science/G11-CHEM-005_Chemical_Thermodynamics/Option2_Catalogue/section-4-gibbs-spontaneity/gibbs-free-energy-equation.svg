@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 320" width="720" height="320" role="img" aria-label="Gibbs free energy equation ΔG = ΔH − TΔS">
+  <title>Gibbs Free Energy ΔG = ΔH − TΔS</title>
+  <desc>The Gibbs equation broken into three callouts. ΔH is the enthalpy term (heat). T is absolute temperature in Kelvin. TΔS is the entropy term, scaled by T. Their difference, ΔG, is the master criterion for spontaneity at constant T and P.</desc>
+
+  <text x="360" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Gibbs Free Energy — The Spontaneity Master Equation</text>
+  <text x="360" y="42" font-size="11" fill="#4a5568" text-anchor="middle">At constant temperature and pressure, ΔG &lt; 0 ↔ the reaction is spontaneous (proceeds in the forward direction).</text>
+
+  <!-- Big equation -->
+  <g transform="translate(0, 76)">
+    <text x="100" y="60" font-size="56" font-weight="700" fill="#7c3aed">ΔG</text>
+    <text x="184" y="60" font-size="44" font-weight="700" fill="#1a202c">=</text>
+    <text x="234" y="60" font-size="56" font-weight="700" fill="#dc2626">ΔH</text>
+    <text x="324" y="60" font-size="44" font-weight="700" fill="#1a202c">−</text>
+    <text x="370" y="60" font-size="56" font-weight="700" fill="#1a202c">T</text>
+    <text x="410" y="60" font-size="56" font-weight="700" fill="#15803d">ΔS</text>
+  </g>
+
+  <!-- ΔG callout (purple) -->
+  <g transform="translate(40, 170)">
+    <rect x="0" y="0" width="160" height="120" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+    <text x="80" y="22" font-size="13" font-weight="700" fill="#7c3aed" text-anchor="middle">ΔG  (kJ/mol)</text>
+    <text x="80" y="46" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">free-energy change</text>
+    <text x="80" y="68" font-size="11" fill="#1a202c" text-anchor="middle"><tspan font-weight="700">&lt; 0</tspan> spontaneous</text>
+    <text x="80" y="86" font-size="11" fill="#1a202c" text-anchor="middle"><tspan font-weight="700">= 0</tspan> equilibrium</text>
+    <text x="80" y="104" font-size="11" fill="#1a202c" text-anchor="middle"><tspan font-weight="700">&gt; 0</tspan> non-spontaneous</text>
+  </g>
+
+  <!-- ΔH callout (red) -->
+  <g transform="translate(220, 170)">
+    <rect x="0" y="0" width="160" height="120" rx="10" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+    <text x="80" y="22" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">ΔH  (kJ/mol)</text>
+    <text x="80" y="46" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">enthalpy change</text>
+    <text x="80" y="68" font-size="11" fill="#1a202c" text-anchor="middle">heat at constant P</text>
+    <text x="80" y="86" font-size="11" fill="#1a202c" text-anchor="middle"><tspan font-weight="700">−ΔH</tspan> = exothermic</text>
+    <text x="80" y="104" font-size="11" fill="#1a202c" text-anchor="middle"><tspan font-weight="700">+ΔH</tspan> = endothermic</text>
+  </g>
+
+  <!-- T callout -->
+  <g transform="translate(400, 170)">
+    <rect x="0" y="0" width="120" height="120" rx="10" fill="#f7fafc" stroke="#1a202c" stroke-width="2"/>
+    <text x="60" y="22" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">T  (Kelvin)</text>
+    <text x="60" y="46" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">absolute temp</text>
+    <text x="60" y="68" font-size="11" fill="#1a202c" text-anchor="middle">always &gt; 0</text>
+    <text x="60" y="86" font-size="11" fill="#1a202c" text-anchor="middle">amplifies the</text>
+    <text x="60" y="104" font-size="11" fill="#1a202c" text-anchor="middle">entropy term</text>
+  </g>
+
+  <!-- ΔS callout (green) -->
+  <g transform="translate(540, 170)">
+    <rect x="0" y="0" width="160" height="120" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+    <text x="80" y="22" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">ΔS  (J/(K·mol))</text>
+    <text x="80" y="46" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">entropy change</text>
+    <text x="80" y="68" font-size="11" fill="#1a202c" text-anchor="middle">disorder change</text>
+    <text x="80" y="86" font-size="11" fill="#1a202c" text-anchor="middle"><tspan font-weight="700">+ΔS</tspan> more spread</text>
+    <text x="80" y="104" font-size="11" fill="#1a202c" text-anchor="middle"><tspan font-weight="700">−ΔS</tspan> more order</text>
+  </g>
+
+  <text x="360" y="316" font-size="11" fill="#4a5568" text-anchor="middle" font-style="italic">Watch the units: ΔS is in J/(K·mol). Convert to kJ before subtracting from ΔH.</text>
+</svg>

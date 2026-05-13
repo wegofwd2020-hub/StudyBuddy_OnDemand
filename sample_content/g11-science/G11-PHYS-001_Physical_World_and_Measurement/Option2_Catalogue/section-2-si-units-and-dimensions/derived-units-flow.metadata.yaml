@@ -1,0 +1,19 @@
+schema_version: 1
+id: physics-physical-world-derived-units-flow
+kind: image
+subject: physics
+topic_phrase: "SI derived units expressed as products of base units with dimensional formulae"
+keywords:
+  - si-units
+  - derived-units
+  - newton
+  - joule
+  - watt
+  - pascal
+  - hertz
+  - coulomb
+  - volt
+  - ohm
+  - dimensional-formula
+license: platform-cc-by-sa
+source_unit: G11-PHYS-001

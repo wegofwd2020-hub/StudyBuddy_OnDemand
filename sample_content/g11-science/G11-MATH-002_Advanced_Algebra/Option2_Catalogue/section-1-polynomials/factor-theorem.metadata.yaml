@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-advanced-algebra-factor-theorem
+kind: image
+subject: math
+topic_phrase: "factor theorem mapping polynomial roots to linear factors"
+keywords:
+  - polynomial
+  - factor-theorem
+  - roots
+  - factors
+  - factorisation
+license: platform-cc-by-sa
+source_unit: G11-MATH-002

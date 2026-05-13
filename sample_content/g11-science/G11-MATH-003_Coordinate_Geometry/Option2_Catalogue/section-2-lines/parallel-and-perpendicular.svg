@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 320" width="640" height="320" role="img" aria-label="Parallel lines have equal slopes; perpendicular lines have slopes whose product is minus one">
+  <title>Parallel and Perpendicular Lines</title>
+  <desc>Three lines: L1 with slope 1/2, L2 with slope 1/2 (parallel to L1), and L3 with slope −2 (perpendicular to L1, since 1/2 · −2 = −1).</desc>
+
+  <defs>
+    <style>
+      .axis    { stroke: #94a3b8; stroke-width: 1.4; }
+      .grid    { stroke: #e2e8f0; stroke-width: 0.6; }
+      .panel   { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1; }
+      .line1   { stroke: #2b6cb0; stroke-width: 3; stroke-linecap: round; }
+      .line2   { stroke: #2b6cb0; stroke-width: 3; stroke-dasharray: 8 6; stroke-linecap: round; }
+      .line3   { stroke: #c05621; stroke-width: 3; stroke-linecap: round; }
+      .axislbl { font: 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .heading { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .lbl     { font: bold 12px system-ui, sans-serif; }
+    </style>
+  </defs>
+
+  <text class="heading" x="320" y="22">Parallel:  m₁ = m₂.    Perpendicular:  m₁ · m₂ = −1.</text>
+
+  <!-- Plot frame: x ∈ [−4, 6], y ∈ [−4, 6].  Frame width 10*30=300, height 10*30=300.  Frame x: 60..360, y: 30..330 wait viewBox is 320 tall.  Use 26 px/unit: frame width 260, height 260.  Frame x:60..320, y:40..300. Origin (60+26*4, 300-26*4) = (164, 196) -->
+  <rect class="panel" x="60" y="40" width="260" height="260"/>
+
+  <!-- Vertical grid x = -4..6 step 26 (skip origin marker) -->
+  <line class="grid" x1="86"  y1="40" x2="86"  y2="300"/>
+  <line class="grid" x1="112" y1="40" x2="112" y2="300"/>
+  <line class="grid" x1="138" y1="40" x2="138" y2="300"/>
+  <line class="grid" x1="190" y1="40" x2="190" y2="300"/>
+  <line class="grid" x1="216" y1="40" x2="216" y2="300"/>
+  <line class="grid" x1="242" y1="40" x2="242" y2="300"/>
+  <line class="grid" x1="268" y1="40" x2="268" y2="300"/>
+  <line class="grid" x1="294" y1="40" x2="294" y2="300"/>
+  <!-- Horizontal grid y = -4..6 step 26 (skip origin) -->
+  <line class="grid" x1="60" y1="274" x2="320" y2="274"/>
+  <line class="grid" x1="60" y1="248" x2="320" y2="248"/>
+  <line class="grid" x1="60" y1="222" x2="320" y2="222"/>
+  <line class="grid" x1="60" y1="170" x2="320" y2="170"/>
+  <line class="grid" x1="60" y1="144" x2="320" y2="144"/>
+  <line class="grid" x1="60" y1="118" x2="320" y2="118"/>
+  <line class="grid" x1="60" y1="92"  x2="320" y2="92"/>
+  <line class="grid" x1="60" y1="66"  x2="320" y2="66"/>
+
+  <!-- Axes (origin at 164, 196) -->
+  <line class="axis" x1="60"  y1="196" x2="320" y2="196"/>
+  <line class="axis" x1="164" y1="40"  x2="164" y2="300"/>
+
+  <!-- Tick labels -->
+  <text class="axislbl" x="86"  y="210">−3</text>
+  <text class="axislbl" x="138" y="210">−1</text>
+  <text class="axislbl" x="164" y="210">0</text>
+  <text class="axislbl" x="190" y="210">1</text>
+  <text class="axislbl" x="216" y="210">2</text>
+  <text class="axislbl" x="294" y="210">5</text>
+  <text class="axislbl" x="156" y="278" text-anchor="end">−3</text>
+  <text class="axislbl" x="156" y="252" text-anchor="end">−2</text>
+  <text class="axislbl" x="156" y="174" text-anchor="end">1</text>
+  <text class="axislbl" x="156" y="148" text-anchor="end">2</text>
+  <text class="axislbl" x="156" y="70"  text-anchor="end">6</text>
+  <text class="axislbl" x="328" y="200">x</text>
+  <text class="axislbl" x="164" y="34">y</text>
+
+  <!-- Conversion: px = 164 + 26*x ; py = 196 − 26*y -->
+
+  <!-- L1: y = (1/2)x + 1.  At x = -4: y = -1 → (60, 222);  at x = 6: y = 4 → (320, 92) -->
+  <line class="line1" x1="60" y1="222" x2="320" y2="92"/>
+  <text class="lbl" x="328" y="92" fill="#2b6cb0">L₁: y = ½x + 1</text>
+
+  <!-- L2: y = (1/2)x − 2.  At x = -2: y = -3 → (112, 274);  at x = 6: y = 1 → (320, 170) -->
+  <line class="line2" x1="112" y1="274" x2="320" y2="170"/>
+  <text class="lbl" x="328" y="170" fill="#2b6cb0">L₂: y = ½x − 2</text>
+
+  <!-- L3: y = −2x + 4.  At x = -1: y = 6 → (138, 40);  at x = 4: y = -4 → (268, 300) -->
+  <line class="line3" x1="138" y1="40" x2="268" y2="300"/>
+  <text class="lbl" x="60" y="56" fill="#c05621">L₃: y = −2x + 4</text>
+
+  <!-- Right-angle indicator at intersection of L1 and L3.  Intersection: (1/2)x + 1 = −2x + 4 → 2.5x = 3 → x = 1.2, y = 1.6 → px = 195.2, py = 154.4 -->
+  <g transform="translate(195.2 154.4) rotate(-26.57)">
+    <rect x="0" y="-12" width="12" height="12" fill="none" stroke="#1a202c" stroke-width="1"/>
+  </g>
+
+  <!-- Right panel -->
+  <g transform="translate(360, 40)">
+    <rect x="0" y="0" width="270" height="120" rx="8" fill="#ebf8ff" stroke="#2b6cb0" stroke-width="1.5"/>
+    <text font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0" x="135" y="22" text-anchor="middle">Parallel:  m₁ = m₂</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="14" y="46">L₁ slope:  m₁ = 1/2</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="14" y="64">L₂ slope:  m₂ = 1/2</text>
+    <text font="bold 11px system-ui" font-size="11" font-weight="700" fill="#2f855a" x="14" y="86">m₁ = m₂  ✓  parallel</text>
+    <text font="italic 11px system-ui" font-size="11" font-style="italic" fill="#4a5568" x="14" y="106">Same slope, different intercept ⇒ never meet.</text>
+
+    <rect x="0" y="138" width="270" height="142" rx="8" fill="#fffaf0" stroke="#dd6b20" stroke-width="1.5"/>
+    <text font="bold 13px system-ui" font-size="13" font-weight="700" fill="#c05621" x="135" y="160" text-anchor="middle">Perpendicular:  m₁ · m₃ = −1</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="14" y="184">L₁ slope:  m₁ = 1/2</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="14" y="202">L₃ slope:  m₃ = −2</text>
+    <text font="italic 12px system-ui" font-size="12" fill="#1a202c" x="14" y="222">m₁ · m₃  =  (1/2) · (−2)  =  −1</text>
+    <text font="bold 11px system-ui" font-size="11" font-weight="700" fill="#2f855a" x="14" y="242">product is −1  ✓  perpendicular</text>
+    <text font="italic 11px system-ui" font-size="11" font-style="italic" fill="#4a5568" x="14" y="262">Equivalently:  m₃  =  −1 / m₁  (negative reciprocal).</text>
+  </g>
+
+  <text x="320" y="312" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Edge cases:  a horizontal line (m = 0) is perpendicular to a vertical line (slope undefined).</text>
+</svg>

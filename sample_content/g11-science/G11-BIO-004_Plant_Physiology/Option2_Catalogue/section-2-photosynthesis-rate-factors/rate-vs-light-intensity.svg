@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 460" width="760" height="460" role="img" aria-label="Photosynthesis rate vs light intensity curve">
+  <title>Rate of Photosynthesis vs Light Intensity</title>
+  <desc>A graph of photosynthesis rate (y-axis) plotted against light intensity (x-axis). At very low light, the curve passes through the origin and rises steeply — light is the limiting factor. The curve crosses the x-axis at the light compensation point, where photosynthesis equals respiration. As light intensity increases, the curve flattens and reaches a plateau where some other factor (CO2 or temperature) takes over as the limiting factor; this is the light saturation point. Three curves are shown — at low CO2, ambient CO2, and elevated CO2 — to illustrate that increasing CO2 raises the saturation plateau.</desc>
+
+  <text x="380" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Rate of Photosynthesis vs Light Intensity</text>
+  <text x="380" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Steep rise → plateau · the plateau height is set by CO₂ or temperature, not light</text>
+
+  <!-- Axes -->
+  <line x1="80" y1="380" x2="700" y2="380" stroke="#1a202c" stroke-width="2"/>
+  <line x1="80" y1="380" x2="80" y2="60" stroke="#1a202c" stroke-width="2"/>
+  <polygon points="700,376 712,380 700,384" fill="#1a202c"/>
+  <polygon points="76,60 80,48 84,60" fill="#1a202c"/>
+
+  <!-- Axis labels -->
+  <text x="390" y="416" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Light intensity (arbitrary units)</text>
+  <text x="32" y="220" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle" transform="rotate(-90 32 220)">Rate of photosynthesis</text>
+
+  <!-- Y axis: zero line marker -->
+  <line x1="76" y1="340" x2="84" y2="340" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="68" y="344" font-size="10" fill="#4a5568" text-anchor="end">0 (compensation)</text>
+
+  <!-- Negative respiration baseline below axis -->
+  <line x1="80" y1="340" x2="700" y2="340" stroke="#4a5568" stroke-width="0.8" stroke-dasharray="4 3"/>
+
+  <!-- Curve 1: low CO2 (lowest plateau) -->
+  <path d="M 80 348 Q 130 340 160 320 Q 200 280 250 240 Q 320 220 700 218" fill="none" stroke="#86efac" stroke-width="3"/>
+  <text x="700" y="206" font-size="10" font-weight="700" fill="#16a34a" text-anchor="end">low CO₂</text>
+
+  <!-- Curve 2: ambient CO2 (middle plateau) -->
+  <path d="M 80 348 Q 130 332 160 304 Q 200 250 270 178 Q 360 138 700 134" fill="none" stroke="#15803d" stroke-width="3.5"/>
+  <text x="700" y="124" font-size="11" font-weight="700" fill="#15803d" text-anchor="end">ambient CO₂ (~0.04%)</text>
+
+  <!-- Curve 3: elevated CO2 (highest plateau) -->
+  <path d="M 80 348 Q 130 326 160 290 Q 210 220 290 130 Q 380 80 700 78" fill="none" stroke="#14532d" stroke-width="3.5" stroke-dasharray="6 3"/>
+  <text x="700" y="68" font-size="11" font-weight="700" fill="#14532d" text-anchor="end">elevated CO₂ (greenhouse)</text>
+
+  <!-- Light compensation point marker -->
+  <circle cx="100" cy="340" r="5" fill="#dc2626"/>
+  <line x1="100" y1="340" x2="100" y2="392" stroke="#dc2626" stroke-width="1" stroke-dasharray="3 2"/>
+  <text x="100" y="408" font-size="9" font-weight="700" fill="#dc2626" text-anchor="middle">compensation</text>
+
+  <!-- Light saturation marker on ambient CO2 curve -->
+  <circle cx="358" cy="138" r="5" fill="#dc2626"/>
+  <line x1="358" y1="138" x2="358" y2="380" stroke="#dc2626" stroke-width="1" stroke-dasharray="3 2"/>
+  <text x="358" y="396" font-size="9" font-weight="700" fill="#dc2626" text-anchor="middle">saturation</text>
+
+  <!-- Region annotations -->
+  <!-- Region 1: light limiting -->
+  <rect x="100" y="68" width="180" height="36" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+  <text x="190" y="84" font-size="10" font-weight="700" fill="#78350f" text-anchor="middle">Region A — light limiting</text>
+  <text x="190" y="98" font-size="9" fill="#78350f" text-anchor="middle">slope ≈ proportional to light</text>
+  <line x1="190" y1="106" x2="190" y2="220" stroke="#d97706" stroke-width="1" stroke-dasharray="3 2"/>
+
+  <!-- Region 2: light saturated -->
+  <rect x="430" y="200" width="220" height="36" rx="6" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5"/>
+  <text x="540" y="216" font-size="10" font-weight="700" fill="#1e3a8a" text-anchor="middle">Region B — light saturated</text>
+  <text x="540" y="230" font-size="9" fill="#1e3a8a" text-anchor="middle">CO₂ or temperature is now the limiter</text>
+  <line x1="540" y1="200" x2="540" y2="138" stroke="#2b6cb0" stroke-width="1" stroke-dasharray="3 2"/>
+
+  <!-- Compensation point explanatory box -->
+  <rect x="40" y="430" width="340" height="22" rx="4" fill="#fef3c7" stroke="#d97706" stroke-width="1"/>
+  <text x="50" y="446" font-size="9" fill="#78350f">Compensation pt: photosynthesis = respiration → no net O₂</text>
+
+  <rect x="400" y="430" width="320" height="22" rx="4" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1"/>
+  <text x="410" y="446" font-size="9" fill="#1e3a8a">Saturation pt: more light no longer increases the rate</text>
+
+  <!-- Concept hint top-right -->
+  <rect x="510" y="50" width="200" height="38" rx="6" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+  <text x="610" y="66" font-size="10" font-weight="700" fill="#14532d" text-anchor="middle">Blackman's law</text>
+  <text x="610" y="80" font-size="9" font-style="italic" fill="#14532d" text-anchor="middle">the slowest factor sets the rate</text>
+</svg>

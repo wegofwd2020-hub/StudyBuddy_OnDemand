@@ -1,0 +1,17 @@
+# Auto-generated for sample-content seeding — edit with the SVG and re-run sidecar build.
+schema_version: 1
+id: chemistry-saturated-vs-unsaturated-c2
+kind: image
+subject: chemistry
+topic_phrase: "saturated vs unsaturated hydrocarbon ethane ethene ethyne"
+keywords:
+  - ethane
+  - ethene
+  - ethyne
+  - saturated
+  - unsaturated
+  - single-bond
+  - double-bond
+  - triple-bond
+license: platform-cc-by-sa
+source_unit: G11-CHEM-009

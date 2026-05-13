@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400" width="720" height="400" role="img" aria-label="Standard Gibbs free energies of formation">
+  <title>Standard Gibbs Free Energies of Formation</title>
+  <desc>A reference table of ΔGf° at 298 K for selected compounds, alongside the recipe for computing ΔG° for any reaction: ΔG°_rxn = Σ ΔGf°(products) − Σ ΔGf°(reactants). A worked example for the combustion of methane gives ΔG°_rxn = −800.8 kJ/mol — strongly spontaneous.</desc>
+
+  <text x="360" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Standard Gibbs Free Energies of Formation, ΔGf° (298 K)</text>
+  <text x="360" y="42" font-size="11" fill="#4a5568" text-anchor="middle">Convention: ΔGf° of an element in its standard state = 0. Use the recipe to predict spontaneity for any reaction.</text>
+
+  <!-- ── Reference table (left) ── -->
+  <g transform="translate(40, 70)">
+    <rect x="0" y="0" width="320" height="280" rx="8" fill="#f7fafc" stroke="#1a202c" stroke-width="2"/>
+    <rect x="0" y="0" width="320" height="32" rx="8" fill="#1e3a8a"/>
+    <text x="160" y="22" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle">ΔGf° at 298 K  (kJ/mol)</text>
+
+    <line x1="0" y1="56" x2="320" y2="56" stroke="#1a202c" stroke-width="1.5"/>
+    <text x="100" y="50" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Substance</text>
+    <text x="245" y="50" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">ΔGf° (kJ/mol)</text>
+    <line x1="180" y1="32" x2="180" y2="280" stroke="#1a202c" stroke-width="1.5"/>
+
+    <g font-size="12" fill="#1a202c">
+      <text x="100" y="76" text-anchor="middle">O₂(g)</text>          <text x="245" y="76" text-anchor="middle" font-weight="700">    0  *</text>
+      <text x="100" y="98" text-anchor="middle">N₂(g)</text>          <text x="245" y="98" text-anchor="middle" font-weight="700">    0  *</text>
+      <text x="100" y="120" text-anchor="middle">C(graphite)</text>    <text x="245" y="120" text-anchor="middle" font-weight="700">    0  *</text>
+      <text x="100" y="142" text-anchor="middle">H₂O(l)</text>         <text x="245" y="142" text-anchor="middle">−237.1</text>
+      <text x="100" y="164" text-anchor="middle">H₂O(g)</text>         <text x="245" y="164" text-anchor="middle">−228.6</text>
+      <text x="100" y="186" text-anchor="middle">CO₂(g)</text>         <text x="245" y="186" text-anchor="middle">−394.4</text>
+      <text x="100" y="208" text-anchor="middle">CO(g)</text>          <text x="245" y="208" text-anchor="middle">−137.2</text>
+      <text x="100" y="230" text-anchor="middle">CH₄(g)</text>         <text x="245" y="230" text-anchor="middle">−50.7</text>
+      <text x="100" y="252" text-anchor="middle">NH₃(g)</text>         <text x="245" y="252" text-anchor="middle">−16.5</text>
+      <text x="100" y="272" text-anchor="middle">NO(g)</text>          <text x="245" y="272" text-anchor="middle">+86.6</text>
+    </g>
+    <g stroke="#cbd5e1" stroke-width="0.8">
+      <line x1="0" y1="82" x2="320" y2="82"/>
+      <line x1="0" y1="104" x2="320" y2="104"/>
+      <line x1="0" y1="126" x2="320" y2="126"/>
+      <line x1="0" y1="148" x2="320" y2="148"/>
+      <line x1="0" y1="170" x2="320" y2="170"/>
+      <line x1="0" y1="192" x2="320" y2="192"/>
+      <line x1="0" y1="214" x2="320" y2="214"/>
+      <line x1="0" y1="236" x2="320" y2="236"/>
+      <line x1="0" y1="258" x2="320" y2="258"/>
+    </g>
+  </g>
+
+  <!-- ── Recipe + worked example (right) ── -->
+  <g transform="translate(380, 70)">
+    <rect x="0" y="0" width="300" height="280" rx="8" fill="#fef3c7" stroke="#92400e" stroke-width="2"/>
+    <rect x="0" y="0" width="300" height="32" rx="8" fill="#92400e"/>
+    <text x="150" y="22" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle">Recipe and worked example</text>
+
+    <text x="150" y="58" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">ΔG°_rxn = ΣΔGf°(products) − ΣΔGf°(reactants)</text>
+
+    <line x1="20" y1="72" x2="280" y2="72" stroke="#92400e" stroke-width="1"/>
+
+    <text x="150" y="92" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Combustion of methane</text>
+    <text x="150" y="110" font-size="11" fill="#1a202c" text-anchor="middle">CH₄(g) + 2 O₂(g) → CO₂(g) + 2 H₂O(l)</text>
+
+    <text x="20" y="134" font-size="11" fill="#1a202c">Products:</text>
+    <text x="20" y="150" font-size="11" fill="#1a202c">  1×(−394.4) + 2×(−237.1)</text>
+    <text x="280" y="150" font-size="11" font-weight="700" fill="#15803d" text-anchor="end">= −868.6</text>
+
+    <text x="20" y="172" font-size="11" fill="#1a202c">Reactants:</text>
+    <text x="20" y="188" font-size="11" fill="#1a202c">  1×(−50.7) + 2×(0)</text>
+    <text x="280" y="188" font-size="11" font-weight="700" fill="#dc2626" text-anchor="end">= −50.7</text>
+
+    <line x1="20" y1="200" x2="280" y2="200" stroke="#1a202c" stroke-width="1.2"/>
+
+    <text x="20" y="220" font-size="13" font-weight="700" fill="#1a202c">ΔG°_rxn = −868.6 − (−50.7)</text>
+    <text x="280" y="245" font-size="16" font-weight="700" fill="#15803d" text-anchor="end">= −817.9 kJ/mol</text>
+
+    <text x="150" y="266" font-size="11" fill="#4a5568" text-anchor="middle" font-style="italic">strongly negative → spontaneous</text>
+  </g>
+
+  <text x="40" y="380" font-size="10" fill="#64748b">* Elements in their standard states have ΔGf° = 0 by convention.</text>
+  <text x="680" y="380" font-size="10" fill="#64748b" text-anchor="end">Source: NIST WebBook + standard textbook values, 298 K, 1 bar.</text>
+</svg>

@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 320" width="600" height="320" role="img" aria-label="Conservation of linear momentum derived from Newton's third law for an isolated system">
+  <title>Conservation of momentum — internal forces cancel in pairs</title>
+  <desc>Two pucks on a frictionless surface push each other with internal forces F12 and F21. By Newton's third law these forces are equal and opposite at every instant, so the total momentum of the isolated system never changes. Derivation steps shown beside the schematic.</desc>
+
+  <defs>
+    <marker id="arr-pcl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2b6cb0" />
+    </marker>
+    <marker id="arr-pcr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626" />
+    </marker>
+  </defs>
+
+  <text x="300" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Conservation of Momentum — internal forces cancel in pairs</text>
+
+  <!-- Frictionless surface -->
+  <line x1="40" y1="180" x2="340" y2="180" stroke="#1a202c" stroke-width="1.5" />
+  <text x="190" y="198" font="10px system-ui" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">frictionless · no external horizontal force</text>
+
+  <!-- Puck 1 -->
+  <circle cx="130" cy="158" r="22" fill="#bee3f8" stroke="#1a202c" stroke-width="1.5" />
+  <text x="130" y="162" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">m₁</text>
+
+  <!-- Puck 2 -->
+  <circle cx="250" cy="158" r="22" fill="#fed7aa" stroke="#1a202c" stroke-width="1.5" />
+  <text x="250" y="162" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">m₂</text>
+
+  <!-- F12: force ON puck 1 from puck 2 (points left, blue) -->
+  <line x1="152" y1="158" x2="108" y2="158" stroke="#2b6cb0" stroke-width="3" marker-end="url(#arr-pcl)" />
+  <text x="78" y="155" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#2b6cb0" text-anchor="end">F₁₂</text>
+  <text x="78" y="168" font="9px system-ui" font-size="9" font-style="italic" fill="#2b6cb0" text-anchor="end">on m₁ from m₂</text>
+
+  <!-- F21: force ON puck 2 from puck 1 (points right, red) -->
+  <line x1="228" y1="158" x2="272" y2="158" stroke="#dc2626" stroke-width="3" marker-end="url(#arr-pcr)" />
+  <text x="302" y="155" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dc2626">F₂₁</text>
+  <text x="302" y="168" font="9px system-ui" font-size="9" font-style="italic" fill="#dc2626">on m₂ from m₁</text>
+
+  <!-- Newton third law label between -->
+  <text x="190" y="118" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#7c3aed" text-anchor="middle">F₁₂ = − F₂₁  (3rd law)</text>
+
+  <!-- Box around the system -->
+  <rect x="60" y="80" width="260" height="120" fill="none" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="6 4" rx="8" />
+  <text x="68" y="74" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#7c3aed">SYSTEM (isolated)</text>
+
+  <!-- ───────── Derivation panel ───────── -->
+  <g transform="translate(360, 50)">
+    <rect x="0" y="0" width="220" height="240" rx="8" fill="#f0fdf4" stroke="#15803d" stroke-width="1.3" />
+    <text x="110" y="20" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">From 2nd + 3rd laws</text>
+
+    <text x="14" y="46" font="11px system-ui" font-size="11" fill="#1a202c">For each particle (2nd law):</text>
+    <text x="14" y="64" font="11px system-ui" font-size="11" fill="#1a202c">  dp₁/dt = F₁₂</text>
+    <text x="14" y="80" font="11px system-ui" font-size="11" fill="#1a202c">  dp₂/dt = F₂₁</text>
+
+    <text x="14" y="106" font="11px system-ui" font-size="11" fill="#1a202c">Add the two:</text>
+    <text x="14" y="124" font="11px system-ui" font-size="11" fill="#1a202c">  d(p₁+p₂)/dt = F₁₂ + F₂₁</text>
+
+    <text x="14" y="150" font="11px system-ui" font-size="11" fill="#1a202c">By 3rd law: F₁₂ + F₂₁ = 0</text>
+
+    <text x="14" y="178" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#7c3aed">⇒  d(p₁ + p₂)/dt = 0</text>
+    <text x="14" y="196" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#7c3aed">⇒  p_total = constant</text>
+
+    <text x="110" y="222" font="10px system-ui" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">Generalises to N particles:</text>
+    <text x="110" y="234" font="10px system-ui" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">all internal pairs cancel.</text>
+  </g>
+
+  <!-- Bottom takeaway -->
+  <rect x="40" y="240" width="300" height="62" rx="8" fill="#eff6ff" stroke="#2b6cb0" stroke-width="1.2" />
+  <text x="190" y="262" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">If F_external = 0,</text>
+  <text x="190" y="282" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">Σ p_before  =  Σ p_after</text>
+  <text x="190" y="296" font="9px system-ui" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">— vector equation, applies component-wise.</text>
+</svg>

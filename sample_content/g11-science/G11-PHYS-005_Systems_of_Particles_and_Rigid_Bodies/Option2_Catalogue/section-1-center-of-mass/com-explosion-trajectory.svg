@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 320" width="600" height="320" role="img" aria-label="Centre of mass trajectory of an exploding projectile follows the original parabolic path">
+  <title>CM trajectory of an exploding projectile</title>
+  <desc>A projectile launched at an angle explodes mid-flight into two fragments. The two fragments follow erratic paths, but the centre of mass continues on the original undisturbed parabolic trajectory because internal forces cannot change the motion of the centre of mass.</desc>
+
+  <defs>
+    <marker id="arr-cm-traj" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#7c3aed" />
+    </marker>
+    <marker id="arr-frag1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2b6cb0" />
+    </marker>
+    <marker id="arr-frag2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dd6b20" />
+    </marker>
+  </defs>
+
+  <text x="300" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">CM keeps going — internal forces cannot deflect the centre of mass</text>
+
+  <!-- Ground -->
+  <line x1="40" y1="260" x2="560" y2="260" stroke="#1a202c" stroke-width="1.5" />
+  <g stroke="#94a3b8" stroke-width="1">
+    <line x1="60"  y1="260" x2="52"  y2="270" />
+    <line x1="120" y1="260" x2="112" y2="270" />
+    <line x1="180" y1="260" x2="172" y2="270" />
+    <line x1="240" y1="260" x2="232" y2="270" />
+    <line x1="300" y1="260" x2="292" y2="270" />
+    <line x1="360" y1="260" x2="352" y2="270" />
+    <line x1="420" y1="260" x2="412" y2="270" />
+    <line x1="480" y1="260" x2="472" y2="270" />
+    <line x1="540" y1="260" x2="532" y2="270" />
+  </g>
+
+  <!-- Original parabola: y from 260 down to peak at 90 at x=300, back to 260 at x=540. -->
+  <!-- This is the would-be CM path, drawn as a smooth dashed curve. -->
+  <path d="M 60 260 Q 300 -10 540 260" fill="none" stroke="#7c3aed" stroke-width="2.5"
+    stroke-dasharray="6 5" stroke-linecap="round" />
+
+  <!-- Launch point -->
+  <circle cx="60" cy="260" r="4" fill="#1a202c" />
+  <text x="64" y="280" font="11px system-ui" font-size="11" fill="#1a202c">launch</text>
+
+  <!-- Explosion point at apex (300, 90) -->
+  <g transform="translate(300, 90)">
+    <polygon points="0,-14 4,-4 14,-2 6,4 9,14 0,8 -9,14 -6,4 -14,-2 -4,-4"
+      fill="#fde68a" stroke="#dd6b20" stroke-width="1.2" />
+    <text x="0" y="2" font="bold 9px system-ui" font-size="9" font-weight="700"
+      fill="#dd6b20" text-anchor="middle">BOOM</text>
+  </g>
+  <text x="300" y="62" font="bold 11px system-ui" font-size="11" font-weight="700"
+    fill="#dd6b20" text-anchor="middle">explosion at apex</text>
+
+  <!-- Fragment 1 path: lighter, flies forward and up, lands far right -->
+  <path d="M 300 90 Q 380 50 520 200" fill="none" stroke="#2b6cb0" stroke-width="2.2" />
+  <circle cx="300" cy="90" r="4" fill="#2b6cb0" />
+  <circle cx="520" cy="200" r="4" fill="#2b6cb0" />
+  <text x="525" y="195" font="11px system-ui" font-size="11" font-weight="700" fill="#2b6cb0">m₁ path</text>
+
+  <!-- Fragment 2 path: heavier, drops more steeply, lands left -->
+  <path d="M 300 90 Q 250 130 180 250" fill="none" stroke="#dd6b20" stroke-width="2.2" />
+  <circle cx="180" cy="250" r="6" fill="#dd6b20" />
+  <text x="170" y="244" font="11px system-ui" font-size="11" font-weight="700" fill="#dd6b20" text-anchor="end">m₂ path</text>
+
+  <!-- CM continues along original parabola — mark the would-be CM landing point -->
+  <circle cx="540" cy="260" r="6" fill="#7c3aed" stroke="#1a202c" stroke-width="1.2" />
+  <text x="540" y="280" font="11px system-ui" font-size="11" font-weight="700" fill="#7c3aed" text-anchor="middle">CM lands here</text>
+
+  <!-- Legend -->
+  <g transform="translate(40, 290)">
+    <rect x="0" y="0" width="200" height="20" rx="4" fill="#f7fafc" stroke="#e2e8f0" />
+    <line x1="10" y1="10" x2="34" y2="10" stroke="#7c3aed" stroke-width="2.5" stroke-dasharray="6 5" />
+    <text x="40" y="14" font="11px system-ui" font-size="11" fill="#1a202c">CM (undisturbed parabola)</text>
+  </g>
+
+  <!-- Equation card -->
+  <rect x="260" y="290" width="320" height="22" rx="6" fill="#f0fdf4" stroke="#15803d" stroke-width="1.2" />
+  <text x="420" y="306" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">F_ext = M a_cm   ⇒   internal forces don't move CM</text>
+</svg>

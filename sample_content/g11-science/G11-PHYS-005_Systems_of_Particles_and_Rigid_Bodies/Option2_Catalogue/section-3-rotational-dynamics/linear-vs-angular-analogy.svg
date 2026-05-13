@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 380" width="600" height="380" role="img" aria-label="Linear versus angular kinematics and dynamics analogy table">
+  <title>Linear ↔ Angular: the analogy table</title>
+  <desc>Side-by-side comparison of linear quantities (position, velocity, acceleration, mass, force, momentum, kinetic energy, Newton's 2nd law) and their angular counterparts (angle, angular velocity, angular acceleration, moment of inertia, torque, angular momentum, rotational KE, τ = I α).</desc>
+
+  <text x="300" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Linear ↔ Angular: every quantity has a rotational twin</text>
+
+  <!-- Header row -->
+  <g transform="translate(40, 50)">
+    <rect x="0" y="0" width="520" height="34" fill="#bee3f8" stroke="#1a202c" stroke-width="1.2" />
+    <text x="100" y="22" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Quantity</text>
+    <text x="280" y="22" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#2b6cb0" text-anchor="middle">Linear (translation)</text>
+    <text x="450" y="22" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#dd6b20" text-anchor="middle">Angular (rotation)</text>
+  </g>
+
+  <!-- Rows -->
+  <g transform="translate(40, 84)" font="12px system-ui" font-size="12" fill="#1a202c">
+    <!-- Row 1: position -->
+    <rect x="0" y="0" width="520" height="28" fill="#f7fafc" stroke="#e2e8f0" />
+    <text x="14" y="18">Position</text>
+    <text x="280" y="18" text-anchor="middle" font-weight="600" fill="#2b6cb0">x  (m)</text>
+    <text x="450" y="18" text-anchor="middle" font-weight="600" fill="#dd6b20">θ  (rad)</text>
+
+    <!-- Row 2: velocity -->
+    <rect x="0" y="28" width="520" height="28" fill="#fff" stroke="#e2e8f0" />
+    <text x="14" y="46">Velocity</text>
+    <text x="280" y="46" text-anchor="middle" font-weight="600" fill="#2b6cb0">v = dx/dt  (m/s)</text>
+    <text x="450" y="46" text-anchor="middle" font-weight="600" fill="#dd6b20">ω = dθ/dt  (rad/s)</text>
+
+    <!-- Row 3: acceleration -->
+    <rect x="0" y="56" width="520" height="28" fill="#f7fafc" stroke="#e2e8f0" />
+    <text x="14" y="74">Acceleration</text>
+    <text x="280" y="74" text-anchor="middle" font-weight="600" fill="#2b6cb0">a = dv/dt  (m/s²)</text>
+    <text x="450" y="74" text-anchor="middle" font-weight="600" fill="#dd6b20">α = dω/dt  (rad/s²)</text>
+
+    <!-- Row 4: inertia -->
+    <rect x="0" y="84" width="520" height="28" fill="#fff" stroke="#e2e8f0" />
+    <text x="14" y="102">Inertia</text>
+    <text x="280" y="102" text-anchor="middle" font-weight="600" fill="#2b6cb0">m  (kg)</text>
+    <text x="450" y="102" text-anchor="middle" font-weight="600" fill="#dd6b20">I = Σ mᵢ rᵢ²  (kg·m²)</text>
+
+    <!-- Row 5: cause of acceleration -->
+    <rect x="0" y="112" width="520" height="28" fill="#f7fafc" stroke="#e2e8f0" />
+    <text x="14" y="130">Cause of accel.</text>
+    <text x="280" y="130" text-anchor="middle" font-weight="600" fill="#2b6cb0">F  (N)</text>
+    <text x="450" y="130" text-anchor="middle" font-weight="600" fill="#dd6b20">τ = r × F  (N·m)</text>
+
+    <!-- Row 6: 2nd law -->
+    <rect x="0" y="140" width="520" height="28" fill="#fff" stroke="#e2e8f0" />
+    <text x="14" y="158" font-weight="600">2nd law</text>
+    <text x="280" y="158" text-anchor="middle" font-weight="700" fill="#2b6cb0">F = m a</text>
+    <text x="450" y="158" text-anchor="middle" font-weight="700" fill="#dd6b20">τ = I α</text>
+
+    <!-- Row 7: momentum -->
+    <rect x="0" y="168" width="520" height="28" fill="#f7fafc" stroke="#e2e8f0" />
+    <text x="14" y="186">Momentum</text>
+    <text x="280" y="186" text-anchor="middle" font-weight="600" fill="#2b6cb0">p = m v  (kg·m/s)</text>
+    <text x="450" y="186" text-anchor="middle" font-weight="600" fill="#dd6b20">L = I ω  (kg·m²/s)</text>
+
+    <!-- Row 8: KE -->
+    <rect x="0" y="196" width="520" height="28" fill="#fff" stroke="#e2e8f0" />
+    <text x="14" y="214">Kinetic energy</text>
+    <text x="280" y="214" text-anchor="middle" font-weight="600" fill="#2b6cb0">½ m v²</text>
+    <text x="450" y="214" text-anchor="middle" font-weight="600" fill="#dd6b20">½ I ω²</text>
+
+    <!-- Row 9: power -->
+    <rect x="0" y="224" width="520" height="28" fill="#f7fafc" stroke="#e2e8f0" />
+    <text x="14" y="242">Power</text>
+    <text x="280" y="242" text-anchor="middle" font-weight="600" fill="#2b6cb0">P = F · v</text>
+    <text x="450" y="242" text-anchor="middle" font-weight="600" fill="#dd6b20">P = τ · ω</text>
+  </g>
+
+  <!-- Bridge equations panel -->
+  <g transform="translate(40, 350)">
+    <rect x="0" y="-12" width="520" height="22" rx="6" fill="#f0fdf4" stroke="#15803d" stroke-width="1.2" />
+    <text x="260" y="3" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Bridge: at distance r from axis,  v = ω r,  a_t = α r,  KE = ½ I ω²</text>
+  </g>
+</svg>

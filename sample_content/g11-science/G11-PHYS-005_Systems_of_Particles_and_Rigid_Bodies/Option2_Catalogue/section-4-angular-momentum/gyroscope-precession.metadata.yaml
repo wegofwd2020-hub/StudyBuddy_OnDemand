@@ -1,0 +1,15 @@
+# Auto-generated style sidecar — paired with gyroscope-precession.svg
+schema_version: 1
+id: physics-systems-of-particles-gyroscope-precession
+kind: image
+subject: physics
+topic_phrase: "gyroscope precession — torque perpendicular to angular momentum makes the axle sweep horizontally"
+keywords:
+  - gyroscope
+  - precession
+  - angular-momentum
+  - torque
+  - dl-dt
+  - rigid-body
+license: platform-cc-by-sa
+source_unit: G11-PHYS-005

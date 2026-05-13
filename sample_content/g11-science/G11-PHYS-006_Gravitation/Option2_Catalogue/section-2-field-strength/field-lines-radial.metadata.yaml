@@ -1,0 +1,13 @@
+schema_version: 1
+id: physics-gravitation-field-lines-radial
+kind: image
+subject: physics
+topic_phrase: "radial gravitational field lines pointing inward toward a spherical planet"
+keywords:
+  - gravitation
+  - field-lines
+  - field-strength
+  - g=GM/r2
+  - radial-field
+license: platform-cc-by-sa
+source_unit: G11-PHYS-006

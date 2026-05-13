@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380" role="img" aria-label="Chain isomers of pentane — n-pentane, isopentane, neopentane">
+  <title>Chain Isomers of C₅H₁₂ — n-pentane, isopentane, neopentane</title>
+  <desc>Three structural isomers of pentane (C5H12). n-Pentane: straight 5-carbon chain. Isopentane (2-methylbutane): 4-carbon chain with one methyl branch at C-2. Neopentane (2,2-dimethylpropane): 3-carbon chain with two methyl branches at C-2 (a central quaternary carbon). All have the same molecular formula but different structures and different boiling points (36, 28, 9 degrees Celsius respectively).</desc>
+
+  <text x="360" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Chain Isomers — Three Structures, One Formula (C₅H₁₂)</text>
+  <text x="360" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Same atoms · different connectivity · different boiling points</text>
+
+  <!-- Three columns -->
+  <line x1="240" y1="60" x2="240" y2="340" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="480" y1="60" x2="480" y2="340" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3 3"/>
+
+  <!-- ── n-Pentane (left): 5C in a zigzag -->
+  <text x="120" y="80" font-size="13" font-weight="700" fill="#1e3a8a" text-anchor="middle">n-Pentane</text>
+  <text x="120" y="98" font-size="10" fill="#1e3a8a" text-anchor="middle">straight chain</text>
+
+  <g transform="translate(40 170)">
+    <!-- 5 carbons in zigzag -->
+    <circle cx="0" cy="0" r="12" fill="#1f2937"/><text x="0" y="4" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+    <circle cx="40" cy="-22" r="12" fill="#1f2937"/><text x="40" y="-18" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+    <circle cx="80" cy="0" r="12" fill="#1f2937"/><text x="80" y="4" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+    <circle cx="120" cy="-22" r="12" fill="#1f2937"/><text x="120" y="-18" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+    <circle cx="160" cy="0" r="12" fill="#1f2937"/><text x="160" y="4" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+    <line x1="11" y1="-5" x2="29" y2="-17" stroke="#1a202c" stroke-width="2"/>
+    <line x1="51" y1="-17" x2="69" y2="-5" stroke="#1a202c" stroke-width="2"/>
+    <line x1="91" y1="-5" x2="109" y2="-17" stroke="#1a202c" stroke-width="2"/>
+    <line x1="131" y1="-17" x2="149" y2="-5" stroke="#1a202c" stroke-width="2"/>
+    <!-- numbering -->
+    <text x="0" y="22" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">1</text>
+    <text x="40" y="-40" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">2</text>
+    <text x="80" y="22" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">3</text>
+    <text x="120" y="-40" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">4</text>
+    <text x="160" y="22" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">5</text>
+  </g>
+
+  <text x="120" y="240" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">CH₃–CH₂–CH₂–CH₂–CH₃</text>
+  <text x="120" y="262" font-size="10" fill="#4a5568" text-anchor="middle">IUPAC: pentane</text>
+  <text x="120" y="282" font-size="10" font-weight="700" fill="#dc2626" text-anchor="middle">b.p. = 36 °C</text>
+  <text x="120" y="302" font-size="9" fill="#4a5568" text-anchor="middle">most surface area · highest LDF</text>
+
+  <!-- ── Isopentane (centre): 2-methylbutane -->
+  <text x="360" y="80" font-size="13" font-weight="700" fill="#7e22ce" text-anchor="middle">Isopentane</text>
+  <text x="360" y="98" font-size="10" fill="#7e22ce" text-anchor="middle">one branch · 2-methylbutane</text>
+
+  <g transform="translate(280 180)">
+    <!-- 4-C main chain horizontal + 1 branch up at C-2 -->
+    <circle cx="0" cy="0" r="12" fill="#1f2937"/><text x="0" y="4" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+    <circle cx="50" cy="0" r="12" fill="#1f2937"/><text x="50" y="4" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+    <circle cx="100" cy="0" r="12" fill="#1f2937"/><text x="100" y="4" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+    <circle cx="150" cy="0" r="12" fill="#1f2937"/><text x="150" y="4" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+    <line x1="12" y1="0" x2="38" y2="0" stroke="#1a202c" stroke-width="2"/>
+    <line x1="62" y1="0" x2="88" y2="0" stroke="#1a202c" stroke-width="2"/>
+    <line x1="112" y1="0" x2="138" y2="0" stroke="#1a202c" stroke-width="2"/>
+    <!-- branch from C2 -->
+    <line x1="50" y1="-12" x2="50" y2="-38" stroke="#dc2626" stroke-width="2"/>
+    <circle cx="50" cy="-50" r="12" fill="#dc2626"/><text x="50" y="-46" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+    <!-- numbering -->
+    <text x="0" y="22" font-size="11" font-weight="700" fill="#7e22ce" text-anchor="middle">1</text>
+    <text x="50" y="22" font-size="11" font-weight="700" fill="#7e22ce" text-anchor="middle">2</text>
+    <text x="100" y="22" font-size="11" font-weight="700" fill="#7e22ce" text-anchor="middle">3</text>
+    <text x="150" y="22" font-size="11" font-weight="700" fill="#7e22ce" text-anchor="middle">4</text>
+    <text x="78" y="-46" font-size="9" fill="#dc2626" text-anchor="middle">CH₃</text>
+  </g>
+
+  <text x="360" y="240" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">(CH₃)₂CH–CH₂–CH₃</text>
+  <text x="360" y="262" font-size="10" fill="#4a5568" text-anchor="middle">IUPAC: 2-methylbutane</text>
+  <text x="360" y="282" font-size="10" font-weight="700" fill="#dc2626" text-anchor="middle">b.p. = 28 °C</text>
+  <text x="360" y="302" font-size="9" fill="#4a5568" text-anchor="middle">more compact · lower LDF</text>
+
+  <!-- ── Neopentane (right): 2,2-dimethylpropane -->
+  <text x="600" y="80" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">Neopentane</text>
+  <text x="600" y="98" font-size="10" fill="#15803d" text-anchor="middle">tetrahedral core · 2,2-dimethylpropane</text>
+
+  <g transform="translate(600 180)">
+    <!-- Central C with 4 surrounding methyls -->
+    <circle cx="0" cy="0" r="14" fill="#1f2937" stroke="#0f172a" stroke-width="1.5"/>
+    <text x="0" y="4" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+    <!-- 4 methyl branches: top, bottom, left, right -->
+    <line x1="0" y1="-14" x2="0" y2="-38" stroke="#dc2626" stroke-width="2"/>
+    <circle cx="0" cy="-50" r="12" fill="#dc2626"/><text x="0" y="-46" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+    <line x1="0" y1="14" x2="0" y2="38" stroke="#dc2626" stroke-width="2"/>
+    <circle cx="0" cy="50" r="12" fill="#dc2626"/><text x="0" y="54" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+    <line x1="-14" y1="0" x2="-38" y2="0" stroke="#dc2626" stroke-width="2"/>
+    <circle cx="-50" cy="0" r="12" fill="#dc2626"/><text x="-50" y="4" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+    <line x1="14" y1="0" x2="38" y2="0" stroke="#dc2626" stroke-width="2"/>
+    <circle cx="50" cy="0" r="12" fill="#dc2626"/><text x="50" y="4" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">C</text>
+    <text x="0" y="-66" font-size="9" fill="#dc2626" text-anchor="middle">CH₃</text>
+    <text x="0" y="74" font-size="9" fill="#dc2626" text-anchor="middle">CH₃</text>
+    <text x="-66" y="4" font-size="9" fill="#dc2626" text-anchor="middle">CH₃</text>
+    <text x="66" y="4" font-size="9" fill="#dc2626" text-anchor="middle">CH₃</text>
+  </g>
+
+  <text x="600" y="260" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">C(CH₃)₄</text>
+  <text x="600" y="280" font-size="10" fill="#4a5568" text-anchor="middle">IUPAC: 2,2-dimethylpropane</text>
+  <text x="600" y="300" font-size="10" font-weight="700" fill="#dc2626" text-anchor="middle">b.p. = 9 °C</text>
+  <text x="600" y="320" font-size="9" fill="#4a5568" text-anchor="middle">spherical · least surface · lowest b.p.</text>
+
+  <!-- footer -->
+  <rect x="40" y="354" width="640" height="22" rx="4" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="360" y="370" font-size="11" fill="#0f172a" text-anchor="middle">Trend: more branching → more spherical → less LDF surface contact → lower boiling point</text>
+</svg>

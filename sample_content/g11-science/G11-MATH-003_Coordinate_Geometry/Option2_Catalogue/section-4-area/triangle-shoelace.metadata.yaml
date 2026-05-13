@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-coordinate-geometry-triangle-shoelace
+kind: image
+subject: math
+topic_phrase: "area of a triangle from coordinates using the shoelace formula"
+keywords:
+  - shoelace-formula
+  - triangle-area
+  - coordinate-geometry
+  - determinant
+  - polygon-area
+license: platform-cc-by-sa
+source_unit: G11-MATH-003

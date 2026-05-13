@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 460" width="720" height="460" role="img" aria-label="Classification tree of hydrocarbons — aliphatic vs aromatic; saturated vs unsaturated">
+  <title>Hydrocarbon Classification Tree</title>
+  <desc>Hydrocarbons split into aliphatic (open-chain or non-aromatic ring) and aromatic. Aliphatic split into saturated (alkanes, single bonds, CnH2n+2) and unsaturated (alkenes — one C=C, CnH2n; alkynes — one C≡C, CnH2n-2). Aromatic compounds contain a benzene ring.</desc>
+
+  <defs>
+    <marker id="ht-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569" />
+    </marker>
+  </defs>
+
+  <text x="360" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Hydrocarbons — A Family Tree</text>
+  <text x="360" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Compounds containing only carbon and hydrogen</text>
+
+  <!-- ROOT -->
+  <rect x="280" y="56" width="160" height="46" rx="8" fill="#1e3a8a" stroke="#0f172a" stroke-width="1.5" />
+  <text x="360" y="78" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">HYDROCARBONS</text>
+  <text x="360" y="94" font-size="10" fill="#cbd5e1" text-anchor="middle">CₓHᵧ only</text>
+
+  <!-- LEVEL 2 — Aliphatic vs Aromatic -->
+  <line x1="360" y1="102" x2="200" y2="138" stroke="#475569" stroke-width="1.5" marker-end="url(#ht-arrow)" />
+  <line x1="360" y1="102" x2="540" y2="138" stroke="#475569" stroke-width="1.5" marker-end="url(#ht-arrow)" />
+
+  <rect x="120" y="142" width="160" height="44" rx="8" fill="#dbeafe" stroke="#1e3a8a" stroke-width="1.5" />
+  <text x="200" y="162" font-size="12" font-weight="700" fill="#1e3a8a" text-anchor="middle">Aliphatic</text>
+  <text x="200" y="178" font-size="9" fill="#1e3a8a" text-anchor="middle">open chain or non-aromatic ring</text>
+
+  <rect x="460" y="142" width="160" height="44" rx="8" fill="#fde68a" stroke="#92400e" stroke-width="1.5" />
+  <text x="540" y="162" font-size="12" font-weight="700" fill="#92400e" text-anchor="middle">Aromatic</text>
+  <text x="540" y="178" font-size="9" fill="#92400e" text-anchor="middle">contains a benzene ring</text>
+
+  <!-- LEVEL 3 — under aliphatic: saturated vs unsaturated -->
+  <line x1="200" y1="186" x2="120" y2="222" stroke="#475569" stroke-width="1.5" marker-end="url(#ht-arrow)" />
+  <line x1="200" y1="186" x2="280" y2="222" stroke="#475569" stroke-width="1.5" marker-end="url(#ht-arrow)" />
+
+  <rect x="40" y="226" width="160" height="44" rx="8" fill="#bbf7d0" stroke="#15803d" stroke-width="1.5" />
+  <text x="120" y="246" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">Saturated</text>
+  <text x="120" y="262" font-size="9" fill="#15803d" text-anchor="middle">single bonds only</text>
+
+  <rect x="200" y="226" width="160" height="44" rx="8" fill="#fecaca" stroke="#b91c1c" stroke-width="1.5" />
+  <text x="280" y="246" font-size="12" font-weight="700" fill="#b91c1c" text-anchor="middle">Unsaturated</text>
+  <text x="280" y="262" font-size="9" fill="#b91c1c" text-anchor="middle">contains C=C or C≡C</text>
+
+  <!-- LEVEL 4 — Alkanes -->
+  <line x1="120" y1="270" x2="120" y2="306" stroke="#475569" stroke-width="1.5" marker-end="url(#ht-arrow)" />
+  <rect x="40" y="310" width="160" height="62" rx="8" fill="#fff" stroke="#15803d" stroke-width="1.5" />
+  <text x="120" y="330" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">Alkanes</text>
+  <text x="120" y="346" font-size="11" fill="#1a202c" text-anchor="middle">CₙH₂ₙ₊₂</text>
+  <text x="120" y="362" font-size="9" fill="#4a5568" text-anchor="middle">e.g. CH₄, C₂H₆, C₃H₈</text>
+
+  <!-- LEVEL 4 — Alkenes & Alkynes (split from unsaturated) -->
+  <line x1="280" y1="270" x2="240" y2="306" stroke="#475569" stroke-width="1.5" marker-end="url(#ht-arrow)" />
+  <line x1="280" y1="270" x2="360" y2="306" stroke="#475569" stroke-width="1.5" marker-end="url(#ht-arrow)" />
+
+  <rect x="160" y="310" width="160" height="62" rx="8" fill="#fff" stroke="#b91c1c" stroke-width="1.5" />
+  <text x="240" y="330" font-size="12" font-weight="700" fill="#b91c1c" text-anchor="middle">Alkenes</text>
+  <text x="240" y="346" font-size="11" fill="#1a202c" text-anchor="middle">CₙH₂ₙ — one C=C</text>
+  <text x="240" y="362" font-size="9" fill="#4a5568" text-anchor="middle">e.g. C₂H₄, C₃H₆</text>
+
+  <rect x="320" y="310" width="160" height="62" rx="8" fill="#fff" stroke="#b91c1c" stroke-width="1.5" />
+  <text x="400" y="330" font-size="12" font-weight="700" fill="#b91c1c" text-anchor="middle">Alkynes</text>
+  <text x="400" y="346" font-size="11" fill="#1a202c" text-anchor="middle">CₙH₂ₙ₋₂ — one C≡C</text>
+  <text x="400" y="362" font-size="9" fill="#4a5568" text-anchor="middle">e.g. C₂H₂, C₃H₄</text>
+
+  <!-- LEVEL 4 — Aromatic example -->
+  <line x1="540" y1="186" x2="540" y2="306" stroke="#475569" stroke-width="1.5" marker-end="url(#ht-arrow)" />
+  <rect x="460" y="310" width="160" height="62" rx="8" fill="#fff" stroke="#92400e" stroke-width="1.5" />
+  <text x="540" y="330" font-size="12" font-weight="700" fill="#92400e" text-anchor="middle">Arenes</text>
+  <text x="540" y="346" font-size="11" fill="#1a202c" text-anchor="middle">C₆H₆, C₇H₈ …</text>
+  <text x="540" y="362" font-size="9" fill="#4a5568" text-anchor="middle">e.g. benzene, toluene</text>
+
+  <!-- Footer note -->
+  <rect x="40" y="396" width="640" height="48" rx="6" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1" />
+  <text x="360" y="416" font-size="11" font-weight="700" fill="#0f172a" text-anchor="middle">Why this matters</text>
+  <text x="360" y="432" font-size="10" fill="#334155" text-anchor="middle">Bond type sets reactivity: alkanes resist; alkenes/alkynes add; arenes substitute. Same skeleton, different chemistry.</text>
+</svg>

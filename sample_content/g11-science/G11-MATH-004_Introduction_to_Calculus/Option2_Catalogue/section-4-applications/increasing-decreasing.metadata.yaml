@@ -1,0 +1,14 @@
+# Auto-generated sidecar — edit alongside the SVG.
+schema_version: 1
+id: math-calculus-increasing-decreasing
+kind: image
+subject: math
+topic_phrase: "increasing and decreasing intervals identified from the sign of the first derivative"
+keywords:
+  - first-derivative-test
+  - increasing
+  - decreasing
+  - sign-chart
+  - critical-number
+license: platform-cc-by-sa
+source_unit: G11-MATH-004

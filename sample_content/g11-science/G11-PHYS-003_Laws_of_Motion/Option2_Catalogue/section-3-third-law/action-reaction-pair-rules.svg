@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 280" width="560" height="280" role="img" aria-label="Three rules for identifying an action–reaction pair">
+  <title>Action–reaction pair rules</title>
+  <desc>Three rule cards summarising the requirements an action and reaction force pair must satisfy under Newton's Third Law.</desc>
+
+  <text x="280" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">An action–reaction pair must satisfy ALL three rules</text>
+
+  <!-- Rule 1 -->
+  <g transform="translate(20, 50)">
+    <rect x="0" y="0" width="170" height="200" rx="8" fill="#f7fafc" stroke="#e2e8f0" />
+    <circle cx="32" cy="32" r="14" fill="#2b6cb0" />
+    <text x="32" y="37" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">1</text>
+    <text x="85" y="37" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">Equal in magnitude</text>
+    <text x="85" y="80" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">|F_A→B|  =  |F_B→A|</text>
+    <text x="85" y="120" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Same number of newtons,</text>
+    <text x="85" y="135" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">no matter how unequal</text>
+    <text x="85" y="150" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">the masses are.</text>
+    <text x="85" y="178" font="11px system-ui" font-size="11" font-style="italic" fill="#15803d" text-anchor="middle">e.g. you and Earth pull</text>
+    <text x="85" y="192" font="11px system-ui" font-size="11" font-style="italic" fill="#15803d" text-anchor="middle">each other equally.</text>
+  </g>
+
+  <!-- Rule 2 -->
+  <g transform="translate(200, 50)">
+    <rect x="0" y="0" width="170" height="200" rx="8" fill="#f7fafc" stroke="#e2e8f0" />
+    <circle cx="32" cy="32" r="14" fill="#dd6b20" />
+    <text x="32" y="37" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">2</text>
+    <text x="85" y="37" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#dd6b20" text-anchor="middle">Opposite in direction</text>
+    <text x="85" y="80" font="bold 16px system-ui" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">F_A→B  =  −F_B→A</text>
+    <text x="85" y="120" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Always 180° apart,</text>
+    <text x="85" y="135" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">along the same line</text>
+    <text x="85" y="150" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">of action.</text>
+    <!-- Mini visual -->
+    <line x1="35" y1="178" x2="65" y2="178" stroke="#2b6cb0" stroke-width="2.5" />
+    <polygon points="65,178 60,175 60,181" fill="#2b6cb0" />
+    <line x1="135" y1="178" x2="105" y2="178" stroke="#dd6b20" stroke-width="2.5" />
+    <polygon points="105,178 110,175 110,181" fill="#dd6b20" />
+  </g>
+
+  <!-- Rule 3 -->
+  <g transform="translate(380, 50)">
+    <rect x="0" y="0" width="170" height="200" rx="8" fill="#f7fafc" stroke="#e2e8f0" />
+    <circle cx="32" cy="32" r="14" fill="#15803d" />
+    <text x="32" y="37" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">3</text>
+    <text x="85" y="37" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">On different bodies</text>
+    <text x="85" y="80" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">A acts on B</text>
+    <text x="85" y="100" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">B acts on A</text>
+    <text x="85" y="135" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Each force has a</text>
+    <text x="85" y="150" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">different victim.</text>
+    <text x="85" y="178" font="11px system-ui" font-size="11" font-style="italic" fill="#dc2626" text-anchor="middle">⚠ Two forces on one body</text>
+    <text x="85" y="192" font="11px system-ui" font-size="11" font-style="italic" fill="#dc2626" text-anchor="middle">are NOT a 3rd-law pair.</text>
+  </g>
+
+  <text x="280" y="270" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Common pitfall: weight (Earth on you) and normal (floor on you) act on the same body — they are not a Third-Law pair.</text>
+</svg>

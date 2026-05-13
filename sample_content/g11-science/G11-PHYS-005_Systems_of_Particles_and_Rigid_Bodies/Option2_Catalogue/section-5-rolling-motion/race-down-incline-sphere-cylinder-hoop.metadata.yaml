@@ -1,0 +1,15 @@
+# Auto-generated style sidecar — paired with race-down-incline-sphere-cylinder-hoop.svg
+schema_version: 1
+id: physics-systems-of-particles-race-down-incline-sphere-cylinder-hoop
+kind: image
+subject: physics
+topic_phrase: "race down an incline — solid sphere beats cylinder beats hoop because of moment-of-inertia coefficient"
+keywords:
+  - rolling-motion
+  - incline-race
+  - moment-of-inertia-coefficient
+  - energy-conservation
+  - rotational-kinetic-energy
+  - sphere-vs-cylinder-vs-hoop
+license: platform-cc-by-sa
+source_unit: G11-PHYS-005

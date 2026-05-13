@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 380" width="760" height="380" role="img" aria-label="Five-kingdom comparison chart">
+  <title>Five-kingdom comparison — Whittaker 1969</title>
+  <desc>A comparison table across the five kingdoms (Monera, Protista, Fungi, Plantae, Animalia) along five characteristics: cell type (prokaryote vs eukaryote), cellularity (uni vs multi), cell wall composition, nutrition mode, and a representative example.</desc>
+
+  <text x="380" y="22" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">The Five-Kingdom System (Whittaker, 1969)</text>
+  <text x="380" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Five kingdoms based on cell type, cellularity, and nutrition.</text>
+
+  <!-- Header row -->
+  <rect x="40" y="60" width="160" height="40" fill="#1a202c"/>
+  <text x="120" y="84" font-size="12" font-weight="700" fill="#f7fafc" text-anchor="middle">Characteristic</text>
+  <rect x="200" y="60" width="110" height="40" fill="#7c3aed"/>
+  <text x="255" y="84" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">Monera</text>
+  <rect x="310" y="60" width="110" height="40" fill="#319795"/>
+  <text x="365" y="84" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">Protista</text>
+  <rect x="420" y="60" width="110" height="40" fill="#b45309"/>
+  <text x="475" y="84" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">Fungi</text>
+  <rect x="530" y="60" width="110" height="40" fill="#15803d"/>
+  <text x="585" y="84" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">Plantae</text>
+  <rect x="640" y="60" width="110" height="40" fill="#2b6cb0"/>
+  <text x="695" y="84" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">Animalia</text>
+
+  <!-- Row 1: Cell type -->
+  <rect x="40" y="100" width="160" height="44" fill="#f1f5f9" stroke="#cbd5e1"/>
+  <text x="50" y="128" font-size="11" font-weight="700" fill="#1a202c">Cell type</text>
+  <rect x="200" y="100" width="110" height="44" fill="#f7fafc" stroke="#cbd5e1"/>
+  <text x="255" y="128" font-size="11" fill="#4a5568" text-anchor="middle">Prokaryote</text>
+  <rect x="310" y="100" width="110" height="44" fill="#f7fafc" stroke="#cbd5e1"/>
+  <text x="365" y="128" font-size="11" fill="#4a5568" text-anchor="middle">Eukaryote</text>
+  <rect x="420" y="100" width="110" height="44" fill="#f7fafc" stroke="#cbd5e1"/>
+  <text x="475" y="128" font-size="11" fill="#4a5568" text-anchor="middle">Eukaryote</text>
+  <rect x="530" y="100" width="110" height="44" fill="#f7fafc" stroke="#cbd5e1"/>
+  <text x="585" y="128" font-size="11" fill="#4a5568" text-anchor="middle">Eukaryote</text>
+  <rect x="640" y="100" width="110" height="44" fill="#f7fafc" stroke="#cbd5e1"/>
+  <text x="695" y="128" font-size="11" fill="#4a5568" text-anchor="middle">Eukaryote</text>
+
+  <!-- Row 2: Cellularity -->
+  <rect x="40" y="144" width="160" height="44" fill="#f1f5f9" stroke="#cbd5e1"/>
+  <text x="50" y="172" font-size="11" font-weight="700" fill="#1a202c">Cellularity</text>
+  <rect x="200" y="144" width="110" height="44" fill="#fff" stroke="#cbd5e1"/>
+  <text x="255" y="172" font-size="11" fill="#4a5568" text-anchor="middle">Unicellular</text>
+  <rect x="310" y="144" width="110" height="44" fill="#fff" stroke="#cbd5e1"/>
+  <text x="365" y="166" font-size="11" fill="#4a5568" text-anchor="middle">Mostly</text>
+  <text x="365" y="180" font-size="11" fill="#4a5568" text-anchor="middle">unicellular</text>
+  <rect x="420" y="144" width="110" height="44" fill="#fff" stroke="#cbd5e1"/>
+  <text x="475" y="166" font-size="11" fill="#4a5568" text-anchor="middle">Uni- or</text>
+  <text x="475" y="180" font-size="11" fill="#4a5568" text-anchor="middle">multicellular</text>
+  <rect x="530" y="144" width="110" height="44" fill="#fff" stroke="#cbd5e1"/>
+  <text x="585" y="172" font-size="11" fill="#4a5568" text-anchor="middle">Multicellular</text>
+  <rect x="640" y="144" width="110" height="44" fill="#fff" stroke="#cbd5e1"/>
+  <text x="695" y="172" font-size="11" fill="#4a5568" text-anchor="middle">Multicellular</text>
+
+  <!-- Row 3: Cell wall -->
+  <rect x="40" y="188" width="160" height="44" fill="#f1f5f9" stroke="#cbd5e1"/>
+  <text x="50" y="216" font-size="11" font-weight="700" fill="#1a202c">Cell wall</text>
+  <rect x="200" y="188" width="110" height="44" fill="#f7fafc" stroke="#cbd5e1"/>
+  <text x="255" y="216" font-size="11" fill="#4a5568" text-anchor="middle">Peptidoglycan</text>
+  <rect x="310" y="188" width="110" height="44" fill="#f7fafc" stroke="#cbd5e1"/>
+  <text x="365" y="216" font-size="11" fill="#4a5568" text-anchor="middle">Variable</text>
+  <rect x="420" y="188" width="110" height="44" fill="#f7fafc" stroke="#cbd5e1"/>
+  <text x="475" y="216" font-size="11" fill="#4a5568" text-anchor="middle">Chitin</text>
+  <rect x="530" y="188" width="110" height="44" fill="#f7fafc" stroke="#cbd5e1"/>
+  <text x="585" y="216" font-size="11" fill="#4a5568" text-anchor="middle">Cellulose</text>
+  <rect x="640" y="188" width="110" height="44" fill="#f7fafc" stroke="#cbd5e1"/>
+  <text x="695" y="216" font-size="11" fill="#4a5568" text-anchor="middle">Absent</text>
+
+  <!-- Row 4: Nutrition -->
+  <rect x="40" y="232" width="160" height="44" fill="#f1f5f9" stroke="#cbd5e1"/>
+  <text x="50" y="260" font-size="11" font-weight="700" fill="#1a202c">Nutrition</text>
+  <rect x="200" y="232" width="110" height="44" fill="#fff" stroke="#cbd5e1"/>
+  <text x="255" y="254" font-size="11" fill="#4a5568" text-anchor="middle">Auto- or</text>
+  <text x="255" y="268" font-size="11" fill="#4a5568" text-anchor="middle">heterotroph</text>
+  <rect x="310" y="232" width="110" height="44" fill="#fff" stroke="#cbd5e1"/>
+  <text x="365" y="254" font-size="11" fill="#4a5568" text-anchor="middle">Auto- or</text>
+  <text x="365" y="268" font-size="11" fill="#4a5568" text-anchor="middle">heterotroph</text>
+  <rect x="420" y="232" width="110" height="44" fill="#fff" stroke="#cbd5e1"/>
+  <text x="475" y="254" font-size="11" fill="#4a5568" text-anchor="middle">Heterotroph</text>
+  <text x="475" y="268" font-size="10" fill="#4a5568" text-anchor="middle">(saprotrophic)</text>
+  <rect x="530" y="232" width="110" height="44" fill="#fff" stroke="#cbd5e1"/>
+  <text x="585" y="254" font-size="11" fill="#4a5568" text-anchor="middle">Autotroph</text>
+  <text x="585" y="268" font-size="10" fill="#4a5568" text-anchor="middle">(photosynthesis)</text>
+  <rect x="640" y="232" width="110" height="44" fill="#fff" stroke="#cbd5e1"/>
+  <text x="695" y="254" font-size="11" fill="#4a5568" text-anchor="middle">Heterotroph</text>
+  <text x="695" y="268" font-size="10" fill="#4a5568" text-anchor="middle">(ingestion)</text>
+
+  <!-- Row 5: Example -->
+  <rect x="40" y="276" width="160" height="44" fill="#f1f5f9" stroke="#cbd5e1"/>
+  <text x="50" y="304" font-size="11" font-weight="700" fill="#1a202c">Example</text>
+  <rect x="200" y="276" width="110" height="44" fill="#f7fafc" stroke="#cbd5e1"/>
+  <text x="255" y="304" font-size="11" font-style="italic" fill="#7c3aed" text-anchor="middle">E. coli</text>
+  <rect x="310" y="276" width="110" height="44" fill="#f7fafc" stroke="#cbd5e1"/>
+  <text x="365" y="304" font-size="11" font-style="italic" fill="#319795" text-anchor="middle">Amoeba</text>
+  <rect x="420" y="276" width="110" height="44" fill="#f7fafc" stroke="#cbd5e1"/>
+  <text x="475" y="304" font-size="11" font-style="italic" fill="#b45309" text-anchor="middle">Agaricus</text>
+  <rect x="530" y="276" width="110" height="44" fill="#f7fafc" stroke="#cbd5e1"/>
+  <text x="585" y="304" font-size="11" font-style="italic" fill="#15803d" text-anchor="middle">Mangifera</text>
+  <rect x="640" y="276" width="110" height="44" fill="#f7fafc" stroke="#cbd5e1"/>
+  <text x="695" y="304" font-size="11" font-style="italic" fill="#2b6cb0" text-anchor="middle">Homo</text>
+
+  <text x="380" y="350" font-size="11" fill="#4a5568" text-anchor="middle">Whittaker's framework — still the most-taught school taxonomy. Modern phylogenetics now splits Monera into</text>
+  <text x="380" y="368" font-size="11" fill="#4a5568" text-anchor="middle">Bacteria + Archaea, but the five-kingdom view remains a useful organising lens.</text>
+</svg>

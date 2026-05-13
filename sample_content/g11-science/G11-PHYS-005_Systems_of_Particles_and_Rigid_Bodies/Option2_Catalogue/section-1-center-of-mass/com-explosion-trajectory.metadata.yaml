@@ -1,0 +1,15 @@
+# Auto-generated style sidecar — paired with com-explosion-trajectory.svg
+schema_version: 1
+id: physics-systems-of-particles-com-explosion-trajectory
+kind: image
+subject: physics
+topic_phrase: "centre of mass of an exploding projectile continues along the original parabolic path"
+keywords:
+  - centre-of-mass
+  - explosion
+  - projectile
+  - internal-forces
+  - external-forces
+  - significance-of-com
+license: platform-cc-by-sa
+source_unit: G11-PHYS-005

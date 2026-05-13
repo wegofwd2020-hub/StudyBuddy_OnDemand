@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="Three worked examples of the chain rule">
+  <title>Chain Rule — Three Worked Examples</title>
+  <desc>Three worked chain-rule examples: derivative of (3x + 1)^4, of sin(x²), and of √(x² + 4); each split into inner and outer with the chain-rule product shown.</desc>
+
+  <defs>
+    <style>
+      .heading  { font: bold 16px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .examTitle{ font: bold 13px system-ui, sans-serif; fill: white; text-anchor: middle; }
+      .label    { font: bold 12px system-ui, sans-serif; fill: #1a202c; }
+      .formula  { font: italic 13px ui-monospace, monospace; fill: #1a202c; }
+      .answer   { font: italic 14px ui-monospace, monospace; fill: #2f855a; font-weight: 700; }
+      .note     { font: 11px system-ui, sans-serif; fill: #4a5568; }
+      .card     { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1; }
+      .header1  { fill: #2b6cb0; }
+      .header2  { fill: #6b46c1; }
+      .header3  { fill: #c05621; }
+    </style>
+  </defs>
+
+  <text class="heading" x="320" y="26">Chain rule — three worked examples</text>
+
+  <!-- Example 1: (3x + 1)^4 -->
+  <g transform="translate(20, 46)">
+    <rect class="card" x="0" y="0" width="600" height="100" rx="8"/>
+    <rect class="header1" x="0" y="0" width="600" height="26" rx="8"/>
+    <rect class="header1" x="0" y="14" width="600" height="12"/>
+    <text class="examTitle" x="300" y="18">Example 1:   y = (3x + 1)⁴</text>
+
+    <text class="label" x="14" y="44" fill="#2b6cb0">Inner:</text>
+    <text class="formula" x="80" y="44">u = 3x + 1   →   du/dx = 3</text>
+
+    <text class="label" x="14" y="62" fill="#c05621">Outer:</text>
+    <text class="formula" x="80" y="62">y = u⁴   →   dy/du = 4u³</text>
+
+    <text class="formula" x="14" y="84">dy/dx = 4u³ · 3 = 12(3x + 1)³</text>
+    <text class="answer"  x="430" y="84">→  12(3x + 1)³</text>
+  </g>
+
+  <!-- Example 2: sin(x²) -->
+  <g transform="translate(20, 156)">
+    <rect class="card" x="0" y="0" width="600" height="100" rx="8"/>
+    <rect class="header2" x="0" y="0" width="600" height="26" rx="8"/>
+    <rect class="header2" x="0" y="14" width="600" height="12"/>
+    <text class="examTitle" x="300" y="18">Example 2:   y = sin(x²)</text>
+
+    <text class="label" x="14" y="44" fill="#2b6cb0">Inner:</text>
+    <text class="formula" x="80" y="44">u = x²   →   du/dx = 2x</text>
+
+    <text class="label" x="14" y="62" fill="#c05621">Outer:</text>
+    <text class="formula" x="80" y="62">y = sin(u)   →   dy/du = cos(u)</text>
+
+    <text class="formula" x="14" y="84">dy/dx = cos(u) · 2x = 2x · cos(x²)</text>
+    <text class="answer"  x="430" y="84">→  2x · cos(x²)</text>
+  </g>
+
+  <!-- Example 3: √(x² + 4) -->
+  <g transform="translate(20, 266)">
+    <rect class="card" x="0" y="0" width="600" height="110" rx="8"/>
+    <rect class="header3" x="0" y="0" width="600" height="26" rx="8"/>
+    <rect class="header3" x="0" y="14" width="600" height="12"/>
+    <text class="examTitle" x="300" y="18">Example 3:   y = √(x² + 4)</text>
+
+    <text class="label" x="14" y="44" fill="#2b6cb0">Inner:</text>
+    <text class="formula" x="80" y="44">u = x² + 4   →   du/dx = 2x</text>
+
+    <text class="label" x="14" y="62" fill="#c05621">Outer:</text>
+    <text class="formula" x="80" y="62">y = u^(1/2)   →   dy/du = (1/2)·u^(−1/2)</text>
+
+    <text class="formula" x="14" y="84">dy/dx = (1/2)·(x² + 4)^(−1/2) · 2x</text>
+    <text class="answer"  x="14" y="100">          =  x / √(x² + 4)</text>
+    <text class="answer"  x="430" y="100">→  x / √(x² + 4)</text>
+  </g>
+
+  <!-- Outer / inner key strip -->
+  <g transform="translate(20, 386)">
+    <text x="0" y="0" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568">Identify outer first (the LAST operation to be applied), then the inner; multiply f'(g(x)) by g'(x).</text>
+  </g>
+</svg>

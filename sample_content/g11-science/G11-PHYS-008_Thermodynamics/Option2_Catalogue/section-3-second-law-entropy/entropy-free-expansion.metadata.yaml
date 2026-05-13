@@ -1,0 +1,15 @@
+schema_version: 1
+id: physics-thermodynamics-entropy-free-expansion
+kind: image
+subject: physics
+topic_phrase: "entropy increase during the free expansion of a gas into vacuum, illustrating that the number of accessible microstates rises and the process is irreversible"
+keywords:
+  - entropy
+  - free-expansion
+  - boltzmann-formula
+  - microstates
+  - irreversibility
+  - second-law
+  - arrow-of-time
+license: platform-cc-by-sa
+source_unit: G11-PHYS-008

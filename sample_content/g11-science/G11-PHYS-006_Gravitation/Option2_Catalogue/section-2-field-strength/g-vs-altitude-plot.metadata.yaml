@@ -1,0 +1,14 @@
+schema_version: 1
+id: physics-gravitation-g-vs-altitude-plot
+kind: image
+subject: physics
+topic_phrase: "graph of gravitational field strength versus altitude above Earth's surface with key points for ISS and one Earth radius up"
+keywords:
+  - gravitation
+  - field-strength
+  - g-vs-altitude
+  - earth
+  - ISS-orbit
+  - graph
+license: platform-cc-by-sa
+source_unit: G11-PHYS-006

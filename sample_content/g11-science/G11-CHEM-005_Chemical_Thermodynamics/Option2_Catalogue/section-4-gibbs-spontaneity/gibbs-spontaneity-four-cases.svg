@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 460" width="720" height="460" role="img" aria-label="Gibbs spontaneity four cases sign chart">
+  <title>ΔG Sign Chart — Four Combinations of ΔH and ΔS</title>
+  <desc>A 2×2 chart showing how the signs of ΔH and ΔS combine to predict spontaneity. Top-left (ΔH−, ΔS+): always spontaneous. Top-right (ΔH+, ΔS+): spontaneous only at high T. Bottom-left (ΔH−, ΔS−): spontaneous only at low T. Bottom-right (ΔH+, ΔS−): never spontaneous.</desc>
+
+  <text x="360" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">When is a Reaction Spontaneous?  (signs of ΔH and ΔS)</text>
+  <text x="360" y="42" font-size="11" fill="#4a5568" text-anchor="middle">ΔG = ΔH − TΔS.   Sign of ΔG depends on the two terms — and at high T, the entropy term dominates.</text>
+
+  <!-- Axis labels -->
+  <text x="360" y="68" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">ΔS &gt; 0  (more disorder)</text>
+  <text x="360" y="450" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">ΔS &lt; 0  (more order)</text>
+  <text x="80" y="252" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle" transform="rotate(-90 80 252)">ΔH &gt; 0  (endothermic)</text>
+  <text x="640" y="252" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle" transform="rotate(90 640 252)">ΔH &lt; 0  (exothermic)</text>
+
+  <!-- Grid -->
+  <!-- Cell positions:
+       Top-left   = ΔH < 0 (exo), ΔS > 0 — always spontaneous
+       Top-right  = ΔH > 0 (endo), ΔS > 0 — spontaneous high T
+       Bot-left   = ΔH < 0 (exo), ΔS < 0 — spontaneous low T
+       Bot-right  = ΔH > 0 (endo), ΔS < 0 — never spontaneous
+       But to keep ΔH > 0 at top of grid (entropy axis), I'll layout: top-row = ΔS > 0, bottom-row = ΔS < 0.
+       Left-col = ΔH < 0 (exo), Right-col = ΔH > 0 (endo) — labelled at sides above. -->
+
+  <!-- ───── Top row (ΔS > 0) ───── -->
+  <!-- Always spontaneous: ΔH<0, ΔS>0 (top-left) -->
+  <g transform="translate(120, 80)">
+    <rect width="240" height="160" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="3"/>
+    <text x="120" y="28" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">ΔH &lt; 0   ·   ΔS &gt; 0</text>
+    <text x="120" y="60" font-size="22" font-weight="700" fill="#15803d" text-anchor="middle">Always spontaneous</text>
+    <text x="120" y="88" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">ΔG &lt; 0 at every T</text>
+    <text x="120" y="120" font-size="11" fill="#4a5568" text-anchor="middle">Example: 2 H₂O₂ → 2 H₂O + O₂</text>
+    <text x="120" y="138" font-size="11" fill="#4a5568" text-anchor="middle">heat OUT, gas formed → wins both ways</text>
+  </g>
+
+  <!-- High-T spontaneous: ΔH>0, ΔS>0 (top-right) -->
+  <g transform="translate(360, 80)">
+    <rect width="240" height="160" rx="10" fill="#fef3c7" stroke="#f59e0b" stroke-width="3"/>
+    <text x="120" y="28" font-size="13" font-weight="700" fill="#92400e" text-anchor="middle">ΔH &gt; 0   ·   ΔS &gt; 0</text>
+    <text x="120" y="60" font-size="22" font-weight="700" fill="#92400e" text-anchor="middle">Spontaneous if T high</text>
+    <text x="120" y="88" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">ΔG &lt; 0 only when T &gt; ΔH/ΔS</text>
+    <text x="120" y="120" font-size="11" fill="#4a5568" text-anchor="middle">Example: ice melting (above 0 °C)</text>
+    <text x="120" y="138" font-size="11" fill="#4a5568" text-anchor="middle">heat IN, but TΔS overwhelms ΔH</text>
+  </g>
+
+  <!-- ───── Bottom row (ΔS < 0) ───── -->
+  <!-- Low-T spontaneous: ΔH<0, ΔS<0 (bot-left) -->
+  <g transform="translate(120, 250)">
+    <rect width="240" height="160" rx="10" fill="#fef3c7" stroke="#f59e0b" stroke-width="3"/>
+    <text x="120" y="28" font-size="13" font-weight="700" fill="#92400e" text-anchor="middle">ΔH &lt; 0   ·   ΔS &lt; 0</text>
+    <text x="120" y="60" font-size="22" font-weight="700" fill="#92400e" text-anchor="middle">Spontaneous if T low</text>
+    <text x="120" y="88" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">ΔG &lt; 0 only when T &lt; ΔH/ΔS</text>
+    <text x="120" y="120" font-size="11" fill="#4a5568" text-anchor="middle">Example: water freezing (below 0 °C)</text>
+    <text x="120" y="138" font-size="11" fill="#4a5568" text-anchor="middle">heat OUT, but order penalty kicks in at high T</text>
+  </g>
+
+  <!-- Never spontaneous: ΔH>0, ΔS<0 (bot-right) -->
+  <g transform="translate(360, 250)">
+    <rect width="240" height="160" rx="10" fill="#fee2e2" stroke="#dc2626" stroke-width="3"/>
+    <text x="120" y="28" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">ΔH &gt; 0   ·   ΔS &lt; 0</text>
+    <text x="120" y="60" font-size="22" font-weight="700" fill="#dc2626" text-anchor="middle">Never spontaneous</text>
+    <text x="120" y="88" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">ΔG &gt; 0 at every T</text>
+    <text x="120" y="120" font-size="11" fill="#4a5568" text-anchor="middle">Reverse direction is always favoured</text>
+    <text x="120" y="138" font-size="11" fill="#4a5568" text-anchor="middle">heat IN and order — no escape</text>
+  </g>
+</svg>

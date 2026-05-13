@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 460" width="760" height="460" role="img" aria-label="Calvin cycle simplified — CO2 to G3P">
+  <title>Calvin Cycle — CO₂ to G3P (Sugar)</title>
+  <desc>The Calvin cycle, also called the C3 pathway or dark reactions, runs in the stroma of the chloroplast. It has three phases: (1) Carboxylation — CO2 combines with the 5-carbon RuBP, catalysed by Rubisco, producing two molecules of 3-phosphoglycerate (3PG). (2) Reduction — 3PG is phosphorylated by ATP and reduced by NADPH to give glyceraldehyde-3-phosphate (G3P), the basic sugar product. One in six G3P leaves the cycle to make glucose, sucrose, or starch. (3) Regeneration — the remaining five G3P are rearranged using more ATP to regenerate three RuBP, allowing the cycle to continue. To make one net G3P, the cycle turns three times and consumes 9 ATP and 6 NADPH.</desc>
+
+  <text x="380" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Calvin Cycle — Three-Phase Sugar Factory</text>
+  <text x="380" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Carboxylation · Reduction · Regeneration · runs in the chloroplast stroma</text>
+
+  <!-- Cycle ring -->
+  <circle cx="380" cy="248" r="150" fill="#dcfce7" stroke="#15803d" stroke-width="2.5" stroke-dasharray="6 4"/>
+  <circle cx="380" cy="248" r="120" fill="#bbf7d0" opacity="0.5"/>
+
+  <!-- Centre label -->
+  <text x="380" y="240" font-size="14" font-weight="700" fill="#14532d" text-anchor="middle">Calvin Cycle</text>
+  <text x="380" y="256" font-size="10" fill="#14532d" text-anchor="middle">(C₃ pathway)</text>
+  <text x="380" y="270" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">stroma · runs day or night</text>
+  <text x="380" y="284" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">if ATP + NADPH available</text>
+
+  <!-- Three phase nodes around the ring -->
+
+  <!-- Phase 1: Carboxylation (top-left) -->
+  <g transform="translate(266, 134)">
+    <rect x="-72" y="-32" width="144" height="64" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+    <text x="0" y="-12" font-size="11" font-weight="700" fill="#78350f" text-anchor="middle">1. Carboxylation</text>
+    <text x="0" y="4" font-size="9" fill="#78350f" text-anchor="middle">CO₂ + RuBP (5C)</text>
+    <text x="0" y="18" font-size="9" font-weight="700" fill="#78350f" text-anchor="middle">→ 2 × 3PG (3C)</text>
+  </g>
+
+  <!-- Phase 2: Reduction (right) -->
+  <g transform="translate(540, 248)">
+    <rect x="-72" y="-32" width="144" height="64" rx="10" fill="#dbeafe" stroke="#2b6cb0" stroke-width="2"/>
+    <text x="0" y="-12" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">2. Reduction</text>
+    <text x="0" y="4" font-size="9" fill="#1e3a8a" text-anchor="middle">3PG → 1,3-BPG → G3P</text>
+    <text x="0" y="18" font-size="9" font-weight="700" fill="#1e3a8a" text-anchor="middle">uses ATP + NADPH</text>
+  </g>
+
+  <!-- Phase 3: Regeneration (bottom-left) -->
+  <g transform="translate(266, 362)">
+    <rect x="-72" y="-32" width="144" height="64" rx="10" fill="#fce7f3" stroke="#be185d" stroke-width="2"/>
+    <text x="0" y="-12" font-size="11" font-weight="700" fill="#831843" text-anchor="middle">3. Regeneration</text>
+    <text x="0" y="4" font-size="9" fill="#831843" text-anchor="middle">5 × G3P → 3 × RuBP</text>
+    <text x="0" y="18" font-size="9" font-weight="700" fill="#831843" text-anchor="middle">uses ATP</text>
+  </g>
+
+  <!-- Arrows around the cycle -->
+  <!-- 1 -> 2: along the top-right arc -->
+  <path d="M 338 134 Q 480 134 540 216" fill="none" stroke="#15803d" stroke-width="2"/>
+  <polygon points="535,212 542,222 543,210" fill="#15803d"/>
+
+  <!-- 2 -> 3: along the bottom-right arc -->
+  <path d="M 540 280 Q 480 362 338 362" fill="none" stroke="#15803d" stroke-width="2"/>
+  <polygon points="345,358 335,362 345,366" fill="#15803d"/>
+
+  <!-- 3 -> 1: along the left arc -->
+  <path d="M 218 350 Q 180 248 218 146" fill="none" stroke="#15803d" stroke-width="2"/>
+  <polygon points="216,150 222,142 224,152" fill="#15803d"/>
+
+  <!-- CO2 input arrow -->
+  <rect x="40" y="62" width="68" height="44" rx="8" fill="#cbd5e0" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="74" y="82" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">CO₂</text>
+  <text x="74" y="98" font-size="9" fill="#4a5568" text-anchor="middle">from air</text>
+  <line x1="108" y1="98" x2="200" y2="124" stroke="#1a202c" stroke-width="2"/>
+  <polygon points="195,120 204,124 197,130" fill="#1a202c"/>
+  <text x="146" y="98" font-size="9" font-style="italic" fill="#4a5568">×3 turns</text>
+
+  <!-- Rubisco enzyme label on phase 1 -->
+  <text x="266" y="98" font-size="10" font-style="italic" font-weight="700" fill="#d97706" text-anchor="middle">enzyme: Rubisco</text>
+  <line x1="266" y1="100" x2="266" y2="108" stroke="#d97706" stroke-width="1"/>
+
+  <!-- ATP/NADPH consumption arrows from light reactions -->
+  <rect x="640" y="62" width="100" height="80" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+  <text x="690" y="82" font-size="11" font-weight="700" fill="#78350f" text-anchor="middle">From light</text>
+  <text x="690" y="96" font-size="11" font-weight="700" fill="#78350f" text-anchor="middle">reactions</text>
+  <text x="690" y="116" font-size="10" font-weight="700" fill="#78350f" text-anchor="middle">ATP</text>
+  <text x="690" y="132" font-size="10" font-weight="700" fill="#be185d" text-anchor="middle">NADPH</text>
+
+  <line x1="640" y1="120" x2="616" y2="200" stroke="#d97706" stroke-width="1.5"/>
+  <polygon points="612,196 614,206 622,202" fill="#d97706"/>
+  <text x="588" y="184" font-size="9" font-weight="700" fill="#d97706">6 ATP</text>
+  <text x="588" y="196" font-size="9" font-weight="700" fill="#be185d">6 NADPH</text>
+
+  <line x1="640" y1="138" x2="324" y2="362" stroke="#d97706" stroke-width="1.2" stroke-dasharray="4 4"/>
+  <text x="510" y="280" font-size="9" font-weight="700" fill="#d97706">3 ATP (regeneration)</text>
+
+  <!-- Output: G3P leaves the cycle -->
+  <rect x="650" y="294" width="92" height="50" rx="8" fill="#fce7f3" stroke="#be185d" stroke-width="2"/>
+  <text x="696" y="312" font-size="11" font-weight="700" fill="#831843" text-anchor="middle">G3P</text>
+  <text x="696" y="326" font-size="9" fill="#831843" text-anchor="middle">3-carbon sugar</text>
+  <text x="696" y="338" font-size="9" font-style="italic" fill="#831843" text-anchor="middle">→ glucose / starch</text>
+
+  <line x1="568" y1="280" x2="650" y2="312" stroke="#be185d" stroke-width="2"/>
+  <polygon points="645,308 654,312 647,318" fill="#be185d"/>
+  <text x="608" y="288" font-size="9" font-style="italic" fill="#be185d">1 of 6 G3P leaves</text>
+
+  <!-- Stoichiometry box -->
+  <rect x="40" y="392" width="680" height="58" rx="6" fill="#f7fafc" stroke="#15803d" stroke-width="1.5"/>
+  <text x="60" y="412" font-size="11" font-weight="700" fill="#14532d">For 1 net G3P:</text>
+  <text x="60" y="430" font-size="10" fill="#1a202c">3 turns · 3 CO₂ · 9 ATP · 6 NADPH → 1 G3P (3C)</text>
+  <text x="60" y="444" font-size="10" font-style="italic" fill="#4a5568">For 1 glucose (6C): cycle runs 6 times. ATP + NADPH come from the light reactions.</text>
+
+  <text x="700" y="412" font-size="10" font-weight="700" fill="#14532d" text-anchor="end">Why "dark"?</text>
+  <text x="700" y="430" font-size="9" fill="#4a5568" text-anchor="end">No photons used directly,</text>
+  <text x="700" y="444" font-size="9" fill="#4a5568" text-anchor="end">but ATP/NADPH must be present.</text>
+</svg>

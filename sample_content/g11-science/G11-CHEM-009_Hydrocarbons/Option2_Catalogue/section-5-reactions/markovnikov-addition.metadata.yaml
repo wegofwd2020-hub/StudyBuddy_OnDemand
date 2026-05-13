@@ -1,0 +1,16 @@
+# Auto-generated for sample-content seeding — edit with the SVG and re-run sidecar build.
+schema_version: 1
+id: chemistry-markovnikov-addition
+kind: image
+subject: chemistry
+topic_phrase: "markovnikov addition hbr propene 2-bromopropane carbocation mechanism"
+keywords:
+  - markovnikov
+  - electrophilic-addition
+  - propene
+  - hbr
+  - carbocation
+  - 2-bromopropane
+  - regioselectivity
+license: platform-cc-by-sa
+source_unit: G11-CHEM-009

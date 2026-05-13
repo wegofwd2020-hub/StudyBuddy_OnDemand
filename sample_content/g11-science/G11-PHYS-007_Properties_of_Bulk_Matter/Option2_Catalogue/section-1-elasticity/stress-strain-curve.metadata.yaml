@@ -1,0 +1,15 @@
+schema_version: 1
+id: physics-bulk-matter-stress-strain-curve
+kind: image
+subject: physics
+topic_phrase: "stress-strain curve for a ductile metal showing elastic and plastic regions, yield, ultimate, and fracture"
+keywords:
+  - elasticity
+  - stress
+  - strain
+  - youngs-modulus
+  - hookes-law
+  - yield-point
+  - plastic-deformation
+license: platform-cc-by-sa
+source_unit: G11-PHYS-007

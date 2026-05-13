@@ -1,0 +1,15 @@
+schema_version: 1
+id: physics-thermodynamics-carnot-cycle-pv-diagram
+kind: image
+subject: physics
+topic_phrase: "Carnot cycle on a PV diagram with two isothermal and two adiabatic legs, enclosed area as net work, and the Carnot efficiency formula"
+keywords:
+  - carnot-cycle
+  - carnot-efficiency
+  - reversible-process
+  - isothermal
+  - adiabatic
+  - pv-diagram
+  - second-law-limit
+license: platform-cc-by-sa
+source_unit: G11-PHYS-008

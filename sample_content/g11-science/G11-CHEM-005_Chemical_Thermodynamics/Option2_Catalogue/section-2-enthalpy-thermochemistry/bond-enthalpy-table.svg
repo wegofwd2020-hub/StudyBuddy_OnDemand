@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" width="720" height="420" role="img" aria-label="Average bond enthalpies and ΔH from bonds broken minus bonds formed">
+  <title>Bond Enthalpies — Estimating ΔH</title>
+  <desc>A reference table of average bond enthalpies (kJ/mol) for common single, double, and triple bonds, with a worked example computing ΔH for the combustion of methane: ΔH = (bonds broken) − (bonds formed). Result: −808 kJ/mol of CH₄ — close to the observed −890 kJ/mol.</desc>
+
+  <text x="360" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Bond Enthalpies — Estimating ΔH from Bonds</text>
+  <text x="360" y="42" font-size="11" fill="#4a5568" text-anchor="middle">ΔH ≈ Σ E(bonds broken in reactants) − Σ E(bonds formed in products).  Energy in to break, energy out to form.</text>
+
+  <!-- ── Reference table ── -->
+  <g transform="translate(40, 70)">
+    <rect x="0" y="0" width="300" height="280" rx="8" fill="#f7fafc" stroke="#1a202c" stroke-width="2"/>
+    <rect x="0" y="0" width="300" height="32" rx="8" fill="#1e3a8a"/>
+    <text x="150" y="22" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle">Average bond enthalpy (kJ/mol)</text>
+
+    <!-- Column headers -->
+    <line x1="0" y1="60" x2="300" y2="60" stroke="#1a202c" stroke-width="1.5"/>
+    <text x="80" y="52" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Bond</text>
+    <text x="225" y="52" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">E (kJ/mol)</text>
+    <line x1="160" y1="32" x2="160" y2="280" stroke="#1a202c" stroke-width="1.5"/>
+
+    <!-- Data rows -->
+    <g font-size="12" fill="#1a202c">
+      <text x="80" y="80" text-anchor="middle">H–H</text>          <text x="225" y="80" text-anchor="middle">436</text>
+      <text x="80" y="102" text-anchor="middle">C–H</text>          <text x="225" y="102" text-anchor="middle">414</text>
+      <text x="80" y="124" text-anchor="middle">C–C</text>          <text x="225" y="124" text-anchor="middle">347</text>
+      <text x="80" y="146" text-anchor="middle">C=C</text>          <text x="225" y="146" text-anchor="middle">614</text>
+      <text x="80" y="168" text-anchor="middle">C≡C</text>          <text x="225" y="168" text-anchor="middle">839</text>
+      <text x="80" y="190" text-anchor="middle">O–H</text>          <text x="225" y="190" text-anchor="middle">464</text>
+      <text x="80" y="212" text-anchor="middle">O=O</text>          <text x="225" y="212" text-anchor="middle">498</text>
+      <text x="80" y="234" text-anchor="middle">C=O (CO₂)</text>     <text x="225" y="234" text-anchor="middle">799</text>
+      <text x="80" y="256" text-anchor="middle">N≡N</text>          <text x="225" y="256" text-anchor="middle">945</text>
+    </g>
+    <line x1="0" y1="86" x2="300" y2="86" stroke="#cbd5e1" stroke-width="0.8"/>
+    <line x1="0" y1="108" x2="300" y2="108" stroke="#cbd5e1" stroke-width="0.8"/>
+    <line x1="0" y1="130" x2="300" y2="130" stroke="#cbd5e1" stroke-width="0.8"/>
+    <line x1="0" y1="152" x2="300" y2="152" stroke="#cbd5e1" stroke-width="0.8"/>
+    <line x1="0" y1="174" x2="300" y2="174" stroke="#cbd5e1" stroke-width="0.8"/>
+    <line x1="0" y1="196" x2="300" y2="196" stroke="#cbd5e1" stroke-width="0.8"/>
+    <line x1="0" y1="218" x2="300" y2="218" stroke="#cbd5e1" stroke-width="0.8"/>
+    <line x1="0" y1="240" x2="300" y2="240" stroke="#cbd5e1" stroke-width="0.8"/>
+  </g>
+
+  <!-- ── Worked example: CH4 + 2 O2 → CO2 + 2 H2O ── -->
+  <g transform="translate(370, 70)">
+    <rect x="0" y="0" width="320" height="280" rx="8" fill="#fef3c7" stroke="#92400e" stroke-width="2"/>
+    <rect x="0" y="0" width="320" height="32" rx="8" fill="#92400e"/>
+    <text x="160" y="22" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle">Example: CH₄ + 2 O₂ → CO₂ + 2 H₂O</text>
+
+    <text x="160" y="56" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Bonds broken (energy in)</text>
+    <text x="20" y="76" font-size="11" fill="#1a202c">  4 × C–H</text>
+    <text x="300" y="76" font-size="11" fill="#1a202c" text-anchor="end">= 1656 kJ</text>
+    <text x="20" y="94" font-size="11" fill="#1a202c">  2 × O=O</text>
+    <text x="300" y="94" font-size="11" fill="#1a202c" text-anchor="end">=  996 kJ</text>
+    <line x1="20" y1="100" x2="300" y2="100" stroke="#92400e" stroke-width="1"/>
+    <text x="20" y="116" font-size="11" font-weight="700" fill="#dc2626">  Σ broken</text>
+    <text x="300" y="116" font-size="12" font-weight="700" fill="#dc2626" text-anchor="end">= +2652 kJ</text>
+
+    <text x="160" y="142" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Bonds formed (energy out)</text>
+    <text x="20" y="162" font-size="11" fill="#1a202c">  2 × C=O</text>
+    <text x="300" y="162" font-size="11" fill="#1a202c" text-anchor="end">= 1598 kJ</text>
+    <text x="20" y="180" font-size="11" fill="#1a202c">  4 × O–H</text>
+    <text x="300" y="180" font-size="11" fill="#1a202c" text-anchor="end">= 1856 kJ</text>
+    <line x1="20" y1="186" x2="300" y2="186" stroke="#92400e" stroke-width="1"/>
+    <text x="20" y="202" font-size="11" font-weight="700" fill="#15803d">  Σ formed</text>
+    <text x="300" y="202" font-size="12" font-weight="700" fill="#15803d" text-anchor="end">= −3454 kJ</text>
+
+    <line x1="20" y1="218" x2="300" y2="218" stroke="#1a202c" stroke-width="1.5"/>
+    <text x="20" y="240" font-size="13" font-weight="700" fill="#1a202c">ΔH = 2652 − 3454</text>
+    <text x="300" y="240" font-size="14" font-weight="700" fill="#dc2626" text-anchor="end">= −802 kJ/mol</text>
+
+    <text x="160" y="265" font-size="10" fill="#4a5568" text-anchor="middle" font-style="italic">(observed: −890 kJ/mol — averages ≠ exact)</text>
+  </g>
+
+  <text x="360" y="370" font-size="11" fill="#4a5568" text-anchor="middle">Mnemonic: <tspan font-weight="700">"In to Break, Out to Make."</tspan></text>
+  <text x="360" y="390" font-size="11" fill="#4a5568" text-anchor="middle">Bond enthalpies are <tspan font-style="italic">averages</tspan> across many compounds, so the answer is an <tspan font-style="italic">estimate</tspan>.</text>
+  <text x="360" y="408" font-size="11" fill="#4a5568" text-anchor="middle">For exact ΔH, use enthalpies of formation or measure calorimetrically.</text>
+</svg>

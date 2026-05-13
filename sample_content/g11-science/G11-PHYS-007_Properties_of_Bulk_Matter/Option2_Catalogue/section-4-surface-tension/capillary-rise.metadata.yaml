@@ -1,0 +1,14 @@
+schema_version: 1
+id: physics-bulk-matter-capillary-rise
+kind: image
+subject: physics
+topic_phrase: "capillary rise of water and depression of mercury showing wetting versus non-wetting behaviour"
+keywords:
+  - capillarity
+  - surface-tension
+  - meniscus
+  - contact-angle
+  - wetting
+  - capillary-rise
+license: platform-cc-by-sa
+source_unit: G11-PHYS-007

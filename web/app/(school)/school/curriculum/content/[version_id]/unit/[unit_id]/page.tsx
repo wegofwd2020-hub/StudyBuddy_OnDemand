@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { SBMarkdown } from "@/components/content/Markdown";
+import { VisualSlot } from "@/components/content/VisualSlot";
+import type { VisualBlock } from "@/lib/types/api";
 import { useTeacher } from "@/lib/hooks/useTeacher";
 import { getSchoolUnitMeta, getSchoolUnitContent } from "@/lib/api/school-admin";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -147,6 +149,7 @@ function TutorialRenderer({ data }: { data: Record<string, unknown> }) {
     content: string;
     examples?: string[];
     practice_question?: string;
+    visuals?: VisualBlock[];
   }>;
   const mistakes = (data.common_mistakes ?? []) as string[];
 
@@ -196,6 +199,7 @@ function TutorialRenderer({ data }: { data: Record<string, unknown> }) {
       ) : activeSection ? (
         <div className="space-y-4">
           <Prose text={activeSection.content} />
+          <VisualSlot visuals={activeSection.visuals} />
           {activeSection.examples && activeSection.examples.length > 0 && (
             <div className="space-y-2">
               <p className="text-xs font-semibold tracking-wide text-gray-500 uppercase">

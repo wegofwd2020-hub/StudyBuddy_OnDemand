@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-coordinate-geometry-circle-general-to-standard
+kind: image
+subject: math
+topic_phrase: "convert a circle from general form to standard form by completing the square"
+keywords:
+  - circle
+  - general-form
+  - standard-form
+  - completing-the-square
+  - center-radius
+license: platform-cc-by-sa
+source_unit: G11-MATH-003

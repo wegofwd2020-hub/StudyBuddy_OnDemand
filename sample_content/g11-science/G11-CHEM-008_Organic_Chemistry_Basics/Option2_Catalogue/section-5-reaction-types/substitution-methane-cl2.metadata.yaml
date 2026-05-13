@@ -1,0 +1,13 @@
+schema_version: 1
+id: chemistry-substitution-methane-cl2
+kind: image
+subject: chemistry
+topic_phrase: "free-radical substitution methane chlorine chloromethane chain mechanism"
+keywords:
+  - free-radical-substitution
+  - chain-mechanism
+  - methane-chlorination
+  - initiation-propagation-termination
+  - alkane-reaction
+license: platform-cc-by-sa
+source_unit: G11-CHEM-008

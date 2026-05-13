@@ -1,0 +1,17 @@
+# Auto-generated for sample-content seeding — edit with the SVG and re-run sidecar build.
+schema_version: 1
+id: chemistry-chain-isomers-pentane
+kind: image
+subject: chemistry
+topic_phrase: "chain isomerism pentane n-pentane isopentane neopentane c5h12"
+keywords:
+  - isomerism
+  - chain-isomer
+  - pentane
+  - isopentane
+  - neopentane
+  - 2-methylbutane
+  - 2,2-dimethylpropane
+  - structural-isomer
+license: platform-cc-by-sa
+source_unit: G11-CHEM-009

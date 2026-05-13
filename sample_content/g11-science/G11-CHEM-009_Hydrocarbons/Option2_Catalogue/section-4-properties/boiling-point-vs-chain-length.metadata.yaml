@@ -1,0 +1,16 @@
+# Auto-generated for sample-content seeding — edit with the SVG and re-run sidecar build.
+schema_version: 1
+id: chemistry-bp-vs-chain-length
+kind: image
+subject: chemistry
+topic_phrase: "boiling point vs chain length n-alkanes london dispersion"
+keywords:
+  - boiling-point
+  - chain-length
+  - n-alkanes
+  - london-dispersion
+  - intermolecular-force
+  - homologous-series
+  - trend
+license: platform-cc-by-sa
+source_unit: G11-CHEM-009

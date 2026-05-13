@@ -1,0 +1,15 @@
+schema_version: 1
+id: physics-kinetic-theory-van-der-waals-isotherms-critical-point
+kind: image
+subject: physics
+topic_phrase: "P-V isotherms predicted by the van der Waals equation showing two-phase coexistence dome below the critical point and smooth isotherms above with critical point inflection"
+keywords:
+  - van-der-waals
+  - real-gas
+  - critical-point
+  - phase-coexistence
+  - liquid-vapour-equilibrium
+  - supercritical-fluid
+  - isotherm
+license: platform-cc-by-sa
+source_unit: G11-PHYS-009

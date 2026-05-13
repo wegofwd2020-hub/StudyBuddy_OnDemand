@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" role="img" aria-label="Tangent line at a point on a curve with slope and equation">
+  <title>Tangent Line at a Point</title>
+  <desc>Curve f(x) = x³ − 3x with the tangent line at x = 2 drawn; tangent slope f'(2) = 9 and tangent equation y = 9x − 16 are displayed.</desc>
+
+  <defs>
+    <style>
+      .panel    { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1; }
+      .axis     { stroke: #94a3b8; stroke-width: 1.4; }
+      .grid     { stroke: #e2e8f0; stroke-width: 0.6; }
+      .curve    { fill: none; stroke: #2b6cb0; stroke-width: 3; stroke-linecap: round; }
+      .tangent  { stroke: #c05621; stroke-width: 3; stroke-linecap: round; }
+      .pt       { fill: #c05621; stroke: white; stroke-width: 2; }
+      .heading  { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .axislbl  { font: 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .lbl      { font: bold 12px system-ui, sans-serif; }
+      .note     { font: 11px system-ui, sans-serif; fill: #4a5568; }
+      .vline    { stroke: #6b46c1; stroke-width: 1.4; stroke-dasharray: 4 4; }
+    </style>
+  </defs>
+
+  <text class="heading" x="320" y="22">Tangent line:  y = f(a) + f'(a)(x − a)</text>
+
+  <!-- Plot frame: x in [-3, 3] mapped to [60, 380] (53.33 px/unit) approx → use 320/6 = 53.33;
+       y in [-6, 6] mapped to [260, 60] (16.67 px/unit, 200/12).
+       Use simpler integer: x mapping 60+53.33(x+3); y mapping 160 - 16.67·y. -->
+  <rect class="panel" x="60" y="60" width="320" height="200"/>
+
+  <!-- grid: x integers -3..3 → px = 60, 113.33, 166.67, 220, 273.33, 326.67, 380 -->
+  <line class="grid" x1="113" y1="60" x2="113" y2="260"/>
+  <line class="grid" x1="167" y1="60" x2="167" y2="260"/>
+  <line class="grid" x1="220" y1="60" x2="220" y2="260"/>
+  <line class="grid" x1="273" y1="60" x2="273" y2="260"/>
+  <line class="grid" x1="327" y1="60" x2="327" y2="260"/>
+  <!-- y grid: -4,-2,0,2,4 -->
+  <line class="grid" x1="60" y1="227" x2="380" y2="227"/>
+  <line class="grid" x1="60" y1="193" x2="380" y2="193"/>
+  <line class="grid" x1="60" y1="127" x2="380" y2="127"/>
+  <line class="grid" x1="60" y1="93"  x2="380" y2="93"/>
+
+  <!-- axes (x=0 axis: px=220; y=0 axis: py=160) -->
+  <line class="axis" x1="60" y1="160" x2="380" y2="160"/>
+  <line class="axis" x1="220" y1="60" x2="220" y2="260"/>
+
+  <!-- ticks -->
+  <text class="axislbl" x="113" y="174">−3</text>
+  <text class="axislbl" x="167" y="174">−1</text>
+  <text class="axislbl" x="273" y="174">1</text>
+  <text class="axislbl" x="327" y="174">2</text>
+  <text class="axislbl" x="220" y="174">0</text>
+  <text class="axislbl" x="212" y="231" text-anchor="end">−4</text>
+  <text class="axislbl" x="212" y="197" text-anchor="end">−2</text>
+  <text class="axislbl" x="212" y="131" text-anchor="end">2</text>
+  <text class="axislbl" x="212" y="97"  text-anchor="end">4</text>
+  <text class="axislbl" x="392" y="164">x</text>
+  <text class="axislbl" x="220" y="55">y</text>
+
+  <!-- f(x) = x³ - 3x. Sample x in [-2.5, 2.5], y_clip [-6, 6].
+       (-2.5, -8.125) clip to -6 → enter plot at f(x)=-6 where x ≈ -2.105. Skip.
+       Sample (-2, -2) → (60+53.33·1=113, 160-16.67·(-2)=193). Wait: x=-2 → px=60+53.33·(-2+3)=113.33. py = 160-16.67·(-2) = 193.33.
+       Build sample list: -2(-2)→(113,193); -1.5(0.375)→(140,154); -1(2)→(167,127); -0.5(1.375)→(193,137);
+       0(0)→(220,160); 0.5(-1.375)→(247,183); 1(-2)→(273,193); 1.5(-0.375)→(300,166); 2(2)→(327,127); 2.4(8.224) clip (~6) at x=2.236 (y=2.236³-3·2.236=11.18-6.71=4.47) hmm;
+       Actually pick endpoints inside plot: x=-2.236 where x³-3x = -11.18+6.71 = -4.47 → (60+53.33·0.764=100.7, 160-16.67·(-4.47)=234.5). Use -2.2: y= -10.648+6.6 = -4.048. (60+53.33·0.8=102.7, 160-16.67·(-4.048)=227.5). Within plot.
+       Use 2.2: y=10.648-6.6=4.048 (60+53.33·5.2=337.3, 160-16.67·4.048=92.5). Within plot. -->
+  <polyline class="curve" points="103,227 113,193 140,154 167,127 193,138 220,160 247,182 273,193 300,166 327,127 337,93"/>
+
+  <!-- Tangent at x=2: f(2) = 2 (point P=(2,2) → (327, 127)).
+       f'(x) = 3x² - 3, so f'(2) = 9.  tangent y = 9(x-2) + 2 = 9x - 16.
+       At x=1: y = -7 (px=273, py=160-16.67·(-7)=277, clip).
+       At x=2.6: y = 7.4 (px=60+53.33·5.6=358.7, py=160-16.67·7.4=36.6, clip top 60).
+       Compute clip on top y=6: 9x-16=6 → x=22/9≈2.444 (px=60+53.33·5.444=350.4, py=60).
+       Compute clip on bottom: y=-4.5 (since panel y=−4.5? Actually panel y from -6 to 6 means py in [60,260], where py(y)=160-16.67y.
+       y=-6 → py=260: 9x-16=-6 → x=10/9≈1.111 (px=60+53.33·4.111=279.2, py=260).
+       So tangent draws from (279, 260) to (350, 60). -->
+  <line class="tangent" x1="279" y1="260" x2="350" y2="60"/>
+
+  <!-- Vertical guide at x=2 -->
+  <line class="vline" x1="327" y1="60" x2="327" y2="260"/>
+
+  <!-- Point of tangency -->
+  <circle class="pt" cx="327" cy="127" r="6"/>
+  <text class="lbl" x="334" y="120" fill="#c05621">P (2, 2)</text>
+
+  <!-- Slope label -->
+  <text class="lbl" x="350" y="76" fill="#c05621" text-anchor="end">slope = 9</text>
+
+  <!-- Right panel: derivation -->
+  <g transform="translate(410, 60)">
+    <rect x="0" y="0" width="200" height="200" rx="8" fill="#fffaf0" stroke="#dd6b20" stroke-width="1.4"/>
+    <text font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" x="100" y="22" text-anchor="middle">Tangent at x = 2</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="46">Function:</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="14" y="62" font-style="italic">f(x) = x³ − 3x</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="84">Derivative:</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="14" y="100" font-style="italic">f'(x) = 3x² − 3</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="122">At a = 2:</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="14" y="138" font-style="italic">f(2) = 8 − 6 = 2</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="14" y="154" font-style="italic">f'(2) = 12 − 3 = 9</text>
+    <text font="11px system-ui" font-size="11" fill="#c05621" x="14" y="180" font-weight="600">y = 2 + 9(x − 2)</text>
+    <text font="11px system-ui" font-size="11" fill="#c05621" x="14" y="194" font-weight="600">→  y = 9x − 16</text>
+  </g>
+
+  <text x="220" y="296" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">The tangent line touches the curve at P and matches its slope there.</text>
+</svg>

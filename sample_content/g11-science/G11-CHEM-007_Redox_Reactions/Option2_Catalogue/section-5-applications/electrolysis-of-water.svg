@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400" width="720" height="400" role="img" aria-label="Electrolysis of water apparatus">
+  <title>Electrolysis of water</title>
+  <desc>An electrolytic cell with two inert electrodes immersed in dilute sulfuric acid. A direct current source drives the non-spontaneous decomposition of water. Hydrogen gas evolves at the cathode, oxygen gas at the anode, in a 2:1 volume ratio. The half-reactions are labelled.</desc>
+
+  <defs>
+    <marker id="ew-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626" />
+    </marker>
+  </defs>
+
+  <text x="360" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Electrolysis of Water — Driving a Non-Spontaneous Redox</text>
+  <text x="360" y="40" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">A battery forces electrons "uphill". E°cell for water decomposition = −1.23 V; the supply must provide at least that much.</text>
+
+  <!-- Power source / battery on top -->
+  <rect x="280" y="60" width="160" height="60" rx="8" fill="#1f2937" stroke="#0f172a" stroke-width="2" />
+  <text x="360" y="84" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#fef3c7" text-anchor="middle">DC Power Supply</text>
+  <text x="306" y="106" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#dc2626" text-anchor="middle">+</text>
+  <text x="414" y="106" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#3b82f6" text-anchor="middle">−</text>
+
+  <!-- Wires from PSU to electrodes -->
+  <line x1="306" y1="120" x2="306" y2="170" stroke="#1a202c" stroke-width="2.5" />
+  <line x1="306" y1="170" x2="220" y2="170" stroke="#1a202c" stroke-width="2.5" />
+  <line x1="220" y1="170" x2="220" y2="200" stroke="#1a202c" stroke-width="2.5" />
+
+  <line x1="414" y1="120" x2="414" y2="170" stroke="#1a202c" stroke-width="2.5" />
+  <line x1="414" y1="170" x2="500" y2="170" stroke="#1a202c" stroke-width="2.5" />
+  <line x1="500" y1="170" x2="500" y2="200" stroke="#1a202c" stroke-width="2.5" />
+
+  <!-- Electron flow arrow on wires -->
+  <line x1="500" y1="155" x2="220" y2="155" stroke="#3b82f6" stroke-width="2" stroke-dasharray="4 3" />
+  <text x="360" y="148" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#3b82f6" text-anchor="middle">e⁻ leaves PSU − terminal, returns via + terminal</text>
+
+  <!-- Beaker -->
+  <path d="M 120 200 L 120 360 Q 120 380 140 380 L 580 380 Q 600 380 600 360 L 600 200" fill="#dbeafe" stroke="#1a202c" stroke-width="2" />
+  <text x="360" y="395" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">dilute H₂SO₄(aq) — provides H⁺ and ionic conductivity</text>
+
+  <!-- Anode (left, +) -->
+  <rect x="210" y="200" width="20" height="160" fill="#94a3b8" stroke="#0f172a" stroke-width="1.5" />
+  <text x="220" y="195" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">anode (+)</text>
+  <text x="220" y="365" font="11px system-ui" font-size="11" fill="#1a202c" text-anchor="middle">inert (Pt)</text>
+
+  <!-- Cathode (right, -) -->
+  <rect x="490" y="200" width="20" height="160" fill="#94a3b8" stroke="#0f172a" stroke-width="1.5" />
+  <text x="500" y="195" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#3b82f6" text-anchor="middle">cathode (−)</text>
+  <text x="500" y="365" font="11px system-ui" font-size="11" fill="#1a202c" text-anchor="middle">inert (Pt)</text>
+
+  <!-- Inverted gas tubes — anode side: O2 (smaller column) -->
+  <rect x="200" y="210" width="40" height="80" rx="4" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5" />
+  <text x="220" y="252" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#991b1b" text-anchor="middle">O₂(g)</text>
+  <text x="220" y="278" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#991b1b" text-anchor="middle">1 vol</text>
+
+  <!-- Cathode side: H2 (twice the volume) -->
+  <rect x="480" y="210" width="40" height="160" rx="4" fill="#dcfce7" stroke="#15803d" stroke-width="1.5" />
+  <text x="500" y="252" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#14532d" text-anchor="middle">H₂(g)</text>
+  <text x="500" y="280" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#14532d" text-anchor="middle">2 vol</text>
+
+  <!-- Bubbles -->
+  <circle cx="225" cy="320" r="4" fill="#fee2e2" stroke="#dc2626" />
+  <circle cx="220" cy="345" r="3" fill="#fee2e2" stroke="#dc2626" />
+  <circle cx="495" cy="320" r="4" fill="#dcfce7" stroke="#15803d" />
+  <circle cx="500" cy="340" r="3.5" fill="#dcfce7" stroke="#15803d" />
+  <circle cx="498" cy="358" r="3" fill="#dcfce7" stroke="#15803d" />
+
+  <!-- Half-reactions inset -->
+  <rect x="260" y="280" width="200" height="86" rx="8" fill="#f7fafc" stroke="#1a202c" stroke-width="1.2" />
+  <text x="360" y="298" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Half-reactions</text>
+  <line x1="270" y1="304" x2="450" y2="304" stroke="#cbd5e1" stroke-width="0.7" />
+  <text x="360" y="320" font="11px system-ui" font-size="11" fill="#dc2626" text-anchor="middle">Anode: 2 H₂O → O₂ + 4 H⁺ + 4 e⁻</text>
+  <text x="360" y="338" font="11px system-ui" font-size="11" fill="#15803d" text-anchor="middle">Cathode: 4 H⁺ + 4 e⁻ → 2 H₂</text>
+  <line x1="270" y1="346" x2="450" y2="346" stroke="#cbd5e1" stroke-width="0.7" />
+  <text x="360" y="362" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Net: 2 H₂O → 2 H₂ + O₂</text>
+</svg>

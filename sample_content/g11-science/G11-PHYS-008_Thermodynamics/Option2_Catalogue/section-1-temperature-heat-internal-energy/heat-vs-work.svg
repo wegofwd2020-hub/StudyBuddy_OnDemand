@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 340" width="600" height="340" role="img" aria-label="Heat versus work as two ways to transfer energy">
+  <title>Heat vs Work — Two Ways to Transfer Energy</title>
+  <desc>Two side-by-side panels show energy entering a gas in a cylinder. Left panel: heat flows in from a flame because of a temperature difference. Right panel: work is done by pushing the piston down. Both raise the internal energy by the same amount.</desc>
+
+  <text x="300" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Heat vs Work — Two Ways to Change Internal Energy</text>
+
+  <defs>
+    <marker id="hw-arr-r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626" />
+    </marker>
+    <marker id="hw-arr-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1d4ed8" />
+    </marker>
+  </defs>
+
+  <!-- ============= LEFT PANEL: HEAT ============= -->
+  <rect x="30" y="40" width="270" height="240" rx="8" fill="#fff5f5" stroke="#fecaca" stroke-width="1.5" />
+  <text x="165" y="62" font-size="14" font-weight="700" fill="#dc2626" text-anchor="middle">HEAT (Q)</text>
+  <text x="165" y="78" font-size="11" font-style="italic" fill="#7c2d12" text-anchor="middle">energy from temperature difference</text>
+
+  <!-- Cylinder with gas -->
+  <rect x="105" y="120" width="120" height="100" fill="#fed7aa" stroke="#9a3412" stroke-width="2" />
+  <text x="165" y="180" font-size="12" font-weight="700" fill="#7c2d12" text-anchor="middle">gas</text>
+  <text x="165" y="198" font-size="10" fill="#7c2d12" text-anchor="middle">T_gas (cool)</text>
+
+  <!-- Piston cap on top, fixed -->
+  <rect x="100" y="112" width="130" height="10" fill="#475569" stroke="#1a202c" stroke-width="1.5" />
+  <text x="165" y="108" font-size="9" fill="#475569" text-anchor="middle">fixed piston</text>
+
+  <!-- Flame underneath -->
+  <g>
+    <path d="M 130 240 Q 138 220 145 235 Q 152 215 160 235 Q 168 220 175 238 Q 182 218 190 235 Q 195 225 200 240 Z"
+      fill="#fb923c" stroke="#dc2626" stroke-width="1.2" />
+    <path d="M 140 240 Q 150 228 160 240 Q 170 228 180 240 Z" fill="#fde68a" />
+  </g>
+  <text x="165" y="260" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">T_flame (hot)</text>
+
+  <!-- Heat arrows (curly squiggles) -->
+  <g stroke="#dc2626" stroke-width="2.2" fill="none">
+    <path d="M 130 232 Q 130 226 134 224 Q 138 222 134 218" marker-end="url(#hw-arr-r)" />
+    <path d="M 165 232 Q 165 226 169 224 Q 173 222 169 218" marker-end="url(#hw-arr-r)" />
+    <path d="M 200 232 Q 200 226 196 224 Q 192 222 196 218" marker-end="url(#hw-arr-r)" />
+  </g>
+  <text x="248" y="190" font-size="11" font-weight="700" fill="#dc2626">Q &gt; 0</text>
+
+  <text x="165" y="276" font-size="10" font-style="italic" fill="#7c2d12" text-anchor="middle">flows from hot → cold (no piston motion)</text>
+
+  <!-- ============= RIGHT PANEL: WORK ============= -->
+  <rect x="320" y="40" width="270" height="240" rx="8" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.5" />
+  <text x="455" y="62" font-size="14" font-weight="700" fill="#1d4ed8" text-anchor="middle">WORK (W)</text>
+  <text x="455" y="78" font-size="11" font-style="italic" fill="#1e3a8a" text-anchor="middle">energy from a force through a distance</text>
+
+  <!-- Cylinder walls -->
+  <line x1="395" y1="115" x2="395" y2="240" stroke="#1a202c" stroke-width="2.5" />
+  <line x1="515" y1="115" x2="515" y2="240" stroke="#1a202c" stroke-width="2.5" />
+  <line x1="395" y1="240" x2="515" y2="240" stroke="#1a202c" stroke-width="2.5" />
+
+  <!-- Gas (compressed because work is being done ON it) -->
+  <rect x="395" y="180" width="120" height="60" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="1.5" />
+  <text x="455" y="218" font-size="12" font-weight="700" fill="#1e3a8a" text-anchor="middle">gas</text>
+
+  <!-- Piston (movable) -->
+  <rect x="395" y="170" width="120" height="14" fill="#94a3b8" stroke="#1a202c" stroke-width="2" />
+  <line x1="455" y1="170" x2="455" y2="138" stroke="#1a202c" stroke-width="3" />
+  <rect x="440" y="125" width="30" height="14" fill="#475569" stroke="#1a202c" stroke-width="1.5" />
+  <text x="455" y="120" font-size="10" fill="#475569" text-anchor="middle">handle</text>
+
+  <!-- Force arrow pushing piston down -->
+  <line x1="455" y1="98" x2="455" y2="120" stroke="#1d4ed8" stroke-width="3.2" marker-end="url(#hw-arr-b)" />
+  <text x="468" y="112" font-size="13" font-weight="700" fill="#1d4ed8">F</text>
+
+  <!-- Distance d arrow -->
+  <line x1="370" y1="170" x2="370" y2="195" stroke="#15803d" stroke-width="1.5" stroke-dasharray="3 3" />
+  <line x1="365" y1="170" x2="375" y2="170" stroke="#15803d" stroke-width="1.5" />
+  <line x1="365" y1="195" x2="375" y2="195" stroke="#15803d" stroke-width="1.5" />
+  <text x="346" y="186" font-size="11" font-weight="700" fill="#15803d">d</text>
+
+  <text x="540" y="190" font-size="11" font-weight="700" fill="#1d4ed8">W = F·d</text>
+  <text x="455" y="276" font-size="10" font-style="italic" fill="#1e3a8a" text-anchor="middle">piston moves — energy delivered mechanically</text>
+
+  <!-- Bottom unifying caption -->
+  <rect x="40" y="294" width="520" height="40" rx="6" fill="#f7fafc" stroke="#cbd5e1" />
+  <text x="300" y="312" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Both raise the gas's internal energy U.</text>
+  <text x="300" y="328" font-size="11" fill="#15803d" text-anchor="middle" font-style="italic">Heat and work are processes (energy in transit) — not properties of the gas itself.</text>
+</svg>

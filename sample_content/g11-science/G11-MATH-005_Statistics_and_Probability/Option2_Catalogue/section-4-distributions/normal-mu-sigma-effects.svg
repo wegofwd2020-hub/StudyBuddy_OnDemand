@@ -1,0 +1,185 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" width="640" height="380" role="img" aria-label="Three normal density curves showing the effects of changing the mean and the standard deviation">
+  <title>Effects of μ and σ on the Normal Density</title>
+  <desc>Three normal probability density curves are overlaid on the same axes.  Curve A is N(0, 1) — the standard normal; curve B is N(2, 1), shifted two units to the right; curve C is N(0, 2), centred at zero but with twice the spread, so it is shorter and wider.  Increasing μ slides the bell horizontally; increasing σ flattens and widens it while keeping the total area equal to one.</desc>
+
+  <defs>
+    <marker id="ah-ms" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4a5568"/>
+    </marker>
+    <style>
+      .axis    { stroke: #4a5568; stroke-width: 1.6; }
+      .grid    { stroke: #e2e8f0; stroke-width: 0.6; }
+      .panel   { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1; }
+      .curveA  { fill: rgba(107, 70, 193, 0.15); stroke: #6b46c1; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+      .curveB  { fill: rgba(43, 108, 176, 0.15); stroke: #2b6cb0; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+      .curveC  { fill: rgba(197, 48, 48, 0.10); stroke: #c53030; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+      .meanA   { stroke: #6b46c1; stroke-width: 1.6; stroke-dasharray: 5 4; }
+      .meanB   { stroke: #2b6cb0; stroke-width: 1.6; stroke-dasharray: 5 4; }
+      .meanC   { stroke: #c53030; stroke-width: 1.6; stroke-dasharray: 5 4; }
+      .axislbl { font: 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .heading { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .lbl     { font: bold 12px system-ui, sans-serif; }
+    </style>
+  </defs>
+
+  <text class="heading" x="240" y="22">Vary μ and σ:  shifting and re-scaling the bell</text>
+
+  <rect class="panel" x="60" y="40" width="400" height="240"/>
+
+  <!-- Coordinate mapping:
+       x ∈ [-6, 6] → x_px ∈ [60, 460]   (33.33 px per unit; centre at 260)
+       density value f(x) ∈ [0, 0.40] → y_px = 270 - f*600 ; baseline y = 270
+       Total height range → ~240 px.  Frame y 40..280; baseline 270.
+  -->
+
+  <!-- Vertical grid -->
+  <line class="grid" x1="93"  y1="40" x2="93"  y2="270"/>
+  <line class="grid" x1="127" y1="40" x2="127" y2="270"/>
+  <line class="grid" x1="160" y1="40" x2="160" y2="270"/>
+  <line class="grid" x1="193" y1="40" x2="193" y2="270"/>
+  <line class="grid" x1="227" y1="40" x2="227" y2="270"/>
+  <line class="grid" x1="293" y1="40" x2="293" y2="270"/>
+  <line class="grid" x1="327" y1="40" x2="327" y2="270"/>
+  <line class="grid" x1="360" y1="40" x2="360" y2="270"/>
+  <line class="grid" x1="393" y1="40" x2="393" y2="270"/>
+  <line class="grid" x1="427" y1="40" x2="427" y2="270"/>
+
+  <!-- Horizontal grid (density 0.1, 0.2, 0.3, 0.4) -->
+  <line class="grid" x1="60" y1="210" x2="460" y2="210"/>
+  <line class="grid" x1="60" y1="150" x2="460" y2="150"/>
+  <line class="grid" x1="60" y1="90"  x2="460" y2="90"/>
+
+  <!-- y-axis labels -->
+  <text class="axislbl" x="52" y="274" text-anchor="end">0.0</text>
+  <text class="axislbl" x="52" y="214" text-anchor="end">0.1</text>
+  <text class="axislbl" x="52" y="154" text-anchor="end">0.2</text>
+  <text class="axislbl" x="52" y="94"  text-anchor="end">0.3</text>
+  <text class="axislbl" x="52" y="44"  text-anchor="end">0.4</text>
+  <text class="axislbl" x="40" y="32">f(x)</text>
+
+  <!-- ===== Curve C: N(0, 2)  drawn first (widest, fills behind others) ===== -->
+  <path class="curveC" d="
+    M 60  270
+    L 60  268.67
+    L 93  264.74
+    L 127 253.80
+    L 160 231.14
+    L 193 197.41
+    L 227 164.38
+    L 260 150.33
+    L 293 164.38
+    L 327 197.41
+    L 360 231.14
+    L 393 253.80
+    L 427 264.74
+    L 460 268.67
+    L 460 270
+    Z
+  "/>
+
+  <!-- ===== Curve A: N(0, 1) ===== -->
+  <path class="curveA" d="
+    M 127 270
+    L 127 269.92
+    L 143 269.48
+    L 160 267.34
+    L 177 259.48
+    L 193 237.61
+    L 210 192.29
+    L 227 124.82
+    L 243 58.76
+    L 260 30.63
+    L 277 58.76
+    L 293 124.82
+    L 310 192.29
+    L 327 237.61
+    L 343 259.48
+    L 360 267.34
+    L 377 269.48
+    L 393 269.92
+    L 393 270
+    Z
+  "/>
+
+  <!-- ===== Curve B: N(2, 1) ===== -->
+  <path class="curveB" d="
+    M 193 270
+    L 193 269.92
+    L 210 269.48
+    L 227 267.34
+    L 243 259.48
+    L 260 237.61
+    L 277 192.29
+    L 293 124.82
+    L 310 58.76
+    L 327 30.63
+    L 343 58.76
+    L 360 124.82
+    L 377 192.29
+    L 393 237.61
+    L 410 259.48
+    L 427 267.34
+    L 443 269.48
+    L 460 269.92
+    L 460 270
+    Z
+  "/>
+
+  <!-- Mean lines for each curve -->
+  <line class="meanA" x1="260" y1="40" x2="260" y2="270"/>
+  <line class="meanB" x1="327" y1="40" x2="327" y2="270"/>
+
+  <!-- x-axis -->
+  <line class="axis" x1="60" y1="270" x2="464" y2="270" marker-end="url(#ah-ms)"/>
+
+  <!-- x tick labels -->
+  <text class="axislbl" x="60"  y="284">−6</text>
+  <text class="axislbl" x="93"  y="284">−5</text>
+  <text class="axislbl" x="127" y="284">−4</text>
+  <text class="axislbl" x="160" y="284">−3</text>
+  <text class="axislbl" x="193" y="284">−2</text>
+  <text class="axislbl" x="227" y="284">−1</text>
+  <text class="axislbl" x="260" y="284">0</text>
+  <text class="axislbl" x="293" y="284">1</text>
+  <text class="axislbl" x="327" y="284">2</text>
+  <text class="axislbl" x="360" y="284">3</text>
+  <text class="axislbl" x="393" y="284">4</text>
+  <text class="axislbl" x="427" y="284">5</text>
+  <text class="axislbl" x="460" y="284">6</text>
+  <text class="axislbl" x="468" y="274">x</text>
+
+  <!-- Mean labels -->
+  <text class="lbl" x="260" y="34" fill="#6b46c1" text-anchor="middle">μ_A = 0</text>
+  <text class="lbl" x="327" y="34" fill="#2b6cb0" text-anchor="middle">μ_B = 2</text>
+
+  <!-- Right legend -->
+  <g transform="translate(480, 46)">
+    <rect x="0" y="0" width="150" height="234" rx="8" fill="#fffaf0" stroke="#dd6b20" stroke-width="1.4"/>
+    <text font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" x="75" y="22" text-anchor="middle">Three normals</text>
+
+    <line x1="12" y1="40" x2="36" y2="40" stroke="#6b46c1" stroke-width="3"/>
+    <text font="bold 11px system-ui" font-size="11" font-weight="700" fill="#6b46c1" x="42" y="44">A:  N(0, 1)</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="42" y="58">standard normal</text>
+
+    <line x1="12" y1="74" x2="36" y2="74" stroke="#2b6cb0" stroke-width="3"/>
+    <text font="bold 11px system-ui" font-size="11" font-weight="700" fill="#2b6cb0" x="42" y="78">B:  N(2, 1)</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="42" y="92">A shifted right by 2</text>
+
+    <line x1="12" y1="108" x2="36" y2="108" stroke="#c53030" stroke-width="3"/>
+    <text font="bold 11px system-ui" font-size="11" font-weight="700" fill="#c53030" x="42" y="112">C:  N(0, 2)</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="42" y="126">A flattened (σ doubled)</text>
+
+    <line x1="12" y1="140" x2="138" y2="140" stroke="#cbd5e0"/>
+
+    <text font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" x="12" y="160">Density formula</text>
+    <text font="italic 11px system-ui" font-size="11" fill="#1a202c" x="12" y="178">f(x) = (1/σ√(2π))·</text>
+    <text font="italic 11px system-ui" font-size="11" fill="#1a202c" x="12" y="194">         e^(−(x−μ)²/(2σ²))</text>
+
+    <line x1="12" y1="206" x2="138" y2="206" stroke="#cbd5e0"/>
+    <text font="italic 11px system-ui" font-size="11" font-style="italic" fill="#4a5568" x="12" y="222">peak height = 1/(σ√(2π))</text>
+  </g>
+
+  <text x="320" y="320" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">μ controls location; σ controls spread.  Doubling σ halves the peak — but the curve gets twice as wide, so the area stays at 1.</text>
+  <text x="320" y="340" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Curves A and B have identical shape; only the centre moves.  Curve C has the same centre as A but is flatter and wider.</text>
+  <text x="320" y="360" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Standardise any X ~ N(μ, σ²) via Z = (X − μ)/σ to read tail probabilities from the standard normal table.</text>
+</svg>

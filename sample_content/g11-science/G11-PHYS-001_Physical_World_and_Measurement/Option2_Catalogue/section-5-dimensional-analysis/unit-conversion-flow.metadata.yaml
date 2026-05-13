@@ -1,0 +1,14 @@
+schema_version: 1
+id: physics-physical-world-unit-conversion-flow
+kind: image
+subject: physics
+topic_phrase: "unit conversion by chain-link cancellation between km/h, m/s and mph"
+keywords:
+  - unit-conversion
+  - dimensional-analysis
+  - chain-link
+  - km-per-hour
+  - m-per-second
+  - mph
+license: platform-cc-by-sa
+source_unit: G11-PHYS-001

@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 320" width="720" height="320" role="img" aria-label="Physical change versus chemical change">
+  <title>Physical vs Chemical Change</title>
+  <desc>Two side-by-side panels. Left: physical change — water melting from ice cube to liquid; same H₂O molecules, only arrangement changes; reversible. Right: chemical change — methane combustion CH₄ + 2O₂ → CO₂ + 2H₂O; new substances; bonds break and form; not easily reversible.</desc>
+
+  <text x="360" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Physical Change vs Chemical Change</text>
+
+  <!-- LEFT: Physical change -->
+  <rect x="30" y="50" width="320" height="220" rx="12" fill="#dbeafe" stroke="#2b6cb0" stroke-width="2" />
+  <text x="190" y="74" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1e3a8a" text-anchor="middle">Physical Change</text>
+  <text x="190" y="92" font="10px system-ui" font-size="10" fill="#1e3a8a" text-anchor="middle">same substance · different state or form</text>
+
+  <!-- Ice cube (square with packed circles) -->
+  <rect x="60" y="120" width="80" height="80" rx="6" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="2" />
+  <g fill="#2b6cb0" stroke="#1a202c" stroke-width="0.8">
+    <circle cx="76" cy="136" r="5"/><circle cx="100" cy="136" r="5"/><circle cx="124" cy="136" r="5"/>
+    <circle cx="76" cy="160" r="5"/><circle cx="100" cy="160" r="5"/><circle cx="124" cy="160" r="5"/>
+    <circle cx="76" cy="184" r="5"/><circle cx="100" cy="184" r="5"/><circle cx="124" cy="184" r="5"/>
+  </g>
+  <text x="100" y="220" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">ice (s)</text>
+  <text x="100" y="234" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">H₂O</text>
+
+  <!-- Arrow with "melt" -->
+  <line x1="155" y1="160" x2="205" y2="160" stroke="#1e3a8a" stroke-width="1.8" marker-end="url(#pvc-arr-blue)" />
+  <text x="180" y="152" font="10px system-ui" font-size="10" fill="#1e3a8a" text-anchor="middle">melt</text>
+
+  <!-- Liquid water beaker -->
+  <path d="M 220 130 L 220 200 Q 220 210 230 210 L 310 210 Q 320 210 320 200 L 320 130" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="2"/>
+  <g fill="#2b6cb0" stroke="#1a202c" stroke-width="0.8">
+    <circle cx="240" cy="170" r="5"/><circle cx="262" cy="180" r="5"/><circle cx="285" cy="172" r="5"/><circle cx="305" cy="184" r="5"/>
+    <circle cx="246" cy="195" r="5"/><circle cx="275" cy="195" r="5"/><circle cx="300" cy="200" r="5"/>
+  </g>
+  <text x="270" y="234" font="10px system-ui" font-size="10" fill="#4a5568" text-anchor="middle">same H₂O molecules</text>
+
+  <text x="190" y="260" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#1e3a8a" text-anchor="middle">reversible · no new substance</text>
+
+  <!-- RIGHT: Chemical change -->
+  <rect x="370" y="50" width="320" height="220" rx="12" fill="#fee2e2" stroke="#dc2626" stroke-width="2" />
+  <text x="530" y="74" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#991b1b" text-anchor="middle">Chemical Change</text>
+  <text x="530" y="92" font="10px system-ui" font-size="10" fill="#991b1b" text-anchor="middle">new substances · bonds break and form</text>
+
+  <!-- Reactants: CH4 + 2 O2 -->
+  <text x="395" y="130" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c">CH₄</text>
+  <!-- methane molecule (C + 4H) -->
+  <circle cx="430" cy="160" r="11" fill="#1f2937" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="430" y="164" font="bold 9px system-ui" font-size="9" font-weight="700" fill="white" text-anchor="middle">C</text>
+  <circle cx="418" cy="148" r="5" fill="#fef3c7" stroke="#92400e" stroke-width="1"/>
+  <circle cx="442" cy="148" r="5" fill="#fef3c7" stroke="#92400e" stroke-width="1"/>
+  <circle cx="418" cy="172" r="5" fill="#fef3c7" stroke="#92400e" stroke-width="1"/>
+  <circle cx="442" cy="172" r="5" fill="#fef3c7" stroke="#92400e" stroke-width="1"/>
+
+  <text x="465" y="164" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c">+ 2 O₂</text>
+  <!-- O2 pair -->
+  <circle cx="510" cy="155" r="6" fill="#dc2626" stroke="#1a202c" stroke-width="1"/>
+  <circle cx="522" cy="155" r="6" fill="#dc2626" stroke="#1a202c" stroke-width="1"/>
+  <circle cx="510" cy="170" r="6" fill="#dc2626" stroke="#1a202c" stroke-width="1"/>
+  <circle cx="522" cy="170" r="6" fill="#dc2626" stroke="#1a202c" stroke-width="1"/>
+
+  <!-- Reaction arrow -->
+  <line x1="540" y1="162" x2="580" y2="162" stroke="#991b1b" stroke-width="2" marker-end="url(#pvc-arr-red)" />
+  <text x="560" y="154" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#991b1b" text-anchor="middle">burn</text>
+
+  <!-- Products: CO2 + 2 H2O -->
+  <text x="588" y="155" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c">CO₂</text>
+  <text x="588" y="172" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c">+ 2 H₂O</text>
+
+  <!-- Equation under reaction -->
+  <text x="530" y="220" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">CH₄ + 2 O₂  →  CO₂ + 2 H₂O</text>
+  <text x="530" y="240" font="10px system-ui" font-size="10" fill="#991b1b" text-anchor="middle">+ heat + light</text>
+
+  <text x="530" y="260" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#991b1b" text-anchor="middle">not easily reversible · new molecules formed</text>
+
+  <text x="360" y="300" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Test: did the molecules themselves change? Yes → chemical. No → physical.</text>
+
+  <defs>
+    <marker id="pvc-arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1e3a8a" />
+    </marker>
+    <marker id="pvc-arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#991b1b" />
+    </marker>
+  </defs>
+
+</svg>

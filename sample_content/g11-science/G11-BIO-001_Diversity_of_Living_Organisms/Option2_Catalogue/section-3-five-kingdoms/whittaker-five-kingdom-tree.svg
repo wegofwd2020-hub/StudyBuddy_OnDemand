@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 320" width="680" height="320" role="img" aria-label="Whittaker five-kingdom tree">
+  <title>Whittaker's five-kingdom tree</title>
+  <desc>A simplified tree showing how Whittaker's five kingdoms branch from common ancestral life. Monera sits at the base (prokaryotes); Protista branches above as the first eukaryote; from Protista, three multicellular lineages diverge — Fungi (heterotrophs, absorption), Plantae (autotrophs, photosynthesis), Animalia (heterotrophs, ingestion).</desc>
+
+  <text x="340" y="22" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Whittaker's Tree — How the Five Kingdoms Branch</text>
+  <text x="340" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Branching reflects nutrition mode: ingestion (Animalia), absorption (Fungi), photosynthesis (Plantae).</text>
+
+  <!-- Trunk: ancestor → Monera -->
+  <line x1="340" y1="280" x2="340" y2="245" stroke="#4a5568" stroke-width="3"/>
+  <text x="340" y="298" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">common ancestor</text>
+
+  <!-- Monera node -->
+  <rect x="290" y="220" width="100" height="36" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+  <text x="340" y="243" font-size="12" font-weight="700" fill="#7c3aed" text-anchor="middle">Monera</text>
+
+  <!-- Prokaryote → Eukaryote step -->
+  <line x1="340" y1="220" x2="340" y2="180" stroke="#4a5568" stroke-width="2"/>
+  <text x="350" y="202" font-size="9" fill="#4a5568">endosymbiosis</text>
+
+  <!-- Protista node -->
+  <rect x="290" y="155" width="100" height="36" rx="8" fill="#ccfbf1" stroke="#319795" stroke-width="2"/>
+  <text x="340" y="178" font-size="12" font-weight="700" fill="#319795" text-anchor="middle">Protista</text>
+
+  <!-- Three branches up from Protista -->
+  <path d="M 340 155 Q 340 130 180 110" fill="none" stroke="#4a5568" stroke-width="2"/>
+  <path d="M 340 155 Q 340 125 340 90" fill="none" stroke="#4a5568" stroke-width="2"/>
+  <path d="M 340 155 Q 340 130 500 110" fill="none" stroke="#4a5568" stroke-width="2"/>
+
+  <!-- Fungi -->
+  <rect x="120" y="74" width="120" height="40" rx="8" fill="#fed7aa" stroke="#b45309" stroke-width="2"/>
+  <text x="180" y="92" font-size="12" font-weight="700" fill="#b45309" text-anchor="middle">Fungi</text>
+  <text x="180" y="106" font-size="10" fill="#4a5568" text-anchor="middle">absorption</text>
+
+  <!-- Plantae -->
+  <rect x="280" y="54" width="120" height="40" rx="8" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="340" y="72" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">Plantae</text>
+  <text x="340" y="86" font-size="10" fill="#4a5568" text-anchor="middle">photosynthesis</text>
+
+  <!-- Animalia -->
+  <rect x="440" y="74" width="120" height="40" rx="8" fill="#dbeafe" stroke="#2b6cb0" stroke-width="2"/>
+  <text x="500" y="92" font-size="12" font-weight="700" fill="#2b6cb0" text-anchor="middle">Animalia</text>
+  <text x="500" y="106" font-size="10" fill="#4a5568" text-anchor="middle">ingestion</text>
+
+  <!-- Vertical timeline arrow on left -->
+  <line x1="50" y1="60" x2="50" y2="290" stroke="#1a202c" stroke-width="1.5"/>
+  <path d="M 50 60 L 46 70 L 54 70 Z" fill="#1a202c"/>
+  <text x="40" y="68" font-size="10" font-weight="700" fill="#1a202c" text-anchor="end">complexity</text>
+  <text x="44" y="155" font-size="10" fill="#4a5568" text-anchor="middle" transform="rotate(-90 44 155)">multicellular eukaryotes</text>
+  <text x="44" y="240" font-size="10" fill="#4a5568" text-anchor="middle" transform="rotate(-90 44 240)">prokaryotes</text>
+</svg>

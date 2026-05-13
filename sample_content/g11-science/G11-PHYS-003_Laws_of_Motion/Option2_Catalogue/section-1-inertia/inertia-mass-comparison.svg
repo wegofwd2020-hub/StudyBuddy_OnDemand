@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 280" width="560" height="280" role="img" aria-label="Inertia depends on mass — bigger mass resists changes in motion more">
+  <title>Inertia depends on mass</title>
+  <desc>Two blocks, a small 1 kg block and a large 5 kg block, each with the same applied force. The 1 kg block accelerates faster, illustrating that mass measures inertia.</desc>
+
+  <defs>
+    <marker id="arr-fa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2b6cb0" />
+    </marker>
+    <marker id="arr-aa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#15803d" />
+    </marker>
+  </defs>
+
+  <text x="280" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Inertia = resistance to a change in motion (measured by mass)</text>
+
+  <!-- Left scenario: light block -->
+  <g transform="translate(20, 50)">
+    <rect x="0" y="0" width="240" height="190" rx="8" fill="#f7fafc" stroke="#e2e8f0" />
+    <text x="120" y="22" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">Small mass</text>
+
+    <!-- Ground -->
+    <line x1="20" y1="140" x2="220" y2="140" stroke="#1a202c" stroke-width="1.2" />
+
+    <!-- Block (small) -->
+    <rect x="100" y="108" width="32" height="32" rx="3" fill="#bee3f8" stroke="#1a202c" stroke-width="1.5" />
+    <text x="116" y="129" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">1 kg</text>
+
+    <!-- Applied F -->
+    <line x1="60" y1="124" x2="98" y2="124" stroke="#2b6cb0" stroke-width="3" marker-end="url(#arr-fa)" />
+    <text x="78" y="116" font="12px system-ui" font-size="12" font-weight="700" fill="#2b6cb0" text-anchor="middle">F = 10 N</text>
+
+    <!-- Resulting a (big) -->
+    <line x1="135" y1="80" x2="215" y2="80" stroke="#15803d" stroke-width="3.5" marker-end="url(#arr-aa)" />
+    <text x="175" y="72" font="12px system-ui" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">a = 10 m/s²</text>
+
+    <text x="120" y="170" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Less inertia → larger acceleration</text>
+  </g>
+
+  <!-- Right scenario: heavy block -->
+  <g transform="translate(300, 50)">
+    <rect x="0" y="0" width="240" height="190" rx="8" fill="#f7fafc" stroke="#e2e8f0" />
+    <text x="120" y="22" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#dd6b20" text-anchor="middle">Large mass</text>
+
+    <!-- Ground -->
+    <line x1="20" y1="140" x2="220" y2="140" stroke="#1a202c" stroke-width="1.2" />
+
+    <!-- Block (big) -->
+    <rect x="92" y="80" width="60" height="60" rx="4" fill="#fed7aa" stroke="#1a202c" stroke-width="1.5" />
+    <text x="122" y="115" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">5 kg</text>
+
+    <!-- Applied F (same) -->
+    <line x1="50" y1="110" x2="90" y2="110" stroke="#2b6cb0" stroke-width="3" marker-end="url(#arr-fa)" />
+    <text x="70" y="102" font="12px system-ui" font-size="12" font-weight="700" fill="#2b6cb0" text-anchor="middle">F = 10 N</text>
+
+    <!-- Resulting a (small) -->
+    <line x1="155" y1="60" x2="175" y2="60" stroke="#15803d" stroke-width="3.5" marker-end="url(#arr-aa)" />
+    <text x="190" y="63" font="12px system-ui" font-size="12" font-weight="700" fill="#15803d">a = 2 m/s²</text>
+
+    <text x="120" y="170" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">More inertia → smaller acceleration</text>
+  </g>
+
+  <text x="280" y="265" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Same push, different masses: a ∝ 1/m at fixed F. Mass is the quantitative measure of inertia.</text>
+</svg>

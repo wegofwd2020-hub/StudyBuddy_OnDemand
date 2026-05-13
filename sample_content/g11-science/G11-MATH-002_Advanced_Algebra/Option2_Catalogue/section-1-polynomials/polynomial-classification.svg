@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" role="img" aria-label="Polynomial classification by degree and leading coefficient">
+  <title>Polynomial Classification</title>
+  <desc>Five mini-graphs showing constant, linear, quadratic, cubic, and quartic polynomials with end behaviour annotations.</desc>
+
+  <defs>
+    <style>
+      .panel { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1; }
+      .axis  { stroke: #94a3b8; stroke-width: 1; }
+      .curve { fill: none; stroke-width: 2.5; stroke-linecap: round; }
+      .name  { font: bold 13px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .eq    { font: italic 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .deg   { font: 10px system-ui, sans-serif; fill: #6b46c1; text-anchor: middle; font-weight: 600; }
+      .heading { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <text class="heading" x="320" y="22">Polynomials by Degree (with leading coefficient sign)</text>
+
+  <!-- Panel 1: Constant -->
+  <g transform="translate(20, 50)">
+    <rect class="panel" x="0" y="0" width="115" height="180" rx="4"/>
+    <line class="axis" x1="10"  y1="100" x2="105" y2="100"/>
+    <line class="axis" x1="58"  y1="20"  x2="58"  y2="170"/>
+    <line class="curve" x1="15" y1="70" x2="100" y2="70" stroke="#dd6b20"/>
+    <text class="deg" x="58" y="40">degree 0</text>
+    <text class="name" x="58" y="200">Constant</text>
+    <text class="eq"   x="58" y="216">f(x) = 3</text>
+  </g>
+
+  <!-- Panel 2: Linear -->
+  <g transform="translate(145, 50)">
+    <rect class="panel" x="0" y="0" width="115" height="180" rx="4"/>
+    <line class="axis" x1="10"  y1="100" x2="105" y2="100"/>
+    <line class="axis" x1="58"  y1="20"  x2="58"  y2="170"/>
+    <line class="curve" x1="15" y1="160" x2="100" y2="40" stroke="#2b6cb0"/>
+    <text class="deg" x="58" y="40">degree 1, a&gt;0</text>
+    <text class="name" x="58" y="200">Linear</text>
+    <text class="eq"   x="58" y="216">f(x) = 2x + 1</text>
+  </g>
+
+  <!-- Panel 3: Quadratic -->
+  <g transform="translate(270, 50)">
+    <rect class="panel" x="0" y="0" width="115" height="180" rx="4"/>
+    <line class="axis" x1="10"  y1="100" x2="105" y2="100"/>
+    <line class="axis" x1="58"  y1="20"  x2="58"  y2="170"/>
+    <path class="curve" d="M 15 35 Q 58 175, 100 35" stroke="#2f855a"/>
+    <text class="deg" x="58" y="40">degree 2, a&gt;0</text>
+    <text class="name" x="58" y="200">Quadratic</text>
+    <text class="eq"   x="58" y="216">f(x) = x² − 4</text>
+  </g>
+
+  <!-- Panel 4: Cubic -->
+  <g transform="translate(395, 50)">
+    <rect class="panel" x="0" y="0" width="115" height="180" rx="4"/>
+    <line class="axis" x1="10"  y1="100" x2="105" y2="100"/>
+    <line class="axis" x1="58"  y1="20"  x2="58"  y2="170"/>
+    <path class="curve" d="M 15 165 C 35 165, 50 30, 58 100 C 66 170, 85 35, 100 35" stroke="#6b46c1"/>
+    <text class="deg" x="58" y="40">degree 3, a&gt;0</text>
+    <text class="name" x="58" y="200">Cubic</text>
+    <text class="eq"   x="58" y="216">f(x) = x³ − 3x</text>
+  </g>
+
+  <!-- Panel 5: Quartic -->
+  <g transform="translate(520, 50)">
+    <rect class="panel" x="0" y="0" width="115" height="180" rx="4"/>
+    <line class="axis" x1="10"  y1="100" x2="105" y2="100"/>
+    <line class="axis" x1="58"  y1="20"  x2="58"  y2="170"/>
+    <path class="curve" d="M 15 35 C 30 165, 45 90, 58 130 C 70 165, 85 90, 100 35" stroke="#c05621"/>
+    <text class="deg" x="58" y="40">degree 4, a&gt;0</text>
+    <text class="name" x="58" y="200">Quartic</text>
+    <text class="eq"   x="58" y="216">f(x) = x⁴ − 5x² + 4</text>
+  </g>
+
+  <!-- End-behaviour summary table -->
+  <g transform="translate(20, 270)">
+    <rect x="0" y="0" width="600" height="74" rx="6" fill="#fffaf0" stroke="#dd6b20" stroke-width="1"/>
+    <text x="300" y="20" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">End behaviour determined by leading term aₙxⁿ</text>
+    <text x="20"  y="42" font="11px system-ui" font-size="11" fill="#1a202c"><tspan font-weight="600">Even degree, a&gt;0:</tspan> both ends → +∞</text>
+    <text x="20"  y="58" font="11px system-ui" font-size="11" fill="#1a202c"><tspan font-weight="600">Even degree, a&lt;0:</tspan> both ends → −∞</text>
+    <text x="320" y="42" font="11px system-ui" font-size="11" fill="#1a202c"><tspan font-weight="600">Odd degree, a&gt;0:</tspan> left → −∞, right → +∞</text>
+    <text x="320" y="58" font="11px system-ui" font-size="11" fill="#1a202c"><tspan font-weight="600">Odd degree, a&lt;0:</tspan> left → +∞, right → −∞</text>
+  </g>
+</svg>

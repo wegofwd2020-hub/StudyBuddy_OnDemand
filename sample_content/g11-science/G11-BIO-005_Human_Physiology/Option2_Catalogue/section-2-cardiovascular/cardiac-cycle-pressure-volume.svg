@@ -1,0 +1,153 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 500" width="760" height="500" role="img" aria-label="Left-ventricle pressure-volume loop across the cardiac cycle">
+  <title>Cardiac cycle — pressure-volume loop of the left ventricle</title>
+  <desc>The Wiggers-style pressure–volume loop for the left ventricle. The horizontal axis shows ventricular volume from end-systolic (~50 mL) to end-diastolic (~120 mL); the vertical axis shows ventricular pressure from 0 up to ~120 mmHg. The cycle traces a closed counter-clockwise loop with four phases: (1) isovolumetric contraction — pressure rises sharply with no volume change because both valves are closed; (2) ejection — aortic valve opens, blood is pumped out, volume falls while pressure briefly rises then falls; (3) isovolumetric relaxation — pressure plummets at constant volume after the aortic valve shuts; (4) filling — mitral valve opens, blood pours in from the left atrium, volume rises along the diastolic-compliance curve. Stroke volume is the horizontal width of the loop (~70 mL); the area enclosed by the loop is the stroke work done by the left ventricle in one beat.</desc>
+
+  <text x="380" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Left-Ventricle Pressure–Volume Loop — One Heartbeat</text>
+  <text x="380" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Four phases · counter-clockwise · loop area = stroke work · loop width = stroke volume</text>
+
+  <!-- Background -->
+  <rect x="20" y="56" width="720" height="424" rx="14" fill="#f7fafc" stroke="#cbd5e1" stroke-width="1"/>
+
+  <!-- ── Plot area ───────────────────────────────────────────── -->
+  <!-- Plot box: x = 110..560, y = 90..400  (volume 0..160 mL across 450 px → 2.8125 px/mL; pressure 0..140 across 310 px → 2.214 px/mmHg) -->
+
+  <!-- Y-axis (pressure) -->
+  <line x1="110" y1="90" x2="110" y2="400" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="60" y="240" font-size="11" font-weight="700" fill="#1a202c" transform="rotate(-90 60 240)" text-anchor="middle">Left-ventricular pressure (mmHg)</text>
+  <!-- Y ticks every 20 mmHg → 0,20,40,...140 -->
+  <g font-size="10" fill="#4a5568" text-anchor="end">
+    <line x1="106" y1="400" x2="110" y2="400" stroke="#1a202c" stroke-width="1"/><text x="100" y="404">0</text>
+    <line x1="106" y1="356" x2="110" y2="356" stroke="#1a202c" stroke-width="1"/><text x="100" y="360">20</text>
+    <line x1="106" y1="311" x2="110" y2="311" stroke="#1a202c" stroke-width="1"/><text x="100" y="315">40</text>
+    <line x1="106" y1="267" x2="110" y2="267" stroke="#1a202c" stroke-width="1"/><text x="100" y="271">60</text>
+    <line x1="106" y1="223" x2="110" y2="223" stroke="#1a202c" stroke-width="1"/><text x="100" y="227">80</text>
+    <line x1="106" y1="178" x2="110" y2="178" stroke="#1a202c" stroke-width="1"/><text x="100" y="182">100</text>
+    <line x1="106" y1="134" x2="110" y2="134" stroke="#1a202c" stroke-width="1"/><text x="100" y="138">120</text>
+    <line x1="106" y1="90"  x2="110" y2="90"  stroke="#1a202c" stroke-width="1"/><text x="100" y="94">140</text>
+  </g>
+
+  <!-- X-axis (volume) -->
+  <line x1="110" y1="400" x2="560" y2="400" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="335" y="442" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Left-ventricular volume (mL)</text>
+  <!-- X ticks every 20 mL → 0,20,40,...160 -->
+  <g font-size="10" fill="#4a5568" text-anchor="middle">
+    <line x1="110" y1="400" x2="110" y2="404" stroke="#1a202c" stroke-width="1"/><text x="110" y="416">0</text>
+    <line x1="166" y1="400" x2="166" y2="404" stroke="#1a202c" stroke-width="1"/><text x="166" y="416">20</text>
+    <line x1="222" y1="400" x2="222" y2="404" stroke="#1a202c" stroke-width="1"/><text x="222" y="416">40</text>
+    <line x1="279" y1="400" x2="279" y2="404" stroke="#1a202c" stroke-width="1"/><text x="279" y="416">60</text>
+    <line x1="335" y1="400" x2="335" y2="404" stroke="#1a202c" stroke-width="1"/><text x="335" y="416">80</text>
+    <line x1="391" y1="400" x2="391" y2="404" stroke="#1a202c" stroke-width="1"/><text x="391" y="416">100</text>
+    <line x1="448" y1="400" x2="448" y2="404" stroke="#1a202c" stroke-width="1"/><text x="448" y="416">120</text>
+    <line x1="504" y1="400" x2="504" y2="404" stroke="#1a202c" stroke-width="1"/><text x="504" y="416">140</text>
+    <line x1="560" y1="400" x2="560" y2="404" stroke="#1a202c" stroke-width="1"/><text x="560" y="416">160</text>
+  </g>
+
+  <!-- Faint gridlines -->
+  <g stroke="#e2e8f0" stroke-width="1">
+    <line x1="166" y1="90" x2="166" y2="400"/>
+    <line x1="222" y1="90" x2="222" y2="400"/>
+    <line x1="279" y1="90" x2="279" y2="400"/>
+    <line x1="335" y1="90" x2="335" y2="400"/>
+    <line x1="391" y1="90" x2="391" y2="400"/>
+    <line x1="448" y1="90" x2="448" y2="400"/>
+    <line x1="504" y1="90" x2="504" y2="400"/>
+    <line x1="110" y1="356" x2="560" y2="356"/>
+    <line x1="110" y1="311" x2="560" y2="311"/>
+    <line x1="110" y1="267" x2="560" y2="267"/>
+    <line x1="110" y1="223" x2="560" y2="223"/>
+    <line x1="110" y1="178" x2="560" y2="178"/>
+    <line x1="110" y1="134" x2="560" y2="134"/>
+  </g>
+
+  <!-- ── Loop ───────────────────────────────────────────────── -->
+  <!-- Approximate normal: ESV 50 mL (x=250) at end-systolic P~10 (y=378); EDV 120 mL (x=448) at end-dia P~10 (y=378); peak LV P ~120 (y=134) -->
+  <!-- Phase A: filling — from (250,378) along compliance curve up to (448,378) — gentle rise then flat -->
+  <!-- Phase B: isovolumetric contraction — vertical from (448,378) up to (448,196) (~80 mmHg, mitral closed, aortic still closed) -->
+  <!-- Phase C: ejection — from (448,196) up-left then down-left through aortic-valve-open arc to (250,209) — peak around (380,134) -->
+  <!-- Phase D: isovolumetric relaxation — vertical drop from (250,209) to (250,378) -->
+
+  <!-- Loop fill (light wash) -->
+  <path d="M 250 378
+           Q 350 374 448 378
+           L 448 196
+           Q 420 134 380 134
+           Q 320 152 250 209
+           Z"
+        fill="rgba(220,38,38,0.08)" stroke="none"/>
+
+  <!-- Phase A — filling -->
+  <path d="M 250 378 Q 350 374 448 378" fill="none" stroke="#2b6cb0" stroke-width="3"/>
+  <!-- arrow midway, pointing right -->
+  <polygon points="346,372 358,375 346,378" fill="#2b6cb0"/>
+
+  <!-- Phase B — isovolumetric contraction (vertical up) -->
+  <line x1="448" y1="378" x2="448" y2="196" stroke="#7c3aed" stroke-width="3"/>
+  <polygon points="444,210 448,200 452,210" fill="#7c3aed"/>
+
+  <!-- Phase C — ejection (curved up-left, peak then down-left) -->
+  <path d="M 448 196 Q 420 134 380 134 Q 320 152 250 209" fill="none" stroke="#dc2626" stroke-width="3"/>
+  <polygon points="332,144 320,150 332,156" fill="#dc2626"/>
+
+  <!-- Phase D — isovolumetric relaxation (vertical down) -->
+  <line x1="250" y1="209" x2="250" y2="378" stroke="#15803d" stroke-width="3"/>
+  <polygon points="246,360 250,372 254,360" fill="#15803d"/>
+
+  <!-- Valve-event dots -->
+  <circle cx="448" cy="378" r="5" fill="#1a202c"/>
+  <text x="456" y="378" font-size="10" fill="#1a202c">mitral closes (S₁)</text>
+  <circle cx="448" cy="196" r="5" fill="#1a202c"/>
+  <text x="456" y="200" font-size="10" fill="#1a202c">aortic opens</text>
+  <circle cx="250" cy="209" r="5" fill="#1a202c"/>
+  <text x="124" y="206" font-size="10" fill="#1a202c">aortic closes (S₂)</text>
+  <circle cx="250" cy="378" r="5" fill="#1a202c"/>
+  <text x="124" y="394" font-size="10" fill="#1a202c">mitral opens</text>
+
+  <!-- Stroke volume annotation -->
+  <line x1="250" y1="430" x2="448" y2="430" stroke="#4a5568" stroke-width="1"/>
+  <line x1="250" y1="426" x2="250" y2="434" stroke="#4a5568" stroke-width="1"/>
+  <line x1="448" y1="426" x2="448" y2="434" stroke="#4a5568" stroke-width="1"/>
+  <text x="349" y="446" font-size="10" font-weight="700" fill="#4a5568" text-anchor="middle">Stroke Volume ≈ 70 mL</text>
+
+  <!-- ESV/EDV labels -->
+  <text x="250" y="394" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">ESV 50</text>
+  <text x="448" y="394" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">EDV 120</text>
+
+  <!-- ── Right side legend ────────────────────────────────────── -->
+  <rect x="580" y="90" width="158" height="380" rx="8" fill="#fff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="592" y="108" font-size="11" font-weight="700" fill="#1a202c">Four phases (CCW)</text>
+
+  <line x1="592" y1="124" x2="608" y2="124" stroke="#2b6cb0" stroke-width="3"/>
+  <text x="612" y="128" font-size="10" font-weight="700" fill="#1e3a8a">A · Filling</text>
+  <text x="592" y="142" font-size="9" fill="#4a5568">mitral open · LV fills</text>
+  <text x="592" y="154" font-size="9" fill="#4a5568">passive then atrial kick</text>
+
+  <line x1="592" y1="172" x2="608" y2="172" stroke="#7c3aed" stroke-width="3"/>
+  <text x="612" y="176" font-size="10" font-weight="700" fill="#581c87">B · Iso-volumic contraction</text>
+  <text x="592" y="190" font-size="9" fill="#4a5568">both valves shut · P rises</text>
+  <text x="592" y="202" font-size="9" fill="#4a5568">no volume change</text>
+
+  <line x1="592" y1="220" x2="608" y2="220" stroke="#dc2626" stroke-width="3"/>
+  <text x="612" y="224" font-size="10" font-weight="700" fill="#7f1d1d">C · Ejection</text>
+  <text x="592" y="238" font-size="9" fill="#4a5568">aortic open · blood out</text>
+  <text x="592" y="250" font-size="9" fill="#4a5568">P peaks ~120 mmHg</text>
+
+  <line x1="592" y1="268" x2="608" y2="268" stroke="#15803d" stroke-width="3"/>
+  <text x="612" y="272" font-size="10" font-weight="700" fill="#14532d">D · Iso-volumic relaxation</text>
+  <text x="592" y="286" font-size="9" fill="#4a5568">aortic shut · P drops</text>
+  <text x="592" y="298" font-size="9" fill="#4a5568">no volume change</text>
+
+  <line x1="592" y1="316" x2="730" y2="316" stroke="#cbd5e1" stroke-width="1"/>
+
+  <text x="592" y="332" font-size="10" font-weight="700" fill="#1a202c">Useful relationships</text>
+  <text x="592" y="350" font-size="9" fill="#4a5568">SV = EDV − ESV</text>
+  <text x="592" y="362" font-size="9" fill="#4a5568">EF = SV / EDV ≈ 60%</text>
+  <text x="592" y="374" font-size="9" fill="#4a5568">CO = HR × SV ≈ 5 L/min</text>
+  <text x="592" y="386" font-size="9" fill="#4a5568">Loop AREA = stroke work</text>
+
+  <line x1="592" y1="402" x2="730" y2="402" stroke="#cbd5e1" stroke-width="1"/>
+
+  <text x="592" y="418" font-size="10" font-weight="700" fill="#1a202c">Pressure landmarks</text>
+  <text x="592" y="436" font-size="9" fill="#4a5568">peak LV ≈ 120 mmHg</text>
+  <text x="592" y="448" font-size="9" fill="#4a5568">aortic dia ≈ 80 mmHg</text>
+  <text x="592" y="460" font-size="9" fill="#4a5568">LV end-dia ≈ 8–12 mmHg</text>
+</svg>

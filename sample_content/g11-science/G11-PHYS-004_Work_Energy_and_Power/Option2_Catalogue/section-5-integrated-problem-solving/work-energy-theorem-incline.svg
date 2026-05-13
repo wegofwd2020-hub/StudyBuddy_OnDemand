@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360" role="img" aria-label="Work-energy theorem applied to a block sliding down an inclined plane with friction">
+  <title>Work-Energy Theorem on an Inclined Plane (with friction)</title>
+  <desc>A block of mass 5 kg slides down a frictional incline of length 4 m at angle 30°. Gravity does positive work along the slope; friction does negative work. The net work equals the change in kinetic energy: W_net = ΔKE = ½ m v_f². The bar chart on the right itemises the contributions: gravity adds 98 J, friction removes 17.0 J, leaving 81.0 J of kinetic energy at the bottom (v_f ≈ 5.7 m/s).</desc>
+
+  <defs>
+    <marker id="we5-arr-W" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626" />
+    </marker>
+    <marker id="we5-arr-f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dd6b20" />
+    </marker>
+    <marker id="we5-arr-N" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#319795" />
+    </marker>
+    <marker id="we5-arr-d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#7c3aed" />
+    </marker>
+  </defs>
+
+  <text x="300" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Work-Energy Theorem on an Incline:  W_net = ΔKE</text>
+  <text x="300" y="40" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">m = 5 kg, θ = 30°, slope length L = 4 m, μ_k = 0.10, starts from rest. (g = 9.8 m/s²)</text>
+
+  <!-- ─── Left half: incline diagram ─── -->
+  <!-- Incline triangle vertices: top (60, 100), bottom-right (350, 280), bottom-left (60, 280)
+       Angle at bottom-right = 30°. Hypotenuse 60→350 along slope.
+       Slope length px ≈ √((350-60)² + (280-100)²) = √(84100 + 32400) = √116500 ≈ 341 px
+       For θ=30°: opposite/adjacent = tan30 = 0.577, so for adjacent 290, opposite = 167.5.
+       Adjusted: top (60, 112.5), bottom-right (350, 280) → opposite=167.5, adjacent=290 → tan=0.578 → 30.03°. Good. -->
+  <path d="M 60 280 L 350 280 L 60 112.5 Z" fill="#fef9c3" stroke="#1a202c" stroke-width="1.6" />
+
+  <!-- Hatching the bottom -->
+  <g stroke="#94a3b8" stroke-width="1">
+    <line x1="80" y1="280" x2="72" y2="292" />
+    <line x1="120" y1="280" x2="112" y2="292" />
+    <line x1="160" y1="280" x2="152" y2="292" />
+    <line x1="200" y1="280" x2="192" y2="292" />
+    <line x1="240" y1="280" x2="232" y2="292" />
+    <line x1="280" y1="280" x2="272" y2="292" />
+    <line x1="320" y1="280" x2="312" y2="292" />
+  </g>
+
+  <!-- Angle marker θ at bottom-right -->
+  <path d="M 320 280 A 30 30 0 0 0 313.93 262.55" fill="none" stroke="#1a202c" stroke-width="1.2" />
+  <text x="306" y="272" font="13px system-ui" font-size="13" font-style="italic" fill="#1a202c" text-anchor="end">θ = 30°</text>
+
+  <!-- Block on slope at top region.  Slope unit vector from (60,112.5) to (350,280):
+       Δ=(290, 167.5), |Δ|=334.65; unit=(0.866, 0.5) (which is cos30, sin30).
+       Place block centre at (120, 147.21) (s=70 px down the slope).
+       Block dimensions 40×26, rotated 30°.  Use a polygon. Local axes:
+         e_along  = (0.866, 0.5)    (down-slope)
+         e_normal = (-0.5, 0.866)   (out of slope)
+       Center C = (120, 147.21). Half sizes: a/2 = 20 along, b/2 = 13 normal.
+       Corners:
+         TL = C + (-20)e_along + 13·e_normal       = (120 -17.32 -6.5, 147.21 -10 +11.26) = (96.18, 148.47)
+         TR = C +  20·e_along + 13·e_normal        = (120 +17.32 -6.5, 147.21 +10 +11.26) = (130.82, 168.47)
+         BR = C +  20·e_along + (-13)·e_normal     = (120 +17.32 +6.5, 147.21 +10 -11.26) = (143.82, 145.95)
+         BL = C + (-20)e_along + (-13)·e_normal    = (120 -17.32 +6.5, 147.21 -10 -11.26) = (109.18, 125.95)
+       Order TL → TR → BR → BL closing -->
+  <polygon points="96.18,148.47 130.82,168.47 143.82,145.95 109.18,125.95" fill="#bee3f8" stroke="#1a202c" stroke-width="1.6" />
+  <text x="120" y="151" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">m</text>
+
+  <!-- Forces from block centre (120, 147.21):
+       Weight mg downward (length 50): (120, 197.21)
+       Normal N out of slope (length 36): centre + 36·e_normal = (120 -18, 147.21 + 31.18) → wait normal up-out should be (−0.5, 0.866) but visually we need it pointing AWAY from slope (up-and-left) since slope goes up-left. The slope's "up-out" normal is in direction (−sin θ, −cos θ) = (−0.5, −0.866). Length 36 → tip = (120 − 18, 147.21 − 31.18) = (102, 116.03)
+       Friction up-slope (length 36): up-slope unit = (−cos θ, −sin θ) = (−0.866, −0.5). Tip = (120 − 31.18, 147.21 − 18) = (88.82, 129.21)
+       Displacement d down-slope (length 240, ending near bottom): start at block centre, end at C + 240·e_along = (120 + 207.85, 147.21 + 120) = (327.85, 267.21) -->
+  <line x1="120" y1="147.21" x2="120" y2="207.21" stroke="#dc2626" stroke-width="2.4" marker-end="url(#we5-arr-W)" />
+  <text x="135" y="200" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#dc2626">mg</text>
+
+  <line x1="120" y1="147.21" x2="102" y2="116.03" stroke="#319795" stroke-width="2.2" marker-end="url(#we5-arr-N)" />
+  <text x="92" y="108" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#319795">N</text>
+
+  <line x1="120" y1="147.21" x2="88.82" y2="129.21" stroke="#dd6b20" stroke-width="2.2" marker-end="url(#we5-arr-f)" />
+  <text x="78" y="138" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#dd6b20">f</text>
+
+  <!-- Displacement arrow d (along slope, drawn alongside the slope outside the block) -->
+  <line x1="80" y1="200" x2="296" y2="324.7" stroke="#7c3aed" stroke-width="2.4" marker-end="url(#we5-arr-d)" stroke-dasharray="5 4" />
+  <text x="200" y="312" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#7c3aed" text-anchor="middle" transform="rotate(30 200 312)">d = 4 m (down slope)</text>
+
+  <!-- ─── Right half: energy balance bars ─── -->
+  <g>
+    <text x="475" y="74" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Energy contributions</text>
+
+    <!-- Reference baseline at y = 230 (zero of energy axis) -->
+    <line x1="380" y1="230" x2="600" y2="230" stroke="#94a3b8" stroke-width="1.5" />
+    <text x="376" y="234" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">0</text>
+
+    <!-- y scale: 1 J → 1.42 px (so 100 J → 142 px) -->
+    <!-- W_grav = m g · h where h = L sin θ = 4·0.5 = 2 m → W_grav = 5·9.8·2 = 98 J  → bar above baseline 139 px (use 140) -->
+    <!-- N_force = m g cos θ = 5·9.8·0.866 = 42.43 N; f = μ_k N = 4.243 N; W_f = − f · d = −4.243·4 = −16.97 J ≈ −17 J → bar 24 px below baseline -->
+    <!-- ΔKE = 98 − 17 = 81 J → bar 115 px above baseline; v_f = √(2·81/5) ≈ 5.7 m/s -->
+
+    <!-- W_grav bar -->
+    <rect x="395" y="90" width="50" height="140" fill="#15803d" stroke="#1a202c" stroke-width="1" />
+    <text x="420" y="160" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">W_grav</text>
+    <text x="420" y="174" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">+98 J</text>
+    <text x="420" y="250" font="11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">gravity</text>
+
+    <!-- W_friction bar (negative, below baseline) -->
+    <rect x="465" y="230" width="50" height="24" fill="#dd6b20" stroke="#1a202c" stroke-width="1" />
+    <text x="490" y="246" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">−17 J</text>
+    <text x="490" y="270" font="11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">W_friction</text>
+
+    <!-- ΔKE bar -->
+    <rect x="535" y="115" width="50" height="115" fill="#2b6cb0" stroke="#1a202c" stroke-width="1" />
+    <text x="560" y="170" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">ΔKE</text>
+    <text x="560" y="184" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">81 J</text>
+    <text x="560" y="250" font="11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">net</text>
+
+    <!-- Equation card -->
+    <rect x="380" y="290" width="220" height="60" rx="6" fill="#f0fdf4" stroke="#15803d" stroke-width="1.2" />
+    <text x="490" y="308" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">W_net = W_grav + W_friction</text>
+    <text x="490" y="324" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle">= 98 − 17 = 81 J = ΔKE</text>
+    <text x="490" y="342" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#7c3aed" text-anchor="middle">v_f = √(2·81 / 5) ≈ 5.7 m/s</text>
+  </g>
+</svg>

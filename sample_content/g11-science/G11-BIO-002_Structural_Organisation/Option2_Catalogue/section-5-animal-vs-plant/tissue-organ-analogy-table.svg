@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 460" width="760" height="460" role="img" aria-label="Tissue and organ analogy table — animal vs plant">
+  <title>Tissue and organ analogy table — what's the plant equivalent?</title>
+  <desc>A reference table mapping animal tissues, organs, and systems to their plant equivalents. Six rows: covering tissue (animal: epithelial, plant: epidermis), supporting/connective tissue (animal: bone, cartilage, blood, plant: collenchyma, sclerenchyma, parenchyma), conducting tissue (animal: blood vessels, plant: xylem and phloem), dividing tissue (animal: stem cells in bone marrow and crypts, plant: meristems), gas-exchange surface (animal: lungs and alveoli, plant: leaves and stomata), and major organ (animal: heart, plant: leaf or root). Each row also lists the shared function and a one-line note on the structural similarity.</desc>
+
+  <text x="380" y="22" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Tissue + Organ Analogy — Animal ↔ Plant</text>
+  <text x="380" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Different vocabularies, same five jobs. Function maps cleanly between kingdoms.</text>
+
+  <!-- Header row -->
+  <rect x="40" y="60" width="180" height="36" fill="#1a202c"/>
+  <text x="130" y="82" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">Function</text>
+  <rect x="220" y="60" width="220" height="36" fill="#2b6cb0"/>
+  <text x="330" y="82" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">Animal example</text>
+  <rect x="440" y="60" width="220" height="36" fill="#15803d"/>
+  <text x="550" y="82" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">Plant equivalent</text>
+  <rect x="660" y="60" width="60" height="36" fill="#4a5568"/>
+  <text x="690" y="82" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">Note</text>
+
+  <!-- Row 1: Covering -->
+  <rect x="40" y="96" width="180" height="50" fill="#f1f5f9" stroke="#cbd5e1"/>
+  <text x="50" y="118" font-size="11" font-weight="700" fill="#1a202c">Covering surface</text>
+  <text x="50" y="134" font-size="9" font-style="italic" fill="#4a5568">protects + waterproofs</text>
+  <rect x="220" y="96" width="220" height="50" fill="#f7fafc" stroke="#cbd5e1"/>
+  <text x="230" y="118" font-size="11" fill="#2b6cb0">Epithelial tissue</text>
+  <text x="230" y="134" font-size="9" fill="#4a5568">skin, gut lining</text>
+  <rect x="440" y="96" width="220" height="50" fill="#f7fafc" stroke="#cbd5e1"/>
+  <text x="450" y="118" font-size="11" fill="#15803d">Epidermis (+ cuticle)</text>
+  <text x="450" y="134" font-size="9" fill="#4a5568">on leaves, stems, roots</text>
+  <rect x="660" y="96" width="60" height="50" fill="#f7fafc" stroke="#cbd5e1"/>
+  <text x="690" y="120" font-size="9" fill="#4a5568" text-anchor="middle">single-</text>
+  <text x="690" y="132" font-size="9" fill="#4a5568" text-anchor="middle">cell layer</text>
+
+  <!-- Row 2: Support / connective -->
+  <rect x="40" y="146" width="180" height="50" fill="#f1f5f9" stroke="#cbd5e1"/>
+  <text x="50" y="168" font-size="11" font-weight="700" fill="#1a202c">Support + filler</text>
+  <text x="50" y="184" font-size="9" font-style="italic" fill="#4a5568">structure + storage</text>
+  <rect x="220" y="146" width="220" height="50" fill="#f7fafc" stroke="#cbd5e1"/>
+  <text x="230" y="168" font-size="11" fill="#2b6cb0">Connective tissue</text>
+  <text x="230" y="184" font-size="9" fill="#4a5568">bone, cartilage, blood</text>
+  <rect x="440" y="146" width="220" height="50" fill="#f7fafc" stroke="#cbd5e1"/>
+  <text x="450" y="168" font-size="11" fill="#15803d">Ground tissues</text>
+  <text x="450" y="184" font-size="9" fill="#4a5568">parenchyma + collenchyma + sclerenchyma</text>
+  <rect x="660" y="146" width="60" height="50" fill="#f7fafc" stroke="#cbd5e1"/>
+  <text x="690" y="170" font-size="9" fill="#4a5568" text-anchor="middle">cells in</text>
+  <text x="690" y="182" font-size="9" fill="#4a5568" text-anchor="middle">a matrix</text>
+
+  <!-- Row 3: Transport -->
+  <rect x="40" y="196" width="180" height="50" fill="#f1f5f9" stroke="#cbd5e1"/>
+  <text x="50" y="218" font-size="11" font-weight="700" fill="#1a202c">Transport tubes</text>
+  <text x="50" y="234" font-size="9" font-style="italic" fill="#4a5568">move stuff body-wide</text>
+  <rect x="220" y="196" width="220" height="50" fill="#f7fafc" stroke="#cbd5e1"/>
+  <text x="230" y="218" font-size="11" fill="#2b6cb0">Blood vessels</text>
+  <text x="230" y="234" font-size="9" fill="#4a5568">arteries · veins · capillaries</text>
+  <rect x="440" y="196" width="220" height="50" fill="#f7fafc" stroke="#cbd5e1"/>
+  <text x="450" y="218" font-size="11" fill="#15803d">Vascular tissue</text>
+  <text x="450" y="234" font-size="9" fill="#4a5568">xylem (water) + phloem (sugar)</text>
+  <rect x="660" y="196" width="60" height="50" fill="#f7fafc" stroke="#cbd5e1"/>
+  <text x="690" y="220" font-size="9" fill="#4a5568" text-anchor="middle">tubular</text>
+  <text x="690" y="232" font-size="9" fill="#4a5568" text-anchor="middle">cells</text>
+
+  <!-- Row 4: Dividing / stem-cell -->
+  <rect x="40" y="246" width="180" height="50" fill="#f1f5f9" stroke="#cbd5e1"/>
+  <text x="50" y="268" font-size="11" font-weight="700" fill="#1a202c">Dividing zones</text>
+  <text x="50" y="284" font-size="9" font-style="italic" fill="#4a5568">growth + repair</text>
+  <rect x="220" y="246" width="220" height="50" fill="#f7fafc" stroke="#cbd5e1"/>
+  <text x="230" y="268" font-size="11" fill="#2b6cb0">Stem-cell niches</text>
+  <text x="230" y="284" font-size="9" fill="#4a5568">bone marrow, gut crypts, basal skin</text>
+  <rect x="440" y="246" width="220" height="50" fill="#f7fafc" stroke="#cbd5e1"/>
+  <text x="450" y="268" font-size="11" fill="#15803d">Meristems</text>
+  <text x="450" y="284" font-size="9" fill="#4a5568">apical · lateral · intercalary</text>
+  <rect x="660" y="246" width="60" height="50" fill="#f7fafc" stroke="#cbd5e1"/>
+  <text x="690" y="270" font-size="9" fill="#4a5568" text-anchor="middle">small,</text>
+  <text x="690" y="282" font-size="9" fill="#4a5568" text-anchor="middle">undiff.</text>
+
+  <!-- Row 5: Gas exchange -->
+  <rect x="40" y="296" width="180" height="50" fill="#f1f5f9" stroke="#cbd5e1"/>
+  <text x="50" y="318" font-size="11" font-weight="700" fill="#1a202c">Gas exchange</text>
+  <text x="50" y="334" font-size="9" font-style="italic" fill="#4a5568">CO₂ ↔ O₂</text>
+  <rect x="220" y="296" width="220" height="50" fill="#f7fafc" stroke="#cbd5e1"/>
+  <text x="230" y="318" font-size="11" fill="#2b6cb0">Lungs + alveoli</text>
+  <text x="230" y="334" font-size="9" fill="#4a5568">thin moist surface, huge area</text>
+  <rect x="440" y="296" width="220" height="50" fill="#f7fafc" stroke="#cbd5e1"/>
+  <text x="450" y="318" font-size="11" fill="#15803d">Leaves + stomata</text>
+  <text x="450" y="334" font-size="9" fill="#4a5568">spongy mesophyll + guard-cell pores</text>
+  <rect x="660" y="296" width="60" height="50" fill="#f7fafc" stroke="#cbd5e1"/>
+  <text x="690" y="320" font-size="9" fill="#4a5568" text-anchor="middle">large air-</text>
+  <text x="690" y="332" font-size="9" fill="#4a5568" text-anchor="middle">cell area</text>
+
+  <!-- Row 6: Major organ -->
+  <rect x="40" y="346" width="180" height="50" fill="#f1f5f9" stroke="#cbd5e1"/>
+  <text x="50" y="368" font-size="11" font-weight="700" fill="#1a202c">Major organ</text>
+  <text x="50" y="384" font-size="9" font-style="italic" fill="#4a5568">runs one body-wide job</text>
+  <rect x="220" y="346" width="220" height="50" fill="#f7fafc" stroke="#cbd5e1"/>
+  <text x="230" y="368" font-size="11" fill="#2b6cb0">Heart (pumping)</text>
+  <text x="230" y="384" font-size="9" fill="#4a5568">muscle + valves + nerves</text>
+  <rect x="440" y="346" width="220" height="50" fill="#f7fafc" stroke="#cbd5e1"/>
+  <text x="450" y="368" font-size="11" fill="#15803d">Leaf (photosynthesis)</text>
+  <text x="450" y="384" font-size="9" fill="#4a5568">epidermis + mesophyll + vein + stomata</text>
+  <rect x="660" y="346" width="60" height="50" fill="#f7fafc" stroke="#cbd5e1"/>
+  <text x="690" y="370" font-size="9" fill="#4a5568" text-anchor="middle">multi-</text>
+  <text x="690" y="382" font-size="9" fill="#4a5568" text-anchor="middle">tissue</text>
+
+  <text x="380" y="424" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Bottom line:</text>
+  <text x="380" y="440" font-size="11" fill="#4a5568" text-anchor="middle">Different evolutionary paths solved the same engineering problems.</text>
+  <text x="380" y="454" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">Cover. Support. Conduct. Divide. Exchange gases. Both kingdoms built tissues for each — but with different cells.</text>
+</svg>

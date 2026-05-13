@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" width="720" height="360" role="img" aria-label="Percent composition pie charts for water glucose and ammonium nitrate">
+  <title>Percent Composition by Mass — Three Common Compounds</title>
+  <desc>Three pie charts showing the percent composition by mass of water (H 11.2 percent, O 88.8 percent), glucose (C 40 percent, H 6.7 percent, O 53.3 percent), and ammonium nitrate (N 35 percent, H 5 percent, O 60 percent). Each compound's molar mass is shown beneath its pie.</desc>
+
+  <text x="360" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Percent Composition by Mass</text>
+  <text x="360" y="40" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">% mass of element  =  (n × M(element) / M(compound)) × 100   ·   pies show the share each element contributes</text>
+
+  <!-- Pie 1: H2O — H 11.2%, O 88.8% -->
+  <!-- Centre (140, 150), r=70. Total=360deg. H slice = 11.2% = 40.32deg, O slice = 88.8% = 319.68deg. -->
+  <!-- Start at top (0deg = -90 in svg). -->
+  <!-- H arc: theta1=-90, theta2=-90+40.32=-49.68. -->
+  <!-- arc end = (140 + 70*cos(-49.68), 150 + 70*sin(-49.68)) = (140 + 45.27, 150 - 53.36) = (185.27, 96.64) -->
+  <g transform="translate(140, 165)">
+    <path d="M 0 0 L 0 -70 A 70 70 0 0 1 53.36 -45.27 Z" fill="#fef3c7" stroke="#92400e" stroke-width="2"/>
+    <path d="M 0 0 L 53.36 -45.27 A 70 70 0 1 1 0 -70 Z" fill="#dc2626" stroke="#1a202c" stroke-width="2"/>
+    <!-- center dot -->
+  </g>
+  <text x="140" y="78" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">H₂O  ·  Water</text>
+  <text x="140" y="270" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">M = 18.02 g/mol</text>
+  <!-- legend dots and labels -->
+  <rect x="60" y="290" width="14" height="14" fill="#fef3c7" stroke="#92400e" stroke-width="1.5"/>
+  <text x="80" y="302" font="11px system-ui" font-size="11" fill="#1a202c">H — 11.2%</text>
+  <rect x="60" y="312" width="14" height="14" fill="#dc2626" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="80" y="324" font="11px system-ui" font-size="11" fill="#1a202c">O — 88.8%</text>
+
+  <!-- Pie 2: Glucose C6H12O6 — C 40%, H 6.7%, O 53.3% -->
+  <!-- Centre (360, 165), r=70. Slices in degrees: C = 144, H = 24.12, O = 191.88 -->
+  <!-- C: -90 to 54  ·  end = (360 + 70cos54, 165 + 70sin54) = (360+41.14, 165+56.62) = (401.14, 221.62) -->
+  <!-- H: 54 to 78.12  ·  end = (360 + 70cos78.12, 165 + 70sin78.12) = (360+14.39, 165+68.50) = (374.39, 233.50) -->
+  <!-- O: 78.12 to 270 (rest). -->
+  <g transform="translate(360, 165)">
+    <!-- C slice (40%, large-arc=0) -->
+    <path d="M 0 0 L 0 -70 A 70 70 0 0 1 41.14 56.62 Z" fill="#1f2937" stroke="#1a202c" stroke-width="2"/>
+    <!-- H slice (6.7%, large-arc=0) -->
+    <path d="M 0 0 L 41.14 56.62 A 70 70 0 0 1 14.39 68.50 Z" fill="#fef3c7" stroke="#92400e" stroke-width="2"/>
+    <!-- O slice (53.3%, large-arc=1) -->
+    <path d="M 0 0 L 14.39 68.50 A 70 70 0 1 1 0 -70 Z" fill="#dc2626" stroke="#1a202c" stroke-width="2"/>
+  </g>
+  <text x="360" y="78" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">C₆H₁₂O₆  ·  Glucose</text>
+  <text x="360" y="270" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">M = 180.16 g/mol</text>
+  <rect x="280" y="282" width="14" height="14" fill="#1f2937" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="300" y="294" font="11px system-ui" font-size="11" fill="#1a202c">C — 40.0%</text>
+  <rect x="280" y="302" width="14" height="14" fill="#fef3c7" stroke="#92400e" stroke-width="1.5"/>
+  <text x="300" y="314" font="11px system-ui" font-size="11" fill="#1a202c">H — 6.7%</text>
+  <rect x="280" y="322" width="14" height="14" fill="#dc2626" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="300" y="334" font="11px system-ui" font-size="11" fill="#1a202c">O — 53.3%</text>
+
+  <!-- Pie 3: NH4NO3 — N 35%, H 5%, O 60% -->
+  <!-- Centre (580, 165), r=70. N=126deg, H=18deg, O=216deg -->
+  <!-- N: -90 to 36  ·  end = (580 + 70cos36, 165 + 70sin36) = (580+56.63, 165+41.14) = (636.63, 206.14) -->
+  <!-- H: 36 to 54  ·  end = (580 + 70cos54, 165 + 70sin54) = (580+41.14, 165+56.62) = (621.14, 221.62) -->
+  <!-- O: 54 to 270 -->
+  <g transform="translate(580, 165)">
+    <!-- N slice (35%, 126deg, large-arc=0) -->
+    <path d="M 0 0 L 0 -70 A 70 70 0 0 1 56.63 41.14 Z" fill="#15803d" stroke="#1a202c" stroke-width="2"/>
+    <!-- H slice (5%, 18deg, large-arc=0) -->
+    <path d="M 0 0 L 56.63 41.14 A 70 70 0 0 1 41.14 56.62 Z" fill="#fef3c7" stroke="#92400e" stroke-width="2"/>
+    <!-- O slice (60%, 216deg, large-arc=1) -->
+    <path d="M 0 0 L 41.14 56.62 A 70 70 0 1 1 0 -70 Z" fill="#dc2626" stroke="#1a202c" stroke-width="2"/>
+  </g>
+  <text x="580" y="78" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">NH₄NO₃  ·  Ammonium nitrate</text>
+  <text x="580" y="270" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">M = 80.04 g/mol</text>
+  <rect x="500" y="282" width="14" height="14" fill="#15803d" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="520" y="294" font="11px system-ui" font-size="11" fill="#1a202c">N — 35.0%</text>
+  <rect x="500" y="302" width="14" height="14" fill="#fef3c7" stroke="#92400e" stroke-width="1.5"/>
+  <text x="520" y="314" font="11px system-ui" font-size="11" fill="#1a202c">H — 5.0%</text>
+  <rect x="500" y="322" width="14" height="14" fill="#dc2626" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="520" y="334" font="11px system-ui" font-size="11" fill="#1a202c">O — 60.0%</text>
+
+</svg>

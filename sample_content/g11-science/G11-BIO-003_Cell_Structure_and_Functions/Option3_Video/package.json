@@ -1,0 +1,21 @@
+{
+  "name": "cell-bio-video",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "studio": "bunx remotion studio",
+    "render:cell-cycle-wheel": "bunx remotion render cell-bio-cell-cycle-wheel ~/Downloads/CellBio_CellCycleWheel.mp4",
+    "render:all": "bun run render:cell-cycle-wheel"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.260",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.260",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.0",
+    "typescript": "^5.4.0"
+  }
+}

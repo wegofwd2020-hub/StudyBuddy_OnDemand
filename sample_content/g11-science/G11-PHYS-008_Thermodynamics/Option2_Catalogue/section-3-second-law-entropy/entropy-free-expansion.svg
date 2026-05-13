@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 340" width="600" height="340" role="img" aria-label="Entropy increase during free expansion of a gas into vacuum">
+  <title>Entropy Increase — Free Expansion of a Gas</title>
+  <desc>Two boxes show a gas before and after a partition is removed. Before: gas occupies the left half, the right half is vacuum, entropy is S_i. After: the gas spreads to fill the whole container, entropy is S_f. The number of accessible microstates increases, so entropy increases. The reverse never happens spontaneously.</desc>
+
+  <text x="300" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Entropy Increase — Free Expansion</text>
+  <text x="300" y="40" font-size="12" font-style="italic" fill="#4a5568" text-anchor="middle">For an isolated system: ΔS ≥ 0  (ΔS = 0 only for reversible processes)</text>
+
+  <defs>
+    <marker id="ent-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#15803d" />
+    </marker>
+  </defs>
+
+  <!-- ============== BEFORE ============== -->
+  <text x="155" y="68" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Before — partition closed</text>
+
+  <rect x="50" y="80" width="210" height="130" fill="#f7fafc" stroke="#1a202c" stroke-width="2.5" />
+  <!-- Partition (down the middle) -->
+  <line x1="155" y1="80" x2="155" y2="210" stroke="#7c2d12" stroke-width="4" />
+
+  <!-- Gas only in left half -->
+  <rect x="52" y="82" width="101" height="126" fill="#bfdbfe" opacity="0.55" />
+
+  <!-- Gas molecules (left only) -->
+  <g fill="#1d4ed8">
+    <circle cx="70" cy="100" r="4" /><circle cx="92" cy="120" r="4" /><circle cx="115" cy="98" r="4" />
+    <circle cx="135" cy="135" r="4" /><circle cx="80" cy="155" r="4" /><circle cx="120" cy="170" r="4" />
+    <circle cx="138" cy="190" r="4" /><circle cx="100" cy="190" r="4" /><circle cx="68" cy="180" r="4" />
+    <circle cx="145" cy="105" r="4" />
+  </g>
+
+  <!-- Right side empty (vacuum) -->
+  <text x="207" y="148" font-size="11" font-weight="700" fill="#7c2d12" text-anchor="middle">vacuum</text>
+
+  <text x="155" y="232" font-size="11" font-weight="700" fill="#1d4ed8" text-anchor="middle">N molecules in volume V</text>
+  <text x="155" y="248" font-size="11" font-weight="700" fill="#1d4ed8" text-anchor="middle">microstates  Ω_i</text>
+
+  <!-- Arrow to the right (process) -->
+  <line x1="280" y1="145" x2="335" y2="145" stroke="#15803d" stroke-width="3" marker-end="url(#ent-arr)" />
+  <text x="307" y="135" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle">remove partition</text>
+  <text x="307" y="160" font-size="10" font-style="italic" fill="#15803d" text-anchor="middle">irreversible</text>
+
+  <!-- ============== AFTER ============== -->
+  <text x="455" y="68" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">After — partition removed</text>
+
+  <rect x="350" y="80" width="210" height="130" fill="#bfdbfe" stroke="#1a202c" stroke-width="2.5" opacity="0.55" />
+
+  <!-- Gas molecules (filling whole box) -->
+  <g fill="#1d4ed8">
+    <circle cx="368" cy="100" r="4" /><circle cx="392" cy="120" r="4" /><circle cx="415" cy="98" r="4" />
+    <circle cx="435" cy="135" r="4" /><circle cx="380" cy="155" r="4" /><circle cx="420" cy="170" r="4" />
+    <circle cx="438" cy="190" r="4" /><circle cx="400" cy="190" r="4" /><circle cx="368" cy="180" r="4" />
+    <circle cx="445" cy="105" r="4" />
+    <!-- Some now in the formerly empty side -->
+    <circle cx="475" cy="100" r="4" /><circle cx="500" cy="125" r="4" /><circle cx="525" cy="100" r="4" />
+    <circle cx="545" cy="140" r="4" /><circle cx="495" cy="170" r="4" /><circle cx="520" cy="190" r="4" />
+    <circle cx="475" cy="195" r="4" /><circle cx="540" cy="170" r="4" />
+  </g>
+
+  <text x="455" y="232" font-size="11" font-weight="700" fill="#1d4ed8" text-anchor="middle">N molecules in volume 2V</text>
+  <text x="455" y="248" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle">microstates  Ω_f &gt; Ω_i</text>
+
+  <!-- Boltzmann + change formula panel -->
+  <rect x="40" y="266" width="520" height="64" rx="6" fill="#f7fafc" stroke="#cbd5e1" />
+  <text x="50" y="284" font-size="12" font-weight="700" fill="#1a202c">Boltzmann's principle:</text>
+  <text x="184" y="284" font-size="13" font-weight="700" fill="#15803d">S = k_B  ln Ω</text>
+
+  <text x="50" y="306" font-size="11" fill="#1a202c">For free expansion of an ideal gas from V to 2V:</text>
+  <text x="280" y="306" font-size="13" font-weight="700" fill="#15803d">ΔS = N k_B ln 2  &gt;  0</text>
+
+  <text x="50" y="324" font-size="10" font-style="italic" fill="#7c2d12">Spontaneous, irreversible — gas never returns to one side on its own.  This is the arrow of time.</text>
+</svg>

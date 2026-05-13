@@ -1,0 +1,13 @@
+schema_version: 1
+id: physics-gravitation-escape-velocity-diagram
+kind: image
+subject: physics
+topic_phrase: "three projectile trajectories from a planet showing bound elliptical, parabolic escape, and hyperbolic above-escape orbits"
+keywords:
+  - gravitation
+  - escape-velocity
+  - bound-orbit
+  - parabolic-trajectory
+  - hyperbolic-trajectory
+license: platform-cc-by-sa
+source_unit: G11-PHYS-006

@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-advanced-algebra-nonlinear-system
+kind: image
+subject: math
+topic_phrase: "nonlinear system parabola intersects line at two points"
+keywords:
+  - nonlinear-system
+  - parabola
+  - line
+  - intersection
+  - quadratic
+license: platform-cc-by-sa
+source_unit: G11-MATH-002

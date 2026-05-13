@@ -1,0 +1,15 @@
+schema_version: 1
+id: chemistry-dipole-moment-hcl-water-co2
+kind: image
+subject: chemistry
+topic_phrase: "dipole moment polar nonpolar molecule hcl water carbon dioxide vector sum"
+keywords:
+  - dipole-moment
+  - polar
+  - nonpolar
+  - hydrogen-chloride
+  - water
+  - carbon-dioxide
+  - electronegativity
+license: platform-cc-by-sa
+source_unit: G11-CHEM-004

@@ -1,0 +1,14 @@
+# Auto-generated sidecar — edit alongside the SVG.
+schema_version: 1
+id: math-calculus-antiderivative-family
+kind: image
+subject: math
+topic_phrase: "family of antiderivatives differing by an additive constant of integration"
+keywords:
+  - antiderivative
+  - indefinite-integral
+  - constant-of-integration
+  - power-rule-integration
+  - vertical-translation
+license: platform-cc-by-sa
+source_unit: G11-MATH-004

@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-coordinate-geometry-midpoint-formula
+kind: image
+subject: math
+topic_phrase: "midpoint of a segment as the average of endpoint coordinates"
+keywords:
+  - midpoint
+  - segment
+  - average
+  - coordinate-geometry
+  - bisection
+license: platform-cc-by-sa
+source_unit: G11-MATH-003

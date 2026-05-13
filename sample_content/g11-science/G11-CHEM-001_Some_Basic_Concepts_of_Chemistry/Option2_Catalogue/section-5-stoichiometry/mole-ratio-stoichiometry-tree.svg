@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" width="720" height="360" role="img" aria-label="Stoichiometry conversion tree — grams to moles to particles">
+  <title>Stoichiometry Conversion Tree — Grams ↔ Moles ↔ Molecules ↔ Volume</title>
+  <desc>A central node "moles of substance A" links outward to four conversion routes: mass via molar mass, particles via Avogadro's number, gas volume at STP via 22.4 L/mol, and moles of substance B via the balanced-equation mole ratio.</desc>
+
+  <defs>
+    <marker id="st-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4a5568"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Stoichiometry Conversion Tree</text>
+  <text x="360" y="40" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Moles are the central currency. To compare or react substances, convert everything to moles first.</text>
+
+  <!-- Central hub: moles of A -->
+  <rect x="290" y="155" width="140" height="50" rx="14" fill="#fef3c7" stroke="#d97706" stroke-width="3"/>
+  <text x="360" y="178" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#92400e" text-anchor="middle">moles of A</text>
+  <text x="360" y="194" font="10px system-ui" font-size="10" fill="#92400e" text-anchor="middle">central currency</text>
+
+  <!-- North: mass -->
+  <rect x="290" y="60" width="140" height="50" rx="10" fill="#dbeafe" stroke="#2b6cb0" stroke-width="2"/>
+  <text x="360" y="82" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1e3a8a" text-anchor="middle">mass of A (g)</text>
+  <text x="360" y="100" font="10px system-ui" font-size="10" fill="#1e3a8a" text-anchor="middle">balance reading</text>
+  <line x1="360" y1="112" x2="360" y2="153" stroke="#4a5568" stroke-width="1.5" marker-end="url(#st-arr)"/>
+  <line x1="360" y1="153" x2="360" y2="112" stroke="#4a5568" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <rect x="436" y="120" width="146" height="22" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="1"/>
+  <text x="510" y="135" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">mass = mol × M</text>
+
+  <!-- East: particles -->
+  <rect x="510" y="180" width="170" height="50" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+  <text x="595" y="202" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#14532d" text-anchor="middle">particles of A</text>
+  <text x="595" y="220" font="10px system-ui" font-size="10" fill="#14532d" text-anchor="middle">atoms · molecules · ions</text>
+  <line x1="430" y1="180" x2="510" y2="200" stroke="#4a5568" stroke-width="1.5" marker-end="url(#st-arr)"/>
+  <line x1="510" y1="210" x2="430" y2="190" stroke="#4a5568" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <text x="510" y="170" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#15803d">× Nₐ</text>
+  <text x="510" y="248" font="9px system-ui" font-size="9" fill="#4a5568">Nₐ = 6.022 × 10²³</text>
+
+  <!-- South: volume gas -->
+  <rect x="290" y="280" width="140" height="50" rx="10" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+  <text x="360" y="302" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#991b1b" text-anchor="middle">volume (gas, STP)</text>
+  <text x="360" y="320" font="10px system-ui" font-size="10" fill="#991b1b" text-anchor="middle">L</text>
+  <line x1="360" y1="207" x2="360" y2="278" stroke="#4a5568" stroke-width="1.5" marker-end="url(#st-arr)"/>
+  <line x1="360" y1="278" x2="360" y2="207" stroke="#4a5568" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <rect x="436" y="245" width="170" height="22" rx="4" fill="#f7fafc" stroke="#4a5568" stroke-width="1"/>
+  <text x="521" y="260" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#991b1b" text-anchor="middle">V = mol × 22.4 L/mol</text>
+
+  <!-- West: moles of B (mole ratio) -->
+  <rect x="40" y="180" width="170" height="50" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+  <text x="125" y="202" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#5b21b6" text-anchor="middle">moles of B</text>
+  <text x="125" y="220" font="10px system-ui" font-size="10" fill="#5b21b6" text-anchor="middle">a different substance</text>
+  <line x1="290" y1="180" x2="210" y2="200" stroke="#4a5568" stroke-width="1.5" marker-end="url(#st-arr)"/>
+  <line x1="210" y1="210" x2="290" y2="190" stroke="#4a5568" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <text x="220" y="170" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#7c3aed">× mole ratio</text>
+  <text x="220" y="248" font="9px system-ui" font-size="9" fill="#4a5568">from balanced equation</text>
+
+  <!-- Worked equation example bottom -->
+  <text x="360" y="354" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Example: in  2 H₂ + O₂ → 2 H₂O,  the mole ratio H₂ : O₂ : H₂O is  2 : 1 : 2.</text>
+
+</svg>

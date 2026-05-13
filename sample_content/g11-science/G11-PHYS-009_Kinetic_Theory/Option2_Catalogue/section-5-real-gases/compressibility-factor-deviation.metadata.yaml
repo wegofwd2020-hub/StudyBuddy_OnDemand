@@ -1,0 +1,14 @@
+schema_version: 1
+id: physics-kinetic-theory-compressibility-factor-deviation
+kind: image
+subject: physics
+topic_phrase: "compressibility factor Z equals PV over nRT versus pressure for hydrogen helium nitrogen methane and carbon dioxide showing deviations from the ideal gas line at moderate to high pressures"
+keywords:
+  - real-gas
+  - compressibility-factor
+  - ideal-gas-deviation
+  - intermolecular-attraction
+  - molecular-volume
+  - pressure-dependence
+license: platform-cc-by-sa
+source_unit: G11-PHYS-009

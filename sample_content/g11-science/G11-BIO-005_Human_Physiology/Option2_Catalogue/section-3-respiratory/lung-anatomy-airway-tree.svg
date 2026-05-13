@@ -1,0 +1,172 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 520" width="760" height="520" role="img" aria-label="Human lung anatomy with airway tree and diaphragm">
+  <title>Lung anatomy — airway tree, alveoli, diaphragm</title>
+  <desc>An anterior-view schematic of the human respiratory tract. The trachea descends from the larynx and bifurcates at the carina into right and left main bronchi. The right lung shows three lobes (upper, middle, lower) and the left lung two (upper, lower) with a cardiac notch carved out for the heart. Each lobe is supplied by lobar bronchi that branch into segmental bronchi, then bronchioles and finally terminal bronchioles ending in clusters of alveoli — the gas-exchange surfaces. The dome-shaped diaphragm sits beneath both lungs; when it contracts and flattens, thoracic volume rises and air flows in. A magnified inset on the right shows a single alveolar cluster with surrounding pulmonary capillaries.</desc>
+
+  <text x="380" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Human Respiratory Tract — Trachea to Alveolus</text>
+  <text x="380" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Air travels through ~23 generations of branching airways before reaching ~480 million alveoli — the actual gas-exchange surfaces.</text>
+
+  <!-- Background -->
+  <rect x="20" y="56" width="720" height="444" rx="14" fill="#f7fafc" stroke="#cbd5e1" stroke-width="1"/>
+
+  <!-- Rib outline (faint) -->
+  <ellipse cx="280" cy="290" rx="220" ry="180" fill="none" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="6 5"/>
+
+  <!-- ── Trachea -->
+  <rect x="270" y="80" width="20" height="100" rx="3" fill="#dbeafe" stroke="#1e3a8a" stroke-width="2"/>
+  <!-- C-shaped cartilage rings -->
+  <g stroke="#1e3a8a" stroke-width="1" fill="none">
+    <line x1="270" y1="92" x2="290" y2="92"/>
+    <line x1="270" y1="104" x2="290" y2="104"/>
+    <line x1="270" y1="116" x2="290" y2="116"/>
+    <line x1="270" y1="128" x2="290" y2="128"/>
+    <line x1="270" y1="140" x2="290" y2="140"/>
+    <line x1="270" y1="152" x2="290" y2="152"/>
+    <line x1="270" y1="164" x2="290" y2="164"/>
+  </g>
+  <!-- Carina point -->
+  <circle cx="280" cy="180" r="4" fill="#1e3a8a"/>
+
+  <!-- Main bronchi: right (steeper, wider) and left (more horizontal, narrower) -->
+  <line x1="280" y1="180" x2="218" y2="218" stroke="#1e3a8a" stroke-width="9" stroke-linecap="round"/>
+  <line x1="280" y1="180" x2="346" y2="222" stroke="#1e3a8a" stroke-width="7" stroke-linecap="round"/>
+
+  <!-- Right lung outline (3 lobes) — viewer's left -->
+  <path d="M 80 200 Q 120 130 200 130 L 240 158 Q 230 200 230 240 L 230 380 Q 230 430 200 446 Q 130 446 100 416 Q 80 380 80 300 Z"
+        fill="rgba(43,108,176,0.06)" stroke="#1e3a8a" stroke-width="2"/>
+  <!-- Right lobe fissures -->
+  <line x1="100" y1="246" x2="226" y2="240" stroke="#1e3a8a" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <line x1="120" y1="332" x2="226" y2="336" stroke="#1e3a8a" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <text x="140" y="200" font-size="10" font-weight="700" fill="#1e3a8a">Right upper</text>
+  <text x="140" y="290" font-size="10" font-weight="700" fill="#1e3a8a">Right middle</text>
+  <text x="140" y="386" font-size="10" font-weight="700" fill="#1e3a8a">Right lower</text>
+
+  <!-- Right lung airway branches inside -->
+  <g stroke="#1e3a8a" stroke-width="3" fill="none" stroke-linecap="round">
+    <line x1="218" y1="218" x2="180" y2="200"/>
+    <line x1="180" y1="200" x2="150" y2="184"/>
+    <line x1="180" y1="200" x2="160" y2="218"/>
+    <line x1="218" y1="218" x2="180" y2="270"/>
+    <line x1="180" y1="270" x2="150" y2="266"/>
+    <line x1="180" y1="270" x2="160" y2="294"/>
+    <line x1="218" y1="218" x2="200" y2="356"/>
+    <line x1="200" y1="356" x2="170" y2="358"/>
+    <line x1="200" y1="356" x2="180" y2="392"/>
+  </g>
+  <g stroke="#1e3a8a" stroke-width="1.5" fill="none" stroke-linecap="round">
+    <line x1="150" y1="184" x2="130" y2="178"/>
+    <line x1="150" y1="184" x2="138" y2="200"/>
+    <line x1="150" y1="266" x2="130" y2="262"/>
+    <line x1="150" y1="266" x2="138" y2="280"/>
+    <line x1="170" y1="358" x2="148" y2="354"/>
+    <line x1="180" y1="392" x2="156" y2="394"/>
+  </g>
+
+  <!-- Left lung outline (2 lobes + cardiac notch) -->
+  <path d="M 360 158 L 410 158 Q 470 138 510 168 Q 540 200 540 280 L 540 400 Q 510 446 440 446 Q 380 446 360 400 L 360 360 Q 396 348 396 320 Q 396 296 360 286 Z"
+        fill="rgba(43,108,176,0.06)" stroke="#1e3a8a" stroke-width="2"/>
+  <!-- Left fissure -->
+  <line x1="370" y1="290" x2="538" y2="296" stroke="#1e3a8a" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <text x="430" y="220" font-size="10" font-weight="700" fill="#1e3a8a">Left upper</text>
+  <text x="430" y="380" font-size="10" font-weight="700" fill="#1e3a8a">Left lower</text>
+  <text x="370" y="338" font-size="9" font-style="italic" fill="#7f1d1d">cardiac notch</text>
+
+  <!-- Left bronchial branches -->
+  <g stroke="#1e3a8a" stroke-width="3" fill="none" stroke-linecap="round">
+    <line x1="346" y1="222" x2="380" y2="200"/>
+    <line x1="380" y1="200" x2="412" y2="184"/>
+    <line x1="380" y1="200" x2="402" y2="222"/>
+    <line x1="346" y1="222" x2="396" y2="356"/>
+    <line x1="396" y1="356" x2="426" y2="354"/>
+    <line x1="396" y1="356" x2="416" y2="392"/>
+  </g>
+  <g stroke="#1e3a8a" stroke-width="1.5" fill="none" stroke-linecap="round">
+    <line x1="412" y1="184" x2="432" y2="180"/>
+    <line x1="412" y1="184" x2="424" y2="200"/>
+    <line x1="426" y1="354" x2="448" y2="350"/>
+    <line x1="416" y1="392" x2="438" y2="390"/>
+  </g>
+
+  <!-- ── Diaphragm ─────────────────────────────────────────── -->
+  <path d="M 80 442 Q 240 478 540 442" fill="none" stroke="#dc2626" stroke-width="3"/>
+  <path d="M 80 442 Q 240 478 540 442 L 540 470 L 80 470 Z" fill="rgba(220,38,38,0.10)" stroke="none"/>
+  <line x1="240" y1="468" x2="240" y2="490" stroke="#dc2626" stroke-width="1"/>
+  <text x="240" y="500" font-size="10" font-weight="700" fill="#7f1d1d" text-anchor="middle">Diaphragm</text>
+  <text x="240" y="512" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">contracts → flattens → inhalation</text>
+
+  <!-- Larynx label -->
+  <text x="280" y="76" font-size="10" font-weight="700" fill="#1e3a8a" text-anchor="middle">Larynx</text>
+
+  <!-- Trachea label -->
+  <line x1="270" y1="120" x2="200" y2="120" stroke="#4a5568" stroke-width="0.8"/>
+  <text x="194" y="118" font-size="10" font-weight="700" fill="#1e3a8a" text-anchor="end">Trachea</text>
+  <text x="194" y="130" font-size="9" font-style="italic" fill="#4a5568" text-anchor="end">~20 C-rings cartilage</text>
+
+  <!-- Carina label -->
+  <line x1="282" y1="184" x2="320" y2="190" stroke="#4a5568" stroke-width="0.8"/>
+  <text x="328" y="192" font-size="10" font-weight="700" fill="#1e3a8a">Carina</text>
+
+  <!-- Main bronchi labels -->
+  <line x1="248" y1="208" x2="280" y2="244" stroke="#4a5568" stroke-width="0.8"/>
+  <text x="280" y="256" font-size="9" font-weight="700" fill="#1e3a8a" text-anchor="middle">R main bronchus</text>
+  <text x="280" y="268" font-size="8" font-style="italic" fill="#4a5568" text-anchor="middle">wider · steeper</text>
+
+  <!-- ── Alveolar inset on right ─────────────────────────────── -->
+  <rect x="560" y="80" width="180" height="220" rx="8" fill="#fff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="650" y="98" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Terminal-bronchiole inset</text>
+
+  <!-- Bronchiole stem -->
+  <path d="M 568 128 Q 600 132 612 144" fill="none" stroke="#1e3a8a" stroke-width="3"/>
+  <text x="566" y="124" font-size="9" font-weight="700" fill="#1e3a8a">terminal bronchiole</text>
+
+  <!-- Alveolar duct -->
+  <line x1="612" y1="144" x2="640" y2="160" stroke="#1e3a8a" stroke-width="2.4"/>
+  <line x1="612" y1="144" x2="640" y2="128" stroke="#1e3a8a" stroke-width="2.4"/>
+
+  <!-- Alveolar cluster (grape bunch) -->
+  <g stroke="#1e3a8a" stroke-width="1" fill="rgba(255,255,255,0.95)">
+    <circle cx="650" cy="120" r="14"/>
+    <circle cx="664" cy="134" r="14"/>
+    <circle cx="676" cy="116" r="13"/>
+    <circle cx="688" cy="138" r="14"/>
+    <circle cx="700" cy="120" r="13"/>
+    <circle cx="650" cy="156" r="14"/>
+    <circle cx="666" cy="168" r="13"/>
+    <circle cx="684" cy="170" r="14"/>
+    <circle cx="700" cy="158" r="14"/>
+    <circle cx="678" cy="152" r="12"/>
+  </g>
+
+  <!-- Capillaries wrapping (red mesh) -->
+  <g stroke="#dc2626" stroke-width="0.9" fill="none" opacity="0.8">
+    <path d="M 636 120 Q 660 110 686 124 Q 706 132 712 152 Q 706 174 686 178 Q 660 184 644 170"/>
+    <path d="M 642 130 Q 660 122 678 132 Q 696 142 702 162"/>
+    <path d="M 644 148 Q 666 140 686 152 Q 700 168 692 174"/>
+  </g>
+
+  <text x="650" y="200" font-size="10" font-weight="700" fill="#1e3a8a" text-anchor="middle">Alveoli (cluster)</text>
+  <text x="650" y="214" font-size="9" fill="#4a5568" text-anchor="middle">~480 M total · 70 m² surface</text>
+  <text x="650" y="232" font-size="9" font-weight="700" fill="#dc2626" text-anchor="middle">pulmonary capillary</text>
+  <text x="650" y="246" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">RBCs flow single-file past wall</text>
+  <text x="650" y="270" font-size="9" font-weight="700" fill="#1a202c" text-anchor="middle">Wall thickness ≤ 1 µm</text>
+  <text x="650" y="284" font-size="9" font-style="italic" fill="#4a5568" text-anchor="middle">→ rapid O₂/CO₂ diffusion</text>
+
+  <!-- ── Inhale/exhale strip ─────────────────────────────────── -->
+  <rect x="560" y="316" width="180" height="160" rx="8" fill="#fff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="650" y="334" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Mechanics of breathing</text>
+
+  <!-- Inhale -->
+  <text x="572" y="354" font-size="10" font-weight="700" fill="#15803d">Inhalation (active)</text>
+  <text x="572" y="368" font-size="9" fill="#4a5568">• diaphragm contracts ↓</text>
+  <text x="572" y="380" font-size="9" fill="#4a5568">• external intercostals lift ribs</text>
+  <text x="572" y="392" font-size="9" fill="#4a5568">• thoracic volume ↑</text>
+  <text x="572" y="404" font-size="9" fill="#4a5568">• intra-pulmonary P drops</text>
+  <text x="572" y="416" font-size="9" font-weight="700" fill="#15803d">→ air rushes IN</text>
+
+  <line x1="566" y1="424" x2="734" y2="424" stroke="#e2e8f0" stroke-width="1"/>
+
+  <!-- Exhale -->
+  <text x="572" y="440" font-size="10" font-weight="700" fill="#dc2626">Exhalation (passive at rest)</text>
+  <text x="572" y="454" font-size="9" fill="#4a5568">• diaphragm relaxes ↑ · ribs fall</text>
+  <text x="572" y="466" font-size="9" fill="#4a5568">• elastic recoil shrinks volume</text>
+  <text x="572" y="478" font-size="9" font-weight="700" fill="#dc2626">→ air pushed OUT</text>
+</svg>

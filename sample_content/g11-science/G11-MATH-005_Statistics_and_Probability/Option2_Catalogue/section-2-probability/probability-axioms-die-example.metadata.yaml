@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-stats-probability-axioms-die-example
+kind: image
+subject: math
+topic_phrase: "Kolmogorov axioms and the inclusion-exclusion addition rule on a six-sided die"
+keywords:
+  - probability-axioms
+  - kolmogorov
+  - addition-rule
+  - inclusion-exclusion
+  - die
+license: platform-cc-by-sa
+source_unit: G11-MATH-005

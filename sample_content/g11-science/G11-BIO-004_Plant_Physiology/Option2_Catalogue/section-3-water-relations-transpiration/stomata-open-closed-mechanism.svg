@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 420" width="760" height="420" role="img" aria-label="Stomata opening and closing mechanism via guard cell turgor">
+  <title>Stomata — Guard-Cell Turgor Mechanism</title>
+  <desc>Two side-by-side surface views of a stoma (the pore between two kidney-shaped guard cells in the leaf epidermis). Left: Open stoma in the morning. Potassium ions are pumped into guard cells, water follows by osmosis, the guard cells become turgid, and they bow outward — opening the pore so CO2 enters and water vapour escapes. Right: Closed stoma at night or under drought stress. Potassium ions leak out, water leaves, the guard cells go flaccid, and they straighten — closing the pore. Surrounding epidermal cells are shown in pale outline. The trigger for closure under drought is abscisic acid (ABA), labelled on the right.</desc>
+
+  <text x="380" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Stomata — Open vs Closed</text>
+  <text x="380" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Guard cells inflate to open · deflate to close · the plant trades CO₂ in for water out</text>
+
+  <!-- ═══════════════ OPEN ═══════════════ -->
+  <g transform="translate(40, 60)">
+    <rect x="0" y="0" width="340" height="300" rx="10" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+    <text x="170" y="22" font-size="13" font-weight="700" fill="#14532d" text-anchor="middle">Open — daytime, well-watered</text>
+
+    <!-- Surrounding epidermal cells (pale outline) -->
+    <path d="M 30 70 Q 60 50 100 60 Q 140 50 170 60" fill="none" stroke="#bbf7d0" stroke-width="1.5"/>
+    <path d="M 30 70 Q 50 90 70 90 Q 90 100 70 130" fill="none" stroke="#bbf7d0" stroke-width="1.5"/>
+    <path d="M 170 60 Q 200 50 240 60 Q 280 50 310 70" fill="none" stroke="#bbf7d0" stroke-width="1.5"/>
+    <path d="M 310 70 Q 290 90 270 90 Q 250 100 270 130" fill="none" stroke="#bbf7d0" stroke-width="1.5"/>
+    <path d="M 30 240 Q 60 250 100 240 Q 140 250 170 240" fill="none" stroke="#bbf7d0" stroke-width="1.5"/>
+    <path d="M 170 240 Q 200 250 240 240 Q 280 250 310 240" fill="none" stroke="#bbf7d0" stroke-width="1.5"/>
+
+    <!-- Two guard cells curved outward (kidney shape) — pore is OPEN between them -->
+    <!-- Top guard cell -->
+    <path d="M 90 110 Q 110 90 170 88 Q 230 90 250 110 Q 240 130 200 134 Q 170 138 140 134 Q 100 130 90 110 Z"
+          fill="#15803d" stroke="#14532d" stroke-width="2"/>
+    <!-- Bottom guard cell -->
+    <path d="M 90 200 Q 110 220 170 222 Q 230 220 250 200 Q 240 180 200 176 Q 170 172 140 176 Q 100 180 90 200 Z"
+          fill="#15803d" stroke="#14532d" stroke-width="2"/>
+
+    <!-- Pore (open opening between guard cells) -->
+    <ellipse cx="170" cy="155" rx="42" ry="20" fill="#1a202c"/>
+    <text x="170" y="160" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">PORE OPEN</text>
+
+    <!-- Chloroplasts inside guard cells -->
+    <ellipse cx="120" cy="112" rx="6" ry="4" fill="#86efac"/>
+    <ellipse cx="160" cy="115" rx="6" ry="4" fill="#86efac"/>
+    <ellipse cx="200" cy="115" rx="6" ry="4" fill="#86efac"/>
+    <ellipse cx="240" cy="112" rx="6" ry="4" fill="#86efac"/>
+    <ellipse cx="120" cy="198" rx="6" ry="4" fill="#86efac"/>
+    <ellipse cx="160" cy="195" rx="6" ry="4" fill="#86efac"/>
+    <ellipse cx="200" cy="195" rx="6" ry="4" fill="#86efac"/>
+    <ellipse cx="240" cy="198" rx="6" ry="4" fill="#86efac"/>
+
+    <!-- K+ accumulation labels -->
+    <text x="170" y="106" font-size="11" font-weight="700" fill="#fef3c7" text-anchor="middle">K⁺ ↑↑</text>
+    <text x="170" y="208" font-size="11" font-weight="700" fill="#fef3c7" text-anchor="middle">K⁺ ↑↑</text>
+
+    <!-- Water in arrows -->
+    <text x="50" y="156" font-size="14" font-weight="700" fill="#2b6cb0">→ H₂O</text>
+    <text x="290" y="156" font-size="14" font-weight="700" fill="#2b6cb0">H₂O ←</text>
+
+    <!-- Gas exchange arrows -->
+    <text x="170" y="80" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">CO₂ in ↓</text>
+    <text x="170" y="244" font-size="11" font-weight="700" fill="#2b6cb0" text-anchor="middle">H₂O vapour out ↑</text>
+
+    <!-- Steps box -->
+    <rect x="14" y="256" width="312" height="36" rx="4" fill="#bbf7d0" stroke="#15803d" stroke-width="1"/>
+    <text x="22" y="270" font-size="9" fill="#14532d">1. K⁺ pumped in (active transport, light-triggered)</text>
+    <text x="22" y="282" font-size="9" fill="#14532d">2. Water follows by osmosis · 3. Guard cells turgid · 4. Pore opens</text>
+  </g>
+
+  <!-- ═══════════════ CLOSED ═══════════════ -->
+  <g transform="translate(390, 60)">
+    <rect x="0" y="0" width="340" height="300" rx="10" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+    <text x="170" y="22" font-size="13" font-weight="700" fill="#7f1d1d" text-anchor="middle">Closed — night or drought</text>
+
+    <!-- Surrounding cells -->
+    <path d="M 30 70 Q 60 50 100 60 Q 140 50 170 60" fill="none" stroke="#fecaca" stroke-width="1.5"/>
+    <path d="M 170 60 Q 200 50 240 60 Q 280 50 310 70" fill="none" stroke="#fecaca" stroke-width="1.5"/>
+    <path d="M 30 240 Q 60 250 100 240 Q 140 250 170 240" fill="none" stroke="#fecaca" stroke-width="1.5"/>
+    <path d="M 170 240 Q 200 250 240 240 Q 280 250 310 240" fill="none" stroke="#fecaca" stroke-width="1.5"/>
+
+    <!-- Guard cells now flaccid → straighter, pore closed -->
+    <path d="M 70 130 Q 100 120 170 122 Q 240 120 270 130 Q 268 150 170 152 Q 72 150 70 130 Z"
+          fill="#86efac" stroke="#15803d" stroke-width="2"/>
+    <path d="M 70 178 Q 100 188 170 186 Q 240 188 270 178 Q 268 158 170 156 Q 72 158 70 178 Z"
+          fill="#86efac" stroke="#15803d" stroke-width="2"/>
+
+    <!-- Closed pore -->
+    <line x1="80" y1="155" x2="260" y2="155" stroke="#1a202c" stroke-width="2"/>
+    <text x="170" y="170" font-size="10" font-weight="700" fill="#7f1d1d" text-anchor="middle">PORE CLOSED</text>
+
+    <!-- K+ leaving labels -->
+    <text x="170" y="142" font-size="11" font-weight="700" fill="#7f1d1d" text-anchor="middle">K⁺ ↓↓</text>
+    <text x="170" y="180" font-size="11" font-weight="700" fill="#7f1d1d" text-anchor="middle">K⁺ ↓↓</text>
+
+    <!-- Water out arrows -->
+    <text x="50" y="156" font-size="14" font-weight="700" fill="#dc2626">← H₂O</text>
+    <text x="290" y="156" font-size="14" font-weight="700" fill="#dc2626">H₂O →</text>
+
+    <!-- ABA trigger badge -->
+    <rect x="240" y="60" width="86" height="34" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+    <text x="283" y="74" font-size="10" font-weight="700" fill="#78350f" text-anchor="middle">ABA</text>
+    <text x="283" y="88" font-size="9" fill="#78350f" text-anchor="middle">stress hormone</text>
+    <line x1="240" y1="80" x2="222" y2="124" stroke="#d97706" stroke-width="1.5"/>
+    <polygon points="218,118 220,128 226,122" fill="#d97706"/>
+
+    <!-- No CO2/no water vapor (struck through) -->
+    <text x="170" y="80" font-size="11" font-weight="700" fill="#7f1d1d" text-anchor="middle">CO₂ blocked</text>
+    <text x="170" y="244" font-size="11" font-weight="700" fill="#7f1d1d" text-anchor="middle">water vapour blocked</text>
+
+    <!-- Steps box -->
+    <rect x="14" y="256" width="312" height="36" rx="4" fill="#fee2e2" stroke="#dc2626" stroke-width="1"/>
+    <text x="22" y="270" font-size="9" fill="#7f1d1d">1. ABA released (drought) or darkness · 2. K⁺ leaks out</text>
+    <text x="22" y="282" font-size="9" fill="#7f1d1d">3. Water leaves by osmosis · 4. Guard cells flaccid · 5. Pore closes</text>
+  </g>
+
+  <!-- Bottom: trade-off -->
+  <rect x="40" y="372" width="680" height="38" rx="6" fill="#f7fafc" stroke="#15803d" stroke-width="1.5"/>
+  <text x="380" y="390" font-size="11" font-weight="700" fill="#14532d" text-anchor="middle">The plant's central trade-off:</text>
+  <text x="380" y="404" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">open stomata → CO₂ in for photosynthesis, but H₂O out (transpiration) · closed stomata → save water, but stop photosynthesis.</text>
+</svg>

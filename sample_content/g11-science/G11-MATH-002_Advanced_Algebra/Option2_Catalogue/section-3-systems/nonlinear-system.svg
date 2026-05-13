@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 320" width="600" height="320" role="img" aria-label="Nonlinear system: parabola intersects a line at two points">
+  <title>Nonlinear System: y = x² and y = x + 2</title>
+  <desc>The parabola y = x² and the line y = x + 2 intersect at (−1, 1) and (2, 4); both solutions verified by substitution.</desc>
+
+  <defs>
+    <style>
+      .axis    { stroke: #94a3b8; stroke-width: 1.4; }
+      .grid    { stroke: #e2e8f0; stroke-width: 0.6; }
+      .parab   { fill: none; stroke: #6b46c1; stroke-width: 3; stroke-linecap: round; }
+      .line    { stroke: #dd6b20; stroke-width: 3; stroke-linecap: round; }
+      .pt      { fill: #2f855a; stroke: white; stroke-width: 2.5; }
+      .axislbl { font: 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .heading { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .lbl     { font: bold 12px system-ui, sans-serif; }
+      .panel   { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1; }
+    </style>
+  </defs>
+
+  <text class="heading" x="300" y="22">Nonlinear system:  y = x²  ∩  y = x + 2</text>
+
+  <!-- Plot frame -->
+  <rect class="panel" x="60" y="60" width="320" height="200"/>
+
+  <!-- vertical grid x = -2,-1,0,1,2 -->
+  <line class="grid" x1="113.3" y1="60" x2="113.3" y2="260"/>
+  <line class="grid" x1="166.7" y1="60" x2="166.7" y2="260"/>
+  <line class="grid" x1="220"   y1="60" x2="220"   y2="260"/>
+  <line class="grid" x1="273.3" y1="60" x2="273.3" y2="260"/>
+  <line class="grid" x1="326.7" y1="60" x2="326.7" y2="260"/>
+
+  <!-- horizontal grid y = 0,2,4,6,8 -->
+  <line class="grid" x1="60" y1="240" x2="380" y2="240"/>
+  <line class="grid" x1="60" y1="200" x2="380" y2="200"/>
+  <line class="grid" x1="60" y1="160" x2="380" y2="160"/>
+  <line class="grid" x1="60" y1="120" x2="380" y2="120"/>
+  <line class="grid" x1="60" y1="80"  x2="380" y2="80"/>
+
+  <!-- axes: x-axis y=0 → py=240; y-axis x=0 → px=220 -->
+  <line class="axis" x1="60" y1="240" x2="380" y2="240"/>
+  <line class="axis" x1="220" y1="60" x2="220" y2="260"/>
+
+  <!-- x tick labels -->
+  <text class="axislbl" x="113.3" y="256">−2</text>
+  <text class="axislbl" x="166.7" y="256">−1</text>
+  <text class="axislbl" x="220"   y="256">0</text>
+  <text class="axislbl" x="273.3" y="256">1</text>
+  <text class="axislbl" x="326.7" y="256">2</text>
+  <!-- y tick labels -->
+  <text class="axislbl" x="50" y="244" text-anchor="end">0</text>
+  <text class="axislbl" x="50" y="204" text-anchor="end">2</text>
+  <text class="axislbl" x="50" y="164" text-anchor="end">4</text>
+  <text class="axislbl" x="50" y="124" text-anchor="end">6</text>
+  <text class="axislbl" x="50" y="84"  text-anchor="end">8</text>
+
+  <!-- Parabola y = x^2 -->
+  <polyline class="parab" points="60,60 86.7,100 113.3,160 140,200 166.7,220 193.3,232 220,240 246.7,232 273.3,220 300,200 326.7,160 353.3,100 380,60"/>
+
+  <!-- Line y = x + 2 -->
+  <line class="line" x1="60" y1="260" x2="380" y2="140"/>
+
+  <!-- Intersection points -->
+  <circle class="pt" cx="166.7" cy="220" r="7"/>
+  <text class="lbl" x="148" y="214" fill="#2f855a">(−1, 1)</text>
+
+  <circle class="pt" cx="326.7" cy="160" r="7"/>
+  <text class="lbl" x="334" y="156" fill="#2f855a">(2, 4)</text>
+
+  <!-- Curve labels -->
+  <text class="lbl" x="100" y="74" fill="#6b46c1">y = x²</text>
+  <text class="lbl" x="338" y="138" fill="#dd6b20">y = x + 2</text>
+
+  <!-- Algebra side panel -->
+  <g transform="translate(410, 70)">
+    <rect x="0" y="0" width="170" height="180" rx="8" fill="#fffaf0" stroke="#dd6b20" stroke-width="1.4"/>
+    <text font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" x="85" y="22" text-anchor="middle">Solve algebraically</text>
+    <text font="13px system-ui" font-size="13" fill="#1a202c" x="14" y="48" font-style="italic">x² = x + 2</text>
+    <text font="13px system-ui" font-size="13" fill="#1a202c" x="14" y="68" font-style="italic">x² − x − 2 = 0</text>
+    <text font="13px system-ui" font-size="13" fill="#1a202c" x="14" y="88" font-style="italic">(x − 2)(x + 1) = 0</text>
+    <text font="13px system-ui" font-size="13" fill="#1a202c" x="14" y="112" font-weight="700">x = 2  or  x = −1</text>
+    <text font="12px system-ui" font-size="12" fill="#1a202c" x="14" y="138">Then y = x²:</text>
+    <text font="12px system-ui" font-size="12" fill="#2f855a" x="14" y="158" font-weight="700">(2, 4)  and  (−1, 1)</text>
+  </g>
+
+  <text x="300" y="290" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Nonlinear systems can have 0, 1, or 2 intersections; substitution reduces to a single-variable equation.</text>
+</svg>

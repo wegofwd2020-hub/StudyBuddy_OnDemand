@@ -1,0 +1,15 @@
+schema_version: 1
+id: chemistry-lewis-multiple-bonds
+kind: image
+subject: chemistry
+topic_phrase: "lewis structure double triple bond oxygen carbon dioxide nitrogen"
+keywords:
+  - lewis-structure
+  - double-bond
+  - triple-bond
+  - oxygen-molecule
+  - carbon-dioxide
+  - nitrogen-molecule
+  - bond-order
+license: platform-cc-by-sa
+source_unit: G11-CHEM-004

@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" width="720" height="420" role="img" aria-label="Domains of Physics tree">
+  <title>Domains of Physics</title>
+  <desc>Tree diagram showing physics splitting into Classical and Modern, with Classical branching into mechanics, thermodynamics, electromagnetism, optics, and waves; Modern branching into special relativity, general relativity, quantum mechanics, and quantum field theory.</desc>
+
+  <text x="360" y="26" font-family="system-ui" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">The Domains of Physics</text>
+  <text x="360" y="46" font-family="system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">classical = everyday speeds &amp; sizes; modern = very fast, very small, very massive</text>
+
+  <!-- Root node -->
+  <rect x="290" y="64" width="140" height="40" rx="8" fill="#fef3c7" stroke="#dd6b20" stroke-width="1.5" />
+  <text x="360" y="89" font-family="system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Physics</text>
+
+  <!-- Branches to Classical and Modern -->
+  <line x1="360" y1="104" x2="200" y2="146" stroke="#4a5568" stroke-width="1.5" />
+  <line x1="360" y1="104" x2="520" y2="146" stroke="#4a5568" stroke-width="1.5" />
+
+  <!-- Classical -->
+  <rect x="120" y="146" width="160" height="40" rx="8" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5" />
+  <text x="200" y="171" font-family="system-ui" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">Classical Physics</text>
+
+  <!-- Modern -->
+  <rect x="440" y="146" width="160" height="40" rx="8" fill="#e9d5ff" stroke="#7c3aed" stroke-width="1.5" />
+  <text x="520" y="171" font-family="system-ui" font-size="13" font-weight="700" fill="#7c3aed" text-anchor="middle">Modern Physics</text>
+
+  <!-- Classical sub-branches -->
+  <line x1="200" y1="186" x2="60"  y2="232" stroke="#94a3b8" stroke-width="1" />
+  <line x1="200" y1="186" x2="140" y2="232" stroke="#94a3b8" stroke-width="1" />
+  <line x1="200" y1="186" x2="220" y2="232" stroke="#94a3b8" stroke-width="1" />
+  <line x1="200" y1="186" x2="300" y2="232" stroke="#94a3b8" stroke-width="1" />
+
+  <g font-family="system-ui" font-size="11" fill="#1a202c">
+    <rect x="14"  y="232" width="92" height="36" rx="6" fill="#f7fafc" stroke="#cbd5e1" />
+    <text x="60"  y="248" text-anchor="middle" font-weight="700">Mechanics</text>
+    <text x="60"  y="262" text-anchor="middle" fill="#4a5568" font-size="10">F = ma · energy</text>
+
+    <rect x="92"  y="232" width="96" height="36" rx="6" fill="#f7fafc" stroke="#cbd5e1" />
+    <text x="140" y="248" text-anchor="middle" font-weight="700">Thermodynamics</text>
+    <text x="140" y="262" text-anchor="middle" fill="#4a5568" font-size="10">heat · entropy</text>
+
+    <rect x="174" y="232" width="92" height="36" rx="6" fill="#f7fafc" stroke="#cbd5e1" />
+    <text x="220" y="248" text-anchor="middle" font-weight="700">Electromagnetism</text>
+    <text x="220" y="262" text-anchor="middle" fill="#4a5568" font-size="10">Maxwell's eqns</text>
+
+    <rect x="254" y="232" width="92" height="36" rx="6" fill="#f7fafc" stroke="#cbd5e1" />
+    <text x="300" y="248" text-anchor="middle" font-weight="700">Optics &amp; Waves</text>
+    <text x="300" y="262" text-anchor="middle" fill="#4a5568" font-size="10">light · sound</text>
+  </g>
+
+  <!-- Modern sub-branches -->
+  <line x1="520" y1="186" x2="420" y2="232" stroke="#94a3b8" stroke-width="1" />
+  <line x1="520" y1="186" x2="500" y2="232" stroke="#94a3b8" stroke-width="1" />
+  <line x1="520" y1="186" x2="580" y2="232" stroke="#94a3b8" stroke-width="1" />
+  <line x1="520" y1="186" x2="660" y2="232" stroke="#94a3b8" stroke-width="1" />
+
+  <g font-family="system-ui" font-size="11" fill="#1a202c">
+    <rect x="374" y="232" width="92" height="36" rx="6" fill="#f7fafc" stroke="#cbd5e1" />
+    <text x="420" y="248" text-anchor="middle" font-weight="700">Special Rel.</text>
+    <text x="420" y="262" text-anchor="middle" fill="#4a5568" font-size="10">v ≈ c</text>
+
+    <rect x="454" y="232" width="92" height="36" rx="6" fill="#f7fafc" stroke="#cbd5e1" />
+    <text x="500" y="248" text-anchor="middle" font-weight="700">General Rel.</text>
+    <text x="500" y="262" text-anchor="middle" fill="#4a5568" font-size="10">gravity = curvature</text>
+
+    <rect x="534" y="232" width="92" height="36" rx="6" fill="#f7fafc" stroke="#cbd5e1" />
+    <text x="580" y="248" text-anchor="middle" font-weight="700">Quantum Mech.</text>
+    <text x="580" y="262" text-anchor="middle" fill="#4a5568" font-size="10">atoms · ψ</text>
+
+    <rect x="614" y="232" width="92" height="36" rx="6" fill="#f7fafc" stroke="#cbd5e1" />
+    <text x="660" y="248" text-anchor="middle" font-weight="700">Quantum Field</text>
+    <text x="660" y="262" text-anchor="middle" fill="#4a5568" font-size="10">particles · QED · QCD</text>
+  </g>
+
+  <!-- The "nature of physical laws" panel -->
+  <rect x="40" y="304" width="640" height="96" rx="10" fill="#f7fafc" stroke="#e2e8f0" />
+  <text x="60" y="328" font-family="system-ui" font-size="13" font-weight="700" fill="#1a202c">Common features of physical laws</text>
+
+  <g font-family="system-ui" font-size="11" fill="#4a5568">
+    <text x="60"  y="350"><tspan font-weight="700" fill="#2b6cb0">·</tspan> <tspan font-weight="700" fill="#1a202c">Universal:</tspan> hold everywhere &amp; everywhen tested.</text>
+    <text x="60"  y="368"><tspan font-weight="700" fill="#2b6cb0">·</tspan> <tspan font-weight="700" fill="#1a202c">Quantitative:</tspan> stated as equations relating measurable quantities.</text>
+    <text x="60"  y="386"><tspan font-weight="700" fill="#2b6cb0">·</tspan> <tspan font-weight="700" fill="#1a202c">Falsifiable:</tspan> a single reproducible counterexample retires a law.</text>
+
+    <text x="380" y="350"><tspan font-weight="700" fill="#dd6b20">·</tspan> <tspan font-weight="700" fill="#1a202c">Conservation:</tspan> energy, momentum, charge are conserved.</text>
+    <text x="380" y="368"><tspan font-weight="700" fill="#dd6b20">·</tspan> <tspan font-weight="700" fill="#1a202c">Symmetry:</tspan> laws unchanged by space / time shifts &amp; rotations.</text>
+    <text x="380" y="386"><tspan font-weight="700" fill="#dd6b20">·</tspan> <tspan font-weight="700" fill="#1a202c">Limits:</tspan> classical recovered as ℏ → 0 and v ≪ c.</text>
+  </g>
+</svg>

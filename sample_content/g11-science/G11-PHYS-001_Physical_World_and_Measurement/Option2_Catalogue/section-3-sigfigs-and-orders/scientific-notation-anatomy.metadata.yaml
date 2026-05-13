@@ -1,0 +1,14 @@
+schema_version: 1
+id: physics-physical-world-scientific-notation-anatomy
+kind: image
+subject: physics
+topic_phrase: "anatomy of scientific notation a × 10^n with worked conversions"
+keywords:
+  - scientific-notation
+  - coefficient
+  - exponent
+  - powers-of-ten
+  - large-numbers
+  - small-numbers
+license: platform-cc-by-sa
+source_unit: G11-PHYS-001

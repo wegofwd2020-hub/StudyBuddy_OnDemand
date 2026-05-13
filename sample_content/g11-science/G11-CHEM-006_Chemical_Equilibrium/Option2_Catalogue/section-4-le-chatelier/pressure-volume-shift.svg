@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380" role="img" aria-label="Pressure increase shifts equilibrium toward fewer moles of gas">
+  <title>Squeeze the Cylinder — Equilibrium Shifts to Fewer Moles of Gas</title>
+  <desc>Two side-by-side gas cylinders for the reaction N₂ + 3 H₂ ⇌ 2 NH₃. Before: piston up, larger volume, four moles total in dynamic equilibrium. After: piston pushed down, smaller volume, the equilibrium has shifted forward and there are now more NH₃ molecules and fewer N₂ + H₂ — the system has moved toward the side with two moles of gas instead of four.</desc>
+
+  <defs>
+    <marker id="pv-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#15803d"/>
+    </marker>
+    <marker id="pv-down" viewBox="0 0 10 10" refX="5" refY="9" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 5 10 L 10 0 z" fill="#dc2626"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Increase Pressure → Shift to Fewer Moles of Gas</text>
+  <text x="360" y="42" font-size="11" fill="#4a5568" text-anchor="middle">N₂(g) + 3 H₂(g) ⇌ 2 NH₃(g)   ·   4 mol left  vs  2 mol right.</text>
+
+  <!-- ─── BEFORE ─── -->
+  <g transform="translate(40, 70)">
+    <text x="130" y="14" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Before — large volume, equilibrium</text>
+
+    <!-- Cylinder body -->
+    <rect x="40" y="40" width="180" height="220" fill="#f7fafc" stroke="#1a202c" stroke-width="2.5"/>
+    <!-- Piston -->
+    <rect x="40" y="30" width="180" height="14" fill="#94a3b8" stroke="#1a202c" stroke-width="2"/>
+    <line x1="130" y1="30" x2="130" y2="10" stroke="#1a202c" stroke-width="3"/>
+    <circle cx="130" cy="8" r="6" fill="#1a202c"/>
+
+    <!-- Particle population: 3 N₂, 4 H₂ pairs, 2 NH₃ -->
+    <!-- N2 (red large dimers) -->
+    <g fill="#dc2626" stroke="#1a202c" stroke-width="0.8">
+      <circle cx="70" cy="80" r="6"/><circle cx="80" cy="80" r="6"/>
+      <circle cx="110" cy="120" r="6"/><circle cx="120" cy="120" r="6"/>
+      <circle cx="160" cy="100" r="6"/><circle cx="170" cy="100" r="6"/>
+    </g>
+    <!-- H2 (blue small dimers) -->
+    <g fill="#2b6cb0" stroke="#1a202c" stroke-width="0.8">
+      <circle cx="60"  cy="160" r="4"/><circle cx="68"  cy="160" r="4"/>
+      <circle cx="100" cy="200" r="4"/><circle cx="108" cy="200" r="4"/>
+      <circle cx="150" cy="180" r="4"/><circle cx="158" cy="180" r="4"/>
+      <circle cx="190" cy="220" r="4"/><circle cx="198" cy="220" r="4"/>
+    </g>
+    <!-- NH3 (green tris) -->
+    <g fill="#15803d" stroke="#1a202c" stroke-width="0.8">
+      <circle cx="80"  cy="230" r="5"/><circle cx="74" cy="240" r="3"/><circle cx="86" cy="240" r="3"/><circle cx="80" cy="222" r="3"/>
+      <circle cx="180" cy="140" r="5"/><circle cx="174" cy="150" r="3"/><circle cx="186" cy="150" r="3"/><circle cx="180" cy="132" r="3"/>
+    </g>
+
+    <text x="130" y="280" font-size="11" fill="#4a5568" text-anchor="middle">P low,  V large,  Q = K</text>
+  </g>
+
+  <!-- Compression arrow -->
+  <line x1="285" y1="170" x2="345" y2="170" stroke="#dc2626" stroke-width="3" marker-end="url(#pv-arr)"/>
+  <text x="315" y="158" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">push</text>
+  <text x="315" y="186" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">piston ↓</text>
+
+  <!-- ─── AFTER ─── -->
+  <g transform="translate(390, 70)">
+    <text x="130" y="14" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">After — compressed, new equilibrium</text>
+
+    <!-- Cylinder body — narrower height -->
+    <rect x="40" y="120" width="180" height="140" fill="#f7fafc" stroke="#1a202c" stroke-width="2.5"/>
+    <rect x="40" y="110" width="180" height="14" fill="#94a3b8" stroke="#1a202c" stroke-width="2"/>
+    <line x1="130" y1="110" x2="130" y2="40" stroke="#1a202c" stroke-width="3"/>
+    <circle cx="130" cy="38" r="6" fill="#1a202c"/>
+    <!-- Down arrow above piston -->
+    <line x1="130" y1="56" x2="130" y2="100" stroke="#dc2626" stroke-width="3" marker-end="url(#pv-down)"/>
+
+    <!-- Population — fewer N₂/H₂, more NH₃ -->
+    <g fill="#dc2626" stroke="#1a202c" stroke-width="0.8">
+      <circle cx="70" cy="150" r="6"/><circle cx="80" cy="150" r="6"/>
+      <circle cx="160" cy="170" r="6"/><circle cx="170" cy="170" r="6"/>
+    </g>
+    <g fill="#2b6cb0" stroke="#1a202c" stroke-width="0.8">
+      <circle cx="80"  cy="200" r="4"/><circle cx="88"  cy="200" r="4"/>
+      <circle cx="180" cy="220" r="4"/><circle cx="188" cy="220" r="4"/>
+    </g>
+    <g fill="#15803d" stroke="#1a202c" stroke-width="0.8">
+      <!-- NH3 #1 -->
+      <circle cx="55"  cy="180" r="5"/><circle cx="49" cy="190" r="3"/><circle cx="61" cy="190" r="3"/><circle cx="55" cy="172" r="3"/>
+      <!-- NH3 #2 -->
+      <circle cx="115" cy="170" r="5"/><circle cx="109" cy="180" r="3"/><circle cx="121" cy="180" r="3"/><circle cx="115" cy="162" r="3"/>
+      <!-- NH3 #3 -->
+      <circle cx="115" cy="220" r="5"/><circle cx="109" cy="230" r="3"/><circle cx="121" cy="230" r="3"/><circle cx="115" cy="212" r="3"/>
+      <!-- NH3 #4 -->
+      <circle cx="200" cy="148" r="5"/><circle cx="194" cy="158" r="3"/><circle cx="206" cy="158" r="3"/><circle cx="200" cy="140" r="3"/>
+    </g>
+
+    <text x="130" y="280" font-size="11" fill="#4a5568" text-anchor="middle">P high,  V small,  Q = K (new)</text>
+  </g>
+
+  <!-- Legend -->
+  <g transform="translate(60, 318)">
+    <circle cx="0" cy="6" r="6" fill="#dc2626"/>
+    <text x="14" y="10" font-size="11" fill="#1a202c">N₂</text>
+    <circle cx="60" cy="6" r="4" fill="#2b6cb0"/>
+    <text x="74" y="10" font-size="11" fill="#1a202c">H₂</text>
+    <g transform="translate(120, 0)">
+      <circle cx="0" cy="6" r="5" fill="#15803d"/>
+      <circle cx="-6" cy="14" r="3" fill="#15803d"/>
+      <circle cx="6" cy="14" r="3" fill="#15803d"/>
+      <circle cx="0" cy="-2" r="3" fill="#15803d"/>
+    </g>
+    <text x="138" y="10" font-size="11" fill="#1a202c">NH₃</text>
+  </g>
+
+  <text x="360" y="362" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Compress → fewer particle "places". The system relieves the squeeze by shrinking 4 mol of gas into 2 mol → forward shift.</text>
+</svg>

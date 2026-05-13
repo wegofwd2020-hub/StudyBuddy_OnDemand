@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-coordinate-geometry-circle-standard-form
+kind: image
+subject: math
+topic_phrase: "circle in standard form with center and radius identified"
+keywords:
+  - circle
+  - standard-form
+  - center
+  - radius
+  - coordinate-geometry
+license: platform-cc-by-sa
+source_unit: G11-MATH-003

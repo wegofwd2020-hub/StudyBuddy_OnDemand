@@ -1,0 +1,218 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 520" width="820" height="520" role="img" aria-label="Labelled diagram of a plant cell highlighting features unique to plants">
+  <title>The Plant Cell — and What's Different from an Animal Cell</title>
+  <desc>A schematic plant cell drawn rectangular (because of the rigid cell wall) with a thick cellulose cell wall surrounding the plasma membrane. Major organelles are labelled in the same style as the animal-cell diagram so the contrasts stand out. Plant-specific features highlighted: cellulose cell wall; large central vacuole filled with cell sap; chloroplasts with double membrane, internal thylakoids stacked into grana, and stroma; plasmodesmata (cytoplasmic channels through the wall to the next cell). Standard eukaryotic organelles also shown: nucleus, rough and smooth ER, Golgi, mitochondria, peroxisome, ribosomes. A side panel lists the four key plant-specific traits.</desc>
+
+  <text x="410" y="24" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">The Plant Cell — Cellulose Wall · Big Vacuole · Chloroplasts</text>
+  <text x="410" y="42" font-size="11" fill="#4a5568" text-anchor="middle">A typical eukaryotic plant cell. Same plan as animal cells plus four plant-specific features.</text>
+
+  <!-- Cell wall (outermost, thick green) -->
+  <rect x="40" y="60" width="540" height="430" rx="14" fill="#dcfce7" stroke="#15803d" stroke-width="6"/>
+  <!-- Plasma membrane (just inside) -->
+  <rect x="56" y="76" width="508" height="398" rx="8" fill="#f0fdf4" stroke="#14532d" stroke-width="2"/>
+  <!-- Inner membrane edge hint -->
+  <rect x="60" y="80" width="500" height="390" rx="6" fill="none" stroke="#14532d" stroke-width="0.6" stroke-dasharray="3 3"/>
+
+  <!-- ── Large Central Vacuole (dominates the centre) ────────── -->
+  <rect x="148" y="170" width="320" height="220" rx="14" fill="#bfdbfe" stroke="#2b6cb0" stroke-width="2.4"/>
+  <text x="308" y="278" font-size="15" font-weight="700" fill="#1e3a8a" text-anchor="middle">Large Central Vacuole</text>
+  <text x="308" y="298" font-size="11" font-style="italic" fill="#1e3a8a" text-anchor="middle">filled with cell sap</text>
+  <text x="308" y="316" font-size="10" fill="#1e3a8a" text-anchor="middle">stores water · sugars · ions · pigments</text>
+  <text x="308" y="332" font-size="10" fill="#1e3a8a" text-anchor="middle">turgor pressure keeps the plant rigid</text>
+  <!-- Tonoplast label -->
+  <text x="308" y="186" font-size="9" fill="#1e3a8a" text-anchor="middle">tonoplast (vacuolar membrane)</text>
+
+  <!-- ── Nucleus (top-left of cytoplasm strip) ───────────────── -->
+  <circle cx="110" cy="160" r="40" fill="#dbeafe" stroke="#2b6cb0" stroke-width="2.4"/>
+  <circle cx="110" cy="160" r="36" fill="none" stroke="#1e3a8a" stroke-width="0.8" stroke-dasharray="2 2"/>
+  <circle cx="118" cy="166" r="11" fill="#2b6cb0" opacity="0.55"/>
+  <circle cx="74" cy="160" r="2" fill="#1e3a8a"/>
+  <circle cx="146" cy="160" r="2" fill="#1e3a8a"/>
+  <circle cx="110" cy="124" r="2" fill="#1e3a8a"/>
+  <circle cx="110" cy="196" r="2" fill="#1e3a8a"/>
+  <text x="110" y="164" font-size="9" font-weight="700" fill="#1e3a8a" text-anchor="middle">nucleus</text>
+
+  <!-- ── Chloroplasts (×3 — flagship plant organelle) ─────────── -->
+  <g transform="translate(220, 116)">
+    <ellipse cx="0" cy="0" rx="44" ry="20" fill="#bbf7d0" stroke="#15803d" stroke-width="2.4"/>
+    <!-- Inner membrane -->
+    <ellipse cx="0" cy="0" rx="40" ry="16" fill="none" stroke="#14532d" stroke-width="1" stroke-dasharray="2 2"/>
+    <!-- Thylakoid grana (stacks of disks) -->
+    <g fill="#15803d" stroke="#14532d" stroke-width="0.6">
+      <circle cx="-26" cy="-2" r="4"/>
+      <circle cx="-26" cy="3" r="4"/>
+      <circle cx="-26" cy="8" r="4"/>
+      <circle cx="-10" cy="-4" r="4"/>
+      <circle cx="-10" cy="1" r="4"/>
+      <circle cx="-10" cy="6" r="4"/>
+      <circle cx="6" cy="-3" r="4"/>
+      <circle cx="6" cy="2" r="4"/>
+      <circle cx="22" cy="-2" r="4"/>
+      <circle cx="22" cy="3" r="4"/>
+      <circle cx="22" cy="8" r="4"/>
+    </g>
+    <!-- Stroma lamellae connecting grana -->
+    <line x1="-22" y1="0" x2="-14" y2="0" stroke="#14532d" stroke-width="1"/>
+    <line x1="-6" y1="0" x2="2" y2="0" stroke="#14532d" stroke-width="1"/>
+    <line x1="10" y1="0" x2="18" y2="0" stroke="#14532d" stroke-width="1"/>
+  </g>
+  <g transform="translate(420, 130)">
+    <ellipse cx="0" cy="0" rx="38" ry="16" fill="#bbf7d0" stroke="#15803d" stroke-width="2.2"/>
+    <g fill="#15803d">
+      <circle cx="-22" cy="-2" r="3"/><circle cx="-22" cy="3" r="3"/><circle cx="-22" cy="8" r="3"/>
+      <circle cx="-8" cy="-3" r="3"/><circle cx="-8" cy="2" r="3"/>
+      <circle cx="6" cy="-2" r="3"/><circle cx="6" cy="3" r="3"/>
+      <circle cx="20" cy="-2" r="3"/><circle cx="20" cy="3" r="3"/>
+    </g>
+    <line x1="-18" y1="0" x2="-12" y2="0" stroke="#14532d" stroke-width="1"/>
+    <line x1="-4" y1="0" x2="2" y2="0" stroke="#14532d" stroke-width="1"/>
+    <line x1="10" y1="0" x2="16" y2="0" stroke="#14532d" stroke-width="1"/>
+  </g>
+  <g transform="translate(330, 432)">
+    <ellipse cx="0" cy="0" rx="40" ry="17" fill="#bbf7d0" stroke="#15803d" stroke-width="2.2"/>
+    <g fill="#15803d">
+      <circle cx="-24" cy="-2" r="3"/><circle cx="-24" cy="3" r="3"/>
+      <circle cx="-10" cy="-3" r="3"/><circle cx="-10" cy="2" r="3"/><circle cx="-10" cy="7" r="3"/>
+      <circle cx="6" cy="-2" r="3"/><circle cx="6" cy="3" r="3"/>
+      <circle cx="22" cy="-2" r="3"/><circle cx="22" cy="3" r="3"/>
+    </g>
+  </g>
+
+  <!-- ── Mitochondria (×2) ──────────────────────────────────── -->
+  <g transform="translate(110, 250)">
+    <ellipse cx="0" cy="0" rx="34" ry="14" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+    <path d="M -26 -1 Q -20 -10 -12 -1 Q -4 8 4 -1 Q 12 -10 20 -1 Q 28 8 32 -1" fill="none" stroke="#dc2626" stroke-width="1.4"/>
+  </g>
+  <g transform="translate(500, 250)">
+    <ellipse cx="0" cy="0" rx="30" ry="12" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+    <path d="M -22 -1 Q -16 -8 -8 -1 Q 0 6 8 -1 Q 16 -8 22 -1" fill="none" stroke="#dc2626" stroke-width="1.4"/>
+  </g>
+
+  <!-- ── Rough ER + Smooth ER (compact, bottom-left) ────────── -->
+  <g fill="#fef3c7" stroke="#b45309" stroke-width="1.8">
+    <path d="M 80 350 Q 110 344 138 350 Q 124 360 110 358 Q 94 362 80 358 Z"/>
+    <path d="M 80 364 Q 110 358 138 364 Q 124 374 110 372 Q 94 376 80 372 Z"/>
+    <path d="M 90 380 Q 116 374 144 380 Q 130 390 114 388 Q 102 392 92 388 Z"/>
+  </g>
+  <g fill="#dc2626">
+    <circle cx="86" cy="350" r="1.6"/><circle cx="100" cy="346" r="1.6"/><circle cx="118" cy="348" r="1.6"/>
+    <circle cx="132" cy="350" r="1.6"/>
+    <circle cx="86" cy="364" r="1.6"/><circle cx="106" cy="360" r="1.6"/><circle cx="124" cy="364" r="1.6"/>
+    <circle cx="92" cy="380" r="1.6"/><circle cx="116" cy="376" r="1.6"/><circle cx="138" cy="380" r="1.6"/>
+  </g>
+  <!-- Smooth ER (no dots) -->
+  <path d="M 92 408 Q 116 414 130 408 Q 142 418 124 426 Q 104 430 92 422 Q 80 416 92 408 Z" fill="none" stroke="#b45309" stroke-width="1.8"/>
+
+  <!-- ── Golgi apparatus (bottom of cell) ───────────────────── -->
+  <g transform="translate(490, 396)">
+    <path d="M -28 0 Q 0 -8 28 0" fill="none" stroke="#15803d" stroke-width="2"/>
+    <path d="M -28 7 Q 0 -1 28 7" fill="none" stroke="#15803d" stroke-width="2"/>
+    <path d="M -28 14 Q 0 6 28 14" fill="none" stroke="#15803d" stroke-width="2"/>
+    <path d="M -28 21 Q 0 13 28 21" fill="none" stroke="#15803d" stroke-width="2"/>
+    <circle cx="-34" cy="2" r="3" fill="#dcfce7" stroke="#15803d" stroke-width="1.2"/>
+    <circle cx="34" cy="22" r="3" fill="#dcfce7" stroke="#15803d" stroke-width="1.2"/>
+  </g>
+
+  <!-- ── Plasmodesmata (channels through wall) ─────────────── -->
+  <g stroke="#7c3aed" stroke-width="2" fill="#ede9fe">
+    <rect x="40" y="220" width="16" height="6"/>
+    <rect x="40" y="290" width="16" height="6"/>
+    <rect x="564" y="200" width="16" height="6"/>
+    <rect x="564" y="340" width="16" height="6"/>
+  </g>
+
+  <!-- Free ribosomes -->
+  <g fill="#dc2626">
+    <circle cx="86" cy="220" r="2"/>
+    <circle cx="170" cy="120" r="2"/>
+    <circle cx="270" cy="450" r="2"/>
+    <circle cx="510" cy="170" r="2"/>
+    <circle cx="540" cy="350" r="2"/>
+  </g>
+
+  <!-- ── LEADER LINES + LABELS (left/top/bottom) ────────────── -->
+  <g font-size="10" font-weight="700">
+    <!-- Cell wall -->
+    <line x1="40" y1="60" x2="14" y2="38" stroke="#15803d" stroke-width="1"/>
+    <text x="14" y="32" fill="#14532d">cellulose cell wall</text>
+
+    <!-- Plasma membrane -->
+    <line x1="56" y1="100" x2="14" y2="110" stroke="#14532d" stroke-width="1"/>
+    <text x="14" y="120" fill="#14532d">plasma membrane</text>
+
+    <!-- Plasmodesma -->
+    <line x1="40" y1="225" x2="14" y2="220" stroke="#7c3aed" stroke-width="1"/>
+    <text x="14" y="218" fill="#7c3aed">plasmodesma</text>
+    <text x="14" y="232" fill="#7c3aed" font-weight="400" font-size="9">(channel to neighbour cell)</text>
+
+    <!-- Nucleus leader -->
+    <line x1="118" y1="120" x2="160" y2="76" stroke="#1e3a8a" stroke-width="1"/>
+    <text x="164" y="76" fill="#1e3a8a">nucleus</text>
+
+    <!-- Chloroplast leader -->
+    <line x1="220" y1="96" x2="240" y2="62" stroke="#15803d" stroke-width="1"/>
+    <text x="244" y="62" fill="#15803d">chloroplast (grana + stroma)</text>
+
+    <!-- Vacuole leader -->
+    <line x1="148" y1="170" x2="46" y2="500" stroke="#2b6cb0" stroke-width="1"/>
+    <text x="46" y="514" fill="#1e3a8a">large central vacuole (with tonoplast)</text>
+
+    <!-- Mitochondrion leader -->
+    <line x1="110" y1="264" x2="14" y2="280" stroke="#dc2626" stroke-width="1"/>
+    <text x="14" y="284" fill="#dc2626">mitochondrion</text>
+
+    <!-- Rough ER leader -->
+    <line x1="142" y1="350" x2="160" y2="498" stroke="#b45309" stroke-width="1"/>
+    <text x="164" y="502" fill="#b45309">rough ER (+ smooth ER)</text>
+
+    <!-- Golgi leader -->
+    <line x1="490" y1="394" x2="490" y2="498" stroke="#15803d" stroke-width="1"/>
+    <text x="490" y="510" fill="#15803d" text-anchor="middle">Golgi (dictyosome)</text>
+
+    <!-- Free ribosome -->
+    <line x1="510" y1="170" x2="556" y2="148" stroke="#dc2626" stroke-width="1"/>
+    <text x="560" y="148" fill="#dc2626" font-weight="400">free ribosomes (80S)</text>
+  </g>
+
+  <!-- ── Plant-specific features panel ──────────────────────── -->
+  <rect x="600" y="60" width="200" height="430" fill="#f0fdf4" stroke="#15803d" stroke-width="1.5" rx="8"/>
+  <text x="700" y="80" font-size="13" font-weight="700" fill="#14532d" text-anchor="middle">Plant-specific features</text>
+
+  <g font-size="10">
+    <!-- 1. cell wall -->
+    <text x="612" y="106" font-weight="700" fill="#14532d">1. Cellulose cell wall</text>
+    <text x="612" y="120" fill="#4a5568">A rigid layer outside the plasma</text>
+    <text x="612" y="132" fill="#4a5568">membrane. Gives shape · resists turgor</text>
+    <text x="612" y="144" fill="#4a5568">pressure · prevents bursting in fresh water.</text>
+
+    <!-- 2. central vacuole -->
+    <text x="612" y="170" font-weight="700" fill="#1e3a8a">2. Large central vacuole</text>
+    <text x="612" y="184" fill="#4a5568">Up to 90% of cell volume. Stores</text>
+    <text x="612" y="196" fill="#4a5568">water + solutes; turgor pressure</text>
+    <text x="612" y="208" fill="#4a5568">supports stems and leaves.</text>
+
+    <!-- 3. chloroplasts -->
+    <text x="612" y="234" font-weight="700" fill="#15803d">3. Chloroplasts</text>
+    <text x="612" y="248" fill="#4a5568">Site of photosynthesis. Contain</text>
+    <text x="612" y="260" fill="#4a5568">chlorophyll on stacked thylakoid</text>
+    <text x="612" y="272" fill="#4a5568">membranes (grana). Have own DNA</text>
+    <text x="612" y="284" fill="#4a5568">and 70S ribosomes.</text>
+
+    <!-- 4. plasmodesmata -->
+    <text x="612" y="310" font-weight="700" fill="#7c3aed">4. Plasmodesmata</text>
+    <text x="612" y="324" fill="#4a5568">Cytoplasmic channels through the</text>
+    <text x="612" y="336" fill="#4a5568">cell wall connecting neighbouring</text>
+    <text x="612" y="348" fill="#4a5568">cells. Allow direct transfer of small</text>
+    <text x="612" y="360" fill="#4a5568">molecules and signals.</text>
+
+    <!-- Absent features -->
+    <text x="612" y="390" font-weight="700" fill="#dc2626">What's missing vs animal?</text>
+    <text x="612" y="404" fill="#4a5568">- No centrioles (mitotic spindle</text>
+    <text x="612" y="416" fill="#4a5568">  organises without them).</text>
+    <text x="612" y="428" fill="#4a5568">- No lysosomes (the vacuole and</text>
+    <text x="612" y="440" fill="#4a5568">  cytoplasm handle digestion).</text>
+    <text x="612" y="452" fill="#4a5568">- Cell shape rigid + box-like, not</text>
+    <text x="612" y="464" fill="#4a5568">  round/irregular.</text>
+
+    <text x="700" y="484" font-size="9" font-style="italic" fill="#718096" text-anchor="middle">Same eukaryote plan + four extras.</text>
+  </g>
+</svg>

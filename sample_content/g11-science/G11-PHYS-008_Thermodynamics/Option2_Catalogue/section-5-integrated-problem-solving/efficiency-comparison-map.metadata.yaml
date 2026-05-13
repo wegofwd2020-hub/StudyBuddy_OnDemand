@@ -1,0 +1,14 @@
+schema_version: 1
+id: physics-thermodynamics-efficiency-comparison-map
+kind: image
+subject: physics
+topic_phrase: "horizontal bar chart comparing typical efficiencies of real heat engines against the Carnot upper bound for the same reservoir temperatures"
+keywords:
+  - efficiency
+  - carnot-limit
+  - real-engine
+  - second-law-bound
+  - efficiency-comparison
+  - thermal-power
+license: platform-cc-by-sa
+source_unit: G11-PHYS-008

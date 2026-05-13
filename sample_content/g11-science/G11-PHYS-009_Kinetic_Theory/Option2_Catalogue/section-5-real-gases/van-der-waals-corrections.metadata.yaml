@@ -1,0 +1,14 @@
+schema_version: 1
+id: physics-kinetic-theory-van-der-waals-corrections
+kind: image
+subject: physics
+topic_phrase: "van der Waals equation of state with two corrections to the ideal gas law: b for finite molecular volume and a for pairwise intermolecular attraction"
+keywords:
+  - van-der-waals
+  - real-gas
+  - excluded-volume
+  - intermolecular-attraction
+  - equation-of-state
+  - ideal-gas-correction
+license: platform-cc-by-sa
+source_unit: G11-PHYS-009

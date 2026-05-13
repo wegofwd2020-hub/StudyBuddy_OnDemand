@@ -5,6 +5,8 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { SBMarkdown } from "@/components/content/Markdown";
+import { VisualSlot } from "@/components/content/VisualSlot";
+import type { VisualBlock } from "@/lib/types/api";
 import {
   getUnitContentMeta,
   getUnitContentFile,
@@ -375,6 +377,7 @@ function TutorialRenderer({
     content: string;
     examples?: string[];
     practice_question?: string;
+    visuals?: VisualBlock[];
   }>;
   const mistakes = (data.common_mistakes ?? []) as string[];
 
@@ -432,6 +435,7 @@ function TutorialRenderer({
       ) : activeSection ? (
         <div className="space-y-4">
           <Prose text={activeSection.content} />
+          <VisualSlot visuals={activeSection.visuals} />
           {activeSection.examples && activeSection.examples.length > 0 && (
             <div className="space-y-2">
               <p className="text-xs font-semibold tracking-wide text-gray-500 uppercase">

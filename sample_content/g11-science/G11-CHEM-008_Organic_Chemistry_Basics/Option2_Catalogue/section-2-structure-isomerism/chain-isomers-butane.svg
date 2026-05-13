@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" width="720" height="360" role="img" aria-label="Chain isomers of C4H10 — n-butane and isobutane">
+  <title>Chain Isomers — n-Butane vs Isobutane</title>
+  <desc>Both molecules have the formula C4H10 but the carbon skeleton is wired differently. n-Butane is a straight chain. Isobutane (2-methylpropane) has a methyl branch on the central carbon. Different skeletons → different boiling points, melting points and densities.</desc>
+
+  <text x="360" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Chain Isomers — Same Formula, Different Skeleton (C₄H₁₀)</text>
+  <text x="360" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Both have 4 carbons and 10 hydrogens. The carbons are arranged differently — that's enough to give two distinct compounds.</text>
+
+  <!-- ── n-butane (left) ─────────────────────────────────────────── -->
+  <g transform="translate(40, 70)">
+    <rect x="0" y="0" width="300" height="230" rx="8" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5" />
+    <text x="150" y="24" font-size="13" font-weight="700" fill="#1e40af" text-anchor="middle">n-Butane</text>
+    <text x="150" y="40" font-size="10" fill="#1e3a8a" text-anchor="middle">straight chain · IUPAC: butane</text>
+
+    <!-- skeletal -->
+    <polyline points="40,140 90,110 140,140 190,110 240,140" fill="none" stroke="#1a202c" stroke-width="2.5" />
+
+    <!-- condensed -->
+    <text x="150" y="180" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">CH₃–CH₂–CH₂–CH₃</text>
+
+    <!-- properties -->
+    <text x="20" y="208" font-size="10" font-weight="700" fill="#1e3a8a">b.p.: −0.5 °C</text>
+    <text x="160" y="208" font-size="10" font-weight="700" fill="#1e3a8a">m.p.: −138 °C</text>
+  </g>
+
+  <!-- ── isobutane (right) ───────────────────────────────────────── -->
+  <g transform="translate(380, 70)">
+    <rect x="0" y="0" width="300" height="230" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="1.5" />
+    <text x="150" y="24" font-size="13" font-weight="700" fill="#92400e" text-anchor="middle">Isobutane (2-methylpropane)</text>
+    <text x="150" y="40" font-size="10" fill="#92400e" text-anchor="middle">branched chain · IUPAC: 2-methylpropane</text>
+
+    <!-- branched skeletal: 3-carbon main chain, methyl on middle vertex -->
+    <polyline points="60,140 110,110 160,140" fill="none" stroke="#1a202c" stroke-width="2.5" />
+    <line x1="110" y1="110" x2="110" y2="68" stroke="#1a202c" stroke-width="2.5" />
+    <line x1="160" y1="140" x2="210" y2="110" stroke="#1a202c" stroke-width="2.5" />
+
+    <!-- condensed -->
+    <text x="150" y="180" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">(CH₃)₃CH</text>
+
+    <!-- properties -->
+    <text x="20" y="208" font-size="10" font-weight="700" fill="#92400e">b.p.: −11.7 °C</text>
+    <text x="160" y="208" font-size="10" font-weight="700" fill="#92400e">m.p.: −159 °C</text>
+  </g>
+
+  <!-- ── delta panel ─────────────────────────────────────────────── -->
+  <g transform="translate(40, 318)">
+    <text x="0" y="14" font-size="11" font-weight="700" fill="#1a202c">Why the difference?</text>
+    <text x="120" y="14" font-size="10" fill="#4a5568">Branching makes the molecule more compact → less surface area → weaker London forces → lower boiling point.</text>
+  </g>
+
+  <!-- comparison arrow -->
+  <text x="360" y="190" font-size="40" fill="#dc2626" text-anchor="middle">≠</text>
+</svg>

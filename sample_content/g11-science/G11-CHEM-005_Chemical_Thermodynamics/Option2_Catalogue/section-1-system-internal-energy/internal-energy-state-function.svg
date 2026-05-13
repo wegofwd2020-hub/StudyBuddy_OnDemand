@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" role="img" aria-label="Internal energy as a state function">
+  <title>Internal Energy U — State Function</title>
+  <desc>Two paths from initial state A to final state B on a U vs state diagram. Path 1 (blue, direct) and Path 2 (orange, via intermediate C) yield the same change in internal energy. Internal energy depends only on the state, not the path.</desc>
+
+  <text x="320" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Internal Energy U is a State Function</text>
+  <text x="320" y="42" font-size="11" fill="#4a5568" text-anchor="middle">ΔU depends only on initial and final states — never on the path taken between them.</text>
+
+  <!-- Plot area -->
+  <line x1="80" y1="280" x2="80" y2="80" stroke="#1a202c" stroke-width="2"/>
+  <line x1="80" y1="280" x2="580" y2="280" stroke="#1a202c" stroke-width="2"/>
+
+  <!-- Y axis label -->
+  <text x="40" y="180" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle" transform="rotate(-90 40 180)">Internal energy U</text>
+  <!-- X axis label -->
+  <text x="320" y="305" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">state coordinate (e.g. progress / configuration)</text>
+
+  <!-- Reference dashed levels -->
+  <line x1="80" y1="220" x2="580" y2="220" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="80" y1="120" x2="580" y2="120" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="80" y1="170" x2="580" y2="170" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3 3"/>
+
+  <text x="74" y="224" font-size="10" fill="#64748b" text-anchor="end">U_A</text>
+  <text x="74" y="124" font-size="10" fill="#64748b" text-anchor="end">U_B</text>
+  <text x="74" y="174" font-size="10" fill="#64748b" text-anchor="end">U_C</text>
+
+  <!-- Path 1 (direct, blue) -->
+  <path d="M 130 220 Q 280 195, 530 120" fill="none" stroke="#2b6cb0" stroke-width="3"/>
+  <text x="270" y="180" font-size="12" font-weight="700" fill="#2b6cb0">Path 1 (direct)</text>
+
+  <!-- Path 2 (via C, orange) -->
+  <path d="M 130 220 L 250 170 L 380 170 L 530 120" fill="none" stroke="#dd6b20" stroke-width="3" stroke-dasharray="6 4"/>
+  <text x="370" y="160" font-size="12" font-weight="700" fill="#dd6b20">Path 2 (via C)</text>
+
+  <!-- Endpoint markers -->
+  <circle cx="130" cy="220" r="7" fill="#dc2626" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="130" y="245" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">A</text>
+  <text x="130" y="260" font-size="10" fill="#4a5568" text-anchor="middle">initial</text>
+
+  <circle cx="530" cy="120" r="7" fill="#15803d" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="530" y="105" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">B</text>
+  <text x="530" y="92" font-size="10" fill="#4a5568" text-anchor="middle">final</text>
+
+  <circle cx="315" cy="170" r="6" fill="#dd6b20" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="315" y="155" font-size="12" font-weight="700" fill="#dd6b20" text-anchor="middle">C</text>
+
+  <!-- ΔU bracket -->
+  <line x1="585" y1="220" x2="595" y2="220" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="585" y1="120" x2="595" y2="120" stroke="#1a202c" stroke-width="1.5"/>
+  <line x1="595" y1="220" x2="595" y2="120" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="610" y="175" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">ΔU</text>
+
+  <!-- Equation box -->
+  <rect x="120" y="324" width="400" height="30" rx="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.5"/>
+  <text x="320" y="345" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">ΔU = U_B − U_A   ·   identical for Path 1 and Path 2</text>
+</svg>

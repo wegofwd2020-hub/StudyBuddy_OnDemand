@@ -1,0 +1,14 @@
+schema_version: 1
+id: physics-thermodynamics-problem-solving-flowchart
+kind: image
+subject: physics
+topic_phrase: "decision flowchart for solving thermodynamics problems by branching on cycle versus single process and then on process type"
+keywords:
+  - problem-solving
+  - flowchart
+  - first-law
+  - process-classification
+  - decision-tree
+  - thermodynamics-formulas
+license: platform-cc-by-sa
+source_unit: G11-PHYS-008

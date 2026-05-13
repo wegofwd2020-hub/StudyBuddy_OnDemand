@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 380" width="600" height="380" role="img" aria-label="Comparison of Kelvin, Celsius, and Fahrenheit temperature scales">
+  <title>Temperature Scales — Kelvin, Celsius, Fahrenheit</title>
+  <desc>Three vertical thermometers compare the Kelvin, Celsius, and Fahrenheit scales at four reference points: absolute zero, the freezing point of water, body temperature, and the boiling point of water. Conversion formulas are shown below.</desc>
+
+  <text x="300" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Temperature Scales — Kelvin, Celsius, Fahrenheit</text>
+
+  <!-- Three thermometer columns -->
+  <!-- Plot area -->
+  <rect x="40" y="40" width="520" height="260" fill="#f7fafc" stroke="#e2e8f0" />
+
+  <!-- Reference horizontal lines + labels (left side) -->
+  <g stroke="#cbd5e1" stroke-dasharray="4 3" stroke-width="0.8">
+    <line x1="40" y1="80" x2="560" y2="80" />
+    <line x1="40" y1="140" x2="560" y2="140" />
+    <line x1="40" y1="200" x2="560" y2="200" />
+    <line x1="40" y1="270" x2="560" y2="270" />
+  </g>
+  <text x="56" y="76" font-size="10" font-weight="700" fill="#1a202c">boiling water</text>
+  <text x="56" y="136" font-size="10" font-weight="700" fill="#1a202c">body temperature (37 °C)</text>
+  <text x="56" y="196" font-size="10" font-weight="700" fill="#1a202c">freezing water</text>
+  <text x="56" y="266" font-size="10" font-weight="700" fill="#1a202c">absolute zero</text>
+
+  <!-- KELVIN column -->
+  <rect x="220" y="60" width="40" height="220" fill="#e0e7ff" stroke="#1d4ed8" stroke-width="2" rx="6" />
+  <circle cx="240" cy="290" r="14" fill="#1d4ed8" />
+  <text x="240" y="50" font-size="13" font-weight="700" fill="#1d4ed8" text-anchor="middle">KELVIN (K)</text>
+  <text x="232" y="84" font-size="11" font-weight="700" fill="#1d4ed8" text-anchor="end">373</text>
+  <text x="232" y="144" font-size="11" font-weight="700" fill="#1d4ed8" text-anchor="end">310</text>
+  <text x="232" y="204" font-size="11" font-weight="700" fill="#1d4ed8" text-anchor="end">273</text>
+  <text x="232" y="274" font-size="11" font-weight="700" fill="#dc2626" text-anchor="end">0</text>
+
+  <!-- Mercury column inside Kelvin -->
+  <rect x="232" y="200" width="16" height="80" fill="#1d4ed8" />
+
+  <!-- Tick marks -->
+  <g stroke="#1d4ed8" stroke-width="1">
+    <line x1="220" y1="80" x2="226" y2="80" /><line x1="220" y1="140" x2="226" y2="140" />
+    <line x1="220" y1="200" x2="226" y2="200" /><line x1="220" y1="270" x2="226" y2="270" />
+  </g>
+
+  <!-- CELSIUS column -->
+  <rect x="320" y="60" width="40" height="220" fill="#fef3c7" stroke="#dd6b20" stroke-width="2" rx="6" />
+  <circle cx="340" cy="290" r="14" fill="#dd6b20" />
+  <text x="340" y="50" font-size="13" font-weight="700" fill="#dd6b20" text-anchor="middle">CELSIUS (°C)</text>
+  <text x="332" y="84" font-size="11" font-weight="700" fill="#dd6b20" text-anchor="end">100</text>
+  <text x="332" y="144" font-size="11" font-weight="700" fill="#dd6b20" text-anchor="end">37</text>
+  <text x="332" y="204" font-size="11" font-weight="700" fill="#dd6b20" text-anchor="end">0</text>
+  <text x="332" y="274" font-size="11" font-weight="700" fill="#dc2626" text-anchor="end">−273</text>
+
+  <rect x="332" y="200" width="16" height="80" fill="#dd6b20" />
+
+  <g stroke="#dd6b20" stroke-width="1">
+    <line x1="320" y1="80" x2="326" y2="80" /><line x1="320" y1="140" x2="326" y2="140" />
+    <line x1="320" y1="200" x2="326" y2="200" /><line x1="320" y1="270" x2="326" y2="270" />
+  </g>
+
+  <!-- FAHRENHEIT column -->
+  <rect x="430" y="60" width="40" height="220" fill="#fee2e2" stroke="#b91c1c" stroke-width="2" rx="6" />
+  <circle cx="450" cy="290" r="14" fill="#b91c1c" />
+  <text x="450" y="50" font-size="13" font-weight="700" fill="#b91c1c" text-anchor="middle">FAHRENHEIT (°F)</text>
+  <text x="442" y="84" font-size="11" font-weight="700" fill="#b91c1c" text-anchor="end">212</text>
+  <text x="442" y="144" font-size="11" font-weight="700" fill="#b91c1c" text-anchor="end">98.6</text>
+  <text x="442" y="204" font-size="11" font-weight="700" fill="#b91c1c" text-anchor="end">32</text>
+  <text x="442" y="274" font-size="11" font-weight="700" fill="#dc2626" text-anchor="end">−460</text>
+
+  <rect x="442" y="200" width="16" height="80" fill="#b91c1c" />
+
+  <g stroke="#b91c1c" stroke-width="1">
+    <line x1="430" y1="80" x2="436" y2="80" /><line x1="430" y1="140" x2="436" y2="140" />
+    <line x1="430" y1="200" x2="436" y2="200" /><line x1="430" y1="270" x2="436" y2="270" />
+  </g>
+
+  <!-- Conversion panel -->
+  <rect x="40" y="312" width="520" height="56" rx="6" fill="#f7fafc" stroke="#cbd5e1" />
+  <text x="50" y="330" font-size="12" font-weight="700" fill="#1a202c">Conversions</text>
+  <text x="50" y="350" font-size="13" font-weight="700" fill="#1d4ed8">T(K) = T(°C) + 273.15</text>
+  <text x="240" y="350" font-size="13" font-weight="700" fill="#dd6b20">T(°C) = (T(°F) − 32) × 5⁄9</text>
+  <text x="50" y="364" font-size="11" fill="#15803d" font-style="italic">Same physical quantity — only the numbering differs.  SI uses Kelvin.  Absolute zero (0 K) is the lower limit of temperature.</text>
+</svg>

@@ -1,0 +1,14 @@
+# Auto-generated sidecar — edit alongside the SVG.
+schema_version: 1
+id: math-calculus-secant-to-tangent
+kind: image
+subject: math
+topic_phrase: "secant lines through a fixed point converging to the tangent line as the second point approaches the first"
+keywords:
+  - derivative
+  - secant-line
+  - tangent-line
+  - difference-quotient
+  - limit
+license: platform-cc-by-sa
+source_unit: G11-MATH-004

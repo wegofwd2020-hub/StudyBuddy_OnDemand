@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 320" width="720" height="320" role="img" aria-label="Anatomy of scientific notation">
+  <title>Anatomy of Scientific Notation</title>
+  <desc>An annotated diagram of a number in scientific notation showing coefficient, base, exponent and the rule that the coefficient must satisfy 1 ≤ |a| &lt; 10. Includes worked conversions.</desc>
+
+  <text x="360" y="26" font-family="system-ui" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Scientific Notation — anatomy of  a × 10ⁿ</text>
+  <text x="360" y="46" font-family="system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">a single, unambiguous way to write very large or very small measurements</text>
+
+  <!-- Big formula display -->
+  <text x="360" y="120" font-family="system-ui" font-size="56" font-weight="700" fill="#1a202c" text-anchor="middle">
+    <tspan fill="#2b6cb0">6.022</tspan>
+    <tspan fill="#1a202c"> × </tspan>
+    <tspan fill="#dd6b20">10</tspan>
+    <tspan fill="#dd6b20" baseline-shift="super" font-size="36">23</tspan>
+  </text>
+
+  <!-- Annotations -->
+  <g font-family="system-ui">
+    <!-- Coefficient annotation -->
+    <line x1="240" y1="130" x2="240" y2="170" stroke="#2b6cb0" stroke-width="1.5" />
+    <text x="240" y="188" font-size="12" font-weight="700" fill="#2b6cb0" text-anchor="middle">coefficient</text>
+    <text x="240" y="206" font-size="11" fill="#4a5568" text-anchor="middle">1 ≤ |a| &lt; 10</text>
+    <text x="240" y="222" font-size="11" fill="#4a5568" text-anchor="middle">carries the s.f.</text>
+
+    <!-- Base -->
+    <line x1="380" y1="130" x2="380" y2="170" stroke="#dd6b20" stroke-width="1.5" />
+    <text x="380" y="188" font-size="12" font-weight="700" fill="#dd6b20" text-anchor="middle">base</text>
+    <text x="380" y="206" font-size="11" fill="#4a5568" text-anchor="middle">always 10</text>
+
+    <!-- Exponent -->
+    <line x1="450" y1="98" x2="490" y2="78" stroke="#dd6b20" stroke-width="1.5" />
+    <text x="500" y="74" font-size="12" font-weight="700" fill="#dd6b20">exponent (integer)</text>
+    <text x="500" y="90" font-size="11" fill="#4a5568">+ for large, − for small</text>
+  </g>
+
+  <!-- Worked conversions -->
+  <rect x="20" y="232" width="680" height="80" rx="8" fill="#f7fafc" stroke="#e2e8f0" />
+  <text x="30" y="252" font-family="system-ui" font-size="13" font-weight="700" fill="#1a202c">Worked conversions</text>
+  <g font-family="system-ui" font-size="12" fill="#1a202c">
+    <text x="30"  y="276">299 792 458 m/s   →   <tspan font-weight="700" fill="#2b6cb0">2.99792458 × 10⁸ m/s</tspan>
+      <tspan fill="#4a5568" font-size="11"> (decimal point left 8 places ⇒ exponent +8)</tspan></text>
+    <text x="30"  y="296">0.000 000 000 660 J·s   →   <tspan font-weight="700" fill="#2b6cb0">6.60 × 10⁻¹⁰ J·s</tspan>
+      <tspan fill="#4a5568" font-size="11"> (decimal point right 10 places ⇒ exponent −10)</tspan></text>
+  </g>
+</svg>

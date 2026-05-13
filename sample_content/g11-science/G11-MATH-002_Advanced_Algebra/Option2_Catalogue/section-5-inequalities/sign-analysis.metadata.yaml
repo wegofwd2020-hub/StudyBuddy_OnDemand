@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-advanced-algebra-sign-analysis
+kind: image
+subject: math
+topic_phrase: "sign analysis number line for a polynomial inequality"
+keywords:
+  - inequality
+  - polynomial
+  - sign-analysis
+  - number-line
+  - test-points
+license: platform-cc-by-sa
+source_unit: G11-MATH-002

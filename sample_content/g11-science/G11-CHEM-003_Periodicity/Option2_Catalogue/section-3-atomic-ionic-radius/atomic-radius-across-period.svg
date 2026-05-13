@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" width="720" height="360" role="img" aria-label="Atomic radius decreases across period 2">
+  <title>Atomic Radius — Decreases Across a Period</title>
+  <desc>Bar plot of atomic radius (in pm) across period 2: Li (152), Be (112), B (88), C (77), N (75), O (73), F (72). Bars step down. Above the bars, scaled circles show the relative atom sizes shrinking. Below, a callout explains the reason — same shell, more protons → stronger pull.</desc>
+
+  <text x="360" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Atomic Radius — Across a Period (Period 2)</text>
+  <text x="360" y="40" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Same shell, more protons. Effective nuclear charge rises and pulls electrons in.</text>
+
+  <!-- Scaled atom circles row -->
+  <g transform="translate(50, 70)">
+    <text x="305" y="0" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#4a5568" text-anchor="middle">Relative atom sizes (radius shrinks left to right)</text>
+    <!-- scale: 1 pm = 0.30 px (so r 75 → 22.5 px) -->
+    <circle cx="40" cy="55" r="46" fill="#dbeafe" stroke="#2b6cb0" stroke-width="2"/>
+    <text x="40" y="60" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1e3a8a" text-anchor="middle">Li</text>
+    <circle cx="130" cy="55" r="34" fill="#dbeafe" stroke="#2b6cb0" stroke-width="2"/>
+    <text x="130" y="60" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1e3a8a" text-anchor="middle">Be</text>
+    <circle cx="220" cy="55" r="26" fill="#fed7aa" stroke="#c2410c" stroke-width="2"/>
+    <text x="220" y="60" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#7c2d12" text-anchor="middle">B</text>
+    <circle cx="305" cy="55" r="23" fill="#fed7aa" stroke="#c2410c" stroke-width="2"/>
+    <text x="305" y="60" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#7c2d12" text-anchor="middle">C</text>
+    <circle cx="390" cy="55" r="22" fill="#fed7aa" stroke="#c2410c" stroke-width="2"/>
+    <text x="390" y="60" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#7c2d12" text-anchor="middle">N</text>
+    <circle cx="475" cy="55" r="22" fill="#fed7aa" stroke="#c2410c" stroke-width="2"/>
+    <text x="475" y="60" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#7c2d12" text-anchor="middle">O</text>
+    <circle cx="560" cy="55" r="21" fill="#fed7aa" stroke="#c2410c" stroke-width="2"/>
+    <text x="560" y="60" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#7c2d12" text-anchor="middle">F</text>
+  </g>
+
+  <!-- Across-period arrow -->
+  <g transform="translate(50, 158)">
+    <line x1="20" y1="0" x2="600" y2="0" stroke="#dc2626" stroke-width="2" stroke-dasharray="4 3"/>
+    <polygon points="600,0 592,-5 592,5" fill="#dc2626"/>
+    <text x="310" y="-6" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">going across Period 2 →</text>
+  </g>
+
+  <!-- Bar plot -->
+  <g transform="translate(50, 174)">
+    <text x="305" y="0" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#4a5568" text-anchor="middle">Atomic radius (pm)</text>
+
+    <!-- Y-axis -->
+    <line x1="40" y1="14" x2="40" y2="120" stroke="#1a202c" stroke-width="1.5"/>
+    <line x1="40" y1="120" x2="610" y2="120" stroke="#1a202c" stroke-width="1.5"/>
+
+    <g font="9px system-ui" font-size="9" fill="#4a5568" text-anchor="end">
+      <line x1="36" y1="120" x2="40" y2="120" stroke="#1a202c" stroke-width="1"/>
+      <text x="34" y="123">0</text>
+      <line x1="36" y1="84" x2="40" y2="84" stroke="#1a202c" stroke-width="1"/>
+      <text x="34" y="87">50</text>
+      <line x1="36" y1="48" x2="40" y2="48" stroke="#1a202c" stroke-width="1"/>
+      <text x="34" y="51">100</text>
+      <line x1="36" y1="14" x2="40" y2="14" stroke="#1a202c" stroke-width="1"/>
+      <text x="34" y="17">150</text>
+    </g>
+
+    <!-- Bars: scale 1 pm = 0.72 px (so 100 pm = 72 px). Bars sit on y=120, height=val*0.72 -->
+    <!-- Li 152 → 109.4 -->
+    <rect x="60" y="10.6" width="50" height="109.4" fill="#3b82f6" opacity="0.85" stroke="#1e3a8a" stroke-width="1"/>
+    <text x="85" y="138" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">Li</text>
+    <text x="85" y="6" font="9px system-ui" font-size="9" fill="#1a202c" text-anchor="middle">152</text>
+
+    <!-- Be 112 → 80.6 -->
+    <rect x="140" y="39.4" width="50" height="80.6" fill="#3b82f6" opacity="0.85" stroke="#1e3a8a" stroke-width="1"/>
+    <text x="165" y="138" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">Be</text>
+    <text x="165" y="34" font="9px system-ui" font-size="9" fill="#1a202c" text-anchor="middle">112</text>
+
+    <!-- B 88 → 63.4 -->
+    <rect x="220" y="56.6" width="50" height="63.4" fill="#f59e0b" opacity="0.9" stroke="#92400e" stroke-width="1"/>
+    <text x="245" y="138" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#7c2d12" text-anchor="middle">B</text>
+    <text x="245" y="51" font="9px system-ui" font-size="9" fill="#1a202c" text-anchor="middle">88</text>
+
+    <!-- C 77 → 55.4 -->
+    <rect x="300" y="64.6" width="50" height="55.4" fill="#f59e0b" opacity="0.9" stroke="#92400e" stroke-width="1"/>
+    <text x="325" y="138" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#7c2d12" text-anchor="middle">C</text>
+    <text x="325" y="59" font="9px system-ui" font-size="9" fill="#1a202c" text-anchor="middle">77</text>
+
+    <!-- N 75 → 54 -->
+    <rect x="380" y="66" width="50" height="54" fill="#f59e0b" opacity="0.9" stroke="#92400e" stroke-width="1"/>
+    <text x="405" y="138" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#7c2d12" text-anchor="middle">N</text>
+    <text x="405" y="60" font="9px system-ui" font-size="9" fill="#1a202c" text-anchor="middle">75</text>
+
+    <!-- O 73 → 52.6 -->
+    <rect x="460" y="67.4" width="50" height="52.6" fill="#f59e0b" opacity="0.9" stroke="#92400e" stroke-width="1"/>
+    <text x="485" y="138" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#7c2d12" text-anchor="middle">O</text>
+    <text x="485" y="62" font="9px system-ui" font-size="9" fill="#1a202c" text-anchor="middle">73</text>
+
+    <!-- F 72 → 51.8 -->
+    <rect x="540" y="68.2" width="50" height="51.8" fill="#f59e0b" opacity="0.9" stroke="#92400e" stroke-width="1"/>
+    <text x="565" y="138" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#7c2d12" text-anchor="middle">F</text>
+    <text x="565" y="63" font="9px system-ui" font-size="9" fill="#1a202c" text-anchor="middle">72</text>
+
+    <text x="305" y="158" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">element (Z = 3 → 9)</text>
+  </g>
+
+  <!-- Why callout -->
+  <g transform="translate(40, 332)">
+    <rect x="0" y="-16" width="640" height="40" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+    <text x="320" y="3" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#92400e" text-anchor="middle">Why smaller? Same shell (n = 2). Adding a proton without adding a shell pulls electrons in tighter.</text>
+    <text x="320" y="18" font="11px system-ui" font-size="11" fill="#92400e" text-anchor="middle">Effective nuclear charge Z_eff rises across the period; the noble-gas (Ne) is omitted — covalent radius is undefined.</text>
+  </g>
+
+</svg>

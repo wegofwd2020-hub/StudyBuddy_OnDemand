@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-advanced-algebra-test-point-method
+kind: image
+subject: math
+topic_phrase: "test-point method for solving a quadratic inequality"
+keywords:
+  - inequality
+  - quadratic
+  - test-point
+  - parabola
+  - solution-set
+license: platform-cc-by-sa
+source_unit: G11-MATH-002

@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" width="720" height="360" role="img" aria-label="Catenation — carbon forms straight chains, branched chains, and rings">
+  <title>Catenation — Why Carbon Builds So Many Skeletons</title>
+  <desc>Carbon's tetravalency plus a strong, similar-strength C–C bond (≈ 348 kJ mol⁻¹) lets it link to itself indefinitely. The same property gives three skeleton families: straight chains, branched chains, and rings. This is the structural basis for the millions of known organic compounds.</desc>
+
+  <text x="360" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Catenation — Carbon Bonds to Itself</text>
+  <text x="360" y="40" font-size="11" fill="#4a5568" text-anchor="middle">C–C bond ≈ 348 kJ mol⁻¹ · stable, non-polar · same orbital type at both ends → indefinite linking</text>
+
+  <!-- ── 1. Straight chain (n-pentane) ───────────────────────────── -->
+  <g transform="translate(40, 80)">
+    <rect x="0" y="0" width="200" height="200" rx="8" fill="#f7fafc" stroke="#94a3b8" stroke-width="1.5" />
+    <text x="100" y="22" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Straight chain</text>
+    <text x="100" y="38" font-size="10" fill="#4a5568" text-anchor="middle">n-pentane · C₅H₁₂</text>
+
+    <!-- skeletal zig-zag of 5 carbons -->
+    <polyline points="30,140 60,110 90,140 120,110 150,140 180,110"
+      fill="none" stroke="#1a202c" stroke-width="2.5" />
+    <!-- C labels at vertices -->
+    <text x="30" y="156" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">C</text>
+    <text x="60" y="100" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">C</text>
+    <text x="90" y="156" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">C</text>
+    <text x="120" y="100" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">C</text>
+    <text x="150" y="156" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">C</text>
+    <text x="180" y="100" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">C</text>
+
+    <text x="100" y="190" font-size="10" fill="#4a5568" text-anchor="middle">all carbons sp³ · 109.5° at each</text>
+  </g>
+
+  <!-- ── 2. Branched chain (isopentane / 2-methylbutane) ─────────── -->
+  <g transform="translate(260, 80)">
+    <rect x="0" y="0" width="200" height="200" rx="8" fill="#f7fafc" stroke="#94a3b8" stroke-width="1.5" />
+    <text x="100" y="22" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Branched chain</text>
+    <text x="100" y="38" font-size="10" fill="#4a5568" text-anchor="middle">2-methylbutane · C₅H₁₂</text>
+
+    <!-- main chain -->
+    <polyline points="30,140 60,110 90,140 120,110 150,140"
+      fill="none" stroke="#1a202c" stroke-width="2.5" />
+    <!-- branch at C2 -->
+    <line x1="60" y1="110" x2="60" y2="76" stroke="#1a202c" stroke-width="2.5" />
+
+    <text x="30" y="156" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">C</text>
+    <text x="60" y="100" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">C</text>
+    <text x="90" y="156" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">C</text>
+    <text x="120" y="100" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">C</text>
+    <text x="150" y="156" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">C</text>
+    <text x="60" y="68" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle">C</text>
+
+    <text x="100" y="190" font-size="10" fill="#4a5568" text-anchor="middle">same formula, different shape</text>
+  </g>
+
+  <!-- ── 3. Ring (cyclopentane) ──────────────────────────────────── -->
+  <g transform="translate(480, 80)">
+    <rect x="0" y="0" width="200" height="200" rx="8" fill="#f7fafc" stroke="#94a3b8" stroke-width="1.5" />
+    <text x="100" y="22" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Ring</text>
+    <text x="100" y="38" font-size="10" fill="#4a5568" text-anchor="middle">cyclopentane · C₅H₁₀</text>
+
+    <!-- regular pentagon, vertex up -->
+    <polygon points="100,70 142,100 126,150 74,150 58,100"
+      fill="none" stroke="#1a202c" stroke-width="2.5" />
+    <text x="100" y="65" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">C</text>
+    <text x="148" y="104" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">C</text>
+    <text x="132" y="164" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">C</text>
+    <text x="68"  y="164" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">C</text>
+    <text x="52"  y="104" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">C</text>
+
+    <text x="100" y="190" font-size="10" fill="#4a5568" text-anchor="middle">closes back on itself · 2 fewer H</text>
+  </g>
+
+  <!-- bottom band -->
+  <line x1="40" y1="312" x2="680" y2="312" stroke="#cbd5e1" stroke-width="1" />
+  <text x="360" y="332" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">Each skeleton family is a different world. Property profiles, names and reactivity all change.</text>
+  <text x="360" y="350" font-size="10" fill="#4a5568" text-anchor="middle">Si–Si is half as strong (≈ 222 kJ mol⁻¹) — that's why silicon does not give "silicon chemistry" rivalling carbon's.</text>
+</svg>

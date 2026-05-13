@@ -1,0 +1,14 @@
+schema_version: 1
+id: physics-thermodynamics-heat-vs-work
+kind: image
+subject: physics
+topic_phrase: "side-by-side comparison of heat (Q) versus work (W) as two distinct ways of transferring energy to a gas"
+keywords:
+  - heat
+  - work
+  - energy-transfer
+  - first-law
+  - process-vs-state
+  - thermodynamic-process
+license: platform-cc-by-sa
+source_unit: G11-PHYS-008

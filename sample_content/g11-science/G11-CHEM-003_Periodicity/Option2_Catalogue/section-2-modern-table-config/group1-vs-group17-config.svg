@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380" role="img" aria-label="Group 1 versus group 17 electronic configurations">
+  <title>Group 1 vs Group 17 — Same Outer-Shell Pattern, Different Outer-Shell Count</title>
+  <desc>Two columns side by side. Left column: Group 1 (alkali metals) — Li, Na, K, Rb, Cs — all end in ns¹. Right column: Group 17 (halogens) — F, Cl, Br, I, At — all end in ns² np⁵. Each row shows the element symbol, atomic number, and abbreviated electron configuration. The shared "valence-shell pattern" is highlighted at the bottom.</desc>
+
+  <text x="360" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Why Groups Behave Alike — Same Valence-Shell Pattern</text>
+  <text x="360" y="40" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">Elements in the same group share the same outer-shell configuration. n changes; the pattern doesn't.</text>
+
+  <!-- Group 1 column header -->
+  <g transform="translate(40, 60)">
+    <rect x="0" y="0" width="320" height="36" rx="8" fill="#dbeafe" stroke="#2b6cb0" stroke-width="2"/>
+    <text x="160" y="22" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1e3a8a" text-anchor="middle">Group 1 — Alkali Metals  ·  ends in n s¹</text>
+  </g>
+
+  <!-- Group 1 elements -->
+  <g font="12px system-ui" font-size="12" fill="#1a202c">
+    <!-- Li -->
+    <rect x="40" y="106" width="320" height="38" rx="6" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1"/>
+    <text x="58" y="130" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1e3a8a">Li</text>
+    <text x="92" y="130" fill="#4a5568">Z = 3</text>
+    <text x="160" y="130" font="13px system-ui" font-size="13">1s² <tspan fill="#dc2626" font-weight="700">2s¹</tspan></text>
+
+    <!-- Na -->
+    <rect x="40" y="148" width="320" height="38" rx="6" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1"/>
+    <text x="58" y="172" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1e3a8a">Na</text>
+    <text x="92" y="172" fill="#4a5568">Z = 11</text>
+    <text x="160" y="172" font="13px system-ui" font-size="13">[Ne] <tspan fill="#dc2626" font-weight="700">3s¹</tspan></text>
+
+    <!-- K -->
+    <rect x="40" y="190" width="320" height="38" rx="6" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1"/>
+    <text x="58" y="214" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1e3a8a">K</text>
+    <text x="92" y="214" fill="#4a5568">Z = 19</text>
+    <text x="160" y="214" font="13px system-ui" font-size="13">[Ar] <tspan fill="#dc2626" font-weight="700">4s¹</tspan></text>
+
+    <!-- Rb -->
+    <rect x="40" y="232" width="320" height="38" rx="6" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1"/>
+    <text x="58" y="256" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1e3a8a">Rb</text>
+    <text x="92" y="256" fill="#4a5568">Z = 37</text>
+    <text x="160" y="256" font="13px system-ui" font-size="13">[Kr] <tspan fill="#dc2626" font-weight="700">5s¹</tspan></text>
+
+    <!-- Cs -->
+    <rect x="40" y="274" width="320" height="38" rx="6" fill="#f7fafc" stroke="#2b6cb0" stroke-width="1"/>
+    <text x="58" y="298" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1e3a8a">Cs</text>
+    <text x="92" y="298" fill="#4a5568">Z = 55</text>
+    <text x="160" y="298" font="13px system-ui" font-size="13">[Xe] <tspan fill="#dc2626" font-weight="700">6s¹</tspan></text>
+  </g>
+
+  <!-- Group 17 column header -->
+  <g transform="translate(380, 60)">
+    <rect x="0" y="0" width="320" height="36" rx="8" fill="#fed7aa" stroke="#c2410c" stroke-width="2"/>
+    <text x="160" y="22" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#7c2d12" text-anchor="middle">Group 17 — Halogens  ·  ends in n s² n p⁵</text>
+  </g>
+
+  <!-- Group 17 elements -->
+  <g font="12px system-ui" font-size="12" fill="#1a202c">
+    <!-- F -->
+    <rect x="380" y="106" width="320" height="38" rx="6" fill="#f7fafc" stroke="#c2410c" stroke-width="1"/>
+    <text x="398" y="130" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#7c2d12">F</text>
+    <text x="432" y="130" fill="#4a5568">Z = 9</text>
+    <text x="500" y="130" font="13px system-ui" font-size="13">1s² <tspan fill="#dc2626" font-weight="700">2s² 2p⁵</tspan></text>
+
+    <!-- Cl -->
+    <rect x="380" y="148" width="320" height="38" rx="6" fill="#f7fafc" stroke="#c2410c" stroke-width="1"/>
+    <text x="398" y="172" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#7c2d12">Cl</text>
+    <text x="432" y="172" fill="#4a5568">Z = 17</text>
+    <text x="500" y="172" font="13px system-ui" font-size="13">[Ne] <tspan fill="#dc2626" font-weight="700">3s² 3p⁵</tspan></text>
+
+    <!-- Br -->
+    <rect x="380" y="190" width="320" height="38" rx="6" fill="#f7fafc" stroke="#c2410c" stroke-width="1"/>
+    <text x="398" y="214" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#7c2d12">Br</text>
+    <text x="432" y="214" fill="#4a5568">Z = 35</text>
+    <text x="500" y="214" font="13px system-ui" font-size="13">[Ar] 3d¹⁰ <tspan fill="#dc2626" font-weight="700">4s² 4p⁵</tspan></text>
+
+    <!-- I -->
+    <rect x="380" y="232" width="320" height="38" rx="6" fill="#f7fafc" stroke="#c2410c" stroke-width="1"/>
+    <text x="398" y="256" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#7c2d12">I</text>
+    <text x="432" y="256" fill="#4a5568">Z = 53</text>
+    <text x="500" y="256" font="13px system-ui" font-size="13">[Kr] 4d¹⁰ <tspan fill="#dc2626" font-weight="700">5s² 5p⁵</tspan></text>
+
+    <!-- At -->
+    <rect x="380" y="274" width="320" height="38" rx="6" fill="#f7fafc" stroke="#c2410c" stroke-width="1"/>
+    <text x="398" y="298" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#7c2d12">At</text>
+    <text x="432" y="298" fill="#4a5568">Z = 85</text>
+    <text x="500" y="298" font="13px system-ui" font-size="13">[Xe] 4f¹⁴ 5d¹⁰ <tspan fill="#dc2626" font-weight="700">6s² 6p⁵</tspan></text>
+  </g>
+
+  <!-- Bottom strip: pattern call-out -->
+  <g transform="translate(40, 326)">
+    <rect x="0" y="0" width="660" height="40" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+    <text x="330" y="16" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#92400e" text-anchor="middle">Highlighted in red: the part that matches across the group.</text>
+    <text x="330" y="32" font="11px system-ui" font-size="11" fill="#92400e" text-anchor="middle">Same valence pattern → similar reactivity. Bigger n → outer electrons feel a weaker pull (going down a group).</text>
+  </g>
+
+</svg>

@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" role="img" aria-label="Anatomy of Bayes' theorem with each term labelled posterior, likelihood, prior, and evidence">
+  <title>Bayes' Theorem: Anatomy of the Formula</title>
+  <desc>Bayes' theorem written as P of A given B equals P of B given A times P of A all divided by P of B.  Each term is annotated: P of A given B is the posterior, P of B given A is the likelihood, P of A is the prior, and P of B is the evidence (or marginal probability).  The denominator P of B is expanded by the law of total probability as P of B given A times P of A plus P of B given not A times P of not A.</desc>
+
+  <defs>
+    <marker id="ah-bf" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4a5568"/>
+    </marker>
+    <style>
+      .panel    { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1; }
+      .heading  { font: bold 16px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .subhead  { font: bold 14px system-ui, sans-serif; fill: #1a202c; }
+      .term     { font: bold 28px ui-serif, Georgia, serif; fill: #1a202c; text-anchor: middle; }
+      .vinculum { stroke: #1a202c; stroke-width: 2; }
+      .anno     { stroke: #4a5568; stroke-width: 1.4; fill: none; }
+      .lblPost  { font: bold 13px system-ui, sans-serif; fill: #6b46c1; text-anchor: middle; }
+      .lblLike  { font: bold 13px system-ui, sans-serif; fill: #2b6cb0; text-anchor: middle; }
+      .lblPrior { font: bold 13px system-ui, sans-serif; fill: #2f855a; text-anchor: middle; }
+      .lblEvid  { font: bold 13px system-ui, sans-serif; fill: #c53030; text-anchor: middle; }
+      .desc     { font: 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .formula  { font: italic 13px system-ui, sans-serif; fill: #1a202c; }
+    </style>
+  </defs>
+
+  <text class="heading" x="320" y="26">Bayes' theorem  —  what each piece means</text>
+
+  <rect class="panel" x="20" y="40" width="600" height="180"/>
+
+  <!-- Big formula:  P(A|B)   =   P(B|A) · P(A)
+                                  ─────────────────
+                                       P(B)
+       Layout: LHS at x ≈ 110, '=' at 200, numerator centre at 360, denominator centre at 360.
+  -->
+
+  <!-- LHS  P(A|B) -->
+  <text class="term" x="120" y="130">P(A | B)</text>
+
+  <text class="term" x="200" y="130">=</text>
+
+  <!-- Numerator  P(B|A) · P(A) -->
+  <text class="term" x="290" y="118">P(B | A)</text>
+  <text class="term" x="370" y="118">·</text>
+  <text class="term" x="430" y="118">P(A)</text>
+
+  <!-- Vinculum line -->
+  <line class="vinculum" x1="240" y1="138" x2="500" y2="138"/>
+
+  <!-- Denominator  P(B) -->
+  <text class="term" x="370" y="170">P(B)</text>
+
+  <!-- Annotation arcs / leader lines -->
+  <!-- Posterior label above LHS -->
+  <line class="anno" x1="120" y1="92" x2="120" y2="106"/>
+  <text class="lblPost" x="120" y="80">Posterior</text>
+  <text class="desc"    x="120" y="200">probability of A</text>
+  <text class="desc"    x="120" y="214">after observing B</text>
+
+  <!-- Likelihood label above numerator first term -->
+  <line class="anno" x1="290" y1="80" x2="290" y2="98"/>
+  <text class="lblLike" x="290" y="68">Likelihood</text>
+
+  <!-- Prior label above numerator second term -->
+  <line class="anno" x1="430" y1="80" x2="430" y2="98"/>
+  <text class="lblPrior" x="430" y="68">Prior</text>
+
+  <!-- Evidence label below denominator -->
+  <line class="anno" x1="370" y1="180" x2="370" y2="200"/>
+  <text class="lblEvid" x="370" y="214">Evidence</text>
+
+  <!-- ===== Lower panel: descriptions and total probability expansion ===== -->
+  <rect class="panel" x="20" y="232" width="600" height="100"/>
+
+  <text class="subhead" x="34" y="252">Each term in plain English</text>
+
+  <text class="formula" x="34" y="274">
+    <tspan fill="#6b46c1" font-weight="700">Posterior</tspan>
+    : updated belief about A
+    <tspan fill="#cbd5e0">       </tspan>
+    <tspan fill="#2b6cb0" font-weight="700">Likelihood</tspan>
+    : how A "predicts" B
+  </text>
+  <text class="formula" x="34" y="294">
+    <tspan fill="#2f855a" font-weight="700">Prior</tspan>
+    : initial belief in A
+    <tspan fill="#cbd5e0">              </tspan>
+    <tspan fill="#c53030" font-weight="700">Evidence</tspan>
+    : total probability of B
+  </text>
+
+  <!-- Total-probability expansion of P(B) -->
+  <text class="formula" x="34" y="320" fill="#c53030" font-weight="700">P(B)</text>
+  <text class="formula" x="76" y="320">= P(B | A)·P(A)  +  P(B | ¬A)·P(¬A)    (law of total probability)</text>
+
+  <text x="320" y="350" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Read the formula in two passes: numerator = "joint probability of A and B"; denominator = "total probability of B across all causes".</text>
+</svg>

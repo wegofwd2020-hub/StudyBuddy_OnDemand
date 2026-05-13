@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 380" width="760" height="380" role="img" aria-label="Levels of physiological organisation">
+  <title>Levels of organisation — molecule to organism</title>
+  <desc>A six-step horizontal ladder from molecule (smallest) to organism (largest), showing how complexity is built from simpler units. At each step the typical scale is given. Each level has emergent properties not present at the level below — for example, "perfusion of the body" only emerges at the organ-system level (cardiovascular system), not at the level of any single cardiac myocyte. The numbered levels are: 1 molecule, 2 cell, 3 tissue, 4 organ, 5 organ system, 6 organism.</desc>
+
+  <text x="380" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Levels of Physiological Organisation</text>
+  <text x="380" y="40" font-size="11" fill="#4a5568" text-anchor="middle">Each level is built from simpler units below it — and gains EMERGENT properties (functions the lower level cannot perform alone).</text>
+
+  <!-- Background -->
+  <rect x="20" y="56" width="720" height="304" rx="14" fill="#f7fafc" stroke="#cbd5e1" stroke-width="1"/>
+
+  <!-- Top arrow strip -->
+  <line x1="60" y1="80" x2="700" y2="80" stroke="#4a5568" stroke-width="1.5"/>
+  <polygon points="696,76 706,80 696,84" fill="#4a5568"/>
+  <text x="60" y="74" font-size="10" font-weight="700" fill="#4a5568">smaller / simpler</text>
+  <text x="700" y="74" font-size="10" font-weight="700" fill="#4a5568" text-anchor="end">larger / more complex</text>
+
+  <!-- 6 levels — boxes in a row -->
+  <!-- 1 Molecule -->
+  <rect x="40" y="100" width="110" height="86" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+  <text x="95" y="120" font-size="11" font-weight="700" fill="#78350f" text-anchor="middle">1 · Molecule</text>
+  <text x="95" y="136" font-size="9" fill="#4a5568" text-anchor="middle">~1 nm</text>
+  <text x="95" y="152" font-size="9" fill="#4a5568" text-anchor="middle">e.g. haemoglobin,</text>
+  <text x="95" y="164" font-size="9" fill="#4a5568" text-anchor="middle">glucose, ATP</text>
+  <text x="95" y="180" font-size="8" font-style="italic" fill="#78350f" text-anchor="middle">binds + reacts</text>
+
+  <!-- arrow -->
+  <line x1="150" y1="143" x2="160" y2="143" stroke="#4a5568" stroke-width="1.5"/>
+  <polygon points="158,140 166,143 158,146" fill="#4a5568"/>
+
+  <!-- 2 Cell -->
+  <rect x="160" y="100" width="110" height="86" rx="8" fill="#fde68a" stroke="#b45309" stroke-width="1.5"/>
+  <text x="215" y="120" font-size="11" font-weight="700" fill="#78350f" text-anchor="middle">2 · Cell</text>
+  <text x="215" y="136" font-size="9" fill="#4a5568" text-anchor="middle">~10–30 µm</text>
+  <text x="215" y="152" font-size="9" fill="#4a5568" text-anchor="middle">e.g. erythrocyte,</text>
+  <text x="215" y="164" font-size="9" fill="#4a5568" text-anchor="middle">neuron, myocyte</text>
+  <text x="215" y="180" font-size="8" font-style="italic" fill="#78350f" text-anchor="middle">life unit · metabolism</text>
+
+  <line x1="270" y1="143" x2="280" y2="143" stroke="#4a5568" stroke-width="1.5"/>
+  <polygon points="278,140 286,143 278,146" fill="#4a5568"/>
+
+  <!-- 3 Tissue -->
+  <rect x="280" y="100" width="110" height="86" rx="8" fill="#dcfce7" stroke="#15803d" stroke-width="1.5"/>
+  <text x="335" y="120" font-size="11" font-weight="700" fill="#14532d" text-anchor="middle">3 · Tissue</text>
+  <text x="335" y="136" font-size="9" fill="#4a5568" text-anchor="middle">~mm</text>
+  <text x="335" y="152" font-size="9" fill="#4a5568" text-anchor="middle">e.g. cardiac muscle,</text>
+  <text x="335" y="164" font-size="9" fill="#4a5568" text-anchor="middle">epithelium, nervous</text>
+  <text x="335" y="180" font-size="8" font-style="italic" fill="#14532d" text-anchor="middle">specialised function</text>
+
+  <line x1="390" y1="143" x2="400" y2="143" stroke="#4a5568" stroke-width="1.5"/>
+  <polygon points="398,140 406,143 398,146" fill="#4a5568"/>
+
+  <!-- 4 Organ -->
+  <rect x="400" y="100" width="110" height="86" rx="8" fill="#bbf7d0" stroke="#15803d" stroke-width="1.5"/>
+  <text x="455" y="120" font-size="11" font-weight="700" fill="#14532d" text-anchor="middle">4 · Organ</text>
+  <text x="455" y="136" font-size="9" fill="#4a5568" text-anchor="middle">~cm</text>
+  <text x="455" y="152" font-size="9" fill="#4a5568" text-anchor="middle">e.g. heart, kidney,</text>
+  <text x="455" y="164" font-size="9" fill="#4a5568" text-anchor="middle">liver, lung</text>
+  <text x="455" y="180" font-size="8" font-style="italic" fill="#14532d" text-anchor="middle">multi-tissue task</text>
+
+  <line x1="510" y1="143" x2="520" y2="143" stroke="#4a5568" stroke-width="1.5"/>
+  <polygon points="518,140 526,143 518,146" fill="#4a5568"/>
+
+  <!-- 5 Organ system -->
+  <rect x="520" y="100" width="110" height="86" rx="8" fill="#dbeafe" stroke="#2b6cb0" stroke-width="1.5"/>
+  <text x="575" y="120" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">5 · Organ System</text>
+  <text x="575" y="136" font-size="9" fill="#4a5568" text-anchor="middle">~10 cm – 1 m</text>
+  <text x="575" y="152" font-size="9" fill="#4a5568" text-anchor="middle">e.g. cardiovascular,</text>
+  <text x="575" y="164" font-size="9" fill="#4a5568" text-anchor="middle">respiratory, renal</text>
+  <text x="575" y="180" font-size="8" font-style="italic" fill="#1e3a8a" text-anchor="middle">system-level role</text>
+
+  <line x1="630" y1="143" x2="640" y2="143" stroke="#4a5568" stroke-width="1.5"/>
+  <polygon points="638,140 646,143 638,146" fill="#4a5568"/>
+
+  <!-- 6 Organism -->
+  <rect x="640" y="100" width="80" height="86" rx="8" fill="#1a202c" stroke="#1a202c" stroke-width="1.5"/>
+  <text x="680" y="120" font-size="11" font-weight="700" fill="#f7fafc" text-anchor="middle">6 · Organism</text>
+  <text x="680" y="136" font-size="9" fill="#cbd5e1" text-anchor="middle">~1.7 m · 70 kg</text>
+  <text x="680" y="152" font-size="9" fill="#cbd5e1" text-anchor="middle">human</text>
+  <text x="680" y="164" font-size="9" fill="#cbd5e1" text-anchor="middle">individual</text>
+  <text x="680" y="180" font-size="8" font-style="italic" fill="#86efac" text-anchor="middle">all 11 systems</text>
+
+  <!-- ── Emergent property callouts ────────────────────────── -->
+  <text x="380" y="220" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Emergent properties at each level</text>
+
+  <line x1="95" y1="190" x2="95" y2="244" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="95" y="258" font-size="9" fill="#4a5568" text-anchor="middle">O₂ binding</text>
+  <text x="95" y="270" font-size="9" fill="#4a5568" text-anchor="middle">enzymatic catalysis</text>
+
+  <line x1="215" y1="190" x2="215" y2="244" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="215" y="258" font-size="9" fill="#4a5568" text-anchor="middle">contraction</text>
+  <text x="215" y="270" font-size="9" fill="#4a5568" text-anchor="middle">action potential</text>
+
+  <line x1="335" y1="190" x2="335" y2="244" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="335" y="258" font-size="9" fill="#4a5568" text-anchor="middle">synchronised contraction</text>
+  <text x="335" y="270" font-size="9" fill="#4a5568" text-anchor="middle">selective barrier</text>
+
+  <line x1="455" y1="190" x2="455" y2="244" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="455" y="258" font-size="9" fill="#4a5568" text-anchor="middle">pumping (heart)</text>
+  <text x="455" y="270" font-size="9" fill="#4a5568" text-anchor="middle">filtration (kidney)</text>
+
+  <line x1="575" y1="190" x2="575" y2="244" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="575" y="258" font-size="9" fill="#4a5568" text-anchor="middle">whole-body perfusion</text>
+  <text x="575" y="270" font-size="9" fill="#4a5568" text-anchor="middle">whole-body gas exchange</text>
+
+  <line x1="680" y1="190" x2="680" y2="244" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="680" y="258" font-size="9" fill="#1e3a8a" font-weight="700" text-anchor="middle">homeostasis</text>
+  <text x="680" y="270" font-size="9" fill="#1e3a8a" font-weight="700" text-anchor="middle">behaviour · learning</text>
+
+  <!-- Bottom takeaway band -->
+  <rect x="40" y="290" width="680" height="58" rx="6" fill="#fff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="54" y="308" font-size="11" font-weight="700" fill="#1a202c">Reductionism is necessary, but not sufficient.</text>
+  <text x="54" y="324" font-size="10" fill="#4a5568">Knowing every protein in a cardiac myocyte does NOT predict heart-rate variability — that emerges only at the organ + nervous-system level. Physiology asks:</text>
+  <text x="54" y="338" font-size="10" font-style="italic" fill="#4a5568">"How do simpler parts cooperate to keep the whole organism stable?" Hierarchy is the answer.</text>
+</svg>

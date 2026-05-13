@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-coordinate-geometry-slope-rise-run
+kind: image
+subject: math
+topic_phrase: "slope of a line as rise over run between two points"
+keywords:
+  - slope
+  - rise-over-run
+  - line
+  - gradient
+  - linear-function
+license: platform-cc-by-sa
+source_unit: G11-MATH-003

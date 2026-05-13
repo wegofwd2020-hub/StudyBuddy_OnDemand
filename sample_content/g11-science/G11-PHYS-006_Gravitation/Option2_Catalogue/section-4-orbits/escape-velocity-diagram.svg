@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 360" width="520" height="360" role="img" aria-label="Three trajectories from a planet showing bound, escape, and hyperbolic orbits">
+  <title>Escape velocity — three trajectories</title>
+  <desc>A projectile launched horizontally from above a planet at three different speeds. Below v_escape the orbit is bound (closed ellipse). At v_escape the trajectory is a parabola that just barely escapes. Above v_escape the trajectory is a hyperbola that leaves with finite speed at infinity.</desc>
+
+  <defs>
+    <radialGradient id="esc-planet" cx="0.35" cy="0.35" r="0.7">
+      <stop offset="0%" stop-color="#bee3f8" />
+      <stop offset="60%" stop-color="#3b82f6" />
+      <stop offset="100%" stop-color="#1e3a8a" />
+    </radialGradient>
+    <marker id="esc-arr-bound" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626" />
+    </marker>
+    <marker id="esc-arr-escape" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#15803d" />
+    </marker>
+    <marker id="esc-arr-hyper" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#7c3aed" />
+    </marker>
+  </defs>
+
+  <text x="260" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Three trajectories — bound, escape, hyperbolic</text>
+
+  <!-- Planet at lower-centre area -->
+  <circle cx="200" cy="220" r="36" fill="url(#esc-planet)" stroke="#1a202c" stroke-width="1.2" />
+  <text x="200" y="226" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">M</text>
+
+  <!-- Launch point: just above the planet at (200, 168) — on top -->
+  <circle cx="200" cy="168" r="4" fill="#1a202c" />
+  <text x="206" y="166" font="11px system-ui" font-size="11" font-style="italic" fill="#1a202c">launch</text>
+
+  <!-- Bound (red ellipse): centre offset, drawn as ellipse with one focus at planet centre.
+       Use a/b values: a=80 (semi-major), b=60 (semi-minor). c = sqrt(a^2 - b^2) = sqrt(6400-3600) = sqrt(2800) ≈ 52.9.
+       Centre of ellipse at (200, 220+0) shifted up by ... actually focus at (200,220), centre of ellipse must be at (200, 220-c) for the focus to be at the bottom.
+       Wait: we want the ellipse to enclose the planet with one focus at planet centre. Let's put ellipse centred at (200, 220-30) with rx=70, ry=50. That's an aesthetic ellipse looping above. -->
+  <ellipse cx="200" cy="190" rx="65" ry="55" fill="none" stroke="#dc2626" stroke-width="2.5" />
+  <!-- Direction arrow on bound -->
+  <path d="M 263 190 L 263 178" stroke="#dc2626" stroke-width="2.5" fill="none" marker-end="url(#esc-arr-bound)" />
+  <text x="280" y="146" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#dc2626">v &lt; v_escape</text>
+  <text x="280" y="162" font="11px system-ui" font-size="11" font-style="italic" fill="#dc2626">bound (ellipse)</text>
+
+  <!-- Escape (parabola, green): a parabola through the launch point opening upward.
+       Use a path that starts at (200, 168), curves up-right and exits top-right of canvas.
+       Use a quadratic Bézier: M 200 168 Q 320 120 460 60 — gives a smooth opening curve. -->
+  <path d="M 200 168 Q 340 130 480 80" fill="none" stroke="#15803d" stroke-width="3" stroke-linecap="round" marker-end="url(#esc-arr-escape)" />
+  <text x="350" y="176" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#15803d">v = v_escape</text>
+  <text x="350" y="192" font="11px system-ui" font-size="11" font-style="italic" fill="#15803d">parabola — barely escapes</text>
+
+  <!-- Hyperbolic (purple): much steeper escape -->
+  <path d="M 200 168 Q 280 110 480 40" fill="none" stroke="#7c3aed" stroke-width="3" stroke-linecap="round" marker-end="url(#esc-arr-hyper)" />
+  <text x="350" y="60" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#7c3aed">v &gt; v_escape</text>
+  <text x="350" y="76" font="11px system-ui" font-size="11" font-style="italic" fill="#7c3aed">hyperbola — leaves with v∞ &gt; 0</text>
+
+  <!-- Velocity arrow at launch point (initial direction — horizontal to the right) -->
+  <line x1="200" y1="168" x2="232" y2="168" stroke="#1a202c" stroke-width="2" marker-end="url(#esc-arr-escape)" />
+  <text x="216" y="160" font="11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">v</text>
+
+  <!-- Energy formulae card -->
+  <rect x="20" y="280" width="480" height="68" rx="6" fill="#f0fdf4" stroke="#15803d" stroke-width="1.2" />
+  <text x="260" y="298" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Energy condition for escape:   ½ m v²  ≥  G M m / R</text>
+  <text x="260" y="318" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#15803d" text-anchor="middle">v_escape  =  √( 2 G M / R )</text>
+  <text x="260" y="340" font="10.5px system-ui" font-size="10.5" font-style="italic" fill="#15803d" text-anchor="middle">Earth: v_escape ≈ 11.2 km/s.   Note: v_escape  =  √2 × v_orbit  (at the same radius).</text>
+</svg>

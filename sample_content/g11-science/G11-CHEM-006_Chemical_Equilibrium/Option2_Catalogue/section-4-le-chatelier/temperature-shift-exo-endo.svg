@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380" role="img" aria-label="Temperature change shifts equilibrium and changes K">
+  <title>Temperature — The Only Stress That Changes K</title>
+  <desc>Two panels showing how heating affects an exothermic vs endothermic reaction. For an exothermic forward reaction, heat acts like a product, so adding heat shifts the equilibrium to the left and decreases K. For an endothermic forward reaction, heat acts like a reactant, so adding heat shifts the equilibrium to the right and increases K.</desc>
+
+  <defs>
+    <marker id="ts-arr-r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#15803d"/>
+    </marker>
+    <marker id="ts-arr-l" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 10 0 L 0 5 L 10 10 z" fill="#dc2626"/>
+    </marker>
+  </defs>
+
+  <text x="360" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Heating Shifts Equilibrium — Direction Depends on ΔH</text>
+  <text x="360" y="42" font-size="11" fill="#4a5568" text-anchor="middle">Trick: write "heat" on the appropriate side of the equation, then treat it like any other reagent.</text>
+
+  <!-- ─── EXOTHERMIC ─── -->
+  <g transform="translate(40, 70)">
+    <rect x="0" y="0" width="310" height="240" rx="10" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+    <text x="155" y="20" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">Exothermic (ΔH &lt; 0) — heat is a "product"</text>
+
+    <!-- equation -->
+    <text x="20" y="58" font-size="13" font-weight="700" fill="#1a202c">2 SO₂ + O₂ ⇌ 2 SO₃ + heat</text>
+    <text x="20" y="76" font-size="11" fill="#4a5568">ΔH = −198 kJ</text>
+
+    <!-- Heat up scenario -->
+    <text x="20" y="108" font-size="11" font-weight="700" fill="#dc2626">↑ T  (add heat)</text>
+    <line x1="20" y1="118" x2="290" y2="118" stroke="#fecaca" stroke-width="1"/>
+    <line x1="50"  y1="138" x2="100" y2="138" stroke="#dc2626" stroke-width="2.5" marker-end="url(#ts-arr-l)"/>
+    <text x="120" y="142" font-size="11" font-weight="700" fill="#dc2626">shift LEFT (reverse)</text>
+    <text x="20" y="162" font-size="10" fill="#1a202c">extra heat is consumed by going backward · K decreases</text>
+
+    <!-- Cool down scenario -->
+    <text x="20" y="190" font-size="11" font-weight="700" fill="#15803d">↓ T  (remove heat)</text>
+    <line x1="20" y1="200" x2="290" y2="200" stroke="#fecaca" stroke-width="1"/>
+    <line x1="50"  y1="218" x2="100" y2="218" stroke="#15803d" stroke-width="2.5" marker-end="url(#ts-arr-r)"/>
+    <text x="120" y="222" font-size="11" font-weight="700" fill="#15803d">shift RIGHT (forward)</text>
+  </g>
+
+  <!-- ─── ENDOTHERMIC ─── -->
+  <g transform="translate(370, 70)">
+    <rect x="0" y="0" width="310" height="240" rx="10" fill="#dbeafe" stroke="#2b6cb0" stroke-width="2"/>
+    <text x="155" y="20" font-size="13" font-weight="700" fill="#2b6cb0" text-anchor="middle">Endothermic (ΔH &gt; 0) — heat is a "reactant"</text>
+
+    <text x="20" y="58" font-size="13" font-weight="700" fill="#1a202c">heat + N₂O₄ ⇌ 2 NO₂</text>
+    <text x="20" y="76" font-size="11" fill="#4a5568">ΔH = +57 kJ  (colorless → brown)</text>
+
+    <text x="20" y="108" font-size="11" font-weight="700" fill="#dc2626">↑ T  (add heat)</text>
+    <line x1="20" y1="118" x2="290" y2="118" stroke="#bfdbfe" stroke-width="1"/>
+    <line x1="50"  y1="138" x2="100" y2="138" stroke="#15803d" stroke-width="2.5" marker-end="url(#ts-arr-r)"/>
+    <text x="120" y="142" font-size="11" font-weight="700" fill="#15803d">shift RIGHT (forward)</text>
+    <text x="20" y="162" font-size="10" fill="#1a202c">heat consumed in forward · K increases · gets browner</text>
+
+    <text x="20" y="190" font-size="11" font-weight="700" fill="#15803d">↓ T  (remove heat)</text>
+    <line x1="20" y1="200" x2="290" y2="200" stroke="#bfdbfe" stroke-width="1"/>
+    <line x1="50"  y1="218" x2="100" y2="218" stroke="#dc2626" stroke-width="2.5" marker-end="url(#ts-arr-l)"/>
+    <text x="120" y="222" font-size="11" font-weight="700" fill="#dc2626">shift LEFT (reverse)</text>
+  </g>
+
+  <!-- Summary callout -->
+  <rect x="60" y="328" width="600" height="38" rx="8" fill="#fef3c7" stroke="#92400e" stroke-width="1.5"/>
+  <text x="360" y="350" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Only temperature changes K. Concentration / pressure / catalyst changes Q first; the system then walks Q back to K.</text>
+</svg>

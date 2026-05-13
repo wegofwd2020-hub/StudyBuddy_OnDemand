@@ -1,0 +1,152 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" width="640" height="380" role="img" aria-label="Pascal's triangle with binomial coefficients C of n choose k for rows 0 through 6">
+  <title>Pascal's Triangle and Binomial Coefficients</title>
+  <desc>Pascal's triangle for rows 0 through 6.  Each cell shows the binomial coefficient C(n, k), the number of ways to choose k items from n.  The boundary is all 1s, and every interior entry is the sum of the two entries above it.  Row 4 highlighted reads 1, 4, 6, 4, 1, summing to 16, which equals 2 to the fourth — the total number of subsets of a 4-element set.</desc>
+
+  <defs>
+    <style>
+      .panel   { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1; }
+      .cell    { fill: #fffaf0; stroke: #6b46c1; stroke-width: 1.4; }
+      .cellHi  { fill: #c084fc; fill-opacity: 0.5; stroke: #6b46c1; stroke-width: 2; }
+      .cellEdge{ fill: #fefcbf; stroke: #b7791f; stroke-width: 1.4; }
+      .lbl     { font: bold 14px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .rowlbl  { font: 12px system-ui, sans-serif; fill: #4a5568; }
+      .heading { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .arrow   { stroke: #c53030; stroke-width: 1.6; fill: none; }
+      .formula { font: italic 13px system-ui, sans-serif; fill: #1a202c; }
+    </style>
+    <marker id="ah-pt" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#c53030"/>
+    </marker>
+  </defs>
+
+  <text class="heading" x="320" y="22">Pascal's triangle:  C(n, k) and the binomial expansion</text>
+
+  <rect class="panel" x="20" y="40" width="600" height="320"/>
+
+  <!-- Triangle layout: row n at y = 70 + n*42; column k at x = 220 - n*22 + k*44 (cells are 38 wide).
+       Cell width 36, height 32, rounded.
+  -->
+  <!-- Row 0: 1  -->
+  <g>
+    <rect class="cellEdge" x="282" y="58"  width="36" height="32" rx="6"/>
+    <text class="lbl" x="300" y="80">1</text>
+    <text class="rowlbl" x="50" y="80">n = 0</text>
+    <text class="rowlbl" x="560" y="80" text-anchor="end">sum = 1</text>
+  </g>
+
+  <!-- Row 1: 1 1 -->
+  <g>
+    <rect class="cellEdge" x="260" y="100" width="36" height="32" rx="6"/>
+    <text class="lbl" x="278" y="122">1</text>
+    <rect class="cellEdge" x="304" y="100" width="36" height="32" rx="6"/>
+    <text class="lbl" x="322" y="122">1</text>
+    <text class="rowlbl" x="50" y="122">n = 1</text>
+    <text class="rowlbl" x="560" y="122" text-anchor="end">sum = 2</text>
+  </g>
+
+  <!-- Row 2: 1 2 1 -->
+  <g>
+    <rect class="cellEdge" x="238" y="142" width="36" height="32" rx="6"/>
+    <text class="lbl" x="256" y="164">1</text>
+    <rect class="cell" x="282" y="142" width="36" height="32" rx="6"/>
+    <text class="lbl" x="300" y="164">2</text>
+    <rect class="cellEdge" x="326" y="142" width="36" height="32" rx="6"/>
+    <text class="lbl" x="344" y="164">1</text>
+    <text class="rowlbl" x="50" y="164">n = 2</text>
+    <text class="rowlbl" x="560" y="164" text-anchor="end">sum = 4</text>
+  </g>
+
+  <!-- Row 3: 1 3 3 1 -->
+  <g>
+    <rect class="cellEdge" x="216" y="184" width="36" height="32" rx="6"/>
+    <text class="lbl" x="234" y="206">1</text>
+    <rect class="cell" x="260" y="184" width="36" height="32" rx="6"/>
+    <text class="lbl" x="278" y="206">3</text>
+    <rect class="cell" x="304" y="184" width="36" height="32" rx="6"/>
+    <text class="lbl" x="322" y="206">3</text>
+    <rect class="cellEdge" x="348" y="184" width="36" height="32" rx="6"/>
+    <text class="lbl" x="366" y="206">1</text>
+    <text class="rowlbl" x="50" y="206">n = 3</text>
+    <text class="rowlbl" x="560" y="206" text-anchor="end">sum = 8</text>
+  </g>
+
+  <!-- Row 4: 1 4 6 4 1   (HIGHLIGHTED) -->
+  <g>
+    <rect class="cellHi" x="194" y="226" width="36" height="32" rx="6"/>
+    <text class="lbl" x="212" y="248">1</text>
+    <rect class="cellHi" x="238" y="226" width="36" height="32" rx="6"/>
+    <text class="lbl" x="256" y="248">4</text>
+    <rect class="cellHi" x="282" y="226" width="36" height="32" rx="6"/>
+    <text class="lbl" x="300" y="248">6</text>
+    <rect class="cellHi" x="326" y="226" width="36" height="32" rx="6"/>
+    <text class="lbl" x="344" y="248">4</text>
+    <rect class="cellHi" x="370" y="226" width="36" height="32" rx="6"/>
+    <text class="lbl" x="388" y="248">1</text>
+    <text class="rowlbl" x="50" y="248" font-weight="700" fill="#6b46c1">n = 4</text>
+    <text class="rowlbl" x="560" y="248" text-anchor="end" font-weight="700" fill="#6b46c1">sum = 16 = 2⁴</text>
+  </g>
+
+  <!-- Row 5: 1 5 10 10 5 1 -->
+  <g>
+    <rect class="cellEdge" x="172" y="268" width="36" height="32" rx="6"/>
+    <text class="lbl" x="190" y="290">1</text>
+    <rect class="cell" x="216" y="268" width="36" height="32" rx="6"/>
+    <text class="lbl" x="234" y="290">5</text>
+    <rect class="cell" x="260" y="268" width="36" height="32" rx="6"/>
+    <text class="lbl" x="278" y="290">10</text>
+    <rect class="cell" x="304" y="268" width="36" height="32" rx="6"/>
+    <text class="lbl" x="322" y="290">10</text>
+    <rect class="cell" x="348" y="268" width="36" height="32" rx="6"/>
+    <text class="lbl" x="366" y="290">5</text>
+    <rect class="cellEdge" x="392" y="268" width="36" height="32" rx="6"/>
+    <text class="lbl" x="410" y="290">1</text>
+    <text class="rowlbl" x="50" y="290">n = 5</text>
+    <text class="rowlbl" x="560" y="290" text-anchor="end">sum = 32</text>
+  </g>
+
+  <!-- Row 6: 1 6 15 20 15 6 1 -->
+  <g>
+    <rect class="cellEdge" x="150" y="310" width="36" height="32" rx="6"/>
+    <text class="lbl" x="168" y="332">1</text>
+    <rect class="cell" x="194" y="310" width="36" height="32" rx="6"/>
+    <text class="lbl" x="212" y="332">6</text>
+    <rect class="cell" x="238" y="310" width="36" height="32" rx="6"/>
+    <text class="lbl" x="256" y="332">15</text>
+    <rect class="cell" x="282" y="310" width="36" height="32" rx="6"/>
+    <text class="lbl" x="300" y="332">20</text>
+    <rect class="cell" x="326" y="310" width="36" height="32" rx="6"/>
+    <text class="lbl" x="344" y="332">15</text>
+    <rect class="cell" x="370" y="310" width="36" height="32" rx="6"/>
+    <text class="lbl" x="388" y="332">6</text>
+    <rect class="cellEdge" x="414" y="310" width="36" height="32" rx="6"/>
+    <text class="lbl" x="432" y="332">1</text>
+    <text class="rowlbl" x="50" y="332">n = 6</text>
+    <text class="rowlbl" x="560" y="332" text-anchor="end">sum = 64</text>
+  </g>
+
+  <!-- Demonstrate "sum-rule": arrows from row-3 (3, 3) into row-4 (6) -->
+  <line class="arrow" x1="278" y1="216" x2="296" y2="226" marker-end="url(#ah-pt)"/>
+  <line class="arrow" x1="322" y1="216" x2="304" y2="226" marker-end="url(#ah-pt)"/>
+
+  <!-- Right legend -->
+  <g transform="translate(458, 58)">
+    <rect x="0" y="0" width="156" height="232" rx="8" fill="#fffaf0" stroke="#dd6b20" stroke-width="1.4"/>
+    <text font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" x="78" y="20" text-anchor="middle">Read row n</text>
+    <text class="formula" x="14" y="44">entries:  C(n, 0), C(n, 1), …</text>
+    <text class="formula" x="14" y="62">           …, C(n, n)</text>
+
+    <line x1="14" y1="76" x2="142" y2="76" stroke="#cbd5e0"/>
+
+    <text font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" x="14" y="96">Pascal's rule</text>
+    <text class="formula" x="14" y="116">C(n, k) = C(n−1, k−1)</text>
+    <text class="formula" x="14" y="134">           + C(n−1, k)</text>
+
+    <line x1="14" y1="148" x2="142" y2="148" stroke="#cbd5e0"/>
+
+    <text font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" x="14" y="168">Binomial theorem</text>
+    <text class="formula" x="14" y="190">(a + b)ⁿ = Σ C(n, k)·</text>
+    <text class="formula" x="14" y="208">            aⁿ⁻ᵏ bᵏ</text>
+  </g>
+
+  <text x="320" y="372" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Sum of row n equals 2ⁿ — the total number of subsets of an n-element set.</text>
+</svg>

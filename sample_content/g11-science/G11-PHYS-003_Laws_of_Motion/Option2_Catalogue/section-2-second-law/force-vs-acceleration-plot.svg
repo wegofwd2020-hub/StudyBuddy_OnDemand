@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 320" width="480" height="320" role="img" aria-label="Acceleration versus net force at fixed mass">
+  <title>Acceleration vs net force at fixed mass</title>
+  <desc>Linear graph of acceleration against net force for a 2 kg mass. Slope of the line is 1/m = 0.5 m/s² per N; the line passes through the origin.</desc>
+
+  <rect x="60" y="32" width="390" height="238" fill="#f7fafc" stroke="#e2e8f0" />
+
+  <!-- Vertical grid (F: 0..20 N, ticks every 5) -->
+  <line x1="60" y1="32" x2="60" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="60" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">0</text>
+  <line x1="157.5" y1="32" x2="157.5" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="157.5" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">5</text>
+  <line x1="255" y1="32" x2="255" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="255" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">10</text>
+  <line x1="352.5" y1="32" x2="352.5" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="352.5" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">15</text>
+  <line x1="450" y1="32" x2="450" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="450" y="284" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">20</text>
+
+  <!-- Horizontal grid (a: 0..10, ticks every 2) -->
+  <line x1="60" y1="270" x2="450" y2="270" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="274" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">0</text>
+  <line x1="60" y1="222.4" x2="450" y2="222.4" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="226.4" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">2</text>
+  <line x1="60" y1="174.8" x2="450" y2="174.8" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="178.8" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">4</text>
+  <line x1="60" y1="127.2" x2="450" y2="127.2" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="131.2" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">6</text>
+  <line x1="60" y1="79.6" x2="450" y2="79.6" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="83.6" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">8</text>
+  <line x1="60" y1="32" x2="450" y2="32" stroke="#e2e8f0" stroke-width="0.6" />
+  <text x="54" y="36" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">10</text>
+
+  <line x1="60" y1="270" x2="450" y2="270" stroke="#94a3b8" stroke-width="1.2" />
+  <line x1="60" y1="32" x2="60" y2="270" stroke="#94a3b8" stroke-width="1.2" />
+
+  <text x="255" y="302" font="13px system-ui" font-size="13" font-weight="600" fill="#1a202c" text-anchor="middle">F_net (N)</text>
+  <text x="24" y="151" font="13px system-ui" font-size="13" font-weight="600" fill="#1a202c" text-anchor="middle" transform="rotate(-90 24 151)">a (m/s²)</text>
+
+  <text x="255" y="20" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">a vs F at fixed mass (m = 2 kg)</text>
+
+  <!-- The line: a = F/m, slope = 0.5 m/s² per N. From (0,0) to (20, 10). In px: (60, 270) to (450, 32). -->
+  <line x1="60" y1="270" x2="450" y2="32" stroke="#2b6cb0" stroke-width="3.5" stroke-linecap="round" />
+
+  <!-- Sample data points -->
+  <circle cx="157.5" cy="222.4" r="4" fill="#2b6cb0" />
+  <text x="167.5" y="218.4" font="11px system-ui" font-size="11" font-weight="600" fill="#2b6cb0">5 N → 2 m/s²</text>
+
+  <circle cx="255" cy="174.8" r="4" fill="#2b6cb0" />
+  <text x="265" y="170.8" font="11px system-ui" font-size="11" font-weight="600" fill="#2b6cb0">10 N → 4 m/s²</text>
+
+  <circle cx="352.5" cy="127.2" r="4" fill="#2b6cb0" />
+  <text x="362.5" y="123.2" font="11px system-ui" font-size="11" font-weight="600" fill="#2b6cb0">15 N → 6 m/s²</text>
+
+  <!-- Slope annotation -->
+  <text x="245" y="52" font="12px system-ui" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">slope = 1/m = 1/2 = 0.5 m/s² per N</text>
+
+  <text x="255" y="316" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">a is directly proportional to F at fixed mass.  The line passes through the origin.</text>
+</svg>

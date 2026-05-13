@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 280" width="600" height="280" role="img" aria-label="Continuity Equation: A1 v1 = A2 v2">
+  <title>Continuity Equation in a Tapering Pipe</title>
+  <desc>An incompressible fluid flows through a pipe that narrows from cross-section A1 to A2. Mass conservation gives A1 v1 = A2 v2, so the velocity v2 in the narrow section is greater than v1.</desc>
+
+  <text x="300" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Continuity Equation:  A₁ v₁ = A₂ v₂</text>
+
+  <defs>
+    <marker id="ce-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1d4ed8" />
+    </marker>
+    <linearGradient id="ce-fluid" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#bfdbfe" />
+      <stop offset="100%" stop-color="#3b82f6" />
+    </linearGradient>
+  </defs>
+
+  <!-- Pipe outline: wide on left, narrow on right -->
+  <!-- Top wall -->
+  <path d="M 50 80 L 220 80 L 360 130 L 560 130" fill="none" stroke="#1a202c" stroke-width="2.5" />
+  <!-- Bottom wall -->
+  <path d="M 50 220 L 220 220 L 360 170 L 560 170" fill="none" stroke="#1a202c" stroke-width="2.5" />
+  <!-- Closed ends -->
+  <line x1="50" y1="80" x2="50" y2="220" stroke="#1a202c" stroke-width="2.5" />
+  <line x1="560" y1="130" x2="560" y2="170" stroke="#1a202c" stroke-width="2.5" />
+
+  <!-- Fluid fill -->
+  <path d="M 50 80 L 220 80 L 360 130 L 560 130 L 560 170 L 360 170 L 220 220 L 50 220 Z"
+        fill="url(#ce-fluid)" opacity="0.55" />
+
+  <!-- Section A1 marker -->
+  <line x1="130" y1="80" x2="130" y2="220" stroke="#1a202c" stroke-width="1.5" stroke-dasharray="5 4" />
+  <text x="130" y="68" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">A₁ (large)</text>
+  <text x="130" y="240" font-size="13" font-weight="700" fill="#1d4ed8" text-anchor="middle">v₁ (slow)</text>
+
+  <!-- Velocity arrows in wide section: short arrows -->
+  <line x1="80" y1="120" x2="115" y2="120" stroke="#1d4ed8" stroke-width="2.5" marker-end="url(#ce-arr)" />
+  <line x1="80" y1="150" x2="115" y2="150" stroke="#1d4ed8" stroke-width="2.5" marker-end="url(#ce-arr)" />
+  <line x1="80" y1="180" x2="115" y2="180" stroke="#1d4ed8" stroke-width="2.5" marker-end="url(#ce-arr)" />
+
+  <!-- Section A2 marker -->
+  <line x1="470" y1="130" x2="470" y2="170" stroke="#1a202c" stroke-width="1.5" stroke-dasharray="5 4" />
+  <text x="470" y="120" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">A₂ (small)</text>
+  <text x="470" y="190" font-size="13" font-weight="700" fill="#dc2626" text-anchor="middle">v₂ (fast)</text>
+
+  <!-- Velocity arrows in narrow section: long fast arrows -->
+  <line x1="395" y1="142" x2="455" y2="142" stroke="#dc2626" stroke-width="2.8" marker-end="url(#ce-arr)" />
+  <line x1="395" y1="158" x2="455" y2="158" stroke="#dc2626" stroke-width="2.8" marker-end="url(#ce-arr)" />
+
+  <!-- Volume "puck" at section 1: width = v1·Δt -->
+  <rect x="155" y="84" width="35" height="132" fill="#fde68a" stroke="#7c2d12" stroke-width="1.5" opacity="0.85" />
+  <text x="172" y="252" font-size="10" fill="#7c2d12" text-anchor="middle">v₁·Δt</text>
+
+  <!-- Same volume "puck" at section 2: width longer -->
+  <rect x="490" y="134" width="60" height="32" fill="#fde68a" stroke="#7c2d12" stroke-width="1.5" opacity="0.85" />
+  <text x="520" y="190" font-size="10" fill="#7c2d12" text-anchor="middle">v₂·Δt</text>
+
+  <!-- Equation panel -->
+  <rect x="50" y="252" width="510" height="22" rx="5" fill="#f7fafc" stroke="#cbd5e1" />
+  <text x="60" y="268" font-size="12" fill="#1a202c">Same volume crosses both sections per second:</text>
+  <text x="370" y="268" font-size="13" font-weight="700" fill="#15803d">A₁ v₁ = A₂ v₂  (= Q, volume flow rate)</text>
+</svg>

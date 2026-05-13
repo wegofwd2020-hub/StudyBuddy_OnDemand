@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" width="640" height="380" role="img" aria-label="Chain rule: composite function decomposed into outer and inner with arrow diagram">
+  <title>Chain Rule: composite function decomposition</title>
+  <desc>Box-and-arrow diagram showing a composite function f(g(x)) decomposed into an inner function u = g(x) and an outer function f(u), with the chain rule formula d/dx f(g(x)) = f'(g(x)) · g'(x).</desc>
+
+  <defs>
+    <style>
+      .heading  { font: bold 16px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .box      { stroke-width: 2; fill: white; }
+      .boxIn    { stroke: #2b6cb0; }
+      .boxOut   { stroke: #c05621; }
+      .boxComp  { stroke: #6b46c1; }
+      .label    { font: bold 14px system-ui, sans-serif; }
+      .var      { font: italic 16px ui-monospace, monospace; fill: #1a202c; text-anchor: middle; }
+      .arrow    { stroke: #4a5568; stroke-width: 2; fill: none; }
+      .formulaTxt { font: italic 14px ui-monospace, monospace; fill: #1a202c; }
+      .note     { font: 12px system-ui, sans-serif; fill: #4a5568; }
+      .formulabox { fill: #fffaf0; stroke: #dd6b20; stroke-width: 1.4; }
+    </style>
+    <marker id="arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4a5568"/>
+    </marker>
+  </defs>
+
+  <text class="heading" x="320" y="26">Chain rule: differentiate the outer, multiply by derivative of the inner</text>
+
+  <!-- Top row: x → [g] → u → [f] → y -->
+  <text class="var" x="50" y="100">x</text>
+
+  <!-- arrow x → g -->
+  <line class="arrow" x1="65" y1="95" x2="155" y2="95" marker-end="url(#arrowhead)"/>
+
+  <!-- inner box g -->
+  <rect class="box boxIn" x="155" y="70" width="120" height="50" rx="8"/>
+  <text class="label" x="215" y="92" fill="#2b6cb0" text-anchor="middle">inner  g</text>
+  <text class="note"  x="215" y="110" text-anchor="middle">u = g(x) = x² + 1</text>
+
+  <!-- arrow g → u -->
+  <line class="arrow" x1="275" y1="95" x2="345" y2="95" marker-end="url(#arrowhead)"/>
+  <text class="var" x="310" y="86">u</text>
+
+  <!-- outer box f -->
+  <rect class="box boxOut" x="345" y="70" width="120" height="50" rx="8"/>
+  <text class="label" x="405" y="92" fill="#c05621" text-anchor="middle">outer  f</text>
+  <text class="note"  x="405" y="110" text-anchor="middle">f(u) = u³</text>
+
+  <!-- arrow f → y -->
+  <line class="arrow" x1="465" y1="95" x2="555" y2="95" marker-end="url(#arrowhead)"/>
+  <text class="var" x="510" y="86">y</text>
+  <text class="var" x="585" y="100">y</text>
+
+  <!-- Composite box (lower row) -->
+  <rect class="box boxComp" x="60" y="170" width="500" height="60" rx="10"/>
+  <text class="label" x="310" y="195" fill="#6b46c1" text-anchor="middle">Composite:  y = f(g(x)) = (x² + 1)³</text>
+  <text class="note" x="310" y="215" text-anchor="middle">Outer cube of  (x² + 1).  Pull apart inner from outer before differentiating.</text>
+
+  <!-- Connecting verticals from composite to top-row pieces -->
+  <line class="arrow" stroke-dasharray="4 4" x1="215" y1="170" x2="215" y2="120"/>
+  <line class="arrow" stroke-dasharray="4 4" x1="405" y1="170" x2="405" y2="120"/>
+
+  <!-- Chain rule formula and worked steps -->
+  <g transform="translate(60, 254)">
+    <rect class="formulabox" x="0" y="0" width="500" height="106" rx="8"/>
+    <text x="250" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Chain rule:  d/dx f(g(x))  =  f'(g(x)) · g'(x)</text>
+
+    <text class="formulaTxt" x="20" y="50">f(u) = u³           →   f'(u) = 3u²</text>
+    <text class="formulaTxt" x="20" y="70">g(x) = x² + 1     →   g'(x) = 2x</text>
+    <text class="formulaTxt" x="20" y="90">d/dx (x² + 1)³  =  3(x² + 1)² · 2x  =  6x(x² + 1)²</text>
+  </g>
+
+  <!-- Side helper: Leibniz form -->
+  <g transform="translate(580, 170)">
+    <text x="0" y="0" font="bold 11px system-ui" font-size="11" fill="#6b46c1" text-anchor="middle">Leibniz form</text>
+    <text x="0" y="20" font="italic 13px ui-monospace, monospace" fill="#1a202c" text-anchor="middle">dy/dx</text>
+    <text x="0" y="38" font="italic 13px ui-monospace, monospace" fill="#1a202c" text-anchor="middle">= dy/du</text>
+    <text x="0" y="56" font="italic 13px ui-monospace, monospace" fill="#1a202c" text-anchor="middle">· du/dx</text>
+  </g>
+</svg>

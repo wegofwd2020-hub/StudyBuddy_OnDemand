@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 360" width="560" height="360" role="img" aria-label="Centre of mass of an L-shape — locate by decomposing into rectangles">
+  <title>Centre of mass — L-shaped uniform plate</title>
+  <desc>An L-shaped uniform lamina decomposed into two rectangles A and B. The centre of mass of the composite body is found by treating each rectangle as a point mass at its own centroid, weighted by its area, then taking the area-weighted average.</desc>
+
+  <text x="280" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">CM of an L-shape — decompose, then weight by area</text>
+
+  <!-- Coordinate axes -->
+  <g stroke="#94a3b8" stroke-width="1">
+    <line x1="60" y1="290" x2="320" y2="290" />
+    <line x1="60" y1="290" x2="60" y2="60" />
+  </g>
+  <text x="320" y="306" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">x</text>
+  <text x="50" y="65" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="end">y</text>
+  <!-- tick labels -->
+  <g font="10px system-ui" font-size="10" fill="#4a5568">
+    <text x="60" y="306" text-anchor="middle">0</text>
+    <text x="140" y="306" text-anchor="middle">2</text>
+    <text x="220" y="306" text-anchor="middle">4</text>
+    <text x="300" y="306" text-anchor="middle">6</text>
+    <text x="48" y="294" text-anchor="end">0</text>
+    <text x="48" y="214" text-anchor="end">2</text>
+    <text x="48" y="134" text-anchor="end">4</text>
+  </g>
+
+  <!-- Rectangle A: 4 wide x 2 tall, base on x-axis (vertices (0,0), (4,0), (4,2), (0,2)) -->
+  <!-- 1 unit = 40px. Origin at (60, 290). -->
+  <rect x="60" y="210" width="160" height="80" fill="#bee3f8" stroke="#1a202c" stroke-width="1.5" />
+  <!-- Rectangle B: 2 wide x 2 tall, on top of left side (vertices (0,2), (2,2), (2,4), (0,4)) -->
+  <rect x="60" y="130" width="80" height="80" fill="#fed7aa" stroke="#1a202c" stroke-width="1.5" />
+
+  <!-- Labels for rectangles -->
+  <text x="140" y="258" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">A</text>
+  <text x="140" y="274" font="10px system-ui" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">A_A = 8 u²</text>
+  <text x="100" y="172" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">B</text>
+  <text x="100" y="188" font="10px system-ui" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">A_B = 4 u²</text>
+
+  <!-- Centroid of A at (2, 1) -->
+  <circle cx="140" cy="250" r="4" fill="#2b6cb0" stroke="#1a202c" stroke-width="1" />
+  <text x="146" y="246" font="10px system-ui" font-size="10" font-weight="700" fill="#2b6cb0">(2, 1)</text>
+
+  <!-- Centroid of B at (1, 3) -->
+  <circle cx="100" cy="170" r="4" fill="#dd6b20" stroke="#1a202c" stroke-width="1" />
+  <text x="108" y="166" font="10px system-ui" font-size="10" font-weight="700" fill="#dd6b20">(1, 3)</text>
+
+  <!-- Composite CM at (5/3, 5/3) ≈ (1.67, 1.67) -->
+  <!-- in pixel: 60+1.67*40=126.67, 290 - 1.67*40=223.33 -->
+  <circle cx="127" cy="223" r="6" fill="#7c3aed" stroke="#1a202c" stroke-width="1.5" />
+  <text x="135" y="217" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#7c3aed">CM (5/3, 5/3)</text>
+
+  <!-- Worked formula -->
+  <rect x="350" y="50" width="200" height="270" rx="8" fill="#f0fdf4" stroke="#15803d" stroke-width="1.3" />
+  <text x="450" y="74" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Area-weighted CM</text>
+  <text x="362" y="100" font="11px system-ui" font-size="11" fill="#1a202c">Treat each piece as a point</text>
+  <text x="362" y="115" font="11px system-ui" font-size="11" fill="#1a202c">mass at its own centroid:</text>
+
+  <text x="362" y="142" font="bold 11px system-ui" font-size="11" fill="#2b6cb0">A: A_A = 8,  (x̄, ȳ) = (2, 1)</text>
+  <text x="362" y="160" font="bold 11px system-ui" font-size="11" fill="#dd6b20">B: A_B = 4,  (x̄, ȳ) = (1, 3)</text>
+
+  <text x="362" y="190" font="11px system-ui" font-size="11" fill="#1a202c">x_cm = ΣAᵢ x̄ᵢ / ΣAᵢ</text>
+  <text x="362" y="208" font="11px system-ui" font-size="11" fill="#1a202c">     = (8·2 + 4·1) / 12</text>
+  <text x="362" y="224" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#7c3aed">     = 20/12 = 5/3</text>
+
+  <text x="362" y="252" font="11px system-ui" font-size="11" fill="#1a202c">y_cm = ΣAᵢ ȳᵢ / ΣAᵢ</text>
+  <text x="362" y="270" font="11px system-ui" font-size="11" fill="#1a202c">     = (8·1 + 4·3) / 12</text>
+  <text x="362" y="286" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#7c3aed">     = 20/12 = 5/3</text>
+
+  <text x="450" y="310" font="10px system-ui" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">For uniform plates, area</text>
+  <text x="450" y="320" font="10px system-ui" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">replaces mass.</text>
+
+  <text x="280" y="346" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">For continuous bodies the sum becomes an integral:  x_cm = (1/M) ∫ x dm</text>
+</svg>

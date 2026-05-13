@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" width="640" height="400" role="img" aria-label="Table of basic differentiation rules: power rule, sum, product, quotient, constant multiple">
+  <title>Basic Differentiation Rules</title>
+  <desc>Table summarising the constant rule, power rule, constant multiple, sum/difference, product, and quotient rules of differentiation, with worked examples.</desc>
+
+  <defs>
+    <style>
+      .heading  { font: bold 16px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .colhdr   { font: bold 13px system-ui, sans-serif; fill: white; text-anchor: middle; }
+      .rule     { font: bold 12px system-ui, sans-serif; fill: #1a202c; }
+      .formula  { font: italic 13px ui-monospace, monospace; fill: #1a202c; }
+      .ex       { font: 12px system-ui, sans-serif; fill: #4a5568; }
+      .footer   { font: italic 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .row0     { fill: #6b46c1; }
+      .rowA     { fill: #f7fafc; }
+      .rowB     { fill: #ffffff; }
+      .border   { stroke: #cbd5e0; stroke-width: 1; fill: none; }
+    </style>
+  </defs>
+
+  <text class="heading" x="320" y="26">Basic Differentiation Rules</text>
+
+  <!-- Header row -->
+  <rect class="row0" x="20" y="42" width="600" height="32" rx="4"/>
+  <text class="colhdr" x="100" y="63">Rule</text>
+  <text class="colhdr" x="320" y="63">Formula</text>
+  <text class="colhdr" x="510" y="63">Example</text>
+
+  <!-- Row 1: Constant rule -->
+  <rect class="rowA" x="20" y="74" width="600" height="44"/>
+  <text class="rule"   x="34"  y="100">Constant</text>
+  <text class="formula" x="200" y="100">d/dx (c) = 0</text>
+  <text class="ex"     x="380" y="100">d/dx (7) = 0</text>
+
+  <!-- Row 2: Power rule -->
+  <rect class="rowB" x="20" y="118" width="600" height="44"/>
+  <text class="rule"   x="34"  y="144">Power rule</text>
+  <text class="formula" x="200" y="144">d/dx (xⁿ) = n·xⁿ⁻¹</text>
+  <text class="ex"     x="380" y="144">d/dx (x⁵) = 5x⁴</text>
+
+  <!-- Row 3: Constant multiple -->
+  <rect class="rowA" x="20" y="162" width="600" height="44"/>
+  <text class="rule"   x="34"  y="188">Constant ×</text>
+  <text class="formula" x="200" y="188">d/dx (c·f) = c·f'(x)</text>
+  <text class="ex"     x="380" y="188">d/dx (4x³) = 12x²</text>
+
+  <!-- Row 4: Sum / difference -->
+  <rect class="rowB" x="20" y="206" width="600" height="44"/>
+  <text class="rule"   x="34"  y="232">Sum / diff.</text>
+  <text class="formula" x="200" y="232">(f ± g)' = f' ± g'</text>
+  <text class="ex"     x="380" y="232">(x³ + x)' = 3x² + 1</text>
+
+  <!-- Row 5: Product rule -->
+  <rect class="rowA" x="20" y="250" width="600" height="44"/>
+  <text class="rule"   x="34"  y="276">Product</text>
+  <text class="formula" x="200" y="276">(fg)' = f'g + fg'</text>
+  <text class="ex"     x="380" y="276">(x²·sin x)' = 2x sin x + x² cos x</text>
+
+  <!-- Row 6: Quotient rule -->
+  <rect class="rowB" x="20" y="294" width="600" height="48"/>
+  <text class="rule"   x="34"  y="320">Quotient</text>
+  <text class="formula" x="200" y="316">(f/g)' = (f'g − fg')</text>
+  <text class="formula" x="200" y="332">          / g²</text>
+  <text class="ex"     x="380" y="316">(x / (x+1))'</text>
+  <text class="ex"     x="380" y="332">= 1 / (x+1)²</text>
+
+  <!-- Outer border -->
+  <rect class="border" x="20" y="42" width="600" height="300" rx="4"/>
+  <line class="border" x1="170" y1="42" x2="170" y2="342"/>
+  <line class="border" x1="370" y1="42" x2="370" y2="342"/>
+
+  <!-- Power-rule illustration block -->
+  <g transform="translate(20, 354)">
+    <rect x="0" y="0" width="600" height="36" rx="6" fill="#fffaf0" stroke="#dd6b20" stroke-width="1"/>
+    <text x="300" y="16" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Power-rule check (n = 2):  d/dx (x²) = 2x</text>
+    <text x="300" y="30" font="11px system-ui" font-size="11" fill="#4a5568" text-anchor="middle">at x = 1 → slope 2 (matches the secant-to-tangent diagram)</text>
+  </g>
+</svg>

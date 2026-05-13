@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-advanced-algebra-domain-restrictions
+kind: image
+subject: math
+topic_phrase: "domain restrictions on a rational expression with excluded values"
+keywords:
+  - rational-expression
+  - domain
+  - restrictions
+  - excluded-values
+  - number-line
+license: platform-cc-by-sa
+source_unit: G11-MATH-002

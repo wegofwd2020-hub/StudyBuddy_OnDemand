@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" role="img" aria-label="Side-by-side comparison of permutations and combinations of three letters chosen two at a time">
+  <title>Permutation vs Combination</title>
+  <desc>From the set of three letters A, B, C choose two.  Permutations count ordered selections — six in total: AB, BA, AC, CA, BC, CB.  Combinations count unordered selections — three in total: {A, B}, {A, C}, {B, C}.  Each combination corresponds to two permutations because the chosen pair can be arranged in 2! ways.  In symbols, P(3, 2) = 6 and C(3, 2) = 3, with C(n, r) = P(n, r) divided by r factorial.</desc>
+
+  <defs>
+    <style>
+      .panel    { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1; }
+      .chipA    { fill: #c6f6d5; stroke: #2f855a; stroke-width: 1.6; }
+      .chipB    { fill: #bee3f8; stroke: #2b6cb0; stroke-width: 1.6; }
+      .chipC    { fill: #fefcbf; stroke: #b7791f; stroke-width: 1.6; }
+      .chiplbl  { font: bold 14px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .heading  { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .subhead  { font: bold 14px system-ui, sans-serif; fill: #1a202c; }
+      .formula  { font: italic 13px system-ui, sans-serif; fill: #1a202c; }
+      .caption  { font: italic 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .arrow    { stroke: #4a5568; stroke-width: 1.4; fill: none; }
+    </style>
+    <marker id="ah-pc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#4a5568"/>
+    </marker>
+  </defs>
+
+  <text class="heading" x="320" y="22">Choose 2 from {A, B, C}:  order matters?</text>
+
+  <!-- ===== LEFT: Permutations ===== -->
+  <rect class="panel" x="20" y="40" width="290" height="282"/>
+  <text class="subhead" x="34" y="64">Permutations  (order matters)</text>
+  <text class="formula" x="34" y="84">P(n, r)  =  n! / (n − r)!</text>
+  <text class="formula" x="34" y="104">P(3, 2)  =  3! / 1!  =  6</text>
+
+  <!-- 6 ordered pair tiles, 3 columns × 2 rows.  Each tile shows two stacked chips representing position 1, 2 -->
+  <!-- Tile dims: 80×72; columns at x=46, 134, 222; rows at y=132, 220 -->
+  <!-- Each chip 28×28; first chip at (col+10, row), second at (col+44, row); arrow row→ to indicate order -->
+
+  <!-- helper: position 1 chip + arrow + position 2 chip -->
+  <!-- Tile (1,1): A B -->
+  <g>
+    <rect class="chipA" x="46" y="132" width="28" height="28" rx="6"/>
+    <text class="chiplbl" x="60" y="151">A</text>
+    <line class="arrow" x1="76" y1="146" x2="98" y2="146" marker-end="url(#ah-pc)"/>
+    <rect class="chipB" x="100" y="132" width="28" height="28" rx="6"/>
+    <text class="chiplbl" x="114" y="151">B</text>
+  </g>
+  <!-- Tile (1,2): B A -->
+  <g>
+    <rect class="chipB" x="46" y="172" width="28" height="28" rx="6"/>
+    <text class="chiplbl" x="60" y="191">B</text>
+    <line class="arrow" x1="76" y1="186" x2="98" y2="186" marker-end="url(#ah-pc)"/>
+    <rect class="chipA" x="100" y="172" width="28" height="28" rx="6"/>
+    <text class="chiplbl" x="114" y="191">A</text>
+  </g>
+  <!-- Tile (2,1): A C -->
+  <g>
+    <rect class="chipA" x="138" y="132" width="28" height="28" rx="6"/>
+    <text class="chiplbl" x="152" y="151">A</text>
+    <line class="arrow" x1="168" y1="146" x2="190" y2="146" marker-end="url(#ah-pc)"/>
+    <rect class="chipC" x="192" y="132" width="28" height="28" rx="6"/>
+    <text class="chiplbl" x="206" y="151">C</text>
+  </g>
+  <!-- Tile (2,2): C A -->
+  <g>
+    <rect class="chipC" x="138" y="172" width="28" height="28" rx="6"/>
+    <text class="chiplbl" x="152" y="191">C</text>
+    <line class="arrow" x1="168" y1="186" x2="190" y2="186" marker-end="url(#ah-pc)"/>
+    <rect class="chipA" x="192" y="172" width="28" height="28" rx="6"/>
+    <text class="chiplbl" x="206" y="191">A</text>
+  </g>
+  <!-- Tile (3,1): B C -->
+  <g>
+    <rect class="chipB" x="46" y="216" width="28" height="28" rx="6"/>
+    <text class="chiplbl" x="60" y="235">B</text>
+    <line class="arrow" x1="76" y1="230" x2="98" y2="230" marker-end="url(#ah-pc)"/>
+    <rect class="chipC" x="100" y="216" width="28" height="28" rx="6"/>
+    <text class="chiplbl" x="114" y="235">C</text>
+  </g>
+  <!-- Tile (3,2): C B -->
+  <g>
+    <rect class="chipC" x="46" y="256" width="28" height="28" rx="6"/>
+    <text class="chiplbl" x="60" y="275">C</text>
+    <line class="arrow" x1="76" y1="270" x2="98" y2="270" marker-end="url(#ah-pc)"/>
+    <rect class="chipB" x="100" y="256" width="28" height="28" rx="6"/>
+    <text class="chiplbl" x="114" y="275">B</text>
+  </g>
+
+  <text class="caption" x="165" y="312">six ordered selections</text>
+
+  <!-- ===== RIGHT: Combinations ===== -->
+  <rect class="panel" x="330" y="40" width="290" height="282"/>
+  <text class="subhead" x="344" y="64">Combinations  (order does NOT matter)</text>
+  <text class="formula" x="344" y="84">C(n, r)  =  n! / ( r! · (n − r)! )</text>
+  <text class="formula" x="344" y="104">C(3, 2)  =  3! / (2! · 1!)  =  3</text>
+
+  <!-- 3 unordered "set" tiles, vertical stack.  Each shown as { . , . } chips inside braces -->
+
+  <!-- Set {A, B} at y=140 -->
+  <g>
+    <text font="bold 24px system-ui" font-size="24" font-weight="700" fill="#1a202c" x="354" y="158">{</text>
+    <rect class="chipA" x="372" y="140" width="28" height="28" rx="6"/>
+    <text class="chiplbl" x="386" y="159">A</text>
+    <text font="bold 16px system-ui" font-size="16" fill="#1a202c" x="406" y="158">,</text>
+    <rect class="chipB" x="416" y="140" width="28" height="28" rx="6"/>
+    <text class="chiplbl" x="430" y="159">B</text>
+    <text font="bold 24px system-ui" font-size="24" font-weight="700" fill="#1a202c" x="450" y="158">}</text>
+  </g>
+
+  <!-- Set {A, C} at y=190 -->
+  <g>
+    <text font="bold 24px system-ui" font-size="24" font-weight="700" fill="#1a202c" x="354" y="208">{</text>
+    <rect class="chipA" x="372" y="190" width="28" height="28" rx="6"/>
+    <text class="chiplbl" x="386" y="209">A</text>
+    <text font="bold 16px system-ui" font-size="16" fill="#1a202c" x="406" y="208">,</text>
+    <rect class="chipC" x="416" y="190" width="28" height="28" rx="6"/>
+    <text class="chiplbl" x="430" y="209">C</text>
+    <text font="bold 24px system-ui" font-size="24" font-weight="700" fill="#1a202c" x="450" y="208">}</text>
+  </g>
+
+  <!-- Set {B, C} at y=240 -->
+  <g>
+    <text font="bold 24px system-ui" font-size="24" font-weight="700" fill="#1a202c" x="354" y="258">{</text>
+    <rect class="chipB" x="372" y="240" width="28" height="28" rx="6"/>
+    <text class="chiplbl" x="386" y="259">B</text>
+    <text font="bold 16px system-ui" font-size="16" fill="#1a202c" x="406" y="258">,</text>
+    <rect class="chipC" x="416" y="240" width="28" height="28" rx="6"/>
+    <text class="chiplbl" x="430" y="259">C</text>
+    <text font="bold 24px system-ui" font-size="24" font-weight="700" fill="#1a202c" x="450" y="258">}</text>
+  </g>
+
+  <!-- "Each combination = 2 perms" annotation -->
+  <g transform="translate(488, 132)">
+    <rect x="0" y="0" width="118" height="160" rx="8" fill="#fffaf0" stroke="#dd6b20" stroke-width="1.4"/>
+    <text font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" x="59" y="22" text-anchor="middle">Each set ↔ 2 perms</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="59" y="44" text-anchor="middle">{A, B} ⟷  AB,  BA</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="59" y="62" text-anchor="middle">{A, C} ⟷  AC,  CA</text>
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="59" y="80" text-anchor="middle">{B, C} ⟷  BC,  CB</text>
+    <line x1="6" y1="92" x2="112" y2="92" stroke="#cbd5e0"/>
+    <text font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" x="59" y="110" text-anchor="middle">3 × 2!  =  6</text>
+    <text font="italic 11px system-ui" font-size="11" font-style="italic" fill="#4a5568" x="59" y="128" text-anchor="middle">divide by r! to</text>
+    <text font="italic 11px system-ui" font-size="11" font-style="italic" fill="#4a5568" x="59" y="144" text-anchor="middle">forget the order</text>
+  </g>
+
+  <text class="caption" x="475" y="312">three unordered subsets</text>
+
+  <text x="320" y="350" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">When the question is "how many ways?", check first:  does swapping A and B give a different arrangement?</text>
+</svg>

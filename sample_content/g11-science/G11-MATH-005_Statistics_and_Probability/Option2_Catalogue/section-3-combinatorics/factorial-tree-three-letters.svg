@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" width="640" height="380" role="img" aria-label="Tree diagram showing the six permutations of the three letters A B C">
+  <title>Factorial Tree: 3! Permutations of A, B, C</title>
+  <desc>A tree branches out the six permutations of three letters.  At the root, three choices for the first letter (A, B, or C).  At each second-level node, two choices remain.  At the third level, only one choice is left.  In total, 3 × 2 × 1 = 3! = 6 permutations: ABC, ACB, BAC, BCA, CAB, CBA.</desc>
+
+  <defs>
+    <style>
+      .panel   { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1; }
+      .nodeR   { fill: #fefcbf; stroke: #b7791f; stroke-width: 2; }
+      .nodeA   { fill: #c6f6d5; stroke: #2f855a; stroke-width: 2; }
+      .nodeB   { fill: #bee3f8; stroke: #2b6cb0; stroke-width: 2; }
+      .nodeC   { fill: #fed7d7; stroke: #c53030; stroke-width: 2; }
+      .branch  { stroke: #6b46c1; stroke-width: 1.6; fill: none; }
+      .leaf    { fill: #fffaf0; stroke: #dd6b20; stroke-width: 1.4; }
+      .lblnode { font: bold 14px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .lblleaf { font: bold 12px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .heading { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .lvl     { font: bold 11px system-ui, sans-serif; fill: #4a5568; }
+    </style>
+  </defs>
+
+  <text class="heading" x="320" y="22">Factorial counting:  3 · 2 · 1  =  3!  =  6  permutations of {A, B, C}</text>
+
+  <rect class="panel" x="20" y="40" width="600" height="310"/>
+
+  <!-- Levels: x positions 60, 200, 360, 520 -->
+  <text class="lvl" x="60"  y="60">1st letter:  3 choices</text>
+  <text class="lvl" x="200" y="60">2nd letter:  2 choices</text>
+  <text class="lvl" x="360" y="60">3rd letter:  1 choice</text>
+  <text class="lvl" x="520" y="60">permutation</text>
+
+  <!-- Root at (60, 200) -->
+  <circle class="nodeR" cx="60" cy="200" r="20"/>
+  <text class="lblnode" x="60" y="205">·</text>
+
+  <!-- Level 1 (3 nodes): A at y=100, B at y=200, C at y=300 -->
+  <line class="branch" x1="80" y1="195" x2="180" y2="105"/>
+  <line class="branch" x1="80" y1="200" x2="180" y2="200"/>
+  <line class="branch" x1="80" y1="205" x2="180" y2="295"/>
+
+  <circle class="nodeA" cx="200" cy="105" r="18"/>
+  <text class="lblnode" x="200" y="110">A</text>
+  <circle class="nodeB" cx="200" cy="200" r="18"/>
+  <text class="lblnode" x="200" y="205">B</text>
+  <circle class="nodeC" cx="200" cy="295" r="18"/>
+  <text class="lblnode" x="200" y="300">C</text>
+
+  <!-- Level 2 — 2 children each.
+       From A(200,105): B at (340,75), C at (340,135)
+       From B(200,200): A at (340,170), C at (340,230)
+       From C(200,295): A at (340,265), B at (340,325)
+  -->
+  <line class="branch" x1="218" y1="100" x2="320" y2="78"/>
+  <line class="branch" x1="218" y1="110" x2="320" y2="132"/>
+  <line class="branch" x1="218" y1="195" x2="320" y2="173"/>
+  <line class="branch" x1="218" y1="205" x2="320" y2="227"/>
+  <line class="branch" x1="218" y1="290" x2="320" y2="268"/>
+  <line class="branch" x1="218" y1="300" x2="320" y2="322"/>
+
+  <!-- Level-2 nodes -->
+  <circle class="nodeB" cx="340" cy="78"  r="16"/><text class="lblnode" x="340" y="83">B</text>
+  <circle class="nodeC" cx="340" cy="132" r="16"/><text class="lblnode" x="340" y="137">C</text>
+  <circle class="nodeA" cx="340" cy="173" r="16"/><text class="lblnode" x="340" y="178">A</text>
+  <circle class="nodeC" cx="340" cy="227" r="16"/><text class="lblnode" x="340" y="232">C</text>
+  <circle class="nodeA" cx="340" cy="268" r="16"/><text class="lblnode" x="340" y="273">A</text>
+  <circle class="nodeB" cx="340" cy="322" r="16"/><text class="lblnode" x="340" y="327">B</text>
+
+  <!-- Level 3 — 1 child each (the remaining letter):
+       AB → C ; AC → B ; BA → C ; BC → A ; CA → B ; CB → A
+       Each child x=480, y same as parent.
+  -->
+  <line class="branch" x1="356" y1="78"  x2="464" y2="78"/>
+  <line class="branch" x1="356" y1="132" x2="464" y2="132"/>
+  <line class="branch" x1="356" y1="173" x2="464" y2="173"/>
+  <line class="branch" x1="356" y1="227" x2="464" y2="227"/>
+  <line class="branch" x1="356" y1="268" x2="464" y2="268"/>
+  <line class="branch" x1="356" y1="322" x2="464" y2="322"/>
+
+  <circle class="nodeC" cx="480" cy="78"  r="14"/><text class="lblnode" x="480" y="83">C</text>
+  <circle class="nodeB" cx="480" cy="132" r="14"/><text class="lblnode" x="480" y="137">B</text>
+  <circle class="nodeC" cx="480" cy="173" r="14"/><text class="lblnode" x="480" y="178">C</text>
+  <circle class="nodeA" cx="480" cy="227" r="14"/><text class="lblnode" x="480" y="232">A</text>
+  <circle class="nodeB" cx="480" cy="268" r="14"/><text class="lblnode" x="480" y="273">B</text>
+  <circle class="nodeA" cx="480" cy="322" r="14"/><text class="lblnode" x="480" y="327">A</text>
+
+  <!-- Leaf labels -->
+  <g>
+    <rect class="leaf" x="510" y="64"  width="58" height="28" rx="6"/>
+    <text class="lblleaf" x="539" y="83">ABC</text>
+  </g>
+  <g>
+    <rect class="leaf" x="510" y="118" width="58" height="28" rx="6"/>
+    <text class="lblleaf" x="539" y="137">ACB</text>
+  </g>
+  <g>
+    <rect class="leaf" x="510" y="159" width="58" height="28" rx="6"/>
+    <text class="lblleaf" x="539" y="178">BAC</text>
+  </g>
+  <g>
+    <rect class="leaf" x="510" y="213" width="58" height="28" rx="6"/>
+    <text class="lblleaf" x="539" y="232">BCA</text>
+  </g>
+  <g>
+    <rect class="leaf" x="510" y="254" width="58" height="28" rx="6"/>
+    <text class="lblleaf" x="539" y="273">CAB</text>
+  </g>
+  <g>
+    <rect class="leaf" x="510" y="308" width="58" height="28" rx="6"/>
+    <text class="lblleaf" x="539" y="327">CBA</text>
+  </g>
+
+  <!-- Counting summary box -->
+  <g transform="translate(580, 64)">
+    <rect x="0" y="0" width="50" height="92" rx="6" fill="#ebf8ff" stroke="#2b6cb0" stroke-width="1.4"/>
+    <text font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" x="25" y="20" text-anchor="middle">Total</text>
+    <text font="bold 16px system-ui" font-size="16" fill="#1a202c" x="25" y="46" text-anchor="middle">3!</text>
+    <text font="bold 16px system-ui" font-size="16" fill="#1a202c" x="25" y="68" text-anchor="middle">= 6</text>
+  </g>
+
+  <text x="320" y="370" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">After choosing the first letter (3 ways), the second is chosen from what remains (2 ways), then the third is forced (1 way).</text>
+</svg>

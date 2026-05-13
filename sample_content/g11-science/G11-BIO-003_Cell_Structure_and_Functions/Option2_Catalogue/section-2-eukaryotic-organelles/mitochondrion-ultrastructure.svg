@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 460" width="760" height="460" role="img" aria-label="Cutaway of a mitochondrion showing outer membrane, inner membrane with cristae, intermembrane space, and matrix">
+  <title>Mitochondrion Ultrastructure — Cutaway</title>
+  <desc>A magnified cutaway of one mitochondrion. Two membranes are drawn distinctly: a smooth outer membrane and a folded inner membrane whose folds project inward as cristae, dramatically increasing surface area for the electron transport chain. The space between the two membranes is the intermembrane space (where H+ ions accumulate during chemiosmosis). The interior is the matrix, which holds Krebs-cycle enzymes, mitochondrial DNA (a small circular chromosome), and 70S ribosomes. ATP synthase complexes sit on the cristae. A side panel maps each compartment to the metabolic step that runs there.</desc>
+
+  <text x="380" y="24" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">Mitochondrion — Where ATP Is Made</text>
+  <text x="380" y="42" font-size="11" fill="#4a5568" text-anchor="middle">Two membranes · two compartments · one job: produce ATP from food.</text>
+
+  <!-- Outer membrane -->
+  <ellipse cx="280" cy="240" rx="220" ry="120" fill="#fff5f5" stroke="#dc2626" stroke-width="3"/>
+  <!-- Intermembrane space (annular gap) -->
+  <ellipse cx="280" cy="240" rx="208" ry="108" fill="#fee2e2" stroke="none"/>
+  <!-- Inner membrane (folded — cristae) -->
+  <path d="
+    M 80 240
+    Q 90 200 110 240 Q 130 280 150 240
+    Q 160 200 130 200 Q 100 200 110 170
+    Q 130 150 160 170 Q 200 200 200 240
+    Q 200 280 160 310 Q 130 330 110 310
+    Q 100 290 130 280 Q 160 280 150 240
+    L 200 240
+    Q 230 200 220 170 Q 200 140 240 140 Q 280 140 280 180
+    Q 280 220 320 220 Q 360 220 360 180
+    Q 360 140 400 140 Q 440 140 440 180
+    Q 440 220 410 240 Q 380 260 410 280
+    Q 440 300 440 320 Q 440 340 400 340 Q 360 340 360 300
+    Q 360 270 320 270 Q 280 270 280 310 Q 280 340 240 340 Q 200 340 200 300
+    Q 200 270 160 270
+    L 80 240 Z
+  " fill="#fef2f2" stroke="#dc2626" stroke-width="2.4" opacity="0.95"/>
+
+  <!-- Simpler clean cristae overlay (drawn as separate stylised folds for clarity) -->
+  <g fill="none" stroke="#dc2626" stroke-width="2.4">
+    <!-- crista 1 -->
+    <path d="M 100 180 Q 120 200 140 180 Q 160 160 180 180 Q 200 200 200 220" />
+    <!-- crista 2 (lower-left fold) -->
+    <path d="M 110 300 Q 130 280 150 300 Q 170 320 190 300 Q 200 290 200 270" />
+    <!-- crista 3 (centre top) -->
+    <path d="M 230 158 Q 250 178 270 158 Q 290 138 310 158 Q 330 178 310 200 Q 290 218 270 200 Q 252 184 240 200" />
+    <!-- crista 4 (centre bottom) -->
+    <path d="M 230 322 Q 250 302 270 322 Q 290 342 310 322 Q 330 302 310 280 Q 290 264 270 280 Q 252 296 240 280" />
+    <!-- crista 5 (right) -->
+    <path d="M 360 180 Q 380 160 400 180 Q 420 200 400 220 Q 380 240 400 260 Q 420 280 400 300 Q 380 320 360 300" />
+  </g>
+
+  <!-- Matrix contents: mtDNA -->
+  <path d="M 250 240 Q 270 230 280 240 Q 290 250 280 260 Q 270 270 250 260 Q 240 250 250 240 Z"
+        fill="none" stroke="#7c3aed" stroke-width="2"/>
+  <text x="265" y="244" font-size="9" font-weight="700" fill="#7c3aed" text-anchor="middle">mtDNA</text>
+
+  <!-- 70S ribosomes (in matrix) -->
+  <g fill="#7c3aed">
+    <circle cx="320" cy="240" r="3"/>
+    <circle cx="240" cy="220" r="3"/>
+    <circle cx="220" cy="260" r="3"/>
+    <circle cx="340" cy="260" r="3"/>
+  </g>
+
+  <!-- ATP synthase complexes on cristae (lollipops) -->
+  <g stroke="#15803d" stroke-width="1.6" fill="#15803d">
+    <line x1="120" y1="178" x2="120" y2="170"/><circle cx="120" cy="167" r="3.5"/>
+    <line x1="160" y1="178" x2="160" y2="170"/><circle cx="160" cy="167" r="3.5"/>
+    <line x1="250" y1="160" x2="250" y2="152"/><circle cx="250" cy="149" r="3.5"/>
+    <line x1="290" y1="160" x2="290" y2="152"/><circle cx="290" cy="149" r="3.5"/>
+    <line x1="380" y1="178" x2="380" y2="170"/><circle cx="380" cy="167" r="3.5"/>
+    <line x1="140" y1="300" x2="140" y2="308"/><circle cx="140" cy="311" r="3.5"/>
+    <line x1="180" y1="300" x2="180" y2="308"/><circle cx="180" cy="311" r="3.5"/>
+    <line x1="270" y1="320" x2="270" y2="328"/><circle cx="270" cy="331" r="3.5"/>
+    <line x1="380" y1="300" x2="380" y2="308"/><circle cx="380" cy="311" r="3.5"/>
+  </g>
+
+  <!-- ── Labels ───────────────────────────────────────────────── -->
+  <g font-size="11" font-weight="700">
+    <line x1="498" y1="180" x2="540" y2="120" stroke="#dc2626" stroke-width="1"/>
+    <text x="544" y="116" fill="#7f1d1d">outer membrane</text>
+    <text x="544" y="130" fill="#4a5568" font-size="10" font-weight="400">smooth · permeable to small molecules</text>
+
+    <line x1="468" y1="208" x2="540" y2="170" stroke="#dc2626" stroke-width="1"/>
+    <text x="544" y="166" fill="#7f1d1d">intermembrane space</text>
+    <text x="544" y="180" fill="#4a5568" font-size="10" font-weight="400">H⁺ accumulates here (proton gradient)</text>
+
+    <line x1="416" y1="220" x2="540" y2="216" stroke="#dc2626" stroke-width="1"/>
+    <text x="544" y="216" fill="#7f1d1d">inner membrane</text>
+    <text x="544" y="230" fill="#4a5568" font-size="10" font-weight="400">site of the electron transport chain</text>
+
+    <line x1="354" y1="180" x2="540" y2="266" stroke="#dc2626" stroke-width="1"/>
+    <text x="544" y="266" fill="#7f1d1d">cristae</text>
+    <text x="544" y="280" fill="#4a5568" font-size="10" font-weight="400">folds = much more surface area for ETC</text>
+
+    <line x1="290" y1="240" x2="540" y2="316" stroke="#dc2626" stroke-width="1"/>
+    <text x="544" y="316" fill="#7f1d1d">matrix</text>
+    <text x="544" y="330" fill="#4a5568" font-size="10" font-weight="400">Krebs cycle · mtDNA · 70S ribosomes</text>
+
+    <line x1="290" y1="152" x2="540" y2="370" stroke="#15803d" stroke-width="1"/>
+    <text x="544" y="370" fill="#15803d">ATP synthase</text>
+    <text x="544" y="384" fill="#4a5568" font-size="10" font-weight="400">spins to make ATP from H⁺ flow</text>
+  </g>
+
+  <!-- ── Compartment-to-metabolism map (footer) ─────────────── -->
+  <rect x="40" y="386" width="680" height="58" rx="8" fill="#f7fafc" stroke="#cbd5e0" stroke-width="1"/>
+  <text x="380" y="404" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Where each step of cellular respiration happens</text>
+  <g font-size="10">
+    <text x="60" y="424" font-weight="700" fill="#dc2626">Glycolysis</text>
+    <text x="60" y="438" fill="#4a5568">in cytoplasm (outside)</text>
+
+    <text x="208" y="424" font-weight="700" fill="#dc2626">Krebs cycle</text>
+    <text x="208" y="438" fill="#4a5568">in matrix</text>
+
+    <text x="320" y="424" font-weight="700" fill="#dc2626">Electron transport chain</text>
+    <text x="320" y="438" fill="#4a5568">on inner membrane (cristae)</text>
+
+    <text x="500" y="424" font-weight="700" fill="#15803d">Chemiosmosis (ATP synthesis)</text>
+    <text x="500" y="438" fill="#4a5568">ATP synthase straddles the inner membrane</text>
+  </g>
+
+  <text x="380" y="456" font-size="9" font-style="italic" fill="#718096" text-anchor="middle">Endosymbiotic origin: a free-living α-proteobacterium engulfed by a primitive eukaryote ~1.5 billion years ago. That's why mitochondria still have their own circular DNA and 70S ribosomes.</text>
+</svg>

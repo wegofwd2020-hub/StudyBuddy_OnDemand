@@ -1,0 +1,13 @@
+schema_version: 1
+id: chemistry-addition-ethene-br2
+kind: image
+subject: chemistry
+topic_phrase: "electrophilic addition ethene bromine 1,2-dibromoethane bromine water test"
+keywords:
+  - electrophilic-addition
+  - alkene-reaction
+  - ethene
+  - bromine
+  - bromonium-ion
+license: platform-cc-by-sa
+source_unit: G11-CHEM-008

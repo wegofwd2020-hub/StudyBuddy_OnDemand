@@ -1,0 +1,13 @@
+schema_version: 1
+id: chemistry-homologous-series-alkanes
+kind: image
+subject: chemistry
+topic_phrase: "homologous series alkanes methane ethane propane butane pentane boiling point"
+keywords:
+  - homologous-series
+  - alkanes
+  - boiling-point-trend
+  - CnH2n+2
+  - chain-length
+license: platform-cc-by-sa
+source_unit: G11-CHEM-008

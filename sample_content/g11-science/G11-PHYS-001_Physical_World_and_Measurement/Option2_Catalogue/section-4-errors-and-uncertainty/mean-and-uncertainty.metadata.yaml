@@ -1,0 +1,14 @@
+schema_version: 1
+id: physics-physical-world-mean-and-uncertainty
+kind: image
+subject: physics
+topic_phrase: "sample mean and standard deviation from repeated pendulum-period measurements"
+keywords:
+  - mean
+  - standard-deviation
+  - uncertainty
+  - repeated-measurements
+  - pendulum
+  - error-bars
+license: platform-cc-by-sa
+source_unit: G11-PHYS-001

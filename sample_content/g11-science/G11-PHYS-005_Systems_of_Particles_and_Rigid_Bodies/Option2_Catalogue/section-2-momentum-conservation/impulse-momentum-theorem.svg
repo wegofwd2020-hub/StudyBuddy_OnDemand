@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360" role="img" aria-label="Impulse–momentum theorem with force-time graph and worked example">
+  <title>Impulse–momentum theorem: J = ∫F dt = Δp</title>
+  <desc>Force–time plot: a force pulse of average magnitude F̄ acts for a brief time Δt. The impulse equals the shaded area under the F(t) curve and equals the change in momentum of the body. A worked example shows a 0.15 kg ball bouncing off a wall.</desc>
+
+  <defs>
+    <marker id="arr-imp1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626" />
+    </marker>
+    <marker id="arr-imp2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#15803d" />
+    </marker>
+  </defs>
+
+  <text x="300" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Impulse–Momentum Theorem:  J = ∫ F dt = Δp</text>
+
+  <!-- ───────── F-t plot panel ───────── -->
+  <g transform="translate(40, 50)">
+    <rect x="0" y="0" width="320" height="240" fill="#f7fafc" stroke="#e2e8f0" />
+    <text x="160" y="18" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Force pulse during a collision</text>
+
+    <!-- axes -->
+    <line x1="40" y1="200" x2="290" y2="200" stroke="#1a202c" stroke-width="1.5" />
+    <line x1="40" y1="40" x2="40" y2="200" stroke="#1a202c" stroke-width="1.5" />
+    <text x="295" y="218" font="11px system-ui" font-size="11" fill="#1a202c">t</text>
+    <text x="32" y="36" font="11px system-ui" font-size="11" fill="#1a202c" text-anchor="end">F</text>
+
+    <!-- Bell-shaped impulse curve, with shaded fill -->
+    <!-- Approximate Gaussian-like pulse centered at (165, 90), stretched 30..280 in x. -->
+    <path d="M 50 200 C 110 200, 130 60, 165 60 C 200 60, 220 200, 280 200 Z"
+      fill="#fed7aa" stroke="#dd6b20" stroke-width="2" opacity="0.65" />
+    <path d="M 50 200 C 110 200, 130 60, 165 60 C 200 60, 220 200, 280 200"
+      fill="none" stroke="#dd6b20" stroke-width="2.5" />
+
+    <!-- F̄ horizontal dashed line at y=120 (representing the rectangle of equal area) -->
+    <line x1="80" y1="120" x2="250" y2="120" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="5 4" />
+    <text x="262" y="124" font="11px system-ui" font-size="11" font-weight="700" fill="#dc2626">F̄</text>
+
+    <!-- Δt brace from 80 to 250 along x-axis -->
+    <line x1="80" y1="208" x2="80" y2="216" stroke="#dc2626" stroke-width="1.5" />
+    <line x1="250" y1="208" x2="250" y2="216" stroke="#dc2626" stroke-width="1.5" />
+    <line x1="80" y1="212" x2="250" y2="212" stroke="#dc2626" stroke-width="1.5" />
+    <text x="165" y="230" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">Δt</text>
+
+    <!-- Area label -->
+    <text x="165" y="155" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Area = J = F̄ · Δt</text>
+  </g>
+
+  <!-- ───────── Worked example panel ───────── -->
+  <g transform="translate(380, 50)">
+    <rect x="0" y="0" width="200" height="240" rx="8" fill="#f0fdf4" stroke="#15803d" stroke-width="1.3" />
+    <text x="100" y="20" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">Worked example</text>
+    <text x="100" y="36" font="10px system-ui" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">0.15 kg ball, off a wall</text>
+
+    <!-- Wall + ball cartoon -->
+    <line x1="160" y1="48" x2="160" y2="100" stroke="#1a202c" stroke-width="3" />
+    <g stroke="#94a3b8" stroke-width="1">
+      <line x1="160" y1="52" x2="170" y2="48" />
+      <line x1="160" y1="62" x2="170" y2="58" />
+      <line x1="160" y1="72" x2="170" y2="68" />
+      <line x1="160" y1="82" x2="170" y2="78" />
+      <line x1="160" y1="92" x2="170" y2="88" />
+    </g>
+    <circle cx="80" cy="74" r="9" fill="#bee3f8" stroke="#1a202c" stroke-width="1.2" />
+
+    <!-- v_in (incoming) red arrow -->
+    <line x1="55" y1="60" x2="100" y2="60" stroke="#dc2626" stroke-width="2.5" marker-end="url(#arr-imp1)" />
+    <text x="78" y="55" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#dc2626" text-anchor="middle">v_i = +20 m/s</text>
+
+    <!-- v_out (rebound) green arrow -->
+    <line x1="100" y1="92" x2="55" y2="92" stroke="#15803d" stroke-width="2.5" marker-end="url(#arr-imp2)" />
+    <text x="78" y="105" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#15803d" text-anchor="middle">v_f = −15 m/s</text>
+
+    <!-- Calculations -->
+    <text x="14" y="138" font="11px system-ui" font-size="11" fill="#1a202c">Δp = m(v_f − v_i)</text>
+    <text x="14" y="156" font="11px system-ui" font-size="11" fill="#1a202c">    = 0.15 (−15 − 20)</text>
+    <text x="14" y="174" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dc2626">    = −5.25 kg·m/s</text>
+
+    <text x="14" y="200" font="11px system-ui" font-size="11" fill="#1a202c">If Δt = 0.01 s,</text>
+    <text x="14" y="218" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#7c3aed">F̄ = Δp/Δt ≈ 525 N</text>
+    <text x="14" y="232" font="9px system-ui" font-size="9" font-style="italic" fill="#4a5568">(toward the ball, away from wall)</text>
+  </g>
+
+  <!-- Bottom takeaway -->
+  <rect x="40" y="300" width="540" height="50" rx="8" fill="#fef3c7" stroke="#dd6b20" stroke-width="1.3" />
+  <text x="310" y="320" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Spread the same Δp over a longer Δt → smaller force.</text>
+  <text x="310" y="338" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Why airbags, crumple zones, padded gloves, and bent knees on landing all work.</text>
+</svg>

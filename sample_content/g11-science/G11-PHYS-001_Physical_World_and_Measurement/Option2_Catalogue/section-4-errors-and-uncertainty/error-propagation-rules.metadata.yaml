@@ -1,0 +1,13 @@
+schema_version: 1
+id: physics-physical-world-error-propagation-rules
+kind: image
+subject: physics
+topic_phrase: "rules for combining independent uncertainties through addition multiplication and powers"
+keywords:
+  - error-propagation
+  - quadrature
+  - relative-uncertainty
+  - absolute-uncertainty
+  - density-example
+license: platform-cc-by-sa
+source_unit: G11-PHYS-001

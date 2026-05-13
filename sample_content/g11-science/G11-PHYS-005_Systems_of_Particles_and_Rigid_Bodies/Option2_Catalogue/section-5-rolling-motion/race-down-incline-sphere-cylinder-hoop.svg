@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 380" width="700" height="380" role="img" aria-label="Race down an incline — solid sphere beats solid cylinder beats thin hoop">
+  <title>Race down an incline — sphere beats cylinder beats hoop</title>
+  <desc>Three round bodies released simultaneously from the top of the same incline: a solid sphere, a solid cylinder, and a thin hoop. The sphere reaches the bottom first because it has the smallest moment-of-inertia coefficient (k = I/MR²), leaving more potential energy for translational kinetic energy. Acceleration formula a = g sin θ / (1 + k) shown.</desc>
+
+  <text x="350" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Race down a frictionless-rolling incline — small I/MR² wins</text>
+
+  <!-- ─── Incline diagram (left) ─── -->
+  <g transform="translate(20, 50)">
+    <!-- Incline triangle: vertices (0, 220), (340, 220), (340, 70) — slope descends from upper-left? -->
+    <!-- Use vertices (0, 220), (340, 220), (0, 90) so the slope falls from upper-left to lower-right. -->
+    <polygon points="0,220 340,220 0,90" fill="#fef3c7" stroke="#1a202c" stroke-width="1.5" />
+
+    <!-- Slope line -->
+    <line x1="0" y1="90" x2="340" y2="220" stroke="#1a202c" stroke-width="1.8" />
+
+    <!-- Angle θ at lower right corner -->
+    <path d="M 320 220 A 30 30 0 0 0 312.5 215" fill="none" stroke="#15803d" stroke-width="1.5" />
+    <text x="306" y="214" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#15803d" text-anchor="end">θ</text>
+
+    <!-- Three bodies on incline. Slope direction unit vector: from (0,90) to (340,220), length = √(340²+130²) ≈ 364. unit = (0.934, 0.357).
+         Sphere at fraction 0.30 down: (0.30·340, 90+0.30·130) = (102, 129).
+         Cylinder at fraction 0.45: (153, 148.5).
+         Hoop at fraction 0.55: (187, 161.5).
+         To draw the body on the slope, raise it perpendicular by the body radius along the slope normal.
+         Normal direction (rotate unit 90° CCW): (-0.357, 0.934). To "raise above" slope (away from incline body), the body sits on the slope, so we move along (-normal) i.e. (0.357, -0.934). The slope rises to upper-left, so "above" the slope (outside the triangle interior) is up-right of slope line.
+         Use radius 22 px. Offset = 22 * (0.357, -0.934) = (7.85, -20.55).
+         Sphere centre: (102 + 7.85, 129 - 20.55) = (109.85, 108.45)
+         Cylinder centre: (153 + 7.85, 148.5 - 20.55) = (160.85, 127.95)
+         Hoop centre: (187 + 7.85, 161.5 - 20.55) = (194.85, 140.95)
+    -->
+    <!-- Sphere (winner — furthest down): solid blue -->
+    <circle cx="240" cy="174" r="22" fill="#bee3f8" stroke="#1a202c" stroke-width="1.5" />
+    <ellipse cx="240" cy="174" rx="22" ry="6" fill="none" stroke="#1a202c" stroke-width="0.6" />
+    <text x="240" y="178" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">①</text>
+    <text x="240" y="148" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#2b6cb0" text-anchor="middle">sphere</text>
+
+    <!-- Cylinder (middle) -->
+    <circle cx="170" cy="148" r="22" fill="#fed7aa" stroke="#1a202c" stroke-width="1.5" />
+    <line x1="148" y1="148" x2="192" y2="148" stroke="#1a202c" stroke-width="0.6" />
+    <text x="170" y="152" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">②</text>
+    <text x="170" y="122" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#dd6b20" text-anchor="middle">cylinder</text>
+
+    <!-- Hoop (loser — uppermost): unfilled ring -->
+    <circle cx="100" cy="120" r="22" fill="none" stroke="#1a202c" stroke-width="3" />
+    <text x="100" y="124" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">③</text>
+    <text x="100" y="94" font="bold 10px system-ui" font-size="10" font-weight="700" fill="#7c3aed" text-anchor="middle">hoop</text>
+
+    <!-- Race direction arrow along slope -->
+    <line x1="60" y1="86" x2="40" y2="78" stroke="#dc2626" stroke-width="1.5" />
+    <text x="40" y="74" font="10px system-ui" font-size="10" font-weight="700" fill="#dc2626">START</text>
+    <line x1="320" y1="220" x2="332" y2="232" stroke="#15803d" stroke-width="1.5" />
+    <text x="338" y="240" font="10px system-ui" font-size="10" font-weight="700" fill="#15803d">FINISH</text>
+
+    <!-- Ground -->
+    <line x1="0" y1="220" x2="380" y2="220" stroke="#1a202c" stroke-width="1.5" />
+  </g>
+
+  <!-- ─── Right panel: ranking + formulas ─── -->
+  <g transform="translate(420, 50)">
+    <rect x="0" y="0" width="260" height="240" rx="8" fill="#f7fafc" stroke="#e2e8f0" />
+    <text x="130" y="22" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Why? a = g sin θ / (1 + k)</text>
+    <text x="130" y="38" font="10px system-ui" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">where  k = I / (M R²)</text>
+
+    <!-- Header row -->
+    <rect x="14" y="50" width="232" height="26" fill="#bee3f8" stroke="#1a202c" stroke-width="1" />
+    <text x="42" y="68" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">rank</text>
+    <text x="100" y="68" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">body</text>
+    <text x="170" y="68" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">k</text>
+    <text x="226" y="68" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">a / g sin θ</text>
+
+    <!-- Sphere row -->
+    <rect x="14" y="76" width="232" height="26" fill="#fff" stroke="#e2e8f0" />
+    <text x="42" y="94" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#2b6cb0" text-anchor="middle">①</text>
+    <text x="100" y="94" font="11px system-ui" font-size="11" fill="#1a202c" text-anchor="middle">sphere</text>
+    <text x="170" y="94" font="11px system-ui" font-size="11" fill="#1a202c" text-anchor="middle">2/5</text>
+    <text x="226" y="94" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle">5/7 ≈ 0.71</text>
+
+    <!-- Cylinder row -->
+    <rect x="14" y="102" width="232" height="26" fill="#f7fafc" stroke="#e2e8f0" />
+    <text x="42" y="120" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#dd6b20" text-anchor="middle">②</text>
+    <text x="100" y="120" font="11px system-ui" font-size="11" fill="#1a202c" text-anchor="middle">solid cylinder</text>
+    <text x="170" y="120" font="11px system-ui" font-size="11" fill="#1a202c" text-anchor="middle">1/2</text>
+    <text x="226" y="120" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#1a202c" text-anchor="middle">2/3 ≈ 0.67</text>
+
+    <!-- Hoop row -->
+    <rect x="14" y="128" width="232" height="26" fill="#fff" stroke="#e2e8f0" />
+    <text x="42" y="146" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#7c3aed" text-anchor="middle">③</text>
+    <text x="100" y="146" font="11px system-ui" font-size="11" fill="#1a202c" text-anchor="middle">thin hoop</text>
+    <text x="170" y="146" font="11px system-ui" font-size="11" fill="#1a202c" text-anchor="middle">1</text>
+    <text x="226" y="146" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">1/2 = 0.50</text>
+
+    <text x="14" y="176" font="11px system-ui" font-size="11" fill="#1a202c">Larger k → more KE locked into</text>
+    <text x="14" y="192" font="11px system-ui" font-size="11" fill="#1a202c">rotation → less for translation</text>
+    <text x="14" y="208" font="11px system-ui" font-size="11" fill="#1a202c">→ slower acceleration.</text>
+
+    <text x="130" y="232" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#7c3aed" text-anchor="middle">Independent of M and R!</text>
+  </g>
+
+  <!-- Bottom equations card -->
+  <rect x="20" y="306" width="660" height="62" rx="8" fill="#f0fdf4" stroke="#15803d" stroke-width="1.3" />
+  <text x="350" y="328" font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" text-anchor="middle">Energy: M g h = ½ M v² + ½ I ω²    →    v² = 2 g h / (1 + I/MR²)</text>
+  <text x="350" y="348" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Same h, same g — only the moment-of-inertia coefficient k = I/MR² decides the order.</text>
+  <text x="350" y="362" font="10px system-ui" font-size="10" font-style="italic" fill="#4a5568" text-anchor="middle">Mass cancels everywhere; race outcome is geometry, not weight.</text>
+</svg>

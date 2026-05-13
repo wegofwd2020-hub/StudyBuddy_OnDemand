@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380" role="img" aria-label="Ionic versus covalent bonding side-by-side comparison">
+  <title>Ionic vs Covalent — side-by-side comparison</title>
+  <desc>Side-by-side comparison of ionic and covalent bonding. Ionic: NaCl lattice, transferred electrons, high melting point, conducts when molten. Covalent: H₂O molecule with shared pairs, lower melting points (for molecular substances), poor conductivity.</desc>
+
+  <text x="360" y="22" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Ionic vs Covalent — Two Ways Atoms Hold Together</text>
+
+  <!-- Left panel: Ionic -->
+  <rect x="30" y="50" width="320" height="300" rx="12" fill="#dbeafe" stroke="#2b6cb0" stroke-width="2" />
+  <text x="190" y="76" font-size="14" font-weight="700" fill="#1e3a8a" text-anchor="middle">Ionic — transfer + attract</text>
+  <text x="190" y="94" font-size="10" fill="#4a5568" text-anchor="middle">Metal + Non-metal (e.g., NaCl, MgO)</text>
+
+  <!-- Mini lattice (3x3 alternating + and −) -->
+  <g transform="translate(75, 110)">
+    <!-- Row 0 -->
+    <circle cx="20" cy="20" r="14" fill="#2b6cb0" stroke="#1a202c" stroke-width="1" />
+    <text x="20" y="24" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">Na⁺</text>
+    <circle cx="70" cy="20" r="16" fill="#15803d" stroke="#1a202c" stroke-width="1" />
+    <text x="70" y="24" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">Cl⁻</text>
+    <circle cx="120" cy="20" r="14" fill="#2b6cb0" stroke="#1a202c" stroke-width="1" />
+    <text x="120" y="24" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">Na⁺</text>
+    <circle cx="170" cy="20" r="16" fill="#15803d" stroke="#1a202c" stroke-width="1" />
+    <text x="170" y="24" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">Cl⁻</text>
+    <!-- Row 1 -->
+    <circle cx="20" cy="70" r="16" fill="#15803d" stroke="#1a202c" stroke-width="1" />
+    <text x="20" y="74" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">Cl⁻</text>
+    <circle cx="70" cy="70" r="14" fill="#2b6cb0" stroke="#1a202c" stroke-width="1" />
+    <text x="70" y="74" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">Na⁺</text>
+    <circle cx="120" cy="70" r="16" fill="#15803d" stroke="#1a202c" stroke-width="1" />
+    <text x="120" y="74" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">Cl⁻</text>
+    <circle cx="170" cy="70" r="14" fill="#2b6cb0" stroke="#1a202c" stroke-width="1" />
+    <text x="170" y="74" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">Na⁺</text>
+    <!-- Row 2 -->
+    <circle cx="20" cy="120" r="14" fill="#2b6cb0" stroke="#1a202c" stroke-width="1" />
+    <text x="20" y="124" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">Na⁺</text>
+    <circle cx="70" cy="120" r="16" fill="#15803d" stroke="#1a202c" stroke-width="1" />
+    <text x="70" y="124" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">Cl⁻</text>
+    <circle cx="120" cy="120" r="14" fill="#2b6cb0" stroke="#1a202c" stroke-width="1" />
+    <text x="120" y="124" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">Na⁺</text>
+    <circle cx="170" cy="120" r="16" fill="#15803d" stroke="#1a202c" stroke-width="1" />
+    <text x="170" y="124" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">Cl⁻</text>
+  </g>
+
+  <text x="190" y="270" font-size="11" font-weight="700" fill="#1e3a8a" text-anchor="middle">3-D giant ionic lattice</text>
+
+  <!-- Properties bullets -->
+  <text x="50" y="295" font-size="10" fill="#1a202c">• High melting point (NaCl ≈ 801 °C)</text>
+  <text x="50" y="312" font-size="10" fill="#1a202c">• Conducts when molten / dissolved (free ions)</text>
+  <text x="50" y="329" font-size="10" fill="#1a202c">• Hard but brittle · soluble in polar solvents</text>
+  <text x="50" y="346" font-size="10" fill="#1a202c">• ΔEN typically ≳ 1.7</text>
+
+  <!-- Right panel: Covalent -->
+  <rect x="370" y="50" width="320" height="300" rx="12" fill="#dcfce7" stroke="#15803d" stroke-width="2" />
+  <text x="530" y="76" font-size="14" font-weight="700" fill="#14532d" text-anchor="middle">Covalent — share + bond</text>
+  <text x="530" y="94" font-size="10" fill="#4a5568" text-anchor="middle">Non-metal + Non-metal (e.g., H₂O, CO₂, CH₄)</text>
+
+  <!-- H₂O molecule -->
+  <g transform="translate(530, 180)">
+    <!-- Bond lines (104.5°) -->
+    <line x1="0" y1="0" x2="-44" y2="34" stroke="#1a202c" stroke-width="3" />
+    <line x1="0" y1="0" x2="44"  y2="34" stroke="#1a202c" stroke-width="3" />
+    <!-- O atom -->
+    <circle cx="0" cy="0" r="22" fill="#dc2626" stroke="#1a202c" stroke-width="1.5" />
+    <text x="0" y="5" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">O</text>
+    <!-- Lone pairs on O -->
+    <circle cx="-3" cy="-22" r="2" fill="#0f172a" />
+    <circle cx="3"  cy="-22" r="2" fill="#0f172a" />
+    <circle cx="22" cy="-8" r="2" fill="#0f172a" />
+    <circle cx="22" cy="-2" r="2" fill="#0f172a" />
+    <!-- H atoms -->
+    <circle cx="-44" cy="34" r="14" fill="#fef3c7" stroke="#92400e" stroke-width="1.5" />
+    <text x="-44" y="38" font-size="11" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+    <circle cx="44"  cy="34" r="14" fill="#fef3c7" stroke="#92400e" stroke-width="1.5" />
+    <text x="44" y="38" font-size="11" font-weight="700" fill="#92400e" text-anchor="middle">H</text>
+
+    <text x="0" y="-40" font-size="11" font-weight="700" fill="#14532d" text-anchor="middle">water (H₂O)</text>
+    <text x="0" y="68" font-size="10" fill="#4a5568" text-anchor="middle">2 shared pairs · 2 lone pairs</text>
+  </g>
+
+  <text x="530" y="270" font-size="11" font-weight="700" fill="#14532d" text-anchor="middle">Discrete molecules</text>
+
+  <!-- Properties bullets -->
+  <text x="390" y="295" font-size="10" fill="#1a202c">• Lower m.p. for molecular (H₂O m.p. = 0 °C)</text>
+  <text x="390" y="312" font-size="10" fill="#1a202c">• Pure liquid does not conduct (no free ions)</text>
+  <text x="390" y="329" font-size="10" fill="#1a202c">• Often soft, low density, soluble varies with polarity</text>
+  <text x="390" y="346" font-size="10" fill="#1a202c">• ΔEN typically &lt; 1.7</text>
+</svg>

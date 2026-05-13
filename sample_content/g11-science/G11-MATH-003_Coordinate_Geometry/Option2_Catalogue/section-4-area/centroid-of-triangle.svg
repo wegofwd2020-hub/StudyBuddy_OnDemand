@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 320" width="640" height="320" role="img" aria-label="Centroid of a triangle is the average of the three vertex coordinates">
+  <title>Centroid: Average of Vertex Coordinates</title>
+  <desc>Triangle ABC with vertices A(1, 2), B(7, 4), C(4, 9). Centroid G = ((1+7+4)/3, (2+4+9)/3) = (4, 5). The medians from each vertex to the opposite midpoint all meet at G.</desc>
+
+  <defs>
+    <style>
+      .axis    { stroke: #94a3b8; stroke-width: 1.4; }
+      .grid    { stroke: #e2e8f0; stroke-width: 0.6; }
+      .panel   { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1; }
+      .triFill { fill: rgba(43, 108, 176, 0.10); stroke: #2b6cb0; stroke-width: 2.5; stroke-linejoin: round; }
+      .median  { stroke: #dd6b20; stroke-width: 2; stroke-dasharray: 6 4; }
+      .pt      { fill: #c05621; stroke: white; stroke-width: 2; }
+      .midpt   { fill: #4a5568; stroke: white; stroke-width: 1.5; }
+      .centroid { fill: #6b46c1; stroke: white; stroke-width: 2.5; }
+      .axislbl { font: 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .heading { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .lbl     { font: bold 12px system-ui, sans-serif; }
+    </style>
+  </defs>
+
+  <text class="heading" x="320" y="22">Centroid:  G  =  ( (x₁ + x₂ + x₃)/3 ,  (y₁ + y₂ + y₃)/3 )</text>
+
+  <!-- Plot frame: x ∈ [0, 9], y ∈ [0, 10].  Frame width 270 (30 px/u), height 270 (27 px/u).  Use 28 px/u: width 252, height 280.  Frame x:60..312, y:30..310. Origin (60, 310) -->
+  <rect class="panel" x="60" y="30" width="252" height="280"/>
+
+  <!-- Vertical grid -->
+  <line class="grid" x1="88"  y1="30" x2="88"  y2="310"/>
+  <line class="grid" x1="116" y1="30" x2="116" y2="310"/>
+  <line class="grid" x1="144" y1="30" x2="144" y2="310"/>
+  <line class="grid" x1="172" y1="30" x2="172" y2="310"/>
+  <line class="grid" x1="200" y1="30" x2="200" y2="310"/>
+  <line class="grid" x1="228" y1="30" x2="228" y2="310"/>
+  <line class="grid" x1="256" y1="30" x2="256" y2="310"/>
+  <line class="grid" x1="284" y1="30" x2="284" y2="310"/>
+  <!-- Horizontal grid -->
+  <line class="grid" x1="60" y1="282" x2="312" y2="282"/>
+  <line class="grid" x1="60" y1="254" x2="312" y2="254"/>
+  <line class="grid" x1="60" y1="226" x2="312" y2="226"/>
+  <line class="grid" x1="60" y1="198" x2="312" y2="198"/>
+  <line class="grid" x1="60" y1="170" x2="312" y2="170"/>
+  <line class="grid" x1="60" y1="142" x2="312" y2="142"/>
+  <line class="grid" x1="60" y1="114" x2="312" y2="114"/>
+  <line class="grid" x1="60" y1="86"  x2="312" y2="86"/>
+  <line class="grid" x1="60" y1="58"  x2="312" y2="58"/>
+
+  <!-- Axes -->
+  <line class="axis" x1="60"  y1="310" x2="312" y2="310"/>
+  <line class="axis" x1="60"  y1="30"  x2="60"  y2="310"/>
+
+  <!-- Tick labels -->
+  <text class="axislbl" x="60"  y="324">0</text>
+  <text class="axislbl" x="88"  y="324">1</text>
+  <text class="axislbl" x="172" y="324">4</text>
+  <text class="axislbl" x="256" y="324">7</text>
+  <text class="axislbl" x="52"  y="314" text-anchor="end">0</text>
+  <text class="axislbl" x="52"  y="258" text-anchor="end">2</text>
+  <text class="axislbl" x="52"  y="174" text-anchor="end">5</text>
+  <text class="axislbl" x="52"  y="62"  text-anchor="end">9</text>
+  <text class="axislbl" x="320" y="314">x</text>
+  <text class="axislbl" x="60"  y="24">y</text>
+
+  <!-- Vertices: A=(1,2)→(88,254);  B=(7,4)→(256,198);  C=(4,9)→(172,58) -->
+  <polygon class="triFill" points="88,254 256,198 172,58"/>
+
+  <!-- Midpoints:
+       M_AB = (4, 3) → (172, 226)
+       M_BC = (5.5, 6.5) → (214, 128)
+       M_AC = (2.5, 5.5) → (130, 156)  -->
+
+  <!-- Medians (each vertex to opposite midpoint): A→M_BC, B→M_AC, C→M_AB -->
+  <line class="median" x1="88"  y1="254" x2="214" y2="128"/>
+  <line class="median" x1="256" y1="198" x2="130" y2="156"/>
+  <line class="median" x1="172" y1="58"  x2="172" y2="226"/>
+
+  <!-- Midpoints -->
+  <circle class="midpt" cx="172" cy="226" r="4"/>
+  <circle class="midpt" cx="214" cy="128" r="4"/>
+  <circle class="midpt" cx="130" cy="156" r="4"/>
+
+  <!-- Centroid (4, 5) → (172, 170) -->
+  <circle class="centroid" cx="172" cy="170" r="7"/>
+  <text class="lbl" x="180" y="166" fill="#6b46c1">G(4, 5)</text>
+
+  <!-- Vertices -->
+  <circle class="pt" cx="88"  cy="254" r="6"/>
+  <text class="lbl" x="64" y="248" fill="#c05621">A(1, 2)</text>
+  <circle class="pt" cx="256" cy="198" r="6"/>
+  <text class="lbl" x="266" y="194" fill="#c05621">B(7, 4)</text>
+  <circle class="pt" cx="172" cy="58"  r="6"/>
+  <text class="lbl" x="182" y="54" fill="#c05621">C(4, 9)</text>
+
+  <!-- Right panel -->
+  <g transform="translate(330, 40)">
+    <rect x="0" y="0" width="290" height="240" rx="8" fill="#fffaf0" stroke="#dd6b20" stroke-width="1.4"/>
+    <text font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" x="145" y="22" text-anchor="middle">Average each coordinate</text>
+
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="50">x_G  =  (x_A + x_B + x_C) / 3</text>
+    <text font="italic 13px system-ui" font-size="13" fill="#1a202c" x="22" y="68">     =  (1 + 7 + 4) / 3   =   12/3   =   4</text>
+
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="98">y_G  =  (y_A + y_B + y_C) / 3</text>
+    <text font="italic 13px system-ui" font-size="13" fill="#1a202c" x="22" y="116">     =  (2 + 4 + 9) / 3   =   15/3   =   5</text>
+
+    <rect x="14" y="132" width="262" height="42" rx="6" fill="#faf5ff" stroke="#6b46c1" stroke-width="1.5"/>
+    <text font="bold 13px system-ui" font-size="13" font-weight="700" fill="#1a202c" x="145" y="156" text-anchor="middle">centroid  G  =  (4, 5)</text>
+
+    <line x1="14" y1="184" x2="276" y2="184" stroke="#cbd5e0"/>
+    <text font="bold 11px system-ui" font-size="11" font-weight="700" fill="#dd6b20" x="14" y="200">Property</text>
+    <text font="11px system-ui" font-size="11" fill="#1a202c" x="14" y="216">All three medians (vertex → opposite midpoint) meet at G.</text>
+    <text font="italic 11px system-ui" font-size="11" font-style="italic" fill="#4a5568" x="14" y="232">G divides each median in ratio 2 : 1 (from vertex).</text>
+  </g>
+
+  <text x="320" y="316" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Centroid = balance point if the triangle were a uniform-density plate.</text>
+</svg>

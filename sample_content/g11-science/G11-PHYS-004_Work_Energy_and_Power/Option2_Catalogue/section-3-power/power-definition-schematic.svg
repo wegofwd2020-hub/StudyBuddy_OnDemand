@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 300" width="600" height="300" role="img" aria-label="Power as the rate of energy transfer — definition schematic">
+  <title>Power = rate of energy transfer:  P = ΔW / Δt</title>
+  <desc>A schematic showing a fixed amount of work being done in two different time spans. The same 600 J done in 2 s yields 300 W; done in 6 s yields only 100 W. Power is energy delivered per unit time.</desc>
+
+  <text x="300" y="22" font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" text-anchor="middle">Power = rate of doing work    P = ΔW / Δt</text>
+  <text x="300" y="40" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Same job, faster delivery → more power.   SI unit: 1 watt (W) = 1 J / s.</text>
+
+  <!-- ─── Top scenario: fast (2 s) ─── -->
+  <g>
+    <text x="60" y="74" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c">Scenario A · 600 J of work delivered in 2 s</text>
+
+    <!-- Energy bar: 600 J as a filled bar, 240 px wide max -->
+    <rect x="60" y="84" width="240" height="22" fill="#bee3f8" stroke="#1a202c" stroke-width="1.4" />
+    <text x="180" y="100" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">ΔW = 600 J</text>
+
+    <!-- Time bar: 2 s as a small green bar -->
+    <text x="60" y="128" font="11px system-ui" font-size="11" fill="#1a202c">Δt:</text>
+    <rect x="86" y="116" width="40" height="18" fill="#f0fdf4" stroke="#15803d" stroke-width="1.2" />
+    <text x="106" y="129" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle">2 s</text>
+
+    <!-- Power result -->
+    <rect x="380" y="74" width="200" height="60" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.6" />
+    <text x="480" y="96" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">P = 600 J / 2 s</text>
+    <text x="480" y="120" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#7c3aed" text-anchor="middle">= 300 W</text>
+  </g>
+
+  <!-- Divider -->
+  <line x1="40" y1="155" x2="560" y2="155" stroke="#cbd5e0" stroke-width="1" stroke-dasharray="3 3" />
+
+  <!-- ─── Bottom scenario: slow (6 s) ─── -->
+  <g>
+    <text x="60" y="180" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c">Scenario B · same 600 J delivered in 6 s</text>
+
+    <rect x="60" y="190" width="240" height="22" fill="#bee3f8" stroke="#1a202c" stroke-width="1.4" />
+    <text x="180" y="206" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">ΔW = 600 J</text>
+
+    <text x="60" y="234" font="11px system-ui" font-size="11" fill="#1a202c">Δt:</text>
+    <rect x="86" y="222" width="120" height="18" fill="#f0fdf4" stroke="#15803d" stroke-width="1.2" />
+    <text x="146" y="235" font="bold 11px system-ui" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle">6 s</text>
+
+    <rect x="380" y="180" width="200" height="60" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.6" />
+    <text x="480" y="202" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">P = 600 J / 6 s</text>
+    <text x="480" y="226" font="bold 18px system-ui" font-size="18" font-weight="700" fill="#7c3aed" text-anchor="middle">= 100 W</text>
+  </g>
+
+  <!-- Footer -->
+  <rect x="40" y="258" width="520" height="32" rx="6" fill="#f0fdf4" stroke="#15803d" stroke-width="1.2" />
+  <text x="300" y="278" font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" text-anchor="middle">Tripling the time → power drops to one-third.   Power and time are inversely related at fixed work.</text>
+</svg>

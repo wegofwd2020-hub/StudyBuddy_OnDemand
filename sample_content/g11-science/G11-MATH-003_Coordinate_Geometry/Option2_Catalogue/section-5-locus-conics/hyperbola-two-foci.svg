@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 340" width="640" height="340" role="img" aria-label="Hyperbola defined by constant absolute difference of distances from two foci">
+  <title>Hyperbola: |Distance Difference| from Two Foci is Constant</title>
+  <desc>The hyperbola x²/9 − y²/16 = 1 has a = 3, b = 4, c = 5. Foci F₁(−5, 0), F₂(5, 0); vertices (±3, 0); asymptotes y = ±(4/3)x. For every point P on the curve, ||PF₁| − |PF₂|| = 2a = 6.</desc>
+
+  <defs>
+    <style>
+      .axis      { stroke: #94a3b8; stroke-width: 1.4; }
+      .grid      { stroke: #e2e8f0; stroke-width: 0.6; }
+      .panel     { fill: #f7fafc; stroke: #cbd5e0; stroke-width: 1; }
+      .branch    { fill: none; stroke: #2b6cb0; stroke-width: 3; stroke-linecap: round; }
+      .asymptote { stroke: #6b46c1; stroke-width: 1.6; stroke-dasharray: 6 5; }
+      .focusPt   { fill: #c05621; stroke: white; stroke-width: 2.5; }
+      .vertex    { fill: #2f855a; stroke: white; stroke-width: 2; }
+      .samplePt  { fill: #6b46c1; stroke: white; stroke-width: 2; }
+      .ray1      { stroke: #c05621; stroke-width: 2; stroke-linecap: round; }
+      .ray2      { stroke: #c05621; stroke-width: 2; stroke-linecap: round; }
+      .axislbl   { font: 11px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; }
+      .heading   { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .lbl       { font: bold 12px system-ui, sans-serif; }
+    </style>
+  </defs>
+
+  <text class="heading" x="320" y="22">Hyperbola:  ||PF₁| − |PF₂||  =  2a  (constant)</text>
+
+  <!-- Plot frame: x ∈ [-7, 7], y ∈ [-7, 7].  Frame width 14*20=280, height 14*20=280.  Frame x:60..340, y:30..310. Origin (60+20*7, 310-20*7) = (200, 170) -->
+  <rect class="panel" x="60" y="30" width="280" height="280"/>
+
+  <!-- Vertical grid every 20 px (every unit). Omit origin (200) -->
+  <line class="grid" x1="80"  y1="30" x2="80"  y2="310"/>
+  <line class="grid" x1="100" y1="30" x2="100" y2="310"/>
+  <line class="grid" x1="120" y1="30" x2="120" y2="310"/>
+  <line class="grid" x1="140" y1="30" x2="140" y2="310"/>
+  <line class="grid" x1="160" y1="30" x2="160" y2="310"/>
+  <line class="grid" x1="180" y1="30" x2="180" y2="310"/>
+  <line class="grid" x1="220" y1="30" x2="220" y2="310"/>
+  <line class="grid" x1="240" y1="30" x2="240" y2="310"/>
+  <line class="grid" x1="260" y1="30" x2="260" y2="310"/>
+  <line class="grid" x1="280" y1="30" x2="280" y2="310"/>
+  <line class="grid" x1="300" y1="30" x2="300" y2="310"/>
+  <line class="grid" x1="320" y1="30" x2="320" y2="310"/>
+  <!-- Horizontal grid every 20 px. Omit origin (170) -->
+  <line class="grid" x1="60" y1="50"  x2="340" y2="50"/>
+  <line class="grid" x1="60" y1="70"  x2="340" y2="70"/>
+  <line class="grid" x1="60" y1="90"  x2="340" y2="90"/>
+  <line class="grid" x1="60" y1="110" x2="340" y2="110"/>
+  <line class="grid" x1="60" y1="130" x2="340" y2="130"/>
+  <line class="grid" x1="60" y1="150" x2="340" y2="150"/>
+  <line class="grid" x1="60" y1="190" x2="340" y2="190"/>
+  <line class="grid" x1="60" y1="210" x2="340" y2="210"/>
+  <line class="grid" x1="60" y1="230" x2="340" y2="230"/>
+  <line class="grid" x1="60" y1="250" x2="340" y2="250"/>
+  <line class="grid" x1="60" y1="270" x2="340" y2="270"/>
+  <line class="grid" x1="60" y1="290" x2="340" y2="290"/>
+
+  <!-- Axes (origin at 200, 170) -->
+  <line class="axis" x1="60"  y1="170" x2="340" y2="170"/>
+  <line class="axis" x1="200" y1="30"  x2="200" y2="310"/>
+
+  <!-- Tick labels -->
+  <text class="axislbl" x="100" y="184">−5</text>
+  <text class="axislbl" x="140" y="184">−3</text>
+  <text class="axislbl" x="200" y="184">0</text>
+  <text class="axislbl" x="260" y="184">3</text>
+  <text class="axislbl" x="300" y="184">5</text>
+  <text class="axislbl" x="192" y="94"  text-anchor="end">4</text>
+  <text class="axislbl" x="192" y="174" text-anchor="end">0</text>
+  <text class="axislbl" x="192" y="254" text-anchor="end">−4</text>
+  <text class="axislbl" x="348" y="174">x</text>
+  <text class="axislbl" x="200" y="24">y</text>
+
+  <!-- Asymptotes: y = ±(4/3)x.  Slopes: at x = 5.25 → y ≈ 7. -->
+  <line class="asymptote" x1="60" y1="310" x2="340" y2="30"/>
+  <line class="asymptote" x1="60" y1="30"  x2="340" y2="310"/>
+
+  <!-- Right branch sample points (parameterise with x = a·cosh t, y = b·sinh t).  Use x in [3, 7], y² = 16(x²/9 − 1).
+       (3, 0)→(260, 170)
+       (3.5, ±2.43) → ±48.6 px → (290, 121.4) and (290, 218.6)
+       (4, ±3.53) → ±70.6 → (300?? wait scale is 20 px/u): 4*20+200=280, y = ±70.6 → 99.4 / 240.6
+       Recompute: px = 200 + 20*x; py = 170 - 20*y
+       (3, 0)→(260, 170);  (3.3, ±1.59)→(266, 138.2)/(266, 201.8);  (4, ±3.53)→(280, 99.4)/(280, 240.6);
+       (5, ±5.33)→(300, 63.3)/(300, 276.7);  (6, ±6.93)→(320, 31.4)/(320, 308.6); (6.5, ±7.85 clipped) -->
+  <polyline class="branch" points="260,170 264,150 268,131 272,114 276,99.4 282,82 290,59 300,32"/>
+  <polyline class="branch" points="260,170 264,190 268,209 272,226 276,240.6 282,258 290,281 300,308"/>
+  <!-- Left branch (mirror): -->
+  <polyline class="branch" points="140,170 136,150 132,131 128,114 124,99.4 118,82 110,59 100,32"/>
+  <polyline class="branch" points="140,170 136,190 132,209 128,226 124,240.6 118,258 110,281 100,308"/>
+
+  <!-- Foci F1 (-5, 0)→(100, 170);  F2 (5, 0)→(300, 170) -->
+  <circle class="focusPt" cx="100" cy="170" r="6"/>
+  <text class="lbl" x="80" y="190" fill="#c05621">F₁(−5, 0)</text>
+  <circle class="focusPt" cx="300" cy="170" r="6"/>
+  <text class="lbl" x="284" y="190" fill="#c05621">F₂(5, 0)</text>
+
+  <!-- Vertices -->
+  <circle class="vertex" cx="140" cy="170" r="4"/>
+  <text class="axislbl" x="140" y="160">(−3, 0)</text>
+  <circle class="vertex" cx="260" cy="170" r="4"/>
+  <text class="axislbl" x="260" y="160">(3, 0)</text>
+
+  <!-- Sample point on right branch: pick (5, 16/3 ≈ 5.33).  Verify: 25/9 − (256/9)/16 = 25/9 − 16/9 = 1 ✓
+       (5, 5.33) → (300, 63.4) -->
+  <circle class="samplePt" cx="300" cy="63.4" r="6"/>
+  <text class="lbl" x="306" y="58" fill="#6b46c1">P(5, 16/3)</text>
+
+  <!-- Rays from foci -->
+  <line class="ray1" x1="100" y1="170" x2="300" y2="63.4"/>
+  <line class="ray2" x1="300" y1="170" x2="300" y2="63.4"/>
+
+  <!-- Distance labels:
+       |PF1| = √((10)² + (16/3)²) = √(100 + 256/9) = √(900/9 + 256/9) = √(1156/9) = 34/3 ≈ 11.33
+       |PF2| = 16/3 ≈ 5.33
+       Difference = 34/3 − 16/3 = 18/3 = 6 = 2a ✓ -->
+  <text class="lbl" x="200" y="120" fill="#c05621">|PF₁| = 34/3</text>
+  <text class="lbl" x="306" y="120" fill="#c05621">|PF₂| = 16/3</text>
+
+  <!-- Right panel -->
+  <g transform="translate(360, 36)">
+    <rect x="0" y="0" width="270" height="290" rx="8" fill="#fffaf0" stroke="#dd6b20" stroke-width="1.4"/>
+    <text font="bold 14px system-ui" font-size="14" font-weight="700" fill="#1a202c" x="135" y="22" text-anchor="middle">Standard form and constants</text>
+
+    <text font="italic 14px system-ui" font-size="14" fill="#1a202c" x="135" y="50" text-anchor="middle">x²/a²  −  y²/b²  =  1</text>
+    <text font="italic 14px system-ui" font-size="14" fill="#1a202c" x="135" y="74" text-anchor="middle">x²/9  −  y²/16  =  1</text>
+
+    <line x1="14" y1="90" x2="256" y2="90" stroke="#cbd5e0"/>
+
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="110">Vertex offset</text>
+    <text font="italic 12px system-ui" font-size="12" fill="#1a202c" x="146" y="110">a  =  3</text>
+
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="130">Conjugate axis</text>
+    <text font="italic 12px system-ui" font-size="12" fill="#1a202c" x="146" y="130">b  =  4</text>
+
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="150">Foci offset</text>
+    <text font="italic 12px system-ui" font-size="12" fill="#1a202c" x="146" y="150">c  =  √(a² + b²)  =  5</text>
+
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="170">Asymptotes</text>
+    <text font="italic 12px system-ui" font-size="12" fill="#1a202c" x="146" y="170">y  =  ±(b/a) x  =  ±(4/3) x</text>
+
+    <rect x="14" y="186" width="242" height="40" rx="6" fill="#faf5ff" stroke="#6b46c1" stroke-width="1.5"/>
+    <text font="bold 12px system-ui" font-size="12" font-weight="700" fill="#1a202c" x="135" y="208" text-anchor="middle">||PF₁| − |PF₂||  =  2a  =  6</text>
+
+    <text font="11px system-ui" font-size="11" fill="#4a5568" x="14" y="246">Check P(5, 16/3):</text>
+    <text font="italic 12px system-ui" font-size="12" fill="#1a202c" x="22" y="264">|PF₁| = 34/3,  |PF₂| = 16/3</text>
+    <text font="italic 12px system-ui" font-size="12" fill="#1a202c" x="22" y="280">34/3 − 16/3 = 18/3 = 6  ✓</text>
+  </g>
+
+  <text x="320" y="332" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Eccentricity e = c/a = 5/3 &gt; 1.  As |x| grows, the branches hug the asymptotes.</text>
+</svg>

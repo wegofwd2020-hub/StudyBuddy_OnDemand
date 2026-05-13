@@ -1,0 +1,12 @@
+schema_version: 1
+id: math-stats-pascals-triangle-binomial-coefficients
+kind: image
+subject: math
+topic_phrase: "Pascal's triangle showing binomial coefficients C of n choose k for the first seven rows"
+keywords:
+  - pascals-triangle
+  - binomial-coefficient
+  - combinations
+  - binomial-theorem
+license: platform-cc-by-sa
+source_unit: G11-MATH-005

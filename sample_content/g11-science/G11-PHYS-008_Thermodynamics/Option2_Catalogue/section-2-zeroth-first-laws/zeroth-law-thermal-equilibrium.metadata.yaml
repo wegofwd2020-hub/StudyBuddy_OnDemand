@@ -1,0 +1,13 @@
+schema_version: 1
+id: physics-thermodynamics-zeroth-law
+kind: image
+subject: physics
+topic_phrase: "Zeroth Law of Thermodynamics: transitive thermal equilibrium between three bodies justifies the use of a thermometer"
+keywords:
+  - zeroth-law
+  - thermal-equilibrium
+  - thermometer
+  - temperature
+  - transitivity
+license: platform-cc-by-sa
+source_unit: G11-PHYS-008

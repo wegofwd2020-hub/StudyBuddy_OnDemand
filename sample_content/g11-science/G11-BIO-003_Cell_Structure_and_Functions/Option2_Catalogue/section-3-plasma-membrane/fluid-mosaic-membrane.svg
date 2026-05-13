@@ -1,0 +1,272 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 480" width="820" height="480" role="img" aria-label="Fluid mosaic model of the plasma membrane showing phospholipid bilayer with proteins, cholesterol, and glycoproteins">
+  <title>Fluid Mosaic Model — The Plasma Membrane</title>
+  <desc>Cross-section through a plasma membrane drawn in the fluid mosaic style proposed by Singer and Nicolson in 1972. Two layers of phospholipid molecules face each other tail-to-tail forming the bilayer. Each phospholipid is shown as a hydrophilic head (circle) facing aqueous environments outside and inside the cell, with two hydrophobic fatty-acid tails (zig-zag lines) tucked into the interior. Embedded in the bilayer: integral (transmembrane) proteins shown as channels, carriers and pumps; peripheral proteins on either surface; cholesterol molecules nestled between phospholipids regulating fluidity; glycoproteins and glycolipids on the outer surface bearing carbohydrate chains for cell recognition; cytoskeleton fibres anchoring the membrane on the inside. Labels along the right name each component. The terms "fluid" and "mosaic" are explained at the bottom.</desc>
+
+  <!-- Background: aqueous compartments -->
+  <rect x="0" y="0" width="820" height="160" fill="#dbeafe"/>
+  <rect x="0" y="320" width="820" height="160" fill="#fef3c7"/>
+  <rect x="0" y="158" width="820" height="2" fill="#94a3b8"/>
+  <rect x="0" y="320" width="820" height="2" fill="#94a3b8"/>
+
+  <text x="410" y="22" font-size="16" font-weight="700" fill="#1a202c" text-anchor="middle">The Fluid Mosaic Membrane (Singer &amp; Nicolson, 1972)</text>
+  <text x="410" y="40" font-size="11" fill="#4a5568" text-anchor="middle">A 7–8 nm phospholipid bilayer with proteins floating like icebergs in a lipid sea.</text>
+
+  <text x="20" y="60" font-size="11" font-weight="700" fill="#1e3a8a">EXTRACELLULAR FLUID (outside)</text>
+  <text x="20" y="78" font-size="10" fill="#4a5568">aqueous · contains glucose, ions, signalling molecules</text>
+
+  <text x="20" y="358" font-size="11" font-weight="700" fill="#78350f">CYTOPLASM (inside)</text>
+  <text x="20" y="376" font-size="10" fill="#4a5568">aqueous · contains proteins, ions, organelles</text>
+
+  <!-- ── Phospholipid bilayer ─────────────────────────────────── -->
+  <!-- Upper leaflet: heads at y=160, tails reach down to y=240 -->
+  <!-- Lower leaflet: heads at y=320, tails reach up to y=240 -->
+
+  <!-- Draw 22 lipid pairs across width -->
+  <g>
+    <!-- Use a JS-like loop replaced by explicit groups -->
+    <!-- Spacing: every 30 px from x=40 -->
+  </g>
+
+  <!-- Upper leaflet phospholipids (heads + tails) -->
+  <g>
+    <!-- A helper: head = filled yellow circle, tails = two zig-zag lines -->
+    <!-- Repeated 22 times -->
+  </g>
+
+  <!-- We'll just draw them explicitly to keep the SVG hand-crafted. -->
+  <!-- Upper leaflet: x = 40, 70, 100, ..., 760 -->
+  <g>
+    <!-- For x in 40..760 step 36 -->
+    <g fill="#fbbf24" stroke="#b45309" stroke-width="1">
+      <circle cx="40"  cy="170" r="9"/>
+      <circle cx="76"  cy="170" r="9"/>
+      <circle cx="112" cy="170" r="9"/>
+      <circle cx="148" cy="170" r="9"/>
+      <circle cx="184" cy="170" r="9"/>
+      <circle cx="220" cy="170" r="9"/>
+      <circle cx="256" cy="170" r="9"/>
+      <circle cx="292" cy="170" r="9"/>
+      <circle cx="328" cy="170" r="9"/>
+      <circle cx="364" cy="170" r="9"/>
+      <circle cx="400" cy="170" r="9"/>
+      <circle cx="436" cy="170" r="9"/>
+      <circle cx="472" cy="170" r="9"/>
+      <circle cx="508" cy="170" r="9"/>
+      <circle cx="544" cy="170" r="9"/>
+      <circle cx="580" cy="170" r="9"/>
+      <circle cx="616" cy="170" r="9"/>
+      <circle cx="652" cy="170" r="9"/>
+      <circle cx="688" cy="170" r="9"/>
+      <circle cx="724" cy="170" r="9"/>
+      <circle cx="760" cy="170" r="9"/>
+    </g>
+    <!-- Tails — two zig-zag lines per head, going downward -->
+    <g stroke="#b45309" stroke-width="1.4" fill="none">
+      <!-- For each head, two tails with slight zig-zag -->
+      <path d="M 36 178 Q 32 200 36 220 Q 40 230 36 240 M 44 178 Q 48 200 44 220 Q 40 230 44 240"/>
+      <path d="M 72 178 Q 68 200 72 220 Q 76 230 72 240 M 80 178 Q 84 200 80 220 Q 76 230 80 240"/>
+      <path d="M 108 178 Q 104 200 108 220 Q 112 230 108 240 M 116 178 Q 120 200 116 220 Q 112 230 116 240"/>
+      <path d="M 144 178 Q 140 200 144 220 Q 148 230 144 240 M 152 178 Q 156 200 152 220 Q 148 230 152 240"/>
+      <path d="M 180 178 Q 176 200 180 220 Q 184 230 180 240 M 188 178 Q 192 200 188 220 Q 184 230 188 240"/>
+      <path d="M 216 178 Q 212 200 216 220 Q 220 230 216 240 M 224 178 Q 228 200 224 220 Q 220 230 224 240"/>
+      <path d="M 252 178 Q 248 200 252 220 Q 256 230 252 240 M 260 178 Q 264 200 260 220 Q 256 230 260 240"/>
+      <path d="M 288 178 Q 284 200 288 220 Q 292 230 288 240 M 296 178 Q 300 200 296 220 Q 292 230 296 240"/>
+      <path d="M 324 178 Q 320 200 324 220 Q 328 230 324 240 M 332 178 Q 336 200 332 220 Q 328 230 332 240"/>
+      <path d="M 360 178 Q 356 200 360 220 Q 364 230 360 240 M 368 178 Q 372 200 368 220 Q 364 230 368 240"/>
+      <path d="M 396 178 Q 392 200 396 220 Q 400 230 396 240 M 404 178 Q 408 200 404 220 Q 400 230 404 240"/>
+      <path d="M 432 178 Q 428 200 432 220 Q 436 230 432 240 M 440 178 Q 444 200 440 220 Q 436 230 440 240"/>
+      <path d="M 468 178 Q 464 200 468 220 Q 472 230 468 240 M 476 178 Q 480 200 476 220 Q 472 230 476 240"/>
+      <path d="M 504 178 Q 500 200 504 220 Q 508 230 504 240 M 512 178 Q 516 200 512 220 Q 508 230 512 240"/>
+      <path d="M 540 178 Q 536 200 540 220 Q 544 230 540 240 M 548 178 Q 552 200 548 220 Q 544 230 548 240"/>
+      <path d="M 576 178 Q 572 200 576 220 Q 580 230 576 240 M 584 178 Q 588 200 584 220 Q 580 230 584 240"/>
+      <path d="M 612 178 Q 608 200 612 220 Q 616 230 612 240 M 620 178 Q 624 200 620 220 Q 616 230 620 240"/>
+      <path d="M 648 178 Q 644 200 648 220 Q 652 230 648 240 M 656 178 Q 660 200 656 220 Q 652 230 656 240"/>
+      <path d="M 684 178 Q 680 200 684 220 Q 688 230 684 240 M 692 178 Q 696 200 692 220 Q 688 230 692 240"/>
+      <path d="M 720 178 Q 716 200 720 220 Q 724 230 720 240 M 728 178 Q 732 200 728 220 Q 724 230 728 240"/>
+      <path d="M 756 178 Q 752 200 756 220 Q 760 230 756 240 M 764 178 Q 768 200 764 220 Q 760 230 764 240"/>
+    </g>
+  </g>
+
+  <!-- Lower leaflet (mirror) -->
+  <g>
+    <g fill="#fbbf24" stroke="#b45309" stroke-width="1">
+      <circle cx="40"  cy="312" r="9"/>
+      <circle cx="76"  cy="312" r="9"/>
+      <circle cx="112" cy="312" r="9"/>
+      <circle cx="148" cy="312" r="9"/>
+      <circle cx="184" cy="312" r="9"/>
+      <circle cx="220" cy="312" r="9"/>
+      <circle cx="256" cy="312" r="9"/>
+      <circle cx="292" cy="312" r="9"/>
+      <circle cx="328" cy="312" r="9"/>
+      <circle cx="364" cy="312" r="9"/>
+      <circle cx="400" cy="312" r="9"/>
+      <circle cx="436" cy="312" r="9"/>
+      <circle cx="472" cy="312" r="9"/>
+      <circle cx="508" cy="312" r="9"/>
+      <circle cx="544" cy="312" r="9"/>
+      <circle cx="580" cy="312" r="9"/>
+      <circle cx="616" cy="312" r="9"/>
+      <circle cx="652" cy="312" r="9"/>
+      <circle cx="688" cy="312" r="9"/>
+      <circle cx="724" cy="312" r="9"/>
+      <circle cx="760" cy="312" r="9"/>
+    </g>
+    <g stroke="#b45309" stroke-width="1.4" fill="none">
+      <path d="M 36 304 Q 32 282 36 262 Q 40 252 36 242 M 44 304 Q 48 282 44 262 Q 40 252 44 242"/>
+      <path d="M 72 304 Q 68 282 72 262 Q 76 252 72 242 M 80 304 Q 84 282 80 262 Q 76 252 80 242"/>
+      <path d="M 108 304 Q 104 282 108 262 Q 112 252 108 242 M 116 304 Q 120 282 116 262 Q 112 252 116 242"/>
+      <path d="M 144 304 Q 140 282 144 262 Q 148 252 144 242 M 152 304 Q 156 282 152 262 Q 148 252 152 242"/>
+      <path d="M 180 304 Q 176 282 180 262 Q 184 252 180 242 M 188 304 Q 192 282 188 262 Q 184 252 188 242"/>
+      <path d="M 216 304 Q 212 282 216 262 Q 220 252 216 242 M 224 304 Q 228 282 224 262 Q 220 252 224 242"/>
+      <path d="M 252 304 Q 248 282 252 262 Q 256 252 252 242 M 260 304 Q 264 282 260 262 Q 256 252 260 242"/>
+      <path d="M 288 304 Q 284 282 288 262 Q 292 252 288 242 M 296 304 Q 300 282 296 262 Q 292 252 296 242"/>
+      <path d="M 324 304 Q 320 282 324 262 Q 328 252 324 242 M 332 304 Q 336 282 332 262 Q 328 252 332 242"/>
+      <path d="M 360 304 Q 356 282 360 262 Q 364 252 360 242 M 368 304 Q 372 282 368 262 Q 364 252 368 242"/>
+      <path d="M 396 304 Q 392 282 396 262 Q 400 252 396 242 M 404 304 Q 408 282 404 262 Q 400 252 404 242"/>
+      <path d="M 432 304 Q 428 282 432 262 Q 436 252 432 242 M 440 304 Q 444 282 440 262 Q 436 252 440 242"/>
+      <path d="M 468 304 Q 464 282 468 262 Q 472 252 468 242 M 476 304 Q 480 282 476 262 Q 472 252 476 242"/>
+      <path d="M 504 304 Q 500 282 504 262 Q 508 252 504 242 M 512 304 Q 516 282 512 262 Q 508 252 512 242"/>
+      <path d="M 540 304 Q 536 282 540 262 Q 544 252 540 242 M 548 304 Q 552 282 548 262 Q 544 252 548 242"/>
+      <path d="M 576 304 Q 572 282 576 262 Q 580 252 576 242 M 584 304 Q 588 282 584 262 Q 580 252 584 242"/>
+      <path d="M 612 304 Q 608 282 612 262 Q 616 252 612 242 M 620 304 Q 624 282 620 262 Q 616 252 620 242"/>
+      <path d="M 648 304 Q 644 282 648 262 Q 652 252 648 242 M 656 304 Q 660 282 656 262 Q 652 252 656 242"/>
+      <path d="M 684 304 Q 680 282 684 262 Q 688 252 684 242 M 692 304 Q 696 282 692 262 Q 688 252 692 242"/>
+      <path d="M 720 304 Q 716 282 720 262 Q 724 252 720 242 M 728 304 Q 732 282 728 262 Q 724 252 728 242"/>
+      <path d="M 756 304 Q 752 282 756 262 Q 760 252 756 242 M 764 304 Q 768 282 764 262 Q 760 252 764 242"/>
+    </g>
+  </g>
+
+  <!-- ── Embedded structures ──────────────────────────────────── -->
+
+  <!-- Integral (transmembrane) channel protein — left -->
+  <rect x="98" y="155" width="32" height="180" rx="6" fill="#bfdbfe" stroke="#1e3a8a" stroke-width="2"/>
+  <rect x="106" y="190" width="16" height="110" fill="#dbeafe" stroke="#1e3a8a" stroke-width="1"/>
+  <text x="114" y="148" font-size="10" font-weight="700" fill="#1e3a8a" text-anchor="middle">channel</text>
+
+  <!-- Integral carrier protein — middle-left -->
+  <path d="M 220 155 Q 200 220 220 285 Q 224 320 244 335 L 264 335 Q 284 320 284 285 Q 304 220 284 155 Z"
+        fill="#fed7aa" stroke="#b45309" stroke-width="2"/>
+  <text x="252" y="148" font-size="10" font-weight="700" fill="#b45309" text-anchor="middle">carrier</text>
+  <!-- Substrate binding pocket -->
+  <circle cx="252" cy="220" r="6" fill="#fef3c7" stroke="#b45309" stroke-width="1"/>
+
+  <!-- Integral pump (Na+/K+ ATPase style) -->
+  <rect x="362" y="148" width="44" height="200" rx="8" fill="#bbf7d0" stroke="#15803d" stroke-width="2"/>
+  <text x="384" y="142" font-size="10" font-weight="700" fill="#15803d" text-anchor="middle">pump</text>
+  <text x="384" y="244" font-size="9" font-weight="700" fill="#15803d" text-anchor="middle">ATP</text>
+  <!-- ATP marker -->
+  <circle cx="384" cy="260" r="5" fill="#15803d"/>
+  <text x="384" y="264" font-size="6" fill="#fff" text-anchor="middle">P</text>
+
+  <!-- Glycoprotein (right of pump) — with carbohydrate chain -->
+  <ellipse cx="500" cy="200" rx="22" ry="50" fill="#fce7f3" stroke="#be185d" stroke-width="2"/>
+  <ellipse cx="500" cy="280" rx="22" ry="40" fill="#fce7f3" stroke="#be185d" stroke-width="2"/>
+  <!-- Carbohydrate chain branching upward -->
+  <g stroke="#be185d" stroke-width="1.5" fill="#fbcfe8">
+    <line x1="500" y1="150" x2="488" y2="120"/>
+    <line x1="500" y1="150" x2="510" y2="120"/>
+    <circle cx="488" cy="118" r="4"/>
+    <circle cx="510" cy="118" r="4"/>
+    <line x1="488" y1="118" x2="476" y2="92"/>
+    <line x1="488" y1="118" x2="494" y2="92"/>
+    <line x1="510" y1="118" x2="504" y2="92"/>
+    <line x1="510" y1="118" x2="522" y2="92"/>
+    <circle cx="476" cy="90" r="4"/>
+    <circle cx="494" cy="90" r="4"/>
+    <circle cx="504" cy="90" r="4"/>
+    <circle cx="522" cy="90" r="4"/>
+  </g>
+  <text x="500" y="78" font-size="9" font-weight="700" fill="#be185d" text-anchor="middle">carbohydrate</text>
+
+  <!-- Cholesterol molecules between phospholipids (small horizontal pills) -->
+  <g fill="#7c3aed" stroke="#5b21b6" stroke-width="1">
+    <rect x="60" y="206" width="14" height="6" rx="2"/>
+    <rect x="170" y="220" width="14" height="6" rx="2"/>
+    <rect x="320" y="208" width="14" height="6" rx="2"/>
+    <rect x="600" y="220" width="14" height="6" rx="2"/>
+    <rect x="700" y="208" width="14" height="6" rx="2"/>
+    <rect x="60" y="270" width="14" height="6" rx="2"/>
+    <rect x="170" y="262" width="14" height="6" rx="2"/>
+    <rect x="320" y="270" width="14" height="6" rx="2"/>
+    <rect x="600" y="260" width="14" height="6" rx="2"/>
+    <rect x="700" y="270" width="14" height="6" rx="2"/>
+  </g>
+
+  <!-- Glycolipid (small head + small carb) — right of glycoprotein -->
+  <circle cx="600" cy="170" r="9" fill="#a78bfa" stroke="#5b21b6" stroke-width="1.5"/>
+  <line x1="600" y1="161" x2="592" y2="140" stroke="#7c3aed" stroke-width="1.4"/>
+  <line x1="600" y1="161" x2="610" y2="140" stroke="#7c3aed" stroke-width="1.4"/>
+  <circle cx="592" cy="138" r="3.5" fill="#a78bfa" stroke="#5b21b6" stroke-width="1"/>
+  <circle cx="610" cy="138" r="3.5" fill="#a78bfa" stroke="#5b21b6" stroke-width="1"/>
+
+  <!-- Peripheral protein on outer surface -->
+  <ellipse cx="660" cy="158" rx="22" ry="10" fill="#fde68a" stroke="#b45309" stroke-width="2"/>
+
+  <!-- Peripheral protein on inner surface (cytoskeleton anchor) -->
+  <ellipse cx="170" cy="328" rx="22" ry="10" fill="#fde68a" stroke="#b45309" stroke-width="2"/>
+  <line x1="160" y1="338" x2="120" y2="380" stroke="#94a3b8" stroke-width="2"/>
+  <line x1="180" y1="338" x2="200" y2="390" stroke="#94a3b8" stroke-width="2"/>
+  <line x1="180" y1="338" x2="160" y2="400" stroke="#94a3b8" stroke-width="2"/>
+
+  <!-- Receptor (small protein inserted partly through, on the right) -->
+  <path d="M 740 145 L 740 240 Q 750 250 760 240 Q 770 250 780 240 L 780 145 Z"
+        fill="#fbcfe8" stroke="#be185d" stroke-width="2"/>
+  <text x="760" y="138" font-size="10" font-weight="700" fill="#be185d" text-anchor="middle">receptor</text>
+
+  <!-- ── Right column labels with leader lines ───────────────── -->
+  <!-- Phospholipid head -->
+  <line x1="76" y1="170" x2="76" y2="100" stroke="#b45309" stroke-width="1"/>
+  <text x="80" y="98" font-size="10" font-weight="700" fill="#b45309">hydrophilic head (phosphate)</text>
+
+  <!-- Phospholipid tails -->
+  <line x1="44" y1="220" x2="14" y2="232" stroke="#b45309" stroke-width="1"/>
+  <text x="14" y="244" font-size="10" font-weight="700" fill="#b45309" text-anchor="end">hydrophobic tails</text>
+
+  <!-- Channel -->
+  <line x1="118" y1="155" x2="118" y2="98" stroke="#1e3a8a" stroke-width="1"/>
+  <text x="118" y="92" font-size="10" font-weight="700" fill="#1e3a8a" text-anchor="middle">integral protein</text>
+
+  <!-- Cholesterol -->
+  <line x1="167" y1="220" x2="170" y2="62" stroke="#7c3aed" stroke-width="1" stroke-dasharray="2 2"/>
+  <text x="170" y="56" font-size="10" font-weight="700" fill="#7c3aed" text-anchor="middle">cholesterol (regulates fluidity)</text>
+
+  <!-- Carrier -->
+  <line x1="252" y1="155" x2="280" y2="98" stroke="#b45309" stroke-width="1"/>
+  <text x="284" y="92" font-size="10" font-weight="700" fill="#b45309">carrier (changes shape)</text>
+
+  <!-- Pump -->
+  <line x1="384" y1="148" x2="384" y2="92" stroke="#15803d" stroke-width="1"/>
+  <text x="384" y="86" font-size="10" font-weight="700" fill="#15803d" text-anchor="middle">ATP-driven pump (active transport)</text>
+
+  <!-- Glycoprotein -->
+  <line x1="500" y1="60" x2="500" y2="50" stroke="#be185d" stroke-width="1"/>
+  <text x="500" y="44" font-size="10" font-weight="700" fill="#be185d" text-anchor="middle">glycoprotein (cell-recognition tag)</text>
+
+  <!-- Glycolipid -->
+  <line x1="600" y1="138" x2="650" y2="120" stroke="#7c3aed" stroke-width="1"/>
+  <text x="654" y="118" font-size="10" font-weight="700" fill="#7c3aed">glycolipid</text>
+
+  <!-- Peripheral outer -->
+  <line x1="660" y1="148" x2="660" y2="100" stroke="#b45309" stroke-width="1"/>
+  <text x="660" y="94" font-size="10" font-weight="700" fill="#b45309" text-anchor="middle">peripheral protein</text>
+
+  <!-- Receptor -->
+  <line x1="760" y1="138" x2="760" y2="98" stroke="#be185d" stroke-width="1"/>
+  <text x="760" y="92" font-size="10" font-weight="700" fill="#be185d" text-anchor="middle">receptor protein</text>
+
+  <!-- Cytoskeleton -->
+  <line x1="180" y1="400" x2="220" y2="430" stroke="#4a5568" stroke-width="1"/>
+  <text x="222" y="430" font-size="10" font-weight="700" fill="#4a5568">cytoskeleton (actin) — anchors membrane</text>
+
+  <!-- ── Footer: meaning of "fluid" and "mosaic" ─────────────── -->
+  <rect x="40" y="416" width="350" height="56" rx="8" fill="#f7fafc" stroke="#cbd5e0" stroke-width="1"/>
+  <text x="56" y="434" font-size="11" font-weight="700" fill="#1a202c">"Fluid":</text>
+  <text x="56" y="450" font-size="10" fill="#4a5568">phospholipids and most proteins drift sideways like</text>
+  <text x="56" y="464" font-size="10" fill="#4a5568">a 2-D liquid (~10⁷ swaps/sec). Cholesterol slows this.</text>
+
+  <rect x="430" y="416" width="350" height="56" rx="8" fill="#f7fafc" stroke="#cbd5e0" stroke-width="1"/>
+  <text x="446" y="434" font-size="11" font-weight="700" fill="#1a202c">"Mosaic":</text>
+  <text x="446" y="450" font-size="10" fill="#4a5568">many different proteins of different shapes are</text>
+  <text x="446" y="464" font-size="10" fill="#4a5568">scattered through the bilayer like tiles in a mosaic.</text>
+</svg>

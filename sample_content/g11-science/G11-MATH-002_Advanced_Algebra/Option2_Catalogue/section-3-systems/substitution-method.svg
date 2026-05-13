@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 280" width="640" height="280" role="img" aria-label="Substitution method for solving a linear system">
+  <title>Substitution Method — step pipeline</title>
+  <desc>Pipeline showing how to solve {2x + y = 7, x − y = 2} by isolating y, substituting, then back-substituting.</desc>
+
+  <defs>
+    <marker id="ah-sub" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2b6cb0"/>
+    </marker>
+    <style>
+      .heading { font: bold 15px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .step    { font: 12px system-ui, sans-serif; fill: #4a5568; text-anchor: middle; font-style: italic; }
+      .box     { fill: #ebf4ff; stroke: #2b6cb0; stroke-width: 1.4; }
+      .box2    { fill: #fffaf0; stroke: #dd6b20; stroke-width: 1.4; }
+      .box3    { fill: #f0fff4; stroke: #2f855a; stroke-width: 1.4; }
+      .lbl     { font: 13px system-ui, sans-serif; fill: #1a202c; text-anchor: middle; }
+      .strong  { font-weight: 700; }
+    </style>
+  </defs>
+
+  <text class="heading" x="320" y="22">Substitution method:  isolate one variable, sub into the other equation</text>
+
+  <!-- Step 1: original system -->
+  <g transform="translate(20, 60)">
+    <rect class="box" x="0" y="0" width="160" height="80" rx="8"/>
+    <text class="step" x="80" y="-6">Step 1 — given system</text>
+    <text class="lbl" x="80" y="32" font-style="italic">2x + y = 7</text>
+    <text class="lbl" x="80" y="58" font-style="italic">x − y = 2</text>
+  </g>
+
+  <line x1="185" y1="100" x2="220" y2="100" stroke="#2b6cb0" stroke-width="2" marker-end="url(#ah-sub)"/>
+  <text x="202" y="92" font="11px system-ui" font-size="11" fill="#2b6cb0" text-anchor="middle">isolate y</text>
+
+  <!-- Step 2: solve for y from eq2 -->
+  <g transform="translate(225, 60)">
+    <rect class="box2" x="0" y="0" width="170" height="80" rx="8"/>
+    <text class="step" x="85" y="-6">Step 2 — from x − y = 2</text>
+    <text class="lbl" x="85" y="40" font-style="italic" font-weight="700">y = x − 2</text>
+  </g>
+
+  <line x1="400" y1="100" x2="435" y2="100" stroke="#2b6cb0" stroke-width="2" marker-end="url(#ah-sub)"/>
+  <text x="417" y="92" font="11px system-ui" font-size="11" fill="#2b6cb0" text-anchor="middle">sub into eq1</text>
+
+  <!-- Step 3: substitute, solve for x -->
+  <g transform="translate(440, 60)">
+    <rect class="box" x="0" y="0" width="180" height="80" rx="8"/>
+    <text class="step" x="90" y="-6">Step 3 — solve for x</text>
+    <text class="lbl" x="90" y="32" font-style="italic">2x + (x − 2) = 7</text>
+    <text class="lbl" x="90" y="56" font-weight="700">3x = 9   →   x = 3</text>
+  </g>
+
+  <!-- Down-arrow -->
+  <line x1="530" y1="148" x2="530" y2="178" stroke="#2b6cb0" stroke-width="2" marker-end="url(#ah-sub)"/>
+  <text x="565" y="170" font="11px system-ui" font-size="11" fill="#2b6cb0">back-substitute</text>
+
+  <!-- Step 4: back-sub for y -->
+  <g transform="translate(440, 180)">
+    <rect class="box2" x="0" y="0" width="180" height="60" rx="8"/>
+    <text class="step" x="90" y="-6">Step 4 — back-sub</text>
+    <text class="lbl" x="90" y="36" font-style="italic">y = (3) − 2 = 1</text>
+  </g>
+
+  <!-- Final solution -->
+  <g transform="translate(20, 180)">
+    <rect class="box3" x="0" y="0" width="380" height="60" rx="8"/>
+    <text class="step" x="190" y="-6">Final solution</text>
+    <text class="lbl" x="190" y="36" font-weight="700" fill="#2f855a">(x, y) = (3, 1)</text>
+  </g>
+
+  <text x="320" y="266" font="11px system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">Always verify: 2(3) + (1) = 7 ✓     (3) − (1) = 2 ✓</text>
+</svg>

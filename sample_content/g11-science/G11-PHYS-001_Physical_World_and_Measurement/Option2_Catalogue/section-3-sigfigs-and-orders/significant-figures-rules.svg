@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 360" width="720" height="360" role="img" aria-label="Significant figures rules infographic">
+  <title>Significant Figures — the rules with worked examples</title>
+  <desc>Five rules for counting significant figures, each illustrated with a numeric example showing exactly which digits are significant.</desc>
+
+  <text x="360" y="26" font-family="system-ui" font-size="15" font-weight="700" fill="#1a202c" text-anchor="middle">Significant Figures — what counts, and what doesn't</text>
+  <text x="360" y="46" font-family="system-ui" font-size="11" font-style="italic" fill="#4a5568" text-anchor="middle">significant digits carry information about precision; everyone in between zeros and decimal points hide rules worth knowing</text>
+
+  <!-- 5 rule cards -->
+  <g font-family="system-ui">
+    <!-- Rule 1: non-zero digits -->
+    <rect x="20" y="62" width="220" height="86" rx="8" fill="#f7fafc" stroke="#e2e8f0" />
+    <text x="30" y="82" font-size="12" font-weight="700" fill="#2b6cb0">Rule 1 — non-zero digits</text>
+    <text x="30" y="100" font-size="11" fill="#4a5568">All non-zero digits are significant.</text>
+    <text x="30" y="124" font-size="14" fill="#1a202c"><tspan font-weight="700">12.34</tspan> →
+      <tspan font-weight="700" fill="#15803d">4 s.f.</tspan></text>
+    <text x="30" y="140" font-size="11" fill="#4a5568">every digit shown is meaningful</text>
+
+    <!-- Rule 2: leading zeros -->
+    <rect x="250" y="62" width="220" height="86" rx="8" fill="#f7fafc" stroke="#e2e8f0" />
+    <text x="260" y="82" font-size="12" font-weight="700" fill="#dd6b20">Rule 2 — leading zeros</text>
+    <text x="260" y="100" font-size="11" fill="#4a5568">Zeros before the first non-zero digit do <tspan font-style="italic">not</tspan> count.</text>
+    <text x="260" y="124" font-size="14" fill="#1a202c">0.00<tspan font-weight="700">456</tspan> →
+      <tspan font-weight="700" fill="#15803d">3 s.f.</tspan></text>
+    <text x="260" y="140" font-size="11" fill="#4a5568">leading 0s are placeholders only</text>
+
+    <!-- Rule 3: captive zeros -->
+    <rect x="480" y="62" width="220" height="86" rx="8" fill="#f7fafc" stroke="#e2e8f0" />
+    <text x="490" y="82" font-size="12" font-weight="700" fill="#7c3aed">Rule 3 — captive zeros</text>
+    <text x="490" y="100" font-size="11" fill="#4a5568">Zeros between non-zero digits <tspan font-weight="700">always</tspan> count.</text>
+    <text x="490" y="124" font-size="14" fill="#1a202c"><tspan font-weight="700">1003.05</tspan> →
+      <tspan font-weight="700" fill="#15803d">6 s.f.</tspan></text>
+    <text x="490" y="140" font-size="11" fill="#4a5568">internal 0s are measured</text>
+
+    <!-- Rule 4: trailing zeros with decimal point -->
+    <rect x="20" y="160" width="340" height="86" rx="8" fill="#f7fafc" stroke="#e2e8f0" />
+    <text x="30" y="180" font-size="12" font-weight="700" fill="#0891b2">Rule 4 — trailing zeros + decimal point</text>
+    <text x="30" y="198" font-size="11" fill="#4a5568">Trailing zeros after a decimal point <tspan font-weight="700">are</tspan> significant.</text>
+    <text x="30" y="222" font-size="14" fill="#1a202c">2.500 → <tspan font-weight="700" fill="#15803d">4 s.f.</tspan>     ·     12.0 →
+      <tspan font-weight="700" fill="#15803d">3 s.f.</tspan></text>
+    <text x="30" y="238" font-size="11" fill="#4a5568">they signal that the measurement was made to that precision</text>
+
+    <!-- Rule 5: trailing zeros without decimal -->
+    <rect x="370" y="160" width="330" height="86" rx="8" fill="#f7fafc" stroke="#e2e8f0" />
+    <text x="380" y="180" font-size="12" font-weight="700" fill="#dc2626">Rule 5 — trailing zeros, no decimal point</text>
+    <text x="380" y="198" font-size="11" fill="#4a5568">Ambiguous! Use scientific notation to be clear.</text>
+    <text x="380" y="222" font-size="14" fill="#1a202c">1500 →
+      <tspan font-weight="700" fill="#15803d">2, 3, or 4 s.f.</tspan></text>
+    <text x="380" y="238" font-size="11" fill="#4a5568">write 1.5 × 10³ (2), 1.50 × 10³ (3), 1.500 × 10³ (4)</text>
+  </g>
+
+  <!-- Combination rules box -->
+  <rect x="20" y="262" width="680" height="84" rx="10" fill="#fefce8" stroke="#ca8a04" stroke-width="1.5" />
+  <text x="30" y="282" font-family="system-ui" font-size="13" font-weight="700" fill="#1a202c">Arithmetic with significant figures</text>
+  <g font-family="system-ui" font-size="11" fill="#1a202c">
+    <text x="30" y="304"><tspan font-weight="700" fill="#dd6b20">×  ÷</tspan>
+      result has the <tspan font-weight="700">smallest count of s.f.</tspan> among the inputs.
+      e.g. 4.56 × 1.4 = 6.4 (2 s.f.).</text>
+    <text x="30" y="322"><tspan font-weight="700" fill="#dd6b20">+  −</tspan>
+      result has the <tspan font-weight="700">smallest number of decimal places</tspan>.
+      e.g. 12.11 + 0.4 = 12.5 (one decimal).</text>
+    <text x="30" y="340"><tspan font-weight="700" fill="#dd6b20">log / exp</tspan>
+      take s.f. of the input as decimal places of the output.
+      e.g. log(2.5 × 10³) = 3.40 (2 s.f. → 2 decimals).</text>
+  </g>
+</svg>

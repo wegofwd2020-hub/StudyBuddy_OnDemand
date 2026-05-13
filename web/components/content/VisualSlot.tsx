@@ -1,8 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, PlayCircle, Film } from "lucide-react";
+import { Eye, PlayCircle, Film, ZoomIn } from "lucide-react";
 import type { VisualBlock, VisualItem } from "@/lib/types/api";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 /**
  * Renders the `visuals` array attached to a tutorial section.
@@ -130,14 +136,55 @@ function VisualVideo({ item }: { item: VisualItem }) {
 
 function VisualImage({ item }: { item: VisualItem }) {
   return (
-    <figure className="overflow-hidden rounded border border-emerald-200 bg-white">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={item.src} alt={item.alt} loading="lazy" className="h-auto w-full" />
-      {item.caption && (
-        <figcaption className="border-t border-emerald-100 bg-emerald-50/40 px-2 py-1 text-xs text-emerald-900">
-          {item.caption}
-        </figcaption>
-      )}
-    </figure>
+    <Dialog>
+      <figure className="overflow-hidden rounded border border-emerald-200 bg-white">
+        <DialogTrigger
+          render={
+            <button
+              type="button"
+              aria-label={`View larger: ${item.alt}`}
+              className="group relative block w-full cursor-zoom-in focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={item.src}
+                alt={item.alt}
+                loading="lazy"
+                className="h-auto w-full"
+              />
+              {/* Hover hint — tells students the image is clickable. */}
+              <span className="absolute top-2 right-2 flex items-center gap-1 rounded-full bg-emerald-900/80 px-2 py-1 text-[10px] font-medium text-emerald-50 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+                <ZoomIn className="h-3 w-3" aria-hidden="true" />
+                Click to enlarge
+              </span>
+            </button>
+          }
+        />
+        {item.caption && (
+          <figcaption className="border-t border-emerald-100 bg-emerald-50/40 px-2 py-1 text-xs text-emerald-900">
+            {item.caption}
+          </figcaption>
+        )}
+      </figure>
+
+      {/* Lightbox. The default DialogContent caps at sm:max-w-sm — override
+          for the lightbox so the image can fill ~85% of the viewport. */}
+      <DialogContent className="bg-background w-full max-w-[min(95vw,1400px)] sm:max-w-[min(95vw,1400px)]">
+        {/* Title is required by Radix for a11y but visually hidden — the image
+            alt + caption convey the content. */}
+        <DialogTitle className="sr-only">{item.alt}</DialogTitle>
+        <div className="flex flex-col items-center gap-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={item.src}
+            alt={item.alt}
+            className="max-h-[80vh] w-auto max-w-full rounded object-contain"
+          />
+          {item.caption && (
+            <p className="px-2 text-center text-sm text-gray-700">{item.caption}</p>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

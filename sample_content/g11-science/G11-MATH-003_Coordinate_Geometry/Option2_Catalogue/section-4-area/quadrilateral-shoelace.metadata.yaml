@@ -1,0 +1,13 @@
+schema_version: 1
+id: math-coordinate-geometry-quadrilateral-shoelace
+kind: image
+subject: math
+topic_phrase: "area of a quadrilateral via the cyclic shoelace formula"
+keywords:
+  - shoelace-formula
+  - quadrilateral
+  - polygon-area
+  - cyclic-indices
+  - coordinate-geometry
+license: platform-cc-by-sa
+source_unit: G11-MATH-003
