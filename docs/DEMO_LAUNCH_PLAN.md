@@ -74,6 +74,7 @@ These ship with this PR. Use them as-is; no further code work needed.
 |---|---|---|
 | Demo Compose override | [`docker-compose.demo.yml`](../docker-compose.demo.yml) | Production-shaped: drops PgBouncer + Beat-standby + stripe-cli, adds Nginx, persistent named volumes, `restart: always` on every service |
 | First-time provisioning | [`scripts/demo/provision.sh`](../scripts/demo/provision.sh) | Idempotent Hetzner CX22 bootstrap — apt, ufw, fail2ban, Docker install, repo clone, .env.demo skeleton |
+| Content sync (one command) | [`scripts/demo/sync-content.sh`](../scripts/demo/sync-content.sh) | Inject G11 visuals + rsync content_store_data/ → /data/content/ + rsync web/public/sample-visuals/ → /data/sample-visuals/. Optional --dry-run, --skip-inject, --smoke flags. Covers all three asset classes (TEXT + GRAPHICS + VIDEO) in one operator step. |
 | Seeding orchestrator | [`scripts/demo/seed.sh`](../scripts/demo/seed.sh) | Runs the 5 demo seed scripts in dependency order (super_admin → milfordwaterford → demo_test_account → phase_a_dev → content_db) |
 | Post-deploy smoke check | [`scripts/demo/smoke.sh`](../scripts/demo/smoke.sh) | Curl-based: `/healthz`, login as 4 persona types, fetch one lesson + one quiz, exit 1 on any 4xx/5xx |
 | Daily DB + content backup | [`scripts/demo/backup.sh`](../scripts/demo/backup.sh) | `pg_dump` compressed + `rsync` content_store to local backup dir; retains last 7 days; cron-friendly |
@@ -232,8 +233,7 @@ stability check) and cuts over at **T+4h = 13:00 EDT**.
 | 11:05 | sb T-2h | Run StudyBuddy's `scripts/demo/provision.sh` (second-tenant variant — ~5 min; see §2.5 below) | Operator | All 9 steps complete; pre-flight (step 0) confirms mambakkam first-tenant artefacts |
 | 11:15 | sb T-1h45m | Edit `/opt/studybuddy/.env.demo` — paste real Auth0 / Stripe-test / Gmail App Password / Sentry DSN values from your password manager; replace 5 `<REPLACE_WITH_openssl_rand_hex_32>` lines with `openssl rand -hex 32` outputs | Operator | `grep '<' /opt/studybuddy/.env.demo` returns no placeholders |
 | 11:30 | sb T-1h30m | Append GH Actions deploy SSH pubkey to `/home/deploy/.ssh/authorized_keys` (mambakkam's already there — append, do not overwrite) | Operator | `wc -l /home/deploy/.ssh/authorized_keys` shows 2+ keys |
-| 11:30 | sb T-1h30m | **Inject G11 visuals into the content store** before the rsync: `python scripts/inject_g11_visuals.py` (copies the SVGs committed under `sample_content/g11-science/**/Option2_Catalogue/` into `content_store_data/visuals/` so they're picked up by the next step) | Operator | Script reports "N visuals injected"; verify with `ls content_store_data/visuals/G11-BIO-001/` |
-| 11:35 | sb T-1h25m | Final content sync from local pipeline (note: local dir is `content_store_data/`, not `content_store/`; sample-visuals tree is gitignored so neither rsync target ships in the Docker image): `rsync -avz ./content_store_data/ deploy@<vps-ip>:/data/content/ && rsync -avz ./web/public/sample-visuals/ deploy@<vps-ip>:/data/sample-visuals/` | Operator | Both rsyncs report zero deltas |
+| 11:35 | sb T-1h25m | Push pre-built content (inject + both rsyncs in one command): `bash scripts/demo/sync-content.sh deploy@<vps-ip>` — handles G11 visual inject, content_store_data/ → /data/content/, and web/public/sample-visuals/ → /data/sample-visuals/ (the 44 tutorial MP4s, gitignored, never in the Docker image). See `--help` for flags. | Operator | Script exits 0; "content sync complete" banner printed |
 | 11:50 | sb T-1h10m | Bring the StudyBuddy stack up: `docker compose -f docker-compose.yml -f docker-compose.demo.yml --env-file .env.demo up -d` | Operator | `docker compose ps` shows all 7 services `Up (healthy)` within 60s |
 | 12:00 | sb T-1h | Reload host nginx so the StudyBuddy vhost picks up the new upstream: `sudo nginx -t && sudo systemctl reload nginx` | Operator | nginx reload OK; mambakkam still serving |
 | 12:05 | sb T-55m | Run migrations + seed: `docker compose exec api alembic upgrade head` then `bash scripts/demo/seed.sh` | Operator | All seed scripts emit `done` or `skip`; no errors |
@@ -326,12 +326,11 @@ mambakkam.net yet), run mambakkam.net's `provision.sh` first — see
      Append-only — do not overwrite mambakkam.net's deploy key.
 
   5. Upload pre-built content from dev machine                        [~5 min]
-     # First inject the just-committed G11 SVGs into the content store
-     python scripts/inject_g11_visuals.py
-     # Two trees — local dir is content_store_data/ (NOT content_store/),
-     # and sample-visuals tree is gitignored so it's not in the Docker image
-     rsync -avz ./content_store_data/        deploy@<vps-ip>:/data/content/
-     rsync -avz ./web/public/sample-visuals/ deploy@<vps-ip>:/data/sample-visuals/
+     bash scripts/demo/sync-content.sh deploy@<vps-ip>
+     # Wraps the G11 visual inject + both rsyncs (content_store_data/ →
+     # /data/content/ and web/public/sample-visuals/ → /data/sample-visuals/,
+     # the latter being gitignored so it never ships in the Docker image).
+     # See `--help` for --dry-run, --skip-inject, and --smoke flags.
 
   6. Reload host nginx to pick up the new vhost                       [~10 sec]
      sudo nginx -t && sudo systemctl reload nginx
@@ -577,7 +576,26 @@ What it does (second-tenant work only):
 
 **Output:** the script ends with a checklist of next steps the operator must do manually (paste real Auth0 secrets, populate `.env.demo`, etc.) and prints the freshly-generated restic backup password ONCE — copy it to your password manager immediately.
 
-### 3.2 Seed orchestrator — `scripts/demo/seed.sh`
+### 3.2 Content sync — `scripts/demo/sync-content.sh`
+
+**Run on:** the operator's laptop, after `provision.sh` finishes on the VPS and before `docker compose up`. Re-run any time content changes locally.
+
+```bash
+bash scripts/demo/sync-content.sh deploy@<vps-ip>
+# Optional: --dry-run, --skip-inject, --smoke https://demo.studybuddy.app
+bash scripts/demo/sync-content.sh --help    # full flag list
+```
+
+What it does (one command, in order):
+1. **Pre-flight** — checks `content_store_data/` + `web/public/sample-visuals/` exist locally, `celery-pipeline` is up (needed for inject), and SSH to the target works.
+2. **Inject G11 visuals** — runs `scripts/inject_g11_visuals.py` inside the local `celery-pipeline` container, which populates `section.visuals[]` in the G11 Science tutorial JSON from `sample_content/g11-science/` SVGs + the MP4 references in `UNIT_VIDEOS`. Idempotent. Skip with `--skip-inject`.
+3. **Rsync TEXT + legacy GRAPHICS** — `content_store_data/` → `/data/content/` on the VPS. Covers lessons, quizzes, tutorials, experiments, audio MP3s, and `visuals/_legacy/` SVGs. Served by nginx at `/content/*`.
+4. **Rsync VIDEO** — `web/public/sample-visuals/` → `/data/sample-visuals/` on the VPS. The 44 tutorial MP4s referenced by `tutorial_en.json` via `/sample-visuals/<unit>/<file>.mp4` URLs. **This tree is gitignored** so it never reaches the Docker image — this rsync is the only path. Served by nginx at `/sample-visuals/*`.
+5. **Optional smoke** — chains into `smoke.sh <url>` if `--smoke <url>` was passed.
+
+**Exit codes** match the failing step: 1 pre-flight, 2 inject, 3 content rsync, 4 sample-visuals rsync, 5 smoke. Each failure mode prints a hint pointing at the likely cause (e.g. "did provision.sh step 7 run?" for missing `/data/*` dirs).
+
+### 3.3 Seed orchestrator — `scripts/demo/seed.sh`
 
 **Run on:** the Hetzner VPS, after `docker compose up` is healthy.
 
@@ -595,7 +613,7 @@ What it does:
 
 **Idempotent.** If a record already exists the script skips it and emits `[skip]` instead of failing.
 
-### 3.3 Post-deploy smoke test — `scripts/demo/smoke.sh`
+### 3.4 Post-deploy smoke test — `scripts/demo/smoke.sh`
 
 **Run on:** the operator's laptop (against the public domain) or in CI (against the deployed staging URL).
 
@@ -619,7 +637,7 @@ What it checks:
 
 Exits 0 if all green; exits 1 with a structured failure summary if any check fails.
 
-### 3.4 Daily DB + content backup — `scripts/demo/backup.sh`
+### 3.5 Daily DB + content backup — `scripts/demo/backup.sh`
 
 **Run on:** the Hetzner VPS, scheduled via cron at 02:00 UTC.
 
@@ -634,7 +652,7 @@ What it does:
 4. Trigger a Hetzner snapshot via API (if `HCLOUD_TOKEN` is set in `.env.demo`)
 5. Email a one-line success/failure summary via the existing Gmail SMTP config
 
-### 3.5 Auto-deploy CI — `.github/workflows/deploy-demo.yml`
+### 3.6 Auto-deploy CI — `.github/workflows/deploy-demo.yml`
 
 **Triggers:** push to `main`, manual `workflow_dispatch`.
 
@@ -963,4 +981,5 @@ Outstanding:
 | 2026-05-09 | **Day-N labels + date shift** — launch slipped from May 16 → May 17 (Day 0 = Sun May 17). Day -5 to Day -1 labels added to the 4-day test phase (May 13-16); Day 0 = launch, Day 1 = first day live (May 18). Code-freeze cutoff stays at May 12 EOD (now Day -5). Day-of-week labels in the original timeline corrected (off by one). All section headers + body text updated; companion docs in mambakkam-net/Plans/ shifted in the same pass. |
 | 2026-05-09 | **Concrete Day -1 / Day 0 timing** — added Day -1 (Sat May 16) 17:00-20:30 EDT account setup checklist (StudyBuddy-side: domain, Auth0, Stripe-test, Sentry — alongside mambakkam-side shared infrastructure). Day 0 (Sun May 17) 11:00 EDT StudyBuddy second-tenant work begins (after mambakkam mb-T+2h stability), T-0 cutover at 13:00 EDT. Restored the second-tenant launch-day timing that was reverted by an earlier git checkout. |
 | 2026-05-09 | **Restored §7-§10 sections lost in the date-shift git checkout** — Tenancy Position block at top of doc, §2.5 second-tenant cold-start, §3.1 second-tenant provision.sh inventory, §4 Day -1 production-join row, §6 "Decided 2026-05-09" block, and §7-§10 sister-doc pointers (Observability / Logging / Backups / Alerts). Preserved the Day-N labels and concrete timing entries that were added afterwards. |
+| 2026-05-13 | **Content delivery script consolidation.** Audit found that the three demo asset classes (TEXT lesson JSON, GRAPHICS SVGs, VIDEO tutorial MP4s) weren't fully wired into the deploy path — the sample-visuals tree of 44 tutorial MP4s (219 MB) is gitignored and would have 404'd everywhere. Fixed by (a) `scripts/demo/sync-content.sh` (new) that wraps inject_g11_visuals.py + both rsyncs + optional smoke into a single operator command; (b) nginx /sample-visuals/ location + bind-mount; (c) provision.sh creates /data/sample-visuals alongside /data/content; (d) smoke.sh extended with 3 HEAD checks (lesson JSON + tutorial SVG + tutorial MP4). §3 renumbered to slot sync-content.sh in as §3.2 (operational order: provision → sync-content → seed → smoke). |
 | 2026-05-13 | **Launch-blocking CI fixes + universal sign-in shipped.** §1.A: added a "Universal sign-in entry point" row covering the `/signin` page + `POST /auth/universal-login` consolidation of Auth0 / Phase A local / admin tracks; expanded the `deploy-demo.yml` row to call out the `NEXT_PUBLIC_DEMO_MODE=true` Docker `build-arg` that bakes the flag into the client bundle. Added a "Recent CI unblocking" paragraph documenting the four sequential fixes (typescript 6→^5.9.3, lockfile regen under node:20-alpine, `npm ci --legacy-peer-deps`, `next.config.ts output: "standalone"`) that unblocked the previously-red web image build. §5: added a Risk Register row for the expected-but-cosmetic SSH-deploy failure that fires on every push until `DEMO_VPS_HOST` is populated (currently auto-opens an `incident:demo` issue per merge — gate the deploy job if the noise becomes distracting before Day 0). |

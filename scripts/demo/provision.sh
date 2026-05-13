@@ -406,14 +406,16 @@ Next steps (in order):
    nginx vhost installed in step 5 above proxies demo.studybuddy.app
    traffic to 127.0.0.1:8443.
 
-4. Upload pre-built content from your dev machine (local dir is
-   content_store_data/ — do NOT use content_store/ which doesn't exist):
-   # First make G11 visuals discoverable inside content_store_data/visuals/
-   python scripts/inject_g11_visuals.py
-   # Then push the full content store + the sample-visuals tree (44 MP4s,
-   # 219 MB — gitignored so neither rsync target ships in the Docker image)
-   rsync -avz ./content_store_data/      deploy@$PUBLIC_IP:/data/content/
-   rsync -avz ./web/public/sample-visuals/ deploy@$PUBLIC_IP:/data/sample-visuals/
+4. Upload pre-built content from your dev machine. One command does the
+   inject + both rsyncs + (optional) post-deploy smoke:
+   bash scripts/demo/sync-content.sh deploy@$PUBLIC_IP
+   # Add --smoke https://demo.studybuddy.app to chain into the smoke check
+   # once DNS is cut over. See `bash scripts/demo/sync-content.sh --help`
+   # for the full flag list. The two rsync targets are
+   # /data/content/ (lessons + audio + legacy visuals from
+   # content_store_data/) and /data/sample-visuals/ (44 tutorial MP4s
+   # from web/public/sample-visuals/ — gitignored, never in the Docker
+   # image).
 
 5. Bring the StudyBuddy stack up:
    cd $INSTALL_DIR
