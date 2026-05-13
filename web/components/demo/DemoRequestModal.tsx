@@ -195,7 +195,7 @@ export function DemoRequestModal() {
             <p className="mt-2 text-center text-xs text-gray-500">
               {t("already_have_demo")}{" "}
               <Link
-                href="/demo/login"
+                href="/signin"
                 className="text-blue-600 underline underline-offset-2 hover:text-blue-800"
                 onClick={() => handleOpenChange(false)}
               >

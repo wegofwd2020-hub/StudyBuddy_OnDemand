@@ -1616,6 +1616,53 @@ def send_demo_teacher_credentials_email_task(self, email: str, password: str) ->
         raise self.retry(exc=exc, countdown=30)
 
 
+@celery_app.task(
+    name="src.auth.tasks.send_test_run_verification_email_task",
+    bind=True,
+    max_retries=3,
+)
+def send_test_run_verification_email_task(self, email: str, token: str) -> None:
+    """Send the test-run email-verification link. Retries up to 3× on SMTP failure."""
+    from src.email.service import send_test_run_verification_email
+
+    try:
+        _run_async(send_test_run_verification_email(email, token))
+    except Exception as exc:
+        raise self.retry(exc=exc, countdown=30)
+
+
+@celery_app.task(
+    name="src.auth.tasks.send_test_run_credentials_email_task",
+    bind=True,
+    max_retries=3,
+)
+def send_test_run_credentials_email_task(
+    self,
+    to_email: str,
+    name: str,
+    teacher_email: str,
+    teacher_password: str,
+    student_email: str,
+    student_password: str,
+) -> None:
+    """Send the combined teacher + student demo credentials in one email."""
+    from src.email.service import send_test_run_credentials_email
+
+    try:
+        _run_async(
+            send_test_run_credentials_email(
+                to_email=to_email,
+                name=name,
+                teacher_email=teacher_email,
+                teacher_password=teacher_password,
+                student_email=student_email,
+                student_password=student_password,
+            )
+        )
+    except Exception as exc:
+        raise self.retry(exc=exc, countdown=30)
+
+
 @celery_app.task(name="src.auth.tasks.invalidate_school_entitlement_cache_task")
 def invalidate_school_entitlement_cache_task(school_id: str) -> None:
     """

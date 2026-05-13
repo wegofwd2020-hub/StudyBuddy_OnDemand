@@ -109,7 +109,6 @@ async def test_demo_requests_status_constraint(db_conn):
 @pytest.mark.asyncio
 async def test_demo_requests_insert_and_fk_cascade(db_conn):
     """Inserting a demo_request and linking a verification works; cascade deletes."""
-    import uuid
     from datetime import UTC, datetime, timedelta
 
     request_id = await db_conn.fetchval(
@@ -248,7 +247,7 @@ async def test_send_credentials_email_includes_password():
     )
     assert "SuperSecret99!" in full_text
     assert "student@example.com" in full_text
-    assert "https://app.studybuddy.com/demo/login" in full_text
+    assert "https://app.studybuddy.com/signin" in full_text
 
 
 @pytest.mark.asyncio

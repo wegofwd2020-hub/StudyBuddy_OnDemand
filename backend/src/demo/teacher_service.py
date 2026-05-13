@@ -135,9 +135,17 @@ async def create_demo_teacher_and_account(
     request_id: uuid.UUID,
     email: str,
     password_hash: str,
+    school_id: uuid.UUID | None = None,
+    role: str = "teacher",
+    teacher_name: str | None = None,
 ) -> asyncpg.Record:
     """
     Create a teachers row (auth_provider='demo') and a demo_teacher_accounts row.
+
+    Optional overrides let the test-run flow attach the teacher to an existing
+    demo school (so the visitor lands in a populated sandbox dashboard).
+    Defaults preserve the original solo /demo/teacher/request behaviour
+    (no school, role=teacher).
 
     Returns the demo_teacher_accounts record.
     """
@@ -145,18 +153,21 @@ async def create_demo_teacher_and_account(
     expires_at = datetime.now(UTC) + timedelta(hours=ttl_hours)
 
     demo_external_id = f"demo_teacher:{request_id}"
-    teacher_name = email.split("@")[0]
+    if teacher_name is None:
+        teacher_name = email.split("@")[0]
 
     teacher_row = await conn.fetchrow(
         """
         INSERT INTO teachers (external_auth_id, auth_provider, name, email,
-                              account_status)
-        VALUES ($1, 'demo', $2, $3, 'active')
+                              account_status, school_id, role)
+        VALUES ($1, 'demo', $2, $3, 'active', $4, $5)
         RETURNING teacher_id
         """,
         demo_external_id,
         teacher_name,
         email,
+        school_id,
+        role,
     )
     teacher_id = teacher_row["teacher_id"]
 

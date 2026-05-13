@@ -67,6 +67,43 @@ export async function resendDemoVerification(email: string): Promise<void> {
   await api.post("/demo/verify/resend", { email });
 }
 
+// ── Test-run API (one form → both teacher + student demo accounts) ──────────
+
+export interface TestRunRequestPayload {
+  name: string;
+  email: string;
+}
+
+/**
+ * POST /demo/test-run/request
+ * Submit name + email to receive a verification link. Clicking the link
+ * provisions both a demo teacher and a demo student account and emails the
+ * combined credentials back to the same address.
+ * Public endpoint — no auth required.
+ */
+export async function requestTestRun(
+  payload: TestRunRequestPayload,
+): Promise<DemoRequestResponse> {
+  const res = await api.post<DemoRequestResponse>(
+    "/demo/test-run/request",
+    payload,
+  );
+  return res.data;
+}
+
+/**
+ * GET /demo/test-run/verify/{token}
+ * Verify the test-run email and trigger the combined credentials email.
+ */
+export async function verifyTestRunEmail(
+  token: string,
+): Promise<DemoRequestResponse> {
+  const res = await api.get<DemoRequestResponse>(
+    `/demo/test-run/verify/${token}`,
+  );
+  return res.data;
+}
+
 // ── Teacher demo API ──────────────────────────────────────────────────────────
 
 /**

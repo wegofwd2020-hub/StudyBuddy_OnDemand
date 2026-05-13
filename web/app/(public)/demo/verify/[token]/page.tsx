@@ -31,7 +31,7 @@ const STATE_CONFIG: Record<Exclude<VerifyState, "loading">, StateConfig> = {
     titleKey: "verify_success_title",
     bodyKey: "verify_success_body",
     ctaKey: "verify_success_cta",
-    ctaHref: "/demo/login",
+    ctaHref: "/signin",
     iconBg: "bg-green-50",
   },
   used: {
@@ -39,7 +39,7 @@ const STATE_CONFIG: Record<Exclude<VerifyState, "loading">, StateConfig> = {
     titleKey: "verify_used_title",
     bodyKey: "verify_used_body",
     ctaKey: "verify_used_cta",
-    ctaHref: "/demo/login",
+    ctaHref: "/signin",
     iconBg: "bg-amber-50",
   },
   expired: {

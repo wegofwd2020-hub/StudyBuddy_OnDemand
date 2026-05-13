@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { LinkButton } from "@/components/ui/link-button";
 import { BookOpen, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { IS_DEMO_MODE } from "@/lib/demo-mode";
+import { TestRunRequestModal } from "@/components/demo/TestRunRequestModal";
 
 export function PublicNav() {
   const [open, setOpen] = useState(false);
@@ -38,15 +40,29 @@ export function PublicNav() {
           </Link>
         </nav>
 
-        {/* Desktop CTAs — school-first. Register hidden in demo mode;
-            sign-in stays (the demo-request flow uses /school/login) and is
-            relabelled "Let us Start" so it reads as the entry CTA. */}
+        {/* Desktop CTAs.
+            Demo mode: "Login" (ghost) for visitors who already have credentials,
+            sitting left of the solid "Try a test run" CTA which opens
+            TestRunRequestModal so first-time visitors can request their own
+            teacher + student credentials.
+            Marketing site: "Sign in" + "Register your school" (unchanged). */}
         <div className="hidden items-center gap-3 md:flex">
-          <LinkButton variant="ghost" href="/school/login">
-            {IS_DEMO_MODE ? "Let us Start" : "School sign-in"}
-          </LinkButton>
-          {!IS_DEMO_MODE && (
-            <LinkButton href="/school/register">Register your school</LinkButton>
+          {IS_DEMO_MODE ? (
+            <>
+              <LinkButton variant="ghost" href="/signin">
+                Login
+              </LinkButton>
+              <TestRunRequestModal
+                trigger={<Button variant="default">Try a test run</Button>}
+              />
+            </>
+          ) : (
+            <>
+              <LinkButton variant="ghost" href="/signin">
+                Sign in
+              </LinkButton>
+              <LinkButton href="/school/register">Register your school</LinkButton>
+            </>
           )}
         </div>
 
@@ -96,11 +112,26 @@ export function PublicNav() {
             Contact
           </Link>
           <div className="flex flex-col gap-2 pt-2">
-            <LinkButton variant="outline" href="/school/login">
-              {IS_DEMO_MODE ? "Let us Start" : "School sign-in"}
-            </LinkButton>
-            {!IS_DEMO_MODE && (
-              <LinkButton href="/school/register">Register your school</LinkButton>
+            {IS_DEMO_MODE ? (
+              <>
+                <LinkButton variant="outline" href="/signin">
+                  Login
+                </LinkButton>
+                <TestRunRequestModal
+                  trigger={
+                    <Button variant="default" className="w-full">
+                      Try a test run
+                    </Button>
+                  }
+                />
+              </>
+            ) : (
+              <>
+                <LinkButton variant="outline" href="/signin">
+                  Sign in
+                </LinkButton>
+                <LinkButton href="/school/register">Register your school</LinkButton>
+              </>
             )}
           </div>
         </div>

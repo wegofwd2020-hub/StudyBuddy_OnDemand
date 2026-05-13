@@ -182,9 +182,26 @@ async def send_verification_email(to_email: str, token: str) -> None:
     )
 
 
+async def send_test_run_verification_email(to_email: str, token: str) -> None:
+    """
+    Send the test-run verification link. Same email body as the student demo
+    verification email — only the URL changes so it routes to the combined
+    /demo/test-run/verify endpoint which provisions both accounts.
+    """
+    verify_url = f"{settings.FRONTEND_URL}/demo/test-run/verify/{token}"
+    ttl = settings.DEMO_VERIFICATION_TOKEN_TTL_MINUTES
+
+    await _send(
+        to_email=to_email,
+        subject=_VERIFICATION_SUBJECT,
+        text_body=_VERIFICATION_TEXT.format(verify_url=verify_url, ttl_minutes=ttl),
+        html_body=_VERIFICATION_HTML.format(verify_url=verify_url, ttl_minutes=ttl),
+    )
+
+
 async def send_credentials_email(to_email: str, password: str) -> None:
     """Send demo account login credentials after email verification."""
-    login_url = f"{settings.FRONTEND_URL}/demo/login"
+    login_url = f"{settings.FRONTEND_URL}/signin"
 
     await _send(
         to_email=to_email,
@@ -316,7 +333,7 @@ async def send_teacher_verification_email(to_email: str, token: str) -> None:
 
 async def send_teacher_credentials_email(to_email: str, password: str) -> None:
     """Send demo teacher login credentials after email verification."""
-    login_url = f"{settings.FRONTEND_URL}/demo/teacher/login"
+    login_url = f"{settings.FRONTEND_URL}/signin"
 
     await _send(
         to_email=to_email,
@@ -332,6 +349,147 @@ async def send_teacher_credentials_email(to_email: str, password: str) -> None:
             email=to_email,
             password=password,
             ttl_hours=settings.DEMO_TEACHER_ACCOUNT_TTL_HOURS,
+        ),
+    )
+
+
+# ── Combined test-run credentials (teacher + student in one email) ───────────
+
+_TEST_RUN_CREDENTIALS_SUBJECT = "Your StudyBuddy test run is ready"
+
+_TEST_RUN_CREDENTIALS_TEXT = """\
+Hi {name},
+
+Welcome to your StudyBuddy test run! We've set up two accounts so you can
+experience StudyBuddy from both sides — as a teacher and as a student.
+
+Login URL : {login_url}
+
+────── TEACHER ACCOUNT ──────
+Email     : {teacher_email}
+Password  : {teacher_password}
+
+Use this to see the teacher / school-admin dashboard: classroom rosters,
+reports, assignments, and a sample Grade 8 class pre-loaded with synthetic
+students.
+
+────── STUDENT ACCOUNT ──────
+Email     : {student_email}
+Password  : {student_password}
+
+Use this to see what a student sees: subjects, lessons, quizzes, and progress.
+
+Both accounts work from the same sign-in page — just enter the email and
+password for whichever role you want to explore. The teacher account is
+active for {teacher_ttl_hours} hours; the student account for {student_ttl_hours} hours.
+
+— The StudyBuddy Team
+"""
+
+_TEST_RUN_CREDENTIALS_HTML = """\
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8" /></head>
+<body style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px;color:#1f2937">
+  <h2 style="color:#1a56db;margin-bottom:8px">Your StudyBuddy test run is ready</h2>
+  <p>Hi {name},</p>
+  <p>
+    We've set up <strong>two accounts</strong> so you can experience StudyBuddy
+    from both sides — as a teacher and as a student. Both accounts work from
+    the same sign-in page.
+  </p>
+
+  <p style="margin:24px 0 8px">
+    <a href="{login_url}"
+       style="background:#1a56db;color:#fff;padding:12px 28px;border-radius:6px;
+              text-decoration:none;font-weight:bold">
+      Open the sign-in page
+    </a>
+  </p>
+  <p style="color:#6b7280;font-size:12px;margin-top:4px">{login_url}</p>
+
+  <h3 style="margin-top:32px;color:#0e7490;border-bottom:2px solid #0e7490;padding-bottom:4px">
+    Teacher account
+  </h3>
+  <p style="color:#4b5563;font-size:14px;margin-top:8px">
+    Use this to see the teacher / school-admin dashboard: classroom rosters,
+    reports, assignments, and a sample Grade 8 class pre-loaded with synthetic
+    students.
+  </p>
+  <table style="border-collapse:collapse;width:100%;margin:8px 0 0">
+    <tr>
+      <td style="padding:10px;background:#f3f4f6;font-weight:bold;width:120px">Email</td>
+      <td style="padding:10px;background:#f9fafb">{teacher_email}</td>
+    </tr>
+    <tr>
+      <td style="padding:10px;background:#f3f4f6;font-weight:bold">Password</td>
+      <td style="padding:10px;background:#f9fafb;font-family:monospace">{teacher_password}</td>
+    </tr>
+  </table>
+
+  <h3 style="margin-top:32px;color:#7c3aed;border-bottom:2px solid #7c3aed;padding-bottom:4px">
+    Student account
+  </h3>
+  <p style="color:#4b5563;font-size:14px;margin-top:8px">
+    Use this to see what a student sees: subjects, lessons, quizzes, and progress.
+  </p>
+  <table style="border-collapse:collapse;width:100%;margin:8px 0 0">
+    <tr>
+      <td style="padding:10px;background:#f3f4f6;font-weight:bold;width:120px">Email</td>
+      <td style="padding:10px;background:#f9fafb">{student_email}</td>
+    </tr>
+    <tr>
+      <td style="padding:10px;background:#f3f4f6;font-weight:bold">Password</td>
+      <td style="padding:10px;background:#f9fafb;font-family:monospace">{student_password}</td>
+    </tr>
+  </table>
+
+  <p style="color:#6b7280;font-size:13px;margin-top:24px">
+    Teacher account active for <strong>{teacher_ttl_hours} hours</strong>;
+    student account for <strong>{student_ttl_hours} hours</strong>.
+  </p>
+  <p style="color:#6b7280;font-size:13px">— The StudyBuddy Team</p>
+</body>
+</html>
+"""
+
+
+async def send_test_run_credentials_email(
+    to_email: str,
+    name: str,
+    teacher_email: str,
+    teacher_password: str,
+    student_email: str,
+    student_password: str,
+) -> None:
+    """
+    Send a single email containing both teacher AND student demo credentials
+    after a /demo/test-run/verify call provisions both accounts at once.
+    """
+    login_url = f"{settings.FRONTEND_URL}/signin"
+
+    await _send(
+        to_email=to_email,
+        subject=_TEST_RUN_CREDENTIALS_SUBJECT,
+        text_body=_TEST_RUN_CREDENTIALS_TEXT.format(
+            name=name,
+            login_url=login_url,
+            teacher_email=teacher_email,
+            teacher_password=teacher_password,
+            student_email=student_email,
+            student_password=student_password,
+            teacher_ttl_hours=settings.DEMO_TEACHER_ACCOUNT_TTL_HOURS,
+            student_ttl_hours=settings.DEMO_ACCOUNT_TTL_HOURS,
+        ),
+        html_body=_TEST_RUN_CREDENTIALS_HTML.format(
+            name=name,
+            login_url=login_url,
+            teacher_email=teacher_email,
+            teacher_password=teacher_password,
+            student_email=student_email,
+            student_password=student_password,
+            teacher_ttl_hours=settings.DEMO_TEACHER_ACCOUNT_TTL_HOURS,
+            student_ttl_hours=settings.DEMO_ACCOUNT_TTL_HOURS,
         ),
     )
 

@@ -27,12 +27,11 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import asyncpg
 
 from src.admin.demo_seed import (
-    DEMO_PASSWORD,
-    DEMO_SCHOOL_NAME,
     _CLASSROOMS,
     _STUDENTS,
     _TEACHERS,
-    reset_demo,
+    DEMO_PASSWORD,
+    DEMO_SCHOOL_NAME,
     seed_demo,
     wipe_demo,
 )
@@ -88,7 +87,7 @@ async def _run(do_reset: bool) -> None:
     for cl in _CLASSROOMS:
         print(f"    {cl['name']}")
     print()
-    print("  Login URL:  http://localhost:3000/school/login")
+    print("  Login URL:  http://localhost:3000/signin")
     print("─" * 60)
 
 

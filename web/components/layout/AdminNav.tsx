@@ -97,6 +97,12 @@ const NAV_ITEMS: NavItem[] = [
     minRole: "product_admin",
   },
   {
+    label: "Test Runs",
+    href: "/admin/test-runs",
+    icon: <FlaskConical className="h-4 w-4" />,
+    minRole: "product_admin",
+  },
+  {
     label: "Demo Leads",
     href: "/admin/demo-leads",
     icon: <Sparkles className="h-4 w-4" />,

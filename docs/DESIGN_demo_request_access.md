@@ -101,9 +101,8 @@ those routes (see §3.5), invisible to non-demo traffic. There are no
 
 The demo-credential URLs in the email are **the same login URLs as
 production** — `https://demo.studybuddy.app/school/login` for the teacher
-view and `https://demo.studybuddy.app/login` (or whatever the canonical
-student-login route is) for the student view. Each carries a
-`?demo_token=<random>` query param.
+view and `https://demo.studybuddy.app/login` for the student view. Each
+carries a `?demo_token=<random>` query param.
 
 Auth middleware on those routes recognises `demo_token`, validates it
 against the `demo_request` table (§4), sets a regular session cookie tied
@@ -308,6 +307,12 @@ Both go in `backend/scripts/seed_demo_milfordwaterford.py`:
 - Co-teacher with Linda Ronstad — class overview, weekly digest,
   at-risk list all draw from Linda's curated class data plus any state
   the demo accounts have generated since the last nightly reset.
+- **Library is pre-populated**: `Grade 11 Science 2026` (curriculum
+  `default-2026-g11-science`) is already adopted into MilfordWaterford's
+  library via `seed_demo_milfordwaterford.py`. The teacher sees a
+  populated library on first login — no "import a curriculum" step
+  required for the demo flow. Write actions that would extend or
+  re-build the library are blocked; see §6.5.
 
 **As `demo-student@`:**
 - Enrolled in `Grade 11 — Science`. Sees the same lessons, quizzes, and
@@ -339,58 +344,134 @@ this audience size.
   isolation was rejected in the original design conversation; nightly
   reset of two shared accounts is the chosen middle ground.
 
+## 6.5 · Demo-account write scope (decided 2026-05-10)
+
+The demo teacher is **read-mostly with a curated set of write actions**.
+Anything that costs real LLM spend, modifies cross-school platform
+state, or extends the library is blocked. Anything that's part of the
+core teacher evaluation surface (content review, classroom interaction,
+feedback) is allowed and gets reset nightly.
+
+### Allowed vs. blocked
+
+| Action | Allowed? | Why |
+|---|---|---|
+| Browse library / view adopted curricula | ✅ | Core demo surface |
+| View classroom roster, weekly digest, at-risk list | ✅ | Core demo surface |
+| View / play lessons, quizzes, tutorials (as student) | ✅ | Core demo surface |
+| **Content review flow (Epic 12)** — view drafts, leave annotations, approve / reject / publish overrides | ✅ | Meaty teacher-flow surface; in-flight reviews are intentionally trashed by the nightly reset and that's OK for the demo |
+| Submit student feedback on content | ✅ | Useful demo signal; reset nightly |
+| **Upload XLSX / JSON to trigger pipeline build** | ❌ | Real LLM spend; demo can't initiate paid pipeline jobs |
+| **Submit a curriculum definition (Phase D)** | ❌ | Same — would queue a paid build |
+| **Adopt / import an OOB curriculum into library (Epic 12)** | ❌ | Library is pre-seeded with Grade 11 Science (§6); nothing to import |
+| **Trigger backup / restore (Epic 15)** | ❌ | Expensive + cross-school visibility |
+| **Provision new teachers / students** | ❌ | Modifies school roster; nightly reset would orphan accounts |
+| **Stripe / billing actions** | ❌ | Demo has no card on file |
+
+### Enforcement — UI hide + API guard
+
+UI-only hiding is **not enough**. A curious evaluator hitting the API
+directly (curl, browser devtools) would otherwise be able to burn
+pipeline spend or queue a paid build. Two layers, both required:
+
+| Layer | What it does |
+|---|---|
+| **Schema** | Add `is_demo BOOLEAN NOT NULL DEFAULT FALSE` to `teachers` and `students`. The seed script (§6) sets it `TRUE` for `demo-teacher@studybuddy.app` and `demo-student@studybuddy.app`. JWTs minted for these accounts include `is_demo: true` in the payload. |
+| **API guard** | A FastAPI dependency `block_if_demo` that returns **403 + `{"error": "demo_account_readonly"}`** on the blocked endpoints. Applied via `Depends(block_if_demo)` on the routers in the blocked list above. |
+| **UI hide** | When `is_demo` is true on the decoded JWT, hide the upload / import / definition-submit / provision / backup / billing buttons. Avoids the user clicking something that's just going to 403. |
+
+Email-pattern matching (`email LIKE 'demo-%@studybuddy.app'`) was
+considered and rejected — `is_demo` is a single column, survives any
+future renaming, and is faster to check on the hot path.
+
+### What the nightly reset has to undo
+
+The §9 cron now also reverts:
+
+- Any content overrides created or approved by `demo-teacher@` (back to seed baseline).
+- Any annotations left on review drafts.
+- Any feedback rows submitted by `demo-student@`.
+
+Same idempotent re-run of `seed_demo_milfordwaterford.py` does it — no
+new cron needed, just a wider reset scope captured in §9.
+
 ## 7 · Email templates (Zoho SMTP — already wired)
 
 ### 7.1 Confirm your email (sent on `POST /demo/request`)
 
 ```
-From: StudyBuddy Demo <demo@studybuddy.app>
-Subject: Confirm your demo access — StudyBuddy
+From:    StudyBuddy Demo <demo@studybuddy.app>
+Subject: Confirm your email to start your StudyBuddy demo
 
 Hi {{name}},
 
-You requested a 7-day demo of StudyBuddy. Please confirm your email
-to receive your teacher and student logins:
+You requested a 7-day demo of StudyBuddy. Click below to confirm your
+email — your teacher and student login links will arrive right after.
 
-  → https://demo.studybuddy.app/demo/confirm?token={{verify_token}}
+  Confirm my email →
+  https://demo.studybuddy.app/demo/confirm?token={{verify_token}}
 
-This link is single-use and expires in 24 hours. If you didn't request
-this, you can safely ignore this email.
+This link is single-use and expires in 24 hours.
+If you didn't request a demo, you can safely ignore this email — no
+account is created until you confirm.
 
 — The StudyBuddy team
+demo@studybuddy.app
 ```
 
 ### 7.2 Your demo credentials (sent on `GET /demo/confirm`)
 
 ```
-From: StudyBuddy Demo <demo@studybuddy.app>
-Subject: Your StudyBuddy demo — 7-day access starts now
+From:    StudyBuddy Demo <demo@studybuddy.app>
+Subject: Your StudyBuddy demo is ready — 7-day access starts now
 
 Hi {{name}},
 
-Your demo access is ready. Two roles, two links — bookmark them and
-use them as often as you like for the next 7 days (until {{expiry}}):
+Your demo is live until {{expiry}} ({{days_remaining}} days).
 
-  Grade 11 Teacher view
-  → https://demo.studybuddy.app/school/login?demo_token={{teacher_token}}
+StudyBuddy has two views — teacher and student — and we've sent you a
+direct link for each. No password to remember; just click the link.
 
-  Grade 11 Student view
-  → https://demo.studybuddy.app/login?demo_token={{student_token}}
+────────────────────────────────────────────────────────────
+  1. TEACHER VIEW   (start here — this is what schools buy)
+────────────────────────────────────────────────────────────
+  https://demo.studybuddy.app/school/login?demo_token={{teacher_token}}
 
-What you'll see:
-  • Teacher: roster, class overview, weekly digest, at-risk list
-  • Student: lesson player, quiz, tutorial, progress
+  What you'll see:
+    • Class roster for a sample Grade 11 classroom
+    • Weekly digest and "students at risk" list
+    • Lesson library and assignment view
 
-Notes:
-  • These are shared demo accounts — other evaluators may be using
-    the same accounts simultaneously, so don't enter anything you
-    consider private.
-  • Access expires automatically at {{expiry}}. No action needed
-    on your end.
+────────────────────────────────────────────────────────────
+  2. STUDENT VIEW   (what a Grade 11 student sees)
+────────────────────────────────────────────────────────────
+  https://demo.studybuddy.app/login?demo_token={{student_token}}
 
-Questions? Reply to this email.
+  What you'll see:
+    • Lesson player, quiz, and tutorial
+    • Progress dashboard and streak
+
+────────────────────────────────────────────────────────────
+
+A few things to know:
+
+  • Bookmark these links. They work for the full 7 days — click as
+    often as you like.
+
+  • These are SHARED demo accounts. Other evaluators may be signed
+    in at the same time, so please don't enter anything private —
+    you may briefly see their activity, and they may see yours.
+
+  • Access expires on {{expiry}} automatically. Nothing to cancel.
+
+  • For a private or school-branded trial, reach out to
+    sales@studybuddy.app — happy to set one up.
+
+Questions or feedback? Reply directly to this email — it goes to a
+real person.
 
 — The StudyBuddy team
+demo@studybuddy.app
 ```
 
 The "shared demo account" disclosure is **load-bearing** — it sets
@@ -429,7 +510,7 @@ to filter automated requests before they reach the API.
 |---|---|---|
 | Hourly | Mark `pending_email` rows as `expired` once `verify_expires_at < NOW()` | Keeps status field truthful for the audit dashboard |
 | Hourly | Mark `confirmed` rows as `expired` once `credentials_expires_at < NOW()` | Same |
-| Nightly 03:00 UTC | Reset `demo-teacher` + `demo-student` accounts to seed-script baseline (revoke any pending edits, reset quiz attempts, reset progress, reset entitlements) | Keeps each new evaluation session starting from a clean state |
+| Nightly 03:00 UTC | Reset `demo-teacher` + `demo-student` accounts to seed-script baseline (revoke any pending edits, reset quiz attempts, reset progress, reset entitlements, **revert any content overrides created or approved during the day, drop annotations on review drafts, drop demo-student feedback rows** — see §6.5) | Keeps each new evaluation session starting from a clean state |
 
 The hourly status sweeper is cheap (small table, indexed on
 `*_expires_at`). The nightly account reset is the same pattern as
@@ -482,14 +563,21 @@ trivial to query.
 | MilfordWaterford school seed | Two new email templates |
 | Production SMTP libs | Three small Next.js pages (`/demo`, `/demo/thanks`, `/demo/confirmed`) |
 | Canonical `/school/login` and `/login` pages (no frontend changes needed) | Two new shared accounts in `seed_demo_milfordwaterford.py` |
+| | `is_demo BOOLEAN` column on `teachers` + `students` (Alembic migration) |
+| | `block_if_demo` FastAPI dependency + apply to blocked endpoints (§6.5) |
+| | UI conditional hides on demo write surfaces (upload / import / definition / provision / backup / billing) |
+| | Pre-adopt `default-2026-g11-science` into MilfordWaterford library in seed script |
 | | Hourly cleanup cron (`demo_request` expiry sweeper) |
-| | Nightly cron (shared-account state reset) |
+| | Nightly cron (shared-account state reset — wider scope per §6.5) |
 | | Cloudflare Turnstile widget (5 min) |
 | | (Optional) `/admin/demo-requests` audit page |
 
 **Total surface:** ~1 small FastAPI router (2 routes), 1 auth-middleware
-addition, 1 table, 2 email templates, 3 small Next.js pages, 2 cron tasks,
-1 seed update. Estimated **1–2 days** of focused implementation. The
+addition, 1 new table + 1 column on each of `teachers` / `students`,
+1 `block_if_demo` dependency, 2 email templates, 3 small Next.js pages,
+a handful of UI conditional-hides, 2 cron tasks, 1 seed update (now
+including pre-adoption of the Grade 11 Science curriculum). Estimated
+**2–3 days** of focused implementation (was 1–2 before §6.5). The
 canonical-route approach (§3.5) keeps the public URL surface unchanged
 and the long-term maintenance footprint minimal.
 
@@ -529,3 +617,5 @@ don't surface as surprises:
 | 2026-05-09 | 0.1 | Initial design — flow, data model, endpoints, emails, abuse posture, cron schedule. Marked draft; not yet implemented. |
 | 2026-05-09 | 0.2 | Reused canonical login routes (`/school/login`, `/login`) instead of dedicated `/demo/{teacher,student}/login` paths. Demo-token handling moves to auth middleware on the existing routes; no new public URL paths for login. New §3.5 captures the rationale and the wrong-link handling story. Updated §3 flow, §5 endpoints, §7 email template, §11 frontend surface, §13 build inventory. Driven by the long-term framing: `demo.studybuddy.app` is permanent, so the URL schema needs to age well. |
 | 2026-05-09 | 0.3 | §6 made concrete — picked `Grade 11 — Science` (curriculum `default-2026-g11-science`, classroom led by Linda Ronstad) as the data anchor. Two new shared accounts to add to `seed_demo_milfordwaterford.py`: `demo-teacher@studybuddy.app` (co-teacher with Linda) and `demo-student@studybuddy.app` (third student alongside Fatima Al-Hassan and Liam O'Brien). Self-service evaluators see populated class data; named personas stay reserved for sales walkthroughs. |
+| 2026-05-10 | 0.4 | §7.1 + §7.2 email templates rewritten for evaluator clarity — numbered teacher-first/student-second views with explicit "what you'll see" sub-bullets, expiry promoted to top of credentials email with `{{days_remaining}}` token, shared-accounts disclosure made concrete ("you may briefly see their activity, and they may see yours"), confirmation email now states "no account is created until you confirm." Private/school-branded-trial CTA routes to `sales@studybuddy.app` (was: reply to `demo@`). §3.5 cleaned up: dropped the "(or whatever the canonical student-login route is)" hedge — `/login` confirmed as the canonical student route at `web/app/(public)/login/page.tsx`. |
+| 2026-05-10 | 0.5 | New §6.5 codifies demo-account write scope. Demo teacher is **read-mostly**: pipeline upload, curriculum-definition submit (Phase D), library import/adopt (Epic 12), backup/restore (Epic 15), teacher/student provisioning, and Stripe/billing actions are blocked. Content review (draft annotations, approve/reject/publish overrides) **is allowed** — in-flight reviews are intentionally trashed by the nightly reset. Enforcement: `is_demo BOOLEAN` column on `teachers` + `students`, `block_if_demo` FastAPI dependency returning 403, plus UI conditional-hides. Library is pre-seeded with `default-2026-g11-science` adopted into MilfordWaterford's library so the teacher sees a populated library on first login. §6 "what an evaluator sees" + §9 nightly reset scope + §13 build inventory all updated. Effort estimate raised to 2–3 days. |

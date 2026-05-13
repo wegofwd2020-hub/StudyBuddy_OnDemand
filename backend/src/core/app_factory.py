@@ -229,6 +229,9 @@ def _register_routers(app: FastAPI) -> None:
     from src.admin.curriculum_lifecycle_router import router as admin_curriculum_lifecycle_router
     from src.admin.demo_accounts import router as demo_admin_router
     from src.admin.demo_teacher_accounts import router as demo_teacher_admin_router
+    from src.admin.demo_test_runs import (
+        router as demo_test_runs_admin_router,
+    )
     from src.admin.retention_router import router as admin_retention_router
     from src.admin.router import router as admin_router
     from src.admin.streams_router import router as admin_streams_router
@@ -239,6 +242,9 @@ def _register_routers(app: FastAPI) -> None:
     from src.curriculum.router import router as curriculum_router
     from src.demo.router import router as demo_router
     from src.demo.teacher_router import router as demo_teacher_router
+    from src.demo.test_run_router import (
+        router as demo_test_run_router,
+    )
     from src.feedback.router import router as feedback_router
     from src.notifications.router import router as notifications_router
     from src.progress.router import router as progress_router
@@ -292,8 +298,10 @@ def _register_routers(app: FastAPI) -> None:
     app.include_router(reports_router, prefix="/api/v1")
     app.include_router(demo_router, prefix="/api/v1")
     app.include_router(demo_teacher_router, prefix="/api/v1")
+    app.include_router(demo_test_run_router, prefix="/api/v1")
     app.include_router(demo_admin_router, prefix="/api/v1")
     app.include_router(demo_teacher_admin_router, prefix="/api/v1")
+    app.include_router(demo_test_runs_admin_router, prefix="/api/v1")
 
     from src.help.router import router as help_router
 

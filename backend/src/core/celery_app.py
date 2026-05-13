@@ -86,6 +86,8 @@ celery_app.conf.update(
         "src.auth.tasks.sweep_expired_demo_teacher_accounts": {"queue": "default"},
         "src.auth.tasks.send_demo_teacher_verification_email_task": {"queue": "io"},
         "src.auth.tasks.send_demo_teacher_credentials_email_task": {"queue": "io"},
+        "src.auth.tasks.send_test_run_verification_email_task": {"queue": "io"},
+        "src.auth.tasks.send_test_run_credentials_email_task": {"queue": "io"},
         "src.auth.tasks.run_grade_pipeline_task": {"queue": "pipeline"},
         "src.auth.tasks.invalidate_school_entitlement_cache_task": {"queue": "io"},
         "src.auth.tasks.reconcile_school_storage_task": {"queue": "default"},

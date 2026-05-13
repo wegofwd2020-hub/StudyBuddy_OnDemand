@@ -37,9 +37,9 @@ export default function LandingPage() {
         />
         {/* Right-side CTAs: two pills, one per demo video. Each anchors to the
             matching card below and the FeatureVideos client component
-            auto-opens the corresponding modal on hashchange. Stacked on
-            small screens; side-by-side on sm+. */}
-        <div className="absolute top-1/2 right-4 flex -translate-y-1/2 flex-col items-end gap-2 sm:right-8 sm:flex-row sm:items-center">
+            auto-opens the corresponding modal on hashchange. Always stacked
+            vertically so the right margin stays slim across breakpoints. */}
+        <div className="absolute top-1/2 right-4 flex -translate-y-1/2 flex-col items-end gap-2 sm:right-8">
           <Link
             href="#video-biostory"
             className="inline-flex items-center gap-2 rounded-full bg-emerald-600/95 px-4 py-2.5 text-sm font-semibold text-white shadow-lg backdrop-blur-sm transition hover:bg-emerald-700 hover:shadow-xl sm:px-5 sm:py-3"
@@ -69,19 +69,28 @@ export default function LandingPage() {
   );
 }
 
-// "Study Buddy" translated into 8 languages — shown as a decorative background
-// watermark to convey the meaning: a companion that helps a student learn.
+// "Learning Companion" translated into 18 languages — shown as a decorative
+// background watermark to convey the meaning of "Study Buddy" across global
+// audiences.
 const STUDY_BUDDY_TRANSLATIONS = [
-  "Learning Companion",
-  "Compañero de Aprendizaje",
-  "Напарник в обучении",
-  "Compagnon d'Apprentissage",
-  "Lernbegleiter",
-  "கற்றல் தோழன்",
-  "सीखने का साथी",
-  "అభ్యాస సహచరుడు",
-  "ಕಲಿಕೆಯ ಸಂಗಾತಿ",
-  "പഠന സഹചാരി",
+  "Learning Companion", // English
+  "Compañero de Aprendizaje", // Spanish
+  "Companheiro de Aprendizagem", // Portuguese
+  "Compagnon d'Apprentissage", // French
+  "Lernbegleiter", // German
+  "Cydymaith Dysgu", // Welsh
+  "Напарник в обучении", // Russian
+  "सीखने का साथी", // Hindi
+  "শেখার সঙ্গী", // Bengali
+  "શીખવાનો સાથી", // Gujarati
+  "ଶିକ୍ଷା ସାଥୀ", // Odia (Oriya)
+  "கற்றல் தோழன்", // Tamil
+  "అభ్యాస సహచరుడు", // Telugu
+  "ಕಲಿಕೆಯ ಸಂಗಾತಿ", // Kannada
+  "പഠന സഹചാരി", // Malayalam
+  "Rakan Pembelajaran", // Malay
+  "Mnzanga wa Maphunziro", // Chichewa
+  "Umngane Wokufunda", // Zulu
 ];
 
 const SIZE_CLASSES = [
@@ -94,15 +103,16 @@ const SIZE_CLASSES = [
 ];
 
 function HeroSection() {
-  const repeated = Array.from({ length: 5 }, () => STUDY_BUDDY_TRANSLATIONS).flat();
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-blue-50 to-white px-4 py-20 text-center sm:py-28">
-      {/* Decorative multilingual watermark — purely visual, hidden from assistive tech */}
+      {/* Decorative multilingual watermark — purely visual, hidden from assistive
+          tech. Each language appears once; generous gaps let the white space
+          breathe so the phrases feel like a constellation, not a wall of text. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 flex flex-wrap content-start gap-x-10 gap-y-5 p-6 opacity-[0.22] select-none"
+        className="pointer-events-none absolute inset-0 flex flex-wrap content-start gap-x-20 gap-y-12 p-8 opacity-[0.22] select-none sm:gap-x-24 sm:gap-y-14 sm:p-10"
       >
-        {repeated.map((phrase, i) => (
+        {STUDY_BUDDY_TRANSLATIONS.map((phrase, i) => (
           <span
             key={i}
             className={`${SIZE_CLASSES[i % SIZE_CLASSES.length]} font-semibold whitespace-nowrap text-blue-800`}
@@ -126,13 +136,10 @@ function HeroSection() {
               Register your school — it&apos;s free
             </LinkButton>
           )}
-          <LinkButton size="lg" variant="outline" href="/tour/school-admin">
-            See how it works
-          </LinkButton>
         </div>
         <div className="mt-4">
           <Link
-            href="/school/login"
+            href="/signin"
             className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:underline"
           >
             Already a teacher? Sign in

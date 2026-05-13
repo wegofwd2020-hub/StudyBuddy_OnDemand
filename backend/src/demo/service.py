@@ -137,9 +137,19 @@ async def create_demo_student_and_account(
     email: str,
     from_password: str,  # caller must pass the *plaintext* password for hashing upstream
     password_hash: str,
+    school_id: uuid.UUID | None = None,
+    grade: int = 8,
+    stream: str | None = None,
+    student_name: str | None = None,
 ) -> asyncpg.Record:
     """
     Create a students row (auth_provider='demo') and a demo_accounts row.
+
+    Optional overrides let the test-run flow place the student into an
+    existing demo school + grade + stream so the visitor lands in a
+    fully-populated sandbox (e.g. Grade 11 Science at MilfordWaterford).
+    Defaults preserve the original solo /demo/request behaviour
+    (no school, grade 8, no stream).
 
     Returns the demo_accounts record.
     """
@@ -147,18 +157,22 @@ async def create_demo_student_and_account(
     expires_at = datetime.now(UTC) + timedelta(hours=ttl_hours)
 
     demo_external_id = f"demo:{request_id}"
-    student_name = email.split("@")[0]
+    if student_name is None:
+        student_name = email.split("@")[0]
 
     student_row = await conn.fetchrow(
         """
         INSERT INTO students (external_auth_id, auth_provider, name, email,
-                              grade, locale, account_status)
-        VALUES ($1, 'demo', $2, $3, 8, 'en', 'active')
+                              grade, locale, account_status, school_id, stream)
+        VALUES ($1, 'demo', $2, $3, $4, 'en', 'active', $5, $6)
         RETURNING student_id
         """,
         demo_external_id,
         student_name,
         email,
+        grade,
+        school_id,
+        stream,
     )
     student_id = student_row["student_id"]
 
