@@ -642,21 +642,23 @@ Exits 0 if all green; exits 1 with a structured failure summary if any check fai
 
 ### 3.5 Daily DB + content backup — `scripts/demo/backup.sh` (restic)
 
-**Run on:** the Hetzner VPS via cron. Two scripts on two schedules — both wired up by `provision.sh` step 6 / 8:
+**Run on:** the Hetzner VPS via cron. Two scripts on two schedules, both preconditioned on `provision.sh`: **step 6** installs the cron file `/etc/cron.d/studybuddy-demo-backup`; **step 8** initialises the restic repo + password file. Step 6 hard-fails on first daily run with exit 5 or 6 if step 8 was skipped.
+
+The installed cron file (`/etc/cron.d/`-format — note the `root` user field) reads:
 
 ```cron
 # Daily backup — pg_dump → restic snapshot
-0 2 * * *  /opt/studybuddy/scripts/demo/backup.sh       >> /var/log/studybuddy-backup.log 2>&1
+0 2 * * *   root cd /opt/studybuddy && bash scripts/demo/backup.sh       >> /var/log/studybuddy-backup.log 2>&1
 
 # Weekly integrity check + prune (Sundays, 1h after the daily so they don't compete for the repo lock)
-0 3 * * 0  /opt/studybuddy/scripts/demo/backup-check.sh >> /var/log/studybuddy-backup.log 2>&1
+0 3 * * 0   root cd /opt/studybuddy && bash scripts/demo/backup-check.sh >> /var/log/studybuddy-backup.log 2>&1
 ```
 
 **Daily — `backup.sh`** (3 numbered steps + an optional 4th):
 
 1. `pg_dump -Fc | gzip -9` → `/opt/studybuddy/backups/staging/db-latest.dump.gz` (always overwritten; restic dedupes blocks-against-blocks across days so 30 daily dumps take ~1.2× the size of one, not 30×).
 2. `restic backup` → `/opt/studybuddy/backups/restic/` covering up to three sources: the staging dump from step 1, `/data/content` (if present), and `/opt/studybuddy/.env.demo` (if present). Tags: `daily` + `host=<short hostname>`. Encrypted at-rest with AES-256; password at `/etc/restic/studybuddy.password` (generated and printed once by `provision.sh` step 8 — record it in your password manager, otherwise the repo is unrecoverable).
-3. `restic forget --tag daily --keep-daily 7 --keep-weekly 4 --keep-monthly 3 --keep-yearly 1`. **`forget` only marks snapshots unreferenced** — actual disk reclamation happens in the weekly `restic prune` (step 5.2 below), not here.
+3. `restic forget --tag daily --keep-daily 7 --keep-weekly 4 --keep-monthly 3 --keep-yearly 1`. **`forget` only marks snapshots unreferenced** — actual disk reclamation happens in the weekly `backup-check.sh` step 2 below (`restic prune`), not here. Splitting the two keeps the daily run fast: `forget` is O(snapshots); `prune` scans every pack.
 4. *(Optional)* If `HCLOUD_TOKEN` is set in `.env.demo` and not the placeholder, resolve the server ID via the Hetzner API and POST a `create_image` action. Belt-and-braces against OS-level corruption; the restic repo is the primary backup.
 
 Exit codes: **0** success / **1** pg_dump failed / **2** restic backup failed / **3** restic forget failed / **4** Hetzner snapshot API call failed / **5** repo not initialised / **6** password file missing or unreadable. The cron line redirects all output to `/var/log/studybuddy-backup.log`, so a non-zero exit shows up there (and via Promtail → Loki) rather than via cron mail.
