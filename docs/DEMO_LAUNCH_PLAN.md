@@ -639,20 +639,44 @@ What it checks:
 
 Exits 0 if all green; exits 1 with a structured failure summary if any check fails.
 
-### 3.5 Daily DB + content backup — `scripts/demo/backup.sh`
+### 3.5 Daily DB + content backup — `scripts/demo/backup.sh` (restic)
 
-**Run on:** the Hetzner VPS, scheduled via cron at 02:00 UTC.
+**Run on:** the Hetzner VPS via cron. Two scripts on two schedules — both wired up by `provision.sh` step 6 / 8:
 
 ```cron
-0 2 * * * /opt/studybuddy/scripts/demo/backup.sh >> /var/log/studybuddy-backup.log 2>&1
+# Daily backup — pg_dump → restic snapshot
+0 2 * * *  /opt/studybuddy/scripts/demo/backup.sh       >> /var/log/studybuddy-backup.log 2>&1
+
+# Weekly integrity check + prune (Sundays, 1h after the daily so they don't compete for the repo lock)
+0 3 * * 0  /opt/studybuddy/scripts/demo/backup-check.sh >> /var/log/studybuddy-backup.log 2>&1
 ```
 
-What it does:
-1. `docker compose exec -T db pg_dump -U studybuddy -Fc studybuddy > /opt/studybuddy/backups/db-$(date +%Y%m%d).dump.gz`
-2. `rsync -a /opt/studybuddy/content_store/ /opt/studybuddy/backups/content-$(date +%Y%m%d)/`
-3. Prune backups older than 7 days
-4. Trigger a Hetzner snapshot via API (if `HCLOUD_TOKEN` is set in `.env.demo`)
-5. Email a one-line success/failure summary via the existing Gmail SMTP config
+**Daily — `backup.sh`** (3 steps):
+
+1. `pg_dump -Fc` → `/opt/studybuddy/backups/staging/db-latest.dump.gz` (always overwritten; restic dedupes blocks-against-blocks across days so 30 daily dumps take ~1.2× the size of one, not 30×).
+2. `restic backup` → `/opt/studybuddy/backups/restic/` covering three sources: the staging dump from step 1, `/data/content` (the content store), and `/opt/studybuddy/.env.demo`. Encrypted at-rest with AES-256; password at `/etc/restic/studybuddy.password` (generated and printed once by `provision.sh` step 8 — record it in your password manager, otherwise the repo is unrecoverable).
+3. `restic forget --prune` with policy **7 daily / 4 weekly / 3 monthly / 1 yearly**. Then, optionally, trigger a Hetzner Cloud snapshot via the Hetzner API if `HCLOUD_TOKEN` is set in `.env.demo` (belt-and-braces; the restic repo is the primary).
+
+Exit codes: 0 success / 1 pg_dump failed / 2 restic backup failed / 3 restic forget failed / 5 missing repo / 6 missing password file. The high exit codes hard-fail the cron — `provision.sh` documents this in the comment block.
+
+**Weekly — `backup-check.sh`** (2 steps):
+
+1. `restic check --read-data-subset 5%` — reads 5% of pack files to catch silent bit-rot. Full 100% audit is too slow to run weekly; 5% cycles every pack in ~5 months on average.
+2. `restic prune --max-unused 5%` — reclaims disk that the daily `forget`s marked unreferenced but didn't physically delete.
+
+Exit codes: 0 success / 1 check failed (**possible bit-rot — investigate immediately**) / 2 prune failed / 3 repo not initialised / 4 password file unreadable.
+
+**Log routing.** Both scripts write to `/var/log/studybuddy-backup.log`. Promtail (running in the monitoring stack — see §8) ships that log to Grafana Cloud Loki. Query:
+
+```logql
+{job="backups", which="studybuddy"} |~ "(?i)check|prune|error|fatal"
+```
+
+The `BackupSilent`, `ResticCheckFailed`, `ResticPruneFailed`, and `BackupSizeRunaway` alerts (see §10) hard-fire on this stream.
+
+**Local-only repo.** The restic repo lives on the same disk as the originals — deliberate choice for the demo. Off-box backups (S3 / B2 / R2) are deferred until the first paying customer per the residual-risk note in [`mambakkam-net/Plans/BACKUPS.md`](https://github.com/wegofwd2020-hub/mambakkam-net/blob/main/Plans/BACKUPS.md). Until then, a Hetzner snapshot (triggered by step 3 above if `HCLOUD_TOKEN` is set) is the only off-box copy.
+
+**Companion runbook.** The 5-scenario restore drill (single-unit content recovery, full DB restore, .env.demo recovery, repo-corruption recovery, full-disk recovery) lives in `Plans/BACKUPS.md`. Scenario 2 (single content-unit restore) is rehearsed in §4 Day -2 of this plan; the other four are documentation only until the demo is live.
 
 ### 3.6 Auto-deploy CI — `.github/workflows/deploy-demo.yml`
 
