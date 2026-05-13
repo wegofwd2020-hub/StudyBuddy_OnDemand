@@ -349,9 +349,7 @@ async def verify_test_run(token: str, request: Request):
         inbox_email = student_email.replace("+student", "", 1)
         if meta_raw:
             try:
-                meta = json.loads(
-                    meta_raw if isinstance(meta_raw, str) else meta_raw.decode()
-                )
+                meta = json.loads(meta_raw if isinstance(meta_raw, str) else meta_raw.decode())
                 visitor_name = meta.get("name") or None
                 inbox_email = meta.get("original_email") or inbox_email
             except (ValueError, TypeError):
