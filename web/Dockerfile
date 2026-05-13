@@ -17,6 +17,11 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 # Disable Next.js telemetry in builds
 ENV NEXT_TELEMETRY_DISABLED=1
+# NEXT_PUBLIC_* vars are inlined into the client bundle at build time, so they
+# must reach this stage as ARGs (then re-exported as ENV) — runtime env on the
+# container has no effect once the bundle is baked.
+ARG NEXT_PUBLIC_DEMO_MODE=""
+ENV NEXT_PUBLIC_DEMO_MODE=$NEXT_PUBLIC_DEMO_MODE
 RUN npm run build
 
 # Stage 3: minimal production runtime

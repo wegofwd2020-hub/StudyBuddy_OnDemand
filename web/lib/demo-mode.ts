@@ -12,11 +12,11 @@
  * This means:
  *   - For local dev (`npm run dev`) the flag must be in `.env.local` (or
  *     similar) before the dev server starts.
- *   - For Docker production builds the value must reach the build step
- *     via a Dockerfile `ARG` + the docker-compose `build.args` block —
- *     setting it only on the runtime container has no effect on the
- *     already-baked client bundle. (TODO when the demo Dockerfile is
- *     finalised: thread `NEXT_PUBLIC_DEMO_MODE` through.)
+ *   - For Docker production builds the value reaches the builder stage as
+ *     a Dockerfile `ARG` (re-exported as `ENV` before `npm run build`).
+ *     The demo image is built by `.github/workflows/deploy-demo.yml` with
+ *     `build-args: NEXT_PUBLIC_DEMO_MODE=true`; production builds omit it,
+ *     so the flag defaults to `""` and `IS_DEMO_MODE` is `false`.
  *
  * **Why a constant, not a function.** Reading `process.env` once at
  * module-load gives every consumer the same value within a render pass

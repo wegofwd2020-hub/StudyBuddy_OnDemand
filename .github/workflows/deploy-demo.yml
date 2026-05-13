@@ -90,6 +90,8 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository_owner }}/studybuddy-web:latest
             ghcr.io/${{ github.repository_owner }}/studybuddy-web:${{ steps.sha.outputs.short }}
+          build-args: |
+            NEXT_PUBLIC_DEMO_MODE=true
           cache-from: type=gha,scope=web
           cache-to: type=gha,scope=web,mode=max
 
