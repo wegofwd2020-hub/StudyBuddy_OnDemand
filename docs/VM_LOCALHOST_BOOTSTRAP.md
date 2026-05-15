@@ -55,11 +55,11 @@ issues.
 
 | Step | What it does |
 |---|---|
-| **preflight** | Validates `IMAGE_STRATEGY`, `GHCR_PAT`, not running as root, sudo present |
+| **preflight** | Validates `IMAGE_STRATEGY`, `GHCR_PAT`, not running as root, sudo present. Primes `sudo -v` and starts a 60-second background refresher (killed on EXIT) so the script can't silently block on an expired sudo timestamp during long image-pull / db-init phases. |
 | **1/8** | Installs Docker Engine + Compose v2 + git + rsync. Detects Mint/Pop/Neon and uses the upstream Ubuntu/Debian apt repo. |
 | **2/8** | Clones the repo into `/opt/studybuddy`. If already cloned, attempts `git fetch + reset --hard`; continues with the existing checkout if offline. |
 | **3/8** | **GHCR login** (Path A — pull strategy) or **Docker daemon DNS sanity check** (Path B — local build strategy) |
-| **4/8** | Generates `.env.demo` with random secrets + stubbed Auth0/Stripe/SMTP values. Creates `.env` symlink, `web/.env.local` stub, patches `docker-compose.yml` to drop `pgbouncer` from depends-on anchors, writes `docker-compose.localhost.yml` with the three localhost-specific overrides (depends_on, python healthcheck, web volumes reset). |
+| **4/8** | Generates `.env.demo` with random secrets + stubbed Auth0/Stripe/SMTP values. **If a stale `.env.demo` with `<REPLACE_WITH...>` placeholders is detected (left over from a prior `provision.sh` attempt), it is backed up to `.env.demo.placeholder-bak` and regenerated** — otherwise redis fails with "requirepass wrong number of arguments" and postgres bakes the placeholder string as its password. Creates `.env` symlink, `web/.env.local` stub, patches `docker-compose.yml` to drop `pgbouncer` from depends-on anchors, writes `docker-compose.localhost.yml` with localhost-specific overrides (depends_on, python healthcheck, web volumes reset, **db `start_period: 300s` for slow-disk first-init grace**). |
 | **5/8** | Creates the content-store directories at `/opt/studybuddy/content_store_data` and `/opt/studybuddy/data` with mode 777 (so the container's non-root user can write). |
 | **6/8** | (Pull strategy only) `docker cp` extracts the prebuilt Next.js standalone `/app/server.js` from the GHCR web image into `/opt/studybuddy/web/`. This sidesteps a Compose volume-merge issue. |
 | **7/8** | `docker compose pull && up -d`, waits 45s, verifies `/healthz`, runs `alembic upgrade head`, copies `seed.sh` into the api container, runs all 5 seed scripts. |
