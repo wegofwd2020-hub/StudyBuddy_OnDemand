@@ -37,12 +37,24 @@
 #   OLD_REPO_DIR      path to old-machine repo root; required if OLD_HOST set
 #   LOG_FILE          where to write the install log
 #                     (default /tmp/studybuddy-bootstrap-<timestamp>.log)
+#   LOG_DIR           where to write the per-run JSON deployment log
+#                     (default /opt/studybuddy/logs)
 #
 # Install log:
 #   Every step start, success, and failure is written to the log file.
 #   On failure, the script exits non-zero and prints the log path.
 #   The log captures all command output (stdout + stderr) with ANSI codes
 #   stripped, plus structured STEP_START / STEP_OK / STEP_FAIL markers.
+#
+# JSON deployment log:
+#   A second per-run log in JSON is written to
+#   $LOG_DIR/vm-localhost-bootstrap-<timestamp>.json (plus a -latest.json
+#   symlink). Same shape as mambakkam-net's launch-script logger so any
+#   downstream tooling (Promtail/Loki, dashboards) reads both uniformly.
+#   Each step entry has name, status (Success|Error), started_at,
+#   finished_at, duration_ms, and on failure the captured error message.
+#   Atomic write on EXIT trap — file always lands intact even if the
+#   script aborts mid-step.
 #
 # Steps:
 #   1/8  Install Docker, git, rsync
@@ -94,6 +106,83 @@ _log_only() {
   printf '%s\n' "$*" | sed -u 's/\x1b\[[0-9;]*[mGKHF]//g' >> "$LOG_FILE"
 }
 
+# ── JSON deployment log ────────────────────────────────────────────────────
+# Per-run JSON file with one entry per step (name, status, started_at,
+# finished_at, duration_ms, optional error). Same shape as mambakkam-net's
+# scripts/launch/_log.sh so any downstream tooling (Promtail/Loki,
+# dashboards) treats both deployments uniformly. Inlined rather than
+# sourced so the script stays curl-pipe friendly. Atomic tmp+mv on EXIT.
+LOG_DIR="${LOG_DIR:-/opt/studybuddy/logs}"
+sudo mkdir -p "$LOG_DIR" 2>/dev/null || mkdir -p "$LOG_DIR" 2>/dev/null || true
+sudo chown "$USER:$USER" "$LOG_DIR" 2>/dev/null || true
+JSON_LOG_FILE="$LOG_DIR/vm-localhost-bootstrap-${TIMESTAMP}.json"
+JSON_LOG_LATEST="$LOG_DIR/vm-localhost-bootstrap-latest.json"
+__JSON_STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+__JSON_STARTED_MS="$(date +%s%3N)"
+__JSON_STEPS=()
+__JSON_CUR_NAME=""
+__JSON_CUR_STARTED_AT=""
+__JSON_CUR_STARTED_MS=""
+
+__json_str() {
+  local s="$1"
+  s="${s//\\/\\\\}"; s="${s//\"/\\\"}"
+  s="${s//$'\n'/\\n}"; s="${s//$'\r'/\\r}"; s="${s//$'\t'/\\t}"
+  printf '"%s"' "$s"
+}
+
+__json_step_open() {
+  __JSON_CUR_NAME="$1"
+  __JSON_CUR_STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  __JSON_CUR_STARTED_MS="$(date +%s%3N)"
+}
+
+__json_step_close() {
+  [[ -z "$__JSON_CUR_NAME" ]] && return 0
+  local status="$1" err="${2:-}" fin_at fin_ms dur
+  fin_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  fin_ms="$(date +%s%3N)"
+  dur=$((fin_ms - __JSON_CUR_STARTED_MS))
+  if [[ "$status" == "Error" ]]; then
+    __JSON_STEPS+=(
+      "$(printf '{"name":%s,"status":"Error","error":%s,"started_at":"%s","finished_at":"%s","duration_ms":%d}' \
+        "$(__json_str "$__JSON_CUR_NAME")" "$(__json_str "$err")" \
+        "$__JSON_CUR_STARTED_AT" "$fin_at" "$dur")"
+    )
+  else
+    __JSON_STEPS+=(
+      "$(printf '{"name":%s,"status":"Success","started_at":"%s","finished_at":"%s","duration_ms":%d}' \
+        "$(__json_str "$__JSON_CUR_NAME")" \
+        "$__JSON_CUR_STARTED_AT" "$fin_at" "$dur")"
+    )
+  fi
+  __JSON_CUR_NAME=""
+}
+
+__json_finalize() {
+  local exit_code=$?
+  [[ -z "${JSON_LOG_FILE:-}" ]] && return 0
+  if [[ -n "$__JSON_CUR_NAME" ]]; then
+    __json_step_close Error "script exited (code=$exit_code) before step finished"
+  fi
+  local fin_at fin_ms total_dur host steps_csv tmp
+  fin_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  fin_ms="$(date +%s%3N)"
+  total_dur=$((fin_ms - __JSON_STARTED_MS))
+  host="$(hostname -s 2>/dev/null || echo unknown)"
+  local IFS=,
+  steps_csv="${__JSON_STEPS[*]:-}"
+  tmp="$JSON_LOG_FILE.tmp"
+  printf '{"script":"vm-localhost-bootstrap","host":%s,"image_strategy":%s,"started_at":"%s","finished_at":"%s","duration_ms":%d,"exit_code":%d,"steps":[%s]}\n' \
+    "$(__json_str "$host")" "$(__json_str "$IMAGE_STRATEGY")" \
+    "$__JSON_STARTED_AT" "$fin_at" "$total_dur" "$exit_code" "$steps_csv" > "$tmp" 2>/dev/null
+  mv "$tmp" "$JSON_LOG_FILE" 2>/dev/null
+  ln -sfn "$JSON_LOG_FILE" "$JSON_LOG_LATEST" 2>/dev/null
+  JSON_LOG_FILE=""
+  return 0
+}
+trap __json_finalize EXIT
+
 # ── Helpers ────────────────────────────────────────────────────────────────
 bold=$'\033[1m'; green=$'\033[0;32m'; yellow=$'\033[0;33m'; red=$'\033[0;31m'; reset=$'\033[0m'
 info()  { echo -e "${green}[bootstrap]${reset}  $*"; }
@@ -101,8 +190,10 @@ warn()  { echo -e "${yellow}[warn]${reset}       $*"; }
 fail()  { echo -e "${red}[FAIL]${reset}       $*" >&2; exit 1; }
 
 step() {
+  __json_step_close Success
   CURRENT_STEP="$*"
   STEP_STARTED_AT="$(date -u +%H:%M:%SZ)"
+  __json_step_open "$CURRENT_STEP"
   echo ""
   echo -e "${bold}── ${CURRENT_STEP} ──${reset}"
   _log_only "STEP_START [${STEP_STARTED_AT}] ${CURRENT_STEP}"
@@ -110,6 +201,7 @@ step() {
 
 step_ok() {
   local now; now="$(date -u +%H:%M:%SZ)"
+  __json_step_close Success
   _log_only "STEP_OK    [${now}] ${CURRENT_STEP}"
   echo -e "${green}  ✓ step OK${reset}"
 }
@@ -119,6 +211,7 @@ step_ok() {
 on_error() {
   local rc=$?
   local now; now="$(date -u +%H:%M:%SZ)"
+  __json_step_close Error "exit $rc; tail of $LOG_FILE: $(tail -n 5 "$LOG_FILE" 2>/dev/null | tr '\n' ' ')"
   _log_only "STEP_FAIL  [${now}] ${CURRENT_STEP} (exit $rc)"
   echo ""
   echo -e "${red}════════════════════════════════════════════════════════════════════${reset}" >&2
@@ -141,6 +234,7 @@ _log_only "user:    ${USER}"
 _log_only "strategy: ${IMAGE_STRATEGY}"
 _log_only "================================================================"
 info "install log: ${LOG_FILE}"
+info "json log:    ${JSON_LOG_FILE}"
 
 # ── Preflight ──────────────────────────────────────────────────────────────
 step "preflight  Validate config"
@@ -614,6 +708,7 @@ echo -e "${green}✓ StudyBuddy localhost-mirror bootstrap complete${reset}"
 echo -e "${bold}═════════════════════════════════════════════════════════════════════${reset}"
 echo ""
 info "install log: $LOG_FILE"
+info "json log:    $JSON_LOG_FILE  (symlink: $JSON_LOG_LATEST)"
 echo ""
 
 if [[ "$IMAGE_STRATEGY" == "pull" ]]; then
