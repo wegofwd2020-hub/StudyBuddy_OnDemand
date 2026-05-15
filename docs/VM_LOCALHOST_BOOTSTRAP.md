@@ -76,7 +76,7 @@ run to confirm what happened.
 | Var | Purpose | Default |
 |---|---|---|
 | `LOG_FILE` | Where to write the install log (text) | `/tmp/studybuddy-bootstrap-<UTC-ts>.log` |
-| `LOG_DIR` | Where to write the JSON deployment log | `/opt/studybuddy/logs` |
+| `LOG_DIR` | Where to write the JSON deployment log | `$HOME/Documents/studybuddy/logs` |
 | `IMAGE_STRATEGY` | `pull` (GHCR) or `build` (local) | `pull` |
 | `GHCR_PAT` | GitHub PAT with `read:packages` | **required if pull** |
 | `GHCR_USER` | GitHub owner for images | `wegofwd2020-hub` |
@@ -259,7 +259,7 @@ entry per step. Same shape as mambakkam-net's `scripts/launch/_log.sh`
 output — so any downstream tooling (Promtail/Loki, dashboards, grep+jq)
 treats both deployments uniformly.
 
-Default path: `/opt/studybuddy/logs/vm-localhost-bootstrap-<UTC-timestamp>.json`,
+Default path: `$HOME/Documents/studybuddy/logs/vm-localhost-bootstrap-<UTC-timestamp>.json`,
 plus a `vm-localhost-bootstrap-latest.json` symlink that always points at
 the most recent run. Override the directory with `LOG_DIR=/path/to/dir`.
 
@@ -296,14 +296,14 @@ Quick queries:
 ```bash
 # What step failed, on the latest run?
 jq '.steps[] | select(.status == "Error")' \
-  /opt/studybuddy/logs/vm-localhost-bootstrap-latest.json
+  $HOME/Documents/studybuddy/logs/vm-localhost-bootstrap-latest.json
 
 # Total wall-clock time per step, sorted descending (find the slow ones)
 jq -r '.steps[] | [.duration_ms, .name] | @tsv' \
-  /opt/studybuddy/logs/vm-localhost-bootstrap-latest.json | sort -rn
+  $HOME/Documents/studybuddy/logs/vm-localhost-bootstrap-latest.json | sort -rn
 
 # Compare run-time of the last 5 deployments
-ls -t /opt/studybuddy/logs/vm-localhost-bootstrap-2*.json | head -5 \
+ls -t $HOME/Documents/studybuddy/logs/vm-localhost-bootstrap-2*.json | head -5 \
   | xargs -I{} jq -r '[.started_at, .duration_ms, .exit_code] | @tsv' {}
 ```
 

@@ -38,7 +38,9 @@
 #   LOG_FILE          where to write the install log
 #                     (default /tmp/studybuddy-bootstrap-<timestamp>.log)
 #   LOG_DIR           where to write the per-run JSON deployment log
-#                     (default /opt/studybuddy/logs)
+#                     (default $HOME/Documents/studybuddy/logs — kept
+#                     OUT of $INSTALL_DIR so the dir doesn't pre-exist
+#                     and block Step 2's git clone into /opt/studybuddy)
 #
 # Install log:
 #   Every step start, success, and failure is written to the log file.
@@ -122,9 +124,12 @@ _log_only() {
 # scripts/launch/_log.sh so any downstream tooling (Promtail/Loki,
 # dashboards) treats both deployments uniformly. Inlined rather than
 # sourced so the script stays curl-pipe friendly. Atomic tmp+mv on EXIT.
-LOG_DIR="${LOG_DIR:-/opt/studybuddy/logs}"
-sudo mkdir -p "$LOG_DIR" 2>/dev/null || mkdir -p "$LOG_DIR" 2>/dev/null || true
-sudo chown "$USER:$USER" "$LOG_DIR" 2>/dev/null || true
+# Keep the log dir out of $INSTALL_DIR so it doesn't pre-create
+# /opt/studybuddy/ and block Step 2's git clone (the clone needs the
+# target to be either non-existent or empty). $HOME is owned by the
+# running user, so no sudo dance needed here either.
+LOG_DIR="${LOG_DIR:-$HOME/Documents/studybuddy/logs}"
+mkdir -p "$LOG_DIR" 2>/dev/null || true
 JSON_LOG_FILE="$LOG_DIR/vm-localhost-bootstrap-${TIMESTAMP}.json"
 JSON_LOG_LATEST="$LOG_DIR/vm-localhost-bootstrap-latest.json"
 __JSON_STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
