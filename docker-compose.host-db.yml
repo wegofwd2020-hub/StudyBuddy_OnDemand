@@ -1,0 +1,119 @@
+# =============================================================================
+# StudyBuddy OnDemand — Docker Compose override: use HOST Postgres (pg14)
+#
+# Why: avoid the 5432 collision on a dev box that already runs a system
+# Postgres. Drops the containerized `db` and `pgbouncer` services; repoints
+# every consumer at the host's pg14 via host.docker.internal:5432.
+#
+# Prereqs (one-time, see CLAUDE/host-db walkthrough):
+#   1. pgvector installed for pg14:  apt install postgresql-14-pgvector
+#   2. `studybuddy` user + `studybuddy` and `studybuddy_test` databases exist,
+#      owned by `studybuddy`, password matches POSTGRES_PASSWORD in .env
+#   3. pgvector + pgcrypto extensions created in both databases
+#   4. pg_hba.conf allows host 172.16.0.0/12 scram-sha-256 to those DBs
+#   5. postgresql.conf has listen_addresses = '*'
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.host-db.yml up -d \
+#     redis
+#   docker compose -f docker-compose.yml -f docker-compose.host-db.yml run --rm \
+#     migrate
+#   docker compose -f docker-compose.yml -f docker-compose.host-db.yml up -d \
+#     api celery-worker celery-pipeline celery-beat-primary celery-beat-standby web
+# =============================================================================
+
+services:
+
+  # Containerized Postgres — DISABLED. Host pg14 is the system of record.
+  db:
+    profiles: ["never"]
+    deploy:
+      replicas: 0
+
+  # PgBouncer — DISABLED. Host pg14 has plenty of headroom for demo load;
+  # connection pooling adds value only at hundreds-of-clients scale.
+  pgbouncer:
+    profiles: ["never"]
+    deploy:
+      replicas: 0
+
+  migrate:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      DATABASE_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@host.docker.internal:5432/studybuddy
+      DIRECT_DB_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@host.docker.internal:5432/studybuddy
+      TEST_DB_URL: ""
+    depends_on: !override {}
+
+  api:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      DATABASE_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@host.docker.internal:5432/studybuddy
+      DIRECT_DB_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@host.docker.internal:5432/studybuddy
+      TEST_DB_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@host.docker.internal:5432/studybuddy_test
+    depends_on: !override
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  celery-worker:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      DATABASE_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@host.docker.internal:5432/studybuddy
+      DIRECT_DB_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@host.docker.internal:5432/studybuddy
+    depends_on: !override
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  celery-pipeline:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      DATABASE_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@host.docker.internal:5432/studybuddy
+      DIRECT_DB_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@host.docker.internal:5432/studybuddy
+    depends_on: !override
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  celery-beat-primary:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      DATABASE_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@host.docker.internal:5432/studybuddy
+      DIRECT_DB_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@host.docker.internal:5432/studybuddy
+    depends_on: !override
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  celery-beat-standby:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      DATABASE_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@host.docker.internal:5432/studybuddy
+      DIRECT_DB_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@host.docker.internal:5432/studybuddy
+    depends_on: !override
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  pipeline:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      DATABASE_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@host.docker.internal:5432/studybuddy
+    depends_on: !override
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
