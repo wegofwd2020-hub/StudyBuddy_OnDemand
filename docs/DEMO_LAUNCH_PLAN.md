@@ -1,12 +1,12 @@
 # Demo Hosting — Launch Plan (target: Day 0 / Sun 2026-05-17)
 
 **Audience:** Sivakumar (operator) · future on-call deputy
-**Document type:** End-to-end runbook from "today's main branch" → "live demo on `demo.studybuddy.app`"
-**Companion docs:** [`studybuddy-docs/docs/dev/DEMO_HOSTING_GUIDE.md`](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/docs/demo-walkthrough/docs/dev/DEMO_HOSTING_GUIDE.md) (Hetzner-based architecture) · [`studybuddy-docs/docs/dev/DEMO_WALKTHROUGH.md`](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/docs/demo-walkthrough/docs/dev/DEMO_WALKTHROUGH.md) (click-by-click demo script) · [`studybuddy-docs/docs/operations/dns-and-email-setup.md`](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/docs/demo-walkthrough/docs/operations/dns-and-email-setup.md) (domain registration + Cloudflare DNS + Zoho Mail step-by-step) · [`DEMO_EMAIL_INVENTORY.md`](DEMO_EMAIL_INVENTORY.md) (mailbox inventory at a glance — which to create, which to reuse) · [`studybuddy-docs/docs/dev/DEV_ACCOUNTS.md`](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/docs/dev/DEV_ACCOUNTS.md) (account inventory) · [`mambakkam-net/Plans/DEMO_LAUNCH_PLAN.md`](https://github.com/wegofwd2020-hub/mambakkam-net/blob/main/Plans/DEMO_LAUNCH_PLAN.md) (the **first tenant** on the same Hetzner CX22 — its launch is hours before this one)
+**Document type:** End-to-end runbook from "today's main branch" → "live demo on `demo.usestudybuddy.com`"
+**Companion docs:** [`studybuddy-docs/docs/dev/DEMO_HOSTING_GUIDE.md`](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/docs/demo-walkthrough/docs/dev/DEMO_HOSTING_GUIDE.md) (Hetzner-based architecture) · [`studybuddy-docs/docs/dev/DEMO_WALKTHROUGH.md`](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/docs/demo-walkthrough/docs/dev/DEMO_WALKTHROUGH.md) (click-by-click demo script) · [`studybuddy-docs/docs/operations/dns-and-email-setup.md`](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/docs/demo-walkthrough/docs/operations/dns-and-email-setup.md) (domain registration + Cloudflare DNS + Zoho Mail step-by-step) · [`DEMO_EMAIL_INVENTORY.md`](DEMO_EMAIL_INVENTORY.md) (mailbox inventory at a glance — which to create, which to reuse) · [`studybuddy-docs/docs/dev/DEV_ACCOUNTS.md`](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/docs/dev/DEV_ACCOUNTS.md) (account inventory) · [`mambakkam-net/Plans/DEMO_LAUNCH_PLAN.md`](https://github.com/wegofwd2020-hub/mambakkam-net/blob/main/Plans/DEMO_LAUNCH_PLAN.md) (the **first tenant** on the same Hetzner CX23 — its launch is hours before this one)
 
 ---
 
-## Tenancy Position — Second Tenant on a Shared Hetzner CX22
+## Tenancy Position — Second Tenant on a Shared Hetzner CX23
 
 > **Decided 2026-05-09 (inverted from 2026-05-08).** mambakkam.net is the
 > first tenant on the box and cuts over at **T-0 = 09:00 EDT** on Day 0
@@ -22,10 +22,10 @@
 >   script is limited to: clone the repo to `/opt/studybuddy`, populate
 >   `.env.demo`, ensure pgvector tooling, set up the StudyBuddy-specific
 >   backup cron (offset to 02:00 UTC vs. mambakkam's 02:30 UTC), drop the
->   `infra/nginx/demo.studybuddy.app.conf` vhost into the existing host
+>   `infra/nginx/demo.usestudybuddy.com.conf` vhost into the existing host
 >   nginx, and pull/up the compose stack.
 > - The Cloudflare Origin Cert is **already in place** at
->   `/etc/ssl/cloudflare/origin-{cert,key}.pem` with `demo.studybuddy.app`
+>   `/etc/ssl/cloudflare/origin-{cert,key}.pem` with `demo.usestudybuddy.com`
 >   in the SAN list (mambakkam generated it on Day -1 evening with both
 >   hostnames). Do not re-issue.
 > - mambakkam.net pays the $5/mo VPS bill; StudyBuddy joins at zero
@@ -73,7 +73,7 @@ These ship with this PR. Use them as-is; no further code work needed.
 | Deliverable | File | Purpose |
 |---|---|---|
 | Demo Compose override | [`docker-compose.demo.yml`](../docker-compose.demo.yml) | Production-shaped: drops PgBouncer + Beat-standby + stripe-cli, adds Nginx, persistent named volumes, `restart: always` on every service |
-| First-time provisioning | [`scripts/demo/provision.sh`](../scripts/demo/provision.sh) | Idempotent Hetzner CX22 bootstrap — apt, ufw, fail2ban, Docker install, repo clone, .env.demo skeleton |
+| First-time provisioning | [`scripts/demo/provision.sh`](../scripts/demo/provision.sh) | Idempotent Hetzner CX23 bootstrap — apt, ufw, fail2ban, Docker install, repo clone, .env.demo skeleton |
 | Content sync (one command) | [`scripts/demo/sync-content.sh`](../scripts/demo/sync-content.sh) | Inject G11 visuals + rsync content_store_data/ → /data/content/ + rsync web/public/sample-visuals/ → /data/sample-visuals/. Optional --dry-run, --skip-inject, --smoke flags. Covers all three asset classes (TEXT + GRAPHICS + VIDEO) in one operator step. |
 | Seeding orchestrator | [`scripts/demo/seed.sh`](../scripts/demo/seed.sh) | Runs the 5 demo seed scripts in dependency order (super_admin → milfordwaterford → demo_test_account → phase_a_dev → content_db) |
 | Post-deploy smoke check | [`scripts/demo/smoke.sh`](../scripts/demo/smoke.sh) | Curl-based: `/healthz`, login as 4 persona types, fetch one lesson + one quiz, exit 1 on any 4xx/5xx |
@@ -95,52 +95,52 @@ green-light command/check.
 
 #### Phase 1 — Domain registration (~15 min)
 
-- [ ] Domain registered (Cloudflare Registrar — `studybuddy.app` recommended)
-  · *verify:* `dig NS studybuddy.app` returns Cloudflare nameservers (`*.ns.cloudflare.com`)
+- [ ] Domain registered (Cloudflare Registrar — `usestudybuddy.com` recommended)
+  · *verify:* `dig NS usestudybuddy.com` returns Cloudflare nameservers (`*.ns.cloudflare.com`)
 
-#### Phase 2 — Cloudflare DNS for `demo.studybuddy.app` (~10 min)
+#### Phase 2 — Cloudflare DNS for `demo.usestudybuddy.com` (~10 min)
 
 - [ ] A record `demo` → VPS public IP, **Proxied** (orange cloud)
-  · *verify:* `dig demo.studybuddy.app +short` returns a Cloudflare-edge IP (104.21.x.x or 172.67.x.x), **NOT** the raw VPS IP
+  · *verify:* `dig demo.usestudybuddy.com +short` returns a Cloudflare-edge IP (104.21.x.x or 172.67.x.x), **NOT** the raw VPS IP
 - [ ] SSL/TLS mode set to **Full (strict)**; **Always Use HTTPS** toggled on
-  · *verify:* `curl -vI https://demo.studybuddy.app` shows a valid Cloudflare-edge TLS cert + 200/301 response
+  · *verify:* `curl -vI https://demo.usestudybuddy.com` shows a valid Cloudflare-edge TLS cert + 200/301 response
 - [ ] Cloudflare Origin Certificate generated; cert + key installed at `/etc/ssl/cloudflare/origin-{cert,key}.pem` on the VPS
-  · *verify:* nginx container starts cleanly; `curl https://demo.studybuddy.app/healthz` returns 200 with `db:ok`
+  · *verify:* nginx container starts cleanly; `curl https://demo.usestudybuddy.com/healthz` returns 200 with `db:ok`
 - [ ] Pre-launch (Day -1 / Sat May 16 EOD): TTL on the `demo` A record lowered to 300s
   · *verify:* Cloudflare DNS UI shows "TTL: 5 min" instead of "Auto"
 
 #### Phase 3 — Zoho Mail free-tier (~30 min)
 
 - [ ] Zoho Mail account created; domain verification TXT record added to Cloudflare DNS
-  · *verify:* `dig TXT studybuddy.app +short` shows `zoho-verification=zb...`
-- [ ] Two mailboxes live: `support@studybuddy.app`, `sales@studybuddy.app`
+  · *verify:* `dig TXT usestudybuddy.com +short` shows `zoho-verification=zb...`
+- [ ] Two mailboxes live: `support@usestudybuddy.com`, `sales@usestudybuddy.com`
   · *verify:* Send a test from each via Zoho webmail to your personal Gmail; reply arrives back in Zoho
 - [ ] MX records (mx.zoho.com priorities 10/20/50) added to Cloudflare DNS
-  · *verify:* `dig MX studybuddy.app +short` lists `mx.zoho.com`, `mx2.zoho.com`, `mx3.zoho.com`
+  · *verify:* `dig MX usestudybuddy.com +short` lists `mx.zoho.com`, `mx2.zoho.com`, `mx3.zoho.com`
 - [ ] SPF record `v=spf1 include:zoho.com ~all` added (single TXT at apex)
-  · *verify:* `dig TXT studybuddy.app +short | grep spf1` returns the record
+  · *verify:* `dig TXT usestudybuddy.com +short | grep spf1` returns the record
 - [ ] DKIM record `zmail._domainkey` added with the Zoho-supplied public key
   · *verify:* All three (MX, SPF, DKIM) show green checkmarks in Zoho's verification UI
 - [ ] DMARC record `_dmarc` added with `v=DMARC1; p=quarantine; rua=mailto:support@...`
-  · *verify:* `dig TXT _dmarc.studybuddy.app +short` returns the policy
+  · *verify:* `dig TXT _dmarc.usestudybuddy.com +short` returns the policy
 
 #### Phase 4 — Gmail send-as (~15 min)
 
 - [ ] Zoho App Password generated for the Gmail integration (NOT the regular Zoho login password)
   · *verify:* App Password copied to a password manager (one-time display from Zoho)
-- [ ] `support@studybuddy.app` added as a send-as identity in Gmail (SMTP `smtp.zoho.com:465`, SSL on)
-  · *verify:* Compose new mail in Gmail, From dropdown shows `StudyBuddy Support <support@studybuddy.app>`
-- [ ] (Optional) `sales@studybuddy.app` added as a second send-as identity
+- [ ] `support@usestudybuddy.com` added as a send-as identity in Gmail (SMTP `smtp.zoho.com:465`, SSL on)
+  · *verify:* Compose new mail in Gmail, From dropdown shows `StudyBuddy Support <support@usestudybuddy.com>`
+- [ ] (Optional) `sales@usestudybuddy.com` added as a second send-as identity
   · *verify:* same check for the sales address
 
 #### Phase 5 — Wire SMTP into the app (~5 min)
 
-- [ ] `.env.demo` SMTP block updated to Zoho values (`SMTP_HOST=smtp.zoho.com`, `SMTP_PORT=465`, `SMTP_USER=support@studybuddy.app`, `SMTP_PASSWORD=<app-password>`, `SMTP_USE_SSL=true`)
+- [ ] `.env.demo` SMTP block updated to Zoho values (`SMTP_HOST=smtp.zoho.com`, `SMTP_PORT=465`, `SMTP_USER=support@usestudybuddy.com`, `SMTP_PASSWORD=<app-password>`, `SMTP_USE_SSL=true`)
   · *verify:* `docker compose exec api env | grep SMTP` shows the new values
 - [ ] api + celery-worker restarted to pick up the new env
   · *verify:* `docker compose ps` shows recent restart timestamps
 - [ ] App-originated email arrives from the custom domain
-  · *verify:* Trigger a forgot-password from a demo student; the reset email arrives From `StudyBuddy <support@studybuddy.app>`
+  · *verify:* Trigger a forgot-password from a demo student; the reset email arrives From `StudyBuddy <support@usestudybuddy.com>`
 
 ### 1.B Content — must-have
 
@@ -165,7 +165,7 @@ The pipeline runs offline and outputs are pushed to the demo VPS. No `ANTHROPIC_
 |---|---|---|
 | Fix 2 outstanding migration table entries (0056, 0057 in CLAUDE.md) | 5 min | Never skip — already in this PR |
 | Custom branded 404 + 500 error pages | 1 hour | Default Next.js pages are acceptable for demo |
-| `demo.studybuddy.app` favicon + Apple touch icon | 30 min | Browser-default favicon is acceptable |
+| `demo.usestudybuddy.com` favicon + Apple touch icon | 30 min | Browser-default favicon is acceptable |
 | Demo banner ("This is a demo — content resets nightly") | 30 min | Useful but not critical |
 | Status page (Cloudflare Workers) | 2 hours | Can be added post-launch |
 | Sentry environment tag = `demo` | 15 min | Should ship — single env var change |
@@ -179,13 +179,13 @@ A green checkbox on each of these means we enter the test phase clean:
 - [ ] All Tier-1.B content built and the catalogue pushed to a staging directory
 - [ ] `python3 scripts/doc_audit/run_all.py` exits clean (zero drift)
 - [ ] `bun run typecheck` (web) + `pytest` (backend) green on `main`
-- [ ] One **complete dry-run on a throwaway Hetzner VPS** (cheaper than figuring out failures live on Day 0 / Sun May 17): provision → seed → smoke → tear down — including the DNS + email phases against a throwaway subdomain (e.g. `dryrun.studybuddy.app`)
+- [ ] One **complete dry-run on a throwaway Hetzner VPS** (cheaper than figuring out failures live on Day 0 / Sun May 17): provision → seed → smoke → tear down — including the DNS + email phases against a throwaway subdomain (e.g. `dryrun.usestudybuddy.com`)
 
 ---
 
 ## §2 · Day 0 (Sun May 17) Launch-Day Runbook
 
-### StudyBuddy is the second tenant on the shared CX22
+### StudyBuddy is the second tenant on the shared CX23
 
 mambakkam.net cuts over first on Day 0 at 09:00 EDT (per
 [mambakkam-net/Plans/DEMO_LAUNCH_PLAN.md](https://github.com/wegofwd2020-hub/mambakkam-net/blob/main/Plans/DEMO_LAUNCH_PLAN.md)).
@@ -204,20 +204,20 @@ that evening, with a §10 cheat-sheet showing which value lands in which
 The StudyBuddy-relevant slice (sections §7–§9 of that doc; ~90 min
 within the 3.5-hour total):
 
-- **§7 (19:00–19:25)** — `studybuddy.app` domain + DNS + Zoho.
+- **§7 (19:00–19:25)** — `usestudybuddy.com` domain + DNS + Zoho.
   Sub-steps mirror ACCOUNT_SETUP.md §7.1–§7.7:
-    - 7.1 Register `studybuddy.app` at Cloudflare Registrar (same account as mambakkam — no new signup);
-    - 7.2 Pre-stage `demo.studybuddy.app` A record at TTL=300s, **proxy off** (operator updates the IP value + flips the proxy on Day 0 at 12:45);
-    - 7.3 Cloudflare SSL/TLS for `studybuddy.app` → **Full (strict)** + **Always Use HTTPS** on (without these, the Day 0 cutover serves a cert error or first hits land on plain HTTP);
-    - 7.4 Add `studybuddy.app` as a second domain in the existing Zoho org (created by mambakkam in §3);
-    - 7.5 Mailboxes `support@studybuddy.app` + `sales@studybuddy.app` + MX/SPF/DKIM/DMARC records in Cloudflare DNS;
+    - 7.1 Register `usestudybuddy.com` at Cloudflare Registrar (same account as mambakkam — no new signup);
+    - 7.2 Pre-stage `demo.usestudybuddy.com` A record at TTL=300s, **proxy off** (operator updates the IP value + flips the proxy on Day 0 at 12:45);
+    - 7.3 Cloudflare SSL/TLS for `usestudybuddy.com` → **Full (strict)** + **Always Use HTTPS** on (without these, the Day 0 cutover serves a cert error or first hits land on plain HTTP);
+    - 7.4 Add `usestudybuddy.com` as a second domain in the existing Zoho org (created by mambakkam in §3);
+    - 7.5 Mailboxes `support@usestudybuddy.com` + `sales@usestudybuddy.com` + MX/SPF/DKIM/DMARC records in Cloudflare DNS;
     - 7.6 Generate a second Zoho App Password for the StudyBuddy Gmail send-as identity;
-    - 7.7 *(Optional but recommended)* Add `support@studybuddy.app` as a Gmail send-as identity (SMTP `smtp.zoho.com:465`, SSL on, password from 7.6). Without this, app-outbound still works (FastAPI sends via Zoho SMTP directly), but composing replies from the operator's Gmail UI as `support@studybuddy.app` won't.
+    - 7.7 *(Optional but recommended)* Add `support@usestudybuddy.com` as a Gmail send-as identity (SMTP `smtp.zoho.com:465`, SSL on, password from 7.6). Without this, app-outbound still works (FastAPI sends via Zoho SMTP directly), but composing replies from the operator's Gmail UI as `support@usestudybuddy.com` won't.
 - **§8 (19:25–19:50)** — Auth0 free dev tenant. Create three applications: Student SPA, Teacher SPA, Backend M2M (per ACCOUNT_SETUP.md §8.2–§8.4). Save the **7 values that land in `.env.demo`** (per `CLAUDE.md` auth block): `AUTH0_DOMAIN`, `AUTH0_JWKS_URL`, `AUTH0_STUDENT_CLIENT_ID`, `AUTH0_TEACHER_CLIENT_ID`, `AUTH0_MGMT_CLIENT_ID`, `AUTH0_MGMT_CLIENT_SECRET`, `AUTH0_MGMT_API_URL`. ACCOUNT_SETUP.md §8.6 ends with a verify step (decode a fresh JWT to confirm the JWKS endpoint resolves).
 - **§9 (19:50–20:30)** — Stripe test mode (`sk_test_`, `pk_test_`, webhook signing secret — per §9.1-§9.3); Sentry project + DSN with `environment=demo` tag (§9.4-§9.5); final go/no-go at 20:25-20:30 (§9.6).
 
 The Cloudflare Origin Cert is generated by mambakkam in §1.3 with
-`demo.studybuddy.app` already in the SAN list — StudyBuddy reuses the
+`demo.usestudybuddy.com` already in the SAN list — StudyBuddy reuses the
 same cert; nothing extra to issue.
 
 ### Day 0 (Sun May 17) — Server Cutover Runbook
@@ -231,7 +231,7 @@ stability check) and cuts over at **T+4h = 13:00 EDT**.
 | 08:00 | — | mambakkam.net first-tenant provisioning starts (driven by mambakkam's launch plan §2). StudyBuddy passive observer. | mambakkam | mambakkam green by 09:00 |
 | 09:00 | mb T-0 | mambakkam.net live; StudyBuddy still un-launched. | mambakkam | — |
 | 09:30 | mb T+30m | mambakkam first-traffic check passes | mambakkam | No 5xx |
-| 11:00 | mb T+2h / sb T-2h | **Pre-flight on the shared box** — confirm mambakkam still healthy (`docker stats`, no OOM); confirm `/etc/ssl/cloudflare/` has the Origin Cert with SAN already including `demo.studybuddy.app` | Operator | mambakkam unaffected; cert SAN green |
+| 11:00 | mb T+2h / sb T-2h | **Pre-flight on the shared box** — confirm mambakkam still healthy (`docker stats`, no OOM); confirm `/etc/ssl/cloudflare/` has the Origin Cert with SAN already including `demo.usestudybuddy.com` | Operator | mambakkam unaffected; cert SAN green |
 | 11:05 | sb T-1h55m | Run StudyBuddy's `scripts/demo/provision.sh` (second-tenant variant — ~5 min; see §2.5 below) | Operator | Steps 1-9 complete (step 0 is pre-flight and confirms mambakkam first-tenant artefacts) |
 | 11:15 | sb T-1h45m | Edit `/opt/studybuddy/.env.demo` — paste real Auth0 / Stripe-test / Gmail App Password / Sentry DSN values from your password manager; replace 5 `<REPLACE_WITH_openssl_rand_hex_32>` lines with `openssl rand -hex 32` outputs | Operator | `grep '<' /opt/studybuddy/.env.demo` returns no placeholders |
 | 11:30 | sb T-1h30m | Append GH Actions deploy SSH pubkey to `/home/deploy/.ssh/authorized_keys` (mambakkam's already there — append, do not overwrite) | Operator | `wc -l /home/deploy/.ssh/authorized_keys` shows 2+ keys |
@@ -240,12 +240,12 @@ stability check) and cuts over at **T+4h = 13:00 EDT**.
 | 12:00 | sb T-1h | Reload host nginx so the StudyBuddy vhost picks up the new upstream: `sudo nginx -t && sudo systemctl reload nginx` | Operator | nginx reload OK; mambakkam still serving; `curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8443/healthz` returns 200 |
 | 12:05 | sb T-55m | Run seed (migrations already applied by the `migrate` one-shot in step 11:50): `docker compose exec api bash /app/scripts/demo/seed.sh` | Operator | All 5 seed scripts emit `done` or `skip`; no errors |
 | 12:30 | sb T-30m | Local smoke against StudyBuddy compose-internal nginx: `bash scripts/demo/smoke.sh http://127.0.0.1:8443` | Operator | Exit 0 |
-| 12:45 | sb T-15m | DNS cutover at Cloudflare: change the `demo.studybuddy.app` A record value from the Day -1 placeholder to the real VPS public IP, **enable proxy** (orange cloud) | Operator | `dig +short demo.studybuddy.app` returns Cloudflare-edge IP within 60s |
-| 12:50 | sb T-10m | Public smoke from your laptop: `bash scripts/demo/smoke.sh https://demo.studybuddy.app` | Operator | Exit 0 |
+| 12:45 | sb T-15m | DNS cutover at Cloudflare: change the `demo.usestudybuddy.com` A record value from the Day -1 placeholder to the real VPS public IP, **enable proxy** (orange cloud) | Operator | `dig +short demo.usestudybuddy.com` returns Cloudflare-edge IP within 60s |
+| 12:50 | sb T-10m | Public smoke from your laptop: `bash scripts/demo/smoke.sh https://demo.usestudybuddy.com` | Operator | Exit 0 |
 | 12:55 | sb T-5m | Persona walkthrough (5 personas × ~1 min each) | Operator | All 5 reach their dashboard |
-| **13:00** | **sb T-0** | **GO LIVE** — share `https://demo.studybuddy.app` link | Operator | Announcement sent; both sites live on shared CX22 |
+| **13:00** | **sb T-0** | **GO LIVE** — share `https://demo.usestudybuddy.com` link | Operator | Announcement sent; both sites live on shared CX23 |
 | 13:30 | sb T+30m | First user telemetry — Sentry, FastAPI access log, Grafana Cloud dashboards | Operator | No 5xx; no warning-level Sentry events |
-| 15:00 | sb T+2h | Co-tenant load check — `docker stats`; mambakkam unaffected | Operator | CX22 < 80% RAM combined |
+| 15:00 | sb T+2h | Co-tenant load check — `docker stats`; mambakkam unaffected | Operator | CX23 < 80% RAM combined |
 | 17:00 | sb T+4h | First post-launch incident review (even if uneventful) | Operator | Notes captured for retrospective |
 | Next day 02:00 UTC | — | First nightly DB + content backup runs (`0 2 * * *`); 30 min before mambakkam's 02:30 UTC backup | Auto | Backup file present in `/opt/studybuddy/backups/` |
 
@@ -277,7 +277,7 @@ separate in their head:
 ### Sequence A — Cold start (manual; ~20 minutes as second tenant)
 
 Run this **after** mambakkam.net's `provision.sh` has bootstrapped the
-shared Hetzner CX22 (Docker, UFW, fail2ban, deploy user, host nginx,
+shared Hetzner CX23 (Docker, UFW, fail2ban, deploy user, host nginx,
 Origin Cert directory, daily-backup cron). For a fully fresh box (no
 mambakkam.net yet), run mambakkam.net's `provision.sh` first — see
 [`mambakkam-net/Plans/DEMO_LAUNCH_PLAN.md` §2.5](https://github.com/wegofwd2020-hub/mambakkam-net/blob/main/Plans/DEMO_LAUNCH_PLAN.md#25--deployment-sequence-consolidated).
@@ -294,7 +294,7 @@ mambakkam.net yet), run mambakkam.net's `provision.sh` first — see
      systemctl status fail2ban # active
      id deploy                 # user exists
      ls /etc/ssl/cloudflare/   # origin-cert.pem + origin-key.pem present
-                               # (cert SAN must already include demo.studybuddy.app)
+                               # (cert SAN must already include demo.usestudybuddy.com)
      systemctl status nginx    # host nginx running
 
   2. SSH in + run StudyBuddy second-tenant provision.sh               [~3 min]
@@ -304,7 +304,7 @@ mambakkam.net yet), run mambakkam.net's `provision.sh` first — see
        - Pre-flight: hard-fails if any first-tenant artefact is missing
        - git clone the repo to /opt/studybuddy
        - Generate .env.demo skeleton from .env.demo.example
-       - Drop infra/nginx/demo.studybuddy.app.conf into
+       - Drop infra/nginx/demo.usestudybuddy.com.conf into
          /etc/nginx/sites-available/ and enable it (alongside mambakkam's
          vhost; the Host header dispatches)
        - Set up daily-backup cron at 02:00 UTC (offset 30 min before
@@ -381,12 +381,12 @@ mambakkam.net yet), run mambakkam.net's `provision.sh` first — see
 └──────────────────────────────────────────────────────────────────────┘
 
  11. Cloudflare DNS A record → VPS public IP                          [~3 min]
-     Cloudflare dashboard → demo.studybuddy.app → A record (the one
+     Cloudflare dashboard → demo.usestudybuddy.com → A record (the one
      pre-staged on Day -1 evening). Update IP value, enable proxy
      (orange cloud). SSL/TLS mode: Full (strict).
 
  12. smoke.sh against the public domain                               [~30 sec]
-     bash scripts/demo/smoke.sh https://demo.studybuddy.app
+     bash scripts/demo/smoke.sh https://demo.usestudybuddy.com
      Cold-start complete when this exits 0.
 ```
 
@@ -512,7 +512,7 @@ celery-beat-standby are dropped, nginx is added).
 | Smoke fails after auto-deploy | Operator manually rolls back per issue triage: `ssh demo 'cd /opt/studybuddy && sudo git -C /opt/studybuddy reset --hard <previous-sha> && sudo docker compose --env-file .env.demo up -d'` | ~5 min |
 | Bad migration on auto-deploy | `docker compose exec api alembic downgrade -1` then redeploy with the migration reverted in code | ~10 min |
 | VPS itself unhealthy on launch day | DNS revert at Cloudflare to staging IP; investigate VPS post-mortem (TTL=300s set on Day -1 (Sat May 16) means propagation ≤5 min) | ~5 min |
-| Breaking customer issue mid-demo (catastrophic) | Cloudflare → DNS → set demo.studybuddy.app to "under maintenance" page hosted on Cloudflare Pages | ~2 min |
+| Breaking customer issue mid-demo (catastrophic) | Cloudflare → DNS → set demo.usestudybuddy.com to "under maintenance" page hosted on Cloudflare Pages | ~2 min |
 
 ### When NOT to follow Sequence B
 
@@ -548,7 +548,7 @@ This is the **second-tenant variant** — it assumes mambakkam.net's
 a fresh box without mambakkam.net being there first.
 
 ```bash
-# After ssh-ing into a Hetzner CX22 that mambakkam.net has already provisioned:
+# After ssh-ing into a Hetzner CX23 that mambakkam.net has already provisioned:
 curl -fsSL https://raw.githubusercontent.com/wegofwd2020-hub/StudyBuddy_OnDemand/main/scripts/demo/provision.sh | bash
 ```
 
@@ -576,7 +576,7 @@ What it does (second-tenant work only):
 - The `deploy` system user
 - Host nginx install
 - The `/etc/ssl/cloudflare/` directory + Origin Cert (already SAN-listed
-  for `demo.studybuddy.app`)
+  for `demo.usestudybuddy.com`)
 
 **Output:** the script ends with a checklist of next steps the operator must do manually (paste real Auth0 secrets, populate `.env.demo`, etc.) and prints the freshly-generated restic backup password ONCE — copy it to your password manager immediately.
 
@@ -586,7 +586,7 @@ What it does (second-tenant work only):
 
 ```bash
 bash scripts/demo/sync-content.sh deploy@<vps-ip>
-# Optional: --dry-run, --skip-inject, --smoke https://demo.studybuddy.app
+# Optional: --dry-run, --skip-inject, --smoke https://demo.usestudybuddy.com
 bash scripts/demo/sync-content.sh --help    # full flag list
 ```
 
@@ -622,7 +622,7 @@ What it does:
 **Run on:** the operator's laptop (against the public domain) or in CI (against the deployed staging URL).
 
 ```bash
-./scripts/demo/smoke.sh https://demo.studybuddy.app
+./scripts/demo/smoke.sh https://demo.usestudybuddy.com
 ```
 
 What it checks:
@@ -694,7 +694,7 @@ Steps:
 4. SSH to demo VPS using `DEMO_VPS_SSH_KEY` repo secret
 5. On the VPS: `cd /opt/studybuddy && git pull && docker compose --env-file .env.demo pull && docker compose --env-file .env.demo up -d --remove-orphans`
 6. Wait 30 seconds for health checks to settle
-7. Run `scripts/demo/smoke.sh https://demo.studybuddy.app`
+7. Run `scripts/demo/smoke.sh https://demo.usestudybuddy.com`
 8. On smoke failure: open a GitHub issue tagged `incident:demo`; do NOT roll back automatically (operator must triage)
 
 **Required GitHub secrets:**
@@ -702,7 +702,7 @@ Steps:
 | Secret | Purpose |
 |---|---|
 | `DEMO_VPS_SSH_KEY` | Private SSH key for the `deploy` user on demo VPS |
-| `DEMO_VPS_HOST` | e.g. `demo.studybuddy.app` or the VPS IP |
+| `DEMO_VPS_HOST` | e.g. `demo.usestudybuddy.com` or the VPS IP |
 | `DEMO_VPS_USER` | `deploy` |
 | `GHCR_TOKEN` | Personal access token with `write:packages` |
 
@@ -718,10 +718,10 @@ Four-day phased validation. Each day has a **pass/fail gate** — if any gate fa
 
 | Time | Activity | Pass criterion |
 |---|---|---|
-| Morning | Provision a fresh CX22 (`scripts/demo/provision.sh`) — call this the **staging** box, separate from production | `docker compose ps` shows 7 healthy services |
-| | Configure Cloudflare DNS for `staging.studybuddy.app` | `dig` resolves the new A-record |
+| Morning | Provision a fresh CX23 (`scripts/demo/provision.sh`) — call this the **staging** box, separate from production | `docker compose ps` shows 7 healthy services |
+| | Configure Cloudflare DNS for `staging.usestudybuddy.com` | `dig` resolves the new A-record |
 | | `scripts/demo/seed.sh` | All seed scripts emit `done` or `skip`; no errors |
-| | `scripts/demo/smoke.sh https://staging.studybuddy.app` | Exit 0 |
+| | `scripts/demo/smoke.sh https://staging.usestudybuddy.com` | Exit 0 |
 | Afternoon | Trigger a fake `main` push — verify auto-deploy works end-to-end | `deploy-demo.yml` finishes green; smoke check passes inside the workflow |
 | | Trigger a deliberate smoke failure (e.g. break a healthcheck) — verify rollback / issue creation | Issue auto-opened with `incident:demo` label |
 | End of day | Backup script runs (manually trigger once at 17:00 to verify cron works) | Backup file present in `/opt/studybuddy/backups/` |
@@ -732,7 +732,7 @@ Four-day phased validation. Each day has a **pass/fail gate** — if any gate fa
 
 **Goal:** every persona can log in and reach their happy-path screen with real content.
 
-Walk through `studybuddy-docs/docs/dev/DEMO_WALKTHROUGH.md` end-to-end against `https://staging.studybuddy.app`, checking off each section's URL list.
+Walk through `studybuddy-docs/docs/dev/DEMO_WALKTHROUGH.md` end-to-end against `https://staging.usestudybuddy.com`, checking off each section's URL list.
 
 | § | Persona | Critical check |
 |---|---|---|
@@ -772,9 +772,9 @@ Walk through `studybuddy-docs/docs/dev/DEMO_WALKTHROUGH.md` end-to-end against `
 | Morning | Pull the latest content from the local pipeline; rsync to staging; verify 1 newly-added unit renders | Lesson loads; no `model: dev-seed` text |
 | Midday | Run Playwright persona-suite against staging | All 35 persona specs green |
 | Midday | Run `python3 scripts/doc_audit/run_all.py` | Zero drift |
-| Afternoon | Lower DNS TTL on `demo.studybuddy.app` to 300s (so cutover at T-1h on Day 0 propagates fast) | Cloudflare confirms TTL=300 |
-| Afternoon | NOTE — production CX22 provisioning happens **on Day 0 morning**, not on Day -1. mambakkam.net's first-tenant provision runs at 08:00 EDT Day 0; StudyBuddy joins at 11:00 EDT. Staging box (provisioned earlier in the test phase) stays running through Day -1 EOD for last-mile testing. | Staging healthy; production join procedure rehearsed against staging on Day -2 |
-| Evening (17:00–20:30 EDT) | Account + email setup per §2 above — mambakkam-side first (Cloudflare account, Hetzner sign-up, Zoho org, Grafana Cloud) then StudyBuddy-side (studybuddy.app domain, Auth0, Stripe-test, Sentry) | All values captured in password manager |
+| Afternoon | Lower DNS TTL on `demo.usestudybuddy.com` to 300s (so cutover at T-1h on Day 0 propagates fast) | Cloudflare confirms TTL=300 |
+| Afternoon | NOTE — production CX23 provisioning happens **on Day 0 morning**, not on Day -1. mambakkam.net's first-tenant provision runs at 08:00 EDT Day 0; StudyBuddy joins at 11:00 EDT. Staging box (provisioned earlier in the test phase) stays running through Day -1 EOD for last-mile testing. | Staging healthy; production join procedure rehearsed against staging on Day -2 |
+| Evening (17:00–20:30 EDT) | Account + email setup per §2 above — mambakkam-side first (Cloudflare account, Hetzner sign-up, Zoho org, Grafana Cloud) then StudyBuddy-side (usestudybuddy.com domain, Auth0, Stripe-test, Sentry) | All values captured in password manager |
 <!-- doc-audit:ignore -->
 | 20:30 EDT | Final go/no-go meeting with self: `docs/DEMO_LAUNCH_GO_DECISION.md` checklist | All boxes ticked → GO |
 
@@ -789,7 +789,7 @@ The known risks worth pre-mitigating, ordered by likelihood × impact:
 | Risk | Likelihood | Impact | Mitigation |
 |---|---|---|---|
 | Real Commerce/Science lesson 500s due to content schema drift (#295/#297 not fully deployed) | Medium | High | Run smoke check after every deploy; #297 already merged in this branch — verify via `git log --grep '#297'` |
-| Hetzner CX22 OOM under demo load (4 GB RAM is tight with 7 containers + Postgres) | Medium | Medium | Set `restart: always`; monitor with `docker stats`; upgrade to CX32 (8 GB, ~$10/mo) if needed |
+| Hetzner CX23 OOM under demo load (4 GB RAM is tight with 7 containers + Postgres) | Medium | Medium | Set `restart: always`; monitor with `docker stats`; upgrade to CX32 (8 GB, ~$10/mo) if needed |
 | Cloudflare DNS cutover takes longer than 5 min | Low | Medium | Pre-stage TTL=300s on Day -1 (Sat May 16); have the staging URL bookmark as fallback during the announcement |
 | Pipeline-built content doesn't match seeded curriculum metadata | Medium | High | Run `python scripts/check_content_metadata.py` (or its equivalent — verify on Day 4 before final upload) |
 | Auth0 free tier rate-limit hit during demo (7,500 MAU) | Very low | Low | Demo will not approach this in a single launch day |
@@ -803,7 +803,7 @@ The known risks worth pre-mitigating, ordered by likelihood × impact:
 
 These need a decision before Day -5 (Tue May 12) — flagging now so they don't surface on Day -1 (Sat May 16) as blockers.
 
-1. **Domain name.** `demo.studybuddy.app`? Or sub-path on a different parent? Confirm before Day -5 (Tue May 12).
+1. **Domain name.** `demo.usestudybuddy.com`? Or sub-path on a different parent? Confirm before Day -5 (Tue May 12).
 2. **Hetzner location.** Falkenstein (DEU), Helsinki (FIN), or Ashburn (USA)? Pick the closest to your primary demo audience.
 3. **Demo data reset cadence.** Nightly? Weekly? Never? — `seed.sh` is idempotent so nightly reset is feasible via cron.
 4. **Stripe environment.** Test mode is the recommended default. If a paying-customer demo is planned, decide whether to swap to live mode for that specific demo (and back).
@@ -835,7 +835,7 @@ The deploy-demo workflow (`.github/workflows/deploy-demo.yml`) builds + pushes D
 
 ### Decided 2026-05-09 — closed for the launch
 
-**Tenancy position — StudyBuddy is the second tenant on the shared CX22;
+**Tenancy position — StudyBuddy is the second tenant on the shared CX23;
 mambakkam.net is the first.** Inverts the 2026-05-08 framing. Concrete
 consequences for this runbook:
 
@@ -848,7 +848,7 @@ consequences for this runbook:
 - Cron offsets: StudyBuddy backup at 02:00 UTC; mambakkam at 02:30 UTC.
 - StudyBuddy joins at zero marginal infra cost on the box; mambakkam.net
   pays the $5/mo VPS bill as the first tenant.
-- The Cloudflare Origin Cert (SAN list including `demo.studybuddy.app`)
+- The Cloudflare Origin Cert (SAN list including `demo.usestudybuddy.com`)
   is generated up-front by mambakkam.net on Day -1 evening — StudyBuddy
   reuses it without re-issue.
 
@@ -856,7 +856,7 @@ consequences for this runbook:
 
 ## §7 · Observability
 
-The shared CX22 runs a third compose stack — Prometheus +
+The shared CX23 runs a third compose stack — Prometheus +
 nginx-prometheus-exporter + blackbox-exporter + node-exporter —
 `remote_write`-ing to Grafana Cloud free tier. Dashboards + alerts live on
 `<stack>.grafana.net`; no local Grafana. Full design + setup runbook in
@@ -870,12 +870,12 @@ The production change is just where it gets scraped from:
 
 | Dev (existing) | Production (this plan) |
 |---|---|
-| Thittam's local Prometheus on the operator's laptop scrapes `host.docker.internal:8000/metrics` | The CX22's local Prometheus (third tenant, alongside mambakkam + StudyBuddy) scrapes the StudyBuddy compose-internal nginx at `127.0.0.1:8443/metrics` over loopback |
+| Thittam's local Prometheus on the operator's laptop scrapes `host.docker.internal:8000/metrics` | The CX23's local Prometheus (third tenant, alongside mambakkam + StudyBuddy) scrapes the StudyBuddy compose-internal nginx at `127.0.0.1:8443/metrics` over loopback |
 | Bearer token = `dev-metrics-token` | Bearer token = real `METRICS_TOKEN` from `.env.demo` |
 | Grafana on `localhost:3130` | Grafana Cloud on `<stack>.grafana.net` (free tier — 10k active series, 13-month retention) |
 
 **Public `/metrics` surface.** The host-nginx vhost
-(`infra/nginx/demo.studybuddy.app.conf`) ships a `/metrics` location gated
+(`infra/nginx/demo.usestudybuddy.com.conf`) ships a `/metrics` location gated
 by:
 
 1. Cloudflare-IP allowlist (drops direct VPS-IP curls)
@@ -898,7 +898,7 @@ Outstanding before observability is "ready":
 
 - Grafana Cloud signup + stack creation (Day -1 evening — already in §1.A.bis-equivalent on the mambakkam plan)
 - mambakkam side: `/opt/mambakkam/infra/monitoring/.env.monitoring` populated
-- Cloudflare Access policy on `demo.studybuddy.app/metrics`
+- Cloudflare Access policy on `demo.usestudybuddy.com/metrics`
 - Starter dashboards imported (the existing `studybuddy-health` JSON works
   unchanged — just repoint its data source at the Grafana Cloud Prometheus)
 
@@ -910,7 +910,7 @@ Sister stack to §7. Full design + LogQL cheatsheet + local-fallback runbook
 in [`mambakkam-net/Plans/LOGGING.md`](https://github.com/wegofwd2020-hub/mambakkam-net/blob/main/Plans/LOGGING.md).
 
 **One-paragraph summary:**
-Promtail (in the monitoring compose stack on the CX22) tails docker
+Promtail (in the monitoring compose stack on the CX23) tails docker
 container logs, host nginx vhost files, journald, and backup-script logs,
 then ships everything to Grafana Cloud Loki (50 GB / 14 d free). Same UI
 as metrics. StudyBuddy's structlog JSON gets parsed at ingest — `level`
@@ -919,7 +919,7 @@ gets you the right slice in two keystrokes.
 
 **Application-side change in this PR:** every service in
 `docker-compose.demo.yml` now declares `logging: *logging-cap` (json-file
-driver, 10 MB × 5 files) so a runaway container can't fill the CX22 disk.
+driver, 10 MB × 5 files) so a runaway container can't fill the CX23 disk.
 The cap matches what the mambakkam compose already had.
 
 **Local-access fallback** (when Grafana Cloud is unreachable, or you're
@@ -928,7 +928,7 @@ already on the box):
 ```bash
 docker logs --tail 200 -f studybuddy-api-1                       # one container
 docker compose -f /opt/studybuddy/docker-compose.demo.yml logs -f # whole stack
-sudo tail -f /var/log/nginx/demo.studybuddy.app.error.log         # host nginx
+sudo tail -f /var/log/nginx/demo.usestudybuddy.com.error.log         # host nginx
 journalctl -u sshd --since "1 hour ago"                           # systemd
 ```
 
@@ -1006,8 +1006,8 @@ Outstanding:
 | 2026-05-08 | Initial — comprehensive plan for May 16 launch (4 days code freeze + 4 days test phase) |
 | 2026-05-08 | §6 — Closed the GitHub-tier decision: stay on Free; document upgrade triggers for future-self |
 | 2026-05-08 | §2.5 — Added consolidated Deployment Sequence (cold-start + ongoing-deploy flows + dependency graph + rollback paths + skip-auto-deploy cases) |
-| 2026-05-09 | **Tenancy-position flip** — StudyBuddy is now the **second tenant** on the shared Hetzner CX22; mambakkam.net is the first and cuts over four hours earlier the same day. Reframed the top-of-doc tenancy block, §2 launch-day timing (T-0 → 13:00), §2.5 cold-start sequence (~20 min, second-tenant flow), §3.1 provision.sh inventory, Day -1 of §4 test plan. Added §6 "Decided 2026-05-09" block. |
-| 2026-05-09 | **Observability** — added §7 pointing to the new `mambakkam-net/Plans/MONITORING.md`. Prod scrape path is now CX22-local Prometheus → Grafana Cloud free tier (was operator-laptop Prometheus + Thittam's local Grafana in dev). Public `/metrics` is Cloudflare-Access-gated; loopback scrape doesn't need any of that. |
+| 2026-05-09 | **Tenancy-position flip** — StudyBuddy is now the **second tenant** on the shared Hetzner CX23; mambakkam.net is the first and cuts over four hours earlier the same day. Reframed the top-of-doc tenancy block, §2 launch-day timing (T-0 → 13:00), §2.5 cold-start sequence (~20 min, second-tenant flow), §3.1 provision.sh inventory, Day -1 of §4 test plan. Added §6 "Decided 2026-05-09" block. |
+| 2026-05-09 | **Observability** — added §7 pointing to the new `mambakkam-net/Plans/MONITORING.md`. Prod scrape path is now CX23-local Prometheus → Grafana Cloud free tier (was operator-laptop Prometheus + Thittam's local Grafana in dev). Public `/metrics` is Cloudflare-Access-gated; loopback scrape doesn't need any of that. |
 | 2026-05-09 | **Logging** — added §8 pointing to the new `mambakkam-net/Plans/LOGGING.md`. Promtail in the monitoring stack ships docker / nginx / journald / backup logs to Grafana Cloud Loki free tier. `docker-compose.demo.yml` now caps every service's json-file driver at 10 MB × 5 via a YAML anchor. |
 | 2026-05-09 | **Backups rewritten** — added §9 pointing to `mambakkam-net/Plans/BACKUPS.md`. Replaced rsync+pg_dump+gzip with restic (encrypted + deduped + incremental). New `scripts/demo/backup-check.sh` for weekly integrity check + prune. `scripts/demo/provision.sh` now installs restic, generates the password (printed once), and inits the repo as new step 8. Day -2 restore drill added. Local-only posture; off-box deferred. |
 | 2026-05-09 | **Alerts as code** — added §10 pointing to `mambakkam-net/Plans/RUNBOOK.md` and the new `infra/monitoring/alerts/` rule files. 14 consolidated alerts (replacing scattered tables in MONITORING / LOGGING / BACKUPS docs). Two-severity Gmail routing. Day -2 alert-test-fire row added to §4. |
