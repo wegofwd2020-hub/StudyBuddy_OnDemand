@@ -246,15 +246,13 @@ export default function ClassroomsPage() {
   // How many classrooms the logged-in teacher leads. If zero (e.g. a brand-new
   // teacher account that hasn't been assigned anywhere), default to "all" so
   // the page isn't empty on first load.
-  const myCount =
-    classrooms?.filter((c) => c.teacher_id === teacherId).length ?? 0;
+  const myCount = classrooms?.filter((c) => c.teacher_id === teacherId).length ?? 0;
   const [scope, setScope] = useState<ScopeFilter>("mine");
 
   // Auto-fallback to "all" when the teacher leads nothing — once we know the
   // counts. Without this, a brand-new teacher would land on an empty Classrooms
   // page even though the school has plenty to show.
-  const effectiveScope: ScopeFilter =
-    scope === "mine" && myCount === 0 ? "all" : scope;
+  const effectiveScope: ScopeFilter = scope === "mine" && myCount === 0 ? "all" : scope;
 
   // Only offer grades that actually have at least one classroom — empty grades
   // would just give the dropdown stale clutter.
@@ -310,9 +308,7 @@ export default function ClassroomsPage() {
                 myCount === 0 && "cursor-not-allowed opacity-40",
               )}
               title={
-                myCount === 0
-                  ? "You aren't the lead of any classrooms yet."
-                  : undefined
+                myCount === 0 ? "You aren't the lead of any classrooms yet." : undefined
               }
             >
               My classrooms ({myCount})

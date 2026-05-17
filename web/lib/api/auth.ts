@@ -135,10 +135,7 @@ export interface UniversalLoginResponse {
 export async function universalLogin(
   body: LocalLoginRequest,
 ): Promise<UniversalLoginResponse> {
-  const res = await publicApi.post<UniversalLoginResponse>(
-    "/auth/universal-login",
-    body,
-  );
+  const res = await publicApi.post<UniversalLoginResponse>("/auth/universal-login", body);
   return res.data;
 }
 

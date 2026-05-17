@@ -78,9 +78,7 @@ export default function ClassOverviewPage() {
     enabled: !!schoolId,
     staleTime: 60_000,
   });
-  const myClassrooms = (classrooms ?? []).filter(
-    (c) => c.teacher_id === teacherId,
-  );
+  const myClassrooms = (classrooms ?? []).filter((c) => c.teacher_id === teacherId);
 
   // Pull the per-classroom roster for each of my classrooms in parallel.
   // listClassrooms only returns counts; getClassroom returns the full
@@ -104,8 +102,7 @@ export default function ClassOverviewPage() {
 
   // Auto-fallback to "all" if the teacher leads no classrooms with students
   // (e.g. a school_admin browsing the school overview).
-  const effectiveScope: ScopeFilter =
-    scope === "mine" && myCount === 0 ? "all" : scope;
+  const effectiveScope: ScopeFilter = scope === "mine" && myCount === 0 ? "all" : scope;
 
   function toggleSort(key: SortKey) {
     if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -136,9 +133,11 @@ export default function ClassOverviewPage() {
   // current scope — keeps the rail tight when the teacher only has Grade 11
   // students, for example.
   const presentGrades = Array.from(
-    new Set((data?.students ?? [])
-      .filter((s) => effectiveScope === "all" || myStudentIds.has(s.student_id))
-      .map((s) => s.grade)),
+    new Set(
+      (data?.students ?? [])
+        .filter((s) => effectiveScope === "all" || myStudentIds.has(s.student_id))
+        .map((s) => s.grade),
+    ),
   ).sort((a, b) => a - b);
 
   return (

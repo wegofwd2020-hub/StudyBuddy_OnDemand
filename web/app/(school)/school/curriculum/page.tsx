@@ -536,10 +536,7 @@ export default function CurriculumPage() {
         </LinkButton>
       </div>
 
-      <PendingSubscriptionBanner
-        message="Custom curriculum upload is available to schools with an active subscription. You can still explore the layout — uploads are disabled in this demo."
-      />
-
+      <PendingSubscriptionBanner message="Custom curriculum upload is available to schools with an active subscription. You can still explore the layout — uploads are disabled in this demo." />
 
       {/* Definitions panel */}
       <Link

@@ -27,10 +27,7 @@ import {
  * school portal server layout, and the demo session cookie writers in
  * (public)/demo/login + demo/teacher/login.
  */
-function persistSession(
-  res: UniversalLoginResponse,
-  email: string,
-): void {
+function persistSession(res: UniversalLoginResponse, email: string): void {
   const display = res.name || email;
   const sessionPayload = btoa(JSON.stringify({ name: display, email }));
   const secure = location.protocol === "https:" ? "; Secure" : "";
@@ -64,7 +61,11 @@ function persistSession(
   document.cookie = `sb_teacher_session=${sessionPayload}; path=/; SameSite=Lax; Max-Age=${60 * 60 * 48}${secure}`;
 }
 
-function destinationFor(track: AuthTrack, role: string, firstLogin: boolean | null): string {
+function destinationFor(
+  track: AuthTrack,
+  role: string,
+  firstLogin: boolean | null,
+): string {
   if (track === "local" && firstLogin) {
     return "/school/change-password?required=1";
   }
@@ -95,7 +96,9 @@ export default function SignInPage() {
       if (status === 401) {
         setError("Incorrect email or password.");
       } else if (status === 403) {
-        setError("This account is suspended or has expired. Please contact your administrator.");
+        setError(
+          "This account is suspended or has expired. Please contact your administrator.",
+        );
       } else if (status === 429) {
         setError("Too many sign-in attempts. Please wait a moment and try again.");
       } else {
@@ -159,13 +162,19 @@ export default function SignInPage() {
                   className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
                 </button>
               </div>
             </div>
 
             {error && (
-              <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
+              <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+                {error}
+              </p>
             )}
 
             <Button

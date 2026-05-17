@@ -3,11 +3,7 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import {
-  getTestRuns,
-  deleteTestRunByEmail,
-  type TestRunItem,
-} from "@/lib/api/admin";
+import { getTestRuns, deleteTestRunByEmail, type TestRunItem } from "@/lib/api/admin";
 import { useAdmin, hasPermission } from "@/lib/hooks/useAdmin";
 import {
   ShieldOff,
@@ -124,9 +120,8 @@ function ResetModal({
         </h2>
         <p className="mb-1 text-sm break-all text-gray-700">{item.email}</p>
         <p className="mb-4 text-sm text-gray-500">
-          Removes both the teacher and student demo accounts and their request
-          history so this email can submit a fresh test run. This cannot be
-          undone.
+          Removes both the teacher and student demo accounts and their request history so
+          this email can submit a fresh test run. This cannot be undone.
         </p>
         <div className="flex gap-2">
           <button
@@ -192,9 +187,9 @@ export default function AdminTestRunsPage() {
     <div className="mx-auto max-w-6xl p-8">
       <h1 className="mb-1 text-2xl font-bold text-gray-900">Test Runs</h1>
       <p className="mb-6 text-sm text-gray-500">
-        Visitors who submitted the &ldquo;Try a test run&rdquo; form. Each row
-        provisions both a teacher and a student demo account. Reset a row to
-        free the email for re-submission.
+        Visitors who submitted the &ldquo;Try a test run&rdquo; form. Each row provisions
+        both a teacher and a student demo account. Reset a row to free the email for
+        re-submission.
       </p>
 
       {/* Email search */}
@@ -326,14 +321,12 @@ export default function AdminTestRunsPage() {
         <div className="py-20 text-center text-gray-400">
           <FlaskConical className="mx-auto mb-3 h-10 w-10 opacity-40" />
           <p className="text-sm font-medium text-gray-600">
-            {emailSearch
-              ? "No test runs match your search."
-              : "No test runs yet."}
+            {emailSearch ? "No test runs match your search." : "No test runs yet."}
           </p>
           {!emailSearch && (
             <p className="mt-1 text-xs text-gray-400">
-              Visitors appear here after they submit the &ldquo;Try a test run&rdquo;
-              form on the demo home page.
+              Visitors appear here after they submit the &ldquo;Try a test run&rdquo; form
+              on the demo home page.
             </p>
           )}
         </div>
