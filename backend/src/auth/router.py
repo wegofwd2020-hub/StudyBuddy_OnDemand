@@ -653,12 +653,8 @@ async def universal_login(
 
     if demo_teacher_row is not None:
         expires_at = demo_teacher_row["expires_at"]
-        expires_at_aware = (
-            expires_at if expires_at.tzinfo else expires_at.replace(tzinfo=UTC)
-        )
-        remaining_minutes = int(
-            (expires_at_aware - datetime.now(UTC)).total_seconds() / 60
-        )
+        expires_at_aware = expires_at if expires_at.tzinfo else expires_at.replace(tzinfo=UTC)
+        remaining_minutes = int((expires_at_aware - datetime.now(UTC)).total_seconds() / 60)
         token_ttl = min(settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES, remaining_minutes)
         if token_ttl <= 0:
             raise HTTPException(
@@ -713,12 +709,8 @@ async def universal_login(
 
     # demo_student_row branch
     expires_at = demo_student_row["expires_at"]
-    expires_at_aware = (
-        expires_at if expires_at.tzinfo else expires_at.replace(tzinfo=UTC)
-    )
-    remaining_minutes = int(
-        (expires_at_aware - datetime.now(UTC)).total_seconds() / 60
-    )
+    expires_at_aware = expires_at if expires_at.tzinfo else expires_at.replace(tzinfo=UTC)
+    remaining_minutes = int((expires_at_aware - datetime.now(UTC)).total_seconds() / 60)
     token_ttl = min(settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES, remaining_minutes)
     if token_ttl <= 0:
         raise HTTPException(

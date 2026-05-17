@@ -189,12 +189,10 @@ function JsonPipelineSection({ schoolId }: { schoolId: string }) {
     }
   }
 
+  // `parsed` is set by handleFileChange on a valid upload; using it here
+  // keeps render free of ref reads (react-hooks/refs).
   const canTrigger =
-    !IS_DEMO_MODE &&
-    !quotaExhausted &&
-    langs.size > 0 &&
-    !!fileRef.current?.files?.[0] &&
-    !error;
+    !IS_DEMO_MODE && !quotaExhausted && langs.size > 0 && parsed != null && !error;
 
   return (
     <div className="space-y-4">
