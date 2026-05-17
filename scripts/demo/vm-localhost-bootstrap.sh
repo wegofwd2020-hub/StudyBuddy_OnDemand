@@ -38,7 +38,9 @@
 #   LOG_FILE          where to write the install log
 #                     (default /tmp/studybuddy-bootstrap-<timestamp>.log)
 #   LOG_DIR           where to write the per-run JSON deployment log
-#                     (default /opt/studybuddy/logs)
+#                     (default $HOME/Documents/studybuddy/logs — kept
+#                     OUT of $INSTALL_DIR so the dir doesn't pre-exist
+#                     and block Step 2's git clone into /opt/studybuddy)
 #
 # Install log:
 #   Every step start, success, and failure is written to the log file.
@@ -61,10 +63,20 @@
 #   2/8  Clone repo
 #   3/8  Image strategy (GHCR login OR Docker-DNS sanity check)
 #   4/8  Generate .env.demo + .env + web/.env.local + compose overrides
+#        (regenerates .env.demo if a stale file with <REPLACE_WITH...>
+#         placeholders is detected — left over from provision.sh runs)
 #   5/8  Content store directories
 #   6/8  Hydrate /opt/studybuddy/web from prebuilt image (pull strategy only)
 #   7/8  docker compose pull + up -d + migrations + seed
+#        (db healthcheck start_period bumped to 300s in the localhost
+#         override so slow disks don't time out on first postgres init)
 #   8/8  (optional) rsync content from OLD_HOST
+#
+# Sudo handling:
+#   The script primes sudo at preflight (`sudo -v`) then runs a background
+#   refresher every 60s so the bootstrap can't silently block on an expired
+#   sudo timestamp during the long image-pull / db-init phases. The
+#   refresher is killed in the EXIT trap.
 #
 # Exit codes:
 #   0   bootstrap complete
@@ -112,9 +124,12 @@ _log_only() {
 # scripts/launch/_log.sh so any downstream tooling (Promtail/Loki,
 # dashboards) treats both deployments uniformly. Inlined rather than
 # sourced so the script stays curl-pipe friendly. Atomic tmp+mv on EXIT.
-LOG_DIR="${LOG_DIR:-/opt/studybuddy/logs}"
-sudo mkdir -p "$LOG_DIR" 2>/dev/null || mkdir -p "$LOG_DIR" 2>/dev/null || true
-sudo chown "$USER:$USER" "$LOG_DIR" 2>/dev/null || true
+# Keep the log dir out of $INSTALL_DIR so it doesn't pre-create
+# /opt/studybuddy/ and block Step 2's git clone (the clone needs the
+# target to be either non-existent or empty). $HOME is owned by the
+# running user, so no sudo dance needed here either.
+LOG_DIR="${LOG_DIR:-$HOME/Documents/studybuddy/logs}"
+mkdir -p "$LOG_DIR" 2>/dev/null || true
 JSON_LOG_FILE="$LOG_DIR/vm-localhost-bootstrap-${TIMESTAMP}.json"
 JSON_LOG_LATEST="$LOG_DIR/vm-localhost-bootstrap-latest.json"
 __JSON_STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
@@ -261,6 +276,27 @@ fi
 info "preflight green — IMAGE_STRATEGY=${IMAGE_STRATEGY}, INSTALL_DIR=${INSTALL_DIR}"
 step_ok
 
+# ── Sudo keepalive ─────────────────────────────────────────────────────────
+# Image-pull + first postgres init can take 15-25 min on slow disks. Default
+# sudo timestamp_timeout is 15 min, so without a refresher the script blocks
+# silently waiting for a password prompt mid-run (operator only finds out by
+# checking from another terminal). Prime the cache once here, then refresh
+# in the background until the script exits.
+info "priming sudo cache + starting background refresher (refreshes every 60s)"
+sudo -v
+( while true; do sudo -n true 2>/dev/null || exit 0; sleep 60; done ) &
+__SUDO_KEEPALIVE_PID=$!
+
+__sudo_keepalive_stop() {
+  if [[ -n "${__SUDO_KEEPALIVE_PID:-}" ]] && kill -0 "$__SUDO_KEEPALIVE_PID" 2>/dev/null; then
+    kill "$__SUDO_KEEPALIVE_PID" 2>/dev/null || true
+  fi
+}
+# Chain onto the existing EXIT trap (currently __json_finalize) — runs the
+# sudo cleanup first, then whatever was already installed.
+__PREV_EXIT_TRAP="$(trap -p EXIT | sed -E "s/^trap -- '(.*)' EXIT$/\1/")"
+trap "__sudo_keepalive_stop; ${__PREV_EXIT_TRAP:-:}" EXIT
+
 # ── 1/8  Install Docker, git, rsync ────────────────────────────────────────
 step "1/8  Install Docker, git, rsync"
 if ! command -v docker >/dev/null 2>&1; then
@@ -371,6 +407,21 @@ step_ok
 step "4/8  Generate .env.demo + .env symlink + web/.env.local + compose overrides"
 
 ENV_FILE="$INSTALL_DIR/.env.demo"
+
+# Detect provision.sh leftover with placeholder secrets — those will fail
+# downstream (redis "requirepass wrong number of arguments" because the
+# password value is empty after compose interpolation; postgres init bakes
+# the literal placeholder string as its password). Regenerate if found.
+if [[ -f "$ENV_FILE" ]] && grep -qE "<REPLACE_WITH_|<from-|<your-" "$ENV_FILE"; then
+  warn ".env.demo contains <REPLACE_WITH...> placeholder values"
+  warn "(left over from provision.sh, not vm-localhost-bootstrap.sh)"
+  warn "backing up to ${ENV_FILE}.placeholder-bak and regenerating"
+  mv "$ENV_FILE" "${ENV_FILE}.placeholder-bak"
+  # Drop the .env symlink too so it won't pin to the stale file via the
+  # base-compose env_file: directive once we recreate .env.demo below.
+  [[ -L "$INSTALL_DIR/.env" ]] && rm -f "$INSTALL_DIR/.env"
+fi
+
 if [[ -f "$ENV_FILE" ]]; then
   warn ".env.demo exists — leaving in place. Delete it and re-run to regenerate."
 else
@@ -585,6 +636,15 @@ services:
 
   web:
     volumes: []
+
+  # Slow VMs (HDD-backed, low IOPS) need >65s for the first postgres init.
+  # Base compose's healthcheck has start_period: 15s + 5x10s retries = 65s,
+  # which times out before postgres finishes its initdb + checkpoint cycle
+  # on slow disks. Bump to 5 minutes for first-init grace; existing-data
+  # restarts are unaffected (pg_isready returns OK in <1s once data exists).
+  db:
+    healthcheck:
+      start_period: 300s
 EOF
   info "created $LOCAL_OVERRIDE"
 fi

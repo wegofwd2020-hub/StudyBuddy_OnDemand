@@ -55,11 +55,11 @@ issues.
 
 | Step | What it does |
 |---|---|
-| **preflight** | Validates `IMAGE_STRATEGY`, `GHCR_PAT`, not running as root, sudo present |
+| **preflight** | Validates `IMAGE_STRATEGY`, `GHCR_PAT`, not running as root, sudo present. Primes `sudo -v` and starts a 60-second background refresher (killed on EXIT) so the script can't silently block on an expired sudo timestamp during long image-pull / db-init phases. |
 | **1/8** | Installs Docker Engine + Compose v2 + git + rsync. Detects Mint/Pop/Neon and uses the upstream Ubuntu/Debian apt repo. |
 | **2/8** | Clones the repo into `/opt/studybuddy`. If already cloned, attempts `git fetch + reset --hard`; continues with the existing checkout if offline. |
 | **3/8** | **GHCR login** (Path A — pull strategy) or **Docker daemon DNS sanity check** (Path B — local build strategy) |
-| **4/8** | Generates `.env.demo` with random secrets + stubbed Auth0/Stripe/SMTP values. Creates `.env` symlink, `web/.env.local` stub, patches `docker-compose.yml` to drop `pgbouncer` from depends-on anchors, writes `docker-compose.localhost.yml` with the three localhost-specific overrides (depends_on, python healthcheck, web volumes reset). |
+| **4/8** | Generates `.env.demo` with random secrets + stubbed Auth0/Stripe/SMTP values. **If a stale `.env.demo` with `<REPLACE_WITH...>` placeholders is detected (left over from a prior `provision.sh` attempt), it is backed up to `.env.demo.placeholder-bak` and regenerated** — otherwise redis fails with "requirepass wrong number of arguments" and postgres bakes the placeholder string as its password. Creates `.env` symlink, `web/.env.local` stub, patches `docker-compose.yml` to drop `pgbouncer` from depends-on anchors, writes `docker-compose.localhost.yml` with localhost-specific overrides (depends_on, python healthcheck, web volumes reset, **db `start_period: 300s` for slow-disk first-init grace**). |
 | **5/8** | Creates the content-store directories at `/opt/studybuddy/content_store_data` and `/opt/studybuddy/data` with mode 777 (so the container's non-root user can write). |
 | **6/8** | (Pull strategy only) `docker cp` extracts the prebuilt Next.js standalone `/app/server.js` from the GHCR web image into `/opt/studybuddy/web/`. This sidesteps a Compose volume-merge issue. |
 | **7/8** | `docker compose pull && up -d`, waits 45s, verifies `/healthz`, runs `alembic upgrade head`, copies `seed.sh` into the api container, runs all 5 seed scripts. |
@@ -76,7 +76,7 @@ run to confirm what happened.
 | Var | Purpose | Default |
 |---|---|---|
 | `LOG_FILE` | Where to write the install log (text) | `/tmp/studybuddy-bootstrap-<UTC-ts>.log` |
-| `LOG_DIR` | Where to write the JSON deployment log | `/opt/studybuddy/logs` |
+| `LOG_DIR` | Where to write the JSON deployment log | `$HOME/Documents/studybuddy/logs` |
 | `IMAGE_STRATEGY` | `pull` (GHCR) or `build` (local) | `pull` |
 | `GHCR_PAT` | GitHub PAT with `read:packages` | **required if pull** |
 | `GHCR_USER` | GitHub owner for images | `wegofwd2020-hub` |
@@ -259,7 +259,7 @@ entry per step. Same shape as mambakkam-net's `scripts/launch/_log.sh`
 output — so any downstream tooling (Promtail/Loki, dashboards, grep+jq)
 treats both deployments uniformly.
 
-Default path: `/opt/studybuddy/logs/vm-localhost-bootstrap-<UTC-timestamp>.json`,
+Default path: `$HOME/Documents/studybuddy/logs/vm-localhost-bootstrap-<UTC-timestamp>.json`,
 plus a `vm-localhost-bootstrap-latest.json` symlink that always points at
 the most recent run. Override the directory with `LOG_DIR=/path/to/dir`.
 
@@ -296,14 +296,14 @@ Quick queries:
 ```bash
 # What step failed, on the latest run?
 jq '.steps[] | select(.status == "Error")' \
-  /opt/studybuddy/logs/vm-localhost-bootstrap-latest.json
+  $HOME/Documents/studybuddy/logs/vm-localhost-bootstrap-latest.json
 
 # Total wall-clock time per step, sorted descending (find the slow ones)
 jq -r '.steps[] | [.duration_ms, .name] | @tsv' \
-  /opt/studybuddy/logs/vm-localhost-bootstrap-latest.json | sort -rn
+  $HOME/Documents/studybuddy/logs/vm-localhost-bootstrap-latest.json | sort -rn
 
 # Compare run-time of the last 5 deployments
-ls -t /opt/studybuddy/logs/vm-localhost-bootstrap-2*.json | head -5 \
+ls -t $HOME/Documents/studybuddy/logs/vm-localhost-bootstrap-2*.json | head -5 \
   | xargs -I{} jq -r '[.started_at, .duration_ms, .exit_code] | @tsv' {}
 ```
 
