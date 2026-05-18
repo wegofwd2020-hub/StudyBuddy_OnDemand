@@ -91,7 +91,7 @@ class AppVersionMiddleware(BaseHTTPMiddleware):
                             "Please update to continue."
                         ),
                         "minimum_version": raw_minimum,
-                        "upgrade_url": "https://studybuddy.app/upgrade",
+                        "upgrade_url": "https://usestudybuddy.com/upgrade",
                     },
                 )
 

@@ -20,11 +20,11 @@
 #      passed.
 #
 # Usage:
-#   bash scripts/demo/sync-content.sh deploy@staging.studybuddy.app
-#   bash scripts/demo/sync-content.sh deploy@demo.studybuddy.app
-#   bash scripts/demo/sync-content.sh --dry-run deploy@staging.studybuddy.app
-#   bash scripts/demo/sync-content.sh --skip-inject deploy@demo.studybuddy.app
-#   bash scripts/demo/sync-content.sh --smoke https://demo.studybuddy.app deploy@demo.studybuddy.app
+#   bash scripts/demo/sync-content.sh deploy@staging.usestudybuddy.com
+#   bash scripts/demo/sync-content.sh deploy@demo.usestudybuddy.com
+#   bash scripts/demo/sync-content.sh --dry-run deploy@staging.usestudybuddy.com
+#   bash scripts/demo/sync-content.sh --skip-inject deploy@demo.usestudybuddy.com
+#   bash scripts/demo/sync-content.sh --smoke https://demo.usestudybuddy.com deploy@demo.usestudybuddy.com
 #
 # Exit codes:
 #   0 — every step succeeded

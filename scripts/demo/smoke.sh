@@ -7,8 +7,8 @@
 #
 # Usage:
 #   bash scripts/demo/smoke.sh                             # default: localhost
-#   bash scripts/demo/smoke.sh https://demo.studybuddy.app
-#   bash scripts/demo/smoke.sh https://staging.studybuddy.app
+#   bash scripts/demo/smoke.sh https://demo.usestudybuddy.com
+#   bash scripts/demo/smoke.sh https://staging.usestudybuddy.com
 #
 # Exit codes:
 #   0 — every check passed

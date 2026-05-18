@@ -28,7 +28,7 @@ const POSTER_SRC = "/content/promos/StudyBuddy_TeacherStory_poster.jpg";
 const CAPTIONS_SRC = "/content/promos/StudyBuddy_TeacherStory.en.vtt";
 
 const MAILTO_HREF =
-  "mailto:support@studybuddy.app" +
+  "mailto:support@usestudybuddy.com" +
   "?subject=" +
   encodeURIComponent("Request a demo — Grade 11 Science Teacher story") +
   "&body=" +
@@ -150,7 +150,7 @@ function CtaSection() {
       </div>
       <p className="mx-auto mt-3 max-w-3xl text-center text-xs text-slate-500">
         The Request-a-demo button opens your email client with a pre-filled message to{" "}
-        <span className="font-mono">support@studybuddy.app</span>.
+        <span className="font-mono">support@usestudybuddy.com</span>.
       </p>
     </section>
   );

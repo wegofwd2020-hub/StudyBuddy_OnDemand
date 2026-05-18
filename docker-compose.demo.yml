@@ -145,7 +145,7 @@ services:
     command: ["node", "server.js"]   # production mode (built output)
     environment:
       NODE_ENV: production
-      NEXT_PUBLIC_API_URL: https://demo.studybuddy.app/api/v1
+      NEXT_PUBLIC_API_URL: https://demo.usestudybuddy.com/api/v1
       INTERNAL_API_URL: http://api:8000/api/v1
     # Internal port only — Nginx fronts it.
     ports: []

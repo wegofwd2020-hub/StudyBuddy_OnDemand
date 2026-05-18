@@ -147,12 +147,12 @@ class Settings(BaseSettings):
 
     # ── Email (Phase 8) ───────────────────────────────────────────────────────
     SENDGRID_API_KEY: str | None = None
-    EMAIL_FROM: str = "noreply@studybuddy.app"
+    EMAIL_FROM: str = "noreply@usestudybuddy.com"
 
     # ── SMTP (demo email via Gmail) ───────────────────────────────────────────
     SMTP_HOST: str = "smtp.gmail.com"
     SMTP_PORT: int = 587
-    SMTP_USER: str | None = None      # Gmail address (e.g. hello@studybuddy.app)
+    SMTP_USER: str | None = None      # Gmail address (e.g. hello@usestudybuddy.com)
     SMTP_PASSWORD: str | None = None  # Gmail App Password (not account password)
     SMTP_FROM_NAME: str = "StudyBuddy"
 

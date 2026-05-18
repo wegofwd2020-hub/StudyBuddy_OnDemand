@@ -6,7 +6,7 @@
 #   - workflow_dispatch (manual; useful for redeploying without a code change)
 #
 # Required repo secrets (configure under Settings → Secrets and variables → Actions):
-#   DEMO_VPS_HOST       — e.g. demo.studybuddy.app or the VPS public IP
+#   DEMO_VPS_HOST       — e.g. demo.usestudybuddy.com or the VPS public IP
 #   DEMO_VPS_USER       — e.g. deploy
 #   DEMO_VPS_SSH_KEY    — private SSH key matching authorized_keys on the VPS
 #                         (the public key is pasted into /home/deploy/.ssh/authorized_keys
@@ -159,7 +159,7 @@ jobs:
               title: `incident:demo — smoke check failed after deploy ${sha}`,
               labels: ['incident:demo', 'priority:high'],
               body: [
-                `Smoke check failed after auto-deploy of \`${sha}\` to demo.studybuddy.app.`,
+                `Smoke check failed after auto-deploy of \`${sha}\` to demo.usestudybuddy.com.`,
                 ``,
                 `**Workflow run:** ${runUrl}`,
                 ``,

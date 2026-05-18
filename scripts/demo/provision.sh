@@ -87,18 +87,29 @@ if [[ $PREFLIGHT_OK -eq 0 ]]; then
     curl -fsSL https://raw.githubusercontent.com/wegofwd2020-hub/mambakkam-net/main/scripts/launch/provision.sh | bash"
 fi
 
-# Origin Cert SAN sanity-check (best-effort; openssl may not parse all chains)
-if command -v openssl >/dev/null 2>&1; then
-  SAN=$(openssl x509 -in /etc/ssl/cloudflare/origin-cert.pem -noout -text 2>/dev/null \
-        | grep -A1 "Subject Alternative Name" | tail -1 || true)
-  if [[ -n "$SAN" ]] && ! grep -q "demo.studybuddy.app" <<< "$SAN"; then
-    warn "Origin Cert SAN does NOT appear to include demo.studybuddy.app:"
-    warn "  $SAN"
-    warn "Re-issue at Cloudflare with mambakkam.net + *.mambakkam.net + demo.studybuddy.app"
-    warn "before bringing the StudyBuddy stack up. Continuing — nginx will fail to bind"
-    warn "the demo.studybuddy.app vhost otherwise."
+# Cert B (Origin Cert for demo.usestudybuddy.com) — operator must paste from
+# password manager BEFORE this script runs reload. Lives at a separate path
+# from Cert A (mambakkam.net) per the two-cert split — see the header of
+# infra/nginx/demo.usestudybuddy.com.conf for the architecture rationale.
+CERT_B=/etc/ssl/cloudflare/usestudybuddy.com-cert.pem
+KEY_B=/etc/ssl/cloudflare/usestudybuddy.com-key.pem
+if [[ ! -f "$CERT_B" || ! -f "$KEY_B" ]]; then
+  warn "Cert B not found at $CERT_B / $KEY_B"
+  warn "The StudyBuddy host nginx vhost references this cert; nginx -t will"
+  warn "fail to reload until you paste it from your password manager:"
+  warn "    cat > $CERT_B <<EOF ... EOF"
+  warn "    cat > $KEY_B <<EOF ... EOF"
+  warn "    chmod 600 $CERT_B $KEY_B"
+  warn "Continuing — the script will still drop the vhost; reload after pasting."
+elif command -v openssl >/dev/null 2>&1; then
+  SAN_B=$(openssl x509 -in "$CERT_B" -noout -text 2>/dev/null \
+          | grep -A1 "Subject Alternative Name" | tail -1 || true)
+  if [[ -n "$SAN_B" ]] && ! grep -q "demo.usestudybuddy.com" <<< "$SAN_B"; then
+    warn "Cert B SAN does NOT include demo.usestudybuddy.com:"
+    warn "  $SAN_B"
+    warn "Re-issue at Cloudflare (usestudybuddy.com zone → SSL/TLS → Origin Server)."
   else
-    info "Origin Cert SAN includes demo.studybuddy.app"
+    info "Cert B present at $CERT_B with demo.usestudybuddy.com SAN"
   fi
 fi
 
@@ -195,8 +206,8 @@ STRIPE_SECRET_KEY=sk_test_<your-stripe-test-key>
 STRIPE_WEBHOOK_SECRET=whsec_<your-test-webhook-secret>
 
 # ── CORS + frontend ────────────────────────────────────────────────────────
-ALLOWED_ORIGINS=https://demo.studybuddy.app,http://localhost:3000
-FRONTEND_URL=https://demo.studybuddy.app
+ALLOWED_ORIGINS=https://demo.usestudybuddy.com,http://localhost:3000
+FRONTEND_URL=https://demo.usestudybuddy.com
 
 # ── Sentry (optional but recommended) ──────────────────────────────────────
 SENTRY_DSN=<your-sentry-dsn-or-leave-blank>
@@ -228,11 +239,11 @@ info "deploy-user sudo policy installed at $SUDO_FILE"
 # Repo ownership: deploy user needs to git pull
 chown -R "$DEPLOY_USER:$DEPLOY_USER" "$INSTALL_DIR"
 
-# ── 5. host nginx vhost for demo.studybuddy.app ────────────────────────────
+# ── 5. host nginx vhost for demo.usestudybuddy.com ─────────────────────────
 step "5/9  host nginx vhost (alongside mambakkam.net's)"
-VHOST_SRC="$INSTALL_DIR/infra/nginx/demo.studybuddy.app.conf"
-VHOST_AVAIL="/etc/nginx/sites-available/demo.studybuddy.app.conf"
-VHOST_ENABLED="/etc/nginx/sites-enabled/demo.studybuddy.app.conf"
+VHOST_SRC="$INSTALL_DIR/infra/nginx/demo.usestudybuddy.com.conf"
+VHOST_AVAIL="/etc/nginx/sites-available/demo.usestudybuddy.com.conf"
+VHOST_ENABLED="/etc/nginx/sites-enabled/demo.usestudybuddy.com.conf"
 
 if [[ ! -f "$VHOST_SRC" ]]; then
   fail "vhost source $VHOST_SRC not found — repo state is broken (was the host-nginx vhost ever shipped?)"
@@ -383,7 +394,7 @@ fi
 
 cat <<EOF
 
-The shared CX22 is now running:
+The shared CX23 is now running:
   - mambakkam.net  (first tenant; Host header dispatch from host nginx)
   - StudyBuddy     (second tenant; this provisioning)
 
@@ -393,7 +404,7 @@ Next steps (in order):
    - Replace every <REPLACE_WITH_openssl_rand_hex_32> with a fresh secret:
        openssl rand -hex 32
    - Paste real Auth0, Stripe-test, Gmail App Password values
-   - Confirm ALLOWED_ORIGINS matches https://demo.studybuddy.app
+   - Confirm ALLOWED_ORIGINS matches https://demo.usestudybuddy.com
 
 2. Append the GitHub Actions deploy SSH public key to:
    /home/$DEPLOY_USER/.ssh/authorized_keys
@@ -403,13 +414,13 @@ Next steps (in order):
 
 3. Confirm the docker-compose.demo.yml nginx port binding is 127.0.0.1:8443
    (NOT 0.0.0.0:443 — that would conflict with the host nginx). The host
-   nginx vhost installed in step 5 above proxies demo.studybuddy.app
+   nginx vhost installed in step 5 above proxies demo.usestudybuddy.com
    traffic to 127.0.0.1:8443.
 
 4. Upload pre-built content from your dev machine. One command does the
    inject + both rsyncs + (optional) post-deploy smoke:
    bash scripts/demo/sync-content.sh deploy@$PUBLIC_IP
-   # Add --smoke https://demo.studybuddy.app to chain into the smoke check
+   # Add --smoke https://demo.usestudybuddy.com to chain into the smoke check
    # once DNS is cut over. See `bash scripts/demo/sync-content.sh --help`
    # for the full flag list. The two rsync targets are
    # /data/content/ (lessons + audio + legacy visuals from
@@ -430,10 +441,10 @@ Next steps (in order):
    bash scripts/demo/seed.sh
 
 8. Smoke check:
-   bash scripts/demo/smoke.sh https://demo.studybuddy.app
+   bash scripts/demo/smoke.sh https://demo.usestudybuddy.com
 
 9. Configure Cloudflare DNS:
-   demo.studybuddy.app  →  $PUBLIC_IP   (Proxied, orange cloud)
+   demo.usestudybuddy.com  →  $PUBLIC_IP   (Proxied, orange cloud)
    (mambakkam.net is already pointed here from step 6 of mambakkam's
     first-tenant checklist, on Day 0 morning before this script ran)
 

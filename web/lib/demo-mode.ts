@@ -1,7 +1,7 @@
 /**
  * Demo-mode flag.
  *
- * `demo.studybuddy.app` and any other deployment that should NOT surface
+ * `demo.usestudybuddy.com` and any other deployment that should NOT surface
  * the school-registration / pricing flows reads `NEXT_PUBLIC_DEMO_MODE=true`
  * from its environment. Production deployments leave the variable unset
  * (or set it to anything other than the literal string `"true"`) so the

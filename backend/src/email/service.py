@@ -1472,7 +1472,7 @@ async def send_payment_action_required_email(
     action_url is the Stripe-hosted invoice URL (hosted_invoice_url) which
     contains the 3DS challenge link.  Skips silently if SMTP is not configured.
     """
-    support_email = getattr(settings, "EMAIL_FROM", "support@studybuddy.app")
+    support_email = getattr(settings, "EMAIL_FROM", "support@usestudybuddy.com")
     fmt = {"action_url": action_url, "support_email": support_email}
     await _send(
         to_email=to_email,
