@@ -1,6 +1,6 @@
 # StudyBuddy OnDemand — Progress Chart
 
-_Auto-generated 2026-05-18T06:01:39+00:00. Regenerated nightly at 21:00 EST._
+_Auto-generated 2026-05-19T05:56:32+00:00. Regenerated nightly at 21:00 EST._
 
 Source: `docs/epics/` (feature manifest) + `git log` (activity). Script: `scripts/generate_progress.py`.
 
