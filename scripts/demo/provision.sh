@@ -168,6 +168,12 @@ APP_ENV=staging
 LOG_LEVEL=INFO
 APP_VERSION=demo
 
+# JWT access-token TTL in minutes. Bumped from the default 15 → 240 (4h) so
+# a demo walkthrough does not have to re-login mid-session. The demo_account
+# row still caps the effective lifetime at 24h (student) / 48h (teacher)
+# via the min(JWT_TTL, remaining_account_lifetime) clamp in demo/router.py.
+JWT_ACCESS_TOKEN_EXPIRE_MINUTES=240
+
 # ── Server-generated secrets (run `openssl rand -hex 32` for each) ─────────
 JWT_SECRET=<REPLACE_WITH_openssl_rand_hex_32>
 ADMIN_JWT_SECRET=<REPLACE_WITH_openssl_rand_hex_32>
