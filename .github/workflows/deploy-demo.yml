@@ -136,6 +136,18 @@ jobs:
               up -d --remove-orphans
           '
 
+      # `docker compose up -d` only recreates services whose spec changed; if
+      # api/web were rolled their bridge-network IP changed, but nginx is left
+      # alone and keeps the previous IP cached in any upstream block resolved
+      # at startup. Reload nginx to force re-resolution against Docker DNS
+      # (cheap; takes <1s and preserves keepalive connections to clients).
+      # Also picks up any bind-mounted scripts/demo/nginx.conf edits in the
+      # same push without needing a separate redeploy.
+      - name: Reload demo nginx upstream IP cache
+        run: |
+          ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} \
+            'docker exec studybuddy-nginx-1 nginx -s reload'
+
       - name: Wait for containers to settle
         run: sleep 30
 
