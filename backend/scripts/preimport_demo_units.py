@@ -100,6 +100,21 @@ async def main():
         print(f"Discovered {len(units)} units across {len({u['subject'] for u in units})} subjects")
 
         async with conn.transaction():
+            # Belt-and-braces: ensure all platform curricula have
+            # is_default=true. Yesterday's recover_curriculum.py workaround
+            # inserted variant curricula with is_default=false, which the
+            # /content/subjects endpoint filters on and the adopt_curriculum
+            # validator requires. Idempotent UPDATE; fixes drift in place.
+            promoted = await conn.fetchval(
+                """
+                UPDATE curricula SET is_default = true
+                WHERE owner_type = 'platform' AND is_default = false
+                RETURNING 1
+                """
+            )
+            if promoted:
+                print("promoted platform curricula: is_default true (was false)")
+
             # Lazy fork creation (matches the HTTP endpoint).
             if fork_id is None:
                 fork_id = str(uuid.uuid4())
