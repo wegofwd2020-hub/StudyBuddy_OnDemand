@@ -426,6 +426,24 @@ async def verify_test_run(token: str, request: Request):
             # dashboard or a shared seeded classroom. Skipped if the
             # sandbox school isn't seeded.
             if sandbox_school_id is not None:
+                # Ensure the demo curriculum is adopted into the sandbox
+                # school's "Our Library" so the visitor sees content in the
+                # teacher portal instead of an empty library. Idempotent via
+                # the (school_id, curriculum_id) unique constraint — first
+                # signup wins; subsequent signups no-op.
+                await conn.execute(
+                    """
+                    INSERT INTO school_adopted_curricula
+                        (school_id, curriculum_id, grade, adopted_by)
+                    VALUES ($1, $2, $3, $4)
+                    ON CONFLICT (school_id, curriculum_id) DO NOTHING
+                    """,
+                    sandbox_school_id,
+                    _DEMO_TEST_RUN_CURRICULUM_ID,
+                    _DEMO_TEST_RUN_GRADE,
+                    teacher_account["teacher_id"],
+                )
+
                 classroom_label = (
                     f"{visitor_name}'s Grade 11 Science"
                     if visitor_name
