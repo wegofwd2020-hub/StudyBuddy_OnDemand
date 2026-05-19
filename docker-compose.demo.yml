@@ -203,6 +203,10 @@ services:
       NODE_ENV: production
       NEXT_PUBLIC_API_URL: https://demo.usestudybuddy.com/api/v1
       INTERNAL_API_URL: http://api:8000/api/v1
+      # Used by /app/api/auth/logout to build the post-logout redirect URL.
+      # Without this, the route falls back to http://localhost:3000 and the
+      # browser ends up on a non-routable address.
+      NEXT_PUBLIC_APP_URL: https://demo.usestudybuddy.com
     # Internal port only — Nginx fronts it.
     ports: []
     # Base compose bind-mounts ./web:/app for dev hot-reload, which overlays
