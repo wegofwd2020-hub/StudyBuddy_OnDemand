@@ -2025,7 +2025,7 @@ async def import_unit_content(
                 lang,
                 content_type,
                 row_bundle_id,
-                json.dumps(body),
+                body,
                 teacher["teacher_id"],
             )
             overrides.append(
@@ -2720,7 +2720,7 @@ async def save_draft(
                     RETURNING override_id, review_status, version_number,
                               bundle_id, edited_at, content_source
                     """,
-                    json.dumps(body.body),
+                    body.body,
                     teacher["teacher_id"],
                     latest["override_id"],
                 )
@@ -2751,7 +2751,7 @@ async def save_draft(
                     content_type,
                     row_bundle_id,
                     latest["override_id"],
-                    json.dumps(body.body),
+                    body.body,
                     teacher["teacher_id"],
                     new_version,
                 )

@@ -335,7 +335,7 @@ async def put_section_visuals(
             payload.unit_id,
             latest["bundle_id"],
             latest["override_id"],
-            _json.dumps(body),
+            body,
             teacher["teacher_id"],
             new_version,
         )

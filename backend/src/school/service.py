@@ -830,7 +830,7 @@ async def submit_definition(
         name,
         grade,
         languages,
-        json.dumps(subjects),
+        subjects,
     )
     d = dict(row)
     if isinstance(d["subjects"], str):
@@ -1167,8 +1167,8 @@ async def update_llm_config(
     idx = 2
 
     if allowed_providers is not None:
-        updates.append(f"allowed_providers = ${idx}::jsonb")
-        params.append(_json.dumps(allowed_providers))
+        updates.append(f"allowed_providers = ${idx}")
+        params.append(allowed_providers)
         idx += 1
 
     if default_provider is not None:
@@ -1243,8 +1243,8 @@ async def update_school_theme(
     if school_id != requesting_school_id:
         raise ValueError("school mismatch")
     await conn.execute(
-        "UPDATE schools SET theme = $1::jsonb WHERE school_id = $2",
-        json.dumps(theme),
+        "UPDATE schools SET theme = $1 WHERE school_id = $2",
+        theme,
         uuid.UUID(school_id),
     )
 
