@@ -730,7 +730,7 @@ async def list_catalog(
                         'subject',      cu.subject,
                         'subject_name', csv_sub.subject_name,
                         'unit_count',   cu.unit_count,
-                        'has_content',  (csv_sub.approved_count > 0)
+                        'has_content',  COALESCE(csv_sub.approved_count > 0, false)
                     )
                     ORDER BY cu.subject
                 ) FILTER (WHERE cu.subject IS NOT NULL),
