@@ -478,7 +478,19 @@ async def get_curriculum_tree(
     # Join content_subject_versions to get the human-readable subject display
     # name (e.g. "Physics" instead of "G11-PHYS"). Falls back to the raw subject
     # code when no CSV row exists (newly-seeded curriculum with no content yet).
+    #
+    # If the resolved curriculum is a school fork (owner_type='school'), its
+    # curriculum_units table is empty by design — forks inherit the structural
+    # unit list from their OOB source and only override content via
+    # unit_content_overrides. Resolve the source id first so the units query
+    # actually finds rows.
     async with pool.acquire() as conn:
+        source_id = await conn.fetchval(
+            "SELECT source_curriculum_id FROM curricula WHERE curriculum_id = $1",
+            curriculum_id,
+        )
+        units_lookup_id = source_id or curriculum_id
+
         rows = await conn.fetch(
             """
             SELECT cu.unit_id, cu.title, cu.subject,
@@ -492,7 +504,7 @@ async def get_curriculum_tree(
             GROUP BY cu.unit_id, cu.title, cu.subject, cu.has_lab, cu.sort_order
             ORDER BY cu.subject, cu.sort_order, cu.unit_id
             """,
-            curriculum_id,
+            units_lookup_id,
         )
 
     if rows:
