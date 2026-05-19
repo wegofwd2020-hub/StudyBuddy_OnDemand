@@ -767,7 +767,7 @@ async def list_catalog(
 
     result = []
     for row in rows:
-        subjects = row["subjects"] if isinstance(row["subjects"], list) else []
+        subjects = row["subjects"] or []
         result.append(
             {
                 "curriculum_id": row["curriculum_id"],
@@ -1230,7 +1230,7 @@ async def get_school_theme(
     )
     if row is None or row["theme"] is None:
         return None
-    return json.loads(row["theme"])
+    return row["theme"]
 
 
 async def update_school_theme(
@@ -1272,4 +1272,4 @@ async def get_student_school_theme(pool: asyncpg.Pool, student_id: str) -> dict 
         )
     if row is None or row["theme"] is None:
         return None
-    return json.loads(row["theme"])
+    return row["theme"]

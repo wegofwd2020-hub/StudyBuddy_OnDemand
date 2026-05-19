@@ -15,6 +15,7 @@ Entry point (main.py) is now just:
 
 from __future__ import annotations
 
+import json
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
@@ -74,6 +75,18 @@ def _init_sentry() -> None:
 # ── Lifespan ──────────────────────────────────────────────────────────────────
 
 
+async def _init_db_conn(conn: asyncpg.Connection) -> None:
+    # Without these codecs asyncpg returns json/jsonb columns as raw strings,
+    # which silently breaks any caller that expects a list/dict (e.g. catalog
+    # endpoints using json_agg).
+    await conn.set_type_codec(
+        "jsonb", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
+    )
+    await conn.set_type_codec(
+        "json", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
+    )
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Create and close asyncpg + aioredis pools for the lifetime of each worker."""
@@ -100,6 +113,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         max_size=settings.DATABASE_POOL_MAX,
         command_timeout=30,
         statement_cache_size=0,
+        init=_init_db_conn,
     )
     log.info(
         "db_pool_created",
