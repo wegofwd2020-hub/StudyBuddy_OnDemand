@@ -63,7 +63,6 @@ export default function LandingPage() {
       <FeatureVideos />
       <SampleVisuals />
       <TourGatewaySection />
-      <SocialProofSection />
       {!IS_DEMO_MODE && <CtaSection />}
     </>
   );
@@ -209,23 +208,6 @@ function FeaturesSection() {
   );
 }
 
-const TESTIMONIALS = [
-  {
-    quote:
-      "We were live across the whole school in under 20 minutes. The pre-built curricula meant every class had content on day one.",
-    author: "Sarah M., School Principal",
-  },
-  {
-    quote:
-      "The audio lessons are a game-changer for my students with reading difficulties. Three languages in one platform is unheard of at this price.",
-    author: "James K., Grade 8 Teacher",
-  },
-  {
-    quote: "Finally an app that works when I'm on the bus with no signal.",
-    author: "Priya, Grade 10 Student",
-  },
-];
-
 function TourGatewaySection() {
   return (
     <section className="border-y bg-violet-50 px-4 py-16">
@@ -247,28 +229,6 @@ function TourGatewaySection() {
           Explore the platform
           <ArrowRight className="h-4 w-4" />
         </Link>
-      </div>
-    </section>
-  );
-}
-
-function SocialProofSection() {
-  return (
-    <section className="bg-gray-50 px-4 py-20">
-      <div className="mx-auto max-w-7xl">
-        <h2 className="text-center text-3xl font-bold text-gray-900">
-          Trusted by schools, teachers, and students
-        </h2>
-        <div className="mt-10 grid gap-6 sm:grid-cols-3">
-          {TESTIMONIALS.map((item) => (
-            <Card key={item.author} className="bg-white shadow-sm">
-              <CardContent className="p-6">
-                <p className="text-gray-600 italic">&ldquo;{item.quote}&rdquo;</p>
-                <p className="mt-4 text-sm font-medium text-gray-900">— {item.author}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
       </div>
     </section>
   );
