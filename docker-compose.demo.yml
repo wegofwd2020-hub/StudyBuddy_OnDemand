@@ -70,9 +70,23 @@ services:
     build: !reset null   # disable the local build directive from base compose
     pull_policy: always
     logging: *logging-cap
+    env_file: !override
+      - .env.demo
     environment:
       # Talk to db directly — no PgBouncer on demo.
       DATABASE_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@db:5432/studybuddy
+      # alembic/env.py reads TEST_DB_URL before DATABASE_URL — blank it so
+      # migrations always target the demo DB, not studybuddy_test.
+      TEST_DB_URL: ""
+    volumes: !override
+      - /data/content:/data/content
+      - /opt/studybuddy/data:/data
+    # Base compose depends on db only — preserved here explicitly so the demo
+    # stack does not pick up any future pgbouncer/migrate references via YAML
+    # anchors.
+    depends_on: !override
+      db:
+        condition: service_healthy
 
   # ── FastAPI ────────────────────────────────────────────────────────────────
   api:
@@ -81,9 +95,12 @@ services:
     pull_policy: always
     restart: always
     logging: *logging-cap
+    env_file: !override
+      - .env.demo
     environment:
       DATABASE_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@db:5432/studybuddy
       DIRECT_DB_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@db:5432/studybuddy
+      TEST_DB_URL: ""
       APP_ENV: staging
       LOG_LEVEL: INFO
       SENTRY_ENVIRONMENT: demo
@@ -91,12 +108,17 @@ services:
       GUNICORN_WORKERS: "2"
     # No host-port mapping on demo — Nginx fronts everything.
     ports: []
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/healthz"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 30s
+    # Drop pgbouncer (disabled in demo) and migrate (one-shot dependency is
+    # satisfied at compose-up time anyway).
+    depends_on: !override
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    volumes: !override
+      - /data/content:/data/content
 
   # ── Celery worker (io + default queues) ────────────────────────────────────
   celery-worker:
@@ -105,8 +127,20 @@ services:
     pull_policy: always
     restart: always
     logging: *logging-cap
+    env_file: !override
+      - .env.demo
     environment:
       DATABASE_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@db:5432/studybuddy
+      TEST_DB_URL: ""
+    depends_on: !override
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    volumes: !override
+      - /data/content:/data/content
 
   # ── Celery pipeline worker — DROPPED on demo ───────────────────────────────
   # The pipeline runs on the operator's dev machine for demo (no Anthropic key
@@ -116,6 +150,11 @@ services:
     profiles: ["never"]
     deploy:
       replicas: 0
+    # Drop the base-compose depends_on chain so compose validation does not
+    # require pgbouncer (which is also profiles:never).
+    depends_on: !override
+      db:
+        condition: service_healthy
 
   # ── Celery Beat — single primary on demo ───────────────────────────────────
   celery-beat-primary:
@@ -124,8 +163,20 @@ services:
     pull_policy: always
     restart: always
     logging: *logging-cap
+    env_file: !override
+      - .env.demo
     environment:
       DATABASE_URL: postgresql://studybuddy:${POSTGRES_PASSWORD}@db:5432/studybuddy
+      TEST_DB_URL: ""
+    depends_on: !override
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    volumes: !override
+      - /data/content:/data/content
 
   # ── Celery Beat standby — DROPPED on demo ─────────────────────────────────
   # The standby uses RedBeat to take over if primary dies. At demo scale, a
@@ -134,6 +185,9 @@ services:
     profiles: ["never"]
     deploy:
       replicas: 0
+    depends_on: !override
+      db:
+        condition: service_healthy
 
   # ── Next.js web ────────────────────────────────────────────────────────────
   web:
@@ -143,12 +197,19 @@ services:
     restart: always
     logging: *logging-cap
     command: ["node", "server.js"]   # production mode (built output)
+    env_file: !override
+      - .env.demo
     environment:
       NODE_ENV: production
       NEXT_PUBLIC_API_URL: https://demo.usestudybuddy.com/api/v1
       INTERNAL_API_URL: http://api:8000/api/v1
     # Internal port only — Nginx fronts it.
     ports: []
+    # Base compose bind-mounts ./web:/app for dev hot-reload, which overlays
+    # the image's built server.js. Reset that, then mount only the operator-
+    # synced tutorial MP4s at the path Next.js serves them from.
+    volumes: !override
+      - /data/videos:/app/public/videos:ro
 
   # ── Nginx reverse proxy ────────────────────────────────────────────────────
   # Terminates TLS via Cloudflare Origin Cert. Routes `/api/*` to the API
