@@ -3,15 +3,43 @@
 > **Owns:** Demo-launch readiness checklist + one-page status snapshot (what's ready vs what's outstanding).
 > **Adjacent in this hosting cluster:** [DEMO_LAUNCH_PLAN](DEMO_LAUNCH_PLAN.md) (canonical runbook this snapshots) · [DEMO_HOSTING_GUIDE](../../studybuddy-docs/docs/dev/DEMO_HOSTING_GUIDE.md) (architecture) · [`DOCS_INDEX.md` § Hosting](../../mambakkam-net/DOCS_INDEX.md#1-hosting-deployment--cost) (full 8-doc map).
 
-**Generated:** 2026-05-13
-**Companion docs:** [`DEMO_LAUNCH_PLAN.md`](DEMO_LAUNCH_PLAN.md) (the canonical runbook) · [`DEMO_EMAIL_INVENTORY.md`](DEMO_EMAIL_INVENTORY.md) (which mailboxes to create vs. reuse)
-**Purpose:** One-page status snapshot — what's ready, the steps to take, what will be live, and what stays open after the demo is up.
+**Generated:** 2026-05-13 · **Last verified:** 2026-05-19 (post-walkthrough)
+**Status:** ✅ **LIVE** — `https://demo.usestudybuddy.com` since 2026-05-18 ~20:16 UTC.
+**Companion docs:** [`DEMO_LAUNCH_PLAN.md`](DEMO_LAUNCH_PLAN.md) (the canonical runbook) · [`DEMO_EMAIL_INVENTORY.md`](DEMO_EMAIL_INVENTORY.md) (which mailboxes to create vs. reuse) · [`../mambakkam-net/Plans/HOSTING_ACTIVITY_LOG.md`](../../mambakkam-net/Plans/HOSTING_ACTIVITY_LOG.md) (live operational log)
+**Purpose:** Snapshot of what was originally planned, what shipped, and what's still open after launch.
 
 ---
 
-## TL;DR
+## TL;DR — POST-LAUNCH STATE (2026-05-19)
 
-**Yes, the scripts are ready.** All 6 automation deliverables in `scripts/demo/` + `.github/workflows/deploy-demo.yml` + `docker-compose.demo.yml` are committed. The launch is **paused** (memory `project_demo_launch_pause.md`; target was Sun 2026-05-17) and resumes per `docs/DEMO_LAUNCH_PLAN.md`. The remaining work is mostly **operator/manual** — DNS, accounts, secrets, content sync, and the dry-run — not code.
+**Demo is live and walkthrough-validated.** A real visitor can sign up at
+`https://demo.usestudybuddy.com`, receive credentials by email, and click
+through the full teacher + student journey (catalog → library → unit →
+lesson) end-to-end. Tagged at `demo-walkthrough-2026-05-19` in both
+`StudyBuddy_OnDemand` and `mambakkam-net` repos.
+
+The runbook in [`DEMO_LAUNCH_PLAN.md`](DEMO_LAUNCH_PLAN.md) executed
+substantially but with **9 bugs found and fixed mid-launch + walkthrough**
+(catalog 0/0, compose hygiene, nginx routing, JWT TTL, JSON codec
+double-encoding, etc.). See [§11 of `DEMO_LAUNCH_PLAN.md`](DEMO_LAUNCH_PLAN.md#11-post-launch-divergence-2026-05-19)
+or the [`HOSTING_ACTIVITY_LOG.md`](../../mambakkam-net/Plans/HOSTING_ACTIVITY_LOG.md)
+for the full divergence list.
+
+**For provisioning a fresh demo VPS now:** the runbook steps still apply,
+plus three post-launch fixes that the operator MUST apply:
+
+1. Set `JWT_ACCESS_TOKEN_EXPIRE_MINUTES=240` in `.env.demo` (default 15 too
+   short for a walkthrough).
+2. Run `python scripts/preimport_demo_units.py` **after** the seed step.
+   Adopts G11 Science into MilfordWaterford's library, pre-imports all 29
+   units as approved + published in the Content Library.
+3. Set `NEXT_PUBLIC_APP_URL=https://demo.usestudybuddy.com` on the web
+   container env (read at runtime by `/api/auth/logout`).
+
+These three are now defaults in `scripts/demo/provision.sh` skeleton +
+`docker-compose.demo.yml`, so a clean clone-and-provision picks them up.
+The list above is for operators of pre-2026-05-19 deployments doing a
+diff-update.
 
 ---
 
@@ -53,6 +81,7 @@
 6. `docker compose -f docker-compose.yml -f docker-compose.demo.yml --env-file .env.demo pull && up -d`
 7. `sudo nginx -t && sudo systemctl reload nginx` — host nginx picks up StudyBuddy vhost (reload **after** compose so the 127.0.0.1:8443 upstream is reachable)
 8. `docker compose exec api alembic upgrade head && bash /app/scripts/demo/seed.sh`
+8a. `docker compose exec api python scripts/preimport_demo_units.py` — adopt G11 Science into the demo school's library + import all 29 units approved + published into the Content Library. Added 2026-05-19; without it the teacher portal lands on an empty Our Library / Content Library. (Idempotent — safe to re-run.)
 9. `bash scripts/demo/smoke.sh http://127.0.0.1:8443` (loopback first)
 10. Cloudflare DNS: update A record to real VPS IP, enable proxy
 11. `bash scripts/demo/smoke.sh https://demo.usestudybuddy.com` — public smoke
@@ -84,9 +113,11 @@ GH Actions → build images → push GHCR → SSH `git pull && compose pull && u
 
 | Item | Source | Priority |
 |---|---|---|
+| Smoke check fails on every deploy — `DEMO_VPS_HOST` secret is the VPS IP, but smoke.sh needs the public hostname for Cloudflare to terminate TLS correctly. Split into `DEMO_VPS_SSH_HOST` (IP, for ssh) + `DEMO_VPS_SMOKE_URL` (hostname). | Task #31 (post-launch) | Med — actual deploys succeed; only the smoke verification step false-negatives |
 | Cloudflare Access policy on `/metrics` URL (token with `RulesWriter` scope) | §7 / §10 outstanding | Med — loopback scrape works without it |
 | One synthetic alert test-fire end-to-end | §10 outstanding | Med |
 | Off-box backup (S3/B2/R2) — currently local-disk only | §9 BACKUPS.md residual-risk note | Med — deferred until first paying customer |
+| Stripe wiring — `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` blanked in `.env.demo` at launch. Subscription endpoints will 500 if exercised. | Activity log 2026-05-18 launch entry | Med — only needed if a paying-customer demo is planned |
 | Resume Issue **#188** — e2e school-admin → pipeline → student-visible content | CLAUDE.md tracked issues | Low — manual e2e exists, automation pending |
 | Resolve Issue **#189** — re-enable `color-contrast` / `html-has-lang` / `document-title` axe rules in persona Playwright specs | CLAUDE.md tracked issues | Low |
 

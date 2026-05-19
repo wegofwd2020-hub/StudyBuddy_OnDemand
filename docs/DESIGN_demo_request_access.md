@@ -1,7 +1,7 @@
 # Design — Self-Service Demo Access Request
 
-**Status:** Draft v0.2 (design only — not yet implemented)
-**Date:** 2026-05-09
+**Status:** ✅ **Shipped** — live at `https://demo.usestudybuddy.com` since 2026-05-18, walkthrough-validated 2026-05-19 (tag `demo-walkthrough-2026-05-19`). The design below is the as-shipped design. Implementation notes + divergences from the original draft are in the **Appendix — Implementation notes (2026-05-19)** at the bottom of this doc.
+**Date:** 2026-05-09 (draft) · **Last updated:** 2026-05-19 (implementation notes appended)
 **Author:** Sivakumar (with Claude design assist)
 **Companion docs:**
 - [`DEMO_LAUNCH_PLAN.md`](./DEMO_LAUNCH_PLAN.md) — the May 17 launch runbook (this feature is post-launch unless explicitly pulled forward)
@@ -619,3 +619,43 @@ don't surface as surprises:
 | 2026-05-09 | 0.3 | §6 made concrete — picked `Grade 11 — Science` (curriculum `default-2026-g11-science`, classroom led by Linda Ronstad) as the data anchor. Two new shared accounts to add to `seed_demo_milfordwaterford.py`: `demo-teacher@studybuddy.app` (co-teacher with Linda) and `demo-student@studybuddy.app` (third student alongside Fatima Al-Hassan and Liam O'Brien). Self-service evaluators see populated class data; named personas stay reserved for sales walkthroughs. |
 | 2026-05-10 | 0.4 | §7.1 + §7.2 email templates rewritten for evaluator clarity — numbered teacher-first/student-second views with explicit "what you'll see" sub-bullets, expiry promoted to top of credentials email with `{{days_remaining}}` token, shared-accounts disclosure made concrete ("you may briefly see their activity, and they may see yours"), confirmation email now states "no account is created until you confirm." Private/school-branded-trial CTA routes to `sales@studybuddy.app` (was: reply to `demo@`). §3.5 cleaned up: dropped the "(or whatever the canonical student-login route is)" hedge — `/login` confirmed as the canonical student route at `web/app/(public)/login/page.tsx`. |
 | 2026-05-10 | 0.5 | New §6.5 codifies demo-account write scope. Demo teacher is **read-mostly**: pipeline upload, curriculum-definition submit (Phase D), library import/adopt (Epic 12), backup/restore (Epic 15), teacher/student provisioning, and Stripe/billing actions are blocked. Content review (draft annotations, approve/reject/publish overrides) **is allowed** — in-flight reviews are intentionally trashed by the nightly reset. Enforcement: `is_demo BOOLEAN` column on `teachers` + `students`, `block_if_demo` FastAPI dependency returning 403, plus UI conditional-hides. Library is pre-seeded with `default-2026-g11-science` adopted into MilfordWaterford's library so the teacher sees a populated library on first login. §6 "what an evaluator sees" + §9 nightly reset scope + §13 build inventory all updated. Effort estimate raised to 2–3 days. |
+
+---
+
+## Appendix — Implementation notes (2026-05-19)
+
+This appendix records what shipped vs. what the original draft specified, and the operational gotchas that surfaced during the launch + walkthrough validation. The design above is the authoritative shape; this section is the "what bit us" log.
+
+### What shipped exactly as designed
+
+- The 3 endpoints (`POST /demo/test-run/request`, `GET /demo/test-run/verify/{token}`, login routes) implement §3 + §5 verbatim.
+- 24h student / 48h teacher TTLs encoded in `demo_accounts.expires_at` / `demo_teacher_accounts.expires_at` — enforced at login time via `min(JWT_TTL, remaining_account_lifetime)` clamp in `backend/src/demo/router.py`.
+- Synthetic email pair (`{name}+student@...` / `{name}+teacher@...`) generated server-side; both roles ship in one credentials email.
+- Per-visitor classroom (`"{visitor_name}'s Grade 11 Science"`) created on verify, demo student enrolled.
+- Auth0 unused on the demo flow — local bcrypt only, matching the design's "Phase A" stance.
+
+### Divergences from the original draft
+
+| Section | Drafted | Shipped |
+| ------- | ------- | ------- |
+| §2 — JWT TTL | 60 min default | 240 min on the demo container (`.env.demo`). The 60-min default was too short for an unbroken walkthrough; bumped to 4h. Hard cap remains the demo_account TTL. |
+| §3 — Sandbox school | Generic "demo school" reference | Always resolves to the seeded `MilfordWaterford Local School` (contact email `admin@milfordwaterford.edu`). The resolver in `_resolve_demo_school` falls back to no-school defaults if the seed didn't run — flagged but no incident in launch. |
+| §3 — Adoption + import | Not in the draft | `verify_test_run` now auto-adopts `default-2026-g11-science` into the sandbox school's library (commit `7b579ec`). A separate one-shot script `preimport_demo_units.py` runs at provision time to import all 29 G11 Science units as approved + published — without it the teacher portal Our Library + Content Library are empty. |
+| §5 — Email provider | Zoho Mail + Gmail send-as | Pivoted to Cloudflare Email Routing at launch (commit `761e5cb`); outbound send-as deferred post-launch (memory `launch-gmail-sendas-deferred`). Outbound from `wegofwd2020@gmail.com` via the SMTP App Password until a paid mail provider is wired. |
+
+### Asyncpg-related implementation hazards (worth knowing for future demo-flow work)
+
+The launch + walkthrough surfaced two asyncpg quirks that affect any code touching jsonb columns. Both are now fixed but should be re-checked when adding new demo-flow endpoints.
+
+1. **Read-side**: without `set_type_codec("jsonb", encoder=json.dumps, decoder=json.loads)` on the pool, asyncpg returns json/jsonb columns as raw strings — defensive guards like `isinstance(row["x"], list) else []` silently swallow the data. Caused the catalog 0/0 incident (commit `63f7bdd`). Codec is now registered on the app pool via `init=` hook in `backend/src/core/app_factory.py`.
+2. **Write-side**: once the codec is registered, any call site that ALSO does `json.dumps(x)` before passing to asyncpg double-encodes — `json.dumps` runs twice, and Postgres stores a jsonb _string_ instead of an _object_. Caused the Biology lesson 500 incident (commit `7dec328`). All 7 jsonb write sites in `school/router.py`, `school/service.py`, `visuals/router.py` audited + fixed.
+
+**Rule:** with the codec active, pass the dict / list / value directly to asyncpg — never `json.dumps` it manually. Maintenance scripts using bare `asyncpg.connect()` (no init hook) DON'T have the codec, so they MUST keep manual `json.dumps`. Do not mix the two in the same codebase without a sharp comment.
+
+See `mambakkam-net/Plans/HOSTING_ACTIVITY_LOG.md` 2026-05-19 entries for the chronological narrative.
+
+### Operational gotchas surfaced (separate from API design)
+
+- **Sign Out** needed the demo nginx scoped to `/api/v1/` (backend) vs. `/api/` (Next.js) — the unversioned `/api/auth/logout` is a Next.js route, not a backend route (`71f96d6`). Update any future Next.js `app/api/*` routes with this expectation.
+- **Single-file bind mounts (nginx.conf)** are inode-pinned; `git pull` replacing the file leaves the container reading a stale inode. Deploy workflow now does `docker compose up -d --force-recreate --no-deps nginx` on every deploy (`67095ac`).
+- **`NEXT_PUBLIC_APP_URL`** must be set on the web container env even though it's a `NEXT_PUBLIC_` prefix — read at runtime by `/api/auth/logout`. Set in `docker-compose.demo.yml` for demo (`02b25ec`).

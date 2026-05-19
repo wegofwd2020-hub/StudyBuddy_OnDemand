@@ -1016,3 +1016,65 @@ Outstanding:
 | 2026-05-09 | **Restored §7-§10 sections lost in the date-shift git checkout** — Tenancy Position block at top of doc, §2.5 second-tenant cold-start, §3.1 second-tenant provision.sh inventory, §4 Day -1 production-join row, §6 "Decided 2026-05-09" block, and §7-§10 sister-doc pointers (Observability / Logging / Backups / Alerts). Preserved the Day-N labels and concrete timing entries that were added afterwards. |
 | 2026-05-13 | **Content delivery script consolidation.** Audit found that the three demo asset classes (TEXT lesson JSON, GRAPHICS SVGs, VIDEO tutorial MP4s) weren't fully wired into the deploy path — the sample-visuals tree of 44 tutorial MP4s (219 MB) is gitignored and would have 404'd everywhere. Fixed by (a) `scripts/demo/sync-content.sh` (new) that wraps inject_g11_visuals.py + both rsyncs + optional smoke into a single operator command; (b) nginx /sample-visuals/ location + bind-mount; (c) provision.sh creates /data/sample-visuals alongside /data/content; (d) smoke.sh extended with 3 HEAD checks (lesson JSON + tutorial SVG + tutorial MP4). §3 renumbered to slot sync-content.sh in as §3.2 (operational order: provision → sync-content → seed → smoke). |
 | 2026-05-13 | **Launch-blocking CI fixes + universal sign-in shipped.** §1.A: added a "Universal sign-in entry point" row covering the `/signin` page + `POST /auth/universal-login` consolidation of Auth0 / Phase A local / admin tracks; expanded the `deploy-demo.yml` row to call out the `NEXT_PUBLIC_DEMO_MODE=true` Docker `build-arg` that bakes the flag into the client bundle. Added a "Recent CI unblocking" paragraph documenting the four sequential fixes (typescript 6→^5.9.3, lockfile regen under node:20-alpine, `npm ci --legacy-peer-deps`, `next.config.ts output: "standalone"`) that unblocked the previously-red web image build. §5: added a Risk Register row for the expected-but-cosmetic SSH-deploy failure that fires on every push until `DEMO_VPS_HOST` is populated (currently auto-opens an `incident:demo` issue per merge — gate the deploy job if the noise becomes distracting before Day 0). |
+| 2026-05-19 | **Post-launch divergence captured.** Added §11 documenting the 9 bugs that surfaced during the actual Day 0 launch + demo walkthrough (commits `7b579ec`, `1a01526`, `209d122`, `71f96d6`, `02b25ec`, `1d986fc`, `d93e9ee`, `7dec328`, `c310b12`). Three operator-facing additions to the runbook: (1) `JWT_ACCESS_TOKEN_EXPIRE_MINUTES=240` is now in the `.env.demo` skeleton (was missing — 15 min default expired tokens mid-demo); (2) `NEXT_PUBLIC_APP_URL=https://demo.usestudybuddy.com` is now in `docker-compose.demo.yml` (was missing — `/api/auth/logout` redirected to `localhost:3000`); (3) `scripts/preimport_demo_units.py` MUST be run after the seed step (adopts G11 Science + imports all 29 units approved + published; without it Our Library / Content Library are empty for a fresh signup). Tagged the state as `demo-walkthrough-2026-05-19` in both repos. |
+
+---
+
+## §11 — Post-Launch Divergence (2026-05-19)
+
+This section records what diverged between the canonical runbook (§§ 1–10 above) and the actual launch as executed on Day 0 (2026-05-18) plus the demo walkthrough on Day 1 (2026-05-19). Every item below is now either a code-level fix (deployed) or a runbook-level addition (§§ above already amended).
+
+### 11.1 — What worked exactly as planned
+
+- Provision.sh second-tenant variant ran clean (9/9 steps).
+- Sync-content.sh delivered all 3 asset classes; the 44 tutorial MP4s rendered on first try.
+- Auto-deploy workflow built+pushed images and rolled the stack on every push to main.
+- restic backups installed and running on the 02:00 UTC schedule.
+- Cloudflare DNS + Origin Cert chain came up clean for both tenants (after one pwmgr/cert mismatch — see §11.2 incident A).
+
+### 11.2 — Bugs found during launch + walkthrough (fixed; auto-deployed)
+
+| # | Symptom | Root cause | Fix commit |
+| - | ------- | ---------- | ---------- |
+| 1 | Catalog API returned `{subject_count: 0, unit_count: 0, subjects: []}` for every platform curriculum | asyncpg returns json_agg() columns as raw strings without a pool-level codec; defensive `isinstance(row["subjects"], list) else []` silently dropped the data | [`63f7bdd`](https://github.com/wegofwd2020-hub/StudyBuddy_OnDemand/commit/63f7bdd) |
+| 2 | Curriculum Catalog endpoint 500'd on `has_content: null` | SQL emitted NULL when no `content_subject_versions` row existed; Pydantic `CatalogResponse.has_content: bool` rejected it | [`c310b12`](https://github.com/wegofwd2020-hub/StudyBuddy_OnDemand/commit/c310b12) |
+| 3 | "Our Library" empty for newly-signed-up teacher | `school_adopted_curricula` had no rows for the sandbox school | [`7b579ec`](https://github.com/wegofwd2020-hub/StudyBuddy_OnDemand/commit/7b579ec) — auto-adopt in `verify_test_run` |
+| 4 | "Failed to load units" on a clicked curriculum | `curriculum_units.title` was NULL for 6 of 7 platform curricula (yesterday's `recover_curriculum.py --variant` workaround never populated titles) | One-shot backfill from `data/grade*_*.json` (108 titles updated); flagged for inclusion in `recover_curriculum.py` proper |
+| 5 | "Curriculum Content" page empty for the demo teacher | All platform curricula had `is_default = false`; the endpoint filters `c.school_id = $1 OR c.is_default = true` | [`209d122`](https://github.com/wegofwd2020-hub/StudyBuddy_OnDemand/commit/209d122) — one-shot UPDATE + safeguard in `preimport_demo_units.py` |
+| 6 | "Sign Out" → `{"detail":"Not Found"}` | Demo nginx routed all `/api/*` to FastAPI, including `/api/auth/logout` which is a Next.js route | [`71f96d6`](https://github.com/wegofwd2020-hub/StudyBuddy_OnDemand/commit/71f96d6) — split nginx into `/api/v1/` (backend) and `/api/` (Next.js) |
+| 7 | "Sign Out" succeeded but redirected to `http://localhost:3000/` | `NEXT_PUBLIC_APP_URL` unset on the web container | [`02b25ec`](https://github.com/wegofwd2020-hub/StudyBuddy_OnDemand/commit/02b25ec) — set in `docker-compose.demo.yml` |
+| 8 | Subjects page → "Could not load curriculum" (mid-session) | Demo student JWT TTL = 15 min (too short for a walkthrough) | [`1d986fc`](https://github.com/wegofwd2020-hub/StudyBuddy_OnDemand/commit/1d986fc) — bump to 240 in `.env.demo` skeleton |
+| 9 | Subjects page → 404 (persistent) | curriculum resolver returned school's fork ID, but `curriculum_units` only has rows on the OOB curriculum | [`d93e9ee`](https://github.com/wegofwd2020-hub/StudyBuddy_OnDemand/commit/d93e9ee) — follow `source_curriculum_id` for units lookup |
+| 10 | Biology lessons → "Could not load lessons" (other subjects worked) | Manual `json.dumps(body)` × asyncpg codec's own `json.dumps` → bodies stored as jsonb _string_ instead of _object_ | [`7dec328`](https://github.com/wegofwd2020-hub/StudyBuddy_OnDemand/commit/7dec328) — drop manual `json.dumps` at 7 jsonb write sites; SQL UPDATE repaired 18 already-bad rows |
+
+### 11.3 — Operational gotchas worth burning into the runbook
+
+These didn't cause launch incidents but bit during walkthrough. The runbook above has been amended to surface them; this list is the change-set.
+
+1. **Single-file bind mounts are inode-pinned.** `git pull` replaces a config file with a new inode; the running container's bind mount still points at the original (now orphaned) inode. `nginx -s reload` re-reads the same stale file. **Always `docker compose up -d --force-recreate --no-deps <service>` after a config-file pull.** Workflow `.github/workflows/deploy-demo.yml` step "Force-recreate demo nginx" now does this on every deploy.
+2. **nginx upstream DNS resolves once at startup.** When `docker compose up -d` recreates `api` or `web`, they get new bridge-network IPs but nginx keeps the old IP cached → 502 on all `/api/v1/*`. Either force-recreate nginx (default now) or use `resolver 127.0.0.11 valid=10s` + variable-based `proxy_pass` (also landed — `f6bc64c`).
+3. **asyncpg JSON codec is two-edged.** Registering `encoder=json.dumps` on the pool means any caller that ALSO does `json.dumps(x)` double-encodes. Repair: `UPDATE … SET col = ((col #>> '{}')::jsonb) WHERE jsonb_typeof(col) = 'string'`. Audited all 7 write sites; fixed in `7dec328`. Maintenance scripts that use bare `asyncpg.connect()` (no init=) don't have the codec, so they must keep manual `json.dumps`. **Do not mix.**
+4. **Demo JWT TTL ≥ likely demo duration.** Default 15 min is too short; demos commonly run 30–90 min. `.env.demo` now sets 240 min (4h); `min(JWT_TTL, demo_account_lifetime)` clamp in `demo/router.py` still keeps it under the 24h/48h hard cap.
+
+### 11.4 — Resume-point for the next cold-start
+
+After running `provision.sh` → `sync-content.sh` → compose up → migrations → `seed.sh`, **also run**:
+
+```bash
+docker compose exec api python scripts/preimport_demo_units.py
+```
+
+This is what makes the teacher land on a populated portal. Without it, a fresh demo signup sees an empty Our Library and Content Library — the demo walkthrough breaks at step 3.
+
+The script is idempotent — safe to re-run after content store changes.
+
+### 11.5 — Not yet shipped (carried over)
+
+| Item | Source | Notes |
+| ---- | ------ | ----- |
+| #28 — Auth0 claim namespace rename | Activity log 2026-05-18 launch entry | Requires coordinated Auth0 console update; deferred |
+| #29 — Pre-existing CI failures (~138 frontend + Backend + API Contract) | Activity log 2026-05-18 launch entry | Pre-dates launch work; needs a focused session |
+| #31 — Smoke check hits bare VPS IP, not hostname | Activity log 2026-05-19 | Workflow's smoke step always 000's; non-blocking |
+| #12 — `/opt/mambakkam/.git` ownership | Activity log 2026-05-18 launch entry | Deploy user can't `git fetch` directly; doesn't block CI deploy |
+| Stripe wiring | Activity log 2026-05-18 launch entry | `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` blanked; subscription endpoints 500 if exercised |
+| `recover_curriculum.py` populating `curriculum_units.title` | §11.2 #4 | The script left titles NULL for variant grades; backfilled live, but should land in the script |

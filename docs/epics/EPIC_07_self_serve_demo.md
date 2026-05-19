@@ -175,3 +175,51 @@ admin auth gate, lead listing and status filter, approve/reject flows, geo-block
 
 **Anything else:**
 -
+
+---
+
+## Lessons from the production walkthrough (2026-05-19)
+
+The self-serve demo went live 2026-05-18 and was walkthrough-validated end-to-end on 2026-05-19. Nine bugs surfaced during that walkthrough and have all been fixed (auto-deployed). Recording them here so the EPIC's "Complete" status reflects what was actually exercised vs. what was specced.
+
+### What worked exactly as designed
+
+- `POST /api/v1/demo/test-run/request` accepts name + email, validates the rate limit, idempotency-blocks duplicate active accounts, creates the `demo_requests` + `demo_teacher_requests` rows in one transaction, generates a single verification token shared across both, and queues a `send_test_run_verification_email_task` Celery job. Verified: real email delivered in 1.3s.
+- `GET /api/v1/demo/test-run/verify/{token}` provisions the demo student + demo teacher accounts with bcrypt password hashes, attaches them to the seeded `MilfordWaterford Local School`, creates a per-visitor classroom named `"{visitor_name}'s Grade 11 Science"`, enrols the demo student in it, and queues a `send_test_run_credentials_email_task` job. Verified: real email delivered in ~7s.
+- Demo student gets grade=11, stream=science. Demo teacher inherits the same school.
+- Account TTLs are 24h (student) / 48h (teacher) — encoded in the `demo_accounts.expires_at` / `demo_teacher_accounts.expires_at` columns and enforced at login time.
+
+### Bugs found + fixed during walkthrough (commits in `StudyBuddy_OnDemand`)
+
+| # | Subject | Root cause | Fix |
+| - | ------- | ---------- | --- |
+| 1 | New demo teachers landed on an empty "Our Library" page | The verify flow created the classroom + `classroom_packages` row but never inserted a `school_adopted_curricula` row | `7b579ec` — idempotent INSERT in `verify_test_run` |
+| 2 | "Curriculum Content" page empty | All platform curricula had `is_default = false` (DB drift from `recover_curriculum.py --variant`); the endpoint filters `c.school_id = $1 OR c.is_default = true` | `209d122` — UPDATE platform rows + safeguard in `preimport_demo_units.py` |
+| 3 | "Failed to load units" on click | `curriculum_units.title` was NULL for 6 of 7 platform curricula | One-shot backfill from `data/grade*_*.json` (108 titles) |
+| 4 | Catalog endpoint 500'd | Pydantic `has_content: bool` rejected SQL's NULL for curricula with no `content_subject_versions` row | `c310b12` — COALESCE to `false` |
+| 5 | Sign Out → "Not Found" | Demo nginx routed `/api/auth/logout` to FastAPI (which only has `/api/v1/auth/logout`) — the Next.js handler at `app/api/auth/logout/route.ts` never got the request | `71f96d6` — split nginx into `/api/v1/` (backend) and `/api/` (Next.js) |
+| 6 | Sign Out → redirect to `http://localhost:3000/` | `NEXT_PUBLIC_APP_URL` unset on web container | `02b25ec` — set to `https://demo.usestudybuddy.com` |
+| 7 | Subjects page → "Could not load curriculum" mid-session | Demo student JWT TTL = 15 min (too short for a walkthrough) | `1d986fc` — bump to 240 min in `.env.demo` skeleton |
+| 8 | Subjects page → 404 (persistent) | Curriculum resolver returned school's fork ID, but `curriculum_units` only has rows on the OOB curriculum | `d93e9ee` — follow `source_curriculum_id` for units lookup |
+| 9 | Biology lessons → "Could not load lessons" (Chemistry / Math / Physics worked) | Manual `json.dumps(body)` × asyncpg codec's own `json.dumps` → bodies stored as jsonb _string_ instead of _object_ | `7dec328` — drop manual `json.dumps` at 7 jsonb write sites + SQL repair of 18 already-bad rows |
+
+### Curated demo state (now defaulted by `preimport_demo_units.py`)
+
+After the seed step, the operator MUST run `scripts/preimport_demo_units.py` (idempotent, ~1 second). It:
+
+- Auto-adopts `default-2026-g11-science` into the demo school's library (idempotent on the unique `(school_id, curriculum_id)` constraint).
+- Lazy-creates the school's fork curriculum + `grade_curriculum_assignments` row.
+- Imports all 29 G11 Science units across 4 subjects — 1 row per `(unit_id × content_type)` in `unit_content_overrides`, ~169 rows total.
+- Inserts overrides directly at `review_status = 'approved'` (skips the draft → pending_review → approved review workflow — this is a demo, not a real school).
+- Upserts `unit_content_active_versions` for each override so they're "published" and visible in the Content Library + student-facing endpoints.
+- Safeguards: promotes any pre-existing draft rows to approved + re-activates them.
+
+Without this script, a fresh demo signup sees an empty Our Library and Content Library — the demo walkthrough breaks at step 3.
+
+### Deferred follow-ups (not blocking the demo)
+
+- **#31** — `DEMO_VPS_HOST` GH secret is the VPS IP, but the deploy workflow's smoke check needs the public hostname for Cloudflare to terminate TLS. Smoke step always 000's; the actual deploy succeeds. Split into `DEMO_VPS_SSH_HOST` (IP) + `DEMO_VPS_SMOKE_URL` (hostname).
+- **`recover_curriculum.py` should populate `curriculum_units.title`** — yesterday's `--variant` workaround inserted `content_subject_versions` rows but left titles NULL on the variant curricula. Backfilled live this session; should land in the script.
+- **Stripe wiring** — `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` blanked in `.env.demo` for launch. Subscription endpoints 500 if exercised. Out of scope for the demo flow but in scope for a paying-customer demo.
+
+Tagged at `demo-walkthrough-2026-05-19` in both `StudyBuddy_OnDemand` and `mambakkam-net` repos.
