@@ -118,18 +118,28 @@ async def create_curriculum_from_json(
 
     curriculum_id = str(uuid.uuid4())
 
+    # A school-scoped upload must be owner_type='school' (not the column default
+    # 'platform'). Otherwise migration 0046's RESTRICTIVE no_write_platform_curricula_insert
+    # policy rejects the INSERT under any non-superuser session (pitfall #28) — it only
+    # "works" when the DB role is a superuser and bypasses FORCE RLS. owner_id mirrors
+    # school_id, matching the definition-trigger insert in pipeline_router.
+    sid = uuid.UUID(school_id) if school_id else None
+    owner_type = "school" if sid else "platform"
+
     await conn.execute(
         """
         INSERT INTO curricula
-            (curriculum_id, school_id, grade, year, name, source_type, status, created_by)
-        VALUES ($1, $2, $3, $4, $5, 'ui_form', 'draft', $6)
+            (curriculum_id, school_id, grade, year, name, source_type, status, created_by,
+             owner_type, owner_id)
+        VALUES ($1, $2, $3, $4, $5, 'ui_form', 'draft', $6, $7, $2)
         """,
         curriculum_id,
-        uuid.UUID(school_id) if school_id else None,
+        sid,
         grade,
         year,
         name,
         uuid.UUID(teacher_id) if teacher_id else None,
+        owner_type,
     )
 
     for seq, unit in enumerate(units, start=1):
