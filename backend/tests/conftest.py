@@ -17,9 +17,8 @@ from __future__ import annotations
 
 import asyncio
 import os
-import uuid
-from typing import AsyncGenerator
-from unittest.mock import AsyncMock, patch, MagicMock
+from collections.abc import AsyncGenerator
+from unittest.mock import patch
 
 import asyncpg
 import fakeredis.aioredis
@@ -50,9 +49,8 @@ os.environ.setdefault("CONTENT_STORE_PATH", "/tmp/studybuddy-test-content")
 # ── Now safe to import app ────────────────────────────────────────────────────
 
 from main import app
+
 from tests.helpers.token_factory import (
-    TEST_ADMIN_JWT_SECRET,
-    TEST_JWT_SECRET,
     make_admin_token,
     make_student_token,
     make_teacher_token,
@@ -164,11 +162,25 @@ async def client(fake_redis, db_conn) -> AsyncGenerator[AsyncClient, None]:
     Injects a fake Redis and a real asyncpg pool (pointing to test DB).
     Mocks all Celery task dispatch to be no-ops.
     """
-    pool = await asyncpg.create_pool(TEST_DB_URL, min_size=1, max_size=5, statement_cache_size=0)
+    # Mirror the production pool's connection init so json/jsonb columns are
+    # encoded/decoded with the same codecs (app_factory._init_db_conn). Without
+    # this the test pool returns/binds jsonb as raw strings and every jsonb
+    # write path fails with "expected str, got list" (regression after the
+    # asyncpg codec change in commit 7dec328).
+    from src.core.app_factory import _init_db_conn
+
+    pool = await asyncpg.create_pool(
+        TEST_DB_URL,
+        min_size=1,
+        max_size=5,
+        statement_cache_size=0,
+        init=_init_db_conn,
+    )
     app.state.pool = pool
     app.state.redis = fake_redis
 
     from config import settings as _cfg
+
     from src.core.limiter import limiter
     from src.core.storage import LocalStorage
     app.state.limiter = limiter

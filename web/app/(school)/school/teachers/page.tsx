@@ -9,6 +9,8 @@ import {
   provisionTeacher,
   resetTeacherPassword,
   promoteTeacher,
+  setTeacherCapabilities,
+  CURRICULUM_CAPABILITIES,
   type TeacherRosterItem,
 } from "@/lib/api/school-admin";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,9 +28,16 @@ import {
   X,
   KeyRound,
   Crown,
+  BookMarked,
 } from "lucide-react";
 
 const ALL_GRADES = [5, 6, 7, 8, 9, 10, 11, 12];
+
+const CAP_LABELS: Record<string, string> = {
+  "curriculum.commission": "Commission",
+  "curriculum.review": "Review",
+  curriculum_mgmt: "Curriculum Mgmt",
+};
 
 // ── Grade badge chip ──────────────────────────────────────────────────────────
 
@@ -110,6 +119,73 @@ function GradeEditor({
   );
 }
 
+// ── Inline capability editor (issue #358) ────────────────────────────────────
+
+function CapabilityEditor({
+  teacherId,
+  schoolId,
+  current,
+  onDone,
+}: {
+  teacherId: string;
+  schoolId: string;
+  current: string[];
+  onDone: () => void;
+}) {
+  const queryClient = useQueryClient();
+  const [selected, setSelected] = useState<Set<string>>(new Set(current));
+  const [error, setError] = useState<string | null>(null);
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: () => setTeacherCapabilities(schoolId, teacherId, [...selected]),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["teachers", schoolId] });
+      onDone();
+    },
+    onError: () => setError("Failed to save. Please try again."),
+  });
+
+  function toggle(cap: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(cap)) next.delete(cap);
+      else next.add(cap);
+      return next;
+    });
+  }
+
+  return (
+    <div className="mt-2 rounded-lg border border-blue-100 bg-blue-50 p-3">
+      <p className="mb-2 text-xs font-medium text-gray-600">
+        Curriculum capabilities — grant the two gates separately for maker-checker, or
+        the umbrella for both:
+      </p>
+      <div className="space-y-1.5">
+        {CURRICULUM_CAPABILITIES.map((c) => (
+          <label key={c.value} className="flex items-center gap-2 text-sm text-gray-700">
+            <input
+              type="checkbox"
+              checked={selected.has(c.value)}
+              onChange={() => toggle(c.value)}
+              className="h-4 w-4 rounded border-gray-300 text-blue-600"
+            />
+            {c.label}
+          </label>
+        ))}
+      </div>
+      {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
+      <div className="mt-3 flex gap-2">
+        <Button size="sm" onClick={() => mutate()} disabled={isPending}>
+          {isPending ? "Saving…" : "Save"}
+        </Button>
+        <Button size="sm" variant="outline" onClick={onDone} disabled={isPending}>
+          Cancel
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 // ── Teacher row ───────────────────────────────────────────────────────────────
 
 function TeacherRow({
@@ -123,6 +199,7 @@ function TeacherRow({
 }) {
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState(false);
+  const [editingCaps, setEditingCaps] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
   const [confirmPromote, setConfirmPromote] = useState(false);
   const [actionMsg, setActionMsg] = useState<string | null>(null);
@@ -185,6 +262,21 @@ function TeacherRow({
               <span className="text-xs text-gray-400 italic">No grades assigned</span>
             )}
           </div>
+
+          {/* Curriculum capabilities (issue #358) — admins have these implicitly */}
+          {item.role !== "school_admin" && item.capabilities.length > 0 && (
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              {item.capabilities.map((c) => (
+                <span
+                  key={c}
+                  className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700"
+                >
+                  <BookMarked className="h-3 w-3" />
+                  {CAP_LABELS[c] ?? c}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Action buttons */}
@@ -215,6 +307,17 @@ function TeacherRow({
               title="Reset password"
             >
               <KeyRound className="h-4 w-4" />
+            </button>
+          )}
+          {isAdmin && item.role !== "school_admin" && (
+            <button
+              type="button"
+              onClick={() => setEditingCaps((v) => !v)}
+              className="rounded-md p-1.5 text-gray-400 hover:bg-blue-50 hover:text-blue-600"
+              aria-label="Edit curriculum capabilities"
+              title="Curriculum capabilities"
+            >
+              <BookMarked className="h-4 w-4" />
             </button>
           )}
           <button
@@ -330,6 +433,15 @@ function TeacherRow({
           schoolId={schoolId}
           current={item.assigned_grades}
           onDone={() => setEditing(false)}
+        />
+      )}
+
+      {editingCaps && (
+        <CapabilityEditor
+          teacherId={item.teacher_id}
+          schoolId={schoolId}
+          current={item.capabilities}
+          onDone={() => setEditingCaps(false)}
         />
       )}
     </div>

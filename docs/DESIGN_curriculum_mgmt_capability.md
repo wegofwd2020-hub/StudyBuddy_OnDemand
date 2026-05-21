@@ -1,6 +1,6 @@
 # Design — `curriculum_mgmt` capability
 
-**Status:** Proposed · **Date:** 2026-05-21 · **Extends:** [ADR-001](ADR_001_tenancy_and_subscription_model.md) (role model)
+**Status:** Implemented (migration 0059, branch `feat/curriculum-mgmt-capability`, issue #358) · **Date:** 2026-05-21 · **Extends:** [ADR-001](ADR_001_tenancy_and_subscription_model.md) (role model)
 
 Lets a school_admin delegate curriculum-management powers to a chosen teacher
 **without** promoting them to full school_admin, and groups all curriculum nav

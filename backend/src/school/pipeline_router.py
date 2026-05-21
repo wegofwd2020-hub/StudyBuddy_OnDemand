@@ -42,6 +42,7 @@ from src.core.db import get_db
 from src.core.redis_client import get_redis
 from src.core.stripe_async import run_stripe
 from src.pricing import AI_COST, EXTRA_BUILD_PRICE_USD
+from src.school.capability_guards import require_commission
 from src.school.schemas import (
     PipelineEstimateResponse,
     PipelineTriggerFromDefinitionRequest,
@@ -145,7 +146,7 @@ async def upload_school_curriculum(
     so re-uploads add new units without overwriting existing ones. Use
     pipeline trigger with force=True to rebuild content for changed units.
     """
-    _assert_school_match(teacher, school_id, request)
+    require_commission(teacher, school_id, request)
 
     raw = await file.read()
     try:
@@ -333,7 +334,7 @@ async def trigger_school_pipeline(
     """
     from src.core.celery_app import celery_app as _celery
 
-    _assert_school_match(teacher, school_id, request)
+    require_commission(teacher, school_id, request)
     teacher_id = teacher.get("teacher_id", "")
     curriculum_id = f"{school_id}-{body.year}-g"
 
@@ -707,7 +708,7 @@ async def estimate_definition_pipeline(
     - within_allowance = True  → build is covered by plan quota or rollover credits
     - within_allowance = False → extra_build_charge_usd is set; school will be charged on trigger
     """
-    _assert_school_match(teacher, school_id, request)
+    require_commission(teacher, school_id, request)
 
     async with get_db(request) as conn:
         defn = await _get_definition_or_404(conn, definition_id, school_id, request)
@@ -793,7 +794,7 @@ async def trigger_pipeline_from_definition(
     """
     from src.core.celery_app import celery_app as _celery
 
-    _assert_school_match(teacher, school_id, request)
+    require_commission(teacher, school_id, request)
 
     if not body.confirm:
         raise HTTPException(

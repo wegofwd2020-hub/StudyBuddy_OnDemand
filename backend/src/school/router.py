@@ -22,7 +22,14 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 
 from src.auth.dependencies import get_current_student, get_current_teacher
 from src.core.db import get_db
+from src.core.events import emit_event, write_audit_log
+from src.core.permissions import has_any_curriculum_capability
 from src.core.storage import get_storage
+from src.school.capability_guards import (
+    require_commission,
+    require_curriculum_view,
+    require_review,
+)
 from src.school.enrolment_service import (
     assign_student,
     get_roster,
@@ -38,6 +45,7 @@ from src.school.schemas import (
     AssignStudentRequest,
     BulkReassignRequest,
     BulkReassignResponse,
+    CapabilityGrantRequest,
     CatalogResponse,
     ClassroomCreateRequest,
     ClassroomDetailResponse,
@@ -75,6 +83,7 @@ from src.school.schemas import (
     SetupStatusResponse,
     StudentAssignmentRequest,
     StudentAssignmentResponse,
+    TeacherCapabilitiesResponse,
     TeacherGradeAssignRequest,
     TeacherGradeAssignResponse,
     TeacherInviteRequest,
@@ -564,12 +573,18 @@ async def list_teachers(
             SELECT t.teacher_id::text, t.name, t.email, t.role,
                    t.account_status::text,
                    COALESCE(
-                       array_agg(tga.grade ORDER BY tga.grade)
+                       array_agg(DISTINCT tga.grade ORDER BY tga.grade)
                        FILTER (WHERE tga.grade IS NOT NULL), '{}'
-                   ) AS assigned_grades
+                   ) AS assigned_grades,
+                   COALESCE(
+                       array_agg(DISTINCT tc.capability)
+                       FILTER (WHERE tc.capability IS NOT NULL), '{}'
+                   ) AS capabilities
             FROM teachers t
             LEFT JOIN teacher_grade_assignments tga
                 ON tga.teacher_id = t.teacher_id
+            LEFT JOIN teacher_capabilities tc
+                ON tc.teacher_id = t.teacher_id
             WHERE t.school_id = $1
             GROUP BY t.teacher_id, t.name, t.email, t.role, t.account_status
             ORDER BY t.name
@@ -585,6 +600,7 @@ async def list_teachers(
                 "role": r["role"],
                 "account_status": r["account_status"],
                 "assigned_grades": list(r["assigned_grades"]),
+                "capabilities": sorted(r["capabilities"]),
             }
             for r in rows
         ]
@@ -670,6 +686,102 @@ async def assign_teacher_grades(
         teacher_id=teacher_id,
         school_id=school_id,
         assigned_grades=sorted(body.grades),
+    )
+
+
+# ── Curriculum-management capabilities (issue #358) ──────────────────────────
+
+
+@router.put(
+    "/schools/{school_id}/teachers/{teacher_id}/capabilities",
+    response_model=TeacherCapabilitiesResponse,
+)
+async def set_teacher_capabilities(
+    school_id: str,
+    teacher_id: str,
+    body: CapabilityGrantRequest,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> TeacherCapabilitiesResponse:
+    """Replace a teacher's curriculum capabilities (school_admin only).
+
+    Full-replace set semantics: the request body is the complete desired set, so
+    sending `[]` revokes all. Unknown capabilities are rejected (422) at the
+    schema layer. school_admin is an implicit superset and never needs a grant.
+    """
+    _require_school_admin(teacher, school_id, request)
+
+    import uuid as _uuid
+
+    tid = _uuid.UUID(teacher_id)
+    sid = _uuid.UUID(school_id)
+    granted_by = _uuid.UUID(teacher["teacher_id"])
+
+    async with get_db(request) as conn:
+        exists = await conn.fetchval(
+            "SELECT 1 FROM teachers WHERE teacher_id = $1 AND school_id = $2", tid, sid
+        )
+        if not exists:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "error": "not_found",
+                    "detail": "Teacher not found in this school.",
+                    "correlation_id": _cid(request),
+                },
+            )
+        async with conn.transaction():
+            await conn.execute("DELETE FROM teacher_capabilities WHERE teacher_id = $1", tid)
+            if body.capabilities:
+                await conn.executemany(
+                    """
+                    INSERT INTO teacher_capabilities (teacher_id, school_id, capability, granted_by)
+                    VALUES ($1, $2, $3, $4)
+                    ON CONFLICT (teacher_id, capability) DO NOTHING
+                    """,
+                    [(tid, sid, cap, granted_by) for cap in body.capabilities],
+                )
+
+    emit_event(
+        "school",
+        "capabilities_changed",
+        school_id=school_id,
+        teacher_id=teacher_id,
+        capabilities=body.capabilities,
+    )
+    write_audit_log(
+        event_type="teacher.capabilities_changed",
+        actor_type="teacher",
+        actor_id=granted_by,
+        target_type="teacher",
+        target_id=tid,
+        metadata={"capabilities": body.capabilities, "school_id": school_id},
+    )
+    return TeacherCapabilitiesResponse(teacher_id=teacher_id, capabilities=body.capabilities)
+
+
+@router.get(
+    "/schools/{school_id}/teachers/{teacher_id}/capabilities",
+    response_model=TeacherCapabilitiesResponse,
+)
+async def get_teacher_capabilities(
+    school_id: str,
+    teacher_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> TeacherCapabilitiesResponse:
+    """Read a teacher's curriculum capabilities (school_admin only)."""
+    _require_school_admin(teacher, school_id, request)
+
+    import uuid as _uuid
+
+    async with get_db(request) as conn:
+        rows = await conn.fetch(
+            "SELECT capability FROM teacher_capabilities WHERE teacher_id = $1",
+            _uuid.UUID(teacher_id),
+        )
+    return TeacherCapabilitiesResponse(
+        teacher_id=teacher_id, capabilities=sorted(r["capability"] for r in rows)
     )
 
 
@@ -1262,8 +1374,10 @@ async def list_definitions_endpoint(
     if teacher["school_id"] != school_id:
         raise HTTPException(status_code=403, detail="Forbidden")
 
-    is_admin = teacher.get("role") == "school_admin"
-    teacher_filter = None if is_admin else teacher["teacher_id"]
+    # Anyone with a curriculum capability (or school_admin) sees the whole
+    # pending-approval queue; a plain proposing teacher sees only their own.
+    can_view_all = teacher.get("role") == "school_admin" or has_any_curriculum_capability(teacher)
+    teacher_filter = None if can_view_all else teacher["teacher_id"]
 
     async with get_db(request) as conn:
         definitions = await list_definitions(
@@ -1301,8 +1415,8 @@ async def get_definition_endpoint(
     if not defn:
         raise HTTPException(status_code=404, detail="Definition not found")
 
-    is_admin = teacher.get("role") == "school_admin"
-    if not is_admin and defn["submitted_by"] != teacher["teacher_id"]:
+    can_view_all = teacher.get("role") == "school_admin" or has_any_curriculum_capability(teacher)
+    if not can_view_all and defn["submitted_by"] != teacher["teacher_id"]:
         raise HTTPException(status_code=403, detail="Forbidden")
 
     return CurriculumDefinitionResponse(**defn)
@@ -1324,10 +1438,7 @@ async def approve_definition_endpoint(
     After approval the school admin can trigger the pipeline (Phase E).
     Returns 409 if the definition is not in 'pending_approval' state.
     """
-    if teacher.get("role") != "school_admin":
-        raise HTTPException(status_code=403, detail="Only school_admin can approve definitions")
-    if teacher["school_id"] != school_id:
-        raise HTTPException(status_code=403, detail="Forbidden")
+    require_commission(teacher, school_id, request)
 
     async with get_db(request) as conn:
         result = await approve_definition(
@@ -1360,10 +1471,7 @@ async def reject_definition_endpoint(
     The rejection reason is stored and surfaced to the submitting teacher.
     Returns 409 if the definition is not in 'pending_approval' state.
     """
-    if teacher.get("role") != "school_admin":
-        raise HTTPException(status_code=403, detail="Only school_admin can reject definitions")
-    if teacher["school_id"] != school_id:
-        raise HTTPException(status_code=403, detail="Forbidden")
+    require_commission(teacher, school_id, request)
 
     async with get_db(request) as conn:
         result = await reject_definition(
@@ -1555,7 +1663,7 @@ async def adopt_curriculum(
     idempotent: if the curriculum is already adopted, it returns the existing
     adoption record.
     """
-    _require_school_admin(teacher, school_id, request)
+    require_commission(teacher, school_id, request)
 
     async with get_db(request) as conn:
         # Verify the curriculum exists and is a platform OOB curriculum.
@@ -1645,7 +1753,7 @@ async def update_adoption(
     school_admin only. Deactivating does NOT delete the fork or any overrides —
     it only hides the curriculum from the active library view.
     """
-    _require_school_admin(teacher, school_id, request)
+    require_commission(teacher, school_id, request)
 
     if body.status is None and body.notes is None:
         raise HTTPException(status_code=422, detail="Nothing to update")
@@ -2159,7 +2267,7 @@ async def get_review_queue(
     """
     from src.school.schemas import ReviewQueueItem, ReviewQueueResponse
 
-    _require_school_admin(teacher, school_id, request)
+    require_curriculum_view(teacher, school_id, request)
 
     async with get_db(request) as conn:
         rows = await conn.fetch(
@@ -2849,7 +2957,7 @@ async def approve_unit_content(
     """
     from src.school.schemas import ApproveRequest
 
-    _require_school_admin(teacher, school_id, request)
+    require_review(teacher, school_id, request)
 
     if not isinstance(body, ApproveRequest):
         raise HTTPException(status_code=422, detail="Invalid body")
@@ -2930,7 +3038,7 @@ async def reject_unit_content(
     """
     from src.school.schemas import RejectRequest
 
-    _require_school_admin(teacher, school_id, request)
+    require_review(teacher, school_id, request)
 
     if not isinstance(body, RejectRequest):
         raise HTTPException(status_code=422, detail="Invalid body")
@@ -2984,7 +3092,7 @@ async def publish_unit_content(
     Upserts into unit_content_active_versions. Separate from approve() so the
     admin can batch-approve many units and then publish in one sweep.
     """
-    _require_school_admin(teacher, school_id, request)
+    require_review(teacher, school_id, request)
 
     async with get_db(request) as conn:
         await _assert_school_owns_curriculum(conn, school_id, curriculum_id)

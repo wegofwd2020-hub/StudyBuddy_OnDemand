@@ -412,6 +412,8 @@ Current migrations (as of last commit):
 | 0055 | Epic 15 — `schools.backup_cron` column (default `0 2 * * *` nightly at 02:00 UTC) |
 | 0056 | Visual library — `visual_library_entries` table (kind, subject, topic_phrase, keywords, s3_path, license, source_unit, embedding) |
 | 0057 | Visual library — `embedding` column → pgvector type for cosine similarity search |
+| 0058 | Demo request — `name` column on demo lead requests |
+| 0059 | Epic/#358 — `teacher_capabilities` table (RLS): additive `curriculum.commission` / `curriculum.review` / `curriculum_mgmt` grants |
 
 ---
 

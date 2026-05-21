@@ -16,18 +16,14 @@ import {
   HelpCircle,
   Mail,
   LogOut,
-  BookMarked,
   GraduationCap,
   Settings,
   Palette,
   CreditCard,
-  Library,
   Archive,
   HardDrive,
   Images,
   DoorOpen,
-  LayoutGrid,
-  ClipboardCheck,
   Database,
 } from "lucide-react";
 import { listReviewQueue } from "@/lib/api/school-admin";
@@ -61,32 +57,9 @@ const NAV_ITEMS: NavItem[] = [
     icon: <BarChart2 className="h-4 w-4" />,
     adminOnly: true,
   },
-  {
-    label: "Curriculum",
-    href: "/school/curriculum",
-    icon: <BookMarked className="h-4 w-4" />,
-  },
-  {
-    label: "Catalog",
-    href: "/school/catalog",
-    icon: <LayoutGrid className="h-4 w-4" />,
-  },
-  {
-    label: "Our Library",
-    href: "/school/library",
-    icon: <BookMarked className="h-4 w-4" />,
-  },
-  {
-    label: "Review Queue",
-    href: "/school/review",
-    icon: <ClipboardCheck className="h-4 w-4" />,
-    adminOnly: true,
-  },
-  {
-    label: "Content Library",
-    href: "/school/curriculum/content",
-    icon: <Library className="h-4 w-4" />,
-  },
+  // Curriculum nav (Curriculum Builder, Catalog, Our Library, Review Queue,
+  // Content Library) moved to the top-bar "Curriculum Management" menu, gated on
+  // the curriculum capability — see components/layout/CurriculumMenu.tsx (#358).
   { label: "Students", href: "/school/students", icon: <Users className="h-4 w-4" /> },
   {
     label: "Teachers",

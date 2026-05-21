@@ -66,6 +66,7 @@ class TeacherRosterItem(BaseModel):
     role: str
     account_status: str
     assigned_grades: list[int]
+    capabilities: list[str] = []
 
 
 class TeacherRosterResponse(BaseModel):
@@ -80,6 +81,28 @@ class TeacherGradeAssignResponse(BaseModel):
     teacher_id: str
     school_id: str
     assigned_grades: list[int]
+
+
+class CapabilityGrantRequest(BaseModel):
+    """Full-replace set of curriculum capabilities to grant a teacher (issue #358)."""
+
+    capabilities: list[str]
+
+    @field_validator("capabilities")
+    @classmethod
+    def _validate_capabilities(cls, v: list[str]) -> list[str]:
+        # Imported here to avoid a module-load cycle (permissions imports fastapi).
+        from src.core.permissions import ALLOWED_CAPABILITIES
+
+        unknown = sorted({c for c in v if c not in ALLOWED_CAPABILITIES})
+        if unknown:
+            raise ValueError(f"Unknown capabilities: {unknown}")
+        return sorted(set(v))  # dedupe, deterministic order
+
+
+class TeacherCapabilitiesResponse(BaseModel):
+    teacher_id: str
+    capabilities: list[str]
 
 
 # ── Phase 9 — Enrolment ────────────────────────────────────────────────────────

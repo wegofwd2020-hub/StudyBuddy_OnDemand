@@ -1,11 +1,13 @@
 # Spec — `curriculum_mgmt` capability
 
-**Status:** Awaiting approval (spec-first; no source touched) · **Date:** 2026-05-21
+**Status:** Implemented (migration **0059**; issue #358) · **Date:** 2026-05-21
 **Design:** [DESIGN_curriculum_mgmt_capability.md](DESIGN_curriculum_mgmt_capability.md)
 
 Grounded patterns: guard helper `_require_school_admin(teacher, school_id, request)`
-at `backend/src/school/router.py:407`; test tokens via `make_teacher_token(...)` in
-`backend/tests/helpers/token_factory.py`; next migration = **0058**.
+at `backend/src/school/router.py`; capability guards in `backend/src/school/capability_guards.py`;
+test tokens via `make_teacher_token(..., capabilities=[...])` in
+`backend/tests/helpers/token_factory.py`. Migration landed as **0059** (0058 was
+taken by `demo_request_name`).
 
 ---
 
@@ -361,6 +363,15 @@ CREATE INDEX ix_teacher_capabilities_school ON teacher_capabilities(school_id);
 - **Revocation latency** (design open-Q #1): spec trusts the JWT claim; a removed grant is honored until token expiry. The revocation test asserts the *grant store* is cleared, not that live tokens are killed. Flag if instant revoke required → adds a per-request grant check.
 
 ---
+
+## Implementation notes (2026-05-21)
+
+- Migration landed as **0059** (0058 was `demo_request_name`, undocumented drift — now added to the CLAUDE.md table).
+- Guards live in `backend/src/school/capability_guards.py` (`require_curriculum_view` / `require_commission` / `require_review`), wired into `school/router.py` and `pipeline_router.py`. The school "load new curriculum" surface = `POST …/curriculum/upload` + the pipeline triggers, all now commission-gated.
+- JWT mint adds `capabilities[]` on **all four** teacher token paths: `/auth/login`, `/auth/universal-login`, `/auth/refresh` (so it survives the ~15-min cycle), and the Auth0 teacher exchange.
+- **Harness fix:** the conftest test pool was missing the production jsonb codec (`init=_init_db_conn`), which had silently broken every jsonb-write endpoint in tests since the May-19 codec commit. Added it — un-breaks `test_phase_d_definitions` (19) + `test_epic12_content_authoring` (27).
+- **e2e deferred:** the 3 persona Playwright specs are not yet committed (require host browser per pitfall #26 + persona-capability fixtures); the vitest + backend guard matrix cover the gating logic. Tracked as follow-up on #358.
+- **Pre-existing failures unrelated to this work:** 19 full-suite failures remain on `main` (pipeline `ModuleNotFoundError`; `curricula` platform-write RLS, pitfall #28) — verified independent of these changes.
 
 ## Resolved decisions (2026-05-21)
 

@@ -67,6 +67,7 @@ def make_teacher_token(
     role: str = "teacher",
     account_status: str = "active",
     expire_minutes: int = 15,
+    capabilities: list[str] | None = None,
 ) -> str:
     """Return a signed teacher JWT for testing.
 
@@ -75,6 +76,9 @@ def make_teacher_token(
     teachers without a school affiliation).
 
     Omitting school_id (or passing the _UNSET sentinel) uses _DEFAULT_SCHOOL_ID.
+
+    capabilities populates the curriculum-capability grants (issue #358); the
+    real login/exchange/refresh mints read these from teacher_capabilities.
     """
     tid = teacher_id or _DEFAULT_TEACHER_ID
     sid = _DEFAULT_SCHOOL_ID if school_id is _UNSET else school_id
@@ -83,6 +87,7 @@ def make_teacher_token(
         "teacher_id": tid,
         "role": role,
         "account_status": account_status,
+        "capabilities": capabilities or [],
         "iat": now,
         "exp": now + timedelta(minutes=expire_minutes),
         "jti": str(uuid.uuid4()),
