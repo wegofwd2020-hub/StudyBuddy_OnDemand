@@ -64,7 +64,7 @@ describe("DemoVerifyPage — success", () => {
     await waitFor(() =>
       expect(screen.getByRole("link", { name: "verify_success_cta" })).toHaveAttribute(
         "href",
-        "/demo/login",
+        "/signin",
       ),
     );
   });
@@ -91,7 +91,7 @@ describe("DemoVerifyPage — token_already_used (409)", () => {
     await waitFor(() =>
       expect(screen.getByRole("link", { name: "verify_used_cta" })).toHaveAttribute(
         "href",
-        "/demo/login",
+        "/signin",
       ),
     );
   });

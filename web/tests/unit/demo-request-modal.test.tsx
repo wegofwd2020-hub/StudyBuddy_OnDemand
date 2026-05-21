@@ -193,7 +193,7 @@ describe("DemoRequestModal", () => {
     await waitFor(() => screen.getByRole("link", { name: "sign_in_demo" }));
     expect(screen.getByRole("link", { name: "sign_in_demo" })).toHaveAttribute(
       "href",
-      "/demo/login",
+      "/signin",
     );
   });
 
