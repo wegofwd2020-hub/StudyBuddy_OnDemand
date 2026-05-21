@@ -15,7 +15,6 @@ Teacher invite:
 
 from __future__ import annotations
 
-import json
 import re
 import uuid
 from datetime import UTC
@@ -1148,7 +1147,6 @@ async def update_llm_config(
 
     Returns the updated config row.
     """
-    import json as _json
     from datetime import datetime
 
     # Ensure row exists

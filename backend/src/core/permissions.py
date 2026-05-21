@@ -95,8 +95,8 @@ _bearer = HTTPBearer(auto_error=False)
 # at login. school_admin is an implicit superset — it never needs a grant.
 ALLOWED_CAPABILITIES: set[str] = {
     "curriculum.commission",  # Gate 1 — approve/adopt/load + trigger generation
-    "curriculum.review",      # Gate 2 — approve/publish generated content
-    "curriculum_mgmt",        # umbrella — covers both gates
+    "curriculum.review",  # Gate 2 — approve/publish generated content
+    "curriculum_mgmt",  # umbrella — covers both gates
 }
 
 # Umbrella capability → the specific capabilities it satisfies.
