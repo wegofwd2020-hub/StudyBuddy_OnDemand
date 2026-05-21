@@ -89,5 +89,5 @@ export const DEMO_ACCOUNTS_STRINGS = {
   prevBtn: "Previous",
   confirmRevokeBtn: "Revoke",
   cancelBtn: "Cancel",
-  emptyMsg: "No demo accounts found.",
+  emptyMsg: "No demo accounts yet.",
 } as const;

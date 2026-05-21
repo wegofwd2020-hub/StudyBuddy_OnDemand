@@ -54,5 +54,5 @@ export const ALERTS_STRINGS = {
   // Acknowledged section
   acknowledgedLabel: "Acknowledged",
   // Empty state
-  noAlerts: "No new alerts — all clear.",
+  noAlerts: "No active alerts — all clear.",
 } as const;

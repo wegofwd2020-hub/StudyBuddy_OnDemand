@@ -62,6 +62,4 @@ def require_review(teacher: dict, school_id: str, request: Request) -> None:
     """Gate 2 — review: approve/publish generated content (editorial)."""
     _assert_same_school(teacher, school_id, request)
     if not has_capability(teacher, "curriculum.review"):
-        raise _forbidden(
-            request, "Requires the 'curriculum.review' capability (or school_admin)."
-        )
+        raise _forbidden(request, "Requires the 'curriculum.review' capability (or school_admin).")

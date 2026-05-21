@@ -79,12 +79,8 @@ async def _init_db_conn(conn: asyncpg.Connection) -> None:
     # Without these codecs asyncpg returns json/jsonb columns as raw strings,
     # which silently breaks any caller that expects a list/dict (e.g. catalog
     # endpoints using json_agg).
-    await conn.set_type_codec(
-        "jsonb", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
-    )
-    await conn.set_type_codec(
-        "json", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
-    )
+    await conn.set_type_codec("jsonb", encoder=json.dumps, decoder=json.loads, schema="pg_catalog")
+    await conn.set_type_codec("json", encoder=json.dumps, decoder=json.loads, schema="pg_catalog")
 
 
 @asynccontextmanager
