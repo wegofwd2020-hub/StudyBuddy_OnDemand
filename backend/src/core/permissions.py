@@ -88,6 +88,53 @@ ROLE_PERMISSIONS: dict[str, set[str]] = {
 
 _bearer = HTTPBearer(auto_error=False)
 
+# ── Additive capabilities (issue #358) ────────────────────────────────────────
+# Capabilities are an *additive* grant carried in the JWT `capabilities[]` array
+# alongside the single `role` claim. Unlike ROLE_PERMISSIONS (deploy-time, per
+# role), capabilities are granted per teacher at runtime and minted into the JWT
+# at login. school_admin is an implicit superset — it never needs a grant.
+ALLOWED_CAPABILITIES: set[str] = {
+    "curriculum.commission",  # Gate 1 — approve/adopt/load + trigger generation
+    "curriculum.review",      # Gate 2 — approve/publish generated content
+    "curriculum_mgmt",        # umbrella — covers both gates
+}
+
+# Umbrella capability → the specific capabilities it satisfies.
+_CAPABILITY_UMBRELLAS: dict[str, set[str]] = {
+    "curriculum_mgmt": {"curriculum.commission", "curriculum.review", "curriculum_mgmt"},
+}
+
+# Roles that implicitly hold every curriculum capability (superset).
+_CAPABILITY_SUPERSET_ROLES: set[str] = {"school_admin"}
+
+
+def _is_capability_superset(role: str) -> bool:
+    """True if the role implicitly holds all capabilities (school_admin, or a
+    wildcard admin role such as super_admin)."""
+    return role in _CAPABILITY_SUPERSET_ROLES or "*" in ROLE_PERMISSIONS.get(role, set())
+
+
+def has_capability(payload: dict, capability: str) -> bool:
+    """Return True if the JWT payload grants *capability*.
+
+    Passes when the role is a superset (school_admin / super_admin), the exact
+    capability is held, or an umbrella capability covering it is held.
+    """
+    if _is_capability_superset(payload.get("role", "")):
+        return True
+    held: list[str] = payload.get("capabilities") or []
+    if capability in held:
+        return True
+    return any(capability in _CAPABILITY_UMBRELLAS.get(h, set()) for h in held)
+
+
+def has_any_curriculum_capability(payload: dict) -> bool:
+    """Return True if the payload holds *any* curriculum capability (the view
+    tier — lets a reviewer see what's been commissioned and vice versa)."""
+    if _is_capability_superset(payload.get("role", "")):
+        return True
+    return bool(set(payload.get("capabilities") or []) & ALLOWED_CAPABILITIES)
+
 
 def _has_permission(role: str, permission: str) -> bool:
     """Return True if the role grants the given permission."""

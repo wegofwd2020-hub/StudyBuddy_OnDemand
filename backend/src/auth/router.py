@@ -245,11 +245,25 @@ async def exchange_teacher_token(
     teacher_id = str(teacher["teacher_id"])
     school_id = teacher.get("school_id")
 
+    # Curriculum capabilities (issue #358) — bypass RLS to read the grants.
+    capabilities: list[str] = []
+    async with request.app.state.pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        try:
+            cap_rows = await conn.fetch(
+                "SELECT capability FROM teacher_capabilities WHERE teacher_id = $1::uuid",
+                teacher_id,
+            )
+            capabilities = sorted(r["capability"] for r in cap_rows)
+        finally:
+            await conn.execute("SELECT set_config('app.current_school_id', '', false)")
+
     jwt_payload = {
         "teacher_id": teacher_id,
         "school_id": str(school_id) if school_id else None,
         "role": role,
         "account_status": account_status,
+        "capabilities": capabilities,
     }
     token = create_internal_jwt(
         jwt_payload, settings.JWT_SECRET, settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES
@@ -335,11 +349,19 @@ async def refresh_token(body: RefreshRequest, request: Request):
                         "correlation_id": cid,
                     },
                 )
+            # Re-read capabilities so they survive the ~15-min access-token cycle
+            # (issue #358). get_db stamps 'bypass' on unauthenticated refresh, so
+            # the teacher_capabilities RLS policy permits this read.
+            cap_rows = await conn.fetch(
+                "SELECT capability FROM teacher_capabilities WHERE teacher_id = $1",
+                teacher["teacher_id"],
+            )
             payload = {
                 "teacher_id": str(teacher["teacher_id"]),
                 "school_id": str(teacher["school_id"]) if teacher["school_id"] else None,
                 "role": teacher["role"],
                 "account_status": teacher["account_status"],
+                "capabilities": sorted(r["capability"] for r in cap_rows),
             }
             secret = settings.JWT_SECRET
 
@@ -434,6 +456,9 @@ async def local_login(
             "role": role,
             "account_status": user["account_status"],
             "first_login": first_login,
+            # Curriculum-management capabilities (issue #358). Empty list for
+            # teachers with no grants; school_admin is an implicit superset.
+            "capabilities": user.get("capabilities", []),
         }
     else:
         # student
@@ -518,6 +543,7 @@ async def universal_login(
     local_row = None
     demo_teacher_row = None
     demo_student_row = None
+    local_capabilities: list[str] = []
     async with pool.acquire() as conn:
         # RLS bypass: login is unauthenticated, must read across schools.
         await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
@@ -543,6 +569,13 @@ async def universal_login(
                     """,
                     email,
                 )
+            # Curriculum capabilities (issue #358) — read under bypass for teachers.
+            if local_row is not None and local_row["user_type"] == "teacher":
+                cap_rows = await conn.fetch(
+                    "SELECT capability FROM teacher_capabilities WHERE teacher_id = $1::uuid",
+                    local_row["user_id"],
+                )
+                local_capabilities = sorted(r["capability"] for r in cap_rows)
             if local_row is None:
                 demo_teacher_row = await get_demo_teacher_account_for_login(conn, email)
             if local_row is None and demo_teacher_row is None:
@@ -610,6 +643,7 @@ async def universal_login(
                 "role": role,
                 "account_status": local_row["account_status"],
                 "first_login": first_login,
+                "capabilities": local_capabilities,
             }
         else:
             student_row = await pool.fetchrow(

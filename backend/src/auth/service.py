@@ -410,6 +410,18 @@ async def login_local_user(
                 """,
                 email,
             )
+
+        # Curriculum capabilities (issue #358) — read while bypass is still set so
+        # the RLS policy on teacher_capabilities does not hide the grants. Teachers
+        # only; students never hold curriculum capabilities.
+        capabilities: list[str] = []
+        if row is not None and row["user_type"] == "teacher":
+            cap_rows = await conn.fetch(
+                "SELECT capability FROM teacher_capabilities WHERE teacher_id = $1::uuid",
+                row["user_id"],
+            )
+            capabilities = sorted(r["capability"] for r in cap_rows)
+
         # Reset session var before returning connection to pool.
         await conn.execute("SELECT set_config('app.current_school_id', '', false)")
 
@@ -439,7 +451,9 @@ async def login_local_user(
             detail={"error": "unauthenticated", "detail": "Account has been deleted."},
         )
 
-    return dict(row)
+    result = dict(row)
+    result["capabilities"] = capabilities
+    return result
 
 
 # ── Auth0 Management API ──────────────────────────────────────────────────────

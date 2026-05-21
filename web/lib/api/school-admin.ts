@@ -376,6 +376,26 @@ export interface TeacherRosterItem {
   role: string;
   account_status: string;
   assigned_grades: number[];
+  capabilities: string[];
+}
+
+/** Curriculum-management capabilities a school_admin can grant (issue #358). */
+export const CURRICULUM_CAPABILITIES = [
+  { value: "curriculum.commission", label: "Commission (create / load / approve definitions)" },
+  { value: "curriculum.review", label: "Review (approve / publish generated content)" },
+  { value: "curriculum_mgmt", label: "Full curriculum management (both gates)" },
+] as const;
+
+export async function setTeacherCapabilities(
+  schoolId: string,
+  teacherId: string,
+  capabilities: string[],
+): Promise<{ teacher_id: string; capabilities: string[] }> {
+  const res = await schoolApi.put(
+    `/schools/${schoolId}/teachers/${teacherId}/capabilities`,
+    { capabilities },
+  );
+  return res.data;
 }
 
 export async function listTeachers(schoolId: string): Promise<TeacherRosterItem[]> {
