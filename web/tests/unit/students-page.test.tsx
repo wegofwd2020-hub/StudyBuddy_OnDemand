@@ -35,7 +35,26 @@ vi.mock("@tanstack/react-query", async (importOriginal) => {
   return {
     ...actual,
     useQuery: vi.fn((opts) => mockUseQuery(opts)),
+    useQueries: vi.fn(() => []),
     useQueryClient: vi.fn(() => ({ invalidateQueries: mockInvalidateQueries })),
+    useMutation: vi.fn((opts: Record<string, unknown> = {}) => ({
+      mutate: (vars: unknown) =>
+        Promise.resolve()
+          .then(() => (opts.mutationFn as ((v: unknown) => unknown))?.(vars))
+          .then((data) => (opts.onSuccess as ((d: unknown, v: unknown) => void))?.(data, vars))
+          .catch((err) => (opts.onError as ((e: unknown, v: unknown) => void))?.(err, vars)),
+      mutateAsync: async (vars: unknown) => {
+        const data = await (opts.mutationFn as ((v: unknown) => unknown))?.(vars);
+        await (opts.onSuccess as ((d: unknown, v: unknown) => void))?.(data, vars);
+        return data;
+      },
+      isPending: false,
+      isError: false,
+      isSuccess: false,
+      data: undefined,
+      error: null,
+      reset: vi.fn(),
+    })),
   };
 });
 

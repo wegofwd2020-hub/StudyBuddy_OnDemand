@@ -13,7 +13,6 @@ import { SchoolNav } from "@/components/layout/SchoolNav";
 import {
   MOCK_ADMIN,
   MOCK_TEACHER,
-  MOCK_INVITED_TEACHER,
   TEACHERS_STRINGS,
   TEST_INVITE,
 } from "../e2e/data/teachers-page";
@@ -40,23 +39,48 @@ vi.mock("@/lib/hooks/useTeacher", () => ({
 const mockUseQuery = vi.fn();
 vi.mock("@tanstack/react-query", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@tanstack/react-query")>();
-  return { ...actual, useQuery: vi.fn((opts) => mockUseQuery(opts)) };
+  return {
+    ...actual,
+    useQuery: vi.fn((opts) => mockUseQuery(opts)),
+    // useMutation without a QueryClient throws in RQ v5. Stub it so it invokes
+    // mutationFn + onSuccess/onError, preserving the behaviour mutation tests assert.
+    useMutation: vi.fn((opts: Record<string, unknown> = {}) => ({
+      mutate: (vars: unknown) =>
+        Promise.resolve()
+          .then(() => (opts.mutationFn as ((v: unknown) => unknown))?.(vars))
+          .then((data) => (opts.onSuccess as ((d: unknown, v: unknown) => void))?.(data, vars))
+          .catch((err) => (opts.onError as ((e: unknown, v: unknown) => void))?.(err, vars)),
+      mutateAsync: async (vars: unknown) => {
+        const data = await (opts.mutationFn as ((v: unknown) => unknown))?.(vars);
+        await (opts.onSuccess as ((d: unknown, v: unknown) => void))?.(data, vars);
+        return data;
+      },
+      isPending: false,
+      isError: false,
+      isSuccess: false,
+      data: undefined,
+      error: null,
+      reset: vi.fn(),
+    })),
+    useQueryClient: vi.fn(() => ({ invalidateQueries: vi.fn() })),
+  };
 });
 
-const mockInviteTeacher = vi.fn();
+const mockProvisionTeacher = vi.fn();
 vi.mock("@/lib/api/school-admin", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/api/school-admin")>();
   return {
     ...actual,
-    inviteTeacher: (...args: unknown[]) => mockInviteTeacher(...args),
+    provisionTeacher: (...args: unknown[]) => mockProvisionTeacher(...args),
   };
 });
 
 // ---------------------------------------------------------------------------
-// SCH-41 — Invite form visible for school_admin
+// SCH-41 — Add-teacher form visible for school_admin
+// (invite flow was replaced by Phase A provisioning)
 // ---------------------------------------------------------------------------
 
-describe("SCH-41 — Invite form visible for school_admin", () => {
+describe("SCH-41 — Add-teacher form visible for school_admin", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseTeacher.mockReturnValue(MOCK_ADMIN);
@@ -70,14 +94,9 @@ describe("SCH-41 — Invite form visible for school_admin", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders 'Admin only' badge", () => {
+  it("renders the Add a teacher card", () => {
     render(<TeachersPage />);
-    expect(screen.getByText(TEACHERS_STRINGS.adminOnlyBadge)).toBeInTheDocument();
-  });
-
-  it("renders the Invite a teacher card", () => {
-    render(<TeachersPage />);
-    expect(screen.getByText(TEACHERS_STRINGS.inviteFormCard)).toBeInTheDocument();
+    expect(screen.getByText(TEACHERS_STRINGS.addFormCard)).toBeInTheDocument();
   });
 
   it("renders the Full name input field", () => {
@@ -90,54 +109,51 @@ describe("SCH-41 — Invite form visible for school_admin", () => {
     expect(screen.getByLabelText(TEACHERS_STRINGS.emailLabel)).toBeInTheDocument();
   });
 
-  it("renders the Send invitation button", () => {
+  it("renders the Add teacher button", () => {
     render(<TeachersPage />);
     expect(
-      screen.getByRole("button", { name: TEACHERS_STRINGS.sendInviteBtn }),
+      screen.getByRole("button", { name: TEACHERS_STRINGS.addBtn }),
     ).toBeInTheDocument();
   });
 
-  it("Send invitation button is disabled when fields are empty", () => {
+  it("Add teacher button is disabled when fields are empty", () => {
     render(<TeachersPage />);
     expect(
-      screen.getByRole("button", { name: TEACHERS_STRINGS.sendInviteBtn }),
+      screen.getByRole("button", { name: TEACHERS_STRINGS.addBtn }),
     ).toBeDisabled();
   });
 });
 
 // ---------------------------------------------------------------------------
-// SCH-42 — Access denied for non-admin teacher
+// SCH-42 — Add form hidden for non-admin teacher
 // ---------------------------------------------------------------------------
 
-describe("SCH-42 — Access denied for non-admin teacher", () => {
+describe("SCH-42 — Add form hidden for non-admin teacher", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseTeacher.mockReturnValue(MOCK_TEACHER);
+    mockUseQuery.mockReturnValue({ data: { alerts: [] }, isLoading: false });
   });
 
-  it("shows access denied message for non-admin", () => {
+  it("does NOT render the add-teacher form for non-admin", () => {
     render(<TeachersPage />);
-    expect(screen.getByText(TEACHERS_STRINGS.accessDenied)).toBeInTheDocument();
-  });
-
-  it("does NOT render the invite form for non-admin", () => {
-    render(<TeachersPage />);
-    expect(screen.queryByText(TEACHERS_STRINGS.inviteFormCard)).toBeNull();
+    expect(screen.queryByText(TEACHERS_STRINGS.addFormCard)).toBeNull();
   });
 });
 
 // ---------------------------------------------------------------------------
-// SCH-43 — Successful invite adds to list
+// SCH-43 — Successful provisioning
 // ---------------------------------------------------------------------------
 
-describe("SCH-43 — Successful invite adds teacher to list", () => {
+describe("SCH-43 — Successful provisioning", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseTeacher.mockReturnValue(MOCK_ADMIN);
-    mockInviteTeacher.mockResolvedValue(MOCK_INVITED_TEACHER);
+    mockUseQuery.mockReturnValue({ data: { alerts: [] }, isLoading: false });
+    mockProvisionTeacher.mockResolvedValue({ email: TEST_INVITE.email });
   });
 
-  it("shows success message after invite", async () => {
+  it("calls provisionTeacher and shows the success message", async () => {
     render(<TeachersPage />);
     fireEvent.change(screen.getByLabelText(TEACHERS_STRINGS.nameLabel), {
       target: { value: TEST_INVITE.name },
@@ -145,38 +161,9 @@ describe("SCH-43 — Successful invite adds teacher to list", () => {
     fireEvent.change(screen.getByLabelText(TEACHERS_STRINGS.emailLabel), {
       target: { value: TEST_INVITE.email },
     });
-    fireEvent.click(screen.getByRole("button", { name: TEACHERS_STRINGS.sendInviteBtn }));
+    fireEvent.click(screen.getByRole("button", { name: TEACHERS_STRINGS.addBtn }));
     expect(await screen.findByText(TEACHERS_STRINGS.successMsg)).toBeInTheDocument();
-  });
-
-  it("shows invited teacher in the session table", async () => {
-    render(<TeachersPage />);
-    fireEvent.change(screen.getByLabelText(TEACHERS_STRINGS.nameLabel), {
-      target: { value: TEST_INVITE.name },
-    });
-    fireEvent.change(screen.getByLabelText(TEACHERS_STRINGS.emailLabel), {
-      target: { value: TEST_INVITE.email },
-    });
-    fireEvent.click(screen.getByRole("button", { name: TEACHERS_STRINGS.sendInviteBtn }));
-    await waitFor(() => {
-      const matches = screen.getAllByText(MOCK_INVITED_TEACHER.email);
-      expect(matches.length).toBeGreaterThanOrEqual(1);
-    });
-  });
-
-  it("clears name and email fields after invite", async () => {
-    render(<TeachersPage />);
-    const nameInput = screen.getByLabelText(
-      TEACHERS_STRINGS.nameLabel,
-    ) as HTMLInputElement;
-    const emailInput = screen.getByLabelText(
-      TEACHERS_STRINGS.emailLabel,
-    ) as HTMLInputElement;
-    fireEvent.change(nameInput, { target: { value: TEST_INVITE.name } });
-    fireEvent.change(emailInput, { target: { value: TEST_INVITE.email } });
-    fireEvent.click(screen.getByRole("button", { name: TEACHERS_STRINGS.sendInviteBtn }));
-    await waitFor(() => expect(nameInput.value).toBe(""));
-    expect(emailInput.value).toBe("");
+    expect(mockProvisionTeacher).toHaveBeenCalled();
   });
 });
 

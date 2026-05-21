@@ -23,20 +23,15 @@ export const MOCK_INVITED_TEACHER = {
 
 export const TEACHERS_STRINGS = {
   pageHeading: "Teacher Management",
-  // Invite form (admin only)
-  inviteFormCard: "Invite a teacher",
+  // Add-teacher form (admin only). The invite flow was replaced by Phase A
+  // provisioning (system-generated password emailed to the teacher).
+  addFormCard: "Add a teacher",
   nameLabel: "Full name",
   emailLabel: "Work email",
-  sendInviteBtn: "Send invitation",
-  sendingBtn: "Sending…",
+  addBtn: "Add teacher",
+  addingBtn: "Adding…",
   // Success
-  successMsg: /Invitation sent to/,
-  // Invited table
-  invitedCard: "Invited this session",
-  // Access denied (non-admin)
-  accessDenied: /Only school administrators can manage teachers/,
-  // Admin only badge
-  adminOnlyBadge: "Admin only",
+  successMsg: /temporary password has been sent to/,
 } as const;
 
 export const TEST_INVITE = {
