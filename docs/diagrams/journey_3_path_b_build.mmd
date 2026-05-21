@@ -1,0 +1,5 @@
+flowchart LR
+    B1["Teacher drafts<br/>definition form"] --> B2["Flow 2:<br/>school_admin approves"]
+    B2 --> B3["Estimate + pay<br/>(Stripe gate)"]
+    B3 --> B4["Trigger pipeline"]
+    B4 -->|loops into platform line| P1["Pipeline generates<br/>content → Flow 4 review"]

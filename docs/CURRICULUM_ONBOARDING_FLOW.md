@@ -54,41 +54,59 @@ graph TD
 
 ---
 
-## End-to-end journey (both paths)
+## End-to-end journey
+
+The journey breaks into three production lines that hand off to each other. PNG
+exports live in [`diagrams/`](diagrams/).
+
+### 1. Platform line (internal)
+
+The internal team generates the out-of-the-box packages and pushes them through
+admin review until they are published into the catalog.
+
+![Platform line](diagrams/journey_1_platform_line.png)
 
 ```mermaid
 flowchart LR
-    subgraph Platform["🏢 PLATFORM LINE (internal)"]
-        direction TB
-        P1["Pipeline generates<br/>OOB content"] --> P2["Flow 4:<br/>admin review queue"]
-        P2 --> P3["published →<br/>appears in Catalog"]
-    end
-
-    subgraph PathA["PATH A — ADOPT (school_admin + teacher)"]
-        direction TB
-        A1["Browse Catalog"] --> A2["Flow 1:<br/>Adopt package"]
-        A2 --> A3["In 'Our Library'<br/>(status: active)"]
-        A3 -.optional.-> A4["Flow 3:<br/>fork + customize content"]
-    end
-
-    subgraph PathB["PATH B — BUILD (teacher → school_admin)"]
-        direction TB
-        B1["Teacher drafts<br/>definition form"] --> B2["Flow 2:<br/>school_admin approves"]
-        B2 --> B3["Estimate + pay<br/>(Stripe gate)"]
-        B3 --> B4["Trigger pipeline"]
-    end
-
-    P3 --> A1
-    B4 --> P1
-    A3 --> ST["🎓 Student opens lesson"]
-    A4 --> ST
-    P3 --> ST
+    P1["Pipeline generates<br/>OOB content"] --> P2["Flow 4:<br/>admin review queue"]
+    P2 --> P3["published →<br/>appears in Catalog"]
+    P3 --> ST["🎓 Student opens lesson"]
 ```
 
-Note the loop: **Path B's trigger feeds the same pipeline** that produces
-platform content, and its output lands in **Flow 4's review queue** before
-students see it. Adoption (Path A) has **no publish gate of its own** — it
-re-uses content the platform already published.
+### 2. Path A — Adopt (school_admin + teacher)
+
+A school adopts a published platform package, then optionally forks and
+customizes its content. **No publish gate of its own** — it re-uses content the
+platform already published.
+
+![Path A — Adopt](diagrams/journey_2_path_a_adopt.png)
+
+```mermaid
+flowchart LR
+    P3["Published package<br/>in Catalog"] --> A1["Browse Catalog"]
+    A1 --> A2["Flow 1:<br/>Adopt package"]
+    A2 --> A3["In 'Our Library'<br/>(status: active)"]
+    A3 -.optional.-> A4["Flow 3:<br/>fork + customize content"]
+    A3 --> ST["🎓 Student opens lesson"]
+    A4 --> ST
+```
+
+### 3. Path B — Build (teacher → school_admin)
+
+A teacher drafts a definition, the school admin approves and pays, and the
+pipeline runs. **Path B's trigger feeds the same pipeline** that produces
+platform content — so its output loops back into the platform line's review
+queue (Flow 4) before students see it.
+
+![Path B — Build](diagrams/journey_3_path_b_build.png)
+
+```mermaid
+flowchart LR
+    B1["Teacher drafts<br/>definition form"] --> B2["Flow 2:<br/>school_admin approves"]
+    B2 --> B3["Estimate + pay<br/>(Stripe gate)"]
+    B3 --> B4["Trigger pipeline"]
+    B4 -->|loops into platform line| P1["Pipeline generates<br/>content → Flow 4 review"]
+```
 
 ---
 
@@ -250,3 +268,44 @@ stateDiagram-v2
 (Flow 2) *and* a platform review (Flow 4) before a custom curriculum reaches
 students. Path A requires neither — it rides on content the platform already
 published.
+
+---
+
+## The two approval gates (read this first)
+
+The word "approve" above means **two different decisions**. Naming them apart is
+the clearest way to present — and orchestrate — the lifecycle:
+
+| | **Gate 1 — Commission** | **Gate 2 — Publication** |
+|---|---|---|
+| Question | *Should this content exist? Worth the spend?* | *Is the generated content good enough for students?* |
+| When | **Before** generation | **After** generation, before students see it |
+| Acts on | A request — definition / adoption | The actual lesson/quiz/tutorial files |
+| Cost | **Yes** — build allowance / Stripe | None — editorial |
+| Lives in | Flow 1 (adopt), Flow 2 (definition approve → trigger) | Flow 3 (override approve/publish), Flow 4 (platform) |
+| Capability | `curriculum.commission` | `curriculum.review` |
+
+```mermaid
+flowchart LR
+    R["📝 Request<br/>(definition / adoption)"] --> G1{"🚪 GATE 1<br/>Commission"}
+    G1 -->|reject| X1["✗ not built (no spend)"]
+    G1 -->|approve + pay| GEN["⚙️ Pipeline generates"]
+    GEN --> G2{"🚪 GATE 2<br/>Publication"}
+    G2 -->|reject| EDIT["✎ back to draft / regen"]
+    EDIT --> G2
+    G2 -->|approve + publish| LIVE["🎓 Live to students"]
+    style G1 fill:#fef3c7,stroke:#d97706
+    style G2 fill:#dbeafe,stroke:#2563eb
+```
+
+Each gate is a separately-grantable capability (plus a `curriculum_mgmt` umbrella
+= both), so a school can split the two between people (maker-checker) or grant
+both to one.
+
+**View vs. act:** *seeing* the pending-approval and content-review queues is open
+to **anyone holding a curriculum capability** (so a commissioner can watch content
+status and a reviewer can watch what's been commissioned); only the matching gate
+capability can **act** (approve / trigger / publish). Loading new school curriculum
+(definition + trigger) is a commission act. Full design + spec:
+[DESIGN_curriculum_mgmt_capability.md](DESIGN_curriculum_mgmt_capability.md) ·
+[SPEC_curriculum_mgmt_capability.md](SPEC_curriculum_mgmt_capability.md).

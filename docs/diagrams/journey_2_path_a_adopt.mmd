@@ -1,0 +1,7 @@
+flowchart LR
+    P3["Published package<br/>in Catalog"] --> A1["Browse Catalog"]
+    A1 --> A2["Flow 1:<br/>Adopt package"]
+    A2 --> A3["In 'Our Library'<br/>(status: active)"]
+    A3 -.optional.-> A4["Flow 3:<br/>fork + customize content"]
+    A3 --> ST["🎓 Student opens lesson"]
+    A4 --> ST
