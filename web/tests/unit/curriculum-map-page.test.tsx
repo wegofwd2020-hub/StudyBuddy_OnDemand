@@ -7,7 +7,7 @@
  */
 
 import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import CurriculumMapPage from "@/app/(student)/curriculum/page";
 import {
   MOCK_CURRICULUM_TREE,
@@ -46,6 +46,10 @@ vi.mock("@/lib/hooks/useCurriculumTree", () => ({
 vi.mock("@/lib/hooks/useProgress", () => ({
   useProgressHistory: () => mockUseProgressHistory(),
 }));
+
+// A BookSpine's accessible name is its sr-only label: `${title}, status …`
+// (and `, has lab` for lab units). Match on the title prefix.
+const spineName = (title: string) => (name: string) => name.startsWith(title);
 
 // ---------------------------------------------------------------------------
 // STU-32 — Curriculum tree renders: Grade → Subject → Unit hierarchy
@@ -109,8 +113,11 @@ describe("STU-32 — Curriculum tree renders", () => {
       isLoading: false,
     });
     render(<CurriculumMapPage />);
+    // Each unit is a BookSpine; its Lesson/Quiz links live in the Toc shown
+    // after the spine is opened (only one unit open at a time).
     for (const subject of MOCK_CURRICULUM_TREE.subjects) {
       for (const unit of subject.units) {
+        fireEvent.click(screen.getByRole("button", { name: spineName(unit.title) }));
         const links = screen.getAllByRole("link", {
           name: CURRICULUM_MAP_STRINGS.lessonBtn,
         });
@@ -133,6 +140,7 @@ describe("STU-32 — Curriculum tree renders", () => {
     render(<CurriculumMapPage />);
     for (const subject of MOCK_CURRICULUM_TREE.subjects) {
       for (const unit of subject.units) {
+        fireEvent.click(screen.getByRole("button", { name: spineName(unit.title) }));
         const links = screen.getAllByRole("link", {
           name: CURRICULUM_MAP_STRINGS.quizBtn,
         });
@@ -143,7 +151,7 @@ describe("STU-32 — Curriculum tree renders", () => {
     }
   });
 
-  it("renders Lab badge for lab units only", () => {
+  it("shows an Experiment link for lab units only", () => {
     mockUseCurriculumTree.mockReturnValue({
       data: MOCK_CURRICULUM_TREE,
       isLoading: false,
@@ -153,11 +161,21 @@ describe("STU-32 — Curriculum tree renders", () => {
       isLoading: false,
     });
     render(<CurriculumMapPage />);
-    const labBadges = screen.getAllByText(CURRICULUM_MAP_STRINGS.labBadge);
-    const labUnitCount = MOCK_CURRICULUM_TREE.subjects
-      .flatMap((s) => s.units)
-      .filter((u) => u.has_lab).length;
-    expect(labBadges).toHaveLength(labUnitCount);
+    // The redesigned Toc replaces the old "Lab" badge with an Experiment link
+    // rendered only when the opened unit has a lab.
+    for (const subject of MOCK_CURRICULUM_TREE.subjects) {
+      for (const unit of subject.units) {
+        fireEvent.click(screen.getByRole("button", { name: spineName(unit.title) }));
+        const experimentLink = screen
+          .queryAllByRole("link", { name: "Experiment" })
+          .find((l) => l.getAttribute("href") === `/experiment/${unit.unit_id}`);
+        if (unit.has_lab) {
+          expect(experimentLink).toBeTruthy();
+        } else {
+          expect(experimentLink).toBeFalsy();
+        }
+      }
+    }
   });
 
   it("renders status legend with all four status labels", () => {

@@ -10,7 +10,7 @@
  */
 
 import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent, within } from "@testing-library/react";
 import SubjectsPage from "@/app/(student)/subjects/page";
 import {
   MOCK_CURRICULUM_TREE,
@@ -59,7 +59,7 @@ describe("STU-12 — Subject list renders", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders a card for each subject", () => {
+  it("renders a spine for each subject", () => {
     mockUseCurriculumTree.mockReturnValue({
       data: MOCK_CURRICULUM_TREE,
       isLoading: false,
@@ -67,12 +67,16 @@ describe("STU-12 — Subject list renders", () => {
     });
     render(<SubjectsPage />);
 
+    // Each subject renders a clickable BookSpine whose accessible name is the
+    // subject (from its sr-only label).
     for (const subject of MOCK_CURRICULUM_TREE.subjects) {
-      expect(screen.getByText(subject.subject)).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: subject.subject }),
+      ).toBeInTheDocument();
     }
   });
 
-  it("shows unit count for each subject card", () => {
+  it("shows unit count in the opened subject panel", () => {
     mockUseCurriculumTree.mockReturnValue({
       data: MOCK_CURRICULUM_TREE,
       isLoading: false,
@@ -80,12 +84,18 @@ describe("STU-12 — Subject list renders", () => {
     });
     render(<SubjectsPage />);
 
+    // Units (and the count) live in the BookOpen panel shown after a spine is
+    // opened — only one subject is open at a time.
     for (const subject of MOCK_CURRICULUM_TREE.subjects) {
-      expect(screen.getByText(`${subject.units.length} units`)).toBeInTheDocument();
+      fireEvent.click(screen.getByRole("button", { name: subject.subject }));
+      const n = subject.units.length;
+      expect(
+        screen.getByText(`${n} unit${n !== 1 ? "s" : ""}`),
+      ).toBeInTheDocument();
     }
   });
 
-  it("renders all unit titles", () => {
+  it("renders all unit titles in the opened subject panel", () => {
     mockUseCurriculumTree.mockReturnValue({
       data: MOCK_CURRICULUM_TREE,
       isLoading: false,
@@ -94,8 +104,12 @@ describe("STU-12 — Subject list renders", () => {
     render(<SubjectsPage />);
 
     for (const subject of MOCK_CURRICULUM_TREE.subjects) {
+      fireEvent.click(screen.getByRole("button", { name: subject.subject }));
+      const panel = screen.getByRole("region", {
+        name: `${subject.units.length} unit${subject.units.length !== 1 ? "s" : ""} for ${subject.subject}`,
+      });
       for (const unit of subject.units) {
-        expect(screen.getByText(unit.title)).toBeInTheDocument();
+        expect(within(panel).getByText(unit.title)).toBeInTheDocument();
       }
     }
   });
@@ -123,8 +137,8 @@ describe("STU-12 — Subject list renders", () => {
 });
 
 // ---------------------------------------------------------------------------
-// STU-13 — Units are visible; Lesson and Quiz buttons have correct hrefs
-// (Page always renders units inline — no expand/collapse interaction needed)
+// STU-13 — Units and Lesson/Quiz buttons after opening a subject
+// (Units live in the BookOpen panel — open the spine to reveal them.)
 // ---------------------------------------------------------------------------
 
 describe("STU-13 — Unit buttons and hrefs", () => {
@@ -137,6 +151,7 @@ describe("STU-13 — Unit buttons and hrefs", () => {
     render(<SubjectsPage />);
 
     for (const subject of MOCK_CURRICULUM_TREE.subjects) {
+      fireEvent.click(screen.getByRole("button", { name: subject.subject }));
       for (const unit of subject.units) {
         const lessonLinks = screen.getAllByRole("link", {
           name: SUBJECTS_STRINGS.lessonBtn,
@@ -158,6 +173,7 @@ describe("STU-13 — Unit buttons and hrefs", () => {
     render(<SubjectsPage />);
 
     for (const subject of MOCK_CURRICULUM_TREE.subjects) {
+      fireEvent.click(screen.getByRole("button", { name: subject.subject }));
       for (const unit of subject.units) {
         const quizLinks = screen.getAllByRole("link", { name: SUBJECTS_STRINGS.quizBtn });
         const match = quizLinks.find(
@@ -176,12 +192,16 @@ describe("STU-13 — Unit buttons and hrefs", () => {
     });
     const { container } = render(<SubjectsPage />);
 
-    const labUnits = MOCK_CURRICULUM_TREE.subjects
-      .flatMap((s) => s.units)
-      .filter((u) => u.has_lab);
-
-    // Each lab unit row contains an svg (FlaskConical icon)
+    // Open the subject that contains lab units (Science).
+    const labSubject = MOCK_CURRICULUM_TREE.subjects.find((s) =>
+      s.units.some((u) => u.has_lab),
+    )!;
+    const labUnits = labSubject.units.filter((u) => u.has_lab);
     expect(labUnits.length).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getByRole("button", { name: labSubject.subject }));
+
+    // Each lab unit row renders a FlaskConical svg in the opened panel.
     const svgs = container.querySelectorAll("svg");
     expect(svgs.length).toBeGreaterThanOrEqual(labUnits.length);
   });

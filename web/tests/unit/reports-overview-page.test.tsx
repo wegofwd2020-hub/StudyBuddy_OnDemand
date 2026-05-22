@@ -38,6 +38,8 @@ vi.mock("@/lib/hooks/useTeacher", () => ({
   useTeacher: vi.fn(() => MOCK_TEACHER),
 }));
 
+import { useTeacher } from "@/lib/hooks/useTeacher";
+
 const mockUseQuery = vi.fn();
 vi.mock("@tanstack/react-query", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@tanstack/react-query")>();
@@ -206,6 +208,12 @@ describe("SCH-10 — Reports sub-nav renders", () => {
   beforeEach(() => {
     // SchoolNav queries alerts; return empty to avoid noise
     mockUseQuery.mockReturnValue({ data: { alerts: [] }, isLoading: false });
+    // The Reports nav entry (and therefore its sub-nav) is admin-only after the
+    // nav redesign (#358), so render the nav as a school_admin.
+    vi.mocked(useTeacher).mockReturnValue({
+      ...MOCK_TEACHER,
+      role: "school_admin" as const,
+    });
   });
 
   it("renders all sub-nav links when on a reports route", () => {

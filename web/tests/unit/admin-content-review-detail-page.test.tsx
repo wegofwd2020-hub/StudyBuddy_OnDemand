@@ -48,7 +48,37 @@ vi.mock("@tanstack/react-query", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@tanstack/react-query")>();
   return {
     ...actual,
-    useQuery: vi.fn((opts) => mockUseQuery(opts)),
+    useQuery: vi.fn((opts: { queryKey: unknown[] }) => {
+      // The page also queries the admin-user list (assign dropdown) and the
+      // AlexJS warnings — return inert values so only the version item drives
+      // the assertions.
+      if (opts.queryKey.includes("users")) return { data: [], isLoading: false };
+      if (opts.queryKey.includes("warnings")) return { data: undefined, isLoading: false };
+      return mockUseQuery(opts);
+    }),
+    // Actions are wrapped in useMutation. RQ v5 throws without a QueryClient,
+    // so stub it to invoke mutationFn + onSuccess — keeping the "calls API"
+    // assertions (mockApprove etc.) meaningful.
+    useMutation: vi.fn((opts: Record<string, unknown> = {}) => ({
+      mutate: (vars: unknown) =>
+        Promise.resolve()
+          .then(() => (opts.mutationFn as ((v: unknown) => unknown))?.(vars))
+          .then((data) =>
+            (opts.onSuccess as ((d: unknown, v: unknown) => void))?.(data, vars),
+          )
+          .catch((err) => (opts.onError as ((e: unknown, v: unknown) => void))?.(err, vars)),
+      mutateAsync: async (vars: unknown) => {
+        const data = await (opts.mutationFn as ((v: unknown) => unknown))?.(vars);
+        await (opts.onSuccess as ((d: unknown, v: unknown) => void))?.(data, vars);
+        return data;
+      },
+      isPending: false,
+      isError: false,
+      isSuccess: false,
+      data: undefined,
+      error: null,
+      reset: vi.fn(),
+    })),
     useQueryClient: vi.fn(() => ({ invalidateQueries: mockInvalidateQueries })),
   };
 });
