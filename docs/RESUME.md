@@ -4,7 +4,7 @@ A git-tracked checkpoint so work can resume on any machine (Claude Code's local
 memory does not travel; this file + GitHub issues do). Last updated: 2026-05-22,
 `main` @ `b49bdbd`.
 
-## ▶ Next task: finish **issue #363** — Playwright (unit tests ✅ done)
+## ▶ Issue #363 — DONE (unit tests ✅ + Playwright ✅)
 
 Goal: get `main` CI fully green.
 
@@ -13,7 +13,19 @@ Goal: get `main` CI fully green.
 | Backend — Lint & Security | ✅ green |
 | Frontend — Lint & Typecheck | ✅ green |
 | Frontend — Unit Tests | ✅ green — all 63 files / 821 tests pass; typecheck clean |
-| Playwright — Student Flow | ❌ red — can't run in-container (pitfall #26); needs host run |
+| Playwright — Student Flow | ✅ green — 134 passed, 7 fixme-skipped, 0 failing (host, `--workers=1`) |
+
+**Playwright — DONE.** 16 drift specs fixed for the Epic 16 public-site redesign (2026-05-22):
+- `landing-page` — banner alt, hero "Lessons, always current.", 6 new feature cards, footer CTA → /school/register, nav "Sign in" → /signin; PUB-06 testimonials section was removed → repurposed to the Tour Gateway section.
+- `pricing-page` — Platform Starter ($0) / School Pro (~$5) / School Enterprise (Custom); plan names are `div`s not headings (use `getByText`); CTAs + 7 FAQ items rewritten.
+- `public` — hero CTA regex → /register your school/i; pricing prices → $0 / ~$5 / Custom.
+- `student-login-page` — local-auth link is now "Sign in here" → /signin.
+- `student_flow` — hero heading via the shared landing fixture; `getByText("Cell Biology").first()` (BookSpine renders title twice); nav "Sign in" needs `exact: true` (hero "Already a teacher? Sign in" also matches).
+
+**Host run notes:** `gh` + Playwright Chromium are now installed. Run from `web/` on the host
+(not the Alpine container — pitfall #26). The ~18 timeouts seen with the default parallel run are
+Turbopack dev-server cold-compile contention, not real failures — they pass with `--workers=1`.
+CI uses `reuseExistingServer:false` + a built server, so it doesn't hit this.
 
 **Frontend unit tests — DONE.** All 9 remaining files fixed (2026-05-22):
 - `reports-overview` — sub-nav is admin-only after #358; render `SchoolNav` as `school_admin`.

@@ -11,7 +11,7 @@ import {
   BANNER,
   HERO,
   FEATURES,
-  TESTIMONIALS,
+  TOUR_GATEWAY,
   FOOTER_CTA,
   NAV_LINKS,
   MOBILE_VIEWPORT,
@@ -106,18 +106,20 @@ test("PUB-05 — features grid renders all 6 feature cards", async ({ page }) =>
 });
 
 // ---------------------------------------------------------------------------
-// PUB-06 — Testimonials section renders all 3 cards
+// PUB-06 — Tour Gateway section (Epic 16 replaced the testimonials block)
 // ---------------------------------------------------------------------------
 
-test("PUB-06 — social proof section renders all 3 testimonials", async ({ page }) => {
+test("PUB-06 — tour gateway section renders with an Explore CTA", async ({ page }) => {
   await page.goto("/");
 
-  for (const item of TESTIMONIALS) {
-    // Quote appears inside a <p> as an italic string
-    await expect(page.getByText(item.quote)).toBeVisible();
-    // Author line is prefixed with an em dash
-    await expect(page.getByText(`— ${item.author}`)).toBeVisible();
-  }
+  await expect(page.getByText(TOUR_GATEWAY.eyebrow)).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: TOUR_GATEWAY.heading }),
+  ).toBeVisible();
+
+  const cta = page.getByRole("link", { name: TOUR_GATEWAY.ctaText });
+  await expect(cta).toBeVisible();
+  expect(await cta.getAttribute("href")).toBe(TOUR_GATEWAY.ctaHref);
 });
 
 // ---------------------------------------------------------------------------
