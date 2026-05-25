@@ -44,8 +44,8 @@ lesson content surfaces. Source: `~/Downloads/Feedback.txt`.
 | VT-4 | Venkatesh Thiyagarajan | Rearrange nav order — e.g. push **Reports** after **Teachers** | 🟣 PR #373 | Low |
 | VT-5 | Venkatesh Thiyagarajan | "Student" and "Class Overview" use the **same icon** — use distinct icons | 🟣 PR #373 | Low |
 | GG-1 | Gayathri Gowtham | **Fonts too small** to read | 🟣 PR #372 | High — readability/a11y |
-| AR-1 | Anuradha Ravikumar | Website looks **basic / text-heavy**; needs more color and images | 🟣 PR #374 | High — first impression |
-| AR-2 | Anuradha Ravikumar | "In modern world, website can have images and videos" | 🟣 PR #374 | Med — also strategic (see STRATEGIC_FEEDBACK) |
+| AR-1 | Anuradha Ravikumar | Website looks **basic / text-heavy**; needs more color and images | 🟢 Done (#374) | High — first impression |
+| AR-2 | Anuradha Ravikumar | "In modern world, website can have images and videos" | 🟢 Done (#374) | Med — also strategic (see STRATEGIC_FEEDBACK) |
 | AR-3 | Anuradha Ravikumar | More guidance for teachers, provided **separately** | 🟣 PR #377 | Med |
 | SR-1 | Sundararajan Ramanathan | Lesson menu & layout fine in **landscape**; clarify intended device target (tablet/laptop/desktop vs mobile phone) | 🟣 PR #378 | Med — responsive scope |
 
