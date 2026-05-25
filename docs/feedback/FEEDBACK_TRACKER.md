@@ -39,15 +39,15 @@ lesson content surfaces. Source: `~/Downloads/Feedback.txt`.
 |---|---|---|---|---|
 | KV-1 | Kalpana Vinodh | Positive — "cool and excellent", user-friendly, valuable for students & teachers, multilingual | 🟢 N/A | Positive |
 | VT-1 | Venkatesh Thiyagarajan | Dashboard (default landing) requires scrolling to see any statistical data — surface key stats above the fold | 🟢 Done (#375) | Med |
-| VT-2 | Venkatesh Thiyagarajan | Teacher Management should show a teacher **count**, and a **grade-wise** count if possible | 🟣 PR #376 | Med |
+| VT-2 | Venkatesh Thiyagarajan | Teacher Management should show a teacher **count**, and a **grade-wise** count if possible | 🟢 Done (#376) | Med |
 | VT-3 | Venkatesh Thiyagarajan | Excess white space per menu item; realign content and avoid unnecessary scroll through remaining content | 🟢 Done (#375) | Med |
-| VT-4 | Venkatesh Thiyagarajan | Rearrange nav order — e.g. push **Reports** after **Teachers** | 🟣 PR #373 | Low |
-| VT-5 | Venkatesh Thiyagarajan | "Student" and "Class Overview" use the **same icon** — use distinct icons | 🟣 PR #373 | Low |
-| GG-1 | Gayathri Gowtham | **Fonts too small** to read | 🟣 PR #372 | High — readability/a11y |
+| VT-4 | Venkatesh Thiyagarajan | Rearrange nav order — e.g. push **Reports** after **Teachers** | 🟢 Done (#373) | Low |
+| VT-5 | Venkatesh Thiyagarajan | "Student" and "Class Overview" use the **same icon** — use distinct icons | 🟢 Done (#373) | Low |
+| GG-1 | Gayathri Gowtham | **Fonts too small** to read | 🟢 Done (#372) | High — readability/a11y |
 | AR-1 | Anuradha Ravikumar | Website looks **basic / text-heavy**; needs more color and images | 🟢 Done (#374) | High — first impression |
 | AR-2 | Anuradha Ravikumar | "In modern world, website can have images and videos" | 🟢 Done (#374) | Med — also strategic (see STRATEGIC_FEEDBACK) |
-| AR-3 | Anuradha Ravikumar | More guidance for teachers, provided **separately** | 🟣 PR #377 | Med |
-| SR-1 | Sundararajan Ramanathan | Lesson menu & layout fine in **landscape**; clarify intended device target (tablet/laptop/desktop vs mobile phone) | 🟣 PR #378 | Med — responsive scope |
+| AR-3 | Anuradha Ravikumar | More guidance for teachers, provided **separately** | 🟢 Done (#377) | Med |
+| SR-1 | Sundararajan Ramanathan | Lesson menu & layout fine in **landscape**; clarify intended device target (tablet/laptop/desktop vs mobile phone) | 🟢 Done (#378) | Med — responsive scope |
 
 ---
 
@@ -168,10 +168,10 @@ screenshot was the "Class Overview" page).
 
 | # | Item | Status | Severity |
 |---|---|---|---|
-| AP-1 | Left menu has too many items | 🟣 PR #373 | High — first-impression clutter |
-| AP-2 | "Class Overview" scope unclear (per-classroom?) | 🟣 PR #373 | Med — label/IA |
-| AP-3 | "Catalog" vs "Library" indistinguishable (actually 3 overlapping items) | 🟣 PR #373 | High — core IA confusion |
-| AP-4 | Settings / Digest Settings belong on the top bar | 🟣 PR #373 | Med — IA convention |
+| AP-1 | Left menu has too many items | 🟢 Done (#373) | High — first-impression clutter |
+| AP-2 | "Class Overview" scope unclear (per-classroom?) | 🟢 Done (#373) | Med — label/IA |
+| AP-3 | "Catalog" vs "Library" indistinguishable (actually 3 overlapping items) | 🟢 Done (#373) | High — core IA confusion |
+| AP-4 | Settings / Digest Settings belong on the top bar | 🟢 Done (#373) | Med — IA convention |
 | AP-5 | Fonts look very nice | 🟢 N/A | Positive — keep current type system |
 
 ---
