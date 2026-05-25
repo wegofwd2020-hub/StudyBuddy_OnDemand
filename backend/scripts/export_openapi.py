@@ -22,6 +22,7 @@ import argparse
 import json
 import os
 import sys
+import tempfile
 
 # Allow running from repo root or from backend/.
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
@@ -29,7 +30,15 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 # Stub out missing required env vars so the Settings object can be imported
 # without a .env file (CI doesn't have one).  Values are never used because
 # we only call app.openapi() — no DB/Redis connections are opened.
+#
+# CONTENT_STORE_PATH: the visual-storage backend resolves to
+# ${CONTENT_STORE_PATH}/visuals and `from main import app` triggers a mkdir of
+# that path at import time. The default ("/data/content") isn't writable on a
+# bare CI runner, so `from main import app` crashes with FileNotFoundError.
+# Point it at a throwaway temp dir (parent exists + writable; the leaf dirs are
+# created on demand). This only affects the export script, never the app.
 _STUBS = {
+    "CONTENT_STORE_PATH": os.path.join(tempfile.mkdtemp(prefix="sb-openapi-"), "content"),
     "DATABASE_URL": "postgresql://stub:stub@localhost/stub",
     "REDIS_URL": "redis://localhost:6379/0",
     "JWT_SECRET": "stub-jwt-secret-min-32-chars-aaaabbbb",
