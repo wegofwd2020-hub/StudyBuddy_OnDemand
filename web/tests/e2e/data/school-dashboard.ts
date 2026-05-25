@@ -91,7 +91,9 @@ export const MOCK_ALERTS_EMPTY: AlertListResponse = { alerts: [] };
 // ---------------------------------------------------------------------------
 
 export const DASHBOARD_STRINGS = {
-  pageHeading: "Teacher Dashboard",
+  // The dashboard hero now shows the school identity (#366); with the default
+  // theme (no school customization) this renders the school name.
+  pageHeading: "StudyBuddy",
   viewFullReport: "View full report",
   viewAtRiskReport: "View at-risk report",
   unitsNeedingAttention: "Units needing attention",
@@ -102,8 +104,8 @@ export const DASHBOARD_STRINGS = {
   passRate: "Pass rate (1st attempt)",
   quizAttempts: "Quiz attempts",
   unreviewedFeedback: "Unreviewed feedback",
-  // Quick-nav links
-  classOverview: "Class overview",
+  // Quick-nav links (relabeled to "Student progress" in #366/#368)
+  classOverview: "Student progress",
   trendsReport: "Trends report",
   unitPerformance: "Unit performance",
   studentFeedback: "Student feedback",

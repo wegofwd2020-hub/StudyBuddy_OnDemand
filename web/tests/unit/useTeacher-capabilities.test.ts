@@ -10,7 +10,11 @@ const base = { teacher_id: "t1", school_id: "s1" };
 
 describe("claimsFromPayload — capabilities (issue #358)", () => {
   it("exposes capabilities array from the payload", () => {
-    const c = claimsFromPayload({ ...base, role: "teacher", capabilities: ["curriculum_mgmt"] });
+    const c = claimsFromPayload({
+      ...base,
+      role: "teacher",
+      capabilities: ["curriculum_mgmt"],
+    });
     expect(c?.capabilities).toEqual(["curriculum_mgmt"]);
     expect(c?.role).toBe("teacher");
   });
@@ -69,7 +73,12 @@ describe("hasCapability — gate isolation", () => {
   });
 
   it("school_admin clears both gates implicitly", () => {
-    const t: TeacherClaims = { ...base, role: "school_admin", capabilities: [], first_login: false };
+    const t: TeacherClaims = {
+      ...base,
+      role: "school_admin",
+      capabilities: [],
+      first_login: false,
+    };
     expect(hasCapability(t, "curriculum.commission")).toBe(true);
     expect(hasCapability(t, "curriculum.review")).toBe(true);
   });

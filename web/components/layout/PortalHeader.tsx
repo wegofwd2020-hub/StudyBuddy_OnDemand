@@ -91,7 +91,7 @@ export function PortalHeader({
           <div className="flex items-center gap-3">
             <AccountMenu userName={userName} />
             {now && (
-              <span className="hidden whitespace-nowrap text-sm text-gray-500 tabular-nums sm:inline">
+              <span className="hidden text-sm whitespace-nowrap text-gray-500 tabular-nums sm:inline">
                 {now.toLocaleDateString()}{" "}
                 {now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
               </span>

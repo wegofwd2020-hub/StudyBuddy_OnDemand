@@ -42,12 +42,16 @@ vi.mock("@tanstack/react-query", async (importOriginal) => {
     useMutation: vi.fn((opts: Record<string, unknown> = {}) => ({
       mutate: (vars: unknown) =>
         Promise.resolve()
-          .then(() => (opts.mutationFn as ((v: unknown) => unknown))?.(vars))
-          .then((data) => (opts.onSuccess as ((d: unknown, v: unknown) => void))?.(data, vars))
-          .catch((err) => (opts.onError as ((e: unknown, v: unknown) => void))?.(err, vars)),
+          .then(() => (opts.mutationFn as (v: unknown) => unknown)?.(vars))
+          .then((data) =>
+            (opts.onSuccess as (d: unknown, v: unknown) => void)?.(data, vars),
+          )
+          .catch((err) =>
+            (opts.onError as (e: unknown, v: unknown) => void)?.(err, vars),
+          ),
       mutateAsync: async (vars: unknown) => {
-        const data = await (opts.mutationFn as ((v: unknown) => unknown))?.(vars);
-        await (opts.onSuccess as ((d: unknown, v: unknown) => void))?.(data, vars);
+        const data = await (opts.mutationFn as (v: unknown) => unknown)?.(vars);
+        await (opts.onSuccess as (d: unknown, v: unknown) => void)?.(data, vars);
         return data;
       },
       isPending: false,

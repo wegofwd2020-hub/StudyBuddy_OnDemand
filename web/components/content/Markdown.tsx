@@ -39,7 +39,9 @@ export function SBMarkdown({
   className?: string;
 }) {
   return (
-    <div className={cn("font-heading text-base leading-relaxed text-gray-700", className)}>
+    <div
+      className={cn("font-heading text-base leading-relaxed text-gray-700", className)}
+    >
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath]}
         rehypePlugins={[rehypeKatex]}

@@ -113,9 +113,7 @@ test("PUB-06 — tour gateway section renders with an Explore CTA", async ({ pag
   await page.goto("/");
 
   await expect(page.getByText(TOUR_GATEWAY.eyebrow)).toBeVisible();
-  await expect(
-    page.getByRole("heading", { name: TOUR_GATEWAY.heading }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: TOUR_GATEWAY.heading })).toBeVisible();
 
   const cta = page.getByRole("link", { name: TOUR_GATEWAY.ctaText });
   await expect(cta).toBeVisible();

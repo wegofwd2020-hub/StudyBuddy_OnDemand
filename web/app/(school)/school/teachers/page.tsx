@@ -157,8 +157,8 @@ function CapabilityEditor({
   return (
     <div className="mt-2 rounded-lg border border-blue-100 bg-blue-50 p-3">
       <p className="mb-2 text-xs font-medium text-gray-600">
-        Curriculum capabilities — grant the two gates separately for maker-checker, or
-        the umbrella for both:
+        Curriculum capabilities — grant the two gates separately for maker-checker, or the
+        umbrella for both:
       </p>
       <div className="space-y-1.5">
         {CURRICULUM_CAPABILITIES.map((c) => (
@@ -466,12 +466,13 @@ export default function TeachersPage() {
   // client-side from the roster. A teacher assigned to multiple grades counts
   // once per grade; teachers with no grade assigned roll up into "Unassigned".
   const summary = useMemo(() => {
-    if (!teachers) return null;
+    if (!Array.isArray(teachers)) return null;
     const byGrade = new Map<number, number>();
     let unassigned = 0;
     for (const t of teachers) {
-      if (t.assigned_grades.length === 0) unassigned += 1;
-      for (const g of t.assigned_grades) byGrade.set(g, (byGrade.get(g) ?? 0) + 1);
+      const grades = t.assigned_grades ?? [];
+      if (grades.length === 0) unassigned += 1;
+      for (const g of grades) byGrade.set(g, (byGrade.get(g) ?? 0) + 1);
     }
     return {
       total: teachers.length,
@@ -536,7 +537,7 @@ export default function TeachersPage() {
                   className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700"
                 >
                   Gr {grade}
-                  <span className="rounded-full bg-white px-1.5 tabular-nums text-indigo-800">
+                  <span className="rounded-full bg-white px-1.5 text-indigo-800 tabular-nums">
                     {count}
                   </span>
                 </span>
@@ -544,7 +545,7 @@ export default function TeachersPage() {
               {summary.unassigned > 0 && (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-500">
                   Unassigned
-                  <span className="rounded-full bg-white px-1.5 tabular-nums text-gray-600">
+                  <span className="rounded-full bg-white px-1.5 text-gray-600 tabular-nums">
                     {summary.unassigned}
                   </span>
                 </span>

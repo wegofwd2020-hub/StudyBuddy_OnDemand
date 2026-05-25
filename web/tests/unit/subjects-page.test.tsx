@@ -70,9 +70,7 @@ describe("STU-12 — Subject list renders", () => {
     // Each subject renders a clickable BookSpine whose accessible name is the
     // subject (from its sr-only label).
     for (const subject of MOCK_CURRICULUM_TREE.subjects) {
-      expect(
-        screen.getByRole("button", { name: subject.subject }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: subject.subject })).toBeInTheDocument();
     }
   });
 
@@ -89,9 +87,7 @@ describe("STU-12 — Subject list renders", () => {
     for (const subject of MOCK_CURRICULUM_TREE.subjects) {
       fireEvent.click(screen.getByRole("button", { name: subject.subject }));
       const n = subject.units.length;
-      expect(
-        screen.getByText(`${n} unit${n !== 1 ? "s" : ""}`),
-      ).toBeInTheDocument();
+      expect(screen.getByText(`${n} unit${n !== 1 ? "s" : ""}`)).toBeInTheDocument();
     }
   });
 
