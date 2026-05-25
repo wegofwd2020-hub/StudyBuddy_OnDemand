@@ -29,9 +29,9 @@ No `-x` here — we want the complete failure list, not the first one.
 
 ### Group B — Web full build
 ```bash
-cd web && npm run lint && npm run typecheck && npm test -- --run && npm run build
+cd web && npm run format:check && npm run lint && npm run typecheck && npm test -- --run && npm run build
 ```
-Production build catches type issues that `tsc --noEmit` misses (e.g., Next.js route-level static-analysis errors).
+`format:check` (`prettier --check .`) is a **separate** CI step from ESLint — `npm run lint` passing does not imply formatting is clean, and a Prettier miss reds the whole "Frontend — Lint & Typecheck" job. Fix with `npm run format`. Production build catches type issues that `tsc --noEmit` misses (e.g., Next.js route-level static-analysis errors).
 
 ### Group C — API contract drift
 ```bash
