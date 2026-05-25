@@ -6,6 +6,7 @@ import { useDyslexia } from "@/lib/hooks/useDyslexia";
 import { Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CurriculumMenu } from "@/components/layout/CurriculumMenu";
+import { AccountMenu } from "@/components/layout/AccountMenu";
 
 const PORTAL_ICONS = {
   public: { src: "/assets/home_banner.png", alt: "StudyBuddy" },
@@ -83,19 +84,34 @@ export function PortalHeader({
           <Eye className="h-4 w-4" aria-hidden />
         </button>
 
-        <div className="flex flex-col items-end text-sm">
-          {userName && (
-            <span className="max-w-[200px] truncate font-medium text-gray-700">
-              {userName}
-            </span>
-          )}
-          {now && (
-            <span className="whitespace-nowrap text-gray-500 tabular-nums">
-              {now.toLocaleDateString()}{" "}
-              {now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-            </span>
-          )}
-        </div>
+        {/* School portal: username is the account-menu trigger (config + sign out
+            moved off the left rail — issue #367 AP-4). Other portals keep the
+            static username display. */}
+        {portal === "school" ? (
+          <div className="flex items-center gap-3">
+            <AccountMenu userName={userName} />
+            {now && (
+              <span className="hidden whitespace-nowrap text-sm text-gray-500 tabular-nums sm:inline">
+                {now.toLocaleDateString()}{" "}
+                {now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+              </span>
+            )}
+          </div>
+        ) : (
+          <div className="flex flex-col items-end text-sm">
+            {userName && (
+              <span className="max-w-[200px] truncate font-medium text-gray-700">
+                {userName}
+              </span>
+            )}
+            {now && (
+              <span className="whitespace-nowrap text-gray-500 tabular-nums">
+                {now.toLocaleDateString()}{" "}
+                {now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+              </span>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -20,12 +20,12 @@ const GETTING_STARTED_TEACHER = [
   },
   {
     step: "3",
-    title: "Class Overview — students you teach",
+    title: "Student Progress — students you teach",
     body: 'Same toggle pattern: "My students" shows everyone enrolled in classrooms you lead; "All school" shows the wider roster. Grade pills auto-narrow to grades present in the current view.',
   },
   {
     step: "4",
-    title: "Content Library",
+    title: "Lessons & Content",
     body: 'Browse AI-generated lessons, tutorials, quizzes, and activities. Default view is "My content" — the subjects your classrooms have adopted. Each subject row rolls up multiple regenerations into one — if you see a "4 versions" chip, the link opens the latest. Lesson images are clickable — tap to enlarge in a lightbox.',
   },
   {

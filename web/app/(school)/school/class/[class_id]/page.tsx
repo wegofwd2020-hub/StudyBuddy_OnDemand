@@ -143,7 +143,7 @@ export default function ClassOverviewPage() {
   return (
     <div className="max-w-5xl space-y-6 p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold text-gray-900">Class Overview</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Student Progress</h1>
         <div className="flex flex-wrap items-center gap-3">
           {/* Scope toggle — default to "my students" so the page is focused for
               teachers who lead classrooms. Disabled / hidden when the user

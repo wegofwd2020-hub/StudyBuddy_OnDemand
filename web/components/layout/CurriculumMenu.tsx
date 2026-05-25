@@ -16,10 +16,14 @@ import { BookMarked, ChevronDown } from "lucide-react";
 import { canManageCurriculum, useTeacher } from "@/lib/hooks/useTeacher";
 import { cn } from "@/lib/utils";
 
+// Labels name the verb/noun each surface actually represents (issue #367 AP-3).
+// Reviewers couldn't tell "Catalog" / "Our Library" / "Content Library" apart;
+// they are a pipeline: browse platform packages → adopt into your owned set →
+// open the generated lessons inside them.
 const CURRICULUM_LINKS: { label: string; href: string }[] = [
   { label: "Browse Catalog", href: "/school/catalog" },
-  { label: "Our Library", href: "/school/library" },
-  { label: "Content Library", href: "/school/curriculum/content" },
+  { label: "My Curricula", href: "/school/library" },
+  { label: "Lessons & Content", href: "/school/curriculum/content" },
   { label: "Curriculum Builder", href: "/school/curriculum" },
   { label: "Review Queue", href: "/school/review" },
 ];

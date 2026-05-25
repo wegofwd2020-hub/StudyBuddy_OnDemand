@@ -286,7 +286,7 @@ export default function ContentUnitsPage() {
         <div className="rounded-md border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
           Navigate here from{" "}
           <a href="/school/library" className="underline">
-            Our Library
+            My Curricula
           </a>{" "}
           to enable Import actions.
         </div>
