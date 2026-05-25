@@ -221,7 +221,7 @@ export default function SchoolDashboard() {
 
   return (
     <div className="flex flex-col">
-      <div className="max-w-5xl space-y-8 p-6">
+      <div className="max-w-6xl space-y-6 p-6">
         {/* Themed welcome band (#366) — school identity + brand image + actions */}
         <WelcomeHero
           name={theme.school.name}
@@ -238,6 +238,69 @@ export default function SchoolDashboard() {
             View full report
           </LinkButton>
         </WelcomeHero>
+
+        {/* Headline stats first (#368 VT-1) — kept directly under the hero so the
+            KPIs land in the first viewport without scrolling. Onboarding and
+            secondary cards follow below. */}
+        {isLoading ? (
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-28 rounded-lg" />
+            ))}
+          </div>
+        ) : overview ? (
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+            <KpiCard
+              title="Enrolled students"
+              value={overview.enrolled_students}
+              icon={<Users className="h-5 w-5" />}
+              accent="blue"
+            />
+            <KpiCard
+              title="Active this week"
+              value={
+                overview.active_pct != null ? `${overview.active_pct.toFixed(0)}%` : "—"
+              }
+              subtitle={`${overview.active_students_period ?? 0} of ${overview.enrolled_students ?? 0}`}
+              icon={<TrendingUp className="h-5 w-5" />}
+              accent="green"
+            />
+            <KpiCard
+              title="Lessons viewed"
+              value={overview.lessons_viewed}
+              subtitle="Last 7 days"
+              icon={<BookOpen className="h-5 w-5" />}
+              accent="blue"
+            />
+            <KpiCard
+              title="Pass rate (1st attempt)"
+              value={
+                overview.first_attempt_pass_rate_pct != null
+                  ? `${overview.first_attempt_pass_rate_pct.toFixed(0)}%`
+                  : "—"
+              }
+              icon={<CheckCircle className="h-5 w-5" />}
+              accent={
+                overview.first_attempt_pass_rate_pct != null &&
+                overview.first_attempt_pass_rate_pct >= 60
+                  ? "green"
+                  : "red"
+              }
+            />
+            <KpiCard
+              title="Quiz attempts"
+              value={overview.quiz_attempts}
+              icon={<BookOpen className="h-5 w-5" />}
+              accent="gray"
+            />
+            <KpiCard
+              title="Unreviewed feedback"
+              value={overview.unreviewed_feedback_count}
+              icon={<Bell className="h-5 w-5" />}
+              accent={overview.unreviewed_feedback_count > 0 ? "red" : "gray"}
+            />
+          </div>
+        ) : null}
 
         {/* Layer 1.5 — first-run setup checklist (school_admin only) */}
         {isAdmin && schoolId && <SetupChecklist schoolId={schoolId} />}
@@ -309,66 +372,6 @@ export default function SchoolDashboard() {
             </div>
           </section>
         )}
-
-        {isLoading ? (
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} className="h-28 rounded-lg" />
-            ))}
-          </div>
-        ) : overview ? (
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-            <KpiCard
-              title="Enrolled students"
-              value={overview.enrolled_students}
-              icon={<Users className="h-5 w-5" />}
-              accent="blue"
-            />
-            <KpiCard
-              title="Active this week"
-              value={
-                overview.active_pct != null ? `${overview.active_pct.toFixed(0)}%` : "—"
-              }
-              subtitle={`${overview.active_students_period ?? 0} of ${overview.enrolled_students ?? 0}`}
-              icon={<TrendingUp className="h-5 w-5" />}
-              accent="green"
-            />
-            <KpiCard
-              title="Lessons viewed"
-              value={overview.lessons_viewed}
-              subtitle="Last 7 days"
-              icon={<BookOpen className="h-5 w-5" />}
-              accent="blue"
-            />
-            <KpiCard
-              title="Pass rate (1st attempt)"
-              value={
-                overview.first_attempt_pass_rate_pct != null
-                  ? `${overview.first_attempt_pass_rate_pct.toFixed(0)}%`
-                  : "—"
-              }
-              icon={<CheckCircle className="h-5 w-5" />}
-              accent={
-                overview.first_attempt_pass_rate_pct != null &&
-                overview.first_attempt_pass_rate_pct >= 60
-                  ? "green"
-                  : "red"
-              }
-            />
-            <KpiCard
-              title="Quiz attempts"
-              value={overview.quiz_attempts}
-              icon={<BookOpen className="h-5 w-5" />}
-              accent="gray"
-            />
-            <KpiCard
-              title="Unreviewed feedback"
-              value={overview.unreviewed_feedback_count}
-              icon={<Bell className="h-5 w-5" />}
-              accent={overview.unreviewed_feedback_count > 0 ? "red" : "gray"}
-            />
-          </div>
-        ) : null}
 
         {overview &&
           overview.units_with_struggles &&
