@@ -37,16 +37,16 @@ lesson content surfaces. Source: `~/Downloads/Feedback.txt`.
 | # | Reviewer | Item | Status | Severity |
 |---|---|---|---|---|
 | KV-1 | Kalpana Vinodh | Positive — "cool and excellent", user-friendly, valuable for students & teachers, multilingual | 🟢 N/A | Positive |
-| VT-1 | Venkatesh Thiyagarajan | Dashboard (default landing) requires scrolling to see any statistical data — surface key stats above the fold | 🔵 Open | Med |
-| VT-2 | Venkatesh Thiyagarajan | Teacher Management should show a teacher **count**, and a **grade-wise** count if possible | 🔵 Open | Med |
-| VT-3 | Venkatesh Thiyagarajan | Excess white space per menu item; realign content and avoid unnecessary scroll through remaining content | 🔵 Open | Med |
+| VT-1 | Venkatesh Thiyagarajan | Dashboard (default landing) requires scrolling to see any statistical data — surface key stats above the fold | 🔵 Open (#368) | Med |
+| VT-2 | Venkatesh Thiyagarajan | Teacher Management should show a teacher **count**, and a **grade-wise** count if possible | 🔵 Open (#369) | Med |
+| VT-3 | Venkatesh Thiyagarajan | Excess white space per menu item; realign content and avoid unnecessary scroll through remaining content | 🔵 Open (#368) | Med |
 | VT-4 | Venkatesh Thiyagarajan | Rearrange nav order — e.g. push **Reports** after **Teachers** | 🔵 Open (#367) | Low |
 | VT-5 | Venkatesh Thiyagarajan | "Student" and "Class Overview" use the **same icon** — use distinct icons | 🔵 Open (#367) | Low |
 | GG-1 | Gayathri Gowtham | **Fonts too small** to read | 🔵 Open (#365) | High — readability/a11y |
 | AR-1 | Anuradha Ravikumar | Website looks **basic / text-heavy**; needs more color and images | 🔵 Open (#366) | High — first impression |
 | AR-2 | Anuradha Ravikumar | "In modern world, website can have images and videos" | 🔵 Open (#366) | Med — also strategic (see STRATEGIC_FEEDBACK) |
-| AR-3 | Anuradha Ravikumar | More guidance for teachers, provided **separately** | 🔵 Open | Med |
-| SR-1 | Sundararajan Ramanathan | Lesson menu & layout fine in **landscape**; clarify intended device target (tablet/laptop/desktop vs mobile phone) | 🔵 Open | Med — responsive scope |
+| AR-3 | Anuradha Ravikumar | More guidance for teachers, provided **separately** | 🔵 Open (#370) | Med |
+| SR-1 | Sundararajan Ramanathan | Lesson menu & layout fine in **landscape**; clarify intended device target (tablet/laptop/desktop vs mobile phone) | 🔵 Open (#371) | Med — responsive scope |
 
 ---
 
