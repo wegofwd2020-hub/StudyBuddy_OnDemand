@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { useTeacher } from "@/lib/hooks/useTeacher";
 import { useSchoolTheme } from "@/lib/theme/SchoolThemeContext";
 import { useQuery } from "@tanstack/react-query";
@@ -10,23 +11,20 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
   Users,
+  LineChart,
   BarChart2,
   Bell,
   BookOpen,
-  HelpCircle,
-  Mail,
-  LogOut,
   GraduationCap,
-  Settings,
-  Palette,
   CreditCard,
   Archive,
   HardDrive,
   Images,
   DoorOpen,
   Database,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
-import { listReviewQueue } from "@/lib/api/school-admin";
 
 interface NavItem {
   label: string;
@@ -35,81 +33,96 @@ interface NavItem {
   adminOnly?: boolean;
 }
 
-const NAV_ITEMS: NavItem[] = [
+interface NavGroup {
+  /** Section heading; omit for the standalone top group (Dashboard). */
+  heading?: string;
+  items: NavItem[];
+  /** Collapsible groups render a toggle and hide items until expanded. */
+  collapsible?: boolean;
+  /** Whole group is hidden from non-admins. */
+  adminOnly?: boolean;
+}
+
+// Grouped navigation (issue #367, AP-1). Groups are ordered so Reports
+// (Insights) renders after Teachers (People) per VT-4. The curriculum nav
+// lives in the top-bar CurriculumMenu (#358); per-user config + sign out live
+// in the top-bar AccountMenu (#367 AP-4) — neither belongs in this rail.
+const NAV_GROUPS: NavGroup[] = [
   {
-    label: "Dashboard",
-    href: "/school/dashboard",
-    icon: <LayoutDashboard className="h-4 w-4" />,
+    items: [
+      {
+        label: "Dashboard",
+        href: "/school/dashboard",
+        icon: <LayoutDashboard className="h-4 w-4" />,
+      },
+    ],
   },
   {
-    label: "Classrooms",
-    href: "/school/classrooms",
-    icon: <DoorOpen className="h-4 w-4" />,
+    heading: "Teach",
+    items: [
+      {
+        label: "Classrooms",
+        href: "/school/classrooms",
+        icon: <DoorOpen className="h-4 w-4" />,
+      },
+      {
+        // Renamed from "Class Overview" (AP-2): this is a per-student
+        // performance table, not a per-class view. Distinct icon from
+        // "Students" (was a duplicate <Users>) per VT-5.
+        label: "Student Progress",
+        href: "/school/class/all",
+        icon: <LineChart className="h-4 w-4" />,
+      },
+      { label: "Alerts", href: "/school/alerts", icon: <Bell className="h-4 w-4" /> },
+    ],
   },
   {
-    label: "Class Overview",
-    href: "/school/class/all",
-    icon: <Users className="h-4 w-4" />,
+    heading: "People",
+    items: [
+      { label: "Students", href: "/school/students", icon: <Users className="h-4 w-4" /> },
+      {
+        label: "Teachers",
+        href: "/school/teachers",
+        icon: <GraduationCap className="h-4 w-4" />,
+        adminOnly: true,
+      },
+    ],
   },
   {
-    label: "Reports",
-    href: "/school/reports/overview",
-    icon: <BarChart2 className="h-4 w-4" />,
+    heading: "Insights",
+    items: [
+      {
+        label: "Reports",
+        href: "/school/reports/overview",
+        icon: <BarChart2 className="h-4 w-4" />,
+        adminOnly: true,
+      },
+    ],
+  },
+  {
+    heading: "Administration",
+    collapsible: true,
     adminOnly: true,
+    items: [
+      {
+        label: "Subscription",
+        href: "/school/subscription",
+        icon: <CreditCard className="h-4 w-4" />,
+      },
+      { label: "Storage", href: "/school/storage", icon: <HardDrive className="h-4 w-4" /> },
+      {
+        label: "Visual Library",
+        href: "/school/visuals",
+        icon: <Images className="h-4 w-4" />,
+      },
+      {
+        label: "Content Retention",
+        href: "/school/retention",
+        icon: <Archive className="h-4 w-4" />,
+      },
+      { label: "Backups", href: "/school/backups", icon: <Database className="h-4 w-4" /> },
+    ],
   },
-  // Curriculum nav (Curriculum Builder, Catalog, Our Library, Review Queue,
-  // Content Library) moved to the top-bar "Curriculum Management" menu, gated on
-  // the curriculum capability — see components/layout/CurriculumMenu.tsx (#358).
-  { label: "Students", href: "/school/students", icon: <Users className="h-4 w-4" /> },
-  {
-    label: "Teachers",
-    href: "/school/teachers",
-    icon: <GraduationCap className="h-4 w-4" />,
-    adminOnly: true,
-  },
-  { label: "Alerts", href: "/school/alerts", icon: <Bell className="h-4 w-4" /> },
-  {
-    label: "Digest Settings",
-    href: "/school/digest",
-    icon: <Mail className="h-4 w-4" />,
-  },
-  {
-    label: "Subscription",
-    href: "/school/subscription",
-    icon: <CreditCard className="h-4 w-4" />,
-    adminOnly: true,
-  },
-  {
-    label: "Storage",
-    href: "/school/storage",
-    icon: <HardDrive className="h-4 w-4" />,
-    adminOnly: true,
-  },
-  {
-    label: "Visual Library",
-    href: "/school/visuals",
-    icon: <Images className="h-4 w-4" />,
-    adminOnly: true,
-  },
-  {
-    label: "Content Retention",
-    href: "/school/retention",
-    icon: <Archive className="h-4 w-4" />,
-    adminOnly: true,
-  },
-  {
-    label: "Backups",
-    href: "/school/backups",
-    icon: <Database className="h-4 w-4" />,
-    adminOnly: true,
-  },
-  { label: "Settings", href: "/school/settings", icon: <Settings className="h-4 w-4" /> },
-  {
-    label: "Customize",
-    href: "/school/settings/customize",
-    icon: <Palette className="h-4 w-4" />,
-  },
-  { label: "Help", href: "/school/help", icon: <HelpCircle className="h-4 w-4" /> },
 ];
 
 const REPORT_SUB: { label: string; href: string }[] = [
@@ -126,6 +139,7 @@ export function SchoolNav() {
   const rawPathname = usePathname();
   const pathname = rawPathname ?? "";
   const teacher = useTeacher();
+  const isAdmin = teacher?.role === "school_admin";
   const schoolId = teacher?.school_id ?? "";
   const schoolTheme = useSchoolTheme();
   const schoolLogoText = schoolTheme.school.logoText;
@@ -137,26 +151,12 @@ export function SchoolNav() {
     staleTime: 60_000,
   });
 
-  const { data: reviewQueueData } = useQuery({
-    queryKey: ["review-queue", schoolId],
-    queryFn: () => listReviewQueue(schoolId),
-    enabled: !!schoolId && teacher?.role === "school_admin",
-    staleTime: 60_000,
-    refetchInterval: 60_000,
-  });
-
   const unreadAlerts = alertsData?.alerts?.filter((a) => !a.acknowledged).length ?? 0;
-  const pendingReviews = reviewQueueData?.total ?? 0;
   const inReports = pathname.startsWith("/school/reports");
 
-  function handleLogout() {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("sb_teacher_token");
-      localStorage.removeItem("sb_teacher_refresh_token");
-      // /api/auth/logout clears session cookies and redirects to the correct
-      // destination (local-auth → /signin, Auth0 → /).
-      window.location.href = "/api/auth/logout";
-    }
+  function itemIsActive(href: string): boolean {
+    if (href === "/school/reports/overview") return inReports;
+    return pathname === href || pathname.startsWith(href + "/");
   }
 
   return (
@@ -171,89 +171,135 @@ export function SchoolNav() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-0.5 overflow-y-auto px-2 py-3">
-        {NAV_ITEMS.filter(
-          (item) => !item.adminOnly || teacher?.role === "school_admin",
-        ).map((item) => {
-          const isAlerts = item.href === "/school/alerts";
-          const isReviewQueue = item.href === "/school/review";
-          const isReports = item.href.startsWith("/school/reports");
-          const isContentLib = item.href === "/school/curriculum/content";
-          const isCurriculumUpload = item.href === "/school/curriculum";
-          const isActive = isReports
-            ? inReports
-            : isContentLib
-              ? pathname.startsWith("/school/curriculum/content")
-              : isCurriculumUpload
-                ? pathname === "/school/curriculum" ||
-                  (pathname.startsWith("/school/curriculum") &&
-                    !pathname.startsWith("/school/curriculum/content"))
-                : pathname === item.href;
-
+      <nav className="flex-1 space-y-3 overflow-y-auto px-2 py-3">
+        {NAV_GROUPS.map((group, gi) => {
+          if (group.adminOnly && !isAdmin) return null;
+          const visibleItems = group.items.filter((it) => !it.adminOnly || isAdmin);
+          if (visibleItems.length === 0) return null;
           return (
-            <div key={item.href}>
-              <Link
-                href={item.href}
-                className={cn(
-                  "flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors",
-                  isActive
-                    ? "bg-blue-50 font-medium text-blue-700"
-                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
-                )}
-              >
-                {item.icon}
-                <span className="flex-1">{item.label}</span>
-                {isAlerts && unreadAlerts > 0 && (
-                  <span className="ml-auto flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs font-medium text-white">
-                    {unreadAlerts > 9 ? "9+" : unreadAlerts}
-                  </span>
-                )}
-                {isReviewQueue && pendingReviews > 0 && (
-                  <span className="ml-auto flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-xs font-medium text-white">
-                    {pendingReviews > 9 ? "9+" : pendingReviews}
-                  </span>
-                )}
-              </Link>
-
-              {/* Reports sub-nav */}
-              {isReports && inReports && (
-                <div className="mt-0.5 ml-4 space-y-0.5">
-                  {REPORT_SUB.map((sub) => (
-                    <Link
-                      key={sub.href}
-                      href={sub.href}
-                      className={cn(
-                        "block rounded px-3 py-1.5 text-xs transition-colors",
-                        pathname === sub.href
-                          ? "bg-blue-100 font-medium text-blue-700"
-                          : "text-gray-500 hover:text-gray-800",
-                      )}
-                    >
-                      {sub.label}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
+            <NavSection
+              key={group.heading ?? `group-${gi}`}
+              group={group}
+              items={visibleItems}
+              pathname={pathname}
+              inReports={inReports}
+              unreadAlerts={unreadAlerts}
+              itemIsActive={itemIsActive}
+            />
           );
         })}
       </nav>
 
-      {/* Footer */}
-      <div className="border-t border-gray-100 px-2 py-3">
-        {teacher && (
-          <p className="mb-2 truncate px-3 text-xs text-gray-400">
-            {teacher.role === "school_admin" ? "Admin" : "Teacher"}
-          </p>
-        )}
-        <button
-          onClick={handleLogout}
-          className="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-900"
-        >
-          <LogOut className="h-4 w-4" />
-          Sign out
-        </button>
-      </div>
+      {/* Footer — role label only; sign out moved to the top-bar AccountMenu (AP-4) */}
+      {teacher && (
+        <div className="border-t border-gray-100 px-5 py-3">
+          <p className="truncate text-xs text-gray-400">{isAdmin ? "Admin" : "Teacher"}</p>
+        </div>
+      )}
     </aside>
+  );
+}
+
+function NavSection({
+  group,
+  items,
+  pathname,
+  inReports,
+  unreadAlerts,
+  itemIsActive,
+}: {
+  group: NavGroup;
+  items: NavItem[];
+  pathname: string;
+  inReports: boolean;
+  unreadAlerts: number;
+  itemIsActive: (href: string) => boolean;
+}) {
+  const containsActive = items.some((it) => itemIsActive(it.href));
+  // Collapsible groups start open only when one of their routes is active.
+  const [open, setOpen] = useState(containsActive);
+
+  const links = (
+    <div className="space-y-0.5">
+      {items.map((item) => {
+        const isActive = itemIsActive(item.href);
+        const isAlerts = item.href === "/school/alerts";
+        const isReports = item.href === "/school/reports/overview";
+        return (
+          <div key={item.href}>
+            <Link
+              href={item.href}
+              className={cn(
+                "flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors",
+                isActive
+                  ? "bg-blue-50 font-medium text-blue-700"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
+              )}
+            >
+              {item.icon}
+              <span className="flex-1">{item.label}</span>
+              {isAlerts && unreadAlerts > 0 && (
+                <span className="ml-auto flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs font-medium text-white">
+                  {unreadAlerts > 9 ? "9+" : unreadAlerts}
+                </span>
+              )}
+            </Link>
+
+            {/* Reports sub-nav */}
+            {isReports && inReports && (
+              <div className="mt-0.5 ml-4 space-y-0.5">
+                {REPORT_SUB.map((sub) => (
+                  <Link
+                    key={sub.href}
+                    href={sub.href}
+                    className={cn(
+                      "block rounded px-3 py-1.5 text-xs transition-colors",
+                      pathname === sub.href
+                        ? "bg-blue-100 font-medium text-blue-700"
+                        : "text-gray-500 hover:text-gray-800",
+                    )}
+                  >
+                    {sub.label}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  // Standalone group (no heading) — render links directly.
+  if (!group.heading) return links;
+
+  if (group.collapsible) {
+    return (
+      <div>
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          className="flex w-full items-center justify-between px-3 py-1 text-xs font-semibold tracking-wide text-gray-400 uppercase transition-colors hover:text-gray-600"
+        >
+          {group.heading}
+          {open ? (
+            <ChevronDown className="h-3.5 w-3.5" aria-hidden />
+          ) : (
+            <ChevronRight className="h-3.5 w-3.5" aria-hidden />
+          )}
+        </button>
+        {open && <div className="mt-0.5">{links}</div>}
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <p className="px-3 py-1 text-xs font-semibold tracking-wide text-gray-400 uppercase">
+        {group.heading}
+      </p>
+      <div className="mt-0.5">{links}</div>
+    </div>
   );
 }
