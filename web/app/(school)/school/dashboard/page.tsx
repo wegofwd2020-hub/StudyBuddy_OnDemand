@@ -12,6 +12,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LinkButton } from "@/components/ui/link-button";
 import { Badge } from "@/components/ui/badge";
+import { useSchoolTheme } from "@/lib/theme/SchoolThemeContext";
+import { getSubjectPalette } from "@/lib/theme/getSubjectPalette";
+import { SUBJECT_ORDER } from "@/lib/theme/defaults";
 import {
   Users,
   BookOpen,
@@ -22,6 +25,10 @@ import {
   GraduationCap,
   LayoutGrid,
   BookMarked,
+  LineChart,
+  BarChart2,
+  MessageSquare,
+  Download,
 } from "lucide-react";
 
 function KpiCard({
@@ -59,9 +66,111 @@ function KpiCard({
   );
 }
 
+/**
+ * Themed welcome band (#366). Uses the school's primary accent for a soft
+ * gradient and shows the school identity (logo where set, else name) alongside
+ * the banyan brand image — replacing the previous flat, floating hero so the
+ * first thing a user sees reads as a designed surface, not a wall of text.
+ */
+function WelcomeHero({
+  name,
+  logoUrl,
+  accent,
+  children,
+}: {
+  name: string;
+  logoUrl: string | null;
+  accent: string;
+  children?: React.ReactNode;
+}) {
+  const p = getSubjectPalette(accent);
+  return (
+    <div
+      className="relative overflow-hidden rounded-2xl border"
+      style={{
+        borderColor: p.border,
+        background: `linear-gradient(120deg, ${p.bg1} 0%, #ffffff 65%)`,
+      }}
+    >
+      <div className="flex items-center justify-between gap-4 px-6 py-5">
+        <div className="flex items-center gap-4">
+          {logoUrl ? (
+            // Plain img: school logos are arbitrary remote URLs, so we avoid
+            // next/image's domain allow-list requirement here.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={logoUrl}
+              alt={`${name} logo`}
+              className="h-12 w-12 rounded-lg object-contain"
+            />
+          ) : null}
+          <div>
+            <p
+              className="text-xs font-semibold tracking-wide uppercase"
+              style={{ color: p.ink }}
+            >
+              Welcome back
+            </p>
+            <h1 className="text-2xl font-bold text-gray-900">{name}</h1>
+            <p className="mt-0.5 text-sm text-gray-500">
+              Here&apos;s how your school is doing this week.
+            </p>
+            {children && <div className="mt-3 flex flex-wrap gap-2">{children}</div>}
+          </div>
+        </div>
+        <div className="relative hidden h-24 w-36 shrink-0 sm:block">
+          <Image
+            src="/assets/banyan_tree.png"
+            alt=""
+            fill
+            priority
+            className="object-contain object-right"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** A colored, scannable shortcut tile — replaces the plain text-button row. */
+function ActionTile({
+  href,
+  label,
+  icon,
+  accent,
+}: {
+  href: string;
+  label: string;
+  icon: React.ReactNode;
+  accent: string;
+}) {
+  const p = getSubjectPalette(accent);
+  return (
+    <Link
+      href={href}
+      className="group flex items-center gap-3 rounded-xl border bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+      style={{ borderColor: p.border }}
+    >
+      <span
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
+        style={{ backgroundColor: p.bg1, color: p.accent }}
+      >
+        {icon}
+      </span>
+      <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900">
+        {label}
+      </span>
+    </Link>
+  );
+}
+
 export default function SchoolDashboard() {
   const teacher = useTeacher();
   const schoolId = teacher?.school_id ?? "";
+  const theme = useSchoolTheme();
+  // Cycle the school's subject accents so tiles pick up per-school theming.
+  const accents = SUBJECT_ORDER.map((k) => theme.subjects[k]?.accent ?? "#4f46e5");
+  const primaryAccent = accents[1] ?? "#4f46e5"; // Math accent — the brand indigo by default
 
   const { data: overview, isLoading } = useQuery({
     queryKey: ["report-overview", schoolId, "7d"],
@@ -112,18 +221,24 @@ export default function SchoolDashboard() {
 
   return (
     <div className="flex flex-col">
-      {/* Hero image */}
-      <div className="relative h-[240px] w-full bg-gray-50">
-        <Image
-          src="/assets/banyan_tree.png"
-          alt="School Portal"
-          fill
-          priority
-          className="object-contain object-center"
-        />
-      </div>
-
       <div className="max-w-5xl space-y-8 p-6">
+        {/* Themed welcome band (#366) — school identity + brand image + actions */}
+        <WelcomeHero
+          name={theme.school.name}
+          logoUrl={theme.school.logoUrl}
+          accent={primaryAccent}
+        >
+          {unreadAlerts > 0 && (
+            <LinkButton href="/school/alerts" variant="outline" size="sm">
+              <Bell className="mr-1.5 h-4 w-4 text-red-500" />
+              {unreadAlerts} alert{unreadAlerts !== 1 ? "s" : ""}
+            </LinkButton>
+          )}
+          <LinkButton href="/school/reports/overview" size="sm">
+            View full report
+          </LinkButton>
+        </WelcomeHero>
+
         {/* Layer 1.5 — first-run setup checklist (school_admin only) */}
         {isAdmin && schoolId && <SetupChecklist schoolId={schoolId} />}
 
@@ -155,23 +270,6 @@ export default function SchoolDashboard() {
             </CardContent>
           </Card>
         )}
-
-        <div className="flex items-center justify-between">
-          <h1 className="w-full text-center text-2xl font-bold text-gray-900">
-            Teacher Dashboard
-          </h1>
-          <div className="flex gap-2">
-            {unreadAlerts > 0 && (
-              <LinkButton href="/school/alerts" variant="outline" size="sm">
-                <Bell className="mr-1.5 h-4 w-4 text-red-500" />
-                {unreadAlerts} alert{unreadAlerts !== 1 ? "s" : ""}
-              </LinkButton>
-            )}
-            <LinkButton href="/school/reports/overview" size="sm">
-              View full report
-            </LinkButton>
-          </div>
-        </div>
 
         {/* My Classes — shown for non-admin teachers with assigned grades */}
         {!isAdmin && assignedGrades && assignedGrades.length > 0 && (
@@ -307,21 +405,44 @@ export default function SchoolDashboard() {
 
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
           {[
-            { label: "Class overview", href: "/school/class/all" },
-            { label: "Trends report", href: "/school/reports/trends" },
-            { label: "Unit performance", href: "/school/reports/units" },
-            { label: "Student feedback", href: "/school/reports/feedback" },
-            { label: "Export CSV", href: "/school/reports/export" },
-            { label: "Alert inbox", href: "/school/alerts" },
-          ].map((link) => (
-            <LinkButton
+            {
+              label: "Student progress",
+              href: "/school/class/all",
+              icon: <LineChart className="h-5 w-5" />,
+            },
+            {
+              label: "Trends report",
+              href: "/school/reports/trends",
+              icon: <TrendingUp className="h-5 w-5" />,
+            },
+            {
+              label: "Unit performance",
+              href: "/school/reports/units",
+              icon: <BarChart2 className="h-5 w-5" />,
+            },
+            {
+              label: "Student feedback",
+              href: "/school/reports/feedback",
+              icon: <MessageSquare className="h-5 w-5" />,
+            },
+            {
+              label: "Export CSV",
+              href: "/school/reports/export",
+              icon: <Download className="h-5 w-5" />,
+            },
+            {
+              label: "Alert inbox",
+              href: "/school/alerts",
+              icon: <Bell className="h-5 w-5" />,
+            },
+          ].map((link, i) => (
+            <ActionTile
               key={link.href}
               href={link.href}
-              variant="outline"
-              className="justify-start"
-            >
-              {link.label}
-            </LinkButton>
+              label={link.label}
+              icon={link.icon}
+              accent={accents[i % accents.length]}
+            />
           ))}
         </div>
       </div>
