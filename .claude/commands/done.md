@@ -36,10 +36,16 @@ bandit -q -r backend/src/ -ll
 ### Web (if TS/TSX changed)
 
 ```bash
+cd web && npm run format:check
 cd web && npm run lint
 cd web && npm run typecheck
 cd web && npm test -- --run
 ```
+
+`format:check` is `prettier --check .` — CI runs it as a **separate** step from
+ESLint, so `npm run lint` passing does NOT mean formatting is clean. This is the
+most common avoidable red on frontend PRs. If it fails, `cd web && npm run
+format` writes the fixes, then re-run.
 
 ### Migrations (if any `backend/alembic/versions/*.py` touched)
 
