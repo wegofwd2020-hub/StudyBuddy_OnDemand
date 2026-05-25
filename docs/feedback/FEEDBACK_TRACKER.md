@@ -17,7 +17,8 @@ reviewer session. Newest at top.
 |---|---|
 | 🔵 Open | Captured, not yet decided |
 | 🟡 Decided | Approach chosen, not yet built |
-| 🟢 Done | Shipped |
+| 🟣 PR open | Built and verified; PR awaiting review/merge |
+| 🟢 Done | Shipped (merged) |
 | ⚪ Won't fix | Considered, deliberately declined (reason noted) |
 
 ---
@@ -37,16 +38,16 @@ lesson content surfaces. Source: `~/Downloads/Feedback.txt`.
 | # | Reviewer | Item | Status | Severity |
 |---|---|---|---|---|
 | KV-1 | Kalpana Vinodh | Positive — "cool and excellent", user-friendly, valuable for students & teachers, multilingual | 🟢 N/A | Positive |
-| VT-1 | Venkatesh Thiyagarajan | Dashboard (default landing) requires scrolling to see any statistical data — surface key stats above the fold | 🔵 Open (#368) | Med |
-| VT-2 | Venkatesh Thiyagarajan | Teacher Management should show a teacher **count**, and a **grade-wise** count if possible | 🔵 Open (#369) | Med |
-| VT-3 | Venkatesh Thiyagarajan | Excess white space per menu item; realign content and avoid unnecessary scroll through remaining content | 🔵 Open (#368) | Med |
-| VT-4 | Venkatesh Thiyagarajan | Rearrange nav order — e.g. push **Reports** after **Teachers** | 🔵 Open (#367) | Low |
-| VT-5 | Venkatesh Thiyagarajan | "Student" and "Class Overview" use the **same icon** — use distinct icons | 🔵 Open (#367) | Low |
-| GG-1 | Gayathri Gowtham | **Fonts too small** to read | 🔵 Open (#365) | High — readability/a11y |
-| AR-1 | Anuradha Ravikumar | Website looks **basic / text-heavy**; needs more color and images | 🔵 Open (#366) | High — first impression |
-| AR-2 | Anuradha Ravikumar | "In modern world, website can have images and videos" | 🔵 Open (#366) | Med — also strategic (see STRATEGIC_FEEDBACK) |
-| AR-3 | Anuradha Ravikumar | More guidance for teachers, provided **separately** | 🔵 Open (#370) | Med |
-| SR-1 | Sundararajan Ramanathan | Lesson menu & layout fine in **landscape**; clarify intended device target (tablet/laptop/desktop vs mobile phone) | 🔵 Open (#371) | Med — responsive scope |
+| VT-1 | Venkatesh Thiyagarajan | Dashboard (default landing) requires scrolling to see any statistical data — surface key stats above the fold | 🟣 PR #375 | Med |
+| VT-2 | Venkatesh Thiyagarajan | Teacher Management should show a teacher **count**, and a **grade-wise** count if possible | 🟣 PR #376 | Med |
+| VT-3 | Venkatesh Thiyagarajan | Excess white space per menu item; realign content and avoid unnecessary scroll through remaining content | 🟣 PR #375 | Med |
+| VT-4 | Venkatesh Thiyagarajan | Rearrange nav order — e.g. push **Reports** after **Teachers** | 🟣 PR #373 | Low |
+| VT-5 | Venkatesh Thiyagarajan | "Student" and "Class Overview" use the **same icon** — use distinct icons | 🟣 PR #373 | Low |
+| GG-1 | Gayathri Gowtham | **Fonts too small** to read | 🟣 PR #372 | High — readability/a11y |
+| AR-1 | Anuradha Ravikumar | Website looks **basic / text-heavy**; needs more color and images | 🟣 PR #374 | High — first impression |
+| AR-2 | Anuradha Ravikumar | "In modern world, website can have images and videos" | 🟣 PR #374 | Med — also strategic (see STRATEGIC_FEEDBACK) |
+| AR-3 | Anuradha Ravikumar | More guidance for teachers, provided **separately** | 🟣 PR #377 | Med |
+| SR-1 | Sundararajan Ramanathan | Lesson menu & layout fine in **landscape**; clarify intended device target (tablet/laptop/desktop vs mobile phone) | 🟣 PR #378 | Med — responsive scope |
 
 ---
 
@@ -127,14 +128,23 @@ reading it as a bug.
 
 ---
 
-### Proposed next step
+### Resolution
 
-Most items (VT-1, VT-3, VT-4, VT-5, GG-1, AR-1) are a **school-portal
-density + IA + readability pass** on `SchoolNav.tsx` + dashboard/page layouts —
-no migrations, low backend risk. They merge cleanly with Ashokan's nav refresh
-(AP-1…AP-4). VT-2 needs a small count addition. GG-1 (font size) is the
-highest-severity standalone fix and overlaps a11y #189. Awaiting user decision
-on whether to bundle these into one "school portal UX refresh" change.
+All actionable items from this session were filed as issues (#365–#371) and
+implemented as separate PRs (see Status column). Mapping:
+
+| Item(s) | Issue | PR |
+|---|---|---|
+| GG-1 | #365 | #372 — content font size → 16px |
+| AR-1, AR-2 | #366 | #374 — dashboard themed hero + colored action tiles |
+| AP-1…AP-4, VT-4, VT-5 | #367 | #373 — school nav IA refresh + account menu |
+| VT-1, VT-3 | #368 | #375 — KPIs above the fold + density (stacked on #374) |
+| VT-2 | #369 | #376 — teacher count + grade-wise breakdown |
+| AR-3 | #370 | #377 — teacher FAQ on the school guide |
+| SR-1 | #371 | #378 — responsive/device target doc |
+
+Each PR was verified in-browser (Playwright) or by link-check (docs); none
+touch backend/migrations. KV-1 was positive feedback (no action).
 
 ---
 
@@ -158,10 +168,10 @@ screenshot was the "Class Overview" page).
 
 | # | Item | Status | Severity |
 |---|---|---|---|
-| AP-1 | Left menu has too many items | 🔵 Open (#367) | High — first-impression clutter |
-| AP-2 | "Class Overview" scope unclear (per-classroom?) | 🔵 Open (#367) | Med — label/IA |
-| AP-3 | "Catalog" vs "Library" indistinguishable (actually 3 overlapping items) | 🔵 Open (#367) | High — core IA confusion |
-| AP-4 | Settings / Digest Settings belong on the top bar | 🔵 Open (#367) | Med — IA convention |
+| AP-1 | Left menu has too many items | 🟣 PR #373 | High — first-impression clutter |
+| AP-2 | "Class Overview" scope unclear (per-classroom?) | 🟣 PR #373 | Med — label/IA |
+| AP-3 | "Catalog" vs "Library" indistinguishable (actually 3 overlapping items) | 🟣 PR #373 | High — core IA confusion |
+| AP-4 | Settings / Digest Settings belong on the top bar | 🟣 PR #373 | Med — IA convention |
 | AP-5 | Fonts look very nice | 🟢 N/A | Positive — keep current type system |
 
 ---
