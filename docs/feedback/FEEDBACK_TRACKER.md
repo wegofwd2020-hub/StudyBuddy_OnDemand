@@ -38,9 +38,9 @@ lesson content surfaces. Source: `~/Downloads/Feedback.txt`.
 | # | Reviewer | Item | Status | Severity |
 |---|---|---|---|---|
 | KV-1 | Kalpana Vinodh | Positive — "cool and excellent", user-friendly, valuable for students & teachers, multilingual | 🟢 N/A | Positive |
-| VT-1 | Venkatesh Thiyagarajan | Dashboard (default landing) requires scrolling to see any statistical data — surface key stats above the fold | 🟣 PR #375 | Med |
+| VT-1 | Venkatesh Thiyagarajan | Dashboard (default landing) requires scrolling to see any statistical data — surface key stats above the fold | 🟢 Done (#375) | Med |
 | VT-2 | Venkatesh Thiyagarajan | Teacher Management should show a teacher **count**, and a **grade-wise** count if possible | 🟣 PR #376 | Med |
-| VT-3 | Venkatesh Thiyagarajan | Excess white space per menu item; realign content and avoid unnecessary scroll through remaining content | 🟣 PR #375 | Med |
+| VT-3 | Venkatesh Thiyagarajan | Excess white space per menu item; realign content and avoid unnecessary scroll through remaining content | 🟢 Done (#375) | Med |
 | VT-4 | Venkatesh Thiyagarajan | Rearrange nav order — e.g. push **Reports** after **Teachers** | 🟣 PR #373 | Low |
 | VT-5 | Venkatesh Thiyagarajan | "Student" and "Class Overview" use the **same icon** — use distinct icons | 🟣 PR #373 | Low |
 | GG-1 | Gayathri Gowtham | **Fonts too small** to read | 🟣 PR #372 | High — readability/a11y |
