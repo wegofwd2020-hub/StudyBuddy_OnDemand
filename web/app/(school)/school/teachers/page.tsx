@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTeacher } from "@/lib/hooks/useTeacher";
 import {
@@ -462,6 +462,27 @@ export default function TeachersPage() {
     staleTime: 30_000,
   });
 
+  // Roster summary (#369 VT-2) — total count + grade-wise breakdown, derived
+  // client-side from the roster. A teacher assigned to multiple grades counts
+  // once per grade; teachers with no grade assigned roll up into "Unassigned".
+  const summary = useMemo(() => {
+    if (!teachers) return null;
+    const byGrade = new Map<number, number>();
+    let unassigned = 0;
+    for (const t of teachers) {
+      if (t.assigned_grades.length === 0) unassigned += 1;
+      for (const g of t.assigned_grades) byGrade.set(g, (byGrade.get(g) ?? 0) + 1);
+    }
+    return {
+      total: teachers.length,
+      grades: ALL_GRADES.filter((g) => byGrade.has(g)).map((g) => ({
+        grade: g,
+        count: byGrade.get(g) as number,
+      })),
+      unassigned,
+    };
+  }, [teachers]);
+
   // Provision form state
   const queryClient = useQueryClient();
   const [name, setName] = useState("");
@@ -495,6 +516,43 @@ export default function TeachersPage() {
         <GraduationCap className="h-6 w-6 text-indigo-600" />
         <h1 className="text-2xl font-bold text-gray-900">Teacher Management</h1>
       </div>
+
+      {/* ── Roster summary: total + grade-wise breakdown (#369) ── */}
+      {summary && summary.total > 0 && (
+        <div className="rounded-lg border bg-white p-4 shadow-sm">
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-bold text-gray-900 tabular-nums">
+              {summary.total}
+            </span>
+            <span className="text-sm text-gray-500">
+              teacher{summary.total !== 1 ? "s" : ""} at this school
+            </span>
+          </div>
+          {(summary.grades.length > 0 || summary.unassigned > 0) && (
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {summary.grades.map(({ grade, count }) => (
+                <span
+                  key={grade}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700"
+                >
+                  Gr {grade}
+                  <span className="rounded-full bg-white px-1.5 tabular-nums text-indigo-800">
+                    {count}
+                  </span>
+                </span>
+              ))}
+              {summary.unassigned > 0 && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-500">
+                  Unassigned
+                  <span className="rounded-full bg-white px-1.5 tabular-nums text-gray-600">
+                    {summary.unassigned}
+                  </span>
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ── Teacher roster ── */}
       <section>
