@@ -40,11 +40,11 @@ lesson content surfaces. Source: `~/Downloads/Feedback.txt`.
 | VT-1 | Venkatesh Thiyagarajan | Dashboard (default landing) requires scrolling to see any statistical data — surface key stats above the fold | 🔵 Open | Med |
 | VT-2 | Venkatesh Thiyagarajan | Teacher Management should show a teacher **count**, and a **grade-wise** count if possible | 🔵 Open | Med |
 | VT-3 | Venkatesh Thiyagarajan | Excess white space per menu item; realign content and avoid unnecessary scroll through remaining content | 🔵 Open | Med |
-| VT-4 | Venkatesh Thiyagarajan | Rearrange nav order — e.g. push **Reports** after **Teachers** | 🔵 Open | Low |
-| VT-5 | Venkatesh Thiyagarajan | "Student" and "Class Overview" use the **same icon** — use distinct icons | 🔵 Open | Low |
-| GG-1 | Gayathri Gowtham | **Fonts too small** to read | 🔵 Open | High — readability/a11y |
-| AR-1 | Anuradha Ravikumar | Website looks **basic / text-heavy**; needs more color and images | 🔵 Open | High — first impression |
-| AR-2 | Anuradha Ravikumar | "In modern world, website can have images and videos" | 🔵 Open | Med — also strategic (see STRATEGIC_FEEDBACK) |
+| VT-4 | Venkatesh Thiyagarajan | Rearrange nav order — e.g. push **Reports** after **Teachers** | 🔵 Open (#367) | Low |
+| VT-5 | Venkatesh Thiyagarajan | "Student" and "Class Overview" use the **same icon** — use distinct icons | 🔵 Open (#367) | Low |
+| GG-1 | Gayathri Gowtham | **Fonts too small** to read | 🔵 Open (#365) | High — readability/a11y |
+| AR-1 | Anuradha Ravikumar | Website looks **basic / text-heavy**; needs more color and images | 🔵 Open (#366) | High — first impression |
+| AR-2 | Anuradha Ravikumar | "In modern world, website can have images and videos" | 🔵 Open (#366) | Med — also strategic (see STRATEGIC_FEEDBACK) |
 | AR-3 | Anuradha Ravikumar | More guidance for teachers, provided **separately** | 🔵 Open | Med |
 | SR-1 | Sundararajan Ramanathan | Lesson menu & layout fine in **landscape**; clarify intended device target (tablet/laptop/desktop vs mobile phone) | 🔵 Open | Med — responsive scope |
 
@@ -158,10 +158,10 @@ screenshot was the "Class Overview" page).
 
 | # | Item | Status | Severity |
 |---|---|---|---|
-| AP-1 | Left menu has too many items | 🔵 Open | High — first-impression clutter |
-| AP-2 | "Class Overview" scope unclear (per-classroom?) | 🔵 Open | Med — label/IA |
-| AP-3 | "Catalog" vs "Library" indistinguishable (actually 3 overlapping items) | 🔵 Open | High — core IA confusion |
-| AP-4 | Settings / Digest Settings belong on the top bar | 🔵 Open | Med — IA convention |
+| AP-1 | Left menu has too many items | 🔵 Open (#367) | High — first-impression clutter |
+| AP-2 | "Class Overview" scope unclear (per-classroom?) | 🔵 Open (#367) | Med — label/IA |
+| AP-3 | "Catalog" vs "Library" indistinguishable (actually 3 overlapping items) | 🔵 Open (#367) | High — core IA confusion |
+| AP-4 | Settings / Digest Settings belong on the top bar | 🔵 Open (#367) | Med — IA convention |
 | AP-5 | Fonts look very nice | 🟢 N/A | Positive — keep current type system |
 
 ---
