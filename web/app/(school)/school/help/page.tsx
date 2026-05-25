@@ -64,6 +64,56 @@ const GETTING_STARTED_ADMIN = [
   },
 ];
 
+// Teacher-focused FAQ (#370) — task-oriented answers distinct from the
+// student help, each pointing at the portal location that resolves it.
+const TEACHER_FAQ: { q: string; a: string; where: string }[] = [
+  {
+    q: "How do I see which of my students are struggling?",
+    a: "The At-Risk report flags students below your school's thresholds (low scores, inactivity, repeated quiz failures). The dashboard also surfaces unread alerts when a class average drops.",
+    where: "/school/reports/at-risk",
+  },
+  {
+    q: "Where do I find the lessons for my class?",
+    a: 'Open the content browser — it defaults to "My content", the subjects your classrooms have adopted. Pick a subject, then a unit, to read the AI-generated lesson, tutorial, and quizzes.',
+    where: "/school/curriculum/content",
+  },
+  {
+    q: "How do I get notified when a class is falling behind?",
+    a: "Alerts fire automatically when a threshold is breached. Turn on a weekly email summary in Digest Settings so you don't have to check manually.",
+    where: "/school/digest",
+  },
+  {
+    q: "Can I focus on just my own classes instead of the whole school?",
+    a: 'Both the Classrooms and Student Progress pages default to a "My" view (rooms you lead / students you teach). Toggle to "All school" only when you need the wider picture.',
+    where: "/school/classrooms",
+  },
+  {
+    q: "How do I track one student's progress over time?",
+    a: "Open the Students roster and click a student row for their per-unit history, quiz attempts, and recent activity.",
+    where: "/school/students",
+  },
+  {
+    q: "Can I make a lesson easier to read for a student?",
+    a: "Lesson content already targets a reading level one to two grades below the student's grade. For dyslexia support, toggle the dyslexia-friendly font from the Eye icon in the top bar (or press Alt+D).",
+    where: "Top bar → Eye icon (Alt+D)",
+  },
+];
+
+function FaqItem({ q, a, where }: { q: string; a: string; where: string }) {
+  return (
+    <details className="group rounded-lg border border-gray-100 bg-white shadow-sm">
+      <summary className="flex cursor-pointer items-center justify-between gap-3 px-4 py-3 font-medium text-gray-900 marker:content-none">
+        {q}
+        <ChevronDown className="h-4 w-4 shrink-0 text-gray-400 transition-transform group-open:rotate-180" />
+      </summary>
+      <div className="border-t border-gray-50 px-4 py-3">
+        <p className="text-sm text-gray-600">{a}</p>
+        <p className="mt-2 font-mono text-xs text-blue-600">{where}</p>
+      </div>
+    </details>
+  );
+}
+
 export default function SchoolHelpPage() {
   const teacher = useTeacher();
   const isAdmin = teacher?.role === "school_admin";
@@ -204,6 +254,18 @@ export default function SchoolHelpPage() {
                 ))}
             </tbody>
           </table>
+        </div>
+      </section>
+
+      {/* Common teacher questions (#370) — teacher-focused, task-oriented help */}
+      <section>
+        <h2 className="mb-4 text-sm font-semibold tracking-wide text-gray-500 uppercase">
+          Common Teacher Questions
+        </h2>
+        <div className="space-y-2">
+          {TEACHER_FAQ.map((f) => (
+            <FaqItem key={f.q} q={f.q} a={f.a} where={f.where} />
+          ))}
         </div>
       </section>
     </div>
