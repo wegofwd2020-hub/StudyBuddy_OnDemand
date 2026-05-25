@@ -259,7 +259,7 @@ export default function LibraryPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <BookMarked className="h-6 w-6 text-indigo-600" />
-          <h1 className="text-2xl font-bold text-gray-900">Our Library</h1>
+          <h1 className="text-2xl font-bold text-gray-900">My Curricula</h1>
         </div>
         <LinkButton href="/school/catalog" size="sm">
           <LayoutGrid className="mr-1.5 h-4 w-4" />

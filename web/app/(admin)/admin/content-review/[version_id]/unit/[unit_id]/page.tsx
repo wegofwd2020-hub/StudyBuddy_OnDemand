@@ -318,7 +318,7 @@ function ExampleBlock({ text }: { text: string }) {
   // fenced code for code-heavy examples.
   return (
     <div className="rounded-md border border-gray-100 bg-gray-50 p-3">
-      <SBMarkdown className="text-xs text-gray-800">{text}</SBMarkdown>
+      <SBMarkdown className="text-sm text-gray-800">{text}</SBMarkdown>
     </div>
   );
 }
