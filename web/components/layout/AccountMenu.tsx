@@ -12,19 +12,16 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import {
-  ChevronDown,
-  Settings,
-  Mail,
-  Palette,
-  HelpCircle,
-  LogOut,
-} from "lucide-react";
+import { ChevronDown, Settings, Mail, Palette, HelpCircle, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const ACCOUNT_LINKS: { label: string; href: string; icon: React.ReactNode }[] = [
   { label: "Settings", href: "/school/settings", icon: <Settings className="h-4 w-4" /> },
-  { label: "Digest Settings", href: "/school/digest", icon: <Mail className="h-4 w-4" /> },
+  {
+    label: "Digest Settings",
+    href: "/school/digest",
+    icon: <Mail className="h-4 w-4" />,
+  },
   {
     label: "Customize",
     href: "/school/settings/customize",

@@ -24,8 +24,10 @@ import {
 // Mocks
 // ---------------------------------------------------------------------------
 
+// The roster table, invite link and bulk-enrol UI now live in the school_admin
+// view (the teacher view shows a read-only progress table). Render as admin.
 vi.mock("@/lib/hooks/useTeacher", () => ({
-  useTeacher: vi.fn(() => MOCK_TEACHER),
+  useTeacher: vi.fn(() => ({ ...MOCK_TEACHER, role: "school_admin" as const })),
 }));
 
 const mockUseQuery = vi.fn();
@@ -40,12 +42,16 @@ vi.mock("@tanstack/react-query", async (importOriginal) => {
     useMutation: vi.fn((opts: Record<string, unknown> = {}) => ({
       mutate: (vars: unknown) =>
         Promise.resolve()
-          .then(() => (opts.mutationFn as ((v: unknown) => unknown))?.(vars))
-          .then((data) => (opts.onSuccess as ((d: unknown, v: unknown) => void))?.(data, vars))
-          .catch((err) => (opts.onError as ((e: unknown, v: unknown) => void))?.(err, vars)),
+          .then(() => (opts.mutationFn as (v: unknown) => unknown)?.(vars))
+          .then((data) =>
+            (opts.onSuccess as (d: unknown, v: unknown) => void)?.(data, vars),
+          )
+          .catch((err) =>
+            (opts.onError as (e: unknown, v: unknown) => void)?.(err, vars),
+          ),
       mutateAsync: async (vars: unknown) => {
-        const data = await (opts.mutationFn as ((v: unknown) => unknown))?.(vars);
-        await (opts.onSuccess as ((d: unknown, v: unknown) => void))?.(data, vars);
+        const data = await (opts.mutationFn as (v: unknown) => unknown)?.(vars);
+        await (opts.onSuccess as (d: unknown, v: unknown) => void)?.(data, vars);
         return data;
       },
       isPending: false,
@@ -103,7 +109,11 @@ describe("SCH-35 — Roster table renders", () => {
 
   it("renders Email column header", () => {
     render(<StudentsPage />);
-    expect(screen.getByText(STUDENTS_STRINGS.colEmail)).toBeInTheDocument();
+    // "Email" also appears as the Add-student form label, so target the table
+    // column header specifically.
+    expect(
+      screen.getByRole("columnheader", { name: STUDENTS_STRINGS.colEmail }),
+    ).toBeInTheDocument();
   });
 
   it("renders Status column header", () => {
@@ -123,9 +133,10 @@ describe("SCH-35 — Roster table renders", () => {
     }
   });
 
-  it("renders enrolled count badge", () => {
+  it("renders the enrolled-students roster section", () => {
     render(<StudentsPage />);
-    expect(screen.getByText(`${MOCK_ROSTER.roster.length} enrolled`)).toBeInTheDocument();
+    // The redesign replaced the count badge with an "Enrolled students" card.
+    expect(screen.getByText("Enrolled students")).toBeInTheDocument();
   });
 });
 

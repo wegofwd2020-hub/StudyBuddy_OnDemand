@@ -4,16 +4,18 @@ test.describe("Public pages", () => {
   test("landing page loads and shows hero CTA", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    // Header CTA label is now "Start free" (not "Start free trial");
-    // bottom CTA section still reads "Start your free trial". Regex covers both.
-    await expect(page.getByRole("link", { name: /start.*free/i }).first()).toBeVisible();
+    // Epic 16 school-first hero CTA: "Register your school — it's free".
+    await expect(
+      page.getByRole("link", { name: /register your school/i }).first(),
+    ).toBeVisible();
   });
 
   test("pricing page shows three plan cards", async ({ page }) => {
     await page.goto("/pricing");
+    // Epic 16 plans: Platform Starter ($0), School Pro (~$5/student/yr), Enterprise (Custom).
     await expect(page.getByText("$0")).toBeVisible();
-    await expect(page.getByText("$9.99")).toBeVisible();
-    await expect(page.getByText("$299+")).toBeVisible();
+    await expect(page.getByText("~$5")).toBeVisible();
+    await expect(page.getByText("Custom").first()).toBeVisible();
   });
 
   test("login page shows sign-in button", async ({ page }) => {

@@ -37,7 +37,23 @@ vi.mock("@/lib/api/admin", async (importOriginal) => {
 const mockUseQuery = vi.fn();
 vi.mock("@tanstack/react-query", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@tanstack/react-query")>();
-  return { ...actual, useQuery: vi.fn((opts) => mockUseQuery(opts)) };
+  return {
+    ...actual,
+    useQuery: vi.fn((opts) => mockUseQuery(opts)),
+    // Self-assign + batch-approve mutations; stub so render works without a
+    // QueryClientProvider.
+    useMutation: vi.fn(() => ({ mutate: vi.fn(), isPending: false, isSuccess: false })),
+    useQueryClient: vi.fn(() => ({ invalidateQueries: vi.fn() })),
+  };
+});
+
+// The page reads the admin role to gate the self-assign control.
+vi.mock("@/lib/hooks/useAdmin", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/hooks/useAdmin")>();
+  return {
+    ...actual,
+    useAdmin: vi.fn(() => ({ admin_id: "admin-001", role: "super_admin" })),
+  };
 });
 
 // ---------------------------------------------------------------------------
@@ -105,9 +121,11 @@ describe("ADM-32 — Status filter tabs render", () => {
 
   it("renders 'All' tab", () => {
     render(<AdminContentReviewPage />);
-    expect(
-      screen.getByRole("button", { name: REVIEW_QUEUE_STRINGS.tabAll }),
-    ).toBeInTheDocument();
+    // Two "All" buttons exist now: the status filter (first in DOM) and the
+    // assignment filter (All / Mine / Unassigned). Assert the status one.
+    const allTabs = screen.getAllByRole("button", { name: REVIEW_QUEUE_STRINGS.tabAll });
+    expect(allTabs.length).toBeGreaterThanOrEqual(1);
+    expect(allTabs[0]).toBeInTheDocument();
   });
 });
 

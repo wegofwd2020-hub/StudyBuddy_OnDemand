@@ -165,8 +165,11 @@ test("public landing page — hero heading and sign-in CTA visible", async ({ pa
   // Hero heading
   await expect(page.getByRole("heading", { name: HERO.heading })).toBeVisible();
 
-  // Sign in link in nav
-  await expect(page.getByRole("link", { name: NAV_LINKS[1].text })).toBeVisible();
+  // Sign in link in nav. exact:true avoids matching the hero's
+  // "Already a teacher? Sign in" link, which also contains "Sign in".
+  await expect(
+    page.getByRole("link", { name: NAV_LINKS[1].text, exact: true }),
+  ).toBeVisible();
 });
 
 // ---------------------------------------------------------------------------
@@ -183,8 +186,9 @@ test("curriculum map → lesson navigation", async ({ page }) => {
   await page.goto("/curriculum");
   await page.waitForLoadState("networkidle");
 
-  // Cell Biology unit must be visible
-  await expect(page.getByText("Cell Biology")).toBeVisible();
+  // Cell Biology unit must be visible. Each BookSpine renders its title twice
+  // (visible label + sr-only), so scope to the first match.
+  await expect(page.getByText("Cell Biology").first()).toBeVisible();
 
   // Click the Lesson link for G8-SCI-001 and land on the lesson page.
   // The link href is /lesson/G8-SCI-001; we navigate directly to be

@@ -1,10 +1,10 @@
 # RESUME — where to pick up
 
 A git-tracked checkpoint so work can resume on any machine (Claude Code's local
-memory does not travel; this file + GitHub issues do). Last updated: 2026-05-21,
-`main` @ `f2b53fe`.
+memory does not travel; this file + GitHub issues do). Last updated: 2026-05-22,
+`main` @ `b49bdbd`.
 
-## ▶ Next task: finish **issue #363** — frontend unit tests + Playwright
+## ▶ Issue #363 — DONE (unit tests ✅ + Playwright ✅)
 
 Goal: get `main` CI fully green.
 
@@ -12,13 +12,30 @@ Goal: get `main` CI fully green.
 |---|---|
 | Backend — Lint & Security | ✅ green |
 | Frontend — Lint & Typecheck | ✅ green |
-| Frontend — Unit Tests | ❌ red — **all-or-nothing**; 8/15 files fixed, ~7 remain |
-| Playwright — Student Flow | ❌ red — can't run in-container (pitfall #26); needs host run |
+| Frontend — Unit Tests | ✅ green — all 63 files / 821 tests pass; typecheck clean |
+| Playwright — Student Flow | ✅ green — 134 passed, 7 fixme-skipped, 0 failing (host, `--workers=1`) |
 
-**Remaining unit files (~7) and why they broke** (full detail + fix patterns in #363):
-- `students-page` — RQ hook-mocks done; roster/invite/provision **content rewrite** pending (multi-section redesign).
-- `subjects`, `curriculum-map` — **library-shelf accordion**: units/links render only after opening a `BookSpine`; need interaction-based rewrites + `getAllByText` for `sr-only` duplicates.
-- `class-overview`, `curriculum-upload`, `at-risk`, `admin-content-review`, `admin-content-review-detail` — add React-Query hook mocks as needed + reconcile assertions with redesigned DOM.
+**Playwright — DONE.** 16 drift specs fixed for the Epic 16 public-site redesign (2026-05-22):
+- `landing-page` — banner alt, hero "Lessons, always current.", 6 new feature cards, footer CTA → /school/register, nav "Sign in" → /signin; PUB-06 testimonials section was removed → repurposed to the Tour Gateway section.
+- `pricing-page` — Platform Starter ($0) / School Pro (~$5) / School Enterprise (Custom); plan names are `div`s not headings (use `getByText`); CTAs + 7 FAQ items rewritten.
+- `public` — hero CTA regex → /register your school/i; pricing prices → $0 / ~$5 / Custom.
+- `student-login-page` — local-auth link is now "Sign in here" → /signin.
+- `student_flow` — hero heading via the shared landing fixture; `getByText("Cell Biology").first()` (BookSpine renders title twice); nav "Sign in" needs `exact: true` (hero "Already a teacher? Sign in" also matches).
+
+**Host run notes:** `gh` + Playwright Chromium are now installed. Run from `web/` on the host
+(not the Alpine container — pitfall #26). The ~18 timeouts seen with the default parallel run are
+Turbopack dev-server cold-compile contention, not real failures — they pass with `--workers=1`.
+CI uses `reuseExistingServer:false` + a built server, so it doesn't hit this.
+
+**Frontend unit tests — DONE.** All 9 remaining files fixed (2026-05-22):
+- `reports-overview` — sub-nav is admin-only after #358; render `SchoolNav` as `school_admin`.
+- `subjects`, `curriculum-map` — **library-shelf accordion**: open the `BookSpine` before asserting on units/links; spine title appears twice (visible + `sr-only`) so match by `button` name or `getAllByText`. curriculum-map's old "Lab badge" is now an Experiment link in the `Toc`.
+- `class-overview`, `students` — page split into useQuery(classrooms)+`useQueries`; branch the query mock by `queryKey` and return `[]` for classrooms; students roster/invite/bulk-enrol moved to the **school_admin** view (render as admin); count badge → "Enrolled students" card.
+- `at-risk` — **concept rewrite**: per-unit "curriculum health" → per-student "At-Risk Students" (Needs attention / Reviewed + Remind/Mark-seen). Fixture + test rewritten to `AtRiskListResponse`.
+- `curriculum-upload` — XLSX flow now behind an "XLSX Upload" tab (default is JSON); click the tab first.
+- `admin-content-review`, `admin-content-review-detail` — add `useMutation`/`useQueryClient`/`useAdmin` mocks; the mutation stub must invoke `mutationFn`+`onSuccess`; branch the detail-page query mock so the admin-users + warnings queries return inert values.
+
+**Next: Playwright — Student Flow** (host-only run, pitfall #26).
 
 **Reusable fix patterns established** (copy from these):
 - React-Query mock incl. `useMutation` (invokes `mutationFn`+`onSuccess`), `useQueries`, `useQueryClient` → see `web/tests/unit/teachers-page.test.tsx` / `students-page.test.tsx`. Fixes the "No QueryClient set" crashes (RQ v5 throws).

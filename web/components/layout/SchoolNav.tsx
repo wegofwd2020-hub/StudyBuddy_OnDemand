@@ -79,7 +79,11 @@ const NAV_GROUPS: NavGroup[] = [
   {
     heading: "People",
     items: [
-      { label: "Students", href: "/school/students", icon: <Users className="h-4 w-4" /> },
+      {
+        label: "Students",
+        href: "/school/students",
+        icon: <Users className="h-4 w-4" />,
+      },
       {
         label: "Teachers",
         href: "/school/teachers",
@@ -109,7 +113,11 @@ const NAV_GROUPS: NavGroup[] = [
         href: "/school/subscription",
         icon: <CreditCard className="h-4 w-4" />,
       },
-      { label: "Storage", href: "/school/storage", icon: <HardDrive className="h-4 w-4" /> },
+      {
+        label: "Storage",
+        href: "/school/storage",
+        icon: <HardDrive className="h-4 w-4" />,
+      },
       {
         label: "Visual Library",
         href: "/school/visuals",
@@ -120,7 +128,11 @@ const NAV_GROUPS: NavGroup[] = [
         href: "/school/retention",
         icon: <Archive className="h-4 w-4" />,
       },
-      { label: "Backups", href: "/school/backups", icon: <Database className="h-4 w-4" /> },
+      {
+        label: "Backups",
+        href: "/school/backups",
+        icon: <Database className="h-4 w-4" />,
+      },
     ],
   },
 ];
@@ -193,7 +205,9 @@ export function SchoolNav() {
       {/* Footer — role label only; sign out moved to the top-bar AccountMenu (AP-4) */}
       {teacher && (
         <div className="border-t border-gray-100 px-5 py-3">
-          <p className="truncate text-xs text-gray-400">{isAdmin ? "Admin" : "Teacher"}</p>
+          <p className="truncate text-xs text-gray-400">
+            {isAdmin ? "Admin" : "Teacher"}
+          </p>
         </div>
       )}
     </aside>

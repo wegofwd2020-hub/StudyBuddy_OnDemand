@@ -4,6 +4,10 @@
  *
  * Run with:
  *   npm test -- at-risk-page
+ *
+ * The report was redesigned from a per-unit "curriculum health" breakdown into
+ * a per-student "At-Risk Students" list (Needs attention / Reviewed sections
+ * with Remind + Mark-seen actions).
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -11,10 +15,16 @@ import { render, screen } from "@testing-library/react";
 import AtRiskReportPage from "@/app/(school)/school/reports/at-risk/page";
 import {
   MOCK_TEACHER,
-  MOCK_CURRICULUM_HEALTH,
-  MOCK_CURRICULUM_ALL_HEALTHY,
+  MOCK_AT_RISK,
+  MOCK_AT_RISK_NONE,
   AT_RISK_STRINGS,
 } from "../e2e/data/at-risk-page";
+
+vi.mock("next/link", () => ({
+  default: ({ href, children }: { href: string; children: React.ReactNode }) => (
+    <a href={href}>{children}</a>
+  ),
+}));
 
 vi.mock("@/lib/hooks/useTeacher", () => ({
   useTeacher: vi.fn(() => MOCK_TEACHER),
@@ -23,16 +33,26 @@ vi.mock("@/lib/hooks/useTeacher", () => ({
 const mockUseQuery = vi.fn();
 vi.mock("@tanstack/react-query", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@tanstack/react-query")>();
-  return { ...actual, useQuery: vi.fn((opts) => mockUseQuery(opts)) };
+  return {
+    ...actual,
+    useQuery: vi.fn((opts) => mockUseQuery(opts)),
+    // The page wires mark-seen + reminder mutations; stub them so render works
+    // without a QueryClientProvider.
+    useMutation: vi.fn(() => ({ mutate: vi.fn(), isPending: false, isSuccess: false })),
+    useQueryClient: vi.fn(() => ({ invalidateQueries: vi.fn() })),
+  };
 });
 
+const unseen = MOCK_AT_RISK.students.filter((s) => !s.is_seen);
+const seen = MOCK_AT_RISK.students.filter((s) => s.is_seen);
+
 // ---------------------------------------------------------------------------
-// SCH-12 — At-risk student table renders
+// SCH-12 — At-risk student list renders
 // ---------------------------------------------------------------------------
 
-describe("SCH-12 — At-risk report renders with struggling/watch units", () => {
+describe("SCH-12 — At-risk report renders with at-risk students", () => {
   beforeEach(() => {
-    mockUseQuery.mockReturnValue({ data: MOCK_CURRICULUM_HEALTH, isLoading: false });
+    mockUseQuery.mockReturnValue({ data: MOCK_AT_RISK, isLoading: false });
   });
 
   it("renders the page heading", () => {
@@ -42,73 +62,71 @@ describe("SCH-12 — At-risk report renders with struggling/watch units", () => 
     ).toBeInTheDocument();
   });
 
-  it("renders the Healthy tier count card", () => {
+  it("renders the inactivity / pass-rate thresholds", () => {
     render(<AtRiskReportPage />);
-    expect(screen.getByText(AT_RISK_STRINGS.healthy)).toBeInTheDocument();
     expect(
-      screen.getByText(String(MOCK_CURRICULUM_HEALTH.healthy_count)),
+      screen.getByText(
+        new RegExp(`inactive.*${MOCK_AT_RISK.inactive_days_threshold} days`),
+      ),
     ).toBeInTheDocument();
   });
 
-  it("renders the Watch tier count card", () => {
+  it("renders the Needs attention section with the unseen count", () => {
     render(<AtRiskReportPage />);
-    expect(screen.getByText(AT_RISK_STRINGS.watch)).toBeInTheDocument();
+    expect(
+      screen.getByText(new RegExp(`Needs attention \\(${unseen.length}\\)`)),
+    ).toBeInTheDocument();
   });
 
-  it("renders the Struggling tier count card", () => {
+  it("renders the Reviewed section with the seen count", () => {
     render(<AtRiskReportPage />);
-    expect(screen.getByText(AT_RISK_STRINGS.struggling)).toBeInTheDocument();
+    expect(
+      screen.getByText(new RegExp(`Reviewed \\(${seen.length}\\)`)),
+    ).toBeInTheDocument();
   });
 
-  it("renders the No activity tier count card", () => {
+  it("renders each unseen student's name", () => {
     render(<AtRiskReportPage />);
-    expect(screen.getByText(AT_RISK_STRINGS.noActivity)).toBeInTheDocument();
+    for (const s of unseen) {
+      expect(screen.getByText(s.student_name)).toBeInTheDocument();
+    }
   });
 
-  it("renders the Struggling units section", () => {
+  it("renders the reviewed student's name", () => {
     render(<AtRiskReportPage />);
-    expect(screen.getByText(AT_RISK_STRINGS.strugglingCard)).toBeInTheDocument();
+    for (const s of seen) {
+      expect(screen.getByText(s.student_name)).toBeInTheDocument();
+    }
   });
 
-  it("renders the Units to watch section", () => {
-    render(<AtRiskReportPage />);
-    expect(screen.getByText(AT_RISK_STRINGS.watchCard)).toBeInTheDocument();
-  });
-
-  it("renders struggling unit name in the table", () => {
-    render(<AtRiskReportPage />);
-    const struggling = MOCK_CURRICULUM_HEALTH.units.find(
-      (u) => u.health_tier === "struggling",
-    )!;
-    expect(screen.getByText(struggling.unit_name!)).toBeInTheDocument();
-  });
-
-  it("renders struggling unit pass rate in red", () => {
+  it("renders a low-pass-rate value in red", () => {
     const { container } = render(<AtRiskReportPage />);
-    const redCell = container.querySelector("td.text-red-600");
+    const redCell = container.querySelector("span.text-red-600");
     expect(redCell).toBeTruthy();
   });
 
-  it("renders recommended action for struggling unit", () => {
+  it("renders Remind and Mark seen actions for unseen students", () => {
     render(<AtRiskReportPage />);
-    const struggling = MOCK_CURRICULUM_HEALTH.units.find(
-      (u) => u.health_tier === "struggling",
-    )!;
-    expect(screen.getByText(struggling.recommended_action)).toBeInTheDocument();
+    expect(
+      screen.getAllByRole("button", { name: new RegExp(AT_RISK_STRINGS.remindBtn) }),
+    ).toHaveLength(unseen.length);
+    expect(
+      screen.getAllByRole("button", { name: new RegExp(AT_RISK_STRINGS.markSeenBtn) }),
+    ).toHaveLength(unseen.length);
   });
 
-  it("renders watch unit name in the watch table", () => {
+  it("links each student to their report detail", () => {
     render(<AtRiskReportPage />);
-    const watchUnit = MOCK_CURRICULUM_HEALTH.units.find(
-      (u) => u.health_tier === "watch",
-    )!;
-    expect(screen.getByText(watchUnit.unit_name!)).toBeInTheDocument();
+    const link = screen.getByText(unseen[0].student_name).closest("a");
+    expect(link?.getAttribute("href")).toBe(
+      `/school/reports/student/${unseen[0].student_id}`,
+    );
   });
 
   it("shows loading skeleton while fetching", () => {
     mockUseQuery.mockReturnValue({ data: undefined, isLoading: true });
     const { container } = render(<AtRiskReportPage />);
-    expect(container.querySelector("[data-slot='skeleton']")).toBeTruthy();
+    expect(container.querySelector(".animate-pulse")).toBeTruthy();
   });
 });
 
@@ -116,16 +134,18 @@ describe("SCH-12 — At-risk report renders with struggling/watch units", () => 
 // SCH-13 — Empty state if no at-risk students
 // ---------------------------------------------------------------------------
 
-describe("SCH-13 — Empty state when all units are healthy", () => {
-  it("shows 'No at-risk units' message when no struggling or watch units", () => {
-    mockUseQuery.mockReturnValue({ data: MOCK_CURRICULUM_ALL_HEALTHY, isLoading: false });
-    render(<AtRiskReportPage />);
-    expect(screen.getByText(AT_RISK_STRINGS.allHealthy)).toBeInTheDocument();
+describe("SCH-13 — Empty state when no students are at risk", () => {
+  beforeEach(() => {
+    mockUseQuery.mockReturnValue({ data: MOCK_AT_RISK_NONE, isLoading: false });
   });
 
-  it("does not render struggling table when all healthy", () => {
-    mockUseQuery.mockReturnValue({ data: MOCK_CURRICULUM_ALL_HEALTHY, isLoading: false });
+  it("shows the 'No at-risk students' message", () => {
     render(<AtRiskReportPage />);
-    expect(screen.queryByText(AT_RISK_STRINGS.strugglingCard)).toBeNull();
+    expect(screen.getByText(AT_RISK_STRINGS.noStudents)).toBeInTheDocument();
+  });
+
+  it("does not render the Needs attention section when none at risk", () => {
+    render(<AtRiskReportPage />);
+    expect(screen.queryByText(AT_RISK_STRINGS.needsAttention)).toBeNull();
   });
 });

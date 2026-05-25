@@ -22,8 +22,9 @@ test("PUB-11 — all three plan cards render with correct prices", async ({ page
   await page.goto("/pricing");
 
   for (const { plan, price } of PLAN_PRICES) {
-    // Plan name heading is visible
-    await expect(page.getByRole("heading", { name: plan })).toBeVisible();
+    // Plan name renders in a styled label div (not a heading); it also appears
+    // in feature lists / FAQ copy, so scope to the plans grid and take first.
+    await expect(page.locator("#plans").getByText(plan).first()).toBeVisible();
     // Price value is visible somewhere on the page
     await expect(page.getByText(price).first()).toBeVisible();
   }
@@ -55,7 +56,8 @@ test("PUB-13 — 'Subscribe now' on Student plan navigates to /signup", async ({
   await page.goto("/pricing");
 
   const { label, href } = PLAN_CTAS[1];
-  const cta = page.getByRole("link", { name: label });
+  // Scope to #plans so the footer / callout links don't collide.
+  const cta = page.locator("#plans").getByRole("link", { name: label });
   await expect(cta).toBeVisible();
 
   await cta.click();
@@ -72,7 +74,8 @@ test("PUB-14 — 'Contact sales' on School plan navigates to /contact", async ({
   await page.goto("/pricing");
 
   const { label, href } = PLAN_CTAS[2];
-  const cta = page.getByRole("link", { name: label });
+  // Scope to #plans so the footer / callout links don't collide.
+  const cta = page.locator("#plans").getByRole("link", { name: label });
   await expect(cta).toBeVisible();
 
   await cta.click();

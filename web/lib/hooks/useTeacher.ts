@@ -40,9 +40,7 @@ export function claimsFromPayload(
   return {
     teacher_id,
     school_id,
-    role: (role === "school_admin"
-      ? "school_admin"
-      : "teacher") as TeacherClaims["role"],
+    role: (role === "school_admin" ? "school_admin" : "teacher") as TeacherClaims["role"],
     // Never let the role coercion drop capabilities — default to [] when absent.
     capabilities: Array.isArray(rawCaps) ? (rawCaps as string[]) : [],
     first_login: Boolean(payload.first_login),

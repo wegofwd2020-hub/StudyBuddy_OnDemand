@@ -1,8 +1,9 @@
 /**
  * Test data for section 1.1 — Landing Page (`/`)
  *
- * All string values are sourced from i18n/en.json so tests stay in sync
- * with the real UI strings. Update here if the en.json values change.
+ * Refreshed for the Epic 16 public-site redesign (school-first hero, 6 feature
+ * cards, Tour Gateway section, school-register CTAs). Values mirror the strings
+ * hard-coded in app/(public)/page.tsx — update both together.
  */
 
 // ---------------------------------------------------------------------------
@@ -10,7 +11,7 @@
 // ---------------------------------------------------------------------------
 
 export const BANNER = {
-  alt: "StudyBuddy — learning for every family",
+  alt: "StudyBuddy — learning for every school",
   /** Tailwind class sets height to 240 px */
   expectedHeightPx: 240,
   /** next/Image wrapping div has no fixed role; locate by img alt */
@@ -21,11 +22,13 @@ export const BANNER = {
 // ---------------------------------------------------------------------------
 
 export const HERO = {
-  // Matches en.json "hero_heading". Update here if the i18n value changes.
-  heading: "Study Buddy",
-  subheading: "Instant lessons, quizzes, and audio where available. Just learning.",
-  ctaPrimary: { text: "Start free trial", href: "/signup" },
-  ctaSecondary: { text: "See how it works", href: "/#features" },
+  heading: "Lessons, always current.",
+  subheading:
+    "AI-powered lessons, quizzes, and tutorials — your bridge from classroom to a world that won't sit still.",
+  // Primary CTA is now "Register your school"; the "Already a teacher? Sign in"
+  // text link sits below it. PUB-03/04 remain fixme pending a rewrite.
+  ctaPrimary: { text: "Register your school — it's free", href: "/school/register" },
+  ctaSecondary: { text: "Already a teacher? Sign in", href: "/signin" },
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -34,66 +37,57 @@ export const HERO = {
 
 export const FEATURES: ReadonlyArray<{ title: string; description: string }> = [
   {
-    title: "Instant content",
+    title: "Live in minutes",
     description:
-      "Pre-generated lessons and quizzes load in milliseconds — no AI wait time.",
+      "Register once. Every teacher and student at your school gets instant access — no per-account setup.",
   },
   {
-    title: "Audio lessons",
+    title: "Curricula ready on day one",
     description:
-      "Every lesson has a narrated audio version. Learn by reading or listening.",
+      "Pre-built Grades 5–12 content loads immediately. No waiting for AI to generate anything.",
   },
   {
-    title: "English, French & Spanish",
-    description: "Full content in three languages. Switch any time in settings.",
+    title: "Three languages, one platform",
+    description:
+      "Every lesson, quiz, and audio narration in English, French, and Spanish. Students switch any time.",
   },
   {
-    title: "Works offline",
+    title: "Teachers stay informed",
     description:
-      "Downloaded content is available without internet. Progress syncs automatically.",
+      "Real-time progress reports, at-risk alerts, and weekly digests — all without leaving the portal.",
   },
   {
-    // Renamed from "Lab experiments" to "Activities" when i18n key
-    // feature_experiments_title was relaxed to cover non-lab activities too.
-    title: "Activities",
+    title: "Your curriculum, your way",
     description:
-      "Step-by-step activity guides with materials lists for hands-on learning.",
+      "Upload your own curriculum definition. We build the content. Your school owns it.",
   },
   {
-    title: "Built for schools",
+    title: "Built for compliance",
     description:
-      "Teachers get real-time progress reports, alerts, and custom curriculum tools.",
+      "FERPA, COPPA, and WCAG 2.1 AA — not afterthoughts. Baked into the data model from day one.",
   },
 ];
 
 // ---------------------------------------------------------------------------
-// PUB-06 — Testimonials (3 hardcoded items in page.tsx)
+// PUB-06 — Tour Gateway section (replaced the old testimonials block in the
+// Epic 16 redesign — the pre-register "see it first" confidence section).
 // ---------------------------------------------------------------------------
 
-export const TESTIMONIALS: ReadonlyArray<{ quote: string; author: string }> = [
-  {
-    quote: "My daughter went from a C to a B+ in her favourite subject in one semester.",
-    author: "Maria T., Parent",
-  },
-  {
-    quote:
-      "The audio lessons are a game-changer for my students with reading difficulties.",
-    author: "James K., Grade 8 Teacher",
-  },
-  {
-    quote: "Finally an app that works when I'm on the bus with no signal.",
-    author: "Priya, Grade 10 Student",
-  },
-];
+export const TOUR_GATEWAY = {
+  eyebrow: "No account needed",
+  heading: "See exactly what you can do",
+  ctaText: "Explore the platform",
+  ctaHref: "/tour",
+} as const;
 
 // ---------------------------------------------------------------------------
 // PUB-07 — Footer CTA
 // ---------------------------------------------------------------------------
 
 export const FOOTER_CTA = {
-  heading: "Ready to get started?",
-  buttonText: "Start your free trial",
-  href: "/signup",
+  heading: "Ready to bring StudyBuddy to your school?",
+  buttonText: "Register your school free",
+  href: "/school/register",
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -102,7 +96,7 @@ export const FOOTER_CTA = {
 
 export const NAV_LINKS: ReadonlyArray<{ text: string; href: string }> = [
   { text: "Pricing", href: "/pricing" },
-  { text: "Sign in", href: "/login" },
+  { text: "Sign in", href: "/signin" },
 ];
 
 // ---------------------------------------------------------------------------

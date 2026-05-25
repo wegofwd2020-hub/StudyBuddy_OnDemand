@@ -37,6 +37,13 @@ vi.mock("@/lib/hooks/useTeacher", () => ({
   useTeacher: vi.fn(() => MOCK_TEACHER),
 }));
 
+// The page reads the monthly pipeline quota via useQuery (school-limits).
+// Return no data so the optional quota indicator stays hidden.
+vi.mock("@tanstack/react-query", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@tanstack/react-query")>();
+  return { ...actual, useQuery: vi.fn(() => ({ data: undefined, isLoading: false })) };
+});
+
 const mockUploadCurriculumXlsx = vi.fn();
 const mockTriggerPipeline = vi.fn();
 const mockDownloadXlsxTemplate = vi.fn();
@@ -74,6 +81,14 @@ beforeEach(() => {
   );
 });
 
+// The page now defaults to a JSON-upload tab; the XLSX flow these tests cover
+// lives behind the "XLSX Upload" tab. Render and switch to it.
+function renderXlsxTab() {
+  const utils = render(<CurriculumPage />);
+  fireEvent.click(screen.getByRole("button", { name: /XLSX Upload/ }));
+  return utils;
+}
+
 // Helper: attach a fake file to the hidden input
 function attachFile() {
   const fileInput = document.querySelector<HTMLInputElement>('input[type="file"]')!;
@@ -89,39 +104,39 @@ function attachFile() {
 
 describe("SCH-24 — Upload form renders", () => {
   it("renders the page heading", () => {
-    render(<CurriculumPage />);
+    renderXlsxTab();
     expect(
       screen.getByRole("heading", { name: CURRICULUM_STRINGS.pageHeading }),
     ).toBeInTheDocument();
   });
 
   it("renders Step 1 — Download the template card", () => {
-    render(<CurriculumPage />);
+    renderXlsxTab();
     expect(screen.getByText(CURRICULUM_STRINGS.step1Heading)).toBeInTheDocument();
   });
 
   it("renders Step 2 — Upload curriculum card", () => {
-    render(<CurriculumPage />);
+    renderXlsxTab();
     expect(screen.getByText(CURRICULUM_STRINGS.step2Heading)).toBeInTheDocument();
   });
 
   it("renders the Grade dropdown", () => {
-    render(<CurriculumPage />);
+    renderXlsxTab();
     expect(screen.getByLabelText(CURRICULUM_STRINGS.gradeLabel)).toBeInTheDocument();
   });
 
   it("renders the Academic year input", () => {
-    render(<CurriculumPage />);
+    renderXlsxTab();
     expect(screen.getByLabelText(CURRICULUM_STRINGS.yearLabel)).toBeInTheDocument();
   });
 
   it("renders the XLSX file picker", () => {
-    render(<CurriculumPage />);
+    renderXlsxTab();
     expect(document.querySelector('input[type="file"]')).toBeTruthy();
   });
 
   it("renders the Upload & generate content button", () => {
-    render(<CurriculumPage />);
+    renderXlsxTab();
     expect(
       screen.getByRole("button", { name: /Upload & generate content/ }),
     ).toBeInTheDocument();
@@ -134,7 +149,7 @@ describe("SCH-24 — Upload form renders", () => {
 
 describe("SCH-25 — Template download works", () => {
   it("clicking Download XLSX template calls downloadXlsxTemplate", async () => {
-    render(<CurriculumPage />);
+    renderXlsxTab();
     fireEvent.click(
       screen.getByRole("button", { name: CURRICULUM_STRINGS.downloadTemplateBtn }),
     );
@@ -152,7 +167,7 @@ describe("SCH-26 — Successful upload triggers pipeline and redirects", () => {
   });
 
   it("redirects to pipeline status page after successful upload", async () => {
-    render(<CurriculumPage />);
+    renderXlsxTab();
     attachFile();
     fireEvent.click(screen.getByRole("button", { name: /Upload & generate content/ }));
     await waitFor(() =>
@@ -163,7 +178,7 @@ describe("SCH-26 — Successful upload triggers pipeline and redirects", () => {
   });
 
   it("calls triggerPipeline with curriculum_id after upload", async () => {
-    render(<CurriculumPage />);
+    renderXlsxTab();
     attachFile();
     fireEvent.click(screen.getByRole("button", { name: /Upload & generate content/ }));
     await waitFor(() => expect(mockTriggerPipeline).toHaveBeenCalledTimes(1));
@@ -181,7 +196,7 @@ describe("SCH-27 — Per-row error table renders on upload errors", () => {
   });
 
   it("renders error table headers", async () => {
-    render(<CurriculumPage />);
+    renderXlsxTab();
     attachFile();
     fireEvent.click(screen.getByRole("button", { name: /Upload & generate content/ }));
     await waitFor(() =>
@@ -192,7 +207,7 @@ describe("SCH-27 — Per-row error table renders on upload errors", () => {
   });
 
   it("renders each error's field and message", async () => {
-    render(<CurriculumPage />);
+    renderXlsxTab();
     attachFile();
     fireEvent.click(screen.getByRole("button", { name: /Upload & generate content/ }));
     await waitFor(() =>
@@ -209,7 +224,7 @@ describe("SCH-27 — Per-row error table renders on upload errors", () => {
 describe("SCH-28 — Row 0 errors show dash in error table", () => {
   it("displays '—' for row = 0 file-level errors", async () => {
     mockUploadCurriculumXlsx.mockResolvedValue(MOCK_UPLOAD_FILE_ERROR);
-    render(<CurriculumPage />);
+    renderXlsxTab();
     attachFile();
     fireEvent.click(screen.getByRole("button", { name: /Upload & generate content/ }));
     await waitFor(() =>
@@ -225,7 +240,7 @@ describe("SCH-28 — Row 0 errors show dash in error table", () => {
 describe("SCH-29 — Upload button disabled during submit", () => {
   it("shows 'Uploading…' and button is disabled while upload is in progress", async () => {
     mockUploadCurriculumXlsx.mockReturnValue(new Promise(() => {}));
-    render(<CurriculumPage />);
+    renderXlsxTab();
     attachFile();
     fireEvent.click(screen.getByRole("button", { name: /Upload & generate content/ }));
     const uploadingBtn = await screen.findByText(CURRICULUM_STRINGS.uploadingBtn);

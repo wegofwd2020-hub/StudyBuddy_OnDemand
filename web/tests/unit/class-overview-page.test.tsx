@@ -31,11 +31,27 @@ vi.mock("@/lib/hooks/useTeacher", () => ({
   useTeacher: vi.fn(() => MOCK_TEACHER),
 }));
 
-const mockUseQuery = vi.fn();
+// The page fires several queries: ["class-metrics"] drives the table, while
+// ["classrooms"] feeds the my-students scope filter and must resolve to an
+// array. useQueries pulls per-classroom rosters — return none so the scope
+// auto-falls back to "all" and every student renders.
+const mockClassMetrics = vi.fn();
 vi.mock("@tanstack/react-query", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@tanstack/react-query")>();
-  return { ...actual, useQuery: vi.fn((opts) => mockUseQuery(opts)) };
+  return {
+    ...actual,
+    useQuery: vi.fn((opts: { queryKey: unknown[] }) => {
+      const key = opts.queryKey[0];
+      if (key === "classrooms") return { data: [], isLoading: false };
+      return mockClassMetrics(opts);
+    }),
+    useQueries: vi.fn(() => []),
+  };
 });
+
+// SCH-06/07 only assert on the class-metrics query; alias keeps the existing
+// test bodies (mockUseQuery.mockReturnValue(...)) unchanged.
+const mockUseQuery = mockClassMetrics;
 
 // ---------------------------------------------------------------------------
 // SCH-06 — Student list renders with latest activity

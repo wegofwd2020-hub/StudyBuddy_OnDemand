@@ -43,5 +43,7 @@ export const SIGN_UP_LINK = {
 
 export const SUPPORTING_LINKS: ReadonlyArray<{ text: string; href: string }> = [
   { text: "Forgot password?", href: "/reset-password" },
-  { text: "School sign in", href: "/school/login" },
+  // Local (school-provisioned) sign-in moved to /signin with the copy
+  // "Sign in here" under the "School-provided email and password?" prompt.
+  { text: "Sign in here", href: "/signin" },
 ];

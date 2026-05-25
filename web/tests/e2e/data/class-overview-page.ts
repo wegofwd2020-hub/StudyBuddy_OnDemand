@@ -87,7 +87,7 @@ export const MOCK_CLASS_METRICS_EMPTY: ClassMetricsResponse = {
 export const CLASS_STRINGS = {
   pageHeading: "Student Progress",
   detailBtn: "Detail",
-  noStudents: "No students found.",
+  noStudents: "No students enrolled yet",
   gradeAll: "All",
   // Table column headers
   colStudent: "Student",
