@@ -5,8 +5,9 @@ live product, with grounded analysis and tracked action items. One section per
 reviewer session. Newest at top.
 
 > Scope note: this tracks **UX / product** feedback on shipped surfaces. Demo
-> business signals (GTM, pricing, use-case fit) live in agent memory
-> (`project_demo_feedback.md`) and `docs/USE_CASES.md`.
+> business signals (GTM, pricing, use-case fit, market direction, partnership
+> leads) live in [`STRATEGIC_FEEDBACK.md`](STRATEGIC_FEEDBACK.md), agent memory
+> (`project_demo_feedback.md`), and `docs/USE_CASES.md`.
 
 ---
 
@@ -18,6 +19,122 @@ reviewer session. Newest at top.
 | 🟡 Decided | Approach chosen, not yet built |
 | 🟢 Done | Shipped |
 | ⚪ Won't fix | Considered, deliberately declined (reason noted) |
+
+---
+
+## 2026-05-24 — Demo review session (5 reviewers) — School portal + content
+
+**Surface:** School/teacher portal (Dashboard, Teacher Management, left nav) and
+lesson content surfaces. Source: `~/Downloads/Feedback.txt`.
+
+> Strategic / market-direction feedback from this same session (notably
+> Sundararajan Ramanathan's at length) is logged separately in
+> [`STRATEGIC_FEEDBACK.md`](STRATEGIC_FEEDBACK.md). This section keeps only the
+> actionable UX/product items.
+
+### Items
+
+| # | Reviewer | Item | Status | Severity |
+|---|---|---|---|---|
+| KV-1 | Kalpana Vinodh | Positive — "cool and excellent", user-friendly, valuable for students & teachers, multilingual | 🟢 N/A | Positive |
+| VT-1 | Venkatesh Thiyagarajan | Dashboard (default landing) requires scrolling to see any statistical data — surface key stats above the fold | 🔵 Open | Med |
+| VT-2 | Venkatesh Thiyagarajan | Teacher Management should show a teacher **count**, and a **grade-wise** count if possible | 🔵 Open | Med |
+| VT-3 | Venkatesh Thiyagarajan | Excess white space per menu item; realign content and avoid unnecessary scroll through remaining content | 🔵 Open | Med |
+| VT-4 | Venkatesh Thiyagarajan | Rearrange nav order — e.g. push **Reports** after **Teachers** | 🔵 Open | Low |
+| VT-5 | Venkatesh Thiyagarajan | "Student" and "Class Overview" use the **same icon** — use distinct icons | 🔵 Open | Low |
+| GG-1 | Gayathri Gowtham | **Fonts too small** to read | 🔵 Open | High — readability/a11y |
+| AR-1 | Anuradha Ravikumar | Website looks **basic / text-heavy**; needs more color and images | 🔵 Open | High — first impression |
+| AR-2 | Anuradha Ravikumar | "In modern world, website can have images and videos" | 🔵 Open | Med — also strategic (see STRATEGIC_FEEDBACK) |
+| AR-3 | Anuradha Ravikumar | More guidance for teachers, provided **separately** | 🔵 Open | Med |
+| SR-1 | Sundararajan Ramanathan | Lesson menu & layout fine in **landscape**; clarify intended device target (tablet/laptop/desktop vs mobile phone) | 🔵 Open | Med — responsive scope |
+
+---
+
+### Analysis
+
+#### VT-1 — Dashboard above-the-fold
+
+`/school/dashboard` is the default post-login landing. The first viewport
+should carry the headline KPIs (active students, content readiness, recent
+activity) without a scroll. Audit the dashboard card order and vertical
+rhythm — likely the same white-space issue as VT-3.
+
+#### VT-2 — Teacher count + grade-wise count
+
+`/school/teachers` lists teachers but (per feedback) shows no aggregate count.
+Add a total count header and, if assignment data supports it, a grade-wise
+breakdown (teachers carry a grade/stream association). Low backend risk —
+counts can be derived client-side from the existing roster query, or add a
+small summary field to the teachers endpoint.
+
+#### VT-3 — White space / realignment
+
+Each nav-selected page reportedly has large white space and forces scrolling
+past empty content. This is a layout-density pass across school portal pages,
+not a single component. Pair with VT-1.
+
+#### VT-4 — Nav order (Reports after Teachers)
+
+Confirmed in `web/components/layout/SchoolNav.tsx`: render order is Dashboard ·
+Classrooms · Class Overview · **Reports** · Students · **Teachers** · … —
+Reports (admin-only) sits *before* Teachers. Moving the Reports item after
+Teachers is a one-line array reorder. Note this overlaps Ashokan's AP-1
+(nav grouping) — fold into the same "school-nav IA refresh".
+
+#### VT-5 — Duplicate icon (confirmed)
+
+In `SchoolNav.tsx`, **Class Overview** (`/school/class/all`) and **Students**
+(`/school/students`) both render `<Users className="h-4 w-4" />`. Pick a
+distinct icon for one — e.g. keep `<Users>` for the student roster and use
+`<ClipboardList>` / `<LineChart>` for Class Overview (which is a performance
+table, per AP-2). Ties into Ashokan's AP-2 rename suggestion.
+
+#### GG-1 — Fonts too small (a11y)
+
+High priority — a reader could not view the content at all. This intersects
+known a11y debt **#189** (`color-contrast` etc.). Check base font-size and the
+content reading surfaces specifically; WCAG 2.1 AA expects resizable text and
+adequate base size. Contrast with Ashokan's AP-5 ("fonts look very nice") —
+his comment was on the *typeface*, hers on *size*; both can be true. Treat as
+a sizing/scale fix, not a typeface change.
+
+#### AR-1 / AR-2 — Text-heavy, needs color/images/video
+
+This is the recurring "richer media" theme and directly motivates **Epic 11**
+(content formatting: tables, KaTeX, attributed quotes) and the **Visual Library**
+work (`docs/VISUAL_LIBRARY_SIDECAR.md`, migrations 0056–0057). AR-1 (UI chrome
+color/imagery) is a design pass on the portal + content shell; AR-2 (images &
+video *in lessons*) is partly shipped (visual library) and partly strategic
+(the demo-video / media-generation track — see STRATEGIC_FEEDBACK and
+`docs/DESIGN_demo_videos.md`). File the UI-chrome part here; the media-product
+direction lives in the strategic doc.
+
+#### AR-3 — Separate teacher guidance
+
+Echoes the competitive theme of "teacher assistant" tooling (see
+STRATEGIC_FEEDBACK competitive scan). Near-term UX form: a dedicated teacher
+onboarding/help surface distinct from student help. There is already a
+`/school/help` route — assess whether it carries teacher-specific guidance or
+needs a teacher-guide section.
+
+#### SR-1 — Device target
+
+Layout works in landscape; the open question is the supported device matrix.
+Product intent (CLAUDE.md / Epic 3) is web for admin/teacher + Expo/RN for the
+student mobile app. Worth stating the responsive target explicitly on the
+school portal (desktop/tablet-first) so reviewers aren't testing on phones and
+reading it as a bug.
+
+---
+
+### Proposed next step
+
+Most items (VT-1, VT-3, VT-4, VT-5, GG-1, AR-1) are a **school-portal
+density + IA + readability pass** on `SchoolNav.tsx` + dashboard/page layouts —
+no migrations, low backend risk. They merge cleanly with Ashokan's nav refresh
+(AP-1…AP-4). VT-2 needs a small count addition. GG-1 (font size) is the
+highest-severity standalone fix and overlaps a11y #189. Awaiting user decision
+on whether to bundle these into one "school portal UX refresh" change.
 
 ---
 
