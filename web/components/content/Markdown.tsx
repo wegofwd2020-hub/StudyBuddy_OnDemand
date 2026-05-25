@@ -25,6 +25,11 @@ import { cn } from "@/lib/utils";
  *   - Blockquote: left-border indent, italic — the attribution line
  *     (when present as em-dashed suffix, per C-9) inherits the same style.
  *   - Math: KaTeX CSS is imported globally from globals.css.
+ *   - Base size: text-base (16px) for readable body copy on content reading
+ *     surfaces (#365, a11y). Tables/code step down to text-sm (14px); inline
+ *     code uses 0.9em so it scales with surrounding prose. Do NOT drop the
+ *     wrapper below text-base — callers that pass a smaller `className` size
+ *     win via tailwind-merge, so keep overrides at text-sm or larger.
  */
 export function SBMarkdown({
   children,
@@ -34,14 +39,14 @@ export function SBMarkdown({
   className?: string;
 }) {
   return (
-    <div className={cn("font-heading text-sm text-gray-700", className)}>
+    <div className={cn("font-heading text-base leading-relaxed text-gray-700", className)}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath]}
         rehypePlugins={[rehypeKatex]}
         components={{
           table: ({ children }) => (
             <div className="my-3 overflow-x-auto">
-              <table className="w-full border-collapse text-xs">{children}</table>
+              <table className="w-full border-collapse text-sm">{children}</table>
             </div>
           ),
           thead: ({ children }) => (
@@ -81,19 +86,19 @@ export function SBMarkdown({
             const isBlock = cname?.includes("language-");
             if (isBlock) {
               return (
-                <pre className="my-2 overflow-x-auto rounded-md bg-gray-50 p-3 font-mono text-xs text-gray-800">
+                <pre className="my-2 overflow-x-auto rounded-md bg-gray-50 p-3 font-mono text-sm text-gray-800">
                   <code>{children}</code>
                 </pre>
               );
             }
             return (
-              <code className="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs text-indigo-700">
+              <code className="rounded bg-gray-100 px-1 py-0.5 font-mono text-[0.9em] text-indigo-700">
                 {children}
               </code>
             );
           },
           blockquote: ({ children }) => (
-            <blockquote className="my-3 border-l-4 border-indigo-200 bg-indigo-50/50 px-4 py-2 text-sm text-gray-700 italic">
+            <blockquote className="my-3 border-l-4 border-indigo-200 bg-indigo-50/50 px-4 py-2 text-base text-gray-700 italic">
               {children}
             </blockquote>
           ),
