@@ -207,7 +207,7 @@ function TutorialRenderer({ data }: { data: Record<string, unknown> }) {
               </p>
               {activeSection.examples.map((ex, j) => (
                 <div key={j} className="rounded-md border border-gray-100 bg-gray-50 p-3">
-                  <SBMarkdown className="text-xs text-gray-800">{ex}</SBMarkdown>
+                  <SBMarkdown className="text-sm text-gray-800">{ex}</SBMarkdown>
                 </div>
               ))}
             </div>
