@@ -1,0 +1,11 @@
+# Generated artifacts — owned by their generators, not Prettier.
+#
+# openapi.json    ← backend/scripts/export_openapi.py (FastAPI schema dump)
+# lib/api/*.gen.ts ← `npm run gen:types` (openapi-typescript, raw output)
+#
+# The "API Contract — Types in Sync" CI job regenerates these and diffs the RAW
+# generator output against the commit. If Prettier reformatted them, that job and
+# the "Frontend — Lint & Typecheck" format check would demand conflicting content.
+# Excluding them here keeps both green and matches the generators' raw output.
+openapi.json
+lib/api/*.gen.ts
