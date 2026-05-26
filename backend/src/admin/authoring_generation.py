@@ -488,3 +488,66 @@ async def accept_topic(
         lang,
     )
     return row is not None
+
+
+async def list_topics(conn: asyncpg.Connection, project_id: str) -> dict | None:
+    """List the materialised units of a project with per-content-type status.
+
+    The UI needs to enumerate topics (PR-B only exposed single-topic GET).
+    Returns None if the project doesn't exist; an empty topics list if it
+    hasn't been materialised yet.
+    """
+    proj = await conn.fetchrow(
+        "SELECT grade, curriculum_id, status FROM authoring_projects WHERE project_id = $1",
+        project_id,
+    )
+    if proj is None:
+        return None
+    if not proj["curriculum_id"]:
+        return {"curriculum_id": None, "status": proj["status"], "topics": [], "total": 0}
+
+    units = await conn.fetch(
+        "SELECT unit_id, subject, title FROM curriculum_units "
+        "WHERE curriculum_id = $1 ORDER BY sort_order",
+        proj["curriculum_id"],
+    )
+    actives = await conn.fetch(
+        """
+        SELECT av.unit_id, av.content_type, av.lang,
+               tv.version_number, tv.review_status
+          FROM authoring_active_versions av
+          JOIN authoring_topic_versions tv ON tv.topic_version_id = av.topic_version_id
+         WHERE av.project_id = $1
+        """,
+        project_id,
+    )
+    by_unit: dict[str, list[dict]] = {}
+    for a in actives:
+        by_unit.setdefault(a["unit_id"], []).append(
+            {
+                "content_type": a["content_type"],
+                "lang": a["lang"],
+                "version_number": a["version_number"],
+                "review_status": a["review_status"],
+            }
+        )
+
+    topics = []
+    for u in units:
+        contents = sorted(by_unit.get(u["unit_id"], []), key=lambda c: c["content_type"])
+        topics.append(
+            {
+                "unit_id": u["unit_id"],
+                "title": u["title"],
+                "subject": u["subject"],
+                "contents": contents,
+                "content_count": len(contents),
+                "accepted_count": sum(1 for c in contents if c["review_status"] == "accepted"),
+            }
+        )
+    return {
+        "curriculum_id": proj["curriculum_id"],
+        "status": proj["status"],
+        "topics": topics,
+        "total": len(topics),
+    }

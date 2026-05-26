@@ -60,6 +60,7 @@ from src.admin.authoring_schemas import (
     SnapshotItem,
     SnapshotListResponse,
     TopicHistoryResponse,
+    TopicListResponse,
     TopicVersion,
 )
 from src.auth.dependencies import get_current_admin
@@ -638,3 +639,22 @@ async def publish_project(
         },
     )
     return PublishResponse(**result)
+
+
+# ── 16. List topics (materialised units + per-content-type status) ──────────────
+
+
+@router.get(
+    "/admin/authoring/projects/{project_id}/topics",
+    response_model=TopicListResponse,
+)
+async def list_topics(
+    project_id: str,
+    request: Request,
+    admin: Annotated[dict, Depends(_require_author())],
+) -> TopicListResponse:
+    async with get_db(request) as conn:
+        result = await gen.list_topics(conn, project_id)
+    if result is None:
+        raise _not_found(project_id, request)
+    return TopicListResponse(**result)

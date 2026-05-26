@@ -156,6 +156,29 @@ class TopicHistoryResponse(BaseModel):
     versions: list[TopicVersion]
 
 
+class TopicContentStatus(BaseModel):
+    content_type: str
+    lang: str
+    version_number: int
+    review_status: str
+
+
+class TopicListItem(BaseModel):
+    unit_id: str
+    title: str
+    subject: str
+    contents: list[TopicContentStatus]
+    content_count: int
+    accepted_count: int
+
+
+class TopicListResponse(BaseModel):
+    curriculum_id: str | None = None
+    status: str | None = None
+    topics: list[TopicListItem]
+    total: int
+
+
 class RegenerateRequest(BaseModel):
     content_type: str
     reason: str = Field(min_length=1, max_length=1000)

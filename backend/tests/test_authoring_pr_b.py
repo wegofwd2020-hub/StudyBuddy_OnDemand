@@ -363,3 +363,33 @@ async def test_publish_private_keeps_is_default_false(
             "SELECT is_default FROM curricula WHERE curriculum_id=$1", r.json()["curriculum_id"]
         )
     assert is_default is False
+
+
+@pytest.mark.asyncio
+async def test_list_topics(client: AsyncClient, admin_token: str) -> None:
+    pid = await _seed_generated_project()
+    r = await client.get(
+        f"/api/v1/admin/authoring/projects/{pid}/topics",
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+    assert r.status_code == 200
+    body = r.json()
+    assert body["total"] == 1
+    topic = body["topics"][0]
+    assert topic["unit_id"] == _first_unit_id(pid)
+    assert topic["content_count"] == 5  # lesson + tutorial + 3 quiz sets
+    assert {c["content_type"] for c in topic["contents"]} >= {"lesson", "tutorial"}
+
+
+@pytest.mark.asyncio
+async def test_list_topics_unmaterialized_is_empty(client: AsyncClient, admin_token: str) -> None:
+    headers = {"Authorization": f"Bearer {admin_token}"}
+    created = await client.post(
+        "/api/v1/admin/authoring/projects",
+        headers=headers,
+        json={"title": "X", "grade": 9, "languages": ["en"], "raw_toc": "1. A"},
+    )
+    pid = created.json()["project_id"]
+    r = await client.get(f"/api/v1/admin/authoring/projects/{pid}/topics", headers=headers)
+    assert r.status_code == 200
+    assert r.json() == {"curriculum_id": None, "status": "draft", "topics": [], "total": 0}

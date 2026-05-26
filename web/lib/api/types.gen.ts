@@ -2209,6 +2209,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/authoring/projects/{project_id}/topics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Topics */
+        get: operations["list_topics_api_v1_admin_authoring_projects__project_id__topics_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/curricula/{curriculum_id}/usage": {
         parameters: {
             query?: never;
@@ -10069,10 +10086,47 @@ export interface components {
             student_id: string;
             student: components["schemas"]["StudentPublic"];
         };
+        /** TopicContentStatus */
+        TopicContentStatus: {
+            /** Content Type */
+            content_type: string;
+            /** Lang */
+            lang: string;
+            /** Version Number */
+            version_number: number;
+            /** Review Status */
+            review_status: string;
+        };
         /** TopicHistoryResponse */
         TopicHistoryResponse: {
             /** Versions */
             versions: components["schemas"]["TopicVersion"][];
+        };
+        /** TopicListItem */
+        TopicListItem: {
+            /** Unit Id */
+            unit_id: string;
+            /** Title */
+            title: string;
+            /** Subject */
+            subject: string;
+            /** Contents */
+            contents: components["schemas"]["TopicContentStatus"][];
+            /** Content Count */
+            content_count: number;
+            /** Accepted Count */
+            accepted_count: number;
+        };
+        /** TopicListResponse */
+        TopicListResponse: {
+            /** Curriculum Id */
+            curriculum_id?: string | null;
+            /** Status */
+            status?: string | null;
+            /** Topics */
+            topics: components["schemas"]["TopicListItem"][];
+            /** Total */
+            total: number;
         };
         /** TopicNode */
         TopicNode: {
@@ -14151,6 +14205,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["src__admin__authoring_schemas__PublishResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_topics_api_v1_admin_authoring_projects__project_id__topics_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TopicListResponse"];
                 };
             };
             /** @description Validation Error */

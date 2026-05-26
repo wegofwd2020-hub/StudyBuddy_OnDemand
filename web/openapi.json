@@ -5499,6 +5499,53 @@
         }
       }
     },
+    "/api/v1/admin/authoring/projects/{project_id}/topics": {
+      "get": {
+        "tags": [
+          "authoring"
+        ],
+        "summary": "List Topics",
+        "operationId": "list_topics_api_v1_admin_authoring_projects__project_id__topics_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopicListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/curricula/{curriculum_id}/usage": {
       "get": {
         "summary": "Get Curriculum Usage",
@@ -26780,6 +26827,34 @@
         "title": "TokenExchangeResponse",
         "description": "Response for POST /auth/exchange"
       },
+      "TopicContentStatus": {
+        "properties": {
+          "content_type": {
+            "type": "string",
+            "title": "Content Type"
+          },
+          "lang": {
+            "type": "string",
+            "title": "Lang"
+          },
+          "version_number": {
+            "type": "integer",
+            "title": "Version Number"
+          },
+          "review_status": {
+            "type": "string",
+            "title": "Review Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "content_type",
+          "lang",
+          "version_number",
+          "review_status"
+        ],
+        "title": "TopicContentStatus"
+      },
       "TopicHistoryResponse": {
         "properties": {
           "versions": {
@@ -26795,6 +26870,90 @@
           "versions"
         ],
         "title": "TopicHistoryResponse"
+      },
+      "TopicListItem": {
+        "properties": {
+          "unit_id": {
+            "type": "string",
+            "title": "Unit Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "subject": {
+            "type": "string",
+            "title": "Subject"
+          },
+          "contents": {
+            "items": {
+              "$ref": "#/components/schemas/TopicContentStatus"
+            },
+            "type": "array",
+            "title": "Contents"
+          },
+          "content_count": {
+            "type": "integer",
+            "title": "Content Count"
+          },
+          "accepted_count": {
+            "type": "integer",
+            "title": "Accepted Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "unit_id",
+          "title",
+          "subject",
+          "contents",
+          "content_count",
+          "accepted_count"
+        ],
+        "title": "TopicListItem"
+      },
+      "TopicListResponse": {
+        "properties": {
+          "curriculum_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Curriculum Id"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/TopicListItem"
+            },
+            "type": "array",
+            "title": "Topics"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "topics",
+          "total"
+        ],
+        "title": "TopicListResponse"
       },
       "TopicNode": {
         "properties": {

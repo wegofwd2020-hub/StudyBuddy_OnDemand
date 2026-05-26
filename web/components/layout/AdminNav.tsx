@@ -63,6 +63,12 @@ const NAV_ITEMS: NavItem[] = [
     minRole: "product_admin" as AdminRole,
   },
   {
+    label: "Authoring Studio",
+    href: "/admin/authoring",
+    icon: <Sparkles className="h-4 w-4" />,
+    minRole: "super_admin" as AdminRole,
+  },
+  {
     label: "Content Review",
     href: "/admin/content-review",
     icon: <ClipboardList className="h-4 w-4" />,
