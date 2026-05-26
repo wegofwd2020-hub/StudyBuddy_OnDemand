@@ -2,7 +2,7 @@
 
 A git-tracked checkpoint so work can resume on any machine (Claude Code's local
 memory does not travel; this file + GitHub issues do). Last updated: 2026-05-26,
-`main` @ `7238254`.
+`main` @ `bcd75f4`.
 
 ## ▶ Where we left off (2026-05-26) — Authoring Studio shipped, repo-home decided, backup bug fixed, Q content-migration started
 
@@ -36,21 +36,31 @@ reader growing to 5 content types) belong in a fresh **Q-rooted** session.
 |---|---|---|
 | #398 | #399 | `backup_school_task` joined `classroom_packages` on `cl.id`; classrooms PK is `classroom_id` (mig 0038) → every **full** backup failed with `column cl.id does not exist`. Fixed join key + added regression test `test_full_backup_classroom_packages_query` (the path had zero coverage). |
 
-### Content migration to Q — "Context Engineering in the Enterprise" (Phases 1–4 shipped)
-Move a published authored book from the Authoring Studio into Q's local-first
-reader. Owner scope = **"Everything"** (lesson + tutorial + 3 quiz sets + experiment).
-It's a **data copy, not a code port** (no cross-repo imports → ADR-002 untouched);
-content shapes are near-identical (shared vendored `pipeline/prompts.py` → field renames).
-**All code phases done; only the operational run remains.**
-- **Phase 1 — OnDemand export (PR #400, merged here):** `backend/src/admin/book_export.py`
-  (pure transform + `assemble_book()`), `backend/scripts/export_book.py` (asyncpg CLI:
-  `--project-id`/`--list`/`--out`/`--lang`), `backend/tests/test_book_export.py` (12 tests).
-- **Phases 2–3 — Q reader (Q PR #15):** `GeneratedTopic` grown to 5 types; new
-  `contentHtml.ts` builders + `TopicRenderer` render lesson + tutorial + quizzes + experiment.
-- **Phase 4 — Q ingest (Q PR #16):** `importBook.ts` + paste-based `/book/import` screen.
-- **Phase 5 — operational, REMAINING:** publish the book in the Studio → run
-  `export_book.py` → paste `book.json` into Q's Import screen → verify. See Q
-  `docs/CONTENT_MIGRATION_CONTEXT_ENGINEERING.md`.
+### Content migration to Q — "Context Engineering in the Enterprise" (📌 RESUME HERE)
+Move the authored book from the Authoring Studio into Q's local-first reader.
+Owner scope = **"Everything"** (lesson + tutorial + 3 quiz sets; no experiments —
+`has_lab=FALSE`). **Data copy, not a code port.** Project id
+`4134c75c-2e4c-4927-babb-7d8555c624bd` (curriculum `authored-4134c75c-…`).
+
+**State as of pause (2026-05-26): content COMPLETE + all 85 active versions ACCEPTED.**
+- Code shipped: OnDemand export (PR #400) · Q reader 5-types (Q PR #15) · Q paste import
+  (Q PR #16) · Q **file** import for big books (Q PR #17) · publish completeness gate
+  (#401 → PR #402, `main` @ `bcd75f4`).
+- The 3 missing lessons (001/004/013) + 2 tutorials (011/012) + 1 quiz (013 quiz_set_1)
+  were **generated** (Celery task; I'd raced 3 generators → pruned 2 dup pending versions)
+  and you **accepted all**. Export now yields **17/17 topics, 0 warnings** (~1.9 MB).
+
+**📌 To resume tomorrow:**
+1. **Re-export** (the `/tmp` copy may not survive a reboot):
+   `docker compose exec api python scripts/export_book.py --project-id 4134c75c-2e4c-4927-babb-7d8555c624bd --out /app/book.json`
+   then `mv backend/book.json /tmp/context-engineering-book.json`.
+2. **Import into Q** (app action): `cd ../StudyBuddy_SelfLearner/mobile && npx expo start`
+   → Books → **Import a book → Choose a JSON file** → pick the file → open a topic, verify
+   lesson + tutorial + quizzes render.
+3. **(Optional) Re-publish in OnDemand** to sync its now-stale content store — it'll pass
+   the new completeness gate. Decide `private` vs `catalog` visibility. Not needed for the
+   Q import (export reads accepted DB versions, not the content store).
+- Plan/contract: Q `docs/CONTENT_MIGRATION_CONTEXT_ENGINEERING.md`.
 
 ---
 
