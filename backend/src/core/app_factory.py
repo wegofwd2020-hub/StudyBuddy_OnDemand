@@ -235,6 +235,7 @@ def _register_routers(app: FastAPI) -> None:
     # Lazy imports inside this function body avoid circular imports:
     # routers import from src.core.* but never from main.py.
     from src.account.router import router as account_router
+    from src.admin.authoring_router import router as admin_authoring_router
     from src.admin.build_reports import router as ci_reports_router
     from src.admin.curriculum_lifecycle_router import router as admin_curriculum_lifecycle_router
     from src.admin.demo_accounts import router as demo_admin_router
@@ -290,6 +291,7 @@ def _register_routers(app: FastAPI) -> None:
     app.include_router(subscription_router, prefix="/api/v1")
     app.include_router(admin_router, prefix="/api/v1")
     app.include_router(admin_streams_router, prefix="/api/v1")
+    app.include_router(admin_authoring_router, prefix="/api/v1")
     app.include_router(admin_curriculum_lifecycle_router, prefix="/api/v1")
     app.include_router(admin_retention_router, prefix="/api/v1")
     app.include_router(ci_reports_router, prefix="/api/v1")

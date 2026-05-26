@@ -292,6 +292,19 @@ All admin routes live under `/admin/` and require a valid `sb_admin_token` JWT c
 | `/admin/feedback` | Student feedback list |
 | `/admin/audit` | Audit log |
 
+**Curriculum Authoring Studio (super-admin only, API surface — PR-A, no web UI yet):**
+Gated by the `curriculum:author` permission, which only `super_admin` holds (via its
+`{"*"}` wildcard); `product_admin` and below get 403. Endpoints under
+`/api/v1/admin/authoring/` (`backend/src/admin/authoring_router.py`):
+`POST /projects` (create from pasted free-text TOC) · `GET /projects` · `GET /projects/{id}` ·
+`POST /projects/{id}/analyze` (Celery: structure + advisory flow, 202) ·
+`PUT /projects/{id}/structure` (save edits) ·
+`POST /projects/{id}/materialize` (→ staged platform curriculum, `owner_type='platform'`,
+`source_type='admin_authored'`, `is_default=FALSE`, no `school_id`). TOC structuring +
+flow analysis live in `pipeline/toc_structurer.py` + `pipeline/flow_analyzer.py`; the cheap
+no-LLM ordering check is `backend/src/admin/authoring_flow.py`. PR-B adds
+generate/review/regenerate/snapshot/publish + Mermaid prompt emphasis.
+
 ---
 
 ## Three Runtime Contexts
@@ -414,6 +427,7 @@ Current migrations (as of last commit):
 | 0057 | Visual library — `embedding` column → pgvector type for cosine similarity search |
 | 0058 | Demo request — `name` column on demo lead requests |
 | 0059 | Epic/#358 — `teacher_capabilities` table (RLS): additive `curriculum.commission` / `curriculum.review` / `curriculum_mgmt` grants |
+| 0060 | Authoring Studio (PR-A) — `authoring_projects`, `authoring_topic_versions`, `authoring_active_versions`, `authoring_snapshots` (platform/admin-scoped, no tenant RLS); extends `curricula.source_type` CHECK with `admin_authored`. Downgrade deletes `source_type='admin_authored'` curricula before reverting the CHECK |
 
 ---
 
