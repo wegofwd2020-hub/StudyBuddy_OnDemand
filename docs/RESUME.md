@@ -2,7 +2,7 @@
 
 A git-tracked checkpoint so work can resume on any machine (Claude Code's local
 memory does not travel; this file + GitHub issues do). Last updated: 2026-05-26,
-`main` @ `a2a3095`.
+`main` @ `7238254`.
 
 ## ▶ Where we left off (2026-05-26) — Authoring Studio shipped, repo-home decided, backup bug fixed, Q content-migration started
 
@@ -36,18 +36,21 @@ reader growing to 5 content types) belong in a fresh **Q-rooted** session.
 |---|---|---|
 | #398 | #399 | `backup_school_task` joined `classroom_packages` on `cl.id`; classrooms PK is `classroom_id` (mig 0038) → every **full** backup failed with `column cl.id does not exist`. Fixed join key + added regression test `test_full_backup_classroom_packages_query` (the path had zero coverage). |
 
-### Content migration to Q — "Context Engineering in the Enterprise" (Phase 1 shipped)
+### Content migration to Q — "Context Engineering in the Enterprise" (Phases 1–4 shipped)
 Move a published authored book from the Authoring Studio into Q's local-first
 reader. Owner scope = **"Everything"** (lesson + tutorial + 3 quiz sets + experiment).
 It's a **data copy, not a code port** (no cross-repo imports → ADR-002 untouched);
 content shapes are near-identical (shared vendored `pipeline/prompts.py` → field renames).
-- **Phase 1 SHIPPED (PR #400):** `backend/src/admin/book_export.py` (pure transform +
-  `assemble_book()`), `backend/scripts/export_book.py` (asyncpg CLI: `--project-id`/`--list`/
-  `--out`/`--lang`), `backend/tests/test_book_export.py` (12 tests). **Not yet run** —
-  waits on the project being **published** in the Studio. `book_export.py`'s emitted
-  shapes are the contract for Q's Phase-2 types.
-- **Phases 2–4 (Q-side):** grow `GeneratedTopic` to 5 types + render + ingest. See
-  Q `docs/CONTENT_MIGRATION_CONTEXT_ENGINEERING.md`.
+**All code phases done; only the operational run remains.**
+- **Phase 1 — OnDemand export (PR #400, merged here):** `backend/src/admin/book_export.py`
+  (pure transform + `assemble_book()`), `backend/scripts/export_book.py` (asyncpg CLI:
+  `--project-id`/`--list`/`--out`/`--lang`), `backend/tests/test_book_export.py` (12 tests).
+- **Phases 2–3 — Q reader (Q PR #15):** `GeneratedTopic` grown to 5 types; new
+  `contentHtml.ts` builders + `TopicRenderer` render lesson + tutorial + quizzes + experiment.
+- **Phase 4 — Q ingest (Q PR #16):** `importBook.ts` + paste-based `/book/import` screen.
+- **Phase 5 — operational, REMAINING:** publish the book in the Studio → run
+  `export_book.py` → paste `book.json` into Q's Import screen → verify. See Q
+  `docs/CONTENT_MIGRATION_CONTEXT_ENGINEERING.md`.
 
 ---
 
