@@ -20,6 +20,7 @@ if _REPO_ROOT not in sys.path:
     sys.path.insert(0, _REPO_ROOT)
 
 from pipeline.flow_analyzer import FlowReport, analyze_toc_flow  # noqa: E402
+from pipeline.prompts import build_lesson_prompt, build_tutorial_prompt  # noqa: E402
 from pipeline.toc_structurer import StructuredTOC, structure_toc  # noqa: E402
 
 from src.admin.authoring_flow import check_topic_ordering  # noqa: E402
@@ -115,3 +116,19 @@ def test_deterministic_ordering_check_flags_missing_prereq() -> None:
     ]}]}
     warnings = check_topic_ordering(structured)
     assert any(w["kind"] == "missing_prerequisite" for w in warnings)
+
+
+def test_lesson_prompt_diagram_emphasis_requests_mermaid() -> None:
+    on = build_lesson_prompt("U1", "Natural Sciences", "Photosynthesis", 9, "en",
+                             diagram_emphasis=True)
+    off = build_lesson_prompt("U1", "Natural Sciences", "Photosynthesis", 9, "en")
+    assert "mermaid" in on.lower()
+    assert "mermaid" not in off.lower()
+
+
+def test_tutorial_prompt_diagram_emphasis_requests_mermaid() -> None:
+    on = build_tutorial_prompt("U1", "Mathematics", "Quadratics", 10, "en",
+                               diagram_emphasis=True)
+    off = build_tutorial_prompt("U1", "Mathematics", "Quadratics", 10, "en")
+    assert "mermaid" in on.lower()
+    assert "mermaid" not in off.lower()

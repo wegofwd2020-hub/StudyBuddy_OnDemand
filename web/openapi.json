@@ -3517,7 +3517,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PublishResponse"
+                  "$ref": "#/components/schemas/src__admin__schemas__PublishResponse"
                 }
               }
             }
@@ -4937,6 +4937,551 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/MaterializeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/authoring/projects/{project_id}/generate": {
+      "post": {
+        "tags": [
+          "authoring"
+        ],
+        "summary": "Generate Project",
+        "operationId": "generate_project_api_v1_admin_authoring_projects__project_id__generate_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/authoring/projects/{project_id}/topics/{unit_id}": {
+      "get": {
+        "tags": [
+          "authoring"
+        ],
+        "summary": "Get Topic",
+        "operationId": "get_topic_api_v1_admin_authoring_projects__project_id__topics__unit_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "unit_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Unit Id"
+            }
+          },
+          {
+            "name": "content_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "lesson",
+              "title": "Content Type"
+            }
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "en",
+              "title": "Lang"
+            }
+          },
+          {
+            "name": "history",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "title": "History"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/TopicVersion"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TopicHistoryResponse"
+                    }
+                  ],
+                  "title": "Response Get Topic Api V1 Admin Authoring Projects  Project Id  Topics  Unit Id  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/authoring/projects/{project_id}/topics/{unit_id}/regenerate": {
+      "post": {
+        "tags": [
+          "authoring"
+        ],
+        "summary": "Regenerate Topic",
+        "operationId": "regenerate_topic_api_v1_admin_authoring_projects__project_id__topics__unit_id__regenerate_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "unit_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Unit Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegenerateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegenerateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/authoring/projects/{project_id}/topics/{unit_id}/accept": {
+      "post": {
+        "tags": [
+          "authoring"
+        ],
+        "summary": "Accept Topic",
+        "operationId": "accept_topic_api_v1_admin_authoring_projects__project_id__topics__unit_id__accept_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "unit_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Unit Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcceptResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/authoring/projects/{project_id}/snapshots": {
+      "post": {
+        "tags": [
+          "authoring"
+        ],
+        "summary": "Create Snapshot",
+        "operationId": "create_snapshot_api_v1_admin_authoring_projects__project_id__snapshots_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SnapshotCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SnapshotItem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "authoring"
+        ],
+        "summary": "List Snapshots",
+        "operationId": "list_snapshots_api_v1_admin_authoring_projects__project_id__snapshots_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SnapshotListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/authoring/projects/{project_id}/snapshots/{snapshot_id}/restore": {
+      "post": {
+        "tags": [
+          "authoring"
+        ],
+        "summary": "Restore Snapshot",
+        "operationId": "restore_snapshot_api_v1_admin_authoring_projects__project_id__snapshots__snapshot_id__restore_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "snapshot_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Snapshot Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestoreResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/authoring/projects/{project_id}/flow-recheck": {
+      "post": {
+        "tags": [
+          "authoring"
+        ],
+        "summary": "Flow Recheck",
+        "operationId": "flow_recheck_api_v1_admin_authoring_projects__project_id__flow_recheck_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlowRecheckResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/authoring/projects/{project_id}/publish": {
+      "post": {
+        "tags": [
+          "authoring"
+        ],
+        "summary": "Publish Project",
+        "operationId": "publish_project_api_v1_admin_authoring_projects__project_id__publish_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/src__admin__authoring_schemas__PublishResponse"
                 }
               }
             }
@@ -14850,6 +15395,37 @@
   },
   "components": {
     "schemas": {
+      "AcceptRequest": {
+        "properties": {
+          "content_type": {
+            "type": "string",
+            "title": "Content Type"
+          },
+          "lang": {
+            "type": "string",
+            "title": "Lang",
+            "default": "en"
+          }
+        },
+        "type": "object",
+        "required": [
+          "content_type"
+        ],
+        "title": "AcceptRequest"
+      },
+      "AcceptResponse": {
+        "properties": {
+          "review_status": {
+            "type": "string",
+            "title": "Review Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "review_status"
+        ],
+        "title": "AcceptResponse"
+      },
       "AccountStatusUpdate": {
         "properties": {
           "status": {
@@ -20164,6 +20740,24 @@
         ],
         "title": "FeedbackSubmitResponse"
       },
+      "FlowRecheckResponse": {
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "title": "Job Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "job_id",
+          "status"
+        ],
+        "title": "FlowRecheckResponse"
+      },
       "ForgotPasswordRequest": {
         "properties": {
           "email": {
@@ -20209,6 +20803,40 @@
           "scenario_id"
         ],
         "title": "GenerateClipsResponse"
+      },
+      "GenerateRequest": {
+        "properties": {
+          "langs": {
+            "type": "string",
+            "title": "Langs",
+            "default": "en"
+          },
+          "force": {
+            "type": "boolean",
+            "title": "Force",
+            "default": false
+          }
+        },
+        "type": "object",
+        "title": "GenerateRequest"
+      },
+      "GenerateResponse": {
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "title": "Job Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "job_id",
+          "status"
+        ],
+        "title": "GenerateResponse"
       },
       "GeoBlockAddRequest": {
         "properties": {
@@ -21971,29 +22599,16 @@
         ],
         "title": "ProvisionTeacherResponse"
       },
-      "PublishResponse": {
+      "PublishRequest": {
         "properties": {
-          "version_id": {
+          "visibility": {
             "type": "string",
-            "title": "Version Id"
-          },
-          "status": {
-            "type": "string",
-            "title": "Status"
-          },
-          "published_at": {
-            "type": "string",
-            "format": "date-time",
-            "title": "Published At"
+            "title": "Visibility",
+            "default": "private"
           }
         },
         "type": "object",
-        "required": [
-          "version_id",
-          "status",
-          "published_at"
-        ],
-        "title": "PublishResponse"
+        "title": "PublishRequest"
       },
       "QuizOption": {
         "properties": {
@@ -22339,6 +22954,60 @@
         ],
         "title": "RefreshRequest",
         "description": "POST /auth/refresh"
+      },
+      "RegenerateRequest": {
+        "properties": {
+          "content_type": {
+            "type": "string",
+            "title": "Content Type"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Reason"
+          },
+          "lang": {
+            "type": "string",
+            "title": "Lang",
+            "default": "en"
+          }
+        },
+        "type": "object",
+        "required": [
+          "content_type",
+          "reason"
+        ],
+        "title": "RegenerateRequest"
+      },
+      "RegenerateResponse": {
+        "properties": {
+          "topic_version_id": {
+            "type": "string",
+            "title": "Topic Version Id"
+          },
+          "version_number": {
+            "type": "integer",
+            "title": "Version Number"
+          },
+          "review_status": {
+            "type": "string",
+            "title": "Review Status"
+          },
+          "flow_recheck": {
+            "items": {},
+            "type": "array",
+            "title": "Flow Recheck"
+          }
+        },
+        "type": "object",
+        "required": [
+          "topic_version_id",
+          "version_number",
+          "review_status",
+          "flow_recheck"
+        ],
+        "title": "RegenerateResponse"
       },
       "RegisterTokenRequest": {
         "properties": {
@@ -22718,6 +23387,19 @@
           "updated_at"
         ],
         "title": "RestoreRequestResponse"
+      },
+      "RestoreResponse": {
+        "properties": {
+          "restored": {
+            "type": "boolean",
+            "title": "Restored"
+          }
+        },
+        "type": "object",
+        "required": [
+          "restored"
+        ],
+        "title": "RestoreResponse"
       },
       "RetentionDashboard": {
         "properties": {
@@ -24376,6 +25058,74 @@
         ],
         "title": "SkippedVersion"
       },
+      "SnapshotCreateRequest": {
+        "properties": {
+          "label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label"
+          }
+        },
+        "type": "object",
+        "title": "SnapshotCreateRequest"
+      },
+      "SnapshotItem": {
+        "properties": {
+          "snapshot_id": {
+            "type": "string",
+            "title": "Snapshot Id"
+          },
+          "snapshot_number": {
+            "type": "integer",
+            "title": "Snapshot Number"
+          },
+          "label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "snapshot_id",
+          "snapshot_number",
+          "created_at"
+        ],
+        "title": "SnapshotItem"
+      },
+      "SnapshotListResponse": {
+        "properties": {
+          "snapshots": {
+            "items": {
+              "$ref": "#/components/schemas/SnapshotItem"
+            },
+            "type": "array",
+            "title": "Snapshots"
+          }
+        },
+        "type": "object",
+        "required": [
+          "snapshots"
+        ],
+        "title": "SnapshotListResponse"
+      },
       "StartSessionRequest": {
         "properties": {
           "unit_id": {
@@ -26030,6 +26780,22 @@
         "title": "TokenExchangeResponse",
         "description": "Response for POST /auth/exchange"
       },
+      "TopicHistoryResponse": {
+        "properties": {
+          "versions": {
+            "items": {
+              "$ref": "#/components/schemas/TopicVersion"
+            },
+            "type": "array",
+            "title": "Versions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "versions"
+        ],
+        "title": "TopicHistoryResponse"
+      },
       "TopicNode": {
         "properties": {
           "title": {
@@ -26058,6 +26824,90 @@
           "title"
         ],
         "title": "TopicNode"
+      },
+      "TopicVersion": {
+        "properties": {
+          "topic_version_id": {
+            "type": "string",
+            "title": "Topic Version Id"
+          },
+          "unit_id": {
+            "type": "string",
+            "title": "Unit Id"
+          },
+          "lang": {
+            "type": "string",
+            "title": "Lang"
+          },
+          "content_type": {
+            "type": "string",
+            "title": "Content Type"
+          },
+          "version_number": {
+            "type": "integer",
+            "title": "Version Number"
+          },
+          "body": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Body"
+          },
+          "regen_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Regen Reason"
+          },
+          "flow_recheck": {
+            "anyOf": [
+              {
+                "items": {},
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Flow Recheck"
+          },
+          "review_status": {
+            "type": "string",
+            "title": "Review Status"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "topic_version_id",
+          "unit_id",
+          "lang",
+          "content_type",
+          "version_number",
+          "review_status",
+          "created_at"
+        ],
+        "title": "TopicVersion"
       },
       "TrendsReport": {
         "properties": {
@@ -27069,6 +27919,29 @@
         ],
         "title": "_VisualItemIn"
       },
+      "src__admin__authoring_schemas__PublishResponse": {
+        "properties": {
+          "curriculum_id": {
+            "type": "string",
+            "title": "Curriculum Id"
+          },
+          "visibility": {
+            "type": "string",
+            "title": "Visibility"
+          },
+          "files_written": {
+            "type": "integer",
+            "title": "Files Written"
+          }
+        },
+        "type": "object",
+        "required": [
+          "curriculum_id",
+          "visibility",
+          "files_written"
+        ],
+        "title": "PublishResponse"
+      },
       "src__admin__curriculum_lifecycle_router__ArchiveResponse": {
         "properties": {
           "curriculum_id": {
@@ -27170,6 +28043,30 @@
           "other_count"
         ],
         "title": "FeedbackReportItem"
+      },
+      "src__admin__schemas__PublishResponse": {
+        "properties": {
+          "version_id": {
+            "type": "string",
+            "title": "Version Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Published At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "version_id",
+          "status",
+          "published_at"
+        ],
+        "title": "PublishResponse"
       },
       "src__admin__schemas__RejectRequest": {
         "properties": {

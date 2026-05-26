@@ -368,3 +368,278 @@ async def materialize(
         "status": "structured",
         "units_created": units_created,
     }
+
+
+# ── Snapshots (whole-curriculum manifest) ─────────────────────────────────────
+
+
+def _manifest_key(unit_id: str, content_type: str, lang: str) -> str:
+    return f"{unit_id}::{content_type}::{lang}"
+
+
+async def create_snapshot(
+    conn: asyncpg.Connection,
+    project_id: str,
+    *,
+    label: str | None,
+    created_by: uuid.UUID | None,
+) -> dict:
+    """Capture the current active-version pointers + structured TOC as a snapshot.
+
+    The manifest references topic_version_ids (no content copy) so a restore is
+    a cheap pointer rewrite — the chosen per-topic-history + manifest model
+    (requirement g).
+    """
+    actives = await conn.fetch(
+        "SELECT unit_id, content_type, lang, topic_version_id "
+        "FROM authoring_active_versions WHERE project_id = $1",
+        project_id,
+    )
+    manifest = {
+        "versions": {
+            _manifest_key(r["unit_id"], r["content_type"], r["lang"]): str(r["topic_version_id"])
+            for r in actives
+        },
+        "structured_toc": _coerce_json(
+            await conn.fetchval(
+                "SELECT structured_toc FROM authoring_projects WHERE project_id = $1",
+                project_id,
+            )
+        ),
+    }
+    snapshot_number = int(
+        await conn.fetchval(
+            "SELECT COALESCE(MAX(snapshot_number), 0) FROM authoring_snapshots "
+            "WHERE project_id = $1",
+            project_id,
+        ) or 0
+    ) + 1
+
+    row = await conn.fetchrow(
+        """
+        INSERT INTO authoring_snapshots (project_id, snapshot_number, manifest, label, created_by)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING snapshot_id, snapshot_number, created_at
+        """,
+        project_id, snapshot_number, manifest, label, created_by,
+    )
+    await conn.execute(
+        "UPDATE authoring_projects SET current_snapshot_id = $2, updated_at = now() "
+        "WHERE project_id = $1",
+        project_id, row["snapshot_id"],
+    )
+    return {
+        "snapshot_id": str(row["snapshot_id"]),
+        "snapshot_number": row["snapshot_number"],
+        "label": label,
+        "created_at": row["created_at"],
+    }
+
+
+async def list_snapshots(conn: asyncpg.Connection, project_id: str) -> list[dict]:
+    rows = await conn.fetch(
+        "SELECT snapshot_id, snapshot_number, label, created_at FROM authoring_snapshots "
+        "WHERE project_id = $1 ORDER BY snapshot_number DESC",
+        project_id,
+    )
+    return [
+        {
+            "snapshot_id": str(r["snapshot_id"]),
+            "snapshot_number": r["snapshot_number"],
+            "label": r["label"],
+            "created_at": r["created_at"],
+        }
+        for r in rows
+    ]
+
+
+async def restore_snapshot(conn: asyncpg.Connection, project_id: str, snapshot_id: str) -> bool:
+    """Rewrite active-version pointers from a snapshot's manifest.
+
+    Returns False if the snapshot doesn't belong to the project. Restores the
+    whole curriculum to the snapshot's point in time without copying content.
+    """
+    manifest = _coerce_json(
+        await conn.fetchval(
+            "SELECT manifest FROM authoring_snapshots "
+            "WHERE snapshot_id = $1 AND project_id = $2",
+            snapshot_id, project_id,
+        )
+    )
+    if manifest is None:
+        return False
+
+    versions = (manifest or {}).get("versions", {})
+    async with conn.transaction():
+        for key, topic_version_id in versions.items():
+            unit_id, content_type, lang = key.split("::")
+            await conn.execute(
+                """
+                INSERT INTO authoring_active_versions
+                    (project_id, unit_id, lang, content_type, topic_version_id)
+                VALUES ($1, $2, $3, $4, $5)
+                ON CONFLICT (project_id, unit_id, lang, content_type)
+                DO UPDATE SET topic_version_id = EXCLUDED.topic_version_id,
+                              activated_at = now()
+                """,
+                project_id, unit_id, lang, content_type, uuid.UUID(topic_version_id),
+            )
+        await conn.execute(
+            "UPDATE authoring_projects SET current_snapshot_id = $2, updated_at = now() "
+            "WHERE project_id = $1",
+            project_id, uuid.UUID(snapshot_id),
+        )
+    return True
+
+
+# ── Publish ────────────────────────────────────────────────────────────────────
+
+
+class PublishError(RuntimeError):
+    """Raised when a project cannot be published (wrong state / unaccepted topics)."""
+
+
+# content_type → content-store filename stem (filename = f"{stem}_{lang}.json").
+_CONTENT_FILENAMES = {
+    "lesson": "lesson",
+    "tutorial": "tutorial",
+    "quiz_set_1": "quiz_set_1",
+    "quiz_set_2": "quiz_set_2",
+    "quiz_set_3": "quiz_set_3",
+    "experiment": "experiment",
+}
+
+
+async def publish(
+    conn: asyncpg.Connection,
+    storage,
+    project_id: str,
+    *,
+    visibility: str,
+) -> dict:
+    """Publish an authored curriculum.
+
+    Requires status='generated' and every active topic version accepted. Writes
+    accepted bodies to the content store, creates content_subject_versions rows
+    (status='published') per subject, sets curricula.is_default = (visibility ==
+    'catalog'), and flips the project to status='published'.
+    """
+    proj = await conn.fetchrow(
+        "SELECT curriculum_id, status FROM authoring_projects WHERE project_id = $1",
+        project_id,
+    )
+    if proj is None:
+        raise PublishError("project not found")
+    if not proj["curriculum_id"]:
+        raise PublishError("project has not been materialized")
+    if proj["status"] not in ("generated", "published"):
+        raise PublishError(
+            f"project is in status {proj['status']!r}; generate content before publishing"
+        )
+
+    curriculum_id = proj["curriculum_id"]
+
+    # Gate: every active topic version must be accepted.
+    actives = await conn.fetch(
+        """
+        SELECT tv.unit_id, tv.lang, tv.content_type, tv.body, tv.review_status
+          FROM authoring_active_versions av
+          JOIN authoring_topic_versions tv ON tv.topic_version_id = av.topic_version_id
+         WHERE av.project_id = $1
+        """,
+        project_id,
+    )
+    if not actives:
+        raise PublishError("nothing to publish — generate content first")
+    unaccepted = [a for a in actives if a["review_status"] != "accepted"]
+    if unaccepted:
+        raise PublishError(
+            f"{len(unaccepted)} topic version(s) are not accepted; accept all before publishing"
+        )
+
+    # Write accepted bodies to the content store.
+    for a in actives:
+        stem = _CONTENT_FILENAMES.get(a["content_type"])
+        if not stem:
+            continue
+        path = f"curricula/{curriculum_id}/{a['unit_id']}/{stem}_{a['lang']}.json"
+        body = _coerce_json(a["body"]) or {}
+        await storage.write(path, json.dumps(body, ensure_ascii=False).encode("utf-8"))
+
+    # content_subject_versions per distinct subject (status published).
+    subjects = await conn.fetch(
+        "SELECT DISTINCT subject FROM curriculum_units WHERE curriculum_id = $1",
+        curriculum_id,
+    )
+    pipeline_run_id = f"authoring-{project_id}"
+    for s in subjects:
+        subject = s["subject"]
+        next_version = int(
+            await conn.fetchval(
+                "SELECT COALESCE(MAX(version_number), 0) FROM content_subject_versions "
+                "WHERE curriculum_id = $1 AND subject = $2",
+                curriculum_id, subject,
+            ) or 0
+        ) + 1
+        await conn.execute(
+            """
+            INSERT INTO content_subject_versions
+                (curriculum_id, subject, subject_name, version_number, status,
+                 alex_warnings_count, provider, generated_at, published_at, pipeline_run_id)
+            VALUES ($1, $2, $3, $4, 'published', 0, 'anthropic', NOW(), NOW(), $5)
+            ON CONFLICT (curriculum_id, subject, version_number) DO UPDATE
+                SET status = 'published', published_at = NOW()
+            """,
+            curriculum_id, subject, subject, next_version, pipeline_run_id,
+        )
+
+    is_catalog = visibility == "catalog"
+    await conn.execute(
+        "UPDATE curricula SET is_default = $2 WHERE curriculum_id = $1",
+        curriculum_id, is_catalog,
+    )
+    await conn.execute(
+        "UPDATE authoring_projects SET visibility = $2, status = 'published', updated_at = now() "
+        "WHERE project_id = $1",
+        project_id, visibility,
+    )
+
+    log.info(
+        "authoring_published project_id=%s curriculum_id=%s visibility=%s files=%d",
+        project_id, curriculum_id, visibility, len(actives),
+    )
+    return {
+        "curriculum_id": curriculum_id,
+        "visibility": visibility,
+        "files_written": len(actives),
+    }
+
+
+# ── On-demand full flow re-analysis (Celery worker body) ──────────────────────
+
+
+async def run_flow_recheck(conn: asyncpg.Connection, project_id: str, provider=None) -> None:
+    """Re-run the advisory LLM flow analysis over the CURRENT structured TOC.
+
+    Unlike run_analysis (which re-structures raw_toc), this preserves operator
+    edits and only refreshes flow_report. Never raises.
+    """
+    from pipeline.flow_analyzer import analyze_toc_flow
+
+    structured = _coerce_json(
+        await conn.fetchval(
+            "SELECT structured_toc FROM authoring_projects WHERE project_id = $1",
+            project_id,
+        )
+    )
+    if not structured:
+        return
+    if provider is None:
+        provider = _build_authoring_provider()
+    report = await asyncio.to_thread(analyze_toc_flow, structured, provider)
+    await conn.execute(
+        "UPDATE authoring_projects SET flow_report = $2, updated_at = now() "
+        "WHERE project_id = $1",
+        project_id,
+        report.model_dump(),
+    )
