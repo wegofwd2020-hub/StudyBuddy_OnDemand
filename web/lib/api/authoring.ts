@@ -208,11 +208,13 @@ export async function regenerateTopic(
   const res = await adminApi.post<{
     version_number: number;
     flow_recheck: FlowWarning[];
-  }>(`${BASE}/${id}/topics/${unitId}/regenerate`, {
-    content_type: contentType,
-    reason,
-    lang,
-  });
+  }>(
+    `${BASE}/${id}/topics/${unitId}/regenerate`,
+    { content_type: contentType, reason, lang },
+    // Regeneration runs the LLM synchronously (~10-30s); override the admin
+    // client's 15s default so the request doesn't time out mid-generation.
+    { timeout: 180_000 },
+  );
   return res.data;
 }
 

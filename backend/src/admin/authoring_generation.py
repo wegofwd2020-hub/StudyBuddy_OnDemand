@@ -31,7 +31,11 @@ from datetime import UTC, datetime
 import asyncpg
 
 from src.admin.authoring_flow import check_topic_ordering
-from src.admin.authoring_service import _build_authoring_provider, _coerce_json
+from src.admin.authoring_service import (
+    _build_authoring_provider,
+    _coerce_json,
+    ensure_pipeline_path,
+)
 from src.utils.logger import get_logger
 
 log = get_logger("authoring")
@@ -114,6 +118,7 @@ def generate_one(
     Raises GenerationError on a provider error, unparseable JSON, or schema
     validation failure — the caller decides whether to skip or surface it.
     """
+    ensure_pipeline_path()  # API (sync regenerate) needs pipeline on sys.path
     prompt = _build_prompt(
         content_type, unit_id=unit_id, subject=subject, topic=topic, grade=grade, lang=lang
     )

@@ -37,6 +37,26 @@ log = get_logger("authoring")
 # ── Provider factory (patched in tests) ───────────────────────────────────────
 
 
+def ensure_pipeline_path() -> None:
+    """Make the repo-root ``pipeline`` package importable from THIS process.
+
+    The Celery pipeline tasks insert this path themselves, but the synchronous
+    regenerate endpoint runs in the API process — which does not — so
+    ``pipeline.config`` / ``pipeline.prompts`` imports would fail with
+    ModuleNotFoundError. authoring_service.py lives at
+    ``<root>/backend/src/admin/`` so the repo root is four dirs up; ``pipeline``
+    is its sibling (``/pipeline`` in the container). Idempotent.
+    """
+    import os
+    import sys
+
+    root = os.path.dirname(
+        os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    )
+    if root not in sys.path:
+        sys.path.insert(0, root)
+
+
 def _build_authoring_provider():
     """Build the default LLM provider for authoring analysis/generation.
 
@@ -44,6 +64,7 @@ def _build_authoring_provider():
     for a real Anthropic key. Imports are deferred: pipeline.config requires
     ANTHROPIC_API_KEY at import time, which we don't want at module load.
     """
+    ensure_pipeline_path()
     from pipeline.config import settings as pipeline_settings
     from pipeline.providers import get_provider
 
