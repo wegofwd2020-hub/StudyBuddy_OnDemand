@@ -45,6 +45,12 @@ log = get_logger("authoring")
 QUIZ_SETS = 3
 BASE_CONTENT_TYPES = ("lesson", "tutorial", "quiz_set_1", "quiz_set_2", "quiz_set_3")
 
+# Mirror build_unit's resilience: the LLM occasionally returns malformed JSON
+# (e.g. an unescaped LaTeX/markdown backslash) or content that fails schema
+# validation. Retry the generate→parse→validate cycle a few times before
+# giving up, instead of failing the whole topic on a single bad response.
+MAX_GENERATION_ATTEMPTS = 3
+
 
 def _strip_code_fences(text: str) -> str:
     t = text.strip()
@@ -115,29 +121,48 @@ def generate_one(
 ) -> tuple[dict, int]:
     """Generate + validate one content_type. Returns (body, total_tokens).
 
-    Raises GenerationError on a provider error, unparseable JSON, or schema
-    validation failure — the caller decides whether to skip or surface it.
+    Retries the generate→parse→validate cycle up to MAX_GENERATION_ATTEMPTS
+    times — the LLM intermittently returns malformed JSON or schema-invalid
+    content, and a fresh attempt usually succeeds. Tokens are summed across all
+    attempts (failed attempts still cost). Raises GenerationError only after all
+    attempts are exhausted; the caller decides whether to skip or surface it.
     """
     ensure_pipeline_path()  # API (sync regenerate) needs pipeline on sys.path
     prompt = _build_prompt(
         content_type, unit_id=unit_id, subject=subject, topic=topic, grade=grade, lang=lang
     )
-    try:
-        text, in_tok, out_tok = provider.generate(prompt)
-    except Exception as exc:  # provider SDKs raise their own error types
-        raise GenerationError(f"provider failed for {content_type}: {exc}") from exc
 
-    try:
-        body = json.loads(_strip_code_fences(text))
-    except json.JSONDecodeError as exc:
-        raise GenerationError(f"bad JSON for {content_type}: {exc}") from exc
+    total_tokens = 0
+    last_error = "unknown error"
+    for attempt in range(1, MAX_GENERATION_ATTEMPTS + 1):
+        try:
+            text, in_tok, out_tok = provider.generate(prompt)
+            total_tokens += int(in_tok) + int(out_tok)
+        except Exception as exc:  # provider SDKs raise their own error types
+            last_error = f"provider error: {exc}"
+        else:
+            try:
+                body = json.loads(_strip_code_fences(text))
+                _validate(content_type, body)
+            except json.JSONDecodeError as exc:
+                last_error = f"bad JSON: {exc}"
+            except Exception as exc:  # jsonschema.ValidationError
+                last_error = f"schema validation failed: {exc}"
+            else:
+                return body, total_tokens
 
-    try:
-        _validate(content_type, body)
-    except Exception as exc:  # jsonschema.ValidationError
-        raise GenerationError(f"schema validation failed for {content_type}: {exc}") from exc
+        if attempt < MAX_GENERATION_ATTEMPTS:
+            log.warning(
+                "authoring_generate_retry content_type=%s attempt=%d/%d error=%s",
+                content_type,
+                attempt,
+                MAX_GENERATION_ATTEMPTS,
+                last_error,
+            )
 
-    return body, int(in_tok) + int(out_tok)
+    raise GenerationError(
+        f"{content_type} failed after {MAX_GENERATION_ATTEMPTS} attempts: {last_error}"
+    )
 
 
 # ── Append-only version + active pointer helpers ──────────────────────────────
