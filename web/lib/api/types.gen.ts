@@ -1986,6 +1986,92 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/authoring/projects": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Projects */
+        get: operations["list_projects_api_v1_admin_authoring_projects_get"];
+        put?: never;
+        /** Create Project */
+        post: operations["create_project_api_v1_admin_authoring_projects_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/authoring/projects/{project_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Project */
+        get: operations["get_project_api_v1_admin_authoring_projects__project_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/authoring/projects/{project_id}/analyze": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Analyze Project */
+        post: operations["analyze_project_api_v1_admin_authoring_projects__project_id__analyze_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/authoring/projects/{project_id}/structure": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Edit Structure */
+        put: operations["edit_structure_api_v1_admin_authoring_projects__project_id__structure_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/authoring/projects/{project_id}/materialize": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Materialize Project */
+        post: operations["materialize_project_api_v1_admin_authoring_projects__project_id__materialize_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/curricula/{curriculum_id}/usage": {
         parameters: {
             query?: never;
@@ -5919,6 +6005,13 @@ export interface components {
              */
             updated_at: string;
         };
+        /** AnalyzeResponse */
+        AnalyzeResponse: {
+            /** Job Id */
+            job_id: string;
+            /** Status */
+            status: string;
+        };
         /** AnnotateRequest */
         AnnotateRequest: {
             /** Unit Id */
@@ -6631,6 +6724,24 @@ export interface components {
              */
             payouts_enabled: boolean;
         };
+        /** CreateProjectRequest */
+        CreateProjectRequest: {
+            /** Title */
+            title: string;
+            /** Grade */
+            grade?: number | null;
+            /** Languages */
+            languages?: string[];
+            /** Raw Toc */
+            raw_toc: string;
+        };
+        /** CreateProjectResponse */
+        CreateProjectResponse: {
+            /** Project Id */
+            project_id: string;
+            /** Status */
+            status: string;
+        };
         /** CreditsBundleCheckoutRequest */
         CreditsBundleCheckoutRequest: {
             /** Bundle Size */
@@ -7226,6 +7337,10 @@ export interface components {
             /** Description */
             description: string;
         };
+        /** EditStructureRequest */
+        EditStructureRequest: {
+            structured_toc: components["schemas"]["StructuredTOC"];
+        };
         /** EndSessionRequest */
         EndSessionRequest: {
             /** Score */
@@ -7766,6 +7881,15 @@ export interface components {
             /** Seen At */
             seen_at?: string | null;
         };
+        /** MaterializeResponse */
+        MaterializeResponse: {
+            /** Curriculum Id */
+            curriculum_id: string;
+            /** Status */
+            status: string;
+            /** Units Created */
+            units_created: number;
+        };
         /** NextUnit */
         NextUnit: {
             /** Unit Id */
@@ -8047,6 +8171,79 @@ export interface components {
             needs_retry_count: number;
             /** Subjects */
             subjects: components["schemas"]["SubjectProgressMap"][];
+        };
+        /** ProjectDetail */
+        ProjectDetail: {
+            /** Project Id */
+            project_id: string;
+            /** Title */
+            title: string;
+            /** Grade */
+            grade?: number | null;
+            /** Languages */
+            languages: string[];
+            /** Status */
+            status: string;
+            /** Curriculum Id */
+            curriculum_id?: string | null;
+            /** Visibility */
+            visibility: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Raw Toc */
+            raw_toc?: string | null;
+            /** Structured Toc */
+            structured_toc?: {
+                [key: string]: unknown;
+            } | null;
+            /** Flow Report */
+            flow_report?: {
+                [key: string]: unknown;
+            } | null;
+            /** Analyze Error */
+            analyze_error?: string | null;
+        };
+        /** ProjectListResponse */
+        ProjectListResponse: {
+            /** Projects */
+            projects: components["schemas"]["ProjectSummary"][];
+            /** Total */
+            total: number;
+        };
+        /** ProjectSummary */
+        ProjectSummary: {
+            /** Project Id */
+            project_id: string;
+            /** Title */
+            title: string;
+            /** Grade */
+            grade?: number | null;
+            /** Languages */
+            languages: string[];
+            /** Status */
+            status: string;
+            /** Curriculum Id */
+            curriculum_id?: string | null;
+            /** Visibility */
+            visibility: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
         };
         /** PromoteTeacherResponse */
         PromoteTeacherResponse: {
@@ -9129,6 +9326,11 @@ export interface components {
             /** Description */
             description?: string | null;
         };
+        /** StructuredTOC */
+        StructuredTOC: {
+            /** Subjects */
+            subjects?: components["schemas"]["SubjectNode"][];
+        };
         /** StruggleItem */
         StruggleItem: {
             /** Unit Id */
@@ -9315,6 +9517,13 @@ export interface components {
             name: string;
             /** Units */
             units: components["schemas"]["Unit"][];
+        };
+        /** SubjectNode */
+        SubjectNode: {
+            /** Subject Label */
+            subject_label: string;
+            /** Units */
+            units?: components["schemas"]["TopicNode"][];
         };
         /** SubjectProgress */
         SubjectProgress: {
@@ -9632,6 +9841,15 @@ export interface components {
              */
             student_id: string;
             student: components["schemas"]["StudentPublic"];
+        };
+        /** TopicNode */
+        TopicNode: {
+            /** Title */
+            title: string;
+            /** Subtopics */
+            subtopics?: string[];
+            /** Prerequisites */
+            prerequisites?: string[];
         };
         /** TrendsReport */
         TrendsReport: {
@@ -13159,6 +13377,187 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StreamMergeResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_projects_api_v1_admin_authoring_projects_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectListResponse"];
+                };
+            };
+        };
+    };
+    create_project_api_v1_admin_authoring_projects_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateProjectRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreateProjectResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_project_api_v1_admin_authoring_projects__project_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    analyze_project_api_v1_admin_authoring_projects__project_id__analyze_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalyzeResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    edit_structure_api_v1_admin_authoring_projects__project_id__structure_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EditStructureRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProjectDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    materialize_project_api_v1_admin_authoring_projects__project_id__materialize_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MaterializeResponse"];
                 };
             };
             /** @description Validation Error */

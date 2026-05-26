@@ -2256,3 +2256,45 @@ def generate_scenario_clips_task(
         scenario_id,
         "failed" if any_error else "done",
     )
+
+
+@celery_app.task(name="src.auth.tasks.run_authoring_analyze_task")
+def run_authoring_analyze_task(project_id: str) -> None:
+    """Structure + advisory-flow-analyze an Authoring Studio project's raw TOC.
+
+    Calls src.admin.authoring_service.run_analysis(), which builds the default
+    LLM provider, structures the pasted free-text TOC, runs the advisory flow
+    analysis, and flips the project status draft → analyzed (or back to draft
+    with analyze_error on failure). Never raises out of the worker.
+
+    pipeline imports require the repo root on sys.path (same trick as
+    run_grade_pipeline_task), since authoring_service reaches into
+    pipeline.toc_structurer / pipeline.flow_analyzer / pipeline.providers.
+    """
+    import os as _os
+    import sys as _sys
+
+    _pipeline_parent = _os.path.abspath("/pipeline/..")
+    if _pipeline_parent not in _sys.path:
+        _sys.path.insert(0, _pipeline_parent)
+
+    import asyncpg as _asyncpg
+
+    from src.admin.authoring_service import run_analysis
+
+    async def _go() -> None:
+        conn = await _asyncpg.connect(settings.DATABASE_URL)
+        try:
+            # Platform context — bypass RLS (pitfall #28). authoring_* tables
+            # aren't tenant-scoped, but keep the stamp consistent for safety.
+            await conn.execute(
+                "SELECT set_config('app.current_school_id', 'bypass', false)"
+            )
+            await run_analysis(conn, project_id)
+        finally:
+            await conn.close()
+
+    try:
+        _run_async(_go())
+    except Exception as exc:  # never let the worker crash on a bad TOC
+        log.error("run_authoring_analyze_task_failed project_id=%s error=%s", project_id, exc)

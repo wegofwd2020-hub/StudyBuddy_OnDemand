@@ -4686,6 +4686,274 @@
         }
       }
     },
+    "/api/v1/admin/authoring/projects": {
+      "get": {
+        "tags": [
+          "authoring"
+        ],
+        "summary": "List Projects",
+        "operationId": "list_projects_api_v1_admin_authoring_projects_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectListResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "authoring"
+        ],
+        "summary": "Create Project",
+        "operationId": "create_project_api_v1_admin_authoring_projects_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProjectRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateProjectResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/authoring/projects/{project_id}": {
+      "get": {
+        "tags": [
+          "authoring"
+        ],
+        "summary": "Get Project",
+        "operationId": "get_project_api_v1_admin_authoring_projects__project_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/authoring/projects/{project_id}/analyze": {
+      "post": {
+        "tags": [
+          "authoring"
+        ],
+        "summary": "Analyze Project",
+        "operationId": "analyze_project_api_v1_admin_authoring_projects__project_id__analyze_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyzeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/authoring/projects/{project_id}/structure": {
+      "put": {
+        "tags": [
+          "authoring"
+        ],
+        "summary": "Edit Structure",
+        "operationId": "edit_structure_api_v1_admin_authoring_projects__project_id__structure_put",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditStructureRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/authoring/projects/{project_id}/materialize": {
+      "post": {
+        "tags": [
+          "authoring"
+        ],
+        "summary": "Materialize Project",
+        "operationId": "materialize_project_api_v1_admin_authoring_projects__project_id__materialize_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Project Id"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MaterializeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/curricula/{curriculum_id}/usage": {
       "get": {
         "summary": "Get Curriculum Usage",
@@ -15571,6 +15839,24 @@
         ],
         "title": "AlertSettingsResponse"
       },
+      "AnalyzeResponse": {
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "title": "Job Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "job_id",
+          "status"
+        ],
+        "title": "AnalyzeResponse"
+      },
       "AnnotateRequest": {
         "properties": {
           "unit_id": {
@@ -17486,6 +17772,66 @@
         ],
         "title": "ConnectStatusResponse"
       },
+      "CreateProjectRequest": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Title"
+          },
+          "grade": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 12.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grade"
+          },
+          "languages": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Languages"
+          },
+          "raw_toc": {
+            "type": "string",
+            "maxLength": 20000,
+            "minLength": 1,
+            "title": "Raw Toc"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "raw_toc"
+        ],
+        "title": "CreateProjectRequest"
+      },
+      "CreateProjectResponse": {
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "title": "Project Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "project_id",
+          "status"
+        ],
+        "title": "CreateProjectResponse"
+      },
       "CreditsBundleCheckoutRequest": {
         "properties": {
           "bundle_size": {
@@ -19097,6 +19443,18 @@
         ],
         "title": "EarningsItem"
       },
+      "EditStructureRequest": {
+        "properties": {
+          "structured_toc": {
+            "$ref": "#/components/schemas/StructuredTOC"
+          }
+        },
+        "type": "object",
+        "required": [
+          "structured_toc"
+        ],
+        "title": "EditStructureRequest"
+      },
       "EndSessionRequest": {
         "properties": {
           "score": {
@@ -20509,6 +20867,29 @@
         ],
         "title": "MarkSeenResponse"
       },
+      "MaterializeResponse": {
+        "properties": {
+          "curriculum_id": {
+            "type": "string",
+            "title": "Curriculum Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "units_created": {
+            "type": "integer",
+            "title": "Units Created"
+          }
+        },
+        "type": "object",
+        "required": [
+          "curriculum_id",
+          "status",
+          "units_created"
+        ],
+        "title": "MaterializeResponse"
+      },
       "NextUnit": {
         "properties": {
           "unit_id": {
@@ -21232,6 +21613,213 @@
           "subjects"
         ],
         "title": "ProgressMapResponse"
+      },
+      "ProjectDetail": {
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "title": "Project Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "grade": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grade"
+          },
+          "languages": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Languages"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "curriculum_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Curriculum Id"
+          },
+          "visibility": {
+            "type": "string",
+            "title": "Visibility"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "raw_toc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Raw Toc"
+          },
+          "structured_toc": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Structured Toc"
+          },
+          "flow_report": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Flow Report"
+          },
+          "analyze_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Analyze Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "project_id",
+          "title",
+          "languages",
+          "status",
+          "visibility",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "ProjectDetail"
+      },
+      "ProjectListResponse": {
+        "properties": {
+          "projects": {
+            "items": {
+              "$ref": "#/components/schemas/ProjectSummary"
+            },
+            "type": "array",
+            "title": "Projects"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "projects",
+          "total"
+        ],
+        "title": "ProjectListResponse"
+      },
+      "ProjectSummary": {
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "title": "Project Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "grade": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grade"
+          },
+          "languages": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Languages"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "curriculum_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Curriculum Id"
+          },
+          "visibility": {
+            "type": "string",
+            "title": "Visibility"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "project_id",
+          "title",
+          "languages",
+          "status",
+          "visibility",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "ProjectSummary"
       },
       "PromoteTeacherResponse": {
         "properties": {
@@ -24145,6 +24733,19 @@
         "type": "object",
         "title": "StreamUpdateRequest"
       },
+      "StructuredTOC": {
+        "properties": {
+          "subjects": {
+            "items": {
+              "$ref": "#/components/schemas/SubjectNode"
+            },
+            "type": "array",
+            "title": "Subjects"
+          }
+        },
+        "type": "object",
+        "title": "StructuredTOC"
+      },
       "StruggleItem": {
         "properties": {
           "unit_id": {
@@ -24651,6 +25252,28 @@
           "units"
         ],
         "title": "Subject"
+      },
+      "SubjectNode": {
+        "properties": {
+          "subject_label": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Subject Label"
+          },
+          "units": {
+            "items": {
+              "$ref": "#/components/schemas/TopicNode"
+            },
+            "type": "array",
+            "title": "Units"
+          }
+        },
+        "type": "object",
+        "required": [
+          "subject_label"
+        ],
+        "title": "SubjectNode"
       },
       "SubjectProgress": {
         "properties": {
@@ -25406,6 +26029,35 @@
         ],
         "title": "TokenExchangeResponse",
         "description": "Response for POST /auth/exchange"
+      },
+      "TopicNode": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Title"
+          },
+          "subtopics": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Subtopics"
+          },
+          "prerequisites": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Prerequisites"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title"
+        ],
+        "title": "TopicNode"
       },
       "TrendsReport": {
         "properties": {
