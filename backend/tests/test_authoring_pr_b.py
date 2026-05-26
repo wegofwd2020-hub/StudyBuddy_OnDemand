@@ -393,3 +393,52 @@ async def test_list_topics_unmaterialized_is_empty(client: AsyncClient, admin_to
     r = await client.get(f"/api/v1/admin/authoring/projects/{pid}/topics", headers=headers)
     assert r.status_code == 200
     assert r.json() == {"curriculum_id": None, "status": "draft", "topics": [], "total": 0}
+
+
+class _FlakyProvider:
+    """Returns malformed JSON `fails` times, then valid content."""
+
+    model = "fake-model"
+
+    def __init__(self, fails: int, good: str) -> None:
+        self.fails = fails
+        self.good = good
+        self.calls = 0
+
+    def generate(self, prompt: str) -> tuple[str, int, int]:
+        self.calls += 1
+        if self.calls <= self.fails:
+            return "{ this is : not valid json", 1, 1
+        return self.good, 5, 5
+
+
+def test_generate_one_retries_then_succeeds() -> None:
+    provider = _FlakyProvider(fails=2, good=json.dumps(_valid_lesson()))
+    body, tokens = gen.generate_one(
+        provider,
+        content_type="lesson",
+        unit_id="U",
+        subject="Physics",
+        topic="Motion",
+        grade=9,
+        lang="en",
+    )
+    assert provider.calls == 3  # 2 bad + 1 good
+    assert body["sections"]
+    # failed attempts still count tokens: 2 bad×(1+1) + 1 good×(5+5)
+    assert tokens == 2 * (1 + 1) + (5 + 5)
+
+
+def test_generate_one_raises_after_max_attempts() -> None:
+    provider = _FlakyProvider(fails=99, good="{}")
+    with pytest.raises(gen.GenerationError):
+        gen.generate_one(
+            provider,
+            content_type="lesson",
+            unit_id="U",
+            subject="Physics",
+            topic="Motion",
+            grade=9,
+            lang="en",
+        )
+    assert provider.calls == 3  # capped at MAX_GENERATION_ATTEMPTS
