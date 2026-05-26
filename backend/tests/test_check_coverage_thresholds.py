@@ -11,12 +11,9 @@ import json
 import sys
 from pathlib import Path
 
-import pytest
-
 # Add the scripts directory to sys.path so we can import it directly.
 sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 from check_coverage_thresholds import DEFAULT_THRESHOLD, THRESHOLDS, _bucket, main
-
 
 # ── _bucket() routing ─────────────────────────────────────────────────────────
 
@@ -101,8 +98,9 @@ def test_auth_below_threshold_returns_1(tmp_path: Path):
     report = _make_report(
         tmp_path,
         {
-            "src/auth/router.py": (89, 100),   # 89% < 90
-        },
+            # 1 point below the auth floor (dynamic so this survives ratchets).
+            "src/auth/router.py": (THRESHOLDS["src/auth"] - 1, 100),
+},
     )
     assert main(str(report)) == 1
 
@@ -111,8 +109,8 @@ def test_subscription_below_threshold_returns_1(tmp_path: Path):
     report = _make_report(
         tmp_path,
         {
-            "src/subscription/router.py": (85, 100),  # 85% < 90
-        },
+            "src/subscription/router.py": (THRESHOLDS["src/subscription"] - 1, 100),
+},
     )
     assert main(str(report)) == 1
 
@@ -121,8 +119,11 @@ def test_school_subscription_below_threshold_returns_1(tmp_path: Path):
     report = _make_report(
         tmp_path,
         {
-            "src/school/subscription_service.py": (89, 100),  # 89% < 90
-        },
+            "src/school/subscription_service.py": (
+                THRESHOLDS["src/school/subscription"] - 1,
+                100,
+            ),
+},
     )
     assert main(str(report)) == 1
 
@@ -131,8 +132,8 @@ def test_content_below_threshold_returns_1(tmp_path: Path):
     report = _make_report(
         tmp_path,
         {
-            "src/content/router.py": (84, 100),  # 84% < 85
-        },
+            "src/content/router.py": (THRESHOLDS["src/content"] - 1, 100),
+},
     )
     assert main(str(report)) == 1
 
@@ -141,8 +142,8 @@ def test_default_module_below_threshold_returns_1(tmp_path: Path):
     report = _make_report(
         tmp_path,
         {
-            "src/analytics/router.py": (79, 100),  # 79% < 80
-        },
+            "src/analytics/router.py": (DEFAULT_THRESHOLD - 1, 100),
+},
     )
     assert main(str(report)) == 1
 
@@ -177,15 +178,15 @@ def test_aggregate_across_multiple_files_in_module(tmp_path: Path):
 
 def test_aggregate_below_threshold_despite_one_perfect_file(tmp_path: Path):
     """
-    One 100% file cannot mask a very low companion — aggregate must still fail.
-    100 + 79 = 179/200 = 89.5% < 90% auth threshold.
+    One 100% file cannot mask a large untested companion — the aggregate must
+    still fail. 100/500 = 20%, well below the auth floor.
     """
     report = _make_report(
         tmp_path,
         {
             "src/auth/router.py": (100, 100),  # 100%
-            "src/auth/service.py": (79, 100),  # 79%
-            # aggregate = 179/200 = 89.5% < 90
+            "src/auth/service.py": (0, 400),  # 0% over a big file
+            # aggregate = 100/500 = 20% < auth floor
         },
     )
     assert main(str(report)) == 1
