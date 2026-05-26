@@ -412,6 +412,11 @@ def test_build_unit_idempotency_respects_provider():
                       "quiz_set_3_en.json", "tutorial_en.json"]:
             with open(os.path.join(store_path, fname), "w") as f:
                 json.dump({"unit_id": unit_id}, f)
+        # _all_files_exist() also requires the study-pack PDF; without it the
+        # idempotency check fails and build_unit regenerates (then 401s on the
+        # dummy key), yielding status="failed" instead of "skipped".
+        with open(os.path.join(store_path, "study_pack_en.pdf"), "wb") as f:
+            f.write(b"%PDF-1.4 test")
 
         config = _make_config(tmpdir)
 

@@ -114,16 +114,70 @@ async def bypass_conn():
     await c.close()
 
 
+_RLS_ROLE = "studybuddy_rls_tester"
+
+
+@pytest.fixture(scope="session")
+def _rls_role():
+    """Ensure a non-superuser role exists so FORCE ROW LEVEL SECURITY is enforced.
+
+    `studybuddy` is a PostgreSQL superuser (in CI and the dev cluster), so it
+    bypasses RLS even with FORCE ROW LEVEL SECURITY. The "school cannot read
+    archived / cannot write" assertions only hold under a NON-superuser role.
+    Mirrors tests/test_rls.py. Synchronous + own loop to avoid event-loop scope
+    conflicts under pytest-asyncio AUTO mode. Best-effort: if role creation is
+    denied (non-superuser cluster), school_conn skips the dependent tests.
+    """
+    import asyncio
+
+    async def _setup() -> None:
+        try:
+            c = await asyncpg.connect(_TEST_DB_URL, timeout=5)
+        except Exception:
+            return
+        try:
+            await c.execute(
+                f"DO $$ BEGIN "
+                f"IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname='{_RLS_ROLE}') "
+                f"THEN CREATE ROLE {_RLS_ROLE}; END IF; END $$"
+            )
+            await c.execute(f"GRANT USAGE ON SCHEMA public TO {_RLS_ROLE}")
+            await c.execute(f"GRANT ALL ON ALL TABLES IN SCHEMA public TO {_RLS_ROLE}")
+        except asyncpg.InsufficientPrivilegeError:
+            pass  # CREATEROLE not available — school_conn will skip.
+        finally:
+            await c.close()
+
+    loop = asyncio.new_event_loop()
+    loop.run_until_complete(_setup())
+    loop.close()
+
+
 @pytest_asyncio.fixture
-async def school_conn():
-    """A direct asyncpg connection scoped to a fake school (non-bypass)."""
+async def school_conn(_rls_role):
+    """Connection scoped to a fake school, running as a NON-superuser role.
+
+    SET LOCAL ROLE switches to studybuddy_rls_tester inside a transaction so the
+    RLS policies on visual_library_entries are actually applied (a superuser
+    would bypass them). All work is rolled back on teardown.
+    """
     c = await asyncpg.connect(_TEST_DB_URL)
+    role_exists = await c.fetchval("SELECT 1 FROM pg_roles WHERE rolname = $1", _RLS_ROLE)
+    if not role_exists:
+        await c.close()
+        pytest.skip(
+            f"Role '{_RLS_ROLE}' unavailable (need CREATEROLE on the test DB cluster)."
+        )
+    tr = c.transaction()
+    await tr.start()
+    await c.execute(f"SET LOCAL ROLE {_RLS_ROLE}")
     fake_school = str(uuid.uuid4())
-    await c.execute(
-        "SELECT set_config('app.current_school_id', $1, false)", fake_school
-    )
-    yield c
-    await c.close()
+    await c.execute("SELECT set_config('app.current_school_id', $1, true)", fake_school)
+    try:
+        yield c
+    finally:
+        await tr.rollback()
+        await c.close()
 
 
 @pytest.mark.asyncio
