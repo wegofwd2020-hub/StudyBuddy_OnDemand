@@ -72,24 +72,28 @@ def check_topic_ordering(structured: Any) -> list[dict]:
                     continue  # a unit listing itself — ignore
                 prereq_idx = title_index.get(key)
                 if prereq_idx is None:
-                    warnings.append({
-                        "kind": "missing_prerequisite",
-                        "unit": title,
-                        "subject": subject_label,
-                        "detail": (
-                            f"Prerequisite {prereq!r} is not a unit in this curriculum."
-                        ),
-                    })
+                    warnings.append(
+                        {
+                            "kind": "missing_prerequisite",
+                            "unit": title,
+                            "subject": subject_label,
+                            "detail": (
+                                f"Prerequisite {prereq!r} is not a unit in this curriculum."
+                            ),
+                        }
+                    )
                 elif prereq_idx > pos:
-                    warnings.append({
-                        "kind": "prerequisite_after_use",
-                        "unit": title,
-                        "subject": subject_label,
-                        "detail": (
-                            f"Unit {title!r} requires {prereq!r}, but {prereq!r} is "
-                            f"sequenced after it."
-                        ),
-                    })
+                    warnings.append(
+                        {
+                            "kind": "prerequisite_after_use",
+                            "unit": title,
+                            "subject": subject_label,
+                            "detail": (
+                                f"Unit {title!r} requires {prereq!r}, but {prereq!r} is "
+                                f"sequenced after it."
+                            ),
+                        }
+                    )
             pos += 1
 
     return warnings
