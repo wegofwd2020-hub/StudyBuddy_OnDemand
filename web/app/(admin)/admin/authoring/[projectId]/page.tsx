@@ -44,6 +44,7 @@ export default function AuthoringWorkspacePage({
   const { projectId } = use(params);
   const queryClient = useQueryClient();
   const [selectedTopic, setSelectedTopic] = useState<TopicListItem | null>(null);
+  const [publishHint, setPublishHint] = useState(false);
 
   const { data: project, isLoading } = useQuery({
     queryKey: ["admin", "authoring", projectId],
@@ -382,45 +383,62 @@ export default function AuthoringWorkspacePage({
           )}
 
           <div className="border-t border-gray-100 pt-4">
-            {!allAccepted && (
-              <div className="mb-3 flex items-center gap-3">
-                <p className="text-xs text-amber-600">
-                  {!hasContent
-                    ? "Generate content first, then accept every topic before publishing."
-                    : `Accept every topic's content before publishing — ${pendingTopics.length} topic(s) still pending.`}
-                </p>
-                {pendingTopics.length > 0 && (
-                  <button
-                    disabled={acceptMut.isPending}
-                    onClick={() => acceptMut.mutate(pendingTopics)}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
-                  >
-                    <Check className="h-3.5 w-3.5" />
-                    {acceptMut.isPending ? "Accepting…" : "Accept all topics"}
-                  </button>
-                )}
-              </div>
-            )}
-            <div className="flex items-center gap-2">
-              <button
-                disabled={!allAccepted || publishMut.isPending}
-                onClick={() => publishMut.mutate("private")}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-              >
-                Publish (private)
-              </button>
-              <button
-                disabled={!allAccepted || publishMut.isPending}
-                onClick={() => publishMut.mutate("catalog")}
-                className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
-              >
-                Publish to school catalog
-              </button>
-            </div>
-            {project.status === "published" && (
-              <p className="mt-2 text-sm text-emerald-600">
-                Published ({project.visibility}). Curriculum: {project.curriculum_id}
+            {project.status === "published" ? (
+              <p className="text-sm font-medium text-emerald-600">
+                ✓ Published. Book id: {project.curriculum_id}
               </p>
+            ) : (
+              <>
+                {/* Blocked callout — prominent so a disabled Publish never reads
+                    as "nothing happened". */}
+                {!allAccepted && (
+                  <div className="mb-3 rounded-lg border border-amber-300 bg-amber-50 p-3">
+                    <p className="text-sm text-amber-800">
+                      {!hasContent
+                        ? "Generate content first, then accept every topic before publishing."
+                        : `Publish is blocked — ${pendingTopics.length} topic(s) have content that isn't accepted yet.`}
+                    </p>
+                    {pendingTopics.length > 0 && (
+                      <button
+                        disabled={acceptMut.isPending}
+                        onClick={() => acceptMut.mutate(pendingTopics)}
+                        className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+                      >
+                        <Check className="h-3.5 w-3.5" />
+                        {acceptMut.isPending
+                          ? "Accepting…"
+                          : "Accept all & enable Publish"}
+                      </button>
+                    )}
+                  </div>
+                )}
+                <button
+                  disabled={publishMut.isPending || project.status === "generating"}
+                  onClick={() => {
+                    if (!allAccepted) {
+                      setPublishHint(true);
+                      return;
+                    }
+                    publishMut.mutate("catalog");
+                  }}
+                  className="rounded-lg bg-emerald-600 px-5 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+                >
+                  {publishMut.isPending ? "Publishing…" : "Publish"}
+                </button>
+                <p className="mt-1.5 text-xs text-gray-500">
+                  Book export formats (EPUB / MOBI / PDF) are coming — see ADR-002.
+                </p>
+                {publishHint && !allAccepted && (
+                  <p className="mt-1 text-xs text-amber-700">
+                    Accept all content first (use the button above).
+                  </p>
+                )}
+                {publishMut.isError && (
+                  <p className="mt-1 text-xs text-red-600">
+                    Publish failed — please retry.
+                  </p>
+                )}
+              </>
             )}
           </div>
         </Section>
