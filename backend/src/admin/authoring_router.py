@@ -70,10 +70,7 @@ def _require_author():
                 status_code=403,
                 detail={
                     "error": "forbidden",
-                    "detail": (
-                        f"Role '{role}' does not have permission "
-                        f"'{_AUTHOR_PERMISSION}'."
-                    ),
+                    "detail": (f"Role '{role}' does not have permission '{_AUTHOR_PERMISSION}'."),
                     "correlation_id": getattr(request.state, "correlation_id", ""),
                 },
             )
@@ -132,9 +129,7 @@ async def create_project(
         grade=body.grade,
         raw_toc_chars=len(body.raw_toc),
     )
-    return CreateProjectResponse(
-        project_id=project["project_id"], status=project["status"]
-    )
+    return CreateProjectResponse(project_id=project["project_id"], status=project["status"])
 
 
 # ── 2. List ──────────────────────────────────────────────────────────────────
@@ -153,9 +148,7 @@ async def list_projects(
 # ── 3. Detail ──────────────────────────────────────────────────────────────────
 
 
-@router.get(
-    "/admin/authoring/projects/{project_id}", response_model=ProjectDetail
-)
+@router.get("/admin/authoring/projects/{project_id}", response_model=ProjectDetail)
 async def get_project(
     project_id: str,
     request: Request,
@@ -228,9 +221,7 @@ async def edit_structure(
         existing = await svc.get_project(conn, project_id)
         if existing is None:
             raise _not_found(project_id, request)
-        updated = await svc.save_structure(
-            conn, project_id, body.structured_toc.model_dump()
-        )
+        updated = await svc.save_structure(conn, project_id, body.structured_toc.model_dump())
     if updated is None:
         raise HTTPException(
             status_code=409,

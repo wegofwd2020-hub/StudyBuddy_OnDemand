@@ -2287,9 +2287,7 @@ def run_authoring_analyze_task(project_id: str) -> None:
         try:
             # Platform context — bypass RLS (pitfall #28). authoring_* tables
             # aren't tenant-scoped, but keep the stamp consistent for safety.
-            await conn.execute(
-                "SELECT set_config('app.current_school_id', 'bypass', false)"
-            )
+            await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
             await run_analysis(conn, project_id)
         finally:
             await conn.close()

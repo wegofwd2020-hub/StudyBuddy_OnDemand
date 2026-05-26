@@ -189,6 +189,11 @@ def test_idempotency_skip():
         ]:
             with open(os.path.join(store_path, filename), "w") as f:
                 json.dump({"unit_id": unit_id}, f)
+        # _all_files_exist() also requires the study-pack PDF; without it the
+        # idempotency check fails, build_unit regenerates, and the dummy API key
+        # 401s — surfacing as status="failed" instead of "skipped".
+        with open(os.path.join(store_path, "study_pack_en.pdf"), "wb") as f:
+            f.write(b"%PDF-1.4 test")
 
         # Create a mock config
         config = MagicMock()

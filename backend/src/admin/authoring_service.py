@@ -82,12 +82,14 @@ def _coerce_json(value: Any) -> dict | None:
 
 def _row_to_detail(row: asyncpg.Record) -> dict:
     detail = _row_to_summary(row)
-    detail.update({
-        "raw_toc": row["raw_toc"],
-        "structured_toc": _coerce_json(row["structured_toc"]),
-        "flow_report": _coerce_json(row["flow_report"]),
-        "analyze_error": row["analyze_error"],
-    })
+    detail.update(
+        {
+            "raw_toc": row["raw_toc"],
+            "structured_toc": _coerce_json(row["structured_toc"]),
+            "flow_report": _coerce_json(row["flow_report"]),
+            "analyze_error": row["analyze_error"],
+        }
+    )
     return detail
 
 
@@ -119,16 +121,12 @@ async def create_project(
 
 
 async def list_projects(conn: asyncpg.Connection) -> tuple[list[dict], int]:
-    rows = await conn.fetch(
-        "SELECT * FROM authoring_projects ORDER BY created_at DESC"
-    )
+    rows = await conn.fetch("SELECT * FROM authoring_projects ORDER BY created_at DESC")
     return [_row_to_summary(r) for r in rows], len(rows)
 
 
 async def get_project(conn: asyncpg.Connection, project_id: str) -> dict | None:
-    row = await conn.fetchrow(
-        "SELECT * FROM authoring_projects WHERE project_id = $1", project_id
-    )
+    row = await conn.fetchrow("SELECT * FROM authoring_projects WHERE project_id = $1", project_id)
     return _row_to_detail(row) if row else None
 
 
