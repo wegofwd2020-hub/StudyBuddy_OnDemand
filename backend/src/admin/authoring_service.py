@@ -542,6 +542,11 @@ _CONTENT_FILENAMES = {
     "experiment": "experiment",
 }
 
+# Content types every unit is expected to have at publish time (mirrors
+# authoring_generation.BASE_CONTENT_TYPES; kept local to avoid a circular import).
+# `experiment` is expected only when the unit has has_lab=TRUE.
+_EXPECTED_BASE_CONTENT_TYPES = ("lesson", "tutorial", "quiz_set_1", "quiz_set_2", "quiz_set_3")
+
 
 async def publish(
     conn: asyncpg.Connection,
@@ -549,16 +554,19 @@ async def publish(
     project_id: str,
     *,
     visibility: str,
+    allow_incomplete: bool = False,
 ) -> dict:
     """Publish an authored curriculum.
 
-    Requires status='generated' and every active topic version accepted. Writes
-    accepted bodies to the content store, creates content_subject_versions rows
-    (status='published') per subject, sets curricula.is_default = (visibility ==
-    'catalog'), and flips the project to status='published'.
+    Requires status='generated', every active topic version accepted, and (unless
+    allow_incomplete) every unit complete — an accepted active version for each
+    expected content type per project language (experiment only where has_lab).
+    Writes accepted bodies to the content store, creates content_subject_versions
+    rows (status='published') per subject, sets curricula.is_default = (visibility
+    == 'catalog'), and flips the project to status='published'.
     """
     proj = await conn.fetchrow(
-        "SELECT curriculum_id, status FROM authoring_projects WHERE project_id = $1",
+        "SELECT curriculum_id, status, languages FROM authoring_projects WHERE project_id = $1",
         project_id,
     )
     if proj is None:
@@ -589,6 +597,35 @@ async def publish(
         raise PublishError(
             f"{len(unaccepted)} topic version(s) are not accepted; accept all before publishing"
         )
+
+    # Gate: completeness (issue #401). Every unit must have an active version for
+    # each expected content type, per project language — experiment only where
+    # has_lab. Without this, a unit whose generation failed (no active version)
+    # publishes silently with holes.
+    if not allow_incomplete:
+        langs = list(proj["languages"] or ["en"])
+        units_meta = await conn.fetch(
+            "SELECT unit_id, has_lab FROM curriculum_units WHERE curriculum_id = $1",
+            curriculum_id,
+        )
+        present = {(a["unit_id"], a["lang"], a["content_type"]) for a in actives}
+        missing: list[str] = []
+        for u in units_meta:
+            expected = list(_EXPECTED_BASE_CONTENT_TYPES)
+            if u["has_lab"]:
+                expected.append("experiment")
+            missing.extend(
+                f"{u['unit_id']}/{lang}/{ct}"
+                for lang in langs
+                for ct in expected
+                if (u["unit_id"], lang, ct) not in present
+            )
+        if missing:
+            preview = ", ".join(missing[:8]) + (" …" if len(missing) > 8 else "")
+            raise PublishError(
+                f"curriculum is incomplete — {len(missing)} expected content piece(s) missing "
+                f"({preview}). Generate the missing content, or publish with allow_incomplete=True."
+            )
 
     # Write accepted bodies to the content store.
     for a in actives:
