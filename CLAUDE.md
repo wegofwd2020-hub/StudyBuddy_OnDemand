@@ -291,8 +291,10 @@ All admin routes live under `/admin/` and require a valid `sb_admin_token` JWT c
 | `/admin/demo-teacher-accounts` | Manage demo teacher accounts |
 | `/admin/feedback` | Student feedback list |
 | `/admin/audit` | Audit log |
+| `/admin/authoring` | Authoring Studio — project list + create (super_admin only) |
+| `/admin/authoring/[projectId]` | Authoring workspace — analyze · edit structure · materialize · generate · per-topic review/regenerate/accept · snapshots/restore · publish |
 
-**Curriculum Authoring Studio (super-admin only, API surface — PR-A + PR-B, no web UI yet):**
+**Curriculum Authoring Studio (super-admin only — backend API + web UI):**
 Gated by the `curriculum:author` permission, which only `super_admin` holds (via its
 `{"*"}` wildcard); `product_admin` and below get 403. Endpoints under
 `/api/v1/admin/authoring/` (`backend/src/admin/authoring_router.py`):
@@ -322,6 +324,12 @@ prompt builders with `diagram_emphasis=True` (Mermaid diagrams + richer prose �
 `SBMarkdown`. State machine: `draft → analyzing → analyzed → structured → generating → generated
 → published`. Celery tasks (raw asyncpg connections) register the jsonb codec before binding
 dict payloads (else asyncpg rejects them — "expected str, got dict").
+
+Web UI (super_admin nav item "Authoring Studio"): `web/app/(admin)/admin/authoring/page.tsx`
+(list + create), `web/app/(admin)/admin/authoring/[projectId]/page.tsx` (staged workspace),
+`web/components/authoring/*` (StatusBadge, StructuredTocEditor, TopicReviewPanel), API client
+`web/lib/api/authoring.ts`. A `GET …/projects/{id}/topics` endpoint backs the topic list. The
+topic review panel renders lesson/tutorial via `<SBMarkdown>` so Mermaid diagrams render.
 
 ---
 
