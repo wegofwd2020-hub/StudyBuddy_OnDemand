@@ -1,10 +1,42 @@
 # RESUME — where to pick up
 
 A git-tracked checkpoint so work can resume on any machine (Claude Code's local
-memory does not travel; this file + GitHub issues do). Last updated: 2026-05-25,
-`main` @ `525825c`.
+memory does not travel; this file + GitHub issues do). Last updated: 2026-05-26,
+`main` @ `c8f4aef`.
 
-## ▶ Where we left off (2026-05-25) — demo-feedback round shipped + CI greened
+## ▶ Where we left off (2026-05-26) — Authoring Studio shipped, repo-home decided, backup bug fixed
+
+### Curriculum Authoring Studio (super-admin) — SHIPPED + merged
+TOC paste → LLM structure + advisory flow analysis → editable topic table →
+staged platform curriculum → per-topic generate (lesson/tutorial/quiz, Mermaid) →
+review + unlimited regenerate-with-reason → snapshots/restore → publish. Gated by
+`curriculum:author` (super_admin-only). Migration **0060** (`authoring_*` tables;
+extends `curricula.source_type` CHECK with `admin_authored`). Backend
+`backend/src/admin/authoring_*` + `pipeline/toc_structurer.py` +
+`pipeline/flow_analyzer.py`; web `web/app/(admin)/admin/authoring/**`. PRs
+#383 (PR-A intake→materialize), #384/#390/#392/#393 (PR-B generate→publish +
+fixes), #395 (publish-UX fix). Policy: stays **super-admin-only** for now — do
+not widen the `curriculum:author` grant.
+
+### Repo-home decision — ADR-004 "Q grows up" (the standalone/BYOK direction is StudyBuddy Q)
+The standalone "author-your-own-book + free reader, BYO Anthropic key" product
+belongs in **StudyBuddy Q** (`StudyBuddy_SelfLearner`), **not** OnDemand. OnDemand
+keeps the Authoring Studio only as super-admin platform content-ops. Recorded in
+`docs/ADR_004_authoring_studio_home_repo.md` (PR #397, Accepted). OnDemand ADR-002
+(PR #394) + ADR-003 (PR #396) **closed without merge** — superseded, recast in Q.
+Reuse into Q is **port + vendor, one-way, never cross-import** (Q's ADR-002 rule).
+Q-side handoff is committed in the Q repo: branch `docs/adr-003-book-authoring`
+(pushed) carries `docs/adr/ADR-003-book-authoring.md` + `docs/PORT_BRIEF.md`. **The
+code port has NOT started** — do it in a fresh Q-rooted session, not from OnDemand.
+
+### Backup bug (reported by Venkatesh Thiyagarajan) — FIXED
+| Issue | PR | What |
+|---|---|---|
+| #398 | #399 | `backup_school_task` joined `classroom_packages` on `cl.id`; classrooms PK is `classroom_id` (mig 0038) → every **full** backup failed with `column cl.id does not exist`. Fixed join key + added regression test `test_full_backup_classroom_packages_query` (the path had zero coverage). |
+
+---
+
+## ▶ Prior checkpoint (2026-05-25) — demo-feedback round shipped + CI greened
 
 A full demo-feedback cycle was triaged, implemented, merged, and CI was brought
 green. Everything below is **merged to `main`** unless marked open.
@@ -85,7 +117,7 @@ Prereqs: Docker/podman, Python 3.11+, Node 20, `gh` CLI.
 2. **Securely copy** the gitignored secret files over (NOT via git): `./.env` and
    `web/.env.local`. Without them, `dev_start.sh` regenerates infra secrets but
    external keys (Auth0/Anthropic/Stripe/SMTP) are `REPLACE_ME` placeholders.
-3. `./dev_start.sh` — builds images, runs migrations (head is **0059**), starts
+3. `./dev_start.sh` — builds images, runs migrations (head is **0060**), starts
    the stack. Use `./dev_start.sh test` for the backend suite (it provisions its
    own test Postgres — do **not** hand-craft `TEST_DB_URL` at a host postgres; see
    `gotcha_test_db_topology`).
