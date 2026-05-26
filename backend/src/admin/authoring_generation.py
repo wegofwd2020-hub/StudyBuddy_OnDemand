@@ -57,8 +57,9 @@ class GenerationError(RuntimeError):
     """Raised when a single content_type cannot be generated/validated."""
 
 
-def _build_prompt(content_type: str, *, unit_id: str, subject: str, topic: str,
-                  grade: int, lang: str) -> str:
+def _build_prompt(
+    content_type: str, *, unit_id: str, subject: str, topic: str, grade: int, lang: str
+) -> str:
     """Build the prompt for a content_type, with diagram emphasis on prose types."""
     from pipeline.prompts import (
         build_experiment_prompt,
@@ -146,7 +147,10 @@ async def next_version_number(
           FROM authoring_topic_versions
          WHERE project_id = $1 AND unit_id = $2 AND lang = $3 AND content_type = $4
         """,
-        project_id, unit_id, lang, content_type,
+        project_id,
+        unit_id,
+        lang,
+        content_type,
     )
     return int(row or 0) + 1
 
@@ -176,8 +180,17 @@ async def append_topic_version(
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
         RETURNING topic_version_id, version_number, review_status, created_at
         """,
-        project_id, unit_id, lang, content_type, body, version_number,
-        regen_reason, flow_recheck, ai_model, tokens_used, created_by,
+        project_id,
+        unit_id,
+        lang,
+        content_type,
+        body,
+        version_number,
+        regen_reason,
+        flow_recheck,
+        ai_model,
+        tokens_used,
+        created_by,
     )
     topic_version_id = row["topic_version_id"]
     if set_active:
@@ -207,7 +220,11 @@ async def set_active_version(
         DO UPDATE SET topic_version_id = EXCLUDED.topic_version_id,
                       activated_at = now()
         """,
-        project_id, unit_id, lang, content_type, topic_version_id,
+        project_id,
+        unit_id,
+        lang,
+        content_type,
+        topic_version_id,
     )
 
 
@@ -238,7 +255,10 @@ async def get_active_topic(
          WHERE av.project_id = $1 AND av.unit_id = $2
            AND av.content_type = $3 AND av.lang = $4
         """,
-        project_id, unit_id, content_type, lang,
+        project_id,
+        unit_id,
+        content_type,
+        lang,
     )
     return _version_row_to_dict(row) if row else None
 
@@ -258,7 +278,10 @@ async def get_topic_history(
            AND tv.content_type = $3 AND tv.lang = $4
          ORDER BY tv.version_number DESC
         """,
-        project_id, unit_id, content_type, lang,
+        project_id,
+        unit_id,
+        content_type,
+        lang,
     )
     return [_version_row_to_dict(r) for r in rows]
 
@@ -321,7 +344,10 @@ async def generate_topics(
                     existing = await conn.fetchval(
                         "SELECT 1 FROM authoring_active_versions "
                         "WHERE project_id=$1 AND unit_id=$2 AND lang=$3 AND content_type=$4",
-                        project_id, unit["unit_id"], lang, content_type,
+                        project_id,
+                        unit["unit_id"],
+                        lang,
+                        content_type,
                     )
                     if existing:
                         skipped += 1
@@ -341,7 +367,10 @@ async def generate_topics(
                     failed += 1
                     log.warning(
                         "authoring_generate_topic_failed project_id=%s unit=%s type=%s err=%s",
-                        project_id, unit["unit_id"], content_type, exc,
+                        project_id,
+                        unit["unit_id"],
+                        content_type,
+                        exc,
                     )
                     continue
                 await append_topic_version(
@@ -363,7 +392,10 @@ async def generate_topics(
     )
     log.info(
         "authoring_generated project_id=%s generated=%d failed=%d skipped=%d",
-        project_id, generated, failed, skipped,
+        project_id,
+        generated,
+        failed,
+        skipped,
     )
     return {"generated": generated, "failed": failed, "skipped": skipped}
 
@@ -395,7 +427,8 @@ async def regenerate_topic(
         "SELECT cu.subject, cu.title FROM authoring_projects ap "
         "JOIN curriculum_units cu ON cu.curriculum_id = ap.curriculum_id "
         "WHERE ap.project_id = $1 AND cu.unit_id = $2",
-        project_id, unit_id,
+        project_id,
+        unit_id,
     )
     if unit is None:
         raise GenerationError("unit not found for project")
@@ -449,6 +482,9 @@ async def accept_topic(
            AND av.content_type = $3 AND av.lang = $4
         RETURNING tv.topic_version_id
         """,
-        project_id, unit_id, content_type, lang,
+        project_id,
+        unit_id,
+        content_type,
+        lang,
     )
     return row is not None

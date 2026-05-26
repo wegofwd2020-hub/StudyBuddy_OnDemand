@@ -119,7 +119,12 @@ class MaterializeResponse(BaseModel):
 # ── PR-B: generate / review / regenerate / snapshot / publish ─────────────────
 
 _CONTENT_TYPES = {
-    "lesson", "tutorial", "quiz_set_1", "quiz_set_2", "quiz_set_3", "experiment",
+    "lesson",
+    "tutorial",
+    "quiz_set_1",
+    "quiz_set_2",
+    "quiz_set_3",
+    "experiment",
 }
 
 

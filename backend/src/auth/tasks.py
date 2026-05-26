@@ -2293,9 +2293,7 @@ def run_authoring_analyze_task(project_id: str) -> None:
             )
             # Platform context — bypass RLS (pitfall #28). authoring_* tables
             # aren't tenant-scoped, but keep the stamp consistent for safety.
-            await conn.execute(
-                "SELECT set_config('app.current_school_id', 'bypass', false)"
-            )
+            await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
             await run_analysis(conn, project_id)
         finally:
             await conn.close()
@@ -2330,9 +2328,7 @@ def run_authoring_generate_task(project_id: str, langs: str = "en", force: bool 
             await conn.set_type_codec(
                 "jsonb", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
             )
-            await conn.execute(
-                "SELECT set_config('app.current_school_id', 'bypass', false)"
-            )
+            await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
             await generate_topics(
                 conn, project_id, langs=[lang for lang in langs.split(",") if lang], force=force
             )
@@ -2365,9 +2361,7 @@ def run_authoring_flow_recheck_task(project_id: str) -> None:
             await conn.set_type_codec(
                 "jsonb", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
             )
-            await conn.execute(
-                "SELECT set_config('app.current_school_id', 'bypass', false)"
-            )
+            await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
             await run_flow_recheck(conn, project_id)
         finally:
             await conn.close()

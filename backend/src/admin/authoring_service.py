@@ -82,12 +82,14 @@ def _coerce_json(value: Any) -> dict | None:
 
 def _row_to_detail(row: asyncpg.Record) -> dict:
     detail = _row_to_summary(row)
-    detail.update({
-        "raw_toc": row["raw_toc"],
-        "structured_toc": _coerce_json(row["structured_toc"]),
-        "flow_report": _coerce_json(row["flow_report"]),
-        "analyze_error": row["analyze_error"],
-    })
+    detail.update(
+        {
+            "raw_toc": row["raw_toc"],
+            "structured_toc": _coerce_json(row["structured_toc"]),
+            "flow_report": _coerce_json(row["flow_report"]),
+            "analyze_error": row["analyze_error"],
+        }
+    )
     return detail
 
 
@@ -119,16 +121,12 @@ async def create_project(
 
 
 async def list_projects(conn: asyncpg.Connection) -> tuple[list[dict], int]:
-    rows = await conn.fetch(
-        "SELECT * FROM authoring_projects ORDER BY created_at DESC"
-    )
+    rows = await conn.fetch("SELECT * FROM authoring_projects ORDER BY created_at DESC")
     return [_row_to_summary(r) for r in rows], len(rows)
 
 
 async def get_project(conn: asyncpg.Connection, project_id: str) -> dict | None:
-    row = await conn.fetchrow(
-        "SELECT * FROM authoring_projects WHERE project_id = $1", project_id
-    )
+    row = await conn.fetchrow("SELECT * FROM authoring_projects WHERE project_id = $1", project_id)
     return _row_to_detail(row) if row else None
 
 
@@ -407,13 +405,17 @@ async def create_snapshot(
             )
         ),
     }
-    snapshot_number = int(
-        await conn.fetchval(
-            "SELECT COALESCE(MAX(snapshot_number), 0) FROM authoring_snapshots "
-            "WHERE project_id = $1",
-            project_id,
-        ) or 0
-    ) + 1
+    snapshot_number = (
+        int(
+            await conn.fetchval(
+                "SELECT COALESCE(MAX(snapshot_number), 0) FROM authoring_snapshots "
+                "WHERE project_id = $1",
+                project_id,
+            )
+            or 0
+        )
+        + 1
+    )
 
     row = await conn.fetchrow(
         """
@@ -421,12 +423,17 @@ async def create_snapshot(
         VALUES ($1, $2, $3, $4, $5)
         RETURNING snapshot_id, snapshot_number, created_at
         """,
-        project_id, snapshot_number, manifest, label, created_by,
+        project_id,
+        snapshot_number,
+        manifest,
+        label,
+        created_by,
     )
     await conn.execute(
         "UPDATE authoring_projects SET current_snapshot_id = $2, updated_at = now() "
         "WHERE project_id = $1",
-        project_id, row["snapshot_id"],
+        project_id,
+        row["snapshot_id"],
     )
     return {
         "snapshot_id": str(row["snapshot_id"]),
@@ -461,9 +468,9 @@ async def restore_snapshot(conn: asyncpg.Connection, project_id: str, snapshot_i
     """
     manifest = _coerce_json(
         await conn.fetchval(
-            "SELECT manifest FROM authoring_snapshots "
-            "WHERE snapshot_id = $1 AND project_id = $2",
-            snapshot_id, project_id,
+            "SELECT manifest FROM authoring_snapshots WHERE snapshot_id = $1 AND project_id = $2",
+            snapshot_id,
+            project_id,
         )
     )
     if manifest is None:
@@ -482,12 +489,17 @@ async def restore_snapshot(conn: asyncpg.Connection, project_id: str, snapshot_i
                 DO UPDATE SET topic_version_id = EXCLUDED.topic_version_id,
                               activated_at = now()
                 """,
-                project_id, unit_id, lang, content_type, uuid.UUID(topic_version_id),
+                project_id,
+                unit_id,
+                lang,
+                content_type,
+                uuid.UUID(topic_version_id),
             )
         await conn.execute(
             "UPDATE authoring_projects SET current_snapshot_id = $2, updated_at = now() "
             "WHERE project_id = $1",
-            project_id, uuid.UUID(snapshot_id),
+            project_id,
+            uuid.UUID(snapshot_id),
         )
     return True
 
@@ -574,13 +586,18 @@ async def publish(
     pipeline_run_id = f"authoring-{project_id}"
     for s in subjects:
         subject = s["subject"]
-        next_version = int(
-            await conn.fetchval(
-                "SELECT COALESCE(MAX(version_number), 0) FROM content_subject_versions "
-                "WHERE curriculum_id = $1 AND subject = $2",
-                curriculum_id, subject,
-            ) or 0
-        ) + 1
+        next_version = (
+            int(
+                await conn.fetchval(
+                    "SELECT COALESCE(MAX(version_number), 0) FROM content_subject_versions "
+                    "WHERE curriculum_id = $1 AND subject = $2",
+                    curriculum_id,
+                    subject,
+                )
+                or 0
+            )
+            + 1
+        )
         await conn.execute(
             """
             INSERT INTO content_subject_versions
@@ -590,23 +607,32 @@ async def publish(
             ON CONFLICT (curriculum_id, subject, version_number) DO UPDATE
                 SET status = 'published', published_at = NOW()
             """,
-            curriculum_id, subject, subject, next_version, pipeline_run_id,
+            curriculum_id,
+            subject,
+            subject,
+            next_version,
+            pipeline_run_id,
         )
 
     is_catalog = visibility == "catalog"
     await conn.execute(
         "UPDATE curricula SET is_default = $2 WHERE curriculum_id = $1",
-        curriculum_id, is_catalog,
+        curriculum_id,
+        is_catalog,
     )
     await conn.execute(
         "UPDATE authoring_projects SET visibility = $2, status = 'published', updated_at = now() "
         "WHERE project_id = $1",
-        project_id, visibility,
+        project_id,
+        visibility,
     )
 
     log.info(
         "authoring_published project_id=%s curriculum_id=%s visibility=%s files=%d",
-        project_id, curriculum_id, visibility, len(actives),
+        project_id,
+        curriculum_id,
+        visibility,
+        len(actives),
     )
     return {
         "curriculum_id": curriculum_id,
@@ -638,8 +664,7 @@ async def run_flow_recheck(conn: asyncpg.Connection, project_id: str, provider=N
         provider = _build_authoring_provider()
     report = await asyncio.to_thread(analyze_toc_flow, structured, provider)
     await conn.execute(
-        "UPDATE authoring_projects SET flow_report = $2, updated_at = now() "
-        "WHERE project_id = $1",
+        "UPDATE authoring_projects SET flow_report = $2, updated_at = now() WHERE project_id = $1",
         project_id,
         report.model_dump(),
     )
