@@ -46,7 +46,7 @@ the authoring subsystem onto a lighter, single-user stack — bounded, but real.
 | Option | What | For | Against |
 |---|---|---|---|
 | **A. Local-first desktop** (recommended) | Desktop app (Tauri or Electron) bundling the UI + a lightweight local backend + local data; BYO key in OS keychain; content on the user's disk | Matches "standalone + BYO-key + free auth-free reading + privacy"; **zero per-user hosting cost**; no liability for users' keys; offline | Biggest build: package the stack, port off Postgres/Redis/Celery, desktop signing/auto-update |
-| **B. Hosted web app (SaaS)** | We host backend/DB; user logs in (license), enters key (stored encrypted server-side) | Fastest — **reuse the existing stack almost as-is**; no desktop packaging | Contradicts "standalone"; **we hold users' API keys** (liability); recurring hosting cost; inherits the Epic-2 hosting blocker; reading isn't truly auth-free |
+| **B. Hosted web app (SaaS)** | We host the backend + database; user logs in (license), enters key (stored encrypted server-side) | Fastest — **reuse the existing stack almost as-is**; no desktop packaging | Contradicts "standalone"; **we hold users' API keys** (liability); recurring hosting cost; inherits the Epic-2 hosting blocker; reading isn't truly auth-free |
 | **C. Hybrid** | Local desktop authoring + optional hosted license/sync | Local privacy + optional cloud | Most surfaces to build/maintain |
 
 **Recommendation: Option A (local-first desktop).** It is the only option that
