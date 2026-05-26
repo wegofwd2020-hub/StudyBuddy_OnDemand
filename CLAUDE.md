@@ -292,18 +292,36 @@ All admin routes live under `/admin/` and require a valid `sb_admin_token` JWT c
 | `/admin/feedback` | Student feedback list |
 | `/admin/audit` | Audit log |
 
-**Curriculum Authoring Studio (super-admin only, API surface — PR-A, no web UI yet):**
+**Curriculum Authoring Studio (super-admin only, API surface — PR-A + PR-B, no web UI yet):**
 Gated by the `curriculum:author` permission, which only `super_admin` holds (via its
 `{"*"}` wildcard); `product_admin` and below get 403. Endpoints under
 `/api/v1/admin/authoring/` (`backend/src/admin/authoring_router.py`):
-`POST /projects` (create from pasted free-text TOC) · `GET /projects` · `GET /projects/{id}` ·
-`POST /projects/{id}/analyze` (Celery: structure + advisory flow, 202) ·
-`PUT /projects/{id}/structure` (save edits) ·
-`POST /projects/{id}/materialize` (→ staged platform curriculum, `owner_type='platform'`,
-`source_type='admin_authored'`, `is_default=FALSE`, no `school_id`). TOC structuring +
-flow analysis live in `pipeline/toc_structurer.py` + `pipeline/flow_analyzer.py`; the cheap
-no-LLM ordering check is `backend/src/admin/authoring_flow.py`. PR-B adds
-generate/review/regenerate/snapshot/publish + Mermaid prompt emphasis.
+- **PR-A — intake → structure:** `POST /projects` (create from pasted free-text TOC) ·
+  `GET /projects` · `GET /projects/{id}` · `POST /projects/{id}/analyze` (Celery: structure +
+  advisory flow, 202) · `PUT /projects/{id}/structure` (save edits) ·
+  `POST /projects/{id}/materialize` (→ staged platform curriculum, `owner_type='platform'`,
+  `source_type='admin_authored'`, `is_default=FALSE`, no `school_id`).
+- **PR-B — generate → review → publish:** `POST /projects/{id}/generate` (Celery, all topics,
+  202) · `GET /projects/{id}/topics/{unit_id}?content_type=&history=` (active or full history) ·
+  `POST .../topics/{unit_id}/regenerate` (sync, append-only version with reason + deterministic
+  flow recheck; unlimited) · `POST .../topics/{unit_id}/accept` ·
+  `POST /projects/{id}/snapshots` + `GET …` + `POST …/{snapshot_id}/restore` (manifest snapshots:
+  per-topic append-only versions + whole-curriculum pointer rollback) ·
+  `POST /projects/{id}/flow-recheck` (Celery, full LLM re-analysis of current TOC, 202) ·
+  `POST /projects/{id}/publish` (`{visibility: private|catalog}`: gates on all active topics
+  accepted, writes accepted bodies to the content store + `content_subject_versions`, sets
+  `curricula.is_default = (visibility=='catalog')`).
+
+Content model: generated content lives in `authoring_topic_versions` (append-only) with
+`authoring_active_versions` pointing at the live version; `authoring_snapshots` hold manifest
+snapshots. TOC structuring + flow analysis: `pipeline/toc_structurer.py` +
+`pipeline/flow_analyzer.py`; per-topic generation + regenerate: `backend/src/admin/authoring_generation.py`;
+cheap no-LLM ordering check: `backend/src/admin/authoring_flow.py`. Generation uses the shared
+prompt builders with `diagram_emphasis=True` (Mermaid diagrams + richer prose — counters
+"too terse"); `web/components/content/MermaidDiagram.tsx` renders fenced ```mermaid blocks in
+`SBMarkdown`. State machine: `draft → analyzing → analyzed → structured → generating → generated
+→ published`. Celery tasks (raw asyncpg connections) register the jsonb codec before binding
+dict payloads (else asyncpg rejects them — "expected str, got dict").
 
 ---
 

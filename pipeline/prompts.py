@@ -243,14 +243,44 @@ def _subject_guidelines(subject: str) -> str:
     return ""
 
 
+# Visual-emphasis block — opt-in via diagram_emphasis=True. Used by the
+# Curriculum Authoring Studio (Epic: Authoring Studio) to counter "too terse"
+# feedback: it asks the model to embed Mermaid diagrams for processes,
+# hierarchies, cycles, and relationships, and to expand explanations. Kept
+# OFF by default so existing platform builds are byte-for-byte unchanged.
+_DIAGRAM_EMPHASIS = """
+VISUAL EMPHASIS (authoring mode — make the content richer, not terse):
+- Where a concept involves a process, sequence, hierarchy, cycle, life-cycle,
+  or relationship between parts, embed a Mermaid diagram in a fenced
+  ```mermaid code block INSIDE the relevant section body. Choose the right
+  diagram type (flowchart `graph TD`, `sequenceDiagram`, `classDiagram`, or
+  `stateDiagram-v2`). Keep node labels short and in plain language.
+- Add a diagram only when it genuinely aids comprehension — never for
+  prose-only content, and prefer one clear diagram over several.
+- Expand every explanation with concrete, worked detail. Do not leave a
+  section terse or summary-only.
+"""
+
+
+def _diagram_block(emphasis: bool) -> str:
+    """Return the visual-emphasis directive when enabled, else ''."""
+    return _DIAGRAM_EMPHASIS if emphasis else ""
+
+
 def build_lesson_prompt(
     unit_id: str,
     subject: str,
     topic: str,
     grade: int,
     lang: str,
+    diagram_emphasis: bool = False,
 ) -> str:
-    """Return the prompt for generating a lesson JSON document."""
+    """Return the prompt for generating a lesson JSON document.
+
+    diagram_emphasis: when True, ask the model to embed Mermaid diagrams and
+    expand explanations (Authoring Studio). OFF by default so platform builds
+    are unchanged.
+    """
     grade_desc = _grade_descriptor(grade)
     lang_instruction = f"Write all content in {lang.upper()} language." if lang != "en" else "Write all content in English."
 
@@ -265,6 +295,7 @@ You MUST respond with ONLY valid JSON — no markdown fences, no extra text, no 
 
 {_FORMATTING_GUIDELINES}
 {_subject_guidelines(subject)}
+{_diagram_block(diagram_emphasis)}
 The JSON must exactly match this schema:
 
 {{
@@ -385,8 +416,13 @@ def build_tutorial_prompt(
     topic: str,
     grade: int,
     lang: str,
+    diagram_emphasis: bool = False,
 ) -> str:
-    """Return the prompt for generating a tutorial (step-by-step walkthrough) JSON document."""
+    """Return the prompt for generating a tutorial (step-by-step walkthrough) JSON document.
+
+    diagram_emphasis: when True, ask the model to embed Mermaid diagrams and
+    expand explanations (Authoring Studio). OFF by default.
+    """
     grade_desc = _grade_descriptor(grade)
     lang_instruction = f"Write all content in {lang.upper()} language." if lang != "en" else "Write all content in English."
 
@@ -401,6 +437,7 @@ You MUST respond with ONLY valid JSON — no markdown fences, no extra text, no 
 
 {_FORMATTING_GUIDELINES}
 {_subject_guidelines(subject)}
+{_diagram_block(diagram_emphasis)}
 The JSON must exactly match this schema:
 
 {{

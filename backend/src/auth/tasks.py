@@ -2285,6 +2285,12 @@ def run_authoring_analyze_task(project_id: str) -> None:
     async def _go() -> None:
         conn = await _asyncpg.connect(settings.DATABASE_URL)
         try:
+            # jsonb columns (structured_toc, flow_report) are bound as dicts;
+            # register the same codec the app pool uses or asyncpg rejects them
+            # ("expected str, got dict").
+            await conn.set_type_codec(
+                "jsonb", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
+            )
             # Platform context — bypass RLS (pitfall #28). authoring_* tables
             # aren't tenant-scoped, but keep the stamp consistent for safety.
             await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
@@ -2296,3 +2302,71 @@ def run_authoring_analyze_task(project_id: str) -> None:
         _run_async(_go())
     except Exception as exc:  # never let the worker crash on a bad TOC
         log.error("run_authoring_analyze_task_failed project_id=%s error=%s", project_id, exc)
+
+
+@celery_app.task(name="src.auth.tasks.run_authoring_generate_task")
+def run_authoring_generate_task(project_id: str, langs: str = "en", force: bool = False) -> None:
+    """Generate content for every unit in a materialised Authoring Studio project.
+
+    Calls src.admin.authoring_generation.generate_topics(); flips the project
+    status generating → generated. Never raises out of the worker.
+    """
+    import os as _os
+    import sys as _sys
+
+    _pipeline_parent = _os.path.abspath("/pipeline/..")
+    if _pipeline_parent not in _sys.path:
+        _sys.path.insert(0, _pipeline_parent)
+
+    import asyncpg as _asyncpg
+
+    from src.admin.authoring_generation import generate_topics
+
+    async def _go() -> None:
+        conn = await _asyncpg.connect(settings.DATABASE_URL)
+        try:
+            await conn.set_type_codec(
+                "jsonb", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
+            )
+            await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+            await generate_topics(
+                conn, project_id, langs=[lang for lang in langs.split(",") if lang], force=force
+            )
+        finally:
+            await conn.close()
+
+    try:
+        _run_async(_go())
+    except Exception as exc:  # worker must survive a generation failure
+        log.error("run_authoring_generate_task_failed project_id=%s error=%s", project_id, exc)
+
+
+@celery_app.task(name="src.auth.tasks.run_authoring_flow_recheck_task")
+def run_authoring_flow_recheck_task(project_id: str) -> None:
+    """Re-run advisory flow analysis on an Authoring Studio project's current TOC."""
+    import os as _os
+    import sys as _sys
+
+    _pipeline_parent = _os.path.abspath("/pipeline/..")
+    if _pipeline_parent not in _sys.path:
+        _sys.path.insert(0, _pipeline_parent)
+
+    import asyncpg as _asyncpg
+
+    from src.admin.authoring_service import run_flow_recheck
+
+    async def _go() -> None:
+        conn = await _asyncpg.connect(settings.DATABASE_URL)
+        try:
+            await conn.set_type_codec(
+                "jsonb", encoder=json.dumps, decoder=json.loads, schema="pg_catalog"
+            )
+            await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+            await run_flow_recheck(conn, project_id)
+        finally:
+            await conn.close()
+
+    try:
+        _run_async(_go())
+    except Exception as exc:  # worker must survive an analysis failure
+        log.error("run_authoring_flow_recheck_task_failed project_id=%s error=%s", project_id, exc)
