@@ -230,7 +230,7 @@ def backup_school_task(
                 packages_rows = await conn.fetch(
                     """
                     SELECT cp.* FROM classroom_packages cp
-                    JOIN classrooms cl ON cl.id = cp.classroom_id
+                    JOIN classrooms cl ON cl.classroom_id = cp.classroom_id
                     WHERE cl.school_id=$1
                     """,
                     school_uuid,
