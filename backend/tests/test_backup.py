@@ -522,3 +522,58 @@ async def test_admin_backup_schedule_forbidden_non_super_admin(client: AsyncClie
         headers=_admin_hdr(role="product_admin"),
     )
     assert r.status_code == 403
+
+
+# ── Regression: full-backup classroom_packages query (issue #398) ───────────────
+
+
+async def test_full_backup_classroom_packages_query(db_conn):
+    """Regression for #398: `backup_school_task` joined classroom_packages to
+    classrooms on `cl.id`, but the classrooms PK is `classroom_id` (migration
+    0038). That raised `column cl.id does not exist`, failing every full backup
+    once a school had classroom packages. This runs the exact query and asserts
+    it both validates (no UndefinedColumnError) and joins on the right key.
+    """
+    school_id = uuid.uuid4()
+    classroom_id = uuid.uuid4()
+    curriculum_id = "default-2026-g8"
+
+    await db_conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+    await db_conn.execute(
+        """
+        INSERT INTO schools (school_id, name, contact_email, status)
+        VALUES ($1, 'Backup Regression School', $2, 'active')
+        """,
+        school_id,
+        f"backup_{str(school_id)[:8]}@example.com",
+    )
+    await db_conn.execute(
+        """
+        INSERT INTO classrooms (classroom_id, school_id, name, status)
+        VALUES ($1, $2, 'Period 1', 'active')
+        """,
+        classroom_id,
+        school_id,
+    )
+    await db_conn.execute(
+        """
+        INSERT INTO classroom_packages (classroom_id, curriculum_id)
+        VALUES ($1, $2)
+        """,
+        classroom_id,
+        curriculum_id,
+    )
+
+    # Exact query from src/backup/tasks.py::backup_school_task
+    rows = await db_conn.fetch(
+        """
+        SELECT cp.* FROM classroom_packages cp
+        JOIN classrooms cl ON cl.classroom_id = cp.classroom_id
+        WHERE cl.school_id=$1
+        """,
+        school_id,
+    )
+
+    assert len(rows) == 1
+    assert rows[0]["curriculum_id"] == curriculum_id
+    assert rows[0]["classroom_id"] == classroom_id
