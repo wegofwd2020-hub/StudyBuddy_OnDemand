@@ -14,7 +14,19 @@ PR-A endpoints (intake → analyze → structure → materialize):
 Gate: every endpoint requires the `curriculum:author` permission, which only
 super_admin holds (via its wildcard). product_admin and below get 403.
 
-PR-B will add generate / topic review / regenerate / snapshot / publish here.
+PR-B endpoints (generate → review → regenerate → snapshot → publish):
+  POST   /admin/authoring/projects/{id}/generate                      generate all (async)
+  GET    /admin/authoring/projects/{id}/topics/{unit_id}              view active / ?history=1
+  POST   /admin/authoring/projects/{id}/topics/{unit_id}/regenerate   regenerate-with-reason
+  POST   /admin/authoring/projects/{id}/topics/{unit_id}/accept       accept active version
+  POST   /admin/authoring/projects/{id}/snapshots                     create manifest snapshot
+  GET    /admin/authoring/projects/{id}/snapshots                     list snapshots
+  POST   /admin/authoring/projects/{id}/snapshots/{snapshot_id}/restore  rollback
+  POST   /admin/authoring/projects/{id}/flow-recheck                  full LLM re-analysis (async)
+  POST   /admin/authoring/projects/{id}/publish                       private | catalog
+
+Gate: every endpoint requires the `curriculum:author` permission, which only
+super_admin holds (via its wildcard). product_admin and below get 403.
 """
 
 from __future__ import annotations
@@ -24,15 +36,31 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 
+from src.admin import authoring_generation as gen
 from src.admin import authoring_service as svc
 from src.admin.authoring_schemas import (
+    AcceptRequest,
+    AcceptResponse,
     AnalyzeResponse,
     CreateProjectRequest,
     CreateProjectResponse,
     EditStructureRequest,
+    FlowRecheckResponse,
+    GenerateRequest,
+    GenerateResponse,
     MaterializeResponse,
     ProjectDetail,
     ProjectListResponse,
+    PublishRequest,
+    PublishResponse,
+    RegenerateRequest,
+    RegenerateResponse,
+    RestoreResponse,
+    SnapshotCreateRequest,
+    SnapshotItem,
+    SnapshotListResponse,
+    TopicHistoryResponse,
+    TopicVersion,
 )
 from src.auth.dependencies import get_current_admin
 from src.core.db import get_db
@@ -294,3 +322,319 @@ async def materialize_project(
         },
     )
     return MaterializeResponse(**result)
+
+
+# ── 7. Generate all topics (async) ──────────────────────────────────────────────
+
+
+@router.post(
+    "/admin/authoring/projects/{project_id}/generate",
+    response_model=GenerateResponse,
+    status_code=202,
+)
+async def generate_project(
+    project_id: str,
+    body: GenerateRequest,
+    request: Request,
+    admin: Annotated[dict, Depends(_require_author())],
+) -> GenerateResponse:
+    async with get_db(request) as conn:
+        project = await svc.get_project(conn, project_id)
+        if project is None:
+            raise _not_found(project_id, request)
+        if not project["curriculum_id"]:
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "error": "conflict",
+                    "detail": "Project must be materialized before generation.",
+                    "correlation_id": getattr(request.state, "correlation_id", ""),
+                },
+            )
+        if project["status"] == "generating":
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "error": "conflict",
+                    "detail": "Generation is already running for this project.",
+                    "correlation_id": getattr(request.state, "correlation_id", ""),
+                },
+            )
+
+    from src.core.celery_app import celery_app as _celery
+
+    job_id = str(uuid.uuid4())
+    _celery.send_task(
+        "src.auth.tasks.run_authoring_generate_task",
+        args=[project_id, body.langs, body.force],
+        queue="pipeline",
+    )
+    emit_event("authoring", "generate_dispatched", project_id=project_id, job_id=job_id)
+    return GenerateResponse(job_id=job_id, status="generating")
+
+
+# ── 8. View topic content (active or history) ───────────────────────────────────
+
+
+@router.get(
+    "/admin/authoring/projects/{project_id}/topics/{unit_id}",
+    response_model=TopicVersion | TopicHistoryResponse,
+)
+async def get_topic(
+    project_id: str,
+    unit_id: str,
+    request: Request,
+    admin: Annotated[dict, Depends(_require_author())],
+    content_type: str = "lesson",
+    lang: str = "en",
+    history: int = 0,
+) -> TopicVersion | TopicHistoryResponse:
+    async with get_db(request) as conn:
+        if history:
+            versions = await gen.get_topic_history(conn, project_id, unit_id, content_type, lang)
+            return TopicHistoryResponse(versions=[TopicVersion(**v) for v in versions])
+        active = await gen.get_active_topic(conn, project_id, unit_id, content_type, lang)
+    if active is None:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "error": "not_found",
+                "detail": f"No {content_type!r} content for unit {unit_id!r}.",
+                "correlation_id": getattr(request.state, "correlation_id", ""),
+            },
+        )
+    return TopicVersion(**active)
+
+
+# ── 9. Regenerate a topic with a reason (unlimited) ─────────────────────────────
+
+
+@router.post(
+    "/admin/authoring/projects/{project_id}/topics/{unit_id}/regenerate",
+    response_model=RegenerateResponse,
+)
+async def regenerate_topic(
+    project_id: str,
+    unit_id: str,
+    body: RegenerateRequest,
+    request: Request,
+    admin: Annotated[dict, Depends(_require_author())],
+) -> RegenerateResponse:
+    async with get_db(request) as conn:
+        try:
+            result = await gen.regenerate_topic(
+                conn,
+                project_id,
+                unit_id,
+                content_type=body.content_type,
+                reason=body.reason,
+                lang=body.lang,
+                created_by=_actor_uuid(admin),
+            )
+        except gen.GenerationError as exc:
+            detail = str(exc)
+            status = 404 if "not found" in detail else 422
+            raise HTTPException(
+                status_code=status,
+                detail={
+                    "error": "regeneration_failed",
+                    "detail": detail,
+                    "correlation_id": getattr(request.state, "correlation_id", ""),
+                },
+            ) from exc
+    emit_event(
+        "authoring",
+        "topic_regenerated",
+        project_id=project_id,
+        unit_id=unit_id,
+        content_type=body.content_type,
+        reason_chars=len(body.reason),
+        version_number=result["version_number"],
+    )
+    return RegenerateResponse(
+        topic_version_id=result["topic_version_id"],
+        version_number=result["version_number"],
+        review_status=result["review_status"],
+        flow_recheck=result["flow_recheck"],
+    )
+
+
+# ── 10. Accept a topic's active version ─────────────────────────────────────────
+
+
+@router.post(
+    "/admin/authoring/projects/{project_id}/topics/{unit_id}/accept",
+    response_model=AcceptResponse,
+)
+async def accept_topic(
+    project_id: str,
+    unit_id: str,
+    body: AcceptRequest,
+    request: Request,
+    admin: Annotated[dict, Depends(_require_author())],
+) -> AcceptResponse:
+    async with get_db(request) as conn:
+        ok = await gen.accept_topic(conn, project_id, unit_id, body.content_type, body.lang)
+    if not ok:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "error": "not_found",
+                "detail": f"No active {body.content_type!r} version for unit {unit_id!r}.",
+                "correlation_id": getattr(request.state, "correlation_id", ""),
+            },
+        )
+    return AcceptResponse(review_status="accepted")
+
+
+# ── 11. Create snapshot ──────────────────────────────────────────────────────────
+
+
+@router.post(
+    "/admin/authoring/projects/{project_id}/snapshots",
+    response_model=SnapshotItem,
+    status_code=201,
+)
+async def create_snapshot(
+    project_id: str,
+    body: SnapshotCreateRequest,
+    request: Request,
+    admin: Annotated[dict, Depends(_require_author())],
+) -> SnapshotItem:
+    async with get_db(request) as conn:
+        project = await svc.get_project(conn, project_id)
+        if project is None:
+            raise _not_found(project_id, request)
+        snap = await svc.create_snapshot(
+            conn, project_id, label=body.label, created_by=_actor_uuid(admin)
+        )
+    emit_event("authoring", "snapshot_created", project_id=project_id,
+               snapshot_number=snap["snapshot_number"])
+    return SnapshotItem(**snap)
+
+
+# ── 12. List snapshots ──────────────────────────────────────────────────────────
+
+
+@router.get(
+    "/admin/authoring/projects/{project_id}/snapshots",
+    response_model=SnapshotListResponse,
+)
+async def list_snapshots(
+    project_id: str,
+    request: Request,
+    admin: Annotated[dict, Depends(_require_author())],
+) -> SnapshotListResponse:
+    async with get_db(request) as conn:
+        snaps = await svc.list_snapshots(conn, project_id)
+    return SnapshotListResponse(snapshots=[SnapshotItem(**s) for s in snaps])
+
+
+# ── 13. Restore snapshot ─────────────────────────────────────────────────────────
+
+
+@router.post(
+    "/admin/authoring/projects/{project_id}/snapshots/{snapshot_id}/restore",
+    response_model=RestoreResponse,
+)
+async def restore_snapshot(
+    project_id: str,
+    snapshot_id: str,
+    request: Request,
+    admin: Annotated[dict, Depends(_require_author())],
+) -> RestoreResponse:
+    async with get_db(request) as conn:
+        ok = await svc.restore_snapshot(conn, project_id, snapshot_id)
+    if not ok:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "error": "not_found",
+                "detail": f"Snapshot {snapshot_id!r} not found for this project.",
+                "correlation_id": getattr(request.state, "correlation_id", ""),
+            },
+        )
+    write_audit_log(
+        event_type="authoring.restore",
+        actor_type="admin",
+        actor_id=_actor_uuid(admin),
+        target_type="authoring_project",
+        target_id=None,
+        metadata={"project_id": project_id, "snapshot_id": snapshot_id},
+    )
+    return RestoreResponse(restored=True)
+
+
+# ── 14. On-demand full flow re-analysis (async) ─────────────────────────────────
+
+
+@router.post(
+    "/admin/authoring/projects/{project_id}/flow-recheck",
+    response_model=FlowRecheckResponse,
+    status_code=202,
+)
+async def flow_recheck(
+    project_id: str,
+    request: Request,
+    admin: Annotated[dict, Depends(_require_author())],
+) -> FlowRecheckResponse:
+    async with get_db(request) as conn:
+        project = await svc.get_project(conn, project_id)
+    if project is None:
+        raise _not_found(project_id, request)
+
+    from src.core.celery_app import celery_app as _celery
+
+    job_id = str(uuid.uuid4())
+    _celery.send_task(
+        "src.auth.tasks.run_authoring_flow_recheck_task",
+        args=[project_id],
+        queue="pipeline",
+    )
+    emit_event("authoring", "flow_recheck_dispatched", project_id=project_id, job_id=job_id)
+    return FlowRecheckResponse(job_id=job_id, status="analyzing")
+
+
+# ── 15. Publish ──────────────────────────────────────────────────────────────────
+
+
+@router.post(
+    "/admin/authoring/projects/{project_id}/publish",
+    response_model=PublishResponse,
+)
+async def publish_project(
+    project_id: str,
+    body: PublishRequest,
+    request: Request,
+    admin: Annotated[dict, Depends(_require_author())],
+) -> PublishResponse:
+    storage = request.app.state.storage
+    async with get_db(request) as conn:
+        try:
+            result = await svc.publish(conn, storage, project_id, visibility=body.visibility)
+        except svc.PublishError as exc:
+            detail = str(exc)
+            status = 404 if "not found" in detail else 409
+            raise HTTPException(
+                status_code=status,
+                detail={
+                    "error": "publish_failed",
+                    "detail": detail,
+                    "correlation_id": getattr(request.state, "correlation_id", ""),
+                },
+            ) from exc
+    emit_event("authoring", "published", project_id=project_id,
+               curriculum_id=result["curriculum_id"], visibility=body.visibility)
+    write_audit_log(
+        event_type="authoring.publish",
+        actor_type="admin",
+        actor_id=_actor_uuid(admin),
+        target_type="curriculum",
+        target_id=None,
+        metadata={
+            "project_id": project_id,
+            "curriculum_id": result["curriculum_id"],
+            "visibility": body.visibility,
+        },
+    )
+    return PublishResponse(**result)

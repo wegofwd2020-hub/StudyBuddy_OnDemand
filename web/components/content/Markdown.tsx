@@ -5,6 +5,7 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import { cn } from "@/lib/utils";
+import { MermaidDiagram } from "@/components/content/MermaidDiagram";
 
 /**
  * SBMarkdown — the canonical prose renderer for AI-generated content.
@@ -85,6 +86,11 @@ export function SBMarkdown({
             </td>
           ),
           code: ({ children, className: cname }) => {
+            // Mermaid fenced blocks render as diagrams, not raw code (Authoring
+            // Studio diagram_emphasis output).
+            if (cname?.includes("language-mermaid")) {
+              return <MermaidDiagram chart={String(children).trim()} />;
+            }
             const isBlock = cname?.includes("language-");
             if (isBlock) {
               return (

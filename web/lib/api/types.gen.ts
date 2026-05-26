@@ -2072,6 +2072,143 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/authoring/projects/{project_id}/generate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Generate Project */
+        post: operations["generate_project_api_v1_admin_authoring_projects__project_id__generate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/authoring/projects/{project_id}/topics/{unit_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Topic */
+        get: operations["get_topic_api_v1_admin_authoring_projects__project_id__topics__unit_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/authoring/projects/{project_id}/topics/{unit_id}/regenerate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Regenerate Topic */
+        post: operations["regenerate_topic_api_v1_admin_authoring_projects__project_id__topics__unit_id__regenerate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/authoring/projects/{project_id}/topics/{unit_id}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Accept Topic */
+        post: operations["accept_topic_api_v1_admin_authoring_projects__project_id__topics__unit_id__accept_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/authoring/projects/{project_id}/snapshots": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Snapshots */
+        get: operations["list_snapshots_api_v1_admin_authoring_projects__project_id__snapshots_get"];
+        put?: never;
+        /** Create Snapshot */
+        post: operations["create_snapshot_api_v1_admin_authoring_projects__project_id__snapshots_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/authoring/projects/{project_id}/snapshots/{snapshot_id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Restore Snapshot */
+        post: operations["restore_snapshot_api_v1_admin_authoring_projects__project_id__snapshots__snapshot_id__restore_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/authoring/projects/{project_id}/flow-recheck": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Flow Recheck */
+        post: operations["flow_recheck_api_v1_admin_authoring_projects__project_id__flow_recheck_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/authoring/projects/{project_id}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Publish Project */
+        post: operations["publish_project_api_v1_admin_authoring_projects__project_id__publish_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/curricula/{curriculum_id}/usage": {
         parameters: {
             query?: never;
@@ -5600,6 +5737,21 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AcceptRequest */
+        AcceptRequest: {
+            /** Content Type */
+            content_type: string;
+            /**
+             * Lang
+             * @default en
+             */
+            lang: string;
+        };
+        /** AcceptResponse */
+        AcceptResponse: {
+            /** Review Status */
+            review_status: string;
+        };
         /**
          * AccountStatusUpdate
          * @description PATCH /account/students/{id}/status
@@ -7591,6 +7743,13 @@ export interface components {
              */
             submitted_at: string;
         };
+        /** FlowRecheckResponse */
+        FlowRecheckResponse: {
+            /** Job Id */
+            job_id: string;
+            /** Status */
+            status: string;
+        };
         /**
          * ForgotPasswordRequest
          * @description POST /auth/forgot-password
@@ -7616,6 +7775,26 @@ export interface components {
             job_id: string;
             /** Scenario Id */
             scenario_id: string;
+        };
+        /** GenerateRequest */
+        GenerateRequest: {
+            /**
+             * Langs
+             * @default en
+             */
+            langs: string;
+            /**
+             * Force
+             * @default false
+             */
+            force: boolean;
+        };
+        /** GenerateResponse */
+        GenerateResponse: {
+            /** Job Id */
+            job_id: string;
+            /** Status */
+            status: string;
         };
         /** GeoBlockAddRequest */
         GeoBlockAddRequest: {
@@ -8312,17 +8491,13 @@ export interface components {
             /** Role */
             role: string;
         };
-        /** PublishResponse */
-        PublishResponse: {
-            /** Version Id */
-            version_id: string;
-            /** Status */
-            status: string;
+        /** PublishRequest */
+        PublishRequest: {
             /**
-             * Published At
-             * Format: date-time
+             * Visibility
+             * @default private
              */
-            published_at: string;
+            visibility: string;
         };
         /** QuizOption */
         QuizOption: {
@@ -8449,6 +8624,29 @@ export interface components {
         RefreshRequest: {
             /** Refresh Token */
             refresh_token: string;
+        };
+        /** RegenerateRequest */
+        RegenerateRequest: {
+            /** Content Type */
+            content_type: string;
+            /** Reason */
+            reason: string;
+            /**
+             * Lang
+             * @default en
+             */
+            lang: string;
+        };
+        /** RegenerateResponse */
+        RegenerateResponse: {
+            /** Topic Version Id */
+            topic_version_id: string;
+            /** Version Number */
+            version_number: number;
+            /** Review Status */
+            review_status: string;
+            /** Flow Recheck */
+            flow_recheck: unknown[];
         };
         /** RegisterTokenRequest */
         RegisterTokenRequest: {
@@ -8588,6 +8786,11 @@ export interface components {
              * Format: date-time
              */
             updated_at: string;
+        };
+        /** RestoreResponse */
+        RestoreResponse: {
+            /** Restored */
+            restored: boolean;
         };
         /** RetentionDashboard */
         RetentionDashboard: {
@@ -9200,6 +9403,30 @@ export interface components {
             version_id: string;
             /** Reason */
             reason: string;
+        };
+        /** SnapshotCreateRequest */
+        SnapshotCreateRequest: {
+            /** Label */
+            label?: string | null;
+        };
+        /** SnapshotItem */
+        SnapshotItem: {
+            /** Snapshot Id */
+            snapshot_id: string;
+            /** Snapshot Number */
+            snapshot_number: number;
+            /** Label */
+            label?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** SnapshotListResponse */
+        SnapshotListResponse: {
+            /** Snapshots */
+            snapshots: components["schemas"]["SnapshotItem"][];
         };
         /** StartSessionRequest */
         StartSessionRequest: {
@@ -9842,6 +10069,11 @@ export interface components {
             student_id: string;
             student: components["schemas"]["StudentPublic"];
         };
+        /** TopicHistoryResponse */
+        TopicHistoryResponse: {
+            /** Versions */
+            versions: components["schemas"]["TopicVersion"][];
+        };
         /** TopicNode */
         TopicNode: {
             /** Title */
@@ -9850,6 +10082,39 @@ export interface components {
             subtopics?: string[];
             /** Prerequisites */
             prerequisites?: string[];
+        };
+        /** TopicVersion */
+        TopicVersion: {
+            /** Topic Version Id */
+            topic_version_id: string;
+            /** Unit Id */
+            unit_id: string;
+            /** Lang */
+            lang: string;
+            /** Content Type */
+            content_type: string;
+            /** Version Number */
+            version_number: number;
+            /** Body */
+            body?: {
+                [key: string]: unknown;
+            } | null;
+            /** Regen Reason */
+            regen_reason?: string | null;
+            /** Flow Recheck */
+            flow_recheck?: unknown[] | null;
+            /** Review Status */
+            review_status: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Is Active
+             * @default false
+             */
+            is_active: boolean;
         };
         /** TrendsReport */
         TrendsReport: {
@@ -10222,6 +10487,15 @@ export interface components {
             /** Duration */
             duration?: string | null;
         };
+        /** PublishResponse */
+        src__admin__authoring_schemas__PublishResponse: {
+            /** Curriculum Id */
+            curriculum_id: string;
+            /** Visibility */
+            visibility: string;
+            /** Files Written */
+            files_written: number;
+        };
         /** ArchiveResponse */
         src__admin__curriculum_lifecycle_router__ArchiveResponse: {
             /** Curriculum Id */
@@ -10254,6 +10528,18 @@ export interface components {
             inappropriate_count: number;
             /** Other Count */
             other_count: number;
+        };
+        /** PublishResponse */
+        src__admin__schemas__PublishResponse: {
+            /** Version Id */
+            version_id: string;
+            /** Status */
+            status: string;
+            /**
+             * Published At
+             * Format: date-time
+             */
+            published_at: string;
         };
         /** RejectRequest */
         src__admin__schemas__RejectRequest: {
@@ -12680,7 +12966,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PublishResponse"];
+                    "application/json": components["schemas"]["src__admin__schemas__PublishResponse"];
                 };
             };
             /** @description Validation Error */
@@ -13558,6 +13844,313 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MaterializeResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    generate_project_api_v1_admin_authoring_projects__project_id__generate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GenerateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenerateResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_topic_api_v1_admin_authoring_projects__project_id__topics__unit_id__get: {
+        parameters: {
+            query?: {
+                content_type?: string;
+                lang?: string;
+                history?: number;
+            };
+            header?: never;
+            path: {
+                project_id: string;
+                unit_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TopicVersion"] | components["schemas"]["TopicHistoryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    regenerate_topic_api_v1_admin_authoring_projects__project_id__topics__unit_id__regenerate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+                unit_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegenerateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegenerateResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    accept_topic_api_v1_admin_authoring_projects__project_id__topics__unit_id__accept_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+                unit_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AcceptRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AcceptResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_snapshots_api_v1_admin_authoring_projects__project_id__snapshots_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SnapshotListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_snapshot_api_v1_admin_authoring_projects__project_id__snapshots_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SnapshotCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SnapshotItem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    restore_snapshot_api_v1_admin_authoring_projects__project_id__snapshots__snapshot_id__restore_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+                snapshot_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RestoreResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    flow_recheck_api_v1_admin_authoring_projects__project_id__flow_recheck_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FlowRecheckResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    publish_project_api_v1_admin_authoring_projects__project_id__publish_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                project_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PublishRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["src__admin__authoring_schemas__PublishResponse"];
                 };
             };
             /** @description Validation Error */
