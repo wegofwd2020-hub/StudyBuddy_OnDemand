@@ -7,6 +7,7 @@ import {
   ArrowLeft,
   Boxes,
   Camera,
+  Check,
   RotateCcw,
   Sparkles,
   Wand2,
@@ -17,6 +18,7 @@ import { StatusBadge } from "@/components/authoring/StatusBadge";
 import { StructuredTocEditor } from "@/components/authoring/StructuredTocEditor";
 import { TopicReviewPanel } from "@/components/authoring/TopicReviewPanel";
 import {
+  acceptTopic,
   analyzeProject,
   createSnapshot,
   flowRecheck,
@@ -105,6 +107,19 @@ export default function AuthoringWorkspacePage({
     mutationFn: (v: "private" | "catalog") => publishProject(projectId, v),
     onSuccess: invalidateAll,
   });
+  // Accept every (still-pending) content type for one or more topics.
+  const acceptMut = useMutation({
+    mutationFn: async (items: TopicListItem[]) => {
+      for (const t of items) {
+        for (const c of t.contents) {
+          if (c.review_status !== "accepted") {
+            await acceptTopic(projectId, t.unit_id, c.content_type, c.lang);
+          }
+        }
+      }
+    },
+    onSuccess: () => invalidate("topics"),
+  });
 
   if (isLoading || !project) {
     return (
@@ -115,6 +130,10 @@ export default function AuthoringWorkspacePage({
   }
 
   const topics = topicData?.topics ?? [];
+  const hasContent = topics.some((t) => t.content_count > 0);
+  const pendingTopics = topics.filter(
+    (t) => t.content_count > 0 && t.accepted_count < t.content_count,
+  );
   const allAccepted =
     topics.length > 0 &&
     topics.every((t) => t.content_count > 0 && t.accepted_count === t.content_count);
@@ -253,7 +272,7 @@ export default function AuthoringWorkspacePage({
                     <th className="px-3 py-2 text-left font-medium">Topic</th>
                     <th className="px-3 py-2 text-left font-medium">Content</th>
                     <th className="px-3 py-2 text-left font-medium">Accepted</th>
-                    <th className="w-20" />
+                    <th className="w-32" />
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -278,12 +297,27 @@ export default function AuthoringWorkspacePage({
                       </td>
                       <td className="px-3 py-2 text-right">
                         {t.content_count > 0 && (
-                          <button
-                            onClick={() => setSelectedTopic(t)}
-                            className="text-xs font-medium text-indigo-600 hover:underline"
-                          >
-                            Review
-                          </button>
+                          <div className="flex items-center justify-end gap-3">
+                            <button
+                              onClick={() => setSelectedTopic(t)}
+                              className="text-xs font-medium text-indigo-600 hover:underline"
+                            >
+                              Review
+                            </button>
+                            {t.accepted_count === t.content_count ? (
+                              <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600">
+                                <Check className="h-3.5 w-3.5" /> Accepted
+                              </span>
+                            ) : (
+                              <button
+                                disabled={acceptMut.isPending}
+                                onClick={() => acceptMut.mutate([t])}
+                                className="text-xs font-medium text-emerald-700 hover:underline disabled:opacity-50"
+                              >
+                                Accept
+                              </button>
+                            )}
+                          </div>
                         )}
                       </td>
                     </tr>
@@ -335,9 +369,23 @@ export default function AuthoringWorkspacePage({
 
           <div className="border-t border-gray-100 pt-4">
             {!allAccepted && (
-              <p className="mb-2 text-xs text-amber-600">
-                Accept every topic&apos;s content before publishing.
-              </p>
+              <div className="mb-3 flex items-center gap-3">
+                <p className="text-xs text-amber-600">
+                  {!hasContent
+                    ? "Generate content first, then accept every topic before publishing."
+                    : `Accept every topic's content before publishing — ${pendingTopics.length} topic(s) still pending.`}
+                </p>
+                {pendingTopics.length > 0 && (
+                  <button
+                    disabled={acceptMut.isPending}
+                    onClick={() => acceptMut.mutate(pendingTopics)}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+                  >
+                    <Check className="h-3.5 w-3.5" />
+                    {acceptMut.isPending ? "Accepting…" : "Accept all topics"}
+                  </button>
+                )}
+              </div>
             )}
             <div className="flex items-center gap-2">
               <button
