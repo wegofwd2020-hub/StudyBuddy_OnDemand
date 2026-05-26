@@ -365,6 +365,48 @@ async def test_publish_private_keeps_is_default_false(
     assert is_default is False
 
 
+async def _drop_active_lesson(pid: str, unit_id: str) -> None:
+    """Simulate a generation gap — remove a unit's active lesson version."""
+    async with app.state.pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        await conn.execute(
+            "DELETE FROM authoring_active_versions "
+            "WHERE project_id=$1 AND unit_id=$2 AND content_type='lesson'",
+            pid,
+            unit_id,
+        )
+
+
+@pytest.mark.asyncio
+async def test_publish_blocks_incomplete_curriculum(
+    client: AsyncClient, admin_token: str
+) -> None:
+    # Regression for #401: a unit missing its lesson must not publish silently.
+    pid = await _seed_generated_project()
+    await _accept_all(pid)
+    await _drop_active_lesson(pid, _first_unit_id(pid))
+    r = await client.post(
+        f"/api/v1/admin/authoring/projects/{pid}/publish",
+        headers={"Authorization": f"Bearer {admin_token}"},
+        json={"visibility": "private"},
+    )
+    assert r.status_code == 409
+    assert "incomplete" in r.json()["detail"].lower()
+
+
+@pytest.mark.asyncio
+async def test_publish_allow_incomplete_overrides_gate(client: AsyncClient) -> None:
+    pid = await _seed_generated_project()
+    await _accept_all(pid)
+    await _drop_active_lesson(pid, _first_unit_id(pid))
+    async with app.state.pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        result = await svc.publish(
+            conn, app.state.storage, pid, visibility="private", allow_incomplete=True
+        )
+    assert result["curriculum_id"]
+
+
 @pytest.mark.asyncio
 async def test_list_topics(client: AsyncClient, admin_token: str) -> None:
     pid = await _seed_generated_project()
