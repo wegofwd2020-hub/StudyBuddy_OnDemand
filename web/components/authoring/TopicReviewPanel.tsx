@@ -88,10 +88,12 @@ export function TopicReviewPanel({
                 setShowHistory(false);
               }}
               className={cn(
-                "rounded-full px-3 py-1 text-xs font-medium",
+                "rounded-full px-3 py-1 text-xs font-semibold ring-1",
                 active === t
-                  ? "bg-indigo-600 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200",
+                  ? "bg-indigo-600 text-white ring-indigo-600"
+                  : c.review_status === "accepted"
+                    ? "bg-emerald-100 text-emerald-800 ring-emerald-300 hover:bg-emerald-200"
+                    : "bg-gray-200 text-gray-700 ring-gray-300 hover:bg-gray-300",
               )}
             >
               {t}
@@ -109,14 +111,15 @@ export function TopicReviewPanel({
         ) : (
           <>
             <div className="mb-3 flex items-center justify-between text-xs text-gray-500">
-              <span>
-                version {version.version_number} ·{" "}
+              <span className="flex items-center gap-2">
+                version {version.version_number}
                 <span
-                  className={
+                  className={cn(
+                    "rounded-full px-2 py-0.5 text-xs font-semibold",
                     version.review_status === "accepted"
-                      ? "text-emerald-600"
-                      : "text-amber-600"
-                  }
+                      ? "bg-emerald-600 text-white"
+                      : "bg-amber-500 text-white",
+                  )}
                 >
                   {version.review_status}
                 </span>
@@ -258,26 +261,39 @@ function ContentBody({
       <ol className="space-y-4 text-sm">
         {questions.map((q, i) => (
           <li key={i}>
-            <p className="font-medium text-gray-900">
-              {i + 1}. {q.question_text}{" "}
-              <span className="text-xs text-gray-400">({q.difficulty})</span>
-            </p>
+            <div className="flex items-start gap-1.5 font-medium text-gray-900">
+              <span>{i + 1}.</span>
+              {/* Render through SBMarkdown so embedded GFM tables / KaTeX / code
+                  render instead of showing as raw freeform text. */}
+              <div className="min-w-0 flex-1">
+                <SBMarkdown className="text-sm">{q.question_text}</SBMarkdown>
+              </div>
+              <span className="shrink-0 text-xs text-gray-400">({q.difficulty})</span>
+            </div>
             <ul className="mt-1 space-y-0.5 pl-4">
               {q.options.map((o) => (
                 <li
                   key={o.option_id}
-                  className={
+                  className={cn(
+                    "flex gap-1.5",
                     o.option_id === q.correct_option
                       ? "font-medium text-emerald-700"
-                      : "text-gray-600"
-                  }
+                      : "text-gray-600",
+                  )}
                 >
-                  {o.option_id}. {o.text}
-                  {o.option_id === q.correct_option && " ✓"}
+                  <span className="shrink-0">{o.option_id}.</span>
+                  <div className="min-w-0 flex-1">
+                    <SBMarkdown className="text-sm">{o.text}</SBMarkdown>
+                  </div>
+                  {o.option_id === q.correct_option && (
+                    <span className="shrink-0">✓</span>
+                  )}
                 </li>
               ))}
             </ul>
-            <p className="mt-1 text-xs text-gray-500 italic">{q.explanation}</p>
+            <div className="mt-1 text-xs text-gray-500 italic">
+              <SBMarkdown className="text-xs">{q.explanation}</SBMarkdown>
+            </div>
           </li>
         ))}
       </ol>

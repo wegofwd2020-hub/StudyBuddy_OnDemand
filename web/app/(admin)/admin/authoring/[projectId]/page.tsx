@@ -8,12 +8,12 @@ import {
   Boxes,
   Camera,
   Check,
+  Loader2,
   RotateCcw,
   Sparkles,
   Wand2,
   Workflow,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { StatusBadge } from "@/components/authoring/StatusBadge";
 import { StructuredTocEditor } from "@/components/authoring/StructuredTocEditor";
 import { TopicReviewPanel } from "@/components/authoring/TopicReviewPanel";
@@ -168,7 +168,11 @@ export default function AuthoringWorkspacePage({
           onClick={() => analyzeMut.mutate()}
           className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
         >
-          <Wand2 className="h-4 w-4" />
+          {project.status === "analyzing" || analyzeMut.isPending ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Wand2 className="h-4 w-4" />
+          )}
           {project.status === "analyzing"
             ? "Analyzing…"
             : project.structured_toc
@@ -247,15 +251,21 @@ export default function AuthoringWorkspacePage({
               onClick={() => generateMut.mutate()}
               className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
             >
-              {project.status === "generating"
-                ? "Generating…"
-                : topics.some((t) => t.content_count > 0)
-                  ? "Regenerate all"
-                  : "Generate all topics"}
+              {project.status === "generating" || generateMut.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" /> Generating…
+                </>
+              ) : topics.some((t) => t.content_count > 0) ? (
+                "Regenerate all"
+              ) : (
+                "Generate all topics"
+              )}
             </button>
             {project.status === "generating" && (
-              <span className="text-xs text-gray-500">
-                Generating content — this can take a few minutes.
+              <span className="inline-flex items-center gap-1.5 text-xs text-indigo-600">
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                Generating content — this can take a few minutes. The list updates
+                automatically.
               </span>
             )}
           </div>
@@ -285,15 +295,19 @@ export default function AuthoringWorkspacePage({
                           : "—"}
                       </td>
                       <td className="px-3 py-2">
-                        <span
-                          className={cn(
-                            t.content_count > 0 && t.accepted_count === t.content_count
-                              ? "text-emerald-600"
-                              : "text-gray-500",
-                          )}
-                        >
-                          {t.accepted_count}/{t.content_count}
-                        </span>
+                        {t.content_count === 0 ? (
+                          <span className="inline-flex items-center rounded-full bg-gray-200 px-2.5 py-0.5 text-xs font-semibold text-gray-600">
+                            Not generated
+                          </span>
+                        ) : t.accepted_count === t.content_count ? (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2.5 py-0.5 text-xs font-semibold text-white">
+                            <Check className="h-3 w-3" /> Accepted
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center rounded-full bg-amber-500 px-2.5 py-0.5 text-xs font-semibold text-white">
+                            {t.accepted_count}/{t.content_count} accepted
+                          </span>
+                        )}
                       </td>
                       <td className="px-3 py-2 text-right">
                         {t.content_count > 0 && (
