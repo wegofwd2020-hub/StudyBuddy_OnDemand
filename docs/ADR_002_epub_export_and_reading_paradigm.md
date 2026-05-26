@@ -29,7 +29,53 @@ reading-distribution format. A per-unit `study_pack_{lang}.pdf` already exists
 
 ---
 
-## Decision
+## Revision 1 (2026-05-26) — decision inputs change the direction
+
+Answers to the open questions below, plus new product framing, **supersede parts
+of the original decision** (kept below for history):
+
+| Question | Answer |
+|---|---|
+| Open vs monetized | The **Studio app itself** is the paid product (one-time or subscription — TBD); the **reader is free**. Content is authored by the buyer, for themselves. |
+| Static vs interactive | **Interactive** — "the value is being interactive." |
+| Analytics | Not for now. |
+| Scope | An authored **book for the individual who purchased the app** and supplies (pays for) their **own Anthropic API key**. Single-user / BYO-key. |
+| Mermaid / math fidelity | Pre-render to SVG / MathML is acceptable. |
+
+**Key finding — the interactive requirement is incompatible with static EPUB.**
+Generic EPUB readers do not reliably run scripts, so interactive quizzes cannot
+live in a plain `.epub` opened in Apple Books / Kobo. "A free EPUB reader we
+provide as a download" therefore means **a reader app we build** (which renders
+the interactive parts), not a generic e-reader. This flips the original phasing:
+
+- **Now primary:** a **free, downloadable, interactive reader** (the former
+  "Phase 2 PWA"). Because the content is the user's own and the reader is ours,
+  quizzes, live KaTeX, and Mermaid all render at full fidelity.
+- **Now secondary/optional:** **static EPUB export** as a *portable* artifact
+  (lessons/tutorials reflowable in any e-reader; quizzes flatten to an Answer-Key
+  appendix). Good for "read it on my Kindle"; not the interactive experience.
+
+This supersedes **D1** (EPUB is no longer the Phase-1 primary) and **D3**
+(quizzes are NOT static in the primary reader). D2/D5/D6/D7 still hold for the
+*static EPUB export* path.
+
+**Out of scope here → needs ADR-003.** "Curriculum Authoring Studio as a
+**standalone, purchasable app** with a **BYO Anthropic key**, sold one-time or by
+subscription" is a major product-packaging / distribution / licensing shift — it
+changes deployment from "super-admin web feature inside the school platform" to a
+standalone app (local-first? bundled backend? desktop/Electron vs hosted?). That
+decision is far larger than the reading format and should be its own ADR
+(**ADR-003 — Authoring Studio product packaging & BYO-key model**); it also
+reopens whether this lives in the school-platform repo at all.
+
+**Still open:** one-time vs subscription pricing; how the free reader is packaged
+(installable PWA vs desktop app); whether the reader bundles content or fetches
+it; how a BYO-key standalone app authenticates the *purchase* (license key) while
+keeping *reading* auth-free.
+
+---
+
+## Decision (original draft — see Revision 1 for what changed)
 
 ### D1 — Ship EPUB export as a package-assembly output (Phase 1)
 
