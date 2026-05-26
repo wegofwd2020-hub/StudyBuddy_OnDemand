@@ -2,9 +2,9 @@
 
 A git-tracked checkpoint so work can resume on any machine (Claude Code's local
 memory does not travel; this file + GitHub issues do). Last updated: 2026-05-26,
-`main` @ `c8f4aef`.
+`main` @ `a2a3095`.
 
-## ▶ Where we left off (2026-05-26) — Authoring Studio shipped, repo-home decided, backup bug fixed
+## ▶ Where we left off (2026-05-26) — Authoring Studio shipped, repo-home decided, backup bug fixed, Q content-migration started
 
 ### Curriculum Authoring Studio (super-admin) — SHIPPED + merged
 TOC paste → LLM structure + advisory flow analysis → editable topic table →
@@ -25,14 +25,29 @@ keeps the Authoring Studio only as super-admin platform content-ops. Recorded in
 `docs/ADR_004_authoring_studio_home_repo.md` (PR #397, Accepted). OnDemand ADR-002
 (PR #394) + ADR-003 (PR #396) **closed without merge** — superseded, recast in Q.
 Reuse into Q is **port + vendor, one-way, never cross-import** (Q's ADR-002 rule).
-Q-side handoff is committed in the Q repo: branch `docs/adr-003-book-authoring`
-(pushed) carries `docs/adr/ADR-003-book-authoring.md` + `docs/PORT_BRIEF.md`. **The
-code port has NOT started** — do it in a fresh Q-rooted session, not from OnDemand.
+Q-side handoff lives on **Q `main`** (`StudyBuddy_SelfLearner`): `docs/adr/ADR-003-book-authoring.md`,
+`docs/PORT_BRIEF.md`, `docs/CONTENT_MIGRATION_CONTEXT_ENGINEERING.md`. **Note the
+port is further along than `PORT_BRIEF.md` says** — Q already shipped `/structure`,
+`bookStore` (AsyncStorage), and a generate-all loop (Q PRs #11/#13). Phases 2–4 (Q
+reader growing to 5 content types) belong in a fresh **Q-rooted** session.
 
 ### Backup bug (reported by Venkatesh Thiyagarajan) — FIXED
 | Issue | PR | What |
 |---|---|---|
 | #398 | #399 | `backup_school_task` joined `classroom_packages` on `cl.id`; classrooms PK is `classroom_id` (mig 0038) → every **full** backup failed with `column cl.id does not exist`. Fixed join key + added regression test `test_full_backup_classroom_packages_query` (the path had zero coverage). |
+
+### Content migration to Q — "Context Engineering in the Enterprise" (Phase 1 shipped)
+Move a published authored book from the Authoring Studio into Q's local-first
+reader. Owner scope = **"Everything"** (lesson + tutorial + 3 quiz sets + experiment).
+It's a **data copy, not a code port** (no cross-repo imports → ADR-002 untouched);
+content shapes are near-identical (shared vendored `pipeline/prompts.py` → field renames).
+- **Phase 1 SHIPPED (PR #400):** `backend/src/admin/book_export.py` (pure transform +
+  `assemble_book()`), `backend/scripts/export_book.py` (asyncpg CLI: `--project-id`/`--list`/
+  `--out`/`--lang`), `backend/tests/test_book_export.py` (12 tests). **Not yet run** —
+  waits on the project being **published** in the Studio. `book_export.py`'s emitted
+  shapes are the contract for Q's Phase-2 types.
+- **Phases 2–4 (Q-side):** grow `GeneratedTopic` to 5 types + render + ingest. See
+  Q `docs/CONTENT_MIGRATION_CONTEXT_ENGINEERING.md`.
 
 ---
 
