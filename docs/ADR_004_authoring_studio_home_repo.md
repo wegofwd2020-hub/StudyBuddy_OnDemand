@@ -1,7 +1,7 @@
 # ADR-004 — Home repo for the standalone authoring + reader: StudyBuddy Q, not OnDemand
 
 **Date:** 2026-05-26
-**Status:** Proposed (one gating decision open — see D5)
+**Status:** Accepted (D5 resolved 2026-05-26 — "Q grows up": book authoring)
 **Branch at decision:** `docs/adr-004-studio-repo-home`
 
 ---
@@ -87,6 +87,13 @@ beyond "one artefact." Decide in Q, before porting:
   *third* product, not Q.
 
 _This is the one decision everything downstream hangs on; left to the owner._
+
+**RESOLVED (2026-05-26): "Q grows up."** StudyBuddy Q expands from
+single-artefact to **multi-topic book authoring**; the Authoring Studio becomes
+**Q's flagship feature**, ported into Q's BYOK/single-tenant stack (vendoring the
+prompt IP, per D4). Q's prior "not a course platform" line is relaxed to cover
+personal book authoring for the individual self-learner. The Authoring Studio's
+ADR-002/003 substance is recast as StudyBuddy Q ADRs.
 
 ---
 
