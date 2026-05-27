@@ -36,31 +36,24 @@ reader growing to 5 content types) belong in a fresh **Q-rooted** session.
 |---|---|---|
 | #398 | #399 | `backup_school_task` joined `classroom_packages` on `cl.id`; classrooms PK is `classroom_id` (mig 0038) → every **full** backup failed with `column cl.id does not exist`. Fixed join key + added regression test `test_full_backup_classroom_packages_query` (the path had zero coverage). |
 
-### Content migration to Q — "Context Engineering in the Enterprise" (📌 RESUME HERE)
-Move the authored book from the Authoring Studio into Q's local-first reader.
-Owner scope = **"Everything"** (lesson + tutorial + 3 quiz sets; no experiments —
+### Content migration to Q — "Context Engineering in the Enterprise" (✅ DONE 2026-05-27)
+Moved the authored book from the Authoring Studio into Q's local-first reader.
+Scope = **"Everything"** (lesson + tutorial + 3 quiz sets; no experiments —
 `has_lab=FALSE`). **Data copy, not a code port.** Project id
 `4134c75c-2e4c-4927-babb-7d8555c624bd` (curriculum `authored-4134c75c-…`).
 
-**State as of pause (2026-05-26): content COMPLETE + all 85 active versions ACCEPTED.**
-- Code shipped: OnDemand export (PR #400) · Q reader 5-types (Q PR #15) · Q paste import
-  (Q PR #16) · Q **file** import for big books (Q PR #17) · publish completeness gate
-  (#401 → PR #402, `main` @ `bcd75f4`).
-- The 3 missing lessons (001/004/013) + 2 tutorials (011/012) + 1 quiz (013 quiz_set_1)
-  were **generated** (Celery task; I'd raced 3 generators → pruned 2 dup pending versions)
-  and you **accepted all**. Export now yields **17/17 topics, 0 warnings** (~1.9 MB).
+**Outcome:** content COMPLETE + all 85 active versions ACCEPTED; export yields
+**17/17 topics, 0 warnings** (~1.9 MB). Imported into the Q app and verified rendering
+(lesson + tutorial + quizzes). Code shipped: OnDemand export (PR #400) · Q reader
+5-types (Q PR #15) · Q paste import (Q PR #16) · Q **file** import for big books
+(Q PR #17) · publish completeness gate (#401 → PR #402).
 
-**📌 To resume tomorrow:**
-1. **Re-export** (the `/tmp` copy may not survive a reboot):
-   `docker compose exec api python scripts/export_book.py --project-id 4134c75c-2e4c-4927-babb-7d8555c624bd --out /app/book.json`
-   then `mv backend/book.json /tmp/context-engineering-book.json`.
-2. **Import into Q** (app action): `cd ../StudyBuddy_SelfLearner/mobile && npx expo start`
-   → Books → **Import a book → Choose a JSON file** → pick the file → open a topic, verify
-   lesson + tutorial + quizzes render.
-3. **(Optional) Re-publish in OnDemand** to sync its now-stale content store — it'll pass
-   the new completeness gate. Decide `private` vs `catalog` visibility. Not needed for the
-   Q import (export reads accepted DB versions, not the content store).
-- Plan/contract: Q `docs/CONTENT_MIGRATION_CONTEXT_ENGINEERING.md`.
+**Re-run the export anytime:**
+`docker compose exec api python scripts/export_book.py --project-id 4134c75c-2e4c-4927-babb-7d8555c624bd --out /app/book.json`
+then `docker cp <api>:/app/book.json /tmp/context-engineering-book.json`.
+**Optional:** re-publish in OnDemand to refresh its stale content store (passes the new
+completeness gate; not needed for the Q export, which reads accepted DB versions).
+Plan/contract: Q `docs/CONTENT_MIGRATION_CONTEXT_ENGINEERING.md`.
 
 ---
 
@@ -95,7 +88,7 @@ Label changes from #367 to remember: "Class Overview" → **Student Progress**,
 | Frontend — Unit Tests | ✅ green (#364; 63 files / 821 tests) |
 | Playwright — Student Flow | ✅ green (#364) |
 | API Contract — Types in Sync | ✅ green (#382) |
-| **Backend — Tests** | ❌ **still red — #356** (4 pre-existing failures) |
+| **Backend — Tests** | ✅ green (#356 closed 2026-05-27 — verified full suite 1101 passed / 2 skipped) |
 | **Deploy — Demo** | ❌ **still red — Epic 2 hosting blocker** (no VPS) |
 
 CI-greening PRs merged this session: **#364** (frontend tests/lint + Prettier
@@ -105,6 +98,11 @@ schema resync + `web/.prettierignore` for generated files). **#353** (older
 gate to `/done` + `/ship-ready` + `web/AGENTS.md`.
 
 ## Open threads (priority order)
+- ~~**#356**~~ — ✅ **closed 2026-05-27.** All 4 backend failures (Groups A–D) were
+  already resolved on `main`; verified via CI-identical full-suite run (1101 passed,
+  2 skipped). Group A: `test_idempotency_skip` writes a study-pack PDF so the
+  idempotency gate short-circuits before any Anthropic call. Group B RLS passes under
+  the non-superuser `studybuddy_rls_tester` role. Groups C/D fixed earlier (#364/#382).
 - **#379** — adopt `starlette 1.0.1` (fixes PYSEC-2026-161) once
   `prometheus-fastapi-instrumentator` supports starlette ≥1.0. Currently
   `--ignore-vuln`'d in `.github/workflows/test.yml` (the cap blocks the bump; the
@@ -118,6 +116,26 @@ gate to `/done` + `/ship-ready` + `web/AGENTS.md`.
   build needs an env where the bootstrap role can `CREATE ROLE`/`DATABASE`.
 
 ## Reusable fix patterns established (copy from these)
+- **Reproduce CI's Backend — Tests locally (CI-identical DB).** The `api`
+  container's `TEST_DB_URL` points at the host postgres (:5433, non-superuser, no
+  `studybuddy_test`) and `db` sits behind pgbouncer — neither reproduces CI. Spin a
+  throwaway DB on the compose network with the same image/user as CI, then override
+  both URLs and run pytest inside `api`:
+  ```bash
+  NET=studybuddy_ondemand_default
+  docker run -d --name sb_test_db --network "$NET" \
+    -e POSTGRES_DB=studybuddy_test -e POSTGRES_USER=studybuddy \
+    -e POSTGRES_PASSWORD=testpassword pgvector/pgvector:pg16
+  docker compose exec -T \
+    -e DATABASE_URL=postgresql://studybuddy:testpassword@sb_test_db:5432/studybuddy_test \
+    -e TEST_DB_URL=postgresql://studybuddy:testpassword@sb_test_db:5432/studybuddy_test \
+    -e ANTHROPIC_API_KEY=sk-ant-dummy-for-tests -e APP_ENV=test \
+    api sh -lc 'cd /app && python -m pytest tests/ -q'
+  docker rm -f sb_test_db
+  ```
+  `studybuddy` is a superuser in this image (CI-identical) → RLS tests' `_rls_role`
+  fixture can create `studybuddy_rls_tester`, so the RLS assertions actually run.
+  conftest auto-creates + migrates `studybuddy_test` on session start.
 - **Prettier ≠ ESLint in CI.** `npm run lint` passing does NOT mean format is
   clean — CI runs `npm run format:check` as a separate step. Always run it before
   a frontend PR (now in `/done`, `/ship-ready`, `web/AGENTS.md`). Generated files
