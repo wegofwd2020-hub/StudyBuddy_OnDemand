@@ -101,6 +101,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-and-push
     timeout-minutes: 15
+    permissions:
+      contents: read
+      issues: write   # incident-opener step creates `incident:demo` issues
     steps:
       - name: Checkout (for scripts/demo/smoke.sh)
         uses: actions/checkout@v6
@@ -162,11 +165,16 @@ jobs:
       - name: Wait for containers to settle
         run: sleep 30
 
+      # Smoke targets the public hostname, not DEMO_VPS_HOST. The latter is the
+      # bare VPS IP used for SSH; hitting `https://<IP>/healthz` from the runner
+      # fails with status=000 (no Cloudflare proxy, no valid origin TLS for that
+      # SAN). Public URL is hardcoded — it's not a secret and is fixed per
+      # docs/DEMO_LAUNCH_PLAN.md (Phase 2 DNS).
       - name: Run smoke check
         id: smoke
         run: |
           chmod +x scripts/demo/smoke.sh
-          scripts/demo/smoke.sh https://${{ secrets.DEMO_VPS_HOST }}
+          scripts/demo/smoke.sh https://demo.usestudybuddy.com
         continue-on-error: true   # let us open an issue on failure
 
       - name: Open incident issue on smoke failure
