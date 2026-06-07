@@ -643,7 +643,7 @@ _RESET_PASSWORD_HTML = """\
 
 async def send_welcome_teacher_email(to_email: str, name: str, password: str) -> None:
     """Send welcome credentials email to a school-provisioned teacher."""
-    login_url = f"{settings.FRONTEND_URL}/login"
+    login_url = f"{settings.FRONTEND_URL}/signin"
     fmt = {"name": name, "login_url": login_url, "email": to_email, "password": password}
     await _send(
         to_email=to_email,
@@ -655,7 +655,7 @@ async def send_welcome_teacher_email(to_email: str, name: str, password: str) ->
 
 async def send_welcome_student_email(to_email: str, name: str, password: str) -> None:
     """Send welcome credentials email to a school-provisioned student."""
-    login_url = f"{settings.FRONTEND_URL}/login"
+    login_url = f"{settings.FRONTEND_URL}/signin"
     fmt = {"name": name, "login_url": login_url, "email": to_email, "password": password}
     await _send(
         to_email=to_email,
@@ -667,7 +667,7 @@ async def send_welcome_student_email(to_email: str, name: str, password: str) ->
 
 async def send_password_reset_email(to_email: str, name: str, password: str) -> None:
     """Send admin-initiated password reset email to a teacher or student."""
-    login_url = f"{settings.FRONTEND_URL}/login"
+    login_url = f"{settings.FRONTEND_URL}/signin"
     fmt = {"name": name, "login_url": login_url, "email": to_email, "password": password}
     await _send(
         to_email=to_email,
