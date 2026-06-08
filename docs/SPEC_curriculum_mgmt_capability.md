@@ -264,7 +264,7 @@ test("plain teacher does NOT see Curriculum Management", async ({ page }) => {
 test("granted teacher sees the top-bar menu with curriculum items", async ({ page }) => {
   await loginAsTeacher(page, { capabilities: ["curriculum_mgmt"] });
   await page.getByRole("button", { name: /curriculum management/i }).click();
-  await expect(page.getByRole("menuitem", { name: /our library/i })).toBeVisible();
+  await expect(page.getByRole("menuitem", { name: /my curricula/i })).toBeVisible();
 });
 
 test("school_admin sees it implicitly (no grant)", async ({ page }) => {
