@@ -111,7 +111,21 @@ returns 403 regardless of the button. Hiding ≠ enforcing.
 
 ### Menu items that move under "Curriculum Management"
 
-Catalog · Our Library · Content Library · Curriculum (builder/upload) · Review Queue.
+As shipped in `web/components/layout/CurriculumMenu.tsx` (5 items):
+
+| Label | Route |
+|---|---|
+| Browse Catalog | `/school/catalog` |
+| My Curricula | `/school/library` |
+| Lessons & Content | `/school/curriculum/content` |
+| Curriculum Builder | `/school/curriculum` |
+| Review Queue | `/school/review` |
+
+> Labels were clarified under issue #367 AP-3 (reviewers couldn't distinguish
+> "Catalog" / "Our Library" / "Content Library"): Catalog → **Browse Catalog**,
+> Our Library → **My Curricula**, Content Library → **Lessons & Content**. See
+> `docs/feedback/VISUAL_VALIDATION_GUIDE.md`.
+
 Content-ops items (Visual Library, Content Retention, Backups, Storage) stay under
 Admin — they're infrastructure, not authoring.
 
