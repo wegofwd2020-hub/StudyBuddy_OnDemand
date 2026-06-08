@@ -577,3 +577,87 @@ async def test_full_backup_classroom_packages_query(db_conn):
     assert len(rows) == 1
     assert rows[0]["curriculum_id"] == curriculum_id
     assert rows[0]["classroom_id"] == classroom_id
+
+
+# ── Regression: full-backup curricula id column + dependent-row query ───────────
+
+
+async def test_full_backup_curricula_id_and_dependent_query(db_conn):
+    """Regression for the `Error: 'id'` backup-failure email reported by a school
+    with content.
+
+    Two bugs in `backup_school_task` made every full backup fail once a school
+    owned at least one curriculum:
+
+      1. `curriculum_ids = [str(r["id"]) for r in curricula_rows]` — the curricula
+         PK is `curriculum_id` (TEXT, migration 0002), so `r["id"]` raised
+         `KeyError: 'id'`, whose str() is the bare `'id'` shown in the email.
+      2. The dependent-row queries then wrapped those IDs in `uuid.UUID(...)` and
+         compared them against `curriculum_units.curriculum_id` /
+         `content_subject_versions.curriculum_id`, both of which are TEXT — which
+         would have raised `operator does not exist: text = uuid` next.
+
+    This seeds a school-owned curriculum (UUID-style id, like a real fork) plus a
+    dependent unit + content version, then runs the exact query sequence from the
+    task and asserts it succeeds end to end.
+    """
+    school_id = uuid.uuid4()
+    curriculum_id = str(uuid.uuid4())  # school forks use UUID-string ids
+
+    await db_conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+    await db_conn.execute(
+        """
+        INSERT INTO schools (school_id, name, contact_email, status)
+        VALUES ($1, 'Backup Id Regression School', $2, 'active')
+        """,
+        school_id,
+        f"backupid_{str(school_id)[:8]}@example.com",
+    )
+    await db_conn.execute(
+        """
+        INSERT INTO curricula
+            (curriculum_id, grade, year, name, is_default, school_id, owner_type)
+        VALUES ($1, 8, 2026, 'Fork of G8 STEM', FALSE, $2, 'school')
+        """,
+        curriculum_id,
+        school_id,
+    )
+    await db_conn.execute(
+        """
+        INSERT INTO curriculum_units (unit_id, curriculum_id, subject, title, unit_name)
+        VALUES ('G8-MATH-001', $1, 'Mathematics', 'Fractions', 'Fractions')
+        """,
+        curriculum_id,
+    )
+    await db_conn.execute(
+        """
+        INSERT INTO content_subject_versions (curriculum_id, subject)
+        VALUES ($1, 'Mathematics')
+        """,
+        curriculum_id,
+    )
+
+    # Exact query sequence from src/backup/tasks.py::backup_school_task (full scope)
+    curricula_rows = await db_conn.fetch("SELECT * FROM curricula WHERE school_id=$1", school_id)
+    assert len(curricula_rows) == 1
+    # The buggy `id` key does not exist on the row — `curriculum_id` is the PK.
+    assert "id" not in curricula_rows[0]
+    with pytest.raises(KeyError):
+        _ = curricula_rows[0]["id"]
+
+    curriculum_ids = [str(r["curriculum_id"]) for r in curricula_rows]
+    assert curriculum_ids == [curriculum_id]
+
+    # Dependent rows: TEXT ids passed straight through (never wrapped in uuid.UUID).
+    units_rows = await db_conn.fetch(
+        "SELECT * FROM curriculum_units WHERE curriculum_id = ANY($1)",
+        curriculum_ids,
+    )
+    versions_rows = await db_conn.fetch(
+        "SELECT * FROM content_subject_versions WHERE curriculum_id = ANY($1)",
+        curriculum_ids,
+    )
+    assert len(units_rows) == 1
+    assert units_rows[0]["unit_id"] == "G8-MATH-001"
+    assert len(versions_rows) == 1
+    assert versions_rows[0]["subject"] == "Mathematics"
