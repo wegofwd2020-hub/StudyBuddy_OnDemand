@@ -3,6 +3,7 @@ import {
   claimsFromPayload,
   canManageCurriculum,
   hasCapability,
+  isSchoolAdmin,
   type TeacherClaims,
 } from "@/lib/hooks/useTeacher";
 
@@ -49,6 +50,55 @@ describe("canManageCurriculum", () => {
   it("false for a plain teacher", () => {
     expect(canManageCurriculum(make("teacher", []))).toBe(false);
     expect(canManageCurriculum(null)).toBe(false);
+  });
+});
+
+describe("isSchoolAdmin (issue #415)", () => {
+  const make = (role: TeacherClaims["role"]): TeacherClaims => ({
+    ...base,
+    role,
+    capabilities: [],
+    first_login: false,
+  });
+
+  it("true only for school_admin", () => {
+    expect(isSchoolAdmin(make("school_admin"))).toBe(true);
+    expect(isSchoolAdmin(make("teacher"))).toBe(false);
+    expect(isSchoolAdmin(null)).toBe(false);
+  });
+});
+
+describe("Administration menu section visibility (issue #415)", () => {
+  // Mirrors AdministrationMenu: Curriculum section iff canManageCurriculum;
+  // User Management section iff isSchoolAdmin. Button hidden when neither shows.
+  const sectionsFor = (teacher: TeacherClaims | null): string[] => {
+    const s: string[] = [];
+    if (canManageCurriculum(teacher)) s.push("Curriculum");
+    if (isSchoolAdmin(teacher)) s.push("User Management");
+    return s;
+  };
+  const make = (role: TeacherClaims["role"], caps: string[]): TeacherClaims => ({
+    ...base,
+    role,
+    capabilities: caps,
+    first_login: false,
+  });
+
+  it("school_admin sees both sections", () => {
+    expect(sectionsFor(make("school_admin", []))).toEqual([
+      "Curriculum",
+      "User Management",
+    ]);
+  });
+
+  it("delegated curriculum teacher sees Curriculum only (no User Management)", () => {
+    expect(sectionsFor(make("teacher", ["curriculum_mgmt"]))).toEqual(["Curriculum"]);
+    expect(sectionsFor(make("teacher", ["curriculum.review"]))).toEqual(["Curriculum"]);
+  });
+
+  it("plain teacher sees no sections (menu hidden)", () => {
+    expect(sectionsFor(make("teacher", []))).toEqual([]);
+    expect(sectionsFor(null)).toEqual([]);
   });
 });
 

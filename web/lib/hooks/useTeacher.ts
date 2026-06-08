@@ -65,6 +65,12 @@ export function canManageCurriculum(teacher: TeacherClaims | null): boolean {
   return teacher.capabilities.some((c) => c.startsWith("curriculum"));
 }
 
+/** True if the teacher holds the school_admin superset role. Drives the
+ *  Administration menu's User Management section (issue #415). */
+export function isSchoolAdmin(teacher: TeacherClaims | null): boolean {
+  return teacher?.role === "school_admin";
+}
+
 /** True if the teacher can clear a specific gate (exact capability, the
  *  curriculum_mgmt umbrella, or school_admin superset). */
 export function hasCapability(

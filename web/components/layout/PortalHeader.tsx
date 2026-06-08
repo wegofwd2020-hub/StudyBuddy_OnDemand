@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useDyslexia } from "@/lib/hooks/useDyslexia";
 import { Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { CurriculumMenu } from "@/components/layout/CurriculumMenu";
+import { AdministrationMenu } from "@/components/layout/AdministrationMenu";
 import { AccountMenu } from "@/components/layout/AccountMenu";
 
 const PORTAL_ICONS = {
@@ -60,10 +60,11 @@ export function PortalHeader({
         />
       </div>
 
-      {/* Right: curriculum menu (school) + accessibility toggle + username + live datetime */}
+      {/* Right: administration menu (school) + accessibility toggle + username + live datetime */}
       <div className="flex items-center gap-3">
-        {/* Curriculum Management dropdown — renders only for capability holders (issue #358) */}
-        {portal === "school" && <CurriculumMenu />}
+        {/* Administration dropdown — Curriculum (capability holders) + User Management
+            (school_admin); renders only when a section applies (issue #415). */}
+        {portal === "school" && <AdministrationMenu />}
         {/* Dyslexia-friendly font toggle — accessible from topbar (Rule 18) */}
         <button
           onClick={() => toggleDyslexic()}

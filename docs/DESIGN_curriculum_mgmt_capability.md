@@ -109,9 +109,18 @@ unit, save a draft, submit-for-review.
 buttons are hidden unless the user holds the acting capability — and the backend
 returns 403 regardless of the button. Hiding ≠ enforcing.
 
-### Menu items that move under "Curriculum Management"
+### Menu items — the **Curriculum** section of the Administration menu
 
-As shipped in `web/components/layout/CurriculumMenu.tsx` (5 items):
+> **Update (#415):** the standalone top-bar "Curriculum Management" dropdown was
+> superseded by a single top-bar **"Administration"** menu
+> (`web/components/layout/AdministrationMenu.tsx`) that groups two sections:
+> **Curriculum** (gated by `canManageCurriculum` — the 5 links below; preserves
+> this capability's delegation) and **User Management** (Students/Teachers,
+> `school_admin` only). The left-rail "Administration" infra group was renamed
+> "Settings". See `docs/SCHOOL_USER_MANAGEMENT.md` §8.1.
+
+The 5 links in the Curriculum section, as shipped in
+`web/components/layout/AdministrationMenu.tsx`:
 
 | Label | Route |
 |---|---|
