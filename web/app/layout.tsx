@@ -29,12 +29,29 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://demo.usestudybuddy.com"),
   title: {
     default: "StudyBuddy \u2014 Lessons, always current",
     template: "%s | StudyBuddy",
   },
   description:
     "An AI study buddy that connects your lessons to the world \u2014 and keeps learning alongside you. Available in English, French, and Spanish.",
+  // og/twitter images are auto-wired from app/opengraph-image.png and
+  // app/twitter-image.png; metadataBase makes their URLs absolute for scrapers.
+  openGraph: {
+    title: "StudyBuddy \u2014 Lessons, always current",
+    description:
+      "An AI study buddy that connects your lessons to the world \u2014 and keeps learning alongside you.",
+    url: "https://demo.usestudybuddy.com",
+    siteName: "StudyBuddy",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "StudyBuddy \u2014 Lessons, always current",
+    description:
+      "An AI study buddy that connects your lessons to the world \u2014 and keeps learning alongside you.",
+  },
 };
 
 export default async function RootLayout({
