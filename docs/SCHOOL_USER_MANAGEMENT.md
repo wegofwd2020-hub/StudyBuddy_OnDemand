@@ -36,7 +36,8 @@ The super-admin performs the **initial onboarding only**:
 1. **Onboards a new school** — supplies the school **name** and a **valid,
    pre-existing email-id** already registered with the service provider.
 2. **Onboards the school-admin account(s)** — supplies a valid, pre-existing
-   email-id. A school may have **more than one** school-admin account.
+   email-id. **Minimum 1** school-admin account per school; **≥2 is recommended**
+   for redundancy (so the school is never locked out if one admin is unavailable).
 3. Sets the school's authentication mode (Type 1 by default).
 
 The super-admin does **not** manage teachers, students, or curriculum content.
@@ -77,10 +78,28 @@ Three roles exist within a school tenant:
 
 The **school** (via its school-admins) is responsible for:
 
-1. Managing user accounts — **Add / Modify / Delete** (Rule 1).
+1. Managing user accounts — **Add / Modify / Deactivate** (Rule 1; "Delete" is a
+   soft delete — see §6.1).
 2. Managing user-account **password resets** (Rule 2).
 3. **Onboarding student accounts** (Rule 4).
-4. Maintaining the required school-admin account(s) (Rule 3).
+4. Maintaining the required school-admin account(s) (Rule 3; minimum 1, ≥2 recommended).
+
+### 6.1 Account Deletion = Soft Delete
+
+Account "Delete" is **never a hard delete.** It is a **soft delete (deactivation)**:
+
+- The account is **marked deactivated with a `deactivated_at` date/time stamp**;
+  it can no longer log in and is excluded from active rosters/assignments.
+- The deactivated record is **moved to an archive store**
+  (proposed `user_account_archive` table) **with the deactivation timestamp**, so a
+  returning person can be recognised and re-onboarded later.
+- **Returning users get no implicit access.** A returning person is treated as a
+  **new account**: a `school_admin` must re-grant their role and grade/class
+  access/privileges from scratch. Prior assignments are **not** automatically restored.
+- **FERPA:** soft delete + archive preserves the educational-record retention
+  obligation (progress, scores, lesson-view history) rather than destroying it on
+  deactivation. Hard purge, if ever needed, follows the separate retention/GDPR
+  schedule — not this action.
 
 ---
 
@@ -166,7 +185,7 @@ school-admin
 school-admin
   → promote/demote teacher  (add/remove school-admin capability)
   → add/remove student from grade(s)/class(es)
-  → modify / delete accounts
+  → modify / deactivate (soft-delete → archive) accounts
   → reset any user's password
 ```
 
@@ -189,11 +208,17 @@ and JWT payload shapes.
 
 ---
 
-## 12. Open Questions / To Confirm
+## 12. Resolved Decisions
 
-1. **Rule 3 — "2 user accounts that are part of the school admin":** Is this a
-   **minimum of 2 school-admin accounts per school** (for redundancy), or a
-   default of 2 created at onboarding that can later grow? Stated here as
-   "≥1, may be more"; please confirm the minimum.
-2. **Delete semantics:** Is account "Delete" a hard delete or a deactivate
-   (soft delete)? Relevant for FERPA record-retention on student accounts.
+1. **Minimum school-admin accounts per school — RESOLVED.** Minimum is **1**.
+   **≥2 is prudent** for redundancy in case of issues. Reflected in §3 and §6.
+2. **Delete semantics — RESOLVED.** Use **soft delete**: mark the account
+   deactivated with a `deactivated_at` date/time stamp and archive it (proposed
+   `user_account_archive` table) so the same person can be re-onboarded later. A
+   returning user is treated as a **new account** with no inherited access — a
+   `school_admin` must re-grant role and grade/class privileges. Full semantics in
+   §6.1. (FERPA-aligned: record retention preserved.)
+
+## 13. Open Questions / To Confirm
+
+_None outstanding._
