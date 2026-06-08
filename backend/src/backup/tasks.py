@@ -203,20 +203,22 @@ def backup_school_task(
                         school_uuid,
                     )
 
-                curriculum_ids = [str(r["id"]) for r in curricula_rows]
+                # curricula PK is curriculum_id (TEXT), not id. curriculum_id is
+                # also TEXT on curriculum_units and content_subject_versions, so
+                # pass the IDs through as text — never wrap in uuid.UUID().
+                curriculum_ids = [str(r["curriculum_id"]) for r in curricula_rows]
 
                 # Query dependent rows
                 units_rows: list = []
                 versions_rows: list = []
                 if curriculum_ids:
-                    c_uuids = [uuid.UUID(c) for c in curriculum_ids]
                     units_rows = await conn.fetch(
                         "SELECT * FROM curriculum_units WHERE curriculum_id = ANY($1)",
-                        c_uuids,
+                        curriculum_ids,
                     )
                     versions_rows = await conn.fetch(
                         "SELECT * FROM content_subject_versions WHERE curriculum_id = ANY($1)",
-                        c_uuids,
+                        curriculum_ids,
                     )
 
                 llm_config_row = await conn.fetchrow(
