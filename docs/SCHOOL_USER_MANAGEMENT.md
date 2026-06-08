@@ -136,6 +136,39 @@ access to that grade/class's materials.**
 **Authority precedence:** `school_admin` ⊃ any `teacher_capabilities` grant ⊃
 plain `teacher`.
 
+### 8.1 Navigation surfacing — top-bar "Administration" menu
+
+The two `school_admin`-oriented task clusters — **Curriculum Management** and
+**User Management** — are grouped under a single top-bar **"Administration"**
+dropdown (replacing the standalone "Curriculum Management" menu). This pulls
+admin tasks off the left rail, keeping the rail focused on teaching/insights.
+
+**Visibility & per-section gating** (hiding is convenience only — the backend
+enforces every action independently; see the `curriculum_mgmt` design doc):
+
+| Surface | Shown when | Contents |
+|---|---|---|
+| **Administration** button | `school_admin` **OR** `canManageCurriculum` (holds any `curriculum*` capability) | The dropdown itself |
+| → **Curriculum** section | `canManageCurriculum` (admin **or** delegated teacher) | Browse Catalog, My Curricula, Lessons & Content, Curriculum Builder, Review Queue |
+| → **User Management** section | `school_admin` **only** | Students, Teachers (provisioning / roles / grade-class assignment) |
+
+Consequences of the gating:
+- A **plain teacher** sees no Administration button.
+- A **delegated curriculum teacher** (non-admin, holds a `curriculum*` capability)
+  sees Administration with the **Curriculum section only** — preserving the #358 /
+  [ADR-005 Decision 1](ADR_005_school_roles_and_uniqueness.md) delegation model.
+- A **school_admin** sees both sections.
+
+> The button is visible to "school_admin **OR** curriculum-capable", a deliberate
+> refinement of "school_admin only": restricting it strictly to admins would hide
+> curriculum management from delegated teachers, reversing #358.
+
+**Left-rail consequence.** User-management items move from the left rail's
+"People" group into Administration → User Management. The existing left-rail
+**"Administration"** group (Subscription, Storage, Visual Library, Content
+Retention, Backups — infrastructure, not authoring) is **renamed "Settings"** so
+there is only one "Administration" surface (the top-bar menu).
+
 ---
 
 ## 9. Uniqueness & Association Constraints
