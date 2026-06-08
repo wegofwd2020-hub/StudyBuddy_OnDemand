@@ -10,6 +10,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import TeachersPage from "@/app/(school)/school/teachers/page";
 import { SchoolNav } from "@/components/layout/SchoolNav";
+import { AdministrationMenu } from "@/components/layout/AdministrationMenu";
 import {
   MOCK_ADMIN,
   MOCK_TEACHER,
@@ -32,9 +33,12 @@ vi.mock("next/navigation", () => ({
 }));
 
 const mockUseTeacher = vi.fn();
-vi.mock("@/lib/hooks/useTeacher", () => ({
-  useTeacher: vi.fn(() => mockUseTeacher()),
-}));
+// Preserve the real gating helpers (canManageCurriculum / isSchoolAdmin) — only
+// useTeacher is stubbed — so AdministrationMenu's section logic runs for real.
+vi.mock("@/lib/hooks/useTeacher", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/hooks/useTeacher")>();
+  return { ...actual, useTeacher: vi.fn(() => mockUseTeacher()) };
+});
 
 const mockUseQuery = vi.fn();
 vi.mock("@tanstack/react-query", async (importOriginal) => {
@@ -170,23 +174,57 @@ describe("SCH-43 — Successful provisioning", () => {
 });
 
 // ---------------------------------------------------------------------------
-// SCH-44 — Teachers nav item hidden for non-admin
+// SCH-44 — Teachers/Students moved off the left rail into the Administration
+// menu (#415). The rail no longer lists them; the top-bar AdministrationMenu
+// gates them (User Management = school_admin only).
 // ---------------------------------------------------------------------------
 
-describe("SCH-44 — Teachers nav item visibility in SchoolNav", () => {
+const ADMIN_CLAIMS = { ...MOCK_ADMIN, capabilities: [], first_login: false };
+const PLAIN_TEACHER = { ...MOCK_TEACHER, capabilities: [], first_login: false };
+const CURRICULUM_TEACHER = {
+  ...MOCK_TEACHER,
+  capabilities: ["curriculum_mgmt"],
+  first_login: false,
+};
+
+describe("SCH-44 — Teachers/Students no longer in SchoolNav rail (#415)", () => {
   beforeEach(() => {
     mockUseQuery.mockReturnValue({ data: { alerts: [] }, isLoading: false });
   });
 
-  it("shows Teachers nav item for school_admin", () => {
-    mockUseTeacher.mockReturnValue(MOCK_ADMIN);
-    render(<SchoolNav />);
-    expect(screen.getByRole("link", { name: "Teachers" })).toBeInTheDocument();
-  });
-
-  it("does NOT show Teachers nav item for non-admin teacher", () => {
-    mockUseTeacher.mockReturnValue(MOCK_TEACHER);
+  it("rail does NOT list Teachers or Students even for school_admin", () => {
+    mockUseTeacher.mockReturnValue(ADMIN_CLAIMS);
     render(<SchoolNav />);
     expect(screen.queryByRole("link", { name: "Teachers" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "Students" })).toBeNull();
+  });
+});
+
+describe("SCH-44 — AdministrationMenu visibility & gating (#415)", () => {
+  it("school_admin sees the Administration button with Students + Teachers", () => {
+    mockUseTeacher.mockReturnValue(ADMIN_CLAIMS);
+    render(<AdministrationMenu />);
+    const btn = screen.getByRole("button", { name: /administration/i });
+    fireEvent.click(btn);
+    // Menu items render as links (the next/link mock emits a plain <a>).
+    expect(screen.getByRole("link", { name: "Students" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Teachers" })).toBeInTheDocument();
+    // Curriculum section is also present for an admin.
+    expect(screen.getByRole("link", { name: "Curriculum Builder" })).toBeInTheDocument();
+  });
+
+  it("delegated curriculum teacher sees Curriculum but NOT User Management", () => {
+    mockUseTeacher.mockReturnValue(CURRICULUM_TEACHER);
+    render(<AdministrationMenu />);
+    fireEvent.click(screen.getByRole("button", { name: /administration/i }));
+    expect(screen.getByRole("link", { name: "Curriculum Builder" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Students" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "Teachers" })).toBeNull();
+  });
+
+  it("plain teacher sees no Administration button at all", () => {
+    mockUseTeacher.mockReturnValue(PLAIN_TEACHER);
+    render(<AdministrationMenu />);
+    expect(screen.queryByRole("button", { name: /administration/i })).toBeNull();
   });
 });

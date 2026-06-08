@@ -10,12 +10,10 @@ import { getAlerts } from "@/lib/api/reports";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
-  Users,
   LineChart,
   BarChart2,
   Bell,
   BookOpen,
-  GraduationCap,
   CreditCard,
   Archive,
   HardDrive,
@@ -43,10 +41,11 @@ interface NavGroup {
   adminOnly?: boolean;
 }
 
-// Grouped navigation (issue #367, AP-1). Groups are ordered so Reports
-// (Insights) renders after Teachers (People) per VT-4. The curriculum nav
-// lives in the top-bar CurriculumMenu (#358); per-user config + sign out live
-// in the top-bar AccountMenu (#367 AP-4) — neither belongs in this rail.
+// Grouped navigation (issue #367, AP-1). Curriculum nav AND the People group
+// (Students / Teachers) now live in the top-bar AdministrationMenu (#415) — the
+// two school_admin task clusters were pulled off this rail. Per-user config +
+// sign out live in the top-bar AccountMenu (#367 AP-4). Teachers still reach the
+// per-student performance table via "Student Progress" (Teach) below.
 const NAV_GROUPS: NavGroup[] = [
   {
     items: [
@@ -77,22 +76,6 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    heading: "People",
-    items: [
-      {
-        label: "Students",
-        href: "/school/students",
-        icon: <Users className="h-4 w-4" />,
-      },
-      {
-        label: "Teachers",
-        href: "/school/teachers",
-        icon: <GraduationCap className="h-4 w-4" />,
-        adminOnly: true,
-      },
-    ],
-  },
-  {
     heading: "Insights",
     items: [
       {
@@ -104,7 +87,9 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    heading: "Administration",
+    // Renamed from "Administration" (#415): the top-bar Administration menu is
+    // now the single "Administration" surface; this rail group holds infra/config.
+    heading: "Settings",
     collapsible: true,
     adminOnly: true,
     items: [
