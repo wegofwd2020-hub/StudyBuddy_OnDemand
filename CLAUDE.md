@@ -579,6 +579,20 @@ docker compose exec api python scripts/reset_admin_password.py \
   --email your@email.com --password NewPassword123!
 ```
 
+**Test-only — hard-delete a school account (super-admin/operator):**
+`scripts/purge_account.py` completely removes a teacher/student by email (no
+soft delete, no archive, no retention) so the email can be re-added via the
+admin screens on the next test run. It **deliberately bypasses** ADR-005
+Decision 3 (the compliant soft-delete flow) and must never be wired into the
+school-admin UI. Dry-run by default; `--commit` to persist. ⚠️ Never run against
+real customer/student data — it destroys educational records irrecoverably.
+```bash
+# Dry-run (rolls back, prints what would go):
+docker compose exec api python scripts/purge_account.py --email foo@example.com
+# Execute:
+docker compose exec api python scripts/purge_account.py --email foo@example.com --commit
+```
+
 **Login endpoint:** `POST /api/v1/admin/auth/login` → returns `{ token, admin_id }`
 The token is stored in `localStorage` as `sb_admin_token` and sent as `Authorization: Bearer {token}`.
 
