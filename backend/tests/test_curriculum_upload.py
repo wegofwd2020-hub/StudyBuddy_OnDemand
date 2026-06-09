@@ -16,14 +16,11 @@ Also unit-tests for:
 from __future__ import annotations
 
 import io
-import json
 import uuid
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 from httpx import AsyncClient
-
-from tests.helpers.token_factory import make_teacher_token
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -48,10 +45,19 @@ _VALID_UNITS = [
 
 
 async def _register_school(client: AsyncClient, suffix: str = "") -> dict:
-    """Register a school and return {school_id, teacher_id, access_token}."""
+    """Register a school and return {school_id, teacher_id, access_token}.
+
+    The email carries a random token so registrations never collide across tests.
+    The `client` fixture writes via the app pool, which commits and bypasses the
+    per-test `db_conn` transaction rollback — so schools/accounts persist for the
+    whole session. With a static email, register's global email-uniqueness check
+    intermittently 409s depending on test ordering (issue #421). A unique email
+    per call removes that flake.
+    """
+    token = uuid.uuid4().hex[:12]
     r = await client.post("/api/v1/schools/register", json={
         "school_name": f"Upload Test School{suffix}",
-        "contact_email": f"upload{suffix}@testschool.example.com",
+        "contact_email": f"upload{suffix}-{token}@testschool.example.com",
         "country": "US",
         "password": "SecureTestPwd1!",
     })
@@ -276,6 +282,7 @@ async def test_upload_xlsx_wrong_sheet_name_returns_400(client: AsyncClient):
 def test_parse_xlsx_missing_required_column():
     """parse_xlsx returns error when required column is missing."""
     import openpyxl
+
     from src.curriculum.upload_service import parse_xlsx
 
     wb = openpyxl.Workbook()
@@ -294,6 +301,7 @@ def test_parse_xlsx_missing_required_column():
 def test_parse_xlsx_wrong_sheet_name():
     """parse_xlsx returns error when sheet name doesn't match grade."""
     import openpyxl
+
     from src.curriculum.upload_service import parse_xlsx
 
     wb = openpyxl.Workbook()
@@ -311,6 +319,7 @@ def test_parse_xlsx_wrong_sheet_name():
 def test_parse_xlsx_valid_data():
     """parse_xlsx correctly parses a well-formed sheet."""
     import openpyxl
+
     from src.curriculum.upload_service import parse_xlsx
 
     wb = openpyxl.Workbook()
