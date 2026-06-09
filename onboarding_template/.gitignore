@@ -1,0 +1,5 @@
+# Blank templates are versioned. Returned/filled sheets contain real PII —
+# keep them out of git. Put completed sheets in responses/ (ignored).
+responses/
+*_filled*.csv
+*-filled*.csv
