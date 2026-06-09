@@ -58,59 +58,61 @@ def _now_iso() -> str:
 @celery_app.task(name="src.backup.tasks.send_backup_notification_task", bind=False)
 def send_backup_notification_task(
     to_email: str,
-    event: str,  # 'backup_completed' | 'backup_failed' | 'restore_completed' | 'restore_failed'
+    event: str,  # 'backup_completed' | 'backup_failed' | 'restore_completed' | 'restore_failed' | 'restore_awaiting_confirm'
     school_id: str,
     backup_id: str,
     scope_type: str,
     scope_value: str | None = None,
-    error_msg: str | None = None,
 ) -> None:
-    """Send a simple notification email for backup/restore lifecycle events."""
+    """Send a customer-facing notification email for backup/restore lifecycle events.
+
+    Customer copy ONLY — this MUST NOT expose internal identifiers (school /
+    backup UUIDs), event names, HTTP status, or raw exception text (Content
+    Rule #5; issue #413). The `school_id` / `backup_id` args are context for the
+    queue/logs, never rendered into the email. Technical diagnostics for failures
+    live in the structured logs emitted by the caller (e.g. `backup_failed`),
+    not in the recipient's inbox.
+    """
 
     async def _send() -> None:
         from src.email.service import _send as send_email
 
+        scope_label = f"{scope_type}" + (f": {scope_value}" if scope_value else "")
+
         subject_map = {
             "backup_completed": f"StudyBuddy: Curriculum backup completed ({scope_type})",
-            "backup_failed": f"StudyBuddy: Curriculum backup FAILED ({scope_type})",
+            "backup_failed": f"StudyBuddy: Curriculum backup couldn't be completed ({scope_type})",
             "restore_completed": f"StudyBuddy: Curriculum restore completed ({scope_type})",
-            "restore_failed": f"StudyBuddy: Curriculum restore FAILED ({scope_type})",
+            "restore_failed": f"StudyBuddy: Curriculum restore couldn't be completed ({scope_type})",
+            "restore_awaiting_confirm": f"StudyBuddy: Curriculum restore needs your review ({scope_type})",
         }
-        subject = subject_map.get(event, f"StudyBuddy: Backup event — {event}")
+        subject = subject_map.get(event, "StudyBuddy: Curriculum backup update")
 
-        scope_label = f"{scope_type}" + (f": {scope_value}" if scope_value else "")
-        if error_msg:
-            text = (
-                f"Event: {event}\n"
-                f"School: {school_id}\n"
-                f"Backup ID: {backup_id}\n"
-                f"Scope: {scope_label}\n\n"
-                f"Error: {error_msg}\n\n"
-                "— The StudyBuddy Team"
-            )
-            html = (
-                f"<p><strong>Event:</strong> {event}</p>"
-                f"<p><strong>School:</strong> {school_id}</p>"
-                f"<p><strong>Backup ID:</strong> {backup_id}</p>"
-                f"<p><strong>Scope:</strong> {scope_label}</p>"
-                f"<p style='color:#dc2626'><strong>Error:</strong> {error_msg}</p>"
-                "<p>— The StudyBuddy Team</p>"
-            )
-        else:
-            text = (
-                f"Event: {event}\n"
-                f"School: {school_id}\n"
-                f"Backup ID: {backup_id}\n"
-                f"Scope: {scope_label}\n\n"
-                "— The StudyBuddy Team"
-            )
-            html = (
-                f"<p><strong>Event:</strong> {event}</p>"
-                f"<p><strong>School:</strong> {school_id}</p>"
-                f"<p><strong>Backup ID:</strong> {backup_id}</p>"
-                f"<p><strong>Scope:</strong> {scope_label}</p>"
-                "<p>— The StudyBuddy Team</p>"
-            )
+        message_map = {
+            "backup_completed": f"Your curriculum backup ({scope_label}) completed successfully.",
+            "backup_failed": (
+                f"We hit a problem creating your curriculum backup ({scope_label}). "
+                "Our team has been notified automatically and is looking into it — "
+                "there's nothing you need to do."
+            ),
+            "restore_completed": f"Your curriculum restore ({scope_label}) completed successfully.",
+            "restore_failed": (
+                f"We hit a problem restoring your curriculum ({scope_label}). "
+                "Our team has been notified automatically and is looking into it — "
+                "there's nothing you need to do."
+            ),
+            "restore_awaiting_confirm": (
+                f"Your curriculum restore ({scope_label}) needs your review: some content "
+                "has changed since this backup was taken. Open Restore Requests in your "
+                "school portal to review and confirm before it proceeds."
+            ),
+        }
+        message = message_map.get(
+            event, f"There's an update on your curriculum backup ({scope_label})."
+        )
+
+        text = f"{message}\n\n— The StudyBuddy Team"
+        html = f"<p>{message}</p><p>— The StudyBuddy Team</p>"
 
         try:
             await send_email(
@@ -437,7 +439,6 @@ def backup_school_task(
                     backup_id=backup_id,
                     scope_type=scope_type,
                     scope_value=scope_value,
-                    error_msg=str(exc),
                 )
             raise
         finally:
@@ -628,12 +629,9 @@ def dry_run_restore_task(request_id: str) -> None:
                             staging_curriculum_id=staging_curriculum_id,
                         )
 
-                        # Email school contact + super-admin about conflicts
-                        conflict_summary = "\n".join(
-                            f"  - subject={c.get('subject')} version={c.get('version_number')} "
-                            f"generated={c.get('generated_at')}"
-                            for c in conflicts[:20]
-                        )
+                        # Notify the school their restore needs review. Conflict
+                        # specifics (subjects/versions/staging curriculum) are
+                        # visible in the portal — never emailed (Content Rule #5).
                         if contact_email:
                             send_backup_notification_task.delay(
                                 to_email=contact_email,
@@ -642,11 +640,6 @@ def dry_run_restore_task(request_id: str) -> None:
                                 backup_id=backup_id,
                                 scope_type=scope_type,
                                 scope_value=scope_value,
-                                error_msg=(
-                                    f"{len(conflicts)} conflicting content versions found "
-                                    f"(updated after backup):\n{conflict_summary}\n\n"
-                                    f"A staging curriculum has been created: {staging_name}"
-                                ),
                             )
             finally:
                 await pool2.close()
@@ -912,9 +905,8 @@ def execute_restore_task(request_id: str) -> None:
                     event="restore_failed",
                     school_id=school_id,
                     backup_id=backup_id,
-                    scope_type="unknown",
+                    scope_type="restore",
                     scope_value=None,
-                    error_msg=str(exc),
                 )
 
             # Audit failure
