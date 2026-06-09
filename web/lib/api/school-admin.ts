@@ -23,6 +23,8 @@ export interface RosterItem {
   student_email: string;
   student_id: string | null;
   status: string;
+  /** The student's enrolled grade (from school_enrolments). May be null. */
+  enrolled_grade?: number | null;
   added_at: string;
 }
 
