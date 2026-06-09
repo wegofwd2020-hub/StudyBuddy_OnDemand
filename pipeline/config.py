@@ -42,7 +42,7 @@ class PipelineSettings(BaseSettings):
     # ── Model pins (never implicit "latest") ─────────────────────────────────
     CLAUDE_MODEL: str = "claude-sonnet-4-6"
     OPENAI_MODEL: str = "gpt-4o"
-    GEMINI_MODEL: str = "gemini-1.5-pro"
+    GEMINI_MODEL: str = "gemini-2.5-flash"  # 1.5-pro retired; verified live 2026-06-09
 
     # ── Provider API keys (optional — only required when provider is selected) ─
     # ANTHROPIC_API_KEY is already required above (it's the default provider).
