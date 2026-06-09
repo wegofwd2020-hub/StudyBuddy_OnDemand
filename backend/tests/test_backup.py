@@ -811,3 +811,44 @@ async def test_restore_dry_run_sql_matches_schema(db_conn):
     )
     assert row["status"] == "draft"
     assert row["owner_type"] == "school"
+
+
+# ── Regression: failure notifications don't leak internals (issue #413) ─────────
+
+
+@pytest.mark.parametrize("event", ["backup_failed", "restore_failed"])
+def test_backup_notification_no_internal_leak(event):
+    """Regression for #413: failure-notification emails must not expose internal
+    identifiers (school/backup UUIDs), event names, or raw exception text to the
+    customer (Content Rule #5). They get a generic, reassuring message instead;
+    diagnostics live in the logs.
+    """
+    from src.backup.tasks import send_backup_notification_task
+
+    school_id = "11111111-1111-1111-1111-111111111111"
+    backup_id = "22222222-2222-2222-2222-222222222222"
+    captured: dict = {}
+
+    async def fake_send(*, to_email, subject, text_body, html_body):
+        captured.update(
+            to_email=to_email, subject=subject, text=text_body, html=html_body
+        )
+
+    with patch("src.email.service._send", new=fake_send):
+        # The task no longer accepts error_msg — there is nowhere to inject raw
+        # exception text into a customer email.
+        send_backup_notification_task(
+            to_email="admin@example.com",
+            event=event,
+            school_id=school_id,
+            backup_id=backup_id,
+            scope_type="full",
+        )
+
+    blob = captured["text"] + captured["html"]
+    assert school_id not in blob  # no internal UUIDs
+    assert backup_id not in blob
+    assert "Error:" not in blob and "Event:" not in blob  # no raw error / event dump
+    assert event not in blob  # internal event name not surfaced
+    assert "notified" in captured["text"].lower()  # reassuring message present
+    assert captured["to_email"] == "admin@example.com"
