@@ -105,6 +105,29 @@ do not swap the word.
 **Active branch:** `main` (next: see `docs/epics/` — product backlog)
 
 **Recently shipped (beyond Phase 11):**
+- **School-admin UX overhaul (2026-06) — Administration menu + pickers + setup wizard:**
+  - **Administration menu (#415 / #417):** top-bar `web/components/layout/AdministrationMenu.tsx`
+    replaces the standalone "Curriculum Management" dropdown — groups a **Curriculum**
+    section (gated `canManageCurriculum`) + a **User Management** section
+    (Students/Teachers, `school_admin` only); left-rail infra group renamed **"Settings"**;
+    `isSchoolAdmin()` helper added to `web/lib/hooks/useTeacher.ts`.
+  - **Classroom assignment pickers (#418 / #419):** the classroom curriculum and student
+    "assign" controls are now **dropdowns** (from the school library / roster,
+    grade-filtered, excluding already-assigned) instead of raw-UUID text inputs.
+  - **"Set up your school" wizard (#420):** guided 6-step checklist at `/school/setup`
+    ("Get started" rail item, school_admin), auto-ticked from existing data; pure logic
+    in `web/lib/school/setup-checklist.ts`.
+  - **School user-management decisions:** [`docs/ADR_005_school_roles_and_uniqueness.md`](docs/ADR_005_school_roles_and_uniqueness.md)
+    (school_admin = teacher **superset** role · **email-only** uniqueness · account delete =
+    **soft-delete + archive** + FERPA retention) + the [`docs/SCHOOL_USER_MANAGEMENT.md`](docs/SCHOOL_USER_MANAGEMENT.md)
+    Type-1 self-managed onboarding spec.
+- **Backup & Restore investigation closed (2026-06):** #410 fixed backup creation
+  (`backup_school_task` read `r["id"]` but the `curricula` PK is `curriculum_id`, TEXT);
+  #423 reconciled the **restore path** schema (#411 — `dry_run_/execute_restore_task`
+  referenced non-existent `id`/`grade`/`ordering`/`updated_at`, omitted NOT NULL `year`,
+  used `ON CONFLICT (id)`); #424 stopped failure-notification emails leaking raw
+  `str(exc)` + school/backup UUIDs to the contact (#413, Content Rule #5).
+  `backend/scripts/purge_account.py` (#416) hard-deletes a single teacher/student by email for test cleanup.
 - Content review unit viewer — Lesson / Tutorial / Quiz / Experiment renderers
 - Inline reviewer annotations scoped per section, question, and step
 - Side-by-side version diff with word-level highlighting
@@ -172,6 +195,23 @@ All documentation has moved to **[studybuddy-docs](https://github.com/wegofwd202
 | [CHEATSHEET.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/CHEATSHEET.md) | Operator one-liners — dev stack, RLS-aware DB queries, password reset, demo accounts, pipeline triggers, smoke tests, Redis ops, deck regeneration |
 | [SCALABILITY.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/SCALABILITY.md) | Capacity planning, multi-region, load testing, academic year transitions, API versioning |
 | [GLOSSARY.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/GLOSSARY.md) | Acronym and term definitions for all abbreviations used across the project |
+
+**In-repo design docs / ADRs** (live under `docs/` in this repo, not studybuddy-docs):
+
+| Doc | Read when |
+|---|---|
+| [`docs/ADR_001_tenancy_and_subscription_model.md`](docs/ADR_001_tenancy_and_subscription_model.md) | Tenancy / subscription / school-as-primary-entity decisions |
+| [`docs/ADR_004_authoring_studio_home_repo.md`](docs/ADR_004_authoring_studio_home_repo.md) | Where the standalone authoring+reader lives (→ became Mentible, see below) |
+| [`docs/ADR_005_school_roles_and_uniqueness.md`](docs/ADR_005_school_roles_and_uniqueness.md) | School roles (`school_admin` = teacher superset), email-only uniqueness, soft-delete + archive |
+| [`docs/SCHOOL_USER_MANAGEMENT.md`](docs/SCHOOL_USER_MANAGEMENT.md) | The Type-1 (self-managed) school user lifecycle + the top-bar **Administration** menu IA (§8.1) |
+| [`docs/DESIGN_curriculum_mgmt_capability.md`](docs/DESIGN_curriculum_mgmt_capability.md) · [`docs/SPEC_curriculum_mgmt_capability.md`](docs/SPEC_curriculum_mgmt_capability.md) | The `curriculum_mgmt` capability (#358) — additive grants; menu now lives under Administration (#415) |
+
+> **Sibling / spun-out projects (2026-06-09):** the standalone, non-school products
+> moved to **Mentible** — the `StudyBuddy_SelfLearner` repo (rebrand of "StudyBuddy Q"):
+> **StudyBuddy Q + BriefCase + Special-needs Social Stories**. Don't build those here.
+> The **home-schooling wedge stays with StudyBuddy** (for now). **MarketingTools**
+> (`wegofwd2020-hub/MarketingTools`) is the cross-portfolio promo repo for any
+> client-facing product.
 
 ---
 

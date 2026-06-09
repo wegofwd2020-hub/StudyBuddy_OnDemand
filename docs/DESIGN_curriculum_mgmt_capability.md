@@ -2,9 +2,19 @@
 
 **Status:** Implemented (migration 0059, branch `feat/curriculum-mgmt-capability`, issue #358) · **Date:** 2026-05-21 · **Extends:** [ADR-001](ADR_001_tenancy_and_subscription_model.md) (role model)
 
+> **Superseded UI (#415 / #417, 2026-06):** the standalone top-bar
+> **"Curriculum Management"** dropdown described below was replaced by a single
+> top-bar **"Administration"** menu (`web/components/layout/AdministrationMenu.tsx`)
+> with a **Curriculum** section (this capability, gated `canManageCurriculum`) and a
+> **User Management** section (`school_admin` only). The capability/gating model is
+> unchanged; only the menu's name/home moved. See
+> [`SCHOOL_USER_MANAGEMENT.md`](SCHOOL_USER_MANAGEMENT.md) §8.1. Read "Curriculum
+> Management menu" below as "the Curriculum section of the Administration menu".
+
 Lets a school_admin delegate curriculum-management powers to a chosen teacher
 **without** promoting them to full school_admin, and groups all curriculum nav
-under one top-bar **"Curriculum Management"** menu shown only to those who hold it.
+under the **Curriculum** section of the top-bar **Administration** menu, shown
+only to those who hold the capability (or are a `school_admin` superset).
 
 ## Decisions (locked 2026-05-21)
 

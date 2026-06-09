@@ -255,21 +255,25 @@ it("defaults capabilities to [] when absent (no coercion drop)", () => {
 
 ### Cross-persona — `web/tests/e2e/curriculum-mgmt-nav.spec.ts` (new, Playwright, run from host — pitfall #26)
 
+> **Note (#415 / #417):** the top-bar button was renamed **"Curriculum Management" →
+> "Administration"** (Curriculum is now a *section* inside it). Assertions below
+> target the **Administration** button accordingly. The capability gating is unchanged.
+
 ```ts
-test("plain teacher does NOT see Curriculum Management", async ({ page }) => {
+test("plain teacher does NOT see the Administration menu", async ({ page }) => {
   await loginAsTeacher(page, { capabilities: [] });
-  await expect(page.getByRole("button", { name: /curriculum management/i })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /administration/i })).toHaveCount(0);
 });
 
-test("granted teacher sees the top-bar menu with curriculum items", async ({ page }) => {
+test("granted teacher sees the Administration menu with curriculum items", async ({ page }) => {
   await loginAsTeacher(page, { capabilities: ["curriculum_mgmt"] });
-  await page.getByRole("button", { name: /curriculum management/i }).click();
+  await page.getByRole("button", { name: /administration/i }).click();
   await expect(page.getByRole("menuitem", { name: /my curricula/i })).toBeVisible();
 });
 
 test("school_admin sees it implicitly (no grant)", async ({ page }) => {
   await loginAsSchoolAdmin(page);
-  await expect(page.getByRole("button", { name: /curriculum management/i })).toBeVisible();
+  await expect(page.getByRole("button", { name: /administration/i })).toBeVisible();
 });
 ```
 
