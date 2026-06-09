@@ -14,3 +14,7 @@ prometheus-client==0.20.0
 weasyprint>=62.0
 Jinja2>=3.1.0
 Markdown>=3.6
+
+# Shared multi-provider LLM seam (SelfLearner ADR-012) — anthropic+openai
+# providers are backed by this package; google stays native for now.
+wegofwd-llm[anthropic] @ git+https://github.com/wegofwd2020-hub/wegofwd-llm@v0.1.1

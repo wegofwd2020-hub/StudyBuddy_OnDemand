@@ -156,42 +156,43 @@ def test_provider_registry_unknown():
         get_provider("bad_provider", config)
 
 
-def test_anthropic_provider_init_missing_key():
-    """AnthropicProvider raises RuntimeError when API key is missing."""
-    from pipeline.providers.anthropic import AnthropicProvider
+# anthropic + openai are now backed by the shared wegofwd-llm package via
+# get_provider's adapter (ADR-012); these test OnDemand's registry/adapter
+# contract — wegofwd-llm's own 51 tests cover the vendor-call internals.
+def test_get_provider_anthropic_missing_key():
+    """get_provider('anthropic') raises RuntimeError when the key is missing."""
+    from pipeline.providers import get_provider
 
     config = MagicMock()
     config.ANTHROPIC_API_KEY = None
-
-    mock_anthropic = MagicMock()
-    with patch.dict("sys.modules", {"anthropic": mock_anthropic}):
-        with pytest.raises(RuntimeError, match="ANTHROPIC_API_KEY"):
-            AnthropicProvider(config)
+    with pytest.raises(RuntimeError, match="ANTHROPIC_API_KEY"):
+        get_provider("anthropic", config)
 
 
-def test_anthropic_provider_init_missing_sdk():
-    """AnthropicProvider raises RuntimeError when anthropic SDK is not installed."""
-    from pipeline.providers.anthropic import AnthropicProvider
-
-    config = MagicMock()
-    config.ANTHROPIC_API_KEY = "key"
-
-    with patch.dict("sys.modules", {"anthropic": None}):
-        with pytest.raises((RuntimeError, ImportError)):
-            AnthropicProvider(config)
-
-
-def test_openai_provider_init_missing_key():
-    """OpenAIProvider raises RuntimeError when API key is missing."""
-    from pipeline.providers.openai import OpenAIProvider
+def test_get_provider_openai_missing_key():
+    """get_provider('openai') raises RuntimeError when the key is missing."""
+    from pipeline.providers import get_provider
 
     config = MagicMock()
     config.OPENAI_API_KEY = None
+    with pytest.raises(RuntimeError, match="OPENAI_API_KEY"):
+        get_provider("openai", config)
 
-    mock_openai = MagicMock()
-    with patch.dict("sys.modules", {"openai": mock_openai}):
-        with pytest.raises(RuntimeError, match="OPENAI_API_KEY"):
-            OpenAIProvider(config)
+
+def test_get_provider_wraps_build_errors_as_runtime():
+    """A wegofwd-llm construction error (e.g. missing SDK) surfaces as RuntimeError."""
+    from pipeline.providers import get_provider
+    from wegofwd_llm import LLMConfigurationError
+
+    config = MagicMock()
+    config.ANTHROPIC_API_KEY = "key"
+    config.CLAUDE_MODEL = "claude-sonnet-4-6"
+    with patch(
+        "wegofwd_llm.build_provider",
+        side_effect=LLMConfigurationError("anthropic SDK not installed"),
+    ):
+        with pytest.raises(RuntimeError, match="SDK not installed"):
+            get_provider("anthropic", config)
 
 
 def test_google_provider_init_missing_key():
@@ -213,62 +214,62 @@ def test_google_provider_init_missing_key():
             GeminiProvider(config)
 
 
-def test_anthropic_provider_generate():
-    """AnthropicProvider.generate() returns (text, in_tokens, out_tokens)."""
-    from pipeline.providers.anthropic import AnthropicProvider
+class _FakeInner:
+    """A fake wegofwd_llm.Provider that records the request it was given."""
+
+    provider_id = "anthropic"
+    model = "claude-sonnet-4-6"
+
+    def __init__(self) -> None:
+        self.requests: list = []
+
+    def generate(self, req):
+        from wegofwd_llm import LLMResponse
+
+        self.requests.append(req)
+        return LLMResponse(
+            text='{"hello": "world"}',
+            provider_id=self.provider_id,
+            model=self.model,
+            input_tokens=50,
+            output_tokens=100,
+        )
+
+
+def test_adapter_anthropic_generate_is_plain():
+    """anthropic goes through the adapter with NO json mode (response_format=None),
+    mirroring the old plain messages call; the tuple is mapped from LLMResponse."""
+    from pipeline.providers import get_provider
 
     config = MagicMock()
     config.ANTHROPIC_API_KEY = "test-key"
     config.CLAUDE_MODEL = "claude-sonnet-4-6"
 
-    mock_message = MagicMock()
-    mock_message.content = [MagicMock(text='{"hello": "world"}')]
-    mock_message.usage.input_tokens = 50
-    mock_message.usage.output_tokens = 100
-
-    mock_client = MagicMock()
-    mock_client.messages.create.return_value = mock_message
-
-    mock_anthropic = MagicMock()
-    mock_anthropic.Anthropic.return_value = mock_client
-
-    with patch.dict("sys.modules", {"anthropic": mock_anthropic}):
-        provider = AnthropicProvider(config)
+    fake = _FakeInner()
+    with patch("wegofwd_llm.build_provider", return_value=fake):
+        provider = get_provider("anthropic", config)
         text, in_tok, out_tok = provider.generate("test prompt")
 
-    assert text == '{"hello": "world"}'
-    assert in_tok == 50
-    assert out_tok == 100
+    assert (text, in_tok, out_tok) == ('{"hello": "world"}', 50, 100)
+    assert fake.requests[0].response_format is None  # parity: plain call
 
 
-def test_openai_provider_generate():
-    """OpenAIProvider.generate() extracts text and token counts from response."""
-    from pipeline.providers.openai import OpenAIProvider
+def test_adapter_openai_generate_uses_json_mode():
+    """openai goes through the adapter with response_format='json' (json_object),
+    mirroring the old OpenAIProvider's hard-coded JSON mode."""
+    from pipeline.providers import get_provider
 
     config = MagicMock()
     config.OPENAI_API_KEY = "test-key"
     config.OPENAI_MODEL = "gpt-4o"
 
-    mock_choice = MagicMock()
-    mock_choice.message.content = '{"answer": 42}'
-    mock_response = MagicMock()
-    mock_response.choices = [mock_choice]
-    mock_response.usage.prompt_tokens = 30
-    mock_response.usage.completion_tokens = 80
-
-    mock_client = MagicMock()
-    mock_client.chat.completions.create.return_value = mock_response
-
-    mock_openai = MagicMock()
-    mock_openai.OpenAI.return_value = mock_client
-
-    with patch.dict("sys.modules", {"openai": mock_openai}):
-        provider = OpenAIProvider(config)
+    fake = _FakeInner()
+    with patch("wegofwd_llm.build_provider", return_value=fake):
+        provider = get_provider("openai", config)
         text, in_tok, out_tok = provider.generate("test prompt")
 
-    assert text == '{"answer": 42}'
-    assert in_tok == 30
-    assert out_tok == 80
+    assert (text, in_tok, out_tok) == ('{"hello": "world"}', 50, 100)
+    assert fake.requests[0].response_format == "json"  # parity: json_object
 
 
 def test_google_provider_generate():
