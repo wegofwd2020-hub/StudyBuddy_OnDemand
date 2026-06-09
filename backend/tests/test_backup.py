@@ -25,6 +25,7 @@ Coverage:
 from __future__ import annotations
 
 import uuid
+from datetime import UTC
 from unittest.mock import patch
 
 import pytest
@@ -661,3 +662,152 @@ async def test_full_backup_curricula_id_and_dependent_query(db_conn):
     assert units_rows[0]["unit_id"] == "G8-MATH-001"
     assert len(versions_rows) == 1
     assert versions_rows[0]["subject"] == "Mathematics"
+
+
+# ── Regression: restore SQL matches the real schema (issue #411) ────────────────
+
+
+async def test_restore_execute_sql_matches_schema(db_conn):
+    """Regression for #411: execute_restore_task referenced columns that don't
+    exist (`id`, `grade`, `ordering`), omitted the NOT NULL `year`, wrapped TEXT
+    curriculum_id in uuid.UUID(), and used `ON CONFLICT (id)`. This runs the
+    corrected curricula + curriculum_units upserts against the real schema, with a
+    backup_data-shaped payload (the shape `backup_school_task._row_to_dict`
+    produces), and asserts they land — and are idempotent on re-run.
+    """
+    school_id = uuid.uuid4()
+    curriculum_id = str(uuid.uuid4())  # school fork ids are UUID strings (TEXT col)
+    await db_conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+    await db_conn.execute(
+        """
+        INSERT INTO schools (school_id, name, contact_email, status)
+        VALUES ($1, 'Restore Regression School', $2, 'active')
+        """,
+        school_id,
+        f"restore_{str(school_id)[:8]}@example.com",
+    )
+
+    cur = {
+        "curriculum_id": curriculum_id,
+        "name": "Restored G8 STEM",
+        "grade": 8,
+        "year": 2026,
+        "owner_type": "school",
+        "status": "active",
+        "stream_code": None,
+    }
+    unit = {
+        "unit_id": "G8-MATH-001",
+        "curriculum_id": curriculum_id,
+        "subject": "Mathematics",
+        "title": "Fractions",
+        "unit_name": "Fractions",
+        "has_lab": False,
+        "sort_order": 0,
+    }
+
+    async def restore_once():
+        # Exact in-place upserts from execute_restore_task (post-#411).
+        await db_conn.execute(
+            """
+            INSERT INTO curricula
+                (curriculum_id, school_id, name, grade, year, owner_type, status, stream_code)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            ON CONFLICT (curriculum_id) DO UPDATE
+            SET name=$3, grade=$4, year=$5, owner_type=$6, status=$7, stream_code=$8
+            """,
+            cur["curriculum_id"],
+            school_id,
+            cur["name"],
+            cur["grade"],
+            cur["year"],
+            cur["owner_type"],
+            cur["status"],
+            cur["stream_code"],
+        )
+        await db_conn.execute(
+            """
+            INSERT INTO curriculum_units
+                (unit_id, curriculum_id, subject, title, unit_name, has_lab, sort_order)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            ON CONFLICT (unit_id, curriculum_id) DO UPDATE
+            SET subject=$3, title=$4, unit_name=$5, has_lab=$6, sort_order=$7
+            """,
+            unit["unit_id"],
+            curriculum_id,
+            unit["subject"],
+            unit["title"],
+            unit["unit_name"],
+            unit["has_lab"],
+            unit["sort_order"],
+        )
+
+    await restore_once()
+    await restore_once()  # idempotent — must not error or duplicate
+
+    crow = await db_conn.fetchrow(
+        "SELECT name, grade, year, owner_type FROM curricula WHERE curriculum_id=$1",
+        curriculum_id,
+    )
+    assert crow["name"] == "Restored G8 STEM"
+    assert crow["grade"] == 8
+    assert crow["year"] == 2026
+    urows = await db_conn.fetch(
+        "SELECT unit_name, sort_order FROM curriculum_units WHERE curriculum_id=$1",
+        curriculum_id,
+    )
+    assert len(urows) == 1  # upsert, not duplicate
+    assert urows[0]["unit_name"] == "Fractions"
+
+
+async def test_restore_dry_run_sql_matches_schema(db_conn):
+    """Regression for #411: dry_run_restore_task selected non-existent columns
+    (`id`, `updated_at`) on content_subject_versions and wrapped TEXT ids in
+    uuid.UUID(); the staging-curriculum INSERT omitted curriculum_id + the NOT
+    NULL year. Run the corrected conflict query and staging insert.
+    """
+    school_id = uuid.uuid4()
+    curriculum_id = str(uuid.uuid4())
+    await db_conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+    await db_conn.execute(
+        """
+        INSERT INTO schools (school_id, name, contact_email, status)
+        VALUES ($1, 'Restore DryRun School', $2, 'active')
+        """,
+        school_id,
+        f"dryrun_{str(school_id)[:8]}@example.com",
+    )
+
+    # Conflict query (corrected: version_id + generated_at, TEXT ids) must validate.
+    from datetime import datetime
+
+    rows = await db_conn.fetch(
+        """
+        SELECT version_id, curriculum_id, subject, version_number, generated_at
+        FROM content_subject_versions
+        WHERE curriculum_id = ANY($1)
+          AND generated_at > $2
+        """,
+        [curriculum_id],
+        datetime(2000, 1, 1, tzinfo=UTC),
+    )
+    assert rows == []  # no versions yet — but the query columns all resolve
+
+    # Staging-curriculum INSERT (corrected: supplies curriculum_id + NOT NULL year).
+    await db_conn.execute(
+        """
+        INSERT INTO curricula
+            (curriculum_id, school_id, name, grade, year, owner_type, status)
+        VALUES ($1, $2, $3, $4, $5, 'school', 'draft')
+        """,
+        curriculum_id,
+        school_id,
+        "Staged.restore-staging.20260609",
+        8,
+        2026,
+    )
+    row = await db_conn.fetchrow(
+        "SELECT status, owner_type FROM curricula WHERE curriculum_id=$1", curriculum_id
+    )
+    assert row["status"] == "draft"
+    assert row["owner_type"] == "school"
