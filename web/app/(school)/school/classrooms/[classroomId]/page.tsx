@@ -15,6 +15,7 @@ import {
   getRoster,
   type ClassroomPackageItem,
   type ClassroomStudentItem,
+  type RosterItem,
 } from "@/lib/api/school-admin";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -269,7 +270,7 @@ export default function ClassroomDetailPage() {
   // enrolled. enrolled_grade may be null (unknown) — keep those eligible.
   const enrolledStudentIds = new Set(classroom.students.map((s) => s.student_id));
   const gradeEligible = (roster?.roster ?? []).filter(
-    (r) =>
+    (r): r is RosterItem & { student_id: string } =>
       r.student_id != null &&
       r.status === "active" &&
       (classroom.grade == null ||
@@ -279,7 +280,7 @@ export default function ClassroomDetailPage() {
   const studentOptions = gradeEligible
     .filter((r) => !enrolledStudentIds.has(r.student_id))
     .map((r) => ({
-      id: r.student_id as string,
+      id: r.student_id,
       label:
         r.enrolled_grade != null
           ? `${r.student_email} — Grade ${r.enrolled_grade}`
