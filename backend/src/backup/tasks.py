@@ -546,9 +546,7 @@ def dry_run_restore_task(request_id: str) -> None:
                     backup_data = json.loads(backup_data_bytes)
                     # curricula PK is curriculum_id (TEXT); content_subject_versions
                     # keys on curriculum_id (TEXT) too — pass IDs as text, not UUID.
-                    curriculum_ids = [
-                        c["curriculum_id"] for c in backup_data.get("curricula", [])
-                    ]
+                    curriculum_ids = [c["curriculum_id"] for c in backup_data.get("curricula", [])]
 
                     if curriculum_ids:
                         # A version generated after the backup was taken is a conflict.
@@ -592,9 +590,7 @@ def dry_run_restore_task(request_id: str) -> None:
                         )
                         staging_name = f"{orig_name}.restore-staging.{today_str}"
                         first_cur = (
-                            backup_data["curricula"][0]
-                            if backup_data.get("curricula")
-                            else {}
+                            backup_data["curricula"][0] if backup_data.get("curricula") else {}
                         )
                         # curricula.curriculum_id is a TEXT PK with no default and
                         # year is NOT NULL — supply both. A UUID string also fits
