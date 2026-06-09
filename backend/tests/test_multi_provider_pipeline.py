@@ -195,23 +195,14 @@ def test_get_provider_wraps_build_errors_as_runtime():
             get_provider("anthropic", config)
 
 
-def test_google_provider_init_missing_key():
-    """GeminiProvider raises RuntimeError when API key is missing."""
-    from pipeline.providers.google import GeminiProvider
+def test_get_provider_google_missing_key():
+    """get_provider('google') raises RuntimeError when the key is missing."""
+    from pipeline.providers import get_provider
 
     config = MagicMock()
     config.GOOGLE_API_KEY = None
-
-    mock_genai_module = MagicMock()
-    mock_google_pkg = MagicMock()
-    mock_google_pkg.generativeai = mock_genai_module
-
-    with patch.dict(
-        "sys.modules",
-        {"google": mock_google_pkg, "google.generativeai": mock_genai_module},
-    ):
-        with pytest.raises(RuntimeError, match="GOOGLE_API_KEY"):
-            GeminiProvider(config)
+    with pytest.raises(RuntimeError, match="GOOGLE_API_KEY"):
+        get_provider("google", config)
 
 
 class _FakeInner:
@@ -272,41 +263,25 @@ def test_adapter_openai_generate_uses_json_mode():
     assert fake.requests[0].response_format == "json"  # parity: json_object
 
 
-def test_google_provider_generate():
-    """GeminiProvider.generate() extracts text and token counts from response."""
-    from pipeline.providers.google import GeminiProvider
+def test_adapter_google_maps_to_gemini_with_json_mode():
+    """google is backed by wegofwd-llm's 'gemini' provider with json mode; the
+    pipeline-facing provider_id stays 'google' and the model comes from config."""
+    from pipeline.providers import get_provider
 
     config = MagicMock()
     config.GOOGLE_API_KEY = "test-key"
-    config.GEMINI_MODEL = "gemini-1.5-pro"
+    config.GEMINI_MODEL = "gemini-2.5-flash"
 
-    mock_response = MagicMock()
-    mock_response.text = '{"result": "ok"}'
-    mock_response.usage_metadata.prompt_token_count = 40
-    mock_response.usage_metadata.candidates_token_count = 90
-
-    mock_model = MagicMock()
-    mock_model.generate_content.return_value = mock_response
-
-    # google and google.generativeai must be separate mocks so that
-    # `import google.generativeai as genai` resolves to mock_genai_module
-    # whether Python uses sys.modules lookup OR the parent package attribute.
-    mock_genai_module = MagicMock()
-    mock_genai_module.GenerativeModel.return_value = mock_model
-
-    mock_google_pkg = MagicMock()
-    mock_google_pkg.generativeai = mock_genai_module
-
-    with patch.dict(
-        "sys.modules",
-        {"google": mock_google_pkg, "google.generativeai": mock_genai_module},
-    ):
-        provider = GeminiProvider(config)
+    fake = _FakeInner()
+    with patch("wegofwd_llm.build_provider", return_value=fake) as build:
+        provider = get_provider("google", config)
         text, in_tok, out_tok = provider.generate("test prompt")
 
-    assert text == '{"result": "ok"}'
-    assert in_tok == 40
-    assert out_tok == 90
+    assert (text, in_tok, out_tok) == ('{"hello": "world"}', 50, 100)
+    assert fake.requests[0].response_format == "json"  # parity: response_mime_type=json
+    assert provider.provider_id == "google"  # pipeline-facing id preserved
+    assert build.call_args.args[0] == "gemini"  # built as wegofwd's 'gemini'
+    assert build.call_args.kwargs["model"] == "gemini-2.5-flash"
 
 
 # ── F-2: build_unit with explicit provider ────────────────────────────────────

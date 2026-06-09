@@ -13,6 +13,11 @@ Behaviour parity with the providers it replaces:
   default 16384 — the same value the old provider hard-coded.
 - ``openai`` → ``response_format="json"`` → ``{"type": "json_object"}`` (what the
   old OpenAIProvider hard-coded), again at 16384.
+- ``google`` → ``response_format="json"`` → the wegofwd-llm gemini provider
+  (OpenAI-compatible endpoint), mirroring the old GeminiProvider's
+  ``response_mime_type="application/json"``. ``wegofwd_id`` is ``"gemini"`` — the
+  pipeline's provider_id stays ``"google"`` for call-site/audit consistency.
+  Output is capped at 8192 by the gemini Capabilities, matching the old provider.
 
 Errors are remapped to ``RuntimeError`` to preserve the legacy provider contract
 (``base.py``: "Raises RuntimeError on API errors / empty responses"). The
@@ -31,19 +36,21 @@ class WegofwdAdapter(LLMProvider):
         self,
         *,
         provider_id: str,
+        wegofwd_id: str,
         api_key: str,
         model: str,
         response_format: str | None,
     ) -> None:
-        # Imported lazily so importing the registry doesn't require the package
-        # for the google-only path.
+        # Imported lazily so importing the registry doesn't require the package.
         from wegofwd_llm import LLMError, build_provider
 
+        # provider_id is the pipeline-facing id (e.g. "google"); wegofwd_id is the
+        # package's id for the same vendor (e.g. "gemini").
         self.provider_id = provider_id
         self._model = model
         self._response_format = response_format
         try:
-            self._inner = build_provider(provider_id, api_key=api_key, model=model)
+            self._inner = build_provider(wegofwd_id, api_key=api_key, model=model)
         except LLMError as exc:
             # Legacy contract: a missing SDK / bad config is a RuntimeError.
             raise RuntimeError(str(exc)) from exc
@@ -69,4 +76,6 @@ class WegofwdAdapter(LLMProvider):
 
 def provider_label(provider_id: str) -> str:
     """Human label used in the empty-response error, matching the old messages."""
-    return {"anthropic": "Anthropic", "openai": "OpenAI"}.get(provider_id, provider_id)
+    return {"anthropic": "Anthropic", "openai": "OpenAI", "google": "Gemini"}.get(
+        provider_id, provider_id
+    )
