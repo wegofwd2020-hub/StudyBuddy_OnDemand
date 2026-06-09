@@ -1,7 +1,9 @@
 # DESIGN EXPLORATION: Multi-Provider LLM Curriculum Generation
 
-**Status:** Thought exercise — not scheduled for implementation
-**Date:** 2026-04-01
+**Status:** ✅ **Implemented** — shipped as **Epic 1** (F-1–F-5, migration 0043).
+The decision is formalized in [ADR-006](ADR_006_multi_provider_llm.md); this
+document is retained as the background exploration that informed it.
+**Date:** 2026-04-01 (exploration) · implemented 2026-04-12
 
 ---
 
