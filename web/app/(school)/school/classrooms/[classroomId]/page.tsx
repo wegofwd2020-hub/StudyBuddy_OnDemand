@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useParams } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import { useTeacher } from "@/lib/hooks/useTeacher";
+import { useTeacher, isSchoolAdmin } from "@/lib/hooks/useTeacher";
 import {
   getClassroom,
   assignPackageToClassroom,
@@ -12,11 +12,11 @@ import {
   assignStudentToClassroom,
   removeStudentFromClassroom,
   getLibrary,
+  getRoster,
   type ClassroomPackageItem,
   type ClassroomStudentItem,
 } from "@/lib/api/school-admin";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, BookOpen, Trash2, Plus, GraduationCap } from "lucide-react";
 
@@ -158,6 +158,14 @@ export default function ClassroomDetailPage() {
     staleTime: 30_000,
   });
 
+  // School roster — the enrollable students for the picker (school_admin-scoped endpoint).
+  const { data: roster } = useQuery({
+    queryKey: ["roster", schoolId],
+    queryFn: () => getRoster(schoolId),
+    enabled: !!schoolId && isSchoolAdmin(teacher),
+    staleTime: 30_000,
+  });
+
   // ── Package assignment ──
   const [curriculumId, setCurriculumId] = useState("");
   const [pkgError, setPkgError] = useState<string | null>(null);
@@ -256,6 +264,28 @@ export default function ClassroomDetailPage() {
     .filter((o) => !assignedIds.has(o.id));
   // Empty for two distinct reasons — distinguish them in the hint below.
   const allAssigned = packageOptions.length === 0 && activeAdoptionCount > 0;
+
+  // Enrollable students = active roster students of this class's grade, not yet
+  // enrolled. enrolled_grade may be null (unknown) — keep those eligible.
+  const enrolledStudentIds = new Set(classroom.students.map((s) => s.student_id));
+  const gradeEligible = (roster?.roster ?? []).filter(
+    (r) =>
+      r.student_id != null &&
+      r.status === "active" &&
+      (classroom.grade == null ||
+        r.enrolled_grade == null ||
+        r.enrolled_grade === classroom.grade),
+  );
+  const studentOptions = gradeEligible
+    .filter((r) => !enrolledStudentIds.has(r.student_id))
+    .map((r) => ({
+      id: r.student_id as string,
+      label:
+        r.enrolled_grade != null
+          ? `${r.student_email} — Grade ${r.enrolled_grade}`
+          : r.student_email,
+    }));
+  const allStudentsEnrolled = studentOptions.length === 0 && gradeEligible.length > 0;
 
   return (
     <div className="max-w-3xl space-y-6 p-6">
@@ -414,22 +444,36 @@ export default function ClassroomDetailPage() {
         <div className="mt-4 rounded-lg border border-green-100 bg-green-50 p-4">
           <p className="mb-2 text-xs font-medium text-gray-600">Enrol a student</p>
           <div className="flex gap-2">
-            <Input
+            <select
               value={studentId}
               onChange={(e) => {
                 setStudentId(e.target.value);
                 setStuError(null);
               }}
-              placeholder="Student ID (UUID)"
-              className="flex-1 text-sm"
-            />
+              disabled={studentOptions.length === 0}
+              aria-label="Student to enrol"
+              className="flex-1 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 disabled:bg-gray-50 disabled:text-gray-400"
+            >
+              <option value="">
+                {studentOptions.length === 0
+                  ? allStudentsEnrolled
+                    ? "All eligible students already enrolled"
+                    : "No students available to enrol"
+                  : "Select a student…"}
+              </option>
+              {studentOptions.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
             <Button
               size="sm"
               onClick={() => {
                 setStuError(null);
                 addStudent();
               }}
-              disabled={addingStu || !studentId.trim()}
+              disabled={addingStu || !studentId}
               className="gap-1 bg-green-600 hover:bg-green-700"
             >
               <Plus className="h-3.5 w-3.5" />
@@ -437,13 +481,24 @@ export default function ClassroomDetailPage() {
             </Button>
           </div>
           {stuError && <p className="mt-2 text-xs text-red-600">{stuError}</p>}
-          <p className="mt-2 text-xs text-gray-400">
-            Find student IDs on the{" "}
-            <Link href="/school/students" className="text-green-700 hover:underline">
-              Students
-            </Link>{" "}
-            page.
-          </p>
+          {studentOptions.length === 0 && (
+            <p className="mt-2 text-xs text-gray-400">
+              {allStudentsEnrolled ? (
+                <>Every eligible student is already enrolled in this class.</>
+              ) : (
+                <>
+                  Add students in{" "}
+                  <Link
+                    href="/school/students"
+                    className="text-green-700 hover:underline"
+                  >
+                    Students
+                  </Link>{" "}
+                  first — those matching this class&apos;s grade appear here.
+                </>
+              )}
+            </p>
+          )}
         </div>
       </section>
     </div>
