@@ -244,6 +244,9 @@ export default function ClassroomDetailPage() {
   // Assignable curricula = active library adoptions not already on this classroom.
   // Prefer the school's fork (own content/overrides) when one exists.
   const assignedIds = new Set(classroom.packages.map((p) => p.curriculum_id));
+  const activeAdoptionCount = (library?.adoptions ?? []).filter(
+    (a) => a.status === "active",
+  ).length;
   const packageOptions = (library?.adoptions ?? [])
     .filter((a) => a.status === "active")
     .map((a) => ({
@@ -251,6 +254,8 @@ export default function ClassroomDetailPage() {
       label: a.grade != null ? `${a.name} — Grade ${a.grade}` : a.name,
     }))
     .filter((o) => !assignedIds.has(o.id));
+  // Empty for two distinct reasons — distinguish them in the hint below.
+  const allAssigned = packageOptions.length === 0 && activeAdoptionCount > 0;
 
   return (
     <div className="max-w-3xl space-y-6 p-6">
@@ -325,7 +330,9 @@ export default function ClassroomDetailPage() {
             >
               <option value="">
                 {packageOptions.length === 0
-                  ? "No curricula available to assign"
+                  ? allAssigned
+                    ? "All curricula already assigned"
+                    : "No curricula available to assign"
                   : "Select a curriculum…"}
               </option>
               {packageOptions.map((o) => (
@@ -350,11 +357,30 @@ export default function ClassroomDetailPage() {
           {pkgError && <p className="mt-2 text-xs text-red-600">{pkgError}</p>}
           {packageOptions.length === 0 && (
             <p className="mt-2 text-xs text-gray-400">
-              Adopt a curriculum in{" "}
-              <Link href="/school/library" className="text-indigo-600 hover:underline">
-                My Curricula
-              </Link>{" "}
-              first — then it appears here to assign.
+              {allAssigned ? (
+                <>
+                  Every curriculum in your library is already assigned to this classroom.
+                  Adopt more in{" "}
+                  <Link
+                    href="/school/library"
+                    className="text-indigo-600 hover:underline"
+                  >
+                    My Curricula
+                  </Link>{" "}
+                  to add others.
+                </>
+              ) : (
+                <>
+                  Adopt a curriculum in{" "}
+                  <Link
+                    href="/school/library"
+                    className="text-indigo-600 hover:underline"
+                  >
+                    My Curricula
+                  </Link>{" "}
+                  first — then it appears here to assign.
+                </>
+              )}
             </p>
           )}
         </div>
