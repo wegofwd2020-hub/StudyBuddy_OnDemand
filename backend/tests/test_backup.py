@@ -91,9 +91,7 @@ async def _seed_backup(
     backup_id = str(uuid.uuid4())
     pool = client._transport.app.state.pool
     async with pool.acquire() as conn:
-        await conn.execute(
-            "SELECT set_config('app.current_school_id', 'bypass', false)"
-        )
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
         await conn.execute(
             """
             INSERT INTO curriculum_backups
@@ -117,9 +115,7 @@ async def _seed_restore_request(
     request_id = str(uuid.uuid4())
     pool = client._transport.app.state.pool
     async with pool.acquire() as conn:
-        await conn.execute(
-            "SELECT set_config('app.current_school_id', 'bypass', false)"
-        )
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
         await conn.execute(
             """
             INSERT INTO backup_restore_requests
@@ -259,9 +255,7 @@ async def test_school_submit_restore_deduplicates(client: AsyncClient):
     assert req2_id != req1_id
 
     # First request must now be cancelled
-    r3 = await client.get(
-        f"/api/v1/schools/{school_id}/restore-requests/{req1_id}", headers=hdr
-    )
+    r3 = await client.get(f"/api/v1/schools/{school_id}/restore-requests/{req1_id}", headers=hdr)
     assert r3.status_code == 200
     assert r3.json()["status"] == "cancelled"
 
@@ -394,9 +388,7 @@ async def test_admin_get_backup_found(client: AsyncClient):
 @pytest.mark.asyncio
 async def test_admin_get_backup_not_found(client: AsyncClient):
     await _seed_admin(client)
-    r = await client.get(
-        f"/api/v1/admin/backups/{uuid.uuid4()}", headers=_admin_hdr()
-    )
+    r = await client.get(f"/api/v1/admin/backups/{uuid.uuid4()}", headers=_admin_hdr())
     assert r.status_code == 404
 
 
@@ -405,9 +397,7 @@ async def test_admin_list_school_backups(client: AsyncClient):
     await _seed_admin(client)
     school_id, _ = await _register_school(client, "adm-02")
     await _seed_backup(client, school_id, status="running")
-    r = await client.get(
-        f"/api/v1/admin/schools/{school_id}/backups", headers=_admin_hdr()
-    )
+    r = await client.get(f"/api/v1/admin/schools/{school_id}/backups", headers=_admin_hdr())
     assert r.status_code == 200, r.text
     body = r.json()
     assert body["total"] >= 1
@@ -448,9 +438,7 @@ async def test_admin_acknowledge_wrong_status(client: AsyncClient):
     await _seed_admin(client)
     school_id, _ = await _register_school(client, "adm-11")
     backup_id = await _seed_backup(client, school_id)
-    req_id = await _seed_restore_request(
-        client, school_id, backup_id, status="acknowledged"
-    )
+    req_id = await _seed_restore_request(client, school_id, backup_id, status="acknowledged")
     with patch("src.backup.tasks.dry_run_restore_task.delay", return_value=None):
         r = await client.patch(
             f"/api/v1/admin/restore-requests/{req_id}/acknowledge",
@@ -830,9 +818,7 @@ def test_backup_notification_no_internal_leak(event):
     captured: dict = {}
 
     async def fake_send(*, to_email, subject, text_body, html_body):
-        captured.update(
-            to_email=to_email, subject=subject, text=text_body, html=html_body
-        )
+        captured.update(to_email=to_email, subject=subject, text=text_body, html=html_body)
 
     with patch("src.email.service._send", new=fake_send):
         # The task no longer accepts error_msg — there is nowhere to inject raw
