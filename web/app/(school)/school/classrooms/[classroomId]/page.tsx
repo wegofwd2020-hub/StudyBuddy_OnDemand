@@ -11,6 +11,7 @@ import {
   removePackageFromClassroom,
   assignStudentToClassroom,
   removeStudentFromClassroom,
+  getLibrary,
   type ClassroomPackageItem,
   type ClassroomStudentItem,
 } from "@/lib/api/school-admin";
@@ -149,6 +150,14 @@ export default function ClassroomDetailPage() {
     staleTime: 15_000,
   });
 
+  // School library (adopted + forked curricula) — the assignable set for the picker.
+  const { data: library } = useQuery({
+    queryKey: ["library", schoolId],
+    queryFn: () => getLibrary(schoolId),
+    enabled: !!schoolId,
+    staleTime: 30_000,
+  });
+
   // ── Package assignment ──
   const [curriculumId, setCurriculumId] = useState("");
   const [pkgError, setPkgError] = useState<string | null>(null);
@@ -232,6 +241,17 @@ export default function ClassroomDetailPage() {
     );
   }
 
+  // Assignable curricula = active library adoptions not already on this classroom.
+  // Prefer the school's fork (own content/overrides) when one exists.
+  const assignedIds = new Set(classroom.packages.map((p) => p.curriculum_id));
+  const packageOptions = (library?.adoptions ?? [])
+    .filter((a) => a.status === "active")
+    .map((a) => ({
+      id: a.forked_curriculum_id ?? a.curriculum_id,
+      label: a.grade != null ? `${a.name} — Grade ${a.grade}` : a.name,
+    }))
+    .filter((o) => !assignedIds.has(o.id));
+
   return (
     <div className="max-w-3xl space-y-6 p-6">
       {/* ── Header ── */}
@@ -293,22 +313,34 @@ export default function ClassroomDetailPage() {
             Assign a curriculum package
           </p>
           <div className="flex gap-2">
-            <Input
+            <select
               value={curriculumId}
               onChange={(e) => {
                 setCurriculumId(e.target.value);
                 setPkgError(null);
               }}
-              placeholder="Curriculum ID (UUID)"
-              className="flex-1 text-sm"
-            />
+              disabled={packageOptions.length === 0}
+              aria-label="Curriculum to assign"
+              className="flex-1 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 disabled:bg-gray-50 disabled:text-gray-400"
+            >
+              <option value="">
+                {packageOptions.length === 0
+                  ? "No curricula available to assign"
+                  : "Select a curriculum…"}
+              </option>
+              {packageOptions.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
             <Button
               size="sm"
               onClick={() => {
                 setPkgError(null);
                 addPackage();
               }}
-              disabled={addingPkg || !curriculumId.trim()}
+              disabled={addingPkg || !curriculumId}
               className="gap-1"
             >
               <Plus className="h-3.5 w-3.5" />
@@ -316,20 +348,15 @@ export default function ClassroomDetailPage() {
             </Button>
           </div>
           {pkgError && <p className="mt-2 text-xs text-red-600">{pkgError}</p>}
-          <p className="mt-2 text-xs text-gray-400">
-            Find curriculum IDs in{" "}
-            <Link href="/school/curriculum" className="text-indigo-600 hover:underline">
-              Curriculum
-            </Link>{" "}
-            or{" "}
-            <Link
-              href="/school/curriculum/content"
-              className="text-indigo-600 hover:underline"
-            >
-              Content viewer
-            </Link>
-            .
-          </p>
+          {packageOptions.length === 0 && (
+            <p className="mt-2 text-xs text-gray-400">
+              Adopt a curriculum in{" "}
+              <Link href="/school/library" className="text-indigo-600 hover:underline">
+                My Curricula
+              </Link>{" "}
+              first — then it appears here to assign.
+            </p>
+          )}
         </div>
       </section>
 
