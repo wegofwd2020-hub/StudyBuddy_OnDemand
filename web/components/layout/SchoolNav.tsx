@@ -20,6 +20,7 @@ import {
   Images,
   DoorOpen,
   Database,
+  Rocket,
   ChevronDown,
   ChevronRight,
 } from "lucide-react";
@@ -53,6 +54,13 @@ const NAV_GROUPS: NavGroup[] = [
         label: "Dashboard",
         href: "/school/dashboard",
         icon: <LayoutDashboard className="h-4 w-4" />,
+      },
+      {
+        // Guided onboarding checklist for school_admins (#415 follow-up).
+        label: "Get started",
+        href: "/school/setup",
+        icon: <Rocket className="h-4 w-4" />,
+        adminOnly: true,
       },
     ],
   },
