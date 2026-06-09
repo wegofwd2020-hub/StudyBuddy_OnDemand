@@ -347,7 +347,12 @@ def test_spend_cap_raises():
             text = responses_cycle[call_count % len(responses_cycle)]
             call_count += 1
             mock_msg = MagicMock()
-            mock_msg.content = [MagicMock(text=text)]
+            # anthropic provider is now wegofwd-llm's anthropic_native, which
+            # extracts the content block whose type is "text" (real SDK text
+            # blocks set this — the mock must too, or extraction finds nothing).
+            mock_block = MagicMock(text=text)
+            mock_block.type = "text"
+            mock_msg.content = [mock_block]
             # Report 1 million output tokens to blow the spend cap
             mock_msg.usage.input_tokens = 1_000_000
             mock_msg.usage.output_tokens = 1_000_000
