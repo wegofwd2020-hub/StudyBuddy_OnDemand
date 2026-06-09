@@ -544,18 +544,25 @@ def dry_run_restore_task(request_id: str) -> None:
                         f"{school_id}/{backup_id}/backup_data.json"
                     )
                     backup_data = json.loads(backup_data_bytes)
-                    curriculum_ids = [c["id"] for c in backup_data.get("curricula", [])]
+                    # curricula PK is curriculum_id (TEXT); content_subject_versions
+                    # keys on curriculum_id (TEXT) too — pass IDs as text, not UUID.
+                    curriculum_ids = [
+                        c["curriculum_id"] for c in backup_data.get("curricula", [])
+                    ]
 
                     if curriculum_ids:
-                        c_uuids = [uuid.UUID(c) for c in curriculum_ids]
+                        # A version generated after the backup was taken is a conflict.
+                        # (content_subject_versions PK is version_id; it has
+                        # generated_at, not an updated_at column.)
                         conflict_rows = await conn.fetch(
                             """
-                            SELECT id, curriculum_id, subject, version_number, updated_at
+                            SELECT version_id, curriculum_id, subject, version_number,
+                                   generated_at
                             FROM content_subject_versions
                             WHERE curriculum_id = ANY($1)
-                              AND updated_at > $2
+                              AND generated_at > $2
                             """,
-                            c_uuids,
+                            curriculum_ids,
                             backup_created_at,
                         )
                         conflicts = [dict(r) for r in conflict_rows]
@@ -584,20 +591,28 @@ def dry_run_restore_task(request_id: str) -> None:
                             else "unknown"
                         )
                         staging_name = f"{orig_name}.restore-staging.{today_str}"
-                        staging_row = await conn.fetchrow(
+                        first_cur = (
+                            backup_data["curricula"][0]
+                            if backup_data.get("curricula")
+                            else {}
+                        )
+                        # curricula.curriculum_id is a TEXT PK with no default and
+                        # year is NOT NULL — supply both. A UUID string also fits
+                        # conflict_catalog_id (UUID) set below.
+                        staging_curriculum_id = str(uuid.uuid4())
+                        await conn.execute(
                             """
                             INSERT INTO curricula
-                                (school_id, name, grade, owner_type, status)
-                            VALUES ($1, $2, $3, 'school', 'draft')
-                            RETURNING id
+                                (curriculum_id, school_id, name, grade, year,
+                                 owner_type, status)
+                            VALUES ($1, $2, $3, $4, $5, 'school', 'draft')
                             """,
+                            staging_curriculum_id,
                             uuid.UUID(school_id),
                             staging_name,
-                            backup_data["curricula"][0].get("grade", 0)
-                            if backup_data.get("curricula")
-                            else 0,
+                            first_cur.get("grade", 0),
+                            first_cur.get("year", 0),
                         )
-                        staging_curriculum_id = str(staging_row["id"])
 
                         await conn.execute(
                             """
@@ -620,7 +635,7 @@ def dry_run_restore_task(request_id: str) -> None:
                         # Email school contact + super-admin about conflicts
                         conflict_summary = "\n".join(
                             f"  - subject={c.get('subject')} version={c.get('version_number')} "
-                            f"updated={c.get('updated_at')}"
+                            f"generated={c.get('generated_at')}"
                             for c in conflicts[:20]
                         )
                         if contact_email:
@@ -752,69 +767,74 @@ def execute_restore_task(request_id: str) -> None:
                     await _bypass(conn)
 
                     for cur in backup_data.get("curricula", []):
-                        orig_id = cur["id"]
+                        # curricula PK is curriculum_id (TEXT), not id; year is NOT NULL.
+                        orig_id = cur["curriculum_id"]
                         if side_by_side:
-                            # Create a new curriculum row with a dated name
+                            # Create a NEW curriculum (UUID-string id) with a dated name.
                             new_name = f"{cur.get('name', orig_id)}.{today_str}"
-                            new_row = await conn.fetchrow(
+                            target_id = str(uuid.uuid4())
+                            await conn.execute(
                                 """
                                 INSERT INTO curricula
-                                    (school_id, name, grade, owner_type, status, stream_code)
-                                VALUES ($1, $2, $3, $4, $5, $6)
-                                RETURNING id
+                                    (curriculum_id, school_id, name, grade, year,
+                                     owner_type, status, stream_code)
+                                VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
                                 """,
+                                target_id,
                                 uuid.UUID(school_id),
                                 new_name,
                                 cur.get("grade", 0),
+                                cur.get("year", 0),
                                 cur.get("owner_type", "school"),
                                 cur.get("status", "active"),
                                 cur.get("stream_code"),
                             )
-                            target_id = str(new_row["id"])
                         else:
-                            # Upsert into existing curriculum row
+                            # Upsert into the original curriculum row (by curriculum_id).
                             await conn.execute(
                                 """
                                 INSERT INTO curricula
-                                    (id, school_id, name, grade, owner_type, status, stream_code)
-                                VALUES ($1, $2, $3, $4, $5, $6, $7)
-                                ON CONFLICT (id) DO UPDATE
-                                SET name=$3, grade=$4, owner_type=$5,
-                                    status=$6, stream_code=$7
+                                    (curriculum_id, school_id, name, grade, year,
+                                     owner_type, status, stream_code)
+                                VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                                ON CONFLICT (curriculum_id) DO UPDATE
+                                SET name=$3, grade=$4, year=$5, owner_type=$6,
+                                    status=$7, stream_code=$8
                                 """,
-                                uuid.UUID(orig_id),
+                                orig_id,
                                 uuid.UUID(school_id),
                                 cur.get("name", ""),
                                 cur.get("grade", 0),
+                                cur.get("year", 0),
                                 cur.get("owner_type", "school"),
                                 cur.get("status", "active"),
                                 cur.get("stream_code"),
                             )
                             target_id = orig_id
 
-                        # Restore curriculum_units
+                        # Restore curriculum_units. PK is (unit_id, curriculum_id);
+                        # the real columns are subject/title/unit_name/has_lab/sort_order
+                        # (no id / grade / ordering).
                         for unit in backup_data.get("curriculum_units", []):
                             if unit.get("curriculum_id") != orig_id:
                                 continue
                             await conn.execute(
                                 """
                                 INSERT INTO curriculum_units
-                                    (id, curriculum_id, unit_id, title, unit_name,
-                                     subject, grade, has_lab, ordering)
-                                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-                                ON CONFLICT (id) DO UPDATE
-                                SET title=$4, unit_name=$5, subject=$6,
-                                    grade=$7, has_lab=$8, ordering=$9
+                                    (unit_id, curriculum_id, subject, title,
+                                     unit_name, has_lab, sort_order)
+                                VALUES ($1, $2, $3, $4, $5, $6, $7)
+                                ON CONFLICT (unit_id, curriculum_id) DO UPDATE
+                                SET subject=$3, title=$4, unit_name=$5,
+                                    has_lab=$6, sort_order=$7
                                 """,
-                                uuid.UUID(unit["id"]),
-                                uuid.UUID(target_id),
                                 unit.get("unit_id", ""),
+                                target_id,
+                                unit.get("subject", ""),
                                 unit.get("title", ""),
                                 unit.get("unit_name") or unit.get("title", ""),
-                                unit.get("subject", ""),
-                                unit.get("grade", 0),
                                 unit.get("has_lab", False),
-                                unit.get("ordering", 0),
+                                unit.get("sort_order", 0),
                             )
 
                     # Write content files from backup storage to content store
