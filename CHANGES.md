@@ -4,6 +4,27 @@
 
 ---
 
+### Fix — Expose health probes under `/api/v1` so `/api/v1/health` works (2026-06-12)
+
+**Branch:** `fix/api-v1-health-alias` → **PR #434** (merged to `main`, commit `04403d9`)
+
+**Symptom:** `GET /api/v1/health` returned a FastAPI 404 (`{"detail":"Not Found"}`) on the demo. The liveness/readiness/health probes were mounted only at root (`obs_router` → `/healthz`, `/readyz`, `/health`). nginx proxies both `/healthz` and `/api/v1/*` to the backend, but the probes never existed under the `/api/v1` prefix — so the natural API-consumer path 404'd, and only the root `/healthz` worked.
+
+**What ships:**
+
+| Area | Change |
+|---|---|
+| `backend/src/core/observability.py` | New `api_health_router` re-binding the same `liveness_check` / `readiness_check` / `health_check` handlers under `/api/v1`. All three `include_in_schema=False` (operational probes, kept OUT of the OpenAPI contract). Added the three `/api/v1` paths to `PrometheusMiddleware.EXCLUDE_PATHS` so probe traffic stays out of request metrics, like the root paths. |
+| `backend/src/core/app_factory.py` | `app.include_router(api_health_router, prefix="/api/v1")` alongside the existing root `obs_router`. |
+| `backend/tests/test_health.py` | Added `test_api_v1_health_ok` (deep check parity with `/health`) and `test_api_v1_healthz_liveness`. |
+
+**Notes:**
+- Root paths (`/healthz`, `/readyz`, `/health`, `/metrics`) unchanged — fully backwards-compatible.
+- Two CI hurdles cleared en route: a Ruff import-order fix (`I001`) and an OpenAPI **API-Contract drift** (the original `include_in_schema=True` aliases leaked into the schema → resolved by marking all aliases unexported, leaving the contract byte-identical to `main`).
+- Verified live after the post-merge deploy: `GET https://demo.usestudybuddy.com/api/v1/health` → `200 {"db":"ok","redis":"ok","version":"demo"}`. Documented in CLAUDE.md (PR #435).
+
+---
+
 ### Fix — Demo deploy: install `git` so the `wegofwd-llm` git+ pip dep resolves (2026-06-12)
 
 **Branch:** `fix/dockerfile-git-dep-deploy` → **PR #432** (merged to `main`, commit `4909952`)
