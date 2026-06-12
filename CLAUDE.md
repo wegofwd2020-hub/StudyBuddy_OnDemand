@@ -241,7 +241,12 @@ StudyBuddy_OnDemand/
       demo/              ← demo student + demo teacher request/verify flows
       core/              ← cache manager (L1+L2) · entitlement checker · circuit breakers
                             curriculum resolver dependency · Celery dispatcher
-                            observability.py  ← Prometheus metrics, GET /metrics, GET /health, correlation ID middleware
+                            observability.py  ← Prometheus metrics, GET /metrics, health probes, correlation ID middleware
+                                                 Liveness/readiness/health probes are served BOTH at root
+                                                 (/healthz, /readyz, /health) and under the API prefix
+                                                 (/api/v1/healthz, /api/v1/readyz, /api/v1/health) — the
+                                                 /api/v1 aliases exist because nginx proxies /api/v1/* to the
+                                                 backend; all probes are include_in_schema=False (not in OpenAPI)
                             events.py         ← emit_event() structured log + metric counter · write_audit_log() Celery dispatch
     tests/               ← pytest; ALL external calls mocked; no live DB in CI
     requirements.txt
