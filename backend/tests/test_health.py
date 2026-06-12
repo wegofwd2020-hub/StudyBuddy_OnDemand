@@ -37,6 +37,25 @@ async def test_health_with_provided_correlation_id(client: AsyncClient):
 
 
 @pytest.mark.asyncio
+async def test_api_v1_health_ok(client: AsyncClient):
+    """The /api/v1 alias of the deep health check behaves like /health."""
+    response = await client.get("/api/v1/health")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["db"] == "ok"
+    assert data["redis"] == "ok"
+    assert "version" in data
+
+
+@pytest.mark.asyncio
+async def test_api_v1_healthz_liveness(client: AsyncClient):
+    """The /api/v1 liveness alias returns the same 200 ok payload as /healthz."""
+    response = await client.get("/api/v1/healthz")
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
+
+
+@pytest.mark.asyncio
 async def test_metrics_requires_token(client: AsyncClient):
     """GET /metrics without a valid token returns 403."""
     response = await client.get("/metrics")
