@@ -30,7 +30,7 @@ from slowapi.errors import RateLimitExceeded
 from src.core.cors import build_lan_origin_regex
 from src.core.limiter import limiter
 from src.core.middleware import AppVersionMiddleware
-from src.core.observability import CorrelationIdMiddleware, PrometheusMiddleware
+from src.core.observability import CorrelationIdMiddleware, PrometheusMiddleware, api_health_router
 from src.core.observability import router as obs_router
 from src.utils.logger import get_logger
 
@@ -278,6 +278,8 @@ def _register_routers(app: FastAPI) -> None:
 
     # Health + metrics at root (no /api/v1 prefix).
     app.include_router(obs_router)
+    # Same liveness/readiness/health probes, also under /api/v1 (so /api/v1/health works).
+    app.include_router(api_health_router, prefix="/api/v1")
 
     app.include_router(auth_router, prefix="/api/v1")
     app.include_router(admin_auth_router, prefix="/api/v1")

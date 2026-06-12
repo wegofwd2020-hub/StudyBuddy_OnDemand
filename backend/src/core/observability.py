@@ -123,7 +123,18 @@ class PrometheusMiddleware(BaseHTTPMiddleware):
     Excludes /metrics itself (would self-spam) and /healthz (constant noise).
     """
 
-    EXCLUDE_PATHS = frozenset({"/metrics", "/healthz", "/readyz", "/health"})
+    EXCLUDE_PATHS = frozenset(
+        {
+            "/metrics",
+            "/healthz",
+            "/readyz",
+            "/health",
+            # /api/v1 aliases of the health probes (see api_health_router below)
+            "/api/v1/healthz",
+            "/api/v1/readyz",
+            "/api/v1/health",
+        }
+    )
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         if request.url.path in self.EXCLUDE_PATHS:
@@ -266,3 +277,26 @@ async def metrics_endpoint(request: Request) -> PlainTextResponse:
         generate_latest().decode("utf-8"),
         media_type=CONTENT_TYPE_LATEST,
     )
+
+
+# ── /api/v1 health aliases ────────────────────────────────────────────────────
+# The probes above are mounted at root (obs_router). nginx proxies both /healthz
+# and /api/v1/* to the backend, but the health routes never existed under the
+# /api/v1 prefix — so /api/v1/health fell through to the Next.js frontend (404).
+# Re-expose liveness + readiness + deep health under /api/v1 (included with
+# prefix="/api/v1" in app_factory) for callers that assume the API prefix. The
+# /api/v1 paths are added to PrometheusMiddleware.EXCLUDE_PATHS above so probe
+# traffic stays out of the request metrics, exactly like the root paths.
+#
+# All three are include_in_schema=False: these aliases are operational probes,
+# not part of the public API contract, so they must stay OUT of the OpenAPI
+# schema (the root /health + /readyz remain the documented entries). Keeping
+# them unexported avoids drifting the generated TypeScript types.
+api_health_router = APIRouter(tags=["observability"])
+api_health_router.add_api_route(
+    "/healthz", liveness_check, methods=["GET"], include_in_schema=False
+)
+api_health_router.add_api_route(
+    "/readyz", readiness_check, methods=["GET"], include_in_schema=False
+)
+api_health_router.add_api_route("/health", health_check, methods=["GET"], include_in_schema=False)
