@@ -2,8 +2,10 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# System dependencies (libpq/gcc for asyncpg; glib/pango/cairo for WeasyPrint PDF)
+# System dependencies (git for the wegofwd-llm git+ pip dep; libpq/gcc for asyncpg;
+# glib/pango/cairo for WeasyPrint PDF)
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
     libpq-dev \
     gcc \
     libglib2.0-0 \
