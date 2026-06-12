@@ -4,6 +4,34 @@
 
 ---
 
+### Fix — Demo deploy: install `git` so the `wegofwd-llm` git+ pip dep resolves (2026-06-12)
+
+**Branch:** `fix/dockerfile-git-dep-deploy` → **PR #432** (merged to `main`, commit `4909952`)
+**Closes incident:** [#428](https://github.com/wegofwd2020-hub/StudyBuddy_OnDemand/issues/428)
+
+**Symptom:** The **Deploy — Demo** workflow failed on every push to `main` from 2026-06-09 onward, at the *Build + push API image* step:
+
+```
+Collecting wegofwd-llm@ git+https://github.com/wegofwd2020-hub/wegofwd-llm@v0.1.2 ...
+ERROR: Cannot find command 'git' - do you have 'git' installed and in your PATH?
+```
+
+**Root cause:** PR #431 (ADR-012 consolidation, merged 2026-06-09 21:46) added a git-sourced dependency — `wegofwd-llm[anthropic] @ git+https://github.com/wegofwd2020-hub/wegofwd-llm@v0.1.2` — to `backend/requirements.txt` (line 56) and `pipeline/requirements.txt` (line 20). Both images build on `python:3.11-slim`, which ships no `git`, so `pip install` aborted before it could clone the dep. CI stayed green throughout because CI runs pytest directly and never builds the Docker images. The demo VPS stayed pinned on the `fc53bd70` images for ~3 days as a result.
+
+**What ships:**
+
+| Area | Change |
+|---|---|
+| `backend/Dockerfile` | Added `git` to the apt-get `--no-install-recommends` system-deps layer |
+| `pipeline/Dockerfile` | Same — the pipeline image installs the identical git dep |
+
+**Notes:**
+- The dep repo `wegofwd2020-hub/wegofwd-llm` is **public** and tag `v0.1.2` exists (`c6ca1ce`), so `git` alone unblocks the clone — no PAT/token or `GIT_*` build-arg required.
+- Validated via `workflow_dispatch` on the branch (build + deploy + smoke all green), then confirmed on the post-merge `main` deploy ([run 27410067294](https://github.com/wegofwd2020-hub/StudyBuddy_OnDemand/actions/runs/27410067294)) — Build + push images ✅, Deploy to demo VPS ✅, smoke check ✅.
+- Incident #428 was originally a *smoke-check* failure on `fc53bd70` (a distinct failure mode that predated the git-dep regression); its symptom is gone as of the current deploy.
+
+---
+
 ### Phase E — Pipeline Billing: cost estimate + Stripe-gated trigger (2026-04-12)
 
 **Branch:** `fix/test-isolation-and-prod-bugs`  
