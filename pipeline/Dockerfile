@@ -8,8 +8,9 @@ FROM python:3.11-slim
 
 WORKDIR /pipeline
 
-# System dependencies
+# System dependencies (git for the wegofwd-llm git+ pip dep)
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
     libpq-dev \
     gcc \
     && rm -rf /var/lib/apt/lists/*
