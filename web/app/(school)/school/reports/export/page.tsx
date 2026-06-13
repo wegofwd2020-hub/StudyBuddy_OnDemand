@@ -43,50 +43,83 @@ export default function ExportPage() {
     if (!schoolId) return;
     setState("loading");
     try {
+      // Friendly column headers ("%", not "pct"). `fields` is kept explicit so an
+      // empty dataset still produces a header row instead of a BOM-only file (which
+      // Excel renders as the junk "\u00EF\u00BB\u00BF"). See feedback tickets #452 / #453.
       let rows: Record<string, unknown>[] = [];
+      let fields: string[] = [];
       let filename = "export.csv";
       if (reportType === "overview") {
         const data = await getOverviewReport(schoolId, "30d");
+        fields = [
+          "Enrolled students",
+          "Active students",
+          "Active %",
+          "Lessons viewed",
+          "Quiz attempts",
+          "First-attempt pass rate %",
+          "Audio play rate %",
+          "Unreviewed feedback",
+        ];
         rows = [
           {
-            enrolled_students: data.enrolled_students,
-            active_students: data.active_students_period,
-            active_pct: data.active_pct.toFixed(1),
-            lessons_viewed: data.lessons_viewed,
-            quiz_attempts: data.quiz_attempts,
-            first_attempt_pass_rate_pct: data.first_attempt_pass_rate_pct.toFixed(1),
-            audio_play_rate_pct: data.audio_play_rate_pct.toFixed(1),
-            unreviewed_feedback: data.unreviewed_feedback_count,
+            "Enrolled students": data.enrolled_students,
+            "Active students": data.active_students_period,
+            "Active %": data.active_pct.toFixed(1),
+            "Lessons viewed": data.lessons_viewed,
+            "Quiz attempts": data.quiz_attempts,
+            "First-attempt pass rate %": data.first_attempt_pass_rate_pct.toFixed(1),
+            "Audio play rate %": data.audio_play_rate_pct.toFixed(1),
+            "Unreviewed feedback": data.unreviewed_feedback_count,
           },
         ];
         filename = `overview_${data.period}.csv`;
       } else if (reportType === "trends") {
         const data = await getTrendsReport(schoolId, "12w");
+        fields = [
+          "Week start",
+          "Active students",
+          "Lessons viewed",
+          "Quiz attempts",
+          "Average score %",
+          "First-attempt pass rate %",
+        ];
         rows = data.weeks.map((w) => ({
-          week_start: w.week_start,
-          active_students: w.active_students,
-          lessons_viewed: w.lessons_viewed,
-          quiz_attempts: w.quiz_attempts,
-          avg_score_pct: w.avg_score_pct.toFixed(1),
-          first_attempt_pass_rate_pct: w.first_attempt_pass_rate_pct.toFixed(1),
+          "Week start": w.week_start,
+          "Active students": w.active_students,
+          "Lessons viewed": w.lessons_viewed,
+          "Quiz attempts": w.quiz_attempts,
+          "Average score %": w.avg_score_pct.toFixed(1),
+          "First-attempt pass rate %": w.first_attempt_pass_rate_pct.toFixed(1),
         }));
         filename = "trends_12w.csv";
       } else if (reportType === "curriculum-health") {
         const data = await getCurriculumHealth(schoolId);
+        fields = [
+          "Unit ID",
+          "Unit name",
+          "Subject",
+          "Health tier",
+          "First-attempt pass rate %",
+          "Average score %",
+          "Avg attempts to pass",
+          "Feedback count",
+          "Recommended action",
+        ];
         rows = data.units.map((u) => ({
-          unit_id: u.unit_id,
-          unit_name: u.unit_name ?? "",
-          subject: u.subject,
-          health_tier: u.health_tier,
-          first_attempt_pass_rate_pct: u.first_attempt_pass_rate_pct.toFixed(1),
-          avg_score_pct: u.avg_score_pct.toFixed(1),
-          avg_attempts_to_pass: u.avg_attempts_to_pass.toFixed(2),
-          feedback_count: u.feedback_count,
-          recommended_action: u.recommended_action,
+          "Unit ID": u.unit_id,
+          "Unit name": u.unit_name ?? "",
+          Subject: u.subject,
+          "Health tier": u.health_tier,
+          "First-attempt pass rate %": u.first_attempt_pass_rate_pct.toFixed(1),
+          "Average score %": u.avg_score_pct.toFixed(1),
+          "Avg attempts to pass": u.avg_attempts_to_pass.toFixed(2),
+          "Feedback count": u.feedback_count,
+          "Recommended action": u.recommended_action,
         }));
         filename = "unit_performance.csv";
       }
-      const csv = Papa.unparse(rows);
+      const csv = Papa.unparse({ fields, data: rows });
       const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");

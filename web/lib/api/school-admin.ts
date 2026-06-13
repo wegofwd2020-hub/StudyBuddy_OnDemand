@@ -40,15 +40,18 @@ export async function getRoster(schoolId: string): Promise<RosterResponse> {
 export interface EnrolmentUploadResponse {
   enrolled: number;
   already_enrolled: number;
+  errors?: Array<Record<string, unknown>>;
 }
 
 export async function uploadRoster(
   schoolId: string,
   studentEmails: string[],
 ): Promise<EnrolmentUploadResponse> {
+  // Backend expects { students: [{ email }] } (migration 0024); the old flat
+  // { student_emails: [...] } shape was removed and would 422. See CLAUDE.md pitfall #21.
   const res = await schoolApi.post<EnrolmentUploadResponse>(
     `/schools/${schoolId}/enrolment`,
-    { student_emails: studentEmails },
+    { students: studentEmails.map((email) => ({ email })) },
   );
   return res.data;
 }
