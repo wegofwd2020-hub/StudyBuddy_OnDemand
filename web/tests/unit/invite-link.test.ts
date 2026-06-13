@@ -105,7 +105,7 @@ describe("inviteTeacher", () => {
 });
 
 describe("uploadRoster", () => {
-  it("posts student_emails array to enrolment endpoint", async () => {
+  it("posts a students array of {email} to the enrolment endpoint", async () => {
     mockPost.mockResolvedValueOnce({
       data: { enrolled: 3, already_enrolled: 1 },
     });
@@ -114,8 +114,10 @@ describe("uploadRoster", () => {
     const result = await uploadRoster("school-abc", emails);
     expect(result.enrolled).toBe(3);
     expect(result.already_enrolled).toBe(1);
+    // Backend contract (migration 0024): { students: [{ email }] }, not the
+    // removed flat { student_emails: [...] } shape. See feedback #437.
     expect(mockPost).toHaveBeenCalledWith("/schools/school-abc/enrolment", {
-      student_emails: emails,
+      students: emails.map((email) => ({ email })),
     });
   });
 });
