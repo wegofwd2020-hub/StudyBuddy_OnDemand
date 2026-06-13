@@ -4,6 +4,55 @@
 
 ---
 
+### Fix — Feedback batch 2: remaining UI fixes from Vneki's testing (2026-06-13)
+
+**Branch:** `fix/feedback-ui-batch-2` → **PR #455** (merged to `main`, commit `16b1776`)
+**Closes:** [#442](https://github.com/wegofwd2020-hub/StudyBuddy_OnDemand/issues/442), [#445](https://github.com/wegofwd2020-hub/StudyBuddy_OnDemand/issues/445), [#447](https://github.com/wegofwd2020-hub/StudyBuddy_OnDemand/issues/447), [#448](https://github.com/wegofwd2020-hub/StudyBuddy_OnDemand/issues/448), [#450](https://github.com/wegofwd2020-hub/StudyBuddy_OnDemand/issues/450)
+
+**Source:** second half of the `Feedback_06_13_2026.docx` testing pass (tester: Vneki). All five live-verified against the demo deployment during triage.
+
+**What ships:**
+
+| Area | Change |
+|---|---|
+| `web/app/(school)/school/catalog/page.tsx` (#442) | The empty radio-style `Circle` on each catalog subject read as a "pick one" control. Subjects are content-readiness indicators (adoption is whole-package via "Add to library") — swapped the circle for a `Clock` icon + a **Ready/Pending** pill so it no longer looks selectable. |
+| `backend/src/visuals/router.py` + `web/app/(school)/school/visuals/page.tsx` (#445) | Validate `curriculum_id`/`unit_id`/`section_id` format (`^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$`) on **both** client and backend. Rejects junk like `===============` and, by excluding `/`, closes a path-traversal hole in the storage key. |
+| `web/app/not-found.tsx` (#447) | "Go home" now routes a signed-in user to their own portal home (`/admin` · `/school/dashboard` · `/student/dashboard`) based on the token in `localStorage`, instead of the public landing/login page (which read as a surprise logout). Converted to a client component; default `/` for SSR then resolve on mount (no hydration mismatch). |
+| `web/components/layout/PortalHeader.tsx` (#448) | Role badge (Admin / School Admin / Teacher / Student) derived in-component (school role from `useTeacher()` JWT); gated on mount to avoid a hydration mismatch. No caller changes. |
+| `web/components/layout/AdministrationMenu.tsx` (#450) | Indent menu items (`pl-8`) under the "Curriculum" / "User Management" section headings for a clear heading↔item hierarchy. |
+| `backend/tests/test_visuals_router.py` | +2 tests: junk `curriculum_id` → 400, path-traversal `unit_id` → 400. |
+
+**Notes:**
+- #445 validation is **format-only** (not an existence check against `curricula`) — keeps the upload endpoint DB-free as it is today while still rejecting junk and traversal.
+- #448 admin portal shows "Admin" (not the specific super/product sub-role) — enough for the "which kind of user" ask.
+- Verified locally: Prettier + ESLint + `tsc` + full vitest (834 tests) green; ID regex checked standalone. CI green on first run.
+
+---
+
+### Fix — Feedback batch 1: quick-win fixes from Vneki's testing (2026-06-13)
+
+**Branch:** `fix/feedback-quick-wins` → **PR #454** (merged to `main`, commit `ca5b9f1`)
+**Closes:** [#437](https://github.com/wegofwd2020-hub/StudyBuddy_OnDemand/issues/437), [#438](https://github.com/wegofwd2020-hub/StudyBuddy_OnDemand/issues/438), [#446](https://github.com/wegofwd2020-hub/StudyBuddy_OnDemand/issues/446), [#451](https://github.com/wegofwd2020-hub/StudyBuddy_OnDemand/issues/451), [#452](https://github.com/wegofwd2020-hub/StudyBuddy_OnDemand/issues/452), [#453](https://github.com/wegofwd2020-hub/StudyBuddy_OnDemand/issues/453)
+
+**Source:** first half of the `Feedback_06_13_2026.docx` testing pass (tester: Vneki).
+
+**What ships:**
+
+| Area | Change |
+|---|---|
+| `web/lib/api/school-admin.ts` (#437) | "Bulk enrol by email" always 422'd: the client sent `{student_emails:[...]}`, but the backend expects `{students:[{email}]}` (the post-migration-0024 contract; CLAUDE.md pitfall #21). `uploadRoster` now maps emails to that shape. |
+| `web/app/(school)/school/students/page.tsx` (#438) | "Add student" mapped **every** 422 to "Invalid grade…". Now parses the FastAPI `detail[].loc` and surfaces a field-specific message (email / grade / name). |
+| `web/app/(school)/school/reports/alerts/settings/page.tsx` (#446) | New page — the "Configure thresholds" link 404'd because `/school/reports/alerts/settings` didn't exist. Wired to the existing `PUT /reports/school/{id}/alerts/settings` endpoint (form pre-filled with the server defaults; no GET endpoint yet). |
+| `backend/src/reports/service.py` (#451) | Trends report `week_start` landed on whatever weekday the report ran (Saturdays in the demo). Anchored week buckets to ISO **Monday** instead of `now - N weeks`. |
+| `web/app/(school)/school/reports/export/page.tsx` (#452, #453) | Report CSV headers now read `Active %` etc. instead of `…_pct`; and empty datasets emit a header row (`Papa.unparse({fields,data})`) instead of a BOM-only file that Excel rendered as `ï»¿`. |
+| `backend/tests/test_reports.py` · `web/tests/unit/invite-link.test.ts` | +Monday regression assertion on the trends test; updated the `uploadRoster` unit test to the new `{students:[{email}]}` contract. |
+
+**Notes:**
+- CI's first run caught the `invite-link.test.ts` assertion still expecting the old `{student_emails}` payload — proof the #437 fix changed the wire format. Fixed in a follow-up commit (`77e82c1`); re-run green.
+- The five frontend tickets were confirmed present in the live demo bundle during triage; #439/#440 (add-teacher) were **excluded** — deployed code equals `main` and isn't reproducible.
+
+---
+
 ### Fix — Expose health probes under `/api/v1` so `/api/v1/health` works (2026-06-12)
 
 **Branch:** `fix/api-v1-health-alias` → **PR #434** (merged to `main`, commit `04403d9`)
