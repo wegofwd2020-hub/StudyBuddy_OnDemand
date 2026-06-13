@@ -7,6 +7,7 @@ import { Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AdministrationMenu } from "@/components/layout/AdministrationMenu";
 import { AccountMenu } from "@/components/layout/AccountMenu";
+import { useTeacher } from "@/lib/hooks/useTeacher";
 
 const PORTAL_ICONS = {
   public: { src: "/assets/home_banner.png", alt: "StudyBuddy" },
@@ -27,6 +28,22 @@ export function PortalHeader({
   // The clock appears after the first client-side effect and ticks every minute.
   const [now, setNow] = useState<Date | null>(null);
   const { enabled: dyslexic, toggle: toggleDyslexic } = useDyslexia();
+  const teacher = useTeacher();
+
+  // Which kind of account is signed in (feedback #448). For the school portal the
+  // school_admin vs teacher distinction comes from the JWT via useTeacher().
+  const roleLabel =
+    portal === "admin"
+      ? "Admin"
+      : portal === "student"
+        ? "Student"
+        : portal === "school"
+          ? teacher?.role === "school_admin"
+            ? "School Admin"
+            : teacher
+              ? "Teacher"
+              : null
+          : null;
 
   useEffect(() => {
     setNow(new Date());
@@ -88,6 +105,15 @@ export function PortalHeader({
         {/* School portal: username is the account-menu trigger (config + sign out
             moved off the left rail — issue #367 AP-4). Other portals keep the
             static username display. */}
+        {/* Role indicator — Admin / School Admin / Teacher / Student (#448).
+            Gated on `now` so it only renders after mount (avoids a hydration
+            mismatch from useTeacher reading the JWT from localStorage). */}
+        {now && roleLabel && (
+          <span className="hidden rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600 sm:inline">
+            {roleLabel}
+          </span>
+        )}
+
         {portal === "school" ? (
           <div className="flex items-center gap-3">
             <AccountMenu userName={userName} />

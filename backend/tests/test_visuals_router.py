@@ -94,6 +94,36 @@ async def test_upload_rejects_empty_file(client: AsyncClient, visuals_root: Path
 
 
 @pytest.mark.asyncio
+async def test_upload_rejects_junk_curriculum_id(client: AsyncClient, visuals_root: Path):
+    """Junk path components (e.g. '===============') are rejected with 400 (feedback #445)."""
+    school_id = str(uuid.uuid4())
+    token = make_teacher_token(school_id=school_id, role="teacher")
+    files = {"file": ("x.svg", io.BytesIO(_svg_payload()), "image/svg+xml")}
+    data = {"curriculum_id": "===============", "unit_id": "u", "section_id": "s1"}
+    res = await client.post(
+        f"/api/v1/schools/{school_id}/visuals/upload",
+        files=files, data=data,
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert res.status_code == 400, res.text
+
+
+@pytest.mark.asyncio
+async def test_upload_rejects_path_traversal_id(client: AsyncClient, visuals_root: Path):
+    """A unit_id containing a slash can't escape the storage key (feedback #445)."""
+    school_id = str(uuid.uuid4())
+    token = make_teacher_token(school_id=school_id, role="teacher")
+    files = {"file": ("x.svg", io.BytesIO(_svg_payload()), "image/svg+xml")}
+    data = {"curriculum_id": "c", "unit_id": "../../etc", "section_id": "s1"}
+    res = await client.post(
+        f"/api/v1/schools/{school_id}/visuals/upload",
+        files=files, data=data,
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert res.status_code == 400, res.text
+
+
+@pytest.mark.asyncio
 async def test_upload_rejects_other_school(client: AsyncClient, visuals_root: Path):
     """Teacher from school A cannot upload to school B."""
     school_a = str(uuid.uuid4())

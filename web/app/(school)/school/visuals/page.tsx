@@ -30,6 +30,10 @@ import {
  * `visuals[]` array is a follow-up slice; for now this page lets a school
  * admin manage the asset pool that the tutorial JSON will reference.
  */
+// IDs must start alphanumeric, then alnum / '.' '_' '-' — mirrors the backend
+// guard so junk like "===============" is caught before upload (feedback #445).
+const ID_RE = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
+
 export default function VisualLibraryPage() {
   const teacher = useTeacher();
   const qc = useQueryClient();
@@ -84,11 +88,17 @@ export default function VisualLibraryPage() {
   const canSubmit = useMemo(
     () =>
       !!upFile &&
-      upCurriculum.trim().length > 0 &&
-      upUnit.trim().length > 0 &&
-      upSection.trim().length > 0,
+      ID_RE.test(upCurriculum.trim()) &&
+      ID_RE.test(upUnit.trim()) &&
+      ID_RE.test(upSection.trim()),
     [upFile, upCurriculum, upUnit, upSection],
   );
+
+  // True when the user has typed something that isn't a valid ID — drives the hint.
+  const showIdHint =
+    (upCurriculum.trim().length > 0 && !ID_RE.test(upCurriculum.trim())) ||
+    (upUnit.trim().length > 0 && !ID_RE.test(upUnit.trim())) ||
+    (upSection.trim().length > 0 && !ID_RE.test(upSection.trim()));
 
   if (!teacher) {
     return (
@@ -155,6 +165,12 @@ export default function VisualLibraryPage() {
                 />
               </div>
             </div>
+            {showIdHint && (
+              <p className="text-xs text-amber-600">
+                IDs must start with a letter or number and use only letters, numbers,
+                &quot;.&quot;, &quot;_&quot;, or &quot;-&quot;.
+              </p>
+            )}
             <div>
               <Label htmlFor="up-file">File (≤20 MB)</Label>
               <Input

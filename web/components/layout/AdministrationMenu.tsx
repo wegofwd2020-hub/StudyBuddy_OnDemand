@@ -113,7 +113,9 @@ export function AdministrationMenu() {
                   href={l.href}
                   onClick={() => setOpen(false)}
                   className={cn(
-                    "block px-4 py-2 text-sm transition-colors",
+                    // Indent items under the section heading so the heading↔item
+                    // hierarchy is visually clear (feedback #450).
+                    "block py-2 pr-4 pl-8 text-sm transition-colors",
                     pathname.startsWith(l.href)
                       ? "bg-blue-50 font-medium text-blue-700"
                       : "text-gray-700 hover:bg-gray-50",
