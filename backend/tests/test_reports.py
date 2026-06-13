@@ -21,7 +21,7 @@ Coverage:
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from unittest.mock import patch
 
 import pytest
@@ -103,7 +103,7 @@ async def _insert_session(
     days_ago: int = 1,
 ) -> None:
     pool = client._transport.app.state.pool
-    started_at = datetime.now(timezone.utc) - timedelta(days=days_ago)
+    started_at = datetime.now(UTC) - timedelta(days=days_ago)
     await pool.execute(
         """
         INSERT INTO progress_sessions
@@ -126,7 +126,7 @@ async def _insert_lesson_view(
     days_ago: int = 1,
 ) -> None:
     pool = client._transport.app.state.pool
-    started_at = datetime.now(timezone.utc) - timedelta(days=days_ago)
+    started_at = datetime.now(UTC) - timedelta(days=days_ago)
     await pool.execute(
         """
         INSERT INTO lesson_views
@@ -406,10 +406,17 @@ async def test_trends_report_returns_4_weeks(client, db_conn):
     assert r.status_code == 200, r.text
     data = r.json()
     assert len(data["weeks"]) == 4
+    from datetime import datetime as _dt
+
     for week in data["weeks"]:
         assert "week_start" in week
         assert "active_students" in week
         assert "lessons_viewed" in week
+        # week_start must always be a Monday (ISO week), regardless of the day the
+        # report is run — regression guard for feedback ticket #451.
+        assert (
+            _dt.strptime(week["week_start"], "%Y-%m-%d").weekday() == 0
+        ), f"week_start {week['week_start']} is not a Monday"
 
 
 # ── Export ─────────────────────────────────────────────────────────────────────

@@ -460,11 +460,32 @@ function AdminStudentView({ schoolId }: { schoolId: string }) {
       qc.invalidateQueries({ queryKey: ["roster", schoolId] });
     },
     onError: (err: unknown) => {
-      const status = (err as { response?: { status?: number } })?.response?.status;
+      const resp = (
+        err as { response?: { status?: number; data?: { detail?: unknown } } }
+      )?.response;
+      const status = resp?.status;
       if (status === 409) {
         setAddError("A student with that email already exists.");
       } else if (status === 422) {
-        setAddError("Invalid grade — must be between 1 and 12.");
+        // FastAPI returns detail: [{ loc: ["body", <field>], msg }]. Surface a
+        // message for the field that actually failed rather than always blaming grade.
+        const detail = resp?.data?.detail;
+        const fields = Array.isArray(detail)
+          ? detail.flatMap((d) =>
+              Array.isArray((d as { loc?: unknown[] })?.loc)
+                ? ((d as { loc: unknown[] }).loc as unknown[]).map(String)
+                : [],
+            )
+          : [];
+        if (fields.includes("email")) {
+          setAddError("Enter a valid email address.");
+        } else if (fields.includes("grade")) {
+          setAddError("Invalid grade — must be between 1 and 12.");
+        } else if (fields.includes("name")) {
+          setAddError("Enter the student's full name.");
+        } else {
+          setAddError("Please check the name, email, and grade and try again.");
+        }
       } else {
         setAddError("Could not add student. Please try again.");
       }

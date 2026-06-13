@@ -833,10 +833,16 @@ async def get_trends(
         f"AND student_id = ANY(ARRAY[{id_placeholders}]::uuid[])" if id_uuids else "AND FALSE"
     )
 
+    # Anchor buckets to ISO weeks (Monday 00:00 UTC) so the week_start labels are
+    # always Mondays, regardless of which weekday the report happens to be run on.
+    # (Previously week_start = now - N weeks, which tracked today's weekday.)
+    this_monday = (now - timedelta(days=now.weekday())).replace(
+        hour=0, minute=0, second=0, microsecond=0
+    )
     weeks = []
     for i in range(n_weeks - 1, -1, -1):
-        week_end = now - timedelta(weeks=i)
-        week_start = week_end - timedelta(weeks=1)
+        week_start = this_monday - timedelta(weeks=i)
+        week_end = week_start + timedelta(weeks=1)
 
         lv_row = await conn.fetchrow(
             f"""
