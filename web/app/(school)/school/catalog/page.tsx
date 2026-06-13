@@ -24,7 +24,7 @@ import {
   LayoutGrid,
   BookOpen as BookOpenIcon,
   CheckCircle2,
-  Circle,
+  Clock,
   BookMarked,
   Plus,
 } from "lucide-react";
@@ -83,7 +83,9 @@ function CatalogDetail({
         </span>
       </div>
 
-      {/* Subject list */}
+      {/* Subject list — these are content-readiness *indicators*, not selectable
+          controls. Adoption is whole-package via "Add to library" below; the empty
+          radio-style circle was misread as a pick-one control (feedback #442). */}
       {pkg.subjects.length > 0 ? (
         <ul className="divide-y divide-gray-50">
           {pkg.subjects.map((s) => (
@@ -94,14 +96,23 @@ function CatalogDetail({
                   aria-hidden="true"
                 />
               ) : (
-                <Circle
-                  className="h-3.5 w-3.5 shrink-0 text-gray-300"
+                <Clock
+                  className="h-3.5 w-3.5 shrink-0 text-amber-400"
                   aria-hidden="true"
                 />
               )}
               <span className="flex-1 text-gray-700">{s.subject_name ?? s.subject}</span>
               <span className="text-xs text-gray-400">
                 {s.unit_count} unit{s.unit_count !== 1 ? "s" : ""}
+              </span>
+              <span
+                className={`rounded-full px-1.5 py-0.5 text-[10px] font-medium ${
+                  s.has_content
+                    ? "bg-green-50 text-green-600"
+                    : "bg-amber-50 text-amber-600"
+                }`}
+              >
+                {s.has_content ? "Ready" : "Pending"}
               </span>
             </li>
           ))}

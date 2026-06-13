@@ -46,6 +46,23 @@ MAX_BYTES = int(os.environ.get("VISUAL_UPLOAD_MAX_BYTES", str(20 * 1024 * 1024))
 
 _SLUG_RE = re.compile(r"[^a-z0-9._-]+")
 
+# Path components (curriculum_id / unit_id / section_id) must look like real IDs:
+# start alphanumeric, then alnum / '.' '_' '-'. This rejects junk like
+# "===============" and, by excluding '/', prevents path traversal in the
+# storage key (feedback #445).
+_ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
+
+
+def _validate_id(field: str, value: str) -> None:
+    if not _ID_RE.fullmatch(value or ""):
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"Invalid {field}: must start with a letter or number and contain "
+                "only letters, numbers, '.', '_', or '-'."
+            ),
+        )
+
 
 def _slugify(name: str) -> str:
     base, ext = os.path.splitext(name.lower())
@@ -94,6 +111,10 @@ async def upload_visual(
     """
     if teacher["school_id"] != school_id:
         raise HTTPException(status_code=403, detail="Forbidden")
+
+    _validate_id("curriculum_id", curriculum_id)
+    _validate_id("unit_id", unit_id)
+    _validate_id("section_id", section_id)
 
     content_type = (file.content_type or "").lower()
     if content_type not in ALLOWED_MIME:
