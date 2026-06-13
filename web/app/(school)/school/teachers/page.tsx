@@ -500,13 +500,38 @@ export default function TeachersPage() {
       queryClient.invalidateQueries({ queryKey: ["teachers", schoolId] });
     },
     onError: (err: unknown) => {
-      const status = (err as { response?: { status?: number } })?.response?.status;
+      const resp = (
+        err as { response?: { status?: number; data?: { detail?: unknown } } }
+      )?.response;
+      const status = resp?.status;
       if (status === 409) {
         setAddError("A teacher with that email already exists.");
+      } else if (status === 422) {
+        // FastAPI 422 `detail` is an array of {loc, msg} objects. It must NEVER be
+        // set raw — rendering an object array as a React child throws and trips the
+        // "This page couldn't load" error boundary (feedback #440). Map it to a
+        // field-specific message instead.
+        const detail = resp?.data?.detail;
+        const fields = Array.isArray(detail)
+          ? detail.flatMap((d) =>
+              Array.isArray((d as { loc?: unknown[] })?.loc)
+                ? ((d as { loc: unknown[] }).loc as unknown[]).map(String)
+                : [],
+            )
+          : [];
+        if (fields.includes("email")) {
+          setAddError("Enter a valid work email address.");
+        } else if (fields.includes("name")) {
+          setAddError("Enter the teacher's full name.");
+        } else {
+          setAddError(
+            typeof detail === "string"
+              ? detail
+              : "Please check the name and email and try again.",
+          );
+        }
       } else {
-        const detail = (err as { response?: { data?: { detail?: string } } })?.response
-          ?.data?.detail;
-        setAddError(detail ?? "Could not add teacher. Please try again.");
+        setAddError("Could not add teacher. Please try again.");
       }
     },
   });

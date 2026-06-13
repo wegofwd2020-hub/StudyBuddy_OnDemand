@@ -174,6 +174,48 @@ describe("SCH-43 — Successful provisioning", () => {
 });
 
 // ---------------------------------------------------------------------------
+// SCH-43b — A 422 validation error must not crash the page (feedback #440).
+// FastAPI returns detail as an ARRAY of objects; rendering it raw threw
+// "Objects are not valid as a React child" → "This page couldn't load".
+// ---------------------------------------------------------------------------
+
+describe("SCH-43b — 422 validation error shows a message, not a crash", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockUseTeacher.mockReturnValue(MOCK_ADMIN);
+    mockUseQuery.mockReturnValue({ data: { alerts: [] }, isLoading: false });
+    mockProvisionTeacher.mockRejectedValue({
+      response: {
+        status: 422,
+        data: {
+          detail: [
+            {
+              type: "value_error",
+              loc: ["body", "email"],
+              msg: "value is not a valid email address",
+            },
+          ],
+        },
+      },
+    });
+  });
+
+  it("maps the 422 detail array to a friendly email message", async () => {
+    render(<TeachersPage />);
+    fireEvent.change(screen.getByLabelText(TEACHERS_STRINGS.nameLabel), {
+      target: { value: "Junk" },
+    });
+    fireEvent.change(screen.getByLabelText(TEACHERS_STRINGS.emailLabel), {
+      target: { value: "notanemail" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: TEACHERS_STRINGS.addBtn }));
+    expect(
+      await screen.findByText("Enter a valid work email address."),
+    ).toBeInTheDocument();
+  });
+});
+
+// ---------------------------------------------------------------------------
 // SCH-44 — Teachers/Students moved off the left rail into the Administration
 // menu (#415). The rail no longer lists them; the top-bar AdministrationMenu
 // gates them (User Management = school_admin only).
