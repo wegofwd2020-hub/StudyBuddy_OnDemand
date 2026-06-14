@@ -20,7 +20,7 @@ const requestSchema = z.object({
 
 const resetSchema = z
   .object({
-    password: z.string().min(8, "At least 8 characters"),
+    password: z.string().min(12, "At least 12 characters"),
     confirm: z.string(),
   })
   .refine((d) => d.password === d.confirm, {

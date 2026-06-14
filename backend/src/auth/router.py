@@ -8,7 +8,8 @@ Routes:
   POST /auth/teacher/exchange      — Auth0 id_token → internal JWT (teacher)
   POST /auth/refresh               — refresh token → new JWT
   POST /auth/logout                — invalidate refresh token
-  POST /auth/forgot-password       — trigger Auth0 password reset (always 200)
+  POST /auth/forgot-password       — local token email or Auth0 reset (always 200)
+  POST /auth/reset-password        — consume one-time token, set new password (local)
   PATCH /student/profile           — update student name/locale/grade
   GET   /auth/settings             — get display_name, locale, notification preferences
   PATCH /auth/settings             — update display_name, locale, notification preferences
@@ -20,6 +21,8 @@ All prefixed with /api/v1 in main.py.
 from __future__ import annotations
 
 import hashlib
+import secrets
+import uuid
 from datetime import UTC, datetime
 from typing import Annotated
 
@@ -36,6 +39,7 @@ from src.auth.schemas import (
     LogoutRequest,
     RefreshRequest,
     RefreshResponse,
+    ResetPasswordRequest,
     StudentProfileUpdate,
     StudentPublic,
     TeacherPublic,
@@ -48,9 +52,11 @@ from src.auth.service import (
     _TIMING_SENTINEL_HASH,
     _hash_refresh_token,
     create_internal_jwt,
+    find_local_user_by_email,
     generate_refresh_token,
     hash_password,
     login_local_user,
+    set_local_user_password,
     trigger_auth0_password_reset,
     upsert_student,
     upsert_teacher,
@@ -63,6 +69,7 @@ from src.core.events import emit_event, write_audit_log
 from src.core.observability import auth_exchanges_total, auth_failures_total
 from src.core.rate_limit import ip_auth_rate_limit
 from src.core.redis_client import get_redis
+from src.email.service import send_local_reset_link_email
 from src.school.enrolment_service import link_student
 from src.utils.logger import get_logger
 
@@ -74,6 +81,9 @@ _REFRESH_TTL = settings.JWT_REFRESH_TOKEN_EXPIRE_DAYS * 86400  # seconds
 # Per-email forgot-password rate limit (Redis, prevents email flooding via proxies).
 _FORGOT_PW_LIMIT = 5
 _FORGOT_PW_TTL = 3600  # 1 hour
+
+# One-time self-serve reset token TTL (local school-provisioned users, issue #444).
+_RESET_TOKEN_TTL = 3600  # 1 hour
 
 
 # ── Student exchange ──────────────────────────────────────────────────────────
@@ -391,14 +401,19 @@ async def forgot_password(
     _: None = Depends(ip_auth_rate_limit),
 ):
     """
-    Trigger Auth0 password reset email.
+    Trigger a password reset for the given email.
 
-    Always returns HTTP 200 regardless of whether the email is registered.
-    Different responses would leak registered email addresses.
+    Local (school-provisioned) users are not in Auth0, so the Auth0 reset email
+    never reaches them (issue #444). For those, issue a one-time token, stash it
+    in Redis, and email a self-serve reset link. Self-registered users with no
+    local account fall back to the Auth0 hosted reset flow.
 
-    Per-email Redis guard (5/hour): suppresses the Auth0 call once the limit is
-    exceeded so a single email address cannot be flooded even from rotating IPs.
-    The 200 response is always returned to preserve the non-enumeration guarantee.
+    Always returns HTTP 200 regardless of whether the email is registered or which
+    track it belongs to — different responses would leak registered email addresses.
+
+    Per-email Redis guard (5/hour): suppresses the work once the limit is exceeded
+    so a single email address cannot be flooded even from rotating IPs. The 200
+    response is always returned to preserve the non-enumeration guarantee.
     """
     redis = get_redis(request)
 
@@ -414,12 +429,82 @@ async def forgot_password(
         pipe.incr(fp_key)
         pipe.expire(fp_key, _FORGOT_PW_TTL)
         await pipe.execute()
-        try:
-            await trigger_auth0_password_reset(str(body.email))
-        except Exception:
-            pass
+
+        local_user = await find_local_user_by_email(request.app.state.pool, str(body.email))
+        if local_user is not None:
+            # Self-serve token flow for school-provisioned users.
+            token = secrets.token_urlsafe(32)
+            await redis.set(
+                f"local_pw_reset:{token}",
+                f"{local_user['user_type']}:{local_user['user_id']}",
+                ex=_RESET_TOKEN_TTL,
+            )
+            try:
+                await send_local_reset_link_email(local_user["email"], local_user["name"], token)
+            except Exception as exc:
+                # Never surface failures — preserve the always-200 contract. Do
+                # not log the token or the email address.
+                log.error("local_reset_email_failed", error=str(exc))
+        else:
+            try:
+                await trigger_auth0_password_reset(str(body.email))
+            except Exception:
+                pass
 
     emit_event("auth", "forgot_password_requested")
+    return {}
+
+
+# ── Self-serve reset: consume one-time token (local users, issue #444) ────────
+
+
+@router.post("/auth/reset-password")
+async def reset_password(
+    body: ResetPasswordRequest,
+    request: Request,
+    _: None = Depends(ip_auth_rate_limit),
+):
+    """
+    Complete a self-serve password reset for a local (school-provisioned) user.
+
+    Consumes the one-time token issued by POST /auth/forgot-password, sets the new
+    password, clears first_login, and invalidates the token (single-use). Returns
+    400 on an invalid or expired token. Auth0 users never reach this path — their
+    reset happens entirely within Auth0's hosted flow.
+    """
+    cid = getattr(request.state, "correlation_id", "")
+    redis = get_redis(request)
+
+    key = f"local_pw_reset:{body.token}"
+    stored = await redis.get(key)
+    invalid = HTTPException(
+        status_code=400,
+        detail={
+            "error": "bad_request",
+            "detail": "This reset link is invalid or has expired.",
+            "correlation_id": cid,
+        },
+    )
+    if not stored:
+        raise invalid
+
+    stored_str = stored.decode() if isinstance(stored, (bytes, bytearray)) else str(stored)
+    user_type, _, user_id = stored_str.partition(":")
+    if user_type not in ("teacher", "student") or not user_id:
+        await redis.delete(key)
+        raise invalid
+
+    new_hash = await hash_password(body.new_password)
+    updated = await set_local_user_password(request.app.state.pool, user_type, user_id, new_hash)
+
+    # Single-use: burn the token whether or not the row still exists.
+    await redis.delete(key)
+
+    if not updated:
+        raise invalid
+
+    emit_event("auth", "password_reset_completed", user_type=user_type)
+    write_audit_log("auth.password_reset_completed", user_type, uuid.UUID(user_id))
     return {}
 
 

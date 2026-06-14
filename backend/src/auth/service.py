@@ -456,6 +456,77 @@ async def login_local_user(
     return result
 
 
+async def find_local_user_by_email(pool: asyncpg.Pool, email: str) -> dict | None:
+    """
+    Look up a local (school-provisioned) user by email for the self-serve reset
+    flow. Checks teachers first, then students. Returns a dict with keys
+    user_type / user_id / name / email, or None if no local user matches.
+
+    Stamps app.current_school_id='bypass' (pitfall #23) so RLS does not hide the
+    row — this is called from the unauthenticated forgot-password endpoint.
+    """
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        try:
+            row = await conn.fetchrow(
+                """
+                SELECT teacher_id::text AS user_id, name, email, 'teacher' AS user_type
+                FROM teachers
+                WHERE email = $1 AND auth_provider = 'local'
+                """,
+                email,
+            )
+            if row is None:
+                row = await conn.fetchrow(
+                    """
+                    SELECT student_id::text AS user_id, name, email, 'student' AS user_type
+                    FROM students
+                    WHERE email = $1 AND auth_provider = 'local'
+                    """,
+                    email,
+                )
+        finally:
+            await conn.execute("SELECT set_config('app.current_school_id', '', false)")
+
+    return dict(row) if row is not None else None
+
+
+async def set_local_user_password(
+    pool: asyncpg.Pool, user_type: str, user_id: str, new_hash: str
+) -> bool:
+    """
+    Set a local user's password_hash and clear first_login. Returns True if a row
+    was updated. A self-serve reset is a deliberate password choice by the user,
+    so first_login is set FALSE (unlike admin provisioning/reset, which sets it
+    TRUE to force a change on next login).
+
+    Stamps app.current_school_id='bypass' (pitfall #23) — called from the
+    unauthenticated reset-password endpoint.
+    """
+    if user_type not in ("teacher", "student"):
+        raise ValueError(f"unexpected user_type: {user_type!r}")
+    table, id_col = (
+        ("teachers", "teacher_id") if user_type == "teacher" else ("students", "student_id")
+    )
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        try:
+            status = await conn.execute(
+                f"""
+                UPDATE {table}
+                   SET password_hash = $1, first_login = FALSE
+                 WHERE {id_col} = $2::uuid AND auth_provider = 'local'
+                """,
+                new_hash,
+                user_id,
+            )
+        finally:
+            await conn.execute("SELECT set_config('app.current_school_id', '', false)")
+
+    # asyncpg returns e.g. "UPDATE 1" / "UPDATE 0".
+    return status.rsplit(" ", 1)[-1] != "0"
+
+
 # ── Auth0 Management API ──────────────────────────────────────────────────────
 # Thin re-exports — implementation lives in src/auth/auth0_client.py where the
 # Redis-cached token logic and 401 retry are co-located.

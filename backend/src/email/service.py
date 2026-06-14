@@ -677,6 +677,67 @@ async def send_password_reset_email(to_email: str, name: str, password: str) -> 
     )
 
 
+_RESET_LINK_SUBJECT = "StudyBuddy — reset your password"
+
+_RESET_LINK_TEXT = """\
+Hi {name},
+
+We received a request to reset the password for your StudyBuddy account.
+
+Reset your password here:
+{reset_url}
+
+This link expires in 1 hour and can only be used once. If you didn't request
+this, you can safely ignore this email — your password won't change.
+
+— The StudyBuddy Team
+"""
+
+_RESET_LINK_HTML = """\
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8" /></head>
+<body style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:24px">
+  <h2 style="color:#1a56db">Reset your password</h2>
+  <p>Hi {name},</p>
+  <p>We received a request to reset the password for your StudyBuddy account.</p>
+  <p style="margin:24px 0">
+    <a href="{reset_url}"
+       style="background:#1a56db;color:#fff;padding:12px 20px;border-radius:6px;
+              text-decoration:none;font-weight:bold">Reset password</a>
+  </p>
+  <p style="color:#666;font-size:13px">
+    Or paste this link into your browser:<br />
+    <a href="{reset_url}" style="color:#1a56db">{reset_url}</a>
+  </p>
+  <p style="color:#666;font-size:13px">
+    This link expires in 1 hour and can only be used once. If you didn't request
+    this, you can safely ignore this email — your password won't change.
+  </p>
+  <p style="color:#666;font-size:13px">— The StudyBuddy Team</p>
+</body>
+</html>
+"""
+
+
+async def send_local_reset_link_email(to_email: str, name: str, token: str) -> None:
+    """
+    Send a self-serve password reset link to a local (school-provisioned) user.
+
+    Unlike send_password_reset_email (which mails a temporary password chosen by
+    an admin), this mails a one-time tokenised link the user follows to choose
+    their own password. Backs the self-serve flow added for issue #444.
+    """
+    reset_url = f"{settings.FRONTEND_URL}/reset-password?token={token}"
+    fmt = {"name": name, "reset_url": reset_url}
+    await _send(
+        to_email=to_email,
+        subject=_RESET_LINK_SUBJECT,
+        text_body=_RESET_LINK_TEXT.format(**fmt),
+        html_body=_RESET_LINK_HTML.format(**fmt),
+    )
+
+
 # ── Retention lifecycle emails ────────────────────────────────────────────────
 #
 # All five templates are sent to the school_admin contact email.

@@ -51,6 +51,27 @@ class ForgotPasswordRequest(BaseModel):
         return v.strip().lower()
 
 
+class ResetPasswordRequest(BaseModel):
+    """
+    POST /auth/reset-password
+
+    Completes a self-serve password reset for a local (school-provisioned) user
+    using the one-time token mailed by POST /auth/forgot-password.
+    """
+
+    token: str
+    new_password: str
+
+    @field_validator("new_password")
+    @classmethod
+    def password_length(cls, v: str) -> str:
+        if len(v) < 12:
+            raise ValueError("Password must be at least 12 characters.")
+        if len(v.encode()) > 72:
+            raise ValueError("Password must be 72 bytes or fewer.")
+        return v
+
+
 class StudentProfileUpdate(BaseModel):
     """PATCH /student/profile"""
 
