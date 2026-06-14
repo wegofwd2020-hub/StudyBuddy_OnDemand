@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { use, useCallback, useEffect, useState } from "react";
 import { useQuiz } from "@/lib/hooks/useQuiz";
 import { QuizPlayer } from "@/components/content/QuizPlayer";
 import { OfflineBanner } from "@/components/student/OfflineBanner";
@@ -17,12 +17,21 @@ export default function QuizPage({ params }: PageProps) {
   const { data: quiz, isLoading, isError } = useQuiz(unit_id);
   const [sessionId, setSessionId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!quiz) return;
+  // Open a fresh quiz attempt. Used on first load and on "Try Again" — the
+  // latter previously navigated to this same URL, which never reset the player
+  // (#459). Clearing sessionId first unmounts the finished QuizPlayer; the new
+  // session id remounts it (also keyed below) so its state starts clean.
+  const startNew = useCallback(() => {
+    setSessionId(null);
     startSession(unit_id, "default")
       .then((r) => setSessionId(r.session_id))
       .catch(() => {});
-  }, [quiz, unit_id]);
+  }, [unit_id]);
+
+  useEffect(() => {
+    if (!quiz) return;
+    startNew();
+  }, [quiz, startNew]);
 
   if (isLoading || (quiz && !sessionId)) {
     return (
@@ -48,7 +57,13 @@ export default function QuizPage({ params }: PageProps) {
       <div className="max-w-2xl p-6">
         <h1 className="mb-6 text-xl font-bold text-gray-900">{quiz.title}</h1>
         {sessionId && (
-          <QuizPlayer quiz={quiz} sessionId={sessionId} curriculumId="default" />
+          <QuizPlayer
+            key={sessionId}
+            quiz={quiz}
+            sessionId={sessionId}
+            curriculumId="default"
+            onRetry={startNew}
+          />
         )}
         <AIContentDisclosure />
       </div>
