@@ -155,13 +155,23 @@ async def get_student_metrics(
                 FILTER (WHERE s.completed AND s.score IS NOT NULL
                               AND s.total_questions > 0)            AS best_score_pct,
             BOOL_OR(s.passed)                                       AS passed,
-            COALESCE(SUM(lv.duration_s), 0)::int                    AS total_time_s,
-            COUNT(DISTINCT lv.view_id)                              AS lessons_viewed
+            -- Aggregate lesson time per unit in a subquery FIRST (issue #464):
+            -- joining lesson_views directly multiplied each view by the number
+            -- of quiz sessions, so SUM(duration) over-counted total time
+            -- (e.g. one 5-minute view with two quiz attempts reported 10m).
+            COALESCE(lv.total_time_s, 0)                            AS total_time_s,
+            COALESCE(lv.views, 0)                                   AS lessons_viewed
         FROM progress_sessions s
-        LEFT JOIN lesson_views lv
-            ON lv.student_id = s.student_id AND lv.unit_id = s.unit_id
+        LEFT JOIN (
+            SELECT unit_id,
+                   COALESCE(SUM(duration_s), 0)::int AS total_time_s,
+                   COUNT(*)                          AS views
+            FROM lesson_views
+            WHERE student_id = $1
+            GROUP BY unit_id
+        ) lv ON lv.unit_id = s.unit_id
         WHERE s.student_id = $1
-        GROUP BY s.unit_id, s.subject
+        GROUP BY s.unit_id, s.subject, lv.total_time_s, lv.views
         ORDER BY s.unit_id
         """,
         student_id,

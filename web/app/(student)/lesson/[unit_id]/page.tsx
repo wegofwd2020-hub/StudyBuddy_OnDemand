@@ -9,7 +9,7 @@ import { OfflineBanner } from "@/components/student/OfflineBanner";
 import { LinkButton } from "@/components/ui/link-button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { startSession } from "@/lib/api/progress";
-import { startLessonView, endLessonView } from "@/lib/api/analytics";
+import { startLessonView, endLessonViewBeacon } from "@/lib/api/analytics";
 import { AIContentDisclosure } from "@/components/content/AIContentDisclosure";
 import { FlaskConical, FileQuestion } from "lucide-react";
 
@@ -25,11 +25,13 @@ export default function LessonPage({ params }: PageProps) {
   const viewIdRef = useRef<string | null>(null);
   const startTimeRef = useRef<number>(0);
   const audioPlayedRef = useRef(false);
+  const endedRef = useRef(false);
 
   // Start session + analytics view on mount
   useEffect(() => {
     if (!lesson) return;
     const curriculumId = "default"; // resolved from JWT in production
+    endedRef.current = false;
     startSession(unit_id, curriculumId)
       .then((r) => {
         sessionIdRef.current = r.session_id;
@@ -42,14 +44,22 @@ export default function LessonPage({ params }: PageProps) {
       .catch(() => {});
     startTimeRef.current = Date.now();
 
+    // Record elapsed time exactly once — whether the student navigates within
+    // the app (effect cleanup) or closes/refreshes the tab (pagehide). The
+    // beacon uses a keepalive fetch so the write survives page unload, fixing
+    // the lost lesson durations that made "Time" show 0m (#464).
+    const flushEnd = () => {
+      if (endedRef.current || !viewIdRef.current) return;
+      endedRef.current = true;
+      const duration = Math.round((Date.now() - startTimeRef.current) / 1000);
+      endLessonViewBeacon(viewIdRef.current, duration, audioPlayedRef.current, false);
+    };
+
+    window.addEventListener("pagehide", flushEnd);
+
     return () => {
-      // Fire-and-forget on unmount
-      if (viewIdRef.current) {
-        const duration = Math.round((Date.now() - startTimeRef.current) / 1000);
-        endLessonView(viewIdRef.current, duration, audioPlayedRef.current, false).catch(
-          () => {},
-        );
-      }
+      window.removeEventListener("pagehide", flushEnd);
+      flushEnd();
     };
   }, [lesson, unit_id]);
 
