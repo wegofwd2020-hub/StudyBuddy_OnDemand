@@ -509,7 +509,11 @@ async def get_student_report(
             ps.unit_id,
             ps.subject,
             MAX(ps.attempt_number)                               AS quiz_attempts,
-            MAX(ps.score) FILTER (WHERE ps.completed)            AS best_score,
+            -- best_score is a PERCENTAGE (issue #463): score is a raw question
+            -- count, so divide by total_questions. NULLIF guards divide-by-zero.
+            MAX((ps.score::float / NULLIF(ps.total_questions, 0)) * 100)
+                FILTER (WHERE ps.completed AND ps.score IS NOT NULL
+                              AND ps.total_questions > 0)          AS best_score,
             BOOL_OR(ps.passed)                                   AS passed,
             COUNT(DISTINCT lv.view_id) > 0                       AS lesson_viewed,
             ROUND(AVG(lv.duration_s)::numeric, 1)                AS avg_duration_s
@@ -542,7 +546,9 @@ async def get_student_report(
             "subject": display_subject(subject_labels, r["unit_id"], r["subject"]),
             "lesson_viewed": bool(r["lesson_viewed"]),
             "quiz_attempts": r["quiz_attempts"] or 0,
-            "best_score": float(r["best_score"]) if r["best_score"] is not None else None,
+            "best_score": min(100.0, round(float(r["best_score"]), 1))
+            if r["best_score"] is not None
+            else None,
             "passed": bool(r["passed"]),
             "avg_duration_s": float(r["avg_duration_s"] or 0),
         }
@@ -554,7 +560,7 @@ async def get_student_report(
     for r in unit_rows:
         s = display_subject(subject_labels, r["unit_id"], r["subject"])
         if r["best_score"] is not None:
-            subj_scores.setdefault(s, []).append(float(r["best_score"]))
+            subj_scores.setdefault(s, []).append(min(100.0, float(r["best_score"])))
     subj_avg = {s: sum(v) / len(v) for s, v in subj_scores.items() if v}
     strongest = max(subj_avg, key=subj_avg.__getitem__) if subj_avg else None
     needs_att = min(subj_avg, key=subj_avg.__getitem__) if len(subj_avg) > 1 else None

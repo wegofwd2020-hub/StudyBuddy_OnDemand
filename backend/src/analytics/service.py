@@ -149,7 +149,11 @@ async def get_student_metrics(
             s.unit_id,
             s.subject,
             MAX(s.attempt_number)                                   AS quiz_attempts,
-            MAX(s.score) FILTER (WHERE s.completed)                 AS best_score_pct,
+            -- best_score_pct is a PERCENTAGE (issue #463): score is a raw
+            -- question count, so divide by total_questions.
+            MAX((s.score::float / NULLIF(s.total_questions, 0)) * 100)
+                FILTER (WHERE s.completed AND s.score IS NOT NULL
+                              AND s.total_questions > 0)            AS best_score_pct,
             BOOL_OR(s.passed)                                       AS passed,
             COALESCE(SUM(lv.duration_s), 0)::int                    AS total_time_s,
             COUNT(DISTINCT lv.view_id)                              AS lessons_viewed
@@ -171,7 +175,7 @@ async def get_student_metrics(
             "unit_id": r["unit_id"],
             "subject": display_subject(subject_labels, r["unit_id"], r["subject"]),
             "quiz_attempts": r["quiz_attempts"] or 0,
-            "best_score_pct": float(r["best_score_pct"])
+            "best_score_pct": min(100.0, round(float(r["best_score_pct"]), 1))
             if r["best_score_pct"] is not None
             else None,
             "passed": bool(r["passed"]),
