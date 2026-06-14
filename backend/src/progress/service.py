@@ -17,6 +17,7 @@ from datetime import UTC, datetime
 
 import asyncpg
 
+from src.core.subjects import display_subject, resolve_subject_labels
 from src.utils.logger import get_logger
 
 log = get_logger("progress")
@@ -187,9 +188,16 @@ async def end_session(
 ) -> dict:
     """
     Mark a session as completed.  Computes passed flag.
+
+    Score and total are clamped server-side so a malformed client payload (or a
+    quiz whose question count differs from the supplied total) can never persist
+    an impossible result such as 8/5 = 160%.  See feedback issue #460.
     Returns the updated session.
     """
-    passed = (score / total_questions) >= QUIZ_PASS_THRESHOLD if total_questions > 0 else False
+    total_questions = max(1, total_questions)
+    # A student can never score more than the number of questions, nor below zero.
+    score = max(0, min(score, total_questions))
+    passed = (score / total_questions) >= QUIZ_PASS_THRESHOLD
 
     row = await conn.fetchrow(
         """
@@ -258,6 +266,10 @@ async def get_raw_history(
         student_id,
     )
 
+    # Resolve human-readable subject names (issue #462) instead of surfacing the
+    # raw code / "unknown" stored on the session row.
+    subject_labels = await resolve_subject_labels(conn, [s["unit_id"] for s in sessions])
+
     result_sessions = []
     for s in sessions:
         answers = await conn.fetch(
@@ -275,7 +287,7 @@ async def get_raw_history(
                 "unit_id": s["unit_id"],
                 "curriculum_id": s["curriculum_id"],
                 "grade": s["grade"],
-                "subject": s["subject"],
+                "subject": display_subject(subject_labels, s["unit_id"], s["subject"]),
                 "started_at": s["started_at"].isoformat(),
                 "ended_at": s["ended_at"].isoformat() if s["ended_at"] else None,
                 "score": s["score"],

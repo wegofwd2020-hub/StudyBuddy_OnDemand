@@ -21,6 +21,7 @@ from datetime import UTC, datetime, timedelta
 
 import asyncpg
 
+from src.core.subjects import display_subject, resolve_subject_labels
 from src.utils.logger import get_logger
 
 log = get_logger("reports")
@@ -531,11 +532,14 @@ async def get_student_report(
         )
         unit_names = {r["unit_id"]: r["unit_name"] for r in name_rows if r["unit_name"]}
 
+    # Resolve human-readable subject names (issue #462).
+    subject_labels = await resolve_subject_labels(conn, unit_ids)
+
     per_unit = [
         {
             "unit_id": r["unit_id"],
             "unit_name": unit_names.get(r["unit_id"]),
-            "subject": r["subject"],
+            "subject": display_subject(subject_labels, r["unit_id"], r["subject"]),
             "lesson_viewed": bool(r["lesson_viewed"]),
             "quiz_attempts": r["quiz_attempts"] or 0,
             "best_score": float(r["best_score"]) if r["best_score"] is not None else None,
@@ -545,10 +549,10 @@ async def get_student_report(
         for r in unit_rows
     ]
 
-    # Strongest / needs-attention subject
+    # Strongest / needs-attention subject (keyed on the resolved display name)
     subj_scores: dict[str, list[float]] = {}
     for r in unit_rows:
-        s = r["subject"]
+        s = display_subject(subject_labels, r["unit_id"], r["subject"])
         if r["best_score"] is not None:
             subj_scores.setdefault(s, []).append(float(r["best_score"]))
     subj_avg = {s: sum(v) / len(v) for s, v in subj_scores.items() if v}
