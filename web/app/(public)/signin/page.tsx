@@ -187,14 +187,30 @@ export default function SignInPage() {
           </form>
 
           <div className="space-y-2 text-center text-sm text-gray-500">
-            <p>
-              <Link
-                href="/reset-password"
-                className="text-gray-500 hover:text-gray-900 hover:underline"
-              >
+            {/*
+              School-provisioned (local-auth) accounts are NOT in Auth0, so the
+              /reset-password email flow (POST /auth/forgot-password → Auth0) can
+              never send them a link. Until self-serve reset exists for local
+              users (issue #444), direct them to the path that actually works —
+              an admin reset — instead of promising an email that never arrives.
+            */}
+            <details className="text-gray-500">
+              <summary className="cursor-pointer hover:text-gray-900 hover:underline">
                 Forgot your password?
-              </Link>
-            </p>
+              </summary>
+              <p className="mt-2 text-left text-gray-500">
+                Students and teachers: ask your school administrator to reset your
+                password from their portal. School administrators: contact StudyBuddy
+                support at{" "}
+                <a
+                  href="mailto:support@usestudybuddy.com?subject=Password%20reset%20request"
+                  className="text-blue-600 hover:underline"
+                >
+                  support@usestudybuddy.com
+                </a>
+                .
+              </p>
+            </details>
             <p>
               New school?{" "}
               <Link href="/school/register" className="text-blue-600 hover:underline">
