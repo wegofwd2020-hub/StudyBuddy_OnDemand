@@ -199,15 +199,30 @@ async def end_session(
     score = max(0, min(score, total_questions))
     passed = (score / total_questions) >= QUIZ_PASS_THRESHOLD
 
+    # Assign the attempt number at COMPLETION, not at session start (#465).
+    # attempt_number was computed in create_session as "completed sessions + 1",
+    # but sessions are opened eagerly (one per quiz-page load), so several
+    # never-completed sessions for a unit all received the same number — Progress
+    # History then showed duplicate "Attempt #2" cards. Numbering completed
+    # sessions in completion order makes each finished attempt uniquely sequential.
     row = await conn.fetchrow(
         """
-        UPDATE progress_sessions
+        UPDATE progress_sessions ps
         SET score           = $1,
             total_questions = $2,
             completed       = TRUE,
             passed          = $3,
-            ended_at        = NOW()
-        WHERE session_id = $4
+            ended_at        = NOW(),
+            attempt_number  = (
+                SELECT COUNT(*) + 1
+                FROM progress_sessions prior
+                WHERE prior.student_id   = ps.student_id
+                  AND prior.unit_id      = ps.unit_id
+                  AND prior.curriculum_id = ps.curriculum_id
+                  AND prior.completed     = TRUE
+                  AND prior.session_id <> ps.session_id
+            )
+        WHERE ps.session_id = $4
         RETURNING session_id, score, total_questions, passed, attempt_number, ended_at
         """,
         score,
