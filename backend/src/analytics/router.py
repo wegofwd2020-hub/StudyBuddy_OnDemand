@@ -237,9 +237,7 @@ async def student_stats(
             """,
             student_id,
         )
-        subject_labels = await resolve_subject_labels(
-            conn, [r["unit_id"] for r in unit_subj_rows]
-        )
+        subject_labels = await resolve_subject_labels(conn, [r["unit_id"] for r in unit_subj_rows])
 
     session_dates = [str(r["session_date"]) for r in rows]
     total_sessions = sum(r["sessions"] for r in rows)

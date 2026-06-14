@@ -72,6 +72,7 @@ async def _subject_display_name(pool, unit_id: str, fallback: str | None) -> str
         labels = await resolve_subject_labels(conn, [unit_id])
     return display_subject(labels, unit_id, fallback)
 
+
 _GRADE_RE = re.compile(r"^G(\d+)-")
 
 
