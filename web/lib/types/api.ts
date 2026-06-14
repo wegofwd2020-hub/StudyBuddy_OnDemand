@@ -56,6 +56,7 @@ export interface QuizContent {
   title: string;
   pass_threshold: number;
   questions: QuizQuestion[];
+  subject?: string;
 }
 
 export interface VisualItem {

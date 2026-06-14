@@ -43,6 +43,7 @@ interface BackendQuizResponse {
   generated_at: string;
   model: string;
   content_version: number;
+  subject: string | null;
 }
 
 const OPTION_IDS = ["A", "B", "C", "D"];
@@ -54,6 +55,7 @@ export async function getQuiz(unitId: string): Promise<QuizContent> {
     unit_id: raw.unit_id,
     title: `Quiz — Set ${raw.set_number}`,
     pass_threshold: raw.passing_score,
+    subject: raw.subject ?? undefined,
     questions: raw.questions.map((q, index) => ({
       index,
       question: q.question_text,
