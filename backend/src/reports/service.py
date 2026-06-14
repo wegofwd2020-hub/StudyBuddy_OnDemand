@@ -138,7 +138,12 @@ async def get_overview(
             COUNT(*) AS quiz_attempts,
             ROUND(
                 100.0 * COUNT(*) FILTER (WHERE attempt_number = 1 AND passed AND completed)
-                / NULLIF(COUNT(DISTINCT student_id) FILTER (WHERE attempt_number = 1 AND completed), 0),
+                -- Denominator counts first-attempt SESSIONS, not distinct
+                -- students (#471). School-wide a student has one attempt-1
+                -- session per unit, so COUNT(DISTINCT student_id) under-counts
+                -- the denominator and the rate blew past 100% (e.g. 500% for
+                -- 2 students who each passed ~10 units on the first try).
+                / NULLIF(COUNT(*) FILTER (WHERE attempt_number = 1 AND completed), 0),
                 1
             ) AS first_attempt_pass_rate_pct
         FROM progress_sessions
@@ -873,7 +878,8 @@ async def get_trends(
                    ROUND(AVG(score) FILTER (WHERE completed)::numeric, 1) AS avg_score,
                    ROUND(
                        100.0 * COUNT(*) FILTER (WHERE attempt_number = 1 AND passed AND completed)
-                       / NULLIF(COUNT(DISTINCT student_id) FILTER (WHERE attempt_number = 1 AND completed), 0),
+                       -- count first-attempt SESSIONS, not distinct students (#471)
+                       / NULLIF(COUNT(*) FILTER (WHERE attempt_number = 1 AND completed), 0),
                        1
                    ) AS pass_rate
             FROM progress_sessions

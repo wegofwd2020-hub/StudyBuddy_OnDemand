@@ -548,3 +548,39 @@ async def test_refresh_materialized_views(client, db_conn):
     assert "views_refreshed" in data
     assert "mv_class_summary" in data["views_refreshed"]
     assert "refreshed_at" in data
+
+
+@pytest.mark.asyncio
+async def test_overview_first_attempt_pass_rate_not_over_100(client, db_conn):
+    """
+    Regression for #471 — School-Admin "Pass Rate (1st attempt)" showed 500%.
+
+    The denominator counted DISTINCT students while the numerator counted
+    sessions, so a student passing many units on the first try blew past 100%.
+    One student, 3 first-attempt passes + 1 first-attempt fail across 4 units →
+    the rate must be 75% (3/4), not 300% (3 passes / 1 student).
+    """
+    school = await _register_school(client, "_ov_pass")
+    school_id = school["school_id"]
+    token = school["access_token"]
+
+    sid = str(uuid.uuid4())
+    email = f"ov-pass-{sid[:8]}@test.invalid"
+    await _insert_student(client, sid, email)
+    await _enrol_student(client, school_id, sid, email)
+
+    # All first attempts (attempt_number defaults to 1), completed.
+    await _insert_session(client, sid, unit_id="G8-MATH-001", passed=True)
+    await _insert_session(client, sid, unit_id="G8-MATH-002", passed=True)
+    await _insert_session(client, sid, unit_id="G8-SCI-001", subject="Science", passed=True)
+    await _insert_session(client, sid, unit_id="G8-SCI-002", subject="Science", passed=False)
+
+    r = await client.get(
+        f"/api/v1/reports/school/{school_id}/overview",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert r.status_code == 200, r.text
+    data = r.json()
+    assert data["first_attempt_pass_rate_pct"] == 75.0
+    assert data["first_attempt_pass_rate_pct"] <= 100.0
+    assert data["quiz_attempts"] == 4
