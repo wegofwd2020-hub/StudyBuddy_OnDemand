@@ -61,9 +61,12 @@ interface QuizPlayerProps {
   quiz: QuizContent;
   sessionId: string;
   curriculumId: string;
+  /** Restart the quiz with a fresh session. The score screen "Try Again" button
+   *  calls this instead of navigating to the same URL (which did nothing — #459). */
+  onRetry?: () => void;
 }
 
-export function QuizPlayer({ quiz, sessionId }: QuizPlayerProps) {
+export function QuizPlayer({ quiz, sessionId, onRetry }: QuizPlayerProps) {
   const t = useTranslations("result_screen");
   const queryClient = useQueryClient();
   const [state, dispatch] = useReducer(reducer, {
@@ -132,10 +135,10 @@ export function QuizPlayer({ quiz, sessionId }: QuizPlayerProps) {
           {t("attempt_label", { attempt: attempt_number })}
         </p>
         <div className="flex justify-center gap-3">
-          {!passed && (
-            <LinkButton variant="outline" href={`/quiz/${quiz.unit_id}`}>
+          {!passed && onRetry && (
+            <Button variant="outline" onClick={onRetry}>
               {t("try_again_btn")}
-            </LinkButton>
+            </Button>
           )}
           <LinkButton href="/curriculum">{t("back_to_curriculum_btn")}</LinkButton>
         </div>
