@@ -144,16 +144,46 @@ export interface paths {
         put?: never;
         /**
          * Forgot Password
-         * @description Trigger Auth0 password reset email.
+         * @description Trigger a password reset for the given email.
          *
-         *     Always returns HTTP 200 regardless of whether the email is registered.
-         *     Different responses would leak registered email addresses.
+         *     Local (school-provisioned) users are not in Auth0, so the Auth0 reset email
+         *     never reaches them (issue #444). For those, issue a one-time token, stash it
+         *     in Redis, and email a self-serve reset link. Self-registered users with no
+         *     local account fall back to the Auth0 hosted reset flow.
          *
-         *     Per-email Redis guard (5/hour): suppresses the Auth0 call once the limit is
-         *     exceeded so a single email address cannot be flooded even from rotating IPs.
-         *     The 200 response is always returned to preserve the non-enumeration guarantee.
+         *     Always returns HTTP 200 regardless of whether the email is registered or which
+         *     track it belongs to — different responses would leak registered email addresses.
+         *
+         *     Per-email Redis guard (5/hour): suppresses the work once the limit is exceeded
+         *     so a single email address cannot be flooded even from rotating IPs. The 200
+         *     response is always returned to preserve the non-enumeration guarantee.
          */
         post: operations["forgot_password_api_v1_auth_forgot_password_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/reset-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reset Password
+         * @description Complete a self-serve password reset for a local (school-provisioned) user.
+         *
+         *     Consumes the one-time token issued by POST /auth/forgot-password, sets the new
+         *     password, clears first_login, and invalidates the token (single-use). Returns
+         *     400 on an invalid or expired token. Auth0 users never reach this path — their
+         *     reset happens entirely within Auth0's hosted flow.
+         */
+        post: operations["reset_password_api_v1_auth_reset_password_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -8562,6 +8592,8 @@ export interface components {
             model: string;
             /** Content Version */
             content_version: number;
+            /** Subject */
+            subject?: string | null;
         };
         /** RateRequest */
         RateRequest: {
@@ -8738,6 +8770,19 @@ export interface components {
             category: string;
             /** Message */
             message?: string | null;
+        };
+        /**
+         * ResetPasswordRequest
+         * @description POST /auth/reset-password
+         *
+         *     Completes a self-serve password reset for a local (school-provisioned) user
+         *     using the one-time token mailed by POST /auth/forgot-password.
+         */
+        ResetPasswordRequest: {
+            /** Token */
+            token: string;
+            /** New Password */
+            new_password: string;
         };
         /** ResetPasswordResponse */
         ResetPasswordResponse: {
@@ -10921,6 +10966,39 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["ForgotPasswordRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reset_password_api_v1_auth_reset_password_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResetPasswordRequest"];
             };
         };
         responses: {
