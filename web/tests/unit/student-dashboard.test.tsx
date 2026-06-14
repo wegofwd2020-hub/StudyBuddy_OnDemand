@@ -107,8 +107,8 @@ describe("STU-05/06/07 — Quick action hrefs", () => {
     expect(QUICK_ACTIONS[0].href).toBe("/subjects");
   });
 
-  it("Curriculum Map href is /curriculum", () => {
-    expect(QUICK_ACTIONS[1].href).toBe("/curriculum");
+  it("My Stats href is /stats", () => {
+    expect(QUICK_ACTIONS[1].href).toBe("/stats");
   });
 
   it("View Progress href is /progress", () => {

@@ -91,7 +91,7 @@ export const MOCK_PROGRESS_EMPTY: ProgressHistory = {
 
 export const QUICK_ACTIONS: ReadonlyArray<{ label: string; href: string }> = [
   { label: "Browse Subjects", href: "/subjects" }, // STU-05
-  { label: "Curriculum Map", href: "/curriculum" }, // STU-06
+  { label: "My Stats", href: "/stats" }, // STU-06 (was Curriculum Map; removed in #472)
   { label: "View Progress", href: "/progress" }, // STU-07
 ];
 

@@ -21,7 +21,7 @@ const GETTING_STARTED_DEMO = [
   {
     step: "3",
     title: "Explore subjects",
-    body: "Go to Subjects or the Curriculum Map to browse your assigned subject units.",
+    body: "Go to Subjects to browse your assigned subject units.",
   },
   {
     step: "4",
@@ -49,7 +49,7 @@ const GETTING_STARTED_FULL = [
   {
     step: "3",
     title: "Browse content",
-    body: "Go to Subjects or Curriculum Map. Your school may have custom content — it shows alongside the default platform library.",
+    body: "Go to Subjects. Your school may have custom content — it shows alongside the default platform library.",
   },
   {
     step: "4",
@@ -166,7 +166,6 @@ export default function StudentHelpPage() {
             <tbody className="divide-y divide-gray-100">
               {[
                 ["Browse subjects", "/subjects"],
-                ["Open Curriculum Map", "/curriculum"],
                 ["Read a lesson", "/subjects → unit → Lesson tab"],
                 ["Take a quiz", "/subjects → unit → Quiz tab"],
                 ["View quiz score history", "/progress"],

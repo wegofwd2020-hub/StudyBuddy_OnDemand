@@ -9,7 +9,7 @@ import { OfflineBanner } from "@/components/student/OfflineBanner";
 import { LinkButton } from "@/components/ui/link-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BookOpen, CheckCircle2, Clock, Sparkles } from "lucide-react";
+import { BookOpen, Clock, Sparkles, BarChart3 } from "lucide-react";
 
 export default function DashboardPage() {
   const t = useTranslations("dashboard_screen");
@@ -45,12 +45,8 @@ export default function DashboardPage() {
           <LinkButton href="/subjects" variant="outline" className="justify-start gap-2">
             <BookOpen className="h-4 w-4" /> Browse Subjects
           </LinkButton>
-          <LinkButton
-            href="/curriculum"
-            variant="outline"
-            className="justify-start gap-2"
-          >
-            <CheckCircle2 className="h-4 w-4" /> Curriculum Map
+          <LinkButton href="/stats" variant="outline" className="justify-start gap-2">
+            <BarChart3 className="h-4 w-4" /> My Stats
           </LinkButton>
           <LinkButton href="/progress" variant="outline" className="justify-start gap-2">
             <Clock className="h-4 w-4" /> View Progress

@@ -6,7 +6,6 @@ import {
   BookOpen,
   HelpCircle,
   LayoutDashboard,
-  Map,
   BarChart3,
   Clock,
   Settings,
@@ -19,7 +18,6 @@ import { demoLogout } from "@/lib/api/demo";
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/subjects", label: "Subjects", icon: BookOpen },
-  { href: "/curriculum", label: "Curriculum Map", icon: Map },
   { href: "/progress", label: "Progress", icon: Clock },
   { href: "/stats", label: "My Stats", icon: BarChart3 },
 ] as const;
