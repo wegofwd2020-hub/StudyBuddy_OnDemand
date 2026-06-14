@@ -8,7 +8,6 @@ import { FeedbackWidget } from "@/components/feedback/FeedbackWidget";
 import { OfflineBanner } from "@/components/student/OfflineBanner";
 import { LinkButton } from "@/components/ui/link-button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { startSession } from "@/lib/api/progress";
 import { startLessonView, endLessonViewBeacon } from "@/lib/api/analytics";
 import { AIContentDisclosure } from "@/components/content/AIContentDisclosure";
 import { FlaskConical, FileQuestion } from "lucide-react";
@@ -21,22 +20,19 @@ export default function LessonPage({ params }: PageProps) {
   const { unit_id } = use(params);
   const { data: lesson, isLoading, isError } = useLesson(unit_id);
 
-  const sessionIdRef = useRef<string | null>(null);
   const viewIdRef = useRef<string | null>(null);
   const startTimeRef = useRef<number>(0);
   const audioPlayedRef = useRef(false);
   const endedRef = useRef(false);
 
-  // Start session + analytics view on mount
+  // Record a lesson VIEW on mount. We deliberately do NOT open a progress
+  // session here — a session is a quiz attempt, created by the quiz page. The
+  // lesson page used to call startSession, producing phantom never-completed
+  // sessions that cluttered Progress History with bogus/duplicate attempts (#465).
   useEffect(() => {
     if (!lesson) return;
     const curriculumId = "default"; // resolved from JWT in production
     endedRef.current = false;
-    startSession(unit_id, curriculumId)
-      .then((r) => {
-        sessionIdRef.current = r.session_id;
-      })
-      .catch(() => {});
     startLessonView(unit_id, curriculumId)
       .then((r) => {
         viewIdRef.current = r.view_id;
