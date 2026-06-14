@@ -10,44 +10,64 @@ import { Shelf, BookSpine, BookOpen, deriveSubjectAccent } from "@/components/li
 
 type SubjectUnit = { unit_id: string; title: string; has_lab?: boolean };
 
-function SubjectUnitList({ units }: { units: SubjectUnit[] }) {
+function SubjectUnitList({
+  units,
+  hasContent,
+}: {
+  units: SubjectUnit[];
+  hasContent: boolean;
+}) {
   if (units.length === 0) {
     return <p className="text-xs text-gray-400 italic">No units in this subject yet.</p>;
   }
   return (
-    <ol role="list" className="divide-y divide-gray-100">
-      {units.map((unit) => (
-        <li key={unit.unit_id} className="flex items-center justify-between gap-3 py-2">
-          <div className="flex min-w-0 items-center gap-2">
-            <span className="truncate text-sm text-gray-700">{unit.title}</span>
-            {unit.has_lab && (
-              <FlaskConical
-                className="h-3.5 w-3.5 shrink-0 text-purple-500"
-                aria-hidden="true"
-              />
-            )}
-          </div>
-          <div className="flex shrink-0 items-center gap-1">
-            <LinkButton
-              href={`/lesson/${unit.unit_id}`}
-              variant="ghost"
-              size="sm"
-              className="h-7 text-xs"
-            >
-              Lesson
-            </LinkButton>
-            <LinkButton
-              href={`/quiz/${unit.unit_id}`}
-              variant="ghost"
-              size="sm"
-              className="h-7 text-xs"
-            >
-              Quiz
-            </LinkButton>
-          </div>
-        </li>
-      ))}
-    </ol>
+    <>
+      {!hasContent && (
+        <p className="mb-3 rounded-md bg-amber-50 px-3 py-2 text-xs text-amber-700">
+          Content for this subject is coming soon — lessons and quizzes aren&apos;t
+          available yet.
+        </p>
+      )}
+      <ol role="list" className="divide-y divide-gray-100">
+        {units.map((unit) => (
+          <li key={unit.unit_id} className="flex items-center justify-between gap-3 py-2">
+            <div className="flex min-w-0 items-center gap-2">
+              <span className="truncate text-sm text-gray-700">{unit.title}</span>
+              {unit.has_lab && (
+                <FlaskConical
+                  className="h-3.5 w-3.5 shrink-0 text-purple-500"
+                  aria-hidden="true"
+                />
+              )}
+            </div>
+            <div className="flex shrink-0 items-center gap-1">
+              {hasContent ? (
+                <>
+                  <LinkButton
+                    href={`/lesson/${unit.unit_id}`}
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 text-xs"
+                  >
+                    Lesson
+                  </LinkButton>
+                  <LinkButton
+                    href={`/quiz/${unit.unit_id}`}
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 text-xs"
+                  >
+                    Quiz
+                  </LinkButton>
+                </>
+              ) : (
+                <span className="text-xs text-gray-400 italic">Coming soon</span>
+              )}
+            </div>
+          </li>
+        ))}
+      </ol>
+    </>
   );
 }
 
@@ -100,10 +120,17 @@ export default function SubjectsPage() {
             {open ? (
               <BookOpen
                 title={open.subject}
-                subheading={`${open.units.length} unit${open.units.length !== 1 ? "s" : ""}`}
+                subheading={
+                  open.has_content === false
+                    ? "Coming soon"
+                    : `${open.units.length} unit${open.units.length !== 1 ? "s" : ""}`
+                }
                 onClose={() => setOpenSubject(null)}
               >
-                <SubjectUnitList units={open.units} />
+                <SubjectUnitList
+                  units={open.units}
+                  hasContent={open.has_content !== false}
+                />
               </BookOpen>
             ) : null}
           </>

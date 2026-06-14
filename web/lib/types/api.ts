@@ -12,6 +12,9 @@ export interface Unit {
 export interface Subject {
   subject: string;
   units: Unit[];
+  /** False when the subject has no published content yet — used to gate
+   *  selection so students don't open something that would 404 (#469). */
+  has_content?: boolean;
 }
 
 export interface CurriculumTree {

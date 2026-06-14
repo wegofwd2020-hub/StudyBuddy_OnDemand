@@ -155,3 +155,23 @@ async def test_curriculum_l1_cache(client: AsyncClient):
     assert r1.status_code == 200
     assert r2.status_code == 200
     assert r1.json() == r2.json()
+
+
+@pytest.mark.asyncio
+async def test_curriculum_tree_includes_has_content_flag(client: AsyncClient):
+    """
+    /curriculum/tree carries a per-subject has_content flag (#469) so the client
+    can gate selection. On the JSON-fallback path (no DB units) content
+    availability is unknown, so it defaults to True (don't over-gate).
+    """
+    token = make_student_token(grade=8)
+    response = await client.get(
+        "/api/v1/curriculum/tree",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 200, response.text
+    subjects = response.json()["subjects"]
+    assert len(subjects) >= 1
+    for subj in subjects:
+        assert "has_content" in subj
+        assert subj["has_content"] is True

@@ -495,6 +495,10 @@ async def get_curriculum_tree(
             """
             SELECT cu.unit_id, cu.title, cu.subject,
                    COALESCE(MAX(csv.subject_name), cu.subject) AS subject_display,
+                   -- Whether the subject has published content (#469): used to
+                   -- gate selection so students don't open a subject that would
+                   -- 404. Mirrors the check_content_published serve-time guard.
+                   BOOL_OR(csv.status = 'published') AS has_content,
                    cu.has_lab, cu.sort_order
             FROM curriculum_units cu
             LEFT JOIN content_subject_versions csv
@@ -510,10 +514,14 @@ async def get_curriculum_tree(
     if rows:
         # Build subjects dict preserving subject order from first encounter
         subjects_map: dict[str, list[dict]] = {}
+        subject_has_content: dict[str, bool] = {}
         for row in rows:
             subj = row["subject_display"]
             if subj not in subjects_map:
                 subjects_map[subj] = []
+            subject_has_content[subj] = subject_has_content.get(subj, False) or bool(
+                row["has_content"]
+            )
             subjects_map[subj].append(
                 {
                     "unit_id": row["unit_id"],
@@ -524,7 +532,10 @@ async def get_curriculum_tree(
                     "has_lab": row["has_lab"],
                 }
             )
-        subjects = [{"subject": s, "units": u} for s, u in subjects_map.items()]
+        subjects = [
+            {"subject": s, "units": u, "has_content": subject_has_content.get(s, False)}
+            for s, u in subjects_map.items()
+        ]
         log.info("curriculum_tree_from_db", curriculum_id=curriculum_id, unit_count=len(rows))
     else:
         # Fallback: STEM default curricula may not have curriculum_units rows yet
@@ -543,7 +554,9 @@ async def get_curriculum_tree(
                 }
                 for idx, u in enumerate(subj.get("units", []))
             ]
-            subjects.append({"subject": subject_name, "units": units})
+            # JSON fallback (default STEM curricula): content readiness can't be
+            # determined from the DB here, so don't over-gate — assume available.
+            subjects.append({"subject": subject_name, "units": units, "has_content": True})
         log.info(
             "curriculum_tree_from_json",
             curriculum_id=curriculum_id,
