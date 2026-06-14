@@ -23,6 +23,17 @@ vi.mock("next-intl", () => ({
   useTranslations: vi.fn(() => (key: string) => key),
 }));
 
+// SettingsPage calls useRouter() (next/navigation), which throws outside an app
+// router context. Stub it so the component renders under jsdom.
+const mockRouterPush = vi.fn();
+vi.mock("next/navigation", () => ({
+  useRouter: vi.fn(() => ({
+    push: mockRouterPush,
+    replace: mockRouterPush,
+    refresh: vi.fn(),
+  })),
+}));
+
 const mockGetAccountSettings = vi.fn();
 const mockSaveAccountSettings = vi.fn();
 

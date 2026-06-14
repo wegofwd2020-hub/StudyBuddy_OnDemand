@@ -41,6 +41,16 @@ vi.mock("@/lib/api/progress", () => ({
   endSession: (...args: unknown[]) => mockEndSession(...args),
 }));
 
+// QuizPlayer calls useQueryClient().invalidateQueries() after the session ends;
+// stub it so the component renders without a QueryClientProvider.
+vi.mock("@tanstack/react-query", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@tanstack/react-query")>();
+  return {
+    ...actual,
+    useQueryClient: vi.fn(() => ({ invalidateQueries: vi.fn() })),
+  };
+});
+
 // ---------------------------------------------------------------------------
 // STU-19 — Quiz question renders with options
 // ---------------------------------------------------------------------------
