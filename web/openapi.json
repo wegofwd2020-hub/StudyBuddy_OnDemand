@@ -225,13 +225,53 @@
           "auth"
         ],
         "summary": "Forgot Password",
-        "description": "Trigger Auth0 password reset email.\n\nAlways returns HTTP 200 regardless of whether the email is registered.\nDifferent responses would leak registered email addresses.\n\nPer-email Redis guard (5/hour): suppresses the Auth0 call once the limit is\nexceeded so a single email address cannot be flooded even from rotating IPs.\nThe 200 response is always returned to preserve the non-enumeration guarantee.",
+        "description": "Trigger a password reset for the given email.\n\nLocal (school-provisioned) users are not in Auth0, so the Auth0 reset email\nnever reaches them (issue #444). For those, issue a one-time token, stash it\nin Redis, and email a self-serve reset link. Self-registered users with no\nlocal account fall back to the Auth0 hosted reset flow.\n\nAlways returns HTTP 200 regardless of whether the email is registered or which\ntrack it belongs to \u2014 different responses would leak registered email addresses.\n\nPer-email Redis guard (5/hour): suppresses the work once the limit is exceeded\nso a single email address cannot be flooded even from rotating IPs. The 200\nresponse is always returned to preserve the non-enumeration guarantee.",
         "operationId": "forgot_password_api_v1_auth_forgot_password_post",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/ForgotPasswordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/reset-password": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Reset Password",
+        "description": "Complete a self-serve password reset for a local (school-provisioned) user.\n\nConsumes the one-time token issued by POST /auth/forgot-password, sets the new\npassword, clears first_login, and invalidates the token (single-use). Returns\n400 on an invalid or expired token. Auth0 users never reach this path \u2014 their\nreset happens entirely within Auth0's hosted flow.",
+        "operationId": "reset_password_api_v1_auth_reset_password_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequest"
               }
             }
           },
@@ -22765,6 +22805,17 @@
           "content_version": {
             "type": "integer",
             "title": "Content Version"
+          },
+          "subject": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject"
           }
         },
         "type": "object",
@@ -23232,6 +23283,25 @@
           "category"
         ],
         "title": "ReportRequest"
+      },
+      "ResetPasswordRequest": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "title": "Token"
+          },
+          "new_password": {
+            "type": "string",
+            "title": "New Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token",
+          "new_password"
+        ],
+        "title": "ResetPasswordRequest",
+        "description": "POST /auth/reset-password\n\nCompletes a self-serve password reset for a local (school-provisioned) user\nusing the one-time token mailed by POST /auth/forgot-password."
       },
       "ResetPasswordResponse": {
         "properties": {
