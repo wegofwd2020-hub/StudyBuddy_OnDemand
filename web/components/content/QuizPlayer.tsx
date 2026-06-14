@@ -130,6 +130,11 @@ export function QuizPlayer({ quiz, sessionId, onRetry }: QuizPlayerProps) {
         <h2 className="text-2xl font-bold text-gray-900">
           {passed ? t("passed_heading") : t("try_again_heading")}
         </h2>
+        {quiz.subject && (
+          <p className="text-xs font-medium tracking-wide text-gray-400 uppercase">
+            {quiz.subject}
+          </p>
+        )}
         <p className="text-gray-500">{t("score_label", { score, total, pct })}</p>
         <p className="text-sm text-gray-400">
           {t("attempt_label", { attempt: attempt_number })}

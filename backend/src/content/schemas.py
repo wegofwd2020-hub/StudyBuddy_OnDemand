@@ -60,6 +60,9 @@ class QuizResponse(BaseModel):
     generated_at: str
     model: str
     content_version: int
+    # Human-readable subject name for the result screen (#461). Optional so the
+    # teacher-authored override path (which may omit it) stays valid.
+    subject: str | None = None
 
 
 # ── Tutorial ──────────────────────────────────────────────────────────────────

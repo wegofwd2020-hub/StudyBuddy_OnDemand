@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import json
 import uuid
-from unittest.mock import AsyncMock, patch, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from httpx import AsyncClient
@@ -195,6 +195,9 @@ async def test_quiz_rotates_sets(client: AsyncClient, fake_redis):
                 headers={"Authorization": f"Bearer {token}"},
             )
             assert response.status_code == 200, response.text
+            # The quiz response carries a subject for the result screen (#461);
+            # with no subject_name seeded it falls back to the resolved code.
+            assert response.json()["subject"] == "G8-SCI"
 
     assert sets_served == [1, 2, 3, 1], f"Expected rotation 1→2→3→1, got {sets_served}"
 
@@ -340,7 +343,6 @@ async def test_content_rate_limit(client: AsyncClient, fake_redis):
     unit_id = "G8-SCI-001"
 
     # Simulate a 429 by patching the lesson endpoint directly to raise 429
-    from fastapi import Request
 
     original_get_lesson = None
 
@@ -492,7 +494,8 @@ async def test_get_entitlement_school_student_uses_school_subscription():
     NOT from student_entitlements.plan.  student_entitlements is only used for
     the lessons_accessed counter.
     """
-    from unittest.mock import AsyncMock, MagicMock, patch
+    from unittest.mock import AsyncMock, patch
+
     from src.content.service import get_entitlement
 
     school_id = "d3000000-0000-0000-0000-000000000001"
@@ -537,7 +540,8 @@ async def test_get_entitlement_no_school_subscription_falls_back_to_free():
     A school-enrolled student whose school has no active subscription is treated
     as free tier (plan='free').  student_entitlements is queried as the fallback.
     """
-    from unittest.mock import AsyncMock, MagicMock, patch
+    from unittest.mock import AsyncMock, patch
+
     from src.content.service import get_entitlement
 
     school_id = "d3000000-0000-0000-0000-000000000001"
@@ -574,7 +578,8 @@ async def test_get_entitlement_unaffiliated_student_uses_student_entitlements():
     A student without a school_id (no school_id from JWT) uses student_entitlements
     directly — the school path is bypassed entirely.
     """
-    from unittest.mock import AsyncMock, MagicMock, patch
+    from unittest.mock import AsyncMock, patch
+
     from src.content.service import get_entitlement
 
     student_id = "d1000000-0000-0000-0000-000000000001"
@@ -606,8 +611,8 @@ async def test_get_entitlement_unaffiliated_student_uses_student_entitlements():
 @pytest.mark.asyncio
 async def test_get_entitlement_returns_cached_value():
     """Cache hit returns immediately — no DB queries made."""
-    import json
-    from unittest.mock import AsyncMock, MagicMock, patch
+    from unittest.mock import AsyncMock, MagicMock
+
     from src.content.service import get_entitlement
 
     cached = {"plan": "starter", "lessons_accessed": 3, "valid_until": None}

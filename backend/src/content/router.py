@@ -56,12 +56,21 @@ from src.content.service import (
 )
 from src.core.redis_client import get_redis
 from src.core.storage import StorageBackend, get_storage
+from src.core.subjects import display_subject, resolve_subject_labels
 from src.utils.logger import get_logger
 
 log = get_logger("content")
 router = APIRouter(tags=["content"])
 
 _FREE_TIER_LESSON_LIMIT = 2
+
+
+async def _subject_display_name(pool, unit_id: str, fallback: str | None) -> str:
+    """Resolve a unit's human-readable subject name for the quiz result screen
+    (#461), falling back to whatever the content file stored (#462 semantics)."""
+    async with pool.acquire() as conn:
+        labels = await resolve_subject_labels(conn, [unit_id])
+    return display_subject(labels, unit_id, fallback)
 
 _GRADE_RE = re.compile(r"^G(\d+)-")
 
@@ -341,6 +350,9 @@ async def get_quiz(
                 set_number,
                 student_id,
             )
+            override["subject"] = await _subject_display_name(
+                pool, unit_id, override.get("subject")
+            )
             return QuizResponse(**override)
 
     curriculum_id, _subject = await _get_curriculum_and_check_published(
@@ -361,6 +373,7 @@ async def get_quiz(
                 detail={"error": "not_found", "detail": f"Quiz set {set_number} not found."},
             )
 
+    data["subject"] = await _subject_display_name(pool, unit_id, _subject or data.get("subject"))
     log.info("quiz_served unit_id=%s set=%d student_id=%s", unit_id, set_number, student_id)
     return QuizResponse(**data)
 
