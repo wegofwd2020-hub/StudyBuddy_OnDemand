@@ -32,6 +32,9 @@ export function PublicNav() {
               </Link>
             </>
           )}
+          <Link href="/quality" className="transition-colors hover:text-gray-900">
+            Quality
+          </Link>
           <Link href="/about" className="transition-colors hover:text-gray-900">
             About
           </Link>
@@ -97,6 +100,13 @@ export function PublicNav() {
               </Link>
             </>
           )}
+          <Link
+            href="/quality"
+            className="block text-sm font-medium text-gray-600 hover:text-gray-900"
+            onClick={() => setOpen(false)}
+          >
+            Quality
+          </Link>
           <Link
             href="/about"
             className="block text-sm font-medium text-gray-600 hover:text-gray-900"

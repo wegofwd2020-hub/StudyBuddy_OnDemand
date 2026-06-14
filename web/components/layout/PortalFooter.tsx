@@ -14,6 +14,7 @@ export function PortalFooter() {
   const links = [
     { href: "/for-schools", label: "For Schools", demoHidden: true },
     { href: "/about", label: "About" },
+    { href: "/quality", label: "Quality & Compliance" },
     { href: "/accessibility", label: "Accessibility" },
     { href: "/privacy", label: "Privacy" },
     { href: "/terms", label: "Terms" },
