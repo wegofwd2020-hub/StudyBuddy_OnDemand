@@ -1,6 +1,7 @@
 "use client";
 
 import { useReducer } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import type { QuizContent, AnswerResponse, SessionEndResponse } from "@/lib/types/api";
 import { Button } from "@/components/ui/button";
@@ -64,6 +65,7 @@ interface QuizPlayerProps {
 
 export function QuizPlayer({ quiz, sessionId }: QuizPlayerProps) {
   const t = useTranslations("result_screen");
+  const queryClient = useQueryClient();
   const [state, dispatch] = useReducer(reducer, {
     phase: "answering",
     questionIndex: 0,
@@ -94,6 +96,11 @@ export function QuizPlayer({ quiz, sessionId }: QuizPlayerProps) {
       const total = quiz.questions.length;
       const score = state.correctCount + (state.answerResult?.correct ? 1 : 0);
       const res = await endSession(sessionId, score, total);
+      // Session completion is written synchronously by endSession, so the
+      // stats/history reads are fresh — refresh them now instead of waiting for
+      // a manual browser reload (#466).
+      queryClient.invalidateQueries({ queryKey: ["stats"] });
+      queryClient.invalidateQueries({ queryKey: ["progress"] });
       dispatch({ type: "SCORE", result: res });
     } else {
       dispatch({ type: "NEXT" });

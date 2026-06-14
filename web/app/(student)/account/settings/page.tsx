@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
   getAccountSettings,
   saveAccountSettings,
   type AccountSettings,
 } from "@/lib/api/settings";
+import { updateSessionName } from "@/lib/session-cookie";
 import { useDyslexia } from "@/lib/hooks/useDyslexia";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -35,6 +37,7 @@ export default function SettingsPage() {
 
 function SettingsPageInner() {
   const t = useTranslations("settings_screen");
+  const router = useRouter();
   const [settings, setSettings] = useState<AccountSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -56,6 +59,11 @@ function SettingsPageInner() {
     setError(null);
     try {
       await saveAccountSettings(settings);
+      // Reflect a display-name change in the header immediately instead of
+      // waiting for the next login: update the SSR session cookie, then
+      // re-render the server layout (#467).
+      updateSessionName(settings.display_name);
+      router.refresh();
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch {
