@@ -102,7 +102,11 @@ export function QuizPlayer({ quiz, sessionId }: QuizPlayerProps) {
 
   // Score screen
   if (state.phase === "scoring" && state.result) {
-    const { score, total, passed, attempt_number } = state.result;
+    const { score: rawScore, total: rawTotal, passed, attempt_number } = state.result;
+    // Defensive clamp: never render an impossible result (e.g. 8/5 = 160%).
+    // The backend also clamps on write — this guards any legacy/stale data too.
+    const total = rawTotal > 0 ? rawTotal : 1;
+    const score = Math.max(0, Math.min(rawScore, total));
     const pct = Math.round((score / total) * 100);
     return (
       <div className="space-y-6 py-8 text-center">

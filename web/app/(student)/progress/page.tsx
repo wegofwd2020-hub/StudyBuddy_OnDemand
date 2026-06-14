@@ -61,7 +61,10 @@ export default function ProgressPage() {
                           )}
                           {session.score !== null && (
                             <span className="text-sm font-medium text-gray-700">
-                              {session.score}/{session.total}
+                              {session.total !== null && session.total > 0
+                                ? Math.min(session.score, session.total)
+                                : session.score}
+                              /{session.total}
                             </span>
                           )}
                         </>

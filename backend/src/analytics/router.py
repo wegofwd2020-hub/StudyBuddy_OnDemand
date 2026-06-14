@@ -41,6 +41,7 @@ from src.analytics.service import (
 )
 from src.auth.dependencies import get_current_student, get_current_teacher
 from src.core.db import get_db
+from src.core.subjects import display_subject, resolve_subject_labels
 from src.utils.logger import get_logger
 
 log = get_logger("analytics")
@@ -221,17 +222,23 @@ async def student_stats(
             student_id,
         )
 
-        # Subject breakdown (last 30 days) — grouped by subject column on progress_sessions
-        subj_rows = await conn.fetch(
+        # Subject breakdown (last 30 days). Grouped per unit so we can resolve
+        # human-readable subject names (issue #462) before aggregating — the raw
+        # progress_sessions.subject column holds codes / "unknown".
+        unit_subj_rows = await conn.fetch(
             """
-            SELECT subject, COUNT(*) AS lessons,
-                   AVG(CASE WHEN passed THEN 100.0 ELSE 0.0 END) AS pass_rate
+            SELECT unit_id, subject,
+                   COUNT(*) AS lessons,
+                   SUM(CASE WHEN passed THEN 1 ELSE 0 END) AS passed_count
             FROM progress_sessions
             WHERE student_id = $1
               AND started_at >= NOW() - INTERVAL '30 days'
-            GROUP BY 1
+            GROUP BY unit_id, subject
             """,
             student_id,
+        )
+        subject_labels = await resolve_subject_labels(
+            conn, [r["unit_id"] for r in unit_subj_rows]
         )
 
     session_dates = [str(r["session_date"]) for r in rows]
@@ -257,6 +264,22 @@ async def student_stats(
 
     vr = dict(view_rows[0]) if view_rows else {}
 
+    # Aggregate the per-unit rows into per-(display)-subject totals.
+    breakdown: dict[str, dict[str, int]] = {}
+    for r in unit_subj_rows:
+        label = display_subject(subject_labels, r["unit_id"], r["subject"])
+        agg = breakdown.setdefault(label, {"lessons": 0, "passed": 0})
+        agg["lessons"] += int(r["lessons"])
+        agg["passed"] += int(r["passed_count"] or 0)
+    subject_breakdown = [
+        {
+            "subject": label,
+            "lessons": agg["lessons"],
+            "pass_rate": round(agg["passed"] / agg["lessons"], 4) if agg["lessons"] else 0.0,
+        }
+        for label, agg in sorted(breakdown.items())
+    ]
+
     return {
         "streak_days": streak,
         "session_dates": session_dates,
@@ -265,14 +288,7 @@ async def student_stats(
         "pass_rate": round(total_passed / total_scored, 4) if total_scored else 0.0,
         "avg_score": round(avg_score / 100, 4),
         "audio_sessions": int(vr.get("audio_sessions") or 0),
-        "subject_breakdown": [
-            {
-                "subject": r["subject"],
-                "lessons": int(r["lessons"]),
-                "pass_rate": round(float(r["pass_rate"] or 0), 4),
-            }
-            for r in subj_rows
-        ],
+        "subject_breakdown": subject_breakdown,
     }
 
 

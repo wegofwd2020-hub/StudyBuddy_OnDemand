@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import asyncpg
 
+from src.core.subjects import display_subject, resolve_subject_labels
 from src.utils.logger import get_logger
 
 log = get_logger("analytics")
@@ -162,10 +163,13 @@ async def get_student_metrics(
         student_id,
     )
 
+    # Resolve human-readable subject names (issue #462).
+    subject_labels = await resolve_subject_labels(conn, [r["unit_id"] for r in unit_rows])
+
     per_unit = [
         {
             "unit_id": r["unit_id"],
-            "subject": r["subject"],
+            "subject": display_subject(subject_labels, r["unit_id"], r["subject"]),
             "quiz_attempts": r["quiz_attempts"] or 0,
             "best_score_pct": float(r["best_score_pct"])
             if r["best_score_pct"] is not None
