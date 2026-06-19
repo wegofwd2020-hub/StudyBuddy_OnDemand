@@ -7,6 +7,13 @@ export interface Unit {
   grade: number;
   sort_order: number;
   has_lab: boolean;
+  /**
+   * Whether generated content exists for this unit. Absent (undefined) is
+   * treated as available — only an explicit `false` greys out / disables
+   * selection so the click doesn't dead-end on a "Could not load" 404
+   * (#468/#469).
+   */
+  has_content?: boolean;
 }
 
 export interface Subject {

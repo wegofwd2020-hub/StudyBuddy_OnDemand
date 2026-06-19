@@ -21,6 +21,7 @@ Prefixed with /api/v1 in main.py.
 
 from __future__ import annotations
 
+import asyncio
 import json
 import os
 from typing import Annotated
@@ -37,6 +38,7 @@ from src.core.cache import curriculum_cache
 from src.core.cache_keys import cur_key
 from src.core.db import get_db
 from src.core.redis_client import get_redis
+from src.core.storage import StorageBackend, get_storage
 from src.curriculum.schemas import (
     CurriculumActivateResponse,
     CurriculumUploadRequest,
@@ -85,6 +87,35 @@ def _load_grade(grade: int) -> dict:
 
 def _cid(request: Request) -> str:
     return getattr(request.state, "correlation_id", "")
+
+
+async def _has_content_map(
+    storage: StorageBackend, content_curriculum_id: str, unit_ids: list[str]
+) -> dict[str, bool]:
+    """
+    Return {unit_id: has_content} by probing the content store for each unit's
+    English lesson file (the canonical fallback every content endpoint serves —
+    see content/router.py, which tries lesson_{locale} then lesson_en).
+
+    Lets the student UI grey-out units with no generated content instead of
+    letting the click dead-end on a 404 "Could not load lesson" (#468/#469).
+    One storage probe per unit, run concurrently.
+    """
+    if not unit_ids:
+        return {}
+
+    async def _probe(unit_id: str) -> bool:
+        try:
+            return await storage.exists(
+                f"curricula/{content_curriculum_id}/{unit_id}/lesson_en.json"
+            )
+        except Exception:
+            # A storage hiccup must not blank the whole tree — default to
+            # "available" so we never hide content that actually exists.
+            return True
+
+    flags = await asyncio.gather(*(_probe(u) for u in unit_ids))
+    return dict(zip(unit_ids, flags, strict=True))
 
 
 # ── Grade tree (existing) ─────────────────────────────────────────────────────
@@ -549,6 +580,25 @@ async def get_curriculum_tree(
             curriculum_id=curriculum_id,
             grade=grade,
         )
+
+    # Per-unit content-availability flag (#468/#469) so the UI can grey-out
+    # units whose content has not been generated rather than dead-ending on a
+    # 404. Probe the content store for the canonical English lesson file.
+    #
+    # School forks (source_id present) serve unit content from teacher DB
+    # overrides, not (only) from files — probing the OOB files would wrongly
+    # hide overridden units. Skip the probe for forks and mark everything
+    # available; the OOB platform path is where the reported dead-ends occur.
+    all_units = [u for subj in subjects for u in subj["units"]]
+    if source_id:
+        content_map = {u["unit_id"]: True for u in all_units}
+    else:
+        storage = get_storage(request)
+        content_map = await _has_content_map(
+            storage, units_lookup_id, [u["unit_id"] for u in all_units]
+        )
+    for u in all_units:
+        u["has_content"] = content_map.get(u["unit_id"], True)
 
     return {"curriculum_id": curriculum_id, "grade": grade, "subjects": subjects}
 
