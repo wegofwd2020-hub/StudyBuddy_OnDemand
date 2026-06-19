@@ -17,8 +17,15 @@ export async function getAccountSettings(): Promise<AccountSettings> {
   return res.data;
 }
 
+/**
+ * Save account settings. When the locale changed the backend re-mints the
+ * student JWT (locale is authoritative from the token) and returns it here so
+ * the caller can swap the stale token — otherwise the new language wouldn't
+ * apply to content until the next login (#470).
+ */
 export async function saveAccountSettings(
   settings: Partial<AccountSettings>,
-): Promise<void> {
-  await api.patch("/auth/settings", settings);
+): Promise<{ token?: string }> {
+  const res = await api.patch<{ token?: string }>("/auth/settings", settings);
+  return res.data ?? {};
 }
