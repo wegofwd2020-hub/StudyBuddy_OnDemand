@@ -8,7 +8,12 @@ import { FlaskConical } from "lucide-react";
 import { OfflineBanner } from "@/components/student/OfflineBanner";
 import { Shelf, BookSpine, BookOpen, deriveSubjectAccent } from "@/components/library";
 
-type SubjectUnit = { unit_id: string; title: string; has_lab?: boolean };
+type SubjectUnit = {
+  unit_id: string;
+  title: string;
+  has_lab?: boolean;
+  has_content?: boolean;
+};
 
 function SubjectUnitList({ units }: { units: SubjectUnit[] }) {
   if (units.length === 0) {
@@ -16,37 +21,57 @@ function SubjectUnitList({ units }: { units: SubjectUnit[] }) {
   }
   return (
     <ol role="list" className="divide-y divide-gray-100">
-      {units.map((unit) => (
-        <li key={unit.unit_id} className="flex items-center justify-between gap-3 py-2">
-          <div className="flex min-w-0 items-center gap-2">
-            <span className="truncate text-sm text-gray-700">{unit.title}</span>
-            {unit.has_lab && (
-              <FlaskConical
-                className="h-3.5 w-3.5 shrink-0 text-purple-500"
-                aria-hidden="true"
-              />
-            )}
-          </div>
-          <div className="flex shrink-0 items-center gap-1">
-            <LinkButton
-              href={`/lesson/${unit.unit_id}`}
-              variant="ghost"
-              size="sm"
-              className="h-7 text-xs"
-            >
-              Lesson
-            </LinkButton>
-            <LinkButton
-              href={`/quiz/${unit.unit_id}`}
-              variant="ghost"
-              size="sm"
-              className="h-7 text-xs"
-            >
-              Quiz
-            </LinkButton>
-          </div>
-        </li>
-      ))}
+      {units.map((unit) => {
+        // Only an explicit false disables selection — undefined means the
+        // backend didn't flag availability, so keep the unit clickable.
+        const unavailable = unit.has_content === false;
+        return (
+          <li key={unit.unit_id} className="flex items-center justify-between gap-3 py-2">
+            <div className="flex min-w-0 items-center gap-2">
+              <span
+                className={`truncate text-sm ${unavailable ? "text-gray-400" : "text-gray-700"}`}
+              >
+                {unit.title}
+              </span>
+              {unit.has_lab && (
+                <FlaskConical
+                  className="h-3.5 w-3.5 shrink-0 text-purple-500"
+                  aria-hidden="true"
+                />
+              )}
+            </div>
+            <div className="flex shrink-0 items-center gap-1">
+              {unavailable ? (
+                <span
+                  className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500"
+                  title="This unit's content hasn't been published yet."
+                >
+                  Coming soon
+                </span>
+              ) : (
+                <>
+                  <LinkButton
+                    href={`/lesson/${unit.unit_id}`}
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 text-xs"
+                  >
+                    Lesson
+                  </LinkButton>
+                  <LinkButton
+                    href={`/quiz/${unit.unit_id}`}
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 text-xs"
+                  >
+                    Quiz
+                  </LinkButton>
+                </>
+              )}
+            </div>
+          </li>
+        );
+      })}
     </ol>
   );
 }

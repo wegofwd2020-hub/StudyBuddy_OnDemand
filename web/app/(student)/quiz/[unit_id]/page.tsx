@@ -6,6 +6,7 @@ import { QuizPlayer } from "@/components/content/QuizPlayer";
 import { OfflineBanner } from "@/components/student/OfflineBanner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AIContentDisclosure } from "@/components/content/AIContentDisclosure";
+import { contentErrorMessage } from "@/lib/content-error";
 import { startSession } from "@/lib/api/progress";
 
 interface PageProps {
@@ -14,7 +15,7 @@ interface PageProps {
 
 export default function QuizPage({ params }: PageProps) {
   const { unit_id } = use(params);
-  const { data: quiz, isLoading, isError } = useQuiz(unit_id);
+  const { data: quiz, isLoading, isError, error } = useQuiz(unit_id);
   const [sessionId, setSessionId] = useState<string | null>(null);
 
   // Open a fresh quiz attempt. Used on first load and on "Try Again" — the
@@ -44,9 +45,12 @@ export default function QuizPage({ params }: PageProps) {
   }
 
   if (isError || !quiz) {
+    const { message, unavailable } = contentErrorMessage(error);
     return (
       <div className="p-6">
-        <p className="text-sm text-red-500">Could not load quiz. Please try again.</p>
+        <p className={`text-sm ${unavailable ? "text-gray-500" : "text-red-500"}`}>
+          {message}
+        </p>
       </div>
     );
   }

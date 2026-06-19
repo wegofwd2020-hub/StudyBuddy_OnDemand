@@ -10,6 +10,7 @@ import { LinkButton } from "@/components/ui/link-button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { startLessonView, endLessonViewBeacon } from "@/lib/api/analytics";
 import { AIContentDisclosure } from "@/components/content/AIContentDisclosure";
+import { contentErrorMessage } from "@/lib/content-error";
 import { FlaskConical, FileQuestion } from "lucide-react";
 
 interface PageProps {
@@ -18,7 +19,7 @@ interface PageProps {
 
 export default function LessonPage({ params }: PageProps) {
   const { unit_id } = use(params);
-  const { data: lesson, isLoading, isError } = useLesson(unit_id);
+  const { data: lesson, isLoading, isError, error } = useLesson(unit_id);
 
   const viewIdRef = useRef<string | null>(null);
   const startTimeRef = useRef<number>(0);
@@ -71,9 +72,12 @@ export default function LessonPage({ params }: PageProps) {
   }
 
   if (isError || !lesson) {
+    const { message, unavailable } = contentErrorMessage(error);
     return (
       <div className="p-6">
-        <p className="text-sm text-red-500">Could not load lesson. Please try again.</p>
+        <p className={`text-sm ${unavailable ? "text-gray-500" : "text-red-500"}`}>
+          {message}
+        </p>
       </div>
     );
   }

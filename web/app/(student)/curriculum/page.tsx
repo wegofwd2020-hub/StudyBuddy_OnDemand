@@ -80,6 +80,7 @@ export default function CurriculumMapPage() {
                       subjectKey={subject.subject}
                       status={statusMap.get(unit.unit_id) ?? "not_started"}
                       hasLab={unit.has_lab}
+                      dim={unit.has_content === false}
                       isOpen={openUnitId === unit.unit_id}
                       onToggle={(id) => setOpenUnitId((cur) => (cur === id ? null : id))}
                     />
@@ -87,7 +88,14 @@ export default function CurriculumMapPage() {
                 </Shelf>
                 {open ? (
                   <BookOpen title={open.title} onClose={() => setOpenUnitId(null)}>
-                    <Toc unitId={open.unit_id} hasLab={open.has_lab} />
+                    {open.has_content === false ? (
+                      <p className="text-sm text-gray-500">
+                        This unit&apos;s content hasn&apos;t been published yet. Check
+                        back soon.
+                      </p>
+                    ) : (
+                      <Toc unitId={open.unit_id} hasLab={open.has_lab} />
+                    )}
                   </BookOpen>
                 ) : null}
               </Aisle>
