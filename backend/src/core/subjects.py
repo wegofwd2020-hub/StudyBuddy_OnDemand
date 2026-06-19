@@ -21,9 +21,50 @@ unit_id the map doesn't cover.
 
 from __future__ import annotations
 
+import re
 from collections.abc import Iterable
 
 import asyncpg
+
+# Subject-code → display name, keyed by the code embedded in a unit_id prefix
+# (e.g. "G8-SCI-001" → "SCI" → "Science"). Derived from the canonical names in
+# data/grade*_stem.json. Used as a last-resort fallback so progress reports show
+# a real subject instead of "Unknown" when a unit has no curriculum_units row.
+_SUBJECT_CODE_NAMES: dict[str, str] = {
+    "MATH": "Mathematics",
+    "SCI": "Science",
+    "PHYS": "Physics",
+    "CHEM": "Chemistry",
+    "BIO": "Biology",
+    "TECH": "Technology",
+    "ENG": "English",
+    "CS": "Computer Science",
+    "ACC": "Accountancy",
+    "BUS": "Business Studies",
+    "ECON": "Economics",
+    "COMM": "Commerce",
+    "HIST": "History",
+    "GEO": "Geography",
+    "POL": "Political Science",
+    "PSY": "Psychology",
+    "SOC": "Sociology",
+}
+
+_UNIT_ID_SUBJECT_RE = re.compile(r"^G\d+-([A-Z]+)-")
+
+
+def subject_from_unit_id(unit_id: str | None) -> str | None:
+    """
+    Derive a friendly subject name from a unit_id prefix ("G8-SCI-001" →
+    "Science"), or None if the code is unrecognised / the id doesn't match the
+    G{grade}-{CODE}-{n} shape. Pure helper — no DB.
+    """
+    if not unit_id:
+        return None
+    m = _UNIT_ID_SUBJECT_RE.match(unit_id)
+    if not m:
+        return None
+    return _SUBJECT_CODE_NAMES.get(m.group(1))
 
 
 async def resolve_subject_labels(
@@ -75,4 +116,7 @@ def display_subject(
         return label
     if stored_subject and stored_subject.lower() != "unknown":
         return stored_subject
-    return "Unknown"
+    # Last resort: derive the subject from the unit_id prefix so the chart shows
+    # a real subject (and groups into separate bars) instead of collapsing every
+    # unresolved unit into a single "Unknown" bar (#473).
+    return subject_from_unit_id(unit_id) or "Unknown"
