@@ -58,7 +58,15 @@ function SettingsPageInner() {
     setSaved(false);
     setError(null);
     try {
-      await saveAccountSettings(settings);
+      const result = await saveAccountSettings(settings);
+      // Swap in the re-minted JWT so a locale change applies to content
+      // immediately — content endpoints read the locale from the token, so a
+      // stale token would keep serving the old language until logout (#470).
+      // Tolerate a void/undefined return (the endpoint only returns a token
+      // when the locale actually changed).
+      if (result?.token && typeof window !== "undefined") {
+        localStorage.setItem("sb_token", result.token);
+      }
       // Reflect a display-name change in the header immediately instead of
       // waiting for the next login: update the SSR session cookie, then
       // re-render the server layout (#467).
@@ -132,7 +140,8 @@ function SettingsPageInner() {
                 ))}
               </div>
               <p className="mt-2 text-xs text-gray-400">
-                Content is served in your selected language.
+                Lessons and quizzes appear in your selected language where a translation
+                is available, and in English otherwise.
               </p>
             </CardContent>
           </Card>

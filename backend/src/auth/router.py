@@ -1170,7 +1170,22 @@ async def update_settings(
             )
 
     emit_event("auth", "settings_updated", student_id=str(student_id))
-    return {}
+
+    # Re-mint the student JWT when the locale changed. Content endpoints read
+    # the locale authoritatively from the JWT (never a query param), so without
+    # a fresh token the new language only takes effect after the next login —
+    # the student saves "Español" but keeps seeing English (#470). Carry over
+    # every existing claim, swapping in the new locale; drop the signed-token
+    # internal claims so create_internal_jwt issues fresh ones.
+    new_token: str | None = None
+    if "locale" in student_updates:
+        claims = {k: v for k, v in student.items() if k not in ("iat", "exp", "jti")}
+        claims["locale"] = student_updates["locale"]
+        new_token = create_internal_jwt(
+            claims, settings.JWT_SECRET, settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES
+        )
+
+    return {"token": new_token} if new_token else {}
 
 
 # ── Account deletion (GDPR) ───────────────────────────────────────────────────
