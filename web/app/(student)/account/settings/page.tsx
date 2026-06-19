@@ -58,12 +58,14 @@ function SettingsPageInner() {
     setSaved(false);
     setError(null);
     try {
-      const { token } = await saveAccountSettings(settings);
+      const result = await saveAccountSettings(settings);
       // Swap in the re-minted JWT so a locale change applies to content
       // immediately — content endpoints read the locale from the token, so a
       // stale token would keep serving the old language until logout (#470).
-      if (token && typeof window !== "undefined") {
-        localStorage.setItem("sb_token", token);
+      // Tolerate a void/undefined return (the endpoint only returns a token
+      // when the locale actually changed).
+      if (result?.token && typeof window !== "undefined") {
+        localStorage.setItem("sb_token", result.token);
       }
       // Reflect a display-name change in the header immediately instead of
       // waiting for the next login: update the SSR session cookie, then
