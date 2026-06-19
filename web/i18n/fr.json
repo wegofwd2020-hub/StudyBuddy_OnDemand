@@ -134,6 +134,7 @@
   },
   "curriculum_map_screen": {
     "title": "Plan du programme",
+    "subtitle": "Suivez votre progression tout au long de l'année, unité par unité.",
     "status_completed": "Terminé",
     "status_needs_retry": "À revoir",
     "status_in_progress": "En cours",

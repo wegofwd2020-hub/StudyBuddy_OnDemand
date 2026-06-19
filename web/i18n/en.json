@@ -228,6 +228,7 @@
   },
   "curriculum_map_screen": {
     "title": "Curriculum Map",
+    "subtitle": "Track your progress through the year, unit by unit.",
     "status_completed": "Completed",
     "status_needs_retry": "Needs retry",
     "status_in_progress": "In progress",

@@ -134,6 +134,7 @@
   },
   "curriculum_map_screen": {
     "title": "Mapa del currículo",
+    "subtitle": "Sigue tu progreso a lo largo del año, unidad por unidad.",
     "status_completed": "Completado",
     "status_needs_retry": "Necesita repaso",
     "status_in_progress": "En progreso",

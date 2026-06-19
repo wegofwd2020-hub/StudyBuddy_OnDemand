@@ -62,7 +62,13 @@ export default function SubjectsPage() {
     <div className="flex flex-col">
       <OfflineBanner />
       <div className="max-w-5xl space-y-6 p-6">
-        <h1 className="text-2xl font-bold text-gray-900">Subjects</h1>
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold text-gray-900">Subjects</h1>
+          <p className="text-sm text-gray-500">
+            Browse every subject and open a lesson or quiz. To see how far you&apos;ve
+            come, visit the Curriculum Map.
+          </p>
+        </div>
 
         {isLoading && (
           <div className="flex gap-3">
