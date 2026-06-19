@@ -181,21 +181,42 @@ async def student_metrics(
 # ── GET /analytics/student/stats ─────────────────────────────────────────────
 
 
+_PERIOD_DAYS: dict[str, int | None] = {"7d": 7, "30d": 30, "all": None}
+
+
 @router.get("/analytics/student/stats")
 async def student_stats(
     request: Request,
     student: Annotated[dict, Depends(get_current_student)],
+    period: str = "30d",
 ) -> dict:
     """
     Return streak, session dates, and summary stats for the student dashboard.
 
-    streak_days     — consecutive days with at least one completed session (ending today)
-    session_dates   — ISO date strings (YYYY-MM-DD) for the last 30 days that had sessions
+    period          — "7d" | "30d" | "all": scopes the charts and totals
+                      (session_dates, quiz counts, subject breakdown). Previously
+                      this query param was sent by the web client but ignored,
+                      so the selector did nothing.
+    streak_days     — consecutive days with at least one completed session
+                      (ending today), computed over a fixed window so it is never
+                      truncated by a short selected period.
     """
     student_id = str(student["student_id"])
+    days = _PERIOD_DAYS.get(period, 30)
+
+    # Period-scoped time filter shared by the charts/totals queries. "all" → no
+    # filter. days is bound as $2 only when present, so the parameter numbering
+    # stays consistent across all three queries.
+    if days is None:
+        period_clause = ""
+        period_params: list[int] = []
+    else:
+        period_clause = "AND started_at >= NOW() - make_interval(days => $2)"
+        period_params = [days]
+
     async with get_db(request) as conn:
         rows = await conn.fetch(
-            """
+            f"""
             SELECT DATE(started_at AT TIME ZONE 'UTC') AS session_date,
                    COUNT(*) AS sessions,
                    AVG(score::float / NULLIF(total_questions, 0) * 100) FILTER (WHERE score IS NOT NULL) AS avg_score,
@@ -203,55 +224,71 @@ async def student_stats(
                    COUNT(*) FILTER (WHERE score IS NOT NULL) AS scored_count
             FROM progress_sessions
             WHERE student_id = $1
-              AND started_at >= NOW() - INTERVAL '30 days'
+              {period_clause}
             GROUP BY 1
             ORDER BY 1 DESC
             """,
             student_id,
+            *period_params,
         )
 
-        # Lesson views + audio in last 30 days
+        # Lesson views + audio in the selected period
         view_rows = await conn.fetch(
-            """
+            f"""
             SELECT COUNT(*) AS lessons_viewed,
                    SUM(CASE WHEN audio_played THEN 1 ELSE 0 END) AS audio_sessions
             FROM lesson_views
             WHERE student_id = $1
-              AND started_at >= NOW() - INTERVAL '30 days'
+              {period_clause}
             """,
             student_id,
+            *period_params,
         )
 
-        # Subject breakdown (last 30 days). Grouped per unit so we can resolve
+        # Subject breakdown (selected period). Grouped per unit so we can resolve
         # human-readable subject names (issue #462) before aggregating — the raw
         # progress_sessions.subject column holds codes / "unknown".
         unit_subj_rows = await conn.fetch(
-            """
+            f"""
             SELECT unit_id, subject,
                    COUNT(*) AS lessons,
                    SUM(CASE WHEN passed THEN 1 ELSE 0 END) AS passed_count
             FROM progress_sessions
             WHERE student_id = $1
-              AND started_at >= NOW() - INTERVAL '30 days'
+              {period_clause}
             GROUP BY unit_id, subject
             """,
             student_id,
+            *period_params,
         )
         subject_labels = await resolve_subject_labels(conn, [r["unit_id"] for r in unit_subj_rows])
+
+        # Streak is independent of the selected period: pull distinct active days
+        # over a generous fixed window so picking "7d" never truncates a longer
+        # current streak.
+        streak_rows = await conn.fetch(
+            """
+            SELECT DISTINCT DATE(started_at AT TIME ZONE 'UTC') AS d
+            FROM progress_sessions
+            WHERE student_id = $1
+              AND started_at >= NOW() - INTERVAL '400 days'
+            """,
+            student_id,
+        )
 
     session_dates = [str(r["session_date"]) for r in rows]
     total_sessions = sum(r["sessions"] for r in rows)
     total_scored = sum(r["scored_count"] for r in rows)
     total_passed = sum(r["passed_count"] for r in rows)
 
-    # Compute streak from today backwards
+    # Compute streak from today backwards over the fixed-window active days.
     from datetime import date, timedelta
 
     today = date.today()
-    date_set = set(session_dates)
+    streak_dates = {str(r["d"]) for r in streak_rows}
     streak = 0
     check = today
-    while str(check) in date_set:
+    while str(check) in streak_dates:
         streak += 1
         check -= timedelta(days=1)
 

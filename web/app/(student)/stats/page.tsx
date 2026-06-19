@@ -145,7 +145,9 @@ export default function StatsPage() {
                         formatter={(value) => [Number(value ?? 0), "Lessons"]}
                         labelStyle={{ fontSize: 12 }}
                       />
-                      <Bar dataKey="lessons" radius={[4, 4, 0, 0]}>
+                      {/* Cap width so a single subject renders as a normal bar
+                          rather than one block spanning the whole chart (#473). */}
+                      <Bar dataKey="lessons" radius={[4, 4, 0, 0]} maxBarSize={64}>
                         {stats.subject_breakdown.map((_, i) => (
                           <Cell
                             key={i}

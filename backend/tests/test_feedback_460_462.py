@@ -151,13 +151,31 @@ async def test_resolve_subject_labels_empty_input(db_conn):
 
 
 def test_display_subject_resolution_order():
-    """Pure-function fallback chain: map → stored (non-sentinel) → 'Unknown'."""
+    """Pure-function fallback chain: map → stored (non-sentinel) → unit_id → 'Unknown'."""
     label_map = {"u1": "Physics"}
     # curriculum label wins even when the stored value is the 'unknown' sentinel
     assert display_subject(label_map, "u1", "unknown") == "Physics"
     # no map entry → fall back to a meaningful stored code
     assert display_subject({}, "u2", "G8-SCI") == "G8-SCI"
-    # no map entry and stored is the sentinel → 'Unknown'
+    # no map entry and stored is the sentinel, unit_id not parseable → 'Unknown'
     assert display_subject({}, "u2", "unknown") == "Unknown"
     assert display_subject({}, "u2", "UNKNOWN") == "Unknown"
     assert display_subject({}, "u2", None) == "Unknown"
+
+
+def test_display_subject_falls_back_to_unit_id_prefix():
+    """When the curriculum label is missing and the stored subject is the
+    'unknown' sentinel, a real subject is derived from the unit_id prefix so
+    the breakdown chart never collapses to a single 'Unknown' bar (#473)."""
+    from src.core.subjects import subject_from_unit_id
+
+    assert display_subject({}, "G8-SCI-001", "unknown") == "Science"
+    assert display_subject({}, "G11-PHYS-002", None) == "Physics"
+    assert display_subject({}, "G12-MATH-005", "unknown") == "Mathematics"
+    # Unrecognised code or non-matching id → still 'Unknown'.
+    assert display_subject({}, "G9-ZZZ-001", "unknown") == "Unknown"
+
+    # Direct helper coverage.
+    assert subject_from_unit_id("G8-SCI-001") == "Science"
+    assert subject_from_unit_id("not-a-unit-id") is None
+    assert subject_from_unit_id(None) is None
