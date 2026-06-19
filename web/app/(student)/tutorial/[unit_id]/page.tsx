@@ -8,6 +8,7 @@ import { FeedbackWidget } from "@/components/feedback/FeedbackWidget";
 import { OfflineBanner } from "@/components/student/OfflineBanner";
 import { LinkButton } from "@/components/ui/link-button";
 import { AIContentDisclosure } from "@/components/content/AIContentDisclosure";
+import { contentErrorMessage } from "@/lib/content-error";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface PageProps {
@@ -20,6 +21,7 @@ export default function TutorialPage({ params }: PageProps) {
     data: tutorial,
     isLoading,
     isError,
+    error,
   } = useQuery({
     queryKey: ["tutorial", unit_id],
     queryFn: () => getTutorial(unit_id),
@@ -38,9 +40,12 @@ export default function TutorialPage({ params }: PageProps) {
   }
 
   if (isError || !tutorial) {
+    const { message, unavailable } = contentErrorMessage(error);
     return (
       <div className="p-6">
-        <p className="text-sm text-red-500">Could not load tutorial. Please try again.</p>
+        <p className={`text-sm ${unavailable ? "text-gray-500" : "text-red-500"}`}>
+          {message}
+        </p>
       </div>
     );
   }
