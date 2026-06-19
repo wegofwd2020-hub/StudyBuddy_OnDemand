@@ -2363,27 +2363,49 @@
           "analytics"
         ],
         "summary": "Student Stats",
-        "description": "Return streak, session dates, and summary stats for the student dashboard.\n\nstreak_days     \u2014 consecutive days with at least one completed session (ending today)\nsession_dates   \u2014 ISO date strings (YYYY-MM-DD) for the last 30 days that had sessions",
+        "description": "Return streak, session dates, and summary stats for the student dashboard.\n\nperiod          \u2014 \"7d\" | \"30d\" | \"all\": scopes the charts and totals\n                  (session_dates, quiz counts, subject breakdown). Previously\n                  this query param was sent by the web client but ignored,\n                  so the selector did nothing.\nstreak_days     \u2014 consecutive days with at least one completed session\n                  (ending today), computed over a fixed window so it is never\n                  truncated by a short selected period.",
         "operationId": "student_stats_api_v1_analytics_student_stats_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "30d",
+              "title": "Period"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
                   "type": "object",
+                  "additionalProperties": true,
                   "title": "Response Student Stats Api V1 Analytics Student Stats Get"
                 }
               }
             }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
           }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
+        }
       }
     },
     "/api/v1/analytics/school/{school_id}/class": {

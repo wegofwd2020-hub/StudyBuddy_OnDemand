@@ -1172,8 +1172,13 @@ export interface paths {
          * Student Stats
          * @description Return streak, session dates, and summary stats for the student dashboard.
          *
-         *     streak_days     — consecutive days with at least one completed session (ending today)
-         *     session_dates   — ISO date strings (YYYY-MM-DD) for the last 30 days that had sessions
+         *     period          — "7d" | "30d" | "all": scopes the charts and totals
+         *                       (session_dates, quiz counts, subject breakdown). Previously
+         *                       this query param was sent by the web client but ignored,
+         *                       so the selector did nothing.
+         *     streak_days     — consecutive days with at least one completed session
+         *                       (ending today), computed over a fixed window so it is never
+         *                       truncated by a short selected period.
          */
         get: operations["student_stats_api_v1_analytics_student_stats_get"];
         put?: never;
@@ -12426,7 +12431,9 @@ export interface operations {
     };
     student_stats_api_v1_analytics_student_stats_get: {
         parameters: {
-            query?: never;
+            query?: {
+                period?: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -12442,6 +12449,15 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
