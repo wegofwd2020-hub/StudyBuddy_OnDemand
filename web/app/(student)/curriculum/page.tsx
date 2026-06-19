@@ -34,7 +34,10 @@ export default function CurriculumMapPage() {
     <div className="flex flex-col">
       <OfflineBanner />
       <div className="max-w-5xl space-y-8 p-6">
-        <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
+          <p className="text-sm text-gray-500">{t("subtitle")}</p>
+        </div>
 
         <div className="flex flex-wrap gap-4 text-xs text-gray-500">
           {Object.entries(STATUS_CONFIG).map(([status, { icon: Icon, color, label }]) => (
