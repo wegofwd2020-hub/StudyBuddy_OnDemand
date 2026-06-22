@@ -1,0 +1,46 @@
+{
+  "repo": "wegofwd2020-hub/StudyBuddy_OnDemand",
+  "task_count": 5,
+  "tasks": [
+    {
+      "number": 180,
+      "file": "task-180.md",
+      "title": "feat(db): L-3 \u2014 retention_status='archived' value + index",
+      "type": "feature",
+      "severity": "medium",
+      "url": "https://github.com/wegofwd2020-hub/StudyBuddy_OnDemand/issues/180"
+    },
+    {
+      "number": 192,
+      "file": "task-192.md",
+      "title": "decision(product): Park Epic 11 C-5 regen, declare Commerce + G11 Science sufficient",
+      "type": "feature",
+      "severity": "medium",
+      "url": "https://github.com/wegofwd2020-hub/StudyBuddy_OnDemand/issues/192"
+    },
+    {
+      "number": 214,
+      "file": "task-214.md",
+      "title": "Hooks: PostToolUse ruff + alembic check + OpenAPI regen; PreToolUse git-push tests",
+      "type": "bug",
+      "severity": "medium",
+      "url": "https://github.com/wegofwd2020-hub/StudyBuddy_OnDemand/issues/214"
+    },
+    {
+      "number": 217,
+      "file": "task-217.md",
+      "title": "Schedule: bi-weekly project critique sub-agent",
+      "type": "feature",
+      "severity": "medium",
+      "url": "https://github.com/wegofwd2020-hub/StudyBuddy_OnDemand/issues/217"
+    },
+    {
+      "number": 306,
+      "file": "task-306.md",
+      "title": "BR-1 \u2014 DB + Storage Foundation (Epic 15)",
+      "type": "feature",
+      "severity": "medium",
+      "url": "https://github.com/wegofwd2020-hub/StudyBuddy_OnDemand/issues/306"
+    }
+  ]
+}

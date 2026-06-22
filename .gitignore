@@ -77,3 +77,9 @@ web/public/sample-visuals/
 # the dev backend is configured to write there directly; gitignored so
 # uploads don't land in commits.
 web/public/visuals/
+
+# Agent orchestration: keep workflow state (manifest + ledger) for the
+# PROGRESS.md "in flight" section, but ignore the regenerated task briefs.
+.orchestration/task-*.md
+!.orchestration/manifest.json
+!.orchestration/.orchestration.json

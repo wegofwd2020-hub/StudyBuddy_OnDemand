@@ -15,6 +15,14 @@ from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
+# Optional add-on: an "in flight" section sourced from the orchestrator's ledger
+# in .orchestration/. Guarded so a missing add-on can never break the nightly
+# build; build_section itself never raises.
+try:
+    from progress_inflight import build_section
+except Exception:  # pragma: no cover - add-on is optional
+    build_section = None
+
 REPO = Path(__file__).resolve().parents[1]
 EPICS_DIR = REPO / "docs" / "epics"
 OUTPUT = REPO / "docs" / "PROGRESS.md"
@@ -225,7 +233,10 @@ def main() -> None:
     epics = parse_epics()
     commits = get_commits()
     attribute_commits(commits, epics)
-    OUTPUT.write_text(render(epics, commits))
+    document = render(epics, commits)
+    if build_section is not None:
+        document += "\n" + build_section(REPO / ".orchestration")
+    OUTPUT.write_text(document)
     print(f"Wrote {OUTPUT} — {len(epics)} epics, {len(commits)} commits scanned.")
 
 
