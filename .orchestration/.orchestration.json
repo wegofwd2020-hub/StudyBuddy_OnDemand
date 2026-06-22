@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "tasks": {
+    "180": {
+      "status": "escalated",
+      "last_gate": "escalate",
+      "updated_at": "2026-06-22T18:00:03.914178+00:00",
+      "notes": ""
+    },
+    "192": {
+      "status": "escalated",
+      "last_gate": "",
+      "updated_at": "2026-06-22T18:04:09.022503+00:00",
+      "notes": "Pure product decision (continue/park/partial Epic 11 regen, ~$10-12 spend). No mechanical change; owner leans option (c). Guardrail: product decisions go to a human."
+    },
+    "214": {
+      "status": "escalated",
+      "last_gate": "",
+      "updated_at": "2026-06-22T18:05:29.588988+00:00",
+      "notes": "Umbrella tracking issue, not a single bug. Fast hooks already shipped (PR #227). 3 open boxes are decision-gated: OpenAPI hook = won't-do vs investigate-debounce; git-push tests = belongs in .git/hooks/pre-push (blast-radius/architecture call, separate PR); Stop hook = needs changed-modules helper first. Touches harness config (.claude/settings.json, git hooks) + needs human benchmarking. Product/architecture decisions -> human."
+    },
+    "217": {
+      "status": "approved",
+      "last_gate": "",
+      "updated_at": "2026-06-22T18:17:59.902134+00:00",
+      "notes": "Cloud routine 'studybuddy-project-critique' created (trig_01FhKoD5w2aBnQmqkXaH8B32), cron 0 13 * * 1 (Mon 9am Toronto), sources: StudyBuddy_OnDemand + project-critique. Created DISABLED pending GitHub connection. Manual follow-up: run /web-setup to connect GitHub, then enable the routine."
+    },
+    "306": {
+      "status": "escalated",
+      "last_gate": "",
+      "updated_at": "2026-06-22T18:23:16.686693+00:00",
+      "notes": "Implementable (migrations 0052/0053 + src/backup/storage.py ABC/S3/Local/factory) but acceptance requires RLS cross-tenant isolation (school A cannot read school B). Multi-tenancy is an explicit stop-and-escalate guardrail; wrong RLS = cross-tenant data leak. Defer to human per user decision."
+    }
+  }
+}
