@@ -83,3 +83,8 @@ web/public/visuals/
 .orchestration/task-*.md
 !.orchestration/manifest.json
 !.orchestration/.orchestration.json
+
+# Obsidian editor cruft + accidental scratch (not project content)
+.obsidian/
+docs/Untitled.base
+sample_data_file.txt
