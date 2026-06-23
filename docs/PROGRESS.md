@@ -1,6 +1,6 @@
 # StudyBuddy OnDemand — Progress Chart
 
-_Auto-generated 2026-06-22T07:08:47+00:00. Regenerated nightly at 21:00 EST._
+_Auto-generated 2026-06-23T05:56:47+00:00. Regenerated nightly at 21:00 EST._
 
 Source: `docs/epics/` (feature manifest) + `git log` (activity). Script: `scripts/generate_progress.py`.
 
@@ -240,3 +240,16 @@ Tickets with 2+ commits — each extra commit is an iteration or rework.
 - **Ticket prefix:** `K`
 - **Commits attributed:** 0
 
+
+## Agent orchestration — in flight
+
+_As of 2026-06-23 05:56 UTC: 4 agent task(s) in flight (4 escalated); 1 approved._
+
+| # | status | sev | last gate | title |
+| --- | --- | --- | --- | --- |
+| 180 | escalated | medium | escalate | feat(db): L-3 — retention_status='archived' value + index |
+| 192 | escalated | medium | — | decision(product): Park Epic 11 C-5 regen, declare Commerce + G11 Science sufficient |
+| 214 | escalated | medium | — | Hooks: PostToolUse ruff + alembic check + OpenAPI regen; PreToolUse git-push tests |
+| 306 | escalated | medium | — | BR-1 — DB + Storage Foundation (Epic 15) |
+
+> ⚠️ 4 task(s) escalated to human review: #180, #192, #214, #306.
