@@ -1,0 +1,110 @@
+{
+  "project": "StudyBuddy OnDemand",
+  "generated": "2026-07-06T20:24:52+00:00",
+  "source": "epics",
+  "stage": "late-build",
+  "features": [
+    {
+      "id": "Epic 1",
+      "name": "Multi-Provider LLM Pipeline",
+      "status": "done",
+      "commits": 1
+    },
+    {
+      "id": "Epic 2",
+      "name": "Production Launch & Demo Readiness",
+      "status": "pending",
+      "commits": 1
+    },
+    {
+      "id": "Epic 3",
+      "name": "Student Mobile App (Expo / React Native)",
+      "status": "done",
+      "commits": 2
+    },
+    {
+      "id": "Epic 4",
+      "name": "Parent Portal",
+      "status": "pending",
+      "commits": 0
+    },
+    {
+      "id": "Epic 5",
+      "name": "District Admin",
+      "status": "pending",
+      "commits": 0
+    },
+    {
+      "id": "Epic 6",
+      "name": "Platform Hardening",
+      "status": "in-progress",
+      "commits": 1
+    },
+    {
+      "id": "Epic 7",
+      "name": "Self-Serve Demo System",
+      "status": "done",
+      "commits": 0
+    },
+    {
+      "id": "Epic 8",
+      "name": "Onboarding Completeness (Address & Measurement Units)",
+      "status": "pending",
+      "commits": 3
+    },
+    {
+      "id": "Epic 9",
+      "name": "Accessibility & Personalization",
+      "status": "pending",
+      "commits": 0
+    },
+    {
+      "id": "Epic 10",
+      "name": "Curriculum Lifecycle & Governance",
+      "status": "done",
+      "commits": 14
+    },
+    {
+      "id": "Epic 11",
+      "name": "Content Presentation & Formatting",
+      "status": "done",
+      "commits": 11
+    },
+    {
+      "id": "Epic 12",
+      "name": "Teacher Content Authoring",
+      "status": "done",
+      "commits": 13
+    },
+    {
+      "id": "Epic 13",
+      "name": "Branding Refresh: STEM \u2192 Education Enhancement",
+      "status": "done",
+      "commits": 3
+    },
+    {
+      "id": "Epic 15",
+      "name": "School Curriculum Backup & Restore",
+      "status": "done",
+      "commits": 4
+    },
+    {
+      "id": "Epic 16",
+      "name": "Public Site Redesign: School-First Marketing Pages",
+      "status": "pending",
+      "commits": 5
+    },
+    {
+      "id": "Epic 17",
+      "name": "Corporate L&D Fork",
+      "status": "pending",
+      "commits": 0
+    },
+    {
+      "id": "Epic 18",
+      "name": "Corporate Compliance Scenario Catalog",
+      "status": "pending",
+      "commits": 0
+    }
+  ]
+}
