@@ -20,17 +20,17 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Generate PROGRESS.md
+      - name: Generate progress.json
         run: python3 scripts/generate_progress.py
 
-      - name: Commit and push if changed
+      - name: Commit and push progress.json if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if git diff --quiet docs/PROGRESS.md; then
-            echo "No changes to PROGRESS.md"
+          if git diff --quiet docs/progress.json; then
+            echo "No changes to progress.json"
             exit 0
           fi
-          git add docs/PROGRESS.md
-          git commit -m "chore(progress): nightly update of docs/PROGRESS.md"
+          git add docs/progress.json
+          git commit -m "chore(progress): nightly update of docs/progress.json"
           git push
