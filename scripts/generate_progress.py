@@ -9,6 +9,7 @@ A ticket that appears in 2+ commits is counted as iterated/redesigned.
 """
 from __future__ import annotations
 
+import json as _json
 import re
 import subprocess
 from collections import defaultdict
@@ -26,6 +27,34 @@ except Exception:  # pragma: no cover - add-on is optional
 REPO = Path(__file__).resolve().parents[1]
 EPICS_DIR = REPO / "docs" / "epics"
 OUTPUT = REPO / "docs" / "PROGRESS.md"
+OUTPUT_JSON = REPO / "docs" / "progress.json"
+
+
+def _status_to_canonical(status: str) -> str:
+    """Map an epic's free-text status to done | in-progress | pending."""
+    if "✅" in status:
+        return "done"
+    if "🚧" in status:
+        return "in-progress"
+    return "pending"      # 🔜 / 💭 / blank / anything else
+
+
+def build_progress_json(epics: dict[int, dict], commits: list[dict]) -> dict:
+    """Normalized machine-readable feature list for the portfolio dashboard."""
+    commit_counts: dict[int, int] = {}
+    for c in commits:
+        for n in c.get("epics", []):
+            commit_counts[n] = commit_counts.get(n, 0) + 1
+    features = []
+    for num in sorted(epics):
+        e = epics[num]
+        name = re.sub(r"^Epic \d+\s*[—-]\s*", "", e["title"]).strip()
+        features.append({"id": f"Epic {num}", "name": name,
+                         "status": _status_to_canonical(e["status"]),
+                         "commits": commit_counts.get(num, 0)})
+    return {"project": "StudyBuddy OnDemand",
+            "generated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            "source": "epics", "stage": "late-build", "features": features}
 
 TICKET_RE = re.compile(r"\b([A-Z])-(\d+[a-z]?)\b")
 EPIC_SCOPE_RE = re.compile(r"\(epic-(\d+)\)", re.IGNORECASE)
@@ -237,6 +266,7 @@ def main() -> None:
     if build_section is not None:
         document += "\n" + build_section(REPO / ".orchestration")
     OUTPUT.write_text(document)
+    OUTPUT_JSON.write_text(_json.dumps(build_progress_json(epics, commits), indent=2))
     print(f"Wrote {OUTPUT} — {len(epics)} epics, {len(commits)} commits scanned.")
 
 
