@@ -6,6 +6,8 @@
 
 **Backend-powered education enhancement platform for students.**
 
+**Live demo → [demo.usestudybuddy.com](https://demo.usestudybuddy.com/)**
+
 ---
 
 ## What This Is
