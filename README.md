@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/logo.png" alt="StudyBuddy OnDemand" width="440">
+</p>
+
 # StudyBuddy AI — OnDemand Edition
 
 **Backend-powered education enhancement platform for students.**
