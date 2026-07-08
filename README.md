@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="web/public/assets/home_banner.png" alt="StudyBuddy OnDemand" width="720">
+  <img src="web/public/assets/home_banner-readme.jpg" alt="StudyBuddy OnDemand" width="720">
 </p>
 
 # StudyBuddy AI — OnDemand Edition
