@@ -339,7 +339,9 @@ def _strip_answer_key(data: dict) -> dict:
 # exclude_none: the answer-key fields are stripped above, so they serialise as
 # null. Omit them entirely rather than shipping `"correct_option": null` — a null
 # there reads like an oversight and invites someone to "fix" it by populating it.
-@router.get("/content/{unit_id}/quiz", response_model=QuizResponse, response_model_exclude_none=True)
+@router.get(
+    "/content/{unit_id}/quiz", response_model=QuizResponse, response_model_exclude_none=True
+)
 async def get_quiz(
     unit_id: str,
     request: Request,
