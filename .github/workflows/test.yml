@@ -60,7 +60,19 @@ jobs:
         #   stack supports starlette 1.x.
         # python-multipart CVE-2026-53538/53539/53540 are FIXED by the 0.0.31 bump in
         #   requirements.txt (no ignore needed).
-        run: pip-audit -r requirements.txt --ignore-vuln PYSEC-2024-55 --ignore-vuln GHSA-5239-wwwm-4pmq --ignore-vuln PYSEC-2026-161 --ignore-vuln CVE-2026-48817 --ignore-vuln CVE-2026-48818 --ignore-vuln CVE-2026-54282 --ignore-vuln CVE-2026-54283
+        # aiosmtplib CVE-2026-53533 (SMTP command injection via CR/LF in addresses) is
+        #   FIXED by the 5.1.1 bump in requirements.txt (no ignore needed). It was
+        #   directly reachable: we pass user-supplied addresses (registration, demo
+        #   requests, password reset) into aiosmtplib.send().
+        # PYSEC-2026-1325: ecdsa — no fix version exists; upstream declines to harden
+        #   against timing side-channels, stating the library is not intended for
+        #   high-security use. It is a transitive dependency of python-jose and is never
+        #   exercised here: we sign with HS256 (HMAC) and verify Auth0 tokens with RS256
+        #   (RSA, handled by `cryptography`). No ES256/ES384/ES512 anywhere in the
+        #   codebase, so no ECDSA operation is ever performed. Revisit if an EC algorithm
+        #   is ever introduced, or if python-jose is replaced (it is the only thing
+        #   pulling ecdsa in).
+        run: pip-audit -r requirements.txt --ignore-vuln PYSEC-2024-55 --ignore-vuln GHSA-5239-wwwm-4pmq --ignore-vuln PYSEC-2026-161 --ignore-vuln CVE-2026-48817 --ignore-vuln CVE-2026-48818 --ignore-vuln CVE-2026-54282 --ignore-vuln CVE-2026-54283 --ignore-vuln PYSEC-2026-1325
 
   # ── 2. Backend tests + coverage ──────────────────────────────────────────────
   backend-test:

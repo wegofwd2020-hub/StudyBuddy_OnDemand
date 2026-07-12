@@ -20,7 +20,7 @@ slowapi==0.1.9
 alembic==1.18.4
 psycopg2-binary==2.9.9
 python-multipart==0.0.31
-aiosmtplib==3.0.1
+aiosmtplib==5.1.1
 
 stripe>=7.0.0
 
