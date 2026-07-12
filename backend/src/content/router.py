@@ -314,7 +314,32 @@ async def get_lesson_audio(
 # ── GET /content/{unit_id}/quiz ───────────────────────────────────────────────
 
 
-@router.get("/content/{unit_id}/quiz", response_model=QuizResponse)
+def _strip_answer_key(data: dict) -> dict:
+    """
+    Remove `correct_option` and `explanation` from every question before the quiz
+    leaves the server.
+
+    Shipping the answer key to the browser meant a student could read the correct
+    answers straight out of the network response. The key is revealed one question
+    at a time by POST /progress/session/{id}/answer, after the student commits to
+    a choice — which is also where grading now happens.
+
+    Copies rather than mutating: `data` may be the dict cached in L2/L1, and
+    stripping it in place would poison the cache for the grader.
+    """
+    return {
+        **data,
+        "questions": [
+            {k: v for k, v in q.items() if k not in ("correct_option", "explanation")}
+            for q in data.get("questions", [])
+        ],
+    }
+
+
+# exclude_none: the answer-key fields are stripped above, so they serialise as
+# null. Omit them entirely rather than shipping `"correct_option": null` — a null
+# there reads like an oversight and invites someone to "fix" it by populating it.
+@router.get("/content/{unit_id}/quiz", response_model=QuizResponse, response_model_exclude_none=True)
 async def get_quiz(
     unit_id: str,
     request: Request,
@@ -354,7 +379,7 @@ async def get_quiz(
             override["subject"] = await _subject_display_name(
                 pool, unit_id, override.get("subject")
             )
-            return QuizResponse(**override)
+            return QuizResponse(**_strip_answer_key(override))
 
     curriculum_id, _subject = await _get_curriculum_and_check_published(
         request, unit_id, "quiz", student, pre_resolved_curriculum_id=pre_resolved
@@ -376,7 +401,7 @@ async def get_quiz(
 
     data["subject"] = await _subject_display_name(pool, unit_id, _subject or data.get("subject"))
     log.info("quiz_served unit_id=%s set=%d student_id=%s", unit_id, set_number, student_id)
-    return QuizResponse(**data)
+    return QuizResponse(**_strip_answer_key(data))
 
 
 # ── GET /content/{unit_id}/tutorial ──────────────────────────────────────────

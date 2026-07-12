@@ -28,7 +28,9 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
 from src.auth.dependencies import get_current_student
+from src.content.service import get_quiz_answer_key
 from src.core.db import get_db
+from src.core.storage import StorageBackend, get_storage
 from src.progress.schemas import (
     EndSessionRequest,
     EndSessionResponse,
@@ -39,9 +41,13 @@ from src.progress.schemas import (
     StartSessionResponse,
 )
 from src.progress.service import (
+    count_correct_answers,
     create_session,
     end_session,
     get_raw_history,
+    read_tally,
+    resolve_session_quiz_set,
+    tally_answer,
     verify_session_owner,
 )
 from src.utils.logger import get_logger
@@ -96,6 +102,7 @@ async def record_answer(
     session_id: str,
     body: RecordAnswerRequest,
     student: Annotated[dict, Depends(get_current_student)],
+    storage: StorageBackend = Depends(get_storage),
 ) -> RecordAnswerResponse:
     """
     Record a single quiz answer.
@@ -122,7 +129,7 @@ async def record_answer(
     # Verify ownership synchronously (cheap DB hit — just SELECT)
     async with get_db(request) as conn:
         try:
-            await verify_session_owner(conn, session_id, student_id)
+            session = await verify_session_owner(conn, session_id, student_id)
         except LookupError:
             raise HTTPException(
                 status_code=404,
@@ -142,7 +149,53 @@ async def record_answer(
                 },
             )
 
-    # Fire-and-forget Celery task for the actual write
+    # ── Grade server-side ─────────────────────────────────────────────────────
+    # The client sends only which option was picked. Correctness is resolved from
+    # the content store here; nothing the browser claims about it is trusted.
+    redis = request.app.state.redis
+    try:
+        set_number = await resolve_session_quiz_set(
+            redis, session_id=session_id, student_id=student_id, unit_id=session["unit_id"]
+        )
+        answer_key = await get_quiz_answer_key(
+            curriculum_id=session["curriculum_id"],
+            unit_id=session["unit_id"],
+            set_number=set_number,
+            lang=student.get("locale", "en"),
+            redis=redis,
+            storage=storage,
+        )
+    except FileNotFoundError:
+        # The quiz the student is answering is gone from the store. Refuse rather
+        # than recording an ungraded answer.
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "error": "quiz_not_found",
+                "detail": "This quiz is no longer available.",
+                "correlation_id": cid,
+            },
+        )
+
+    entry = answer_key.get(body.question_id)
+    if entry is None:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": "unknown_question",
+                "detail": "That question is not part of this quiz.",
+                "correlation_id": cid,
+            },
+        )
+
+    correct_index = entry["index"]
+    correct = body.student_answer == correct_index
+
+    # Running tally in Redis: the DB write below is fire-and-forget, so the rows
+    # may not exist yet when the session ends. This is what end_session reads.
+    await tally_answer(redis, session_id=session_id, correct=correct)
+
+    # Fire-and-forget Celery task for the actual write — with the SERVER's verdict
     from src.core.celery_app import celery_app
 
     celery_app.send_task(
@@ -151,15 +204,21 @@ async def record_answer(
             "session_id": session_id,
             "question_id": body.question_id,
             "student_answer": body.student_answer,
-            "correct_answer": body.correct_answer,
-            "correct": body.correct,
+            "correct_answer": correct_index,
+            "correct": correct,
             "ms_taken": body.ms_taken,
             "event_id": body.event_id,
+            "quiz_set": set_number,
         },
         queue="io",
     )
 
-    return RecordAnswerResponse(answer_id="", correct=body.correct)
+    return RecordAnswerResponse(
+        answer_id="",
+        correct=correct,
+        correct_index=correct_index,
+        explanation=entry.get("explanation", ""),
+    )
 
 
 @router.post(
@@ -172,9 +231,14 @@ async def end_session_endpoint(
     session_id: str,
     body: EndSessionRequest,
     student: Annotated[dict, Depends(get_current_student)],
+    storage: StorageBackend = Depends(get_storage),
 ) -> EndSessionResponse:
     """
     Close a session and compute the final score + passed flag.
+
+    The score is derived from the answers the SERVER graded during the session
+    (Redis tally, falling back to persisted answers) — never from the request
+    body. A client that posts a score is ignored.
 
     Score is written synchronously (client needs the result immediately).
     Streak update and progress view refresh are dispatched as Celery tasks.
@@ -227,9 +291,44 @@ async def end_session_endpoint(
                 },
             )
 
+        # ── Resolve the score server-side ─────────────────────────────────────
+        redis = request.app.state.redis
+
+        score = await read_tally(redis, session_id)
+        if score is None:
+            # Redis lost the tally (restart / TTL). Fall back to what was graded
+            # and persisted. May undercount if writes are still in flight, but it
+            # is still a server-derived number, never the client's.
+            log.warning("quiz_tally_missing_falling_back_to_db", correlation_id=cid)
+            score = await count_correct_answers(conn, session_id)
+
+        # The quiz's real length is the answer key's — not whatever the client says.
+        total_questions = body.total_questions or 1
+        try:
+            set_number = await resolve_session_quiz_set(
+                redis,
+                session_id=session_id,
+                student_id=student_id,
+                unit_id=session_row["unit_id"],
+            )
+            answer_key = await get_quiz_answer_key(
+                curriculum_id=session_row["curriculum_id"],
+                unit_id=session_row["unit_id"],
+                set_number=set_number,
+                lang=student.get("locale", "en"),
+                redis=redis,
+                storage=storage,
+            )
+            if answer_key:
+                total_questions = len(answer_key)
+        except FileNotFoundError:
+            # Content gone since the attempt started — fall back to the client's
+            # hint for the denominator only. The score itself is still ours.
+            log.warning("quiz_answer_key_missing_at_end", correlation_id=cid)
+
         try:
             result = await end_session(
-                conn, session_id=session_id, score=body.score, total_questions=body.total_questions
+                conn, session_id=session_id, score=score, total_questions=total_questions
             )
         except Exception as exc:
             log.error("end_session_failed", error=str(exc), correlation_id=cid)

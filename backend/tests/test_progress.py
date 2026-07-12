@@ -15,16 +15,43 @@ Coverage:
 from __future__ import annotations
 
 import uuid
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
-import pytest_asyncio
 from httpx import AsyncClient
 
 from tests.helpers.token_factory import make_student_token
 
-
 # ── Helpers ───────────────────────────────────────────────────────────────────
+
+# An 8-question quiz whose correct option is always index 0. Grading is exercised
+# through the real endpoint; only the content-store lookup is stubbed.
+_ANSWER_KEY_8Q = {
+    f"q{i}": {"index": 0, "explanation": f"Because of reason {i}."} for i in range(1, 9)
+}
+
+
+async def _answer_all(
+    client: AsyncClient, token: str, session_id: str, correct_count: int, total: int = 8
+) -> None:
+    """
+    Answer `total` questions, getting the first `correct_count` of them right.
+
+    Picks option 0 (correct per _ANSWER_KEY_8Q) or option 1 (wrong). The server
+    decides which is which — the request never says.
+    """
+    for i in range(total):
+        r = await client.post(
+            f"/api/v1/progress/session/{session_id}/answer",
+            json={
+                "question_id": f"q{i + 1}",
+                "student_answer": 0 if i < correct_count else 1,
+                "ms_taken": 100,
+            },
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert r.status_code == 200, r.text
+        assert r.json()["correct"] is (i < correct_count)
 
 async def _insert_student(client: AsyncClient, student_id: str) -> None:
     """Insert a minimal student row using the app pool (committed; visible to all connections)."""
@@ -164,17 +191,25 @@ async def test_answer_other_student_session_returns_403(client, db_conn):
 
 @pytest.mark.asyncio
 async def test_end_session_computes_passed(client, db_conn, student_token):
-    """Session end computes passed = True when score / total >= 0.6."""
+    """
+    Session end computes passed = True when score / total >= 0.6.
+
+    The score comes from answers the server graded — the request body carries no
+    score at all. Drive 6 correct + 2 wrong through /answer and expect 6/8.
+    """
     from jose import jwt as _jwt
     payload = _jwt.decode(student_token, "test-secret-do-not-use-in-production-aaaa", algorithms=["HS256"])
     student_id = payload["student_id"]
     await _insert_student(client, student_id)
 
-    with patch("src.auth.tasks.celery_app.send_task", return_value=None):
+    with patch("src.auth.tasks.celery_app.send_task", return_value=None), \
+         patch("src.progress.router.get_quiz_answer_key", new_callable=AsyncMock,
+               return_value=_ANSWER_KEY_8Q):
         session = await _start_session(client, student_token)
+        await _answer_all(client, student_token, session["session_id"], correct_count=6)
         r = await client.post(
             f"/api/v1/progress/session/{session['session_id']}/end",
-            json={"score": 6, "total_questions": 8},
+            json={},
             headers={"Authorization": f"Bearer {student_token}"},
         )
     assert r.status_code == 200
@@ -185,6 +220,52 @@ async def test_end_session_computes_passed(client, db_conn, student_token):
 
 
 @pytest.mark.asyncio
+async def test_client_cannot_inflate_its_own_score(client, db_conn, student_token):
+    """
+    A student who answers everything wrong and posts a perfect score still scores 0.
+
+    This is the whole point of server-side grading: `correct` on the answer body
+    and `score` on the end body used to be trusted verbatim.
+    """
+    from jose import jwt as _jwt
+    payload = _jwt.decode(student_token, "test-secret-do-not-use-in-production-aaaa", algorithms=["HS256"])
+    await _insert_student(client, payload["student_id"])
+
+    with patch("src.auth.tasks.celery_app.send_task", return_value=None), \
+         patch("src.progress.router.get_quiz_answer_key", new_callable=AsyncMock,
+               return_value=_ANSWER_KEY_8Q):
+        session = await _start_session(client, student_token)
+
+        # Every answer wrong — and each request lies about it being correct.
+        for i in range(8):
+            r = await client.post(
+                f"/api/v1/progress/session/{session['session_id']}/answer",
+                json={
+                    "question_id": f"q{i + 1}",
+                    "student_answer": 3,      # key says 0 → wrong
+                    "correct_answer": 3,      # ignored
+                    "correct": True,          # ignored
+                    "ms_taken": 10,
+                },
+                headers={"Authorization": f"Bearer {student_token}"},
+            )
+            assert r.status_code == 200
+            assert r.json()["correct"] is False  # server overrules the client
+
+        # ...and the end request claims a perfect score.
+        r = await client.post(
+            f"/api/v1/progress/session/{session['session_id']}/end",
+            json={"score": 8, "total_questions": 8},
+            headers={"Authorization": f"Bearer {student_token}"},
+        )
+
+    assert r.status_code == 200
+    data = r.json()
+    assert data["score"] == 0
+    assert data["passed"] is False
+
+
+@pytest.mark.asyncio
 async def test_end_session_not_passed_below_threshold(client, db_conn, student_token):
     """Session end computes passed = False when score / total < 0.6."""
     from jose import jwt as _jwt
@@ -192,11 +273,14 @@ async def test_end_session_not_passed_below_threshold(client, db_conn, student_t
     student_id = payload["student_id"]
     await _insert_student(client, student_id)
 
-    with patch("src.auth.tasks.celery_app.send_task", return_value=None):
+    with patch("src.auth.tasks.celery_app.send_task", return_value=None), \
+         patch("src.progress.router.get_quiz_answer_key", new_callable=AsyncMock,
+               return_value=_ANSWER_KEY_8Q):
         session = await _start_session(client, student_token)
+        await _answer_all(client, student_token, session["session_id"], correct_count=4)
         r = await client.post(
             f"/api/v1/progress/session/{session['session_id']}/end",
-            json={"score": 4, "total_questions": 8},
+            json={},
             headers={"Authorization": f"Bearer {student_token}"},
         )
     assert r.status_code == 200

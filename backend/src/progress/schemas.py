@@ -17,17 +17,32 @@ class StartSessionRequest(BaseModel):
 
 
 class RecordAnswerRequest(BaseModel):
+    """
+    The client submits only WHAT the student picked — never whether it was right.
+
+    `correct_answer` and `correct` used to be accepted here and stored verbatim,
+    which let any student mark their own answers correct. Grading is now done
+    server-side from the content store; anything the client claims about
+    correctness is ignored.
+    """
+
     question_id: str = Field(..., min_length=1, max_length=128)
-    student_answer: int
-    correct_answer: int
-    correct: bool
+    student_answer: int = Field(ge=0)
     ms_taken: int = Field(ge=0)
     event_id: str | None = Field(None, max_length=64)  # offline dedup key
 
 
 class EndSessionRequest(BaseModel):
-    score: int = Field(ge=0)
-    total_questions: int = Field(ge=1)
+    """
+    No score field. The score is computed server-side from the answers actually
+    graded during the session — the client cannot assert one.
+
+    `total_questions` is an optional hint used only if the server cannot resolve
+    the quiz's real length (e.g. the content file has since been removed); the
+    answer key is preferred whenever it is available.
+    """
+
+    total_questions: int | None = Field(None, ge=1)
 
 
 # ── Response schemas ──────────────────────────────────────────────────────────
@@ -42,8 +57,18 @@ class StartSessionResponse(BaseModel):
 
 
 class RecordAnswerResponse(BaseModel):
+    """
+    The server's verdict on the answer, plus the reveal.
+
+    `correct_index` and `explanation` are returned HERE rather than shipped inside
+    the quiz payload, so the answer key never sits in the browser before the
+    student has committed to a choice.
+    """
+
     answer_id: str
     correct: bool
+    correct_index: int
+    explanation: str = ""
 
 
 class EndSessionResponse(BaseModel):

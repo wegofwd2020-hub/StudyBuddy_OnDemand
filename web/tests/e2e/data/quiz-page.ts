@@ -45,9 +45,6 @@ export const MOCK_BACKEND_QUIZ_RESPONSE = {
         { option_id: "C", text: "Tissue" },
         { option_id: "D", text: "Organ" },
       ],
-      correct_option: "B",
-      explanation:
-        "The cell is the basic structural and functional unit of all living organisms.",
       difficulty: "easy",
     },
     {
@@ -60,8 +57,6 @@ export const MOCK_BACKEND_QUIZ_RESPONSE = {
         { option_id: "C", text: "Nucleus" },
         { option_id: "D", text: "Vacuole" },
       ],
-      correct_option: "C",
-      explanation: "The nucleus houses the cell's genetic material (DNA).",
       difficulty: "easy",
     },
     {
@@ -74,9 +69,6 @@ export const MOCK_BACKEND_QUIZ_RESPONSE = {
         { option_id: "C", text: "ATP (energy)" },
         { option_id: "D", text: "Cell membrane" },
       ],
-      correct_option: "C",
-      explanation:
-        "Mitochondria are the powerhouse of the cell, producing ATP through cellular respiration.",
       difficulty: "medium",
     },
   ],
@@ -97,29 +89,38 @@ export const MOCK_QUIZ: QuizContent = {
   questions: [
     {
       index: 0,
+      question_id: "G8-SCI-001-Q1",
       question: "What is the basic unit of all living organisms?",
       options: ["Atom", "Cell", "Tissue", "Organ"],
-      correct_index: 1,
-      explanation:
-        "The cell is the basic structural and functional unit of all living organisms.",
     },
     {
       index: 1,
+      question_id: "G8-SCI-001-Q2",
       question: "Which organelle contains the cell's DNA?",
       options: ["Mitochondria", "Ribosome", "Nucleus", "Vacuole"],
-      correct_index: 2,
-      explanation: "The nucleus houses the cell's genetic material (DNA).",
     },
     {
       index: 2,
+      question_id: "G8-SCI-001-Q3",
       question: "What do mitochondria produce?",
       options: ["Protein", "DNA", "ATP (energy)", "Cell membrane"],
-      correct_index: 2,
-      explanation:
-        "Mitochondria are the powerhouse of the cell, producing ATP through cellular respiration.",
     },
   ],
 };
+
+/**
+ * Which option each question's answer actually is.
+ *
+ * This lives OUTSIDE QuizContent on purpose: the real quiz payload no longer
+ * carries the answer key, so the fixture must not either. Tests use this to know
+ * which button to click; the component only learns the answer from the mocked
+ * AnswerResponse, exactly as it does from the server in production.
+ */
+export const MOCK_CORRECT_INDEXES = [1, 2, 2] as const;
+
+/** The text of the correct option for question `i`. */
+export const correctOptionText = (i: number): string =>
+  MOCK_QUIZ.questions[i].options[MOCK_CORRECT_INDEXES[i]];
 
 // ---------------------------------------------------------------------------
 // Mock session start (STU-24)
@@ -133,12 +134,14 @@ export const MOCK_SESSION_ID = "sess-test-001";
 
 export const MOCK_ANSWER_CORRECT: AnswerResponse = {
   correct: true,
+  correct_index: 1,
   explanation:
     "The cell is the basic structural and functional unit of all living organisms.",
 };
 
 export const MOCK_ANSWER_WRONG: AnswerResponse = {
   correct: false,
+  correct_index: 1,
   explanation:
     "The cell is the basic structural and functional unit of all living organisms.",
 };

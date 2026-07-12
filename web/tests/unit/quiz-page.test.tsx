@@ -11,6 +11,8 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { QuizPlayer } from "@/components/content/QuizPlayer";
 import {
   MOCK_QUIZ,
+  MOCK_CORRECT_INDEXES,
+  correctOptionText,
   MOCK_SESSION_ID,
   MOCK_ANSWER_CORRECT,
   MOCK_ANSWER_WRONG,
@@ -168,8 +170,7 @@ describe("STU-21 — Correct answer shown after submit", () => {
     );
 
     // Select the correct option (index 1 → "Cell")
-    const correctOption =
-      MOCK_QUIZ.questions[0].options[MOCK_QUIZ.questions[0].correct_index];
+    const correctOption = correctOptionText(0);
     fireEvent.click(screen.getByRole("button", { name: new RegExp(correctOption) }));
     fireEvent.click(screen.getByRole("button", { name: QUIZ_STRINGS.submitBtn }));
 
@@ -190,8 +191,7 @@ describe("STU-21 — Correct answer shown after submit", () => {
         curriculumId="default-2026-g8"
       />,
     );
-    const correctOption =
-      MOCK_QUIZ.questions[0].options[MOCK_QUIZ.questions[0].correct_index];
+    const correctOption = correctOptionText(0);
     fireEvent.click(screen.getByRole("button", { name: new RegExp(correctOption) }));
     fireEvent.click(screen.getByRole("button", { name: QUIZ_STRINGS.submitBtn }));
 
@@ -212,8 +212,7 @@ describe("STU-21 — Correct answer shown after submit", () => {
         curriculumId="default-2026-g8"
       />,
     );
-    const correctOption =
-      MOCK_QUIZ.questions[0].options[MOCK_QUIZ.questions[0].correct_index];
+    const correctOption = correctOptionText(0);
     fireEvent.click(screen.getByRole("button", { name: new RegExp(correctOption) }));
     fireEvent.click(screen.getByRole("button", { name: QUIZ_STRINGS.submitBtn }));
 
@@ -233,8 +232,7 @@ describe("STU-21 — Correct answer shown after submit", () => {
         curriculumId="default-2026-g8"
       />,
     );
-    const correctOption =
-      MOCK_QUIZ.questions[0].options[MOCK_QUIZ.questions[0].correct_index];
+    const correctOption = correctOptionText(0);
     fireEvent.click(screen.getByRole("button", { name: new RegExp(correctOption) }));
     fireEvent.click(screen.getByRole("button", { name: QUIZ_STRINGS.submitBtn }));
 
@@ -289,8 +287,7 @@ describe("STU-22 — Wrong answer shown after submit", () => {
     fireEvent.click(screen.getByRole("button", { name: QUIZ_STRINGS.submitBtn }));
 
     await waitFor(() => {
-      const correctOption =
-        MOCK_QUIZ.questions[0].options[MOCK_QUIZ.questions[0].correct_index];
+      const correctOption = correctOptionText(0);
       const buttons = container.querySelectorAll("button");
       const correctBtn = Array.from(buttons).find((b) =>
         b.textContent?.includes(correctOption),
@@ -340,8 +337,7 @@ describe("STU-23 — Score screen after quiz completion", () => {
 
   async function completeQuiz() {
     for (let q = 0; q < MOCK_QUIZ.questions.length; q++) {
-      const question = MOCK_QUIZ.questions[q];
-      const correctOption = question.options[question.correct_index];
+      const correctOption = correctOptionText(q);
 
       await waitFor(() => {
         expect(
@@ -465,8 +461,7 @@ describe("STU-24 — Session ID is passed to progress API", () => {
       />,
     );
 
-    const correctOption =
-      MOCK_QUIZ.questions[0].options[MOCK_QUIZ.questions[0].correct_index];
+    const correctOption = correctOptionText(0);
     fireEvent.click(screen.getByRole("button", { name: new RegExp(correctOption) }));
     fireEvent.click(screen.getByRole("button", { name: QUIZ_STRINGS.submitBtn }));
 
@@ -489,7 +484,7 @@ describe("STU-24 — Session ID is passed to progress API", () => {
     expect(screen.queryByText(/error/i)).toBeNull();
   });
 
-  it("submitAnswer is called with correct unit_id and question_index", async () => {
+  it("submitAnswer is called with the content's own question_id", async () => {
     render(
       <QuizPlayer
         quiz={MOCK_QUIZ}
@@ -498,16 +493,18 @@ describe("STU-24 — Session ID is passed to progress API", () => {
       />,
     );
 
-    const correctOption =
-      MOCK_QUIZ.questions[0].options[MOCK_QUIZ.questions[0].correct_index];
+    const correctOption = correctOptionText(0);
     fireEvent.click(screen.getByRole("button", { name: new RegExp(correctOption) }));
     fireEvent.click(screen.getByRole("button", { name: QUIZ_STRINGS.submitBtn }));
 
     await waitFor(() => {
+      // The server grades by question_id; it must be the id from the payload,
+      // not a synthesised `${unit_id}-Q${n}` that no content file uses.
       expect(mockSubmitAnswer).toHaveBeenCalledWith(
         expect.objectContaining({
-          unit_id: MOCK_QUIZ.unit_id,
-          question_index: 0,
+          session_id: MOCK_SESSION_ID,
+          question_id: MOCK_QUIZ.questions[0].question_id,
+          answer_index: MOCK_CORRECT_INDEXES[0],
         }),
       );
     });

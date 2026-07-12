@@ -25,7 +25,7 @@ interface State {
 
 type Action =
   | { type: "SELECT"; index: number }
-  | { type: "REVIEWED"; result: AnswerResponse; correct: boolean }
+  | { type: "REVIEWED"; result: AnswerResponse }
   | { type: "NEXT" }
   | { type: "SCORE"; result: SessionEndResponse };
 
@@ -38,7 +38,9 @@ function reducer(state: State, action: Action): State {
         ...state,
         phase: "reviewing",
         answerResult: action.result,
-        correctCount: action.correct ? state.correctCount + 1 : state.correctCount,
+        // Local tally is for display only. The score on the result screen is the
+        // server's — it grades each answer and keeps its own count.
+        correctCount: action.result.correct ? state.correctCount + 1 : state.correctCount,
       };
     case "NEXT":
       return {
@@ -83,22 +85,20 @@ export function QuizPlayer({ quiz, sessionId, onRetry }: QuizPlayerProps) {
 
   async function handleSubmit() {
     if (state.selectedIndex === null) return;
-    const correct = state.selectedIndex === question.correct_index;
+    // The server grades this. We send the choice; it returns the verdict, the
+    // correct option and the explanation — none of which we had beforehand.
     const res = await submitAnswer({
       session_id: sessionId,
-      unit_id: quiz.unit_id,
-      question_index: state.questionIndex,
+      question_id: question.question_id,
       answer_index: state.selectedIndex,
-      correct_index: question.correct_index,
     });
-    dispatch({ type: "REVIEWED", result: res, correct });
+    dispatch({ type: "REVIEWED", result: res });
   }
 
   async function handleNext() {
     if (isLast) {
-      const total = quiz.questions.length;
-      const score = state.correctCount + (state.answerResult?.correct ? 1 : 0);
-      const res = await endSession(sessionId, score, total);
+      // No score is sent: the backend reports what it graded during the session.
+      const res = await endSession(sessionId);
       // Session completion is written synchronously by endSession, so the
       // stats/history reads are fresh — refresh them now instead of waiting for
       // a manual browser reload (#466).
@@ -183,8 +183,10 @@ export function QuizPlayer({ quiz, sessionId, onRetry }: QuizPlayerProps) {
         <div className="space-y-3">
           {question.options.map((option, i) => {
             const isSelected = state.selectedIndex === i;
-            const isCorrect = i === question.correct_index;
             const reviewed = state.phase === "reviewing";
+            // Which option is right is only known once the server has told us —
+            // it isn't in the quiz payload.
+            const isCorrect = reviewed && i === state.answerResult?.correct_index;
 
             const variant = "outline";
             let extra = "";
@@ -220,10 +222,10 @@ export function QuizPlayer({ quiz, sessionId, onRetry }: QuizPlayerProps) {
           })}
         </div>
 
-        {/* Explanation */}
-        {state.phase === "reviewing" && question.explanation && (
+        {/* Explanation — supplied by the server with the verdict */}
+        {state.phase === "reviewing" && state.answerResult?.explanation && (
           <div className="mt-4 rounded-lg border bg-gray-50 p-3 text-sm text-gray-600">
-            {question.explanation}
+            {state.answerResult.explanation}
           </div>
         )}
       </div>

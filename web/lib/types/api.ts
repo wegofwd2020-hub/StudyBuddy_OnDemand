@@ -52,10 +52,12 @@ export interface AudioUrlResponse {
 
 export interface QuizQuestion {
   index: number;
+  /** The content's own question id (`q1`…`qN`) — what the server grades against. */
+  question_id: string;
   question: string;
   options: string[];
-  correct_index: number;
-  explanation: string;
+  // No correct_index / explanation: the answer key is not sent to the browser.
+  // Both arrive in AnswerResponse once the student has committed to a choice.
 }
 
 export interface QuizContent {
@@ -118,6 +120,8 @@ export interface SessionStartResponse {
 
 export interface AnswerResponse {
   correct: boolean;
+  /** The server's answer, revealed only after the student has answered. */
+  correct_index: number;
   explanation: string;
 }
 

@@ -17,12 +17,111 @@ from datetime import UTC, datetime
 
 import asyncpg
 
+from src.core.cache_keys import (
+    quiz_score_key,
+    quiz_session_set_key,
+    quiz_set_key,
+)
 from src.core.subjects import display_subject, resolve_subject_labels
 from src.utils.logger import get_logger
 
 log = get_logger("progress")
 
 QUIZ_PASS_THRESHOLD = 0.60
+
+# A quiz session is short-lived; the tally only needs to outlive the attempt.
+_TALLY_TTL = 6 * 3600  # 6 hours
+
+
+# ── Server-side grading state ─────────────────────────────────────────────────
+
+
+async def resolve_session_quiz_set(
+    redis,
+    session_id: str,
+    student_id: str,
+    unit_id: str,
+) -> int:
+    """
+    Return the quiz set (1-3) this session is being graded against.
+
+    Pinned per session on first use: the per-unit rotation pointer
+    (`quiz_set:{student}:{unit}`, written by get_next_quiz_set when the quiz was
+    served) advances every time a quiz is fetched, so reading it fresh for every
+    answer could grade later answers against a different set's key. Pin it once,
+    then reuse.
+
+    Falls back to set 1 if the rotation pointer has expired — the student is
+    mid-quiz and we still have to grade them against something; set 1 is what the
+    serving endpoint hands out when the pointer is absent.
+    """
+    pinned = await redis.get(quiz_session_set_key(session_id))
+    if pinned is not None:
+        try:
+            return int(pinned)
+        except (ValueError, TypeError):
+            pass  # corrupt — re-pin below
+
+    served = await redis.get(quiz_set_key(student_id, unit_id))
+    try:
+        set_number = int(served)
+    except (ValueError, TypeError):
+        log.warning(
+            "quiz_set_pointer_missing_defaulting_to_1",
+            extra={"session_id": session_id, "unit_id": unit_id},
+        )
+        set_number = 1
+
+    if not 1 <= set_number <= 3:
+        set_number = 1
+
+    await redis.set(quiz_session_set_key(session_id), str(set_number), ex=_TALLY_TTL)
+    return set_number
+
+
+async def tally_answer(redis, session_id: str, correct: bool) -> None:
+    """
+    Record one graded answer against the session's running tally.
+
+    Both counters are kept so end_session can report a score without waiting on
+    the fire-and-forget DB write (perf rule #4).
+    """
+    key = quiz_score_key(session_id)
+    if correct:
+        await redis.incr(key)
+    else:
+        # Ensure the key exists even for an all-wrong run, so end_session can tell
+        # "graded, scored zero" apart from "no tally at all".
+        await redis.setnx(key, 0)
+    await redis.expire(key, _TALLY_TTL)
+
+
+async def read_tally(redis, session_id: str) -> int | None:
+    """Server-graded correct count for the session, or None if no tally exists."""
+    raw = await redis.get(quiz_score_key(session_id))
+    if raw is None:
+        return None
+    try:
+        return int(raw)
+    except (ValueError, TypeError):
+        return None
+
+
+async def count_correct_answers(conn: asyncpg.Connection, session_id: str) -> int:
+    """
+    Fallback score source: count graded-correct answers already persisted.
+
+    Only used when the Redis tally is gone (restart / TTL). May undercount if the
+    fire-and-forget writes are still in flight, which is exactly why the Redis
+    tally is preferred.
+    """
+    return (
+        await conn.fetchval(
+            "SELECT COUNT(*) FROM progress_answers WHERE session_id = $1 AND correct IS TRUE",
+            session_id,
+        )
+        or 0
+    )
 
 
 def _now_iso() -> str:
