@@ -126,27 +126,35 @@ async def test_start_session_increments_attempt_number(client, db_conn):
 
 @pytest.mark.asyncio
 async def test_record_answer_returns_200(client, db_conn, student_token):
-    """POST answer returns 200 immediately (fire-and-forget)."""
+    """
+    POST answer returns 200 with the SERVER's verdict.
+
+    The server grades against the content store, so the answer key is stubbed
+    (CI has no content on disk). The request sends only the picked option — the
+    old `correct` / `correct_answer` fields are gone. q1's key says index 0, so
+    picking 2 is graded wrong by the server regardless of what the client claims.
+    """
     from jose import jwt as _jwt
     payload = _jwt.decode(student_token, "test-secret-do-not-use-in-production-aaaa", algorithms=["HS256"])
     student_id = payload["student_id"]
     await _insert_student(client, student_id)
 
-    with patch("src.auth.tasks.celery_app.send_task", return_value=None):
+    with patch("src.auth.tasks.celery_app.send_task", return_value=None), \
+         patch("src.progress.router.get_quiz_answer_key", new_callable=AsyncMock,
+               return_value=_ANSWER_KEY_8Q):
         session = await _start_session(client, student_token)
         r = await client.post(
             f"/api/v1/progress/session/{session['session_id']}/answer",
             json={
                 "question_id": "q1",
                 "student_answer": 2,
-                "correct_answer": 1,
-                "correct": False,
                 "ms_taken": 3200,
             },
             headers={"Authorization": f"Bearer {student_token}"},
         )
     assert r.status_code == 200
     assert r.json()["correct"] is False
+    assert r.json()["correct_index"] == 0
 
 
 @pytest.mark.asyncio
@@ -161,7 +169,7 @@ async def test_answer_wrong_session_returns_404(client, db_conn, student_token):
     with patch("src.auth.tasks.celery_app.send_task", return_value=None):
         r = await client.post(
             f"/api/v1/progress/session/{fake_session_id}/answer",
-            json={"question_id": "q1", "student_answer": 1, "correct_answer": 1, "correct": True, "ms_taken": 500},
+            json={"question_id": "q1", "student_answer": 1, "ms_taken": 500},
             headers={"Authorization": f"Bearer {student_token}"},
         )
     assert r.status_code == 404
@@ -183,7 +191,7 @@ async def test_answer_other_student_session_returns_403(client, db_conn):
         session_a = await _start_session(client, token_a)
         r = await client.post(
             f"/api/v1/progress/session/{session_a['session_id']}/answer",
-            json={"question_id": "q1", "student_answer": 1, "correct_answer": 1, "correct": True, "ms_taken": 500},
+            json={"question_id": "q1", "student_answer": 1, "ms_taken": 500},
             headers={"Authorization": f"Bearer {token_b}"},
         )
     assert r.status_code == 403
