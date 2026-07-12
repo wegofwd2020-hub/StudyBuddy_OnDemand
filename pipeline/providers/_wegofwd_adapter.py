@@ -26,7 +26,63 @@ wegofwd-llm message is key-free by guarantee, so re-raising its text is safe.
 
 from __future__ import annotations
 
+import re
+
 from pipeline.providers.base import LLMProvider
+
+
+class PermanentLLMError(RuntimeError):
+    """
+    An LLM failure that retrying cannot fix.
+
+    Exhausted credits, a bad API key, a disabled model: the call will fail
+    identically every time. The build loop retries ``RuntimeError`` three times,
+    which for these turns one wasted call into three and buries the real message
+    under "Failed after 3 attempts".
+    """
+
+
+# HTTP statuses that will never succeed on retry, however many times we ask.
+# 429 is deliberately NOT here — rate limits are transient and worth retrying.
+_PERMANENT_STATUSES = (400, 401, 403, 404)
+
+
+def _root_cause(exc: BaseException) -> BaseException:
+    """Walk to the deepest cause — where the provider SDK's real message lives."""
+    seen: set[int] = set()
+    cur = exc
+    while True:
+        nxt = cur.__cause__ or cur.__context__
+        if nxt is None or id(nxt) in seen:
+            return cur
+        seen.add(id(nxt))
+        cur = nxt
+
+
+def _describe(exc: BaseException) -> str:
+    """
+    Build a message that says what actually went wrong.
+
+    ``wegofwd_llm`` raises ``LLMError("anthropic call failed")`` — true but
+    useless. The provider SDK's exception (e.g. anthropic's
+    "Your credit balance is too low") is one or two links down the ``__cause__``
+    chain, and was being thrown away. An 18-unit build once failed with nothing
+    but "anthropic call failed" ×54 when the account had simply run out of credit.
+    """
+    root = _root_cause(exc)
+    if root is exc:
+        return str(exc)
+    return f"{exc} — {type(root).__name__}: {root}"
+
+
+def _is_permanent(exc: BaseException) -> bool:
+    root = _root_cause(exc)
+    status = getattr(root, "status_code", None)
+    if status is None:
+        # anthropic/openai SDK errors carry the code in the text as "Error code: NNN".
+        m = re.search(r"Error code:\s*(\d{3})", str(root))
+        status = int(m.group(1)) if m else None
+    return status in _PERMANENT_STATUSES
 
 
 class WegofwdAdapter(LLMProvider):
@@ -68,7 +124,10 @@ class WegofwdAdapter(LLMProvider):
             )
         except LLMError as exc:
             # Preserve the legacy contract: providers raise RuntimeError on failure.
-            raise RuntimeError(str(exc)) from exc
+            # PermanentLLMError is a RuntimeError, so callers that don't know about
+            # it behave exactly as before; the retry loop checks for it and stops.
+            error_class = PermanentLLMError if _is_permanent(exc) else RuntimeError
+            raise error_class(_describe(exc)) from exc
         if not resp.text:
             raise RuntimeError(f"{provider_label(self.provider_id)} returned an empty response")
         return resp.text, resp.input_tokens, resp.output_tokens
