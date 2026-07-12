@@ -1852,7 +1852,7 @@
           "progress"
         ],
         "summary": "End Session Endpoint",
-        "description": "Close a session and compute the final score + passed flag.\n\nScore is written synchronously (client needs the result immediately).\nStreak update and progress view refresh are dispatched as Celery tasks.\nDashboard cache for this student is invalidated.",
+        "description": "Close a session and compute the final score + passed flag.\n\nThe score is derived from the answers the SERVER graded during the session\n(Redis tally, falling back to persisted answers) \u2014 never from the request\nbody. A client that posts a score is ignored.\n\nScore is written synchronously (client needs the result immediately).\nStreak update and progress view refresh are dispatched as Celery tasks.\nDashboard cache for this student is invalidated.",
         "operationId": "end_session_endpoint_api_v1_progress_session__session_id__end_post",
         "security": [
           {
@@ -20142,23 +20142,22 @@
       },
       "EndSessionRequest": {
         "properties": {
-          "score": {
-            "type": "integer",
-            "minimum": 0.0,
-            "title": "Score"
-          },
           "total_questions": {
-            "type": "integer",
-            "minimum": 1.0,
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Total Questions"
           }
         },
         "type": "object",
-        "required": [
-          "score",
-          "total_questions"
-        ],
-        "title": "EndSessionRequest"
+        "title": "EndSessionRequest",
+        "description": "No score field. The score is computed server-side from the answers actually\ngraded during the session \u2014 the client cannot assert one.\n\n`total_questions` is an optional hint used only if the server cannot resolve\nthe quiz's real length (e.g. the content file has since been removed); the\nanswer key is preferred whenever it is available."
       },
       "EndSessionResponse": {
         "properties": {
@@ -22758,17 +22757,31 @@
             "type": "array",
             "title": "Options"
           },
-          "correct_option": {
-            "type": "string",
-            "title": "Correct Option"
-          },
-          "explanation": {
-            "type": "string",
-            "title": "Explanation"
-          },
           "difficulty": {
             "type": "string",
             "title": "Difficulty"
+          },
+          "correct_option": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correct Option"
+          },
+          "explanation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Explanation"
           }
         },
         "type": "object",
@@ -22777,8 +22790,6 @@
           "question_text",
           "question_type",
           "options",
-          "correct_option",
-          "explanation",
           "difficulty"
         ],
         "title": "QuizQuestion"
@@ -23005,15 +23016,8 @@
           },
           "student_answer": {
             "type": "integer",
+            "minimum": 0.0,
             "title": "Student Answer"
-          },
-          "correct_answer": {
-            "type": "integer",
-            "title": "Correct Answer"
-          },
-          "correct": {
-            "type": "boolean",
-            "title": "Correct"
           },
           "ms_taken": {
             "type": "integer",
@@ -23037,11 +23041,10 @@
         "required": [
           "question_id",
           "student_answer",
-          "correct_answer",
-          "correct",
           "ms_taken"
         ],
-        "title": "RecordAnswerRequest"
+        "title": "RecordAnswerRequest",
+        "description": "The client submits only WHAT the student picked \u2014 never whether it was right.\n\n`correct_answer` and `correct` used to be accepted here and stored verbatim,\nwhich let any student mark their own answers correct. Grading is now done\nserver-side from the content store; anything the client claims about\ncorrectness is ignored."
       },
       "RecordAnswerResponse": {
         "properties": {
@@ -23052,14 +23055,25 @@
           "correct": {
             "type": "boolean",
             "title": "Correct"
+          },
+          "correct_index": {
+            "type": "integer",
+            "title": "Correct Index"
+          },
+          "explanation": {
+            "type": "string",
+            "title": "Explanation",
+            "default": ""
           }
         },
         "type": "object",
         "required": [
           "answer_id",
-          "correct"
+          "correct",
+          "correct_index"
         ],
-        "title": "RecordAnswerResponse"
+        "title": "RecordAnswerResponse",
+        "description": "The server's verdict on the answer, plus the reveal.\n\n`correct_index` and `explanation` are returned HERE rather than shipped inside\nthe quiz payload, so the answer key never sits in the browser before the\nstudent has committed to a choice."
       },
       "RefreshRequest": {
         "properties": {

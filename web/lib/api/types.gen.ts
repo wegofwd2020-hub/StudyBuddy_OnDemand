@@ -948,6 +948,10 @@ export interface paths {
          * End Session Endpoint
          * @description Close a session and compute the final score + passed flag.
          *
+         *     The score is derived from the answers the SERVER graded during the session
+         *     (Redis tally, falling back to persisted answers) — never from the request
+         *     body. A client that posts a score is ignored.
+         *
          *     Score is written synchronously (client needs the result immediately).
          *     Streak update and progress view refresh are dispatched as Celery tasks.
          *     Dashboard cache for this student is invalidated.
@@ -7545,12 +7549,18 @@ export interface components {
         EditStructureRequest: {
             structured_toc: components["schemas"]["StructuredTOC"];
         };
-        /** EndSessionRequest */
+        /**
+         * EndSessionRequest
+         * @description No score field. The score is computed server-side from the answers actually
+         *     graded during the session — the client cannot assert one.
+         *
+         *     `total_questions` is an optional hint used only if the server cannot resolve
+         *     the quiz's real length (e.g. the content file has since been removed); the
+         *     answer key is preferred whenever it is available.
+         */
         EndSessionRequest: {
-            /** Score */
-            score: number;
             /** Total Questions */
-            total_questions: number;
+            total_questions?: number | null;
         };
         /** EndSessionResponse */
         EndSessionResponse: {
@@ -8568,12 +8578,12 @@ export interface components {
             question_type: string;
             /** Options */
             options: components["schemas"]["QuizOption"][];
-            /** Correct Option */
-            correct_option: string;
-            /** Explanation */
-            explanation: string;
             /** Difficulty */
             difficulty: string;
+            /** Correct Option */
+            correct_option?: string | null;
+            /** Explanation */
+            explanation?: string | null;
         };
         /** QuizResponse */
         QuizResponse: {
@@ -8649,27 +8659,45 @@ export interface components {
              */
             submitted_at: string;
         };
-        /** RecordAnswerRequest */
+        /**
+         * RecordAnswerRequest
+         * @description The client submits only WHAT the student picked — never whether it was right.
+         *
+         *     `correct_answer` and `correct` used to be accepted here and stored verbatim,
+         *     which let any student mark their own answers correct. Grading is now done
+         *     server-side from the content store; anything the client claims about
+         *     correctness is ignored.
+         */
         RecordAnswerRequest: {
             /** Question Id */
             question_id: string;
             /** Student Answer */
             student_answer: number;
-            /** Correct Answer */
-            correct_answer: number;
-            /** Correct */
-            correct: boolean;
             /** Ms Taken */
             ms_taken: number;
             /** Event Id */
             event_id?: string | null;
         };
-        /** RecordAnswerResponse */
+        /**
+         * RecordAnswerResponse
+         * @description The server's verdict on the answer, plus the reveal.
+         *
+         *     `correct_index` and `explanation` are returned HERE rather than shipped inside
+         *     the quiz payload, so the answer key never sits in the browser before the
+         *     student has committed to a choice.
+         */
         RecordAnswerResponse: {
             /** Answer Id */
             answer_id: string;
             /** Correct */
             correct: boolean;
+            /** Correct Index */
+            correct_index: number;
+            /**
+             * Explanation
+             * @default
+             */
+            explanation: string;
         };
         /**
          * RefreshRequest

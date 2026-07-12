@@ -18,39 +18,47 @@ export async function startSession(
   return res.data;
 }
 
+/**
+ * Submit the option the student picked. The server grades it.
+ *
+ * We send only the choice — never whether it was right. The verdict, the correct
+ * option and the explanation all come back in the response; the browser is never
+ * given the answer key up front.
+ *
+ * `question_id` must be the id from the quiz payload (the content's own ids are
+ * `q1`…`qN`), because that is what the server looks the answer up by.
+ */
 export async function submitAnswer(payload: {
   session_id: string;
-  unit_id: string;
-  question_index: number;
+  question_id: string;
   answer_index: number;
-  correct_index: number;
+  ms_taken?: number;
 }): Promise<AnswerResponse> {
-  // Backend: POST /progress/session/{session_id}/answer
-  // Body: { question_id, student_answer, correct_answer, correct, ms_taken }
-  const { session_id, unit_id, question_index, answer_index, correct_index } = payload;
-  const correct = answer_index === correct_index;
+  const { session_id, question_id, answer_index, ms_taken = 0 } = payload;
 
-  const res = await api.post<{ answer_id: string; correct: boolean }>(
-    `/progress/session/${session_id}/answer`,
-    {
-      question_id: `${unit_id}-Q${question_index + 1}`,
-      student_answer: answer_index,
-      correct_answer: correct_index,
-      correct,
-      ms_taken: 0,
-    },
-  );
-  // Return shape the QuizPlayer expects
-  return { correct: res.data.correct, explanation: "" };
+  const res = await api.post<{
+    answer_id: string;
+    correct: boolean;
+    correct_index: number;
+    explanation: string;
+  }>(`/progress/session/${session_id}/answer`, {
+    question_id,
+    student_answer: answer_index,
+    ms_taken,
+  });
+
+  return {
+    correct: res.data.correct,
+    correct_index: res.data.correct_index,
+    explanation: res.data.explanation ?? "",
+  };
 }
 
-export async function endSession(
-  sessionId: string,
-  score: number,
-  total: number,
-): Promise<SessionEndResponse> {
-  // Backend: POST /progress/session/{session_id}/end
-  // Body: { score, total_questions }  (not /session/end with body session_id)
+/**
+ * Close the session. The score is whatever the server graded during it — there is
+ * no score to send.
+ */
+export async function endSession(sessionId: string): Promise<SessionEndResponse> {
   const res = await api.post<{
     session_id: string;
     score: number;
@@ -58,10 +66,8 @@ export async function endSession(
     passed: boolean;
     attempt_number: number;
     ended_at: string;
-  }>(`/progress/session/${sessionId}/end`, {
-    score,
-    total_questions: total,
-  });
+  }>(`/progress/session/${sessionId}/end`, {});
+
   // Map total_questions → total for the SessionEndResponse type
   return {
     score: res.data.score,

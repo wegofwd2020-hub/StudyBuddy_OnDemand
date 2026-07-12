@@ -25,13 +25,14 @@ from __future__ import annotations
 
 import asyncio
 import functools
-import json
-import os
 from datetime import UTC, datetime
-from pathlib import Path
 
 import asyncpg
 import bcrypt
+
+from src.utils.logger import get_logger
+
+log = get_logger("admin.demo_seed")
 
 # ── Sentinel IDs (e0-prefix block reserved for demo school) ──────────────────
 
@@ -101,13 +102,22 @@ _STUDENTS: list[dict] = [
     {"n": 30, "name": "Chloe Green", "grade": 10},
 ]
 
+# Demo classrooms point at the REAL platform curricula — the same ones the
+# pipeline generates into. They used to point at a private `demo-2026-g*`
+# namespace that this seeder created rows for but never generated content for,
+# so the Subjects tree rendered (it reads curriculum_units) while every
+# lesson/quiz 404'd with "This isn't available yet".
+#
+# Note the ids are not uniform: the STEM curricula for grades 5–9 carry a
+# `-stem` suffix, grades 10–12 do not. Take these from the content store, do not
+# infer them.
 _CLASSROOMS = [
     {
         "classroom_id": "e0000000-0000-0000-0002-000000000001",
         "name": "Grade 8 Mathematics & Technology",
         "grade": 8,
         "teacher_id": _TEACHER_MATH_ID,
-        "curriculum_id": "demo-2026-g8",
+        "curriculum_id": "default-2026-g8",
         "student_ns": range(1, 7),
     },
     {
@@ -115,7 +125,7 @@ _CLASSROOMS = [
         "name": "Grade 8 Science & Engineering",
         "grade": 8,
         "teacher_id": _TEACHER_SCI_ID,
-        "curriculum_id": "demo-2026-g8",
+        "curriculum_id": "default-2026-g8",
         "student_ns": range(7, 13),
     },
     {
@@ -123,7 +133,7 @@ _CLASSROOMS = [
         "name": "Grade 9 STEM",
         "grade": 9,
         "teacher_id": _TEACHER_MATH_ID,
-        "curriculum_id": "demo-2026-g9",
+        "curriculum_id": "default-2026-g9-stem",
         "student_ns": range(13, 23),
     },
     {
@@ -131,16 +141,15 @@ _CLASSROOMS = [
         "name": "Grade 10 Advanced STEM",
         "grade": 10,
         "teacher_id": _TEACHER_SCI_ID,
-        "curriculum_id": "demo-2026-g10",
+        "curriculum_id": "default-2026-g10",
         "student_ns": range(23, 31),
     },
 ]
 
-_DEMO_CURRICULA = [
-    ("demo-2026-g8", 8, "Grade 8 STEM"),
-    ("demo-2026-g9", 9, "Grade 9 STEM"),
-    ("demo-2026-g10", 10, "Grade 10 STEM"),
-]
+# Legacy ids this seeder used to create. Retained ONLY so teardown can clean up
+# rows left behind by older runs. Never add a `default-*` id here — teardown
+# DELETEs these, and the default-* curricula are real platform content.
+_LEGACY_DEMO_CURRICULA = ["demo-2026-g8", "demo-2026-g9", "demo-2026-g10"]
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -153,70 +162,6 @@ def _student_id(n: int) -> str:
 def _student_email(name: str) -> str:
     parts = name.lower().split()
     return f"{parts[0]}.{parts[-1]}@riverside.demo"
-
-
-def _find_data_dir() -> Path | None:
-    """Locate the project data/ directory containing gradeN_stem.json files."""
-    candidates = [
-        # Dev: backend/src/admin/demo_seed.py → up 3 levels → project root → data/
-        Path(__file__).resolve().parents[3] / "data",
-        # Docker with mounted data volume
-        Path("/data"),
-        # DATA_DIR env override
-        Path(os.environ["DATA_DIR"]) if "DATA_DIR" in os.environ else None,
-    ]
-    for p in candidates:
-        if p and p.is_dir() and (p / "grade8_stem.json").exists():
-            return p
-    return None
-
-
-def _load_grade_units(grade: int) -> list[dict]:
-    """
-    Return a list of unit dicts for the given grade.
-
-    Loads from data/gradeN_stem.json if available; falls back to a minimal
-    inline set so the seed works even without the data directory mounted.
-    """
-    data_dir = _find_data_dir()
-    if data_dir:
-        path = data_dir / f"grade{grade}_stem.json"
-        if path.exists():
-            with open(path) as f:
-                data = json.load(f)
-            units = []
-            for subj in data["subjects"]:
-                for i, unit in enumerate(subj["units"]):
-                    units.append(
-                        {
-                            "unit_id": unit["unit_id"],
-                            "subject": subj["name"],
-                            "title": unit["title"],
-                            "description": unit.get("description", ""),
-                            "has_lab": unit.get("has_lab", False),
-                            "sort_order": i,
-                        }
-                    )
-            return units
-
-    # Minimal fallback — enough for demo portal navigation
-    subjects = ["Mathematics", "Science", "Technology", "Engineering"]
-    abbrs = {"Mathematics": "MATH", "Science": "SCI", "Technology": "TECH", "Engineering": "ENG"}
-    units = []
-    for subj in subjects:
-        ab = abbrs[subj]
-        for i in range(1, 4):
-            units.append(
-                {
-                    "unit_id": f"G{grade}-{ab}-00{i}",
-                    "subject": subj,
-                    "title": f"G{grade} {subj} Unit {i}",
-                    "description": "",
-                    "has_lab": subj in ("Science", "Engineering") and i == 1,
-                    "sort_order": i - 1,
-                }
-            )
-    return units
 
 
 async def _hash_once(password: str) -> str:
@@ -243,9 +188,12 @@ async def wipe_demo(conn: asyncpg.Connection) -> None:
     """
     await conn.execute("DELETE FROM students WHERE school_id = $1", DEMO_SCHOOL_ID)
     await conn.execute("DELETE FROM teachers WHERE school_id = $1", DEMO_SCHOOL_ID)
+    # Only the legacy demo-owned curricula. The demo now points at real
+    # `default-*` platform curricula — deleting those would destroy the
+    # platform's content registry for every school.
     await conn.execute(
         "DELETE FROM curricula WHERE curriculum_id = ANY($1::text[])",
-        ["demo-2026-g8", "demo-2026-g9", "demo-2026-g10"],
+        _LEGACY_DEMO_CURRICULA,
     )
     # CASCADE removes: classrooms → classroom_students, classroom_packages
     # CASCADE removes: school_enrolments
@@ -340,41 +288,25 @@ async def seed_demo(conn: asyncpg.Connection) -> dict:
             s["grade"],
         )
 
-    # ── Curricula + units ─────────────────────────────────────────────────────
-    for curriculum_id, grade, name in _DEMO_CURRICULA:
-        r = await conn.execute(
+    # ── Curricula ─────────────────────────────────────────────────────────────
+    # The demo no longer creates its own curricula. It consumes the real platform
+    # ones, which the pipeline generates and `scripts/backfill_content_registry.py`
+    # registers. Verify they are present rather than silently seeding a classroom
+    # that points at nothing — an unregistered curriculum renders a Subjects tree
+    # whose every lesson and quiz 404s.
+    for curriculum_id in sorted({cl["curriculum_id"] for cl in _CLASSROOMS}):
+        published = await conn.fetchval(
             """
-            INSERT INTO curricula (curriculum_id, grade, year, name, is_default)
-            VALUES ($1, $2, 2026, $3, FALSE)
-            ON CONFLICT (curriculum_id) DO NOTHING
+            SELECT COUNT(*) FROM content_subject_versions
+            WHERE curriculum_id = $1 AND status = 'published'
             """,
             curriculum_id,
-            grade,
-            name,
         )
-        if r != "INSERT 0 0":
-            counts["curricula"] += 1
-
-        for unit in _load_grade_units(grade):
-            r2 = await conn.execute(
-                """
-                INSERT INTO curriculum_units
-                    (unit_id, curriculum_id, subject, title, unit_name,
-                     description, has_lab, sort_order)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-                ON CONFLICT (unit_id, curriculum_id) DO NOTHING
-                """,
-                unit["unit_id"],
-                curriculum_id,
-                unit["subject"],
-                unit["title"],
-                unit["title"],  # unit_name = title (Phase 8 requirement)
-                unit["description"] or None,
-                unit["has_lab"],
-                unit["sort_order"],
+        if not published:
+            log.warning(
+                "demo_seed_curriculum_has_no_published_content",
+                extra={"curriculum_id": curriculum_id},
             )
-            if r2 != "INSERT 0 0":
-                counts["units"] += 1
 
     # ── Classrooms ────────────────────────────────────────────────────────────
     for cl in _CLASSROOMS:
@@ -395,6 +327,19 @@ async def seed_demo(conn: asyncpg.Connection) -> dict:
             counts["classrooms"] += 1
 
         # Package assignment
+        # Evict any package this seeder attached previously that is no longer the
+        # intended one. Without this, re-seeding over an older demo leaves the
+        # classroom with two packages, and the curriculum resolver takes only the
+        # first (content/service.py) — so it can still land on the dead
+        # `demo-2026-*` curriculum and 404 every lesson.
+        await conn.execute(
+            """
+            DELETE FROM classroom_packages
+            WHERE classroom_id = $1 AND curriculum_id <> $2
+            """,
+            cl["classroom_id"],
+            cl["curriculum_id"],
+        )
         await conn.execute(
             """
             INSERT INTO classroom_packages (classroom_id, curriculum_id, sort_order)

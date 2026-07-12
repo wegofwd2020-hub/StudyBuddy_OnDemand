@@ -219,9 +219,13 @@ def write_progress_answer_task(
     correct: bool,
     ms_taken: int,
     event_id: str | None,
+    quiz_set: int | None = None,
 ) -> None:
     """
     Fire-and-forget task: write a progress answer to PostgreSQL.
+
+    `correct` / `correct_answer` are the SERVER's verdict, computed in the router
+    against the content store — not values supplied by the client.
 
     Uses ON CONFLICT DO NOTHING on event_id for mobile offline deduplication.
     """
@@ -244,6 +248,18 @@ def write_progress_answer_task(
                     ms_taken=ms_taken,
                     event_id=event_id,
                 )
+                # Persist which set was graded, so the session stays auditable
+                # after the Redis pin expires. First writer wins.
+                if quiz_set is not None:
+                    await conn.execute(
+                        """
+                        UPDATE progress_sessions
+                        SET quiz_set = $2
+                        WHERE session_id = $1 AND quiz_set IS NULL
+                        """,
+                        uuid.UUID(session_id),
+                        quiz_set,
+                    )
         finally:
             await pool.close()
 

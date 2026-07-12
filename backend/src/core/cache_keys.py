@@ -101,6 +101,28 @@ def quiz_set_key(student_id: str, unit_id: str) -> str:
     return f"quiz_set:{student_id}:{unit_id}"
 
 
+def quiz_score_key(session_id: str) -> str:
+    """
+    quizscore:{session_id} — running count of server-graded correct answers.
+
+    The score has to be authoritative but the answer write is fire-and-forget
+    (perf rule #4), so `progress_answers` may not be persisted yet when the
+    session ends. Tally the graded result in Redis as each answer arrives and
+    read it back at end-of-session instead of trusting a client-supplied score.
+    """
+    return f"quizscore:{session_id}"
+
+
+def quiz_session_set_key(session_id: str) -> str:
+    """
+    quizset:{session_id} — which quiz set (1-3) this session is being graded against.
+
+    Pinned on the first answer so the grading key stays stable for the whole
+    session even if the per-unit rotation pointer advances.
+    """
+    return f"quizset:{session_id}"
+
+
 def override_key(
     school_id: str,
     curriculum_id: str,

@@ -55,8 +55,17 @@ async def _start_session(client: AsyncClient, token: str) -> dict:
 
 
 @pytest.mark.asyncio
-async def test_end_session_clamps_score_above_total(client, db_conn):
-    """A score greater than total_questions is clamped to total (no 8/5=160%)."""
+async def test_end_session_ignores_a_client_supplied_score(client, db_conn):
+    """
+    #460's real cause was client-side scoring, and it is now fixed at the root:
+    the endpoint takes no score at all.
+
+    The original symptom (8/5 = 160%) was produced by the browser sending an
+    inflated score, which `end_session` then clamped. Clamping hid the overflow at
+    the top of the range but left it visible in the middle — that is how #504
+    (4/5 for a 3/5 run) survived. The score is now the server's own tally, so an
+    impossible one cannot be submitted in the first place.
+    """
     student_id = str(uuid.uuid4())
     await _insert_student(client, student_id)
     token = make_student_token(student_id=student_id, grade=8)
@@ -66,35 +75,53 @@ async def test_end_session_clamps_score_above_total(client, db_conn):
     with patch("src.auth.tasks.celery_app.send_task", return_value=None):
         r = await client.post(
             f"/api/v1/progress/session/{session['session_id']}/end",
-            json={"score": 8, "total_questions": 5},
+            json={"score": 8, "total_questions": 5},  # both ignored
             headers={"Authorization": f"Bearer {token}"},
         )
     assert r.status_code == 200, r.text
     data = r.json()
-    assert data["score"] == 5  # clamped from 8
-    assert data["total_questions"] == 5
-    assert data["passed"] is True
+    # Nothing was graded in this session, so the server scores it zero — it does
+    # NOT echo the 8 the client asked for, clamped or otherwise.
+    assert data["score"] == 0
+    assert data["passed"] is False
 
 
 @pytest.mark.asyncio
-async def test_end_session_valid_score_unchanged(client, db_conn):
-    """A normal score passes through untouched and computes passed correctly."""
-    student_id = str(uuid.uuid4())
-    await _insert_student(client, student_id)
-    token = make_student_token(student_id=student_id, grade=8)
-    session = await _start_session(client, token)
+async def test_end_session_still_clamps_defensively(db_conn):
+    """
+    The clamp inside `end_session` stays as a last line of defence for any caller
+    (a Celery replay, an offline-sync backfill) that passes a nonsense pair.
 
-    with patch("src.auth.tasks.celery_app.send_task", return_value=None):
-        r = await client.post(
-            f"/api/v1/progress/session/{session['session_id']}/end",
-            json={"score": 2, "total_questions": 8},
-            headers={"Authorization": f"Bearer {token}"},
-        )
-    assert r.status_code == 200, r.text
-    data = r.json()
-    assert data["score"] == 2
-    assert data["total_questions"] == 8
-    assert data["passed"] is False  # 2/8 = 25% < 60%
+    Exercised at the service level because the HTTP layer no longer has any way to
+    supply a score.
+    """
+    from src.progress.service import end_session
+
+    student_id = str(uuid.uuid4())
+    session_id = await db_conn.fetchval(
+        """
+        INSERT INTO students (student_id, external_auth_id, name, email, grade, locale, account_status)
+        VALUES ($1, $2, 'Clamp Test', $3, 8, 'en', 'active')
+        ON CONFLICT (student_id) DO NOTHING
+        """,
+        uuid.UUID(student_id),
+        f"auth0|clamp-{student_id.replace('-', '')[:16]}",
+        f"clamp-{student_id[:6]}@test.invalid",
+    )
+    session_id = await db_conn.fetchval(
+        """
+        INSERT INTO progress_sessions
+            (student_id, unit_id, curriculum_id, grade, subject, attempt_number)
+        VALUES ($1, 'G8-MATH-001', 'default-2026-g8', 8, 'Mathematics', 1)
+        RETURNING session_id
+        """,
+        uuid.UUID(student_id),
+    )
+
+    result = await end_session(db_conn, session_id=str(session_id), score=8, total_questions=5)
+
+    assert result["score"] == 5  # clamped from 8 — never 160%
+    assert result["total_questions"] == 5
 
 
 # ── #462 — subject label resolution ───────────────────────────────────────────

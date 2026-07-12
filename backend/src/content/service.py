@@ -37,6 +37,11 @@ _ENT_TTL = 300  # 5 minutes
 _CSV_TTL = 300  # 5 minutes
 _CONTENT_TTL = 3600  # 1 hour
 
+# Model tag written by scripts/seed_dev_content.py and scripts/setup_dev.py into
+# every stub file they create. Content carrying this tag is never served to a
+# student — see _reject_placeholder().
+PLACEHOLDER_MODEL = "dev-placeholder"
+
 
 # ── School subscription helper ────────────────────────────────────────────────
 
@@ -208,6 +213,32 @@ async def check_content_published(
 # ── Content file serving ──────────────────────────────────────────────────────
 
 
+def _reject_placeholder(data, curriculum_id: str, unit_id: str, filename: str) -> None:
+    """
+    Refuse to serve dev-seeded placeholder content.
+
+    The dev/demo seeders backfill missing units with stub lessons and quizzes
+    (always-'A' answers, "Sample question N about X?") tagged
+    model="dev-placeholder". They only write where a file is absent, so any unit
+    the pipeline hasn't generated keeps its stub forever. Serving one hands a
+    student fake content — and a fake grade — indistinguishable from the real
+    thing. Treat it as missing so the caller 404s into the normal
+    "not available yet" state.
+    """
+    if isinstance(data, dict) and data.get("model") == PLACEHOLDER_MODEL:
+        log.warning(
+            "placeholder_content_refused",
+            extra={
+                "curriculum_id": curriculum_id,
+                "unit_id": unit_id,
+                "filename": filename,
+            },
+        )
+        raise FileNotFoundError(
+            f"placeholder content refused: curricula/{curriculum_id}/{unit_id}/{filename}"
+        )
+
+
 async def get_content_file(
     curriculum_id: str,
     unit_id: str,
@@ -220,18 +251,27 @@ async def get_content_file(
 
     L2 cache: content:{curriculum_id}:{unit_id}:{filename} TTL=3600.
 
-    Raises FileNotFoundError if the file doesn't exist.
+    Raises FileNotFoundError if the file doesn't exist, or if it is dev-seeded
+    placeholder content (see _reject_placeholder).
     """
     key = content_key(curriculum_id, unit_id, filename)
     cached = await redis.get(key)
     if cached:
         try:
-            return json.loads(cached)
-        except Exception:
-            pass  # corrupt cache entry — fall through
+            data = json.loads(cached)
+        except (ValueError, TypeError):
+            data = None  # corrupt cache entry — fall through to the store
+        if data is not None:
+            # Guard the cache path too: a stub cached by an older build would
+            # otherwise keep being served for the full TTL.
+            _reject_placeholder(data, curriculum_id, unit_id, filename)
+            return data
 
     path = f"curricula/{curriculum_id}/{unit_id}/{filename}"
     data = await storage.read_json(path)  # raises FileNotFoundError if absent
+
+    # Check before caching — never let a placeholder into L2.
+    _reject_placeholder(data, curriculum_id, unit_id, filename)
 
     await redis.set(key, json.dumps(data), ex=_CONTENT_TTL)
     return data
@@ -497,3 +537,70 @@ async def get_fork_source_curriculum(
             curriculum_id,
         )
     return row["source_curriculum_id"] if (row and row["source_curriculum_id"]) else None
+
+
+# ── Quiz answer key (server-side grading) ─────────────────────────────────────
+
+
+async def get_quiz_answer_key(
+    curriculum_id: str,
+    unit_id: str,
+    set_number: int,
+    lang: str,
+    redis,
+    storage: StorageBackend,
+) -> dict[str, dict]:
+    """
+    Return the grading key for one quiz set: {question_id: {index, explanation}}.
+
+    The correct answer lives ONLY on the server. Grading resolves it from the
+    content store here rather than trusting anything the client sends.
+
+    `correct_option` is a letter ("A".."D"); the index is that option's position
+    in the question's own `options` list, matched by `option_id` — not by
+    alphabetical position, so a question whose options are ordered B, A, C still
+    grades correctly.
+
+    Raises FileNotFoundError if the set is absent (placeholder content included —
+    get_content_file refuses it).
+    """
+    filename = f"quiz_set_{set_number}_{lang}.json"
+    try:
+        data = await get_content_file(curriculum_id, unit_id, filename, redis, storage)
+    except FileNotFoundError:
+        # Same English fallback the quiz endpoint uses, so grading matches what
+        # was actually served to the student.
+        data = await get_content_file(
+            curriculum_id, unit_id, f"quiz_set_{set_number}_en.json", redis, storage
+        )
+
+    key: dict[str, dict] = {}
+    for question in data.get("questions", []):
+        qid = question.get("question_id")
+        if not qid:
+            continue
+        options = question.get("options", [])
+        correct_option = question.get("correct_option")
+        index = next(
+            (i for i, o in enumerate(options) if o.get("option_id") == correct_option),
+            None,
+        )
+        if index is None:
+            # Content defect: the correct_option names an option that isn't in the
+            # list. Skip rather than silently grading every answer wrong.
+            log.error(
+                "quiz_answer_key_unresolvable",
+                extra={
+                    "curriculum_id": curriculum_id,
+                    "unit_id": unit_id,
+                    "set_number": set_number,
+                    "question_id": qid,
+                    "correct_option": correct_option,
+                },
+            )
+            continue
+        key[qid] = {
+            "index": index,
+            "explanation": question.get("explanation", ""),
+        }
+    return key

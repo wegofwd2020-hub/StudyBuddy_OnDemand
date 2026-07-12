@@ -28,9 +28,9 @@ interface BackendQuizQuestion {
   question_text: string;
   question_type: string;
   options: BackendQuizOption[];
-  correct_option: string; // "A" | "B" | "C" | "D"
-  explanation: string;
   difficulty: string;
+  // No correct_option / explanation — the server strips the answer key before
+  // sending the quiz. Grading happens in POST /progress/session/{id}/answer.
 }
 interface BackendQuizResponse {
   unit_id: string;
@@ -46,8 +46,6 @@ interface BackendQuizResponse {
   subject: string | null;
 }
 
-const OPTION_IDS = ["A", "B", "C", "D"];
-
 export async function getQuiz(unitId: string): Promise<QuizContent> {
   const res = await api.get<BackendQuizResponse>(`/content/${unitId}/quiz`);
   const raw = res.data;
@@ -58,10 +56,9 @@ export async function getQuiz(unitId: string): Promise<QuizContent> {
     subject: raw.subject ?? undefined,
     questions: raw.questions.map((q, index) => ({
       index,
+      question_id: q.question_id,
       question: q.question_text,
       options: q.options.map((o) => o.text),
-      correct_index: OPTION_IDS.indexOf(q.correct_option),
-      explanation: q.explanation,
     })),
   };
 }

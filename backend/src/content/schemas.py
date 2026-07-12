@@ -44,9 +44,15 @@ class QuizQuestion(BaseModel):
     question_text: str
     question_type: str
     options: list[QuizOption]
-    correct_option: str
-    explanation: str
     difficulty: str
+
+    # The answer key is deliberately NOT sent to students. It is stripped in the
+    # quiz endpoint and revealed one question at a time by
+    # POST /progress/session/{id}/answer, which grades server-side. These stay on
+    # the model (optional) because the same schema validates raw content files,
+    # which do carry the key.
+    correct_option: str | None = None
+    explanation: str | None = None
 
 
 class QuizResponse(BaseModel):

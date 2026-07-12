@@ -454,7 +454,12 @@ Migrations live in `backend/alembic/versions/` and are numbered `0001_…` → `
 - **Never skip a migration.** Run `alembic upgrade head` after pulling new code before restarting the API.
 - **Naming convention:** `{NNNN}_{short_description}.py` — e.g. `0015_subject_name.py`
 - **In Docker:** migrations run automatically via the `migrate` service in `docker-compose.yml` on `./dev_start.sh`
-- **Manual run:** `docker compose exec api alembic upgrade head`
+- **Manual run:** `docker compose exec -e TEST_DB_URL= api alembic upgrade head`
+  ⚠️ The `-e TEST_DB_URL=` is **required**. The `api` service has `TEST_DB_URL` set, and
+  `alembic/env.py` prefers it — so a plain `docker compose exec api alembic upgrade head`
+  migrates **`studybuddy_test`**, prints "success", and leaves the dev database untouched
+  (→ pitfall #18, `UndefinedColumnError` *after* you migrated). Alembic now prints which
+  database it is targeting on every run; read that line.
 - If the API starts throwing `UndefinedColumnError`, a migration is almost certainly missing.
 
 Current migrations (as of last commit):
@@ -500,6 +505,7 @@ Current migrations (as of last commit):
 | 0058 | Demo request — `name` column on demo lead requests |
 | 0059 | Epic/#358 — `teacher_capabilities` table (RLS): additive `curriculum.commission` / `curriculum.review` / `curriculum_mgmt` grants |
 | 0060 | Authoring Studio (PR-A) — `authoring_projects`, `authoring_topic_versions`, `authoring_active_versions`, `authoring_snapshots` (platform/admin-scoped, no tenant RLS); extends `curricula.source_type` CHECK with `admin_authored`. Downgrade deletes `source_type='admin_authored'` curricula before reverting the CHECK |
+| 0061 | Server-side quiz grading — `progress_sessions.quiz_set` (SMALLINT, nullable, CHECK 1–3). Records which quiz set a session is graded against; `question_id` is `q1…qN` in every set with different answers, so the set must be pinned per session. See pitfall #35 |
 
 ---
 
@@ -764,8 +770,9 @@ docker compose build celery-pipeline && docker compose up -d celery-pipeline
 # Rebuild web frontend (e.g. after npm install of a new package)
 docker compose build web && docker compose up -d web
 
-# Apply pending migrations manually
-docker compose exec api alembic upgrade head
+# Apply pending migrations manually.
+# -e TEST_DB_URL= is required: without it env.py targets studybuddy_test, not dev.
+docker compose exec -e TEST_DB_URL= api alembic upgrade head
 
 # Check logs for a specific service
 docker compose logs celery-pipeline --since 10m -f
@@ -908,6 +915,9 @@ See [AGENTS.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/AGE
 31. **`get_curriculum_tree` must use the full 3-step resolver and load units from DB** — the original implementation called `_load_grade(grade)` which reads `grade{N}_stem.json` and ignores the resolved `curriculum_id`. Stream students (G11 Science, G11 Commerce, G12 Science, G12 Commerce) saw STEM subjects/units instead of their actual stream content. Fix: use the same 3-step resolver (school-owned → classroom packages RLS bypass → STEM fallback) as `content/service.py::resolve_curriculum_id`, then query `curriculum_units` WHERE `curriculum_id = $resolved`. JOIN `content_subject_versions` for the human-readable `subject_name`.
 32. **`curriculum_units.subject` stores subject codes, not display names for stream curricula** — platform stream curricula (G11-science, G12-commerce, etc.) seed `subject` as abbreviated codes (`G11-PHYS`, `G12-ACC`). The human-readable names (`Physics`, `Accountancy`) live in `content_subject_versions.subject_name`. In `get_curriculum_tree`, use `COALESCE(MAX(csv.subject_name), cu.subject)` joined on `(curriculum_id, subject)` to get display names; fall back to the raw code for newly-seeded curricula with no CSV rows.
 33. **`build_lesson_prompt` must generate a `sections` array** — the old schema produced only `synopsis`/`learning_objectives`/`reading_level` (3 sparse fields). Students saw "Overview and Learning Objectives but no lesson body." The new schema requires `sections` (Introduction, Core Concepts, Worked Examples, Real-World Applications, Summary) and `key_points`. `_normalize_lesson` handles three formats: old-format (has `title`), new rich (has `sections`), and legacy minimal (pre-C5-regen content that has only `synopsis`). Do not run C-5 regen until the new prompt is in place.
+34. **`docker compose exec api alembic upgrade head` migrates the TEST database, not dev** — the `api` service sets `TEST_DB_URL`, and `alembic/env.py` prefers it over `DATABASE_URL`. The command reports success, `alembic current` says `head`, and the dev DB is untouched — a nastier variant of pitfall #18, because it strikes *after* you ran the migration. Always pass `-e TEST_DB_URL=`. `env.py` now prints the target database on every run; read that line before trusting the result. (`docker-compose.yml` already blanks the var for the `migrate` service, which is why `./dev_start.sh` is unaffected.)
+35. **Never trust the client for quiz grading** — `POST /progress/answer` and `/end` once accepted `correct: bool` and `score: int` and stored them verbatim, while the quiz payload shipped `correct_option` for every question: a student could read the answers from the network tab and post themselves a perfect score. Grading is now server-side (`get_quiz_answer_key` → the content store), the answer key is stripped from the served quiz (`_strip_answer_key`), and the score is a Redis tally of server-graded answers. Two consequences to preserve: (a) `question_id` is `q1…qN` in **every** quiz set with **different** answers per set, so the graded set must be pinned per session (`quizset:{session_id}`, `progress_sessions.quiz_set`) — resolving it from the per-unit rotation pointer at answer time grades later answers against the wrong key; (b) answer writes are fire-and-forget, so `end_session` **cannot** count `progress_answers` (rows may not exist yet) — that race is why the score is tallied in Redis.
+36. **Placeholder content must never reach a student** — `scripts/seed_dev_content.py` and `scripts/setup_dev.py` backfill missing units with stub lessons/quizzes ("Sample question 1 about X?", options "Option A"…"Option D", correct answer always "A") tagged `model: "dev-placeholder"`. They only write where a file is *absent*, so any unit the pipeline hasn't generated keeps its stub indefinitely and used to be served as if real — students were graded on fiction. `get_content_file` now refuses `dev-placeholder` content on both the store and cache paths, so an ungenerated unit 404s honestly. Do not "fix" a 404 by re-running the seeder.
 
 ---
 

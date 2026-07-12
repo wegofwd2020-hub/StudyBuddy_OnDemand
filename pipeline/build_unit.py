@@ -37,6 +37,7 @@ if _REPO_ROOT not in sys.path:
 
 from pipeline.alex_runner import run_alex
 from pipeline.pdf_worker import generate_pdf
+from pipeline.providers._wegofwd_adapter import PermanentLLMError
 from pipeline.content_format_validator import FormatWarning, check_content
 from pipeline.prompts import (
     build_experiment_prompt,
@@ -111,6 +112,14 @@ def _generate_and_validate(
             validator(data)
             return data, total_in, total_out
 
+        except PermanentLLMError as exc:
+            # No credit / bad key / dead model. Retrying costs money and time and
+            # cannot succeed — fail the unit now, with the provider's real message
+            # rather than "Failed after 3 attempts".
+            log.error(
+                "generate_permanent_failure content_type=%s error=%s", content_type, exc
+            )
+            raise
         except json.JSONDecodeError as exc:
             last_error = f"JSON parse error (attempt {attempt}): {exc}"
             log.warning("generate_retry json_error attempt=%d content_type=%s error=%s", attempt, content_type, exc)
