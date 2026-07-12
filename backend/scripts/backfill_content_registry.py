@@ -22,11 +22,21 @@ What it does, per `default-*` curriculum directory in the Content Store:
   1. Skips units whose lesson is dev-placeholder (never register stub content)
   2. Upserts the `curricula` row
   3. Upserts `curriculum_units` (title/description/has_lab from data/*.json)
-  4. Upserts a published `content_subject_versions` row per subject
+  4. Upserts a published `content_subject_versions` row per subject, keyed by the
+     ACTUAL `curriculum_units.subject` value
 
 Metadata (subject display names, unit titles, has_lab) comes from the
 authoritative `data/grade{N}_{stream}.json` files — the same source the pipeline
 reads — not from the generated content, which does not carry them.
+
+Subject-key reconciliation (step 4): `content/service.py::check_content_published`
+matches `content_subject_versions.subject` against `curriculum_units.subject`. Some
+seeds store that as a code (`G10-MATH`), others as a display name (`Mathematics`).
+An earlier version keyed the publish row by the data-JSON code unconditionally, so
+against a display-name curriculum the row never matched and the content stayed 404
+despite a "successful" backfill (observed live on the demo box, all of Grade 10).
+The publish key is now read back from `curriculum_units` so it matches whatever the
+units store; the data-JSON supplies only the human-readable `subject_name`.
 
 Idempotent. Dry-run by default.
 
@@ -58,9 +68,7 @@ _raw_url = os.environ.get(
 DATABASE_URL = _raw_url.replace("@pgbouncer:", "@db:")
 CONTENT_STORE_PATH = os.environ.get("CONTENT_STORE_PATH", "/data/content")
 
-DATA_DIR = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..", "data")
-)
+DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "data"))
 
 PLACEHOLDER_MODEL = "dev-placeholder"
 YEAR = 2026
@@ -131,9 +139,7 @@ def discover() -> list[str]:
 # ── Backfill ──────────────────────────────────────────────────────────────────
 
 
-async def backfill_curriculum(
-    conn: asyncpg.Connection, curriculum_id: str, commit: bool
-) -> dict:
+async def backfill_curriculum(conn: asyncpg.Connection, curriculum_id: str, commit: bool) -> dict:
     """Register one curriculum. Returns a per-table count summary."""
     stats = {"curricula": 0, "units": 0, "subject_versions": 0, "skipped_units": 0}
 
@@ -170,7 +176,10 @@ async def backfill_curriculum(
             VALUES ($1, $2, $3, $4, TRUE)
             ON CONFLICT (curriculum_id) DO NOTHING
             """,
-            curriculum_id, grade, YEAR, name,
+            curriculum_id,
+            grade,
+            YEAR,
+            name,
         )
         if r != "INSERT 0 0":
             stats["curricula"] += 1
@@ -181,20 +190,23 @@ async def backfill_curriculum(
         if not exists:
             stats["curricula"] += 1
 
-    # ── curriculum_units + content_subject_versions ───────────────────────────
-    subjects_with_content: dict[str, str] = {}  # subject_code -> display name
+    # ── curriculum_units ──────────────────────────────────────────────────────
+    # data/*.json maps subject_id (code, e.g. G10-MATH) → display name. We use the
+    # code when *creating* a unit row, but if the row already exists (e.g. a
+    # curriculum seeded elsewhere) we leave its subject untouched — which may be a
+    # display name rather than a code. The content_subject_versions key is
+    # reconciled against the real value below.
+    code_to_name = {s["subject_id"]: s["name"] for s in source["subjects"]}
 
     for subject in source["subjects"]:
-        subject_code = subject["subject_id"]      # e.g. G10-MATH
-        subject_name = subject["name"]            # e.g. Mathematics  (pitfall #32)
+        subject_code = subject["subject_id"]  # e.g. G10-MATH
+        subject_name = subject["name"]  # e.g. Mathematics
 
         for sort_order, unit in enumerate(subject["units"]):
             unit_id = unit["unit_id"]
             if unit_id not in on_disk:
-                stats["skipped_units"] += 1       # never generated, or stub
+                stats["skipped_units"] += 1  # never generated, or stub
                 continue
-
-            subjects_with_content[subject_code] = subject_name
 
             if commit:
                 r = await conn.execute(
@@ -209,7 +221,7 @@ async def backfill_curriculum(
                     curriculum_id,
                     subject_code,
                     unit["title"],
-                    unit["title"],   # unit_name is NOT NULL — mirror title (pitfall #30)
+                    unit["title"],  # unit_name is NOT NULL — mirror title (pitfall #30)
                     unit.get("description") or None,
                     unit.get("has_lab", False),
                     sort_order,
@@ -219,19 +231,59 @@ async def backfill_curriculum(
             else:
                 exists = await conn.fetchval(
                     "SELECT 1 FROM curriculum_units WHERE unit_id = $1 AND curriculum_id = $2",
-                    unit_id, curriculum_id,
+                    unit_id,
+                    curriculum_id,
                 )
                 if not exists:
                     stats["units"] += 1
 
-    # One published version row per subject that actually has content on disk.
-    for subject_code, subject_name in subjects_with_content.items():
+    # One published version row per subject that actually has content on disk —
+    # keyed by the ACTUAL curriculum_units.subject value, read back from the DB.
+    #
+    # This is the load-bearing fix: content/service.py::check_content_published
+    # matches content_subject_versions.subject against curriculum_units.subject.
+    # Keying the publish row by the data-JSON code (G10-MATH) while the units carry
+    # a display name (Mathematics) — as some seeds store them — produces a row that
+    # never matches, so the content 404s despite a "successful" backfill. Reading
+    # the value back from the units makes the key correct for either convention.
+    actual = await conn.fetch(
+        """
+        SELECT DISTINCT subject
+        FROM curriculum_units
+        WHERE curriculum_id = $1 AND unit_id = ANY($2::text[])
+        """,
+        curriculum_id,
+        sorted(on_disk),
+    )
+    if actual:
+        # Existing units — publish against whatever value they store (code or
+        # display name). This is the repair path and the commit path (the units
+        # loop above inserts them before we get here).
+        subject_keys = [r["subject"] for r in actual]
+    else:
+        # Dry-run on a curriculum whose units are not in the DB yet. Preview
+        # against the data-JSON codes the units loop will create them with, so the
+        # preview count matches what commit produces.
+        subject_keys = sorted(
+            {
+                s["subject_id"]
+                for s in source["subjects"]
+                if any(u["unit_id"] in on_disk for u in s["units"])
+            }
+        )
+
+    for subject in subject_keys:
+        # If the units store a code, resolve its display name from data/*.json;
+        # if they already store a display name, it is its own name.
+        subject_name = code_to_name.get(subject, subject)
+
         existing = await conn.fetchval(
             """
             SELECT 1 FROM content_subject_versions
             WHERE curriculum_id = $1 AND subject = $2 AND status = 'published'
             """,
-            curriculum_id, subject_code,
+            curriculum_id,
+            subject,
         )
         if existing:
             continue
@@ -251,7 +303,7 @@ async def backfill_curriculum(
                         published_at = EXCLUDED.published_at
                 """,
                 curriculum_id,
-                subject_code,
+                subject,
                 subject_name,
                 datetime.now(tz=UTC),
             )
