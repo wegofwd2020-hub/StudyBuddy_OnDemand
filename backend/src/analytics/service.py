@@ -82,7 +82,11 @@ async def end_lesson_view(
     Close a lesson view row.
 
     Sets ended_at = NOW() and records duration/flags.
-    Returns {view_id, duration_s}.
+    Returns {view_id, duration_s, updated}.
+
+    `updated` is False when no row matched. That is a permanent condition, not a
+    transient one — the caller (write_lesson_end_task) retries on exception, and
+    retrying a view that does not exist can never succeed. Report it instead.
     """
     row = await conn.fetchrow(
         """
@@ -99,7 +103,15 @@ async def end_lesson_view(
         audio_played,
         experiment_viewed,
     )
-    return {"view_id": row["view_id"], "duration_s": row["duration_s"]}
+
+    if row is None:
+        log.warning(
+            "end_lesson_view_no_matching_row",
+            extra={"view_id": view_id, "duration_s": duration_s},
+        )
+        return {"view_id": view_id, "duration_s": duration_s, "updated": False}
+
+    return {"view_id": row["view_id"], "duration_s": row["duration_s"], "updated": True}
 
 
 # ── Phase 10: student self-service metrics ─────────────────────────────────────
