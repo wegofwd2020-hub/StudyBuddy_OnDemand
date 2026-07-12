@@ -32,6 +32,9 @@ import {
   MOCK_BACKEND_QUIZ_RESPONSE,
   MOCK_QUIZ_DISPLAY_TITLE,
   MOCK_SESSION_ID,
+  MOCK_CORRECT_INDEXES,
+  QUIZ_EXPLANATIONS,
+  correctOptionText,
   QUIZ_STRINGS,
 } from "./data/quiz-page";
 // MOCK_PROGRESS_HISTORY not imported — stubProgressApis uses inline backend-format response
@@ -107,9 +110,34 @@ async function stubQuizApis(page: Page) {
     (route) => route.fulfill({ status: 200, json: { session_id: MOCK_SESSION_ID } }),
   );
   // POST /progress/session/{id}/answer
-  await page.route("**/api/v1/progress/session/*/answer", (route) =>
-    route.fulfill({ status: 200, json: { correct: true, explanation: "" } }),
-  );
+  //
+  // Grading is server-side now: the client posts only the option it picked, and
+  // the response carries the verdict plus the reveal (correct_index +
+  // explanation), which the quiz payload no longer contains. The stub grades the
+  // same way the real endpoint does — by looking the question up — rather than
+  // blindly answering `correct: true`, so the spec would catch the player sending
+  // the wrong question_id.
+  await page.route("**/api/v1/progress/session/*/answer", (route) => {
+    const body = route.request().postDataJSON() as {
+      question_id: string;
+      student_answer: number;
+    };
+    const i = MOCK_QUIZ.questions.findIndex((q) => q.question_id === body.question_id);
+    if (i === -1) {
+      route.fulfill({ status: 400, json: { detail: { error: "unknown_question" } } });
+      return;
+    }
+    const correctIndex = MOCK_CORRECT_INDEXES[i];
+    route.fulfill({
+      status: 200,
+      json: {
+        answer_id: "",
+        correct: body.student_answer === correctIndex,
+        correct_index: correctIndex,
+        explanation: QUIZ_EXPLANATIONS[i],
+      },
+    });
+  });
   // POST /progress/session/{id}/end — backend returns total_questions, not total
   await page.route("**/api/v1/progress/session/*/end", (route) =>
     route.fulfill({
@@ -243,14 +271,15 @@ test("student learning loop: lesson → quiz → result → progress", async ({ 
     // Question text visible
     await expect(page.getByText(q.question)).toBeVisible();
 
-    // Select the correct option
-    await page.getByRole("button", { name: q.options[q.correct_index] }).click();
+    // Select the correct option. The quiz payload no longer carries the answer
+    // key, so the fixture supplies it — the page itself cannot know it yet.
+    await page.getByRole("button", { name: correctOptionText(i) }).click();
 
     // Submit
     await page.getByRole("button", { name: QUIZ_STRINGS.submitBtn }).click();
 
-    // Explanation appears
-    await expect(page.getByText(q.explanation)).toBeVisible();
+    // Explanation appears — it arrives with the server's verdict, not with the quiz
+    await expect(page.getByText(QUIZ_EXPLANATIONS[i])).toBeVisible();
 
     // Advance to next question or results
     if (isLast) {

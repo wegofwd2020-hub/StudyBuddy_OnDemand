@@ -122,6 +122,19 @@ export const MOCK_CORRECT_INDEXES = [1, 2, 2] as const;
 export const correctOptionText = (i: number): string =>
   MOCK_QUIZ.questions[i].options[MOCK_CORRECT_INDEXES[i]];
 
+/**
+ * Explanations, keyed by question index.
+ *
+ * Also outside QuizContent: the server sends the explanation back with the
+ * verdict, not up front with the quiz — revealing it early would reveal the
+ * answer.
+ */
+export const QUIZ_EXPLANATIONS = [
+  "The cell is the basic structural and functional unit of all living organisms.",
+  "The nucleus houses the cell's genetic material (DNA).",
+  "Mitochondria are the powerhouse of the cell, producing ATP through cellular respiration.",
+] as const;
+
 // ---------------------------------------------------------------------------
 // Mock session start (STU-24)
 // ---------------------------------------------------------------------------
