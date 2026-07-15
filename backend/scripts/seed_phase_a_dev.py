@@ -44,7 +44,7 @@ SCHOOL_A_ADMIN = {
     "teacher_id": "d0000000-0000-0000-0000-000000000010",
     "name": "Dev Admin",
     "email": "admin@devschool.dev",
-    "password": "DevAdmin1234!",
+    "password": os.environ.get("PHASE_A_SCHOOL_A_ADMIN_PASSWORD", "DevAdmin1234!"),
     "role": "school_admin",
 }
 
@@ -79,7 +79,7 @@ SCHOOL_B_ADMIN = {
     "teacher_id": "d0000000-0000-0000-0000-000000000030",
     "name": "Dev Admin B",
     "email": "admin@devschoolb.dev",
-    "password": "DevAdminB1234!",
+    "password": os.environ.get("PHASE_A_SCHOOL_B_ADMIN_PASSWORD", "DevAdminB1234!"),
     "role": "school_admin",
 }
 

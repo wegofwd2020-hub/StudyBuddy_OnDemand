@@ -42,7 +42,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 # ── Constants ─────────────────────────────────────────────────────────────────
 
 DEMO_EMAIL = "demo-test@studybuddy.dev"
-DEMO_PASSWORD = "DemoTest-2026!"
+DEMO_PASSWORD = os.environ.get("DEMO_STUDENT_PASSWORD", "DemoTest-2026!")
 DEMO_GRADE = 8
 DEMO_LOCALE = "en"
 
