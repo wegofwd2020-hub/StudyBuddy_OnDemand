@@ -59,7 +59,7 @@ DEV_SCHOOL_ADMIN_SUB   = "dev|school-admin-001"
 CURRICULUM_ID          = "default-2026-g8"
 
 DEV_ADMIN_EMAIL        = "dev.admin@studybuddy.dev"
-DEV_ADMIN_PASSWORD     = "DevAdmin1234!"
+DEV_ADMIN_PASSWORD     = os.environ.get("DEV_ADMIN_PASSWORD", "DevAdmin1234!")
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -530,7 +530,7 @@ def print_summary() -> None:
     print("  School Admin    http://localhost:3000/school/dashboard   /dev-login → School Admin")
     print("  Admin           http://localhost:3000/admin/login        dev.admin@studybuddy.dev")
     print()
-    print("  Admin password: DevAdmin1234!")
+    print(f"  Admin password: {DEV_ADMIN_PASSWORD}")
     print()
     print("  Dev login page: http://localhost:3000/dev-login")
     print()
