@@ -12,7 +12,7 @@
 
 ## What This Is
 
-StudyBuddy OnDemand is the next generation of the [StudyBuddy Free](https://github.com/wegofwd2020-hub/studybuddy_free) standalone app.
+StudyBuddy OnDemand is the next generation of the StudyBuddy Free standalone app (private repository).
 
 The Free edition proved the concept — students can navigate a grade-aware curriculum, read AI-generated lesson synopses, take adaptive quizzes, and receive personalised remediation. However, it has fundamental limitations:
 
@@ -50,8 +50,7 @@ StudyBuddy_OnDemand/
   data/                   ← Grade curriculum JSON files (shared with Free edition)
 ```
 
-> **Documentation** has been moved to the [studybuddy-docs](https://github.com/wegofwd2020-hub/studybuddy-docs) repository — architecture, requirements, operations runbooks, and design decisions all live there.
-> See [ARCHITECTURE.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/ARCHITECTURE.md) for the full design and phased plan.
+> **Documentation** — architecture, requirements, operations runbooks, and design decisions — lives in a private companion docs repository, available to contributors on the engagement.
 
 ---
 
@@ -73,8 +72,8 @@ The Free edition remains a useful standalone tool and a reference implementation
 
 ## Getting Started
 
-To understand the system before touching code:
+To understand the system before touching code, start with these documents in the private companion docs repository (contributors on the engagement have access):
 
-1. Read [ARCHITECTURE.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/ARCHITECTURE.md) — system design, diagrams, API spec
-2. Read [AGENTS.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/AGENTS.md) — conventions and onboarding for AI-assisted development
-3. Review the [phased implementation plan](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/ARCHITECTURE.md#phased-implementation-plan)
+1. `ARCHITECTURE.md` — system design, diagrams, API spec
+2. `AGENTS.md` — conventions and onboarding for AI-assisted development
+3. The phased implementation plan (in `ARCHITECTURE.md`)
