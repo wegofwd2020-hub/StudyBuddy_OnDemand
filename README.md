@@ -28,6 +28,17 @@ The Free edition proved the concept — students can navigate a grade-aware curr
 
 ---
 
+## Project Status
+
+**Active development.** Work is tracked as epics with living status in the
+[progress chart](docs/PROGRESS.md), regenerated nightly from `docs/epics/` and
+git history. Open issues and pull requests are the working roadmap; pull
+requests are produced through a governed AI-assisted workflow (see `CLAUDE.md`
+and `TICKETS/`) and merged after review. The
+[live demo](https://demo.usestudybuddy.com) tracks the latest release.
+
+---
+
 ## Core Principles
 
 1. **Students never call the AI directly** — The Anthropic API key lives only in backend environment variables. Students register with email and password.
