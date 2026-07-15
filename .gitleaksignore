@@ -1,0 +1,19 @@
+# Gitleaks fingerprint allowlist.
+# Format: <commit-sha>:<path>:<rule-id>:<line>
+#
+# Add an entry here only after manually verifying the finding is a known
+# test fixture, dev stub, or other non-sensitive value. Every line should
+# have a comment explaining what was reviewed and by whom.
+
+# Reviewed 2026-04-20 — all 4 findings are obvious test/dev placeholders
+# matching gitleaks' `generic-api-key` heuristic. No real secrets leaked.
+
+# test-jwt-secret / test-admin-secret — unit-test fixture constants
+f8ed6d068ea4b6c3f58a9a4fbf948d15feffe9f8:backend/tests/test_connection_pool_arithmetic.py:generic-api-key:32
+f9773d543d55613d819186f4a517011b463e7aaf:backend/tests/test_connection_pool_arithmetic.py:generic-api-key:32
+
+# stub-jwt-secret / stub-admin-secret — OpenAPI export dev stubs
+7b7f8a6dd457964f8f306196946ff401b568e758:backend/scripts/export_openapi.py:generic-api-key:35
+
+# `secret123` + fake JWT — Playwright e2e login-page fixtures
+d621175321803f8d5de254e72c83d8b39cd8d538:web/tests/e2e/data/admin-login-page.ts:generic-api-key:18
