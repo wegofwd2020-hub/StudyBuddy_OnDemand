@@ -63,6 +63,12 @@ redis_connected = Gauge(
     "1 if Redis is reachable, 0 otherwise",
 )
 
+celery_queue_depth = Gauge(
+    "sb_celery_queue_depth",
+    "Number of tasks waiting in each Celery queue",
+    ["queue"],
+)
+
 auth_exchanges_total = Counter(
     "sb_auth_exchanges_total",
     "Successful auth token exchanges",
