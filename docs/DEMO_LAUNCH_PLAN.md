@@ -609,7 +609,7 @@ docker compose --env-file .env.demo exec api bash /app/scripts/demo/seed.sh
 
 What it does:
 1. `alembic upgrade head` (idempotent; skips if at head)
-2. `python scripts/seed_super_admin.py` — creates `wegofwd2020@gmail.com` / Admin1234! (writes credentials to a one-shot file with `chmod 600`)
+2. `python scripts/seed_super_admin.py` — creates `wegofwd2020@gmail.com`; the password comes from `SUPER_ADMIN_PASSWORD` (required — no default). `seed.sh` generates a strong random one if unset and writes it to a `chmod 600` one-shot file.
 3. `python scripts/seed_demo_milfordwaterford.py` — MilfordWaterford school + 4 teachers + 15 students (matches DEMO_WALKTHROUGH.md §0 exactly)
 4. `python scripts/seed_demo_test_account.py` — public "Try it" student (`demo-test@studybuddy.dev`)
 5. `python scripts/seed_phase_a_dev.py` — Dev School + Phase A local-auth admin

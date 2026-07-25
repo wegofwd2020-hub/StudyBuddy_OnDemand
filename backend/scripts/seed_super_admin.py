@@ -4,7 +4,8 @@ backend/scripts/seed_super_admin.py
 
 Creates (or updates) the super admin account in the database.
 
-Reads credentials from env vars; falls back to the defaults in .env.
+Reads credentials from env vars. SUPER_ADMIN_PASSWORD is REQUIRED — there is no
+hardcoded default, so a known password can never be shipped to a deploy.
 
 Usage:
     # From backend/ directory:
@@ -31,7 +32,24 @@ load_dotenv(_here / ".env")
 
 DATABASE_URL = os.environ["DATABASE_URL"]
 SUPER_ADMIN_EMAIL = os.environ.get("SUPER_ADMIN_EMAIL", "wegofwd2020@gmail.com")
-SUPER_ADMIN_PASSWORD = os.environ.get("SUPER_ADMIN_PASSWORD", "Admin1234!")
+
+# SECURITY: no hardcoded default. A default here previously shipped a known
+# super-admin password to the internet-facing demo (seed.sh runs this script
+# without setting the env var). The password MUST come from the environment,
+# and we reject obviously-weak or previously-leaked values.
+_WEAK_PASSWORDS = frozenset({"Admin1234!", "admin", "password", "changeme", "demo"})
+SUPER_ADMIN_PASSWORD = os.environ.get("SUPER_ADMIN_PASSWORD", "")
+if not SUPER_ADMIN_PASSWORD:
+    sys.exit(
+        "[seed_super_admin] SUPER_ADMIN_PASSWORD is required (no default). "
+        "Set a strong value, e.g.:\n"
+        "  SUPER_ADMIN_PASSWORD='<strong-secret>' python scripts/seed_super_admin.py"
+    )
+if len(SUPER_ADMIN_PASSWORD) < 12 or SUPER_ADMIN_PASSWORD in _WEAK_PASSWORDS:
+    sys.exit(
+        "[seed_super_admin] SUPER_ADMIN_PASSWORD is too weak — use at least 12 "
+        "characters and not a known default."
+    )
 
 
 def _hash(password: str) -> str:
