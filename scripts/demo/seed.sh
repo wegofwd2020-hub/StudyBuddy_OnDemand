@@ -48,7 +48,20 @@ info "pre-flight — running alembic upgrade head (idempotent)"
 alembic upgrade head
 
 # ── Step 1: super admin ────────────────────────────────────────────────────
-info "step 1/5 — super admin (wegofwd2020@gmail.com)"
+# seed_super_admin.py now REQUIRES SUPER_ADMIN_PASSWORD (no hardcoded default,
+# so a known password can never ship). If the operator didn't supply one,
+# generate a strong random password and write it once to a chmod-600 file.
+if [ -z "${SUPER_ADMIN_PASSWORD:-}" ]; then
+  SUPER_ADMIN_PASSWORD="$(openssl rand -base64 24 | tr -d '/+=' | cut -c1-24)Aa1!"
+  export SUPER_ADMIN_PASSWORD
+  cred_file="${SUPER_ADMIN_CRED_FILE:-./super_admin_credentials.txt}"
+  ( umask 177; printf 'super_admin email:    %s\nsuper_admin password: %s\n' \
+      "${SUPER_ADMIN_EMAIL:-wegofwd2020@gmail.com}" "$SUPER_ADMIN_PASSWORD" > "$cred_file" )
+  chmod 600 "$cred_file"
+  warn "  no SUPER_ADMIN_PASSWORD set — generated a random one → $cred_file (chmod 600)."
+  warn "  record it somewhere safe, then delete that file."
+fi
+info "step 1/5 — super admin (${SUPER_ADMIN_EMAIL:-wegofwd2020@gmail.com})"
 if python scripts/seed_super_admin.py 2>&1 | tee /tmp/seed_super_admin.log; then
   info "  done"
 else
