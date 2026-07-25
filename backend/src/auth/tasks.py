@@ -362,13 +362,9 @@ def poll_infra_metrics() -> None:
     from config import settings as cfg
 
     try:
-        from prometheus_client import Gauge
-
-        celery_queue_depth = Gauge(
-            "sb_celery_queue_depth",
-            "Number of tasks waiting in each Celery queue",
-            ["queue"],
-        )
+        # Metric is defined once at module import in core.observability; defining
+        # it here re-registered it on every poll -> "Duplicated timeseries" (#518).
+        from src.core.observability import celery_queue_depth
 
         # ── Queue depth via Redis LLEN ─────────────────────────────────────────
         r = redis_sync.from_url(cfg.REDIS_URL)
