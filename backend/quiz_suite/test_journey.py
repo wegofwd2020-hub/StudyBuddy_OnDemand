@@ -78,9 +78,26 @@ async def test_full_run_scores_what_the_student_earned(api, auth_a, fixture_data
 @pytest.mark.asyncio
 async def test_session_is_attributed_to_a_real_subject_and_grade(api, auth_a, fixture_data):
     """
-    #524's silent second-order damage: sessions were written with grade=0 and
-    subject="unknown" because create_session looked the unit up under "default".
-    No error, no 404 — analytics simply attributed every quiz to nothing.
+    #524's silent second-order damage: create_session stored grade=0 and
+    subject="unknown" when it looked the unit up under the wrong
+    curriculum_id. No error, no 404 — analytics simply attributed the quiz
+    to nothing.
+
+    Only `grade` can actually go red here for a #524-style regression.
+    `subject` cannot: GET /progress/student never surfaces the raw stored
+    column. get_raw_history() (backend/src/progress/service.py:354-431)
+    resolves every row's subject through display_subject() fed by
+    resolve_subject_labels() (backend/src/core/subjects.py:70-102, 105-123)
+    before returning it — and that resolver's query filters by unit_id ALONE
+    (subjects.py:97, `WHERE cu.unit_id = ANY($1::text[])`), with no
+    curriculum_id in the join condition. This is deliberate — the #462 fix
+    for "Subject shows 'Unknown' everywhere". The fixture's QS-TEST-001
+    exists exactly once in curriculum_units, so its label ("Science")
+    resolves regardless of which curriculum_id the session was created
+    under; even a session persisted with subject="unknown" reports "Science"
+    through this endpoint. `grade` has no such override (service.py:403 is a
+    direct passthrough of the stored column), so it is the one that
+    genuinely detects the regression.
     """
     quiz = await serve_quiz(api, auth_a)
     key = fixture_data["answer_key"][str(quiz["set_number"])]
@@ -92,6 +109,11 @@ async def test_session_is_attributed_to_a_real_subject_and_grade(api, auth_a, fi
     assert r.status_code == 200, r.text
     rows = [s for s in r.json()["sessions"] if s["unit_id"] == C.UNIT_QUIZ]
     assert rows, "the completed session is missing from history"
+    # `grade` is the load-bearing assertion for #524 detection (see
+    # docstring). `subject` cannot fail here — display_subject()/
+    # resolve_subject_labels() mask the stored value by resolving from
+    # unit_id alone (#462 fix, subjects.py:97) — kept for documentation
+    # value only.
     assert rows[0].get("subject") not in (None, "", "unknown")
     assert rows[0].get("grade") not in (None, 0)
 
