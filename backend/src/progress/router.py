@@ -74,6 +74,15 @@ async def start_session(
     # client sends in `curriculum_id` is ignored — grading looks the answer key up
     # under whatever this session stores, so a client-supplied value that doesn't
     # resolve in the content store makes every answer 404 (#524).
+    #
+    # This calls resolve_curriculum_id directly — it does NOT reproduce the
+    # extra steps the content path (backend/src/content/router.py, around the
+    # get_unit_and_subject helper) layers on top of that same resolver: the
+    # fork→OOB swap via get_fork_source_curriculum, and teacher override
+    # handling. A school on a forked curriculum can therefore still serve
+    # content from one curriculum_id while this endpoint grades against
+    # another. Out of scope for #524; see the fork/override grading issue
+    # (#529).
     curriculum_id = await resolve_curriculum_id(
         student_id,
         student.get("grade", 8),

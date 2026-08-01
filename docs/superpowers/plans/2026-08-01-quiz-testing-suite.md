@@ -18,7 +18,7 @@ Every task's requirements implicitly include these. They are all drawn from real
   `backend/tests/conftest.py:102-121` defines `run_migrations` as
   `scope="session", autouse=True`, ending in `command.downgrade(cfg, "base")` —
   which drops every table. That is safe only because it normally targets
-  `studybuddy_test`. Blanking `TEST_DB_URL` makes `alembic/env.py` fall back to
+  `studybuddy_test`. Blanking `TEST_DB_URL` makes `backend/alembic/env.py` fall back to
   `DATABASE_URL`, pointing the downgrade at the **dev** database. This happened
   on 2026-08-01 and wiped it.
   - The quiz suite lives at `backend/quiz_suite/` — **outside `backend/tests/`** —
@@ -1129,7 +1129,8 @@ Deliverable: a real browser, no route mocks, proves Submit reveals the verdict a
 - Modify: `web/playwright.config.ts`
 
 **Interfaces:**
-- Consumes: `.fixture.json` copied to `web/tests/e2e/quiz-suite/.fixture.json` by the orchestrator (Task 9).
+<!-- doc-audit:ignore -->
+- Consumes: `.fixture.json` copied to `web/tests/e2e/quiz-suite/.fixture.json` by the orchestrator (Task 9). Gitignored — generated at seed time, not present on a clean checkout.
 - Produces: `fixture.ts` exports `loadFixture(): QuizFixture` and `loginAsStudentA(page)`.
 
 - [ ] **Step 1: Add the env-gated project**
@@ -1264,7 +1265,7 @@ docker compose exec -T api python -m quiz_suite.seed seed
 docker compose cp api:/app/quiz_suite/.fixture.json web/tests/e2e/quiz-suite/.fixture.json
 cd web && QUIZ_SUITE=1 npx playwright test --project=quiz-suite quiz-journey
 ```
-Expected: 2 PASS. If the login step cannot find the fields, open `web/app/login/page.tsx` and match the real labels/roles — adjust `fixture.ts`, not the assertions.
+Expected: 2 PASS. If the login step cannot find the fields, open `web/app/(public)/login/page.tsx` and match the real labels/roles — adjust `fixture.ts`, not the assertions.
 
 - [ ] **Step 6: Commit**
 

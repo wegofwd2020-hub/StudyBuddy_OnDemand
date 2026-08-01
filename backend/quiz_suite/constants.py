@@ -1,7 +1,7 @@
 """
 Fixture identity for the live quiz suite.
 
-Every id is deterministic (reserved q5000000- block) so a crashed run can always
+Every id is deterministic (reserved 05000000- block) so a crashed run can always
 be cleaned up by re-running teardown. Nothing here is used outside the suite.
 """
 
@@ -31,9 +31,10 @@ SUBJECT = "Science"
 # special-use names, and POST /auth/login validates through EmailStr, so a
 # fixture on those domains can never log in. quizsuite.example.com is a
 # subdomain of the RFC-2606 documentation domain and passes validation.
-# Keep the "quizsuite-" local-part prefix on every address — teardown's
-# delete-by-email predicate depends on it, and it's what keeps the fixture
-# distinguishable from the 30 real riverside.demo students.
+# Keep the "quizsuite-" local-part prefix on every address — teardown deletes
+# exclusively by STUDENT_A_ID/STUDENT_B_ID (see seed.py::_delete_rows), not by
+# email, but the prefix is still what keeps the fixture visually
+# distinguishable from the 30 real riverside.demo students in the DB.
 STUDENT_A_EMAIL = "quizsuite-a@quizsuite.example.com"
 STUDENT_B_EMAIL = "quizsuite-b@quizsuite.example.com"
 # >= 12 chars, <= 72 bytes (bcrypt limit).

@@ -15,7 +15,7 @@ Run the quiz suite and report the result.
 | Exit | Meaning | What to do |
 |---|---|---|
 | 0 | Everything passed | Report pass, with tier timings. |
-| 1 | A genuine test failure | Report which tier and which test. Pull the `correlation_id` from the output and fetch the matching server log: `docker compose logs api --since 10m \| grep <id>`. Do NOT weaken an assertion to make it pass. |
+| 1 | A genuine test failure | Report which tier and which test. Pull the `correlation_id` from the output and fetch the matching server log: `docker compose logs api --since 10m \| grep <id>`. Do NOT weaken an assertion to make it pass. Note: the content-integrity tier reads REAL on-disk content under `/data/content/curricula`, so an exit 1 there can mean pre-existing broken content on this machine rather than something you just broke — the failure message names the offending unit/file, so check that before assuming your change caused it. |
 | 2 | Environment problem | The stack is not running or not healthy. Report that the suite did not run — this is NOT a passing result. Suggest `./dev_start.sh`. |
 
 ## Step 3 — On failure

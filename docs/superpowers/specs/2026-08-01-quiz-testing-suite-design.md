@@ -58,12 +58,18 @@ behaviour.
 ```
 scripts/quiz_suite.sh              ← orchestrator; the only thing you run
 .claude/commands/quiz-suite.md     ← /quiz-suite wraps the script
-backend/tests/quiz_suite/          ← API tier (pytest, marker: quiz_live)
+backend/quiz_suite/                ← API tier (pytest, marker: quiz_live)
   conftest.py · seed.py · test_journey.py · test_anticheat.py
   test_failure_surface.py · test_content_integrity.py
-web/tests/quiz-suite/              ← browser tier (Playwright project: quiz-suite)
+web/tests/e2e/quiz-suite/          ← browser tier (Playwright project: quiz-suite)
   quiz-journey.spec.ts · quiz-failure.spec.ts
 ```
+
+`backend/quiz_suite/` is a **sibling** of `backend/tests/`, not a subdirectory
+of it — deliberately. `backend/tests/conftest.py` defines a session-scoped
+autouse fixture that ends in `command.downgrade(cfg, "base")`; living outside
+`backend/tests/` means that conftest can never apply to this package, no
+matter how pytest is invoked.
 
 Execution order is strict: **seed → API tier → browser tier → teardown**, with
 teardown in a shell `trap` so it runs on failure and on Ctrl-C.
@@ -71,15 +77,28 @@ teardown in a shell `trap` so it runs on failure and on Ctrl-C.
 Flags: `--api-only`, `--browser-only`, `--keep` (skip teardown for debugging),
 `-v`.
 
-### 3.1 The API tier runs inside the `api` container
+### 3.1 The API tier runs inside the `api` container, with NO `TEST_DB_URL`
 
 It needs the dev database, the content store at `/data/content`, and HTTP to the
-running app — one process with all three. It is invoked with `-e TEST_DB_URL=`.
+running app — one process with all three. It is invoked with **no
+`TEST_DB_URL` flag at all** — `seed.py` and the pytest run both read
+`DATABASE_URL`, which is already the dev database inside the container.
 
-Without that flag the container's `TEST_DB_URL` wins and the suite seeds and
-asserts against `studybuddy_test` while the running app serves the dev database
-(pitfall #34). The failure mode is maximally confusing: seeding "succeeds",
-every request 404s.
+This is the opposite of the alembic rule, and the two are easy to conflate:
+
+- **Alembic commands** (`alembic upgrade head`, etc.) require `-e
+  TEST_DB_URL=` — CLAUDE.md pitfall #34 — because without it the container's
+  `TEST_DB_URL` wins and alembic silently migrates `studybuddy_test` instead
+  of dev.
+- **This suite's pytest invocation must NEVER receive `-e TEST_DB_URL=`.**
+  `backend/tests/conftest.py`'s session-scoped autouse `run_migrations`
+  fixture ends in `command.downgrade(cfg, "base")`. That fixture does not run
+  for `backend/quiz_suite/` (it lives outside `backend/tests/`, see §3 above),
+  but blanking `TEST_DB_URL` on any pytest invocation makes `backend/alembic/env.py`
+  fall back to `DATABASE_URL` — the dev database — for anything that *does*
+  trigger a downgrade. Treating "always pass `-e TEST_DB_URL=`" as a blanket
+  pytest habit is exactly backwards for this suite and is what wiped the dev
+  database on 2026-08-01.
 
 ### 3.2 It does not reuse `backend/tests/conftest.py`
 
@@ -138,7 +157,7 @@ Three properties of the `QS-TEST-001` content are deliberate:
 - Set 1 question 1 has `correct_option: "B"` with options ordered **C, B, A**. An
   implementation grading by alphabetical position gets it wrong; one matching
   `option_id` gets it right.
-- The same `question_id` (`q1…q5`) has **different** correct answers in each set.
+- The same `question_id` (`q1…q3`) has **different** correct answers in each set.
   This is what makes set-pinning falsifiable: grade a later answer against a
   re-read rotation pointer and the assertion fails (pitfall #35).
 
@@ -151,10 +170,20 @@ orchestrator copies it across for the browser tier. Gitignored.
 ### 4.4 Teardown
 
 Removes the database rows (school, both students, curriculum, both units,
-sessions, answers, lesson_views), the content directory, **and the Redis keys**:
-`cur:{student}` for both students, `quiz_set:*`, `quizset:*`, and `content:*`
-for the fixture curriculum. Leaving Redis dirty would cache a curriculum resolution that
-silently poisons the next run.
+sessions, answers, lesson_views), the content directory, and the Redis keys
+that are deterministic and would otherwise poison the next run: `cur:{student}`
+and every other `*{student_id}*`-matching key (including `quiz_set:{student}:{unit}`)
+for both students, `content:*` / `csv:*` for the fixture curriculum, and the
+school-scoped keys under `school_scan_pattern(school_id)`.
+
+**Not cleaned up, deliberately:** the session-keyed grading cache —
+`quizscore:{session_id}` and `quizset:{session_id}` (see
+`backend/src/core/cache_keys.py`). Teardown never learns every `session_id`
+the suite created across the journey/anti-cheat runs, and it doesn't need to:
+`session_id` is a fresh random UUID per session, so a leftover key can never
+collide with — and therefore can never poison — a future run, and both keys
+carry a 6-hour TTL (`_TALLY_TTL` in `backend/src/progress/service.py`) so they
+self-expire regardless.
 
 Seeding is delete-then-insert, so a crashed run — or a deliberate `--keep` —
 never wedges the next one.
@@ -168,10 +197,13 @@ never wedges the next one.
   contract.
 - Each answer's verdict matches the fixture key **for the set actually served**.
 - The final score equals the number genuinely correct.
-- The session in `/progress/student` and `/analytics/student/me` carries a real
-  subject and grade — **not** `subject="unknown", grade=0`. This was #524's
-  silent second-order damage: no error, no 404, quiz sessions simply attributed
-  to nothing. A suite checking only "did grading work" stays green through it.
+- The session in `/progress/student` carries a real subject and grade — **not**
+  `subject="unknown", grade=0`. This was #524's silent second-order damage: no
+  error, no 404, quiz sessions simply attributed to nothing. A suite checking
+  only "did grading work" stays green through it. (`GET /analytics/student/me`
+  exists but returns aggregate metrics, not a raw per-session subject/grade —
+  it is not the right endpoint for this assertion, and the suite does not call
+  it.)
 - A second attempt serves a different set, and grading follows *that* set.
 - Student B (no school, grade 8) opens a session and it resolves to
   `default-2026-g8`. This asserts the returned string, not content existence, so

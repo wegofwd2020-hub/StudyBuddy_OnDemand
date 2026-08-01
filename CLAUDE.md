@@ -249,6 +249,9 @@ StudyBuddy_OnDemand/
                                                  backend; all probes are include_in_schema=False (not in OpenAPI)
                             events.py         ← emit_event() structured log + metric counter · write_audit_log() Celery dispatch
     tests/               ← pytest; ALL external calls mocked; no live DB in CI
+    quiz_suite/          ← live-stack quiz testing suite (pytest, marker: quiz_live); a SIBLING
+                            of tests/, never a subdirectory — run explicitly via scripts/quiz_suite.sh,
+                            never by plain `pytest -q`; see Testing section below
     requirements.txt
 
   web/                   ← Next.js 15 app (admin console + public pages)
@@ -740,6 +743,30 @@ Pipeline: pytest with mocked Anthropic SDK + mocked TTS provider SDK
 
 **Never** hit a live database, live Redis, or any external API in CI.
 
+### Quiz testing suite (live stack, explicitly invoked)
+
+`backend/quiz_suite/` + `web/tests/e2e/quiz-suite/` are a **separate**, live-stack
+suite that runs against a real local dev stack (dev DB, `/data/content`, a running
+`api` and `web` container) instead of mocks. It exists to close the gap that let
+[#524](https://github.com/wegofwd2020-hub/StudyBuddy_OnDemand/issues/524) ("Submit
+answer" a dead button for every student) ship green — every mocked layer stubbed
+the exact seam that broke.
+
+Covers four areas end to end: the full student journey (login → resolve
+curriculum → serve quiz → answer → end → history/stats), the #506 anti-cheat
+invariants, honest failure surfacing (a real 404 + a real player message, not a
+dead button), and a sweep of REAL on-disk quiz content for `correct_option`
+values that don't resolve (which silently misgrades students).
+
+It is **excluded from every normal run**, on purpose:
+- the API tier is marked `quiz_live` and `backend/setup.cfg`'s `addopts` runs
+  with `-m "not quiz_live"`, so plain `pytest -q` never collects it
+- the browser tier is an env-gated Playwright project (`QUIZ_SUITE=1`) that
+  `npx playwright test` never selects without that variable
+
+Run it explicitly: `./scripts/quiz_suite.sh` (see Running Things below) or the
+`/quiz-suite` command. Full design: `docs/superpowers/specs/2026-08-01-quiz-testing-suite-design.md`.
+
 ---
 
 ## Running Things
@@ -776,6 +803,17 @@ docker compose exec -e TEST_DB_URL= api alembic upgrade head
 
 # Check logs for a specific service
 docker compose logs celery-pipeline --since 10m -f
+
+# ── Quiz testing suite (live stack; requires ./dev_start.sh already running) ──
+
+# Everything: seed → API tier → browser tier → teardown. ~90s budget.
+./scripts/quiz_suite.sh
+# Exit codes: 0 pass · 1 genuine test failure · 2 environment problem
+#             (stack not up / not healthy — start it with ./dev_start.sh).
+./scripts/quiz_suite.sh --api-only        # skip the Playwright tier
+./scripts/quiz_suite.sh --browser-only    # skip the pytest tier
+./scripts/quiz_suite.sh --keep            # leave the fixture in place for debugging
+# Or via the slash command: /quiz-suite
 
 # ── Production-like ───────────────────────────────────────────────────────────
 
@@ -918,6 +956,7 @@ See [AGENTS.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/AGE
 34. **`docker compose exec api alembic upgrade head` migrates the TEST database, not dev** — the `api` service sets `TEST_DB_URL`, and `alembic/env.py` prefers it over `DATABASE_URL`. The command reports success, `alembic current` says `head`, and the dev DB is untouched — a nastier variant of pitfall #18, because it strikes *after* you ran the migration. Always pass `-e TEST_DB_URL=`. `env.py` now prints the target database on every run; read that line before trusting the result. (`docker-compose.yml` already blanks the var for the `migrate` service, which is why `./dev_start.sh` is unaffected.)
 35. **Never trust the client for quiz grading** — `POST /progress/answer` and `/end` once accepted `correct: bool` and `score: int` and stored them verbatim, while the quiz payload shipped `correct_option` for every question: a student could read the answers from the network tab and post themselves a perfect score. Grading is now server-side (`get_quiz_answer_key` → the content store), the answer key is stripped from the served quiz (`_strip_answer_key`), and the score is a Redis tally of server-graded answers. Two consequences to preserve: (a) `question_id` is `q1…qN` in **every** quiz set with **different** answers per set, so the graded set must be pinned per session (`quizset:{session_id}`, `progress_sessions.quiz_set`) — resolving it from the per-unit rotation pointer at answer time grades later answers against the wrong key; (b) answer writes are fire-and-forget, so `end_session` **cannot** count `progress_answers` (rows may not exist yet) — that race is why the score is tallied in Redis.
 36. **Placeholder content must never reach a student** — `scripts/seed_dev_content.py` and `scripts/setup_dev.py` backfill missing units with stub lessons/quizzes ("Sample question 1 about X?", options "Option A"…"Option D", correct answer always "A") tagged `model: "dev-placeholder"`. They only write where a file is *absent*, so any unit the pipeline hasn't generated keeps its stub indefinitely and used to be served as if real — students were graded on fiction. `get_content_file` now refuses `dev-placeholder` content on both the store and cache paths, so an ungenerated unit 404s honestly. Do not "fix" a 404 by re-running the seeder.
+37. **`-e TEST_DB_URL=` is REQUIRED for alembic and FORBIDDEN for pytest — the two rules are opposite, and conflating them destroyed the dev database on 2026-08-01.** Pitfall #34 already covers the alembic side: without `-e TEST_DB_URL=`, `alembic upgrade head` silently migrates `studybuddy_test` instead of dev. But `backend/tests/conftest.py` defines a session-scoped autouse `run_migrations` fixture that ends in `command.downgrade(cfg, "base")` — dropping every table — and that fixture is normally safe only because it targets `studybuddy_test`. Passing `-e TEST_DB_URL=` to a **pytest** invocation blanks the variable, `backend/alembic/env.py` falls back to `DATABASE_URL`, and the downgrade-to-base runs against the **dev** database instead — which is exactly what happened, wiping 30 `@riverside.demo` students, 1 school, and 15 curricula. This is why `backend/quiz_suite/` lives as a **sibling** of `backend/tests/`, not a subdirectory of it: living outside `backend/tests/` means that conftest's autouse fixture can never apply to it, no matter how it's invoked. Never pass `-e TEST_DB_URL=` to any `pytest` command, full stop — including `scripts/quiz_suite.sh`'s internal `docker compose exec` calls, which deliberately omit it.
 
 ---
 
