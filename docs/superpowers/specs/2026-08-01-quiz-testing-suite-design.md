@@ -289,3 +289,40 @@ None blocking. Two deferred decisions, recorded so they are not rediscovered:
   filesystem; out of scope here.
 - Whether a CI job is worth the compose-in-CI cost. Revisit once the suite has
   been in use for a few weeks.
+
+## 10. Verification record
+
+Acceptance criterion 2 exercised on 2026-08-01: reverting the #528 fix in
+`backend/src/progress/router.py::start_session` — replacing the
+`resolve_curriculum_id(...)` call with `curriculum_id = body.curriculum_id or
+"default"` — turned the suite red on both tiers.
+
+API tier (`docker compose exec -T api` pytest run inside `./scripts/quiz_suite.sh`):
+9 of 23 tests failed — `test_client_claiming_correctness_is_ignored`,
+`test_graded_set_is_pinned_for_the_session`,
+`test_unknown_question_is_a_400_not_a_500` (all in `test_anticheat.py`),
+`test_session_uses_the_resolved_curriculum_not_the_body`,
+`test_session_without_curriculum_id_resolves`,
+`test_unaffiliated_student_falls_back_to_default_package`,
+`test_full_run_scores_what_the_student_earned`,
+`test_session_is_attributed_to_a_real_subject_and_grade`,
+`test_second_attempt_rotates_the_set_and_grades_against_it` (all in
+`test_journey.py`) — `9 failed, 14 passed in 2.49s`.
+
+Browser tier: 3 of 4 specs failed — "a grading failure mid-quiz shows the
+failure message and 'Try again', not a dead button" (`quiz-failure.spec.ts`),
+"submit reveals the verdict and advances to the next question" and
+"completing the quiz reaches a result screen with a real score"
+(`quiz-journey.spec.ts`) — `3 failed, 1 passed (1.4m)`.
+
+`./scripts/quiz_suite.sh; echo "exit=$?"` → `exit=1`. This is a stronger
+result than the acceptance criterion's minimum (2 API tests + 1 browser
+spec) — the criterion is satisfied with margin.
+
+Restoring the fix (`git checkout backend/src/progress/router.py`,
+`docker compose restart api`) and re-running returned the suite to green:
+23 API tests passed, 4 browser specs passed, `exit=0`.
+
+Measured runtime (green run immediately following the restore): **36.7s**
+wall clock (budget: 90s). A second green run beforehand (baseline, prior to
+the revert) measured 27.3s — both comfortably within budget.
