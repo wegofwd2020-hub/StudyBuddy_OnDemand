@@ -35,12 +35,37 @@ def fixture_data() -> dict:
         return json.load(fh)
 
 
+# Login is IP-rate-limited (AUTH_RATE_LIMIT=10 per AUTH_RATE_WINDOW=60s,
+# backend/config.py). token_a/token_b are function-scoped fixtures, so
+# without caching, every test that touches auth_a/auth_b performs a fresh
+# POST /auth/login — across test_fixture.py + test_journey.py alone that's
+# well past 10 logins inside one 60s window, and the suite intermittently
+# 429s. Cache the token per-email at module scope instead: one real login per
+# student per pytest process, every subsequent fixture use just returns the
+# cached JWT. This assumes the token outlives the run — student JWTs are
+# short-lived, but this suite finishes in well under 90 seconds, so a token
+# cached for the process's lifetime never goes stale in practice. If the
+# suite grows past that window, or a future test needs to exercise login
+# behaviour itself (expiry, wrong password, etc.), give it its own uncached
+# call to the real `/auth/login` endpoint rather than clearing this cache —
+# clearing it would silently change what every other cached-token test is
+# asserting against.
+_token_cache: dict[str, str] = {}
+
+
 async def login(client: httpx.AsyncClient, email: str, password: str) -> str:
-    """Return a student JWT. The login response field is `token`, not `access_token`."""
+    """Return a student JWT, cached per-email for the life of the pytest process.
+
+    The login response field is `token`, not `access_token`.
+    """
+    if email in _token_cache:
+        return _token_cache[email]
     r = await client.post("/auth/login", json={"email": email, "password": password})
     assert r.status_code == 200, f"login failed for {email}: {r.status_code} {r.text}"
     body = r.json()
-    return body.get("token") or body["access_token"]
+    token = body.get("token") or body["access_token"]
+    _token_cache[email] = token
+    return token
 
 
 @pytest_asyncio.fixture
