@@ -2,10 +2,11 @@
 Sweep REAL on-disk content — not the fixture — for quiz data that would grade
 students incorrectly.
 
-The sharp check is correct_option resolution: get_quiz_answer_key SKIPS any
-question whose correct_option names an option that doesn't exist, so those
-questions silently grade every student wrong. Nothing else in the codebase
-notices.
+The sharp checks mirror get_quiz_answer_key's own silent-skip branches
+(backend/src/content/service.py): it SKIPS any question with a missing
+question_id, and SKIPS any question whose correct_option names an option that
+doesn't exist. Either produces a question that silently grades every student
+wrong, and nothing else in the codebase notices.
 """
 
 from __future__ import annotations
@@ -58,7 +59,10 @@ def test_every_quiz_set_parses_and_grades():
             continue
 
         for question in questions:
-            qid = question.get("question_id") or "<missing question_id>"
+            if not question.get("question_id"):
+                broken.append(f"{rel}: question missing question_id")
+                continue
+            qid = question["question_id"]
             options = question.get("options") or []
             correct = question.get("correct_option")
             if not options:
