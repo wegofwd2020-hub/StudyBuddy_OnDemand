@@ -14,7 +14,24 @@
 
 Every task's requirements implicitly include these. They are all drawn from real defects in this repo.
 
-- **Every `docker compose exec` into `api` passes `-e TEST_DB_URL=`.** Without it the container's `TEST_DB_URL` wins and you seed `studybuddy_test` while the app serves the dev DB (pitfall #34).
+- **NEVER pass `-e TEST_DB_URL=` to a `pytest` command. It destroys the dev database.**
+  `backend/tests/conftest.py:102-121` defines `run_migrations` as
+  `scope="session", autouse=True`, ending in `command.downgrade(cfg, "base")` —
+  which drops every table. That is safe only because it normally targets
+  `studybuddy_test`. Blanking `TEST_DB_URL` makes `alembic/env.py` fall back to
+  `DATABASE_URL`, pointing the downgrade at the **dev** database. This happened
+  on 2026-08-01 and wiped it.
+  - The quiz suite lives at `backend/quiz_suite/` — **outside `backend/tests/`** —
+    precisely so that root conftest never applies to it. Do not move it under
+    `tests/`, and do not add a session-scoped migration fixture to it.
+  - The quiz suite needs no flag at all: `seed.py` reads `DATABASE_URL`, which is
+    already the dev database.
+  - `-e TEST_DB_URL=` remains correct and REQUIRED for **alembic** commands
+    (pitfall #34), which is the narrower claim CLAUDE.md actually makes.
+- **After any schema rebuild, restart `api` and `pgbouncer`.** Pooled connections
+  hold cached plans against dropped tables; without a restart the whole backend
+  suite fails in ways that look like application bugs (446 spurious failures
+  observed on 2026-08-01).
 - **Every asyncpg connection in the seeder runs `SET app.current_school_id = 'bypass'` immediately after connecting.** RLS otherwise hides and rejects the rows (pitfalls #23, #28).
 - **Deterministic IDs only.** Reserved block `q5000000-…`. Never `uuid4()` in fixtures.
 - **`meta.json` `model` must NOT be `dev-placeholder`.** `get_content_file` refuses that content outright (pitfall #36).
@@ -22,7 +39,7 @@ Every task's requirements implicitly include these. They are all drawn from real
 - **Never assert on `progress_answers` rows.** Those writes are fire-and-forget Celery; assert via the end-of-session response instead (pitfall #35).
 - **`curriculum_units` INSERT must include `unit_name`** (NOT NULL, pitfall #30).
 - Total suite runtime target: **under 90 seconds**.
-- Fixture constants live in exactly one place, `backend/tests/quiz_suite/constants.py`, and are imported everywhere else.
+- Fixture constants live in exactly one place, `backend/quiz_suite/constants.py`, and are imported everywhere else.
 
 ---
 
@@ -30,14 +47,14 @@ Every task's requirements implicitly include these. They are all drawn from real
 
 | File | Responsibility |
 |---|---|
-| `backend/tests/quiz_suite/__init__.py` | package marker |
-| `backend/tests/quiz_suite/constants.py` | all fixture IDs, emails, passwords, unit/curriculum names, expected answer keys |
-| `backend/tests/quiz_suite/seed.py` | seed + teardown + `.fixture.json` writer; runnable as `python -m tests.quiz_suite.seed {seed,teardown}` |
-| `backend/tests/quiz_suite/conftest.py` | HTTP client fixtures + student tokens; does NOT import the app |
-| `backend/tests/quiz_suite/test_journey.py` | §5.1 assertions |
-| `backend/tests/quiz_suite/test_anticheat.py` | §5.2 assertions |
-| `backend/tests/quiz_suite/test_failure_surface.py` | §5.3 API half |
-| `backend/tests/quiz_suite/test_content_integrity.py` | §5.4 sweep over real content |
+| `backend/quiz_suite/__init__.py` | package marker |
+| `backend/quiz_suite/constants.py` | all fixture IDs, emails, passwords, unit/curriculum names, expected answer keys |
+| `backend/quiz_suite/seed.py` | seed + teardown + `.fixture.json` writer; runnable as `python -m quiz_suite.seed {seed,teardown}` |
+| `backend/quiz_suite/conftest.py` | HTTP client fixtures + student tokens; does NOT import the app |
+| `backend/quiz_suite/test_journey.py` | §5.1 assertions |
+| `backend/quiz_suite/test_anticheat.py` | §5.2 assertions |
+| `backend/quiz_suite/test_failure_surface.py` | §5.3 API half |
+| `backend/quiz_suite/test_content_integrity.py` | §5.4 sweep over real content |
 | `backend/setup.cfg` | register `quiz_live` marker; exclude it from the default run |
 | `web/tests/e2e/quiz-suite/quiz-journey.spec.ts` | §5.3/§5.5 browser happy path |
 | `web/tests/e2e/quiz-suite/quiz-failure.spec.ts` | §5.3 browser failure case |
@@ -53,7 +70,7 @@ Every task's requirements implicitly include these. They are all drawn from real
 Deliverable: `pytest -m quiz_live` inside the container runs a connectivity check against the live app; a plain `pytest -q` does not collect it.
 
 **Files:**
-- Create: `backend/tests/quiz_suite/__init__.py`, `backend/tests/quiz_suite/constants.py`, `backend/tests/quiz_suite/conftest.py`, `backend/tests/quiz_suite/test_smoke.py`
+- Create: `backend/quiz_suite/__init__.py`, `backend/quiz_suite/constants.py`, `backend/quiz_suite/conftest.py`, `backend/quiz_suite/test_smoke.py`
 - Modify: `backend/setup.cfg`
 
 **Interfaces:**
@@ -72,7 +89,7 @@ markers =
 
 - [ ] **Step 2: Create the constants module**
 
-Create `backend/tests/quiz_suite/__init__.py` as an empty file, then `backend/tests/quiz_suite/constants.py`:
+Create `backend/quiz_suite/__init__.py` as an empty file, then `backend/quiz_suite/constants.py`:
 
 ```python
 """
@@ -88,7 +105,7 @@ from __future__ import annotations
 API_BASE = "http://localhost:8000/api/v1"
 
 CONTENT_ROOT = "/data/content/curricula"
-FIXTURE_PATH = "/app/tests/quiz_suite/.fixture.json"
+FIXTURE_PATH = "/app/quiz_suite/.fixture.json"
 
 SCHOOL_ID = "q5000000-0000-0000-0000-000000000001"
 STUDENT_A_ID = "q5000000-0000-0000-0000-00000000000a"
@@ -109,7 +126,7 @@ STUDENT_PASSWORD = "QuizSuite-Fixture-2026"
 
 - [ ] **Step 3: Create the conftest**
 
-Create `backend/tests/quiz_suite/conftest.py`:
+Create `backend/quiz_suite/conftest.py`:
 
 ```python
 """
@@ -129,7 +146,7 @@ import httpx
 import pytest
 import pytest_asyncio
 
-from tests.quiz_suite import constants as C
+from quiz_suite import constants as C
 
 
 @pytest_asyncio.fixture
@@ -179,7 +196,7 @@ def auth_b(token_b) -> dict:
 
 - [ ] **Step 4: Write the failing connectivity test**
 
-Create `backend/tests/quiz_suite/test_smoke.py`:
+Create `backend/quiz_suite/test_smoke.py`:
 
 ```python
 """Proves the suite can reach the live app before any other tier is trusted."""
@@ -201,7 +218,7 @@ async def test_live_app_is_reachable(api):
 
 Run:
 ```bash
-docker compose exec -T -e TEST_DB_URL= api python -m pytest tests/quiz_suite -q
+docker compose exec -T api python -m pytest quiz_suite -q
 ```
 Expected: `no tests ran` / all deselected — the `-m "not quiz_live"` in `addopts` filters them out.
 
@@ -209,7 +226,7 @@ Expected: `no tests ran` / all deselected — the `-m "not quiz_live"` in `addop
 
 Run:
 ```bash
-docker compose exec -T -e TEST_DB_URL= api python -m pytest tests/quiz_suite -m quiz_live -q
+docker compose exec -T api python -m pytest quiz_suite -m quiz_live -q
 ```
 Expected: PASS (1 test).
 
@@ -224,7 +241,7 @@ Expected: same totals as before this task (1178 passed, 2 skipped).
 - [ ] **Step 8: Commit**
 
 ```bash
-git add backend/setup.cfg backend/tests/quiz_suite/
+git add backend/setup.cfg backend/quiz_suite/
 git commit -m "test(quiz-suite): package skeleton, quiz_live marker, live HTTP conftest"
 ```
 
@@ -232,10 +249,10 @@ git commit -m "test(quiz-suite): package skeleton, quiz_live marker, live HTTP c
 
 ### Task 2: Seeder and teardown
 
-Deliverable: `python -m tests.quiz_suite.seed seed` creates the fixture and writes `.fixture.json`; `teardown` removes every trace; a test proves login works after seed.
+Deliverable: `python -m quiz_suite.seed seed` creates the fixture and writes `.fixture.json`; `teardown` removes every trace; a test proves login works after seed.
 
 **Files:**
-- Create: `backend/tests/quiz_suite/seed.py`, `backend/tests/quiz_suite/test_fixture.py`
+- Create: `backend/quiz_suite/seed.py`, `backend/quiz_suite/test_fixture.py`
 - Modify: `.gitignore`
 
 **Interfaces:**
@@ -244,15 +261,15 @@ Deliverable: `python -m tests.quiz_suite.seed seed` creates the fixture and writ
 
 - [ ] **Step 1: Write the seeder**
 
-Create `backend/tests/quiz_suite/seed.py`:
+Create `backend/quiz_suite/seed.py`:
 
 ```python
 """
 Seed and tear down the hermetic quiz-suite fixture.
 
 Run inside the api container:
-    python -m tests.quiz_suite.seed seed
-    python -m tests.quiz_suite.seed teardown
+    python -m quiz_suite.seed seed
+    python -m quiz_suite.seed teardown
 
 Seeding is delete-then-insert, so a crashed run never wedges the next one.
 """
@@ -269,7 +286,7 @@ from datetime import datetime, timezone
 import asyncpg
 import bcrypt
 
-from tests.quiz_suite import constants as C
+from quiz_suite import constants as C
 
 # ── Quiz content ──────────────────────────────────────────────────────────────
 # Two traps are deliberate:
@@ -483,7 +500,7 @@ if __name__ == "__main__":
 
 - [ ] **Step 2: Write the failing fixture test**
 
-Create `backend/tests/quiz_suite/test_fixture.py`:
+Create `backend/quiz_suite/test_fixture.py`:
 
 ```python
 """The fixture must produce a student who can actually log in and see content."""
@@ -492,7 +509,7 @@ from __future__ import annotations
 
 import pytest
 
-from tests.quiz_suite import constants as C
+from quiz_suite import constants as C
 
 pytestmark = pytest.mark.quiz_live
 
@@ -520,7 +537,7 @@ async def test_fixture_file_records_the_answer_key(fixture_data):
 
 Run:
 ```bash
-docker compose exec -T -e TEST_DB_URL= api python -m pytest tests/quiz_suite/test_fixture.py -m quiz_live -q
+docker compose exec -T api python -m pytest quiz_suite/test_fixture.py -m quiz_live -q
 ```
 Expected: FAIL — `.fixture.json` missing, login 401.
 
@@ -528,8 +545,8 @@ Expected: FAIL — `.fixture.json` missing, login 401.
 
 Run:
 ```bash
-docker compose exec -T -e TEST_DB_URL= api python -m tests.quiz_suite.seed seed
-docker compose exec -T -e TEST_DB_URL= api python -m pytest tests/quiz_suite/test_fixture.py -m quiz_live -q
+docker compose exec -T api python -m quiz_suite.seed seed
+docker compose exec -T api python -m pytest quiz_suite/test_fixture.py -m quiz_live -q
 ```
 Expected: 3 PASS.
 
@@ -537,8 +554,8 @@ Expected: 3 PASS.
 
 Run:
 ```bash
-docker compose exec -T -e TEST_DB_URL= api python -m tests.quiz_suite.seed teardown
-docker compose exec -T -e TEST_DB_URL= api python -m pytest tests/quiz_suite/test_fixture.py -m quiz_live -q
+docker compose exec -T api python -m quiz_suite.seed teardown
+docker compose exec -T api python -m pytest quiz_suite/test_fixture.py -m quiz_live -q
 ```
 Expected: FAIL again (fixture gone). Then seed once more and confirm PASS — this proves seed is repeatable.
 
@@ -546,14 +563,14 @@ Expected: FAIL again (fixture gone). Then seed once more and confirm PASS — th
 
 Append to `.gitignore`:
 ```
-backend/tests/quiz_suite/.fixture.json
+backend/quiz_suite/.fixture.json
 web/tests/e2e/quiz-suite/.fixture.json
 ```
 
 - [ ] **Step 7: Commit**
 
 ```bash
-git add backend/tests/quiz_suite/ .gitignore
+git add backend/quiz_suite/ .gitignore
 git commit -m "test(quiz-suite): hermetic seeder and teardown with deterministic fixture"
 ```
 
@@ -564,7 +581,7 @@ git commit -m "test(quiz-suite): hermetic seeder and teardown with deterministic
 Deliverable: the full student path asserted end to end, including the #524 regression.
 
 **Files:**
-- Create: `backend/tests/quiz_suite/test_journey.py`
+- Create: `backend/quiz_suite/test_journey.py`
 
 **Interfaces:**
 - Consumes: `conftest.api/auth_a/auth_b/fixture_data`, `constants`.
@@ -572,7 +589,7 @@ Deliverable: the full student path asserted end to end, including the #524 regre
 
 - [ ] **Step 1: Write the journey tests**
 
-Create `backend/tests/quiz_suite/test_journey.py`:
+Create `backend/quiz_suite/test_journey.py`:
 
 ```python
 """
@@ -584,7 +601,7 @@ from __future__ import annotations
 
 import pytest
 
-from tests.quiz_suite import constants as C
+from quiz_suite import constants as C
 
 pytestmark = pytest.mark.quiz_live
 
@@ -689,8 +706,8 @@ async def test_second_attempt_rotates_the_set_and_grades_against_it(api, auth_a,
 
 Run:
 ```bash
-docker compose exec -T -e TEST_DB_URL= api python -m tests.quiz_suite.seed seed
-docker compose exec -T -e TEST_DB_URL= api python -m pytest tests/quiz_suite/test_journey.py -m quiz_live -q
+docker compose exec -T api python -m quiz_suite.seed seed
+docker compose exec -T api python -m pytest quiz_suite/test_journey.py -m quiz_live -q
 ```
 Expected: 6 PASS. If `test_session_is_attributed_to_a_real_subject_and_grade` fails on a missing `subject`/`grade` key rather than a bad value, inspect the actual `/progress/student` response shape and assert on the fields it really returns — do not weaken the assertion to make it pass.
 
@@ -702,7 +719,7 @@ Expected: `test_session_uses_the_resolved_curriculum_not_the_body` and `test_ful
 - [ ] **Step 4: Commit**
 
 ```bash
-git add backend/tests/quiz_suite/test_journey.py
+git add backend/quiz_suite/test_journey.py
 git commit -m "test(quiz-suite): journey tier — resolved curriculum, scoring, attribution, rotation"
 ```
 
@@ -713,7 +730,7 @@ git commit -m "test(quiz-suite): journey tier — resolved curriculum, scoring, 
 Deliverable: #506's guarantees asserted against the live stack rather than mocks.
 
 **Files:**
-- Create: `backend/tests/quiz_suite/test_anticheat.py`
+- Create: `backend/quiz_suite/test_anticheat.py`
 
 **Interfaces:**
 - Consumes: `test_journey.start_session/serve_quiz/answer_all`, `conftest` fixtures.
@@ -721,7 +738,7 @@ Deliverable: #506's guarantees asserted against the live stack rather than mocks
 
 - [ ] **Step 1: Write the anti-cheat tests**
 
-Create `backend/tests/quiz_suite/test_anticheat.py`:
+Create `backend/quiz_suite/test_anticheat.py`:
 
 ```python
 """
@@ -735,8 +752,8 @@ from __future__ import annotations
 
 import pytest
 
-from tests.quiz_suite import constants as C
-from tests.quiz_suite.test_journey import answer_all, serve_quiz, start_session
+from quiz_suite import constants as C
+from quiz_suite.test_journey import answer_all, serve_quiz, start_session
 
 pytestmark = pytest.mark.quiz_live
 
@@ -853,14 +870,14 @@ async def test_unknown_question_is_a_400_not_a_500(api, auth_a):
 
 Run:
 ```bash
-docker compose exec -T -e TEST_DB_URL= api python -m pytest tests/quiz_suite/test_anticheat.py -m quiz_live -q
+docker compose exec -T api python -m pytest quiz_suite/test_anticheat.py -m quiz_live -q
 ```
 Expected: 6 PASS.
 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add backend/tests/quiz_suite/test_anticheat.py
+git add backend/quiz_suite/test_anticheat.py
 git commit -m "test(quiz-suite): anti-cheat tier — no key leak, server-graded, set pinned, ownership"
 ```
 
@@ -871,7 +888,7 @@ git commit -m "test(quiz-suite): anti-cheat tier — no key leak, server-graded,
 Deliverable: a unit with no quiz content 404s honestly and never 500s.
 
 **Files:**
-- Create: `backend/tests/quiz_suite/test_failure_surface.py`
+- Create: `backend/quiz_suite/test_failure_surface.py`
 
 **Interfaces:**
 - Consumes: `test_journey.start_session`, `constants.UNIT_NOQUIZ`.
@@ -879,7 +896,7 @@ Deliverable: a unit with no quiz content 404s honestly and never 500s.
 
 - [ ] **Step 1: Write the tests**
 
-Create `backend/tests/quiz_suite/test_failure_surface.py`:
+Create `backend/quiz_suite/test_failure_surface.py`:
 
 ```python
 """
@@ -893,8 +910,8 @@ from __future__ import annotations
 
 import pytest
 
-from tests.quiz_suite import constants as C
-from tests.quiz_suite.test_journey import start_session
+from quiz_suite import constants as C
+from quiz_suite.test_journey import start_session
 
 pytestmark = pytest.mark.quiz_live
 
@@ -936,14 +953,14 @@ async def test_failure_message_is_student_safe(api, auth_a):
 
 Run:
 ```bash
-docker compose exec -T -e TEST_DB_URL= api python -m pytest tests/quiz_suite/test_failure_surface.py -m quiz_live -q
+docker compose exec -T api python -m pytest quiz_suite/test_failure_surface.py -m quiz_live -q
 ```
 Expected: 3 PASS.
 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add backend/tests/quiz_suite/test_failure_surface.py
+git add backend/quiz_suite/test_failure_surface.py
 git commit -m "test(quiz-suite): failure tier — missing quiz content 404s honestly"
 ```
 
@@ -954,7 +971,7 @@ git commit -m "test(quiz-suite): failure tier — missing quiz content 404s hone
 Deliverable: real on-disk content is checked for quiz data that would grade students wrongly.
 
 **Files:**
-- Create: `backend/tests/quiz_suite/test_content_integrity.py`
+- Create: `backend/quiz_suite/test_content_integrity.py`
 
 **Interfaces:**
 - Consumes: `constants.CONTENT_ROOT`.
@@ -962,7 +979,7 @@ Deliverable: real on-disk content is checked for quiz data that would grade stud
 
 - [ ] **Step 1: Write the sweep**
 
-Create `backend/tests/quiz_suite/test_content_integrity.py`:
+Create `backend/quiz_suite/test_content_integrity.py`:
 
 ```python
 """
@@ -983,7 +1000,7 @@ import os
 
 import pytest
 
-from tests.quiz_suite import constants as C
+from quiz_suite import constants as C
 
 pytestmark = pytest.mark.quiz_live
 
@@ -1047,7 +1064,7 @@ def test_every_quiz_set_parses_and_grades():
 
 Run:
 ```bash
-docker compose exec -T -e TEST_DB_URL= api python -m pytest tests/quiz_suite/test_content_integrity.py -m quiz_live -q -rs
+docker compose exec -T api python -m pytest quiz_suite/test_content_integrity.py -m quiz_live -q -rs
 ```
 Expected: PASS, or a listed set of genuinely broken units. `-rs` prints the skip reason so an empty box is visible rather than silent. **If it reports broken content, that is a real finding — file an issue, do not weaken the check.**
 
@@ -1067,7 +1084,7 @@ json.dump({'unit_id':'QS-PROBE-001','set_number':1,'questions':[{
   'correct_option':'ZZZ','explanation':'','difficulty':'easy'}]},
   open(os.path.join(d,'quiz_set_1_en.json'),'w'))
 print('probe written')"
-docker compose exec -T -e TEST_DB_URL= api python -m pytest tests/quiz_suite/test_content_integrity.py -m quiz_live -q
+docker compose exec -T api python -m pytest quiz_suite/test_content_integrity.py -m quiz_live -q
 ```
 Expected: **FAIL**, naming `quizsuite-corrupt-probe/QS-PROBE-001 q1` and reporting
 that `correct_option 'ZZZ'` is not among its options.
@@ -1075,7 +1092,7 @@ that `correct_option 'ZZZ'` is not among its options.
 Then remove the probe and confirm the sweep is green again:
 ```bash
 docker compose exec -T api rm -rf /data/content/curricula/quizsuite-corrupt-probe
-docker compose exec -T -e TEST_DB_URL= api python -m pytest tests/quiz_suite/test_content_integrity.py -m quiz_live -q
+docker compose exec -T api python -m pytest quiz_suite/test_content_integrity.py -m quiz_live -q
 ```
 Expected: PASS.
 
@@ -1086,7 +1103,7 @@ glob — do not reach for real content instead.
 - [ ] **Step 4: Commit**
 
 ```bash
-git add backend/tests/quiz_suite/test_content_integrity.py
+git add backend/quiz_suite/test_content_integrity.py
 git commit -m "test(quiz-suite): integrity sweep — unresolvable correct_option misgrades silently"
 ```
 
@@ -1232,8 +1249,8 @@ Expected: `0 — correctly excluded` (QUIZ_SUITE is unset).
 
 Seed first, copy the fixture, then run from `web/`:
 ```bash
-docker compose exec -T -e TEST_DB_URL= api python -m tests.quiz_suite.seed seed
-docker compose cp api:/app/tests/quiz_suite/.fixture.json web/tests/e2e/quiz-suite/.fixture.json
+docker compose exec -T api python -m quiz_suite.seed seed
+docker compose cp api:/app/quiz_suite/.fixture.json web/tests/e2e/quiz-suite/.fixture.json
 cd web && QUIZ_SUITE=1 npx playwright test --project=quiz-suite quiz-journey
 ```
 Expected: 2 PASS. If the login step cannot find the fields, open `web/app/login/page.tsx` and match the real labels/roles — adjust `fixture.ts`, not the assertions.
@@ -1348,9 +1365,11 @@ done
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 FIXTURE_WEB="web/tests/e2e/quiz-suite/.fixture.json"
-# Every exec passes -e TEST_DB_URL= so we target the DEV database, not
-# studybuddy_test (pitfall #34).
-DC_EXEC=(docker compose exec -T -e TEST_DB_URL= api)
+# NO -e TEST_DB_URL= here. backend/tests/conftest.py downgrades to base at
+# session end; blanking TEST_DB_URL points that at the DEV database and drops
+# every table. The suite lives outside backend/tests/ so that conftest never
+# applies, and seed.py reads DATABASE_URL, which is already the dev database.
+DC_EXEC=(docker compose exec -T api)
 
 # ── Preflight ────────────────────────────────────────────────────────────────
 # A suite that can't tell "your code is broken" from "your stack isn't running"
@@ -1388,7 +1407,7 @@ cleanup() {
     return
   fi
   echo "→ teardown"
-  "${DC_EXEC[@]}" python -m tests.quiz_suite.seed teardown >/dev/null 2>&1 \
+  "${DC_EXEC[@]}" python -m quiz_suite.seed teardown >/dev/null 2>&1 \
     || echo "  ⚠ teardown reported a problem; re-run with --keep and inspect"
   rm -f "$FIXTURE_WEB"
 }
@@ -1396,12 +1415,12 @@ trap cleanup EXIT INT TERM
 
 # ── Seed ─────────────────────────────────────────────────────────────────────
 echo "→ seed"
-if ! "${DC_EXEC[@]}" python -m tests.quiz_suite.seed seed; then
+if ! "${DC_EXEC[@]}" python -m quiz_suite.seed seed; then
   echo "✗ seeding failed" >&2
   exit 2
 fi
 mkdir -p "$(dirname "$FIXTURE_WEB")"
-docker compose cp api:/app/tests/quiz_suite/.fixture.json "$FIXTURE_WEB" >/dev/null
+docker compose cp api:/app/quiz_suite/.fixture.json "$FIXTURE_WEB" >/dev/null
 
 API_RESULT="skipped"; BROWSER_RESULT="skipped"; FAILED=0
 PYTEST_FLAGS="-q -rs"
@@ -1411,7 +1430,7 @@ PYTEST_FLAGS="-q -rs"
 if [ "$BROWSER_ONLY" -eq 0 ]; then
   echo "→ API tier"
   start=$SECONDS
-  if "${DC_EXEC[@]}" python -m pytest tests/quiz_suite -m quiz_live $PYTEST_FLAGS; then
+  if "${DC_EXEC[@]}" python -m pytest quiz_suite -m quiz_live $PYTEST_FLAGS; then
     API_RESULT="pass ($((SECONDS - start))s)"
   else
     API_RESULT="FAIL ($((SECONDS - start))s)"; FAILED=1
@@ -1464,7 +1483,7 @@ Expected: `exit=2` with the `./dev_start.sh` hint — **not** a test failure.
 - [ ] **Step 4: Verify teardown ran despite the failure**
 
 ```bash
-docker compose exec -T -e TEST_DB_URL= api python -c "
+docker compose exec -T api python -c "
 import asyncio, asyncpg, os
 async def main():
     c = await asyncpg.connect(os.environ['DATABASE_URL'])

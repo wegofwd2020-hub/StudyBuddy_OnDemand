@@ -11,7 +11,7 @@ from __future__ import annotations
 API_BASE = "http://localhost:8000/api/v1"
 
 CONTENT_ROOT = "/data/content/curricula"
-FIXTURE_PATH = "/app/tests/quiz_suite/.fixture.json"
+FIXTURE_PATH = "/app/quiz_suite/.fixture.json"
 
 SCHOOL_ID = "q5000000-0000-0000-0000-000000000001"
 STUDENT_A_ID = "q5000000-0000-0000-0000-00000000000a"

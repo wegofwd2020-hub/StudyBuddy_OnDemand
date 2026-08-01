@@ -15,7 +15,7 @@ import httpx
 import pytest
 import pytest_asyncio
 
-from tests.quiz_suite import constants as C
+from quiz_suite import constants as C
 
 
 @pytest_asyncio.fixture
