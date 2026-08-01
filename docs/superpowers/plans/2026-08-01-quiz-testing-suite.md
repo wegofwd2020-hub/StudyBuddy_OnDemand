@@ -1051,17 +1051,37 @@ docker compose exec -T -e TEST_DB_URL= api python -m pytest tests/quiz_suite/tes
 ```
 Expected: PASS, or a listed set of genuinely broken units. `-rs` prints the skip reason so an empty box is visible rather than silent. **If it reports broken content, that is a real finding — file an issue, do not weaken the check.**
 
-- [ ] **Step 3: Prove the check bites**
+- [ ] **Step 3: Prove the check bites — on a throwaway copy, never on real content**
 
-Corrupt one file deliberately:
+Real generated content is expensive and has no reliable restore path, so the
+proof runs against a disposable curriculum directory created and deleted here.
+
 ```bash
 docker compose exec -T api python -c "
-import json,glob
-p=[x for x in glob.glob('/data/content/curricula/*/*/quiz_set_*.json') if 'quizsuite' not in x][0]
-d=json.load(open(p)); d['questions'][0]['correct_option']='ZZZ'
-json.dump(d,open(p,'w')); print('corrupted', p)"
+import json, os
+d='/data/content/curricula/quizsuite-corrupt-probe/QS-PROBE-001'
+os.makedirs(d, exist_ok=True)
+json.dump({'unit_id':'QS-PROBE-001','set_number':1,'questions':[{
+  'question_id':'q1','question_text':'probe','question_type':'multiple_choice',
+  'options':[{'option_id':'A','text':'a'},{'option_id':'B','text':'b'}],
+  'correct_option':'ZZZ','explanation':'','difficulty':'easy'}]},
+  open(os.path.join(d,'quiz_set_1_en.json'),'w'))
+print('probe written')"
+docker compose exec -T -e TEST_DB_URL= api python -m pytest tests/quiz_suite/test_content_integrity.py -m quiz_live -q
 ```
-Re-run the sweep. Expected: FAIL naming that unit. Then restore it by regenerating or restoring the file from the content store backup, and confirm green again.
+Expected: **FAIL**, naming `quizsuite-corrupt-probe/QS-PROBE-001 q1` and reporting
+that `correct_option 'ZZZ'` is not among its options.
+
+Then remove the probe and confirm the sweep is green again:
+```bash
+docker compose exec -T api rm -rf /data/content/curricula/quizsuite-corrupt-probe
+docker compose exec -T -e TEST_DB_URL= api python -m pytest tests/quiz_suite/test_content_integrity.py -m quiz_live -q
+```
+Expected: PASS.
+
+**Do not modify any file under a real curriculum directory.** If the probe
+directory is somehow not swept (because the sweep's glob excludes it), fix the
+glob — do not reach for real content instead.
 
 - [ ] **Step 4: Commit**
 

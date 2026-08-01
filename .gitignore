@@ -88,3 +88,6 @@ web/public/visuals/
 .obsidian/
 docs/Untitled.base
 sample_data_file.txt
+
+# Subagent-driven-development scratch workspace (ledger, briefs, review packages)
+.superpowers/
