@@ -274,6 +274,92 @@ async def test_client_cannot_inflate_its_own_score(client, db_conn, student_toke
 
 
 @pytest.mark.asyncio
+async def test_session_curriculum_is_resolved_server_side(client, db_conn):
+    """
+    The curriculum the session is graded against comes from the server, not the body.
+
+    The web client used to send a hardcoded "default" here (#524). The session
+    stored it verbatim and grading looked the answer key up under that id, which
+    resolves to nothing in the content store — so every Submit 404'd and the quiz
+    button went dead. Same rule as locale: authoritative from the JWT/server.
+    """
+    from jose import jwt as _jwt
+    token = make_student_token(student_id="f2000000-0000-0000-0000-000000000097", grade=8)
+    payload = _jwt.decode(token, "test-secret-do-not-use-in-production-aaaa", algorithms=["HS256"])
+    await _insert_student(client, payload["student_id"])
+
+    with patch("src.auth.tasks.celery_app.send_task", return_value=None):
+        r = await client.post(
+            "/api/v1/progress/session",
+            json={"unit_id": "G8-MATH-001", "curriculum_id": "default"},  # client's claim
+            headers={"Authorization": f"Bearer {token}"},
+        )
+
+    assert r.status_code == 201, r.text
+    # Grade 8, no school → the STEM default package, NOT the "default" sent above.
+    assert r.json()["curriculum_id"] == "default-2026-g8"
+
+
+@pytest.mark.asyncio
+async def test_grading_uses_the_resolved_curriculum_not_the_clients(client, db_conn):
+    """
+    The answer-key lookup is keyed by the resolved curriculum, whatever the client sent.
+
+    Asserting on the kwarg rather than the response is deliberate: the previous
+    tests all stubbed get_quiz_answer_key and never checked what it was called
+    with, which is exactly how #524 shipped green.
+    """
+    from jose import jwt as _jwt
+    token = make_student_token(student_id="f3000000-0000-0000-0000-000000000096", grade=8)
+    payload = _jwt.decode(token, "test-secret-do-not-use-in-production-aaaa", algorithms=["HS256"])
+    await _insert_student(client, payload["student_id"])
+
+    captured: dict = {}
+
+    async def _capture(**kwargs):
+        captured.update(kwargs)
+        return _ANSWER_KEY_8Q
+
+    with patch("src.auth.tasks.celery_app.send_task", return_value=None), \
+         patch("src.progress.router.get_quiz_answer_key", new=_capture):
+        r = await client.post(
+            "/api/v1/progress/session",
+            json={"unit_id": "G8-MATH-001", "curriculum_id": "default"},
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert r.status_code == 201, r.text
+        session_id = r.json()["session_id"]
+
+        r = await client.post(
+            f"/api/v1/progress/session/{session_id}/answer",
+            json={"question_id": "q1", "student_answer": 0, "ms_taken": 100},
+            headers={"Authorization": f"Bearer {token}"},
+        )
+
+    assert r.status_code == 200, r.text
+    assert captured["curriculum_id"] == "default-2026-g8"
+
+
+@pytest.mark.asyncio
+async def test_start_session_without_curriculum_id_is_accepted(client, db_conn):
+    """The field is optional — the client has no business supplying it at all."""
+    from jose import jwt as _jwt
+    token = make_student_token(student_id="f4000000-0000-0000-0000-000000000095", grade=8)
+    payload = _jwt.decode(token, "test-secret-do-not-use-in-production-aaaa", algorithms=["HS256"])
+    await _insert_student(client, payload["student_id"])
+
+    with patch("src.auth.tasks.celery_app.send_task", return_value=None):
+        r = await client.post(
+            "/api/v1/progress/session",
+            json={"unit_id": "G8-MATH-001"},
+            headers={"Authorization": f"Bearer {token}"},
+        )
+
+    assert r.status_code == 201, r.text
+    assert r.json()["curriculum_id"] == "default-2026-g8"
+
+
+@pytest.mark.asyncio
 async def test_end_session_not_passed_below_threshold(client, db_conn, student_token):
     """Session end computes passed = False when score / total < 0.6."""
     from jose import jwt as _jwt

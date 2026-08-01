@@ -1,13 +1,10 @@
 import api from "./client";
 import type { LessonViewStartResponse, StudentStats } from "@/lib/types/api";
 
-export async function startLessonView(
-  unitId: string,
-  curriculumId: string,
-): Promise<LessonViewStartResponse> {
+/** The server attributes the view to the student's resolved curriculum (#524). */
+export async function startLessonView(unitId: string): Promise<LessonViewStartResponse> {
   const res = await api.post<LessonViewStartResponse>("/analytics/lesson/start", {
     unit_id: unitId,
-    curriculum_id: curriculumId,
   });
   return res.data;
 }

@@ -8045,12 +8045,15 @@ export interface components {
             /** Body */
             body: string;
         };
-        /** LessonStartRequest */
+        /**
+         * LessonStartRequest
+         * @description `curriculum_id` is accepted for older clients and ignored — see #524.
+         */
         LessonStartRequest: {
             /** Unit Id */
             unit_id: string;
             /** Curriculum Id */
-            curriculum_id: string;
+            curriculum_id?: string | null;
         };
         /** LessonStartResponse */
         LessonStartResponse: {
@@ -9523,12 +9526,25 @@ export interface components {
             /** Snapshots */
             snapshots: components["schemas"]["SnapshotItem"][];
         };
-        /** StartSessionRequest */
+        /**
+         * StartSessionRequest
+         * @description Open a quiz session.
+         *
+         *     `curriculum_id` is accepted for backwards compatibility with older clients
+         *     and then IGNORED — the server resolves the student's curriculum itself. The
+         *     web client used to send a hardcoded "default", which the session stored and
+         *     grading later looked the answer key up under; nothing resolves under that id,
+         *     so every answer 404'd (#524). Same rule as locale: authoritative server-side,
+         *     never taken from the request.
+         */
         StartSessionRequest: {
             /** Unit Id */
             unit_id: string;
-            /** Curriculum Id */
-            curriculum_id: string;
+            /**
+             * Curriculum Id
+             * @deprecated
+             */
+            curriculum_id?: string | null;
         };
         /** StartSessionResponse */
         StartSessionResponse: {

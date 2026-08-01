@@ -12,8 +12,19 @@ from pydantic import BaseModel, Field
 
 
 class StartSessionRequest(BaseModel):
+    """
+    Open a quiz session.
+
+    `curriculum_id` is accepted for backwards compatibility with older clients
+    and then IGNORED — the server resolves the student's curriculum itself. The
+    web client used to send a hardcoded "default", which the session stored and
+    grading later looked the answer key up under; nothing resolves under that id,
+    so every answer 404'd (#524). Same rule as locale: authoritative server-side,
+    never taken from the request.
+    """
+
     unit_id: str = Field(..., min_length=1, max_length=64)
-    curriculum_id: str = Field(..., min_length=1, max_length=64)
+    curriculum_id: str | None = Field(default=None, max_length=64, deprecated=True)
 
 
 class RecordAnswerRequest(BaseModel):

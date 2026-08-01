@@ -28,7 +28,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
 from src.auth.dependencies import get_current_student
-from src.content.service import get_quiz_answer_key
+from src.content.service import get_quiz_answer_key, resolve_curriculum_id
 from src.core.db import get_db
 from src.core.storage import StorageBackend, get_storage
 from src.progress.schemas import (
@@ -70,13 +70,25 @@ async def start_session(
     student_id = student["student_id"]
     cid = getattr(request.state, "correlation_id", "")
 
+    # The curriculum is resolved here, not taken from the request. Whatever the
+    # client sends in `curriculum_id` is ignored — grading looks the answer key up
+    # under whatever this session stores, so a client-supplied value that doesn't
+    # resolve in the content store makes every answer 404 (#524).
+    curriculum_id = await resolve_curriculum_id(
+        student_id,
+        student.get("grade", 8),
+        request.app.state.pool,
+        request.app.state.redis,
+        school_id=student.get("school_id"),
+    )
+
     async with get_db(request) as conn:
         try:
             result = await create_session(
                 conn,
                 student_id=student_id,
                 unit_id=body.unit_id,
-                curriculum_id=body.curriculum_id,
+                curriculum_id=curriculum_id,
             )
         except Exception as exc:
             log.error("start_session_failed", error=str(exc), correlation_id=cid)

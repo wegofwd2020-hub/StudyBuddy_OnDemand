@@ -21433,16 +21433,23 @@
             "title": "Unit Id"
           },
           "curriculum_id": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Curriculum Id"
           }
         },
         "type": "object",
         "required": [
-          "unit_id",
-          "curriculum_id"
+          "unit_id"
         ],
-        "title": "LessonStartRequest"
+        "title": "LessonStartRequest",
+        "description": "`curriculum_id` is accepted for older clients and ignored \u2014 see #524."
       },
       "LessonStartResponse": {
         "properties": {
@@ -25288,18 +25295,25 @@
             "title": "Unit Id"
           },
           "curriculum_id": {
-            "type": "string",
-            "maxLength": 64,
-            "minLength": 1,
-            "title": "Curriculum Id"
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Curriculum Id",
+            "deprecated": true
           }
         },
         "type": "object",
         "required": [
-          "unit_id",
-          "curriculum_id"
+          "unit_id"
         ],
-        "title": "StartSessionRequest"
+        "title": "StartSessionRequest",
+        "description": "Open a quiz session.\n\n`curriculum_id` is accepted for backwards compatibility with older clients\nand then IGNORED \u2014 the server resolves the student's curriculum itself. The\nweb client used to send a hardcoded \"default\", which the session stored and\ngrading later looked the answer key up under; nothing resolves under that id,\nso every answer 404'd (#524). Same rule as locale: authoritative server-side,\nnever taken from the request."
       },
       "StartSessionResponse": {
         "properties": {
