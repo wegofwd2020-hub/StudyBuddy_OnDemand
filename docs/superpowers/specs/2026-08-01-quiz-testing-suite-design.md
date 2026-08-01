@@ -95,7 +95,7 @@ student.
 
 ## 4. Fixture and data flow
 
-Deterministic IDs from a reserved block (`q5000000-…`); no `uuid4()`, matching
+Deterministic IDs from a reserved block (`05000000-…`); no `uuid4()`, matching
 the convention in `tests/helpers/token_factory.py`.
 
 ### 4.1 What is seeded

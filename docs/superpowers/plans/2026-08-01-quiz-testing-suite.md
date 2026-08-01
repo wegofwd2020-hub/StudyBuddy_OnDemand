@@ -33,7 +33,11 @@ Every task's requirements implicitly include these. They are all drawn from real
   suite fails in ways that look like application bugs (446 spurious failures
   observed on 2026-08-01).
 - **Every asyncpg connection in the seeder runs `SET app.current_school_id = 'bypass'` immediately after connecting.** RLS otherwise hides and rejects the rows (pitfalls #23, #28).
-- **Deterministic IDs only.** Reserved block `q5000000-…`. Never `uuid4()` in fixtures.
+- **Deterministic IDs only.** Reserved block `05000000-…`. Never `uuid4()` in fixtures.
+  They must be **valid hex UUIDs** (`0-9a-f` only) — `school_id` and `student_id`
+  are `uuid` columns, and asyncpg rejects a non-hex literal client-side before
+  the query is even sent. A mnemonic prefix like `q5000000-` looks fine in a
+  plan and can never be inserted.
 - **`meta.json` `model` must NOT be `dev-placeholder`.** `get_content_file` refuses that content outright (pitfall #36).
 - **Student passwords ≥12 characters, ≤72 bytes**, and seeded students have `first_login = FALSE` (pitfall #24).
 - **Fixture email domains must not be RFC-2606 special-use names** (`*.invalid`,
@@ -102,7 +106,7 @@ Create `backend/quiz_suite/__init__.py` as an empty file, then `backend/quiz_sui
 """
 Fixture identity for the live quiz suite.
 
-Every id is deterministic (reserved q5000000- block) so a crashed run can always
+Every id is deterministic (reserved 05000000- block) so a crashed run can always
 be cleaned up by re-running teardown. Nothing here is used outside the suite.
 """
 
@@ -114,9 +118,9 @@ API_BASE = "http://localhost:8000/api/v1"
 CONTENT_ROOT = "/data/content/curricula"
 FIXTURE_PATH = "/app/quiz_suite/.fixture.json"
 
-SCHOOL_ID = "q5000000-0000-0000-0000-000000000001"
-STUDENT_A_ID = "q5000000-0000-0000-0000-00000000000a"
-STUDENT_B_ID = "q5000000-0000-0000-0000-00000000000b"
+SCHOOL_ID = "05000000-0000-0000-0000-000000000001"
+STUDENT_A_ID = "05000000-0000-0000-0000-00000000000a"
+STUDENT_B_ID = "05000000-0000-0000-0000-00000000000b"
 
 CURRICULUM_ID = "quizsuite-2026-g8"
 UNIT_QUIZ = "QS-TEST-001"
