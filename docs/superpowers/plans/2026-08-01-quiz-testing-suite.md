@@ -36,6 +36,13 @@ Every task's requirements implicitly include these. They are all drawn from real
 - **Deterministic IDs only.** Reserved block `q5000000-…`. Never `uuid4()` in fixtures.
 - **`meta.json` `model` must NOT be `dev-placeholder`.** `get_content_file` refuses that content outright (pitfall #36).
 - **Student passwords ≥12 characters, ≤72 bytes**, and seeded students have `first_login = FALSE` (pitfall #24).
+- **Fixture email domains must not be RFC-2606 special-use names** (`*.invalid`,
+  `*.test`, `*.localhost`, `*.example`). `POST /auth/login` validates through
+  `EmailStr` (`backend/src/auth/schemas.py:191`) and `email_validator` rejects
+  those outright, so a fixture on such a domain can never log in — no seeder can
+  fix it. Use `@quizsuite.example.com`. Note the existing backend tests use
+  `@test.invalid` safely only because they mint JWTs directly and never call the
+  login endpoint.
 - **Never assert on `progress_answers` rows.** Those writes are fire-and-forget Celery; assert via the end-of-session response instead (pitfall #35).
 - **`curriculum_units` INSERT must include `unit_name`** (NOT NULL, pitfall #30).
 - Total suite runtime target: **under 90 seconds**.
@@ -118,8 +125,8 @@ GRADE = 8
 YEAR = 2026
 SUBJECT = "Science"
 
-STUDENT_A_EMAIL = "quizsuite-a@test.invalid"
-STUDENT_B_EMAIL = "quizsuite-b@test.invalid"
+STUDENT_A_EMAIL = "quizsuite-a@quizsuite.example.com"
+STUDENT_B_EMAIL = "quizsuite-b@quizsuite.example.com"
 # >= 12 chars, <= 72 bytes (bcrypt limit).
 STUDENT_PASSWORD = "QuizSuite-Fixture-2026"
 ```
@@ -396,7 +403,7 @@ async def _seed_rows(conn: asyncpg.Connection, password_hash: str) -> None:
     await conn.execute(
         "INSERT INTO schools (school_id, name, contact_email, country, status) "
         "VALUES ($1, $2, $3, 'CA', 'active')",
-        C.SCHOOL_ID, "Quiz Suite Fixture School", "quizsuite-school@test.invalid",
+        C.SCHOOL_ID, "Quiz Suite Fixture School", "quizsuite-school@quizsuite.example.com",
     )
     await conn.execute(
         "INSERT INTO curricula (curriculum_id, grade, year, name, is_default, school_id, "
