@@ -47,11 +47,11 @@ fi
 if ! "${DC_EXEC[@]}" python -c "
 import sys, urllib.request
 try:
-    urllib.request.urlopen('http://localhost:8000/healthz', timeout=5)
+    urllib.request.urlopen('http://localhost:8000/readyz', timeout=5)
 except Exception as exc:
     print(exc, file=sys.stderr); sys.exit(1)
 " >/dev/null 2>&1; then
-  echo "✗ the api container is up but /healthz does not answer." >&2
+  echo "✗ the api container is up but /readyz reports the DB or Redis unreachable." >&2
   echo "    docker compose logs api --since 5m" >&2
   exit 2
 fi
@@ -105,7 +105,12 @@ if ! "${DC_EXEC[@]}" python -m quiz_suite.seed seed; then
   exit 2
 fi
 mkdir -p "$(dirname "$FIXTURE_WEB")"
-docker compose cp api:/app/quiz_suite/.fixture.json "$FIXTURE_WEB" >/dev/null
+if ! docker compose cp api:/app/quiz_suite/.fixture.json "$FIXTURE_WEB" >/dev/null; then
+  echo "✗ could not copy the fixture out of the api container — the browser tier" >&2
+  echo "  would fail on a missing .fixture.json and misreport as a test failure." >&2
+  echo "    docker compose logs api --since 5m" >&2
+  exit 2
+fi
 
 API_RESULT="skipped"; BROWSER_RESULT="skipped"; FAILED=0
 PYTEST_FLAGS="-q -rs"
@@ -130,7 +135,14 @@ fi
 if [ "$API_ONLY" -eq 0 ]; then
   echo "→ browser tier"
   start=$SECONDS
-  if (cd web && QUIZ_SUITE=1 npx playwright test --project=quiz-suite); then
+  # --reporter=line overrides (not merges with) the HTML+list reporters in
+  # playwright.config.ts for THIS invocation only — chromium/persona-* runs
+  # go through the config unchanged. Needed because web/playwright-report/
+  # is root-owned on this host: the HTML reporter's EACCES write failure
+  # otherwise dumps an unhandled Node stack trace into green output, which
+  # defeats the whole point of a script whose exit code should be trustable
+  # without eyeballing the output for red text.
+  if (cd web && QUIZ_SUITE=1 npx playwright test --project=quiz-suite --reporter=line); then
     BROWSER_RESULT="pass ($((SECONDS - start))s)"
   else
     BROWSER_RESULT="FAIL ($((SECONDS - start))s)"; FAILED=1
