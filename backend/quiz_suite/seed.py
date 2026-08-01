@@ -80,14 +80,27 @@ def expected_answer_key() -> dict:
 
 
 def _lesson(unit_id: str) -> dict:
+    # _normalize_lesson() (backend/src/content/router.py) treats any dict
+    # containing "title" as already wire-format and passes it straight to
+    # LessonResponse(**data) with no merge/enrichment step — unlike get_quiz,
+    # get_lesson injects nothing (no subject/grade/lang lookup). Every field
+    # LessonResponse requires (backend/src/content/schemas.py::LessonResponse)
+    # must be in this dict, not just unit_id/title/sections/key_points.
     return {
         "unit_id": unit_id,
         "title": f"Quiz suite lesson for {unit_id}",
+        "grade": C.GRADE,
+        "subject": C.SUBJECT,
+        "lang": "en",
         "sections": [
             {"heading": "Introduction", "body": "Fixture lesson body."},
             {"heading": "Summary", "body": "Fixture lesson summary."},
         ],
         "key_points": ["Fixture key point."],
+        "has_audio": False,
+        "generated_at": datetime.now(tz=UTC).isoformat(),
+        "model": "quiz-suite-fixture",
+        "content_version": 1,
     }
 
 
@@ -229,8 +242,18 @@ async def seed() -> dict:
 
 
 async def _flush_redis() -> None:
-    """Stale cur:/quiz_set: keys would poison the next run."""
+    """Stale cur:/quiz_set: keys would poison the next run.
+
+    School-scoped keys (school:{school_id}:ent, school:{school_id}:override:...)
+    are written unconditionally by get_entitlement()/get_active_override() for
+    any school-enrolled student — Student A always is one — and don't embed a
+    student_id, so the *{student_id}* patterns above never match them.
+    school_scan_pattern() (backend/src/core/cache_keys.py) is the canonical
+    "all cached data for this school" pattern; scoped to our own SCHOOL_ID only.
+    """
     import redis.asyncio as aioredis
+
+    from src.core.cache_keys import school_scan_pattern
 
     client = aioredis.from_url(os.environ.get("REDIS_URL", "redis://redis:6379/0"))
     try:
@@ -238,6 +261,7 @@ async def _flush_redis() -> None:
             f"cur:{C.STUDENT_A_ID}*", f"cur:{C.STUDENT_B_ID}*",
             f"*{C.STUDENT_A_ID}*", f"*{C.STUDENT_B_ID}*",
             f"content:{C.CURRICULUM_ID}*", f"csv:{C.CURRICULUM_ID}*",
+            school_scan_pattern(C.SCHOOL_ID),
         ]
         for pattern in patterns:
             async for key in client.scan_iter(match=pattern):

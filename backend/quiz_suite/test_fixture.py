@@ -22,6 +22,24 @@ async def test_seeded_unit_serves_a_quiz(api, auth_a):
 
 
 @pytest.mark.asyncio
+async def test_seeded_quiz_unit_serves_a_lesson(api, auth_a):
+    # LessonResponse requires grade/subject/lang beyond unit_id/title/sections/
+    # key_points; _normalize_lesson() passes a dict containing "title" straight
+    # through with no enrichment, so a fixture missing any of those 500s.
+    r = await api.get(f"/content/{C.UNIT_QUIZ}/lesson", headers=auth_a)
+    assert r.status_code == 200, r.text
+    assert r.json()["title"]
+
+
+@pytest.mark.asyncio
+async def test_seeded_noquiz_unit_serves_a_lesson(api, auth_a):
+    # UNIT_NOQUIZ has a lesson but deliberately no quiz files.
+    r = await api.get(f"/content/{C.UNIT_NOQUIZ}/lesson", headers=auth_a)
+    assert r.status_code == 200, r.text
+    assert r.json()["title"]
+
+
+@pytest.mark.asyncio
 async def test_fixture_file_records_the_answer_key(fixture_data):
     assert set(fixture_data["answer_key"]) == {"1", "2", "3"}
     # q1 is correct option "B", which sits at index 0 — the alphabetical trap.
