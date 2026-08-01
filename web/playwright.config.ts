@@ -60,6 +60,19 @@ export default defineConfig({
       testMatch: "**/e2e/personas/admin-accessibility.spec.ts",
       use: { ...devices["Desktop Chrome"] },
     },
+
+    // ── Quiz suite (live stack, NO route mocks) ───────────────────────────
+    // Env-gated so `npx playwright test` never runs it: it needs a seeded
+    // fixture and a live backend. scripts/quiz_suite.sh sets QUIZ_SUITE=1.
+    ...(process.env.QUIZ_SUITE
+      ? [
+          {
+            name: "quiz-suite",
+            testMatch: "**/e2e/quiz-suite/*.spec.ts",
+            use: { ...devices["Desktop Chrome"] },
+          },
+        ]
+      : []),
   ],
 
   webServer: {
