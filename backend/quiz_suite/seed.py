@@ -148,6 +148,12 @@ async def _delete_rows(conn: asyncpg.Connection) -> None:
                            "(SELECT session_id FROM progress_sessions WHERE student_id = $1)", sid)
         await conn.execute("DELETE FROM progress_sessions WHERE student_id = $1", sid)
         await conn.execute("DELETE FROM lesson_views WHERE student_id = $1", sid)
+        # student_entitlements.student_id cascades from students on delete, but
+        # delete it explicitly (same pattern as every other per-student table
+        # here) rather than relying on the cascade — a crashed run that got this
+        # far but never reached the students DELETE would otherwise leave an
+        # orphan premium entitlement for the next seed to silently inherit.
+        await conn.execute("DELETE FROM student_entitlements WHERE student_id = $1", sid)
         await conn.execute("DELETE FROM students WHERE student_id = $1", sid)
     await conn.execute("DELETE FROM curriculum_units WHERE curriculum_id = $1", C.CURRICULUM_ID)
     # content_subject_versions has no FK/cascade from curricula (curriculum_id
@@ -207,6 +213,29 @@ async def _seed_rows(conn: asyncpg.Connection, password_hash: str) -> None:
         C.STUDENT_B_ID, f"local|{C.STUDENT_B_EMAIL}", "Quiz Suite Student B",
         C.STUDENT_B_EMAIL, C.GRADE, password_hash,
     )
+    # Entitlement: without this, get_entitlement() (backend/src/content/service.py)
+    # falls through to the free tier for both students — Student A has a
+    # school_id but the fixture never inserts a school_subscriptions row, so
+    # the school-subscription lookup misses and it falls through to
+    # student_entitlements same as unaffiliated Student B. GET
+    # /content/{unit}/lesson (backend/src/content/router.py ~line 248) 402s
+    # once entitlement["plan"] == "free" and lessons_accessed >= 2
+    # (_FREE_TIER_LESSON_LIMIT). A live browser walking real lesson pages
+    # (Task 7/8) or even this suite's own test_fixture.py (2 lesson fetches for
+    # Student A alone) exhausts that cap immediately. Same mechanism
+    # backend/src/auth/dev_router.py:88-97 uses for the dev student: a
+    # 'premium' student_entitlements row bypasses the `plan == "free"` check
+    # entirely, regardless of lessons_accessed — no school_subscriptions row
+    # needed. Cheaper and more direct than fabricating a school subscription,
+    # and doesn't touch application code.
+    for sid in (C.STUDENT_A_ID, C.STUDENT_B_ID):
+        await conn.execute(
+            "INSERT INTO student_entitlements (student_id, plan, lessons_accessed, valid_until) "
+            "VALUES ($1, 'premium', 0, NOW() + INTERVAL '1 year') "
+            "ON CONFLICT (student_id) DO UPDATE "
+            "SET plan = 'premium', lessons_accessed = 0, valid_until = NOW() + INTERVAL '1 year'",
+            sid,
+        )
 
 
 async def seed() -> dict:
