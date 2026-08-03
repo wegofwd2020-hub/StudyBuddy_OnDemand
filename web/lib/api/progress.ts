@@ -6,14 +6,18 @@ import type {
   ProgressHistory,
 } from "@/lib/types/api";
 
-export async function startSession(
-  unitId: string,
-  curriculumId: string,
-): Promise<SessionStartResponse> {
+/**
+ * Open a quiz attempt.
+ *
+ * No curriculum id is sent: the server resolves the student's curriculum from
+ * their identity. This page used to send a hardcoded "default", which the
+ * session stored and grading then looked the answer key up under — nothing
+ * resolves there, so every answer 404'd and Submit became a dead button (#524).
+ */
+export async function startSession(unitId: string): Promise<SessionStartResponse> {
   // Backend: POST /progress/session  (not /session/start)
   const res = await api.post<SessionStartResponse>("/progress/session", {
     unit_id: unitId,
-    curriculum_id: curriculumId,
   });
   return res.data;
 }

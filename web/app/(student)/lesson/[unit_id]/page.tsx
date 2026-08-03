@@ -32,9 +32,8 @@ export default function LessonPage({ params }: PageProps) {
   // sessions that cluttered Progress History with bogus/duplicate attempts (#465).
   useEffect(() => {
     if (!lesson) return;
-    const curriculumId = "default"; // resolved from JWT in production
     endedRef.current = false;
-    startLessonView(unit_id, curriculumId)
+    startLessonView(unit_id)
       .then((r) => {
         viewIdRef.current = r.view_id;
       })

@@ -10,8 +10,10 @@ from pydantic import BaseModel
 
 
 class LessonStartRequest(BaseModel):
+    """`curriculum_id` is accepted for older clients and ignored — see #524."""
+
     unit_id: str
-    curriculum_id: str
+    curriculum_id: str | None = None
 
 
 class LessonStartResponse(BaseModel):

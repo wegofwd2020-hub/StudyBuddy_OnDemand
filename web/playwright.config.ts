@@ -5,7 +5,19 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  // QUIZ_SUITE forces a single worker: the quiz-suite project's specs share a
+  // live backend/content-store fixture (no route mocks), and
+  // quiz-failure.spec.ts's mid-quiz test intentionally deletes and restores
+  // the SAME unit's real quiz files that quiz-journey.spec.ts grades against
+  // (both files match testMatch "**/e2e/quiz-suite/*.spec.ts"). Under
+  // fullyParallel with >1 worker those can race — verified: an earlier
+  // version of this fix (which restored via a full DB reseed rather than
+  // this worker change) hit a real cross-file "Incorrect email or password"
+  // failure. Forcing one worker makes execution order deterministic so the
+  // destructive test's own cleanup always completes before the next test
+  // starts, whichever file it's in. Scoped to QUIZ_SUITE only — no effect on
+  // the rest of the suite.
+  workers: process.env.QUIZ_SUITE ? 1 : process.env.CI ? 1 : undefined,
 
   reporter: [["html", { open: "never" }], ["list"]],
 
@@ -60,6 +72,19 @@ export default defineConfig({
       testMatch: "**/e2e/personas/admin-accessibility.spec.ts",
       use: { ...devices["Desktop Chrome"] },
     },
+
+    // ── Quiz suite (live stack, NO route mocks) ───────────────────────────
+    // Env-gated so `npx playwright test` never runs it: it needs a seeded
+    // fixture and a live backend. scripts/quiz_suite.sh sets QUIZ_SUITE=1.
+    ...(process.env.QUIZ_SUITE
+      ? [
+          {
+            name: "quiz-suite",
+            testMatch: "**/e2e/quiz-suite/*.spec.ts",
+            use: { ...devices["Desktop Chrome"] },
+          },
+        ]
+      : []),
   ],
 
   webServer: {

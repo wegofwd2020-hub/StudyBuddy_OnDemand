@@ -24,7 +24,7 @@ export default function QuizPage({ params }: PageProps) {
   // session id remounts it (also keyed below) so its state starts clean.
   const startNew = useCallback(() => {
     setSessionId(null);
-    startSession(unit_id, "default")
+    startSession(unit_id)
       .then((r) => setSessionId(r.session_id))
       .catch(() => {});
   }, [unit_id]);
@@ -65,7 +65,6 @@ export default function QuizPage({ params }: PageProps) {
             key={sessionId}
             quiz={quiz}
             sessionId={sessionId}
-            curriculumId="default"
             onRetry={startNew}
           />
         )}

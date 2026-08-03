@@ -40,6 +40,7 @@ from src.analytics.service import (
     verify_view_owner,
 )
 from src.auth.dependencies import get_current_student, get_current_teacher
+from src.content.service import resolve_curriculum_id
 from src.core.db import get_db
 from src.core.subjects import display_subject, resolve_subject_labels
 from src.utils.logger import get_logger
@@ -63,13 +64,24 @@ async def lesson_start(
     student_id = student["student_id"]
     cid = getattr(request.state, "correlation_id", "")
 
+    # Resolved server-side, like the quiz session (#524). The web client sent a
+    # hardcoded "default" here too, which is what every lesson_views row was
+    # attributed to.
+    curriculum_id = await resolve_curriculum_id(
+        student_id,
+        student.get("grade", 8),
+        request.app.state.pool,
+        request.app.state.redis,
+        school_id=student.get("school_id"),
+    )
+
     async with get_db(request) as conn:
         try:
             result = await start_lesson_view(
                 conn,
                 student_id=student_id,
                 unit_id=body.unit_id,
-                curriculum_id=body.curriculum_id,
+                curriculum_id=curriculum_id,
             )
         except Exception as exc:
             log.error("lesson_start_failed", error=str(exc), correlation_id=cid)

@@ -21,10 +21,16 @@ interface State {
   answerResult: AnswerResponse | null;
   correctCount: number;
   result: SessionEndResponse | null;
+  /** Set when a submit/finish request fails, so the student is told something
+   *  happened instead of facing a button that does nothing (#524). */
+  failed: boolean;
+  busy: boolean;
 }
 
 type Action =
   | { type: "SELECT"; index: number }
+  | { type: "SUBMITTING" }
+  | { type: "FAILED" }
   | { type: "REVIEWED"; result: AnswerResponse }
   | { type: "NEXT" }
   | { type: "SCORE"; result: SessionEndResponse };
@@ -32,11 +38,17 @@ type Action =
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case "SELECT":
-      return { ...state, selectedIndex: action.index };
+      return { ...state, selectedIndex: action.index, failed: false };
+    case "SUBMITTING":
+      return { ...state, busy: true, failed: false };
+    case "FAILED":
+      return { ...state, busy: false, failed: true };
     case "REVIEWED":
       return {
         ...state,
         phase: "reviewing",
+        busy: false,
+        failed: false,
         answerResult: action.result,
         // Local tally is for display only. The score on the result screen is the
         // server's — it grades each answer and keeps its own count.
@@ -49,9 +61,17 @@ function reducer(state: State, action: Action): State {
         questionIndex: state.questionIndex + 1,
         selectedIndex: null,
         answerResult: null,
+        busy: false,
+        failed: false,
       };
     case "SCORE":
-      return { ...state, phase: "scoring", result: action.result };
+      return {
+        ...state,
+        phase: "scoring",
+        busy: false,
+        failed: false,
+        result: action.result,
+      };
     default:
       return state;
   }
@@ -62,7 +82,6 @@ function reducer(state: State, action: Action): State {
 interface QuizPlayerProps {
   quiz: QuizContent;
   sessionId: string;
-  curriculumId: string;
   /** Restart the quiz with a fresh session. The score screen "Try Again" button
    *  calls this instead of navigating to the same URL (which did nothing — #459). */
   onRetry?: () => void;
@@ -78,33 +97,48 @@ export function QuizPlayer({ quiz, sessionId, onRetry }: QuizPlayerProps) {
     answerResult: null,
     correctCount: 0,
     result: null,
+    failed: false,
+    busy: false,
   });
 
   const question = quiz.questions[state.questionIndex];
   const isLast = state.questionIndex === quiz.questions.length - 1;
 
   async function handleSubmit() {
-    if (state.selectedIndex === null) return;
-    // The server grades this. We send the choice; it returns the verdict, the
-    // correct option and the explanation — none of which we had beforehand.
-    const res = await submitAnswer({
-      session_id: sessionId,
-      question_id: question.question_id,
-      answer_index: state.selectedIndex,
-    });
-    dispatch({ type: "REVIEWED", result: res });
+    if (state.selectedIndex === null || state.busy) return;
+    dispatch({ type: "SUBMITTING" });
+    try {
+      // The server grades this. We send the choice; it returns the verdict, the
+      // correct option and the explanation — none of which we had beforehand.
+      const res = await submitAnswer({
+        session_id: sessionId,
+        question_id: question.question_id,
+        answer_index: state.selectedIndex,
+      });
+      dispatch({ type: "REVIEWED", result: res });
+    } catch {
+      // Never leave the button silently dead — that is how #524 reached a QA
+      // pass unnoticed. The message stays non-technical (Content Rule #5).
+      dispatch({ type: "FAILED" });
+    }
   }
 
   async function handleNext() {
+    if (state.busy) return;
     if (isLast) {
-      // No score is sent: the backend reports what it graded during the session.
-      const res = await endSession(sessionId);
-      // Session completion is written synchronously by endSession, so the
-      // stats/history reads are fresh — refresh them now instead of waiting for
-      // a manual browser reload (#466).
-      queryClient.invalidateQueries({ queryKey: ["stats"] });
-      queryClient.invalidateQueries({ queryKey: ["progress"] });
-      dispatch({ type: "SCORE", result: res });
+      dispatch({ type: "SUBMITTING" });
+      try {
+        // No score is sent: the backend reports what it graded during the session.
+        const res = await endSession(sessionId);
+        // Session completion is written synchronously by endSession, so the
+        // stats/history reads are fresh — refresh them now instead of waiting for
+        // a manual browser reload (#466).
+        queryClient.invalidateQueries({ queryKey: ["stats"] });
+        queryClient.invalidateQueries({ queryKey: ["progress"] });
+        dispatch({ type: "SCORE", result: res });
+      } catch {
+        dispatch({ type: "FAILED" });
+      }
     } else {
       dispatch({ type: "NEXT" });
     }
@@ -230,14 +264,27 @@ export function QuizPlayer({ quiz, sessionId, onRetry }: QuizPlayerProps) {
         )}
       </div>
 
+      {/* Something went wrong on the way to the server. Plain language, no
+          status codes or ids — this is a student-facing message. */}
+      {state.failed && (
+        <p role="alert" className="text-sm text-red-600">
+          We couldn&apos;t save that answer. Check your connection and try again.
+        </p>
+      )}
+
       {/* Action button */}
       <div className="flex justify-end">
         {state.phase === "answering" ? (
-          <Button onClick={handleSubmit} disabled={state.selectedIndex === null}>
-            Submit answer
+          <Button
+            onClick={handleSubmit}
+            disabled={state.selectedIndex === null || state.busy}
+          >
+            {state.busy ? "Checking…" : state.failed ? "Try again" : "Submit answer"}
           </Button>
         ) : (
-          <Button onClick={handleNext}>{isLast ? "See results" : "Next question"}</Button>
+          <Button onClick={handleNext} disabled={state.busy}>
+            {isLast ? "See results" : "Next question"}
+          </Button>
         )}
       </div>
     </div>

@@ -24,7 +24,6 @@ from httpx import AsyncClient
 
 from tests.helpers.token_factory import make_student_token
 
-
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 async def _insert_student(client: AsyncClient, student_id: str) -> None:
@@ -175,6 +174,38 @@ async def test_lesson_end_double_end_returns_409(client, db_conn, student_token)
     )
     assert r.status_code == 409
     assert r.json()["error"] == "view_already_ended"
+
+
+@pytest.mark.asyncio
+async def test_lesson_start_curriculum_is_resolved_server_side(client, db_conn):
+    """
+    The curriculum a lesson view is attributed to comes from the server, not the body.
+
+    Mirrors test_session_curriculum_is_resolved_server_side in test_progress.py
+    (#524): the web client sent a hardcoded "default" here too, and every
+    lesson_views row was attributed to it. Grade 8, no school → resolves to the
+    STEM default package, NOT the client's claim. Asserted on the stored row
+    since LessonStartResponse only returns view_id.
+    """
+    token = make_student_token(student_id="f5000000-0000-0000-0000-000000000094", grade=8)
+    student_id = _student_id_from_token(token)
+    await _insert_student(client, student_id)
+
+    with patch("src.auth.tasks.celery_app.send_task", return_value=None):
+        r = await client.post(
+            "/api/v1/analytics/lesson/start",
+            json={"unit_id": "G8-MATH-001", "curriculum_id": "default"},  # client's claim
+            headers={"Authorization": f"Bearer {token}"},
+        )
+
+    assert r.status_code == 201, r.text
+    view_id = r.json()["view_id"]
+
+    pool = client._transport.app.state.pool
+    row = await pool.fetchrow(
+        "SELECT curriculum_id FROM lesson_views WHERE view_id = $1", uuid.UUID(view_id)
+    )
+    assert row["curriculum_id"] == "default-2026-g8"
 
 
 @pytest.mark.asyncio
