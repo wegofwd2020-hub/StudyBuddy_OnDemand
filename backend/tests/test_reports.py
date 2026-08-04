@@ -293,6 +293,79 @@ async def test_student_report_not_enrolled_returns_404(client, db_conn):
     assert r.status_code == 404
 
 
+@pytest.mark.asyncio
+async def test_student_report_dedupes_unit_with_mixed_raw_subject(client, db_conn):
+    """
+    Regression for the QA-reported duplicate-unit-row bug (student detail page,
+    "Unit progress" table showing the same unit twice).
+
+    Two progress_sessions for the SAME unit_id but DIFFERENT raw `subject`
+    values (one is the pre-#524 'unknown' sentinel, one is the real subject
+    code) must collapse into exactly ONE `per_unit` row. The response's
+    `subject` field is resolved from `unit_id` alone (`resolve_subject_labels` /
+    `display_subject`), so the two raw values already render as the SAME
+    display label — grouping the underlying SQL on the raw `subject` column
+    (instead of `unit_id`) produced two rows with identical-looking text.
+    """
+    school = await _register_school(client, "_sr_dedupe")
+    school_id = school["school_id"]
+    token = school["access_token"]
+
+    sid = "a1000000-0000-0000-0000-000000000009"
+    email = "sr-dedupe@test.invalid"
+    await _insert_student(client, sid, email)
+    await _enrol_student(client, school_id, sid, email)
+
+    # Curriculum metadata so the unit resolves to a real display label
+    # regardless of which raw `subject` value a given session happened to store.
+    # Must go through the app's own pool (not the `db_conn` fixture, which is a
+    # separate connection wrapped in an uncommitted transaction) so the rows
+    # are visible to the HTTP request below.
+    pool = client._transport.app.state.pool
+    cid = f"test-cur-dedupe-{sid[-4:]}"
+    await pool.execute(
+        "INSERT INTO curricula (curriculum_id, grade, year, name) VALUES ($1, 10, 2026, $2)",
+        cid, "Dedupe Test Curriculum",
+    )
+    await pool.execute(
+        "INSERT INTO curriculum_units (unit_id, curriculum_id, subject, title, unit_name) "
+        "VALUES ($1, $2, $3, $4, $4)",
+        "G10-ENG-001", cid, "G10-ENG", "Essay Structure",
+    )
+    await pool.execute(
+        """
+        INSERT INTO content_subject_versions (curriculum_id, subject, subject_name, version_number, status)
+        VALUES ($1, $2, $3, 1, 'published')
+        """,
+        cid, "G10-ENG", "English",
+    )
+
+    # Two sessions, same unit_id, different raw subject — the pre-/post-#524 split.
+    await _insert_session(
+        client, sid, unit_id="G10-ENG-001", subject="unknown",
+        curriculum_id="default-2026-g10", attempt_number=1, score=60, passed=False,
+    )
+    await _insert_session(
+        client, sid, unit_id="G10-ENG-001", subject="G10-ENG",
+        curriculum_id="default-2026-g10", attempt_number=2, score=90, passed=True,
+    )
+
+    r = await client.get(
+        f"/api/v1/reports/school/{school_id}/student/{sid}",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert r.status_code == 200, r.text
+    data = r.json()
+    unit_rows = [u for u in data["per_unit"] if u["unit_id"] == "G10-ENG-001"]
+    assert len(unit_rows) == 1, f"expected exactly one row for G10-ENG-001, got {unit_rows}"
+    row = unit_rows[0]
+    assert row["subject"] == "English"
+    # The merged row must reflect the true totals across BOTH sessions, not
+    # whatever a single raw-subject partition happened to show alone.
+    assert row["quiz_attempts"] == 2
+    assert row["passed"] is True
+
+
 # ── Curriculum health ─────────────────────────────────────────────────────────
 
 @pytest.mark.asyncio
