@@ -154,12 +154,22 @@ async def get_student_metrics(
         student_id,
     )
 
-    # Per-unit breakdown: join progress_sessions + lesson_views
+    # Per-unit breakdown: join progress_sessions + lesson_views.
+    #
+    # Grouped by unit_id (plus the functionally-dependent lv.* columns, which
+    # Postgres still requires listed even though they're constant per unit_id
+    # via the pre-aggregated subquery) — NOT s.subject. progress_sessions.subject
+    # is a raw stored value that can legitimately differ across sessions for the
+    # SAME unit (pre-#524 sessions stored the "unknown" sentinel; later ones
+    # store the real code), while the response's subject is resolved from
+    # unit_id alone below (resolve_subject_labels / display_subject). Grouping
+    # on the raw column produced two rows sharing the same resolved display
+    # label — the duplicate-unit-row bug.
     unit_rows = await conn.fetch(
         """
         SELECT
             s.unit_id,
-            s.subject,
+            MAX(s.subject)                                          AS subject,
             MAX(s.attempt_number)                                   AS quiz_attempts,
             -- best_score_pct is a PERCENTAGE (issue #463): score is a raw
             -- question count, so divide by total_questions.
@@ -183,7 +193,7 @@ async def get_student_metrics(
             GROUP BY unit_id
         ) lv ON lv.unit_id = s.unit_id
         WHERE s.student_id = $1
-        GROUP BY s.unit_id, s.subject, lv.total_time_s, lv.views
+        GROUP BY s.unit_id, lv.total_time_s, lv.views
         ORDER BY s.unit_id
         """,
         student_id,
@@ -296,11 +306,20 @@ async def get_class_metrics(
         params.append(subject)
         subject_filter = f"AND ps.subject = ${len(params)}"
 
+    # Grouped by unit_id ONLY — see the identical comment in
+    # get_curriculum_health (reports/service.py). This aggregates across the
+    # whole enrolled cohort, so grouping on the raw (possibly-"unknown")
+    # subject silently split one unit's class metrics into two partial rows —
+    # each with its own wrong, partial pass rate / mean score / attempt counts.
+    # This field is NOT run through resolve_subject_labels / display_subject
+    # downstream, so MAX(ps.subject) is the actual value shown. When the
+    # caller passes `subject=`, the WHERE filter already restricts every
+    # remaining row to that one raw value, so this is a no-op in that case.
     rows = await conn.fetch(
         f"""
         SELECT
             ps.unit_id,
-            ps.subject,
+            MAX(ps.subject)                                                      AS subject,
             COUNT(DISTINCT lv.view_id)                                           AS students_with_lesson_view,
             COUNT(DISTINCT ps.session_id)                                        AS total_quiz_attempts,
             COUNT(DISTINCT ps.student_id) FILTER (WHERE ps.completed)           AS unique_students_attempted,
@@ -317,7 +336,7 @@ async def get_class_metrics(
         WHERE ps.student_id = ANY(ARRAY[{placeholders}]::uuid[])
               {grade_filter}
               {subject_filter}
-        GROUP BY ps.unit_id, ps.subject
+        GROUP BY ps.unit_id
         ORDER BY ps.unit_id
         """,
         *params,

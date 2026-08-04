@@ -507,12 +507,24 @@ async def get_student_report(
     )
     units_in_progress = in_progress_row["cnt"] or 0
 
-    # Per-unit breakdown
+    # Per-unit breakdown.
+    #
+    # Grouped by unit_id ONLY (not ps.subject, issue: duplicate unit rows).
+    # progress_sessions.subject is a raw stored value that can legitimately
+    # differ across sessions for the SAME unit — pre-#524 sessions stored the
+    # "unknown" sentinel, later sessions store the real subject code — while
+    # the response's display subject is resolved from unit_id alone
+    # (resolve_subject_labels / display_subject, below). Grouping on the raw
+    # column produced two rows sharing an identical resolved display label,
+    # which is exactly the "same unit shown twice" bug a QA tester reported.
+    # MAX(ps.subject) just picks a representative raw value for the fallback
+    # path in display_subject() — it is never the value actually shown when a
+    # curriculum-derived label exists.
     unit_rows = await conn.fetch(
         """
         SELECT
             ps.unit_id,
-            ps.subject,
+            MAX(ps.subject)                                      AS subject,
             MAX(ps.attempt_number)                               AS quiz_attempts,
             -- best_score is a PERCENTAGE (issue #463): score is a raw question
             -- count, so divide by total_questions. NULLIF guards divide-by-zero.
@@ -525,7 +537,7 @@ async def get_student_report(
         FROM progress_sessions ps
         LEFT JOIN lesson_views lv ON lv.student_id = ps.student_id AND lv.unit_id = ps.unit_id
         WHERE ps.student_id = $1
-        GROUP BY ps.unit_id, ps.subject
+        GROUP BY ps.unit_id
         ORDER BY ps.unit_id
         """,
         uuid.UUID(student_id),
@@ -610,12 +622,21 @@ async def get_curriculum_health(
     id_uuids = [uuid.UUID(s) for s in enrolled]
     placeholders = ", ".join(f"${i + 1}" for i in range(len(id_uuids)))
 
-    # All units these students have interacted with
+    # All units these students have interacted with.
+    #
+    # Grouped by unit_id ONLY — see the identical comment in get_student_report
+    # above. Here it matters even more: this query aggregates across MANY
+    # students, so grouping on the raw (possibly-"unknown") subject silently
+    # split a single unit's health stats into two partial rows — each with its
+    # own (wrong, partial) pass rate / avg score / avg attempts — and inflated
+    # total_units / healthy_count / watch_count / struggling_count by double-
+    # counting the unit. This field is NOT run through resolve_subject_labels /
+    # display_subject downstream, so MAX(ps.subject) is the actual value shown.
     rows = await conn.fetch(
         f"""
         SELECT
             ps.unit_id,
-            ps.subject,
+            MAX(ps.subject)                                    AS subject,
             ROUND(
                 100.0 * COUNT(*) FILTER (WHERE ps.attempt_number = 1 AND ps.passed AND ps.completed)
                 / NULLIF(COUNT(DISTINCT ps.student_id) FILTER (WHERE ps.attempt_number = 1 AND ps.completed), 0),
@@ -627,7 +648,7 @@ async def get_curriculum_health(
         FROM progress_sessions ps
         LEFT JOIN lesson_views lv ON lv.student_id = ps.student_id AND lv.unit_id = ps.unit_id
         WHERE ps.student_id = ANY(ARRAY[{placeholders}]::uuid[])
-        GROUP BY ps.unit_id, ps.subject
+        GROUP BY ps.unit_id
         ORDER BY ps.unit_id
         """,
         *id_uuids,
