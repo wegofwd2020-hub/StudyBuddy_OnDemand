@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import json
 import uuid
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import asyncpg
@@ -929,30 +929,57 @@ def execute_restore_task(request_id: str) -> None:
 # ── Scheduled backup coordinator ──────────────────────────────────────────────
 
 
+def _backup_due(cron_expr: str, now: datetime) -> bool:
+    """True if `cron_expr` fired in the hour ending at `now`.
+
+    The coordinator runs hourly (Beat), so each run dispatches the schools whose
+    cron fired in the last hour. Basing get_prev at now+1min makes an on-the-hour
+    fire (e.g. `0 3 * * *` at 03:00) count for the 03:00 run rather than being
+    excluded — get_prev is strict-before-base. A malformed cron returns False
+    (skip that school) rather than breaking the whole coordinator (#527).
+    """
+    from croniter import CroniterError, croniter
+
+    try:
+        prev_fire = croniter(cron_expr, now + timedelta(minutes=1)).get_prev(datetime)
+    except (CroniterError, ValueError, TypeError):
+        log.warning("backup_cron_invalid cron=%r", cron_expr)
+        return False
+    return prev_fire > now - timedelta(hours=1)
+
+
 @celery_app.task(name="src.backup.tasks.dispatch_scheduled_backups", bind=False)
 def dispatch_scheduled_backups() -> None:
     """
-    Nightly coordinator: query all schools with a non-null backup_cron and
-    dispatch backup_school_task for each.
+    Hourly coordinator (Beat, every hour on the hour): dispatch a full backup for
+    each school whose `schools.backup_cron` fired in the last hour (#527).
 
-    The per-school cron expression is stored in schools.backup_cron but the
-    nightly dispatch is triggered by this single Beat entry at 02:30 UTC.
-    Individual per-school scheduling (respecting the actual cron expression)
-    is a future enhancement; for now every school with backup_cron set gets
-    a nightly full backup triggered by this task.
+    Previously this ran once nightly and backed up EVERY school with a non-empty
+    backup_cron, ignoring the expression's value — so a school that set `0 18 * * *`
+    still got backed up at the fixed coordinator time. Now the per-school schedule
+    is honoured: the column's value selects the hour, evaluated via `_backup_due`.
     """
 
     async def _do() -> None:
+        now = datetime.now(UTC)
         pool = await _get_pool()
         try:
             async with pool.acquire() as conn:
                 await _bypass(conn)
-                schools = await conn.fetch(
+                candidate_rows = await conn.fetch(
                     """
-                    SELECT school_id FROM schools
+                    SELECT school_id, backup_cron FROM schools
                     WHERE backup_cron IS NOT NULL AND backup_cron != ''
                     """
                 )
+
+            # Only the schools whose cron fired in the hour ending now.
+            schools = [r for r in candidate_rows if _backup_due(r["backup_cron"], now)]
+            log.info(
+                "backup_coordinator_run candidates=%d due=%d",
+                len(candidate_rows),
+                len(schools),
+            )
 
             for school_row in schools:
                 sid = str(school_row["school_id"])

@@ -838,3 +838,49 @@ def test_backup_notification_no_internal_leak(event):
     assert event not in blob  # internal event name not surfaced
     assert "notified" in captured["text"].lower()  # reassuring message present
     assert captured["to_email"] == "admin@example.com"
+
+
+# ── #527: per-school backup schedule (_backup_due) ────────────────────────────
+#
+# The hourly coordinator dispatches a school only when its schools.backup_cron
+# fired in the last hour. Before this, backup_cron was stored and editable but
+# ignored — every school backed up at the fixed nightly coordinator time.
+
+from datetime import datetime  # noqa: E402
+
+from src.backup.tasks import _backup_due  # noqa: E402
+
+
+def _at(hour: int, minute: int = 0, day: int = 5) -> datetime:
+    # 2026-08-05 is a Wednesday; 2026-08-09 is a Sunday.
+    return datetime(2026, 8, day, hour, minute, 0, tzinfo=UTC)
+
+
+def test_backup_due_matches_on_the_hour_cron():
+    assert _backup_due("0 3 * * *", _at(3))
+    assert not _backup_due("0 3 * * *", _at(2))
+    assert not _backup_due("0 3 * * *", _at(4))
+
+
+def test_backup_due_catches_half_past_cron_on_the_following_run():
+    # 02:30 fire is picked up by the 03:00 run (within the last hour), once.
+    assert _backup_due("30 2 * * *", _at(3))
+    assert not _backup_due("30 2 * * *", _at(2))
+
+
+def test_backup_due_each_daily_cron_matches_exactly_one_hour():
+    for cron, hour in [("0 0 * * *", 0), ("0 18 * * *", 18), ("0 2 * * *", 2)]:
+        due_hours = [h for h in range(24) if _backup_due(cron, _at(h))]
+        assert due_hours == [hour], (cron, due_hours)
+
+
+def test_backup_due_honours_day_of_week():
+    # Sundays only → never due on Wednesday 2026-08-05 …
+    assert not any(_backup_due("0 3 * * 0", _at(h)) for h in range(24))
+    # … but due at 03:00 on Sunday 2026-08-09.
+    assert _backup_due("0 3 * * 0", _at(3, day=9))
+
+
+def test_backup_due_invalid_cron_is_skipped_not_fatal():
+    assert not _backup_due("not a cron", _at(3))
+    assert not _backup_due("", _at(3))
