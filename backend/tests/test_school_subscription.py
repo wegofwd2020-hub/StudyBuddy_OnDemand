@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import UTC, datetime, timedelta
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from httpx import AsyncClient
@@ -135,6 +135,91 @@ async def test_school_subscription_status_wrong_school_returns_403(client: Async
 @pytest.mark.asyncio
 async def test_school_subscription_status_requires_auth(client: AsyncClient):
     r = await client.get(f"/api/v1/schools/{uuid.uuid4()}/subscription")
+    assert r.status_code == 401
+
+
+# ── GET /schools/{school_id}/billing-portal (#521) ───────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_billing_portal_returns_url(client: AsyncClient):
+    """A school with a Stripe customer gets a portal URL. Fails on main today: the
+    endpoint did not exist (the frontend called a non-existent /subscription route)."""
+    reg = await _register_school(client)
+    school_id = reg["school_id"]
+    await _insert_school_subscription(client, school_id)  # sets stripe_customer_id='cus_test'
+    token = make_teacher_token(
+        teacher_id=reg["teacher_id"], school_id=school_id, role="school_admin"
+    )
+
+    portal_mock = AsyncMock(return_value="https://billing.stripe.com/session/test_123")
+    with patch("src.school.subscription_router.create_billing_portal_session", portal_mock):
+        r = await client.get(
+            f"/api/v1/schools/{school_id}/billing-portal?return_url=https://app.example.com/school/settings",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+
+    assert r.status_code == 200, r.text
+    assert r.json()["url"].startswith("https://billing.stripe.com")
+    # The school's Stripe customer id and the caller's return_url are passed through.
+    portal_mock.assert_awaited_once()
+    customer_id, return_url = portal_mock.await_args.args
+    assert customer_id == "cus_test"
+    assert return_url == "https://app.example.com/school/settings"
+
+
+@pytest.mark.asyncio
+async def test_billing_portal_no_customer_returns_404(client: AsyncClient):
+    """A school that never subscribed has no Stripe customer → 404, not a silent no-op."""
+    reg = await _register_school(client)
+    school_id = reg["school_id"]
+    token = make_teacher_token(
+        teacher_id=reg["teacher_id"], school_id=school_id, role="school_admin"
+    )
+
+    r = await client.get(
+        f"/api/v1/schools/{school_id}/billing-portal",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert r.status_code == 404, r.text
+    # The app's exception handler flattens HTTPException.detail to the top level.
+    assert r.json()["error"] == "no_billing_account"
+
+
+@pytest.mark.asyncio
+async def test_billing_portal_wrong_school_returns_403(client: AsyncClient):
+    """A school_admin cannot open the billing portal of a different school."""
+    reg = await _register_school(client)
+    token = make_teacher_token(
+        teacher_id=reg["teacher_id"], school_id=reg["school_id"], role="school_admin"
+    )
+
+    r = await client.get(
+        f"/api/v1/schools/{uuid.uuid4()}/billing-portal",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert r.status_code == 403, r.text
+
+
+@pytest.mark.asyncio
+async def test_billing_portal_not_school_admin_returns_403(client: AsyncClient):
+    """A plain teacher (not school_admin) cannot open the billing portal."""
+    reg = await _register_school(client)
+    school_id = reg["school_id"]
+    token = make_teacher_token(
+        teacher_id=reg["teacher_id"], school_id=school_id, role="teacher"
+    )
+
+    r = await client.get(
+        f"/api/v1/schools/{school_id}/billing-portal",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert r.status_code == 403, r.text
+
+
+@pytest.mark.asyncio
+async def test_billing_portal_requires_auth(client: AsyncClient):
+    r = await client.get(f"/api/v1/schools/{uuid.uuid4()}/billing-portal")
     assert r.status_code == 401
 
 

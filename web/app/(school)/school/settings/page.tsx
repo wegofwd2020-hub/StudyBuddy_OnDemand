@@ -2,8 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useTeacher } from "@/lib/hooks/useTeacher";
-import { getSchoolProfile } from "@/lib/api/school-admin";
-import { getBillingPortalUrl } from "@/lib/api/subscription";
+import { getSchoolProfile, getSchoolBillingPortalUrl } from "@/lib/api/school-admin";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +24,7 @@ export default function SchoolSettingsPage() {
 
   const [copiedCode, setCopiedCode] = useState(false);
   const [loadingBilling, setLoadingBilling] = useState(false);
+  const [billingError, setBillingError] = useState<string | null>(null);
 
   function copyEnrolmentCode() {
     if (!profile?.enrolment_code) return;
@@ -36,10 +36,23 @@ export default function SchoolSettingsPage() {
 
   async function openBillingPortal() {
     setLoadingBilling(true);
+    setBillingError(null);
     try {
-      const url = await getBillingPortalUrl();
+      const url = await getSchoolBillingPortalUrl(schoolId, window.location.href);
       window.location.href = url;
-    } catch {
+    } catch (err: unknown) {
+      // Surface the failure instead of a silent no-op (#521). A school that has
+      // never subscribed has no billing account yet; anything else is a generic,
+      // non-technical message (Content Rule #5).
+      const status =
+        typeof err === "object" && err !== null && "response" in err
+          ? (err as { response?: { status?: number } }).response?.status
+          : undefined;
+      setBillingError(
+        status === 404
+          ? "Your school doesn't have a billing account yet. Start a subscription first."
+          : "We couldn't open the billing portal. Please try again in a moment.",
+      );
       setLoadingBilling(false);
     }
   }
@@ -168,6 +181,11 @@ export default function SchoolSettingsPage() {
                   <CreditCard className="h-4 w-4" />
                   {loadingBilling ? "Opening portal…" : "Open billing portal"}
                 </Button>
+                {billingError && (
+                  <p role="alert" className="mt-3 text-sm text-red-600">
+                    {billingError}
+                  </p>
+                )}
               </CardContent>
             </Card>
           )}

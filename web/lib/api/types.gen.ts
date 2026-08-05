@@ -3736,6 +3736,31 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/schools/{school_id}/billing-portal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * School Billing Portal
+         * @description Create a Stripe Billing Portal session and return its URL (#521).
+         *
+         *     The school admin manages the subscription, payment method, and invoices in the
+         *     Stripe-hosted portal. `return_url` is where Stripe sends them back; it defaults
+         *     to the school settings page. 404 if the school has no Stripe customer yet
+         *     (i.e. never subscribed) — there is nothing to manage.
+         */
+        get: operations["school_billing_portal_api_v1_schools__school_id__billing_portal_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/schools/{school_id}/curriculum/versions/{curriculum_id}/renewal-checkout": {
         parameters: {
             query?: never;
@@ -6524,6 +6549,11 @@ export interface components {
             version_ids: string[];
             /** Skipped */
             skipped: components["schemas"]["SkippedVersion"][];
+        };
+        /** BillingPortalResponse */
+        BillingPortalResponse: {
+            /** Url */
+            url: string;
         };
         /** BlockRequest */
         BlockRequest: {
@@ -16909,6 +16939,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SchoolSubscriptionCancelResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    school_billing_portal_api_v1_schools__school_id__billing_portal_get: {
+        parameters: {
+            query?: {
+                return_url?: string | null;
+            };
+            header?: never;
+            path: {
+                school_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BillingPortalResponse"];
                 };
             };
             /** @description Validation Error */

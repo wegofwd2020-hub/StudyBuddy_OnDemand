@@ -378,6 +378,25 @@ async def cancel_school_stripe_subscription(stripe_subscription_id: str) -> None
     log.info("school_stripe_subscription_cancel_at_period_end sub_id=%s", stripe_subscription_id)
 
 
+async def create_billing_portal_session(stripe_customer_id: str, return_url: str) -> str:
+    """Create a Stripe Billing Portal session for a school's customer.
+
+    Returns the Stripe-hosted portal URL where the school admin can update payment
+    details, download invoices, and manage the subscription. `return_url` is where
+    Stripe sends them back when they close the portal. The customer id is fetched
+    by the router from school_subscriptions — mirroring the cancel endpoint, which
+    takes the subscription id the same way.
+    """
+    stripe = _get_stripe()
+    stripe.api_key = _stripe_key()
+    session = await run_stripe(
+        stripe.billing_portal.Session.create,
+        customer=stripe_customer_id,
+        return_url=return_url,
+    )
+    return session.url
+
+
 # ── Entitlement cache ─────────────────────────────────────────────────────────
 
 

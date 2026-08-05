@@ -37,6 +37,7 @@ from src.core.db import get_db
 from src.core.redis_client import get_redis
 from src.school.subscription_service import (
     cancel_school_stripe_subscription,
+    create_billing_portal_session,
     create_credits_bundle_checkout_session,
     create_extra_build_checkout_session,
     create_renewal_checkout_session,
@@ -127,6 +128,10 @@ class SchoolSubscriptionStatusResponse(BaseModel):
 class SchoolSubscriptionCancelResponse(BaseModel):
     status: str
     current_period_end: str | None = None
+
+
+class BillingPortalResponse(BaseModel):
+    url: str
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -231,6 +236,95 @@ async def school_subscription_status(
         data = await get_school_subscription_status(conn, school_id)
 
     return SchoolSubscriptionStatusResponse(**data)
+
+
+# ── GET /schools/{school_id}/billing-portal ───────────────────────────────────
+
+
+@router.get(
+    "/schools/{school_id}/billing-portal",
+    response_model=BillingPortalResponse,
+    status_code=200,
+)
+async def school_billing_portal(
+    school_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+    return_url: str | None = None,
+) -> BillingPortalResponse:
+    """
+    Create a Stripe Billing Portal session and return its URL (#521).
+
+    The school admin manages the subscription, payment method, and invoices in the
+    Stripe-hosted portal. `return_url` is where Stripe sends them back; it defaults
+    to the school settings page. 404 if the school has no Stripe customer yet
+    (i.e. never subscribed) — there is nothing to manage.
+    """
+    _assert_school_match(teacher, school_id, request)
+
+    if teacher.get("role") != "school_admin":
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "forbidden",
+                "detail": "Only school_admin can open the billing portal.",
+                "correlation_id": _cid(request),
+            },
+        )
+
+    import uuid as _uuid
+
+    async with get_db(request) as conn:
+        row = await conn.fetchrow(
+            "SELECT stripe_customer_id FROM school_subscriptions WHERE school_id = $1",
+            _uuid.UUID(school_id),
+        )
+
+    if row is None or not row["stripe_customer_id"]:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "error": "no_billing_account",
+                "detail": "This school has no billing account yet. Start a subscription first.",
+                "correlation_id": _cid(request),
+            },
+        )
+
+    from config import settings
+
+    default_return = f"{settings.FRONTEND_URL.rstrip('/')}/school/settings"
+    # Only honour a client-supplied return_url if it is an absolute http(s) URL;
+    # otherwise fall back to the configured settings page. Prevents a malformed or
+    # relative value from producing a broken Stripe return.
+    dest = (
+        return_url
+        if (return_url and return_url.startswith(("http://", "https://")))
+        else default_return
+    )
+
+    try:
+        url = await create_billing_portal_session(row["stripe_customer_id"], dest)
+    except RuntimeError as exc:
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "error": "payment_unavailable",
+                "detail": str(exc),
+                "correlation_id": _cid(request),
+            },
+        )
+    except Exception as exc:
+        log.error("billing_portal_error school_id=%s error=%s", school_id, exc)
+        raise HTTPException(
+            status_code=502,
+            detail={
+                "error": "stripe_error",
+                "detail": "Could not open the billing portal.",
+                "correlation_id": _cid(request),
+            },
+        )
+
+    return BillingPortalResponse(url=url)
 
 
 # ── DELETE /schools/{school_id}/subscription ──────────────────────────────────
