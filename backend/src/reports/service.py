@@ -990,6 +990,39 @@ async def get_alerts(
     }
 
 
+# Server-owned defaults for a school that has never saved its thresholds. The
+# client no longer keeps its own copy (#526) — these are the single source.
+ALERT_SETTINGS_DEFAULTS = {
+    "pass_rate_threshold": 50.0,
+    "feedback_count_threshold": 3,
+    "inactive_days_threshold": 14,
+    "score_drop_threshold": 10.0,
+    "new_feedback_immediate": True,
+}
+
+
+async def get_alert_settings(
+    conn: asyncpg.Connection,
+    school_id: str,
+) -> dict:
+    """Return the school's saved alert thresholds, or the server defaults if it has
+    never saved any. The write existed but nothing read it back, so the form always
+    redrew hardcoded defaults and saved values looked lost (#526)."""
+    row = await conn.fetchrow(
+        """
+        SELECT school_id::text, pass_rate_threshold, feedback_count_threshold,
+               inactive_days_threshold, score_drop_threshold,
+               new_feedback_immediate, updated_at
+        FROM report_alert_settings
+        WHERE school_id = $1
+        """,
+        uuid.UUID(school_id),
+    )
+    if row is not None:
+        return dict(row)
+    return {"school_id": school_id, **ALERT_SETTINGS_DEFAULTS, "updated_at": None}
+
+
 async def save_alert_settings(
     conn: asyncpg.Connection,
     school_id: str,
@@ -1014,11 +1047,13 @@ async def save_alert_settings(
                   new_feedback_immediate, updated_at
         """,
         uuid.UUID(school_id),
-        settings.get("pass_rate_threshold", 50.0),
-        settings.get("feedback_count_threshold", 3),
-        settings.get("inactive_days_threshold", 14),
-        settings.get("score_drop_threshold", 10.0),
-        settings.get("new_feedback_immediate", True),
+        settings.get("pass_rate_threshold", ALERT_SETTINGS_DEFAULTS["pass_rate_threshold"]),
+        settings.get(
+            "feedback_count_threshold", ALERT_SETTINGS_DEFAULTS["feedback_count_threshold"]
+        ),
+        settings.get("inactive_days_threshold", ALERT_SETTINGS_DEFAULTS["inactive_days_threshold"]),
+        settings.get("score_drop_threshold", ALERT_SETTINGS_DEFAULTS["score_drop_threshold"]),
+        settings.get("new_feedback_immediate", ALERT_SETTINGS_DEFAULTS["new_feedback_immediate"]),
     )
     return dict(row)
 

@@ -4753,7 +4753,14 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Get Alert Settings Endpoint
+         * @description Return the school's saved alert thresholds (or server defaults if unset).
+         *
+         *     Without this the settings form redrew hardcoded client defaults every visit,
+         *     so saved values looked lost even though the PUT persisted them (#526).
+         */
+        get: operations["get_alert_settings_endpoint_api_v1_reports_school__school_id__alerts_settings_get"];
         /**
          * Update Alert Settings
          * @description Configure alert thresholds for the school.
@@ -6232,11 +6239,8 @@ export interface components {
             score_drop_threshold: number;
             /** New Feedback Immediate */
             new_feedback_immediate: boolean;
-            /**
-             * Updated At
-             * Format: date-time
-             */
-            updated_at: string;
+            /** Updated At */
+            updated_at?: string | null;
         };
         /** AnalyzeResponse */
         AnalyzeResponse: {
@@ -18437,6 +18441,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AlertListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_alert_settings_endpoint_api_v1_reports_school__school_id__alerts_settings_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                school_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AlertSettingsResponse"];
                 };
             };
             /** @description Validation Error */

@@ -578,6 +578,58 @@ async def test_save_alert_settings_returns_200(client, db_conn):
     assert r2.json()["pass_rate_threshold"] == 45.0
 
 
+@pytest.mark.asyncio
+async def test_get_alert_settings_returns_defaults_when_unset(client, db_conn):
+    """GET returns server-owned defaults for a school that never saved (#526)."""
+    school = await _register_school(client, "_alsget")
+    r = await client.get(
+        f"/api/v1/reports/school/{school['school_id']}/alerts/settings",
+        headers={"Authorization": f"Bearer {school['access_token']}"},
+    )
+    assert r.status_code == 200, r.text
+    d = r.json()
+    assert d["pass_rate_threshold"] == 50.0
+    assert d["inactive_days_threshold"] == 14
+    assert d["feedback_count_threshold"] == 3
+    assert d["new_feedback_immediate"] is True
+    assert d["updated_at"] is None  # nothing saved yet
+
+
+@pytest.mark.asyncio
+async def test_get_alert_settings_reads_back_saved_values(client, db_conn):
+    """The #526 round-trip: save, then read back. Before the GET existed, the form
+    redrew hardcoded defaults and saved values looked lost."""
+    school = await _register_school(client, "_alsrt")
+    school_id = school["school_id"]
+    token = school["access_token"]
+
+    await client.put(
+        f"/api/v1/reports/school/{school_id}/alerts/settings",
+        json={"pass_rate_threshold": 63.0, "inactive_days_threshold": 9},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    r = await client.get(
+        f"/api/v1/reports/school/{school_id}/alerts/settings",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert r.status_code == 200, r.text
+    d = r.json()
+    assert d["pass_rate_threshold"] == 63.0
+    assert d["inactive_days_threshold"] == 9
+    assert d["updated_at"] is not None
+
+
+@pytest.mark.asyncio
+async def test_get_alert_settings_wrong_school_returns_403(client, db_conn):
+    """A school admin cannot read another school's alert settings."""
+    school = await _register_school(client, "_alsxs")
+    r = await client.get(
+        f"/api/v1/reports/school/{uuid.uuid4()}/alerts/settings",
+        headers={"Authorization": f"Bearer {school['access_token']}"},
+    )
+    assert r.status_code == 403
+
+
 # ── Digest subscription ────────────────────────────────────────────────────────
 
 @pytest.mark.asyncio
