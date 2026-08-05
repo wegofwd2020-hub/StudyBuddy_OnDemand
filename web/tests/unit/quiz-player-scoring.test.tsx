@@ -1,25 +1,18 @@
 /**
- * Unit tests for QuizPlayer scoring (#504).
+ * Unit tests for QuizPlayer scoring (#504, #506) under the #532 defer-results flow.
  *
- * Two regressions live here:
- *
- * 1. The final question was counted twice when answered correctly: `correctCount`
- *    had already been incremented by the REVIEWED reducer before `handleNext`
- *    added `answerResult.correct` again. A student who got 3/5 right (last one
- *    correct) saw 4/5. At full marks it sent score=6 for a 5-question quiz, which
- *    the clamps quietly rewrote to 5 — that was the real cause of #460.
- *
- * 2. Scoring was client-side entirely. The quiz payload shipped the answer key and
- *    the browser told the backend both `correct` per answer and the final `score`.
- *    Grading is now the server's job: the player sends only the picked option, and
- *    the result screen renders the score the server reports.
+ * The contract these pin: scoring is the SERVER's job. The quiz payload never
+ * ships the answer key; the player sends only the picked option and renders the
+ * score the server reports at the end — it never counts locally (which is also
+ * why the old local double-count that caused #460 can't recur: there is no local
+ * tally to inflate). The per-answer reveal is withheld until the summary.
  *
  * Run with:
  *   npm test -- quiz-player-scoring
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import { QuizPlayer } from "@/components/content/QuizPlayer";
 import type { QuizContent } from "@/lib/types/api";
 
@@ -72,19 +65,16 @@ const WRONG = 1;
 /** Server-side grading, simulated: option 0 is the correct one. */
 const SERVER_CORRECT_INDEX = 0;
 
+// #532 flow: pick an option (it submits in the background, no Submit button),
+// move with "Next", and "Finish" at the end. Labels are the i18n keys under the
+// mock above.
 async function playQuiz(answers: number[]) {
   for (let i = 0; i < answers.length; i++) {
     const isLast = i === answers.length - 1;
-    const nextLabel = isLast ? /see results/i : /next question/i;
-
     fireEvent.click(await screen.findByText(QUIZ.questions[i].options[answers[i]]));
-    fireEvent.click(screen.getByRole("button", { name: /submit answer/i }));
-
-    await waitFor(() =>
-      expect(screen.getByRole("button", { name: nextLabel })).toBeTruthy(),
-    );
-    fireEvent.click(screen.getByRole("button", { name: nextLabel }));
+    if (!isLast) fireEvent.click(screen.getByRole("button", { name: "next" }));
   }
+  fireEvent.click(screen.getByRole("button", { name: "finish" }));
 }
 
 // ---------------------------------------------------------------------------
@@ -108,7 +98,7 @@ describe("QuizPlayer", () => {
 
   describe("server-side grading contract", () => {
     it("submits only the picked option — never a correctness claim", async () => {
-      render(<QuizPlayer quiz={QUIZ} sessionId="s1" curriculumId="default-2026-g8" />);
+      render(<QuizPlayer quiz={QUIZ} sessionId="s1" />);
       await playQuiz([CORRECT, WRONG, WRONG, CORRECT, CORRECT]);
 
       const firstCall = mockSubmitAnswer.mock.calls[0][0];
@@ -123,7 +113,7 @@ describe("QuizPlayer", () => {
     });
 
     it("ends the session without sending a score", async () => {
-      render(<QuizPlayer quiz={QUIZ} sessionId="s1" curriculumId="default-2026-g8" />);
+      render(<QuizPlayer quiz={QUIZ} sessionId="s1" />);
       await playQuiz([CORRECT, WRONG, WRONG, CORRECT, CORRECT]);
 
       await waitFor(() => expect(mockEndSession).toHaveBeenCalledTimes(1));
@@ -139,7 +129,7 @@ describe("QuizPlayer", () => {
         attempt_number: 1,
       });
 
-      render(<QuizPlayer quiz={QUIZ} sessionId="s1" curriculumId="default-2026-g8" />);
+      render(<QuizPlayer quiz={QUIZ} sessionId="s1" />);
       await playQuiz([CORRECT, WRONG, WRONG, CORRECT, CORRECT]);
 
       expect(await screen.findByText(/"score":2/)).toBeTruthy();
@@ -147,13 +137,24 @@ describe("QuizPlayer", () => {
   });
 
   describe("reveal comes from the server response", () => {
-    it("shows the explanation returned with the verdict", async () => {
-      render(<QuizPlayer quiz={QUIZ} sessionId="s1" curriculumId="default-2026-g8" />);
+    it("shows the explanation (from the server) on the end-of-quiz summary, not mid-quiz", async () => {
+      render(<QuizPlayer quiz={QUIZ} sessionId="s1" />);
 
+      // Answer one question; the verdict/explanation must NOT appear yet.
       fireEvent.click(await screen.findByText("Wrong A"));
-      fireEvent.click(screen.getByRole("button", { name: /submit answer/i }));
+      await waitFor(() => expect(mockSubmitAnswer).toHaveBeenCalled());
+      expect(screen.queryByText("Because that is the right one.")).toBeNull();
 
-      expect(await screen.findByText("Because that is the right one.")).toBeTruthy();
+      // Finish (with the rest blank → confirm), then the summary reveals it.
+      fireEvent.click(screen.getByRole("button", { name: "finish" }));
+      const dialog = await screen.findByRole("alertdialog");
+      fireEvent.click(
+        within(dialog).getByRole("button", { name: "blank_warning_confirm" }),
+      );
+
+      expect(
+        (await screen.findAllByText("Because that is the right one.")).length,
+      ).toBeGreaterThan(0);
     });
   });
 });

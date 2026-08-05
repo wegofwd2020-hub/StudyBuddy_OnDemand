@@ -281,9 +281,10 @@ test("student learning loop: lesson → quiz → result → progress", async ({ 
     // No verdict mid-quiz: the explanation must NOT appear yet.
     await expect(page.getByText(QUIZ_EXPLANATIONS[i])).toHaveCount(0);
 
-    // Advance (Next) until the last question, then finish.
+    // Advance (Next) until the last question, then finish. `exact` avoids the
+    // Next.js dev-tools button, whose accessible name also contains "Next".
     if (!isLast) {
-      await page.getByRole("button", { name: QUIZ_STRINGS.nextBtn }).click();
+      await page.getByRole("button", { name: QUIZ_STRINGS.nextBtn, exact: true }).click();
     }
   }
   // All questions answered, so Finish goes straight to the summary (no blank warning).

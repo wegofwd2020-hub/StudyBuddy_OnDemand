@@ -18,6 +18,7 @@ from datetime import UTC, datetime
 import asyncpg
 
 from src.core.cache_keys import (
+    quiz_answers_key,
     quiz_session_set_key,
     quiz_set_key,
 )
