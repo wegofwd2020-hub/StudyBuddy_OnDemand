@@ -78,7 +78,11 @@ def _published_mocks(unit_id: str = "G8-SCI-001", subject: str = "G8-SCI"):
     """Return the standard stack of mocks for a published, unblocked unit."""
     return [
         patch("src.content.router.resolve_curriculum_id", new_callable=AsyncMock, return_value="default-2026-g8"),
-        patch("src.content.router.get_unit_subject", new_callable=AsyncMock, return_value=subject),
+        patch(
+            "src.content.service.resolve_content_curriculum",
+            new_callable=AsyncMock,
+            side_effect=lambda _u, _c, _s, _p, _v=subject: (_c, _v),
+        ),
         patch("src.content.router.check_content_published", new_callable=AsyncMock, return_value=True),
         patch("src.content.router.check_content_block", new_callable=AsyncMock, return_value=False),
     ]
@@ -95,7 +99,11 @@ async def test_lesson_returns_content(client: AsyncClient, fake_redis):
 
     with (
         patch("src.content.router.resolve_curriculum_id", new_callable=AsyncMock, return_value="default-2026-g8"),
-        patch("src.content.router.get_unit_subject", new_callable=AsyncMock, return_value="G8-SCI"),
+        patch(
+            "src.content.service.resolve_content_curriculum",
+            new_callable=AsyncMock,
+            side_effect=lambda _u, _c, _s, _p, _v="G8-SCI": (_c, _v),
+        ),
         patch("src.content.router.check_content_published", new_callable=AsyncMock, return_value=True),
         patch("src.content.router.check_content_block", new_callable=AsyncMock, return_value=False),
         patch("src.content.router.get_entitlement", new_callable=AsyncMock,
@@ -125,7 +133,11 @@ async def test_lesson_unpublished_returns_404(client: AsyncClient, fake_redis):
 
     with (
         patch("src.content.router.resolve_curriculum_id", new_callable=AsyncMock, return_value="default-2026-g8"),
-        patch("src.content.router.get_unit_subject", new_callable=AsyncMock, return_value="G8-SCI"),
+        patch(
+            "src.content.service.resolve_content_curriculum",
+            new_callable=AsyncMock,
+            side_effect=lambda _u, _c, _s, _p, _v="G8-SCI": (_c, _v),
+        ),
         # Content not published
         patch("src.content.router.check_content_published", new_callable=AsyncMock, return_value=False),
         patch("src.content.router.check_content_block", new_callable=AsyncMock, return_value=False),
@@ -147,7 +159,11 @@ async def test_lesson_free_tier_limit(client: AsyncClient, fake_redis):
 
     with (
         patch("src.content.router.resolve_curriculum_id", new_callable=AsyncMock, return_value="default-2026-g8"),
-        patch("src.content.router.get_unit_subject", new_callable=AsyncMock, return_value="G8-SCI"),
+        patch(
+            "src.content.service.resolve_content_curriculum",
+            new_callable=AsyncMock,
+            side_effect=lambda _u, _c, _s, _p, _v="G8-SCI": (_c, _v),
+        ),
         patch("src.content.router.check_content_published", new_callable=AsyncMock, return_value=True),
         patch("src.content.router.check_content_block", new_callable=AsyncMock, return_value=False),
         # Student has already accessed 2 lessons on the free tier
@@ -184,7 +200,11 @@ async def test_quiz_rotates_sets(client: AsyncClient, fake_redis):
 
     with (
         patch("src.content.router.resolve_curriculum_id", new_callable=AsyncMock, return_value="default-2026-g8"),
-        patch("src.content.router.get_unit_subject", new_callable=AsyncMock, return_value="G8-SCI"),
+        patch(
+            "src.content.service.resolve_content_curriculum",
+            new_callable=AsyncMock,
+            side_effect=lambda _u, _c, _s, _p, _v="G8-SCI": (_c, _v),
+        ),
         patch("src.content.router.check_content_published", new_callable=AsyncMock, return_value=True),
         patch("src.content.router.check_content_block", new_callable=AsyncMock, return_value=False),
         patch("src.content.router.get_content_file", side_effect=_mock_get_content_file),
@@ -211,7 +231,11 @@ async def test_experiment_not_found_for_non_lab_unit(client: AsyncClient, fake_r
 
     with (
         patch("src.content.router.resolve_curriculum_id", new_callable=AsyncMock, return_value="default-2026-g8"),
-        patch("src.content.router.get_unit_subject", new_callable=AsyncMock, return_value="G8-MATH"),
+        patch(
+            "src.content.service.resolve_content_curriculum",
+            new_callable=AsyncMock,
+            side_effect=lambda _u, _c, _s, _p, _v="G8-MATH": (_c, _v),
+        ),
         patch("src.content.router.check_content_published", new_callable=AsyncMock, return_value=True),
         patch("src.content.router.check_content_block", new_callable=AsyncMock, return_value=False),
         # No experiment file exists for this unit
@@ -251,7 +275,11 @@ async def test_experiment_returns_200_for_lab_unit(client: AsyncClient, fake_red
 
     with (
         patch("src.content.router.resolve_curriculum_id", new_callable=AsyncMock, return_value="default-2026-g8"),
-        patch("src.content.router.get_unit_subject", new_callable=AsyncMock, return_value="G8-SCI"),
+        patch(
+            "src.content.service.resolve_content_curriculum",
+            new_callable=AsyncMock,
+            side_effect=lambda _u, _c, _s, _p, _v="G8-SCI": (_c, _v),
+        ),
         patch("src.content.router.check_content_published", new_callable=AsyncMock, return_value=True),
         patch("src.content.router.check_content_block", new_callable=AsyncMock, return_value=False),
         patch("src.content.router.get_content_file", new_callable=AsyncMock, return_value=fake_experiment),
@@ -375,7 +403,11 @@ async def test_audio_returns_url(client: AsyncClient, fake_redis):
 
     with (
         patch("src.content.router.resolve_curriculum_id", new_callable=AsyncMock, return_value="default-2026-g8"),
-        patch("src.content.router.get_unit_subject", new_callable=AsyncMock, return_value="G8-SCI"),
+        patch(
+            "src.content.service.resolve_content_curriculum",
+            new_callable=AsyncMock,
+            side_effect=lambda _u, _c, _s, _p, _v="G8-SCI": (_c, _v),
+        ),
         patch("src.content.router.check_content_published", new_callable=AsyncMock, return_value=True),
         patch("src.content.router.check_content_block", new_callable=AsyncMock, return_value=False),
     ):
@@ -413,7 +445,11 @@ async def test_demo_student_bypasses_free_tier_lesson_limit(client: AsyncClient,
 
     with (
         patch("src.content.router.resolve_curriculum_id", new_callable=AsyncMock, return_value="default-2026-g8"),
-        patch("src.content.router.get_unit_subject", new_callable=AsyncMock, return_value="G8-SCI"),
+        patch(
+            "src.content.service.resolve_content_curriculum",
+            new_callable=AsyncMock,
+            side_effect=lambda _u, _c, _s, _p, _v="G8-SCI": (_c, _v),
+        ),
         patch("src.content.router.check_content_published", new_callable=AsyncMock, return_value=True),
         patch("src.content.router.check_content_block", new_callable=AsyncMock, return_value=False),
         # get_entitlement should NOT be called for demo students — assert it is never reached
@@ -443,7 +479,11 @@ async def test_regular_student_still_hits_free_tier_limit(client: AsyncClient, f
 
     with (
         patch("src.content.router.resolve_curriculum_id", new_callable=AsyncMock, return_value="default-2026-g8"),
-        patch("src.content.router.get_unit_subject", new_callable=AsyncMock, return_value="G8-SCI"),
+        patch(
+            "src.content.service.resolve_content_curriculum",
+            new_callable=AsyncMock,
+            side_effect=lambda _u, _c, _s, _p, _v="G8-SCI": (_c, _v),
+        ),
         patch("src.content.router.check_content_published", new_callable=AsyncMock, return_value=True),
         patch("src.content.router.check_content_block", new_callable=AsyncMock, return_value=False),
         patch("src.content.router.get_entitlement", new_callable=AsyncMock,

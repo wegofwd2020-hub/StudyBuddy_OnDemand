@@ -50,7 +50,6 @@ from src.content.service import (
     get_content_file,
     get_entitlement,
     get_next_quiz_set,
-    get_unit_subject,
     increment_lessons_accessed,
     resolve_curriculum_id,
 )
@@ -145,7 +144,7 @@ async def _get_curriculum_and_check_published(
     curriculum_units and content_subject_versions lookups work correctly.
     Raises HTTPException 404 if not published, 403 if blocked.
     """
-    from src.content.service import get_fork_source_curriculum as _gfsc
+    from src.content.service import resolve_content_curriculum as _rcc
 
     redis = get_redis(request)
     pool = request.app.state.pool
@@ -157,17 +156,11 @@ async def _get_curriculum_and_check_published(
         student_id, grade, pool, redis, school_id=school_id
     )
 
-    subject = await get_unit_subject(unit_id, curriculum_id, pool)
-
     # Fork→OOB fallback: school fork curricula have no rows in curriculum_units
-    # (those live under the source OOB curriculum_id). Swap to the OOB id so
-    # that the published check and content store reads work correctly.
-    if subject is None and school_id:
-        source_id = await _gfsc(curriculum_id, school_id, pool)
-        if source_id:
-            subject = await get_unit_subject(unit_id, source_id, pool)
-            if subject is not None:
-                curriculum_id = source_id
+    # (those live under the source OOB curriculum_id). Swap to the OOB id so that
+    # the published check and content store reads work. This is the SAME helper the
+    # quiz grading path uses, so the two can no longer drift (#529).
+    curriculum_id, subject = await _rcc(unit_id, curriculum_id, school_id, pool)
 
     if subject is None:
         raise HTTPException(

@@ -140,7 +140,7 @@ async def test_record_answer_returns_200(client, db_conn, student_token):
     await _insert_student(client, student_id)
 
     with patch("src.auth.tasks.celery_app.send_task", return_value=None), \
-         patch("src.progress.router.get_quiz_answer_key", new_callable=AsyncMock,
+         patch("src.progress.router.resolve_quiz_answer_key", new_callable=AsyncMock,
                return_value=_ANSWER_KEY_8Q):
         session = await _start_session(client, student_token)
         r = await client.post(
@@ -211,7 +211,7 @@ async def test_end_session_computes_passed(client, db_conn, student_token):
     await _insert_student(client, student_id)
 
     with patch("src.auth.tasks.celery_app.send_task", return_value=None), \
-         patch("src.progress.router.get_quiz_answer_key", new_callable=AsyncMock,
+         patch("src.progress.router.resolve_quiz_answer_key", new_callable=AsyncMock,
                return_value=_ANSWER_KEY_8Q):
         session = await _start_session(client, student_token)
         await _answer_all(client, student_token, session["session_id"], correct_count=6)
@@ -240,7 +240,7 @@ async def test_client_cannot_inflate_its_own_score(client, db_conn, student_toke
     await _insert_student(client, payload["student_id"])
 
     with patch("src.auth.tasks.celery_app.send_task", return_value=None), \
-         patch("src.progress.router.get_quiz_answer_key", new_callable=AsyncMock,
+         patch("src.progress.router.resolve_quiz_answer_key", new_callable=AsyncMock,
                return_value=_ANSWER_KEY_8Q):
         session = await _start_session(client, student_token)
 
@@ -321,7 +321,7 @@ async def test_grading_uses_the_resolved_curriculum_not_the_clients(client, db_c
         return _ANSWER_KEY_8Q
 
     with patch("src.auth.tasks.celery_app.send_task", return_value=None), \
-         patch("src.progress.router.get_quiz_answer_key", new=_capture):
+         patch("src.progress.router.resolve_quiz_answer_key", new=_capture):
         r = await client.post(
             "/api/v1/progress/session",
             json={"unit_id": "G8-MATH-001", "curriculum_id": "default"},
@@ -368,7 +368,7 @@ async def test_end_session_not_passed_below_threshold(client, db_conn, student_t
     await _insert_student(client, student_id)
 
     with patch("src.auth.tasks.celery_app.send_task", return_value=None), \
-         patch("src.progress.router.get_quiz_answer_key", new_callable=AsyncMock,
+         patch("src.progress.router.resolve_quiz_answer_key", new_callable=AsyncMock,
                return_value=_ANSWER_KEY_8Q):
         session = await _start_session(client, student_token)
         await _answer_all(client, student_token, session["session_id"], correct_count=4)

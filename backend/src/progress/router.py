@@ -28,7 +28,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
 from src.auth.dependencies import get_current_student
-from src.content.service import get_quiz_answer_key, resolve_curriculum_id
+from src.content.service import resolve_curriculum_id, resolve_quiz_answer_key
 from src.core.db import get_db
 from src.core.storage import StorageBackend, get_storage
 from src.progress.schemas import (
@@ -178,11 +178,16 @@ async def record_answer(
         set_number = await resolve_session_quiz_set(
             redis, session_id=session_id, student_id=student_id, unit_id=session["unit_id"]
         )
-        answer_key = await get_quiz_answer_key(
+        # Mirror the serving path: teacher override wins, else swap a school fork to
+        # its OOB source before reading the store. Grading against session's raw
+        # curriculum_id 404'd for forks and misgraded overrides (#529).
+        answer_key = await resolve_quiz_answer_key(
+            school_id=student.get("school_id"),
             curriculum_id=session["curriculum_id"],
             unit_id=session["unit_id"],
             set_number=set_number,
             lang=student.get("locale", "en"),
+            pool=request.app.state.pool,
             redis=redis,
             storage=storage,
         )
@@ -334,11 +339,15 @@ async def end_session_endpoint(
                 student_id=student_id,
                 unit_id=session_row["unit_id"],
             )
-            answer_key = await get_quiz_answer_key(
+            # Same override→fork-swap resolution as the answer path (#529), so the
+            # denominator matches the set the student was actually graded against.
+            answer_key = await resolve_quiz_answer_key(
+                school_id=student.get("school_id"),
                 curriculum_id=session_row["curriculum_id"],
                 unit_id=session_row["unit_id"],
                 set_number=set_number,
                 lang=student.get("locale", "en"),
+                pool=request.app.state.pool,
                 redis=redis,
                 storage=storage,
             )
