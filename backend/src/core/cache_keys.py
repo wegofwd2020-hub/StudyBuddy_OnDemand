@@ -101,16 +101,27 @@ def quiz_set_key(student_id: str, unit_id: str) -> str:
     return f"quiz_set:{student_id}:{unit_id}"
 
 
-def quiz_score_key(session_id: str) -> str:
+def quiz_answers_key(session_id: str) -> str:
     """
-    quizscore:{session_id} — running count of server-graded correct answers.
+    quizanswers:{session_id} — Redis HASH of question_id → "1"/"0" (server-graded
+    correctness), one field per answered question.
 
     The score has to be authoritative but the answer write is fire-and-forget
     (perf rule #4), so `progress_answers` may not be persisted yet when the
     session ends. Tally the graded result in Redis as each answer arrives and
     read it back at end-of-session instead of trusting a client-supplied score.
+
+    A hash (not a counter) so re-answering a question is idempotent: revisiting a
+    question overwrites its field instead of incrementing a blind total. Without
+    this, once the UI allows skip-and-return (#532) a student who re-confirms a
+    correct answer would score it twice. The score is the count of "1" fields.
+
+    NB: the key STRING changed from the old integer `quizscore:{session_id}` on
+    purpose — reusing that name would raise WRONGTYPE against any in-flight
+    integer key across the deploy. Sessions mid-flight at deploy time simply lose
+    their Redis tally and fall back to the persisted answers (the documented path).
     """
-    return f"quizscore:{session_id}"
+    return f"quizanswers:{session_id}"
 
 
 def quiz_session_set_key(session_id: str) -> str:

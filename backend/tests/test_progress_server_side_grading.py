@@ -71,8 +71,9 @@ QUIZ_SET_2 = {
 
 
 def _redis_store() -> MagicMock:
-    """A MagicMock redis with a real dict behind it, so INCR/GET actually work."""
-    data: dict[str, str] = {}
+    """A MagicMock redis with a real dict behind it, so GET/SET and the per-question
+    HSET/HVALS tally actually work. Hash values are stored as a nested dict."""
+    data: dict[str, object] = {}
 
     async def _get(k):
         return data.get(k)
@@ -90,15 +91,29 @@ def _redis_store() -> MagicMock:
             return True
         return False
 
+    async def _hset(k, field, value):
+        h = data.get(k)
+        if not isinstance(h, dict):
+            h = {}
+            data[k] = h
+        h[field] = str(value)
+        return 1
+
+    async def _hvals(k):
+        h = data.get(k)
+        return list(h.values()) if isinstance(h, dict) else []
+
     async def _expire(k, ttl):
         return True
 
     r = MagicMock()
-    r.get, r.set, r.incr, r.setnx, r.expire = (
+    r.get, r.set, r.incr, r.setnx, r.hset, r.hvals, r.expire = (
         AsyncMock(side_effect=_get),
         AsyncMock(side_effect=_set),
         AsyncMock(side_effect=_incr),
         AsyncMock(side_effect=_setnx),
+        AsyncMock(side_effect=_hset),
+        AsyncMock(side_effect=_hvals),
         AsyncMock(side_effect=_expire),
     )
     r._data = data
@@ -176,9 +191,9 @@ async def test_tally_counts_only_server_graded_correct_answers():
     redis = _redis_store()
     session = "11111111-1111-1111-1111-111111111111"
 
-    await tally_answer(redis, session_id=session, correct=True)
-    await tally_answer(redis, session_id=session, correct=False)
-    await tally_answer(redis, session_id=session, correct=True)
+    await tally_answer(redis, session_id=session, question_id="q1", correct=True)
+    await tally_answer(redis, session_id=session, question_id="q2", correct=False)
+    await tally_answer(redis, session_id=session, question_id="q3", correct=True)
 
     assert await read_tally(redis, session) == 2
 
@@ -193,8 +208,8 @@ async def test_all_wrong_run_tallies_zero_not_missing():
     redis = _redis_store()
     session = "22222222-2222-2222-2222-222222222222"
 
-    await tally_answer(redis, session_id=session, correct=False)
-    await tally_answer(redis, session_id=session, correct=False)
+    await tally_answer(redis, session_id=session, question_id="q1", correct=False)
+    await tally_answer(redis, session_id=session, question_id="q2", correct=False)
 
     assert await read_tally(redis, session) == 0
 
@@ -202,6 +217,47 @@ async def test_all_wrong_run_tallies_zero_not_missing():
 @pytest.mark.asyncio
 async def test_read_tally_is_none_when_session_never_graded():
     assert await read_tally(_redis_store(), "33333333-3333-3333-3333-333333333333") is None
+
+
+@pytest.mark.asyncio
+async def test_revisiting_a_question_does_not_inflate_the_score():
+    """
+    #532 acceptance: a student who answers 3 of 4 correctly scores 3/4 no matter
+    how many times they revisit a question. Re-confirming a correct answer must
+    not count it twice (the old blind INCR tally's flaw).
+    """
+    redis = _redis_store()
+    session = "44444444-4444-4444-4444-444444444444"
+
+    await tally_answer(redis, session_id=session, question_id="q1", correct=True)
+    await tally_answer(redis, session_id=session, question_id="q2", correct=True)
+    await tally_answer(redis, session_id=session, question_id="q3", correct=True)
+    await tally_answer(redis, session_id=session, question_id="q4", correct=False)
+    assert await read_tally(redis, session) == 3
+
+    # Revisit q1 and re-submit the same correct answer — still 3, not 4.
+    await tally_answer(redis, session_id=session, question_id="q1", correct=True)
+    assert await read_tally(redis, session) == 3
+
+
+@pytest.mark.asyncio
+async def test_changing_an_answer_takes_only_the_latest_verdict():
+    """Revisiting to change an answer overwrites its verdict — a right answer
+    later changed to wrong drops the score, and vice-versa."""
+    redis = _redis_store()
+    session = "55555555-5555-5555-5555-555555555555"
+
+    await tally_answer(redis, session_id=session, question_id="q1", correct=True)
+    await tally_answer(redis, session_id=session, question_id="q2", correct=True)
+    assert await read_tally(redis, session) == 2
+
+    # Change q2 from correct to wrong.
+    await tally_answer(redis, session_id=session, question_id="q2", correct=False)
+    assert await read_tally(redis, session) == 1
+
+    # Change it back.
+    await tally_answer(redis, session_id=session, question_id="q2", correct=True)
+    assert await read_tally(redis, session) == 2
 
 
 # ── The graded set is pinned for the life of the session ──────────────────────
