@@ -574,6 +574,18 @@ async def get_quiz_answer_key(
             curriculum_id, unit_id, f"quiz_set_{set_number}_en.json", redis, storage
         )
 
+    return _parse_quiz_answer_key(data, curriculum_id, unit_id, set_number)
+
+
+def _parse_quiz_answer_key(
+    data: dict, curriculum_id: str, unit_id: str, set_number: int
+) -> dict[str, dict]:
+    """Build {question_id: {index, explanation}} from a quiz-set body.
+
+    Shared by the content-store path (`get_quiz_answer_key`) and the teacher-override
+    path (`resolve_quiz_answer_key`) so both grade a question the same way — by the
+    correct option's position in its OWN options list, matched by `option_id`.
+    """
     key: dict[str, dict] = {}
     for question in data.get("questions", []):
         qid = question.get("question_id")
@@ -604,3 +616,64 @@ async def get_quiz_answer_key(
             "explanation": question.get("explanation", ""),
         }
     return key
+
+
+async def resolve_content_curriculum(
+    unit_id: str,
+    curriculum_id: str,
+    school_id: str | None,
+    pool: asyncpg.Pool,
+) -> tuple[str, str | None]:
+    """Resolve the curriculum_id + subject to SERVE/GRADE store content under.
+
+    School fork curricula have no rows in `curriculum_units` (those live under the
+    source OOB curriculum_id), so for a fork we swap to the source. Returns the
+    (possibly swapped) curriculum_id and the unit's subject, or (curriculum_id,
+    None) when the unit resolves nowhere.
+
+    This is the single source of truth for the fork→OOB swap that both the content
+    serving path and the quiz grading path depend on. They drifted before
+    (grading skipped the swap → every answer 404'd for fork-adopting schools, #529).
+    """
+    subject = await get_unit_subject(unit_id, curriculum_id, pool)
+    if subject is None and school_id:
+        source_id = await get_fork_source_curriculum(curriculum_id, school_id, pool)
+        if source_id:
+            src_subject = await get_unit_subject(unit_id, source_id, pool)
+            if src_subject is not None:
+                return source_id, src_subject
+    return curriculum_id, subject
+
+
+async def resolve_quiz_answer_key(
+    school_id: str | None,
+    curriculum_id: str,
+    unit_id: str,
+    set_number: int,
+    lang: str,
+    pool: asyncpg.Pool,
+    redis,
+    storage: StorageBackend,
+) -> dict[str, dict]:
+    """Grading-side answer key that mirrors exactly what the student was SERVED.
+
+    Serving a quiz to a school student (content/router.py) resolves it in this
+    order: an active teacher override (keyed by the school's own/fork curriculum_id)
+    wins; otherwise store content under the fork's OOB source. Grading has to follow
+    the same order or it grades against the wrong key:
+
+    - override present  → grade against the override body (its `q1…qN` differ from
+      the store's — the pitfall #35 collision that misgrades silently, #529);
+    - fork, no override → swap to the OOB source and read the store (the fork has no
+      store content of its own → a raw lookup 404s, #529).
+
+    Raises FileNotFoundError only when the store content is genuinely absent.
+    """
+    if school_id:
+        override = await get_active_override(
+            school_id, curriculum_id, unit_id, lang, f"quiz_set_{set_number}", pool, redis
+        )
+        if override:
+            return _parse_quiz_answer_key(override, curriculum_id, unit_id, set_number)
+        curriculum_id, _ = await resolve_content_curriculum(unit_id, curriculum_id, school_id, pool)
+    return await get_quiz_answer_key(curriculum_id, unit_id, set_number, lang, redis, storage)
