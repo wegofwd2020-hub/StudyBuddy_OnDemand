@@ -263,7 +263,9 @@ test("student learning loop: lesson → quiz → result → progress", async ({ 
   // Quiz title — getQuiz() constructs "Quiz — Set {n}" from the backend set_number
   await expect(page.getByText(MOCK_QUIZ_DISPLAY_TITLE)).toBeVisible();
 
-  // ── Step 3: answer all 3 questions correctly ──────────────────────────────
+  // ── Step 3: answer all 3 questions correctly (#532 defer-results flow) ─────
+  // Answers submit as they are picked; no verdict is shown mid-quiz. The student
+  // moves with Next, then finishes.
   for (let i = 0; i < MOCK_QUIZ.questions.length; i++) {
     const q = MOCK_QUIZ.questions[i];
     const isLast = i === MOCK_QUIZ.questions.length - 1;
@@ -273,26 +275,29 @@ test("student learning loop: lesson → quiz → result → progress", async ({ 
 
     // Select the correct option. The quiz payload no longer carries the answer
     // key, so the fixture supplies it — the page itself cannot know it yet.
+    // Picking the option submits it in the background; nothing is revealed.
     await page.getByRole("button", { name: correctOptionText(i) }).click();
 
-    // Submit
-    await page.getByRole("button", { name: QUIZ_STRINGS.submitBtn }).click();
+    // No verdict mid-quiz: the explanation must NOT appear yet.
+    await expect(page.getByText(QUIZ_EXPLANATIONS[i])).toHaveCount(0);
 
-    // Explanation appears — it arrives with the server's verdict, not with the quiz
-    await expect(page.getByText(QUIZ_EXPLANATIONS[i])).toBeVisible();
-
-    // Advance to next question or results
-    if (isLast) {
-      await page.getByRole("button", { name: QUIZ_STRINGS.seeResultsBtn }).click();
-    } else {
+    // Advance (Next) until the last question, then finish.
+    if (!isLast) {
       await page.getByRole("button", { name: QUIZ_STRINGS.nextBtn }).click();
     }
   }
+  // All questions answered, so Finish goes straight to the summary (no blank warning).
+  await page.getByRole("button", { name: QUIZ_STRINGS.finishBtn }).click();
 
-  // ── Step 4: result screen shows a passing score ───────────────────────────
+  // ── Step 4: summary shows a passing score and the withheld verdicts ───────
   // score_label = "Score: {score}/{total} ({pct}%)" → "Score: 3/3 (100%)"
   // Use regex to avoid strict-mode violation from other elements containing "3".
   await expect(page.getByText(/Score: 3\/3/)).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: QUIZ_STRINGS.summaryHeading }),
+  ).toBeVisible();
+  // Explanations, withheld during the quiz, are now revealed on the summary.
+  await expect(page.getByText(QUIZ_EXPLANATIONS[0])).toBeVisible();
 
   // ── Step 5: progress history reflects the completed unit ─────────────────
   await stubProgressApis(page);

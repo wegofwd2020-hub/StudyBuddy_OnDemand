@@ -123,6 +123,23 @@
     "try_again_btn": "Réessayer",
     "back_to_curriculum_btn": "Retour au programme"
   },
+  "quiz_screen": {
+    "question_progress": "Question {current} sur {total}",
+    "back": "Précédent",
+    "next": "Suivant",
+    "finish": "Terminer le quiz",
+    "finishing": "Finalisation…",
+    "save_error": "Nous n'avons pas pu enregistrer cette réponse. Vérifie ta connexion et retouche l'option.",
+    "jump_to_question": "Aller à la question {n}",
+    "blank_warning_title": "Terminer avec des questions sans réponse ?",
+    "blank_warning_body": "Il te reste {count} question(s) sans réponse. Elles seront comptées comme incorrectes.",
+    "blank_warning_confirm": "Terminer quand même",
+    "blank_warning_cancel": "Continuer",
+    "finish_error": "Nous n'avons pas pu terminer le quiz. Vérifie ta connexion et réessaie.",
+    "summary_heading": "Tes réponses",
+    "your_answer": "Ta réponse",
+    "not_answered": "Tu n'as pas répondu à cette question."
+  },
   "dashboard_screen": {
     "title": "Tableau de bord",
     "greeting": "Bonjour, {name} !",

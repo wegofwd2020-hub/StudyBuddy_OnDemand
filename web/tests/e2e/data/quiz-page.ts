@@ -182,9 +182,15 @@ export const MOCK_SESSION_END_FAILED: SessionEndResponse = {
 // ---------------------------------------------------------------------------
 
 export const QUIZ_STRINGS = {
-  submitBtn: "Submit answer",
-  nextBtn: "Next question",
-  seeResultsBtn: "See results",
+  // #532 flow: answers submit on pick (no per-question Submit button); Next/Back
+  // navigate; Finish ends the quiz; verdicts appear only on the summary.
+  nextBtn: "Next",
+  backBtn: "Back",
+  finishBtn: "Finish quiz",
+  summaryHeading: "Your answers",
+  yourAnswer: "Your answer",
+  saveError:
+    "We couldn't save that answer. Check your connection and tap the option again.",
   passedHeading: "passed_heading",
   tryAgainHeading: "try_again_heading",
   backToCurriculum: "back_to_curriculum_btn",

@@ -217,6 +217,23 @@
     "try_again_btn": "Try Again",
     "back_to_curriculum_btn": "Back to Curriculum"
   },
+  "quiz_screen": {
+    "question_progress": "Question {current} of {total}",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Finish quiz",
+    "finishing": "Finishing…",
+    "save_error": "We couldn't save that answer. Check your connection and tap the option again.",
+    "jump_to_question": "Go to question {n}",
+    "blank_warning_title": "Finish with unanswered questions?",
+    "blank_warning_body": "You have {count} unanswered question(s). They'll be marked as incorrect.",
+    "blank_warning_confirm": "Finish anyway",
+    "blank_warning_cancel": "Keep going",
+    "finish_error": "We couldn't finish the quiz. Check your connection and try again.",
+    "summary_heading": "Your answers",
+    "your_answer": "Your answer",
+    "not_answered": "You didn't answer this question."
+  },
   "dashboard_screen": {
     "title": "Dashboard",
     "greeting": "Hello, {name}!",

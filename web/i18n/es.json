@@ -123,6 +123,23 @@
     "try_again_btn": "Intentar de nuevo",
     "back_to_curriculum_btn": "Volver al currículo"
   },
+  "quiz_screen": {
+    "question_progress": "Pregunta {current} de {total}",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "finish": "Finalizar el examen",
+    "finishing": "Finalizando…",
+    "save_error": "No pudimos guardar esa respuesta. Revisa tu conexión y vuelve a tocar la opción.",
+    "jump_to_question": "Ir a la pregunta {n}",
+    "blank_warning_title": "¿Finalizar con preguntas sin responder?",
+    "blank_warning_body": "Tienes {count} pregunta(s) sin responder. Se marcarán como incorrectas.",
+    "blank_warning_confirm": "Finalizar de todos modos",
+    "blank_warning_cancel": "Seguir",
+    "finish_error": "No pudimos finalizar el examen. Revisa tu conexión e inténtalo de nuevo.",
+    "summary_heading": "Tus respuestas",
+    "your_answer": "Tu respuesta",
+    "not_answered": "No respondiste esta pregunta."
+  },
   "dashboard_screen": {
     "title": "Panel",
     "greeting": "¡Hola, {name}!",
