@@ -216,9 +216,7 @@ async def record_answer(
     # may not exist yet when the session ends. This is what end_session reads.
     # Keyed by question_id so re-answering (skip-and-return, #532) can't inflate
     # the score — the field is overwritten, not counted twice.
-    await tally_answer(
-        redis, session_id=session_id, question_id=body.question_id, correct=correct
-    )
+    await tally_answer(redis, session_id=session_id, question_id=body.question_id, correct=correct)
 
     # Fire-and-forget Celery task for the actual write — with the SERVER's verdict
     from src.core.celery_app import celery_app
