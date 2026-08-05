@@ -191,10 +191,12 @@ celery_app.conf.update(
             "task": "src.auth.tasks.check_teacher_seat_quotas",
             "schedule": crontab(hour=7, minute=0),
         },
-        # Nightly backup coordinator at 02:30 UTC — dispatches per-school backups.
-        "dispatch-scheduled-backups-nightly": {
+        # Backup coordinator runs HOURLY (on the hour): each run dispatches the
+        # schools whose schools.backup_cron fired in the last hour, so per-school
+        # schedules are honoured instead of a single fixed nightly time (#527).
+        "dispatch-scheduled-backups-hourly": {
             "task": "src.backup.tasks.dispatch_scheduled_backups",
-            "schedule": crontab(hour=2, minute=30),
+            "schedule": crontab(minute=0),
         },
     },
 )
