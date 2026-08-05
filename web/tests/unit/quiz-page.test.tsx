@@ -1,13 +1,22 @@
 /**
- * Unit tests for section 2.5 — Quiz Page components
+ * Unit tests for section 2.5 — Quiz Page (the #532 defer-results flow)
  * Covers TC-IDs: STU-19, STU-20, STU-21, STU-22, STU-23, STU-24
+ *
+ * The quiz now submits each answer as it is picked but WITHHOLDS the verdict
+ * until an end-of-quiz summary. There is no per-question Submit button and no
+ * mid-quiz green/red reveal. These tests pin that behaviour.
  *
  * Run with:
  *   npm test -- quiz-page
+ *
+ * next-intl is mocked to the identity function, so rendered button labels are
+ * the i18n KEYS (e.g. "next", "finish"), not the English strings. The
+ * quiz_screen keys are referenced directly below; the result_screen constants in
+ * QUIZ_STRINGS already hold their keys.
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import { QuizPlayer } from "@/components/content/QuizPlayer";
 import {
   MOCK_QUIZ,
@@ -20,6 +29,15 @@ import {
   MOCK_SESSION_END_FAILED,
   QUIZ_STRINGS,
 } from "../e2e/data/quiz-page";
+
+// quiz_screen i18n keys, as rendered under the identity mock below.
+const KEY = {
+  next: "next",
+  finish: "finish",
+  summaryHeading: "summary_heading",
+  saveError: "save_error",
+  confirm: "blank_warning_confirm",
+} as const;
 
 // ---------------------------------------------------------------------------
 // Shared mocks
@@ -53,387 +71,156 @@ vi.mock("@tanstack/react-query", async (importOriginal) => {
   };
 });
 
+beforeEach(() => {
+  mockSubmitAnswer.mockReset().mockResolvedValue(MOCK_ANSWER_CORRECT);
+  mockEndSession.mockReset().mockResolvedValue(MOCK_SESSION_END_PASSED);
+});
+
+function renderQuiz() {
+  return render(<QuizPlayer quiz={MOCK_QUIZ} sessionId={MOCK_SESSION_ID} />);
+}
+
+function optionButton(text: string) {
+  return screen.getByRole("button", { name: text });
+}
+
 // ---------------------------------------------------------------------------
 // STU-19 — Quiz question renders with options
 // ---------------------------------------------------------------------------
 
 describe("STU-19 — Quiz question renders", () => {
   it("renders the first question text", () => {
-    render(
-      <QuizPlayer
-        quiz={MOCK_QUIZ}
-        sessionId={MOCK_SESSION_ID}
-        curriculumId="default-2026-g8"
-      />,
-    );
+    renderQuiz();
     expect(screen.getByText(MOCK_QUIZ.questions[0].question)).toBeInTheDocument();
   });
 
-  it("renders all 4 answer option buttons", () => {
-    render(
-      <QuizPlayer
-        quiz={MOCK_QUIZ}
-        sessionId={MOCK_SESSION_ID}
-        curriculumId="default-2026-g8"
-      />,
-    );
+  it("renders all answer option buttons", () => {
+    renderQuiz();
     for (const option of MOCK_QUIZ.questions[0].options) {
-      expect(
-        screen.getByRole("button", { name: new RegExp(option) }),
-      ).toBeInTheDocument();
+      expect(optionButton(option)).toBeInTheDocument();
     }
   });
 
-  it("renders progress indicator showing question 1 of N", () => {
-    render(
-      <QuizPlayer
-        quiz={MOCK_QUIZ}
-        sessionId={MOCK_SESSION_ID}
-        curriculumId="default-2026-g8"
-      />,
-    );
-    expect(
-      screen.getByText(`Question 1 of ${MOCK_QUIZ.questions.length}`),
-    ).toBeInTheDocument();
+  it("renders a question-number row with one entry per question", () => {
+    renderQuiz();
+    // The jump buttons share the (identity-mocked) aria-label "jump_to_question";
+    // there is exactly one per question.
+    const jumpButtons = screen.getAllByRole("button", { name: "jump_to_question" });
+    expect(jumpButtons).toHaveLength(MOCK_QUIZ.questions.length);
+    jumpButtons.forEach((btn, i) => expect(btn).toHaveTextContent(String(i + 1)));
   });
 
-  it("Submit button is initially disabled (no option selected)", () => {
-    render(
-      <QuizPlayer
-        quiz={MOCK_QUIZ}
-        sessionId={MOCK_SESSION_ID}
-        curriculumId="default-2026-g8"
-      />,
-    );
-    expect(screen.getByRole("button", { name: QUIZ_STRINGS.submitBtn })).toBeDisabled();
+  it("has a Finish button and NO per-question Submit button", () => {
+    renderQuiz();
+    expect(screen.getByRole("button", { name: KEY.finish })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /submit/i })).toBeNull();
   });
 });
 
 // ---------------------------------------------------------------------------
-// STU-20 — Selecting answer enables submit button
+// STU-20 — Selecting an answer highlights it and submits it
 // ---------------------------------------------------------------------------
 
-describe("STU-20 — Selecting answer enables submit", () => {
-  it("submit button becomes enabled after clicking an option", () => {
-    render(
-      <QuizPlayer
-        quiz={MOCK_QUIZ}
-        sessionId={MOCK_SESSION_ID}
-        curriculumId="default-2026-g8"
-      />,
-    );
-    const option = screen.getByRole("button", {
-      name: new RegExp(MOCK_QUIZ.questions[0].options[0]),
-    });
+describe("STU-20 — Selecting an answer", () => {
+  it("highlights the picked option and submits it (no Submit button needed)", async () => {
+    renderQuiz();
+    const option = optionButton(MOCK_QUIZ.questions[0].options[0]);
     fireEvent.click(option);
-    expect(
-      screen.getByRole("button", { name: QUIZ_STRINGS.submitBtn }),
-    ).not.toBeDisabled();
+
+    expect(option.getAttribute("aria-pressed")).toBe("true");
+    await waitFor(() =>
+      expect(mockSubmitAnswer).toHaveBeenCalledWith(
+        expect.objectContaining({ answer_index: 0 }),
+      ),
+    );
   });
 
-  it("clicking a different option still keeps submit enabled", () => {
-    render(
-      <QuizPlayer
-        quiz={MOCK_QUIZ}
-        sessionId={MOCK_SESSION_ID}
-        curriculumId="default-2026-g8"
-      />,
-    );
-    fireEvent.click(
-      screen.getByRole("button", { name: new RegExp(MOCK_QUIZ.questions[0].options[0]) }),
-    );
-    fireEvent.click(
-      screen.getByRole("button", { name: new RegExp(MOCK_QUIZ.questions[0].options[2]) }),
-    );
+  it("changing the choice moves the highlight and submits again", async () => {
+    renderQuiz();
+    fireEvent.click(optionButton(MOCK_QUIZ.questions[0].options[0]));
+    await waitFor(() => expect(mockSubmitAnswer).toHaveBeenCalledTimes(1));
+
+    fireEvent.click(optionButton(MOCK_QUIZ.questions[0].options[2]));
     expect(
-      screen.getByRole("button", { name: QUIZ_STRINGS.submitBtn }),
-    ).not.toBeDisabled();
+      optionButton(MOCK_QUIZ.questions[0].options[2]).getAttribute("aria-pressed"),
+    ).toBe("true");
+    expect(
+      optionButton(MOCK_QUIZ.questions[0].options[0]).getAttribute("aria-pressed"),
+    ).toBe("false");
+    await waitFor(() => expect(mockSubmitAnswer).toHaveBeenCalledTimes(2));
   });
 });
 
 // ---------------------------------------------------------------------------
-// STU-21 — Correct answer highlighted green after submit
+// STU-21 / STU-22 — The verdict is WITHHELD until the summary
 // ---------------------------------------------------------------------------
 
-describe("STU-21 — Correct answer shown after submit", () => {
-  beforeEach(() => {
-    mockSubmitAnswer.mockResolvedValue(MOCK_ANSWER_CORRECT);
+describe("STU-21/22 — no mid-quiz verdict", () => {
+  it("picking the correct option shows no green highlight and no explanation", async () => {
+    const { container } = renderQuiz();
+    const correct = correctOptionText(0);
+    fireEvent.click(optionButton(correct));
+
+    // Give the (resolved) submit a chance to land — the verdict is cached, not shown.
+    await waitFor(() => expect(mockSubmitAnswer).toHaveBeenCalled());
+    expect(container.querySelector(".bg-green-50")).toBeNull();
+    expect(screen.queryByText(MOCK_ANSWER_CORRECT.explanation)).toBeNull();
   });
 
-  it("correct option gets green background class after submit", async () => {
-    const { container } = render(
-      <QuizPlayer
-        quiz={MOCK_QUIZ}
-        sessionId={MOCK_SESSION_ID}
-        curriculumId="default-2026-g8"
-      />,
-    );
-
-    // Select the correct option (index 1 → "Cell")
-    const correctOption = correctOptionText(0);
-    fireEvent.click(screen.getByRole("button", { name: new RegExp(correctOption) }));
-    fireEvent.click(screen.getByRole("button", { name: QUIZ_STRINGS.submitBtn }));
-
-    await waitFor(() => {
-      const buttons = container.querySelectorAll("button");
-      const correctBtn = Array.from(buttons).find((b) =>
-        b.textContent?.includes(correctOption),
-      );
-      expect(correctBtn?.className).toContain("bg-green-50");
-    });
-  });
-
-  it("CheckCircle2 SVG appears on correct option after submit", async () => {
-    const { container } = render(
-      <QuizPlayer
-        quiz={MOCK_QUIZ}
-        sessionId={MOCK_SESSION_ID}
-        curriculumId="default-2026-g8"
-      />,
-    );
-    const correctOption = correctOptionText(0);
-    fireEvent.click(screen.getByRole("button", { name: new RegExp(correctOption) }));
-    fireEvent.click(screen.getByRole("button", { name: QUIZ_STRINGS.submitBtn }));
-
-    await waitFor(() => {
-      const buttons = container.querySelectorAll("button");
-      const correctBtn = Array.from(buttons).find((b) =>
-        b.textContent?.includes(correctOption),
-      );
-      expect(correctBtn?.querySelector("svg")).toBeTruthy();
-    });
-  });
-
-  it("option buttons are disabled during reviewing phase", async () => {
-    const { container } = render(
-      <QuizPlayer
-        quiz={MOCK_QUIZ}
-        sessionId={MOCK_SESSION_ID}
-        curriculumId="default-2026-g8"
-      />,
-    );
-    const correctOption = correctOptionText(0);
-    fireEvent.click(screen.getByRole("button", { name: new RegExp(correctOption) }));
-    fireEvent.click(screen.getByRole("button", { name: QUIZ_STRINGS.submitBtn }));
-
-    await waitFor(() => {
-      // All option buttons (not Submit/Next) should be disabled
-      const optionBtns =
-        container.querySelectorAll<HTMLButtonElement>("div.space-y-3 button");
-      optionBtns.forEach((btn) => expect(btn).toBeDisabled());
-    });
-  });
-
-  it("explanation text appears after submit", async () => {
-    render(
-      <QuizPlayer
-        quiz={MOCK_QUIZ}
-        sessionId={MOCK_SESSION_ID}
-        curriculumId="default-2026-g8"
-      />,
-    );
-    const correctOption = correctOptionText(0);
-    fireEvent.click(screen.getByRole("button", { name: new RegExp(correctOption) }));
-    fireEvent.click(screen.getByRole("button", { name: QUIZ_STRINGS.submitBtn }));
-
-    await waitFor(() => {
-      expect(screen.getByText(MOCK_ANSWER_CORRECT.explanation)).toBeInTheDocument();
-    });
-  });
-});
-
-// ---------------------------------------------------------------------------
-// STU-22 — Wrong answer highlighted red; correct answer revealed
-// ---------------------------------------------------------------------------
-
-describe("STU-22 — Wrong answer shown after submit", () => {
-  beforeEach(() => {
+  it("picking a wrong option shows no red highlight mid-quiz", async () => {
     mockSubmitAnswer.mockResolvedValue(MOCK_ANSWER_WRONG);
-  });
+    const { container } = renderQuiz();
+    fireEvent.click(optionButton(MOCK_QUIZ.questions[0].options[0]));
 
-  it("wrong selected option gets red background class after submit", async () => {
-    const { container } = render(
-      <QuizPlayer
-        quiz={MOCK_QUIZ}
-        sessionId={MOCK_SESSION_ID}
-        curriculumId="default-2026-g8"
-      />,
-    );
-
-    // Select a wrong option (index 0 → "Atom")
-    const wrongOption = MOCK_QUIZ.questions[0].options[0]; // index 0, correct is index 1
-    fireEvent.click(screen.getByRole("button", { name: new RegExp(wrongOption) }));
-    fireEvent.click(screen.getByRole("button", { name: QUIZ_STRINGS.submitBtn }));
-
-    await waitFor(() => {
-      const buttons = container.querySelectorAll("button");
-      const wrongBtn = Array.from(buttons).find(
-        (b) => b.textContent?.includes(wrongOption) && !b.textContent?.includes("Cell"),
-      );
-      expect(wrongBtn?.className).toContain("bg-red-50");
-    });
-  });
-
-  it("correct option still gets green background when wrong option selected", async () => {
-    const { container } = render(
-      <QuizPlayer
-        quiz={MOCK_QUIZ}
-        sessionId={MOCK_SESSION_ID}
-        curriculumId="default-2026-g8"
-      />,
-    );
-    const wrongOption = MOCK_QUIZ.questions[0].options[0];
-    fireEvent.click(screen.getByRole("button", { name: new RegExp(wrongOption) }));
-    fireEvent.click(screen.getByRole("button", { name: QUIZ_STRINGS.submitBtn }));
-
-    await waitFor(() => {
-      const correctOption = correctOptionText(0);
-      const buttons = container.querySelectorAll("button");
-      const correctBtn = Array.from(buttons).find((b) =>
-        b.textContent?.includes(correctOption),
-      );
-      expect(correctBtn?.className).toContain("bg-green-50");
-    });
-  });
-
-  it("XCircle SVG appears on wrong selected option", async () => {
-    const { container } = render(
-      <QuizPlayer
-        quiz={MOCK_QUIZ}
-        sessionId={MOCK_SESSION_ID}
-        curriculumId="default-2026-g8"
-      />,
-    );
-    const wrongOption = MOCK_QUIZ.questions[0].options[0];
-    fireEvent.click(screen.getByRole("button", { name: new RegExp(wrongOption) }));
-    fireEvent.click(screen.getByRole("button", { name: QUIZ_STRINGS.submitBtn }));
-
-    await waitFor(() => {
-      const buttons = container.querySelectorAll("button");
-      const wrongBtn = Array.from(buttons).find(
-        (b) => b.textContent?.includes(wrongOption) && !b.textContent?.includes("Cell"),
-      );
-      expect(wrongBtn?.querySelector("svg")).toBeTruthy();
-    });
+    await waitFor(() => expect(mockSubmitAnswer).toHaveBeenCalled());
+    expect(container.querySelector(".bg-red-50")).toBeNull();
   });
 });
 
 // ---------------------------------------------------------------------------
-// STU-23 — Score screen renders after completing all questions
+// STU-23 — End-of-quiz summary
 // ---------------------------------------------------------------------------
 
-describe("STU-23 — Score screen after quiz completion", () => {
-  beforeEach(() => {
-    mockSubmitAnswer.mockResolvedValue(MOCK_ANSWER_CORRECT);
-  });
-
-  function clickOptionByText(optionText: string) {
-    const btn = Array.from(document.querySelectorAll<HTMLButtonElement>("button")).find(
-      (b) => b.textContent?.trim() === optionText,
-    );
-    if (!btn) throw new Error(`Option button not found: ${optionText}`);
-    fireEvent.click(btn);
-  }
-
-  async function completeQuiz() {
+describe("STU-23 — summary after completion", () => {
+  async function answerAllAndFinish() {
     for (let q = 0; q < MOCK_QUIZ.questions.length; q++) {
-      const correctOption = correctOptionText(q);
-
-      await waitFor(() => {
-        expect(
-          screen.getByText(`Question ${q + 1} of ${MOCK_QUIZ.questions.length}`),
-        ).toBeInTheDocument();
-      });
-
-      clickOptionByText(correctOption);
-      fireEvent.click(screen.getByRole("button", { name: QUIZ_STRINGS.submitBtn }));
-
-      const isLast = q === MOCK_QUIZ.questions.length - 1;
-      if (isLast) {
-        mockEndSession.mockResolvedValue(MOCK_SESSION_END_PASSED);
-        await waitFor(() => {
-          expect(
-            screen.getByRole("button", { name: QUIZ_STRINGS.seeResultsBtn }),
-          ).toBeInTheDocument();
-        });
-        fireEvent.click(screen.getByRole("button", { name: QUIZ_STRINGS.seeResultsBtn }));
-      } else {
-        await waitFor(() => {
-          expect(
-            screen.getByRole("button", { name: QUIZ_STRINGS.nextBtn }),
-          ).toBeInTheDocument();
-        });
-        fireEvent.click(screen.getByRole("button", { name: QUIZ_STRINGS.nextBtn }));
+      await screen.findByText(MOCK_QUIZ.questions[q].question);
+      fireEvent.click(optionButton(correctOptionText(q)));
+      if (q < MOCK_QUIZ.questions.length - 1) {
+        fireEvent.click(screen.getByRole("button", { name: KEY.next }));
       }
     }
+    fireEvent.click(screen.getByRole("button", { name: KEY.finish }));
   }
 
-  it("score screen shows passed heading (Trophy) when passed", async () => {
-    render(
-      <QuizPlayer
-        quiz={MOCK_QUIZ}
-        sessionId={MOCK_SESSION_ID}
-        curriculumId="default-2026-g8"
-      />,
-    );
-    mockEndSession.mockResolvedValue(MOCK_SESSION_END_PASSED);
-    await completeQuiz();
+  it("shows the passed heading and Trophy, and reveals the withheld explanation", async () => {
+    const { container } = renderQuiz();
+    await answerAllAndFinish();
 
-    await waitFor(() => {
-      expect(screen.getByText(QUIZ_STRINGS.passedHeading)).toBeInTheDocument();
-    });
+    await waitFor(() =>
+      expect(screen.getByText(QUIZ_STRINGS.passedHeading)).toBeInTheDocument(),
+    );
+    expect(container.querySelector("svg.text-yellow-400")).toBeTruthy();
+    // The summary heading and the previously-withheld explanation are now shown.
+    expect(screen.getByRole("heading", { name: KEY.summaryHeading })).toBeInTheDocument();
+    expect(screen.getAllByText(MOCK_ANSWER_CORRECT.explanation).length).toBeGreaterThan(
+      0,
+    );
   });
 
-  it("score screen shows Trophy SVG when passed", async () => {
-    const { container } = render(
-      <QuizPlayer
-        quiz={MOCK_QUIZ}
-        sessionId={MOCK_SESSION_ID}
-        curriculumId="default-2026-g8"
-      />,
-    );
-    mockEndSession.mockResolvedValue(MOCK_SESSION_END_PASSED);
-    await completeQuiz();
-
-    await waitFor(() => {
-      // Trophy SVG has text-yellow-400 class
-      const svg = container.querySelector("svg.text-yellow-400");
-      expect(svg).toBeTruthy();
-    });
-  });
-
-  it("score screen shows try_again heading (RefreshCw) when failed", async () => {
+  it("shows the try-again heading when the score does not pass", async () => {
     mockEndSession.mockResolvedValue(MOCK_SESSION_END_FAILED);
-    render(
-      <QuizPlayer
-        quiz={MOCK_QUIZ}
-        sessionId={MOCK_SESSION_ID}
-        curriculumId="default-2026-g8"
-      />,
+    renderQuiz();
+    await answerAllAndFinish();
+
+    await waitFor(() =>
+      expect(screen.getByText(QUIZ_STRINGS.tryAgainHeading)).toBeInTheDocument(),
     );
-
-    // Override endSession to return failed result
-    await completeQuiz();
-
-    await waitFor(() => {
-      // Either passed or try_again heading will appear
-      const heading =
-        screen.queryByText(QUIZ_STRINGS.passedHeading) ||
-        screen.queryByText(QUIZ_STRINGS.tryAgainHeading);
-      expect(heading).toBeInTheDocument();
-    });
   });
 
-  it("back to curriculum link is present on score screen", async () => {
-    render(
-      <QuizPlayer
-        quiz={MOCK_QUIZ}
-        sessionId={MOCK_SESSION_ID}
-        curriculumId="default-2026-g8"
-      />,
-    );
-    mockEndSession.mockResolvedValue(MOCK_SESSION_END_PASSED);
-    await completeQuiz();
+  it("offers a back-to-curriculum link on the summary", async () => {
+    renderQuiz();
+    await answerAllAndFinish();
 
     await waitFor(() => {
       const link = screen.getByRole("link", { name: QUIZ_STRINGS.backToCurriculum });
@@ -444,69 +231,59 @@ describe("STU-23 — Score screen after quiz completion", () => {
 });
 
 // ---------------------------------------------------------------------------
-// STU-24 — Session starts: submitAnswer called with correct session_id
+// STU-23b — Finishing with blanks warns before scoring
 // ---------------------------------------------------------------------------
 
-describe("STU-24 — Session ID is passed to progress API", () => {
-  beforeEach(() => {
-    mockSubmitAnswer.mockResolvedValue(MOCK_ANSWER_CORRECT);
+describe("STU-23b — blank-answer warning", () => {
+  it("finishing with an unanswered question opens a confirmation before ending", async () => {
+    renderQuiz();
+    // Answer only the first question, leave the rest blank, then Finish.
+    fireEvent.click(optionButton(correctOptionText(0)));
+    fireEvent.click(screen.getByRole("button", { name: KEY.finish }));
+
+    // A confirmation appears and the session has NOT ended yet.
+    const dialog = await screen.findByRole("alertdialog");
+    expect(dialog).toBeInTheDocument();
+    expect(mockEndSession).not.toHaveBeenCalled();
+
+    // Confirming finishes anyway.
+    fireEvent.click(within(dialog).getByRole("button", { name: KEY.confirm }));
+    await waitFor(() => expect(mockEndSession).toHaveBeenCalledWith(MOCK_SESSION_ID));
   });
+});
 
-  it("submitAnswer is called with the provided sessionId", async () => {
-    render(
-      <QuizPlayer
-        quiz={MOCK_QUIZ}
-        sessionId={MOCK_SESSION_ID}
-        curriculumId="default-2026-g8"
-      />,
-    );
+// ---------------------------------------------------------------------------
+// STU-24 — API wiring
+// ---------------------------------------------------------------------------
 
-    const correctOption = correctOptionText(0);
-    fireEvent.click(screen.getByRole("button", { name: new RegExp(correctOption) }));
-    fireEvent.click(screen.getByRole("button", { name: QUIZ_STRINGS.submitBtn }));
+describe("STU-24 — progress API wiring", () => {
+  it("submitAnswer is called with the session id and the content's own question_id", async () => {
+    renderQuiz();
+    fireEvent.click(optionButton(correctOptionText(0)));
 
-    await waitFor(() => {
-      expect(mockSubmitAnswer).toHaveBeenCalledWith(
-        expect.objectContaining({ session_id: MOCK_SESSION_ID }),
-      );
-    });
-  });
-
-  it("no error is rendered when sessionId is provided", () => {
-    render(
-      <QuizPlayer
-        quiz={MOCK_QUIZ}
-        sessionId={MOCK_SESSION_ID}
-        curriculumId="default-2026-g8"
-      />,
-    );
-    expect(screen.queryByRole("alert")).toBeNull();
-    expect(screen.queryByText(/error/i)).toBeNull();
-  });
-
-  it("submitAnswer is called with the content's own question_id", async () => {
-    render(
-      <QuizPlayer
-        quiz={MOCK_QUIZ}
-        sessionId={MOCK_SESSION_ID}
-        curriculumId="default-2026-g8"
-      />,
-    );
-
-    const correctOption = correctOptionText(0);
-    fireEvent.click(screen.getByRole("button", { name: new RegExp(correctOption) }));
-    fireEvent.click(screen.getByRole("button", { name: QUIZ_STRINGS.submitBtn }));
-
-    await waitFor(() => {
-      // The server grades by question_id; it must be the id from the payload,
-      // not a synthesised `${unit_id}-Q${n}` that no content file uses.
+    await waitFor(() =>
       expect(mockSubmitAnswer).toHaveBeenCalledWith(
         expect.objectContaining({
           session_id: MOCK_SESSION_ID,
           question_id: MOCK_QUIZ.questions[0].question_id,
           answer_index: MOCK_CORRECT_INDEXES[0],
         }),
-      );
-    });
+      ),
+    );
+  });
+
+  it("renders no error initially", () => {
+    renderQuiz();
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
+
+  it("surfaces a save error when the answer submission fails", async () => {
+    mockSubmitAnswer.mockRejectedValue(new Error("network"));
+    renderQuiz();
+    fireEvent.click(optionButton(MOCK_QUIZ.questions[0].options[0]));
+
+    await waitFor(() =>
+      expect(screen.getByRole("alert")).toHaveTextContent(KEY.saveError),
+    );
   });
 });

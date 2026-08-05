@@ -91,13 +91,17 @@ export default defineConfig({
     command: "npm run dev",
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
-    // Fake Auth0 env vars so auth0.getSession() initialises without crashing.
-    // With no real session cookie present it returns null → layout redirects as expected.
-    // Dev-session cookie is used instead in persona tests.
+    // Fake Auth0 env vars so the @auth0/nextjs-auth0 v4 Auth0Client initialises
+    // without crashing. With no real session cookie present getSession() returns
+    // null → layout redirects as expected; persona tests use the dev-session
+    // cookie instead. v4 renamed these: AUTH0_DOMAIN (not AUTH0_ISSUER_BASE_URL)
+    // and APP_BASE_URL (not AUTH0_BASE_URL); a missing AUTH0_DOMAIN aborts boot
+    // (same fix as CI's e2e.yml, #535) so local `npx playwright test` never
+    // started the dev server.
     env: {
       AUTH0_SECRET: "test-auth0-secret-for-e2e-testing-only-placeholder",
-      AUTH0_BASE_URL: "http://localhost:3000",
-      AUTH0_ISSUER_BASE_URL: "https://test.auth0.example.com",
+      AUTH0_DOMAIN: "test.auth0.com",
+      APP_BASE_URL: "http://localhost:3000",
       AUTH0_CLIENT_ID: "test_client_id",
       AUTH0_CLIENT_SECRET: "test_client_secret",
       NEXT_PUBLIC_API_URL: "http://localhost:8000/api/v1",

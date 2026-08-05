@@ -18,7 +18,7 @@ from datetime import UTC, datetime
 import asyncpg
 
 from src.core.cache_keys import (
-    quiz_score_key,
+    quiz_answers_key,
     quiz_session_set_key,
     quiz_set_key,
 )
@@ -79,45 +79,58 @@ async def resolve_session_quiz_set(
     return set_number
 
 
-async def tally_answer(redis, session_id: str, correct: bool) -> None:
+async def tally_answer(redis, session_id: str, question_id: str, correct: bool) -> None:
     """
-    Record one graded answer against the session's running tally.
+    Record one graded answer against the session's per-question tally.
 
-    Both counters are kept so end_session can report a score without waiting on
-    the fire-and-forget DB write (perf rule #4).
+    Stored as a Redis HASH field (question_id → "1"/"0") rather than a counter so
+    the write is idempotent: answering the same question again — which the
+    skip-and-return UI (#532) makes possible — overwrites its verdict instead of
+    incrementing a blind total. end_session reads this back without waiting on the
+    fire-and-forget DB write (perf rule #4).
     """
-    key = quiz_score_key(session_id)
-    if correct:
-        await redis.incr(key)
-    else:
-        # Ensure the key exists even for an all-wrong run, so end_session can tell
-        # "graded, scored zero" apart from "no tally at all".
-        await redis.setnx(key, 0)
+    key = quiz_answers_key(session_id)
+    await redis.hset(key, question_id, "1" if correct else "0")
     await redis.expire(key, _TALLY_TTL)
 
 
 async def read_tally(redis, session_id: str) -> int | None:
-    """Server-graded correct count for the session, or None if no tally exists."""
-    raw = await redis.get(quiz_score_key(session_id))
-    if raw is None:
+    """
+    Server-graded correct count for the session, or None if no tally exists.
+
+    Counts the "1" fields in the per-question hash, so a question re-answered any
+    number of times contributes at most once and only its latest verdict counts.
+    An absent key (no answers graded, or the hash expired) returns None so the
+    caller can fall back to the persisted answers.
+    """
+    values = await redis.hvals(quiz_answers_key(session_id))
+    if not values:
         return None
-    try:
-        return int(raw)
-    except (ValueError, TypeError):
-        return None
+    return sum(1 for v in values if (v.decode() if isinstance(v, bytes) else v) == "1")
 
 
 async def count_correct_answers(conn: asyncpg.Connection, session_id: str) -> int:
     """
     Fallback score source: count graded-correct answers already persisted.
 
-    Only used when the Redis tally is gone (restart / TTL). May undercount if the
-    fire-and-forget writes are still in flight, which is exactly why the Redis
-    tally is preferred.
+    Only used when the Redis tally is gone (restart / TTL). Because answers are
+    appended (a new row per submission, no upsert) the same question can have
+    several rows once revisiting is allowed, so we take only the LATEST row per
+    question — matching the Redis hash's "last verdict wins" — and count the ones
+    that are correct. May undercount if the fire-and-forget writes are still in
+    flight, which is exactly why the Redis tally is preferred.
     """
     return (
         await conn.fetchval(
-            "SELECT COUNT(*) FROM progress_answers WHERE session_id = $1 AND correct IS TRUE",
+            """
+            SELECT COUNT(*) FROM (
+                SELECT DISTINCT ON (question_id) correct
+                FROM progress_answers
+                WHERE session_id = $1
+                ORDER BY question_id, recorded_at DESC
+            ) latest
+            WHERE correct IS TRUE
+            """,
             session_id,
         )
         or 0

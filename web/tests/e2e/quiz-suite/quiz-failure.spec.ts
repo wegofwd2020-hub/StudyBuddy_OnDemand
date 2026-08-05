@@ -13,14 +13,15 @@
  *
  *  2. "mid-quiz" — the quiz loads fine and <QuizPlayer> IS mounted and
  *     answering, but the grading call (POST /progress/session/{id}/answer)
- *     fails while the student is mid-quiz. This is the LITERAL #524 symptom
- *     ("Submit is not taking me to the next question"): before PR #528,
- *     `handleSubmit`'s rejection was swallowed and the button just sat there.
- *     #528 added QuizPlayer's `failed` state — the message "We couldn't save
- *     that answer. Check your connection and try again." and the action
- *     button relabeling from "Submit answer" to "Try again"
- *     (web/components/content/QuizPlayer.tsx). Nothing under web/tests
- *     exercised this path before this spec.
+ *     fails while the student is mid-quiz. This is the descendant of the #524
+ *     symptom ("Submit is not taking me to the next question"): a swallowed
+ *     rejection would leave the student stuck with no feedback. In the #532
+ *     defer-results flow answers submit on pick, so on failure QuizPlayer marks
+ *     that question's save as errored and shows the message "We couldn't save
+ *     that answer. Check your connection and tap the option again."
+ *     (web/i18n/en.json → quiz_screen.save_error); the option stays interactive
+ *     so re-tapping retries. Nothing under web/tests exercised this path before
+ *     this spec.
  *
  * No route mocks in either test: failures are induced by mutating the real
  * content store / cache so the real backend call really fails.
@@ -104,19 +105,26 @@ test.describe("mid-quiz grading failure", () => {
     // confirm an answer grades successfully (the player advances past
     // "answering" instead of showing the FAILED state this spec induces).
     const fixture = loadFixture();
+    // Prove the unit grades again by running the full loop: answer all three
+    // questions (#532 submits on pick) and finish to a summary with a real score.
+    // If the restore had failed, picking an option would surface the save-error
+    // message instead.
     await page.goto(`/quiz/${fixture.unit_quiz}`);
     await expect(page.getByText(/question 1 of/i)).toBeVisible({ timeout: 15000 });
-    await page
-      .getByRole("button", { name: /^Option /i })
-      .first()
-      .click();
-    await page.getByRole("button", { name: /submit answer/i }).click();
-    await expect(
-      page.getByRole("button", { name: /next question|see results/i }),
-    ).toBeVisible({ timeout: 15000 });
+    for (let i = 0; i < 3; i++) {
+      await page
+        .getByRole("button", { name: /^Option /i })
+        .first()
+        .click();
+      if (i < 2) await page.getByRole("button", { name: /^next$/i }).click();
+    }
+    await page.getByRole("button", { name: /finish quiz/i }).click();
+    await expect(page.getByText(/score:\s*\d+\s*\/\s*3/i)).toBeVisible({
+      timeout: 15000,
+    });
   });
 
-  test("a grading failure mid-quiz shows the failure message and 'Try again', not a dead button", async ({
+  test("a grading failure mid-quiz shows the save-error message and keeps the option live, not a dead button", async ({
     page,
   }) => {
     const fixture = loadFixture();
@@ -200,24 +208,25 @@ test.describe("mid-quiz grading failure", () => {
       { cwd: REPO_ROOT },
     );
 
-    // Answer the now-ungraded question. The real POST 404s ("quiz_not_found" —
-    // backend/src/progress/router.py's FileNotFoundError handler); QuizPlayer's
-    // catch dispatches FAILED (#528).
+    // Answer the now-ungraded question. Picking an option submits it (#532);
+    // the real POST 404s ("quiz_not_found" — backend/src/progress/router.py's
+    // FileNotFoundError handler) and QuizPlayer marks that question's save as
+    // errored instead of failing silently (the #524 lesson).
     await page
       .getByRole("button", { name: /^Option /i })
       .first()
       .click();
-    await page.getByRole("button", { name: /submit answer/i }).click();
 
-    // The exact copy from QuizPlayer.tsx — not a generic truthy check.
+    // The exact copy from QuizPlayer.tsx (quiz_screen.save_error) — not a generic
+    // truthy check. Retry is by re-tapping the option, so the option stays live.
     await expect(
       page.getByText(
-        "We couldn't save that answer. Check your connection and try again.",
+        "We couldn't save that answer. Check your connection and tap the option again.",
       ),
     ).toBeVisible({ timeout: 15000 });
 
-    // The button must offer a real retry, not stay dead on "Submit answer".
-    await expect(page.getByRole("button", { name: /^try again$/i })).toBeVisible();
+    // The option must remain interactive so re-tapping can retry — not a dead end.
+    await expect(page.getByRole("button", { name: /^Option /i }).first()).toBeEnabled();
 
     // Whatever is shown must be student-safe: no status codes, no stack traces,
     // no internal error codes.
