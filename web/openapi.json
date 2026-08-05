@@ -12923,6 +12923,52 @@
       }
     },
     "/api/v1/reports/school/{school_id}/alerts/settings": {
+      "get": {
+        "tags": [
+          "reports"
+        ],
+        "summary": "Get Alert Settings Endpoint",
+        "description": "Return the school's saved alert thresholds (or server defaults if unset).\n\nWithout this the settings form redrew hardcoded client defaults every visit,\nso saved values looked lost even though the PUT persisted them (#526).",
+        "operationId": "get_alert_settings_endpoint_api_v1_reports_school__school_id__alerts_settings_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "school_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "School Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertSettingsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
       "put": {
         "tags": [
           "reports"
@@ -16571,8 +16617,15 @@
             "title": "New Feedback Immediate"
           },
           "updated_at": {
-            "type": "string",
-            "format": "date-time",
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Updated At"
           }
         },
@@ -16583,8 +16636,7 @@
           "feedback_count_threshold",
           "inactive_days_threshold",
           "score_drop_threshold",
-          "new_feedback_immediate",
-          "updated_at"
+          "new_feedback_immediate"
         ],
         "title": "AlertSettingsResponse"
       },

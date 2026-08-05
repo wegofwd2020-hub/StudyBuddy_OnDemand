@@ -52,6 +52,7 @@ from src.reports.schemas import (
     UnitReport,
 )
 from src.reports.service import (
+    get_alert_settings,
     get_alerts,
     get_at_risk_students,
     get_curriculum_health,
@@ -375,6 +376,23 @@ async def list_alerts(
     async with get_db(request) as conn:
         result = await get_alerts(conn, school_id)
     return AlertListResponse(**result)
+
+
+@router.get("/reports/school/{school_id}/alerts/settings", response_model=AlertSettingsResponse)
+async def get_alert_settings_endpoint(
+    school_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> AlertSettingsResponse:
+    """Return the school's saved alert thresholds (or server defaults if unset).
+
+    Without this the settings form redrew hardcoded client defaults every visit,
+    so saved values looked lost even though the PUT persisted them (#526).
+    """
+    _check_school(teacher, school_id, request)
+    async with get_db(request) as conn:
+        result = await get_alert_settings(conn, school_id)
+    return AlertSettingsResponse(**result)
 
 
 @router.put("/reports/school/{school_id}/alerts/settings", response_model=AlertSettingsResponse)

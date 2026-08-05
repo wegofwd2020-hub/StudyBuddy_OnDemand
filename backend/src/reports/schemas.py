@@ -221,7 +221,8 @@ class AlertSettingsResponse(BaseModel):
     inactive_days_threshold: int
     score_drop_threshold: float
     new_feedback_immediate: bool
-    updated_at: datetime
+    # None when the school has never saved settings and the GET returns defaults (#526).
+    updated_at: datetime | None = None
 
 
 # ── Digest ────────────────────────────────────────────────────────────────────

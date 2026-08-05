@@ -256,6 +256,28 @@ export interface AlertSettings {
   new_feedback_immediate: boolean;
 }
 
+/** Load the school's saved alert thresholds (or server defaults if never saved).
+ *  The threshold fields are read back for the settings form (#526). */
+export async function getAlertSettings(schoolId: string): Promise<AlertSettings> {
+  const res = await schoolApi.get<
+    AlertSettings & { school_id: string; updated_at: string | null }
+  >(`/reports/school/${schoolId}/alerts/settings`);
+  const {
+    pass_rate_threshold,
+    feedback_count_threshold,
+    inactive_days_threshold,
+    score_drop_threshold,
+    new_feedback_immediate,
+  } = res.data;
+  return {
+    pass_rate_threshold,
+    feedback_count_threshold,
+    inactive_days_threshold,
+    score_drop_threshold,
+    new_feedback_immediate,
+  };
+}
+
 export async function updateAlertSettings(
   schoolId: string,
   settings: AlertSettings,
