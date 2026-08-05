@@ -24,9 +24,9 @@ export const MOCK_STUDENT_STATS: StudentStats = {
   audio_sessions: 4,
   session_dates: ["2026-03-28", "2026-03-27", "2026-03-26", "2026-03-25", "2026-03-24"],
   subject_breakdown: [
-    { subject: "Science", lessons: 6, pass_rate: 0.83 },
-    { subject: "Mathematics", lessons: 4, pass_rate: 0.75 },
-    { subject: "English", lessons: 2, pass_rate: 0.5 },
+    { subject: "Science", attempts: 6, pass_rate: 0.83 },
+    { subject: "Mathematics", attempts: 4, pass_rate: 0.75 },
+    { subject: "English", attempts: 2, pass_rate: 0.5 },
   ],
 };
 

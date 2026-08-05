@@ -31,8 +31,8 @@ export const MOCK_STATS: StudentStats = {
   audio_sessions: 5,
   session_dates: [today, yesterday],
   subject_breakdown: [
-    { subject: "Mathematics", lessons: 6, pass_rate: 80 },
-    { subject: "Science", lessons: 6, pass_rate: 70 },
+    { subject: "Mathematics", attempts: 6, pass_rate: 80 },
+    { subject: "Science", attempts: 6, pass_rate: 70 },
   ],
 };
 
