@@ -66,9 +66,17 @@ async def test_subject_breakdown_resolves_names_and_respects_period(client, db_c
     # period=all → both sessions; subjects resolved from unit_id, never "Unknown".
     r = await client.get("/api/v1/analytics/student/stats?period=all", headers=_auth(token))
     assert r.status_code == 200, r.text
-    subjects = {b["subject"] for b in r.json()["subject_breakdown"]}
+    breakdown = r.json()["subject_breakdown"]
+    subjects = {b["subject"] for b in breakdown}
     assert subjects == {"Science", "Mathematics"}
     assert "Unknown" not in subjects
+    # The bars count QUIZ ATTEMPTS and the field is named accordingly (#525) — it
+    # was mislabelled "lessons", which read as the lessons-viewed tile. One session
+    # per subject here → one attempt each.
+    by_subject = {b["subject"]: b for b in breakdown}
+    assert "lessons" not in by_subject["Science"]
+    assert by_subject["Science"]["attempts"] == 1
+    assert by_subject["Mathematics"]["attempts"] == 1
 
     # period=7d → only the recent (1-day-old) Science session is in scope.
     r = await client.get("/api/v1/analytics/student/stats?period=7d", headers=_auth(token))

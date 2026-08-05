@@ -129,10 +129,13 @@ export default function StatsPage() {
             {/* Subject breakdown chart */}
             {stats.subject_breakdown && stats.subject_breakdown.length > 0 && (
               <section>
-                <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-gray-800">
+                <h2 className="mb-1 flex items-center gap-2 text-lg font-semibold text-gray-800">
                   <BarChart3 className="h-4 w-4" />
                   Subject Breakdown
                 </h2>
+                {/* State the unit of measure so the chart isn't misread as the
+                    "lessons viewed" tile — it counts quiz attempts (#525). */}
+                <p className="mb-4 text-sm text-gray-500">Quiz attempts per subject</p>
                 <div className="rounded-lg border bg-white p-4 shadow-sm">
                   <ResponsiveContainer width="100%" height={200}>
                     <BarChart
@@ -140,14 +143,14 @@ export default function StatsPage() {
                       margin={{ top: 0, right: 0, bottom: 0, left: -20 }}
                     >
                       <XAxis dataKey="subject" tick={{ fontSize: 11 }} />
-                      <YAxis tick={{ fontSize: 11 }} />
+                      <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
                       <Tooltip
-                        formatter={(value) => [Number(value ?? 0), "Lessons"]}
+                        formatter={(value) => [Number(value ?? 0), "Quiz attempts"]}
                         labelStyle={{ fontSize: 12 }}
                       />
                       {/* Cap width so a single subject renders as a normal bar
                           rather than one block spanning the whole chart (#473). */}
-                      <Bar dataKey="lessons" radius={[4, 4, 0, 0]} maxBarSize={64}>
+                      <Bar dataKey="attempts" radius={[4, 4, 0, 0]} maxBarSize={64}>
                         {stats.subject_breakdown.map((_, i) => (
                           <Cell
                             key={i}

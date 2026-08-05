@@ -263,7 +263,7 @@ async def student_stats(
         unit_subj_rows = await conn.fetch(
             f"""
             SELECT unit_id, subject,
-                   COUNT(*) AS lessons,
+                   COUNT(*) AS attempts,
                    SUM(CASE WHEN passed THEN 1 ELSE 0 END) AS passed_count
             FROM progress_sessions
             WHERE student_id = $1
@@ -311,18 +311,20 @@ async def student_stats(
 
     vr = dict(view_rows[0]) if view_rows else {}
 
-    # Aggregate the per-unit rows into per-(display)-subject totals.
+    # Aggregate the per-unit rows into per-(display)-subject totals. This counts
+    # QUIZ ATTEMPTS (progress_sessions), not lessons — it was mislabelled "lessons"
+    # end to end, which read as the lessons-viewed tile and looked wrong (#525).
     breakdown: dict[str, dict[str, int]] = {}
     for r in unit_subj_rows:
         label = display_subject(subject_labels, r["unit_id"], r["subject"])
-        agg = breakdown.setdefault(label, {"lessons": 0, "passed": 0})
-        agg["lessons"] += int(r["lessons"])
+        agg = breakdown.setdefault(label, {"attempts": 0, "passed": 0})
+        agg["attempts"] += int(r["attempts"])
         agg["passed"] += int(r["passed_count"] or 0)
     subject_breakdown = [
         {
             "subject": label,
-            "lessons": agg["lessons"],
-            "pass_rate": round(agg["passed"] / agg["lessons"], 4) if agg["lessons"] else 0.0,
+            "attempts": agg["attempts"],
+            "pass_rate": round(agg["passed"] / agg["attempts"], 4) if agg["attempts"] else 0.0,
         }
         for label, agg in sorted(breakdown.items())
     ]
