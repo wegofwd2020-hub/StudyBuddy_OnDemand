@@ -10226,6 +10226,70 @@
         }
       }
     },
+    "/api/v1/schools/{school_id}/billing-portal": {
+      "get": {
+        "tags": [
+          "school-subscription"
+        ],
+        "summary": "School Billing Portal",
+        "description": "Create a Stripe Billing Portal session and return its URL (#521).\n\nThe school admin manages the subscription, payment method, and invoices in the\nStripe-hosted portal. `return_url` is where Stripe sends them back; it defaults\nto the school settings page. 404 if the school has no Stripe customer yet\n(i.e. never subscribed) \u2014 there is nothing to manage.",
+        "operationId": "school_billing_portal_api_v1_schools__school_id__billing_portal_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "school_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "School Id"
+            }
+          },
+          {
+            "name": "return_url",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Return Url"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillingPortalResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/schools/{school_id}/curriculum/versions/{curriculum_id}/renewal-checkout": {
       "post": {
         "tags": [
@@ -17398,6 +17462,19 @@
           "skipped"
         ],
         "title": "BatchApproveResponse"
+      },
+      "BillingPortalResponse": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "title": "BillingPortalResponse"
       },
       "BlockRequest": {
         "properties": {

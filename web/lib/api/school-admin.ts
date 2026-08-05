@@ -17,6 +17,30 @@ export async function getSchoolProfile(schoolId: string): Promise<SchoolProfile>
   return res.data;
 }
 
+// ── Billing portal (#521) ─────────────────────────────────────────────────────
+
+/**
+ * Get a Stripe Billing Portal URL for the school. Uses the TEACHER instance
+ * (`sb_teacher_token`) and the school-scoped endpoint — the old
+ * `getBillingPortalUrl()` in subscription.ts used the student instance and a
+ * route that never existed, so this button silently 404'd (#521).
+ *
+ * `returnUrl` is where Stripe sends the admin back; pass the current page.
+ * Throws on a school with no Stripe customer (404) — the caller surfaces it.
+ */
+export async function getSchoolBillingPortalUrl(
+  schoolId: string,
+  returnUrl?: string,
+): Promise<string> {
+  const res = await schoolApi.get<{ url: string }>(
+    `/schools/${schoolId}/billing-portal`,
+    {
+      params: returnUrl ? { return_url: returnUrl } : undefined,
+    },
+  );
+  return res.data.url;
+}
+
 // ── Roster ────────────────────────────────────────────────────────────────────
 
 export interface RosterItem {

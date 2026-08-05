@@ -31,8 +31,10 @@ vi.mock("@tanstack/react-query", async (importOriginal) => {
   return { ...actual, useQuery: vi.fn((opts) => mockUseQuery(opts)) };
 });
 
-vi.mock("@/lib/api/subscription", () => ({
-  getBillingPortalUrl: vi.fn(),
+const mockBillingPortal = vi.fn();
+vi.mock("@/lib/api/school-admin", () => ({
+  getSchoolProfile: vi.fn(),
+  getSchoolBillingPortalUrl: (...args: unknown[]) => mockBillingPortal(...args),
 }));
 
 // Mock clipboard
@@ -175,5 +177,45 @@ describe("SCH-48 — Billing section hidden for non-admin teacher", () => {
   it("shows the contact admin message for non-admin teacher", () => {
     render(<SchoolSettingsPage />);
     expect(screen.getByText(SETTINGS_STRINGS.contactAdmin)).toBeInTheDocument();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// SCH-49 — Billing portal failure is surfaced, not swallowed (#521)
+// ---------------------------------------------------------------------------
+
+describe("SCH-49 — Billing portal failure is surfaced (#521)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockUseTeacher.mockReturnValue(MOCK_ADMIN);
+    mockUseQuery.mockReturnValue({ data: MOCK_PROFILE, isLoading: false });
+  });
+
+  it("calls the school-scoped portal endpoint with the school id", async () => {
+    mockBillingPortal.mockResolvedValue("https://billing.stripe.com/session/x");
+    render(<SchoolSettingsPage />);
+    fireEvent.click(screen.getByRole("button", { name: /Open billing portal/ }));
+    // window.location.href is set on success; assert the API was called correctly.
+    expect(mockBillingPortal).toHaveBeenCalledWith(
+      MOCK_ADMIN.school_id,
+      expect.any(String),
+    );
+  });
+
+  it("shows a 404 message when the school has no billing account", async () => {
+    mockBillingPortal.mockRejectedValue({ response: { status: 404 } });
+    render(<SchoolSettingsPage />);
+    fireEvent.click(screen.getByRole("button", { name: /Open billing portal/ }));
+    // The old bare catch showed nothing — this alert fails against main.
+    expect(await screen.findByRole("alert")).toHaveTextContent(/billing account/i);
+  });
+
+  it("shows a generic message on any other failure", async () => {
+    mockBillingPortal.mockRejectedValue({ response: { status: 502 } });
+    render(<SchoolSettingsPage />);
+    fireEvent.click(screen.getByRole("button", { name: /Open billing portal/ }));
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      /couldn't open the billing portal/i,
+    );
   });
 });
