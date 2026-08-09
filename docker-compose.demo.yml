@@ -107,7 +107,7 @@ services:
       # Two workers for a 2 vCPU box — gunicorn formula (2*N+1) without overcommitting RAM
       GUNICORN_WORKERS: "2"
     # No host-port mapping on demo — Nginx fronts everything.
-    ports: []
+    ports: !override []
     # Drop pgbouncer (disabled in demo) and migrate (one-shot dependency is
     # satisfied at compose-up time anyway).
     depends_on: !override
@@ -208,7 +208,7 @@ services:
       # browser ends up on a non-routable address.
       NEXT_PUBLIC_APP_URL: https://demo.usestudybuddy.com
     # Internal port only — Nginx fronts it.
-    ports: []
+    ports: !override []
     # Base compose bind-mounts ./web:/app for dev hot-reload, which overlays
     # the image's built server.js. Reset that, then mount only the operator-
     # synced tutorial MP4s at the path Next.js serves them from.
