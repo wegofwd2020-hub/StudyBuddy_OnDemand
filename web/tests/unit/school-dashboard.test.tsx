@@ -7,7 +7,8 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { useQuery } from "@tanstack/react-query";
 import SchoolDashboard from "@/app/(school)/school/dashboard/page";
 import {
   MOCK_TEACHER,
@@ -80,7 +81,7 @@ describe("SCH-03 — Dashboard KPI cards render", () => {
     expect(screen.getByText(String(MOCK_OVERVIEW.enrolled_students))).toBeInTheDocument();
   });
 
-  it("renders Active this week KPI card title", () => {
+  it("renders Active KPI card title", () => {
     render(<SchoolDashboard />);
     expect(screen.getByText(DASHBOARD_STRINGS.activeThisWeek)).toBeInTheDocument();
   });
@@ -218,5 +219,67 @@ describe("SCH-05 — Alert count badge in header", () => {
     mockUseQueryAlerts.mockReturnValue({ data: MOCK_ALERTS_EMPTY, isLoading: false });
     render(<SchoolDashboard />);
     expect(screen.queryByText(/\d+ alert/)).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Period selector — fix/align-report-period-windows
+// Defaults to "30d" (matching /stats), governs only the overview query, and
+// switching it must produce a NEW queryKey (not a hard-coded "7d") so React
+// Query actually refetches instead of serving stale-window data from cache.
+// ---------------------------------------------------------------------------
+
+describe("Period selector — overview report window", () => {
+  beforeEach(() => {
+    mockUseQueryOverview.mockReturnValue({ data: MOCK_OVERVIEW, isLoading: false });
+    mockUseQueryAlerts.mockReturnValue({ data: MOCK_ALERTS_EMPTY, isLoading: false });
+  });
+
+  it("defaults to 30d in the report-overview queryKey", () => {
+    render(<SchoolDashboard />);
+    const overviewCalls = vi
+      .mocked(useQuery)
+      .mock.calls.filter(
+        ([opts]) =>
+          Array.isArray((opts as { queryKey?: unknown[] }).queryKey) &&
+          (opts as { queryKey: unknown[] }).queryKey[0] === "report-overview",
+      );
+    expect(overviewCalls.length).toBeGreaterThan(0);
+    const lastQueryKey = overviewCalls[overviewCalls.length - 1][0].queryKey;
+    expect(lastQueryKey).toEqual(["report-overview", MOCK_TEACHER.school_id, "30d"]);
+  });
+
+  it("renders 7d / 30d / term selector options", () => {
+    render(<SchoolDashboard />);
+    expect(screen.getByRole("button", { name: "Last 7 days" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Last 30 days" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "This term" })).toBeInTheDocument();
+  });
+
+  it("switching to 7d updates the queryKey (so React Query refetches instead of reusing the 30d cache entry)", () => {
+    render(<SchoolDashboard />);
+    fireEvent.click(screen.getByRole("button", { name: "Last 7 days" }));
+
+    const overviewCalls = vi
+      .mocked(useQuery)
+      .mock.calls.filter(
+        ([opts]) =>
+          Array.isArray((opts as { queryKey?: unknown[] }).queryKey) &&
+          (opts as { queryKey: unknown[] }).queryKey[0] === "report-overview",
+      );
+    const lastQueryKey = overviewCalls[overviewCalls.length - 1][0].queryKey;
+    expect(lastQueryKey).toEqual(["report-overview", MOCK_TEACHER.school_id, "7d"]);
+  });
+
+  it("labels the active window so it is visible without opening a menu", () => {
+    render(<SchoolDashboard />);
+    expect(screen.getByText(/Showing the last 30 days/)).toBeInTheDocument();
+  });
+
+  it("notes that the selector does not filter the alerts/other sections", () => {
+    render(<SchoolDashboard />);
+    expect(
+      screen.getByText(/alerts and other sections below are not filtered/i),
+    ).toBeInTheDocument();
   });
 });
