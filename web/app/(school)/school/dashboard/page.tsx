@@ -1,11 +1,16 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useTeacher } from "@/lib/hooks/useTeacher";
-import { getOverviewReport, getAlerts, getClassMetrics } from "@/lib/api/reports";
+import {
+  getOverviewReport,
+  getAlerts,
+  getClassMetrics,
+  type ReportPeriod,
+} from "@/lib/api/reports";
 import { listTeachers, getLibrary } from "@/lib/api/school-admin";
 import { SetupChecklist } from "@/components/school/SetupChecklist";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { useSchoolTheme } from "@/lib/theme/SchoolThemeContext";
 import { getSubjectPalette } from "@/lib/theme/getSubjectPalette";
 import { SUBJECT_ORDER } from "@/lib/theme/defaults";
+import { cn } from "@/lib/utils";
 import {
   Users,
   BookOpen,
@@ -30,6 +36,24 @@ import {
   MessageSquare,
   Download,
 } from "lucide-react";
+
+// The backend overview endpoint only accepts these three values
+// (`backend/src/reports/router.py`, `^(7d|30d|term)$`) — the student stats
+// endpoint's vocabulary ("7d"/"30d"/"all") is a different set (an "all time"
+// window has no equivalent here; a school "term" window has no equivalent
+// there), so the admin selector is deliberately constrained to what this
+// endpoint supports rather than inventing values the API would reject.
+const OVERVIEW_PERIODS: { value: ReportPeriod; label: string }[] = [
+  { value: "7d", label: "Last 7 days" },
+  { value: "30d", label: "Last 30 days" },
+  { value: "term", label: "This term" },
+];
+
+const OVERVIEW_PERIOD_LABELS: Record<ReportPeriod, string> = {
+  "7d": "the last 7 days",
+  "30d": "the last 30 days",
+  term: "this term",
+};
 
 function KpiCard({
   title,
@@ -112,8 +136,12 @@ function WelcomeHero({
               Welcome back
             </p>
             <h1 className="text-2xl font-bold text-gray-900">{name}</h1>
+            {/* No fixed window here on purpose — the overview card below has
+                its own period selector, and duplicating "this week" here
+                would go stale (and lie) the moment that selector moves off
+                its default. */}
             <p className="mt-0.5 text-sm text-gray-500">
-              Here&apos;s how your school is doing this week.
+              Here&apos;s how your school is doing.
             </p>
             {children && <div className="mt-3 flex flex-wrap gap-2">{children}</div>}
           </div>
@@ -172,9 +200,15 @@ export default function SchoolDashboard() {
   const accents = SUBJECT_ORDER.map((k) => theme.subjects[k]?.accent ?? "#4f46e5");
   const primaryAccent = accents[1] ?? "#4f46e5"; // Math accent — the brand indigo by default
 
+  // Defaults to "30d" to match the student stats page (`/stats`) default —
+  // so the two screens agree out of the box instead of silently comparing
+  // different windows. This selector governs ONLY the overview query below;
+  // alerts, library, teachers, and class-metrics are not period-scoped.
+  const [period, setPeriod] = useState<ReportPeriod>("30d");
+
   const { data: overview, isLoading } = useQuery({
-    queryKey: ["report-overview", schoolId, "7d"],
-    queryFn: () => getOverviewReport(schoolId, "7d"),
+    queryKey: ["report-overview", schoolId, period],
+    queryFn: () => getOverviewReport(schoolId, period),
     enabled: !!schoolId,
     staleTime: 120_000,
   });
@@ -241,66 +275,99 @@ export default function SchoolDashboard() {
 
         {/* Headline stats first (#368 VT-1) — kept directly under the hero so the
             KPIs land in the first viewport without scrolling. Onboarding and
-            secondary cards follow below. */}
-        {isLoading ? (
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} className="h-28 rounded-lg" />
-            ))}
+            secondary cards follow below.
+            The period selector is scoped visually to this card group only —
+            it must not read as filtering the alerts/library/teacher/class
+            sections further down the page, none of which take a period. */}
+        <div>
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-sm font-semibold tracking-wide text-gray-500 uppercase">
+                Overview
+              </h2>
+              <p className="mt-0.5 text-xs text-gray-400">
+                Showing {OVERVIEW_PERIOD_LABELS[period]}. Only these cards change with the
+                selector — alerts and other sections below are not filtered by it.
+              </p>
+            </div>
+            <div className="flex gap-1 rounded-lg border bg-white p-1">
+              {OVERVIEW_PERIODS.map((p) => (
+                <button
+                  key={p.value}
+                  onClick={() => setPeriod(p.value)}
+                  className={cn(
+                    "rounded px-3 py-1 text-xs font-medium transition-colors",
+                    period === p.value
+                      ? "bg-blue-600 text-white"
+                      : "text-gray-500 hover:text-gray-900",
+                  )}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
           </div>
-        ) : overview ? (
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-            <KpiCard
-              title="Enrolled students"
-              value={overview.enrolled_students}
-              icon={<Users className="h-5 w-5" />}
-              accent="blue"
-            />
-            <KpiCard
-              title="Active this week"
-              value={
-                overview.active_pct != null ? `${overview.active_pct.toFixed(0)}%` : "—"
-              }
-              subtitle={`${overview.active_students_period ?? 0} of ${overview.enrolled_students ?? 0}`}
-              icon={<TrendingUp className="h-5 w-5" />}
-              accent="green"
-            />
-            <KpiCard
-              title="Lessons viewed"
-              value={overview.lessons_viewed}
-              subtitle="Last 7 days"
-              icon={<BookOpen className="h-5 w-5" />}
-              accent="blue"
-            />
-            <KpiCard
-              title="Pass rate (1st attempt)"
-              value={
-                overview.first_attempt_pass_rate_pct != null
-                  ? `${overview.first_attempt_pass_rate_pct.toFixed(0)}%`
-                  : "—"
-              }
-              icon={<CheckCircle className="h-5 w-5" />}
-              accent={
-                overview.first_attempt_pass_rate_pct != null &&
-                overview.first_attempt_pass_rate_pct >= 60
-                  ? "green"
-                  : "red"
-              }
-            />
-            <KpiCard
-              title="Quiz attempts"
-              value={overview.quiz_attempts}
-              icon={<BookOpen className="h-5 w-5" />}
-              accent="gray"
-            />
-            <KpiCard
-              title="Unreviewed feedback"
-              value={overview.unreviewed_feedback_count}
-              icon={<Bell className="h-5 w-5" />}
-              accent={overview.unreviewed_feedback_count > 0 ? "red" : "gray"}
-            />
-          </div>
-        ) : null}
+
+          {isLoading ? (
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} className="h-28 rounded-lg" />
+              ))}
+            </div>
+          ) : overview ? (
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+              <KpiCard
+                title="Enrolled students"
+                value={overview.enrolled_students}
+                icon={<Users className="h-5 w-5" />}
+                accent="blue"
+              />
+              <KpiCard
+                title="Active"
+                value={
+                  overview.active_pct != null ? `${overview.active_pct.toFixed(0)}%` : "—"
+                }
+                subtitle={`${overview.active_students_period ?? 0} of ${overview.enrolled_students ?? 0} — ${OVERVIEW_PERIOD_LABELS[period]}`}
+                icon={<TrendingUp className="h-5 w-5" />}
+                accent="green"
+              />
+              <KpiCard
+                title="Lessons viewed"
+                value={overview.lessons_viewed}
+                subtitle={OVERVIEW_PERIODS.find((p) => p.value === period)?.label}
+                icon={<BookOpen className="h-5 w-5" />}
+                accent="blue"
+              />
+              <KpiCard
+                title="Pass rate (1st attempt)"
+                value={
+                  overview.first_attempt_pass_rate_pct != null
+                    ? `${overview.first_attempt_pass_rate_pct.toFixed(0)}%`
+                    : "—"
+                }
+                icon={<CheckCircle className="h-5 w-5" />}
+                accent={
+                  overview.first_attempt_pass_rate_pct != null &&
+                  overview.first_attempt_pass_rate_pct >= 60
+                    ? "green"
+                    : "red"
+                }
+              />
+              <KpiCard
+                title="Quiz attempts"
+                value={overview.quiz_attempts}
+                icon={<BookOpen className="h-5 w-5" />}
+                accent="gray"
+              />
+              <KpiCard
+                title="Unreviewed feedback"
+                value={overview.unreviewed_feedback_count}
+                icon={<Bell className="h-5 w-5" />}
+                accent={overview.unreviewed_feedback_count > 0 ? "red" : "gray"}
+              />
+            </div>
+          ) : null}
+        </div>
 
         {/* Layer 1.5 — first-run setup checklist (school_admin only) */}
         {isAdmin && schoolId && <SetupChecklist schoolId={schoolId} />}

@@ -6,8 +6,10 @@
  * Unit tests mock useTeacher(), useQuery (overview + alerts) directly.
  *
  * Backend API routes for E2E page.route() interception:
- *   GET /api/v1/reports/school/{school_id}/overview?period=7d → MOCK_OVERVIEW
- *   GET /api/v1/reports/school/{school_id}/alerts             → MOCK_ALERTS_WITH_UNREAD
+ *   GET /api/v1/reports/school/{school_id}/overview?period=30d → MOCK_OVERVIEW
+ *     (dashboard now defaults to "30d" to match /stats; period is also
+ *     selectable via the "7d"/"30d"/"term" pill control on the page)
+ *   GET /api/v1/reports/school/{school_id}/alerts              → MOCK_ALERTS_WITH_UNREAD
  */
 
 import type { OverviewReport, AlertListResponse } from "@/lib/api/reports";
@@ -28,7 +30,7 @@ export const MOCK_TEACHER = {
 
 export const MOCK_OVERVIEW: OverviewReport = {
   school_id: "school-001",
-  period: "7d",
+  period: "30d",
   enrolled_students: 120,
   active_students_period: 85,
   active_pct: 70.8,
@@ -99,7 +101,12 @@ export const DASHBOARD_STRINGS = {
   unitsNeedingAttention: "Units needing attention",
   // KPI card titles (uppercase in page, but matched case-insensitively)
   enrolledStudents: "Enrolled students",
-  activeThisWeek: "Active this week",
+  // Renamed from "Active this week" — the card now sits under a period
+  // selector (default "30d"), so a fixed "week" title would mislead as
+  // soon as the reader picks a different window (see fix/align-report-
+  // period-windows). The active window is now shown in the subtitle and
+  // the "Overview" section label instead.
+  activeThisWeek: "Active",
   lessonsViewed: "Lessons viewed",
   passRate: "Pass rate (1st attempt)",
   quizAttempts: "Quiz attempts",
