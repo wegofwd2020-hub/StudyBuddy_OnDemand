@@ -67,7 +67,11 @@ function destinationFor(
   firstLogin: boolean | null,
 ): string {
   if (track === "local" && firstLogin) {
-    return "/school/change-password?required=1";
+    // Tell the change-password page exactly which cached token belongs to
+    // the account that just authenticated (issue #582) — it must never
+    // re-derive this from localStorage key precedence.
+    const account = role === "student" ? "student" : "teacher";
+    return `/school/change-password?required=1&account=${account}`;
   }
   if (role === "student") {
     return "/dashboard";
