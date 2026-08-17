@@ -6,9 +6,21 @@ Pydantic request/response models for the backup and restore API.
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime, timedelta
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
+
+# `scheduled_at` on a restore request is a *preferred* time, not a promise of
+# unattended execution — nothing in the system ever polls this column and
+# auto-dispatches a restore (see issue #589: a school scheduled one for 2030
+# and it just sat in `submitted` forever). The restore lifecycle
+# (submitted -> acknowledged -> in_progress -> completed) only ever advances
+# on a human button click (super_admin acknowledge/execute, or school
+# confirm). Bound the horizon so the field can't be (mis)used to imply a
+# scheduling system that doesn't exist; a school admin checking in weekly is
+# well within this window, and anything further out reads as confusion about
+# what the field does rather than a genuine near-term preference.
+RESTORE_SCHEDULE_MAX_HORIZON_DAYS = 30
 
 
 class BackupCreateRequest(BaseModel):
@@ -42,6 +54,32 @@ class RestoreRequestCreate(BaseModel):
     notes: str | None = None
     scheduled_at: datetime | None = None
     side_by_side: bool = False
+
+    @field_validator("scheduled_at")
+    @classmethod
+    def validate_scheduled_at(cls, v: datetime | None) -> datetime | None:
+        """Bound `scheduled_at` so it can't imply automatic scheduling.
+
+        Blank stays valid ("as soon as an administrator can action it").
+        A supplied value must be a genuine near-term preference: not in the
+        past, and not further out than an administrator would realistically
+        be checking this queue.
+        """
+        if v is None:
+            return v
+        now = datetime.now(UTC)
+        v_aware = v if v.tzinfo is not None else v.replace(tzinfo=UTC)
+        if v_aware < now:
+            raise ValueError("scheduled_at cannot be in the past.")
+        horizon = now + timedelta(days=RESTORE_SCHEDULE_MAX_HORIZON_DAYS)
+        if v_aware > horizon:
+            raise ValueError(
+                f"scheduled_at cannot be more than {RESTORE_SCHEDULE_MAX_HORIZON_DAYS} "
+                "days out. Restore requests are reviewed and actioned by an "
+                "administrator, not executed automatically at the requested time — "
+                "pick a nearer date or leave this blank."
+            )
+        return v
 
 
 class RestoreRequestResponse(BaseModel):
