@@ -12211,6 +12211,54 @@
         }
       }
     },
+    "/api/v1/admin/feedback/{feedback_id}/resolve": {
+      "post": {
+        "tags": [
+          "feedback"
+        ],
+        "summary": "Resolve Feedback Endpoint",
+        "description": "Mark a feedback item reviewed.\n\nThe admin Feedback page has shipped this button since it was built, but the\nendpoint never existed and the click 404'd. It went unnoticed because no\nfeedback was ever stored, so there was never a button to press (#603).",
+        "operationId": "resolve_feedback_endpoint_api_v1_admin_feedback__feedback_id__resolve_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "feedback_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Feedback Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackResolveResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/reports/school/{school_id}/roster": {
       "get": {
         "tags": [
@@ -21106,6 +21154,47 @@
           "feedback_text"
         ],
         "title": "FeedbackRequest"
+      },
+      "FeedbackResolveResponse": {
+        "properties": {
+          "feedback_id": {
+            "type": "string",
+            "title": "Feedback Id"
+          },
+          "reviewed": {
+            "type": "boolean",
+            "title": "Reviewed"
+          },
+          "reviewed_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewed By"
+          },
+          "reviewed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewed At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "feedback_id",
+          "reviewed"
+        ],
+        "title": "FeedbackResolveResponse"
       },
       "FeedbackSubmitRequest": {
         "properties": {

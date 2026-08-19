@@ -142,3 +142,42 @@ async def list_feedback(
         "pagination": {"page": page, "per_page": per_page, "total": total},
         "feedback_items": [dict(r) for r in rows],
     }
+
+
+async def resolve_feedback(
+    conn: asyncpg.Connection,
+    feedback_id: str,
+    admin_id: str,
+) -> dict | None:
+    """Mark one feedback item reviewed. Returns None if it does not exist.
+
+    Idempotent, and the FIRST reviewer is kept: the button has no in-flight
+    disabled state, so a double-click is ordinary, and rewriting `reviewed_by`
+    on the second click would quietly falsify who actually reviewed it (#603).
+    """
+    updated = await conn.fetchrow(
+        """
+        UPDATE feedback
+        SET reviewed = TRUE,
+            reviewed_by = $2::uuid,
+            reviewed_at = NOW()
+        WHERE feedback_id = $1::uuid AND NOT reviewed
+        RETURNING feedback_id::text, reviewed, reviewed_by::text, reviewed_at
+        """,
+        feedback_id,
+        admin_id,
+    )
+    if updated is not None:
+        log.info("feedback_resolved", feedback_id=feedback_id, admin_id=admin_id)
+        return dict(updated)
+
+    # Either already resolved (return it unchanged) or absent (404).
+    existing = await conn.fetchrow(
+        """
+        SELECT feedback_id::text, reviewed, reviewed_by::text, reviewed_at
+        FROM feedback
+        WHERE feedback_id = $1::uuid
+        """,
+        feedback_id,
+    )
+    return dict(existing) if existing is not None else None

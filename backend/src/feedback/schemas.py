@@ -66,3 +66,10 @@ class AdminFeedbackPagination(BaseModel):
 class AdminFeedbackListResponse(BaseModel):
     pagination: AdminFeedbackPagination
     feedback_items: list[AdminFeedbackItem]
+
+
+class FeedbackResolveResponse(BaseModel):
+    feedback_id: str
+    reviewed: bool
+    reviewed_by: str | None = None
+    reviewed_at: datetime | None = None

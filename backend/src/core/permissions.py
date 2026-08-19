@@ -66,6 +66,7 @@ ROLE_PERMISSIONS: dict[str, set[str]] = {
         "student:manage",
         "school:manage",
         "feedback:view",
+        "feedback:resolve",
         "audit:view",
         "demo:reset",
     },
