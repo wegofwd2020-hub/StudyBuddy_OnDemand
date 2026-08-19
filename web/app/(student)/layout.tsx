@@ -1,3 +1,4 @@
+import { SessionGuard } from "@/components/auth/SessionGuard";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth0 } from "@/lib/auth0";
@@ -31,6 +32,7 @@ export default async function StudentLayout({ children }: { children: React.Reac
         <div className="flex min-h-screen bg-gray-50">
           <StudentNav />
           <div className="flex flex-1 flex-col overflow-auto">
+            <SessionGuard />
             <PortalHeader portal="student" userName={userName} />
             <DemoBanner />
             <main id="main-content" className="flex-1">
