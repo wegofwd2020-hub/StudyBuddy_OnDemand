@@ -4505,6 +4505,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/feedback/{feedback_id}/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Resolve Feedback Endpoint
+         * @description Mark a feedback item reviewed.
+         *
+         *     The admin Feedback page has shipped this button since it was built, but the
+         *     endpoint never existed and the click 404'd. It went unnoticed because no
+         *     feedback was ever stored, so there was never a button to press (#603).
+         */
+        post: operations["resolve_feedback_endpoint_api_v1_admin_feedback__feedback_id__resolve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/reports/school/{school_id}/roster": {
         parameters: {
             query?: never;
@@ -7880,6 +7904,17 @@ export interface components {
             marked_text?: string | null;
             /** Feedback Text */
             feedback_text: string;
+        };
+        /** FeedbackResolveResponse */
+        FeedbackResolveResponse: {
+            /** Feedback Id */
+            feedback_id: string;
+            /** Reviewed */
+            reviewed: boolean;
+            /** Reviewed By */
+            reviewed_by?: string | null;
+            /** Reviewed At */
+            reviewed_at?: string | null;
         };
         /** FeedbackSubmitRequest */
         FeedbackSubmitRequest: {
@@ -18123,6 +18158,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AdminFeedbackListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    resolve_feedback_endpoint_api_v1_admin_feedback__feedback_id__resolve_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                feedback_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedbackResolveResponse"];
                 };
             };
             /** @description Validation Error */

@@ -35,7 +35,6 @@ const OPENAPI = join(__dirname, "../../openapi.json");
  * new failure.
  */
 const KNOWN_BROKEN = new Map<string, string>([
-  ["POST /api/v1/admin/feedback/{}/resolve", "#603 — endpoint never implemented"],
   // Found by this check on first run; all 404 against a live API. Six are wired
   // into UI (see #604) — the admin Audit page and the dashboard's subscription
   // analytics among them. Listed so the check can enforce from day one.

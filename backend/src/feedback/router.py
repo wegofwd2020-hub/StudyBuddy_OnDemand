@@ -20,12 +20,14 @@ from src.core.db import get_db
 from src.core.redis_client import get_redis
 from src.feedback.schemas import (
     AdminFeedbackListResponse,
+    FeedbackResolveResponse,
     FeedbackSubmitRequest,
     FeedbackSubmitResponse,
 )
 from src.feedback.service import (
     check_and_increment_rate_limit,
     list_feedback,
+    resolve_feedback,
     submit_feedback,
 )
 from src.utils.logger import get_logger
@@ -114,3 +116,36 @@ async def list_admin_feedback(
         )
 
     return AdminFeedbackListResponse(**result)
+
+
+# ── POST /admin/feedback/{feedback_id}/resolve (admin) ────────────────────────
+
+
+@router.post(
+    "/admin/feedback/{feedback_id}/resolve",
+    response_model=FeedbackResolveResponse,
+)
+async def resolve_feedback_endpoint(
+    feedback_id: str,
+    request: Request,
+    admin: Annotated[dict, Depends(_require("feedback:resolve"))],
+) -> FeedbackResolveResponse:
+    """Mark a feedback item reviewed.
+
+    The admin Feedback page has shipped this button since it was built, but the
+    endpoint never existed and the click 404'd. It went unnoticed because no
+    feedback was ever stored, so there was never a button to press (#603).
+    """
+    async with get_db(request) as conn:
+        result = await resolve_feedback(conn, feedback_id, str(admin["admin_id"]))
+
+    if result is None:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "error": "not_found",
+                "detail": "That feedback item does not exist.",
+                "correlation_id": _cid(request),
+            },
+        )
+    return FeedbackResolveResponse(**result)
