@@ -340,7 +340,7 @@ async def get_unit_report(
     fb_placeholders = ", ".join(f"${i + 2}" for i in range(len(id_uuids)))
     fb_rows = await conn.fetch(
         f"""
-        SELECT feedback_id::text, category, rating, message, submitted_at
+        SELECT feedback_id::text, category, rating, message, helpful, content_type, submitted_at
         FROM feedback
         WHERE unit_id = $1
           AND student_id = ANY(ARRAY[{fb_placeholders}]::uuid[])
@@ -783,7 +783,7 @@ async def get_feedback_report(
 
         items = await conn.fetch(
             f"""
-            SELECT feedback_id::text, category, rating, message, submitted_at, reviewed
+            SELECT feedback_id::text, category, rating, message, helpful, content_type, submitted_at, reviewed
             FROM feedback
             WHERE student_id = ANY(ARRAY[{placeholders}]::uuid[])
               AND unit_id = ${len(id_uuids) + 1}
@@ -831,6 +831,8 @@ async def get_feedback_report(
                         "category": r["category"],
                         "rating": r["rating"],
                         "message": r["message"],
+                        "helpful": r["helpful"],
+                        "content_type": r["content_type"],
                         "submitted_at": r["submitted_at"],
                         "reviewed": r["reviewed"],
                     }

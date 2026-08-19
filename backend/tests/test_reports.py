@@ -463,6 +463,76 @@ async def test_feedback_report_returns_200(client, db_conn):
     assert data["total_feedback_count"] >= 1
 
 
+@pytest.mark.asyncio
+async def test_feedback_report_includes_thumbs_feedback(client, db_conn):
+    """A thumbs vote (no message) must not break the report.
+
+    Migration 0062 let feedback carry a `helpful` verdict with no prose, but
+    `FeedbackReportItem.message` stayed required — so the first real thumbs-up
+    made the whole report 500 and the page rendered blank. The verdict itself
+    must also reach the reviewer, or the row shows up empty.
+    """
+    school = await _register_school(client, "_fbthumbs")
+    school_id = school["school_id"]
+    token = school["access_token"]
+
+    sid = "a1000000-0000-0000-0000-0000000000fb"
+    email = "fb-thumbs@test.invalid"
+    await _insert_student(client, sid, email)
+    await _enrol_student(client, school_id, sid, email)
+
+    pool = client._transport.app.state.pool
+    await pool.execute(
+        """
+        INSERT INTO feedback (student_id, category, unit_id, helpful, content_type)
+        VALUES ($1, 'content', 'G8-MATH-001', TRUE, 'lesson')
+        """,
+        uuid.UUID(sid),
+    )
+
+    r = await client.get(
+        f"/api/v1/reports/school/{school_id}/feedback",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert r.status_code == 200, r.text
+    data = r.json()
+    assert data["total_feedback_count"] >= 1
+
+    items = [item for unit in data["by_unit"] for item in unit["feedback_items"]]
+    assert items, "thumbs feedback did not reach the report"
+    assert any(item.get("helpful") is True for item in items), (
+        "the thumbs verdict is missing, so the row carries no information"
+    )
+
+
+@pytest.mark.asyncio
+async def test_unit_report_includes_thumbs_feedback(client, db_conn):
+    """The Unit Performance report has the same required-message problem."""
+    school = await _register_school(client, "_unitthumbs")
+    school_id = school["school_id"]
+    token = school["access_token"]
+
+    sid = "a1000000-0000-0000-0000-0000000000fc"
+    email = "unit-thumbs@test.invalid"
+    await _insert_student(client, sid, email)
+    await _enrol_student(client, school_id, sid, email)
+
+    pool = client._transport.app.state.pool
+    await pool.execute(
+        """
+        INSERT INTO feedback (student_id, category, unit_id, helpful, content_type)
+        VALUES ($1, 'content', 'G8-MATH-001', FALSE, 'tutorial')
+        """,
+        uuid.UUID(sid),
+    )
+
+    r = await client.get(
+        f"/api/v1/reports/school/{school_id}/unit/G8-MATH-001",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert r.status_code == 200, r.text
+
+
 # ── Trends report ──────────────────────────────────────────────────────────────
 
 @pytest.mark.asyncio

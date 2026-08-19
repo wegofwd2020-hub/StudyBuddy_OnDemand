@@ -46,7 +46,11 @@ class RecentFeedbackItem(BaseModel):
     feedback_id: str
     category: str
     rating: int | None = None
-    message: str
+    # Nullable since migration 0062: a thumbs vote carries a verdict, not prose.
+    # Leaving this required made the report 500 on the first real thumbs-up.
+    message: str | None = None
+    helpful: bool | None = None
+    content_type: str | None = None
     submitted_at: datetime
 
 
@@ -134,7 +138,10 @@ class FeedbackReportItem(BaseModel):
     feedback_id: str
     category: str
     rating: int | None = None
-    message: str
+    # See RecentFeedbackItem — same nullability, same reason (migration 0062).
+    message: str | None = None
+    helpful: bool | None = None
+    content_type: str | None = None
     submitted_at: datetime
     reviewed: bool
 
