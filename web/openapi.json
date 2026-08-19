@@ -15760,7 +15760,14 @@
             "title": "Curriculum Id"
           },
           "message": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Message"
           },
           "rating": {
@@ -15773,6 +15780,28 @@
               }
             ],
             "title": "Rating"
+          },
+          "helpful": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Helpful"
+          },
+          "content_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content Type"
           },
           "submitted_at": {
             "type": "string",
@@ -15812,7 +15841,6 @@
           "feedback_id",
           "student_id",
           "category",
-          "message",
           "submitted_at",
           "reviewed"
         ],
@@ -20932,9 +20960,16 @@
             "title": "Curriculum Id"
           },
           "message": {
-            "type": "string",
-            "maxLength": 500,
-            "minLength": 1,
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Message"
           },
           "rating": {
@@ -20949,12 +20984,34 @@
               }
             ],
             "title": "Rating"
+          },
+          "helpful": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Helpful"
+          },
+          "content_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(lesson|tutorial|experiment|quiz)$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content Type"
           }
         },
         "type": "object",
         "required": [
-          "category",
-          "message"
+          "category"
         ],
         "title": "FeedbackSubmitRequest"
       },
