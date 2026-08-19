@@ -136,9 +136,11 @@ class CurriculumHealthReport(BaseModel):
 
 class FeedbackReportItem(BaseModel):
     feedback_id: str
+    unit_id: str | None = None
+    unit_name: str | None = None
     category: str
     rating: int | None = None
-    # See RecentFeedbackItem — same nullability, same reason (migration 0062).
+    # See the widget: a thumbs vote carries `helpful` and no prose (migration 0062).
     message: str | None = None
     helpful: bool | None = None
     content_type: str | None = None
@@ -146,13 +148,11 @@ class FeedbackReportItem(BaseModel):
     reviewed: bool
 
 
-class FeedbackByUnit(BaseModel):
-    unit_id: str
-    unit_name: str | None = None
-    feedback_count: int
-    category_breakdown: dict[str, int]  # content/ux/general → count
-    trending: bool  # > 3 items in last 7 days
-    feedback_items: list[FeedbackReportItem]
+class FeedbackPagination(BaseModel):
+    page: int
+    page_size: int
+    # Total matching the CURRENT filters — the header counts below are not filtered.
+    total: int
 
 
 class FeedbackReport(BaseModel):
@@ -160,7 +160,8 @@ class FeedbackReport(BaseModel):
     total_feedback_count: int
     unreviewed_count: int
     avg_rating_overall: float | None = None
-    by_unit: list[FeedbackByUnit]
+    items: list[FeedbackReportItem]
+    pagination: FeedbackPagination
 
 
 # ── Report 6: Trends ──────────────────────────────────────────────────────────

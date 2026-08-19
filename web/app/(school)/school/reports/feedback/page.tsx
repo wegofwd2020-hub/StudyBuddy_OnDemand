@@ -1,162 +1,233 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useTeacher } from "@/lib/hooks/useTeacher";
 import { getFeedbackReport } from "@/lib/api/reports";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MessageSquare, TrendingUp, Star } from "lucide-react";
+import { MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const CATEGORY_COLOR: Record<string, string> = {
-  content: "bg-blue-50 text-blue-700 border-blue-100",
-  ux: "bg-purple-50 text-purple-700 border-purple-100",
-  general: "bg-gray-100 text-gray-600 border-gray-200",
-};
+/**
+ * Student feedback, as a paginated table.
+ *
+ * This was a card per unit containing every item ever recorded, which was fine
+ * at five rows and unusable at five hundred (#611). The backend now paginates,
+ * so the page shows one row per item, newest first, with the filters the API
+ * already supported but the UI never exposed.
+ */
 
-function StarRating({ rating }: { rating: number | null }) {
-  if (rating === null) return <span className="text-xs text-gray-300">No rating</span>;
-  return (
-    <span className="flex items-center gap-0.5">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <Star
-          key={i}
-          className={cn(
-            "h-3 w-3",
-            i < Math.round(rating)
-              ? "fill-yellow-400 text-yellow-400"
-              : "fill-gray-100 text-gray-200",
-          )}
-        />
-      ))}
-    </span>
-  );
+const PAGE_SIZE = 25;
+
+type ReviewedFilter = "all" | "unreviewed" | "reviewed";
+type VerdictFilter = "all" | "helpful" | "not_helpful";
+
+function Verdict({
+  helpful,
+  rating,
+}: {
+  helpful: boolean | null;
+  rating: number | null;
+}) {
+  if (typeof helpful === "boolean") {
+    return (
+      <span
+        className={cn(
+          "text-sm font-medium whitespace-nowrap",
+          helpful ? "text-emerald-600" : "text-rose-600",
+        )}
+      >
+        {helpful ? "👍 Helpful" : "👎 Not helpful"}
+      </span>
+    );
+  }
+  if (rating !== null) return <span className="text-sm text-gray-700">{rating} / 5</span>;
+  return <span className="text-sm text-gray-300">—</span>;
 }
 
 export default function FeedbackReportPage() {
   const teacher = useTeacher();
   const schoolId = teacher?.school_id ?? "";
 
+  const [page, setPage] = useState(1);
+  const [reviewedFilter, setReviewedFilter] = useState<ReviewedFilter>("all");
+  const [verdictFilter, setVerdictFilter] = useState<VerdictFilter>("all");
+
+  const reviewed =
+    reviewedFilter === "all" ? undefined : reviewedFilter === "reviewed" ? true : false;
+
   const { data, isLoading } = useQuery({
-    queryKey: ["feedback-report", schoolId],
-    queryFn: () => getFeedbackReport(schoolId),
-    enabled: !!schoolId,
-    staleTime: 120_000,
+    queryKey: ["school", "reports", "feedback", schoolId, page, reviewed],
+    queryFn: () => getFeedbackReport(schoolId, { page, pageSize: PAGE_SIZE, reviewed }),
+    enabled: Boolean(schoolId),
+    // Keep the previous page visible while the next one loads, so paging does
+    // not flash an empty table.
+    placeholderData: keepPreviousData,
   });
 
+  // The verdict split is not a server-side filter, so it narrows the current
+  // page only — labelled as such below rather than pretending otherwise.
+  const rows = (data?.items ?? []).filter((item) => {
+    if (verdictFilter === "helpful") return item.helpful === true;
+    if (verdictFilter === "not_helpful") return item.helpful === false;
+    return true;
+  });
+
+  const total = data?.pagination.total ?? 0;
+  const lastPage = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
   return (
-    <div className="max-w-4xl space-y-6 p-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 p-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold text-gray-900">Student Feedback</h1>
-        {data && (
-          <div className="flex items-center gap-4 text-sm text-gray-500">
-            <span>
-              <span className="font-semibold text-gray-900">
-                {data.total_feedback_count}
-              </span>{" "}
-              total
-            </span>
-            {data.unreviewed_count > 0 && (
-              <Badge className="border-red-200 bg-red-50 text-red-600">
-                {data.unreviewed_count} unreviewed
-              </Badge>
+        <div className="flex items-center gap-2 text-sm text-gray-500">
+          <span>{data?.total_feedback_count ?? 0} total</span>
+          {(data?.unreviewed_count ?? 0) > 0 && (
+            <Badge variant="secondary">{data?.unreviewed_count} unreviewed</Badge>
+          )}
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        {(["all", "unreviewed", "reviewed"] as const).map((value) => (
+          <button
+            key={value}
+            onClick={() => {
+              setReviewedFilter(value);
+              setPage(1);
+            }}
+            className={cn(
+              "rounded-full px-3 py-1 text-xs font-medium",
+              reviewedFilter === value
+                ? "bg-gray-900 text-white"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200",
             )}
-            {data.avg_rating_overall !== null && (
-              <span className="flex items-center gap-1">
-                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                {data.avg_rating_overall.toFixed(1)} overall
-              </span>
+          >
+            {value === "all" ? "All" : value === "unreviewed" ? "Unreviewed" : "Reviewed"}
+          </button>
+        ))}
+        <span className="mx-1 h-4 w-px bg-gray-200" aria-hidden="true" />
+        {(["all", "helpful", "not_helpful"] as const).map((value) => (
+          <button
+            key={value}
+            onClick={() => setVerdictFilter(value)}
+            className={cn(
+              "rounded-full px-3 py-1 text-xs font-medium",
+              verdictFilter === value
+                ? "bg-gray-900 text-white"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200",
             )}
-          </div>
+          >
+            {value === "all"
+              ? "Any verdict"
+              : value === "helpful"
+                ? "Helpful"
+                : "Not helpful"}
+          </button>
+        ))}
+        {verdictFilter !== "all" && (
+          <span className="text-xs text-gray-400">filters this page only</span>
         )}
       </div>
-      {isLoading && <Skeleton className="h-60 rounded-lg" />}
-      {data?.by_unit.map((unit) => (
-        <Card key={unit.unit_id} className="border shadow-sm">
-          <CardHeader className="pb-2">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <CardTitle className="text-base">
-                  {unit.unit_name ?? unit.unit_id}
-                </CardTitle>
-                <div className="mt-1 flex items-center gap-2">
-                  <span className="text-xs text-gray-400">
-                    {unit.feedback_count} item{unit.feedback_count !== 1 ? "s" : ""}
-                  </span>
-                  {unit.trending && (
-                    <span className="flex items-center gap-1 text-xs text-orange-600">
-                      <TrendingUp className="h-3 w-3" />
-                      Trending
-                    </span>
-                  )}
-                  {Object.entries(unit.category_breakdown).map(([cat, count]) => (
-                    <Badge
-                      key={cat}
-                      className={cn(
-                        "text-xs",
-                        CATEGORY_COLOR[cat] ?? CATEGORY_COLOR.general,
-                      )}
-                    >
-                      {cat} ({count})
-                    </Badge>
-                  ))}
-                </div>
-              </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <MessageSquare className="h-4 w-4 text-gray-500" aria-hidden="true" />
+            Feedback
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="space-y-2">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} className="h-10 w-full" />
+              ))}
             </div>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {unit.feedback_items.map((item) => (
-              <div
-                key={item.feedback_id}
-                className={cn(
-                  "space-y-1 rounded-lg border p-3",
-                  item.reviewed
-                    ? "border-gray-100 bg-gray-50"
-                    : "border-gray-200 bg-white",
-                )}
-              >
-                <div className="flex items-center gap-2">
-                  <Badge
-                    className={cn(
-                      "text-xs",
-                      CATEGORY_COLOR[item.category] ?? CATEGORY_COLOR.general,
-                    )}
-                  >
-                    {item.category}
-                  </Badge>
-                  {typeof item.helpful === "boolean" ? (
-                    <span
-                      className={cn(
-                        "text-xs font-medium",
-                        item.helpful ? "text-emerald-600" : "text-rose-600",
-                      )}
-                    >
-                      {item.helpful ? "\u{1F44D} Helpful" : "\u{1F44E} Not helpful"}
-                      {item.content_type ? ` \u00b7 ${item.content_type}` : ""}
-                    </span>
-                  ) : (
-                    <StarRating rating={item.rating} />
-                  )}
-                  {!item.reviewed && (
-                    <Badge className="ml-auto border-red-100 bg-red-50 text-xs text-red-600">
-                      Unreviewed
-                    </Badge>
-                  )}
-                </div>
-                {item.message && <p className="text-sm text-gray-700">{item.message}</p>}
-                <p className="text-xs text-gray-400">
-                  {new Date(item.submitted_at).toLocaleDateString()}
-                </p>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      ))}
-      {!isLoading && data?.by_unit.length === 0 && (
-        <div className="flex flex-col items-center gap-2 py-12 text-gray-400">
-          <MessageSquare className="h-10 w-10" />
-          <p className="text-sm">No feedback submitted yet.</p>
+          ) : rows.length === 0 ? (
+            <p className="py-8 text-center text-sm text-gray-500">No feedback to show.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="border-b border-gray-200 text-xs tracking-wide text-gray-500 uppercase">
+                  <tr>
+                    <th scope="col" className="px-3 py-2">
+                      Unit
+                    </th>
+                    <th scope="col" className="px-3 py-2">
+                      Verdict
+                    </th>
+                    <th scope="col" className="px-3 py-2">
+                      Comment
+                    </th>
+                    <th scope="col" className="px-3 py-2">
+                      Type
+                    </th>
+                    <th scope="col" className="px-3 py-2">
+                      Date
+                    </th>
+                    <th scope="col" className="px-3 py-2">
+                      Status
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {rows.map((item) => (
+                    <tr key={item.feedback_id} className="hover:bg-gray-50">
+                      <td className="px-3 py-2 font-medium text-gray-900">
+                        {item.unit_name ?? item.unit_id ?? "—"}
+                      </td>
+                      <td className="px-3 py-2">
+                        <Verdict helpful={item.helpful} rating={item.rating} />
+                      </td>
+                      <td className="max-w-md px-3 py-2 text-gray-700">
+                        {item.message ?? <span className="text-gray-300">—</span>}
+                      </td>
+                      <td className="px-3 py-2 text-gray-500 capitalize">
+                        {item.content_type ?? item.category}
+                      </td>
+                      <td className="px-3 py-2 whitespace-nowrap text-gray-500">
+                        {new Date(item.submitted_at).toLocaleDateString()}
+                      </td>
+                      <td className="px-3 py-2">
+                        {item.reviewed ? (
+                          <span className="text-xs text-gray-400">Reviewed</span>
+                        ) : (
+                          <Badge variant="secondary">Unreviewed</Badge>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {total > PAGE_SIZE && (
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-gray-500">
+            Page {page} of {lastPage} · {total} items
+          </span>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page <= 1}
+              className="rounded-lg border border-gray-200 px-3 py-1 disabled:opacity-40"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => setPage((p) => Math.min(lastPage, p + 1))}
+              disabled={page >= lastPage}
+              className="rounded-lg border border-gray-200 px-3 py-1 disabled:opacity-40"
+            >
+              Next
+            </button>
+          </div>
         </div>
       )}
     </div>

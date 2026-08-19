@@ -459,7 +459,8 @@ async def test_feedback_report_returns_200(client, db_conn):
     assert r.status_code == 200, r.text
     data = r.json()
     assert "total_feedback_count" in data
-    assert "by_unit" in data
+    assert "items" in data
+    assert "pagination" in data
     assert data["total_feedback_count"] >= 1
 
 
@@ -498,7 +499,7 @@ async def test_feedback_report_includes_thumbs_feedback(client, db_conn):
     data = r.json()
     assert data["total_feedback_count"] >= 1
 
-    items = [item for unit in data["by_unit"] for item in unit["feedback_items"]]
+    items = data["items"]
     assert items, "thumbs feedback did not reach the report"
     assert any(item.get("helpful") is True for item in items), (
         "the thumbs verdict is missing, so the row carries no information"

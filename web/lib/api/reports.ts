@@ -175,6 +175,8 @@ export async function getClassMetrics(
 
 export interface FeedbackReportItem {
   feedback_id: string;
+  unit_id: string | null;
+  unit_name: string | null;
   category: string;
   rating: number | null;
   /** Null for a thumbs vote, which carries `helpful` instead (migration 0062). */
@@ -185,13 +187,11 @@ export interface FeedbackReportItem {
   reviewed: boolean;
 }
 
-export interface FeedbackByUnit {
-  unit_id: string;
-  unit_name: string | null;
-  feedback_count: number;
-  category_breakdown: Record<string, number>;
-  trending: boolean;
-  feedback_items: FeedbackReportItem[];
+export interface FeedbackPagination {
+  page: number;
+  page_size: number;
+  /** Rows matching the CURRENT filters — the header counts are unfiltered. */
+  total: number;
 }
 
 export interface FeedbackReport {
@@ -199,11 +199,36 @@ export interface FeedbackReport {
   total_feedback_count: number;
   unreviewed_count: number;
   avg_rating_overall: number | null;
-  by_unit: FeedbackByUnit[];
+  items: FeedbackReportItem[];
+  pagination: FeedbackPagination;
 }
 
-export async function getFeedbackReport(schoolId: string): Promise<FeedbackReport> {
-  const res = await schoolApi.get<FeedbackReport>(`/reports/school/${schoolId}/feedback`);
+export interface FeedbackReportParams {
+  page?: number;
+  pageSize?: number;
+  unitId?: string;
+  category?: string;
+  reviewed?: boolean;
+}
+
+export async function getFeedbackReport(
+  schoolId: string,
+  params: FeedbackReportParams = {},
+): Promise<FeedbackReport> {
+  const query: Record<string, unknown> = {
+    page: params.page ?? 1,
+    page_size: params.pageSize ?? 25,
+  };
+  if (params.unitId) query.unit_id = params.unitId;
+  if (params.category) query.category = params.category;
+  if (params.reviewed !== undefined) query.reviewed = params.reviewed;
+
+  const res = await schoolApi.get<FeedbackReport>(
+    `/reports/school/${schoolId}/feedback`,
+    {
+      params: query,
+    },
+  );
   return res.data;
 }
 

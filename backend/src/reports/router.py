@@ -239,12 +239,28 @@ async def feedback_report(
     unit_id: str | None = Query(None),
     category: str | None = Query(None, pattern="^(content|ux|general)$"),
     reviewed: bool | None = Query(None),
-    sort: str = Query("recent", pattern="^(recent|oldest|volume)$"),
+    sort: str = Query("recent", pattern="^(recent|oldest)$"),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(50, ge=1, le=200),
 ) -> FeedbackReport:
-    """All student feedback for the school's curriculum, grouped by unit."""
+    """A page of student feedback for the school, newest first by default.
+
+    Paginated since #611: the report previously returned every item ever
+    recorded, so the response grew without bound as a school accumulated
+    feedback.
+    """
     _check_school(teacher, school_id, request)
     async with get_db(request) as conn:
-        result = await get_feedback_report(conn, school_id, unit_id, category, reviewed, sort)
+        result = await get_feedback_report(
+            conn,
+            school_id,
+            unit_id=unit_id,
+            category=category,
+            reviewed=reviewed,
+            sort=sort,
+            page=page,
+            page_size=page_size,
+        )
     return FeedbackReport(**result)
 
 
