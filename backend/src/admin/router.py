@@ -58,6 +58,8 @@ from src.admin.schemas import (
     ApproveResponse,
     AssignRequest,
     AssignResponse,
+    AuditEntry,
+    AuditLogResponse,
     BatchApproveRequest,
     BatchApproveResponse,
     BlockRequest,
@@ -103,6 +105,7 @@ from src.admin.service import (
     get_unit_content_meta,
     get_version_warnings,
     list_admin_users,
+    list_audit_log,
     list_feedback,
     list_review_queue,
     lookup_dictionary,
@@ -556,6 +559,29 @@ async def assign(
 
 
 # ── Admin users ───────────────────────────────────────────────────────────────
+
+
+@router.get("/admin/audit", response_model=AuditLogResponse)
+async def admin_audit_log(
+    request: Request,
+    admin: Annotated[dict, Depends(_require("audit:view"))],
+    page: int = Query(1, ge=1),
+    page_size: int = Query(50, ge=1, le=200),
+    action: str | None = Query(None),
+) -> AuditLogResponse:
+    """Read the platform audit log (newest first).
+
+    Gated on `audit:view`, which product_admin and above hold — matching the
+    role the admin nav already uses to show the page (#604).
+    """
+    async with get_db(request) as conn:
+        result = await list_audit_log(conn, page=page, page_size=page_size, action=action)
+    return AuditLogResponse(
+        entries=[AuditEntry(**e) for e in result["entries"]],
+        total=result["total"],
+        page=result["page"],
+        page_size=result["page_size"],
+    )
 
 
 @router.get("/admin/users", response_model=AdminUsersResponse)

@@ -85,7 +85,7 @@ export default function AdminAuditPage() {
                     </td>
                     <td className="px-4 py-3">
                       <span className="text-xs text-gray-700">
-                        {entry.actor_id.slice(0, 8)}…
+                        {entry.actor_id ? `${entry.actor_id.slice(0, 8)}…` : "system"}
                       </span>
                       <span className="ml-1.5 text-xs text-gray-400">
                         {entry.actor_role}
@@ -97,8 +97,16 @@ export default function AdminAuditPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-xs text-gray-600">
-                      <span className="text-gray-400">{entry.resource_type}/</span>
-                      {entry.resource_id.slice(0, 12)}…
+                      {entry.resource_type || entry.resource_id ? (
+                        <>
+                          <span className="text-gray-400">
+                            {entry.resource_type ?? "—"}/
+                          </span>
+                          {entry.resource_id ? `${entry.resource_id.slice(0, 12)}…` : "—"}
+                        </>
+                      ) : (
+                        <span className="text-gray-400">—</span>
+                      )}
                     </td>
                   </tr>
                 ))}
