@@ -35,25 +35,10 @@ const OPENAPI = join(__dirname, "../../openapi.json");
  * new failure.
  */
 const KNOWN_BROKEN = new Map<string, string>([
-  // Found by this check on first run; all 404 against a live API. Six are wired
-  // into UI (see #604) — the admin Audit page and the dashboard's subscription
-  // analytics among them. Listed so the check can enforce from day one.
-  [
-    "GET /api/v1/subscription/status",
-    "#604 — student subscriptions dropped in migration 0027",
-  ],
-  [
-    "POST /api/v1/subscription/checkout",
-    "#604 — student subscriptions dropped in migration 0027",
-  ],
-  ["GET /api/v1/subscription/billing-portal", "#604 — dropped in migration 0027"],
-  ["POST /api/v1/subscription/cancel", "#604 — dropped in migration 0027"],
-  [
-    "GET /api/v1/admin/private-teachers",
-    "#604 — private teachers dropped in migration 0026",
-  ],
-  ["POST /api/v1/auth/consent", "#604 — never implemented"],
-  ["POST /api/v1/school/enrol/confirm", "#604 — never implemented"],
+  // Both are unimplemented features the product still exposes, so the client
+  // is deliberately left in place rather than deleted (#609).
+  ["POST /api/v1/school/enrol/confirm", "#609 — enrol-by-code has no backend"],
+  ["POST /api/v1/auth/consent", "#609 — COPPA parental consent has no backend"],
 ]);
 
 /**

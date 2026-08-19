@@ -272,17 +272,11 @@
     "step_label": "Step {n}"
   },
   "subscription_screen": {
-    "title": "Upgrade Your Plan",
-    "current_plan_free": "Current plan: Free",
-    "current_plan_active": "Current plan: {plan}",
-    "monthly_label": "Monthly",
-    "annual_label": "Annual",
-    "annual_savings": "Save 17%",
-    "subscribe_btn": "Subscribe",
-    "manage_btn": "Manage Subscription",
-    "cancel_btn": "Cancel Subscription",
-    "paywall_msg": "You've reached the free lesson limit. Upgrade to continue.",
-    "loading_plan": "Loading plan…"
+    "school_managed_title": "Your school manages your access",
+    "school_managed_body": "StudyBuddy is provided to you by your school, so there's nothing for you to buy or set up here.",
+    "school_managed_help": "If you can't open a lesson, ask your teacher or school administrator — they can check your access.",
+    "back_to_dashboard": "Back to Dashboard",
+    "paywall_msg_school": "You've reached the end of what's available to you right now. Your school controls which lessons you can open."
   },
   "settings_screen": {
     "title": "Settings",

@@ -45,11 +45,6 @@ async function setupStudentAuth(page: Page) {
 // ---------------------------------------------------------------------------
 
 async function stubStudentApis(page: Page) {
-  // Subscription status (TrialBanner in every student page)
-  await page.route("**/api/v1/subscription/status**", (route) =>
-    route.fulfill({ status: 200, json: { status: "active", plan: "student" } }),
-  );
-
   // Student stats (dashboard + stats page)
   await page.route("**/api/v1/analytics/student/stats**", (route) =>
     route.fulfill({
