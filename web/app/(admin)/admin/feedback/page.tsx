@@ -116,7 +116,7 @@ export default function AdminFeedbackPage() {
                       {fb.unit_title}
                     </span>
                     {fb.rating !== null && <StarRating rating={fb.rating} />}
-                    {fb.helpful !== null && (
+                    {typeof fb.helpful === "boolean" && (
                       <span
                         className={
                           fb.helpful

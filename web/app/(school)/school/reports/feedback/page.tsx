@@ -125,14 +125,26 @@ export default function FeedbackReportPage() {
                   >
                     {item.category}
                   </Badge>
-                  <StarRating rating={item.rating} />
+                  {typeof item.helpful === "boolean" ? (
+                    <span
+                      className={cn(
+                        "text-xs font-medium",
+                        item.helpful ? "text-emerald-600" : "text-rose-600",
+                      )}
+                    >
+                      {item.helpful ? "\u{1F44D} Helpful" : "\u{1F44E} Not helpful"}
+                      {item.content_type ? ` \u00b7 ${item.content_type}` : ""}
+                    </span>
+                  ) : (
+                    <StarRating rating={item.rating} />
+                  )}
                   {!item.reviewed && (
                     <Badge className="ml-auto border-red-100 bg-red-50 text-xs text-red-600">
                       Unreviewed
                     </Badge>
                   )}
                 </div>
-                <p className="text-sm text-gray-700">{item.message}</p>
+                {item.message && <p className="text-sm text-gray-700">{item.message}</p>}
                 <p className="text-xs text-gray-400">
                   {new Date(item.submitted_at).toLocaleDateString()}
                 </p>

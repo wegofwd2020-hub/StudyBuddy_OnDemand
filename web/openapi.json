@@ -23181,8 +23181,37 @@
             "title": "Rating"
           },
           "message": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Message"
+          },
+          "helpful": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Helpful"
+          },
+          "content_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content Type"
           },
           "submitted_at": {
             "type": "string",
@@ -23194,7 +23223,6 @@
         "required": [
           "feedback_id",
           "category",
-          "message",
           "submitted_at"
         ],
         "title": "RecentFeedbackItem"
@@ -28632,8 +28660,37 @@
             "title": "Rating"
           },
           "message": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Message"
+          },
+          "helpful": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Helpful"
+          },
+          "content_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content Type"
           },
           "submitted_at": {
             "type": "string",
@@ -28649,7 +28706,6 @@
         "required": [
           "feedback_id",
           "category",
-          "message",
           "submitted_at",
           "reviewed"
         ],

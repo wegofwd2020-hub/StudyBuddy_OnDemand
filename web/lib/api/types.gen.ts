@@ -8697,7 +8697,11 @@ export interface components {
             /** Rating */
             rating?: number | null;
             /** Message */
-            message: string;
+            message?: string | null;
+            /** Helpful */
+            helpful?: boolean | null;
+            /** Content Type */
+            content_type?: string | null;
             /**
              * Submitted At
              * Format: date-time
@@ -10780,7 +10784,11 @@ export interface components {
             /** Rating */
             rating?: number | null;
             /** Message */
-            message: string;
+            message?: string | null;
+            /** Helpful */
+            helpful?: boolean | null;
+            /** Content Type */
+            content_type?: string | null;
             /**
              * Submitted At
              * Format: date-time

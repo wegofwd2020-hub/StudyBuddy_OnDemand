@@ -177,7 +177,10 @@ export interface FeedbackReportItem {
   feedback_id: string;
   category: string;
   rating: number | null;
-  message: string;
+  /** Null for a thumbs vote, which carries `helpful` instead (migration 0062). */
+  message: string | null;
+  helpful: boolean | null;
+  content_type: string | null;
   submitted_at: string;
   reviewed: boolean;
 }
