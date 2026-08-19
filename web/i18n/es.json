@@ -218,5 +218,17 @@
     "terms": "Términos de servicio",
     "privacy": "Política de privacidad",
     "rights": "© {year} StudyBuddy. Todos los derechos reservados."
+  },
+  "feedback": {
+    "prompt": "¿Te resultó útil?",
+    "thumbs_up": "Sí, me ayudó",
+    "thumbs_down": "No, no me ayudó",
+    "reason_prompt": "¿Qué no funcionó? (opcional)",
+    "reason_placeholder": "Puedes contarnos qué no quedó claro.",
+    "send": "Enviar",
+    "skip": "Omitir",
+    "thanks": "¡Gracias por tus comentarios!",
+    "error": "No pudimos guardarlo ahora. Inténtalo de nuevo.",
+    "chars_left": "Quedan {count} caracteres"
   }
 }

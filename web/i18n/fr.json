@@ -218,5 +218,17 @@
     "terms": "Conditions d'utilisation",
     "privacy": "Politique de confidentialité",
     "rights": "© {year} StudyBuddy. Tous droits réservés."
+  },
+  "feedback": {
+    "prompt": "Est-ce que cela vous a aidé ?",
+    "thumbs_up": "Oui, cela m'a aidé",
+    "thumbs_down": "Non, cela ne m'a pas aidé",
+    "reason_prompt": "Qu'est-ce qui n'a pas fonctionné ? (facultatif)",
+    "reason_placeholder": "Vous pouvez nous dire ce qui n'était pas clair.",
+    "send": "Envoyer",
+    "skip": "Passer",
+    "thanks": "Merci pour votre retour !",
+    "error": "Nous n'avons pas pu enregistrer cela. Veuillez réessayer.",
+    "chars_left": "{count} caractères restants"
   }
 }
