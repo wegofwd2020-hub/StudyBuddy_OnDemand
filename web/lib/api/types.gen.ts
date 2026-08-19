@@ -1553,6 +1553,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Admin Audit Log
+         * @description Read the platform audit log (newest first).
+         *
+         *     Gated on `audit:view`, which product_admin and above hold — matching the
+         *     role the admin nav already uses to show the page (#604).
+         */
+        get: operations["admin_audit_log_api_v1_admin_audit_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/users": {
         parameters: {
             query?: never;
@@ -6484,6 +6507,44 @@ export interface components {
             url: string;
             /** Expires In */
             expires_in: number;
+        };
+        /** AuditEntry */
+        AuditEntry: {
+            /** Audit Id */
+            audit_id: string;
+            /** Actor Id */
+            actor_id?: string | null;
+            /** Actor Role */
+            actor_role: string;
+            /** Action */
+            action: string;
+            /** Resource Type */
+            resource_type?: string | null;
+            /** Resource Id */
+            resource_id?: string | null;
+            /**
+             * Detail
+             * @default {}
+             */
+            detail: {
+                [key: string]: unknown;
+            };
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** AuditLogResponse */
+        AuditLogResponse: {
+            /** Entries */
+            entries: components["schemas"]["AuditEntry"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
         };
         /** BackupCreateRequest */
         BackupCreateRequest: {
@@ -13088,6 +13149,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AssignResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    admin_audit_log_api_v1_admin_audit_get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+                action?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditLogResponse"];
                 };
             };
             /** @description Validation Error */

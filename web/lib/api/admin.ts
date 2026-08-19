@@ -528,11 +528,12 @@ export async function getSystemHealth(): Promise<SystemHealth> {
 
 export interface AuditEntry {
   audit_id: string;
-  actor_id: string;
+  actor_id: string | null;
   actor_role: string;
   action: string;
-  resource_type: string;
-  resource_id: string;
+  /** Null for actions with no target — a login has no resource (#604). */
+  resource_type: string | null;
+  resource_id: string | null;
   detail: Record<string, unknown>;
   created_at: string;
 }

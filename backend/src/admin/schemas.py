@@ -440,3 +440,23 @@ class AcknowledgeWarningResponse(BaseModel):
     is_false_positive: bool
     acknowledged_by_email: str
     acknowledged_at: datetime
+
+
+class AuditEntry(BaseModel):
+    audit_id: str
+    actor_id: str | None = None
+    actor_role: str
+    action: str
+    # Nullable on purpose: a login or password change has no target. On the demo
+    # 218 of 229 rows carry no target at all (#604).
+    resource_type: str | None = None
+    resource_id: str | None = None
+    detail: dict = {}
+    created_at: datetime
+
+
+class AuditLogResponse(BaseModel):
+    entries: list[AuditEntry]
+    total: int
+    page: int
+    page_size: int
