@@ -69,6 +69,16 @@ describe("evaluateSession", () => {
     expect(evaluateSession(edge)).toBe("keep");
   });
 
+  it("does not expire a brand-new session that was never tracked", () => {
+    // Registration, the demo logins and E2E setup all establish a session
+    // without going through the sign-in page. With no lastSeen there is no
+    // evidence of a previous browser session, so this must NOT be treated as
+    // "the browser was closed" — that would sign the user out on arrival.
+    expect(evaluateSession(snapshot({ aliveMarker: false, lastSeen: null }))).toBe(
+      "keep",
+    );
+  });
+
   it("keeps a session that has no recorded activity yet", () => {
     // A session that just started has nothing to compare against; expiring it
     // would sign the user out immediately after login.

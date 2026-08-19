@@ -94,9 +94,16 @@ describe("session storage", () => {
     signIn();
     setRemembered(true);
     clearSession();
+
+    // Next user signs in on the same device without ticking the box, and their
+    // session gets tracked as normal.
     signIn();
-    sessionStorage.clear();
+    markSessionAlive();
+    recordActivity();
+
+    sessionStorage.clear(); // they close the browser
 
     expect(enforceSessionPolicy()).toBe("expired_browser_closed");
+    expect(hasStoredSession()).toBe(false);
   });
 });

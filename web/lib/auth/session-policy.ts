@@ -51,9 +51,18 @@ export type SessionVerdict = "keep" | "expired_browser_closed" | "expired_idle";
 export function evaluateSession(snapshot: SessionSnapshot): SessionVerdict {
   const { remembered, aliveMarker, lastSeen, now } = snapshot;
 
+  // `lastSeen` is our only evidence that this session was ever established and
+  // tracked. Without it we cannot claim the browser was closed — the session
+  // may have just been created by a path that does not go through the sign-in
+  // page (registration, the demo logins, dev-login, E2E setup). Expiring those
+  // would sign a user out the instant they arrive.
+  const tracked = lastSeen !== null;
+
   // A fresh browser session with no opt-in means the previous session ended
   // when the browser closed, even though the token is technically still valid.
-  if (!aliveMarker && !remembered) return "expired_browser_closed";
+  // lastSeen survives in localStorage across a browser restart, which is what
+  // makes this distinguishable from a brand-new session.
+  if (tracked && !aliveMarker && !remembered) return "expired_browser_closed";
 
   // Idle expiry applies whether or not the user opted in — an unattended
   // machine is the risk, and "keep me signed in" is not consent to that.
