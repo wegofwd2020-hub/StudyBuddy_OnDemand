@@ -20,7 +20,6 @@ import {
   GraduationCap,
   HelpCircle,
   School,
-  Users,
   Archive,
   ArchiveX,
   Sparkles,
@@ -118,12 +117,6 @@ const NAV_ITEMS: NavItem[] = [
     label: "Schools",
     href: "/admin/schools",
     icon: <School className="h-4 w-4" />,
-    minRole: "product_admin",
-  },
-  {
-    label: "Private Teachers",
-    href: "/admin/private-teachers",
-    icon: <Users className="h-4 w-4" />,
     minRole: "product_admin",
   },
   {

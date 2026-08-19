@@ -178,17 +178,11 @@
     "step_label": "Étape {n}"
   },
   "subscription_screen": {
-    "title": "Améliorer votre abonnement",
-    "current_plan_free": "Abonnement actuel : Gratuit",
-    "current_plan_active": "Abonnement actuel : {plan}",
-    "monthly_label": "Mensuel",
-    "annual_label": "Annuel",
-    "annual_savings": "Économisez 17 %",
-    "subscribe_btn": "S'abonner",
-    "manage_btn": "Gérer l'abonnement",
-    "cancel_btn": "Annuler l'abonnement",
-    "paywall_msg": "Vous avez atteint la limite de leçons gratuites. Passez à la version supérieure pour continuer.",
-    "loading_plan": "Chargement du plan…"
+    "school_managed_title": "Votre école gère votre accès",
+    "school_managed_body": "StudyBuddy vous est fourni par votre école : vous n'avez rien à acheter ni à configurer ici.",
+    "school_managed_help": "Si vous ne pouvez pas ouvrir une leçon, demandez à votre enseignant ou à l'administrateur de votre école de vérifier votre accès.",
+    "back_to_dashboard": "Retour au tableau de bord",
+    "paywall_msg_school": "Vous avez atteint la limite de ce qui vous est accessible pour le moment. Votre école décide des leçons que vous pouvez ouvrir."
   },
   "settings_screen": {
     "title": "Paramètres",

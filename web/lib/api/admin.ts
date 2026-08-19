@@ -1008,36 +1008,6 @@ export async function adminCurriculumAction(
   return res.data;
 }
 
-export interface AdminPrivateTeacherItem {
-  teacher_id: string;
-  email: string;
-  name: string;
-  account_status: string;
-  plan: string | null;
-  subscription_status: string | null;
-  curricula_count: number;
-  created_at: string;
-}
-
-export interface AdminPrivateTeacherListResponse {
-  teachers: AdminPrivateTeacherItem[];
-  total: number;
-}
-
-export async function listAdminPrivateTeachers(
-  page: number = 1,
-  pageSize: number = 20,
-  search?: string,
-): Promise<AdminPrivateTeacherListResponse> {
-  const res = await adminApi.get<AdminPrivateTeacherListResponse>(
-    "/admin/private-teachers",
-    {
-      params: { page, page_size: pageSize, ...(search ? { search } : {}) },
-    },
-  );
-  return res.data;
-}
-
 // ── Demo leads (Epic 7) ──────────────────────────────────────────────────────
 
 export interface DemoLeadItem {

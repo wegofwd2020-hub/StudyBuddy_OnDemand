@@ -10,19 +10,16 @@ export default function PaywallPage() {
       <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber-50">
         <Lock className="h-8 w-8 text-amber-500" />
       </div>
-      <h1 className="mb-2 text-2xl font-bold text-gray-900">{t("title")}</h1>
-      <p className="mb-8 max-w-md text-gray-500">{t("paywall_msg")}</p>
+      <h1 className="mb-2 text-2xl font-bold text-gray-900">
+        {t("school_managed_title")}
+      </h1>
+      <p className="mb-8 max-w-md text-gray-500">{t("paywall_msg_school")}</p>
       <div className="flex flex-col gap-3 sm:flex-row">
-        <LinkButton href="/account/subscription" size="lg">
-          {t("subscribe_btn")} — $9.99/month
-        </LinkButton>
-        <LinkButton href="/dashboard" variant="outline" size="lg">
-          Back to Dashboard
+        <LinkButton href="/dashboard" size="lg">
+          {t("back_to_dashboard")}
         </LinkButton>
       </div>
-      <p className="mt-4 text-xs text-gray-400">
-        Annual plan available at $99.99/year — {t("annual_savings")}
-      </p>
+      <p className="mt-4 max-w-md text-xs text-gray-400">{t("school_managed_help")}</p>
     </div>
   );
 }

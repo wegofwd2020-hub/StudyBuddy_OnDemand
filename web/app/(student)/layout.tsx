@@ -4,7 +4,6 @@ import { auth0 } from "@/lib/auth0";
 import { getDevSession, getLocalStudentSession } from "@/lib/dev-session";
 import { StudentNav } from "@/components/layout/StudentNav";
 import { QueryProvider } from "@/lib/providers/QueryProvider";
-import { TrialBanner } from "@/components/student/TrialBanner";
 import { DemoBanner } from "@/components/demo/DemoBanner";
 import { PortalHeader } from "@/components/layout/PortalHeader";
 import { PortalFooter } from "@/components/layout/PortalFooter";
@@ -34,7 +33,6 @@ export default async function StudentLayout({ children }: { children: React.Reac
           <div className="flex flex-1 flex-col overflow-auto">
             <PortalHeader portal="student" userName={userName} />
             <DemoBanner />
-            <TrialBanner />
             <main id="main-content" className="flex-1">
               {children}
             </main>
