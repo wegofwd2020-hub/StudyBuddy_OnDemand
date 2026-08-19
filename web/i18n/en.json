@@ -312,5 +312,17 @@
     "terms": "Terms of Service",
     "privacy": "Privacy Policy",
     "rights": "© {year} StudyBuddy. All rights reserved."
+  },
+  "feedback": {
+    "prompt": "Was this helpful?",
+    "thumbs_up": "Yes, this helped",
+    "thumbs_down": "No, this didn't help",
+    "reason_prompt": "What didn't work? (optional)",
+    "reason_placeholder": "You can tell us what was confusing.",
+    "send": "Send",
+    "skip": "Skip",
+    "thanks": "Thanks for your feedback!",
+    "error": "We couldn't save that just now. Please try again.",
+    "chars_left": "{count} characters left"
   }
 }
