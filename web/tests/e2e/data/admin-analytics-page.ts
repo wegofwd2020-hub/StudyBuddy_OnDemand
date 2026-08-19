@@ -6,8 +6,11 @@
 import type { SubscriptionAnalytics, StruggleReport } from "@/lib/api/admin";
 
 export const MOCK_SUBSCRIPTION: SubscriptionAnalytics = {
-  active_monthly: 320,
-  active_annual: 180,
+  // Plans, not billing intervals — the API groups by plan (#604).
+  by_plan: {
+    starter: { active: 320, new_this_month: 30, cancelled_this_month: 5 },
+    professional: { active: 180, new_this_month: 12, cancelled_this_month: 3 },
+  },
   total_active: 500,
   mrr_usd: "4950.00",
   new_this_month: 42,
@@ -43,8 +46,8 @@ export const ANALYTICS_STRINGS = {
   pageHeading: "Platform Analytics",
   // Subscription table
   subSectionHeading: "Subscription Breakdown",
-  rowMonthly: "Monthly subscribers",
-  rowAnnual: "Annual subscribers",
+  rowStarter: "starter plan",
+  rowProfessional: "professional plan",
   rowTotal: "Total active",
   rowMrr: "MRR (CAD)",
   rowNew: "New this month",

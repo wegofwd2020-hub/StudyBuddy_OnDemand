@@ -21,10 +21,19 @@ export async function adminLogin(
 
 // ── Analytics ─────────────────────────────────────────────────────────────────
 
+export interface SubscriptionPlanStats {
+  active: number;
+  new_this_month: number;
+  cancelled_this_month: number;
+}
+
 export interface SubscriptionAnalytics {
-  active_monthly: number;
-  active_annual: number;
+  /** Keyed by plan — starter / professional / enterprise. The system bills by
+   *  plan, not by billing interval, so the old active_monthly/active_annual
+   *  fields described data that never existed (#604). */
+  by_plan: Record<string, SubscriptionPlanStats>;
   total_active: number;
+  /** String, never a float — money is not represented in binary floating point. */
   mrr_usd: string;
   new_this_month: number;
   cancelled_this_month: number;
@@ -32,7 +41,7 @@ export interface SubscriptionAnalytics {
 }
 
 export async function getSubscriptionAnalytics(): Promise<SubscriptionAnalytics> {
-  const res = await adminApi.get<SubscriptionAnalytics>("/admin/analytics/subscriptions");
+  const res = await adminApi.get<SubscriptionAnalytics>("/admin/analytics/subscription");
   return res.data;
 }
 

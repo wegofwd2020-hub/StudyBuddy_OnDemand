@@ -39,7 +39,6 @@ const KNOWN_BROKEN = new Map<string, string>([
   // Found by this check on first run; all 404 against a live API. Six are wired
   // into UI (see #604) — the admin Audit page and the dashboard's subscription
   // analytics among them. Listed so the check can enforce from day one.
-  ["GET /api/v1/admin/analytics/subscriptions", "#604 — admin dashboard calls a 404"],
   [
     "GET /api/v1/subscription/status",
     "#604 — student subscriptions dropped in migration 0027",
