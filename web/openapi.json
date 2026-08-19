@@ -12563,7 +12563,7 @@
           "reports"
         ],
         "summary": "Feedback Report",
-        "description": "All student feedback for the school's curriculum, grouped by unit.",
+        "description": "A page of student feedback for the school, newest first by default.\n\nPaginated since #611: the report previously returned every item ever\nrecorded, so the response grew without bound as a school accumulated\nfeedback.",
         "operationId": "feedback_report_api_v1_reports_school__school_id__feedback_get",
         "security": [
           {
@@ -12635,9 +12635,32 @@
             "required": false,
             "schema": {
               "type": "string",
-              "pattern": "^(recent|oldest|volume)$",
+              "pattern": "^(recent|oldest)$",
               "default": "recent",
               "title": "Sort"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Page Size"
             }
           }
         ],
@@ -20920,56 +20943,6 @@
         ],
         "title": "ExtraBuildCheckoutRequest"
       },
-      "FeedbackByUnit": {
-        "properties": {
-          "unit_id": {
-            "type": "string",
-            "title": "Unit Id"
-          },
-          "unit_name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Unit Name"
-          },
-          "feedback_count": {
-            "type": "integer",
-            "title": "Feedback Count"
-          },
-          "category_breakdown": {
-            "additionalProperties": {
-              "type": "integer"
-            },
-            "type": "object",
-            "title": "Category Breakdown"
-          },
-          "trending": {
-            "type": "boolean",
-            "title": "Trending"
-          },
-          "feedback_items": {
-            "items": {
-              "$ref": "#/components/schemas/src__reports__schemas__FeedbackReportItem"
-            },
-            "type": "array",
-            "title": "Feedback Items"
-          }
-        },
-        "type": "object",
-        "required": [
-          "unit_id",
-          "feedback_count",
-          "category_breakdown",
-          "trending",
-          "feedback_items"
-        ],
-        "title": "FeedbackByUnit"
-      },
       "FeedbackItem": {
         "properties": {
           "feedback_id": {
@@ -21041,6 +21014,29 @@
         ],
         "title": "FeedbackListResponse"
       },
+      "FeedbackPagination": {
+        "properties": {
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "page",
+          "page_size",
+          "total"
+        ],
+        "title": "FeedbackPagination"
+      },
       "FeedbackReport": {
         "properties": {
           "school_id": {
@@ -21066,12 +21062,15 @@
             ],
             "title": "Avg Rating Overall"
           },
-          "by_unit": {
+          "items": {
             "items": {
-              "$ref": "#/components/schemas/FeedbackByUnit"
+              "$ref": "#/components/schemas/src__reports__schemas__FeedbackReportItem"
             },
             "type": "array",
-            "title": "By Unit"
+            "title": "Items"
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/FeedbackPagination"
           }
         },
         "type": "object",
@@ -21079,7 +21078,8 @@
           "school_id",
           "total_feedback_count",
           "unreviewed_count",
-          "by_unit"
+          "items",
+          "pagination"
         ],
         "title": "FeedbackReport"
       },
@@ -28909,6 +28909,28 @@
           "feedback_id": {
             "type": "string",
             "title": "Feedback Id"
+          },
+          "unit_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit Id"
+          },
+          "unit_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit Name"
           },
           "category": {
             "type": "string",

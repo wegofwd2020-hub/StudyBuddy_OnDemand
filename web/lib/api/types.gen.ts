@@ -4641,7 +4641,11 @@ export interface paths {
         };
         /**
          * Feedback Report
-         * @description All student feedback for the school's curriculum, grouped by unit.
+         * @description A page of student feedback for the school, newest first by default.
+         *
+         *     Paginated since #611: the report previously returned every item ever
+         *     recorded, so the response grew without bound as a school accumulated
+         *     feedback.
          */
         get: operations["feedback_report_api_v1_reports_school__school_id__feedback_get"];
         put?: never;
@@ -7828,23 +7832,6 @@ export interface components {
             /** Cancel Url */
             cancel_url: string;
         };
-        /** FeedbackByUnit */
-        FeedbackByUnit: {
-            /** Unit Id */
-            unit_id: string;
-            /** Unit Name */
-            unit_name?: string | null;
-            /** Feedback Count */
-            feedback_count: number;
-            /** Category Breakdown */
-            category_breakdown: {
-                [key: string]: number;
-            };
-            /** Trending */
-            trending: boolean;
-            /** Feedback Items */
-            feedback_items: components["schemas"]["src__reports__schemas__FeedbackReportItem"][];
-        };
         /** FeedbackItem */
         FeedbackItem: {
             /** Feedback Id */
@@ -7872,6 +7859,15 @@ export interface components {
             /** Total */
             total: number;
         };
+        /** FeedbackPagination */
+        FeedbackPagination: {
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+        };
         /** FeedbackReport */
         FeedbackReport: {
             /** School Id */
@@ -7882,8 +7878,9 @@ export interface components {
             unreviewed_count: number;
             /** Avg Rating Overall */
             avg_rating_overall?: number | null;
-            /** By Unit */
-            by_unit: components["schemas"]["FeedbackByUnit"][];
+            /** Items */
+            items: components["schemas"]["src__reports__schemas__FeedbackReportItem"][];
+            pagination: components["schemas"]["FeedbackPagination"];
         };
         /** FeedbackReportResponse */
         FeedbackReportResponse: {
@@ -10875,6 +10872,10 @@ export interface components {
         src__reports__schemas__FeedbackReportItem: {
             /** Feedback Id */
             feedback_id: string;
+            /** Unit Id */
+            unit_id?: string | null;
+            /** Unit Name */
+            unit_name?: string | null;
             /** Category */
             category: string;
             /** Rating */
@@ -18374,6 +18375,8 @@ export interface operations {
                 category?: string | null;
                 reviewed?: boolean | null;
                 sort?: string;
+                page?: number;
+                page_size?: number;
             };
             header?: never;
             path: {

@@ -725,8 +725,17 @@ async def get_feedback_report(
     category: str | None = None,
     reviewed: bool | None = None,
     sort: str = "recent",
+    page: int = 1,
+    page_size: int = 50,
 ) -> dict:
-    """Feedback from enrolled students, grouped by unit."""
+    """A page of feedback from enrolled students, newest first by default.
+
+    This used to group by unit and loop, issuing three queries PER UNIT and
+    returning every item ever recorded — so both the query count and the
+    payload grew with a school's total feedback volume (issue #611). It is now
+    three queries regardless of how many units have feedback: the summary, the
+    filtered count, and the page itself.
+    """
     enrolled = await _enrolled_ids(conn, school_id)
     if not enrolled:
         return {
@@ -734,123 +743,79 @@ async def get_feedback_report(
             "total_feedback_count": 0,
             "unreviewed_count": 0,
             "avg_rating_overall": None,
-            "by_unit": [],
+            "items": [],
+            "pagination": {"page": page, "page_size": page_size, "total": 0},
         }
 
     id_uuids = [uuid.UUID(s) for s in enrolled]
-    placeholders = ", ".join(f"${i + 1}" for i in range(len(id_uuids)))
 
-    # Summary
+    # 1) Summary over ALL of the school's feedback — the header describes the
+    #    school, not whatever the current filters happen to show.
     summary = await conn.fetchrow(
-        f"""
+        """
         SELECT COUNT(*) AS total,
                COUNT(*) FILTER (WHERE NOT reviewed) AS unreviewed,
                ROUND(AVG(rating)::numeric, 1) AS avg_rating
         FROM feedback
-        WHERE student_id = ANY(ARRAY[{placeholders}]::uuid[])
+        WHERE student_id = ANY($1::uuid[])
         """,
-        *id_uuids,
+        id_uuids,
     )
 
-    # Per-unit breakdown
-    unit_ids_fb = await conn.fetch(
+    # 2) The filtered set — drives pagination, so it must honour the filters.
+    filters = ["student_id = ANY($1::uuid[])"]
+    params: list = [id_uuids]
+    if unit_id:
+        params.append(unit_id)
+        filters.append(f"unit_id = ${len(params)}")
+    if category:
+        params.append(category)
+        filters.append(f"category = ${len(params)}")
+    if reviewed is not None:
+        params.append(reviewed)
+        filters.append(f"reviewed = ${len(params)}")
+    where = " AND ".join(filters)
+
+    total = await conn.fetchval(f"SELECT COUNT(*) FROM feedback WHERE {where}", *params)
+
+    # 3) The page. feedback_id breaks ties so paging cannot repeat or skip a row
+    #    when several arrive in the same instant.
+    direction = "ASC" if sort == "oldest" else "DESC"
+    offset = max(page - 1, 0) * page_size
+    rows = await conn.fetch(
         f"""
-        SELECT DISTINCT COALESCE(unit_id, '') AS unit_id
-        FROM feedback
-        WHERE student_id = ANY(ARRAY[{placeholders}]::uuid[])
-          AND unit_id IS NOT NULL
+        SELECT f.feedback_id::text,
+               f.unit_id,
+               cu.unit_name,
+               f.category,
+               f.rating,
+               f.helpful,
+               f.content_type,
+               f.message,
+               f.submitted_at,
+               f.reviewed
+        FROM feedback f
+        LEFT JOIN LATERAL (
+            SELECT unit_name FROM curriculum_units
+            WHERE unit_id = f.unit_id LIMIT 1
+        ) cu ON TRUE
+        WHERE {where}
+        ORDER BY f.submitted_at {direction}, f.feedback_id {direction}
+        LIMIT ${len(params) + 1} OFFSET ${len(params) + 2}
         """,
-        *id_uuids,
+        *params,
+        page_size,
+        offset,
     )
-    seven_days_ago = datetime.now(UTC) - timedelta(days=7)
-
-    by_unit = []
-    for row in unit_ids_fb:
-        uid = row["unit_id"]
-        if unit_id and uid != unit_id:
-            continue
-
-        # Build filter clause
-        extra = []
-        extra_params: list = [*id_uuids, uid]
-        if category:
-            extra.append(f"AND category = ${len(extra_params) + 1}")
-            extra_params.append(category)
-        if reviewed is not None:
-            extra.append(f"AND reviewed = ${len(extra_params) + 1}")
-            extra_params.append(reviewed)
-        extra_sql = " ".join(extra)
-
-        items = await conn.fetch(
-            f"""
-            SELECT feedback_id::text, category, rating, message, helpful, content_type, submitted_at, reviewed
-            FROM feedback
-            WHERE student_id = ANY(ARRAY[{placeholders}]::uuid[])
-              AND unit_id = ${len(id_uuids) + 1}
-              {extra_sql}
-            ORDER BY submitted_at {"ASC" if sort == "oldest" else "DESC"}
-            """,
-            *extra_params,
-        )
-
-        cat_counts = await conn.fetchrow(
-            f"""
-            SELECT
-                COUNT(*) FILTER (WHERE category = 'content') AS content,
-                COUNT(*) FILTER (WHERE category = 'ux') AS ux,
-                COUNT(*) FILTER (WHERE category = 'general') AS general,
-                COUNT(*) FILTER (WHERE submitted_at >= ${len(id_uuids) + 2}) AS recent_7d
-            FROM feedback
-            WHERE student_id = ANY(ARRAY[{placeholders}]::uuid[]) AND unit_id = ${len(id_uuids) + 1}
-            """,
-            *id_uuids,
-            uid,
-            seven_days_ago,
-        )
-
-        # unit_name lookup
-        name_row = await conn.fetchrow(
-            "SELECT unit_name FROM curriculum_units WHERE unit_id = $1 LIMIT 1", uid
-        )
-        unit_name = name_row["unit_name"] if name_row else None
-
-        by_unit.append(
-            {
-                "unit_id": uid,
-                "unit_name": unit_name,
-                "feedback_count": len(items),
-                "category_breakdown": {
-                    "content": cat_counts["content"] or 0,
-                    "ux": cat_counts["ux"] or 0,
-                    "general": cat_counts["general"] or 0,
-                },
-                "trending": (cat_counts["recent_7d"] or 0) > 3,
-                "feedback_items": [
-                    {
-                        "feedback_id": r["feedback_id"],
-                        "category": r["category"],
-                        "rating": r["rating"],
-                        "message": r["message"],
-                        "helpful": r["helpful"],
-                        "content_type": r["content_type"],
-                        "submitted_at": r["submitted_at"],
-                        "reviewed": r["reviewed"],
-                    }
-                    for r in items
-                ],
-            }
-        )
 
     return {
         "school_id": school_id,
         "total_feedback_count": summary["total"] or 0,
         "unreviewed_count": summary["unreviewed"] or 0,
         "avg_rating_overall": float(summary["avg_rating"]) if summary["avg_rating"] else None,
-        "by_unit": by_unit,
+        "items": [dict(r) for r in rows],
+        "pagination": {"page": page, "page_size": page_size, "total": total or 0},
     }
-
-
-# ── Report 6: Trends ──────────────────────────────────────────────────────────
 
 
 async def get_trends(
