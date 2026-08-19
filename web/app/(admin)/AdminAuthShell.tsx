@@ -1,5 +1,6 @@
 "use client";
 
+import { SessionGuard } from "@/components/auth/SessionGuard";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AdminNav } from "@/components/layout/AdminNav";
@@ -44,6 +45,7 @@ export function AdminAuthShell({ children }: { children: React.ReactNode }) {
         <div className="flex flex-1 flex-col overflow-auto">
           <PortalHeader portal="admin" userName={userName} />
           <main id="main-content" className="flex-1">
+            <SessionGuard signInPath="/admin/login" />
             {children}
           </main>
           <PortalFooter />

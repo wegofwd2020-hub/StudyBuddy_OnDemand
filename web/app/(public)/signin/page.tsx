@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { markSessionAlive, setRemembered } from "@/lib/auth/session";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BookOpen, Eye, EyeOff } from "lucide-react";
@@ -84,6 +85,17 @@ export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  // Off by default: school devices are shared, so surviving a browser close is
+  // opt-in rather than assumed (#601).
+  const [rememberMe, setRememberMe] = useState(false);
+  const [expiredReason, setExpiredReason] = useState<string | null>(null);
+
+  useEffect(() => {
+    const reason = new URLSearchParams(window.location.search).get("reason");
+    if (reason === "expired_idle" || reason === "expired_browser_closed") {
+      setExpiredReason(reason);
+    }
+  }, []);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -94,6 +106,8 @@ export default function SignInPage() {
     try {
       const res = await universalLogin({ email, password });
       persistSession(res, email);
+      setRemembered(rememberMe);
+      markSessionAlive();
       router.push(destinationFor(res.auth_track, res.role, res.first_login));
     } catch (err: unknown) {
       const status = (err as { response?: { status?: number } })?.response?.status;
@@ -124,6 +138,13 @@ export default function SignInPage() {
           <p className="text-sm text-gray-500">
             One sign-in for students, teachers, and school admins
           </p>
+          {expiredReason && (
+            <p className="mt-2 rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800">
+              {expiredReason === "expired_idle"
+                ? "You were signed out because the page was left unused for a while. Please sign in again."
+                : "You were signed out when the browser closed. Please sign in again."}
+            </p>
+          )}
         </CardHeader>
 
         <CardContent className="space-y-4">
@@ -173,6 +194,22 @@ export default function SignInPage() {
                   )}
                 </button>
               </div>
+            </div>
+
+            <div className="flex items-start gap-2">
+              <input
+                id="remember-me"
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-gray-300"
+              />
+              <label htmlFor="remember-me" className="text-sm text-gray-600">
+                Keep me signed in on this device
+                <span className="block text-xs text-gray-400">
+                  Leave this unticked on a shared or school computer.
+                </span>
+              </label>
             </div>
 
             {error && (
