@@ -45,17 +45,24 @@ async def submit_feedback(
     conn: asyncpg.Connection,
     student_id: str,
     category: str,
-    message: str,
+    message: str | None = None,
     unit_id: str | None = None,
     curriculum_id: str | None = None,
     rating: int | None = None,
+    helpful: bool | None = None,
+    content_type: str | None = None,
 ) -> dict:
-    """Insert a feedback row. Returns {feedback_id, submitted_at}."""
+    """Insert a feedback row. Returns {feedback_id, submitted_at}.
+
+    `message` is optional: the thumbs widget submits a `helpful` verdict with no
+    prose (#600). The `feedback_has_content` CHECK keeps genuinely empty rows out.
+    """
     row = await conn.fetchrow(
         """
         INSERT INTO feedback
-            (student_id, category, unit_id, curriculum_id, message, rating)
-        VALUES ($1, $2, $3, $4, $5, $6)
+            (student_id, category, unit_id, curriculum_id, message, rating,
+             helpful, content_type)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         RETURNING feedback_id::text, submitted_at
         """,
         uuid.UUID(student_id),
@@ -64,8 +71,16 @@ async def submit_feedback(
         curriculum_id or None,
         message,
         rating,
+        helpful,
+        content_type,
     )
-    log.info("feedback_submitted", student_id=student_id, category=category)
+    log.info(
+        "feedback_submitted",
+        student_id=student_id,
+        category=category,
+        helpful=helpful,
+        content_type=content_type,
+    )
     return {"feedback_id": row["feedback_id"], "submitted_at": row["submitted_at"]}
 
 
@@ -111,8 +126,8 @@ async def list_feedback(
     rows = await conn.fetch(
         f"""
         SELECT feedback_id::text, student_id::text, category, unit_id,
-               curriculum_id, message, rating, submitted_at,
-               reviewed, reviewed_by::text, reviewed_at
+               curriculum_id, message, rating, helpful, content_type,
+               submitted_at, reviewed, reviewed_by::text, reviewed_at
         FROM feedback
         {where}
         ORDER BY submitted_at DESC

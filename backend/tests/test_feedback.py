@@ -21,14 +21,11 @@ Coverage:
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
-from unittest.mock import AsyncMock, patch
 
 import pytest
 from httpx import AsyncClient
 
-from tests.helpers.token_factory import make_admin_token, make_student_token
-
+from tests.helpers.token_factory import make_admin_token
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -109,6 +106,86 @@ async def test_submit_feedback_with_unit_and_curriculum(client, db_conn, student
     assert r.status_code == 200, r.text
     data = r.json()
     assert "feedback_id" in data
+
+
+@pytest.mark.asyncio
+async def test_thumbs_feedback_is_recorded_without_a_message(client, db_conn, student_token):
+    """The lesson thumbs up/down widget submits a verdict and no written message.
+
+    It has no text box, so requiring `message` made every submission fail — the
+    feedback table held zero rows for the life of the deployment (issue #600).
+    A thumbs vote must store the verdict and which content type it was about,
+    and must NOT invent message text the student never wrote.
+    """
+    student_id = _student_id_from_token(student_token)
+    await _insert_student(client, student_id)
+
+    r = await client.post(
+        "/api/v1/feedback",
+        json={
+            "category": "content",
+            "unit_id": "G8-MATH-001",
+            "content_type": "lesson",
+            "helpful": True,
+        },
+        headers={"Authorization": f"Bearer {student_token}"},
+    )
+    assert r.status_code == 200, r.text
+
+    pool = client._transport.app.state.pool
+    row = await pool.fetchrow(
+        "SELECT message, helpful, content_type, unit_id FROM feedback WHERE feedback_id = $1",
+        uuid.UUID(r.json()["feedback_id"]),
+    )
+    assert row is not None, "thumbs feedback was not persisted"
+    assert row["helpful"] is True
+    assert row["content_type"] == "lesson"
+    assert row["unit_id"] == "G8-MATH-001"
+    assert row["message"] is None, "a thumbs vote must not fabricate message text"
+
+
+@pytest.mark.asyncio
+async def test_thumbs_down_is_recorded(client, db_conn, student_token):
+    """A thumbs-down stores helpful=False, not a missing row."""
+    student_id = _student_id_from_token(student_token)
+    await _insert_student(client, student_id)
+
+    r = await client.post(
+        "/api/v1/feedback",
+        json={
+            "category": "content",
+            "unit_id": "G8-MATH-002",
+            "content_type": "tutorial",
+            "helpful": False,
+        },
+        headers={"Authorization": f"Bearer {student_token}"},
+    )
+    assert r.status_code == 200, r.text
+
+    pool = client._transport.app.state.pool
+    helpful = await pool.fetchval(
+        "SELECT helpful FROM feedback WHERE feedback_id = $1",
+        uuid.UUID(r.json()["feedback_id"]),
+    )
+    assert helpful is False
+
+
+@pytest.mark.asyncio
+async def test_empty_feedback_is_rejected(client, db_conn, student_token):
+    """Feedback carrying no message, no rating and no thumbs verdict is refused.
+
+    Relaxing `message` must not open the door to blank rows that tell a
+    reviewer nothing (issue #600).
+    """
+    student_id = _student_id_from_token(student_token)
+    await _insert_student(client, student_id)
+
+    r = await client.post(
+        "/api/v1/feedback",
+        json={"category": "content", "unit_id": "G8-MATH-003"},
+        headers={"Authorization": f"Bearer {student_token}"},
+    )
+    assert r.status_code == 422, r.text
 
 
 @pytest.mark.asyncio

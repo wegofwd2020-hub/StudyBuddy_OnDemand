@@ -5896,9 +5896,13 @@ export interface components {
             /** Curriculum Id */
             curriculum_id?: string | null;
             /** Message */
-            message: string;
+            message?: string | null;
             /** Rating */
             rating?: number | null;
+            /** Helpful */
+            helpful?: boolean | null;
+            /** Content Type */
+            content_type?: string | null;
             /**
              * Submitted At
              * Format: date-time
@@ -7825,9 +7829,13 @@ export interface components {
             /** Curriculum Id */
             curriculum_id?: string | null;
             /** Message */
-            message: string;
+            message?: string | null;
             /** Rating */
             rating?: number | null;
+            /** Helpful */
+            helpful?: boolean | null;
+            /** Content Type */
+            content_type?: string | null;
         };
         /** FeedbackSubmitResponse */
         FeedbackSubmitResponse: {

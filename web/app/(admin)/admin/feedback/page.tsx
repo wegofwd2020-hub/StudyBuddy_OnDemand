@@ -115,7 +115,23 @@ export default function AdminFeedbackPage() {
                     <span className="truncate text-sm font-medium text-gray-900">
                       {fb.unit_title}
                     </span>
-                    <StarRating rating={fb.rating} />
+                    {fb.rating !== null && <StarRating rating={fb.rating} />}
+                    {fb.helpful !== null && (
+                      <span
+                        className={
+                          fb.helpful
+                            ? "text-sm font-medium text-emerald-600"
+                            : "text-sm font-medium text-rose-600"
+                        }
+                        title={
+                          fb.content_type
+                            ? `Marked ${fb.helpful ? "helpful" : "not helpful"} on the ${fb.content_type}`
+                            : undefined
+                        }
+                      >
+                        {fb.helpful ? "\u{1F44D} Helpful" : "\u{1F44E} Not helpful"}
+                      </span>
+                    )}
                   </div>
                   {fb.comment && (
                     <p className="line-clamp-2 text-sm text-gray-600">{fb.comment}</p>

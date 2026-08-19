@@ -76,6 +76,8 @@ async def submit_feedback_endpoint(
             unit_id=body.unit_id,
             curriculum_id=body.curriculum_id,
             rating=body.rating,
+            helpful=body.helpful,
+            content_type=body.content_type,
         )
 
     return FeedbackSubmitResponse(**result)
