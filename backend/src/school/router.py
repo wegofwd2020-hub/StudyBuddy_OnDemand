@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import uuid
 from typing import Annotated
 
 import asyncpg
@@ -806,6 +807,44 @@ async def get_teacher_capabilities(
 # ── Phase A provisioning endpoints ───────────────────────────────────────────
 
 
+async def _duplicate_email_detail(
+    conn: asyncpg.Connection,
+    school_id: str,
+    email: str,
+    table: str,
+) -> str:
+    """Explain a duplicate-email conflict in a way the admin can act on (#572).
+
+    `students.email` and `teachers.email` are globally unique, so an address
+    registered at ANY school blocks it everywhere. The old wording — "A student
+    with that email already exists." — left a school admin with no idea the
+    address was in use elsewhere, no way to find out (correctly: that is another
+    school's data), and nothing to do next.
+
+    Two cases, deliberately worded differently:
+      - the clash is on THIS school's roster -> name it; the admin can fix it
+      - the clash is elsewhere               -> say the address is taken across
+                                                StudyBuddy and give a contact
+                                                route, revealing nothing about
+                                                the other school
+    """
+    owned_here = await conn.fetchval(
+        f"SELECT EXISTS (SELECT 1 FROM {table} WHERE lower(email) = lower($1) AND school_id = $2)",
+        email,
+        uuid.UUID(school_id),
+    )
+    if owned_here:
+        who = "student" if table == "students" else "teacher"
+        return f"That email address is already used by a {who} at your school."
+
+    return (
+        "That email address is already registered on StudyBuddy, so it cannot be "
+        "added again. It may belong to an account at another school, which we "
+        "cannot show you. Use a different address for this person, or contact "
+        "support@usestudybuddy.com to have the address released."
+    )
+
+
 @router.post(
     "/schools/{school_id}/teachers",
     response_model=ProvisionTeacherResponse,
@@ -832,17 +871,22 @@ async def provision_teacher_endpoint(
             result = await provision_teacher(
                 conn, school_id, body.name, str(body.email), body.subject_specialisation
             )
-        except Exception as exc:
-            if "unique" in str(exc).lower():
-                raise HTTPException(
-                    status_code=409,
-                    detail={
-                        "error": "conflict",
-                        "detail": "A teacher with that email already exists.",
-                        "correlation_id": _cid(request),
-                    },
-                )
-            raise
+        except asyncpg.UniqueViolationError as exc:
+            # Branch on the constraint, never a substring of the error text:
+            # teachers.email and students.email are separate constraints (#578),
+            # so guessing which one fired produces a message that is simply wrong.
+            if exc.constraint_name != "teachers_email_key":
+                raise
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "error": "conflict",
+                    "detail": await _duplicate_email_detail(
+                        conn, school_id, str(body.email), "teachers"
+                    ),
+                    "correlation_id": _cid(request),
+                },
+            )
 
     try:
         await send_welcome_teacher_email(
@@ -886,17 +930,19 @@ async def provision_student_endpoint(
             result = await provision_student(
                 conn, school_id, body.name, str(body.email), body.grade
             )
-        except Exception as exc:
-            if "unique" in str(exc).lower():
-                raise HTTPException(
-                    status_code=409,
-                    detail={
-                        "error": "conflict",
-                        "detail": "A student with that email already exists.",
-                        "correlation_id": _cid(request),
-                    },
-                )
-            raise
+        except asyncpg.UniqueViolationError as exc:
+            if exc.constraint_name != "students_email_key":
+                raise
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "error": "conflict",
+                    "detail": await _duplicate_email_detail(
+                        conn, school_id, str(body.email), "students"
+                    ),
+                    "correlation_id": _cid(request),
+                },
+            )
 
     try:
         await send_welcome_student_email(

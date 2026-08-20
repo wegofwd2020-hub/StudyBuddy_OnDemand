@@ -465,7 +465,17 @@ function AdminStudentView({ schoolId }: { schoolId: string }) {
       )?.response;
       const status = resp?.status;
       if (status === 409) {
-        setAddError("A student with that email already exists.");
+        // Prefer the server's explanation — it distinguishes "already on your
+        // roster" from "registered at another school" and names the contact
+        // route (#572). Falling back only if the API sent nothing usable.
+        {
+          const serverDetail = (resp?.data as { detail?: unknown } | undefined)?.detail;
+          setAddError(
+            typeof serverDetail === "string"
+              ? serverDetail
+              : "That email address is already registered. Try a different address.",
+          );
+        }
       } else if (status === 422) {
         // FastAPI returns detail: [{ loc: ["body", <field>], msg }]. Surface a
         // message for the field that actually failed rather than always blaming grade.
