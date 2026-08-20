@@ -9439,6 +9439,53 @@
         ]
       }
     },
+    "/api/v1/school/enrol/confirm": {
+      "post": {
+        "tags": [
+          "school"
+        ],
+        "summary": "Confirm Enrolment",
+        "description": "Join a school using the code from an invite link (#609).\n\nThe school portal has always offered admins a copy-able `/enrol/{code}`\nlink; this is the endpoint behind it, which never existed.\n\nRuns with RLS bypassed on purpose: `schools` and `school_enrolments` are\nRLS-protected and the student is by definition not yet scoped to the school\nthey are joining. The enrolment code is the secret that authorises this, and\nnothing about a school is returned unless the code matches.",
+        "operationId": "confirm_enrolment_api_v1_school_enrol_confirm_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnrolConfirmRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnrolConfirmResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/api/v1/schools/{school_id}/content/subjects": {
       "get": {
         "tags": [
@@ -20601,6 +20648,35 @@
           "ended_at"
         ],
         "title": "EndSessionResponse"
+      },
+      "EnrolConfirmRequest": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 3,
+            "title": "Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token"
+        ],
+        "title": "EnrolConfirmRequest",
+        "description": "The school's enrolment code, as carried in an /enrol/{code} invite link."
+      },
+      "EnrolConfirmResponse": {
+        "properties": {
+          "school_name": {
+            "type": "string",
+            "title": "School Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "school_name"
+        ],
+        "title": "EnrolConfirmResponse"
       },
       "EnrolmentRosterItem": {
         "properties": {

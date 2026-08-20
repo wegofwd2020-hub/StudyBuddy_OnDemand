@@ -9,7 +9,7 @@ from __future__ import annotations
 import re
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 
 class SchoolRegisterRequest(BaseModel):
@@ -713,3 +713,13 @@ class SchoolThemeResponse(BaseModel):
 
 class SchoolThemeUpdateRequest(BaseModel):
     theme: SchoolThemePayload
+
+
+class EnrolConfirmRequest(BaseModel):
+    """The school's enrolment code, as carried in an /enrol/{code} invite link."""
+
+    token: str = Field(..., min_length=3, max_length=64)
+
+
+class EnrolConfirmResponse(BaseModel):
+    school_name: str
