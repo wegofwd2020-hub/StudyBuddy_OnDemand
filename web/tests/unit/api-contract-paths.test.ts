@@ -37,7 +37,6 @@ const OPENAPI = join(__dirname, "../../openapi.json");
 const KNOWN_BROKEN = new Map<string, string>([
   // Both are unimplemented features the product still exposes, so the client
   // is deliberately left in place rather than deleted (#609).
-  ["POST /api/v1/school/enrol/confirm", "#609 — enrol-by-code has no backend"],
   ["POST /api/v1/auth/consent", "#609 — COPPA parental consent has no backend"],
 ]);
 

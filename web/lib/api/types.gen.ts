@@ -3483,6 +3483,34 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/school/enrol/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm Enrolment
+         * @description Join a school using the code from an invite link (#609).
+         *
+         *     The school portal has always offered admins a copy-able `/enrol/{code}`
+         *     link; this is the endpoint behind it, which never existed.
+         *
+         *     Runs with RLS bypassed on purpose: `schools` and `school_enrolments` are
+         *     RLS-protected and the student is by definition not yet scoped to the school
+         *     they are joining. The enrolment code is the secret that authorises this, and
+         *     nothing about a school is returned unless the code matches.
+         */
+        post: operations["confirm_enrolment_api_v1_school_enrol_confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/schools/{school_id}/content/subjects": {
         parameters: {
             query?: never;
@@ -7703,6 +7731,19 @@ export interface components {
             attempt_number: number;
             /** Ended At */
             ended_at: string;
+        };
+        /**
+         * EnrolConfirmRequest
+         * @description The school's enrolment code, as carried in an /enrol/{code} invite link.
+         */
+        EnrolConfirmRequest: {
+            /** Token */
+            token: string;
+        };
+        /** EnrolConfirmResponse */
+        EnrolConfirmResponse: {
+            /** School Name */
+            school_name: string;
         };
         /** EnrolmentRosterItem */
         EnrolmentRosterItem: {
@@ -16625,6 +16666,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SchoolThemeResponse"];
+                };
+            };
+        };
+    };
+    confirm_enrolment_api_v1_school_enrol_confirm_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EnrolConfirmRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnrolConfirmResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

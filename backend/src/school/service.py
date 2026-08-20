@@ -1297,3 +1297,107 @@ async def get_student_school_theme(pool: asyncpg.Pool, student_id: str) -> dict 
     if row is None or row["theme"] is None:
         return None
     return row["theme"]
+
+
+async def enrol_student_by_code(
+    conn: asyncpg.Connection,
+    student_id: str,
+    code: str,
+) -> dict:
+    """Enrol a signed-in student into a school using its enrolment code (#609).
+
+    The school portal has always generated `/enrol/{code}` invite links and given
+    admins a copy button, but nothing served the confirmation — every student who
+    followed one hit a dead end.
+
+    Caller must pass a connection with RLS bypassed: `schools` and
+    `school_enrolments` are RLS-protected, and the student is by definition not
+    yet scoped to the school they are joining.
+
+    Returns {"ok": True, "school_name": ...} or {"ok": False, "reason": ...}.
+    """
+    school = await conn.fetchrow(
+        """
+        SELECT school_id::text AS school_id, name
+        FROM schools
+        WHERE upper(enrolment_code) = upper($1) AND status = 'active'
+        """,
+        code.strip(),
+    )
+    if school is None:
+        return {"ok": False, "reason": "invalid_code"}
+
+    current = await conn.fetchval(
+        "SELECT school_id::text FROM students WHERE student_id = $1",
+        uuid.UUID(student_id),
+    )
+
+    # Moving between schools detaches a student from their existing roster and
+    # curriculum. That is an administrative act, not something a link click
+    # should do silently behind both schools' backs.
+    if current and current != school["school_id"]:
+        return {"ok": False, "reason": "already_enrolled_elsewhere"}
+
+    already = await conn.fetchval(
+        """
+        SELECT COUNT(*) FROM school_enrolments
+        WHERE school_id = $1 AND student_id = $2
+        """,
+        uuid.UUID(school["school_id"]),
+        uuid.UUID(student_id),
+    )
+
+    if not already:
+        # Seat limits are only enforced where a subscription exists, matching the
+        # roster-upload path. Without this, the invite link would be a way around
+        # the plan the school is paying for.
+        sub = await conn.fetchrow(
+            """
+            SELECT max_students FROM school_subscriptions
+            WHERE school_id = $1 AND status IN ('active', 'trialing')
+            """,
+            uuid.UUID(school["school_id"]),
+        )
+        if sub is not None:
+            used = await conn.fetchval(
+                """
+                SELECT COUNT(*) FROM school_enrolments
+                WHERE school_id = $1 AND status = 'active'
+                """,
+                uuid.UUID(school["school_id"]),
+            )
+            if (used or 0) >= sub["max_students"]:
+                return {
+                    "ok": False,
+                    "reason": "seat_limit_reached",
+                    "limit": sub["max_students"],
+                    "used": used or 0,
+                }
+
+        email = await conn.fetchval(
+            "SELECT email FROM students WHERE student_id = $1", uuid.UUID(student_id)
+        )
+        grade = await conn.fetchval(
+            "SELECT grade FROM students WHERE student_id = $1", uuid.UUID(student_id)
+        )
+        await conn.execute(
+            """
+            INSERT INTO school_enrolments
+                (school_id, student_email, student_id, status, grade)
+            VALUES ($1, $2, $3, 'active', $4)
+            ON CONFLICT DO NOTHING
+            """,
+            uuid.UUID(school["school_id"]),
+            email,
+            uuid.UUID(student_id),
+            grade,
+        )
+
+    await conn.execute(
+        "UPDATE students SET school_id = $1 WHERE student_id = $2",
+        uuid.UUID(school["school_id"]),
+        uuid.UUID(student_id),
+    )
+
+    log.info("enrol_by_code", student_id=student_id, school_id=school["school_id"])
+    return {"ok": True, "school_name": school["name"]}

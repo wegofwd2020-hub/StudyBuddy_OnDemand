@@ -58,6 +58,8 @@ from src.school.schemas import (
     CurriculumDefinitionRequest,
     CurriculumDefinitionResponse,
     DefinitionListResponse,
+    EnrolConfirmRequest,
+    EnrolConfirmResponse,
     EnrolmentRosterItem,
     EnrolmentRosterResponse,
     EnrolmentUploadRequest,
@@ -98,6 +100,7 @@ from src.school.service import (
     assign_package_to_classroom,
     assign_student_to_classroom,
     create_classroom,
+    enrol_student_by_code,
     fetch_school,
     get_classroom_detail,
     get_definition,
@@ -3254,3 +3257,67 @@ async def get_student_theme_endpoint(
     pool = request.app.state.pool
     theme = await get_student_school_theme(pool, student["student_id"])
     return SchoolThemeResponse(theme=theme)
+
+
+# ── POST /school/enrol/confirm (student) ──────────────────────────────────────
+
+
+@router.post("/school/enrol/confirm", response_model=EnrolConfirmResponse)
+async def confirm_enrolment(
+    body: EnrolConfirmRequest,
+    request: Request,
+    student: Annotated[dict, Depends(get_current_student)],
+) -> EnrolConfirmResponse:
+    """Join a school using the code from an invite link (#609).
+
+    The school portal has always offered admins a copy-able `/enrol/{code}`
+    link; this is the endpoint behind it, which never existed.
+
+    Runs with RLS bypassed on purpose: `schools` and `school_enrolments` are
+    RLS-protected and the student is by definition not yet scoped to the school
+    they are joining. The enrolment code is the secret that authorises this, and
+    nothing about a school is returned unless the code matches.
+    """
+    student_id = str(student["student_id"])
+
+    async with request.app.state.pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        result = await enrol_student_by_code(conn, student_id, body.token)
+
+    if result["ok"]:
+        return EnrolConfirmResponse(school_name=result["school_name"])
+
+    reason = result["reason"]
+    if reason == "invalid_code":
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "error": "invalid_code",
+                # Deliberately says nothing about whether a school exists.
+                "detail": "That enrolment link is not valid. Check with your school for a new one.",
+                "correlation_id": _cid(request),
+            },
+        )
+    if reason == "already_enrolled_elsewhere":
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "error": "already_enrolled",
+                "detail": (
+                    "You are already enrolled at a school. Ask your school to move "
+                    "your account before joining a different one."
+                ),
+                "correlation_id": _cid(request),
+            },
+        )
+    raise HTTPException(
+        status_code=402,
+        detail={
+            "error": "seat_limit_reached",
+            "detail": (
+                "This school has no places left on its plan. Let your school know "
+                "so they can add more."
+            ),
+            "correlation_id": _cid(request),
+        },
+    )
