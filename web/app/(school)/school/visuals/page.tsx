@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { describeMissingUploadFields } from "@/lib/school/visual-upload";
 import { useTeacher } from "@/lib/hooks/useTeacher";
 import {
   uploadVisual,
@@ -85,15 +86,6 @@ export default function VisualLibraryPage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["visuals", schoolId] }),
   });
 
-  const canSubmit = useMemo(
-    () =>
-      !!upFile &&
-      ID_RE.test(upCurriculum.trim()) &&
-      ID_RE.test(upUnit.trim()) &&
-      ID_RE.test(upSection.trim()),
-    [upFile, upCurriculum, upUnit, upSection],
-  );
-
   // True when the user has typed something that isn't a valid ID — drives the hint.
   const showIdHint =
     (upCurriculum.trim().length > 0 && !ID_RE.test(upCurriculum.trim())) ||
@@ -132,36 +124,63 @@ export default function VisualLibraryPage() {
           <form
             onSubmit={(e) => {
               e.preventDefault();
+              // Say what is missing rather than leaving an inert button — a
+              // disabled control with no message reads as broken (#618).
+              const missing = describeMissingUploadFields({
+                file: upFile,
+                curriculum: upCurriculum,
+                unit: upUnit,
+                section: upSection,
+              });
+              if (missing) {
+                setUpError(missing);
+                return;
+              }
               upload.mutate();
             }}
             className="space-y-4"
           >
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <div>
-                <Label htmlFor="up-curriculum">Curriculum ID</Label>
+                <Label htmlFor="up-curriculum">
+                  Curriculum ID{" "}
+                  <span className="text-red-500" aria-hidden="true">
+                    *
+                  </span>
+                </Label>
                 <Input
                   id="up-curriculum"
                   value={upCurriculum}
                   onChange={(e) => setUpCurriculum(e.target.value)}
-                  placeholder="default-2026-g11-science"
+                  placeholder="e.g. default-2026-g11-science"
                 />
               </div>
               <div>
-                <Label htmlFor="up-unit">Unit ID</Label>
+                <Label htmlFor="up-unit">
+                  Unit ID{" "}
+                  <span className="text-red-500" aria-hidden="true">
+                    *
+                  </span>
+                </Label>
                 <Input
                   id="up-unit"
                   value={upUnit}
                   onChange={(e) => setUpUnit(e.target.value)}
-                  placeholder="G11-PHYS-002"
+                  placeholder="e.g. G11-PHYS-002"
                 />
               </div>
               <div>
-                <Label htmlFor="up-section">Section ID</Label>
+                <Label htmlFor="up-section">
+                  Section ID{" "}
+                  <span className="text-red-500" aria-hidden="true">
+                    *
+                  </span>
+                </Label>
                 <Input
                   id="up-section"
                   value={upSection}
                   onChange={(e) => setUpSection(e.target.value)}
-                  placeholder="s1"
+                  placeholder="e.g. s1"
                 />
               </div>
             </div>
@@ -172,7 +191,12 @@ export default function VisualLibraryPage() {
               </p>
             )}
             <div>
-              <Label htmlFor="up-file">File (≤20 MB)</Label>
+              <Label htmlFor="up-file">
+                File (≤20 MB){" "}
+                <span className="text-red-500" aria-hidden="true">
+                  *
+                </span>
+              </Label>
               <Input
                 id="up-file"
                 type="file"
@@ -192,7 +216,7 @@ export default function VisualLibraryPage() {
                 <span>{upError}</span>
               </div>
             )}
-            <Button type="submit" disabled={!canSubmit || upload.isPending}>
+            <Button type="submit" disabled={upload.isPending}>
               {upload.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
