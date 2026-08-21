@@ -106,6 +106,10 @@ services:
       SENTRY_ENVIRONMENT: demo
       # Two workers for a 2 vCPU box — gunicorn formula (2*N+1) without overcommitting RAM
       GUNICORN_WORKERS: "2"
+    # Watched by the autoheal service below (#620). Only labelled containers are
+    # ever restarted, so this opt-in is per service rather than blanket.
+    labels:
+      autoheal: "true"
     # No host-port mapping on demo — Nginx fronts everything.
     ports: !override []
     # Drop pgbouncer (disabled in demo) and migrate (one-shot dependency is
@@ -241,6 +245,39 @@ services:
         condition: service_healthy
       web:
         condition: service_started
+
+  # ── Autoheal — restart containers Docker already reports as unhealthy ───────
+  #
+  # On 2026-08-21 the API wedged at 00:13 UTC and stayed wedged for 13 hours:
+  # alive, accepting connections, holding zero DB connections, logging nothing
+  # (#620). Docker had it marked `unhealthy` for 21 hours. Nothing was watching
+  # that signal, so a tester found it before we did.
+  #
+  # This does NOT fix the wedge — the root cause is still unknown — it bounds
+  # how long one survives. With the api healthcheck at interval 15s / retries 5,
+  # a container is declared unhealthy after ~75s, and autoheal polls every 5s:
+  # recovery lands around 80-90 seconds instead of "until someone notices".
+  #
+  # Trade-off worth stating: this mounts the Docker socket, which is
+  # root-equivalent on the host. It is accepted here because the demo box
+  # already runs everything as root and the alternative — a host-level cron —
+  # would live outside version control and outside the deploy. Any move to a
+  # real production host should revisit this rather than inherit it.
+  autoheal:
+    image: willfarrell/autoheal:latest
+    restart: always
+    logging: *logging-cap
+    environment:
+      # Only containers labelled autoheal=true are touched.
+      AUTOHEAL_CONTAINER_LABEL: autoheal
+      AUTOHEAL_INTERVAL: "5"
+      # Give a restarting container time to pass start_period before being
+      # judged again, so a slow boot is not mistaken for a wedge.
+      AUTOHEAL_START_PERIOD: "60"
+      # Bound the restart itself; a wedged process may ignore SIGTERM.
+      AUTOHEAL_DEFAULT_STOP_TIMEOUT: "20"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Named volumes — persistent across `docker compose down` (NOT `down -v`)
