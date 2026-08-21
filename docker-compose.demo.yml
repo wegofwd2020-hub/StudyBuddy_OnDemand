@@ -264,7 +264,12 @@ services:
   # would live outside version control and outside the deploy. Any move to a
   # real production host should revisit this rather than inherit it.
   autoheal:
-    image: willfarrell/autoheal:latest
+    # PINNED BY DIGEST, not :latest. This container holds the Docker socket, so
+    # it is root-equivalent on the host — an unpinned tag would let an upstream
+    # change or compromise land automatically on the next pull. Updating this
+    # digest is a deliberate, reviewable act; verify the release before bumping.
+    #   willfarrell/autoheal:latest as of 2026-08-21
+    image: willfarrell/autoheal@sha256:147ed822bf5f787f638687c66bb3591b64d73fc4a1640da64c5442608d139878
     restart: always
     logging: *logging-cap
     environment:
