@@ -25,8 +25,10 @@ Security:
 from __future__ import annotations
 
 import os
+import uuid
 from typing import Annotated
 
+import asyncpg
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import FileResponse
 
@@ -91,6 +93,47 @@ def _check_school(teacher: dict, school_id: str, request: Request) -> None:
         )
 
 
+async def _permitted_grades(
+    conn: asyncpg.Connection, teacher: dict, school_id: str
+) -> set[int] | None:
+    """Grades this teacher may see, or None meaning "no restriction".
+
+    The product already models per-teacher grade entitlement in
+    `teacher_grade_assignments` (migration 0023) and enforces it on roster
+    upload — reports never consulted it, so a Grade-8 teacher could read a
+    Grade-10 student's report card by changing a query parameter (#576).
+
+    `school_admin` is a teacher superset (ADR-005) and keeps full visibility.
+    A teacher with no assignments has no cohort, so they see no students rather
+    than every student — the previous behaviour was the latter.
+    """
+    if teacher.get("role") == "school_admin":
+        return None
+
+    rows = await conn.fetch(
+        """
+        SELECT grade FROM teacher_grade_assignments
+        WHERE teacher_id = $1 AND school_id = $2
+        """,
+        uuid.UUID(str(teacher["teacher_id"])),
+        uuid.UUID(school_id),
+    )
+    return {r["grade"] for r in rows}
+
+
+def _deny_grade(request: Request) -> HTTPException:
+    return HTTPException(
+        status_code=403,
+        detail={
+            "error": "forbidden",
+            # Deliberately does not confirm whether the student exists — that
+            # would leak roster membership for grades the teacher cannot see.
+            "detail": "You are not assigned to that grade.",
+            "correlation_id": _cid(request),
+        },
+    )
+
+
 # ── Student Roster ────────────────────────────────────────────────────────────
 
 
@@ -109,8 +152,22 @@ async def student_roster(
     """
     _check_school(teacher, school_id, request)
     async with get_db(request) as conn:
-        grade_filter = "AND s.grade = $2" if grade is not None else ""
-        params = [school_id, grade] if grade is not None else [school_id]
+        permitted = await _permitted_grades(conn, teacher, school_id)
+
+        if grade is not None:
+            if permitted is not None and grade not in permitted:
+                raise _deny_grade(request)
+            grade_filter = "AND s.grade = $2"
+            params = [school_id, grade]
+        elif permitted is None:
+            # school_admin — whole school.
+            grade_filter = ""
+            params = [school_id]
+        else:
+            # Restricting only the explicit ?grade= would leave the wider door
+            # open: an unfiltered roster returned every grade in the school.
+            grade_filter = "AND s.grade = ANY($2::smallint[])"
+            params = [school_id, sorted(permitted)]
         rows = await conn.fetch(
             f"""
             SELECT
@@ -202,6 +259,16 @@ async def student_report(
     _check_school(teacher, school_id, request)
     cid = _cid(request)
     async with get_db(request) as conn:
+        permitted = await _permitted_grades(conn, teacher, school_id)
+        if permitted is not None:
+            student_grade = await conn.fetchval(
+                "SELECT grade FROM students WHERE student_id = $1",
+                uuid.UUID(student_id),
+            )
+            # An unknown student is refused the same way as an out-of-scope one,
+            # so the response cannot be used to probe who exists.
+            if student_grade is None or student_grade not in permitted:
+                raise _deny_grade(request)
         try:
             result = await get_student_report(conn, school_id, student_id)
         except LookupError as exc:
