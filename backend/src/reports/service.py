@@ -166,7 +166,11 @@ async def get_overview(
                ROUND(
                    -- Per unit the population is STUDENTS, so both sides count distinct
                    -- students. Counting rows in the numerator let one student with
-                   -- several attempt-1 sessions (#579) report 300% (#623).
+                   -- several completed attempt-1 sessions on a unit exceed 100% (#623).
+                   -- Unlike get_curriculum_health this query has no join, so it was
+                   -- never inflated by lesson-view fan-out (#625) — it is fixed here
+                   -- because the metric is the same and the row/student mismatch is
+                   -- wrong either way, not because it was observed misreporting.
                    -- NOTE: the school-wide query above is rows/rows on purpose —
                    -- see the #471 comment there. Do not "unify" them.
                    100.0 * COUNT(DISTINCT student_id) FILTER (WHERE attempt_number = 1 AND passed AND completed)
@@ -643,17 +647,39 @@ async def get_curriculum_health(
             ps.unit_id,
             MAX(ps.subject)                                    AS subject,
             ROUND(
-                -- Both sides count distinct students: per unit, rows in the
-                -- numerator let repeated attempt-1 sessions exceed 100% (#623).
+                -- Both sides count distinct students: per unit the population is
+                -- STUDENTS, not session rows (#623).
                 100.0 * COUNT(DISTINCT ps.student_id) FILTER (WHERE ps.attempt_number = 1 AND ps.passed AND ps.completed)
                 / NULLIF(COUNT(DISTINCT ps.student_id) FILTER (WHERE ps.attempt_number = 1 AND ps.completed), 0),
                 1
             )                                                   AS first_pass_rate,
             ROUND(AVG(ps.score) FILTER (WHERE ps.completed)::numeric, 1) AS avg_score,
             ROUND(AVG(ps.attempt_number) FILTER (WHERE ps.passed AND ps.completed)::numeric, 1) AS avg_att,
-            COUNT(DISTINCT lv.view_id) > 0                      AS has_lesson_view
+            BOOL_OR(lv.viewed)                                  AS has_lesson_view
         FROM progress_sessions ps
-        LEFT JOIN lesson_views lv ON lv.student_id = ps.student_id AND lv.unit_id = ps.unit_id
+        -- Collapse lesson views to at most ONE row per (student, unit) BEFORE
+        -- joining (issue #625). Joining `lesson_views` directly fanned each quiz
+        -- session out into one row per view, so a student who opened the lesson
+        -- N times was counted N times by every row-based aggregate here:
+        --
+        --   * the pass-rate numerator counted joined rows against distinct
+        --     students and reported 200% / 300% / 800% — this was the actual
+        --     cause of #623, which was fixed by making both sides DISTINCT
+        --     (immune to fan-out) while the wrong cause was recorded;
+        --   * AVG(score) and AVG(attempt_number) are NOT immune, and still
+        --     weighted each student by their lesson-view count — the reason a
+        --     struggling student who re-read the lesson less could be averaged
+        --     away by a strong one who re-read it more.
+        --
+        -- Same defect and same remedy as #464 in analytics/service.py. Joining
+        -- on (student_id, unit_id) keeps the original meaning of has_lesson_view:
+        -- "a student with a session on this unit also viewed its lesson".
+        LEFT JOIN (
+            SELECT student_id, unit_id, TRUE AS viewed
+            FROM lesson_views
+            WHERE student_id = ANY(ARRAY[{placeholders}]::uuid[])
+            GROUP BY student_id, unit_id
+        ) lv ON lv.student_id = ps.student_id AND lv.unit_id = ps.unit_id
         WHERE ps.student_id = ANY(ARRAY[{placeholders}]::uuid[])
         GROUP BY ps.unit_id
         ORDER BY ps.unit_id

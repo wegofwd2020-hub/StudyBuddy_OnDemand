@@ -4,12 +4,22 @@ tests/test_pass_rate_bounds.py
 First-attempt pass rate must never exceed 100% (issue #623).
 
 Venki's 08/17 Unit Performance screenshot showed 200%, 200% and 300%. The
-per-unit queries divide a COUNT of ROWS by a COUNT of DISTINCT STUDENTS, so a
-student with several qualifying sessions on one unit produces a rate above 100%.
+per-unit queries divide a COUNT of ROWS by a COUNT of DISTINCT STUDENTS, so
+anything that produces several qualifying rows for one student on one unit
+pushes the rate above 100%.
 
-That is reachable because of #579 — opening a quiz page creates a session row,
-and the demo already has a student with nine `attempt_number = 1` sessions on a
-single unit.
+CORRECTION (#625): the fix originally recorded the cause as #579 — repeated
+`attempt_number = 1` sessions from re-opening a quiz page. That was wrong. Those
+extra rows are NOT `completed`, and both sides of the fraction filter on
+`completed`, so they never enter the calculation. The real cause was a
+`LEFT JOIN lesson_views` in `get_curriculum_health` fanning each session row out
+into one row per lesson view; the live demo reproduced 800% that way. See
+`test_curriculum_health_join_fanout.py`, which reproduces the reported symptom
+through its actual mechanism.
+
+This file pins the invariant rather than the mechanism — a rate must be a rate
+whatever multiplies the rows — which is why it still holds after the cause turned
+out to be something else.
 
 Note the school-wide query in `get_overview_report` divides rows by rows and is
 CORRECT as it stands (#471): aggregated across units a student has one
