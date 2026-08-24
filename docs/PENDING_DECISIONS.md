@@ -18,6 +18,22 @@ says so rather than repeating it.
 | 5 | Should "Recent Activity" include lessons read? (#579) | Small | Nothing |
 | 6 | Is a *classroom* eventually the entitlement unit? (#576 deferred half) | Large | Classrooms are unpopulated |
 
+---
+
+## ✅ ANSWERED — 2026-08-24
+
+| # | Decision | What it means |
+|---|---|---|
+| 1 | **Out of scope** | Remove the consent page + client call; amend the CLAUDE.md claim and the About-page COPPA badge so the product stops asserting a control it does not have. |
+| 2 | **Session chooses the set** | `POST /progress/session` picks and pins the quiz set; `GET …/quiz` serves what the session pinned. Removes the side-effecting GET. |
+| 3 | **Primary-only now, switcher later** | Document `students.school_id` as the primary school; additional enrolments are for reporting. Revisit when a tutor actually needs to deliver content. |
+| 4 | **Leave as shipped** | Teachers see their own cohort; `school_admin` sees the school. No school-wide figure below school_admin. |
+| 5 | **Rename now** | "Recent Activity" → "Recent Quizzes". Fold lesson views in later. |
+| 6 | **Trigger, not a date** | Revisit classroom-as-entitlement-unit when the first school creates classrooms and assigns students to them. |
+
+The sections below are the reasoning these answers were taken from, kept as the
+record of what was known at the time.
+
 Two smaller ones are at the end: a restore-request notification gap and a
 timezone-dependent test (#630).
 

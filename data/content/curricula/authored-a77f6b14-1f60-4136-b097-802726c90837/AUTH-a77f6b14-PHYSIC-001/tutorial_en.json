@@ -1,0 +1,1 @@
+{"model": "fake-model", "title": "Motion tutorial", "unit_id": "U", "language": "en", "sections": [{"title": "Step 1", "content": "Section content that is long enough.", "examples": ["example one"], "section_id": "s1", "practice_question": "Try this problem."}], "generated_at": "2026-01-01T00:00:00Z", "common_mistakes": ["mixing up speed and velocity"], "content_version": 1}
