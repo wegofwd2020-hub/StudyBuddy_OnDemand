@@ -28,6 +28,21 @@ from src.utils.logger import get_logger
 log = get_logger("school")
 
 
+class AlreadyEnrolledError(Exception):
+    """The address is already on THIS school's roster.
+
+    Distinct from "registered elsewhere on the platform" (#572): since a student
+    may hold enrolments at several schools, a duplicate is only a conflict when
+    it duplicates *within one school*. The router turns this into a 409 that
+    says so, while an address belonging to another school is now attached rather
+    than refused.
+    """
+
+    def __init__(self, email: str) -> None:
+        super().__init__(f"{email} is already enrolled at this school")
+        self.email = email
+
+
 # The enrolment-code prefix is derived from the school name, so every school
 # sharing a name competes in the suffix space alone. 4 hex chars was only
 # 65,536 values, which collides by birthday paradox at a few dozen same-named
@@ -247,12 +262,77 @@ async def provision_student(
     grade: int,
 ) -> dict:
     """
-    Create a school-provisioned student with local auth (Phase A).
+    Create a school-provisioned student with local auth (Phase A), or attach an
+    existing person to this school (#572).
 
     Generates a random default password, hashes it, and stores it.
-    Returns the plain-text default password so the router can send it via email.
+    Returns the plain-text default password so the router can send it via email —
+    `None` when attaching, because there is no new credential to send.
     Sets first_login=True so the client forces a password reset on first use.
+
+    A student may belong to more than one school: a school for their regular
+    curriculum and, say, an external tutor running additional classes on the
+    same platform. `school_enrolments` already models that — UNIQUE
+    (school_id, student_email) with no unique on student_id — so membership is
+    the enrolment, and the person is a single `students` row.
+
+    Keeping ONE identity per person (rather than one per school) is deliberate:
+    a second row per school would make login ambiguous — which account does this
+    address sign into? — which is #578, and would split one student's record in
+    two.
+
+    Raises `AlreadyEnrolledError` if the address is already on THIS school's
+    roster: one ID per school.
     """
+    existing = await conn.fetchrow(
+        "SELECT student_id::text AS student_id, name, email, grade"
+        "  FROM students WHERE lower(email) = lower($1)",
+        email,
+    )
+
+    if existing is not None:
+        # `school_enrolments` is RLS-forced on app.current_school_id, so this
+        # sees only THIS school's rows — which is exactly the question being
+        # asked, and means the check cannot observe another school's roster.
+        already_here = await conn.fetchval(
+            "SELECT 1 FROM school_enrolments"
+            " WHERE school_id = $1 AND lower(student_email) = lower($2)",
+            uuid.UUID(school_id),
+            email,
+        )
+        if already_here:
+            raise AlreadyEnrolledError(email)
+
+        await conn.execute(
+            """
+            INSERT INTO school_enrolments
+                (school_id, student_email, student_id, status, grade)
+            VALUES ($1, $2, $3, 'active', $4)
+            """,
+            uuid.UUID(school_id),
+            email,
+            uuid.UUID(existing["student_id"]),
+            grade,
+        )
+        log.info(
+            "student_attached_to_additional_school",
+            student_id=existing["student_id"],
+            school_id=school_id,
+            grade=grade,
+        )
+        # Their credentials are untouched: the person already has a password
+        # with their first school, and a school adding them later must not be
+        # able to reset it or be handed one.
+        return {
+            "student_id": existing["student_id"],
+            "school_id": school_id,
+            "name": existing["name"],
+            "email": existing["email"],
+            "grade": grade,
+            "default_password": None,
+            "attached": True,
+        }
+
     student_id = str(uuid.uuid4())
     default_password = generate_default_password()
     password_hash = await hash_password(default_password)
@@ -296,6 +376,7 @@ async def provision_student(
         "email": email,
         "grade": grade,
         "default_password": default_password,
+        "attached": False,
     }
 
 

@@ -75,11 +75,23 @@ async def test_duplicate_within_the_same_school_says_so(client, db_conn):
 
 
 @pytest.mark.asyncio
-async def test_duplicate_at_another_school_explains_without_naming_it(client, db_conn):
-    """The reported case: the address is taken elsewhere and the admin is stuck.
+async def test_a_student_at_another_school_is_now_attached_not_refused(client, db_conn):
+    """This case is no longer a conflict at all (#572).
 
-    The message must admit the address is registered platform-wide and offer a
-    route forward, while revealing nothing about the other school.
+    It used to 409 with a message explaining the address was registered
+    platform-wide — that was the best available answer while a student could
+    belong to only one school. The product decision of 2026-08-24 changed the
+    underlying rule: a student may attend a school AND, say, an external tutor
+    running additional classes, so the second school now ATTACHES the existing
+    person rather than being refused.
+
+    The explanatory message is still live and still tested — see
+    `test_duplicate_teacher_email_gets_the_same_treatment` below. Teachers keep
+    the old rule: `teachers.school_id` is a single column, so a teacher belongs
+    to one school and a duplicate address there is still a genuine conflict.
+
+    Full coverage of the attach behaviour lives in
+    tests/test_multi_school_enrolment_572.py.
     """
     other = await _register_school(client, "_other")
     mine = await _register_school(client, "_mine")
@@ -88,17 +100,8 @@ async def test_duplicate_at_another_school_explains_without_naming_it(client, db
     first = await _add_student(client, other, email)
     assert first.status_code in (200, 201), first.text
 
-    blocked = await _add_student(client, mine, email)
-    assert blocked.status_code == 409, blocked.text
-    detail = blocked.json()["detail"]
-
-    lowered = detail.lower()
-    assert "already registered" in lowered, detail
-    # Actionable: the admin must be told where to go next.
-    assert "support@usestudybuddy.com" in lowered, detail
-    # And must learn nothing about the other school.
-    assert "dup email school" not in lowered, detail
-    assert other["school_id"] not in detail, detail
+    second = await _add_student(client, mine, email)
+    assert second.status_code in (200, 201), second.text
 
 
 @pytest.mark.asyncio

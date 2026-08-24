@@ -171,7 +171,7 @@ async def student_roster(
         if grade is not None:
             if permitted is not None and grade not in permitted:
                 raise _deny_grade(request)
-            grade_filter = "AND s.grade = $2"
+            grade_filter = "AND se.grade = $2"
             params = [school_id, grade]
         elif permitted is None:
             # school_admin — whole school.
@@ -180,7 +180,7 @@ async def student_roster(
         else:
             # Restricting only the explicit ?grade= would leave the wider door
             # open: an unfiltered roster returned every grade in the school.
-            grade_filter = "AND s.grade = ANY($2::smallint[])"
+            grade_filter = "AND se.grade = ANY($2::smallint[])"
             params = [school_id, sorted(permitted)]
         rows = await conn.fetch(
             f"""
@@ -199,10 +199,31 @@ async def student_roster(
                     END), 0
                 )                                                   AS avg_score_pct,
                 MAX(ps.started_at)                                  AS last_active
-            FROM students s
+            -- Membership comes from `school_enrolments`, not `students.school_id`
+            -- (#572). A student may be enrolled at more than one school — a
+            -- school for their regular curriculum and an external tutor running
+            -- additional classes — and `students.school_id` names only one of
+            -- them, so a student attached to a second school was provisioned
+            -- successfully and then absent from that school's reports.
+            --
+            -- `school_enrolments` is RLS-forced on app.current_school_id, so
+            -- this is already scoped to the caller's school.
+            --
+            -- The grade filter reads the ENROLMENT's grade: it is the grade at
+            -- THIS school, where `students.grade` is the student's own and can
+            -- differ between the two.
+            FROM school_enrolments se
+            JOIN students s ON s.student_id = se.student_id
             LEFT JOIN progress_sessions ps ON ps.student_id = s.student_id
                 AND ps.completed = true
-            WHERE s.school_id = $1 {grade_filter}
+                -- Enrolling someone must not hand over what they did before
+                -- they joined. Without this, a school could add a known address
+                -- and read that student's entire history at another school.
+                -- Every current flow (provisioning, roster upload, enrol-by-code)
+                -- creates the enrolment before any work, so this hides nothing
+                -- a school legitimately owns.
+                AND ps.started_at >= se.added_at
+            WHERE se.school_id = $1 AND se.status = 'active' {grade_filter}
             GROUP BY s.student_id, s.name, s.grade
             ORDER BY s.name
             """,
