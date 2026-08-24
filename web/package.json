@@ -55,12 +55,12 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.1",
-    "@playwright/test": "1.59.1",
+    "@playwright/test": "1.62.1",
     "@tailwindcss/postcss": "4.2.2",
     "@testing-library/dom": "^10.4.0",
-    "@testing-library/jest-dom": "6.9.1",
+    "@testing-library/jest-dom": "7.0.1",
     "@testing-library/react": "16.3.2",
-    "@testing-library/user-event": "14.6.1",
+    "@testing-library/user-event": "14.6.5",
     "@types/diff": "^8.0.0",
     "@types/node": "25.5.0",
     "@types/papaparse": "5.5.2",
@@ -69,14 +69,14 @@
     "@vitejs/plugin-react": "6.0.1",
     "eslint": "^9.39.4",
     "eslint-config-next": "16.2.3",
-    "jsdom": "29.0.1",
+    "jsdom": "30.0.1",
     "openapi-typescript": "^7.13.0",
     "prettier": "3.8.1",
     "prettier-plugin-tailwindcss": "0.7.2",
     "shadcn": "4.1.2",
     "tailwindcss": "4.2.2",
     "typescript": "^5.9.3",
-    "vitest": "4.1.2"
+    "vitest": "4.1.11"
   },
   "overrides": {
     "form-data": "^4.0.6"
