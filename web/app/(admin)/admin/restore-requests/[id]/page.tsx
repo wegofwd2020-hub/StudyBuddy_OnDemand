@@ -11,6 +11,7 @@ import {
   cancelRestoreRequest,
 } from "@/lib/api/backup";
 import adminClient from "@/lib/api/admin-client";
+import { describeSchedule } from "@/lib/school/restore-schedule";
 
 const STATUS_STYLES: Record<string, string> = {
   submitted: "bg-yellow-100 text-yellow-700",
@@ -215,9 +216,16 @@ export default function RestoreRequestDetailPage() {
                 request.scheduled_at ? (
                   <>
                     {fmtDate(request.scheduled_at)}{" "}
-                    <span className="text-xs font-normal text-gray-400">
-                      (school-requested — not automatic; action it below)
-                    </span>
+                    {describeSchedule(request.scheduled_at, request.status).kind ===
+                    "unschedulable" ? (
+                      <span className="text-xs font-normal text-amber-700">
+                        (outside the 30-day window — not automatic; action it below)
+                      </span>
+                    ) : (
+                      <span className="text-xs font-normal text-gray-400">
+                        (school-requested — not automatic; action it below)
+                      </span>
+                    )}
                   </>
                 ) : (
                   "— (ASAP)"
