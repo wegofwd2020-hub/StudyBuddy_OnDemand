@@ -1204,7 +1204,9 @@ def evaluate_report_alerts_task() -> None:
                         """
                         SELECT ps.unit_id,
                             -- Distinct students on BOTH sides: per unit, counting rows in the
-                            -- numerator let repeated attempt-1 sessions exceed 100% (#623).
+                            -- numerator let one student's repeated attempt-1 sessions — or a
+                            -- second active enrolment fanning out the JOIN below — exceed
+                            -- 100% (#623). COUNT(DISTINCT) is immune to both.
                             ROUND(100.0 * COUNT(DISTINCT ps.student_id) FILTER (WHERE ps.attempt_number = 1 AND ps.passed AND ps.completed)
                                 / NULLIF(COUNT(DISTINCT ps.student_id) FILTER (WHERE ps.attempt_number = 1 AND ps.completed), 0), 1)
                                 AS pass_rate
