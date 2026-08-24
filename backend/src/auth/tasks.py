@@ -1203,14 +1203,18 @@ def evaluate_report_alerts_task() -> None:
                     breach_rows = await conn.fetch(
                         """
                         SELECT ps.unit_id,
-                            ROUND(100.0 * COUNT(*) FILTER (WHERE ps.attempt_number = 1 AND ps.passed AND ps.completed)
+                            -- Distinct students on BOTH sides: per unit, counting rows in the
+                            -- numerator let repeated attempt-1 sessions exceed 100% (#623).
+                            ROUND(100.0 * COUNT(DISTINCT ps.student_id) FILTER (WHERE ps.attempt_number = 1 AND ps.passed AND ps.completed)
                                 / NULLIF(COUNT(DISTINCT ps.student_id) FILTER (WHERE ps.attempt_number = 1 AND ps.completed), 0), 1)
                                 AS pass_rate
                         FROM progress_sessions ps
                         INNER JOIN school_enrolments se ON se.student_id = ps.student_id
                         WHERE se.school_id = $1 AND se.status = 'active'
                         GROUP BY ps.unit_id
-                        HAVING ROUND(100.0 * COUNT(*) FILTER (WHERE ps.attempt_number = 1 AND ps.passed AND ps.completed)
+                        -- Must match the SELECT expression exactly, or units are filtered
+                        -- by one number and reported with another.
+                        HAVING ROUND(100.0 * COUNT(DISTINCT ps.student_id) FILTER (WHERE ps.attempt_number = 1 AND ps.passed AND ps.completed)
                             / NULLIF(COUNT(DISTINCT ps.student_id) FILTER (WHERE ps.attempt_number = 1 AND ps.completed), 0), 1)
                             < $2
                         """,

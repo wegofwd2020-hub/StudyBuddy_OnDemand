@@ -164,7 +164,12 @@ async def get_overview(
         f"""
         SELECT unit_id,
                ROUND(
-                   100.0 * COUNT(*) FILTER (WHERE attempt_number = 1 AND passed AND completed)
+                   -- Per unit the population is STUDENTS, so both sides count distinct
+                   -- students. Counting rows in the numerator let one student with
+                   -- several attempt-1 sessions (#579) report 300% (#623).
+                   -- NOTE: the school-wide query above is rows/rows on purpose —
+                   -- see the #471 comment there. Do not "unify" them.
+                   100.0 * COUNT(DISTINCT student_id) FILTER (WHERE attempt_number = 1 AND passed AND completed)
                    / NULLIF(COUNT(DISTINCT student_id) FILTER (WHERE attempt_number = 1 AND completed), 0),
                    1
                ) AS first_pass_rate,
@@ -638,7 +643,9 @@ async def get_curriculum_health(
             ps.unit_id,
             MAX(ps.subject)                                    AS subject,
             ROUND(
-                100.0 * COUNT(*) FILTER (WHERE ps.attempt_number = 1 AND ps.passed AND ps.completed)
+                -- Both sides count distinct students: per unit, rows in the
+                -- numerator let repeated attempt-1 sessions exceed 100% (#623).
+                100.0 * COUNT(DISTINCT ps.student_id) FILTER (WHERE ps.attempt_number = 1 AND ps.passed AND ps.completed)
                 / NULLIF(COUNT(DISTINCT ps.student_id) FILTER (WHERE ps.attempt_number = 1 AND ps.completed), 0),
                 1
             )                                                   AS first_pass_rate,

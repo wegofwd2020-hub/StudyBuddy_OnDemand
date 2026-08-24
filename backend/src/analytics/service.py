@@ -324,7 +324,9 @@ async def get_class_metrics(
             COUNT(DISTINCT ps.session_id)                                        AS total_quiz_attempts,
             COUNT(DISTINCT ps.student_id) FILTER (WHERE ps.completed)           AS unique_students_attempted,
             ROUND(
-                100.0 * COUNT(*) FILTER (WHERE ps.attempt_number = 1 AND ps.passed AND ps.completed)
+                -- Both sides count distinct students: per unit, rows in the
+                -- numerator let repeated attempt-1 sessions exceed 100% (#623).
+                100.0 * COUNT(DISTINCT ps.student_id) FILTER (WHERE ps.attempt_number = 1 AND ps.passed AND ps.completed)
                 / NULLIF(COUNT(DISTINCT ps.student_id) FILTER (WHERE ps.attempt_number = 1 AND ps.completed), 0),
                 1
             )                                                                    AS first_attempt_pass_rate_pct,
