@@ -135,7 +135,22 @@ async def get_overview(
     quiz_row = await conn.fetchrow(
         f"""
         SELECT
-            COUNT(*) AS quiz_attempts,
+            -- An attempt is a quiz the student actually engaged with (#579).
+            -- This counted every row, and a row was written on every quiz-page
+            -- load — which is how a school with 8 real attempts read "QUIZ
+            -- ATTEMPTS 85". Sessions with no answers that were never completed
+            -- are page loads, not attempts.
+            --
+            -- The pass rates below already filter on `completed`, so they were
+            -- never inflated by this and are deliberately left alone: the two
+            -- must not be conflated (avg score verified correct on the demo).
+            COUNT(*) FILTER (
+                WHERE completed
+                   OR EXISTS (
+                       SELECT 1 FROM progress_answers pa
+                       WHERE pa.session_id = progress_sessions.session_id
+                   )
+            ) AS quiz_attempts,
             ROUND(
                 100.0 * COUNT(*) FILTER (WHERE attempt_number = 1 AND passed AND completed)
                 -- Denominator counts first-attempt SESSIONS, not distinct

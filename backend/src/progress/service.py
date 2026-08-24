@@ -184,6 +184,63 @@ async def create_session(
         grade = unit_row["grade"] or 0
         subject = unit_row["subject"] or "unknown"
 
+    # Reuse an open session the student never answered, instead of opening a
+    # second one (issue #579).
+    #
+    # The quiz page calls this on mount, so every page load used to write a row.
+    # Open a quiz, wander off, come back: two rows. Never finish: they persist.
+    # On the demo that left 78 session rows for 7 units with only 16 carrying a
+    # score — and those rows were displayed as history and counted as attempts.
+    #
+    # Only sessions with NO recorded answers are reused. One the student
+    # actually answered is real work belonging to its own attempt: merging it
+    # would land a re-answered q1 against the earlier attempt. Completed
+    # sessions are never reused either — "Try Again" is a new attempt.
+    #
+    # Side benefit: `quiz_set` is pinned per session_id, so reusing the session
+    # keeps a page reload from re-rolling which set the student is graded
+    # against (see resolve_session_quiz_set and pitfall #35).
+    row = await conn.fetchrow(
+        """
+        UPDATE progress_sessions
+        SET started_at = NOW()
+        WHERE session_id = (
+            SELECT ps.session_id
+            FROM progress_sessions ps
+            WHERE ps.student_id    = $1
+              AND ps.unit_id       = $2
+              AND ps.curriculum_id = $3
+              AND ps.completed     = FALSE
+              AND NOT EXISTS (
+                  SELECT 1 FROM progress_answers pa
+                  WHERE pa.session_id = ps.session_id
+              )
+            ORDER BY ps.started_at DESC
+            LIMIT 1
+            FOR UPDATE SKIP LOCKED
+        )
+        RETURNING session_id, started_at, attempt_number
+        """,
+        student_id,
+        unit_id,
+        curriculum_id,
+    )
+
+    if row is not None:
+        log.info(
+            "session_reused",
+            student_id=student_id,
+            unit_id=unit_id,
+            session_id=str(row["session_id"]),
+        )
+        return {
+            "session_id": str(row["session_id"]),
+            "unit_id": unit_id,
+            "curriculum_id": curriculum_id,
+            "attempt_number": row["attempt_number"],
+            "started_at": row["started_at"].isoformat(),
+        }
+
     attempt_number = await compute_attempt_number(conn, student_id, unit_id, curriculum_id)
 
     row = await conn.fetchrow(
@@ -373,13 +430,40 @@ async def get_raw_history(
     """
     Return all sessions with answers for a student, newest first.
     """
+    # Hide sessions that were opened but never worked on (issue #579).
+    #
+    # A row was written on every quiz-page load, so History listed ten identical
+    # entries for what the student experienced as one or two attempts, and the
+    # dashboard's "Recent Activity" — which renders this same feed — listed
+    # quizzes he had opened rather than work he had done.
+    #
+    # `create_session` now reuses an unanswered session so these stop
+    # accumulating, but that cannot clean up what already exists: the demo holds
+    # 78 rows for 7 units. Filtering here covers the existing rows without
+    # deleting them — they are educational records under FERPA, and hiding is
+    # reversible where DELETE is not.
+    #
+    # "Never worked on" is deliberately narrow: not completed AND no recorded
+    # answer. A student who answered two questions and walked away did real work
+    # and still sees it.
+    not_phantom = """
+          AND (
+              completed
+              OR EXISTS (
+                  SELECT 1 FROM progress_answers pa
+                  WHERE pa.session_id = progress_sessions.session_id
+              )
+          )
+    """
+
     sessions = await conn.fetch(
-        """
+        f"""
         SELECT session_id, unit_id, curriculum_id, grade, subject,
                started_at, ended_at, score, total_questions,
                completed, passed, attempt_number
         FROM progress_sessions
         WHERE student_id = $1
+        {not_phantom}
         ORDER BY started_at DESC
         LIMIT $2 OFFSET $3
         """,
@@ -388,8 +472,14 @@ async def get_raw_history(
         offset,
     )
 
+    # The total must agree with what is listed, or pagination advertises pages
+    # of hidden rows.
     total_row = await conn.fetchrow(
-        "SELECT COUNT(*) AS cnt FROM progress_sessions WHERE student_id = $1",
+        f"""
+        SELECT COUNT(*) AS cnt FROM progress_sessions
+        WHERE student_id = $1
+        {not_phantom}
+        """,
         student_id,
     )
 
