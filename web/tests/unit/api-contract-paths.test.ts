@@ -35,9 +35,10 @@ const OPENAPI = join(__dirname, "../../openapi.json");
  * new failure.
  */
 const KNOWN_BROKEN = new Map<string, string>([
-  // Both are unimplemented features the product still exposes, so the client
-  // is deliberately left in place rather than deleted (#609).
-  ["POST /api/v1/auth/consent", "#609 — COPPA parental consent has no backend"],
+  // Empty, and worth keeping that way. Both original entries are gone:
+  // enrol-by-code was built (#617), and the COPPA consent form was removed
+  // rather than built (#609) — the product stopped advertising a control it
+  // did not have.
 ]);
 
 /**

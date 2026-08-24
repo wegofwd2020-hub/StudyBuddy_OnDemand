@@ -35,14 +35,6 @@ export async function resetPassword(token: string, newPassword: string): Promise
   await api.post("/auth/reset-password", { token, new_password: newPassword });
 }
 
-export async function submitConsent(data: {
-  student_id: string;
-  parent_name: string;
-  parent_email: string;
-}): Promise<void> {
-  await api.post("/auth/consent", data);
-}
-
 // ── Phase A — local auth (school-provisioned users) ───────────────────────────
 
 export interface LocalLoginRequest {

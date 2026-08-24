@@ -554,8 +554,14 @@ Current migrations (as of last commit):
   A student JWT must never grant access to teacher/admin endpoints.
 - **`attempt_number` is computed server-side** as `COUNT(*) + 1` from prior sessions
   for `(student_id, unit_id, curriculum_id)`. Discard any client-supplied value.
-- **COPPA:** students under 13 require parental consent before account activation.
-  Block content access until `account_status = 'active'`.
+- **COPPA:** there is **no parental-consent flow in the product** (decision
+  2026-08-24, #609). StudyBuddy is school-provisioned — schools create student
+  accounts — so the applicable route is the school acting as the consent
+  authority for an educational service, not a parent-facing form. Do NOT write
+  code or copy asserting a consent flow that does not exist. The orphaned
+  `/consent` page and its dead client call were removed rather than built.
+  Reopening this means deciding on a verification method first; "verifiable
+  parental consent" is a legal standard, not an email capture.
 - **Rate limiting on all public endpoints.** Auth: 10 req/min per IP.
   Content: 100 req/min per student JWT. Feedback: 5 submissions/student/hour.
 
@@ -1001,8 +1007,12 @@ and to all student-facing UI copy. They are non-negotiable.
 ### COPPA (Children's Online Privacy Protection Act)
 Applies to students under 13 in US distribution.
 
-- Require verifiable parental consent before collecting any data from under-13 students.
-  Block content access until `account_status = 'active'`.
+- **Not implemented:** there is no parental-consent capture in the product, and
+  no `account_status` gate tied to consent (#609, decided 2026-08-24). Accounts
+  are created by schools. If this is revisited, the verification method is the
+  design question, not the endpoint.
+- Public copy must not claim a consent flow exists. See the note in
+  `docs/PENDING_DECISIONS.md`.
 - Collect only minimum necessary PII: name, email, grade, locale.
 - No tracking, location data, or behavioural fingerprinting of minors.
 
