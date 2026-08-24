@@ -96,6 +96,7 @@ from src.school.schemas import (
     UpdateAdoptionRequest,
 )
 from src.school.service import (
+    AlreadyEnrolledError,
     approve_definition,
     assign_package_to_classroom,
     assign_student_to_classroom,
@@ -933,6 +934,21 @@ async def provision_student_endpoint(
             result = await provision_student(
                 conn, school_id, body.name, str(body.email), body.grade
             )
+        except AlreadyEnrolledError:
+            # Already on THIS roster. Since #572 a student may hold enrolments
+            # at several schools, so a duplicate is only a conflict within one
+            # school — and here the admin can see and fix it themselves.
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "error": "conflict",
+                    "detail": (
+                        "That student is already on your roster. "
+                        "Check your student list for their existing record."
+                    ),
+                    "correlation_id": _cid(request),
+                },
+            )
         except asyncpg.UniqueViolationError as exc:
             if exc.constraint_name != "students_email_key":
                 raise
@@ -947,12 +963,17 @@ async def provision_student_endpoint(
                 },
             )
 
-    try:
-        await send_welcome_student_email(
-            result["email"], result["name"], result["default_password"]
-        )
-    except Exception:
-        log.warning("welcome_email_failed", student_id=result["student_id"])
+    # Only a newly created account has credentials to send. Attaching an
+    # existing person to an additional school must not mail them anything
+    # credential-shaped: they already have a password, and this school neither
+    # set it nor may reset it.
+    if result.get("default_password"):
+        try:
+            await send_welcome_student_email(
+                result["email"], result["name"], result["default_password"]
+            )
+        except Exception:
+            log.warning("welcome_email_failed", student_id=result["student_id"])
 
     return ProvisionStudentResponse(
         student_id=result["student_id"],
