@@ -64,8 +64,8 @@ const FAQ = [
     a: "Pre-built content is available in English on the free Starter plan. School Pro and Enterprise unlock French and Spanish content. UI is available in all three languages on all plans.",
   },
   {
-    q: "Is there a COPPA-compliant option for under-13 students?",
-    a: "Yes. Students under 13 require parental consent before their account activates. We handle the consent flow automatically on all plans.",
+    q: "How does COPPA work for under-13 students?",
+    a: "Schools create and manage student accounts, so the school acts as the consent authority for educational use — the route COPPA provides for schools. We collect only name, email, grade and language, and we do not track, profile or advertise to students. We do not run a separate parent-facing consent flow.",
   },
   {
     q: "How does Enterprise / district licensing work?",

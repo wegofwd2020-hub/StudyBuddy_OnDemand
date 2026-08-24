@@ -323,6 +323,20 @@ async def resolve_curriculum_id(
 
     L2 cache: school:{school_id}:cur:{student_id} (or cur:{student_id} if unaffiliated).
     On miss: queries school enrollment or falls back to default-{year}-g{grade}.
+
+    PRIMARY SCHOOL ONLY (decision 2026-08-24, from #572). A student may hold
+    enrolments at several schools — a school for their regular curriculum and,
+    say, an external tutor running additional classes. Content resolution
+    deliberately follows ONE of them: `students.school_id`, their primary
+    school. Step 1 below joins that column, so passing a different `school_id`
+    changes the RLS scope and the cache key but NOT which school's curriculum is
+    chosen.
+
+    Consequence to be aware of before "fixing" this: additional enrolments are
+    for ROSTERING AND REPORTING, not delivery. A tutor can enrol a student and
+    report on them but cannot serve them different material. Making that work
+    needs a way for the student to choose which school they are working in — an
+    explicit product decision, not a change to this function alone.
     """
     key = cur_key(student_id, school_id)
     cached = await redis.get(key)

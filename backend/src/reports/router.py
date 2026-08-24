@@ -130,6 +130,15 @@ async def _grade_filter(
     A sorted list otherwise, INCLUDING the empty list: a teacher with no grade
     assignments has no cohort and must see nothing rather than everything, so
     `[]` and `None` must never be collapsed into one another.
+
+    Decided 2026-08-24: a teacher sees THEIR COHORT, not the school. This
+    changes what the numbers mean — a Grade-8 teacher's "pass rate" is their
+    grade's, not the school's — and it means nobody below `school_admin` sees a
+    school-wide figure. That is intentional. If teachers later need to compare
+    against the school, add a SEPARATE endpoint returning non-identifying
+    aggregates rather than unscoping this one: keeping the two apart makes
+    "this figure cannot identify a student" a property of that endpoint instead
+    of a subtlety inside a report that also serves names.
     """
     permitted = await _permitted_grades(conn, teacher, school_id)
     return None if permitted is None else sorted(permitted)

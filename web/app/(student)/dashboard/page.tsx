@@ -59,7 +59,11 @@ export default function DashboardPage() {
 
         {/* Recent sessions */}
         <section>
-          <h2 className="mb-3 text-lg font-semibold text-gray-900">Recent Activity</h2>
+          {/* "Recent Quizzes", not "Recent Activity" (#579): this feed contains quiz
+              sessions only, so a student who spent the evening reading lessons saw
+              nothing under a heading that promised otherwise. Folding lesson_views
+              into the feed is the real fix; renaming stops the overclaim today. */}
+          <h2 className="mb-3 text-lg font-semibold text-gray-900">Recent Quizzes</h2>
           {histLoading ? (
             <div className="space-y-2">
               {[...Array(3)].map((_, i) => (
