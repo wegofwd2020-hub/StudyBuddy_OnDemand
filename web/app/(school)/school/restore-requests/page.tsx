@@ -6,6 +6,7 @@ import { schoolListRestoreRequests, type RestoreRequest } from "@/lib/api/backup
 import { Skeleton } from "@/components/ui/skeleton";
 import { LinkButton } from "@/components/ui/link-button";
 import { RotateCcw, AlertCircle } from "lucide-react";
+import { describeSchedule } from "@/lib/school/restore-schedule";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -160,16 +161,26 @@ export default function RestoreRequestsPage() {
                     <StatusBadge status={r.status} />
                   </td>
                   <td className="px-4 py-3 text-xs text-gray-500 tabular-nums">
-                    {r.scheduled_at ? (
-                      <>
-                        {new Date(r.scheduled_at).toLocaleString()}
-                        {!["completed", "failed", "cancelled"].includes(r.status) && (
-                          <div className="text-gray-400">awaiting admin action</div>
-                        )}
-                      </>
-                    ) : (
-                      "ASAP"
-                    )}
+                    {(() => {
+                      const s = describeSchedule(r.scheduled_at, r.status);
+                      if (s.kind === "asap") return "ASAP";
+                      return (
+                        <>
+                          {s.date ? s.date.toLocaleString() : null}
+                          {s.note && (
+                            <div
+                              className={
+                                s.kind === "unschedulable"
+                                  ? "text-amber-700"
+                                  : "text-gray-400"
+                              }
+                            >
+                              {s.note}
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()}
                   </td>
                   <td className="max-w-xs truncate px-4 py-3 text-xs text-gray-500">
                     {r.notes ?? "—"}
