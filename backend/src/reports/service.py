@@ -49,15 +49,36 @@ def _trend_weeks(period: str) -> int:
     return {"4w": 4, "12w": 12, "term": 16}.get(period, 4)
 
 
-async def _enrolled_ids(conn: asyncpg.Connection, school_id: str) -> list[str]:
-    """Return active enrolled student UUIDs (as strings) for a school."""
+async def _enrolled_ids(
+    conn: asyncpg.Connection,
+    school_id: str,
+    allowed_grades: list[int] | None = None,
+) -> list[str]:
+    """Return active enrolled student UUIDs (as strings) for a school.
+
+    `allowed_grades` narrows the cohort to the grades the caller is entitled to
+    (#576). `None` means no restriction — a `school_admin`, who is a teacher
+    superset under ADR-005, or an internal caller with no teacher context.
+
+    This is the single place five of the six aggregate reports get their cohort
+    from (overview, unit, curriculum-health, feedback, trends), so scoping here
+    scopes all of them at once rather than repeating the filter per endpoint.
+    `get_at_risk_students` builds its own `enrolled` CTE and is scoped
+    separately.
+
+    An EMPTY list is meaningful and distinct from None: a teacher with no grade
+    assignments has no cohort and must see no students, rather than every
+    student. Callers must pass None to mean "unrestricted".
+    """
     rows = await conn.fetch(
         """
         SELECT student_id::text
         FROM school_enrolments
         WHERE school_id = $1 AND status = 'active' AND student_id IS NOT NULL
+          AND ($2::smallint[] IS NULL OR grade = ANY($2::smallint[]))
         """,
         uuid.UUID(school_id),
+        allowed_grades,
     )
     return [r["student_id"] for r in rows]
 
@@ -88,11 +109,16 @@ async def get_overview(
     conn: asyncpg.Connection,
     school_id: str,
     period: str,
+    allowed_grades: list[int] | None = None,
 ) -> dict:
-    """Single-screen class summary for the selected period."""
+    """Single-screen class summary for the selected period.
+
+    `allowed_grades` limits the cohort to the caller's assigned grades
+    (#576); None means unrestricted (school_admin / internal caller).
+    """
     start = _period_start(period)
 
-    enrolled = await _enrolled_ids(conn, school_id)
+    enrolled = await _enrolled_ids(conn, school_id, allowed_grades)
     n_enrolled = len(enrolled)
 
     if not enrolled:
@@ -259,10 +285,15 @@ async def get_unit_report(
     school_id: str,
     unit_id: str,
     period: str,
+    allowed_grades: list[int] | None = None,
 ) -> dict:
-    """Per-unit deep-dive for enrolled students in the period."""
+    """Per-unit deep-dive for enrolled students in the period.
+
+    `allowed_grades` limits the cohort to the caller's assigned grades
+    (#576); None means unrestricted (school_admin / internal caller).
+    """
     start = _period_start(period)
-    enrolled = await _enrolled_ids(conn, school_id)
+    enrolled = await _enrolled_ids(conn, school_id, allowed_grades)
     n_enrolled = len(enrolled)
     id_uuids = [uuid.UUID(s) for s in enrolled]
 
@@ -629,9 +660,14 @@ async def get_student_report(
 async def get_curriculum_health(
     conn: asyncpg.Connection,
     school_id: str,
+    allowed_grades: list[int] | None = None,
 ) -> dict:
-    """All units ranked by health tier."""
-    enrolled = await _enrolled_ids(conn, school_id)
+    """All units ranked by health tier.
+
+    `allowed_grades` limits the cohort to the caller's assigned grades
+    (#576); None means unrestricted (school_admin / internal caller).
+    """
+    enrolled = await _enrolled_ids(conn, school_id, allowed_grades)
     if not enrolled:
         return {
             "school_id": school_id,
@@ -775,6 +811,7 @@ async def get_feedback_report(
     sort: str = "recent",
     page: int = 1,
     page_size: int = 50,
+    allowed_grades: list[int] | None = None,
 ) -> dict:
     """A page of feedback from enrolled students, newest first by default.
 
@@ -784,7 +821,7 @@ async def get_feedback_report(
     three queries regardless of how many units have feedback: the summary, the
     filtered count, and the page itself.
     """
-    enrolled = await _enrolled_ids(conn, school_id)
+    enrolled = await _enrolled_ids(conn, school_id, allowed_grades)
     if not enrolled:
         return {
             "school_id": school_id,
@@ -870,12 +907,17 @@ async def get_trends(
     conn: asyncpg.Connection,
     school_id: str,
     period: str,
+    allowed_grades: list[int] | None = None,
 ) -> dict:
-    """Week-over-week trend data for enrolled students."""
+    """Week-over-week trend data for enrolled students.
+
+    `allowed_grades` limits the cohort to the caller's assigned grades
+    (#576); None means unrestricted (school_admin / internal caller).
+    """
     n_weeks = _trend_weeks(period)
     now = datetime.now(UTC)
 
-    enrolled = await _enrolled_ids(conn, school_id)
+    enrolled = await _enrolled_ids(conn, school_id, allowed_grades)
     id_uuids = [uuid.UUID(s) for s in enrolled]
     # Placeholders for student IDs starting at $3 (after week_start=$1 and week_end=$2).
     # For empty enrollment ARRAY[]::uuid[] is used — PostgreSQL returns 0 counts correctly.
@@ -1110,6 +1152,7 @@ async def subscribe_digest(
 async def get_at_risk_students(
     conn: asyncpg.Connection,
     school_id: str,
+    allowed_grades: list[int] | None = None,
 ) -> dict:
     """
     Return students who are either inactive beyond the school's threshold or
@@ -1131,10 +1174,17 @@ async def get_at_risk_students(
     rows = await conn.fetch(
         """
         WITH enrolled AS (
+            -- Scoped to the caller's assigned grades (#576). This report NAMES
+            -- individual students flagged as struggling, so an unscoped row is
+            -- an educational record disclosed to a teacher who was never
+            -- assigned to that student. Grade lives on both `students` and
+            -- `school_enrolments`; the enrolment is the authority for "which
+            -- grade at THIS school", so filter on it.
             SELECT s.student_id, s.name, s.grade
             FROM students s
             JOIN school_enrolments se ON se.student_id = s.student_id
             WHERE se.school_id = $1 AND se.status = 'active'
+              AND ($4::smallint[] IS NULL OR se.grade = ANY($4::smallint[]))
         ),
         quiz_stats AS (
             SELECT
@@ -1189,6 +1239,7 @@ async def get_at_risk_students(
         uuid.UUID(school_id),
         inactive_days_threshold,
         pass_rate_threshold,
+        allowed_grades,
     )
 
     students = [

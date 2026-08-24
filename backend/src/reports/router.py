@@ -121,6 +121,20 @@ async def _permitted_grades(
     return {r["grade"] for r in rows}
 
 
+async def _grade_filter(
+    conn: asyncpg.Connection, teacher: dict, school_id: str
+) -> list[int] | None:
+    """The `allowed_grades` argument for the aggregate reports (#576).
+
+    `None` means unrestricted — `school_admin`, a teacher superset (ADR-005).
+    A sorted list otherwise, INCLUDING the empty list: a teacher with no grade
+    assignments has no cohort and must see nothing rather than everything, so
+    `[]` and `None` must never be collapsed into one another.
+    """
+    permitted = await _permitted_grades(conn, teacher, school_id)
+    return None if permitted is None else sorted(permitted)
+
+
 def _deny_grade(request: Request) -> HTTPException:
     return HTTPException(
         status_code=403,
@@ -223,7 +237,8 @@ async def overview_report(
     """Class overview summary for the selected period."""
     _check_school(teacher, school_id, request)
     async with get_db(request) as conn:
-        result = await get_overview(conn, school_id, period)
+        grades = await _grade_filter(conn, teacher, school_id)
+        result = await get_overview(conn, school_id, period, grades)
     return OverviewReport(**result)
 
 
@@ -241,7 +256,8 @@ async def unit_report(
     """Per-unit performance deep-dive."""
     _check_school(teacher, school_id, request)
     async with get_db(request) as conn:
-        result = await get_unit_report(conn, school_id, unit_id, period)
+        grades = await _grade_filter(conn, teacher, school_id)
+        result = await get_unit_report(conn, school_id, unit_id, period, grades)
     return UnitReport(**result)
 
 
@@ -291,7 +307,8 @@ async def curriculum_health(
     """All units ranked by health tier."""
     _check_school(teacher, school_id, request)
     async with get_db(request) as conn:
-        result = await get_curriculum_health(conn, school_id)
+        grades = await _grade_filter(conn, teacher, school_id)
+        result = await get_curriculum_health(conn, school_id, grades)
     return CurriculumHealthReport(**result)
 
 
@@ -327,6 +344,7 @@ async def feedback_report(
             sort=sort,
             page=page,
             page_size=page_size,
+            allowed_grades=await _grade_filter(conn, teacher, school_id),
         )
     return FeedbackReport(**result)
 
@@ -344,7 +362,8 @@ async def trends_report(
     """Week-over-week engagement and performance trends."""
     _check_school(teacher, school_id, request)
     async with get_db(request) as conn:
-        result = await get_trends(conn, school_id, period)
+        grades = await _grade_filter(conn, teacher, school_id)
+        result = await get_trends(conn, school_id, period, grades)
     return TrendsReport(**result)
 
 
@@ -406,7 +425,8 @@ async def at_risk_students(
     """
     _check_school(teacher, school_id, request)
     async with get_db(request) as conn:
-        result = await get_at_risk_students(conn, school_id)
+        grades = await _grade_filter(conn, teacher, school_id)
+        result = await get_at_risk_students(conn, school_id, grades)
     return AtRiskListResponse(**result)
 
 
