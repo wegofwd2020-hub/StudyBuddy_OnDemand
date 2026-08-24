@@ -751,7 +751,11 @@ export interface paths {
         };
         /**
          * Get Quiz
-         * @description Serve a quiz set, rotating through sets 1→2→3→1 per student per unit.
+         * @description Serve the quiz set pinned by the caller's session.
+         *
+         *     Rotation (1→2→3→1 per student per unit) happens once per attempt when the
+         *     session is created — not here. Without a `session_id` the legacy rotating
+         *     behaviour is preserved for older clients.
          */
         get: operations["get_quiz_api_v1_content__unit_id__quiz_get"];
         put?: never;
@@ -9738,6 +9742,8 @@ export interface components {
             attempt_number: number;
             /** Started At */
             started_at: string;
+            /** Quiz Set */
+            quiz_set: number;
         };
         /** StatsResponse */
         StatsResponse: {
@@ -12036,7 +12042,10 @@ export interface operations {
     };
     get_quiz_api_v1_content__unit_id__quiz_get: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description The quiz session this fetch belongs to. When given, the set pinned by that session is served, so refetching cannot change the questions mid-attempt (#567). */
+                session_id?: string | null;
+            };
             header?: never;
             path: {
                 unit_id: string;

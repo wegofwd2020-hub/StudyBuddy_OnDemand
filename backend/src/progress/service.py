@@ -159,6 +159,47 @@ async def compute_attempt_number(
     return (row["cnt"] or 0) + 1
 
 
+async def pin_session_quiz_set(
+    conn: asyncpg.Connection,
+    redis,
+    session_id: str,
+    student_id: str,
+    unit_id: str,
+    existing: int | None,
+) -> int:
+    """Decide and pin which quiz set this attempt is served and graded against.
+
+    The session chooses the set (#567). Previously `GET /content/{unit}/quiz`
+    called `get_next_quiz_set()`, which advanced the per-unit rotation pointer as
+    a SIDE EFFECT OF A READ — so any refetch (window focus, remount, a retry)
+    rotated the quiz. Grading was pinned per session but display was not, and
+    since `question_id` is `q1…qN` in every set with different answers, the
+    student was silently marked against questions they never saw.
+
+    Rotation now happens exactly once per attempt, here.
+
+    `existing` is the set already pinned on a reused session (#627). Reusing an
+    unanswered session must NOT re-rotate: one rotation per attempt, not one per
+    page load — that reuse is what makes reloading the quiz page harmless.
+    """
+    if existing is not None:
+        set_number = int(existing)
+    else:
+        from src.content.service import get_next_quiz_set
+
+        set_number = await get_next_quiz_set(student_id, unit_id, redis)
+        await conn.execute(
+            "UPDATE progress_sessions SET quiz_set = $1 WHERE session_id = $2",
+            set_number,
+            session_id,
+        )
+
+    # Mirror into Redis so `resolve_session_quiz_set` finds it at answer time
+    # without a DB read on the hot path.
+    await redis.set(quiz_session_set_key(session_id), str(set_number), ex=_TALLY_TTL)
+    return set_number
+
+
 async def create_session(
     conn: asyncpg.Connection,
     student_id: str,
@@ -219,7 +260,7 @@ async def create_session(
             LIMIT 1
             FOR UPDATE SKIP LOCKED
         )
-        RETURNING session_id, started_at, attempt_number
+        RETURNING session_id, started_at, attempt_number, quiz_set
         """,
         student_id,
         unit_id,
@@ -239,6 +280,7 @@ async def create_session(
             "curriculum_id": curriculum_id,
             "attempt_number": row["attempt_number"],
             "started_at": row["started_at"].isoformat(),
+            "quiz_set": row["quiz_set"],
         }
 
     attempt_number = await compute_attempt_number(conn, student_id, unit_id, curriculum_id)
@@ -272,6 +314,7 @@ async def create_session(
         "curriculum_id": curriculum_id,
         "attempt_number": row["attempt_number"],
         "started_at": row["started_at"].isoformat(),
+        "quiz_set": None,
     }
 
 

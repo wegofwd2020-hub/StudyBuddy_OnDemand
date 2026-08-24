@@ -15,8 +15,12 @@ interface PageProps {
 
 export default function QuizPage({ params }: PageProps) {
   const { unit_id } = use(params);
-  const { data: quiz, isLoading, isError, error } = useQuiz(unit_id);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  // The session is opened FIRST and the quiz is fetched for it (#567). The
+  // session decides which of the three sets is served, so fetching content
+  // before an attempt exists is what let a refetch rotate the questions
+  // mid-attempt — the student saw one set and was graded against another.
+  const { data: quiz, isLoading, isError, error } = useQuiz(unit_id, sessionId);
 
   // Open a fresh quiz attempt. Used on first load and on "Try Again" — the
   // latter previously navigated to this same URL, which never reset the player
@@ -30,11 +34,10 @@ export default function QuizPage({ params }: PageProps) {
   }, [unit_id]);
 
   useEffect(() => {
-    if (!quiz) return;
     startNew();
-  }, [quiz, startNew]);
+  }, [startNew]);
 
-  if (isLoading || (quiz && !sessionId)) {
+  if (!sessionId || isLoading) {
     return (
       <div className="max-w-2xl space-y-4 p-6">
         <Skeleton className="h-6 w-1/2" />

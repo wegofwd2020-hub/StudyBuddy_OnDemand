@@ -1421,7 +1421,7 @@
           "content"
         ],
         "summary": "Get Quiz",
-        "description": "Serve a quiz set, rotating through sets 1\u21922\u21923\u21921 per student per unit.",
+        "description": "Serve the quiz set pinned by the caller's session.\n\nRotation (1\u21922\u21923\u21921 per student per unit) happens once per attempt when the\nsession is created \u2014 not here. Without a `session_id` the legacy rotating\nbehaviour is preserved for older clients.",
         "operationId": "get_quiz_api_v1_content__unit_id__quiz_get",
         "security": [
           {
@@ -1437,6 +1437,24 @@
               "type": "string",
               "title": "Unit Id"
             }
+          },
+          {
+            "name": "session_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The quiz session this fetch belongs to. When given, the set pinned by that session is served, so refetching cannot change the questions mid-attempt (#567).",
+              "title": "Session Id"
+            },
+            "description": "The quiz session this fetch belongs to. When given, the set pinned by that session is served, so refetching cannot change the questions mid-attempt (#567)."
           }
         ],
         "responses": {
@@ -25892,6 +25910,10 @@
           "started_at": {
             "type": "string",
             "title": "Started At"
+          },
+          "quiz_set": {
+            "type": "integer",
+            "title": "Quiz Set"
           }
         },
         "type": "object",
@@ -25900,7 +25922,8 @@
           "unit_id",
           "curriculum_id",
           "attempt_number",
-          "started_at"
+          "started_at",
+          "quiz_set"
         ],
         "title": "StartSessionResponse"
       },
