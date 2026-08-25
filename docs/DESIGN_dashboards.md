@@ -465,6 +465,47 @@ with a caveat:
 
 Folded into **§8** below.
 
+### 7.6 There are start dates, but no end dates — anywhere
+
+Raised by the product owner: *"Does the grade not have an end date? If a student
+is onboarded in Grade 8 and assigned subjects, do we not have start/end dates?"*
+
+Checked across the whole schema. **Start dates yes, end dates no.**
+
+| Exists | |
+|---|---|
+| `students.enrolled_at` | when the student joined |
+| `school_enrolments.added_at` | when they joined that school |
+| `grade_curriculum_assignments.assigned_at` | when a grade got its curriculum |
+| `classroom_packages.assigned_at` | when a classroom got a package |
+
+| Does not exist | |
+|---|---|
+| Academic year / term / semester | **no table or column anywhere** — a schema-wide search for `academic\|term\|semester` returns nothing |
+| `curricula.year` | an integer **label** (2026), not a range |
+| `curricula.expires_at` / `grace_until` | a **content-retention clock** (1 year from creation, #90) — not a school calendar — and **0 of 19 curricula have a value** |
+| `GRADE_PROMOTION_DATE` | **unset**, so `promote_student_grades` is a permanent no-op — **students never advance a grade** |
+
+**The only "term" in the product is a hardcoded date.** `_period_start()` treats
+1 September as the start of the academic year. That is correct for
+MilfordWaterford (CA) and wrong for **ABC School (IN**, April–March**)** — whose
+admin is the person filing these reports. Filed as **#642**.
+
+#### Why this matters more than it first looks
+
+One small addition — **an academic year on the school, start and end** — unblocks
+four separate things:
+
+1. **"What should I complete this month"** (student ask #2) gets something to
+   count down to.
+2. **"This term"** in reports stops being a hardcoded northern-hemisphere guess.
+3. **Grade promotion** becomes schedulable at all; today it cannot run.
+4. **Retention and renewal** could align to a school year instead of a rolling
+   12 months from creation.
+
+That is a stronger argument for building it than the dashboard alone would make,
+and it is why A2 has been revised.
+
 ---
 
 ## 8. Decisions needed — write your answers here
@@ -492,13 +533,20 @@ exposes classmates in a small class.
 
 ---
 
-**A2. Where does "this week / this month" come from?** *(§7.1)*
+**A2. Where does "this week / this month" come from?** *(§7.1, revised — see §7.6)*
 
-Nothing in the schema has due dates.
+**Correction to my earlier answer.** I suggested deriving a pace from "units
+remaining ÷ weeks left in the term". There is **no term to count down to** — the
+product has start dates but no end dates anywhere (§7.6). So option (a) is not
+free after all; it needs an academic year first.
 
-- **(a)** Derive a suggested pace from units remaining ÷ weeks left *(my suggestion — free, works day one)*
-- **(b)** Build real teacher-set assignments with due dates *(new subsystem)*
-- **(c)** Derive now, build assignments later
+- **(a)** Add an academic year to the school (start + end), then derive pace from
+  it *(revised suggestion — small migration, one onboarding field, and it
+  unblocks three other things)*
+- **(b)** Build real teacher-set assignments with due dates *(bigger; still needs
+  a calendar to sit in)*
+- **(c)** Academic year now, assignments later
+- **(d)** Neither — drop "this month" and show only "this week" as recent activity
 
 **Answer:**
 
