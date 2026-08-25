@@ -294,21 +294,10 @@ Worth agreeing up front, or "better" stays a matter of taste:
 
 ---
 
-## 5. Open questions — these need answers before design starts
+## 5. Open questions
 
-1. **One page per role, or one page with scoped variants?** Recommendation:
-   separate teacher and school admin, since their numbers now mean different
-   things.
-2. **Does the student dashboard need a "next action", and what decides it?**
-   Next unit in sequence, weakest subject, or teacher-assigned?
-3. **Do `developer` / `tester` / `plat_admin` get a dashboard at all,** or land
-   directly on the one screen they use?
-4. **Which of the untrustworthy metrics (§4.1) get fixed first** — they change
-   what can be shown.
-5. **Supported screen widths.**
-6. **Is commercial data (seats, storage, credits) on the school admin dashboard
-   or kept in billing?** It carries the most consequence and is currently
-   invisible.
+Consolidated into **§8 — Decisions needed** at the end of this document, where
+they sit alongside the ones your answers raised, with space to write.
 
 ---
 
@@ -474,8 +463,149 @@ with a caveat:
 
 ### 7.5 Questions this raises
 
-1. **Student standing: rank, or comparison to class average?** (§7.1)
-2. **"Errors by users": product failures or user mistakes?** (§7.2)
-3. **"Fix time frame": historical typical, or per-incident commitment?** (§7.2)
-4. **Is derived pace acceptable for "this week / this month",** or do you want
-   real teacher-set due dates?
+Folded into **§8** below.
+
+---
+
+## 8. Decisions needed — write your answers here
+
+Grouped by whether they block work. Options are lettered so a one-letter answer
+is enough; add reasoning only where you want it recorded.
+
+Leave anything you're not ready to decide — a blank answer is information too.
+
+---
+
+### Group A — blocks the first build
+
+**A1. Student "standing in the classroom": what shape?** *(§7.1)*
+
+Live today: 5 classrooms, **3 classroom memberships**. Rank also implicitly
+exposes classmates in a small class.
+
+- **(a)** True rank — "3rd of 12"
+- **(b)** Comparison to the class average — "you 62%, class 55%" *(my suggestion)*
+- **(c)** Percentile band — "ahead of most of your class"
+- **(d)** Drop it for now, revisit when classrooms are populated
+
+**Answer:**
+
+---
+
+**A2. Where does "this week / this month" come from?** *(§7.1)*
+
+Nothing in the schema has due dates.
+
+- **(a)** Derive a suggested pace from units remaining ÷ weeks left *(my suggestion — free, works day one)*
+- **(b)** Build real teacher-set assignments with due dates *(new subsystem)*
+- **(c)** Derive now, build assignments later
+
+**Answer:**
+
+---
+
+**A3. Which untrustworthy metrics get fixed first?** *(§4.1)*
+
+These change what can honestly be shown. #638 in particular blocks any "units
+completed" figure, which three of your four student asks depend on.
+
+- **(a)** #638 units-done denominator — blocks student items 1–3
+- **(b)** #590 units-with-no-activity — blocks a teacher tile
+- **(c)** #569 tutorial/experiment analytics — understates time spent everywhere
+- **(d)** All three before any dashboard work
+
+**Answer:**
+
+---
+
+### Group B — needed before the teacher / admin work
+
+**B1. "Errors by users" — which meaning?** *(§7.2)*
+
+- **(a)** Product failures — 500s, dead buttons, things we broke
+- **(b)** User mistakes — wrong password, invalid upload
+- **(c)** Both, separated on screen
+
+Note: (b) means tracking a named teacher's error rate, which has its own privacy
+question.
+
+**Answer:**
+
+---
+
+**B2. "Failure fix time frame" — which promise?** *(§7.2)*
+
+- **(a)** Historical typical — "issues like this are usually fixed in N days" *(publishable from our own history)*
+- **(b)** Per-incident commitment — "this will be fixed by Thursday" *(a real SLA)*
+- **(c)** Neither — just show current status and what we're working on
+
+**Answer:**
+
+---
+
+**B3. Start the status panel where?** *(§7.3)*
+
+- **(a)** Platform admin first — the data already exists there *(my suggestion)*
+- **(b)** School-facing first — it's who asked
+- **(c)** Both together
+
+**Answer:**
+
+---
+
+**B4. One page per role, or one page with scoped variants?** *(§1)*
+
+Teacher and school_admin share a component today, and since #628 their numbers
+mean different things with nothing on screen saying which.
+
+- **(a)** Split them into separate pages *(my suggestion)*
+- **(b)** Keep one page, but state the scope prominently
+- **(c)** Keep as-is
+
+**Answer:**
+
+---
+
+### Group C — can be decided later, but cheaply now
+
+**C1. Do `developer` / `tester` / `plat_admin` get a dashboard at all?**
+
+- **(a)** No — land them directly on the one screen they use
+- **(b)** Yes — a minimal one
+
+**Answer:**
+
+---
+
+**C2. Supported screen widths.** *(§4.6)*
+
+Venki asked whether the portal works on mobile/tablet (#639). It has never been
+deliberately tested at those widths.
+
+- **(a)** Desktop only for now — say so publicly
+- **(b)** Desktop + tablet
+- **(c)** Full responsive down to phone *(students especially won't all be on laptops)*
+
+**Answer:**
+
+---
+
+**C3. Commercial data — seats used, storage, build credits.** *(§3.3)*
+
+Carries the most consequence of anything on the school admin's screen, and is
+currently invisible.
+
+- **(a)** On the school admin dashboard
+- **(b)** Keep in billing, link from the dashboard
+- **(c)** Dashboard only when close to a limit
+
+**Answer:**
+
+---
+
+### Anything else
+
+Space for asks that don't fit the questions above — including anything you want
+the dashboards to do that isn't in §2 or §3.
+
+**Notes:**
