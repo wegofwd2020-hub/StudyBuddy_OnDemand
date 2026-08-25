@@ -506,6 +506,93 @@ four separate things:
 That is a stronger argument for building it than the dashboard alone would make,
 and it is why A2 has been revised.
 
+### 7.7 Why the calendar matters — and what that means for its design
+
+Two reasons given by the product owner, recorded verbatim:
+
+> a) It will allow us to track the performance of different entities (viz. study
+> progress, the infrastructure response to the classes)
+>
+> b) We are assigning study material to students — a calendar will allow us to
+> measure the strength/load of the study material and tune it up or down over a
+> long period of time.
+
+Both hold, and together they **change what the calendar has to be**. Two date
+columns on `schools` is enough to answer "when does this month end". It is not
+enough for either of these.
+
+#### (b) is the sharpest idea in this document
+
+Here is why it matters more than it first reads: **today, difficulty and timing
+are confounded and cannot be separated.**
+
+A unit with a poor pass rate might be genuinely too hard — or it might have been
+taught the week before exams, or straight after a holiday, or last in a term when
+everyone had stopped. We currently cannot tell those apart, which means
+`curriculum_health`'s "struggling" tier is not safe to act on as a content
+signal. The calendar is precisely what de-confounds it.
+
+**Most of the raw material already exists:**
+
+| Signal | Where |
+|---|---|
+| Intended order of units | `curriculum_units.sort_order`, `.sequence` |
+| Actual difficulty | `progress_sessions.attempt_number`, `passed`, `score`, timings |
+| When a grade got its curriculum | `grade_curriculum_assignments.assigned_at` |
+| When a classroom got a package | `classroom_packages.assigned_at` |
+| **When in the school year any of it happened** | **missing — this is the gap** |
+
+So (b) is closer to buildable than it appears. What is missing is only the axis.
+
+This also feeds the product's actual IP: the scoping layer. A measured
+difficulty signal per unit, normalised by where it fell in the year, is what
+lets the next generation of that content be tuned deliberately rather than by
+impression.
+
+#### Two cautions on (b), worth settling before measuring
+
+1. **Small cohorts are noise.** The whole demo holds **43 completed sessions**. A
+   unit judged "too hard" on three students' results is not a finding. Any
+   tuning loop needs a minimum cohort size before it is allowed to act, and
+   should say so rather than silently averaging four data points.
+2. **Optimising for pass rate optimises for easiness.** If every unit students
+   struggle with gets tuned down, the curriculum converges on trivial. "Correctly
+   loaded" needs defining against something — intended difficulty, expected time,
+   or a teacher's judgement — *before* the measurement starts, or the loop will
+   quietly select for the wrong thing.
+
+#### (a) has a second half worth naming
+
+"Infrastructure response to the classes" — load follows the academic rhythm.
+Term starts, exam weeks and holidays are the real drivers of traffic, not a flat
+average. A calendar makes capacity planning **predictive** instead of reactive,
+and academic-year transitions are already flagged as a concern in
+`SCALABILITY.md`.
+
+#### What (a) and (b) require that a start/end date does not
+
+| Requirement | Why |
+|---|---|
+| **Terms / periods within the year** | "Week 8" is meaningless if the year is one undivided block |
+| **Holidays and breaks** | Otherwise pace maths and load baselines are both wrong — a two-week break reads as two weeks of no effort |
+| **Stable week numbering** | Cohort-to-cohort and year-to-year comparison need a common frame |
+| **Historical calendars retained** | You cannot compare 2026 with 2027 if the 2026 calendar was overwritten |
+| **Per school** | Two demo schools already differ (IN: Apr–Mar, CA: Sep–Jun) |
+
+That is a first-class entity, not a field in the onboarding form — and probably
+worth an ADR, because retention, promotion, reporting periods and content tuning
+would all come to depend on it.
+
+#### A third reason, and a fourth
+
+Worth adding to the two above:
+
+3. **Year-over-year comparison of the same curriculum.** This is the compounding
+   asset: the curriculum gets measurably better each year, and "this year's
+   Grade 8 versus last year's" becomes answerable.
+4. **"On track" becomes possible at all** — which is the student ask (§7.1) and
+   the reason this came up.
+
 ---
 
 ## 8. Decisions needed — write your answers here
