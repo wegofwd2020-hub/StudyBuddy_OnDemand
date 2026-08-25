@@ -620,7 +620,7 @@ exposes classmates in a small class.
 - **(d)** Drop it for now, revisit when classrooms are populated
 
 **Answer:**
-
+Go with (b)
 ---
 
 **A2. Where does "this week / this month" come from?** *(§7.1, revised — see §7.6)*
@@ -639,7 +639,7 @@ free after all; it needs an academic year first.
 - **(d)** Neither — drop "this month" and show only "this week" as recent activity
 
 **Answer:**
-
+go with (a)
 ---
 
 **A3. Which untrustworthy metrics get fixed first?** *(§4.1)*
@@ -653,7 +653,7 @@ completed" figure, which three of your four student asks depend on.
 - **(d)** All three before any dashboard work
 
 **Answer:**
-
+go with (d)
 ---
 
 ### Group B — needed before the teacher / admin work
@@ -668,7 +668,7 @@ Note: (b) means tracking a named teacher's error rate, which has its own privacy
 question.
 
 **Answer:**
-
+go with (c)
 ---
 
 **B2. "Failure fix time frame" — which promise?** *(§7.2)*
@@ -678,7 +678,7 @@ question.
 - **(c)** Neither — just show current status and what we're working on
 
 **Answer:**
-
+go with (a)
 ---
 
 **B3. Start the status panel where?** *(§7.3)*
@@ -688,7 +688,7 @@ question.
 - **(c)** Both together
 
 **Answer:**
-
+go with (c)
 ---
 
 **B4. One page per role, or one page with scoped variants?** *(§1)*
@@ -701,7 +701,7 @@ mean different things with nothing on screen saying which.
 - **(c)** Keep as-is
 
 **Answer:**
-
+go with (a)
 ---
 
 ### Group C — can be decided later, but cheaply now
@@ -712,7 +712,7 @@ mean different things with nothing on screen saying which.
 - **(b)** Yes — a minimal one
 
 **Answer:**
-
+go with (a)
 ---
 
 **C2. Supported screen widths.** *(§4.6)*
@@ -725,7 +725,7 @@ deliberately tested at those widths.
 - **(c)** Full responsive down to phone *(students especially won't all be on laptops)*
 
 **Answer:**
-
+go with (b)
 ---
 
 **C3. Commercial data — seats used, storage, build credits.** *(§3.3)*
@@ -738,7 +738,7 @@ currently invisible.
 - **(c)** Dashboard only when close to a limit
 
 **Answer:**
-
+go with (a)
 ---
 
 ### Anything else
@@ -747,3 +747,67 @@ Space for asks that don't fit the questions above — including anything you wan
 the dashboards to do that isn't in §2 or §3.
 
 **Notes:**
+
+
+---
+
+## 9. What the answers commit us to
+
+All ten answered 2026-08-25. Summarised, then the consequences worth knowing
+before work starts.
+
+| | Decision |
+|---|---|
+| A1 | Standing = **comparison to the class average**, not a rank |
+| A2 | **Academic year first**, then derive pace from it (ADR-007) |
+| A3 | **All three untrustworthy metrics fixed before any dashboard work** |
+| B1 | Errors means **both** product failures and user mistakes, shown separately |
+| B2 | Fix time frame = **historical typical**, not a per-incident commitment |
+| B3 | Status panel built for **platform admin and schools together** |
+| B4 | Teacher and school admin become **separate pages** |
+| C1 | `developer` / `tester` / `plat_admin` get **no dashboard** |
+| C2 | Supported widths: **desktop + tablet**. Phone explicitly out |
+| C3 | Commercial data **on the school admin dashboard** |
+
+### Three things these answers change
+
+**A1 needs "class" defined, or it is blank for almost everyone.** Comparison to
+the class average is only computable if *class* means the student's **grade
+cohort at their school**. It cannot mean *classroom*: the demo holds 5 classrooms
+and **3 classroom memberships** in total, so a classroom-based average would be
+empty for nearly every student.
+
+It also needs a **minimum cohort size**, for the same reason content tuning does
+(ADR-007 Decision 7): a "class average" where the grade has one other student
+*is* that student's score. Below the threshold the comparison should be withheld,
+not approximated.
+
+**A3 (d) is the most expensive answer given, and deliberately so.** Fixing all
+three before any dashboard work front-loads real effort — and #569 is the
+largest, because tutorials and experiments record no analytics at all, so it is
+new instrumentation rather than a query fix. The discipline is right: none of
+them can be laid out honestly until they are true. Worth going in knowing the
+dashboard does not start immediately.
+
+**B1 (c) + B3 (c) together are the biggest single chunk in this document.**
+Errors in both senses, shown to schools *and* platform admin, with historical fix
+times. Almost none of that data is captured today: no per-user error record
+exists, and `feedback` holds 0 rows in its `ux` / `general` categories. It is a
+new capability, not a dashboard panel — and "user mistakes attributed to a named
+teacher" carries its own privacy question that should be settled before capture
+begins, not after.
+
+### Sequence this implies
+
+1. **#638** — units-done denominator. Blocks three of the four student asks, and
+   is wrong on Venki's reports today.
+2. **#590**, **#569** — the other two metrics (A3d).
+3. **ADR-007 steps 1–4** — academic year + backfill + settings, which also
+   delivers #642 on its own.
+4. **Student dashboard** — the display-only slice, now with honest numbers and a
+   calendar to derive pace from.
+5. **Split teacher / school admin** (B4), with commercial data added (C3).
+6. **Status panel** (B1c/B2a/B3c) — the new capability, scoped separately.
+
+Phone support is out of scope by C2; that should be stated publicly rather than
+left for a student to discover.
