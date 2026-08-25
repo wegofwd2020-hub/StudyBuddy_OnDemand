@@ -34,6 +34,7 @@ from fastapi.responses import FileResponse
 
 from src.auth.dependencies import get_current_teacher
 from src.core.db import get_db
+from src.core.redis_client import get_redis
 from src.reports.schemas import (
     AlertListResponse,
     AlertSettings,
@@ -68,6 +69,7 @@ from src.reports.service import (
     save_alert_settings,
     send_at_risk_reminder,
     subscribe_digest,
+    total_units_by_student,
     trigger_export,
 )
 from src.utils.logger import get_logger
@@ -199,9 +201,6 @@ async def student_roster(
                 s.grade,
                 COALESCE(SUM(CASE WHEN ps.passed THEN 1 ELSE 0 END), 0)
                                                                     AS units_completed,
-                (SELECT COUNT(*) FROM curriculum_units cu
-                 JOIN curricula c ON c.curriculum_id = cu.curriculum_id
-                 WHERE c.grade = s.grade AND c.is_default)          AS total_units,
                 COALESCE(
                     AVG(CASE WHEN ps.score IS NOT NULL
                         THEN ps.score::float / NULLIF(ps.total_questions, 0) * 100
@@ -239,13 +238,20 @@ async def student_roster(
             *params,
         )
 
+    # The denominator is each student's OWN curriculum, resolved the same way
+    # their content is (#638). Summing every default curriculum at their grade
+    # measured a Grade 11 student against four streams at once.
+    totals = await total_units_by_student(
+        request.app.state.pool, get_redis(request), rows, school_id
+    )
+
     students = [
         {
             "student_id": str(r["student_id"]),
             "student_name": r["student_name"],
             "grade": r["grade"],
             "units_completed": int(r["units_completed"]),
-            "total_units": int(r["total_units"] or 0),
+            "total_units": totals.get(str(r["student_id"]), 0),
             "avg_score_pct": round(float(r["avg_score_pct"] or 0), 1),
             "last_active": r["last_active"].isoformat() if r["last_active"] else None,
         }
@@ -456,7 +462,13 @@ async def at_risk_students(
     _check_school(teacher, school_id, request)
     async with get_db(request) as conn:
         grades = await _grade_filter(conn, teacher, school_id)
-        result = await get_at_risk_students(conn, school_id, grades)
+        result = await get_at_risk_students(
+            conn,
+            school_id,
+            grades,
+            pool=request.app.state.pool,
+            redis=get_redis(request),
+        )
     return AtRiskListResponse(**result)
 
 

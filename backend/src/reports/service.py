@@ -49,6 +49,68 @@ def _trend_weeks(period: str) -> int:
     return {"4w": 4, "12w": 12, "term": 16}.get(period, 4)
 
 
+async def total_units_by_student(
+    pool,
+    redis,
+    students: list[dict],
+    school_id: str,
+) -> dict[str, int]:
+    """Map `student_id` -> the unit count of the curriculum they are actually served.
+
+    Fixes #638. Both report sites previously counted units with
+
+        WHERE c.grade = <student grade> AND c.is_default
+
+    which sums EVERY default curriculum at that grade. Since Epic 8 a grade has
+    one default per stream, so a Grade 11 student was measured against STEM +
+    Commerce + Humanities + Science together: 19 + 6 + 2 + 29 = 56. Grades with a
+    single curriculum (8, 10) read correctly by accident, which is why it
+    survived — the bug is invisible in exactly the grades most testing uses.
+
+    The denominator now comes from `resolve_curriculum_id()`, the same three-step
+    resolution that decides which content the student is served (school-owned →
+    classroom package → `default-{year}-g{grade}`).
+
+    Deliberately NOT re-expressed as SQL. Re-deriving the curriculum with a
+    simpler query is pitfall #31 exactly: `get_curriculum_tree` did that and
+    quietly served stream students another stream's subjects. One resolver,
+    called by everything, is the point — a second copy drifts silently and the
+    symptom appears somewhere else entirely.
+
+    Resolution is Redis-cached per student, and unit counts are fetched in one
+    query for the distinct curricula rather than per student.
+    """
+    from src.content.service import resolve_curriculum_id
+
+    if not students:
+        return {}
+
+    resolved: dict[str, str] = {}
+    for row in students:
+        sid = str(row["student_id"])
+        resolved[sid] = await resolve_curriculum_id(
+            sid,
+            row["grade"],
+            pool,
+            redis,
+            school_id=school_id,
+        )
+
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', $1, false)", school_id)
+        counts = await conn.fetch(
+            """
+            SELECT curriculum_id, COUNT(*) AS units
+            FROM curriculum_units
+            WHERE curriculum_id = ANY($1::text[])
+            GROUP BY curriculum_id
+            """,
+            list(set(resolved.values())),
+        )
+    by_curriculum = {r["curriculum_id"]: r["units"] for r in counts}
+    return {sid: by_curriculum.get(cid, 0) for sid, cid in resolved.items()}
+
+
 async def _enrolled_ids(
     conn: asyncpg.Connection,
     school_id: str,
@@ -1153,6 +1215,8 @@ async def get_at_risk_students(
     conn: asyncpg.Connection,
     school_id: str,
     allowed_grades: list[int] | None = None,
+    pool=None,
+    redis=None,
 ) -> dict:
     """
     Return students who are either inactive beyond the school's threshold or
@@ -1201,11 +1265,11 @@ async def get_at_risk_students(
             GROUP BY ps.student_id
         ),
         total_units AS (
-            SELECT c.grade, COUNT(cu.unit_id) AS total
-            FROM curricula c
-            JOIN curriculum_units cu ON cu.curriculum_id = c.curriculum_id
-            WHERE c.is_default = TRUE
-            GROUP BY c.grade
+            -- Placeholder only. The real denominator is each student's OWN
+            -- resolved curriculum, filled in by total_units_by_student (#638);
+            -- summing every default curriculum at a grade counted four streams
+            -- for one Grade 11 student.
+            SELECT NULL::int AS grade, 0 AS total WHERE FALSE
         )
         SELECT
             e.student_id,
@@ -1217,7 +1281,7 @@ async def get_at_risk_students(
             END::int                                  AS inactive_days,
             qs.pass_rate_pct,
             COALESCE(qs.units_completed, 0)           AS units_completed,
-            COALESCE(tu.total, 0)                     AS total_units,
+            0                                         AS total_units,
             CASE WHEN qs.last_active IS NULL
                       OR EXTRACT(EPOCH FROM (NOW() - qs.last_active)) / 86400 > $2
                  THEN TRUE ELSE FALSE END             AS inactive,
@@ -1242,6 +1306,13 @@ async def get_at_risk_students(
         allowed_grades,
     )
 
+    # Each student's OWN curriculum decides the denominator (#638).
+    totals = (
+        await total_units_by_student(pool, redis, rows, school_id)
+        if pool is not None and redis is not None
+        else {}
+    )
+
     students = [
         {
             "student_id": str(r["student_id"]),
@@ -1253,7 +1324,7 @@ async def get_at_risk_students(
             if r["pass_rate_pct"] is not None
             else None,
             "units_completed": int(r["units_completed"]),
-            "total_units": int(r["total_units"]),
+            "total_units": totals.get(str(r["student_id"]), 0),
             "risk_reasons": {
                 "inactive": bool(r["inactive"]),
                 "low_pass_rate": bool(r["low_pass_rate"]),
