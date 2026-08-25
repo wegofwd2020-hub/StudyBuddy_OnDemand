@@ -579,9 +579,12 @@ and academic-year transitions are already flagged as a concern in
 | **Historical calendars retained** | You cannot compare 2026 with 2027 if the 2026 calendar was overwritten |
 | **Per school** | Two demo schools already differ (IN: Apr–Mar, CA: Sep–Jun) |
 
-That is a first-class entity, not a field in the onboarding form — and probably
-worth an ADR, because retention, promotion, reporting periods and content tuning
-would all come to depend on it.
+That is a first-class entity, not a field in the onboarding form. **Written up as
+[`ADR_007_academic_calendar.md`](ADR_007_academic_calendar.md)**, which grew well
+beyond the calendar itself once the promotion and grading questions surfaced:
+grade enrolments with outcomes, per-school grading scales, and the freeze/
+correction rules. Retention, promotion, reporting periods and content tuning all
+come to depend on it.
 
 #### A third reason, and a fourth
 
@@ -628,8 +631,8 @@ product has start dates but no end dates anywhere (§7.6). So option (a) is not
 free after all; it needs an academic year first.
 
 - **(a)** Add an academic year to the school (start + end), then derive pace from
-  it *(revised suggestion — small migration, one onboarding field, and it
-  unblocks three other things)*
+  it — **now specified in [ADR-007](ADR_007_academic_calendar.md)**, which also
+  covers promotion, grading scales and the freeze rules
 - **(b)** Build real teacher-set assignments with due dates *(bigger; still needs
   a calendar to sit in)*
 - **(c)** Academic year now, assignments later
