@@ -326,3 +326,156 @@ and does not state which scope you are seeing.
 audit, authoring, backups, backup-schedules, build-reports, content-review,
 dashboard, demo-accounts, demo-leads, demo-settings, demo-teacher-accounts,
 feedback, health, help, pipeline, restore-requests, retention, schools.
+
+## Answers
+
+> Answers below are the product owner's, recorded verbatim on 2026-08-25.
+> My analysis of what each one costs follows in §7.
+
+**Student**
+1) What am I doing this week
+2) What needs to be completed this month
+3) What was my subjects and score I completed
+4) What is my standing in the classrooms
+
+**Teacher/School admin**
+In addition to what is listed in Appendix
+a) How usage errors have been reported through the past few days
+b) what is the failure fix time frame
+c) errors by users
+
+**Platform admin**
+In addition to what is listed in Appendix
+Whatever we have listed above for teacher/school admin.
+
+---
+
+## 7. What the answers require — analysis
+
+The answers are clear and they change the shape of this work. **Six of the seven
+asks need data the product does not currently hold.** That is not an objection —
+it is the difference between "redesign the dashboards" and "build two new
+capabilities and then redesign the dashboards", and it should be known before
+anyone draws a layout.
+
+### 7.1 Student — a plan, not just a record
+
+The four answers describe a **plan with a horizon**, where today's dashboard only
+holds a *record of the past*. That is the single biggest shift in this document.
+
+| Ask | Data today | Verdict |
+|---|---|---|
+| 1. What am I doing this week | Recent activity exists; no notion of a *plan* | Partly — needs a target |
+| 2. What needs completing this month | **Nothing.** No due dates anywhere in the schema | **New capability** |
+| 3. Subjects and scores I completed | Exists; per-subject breakdown not surfaced | **Cheap** — mostly display |
+| 4. My standing in the classroom | **Nothing.** No rank or percentile concept | **New, and needs a policy decision** |
+
+**On 1 and 2 — where does "should" come from?**
+
+Both imply someone has set an expectation. Two ways to source it:
+
+- **Derive it.** Pace = units remaining ÷ weeks left in the term. Costs nothing
+  from teachers, works on day one for every student, and answers both questions
+  immediately. Approximate, but honest if labelled as a suggested pace.
+- **Assign it.** Real teacher-set assignments with due dates: new table, teacher
+  UI to set them, student view, probably reminders. A genuine subsystem.
+
+Recommendation: **derive first, assign later.** Deriving gets both answers now
+and does not depend on teachers adopting a new workflow — and if teachers never
+adopt it, the derived version still works.
+
+**On 4 — "standing in the classroom" needs a decision, not just a build**
+
+Three things to weigh:
+
+1. **The data does not exist and classrooms are nearly empty.** Live: 5
+   classrooms, **3 classroom-student memberships** across the whole demo. A
+   standing figure would be blank or meaningless for almost everyone today.
+2. **It leaks other students.** In a class of four, "you are 3rd" plus knowing
+   your classmates is close to knowing their results. That is educational-record
+   territory, and the smaller the class the worse it gets.
+3. **It cuts against the student persona.** Ranking motivates the top of a class
+   and discourages the bottom — and the bottom is exactly who we most need to
+   keep opening the app.
+
+A middle option that keeps the intent without the cost: **compare to the class,
+not to classmates.** "Your average is 62%, your class is at 55%" or "you have
+completed more units than most of your class" — a band, not a position. It
+answers "how am I doing?" without publishing a league table.
+
+**This is a product call.** Full ranking is buildable; it should be chosen
+knowingly rather than by default.
+
+### 7.2 Teacher / school admin — this is a support surface, not a teaching one
+
+> a) How usage errors have been reported through the past few days
+> b) What is the failure fix time frame
+> c) Errors by users
+
+These are reasonable things for a paying school to want — *is this working, and
+do you fix it when it isn't?* — but they belong to reliability and support
+rather than teaching, and **almost none of the data exists**.
+
+| Ask | What exists today |
+|---|---|
+| Errors reported recently | `feedback` has categories `content` / `ux` / `general`. Live: **10 feedback rows, 0 in ux or general** |
+| Failure fix time frame | **Nothing.** Time-to-fix lives in GitHub issues, not in the product |
+| Errors by users | **Nothing.** No per-user error capture. Sentry is optional and internal-only |
+
+Also true: correlation IDs are attached to every request and errors are
+structured-logged, so the raw material exists operationally — it has simply never
+been aggregated or exposed to a school.
+
+**Two ambiguities worth settling before anything is built:**
+
+1. **"Errors by users" — product failures, or user mistakes?** Failures the
+   product caused (a 500, a dead button) and mistakes a person made (wrong
+   password, invalid upload) are different builds with different value. Tracking
+   the second *per named teacher* also raises its own privacy question.
+2. **"Failure fix time frame" — historical or forward-looking?** "Issues like
+   this are usually fixed within N days" is publishable from our own history.
+   "This specific problem will be fixed by Thursday" is a commitment per
+   incident, and a different promise.
+
+**A cheap honest first version** — and probably the right one — is a **status
+panel** rather than analytics: *"No known issues"*, or *"We are investigating a
+problem with quiz loading, reported 14:20"*, plus a list of **the school's own
+reported problems and their state**. That uses feedback we already collect,
+requires no new tracking, and answers the real question underneath (a) and (b),
+which is *"do these people notice and act when their product breaks?"*
+
+The fuller version — client-side error capture aggregated per school, with a
+published SLA — is a real project, worth doing only if schools ask commercially.
+
+### 7.3 Platform admin
+
+"Whatever we have listed above for teacher/school admin" — with the difference
+that for platform admin this data is **operational and already partly
+available**: Sentry, structured logs, health probes, pipeline job status, and the
+audit log. The gap is aggregation and presentation, not capture.
+
+So the same panel is much cheaper here, and is the natural place to build it
+**first** — prove the shape internally where the data already exists, then decide
+what a school should see.
+
+### 7.4 What this means for sequencing
+
+The earlier suggestion was "student dashboard first". The answers reinforce that,
+with a caveat:
+
+1. **Student, display-only slice** — subjects and scores completed (#3), per-subject
+   progress, "this week" from derived pace. No new subsystems. Ships fast.
+2. **Fix the untrustworthy metrics** (§4.1) — #638 blocks any honest "units
+   completed" figure, which items 1–3 all depend on.
+3. **Decide standing** (§7.1) before building anything for item 4.
+4. **Platform-admin status panel** — where the error data already exists.
+5. **School-facing status panel** — once the shape is proven.
+6. **Due dates / assignments** — only if derived pace proves insufficient.
+
+### 7.5 Questions this raises
+
+1. **Student standing: rank, or comparison to class average?** (§7.1)
+2. **"Errors by users": product failures or user mistakes?** (§7.2)
+3. **"Fix time frame": historical typical, or per-incident commitment?** (§7.2)
+4. **Is derived pace acceptable for "this week / this month",** or do you want
+   real teacher-set due dates?
