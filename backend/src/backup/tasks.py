@@ -104,19 +104,13 @@ async def _prune_excess_backups(
                 for key in await storage.list_prefix(old_path):
                     await storage.delete(key)
             except Exception as prune_exc:
-                log.warning(
-                    "backup_prune_storage_error", backup_id=old_id, error=str(prune_exc)
-                )
+                log.warning("backup_prune_storage_error", backup_id=old_id, error=str(prune_exc))
 
         try:
-            await conn.execute(
-                "DELETE FROM curriculum_backups WHERE id=$1", uuid.UUID(old_id)
-            )
+            await conn.execute("DELETE FROM curriculum_backups WHERE id=$1", uuid.UUID(old_id))
         except Exception as prune_exc:
             # Never fatal: the backup this ran after is already complete.
-            log.warning(
-                "backup_prune_delete_error", backup_id=old_id, error=str(prune_exc)
-            )
+            log.warning("backup_prune_delete_error", backup_id=old_id, error=str(prune_exc))
             continue
 
         log.info("backup_pruned", old_backup_id=old_id)
