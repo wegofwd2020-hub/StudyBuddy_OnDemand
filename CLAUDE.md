@@ -204,6 +204,7 @@ All documentation has moved to **[studybuddy-docs](https://github.com/wegofwd202
 | [`docs/ADR_004_authoring_studio_home_repo.md`](docs/ADR_004_authoring_studio_home_repo.md) | Where the standalone authoring+reader lives (→ became Mentible, see below) |
 | [`docs/ADR_005_school_roles_and_uniqueness.md`](docs/ADR_005_school_roles_and_uniqueness.md) | School roles (`school_admin` = teacher superset), email-only uniqueness, soft-delete + archive |
 | [`docs/ADR_006_multi_provider_llm.md`](docs/ADR_006_multi_provider_llm.md) | Multi-provider LLM pipeline (Epic 1, migration 0043) — provider abstraction, `provider` column, `school_llm_config` + DPA, batch-not-agent |
+| [`docs/ADR_007_academic_calendar.md`](docs/ADR_007_academic_calendar.md) | Academic calendar, terms and breaks · grade enrolments with outcomes · per-school grading scales (pass marks are NOT 60% everywhere) · promotion gating, the year-start freeze and its correction path |
 | [`docs/SCHOOL_USER_MANAGEMENT.md`](docs/SCHOOL_USER_MANAGEMENT.md) | The Type-1 (self-managed) school user lifecycle + the top-bar **Administration** menu IA (§8.1) |
 | [`docs/DESIGN_curriculum_mgmt_capability.md`](docs/DESIGN_curriculum_mgmt_capability.md) · [`docs/SPEC_curriculum_mgmt_capability.md`](docs/SPEC_curriculum_mgmt_capability.md) | The `curriculum_mgmt` capability (#358) — additive grants; menu now lives under Administration (#415) |
 
