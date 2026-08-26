@@ -5,7 +5,8 @@ Lesson analytics business logic.
 
 lesson_views table lifecycle:
   start_lesson_view() — INSERT row, returns view_id (called by mobile on lesson open)
-  end_lesson_view()   — UPDATE row with duration_s, audio_played, experiment_viewed, ended_at
+  end_lesson_view()   — UPDATE row with duration_s, audio_played, and which
+                        content type was viewed (lesson / tutorial / experiment)
 
 Ownership:
   verify_view_owner() — raises LookupError/PermissionError (same pattern as progress sessions)
@@ -77,6 +78,7 @@ async def end_lesson_view(
     duration_s: int,
     audio_played: bool,
     experiment_viewed: bool,
+    tutorial_viewed: bool = False,
 ) -> dict:
     """
     Close a lesson view row.
@@ -94,7 +96,8 @@ async def end_lesson_view(
         SET ended_at          = NOW(),
             duration_s        = $2,
             audio_played      = $3,
-            experiment_viewed = $4
+            experiment_viewed = $4,
+            tutorial_viewed   = $5
         WHERE view_id = $1
         RETURNING view_id::text, duration_s
         """,
@@ -102,6 +105,7 @@ async def end_lesson_view(
         duration_s,
         audio_played,
         experiment_viewed,
+        tutorial_viewed,
     )
 
     if row is None:

@@ -168,6 +168,7 @@ async def lesson_end(
             "duration_s": body.duration_s,
             "audio_played": body.audio_played,
             "experiment_viewed": body.experiment_viewed,
+            "tutorial_viewed": body.tutorial_viewed,
         },
         queue="io",
     )

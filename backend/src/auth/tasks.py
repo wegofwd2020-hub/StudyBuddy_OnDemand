@@ -389,6 +389,7 @@ def write_lesson_end_task(
     duration_s: int,
     audio_played: bool,
     experiment_viewed: bool,
+    tutorial_viewed: bool = False,
 ) -> None:
     """
     Fire-and-forget task: write lesson end data to lesson_views.
@@ -408,6 +409,7 @@ def write_lesson_end_task(
                     duration_s=duration_s,
                     audio_played=audio_played,
                     experiment_viewed=experiment_viewed,
+                    tutorial_viewed=tutorial_viewed,
                 )
         finally:
             await pool.close()
