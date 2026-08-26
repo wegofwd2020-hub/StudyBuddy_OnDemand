@@ -98,12 +98,29 @@ async def total_units_by_student(
 
     async with pool.acquire() as conn:
         await conn.execute("SELECT set_config('app.current_school_id', $1, false)", school_id)
+        # Count against the curriculum that actually HOLDS the units.
+        #
+        # A school FORK carries no rows in `curriculum_units` — they live under
+        # its `source_curriculum_id`, which is why content serving swaps
+        # fork -> source before reading (resolve_content_curriculum). Counting
+        # the fork directly returns zero, so a student on a forked curriculum
+        # went from a wrong denominator to an impossible one. Caught on the demo
+        # minutes after #638 shipped: Venky_Gr11 resolves through a classroom
+        # package to a fork with 0 own units and 20 under default-2026-g8.
         counts = await conn.fetch(
             """
-            SELECT curriculum_id, COUNT(*) AS units
-            FROM curriculum_units
-            WHERE curriculum_id = ANY($1::text[])
-            GROUP BY curriculum_id
+            SELECT c.curriculum_id,
+                   COALESCE(
+                       -- the curriculum's own units, if it has any ...
+                       NULLIF((SELECT COUNT(*) FROM curriculum_units own
+                               WHERE own.curriculum_id = c.curriculum_id), 0),
+                       -- ... otherwise the source it was forked from
+                       (SELECT COUNT(*) FROM curriculum_units src
+                        WHERE src.curriculum_id = c.source_curriculum_id),
+                       0
+                   ) AS units
+            FROM curricula c
+            WHERE c.curriculum_id = ANY($1::text[])
             """,
             list(set(resolved.values())),
         )
