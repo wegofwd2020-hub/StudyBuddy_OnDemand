@@ -921,3 +921,63 @@ caption, the shorter header, and Student Progress under TEACH. Fix #590, #574
 and the audio tile before the tiles that depend on them are drawn. Treat the
 student dashboard as **unresolved** until the conflict between his wireframe and
 the four student questions is settled.
+
+
+---
+
+## 11. Resolved: the student dashboard
+
+**Decided 2026-08-26 — the product owner's four questions, in Venki's layout.**
+
+His shell was never the problem; the tiles inside it were a teacher's. This keeps
+the shell and replaces the contents.
+
+### The shell, kept as proposed
+
+Short header · period selector (7d / 30d / term) with the caption saying what it
+does and does not filter · a row of tiles · wide cards · a right-hand panel ·
+no scroll at desktop width.
+
+### The four questions, placed
+
+| Q | Where it goes | What it needs |
+|---|---|---|
+| **1. What am I doing this week** | Right panel, replacing *Recent Quizzes* — what is in progress and what is next | Next unit comes from `curriculum_units.sort_order` (**exists**). "Am I on pace" needs the calendar |
+| **2. What needs completing this month** | One tile — a pace figure | **Academic calendar** (ADR-007). Nothing to count down to without it |
+| **3. My subjects and scores completed** | The two wide cards, replacing *Units with struggles* / *Units with no activity* | Per-subject aggregate (**data exists, never surfaced**) + #638's denominator (**done**) |
+| **4. My standing in the class** | One tile — *"You 62% · Class 55%"* | "Class" must mean **grade cohort**, not classroom (§9), plus a minimum cohort size |
+
+### What is dropped from his student wireframe, and why
+
+| Dropped | Reason |
+|---|---|
+| **Audio play rate** | 0 plays across 86 lesson views, ever. A permanently-0% tile |
+| **Units with no activity** | #590 — the measure does not reflect real coverage |
+| **Units with struggles** | A teacher's framing. For a student this is a list of their own failures on the first screen they see, which §2.1 says is a reason to close the tab |
+| **Pass rate (1st attempt)** | Not dropped — **substituted**. "First-attempt pass rate" is a management metric; a student gets *their average score*, which answers question 3 and reads as progress rather than judgement |
+
+**Kept from the existing dashboard:** the streak. It works, it is honest, and it
+is the one number on that screen a student is actually motivated by.
+
+### What can ship without the academic calendar
+
+Questions **3** and **4** need nothing new. Question **1** ships partly — "what is
+in progress" and "what is next" come from the existing unit sequence; only "am I
+on pace" waits. Question **2** waits entirely.
+
+So the first slice is: **per-subject progress and scores, standing against the
+class average, and what is next** — and it is worth building in that order rather
+than waiting for the calendar to land.
+
+### Still gated by A3(d)
+
+None of it is drawn until #638 (**done**), #590 and #569 are fixed. #569 matters
+here specifically: tutorials and experiments record no analytics, so "what am I
+doing this week" would silently omit a student who spent the week on tutorials.
+
+### Teacher and school admin
+
+Unchanged from §10: keep Venki's single layout, but **state the scope on the
+page** — "Your grades: 8, 10" against "Whole school". That reconciles his
+proposal with answer B4(a), and fixes the defect that was never the layout but
+the silence about what the numbers cover.
