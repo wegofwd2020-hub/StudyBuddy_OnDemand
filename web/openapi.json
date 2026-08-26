@@ -21840,6 +21840,11 @@
             "type": "boolean",
             "title": "Experiment Viewed",
             "default": false
+          },
+          "tutorial_viewed": {
+            "type": "boolean",
+            "title": "Tutorial Viewed",
+            "default": false
           }
         },
         "type": "object",
