@@ -281,3 +281,81 @@ async def test_another_students_session_is_refused(client, db_conn):
         headers={"Authorization": f"Bearer {token_b}"},
     )
     assert r.status_code in (403, 404), r.text
+
+
+# ── Refreshing mid-attempt must RESUME, not restart ───────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_refreshing_after_answering_resumes_the_same_attempt(client, db_conn):
+    """Venki's 26 Aug report — the case #633 did NOT fix.
+
+    #633 pinned the set per session, and #627 reused a session only when it had
+    NO answers. Together that meant: answer one question, refresh, and because
+    the session now has an answer it is not reused — a NEW session is created
+    and the rotation advances. His own data, four sessions on G5-TECH-002 in
+    eight minutes:
+
+        13:39:08  set 1  1 answer
+        13:46:28  set 2  1 answer   <- refresh
+        13:46:52  set 3  1 answer   <- refresh
+        13:47:47  set 1  0 answers  <- refresh
+
+    A refresh is not a new attempt. Resuming an answered session is safe: the
+    Redis tally is keyed by question_id so re-answering overwrites rather than
+    double-counts, and end_session falls back to the persisted answers when the
+    tally has expired.
+    """
+    token, student_id = _token_and_id("f5670000-0000-0000-0000-000000000009")
+    await _insert_student(client, student_id)
+
+    with patch("src.auth.tasks.celery_app.send_task", return_value=None):
+        first = await _start(client, token)
+        # The worker writes the answer row; simulate it having landed.
+        pool = client._transport.app.state.pool
+        await pool.execute(
+            """
+            INSERT INTO progress_answers
+                (session_id, question_id, student_answer, correct_answer, correct, ms_taken)
+            VALUES ($1, 'q1', 0, 0, TRUE, 100)
+            """,
+            uuid.UUID(first["session_id"]),
+        )
+
+        # The refresh.
+        resumed = await _start(client, token)
+
+    assert resumed["session_id"] == first["session_id"], (
+        "a refresh mid-attempt started a new session instead of resuming"
+    )
+    assert resumed["quiz_set"] == first["quiz_set"], (
+        "the quiz set changed on refresh — the student is shown questions they "
+        "are not being graded against"
+    )
+
+
+@pytest.mark.asyncio
+async def test_repeated_refreshes_do_not_walk_the_rotation(client, db_conn):
+    """His sequence exactly: three refreshes must not cycle 1 -> 2 -> 3."""
+    token, student_id = _token_and_id("f5670000-0000-0000-0000-000000000010")
+    await _insert_student(client, student_id)
+
+    pool = client._transport.app.state.pool
+    sets = []
+    with patch("src.auth.tasks.celery_app.send_task", return_value=None):
+        session = await _start(client, token)
+        sets.append(session["quiz_set"])
+        for i in range(3):
+            await pool.execute(
+                """
+                INSERT INTO progress_answers
+                    (session_id, question_id, student_answer, correct_answer, correct, ms_taken)
+                VALUES ($1, $2, 0, 0, TRUE, 100)
+                """,
+                uuid.UUID(session["session_id"]),
+                f"q{i + 1}",
+            )
+            session = await _start(client, token)
+            sets.append(session["quiz_set"])
+
+    assert len(set(sets)) == 1, f"the rotation walked across refreshes: {sets}"

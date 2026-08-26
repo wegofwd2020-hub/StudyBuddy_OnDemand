@@ -178,9 +178,10 @@ async def pin_session_quiz_set(
 
     Rotation now happens exactly once per attempt, here.
 
-    `existing` is the set already pinned on a reused session (#627). Reusing an
-    unanswered session must NOT re-rotate: one rotation per attempt, not one per
-    page load — that reuse is what makes reloading the quiz page harmless.
+    `existing` is the set already pinned on a RESUMED session. Resuming must NOT
+    re-rotate: one rotation per attempt, not one per page load. That is what
+    makes a refresh harmless — including a refresh after the student has already
+    answered, which is the case #567 was reopened for.
     """
     if existing is not None:
         set_number = int(existing)
@@ -225,22 +226,32 @@ async def create_session(
         grade = unit_row["grade"] or 0
         subject = unit_row["subject"] or "unknown"
 
-    # Reuse an open session the student never answered, instead of opening a
-    # second one (issue #579).
+    # RESUME the attempt in progress instead of opening another one
+    # (issues #579 and #567).
     #
     # The quiz page calls this on mount, so every page load used to write a row.
     # Open a quiz, wander off, come back: two rows. Never finish: they persist.
     # On the demo that left 78 session rows for 7 units with only 16 carrying a
-    # score — and those rows were displayed as history and counted as attempts.
+    # score — displayed as history and counted as attempts.
     #
-    # Only sessions with NO recorded answers are reused. One the student
-    # actually answered is real work belonging to its own attempt: merging it
-    # would land a re-answered q1 against the earlier attempt. Completed
-    # sessions are never reused either — "Try Again" is a new attempt.
+    # #579 first reused only sessions with NO answers, reasoning that an
+    # answered one is "real work belonging to its own attempt". That was wrong,
+    # and #567 is the cost: answer one question, refresh, and because the
+    # session now has an answer it is not reused — a new session opens and the
+    # quiz set rotates. Venki's live data, four sessions on one unit in eight
+    # minutes, sets 1 -> 2 -> 3 -> 1. He was shown questions he was not being
+    # graded against, which is the whole defect #567 was meant to close.
     #
-    # Side benefit: `quiz_set` is pinned per session_id, so reusing the session
-    # keeps a page reload from re-rolling which set the student is graded
-    # against (see resolve_session_quiz_set and pitfall #35).
+    # A REFRESH IS NOT A NEW ATTEMPT. Any not-completed session for this
+    # (student, unit, curriculum) is resumed, answered or not.
+    #
+    # Resuming an answered session is safe by construction: the Redis tally is a
+    # hash keyed by question_id, so re-answering overwrites a verdict rather
+    # than double-counting it, and end_session falls back to the persisted
+    # answers when the tally has expired.
+    #
+    # "Try Again" still starts a fresh attempt — that session is `completed`,
+    # and completed sessions are never resumed.
     row = await conn.fetchrow(
         """
         UPDATE progress_sessions
@@ -252,10 +263,6 @@ async def create_session(
               AND ps.unit_id       = $2
               AND ps.curriculum_id = $3
               AND ps.completed     = FALSE
-              AND NOT EXISTS (
-                  SELECT 1 FROM progress_answers pa
-                  WHERE pa.session_id = ps.session_id
-              )
             ORDER BY ps.started_at DESC
             LIMIT 1
             FOR UPDATE SKIP LOCKED

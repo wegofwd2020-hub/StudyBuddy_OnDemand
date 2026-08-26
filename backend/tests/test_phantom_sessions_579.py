@@ -147,11 +147,23 @@ async def test_reopening_the_quiz_page_does_not_add_a_session(client, db_conn):
 
 
 @pytest.mark.asyncio
-async def test_a_session_the_student_answered_is_not_reused(client, db_conn):
-    """Answered work belongs to its own attempt.
+async def test_a_session_the_student_answered_is_resumed_not_restarted(client, db_conn):
+    """CORRECTED (#567). This test originally asserted the opposite.
 
-    Reusing a session that already has answers would silently merge two
-    attempts, and re-answering q1 would land against the earlier attempt.
+    #579 reused only sessions with NO answers, on the reasoning that an answered
+    session is "real work belonging to its own attempt" and merging would land a
+    re-answered q1 against the earlier one.
+
+    That was wrong, and Venki found the cost on 26 Aug: answer one question,
+    refresh, and because the session now has an answer it was not reused — a new
+    session opened and the quiz set rotated. His live data showed sets
+    1 -> 2 -> 3 -> 1 across four sessions on one unit in eight minutes, so he was
+    shown questions he was not being graded against.
+
+    A refresh is not a new attempt. Resuming is safe: the Redis tally is keyed by
+    question_id so re-answering overwrites rather than double-counts, and
+    end_session falls back to the persisted answers when the tally has expired.
+    "Try Again" still starts fresh, because that session is completed.
     """
     token, student_id = _token_and_id("f5790000-0000-0000-0000-000000000002")
     await _insert_student(client, student_id)
@@ -161,8 +173,10 @@ async def test_a_session_the_student_answered_is_not_reused(client, db_conn):
         await _record_answer_row(client, first["session_id"])
         second = await _open_quiz_page(client, token)
 
-    assert second["session_id"] != first["session_id"]
-    assert await _session_count(client, student_id) == 2
+    assert second["session_id"] == first["session_id"], (
+        "a refresh after answering started a new attempt"
+    )
+    assert await _session_count(client, student_id) == 1
 
 
 @pytest.mark.asyncio
