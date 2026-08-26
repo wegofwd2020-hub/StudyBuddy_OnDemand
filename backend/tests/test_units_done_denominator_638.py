@@ -247,3 +247,49 @@ async def test_at_risk_report_uses_the_same_denominator(client, db_conn):
     assert listed, "expected an inactive student to be listed"
     total = listed[0]["total_units"]
     assert total == 3, f"at-risk denominator summed the streams: expected 3, got {total}"
+
+
+@pytest.mark.asyncio
+async def test_a_school_fork_counts_its_source_curriculums_units(client, db_conn):
+    """Regression caught on the demo minutes after #638 shipped.
+
+    School FORK curricula carry no rows in `curriculum_units` — the units live
+    under the source OOB curriculum (`source_curriculum_id`), which is why
+    content serving swaps fork -> source before reading. Counting the fork
+    directly returns ZERO, so a student on a forked curriculum went from a
+    wrong denominator (56) to an impossible one (0).
+
+    Venky_Gr11 on the demo resolves through a classroom package to fork
+    `0be6dbbd-...` ("Grade 8 STEM 2026"), which has 0 own units and 20 under
+    `default-2026-g8`.
+
+    This is the pitfall #31 family again: using the resolver but not the full
+    serving path.
+    """
+    source = f"default-{_YEAR}-g7"
+    await _seed_curriculum(client, source, 7, 6, subject="G7-STEM")
+
+    school = await _register_school(client, "_fork")
+    fork_id = str(uuid.uuid4())
+    pool = client._transport.app.state.pool
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        await conn.execute(
+            """
+            INSERT INTO curricula
+                (curriculum_id, name, grade, year, owner_type, school_id,
+                 is_default, source_curriculum_id)
+            VALUES ($1, 'Forked G7', 7, $2, 'school', $3, FALSE, $4)
+            """,
+            fork_id,
+            _YEAR,
+            uuid.UUID(school["school_id"]),
+            source,
+        )
+
+    await _enrol(client, school["school_id"], 7, "Fork Student")
+
+    rows = await _roster(client, school)
+    assert rows[0]["total_units"] == 6, (
+        f"a fork with no units of its own must count its source's: {rows[0]}"
+    )
