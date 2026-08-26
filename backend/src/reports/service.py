@@ -128,6 +128,68 @@ async def total_units_by_student(
     return {sid: by_curriculum.get(cid, 0) for sid, cid in resolved.items()}
 
 
+async def cohort_unit_ids(
+    conn: asyncpg.Connection,
+    pool,
+    redis,
+    school_id: str,
+    allowed_grades: list[int] | None = None,
+) -> set[str]:
+    """Every unit in the curricula this school's students are actually served.
+
+    The catalog that "no activity" has to be measured against (#590). Both
+    metrics that used the name were ungrounded: the overview compared two
+    activity sets to each other, and curriculum health only ever saw units that
+    already had a session — so the report meant to surface coverage gaps was
+    blind to the units nobody had opened.
+
+    Resolution goes through `resolve_curriculum_id` and the fork -> source rule,
+    the same path as `total_units_by_student`, so the catalog matches what the
+    students are actually served rather than what their grade nominally implies.
+    """
+    from src.content.service import resolve_curriculum_id
+
+    rows = await conn.fetch(
+        """
+        SELECT student_id::text AS student_id, grade
+        FROM school_enrolments
+        WHERE school_id = $1 AND status = 'active' AND student_id IS NOT NULL
+          AND ($2::smallint[] IS NULL OR grade = ANY($2::smallint[]))
+        """,
+        uuid.UUID(school_id),
+        allowed_grades,
+    )
+    if not rows:
+        return set()
+
+    curricula: set[str] = set()
+    for row in rows:
+        curricula.add(
+            await resolve_curriculum_id(
+                row["student_id"], row["grade"], pool, redis, school_id=school_id
+            )
+        )
+
+    async with pool.acquire() as conn2:
+        await conn2.execute("SELECT set_config('app.current_school_id', $1, false)", school_id)
+        unit_rows = await conn2.fetch(
+            """
+            SELECT cu.unit_id
+            FROM curricula c
+            JOIN curriculum_units cu
+              ON cu.curriculum_id = CASE
+                     WHEN EXISTS (SELECT 1 FROM curriculum_units own
+                                  WHERE own.curriculum_id = c.curriculum_id)
+                     THEN c.curriculum_id
+                     ELSE c.source_curriculum_id
+                 END
+            WHERE c.curriculum_id = ANY($1::text[])
+            """,
+            list(curricula),
+        )
+    return {r["unit_id"] for r in unit_rows}
+
+
 async def _enrolled_ids(
     conn: asyncpg.Connection,
     school_id: str,
@@ -189,6 +251,8 @@ async def get_overview(
     school_id: str,
     period: str,
     allowed_grades: list[int] | None = None,
+    pool=None,
+    redis=None,
 ) -> dict:
     """Single-screen class summary for the selected period.
 
@@ -315,19 +379,31 @@ async def get_overview(
         )
     ]
 
-    # Units with NO activity in period
-    active_units = {r["unit_id"] for r in struggle_rows}
-    all_unit_rows = await conn.fetch(
+    # Units with NO activity in the period, measured against the real catalog
+    # (#590).
+    #
+    # This used to be (units viewed BEFORE the period) minus (units quizzed
+    # DURING it) — "went quiet", not "untouched", and structurally empty
+    # whenever no lesson views predate the window. A unit never opened could
+    # therefore never appear, which is the one case the card exists for.
+    touched_rows = await conn.fetch(
         f"""
         SELECT DISTINCT unit_id FROM lesson_views
-        WHERE student_id = ANY(ARRAY[{placeholders}]::uuid[])
-          AND started_at < $1
+        WHERE student_id = ANY(ARRAY[{placeholders}]::uuid[]) AND started_at >= $1
+        UNION
+        SELECT DISTINCT unit_id FROM progress_sessions
+        WHERE student_id = ANY(ARRAY[{placeholders}]::uuid[]) AND started_at >= $1
         """,
         start,
         *id_uuids,
     )
-    ever_active_units = {r["unit_id"] for r in all_unit_rows}
-    units_no_activity = sorted(ever_active_units - active_units)
+    touched_units = {r["unit_id"] for r in touched_rows}
+    catalog = (
+        await cohort_unit_ids(conn, pool, redis, school_id, allowed_grades)
+        if pool is not None and redis is not None
+        else set()
+    )
+    units_no_activity = sorted(catalog - touched_units)
 
     # Unreviewed feedback from enrolled students (no $1=start param here)
     fb_placeholders = ", ".join(f"${i + 1}" for i in range(len(id_uuids)))
@@ -740,6 +816,8 @@ async def get_curriculum_health(
     conn: asyncpg.Connection,
     school_id: str,
     allowed_grades: list[int] | None = None,
+    pool=None,
+    redis=None,
 ) -> dict:
     """All units ranked by health tier.
 
@@ -841,6 +919,19 @@ async def get_curriculum_health(
     )
     fb_map = {r["unit_id"]: r for r in fb_rows}
 
+    # Units nobody has touched never appear in `rows`, because those come
+    # `FROM progress_sessions` — so the report designed to surface coverage gaps
+    # was blind to exactly the units that represent one (#590). Merge the
+    # school's real catalog in, so an untouched unit is REPORTED as untouched
+    # rather than silently missing from `total_units` and every tier count.
+    catalog = (
+        await cohort_unit_ids(conn, pool, redis, school_id, allowed_grades)
+        if pool is not None and redis is not None
+        else set()
+    )
+    seen = {r["unit_id"] for r in rows}
+    untouched = sorted(catalog - seen)
+
     units = []
     counts = {"healthy": 0, "watch": 0, "struggling": 0, "no_activity": 0}
     for r in rows:
@@ -866,6 +957,30 @@ async def get_curriculum_health(
                 "recommended_action": action,
             }
         )
+
+    if untouched:
+        untouched_names = await conn.fetch(
+            "SELECT unit_id, unit_name, subject FROM curriculum_units WHERE unit_id = ANY($1::text[])",
+            untouched,
+        )
+        meta = {r["unit_id"]: r for r in untouched_names}
+        for unit_id in untouched:
+            row = meta.get(unit_id)
+            counts["no_activity"] += 1
+            units.append(
+                {
+                    "unit_id": unit_id,
+                    "unit_name": row["unit_name"] if row else None,
+                    "subject": row["subject"] if row else None,
+                    "health_tier": "no_activity",
+                    "first_attempt_pass_rate_pct": 0.0,
+                    "avg_attempts_to_pass": 0.0,
+                    "avg_score_pct": 0.0,
+                    "feedback_count": 0,
+                    "avg_rating": None,
+                    "recommended_action": _recommended_action("no_activity"),
+                }
+            )
 
     return {
         "school_id": school_id,

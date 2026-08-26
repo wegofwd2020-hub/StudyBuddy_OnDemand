@@ -274,7 +274,14 @@ async def overview_report(
     _check_school(teacher, school_id, request)
     async with get_db(request) as conn:
         grades = await _grade_filter(conn, teacher, school_id)
-        result = await get_overview(conn, school_id, period, grades)
+        result = await get_overview(
+            conn,
+            school_id,
+            period,
+            grades,
+            pool=request.app.state.pool,
+            redis=get_redis(request),
+        )
     return OverviewReport(**result)
 
 
@@ -344,7 +351,13 @@ async def curriculum_health(
     _check_school(teacher, school_id, request)
     async with get_db(request) as conn:
         grades = await _grade_filter(conn, teacher, school_id)
-        result = await get_curriculum_health(conn, school_id, grades)
+        result = await get_curriculum_health(
+            conn,
+            school_id,
+            grades,
+            pool=request.app.state.pool,
+            redis=get_redis(request),
+        )
     return CurriculumHealthReport(**result)
 
 
