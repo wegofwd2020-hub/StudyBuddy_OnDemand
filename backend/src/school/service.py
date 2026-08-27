@@ -415,13 +415,56 @@ async def reset_teacher_password(conn: asyncpg.Connection, school_id: str, teach
     }
 
 
+class NotPrimarySchoolError(Exception):
+    """The student is enrolled here, but another school owns their credentials.
+
+    Since #572 a student may be enrolled at several schools — their own school
+    and, say, an external tutor — while holding ONE account. `students.school_id`
+    names their PRIMARY school, and credential control stays there.
+
+    This is deliberately NOT relaxed to "any school they are enrolled at".
+    Password reset returns the new plain-text password to the CALLING admin, and
+    a school can attach an existing student by email address alone (#572/#648).
+    Together those would make "any enrolled school may reset" a cross-school
+    account takeover: attach by email, reset, read the password, and hold the
+    student's single account — including their records at their real school.
+
+    So the fix for the reported failure (#665) is not to widen the lookup. It is
+    to say WHICH school can do this, instead of returning a bare 404 that the UI
+    rendered as "Reset failed. Please try again."
+    """
+
+
 async def reset_student_password(conn: asyncpg.Connection, school_id: str, student_id: str) -> dict:
     """
     Generate a new default password for a student and set first_login=True.
 
     Returns the new plain-text password so the router can email it.
-    Only operates on students that belong to the given school.
+    Only the student's PRIMARY school may reset — see NotPrimarySchoolError.
     """
+    # Distinguish "not ours at all" from "ours, but we are not their primary
+    # school". Collapsing the two is what produced the unexplained failure.
+    ownership = await conn.fetchrow(
+        """
+        SELECT s.school_id::text AS primary_school_id,
+               (SELECT sc.name FROM schools sc WHERE sc.school_id = s.school_id)
+                   AS primary_school_name,
+               EXISTS (
+                   SELECT 1 FROM school_enrolments se
+                    WHERE se.student_id = s.student_id
+                      AND se.school_id = $2 AND se.status = 'active'
+               ) AS enrolled_here
+        FROM students s
+        WHERE s.student_id = $1
+        """,
+        uuid.UUID(student_id),
+        uuid.UUID(school_id),
+    )
+    if not ownership or not ownership["enrolled_here"]:
+        return {}
+    if ownership["primary_school_id"] != school_id:
+        raise NotPrimarySchoolError(ownership["primary_school_name"] or "another school")
+
     new_password = generate_default_password()
     new_hash = await hash_password(new_password)
 

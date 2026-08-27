@@ -301,9 +301,16 @@ function RosterRow({ item, schoolId }: { item: RosterItem; schoolId: string }) {
       setTempPassword(data.temp_password);
       setMsg(null);
     },
-    onError: () => {
+    onError: (err: unknown) => {
       setConfirmReset(false);
-      setMsg("Reset failed. Please try again.");
+      // Surface the server's reason when it has one. A student may be enrolled
+      // here while another school owns their sign-in details (#665, #572), and
+      // "please try again" invited retrying something that can never succeed.
+      const detail = (
+        err as { response?: { data?: { detail?: { detail?: string } | string } } }
+      )?.response?.data?.detail;
+      const message = typeof detail === "string" ? detail : detail?.detail;
+      setMsg(message ?? "Reset failed. Please try again.");
     },
   });
 

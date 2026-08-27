@@ -99,6 +99,7 @@ from src.school.schemas import (
 )
 from src.school.service import (
     AlreadyEnrolledError,
+    NotPrimarySchoolError,
     approve_definition,
     assign_package_to_classroom,
     assign_student_to_classroom,
@@ -1049,7 +1050,24 @@ async def reset_student_password_endpoint(
     from src.email.service import send_password_reset_email
 
     async with get_db(request) as conn:
-        result = await reset_student_password(conn, school_id, target_student_id)
+        try:
+            result = await reset_student_password(conn, school_id, target_student_id)
+        except NotPrimarySchoolError as exc:
+            # 409, not 404: the student IS on this roster, so a "not found" was
+            # both wrong and unactionable — the UI rendered it as "Reset failed.
+            # Please try again.", which invited retrying something that can
+            # never succeed here (#665).
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "error": "not_primary_school",
+                    "detail": (
+                        f"{exc} manages this student's sign-in details. "
+                        "Ask them to reset the password."
+                    ),
+                    "correlation_id": _cid(request),
+                },
+            )
 
     if not result:
         raise HTTPException(
