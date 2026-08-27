@@ -303,3 +303,65 @@ async def test_class_metrics_admin_may_request_any_grade(client, db_conn):
         headers=_hdr(school["teacher_id"], school["school_id"], "school_admin"),
     )
     assert r.status_code == 200, r.text
+
+
+# ── The empty state must not make a false claim ───────────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_a_teacher_with_no_grades_is_reported_as_scoped_to_none(client, db_conn):
+    """Grade-scoping made two empty states lie, and this is what fixes them.
+
+    A teacher with no assignments saw "No active alerts — all clear." and
+    "No active classrooms yet." Both assert a fact about the SCHOOL when the
+    truth is "you have no scope, and there may be things here you cannot see".
+    False reassurance is worse than an empty list — the alerts one in
+    particular tells someone everything is fine when nobody has checked.
+
+    There is such an account on the demo right now, which is how this was
+    caught: a test teacher with no grade assignments.
+    """
+    school = await _register_school(client, "_scope_none")
+    teacher_id = await _teacher(client, school["school_id"], [])
+
+    r = await client.get(
+        f"/api/v1/schools/{school['school_id']}/my-grade-scope",
+        headers=_hdr(teacher_id, school["school_id"]),
+    )
+    assert r.status_code == 200, r.text
+    assert r.json() == {"kind": "grades", "grades": []}, r.json()
+
+
+@pytest.mark.asyncio
+async def test_a_scoped_teacher_reports_their_grades(client, db_conn):
+    school = await _register_school(client, "_scope_some")
+    teacher_id = await _teacher(client, school["school_id"], [_MINE])
+
+    r = await client.get(
+        f"/api/v1/schools/{school['school_id']}/my-grade-scope",
+        headers=_hdr(teacher_id, school["school_id"]),
+    )
+    assert r.json() == {"kind": "grades", "grades": [_MINE]}, r.json()
+
+
+@pytest.mark.asyncio
+async def test_a_school_admin_reports_school_scope(client, db_conn):
+    school = await _register_school(client, "_scope_admin")
+    r = await client.get(
+        f"/api/v1/schools/{school['school_id']}/my-grade-scope",
+        headers=_hdr(school["teacher_id"], school["school_id"], "school_admin"),
+    )
+    assert r.json()["kind"] == "school", r.json()
+
+
+@pytest.mark.asyncio
+async def test_grade_scope_refuses_another_school(client, db_conn):
+    """Scope is per (caller, school) — it must not answer for someone else's."""
+    mine = await _register_school(client, "_scope_mine")
+    theirs = await _register_school(client, "_scope_theirs")
+
+    r = await client.get(
+        f"/api/v1/schools/{theirs['school_id']}/my-grade-scope",
+        headers=_hdr(mine["teacher_id"], mine["school_id"], "school_admin"),
+    )
+    assert r.status_code == 403, r.text

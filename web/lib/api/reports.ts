@@ -430,3 +430,17 @@ export async function sendAtRiskReminder(
   );
   return res.data;
 }
+
+/**
+ * Which grades the caller may see (#647 follow-up).
+ *
+ * Scope is a property of the caller, not of any one report, so it is fetched
+ * once and reused. Pages use it to explain an EMPTY list rather than assert
+ * something false about the school — grade-scoping alerts and classrooms made
+ * "No active alerts — all clear." and "No active classrooms yet." into false
+ * reassurance for a teacher with no assignments.
+ */
+export async function getMyGradeScope(schoolId: string): Promise<ReportScope> {
+  const res = await schoolApi.get<ReportScope>(`/schools/${schoolId}/my-grade-scope`);
+  return res.data;
+}

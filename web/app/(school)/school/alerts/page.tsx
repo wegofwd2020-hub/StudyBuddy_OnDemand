@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTeacher } from "@/lib/hooks/useTeacher";
-import { getAlerts, type AlertItem } from "@/lib/api/reports";
+import { getAlerts, getMyGradeScope, type AlertItem } from "@/lib/api/reports";
+import { NoGradesNotice } from "@/components/school/ScopeNote";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -32,6 +33,16 @@ export default function AlertsPage() {
   const teacher = useTeacher();
   const schoolId = teacher?.school_id ?? "";
   const qc = useQueryClient();
+  // The caller's grade scope, so an empty list can be explained rather than
+  // reported as "all clear" to someone who simply cannot see anything (#647).
+  const { data: scope } = useQuery({
+    queryKey: ["my-grade-scope", schoolId],
+    queryFn: () => getMyGradeScope(schoolId),
+    enabled: !!schoolId,
+    staleTime: 300_000,
+  });
+  const hasNoScope = scope?.kind === "grades" && scope.grades.length === 0;
+
   const { data, isLoading } = useQuery({
     queryKey: ["alerts", schoolId],
     queryFn: () => getAlerts(schoolId),
@@ -124,7 +135,16 @@ export default function AlertsPage() {
           ))}
         </div>
       )}
-      {!isLoading && visibleAlerts.length === 0 && (
+      {/* A teacher with no grade assignments sees an empty list because they
+          have no scope — NOT because the school is fine. "All clear" there is
+          false reassurance, which is worse than showing nothing (#647). */}
+      {!isLoading && visibleAlerts.length === 0 && hasNoScope ? (
+        <div className="py-6">
+          <NoGradesNotice scope={scope} />
+        </div>
+      ) : null}
+
+      {!isLoading && visibleAlerts.length === 0 && !hasNoScope && (
         <div className="flex flex-col items-center gap-3 rounded-xl border border-gray-100 bg-gray-50 py-14 text-gray-400">
           <Bell className="h-10 w-10 opacity-50" />
           <p className="text-sm font-medium text-gray-600">
