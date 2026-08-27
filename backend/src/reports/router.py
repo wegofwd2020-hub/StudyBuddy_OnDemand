@@ -199,8 +199,12 @@ async def student_roster(
                 s.student_id,
                 s.name                                              AS student_name,
                 s.grade,
-                COALESCE(SUM(CASE WHEN ps.passed THEN 1 ELSE 0 END), 0)
-                                                                    AS units_completed,
+                -- DISTINCT units, not passed sessions (#655). Retaking a unit
+                -- and passing it again is one unit done, not two. The
+                -- denominator is a count of distinct units in the student's
+                -- curriculum (#638), so counting sessions here compared two
+                -- different things and could exceed 100%.
+                COUNT(DISTINCT ps.unit_id) FILTER (WHERE ps.passed)  AS units_completed,
                 COALESCE(
                     AVG(CASE WHEN ps.score IS NOT NULL
                         THEN ps.score::float / NULLIF(ps.total_questions, 0) * 100

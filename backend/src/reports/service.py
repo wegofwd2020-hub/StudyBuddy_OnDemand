@@ -1390,7 +1390,11 @@ async def get_at_risk_students(
                     100.0 * SUM(CASE WHEN ps.passed THEN 1 END)::float / NULLIF(COUNT(*), 0),
                     0
                 )                                                                         AS pass_rate_pct,
-                SUM(CASE WHEN ps.passed THEN 1 ELSE 0 END)                                AS units_completed
+                -- DISTINCT units, not passed sessions (#655) — see the student
+                -- progress report for the same fix. This one also feeds the
+                -- `low_pass_rate` gate below, so an inflated count could mark a
+                -- student as having done work they had not.
+                COUNT(DISTINCT ps.unit_id) FILTER (WHERE ps.passed)                        AS units_completed
             FROM progress_sessions ps
             WHERE ps.student_id IN (SELECT student_id FROM enrolled)
               AND ps.completed = TRUE
