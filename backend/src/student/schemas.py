@@ -24,6 +24,23 @@ class SubjectProgress(BaseModel):
     units_total: int
     units_completed: int
     pct: float
+    # None when the student has answered nothing in the subject yet, so the UI
+    # can say "not started" rather than show a 0% they did not earn.
+    avg_score: float | None = None
+
+
+class Standing(BaseModel):
+    """The student's average beside their grade cohort's.
+
+    Omitted entirely (None on the response) when the cohort is too small to
+    aggregate without disclosing an individual's record — see
+    `_MIN_COHORT_FOR_STANDING` in service.py.
+    """
+
+    you: float
+    cohort: float
+    cohort_size: int
+    grade: int
 
 
 class NextUnit(BaseModel):
@@ -45,6 +62,7 @@ class DashboardResponse(BaseModel):
     summary: DashboardSummary
     subject_progress: list[SubjectProgress]
     next_unit: NextUnit | None
+    standing: Standing | None = None
     recent_activity: list[RecentActivityItem]
 
 
