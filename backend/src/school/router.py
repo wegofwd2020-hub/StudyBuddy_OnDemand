@@ -25,6 +25,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from src.auth.dependencies import get_current_student, get_current_teacher
 from src.core.db import get_db
 from src.core.events import emit_event, write_audit_log
+from src.core.grade_scope import grade_filter
 from src.core.permissions import has_any_curriculum_capability
 from src.core.storage import get_storage
 from src.school.capability_guards import (
@@ -1167,7 +1168,10 @@ async def list_classrooms_endpoint(
         raise HTTPException(status_code=403, detail="Forbidden")
 
     async with get_db(request) as conn:
-        rows = await list_classrooms(conn, school_id)
+        # Scoped to the caller's grades (#647). Previously every grade's
+        # classrooms were listed to every teacher.
+        grades = await grade_filter(conn, teacher, school_id)
+        rows = await list_classrooms(conn, school_id, grades)
 
     return [ClassroomItem(**r) for r in rows]
 
@@ -1188,8 +1192,17 @@ async def get_classroom_endpoint(
 
     async with get_db(request) as conn:
         detail = await get_classroom_detail(conn, school_id, classroom_id)
+        grades = await grade_filter(conn, teacher, school_id)
 
     if not detail:
+        raise HTTPException(status_code=404, detail="Classroom not found")
+
+    # The detail endpoint returns the classroom's STUDENTS, so an unscoped one
+    # is a named-student disclosure — sharper than the list this issue was
+    # filed for, and it would have survived fixing only what was reported.
+    # 404, not 403: confirming "that classroom exists but is not yours" still
+    # leaks which grades the school runs.
+    if grades is not None and detail.get("grade") not in set(grades):
         raise HTTPException(status_code=404, detail="Classroom not found")
 
     return ClassroomDetailResponse(

@@ -6278,6 +6278,8 @@ export interface components {
             triggered_at: string;
             /** Acknowledged */
             acknowledged: boolean;
+            /** Grade */
+            grade?: number | null;
         };
         /** AlertListResponse */
         AlertListResponse: {

@@ -16766,6 +16766,17 @@
           "acknowledged": {
             "type": "boolean",
             "title": "Acknowledged"
+          },
+          "grade": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grade"
           }
         },
         "type": "object",

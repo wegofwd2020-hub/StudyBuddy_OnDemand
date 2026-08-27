@@ -275,6 +275,15 @@ export interface AlertItem {
   details: Record<string, unknown>;
   triggered_at: string;
   acknowledged: boolean;
+  /**
+   * Grade the alert's unit belongs to (#647). The list is now scoped to the
+   * caller's grades; showing the grade is what makes that visible — a scoped
+   * list is otherwise indistinguishable from an unscoped one.
+   *
+   * null only reaches a school_admin: an alert whose unit cannot be resolved
+   * to a grade is withheld from grade-restricted teachers.
+   */
+  grade: number | null;
 }
 
 export interface AlertListResponse {

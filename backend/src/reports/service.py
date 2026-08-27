@@ -1215,17 +1215,60 @@ async def trigger_export(
 async def get_alerts(
     conn: asyncpg.Connection,
     school_id: str,
+    allowed_grades: list[int] | None = None,
 ) -> dict:
-    """Return unacknowledged alerts for the school."""
+    """Return unacknowledged alerts, scoped to the caller's grades (#647).
+
+    Alerts were filtered on school alone, so a Grade-8 teacher's landing page
+    listed pass-rate breaches for Grades 5, 10 and 11. Narrower than the #576
+    original — unit-level rather than named students — but the same class of
+    leak, and on the first screen a teacher sees.
+
+    `allowed_grades=None` is unrestricted (`school_admin`). An EMPTY list means
+    a teacher with no assignments, who correctly sees nothing.
+
+    ## Where the grade comes from
+
+    `report_alerts` has no grade column; the only alert type written is
+    `pass_rate_breach`, whose `details` carries a `unit_id`. The grade is
+    resolved through `curriculum_units -> curricula`. Every alert on the demo
+    resolves to exactly one grade, so this is a lookup rather than a guess.
+
+    Adding a `grade` column and populating it at write time would be tidier and
+    is worth doing if more alert types arrive — but it needs a migration plus a
+    backfill of existing rows via this same join, so the join is the honest
+    first step rather than a shortcut.
+
+    ## Unresolvable units fail CLOSED
+
+    An alert whose unit is not in `curriculum_units` has no determinable grade,
+    and is withheld from a restricted teacher (admins still see it). This is a
+    disclosure fix, so the safe direction is to show less. The cost is real —
+    a withheld alert is one a teacher does not act on — which is why the
+    resolvability was checked against live data first rather than assumed.
+    """
+    # `grade` is returned alongside each alert so the page can show which grade
+    # it belongs to. Without it, a scoped list is indistinguishable from an
+    # unscoped one, and the fix is unverifiable by eye.
     rows = await conn.fetch(
         """
-        SELECT alert_id::text, alert_type, school_id::text, details, triggered_at, acknowledged
-        FROM report_alerts
-        WHERE school_id = $1 AND NOT acknowledged
-        ORDER BY triggered_at DESC
+        SELECT a.alert_id::text, a.alert_type, a.school_id::text, a.details,
+               a.triggered_at, a.acknowledged,
+               (SELECT MIN(c.grade)
+                  FROM curriculum_units cu
+                  JOIN curricula c ON c.curriculum_id = cu.curriculum_id
+                 WHERE cu.unit_id = a.details->>'unit_id') AS grade
+        FROM report_alerts a
+        WHERE a.school_id = $1 AND NOT a.acknowledged
+        ORDER BY a.triggered_at DESC
         """,
         uuid.UUID(school_id),
     )
+
+    if allowed_grades is not None:
+        permitted = set(allowed_grades)
+        rows = [r for r in rows if r["grade"] is not None and r["grade"] in permitted]
+
     return {
         "alerts": [
             {
@@ -1235,6 +1278,7 @@ async def get_alerts(
                 "details": r["details"],
                 "triggered_at": r["triggered_at"],
                 "acknowledged": r["acknowledged"],
+                "grade": r["grade"],
             }
             for r in rows
         ]

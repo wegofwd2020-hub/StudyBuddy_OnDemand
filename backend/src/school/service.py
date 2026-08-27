@@ -511,8 +511,21 @@ async def create_classroom(
     }
 
 
-async def list_classrooms(conn: asyncpg.Connection, school_id: str) -> list[dict]:
-    """Return all classrooms for a school with student + package counts."""
+async def list_classrooms(
+    conn: asyncpg.Connection, school_id: str, allowed_grades: list[int] | None = None
+) -> list[dict]:
+    """Return classrooms for a school, scoped to the caller's grades (#647).
+
+    `allowed_grades=None` is unrestricted (`school_admin`, a teacher superset
+    per ADR-005). An EMPTY list is a teacher with no assignments, who correctly
+    sees no classrooms — `[]` and `None` must not be collapsed.
+
+    Filtered on `classrooms.grade`, the classroom's own grade. Note this is the
+    grade the classroom DECLARES, which #651 shows is not always the grade of
+    the curricula assigned to it — that mismatch is a separate defect, and
+    scoping on the declared grade is still correct here: it is what the teacher
+    is assigned to.
+    """
     rows = await conn.fetch(
         """
         SELECT
@@ -531,9 +544,11 @@ async def list_classrooms(conn: asyncpg.Connection, school_id: str) -> list[dict
         FROM classrooms c
         LEFT JOIN teachers t ON t.teacher_id = c.teacher_id
         WHERE c.school_id = $1
+          AND ($2::smallint[] IS NULL OR c.grade = ANY($2::smallint[]))
         ORDER BY c.created_at DESC
         """,
         uuid.UUID(school_id),
+        allowed_grades,
     )
     return [dict(r) for r in rows]
 
