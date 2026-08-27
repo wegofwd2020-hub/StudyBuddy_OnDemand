@@ -7318,6 +7318,54 @@
         }
       }
     },
+    "/api/v1/schools/{school_id}/my-grade-scope": {
+      "get": {
+        "tags": [
+          "school"
+        ],
+        "summary": "My Grade Scope",
+        "description": "Which grades the caller may see (#647 follow-up).\n\nServed once rather than embedded in every list response, because scope is a\nproperty of the caller. Pages use it to explain an empty list instead of\nasserting something false about the school \u2014 see GradeScopeResponse.",
+        "operationId": "my_grade_scope_api_v1_schools__school_id__my_grade_scope_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "school_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "School Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GradeScopeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/schools/{school_id}/classrooms/{classroom_id}": {
       "get": {
         "tags": [
@@ -21625,6 +21673,28 @@
           "subjects"
         ],
         "title": "GradeCurriculum"
+      },
+      "GradeScopeResponse": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "grades": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Grades",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "title": "GradeScopeResponse",
+        "description": "Which grades the CALLER may see (#647 follow-up).\n\nScope is a property of the caller, not of any one report, so it is served\nonce here rather than embedded in every list response. The overview report\nstill embeds its own copy: there the caption must be guaranteed to match\nthat specific query.\n\nExists because grade-scoping alerts and classrooms made two empty states\nlie. A teacher with no assignments saw \"No active alerts \u2014 all clear.\" and\n\"No active classrooms yet.\" \u2014 both asserting a fact about the school when\nthe truth was \"you have no scope, and there may be things here you cannot\nsee\". False reassurance is worse than an empty list.\n\n`kind`: \"school\" (unrestricted) | \"grades\". An EMPTY `grades` list is the\nteacher-with-no-assignments case and is exactly what those pages need to\ndistinguish."
       },
       "GradeSummary": {
         "properties": {

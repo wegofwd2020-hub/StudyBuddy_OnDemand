@@ -723,3 +723,26 @@ class EnrolConfirmRequest(BaseModel):
 
 class EnrolConfirmResponse(BaseModel):
     school_name: str
+
+
+class GradeScopeResponse(BaseModel):
+    """Which grades the CALLER may see (#647 follow-up).
+
+    Scope is a property of the caller, not of any one report, so it is served
+    once here rather than embedded in every list response. The overview report
+    still embeds its own copy: there the caption must be guaranteed to match
+    that specific query.
+
+    Exists because grade-scoping alerts and classrooms made two empty states
+    lie. A teacher with no assignments saw "No active alerts — all clear." and
+    "No active classrooms yet." — both asserting a fact about the school when
+    the truth was "you have no scope, and there may be things here you cannot
+    see". False reassurance is worse than an empty list.
+
+    `kind`: "school" (unrestricted) | "grades". An EMPTY `grades` list is the
+    teacher-with-no-assignments case and is exactly what those pages need to
+    distinguish.
+    """
+
+    kind: str
+    grades: list[int] = []

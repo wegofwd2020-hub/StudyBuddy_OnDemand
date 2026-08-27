@@ -2847,6 +2847,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/schools/{school_id}/my-grade-scope": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * My Grade Scope
+         * @description Which grades the caller may see (#647 follow-up).
+         *
+         *     Served once rather than embedded in every list response, because scope is a
+         *     property of the caller. Pages use it to explain an empty list instead of
+         *     asserting something false about the school — see GradeScopeResponse.
+         */
+        get: operations["my_grade_scope_api_v1_schools__school_id__my_grade_scope_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/schools/{school_id}/classrooms/{classroom_id}": {
         parameters: {
             query?: never;
@@ -8078,6 +8102,34 @@ export interface components {
             grade: number;
             /** Subjects */
             subjects: components["schemas"]["Subject"][];
+        };
+        /**
+         * GradeScopeResponse
+         * @description Which grades the CALLER may see (#647 follow-up).
+         *
+         *     Scope is a property of the caller, not of any one report, so it is served
+         *     once here rather than embedded in every list response. The overview report
+         *     still embeds its own copy: there the caption must be guaranteed to match
+         *     that specific query.
+         *
+         *     Exists because grade-scoping alerts and classrooms made two empty states
+         *     lie. A teacher with no assignments saw "No active alerts — all clear." and
+         *     "No active classrooms yet." — both asserting a fact about the school when
+         *     the truth was "you have no scope, and there may be things here you cannot
+         *     see". False reassurance is worse than an empty list.
+         *
+         *     `kind`: "school" (unrestricted) | "grades". An EMPTY `grades` list is the
+         *     teacher-with-no-assignments case and is exactly what those pages need to
+         *     distinguish.
+         */
+        GradeScopeResponse: {
+            /** Kind */
+            kind: string;
+            /**
+             * Grades
+             * @default []
+             */
+            grades: number[];
         };
         /** GradeSummary */
         GradeSummary: {
@@ -15589,6 +15641,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ClassroomItem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    my_grade_scope_api_v1_schools__school_id__my_grade_scope_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                school_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GradeScopeResponse"];
                 };
             };
             /** @description Validation Error */

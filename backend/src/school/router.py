@@ -65,6 +65,7 @@ from src.school.schemas import (
     EnrolmentRosterResponse,
     EnrolmentUploadRequest,
     EnrolmentUploadResponse,
+    GradeScopeResponse,
     LibraryResponse,
     OverrideItem,
     PromoteTeacherResponse,
@@ -1147,6 +1148,30 @@ async def create_classroom_endpoint(
         created_at=result.get("created_at") or __import__("datetime").datetime.utcnow(),
         student_count=0,
         package_count=0,
+    )
+
+
+@router.get("/schools/{school_id}/my-grade-scope", response_model=GradeScopeResponse)
+async def my_grade_scope(
+    school_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> GradeScopeResponse:
+    """Which grades the caller may see (#647 follow-up).
+
+    Served once rather than embedded in every list response, because scope is a
+    property of the caller. Pages use it to explain an empty list instead of
+    asserting something false about the school — see GradeScopeResponse.
+    """
+    if teacher["school_id"] != school_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    async with get_db(request) as conn:
+        grades = await grade_filter(conn, teacher, school_id)
+
+    return GradeScopeResponse(
+        kind="school" if grades is None else "grades",
+        grades=[] if grades is None else grades,
     )
 
 
