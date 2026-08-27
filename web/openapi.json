@@ -19663,6 +19663,16 @@
               }
             ]
           },
+          "standing": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Standing"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "recent_activity": {
             "items": {
               "$ref": "#/components/schemas/RecentActivityItem"
@@ -25865,6 +25875,35 @@
         ],
         "title": "SnapshotListResponse"
       },
+      "Standing": {
+        "properties": {
+          "you": {
+            "type": "number",
+            "title": "You"
+          },
+          "cohort": {
+            "type": "number",
+            "title": "Cohort"
+          },
+          "cohort_size": {
+            "type": "integer",
+            "title": "Cohort Size"
+          },
+          "grade": {
+            "type": "integer",
+            "title": "Grade"
+          }
+        },
+        "type": "object",
+        "required": [
+          "you",
+          "cohort",
+          "cohort_size",
+          "grade"
+        ],
+        "title": "Standing",
+        "description": "The student's average beside their grade cohort's.\n\nOmitted entirely (None on the response) when the cohort is too small to\naggregate without disclosing an individual's record \u2014 see\n`_MIN_COHORT_FOR_STANDING` in service.py."
+      },
       "StartSessionRequest": {
         "properties": {
           "unit_id": {
@@ -26793,6 +26832,17 @@
           "pct": {
             "type": "number",
             "title": "Pct"
+          },
+          "avg_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avg Score"
           }
         },
         "type": "object",

@@ -7346,6 +7346,7 @@ export interface components {
             /** Subject Progress */
             subject_progress: components["schemas"]["SubjectProgress"][];
             next_unit: components["schemas"]["NextUnit"] | null;
+            standing?: components["schemas"]["Standing"] | null;
             /** Recent Activity */
             recent_activity: components["schemas"]["RecentActivityItem"][];
         };
@@ -9716,6 +9717,24 @@ export interface components {
             snapshots: components["schemas"]["SnapshotItem"][];
         };
         /**
+         * Standing
+         * @description The student's average beside their grade cohort's.
+         *
+         *     Omitted entirely (None on the response) when the cohort is too small to
+         *     aggregate without disclosing an individual's record — see
+         *     `_MIN_COHORT_FOR_STANDING` in service.py.
+         */
+        Standing: {
+            /** You */
+            you: number;
+            /** Cohort */
+            cohort: number;
+            /** Cohort Size */
+            cohort_size: number;
+            /** Grade */
+            grade: number;
+        };
+        /**
          * StartSessionRequest
          * @description Open a quiz session.
          *
@@ -10064,6 +10083,8 @@ export interface components {
             units_completed: number;
             /** Pct */
             pct: number;
+            /** Avg Score */
+            avg_score?: number | null;
         };
         /** SubjectProgressMap */
         SubjectProgressMap: {
