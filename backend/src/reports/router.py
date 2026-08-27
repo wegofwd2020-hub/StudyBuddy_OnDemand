@@ -286,6 +286,11 @@ async def overview_report(
             pool=request.app.state.pool,
             redis=get_redis(request),
         )
+    # Reported from the SAME filter that scoped the query above, so the caption
+    # on the page cannot describe a population the numbers do not cover (#640).
+    result["scope"] = (
+        {"kind": "school", "grades": []} if grades is None else {"kind": "grades", "grades": grades}
+    )
     return OverviewReport(**result)
 
 
