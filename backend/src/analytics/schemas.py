@@ -25,6 +25,7 @@ class LessonEndRequest(BaseModel):
     duration_s: int
     audio_played: bool = False
     experiment_viewed: bool = False
+    tutorial_viewed: bool = False
 
 
 class LessonEndResponse(BaseModel):

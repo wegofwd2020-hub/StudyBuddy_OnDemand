@@ -8182,6 +8182,11 @@ export interface components {
              * @default false
              */
             experiment_viewed: boolean;
+            /**
+             * Tutorial Viewed
+             * @default false
+             */
+            tutorial_viewed: boolean;
         };
         /** LessonEndResponse */
         LessonEndResponse: {

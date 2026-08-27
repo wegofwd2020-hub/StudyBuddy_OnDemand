@@ -510,6 +510,8 @@ Current migrations (as of last commit):
 | 0059 | Epic/#358 — `teacher_capabilities` table (RLS): additive `curriculum.commission` / `curriculum.review` / `curriculum_mgmt` grants |
 | 0060 | Authoring Studio (PR-A) — `authoring_projects`, `authoring_topic_versions`, `authoring_active_versions`, `authoring_snapshots` (platform/admin-scoped, no tenant RLS); extends `curricula.source_type` CHECK with `admin_authored`. Downgrade deletes `source_type='admin_authored'` curricula before reverting the CHECK |
 | 0061 | Server-side quiz grading — `progress_sessions.quiz_set` (SMALLINT, nullable, CHECK 1–3). Records which quiz set a session is graded against; `question_id` is `q1…qN` in every set with different answers, so the set must be pinned per session. See pitfall #35 |
+| 0062 | Student lesson feedback (#600/#612) — `feedback.message` nullable, `helpful` + `content_type` columns, `feedback_has_content` CHECK. Thumbs-down offers a comment box; a rating with no words is still a valid submission |
+| 0063 | #569 — `lesson_views.tutorial_viewed`, so lesson / tutorial / experiment views are distinguishable. The table already carried `experiment_viewed`, written by the end endpoint but never set by any page |
 
 ---
 
