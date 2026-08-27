@@ -89,6 +89,15 @@ export default function AlertsPage() {
                     <p className="text-sm font-medium text-gray-900">
                       {alertLabel(alert.alert_type)}
                     </p>
+                    {/* Which grade this alert is about (#647). The list is
+                        scoped to the teacher's grades; without the grade on
+                        screen a scoped list looks identical to an unscoped
+                        one, and the fix is unverifiable by eye. */}
+                    {alert.grade != null && (
+                      <span className="rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5 text-xs font-medium text-gray-600">
+                        Grade {alert.grade}
+                      </span>
+                    )}
                     <span className="text-xs text-gray-400">
                       {new Date(alert.triggered_at).toLocaleDateString()}
                     </span>

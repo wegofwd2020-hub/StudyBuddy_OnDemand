@@ -42,6 +42,7 @@ from src.analytics.service import (
 from src.auth.dependencies import get_current_student, get_current_teacher
 from src.content.service import resolve_curriculum_id
 from src.core.db import get_db
+from src.core.grade_scope import grade_filter
 from src.core.subjects import display_subject, resolve_subject_labels
 from src.utils.logger import get_logger
 
@@ -369,5 +370,20 @@ async def class_metrics(
             },
         )
     async with get_db(request) as conn:
-        result = await get_class_metrics(conn, school_id, grade=grade, subject=subject)
+        # #647 sweep: `?grade=` was honoured without checking the caller was
+        # assigned to that grade, and an unfiltered call returned the whole
+        # school. Both now go through the shared grade scope.
+        grades = await grade_filter(conn, teacher, school_id)
+        if grade is not None and grades is not None and grade not in set(grades):
+            raise HTTPException(
+                status_code=403,
+                detail={
+                    "error": "forbidden",
+                    "detail": "You are not assigned to that grade.",
+                    "correlation_id": cid,
+                },
+            )
+        result = await get_class_metrics(
+            conn, school_id, grade=grade, subject=subject, allowed_grades=grades
+        )
     return ClassMetricsResponse(**result)

@@ -237,6 +237,10 @@ class AlertItem(BaseModel):
     details: dict[str, Any]
     triggered_at: datetime
     acknowledged: bool
+    # Resolved from the alert's unit (#647). None when the unit is not in
+    # curriculum_units — such alerts are withheld from grade-restricted
+    # teachers, so a None here only ever reaches a school_admin.
+    grade: int | None = None
 
 
 class AlertListResponse(BaseModel):

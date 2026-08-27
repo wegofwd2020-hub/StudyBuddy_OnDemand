@@ -280,11 +280,19 @@ async def get_class_metrics(
     school_id: str,
     grade: int | None = None,
     subject: str | None = None,
+    allowed_grades: list[int] | None = None,
 ) -> dict:
     """
     Aggregate per-unit quiz metrics for all enrolled students in a school.
 
     struggle_flag = True when first_attempt_pass_rate_pct < 50% OR mean_attempts_to_pass > 2.
+
+    `allowed_grades` scopes the result to the caller's grades (#647).
+    None is unrestricted (`school_admin`); an EMPTY list is a teacher with no
+    assignments, who sees nothing. Found by the follow-up sweep this issue
+    called for, not by the report: an unscoped call returned every grade's unit
+    metrics, and `?grade=` was honoured without checking the caller was
+    assigned to it — the #576 bug verbatim, in an endpoint that sweep missed.
     """
     # All enrolled student IDs for the school (exclude rows where student hasn't linked yet).
     enrolled = await conn.fetch(
@@ -306,6 +314,12 @@ async def get_class_metrics(
     if grade is not None:
         params.append(grade)
         grade_filter = f"AND ps.grade = ${len(params)}"
+    elif allowed_grades is not None:
+        # No explicit ?grade=: a restricted caller still must not see the whole
+        # school. The empty list yields `= ANY('{}')`, which matches nothing —
+        # correct for a teacher with no assignments.
+        params.append(allowed_grades)
+        grade_filter = f"AND ps.grade = ANY(${len(params)}::smallint[])"
     if subject is not None:
         params.append(subject)
         subject_filter = f"AND ps.subject = ${len(params)}"

@@ -34,6 +34,7 @@ from fastapi.responses import FileResponse
 
 from src.auth.dependencies import get_current_teacher
 from src.core.db import get_db
+from src.core.grade_scope import grade_filter, permitted_grades
 from src.core.redis_client import get_redis
 from src.reports.schemas import (
     AlertListResponse,
@@ -100,27 +101,12 @@ async def _permitted_grades(
 ) -> set[int] | None:
     """Grades this teacher may see, or None meaning "no restriction".
 
-    The product already models per-teacher grade entitlement in
-    `teacher_grade_assignments` (migration 0023) and enforces it on roster
-    upload — reports never consulted it, so a Grade-8 teacher could read a
-    Grade-10 student's report card by changing a query parameter (#576).
-
-    `school_admin` is a teacher superset (ADR-005) and keeps full visibility.
-    A teacher with no assignments has no cohort, so they see no students rather
-    than every student — the previous behaviour was the latter.
+    Thin wrapper over `src.core.grade_scope` — the rule moved to core in #647
+    after living here caused it to be missed by two endpoints, one of them in
+    this very file (alerts). Kept as a local name so the ~20 call sites below
+    read unchanged.
     """
-    if teacher.get("role") == "school_admin":
-        return None
-
-    rows = await conn.fetch(
-        """
-        SELECT grade FROM teacher_grade_assignments
-        WHERE teacher_id = $1 AND school_id = $2
-        """,
-        uuid.UUID(str(teacher["teacher_id"])),
-        uuid.UUID(school_id),
-    )
-    return {r["grade"] for r in rows}
+    return await permitted_grades(conn, teacher, school_id)
 
 
 async def _grade_filter(
@@ -142,8 +128,7 @@ async def _grade_filter(
     "this figure cannot identify a student" a property of that endpoint instead
     of a subtlety inside a report that also serves names.
     """
-    permitted = await _permitted_grades(conn, teacher, school_id)
-    return None if permitted is None else sorted(permitted)
+    return await grade_filter(conn, teacher, school_id)
 
 
 def _deny_grade(request: Request) -> HTTPException:
@@ -541,7 +526,11 @@ async def list_alerts(
     """Return unacknowledged threshold alerts for the school."""
     _check_school(teacher, school_id, request)
     async with get_db(request) as conn:
-        result = await get_alerts(conn, school_id)
+        # Scoped to the caller's grades (#647): alerts filtered on school
+        # alone, so a Grade-8 teacher's landing page listed breaches for
+        # Grades 5, 10 and 11.
+        grades = await _grade_filter(conn, teacher, school_id)
+        result = await get_alerts(conn, school_id, grades)
     return AlertListResponse(**result)
 
 
