@@ -13,6 +13,8 @@ import {
 } from "@/lib/api/reports";
 import { listTeachers, getLibrary } from "@/lib/api/school-admin";
 import { SetupChecklist } from "@/components/school/SetupChecklist";
+import { NoGradesNotice, ScopeNote } from "@/components/school/ScopeNote";
+import { CommercialStrip } from "@/components/school/CommercialStrip";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LinkButton } from "@/components/ui/link-button";
@@ -282,9 +284,16 @@ export default function SchoolDashboard() {
         <div>
           <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h2 className="text-sm font-semibold tracking-wide text-gray-500 uppercase">
-                Overview
-              </h2>
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="text-sm font-semibold tracking-wide text-gray-500 uppercase">
+                  Overview
+                </h2>
+                {/* WHO the numbers cover, next to WHEN they cover (#640, §10).
+                    A teacher's figures mean their grades and an admin's mean
+                    the school — the page said neither, which is the defect the
+                    dashboard redesign was actually reported for. */}
+                <ScopeNote scope={overview?.scope} />
+              </div>
               <p className="mt-0.5 text-xs text-gray-400">
                 Showing {OVERVIEW_PERIOD_LABELS[period]}. Only these cards change with the
                 selector — alerts and other sections below are not filtered by it.
@@ -306,6 +315,10 @@ export default function SchoolDashboard() {
                 </button>
               ))}
             </div>
+          </div>
+
+          <div className="mb-3">
+            <NoGradesNotice scope={overview?.scope} />
           </div>
 
           {isLoading ? (
@@ -371,6 +384,11 @@ export default function SchoolDashboard() {
 
         {/* Layer 1.5 — first-run setup checklist (school_admin only) */}
         {isAdmin && schoolId && <SetupChecklist schoolId={schoolId} />}
+
+        {/* Seats / storage / build runs (#640, C3a) — the questions that end in
+            a bill or a blocked action. school_admin only: a teacher cannot act
+            on them. */}
+        {isAdmin && schoolId && <CommercialStrip schoolId={schoolId} />}
 
         {/* Empty library nudge — shown to school_admin when no curricula adopted yet */}
         {hasNoLibrary && (

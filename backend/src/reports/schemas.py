@@ -24,9 +24,38 @@ class AttemptDistribution(BaseModel):
 # ── Report 1: Class Overview ──────────────────────────────────────────────────
 
 
+class ReportScope(BaseModel):
+    """What population the figures in this report actually cover.
+
+    Since #576 a teacher's numbers mean THEIR GRADES and a school admin's mean
+    the whole school — the same tile, the same label, two different populations,
+    with nothing on screen saying which. That silence is the defect behind §0 of
+    the dashboard design, and it is what made a teacher reading "pass rate 62%"
+    unable to tell whose pass rate it was.
+
+    The scope is reported by the SERVER, derived from the same `_grade_filter`
+    that scoped the query. Re-deriving it in the client would let the caption
+    drift from the data it describes — the caption would still say "your grades:
+    8, 10" after the filter had changed, which is worse than no caption.
+
+    `kind`:
+        "school"    — unrestricted (school_admin); `grades` is empty
+        "grades"    — restricted to `grades`
+    A teacher with NO assignments is `kind="grades"` with an EMPTY list, which
+    is a real and distinct state: they legitimately see nothing. It must not be
+    collapsed into "school" (the pre-#576 bug) nor rendered as a blank caption —
+    all-zero tiles with no explanation is exactly the "can't tell 'not set up'
+    from 'broken'" problem in §4.2.
+    """
+
+    kind: str
+    grades: list[int] = []
+
+
 class OverviewReport(BaseModel):
     school_id: str
     period: str
+    scope: ReportScope
     enrolled_students: int
     active_students_period: int
     active_pct: float

@@ -14,7 +14,21 @@ export type ReportType =
 
 // ── Overview Report ───────────────────────────────────────────────────────────
 
+/**
+ * What population a report's figures cover. Reported by the server from the
+ * same filter that scoped the query, so a caption can never describe a
+ * population the numbers do not (#640).
+ *
+ * `kind: "grades"` with an EMPTY list is a real state — a teacher with no grade
+ * assignments legitimately sees nothing — and must not be read as "school".
+ */
+export interface ReportScope {
+  kind: "school" | "grades";
+  grades: number[];
+}
+
 export interface OverviewReport {
+  scope: ReportScope;
   school_id: string;
   period: string;
   enrolled_students: number;
