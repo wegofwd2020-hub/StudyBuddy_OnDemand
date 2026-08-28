@@ -56,8 +56,9 @@ export interface QuizQuestion {
   question_id: string;
   question: string;
   options: string[];
-  // No correct_index / explanation: the answer key is not sent to the browser.
-  // Both arrive in AnswerResponse once the student has committed to a choice.
+  // No correct_index / explanation: the answer key is not sent to the browser
+  // at all during the attempt. It arrives with the SUMMARY (#684) — see
+  // `QuestionReveal` on SessionEndResponse.
 }
 
 export interface QuizContent {
@@ -118,11 +119,22 @@ export interface SessionStartResponse {
   session_id: string;
 }
 
+/**
+ * Acknowledgement that an answer was recorded. Carries no verdict (#684):
+ * returning the key here let a student read the right option and re-answer for
+ * a perfect score, since re-answering overwrites the verdict.
+ */
 export interface AnswerResponse {
-  correct: boolean;
-  /** The server's answer, revealed only after the student has answered. */
+  recorded: boolean;
+}
+
+export interface QuestionReveal {
+  question_id: string;
   correct_index: number;
   explanation: string;
+  /** What the student picked; null if left blank or recorded pre-#667. */
+  your_answer: number | null;
+  correct: boolean;
 }
 
 export interface SessionEndResponse {
@@ -130,6 +142,8 @@ export interface SessionEndResponse {
   total: number;
   passed: boolean;
   attempt_number: number;
+  /** The answer key, released only once the attempt is closed (#684). */
+  reveal?: QuestionReveal[];
 }
 
 export type UnitStatus = "completed" | "needs_retry" | "in_progress" | "not_started";

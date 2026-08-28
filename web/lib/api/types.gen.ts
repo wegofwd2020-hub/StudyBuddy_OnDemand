@@ -7796,6 +7796,11 @@ export interface components {
             attempt_number: number;
             /** Ended At */
             ended_at: string;
+            /**
+             * Reveal
+             * @default []
+             */
+            reveal: components["schemas"]["QuestionReveal"][];
         };
         /**
          * EnrolConfirmRequest
@@ -8839,6 +8844,28 @@ export interface components {
              */
             visibility: string;
         };
+        /**
+         * QuestionReveal
+         * @description One question's answer, released at the end of the attempt (#684).
+         */
+        QuestionReveal: {
+            /** Question Id */
+            question_id: string;
+            /** Correct Index */
+            correct_index: number;
+            /**
+             * Explanation
+             * @default
+             */
+            explanation: string;
+            /** Your Answer */
+            your_answer?: number | null;
+            /**
+             * Correct
+             * @default false
+             */
+            correct: boolean;
+        };
         /** QuizOption */
         QuizOption: {
             /** Option Id */
@@ -8962,24 +8989,27 @@ export interface components {
         };
         /**
          * RecordAnswerResponse
-         * @description The server's verdict on the answer, plus the reveal.
+         * @description An acknowledgement that the answer was recorded. Deliberately no verdict.
          *
-         *     `correct_index` and `explanation` are returned HERE rather than shipped inside
-         *     the quiz payload, so the answer key never sits in the browser before the
-         *     student has committed to a choice.
+         *     This used to return `correct`, `correct_index` and `explanation` — the key
+         *     for the question just answered. Combined with re-answering, which overwrites
+         *     a question's verdict so that skip-and-return (#532) cannot double-count, that
+         *     let a student read the answer out of the response and answer again for a
+         *     perfect score without knowing any of the material (#684). Two individually
+         *     reasonable behaviours whose product was the hole.
+         *
+         *     The reveal now travels with the summary (`EndSessionResponse.reveal`), where
+         *     the UI has always shown it. Nothing mid-quiz needs it, so nothing mid-quiz
+         *     receives it.
          */
         RecordAnswerResponse: {
             /** Answer Id */
             answer_id: string;
-            /** Correct */
-            correct: boolean;
-            /** Correct Index */
-            correct_index: number;
             /**
-             * Explanation
-             * @default
+             * Recorded
+             * @default true
              */
-            explanation: string;
+            recorded: boolean;
         };
         /**
          * RefreshRequest

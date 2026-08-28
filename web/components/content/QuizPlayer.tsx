@@ -3,7 +3,7 @@
 import { useEffect, useReducer, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import type { QuizContent, AnswerResponse, SessionEndResponse } from "@/lib/types/api";
+import type { QuizContent, SessionEndResponse } from "@/lib/types/api";
 import { Button } from "@/components/ui/button";
 import { LinkButton } from "@/components/ui/link-button";
 import {
@@ -30,7 +30,6 @@ type SaveStatus = "idle" | "saving" | "saved" | "error";
 interface QuestionState {
   selectedIndex: number | null;
   /** Server verdict — held back until the summary; also drives the retry-on-error hint. */
-  result: AnswerResponse | null;
   save: SaveStatus;
 }
 
@@ -48,7 +47,7 @@ interface State {
 type Action =
   | { type: "GOTO"; index: number }
   | { type: "SELECT"; index: number; choice: number }
-  | { type: "SAVED"; index: number; result: AnswerResponse }
+  | { type: "SAVED"; index: number }
   | { type: "SAVE_ERROR"; index: number }
   | { type: "OPEN_CONFIRM" }
   | { type: "CLOSE_CONFIRM" }
@@ -84,17 +83,13 @@ function reducer(state: State, action: Action): State {
         // re-graded), and drop a stale error so the option looks live again.
         questions: patchQuestion(state, action.index, {
           selectedIndex: action.choice,
-          result: null,
           save: "saving",
         }),
       };
     case "SAVED":
       return {
         ...state,
-        questions: patchQuestion(state, action.index, {
-          result: action.result,
-          save: "saved",
-        }),
+        questions: patchQuestion(state, action.index, { save: "saved" }),
       };
     case "SAVE_ERROR":
       return {
@@ -149,7 +144,6 @@ export function QuizPlayer({ quiz, sessionId, onRetry }: QuizPlayerProps) {
     current: 0,
     questions: quiz.questions.map(() => ({
       selectedIndex: null,
-      result: null,
       save: "idle" as SaveStatus,
     })),
     confirming: false,
@@ -178,7 +172,7 @@ export function QuizPlayer({ quiz, sessionId, onRetry }: QuizPlayerProps) {
       question_id: question.question_id,
       answer_index: choice,
     })
-      .then((result) => dispatch({ type: "SAVED", index, result }))
+      .then(() => dispatch({ type: "SAVED", index }))
       .catch(() => dispatch({ type: "SAVE_ERROR", index }));
     pendingSaves.current.push(p);
   }
@@ -236,6 +230,9 @@ export function QuizPlayer({ quiz, sessionId, onRetry }: QuizPlayerProps) {
   // ── Summary screen ──────────────────────────────────────────────────────────
   if (state.phase === "summary" && state.result) {
     const { score: rawScore, total: rawTotal, passed, attempt_number } = state.result;
+    const revealByQuestion = new Map(
+      (state.result.reveal ?? []).map((r) => [r.question_id, r]),
+    );
     // Defensive clamp: never render an impossible result (e.g. 8/5 = 160%).
     const totalQ = rawTotal > 0 ? rawTotal : 1;
     const score = Math.max(0, Math.min(rawScore, totalQ));
@@ -274,9 +271,14 @@ export function QuizPlayer({ quiz, sessionId, onRetry }: QuizPlayerProps) {
         </h3>
         <ol className="space-y-4">
           {quiz.questions.map((question, qi) => {
-            const { selectedIndex, result } = state.questions[qi];
+            const { selectedIndex } = state.questions[qi];
             const answered = selectedIndex !== null;
-            const correctIndex = result?.correct_index ?? null;
+            // The key comes with the SUMMARY now, not with each answer (#684).
+            // Returning it per answer let a student read the right option and
+            // re-answer for a perfect score, since re-answering overwrites the
+            // verdict.
+            const revealed = revealByQuestion.get(question.question_id);
+            const correctIndex = revealed?.correct_index ?? null;
 
             return (
               <li
@@ -325,9 +327,9 @@ export function QuizPlayer({ quiz, sessionId, onRetry }: QuizPlayerProps) {
                     {tq("not_answered")}
                   </p>
                 )}
-                {result?.explanation && (
+                {revealed?.explanation && (
                   <div className="mt-3 rounded-md border bg-gray-50 p-3 text-sm text-gray-600">
-                    {result.explanation}
+                    {revealed.explanation}
                   </div>
                 )}
               </li>

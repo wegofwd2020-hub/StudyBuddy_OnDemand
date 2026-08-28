@@ -145,18 +145,20 @@ export const MOCK_SESSION_ID = "sess-test-001";
 // Mock answer responses (STU-21, STU-22)
 // ---------------------------------------------------------------------------
 
-export const MOCK_ANSWER_CORRECT: AnswerResponse = {
-  correct: true,
-  correct_index: 1,
-  explanation:
-    "The cell is the basic structural and functional unit of all living organisms.",
+// The answer endpoint is a bare acknowledgement since #684 — no verdict, no key.
+// The explanation text lives here because assertions still reference it; it is
+// delivered via MOCK_SESSION_END_PASSED.reveal, where the API now sends it.
+export const MOCK_ANSWER_EXPLANATION =
+  "The cell is the basic structural and functional unit of all living organisms.";
+
+export const MOCK_ANSWER_CORRECT: AnswerResponse & { explanation: string } = {
+  recorded: true,
+  explanation: MOCK_ANSWER_EXPLANATION,
 };
 
-export const MOCK_ANSWER_WRONG: AnswerResponse = {
-  correct: false,
-  correct_index: 1,
-  explanation:
-    "The cell is the basic structural and functional unit of all living organisms.",
+export const MOCK_ANSWER_WRONG: AnswerResponse & { explanation: string } = {
+  recorded: true,
+  explanation: MOCK_ANSWER_EXPLANATION,
 };
 
 // ---------------------------------------------------------------------------
@@ -168,6 +170,14 @@ export const MOCK_SESSION_END_PASSED: SessionEndResponse = {
   total: 3,
   passed: true,
   attempt_number: 1,
+  // The key arrives with the summary (#684).
+  reveal: MOCK_QUIZ.questions.map((q) => ({
+    question_id: q.question_id,
+    correct_index: 1,
+    explanation: MOCK_ANSWER_EXPLANATION,
+    your_answer: null,
+    correct: false,
+  })),
 };
 
 export const MOCK_SESSION_END_FAILED: SessionEndResponse = {

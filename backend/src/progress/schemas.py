@@ -73,17 +73,35 @@ class StartSessionResponse(BaseModel):
 
 class RecordAnswerResponse(BaseModel):
     """
-    The server's verdict on the answer, plus the reveal.
+    An acknowledgement that the answer was recorded. Deliberately no verdict.
 
-    `correct_index` and `explanation` are returned HERE rather than shipped inside
-    the quiz payload, so the answer key never sits in the browser before the
-    student has committed to a choice.
+    This used to return `correct`, `correct_index` and `explanation` — the key
+    for the question just answered. Combined with re-answering, which overwrites
+    a question's verdict so that skip-and-return (#532) cannot double-count, that
+    let a student read the answer out of the response and answer again for a
+    perfect score without knowing any of the material (#684). Two individually
+    reasonable behaviours whose product was the hole.
+
+    The reveal now travels with the summary (`EndSessionResponse.reveal`), where
+    the UI has always shown it. Nothing mid-quiz needs it, so nothing mid-quiz
+    receives it.
     """
 
     answer_id: str
-    correct: bool
+    recorded: bool = True
+
+
+class QuestionReveal(BaseModel):
+    """One question's answer, released at the end of the attempt (#684)."""
+
+    question_id: str
     correct_index: int
     explanation: str = ""
+    # What the student picked, so the summary can mark their choice. None when
+    # they left it blank, or when the attempt predates #667 and no index was
+    # recorded.
+    your_answer: int | None = None
+    correct: bool = False
 
 
 class EndSessionResponse(BaseModel):
@@ -93,6 +111,8 @@ class EndSessionResponse(BaseModel):
     passed: bool
     attempt_number: int
     ended_at: str
+    # The answer key, released only now that the attempt is closed (#684).
+    reveal: list[QuestionReveal] = []
 
 
 class ProgressAnswerRecord(BaseModel):

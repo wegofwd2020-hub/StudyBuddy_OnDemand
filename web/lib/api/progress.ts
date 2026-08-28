@@ -40,22 +40,12 @@ export async function submitAnswer(payload: {
 }): Promise<AnswerResponse> {
   const { session_id, question_id, answer_index, ms_taken = 0 } = payload;
 
-  const res = await api.post<{
-    answer_id: string;
-    correct: boolean;
-    correct_index: number;
-    explanation: string;
-  }>(`/progress/session/${session_id}/answer`, {
-    question_id,
-    student_answer: answer_index,
-    ms_taken,
-  });
+  const res = await api.post<{ answer_id: string; recorded: boolean }>(
+    `/progress/session/${session_id}/answer`,
+    { question_id, student_answer: answer_index, ms_taken },
+  );
 
-  return {
-    correct: res.data.correct,
-    correct_index: res.data.correct_index,
-    explanation: res.data.explanation ?? "",
-  };
+  return { recorded: res.data.recorded ?? true };
 }
 
 /**
