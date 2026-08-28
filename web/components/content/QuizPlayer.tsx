@@ -67,10 +67,18 @@ function patchQuestion(
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case "GOTO":
-      return { ...state, current: action.index };
+      // Leaving the question dismisses the finish confirmation (#666). It used
+      // to stay open, so the screen showed BOTH its "Finish anyway" and the
+      // footer's "Finish quiz" — two competing controls at the moment a student
+      // is deciding whether to submit. Covers Back, Next and the question
+      // number chips, all of which come through here.
+      return { ...state, current: action.index, confirming: false };
     case "SELECT":
       return {
         ...state,
+        // Answering also dismisses it: the panel states a count of unanswered
+        // questions, and that count is wrong the instant one is answered.
+        confirming: false,
         // Optimistic: highlight immediately, clear any prior verdict (it is being
         // re-graded), and drop a stale error so the option looks live again.
         questions: patchQuestion(state, action.index, {

@@ -158,3 +158,62 @@ describe("QuizPlayer", () => {
     });
   });
 });
+
+// ---------------------------------------------------------------------------
+// #666 — the finish confirmation must not outlive the question it was raised on
+// ---------------------------------------------------------------------------
+
+describe("QuizPlayer — finish confirmation dismissal (#666)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockSubmitAnswer.mockResolvedValue({
+      correct: true,
+      correct_index: SERVER_CORRECT_INDEX,
+      explanation: "",
+    });
+  });
+
+  /** Jump to the last question and raise the blank-answers confirmation. */
+  function openConfirmOnLastQuestion() {
+    render(<QuizPlayer quiz={QUIZ} sessionId="s1" />);
+    for (let i = 0; i < QUIZ.questions.length - 1; i++) {
+      fireEvent.click(screen.getByRole("button", { name: "next" }));
+    }
+    fireEvent.click(screen.getByRole("button", { name: "finish" }));
+    return screen.getByRole("alertdialog");
+  }
+
+  it("raises the confirmation when questions are unanswered", () => {
+    expect(openConfirmOnLastQuestion()).toBeInTheDocument();
+  });
+
+  it("dismisses it when the student goes Back", () => {
+    // Venki, 2026-08-28: the panel stayed, so the screen showed both its
+    // "Finish anyway" and the footer's "Finish quiz" — two competing controls
+    // at the moment a student decides whether to submit.
+    openConfirmOnLastQuestion();
+    fireEvent.click(screen.getByRole("button", { name: "back" }));
+
+    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+  });
+
+  it("leaves exactly one finish control after going Back", () => {
+    // The defect as seen, rather than via the dialog role.
+    openConfirmOnLastQuestion();
+    fireEvent.click(screen.getByRole("button", { name: "back" }));
+
+    expect(
+      screen.queryAllByRole("button", { name: "blank_warning_confirm" }),
+    ).toHaveLength(0);
+    expect(screen.getAllByRole("button", { name: "finish" })).toHaveLength(1);
+  });
+
+  it("dismisses it when the student answers instead", () => {
+    // The panel states a count of unanswered questions, and that count is wrong
+    // the instant one is answered.
+    openConfirmOnLastQuestion();
+    fireEvent.click(screen.getByText(QUIZ.questions[4].options[CORRECT]));
+
+    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+  });
+});
