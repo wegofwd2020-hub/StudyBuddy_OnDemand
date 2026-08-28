@@ -22,7 +22,12 @@ from datetime import UTC
 import asyncpg
 from config import settings
 
-from src.auth.service import create_internal_jwt, generate_default_password, hash_password
+from src.auth.service import (
+    create_internal_jwt,
+    generate_default_password,
+    hash_password,
+    temp_password_expiry,
+)
 from src.utils.logger import get_logger
 
 log = get_logger("school")
@@ -232,8 +237,9 @@ async def provision_teacher(
         """
         INSERT INTO teachers
             (teacher_id, school_id, external_auth_id, auth_provider,
-             name, email, password_hash, role, account_status, first_login)
-        VALUES ($1, $2, $3, 'local', $4, $5, $6, 'teacher', 'active', TRUE)
+             name, email, password_hash, role, account_status, first_login,
+             password_expires_at)
+        VALUES ($1, $2, $3, 'local', $4, $5, $6, 'teacher', 'active', TRUE, $7)
         """,
         uuid.UUID(teacher_id),
         uuid.UUID(school_id),
@@ -241,6 +247,7 @@ async def provision_teacher(
         name,
         email,
         password_hash,
+        temp_password_expiry(),
     )
 
     log.info("teacher_provisioned", teacher_id=teacher_id, school_id=school_id)
@@ -341,8 +348,9 @@ async def provision_student(
         """
         INSERT INTO students
             (student_id, school_id, external_auth_id, auth_provider,
-             name, email, password_hash, grade, account_status, first_login)
-        VALUES ($1, $2, $3, 'local', $4, $5, $6, $7, 'active', TRUE)
+             name, email, password_hash, grade, account_status, first_login,
+             password_expires_at)
+        VALUES ($1, $2, $3, 'local', $4, $5, $6, $7, 'active', TRUE, $8)
         """,
         uuid.UUID(student_id),
         uuid.UUID(school_id),
@@ -351,6 +359,7 @@ async def provision_student(
         email,
         password_hash,
         grade,
+        temp_password_expiry(),
     )
 
     # Provisioned students are immediately enrolled — write the enrolments row so
@@ -393,15 +402,19 @@ async def reset_teacher_password(conn: asyncpg.Connection, school_id: str, teach
     row = await conn.fetchrow(
         """
         UPDATE teachers
-           SET password_hash = $1,
-               first_login   = TRUE,
-               auth_provider = 'local'
+           SET password_hash       = $1,
+               first_login         = TRUE,
+               auth_provider       = 'local',
+               -- A reset issues a NEW temporary password, so the clock
+               -- restarts here as well as at provisioning (#664).
+               password_expires_at = $4
          WHERE teacher_id = $2 AND school_id = $3
         RETURNING teacher_id::text, name, email
         """,
         new_hash,
         uuid.UUID(teacher_id),
         uuid.UUID(school_id),
+        temp_password_expiry(),
     )
     if not row:
         return {}
@@ -471,15 +484,19 @@ async def reset_student_password(conn: asyncpg.Connection, school_id: str, stude
     row = await conn.fetchrow(
         """
         UPDATE students
-           SET password_hash = $1,
-               first_login   = TRUE,
-               auth_provider = 'local'
+           SET password_hash       = $1,
+               first_login         = TRUE,
+               auth_provider       = 'local',
+               -- A reset issues a NEW temporary password, so the clock
+               -- restarts here as well as at provisioning (#664).
+               password_expires_at = $4
          WHERE student_id = $2 AND school_id = $3
         RETURNING student_id::text, name, email
         """,
         new_hash,
         uuid.UUID(student_id),
         uuid.UUID(school_id),
+        temp_password_expiry(),
     )
     if not row:
         return {}
