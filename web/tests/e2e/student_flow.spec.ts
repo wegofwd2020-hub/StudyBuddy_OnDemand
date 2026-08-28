@@ -127,16 +127,10 @@ async function stubQuizApis(page: Page) {
       route.fulfill({ status: 400, json: { detail: { error: "unknown_question" } } });
       return;
     }
-    const correctIndex = MOCK_CORRECT_INDEXES[i];
-    route.fulfill({
-      status: 200,
-      json: {
-        answer_id: "",
-        correct: body.student_answer === correctIndex,
-        correct_index: correctIndex,
-        explanation: QUIZ_EXPLANATIONS[i],
-      },
-    });
+    // An acknowledgement only since #684 — no verdict, no key, no explanation.
+    // Returning them here let a student read the answer and re-answer for a
+    // perfect score. The reveal now comes with /end below.
+    route.fulfill({ status: 200, json: { answer_id: "", recorded: true } });
   });
   // POST /progress/session/{id}/end — backend returns total_questions, not total
   await page.route("**/api/v1/progress/session/*/end", (route) =>
@@ -149,12 +143,36 @@ async function stubQuizApis(page: Page) {
         passed: true,
         attempt_number: 1,
         ended_at: new Date().toISOString(),
+        // The answer key, released only now that the attempt is closed (#684).
+        reveal: MOCK_QUIZ.questions.map((q, i) => ({
+          question_id: q.question_id,
+          correct_index: MOCK_CORRECT_INDEXES[i],
+          explanation: QUIZ_EXPLANATIONS[i],
+          your_answer: MOCK_CORRECT_INDEXES[i],
+          correct: true,
+        })),
       },
     }),
   );
 }
 
 async function stubProgressApis(page: Page) {
+  // GET /student/progress — per-unit status for the Curriculum Map and the
+  // Subjects page (#677). Left unstubbed it falls through to the proxy and
+  // logs ECONNREFUSED on every run; the pages then render every unit as
+  // "not started", which is a silent dependence on a failure.
+  await page.route("**/api/v1/student/progress**", (route) =>
+    route.fulfill({
+      status: 200,
+      json: {
+        curriculum_id: "default-2026-g8",
+        pending_count: 0,
+        needs_retry_count: 0,
+        subjects: [],
+      },
+    }),
+  );
+
   // useProgressHistory → getProgressHistory → GET /progress/student?limit=...
   // Response must match the backend shape that getProgressHistory maps from.
   await page.route("**/api/v1/progress/student**", (route) =>
