@@ -117,10 +117,16 @@ export default function DashboardPage() {
                       Average score
                     </p>
                     <p className="mt-1 text-2xl font-bold text-gray-900">
-                      {data?.summary.avg_quiz_score ?? 0}%
+                      {Math.round(data?.summary.avg_quiz_score ?? 0)}%
                     </p>
+                    {/* Says its window (#669). This tile is ALL TIME while My
+                        Stats is scoped to a selected period; both were labelled
+                        "Average score" and neither said so, which read as one
+                        number disagreeing with itself. Rounded the same way on
+                        both screens, too — 61.8 beside 62 was partly just
+                        precision. */}
                     <p className="mt-1 text-xs text-gray-400">
-                      across every quiz you finished
+                      all time — every quiz you&apos;ve finished
                     </p>
                   </CardContent>
                 </Card>
@@ -155,7 +161,7 @@ export default function DashboardPage() {
                               failure rather than "not started". */}
                           {s.avg_score !== null && (
                             <span className="ml-2 font-medium text-gray-700">
-                              · {s.avg_score}% avg
+                              · {Math.round(s.avg_score)}% avg
                             </span>
                           )}
                         </p>

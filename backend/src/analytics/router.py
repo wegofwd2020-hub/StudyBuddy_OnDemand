@@ -231,11 +231,22 @@ async def student_stats(
     async with get_db(request) as conn:
         rows = await conn.fetch(
             f"""
+            -- One row per active day. Every total below is derived from
+            -- COMPLETED sessions only (#662): this counted every session row,
+            -- finished or not, under a tile labelled "Quizzes completed" —
+            -- 85 rows against 24 completed on the reporting student's account.
+            --
+            -- score_sum / question_sum carry the WEIGHTED average (#669):
+            -- questions right over questions answered. Averaging per-day
+            -- percentages weighted a day with one quiz the same as a day with
+            -- ten, which is why this tile and the dashboard's disagreed.
             SELECT DATE(started_at AT TIME ZONE 'UTC') AS session_date,
-                   COUNT(*) AS sessions,
-                   AVG(score::float / NULLIF(total_questions, 0) * 100) FILTER (WHERE score IS NOT NULL) AS avg_score,
-                   SUM(CASE WHEN passed THEN 1 ELSE 0 END) AS passed_count,
-                   COUNT(*) FILTER (WHERE score IS NOT NULL) AS scored_count
+                   COUNT(*) FILTER (WHERE completed) AS sessions,
+                   SUM(score) FILTER (WHERE completed AND score IS NOT NULL) AS score_sum,
+                   SUM(total_questions) FILTER (WHERE completed AND score IS NOT NULL)
+                       AS question_sum,
+                   COUNT(*) FILTER (WHERE completed AND passed) AS passed_count,
+                   COUNT(*) FILTER (WHERE completed AND score IS NOT NULL) AS scored_count
             FROM progress_sessions
             WHERE student_id = $1
               {period_clause}
@@ -249,7 +260,12 @@ async def student_stats(
         # Lesson views + audio in the selected period
         view_rows = await conn.fetch(
             f"""
-            SELECT COUNT(*) AS lessons_viewed,
+            -- DISTINCT lessons, not view events (#668). Re-opening one
+            -- lesson used to increment this, so the tile answered "how many
+            -- times did I open something" under a label promising "how many
+            -- lessons have I seen". Same defect as #655 (units done counted
+            -- sessions) in a third place.
+            SELECT COUNT(DISTINCT unit_id) AS lessons_viewed,
                    SUM(CASE WHEN audio_played THEN 1 ELSE 0 END) AS audio_sessions
             FROM lesson_views
             WHERE student_id = $1
@@ -290,10 +306,14 @@ async def student_stats(
             student_id,
         )
 
-    session_dates = [str(r["session_date"]) for r in rows]
+    # Days with at least one COMPLETED session. A day whose only session was
+    # abandoned is no longer plotted as activity.
+    session_dates = [str(r["session_date"]) for r in rows if r["sessions"]]
     total_sessions = sum(r["sessions"] for r in rows)
     total_scored = sum(r["scored_count"] for r in rows)
     total_passed = sum(r["passed_count"] for r in rows)
+    total_score = sum(int(r["score_sum"] or 0) for r in rows)
+    total_questions = sum(int(r["question_sum"] or 0) for r in rows)
 
     # Compute streak from today backwards over the fixed-window active days.
     from datetime import date, timedelta
@@ -306,10 +326,9 @@ async def student_stats(
         streak += 1
         check -= timedelta(days=1)
 
-    avg_score = 0.0
-    if rows:
-        scores = [r["avg_score"] for r in rows if r["avg_score"] is not None]
-        avg_score = sum(scores) / len(scores) if scores else 0.0
+    # Questions right over questions answered (#669) — the single definition,
+    # shared with the student dashboard. NOT a mean of per-day means.
+    avg_score = (total_score / total_questions * 100) if total_questions else 0.0
 
     vr = dict(view_rows[0]) if view_rows else {}
 

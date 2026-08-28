@@ -220,7 +220,16 @@ async def _build_dashboard(
         SELECT
             COUNT(DISTINCT CASE WHEN passed = TRUE THEN unit_id END)    AS units_completed,
             COUNT(CASE WHEN completed = TRUE AND passed = TRUE THEN 1 END) AS quizzes_passed,
-            AVG(CASE WHEN completed = TRUE THEN score::float / NULLIF(total_questions, 0) * 100 END) AS avg_pct
+            -- Questions right over questions answered (#669). This was an
+            -- unweighted mean of per-session percentages while /analytics/
+            -- student/stats used a mean of per-DAY means and the per-subject
+            -- cards below already used the weighted form — three definitions
+            -- of "average score" across two screens, which is what made the
+            -- dashboard read 61.8% beside My Stats' 62%.
+            SUM(score) FILTER (WHERE completed = TRUE AND score IS NOT NULL)
+                AS score_sum,
+            SUM(total_questions) FILTER (WHERE completed = TRUE AND score IS NOT NULL)
+                AS question_sum
         FROM progress_sessions
         WHERE student_id = $1
         """,
@@ -391,7 +400,11 @@ async def _build_dashboard(
             "quizzes_passed": stats_row["quizzes_passed"] or 0,
             "current_streak_days": streak.get("current", 0),
             "total_time_minutes": int(view_mins_row["total_minutes"] or 0),
-            "avg_quiz_score": round(float(stats_row["avg_pct"] or 0), 1),
+            "avg_quiz_score": (
+                round(int(stats_row["score_sum"]) / int(stats_row["question_sum"]) * 100, 1)
+                if stats_row["question_sum"]
+                else 0.0
+            ),
         },
         "subject_progress": subject_progress,
         "next_unit": next_unit,
