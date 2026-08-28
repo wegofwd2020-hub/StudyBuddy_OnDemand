@@ -43,8 +43,19 @@ vi.mock("@/lib/hooks/useCurriculumTree", () => ({
   useCurriculumTree: () => mockUseCurriculumTree(),
 }));
 
-vi.mock("@/lib/hooks/useProgress", () => ({
-  useProgressHistory: () => mockUseProgressHistory(),
+// The page reads per-unit status from the SERVER since #677 — it no longer
+// derives it in the browser from quiz sessions. The fixtures are unchanged;
+// only the seam moved, so `unit_progress` is adapted into the map the hook
+// hands back.
+vi.mock("@/lib/hooks/useProgressMap", () => ({
+  useUnitStatuses: () => {
+    const result = mockUseProgressHistory();
+    const statusByUnit = new Map<string, string>();
+    result?.data?.unit_progress?.forEach((up: { unit_id: string; status: string }) =>
+      statusByUnit.set(up.unit_id, up.status),
+    );
+    return { statusByUnit, isLoading: result?.isLoading ?? false };
+  },
 }));
 
 // A BookSpine's accessible name is its sr-only label: `${title}, status …`

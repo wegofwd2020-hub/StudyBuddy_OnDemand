@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { ArrowRight, BookOpen, CheckCircle2, Clock, Sparkles } from "lucide-react";
 
@@ -150,37 +151,45 @@ export default function DashboardPage() {
             ) : (
               <div className="space-y-2">
                 {data.subject_progress.map((s) => (
-                  <Card key={s.subject} className="border shadow-sm">
-                    <CardContent className="p-4">
-                      <div className="flex items-baseline justify-between gap-3">
-                        <p className="text-sm font-medium text-gray-900">{s.subject}</p>
-                        <p className="text-xs text-gray-500">
-                          {s.units_completed} of {s.units_total} units
-                          {/* null, not 0 — a student who has answered nothing
+                  // Clicking a subject opens it on the Subjects page (#677),
+                  // where the per-unit marks say which of "3 of 5" are done.
+                  <Link
+                    key={s.subject}
+                    href={`/subjects?subject=${encodeURIComponent(s.subject)}`}
+                    className="block rounded-xl focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+                  >
+                    <Card className="border shadow-sm transition-shadow hover:shadow-md">
+                      <CardContent className="p-4">
+                        <div className="flex items-baseline justify-between gap-3">
+                          <p className="text-sm font-medium text-gray-900">{s.subject}</p>
+                          <p className="text-xs text-gray-500">
+                            {s.units_completed} of {s.units_total} units
+                            {/* null, not 0 — a student who has answered nothing
                               has not scored zero, and showing 0% reads as
                               failure rather than "not started". */}
-                          {s.avg_score !== null && (
-                            <span className="ml-2 font-medium text-gray-700">
-                              · {Math.round(s.avg_score)}% avg
-                            </span>
-                          )}
-                        </p>
-                      </div>
-                      <div
-                        className="mt-2 h-2 w-full overflow-hidden rounded-full bg-gray-100"
-                        role="progressbar"
-                        aria-valuenow={Math.round(s.pct)}
-                        aria-valuemin={0}
-                        aria-valuemax={100}
-                        aria-label={`${s.subject} progress`}
-                      >
+                            {s.avg_score !== null && (
+                              <span className="ml-2 font-medium text-gray-700">
+                                · {Math.round(s.avg_score)}% avg
+                              </span>
+                            )}
+                          </p>
+                        </div>
                         <div
-                          className="h-full rounded-full bg-indigo-500"
-                          style={{ width: `${Math.min(s.pct, 100)}%` }}
-                        />
-                      </div>
-                    </CardContent>
-                  </Card>
+                          className="mt-2 h-2 w-full overflow-hidden rounded-full bg-gray-100"
+                          role="progressbar"
+                          aria-valuenow={Math.round(s.pct)}
+                          aria-valuemin={0}
+                          aria-valuemax={100}
+                          aria-label={`${s.subject} progress`}
+                        >
+                          <div
+                            className="h-full rounded-full bg-indigo-500"
+                            style={{ width: `${Math.min(s.pct, 100)}%` }}
+                          />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
                 ))}
               </div>
             )}
