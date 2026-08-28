@@ -40,8 +40,17 @@ def make_student_token(
     locale: str = "en",
     account_status: str = "active",
     expire_minutes: int = 15,
+    school_id: str | None = None,
 ) -> str:
-    """Return a signed student JWT for testing."""
+    """Return a signed student JWT for testing.
+
+    `school_id` is omitted unless supplied, which keeps existing tests as they
+    were. Real student tokens DO carry it (auth/router.py) and several endpoints
+    resolve the curriculum from it — notably the curriculum tree and content
+    serving, whose classroom-package step is skipped entirely without it. A
+    school-enrolled student is the production norm, so tests covering that path
+    need to be able to mint one.
+    """
     sid = student_id or _DEFAULT_STUDENT_ID
     now = datetime.now(tz=UTC)
     payload = {
@@ -55,6 +64,8 @@ def make_student_token(
         # jti is a JWT nonce — random is intentional; tests never assert on it.
         "jti": str(uuid.uuid4()),
     }
+    if school_id is not None:
+        payload["school_id"] = school_id
     return jwt.encode(payload, TEST_JWT_SECRET, algorithm=JWT_ALGORITHM)
 
 

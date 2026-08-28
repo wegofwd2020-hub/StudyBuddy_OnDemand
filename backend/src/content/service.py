@@ -24,6 +24,7 @@ from src.core.cache_keys import (
     content_key,
     csv_key,
     cur_key,
+    curs_key,
     ent_key,
     quiz_set_key,
     school_ent_key,
@@ -338,20 +339,62 @@ async def resolve_curriculum_id(
     needs a way for the student to choose which school they are working in — an
     explicit product decision, not a change to this function alone.
     """
-    key = cur_key(student_id, school_id)
+    ids = await resolve_curriculum_ids(
+        student_id, grade, pool, redis, year=year, school_id=school_id
+    )
+    return ids[0]
+
+
+async def resolve_curriculum_ids(
+    student_id: str,
+    grade: int,
+    pool: asyncpg.Pool,
+    redis,
+    year: int = 2026,
+    school_id: str | None = None,
+) -> list[str]:
+    """
+    Every curriculum a student's content comes from, in order.
+
+    A classroom may carry several packages and they are ADDITIVE and DISTINCT
+    (product decision, 2026-08-28, #651): the student's curriculum is the UNION
+    of its packages, not one of them. Resolution used to take
+
+        ORDER BY cl.created_at DESC LIMIT 1
+
+    — the classroom's creation date, then an arbitrary package among that
+    classroom's several — which is why a Grade 11 student on the demo was served
+    Grade 8 content while two other packages sat unread.
+
+    `resolve_curriculum_id` returns element [0] of this list, so the single-
+    curriculum callers (serving one unit, cache keys) cannot disagree with the
+    additive ones about which curriculum is primary. One resolver, as ever.
+
+    Ordering is `sort_order, assigned_at, curriculum_id` — deterministic, and it
+    finally reads the `classroom_packages.sort_order` column that has existed
+    unused since the table was created.
+
+    Distinctness is already enforced by the table's PRIMARY KEY
+    (classroom_id, curriculum_id); nothing yet prevents two packages from
+    containing the SAME unit, which is a separate guard at assignment time.
+    """
+    key = curs_key(student_id, school_id)
     cached = await redis.get(key)
     if cached:
         try:
-            return cached.decode() if isinstance(cached, bytes) else cached
+            raw = cached.decode() if isinstance(cached, bytes) else cached
+            ids = json.loads(raw)
+            if isinstance(ids, list) and ids:
+                return ids
         except Exception:
             pass
 
-    curriculum_id: str | None = None
+    ids: list[str] = []
     async with pool.acquire() as conn:
-        # Set RLS session variable upfront so both step 1 and step 2 can see
-        # school-owned rows. Without this, curricula with owner_type='school'
-        # are filtered out by the RLS USING clause even though the JOIN
-        # condition references the correct school_id FK column.
+        # Set RLS session variable upfront so both steps can see school-owned
+        # rows. Without this, curricula with owner_type='school' are filtered
+        # out by the RLS USING clause even though the JOIN condition references
+        # the correct school_id FK column.
         if school_id:
             await conn.execute("SELECT set_config('app.current_school_id', $1, false)", school_id)
 
@@ -369,33 +412,32 @@ async def resolve_curriculum_id(
             student_id,
         )
         if row:
-            curriculum_id = row["curriculum_id"]
+            ids = [row["curriculum_id"]]
 
-        # 2. Classroom package assignment — resolves stream-specific platform
-        #    curricula (e.g. default-2026-g11-commerce). Session variable already
-        #    set above if school_id is present.
-        if not curriculum_id and school_id:
-            row = await conn.fetchrow(
+        # 2. Classroom packages — ALL of them (#651), in a stable order.
+        if not ids and school_id:
+            rows = await conn.fetch(
                 """
-                SELECT cp.curriculum_id
+                SELECT DISTINCT cp.curriculum_id, cp.sort_order, cp.assigned_at
                 FROM classroom_students cs
                 JOIN classrooms cl ON cl.classroom_id = cs.classroom_id
                 JOIN classroom_packages cp ON cp.classroom_id = cl.classroom_id
                 WHERE cs.student_id = $1
-                ORDER BY cl.created_at DESC
-                LIMIT 1
+                ORDER BY cp.sort_order, cp.assigned_at, cp.curriculum_id
                 """,
                 student_id,
             )
-            if row:
-                curriculum_id = row["curriculum_id"]
+            ids = [r["curriculum_id"] for r in rows]
 
     # 3. Default STEM fallback
-    if not curriculum_id:
-        curriculum_id = f"default-{year}-g{grade}"
+    if not ids:
+        ids = [f"default-{year}-g{grade}"]
 
-    await redis.set(key, curriculum_id, ex=_CSV_TTL)
-    return curriculum_id
+    await redis.set(key, json.dumps(ids), ex=_CSV_TTL)
+    # Keep the single-id cache in step with the set, so a caller reading either
+    # gets the same primary.
+    await redis.set(cur_key(student_id, school_id), ids[0], ex=_CSV_TTL)
+    return ids
 
 
 # ── Content block check ───────────────────────────────────────────────────────
