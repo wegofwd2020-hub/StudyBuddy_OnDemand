@@ -104,7 +104,7 @@ export default function DemoTeacherDashboard() {
         <p className="mt-8 text-center text-xs text-gray-400">
           Want full access?{" "}
           <a
-            href="/school"
+            href="/school/dashboard"
             className="text-cyan-600 underline underline-offset-2 hover:text-cyan-800"
           >
             Learn about school accounts →

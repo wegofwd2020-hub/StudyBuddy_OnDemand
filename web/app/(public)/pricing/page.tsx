@@ -130,7 +130,7 @@ export default function PricingPage() {
               <LinkButton
                 variant="outline"
                 className="w-full justify-center"
-                href="/schools/register"
+                href="/school/register"
               >
                 Get started free
               </LinkButton>
