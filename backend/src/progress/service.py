@@ -79,18 +79,34 @@ async def resolve_session_quiz_set(
     return set_number
 
 
-async def tally_answer(redis, session_id: str, question_id: str, correct: bool) -> None:
+async def tally_answer(
+    redis,
+    session_id: str,
+    question_id: str,
+    correct: bool,
+    answer_index: int | None = None,
+) -> None:
     """
     Record one graded answer against the session's per-question tally.
 
-    Stored as a Redis HASH field (question_id → "1"/"0") rather than a counter so
-    the write is idempotent: answering the same question again — which the
-    skip-and-return UI (#532) makes possible — overwrites its verdict instead of
-    incrementing a blind total. end_session reads this back without waiting on the
+    Stored as a Redis HASH field rather than a counter so the write is
+    idempotent: answering the same question again — which the skip-and-return UI
+    (#532) makes possible — overwrites its verdict instead of incrementing a
+    blind total. end_session reads this back without waiting on the
     fire-and-forget DB write (perf rule #4).
+
+    The field value is `"<verdict>:<answer_index>"`, e.g. `"1:2"`. The verdict
+    is what scoring reads; the index is what lets a REFRESH restore the options
+    the student had picked (#667) — before this, the page came back blank and a
+    student could not tell which questions they had already done.
+
+    Legacy `"1"` / `"0"` fields (sessions in flight when this shipped) are still
+    read correctly by `read_tally`; they simply carry no index to restore.
     """
     key = quiz_answers_key(session_id)
-    await redis.hset(key, question_id, "1" if correct else "0")
+    verdict = "1" if correct else "0"
+    value = verdict if answer_index is None else f"{verdict}:{answer_index}"
+    await redis.hset(key, question_id, value)
     await redis.expire(key, _TALLY_TTL)
 
 
@@ -106,7 +122,38 @@ async def read_tally(redis, session_id: str) -> int | None:
     values = await redis.hvals(quiz_answers_key(session_id))
     if not values:
         return None
-    return sum(1 for v in values if (v.decode() if isinstance(v, bytes) else v) == "1")
+    # The verdict is the first character; anything after ":" is the recorded
+    # answer index (#667). Plain "1"/"0" is the pre-#667 form and still counts.
+    return sum(
+        1 for v in values if (v.decode() if isinstance(v, bytes) else v).split(":", 1)[0] == "1"
+    )
+
+
+async def read_answered(redis, session_id: str) -> dict[str, int]:
+    """
+    question_id -> the option index the student picked, for resuming (#667).
+
+    Deliberately does NOT return whether the answer was correct. The player
+    withholds the reveal until the summary (#532), and a resume must not become
+    a way around that — see #684 for the related hole where the per-answer
+    response already leaks the key.
+
+    Questions recorded before #667 have no index stored and are omitted: the
+    page cannot restore a selection it was never told about, and guessing one
+    would show the student an answer they did not give.
+    """
+    raw = await redis.hgetall(quiz_answers_key(session_id))
+    if not raw:
+        return {}
+
+    answered: dict[str, int] = {}
+    for k, v in raw.items():
+        question_id = k.decode() if isinstance(k, bytes) else k
+        value = v.decode() if isinstance(v, bytes) else v
+        _, _, index = value.partition(":")
+        if index.isdigit():
+            answered[question_id] = int(index)
+    return answered
 
 
 async def count_correct_answers(conn: asyncpg.Connection, session_id: str) -> int:

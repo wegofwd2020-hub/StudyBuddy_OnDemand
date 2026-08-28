@@ -123,3 +123,24 @@ export async function getProgressHistory(limit = 20): Promise<ProgressHistory> {
   // dead code would just wait for someone to pick it up again.
   return { sessions };
 }
+
+/**
+ * Which options the student has already picked in this session (#667).
+ *
+ * A refresh mid-quiz used to clear every selection on screen. The answers were
+ * never lost — they are graded server-side as they are given and the session
+ * resumes with the same question set (#646) — the page just could not read them
+ * back, so a student re-answered questions they had already done.
+ *
+ * Returns the picked index only, never whether it was correct: the reveal
+ * belongs to the summary (#532).
+ */
+export async function getSessionAnswers(
+  sessionId: string,
+): Promise<{ question_id: string; answer_index: number }[]> {
+  const res = await api.get<{
+    session_id: string;
+    answers: { question_id: string; answer_index: number }[];
+  }>(`/progress/session/${sessionId}/answers`);
+  return res.data.answers;
+}

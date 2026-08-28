@@ -1,6 +1,6 @@
 "use client";
 
-import { useReducer, useRef } from "react";
+import { useEffect, useReducer, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import type { QuizContent, AnswerResponse, SessionEndResponse } from "@/lib/types/api";
@@ -15,7 +15,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { submitAnswer, endSession } from "@/lib/api/progress";
+import { submitAnswer, endSession, getSessionAnswers } from "@/lib/api/progress";
 
 // ─── State machine ────────────────────────────────────────────────────────────
 //
@@ -52,6 +52,7 @@ type Action =
   | { type: "SAVE_ERROR"; index: number }
   | { type: "OPEN_CONFIRM" }
   | { type: "CLOSE_CONFIRM" }
+  | { type: "RESTORE"; byPosition: Map<number, number> }
   | { type: "FINISHING" }
   | { type: "FINISH_ERROR" }
   | { type: "FINISHED"; result: SessionEndResponse };
@@ -100,6 +101,19 @@ function reducer(state: State, action: Action): State {
         ...state,
         questions: patchQuestion(state, action.index, { save: "error" }),
       };
+    case "RESTORE": {
+      // Re-seat the options the student had already picked (#667). Selections
+      // only — `result` stays null, because the reveal belongs to the summary
+      // (#532) and the resume payload carries no verdicts to leak.
+      let changed = false;
+      const questions = state.questions.map((q, i) => {
+        const restored = action.byPosition.get(i);
+        if (restored === undefined || q.selectedIndex !== null) return q;
+        changed = true;
+        return { ...q, selectedIndex: restored, save: "saved" as SaveStatus };
+      });
+      return changed ? { ...state, questions } : state;
+    }
     case "OPEN_CONFIRM":
       return { ...state, confirming: true };
     case "CLOSE_CONFIRM":
@@ -168,6 +182,31 @@ export function QuizPlayer({ quiz, sessionId, onRetry }: QuizPlayerProps) {
       .catch(() => dispatch({ type: "SAVE_ERROR", index }));
     pendingSaves.current.push(p);
   }
+
+  // Restore prior selections after a refresh (#667). Runs once per session:
+  // the server is the record of what was answered, and until this the page came
+  // back blank while those answers were safely graded and stored.
+  useEffect(() => {
+    let cancelled = false;
+    getSessionAnswers(sessionId)
+      .then((answers) => {
+        if (cancelled || answers.length === 0) return;
+        const positionOf = new Map(quiz.questions.map((q, i) => [q.question_id, i]));
+        const byPosition = new Map<number, number>();
+        for (const a of answers) {
+          const i = positionOf.get(a.question_id);
+          if (i !== undefined) byPosition.set(i, a.answer_index);
+        }
+        if (byPosition.size > 0) dispatch({ type: "RESTORE", byPosition });
+      })
+      // A failure here costs the student their highlighted options, not their
+      // answers — the score is server-side either way, so it must not block the
+      // quiz or raise an error at them.
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [sessionId, quiz.questions]);
 
   async function doFinish() {
     dispatch({ type: "FINISHING" });

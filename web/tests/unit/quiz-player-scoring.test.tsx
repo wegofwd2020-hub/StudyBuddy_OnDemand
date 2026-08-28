@@ -22,10 +22,16 @@ import type { QuizContent } from "@/lib/types/api";
 
 const mockSubmitAnswer = vi.fn();
 const mockEndSession = vi.fn();
+// #667: the player asks the server which options were already picked, so a
+// refresh restores them. Defaults to "nothing answered yet".
+const mockGetSessionAnswers = vi.fn(
+  async () => [] as { question_id: string; answer_index: number }[],
+);
 
 vi.mock("@/lib/api/progress", () => ({
   submitAnswer: (...args: unknown[]) => mockSubmitAnswer(...args),
   endSession: (...args: unknown[]) => mockEndSession(...args),
+  getSessionAnswers: (...args: unknown[]) => mockGetSessionAnswers(...args),
 }));
 
 vi.mock("next-intl", () => ({
@@ -215,5 +221,68 @@ describe("QuizPlayer — finish confirmation dismissal (#666)", () => {
     fireEvent.click(screen.getByText(QUIZ.questions[4].options[CORRECT]));
 
     expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// #667 — a refresh restores the options already picked
+// ---------------------------------------------------------------------------
+
+describe("QuizPlayer — resuming after a refresh (#667)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockSubmitAnswer.mockResolvedValue({
+      correct: true,
+      correct_index: SERVER_CORRECT_INDEX,
+      explanation: "",
+    });
+  });
+
+  it("re-seats the option the student had already picked", async () => {
+    // Venki, 2026-08-28: after a refresh the page came back blank, so a student
+    // re-answered questions they had already done, unable to tell which.
+    mockGetSessionAnswers.mockResolvedValue([{ question_id: "q1", answer_index: WRONG }]);
+
+    render(<QuizPlayer quiz={QUIZ} sessionId="s1" />);
+
+    const picked = await screen.findByRole("button", {
+      name: new RegExp(QUIZ.questions[0].options[WRONG]),
+      pressed: true,
+    });
+    expect(picked).toBeInTheDocument();
+  });
+
+  it("does not reveal whether the restored answer was right", async () => {
+    // The reveal belongs to the summary (#532). A resume must not become a way
+    // around it — the payload carries no verdict, and none is rendered.
+    mockGetSessionAnswers.mockResolvedValue([{ question_id: "q1", answer_index: WRONG }]);
+
+    render(<QuizPlayer quiz={QUIZ} sessionId="s1" />);
+    await screen.findByRole("button", {
+      name: new RegExp(QUIZ.questions[0].options[WRONG]),
+      pressed: true,
+    });
+
+    expect(screen.queryByText(/Because that is the right one/)).not.toBeInTheDocument();
+  });
+
+  it("leaves the quiz untouched when nothing was answered yet", async () => {
+    mockGetSessionAnswers.mockResolvedValue([]);
+
+    render(<QuizPlayer quiz={QUIZ} sessionId="s1" />);
+    await waitFor(() => expect(mockGetSessionAnswers).toHaveBeenCalled());
+
+    expect(screen.queryByRole("button", { pressed: true })).not.toBeInTheDocument();
+  });
+
+  it("still lets the student take the quiz if the restore call fails", async () => {
+    // Losing the highlights costs nothing that matters — the answers are
+    // server-side — so a failure must not block the quiz or surface an error.
+    mockGetSessionAnswers.mockRejectedValue(new Error("network"));
+
+    render(<QuizPlayer quiz={QUIZ} sessionId="s1" />);
+
+    fireEvent.click(await screen.findByText(QUIZ.questions[0].options[CORRECT]));
+    await waitFor(() => expect(mockSubmitAnswer).toHaveBeenCalled());
   });
 });

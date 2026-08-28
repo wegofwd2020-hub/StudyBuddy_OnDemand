@@ -47,6 +47,7 @@ from src.progress.service import (
     end_session,
     get_raw_history,
     pin_session_quiz_set,
+    read_answered,
     read_tally,
     resolve_session_quiz_set,
     tally_answer,
@@ -235,7 +236,14 @@ async def record_answer(
     # may not exist yet when the session ends. This is what end_session reads.
     # Keyed by question_id so re-answering (skip-and-return, #532) can't inflate
     # the score — the field is overwritten, not counted twice.
-    await tally_answer(redis, session_id=session_id, question_id=body.question_id, correct=correct)
+    await tally_answer(
+        redis,
+        session_id=session_id,
+        question_id=body.question_id,
+        correct=correct,
+        # Recorded so a refresh can restore what the student picked (#667).
+        answer_index=body.student_answer,
+    )
 
     # Fire-and-forget Celery task for the actual write — with the SERVER's verdict
     from src.core.celery_app import celery_app
@@ -410,6 +418,63 @@ async def end_session_endpoint(
     )
 
     return EndSessionResponse(**result)
+
+
+@router.get("/progress/session/{session_id}/answers", status_code=200)
+async def session_answers(
+    session_id: str,
+    request: Request,
+    student: Annotated[dict, Depends(get_current_student)],
+) -> dict:
+    """
+    Which options this student has already picked in this session (#667).
+
+    Refreshing mid-quiz used to clear every selection on screen. The answers were
+    never lost — they are graded server-side as they are given (#506) and the
+    session resumes with the same question set (#646) — but the page could not
+    read them back, so a student saw an empty quiz and re-answered questions they
+    had already done, unable to tell which.
+
+    Returns ONLY the picked option index per question. Never whether it was
+    correct: the player withholds the reveal until the summary (#532), and a
+    resume must not become a way around that.
+
+    Read from the Redis tally rather than `progress_answers`, because answer
+    writes are fire-and-forget and the rows may not exist yet — the same reason
+    end_session reads the tally (pitfall #35).
+    """
+    student_id = str(student["student_id"])
+    cid = getattr(request.state, "correlation_id", "")
+
+    async with get_db(request) as conn:
+        try:
+            await verify_session_owner(conn, session_id, student_id)
+        except LookupError:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "error": "session_not_found",
+                    "detail": "Session not found.",
+                    "correlation_id": cid,
+                },
+            )
+        except PermissionError:
+            raise HTTPException(
+                status_code=403,
+                detail={
+                    "error": "forbidden",
+                    "detail": "This session belongs to another student.",
+                    "correlation_id": cid,
+                },
+            )
+
+    answered = await read_answered(request.app.state.redis, session_id)
+    return {
+        "session_id": session_id,
+        "answers": [
+            {"question_id": qid, "answer_index": idx} for qid, idx in sorted(answered.items())
+        ],
+    }
 
 
 @router.get("/progress/student", response_model=ProgressHistoryResponse, status_code=200)
