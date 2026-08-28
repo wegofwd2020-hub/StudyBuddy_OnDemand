@@ -147,6 +147,7 @@ export interface ProgressSession {
   attempt_number: number;
 }
 
+/** Per-unit progress as the SERVER reports it (see `useProgressMap`). */
 export interface UnitProgress {
   unit_id: string;
   status: UnitStatus;
@@ -157,7 +158,6 @@ export interface UnitProgress {
 
 export interface ProgressHistory {
   sessions: ProgressSession[];
-  unit_progress: UnitProgress[];
 }
 
 // ─── Analytics ───────────────────────────────────────────────────────────────

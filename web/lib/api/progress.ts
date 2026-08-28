@@ -115,33 +115,11 @@ export async function getProgressHistory(limit = 20): Promise<ProgressHistory> {
     attempt_number: s.attempt_number,
   }));
 
-  // Derive unit_progress from sessions
-  const byUnit = new Map<string, typeof raw.sessions>();
-  for (const s of raw.sessions) {
-    if (!byUnit.has(s.unit_id)) byUnit.set(s.unit_id, []);
-    byUnit.get(s.unit_id)!.push(s);
-  }
-
-  const unit_progress = Array.from(byUnit.entries()).map(([unit_id, unitSessions]) => {
-    const completed = unitSessions.filter((s) => s.completed);
-    const passed = completed.filter((s) => s.passed);
-    const scores = completed.map((s) => s.score).filter((s): s is number => s !== null);
-    const best_score = scores.length ? Math.max(...scores) : null;
-    const last = unitSessions.reduce((a, b) => (a.started_at > b.started_at ? a : b));
-
-    let status: "completed" | "needs_retry" | "in_progress" | "not_started";
-    if (passed.length > 0) status = "completed";
-    else if (completed.length > 0) status = "needs_retry";
-    else status = "in_progress";
-
-    return {
-      unit_id,
-      status,
-      best_score,
-      attempts: unitSessions.length,
-      last_attempted_at: last.started_at,
-    };
-  });
-
-  return { sessions, unit_progress };
+  // No unit_progress here any more (#677). This used to derive a unit's status
+  // in the browser from quiz sessions alone — a definition separate from the
+  // server's, with no lesson input and no `not_started` branch, which is why
+  // #675's fix was invisible on the Curriculum Map. Status now comes from
+  // /student/progress via `useProgressMap`; leaving the derivation behind as
+  // dead code would just wait for someone to pick it up again.
+  return { sessions };
 }
