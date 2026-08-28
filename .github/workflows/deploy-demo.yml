@@ -59,7 +59,7 @@ jobs:
       # so a stale box cannot report success (#583).
       short_sha: ${{ steps.sha.outputs.short }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Set short SHA
         id: sha
@@ -110,7 +110,7 @@ jobs:
       issues: write   # incident-opener step creates `incident:demo` issues
     steps:
       - name: Checkout (for scripts/demo/smoke.sh)
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Add SSH host to known_hosts
         run: |
