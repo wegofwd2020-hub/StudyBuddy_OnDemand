@@ -9,7 +9,7 @@
  * the component level. Tests here verify href construction and data shape.
  */
 
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, within } from "@testing-library/react";
 import SubjectsPage from "@/app/(student)/subjects/page";
 import {
@@ -38,6 +38,22 @@ vi.mock("next/link", () => ({
 }));
 
 const mockUseCurriculumTree = vi.fn();
+const mockUseUnitStatuses = vi.fn(() => ({
+  statusByUnit: new Map<string, string>(),
+  isLoading: false,
+}));
+
+// Per-unit status comes from the server (#677). Mocked at the hook so these
+// tests stay about rendering rather than needing a QueryClientProvider.
+vi.mock("@/lib/hooks/useProgressMap", () => ({
+  useUnitStatuses: () => mockUseUnitStatuses(),
+}));
+
+const mockSearchParams = vi.fn(() => new URLSearchParams());
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => mockSearchParams(),
+}));
+
 vi.mock("@/lib/hooks/useCurriculumTree", () => ({
   useCurriculumTree: () => mockUseCurriculumTree(),
 }));
@@ -219,8 +235,75 @@ describe("STU-13 — Unit buttons and hrefs", () => {
     });
     const { container } = render(<SubjectsPage />);
 
-    const svgs = container.querySelectorAll("svg");
-    expect(svgs).toHaveLength(0);
+    // Was `querySelectorAll("svg")).toHaveLength(0)`, which stood in for "no
+    // flask" only while the flask was the ONLY icon on the row. Since #677 every
+    // unit also carries a status mark, so the assertion now targets the flask
+    // itself rather than counting icons.
+    const flasks = container.querySelectorAll(".text-purple-500");
+    expect(flasks).toHaveLength(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// #677 — which units are done, and getting to them
+// ---------------------------------------------------------------------------
+
+describe("#677 — per-unit status and subject deep link", () => {
+  beforeEach(() => {
+    mockSearchParams.mockReturnValue(new URLSearchParams());
+    mockUseUnitStatuses.mockReturnValue({
+      statusByUnit: new Map<string, string>(),
+      isLoading: false,
+    });
+  });
+
+  it("marks each unit with the status the server reports", () => {
+    const units = MOCK_CURRICULUM_TREE.subjects[0].units;
+    mockUseCurriculumTree.mockReturnValue({
+      data: MOCK_CURRICULUM_TREE,
+      isLoading: false,
+      isError: false,
+    });
+    mockUseUnitStatuses.mockReturnValue({
+      statusByUnit: new Map([[units[0].unit_id, "completed"]]),
+      isLoading: false,
+    });
+
+    render(<SubjectsPage />);
+    fireEvent.click(screen.getByRole("button", { name: "Mathematics" }));
+
+    // The mark is icon-only, so its accessible name is what a screen reader
+    // and this test both read.
+    expect(screen.getAllByText("Completed").length).toBeGreaterThan(0);
+  });
+
+  it("a unit the server knows nothing about reads as not started", () => {
+    mockUseCurriculumTree.mockReturnValue({
+      data: MOCK_CURRICULUM_TREE,
+      isLoading: false,
+      isError: false,
+    });
+
+    render(<SubjectsPage />);
+    fireEvent.click(screen.getByRole("button", { name: "Mathematics" }));
+
+    expect(screen.getAllByText("Not started").length).toBeGreaterThan(0);
+  });
+
+  it("opens the subject named in the query string", () => {
+    // The dashboard's subject card links here; landing on a closed shelf and
+    // making the student find the subject again defeats the point (#677).
+    mockUseCurriculumTree.mockReturnValue({
+      data: MOCK_CURRICULUM_TREE,
+      isLoading: false,
+      isError: false,
+    });
+    mockSearchParams.mockReturnValue(new URLSearchParams("subject=Mathematics"));
+
+    render(<SubjectsPage />);
+
+    const units = MOCK_CURRICULUM_TREE.subjects[0].units;
+    expect(screen.getByText(units[0].title)).toBeInTheDocument();
   });
 });
 

@@ -481,28 +481,51 @@ async def _build_standing(
 # ── Progress map ──────────────────────────────────────────────────────────────
 
 
-async def get_progress_map(conn: asyncpg.Connection, student_id: str) -> dict:
+async def get_progress_map(
+    conn: asyncpg.Connection,
+    student_id: str,
+    *,
+    redis=None,
+    pool=None,
+    grade: int | None = None,
+) -> dict:
     """
     Return the curriculum map with per-unit status badges.
     Reads from mv_student_curriculum_progress.
+
+    Curriculum resolution goes through the shared resolver when the caller can
+    supply what it needs. This used to pick "any curriculum I have touched,
+    LIMIT 1" — pitfall #31 again, and the same defect fixed on the dashboard in
+    #640: a brand-new student matched nothing and saw an empty map, and a
+    student on a school fork matched a curriculum holding no units.
+
+    It mattered less while nothing called this endpoint. #677 points the
+    Subjects page and the Curriculum Map at it, so it matters now.
     """
-    # Get all curricula this student has interacted with
-    curriculum_ids = await conn.fetch(
-        """
-        SELECT DISTINCT curriculum_id FROM (
-            SELECT curriculum_id FROM progress_sessions WHERE student_id = $1
-            UNION
-            SELECT curriculum_id FROM lesson_views WHERE student_id = $1
-        ) t
-        LIMIT 1
-        """,
-        student_id,
-    )
+    curriculum_id = await _resolve_dashboard_curriculum(conn, redis, student_id, pool, grade)
 
-    if not curriculum_ids:
-        return {"curriculum_id": "", "pending_count": 0, "needs_retry_count": 0, "subjects": []}
-
-    curriculum_id = curriculum_ids[0]["curriculum_id"]
+    if not curriculum_id:
+        # Fall back to the old behaviour when the caller cannot supply the
+        # resolver's inputs, rather than returning nothing to existing callers.
+        touched = await conn.fetch(
+            """
+            SELECT DISTINCT curriculum_id FROM (
+                SELECT curriculum_id FROM progress_sessions WHERE student_id = $1
+                UNION
+                SELECT curriculum_id FROM lesson_views WHERE student_id = $1
+            ) t
+            LIMIT 1
+            """,
+            student_id,
+        )
+        if not touched:
+            return {
+                "curriculum_id": "",
+                "pending_count": 0,
+                "needs_retry_count": 0,
+                "subjects": [],
+            }
+        curriculum_id = touched[0]["curriculum_id"]
 
     # All units in this curriculum
     units = await conn.fetch(
