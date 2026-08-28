@@ -54,6 +54,10 @@ jobs:
     permissions:
       contents: read
       packages: write
+    outputs:
+      # The deploy job checks the running containers against this exact tag,
+      # so a stale box cannot report success (#583).
+      short_sha: ${{ steps.sha.outputs.short }}
     steps:
       - uses: actions/checkout@v6
 
@@ -162,8 +166,79 @@ jobs:
               up -d --force-recreate --no-deps nginx
           '
 
-      - name: Wait for containers to settle
-        run: sleep 30
+      # The heart of #583: a green run used to prove only that commands exited 0.
+      # On 2026-08-14 the box was still serving images from nine days earlier
+      # while the workflow reported success, so every "merged and deployed"
+      # claim — including ones made to the QA tester — rested on a separate
+      # manual check.
+      #
+      # Compose pins `:latest`, so a pull that silently no-ops leaves the old
+      # image running. The build job also tags `:<short-sha>`, which names
+      # exactly what this run produced; comparing image IDs turns "did it ship?"
+      # into a question the workflow can answer itself.
+      - name: Verify the running containers are the images just built
+        env:
+          SHORT_SHA: ${{ needs.build-and-push.outputs.short_sha }}
+          OWNER: ${{ env.GHCR_REPO_OWNER }}
+        run: |
+          # Piped over stdin rather than embedded in the ssh argument: the
+          # quoting for a nested shell is where this kind of check quietly
+          # stops checking anything.
+          ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} \
+            "SHORT_SHA='$SHORT_SHA' OWNER='$OWNER' bash -s" <<'REMOTE'
+          set -uo pipefail
+          cd /opt/studybuddy
+          DC="sudo /usr/bin/docker compose -f docker-compose.yml -f docker-compose.demo.yml --env-file .env.demo"
+          fail=0
+          for svc in api web; do
+            want_ref="ghcr.io/${OWNER}/studybuddy-${svc}:${SHORT_SHA}"
+            # Same layers as :latest when the deploy worked, so this costs
+            # almost nothing — and it names a reference that cannot be stale.
+            if ! sudo /usr/bin/docker pull -q "$want_ref" >/dev/null 2>&1; then
+              echo "::error::could not pull $want_ref"
+              fail=1
+              continue
+            fi
+            want=$(sudo /usr/bin/docker image inspect --format '{{.Id}}' "$want_ref")
+            cid=$($DC ps -q "$svc")
+            if [ -z "$cid" ]; then
+              echo "::error::service $svc is not running"
+              fail=1
+              continue
+            fi
+            got=$(sudo /usr/bin/docker inspect --format '{{.Image}}' "$cid")
+            if [ "$want" != "$got" ]; then
+              echo "::error::$svc is NOT running the image this run built"
+              echo "  built:   $want"
+              echo "  running: $got"
+              fail=1
+            else
+              echo "$svc ok — running $SHORT_SHA"
+            fi
+          done
+          exit $fail
+          REMOTE
+
+      # Was `sleep 30`. A fixed wait is a guess about startup time, and on
+      # 2026-08-28 it guessed wrong: the smoke check ran against containers that
+      # were still coming up, went red, and opened an incident (#687) for a
+      # deploy that had in fact shipped correctly. A red run that actually
+      # succeeded is worse than a slow one — the reflex is to roll back
+      # something that is fine.
+      - name: Wait until the demo is actually serving
+        run: |
+          set -uo pipefail
+          for i in $(seq 1 40); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' \
+                     https://demo.usestudybuddy.com/healthz --max-time 10 || echo 000)
+            if [ "$code" = "200" ]; then
+              echo "ready after $((i * 3))s"
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "::error::demo did not return 200 from /healthz within 120s"
+          exit 1
 
       # Smoke targets the public hostname, not DEMO_VPS_HOST. The latter is the
       # bare VPS IP used for SSH; hitting `https://<IP>/healthz` from the runner
