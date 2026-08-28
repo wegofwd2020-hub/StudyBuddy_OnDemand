@@ -99,6 +99,15 @@ describe("QuizPlayer", () => {
       total: 5,
       passed: true,
       attempt_number: 1,
+      // The key travels with the SUMMARY since #684 — the answer response is a
+      // bare acknowledgement, so this is where the reveal has to come from.
+      reveal: QUIZ.questions.map((q) => ({
+        question_id: q.question_id,
+        correct_index: SERVER_CORRECT_INDEX,
+        explanation: "Because that is the right one.",
+        your_answer: null,
+        correct: false,
+      })),
     });
   });
 

@@ -4,6 +4,7 @@ import type {
   AnswerResponse,
   SessionEndResponse,
   ProgressHistory,
+  QuestionReveal,
 } from "@/lib/types/api";
 
 /**
@@ -40,22 +41,12 @@ export async function submitAnswer(payload: {
 }): Promise<AnswerResponse> {
   const { session_id, question_id, answer_index, ms_taken = 0 } = payload;
 
-  const res = await api.post<{
-    answer_id: string;
-    correct: boolean;
-    correct_index: number;
-    explanation: string;
-  }>(`/progress/session/${session_id}/answer`, {
-    question_id,
-    student_answer: answer_index,
-    ms_taken,
-  });
+  const res = await api.post<{ answer_id: string; recorded: boolean }>(
+    `/progress/session/${session_id}/answer`,
+    { question_id, student_answer: answer_index, ms_taken },
+  );
 
-  return {
-    correct: res.data.correct,
-    correct_index: res.data.correct_index,
-    explanation: res.data.explanation ?? "",
-  };
+  return { recorded: res.data.recorded ?? true };
 }
 
 /**
@@ -70,6 +61,7 @@ export async function endSession(sessionId: string): Promise<SessionEndResponse>
     passed: boolean;
     attempt_number: number;
     ended_at: string;
+    reveal?: QuestionReveal[];
   }>(`/progress/session/${sessionId}/end`, {});
 
   // Map total_questions → total for the SessionEndResponse type
@@ -78,6 +70,10 @@ export async function endSession(sessionId: string): Promise<SessionEndResponse>
     total: res.data.total_questions,
     passed: res.data.passed,
     attempt_number: res.data.attempt_number,
+    // The answer key, released only now the attempt is closed (#684). This
+    // mapper lists fields explicitly, so anything added to the response has to
+    // be added here too or it is silently dropped before the UI sees it.
+    reveal: res.data.reveal ?? [],
   };
 }
 

@@ -20773,6 +20773,14 @@
           "ended_at": {
             "type": "string",
             "title": "Ended At"
+          },
+          "reveal": {
+            "items": {
+              "$ref": "#/components/schemas/QuestionReveal"
+            },
+            "type": "array",
+            "title": "Reveal",
+            "default": []
           }
         },
         "type": "object",
@@ -23421,6 +23429,46 @@
         "type": "object",
         "title": "PublishRequest"
       },
+      "QuestionReveal": {
+        "properties": {
+          "question_id": {
+            "type": "string",
+            "title": "Question Id"
+          },
+          "correct_index": {
+            "type": "integer",
+            "title": "Correct Index"
+          },
+          "explanation": {
+            "type": "string",
+            "title": "Explanation",
+            "default": ""
+          },
+          "your_answer": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Your Answer"
+          },
+          "correct": {
+            "type": "boolean",
+            "title": "Correct",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "question_id",
+          "correct_index"
+        ],
+        "title": "QuestionReveal",
+        "description": "One question's answer, released at the end of the attempt (#684)."
+      },
       "QuizOption": {
         "properties": {
           "option_id": {
@@ -23783,28 +23831,18 @@
             "type": "string",
             "title": "Answer Id"
           },
-          "correct": {
+          "recorded": {
             "type": "boolean",
-            "title": "Correct"
-          },
-          "correct_index": {
-            "type": "integer",
-            "title": "Correct Index"
-          },
-          "explanation": {
-            "type": "string",
-            "title": "Explanation",
-            "default": ""
+            "title": "Recorded",
+            "default": true
           }
         },
         "type": "object",
         "required": [
-          "answer_id",
-          "correct",
-          "correct_index"
+          "answer_id"
         ],
         "title": "RecordAnswerResponse",
-        "description": "The server's verdict on the answer, plus the reveal.\n\n`correct_index` and `explanation` are returned HERE rather than shipped inside\nthe quiz payload, so the answer key never sits in the browser before the\nstudent has committed to a choice."
+        "description": "An acknowledgement that the answer was recorded. Deliberately no verdict.\n\nThis used to return `correct`, `correct_index` and `explanation` \u2014 the key\nfor the question just answered. Combined with re-answering, which overwrites\na question's verdict so that skip-and-return (#532) cannot double-count, that\nlet a student read the answer out of the response and answer again for a\nperfect score without knowing any of the material (#684). Two individually\nreasonable behaviours whose product was the hole.\n\nThe reveal now travels with the summary (`EndSessionResponse.reveal`), where\nthe UI has always shown it. Nothing mid-quiz needs it, so nothing mid-quiz\nreceives it."
       },
       "RefreshRequest": {
         "properties": {

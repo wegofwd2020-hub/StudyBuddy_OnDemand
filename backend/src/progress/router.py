@@ -263,12 +263,10 @@ async def record_answer(
         queue="io",
     )
 
-    return RecordAnswerResponse(
-        answer_id="",
-        correct=correct,
-        correct_index=correct_index,
-        explanation=entry.get("explanation", ""),
-    )
+    # An acknowledgement only. The verdict and the key travel with the summary
+    # (#684): returning them here let a student read the answer and re-answer
+    # for a perfect score, because re-answering overwrites the verdict.
+    return RecordAnswerResponse(answer_id="", recorded=True)
 
 
 @router.post(
@@ -354,6 +352,9 @@ async def end_session_endpoint(
 
         # The quiz's real length is the answer key's — not whatever the client says.
         total_questions = body.total_questions or 1
+        # Bound before the try: the FileNotFoundError branch below leaves it
+        # unset otherwise, and the reveal reads it afterwards (#684).
+        answer_key: dict | None = None
         try:
             set_number = await resolve_session_quiz_set(
                 redis,
@@ -379,6 +380,24 @@ async def end_session_endpoint(
             # Content gone since the attempt started — fall back to the client's
             # hint for the denominator only. The score itself is still ours.
             log.warning("quiz_answer_key_missing_at_end", correlation_id=cid)
+
+        # The reveal, released now that the attempt is closed (#684). Built from
+        # the answer key already resolved above and the picked indexes the tally
+        # records since #667, so it costs no extra lookup.
+        reveal: list[dict] = []
+        if answer_key:
+            picked = await read_answered(redis, session_id)
+            for question_id, entry in answer_key.items():
+                mine = picked.get(question_id)
+                reveal.append(
+                    {
+                        "question_id": question_id,
+                        "correct_index": entry["index"],
+                        "explanation": entry.get("explanation", ""),
+                        "your_answer": mine,
+                        "correct": mine is not None and mine == entry["index"],
+                    }
+                )
 
         try:
             result = await end_session(
@@ -417,7 +436,7 @@ async def end_session_endpoint(
         "src.auth.tasks.refresh_progress_view_task", kwargs={"student_id": student_id}, queue="io"
     )
 
-    return EndSessionResponse(**result)
+    return EndSessionResponse(**result, reveal=reveal)
 
 
 @router.get("/progress/session/{session_id}/answers", status_code=200)
