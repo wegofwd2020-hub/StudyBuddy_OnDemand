@@ -1922,6 +1922,56 @@
         }
       }
     },
+    "/api/v1/progress/session/{session_id}/answers": {
+      "get": {
+        "tags": [
+          "progress"
+        ],
+        "summary": "Session Answers",
+        "description": "Which options this student has already picked in this session (#667).\n\nRefreshing mid-quiz used to clear every selection on screen. The answers were\nnever lost \u2014 they are graded server-side as they are given (#506) and the\nsession resumes with the same question set (#646) \u2014 but the page could not\nread them back, so a student saw an empty quiz and re-answered questions they\nhad already done, unable to tell which.\n\nReturns ONLY the picked option index per question. Never whether it was\ncorrect: the player withholds the reveal until the summary (#532), and a\nresume must not become a way around that.\n\nRead from the Redis tally rather than `progress_answers`, because answer\nwrites are fire-and-forget and the rows may not exist yet \u2014 the same reason\nend_session reads the tally (pitfall #35).",
+        "operationId": "session_answers_api_v1_progress_session__session_id__answers_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Session Answers Api V1 Progress Session  Session Id  Answers Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/progress/student": {
       "get": {
         "tags": [

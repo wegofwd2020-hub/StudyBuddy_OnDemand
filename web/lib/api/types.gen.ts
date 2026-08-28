@@ -967,6 +967,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/progress/session/{session_id}/answers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Session Answers
+         * @description Which options this student has already picked in this session (#667).
+         *
+         *     Refreshing mid-quiz used to clear every selection on screen. The answers were
+         *     never lost — they are graded server-side as they are given (#506) and the
+         *     session resumes with the same question set (#646) — but the page could not
+         *     read them back, so a student saw an empty quiz and re-answered questions they
+         *     had already done, unable to tell which.
+         *
+         *     Returns ONLY the picked option index per question. Never whether it was
+         *     correct: the player withholds the reveal until the summary (#532), and a
+         *     resume must not become a way around that.
+         *
+         *     Read from the Redis tally rather than `progress_answers`, because answer
+         *     writes are fire-and-forget and the rows may not exist yet — the same reason
+         *     end_session reads the tally (pitfall #35).
+         */
+        get: operations["session_answers_api_v1_progress_session__session_id__answers_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/progress/student": {
         parameters: {
             query?: never;
@@ -12461,6 +12495,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EndSessionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    session_answers_api_v1_progress_session__session_id__answers_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
             /** @description Validation Error */
