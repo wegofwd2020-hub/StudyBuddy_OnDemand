@@ -83,6 +83,8 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository_owner }}/studybuddy-api:latest
             ghcr.io/${{ github.repository_owner }}/studybuddy-api:${{ steps.sha.outputs.short }}
+          build-args: |
+            BUILD_ID=${{ steps.sha.outputs.short }}
           cache-from: type=gha,scope=api
           cache-to: type=gha,scope=api,mode=max
 
@@ -96,6 +98,7 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/studybuddy-web:${{ steps.sha.outputs.short }}
           build-args: |
             NEXT_PUBLIC_DEMO_MODE=true
+            NEXT_PUBLIC_BUILD_ID=${{ steps.sha.outputs.short }}
           cache-from: type=gha,scope=web
           cache-to: type=gha,scope=web,mode=max
 
@@ -176,49 +179,6 @@ jobs:
       # image running. The build job also tags `:<short-sha>`, which names
       # exactly what this run produced; comparing image IDs turns "did it ship?"
       # into a question the workflow can answer itself.
-      - name: Verify the running containers are the images just built
-        env:
-          SHORT_SHA: ${{ needs.build-and-push.outputs.short_sha }}
-          OWNER: ${{ env.GHCR_REPO_OWNER }}
-        run: |
-          # Piped over stdin rather than embedded in the ssh argument: the
-          # quoting for a nested shell is where this kind of check quietly
-          # stops checking anything.
-          ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} \
-            "SHORT_SHA='$SHORT_SHA' OWNER='$OWNER' bash -s" <<'REMOTE'
-          set -uo pipefail
-          cd /opt/studybuddy
-          DC="sudo /usr/bin/docker compose -f docker-compose.yml -f docker-compose.demo.yml --env-file .env.demo"
-          fail=0
-          for svc in api web; do
-            want_ref="ghcr.io/${OWNER}/studybuddy-${svc}:${SHORT_SHA}"
-            # Same layers as :latest when the deploy worked, so this costs
-            # almost nothing — and it names a reference that cannot be stale.
-            if ! sudo /usr/bin/docker pull -q "$want_ref" >/dev/null 2>&1; then
-              echo "::error::could not pull $want_ref"
-              fail=1
-              continue
-            fi
-            want=$(sudo /usr/bin/docker image inspect --format '{{.Id}}' "$want_ref")
-            cid=$($DC ps -q "$svc")
-            if [ -z "$cid" ]; then
-              echo "::error::service $svc is not running"
-              fail=1
-              continue
-            fi
-            got=$(sudo /usr/bin/docker inspect --format '{{.Image}}' "$cid")
-            if [ "$want" != "$got" ]; then
-              echo "::error::$svc is NOT running the image this run built"
-              echo "  built:   $want"
-              echo "  running: $got"
-              fail=1
-            else
-              echo "$svc ok — running $SHORT_SHA"
-            fi
-          done
-          exit $fail
-          REMOTE
-
       # Was `sleep 30`. A fixed wait is a guess about startup time, and on
       # 2026-08-28 it guessed wrong: the smoke check ran against containers that
       # were still coming up, went red, and opened an incident (#687) for a
@@ -239,6 +199,45 @@ jobs:
           done
           echo "::error::demo did not return 200 from /healthz within 120s"
           exit 1
+
+      # #583's acceptance, and the first version of this check got it wrong:
+      # it compared image IDs over SSH using `sudo docker pull` / `inspect`,
+      # which the deploy user is not permitted to run —
+      #
+      #   (root) NOPASSWD: /usr/bin/docker compose *, ...
+      #
+      # I had tested it as root, so it passed by hand and failed in CI. Asking
+      # the running app what it is needs no sudo at all, and is what the issue
+      # asked for: "compares a build identifier from the running app against the
+      # commit being deployed".
+      - name: Verify the demo is running THIS commit
+        env:
+          SHORT_SHA: ${{ needs.build-and-push.outputs.short_sha }}
+        run: |
+          set -uo pipefail
+          fail=0
+
+          api=$(curl -s https://demo.usestudybuddy.com/api/v1/health --max-time 15 \
+                  | python3 -c 'import json,sys; print(json.load(sys.stdin).get("build",""))' \
+                  2>/dev/null || echo "")
+          if [ "$api" != "$SHORT_SHA" ]; then
+            echo "::error::api is not running this commit — expected '$SHORT_SHA', got '$api'"
+            fail=1
+          else
+            echo "api ok — running $SHORT_SHA"
+          fi
+
+          web=$(curl -s https://demo.usestudybuddy.com/build-id --max-time 15 \
+                  | python3 -c 'import json,sys; print(json.load(sys.stdin).get("build_id",""))' \
+                  2>/dev/null || echo "")
+          if [ "$web" != "$SHORT_SHA" ]; then
+            echo "::error::web is not running this commit — expected '$SHORT_SHA', got '$web'"
+            fail=1
+          else
+            echo "web ok — running $SHORT_SHA"
+          fi
+
+          exit $fail
 
       # Smoke targets the public hostname, not DEMO_VPS_HOST. The latter is the
       # bare VPS IP used for SSH; hitting `https://<IP>/healthz` from the runner

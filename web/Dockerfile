@@ -26,6 +26,11 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # container has no effect once the bundle is baked.
 ARG NEXT_PUBLIC_DEMO_MODE=""
 ENV NEXT_PUBLIC_DEMO_MODE=$NEXT_PUBLIC_DEMO_MODE
+# Build identifier, so a deploy can prove WHICH commit is running (#583).
+# #583's own example was a STALE WEB IMAGE, so the web tier needs this as much
+# as the API does. Served by app/build-id/route.ts.
+ARG NEXT_PUBLIC_BUILD_ID="dev"
+ENV NEXT_PUBLIC_BUILD_ID=$NEXT_PUBLIC_BUILD_ID
 RUN npm run build
 
 # Stage 3: minimal production runtime

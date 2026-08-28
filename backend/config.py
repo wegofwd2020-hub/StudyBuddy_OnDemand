@@ -22,6 +22,10 @@ class Settings(BaseSettings):
     # ── Application ──────────────────────────────────────────────────────────
     APP_ENV: str = "development"
     APP_VERSION: str = "0.1.0"
+    # The commit this image was built from, baked in at build time and reported
+    # by GET /health so a deploy can prove what is running (#583). "dev" for a
+    # local build.
+    BUILD_ID: str = "dev"
     DEBUG: bool = False
     LOG_LEVEL: str = "INFO"
 

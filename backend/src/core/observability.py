@@ -221,6 +221,9 @@ async def _readiness_check(request: Request) -> dict:
         "db": db_status,
         "redis": redis_status,
         "version": settings.APP_VERSION,
+        # Which commit is actually running (#583). APP_VERSION is a human label
+        # set per environment; this is the build identity.
+        "build": settings.BUILD_ID,
     }
 
     if db_status != "ok" or redis_status != "ok":
