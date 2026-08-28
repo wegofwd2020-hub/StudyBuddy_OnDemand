@@ -513,6 +513,7 @@ Current migrations (as of last commit):
 | 0062 | Student lesson feedback (#600/#612) — `feedback.message` nullable, `helpful` + `content_type` columns, `feedback_has_content` CHECK. Thumbs-down offers a comment box; a rating with no words is still a valid submission |
 | 0063 | #569 — `lesson_views.tutorial_viewed`, so lesson / tutorial / experiment views are distinguishable. The table already carried `experiment_viewed`, written by the end endpoint but never set by any page |
 | 0064 | #664 — `password_expires_at` on `teachers` + `students`. Bounds a school-ISSUED temporary password; NULL means no expiry (a user's own password, or an account provisioned before this shipped — backfilling a date would lock them out). Enforced at login only when `first_login` is still TRUE |
+| 0065 | #675 — `mv_student_curriculum_progress` rebuilt to union `lesson_views` with `progress_sessions`, so `in_progress` means "reached the unit" rather than "abandoned a quiz" and `not_started` means genuinely untouched. Quiz figures stay quiz-only. Downgrade restores the old MEANING with a sound key — 0003's GROUP BY included subject/grade while its unique index did not, which cannot be rebuilt against real data |
 
 ---
 
