@@ -99,7 +99,10 @@ async def end_lesson_view(
             experiment_viewed = $4,
             tutorial_viewed   = $5
         WHERE view_id = $1
-        RETURNING view_id::text, duration_s
+        -- student_id comes back so the caller can invalidate that student's
+        -- caches and refresh their progress status (#675) without a second
+        -- query for a row it just wrote.
+        RETURNING view_id::text, duration_s, student_id::text
         """,
         view_id,
         duration_s,
@@ -113,9 +116,19 @@ async def end_lesson_view(
             "end_lesson_view_no_matching_row",
             extra={"view_id": view_id, "duration_s": duration_s},
         )
-        return {"view_id": view_id, "duration_s": duration_s, "updated": False}
+        return {
+            "view_id": view_id,
+            "duration_s": duration_s,
+            "student_id": None,
+            "updated": False,
+        }
 
-    return {"view_id": row["view_id"], "duration_s": row["duration_s"], "updated": True}
+    return {
+        "view_id": row["view_id"],
+        "duration_s": row["duration_s"],
+        "student_id": row["student_id"],
+        "updated": True,
+    }
 
 
 # ── Phase 10: student self-service metrics ─────────────────────────────────────

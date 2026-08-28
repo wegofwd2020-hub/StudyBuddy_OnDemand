@@ -313,13 +313,31 @@ def update_streak_task(self, student_id: str, activity_date: str) -> None:
         raise self.retry(exc=exc, countdown=15)
 
 
-@celery_app.task(name="src.auth.tasks.refresh_progress_view_task", bind=True, max_retries=2)
-def refresh_progress_view_task(self, student_id: str) -> None:
-    """
-    Refresh mv_student_curriculum_progress for a single student.
+# Coalescing window for the whole-view refresh (#675). Long enough to absorb a
+# burst of lesson/quiz ends, short enough that a status icon is never visibly
+# stale — a student navigating from a lesson to the curriculum map takes longer
+# than this.
+_MV_REFRESH_LOCK = "mv_progress_refresh_lock"
+_MV_REFRESH_LOCK_TTL = 10
 
-    Uses REFRESH MATERIALIZED VIEW CONCURRENTLY so reads are not blocked.
-    Also invalidates the dashboard Redis cache for this student.
+
+@celery_app.task(name="src.auth.tasks.refresh_progress_view_task", bind=True, max_retries=2)
+def refresh_progress_view_task(self, student_id: str | None = None) -> None:
+    """
+    Refresh mv_student_curriculum_progress and drop this student's dashboard cache.
+
+    Note the refresh is WHOLE-VIEW despite the per-student argument — there is no
+    per-row refresh for a materialized view. That was tolerable when only session
+    end dispatched it; since #675 a lesson end does too, which is a far more
+    frequent event, so the work is coalesced behind a short Redis lock.
+
+    Coalescing, not dropping: a caller that cannot take the lock re-dispatches
+    itself once with a delay, so the last event in a burst still lands a refresh.
+    Simply skipping would lose the change that mattered if it happened to be the
+    last one — the student would sit looking at a stale icon indefinitely.
+
+    The cache invalidation runs regardless of the lock: it is per-student and
+    cheap, and it is what makes the student's own next page load correct.
     """
     import asyncpg
     import redis as redis_sync
@@ -336,12 +354,27 @@ def refresh_progress_view_task(self, student_id: str) -> None:
             await pool.close()
 
     try:
-        _run_async(_refresh())
-
-        # Invalidate L2 dashboard cache
         r = redis_sync.from_url(cfg.REDIS_URL)
-        r.delete(f"dashboard:{student_id}")
+
+        # Per-student and cheap — always do it, lock or no lock.
+        if student_id:
+            r.delete(f"dashboard:{student_id}")
+
+        got_lock = r.set(_MV_REFRESH_LOCK, "1", nx=True, ex=_MV_REFRESH_LOCK_TTL)
         r.close()
+
+        if not got_lock:
+            # Someone refreshed within the window. Re-dispatch once, after it,
+            # so this event's row is definitely included.
+            celery_app.send_task(
+                "src.auth.tasks.refresh_progress_view_task",
+                kwargs={"student_id": None},
+                queue="io",
+                countdown=_MV_REFRESH_LOCK_TTL + 2,
+            )
+            return
+
+        _run_async(_refresh())
     except Exception as exc:
         raise self.retry(exc=exc, countdown=30)
 
@@ -403,7 +436,7 @@ def write_lesson_end_task(
         pool = await asyncpg.create_pool(cfg.DATABASE_URL, min_size=1, max_size=2)
         try:
             async with pool.acquire() as conn:
-                await end_lesson_view(
+                return await end_lesson_view(
                     conn,
                     view_id=view_id,
                     duration_s=duration_s,
@@ -415,7 +448,17 @@ def write_lesson_end_task(
             await pool.close()
 
     try:
-        _run_async(_write())
+        result = _run_async(_write())
+        # The unit's status now depends on this row (#675): a lesson view makes
+        # the unit "in progress". Session end already refreshes the view; without
+        # the same dispatch here the icon would not move until the student's next
+        # quiz ended, which is precisely the state they have NOT reached yet.
+        if result and result.get("student_id"):
+            celery_app.send_task(
+                "src.auth.tasks.refresh_progress_view_task",
+                kwargs={"student_id": result["student_id"]},
+                queue="io",
+            )
     except Exception as exc:
         raise self.retry(exc=exc, countdown=10)
 
