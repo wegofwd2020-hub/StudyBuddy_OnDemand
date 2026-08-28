@@ -20,7 +20,7 @@ structlog==25.5.0
 slowapi==0.1.9
 alembic==1.18.4
 psycopg2-binary==2.9.9
-python-multipart==0.0.31
+python-multipart==0.0.32
 aiosmtplib==5.1.2
 
 stripe>=7.0.0
