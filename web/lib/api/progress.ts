@@ -4,6 +4,7 @@ import type {
   AnswerResponse,
   SessionEndResponse,
   ProgressHistory,
+  QuestionReveal,
 } from "@/lib/types/api";
 
 /**
@@ -60,6 +61,7 @@ export async function endSession(sessionId: string): Promise<SessionEndResponse>
     passed: boolean;
     attempt_number: number;
     ended_at: string;
+    reveal?: QuestionReveal[];
   }>(`/progress/session/${sessionId}/end`, {});
 
   // Map total_questions → total for the SessionEndResponse type
@@ -68,6 +70,10 @@ export async function endSession(sessionId: string): Promise<SessionEndResponse>
     total: res.data.total_questions,
     passed: res.data.passed,
     attempt_number: res.data.attempt_number,
+    // The answer key, released only now the attempt is closed (#684). This
+    // mapper lists fields explicitly, so anything added to the response has to
+    // be added here too or it is silently dropped before the UI sees it.
+    reveal: res.data.reveal ?? [],
   };
 }
 
