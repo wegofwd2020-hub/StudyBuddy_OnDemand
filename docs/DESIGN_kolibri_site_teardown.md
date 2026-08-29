@@ -166,6 +166,17 @@ palette, a constrained measure, and — most of all — a ruthless content edit.
 3. **Use few levels, not few sizes.** They run about four heading levels straight
    from Bootstrap's scale and add none of their own. The calm comes from restraint
    in use, not from a shrunken scale — see the Typography section.
+
+   *Done, and the ten-size count above needs qualifying.* Measured per page, our
+   public tree holds **three families with different jobs**: marketing (hero h1
+   `text-4xl sm:text-5xl`, section h2 `text-3xl`), long-form legal (h2 `text-xl` —
+   a policy document is not a landing page), and utility cards (h1 `text-xl` — it
+   titles a card, not a page). Ten was the count *across* all three. The real
+   drift was inside the marketing family: pricing's hero was the only one with no
+   responsive step, the tour gateway sat a level below its siblings, and two
+   section h2s were `text-2xl` beside neighbours at `text-3xl`. Pinned by
+   `web/tests/unit/public-type-scale.test.ts`. Flattening the other two families
+   into the marketing one would be worse, not better.
 4. **Warm the neutrals.** `#535352` on `#fefff3` rather than `#333` on `#fff`.
 
 **Don't take:**
