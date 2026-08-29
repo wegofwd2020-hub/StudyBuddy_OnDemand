@@ -294,3 +294,98 @@ async def test_the_teacher_denominator_sums_every_package(client, db_conn):
     )
     assert r.status_code == 200, r.text
     assert r.json()["students"][0]["total_units"] == 3, r.json()["students"][0]
+
+
+# ── Serving a unit that lives in a NON-primary package ────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_a_unit_from_a_later_package_resolves(client, db_conn):
+    """Stage 2: the tree lists every package, so serving must find every package.
+
+    Serving used the PRIMARY curriculum, so a unit belonging to the second or
+    third package resolved nowhere and 404'd — a unit the curriculum tree had
+    just shown the student.
+    """
+    from src.content.service import resolve_unit_curriculum
+
+    school = await _school(client, "_serve")
+    first = await _package(client, ["SERVE-P1"], grade=11)
+    second = await _package(client, ["SERVE-P2"], grade=8)
+    classroom = await _classroom_with(client, school["school_id"], [first, second])
+    await _student_in(client, school["school_id"], classroom)
+
+    pool = client._transport.app.state.pool
+    resolved, subject = await resolve_unit_curriculum(
+        "SERVE-P2", [first, second], school["school_id"], pool
+    )
+    assert resolved == second, resolved
+    assert subject is not None
+
+
+@pytest.mark.asyncio
+async def test_the_primary_still_wins_for_its_own_units(client, db_conn):
+    """Order matters: a unit in the primary must not be looked up elsewhere."""
+    from src.content.service import resolve_unit_curriculum
+
+    school = await _school(client, "_serve_primary")
+    first = await _package(client, ["SERVE-Q1"], grade=11)
+    second = await _package(client, ["SERVE-Q2"], grade=8)
+    classroom = await _classroom_with(client, school["school_id"], [first, second])
+    await _student_in(client, school["school_id"], classroom)
+
+    resolved, subject = await resolve_unit_curriculum(
+        "SERVE-Q1", [first, second], school["school_id"], client._transport.app.state.pool
+    )
+    assert resolved == first, resolved
+    assert subject is not None
+
+
+@pytest.mark.asyncio
+async def test_a_unit_in_no_package_still_reports_not_found(client, db_conn):
+    """The 404 signal must survive: subject None is how callers raise it."""
+    from src.content.service import resolve_unit_curriculum
+
+    school = await _school(client, "_serve_missing")
+    only = await _package(client, ["SERVE-R1"], grade=11)
+    classroom = await _classroom_with(client, school["school_id"], [only])
+    await _student_in(client, school["school_id"], classroom)
+
+    resolved, subject = await resolve_unit_curriculum(
+        "SERVE-NOPE", [only], school["school_id"], client._transport.app.state.pool
+    )
+    assert subject is None, (resolved, subject)
+
+
+@pytest.mark.asyncio
+async def test_a_session_records_the_package_that_holds_the_unit(client, db_conn):
+    """Grading reads the session's curriculum_id, so it must be the serving one.
+
+    start_session used to call resolve_curriculum_id and stop — a documented
+    drift (#529) that additive packages turn from latent into routine, since
+    with three packages the primary is simply not where most units live.
+    """
+    school = await _school(client, "_session")
+    first = await _package(client, ["SESS-P1"], grade=11)
+    second = await _package(client, ["SESS-P2"], grade=8)
+    classroom = await _classroom_with(client, school["school_id"], [first, second])
+    student = await _student_in(client, school["school_id"], classroom)
+
+    token = make_student_token(
+        student_id=student, grade=_GRADE, school_id=school["school_id"]
+    )
+    r = await client.post(
+        "/api/v1/progress/session",
+        json={"unit_id": "SESS-P2", "curriculum_id": "ignored-by-the-server"},
+        headers=_auth(token),
+    )
+    assert r.status_code == 201, r.text
+
+    pool = client._transport.app.state.pool
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        recorded = await conn.fetchval(
+            "SELECT curriculum_id FROM progress_sessions WHERE session_id = $1",
+            uuid.UUID(r.json()["session_id"]),
+        )
+    assert recorded == second, recorded
