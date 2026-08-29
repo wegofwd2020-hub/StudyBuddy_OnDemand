@@ -73,7 +73,7 @@ export default function TourPage() {
         <p className="mb-2 text-sm font-semibold tracking-widest text-violet-600 uppercase">
           No account needed
         </p>
-        <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl">
+        <h1 className="text-4xl font-bold text-gray-900 sm:text-5xl">
           Explore the platform
         </h1>
         <p className="mx-auto mt-4 max-w-xl text-base text-gray-500">

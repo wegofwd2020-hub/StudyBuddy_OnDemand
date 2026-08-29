@@ -100,7 +100,7 @@ export default function PricingPage() {
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="text-center">
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900">
+          <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
             Simple, honest pricing for schools
           </h1>
           <p className="mt-4 text-lg text-gray-500">
@@ -205,7 +205,7 @@ export default function PricingPage() {
 
         {/* FAQ */}
         <div className="mx-auto mt-20 max-w-3xl">
-          <h2 className="mb-8 text-center text-2xl font-bold text-gray-900">
+          <h2 className="mb-8 text-center text-3xl font-bold text-gray-900">
             Frequently asked questions
           </h2>
           <Accordion hiddenUntilFound>

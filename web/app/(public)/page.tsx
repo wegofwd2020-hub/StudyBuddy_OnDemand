@@ -215,7 +215,7 @@ function TourGatewaySection() {
         <p className="mb-2 text-xs font-semibold tracking-widest text-violet-500 uppercase">
           No account needed
         </p>
-        <h2 className="mb-3 text-2xl font-bold text-gray-900 sm:text-3xl">
+        <h2 className="mb-3 text-3xl font-bold text-gray-900">
           See exactly what you can do
         </h2>
         <p className="mb-8 text-base text-gray-500">
