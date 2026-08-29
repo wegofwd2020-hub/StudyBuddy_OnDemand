@@ -63,17 +63,34 @@ Figtree is a geometric-humanist sans — friendly, slightly rounded, legible at 
 sizes. It is doing the work, and it is *not* Inter, which matters: the page reads as
 chosen rather than defaulted.
 
-The type scale on the page is extremely narrow. Measured declarations:
+### They barely wrote any typography at all
+
+Their own stylesheet declares almost nothing:
 
 ```
-font-size:   1rem · 1.5rem · inherit
-font-weight: normal · 600
-line-height: 1.25 · 1.5 · 150%
+their inline layer:   3 font-sizes (1rem, 1.5rem, inherit) · 2 weights (normal, 600)
+Bootstrap bundle:    44 font-sizes · 7 weights
 ```
 
-**Two sizes and two weights.** That is the second half of why it feels calm — there
-is almost no typographic hierarchy competing for attention, because there are almost
-no levels.
+That looks like an extremely narrow type scale, and an earlier draft of this document
+said so. It is not — it is the wrong measurement. **The rendered scale is Bootstrap's**,
+reached through utility classes on the markup:
+
+```html
+<h1 class="kolibri-page-header">   <!-- their one custom heading rule -->
+<h2>                                <!-- Bootstrap default, 2rem -->
+<h3 class="fs-3">                   <!-- 1.75rem -->
+<h3 class="fs-5">                   <!-- 1.25rem -->
+```
+
+So the page runs about **four heading levels**, all of them stock. The real finding is
+not a two-size scale — it is that **they did not fight the framework**. They picked a
+face, set it globally, and then used Bootstrap's existing scale sparingly instead of
+building a parallel one on top of it.
+
+That is still part of why it feels calm, but the mechanism is "few levels used", not
+"few levels available". Worth being precise about, because narrowing our own scale to
+two sizes on Kolibri's authority would be copying something they do not do.
 
 > ⚠️ **The one thing not to copy.** Loading three variable families at full 300–900
 > ranges is a real payload for a product whose entire premise is low-bandwidth,
@@ -85,7 +102,9 @@ no levels.
 
 ## Colour
 
-Palette measured from the page's own inline styles (not the Bootstrap layer):
+Palette measured from the page's own inline styles (not the Bootstrap layer). The
+hex values and their frequencies are measured; the **role labels are inferred** from
+frequency and convention, not from watching where each is applied:
 
 | Hex | Role |
 |---|---|
@@ -125,8 +144,8 @@ properties are stock (`--bs-primary: #0d6efd`, the standard Bootstrap blue, appe
 them) layered on top.
 
 That is worth naming plainly: **the page's appeal is not coming from a bespoke design
-system.** It is stock Bootstrap plus a narrow type scale, a warm palette, a
-constrained measure, and — most of all — a ruthless content edit.
+system.** It is stock Bootstrap, used sparingly, plus a chosen typeface, a warm
+palette, a constrained measure, and — most of all — a ruthless content edit.
 
 ---
 
@@ -139,8 +158,9 @@ constrained measure, and — most of all — a ruthless content edit.
 2. **Lead with audience, not features.** "How Kolibri works for Learners / Educators /
    Administrators / Content Specialists" lets a reader self-select in one glance.
    We have the persona work already; it is just not on the marketing page.
-3. **Narrow the type scale.** Two sizes and two weights, deliberately. Most of the
-   perceived calm is the absence of levels.
+3. **Use few levels, not few sizes.** They run about four heading levels straight
+   from Bootstrap's scale and add none of their own. The calm comes from restraint
+   in use, not from a shrunken scale — see the Typography section.
 4. **Warm the neutrals.** `#535352` on `#fefff3` rather than `#333` on `#fff`.
 
 **Don't take:**
@@ -169,3 +189,12 @@ Counts come from the served markup with `<script>` and `<style>` stripped. Colou
 frequencies are from the page's inline styles, deliberately separated from the
 Bootstrap bundle's defaults — mixing them would have reported Bootstrap's palette as
 theirs.
+
+**One correction already needed.** The first version of this document reported a
+"two sizes, two weights" type scale. That was the measurement of their *custom layer*
+presented as the measurement of the *page*: the headings take their sizes from
+Bootstrap utility classes (`fs-3`, `fs-5`) and bare element defaults, which the inline
+extraction never saw. Separating their layer from the framework was right for colour
+and wrong for type, because for colour they override and for type they do not. The
+lesson generalises: when a page sits on a framework, "what did they write" and "what
+does it render" are two different questions.
