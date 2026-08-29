@@ -348,6 +348,22 @@ function CtaSection() {
             Contact us
           </LinkButton>
         </div>
+        {/* The tour was reachable only from the landing page, so /for-schools --
+            our most audience-specific page -- had no route to our
+            audience-specific content (docs/DESIGN_public_audience_map.md).
+            It sits here rather than in the hero because the reader who stalls at
+            "Ready to get started?" is exactly the one who wants to look before
+            registering; a third button would compete with the primary CTA
+            instead of catching that reader. Naming the three roles is the point
+            -- it lets a buyer self-select and see what their staff and students
+            get. */}
+        <p className="mt-6 text-sm text-blue-100">
+          Not ready yet?{" "}
+          <Link href="/tour" className="font-semibold text-white underline">
+            Explore the platform
+          </Link>{" "}
+          as a School Admin, Teacher, or Student — no account needed.
+        </p>
       </div>
     </section>
   );
