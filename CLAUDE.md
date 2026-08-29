@@ -207,6 +207,8 @@ All documentation has moved to **[studybuddy-docs](https://github.com/wegofwd202
 | [`docs/ADR_007_academic_calendar.md`](docs/ADR_007_academic_calendar.md) | Academic calendar, terms and breaks · grade enrolments with outcomes · per-school grading scales (pass marks are NOT 60% everywhere) · promotion gating, the year-start freeze and its correction path |
 | [`docs/SCHOOL_USER_MANAGEMENT.md`](docs/SCHOOL_USER_MANAGEMENT.md) | The Type-1 (self-managed) school user lifecycle + the top-bar **Administration** menu IA (§8.1) |
 | [`docs/DESIGN_curriculum_mgmt_capability.md`](docs/DESIGN_curriculum_mgmt_capability.md) · [`docs/SPEC_curriculum_mgmt_capability.md`](docs/SPEC_curriculum_mgmt_capability.md) | The `curriculum_mgmt` capability (#358) — additive grants; menu now lives under Administration (#415) |
+| [`docs/COMPETITIVE_kolibri.md`](docs/COMPETITIVE_kolibri.md) | Landscape read on Kolibri (Learning Equality) — offline-first, OER-curated, free; where it overlaps StudyBuddy and where it does not |
+| [`docs/DESIGN_kolibri_site_teardown.md`](docs/DESIGN_kolibri_site_teardown.md) | Why the Kolibri marketing page reads as calm — measured type scale, palette and structure, and what is worth borrowing |
 
 > **Sibling / spun-out projects (2026-06-09):** the standalone, non-school products
 > moved to **Mentible** — the `StudyBuddy_SelfLearner` repo (rebrand of "StudyBuddy Q"):
