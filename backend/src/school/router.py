@@ -100,6 +100,7 @@ from src.school.schemas import (
 from src.school.service import (
     AlreadyEnrolledError,
     NotPrimarySchoolError,
+    OverlappingPackageError,
     approve_definition,
     assign_package_to_classroom,
     assign_student_to_classroom,
@@ -1319,14 +1320,34 @@ async def assign_package_endpoint(
         raise HTTPException(status_code=403, detail="Forbidden")
 
     async with get_db(request) as conn:
-        ok = await assign_package_to_classroom(
-            conn,
-            school_id,
-            classroom_id,
-            body.curriculum_id,
-            teacher.get("teacher_id"),
-            body.sort_order,
-        )
+        try:
+            ok = await assign_package_to_classroom(
+                conn,
+                school_id,
+                classroom_id,
+                body.curriculum_id,
+                teacher.get("teacher_id"),
+                body.sort_order,
+            )
+        except OverlappingPackageError as exc:
+            # Packages are additive AND DISTINCT (#651). Overlap would make
+            # resolution a coin-toss the school never sees, so it is refused
+            # here — naming the units, because "conflict" without them leaves
+            # nobody able to act.
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "error": "overlapping_package",
+                    "detail": (
+                        "That package covers units this classroom already has: "
+                        f"{', '.join(exc.units[:5])}"
+                        + (f" and {len(exc.units) - 5} more" if len(exc.units) > 5 else "")
+                        + ". Packages must not overlap."
+                    ),
+                    "units": exc.units,
+                    "correlation_id": _cid(request),
+                },
+            )
 
     if not ok:
         raise HTTPException(status_code=404, detail="Classroom not found")
