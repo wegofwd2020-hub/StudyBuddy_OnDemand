@@ -157,7 +157,12 @@ palette, a constrained measure, and — most of all — a ruthless content edit.
    is how you keep a page to two ideas while still answering thirteen questions.
 2. **Lead with audience, not features.** "How Kolibri works for Learners / Educators /
    Administrators / Content Specialists" lets a reader self-select in one glance.
-   We have the persona work already; it is just not on the marketing page.
+   We have the persona work already — and, contrary to the first version of this
+   line, we have it **on the marketing site too**: `/tour` carries three role cards
+   with a full page behind each. The gap is that it sits one level down and
+   `/for-schools` does not link to it at all. Full mapping, including the one
+   audience Kolibri names that we have not, in
+   [`DESIGN_public_audience_map.md`](DESIGN_public_audience_map.md).
 3. **Use few levels, not few sizes.** They run about four heading levels straight
    from Bootstrap's scale and add none of their own. The calm comes from restraint
    in use, not from a shrunken scale — see the Typography section.
@@ -190,7 +195,7 @@ frequencies are from the page's inline styles, deliberately separated from the
 Bootstrap bundle's defaults — mixing them would have reported Bootstrap's palette as
 theirs.
 
-**One correction already needed.** The first version of this document reported a
+**Corrections.** The first version of this document reported a
 "two sizes, two weights" type scale. That was the measurement of their *custom layer*
 presented as the measurement of the *page*: the headings take their sizes from
 Bootstrap utility classes (`fs-3`, `fs-5`) and bare element defaults, which the inline
@@ -198,3 +203,9 @@ extraction never saw. Separating their layer from the framework was right for co
 and wrong for type, because for colour they override and for type they do not. The
 lesson generalises: when a page sits on a framework, "what did they write" and "what
 does it render" are two different questions.
+
+A second correction, of a different kind: "What to take" #2 asserted the persona
+split was *"not on the marketing page"*. It is — `/tour` and its three sub-pages.
+That claim came from reading our design docs rather than our routes, which is the
+same mistake as reading their custom CSS rather than their rendered page. Check
+the artefact, not the description of it.

@@ -209,6 +209,7 @@ All documentation has moved to **[studybuddy-docs](https://github.com/wegofwd202
 | [`docs/DESIGN_curriculum_mgmt_capability.md`](docs/DESIGN_curriculum_mgmt_capability.md) · [`docs/SPEC_curriculum_mgmt_capability.md`](docs/SPEC_curriculum_mgmt_capability.md) | The `curriculum_mgmt` capability (#358) — additive grants; menu now lives under Administration (#415) |
 | [`docs/COMPETITIVE_kolibri.md`](docs/COMPETITIVE_kolibri.md) | Landscape read on Kolibri (Learning Equality) — offline-first, OER-curated, free; where it overlaps StudyBuddy and where it does not |
 | [`docs/DESIGN_kolibri_site_teardown.md`](docs/DESIGN_kolibri_site_teardown.md) | Why the Kolibri marketing page reads as calm — measured type scale, palette and structure, and what is worth borrowing |
+| [`docs/DESIGN_public_audience_map.md`](docs/DESIGN_public_audience_map.md) | Mapping Kolibri's audience cards onto our roles — what `/tour` already ships, the unnamed curriculum-specialist role, and why our audience list contains the buyer |
 
 > **Sibling / spun-out projects (2026-06-09):** the standalone, non-school products
 > moved to **Mentible** — the `StudyBuddy_SelfLearner` repo (rebrand of "StudyBuddy Q"):
