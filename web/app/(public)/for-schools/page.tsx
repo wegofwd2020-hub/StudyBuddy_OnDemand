@@ -2,6 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LinkButton } from "@/components/ui/link-button";
 import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
   BookOpen,
   Globe,
   BarChart2,
@@ -295,14 +301,27 @@ function FaqSection() {
         <h2 className="text-center text-3xl font-bold text-gray-900">
           Frequently asked questions
         </h2>
-        <dl className="mt-10 space-y-6">
-          {FAQS.map(({ q, a }) => (
-            <div key={q} className="rounded-xl border border-gray-200 bg-white p-6">
-              <dt className="font-semibold text-gray-900">{q}</dt>
-              <dd className="mt-2 text-sm text-gray-600">{a}</dd>
-            </div>
-          ))}
-        </dl>
+        {/* Collapsed, matching /pricing. Every answer used to render open, which
+            put ~600 words of secondary content between the pricing a visitor came
+            for and the call to action — and made the page's length its dominant
+            impression. An FAQ is not a lesser section; collapsing it is how a page
+            answers many questions while still reading as short.
+            See docs/DESIGN_kolibri_site_teardown.md. */}
+        <div className="mt-10">
+          {/* hiddenUntilFound, not a bare <Accordion>: Base UI unmounts a closed
+              panel by default (keepMounted defaults false), which would drop every
+              answer out of the server-rendered HTML. On a marketing page that trades
+              crawlable copy — and Ctrl+F — for the collapse. hidden="until-found"
+              keeps the text in the DOM and lets find-in-page open the panel. */}
+          <Accordion hiddenUntilFound>
+            {FAQS.map(({ q, a }, i) => (
+              <AccordionItem key={q} value={`faq-${i}`}>
+                <AccordionTrigger className="text-left">{q}</AccordionTrigger>
+                <AccordionContent className="text-gray-600">{a}</AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
       </div>
     </section>
   );
@@ -329,6 +348,22 @@ function CtaSection() {
             Contact us
           </LinkButton>
         </div>
+        {/* The tour was reachable only from the landing page, so /for-schools --
+            our most audience-specific page -- had no route to our
+            audience-specific content (docs/DESIGN_public_audience_map.md).
+            It sits here rather than in the hero because the reader who stalls at
+            "Ready to get started?" is exactly the one who wants to look before
+            registering; a third button would compete with the primary CTA
+            instead of catching that reader. Naming the three roles is the point
+            -- it lets a buyer self-select and see what their staff and students
+            get. */}
+        <p className="mt-6 text-sm text-blue-100">
+          Not ready yet?{" "}
+          <Link href="/tour" className="font-semibold text-white underline">
+            Explore the platform
+          </Link>{" "}
+          as a School Admin, Teacher, or Student — no account needed.
+        </p>
       </div>
     </section>
   );

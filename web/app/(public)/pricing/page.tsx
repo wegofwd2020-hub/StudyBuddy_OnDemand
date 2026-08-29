@@ -208,7 +208,7 @@ export default function PricingPage() {
           <h2 className="mb-8 text-center text-2xl font-bold text-gray-900">
             Frequently asked questions
           </h2>
-          <Accordion>
+          <Accordion hiddenUntilFound>
             {FAQ.map((item, i) => (
               <AccordionItem key={i} value={`faq-${i}`}>
                 <AccordionTrigger className="text-left">{item.q}</AccordionTrigger>
