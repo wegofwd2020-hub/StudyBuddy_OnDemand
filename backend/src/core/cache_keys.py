@@ -63,6 +63,26 @@ def cur_key(student_id: str, school_id: str | None) -> str:
     return f"cur:{student_id}"
 
 
+def curs_key(student_id: str, school_id: str | None) -> str:
+    """
+    Redis key for the FULL set of curricula a student's content comes from.
+
+    school:{school_id}:curs:{student_id}  — school-enrolled student
+    curs:{student_id}                     — unaffiliated / demo student
+
+    Distinct from `cur_key`, which holds the single PRIMARY curriculum. A
+    classroom may carry several packages and they are ADDITIVE (#651), so the
+    set is what the curriculum tree and the "units done" denominators need,
+    while serving one unit still resolves to one curriculum.
+
+    Deliberately under the same `school:{id}:` prefix, so the existing
+    `school_scan_pattern` bulk eviction already covers it.
+    """
+    if school_id:
+        return f"school:{school_id}:curs:{student_id}"
+    return f"curs:{student_id}"
+
+
 def school_ent_key(school_id: str) -> str:
     """
     Redis key for the school-level derived entitlement blob.

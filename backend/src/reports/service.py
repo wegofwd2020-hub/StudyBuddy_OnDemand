@@ -55,7 +55,7 @@ async def total_units_by_student(
     students: list[dict],
     school_id: str,
 ) -> dict[str, int]:
-    """Map `student_id` -> the unit count of the curriculum they are actually served.
+    """Map `student_id` -> how many units they are actually served, across every package.
 
     Fixes #638. Both report sites previously counted units with
 
@@ -67,9 +67,10 @@ async def total_units_by_student(
     single curriculum (8, 10) read correctly by accident, which is why it
     survived — the bug is invisible in exactly the grades most testing uses.
 
-    The denominator now comes from `resolve_curriculum_id()`, the same three-step
+    The denominator now comes from `resolve_curriculum_ids()`, the same
     resolution that decides which content the student is served (school-owned →
-    classroom package → `default-{year}-g{grade}`).
+    classroom packages → `default-{year}-g{grade}`), summed across every package
+    because they are additive (#651).
 
     Deliberately NOT re-expressed as SQL. Re-deriving the curriculum with a
     simpler query is pitfall #31 exactly: `get_curriculum_tree` did that and
@@ -80,15 +81,19 @@ async def total_units_by_student(
     Resolution is Redis-cached per student, and unit counts are fetched in one
     query for the distinct curricula rather than per student.
     """
-    from src.content.service import resolve_curriculum_id
+    from src.content.service import resolve_curriculum_ids
 
     if not students:
         return {}
 
-    resolved: dict[str, str] = {}
+    # A classroom's packages are ADDITIVE (#651), so a student's denominator is
+    # the sum across every package — not whichever one an arbitrary pick
+    # returned. Getting this wrong is how "5/56" happened twice already
+    # (#638 summed unrelated streams, #650 counted a fork holding no units).
+    resolved: dict[str, list[str]] = {}
     for row in students:
         sid = str(row["student_id"])
-        resolved[sid] = await resolve_curriculum_id(
+        resolved[sid] = await resolve_curriculum_ids(
             sid,
             row["grade"],
             pool,
@@ -122,10 +127,10 @@ async def total_units_by_student(
             FROM curricula c
             WHERE c.curriculum_id = ANY($1::text[])
             """,
-            list(set(resolved.values())),
+            sorted({cid for ids in resolved.values() for cid in ids}),
         )
     by_curriculum = {r["curriculum_id"]: r["units"] for r in counts}
-    return {sid: by_curriculum.get(cid, 0) for sid, cid in resolved.items()}
+    return {sid: sum(by_curriculum.get(cid, 0) for cid in ids) for sid, ids in resolved.items()}
 
 
 async def cohort_unit_ids(
@@ -143,11 +148,14 @@ async def cohort_unit_ids(
     already had a session — so the report meant to surface coverage gaps was
     blind to the units nobody had opened.
 
-    Resolution goes through `resolve_curriculum_id` and the fork -> source rule,
-    the same path as `total_units_by_student`, so the catalog matches what the
+    Resolution goes through the shared resolver and the fork -> source rule, the
+    same path as `total_units_by_student`, so the catalog matches what the
     students are actually served rather than what their grade nominally implies.
+    Every package counts, since they are additive (#651) — measuring coverage
+    against one of a classroom's three packages would report the other two as
+    entirely untouched.
     """
-    from src.content.service import resolve_curriculum_id
+    from src.content.service import resolve_curriculum_ids
 
     rows = await conn.fetch(
         """
@@ -164,8 +172,8 @@ async def cohort_unit_ids(
 
     curricula: set[str] = set()
     for row in rows:
-        curricula.add(
-            await resolve_curriculum_id(
+        curricula.update(
+            await resolve_curriculum_ids(
                 row["student_id"], row["grade"], pool, redis, school_id=school_id
             )
         )

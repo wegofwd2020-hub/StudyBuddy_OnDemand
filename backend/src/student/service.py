@@ -152,13 +152,13 @@ async def get_dashboard(
 _MIN_COHORT_FOR_STANDING = 5
 
 
-async def _resolve_dashboard_curriculum(
+async def _resolve_dashboard_curricula(
     conn: asyncpg.Connection,
     redis,
     student_id: str,
     pool,
     grade: int | None,
-) -> str | None:
+) -> list[str]:
     """Return the curriculum whose units this student's dashboard measures.
 
     Calls `resolve_curriculum_id` — the same three-step resolution that decides
@@ -175,35 +175,42 @@ async def _resolve_dashboard_curriculum(
         direction;
       - a student on a school FORK matched the fork, which holds no units.
 
-    Returns None when there is nothing to resolve against (no grade available),
-    leaving the caller to fall back.
+    Returns EVERY curriculum, because a classroom's packages are additive
+    (#651) — the student's subject list and unit totals are the union of them,
+    not whichever one an arbitrary pick returned. Empty when there is nothing to
+    resolve against (no grade available), leaving the caller to fall back.
     """
     if pool is None or grade is None:
-        return None
+        return []
 
-    from src.content.service import resolve_curriculum_id
+    from src.content.service import resolve_curriculum_ids
 
     school_row = await conn.fetchrow(
         "SELECT school_id FROM students WHERE student_id = $1", student_id
     )
     school_id = str(school_row["school_id"]) if school_row and school_row["school_id"] else None
 
-    curriculum_id = await resolve_curriculum_id(student_id, grade, pool, redis, school_id=school_id)
+    ids = await resolve_curriculum_ids(student_id, grade, pool, redis, school_id=school_id)
 
-    # Fork → source. `resolve_content_curriculum` is keyed by a unit, and we do
-    # not have one yet, so borrow any unit of the fork; when the fork has none
-    # (the normal case) fall back to its source_curriculum_id directly.
-    source = await conn.fetchval(
-        "SELECT source_curriculum_id FROM curricula WHERE curriculum_id = $1", curriculum_id
-    )
-    if source:
-        has_own = await conn.fetchval(
-            "SELECT EXISTS (SELECT 1 FROM curriculum_units WHERE curriculum_id = $1)",
-            curriculum_id,
+    # Fork → source, per curriculum. A fork carries no rows in
+    # curriculum_units — they live under its source — so counting the fork
+    # directly returns zero (the #650 regression, which is why this is not
+    # simplified away).
+    resolved: list[str] = []
+    for curriculum_id in ids:
+        source = await conn.fetchval(
+            "SELECT source_curriculum_id FROM curricula WHERE curriculum_id = $1", curriculum_id
         )
-        if not has_own:
-            return source
-    return curriculum_id
+        if source:
+            has_own = await conn.fetchval(
+                "SELECT EXISTS (SELECT 1 FROM curriculum_units WHERE curriculum_id = $1)",
+                curriculum_id,
+            )
+            if not has_own:
+                resolved.append(source)
+                continue
+        resolved.append(curriculum_id)
+    return resolved
 
 
 async def _build_dashboard(
@@ -254,9 +261,9 @@ async def _build_dashboard(
     # Measured against the curriculum the student is actually SERVED, resolved
     # once (see _resolve_dashboard_curriculum) rather than inferred from the
     # curricula they happen to have touched.
-    curriculum_id = await _resolve_dashboard_curriculum(conn, redis, student_id, pool, grade)
+    curriculum_ids = await _resolve_dashboard_curricula(conn, redis, student_id, pool, grade)
 
-    if curriculum_id:
+    if curriculum_ids:
         unit_rows = await conn.fetch(
             """
             -- The child table is aggregated to one row per unit BEFORE the join.
@@ -280,11 +287,13 @@ async def _build_dashboard(
             -- Joined on unit_id alone: the student's sessions may carry the
             -- FORK's curriculum_id while cu rows live under the source.
             LEFT JOIN unit_stats us ON us.unit_id = cu.unit_id
-            WHERE cu.curriculum_id = $2
+            -- ANY(), not a single id: a classroom's packages are additive
+            -- (#651), so "my subjects" is the union across them.
+            WHERE cu.curriculum_id = ANY($2::text[])
             ORDER BY cu.sort_order
             """,
             student_id,
-            curriculum_id,
+            curriculum_ids,
         )
     else:
         unit_rows = []
@@ -502,9 +511,9 @@ async def get_progress_map(
     It mattered less while nothing called this endpoint. #677 points the
     Subjects page and the Curriculum Map at it, so it matters now.
     """
-    curriculum_id = await _resolve_dashboard_curriculum(conn, redis, student_id, pool, grade)
+    curriculum_ids = await _resolve_dashboard_curricula(conn, redis, student_id, pool, grade)
 
-    if not curriculum_id:
+    if not curriculum_ids:
         # Fall back to the old behaviour when the caller cannot supply the
         # resolver's inputs, rather than returning nothing to existing callers.
         touched = await conn.fetch(
@@ -525,7 +534,7 @@ async def get_progress_map(
                 "needs_retry_count": 0,
                 "subjects": [],
             }
-        curriculum_id = touched[0]["curriculum_id"]
+        curriculum_ids = [touched[0]["curriculum_id"]]
 
     # All units in this curriculum
     units = await conn.fetch(
@@ -539,11 +548,13 @@ async def get_progress_map(
         LEFT JOIN mv_student_curriculum_progress mv
             ON mv.unit_id = cu.unit_id AND mv.curriculum_id = cu.curriculum_id
                AND mv.student_id = $1
-        WHERE cu.curriculum_id = $2
+        -- ANY(), not a single id: a classroom's packages are additive (#651),
+        -- so the map covers every package rather than one arbitrary pick.
+        WHERE cu.curriculum_id = ANY($2::text[])
         ORDER BY cu.subject, cu.sort_order
         """,
         student_id,
-        curriculum_id,
+        curriculum_ids,
     )
 
     subjects: dict[str, list] = {}
@@ -578,7 +589,10 @@ async def get_progress_map(
     ]
 
     return {
-        "curriculum_id": curriculum_id,
+        # The PRIMARY curriculum. The map itself spans every package (#651),
+        # but the response field is a single id and existing clients read it as
+        # "which curriculum am I on".
+        "curriculum_id": curriculum_ids[0],
         "pending_count": pending_count,
         "needs_retry_count": needs_retry_count,
         "subjects": subjects_list,
