@@ -89,9 +89,17 @@ would find Kolibri's content static.
    train-the-trainer material alongside software. Our school-admin onboarding stops
    at the setup checklist (`/school/setup`).
 
-2. **"Content specialist" is a named role.** They designed for the person who aligns
-   material to standards. We have the capability — the `curriculum_mgmt` grant, the
-   Authoring Studio — but have not named the job in the product the way they have.
+2. **"Content specialist" is a named role** — *for them, because they have to name
+   it.* An earlier version of this line read that as a gap on our side. It is not:
+   the curriculum duties sit directly in `school_admin`'s permission set
+   (`review:approve`, `pipeline:trigger`, `curriculum:delete`), and that role is the
+   sole member of `_CAPABILITY_SUPERSET_ROLES`, so it holds every curriculum grant
+   implicitly. The #358 capabilities *delegate* that duty to a teacher rather than
+   supply a missing one. Kolibri needs a standalone specialist persona because
+   Studio work happens above any single school and they have **no school-admin tier**
+   for it to belong to. What is genuinely worth taking from them is narrower: they
+   describe the job in public, and we do not. See
+   [`DESIGN_public_audience_map.md`](DESIGN_public_audience_map.md).
 
 3. **Cross-school monitoring is a separate product.** The Data Portal is not a bigger
    dashboard; it is a different audience with different questions. Worth remembering
