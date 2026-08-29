@@ -158,8 +158,9 @@ palette, a constrained measure, and — most of all — a ruthless content edit.
 2. **Lead with audience, not features.** "How Kolibri works for Learners / Educators /
    Administrators / Content Specialists" lets a reader self-select in one glance.
    We have the persona work already; it is just not on the marketing page.
-3. **Narrow the type scale.** Two sizes and two weights, deliberately. Most of the
-   perceived calm is the absence of levels.
+3. **Use few levels, not few sizes.** They run about four heading levels straight
+   from Bootstrap's scale and add none of their own. The calm comes from restraint
+   in use, not from a shrunken scale — see the Typography section.
 4. **Warm the neutrals.** `#535352` on `#fefff3` rather than `#333` on `#fff`.
 
 **Don't take:**
