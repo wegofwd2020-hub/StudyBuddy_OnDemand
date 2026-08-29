@@ -725,6 +725,29 @@ async def update_classroom(
     return dict(row) if row else None
 
 
+class OverlappingPackageError(Exception):
+    """The package shares units with one already on this classroom (#651).
+
+    Packages are additive AND DISTINCT (product decision, 2026-08-28). Additive
+    is what `resolve_curriculum_ids` implements; distinct is what makes it
+    well-defined. `classroom_packages` already enforces distinctness at the
+    PACKAGE level via PRIMARY KEY (classroom_id, curriculum_id), but nothing
+    stopped two DIFFERENT packages containing the same unit.
+
+    With overlap, `resolve_unit_curriculum` silently serves whichever package
+    comes first in resolution order — a coin-toss the school never sees, and the
+    losing package's version of the unit becomes unreachable. Rejecting at
+    assignment keeps the ambiguity where someone can act on it, rather than
+    discovering it later as "why is my content not showing".
+    """
+
+    def __init__(self, units: list[str]) -> None:
+        self.units = units
+        shown = ", ".join(units[:5])
+        more = f" and {len(units) - 5} more" if len(units) > 5 else ""
+        super().__init__(f"already covered by another package: {shown}{more}")
+
+
 async def assign_package_to_classroom(
     conn: asyncpg.Connection,
     school_id: str,
@@ -742,6 +765,47 @@ async def assign_package_to_classroom(
     )
     if not exists:
         return False
+
+    # Distinctness by UNIT, not just by package (#651). Fork curricula hold no
+    # rows of their own — their units live under source_curriculum_id — so both
+    # sides of the comparison resolve through the same COALESCE the counters
+    # use, or a fork would appear to overlap with nothing.
+    overlap = await conn.fetch(
+        """
+        WITH held AS (
+            SELECT cp.curriculum_id AS package, cu.unit_id
+            FROM classroom_packages cp
+            JOIN curricula c ON c.curriculum_id = cp.curriculum_id
+            JOIN curriculum_units cu
+              ON cu.curriculum_id = CASE
+                     WHEN EXISTS (SELECT 1 FROM curriculum_units own
+                                  WHERE own.curriculum_id = c.curriculum_id)
+                     THEN c.curriculum_id
+                     ELSE c.source_curriculum_id
+                 END
+            WHERE cp.classroom_id = $1 AND cp.curriculum_id <> $2
+        ),
+        incoming AS (
+            SELECT cu.unit_id
+            FROM curricula c
+            JOIN curriculum_units cu
+              ON cu.curriculum_id = CASE
+                     WHEN EXISTS (SELECT 1 FROM curriculum_units own
+                                  WHERE own.curriculum_id = c.curriculum_id)
+                     THEN c.curriculum_id
+                     ELSE c.source_curriculum_id
+                 END
+            WHERE c.curriculum_id = $2
+        )
+        SELECT DISTINCT i.unit_id
+        FROM incoming i JOIN held h ON h.unit_id = i.unit_id
+        ORDER BY i.unit_id
+        """,
+        uuid.UUID(classroom_id),
+        curriculum_id,
+    )
+    if overlap:
+        raise OverlappingPackageError([r["unit_id"] for r in overlap])
 
     await conn.execute(
         """

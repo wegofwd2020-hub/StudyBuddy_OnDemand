@@ -389,3 +389,67 @@ async def test_a_session_records_the_package_that_holds_the_unit(client, db_conn
             uuid.UUID(r.json()["session_id"]),
         )
     assert recorded == second, recorded
+
+
+# ── Stage 3: distinct by UNIT, not just by package ────────────────────────────
+
+
+async def _assign(client: AsyncClient, school: dict, classroom_id: str, curriculum_id: str):
+    token = make_teacher_token(
+        teacher_id=school["teacher_id"], school_id=school["school_id"], role="school_admin"
+    )
+    return await client.post(
+        f"/api/v1/schools/{school['school_id']}/classrooms/{classroom_id}/packages",
+        json={"curriculum_id": curriculum_id, "sort_order": 0},
+        headers=_auth(token),
+    )
+
+
+@pytest.mark.asyncio
+async def test_a_package_sharing_a_unit_is_refused(client, db_conn):
+    """Overlap would make resolution a coin-toss the school never sees.
+
+    `resolve_unit_curriculum` returns the FIRST package holding the unit, so an
+    overlapping second package's version silently becomes unreachable. Refusing
+    at assignment keeps the ambiguity where someone can act on it.
+    """
+    school = await _school(client, "_overlap")
+    first = await _package(client, ["OVER-1", "OVER-2"], grade=11)
+    clashing = await _package(client, ["OVER-2", "OVER-3"], grade=8)
+    classroom = await _classroom_with(client, school["school_id"], [])
+
+    assert (await _assign(client, school, classroom, first)).status_code == 204
+    r = await _assign(client, school, classroom, clashing)
+
+    assert r.status_code == 409, r.text
+    body = r.json()
+    assert body["error"] == "overlapping_package", body
+    # Names the colliding unit — "conflict" alone leaves nobody able to act.
+    assert body["units"] == ["OVER-2"], body
+
+
+@pytest.mark.asyncio
+async def test_packages_that_do_not_overlap_are_accepted(client, db_conn):
+    """Additive is the point — distinctness must not block the normal case."""
+    school = await _school(client, "_no_overlap")
+    a = await _package(client, ["FINE-1"], grade=11)
+    b = await _package(client, ["FINE-2"], grade=8)
+    classroom = await _classroom_with(client, school["school_id"], [])
+
+    assert (await _assign(client, school, classroom, a)).status_code == 204
+    assert (await _assign(client, school, classroom, b)).status_code == 204
+
+
+@pytest.mark.asyncio
+async def test_reassigning_the_same_package_is_still_idempotent(client, db_conn):
+    """The endpoint is documented as safe to call twice.
+
+    A naive overlap check compares the incoming package against every row
+    including itself, which would turn every re-assign into a conflict.
+    """
+    school = await _school(client, "_idempotent")
+    only = await _package(client, ["SAME-1"], grade=11)
+    classroom = await _classroom_with(client, school["school_id"], [])
+
+    assert (await _assign(client, school, classroom, only)).status_code == 204
+    assert (await _assign(client, school, classroom, only)).status_code == 204
