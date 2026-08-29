@@ -53,6 +53,7 @@ from src.content.service import (
     get_next_quiz_set,
     increment_lessons_accessed,
     resolve_curriculum_id,
+    resolve_curriculum_ids,
 )
 from src.core.cache_keys import quiz_session_set_key
 from src.core.redis_client import get_redis
@@ -146,7 +147,7 @@ async def _get_curriculum_and_check_published(
     curriculum_units and content_subject_versions lookups work correctly.
     Raises HTTPException 404 if not published, 403 if blocked.
     """
-    from src.content.service import resolve_content_curriculum as _rcc
+    from src.content.service import resolve_unit_curriculum as _ruc
 
     redis = get_redis(request)
     pool = request.app.state.pool
@@ -154,15 +155,20 @@ async def _get_curriculum_and_check_published(
     grade = student_payload.get("grade", 8)
     school_id = student_payload.get("school_id")
 
-    curriculum_id = pre_resolved_curriculum_id or await resolve_curriculum_id(
-        student_id, grade, pool, redis, school_id=school_id
+    # A classroom's packages are additive (#651), so the student's curriculum is
+    # a LIST and only one member holds any given unit. Serving used the primary,
+    # which 404'd every unit belonging to the second or third package — units the
+    # curriculum tree had just listed.
+    candidates = (
+        [pre_resolved_curriculum_id]
+        if pre_resolved_curriculum_id
+        else await resolve_curriculum_ids(student_id, grade, pool, redis, school_id=school_id)
     )
 
-    # Fork→OOB fallback: school fork curricula have no rows in curriculum_units
-    # (those live under the source OOB curriculum_id). Swap to the OOB id so that
-    # the published check and content store reads work. This is the SAME helper the
-    # quiz grading path uses, so the two can no longer drift (#529).
-    curriculum_id, subject = await _rcc(unit_id, curriculum_id, school_id, pool)
+    # Picks the package holding this unit, applying the fork→OOB swap per
+    # package. That swap is still `resolve_content_curriculum`, the SAME helper
+    # the quiz grading path uses, so the two cannot drift (#529).
+    curriculum_id, subject = await _ruc(unit_id, candidates, school_id, pool)
 
     if subject is None:
         raise HTTPException(

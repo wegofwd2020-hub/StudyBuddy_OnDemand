@@ -28,7 +28,11 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
 from src.auth.dependencies import get_current_student
-from src.content.service import resolve_curriculum_id, resolve_quiz_answer_key
+from src.content.service import (
+    resolve_curriculum_ids,
+    resolve_quiz_answer_key,
+    resolve_unit_curriculum,
+)
 from src.core.db import get_db
 from src.core.redis_client import get_redis
 from src.core.storage import StorageBackend, get_storage
@@ -78,20 +82,28 @@ async def start_session(
     # under whatever this session stores, so a client-supplied value that doesn't
     # resolve in the content store makes every answer 404 (#524).
     #
-    # This calls resolve_curriculum_id directly — it does NOT reproduce the
-    # extra steps the content path (backend/src/content/router.py, around the
-    # _get_curriculum_and_check_published helper) layers on top of that same
-    # resolver: the fork→OOB swap via get_fork_source_curriculum, and teacher
-    # override handling. A school on a forked curriculum can therefore still
-    # serve content from one curriculum_id while this endpoint grades against
-    # another. Out of scope for #524; see the fork/override grading issue
-    # (#529).
-    curriculum_id = await resolve_curriculum_id(
+    # Resolved the same way the CONTENT path resolves it — the package that
+    # actually holds this unit, with the fork→OOB swap applied (#651).
+    #
+    # It used to call resolve_curriculum_id and stop there, so a school on a
+    # forked curriculum could be served content under one id while this endpoint
+    # graded against another; the comment here said as much and deferred it.
+    # Additive packages made that worse rather than merely latent: with three
+    # packages, the primary is simply not where most units live.
+    #
+    # Teacher-override handling still belongs to the grading path
+    # (resolve_quiz_answer_key), which reads overrides before falling back to
+    # the store.
+    school_id = student.get("school_id")
+    candidates = await resolve_curriculum_ids(
         student_id,
         student.get("grade", 8),
         request.app.state.pool,
         request.app.state.redis,
-        school_id=student.get("school_id"),
+        school_id=school_id,
+    )
+    curriculum_id, _unit_subject = await resolve_unit_curriculum(
+        body.unit_id, candidates, school_id, request.app.state.pool
     )
 
     async with get_db(request) as conn:

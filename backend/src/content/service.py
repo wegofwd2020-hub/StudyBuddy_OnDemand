@@ -701,6 +701,35 @@ async def resolve_content_curriculum(
     return curriculum_id, subject
 
 
+async def resolve_unit_curriculum(
+    unit_id: str,
+    curriculum_ids: list[str],
+    school_id: str | None,
+    pool: asyncpg.Pool,
+) -> tuple[str, str | None]:
+    """Which of a student's packages holds this unit, and the unit's subject.
+
+    A classroom's packages are additive (#651), so "the student's curriculum" is
+    a list and only one member of it actually contains any given unit. Serving
+    used the FIRST — the primary — which meant a unit belonging to the second or
+    third package resolved nowhere and 404'd, even though the curriculum tree
+    listed it.
+
+    Walks the list in resolution order and returns the first package that holds
+    the unit, applying the fork -> OOB swap per package via
+    `resolve_content_curriculum` — still the single source of truth for that
+    swap, so serving and grading cannot drift apart (#529).
+
+    When no package holds the unit, returns the primary with subject None, which
+    is the same "resolves nowhere" signal callers already handle.
+    """
+    for candidate in curriculum_ids:
+        resolved, subject = await resolve_content_curriculum(unit_id, candidate, school_id, pool)
+        if subject is not None:
+            return resolved, subject
+    return (curriculum_ids[0] if curriculum_ids else ""), None
+
+
 async def resolve_quiz_answer_key(
     school_id: str | None,
     curriculum_id: str,
