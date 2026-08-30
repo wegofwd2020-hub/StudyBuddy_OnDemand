@@ -5,7 +5,7 @@ asyncpg==0.31.0
 httpx==0.27.0
 jsonschema==4.26.0
 openpyxl==3.1.5
-boto3==1.42.78
+boto3==1.42.88
 google-cloud-texttospeech==2.16.3
 structlog==25.5.0
 psycopg2-binary==2.9.9
