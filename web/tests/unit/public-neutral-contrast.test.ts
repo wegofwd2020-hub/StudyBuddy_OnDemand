@@ -141,20 +141,22 @@ describe("the override stays scoped", () => {
     expect(school).toContain("sb-warm-neutrals");
   });
 
-  it("is NOT applied to the student portal", () => {
-    // The same file holds three uses of the same context. Wrapping the wrong one
-    // would warm a surface nobody decided to warm, and the diff would look
-    // identical. Assert the boundary rather than trusting the edit.
+  it("is applied to the student portal via its theme provider", () => {
+    // Warmed after the school portal. The same file holds three uses of the same
+    // context, so each provider is asserted BY NAME rather than by counting
+    // occurrences -- wrapping the wrong one produces an identical-looking diff.
     const ctx = readFileSync(
       join(process.cwd(), "lib/theme/SchoolThemeContext.tsx"),
       "utf8",
     );
     const student = ctx.slice(ctx.indexOf("export function StudentPortalThemeProvider"));
-    expect(student).not.toContain("sb-warm-neutrals");
+    expect(student).toContain("sb-warm-neutrals");
   });
 
   it("is NOT applied to the admin console", () => {
-    // Admin is an internal operations console, deliberately left cool.
+    // The one remaining exclusion, and now the whole rule: every CUSTOMER-FACING
+    // surface is warm; the internal operations console is not. If admin is ever
+    // warmed too, this stops being a scope and the block belongs on :root.
     const layout = readFileSync(join(process.cwd(), "app/(admin)/layout.tsx"), "utf8");
     expect(layout).not.toContain("sb-warm-neutrals");
   });
