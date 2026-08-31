@@ -1265,9 +1265,21 @@ async def get_alerts(
                (SELECT MIN(c.grade)
                   FROM curriculum_units cu
                   JOIN curricula c ON c.curriculum_id = cu.curriculum_id
-                 WHERE cu.unit_id = a.details->>'unit_id') AS grade
+                 WHERE cu.unit_id = a.details->>'unit_id') AS grade,
+               -- The unit's human name, resolved through the same join the grade
+               -- already uses. Without it the inbox shows only `G5-TECH-004`,
+               -- which a teacher cannot match to anything on the Subjects page
+               -- (reported 2026-08-31). MIN() because a unit id can appear in
+               -- more than one curriculum; the title is the same in each.
+               (SELECT MIN(cu.title)
+                  FROM curriculum_units cu
+                 WHERE cu.unit_id = a.details->>'unit_id') AS unit_title
         FROM report_alerts a
-        WHERE a.school_id = $1 AND NOT a.acknowledged
+        WHERE a.school_id = $1
+          AND NOT a.acknowledged
+          -- Alerts whose breach has since cleared are withdrawn by the evaluator
+          -- (migration 0066) rather than lingering until a human dismisses them.
+          AND a.resolved_at IS NULL
         ORDER BY a.triggered_at DESC
         """,
         uuid.UUID(school_id),
@@ -1287,10 +1299,83 @@ async def get_alerts(
                 "triggered_at": r["triggered_at"],
                 "acknowledged": r["acknowledged"],
                 "grade": r["grade"],
+                "unit_title": r["unit_title"],
             }
             for r in rows
         ]
     }
+
+
+# ── Alert lifecycle ───────────────────────────────────────────────────────────
+#
+# These live here, rather than inline in `evaluate_report_alerts_task`, so the
+# tests exercise the same statements the evaluator runs. A test that re-types the
+# SQL only proves the copy is consistent with itself, which is how the original
+# bug survived: `ON CONFLICT DO NOTHING` looked like deduplication and had no
+# constraint to act on, and nothing ever asserted that a second insert was a
+# no-op.
+
+
+async def raise_pass_rate_alert(
+    conn: asyncpg.Connection,
+    school_id: str,
+    unit_id: str,
+    pass_rate: float,
+) -> None:
+    """Open (or refresh) the single open pass-rate alert for a unit.
+
+    Keyed on the partial unique index from migration 0066, so a unit that keeps
+    breaching updates one row rather than appending one per daily run.
+    `triggered_at` is deliberately NOT touched: the alert should keep saying how
+    long the breach has run, not reset to "new" every morning.
+    """
+    # `details` is built in SQL from scalars rather than bound as JSON, because
+    # this runs on two pools with different codecs: the app pool registers a
+    # jsonb codec, the Celery task's raw asyncpg pool does not. A pre-dumped
+    # string is double-encoded by the codec and lands as a JSON *string*, so
+    # `details->>'unit_id'` reads NULL and both the unique index and every
+    # unit-keyed query silently stop matching. jsonb_build_object is immune.
+    await conn.execute(
+        """
+        INSERT INTO report_alerts (school_id, alert_type, details)
+        VALUES ($1, 'pass_rate_breach',
+                jsonb_build_object('unit_id', $2::text, 'pass_rate', $3::float8))
+        ON CONFLICT (school_id, alert_type, (details->>'unit_id'))
+            WHERE NOT acknowledged AND resolved_at IS NULL
+        DO UPDATE SET details = EXCLUDED.details
+        """,
+        uuid.UUID(school_id),
+        unit_id,
+        float(pass_rate or 0),
+    )
+
+
+async def resolve_cleared_alerts(
+    conn: asyncpg.Connection,
+    school_id: str,
+    still_breaching: list[str],
+) -> int:
+    """Withdraw open pass-rate alerts whose breach has cleared. Returns the count.
+
+    An empty `still_breaching` resolves every open alert, which is correct: no
+    unit is breaching. `resolved_at` rather than `acknowledged`, because
+    acknowledged records that a PERSON dismissed the alert and folding a machine
+    observation into that loses the distinction.
+    """
+    result = await conn.execute(
+        """
+        UPDATE report_alerts
+           SET resolved_at = NOW()
+         WHERE school_id = $1
+           AND alert_type = 'pass_rate_breach'
+           AND resolved_at IS NULL
+           AND NOT acknowledged
+           AND NOT (details->>'unit_id' = ANY($2::text[]))
+        """,
+        uuid.UUID(school_id),
+        still_breaching,
+    )
+    return int(result.split()[-1]) if result else 0
 
 
 # Server-owned defaults for a school that has never saved its thresholds. The

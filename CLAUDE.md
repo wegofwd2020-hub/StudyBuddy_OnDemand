@@ -518,6 +518,7 @@ Current migrations (as of last commit):
 | 0063 | #569 — `lesson_views.tutorial_viewed`, so lesson / tutorial / experiment views are distinguishable. The table already carried `experiment_viewed`, written by the end endpoint but never set by any page |
 | 0064 | #664 — `password_expires_at` on `teachers` + `students`. Bounds a school-ISSUED temporary password; NULL means no expiry (a user's own password, or an account provisioned before this shipped — backfilling a date would lock them out). Enforced at login only when `first_login` is still TRUE |
 | 0065 | #675 — `mv_student_curriculum_progress` rebuilt to union `lesson_views` with `progress_sessions`, so `in_progress` means "reached the unit" rather than "abandoned a quiz" and `not_started` means genuinely untouched. Quiz figures stay quiz-only. Downgrade restores the old MEANING with a sound key — 0003's GROUP BY included subject/grade while its unique index did not, which cannot be rebuilt against real data |
+| 0066 | Report alerts — `resolved_at` + partial UNIQUE index on OPEN alerts (school, type, `details->>'unit_id'`). The evaluator's `ON CONFLICT DO NOTHING` had no constraint to act on, so it never deduplicated: 294 rows over 13 units on the demo, one repeated 69×. Also collapses existing duplicates (keeps the earliest, preserving "breaching since"). Partial so a dismissed alert can re-raise |
 
 ---
 

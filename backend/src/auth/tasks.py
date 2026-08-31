@@ -1235,6 +1235,8 @@ def evaluate_report_alerts_task() -> None:
     """
     import asyncpg as _asyncpg
 
+    from src.reports.service import raise_pass_rate_alert, resolve_cleared_alerts
+
     async def _evaluate():
         pool = await _asyncpg.create_pool(settings.DATABASE_URL, min_size=1, max_size=3)
         try:
@@ -1268,18 +1270,21 @@ def evaluate_report_alerts_task() -> None:
                         uuid.UUID(school_id),
                         s["pass_rate_threshold"],
                     )
+                    # Both statements live in reports.service so the tests
+                    # exercise the same SQL this task runs, rather than a copy.
                     for br in breach_rows:
-                        await conn.execute(
-                            """
-                            INSERT INTO report_alerts (school_id, alert_type, details)
-                            VALUES ($1, 'pass_rate_breach', $2::jsonb)
-                            ON CONFLICT DO NOTHING
-                            """,
-                            uuid.UUID(school_id),
-                            json.dumps(
-                                {"unit_id": br["unit_id"], "pass_rate": float(br["pass_rate"] or 0)}
-                            ),
+                        await raise_pass_rate_alert(
+                            conn, school_id, br["unit_id"], float(br["pass_rate"] or 0)
                         )
+
+                    # Withdraw alerts whose breach has cleared. Without this an
+                    # alert is raised and never retracted, so the inbox describes
+                    # the past: a teacher whose students have since passed still
+                    # sees the warning with no way to tell it is stale.
+                    await resolve_cleared_alerts(
+                        conn, school_id, [br["unit_id"] for br in breach_rows]
+                    )
+
             log.info("report_alerts_evaluated")
         finally:
             await pool.close()

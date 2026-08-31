@@ -13,6 +13,10 @@ import Link from "next/link";
 import { Bell, CheckCheck, AlertTriangle, Info, Settings } from "lucide-react";
 
 const ALERT_ICON: Record<string, React.ReactNode> = {
+  // Same key mismatch as alertLabel below: the evaluator writes
+  // `pass_rate_breach`, so every real alert missed this map and fell back to the
+  // generic bell.
+  pass_rate_breach: <AlertTriangle className="h-4 w-4 text-red-500" />,
   pass_rate_low: <AlertTriangle className="h-4 w-4 text-red-500" />,
   feedback_spike: <Info className="h-4 w-4 text-blue-500" />,
   inactive_students: <AlertTriangle className="h-4 w-4 text-orange-500" />,
@@ -21,12 +25,31 @@ const ALERT_ICON: Record<string, React.ReactNode> = {
 
 function alertLabel(type: string) {
   const labels: Record<string, string> = {
+    // `pass_rate_breach` is the only type the evaluator actually writes
+    // (auth/tasks.py). The map listed `pass_rate_low`, which nothing emits, so
+    // every real alert fell through to the raw key and the inbox showed the
+    // literal string "pass_rate_breach" to teachers. Both spellings are mapped
+    // rather than swapped, in case older rows carry the other one.
+    pass_rate_breach: "Low pass rate",
     pass_rate_low: "Low pass rate",
     feedback_spike: "Feedback spike",
     inactive_students: "Inactive students",
     score_drop: "Score drop",
   };
   return labels[type] ?? type;
+}
+
+/** `details` is free-form JSON per alert type; read defensively. */
+function unitIdOf(details: unknown): string | null {
+  if (typeof details !== "object" || details === null) return null;
+  const v = (details as Record<string, unknown>).unit_id;
+  return typeof v === "string" ? v : null;
+}
+
+function passRateOf(details: unknown): number | null {
+  if (typeof details !== "object" || details === null) return null;
+  const v = (details as Record<string, unknown>).pass_rate;
+  return typeof v === "number" ? Math.round(v * 10) / 10 : null;
 }
 
 export default function AlertsPage() {
@@ -113,13 +136,23 @@ export default function AlertsPage() {
                       {new Date(alert.triggered_at).toLocaleDateString()}
                     </span>
                   </div>
+                  {/* The unit by NAME first. This used to dump every key of
+                      `details`, so an alert read `unit_id: G5-TECH-004 ·
+                      pass_rate: 0` — a code the teacher then could not find on
+                      the Subjects page, which is exactly what was reported.
+                      The id stays, demoted, because it is what appears in
+                      exports and support threads. */}
                   <p className="mt-0.5 text-sm text-gray-600">
-                    {typeof alert.details === "object"
-                      ? Object.entries(alert.details)
-                          .map(([k, v]) => `${k}: ${v}`)
-                          .join(" · ")
-                      : String(alert.details)}
+                    {alert.unit_title ?? unitIdOf(alert.details) ?? "—"}
+                    {passRateOf(alert.details) != null && (
+                      <span> · pass rate {passRateOf(alert.details)}%</span>
+                    )}
                   </p>
+                  {alert.unit_title && unitIdOf(alert.details) && (
+                    <p className="mt-0.5 text-xs text-gray-400">
+                      {unitIdOf(alert.details)}
+                    </p>
+                  )}
                 </div>
                 <Button
                   variant="outline"

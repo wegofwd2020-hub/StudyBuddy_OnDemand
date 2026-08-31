@@ -6338,6 +6338,8 @@ export interface components {
             acknowledged: boolean;
             /** Grade */
             grade?: number | null;
+            /** Unit Title */
+            unit_title?: string | null;
         };
         /** AlertListResponse */
         AlertListResponse: {
