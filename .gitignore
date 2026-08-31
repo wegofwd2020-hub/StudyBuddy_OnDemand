@@ -45,6 +45,10 @@ bin/
 
 # AI-generated lesson content (bind-mounted into containers; grows large, not for git)
 content_store_data/
+# ...and as a SYMLINK. On the demo VPS `content_store_data` points at
+# /data/content, and a trailing-slash pattern matches directories only, so the
+# link itself showed as untracked forever.
+content_store_data
 
 # Local dev config (contains Redis dev credentials + local paths)
 .mcp.json
@@ -99,3 +103,22 @@ web/tests/e2e/quiz-suite/.fixture.json
 # Playwright MCP console logs (tool output, written at repo root; the browser
 # tier's own artefacts are ignored in web/.gitignore)
 .playwright-mcp/
+
+# ── Deployment-host artifacts (keep the VPS working tree clean) ───────────────
+#
+# A dirty tree on the demo VPS is not cosmetic: `git pull` ABORTS rather than
+# overwrite an untracked file, so a deploy fails the moment a commit adds a path
+# that already exists there untracked. That happened on 2026-08-31 with
+# scripts/demo/disk-check.sh and has root-caused a deploy failure before.
+#
+# Runtime copies of the curriculum source JSON. The tracked originals live in
+# `data/` at the repo root; these are the copies the containers are given, and
+# they are regenerated rather than edited. Narrow on purpose —
+# `backend/data/help_chunks.jsonl` IS tracked, so ignoring `backend/data/`
+# wholesale would hide a real file.
+backend/data/grade*.json
+
+# pgbouncer's auth file: usernames plus password hashes, generated per host.
+# It has correctly never been committed; this makes sure a `git add -A` on the
+# VPS cannot change that.
+infra/pgbouncer/userlist.txt
