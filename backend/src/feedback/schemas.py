@@ -42,9 +42,7 @@ class FeedbackSubmitRequest(BaseModel):
         nothing.
         """
         if bool(self.question_id) != bool(self.session_id):
-            raise ValueError(
-                "question_id and session_id must be provided together"
-            )
+            raise ValueError("question_id and session_id must be provided together")
         return self
 
     @model_validator(mode="after")
