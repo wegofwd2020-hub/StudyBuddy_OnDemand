@@ -67,6 +67,20 @@ router = APIRouter(tags=["content"])
 _FREE_TIER_LESSON_LIMIT = 2
 
 
+async def _unit_display_title(pool, unit_id: str) -> str | None:
+    """The unit's human title for the quiz result screen.
+
+    Same shape as `_subject_display_name` (#461): the content file does not carry
+    the unit's title, so it is resolved from `curriculum_units`. Returns None when
+    the unit is not there, and the client falls back to showing nothing rather
+    than a code.
+    """
+    async with pool.acquire() as conn:
+        return await conn.fetchval(
+            "SELECT MIN(title) FROM curriculum_units WHERE unit_id = $1", unit_id
+        )
+
+
 async def _subject_display_name(pool, unit_id: str, fallback: str | None) -> str:
     """Resolve a unit's human-readable subject name for the quiz result screen
     (#461), falling back to whatever the content file stored (#462 semantics)."""
@@ -466,6 +480,7 @@ async def get_quiz(
             override["subject"] = await _subject_display_name(
                 pool, unit_id, override.get("subject")
             )
+            override["unit_title"] = await _unit_display_title(pool, unit_id)
             return QuizResponse(**_strip_answer_key(override))
 
     curriculum_id, _subject = await _get_curriculum_and_check_published(
@@ -487,6 +502,7 @@ async def get_quiz(
             )
 
     data["subject"] = await _subject_display_name(pool, unit_id, _subject or data.get("subject"))
+    data["unit_title"] = await _unit_display_title(pool, unit_id)
     log.info("quiz_served unit_id=%s set=%d student_id=%s", unit_id, set_number, student_id)
     return QuizResponse(**_strip_answer_key(data))
 

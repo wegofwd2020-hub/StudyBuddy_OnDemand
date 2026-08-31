@@ -23611,6 +23611,17 @@
               }
             ],
             "title": "Subject"
+          },
+          "unit_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit Title"
           }
         },
         "type": "object",

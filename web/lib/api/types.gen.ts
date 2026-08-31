@@ -8916,6 +8916,8 @@ export interface components {
             content_version: number;
             /** Subject */
             subject?: string | null;
+            /** Unit Title */
+            unit_title?: string | null;
         };
         /** RateRequest */
         RateRequest: {
