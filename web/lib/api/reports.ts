@@ -284,6 +284,22 @@ export interface AlertItem {
    * to a grade is withheld from grade-restricted teachers.
    */
   grade: number | null;
+  /**
+   * The alert's unit by name, e.g. "Weather and Climate" (reported 2026-08-31).
+   * The inbox previously showed only `unit_id: G5-TECH-004`, a code that appears
+   * nowhere on the Subjects page, so the alert named something the teacher could
+   * not go and look at.
+   *
+   * null when the unit is not in curriculum_units — the page falls back to the
+   * raw id rather than showing nothing.
+   *
+   * NOTE: this interface is hand-written and does NOT derive from
+   * lib/api/types.gen.ts, so regenerating the contract does not update it.
+   * Adding a field to the API means editing both. That split is what broke the
+   * demo build for this field: the generated type had it, this one did not, and
+   * the page imports THIS one.
+   */
+  unit_title?: string | null;
 }
 
 export interface AlertListResponse {
