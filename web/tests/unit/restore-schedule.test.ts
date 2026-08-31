@@ -2,15 +2,28 @@ import { describe, it, expect } from "vitest";
 import {
   validateScheduledAt,
   describeSchedule,
+  nowForDatetimeLocalMin,
   RESTORE_SCHEDULE_MAX_HORIZON_DAYS,
 } from "@/lib/school/restore-schedule";
 
 const NOW = new Date("2026-08-17T12:00:00.000Z");
 
-function isoLocal(d: Date): string {
-  // Mirrors what a <input type="datetime-local"> value looks like.
-  return d.toISOString().slice(0, 16);
-}
+/**
+ * Format an instant the way a `<input type="datetime-local">` value looks.
+ *
+ * This calls the PRODUCTION formatter rather than reimplementing it (#630). The
+ * old local copy used `d.toISOString().slice(0, 16)`, which writes the UTC
+ * wall-clock and drops the `Z` — and a datetime-local string with no offset is
+ * parsed back as LOCAL time. So the round trip moved the instant by the
+ * machine's offset, and "exactly at the horizon" was only exactly at the horizon
+ * under TZ=UTC. West of UTC the test failed; east of UTC it passed for the wrong
+ * reason, which is the worse half.
+ *
+ * `nowForDatetimeLocalMin` is a general Date formatter despite its name — it is
+ * what the page feeds the input's `min`/`max`, so the test now formats values
+ * exactly as production does.
+ */
+const isoLocal = nowForDatetimeLocalMin;
 
 describe("validateScheduledAt (restore request 'Preferred time', issue #589)", () => {
   it("accepts an empty value — blank means ASAP", () => {
@@ -41,6 +54,17 @@ describe("validateScheduledAt (restore request 'Preferred time', issue #589)", (
       NOW.getTime() + RESTORE_SCHEDULE_MAX_HORIZON_DAYS * 24 * 60 * 60 * 1000,
     );
     expect(validateScheduledAt(isoLocal(atBoundary), NOW)).toBeNull();
+  });
+
+  it("isoLocal round-trips an instant in any timezone (#630)", () => {
+    // The bug in one assertion: format an instant, parse it back the way the
+    // validator does, and you must land on the same instant. The old helper
+    // failed this by the machine's UTC offset, silently shifting every boundary
+    // case in the file.
+    const instant = new Date(NOW.getTime() + 5 * 24 * 60 * 60 * 1000);
+    const roundTripped = new Date(isoLocal(instant));
+    // datetime-local carries no seconds, so compare at minute resolution.
+    expect(Math.abs(roundTripped.getTime() - instant.getTime())).toBeLessThan(60_000);
   });
 
   it("rejects an unparseable value", () => {
