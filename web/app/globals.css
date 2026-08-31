@@ -362,11 +362,15 @@ blockquote > p:only-child {
  * scope re-tints everything beneath it with no markup churn. Deleting this block
  * is a complete revert.
  *
- * WHERE IT APPLIES: the (public) layout and the school portal (applied in
- * SchoolPortalThemeProvider, which both of that layout's auth branches already
- * wrap in). (admin) and (student) are deliberately NOT included — admin is an
- * internal operations console, and the student portal is a separate decision.
- * The line is customer-facing surfaces, not "everything".
+ * WHERE IT APPLIES: the (public) layout, the school portal and the student
+ * portal — the last two via SchoolPortalThemeProvider and
+ * StudentPortalThemeProvider. The school layout returns from TWO auth branches
+ * and both already wrap in its provider, so one wrapper there cannot drift out
+ * of sync the way two copies would.
+ *
+ * (admin) is the one exclusion, and that IS the rule: every customer-facing
+ * surface is warm, the internal operations console is not. If admin is ever
+ * warmed too, this stops being a scope and the block belongs on :root.
  *
  * ONE MEASURED COST, in the portal specifically: warm surfaces sit closer to
  * amber/orange status tints than cool ones did — gray-50 vs amber-50 separates

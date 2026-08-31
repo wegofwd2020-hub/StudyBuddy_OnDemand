@@ -75,7 +75,14 @@ export function StudentPortalThemeProvider({ children }: { children: ReactNode }
 
   return (
     <SchoolThemeContext.Provider value={data ?? DEFAULT_THEME}>
-      {children}
+      {/* Warm-neutral scope, matching the school portal (#706) and the public
+          pages (#696). display:contents, so this layout's own
+          `flex min-h-screen` shell stays a direct child.
+
+          Shared components under components/content render inside whichever
+          scope they are mounted in, so a lesson body is warm here and cool
+          in the admin console without either needing to know. */}
+      <div className="sb-warm-neutrals">{children}</div>
     </SchoolThemeContext.Provider>
   );
 }
