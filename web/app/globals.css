@@ -344,7 +344,7 @@ blockquote > p:only-child {
   }
 }
 
-/* ── Warm neutrals, public pages only ────────────────────────────────────────
+/* ── Warm neutrals: public pages + the school portal ─────────────────────────
  *
  * docs/DESIGN_kolibri_site_teardown.md "What to take" #4: warm the neutrals.
  * Kolibri sets #535352 on #fefff3 rather than #333 on #fff, and that alone is
@@ -357,11 +357,24 @@ blockquote > p:only-child {
  * further from it. Both families are remapped so the page stops mixing two
  * different blues.
  *
- * WHY AN OVERRIDE AND NOT 530 CLASS RENAMES: Tailwind v4 compiles utilities to
- * `color: var(--color-gray-500)`, so redefining those variables inside a scope
- * re-tints everything beneath it with no markup churn — and leaves the 2,826
- * neutral utilities in (admin)/(school)/(student) untouched. Deleting this block
+ * WHY AN OVERRIDE AND NOT ~1,700 CLASS RENAMES: Tailwind v4 compiles utilities
+ * to `color: var(--color-gray-500)`, so redefining those variables inside a
+ * scope re-tints everything beneath it with no markup churn. Deleting this block
  * is a complete revert.
+ *
+ * WHERE IT APPLIES: the (public) layout and the school portal (applied in
+ * SchoolPortalThemeProvider, which both of that layout's auth branches already
+ * wrap in). (admin) and (student) are deliberately NOT included — admin is an
+ * internal operations console, and the student portal is a separate decision.
+ * The line is customer-facing surfaces, not "everything".
+ *
+ * ONE MEASURED COST, in the portal specifically: warm surfaces sit closer to
+ * amber/orange status tints than cool ones did — gray-50 vs amber-50 separates
+ * by 2.39 in OKLab, stone-50 vs amber-50 by 2.11, about 12% less. It improves
+ * against red and is near-neutral for green. Acceptable because status is never
+ * carried by a background tint alone (colour alone would fail WCAG 1.4.1
+ * regardless), but it is the thing to look at first if a status row ever reads
+ * as ambiguous.
  *
  * CONTRAST IS PRESERVED, NOT ASSUMED. Tailwind's scales are lightness-aligned,
  * so every shade moves by <=0.08 in contrast ratio. Measured against white and
