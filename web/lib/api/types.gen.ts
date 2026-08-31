@@ -8042,6 +8042,10 @@ export interface components {
             helpful?: boolean | null;
             /** Content Type */
             content_type?: string | null;
+            /** Session Id */
+            session_id?: string | null;
+            /** Question Id */
+            question_id?: string | null;
         };
         /** FeedbackSubmitResponse */
         FeedbackSubmitResponse: {

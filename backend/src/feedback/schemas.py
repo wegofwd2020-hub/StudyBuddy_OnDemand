@@ -21,6 +21,31 @@ class FeedbackSubmitRequest(BaseModel):
     rating: int | None = Field(None, ge=1, le=5)
     helpful: bool | None = None
     content_type: str | None = Field(None, pattern="^(lesson|tutorial|experiment|quiz)$")
+    # ADR-008 Phase 2 — narrow this feedback to ONE question.
+    #
+    # The POSITIONAL id the student was shown (`q1…qN`) plus the session it was
+    # shown in. The server resolves the stable identity from the set that session
+    # was graded against; the client never sends the stable id and so cannot name
+    # a question it was not served. Same shape as the answer path, same reason.
+    #
+    # Both are required together or not at all — a question id without a session
+    # cannot be resolved, and a session without a question narrows nothing.
+    session_id: str | None = None
+    question_id: str | None = None
+
+    @model_validator(mode="after")
+    def question_needs_its_session(self) -> FeedbackSubmitRequest:
+        """A question id is meaningless without the session that served it.
+
+        Rejected rather than silently ignored: dropping half a pair would record
+        feedback the student believes is attached to a question, and attach it to
+        nothing.
+        """
+        if bool(self.question_id) != bool(self.session_id):
+            raise ValueError(
+                "question_id and session_id must be provided together"
+            )
+        return self
 
     @model_validator(mode="after")
     def require_some_content(self) -> FeedbackSubmitRequest:
