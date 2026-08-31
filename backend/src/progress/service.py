@@ -422,17 +422,25 @@ async def record_answer_sync(
     correct: bool,
     ms_taken: int,
     event_id: str | None,
+    stable_question_id: str | None = None,
 ) -> dict:
     """
     Write an answer row synchronously (called from the fire-and-forget Celery task).
     Uses ON CONFLICT DO NOTHING on event_id for offline deduplication.
+
+    `stable_question_id` (ADR-008 Phase 1) records WHICH question this was, not
+    which slot: `question_id` is `q1…qN` within a set, so grouping by it groups
+    questions that merely share an index. Nullable and defaulted so an older
+    caller keeps working — pre-migration rows stay NULL and must be excluded from
+    item analysis rather than treated as a group.
     """
     if event_id:
         row = await conn.fetchrow(
             """
             INSERT INTO progress_answers
-                (session_id, event_id, question_id, student_answer, correct_answer, correct, ms_taken)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
+                (session_id, event_id, question_id, student_answer, correct_answer,
+                 correct, ms_taken, stable_question_id)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             ON CONFLICT (event_id) DO NOTHING
             RETURNING answer_id, correct
             """,
@@ -443,13 +451,15 @@ async def record_answer_sync(
             correct_answer,
             correct,
             ms_taken,
+            stable_question_id,
         )
     else:
         row = await conn.fetchrow(
             """
             INSERT INTO progress_answers
-                (session_id, question_id, student_answer, correct_answer, correct, ms_taken)
-            VALUES ($1, $2, $3, $4, $5, $6)
+                (session_id, question_id, student_answer, correct_answer, correct,
+                 ms_taken, stable_question_id)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
             RETURNING answer_id, correct
             """,
             session_id,
@@ -458,6 +468,7 @@ async def record_answer_sync(
             correct_answer,
             correct,
             ms_taken,
+            stable_question_id,
         )
 
     if row is None:

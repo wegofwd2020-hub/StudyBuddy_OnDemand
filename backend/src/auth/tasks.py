@@ -220,6 +220,7 @@ def write_progress_answer_task(
     ms_taken: int,
     event_id: str | None,
     quiz_set: int | None = None,
+    stable_question_id: str | None = None,
 ) -> None:
     """
     Fire-and-forget task: write a progress answer to PostgreSQL.
@@ -247,6 +248,7 @@ def write_progress_answer_task(
                     correct=correct,
                     ms_taken=ms_taken,
                     event_id=event_id,
+                    stable_question_id=stable_question_id,
                 )
                 # Persist which set was graded, so the session stays auditable
                 # after the Redis pin expires. First writer wins.

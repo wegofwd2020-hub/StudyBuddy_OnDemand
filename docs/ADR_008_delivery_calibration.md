@@ -173,10 +173,32 @@ This is what makes the pitch defensible rather than merely attractive. Without i
 
 ### Decision 4 — Every question has a stable, content-addressed identity
 
-A question id is minted **once, at generation**, is globally unique, and does not
-change when sets are reshuffled, a pool is extended, or a question is revised into
-a new version. Positional `q1…qN` ids are retired as identity; they may remain as a
-display ordinal.
+A question id is derived from the question's own stem — `curriculum_id | unit_id |
+lang | stem`, hashed — so it is identical wherever it is computed and needs nothing
+stored to mint. It does not change when sets are reshuffled or a pool is extended.
+Positional `q1…qN` ids are retired as identity; they may remain as a display ordinal.
+
+> **Corrected 2026-08-31, during Phase 1.** This decision originally read "minted
+> **once, at generation**" and "does not change when … a question is **revised into
+> a new version**". Both were wrong, and implementing them would have been worse
+> than leaving the defect in place.
+>
+> *Minted* ids cannot reach the ~12,500 questions already on disk without
+> regenerating them — paying the generation cost twice for content that is fine.
+> Content-addressing lets existing content be backfilled in place, which is what
+> makes Phase 1 cheap enough to do before Phase 3.
+>
+> *Revision-stability* is the more consequential error. A reworded question is
+> psychometrically a **different item**: the difficulty and discrimination measured
+> for the old wording do not describe the new one. Carrying statistics across an
+> edit would quietly corrupt the very analysis Decision 8 rests on, and the
+> corruption would be invisible — a plausible number computed over two different
+> questions. Standard practice re-calibrates a modified item; a changed hash is
+> that re-calibration expressed in the identifier.
+>
+> Continuity across a revision belongs to the Phase 3 registry, which can record
+> "v2 supersedes v1" explicitly. An identifier that claims two different texts are
+> one thing cannot express that without lying about one of them.
 
 `progress_answers.question_id` and every downstream analytic key on this id.
 

@@ -94,7 +94,12 @@ async def test_override_wins_and_store_is_not_read():
         key = await svc.resolve_quiz_answer_key(
             "school-1", "fork-1", "G8-SCI-001", 1, "en", object(), object(), object()
         )
-    assert key == {"q1": {"index": 1, "explanation": "override says B"}}  # from override
+    # Assert the fields this test is ABOUT, not the whole dict. The point is that
+    # the OVERRIDE supplied the verdict and the store was never read; the entry
+    # also carries a stable_question_id since ADR-008 Phase 1, and an exact-equality
+    # assertion on a growing structure fails for reasons unrelated to what it guards.
+    assert key["q1"]["index"] == 1  # from override, not the store's 0
+    assert key["q1"]["explanation"] == "override says B"
     gk.assert_not_awaited()  # store never read
     rcc.assert_not_awaited()  # no swap when the override answers
 
