@@ -3,6 +3,31 @@
 @import "shadcn/tailwind.css";
 @import "katex/dist/katex.min.css";
 
+/* ── The 400 neutral level, made legal everywhere (issue #189) ────────────────
+ *
+ * Tailwind's gray-400/slate-400 score 2.59 on white. AA needs 4.5 for normal
+ * text and 3.0 even for large — they fail both. Across the app they are used
+ * overwhelmingly as a TEXT colour, so this was never a usable text level; it
+ * just looked like one, and axe's `color-contrast` rule is switched off in the
+ * persona e2e specs partly because of it.
+ *
+ * Remapped to the 500 value (4.84 on white), which is the LIGHTEST value that
+ * clears 4.5 on both white and the -50 ground — measured, not chosen: the
+ * boundary sits at L=55.8% and 500 sits at L=55.3%. There is no room for a
+ * distinct-but-legal lighter step, so 400 and 500 now render identically and
+ * should be treated as one "muted" level. Reach for 600 for a real second step.
+ *
+ * This lives at the top, OUTSIDE .sb-warm-neutrals, because accessibility must
+ * not stop at a palette boundary: the admin console is deliberately cool
+ * (see below) and its Dashboard and Content Review are named in #189 too. The
+ * warm scope re-overrides these with the warm 500, so inside it the hue is warm
+ * and outside it stays cool — both legal.
+ */
+@theme {
+  --color-gray-400: oklch(55.1% 0.027 264.364);
+  --color-slate-400: oklch(55.1% 0.027 264.364);
+}
+
 /* Smooth-scroll for in-page anchors (e.g. banner "Watch the demo" → #see-it-in-action).
    Honors prefers-reduced-motion automatically — disabled when the user opts out. */
 html {
@@ -395,7 +420,27 @@ blockquote > p:only-child {
  * AA.
  *
  * Values are Tailwind's own `stone` scale, copied verbatim so they stay
- * traceable to node_modules/tailwindcss/theme.css.
+ * traceable to node_modules/tailwindcss/theme.css — with ONE deliberate
+ * exception.
+ *
+ * THE 400 LEVEL IS NOT stone-400 (issue #189). stone-400 scores 2.59 on white
+ * and 2.48 on the -50 ground; AA needs 4.5, and it fails even the 3.0 large-text
+ * floor. It is used 343 times as a TEXT colour across the customer-facing
+ * surfaces, so it was never a legal text level — it was a legal-looking one.
+ *
+ * It is therefore mapped to stone-500's value (4.81 / 4.61). That is not a
+ * rounding choice: the LIGHTEST warm value clearing 4.5 on both grounds sits at
+ * L=55.8%, and stone-500 sits at L=55.3%. There are 0.5 lightness points between
+ * "just legal" and the next level down, which is not a visible step.
+ *
+ * So gray-400 and gray-500 now render identically for text, on purpose. The
+ * palette carried two muted text levels and only one of them was ever usable;
+ * making both usable makes them one. Treat 400 and 500 as a single "muted" level
+ * and reach for 600 when a genuine second step is needed.
+ *
+ * The nine non-text uses (7 borders, 1 ring, 1 placeholder — there are no
+ * bg-gray-400) all move in the improving direction: darker borders raise the
+ * 3:1 UI-component ratio, and placeholder text is not exempt from 4.5 either.
  */
 .sb-warm-neutrals {
   /* No layout box: the public layout's children are flex items of <body>, and a
@@ -408,7 +453,7 @@ blockquote > p:only-child {
   --color-gray-100: oklch(97% 0.001 106.424);
   --color-gray-200: oklch(92.3% 0.003 48.717);
   --color-gray-300: oklch(86.9% 0.005 56.366);
-  --color-gray-400: oklch(70.9% 0.01 56.259);
+  --color-gray-400: oklch(55.3% 0.013 58.071);
   --color-gray-500: oklch(55.3% 0.013 58.071);
   --color-gray-600: oklch(44.4% 0.011 73.639);
   --color-gray-700: oklch(37.4% 0.01 67.558);
@@ -420,7 +465,7 @@ blockquote > p:only-child {
   --color-slate-100: oklch(97% 0.001 106.424);
   --color-slate-200: oklch(92.3% 0.003 48.717);
   --color-slate-300: oklch(86.9% 0.005 56.366);
-  --color-slate-400: oklch(70.9% 0.01 56.259);
+  --color-slate-400: oklch(55.3% 0.013 58.071);
   --color-slate-500: oklch(55.3% 0.013 58.071);
   --color-slate-600: oklch(44.4% 0.011 73.639);
   --color-slate-700: oklch(37.4% 0.01 67.558);

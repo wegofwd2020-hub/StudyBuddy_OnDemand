@@ -239,7 +239,7 @@ function CtaSection() {
     <section className="bg-blue-600 px-4 py-20 text-center text-white">
       <div className="mx-auto max-w-2xl">
         <h2 className="text-3xl font-bold">Ready to bring StudyBuddy to your school?</h2>
-        <p className="mt-4 text-blue-100">
+        <p className="mt-4 text-blue-50">
           Free to start. No credit card. Full access to Grades 5–12 content on day one.
         </p>
         <LinkButton

@@ -45,7 +45,7 @@ function HeroSection() {
         <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
           StudyBuddy for Schools
         </h1>
-        <p className="mt-6 text-xl text-blue-100">
+        <p className="mt-6 text-xl text-blue-50">
           Pre-built curricula. Teacher tools. Three languages.
           <br className="hidden sm:block" />
           Everything your school needs — free to start.
@@ -250,7 +250,7 @@ function PricingSection() {
                         highlight ? "text-blue-200" : "text-blue-600"
                       }`}
                     />
-                    <span className={highlight ? "text-blue-100" : "text-gray-600"}>
+                    <span className={highlight ? "text-blue-50" : "text-gray-600"}>
                       {b}
                     </span>
                   </li>
@@ -332,7 +332,7 @@ function CtaSection() {
     <section className="bg-blue-600 px-4 py-20 text-center text-white">
       <div className="mx-auto max-w-2xl">
         <h2 className="text-3xl font-bold">Ready to get started?</h2>
-        <p className="mt-4 text-blue-100">
+        <p className="mt-4 text-blue-50">
           Register your school free — no credit card, no commitment.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-4">
@@ -357,7 +357,7 @@ function CtaSection() {
             instead of catching that reader. Naming the three roles is the point
             -- it lets a buyer self-select and see what their staff and students
             get. */}
-        <p className="mt-6 text-sm text-blue-100">
+        <p className="mt-6 text-sm text-blue-50">
           Not ready yet?{" "}
           <Link href="/tour" className="font-semibold text-white underline">
             Explore the platform

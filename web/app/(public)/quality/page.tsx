@@ -44,7 +44,7 @@ function HeroSection() {
         <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
           Quality you can see. Compliance you can check.
         </h1>
-        <p className="mt-6 text-xl text-blue-100">
+        <p className="mt-6 text-xl text-blue-50">
           Every lesson, quiz, and activity passes the same set of gates before a student
           ever opens it. No piece of content reaches a child without clearing structure
           checks, a language scan, and a human review step.
@@ -309,7 +309,7 @@ function CtaSection() {
     <section className="bg-blue-600 px-4 py-20 text-center text-white">
       <div className="mx-auto max-w-2xl">
         <h2 className="text-3xl font-bold">Have a compliance question?</h2>
-        <p className="mt-4 text-blue-100">
+        <p className="mt-4 text-blue-50">
           We&apos;re happy to walk your team through any gate or standard on this page —
           and to share documentation for your procurement review.
         </p>
