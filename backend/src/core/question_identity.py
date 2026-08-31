@@ -66,7 +66,7 @@ from __future__ import annotations
 import hashlib
 import unicodedata
 
-__all__ = ["stable_question_id", "stable_question_ids_for_set", "QUESTION_ID_LENGTH"]
+__all__ = ["QUESTION_ID_LENGTH", "stable_question_id", "stable_question_ids_for_set"]
 
 # 16 hex characters = 64 bits. At ~12.5k questions today, and even at a million,
 # collision probability is negligible (birthday bound ~2.7e-8 at 1e6 items), while

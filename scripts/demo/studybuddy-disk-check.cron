@@ -1,0 +1,22 @@
+# StudyBuddy demo disk guard — install to /etc/cron.d/studybuddy-disk-check
+#
+# Hourly at :17. Offset from the backups (02:00 daily, 03:00 Sunday) and from
+# the top of the hour, where everything else on this box already piles up.
+#
+# Hourly rather than daily because the failure mode is not gradual: on
+# 2026-08-31 the box went from working to 100% full and took the demo down at
+# the next deploy, and a daily check would have left up to 24 hours in which the
+# only symptom was a failed deploy nobody was watching for.
+#
+# The script is quiet when healthy, prunes caches on its own above 70%, and only
+# emails above 80% / 90% — at most one mail per level per day. So this line is
+# not a source of routine noise; if it mails, something needs a person.
+#
+# Output appends to /var/log/studybuddy-disk.log, alongside the backup log, so
+# the history is there when Promtail is eventually switched on (it is installed
+# but inactive on this box today — which is why the alert is an email and not a
+# log query).
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+17 * * * *  root  cd /opt/studybuddy && bash scripts/demo/disk-check.sh >> /var/log/studybuddy-disk.log 2>&1
