@@ -34,6 +34,8 @@ from src.utils.logger import get_logger
 
 log = get_logger("content.service")
 
+from src.core.question_identity import stable_question_id  # noqa: E402
+
 _ENT_TTL = 300  # 5 minutes
 _CSV_TTL = 300  # 5 minutes
 _CONTENT_TTL = 3600  # 1 hour
@@ -621,6 +623,7 @@ async def get_quiz_answer_key(
     get_content_file refuses it).
     """
     filename = f"quiz_set_{set_number}_{lang}.json"
+    key_lang = lang
     try:
         data = await get_content_file(curriculum_id, unit_id, filename, redis, storage)
     except FileNotFoundError:
@@ -629,12 +632,17 @@ async def get_quiz_answer_key(
         data = await get_content_file(
             curriculum_id, unit_id, f"quiz_set_{set_number}_en.json", redis, storage
         )
+        key_lang = "en"
 
-    return _parse_quiz_answer_key(data, curriculum_id, unit_id, set_number)
+    # `key_lang`, not `lang`: the block above falls back to the _en file when a
+    # translation is missing, and the identity has to describe the text actually
+    # parsed. Passing the REQUESTED language would mint a French id for English
+    # questions and split one item's statistics across two identities.
+    return _parse_quiz_answer_key(data, curriculum_id, unit_id, set_number, key_lang)
 
 
 def _parse_quiz_answer_key(
-    data: dict, curriculum_id: str, unit_id: str, set_number: int
+    data: dict, curriculum_id: str, unit_id: str, set_number: int, lang: str = "en"
 ) -> dict[str, dict]:
     """Build {question_id: {index, explanation}} from a quiz-set body.
 
@@ -670,6 +678,14 @@ def _parse_quiz_answer_key(
         key[qid] = {
             "index": index,
             "explanation": question.get("explanation", ""),
+            # ADR-008 Phase 1. `qid` is a POSITION within this set -- `q1` of set 2
+            # is a different question from `q1` of set 1 -- so a recorded answer
+            # needs the question's own identity alongside it. Computed from the
+            # stem rather than read from the file, so content generated before the
+            # backfill still resolves and no path silently records NULL.
+            "stable_question_id": stable_question_id(
+                curriculum_id, unit_id, lang, question.get("question_text") or ""
+            ),
         }
     return key
 
@@ -759,6 +775,6 @@ async def resolve_quiz_answer_key(
             school_id, curriculum_id, unit_id, lang, f"quiz_set_{set_number}", pool, redis
         )
         if override:
-            return _parse_quiz_answer_key(override, curriculum_id, unit_id, set_number)
+            return _parse_quiz_answer_key(override, curriculum_id, unit_id, set_number, lang)
         curriculum_id, _ = await resolve_content_curriculum(unit_id, curriculum_id, school_id, pool)
     return await get_quiz_answer_key(curriculum_id, unit_id, set_number, lang, redis, storage)

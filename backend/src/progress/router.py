@@ -271,6 +271,10 @@ async def record_answer(
             "ms_taken": body.ms_taken,
             "event_id": body.event_id,
             "quiz_set": set_number,
+            # ADR-008 Phase 1: WHICH question this was, as opposed to which slot.
+            # Resolved from the answer key the server just graded against, so the
+            # client contract is unchanged -- it still sends `q1…qN`.
+            "stable_question_id": entry.get("stable_question_id"),
         },
         queue="io",
     )
