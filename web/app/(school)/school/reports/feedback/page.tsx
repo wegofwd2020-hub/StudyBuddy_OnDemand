@@ -82,8 +82,13 @@ export default function FeedbackReportPage() {
     <div className="space-y-6 p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold text-gray-900">Student Feedback</h1>
+        {/* These describe the WHOLE school and deliberately do not follow the
+            filters (see get_feedback_report). Unlabelled, that reads as a bug:
+            "18 total / 18 unreviewed" stayed put under every filter, which was
+            reported on 2026-08-31. Saying whose numbers they are costs three
+            words and removes the contradiction. */}
         <div className="flex items-center gap-2 text-sm text-gray-500">
-          <span>{data?.total_feedback_count ?? 0} total</span>
+          <span>{data?.total_feedback_count ?? 0} total across the school</span>
           {(data?.unreviewed_count ?? 0) > 0 && (
             <Badge variant="secondary">{data?.unreviewed_count} unreviewed</Badge>
           )}

@@ -57,7 +57,10 @@ export default function StudentDetailPage() {
                 label: "Pass rate",
                 value: `${report.first_attempt_pass_rate_pct.toFixed(0)}%`,
               },
-              { label: "Time spent", value: secondsToHm(report.total_time_spent_s) },
+              // Lesson-reading time only -- quizzes record per-answer timings, not a
+              // session duration, so this is not "time in the product" and the
+              // old label promised more than the number delivers.
+              { label: "Reading time", value: secondsToHm(report.total_time_spent_s) },
             ].map(({ label, value }) => (
               <Card key={label} className="border shadow-sm">
                 <CardContent className="p-4">
