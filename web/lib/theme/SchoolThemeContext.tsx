@@ -44,7 +44,21 @@ export function SchoolPortalThemeProvider({ children }: { children: ReactNode })
 
   return (
     <SchoolThemeContext.Provider value={data ?? DEFAULT_THEME}>
-      {children}
+      {/* The warm-neutral scope for the school portal (see app/globals.css).
+          It lives HERE rather than in app/(school)/layout.tsx because that
+          layout returns from two branches — local-auth and Auth0 — and both
+          already wrap in this provider. One wrapper cannot drift out of sync
+          with the other the way two copies would.
+
+          display:contents, so the portal's own `flex min-h-screen` shell stays
+          a direct child and nothing about the layout changes. The per-school
+          theme this provider carries is identity plus SUBJECT ACCENTS — hex
+          values applied directly — so it does not interact with the neutral
+          remap.
+
+          Deliberately NOT applied to StudentPortalThemeProvider below: that is
+          a separate surface and a separate decision. */}
+      <div className="sb-warm-neutrals">{children}</div>
     </SchoolThemeContext.Provider>
   );
 }

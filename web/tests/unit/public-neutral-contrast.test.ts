@@ -121,9 +121,42 @@ describe("warm public neutrals keep WCAG AA", () => {
 });
 
 describe("the override stays scoped", () => {
-  it("is applied by the public layout only", () => {
+  it("is applied by the public layout", () => {
     const layout = readFileSync(join(process.cwd(), "app/(public)/layout.tsx"), "utf8");
     expect(layout).toContain("sb-warm-neutrals");
+  });
+
+  it("is applied to the school portal via its theme provider", () => {
+    // Not in app/(school)/layout.tsx: that layout returns from two branches
+    // (local-auth and Auth0) and both wrap in SchoolPortalThemeProvider, so one
+    // wrapper there cannot drift out of sync the way two copies would.
+    const ctx = readFileSync(
+      join(process.cwd(), "lib/theme/SchoolThemeContext.tsx"),
+      "utf8",
+    );
+    const school = ctx.slice(
+      ctx.indexOf("export function SchoolPortalThemeProvider"),
+      ctx.indexOf("export function StudentPortalThemeProvider"),
+    );
+    expect(school).toContain("sb-warm-neutrals");
+  });
+
+  it("is NOT applied to the student portal", () => {
+    // The same file holds three uses of the same context. Wrapping the wrong one
+    // would warm a surface nobody decided to warm, and the diff would look
+    // identical. Assert the boundary rather than trusting the edit.
+    const ctx = readFileSync(
+      join(process.cwd(), "lib/theme/SchoolThemeContext.tsx"),
+      "utf8",
+    );
+    const student = ctx.slice(ctx.indexOf("export function StudentPortalThemeProvider"));
+    expect(student).not.toContain("sb-warm-neutrals");
+  });
+
+  it("is NOT applied to the admin console", () => {
+    // Admin is an internal operations console, deliberately left cool.
+    const layout = readFileSync(join(process.cwd(), "app/(admin)/layout.tsx"), "utf8");
+    expect(layout).not.toContain("sb-warm-neutrals");
   });
 
   it("uses display:contents so it adds no layout box", () => {
