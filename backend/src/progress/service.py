@@ -248,6 +248,13 @@ async def pin_session_quiz_set(
     return set_number
 
 
+# How long an unfinished quiz session stays resumable, measured from its last
+# activity. Long enough to survive a logout, a closed laptop or a lost
+# connection; short enough that a quiz abandoned last term does not reopen with
+# stale answers instead of starting a fresh attempt.
+RESUME_WINDOW_HOURS = 24
+
+
 async def create_session(
     conn: asyncpg.Connection,
     student_id: str,
@@ -299,8 +306,21 @@ async def create_session(
     #
     # "Try Again" still starts a fresh attempt — that session is `completed`,
     # and completed sessions are never resumed.
+    #
+    # BOUNDED BY STALENESS (reported 2026-08-31: "answers are still there even
+    # after I log out and log in again — is this OK?"). Resuming is right for an
+    # interruption and wrong for an abandonment, and until now there was no line
+    # between them: any not-completed session resumed however old, and because
+    # `started_at` is refreshed on every resume it could be revived indefinitely.
+    # A quiz opened months ago would come back with its stale answers, graded
+    # against a set pinned at the time.
+    #
+    # `started_at` is refreshed on resume, so this reads as "time since last
+    # activity", which is the right thing to bound. Past the window the session
+    # is left alone — not completed, not deleted — and a fresh attempt opens
+    # beside it, so nothing a student did is destroyed by the passage of time.
     row = await conn.fetchrow(
-        """
+        f"""
         UPDATE progress_sessions
         SET started_at = NOW()
         WHERE session_id = (
@@ -310,6 +330,7 @@ async def create_session(
               AND ps.unit_id       = $2
               AND ps.curriculum_id = $3
               AND ps.completed     = FALSE
+              AND ps.started_at >= NOW() - INTERVAL '{RESUME_WINDOW_HOURS} hours'
             ORDER BY ps.started_at DESC
             LIMIT 1
             FOR UPDATE SKIP LOCKED

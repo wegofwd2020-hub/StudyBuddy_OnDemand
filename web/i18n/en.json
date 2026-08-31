@@ -181,7 +181,7 @@
     "account_pending": "Account is awaiting parental consent.",
     "account_suspended": "Your account has been suspended. Contact your school.",
     "forgot_password": "Forgot password?",
-    "reset_password_title": "Reset your password",
+    "reset_password_title": "Forgot your password?",
     "reset_password_subtitle": "Enter your email and we'll send a reset link",
     "reset_email_sent": "Check your email for a reset link.",
     "new_password_title": "Set new password",

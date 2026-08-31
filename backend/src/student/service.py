@@ -626,7 +626,13 @@ async def get_stats(conn: asyncpg.Connection, redis, student_id: str, period: st
         SELECT
             COUNT(CASE WHEN completed = TRUE THEN 1 END)           AS quizzes_completed,
             COUNT(CASE WHEN completed = TRUE AND passed = TRUE THEN 1 END) AS quizzes_passed,
-            AVG(CASE WHEN completed = TRUE THEN score::float / NULLIF(total_questions, 0) * 100 END) AS avg_pct
+            -- WEIGHTED: questions right over questions answered (#669). The old
+            -- AVG() averaged per-session percentages, which weights a 4-question
+            -- quiz the same as a 20-question one, so this endpoint and
+            -- /analytics/student/stats reported different averages for the same
+            -- student. That fix reached the web endpoint and not this one.
+            100.0 * SUM(CASE WHEN completed THEN score END)
+                  / NULLIF(SUM(CASE WHEN completed THEN total_questions END), 0) AS avg_pct
         FROM progress_sessions
         WHERE student_id = $1 {date_filter}
         """,
@@ -637,7 +643,12 @@ async def get_stats(conn: asyncpg.Connection, redis, student_id: str, period: st
     lesson_row = await conn.fetchrow(
         f"""
         SELECT
-            COUNT(*)                              AS lessons_viewed,
+            -- DISTINCT lessons, not view events (#668). Re-opening one lesson
+            -- incremented this, under a label promising "lessons viewed" -- on
+            -- the demo that is 72 view events against 18 distinct lessons for
+            -- one student. Fixed on the web endpoint at the time; this one,
+            -- which the MOBILE app calls, kept the old count until now.
+            COUNT(DISTINCT unit_id)               AS lessons_viewed,
             COALESCE(SUM(duration_s), 0) / 60    AS total_minutes,
             COUNT(CASE WHEN audio_played THEN 1 END) AS audio_plays
         FROM lesson_views

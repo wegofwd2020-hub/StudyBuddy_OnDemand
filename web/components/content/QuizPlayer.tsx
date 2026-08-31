@@ -252,10 +252,16 @@ export function QuizPlayer({ quiz, sessionId, onRetry }: QuizPlayerProps) {
           <h2 className="text-2xl font-bold text-gray-900">
             {passed ? t("passed_heading") : t("try_again_heading")}
           </h2>
+          {/* Unit first, subject as the smaller qualifier above it. The screen
+              showed only the subject, so a student with several Mathematics
+              units could not tell which one the score was for. */}
           {quiz.subject && (
             <p className="text-xs font-medium tracking-wide text-gray-400 uppercase">
               {quiz.subject}
             </p>
+          )}
+          {quiz.unit_title && (
+            <p className="text-base font-semibold text-gray-700">{quiz.unit_title}</p>
           )}
           <p className="text-gray-500">
             {t("score_label", { score, total: totalQ, pct })}

@@ -67,6 +67,11 @@ export interface QuizContent {
   pass_threshold: number;
   questions: QuizQuestion[];
   subject?: string;
+  /** The unit's own title, shown on the result screen beside the subject.
+   *  "MATHEMATICS" alone does not say WHICH unit the score belongs to
+   *  (reported 2026-08-31). Optional: absent for a unit not in
+   *  curriculum_units, where the screen simply omits it. */
+  unit_title?: string | null;
 }
 
 export interface VisualItem {

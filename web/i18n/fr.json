@@ -87,7 +87,7 @@
     "account_pending": "Le compte est en attente du consentement parental.",
     "account_suspended": "Votre compte a été suspendu. Contactez votre école.",
     "forgot_password": "Mot de passe oublié ?",
-    "reset_password_title": "Réinitialisez votre mot de passe",
+    "reset_password_title": "Mot de passe oublié ?",
     "reset_password_subtitle": "Entrez votre e-mail et nous vous enverrons un lien de réinitialisation",
     "reset_email_sent": "Vérifiez votre e-mail pour un lien de réinitialisation.",
     "new_password_title": "Définir un nouveau mot de passe",
