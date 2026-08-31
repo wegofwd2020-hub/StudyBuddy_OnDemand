@@ -280,9 +280,15 @@ async def student_stats(
         # progress_sessions.subject column holds codes / "unknown".
         unit_subj_rows = await conn.fetch(
             f"""
+            -- COMPLETED sessions only, like every other figure on this page
+            -- (#662). This counted every session row including abandoned ones,
+            -- so the per-subject bars summed to 73 beside a "Quizzes completed"
+            -- tile reading 32 -- the reported case, on data where 58 of 91
+            -- sessions were never finished. Two numbers about the same quizzes,
+            -- on one screen, over different denominators.
             SELECT unit_id, subject,
-                   COUNT(*) AS attempts,
-                   SUM(CASE WHEN passed THEN 1 ELSE 0 END) AS passed_count
+                   COUNT(*) FILTER (WHERE completed) AS attempts,
+                   COUNT(*) FILTER (WHERE completed AND passed) AS passed_count
             FROM progress_sessions
             WHERE student_id = $1
               {period_clause}

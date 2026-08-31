@@ -85,7 +85,10 @@ export const STUDENT_DETAIL_STRINGS = {
   unitsCompleted: "Units completed",
   inProgress: "In progress",
   passRate: "Pass rate",
-  timeSpent: "Time spent",
+  // Renamed 2026-08-31: the figure is SUM(lesson_views.duration_s) -- lesson
+  // reading only. Quizzes record per-answer timings, not a session duration,
+  // so "Time spent" promised time in the product and delivered time reading.
+  timeSpent: "Reading time",
   // Subject tags
   strongestPrefix: "Strongest:",
   attentionPrefix: "Needs attention:",
