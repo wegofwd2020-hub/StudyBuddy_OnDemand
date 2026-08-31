@@ -11,7 +11,7 @@
  * This parses the real CSS rather than restating the values, so editing the
  * palette without editing this file is what triggers the failure.
  */
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -70,7 +70,10 @@ describe("warm public neutrals keep WCAG AA", () => {
   // Body-copy shades, on white and on the bg-*-50 section ground. 500 is the
   // tightest and the most used (~104 occurrences on public pages), so it is the
   // one that actually decides whether this palette is shippable.
-  it.each(["500", "600", "700", "800", "900"])(
+  // 400 is included since #189: it used to be the one text shade that failed,
+  // at 2.59 on white against a 4.5 requirement -- and it is used 343 times as a
+  // text colour, so it was never a legal level, just a legal-LOOKING one.
+  it.each(["400", "500", "600", "700", "800", "900"])(
     "gray-%s clears AA on white and on the -50 ground",
     (n) => {
       expect(contrast(shade("gray", n), WHITE)).toBeGreaterThanOrEqual(AA_NORMAL);
@@ -81,7 +84,7 @@ describe("warm public neutrals keep WCAG AA", () => {
   );
 
   it("slate body shades clear AA too", () => {
-    for (const n of ["500", "600", "700", "800", "900"]) {
+    for (const n of ["400", "500", "600", "700", "800", "900"]) {
       expect(contrast(shade("slate", n), WHITE)).toBeGreaterThanOrEqual(AA_NORMAL);
     }
   });
@@ -173,5 +176,57 @@ describe("the override stays scoped", () => {
     const start = CSS.indexOf(".sb-warm-neutrals {");
     const before = CSS.slice(0, start);
     expect(before).not.toMatch(/--color-gray-500:/);
+  });
+});
+
+describe("no customer-facing page keeps a sub-AA text colour we already fixed", () => {
+  it("text-blue-100 is gone from the blue CTA sections (#189)", () => {
+    // 4.31 on bg-blue-600, against 4.5 for normal text. It passed only where the
+    // text happened to be large. blue-50 scores 4.82 and keeps the tint, where
+    // plain white (5.26) would read harsher than the design intends.
+    //
+    // One of the eight sites was a line added earlier in this same session --
+    // which is the argument for asserting it rather than remembering it.
+    const roots = ["app/(public)", "app/(school)", "app/(student)", "components"];
+    const offenders: string[] = [];
+    for (const root of roots) {
+      for (const file of walk(join(process.cwd(), root))) {
+        if (readFileSync(file, "utf8").includes("text-blue-100")) {
+          offenders.push(file.replace(process.cwd() + "/", ""));
+        }
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+});
+
+/** Every .tsx under a directory. */
+function walk(dir: string): string[] {
+  const out: string[] = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) out.push(...walk(full));
+    else if (entry.name.endsWith(".tsx")) out.push(full);
+  }
+  return out;
+}
+
+describe("the 400 level is legal outside the warm scope too (#189)", () => {
+  it("globals.css remaps gray-400/slate-400 at the theme level", () => {
+    // The warm scope covers the customer-facing surfaces. The admin console is
+    // deliberately NOT warm, and #189 names its Dashboard and Content Review --
+    // so the AA fix has to sit ABOVE the scope or admin keeps the 2.59 shade.
+    // Anchor on the RULE, not the name: the explanatory comment above the
+    // @theme block mentions .sb-warm-neutrals too, and slicing at the first
+    // mention cuts before the declarations this is asserting.
+    const theme = CSS.slice(0, CSS.indexOf(".sb-warm-neutrals {"));
+    expect(theme, "gray-400 must be remapped outside the warm scope").toMatch(
+      /--color-gray-400:\s*oklch\(55\.1%/,
+    );
+    expect(theme).toMatch(/--color-slate-400:\s*oklch\(55\.1%/);
+  });
+
+  it("the warm scope still re-tints 400, so the portals stay warm", () => {
+    expect(warmBlock()).toMatch(/--color-gray-400:\s*oklch\(55\.3%/);
   });
 });

@@ -526,7 +526,7 @@ function PublicAbout() {
       {/* Mission */}
       <div className="mb-16 rounded-2xl bg-blue-600 px-8 py-10 text-white">
         <h2 className="mb-4 text-2xl font-bold">Our mission</h2>
-        <p className="max-w-2xl text-blue-100">
+        <p className="max-w-2xl text-blue-50">
           Every student deserves access to high-quality education regardless of their
           internet connection, device, or first language. StudyBuddy delivers AI-generated
           study material to students the moment they need it — with audio support for
