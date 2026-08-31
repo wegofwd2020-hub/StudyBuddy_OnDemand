@@ -241,6 +241,11 @@ class AlertItem(BaseModel):
     # curriculum_units — such alerts are withheld from grade-restricted
     # teachers, so a None here only ever reaches a school_admin.
     grade: int | None = None
+    # The unit's human name, so the inbox can say "Weather and Climate" rather
+    # than only "G5-TECH-004" — a code a teacher cannot match to anything on the
+    # Subjects page. None when the unit is not in curriculum_units, in which case
+    # the page falls back to showing the raw id.
+    unit_title: str | None = None
 
 
 class AlertListResponse(BaseModel):
