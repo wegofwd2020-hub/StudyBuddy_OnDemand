@@ -53,6 +53,7 @@ from src.content.service import (
     get_next_quiz_set,
     has_met_lesson_prerequisite,
     increment_lessons_accessed,
+    resolve_content_curriculum,
     resolve_curriculum_id,
     resolve_curriculum_ids,
     unit_has_lesson,
@@ -486,6 +487,25 @@ async def get_quiz(
     if not await has_met_lesson_prerequisite(pool, student_id, unit_id):
         gate_curriculum = pre_resolved or await resolve_curriculum_id(
             student_id, student.get("grade", 8), pool, redis, school_id=school_id
+        )
+        # Swap a school FORK to the curriculum that actually holds the content
+        # before asking whether a lesson exists.
+        #
+        # Without this the gate asked the fork — which by design has no content
+        # of its own, because a fork serves its source's files — got "no lesson",
+        # and FAILED OPEN. Silently, for every student on a forked curriculum,
+        # which is most school students.
+        #
+        # It stayed invisible because the one grade it could be observed on had
+        # placeholder content, so nothing was being served there anyway. Giving
+        # that grade real content is what surfaced it.
+        #
+        # `resolve_content_curriculum` is the same helper serving and grading use
+        # (#529), so the gate now asks about exactly the file the student would
+        # be sent to read. The session endpoint was already correct: it resolves
+        # through `resolve_unit_curriculum`, which applies this swap itself.
+        gate_curriculum, _gate_subject = await resolve_content_curriculum(
+            unit_id, gate_curriculum, school_id, pool
         )
         if await unit_has_lesson(gate_curriculum, unit_id, locale, redis, storage):
             raise HTTPException(

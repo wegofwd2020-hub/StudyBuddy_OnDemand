@@ -218,6 +218,68 @@ async def _record_prior_attempt(client: AsyncClient, student_id: str) -> None:
         )
 
 
+FORK_SCHOOL_ID = "d9000000-0000-0000-0000-0000000000b2"
+FORK_CUR = "lesson-gate-fork"
+
+
+async def _fork_school(client: AsyncClient) -> str:
+    """A school whose curriculum is a FORK of the one holding the content.
+
+    `source_curriculum_id` is what makes it a fork; the fork itself deliberately
+    gets no content directory, which is exactly the production shape.
+    """
+    await _seed_curriculum(client)  # ensures CUR + its units + content exist
+    pool = client._transport.app.state.pool
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        await conn.execute(
+            """
+            INSERT INTO schools (school_id, name, contact_email, country, status)
+            VALUES ($1, 'Fork Gate School', 'forkgate@school.example.com', 'IN', 'active')
+            ON CONFLICT (school_id) DO NOTHING
+            """,
+            uuid.UUID(FORK_SCHOOL_ID),
+        )
+        await conn.execute(
+            """
+            INSERT INTO curricula
+                (curriculum_id, name, grade, year, owner_type, school_id,
+                 is_default, source_curriculum_id)
+            VALUES ($1, 'Fork Gate Curriculum', 6, 2026, 'school', $2, FALSE, $3)
+            ON CONFLICT (curriculum_id) DO NOTHING
+            """,
+            FORK_CUR,
+            uuid.UUID(FORK_SCHOOL_ID),
+            CUR,
+        )
+        # Deliberately NO curriculum_units row for the fork. That is the real
+        # production shape — the demo's fork of the Grade 8 default has zero
+        # units — and it is what makes the fork -> source swap fire at all. An
+        # earlier draft of this fixture added the unit to the fork, which
+        # suppressed the swap and made the test fail for the wrong reason.
+    return FORK_SCHOOL_ID
+
+
+async def _student_in(client: AsyncClient, school_id: str, grade: int = 6) -> str:
+    student_id = str(uuid.uuid4())
+    pool = client._transport.app.state.pool
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        await conn.execute(
+            """
+            INSERT INTO students
+                (student_id, external_auth_id, email, name, grade, locale, school_id)
+            VALUES ($1, $2, $3, 'Fork Student', $4, 'en', $5)
+            """,
+            uuid.UUID(student_id),
+            f"auth0|fork-{student_id.replace('-', '')}",
+            f"fork-{student_id[:8]}@example.com",
+            grade,
+            uuid.UUID(school_id),
+        )
+    return student_id
+
+
 def _hdr(student_id: str, grade: int = 6) -> dict:
     return {
         "Authorization": f"Bearer {make_student_token(student_id, grade, school_id=SCHOOL_ID)}"
@@ -389,3 +451,48 @@ async def test_the_refusal_says_nothing_technical_to_a_student(client, db_conn):
     assert "lesson" in msg.lower()
     for leak in ("403", "forbidden", "curriculum_id", CUR, "sql", "traceback"):
         assert leak.lower() not in msg.lower(), f"student-facing copy leaked {leak!r}"
+
+# ── A school FORK must be gated too ───────────────────────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_a_school_fork_is_gated_against_its_SOURCE_content(client, db_conn):
+    """The case every fixture above misses, and it shipped broken.
+
+    A school fork holds no content of its own by design — it serves its source
+    curriculum's files, and the fork -> OOB swap is what connects the two. The
+    gate asked the FORK whether a lesson existed, got "no", and failed OPEN.
+    Silently, for every student on a forked curriculum, which is most school
+    students.
+
+    It survived review because every fixture in this file uses a school-owned
+    curriculum that holds its OWN content, so the swap is a no-op and the bug is
+    invisible. It survived live verification too, because the one grade where it
+    could be observed had placeholder content that was refused anyway. Giving
+    that grade real content is what surfaced it.
+    """
+    school = await _fork_school(client)
+    student_id = await _student_in(client, school)
+
+    # No lesson view: the gate must refuse, resolving the lesson through the
+    # fork's SOURCE rather than the (deliberately empty) fork.
+    r = await client.get(
+        f"/api/v1/content/{UNIT}/quiz",
+        headers={"Authorization": f"Bearer {make_student_token(student_id, 6, school_id=school)}"},
+    )
+    assert r.status_code == 403, r.text
+    assert r.json()["error"] == "lesson_required"
+
+
+@pytest.mark.asyncio
+async def test_a_school_fork_still_opens_once_the_lesson_is_read(client, db_conn):
+    """The negative direction: the fix must not close the fork path permanently."""
+    school = await _fork_school(client)
+    student_id = await _student_in(client, school)
+    await _record_view(client, student_id)
+
+    r = await client.get(
+        f"/api/v1/content/{UNIT}/quiz",
+        headers={"Authorization": f"Bearer {make_student_token(student_id, 6, school_id=school)}"},
+    )
+    assert r.status_code == 200, r.text
