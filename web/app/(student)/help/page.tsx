@@ -25,8 +25,8 @@ const GETTING_STARTED_DEMO = [
   },
   {
     step: "4",
-    title: "Start a unit",
-    body: "Click any unit to access the Lesson, Tutorial, Quiz, and Activity. Lessons show key concepts; quizzes give immediate feedback.",
+    title: "Start a unit — lesson first",
+    body: "Click any unit to open its Lesson, Tutorial, Quiz, and Activity. Read the lesson before the quiz: the quiz stays locked until you've opened it. Quizzes give immediate feedback.",
   },
   {
     step: "5",
@@ -53,18 +53,46 @@ const GETTING_STARTED_FULL = [
   },
   {
     step: "4",
-    title: "Learning flow",
-    body: "Each unit has a Lesson (with optional audio), Tutorial (tabbed deep-dive), up to 3 Quiz sets, and an Activity where available.",
+    title: "Learning flow — lesson before quiz",
+    body: "Each unit has a Lesson (with optional audio), a Tutorial (tabbed deep-dive), up to 3 Quiz sets, and an Activity where available. Open the lesson first — the quiz unlocks once you have. If you've already attempted a unit before, you can go straight back to its quiz.",
   },
   {
     step: "5",
-    title: "Progress & Stats",
-    body: "Progress shows your attempt history; My Stats shows totals, streaks, and a subject breakdown.",
+    title: "Tell us what helped",
+    body: "Lessons, tutorials and activities each have a thumbs up / thumbs down. A thumbs-down opens an optional comment box. Your teacher sees this, so it's the fastest way to flag something confusing or wrong.",
   },
   {
     step: "6",
+    title: "Progress & Stats",
+    body: "Progress shows your attempt history; My Stats shows totals, streaks, and a subject breakdown. Pass rate there counts every try — retaking a quiz and passing counts as a pass.",
+  },
+  {
+    step: "7",
     title: "Settings",
     body: "Update display name, language (English/French/Spanish), notification preferences, and accessibility options.",
+  },
+];
+
+// Short, and only questions a student actually arrives with. The first one is
+// the single most likely support question after the lesson-before-quiz rule
+// shipped (2026-09-01): a locked quiz looks like a fault unless something says
+// otherwise.
+const STUDENT_FAQ: { q: string; a: string }[] = [
+  {
+    q: "Why can't I start the quiz?",
+    a: "Quizzes open once you've opened that unit's lesson. Tap 'Go to the lesson' on the message, have a read, and the quiz will be waiting when you come back. If you've taken that quiz before, it stays open — this only applies the first time.",
+  },
+  {
+    q: "I retook a quiz. Which score counts?",
+    a: "Your best score is the one shown against the unit. My Stats counts every attempt, so improving on a retake improves your figures. Your teacher also sees how you did on the first try, which is why their number can differ from yours.",
+  },
+  {
+    q: "I forgot my password.",
+    a: "Use 'Forgot password' on the sign-in page. The link we email lasts one hour and works once — if it's expired, just request another.",
+  },
+  {
+    q: "Something in a lesson looks wrong.",
+    a: "Use the thumbs-down at the bottom of the lesson and say what you noticed. It goes to your teacher.",
   },
 ];
 
@@ -150,6 +178,29 @@ export default function StudentHelpPage() {
         </section>
       )}
 
+      {/* Common questions */}
+      <section>
+        <h2 className="mb-4 text-sm font-semibold tracking-wide text-gray-500 uppercase">
+          Common Questions
+        </h2>
+        <div className="space-y-2">
+          {STUDENT_FAQ.map(({ q, a }) => (
+            <details
+              key={q}
+              className="group rounded-lg border border-gray-100 bg-white shadow-sm"
+            >
+              <summary className="flex cursor-pointer items-center justify-between gap-3 px-4 py-3 font-medium text-gray-900 marker:content-none">
+                {q}
+                <ChevronDown className="h-4 w-4 shrink-0 text-gray-400 transition-transform group-open:rotate-180" />
+              </summary>
+              <div className="border-t border-gray-50 px-4 py-3">
+                <p className="text-sm text-gray-600">{a}</p>
+              </div>
+            </details>
+          ))}
+        </div>
+      </section>
+
       {/* Quick reference */}
       <section>
         <h2 className="mb-4 text-sm font-semibold tracking-wide text-gray-500 uppercase">
@@ -168,9 +219,11 @@ export default function StudentHelpPage() {
                 ["Browse subjects", "/subjects"],
                 ["Open Curriculum Map", "/curriculum"],
                 ["Read a lesson", "/subjects → unit → Lesson tab"],
-                ["Take a quiz", "/subjects → unit → Quiz tab"],
+                ["Take a quiz (after the lesson)", "/subjects → unit → Quiz tab"],
+                ["Say a lesson helped / didn't", "Thumbs at the foot of the lesson"],
                 ["View quiz score history", "/progress"],
                 ["See subject totals", "/stats"],
+                ["Listen to a lesson (where available)", "Lesson page → audio player"],
                 // The page has a Profile card alongside Language and Notifications, so the
                 // old label undersold it and a student looking for their name or grade had
                 // no signpost (Venki, 2026-08-28).
