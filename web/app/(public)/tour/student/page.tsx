@@ -8,8 +8,9 @@
  * Ends with a "contact your school" CTA — students cannot self-register,
  * their accounts are provisioned by their School Admin.
  *
- * Content sourced from: studybuddy-docs/help/overview/student.html
- *                       studybuddy-docs/help/help/student/
+ * Originally transcribed from the studybuddy-docs static help site, which was
+ * RETIRED on 2026-09-01 (five months stale, nothing consumed it). This page is
+ * the source of truth for its own copy now — do not go looking for that repo.
  * SVG flows reused from: public/assets/tour/
  * Accent colour: green-600 (matches student role card on /tour)
  */

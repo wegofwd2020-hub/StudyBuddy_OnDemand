@@ -7,8 +7,10 @@
  * No JWT, no API calls — pure static content.
  * Ends with a registration CTA.
  *
- * Content sourced from: studybuddy-docs/help/overview/school-admin.html
- * SVG flows sourced from: studybuddy-docs/help/flows/  (copied to public/assets/tour/)
+ * Originally transcribed from the studybuddy-docs static help site, which was
+ * RETIRED on 2026-09-01 (five months stale, nothing consumed it). This page is
+ * the source of truth for its own copy now — do not go looking for that repo.
+ * SVG flows live in public/assets/tour/ and are the only surviving copies.
  */
 
 import { useState } from "react";
