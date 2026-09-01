@@ -6,6 +6,16 @@ interface StatCardProps {
   value: string | number;
   icon: LucideIcon;
   color?: "blue" | "green" | "purple" | "orange";
+  /**
+   * What the number actually counts, when the label alone is ambiguous.
+   *
+   * "Pass rate" means one thing on this screen (every attempt) and another on
+   * the teacher's report card for the same student (first attempt only). Both
+   * are right; neither said which, so the two screens showed 65% and 43% for one
+   * child on one afternoon and read as a data bug. A parenthetical would crowd a
+   * card this small, so the qualifier gets its own line.
+   */
+  hint?: string;
 }
 
 const COLOR_MAP = {
@@ -15,7 +25,13 @@ const COLOR_MAP = {
   orange: { bg: "bg-orange-50", text: "text-orange-600" },
 };
 
-export function StatCard({ label, value, icon: Icon, color = "blue" }: StatCardProps) {
+export function StatCard({
+  label,
+  value,
+  icon: Icon,
+  color = "blue",
+  hint,
+}: StatCardProps) {
   const { bg, text } = COLOR_MAP[color];
 
   return (
@@ -27,6 +43,7 @@ export function StatCard({ label, value, icon: Icon, color = "blue" }: StatCardP
         <div>
           <p className="text-2xl font-bold text-gray-900">{value}</p>
           <p className="text-xs text-gray-500">{label}</p>
+          {hint && <p className="mt-0.5 text-[11px] text-gray-400">{hint}</p>}
         </div>
       </CardContent>
     </Card>

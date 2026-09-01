@@ -55,24 +55,50 @@ export default function StudentDetailPage() {
       {report && (
         <>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            {/* Every tile carries the definition it counts.
+                None of them did, and a tester comparing this card with the
+                student's own My Stats page found 43% here against 65% there for
+                the same child on the same afternoon and reported a data bug.
+                Both numbers were right: this one counts first attempts, that one
+                counts every attempt. Nothing on either screen said so. */}
             {[
-              { label: "Units completed", value: report.units_completed },
-              { label: "In progress", value: report.units_in_progress },
+              {
+                label: "Units completed",
+                value: report.units_completed,
+                hint: "Quiz passed",
+              },
+              {
+                // Answers "does In progress include Needs Retry?" — yes. It is
+                // every unit reached and not yet passed, whether the quiz was
+                // failed or never taken.
+                label: "In progress",
+                value: report.units_in_progress,
+                hint: "Reached, not yet passed",
+              },
               {
                 label: "Pass rate",
                 value: `${report.first_attempt_pass_rate_pct.toFixed(0)}%`,
+                // The house convention on four other screens ("Pass rate (1st
+                // attempt)", "First-attempt pass rate %"); this tile was the one
+                // place it had been dropped.
+                hint: "First attempt only",
               },
               // Lesson-reading time only -- quizzes record per-answer timings, not a
               // session duration, so this is not "time in the product" and the
               // old label promised more than the number delivers.
-              { label: "Reading time", value: secondsToHm(report.total_time_spent_s) },
-            ].map(({ label, value }) => (
+              {
+                label: "Reading time",
+                value: secondsToHm(report.total_time_spent_s),
+                hint: "Total of the column below",
+              },
+            ].map(({ label, value, hint }) => (
               <Card key={label} className="border shadow-sm">
                 <CardContent className="p-4">
                   <p className="text-xs font-medium tracking-wide text-gray-400 uppercase">
                     {label}
                   </p>
                   <p className="mt-1 text-xl font-bold text-gray-900">{value}</p>
+                  <p className="mt-0.5 text-[11px] text-gray-400">{hint}</p>
                 </CardContent>
               </Card>
             ))}

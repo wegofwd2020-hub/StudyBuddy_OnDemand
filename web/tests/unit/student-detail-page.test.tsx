@@ -106,7 +106,11 @@ describe("SCH-08 — Student detail page", () => {
 
   it("renders Time spent KPI label", () => {
     render(<StudentDetailPage />);
-    expect(screen.getByText(STUDENT_DETAIL_STRINGS.timeSpent)).toBeInTheDocument();
+    // "Reading time" now appears TWICE on purpose: on the tile (a total) and as
+    // the column header (the same quantity per unit, which sums to the tile).
+    // getByText would throw on the ambiguity, so this asserts both exist rather
+    // than pretending only one does.
+    expect(screen.getAllByText(STUDENT_DETAIL_STRINGS.timeSpent)).toHaveLength(2);
   });
 
   it("renders Time spent formatted as 2h 0m", () => {
@@ -126,7 +130,11 @@ describe("SCH-08 — Student detail page", () => {
     expect(screen.getByText(STUDENT_DETAIL_STRINGS.colLesson)).toBeInTheDocument();
     expect(screen.getByText(STUDENT_DETAIL_STRINGS.colAttempts)).toBeInTheDocument();
     expect(screen.getByText(STUDENT_DETAIL_STRINGS.colBestScore)).toBeInTheDocument();
-    expect(screen.getByText(STUDENT_DETAIL_STRINGS.colTime)).toBeInTheDocument();
+    // Shares its text with the tile above (see the KPI label test), so this
+    // looks for the header cell specifically rather than any matching node.
+    expect(
+      screen.getByRole("columnheader", { name: STUDENT_DETAIL_STRINGS.colTime }),
+    ).toBeInTheDocument();
   });
 
   it("renders each unit name in the table", () => {
@@ -203,5 +211,48 @@ describe("SCH-08 — Student detail page", () => {
     render(<StudentDetailPage />);
     expect(screen.queryByText(STUDENT_DETAIL_STRINGS.unitsCompleted)).toBeNull();
     expect(screen.queryByText(STUDENT_DETAIL_STRINGS.unitProgressCard)).toBeNull();
+  });
+
+  // ── Every tile says what it counts ─────────────────────────────────────────
+  //
+  // A tester compared this card with the student's own My Stats page and found
+  // 43% here against 65% there for the same child on the same afternoon, and
+  // reported a data bug. Both numbers were right — this one counts first
+  // attempts, that one counts every attempt — and neither screen said so.
+  //
+  // These are label assertions, which regress silently and invisibly: nothing
+  // breaks when a qualifier is dropped, the number just starts lying by omission
+  // again. That is precisely why they are worth pinning.
+
+  it("says the pass rate counts first attempts only", () => {
+    render(<StudentDetailPage />);
+    expect(screen.getByText("First attempt only")).toBeInTheDocument();
+  });
+
+  it("says what In progress includes, answering whether Needs Retry counts", () => {
+    render(<StudentDetailPage />);
+    expect(screen.getByText("Reached, not yet passed")).toBeInTheDocument();
+  });
+
+  it("says Units completed means the quiz was passed", () => {
+    render(<StudentDetailPage />);
+    expect(screen.getByText("Quiz passed")).toBeInTheDocument();
+  });
+
+  it("ties the Reading time tile to the column beneath it", () => {
+    render(<StudentDetailPage />);
+    expect(screen.getByText("Total of the column below")).toBeInTheDocument();
+  });
+
+  it("renders per-unit reading time from total_duration_s", () => {
+    // Guards the #717 rename at the seam it actually broke. `tests/**` is
+    // EXCLUDED from tsconfig, so the fixture's `: StudentReport` annotation is
+    // never checked — the rename left `avg_duration_s` in the fixture and the
+    // page read `undefined` with nothing failing to typecheck.
+    render(<StudentDetailPage />);
+    // 1200s and 900s from the fixture; 0s renders as a plain "0m".
+    expect(screen.getByText("20m")).toBeInTheDocument();
+    expect(screen.getByText("15m")).toBeInTheDocument();
+    expect(screen.queryByText("NaNm")).toBeNull();
   });
 });

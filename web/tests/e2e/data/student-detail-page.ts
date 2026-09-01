@@ -49,7 +49,7 @@ export const MOCK_STUDENT_REPORT: StudentReport = {
       quiz_attempts: 2,
       best_score: 90.0,
       passed: true,
-      avg_duration_s: 1200,
+      total_duration_s: 1200,
     },
     {
       unit_id: "G8-MATH-001",
@@ -59,7 +59,7 @@ export const MOCK_STUDENT_REPORT: StudentReport = {
       quiz_attempts: 3,
       best_score: 55.0,
       passed: false,
-      avg_duration_s: 900,
+      total_duration_s: 900,
     },
     {
       unit_id: "G8-SCI-002",
@@ -69,7 +69,7 @@ export const MOCK_STUDENT_REPORT: StudentReport = {
       quiz_attempts: 0,
       best_score: null,
       passed: false,
-      avg_duration_s: 0,
+      total_duration_s: 0,
     },
   ],
 };
@@ -98,7 +98,10 @@ export const STUDENT_DETAIL_STRINGS = {
   colLesson: "Lesson",
   colAttempts: "Attempts",
   colBestScore: "Best score",
-  colTime: "Time",
+  // Renamed 2026-09-01: the column was AVG under a heading that read as a total,
+  // beneath a tile that was a SUM. It is now the same quantity as the tile, one
+  // grain down, and shares its name to say so.
+  colTime: "Reading time",
   // Time formatting
   twoHours: "2h 0m",
 } as const;
