@@ -50,19 +50,47 @@ _SKIP_EMBED = os.environ.get("SKIP_EMBED", "") == "1"
 _VOYAGE_MODEL = "voyage-3-lite"
 _EMBED_DIM = 512
 _BATCH_SIZE = 16  # Voyage AI rate limit — embed up to 16 texts per call
+# Seconds between batches. 3 requests/minute is the free-tier cap (no payment
+# method on the account), so 21s keeps a whole run inside it without ever being
+# refused. Overridable for accounts on a paid tier, where this is pure waiting.
+_BATCH_PAUSE_S = float(os.getenv("EMBED_BATCH_PAUSE_S", "21"))
 
 
 # ── Embedding ─────────────────────────────────────────────────────────────────
 
-async def _embed_batch(texts: list[str]) -> list[list[float]]:
-    """Call Voyage AI to embed a batch of texts. Returns parallel list of vectors."""
+
+async def _embed_batch(texts: list[str], *, attempts: int = 6) -> list[list[float]]:
+    """Call Voyage AI to embed a batch of texts. Returns parallel list of vectors.
+
+    Retries on rate limiting, which is not an edge case here: a Voyage account
+    without a payment method is capped at 3 requests per minute, and this script
+    fires its batches back to back. On the 67-chunk library that is 5 calls in
+    about a second, so it failed on the third every time — which is very likely
+    why the help corpus had never actually been indexed anywhere.
+
+    Backoff starts above the 20s-per-request budget that 3 RPM implies, so the
+    common case recovers on the first retry rather than grinding through several.
+    """
     import voyageai
+
     client = voyageai.AsyncClient(api_key=_VOYAGE_API_KEY)
-    result = await client.embed(texts, model=_VOYAGE_MODEL, input_type="document")
-    return result.embeddings
+    delay = 25.0
+    for attempt in range(1, attempts + 1):
+        try:
+            result = await client.embed(texts, model=_VOYAGE_MODEL, input_type="document")
+            return result.embeddings
+        except Exception as exc:  # voyageai raises its own RateLimitError type
+            transient = "rate" in type(exc).__name__.lower() or "rate limit" in str(exc).lower()
+            if not transient or attempt == attempts:
+                raise
+            print(f"  rate-limited (attempt {attempt}/{attempts}); waiting {delay:.0f}s")
+            await asyncio.sleep(delay)
+            delay = min(delay * 1.5, 90.0)
+    raise RuntimeError("unreachable")
 
 
 # ── Database upsert ───────────────────────────────────────────────────────────
+
 
 async def _upsert_chunk(
     conn: asyncpg.Connection,
@@ -90,7 +118,13 @@ async def _upsert_chunk(
                     body        = EXCLUDED.body,
                     embedding   = EXCLUDED.embedding
             """,
-            chunk_id, persona, source_file, section_id, heading, body, vec_literal,
+            chunk_id,
+            persona,
+            source_file,
+            section_id,
+            heading,
+            body,
+            vec_literal,
         )
     else:
         await conn.execute(
@@ -105,11 +139,17 @@ async def _upsert_chunk(
                     heading     = EXCLUDED.heading,
                     body        = EXCLUDED.body
             """,
-            chunk_id, persona, source_file, section_id, heading, body,
+            chunk_id,
+            persona,
+            source_file,
+            section_id,
+            heading,
+            body,
         )
 
 
 # ── Deterministic chunk ID ────────────────────────────────────────────────────
+
 
 def _chunk_uuid(source_file: str, section_id: str) -> uuid.UUID:
     """
@@ -123,6 +163,7 @@ def _chunk_uuid(source_file: str, section_id: str) -> uuid.UUID:
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
+
 
 async def main() -> None:
     if not _DATABASE_URL:
@@ -155,6 +196,13 @@ async def main() -> None:
         embeddings = []
         for i in range(0, len(texts), _BATCH_SIZE):
             batch = texts[i : i + _BATCH_SIZE]
+            # Pace the calls rather than relying on the retry alone. A Voyage
+            # account with no payment method allows 3 requests per minute, so
+            # firing every batch immediately spends the whole minute's quota on
+            # the first three and then waits regardless — pacing costs the same
+            # wall-clock time and never surfaces an error.
+            if i:
+                await asyncio.sleep(_BATCH_PAUSE_S)
             batch_vecs = await _embed_batch(batch)
             embeddings.extend(batch_vecs)
             print(f"  Embedded {min(i + _BATCH_SIZE, len(texts))}/{len(texts)}")
@@ -163,7 +211,11 @@ async def main() -> None:
     conn = await asyncpg.connect(_DATABASE_URL, statement_cache_size=0)
     try:
         inserted = 0
-        for chunk, embedding in zip(chunks, embeddings):
+        # strict=True: if the embedding list ever comes back shorter than the
+        # chunk list, zip() would silently index only the prefix and report
+        # success for a partial corpus. Better to fail loudly than to leave the
+        # help widget quietly missing sections nobody knows are absent.
+        for chunk, embedding in zip(chunks, embeddings, strict=True):
             chunk_id = _chunk_uuid(chunk["source_file"], chunk["section_id"])
             await _upsert_chunk(
                 conn,
