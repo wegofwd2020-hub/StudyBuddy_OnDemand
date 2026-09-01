@@ -4,87 +4,161 @@
 
 # StudyBuddy AI — OnDemand Edition
 
-**Backend-powered education enhancement platform for students.**
+**Lessons, always current.**
+
+AI-powered lessons, quizzes, and tutorials for Grades 5–12 — a bridge from the
+classroom to a world that won't sit still. Schools provision their students;
+students get instant pre-generated content in English, French, and Spanish with
+no API key of their own.
 
 **Live demo → [demo.usestudybuddy.com](https://demo.usestudybuddy.com/)**
 
 ---
 
-## What This Is
+## What this is
 
-StudyBuddy OnDemand is the next generation of the StudyBuddy Free standalone app (private repository).
+Content generation happens **offline, in a pipeline** — not on the student's
+device. A build run asks Claude for every Grade / Subject / Unit, validates the
+result, and writes it to a content store. The app then serves that content from
+cache, instantly.
 
-The Free edition proved the concept — students can navigate a grade-aware curriculum, read AI-generated lesson synopses, take adaptive quizzes, and receive personalised remediation. However, it has fundamental limitations:
+That one decision is what makes the rest possible:
 
-| Problem | Root Cause |
+| | Consequence |
 |---|---|
-| Students must supply their own Anthropic API key | No backend — app calls Claude directly |
-| Lesson/quiz load time is 5–10 seconds | Live Claude API call per request on-device |
-| Lessons are truncated if too long | Mobile token/timeout ceiling |
-| Progress is lost if the app is reinstalled | Stored only in local JSON |
-| No teacher or parent visibility | No backend to aggregate data |
+| **No key on the client** | The Anthropic key lives only in backend env vars. Students sign in with email and password. |
+| **Instant content** | Cache hit, not a live model call — no 5–10s wait, no truncation from a mobile token ceiling. |
+| **Durable progress** | Per-question answers, session scores and struggle signals are recorded server-side. |
+| **Teacher visibility** | Because progress is server-side, it can be aggregated into reports, alerts and a weekly digest. |
+| **Offline-capable** | Downloaded content is cached on-device; progress events queue and sync on reconnect. |
 
-**StudyBuddy OnDemand solves all of these** by moving content generation to a backend pipeline and delivering pre-built content to the app on demand.
+### The engineering mental model
 
----
+Every generation is a **scoped query** against the model, parametrised by six
+dimensions — topic, grade, language, curriculum context, format, and a real-world
+framing. The model is the commodity; the **scoping layer is the product**. A
+library is curated by selection and goes stale; a search engine is curated by
+query and re-runs. This is the second kind, which is why "always current" is a
+structural claim rather than a slogan.
 
-## Project Status
-
-**Active development.** Work is tracked as epics with living status in the
-[progress chart](docs/PROGRESS.md), regenerated nightly from `docs/epics/` and
-git history. Open issues and pull requests are the working roadmap; pull
-requests are produced through a governed AI-assisted workflow (see `CLAUDE.md`
-and `TICKETS/`) and merged after review. The
-[live demo](https://demo.usestudybuddy.com) tracks the latest release.
-
----
-
-## Core Principles
-
-1. **Students never call the AI directly** — The Anthropic API key lives only in backend environment variables. Students register with email and password.
-2. **Content is pre-generated, not live** — A build pipeline runs Claude for every Grade/Subject/Unit and stores the results. Students get instant content from a cache.
-3. **Offline-capable** — Downloaded content is stored in local SQLite on the device. Progress events are queued and synced when connectivity resumes.
-4. **Progress is durable** — Per-question answers, session scores, and struggle events are recorded server-side. Reinstalling the app loses nothing.
-5. **Phased delivery** — Architecture supports a freemium/subscription model via grade-level gating without any app store changes.
+Full positioning, and which framing to use for which audience, is in
+[`CLAUDE.md`](CLAUDE.md#positioning).
 
 ---
 
-## Repository Structure
+## Getting started
+
+```bash
+./dev_start.sh          # Postgres, Redis, migrations, API, Celery, web — all hot-reload
+./dev_start.sh test     # backend suite (no API key or Auth0 needed)
+./dev_start.sh stop     # stop background containers
+./dev_start.sh reset    # wipe the database and start fresh
+```
+
+Then read, in this order:
+
+1. **[`CLAUDE.md`](CLAUDE.md)** — the working contract for this repo: layer rules,
+   conventions, migration procedure, the pitfalls list, and the non-negotiable
+   performance / security / content rules. Read it before writing code.
+2. **[`docs/PROGRESS.md`](docs/PROGRESS.md)** — living status per epic,
+   regenerated nightly from `docs/epics/` and git history.
+3. **[`docs/epics/INDEX.md`](docs/epics/INDEX.md)** — the product backlog.
+
+Architecture, requirements, operations runbooks and the API contract live in the
+companion **[studybuddy-docs](https://github.com/wegofwd2020-hub/studybuddy-docs)**
+repository — start with
+[ARCHITECTURE.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/ARCHITECTURE.md),
+then [AGENTS.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/AGENTS.md).
+[`CLAUDE.md`](CLAUDE.md#document-map) has the full map of which document answers
+which question.
+
+---
+
+## Decisions of record
+
+Architecture decisions live in this repo, next to the code they govern:
+
+| ADR | Decides |
+|---|---|
+| [ADR-001](docs/ADR_001_tenancy_and_subscription_model.md) | Tenancy, subscriptions, school-as-primary-entity |
+| [ADR-004](docs/ADR_004_authoring_studio_home_repo.md) | Where the standalone authoring studio lives |
+| [ADR-005](docs/ADR_005_school_roles_and_uniqueness.md) | School roles (`school_admin` ⊃ teacher), email uniqueness, soft delete |
+| [ADR-006](docs/ADR_006_multi_provider_llm.md) | Multi-provider LLM pipeline and the provider abstraction |
+| [ADR-007](docs/ADR_007_academic_calendar.md) | Academic calendar, terms, per-school grading scales, promotion gating |
+| [ADR-008](docs/ADR_008_delivery_calibration.md) | How institutions tune delivery of a fixed syllabus year over year |
+
+Other frequently-needed documents:
+[`PENDING_DECISIONS.md`](docs/PENDING_DECISIONS.md) ·
+[`PROJECT_WISDOM.md`](docs/PROJECT_WISDOM.md) ·
+[`SCHOOL_USER_MANAGEMENT.md`](docs/SCHOOL_USER_MANAGEMENT.md) ·
+[`COMPLIANCE_ONE_PAGER.md`](docs/COMPLIANCE_ONE_PAGER.md) ·
+[`COMPETITIVE_kolibri.md`](docs/COMPETITIVE_kolibri.md)
+
+---
+
+## Repository structure
 
 ```
 StudyBuddy_OnDemand/
-  README.md               ← This file
-  CLAUDE.md               ← Claude Code instructions (stays with the code)
-  backend/                ← FastAPI backend (Phase 1+)
-  mobile/                 ← Kivy mobile app — thin client (Phase 1+)
-  pipeline/               ← Content generation scripts (Phase 2+)
-  data/                   ← Grade curriculum JSON files (shared with Free edition)
+  README.md          ← this file
+  CLAUDE.md          ← working contract: conventions, layer rules, pitfalls
+  dev_start.sh       ← one command to bring the whole stack up
+
+  backend/           ← FastAPI + asyncpg + Redis. Auth, content, progress,
+                       reports, school/admin APIs. Alembic migrations, pytest.
+  web/               ← Next.js 15 app: public site, student portal,
+                       school/teacher portal, admin console. Vitest + Playwright.
+  pipeline/          ← Offline content generation (Claude / OpenAI / Gemini),
+                       TTS, prompt builders. Runs as CLI or Celery task.
+  data/              ← Grade curriculum JSON — source of truth for the
+                       default curricula.
+
+  docs/              ← ADRs, design docs, epics, progress chart
+  scripts/           ← operator tooling (doc audit, demo ops, quiz suite)
+  infra/             ← nginx, pgbouncer and related deployment config
+  TICKETS/           ← per-ticket working notes
+  mobile/            ← legacy Kivy client. Superseded: Epic 3 selected
+                       Expo/React Native and is parked behind hosting.
+                       Kept for reference, not under active development.
 ```
 
-> **Documentation** — architecture, requirements, operations runbooks, and design decisions — lives in a private companion docs repository, available to contributors on the engagement.
+---
+
+## Testing
+
+```bash
+./dev_start.sh test                                   # backend (pytest, all externals mocked)
+docker compose exec -T web npx vitest run             # web unit tests
+cd web && npx playwright test                         # E2E (run from the host, not the container)
+./scripts/quiz_suite.sh                               # live-stack quiz suite, explicit
+```
+
+CI never touches a live database, live Redis, or any external API. The quiz
+suite is the deliberate exception — it runs against a real local stack, is
+excluded from every normal run, and must be invoked explicitly. See the Testing
+section of [`CLAUDE.md`](CLAUDE.md#testing) for why.
 
 ---
 
 ## Relationship to StudyBuddy Free
 
+The Free edition (private repo, `studybuddy_free`) proved the concept: a
+grade-aware curriculum, AI-generated lessons, adaptive quizzes. It called Claude
+directly from the device with the student's own key, which capped what it could
+be.
+
 | | Free Edition | OnDemand Edition |
 |---|---|---|
-| **Repo** | studybuddy_free | StudyBuddy_OnDemand |
-| **Claude API** | Student's own key, called from device | Owner's key, called from backend only |
-| **Content delivery** | Live generation (slow) | Pre-built cache (instant) |
-| **Progress storage** | Local JSON file | PostgreSQL (backend) |
-| **Offline** | Not supported | Full offline with sync |
+| **Claude API** | Student's own key, called from device | Owner's key, backend only |
+| **Content delivery** | Live generation (slow, truncation-prone) | Pre-built cache (instant) |
+| **Progress storage** | Local JSON file | PostgreSQL, server-side |
+| **Offline** | Not supported | Cached content + queued sync |
 | **Auth** | Name + API key | Email + password + JWT |
 | **Multi-device** | Not supported | Supported |
+| **Teacher visibility** | None | Reports, alerts, weekly digest |
 
-The Free edition remains a useful standalone tool and a reference implementation. The OnDemand edition replaces it as the production-quality platform.
+Free remains a useful standalone tool and reference implementation. OnDemand
+replaces it as the production platform.
 
----
-
-## Getting Started
-
-To understand the system before touching code, start with these documents in the private companion docs repository (contributors on the engagement have access):
-
-1. `ARCHITECTURE.md` — system design, diagrams, API spec
-2. `AGENTS.md` — conventions and onboarding for AI-assisted development
-3. The phased implementation plan (in `ARCHITECTURE.md`)
+> **Sibling projects:** the standalone, non-school products moved to **Mentible**
+> (`StudyBuddy_SelfLearner`). The home-schooling wedge stays here.
