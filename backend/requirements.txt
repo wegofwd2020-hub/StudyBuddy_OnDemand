@@ -30,8 +30,8 @@ jsonschema==4.23.0
 # Testing
 pytest==9.1.1
 pytest-asyncio==1.4.0
-anyio==4.14.1
-fakeredis==2.36.2
+anyio==4.14.2
+fakeredis==2.37.1
 openpyxl==3.1.5
 
 # Pipeline dependencies (needed by celery-pipeline worker)
@@ -53,7 +53,7 @@ pgvector>=0.3.6         # asyncpg codec for the vector type (pgvector extension)
 beautifulsoup4>=4.12.0  # HTML parsing for the help library indexing script
 
 # Code quality + security (CI)
-ruff==0.15.20
+ruff==0.16.5
 bandit[toml]==1.9.4
 pip-audit==2.10.1
 pytest-cov==7.1.0
