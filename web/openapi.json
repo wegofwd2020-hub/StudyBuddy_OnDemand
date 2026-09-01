@@ -259,6 +259,48 @@
         }
       }
     },
+    "/api/v1/auth/reset-password/check": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Check Reset Token",
+        "description": "Report whether a reset token is still usable. Does NOT consume it.\n\nThe reset page gated only on the token being PRESENT in the URL, never on it\nbeing valid, so an expired link still rendered \"Set new password\" and the\nfailure surfaced only after the user had filled the form in. A tester hit\nthis twice and reasonably read it as \"the link still works four hours later\"\n\u2014 the link did not work, but nothing on screen said so until the very end.\n\nThis endpoint exists because there was no way to ask. `/auth/reset-password`\nburns the token as part of answering, which is correct for a reset and\nuseless for a page load: calling it to check would destroy the token the\nstudent came to use.\n\nAlways 200. An invalid or expired token is `{\"valid\": false}`, not a 4xx \u2014\nthe client renders an explanation either way, and a status code carries no\nextra meaning here. Rate-limited on the same IP bucket as the rest of the\nauth surface; see ResetTokenCheckResponse for why the body is a bare bool.",
+        "operationId": "check_reset_token_api_v1_auth_reset_password_check_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetTokenCheckRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResetTokenCheckResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/auth/reset-password": {
       "post": {
         "tags": [
@@ -24191,6 +24233,34 @@
           "temp_password"
         ],
         "title": "ResetPasswordResponse"
+      },
+      "ResetTokenCheckRequest": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "title": "Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token"
+        ],
+        "title": "ResetTokenCheckRequest",
+        "description": "POST /auth/reset-password/check\n\nAsks whether a reset token is still usable, WITHOUT consuming it. The reset\npage needs this to decide between rendering the form and saying the link has\nexpired; before it existed the page had nothing to call, so it rendered the\nform for any non-empty token string and only revealed the expiry after the\nuser had typed a new password twice and pressed the button.\n\nThe token travels in the body rather than a path segment so it stays out of\naccess logs, matching ResetPasswordRequest."
+      },
+      "ResetTokenCheckResponse": {
+        "properties": {
+          "valid": {
+            "type": "boolean",
+            "title": "Valid"
+          }
+        },
+        "type": "object",
+        "required": [
+          "valid"
+        ],
+        "title": "ResetTokenCheckResponse",
+        "description": "Deliberately a bare boolean.\n\nReturning the email or user type would turn a leaked reset link into a PII\nlookup. `valid` is all the page needs, and the token is 256 bits of\n`secrets.token_urlsafe(32)`, so confirming validity tells a guesser nothing\nthey could not learn by attempting the reset itself."
       },
       "RestoreRequestCreate": {
         "properties": {

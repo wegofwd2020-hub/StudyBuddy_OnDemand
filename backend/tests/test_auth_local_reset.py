@@ -180,3 +180,117 @@ async def test_reset_password_rejects_short_password(client: AsyncClient):
         "/api/v1/auth/reset-password", json={"token": "whatever", "new_password": "short"}
     )
     assert r.status_code == 422
+
+
+# ── Checking a token without consuming it ─────────────────────────────────────
+#
+# The reset page gated on the token being PRESENT, never on it being valid, so an
+# expired link rendered "Set new password" identically to a good one and the
+# failure only surfaced after the form was filled in. A tester reported that
+# twice as "the link still worked hours later". The link did not work — nothing
+# on screen said so. These tests cover the endpoint that lets the page ask.
+
+
+async def _check(client: AsyncClient, token: str) -> bool:
+    r = await client.post("/api/v1/auth/reset-password/check", json={"token": token})
+    assert r.status_code == 200, r.text
+    return r.json()["valid"]
+
+
+@pytest.mark.asyncio
+async def test_check_reports_a_live_token_as_valid(client: AsyncClient):
+    school = await _register_school(client, "Check School A", "admin-ca@reset-test.example.com")
+    email = "teach-ca@reset-test.example.com"
+    await _provision_teacher(client, school["school_id"], school["access_token"], "Cay", email)
+
+    _, local_mock, _ = await _forgot(client, email)
+    assert await _check(client, local_mock.call_args.args[2]) is True
+
+
+@pytest.mark.asyncio
+async def test_check_reports_an_unknown_token_as_invalid(client: AsyncClient):
+    """The negative direction. Without this, an endpoint hardcoded to `true`
+    passes the valid-token test above and ships the original bug intact."""
+    assert await _check(client, "definitely-not-a-real-token") is False
+
+
+@pytest.mark.asyncio
+async def test_check_does_not_consume_the_token(client: AsyncClient):
+    """The whole point of a separate endpoint.
+
+    `/auth/reset-password` burns the token as part of answering, so checking via
+    that path would destroy the token the student came to use — the check would
+    cause the very failure it reports. Checking twice and THEN resetting proves
+    the check is read-only.
+    """
+    school = await _register_school(client, "Check School B", "admin-cb@reset-test.example.com")
+    email = "stud-cb@reset-test.example.com"
+    await _provision_student(client, school["school_id"], school["access_token"], "Cee Bee", email)
+
+    _, local_mock, _ = await _forgot(client, email)
+    token = local_mock.call_args.args[2]
+
+    assert await _check(client, token) is True
+    assert await _check(client, token) is True
+
+    rp = await client.post(
+        "/api/v1/auth/reset-password", json={"token": token, "new_password": _NEW_PW}
+    )
+    assert rp.status_code == 200, rp.text
+    ok = await client.post("/api/v1/auth/login", json={"email": email, "password": _NEW_PW})
+    assert ok.status_code == 200, ok.text
+
+
+@pytest.mark.asyncio
+async def test_check_reports_a_spent_token_as_invalid(client: AsyncClient):
+    """Reset is single-use, so a second click on the same emailed link must show
+    the expired screen rather than a form that cannot succeed."""
+    school = await _register_school(client, "Check School C", "admin-cc@reset-test.example.com")
+    email = "teach-cc@reset-test.example.com"
+    await _provision_teacher(client, school["school_id"], school["access_token"], "Cee Cee", email)
+
+    _, local_mock, _ = await _forgot(client, email)
+    token = local_mock.call_args.args[2]
+
+    assert await _check(client, token) is True
+    rp = await client.post(
+        "/api/v1/auth/reset-password", json={"token": token, "new_password": _NEW_PW}
+    )
+    assert rp.status_code == 200, rp.text
+
+    assert await _check(client, token) is False
+
+
+@pytest.mark.asyncio
+async def test_check_agrees_with_reset_on_a_malformed_payload(client: AsyncClient, fake_redis):
+    """A key can exist holding something this flow cannot act on. `reset_password`
+    treats that as invalid; if the check disagreed the page would render a form
+    guaranteed to fail on submit — the original bug with one extra step."""
+    await fake_redis.set("local_pw_reset:junk-payload-token", "parent:whoever")
+
+    assert await _check(client, "junk-payload-token") is False
+    rp = await client.post(
+        "/api/v1/auth/reset-password",
+        json={"token": "junk-payload-token", "new_password": _NEW_PW},
+    )
+    assert rp.status_code == 400
+
+
+@pytest.mark.asyncio
+async def test_check_never_reveals_who_the_token_belongs_to(client: AsyncClient):
+    """A leaked reset link must not double as a PII lookup: the response is a
+    bare boolean, with no email, name, user id or user type anywhere in it."""
+    school = await _register_school(client, "Check School D", "admin-cd@reset-test.example.com")
+    email = "stud-cd@reset-test.example.com"
+    await _provision_student(client, school["school_id"], school["access_token"], "Dee", email)
+
+    _, local_mock, _ = await _forgot(client, email)
+    r = await client.post(
+        "/api/v1/auth/reset-password/check",
+        json={"token": local_mock.call_args.args[2]},
+    )
+    assert r.status_code == 200
+    assert r.json() == {"valid": True}
+    body = r.text.lower()
+    for leak in ("stud-cd", "dee", "student", "teacher", school["school_id"]):
+        assert leak.lower() not in body, f"response leaked {leak!r}"

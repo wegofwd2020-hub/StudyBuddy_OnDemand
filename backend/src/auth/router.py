@@ -40,6 +40,8 @@ from src.auth.schemas import (
     RefreshRequest,
     RefreshResponse,
     ResetPasswordRequest,
+    ResetTokenCheckRequest,
+    ResetTokenCheckResponse,
     StudentProfileUpdate,
     StudentPublic,
     TeacherPublic,
@@ -453,6 +455,48 @@ async def forgot_password(
 
     emit_event("auth", "forgot_password_requested")
     return {}
+
+
+# ── Self-serve reset: check a token without consuming it ─────────────────────
+
+
+@router.post("/auth/reset-password/check", response_model=ResetTokenCheckResponse)
+async def check_reset_token(
+    body: ResetTokenCheckRequest,
+    request: Request,
+    _: None = Depends(ip_auth_rate_limit),
+):
+    """
+    Report whether a reset token is still usable. Does NOT consume it.
+
+    The reset page gated only on the token being PRESENT in the URL, never on it
+    being valid, so an expired link still rendered "Set new password" and the
+    failure surfaced only after the user had filled the form in. A tester hit
+    this twice and reasonably read it as "the link still works four hours later"
+    — the link did not work, but nothing on screen said so until the very end.
+
+    This endpoint exists because there was no way to ask. `/auth/reset-password`
+    burns the token as part of answering, which is correct for a reset and
+    useless for a page load: calling it to check would destroy the token the
+    student came to use.
+
+    Always 200. An invalid or expired token is `{"valid": false}`, not a 4xx —
+    the client renders an explanation either way, and a status code carries no
+    extra meaning here. Rate-limited on the same IP bucket as the rest of the
+    auth surface; see ResetTokenCheckResponse for why the body is a bare bool.
+    """
+    redis = get_redis(request)
+    stored = await redis.get(f"local_pw_reset:{body.token}")
+    if not stored:
+        return ResetTokenCheckResponse(valid=False)
+
+    # A key can exist with a payload this flow cannot act on. `reset_password`
+    # treats that as invalid, so the check must agree — otherwise the page shows
+    # a form that is guaranteed to fail on submit, which is the bug again with
+    # one extra step.
+    stored_str = stored.decode() if isinstance(stored, (bytes, bytearray)) else str(stored)
+    user_type, _sep, user_id = stored_str.partition(":")
+    return ResetTokenCheckResponse(valid=user_type in ("teacher", "student") and bool(user_id))
 
 
 # ── Self-serve reset: consume one-time token (local users, issue #444) ────────
