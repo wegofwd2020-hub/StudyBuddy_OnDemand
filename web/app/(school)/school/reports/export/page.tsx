@@ -6,7 +6,9 @@ import {
   getOverviewReport,
   getTrendsReport,
   getCurriculumHealth,
+  type ReportPeriod,
   type ReportType,
+  type TrendsPeriod,
 } from "@/lib/api/reports";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -31,12 +33,42 @@ const REPORT_OPTIONS: { value: ReportType; label: string; description: string }[
   },
 ];
 
+// The period options differ per report, on purpose.
+//
+// A tester asked whether it is right that the dashboard offers 7 days / 30 days
+// / this term while Trends offers 4 weeks / 12 weeks / this term. It is: the two
+// reports are different KINDS of thing. The overview is a snapshot of a window,
+// where days are the natural unit. Trends buckets into ISO weeks and plots them
+// against each other, so "last 7 days" would be a single data point — not a
+// trend at all.
+//
+// So this page offers each report ITS OWN periods rather than one shared
+// selector. A shared control would have to either drop options that only make
+// sense for one report, or imply a "7 days" trends export that cannot exist.
+// The labels are copied verbatim from the two on-screen reports so a teacher
+// picking "12 weeks" here gets the same thing "12 weeks" means there.
+const OVERVIEW_PERIODS: { value: ReportPeriod; label: string }[] = [
+  { value: "7d", label: "Last 7 days" },
+  { value: "30d", label: "Last 30 days" },
+  { value: "term", label: "This term" },
+];
+
+const TRENDS_PERIODS: { value: TrendsPeriod; label: string }[] = [
+  { value: "4w", label: "4 weeks" },
+  { value: "12w", label: "12 weeks" },
+  { value: "term", label: "This term" },
+];
+
 type DownloadState = "idle" | "loading" | "done" | "error";
 
 export default function ExportPage() {
   const teacher = useTeacher();
   const schoolId = teacher?.school_id ?? "";
   const [reportType, setReportType] = useState<ReportType>("overview");
+  // One state per report rather than a shared union, so switching reports keeps
+  // each choice and neither needs casting to the other's period type.
+  const [overviewPeriod, setOverviewPeriod] = useState<ReportPeriod>("30d");
+  const [trendsPeriod, setTrendsPeriod] = useState<TrendsPeriod>("12w");
   const [state, setState] = useState<DownloadState>("idle");
 
   async function handleExport() {
@@ -50,7 +82,7 @@ export default function ExportPage() {
       let fields: string[] = [];
       let filename = "export.csv";
       if (reportType === "overview") {
-        const data = await getOverviewReport(schoolId, "30d");
+        const data = await getOverviewReport(schoolId, overviewPeriod);
         fields = [
           "Enrolled students",
           "Active students",
@@ -75,7 +107,7 @@ export default function ExportPage() {
         ];
         filename = `overview_${data.period}.csv`;
       } else if (reportType === "trends") {
-        const data = await getTrendsReport(schoolId, "12w");
+        const data = await getTrendsReport(schoolId, trendsPeriod);
         fields = [
           "Week start",
           "Active students",
@@ -92,7 +124,7 @@ export default function ExportPage() {
           "Average score %": w.avg_score_pct.toFixed(1),
           "First-attempt pass rate %": w.first_attempt_pass_rate_pct.toFixed(1),
         }));
-        filename = "trends_12w.csv";
+        filename = `trends_${trendsPeriod}.csv`;
       } else if (reportType === "curriculum-health") {
         const data = await getCurriculumHealth(schoolId);
         fields = [
@@ -174,11 +206,95 @@ export default function ExportPage() {
           ))}
         </CardContent>
       </Card>
+
+      {/* Period.
+          Every export used to be hardcoded — the overview always 30 days, trends
+          always 12 weeks — so a teacher who had just read "this term" on screen
+          downloaded a file covering something else, with nothing saying so. */}
+      <Card className="border shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Period</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {reportType === "overview" && (
+            <div
+              role="radiogroup"
+              aria-label="Overview period"
+              className="flex flex-wrap gap-2"
+            >
+              {OVERVIEW_PERIODS.map((p) => (
+                <button
+                  key={p.value}
+                  type="button"
+                  role="radio"
+                  aria-checked={overviewPeriod === p.value}
+                  onClick={() => setOverviewPeriod(p.value)}
+                  className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
+                    overviewPeriod === p.value
+                      ? "border-blue-500 bg-blue-50 font-medium text-blue-700"
+                      : "border-gray-200 text-gray-600 hover:border-gray-300"
+                  }`}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {reportType === "trends" && (
+            <>
+              <div
+                role="radiogroup"
+                aria-label="Trends period"
+                className="flex flex-wrap gap-2"
+              >
+                {TRENDS_PERIODS.map((p) => (
+                  <button
+                    key={p.value}
+                    type="button"
+                    role="radio"
+                    aria-checked={trendsPeriod === p.value}
+                    onClick={() => setTrendsPeriod(p.value)}
+                    className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
+                      trendsPeriod === p.value
+                        ? "border-blue-500 bg-blue-50 font-medium text-blue-700"
+                        : "border-gray-200 text-gray-600 hover:border-gray-300"
+                    }`}
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+              <p className="mt-3 text-xs text-gray-500">
+                Trends are measured in whole weeks, so this report offers weeks where the
+                dashboard offers days — a seven-day trend would be a single point.
+              </p>
+            </>
+          )}
+
+          {/* Unit Performance genuinely has no period: the endpoint takes none and
+              the figures cover all activity to date. Saying so is the point. A
+              selector that silently did not apply is the same defect in a
+              friendlier costume. */}
+          {reportType === "curriculum-health" && (
+            <p className="text-sm text-gray-600">
+              Unit Performance covers{" "}
+              <span className="font-medium">all activity to date</span> and is not
+              filtered by period.
+            </p>
+          )}
+        </CardContent>
+      </Card>
       {state === "error" && (
         <p className="text-sm text-red-600">Export failed. Please try again.</p>
       )}
+      {/* The visible label narrates progress ("Generating…", "Downloaded"), but
+          the accessible name must not: a screen-reader user tabbing back to a
+          control they just used should still hear what it DOES, not what it did
+          three seconds ago. */}
       <Button
         onClick={handleExport}
+        aria-label="Download CSV"
         disabled={state === "loading" || !schoolId}
         className="gap-2"
       >
