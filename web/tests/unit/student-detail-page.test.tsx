@@ -160,12 +160,22 @@ describe("SCH-08 — Student detail page", () => {
     expect(greenScore!.textContent).toBe("90%");
   });
 
-  it("renders best score as red for failed unit", () => {
+  it("renders best score in the needs-attention colour for a failed unit", () => {
     const { container } = render(<StudentDetailPage />);
-    // Linear Equations: best_score 55, passed false → text-red-500
-    const redScore = container.querySelector("span.text-red-500");
-    expect(redScore).toBeTruthy();
-    expect(redScore!.textContent).toBe("55%");
+    // Linear Equations: best_score 55, passed false.
+    //
+    // This asserted `text-red-500` until 2026-09-01. Two reasons it is now
+    // `text-orange-700`:
+    //
+    //   1. It matches the "Needs attention" chip above the table, so the legend
+    //      and the rows it describes use one colour for one meaning. A tester
+    //      reported exactly that disconnect.
+    //   2. red-500 measures 3.76:1 on white — BELOW the 4.5:1 WCAG AA floor this
+    //      project targets. orange-700 is 5.18:1. (orange-600 would also have
+    //      failed at 3.56:1, so the shade was measured, not eyeballed.)
+    const flagged = container.querySelector("span.text-orange-700");
+    expect(flagged).toBeTruthy();
+    expect(flagged!.textContent).toContain("55%");
   });
 
   it("renders em-dash for unit with no attempts (no best score)", () => {
@@ -242,6 +252,57 @@ describe("SCH-08 — Student detail page", () => {
   it("ties the Reading time tile to the column beneath it", () => {
     render(<StudentDetailPage />);
     expect(screen.getByText("Total of the column below")).toBeInTheDocument();
+  });
+
+  // ── The legend and the rows speak one language ─────────────────────────────
+  //
+  // A tester read the Lesson column's bare green tick as a health marker and
+  // asked why low-scoring rows carried no warning there. Fair reading: the tick
+  // was unlabelled, and the same tick was also the "Strongest" chip's icon and
+  // the app-wide "done" mark. One glyph, three classes of meaning.
+
+  it("marks a unit that was not passed with the needs-attention icon", () => {
+    render(<StudentDetailPage />);
+    // Fixture: G8-MATH-001 scored 55% and did NOT pass.
+    expect(screen.getAllByLabelText("Needs attention").length).toBeGreaterThan(0);
+  });
+
+  it("drives the marker off `passed`, not a hardcoded 50%", () => {
+    // The tester asked for the marker "where the best score is <= 50%". A fixed
+    // threshold would be wrong: pass marks are per-school (ADR-007), so it would
+    // flag units a school considers passed and miss ones it does not.
+    //
+    // The fixture proves which rule ran. G8-MATH-001 scored 55% — ABOVE 50 — and
+    // did not pass. A 50% rule leaves it unmarked; `passed` marks it.
+    render(<StudentDetailPage />);
+    const marked = screen.getAllByLabelText("Needs attention");
+    expect(marked).toHaveLength(1);
+    const row = marked[0].closest("tr");
+    expect(row).not.toBeNull();
+    expect(row!.textContent).toContain("55%");
+    expect(row!.textContent).toContain("Linear Equations");
+  });
+
+  it("does not mark a unit that was passed", () => {
+    // The negative direction. A marker rendered on every row would satisfy the
+    // test above while telling a teacher nothing.
+    render(<StudentDetailPage />);
+    const passedRow = screen.getByText("Cell Biology").closest("tr");
+    expect(passedRow!.querySelector("[aria-label='Needs attention']")).toBeNull();
+  });
+
+  it("does not mark a unit that has no score yet", () => {
+    // Never attempted is not the same as failed, and saying so would send a
+    // teacher after a student who has simply not started.
+    render(<StudentDetailPage />);
+    const noScoreRow = screen.getByText("Chemical Reactions").closest("tr");
+    expect(noScoreRow!.querySelector("[aria-label='Needs attention']")).toBeNull();
+  });
+
+  it("labels the Lesson column icons instead of leaving them bare", () => {
+    render(<StudentDetailPage />);
+    expect(screen.getAllByLabelText("Lesson opened").length).toBeGreaterThan(0);
+    expect(screen.getAllByLabelText("Lesson not opened").length).toBeGreaterThan(0);
   });
 
   it("renders per-unit reading time from total_duration_s", () => {
