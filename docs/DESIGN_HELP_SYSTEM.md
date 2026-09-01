@@ -1,8 +1,39 @@
 # StudyBuddy OnDemand — Contextual Help System Design
 
-**Status:** Design exploration — not yet scheduled  
+**Status:** Design exploration — **partly superseded, see the note below**  
 **Date:** 2026-04-12 (revised 2026-04-12 — Layer 0 Discovery added)  
 **Scope:** Pre-auth product tour + in-app dynamic help delivery + supporting content library
+
+---
+
+> ## ⚠️ What actually shipped (2026-09-01)
+>
+> Read this before treating anything below as current.
+>
+> **The static HTML help library is retired.** `studybuddy-docs/help/` was deleted
+> on 2026-09-01 — last substantive edit 12 April, five months stale, and nothing
+> consumed it. Every `../help/...` and `../flows/...` path in the markup examples
+> below points at files that no longer exist.
+>
+> **Content is authored twice after all.** This document says the HTML fragments
+> are embedded into the tour screens so "no content is authored twice". That is
+> not what happened: the prose was transcribed into React
+> (`web/app/(public)/tour/*`), and those pages are now the source of truth for
+> their own copy. The flow SVGs were copied to `web/public/assets/tour/`, which
+> holds the only surviving copies.
+>
+> **In-app help lives in the app repo**, not here: `app/(student)/help`,
+> `app/(school)/school/help`, `app/(admin)/admin/help`, plus the persona mind maps
+> in `web/lib/content/help-mindmaps.ts`.
+>
+> **The RAG corpus is committed but was never loaded.** Migration 0040's note says
+> to index with `--library-path /path/to/studybuddy-docs/help`; the script
+> actually reads `backend/data/help_chunks.jsonl` (67 chunks, 22 sources), which
+> is in this repo. `help_chunks` is EMPTY in both dev and demo — 0 rows, 0
+> embeddings — because `backend/scripts/index_help_library.py` has never been run. The
+> widget degrades to a graceful "no answer" rather than fabricating one, so this
+> is a dormant feature rather than a broken one. Running the indexer would
+> activate it; deciding whether to is open.
 
 ---
 

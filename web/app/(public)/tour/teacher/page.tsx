@@ -8,8 +8,9 @@
  * Ends with a login CTA (teachers are provisioned by their School Admin,
  * not self-registered).
  *
- * Content sourced from: studybuddy-docs/help/overview/teacher.html
- *                       studybuddy-docs/help/help/teacher/
+ * Originally transcribed from the studybuddy-docs static help site, which was
+ * RETIRED on 2026-09-01 (five months stale, nothing consumed it). This page is
+ * the source of truth for its own copy now — do not go looking for that repo.
  * SVG flows reused from: public/assets/tour/ (same set as Tour-A)
  * Accent colour: blue-600 (matches teacher role card on /tour)
  */
