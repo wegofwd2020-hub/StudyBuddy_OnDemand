@@ -178,16 +178,58 @@ async def test_resolve_subject_labels_empty_input(db_conn):
 
 
 def test_display_subject_resolution_order():
-    """Pure-function fallback chain: map → stored (non-sentinel) → unit_id → 'Unknown'."""
+    """Pure-function fallback chain: map → stored display NAME → unit_id → 'Unknown'."""
     label_map = {"u1": "Physics"}
     # curriculum label wins even when the stored value is the 'unknown' sentinel
     assert display_subject(label_map, "u1", "unknown") == "Physics"
-    # no map entry → fall back to a meaningful stored code
-    assert display_subject({}, "u2", "G8-SCI") == "G8-SCI"
+    # no map entry → fall back to a stored value that is a real name
+    assert display_subject({}, "u2", "Natural Sciences") == "Natural Sciences"
     # no map entry and stored is the sentinel, unit_id not parseable → 'Unknown'
     assert display_subject({}, "u2", "unknown") == "Unknown"
     assert display_subject({}, "u2", "UNKNOWN") == "Unknown"
     assert display_subject({}, "u2", None) == "Unknown"
+
+
+def test_a_bare_subject_code_is_not_treated_as_a_display_name():
+    """This assertion previously read `display_subject({}, "u2", "G8-SCI") == "G8-SCI"`,
+    i.e. it encoded the defect: a stored CODE was accepted as a display name and
+    beat every real resolution below it.
+
+    That is what made the Unit Performance report show "Engineering" on one row
+    and "G5-ENG" on the next — one column, two vocabularies, because
+    `progress_sessions.subject` and `curriculum_units.subject` both hold a mix.
+    A code is never something to show a teacher.
+    """
+    # Falls through the stored code to the prefix map, which yields a real word.
+    assert display_subject({}, "G8-SCI-001", "G8-SCI") == "Science"
+    # With nothing better available it says "Unknown" rather than printing a code.
+    assert display_subject({}, "u2", "G8-SCI") == "Unknown"
+    # A resolved label still wins over everything.
+    assert display_subject({"G8-SCI-001": "Natural Sciences"}, "G8-SCI-001", "G8-SCI") == (
+        "Natural Sciences"
+    )
+    # Guard the regex: a real name that merely starts with a letter+digits is safe.
+    assert display_subject({}, "u3", "Grade 8 Science") == "Grade 8 Science"
+
+
+def test_an_ambiguous_subject_code_is_not_guessed_from_the_prefix():
+    """`ENG` is Engineering for 32 units in this catalog and English for 2, so the
+    prefix cannot decide. The static map used to answer "English" with full
+    confidence, which mislabels the larger group — "English" beside "Aerospace
+    Engineering" teaches a reader to distrust the whole column.
+
+    Ambiguous codes resolve from the database or not at all.
+    """
+    from src.core.subjects import subject_from_unit_id
+
+    assert subject_from_unit_id("G12-ENG-001") is None
+    assert display_subject({}, "G12-ENG-001", "unknown") == "Unknown"
+    # The DB knows which one it is, and still wins.
+    assert display_subject({"G12-ENG-001": "Engineering"}, "G12-ENG-001", "unknown") == (
+        "Engineering"
+    )
+    # Unambiguous codes are unaffected.
+    assert subject_from_unit_id("G8-SCI-001") == "Science"
 
 
 def test_display_subject_falls_back_to_unit_id_prefix():
