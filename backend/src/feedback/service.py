@@ -51,18 +51,24 @@ async def submit_feedback(
     rating: int | None = None,
     helpful: bool | None = None,
     content_type: str | None = None,
+    stable_question_id: str | None = None,
 ) -> dict:
     """Insert a feedback row. Returns {feedback_id, submitted_at}.
 
     `message` is optional: the thumbs widget submits a `helpful` verdict with no
     prose (#600). The `feedback_has_content` CHECK keeps genuinely empty rows out.
+
+    `stable_question_id` (ADR-008 Phase 2) narrows the feedback to one question
+    rather than a whole unit. Resolved by the router from the session the student
+    was in — never accepted from the client — and NULL for the many kinds of
+    feedback that have no question to point at.
     """
     row = await conn.fetchrow(
         """
         INSERT INTO feedback
             (student_id, category, unit_id, curriculum_id, message, rating,
-             helpful, content_type)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+             helpful, content_type, stable_question_id)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         RETURNING feedback_id::text, submitted_at
         """,
         uuid.UUID(student_id),
@@ -73,6 +79,7 @@ async def submit_feedback(
         rating,
         helpful,
         content_type,
+        stable_question_id,
     )
     log.info(
         "feedback_submitted",
@@ -80,6 +87,8 @@ async def submit_feedback(
         category=category,
         helpful=helpful,
         content_type=content_type,
+        # Logged so a spike of flags on one question is visible without a query.
+        stable_question_id=stable_question_id,
     )
     return {"feedback_id": row["feedback_id"], "submitted_at": row["submitted_at"]}
 

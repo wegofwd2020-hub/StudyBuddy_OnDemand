@@ -43,6 +43,54 @@ def _cid(request: Request) -> str:
 # ── POST /feedback (student) ──────────────────────────────────────────────────
 
 
+async def _resolve_stable_question_id(
+    request: Request,
+    conn,
+    student_id: str,
+    session_id: str,
+    question_id: str,
+) -> str | None:
+    """Positional question id -> the question's stable identity, or None.
+
+    Ownership is verified first: without it, any student could attach feedback to
+    any other student's session by guessing a UUID. Returns None rather than
+    raising on every failure path — see the caller for why the narrowing is
+    best-effort while the feedback itself is not.
+    """
+    from src.content.service import resolve_quiz_answer_key
+    from src.progress.service import resolve_session_quiz_set, verify_session_owner
+
+    try:
+        session = await verify_session_owner(conn, session_id, student_id)
+    except Exception:
+        log.info("feedback_question_session_not_owned", extra={"session_id": session_id})
+        return None
+
+    try:
+        set_number = await resolve_session_quiz_set(
+            get_redis(request),
+            session_id=session_id,
+            student_id=student_id,
+            unit_id=session["unit_id"],
+        )
+        key = await resolve_quiz_answer_key(
+            None,
+            session["curriculum_id"],
+            session["unit_id"],
+            set_number,
+            "en",
+            request.app.state.pool,
+            get_redis(request),
+            request.app.state.storage,
+        )
+    except Exception as exc:
+        log.info("feedback_question_unresolved", extra={"error": str(exc)[:120]})
+        return None
+
+    entry = key.get(question_id)
+    return entry.get("stable_question_id") if entry else None
+
+
 @router.post("/feedback", response_model=FeedbackSubmitResponse)
 async def submit_feedback_endpoint(
     body: FeedbackSubmitRequest,
@@ -70,6 +118,21 @@ async def submit_feedback_endpoint(
         )
 
     async with get_db(request) as conn:
+        # ADR-008 Phase 2. The client sends the POSITIONAL id it was shown; the
+        # stable identity is resolved here from the set that session was actually
+        # graded against, so a client cannot attach a comment to a question it was
+        # never served. Same shape as the answer path (pitfall #35).
+        #
+        # Resolution failing is not a submission failure: the student wrote
+        # something, and losing it because a session expired would be a worse
+        # outcome than storing it against the unit alone. The narrowing is
+        # best-effort; the feedback is not.
+        stable_qid = None
+        if body.question_id and body.session_id:
+            stable_qid = await _resolve_stable_question_id(
+                request, conn, student_id, body.session_id, body.question_id
+            )
+
         result = await submit_feedback(
             conn,
             student_id=student_id,
@@ -80,6 +143,7 @@ async def submit_feedback_endpoint(
             rating=body.rating,
             helpful=body.helpful,
             content_type=body.content_type,
+            stable_question_id=stable_qid,
         )
 
     return FeedbackSubmitResponse(**result)
