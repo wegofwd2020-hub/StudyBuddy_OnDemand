@@ -21,6 +21,7 @@ import pytest
 from httpx import AsyncClient
 
 from src.core.subjects import display_subject, resolve_subject_labels
+from tests.helpers.lesson_gate import satisfy_lesson_gate
 from tests.helpers.token_factory import make_student_token
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -39,6 +40,8 @@ async def _insert_student(client: AsyncClient, student_id: str) -> None:
         f"Test Student {student_id[:6]}",
         f"test-{student_id[:6]}@test.invalid",
     )
+    # A quiz requires the lesson first (2026-09-01).
+    await satisfy_lesson_gate(client, student_id, "G8-MATH-001", "default-2026-g8")
 
 
 async def _start_session(client: AsyncClient, token: str) -> dict:

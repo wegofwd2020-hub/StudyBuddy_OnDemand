@@ -21,6 +21,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from httpx import AsyncClient
 
+from tests.helpers.lesson_gate import satisfy_lesson_gate
 from tests.helpers.token_factory import make_student_token
 
 # ── Sample content fixtures ───────────────────────────────────────────────────
@@ -186,6 +187,22 @@ async def test_quiz_rotates_sets(client: AsyncClient, fake_redis):
     student_id = str(uuid.uuid4())
     token = make_student_token(student_id=student_id, grade=8)
     unit_id = "G8-SCI-001"
+
+    # A quiz requires the lesson first (2026-09-01). This test is about SET
+    # ROTATION, so its student needs to be someone who may legitimately open the
+    # quiz at all.
+    pool = client._transport.app.state.pool
+    await pool.execute(
+        """
+        INSERT INTO students (student_id, external_auth_id, name, email, grade, locale, account_status)
+        VALUES ($1, $2, 'Rotation Student', $3, 8, 'en', 'active')
+        ON CONFLICT (student_id) DO NOTHING
+        """,
+        uuid.UUID(student_id),
+        f"auth0|rot-{student_id.replace('-', '')}",
+        f"rot-{student_id[:8]}@test.invalid",
+    )
+    await satisfy_lesson_gate(client, student_id, unit_id, "default-2026-g8")
 
     sets_served = []
 
