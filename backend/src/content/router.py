@@ -51,9 +51,11 @@ from src.content.service import (
     get_content_file,
     get_entitlement,
     get_next_quiz_set,
+    has_met_lesson_prerequisite,
     increment_lessons_accessed,
     resolve_curriculum_id,
     resolve_curriculum_ids,
+    unit_has_lesson,
 )
 from src.core.cache_keys import quiz_session_set_key
 from src.core.redis_client import get_redis
@@ -461,12 +463,42 @@ async def get_quiz(
         set_number = await get_next_quiz_set(student_id, unit_id, redis)
     quiz_content_type = f"quiz_set_{set_number}"
 
-    # Active override path: school students may have teacher-authored quiz sets.
+    # Lesson before quiz (product decision 2026-09-01).
+    #
+    # Also enforced at POST /progress/session, which is where a blocked attempt
+    # is stopped from creating a phantom row. This second check exists because
+    # the backend is the sole authority on access (Content/Security rules): a
+    # client that skips the session and calls this endpoint directly must not be
+    # handed the questions.
+    #
+    # Placed before BOTH the override path and the store path, so a school with
+    # teacher-authored quizzes is gated identically.
+    #
+    # `pre_resolved` is hoisted above the override block so the school
+    # curriculum is resolved once and shared, rather than this gate paying for a
+    # second resolve of the same thing.
     pre_resolved: str | None = None
     if school_id:
         pre_resolved = await resolve_curriculum_id(
             student_id, student.get("grade", 8), pool, redis, school_id=school_id
         )
+
+    if not await has_met_lesson_prerequisite(pool, student_id, unit_id):
+        gate_curriculum = pre_resolved or await resolve_curriculum_id(
+            student_id, student.get("grade", 8), pool, redis, school_id=school_id
+        )
+        if await unit_has_lesson(gate_curriculum, unit_id, locale, redis, storage):
+            raise HTTPException(
+                status_code=403,
+                detail={
+                    "error": "lesson_required",
+                    "detail": "Read the lesson first, then come back for the quiz.",
+                    "correlation_id": getattr(request.state, "correlation_id", ""),
+                },
+            )
+
+    # Active override path: school students may have teacher-authored quiz sets.
+    if school_id:
         override = await _gao(
             school_id, pre_resolved, unit_id, locale, quiz_content_type, pool, redis
         )

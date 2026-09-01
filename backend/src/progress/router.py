@@ -29,9 +29,11 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
 from src.auth.dependencies import get_current_student
 from src.content.service import (
+    has_met_lesson_prerequisite,
     resolve_curriculum_ids,
     resolve_quiz_answer_key,
     resolve_unit_curriculum,
+    unit_has_lesson,
 )
 from src.core.db import get_db
 from src.core.redis_client import get_redis
@@ -105,6 +107,40 @@ async def start_session(
     curriculum_id, _unit_subject = await resolve_unit_curriculum(
         body.unit_id, candidates, school_id, request.app.state.pool
     )
+
+    # Lesson before quiz (product decision 2026-09-01).
+    #
+    # Enforced HERE as well as on the content endpoint, and this is the more
+    # important of the two. The quiz page opens the session FIRST and fetches the
+    # quiz for it (#567), so gating only the content would still create a
+    # progress_sessions row per blocked attempt — and `attempt_number` is
+    # COUNT(*) + 1, so a student repeatedly bouncing off the gate would silently
+    # inflate their own attempt count on a unit they never sat. That is the
+    # phantom-attempt bug of #465 / #579 wearing a new hat.
+    #
+    # Fails OPEN when the unit has no lesson to read: telling a student to go and
+    # read something that does not exist would make the quiz unreachable forever.
+    # That lookup only runs when the gate would otherwise block, so the ordinary
+    # path does not pay for it.
+    if not await has_met_lesson_prerequisite(request.app.state.pool, student_id, body.unit_id):
+        if await unit_has_lesson(
+            curriculum_id,
+            body.unit_id,
+            student.get("locale", "en"),
+            get_redis(request),
+            get_storage(request),
+        ):
+            raise HTTPException(
+                status_code=403,
+                detail={
+                    "error": "lesson_required",
+                    # Student-facing, so: no status code, no identifiers, no
+                    # jargon (Content Rule #5). It says what to do, not what
+                    # went wrong.
+                    "detail": "Read the lesson first, then come back for the quiz.",
+                    "correlation_id": cid,
+                },
+            )
 
     async with get_db(request) as conn:
         try:

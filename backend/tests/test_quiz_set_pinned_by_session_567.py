@@ -42,6 +42,7 @@ import pytest
 from httpx import AsyncClient
 from jose import jwt as _jwt
 
+from tests.helpers.lesson_gate import satisfy_lesson_gate
 from tests.helpers.token_factory import make_student_token
 
 _UNIT = "G8-MATH-001"
@@ -67,6 +68,10 @@ async def _insert_student(client: AsyncClient, student_id: str) -> None:
         f"auth0|qs-{student_id.replace('-', '')}",
         f"qs-{student_id.replace('-', '')[-8:]}@test.example.com",
     )
+    # A quiz requires the lesson first (2026-09-01). These suites are about
+    # quiz mechanics, and their subject is a student who reached the quiz
+    # legitimately — so seed the view rather than exempt the test.
+    await satisfy_lesson_gate(client, student_id, _UNIT, _CURRICULUM)
 
 
 async def _start(client: AsyncClient, token: str) -> dict:

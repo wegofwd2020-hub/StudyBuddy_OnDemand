@@ -778,3 +778,101 @@ async def resolve_quiz_answer_key(
             return _parse_quiz_answer_key(override, curriculum_id, unit_id, set_number, lang)
         curriculum_id, _ = await resolve_content_curriculum(unit_id, curriculum_id, school_id, pool)
     return await get_quiz_answer_key(curriculum_id, unit_id, set_number, lang, redis, storage)
+
+
+# ── Lesson-before-quiz prerequisite ──────────────────────────────────────────
+
+
+async def has_met_lesson_prerequisite(pool, student_id: str, unit_id: str) -> bool:
+    """Has this student earned the right to open this unit's quiz?
+
+    Product decision (2026-09-01): a quiz requires the lesson first. A tester
+    asked "Current system allows me to take a quiz without going through the
+    Lesson – is this OK?" and the answer is no. A separate revision mode — a
+    "Quiz Book" a student can drill from — is planned as its own thing later,
+    which is the right home for deliberate quiz-only practice.
+
+    Two ways to satisfy it, and the second matters as much as the first:
+
+    1. **The student has opened this unit's content.** Any `lesson_views` row
+       counts, not only one flagged as a lesson. The flags (`tutorial_viewed`,
+       `experiment_viewed`) are written when a view ENDS, so a lost end-beacon —
+       which is a real and already-known failure (#464) — leaves a genuine view
+       mis-flagged. Keying the gate on flags would lock a student out of a quiz
+       because their network dropped on the way out of the lesson. Existence of
+       the row is written at view START and is reliable.
+
+    2. **The student already has an attempt on this unit.** Grandfathering, and
+       not a nicety: on the demo alone 26 existing sessions across 4 students
+       have no lesson view, 9 of them PASSED. Without this, shipping the gate
+       would retroactively lock those students out of retrying units they have
+       already sat — a rule change that reaches backwards and looks exactly like
+       a regression to the person it happens to.
+
+    Deliberately NOT time- or scroll-based. "Fully read" is not observable: a
+    duration threshold punishes a fast reader and is defeated by leaving a tab
+    open, and scroll depth is not recorded. Opening the lesson is the honest
+    signal available, and it is the one that closes the reporting gap this
+    decision was really about — a unit quizzed without a lesson view is counted
+    by neither "Units completed" nor "In progress".
+
+    Returns True when the quiz may be served. Callers must ALSO fail open when
+    the unit has no lesson to read; see `unit_has_lesson`.
+    """
+    async with pool.acquire() as conn:
+        # RLS: lesson_views / progress_sessions are student-scoped, and this runs
+        # on a raw pool connection outside a request-scoped get_db() (pitfall #23).
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        return bool(
+            await conn.fetchval(
+                """
+                SELECT EXISTS (
+                    SELECT 1 FROM lesson_views
+                    WHERE student_id = $1::uuid AND unit_id = $2
+                )
+                OR EXISTS (
+                    SELECT 1 FROM progress_sessions
+                    WHERE student_id = $1::uuid AND unit_id = $2
+                )
+                """,
+                student_id,
+                unit_id,
+            )
+        )
+
+
+async def unit_has_lesson(
+    curriculum_id: str,
+    unit_id: str,
+    lang: str,
+    redis,
+    storage: StorageBackend,
+) -> bool:
+    """Is there a lesson for this unit for the student to read?
+
+    The gate must never make content permanently unreachable. A unit with a quiz
+    and no lesson would, under a naive gate, be locked forever: the student is
+    told to read something that does not exist.
+
+    Every one of the 251 quiz-bearing units on the demo currently has a lesson,
+    so this fires for nobody today — but content is generated per unit and per
+    language and can be partial, and a school fork need not mirror its source.
+    An unreachable quiz is a worse failure than an ungated one.
+
+    Checked only when the prerequisite is NOT met, so the ordinary path (the
+    student did read the lesson) never pays for this lookup.
+    """
+    for filename in (f"lesson_{lang}.json", "lesson_en.json"):
+        try:
+            await get_content_file(curriculum_id, unit_id, filename, redis, storage)
+            return True
+        except FileNotFoundError:
+            continue
+        except Exception:
+            # A storage hiccup or a malformed file must not decide the gate.
+            # Report "no lesson", which makes the caller fail OPEN and serve the
+            # quiz. Between handing out an ungated quiz and telling a child to
+            # read a lesson we cannot currently find, the first is the smaller
+            # harm — and it is the behaviour they had until today anyway.
+            return False
+    return False
