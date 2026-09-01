@@ -35,7 +35,13 @@ fakeredis==2.36.2
 openpyxl==3.1.5
 
 # Pipeline dependencies (needed by celery-pipeline worker)
-anthropic==0.28.0
+# Bumped 2026-09-01 from 0.28.0, which could not construct a client at all
+# against httpx 0.28.1: the SDK passed `proxies=`, removed in httpx 0.28, so
+# `Anthropic()` raised TypeError before any request. That broke BOTH Anthropic
+# content generation and the help widget's answer step. Upper bound comes from
+# wegofwd-llm, which declares anthropic<1.0; 0.125.0 is the newest inside it and
+# was verified with a live generate call through that wrapper.
+anthropic==0.125.0
 tiktoken>=0.7.0
 Markdown>=3.6
 Jinja2>=3.1.0
