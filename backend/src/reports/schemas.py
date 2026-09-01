@@ -115,7 +115,12 @@ class PerUnitStudentReportItem(BaseModel):
     quiz_attempts: int
     best_score: float | None = None
     passed: bool
-    avg_duration_s: float
+    # Total seconds this student spent on this unit's content, NOT a per-view
+    # average. Renamed from `avg_duration_s` because the old name described the
+    # value accurately while the column heading above it did not, and the tile it
+    # sat under was a sum — so the screen invited an addition that could never
+    # come out. Same quantity as `total_time_spent_s`, one grain down.
+    total_duration_s: int
 
 
 class StudentReport(BaseModel):

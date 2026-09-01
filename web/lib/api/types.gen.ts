@@ -8569,8 +8569,8 @@ export interface components {
             best_score?: number | null;
             /** Passed */
             passed: boolean;
-            /** Avg Duration S */
-            avg_duration_s: number;
+            /** Total Duration S */
+            total_duration_s: number;
         };
         /**
          * PipelineEstimateResponse
