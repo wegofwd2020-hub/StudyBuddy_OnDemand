@@ -30,6 +30,15 @@ import asyncpg
 # (e.g. "G8-SCI-001" → "SCI" → "Science"). Derived from the canonical names in
 # data/grade*_stem.json. Used as a last-resort fallback so progress reports show
 # a real subject instead of "Unknown" when a unit has no curriculum_units row.
+#
+# A code is only listed here when it names ONE subject across the whole catalog.
+# `ENG` does not: it is Engineering for 32 units and English for 2, so guessing
+# from the prefix mislabels the larger group with total confidence. "Unknown" is
+# the honest answer for an ambiguous code — a reader who sees it looks the unit
+# up, whereas a reader who sees "English" beside "Aerospace Engineering" learns
+# to distrust the column. Resolve ambiguous codes from the database
+# (`resolve_subject_labels`), which knows the unit's actual curriculum, or not
+# at all.
 _SUBJECT_CODE_NAMES: dict[str, str] = {
     "MATH": "Mathematics",
     "SCI": "Science",
@@ -37,7 +46,6 @@ _SUBJECT_CODE_NAMES: dict[str, str] = {
     "CHEM": "Chemistry",
     "BIO": "Biology",
     "TECH": "Technology",
-    "ENG": "English",
     "CS": "Computer Science",
     "ACC": "Accountancy",
     "BUS": "Business Studies",
@@ -51,6 +59,14 @@ _SUBJECT_CODE_NAMES: dict[str, str] = {
 }
 
 _UNIT_ID_SUBJECT_RE = re.compile(r"^G\d+-([A-Z]+)-")
+
+# A stored "subject" that is really a grade-prefixed code — "G5-ENG", "G12-MATH".
+# `progress_sessions.subject` and `curriculum_units.subject` both hold a mix of
+# these and real display names, which is precisely the inconsistency a tester
+# reported on the Unit Performance report: the same column showing "Engineering"
+# on one row and "G5-ENG" on the next. A code is never a display name, so it must
+# not be allowed to win over a resolved one.
+_BARE_SUBJECT_CODE_RE = re.compile(r"^G\d+-[A-Z]+$")
 
 
 def subject_from_unit_id(unit_id: str | None) -> str | None:
@@ -114,7 +130,14 @@ def display_subject(
     label = label_map.get(unit_id)
     if label:
         return label
-    if stored_subject and stored_subject.lower() != "unknown":
+    if (
+        stored_subject
+        and stored_subject.lower() != "unknown"
+        # A bare code ("G5-ENG") is not a display name. Returning it here is what
+        # made one column show "Engineering" and "G5-ENG" side by side; fall
+        # through to the prefix map, which at least yields a real subject word.
+        and not _BARE_SUBJECT_CODE_RE.match(stored_subject)
+    ):
         return stored_subject
     # Last resort: derive the subject from the unit_id prefix so the chart shows
     # a real subject (and groups into separate bars) instead of collapsing every

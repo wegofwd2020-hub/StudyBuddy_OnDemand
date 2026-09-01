@@ -855,8 +855,8 @@ async def get_curriculum_health(
     # split a single unit's health stats into two partial rows — each with its
     # own (wrong, partial) pass rate / avg score / avg attempts — and inflated
     # total_units / healthy_count / watch_count / struggling_count by double-
-    # counting the unit. This field is NOT run through resolve_subject_labels /
-    # display_subject downstream, so MAX(ps.subject) is the actual value shown.
+    # counting the unit. MAX(ps.subject) is only a FALLBACK for display_subject
+    # below — see the resolution step after the untouched-unit merge.
     rows = await conn.fetch(
         f"""
         SELECT
@@ -989,6 +989,27 @@ async def get_curriculum_health(
                     "recommended_action": _recommended_action("no_activity"),
                 }
             )
+
+    # Resolve display names for BOTH sources at once.
+    #
+    # This report had no resolution step at all, so it showed whatever was stored
+    # — and the two sources store different things. Touched units carried
+    # `progress_sessions.subject`, which is a mix of real names and subject codes;
+    # untouched units carried `curriculum_units.subject`, which is a CODE for
+    # every stream curriculum (pitfall #32). The result was one column reading
+    # "Engineering" on one row and "G5-ENG" on the next, which is what a tester
+    # reported as an inconsistency.
+    #
+    # The student progress report has always done this (`get_student_report`).
+    # Doing it here makes the two reports agree, which matters more than either
+    # one being individually defensible: a teacher reads them side by side.
+    #
+    # One query for the whole page, after the untouched merge, so the resolution
+    # cannot diverge between the two paths the way the raw values did.
+    if units:
+        subject_labels = await resolve_subject_labels(conn, [u["unit_id"] for u in units])
+        for u in units:
+            u["subject"] = display_subject(subject_labels, u["unit_id"], u["subject"])
 
     return {
         "school_id": school_id,
