@@ -36,32 +36,64 @@ const GETTING_STARTED_TEACHER = [
   {
     step: "6",
     title: "Alerts & Digest",
-    body: "Alerts notify you when thresholds are breached (e.g. class average drops below 60%). Digest Settings let you subscribe to a weekly email summary.",
+    body: "Alerts notify you when thresholds are breached (e.g. class average drops below 60%). Tune the thresholds in Alert Settings, and use Digest Settings to subscribe to a weekly email summary.",
+  },
+  {
+    step: "7",
+    title: "Exports",
+    body: "Export CSV downloads the Overview, Trends or Unit Performance report. Pick the period before downloading — Overview offers 7 days / 30 days / this term, Trends offers 4 weeks / 12 weeks / this term (it's grouped into whole weeks). Unit Performance covers all activity to date.",
+  },
+  {
+    step: "8",
+    title: "Student feedback",
+    body: "Students rate lessons and tutorials with a thumbs up/down and can leave a comment. The Feedback report collects them per unit, so repeated thumbs-down on one unit is a signal to look at that content.",
+  },
+];
+
+// Admin steps continue the teacher list, so their numbers are derived rather
+// than written down — adding a teacher step used to silently create two step
+// 7s.
+const ADMIN_ONLY = [
+  {
+    title: "Set up your school",
+    body: "The Get started checklist walks the whole first-run setup — adding teachers and students, creating classrooms, adopting curricula. It ticks items off automatically as you complete them, so it's safe to leave and come back.",
+  },
+  {
+    title: "Teachers & Students",
+    body: "Provision accounts from the Administration menu. Provisioned users get a temporary password emailed to them and must reset it on first login. School Admin is a superset of Teacher — an admin can do everything a teacher can, plus user management.",
+  },
+  {
+    title: "Curriculum library",
+    body: "Browse the platform Catalog and adopt curricula for your school. Adopted content can be edited: an import creates your school's own copy, and edits go through draft → review → approved before students see them.",
+  },
+  {
+    title: "Curriculum Upload & Pipeline",
+    body: "Upload a grade curriculum JSON file, then trigger the AI pipeline to generate lessons and quizzes. Monitor job progress in Pipeline Jobs. You can also define a curriculum in the builder and submit it for approval instead of uploading a file.",
+  },
+  {
+    title: "Backups & Restore",
+    body: "Curriculum backups run on a schedule you control. To roll something back, raise a restore request — it shows you a dry run of exactly what would change, and needs confirming before anything is written.",
+  },
+  {
+    title: "Branding",
+    body: "Customise your school's colours and logo in Settings → Customize. It applies across the portal your teachers and students see.",
+  },
+  {
+    title: "Subscription & Storage",
+    body: "View your plan limits (students, teachers, pipeline quota) on Subscription, and current content storage use on Storage.",
+  },
+  {
+    title: "Content Retention",
+    body: "Manage curriculum version lifecycle from the Content Retention page. See which versions are active, unavailable (expired), or purged. Renew expiring content with one click, pay for a renewal via Stripe, or purchase additional storage. Assign a specific curriculum version as the live content source for each grade.",
   },
 ];
 
 const GETTING_STARTED_ADMIN = [
   ...GETTING_STARTED_TEACHER,
-  {
-    step: "7",
-    title: "Teachers",
-    body: "Provision new teachers, view the full teacher roster, and promote a teacher to School Admin. Provisioned accounts get a temporary password emailed to them and are forced to reset on first login.",
-  },
-  {
-    step: "8",
-    title: "Curriculum Upload",
-    body: "Upload a grade curriculum JSON file, then trigger the AI pipeline to generate lessons and quizzes. Monitor job progress in the Pipeline Jobs tab.",
-  },
-  {
-    step: "9",
-    title: "Subscription",
-    body: "View your current plan limits (students, teachers, pipeline quota). Upgrade or cancel via the Subscription page.",
-  },
-  {
-    step: "10",
-    title: "Content Retention",
-    body: "Manage curriculum version lifecycle from the Content Retention page. See which versions are active, unavailable (expired), or purged. Renew expiring content with one click, pay for a renewal via Stripe, or purchase additional storage. Assign a specific curriculum version as the live content source for each grade.",
-  },
+  ...ADMIN_ONLY.map((s, i) => ({
+    ...s,
+    step: String(GETTING_STARTED_TEACHER.length + i + 1),
+  })),
 ];
 
 // Teacher-focused FAQ (#370) — task-oriented answers distinct from the
@@ -96,6 +128,34 @@ const TEACHER_FAQ: { q: string; a: string; where: string }[] = [
     q: "Can I make a lesson easier to read for a student?",
     a: "Lesson content already targets a reading level one to two grades below the student's grade. For dyslexia support, toggle the dyslexia-friendly font from the Eye icon in the top bar (or press Alt+D).",
     where: "Top bar → Eye icon (Alt+D)",
+  },
+  // The questions below came from real reports rather than guesswork — each one
+  // is a number or behaviour a teacher queried, so the answer belongs here and
+  // not only in a reply.
+  {
+    q: "A student can't start a quiz — is something broken?",
+    a: "No. A quiz opens once the student has opened that unit's lesson, so they arrive having read it. Their screen offers a link straight to the lesson. Students who already attempted a unit keep access to its quiz, and if a unit has no lesson available the quiz stays open rather than trapping them.",
+    where: "Student view → unit → Lesson, then Quiz",
+  },
+  {
+    q: "Why is the pass rate here different from the one the student sees?",
+    a: "They answer different questions, and both are right. Your figure counts FIRST attempts — of the units the student tried, how many they passed first time, which is what tells you where teaching landed. The student's own page counts every attempt, because a retake that succeeds is a pass. Each tile now says which it is.",
+    where: "/school/students → student row",
+  },
+  {
+    q: "What does 'In progress' include?",
+    a: "Every unit the student has reached and not yet passed — whether they failed the quiz or haven't taken it. 'Units completed' means the quiz was passed. Each tile on the student detail card states its definition.",
+    where: "/school/students → student row",
+  },
+  {
+    q: "Reading time doesn't look right against the units listed.",
+    a: "The Reading time tile is the total of the Reading time column below it, so the column adds up to the tile. It counts time on lesson, tutorial and activity pages. Anything under a minute shows as '<1m' so a short read isn't indistinguishable from never opening it.",
+    where: "/school/students → student row",
+  },
+  {
+    q: "Why does the CSV feedback count differ from the dashboard tile?",
+    a: "The dashboard tile counts UNREVIEWED feedback only, including general comments not tied to a unit. The Unit Performance CSV counts all feedback, reviewed or not, but only where it names a unit. Both are scoped to your school.",
+    where: "/school/reports/export",
   },
 ];
 
@@ -237,11 +297,34 @@ export default function SchoolHelpPage() {
                   "Assign curriculum version to a grade",
                   "/school/retention → row → Details → Assign",
                 ],
+                isAdmin && ["Run the setup checklist", "/school/setup"],
+                isAdmin && ["Adopt a platform curriculum", "/school/catalog"],
+                isAdmin && ["Edit adopted content", "/school/library"],
+                isAdmin && ["Review submitted content edits", "/school/review"],
+                isAdmin && [
+                  "Define a curriculum for approval",
+                  "/school/curriculum/definitions",
+                ],
+                isAdmin && ["Curriculum backups", "/school/backups"],
+                isAdmin && ["Request a restore", "/school/restore-requests/new"],
+                isAdmin && [
+                  "Brand the portal (colours, logo)",
+                  "/school/settings/customize",
+                ],
+                isAdmin && ["Check storage use", "/school/storage"],
+                isAdmin && ["Manage students", "/school/students"],
                 ["View AI-generated content", "/school/curriculum/content"],
                 ["Browse a unit's lesson", "/school/curriculum/content → subject → unit"],
                 ["See class performance", "/school/reports/overview"],
+                ["Week-over-week trends", "/school/reports/trends"],
+                ["Engagement report", "/school/reports/engagement"],
+                ["Unit performance / difficult content", "/school/reports/units"],
+                ["Student feedback on content", "/school/reports/feedback"],
                 ["Find at-risk students", "/school/reports/at-risk"],
-                ["Export report as CSV", "/school/reports/export"],
+                ["Export a report as CSV (choose the period)", "/school/reports/export"],
+                ["Review and dismiss alerts", "/school/alerts"],
+                ["Tune alert thresholds", "/school/reports/alerts/settings"],
+                ["Weekly email summary", "/school/digest"],
                 ["View student detail", "/school/students → student row"],
                 ["Toggle dyslexia font", "Eye icon in top-right header, or Alt+D"],
               ]

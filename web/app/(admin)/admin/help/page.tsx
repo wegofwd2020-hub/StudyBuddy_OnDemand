@@ -34,6 +34,26 @@ const GETTING_STARTED = [
     title: "Demo Accounts & Test Runs",
     body: 'Student-only and teacher-only demo requests still appear on /admin/demo-accounts and /admin/demo-teacher-accounts. The new visitor-facing "Try a test run" form (one click → both teacher AND student credentials in one email) is managed on /admin/test-runs. Click Reset on a test-run row to purge the visitor\'s accounts AND their per-visitor classroom so they can re-submit a fresh request.',
   },
+  {
+    step: "6",
+    title: "Authoring Studio (super admin only)",
+    body: "Paste a table of contents, have it structured and flow-checked, edit the result, then generate content topic by topic. Every regeneration is kept — versions are append-only with a pointer to the live one — so you can review, regenerate with a reason, snapshot, and roll back. Publishing writes the accepted bodies into the content store, either privately to the school or into the public catalog.",
+  },
+  {
+    step: "7",
+    title: "Schools & Streams",
+    body: "Schools lists every tenant and drills into one. Streams is the registry behind curriculum identity (science, commerce, humanities…) — rename, archive or merge them there. Streams are a soft registry with no foreign key, so a rename is a data action rather than a migration.",
+  },
+  {
+    step: "8",
+    title: "Curriculum lifecycle",
+    body: "Retention shows version expiry across schools; Archive holds archived curricula with their remaining TTL and an unarchive action. Archiving a platform curriculum is super-admin only, and archiving a school's own content requires a stated reason — both are written to the audit log.",
+  },
+  {
+    step: "9",
+    title: "Backups & Restore",
+    body: "Per-school backup schedules, the backups themselves, and incoming restore requests. A restore is a dry run first: it reports the conflicts it would hit before anything is written.",
+  },
 ];
 
 export default function AdminHelpPage() {
@@ -137,6 +157,16 @@ export default function AdminHelpPage() {
                   "Manage visitor test runs (one form → both teacher + student demo)",
                   "/admin/test-runs",
                 ],
+                ["Author a curriculum from a TOC", "/admin/authoring"],
+                ["Manage schools", "/admin/schools"],
+                ["Manage streams", "/admin/streams"],
+                ["Archived curricula / unarchive", "/admin/archive/curricula"],
+                ["Curriculum retention & expiry", "/admin/retention"],
+                ["School backups", "/admin/backups"],
+                ["Backup schedules", "/admin/backup-schedules"],
+                ["Restore requests", "/admin/restore-requests"],
+                ["Demo leads / settings", "/admin/demo-leads · /admin/demo-settings"],
+                ["Content build reports", "/admin/build-reports"],
                 ["View audit log", "/admin/audit"],
                 ["Check system health", "/admin/health"],
                 ["View student feedback", "/admin/feedback"],
