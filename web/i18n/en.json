@@ -257,6 +257,7 @@
     "lessons_viewed": "Lessons viewed",
     "quizzes_completed": "Quizzes completed",
     "pass_rate": "Pass rate",
+    "pass_rate_hint": "Counting every try",
     "avg_score": "Average score",
     "audio_played": "Audio sessions",
     "period_7d": "Last 7 days",

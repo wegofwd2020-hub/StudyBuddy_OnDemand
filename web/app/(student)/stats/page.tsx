@@ -119,8 +119,13 @@ export default function StatsPage() {
                 icon={CheckCircle2}
                 color="green"
               />
+              {/* Counts EVERY attempt, and should: a student who retried and
+                  passed has passed. The teacher's report card for the same
+                  student deliberately counts first attempts only — a different,
+                  equally correct number — so each screen now names its own. */}
               <StatCard
                 label={t("pass_rate")}
+                hint={t("pass_rate_hint")}
                 value={`${Math.round(stats.pass_rate * 100)}%`}
                 icon={TrendingUp}
                 color="purple"
