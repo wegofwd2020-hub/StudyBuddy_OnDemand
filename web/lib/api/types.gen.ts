@@ -165,6 +165,42 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/reset-password/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Check Reset Token
+         * @description Report whether a reset token is still usable. Does NOT consume it.
+         *
+         *     The reset page gated only on the token being PRESENT in the URL, never on it
+         *     being valid, so an expired link still rendered "Set new password" and the
+         *     failure surfaced only after the user had filled the form in. A tester hit
+         *     this twice and reasonably read it as "the link still works four hours later"
+         *     — the link did not work, but nothing on screen said so until the very end.
+         *
+         *     This endpoint exists because there was no way to ask. `/auth/reset-password`
+         *     burns the token as part of answering, which is correct for a reset and
+         *     useless for a page load: calling it to check would destroy the token the
+         *     student came to use.
+         *
+         *     Always 200. An invalid or expired token is `{"valid": false}`, not a 4xx —
+         *     the client renders an explanation either way, and a status code carries no
+         *     extra meaning here. Rate-limited on the same IP bucket as the rest of the
+         *     auth surface; see ResetTokenCheckResponse for why the body is a bare bool.
+         */
+        post: operations["check_reset_token_api_v1_auth_reset_password_check_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/reset-password": {
         parameters: {
             query?: never;
@@ -9177,6 +9213,36 @@ export interface components {
             /** Temp Password */
             temp_password: string;
         };
+        /**
+         * ResetTokenCheckRequest
+         * @description POST /auth/reset-password/check
+         *
+         *     Asks whether a reset token is still usable, WITHOUT consuming it. The reset
+         *     page needs this to decide between rendering the form and saying the link has
+         *     expired; before it existed the page had nothing to call, so it rendered the
+         *     form for any non-empty token string and only revealed the expiry after the
+         *     user had typed a new password twice and pressed the button.
+         *
+         *     The token travels in the body rather than a path segment so it stays out of
+         *     access logs, matching ResetPasswordRequest.
+         */
+        ResetTokenCheckRequest: {
+            /** Token */
+            token: string;
+        };
+        /**
+         * ResetTokenCheckResponse
+         * @description Deliberately a bare boolean.
+         *
+         *     Returning the email or user type would turn a leaked reset link into a PII
+         *     lookup. `valid` is all the page needs, and the token is 256 bits of
+         *     `secrets.token_urlsafe(32)`, so confirming validity tells a guesser nothing
+         *     they could not learn by attempting the reset itself.
+         */
+        ResetTokenCheckResponse: {
+            /** Valid */
+            valid: boolean;
+        };
         /** RestoreRequestCreate */
         RestoreRequestCreate: {
             /** Backup Id */
@@ -11405,6 +11471,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    check_reset_token_api_v1_auth_reset_password_check_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResetTokenCheckRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResetTokenCheckResponse"];
                 };
             };
             /** @description Validation Error */

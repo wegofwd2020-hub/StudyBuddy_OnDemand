@@ -4,13 +4,14 @@ import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { LinkButton } from "@/components/ui/link-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { requestPasswordReset, resetPassword } from "@/lib/api/auth";
-import { CheckCircle } from "lucide-react";
+import { checkResetToken, requestPasswordReset, resetPassword } from "@/lib/api/auth";
+import { CheckCircle, AlertCircle } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
@@ -35,6 +36,29 @@ function ResetPasswordInner() {
   const [done, setDone] = useState(false);
   const [error, setError] = useState("");
 
+  // Whether the token in the URL is still usable.
+  //
+  // This page used to gate purely on the token being PRESENT, never on it being
+  // valid, so an expired link rendered "Set new password" exactly like a good
+  // one and the expiry only surfaced after the user had typed a new password
+  // twice and pressed the button. A tester read that as "the link still works
+  // hours later"; the link did not work, but nothing on screen said so.
+  //
+  // `undefined` = still asking. Rendering the form during that window would
+  // reintroduce the same flash of a form that is about to be replaced.
+  const [tokenValid, setTokenValid] = useState<boolean | undefined>(undefined);
+
+  useEffect(() => {
+    if (!token) return;
+    let cancelled = false;
+    checkResetToken(token).then((valid) => {
+      if (!cancelled) setTokenValid(valid);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
+
   const requestForm = useForm<z.infer<typeof requestSchema>>({
     resolver: zodResolver(requestSchema),
   });
@@ -58,7 +82,16 @@ function ResetPasswordInner() {
       await resetPassword(token!, data.password);
       setDone(true);
     } catch {
-      setError("Reset failed. The link may have expired.");
+      // The token can lapse WHILE the form is being filled in — the TTL is an
+      // hour from issue, not from page load. Re-ask rather than guess: if it is
+      // genuinely gone, show the expired screen with its "request a new link"
+      // action instead of an inline sentence that offers no way forward.
+      const stillValid = await checkResetToken(token!);
+      if (!stillValid) {
+        setTokenValid(false);
+        return;
+      }
+      setError("Reset failed. Please try again.");
     }
   }
 
@@ -75,6 +108,31 @@ function ResetPasswordInner() {
     );
   }
 
+  // Expired, already used, or never valid. Say so here rather than letting the
+  // student fill the form in and discover it at submit — and offer the one
+  // action that actually helps, which is asking for a fresh link.
+  if (token && tokenValid === false) {
+    return (
+      <div className="flex min-h-[80vh] items-center justify-center px-4 py-12">
+        <Card className="w-full max-w-sm shadow-lg">
+          <CardHeader className="text-center">
+            <AlertCircle className="mx-auto h-10 w-10 text-orange-500" />
+            <CardTitle className="mt-2 text-xl">This link has expired</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 text-center">
+            <p className="text-sm text-gray-600">
+              Password reset links last one hour and can only be used once. Request a new
+              one and we&apos;ll email it to you.
+            </p>
+            <LinkButton href="/reset-password" className="w-full">
+              Request a new link
+            </LinkButton>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-[80vh] items-center justify-center px-4 py-12">
       <Card className="w-full max-w-sm shadow-lg">
@@ -87,7 +145,11 @@ function ResetPasswordInner() {
           )}
         </CardHeader>
         <CardContent>
-          {token ? (
+          {token && tokenValid === undefined ? (
+            // One round-trip. Showing the form first and swapping it for the
+            // expired notice is the flash this whole change exists to remove.
+            <p className="py-6 text-center text-sm text-gray-500">Checking your link…</p>
+          ) : token ? (
             <form onSubmit={resetForm.handleSubmit(onResetSubmit)} className="space-y-4">
               <div className="space-y-1">
                 <Label htmlFor="password">{t("password_label")}</Label>

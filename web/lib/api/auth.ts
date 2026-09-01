@@ -31,6 +31,28 @@ export async function requestPasswordReset(email: string): Promise<void> {
   await api.post("/auth/forgot-password", { email });
 }
 
+/**
+ * Is this reset token still usable? Does NOT consume it.
+ *
+ * The reset page needs an answer BEFORE it renders the form. `resetPassword`
+ * cannot provide one: it burns the token as part of answering, so calling it to
+ * check would destroy the token the user came to use.
+ *
+ * Never throws — a network failure resolves to `true` so a student with a good
+ * link is not told it expired because the check request dropped. A bad token
+ * still fails honestly at submit, which is the behaviour we had before.
+ */
+export async function checkResetToken(token: string): Promise<boolean> {
+  try {
+    const res = await api.post<{ valid: boolean }>("/auth/reset-password/check", {
+      token,
+    });
+    return res.data.valid;
+  } catch {
+    return true;
+  }
+}
+
 export async function resetPassword(token: string, newPassword: string): Promise<void> {
   await api.post("/auth/reset-password", { token, new_password: newPassword });
 }
