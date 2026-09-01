@@ -14,6 +14,11 @@ function secondsToHm(s: number): string {
   const h = Math.floor(s / 3600);
   const m = Math.floor((s % 3600) / 60);
   if (h > 0) return `${h}h ${m}m`;
+  // A 45-second read used to render as "0m", which is indistinguishable from
+  // never having opened the lesson at all. Most rows on this table are short,
+  // so that one rounding turned a column of real activity into a column of
+  // zeroes — and made the "Reading time" tile above look invented.
+  if (m === 0 && s > 0) return "<1m";
   return `${m}m`;
 }
 
@@ -107,7 +112,11 @@ export default function StudentDetailPage() {
                         "Lesson",
                         "Attempts",
                         "Best score",
-                        "Time",
+                        // Named identically to the tile above, because it is now
+                        // the same quantity at a finer grain: these cells add up
+                        // to that number. "Time" said nothing about which time,
+                        // and held an average while the tile held a sum.
+                        "Reading time",
                       ].map((h) => (
                         <th
                           key={h}
@@ -149,7 +158,7 @@ export default function StudentDetailPage() {
                           )}
                         </td>
                         <td className="px-4 py-3 text-xs text-gray-400">
-                          {secondsToHm(u.avg_duration_s)}
+                          {secondsToHm(u.total_duration_s)}
                         </td>
                       </tr>
                     ))}

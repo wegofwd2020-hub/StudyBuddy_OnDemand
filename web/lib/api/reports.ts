@@ -125,7 +125,8 @@ export interface PerUnitStudentItem {
   quiz_attempts: number;
   best_score: number | null;
   passed: boolean;
-  avg_duration_s: number;
+  /** Total seconds on this unit's content — sums to `total_time_spent_s`. */
+  total_duration_s: number;
 }
 
 export interface StudentReport {

@@ -703,7 +703,17 @@ async def get_student_report(
         else 0.0
     )
 
-    # Total time
+    # Total time.
+    #
+    # Every lesson_views row for this student, which is now exactly the set the
+    # per-unit column sums over — so the tile and the column below it are the
+    # same quantity at two grains, and adding the column up reaches the tile.
+    # Before, the tile summed every unit while the table only listed units with a
+    # quiz session, and the column held averages, so the two could not agree by
+    # any arithmetic a teacher might try.
+    #
+    # NULL durations (a view whose end beacon never arrived) are skipped by SUM
+    # on both sides, so they cannot make one side larger than the other.
     time_row = await conn.fetchrow(
         "SELECT COALESCE(SUM(duration_s), 0)::int AS total_s FROM lesson_views WHERE student_id = $1",
         uuid.UUID(student_id),
@@ -738,25 +748,68 @@ async def get_student_report(
     # MAX(ps.subject) just picks a representative raw value for the fallback
     # path in display_subject() — it is never the value actually shown when a
     # curriculum-derived label exists.
+    # Each side is aggregated to one row per unit BEFORE they meet, then joined
+    # FULL OUTER. Two separate defects made the numbers on this screen impossible
+    # to reconcile, and both are fixed by that shape.
+    #
+    # 1. The "Time" column was AVG(lv.duration_s) — an average presented under a
+    #    heading that reads as a total, beneath a "Reading time" tile that is a
+    #    SUM. A student who read one lesson three times for five minutes each
+    #    showed "5m" while contributing 15m to the tile. No amount of adding the
+    #    column up could ever reach the number above it. It is now the SUM of
+    #    that unit's view durations, which is the same quantity the tile totals.
+    #
+    #    (The old LEFT JOIN did NOT distort the average, despite looking like the
+    #    #625 fan-out: within one (student, unit) group the join is a uniform
+    #    cartesian, so every view repeats the same number of times and AVG is
+    #    unchanged. It cost rows, not correctness. SUM would not have been so
+    #    lucky — hence aggregating first rather than switching the function.)
+    #
+    # 2. The table read FROM progress_sessions, so a unit the student READ but
+    #    never took a quiz on had no row at all — while its minutes were still
+    #    inside the "Reading time" tile and it was still counted by
+    #    `units_in_progress`, which comes from lesson_views. So the tiles counted
+    #    units the table refused to show. Same correction migration 0065 made to
+    #    `mv_student_curriculum_progress`, for the same reason: "reached the unit"
+    #    is the honest population, not "started a quiz on it".
     unit_rows = await conn.fetch(
         """
+        WITH s AS (
+            SELECT
+                unit_id,
+                MAX(subject)                                     AS subject,
+                MAX(attempt_number)                              AS quiz_attempts,
+                -- best_score is a PERCENTAGE (issue #463): score is a raw
+                -- question count, so divide by total_questions. NULLIF guards
+                -- divide-by-zero.
+                MAX((score::float / NULLIF(total_questions, 0)) * 100)
+                    FILTER (WHERE completed AND score IS NOT NULL
+                                  AND total_questions > 0)       AS best_score,
+                BOOL_OR(passed)                                  AS passed
+            FROM progress_sessions
+            WHERE student_id = $1
+            GROUP BY unit_id
+        ),
+        v AS (
+            SELECT
+                unit_id,
+                COUNT(*)                                         AS view_count,
+                COALESCE(SUM(duration_s), 0)::int                AS total_duration_s
+            FROM lesson_views
+            WHERE student_id = $1
+            GROUP BY unit_id
+        )
         SELECT
-            ps.unit_id,
-            MAX(ps.subject)                                      AS subject,
-            MAX(ps.attempt_number)                               AS quiz_attempts,
-            -- best_score is a PERCENTAGE (issue #463): score is a raw question
-            -- count, so divide by total_questions. NULLIF guards divide-by-zero.
-            MAX((ps.score::float / NULLIF(ps.total_questions, 0)) * 100)
-                FILTER (WHERE ps.completed AND ps.score IS NOT NULL
-                              AND ps.total_questions > 0)          AS best_score,
-            BOOL_OR(ps.passed)                                   AS passed,
-            COUNT(DISTINCT lv.view_id) > 0                       AS lesson_viewed,
-            ROUND(AVG(lv.duration_s)::numeric, 1)                AS avg_duration_s
-        FROM progress_sessions ps
-        LEFT JOIN lesson_views lv ON lv.student_id = ps.student_id AND lv.unit_id = ps.unit_id
-        WHERE ps.student_id = $1
-        GROUP BY ps.unit_id
-        ORDER BY ps.unit_id
+            COALESCE(s.unit_id, v.unit_id)                       AS unit_id,
+            s.subject                                            AS subject,
+            COALESCE(s.quiz_attempts, 0)                         AS quiz_attempts,
+            s.best_score                                         AS best_score,
+            COALESCE(s.passed, FALSE)                            AS passed,
+            COALESCE(v.view_count, 0) > 0                        AS lesson_viewed,
+            COALESCE(v.total_duration_s, 0)                      AS total_duration_s
+        FROM s
+        FULL OUTER JOIN v ON v.unit_id = s.unit_id
+        ORDER BY 1
         """,
         uuid.UUID(student_id),
     )
@@ -785,7 +838,7 @@ async def get_student_report(
             if r["best_score"] is not None
             else None,
             "passed": bool(r["passed"]),
-            "avg_duration_s": float(r["avg_duration_s"] or 0),
+            "total_duration_s": int(r["total_duration_s"] or 0),
         }
         for r in unit_rows
     ]

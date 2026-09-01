@@ -22753,9 +22753,9 @@
             "type": "boolean",
             "title": "Passed"
           },
-          "avg_duration_s": {
-            "type": "number",
-            "title": "Avg Duration S"
+          "total_duration_s": {
+            "type": "integer",
+            "title": "Total Duration S"
           }
         },
         "type": "object",
@@ -22765,7 +22765,7 @@
           "lesson_viewed",
           "quiz_attempts",
           "passed",
-          "avg_duration_s"
+          "total_duration_s"
         ],
         "title": "PerUnitStudentReportItem"
       },
