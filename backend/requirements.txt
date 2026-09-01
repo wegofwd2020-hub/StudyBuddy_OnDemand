@@ -41,7 +41,7 @@ openpyxl==3.1.5
 # content generation and the help widget's answer step. Upper bound comes from
 # wegofwd-llm, which declares anthropic<1.0; 0.125.0 is the newest inside it and
 # was verified with a live generate call through that wrapper.
-anthropic==0.125.0
+anthropic==1.2.0
 tiktoken>=0.7.0
 Markdown>=3.6
 Jinja2>=3.1.0
