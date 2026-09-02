@@ -340,17 +340,33 @@ async def curriculum_health(
     school_id: str,
     request: Request,
     teacher: Annotated[dict, Depends(get_current_teacher)],
+    grade: int | None = None,
 ) -> CurriculumHealthReport:
-    """All units ranked by health tier."""
+    """All units ranked by health tier, optionally narrowed to one grade.
+
+    `?grade=` is a filter WITHIN the caller's entitlement, never a way around
+    it: a grade the caller is not assigned to is refused with the same 403 the
+    roster uses, rather than being silently ignored. Silently ignoring it would
+    be worse than refusing — the teacher would read a school-wide report while
+    the control on screen said "Grade 7".
+    """
     _check_school(teacher, school_id, request)
     async with get_db(request) as conn:
-        grades = await _grade_filter(conn, teacher, school_id)
+        permitted = await _permitted_grades(conn, teacher, school_id)
+        if grade is not None and permitted is not None and grade not in permitted:
+            raise _deny_grade(request)
+        # `_grade_filter` is `sorted(_permitted_grades)`, so deriving it here
+        # saves a second identical query AND makes the check and the scope
+        # provably the same set — calling both would let a refusal be decided
+        # against one read of the assignments and the report built from another.
+        grades = None if permitted is None else sorted(permitted)
         result = await get_curriculum_health(
             conn,
             school_id,
             grades,
             pool=request.app.state.pool,
             redis=get_redis(request),
+            grade=grade,
         )
     return CurriculumHealthReport(**result)
 
