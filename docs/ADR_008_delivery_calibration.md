@@ -396,17 +396,20 @@ of Phases 3–5 and begins accumulating the human signal immediately — the par
 cannot be rushed later.
 
 **Phase 3 — Registry and pool draw.**
-Question registry table with lifecycle and owning scope. Pipeline generates a
-per-unit pool. Serving switches to a stratified server-side draw; the session
-records drawn ids; migration 0061's `quiz_set` is superseded.
+Question registry table with lifecycle and owning scope. Serving switches to a
+stratified server-side draw; the session records drawn ids; migration 0061's
+`quiz_set` is superseded.
 
 Note a constraint change: `unit_content_overrides.content_type` currently enumerates
 `quiz_set_1/2/3`, so the pool model needs a new permitted value (e.g. `quiz_pool`)
 — a CHECK alteration, not just new rows.
 
-Regeneration is per-unit and should start where content is real. **Grade 8 on the
-demo is entirely `dev-placeholder` and serves nothing** (every lesson 404s by
-design, pitfall #36); it is not a candidate until it has real content.
+> **Split into 3a and 3b, 2026-09-02.** See "Phase 3, reshaped" below. The
+> registry and the draw can ship over the questions that ALREADY exist, with no
+> generation spend; enlarging the pool is a separate, costed step. The original
+> note here said Grade 8 on the demo was entirely `dev-placeholder` and therefore
+> not a candidate — that was true when written and is **no longer true**: Grade 8
+> was given real content on 2026-09-01.
 
 **Phase 4 — Coverage fidelity (Decision 3).**
 Coverage contract derived from the platform curriculum; check at the Epic 12 review
@@ -420,6 +423,108 @@ scoping dimension, scoped to the school's own fork.
 **Not in scope:** the platform loop (Decision 2). It requires its own ADR covering
 aggregation, anonymisation, and the contractual basis, and must not be built as a
 side effect of Phase 5.
+
+---
+
+## Phase 3, reshaped (2026-09-02)
+
+Two things changed after Phase 2 shipped: the tester answered the questions this
+ADR had left open, and the existing corpus was measured rather than assumed.
+
+### What the corpus actually contains
+
+Measured across the content store, counting only real (non-placeholder) content:
+
+| | Platform (`default-*`) | Authoring Studio (`authored-*`) |
+|---|---|---|
+| Units with quiz content | 222 | 276 |
+| Questions | 5,298 | 6,616 |
+| Duplicate stems **inside one quiz** | **0** | **5,439 (82.2%)** |
+
+Per platform unit, counting DISTINCT questions (the number a pool can actually
+draw from): **median 24, min 17, max 72**, across 212 units and 5,269 questions.
+Every one of the 212 has at least 17 — twice a quiz — so no unit is too thin to
+draw from.
+
+Difficulty is populated on every question. Raw counts look badly skewed
+(easy 66% / medium 24% / hard 11%), but that skew is an artefact of duplication:
+the repeated questions are overwhelmingly easy. **After deduplication, platform
+content is medium 45% / easy 36% / hard 19%.** Both numbers are given because the
+first is what a naive importer would have built a pool from.
+
+Every question is `multiple_choice` — there is not a single multi-select question
+in the corpus.
+
+Two consequences, and the second is the reason this section exists at all:
+
+- **Students are not affected by the duplication.** It is confined to
+  `authored-*` directories, and there are currently **no `authored-*` rows in
+  `curricula`** — that content is orphaned on disk, unreachable by any serving
+  path. It is a generation-quality signal about the Authoring Studio, not a live
+  defect, and it does not block this phase.
+- **It does constrain what a pool can be drawn from.** Any pool built over
+  Authoring Studio output would inherit an 82% duplication rate. Pool
+  construction must therefore dedupe on stable question identity (Decision 4),
+  not merely concatenate the sets.
+
+### The tester's answers, and what they change
+
+- **Pool size: 150-200, not 50.** His reasoning is cost: "generating the question
+  bank also will cost you and this can built over a period of time." That is a
+  build-up target, not a precondition.
+- **Repeats: tolerable at that size.** "ideally no but keeping the question bank
+  size and no of questions per quiz probability of getting repeated question is
+  less."
+- **An interim he proposed himself:** pool the questions that already exist and
+  draw randomly, "in case if it is going to take time to build the question
+  bank."
+
+That interim is worth taking, and it is stronger than it looks. Today a student
+sees one of **3 fixed sets of 8**. Drawing 8 from a deduplicated pool of ~24
+gives on the order of 10^5 distinct quizzes per unit instead of 3 — which is the
+whole of what "reduces the predictability" asks for, at **zero generation cost**.
+
+So Phase 3 splits:
+
+**Phase 3a — registry and draw over existing questions.** Registry table,
+backfill from the content store keyed by stable question id, server-side
+stratified draw, session records drawn ids. No generation. Reversible: the
+existing sets stay on disk untouched, so the draw can be switched off.
+
+**Phase 3b — enlarge the pool.** Generation to the 150-200 target, per unit,
+starting where the signal says it is needed rather than uniformly. Costed
+separately and explicitly, because it is the expensive half.
+
+### Two new asks, both deferred with reasons
+
+**Multi-select questions.** Not declined — sequenced. It is not a content change
+alone: `correct_option` is a single value end to end, so the answer key, the
+server-side grader (pitfall #35), the session tally, the player, and the schema
+all change together. It also invalidates comparability with every existing
+question for item analysis, since partial credit is a different measurement.
+Worth its own slice after 3a, not folded into it.
+
+**Easy / Medium / Hard banks with progression gating.** The `difficulty` field
+already exists and Decision 7 already stratifies the draw by it, so the data model
+needs nothing new. What is missing is content depth: at 19% hard on a median of
+24, a typical unit holds **four or five hard questions**. A gate that requires
+finishing an Easy bank before unlocking Medium would, today, unlock a "Hard bank"
+of four — which reads as broken rather than progressive, and a student who
+retried would see the same four.
+
+This becomes viable **after 3b**, and 3b's generation targets should therefore be
+stated **per difficulty band** rather than as a single total per unit. Worth
+noting the current mix is not the one this feature wants: it is medium-heavy,
+whereas a progression ladder needs a broad easy base.
+
+### Sequencing
+
+3a is safe and cheap and should ship first. 3b is the costed generation step, and
+its per-band targets are what make the difficulty banks possible. Multi-select
+follows 3a as its own slice. Nothing here changes Decisions 1-10; it schedules
+them against measured content rather than assumed content.
+
+---
 
 Phases 1 and 2 are worth doing even if the rest is deferred indefinitely: they cost
 little, they make data already being collected meaningful, and every month they are
