@@ -20,6 +20,7 @@
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import userEvent from "@testing-library/user-event";
 import ExportPage from "@/app/(school)/school/reports/export/page";
 import * as reportsApi from "@/lib/api/reports";
@@ -99,12 +100,24 @@ async function download(user: ReturnType<typeof userEvent.setup>) {
   await user.click(screen.getByRole("button", { name: /download csv/i }));
 }
 
+// The page reads the school's grade list through React Query (the Unit
+// Performance grade filter), so it needs a client in scope. `retry: false` so a
+// mock that rejects fails the test immediately instead of after backoff.
+function renderExportPage() {
+  const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return render(
+    <QueryClientProvider client={qc}>
+      <ExportPage />
+    </QueryClientProvider>,
+  );
+}
+
 describe("Export CSV — period selection", () => {
   it("sends the chosen trends period, not a hardcoded 12 weeks", async () => {
     // The literal complaint. Before this change the argument was the string
     // "12w" no matter what, so this assertion is the whole fix.
     const user = userEvent.setup();
-    render(<ExportPage />);
+    renderExportPage();
 
     await chooseReport(user, "Trends Report");
     await user.click(screen.getByRole("radio", { name: "4 weeks" }));
@@ -115,7 +128,7 @@ describe("Export CSV — period selection", () => {
 
   it("offers This term for trends, which had no way to be requested at all", async () => {
     const user = userEvent.setup();
-    render(<ExportPage />);
+    renderExportPage();
 
     await chooseReport(user, "Trends Report");
     await user.click(screen.getByRole("radio", { name: "This term" }));
@@ -126,7 +139,7 @@ describe("Export CSV — period selection", () => {
 
   it("sends the chosen overview period, not a hardcoded 30 days", async () => {
     const user = userEvent.setup();
-    render(<ExportPage />);
+    renderExportPage();
 
     // Overview is the default selection.
     await user.click(screen.getByRole("radio", { name: "Last 7 days" }));
@@ -140,7 +153,7 @@ describe("Export CSV — period selection", () => {
     // for trends must not leave the overview asking for a period that does not
     // exist in its vocabulary.
     const user = userEvent.setup();
-    render(<ExportPage />);
+    renderExportPage();
 
     await chooseReport(user, "Trends Report");
     await user.click(screen.getByRole("radio", { name: "4 weeks" }));
@@ -159,7 +172,7 @@ describe("Export CSV — period selection", () => {
     // Yes: trends bucket into ISO weeks, so a seven-day trend is one data point.
     // A shared selector would have to imply an export that cannot exist.
     const user = userEvent.setup();
-    render(<ExportPage />);
+    renderExportPage();
 
     expect(screen.getByRole("radio", { name: "Last 30 days" })).toBeInTheDocument();
     expect(screen.queryByRole("radio", { name: "12 weeks" })).toBeNull();
@@ -174,7 +187,7 @@ describe("Export CSV — period selection", () => {
     // silently did not apply would be the same defect in a friendlier costume —
     // which is what the dashboard's unreviewed-feedback card still does.
     const user = userEvent.setup();
-    render(<ExportPage />);
+    renderExportPage();
 
     await chooseReport(user, "Unit Performance");
 
@@ -182,6 +195,9 @@ describe("Export CSV — period selection", () => {
     expect(screen.queryByRole("radio", { name: /weeks|days|term/i })).toBeNull();
 
     await download(user);
-    expect(getCurriculumHealth).toHaveBeenCalledWith("sch-1");
+    // `null` is "all grades" — the report's own default, and what the export
+    // must send when the teacher has not chosen one. It is a grade, not a
+    // period: this report gained a grade filter and still has no period.
+    expect(getCurriculumHealth).toHaveBeenCalledWith("sch-1", null);
   });
 });

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useTeacher } from "@/lib/hooks/useTeacher";
 import {
   getOverviewReport,
@@ -69,7 +70,23 @@ export default function ExportPage() {
   // each choice and neither needs casting to the other's period type.
   const [overviewPeriod, setOverviewPeriod] = useState<ReportPeriod>("30d");
   const [trendsPeriod, setTrendsPeriod] = useState<TrendsPeriod>("12w");
+  // Unit Performance has no period but it does have a grade filter, and the
+  // export has to offer it. A filter that exists on screen and not in the
+  // download recreates the defect this page's period selector was added to
+  // fix — the teacher reads one population and downloads another.
+  const [healthGrade, setHealthGrade] = useState<number | null>(null);
   const [state, setState] = useState<DownloadState>("idle");
+
+  // Unfiltered, so the picker offers every grade the caller may choose. Shares
+  // a cache key with the Unit Performance page's own unfiltered query, so
+  // arriving here from that report costs no extra request.
+  const { data: healthMeta } = useQuery({
+    queryKey: ["curriculum-health", schoolId, null],
+    queryFn: () => getCurriculumHealth(schoolId, null),
+    enabled: !!schoolId && reportType === "curriculum-health",
+    staleTime: 120_000,
+  });
+  const availableGrades = healthMeta?.available_grades ?? [];
 
   async function handleExport() {
     if (!schoolId) return;
@@ -126,7 +143,7 @@ export default function ExportPage() {
         }));
         filename = `trends_${trendsPeriod}.csv`;
       } else if (reportType === "curriculum-health") {
-        const data = await getCurriculumHealth(schoolId);
+        const data = await getCurriculumHealth(schoolId, healthGrade);
         fields = [
           "Unit ID",
           "Unit name",
@@ -167,7 +184,14 @@ export default function ExportPage() {
             "Recommended action": "",
           });
         }
-        filename = "unit_performance.csv";
+        // The grade goes in the NAME, not only in the contents. Two downloads
+        // an hour apart both called `unit_performance.csv` sit in the same
+        // folder covering different populations, and nothing in the file says
+        // which is which.
+        filename =
+          healthGrade === null
+            ? "unit_performance.csv"
+            : `unit_performance_grade_${healthGrade}.csv`;
       }
       const csv = Papa.unparse({ fields, data: rows });
       const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
@@ -293,13 +317,44 @@ export default function ExportPage() {
           {/* Unit Performance genuinely has no period: the endpoint takes none and
               the figures cover all activity to date. Saying so is the point. A
               selector that silently did not apply is the same defect in a
-              friendlier costume. */}
+              friendlier costume.
+
+              It does take a GRADE, though, and that control belongs here for the
+              same reason the period one does — whatever narrows the report on
+              screen has to narrow the download too. */}
           {reportType === "curriculum-health" && (
-            <p className="text-sm text-gray-600">
-              Unit Performance covers{" "}
-              <span className="font-medium">all activity to date</span> and is not
-              filtered by period.
-            </p>
+            <>
+              <p className="text-sm text-gray-600">
+                Unit Performance covers{" "}
+                <span className="font-medium">all activity to date</span> and is not
+                filtered by period.
+              </p>
+              {availableGrades.length > 1 && (
+                <div
+                  role="radiogroup"
+                  aria-label="Grade"
+                  className="mt-3 flex flex-wrap items-center gap-2"
+                >
+                  <span className="text-sm text-gray-500">Grade</span>
+                  {[null, ...availableGrades].map((g) => (
+                    <button
+                      key={g ?? "all"}
+                      type="button"
+                      role="radio"
+                      aria-checked={healthGrade === g}
+                      onClick={() => setHealthGrade(g)}
+                      className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
+                        healthGrade === g
+                          ? "border-blue-500 bg-blue-50 font-medium text-blue-700"
+                          : "border-gray-200 text-gray-600 hover:border-gray-300"
+                      }`}
+                    >
+                      {g === null ? "All grades" : `Grade ${g}`}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </CardContent>
       </Card>

@@ -80,14 +80,27 @@ export interface CurriculumHealthReport {
    *  and shown in the export, letting the dashboard tile be reconciled against
    *  the sum of the per-unit counts instead of merely compared to it. */
   general_feedback_count?: number;
+  /** Grades this caller may filter to — NOT the grades present in `units`.
+   *  Populating a picker from its own filtered result collapses it to the one
+   *  option selected, so the server reports the permission scope here while
+   *  everything else in the response reports the selection. */
+  available_grades?: number[];
+  /** Echoed by the server. Render the control from this rather than from local
+   *  state, so a rejected or in-flight request cannot leave the chip claiming a
+   *  grade the table below it does not show. */
+  selected_grade?: number | null;
   units: CurriculumHealthUnit[];
 }
 
 export async function getCurriculumHealth(
   schoolId: string,
+  grade?: number | null,
 ): Promise<CurriculumHealthReport> {
   const res = await schoolApi.get<CurriculumHealthReport>(
     `/reports/school/${schoolId}/curriculum-health`,
+    // Omitted entirely when unset — the endpoint's default is all grades, and
+    // sending `grade=null` would make that an explicit (and rejected) choice.
+    grade == null ? undefined : { params: { grade } },
   );
   return res.data;
 }
