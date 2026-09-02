@@ -241,3 +241,155 @@ async def test_untouched_units_resolve_too(client, db_conn, monkeypatch):
     row = next(u for u in report["units"] if u["unit_id"] == "SUBJ-COLD-1")
     assert row["health_tier"] == "no_activity"
     assert row["subject"] == "Engineering"
+
+# ── The export must account for every feedback row the dashboard counts ───────
+
+
+@pytest.mark.asyncio
+async def test_feedback_on_an_untouched_unit_still_gets_a_row(client, db_conn):
+    """Venki, 2 Sep: the dashboard tile read 22 and the Unit Performance export
+    summed to 17.
+
+    The missing 5 were feedback on units his students had commented on but never
+    opened. The report builds from `progress_sessions` plus the cohort catalog,
+    so a unit with feedback and no activity had nowhere to appear — while the
+    tile counted it.
+
+    Surfacing the unit is the right direction. Narrowing the tile to match would
+    have made the numbers agree by hiding feedback nobody would then read.
+    """
+    school = await _school(client, "_fbgap")
+    cid = await _curriculum(client, 10, [("SUBJ-FB-1", "G10-ENG")])
+    student_id = await _enrol(client, school["school_id"], 10)
+
+    # Feedback, but deliberately NO session and no lesson view on this unit.
+    pool = client._transport.app.state.pool
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        await conn.execute(
+            """
+            INSERT INTO feedback (student_id, unit_id, category, message, reviewed)
+            VALUES ($1, 'SUBJ-FB-1', 'content', 'This question is unclear.', FALSE)
+            """,
+            uuid.UUID(student_id),
+        )
+
+    report = await get_curriculum_health(db_conn, school["school_id"])
+    row = next((u for u in report["units"] if u["unit_id"] == "SUBJ-FB-1"), None)
+    assert row is not None, "a unit with feedback must appear even with no activity"
+    assert row["feedback_count"] == 1
+    assert row["health_tier"] == "no_activity"
+    assert cid
+
+
+@pytest.mark.asyncio
+async def test_unit_less_feedback_is_reported_separately(client, db_conn):
+    """Feedback naming no unit cannot appear in a per-unit report, so it is
+    reported alongside — otherwise the two figures differ with no way to see why,
+    which is the whole complaint. Reconciliation beats coincidence."""
+    school = await _school(client, "_fbgeneral")
+    student_id = await _enrol(client, school["school_id"], 10)
+
+    pool = client._transport.app.state.pool
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        await conn.execute(
+            """
+            INSERT INTO feedback (student_id, unit_id, category, message, reviewed)
+            VALUES ($1, NULL, 'general', 'The app is slow on my tablet.', FALSE)
+            """,
+            uuid.UUID(student_id),
+        )
+
+    report = await get_curriculum_health(db_conn, school["school_id"])
+    assert report["general_feedback_count"] == 1
+    assert all(u["unit_id"] != "" for u in report["units"])
+
+
+# ── Attempts-to-pass counts attempts NEEDED, not passes observed ──────────────
+
+
+async def _view(client, student_id, unit_id, cid):
+    """The tier treats `has_lesson_view` as "has activity", so a unit with quiz
+    sessions but no view is tiered `no_activity` regardless of its scores. Seed
+    one so these fixtures exercise the tier they are actually about."""
+    pool = client._transport.app.state.pool
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        await conn.execute(
+            "INSERT INTO lesson_views (student_id, unit_id, curriculum_id, duration_s)"
+            " VALUES ($1, $2, $3, 120)",
+            uuid.UUID(student_id), unit_id, cid,
+        )
+
+
+async def _session_at(client, student_id, unit_id, cid, attempt, *, passed, completed=True):
+    pool = client._transport.app.state.pool
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        await conn.execute(
+            """
+            INSERT INTO progress_sessions
+                (student_id, unit_id, curriculum_id, grade, subject,
+                 attempt_number, completed, passed, score, total_questions)
+            VALUES ($1, $2, $3, 10, 'G10-ENG', $4, $5, $6, 8, 8)
+            """,
+            uuid.UUID(student_id), unit_id, cid, attempt, completed, passed,
+        )
+
+
+@pytest.mark.asyncio
+async def test_retaking_a_passed_unit_does_not_inflate_attempts_to_pass(client, db_conn):
+    """Venki, 2 Sep: "Web Development is 100% — should it not be Green?"
+
+    It was Orange. The tier rules were right; their INPUT was not. Exactly this
+    session history, taken from the demo:
+
+        attempt 1  completed, PASSED
+        attempt 2  completed, failed
+        attempt 3  completed, PASSED
+
+    The student passed FIRST TIME. `AVG(attempt_number) FILTER (WHERE passed)`
+    read AVG(1, 3) = 2.0, which fails the healthy threshold of <= 1.5 and drops
+    the unit to "watch" — a unit at 100% first-attempt pass rate coloured as
+    needing attention.
+
+    100% first-attempt pass rate and 2.0 attempts-to-pass cannot both be true.
+    """
+    school = await _school(client, "_attempts")
+    cid = await _curriculum(client, 10, [("SUBJ-ATT-1", "G10-ENG")])
+    student_id = await _enrol(client, school["school_id"], 10)
+
+    await _view(client, student_id, "SUBJ-ATT-1", cid)
+    await _session_at(client, student_id, "SUBJ-ATT-1", cid, 1, passed=True)
+    await _session_at(client, student_id, "SUBJ-ATT-1", cid, 2, passed=False)
+    await _session_at(client, student_id, "SUBJ-ATT-1", cid, 3, passed=True)
+
+    report = await get_curriculum_health(db_conn, school["school_id"])
+    row = next(u for u in report["units"] if u["unit_id"] == "SUBJ-ATT-1")
+
+    assert row["first_attempt_pass_rate_pct"] == 100.0
+    assert row["avg_attempts_to_pass"] == 1.0, "they passed on attempt 1; later passes are revision"
+    assert row["health_tier"] == "healthy", "100% first-attempt pass must not read as 'watch'"
+
+
+@pytest.mark.asyncio
+async def test_a_unit_that_genuinely_takes_several_attempts_still_shows_it(client, db_conn):
+    """The negative direction. Hard-coding attempts to 1, or ignoring the field,
+    would satisfy the test above and hide the units this metric exists to find."""
+    school = await _school(client, "_attempts_real")
+    cid = await _curriculum(client, 10, [("SUBJ-ATT-2", "G10-ENG")])
+    student_id = await _enrol(client, school["school_id"], 10)
+
+    # Failed twice, passed on the third — genuinely three attempts to pass.
+    await _view(client, student_id, "SUBJ-ATT-2", cid)
+    await _session_at(client, student_id, "SUBJ-ATT-2", cid, 1, passed=False)
+    await _session_at(client, student_id, "SUBJ-ATT-2", cid, 2, passed=False)
+    await _session_at(client, student_id, "SUBJ-ATT-2", cid, 3, passed=True)
+
+    report = await get_curriculum_health(db_conn, school["school_id"])
+    row = next(u for u in report["units"] if u["unit_id"] == "SUBJ-ATT-2")
+
+    assert row["first_attempt_pass_rate_pct"] == 0.0
+    assert row["avg_attempts_to_pass"] == 3.0
+    assert row["health_tier"] == "struggling"

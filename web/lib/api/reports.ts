@@ -76,6 +76,10 @@ export interface CurriculumHealthReport {
   watch_count: number;
   struggling_count: number;
   no_activity_count: number;
+  /** Feedback naming no unit — cannot appear per-unit, so it is reported here
+   *  and shown in the export, letting the dashboard tile be reconciled against
+   *  the sum of the per-unit counts instead of merely compared to it. */
+  general_feedback_count?: number;
   units: CurriculumHealthUnit[];
 }
 

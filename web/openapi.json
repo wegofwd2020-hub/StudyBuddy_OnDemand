@@ -19477,6 +19477,11 @@
             "type": "integer",
             "title": "No Activity Count"
           },
+          "general_feedback_count": {
+            "type": "integer",
+            "title": "General Feedback Count",
+            "default": 0
+          },
           "units": {
             "items": {
               "$ref": "#/components/schemas/CurriculumHealthUnit"

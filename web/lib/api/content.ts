@@ -44,6 +44,9 @@ interface BackendQuizResponse {
   model: string;
   content_version: number;
   subject: string | null;
+  // The unit's own name. Present since #704; this interface did not declare it,
+  // so the mapper below could not copy it and nothing complained.
+  unit_title: string | null;
 }
 
 export async function getQuiz(unitId: string, sessionId?: string): Promise<QuizContent> {
@@ -58,6 +61,19 @@ export async function getQuiz(unitId: string, sessionId?: string): Promise<QuizC
     title: `Quiz — Set ${raw.set_number}`,
     pass_threshold: raw.passing_score,
     subject: raw.subject ?? undefined,
+    // The field this mapper used to drop on the floor.
+    //
+    // #704 added `unit_title` to the API and to the result screen, which renders
+    // `{quiz.unit_title && ...}`. Both halves were correct and verified. This
+    // mapper sits between them and never copied the field, so the value arrived
+    // from the server and was discarded one line before the component that
+    // wanted it.
+    //
+    // Nothing caught it: `QuizContent.unit_title` is optional, so a mapper that
+    // omits it typechecks perfectly, and API-level probes kept confirming the
+    // server was right — which it was. A tester reported it twice as "still
+    // facing the same problem" while every check I ran said it was fixed.
+    unit_title: raw.unit_title ?? undefined,
     questions: raw.questions.map((q, index) => ({
       index,
       question_id: q.question_id,

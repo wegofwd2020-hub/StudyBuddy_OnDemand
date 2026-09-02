@@ -149,6 +149,24 @@ export default function ExportPage() {
           "Feedback count": u.feedback_count,
           "Recommended action": u.recommended_action,
         }));
+        // Feedback that names no unit has no row to live on, so without this the
+        // file silently omits it and the total cannot be reconciled against the
+        // dashboard — which is exactly what was reported. A labelled trailing
+        // row is honest: it is visibly not a unit, and it accounts for the
+        // difference rather than leaving the reader to find it.
+        if (data.general_feedback_count) {
+          rows.push({
+            "Unit ID": "—",
+            "Unit name": "General feedback (not tied to a unit)",
+            Subject: "",
+            "Health tier": "",
+            "First-attempt pass rate %": "",
+            "Average score %": "",
+            "Avg attempts to pass": "",
+            "Feedback count": data.general_feedback_count,
+            "Recommended action": "",
+          });
+        }
         filename = "unit_performance.csv";
       }
       const csv = Papa.unparse({ fields, data: rows });

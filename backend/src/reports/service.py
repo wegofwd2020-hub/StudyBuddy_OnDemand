@@ -354,7 +354,25 @@ async def get_overview(
     # Units with struggle (all time for the school)
     struggle_rows = await conn.fetch(
         f"""
-        SELECT unit_id,
+        -- Same correction as get_curriculum_health: attempts-to-pass is the
+        -- MINIMUM passing attempt per student, averaged over students — not the
+        -- mean attempt number across passing sessions, which counts a retake of
+        -- an already-passed unit as evidence the unit is hard. This value drives
+        -- the struggle flag below, so the inflation put units on the list for
+        -- being popular rather than difficult.
+        WITH first_pass AS (
+            SELECT unit_id, AVG(first_pass_attempt)::numeric AS avg_att
+            FROM (
+                SELECT unit_id, student_id, MIN(attempt_number) AS first_pass_attempt
+                FROM progress_sessions
+                WHERE passed AND completed
+                  AND student_id = ANY(ARRAY[{placeholders}]::uuid[])
+                  AND started_at >= $1
+                GROUP BY unit_id, student_id
+            ) per_student
+            GROUP BY unit_id
+        )
+        SELECT ps.unit_id,
                ROUND(
                    -- Per unit the population is STUDENTS, so both sides count distinct
                    -- students. Counting rows in the numerator let one student with
@@ -365,15 +383,16 @@ async def get_overview(
                    -- wrong either way, not because it was observed misreporting.
                    -- NOTE: the school-wide query above is rows/rows on purpose —
                    -- see the #471 comment there. Do not "unify" them.
-                   100.0 * COUNT(DISTINCT student_id) FILTER (WHERE attempt_number = 1 AND passed AND completed)
-                   / NULLIF(COUNT(DISTINCT student_id) FILTER (WHERE attempt_number = 1 AND completed), 0),
+                   100.0 * COUNT(DISTINCT ps.student_id) FILTER (WHERE ps.attempt_number = 1 AND ps.passed AND ps.completed)
+                   / NULLIF(COUNT(DISTINCT ps.student_id) FILTER (WHERE ps.attempt_number = 1 AND ps.completed), 0),
                    1
                ) AS first_pass_rate,
-               ROUND(AVG(attempt_number) FILTER (WHERE passed AND completed)::numeric, 1) AS avg_att
-        FROM progress_sessions
-        WHERE student_id = ANY(ARRAY[{placeholders}]::uuid[])
-          AND started_at >= $1
-        GROUP BY unit_id
+               ROUND(MAX(fp.avg_att), 1) AS avg_att
+        FROM progress_sessions ps
+        LEFT JOIN first_pass fp ON fp.unit_id = ps.unit_id
+        WHERE ps.student_id = ANY(ARRAY[{placeholders}]::uuid[])
+          AND ps.started_at >= $1
+        GROUP BY ps.unit_id
         """,
         start,
         *id_uuids,
@@ -525,12 +544,25 @@ async def get_unit_report(
         else 0.0
     )
 
-    # Average attempts to pass
+    # Average attempts to pass — the FIRST attempt at which each student passed.
+    #
+    # This took `max()`, i.e. the LAST attempt on which a student passed. A
+    # student who passed on attempt 1, retook the unit for practice and passed
+    # again on attempt 3 was recorded as having needed 3 attempts to pass. The
+    # metric is named "attempts TO PASS": once they have passed, later passes
+    # are revision, not difficulty.
+    #
+    # Reported 2026-09-02 as a unit showing 100% first-attempt pass rate while
+    # being coloured "Watch" — the inflated attempt count was what pushed it over
+    # the healthy threshold.
     passed_students: dict[str, int] = {}
     for r in quiz_rows:
         if r["passed"] and r["completed"]:
             sid = r["student_id"]
-            passed_students[sid] = max(passed_students.get(sid, 0), r["attempt_number"])
+            prev = passed_students.get(sid)
+            passed_students[sid] = (
+                r["attempt_number"] if prev is None else min(prev, r["attempt_number"])
+            )
     avg_att = (
         round(sum(passed_students.values()) / len(passed_students), 1) if passed_students else 0.0
     )
@@ -912,6 +944,33 @@ async def get_curriculum_health(
     # below — see the resolution step after the untouched-unit merge.
     rows = await conn.fetch(
         f"""
+        -- Attempts-to-pass, computed per STUDENT before being averaged.
+        --
+        -- This used to be AVG(attempt_number) FILTER (WHERE passed) taken across
+        -- session rows, which is the mean attempt number among PASSES, not the
+        -- attempts a student needed to pass. A student who passed on attempt 1,
+        -- retook for practice and passed again on attempt 3 contributed
+        -- AVG(1, 3) = 2.0.
+        --
+        -- On the demo that produced a unit reading 100% first-attempt pass rate
+        -- and 2.00 attempts-to-pass simultaneously — arithmetically impossible,
+        -- and enough to push it from "healthy" (attempts <= 1.5) into "watch",
+        -- which is what a tester reported as a 100% bar coloured orange.
+        --
+        -- MIN per (unit, student) first, then AVG over students. Nesting the two
+        -- aggregates directly is not allowed, hence the CTE; it yields one row
+        -- per unit, so joining it adds no fan-out (#625).
+        WITH first_pass AS (
+            SELECT unit_id, ROUND(AVG(first_pass_attempt)::numeric, 1) AS avg_att
+            FROM (
+                SELECT unit_id, student_id, MIN(attempt_number) AS first_pass_attempt
+                FROM progress_sessions
+                WHERE passed AND completed
+                  AND student_id = ANY(ARRAY[{placeholders}]::uuid[])
+                GROUP BY unit_id, student_id
+            ) per_student
+            GROUP BY unit_id
+        )
         SELECT
             ps.unit_id,
             MAX(ps.subject)                                    AS subject,
@@ -923,9 +982,10 @@ async def get_curriculum_health(
                 1
             )                                                   AS first_pass_rate,
             ROUND(AVG(ps.score) FILTER (WHERE ps.completed)::numeric, 1) AS avg_score,
-            ROUND(AVG(ps.attempt_number) FILTER (WHERE ps.passed AND ps.completed)::numeric, 1) AS avg_att,
+            MAX(fp.avg_att)                                     AS avg_att,
             BOOL_OR(lv.viewed)                                  AS has_lesson_view
         FROM progress_sessions ps
+        LEFT JOIN first_pass fp ON fp.unit_id = ps.unit_id
         -- Collapse lesson views to at most ONE row per (student, unit) BEFORE
         -- joining (issue #625). Joining `lesson_views` directly fanned each quiz
         -- session out into one row per view, so a student who opened the lesson
@@ -990,8 +1050,37 @@ async def get_curriculum_health(
         if pool is not None and redis is not None
         else set()
     )
+
+    # Units that have FEEDBACK but neither activity nor a place in the catalog.
+    #
+    # Without this the report and the dashboard disagree, and a tester found the
+    # gap: the "Unreviewed feedback" tile read 22 while the Unit Performance
+    # export summed to 17. The missing 5 were feedback rows on four units this
+    # school's students had commented on but never opened — real units, present
+    # in `curriculum_units`, simply outside the cohort catalog.
+    #
+    # Surfacing them is the right direction rather than narrowing the tile to
+    # match. A student took the trouble to say something about a unit; the number
+    # a teacher sees should lead somewhere. Scoping the tile down instead would
+    # have made the two numbers agree by hiding feedback nobody would then read.
+    #
+    # Unit-less feedback (`unit_id IS NULL`) still cannot appear in a per-unit
+    # report by definition; it is 0 on the demo today, and the response now
+    # reports it separately so the two figures can always be reconciled rather
+    # than merely looking equal.
+    with_feedback = {
+        r["unit_id"]
+        for r in await conn.fetch(
+            f"""
+            SELECT DISTINCT unit_id FROM feedback
+            WHERE student_id = ANY(ARRAY[{placeholders}]::uuid[]) AND unit_id IS NOT NULL
+            """,
+            *id_uuids,
+        )
+    }
+
     seen = {r["unit_id"] for r in rows}
-    untouched = sorted(catalog - seen)
+    untouched = sorted((catalog | with_feedback) - seen)
 
     units = []
     counts = {"healthy": 0, "watch": 0, "struggling": 0, "no_activity": 0}
@@ -1037,8 +1126,17 @@ async def get_curriculum_health(
                     "first_attempt_pass_rate_pct": 0.0,
                     "avg_attempts_to_pass": 0.0,
                     "avg_score_pct": 0.0,
-                    "feedback_count": 0,
-                    "avg_rating": None,
+                    # Read from fb_map rather than hardcoded 0. A unit can have
+                    # feedback and no activity — that is precisely the case that
+                    # made the export sum to 5 fewer than the dashboard tile, and
+                    # surfacing the row without its count would have moved the
+                    # discrepancy rather than closed it.
+                    "feedback_count": (fb_map[unit_id]["fb_count"] if unit_id in fb_map else 0),
+                    "avg_rating": (
+                        float(fb_map[unit_id]["avg_rating"])
+                        if unit_id in fb_map and fb_map[unit_id]["avg_rating"] is not None
+                        else None
+                    ),
                     "recommended_action": _recommended_action("no_activity"),
                 }
             )
@@ -1064,6 +1162,20 @@ async def get_curriculum_health(
         for u in units:
             u["subject"] = display_subject(subject_labels, u["unit_id"], u["subject"])
 
+    # Feedback that names no unit, so a per-unit report structurally cannot show
+    # it. Reported explicitly so the export and the dashboard tile can be
+    # reconciled by arithmetic instead of by hoping they agree:
+    #
+    #     dashboard unreviewed tile  ==  sum(units[].feedback_count that is
+    #                                        unreviewed)  +  general_feedback_count
+    general_feedback = await conn.fetchval(
+        f"""
+        SELECT COUNT(*) FROM feedback
+        WHERE student_id = ANY(ARRAY[{placeholders}]::uuid[]) AND unit_id IS NULL
+        """,
+        *id_uuids,
+    )
+
     return {
         "school_id": school_id,
         "total_units": len(units),
@@ -1071,6 +1183,7 @@ async def get_curriculum_health(
         "watch_count": counts["watch"],
         "struggling_count": counts["struggling"],
         "no_activity_count": counts["no_activity"],
+        "general_feedback_count": int(general_feedback or 0),
         "units": units,
     }
 
