@@ -18,11 +18,16 @@ jobs:
     env:
       DOCS_TOKEN_PRESENT: ${{ secrets.DOCS_REPO_TOKEN != '' }}
     steps:
-      - name: Skip if DOCS_REPO_TOKEN not configured
+      # FAIL, do not skip — same reasoning as doc-drift.yml. A check that
+      # reports success while doing nothing is worse than no check, because it
+      # manufactures confidence in documentation nobody has verified.
+      - name: Require DOCS_REPO_TOKEN
         if: env.DOCS_TOKEN_PRESENT == 'false'
         run: |
-          echo "::warning::DOCS_REPO_TOKEN not set — glossary drift check skipped."
-          exit 0
+          echo "::error::DOCS_REPO_TOKEN is not set — the glossary drift check cannot run."
+          echo "Add a PAT with Contents:read on wegofwd2020-hub/studybuddy-docs as"
+          echo "the repository secret DOCS_REPO_TOKEN, or delete this workflow."
+          exit 1
 
       - name: Checkout application repo
         if: env.DOCS_TOKEN_PRESENT == 'true'
