@@ -58,6 +58,20 @@ export function formatWeekStart(iso: string): string {
   return `${p.d} ${MONTHS[p.m - 1]} ${p.y}`;
 }
 
+/** A timestamp (`2026-08-05T06:00:00Z`) -> `05 Aug 2026`.
+ *
+ *  For values that ARE instants rather than calendar dates, so unlike the week
+ *  helpers this one goes through `Date` on purpose — the day genuinely depends
+ *  on the reader's timezone. Only the RENDERING is pinned, via the same fixed
+ *  month table, so an alert does not read `05/08/2026` to one teacher and
+ *  `08/05/2026` to another at the same school. */
+export function formatDay(iso: string): string {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return iso;
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${day} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+}
+
 /** `2026-06-15` -> `15 Jun`, for chart axes where the year would not fit.
  *
  *  Replaces `week_start.slice(5)`, which produced `06-15` — month-first, and so
