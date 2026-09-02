@@ -125,8 +125,14 @@ export default function ExportPage() {
         filename = `overview_${data.period}.csv`;
       } else if (reportType === "trends") {
         const data = await getTrendsReport(schoolId, trendsPeriod);
+        // ISO 8601 stays in the FILE, because it is what sorts correctly in a
+        // spreadsheet and what any downstream tool expects. Excel will still
+        // re-type it and render it per the reader's regional settings — that
+        // is Excel's doing and not something this page can override — so the
+        // header names the convention we actually wrote. The screen, which we
+        // do control, uses a named month instead (see lib/utils/date.ts).
         fields = [
-          "Week start",
+          "Week start (YYYY-MM-DD)",
           "Active students",
           "Lessons viewed",
           "Quiz attempts",
@@ -134,7 +140,7 @@ export default function ExportPage() {
           "First-attempt pass rate %",
         ];
         rows = data.weeks.map((w) => ({
-          "Week start": w.week_start,
+          "Week start (YYYY-MM-DD)": w.week_start,
           "Active students": w.active_students,
           "Lessons viewed": w.lessons_viewed,
           "Quiz attempts": w.quiz_attempts,
