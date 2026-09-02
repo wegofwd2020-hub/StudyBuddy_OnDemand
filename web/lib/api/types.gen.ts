@@ -7328,6 +7328,11 @@ export interface components {
             struggling_count: number;
             /** No Activity Count */
             no_activity_count: number;
+            /**
+             * General Feedback Count
+             * @default 0
+             */
+            general_feedback_count: number;
             /** Units */
             units: components["schemas"]["CurriculumHealthUnit"][];
         };

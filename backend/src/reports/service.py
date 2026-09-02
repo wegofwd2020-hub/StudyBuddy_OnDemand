@@ -990,8 +990,37 @@ async def get_curriculum_health(
         if pool is not None and redis is not None
         else set()
     )
+
+    # Units that have FEEDBACK but neither activity nor a place in the catalog.
+    #
+    # Without this the report and the dashboard disagree, and a tester found the
+    # gap: the "Unreviewed feedback" tile read 22 while the Unit Performance
+    # export summed to 17. The missing 5 were feedback rows on four units this
+    # school's students had commented on but never opened — real units, present
+    # in `curriculum_units`, simply outside the cohort catalog.
+    #
+    # Surfacing them is the right direction rather than narrowing the tile to
+    # match. A student took the trouble to say something about a unit; the number
+    # a teacher sees should lead somewhere. Scoping the tile down instead would
+    # have made the two numbers agree by hiding feedback nobody would then read.
+    #
+    # Unit-less feedback (`unit_id IS NULL`) still cannot appear in a per-unit
+    # report by definition; it is 0 on the demo today, and the response now
+    # reports it separately so the two figures can always be reconciled rather
+    # than merely looking equal.
+    with_feedback = {
+        r["unit_id"]
+        for r in await conn.fetch(
+            f"""
+            SELECT DISTINCT unit_id FROM feedback
+            WHERE student_id = ANY(ARRAY[{placeholders}]::uuid[]) AND unit_id IS NOT NULL
+            """,
+            *id_uuids,
+        )
+    }
+
     seen = {r["unit_id"] for r in rows}
-    untouched = sorted(catalog - seen)
+    untouched = sorted((catalog | with_feedback) - seen)
 
     units = []
     counts = {"healthy": 0, "watch": 0, "struggling": 0, "no_activity": 0}
@@ -1037,8 +1066,17 @@ async def get_curriculum_health(
                     "first_attempt_pass_rate_pct": 0.0,
                     "avg_attempts_to_pass": 0.0,
                     "avg_score_pct": 0.0,
-                    "feedback_count": 0,
-                    "avg_rating": None,
+                    # Read from fb_map rather than hardcoded 0. A unit can have
+                    # feedback and no activity — that is precisely the case that
+                    # made the export sum to 5 fewer than the dashboard tile, and
+                    # surfacing the row without its count would have moved the
+                    # discrepancy rather than closed it.
+                    "feedback_count": (fb_map[unit_id]["fb_count"] if unit_id in fb_map else 0),
+                    "avg_rating": (
+                        float(fb_map[unit_id]["avg_rating"])
+                        if unit_id in fb_map and fb_map[unit_id]["avg_rating"] is not None
+                        else None
+                    ),
                     "recommended_action": _recommended_action("no_activity"),
                 }
             )
@@ -1064,6 +1102,20 @@ async def get_curriculum_health(
         for u in units:
             u["subject"] = display_subject(subject_labels, u["unit_id"], u["subject"])
 
+    # Feedback that names no unit, so a per-unit report structurally cannot show
+    # it. Reported explicitly so the export and the dashboard tile can be
+    # reconciled by arithmetic instead of by hoping they agree:
+    #
+    #     dashboard unreviewed tile  ==  sum(units[].feedback_count that is
+    #                                        unreviewed)  +  general_feedback_count
+    general_feedback = await conn.fetchval(
+        f"""
+        SELECT COUNT(*) FROM feedback
+        WHERE student_id = ANY(ARRAY[{placeholders}]::uuid[]) AND unit_id IS NULL
+        """,
+        *id_uuids,
+    )
+
     return {
         "school_id": school_id,
         "total_units": len(units),
@@ -1071,6 +1123,7 @@ async def get_curriculum_health(
         "watch_count": counts["watch"],
         "struggling_count": counts["struggling"],
         "no_activity_count": counts["no_activity"],
+        "general_feedback_count": int(general_feedback or 0),
         "units": units,
     }
 

@@ -162,6 +162,11 @@ class CurriculumHealthReport(BaseModel):
     watch_count: int
     struggling_count: int
     no_activity_count: int
+    # Feedback that names no unit. A per-unit report cannot show it, so it is
+    # reported alongside — otherwise the dashboard's "Unreviewed feedback" tile
+    # and the sum of this report's per-unit counts differ with no way to see why.
+    # Defaulted so an older client that ignores it is unaffected.
+    general_feedback_count: int = 0
     units: list[CurriculumHealthUnit]
 
 
