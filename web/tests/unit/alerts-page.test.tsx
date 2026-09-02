@@ -9,6 +9,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import AlertsPage from "@/app/(school)/school/alerts/page";
+import { formatDay } from "@/lib/utils/date";
 import { SchoolNav } from "@/components/layout/SchoolNav";
 import {
   MOCK_TEACHER,
@@ -105,6 +106,32 @@ describe("SCH-19 — Alerts list renders", () => {
     mockUseQuery.mockReturnValue({ data: MOCK_ALERTS_EMPTY, isLoading: false });
     render(<AlertsPage />);
     expect(screen.getByText(ALERTS_STRINGS.noAlerts)).toBeInTheDocument();
+  });
+
+  it("dates an open alert as ongoing, not as a past event", () => {
+    // The evaluator re-checks every morning and deliberately leaves
+    // `triggered_at` alone on a repeat breach, so the value is when the breach
+    // STARTED and the alert is still live. Rendered as a bare date it reads as
+    // old news: a tester looked at a unit still breaching today, saw a date
+    // four weeks back, and asked why no alert had fired for it.
+    render(<AlertsPage />);
+    const open = MOCK_ALERTS.alerts.filter((a) => !a.acknowledged);
+    expect(open.length).toBeGreaterThan(0);
+    for (const a of open) {
+      expect(
+        screen.getByText(`Open since ${formatDay(a.triggered_at)}`),
+      ).toBeInTheDocument();
+    }
+  });
+
+  it("names the month, so the date cannot be read as another day", () => {
+    // `toLocaleDateString()` gives 05/08/2026 here and 08/05/2026 in the US —
+    // the same ambiguity fixed for the weekly breakdown.
+    render(<AlertsPage />);
+    const first = MOCK_ALERTS.alerts.find((a) => !a.acknowledged)!;
+    expect(formatDay(first.triggered_at)).toMatch(
+      /^\d{2} (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4}$/,
+    );
   });
 });
 
