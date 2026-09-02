@@ -167,6 +167,19 @@ class CurriculumHealthReport(BaseModel):
     # and the sum of this report's per-unit counts differ with no way to see why.
     # Defaulted so an older client that ignores it is unaffected.
     general_feedback_count: int = 0
+    # Grades the CALLER may filter to — every grade with an active enrolment
+    # inside their entitlement, not merely the grades present in `units`.
+    #
+    # A picker populated from its own filtered result narrows to a single option
+    # the first time it is used and cannot be widened again. So this reports the
+    # permission scope while everything else in the response reports the
+    # selection, and the two are allowed to disagree.
+    available_grades: list[int] = []
+    # Echoed back so the client renders the filter from the SERVER's answer
+    # rather than from its own request. Same reasoning as `ReportScope` above:
+    # a caption or a selected chip derived client-side drifts from the data it
+    # labels the moment a request is in flight or one gets rejected.
+    selected_grade: int | None = None
     units: list[CurriculumHealthUnit]
 
 
