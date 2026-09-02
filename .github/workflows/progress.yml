@@ -23,14 +23,19 @@ jobs:
       - name: Generate progress.json
         run: python3 scripts/generate_progress.py
 
-      - name: Commit and push progress.json if changed
+      - name: Commit and push the regenerated chart if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/progress.json
+          # BOTH outputs. generate_progress.py writes docs/PROGRESS.md and
+          # docs/progress.json, but only the JSON was ever staged — so the chart
+          # was regenerated nightly and then thrown away. docs/PROGRESS.md last
+          # changed 2026-07-06 while the job ran green every night, and the
+          # README linked to it as "regenerated nightly".
+          git add docs/PROGRESS.md docs/progress.json
           if git diff --cached --quiet; then
-            echo "No changes to progress.json"
+            echo "No changes to the progress chart"
             exit 0
           fi
-          git commit -m "chore(progress): nightly update of docs/progress.json"
+          git commit -m "chore(progress): nightly update of the progress chart"
           git push
