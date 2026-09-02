@@ -103,6 +103,26 @@ function ResetPasswordInner() {
           <h1 className="text-xl font-bold">
             {token ? "Password updated!" : t("reset_email_sent")}
           </h1>
+          {/* Only for the "we sent it" branch, never after a successful reset.
+              `POST /auth/forgot-password` answers 200 whether or not the address
+              is registered — telling the two apart would make this form an
+              oracle for who holds an account, which for a product holding
+              minors' records is a disclosure rather than a convenience.
+              (CLAUDE.md, non-negotiable security rules.)
+
+              The cost of that guarantee used to land on the user: the screen
+              said "Check your email for a reset link", an unconditional claim,
+              so a mistyped address sent someone to wait on an inbox that would
+              never receive anything. A tester read that as the address not
+              being validated and asked us to check existence first.
+
+              We cannot confirm existence. We can stop asserting something we do
+              not know, and say what to do when nothing arrives. */}
+          {!token && (
+            <p className="mx-auto max-w-sm text-sm text-gray-500">
+              {t("reset_email_hint")}
+            </p>
+          )}
         </div>
       </div>
     );
