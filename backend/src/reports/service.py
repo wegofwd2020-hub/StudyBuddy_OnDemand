@@ -354,7 +354,25 @@ async def get_overview(
     # Units with struggle (all time for the school)
     struggle_rows = await conn.fetch(
         f"""
-        SELECT unit_id,
+        -- Same correction as get_curriculum_health: attempts-to-pass is the
+        -- MINIMUM passing attempt per student, averaged over students — not the
+        -- mean attempt number across passing sessions, which counts a retake of
+        -- an already-passed unit as evidence the unit is hard. This value drives
+        -- the struggle flag below, so the inflation put units on the list for
+        -- being popular rather than difficult.
+        WITH first_pass AS (
+            SELECT unit_id, AVG(first_pass_attempt)::numeric AS avg_att
+            FROM (
+                SELECT unit_id, student_id, MIN(attempt_number) AS first_pass_attempt
+                FROM progress_sessions
+                WHERE passed AND completed
+                  AND student_id = ANY(ARRAY[{placeholders}]::uuid[])
+                  AND started_at >= $1
+                GROUP BY unit_id, student_id
+            ) per_student
+            GROUP BY unit_id
+        )
+        SELECT ps.unit_id,
                ROUND(
                    -- Per unit the population is STUDENTS, so both sides count distinct
                    -- students. Counting rows in the numerator let one student with
@@ -365,15 +383,16 @@ async def get_overview(
                    -- wrong either way, not because it was observed misreporting.
                    -- NOTE: the school-wide query above is rows/rows on purpose —
                    -- see the #471 comment there. Do not "unify" them.
-                   100.0 * COUNT(DISTINCT student_id) FILTER (WHERE attempt_number = 1 AND passed AND completed)
-                   / NULLIF(COUNT(DISTINCT student_id) FILTER (WHERE attempt_number = 1 AND completed), 0),
+                   100.0 * COUNT(DISTINCT ps.student_id) FILTER (WHERE ps.attempt_number = 1 AND ps.passed AND ps.completed)
+                   / NULLIF(COUNT(DISTINCT ps.student_id) FILTER (WHERE ps.attempt_number = 1 AND ps.completed), 0),
                    1
                ) AS first_pass_rate,
-               ROUND(AVG(attempt_number) FILTER (WHERE passed AND completed)::numeric, 1) AS avg_att
-        FROM progress_sessions
-        WHERE student_id = ANY(ARRAY[{placeholders}]::uuid[])
-          AND started_at >= $1
-        GROUP BY unit_id
+               ROUND(MAX(fp.avg_att), 1) AS avg_att
+        FROM progress_sessions ps
+        LEFT JOIN first_pass fp ON fp.unit_id = ps.unit_id
+        WHERE ps.student_id = ANY(ARRAY[{placeholders}]::uuid[])
+          AND ps.started_at >= $1
+        GROUP BY ps.unit_id
         """,
         start,
         *id_uuids,
@@ -525,12 +544,25 @@ async def get_unit_report(
         else 0.0
     )
 
-    # Average attempts to pass
+    # Average attempts to pass — the FIRST attempt at which each student passed.
+    #
+    # This took `max()`, i.e. the LAST attempt on which a student passed. A
+    # student who passed on attempt 1, retook the unit for practice and passed
+    # again on attempt 3 was recorded as having needed 3 attempts to pass. The
+    # metric is named "attempts TO PASS": once they have passed, later passes
+    # are revision, not difficulty.
+    #
+    # Reported 2026-09-02 as a unit showing 100% first-attempt pass rate while
+    # being coloured "Watch" — the inflated attempt count was what pushed it over
+    # the healthy threshold.
     passed_students: dict[str, int] = {}
     for r in quiz_rows:
         if r["passed"] and r["completed"]:
             sid = r["student_id"]
-            passed_students[sid] = max(passed_students.get(sid, 0), r["attempt_number"])
+            prev = passed_students.get(sid)
+            passed_students[sid] = (
+                r["attempt_number"] if prev is None else min(prev, r["attempt_number"])
+            )
     avg_att = (
         round(sum(passed_students.values()) / len(passed_students), 1) if passed_students else 0.0
     )
@@ -912,6 +944,33 @@ async def get_curriculum_health(
     # below — see the resolution step after the untouched-unit merge.
     rows = await conn.fetch(
         f"""
+        -- Attempts-to-pass, computed per STUDENT before being averaged.
+        --
+        -- This used to be AVG(attempt_number) FILTER (WHERE passed) taken across
+        -- session rows, which is the mean attempt number among PASSES, not the
+        -- attempts a student needed to pass. A student who passed on attempt 1,
+        -- retook for practice and passed again on attempt 3 contributed
+        -- AVG(1, 3) = 2.0.
+        --
+        -- On the demo that produced a unit reading 100% first-attempt pass rate
+        -- and 2.00 attempts-to-pass simultaneously — arithmetically impossible,
+        -- and enough to push it from "healthy" (attempts <= 1.5) into "watch",
+        -- which is what a tester reported as a 100% bar coloured orange.
+        --
+        -- MIN per (unit, student) first, then AVG over students. Nesting the two
+        -- aggregates directly is not allowed, hence the CTE; it yields one row
+        -- per unit, so joining it adds no fan-out (#625).
+        WITH first_pass AS (
+            SELECT unit_id, ROUND(AVG(first_pass_attempt)::numeric, 1) AS avg_att
+            FROM (
+                SELECT unit_id, student_id, MIN(attempt_number) AS first_pass_attempt
+                FROM progress_sessions
+                WHERE passed AND completed
+                  AND student_id = ANY(ARRAY[{placeholders}]::uuid[])
+                GROUP BY unit_id, student_id
+            ) per_student
+            GROUP BY unit_id
+        )
         SELECT
             ps.unit_id,
             MAX(ps.subject)                                    AS subject,
@@ -923,9 +982,10 @@ async def get_curriculum_health(
                 1
             )                                                   AS first_pass_rate,
             ROUND(AVG(ps.score) FILTER (WHERE ps.completed)::numeric, 1) AS avg_score,
-            ROUND(AVG(ps.attempt_number) FILTER (WHERE ps.passed AND ps.completed)::numeric, 1) AS avg_att,
+            MAX(fp.avg_att)                                     AS avg_att,
             BOOL_OR(lv.viewed)                                  AS has_lesson_view
         FROM progress_sessions ps
+        LEFT JOIN first_pass fp ON fp.unit_id = ps.unit_id
         -- Collapse lesson views to at most ONE row per (student, unit) BEFORE
         -- joining (issue #625). Joining `lesson_views` directly fanned each quiz
         -- session out into one row per view, so a student who opened the lesson
