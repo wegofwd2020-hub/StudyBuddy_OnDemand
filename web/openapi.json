@@ -12720,7 +12720,7 @@
           "reports"
         ],
         "summary": "Curriculum Health",
-        "description": "All units ranked by health tier.",
+        "description": "All units ranked by health tier, optionally narrowed to one grade.\n\n`?grade=` is a filter WITHIN the caller's entitlement, never a way around\nit: a grade the caller is not assigned to is refused with the same 403 the\nroster uses, rather than being silently ignored. Silently ignoring it would\nbe worse than refusing \u2014 the teacher would read a school-wide report while\nthe control on screen said \"Grade 7\".",
         "operationId": "curriculum_health_api_v1_reports_school__school_id__curriculum_health_get",
         "security": [
           {
@@ -12735,6 +12735,22 @@
             "schema": {
               "type": "string",
               "title": "School Id"
+            }
+          },
+          {
+            "name": "grade",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Grade"
             }
           }
         ],
@@ -19481,6 +19497,25 @@
             "type": "integer",
             "title": "General Feedback Count",
             "default": 0
+          },
+          "available_grades": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Available Grades",
+            "default": []
+          },
+          "selected_grade": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Grade"
           },
           "units": {
             "items": {

@@ -8,6 +8,7 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import ExportPage from "@/app/(school)/school/reports/export/page";
 import { MOCK_TEACHER, EXPORT_STRINGS } from "../e2e/data/export-page";
 
@@ -61,45 +62,57 @@ beforeEach(() => {
   });
 });
 
+// The page reads the school's grade list through React Query (the Unit
+// Performance grade filter), so it needs a client in scope. `retry: false` so a
+// mock that rejects fails the test immediately instead of after backoff.
+function renderExportPage() {
+  const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return render(
+    <QueryClientProvider client={qc}>
+      <ExportPage />
+    </QueryClientProvider>,
+  );
+}
+
 // ---------------------------------------------------------------------------
 // SCH-17 — Export form renders
 // ---------------------------------------------------------------------------
 
 describe("SCH-17 — Export form renders", () => {
   it("renders the page heading", () => {
-    render(<ExportPage />);
+    renderExportPage();
     expect(
       screen.getByRole("heading", { name: EXPORT_STRINGS.pageHeading }),
     ).toBeInTheDocument();
   });
 
   it("renders the Select report card heading", () => {
-    render(<ExportPage />);
+    renderExportPage();
     expect(screen.getByText(EXPORT_STRINGS.selectReport)).toBeInTheDocument();
   });
 
   it("renders Overview Report option", () => {
-    render(<ExportPage />);
+    renderExportPage();
     expect(screen.getByText(EXPORT_STRINGS.overviewReport)).toBeInTheDocument();
   });
 
   it("renders Trends Report option", () => {
-    render(<ExportPage />);
+    renderExportPage();
     expect(screen.getByText(EXPORT_STRINGS.trendsReport)).toBeInTheDocument();
   });
 
   it("renders Unit Performance option", () => {
-    render(<ExportPage />);
+    renderExportPage();
     expect(screen.getByText(EXPORT_STRINGS.unitPerformance)).toBeInTheDocument();
   });
 
   it("renders the Download CSV button", () => {
-    render(<ExportPage />);
+    renderExportPage();
     expect(screen.getByRole("button", { name: /Download CSV/ })).toBeInTheDocument();
   });
 
   it("Download CSV button is enabled when teacher is loaded", () => {
-    render(<ExportPage />);
+    renderExportPage();
     const btn = screen.getByRole("button", { name: /Download CSV/ });
     expect(btn).not.toBeDisabled();
   });
@@ -130,26 +143,26 @@ describe("SCH-18 — CSV download triggers on export click", () => {
   it("shows 'Generating…' while export is in progress", async () => {
     // Make the API call pend briefly
     mockGetOverviewReport.mockReturnValue(new Promise(() => {}));
-    render(<ExportPage />);
+    renderExportPage();
     fireEvent.click(screen.getByRole("button", { name: /Download CSV/ }));
     expect(await screen.findByText(EXPORT_STRINGS.generatingBtn)).toBeInTheDocument();
   });
 
   it("triggers anchor click (file download) after successful export", async () => {
-    render(<ExportPage />);
+    renderExportPage();
     fireEvent.click(screen.getByRole("button", { name: /Download CSV/ }));
     await waitFor(() => expect(mockClick).toHaveBeenCalledTimes(1));
   });
 
   it("shows 'Downloaded' state after successful export", async () => {
-    render(<ExportPage />);
+    renderExportPage();
     fireEvent.click(screen.getByRole("button", { name: /Download CSV/ }));
     expect(await screen.findByText(EXPORT_STRINGS.downloadedBtn)).toBeInTheDocument();
   });
 
   it("shows error message when export fails", async () => {
     mockGetOverviewReport.mockRejectedValue(new Error("network error"));
-    render(<ExportPage />);
+    renderExportPage();
     fireEvent.click(screen.getByRole("button", { name: /Download CSV/ }));
     expect(await screen.findByText(EXPORT_STRINGS.exportError)).toBeInTheDocument();
   });

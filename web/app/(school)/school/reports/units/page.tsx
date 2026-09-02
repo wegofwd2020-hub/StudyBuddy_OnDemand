@@ -1,6 +1,7 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useTeacher } from "@/lib/hooks/useTeacher";
 import { getCurriculumHealth } from "@/lib/api/reports";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,13 +20,25 @@ import {
 export default function UnitPerformancePage() {
   const teacher = useTeacher();
   const schoolId = teacher?.school_id ?? "";
+  // null = all grades. The default, and the only value a teacher who ignores
+  // the control ever sees.
+  const [grade, setGrade] = useState<number | null>(null);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["curriculum-health", schoolId],
-    queryFn: () => getCurriculumHealth(schoolId),
+    queryKey: ["curriculum-health", schoolId, grade],
+    queryFn: () => getCurriculumHealth(schoolId, grade),
     enabled: !!schoolId,
     staleTime: 120_000,
+    // Keep the previous grade's report on screen while the next one loads.
+    // Without this the chart unmounts on every change of filter and the page
+    // jumps to the skeleton's height, which reads as the report breaking.
+    placeholderData: keepPreviousData,
   });
+
+  // From the server's permission scope, never from the rows on screen: deriving
+  // the options from `data.units` would leave one grade selectable the moment a
+  // grade was picked, with no way back to "All grades".
+  const availableGrades = data?.available_grades ?? [];
 
   const chartData = (data?.units ?? [])
     .filter((u) => u.health_tier !== "no_activity")
@@ -46,6 +59,36 @@ export default function UnitPerformancePage() {
   return (
     <div className="max-w-4xl space-y-6 p-6">
       <h1 className="text-2xl font-bold text-gray-900">Unit Performance</h1>
+
+      {/* Grade filter. Rendered only where there is a choice to make: a school
+          with one grade, or a teacher assigned to one, gets no control rather
+          than a control with a single option that does nothing. */}
+      {availableGrades.length > 1 && (
+        <div
+          role="radiogroup"
+          aria-label="Filter by grade"
+          className="flex flex-wrap items-center gap-2"
+        >
+          <span className="text-sm text-gray-500">Grade</span>
+          {[null, ...availableGrades].map((g) => (
+            <button
+              key={g ?? "all"}
+              type="button"
+              role="radio"
+              aria-checked={grade === g}
+              onClick={() => setGrade(g)}
+              className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
+                grade === g
+                  ? "border-blue-500 bg-blue-50 font-medium text-blue-700"
+                  : "border-gray-200 text-gray-600 hover:border-gray-300"
+              }`}
+            >
+              {g === null ? "All grades" : `Grade ${g}`}
+            </button>
+          ))}
+        </div>
+      )}
+
       {isLoading && <Skeleton className="h-80 rounded-lg" />}
       {!isLoading && chartData.length > 0 && (
         <>
@@ -173,10 +216,26 @@ export default function UnitPerformancePage() {
           </Card>
         </>
       )}
+      {/* An empty report under a filter and an empty report overall are
+          different facts, and saying "no activity recorded yet" for the first
+          one blames the data for a choice the reader just made. */}
       {!isLoading && chartData.length === 0 && (
-        <p className="py-12 text-center text-sm text-gray-400">
-          No unit activity recorded yet.
-        </p>
+        <div className="py-12 text-center">
+          <p className="text-sm text-gray-400">
+            {grade === null
+              ? "No unit activity recorded yet."
+              : `No unit activity recorded yet for Grade ${grade}.`}
+          </p>
+          {grade !== null && (
+            <button
+              type="button"
+              onClick={() => setGrade(null)}
+              className="mt-2 text-sm font-medium text-blue-600 hover:underline"
+            >
+              Show all grades
+            </button>
+          )}
+        </div>
       )}
     </div>
   );
