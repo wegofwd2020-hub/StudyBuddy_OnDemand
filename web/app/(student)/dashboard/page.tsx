@@ -209,10 +209,15 @@ export default function DashboardPage() {
                   <p className="text-sm font-semibold text-indigo-900">
                     {data.next_unit.title}
                   </p>
-                  <p className="flex items-center gap-1 text-xs text-indigo-600">
-                    <Clock className="h-3 w-3" /> about {data.next_unit.estimated_minutes}{" "}
-                    minutes
-                  </p>
+                  {/* Omitted, not defaulted: this line used to read "about 20
+                      minutes" for every unit in the product because the value
+                      was a literal. A missing estimate should show nothing. */}
+                  {data.next_unit.estimated_minutes != null && (
+                    <p className="flex items-center gap-1 text-xs text-indigo-600">
+                      <Clock className="h-3 w-3" /> about{" "}
+                      {data.next_unit.estimated_minutes} minutes
+                    </p>
+                  )}
                   <LinkButton
                     href={`/lesson/${data.next_unit.unit_id}`}
                     className="w-full justify-center gap-2"

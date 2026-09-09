@@ -229,7 +229,9 @@ export interface NextUnit {
   unit_id: string;
   title: string;
   subject: string;
-  estimated_minutes: number;
+  /** null when the lesson can't be read or is too thin to estimate from —
+   *  the card omits the line rather than printing a guess. */
+  estimated_minutes: number | null;
 }
 
 export interface StudentDashboard {

@@ -47,7 +47,9 @@ class NextUnit(BaseModel):
     unit_id: str
     title: str
     subject: str
-    estimated_minutes: int
+    # None when the lesson cannot be read or is too thin to estimate from. The
+    # card omits the line entirely rather than printing a number it guessed.
+    estimated_minutes: int | None = None
 
 
 class RecentActivityItem(BaseModel):

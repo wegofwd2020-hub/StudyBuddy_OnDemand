@@ -8491,7 +8491,7 @@ export interface components {
             /** Subject */
             subject: string;
             /** Estimated Minutes */
-            estimated_minutes: number;
+            estimated_minutes?: number | null;
         };
         /** NotificationPreferences */
         NotificationPreferences: {

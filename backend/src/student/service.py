@@ -99,6 +99,8 @@ async def get_dashboard(
     *,
     pool=None,
     grade: int | None = None,
+    storage=None,
+    locale: str = "en",
 ) -> dict:
     """
     Return dashboard payload.
@@ -132,7 +134,9 @@ async def get_dashboard(
             pass
 
     # ── DB aggregation ────────────────────────────────────────────────────────
-    payload = await _build_dashboard(conn, redis, student_id, pool=pool, grade=grade)
+    payload = await _build_dashboard(
+        conn, redis, student_id, pool=pool, grade=grade, storage=storage, locale=locale
+    )
     dashboard_cache[student_id] = payload
     await redis.setex(cache_key, _DASHBOARD_TTL, json.dumps(payload))
     return payload
@@ -213,6 +217,47 @@ async def _resolve_dashboard_curricula(
     return resolved
 
 
+async def _estimate_minutes(
+    redis,
+    storage,
+    curriculum_id: str,
+    unit_id: str,
+    locale: str,
+    grade: int | None,
+) -> int | None:
+    """Minutes for the "Up next" unit, from its lesson. None if unavailable.
+
+    Every failure path returns None rather than raising. This runs inside the
+    dashboard build, and a student whose next lesson is missing, unreadable or
+    still ungenerated must still get a dashboard — losing one line off one card
+    is the correct blast radius, not a 500.
+
+    `get_content_file` is itself L2-cached (TTL 3600) and the dashboard build
+    only runs on a cache miss, so this adds no DB query and, in the common case,
+    no filesystem or S3 read either.
+    """
+    if storage is None:
+        return None
+    try:
+        from src.content.service import get_content_file
+        from src.core.reading_time import estimate_unit_minutes
+
+        lesson = await get_content_file(
+            curriculum_id, unit_id, f"lesson_{locale}.json", redis, storage
+        )
+        return estimate_unit_minutes(lesson, grade)
+    except FileNotFoundError:
+        # Ungenerated, or dev-placeholder content the store refuses to serve
+        # (pitfall #36). Both mean "no lesson", which is not an error here.
+        return None
+    except Exception as exc:  # pragma: no cover - defensive
+        log.warning(
+            "next_unit_estimate_failed",
+            extra={"unit_id": unit_id, "error": str(exc)},
+        )
+        return None
+
+
 async def _build_dashboard(
     conn: asyncpg.Connection,
     redis,
@@ -220,6 +265,8 @@ async def _build_dashboard(
     *,
     pool=None,
     grade: int | None = None,
+    storage=None,
+    locale: str = "en",
 ) -> dict:
     # ── Summary stats ──────────────────────────────────────────────────────
     stats_row = await conn.fetchrow(
@@ -279,7 +326,7 @@ async def _build_dashboard(
                 WHERE student_id = $1 AND completed = TRUE
                 GROUP BY unit_id
             )
-            SELECT cu.unit_id, cu.subject, cu.title, cu.sort_order,
+            SELECT cu.unit_id, cu.curriculum_id, cu.subject, cu.title, cu.sort_order,
                    COALESCE(us.ever_passed, FALSE) AS ever_passed,
                    us.score_sum,
                    us.question_sum
@@ -366,7 +413,13 @@ async def _build_dashboard(
                 "unit_id": r["unit_id"],
                 "title": r["title"] or r["unit_id"],
                 "subject": display_subject(subject_labels, r["unit_id"], r["subject"]),
-                "estimated_minutes": 20,
+                # Was a literal 20, so every unit told every student the same
+                # thing next to a clock icon. Now read from the lesson the card
+                # links to; None when that cannot be determined, and the card
+                # omits the line rather than inventing one.
+                "estimated_minutes": await _estimate_minutes(
+                    redis, storage, r["curriculum_id"], r["unit_id"], locale, grade
+                ),
             }
             break
 
