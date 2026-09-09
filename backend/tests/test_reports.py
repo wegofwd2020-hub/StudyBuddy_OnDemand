@@ -32,26 +32,30 @@ from tests.helpers.token_factory import make_teacher_token
 # ── Deterministic test IDs (Rule 9 — no uuid4 in fixtures) ───────────────────
 # Each constant is a fixed UUID so test runs are fully reproducible.
 # "wrong" school / teacher IDs must never match any registered entity.
-_SID_OV_DATA   = "a1000000-0000-0000-0000-000000000001"  # overview_with_data
-_SID_STUDENT   = "a1000000-0000-0000-0000-000000000002"  # student report card
-_SID_TRENDS    = "a1000000-0000-0000-0000-000000000003"  # trends
-_SID_FEEDBACK  = "a1000000-0000-0000-0000-000000000004"  # feedback
-_SID_HEALTH    = "a1000000-0000-0000-0000-000000000005"  # curriculum health
-_SID_EXPORT    = "a1000000-0000-0000-0000-000000000006"  # export
-_SID_ALERTS    = "a1000000-0000-0000-0000-000000000007"  # alerts
-_WRONG_SCHOOL  = "ffff0000-0000-0000-0000-000000000001"  # 403 wrong-school checks
+_SID_OV_DATA = "a1000000-0000-0000-0000-000000000001"  # overview_with_data
+_SID_STUDENT = "a1000000-0000-0000-0000-000000000002"  # student report card
+_SID_TRENDS = "a1000000-0000-0000-0000-000000000003"  # trends
+_SID_FEEDBACK = "a1000000-0000-0000-0000-000000000004"  # feedback
+_SID_HEALTH = "a1000000-0000-0000-0000-000000000005"  # curriculum health
+_SID_EXPORT = "a1000000-0000-0000-0000-000000000006"  # export
+_SID_ALERTS = "a1000000-0000-0000-0000-000000000007"  # alerts
+_WRONG_SCHOOL = "ffff0000-0000-0000-0000-000000000001"  # 403 wrong-school checks
 _NONEXISTENT_SID = "eeee0000-0000-0000-0000-000000000001"  # not-enrolled 404
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
+
 async def _register_school(client: AsyncClient, suffix: str = "") -> dict:
-    r = await client.post("/api/v1/schools/register", json={
-        "school_name": f"Report School{suffix}",
-        "contact_email": f"report{suffix}@school.example.com",
-        "country": "ZA",
-        "password": "SecureTestPwd1!",
-    })
+    r = await client.post(
+        "/api/v1/schools/register",
+        json={
+            "school_name": f"Report School{suffix}",
+            "contact_email": f"report{suffix}@school.example.com",
+            "country": "ZA",
+            "password": "SecureTestPwd1!",
+        },
+    )
     assert r.status_code == 201, r.text
     return r.json()
 
@@ -85,7 +89,9 @@ async def _enrol_student(client: AsyncClient, school_id: str, student_id: str, e
             VALUES ($1, $2, $3, 'active')
             ON CONFLICT (school_id, student_email) DO UPDATE SET student_id = EXCLUDED.student_id, status = 'active'
             """,
-            uuid.UUID(school_id), email, uuid.UUID(student_id),
+            uuid.UUID(school_id),
+            email,
+            uuid.UUID(student_id),
         )
 
 
@@ -111,8 +117,15 @@ async def _insert_session(
              attempt_number, score, completed, passed, started_at)
         VALUES ($1, $2, $3, $4, 8, $5, $6, $7, $8, $9)
         """,
-        uuid.UUID(student_id), unit_id, curriculum_id, subject,
-        attempt_number, score, completed, passed, started_at,
+        uuid.UUID(student_id),
+        unit_id,
+        curriculum_id,
+        subject,
+        attempt_number,
+        score,
+        completed,
+        passed,
+        started_at,
     )
 
 
@@ -133,7 +146,11 @@ async def _insert_lesson_view(
             (student_id, unit_id, curriculum_id, ended_at, duration_s, audio_played, started_at)
         VALUES ($1, $2, 'default-2026-g8', NOW(), $3, $4, $5)
         """,
-        uuid.UUID(student_id), unit_id, duration_s, audio_played, started_at,
+        uuid.UUID(student_id),
+        unit_id,
+        duration_s,
+        audio_played,
+        started_at,
     )
 
 
@@ -142,6 +159,7 @@ def _make_teacher(school_id: str, role: str = "teacher") -> str:
 
 
 # ── Overview report ────────────────────────────────────────────────────────────
+
 
 @pytest.mark.asyncio
 async def test_overview_empty_school(client, db_conn):
@@ -210,6 +228,7 @@ async def test_overview_requires_auth(client, db_conn):
 
 # ── Unit report ───────────────────────────────────────────────────────────────
 
+
 @pytest.mark.asyncio
 async def test_unit_report_returns_200(client, db_conn):
     """Unit report returns per-unit metrics for enrolled students."""
@@ -222,7 +241,9 @@ async def test_unit_report_returns_200(client, db_conn):
     await _insert_student(client, sid, email)
     await _enrol_student(client, school_id, sid, email)
     await _insert_lesson_view(client, sid, unit_id="G8-SCI-001", duration_s=600)
-    await _insert_session(client, sid, unit_id="G8-SCI-001", subject="Science", score=70, passed=True)
+    await _insert_session(
+        client, sid, unit_id="G8-SCI-001", subject="Science", score=70, passed=True
+    )
 
     r = await client.get(
         f"/api/v1/reports/school/{school_id}/unit/G8-SCI-001",
@@ -251,6 +272,7 @@ async def test_unit_report_wrong_school_403(client, db_conn):
 
 
 # ── Student report ────────────────────────────────────────────────────────────
+
 
 @pytest.mark.asyncio
 async def test_student_report_returns_200(client, db_conn):
@@ -325,29 +347,47 @@ async def test_student_report_dedupes_unit_with_mixed_raw_subject(client, db_con
     cid = f"test-cur-dedupe-{sid[-4:]}"
     await pool.execute(
         "INSERT INTO curricula (curriculum_id, grade, year, name) VALUES ($1, 10, 2026, $2)",
-        cid, "Dedupe Test Curriculum",
+        cid,
+        "Dedupe Test Curriculum",
     )
     await pool.execute(
         "INSERT INTO curriculum_units (unit_id, curriculum_id, subject, title, unit_name) "
         "VALUES ($1, $2, $3, $4, $4)",
-        "G10-ENG-001", cid, "G10-ENG", "Essay Structure",
+        "G10-ENG-001",
+        cid,
+        "G10-ENG",
+        "Essay Structure",
     )
     await pool.execute(
         """
         INSERT INTO content_subject_versions (curriculum_id, subject, subject_name, version_number, status)
         VALUES ($1, $2, $3, 1, 'published')
         """,
-        cid, "G10-ENG", "English",
+        cid,
+        "G10-ENG",
+        "English",
     )
 
     # Two sessions, same unit_id, different raw subject — the pre-/post-#524 split.
     await _insert_session(
-        client, sid, unit_id="G10-ENG-001", subject="unknown",
-        curriculum_id="default-2026-g10", attempt_number=1, score=60, passed=False,
+        client,
+        sid,
+        unit_id="G10-ENG-001",
+        subject="unknown",
+        curriculum_id="default-2026-g10",
+        attempt_number=1,
+        score=60,
+        passed=False,
     )
     await _insert_session(
-        client, sid, unit_id="G10-ENG-001", subject="G10-ENG",
-        curriculum_id="default-2026-g10", attempt_number=2, score=90, passed=True,
+        client,
+        sid,
+        unit_id="G10-ENG-001",
+        subject="G10-ENG",
+        curriculum_id="default-2026-g10",
+        attempt_number=2,
+        score=90,
+        passed=True,
     )
 
     r = await client.get(
@@ -368,6 +408,7 @@ async def test_student_report_dedupes_unit_with_mixed_raw_subject(client, db_con
 
 # ── Curriculum health ─────────────────────────────────────────────────────────
 
+
 @pytest.mark.asyncio
 async def test_curriculum_health_returns_200(client, db_conn):
     """Curriculum health returns list of units with health tiers."""
@@ -380,7 +421,9 @@ async def test_curriculum_health_returns_200(client, db_conn):
     await _insert_student(client, sid, email)
     await _enrol_student(client, school_id, sid, email)
     await _insert_lesson_view(client, sid, unit_id="G8-MATH-002")
-    await _insert_session(client, sid, unit_id="G8-MATH-002", subject="Mathematics", score=90, passed=True)
+    await _insert_session(
+        client, sid, unit_id="G8-MATH-002", subject="Mathematics", score=90, passed=True
+    )
 
     r = await client.get(
         f"/api/v1/reports/school/{school_id}/curriculum-health",
@@ -416,8 +459,13 @@ async def test_curriculum_health_struggling_tier(client, db_conn):
         await _enrol_student(client, school_id, sid, email)
         await _insert_lesson_view(client, sid, unit_id="G8-STRUGGLE")
         await _insert_session(
-            client, sid, unit_id="G8-STRUGGLE", subject="Mathematics",
-            score=30, passed=False, attempt_number=1,
+            client,
+            sid,
+            unit_id="G8-STRUGGLE",
+            subject="Mathematics",
+            score=30,
+            passed=False,
+            attempt_number=1,
         )
 
     r = await client.get(
@@ -433,6 +481,7 @@ async def test_curriculum_health_struggling_tier(client, db_conn):
 
 
 # ── Feedback report ────────────────────────────────────────────────────────────
+
 
 @pytest.mark.asyncio
 async def test_feedback_report_returns_200(client, db_conn):
@@ -536,6 +585,7 @@ async def test_unit_report_includes_thumbs_feedback(client, db_conn):
 
 # ── Trends report ──────────────────────────────────────────────────────────────
 
+
 @pytest.mark.asyncio
 async def test_trends_report_returns_4_weeks(client, db_conn):
     """Trends report returns one entry per week for 4w period."""
@@ -558,12 +608,13 @@ async def test_trends_report_returns_4_weeks(client, db_conn):
         assert "lessons_viewed" in week
         # week_start must always be a Monday (ISO week), regardless of the day the
         # report is run — regression guard for feedback ticket #451.
-        assert (
-            _dt.strptime(week["week_start"], "%Y-%m-%d").weekday() == 0
-        ), f"week_start {week['week_start']} is not a Monday"
+        assert _dt.strptime(week["week_start"], "%Y-%m-%d").weekday() == 0, (
+            f"week_start {week['week_start']} is not a Monday"
+        )
 
 
 # ── Export ─────────────────────────────────────────────────────────────────────
+
 
 @pytest.mark.asyncio
 async def test_export_queues_celery_task(client, db_conn):
@@ -606,6 +657,7 @@ async def test_export_wrong_school_403(client, db_conn):
 
 # ── Alerts ─────────────────────────────────────────────────────────────────────
 
+
 @pytest.mark.asyncio
 async def test_get_alerts_returns_empty_list(client, db_conn):
     """School with no triggered alerts returns empty list."""
@@ -630,7 +682,11 @@ async def test_save_alert_settings_returns_200(client, db_conn):
 
     r = await client.put(
         f"/api/v1/reports/school/{school_id}/alerts/settings",
-        json={"pass_rate_threshold": 60.0, "inactive_days_threshold": 7, "new_feedback_immediate": False},
+        json={
+            "pass_rate_threshold": 60.0,
+            "inactive_days_threshold": 7,
+            "new_feedback_immediate": False,
+        },
         headers={"Authorization": f"Bearer {token}"},
     )
     assert r.status_code == 200, r.text
@@ -661,9 +717,15 @@ async def test_get_alert_settings_returns_defaults_when_unset(client, db_conn):
     d = r.json()
     assert d["pass_rate_threshold"] == 50.0
     assert d["inactive_days_threshold"] == 14
-    assert d["feedback_count_threshold"] == 3
+    assert d["stuck_attempts_threshold"] == 3
     assert d["new_feedback_immediate"] is True
     assert d["updated_at"] is None  # nothing saved yet
+    # `feedback_count_threshold` and `score_drop_threshold` were asserted here
+    # until #735. Both were settable from migration 0010 and read by no code, so
+    # this test was pinning the presence of controls that did nothing. Asserting
+    # their ABSENCE keeps the same guard pointed the other way.
+    assert "feedback_count_threshold" not in d
+    assert "score_drop_threshold" not in d
 
 
 @pytest.mark.asyncio
@@ -703,6 +765,7 @@ async def test_get_alert_settings_wrong_school_returns_403(client, db_conn):
 
 # ── Digest subscription ────────────────────────────────────────────────────────
 
+
 @pytest.mark.asyncio
 async def test_digest_subscribe_returns_200(client, db_conn):
     """POST /digest/subscribe upserts digest subscription for teacher."""
@@ -712,7 +775,11 @@ async def test_digest_subscribe_returns_200(client, db_conn):
 
     r = await client.post(
         f"/api/v1/reports/school/{school_id}/digest/subscribe",
-        json={"email": "teacher@school.example.com", "timezone": "Africa/Johannesburg", "enabled": True},
+        json={
+            "email": "teacher@school.example.com",
+            "timezone": "Africa/Johannesburg",
+            "enabled": True,
+        },
         headers={"Authorization": f"Bearer {token}"},
     )
     assert r.status_code == 200, r.text
@@ -723,6 +790,7 @@ async def test_digest_subscribe_returns_200(client, db_conn):
 
 
 # ── Refresh ────────────────────────────────────────────────────────────────────
+
 
 @pytest.mark.asyncio
 async def test_refresh_materialized_views(client, db_conn):

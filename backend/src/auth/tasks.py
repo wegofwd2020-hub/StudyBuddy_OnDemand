@@ -1238,10 +1238,13 @@ def evaluate_report_alerts_task() -> None:
     import asyncpg as _asyncpg
 
     from src.reports.service import (
+        find_inactive_students,
         find_stuck_students,
+        raise_inactive_student_alert,
         raise_pass_rate_alert,
         raise_stuck_student_alert,
         resolve_cleared_alerts,
+        resolve_cleared_inactive_alerts,
         resolve_cleared_stuck_alerts,
     )
 
@@ -1250,10 +1253,12 @@ def evaluate_report_alerts_task() -> None:
         try:
             async with pool.acquire() as conn:
                 settings_rows = await conn.fetch(
-                    "SELECT school_id::text, pass_rate_threshold, stuck_attempts_threshold "
+                    "SELECT school_id::text, pass_rate_threshold, "
+                    "stuck_attempts_threshold, inactive_days_threshold "
                     "FROM report_alert_settings"
                 )
                 pass_rate_raised = stuck_raised = stuck_resolved = 0
+                inactive_raised = inactive_resolved = 0
                 for s in settings_rows:
                     school_id = s["school_id"]
                     # Check pass rate breach per unit
@@ -1320,12 +1325,34 @@ def evaluate_report_alerts_task() -> None:
                         [(sr["student_id"], sr["unit_id"]) for sr in stuck_rows],
                     )
 
+                    # Inactivity. `inactive_days_threshold` has been settable
+                    # since migration 0010 and was SELECTed here and then never
+                    # referenced -- a school could tune it and nothing would ever
+                    # fire (#735).
+                    idle_rows = await find_inactive_students(
+                        conn, school_id, int(s["inactive_days_threshold"])
+                    )
+                    for ir in idle_rows:
+                        await raise_inactive_student_alert(
+                            conn,
+                            school_id,
+                            ir["student_id"],
+                            int(ir["days_inactive"]),
+                        )
+                        inactive_raised += 1
+
+                    inactive_resolved += await resolve_cleared_inactive_alerts(
+                        conn, school_id, [ir["student_id"] for ir in idle_rows]
+                    )
+
             log.info(
                 "report_alerts_evaluated",
                 extra={
                     "pass_rate_raised": pass_rate_raised,
                     "stuck_raised": stuck_raised,
                     "stuck_resolved": stuck_resolved,
+                    "inactive_raised": inactive_raised,
+                    "inactive_resolved": inactive_resolved,
                 },
             )
         finally:

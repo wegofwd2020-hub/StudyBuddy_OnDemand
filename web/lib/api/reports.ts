@@ -347,9 +347,7 @@ export async function getAlerts(schoolId: string): Promise<AlertListResponse> {
 
 export interface AlertSettings {
   pass_rate_threshold: number;
-  feedback_count_threshold: number;
   inactive_days_threshold: number;
-  score_drop_threshold: number;
   /** Completed attempts with no pass before `student_stuck_on_unit` fires.
    *  Server enforces 2..20 — a threshold of 1 fires on everyone who passes
    *  on their second try. */
@@ -365,17 +363,13 @@ export async function getAlertSettings(schoolId: string): Promise<AlertSettings>
   >(`/reports/school/${schoolId}/alerts/settings`);
   const {
     pass_rate_threshold,
-    feedback_count_threshold,
     inactive_days_threshold,
-    score_drop_threshold,
     stuck_attempts_threshold,
     new_feedback_immediate,
   } = res.data;
   return {
     pass_rate_threshold,
-    feedback_count_threshold,
     inactive_days_threshold,
-    score_drop_threshold,
     stuck_attempts_threshold,
     new_feedback_immediate,
   };

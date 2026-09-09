@@ -283,10 +283,13 @@ class AlertListResponse(BaseModel):
 
 
 class AlertSettings(BaseModel):
+    # `score_drop_threshold` and `feedback_count_threshold` were here from
+    # migration 0010 and nothing ever read them (#735). Removed rather than
+    # labelled: a school could set them, watch them persist, and get no alert
+    # ever. The columns remain, so re-adding either is a schema no-op once one
+    # of them has a definition worth implementing.
     pass_rate_threshold: float = Field(50.0, ge=0, le=100)
-    feedback_count_threshold: int = Field(3, ge=1)
     inactive_days_threshold: int = Field(14, ge=1)
-    score_drop_threshold: float = Field(10.0, ge=0, le=100)
     # Completed attempts with no pass, ever, before `student_stuck_on_unit` fires.
     # ge=2 on purpose: one failed attempt is a bad day, not a pattern, and a
     # threshold of 1 would raise an alert for every student on their way to
@@ -298,9 +301,7 @@ class AlertSettings(BaseModel):
 class AlertSettingsResponse(BaseModel):
     school_id: str
     pass_rate_threshold: float
-    feedback_count_threshold: int
     inactive_days_threshold: int
-    score_drop_threshold: float
     stuck_attempts_threshold: int
     new_feedback_immediate: bool
     # None when the school has never saved settings and the GET returns defaults (#526).
