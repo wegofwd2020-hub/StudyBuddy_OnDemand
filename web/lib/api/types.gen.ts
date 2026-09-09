@@ -4747,7 +4747,13 @@ export interface paths {
         };
         /**
          * Curriculum Health
-         * @description All units ranked by health tier.
+         * @description All units ranked by health tier, optionally narrowed to one grade.
+         *
+         *     `?grade=` is a filter WITHIN the caller's entitlement, never a way around
+         *     it: a grade the caller is not assigned to is refused with the same 403 the
+         *     roster uses, rather than being silently ignored. Silently ignoring it would
+         *     be worse than refusing — the teacher would read a school-wide report while
+         *     the control on screen said "Grade 7".
          */
         get: operations["curriculum_health_api_v1_reports_school__school_id__curriculum_health_get"];
         put?: never;
@@ -7333,6 +7339,13 @@ export interface components {
              * @default 0
              */
             general_feedback_count: number;
+            /**
+             * Available Grades
+             * @default []
+             */
+            available_grades: number[];
+            /** Selected Grade */
+            selected_grade?: number | null;
             /** Units */
             units: components["schemas"]["CurriculumHealthUnit"][];
         };
@@ -18776,7 +18789,9 @@ export interface operations {
     };
     curriculum_health_api_v1_reports_school__school_id__curriculum_health_get: {
         parameters: {
-            query?: never;
+            query?: {
+                grade?: number | null;
+            };
             header?: never;
             path: {
                 school_id: string;

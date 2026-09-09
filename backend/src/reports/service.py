@@ -232,6 +232,40 @@ async def _enrolled_ids(
     return [r["student_id"] for r in rows]
 
 
+async def _cohort_grades(
+    conn: asyncpg.Connection,
+    school_id: str,
+    allowed_grades: list[int] | None = None,
+) -> list[int]:
+    """Grades with at least one active enrolment, within the caller's scope.
+
+    This is what a grade PICKER may offer. It is deliberately derived from the
+    caller's PERMISSION scope (`allowed_grades`) and never from whatever grade
+    is currently selected: a selector whose options come from its own filtered
+    result narrows to one option on first use and cannot be widened again
+    without a reload. The rows in a report answer "what did grade 8 do"; this
+    answers "which grades may you ask about", and they are different cohorts.
+
+    Grades with no enrolments are omitted because picking one could only ever
+    return an empty report — the picker should not offer a dead end. A grade
+    whose students exist but have no ACTIVITY is still offered: that is a real
+    and interesting answer, not an empty one.
+    """
+    rows = await conn.fetch(
+        """
+        SELECT DISTINCT grade
+        FROM school_enrolments
+        WHERE school_id = $1 AND status = 'active' AND student_id IS NOT NULL
+          AND grade IS NOT NULL
+          AND ($2::smallint[] IS NULL OR grade = ANY($2::smallint[]))
+        ORDER BY grade
+        """,
+        uuid.UUID(school_id),
+        allowed_grades,
+    )
+    return [r["grade"] for r in rows]
+
+
 def _health_tier(pass_rate: float, avg_attempts: float, has_activity: bool) -> str:
     if not has_activity:
         return "no_activity"
@@ -911,13 +945,31 @@ async def get_curriculum_health(
     allowed_grades: list[int] | None = None,
     pool=None,
     redis=None,
+    grade: int | None = None,
 ) -> dict:
     """All units ranked by health tier.
 
     `allowed_grades` limits the cohort to the caller's assigned grades
     (#576); None means unrestricted (school_admin / internal caller).
+
+    `grade` is the teacher's own CHOICE within that entitlement — the report
+    filter a tester asked for, defaulting to all grades. It narrows; it never
+    widens. The router rejects a grade outside `allowed_grades` before we get
+    here, and passing it as a one-element list rather than replacing
+    `allowed_grades` keeps that impossible to get wrong by refactor: the value
+    flows through the SAME parameter every other scoping rule already uses,
+    so nothing downstream needs to know a selection happened.
+
+    The two scopes in the response are deliberately different:
+      * `units` and every count       — the SELECTED grade
+      * `available_grades`            — everything the caller MAY select
+    See `_cohort_grades` for why the picker must not read its options off its
+    own filtered result.
     """
-    enrolled = await _enrolled_ids(conn, school_id, allowed_grades)
+    available_grades = await _cohort_grades(conn, school_id, allowed_grades)
+    cohort_grades = [grade] if grade is not None else allowed_grades
+
+    enrolled = await _enrolled_ids(conn, school_id, cohort_grades)
     if not enrolled:
         return {
             "school_id": school_id,
@@ -926,6 +978,11 @@ async def get_curriculum_health(
             "watch_count": 0,
             "struggling_count": 0,
             "no_activity_count": 0,
+            # Carried even here, or a grade that happens to have no enrolled
+            # students becomes a dead end: the picker would come back empty and
+            # the teacher could not get back to "All grades" without a reload.
+            "available_grades": available_grades,
+            "selected_grade": grade,
             "units": [],
         }
 
@@ -1046,7 +1103,11 @@ async def get_curriculum_health(
     # school's real catalog in, so an untouched unit is REPORTED as untouched
     # rather than silently missing from `total_units` and every tier count.
     catalog = (
-        await cohort_unit_ids(conn, pool, redis, school_id, allowed_grades)
+        # `cohort_grades`, not `allowed_grades` — the catalog has to narrow with
+        # the cohort. Leaving it wide would list every other grade's units as
+        # "no activity" the moment a teacher filtered to one grade, turning the
+        # filter into a way to manufacture coverage gaps that do not exist.
+        await cohort_unit_ids(conn, pool, redis, school_id, cohort_grades)
         if pool is not None and redis is not None
         else set()
     )
@@ -1184,6 +1245,8 @@ async def get_curriculum_health(
         "struggling_count": counts["struggling"],
         "no_activity_count": counts["no_activity"],
         "general_feedback_count": int(general_feedback or 0),
+        "available_grades": available_grades,
+        "selected_grade": grade,
         "units": units,
     }
 

@@ -290,7 +290,23 @@ async def _build_dashboard(
             -- ANY(), not a single id: a classroom's packages are additive
             -- (#651), so "my subjects" is the union across them.
             WHERE cu.curriculum_id = ANY($2::text[])
-            ORDER BY cu.sort_order
+            -- The SAME order as the Subjects page the student actually browses
+            -- (`curriculum/router.py`), including the unit_id tiebreaker.
+            --
+            -- `ORDER BY cu.sort_order` alone is not an order here: the column
+            -- carries at most 5-6 distinct values across ~19 units (it groups
+            -- by subject, it does not sequence units), and in 8 of the demo's
+            -- curricula -- including the Grade 10 one -- it is 0 for EVERY row.
+            -- Postgres does not promise how ties resolve, so "the first unit
+            -- you have not passed" was whichever row the planner happened to
+            -- return, and could move after any update or replan.
+            --
+            -- That is what a tester saw: "Up next" offered a Technology unit
+            -- while four Science units sat unpassed, and asked what pattern was
+            -- being followed. Ordering identically to the browsing view makes
+            -- the answer statable -- next = the first unpassed unit in the
+            -- order you already see -- and makes it stable between refreshes.
+            ORDER BY cu.subject, cu.sort_order, cu.unit_id
             """,
             student_id,
             curriculum_ids,
@@ -551,7 +567,11 @@ async def get_progress_map(
         -- ANY(), not a single id: a classroom's packages are additive (#651),
         -- so the map covers every package rather than one arbitrary pick.
         WHERE cu.curriculum_id = ANY($2::text[])
-        ORDER BY cu.subject, cu.sort_order
+        -- unit_id breaks the tie, as everywhere else. `sort_order` groups by
+        -- subject rather than sequencing units and is all-zero in several
+        -- curricula, so without it this map's row order is unspecified and can
+        -- differ between two loads of the same page.
+        ORDER BY cu.subject, cu.sort_order, cu.unit_id
         """,
         student_id,
         curriculum_ids,
