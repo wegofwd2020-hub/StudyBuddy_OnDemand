@@ -21,6 +21,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
 from src.auth.dependencies import get_current_student
 from src.core.db import get_db
+from src.core.storage import StorageBackend, get_storage
 from src.student.schemas import DashboardResponse, ProgressMapResponse, StatsResponse
 from src.student.service import get_dashboard, get_progress_map, get_stats
 from src.utils.logger import get_logger
@@ -33,6 +34,7 @@ router = APIRouter(tags=["student"])
 async def student_dashboard(
     request: Request,
     student: Annotated[dict, Depends(get_current_student)],
+    storage: StorageBackend = Depends(get_storage),
 ) -> DashboardResponse:
     """
     Aggregated dashboard card for the authenticated student.
@@ -51,6 +53,11 @@ async def student_dashboard(
                 student_id,
                 pool=request.app.state.pool,
                 grade=student.get("grade"),
+                storage=storage,
+                # Locale is authoritative from the JWT and never a query param
+                # (pitfall #11), so the estimate reads the lesson the student
+                # is actually served.
+                locale=student.get("locale") or "en",
             )
         except Exception as exc:
             log.error("dashboard_failed", error=str(exc), correlation_id=cid)

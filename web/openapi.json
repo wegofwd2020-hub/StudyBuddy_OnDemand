@@ -22486,7 +22486,14 @@
             "title": "Subject"
           },
           "estimated_minutes": {
-            "type": "integer",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Estimated Minutes"
           }
         },
@@ -22494,8 +22501,7 @@
         "required": [
           "unit_id",
           "title",
-          "subject",
-          "estimated_minutes"
+          "subject"
         ],
         "title": "NextUnit"
       },
