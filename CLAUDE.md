@@ -464,7 +464,7 @@ Migrations live in `backend/alembic/versions/` and are numbered `0001_…` → `
 - **In Docker:** migrations run automatically via the `migrate` service in `docker-compose.yml` on `./dev_start.sh`
 - **Manual run:** `docker compose exec -e TEST_DB_URL= api alembic upgrade head`
   ⚠️ The `-e TEST_DB_URL=` is **required**. The `api` service has `TEST_DB_URL` set, and
-  `alembic/env.py` prefers it — so a plain `docker compose exec api alembic upgrade head`
+  `backend/alembic/env.py` prefers it — so a plain `docker compose exec api alembic upgrade head`
   migrates **`studybuddy_test`**, prints "success", and leaves the dev database untouched
   (→ pitfall #18, `UndefinedColumnError` *after* you migrated). Alembic now prints which
   database it is targeting on every run; read that line.
@@ -521,6 +521,7 @@ Current migrations (as of last commit):
 | 0066 | Report alerts — `resolved_at` + partial UNIQUE index on OPEN alerts (school, type, `details->>'unit_id'`). The evaluator's `ON CONFLICT DO NOTHING` had no constraint to act on, so it never deduplicated: 294 rows over 13 units on the demo, one repeated 69×. Also collapses existing duplicates (keeps the earliest, preserving "breaching since"). Partial so a dismissed alert can re-raise |
 | 0067 | ADR-008 Phase 1 — `progress_answers.stable_question_id` (nullable) + partial index. `question_id` is `q1…qN` WITHIN a set, so it names a slot, not a question — `GROUP BY question_id` groups questions that merely share an index, which is why the per-answer data already collected (incl. `ms_taken`) cannot be aggregated. Value comes from `src/core/question_identity.py` (content-addressed: `curriculum_id\|unit_id\|lang\|stem`). Pre-migration rows stay NULL and must be EXCLUDED from item analysis, not treated as a group |
 | 0068 | ADR-008 Phase 2 — `feedback.stable_question_id` (nullable) + partial index. `feedback` was keyed by unit + content_type, so a student could say "this lesson wasn't helpful" but nobody could say "question 4 is wrong" — the one signal that separates HARD from INCORRECT, and the only one available before a statistic has enough responses to mean anything. The API takes the POSITIONAL id plus the session and resolves the stable id server-side (ownership checked), so a client cannot flag a question it was never served |
+| 0069 | ADR-008 Phase 3a — `quiz_questions` registry keyed by the migration-0067 `stable_question_id`. Bodies stay in the content store; the registry holds identity, provenance, `difficulty` (denormalised so a stratified draw is one indexed query) and `status` lifecycle. Before it, the only way to enumerate a unit's questions was to open `quiz_set_1/2/3` — which is WHY a quiz was a fixed set of 3. Drawing 8 from a unit's median 24 distinct questions gives ~10^5 quizzes where there were 3 |
 
 ---
 
@@ -586,8 +587,13 @@ Current migrations (as of last commit):
 - **`max_tokens` must be `16384`** (raised from 8192 on 2026-04-15). Epic 11 C-1/C-2 richer
   prompts (tables + KaTeX) regularly exceed 8192 output tokens, causing mid-string JSON
   truncation. 16K is the conservative headroom; Sonnet 4.6 supports up to 64K. Always set
-  `max_tokens=16384` in provider `generate()` methods (`pipeline/providers/anthropic.py`,
-  `pipeline/providers/openai.py`).
+  `max_tokens=16384` on every provider path. **The per-provider modules are gone** — <!-- doc-audit:ignore -->
+  `pipeline/providers/anthropic.py` and `openai.py` were consolidated onto the shared
+  `wegofwd-llm` package; `pipeline/providers/_wegofwd_adapter.py` now adapts it to the
+  legacy `LLMProvider` tuple interface, so 16384 is the contract default there rather
+  than a literal in two files. `google`/gemini is capped at 8192 by its own capabilities,
+  matching the provider it replaced. Change the value in the adapter, not in files that
+  no longer exist.
 - **Pipeline is idempotent.** Check `meta.json` at unit start; skip if
   `content_version` matches and all expected files exist. Use `--force` to override.
 - **Validate every Claude response** against a JSON schema before writing to the
@@ -647,15 +653,15 @@ Admin accounts use local bcrypt auth (not Auth0). They are stored in `admin_user
 **Dev setup — create or reset an admin account:**
 ```bash
 # Create initial super admin (run once)
-docker compose exec api python scripts/seed_super_admin.py
+docker compose exec api python /app/scripts/seed_super_admin.py
 
 # Reset password for existing admin
-docker compose exec api python scripts/reset_admin_password.py \
+docker compose exec api python /app/scripts/reset_admin_password.py \
   --email your@email.com --password NewPassword123!
 ```
 
 **Test-only — hard-delete a school account (super-admin/operator):**
-`scripts/purge_account.py` completely removes a teacher/student by email (no
+`backend/scripts/purge_account.py` completely removes a teacher/student by email (no
 soft delete, no archive, no retention) so the email can be re-added via the
 admin screens on the next test run. It **deliberately bypasses** ADR-005
 Decision 3 (the compliant soft-delete flow) and must never be wired into the
@@ -663,9 +669,9 @@ school-admin UI. Dry-run by default; `--commit` to persist. ⚠️ Never run aga
 real customer/student data — it destroys educational records irrecoverably.
 ```bash
 # Dry-run (rolls back, prints what would go):
-docker compose exec api python scripts/purge_account.py --email foo@example.com
+docker compose exec api python /app/scripts/purge_account.py --email foo@example.com
 # Execute:
-docker compose exec api python scripts/purge_account.py --email foo@example.com --commit
+docker compose exec api python /app/scripts/purge_account.py --email foo@example.com --commit
 ```
 
 **Login endpoint:** `POST /api/v1/admin/auth/login` → returns `{ token, admin_id }`
@@ -969,7 +975,7 @@ See [AGENTS.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/AGE
 13. Teacher JWT accepted on student endpoints (and vice versa) — separate secrets + role checks.
 14. Pipeline not idempotent — check `meta.json` content_version before generating; use `--force` to override.
 15. XLSX parse errors surfaced as 500 — return HTTP 400 with per-row structured error list.
-16. `max_tokens=4096` or `8192` in pipeline — content with Epic 11 tables + KaTeX regularly exceeds 8192. Always use `16384` in both `pipeline/providers/anthropic.py` and `pipeline/providers/openai.py`.
+16. `max_tokens=4096` or `8192` in pipeline — content with Epic 11 tables + KaTeX regularly exceeds 8192. Always use `16384`. Since the consolidation onto `wegofwd-llm` there is one place to set it — `pipeline/providers/_wegofwd_adapter.py` — not the per-provider modules, which no longer exist.
 17. Reading `localStorage` during SSR in Next.js — initialise as `null`, populate in `useEffect`.
 18. Missing migration after pull — API throws `UndefinedColumnError`; run `alembic upgrade head`.
 19. Rebuilding a Docker image without restarting the container — old image stays running; always `up -d` after `build`.
@@ -987,9 +993,9 @@ See [AGENTS.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/AGE
 31. **`get_curriculum_tree` must use the full 3-step resolver and load units from DB** — the original implementation called `_load_grade(grade)` which reads `grade{N}_stem.json` and ignores the resolved `curriculum_id`. Stream students (G11 Science, G11 Commerce, G12 Science, G12 Commerce) saw STEM subjects/units instead of their actual stream content. Fix: use the same 3-step resolver (school-owned → classroom packages RLS bypass → STEM fallback) as `content/service.py::resolve_curriculum_id`, then query `curriculum_units` WHERE `curriculum_id = $resolved`. JOIN `content_subject_versions` for the human-readable `subject_name`.
 32. **`curriculum_units.subject` stores subject codes, not display names for stream curricula** — platform stream curricula (G11-science, G12-commerce, etc.) seed `subject` as abbreviated codes (`G11-PHYS`, `G12-ACC`). The human-readable names (`Physics`, `Accountancy`) live in `content_subject_versions.subject_name`. In `get_curriculum_tree`, use `COALESCE(MAX(csv.subject_name), cu.subject)` joined on `(curriculum_id, subject)` to get display names; fall back to the raw code for newly-seeded curricula with no CSV rows.
 33. **`build_lesson_prompt` must generate a `sections` array** — the old schema produced only `synopsis`/`learning_objectives`/`reading_level` (3 sparse fields). Students saw "Overview and Learning Objectives but no lesson body." The new schema requires `sections` (Introduction, Core Concepts, Worked Examples, Real-World Applications, Summary) and `key_points`. `_normalize_lesson` handles three formats: old-format (has `title`), new rich (has `sections`), and legacy minimal (pre-C5-regen content that has only `synopsis`). Do not run C-5 regen until the new prompt is in place.
-34. **`docker compose exec api alembic upgrade head` migrates the TEST database, not dev** — the `api` service sets `TEST_DB_URL`, and `alembic/env.py` prefers it over `DATABASE_URL`. The command reports success, `alembic current` says `head`, and the dev DB is untouched — a nastier variant of pitfall #18, because it strikes *after* you ran the migration. Always pass `-e TEST_DB_URL=`. `env.py` now prints the target database on every run; read that line before trusting the result. (`docker-compose.yml` already blanks the var for the `migrate` service, which is why `./dev_start.sh` is unaffected.)
+34. **`docker compose exec api alembic upgrade head` migrates the TEST database, not dev** — the `api` service sets `TEST_DB_URL`, and `backend/alembic/env.py` prefers it over `DATABASE_URL`. The command reports success, `alembic current` says `head`, and the dev DB is untouched — a nastier variant of pitfall #18, because it strikes *after* you ran the migration. Always pass `-e TEST_DB_URL=`. `backend/alembic/env.py` now prints the target database on every run; read that line before trusting the result. (`docker-compose.yml` already blanks the var for the `migrate` service, which is why `./dev_start.sh` is unaffected.)
 35. **Never trust the client for quiz grading** — `POST /progress/answer` and `/end` once accepted `correct: bool` and `score: int` and stored them verbatim, while the quiz payload shipped `correct_option` for every question: a student could read the answers from the network tab and post themselves a perfect score. Grading is now server-side (`get_quiz_answer_key` → the content store), the answer key is stripped from the served quiz (`_strip_answer_key`), and the score is a Redis tally of server-graded answers. Two consequences to preserve: (a) `question_id` is `q1…qN` in **every** quiz set with **different** answers per set, so the graded set must be pinned per session (`quizset:{session_id}`, `progress_sessions.quiz_set`) — resolving it from the per-unit rotation pointer at answer time grades later answers against the wrong key; (b) answer writes are fire-and-forget, so `end_session` **cannot** count `progress_answers` (rows may not exist yet) — that race is why the score is tallied in Redis.
-36. **Placeholder content must never reach a student** — `scripts/seed_dev_content.py` and `scripts/setup_dev.py` backfill missing units with stub lessons/quizzes ("Sample question 1 about X?", options "Option A"…"Option D", correct answer always "A") tagged `model: "dev-placeholder"`. They only write where a file is *absent*, so any unit the pipeline hasn't generated keeps its stub indefinitely and used to be served as if real — students were graded on fiction. `get_content_file` now refuses `dev-placeholder` content on both the store and cache paths, so an ungenerated unit 404s honestly. Do not "fix" a 404 by re-running the seeder.
+36. **Placeholder content must never reach a student** — `backend/scripts/seed_dev_content.py` and `backend/scripts/setup_dev.py` backfill missing units with stub lessons/quizzes ("Sample question 1 about X?", options "Option A"…"Option D", correct answer always "A") tagged `model: "dev-placeholder"`. They only write where a file is *absent*, so any unit the pipeline hasn't generated keeps its stub indefinitely and used to be served as if real — students were graded on fiction. `get_content_file` now refuses `dev-placeholder` content on both the store and cache paths, so an ungenerated unit 404s honestly. Do not "fix" a 404 by re-running the seeder.
 37. **`-e TEST_DB_URL=` is REQUIRED for alembic and FORBIDDEN for pytest — the two rules are opposite, and conflating them destroyed the dev database on 2026-08-01.** Pitfall #34 already covers the alembic side: without `-e TEST_DB_URL=`, `alembic upgrade head` silently migrates `studybuddy_test` instead of dev. But `backend/tests/conftest.py` defines a session-scoped autouse `run_migrations` fixture that ends in `command.downgrade(cfg, "base")` — dropping every table — and that fixture is normally safe only because it targets `studybuddy_test`. Passing `-e TEST_DB_URL=` to a **pytest** invocation blanks the variable, `backend/alembic/env.py` falls back to `DATABASE_URL`, and the downgrade-to-base runs against the **dev** database instead — which is exactly what happened, wiping 30 `@riverside.demo` students, 1 school, and 15 curricula. This is why `backend/quiz_suite/` lives as a **sibling** of `backend/tests/`, not a subdirectory of it: living outside `backend/tests/` means that conftest's autouse fixture can never apply to it, no matter how it's invoked. Never pass `-e TEST_DB_URL=` to any `pytest` command, full stop — including `scripts/quiz_suite.sh`'s internal `docker compose exec` calls, which deliberately omit it.
 38. **`docker compose build api` does NOT rebuild the Celery workers — they build their own images.** `api`, `celery-worker`, `celery-pipeline` and `celery-beat-primary` each declare a separate `build:` block over the same `./backend` context, so Compose produces four independent images (`studybuddy_ondemand-api`, `…-celery-worker`, …). Rebuilding only `api` leaves the three workers running whatever image they were last built from — on 2026-08-17 the `celery-worker` image was **3 months old**, missing `croniter` (added to `requirements.txt` for the #527 per-school backup schedule), so any task importing it died with `ModuleNotFoundError: No module named 'croniter'` while `api` imported it fine. The failure is easy to misread because all four **bind-mount `./backend:/app`**: *source* edits are shared instantly (so code changes look like they propagate), but the site-packages layer comes from each service's own image, so *dependency* changes do not. Rule: source change → no rebuild (restart the workers; only `api` hot-reloads). `requirements.txt` change → rebuild all four, then verify with `docker compose exec -T <svc> python -c "import <pkg>"` per service rather than trusting the build log. Pitfall #19 is the adjacent trap (rebuilt but not restarted); this one is "restarted, but never rebuilt".
 
