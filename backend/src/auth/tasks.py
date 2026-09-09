@@ -1237,15 +1237,23 @@ def evaluate_report_alerts_task() -> None:
     """
     import asyncpg as _asyncpg
 
-    from src.reports.service import raise_pass_rate_alert, resolve_cleared_alerts
+    from src.reports.service import (
+        find_stuck_students,
+        raise_pass_rate_alert,
+        raise_stuck_student_alert,
+        resolve_cleared_alerts,
+        resolve_cleared_stuck_alerts,
+    )
 
     async def _evaluate():
         pool = await _asyncpg.create_pool(settings.DATABASE_URL, min_size=1, max_size=3)
         try:
             async with pool.acquire() as conn:
                 settings_rows = await conn.fetch(
-                    "SELECT school_id::text, pass_rate_threshold, inactive_days_threshold FROM report_alert_settings"
+                    "SELECT school_id::text, pass_rate_threshold, stuck_attempts_threshold "
+                    "FROM report_alert_settings"
                 )
+                pass_rate_raised = stuck_raised = stuck_resolved = 0
                 for s in settings_rows:
                     school_id = s["school_id"]
                     # Check pass rate breach per unit
@@ -1278,6 +1286,7 @@ def evaluate_report_alerts_task() -> None:
                         await raise_pass_rate_alert(
                             conn, school_id, br["unit_id"], float(br["pass_rate"] or 0)
                         )
+                        pass_rate_raised += 1
 
                     # Withdraw alerts whose breach has cleared. Without this an
                     # alert is raised and never retracted, so the inbox describes
@@ -1287,7 +1296,38 @@ def evaluate_report_alerts_task() -> None:
                         conn, school_id, [br["unit_id"] for br in breach_rows]
                     )
 
-            log.info("report_alerts_evaluated")
+                    # Per-student: a student with repeated completed attempts and
+                    # no pass, ever. The pass-rate query above cannot express this
+                    # — it groups by unit and filters `attempt_number = 1`, so
+                    # attempts 2..N are invisible to it and no per-student row can
+                    # exist (Venki, 2026-09-02).
+                    stuck_rows = await find_stuck_students(
+                        conn, school_id, int(s["stuck_attempts_threshold"])
+                    )
+                    for sr in stuck_rows:
+                        await raise_stuck_student_alert(
+                            conn,
+                            school_id,
+                            sr["student_id"],
+                            sr["unit_id"],
+                            int(sr["failed_attempts"]),
+                        )
+                        stuck_raised += 1
+
+                    stuck_resolved += await resolve_cleared_stuck_alerts(
+                        conn,
+                        school_id,
+                        [(sr["student_id"], sr["unit_id"]) for sr in stuck_rows],
+                    )
+
+            log.info(
+                "report_alerts_evaluated",
+                extra={
+                    "pass_rate_raised": pass_rate_raised,
+                    "stuck_raised": stuck_raised,
+                    "stuck_resolved": stuck_resolved,
+                },
+            )
         finally:
             await pool.close()
 

@@ -6382,6 +6382,8 @@ export interface components {
             grade?: number | null;
             /** Unit Title */
             unit_title?: string | null;
+            /** Student Name */
+            student_name?: string | null;
         };
         /** AlertListResponse */
         AlertListResponse: {
@@ -6411,6 +6413,11 @@ export interface components {
              */
             score_drop_threshold: number;
             /**
+             * Stuck Attempts Threshold
+             * @default 3
+             */
+            stuck_attempts_threshold: number;
+            /**
              * New Feedback Immediate
              * @default true
              */
@@ -6428,6 +6435,8 @@ export interface components {
             inactive_days_threshold: number;
             /** Score Drop Threshold */
             score_drop_threshold: number;
+            /** Stuck Attempts Threshold */
+            stuck_attempts_threshold: number;
             /** New Feedback Immediate */
             new_feedback_immediate: boolean;
             /** Updated At */

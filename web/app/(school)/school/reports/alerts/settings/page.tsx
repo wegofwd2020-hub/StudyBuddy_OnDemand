@@ -82,6 +82,26 @@ export default function AlertSettingsPage() {
                 />
               </div>
               <div className="space-y-1.5">
+                <Label htmlFor="stuck_attempts">
+                  Flag a student after (failed attempts, no pass)
+                </Label>
+                <Input
+                  id="stuck_attempts"
+                  type="number"
+                  min={2}
+                  max={20}
+                  value={settings.stuck_attempts_threshold}
+                  onChange={(e) => num("stuck_attempts_threshold", e.target.value)}
+                />
+                {/* min={2} matches the server's `ge=2`. One failed attempt is a
+                    bad day, not a pattern — at 1 this fires on every student who
+                    passes on the second try. */}
+                <p className="text-xs text-gray-500">
+                  Counts attempts on one unit where the student has never passed. Retaking
+                  a unit already passed does not count.
+                </p>
+              </div>
+              <div className="space-y-1.5">
                 <Label htmlFor="inactive_days">Inactive-student alert after (days)</Label>
                 <Input
                   id="inactive_days"

@@ -318,6 +318,18 @@ export interface AlertItem {
    * the page imports THIS one.
    */
   unit_title?: string | null;
+  /**
+   * The student an alert is ABOUT, for types that name one
+   * (`student_stuck_on_unit`). null for every unit-grained type, and for a
+   * student who has since been removed.
+   *
+   * Resolved server-side at read time and never stored in `details`: a name
+   * copied into an operational row goes stale and outlives the account it
+   * describes, which is a retention problem rather than a tidiness one.
+   *
+   * Same hand-written/generated split as `unit_title` above — edit both.
+   */
+  student_name?: string | null;
 }
 
 export interface AlertListResponse {
@@ -338,6 +350,10 @@ export interface AlertSettings {
   feedback_count_threshold: number;
   inactive_days_threshold: number;
   score_drop_threshold: number;
+  /** Completed attempts with no pass before `student_stuck_on_unit` fires.
+   *  Server enforces 2..20 — a threshold of 1 fires on everyone who passes
+   *  on their second try. */
+  stuck_attempts_threshold: number;
   new_feedback_immediate: boolean;
 }
 
@@ -352,6 +368,7 @@ export async function getAlertSettings(schoolId: string): Promise<AlertSettings>
     feedback_count_threshold,
     inactive_days_threshold,
     score_drop_threshold,
+    stuck_attempts_threshold,
     new_feedback_immediate,
   } = res.data;
   return {
@@ -359,6 +376,7 @@ export async function getAlertSettings(schoolId: string): Promise<AlertSettings>
     feedback_count_threshold,
     inactive_days_threshold,
     score_drop_threshold,
+    stuck_attempts_threshold,
     new_feedback_immediate,
   };
 }

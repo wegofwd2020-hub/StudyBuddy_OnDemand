@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
-import { Bell, CheckCheck, AlertTriangle, Info, Settings } from "lucide-react";
+import { Bell, CheckCheck, AlertTriangle, Info, Settings, UserX } from "lucide-react";
 import { formatDay } from "@/lib/utils/date";
 
 const ALERT_ICON: Record<string, React.ReactNode> = {
@@ -19,6 +19,7 @@ const ALERT_ICON: Record<string, React.ReactNode> = {
   // generic bell.
   pass_rate_breach: <AlertTriangle className="h-4 w-4 text-red-500" />,
   pass_rate_low: <AlertTriangle className="h-4 w-4 text-red-500" />,
+  student_stuck_on_unit: <UserX className="h-4 w-4 text-orange-500" />,
   feedback_spike: <Info className="h-4 w-4 text-blue-500" />,
   inactive_students: <AlertTriangle className="h-4 w-4 text-orange-500" />,
   score_drop: <AlertTriangle className="h-4 w-4 text-orange-500" />,
@@ -33,6 +34,9 @@ function alertLabel(type: string) {
     // rather than swapped, in case older rows carry the other one.
     pass_rate_breach: "Low pass rate",
     pass_rate_low: "Low pass rate",
+    // Named for the student's situation, not the mechanism. "Stuck" is what a
+    // teacher would say; `student_stuck_on_unit` is what the row is keyed on.
+    student_stuck_on_unit: "Not passing",
     feedback_spike: "Feedback spike",
     inactive_students: "Inactive students",
     score_drop: "Score drop",
@@ -51,6 +55,12 @@ function passRateOf(details: unknown): number | null {
   if (typeof details !== "object" || details === null) return null;
   const v = (details as Record<string, unknown>).pass_rate;
   return typeof v === "number" ? Math.round(v * 10) / 10 : null;
+}
+
+function failedAttemptsOf(details: unknown): number | null {
+  if (typeof details !== "object" || details === null) return null;
+  const v = (details as Record<string, unknown>).failed_attempts;
+  return typeof v === "number" ? v : null;
 }
 
 export default function AlertsPage() {
@@ -151,9 +161,24 @@ export default function AlertsPage() {
                       The id stays, demoted, because it is what appears in
                       exports and support threads. */}
                   <p className="mt-0.5 text-sm text-gray-600">
+                    {/* For a per-student alert the STUDENT leads: the unit is
+                        context, the person is the thing to act on. Unit-grained
+                        alerts have no student_name and read exactly as before. */}
+                    {alert.student_name && (
+                      <span className="font-medium text-gray-900">
+                        {alert.student_name}
+                        {" · "}
+                      </span>
+                    )}
                     {alert.unit_title ?? unitIdOf(alert.details) ?? "—"}
                     {passRateOf(alert.details) != null && (
                       <span> · pass rate {passRateOf(alert.details)}%</span>
+                    )}
+                    {failedAttemptsOf(alert.details) != null && (
+                      <span>
+                        {" · "}
+                        {failedAttemptsOf(alert.details)} attempts, no pass
+                      </span>
                     )}
                   </p>
                   {alert.unit_title && unitIdOf(alert.details) && (

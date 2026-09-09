@@ -16944,6 +16944,17 @@
               }
             ],
             "title": "Unit Title"
+          },
+          "student_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Student Name"
           }
         },
         "type": "object",
@@ -17001,6 +17012,13 @@
             "title": "Score Drop Threshold",
             "default": 10.0
           },
+          "stuck_attempts_threshold": {
+            "type": "integer",
+            "maximum": 20.0,
+            "minimum": 2.0,
+            "title": "Stuck Attempts Threshold",
+            "default": 3
+          },
           "new_feedback_immediate": {
             "type": "boolean",
             "title": "New Feedback Immediate",
@@ -17032,6 +17050,10 @@
             "type": "number",
             "title": "Score Drop Threshold"
           },
+          "stuck_attempts_threshold": {
+            "type": "integer",
+            "title": "Stuck Attempts Threshold"
+          },
           "new_feedback_immediate": {
             "type": "boolean",
             "title": "New Feedback Immediate"
@@ -17056,6 +17078,7 @@
           "feedback_count_threshold",
           "inactive_days_threshold",
           "score_drop_threshold",
+          "stuck_attempts_threshold",
           "new_feedback_immediate"
         ],
         "title": "AlertSettingsResponse"
