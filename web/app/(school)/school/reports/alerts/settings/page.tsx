@@ -97,8 +97,8 @@ export default function AlertSettingsPage() {
                     bad day, not a pattern — at 1 this fires on every student who
                     passes on the second try. */}
                 <p className="text-xs text-gray-500">
-                  Counts attempts on one unit where the student has never passed.
-                  Retaking a unit already passed does not count.
+                  Counts attempts on one unit where the student has never passed. Retaking
+                  a unit already passed does not count.
                 </p>
               </div>
               <div className="space-y-1.5">
