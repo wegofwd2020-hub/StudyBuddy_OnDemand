@@ -47,7 +47,9 @@ export const ALERTS_STRINGS = {
   newBadge: /\d+ new/,
   // Alert type labels (from alertLabel function in page)
   lowPassRate: "Low pass rate",
-  inactiveStudents: "Inactive students",
+  // Singular since #735: the alert names ONE student, so a plural label on a
+  // card showing one person reads like a count that is missing.
+  inactiveStudents: "Not active",
   scoreDrop: "Score drop",
   // Dismiss button
   dismissBtn: "Dismiss",

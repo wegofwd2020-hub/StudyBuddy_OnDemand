@@ -111,27 +111,6 @@ export default function AlertSettingsPage() {
                   onChange={(e) => num("inactive_days_threshold", e.target.value)}
                 />
               </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="feedback_count">Feedback-spike alert at (count)</Label>
-                <Input
-                  id="feedback_count"
-                  type="number"
-                  min={1}
-                  value={settings.feedback_count_threshold}
-                  onChange={(e) => num("feedback_count_threshold", e.target.value)}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="score_drop">Score-drop alert at (% drop)</Label>
-                <Input
-                  id="score_drop"
-                  type="number"
-                  min={0}
-                  max={100}
-                  value={settings.score_drop_threshold}
-                  onChange={(e) => num("score_drop_threshold", e.target.value)}
-                />
-              </div>
               <label className="flex items-center gap-2 pt-1 text-sm text-gray-700">
                 <input
                   type="checkbox"

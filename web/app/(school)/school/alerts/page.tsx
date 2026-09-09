@@ -38,7 +38,9 @@ function alertLabel(type: string) {
     // teacher would say; `student_stuck_on_unit` is what the row is keyed on.
     student_stuck_on_unit: "Not passing",
     feedback_spike: "Feedback spike",
-    inactive_students: "Inactive students",
+    // Singular: this alert is about ONE student, and "Inactive students" on a
+    // card naming one person reads like a count that is missing.
+    inactive_students: "Not active",
     score_drop: "Score drop",
   };
   return labels[type] ?? type;
@@ -55,6 +57,12 @@ function passRateOf(details: unknown): number | null {
   if (typeof details !== "object" || details === null) return null;
   const v = (details as Record<string, unknown>).pass_rate;
   return typeof v === "number" ? Math.round(v * 10) / 10 : null;
+}
+
+function daysInactiveOf(details: unknown): number | null {
+  if (typeof details !== "object" || details === null) return null;
+  const v = (details as Record<string, unknown>).days_inactive;
+  return typeof v === "number" ? v : null;
 }
 
 function failedAttemptsOf(details: unknown): number | null {
@@ -167,10 +175,16 @@ export default function AlertsPage() {
                     {alert.student_name && (
                       <span className="font-medium text-gray-900">
                         {alert.student_name}
-                        {" · "}
+                        {alert.unit_title || unitIdOf(alert.details) ? " · " : ""}
                       </span>
                     )}
-                    {alert.unit_title ?? unitIdOf(alert.details) ?? "—"}
+                    {/* An em dash only where a unit was EXPECTED and could not
+                        be resolved. `inactive_students` is about a student and
+                        carries no unit at all, so a placeholder there would read
+                        as missing data rather than as not-applicable. */}
+                    {alert.unit_title ??
+                      unitIdOf(alert.details) ??
+                      (alert.student_name ? "" : "—")}
                     {passRateOf(alert.details) != null && (
                       <span> · pass rate {passRateOf(alert.details)}%</span>
                     )}
@@ -178,6 +192,12 @@ export default function AlertsPage() {
                       <span>
                         {" · "}
                         {failedAttemptsOf(alert.details)} attempts, no pass
+                      </span>
+                    )}
+                    {daysInactiveOf(alert.details) != null && (
+                      <span>
+                        {" · "}
+                        nothing opened in {daysInactiveOf(alert.details)} days
                       </span>
                     )}
                   </p>

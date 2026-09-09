@@ -1512,10 +1512,26 @@ async def get_alerts(
         """
         SELECT a.alert_id::text, a.alert_type, a.school_id::text, a.details,
                a.triggered_at, a.acknowledged,
-               (SELECT MIN(c.grade)
-                  FROM curriculum_units cu
-                  JOIN curricula c ON c.curriculum_id = cu.curriculum_id
-                 WHERE cu.unit_id = a.details->>'unit_id') AS grade,
+               -- Unit-derived grade first, then the STUDENT's own. Without
+               -- the fallback, `inactive_students` -- which carries no unit at
+               -- all -- would resolve to a NULL grade, and the scoping filter
+               -- below withholds NULL-grade alerts from every grade-restricted
+               -- teacher. The alert would have existed and been visible only to
+               -- school admins, which for "your student has stopped working" is
+               -- the wrong audience entirely.
+               COALESCE(
+                 (SELECT MIN(c.grade)
+                    FROM curriculum_units cu
+                    JOIN curricula c ON c.curriculum_id = cu.curriculum_id
+                   WHERE cu.unit_id = a.details->>'unit_id'),
+                 (SELECT MIN(se.grade)
+                    FROM school_enrolments se
+                   WHERE se.school_id = a.school_id
+                     AND se.status = 'active'
+                     AND a.details->>'student_id' ~*
+                         '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+                     AND se.student_id = (a.details->>'student_id')::uuid)
+               ) AS grade,
                -- The unit's human name, resolved through the same join the grade
                -- already uses. Without it the inbox shows only `G5-TECH-004`,
                -- which a teacher cannot match to anything on the Subjects page
@@ -1801,13 +1817,140 @@ async def resolve_cleared_stuck_alerts(
     return int(result.split()[-1]) if result else 0
 
 
+# ── Alert lifecycle: a student who has stopped ────────────────────────────────
+#
+# `inactive_days_threshold` has been settable since migration 0010 and read by
+# nothing. `evaluate_report_alerts_task` even SELECTed it and then never
+# referenced the value, so a school admin could tune it, watch it persist, and
+# get no alert ever (#735).
+
+
+async def find_inactive_students(
+    conn: asyncpg.Connection,
+    school_id: str,
+    threshold_days: int,
+) -> list[asyncpg.Record]:
+    """Active enrolments with no lesson view and no quiz session for N days.
+
+    Silence is measured from `added_at` when a student has done nothing at all,
+    not from epoch. Otherwise every newly enrolled student is instantly "14 days
+    inactive", and the first thing a school sees after uploading a roster is an
+    inbox full of alerts about students who have not had a chance to log in yet.
+
+    Scalar subqueries rather than joins onto `lesson_views` / `progress_sessions`:
+    joining both would multiply rows together (#625), and the aggregate is over
+    two independent histories that have no business being combined row-wise.
+
+    DISTINCT ON because a student can hold two ACTIVE enrolments at one school
+    (#623) -- the same fan-out that inflated pass rates past 100%. Here it would
+    produce two identical alerts that the unique index then silently collapses,
+    so the count reported by the evaluator would be wrong even though the inbox
+    looked right.
+    """
+    return await conn.fetch(
+        """
+        WITH seen AS (
+            SELECT DISTINCT ON (se.student_id)
+                   se.student_id::text AS student_id,
+                   GREATEST(
+                       se.added_at,
+                       COALESCE((SELECT MAX(lv.started_at) FROM lesson_views lv
+                                  WHERE lv.student_id = se.student_id), se.added_at),
+                       COALESCE((SELECT MAX(ps.started_at) FROM progress_sessions ps
+                                  WHERE ps.student_id = se.student_id), se.added_at)
+                   ) AS last_active_at
+            FROM school_enrolments se
+            WHERE se.school_id = $1 AND se.status = 'active'
+            ORDER BY se.student_id, se.added_at
+        )
+        SELECT student_id,
+               EXTRACT(DAY FROM (NOW() - last_active_at))::int AS days_inactive
+        FROM seen
+        WHERE last_active_at < NOW() - make_interval(days => $2)
+        ORDER BY last_active_at
+        """,
+        uuid.UUID(school_id),
+        int(threshold_days),
+    )
+
+
+async def raise_inactive_student_alert(
+    conn: asyncpg.Connection,
+    school_id: str,
+    student_id: str,
+    days_inactive: int,
+) -> None:
+    """Open (or refresh) the single open inactivity alert for one student.
+
+    Keyed on `uq_report_alerts_open_inactive` (migration 0071). This type carries
+    NO unit_id, which is exactly the case migration 0066's docstring flagged:
+    through the old unit-keyed index every row would key on NULL, NULLs are
+    distinct, and the daily task would append one row per student per day.
+
+    `triggered_at` is untouched on a repeat, so the alert says how long the
+    student has been gone rather than resetting to "new" each morning. The
+    `days_inactive` figure IS refreshed -- the count grows, the alert does not
+    get younger.
+
+    `details` built with jsonb_build_object from scalars, never a pre-dumped
+    string: the app pool registers a jsonb codec and the Celery task's raw pool
+    does not, and a dumped string lands as a JSON *string* so
+    `details->>'student_id'` reads NULL and the unique index stops matching.
+    """
+    await conn.execute(
+        """
+        INSERT INTO report_alerts (school_id, alert_type, details)
+        VALUES ($1, 'inactive_students',
+                jsonb_build_object('student_id', $2::text,
+                                   'days_inactive', $3::int))
+        ON CONFLICT (school_id, COALESCE(details->>'student_id', ''))
+            WHERE alert_type = 'inactive_students'
+              AND NOT acknowledged AND resolved_at IS NULL
+        DO UPDATE SET details = EXCLUDED.details
+        """,
+        uuid.UUID(school_id),
+        student_id,
+        int(days_inactive),
+    )
+
+
+async def resolve_cleared_inactive_alerts(
+    conn: asyncpg.Connection,
+    school_id: str,
+    still_inactive: list[str],
+) -> int:
+    """Withdraw alerts for students who have come back. Returns the count.
+
+    An empty list resolves every open alert of this type, which is correct:
+    nobody is inactive. `resolved_at` rather than `acknowledged`, because
+    acknowledged records that a PERSON dismissed the alert.
+    """
+    result = await conn.execute(
+        """
+        UPDATE report_alerts
+           SET resolved_at = NOW()
+         WHERE school_id = $1
+           AND alert_type = 'inactive_students'
+           AND resolved_at IS NULL
+           AND NOT acknowledged
+           AND NOT (details->>'student_id' = ANY($2::text[]))
+        """,
+        uuid.UUID(school_id),
+        still_inactive,
+    )
+    return int(result.split()[-1]) if result else 0
+
+
 # Server-owned defaults for a school that has never saved its thresholds. The
 # client no longer keeps its own copy (#526) — these are the single source.
+# Only thresholds the evaluator actually reads. `score_drop_threshold` and
+# `feedback_count_threshold` were settable from migration 0010 onward and no code
+# ever consulted them (#735); their columns remain (NOT NULL with defaults) but
+# they are no longer offered, because a control that persists and does nothing is
+# worse than no control.
 ALERT_SETTINGS_DEFAULTS = {
     "pass_rate_threshold": 50.0,
-    "feedback_count_threshold": 3,
     "inactive_days_threshold": 14,
-    "score_drop_threshold": 10.0,
     "stuck_attempts_threshold": 3,
     "new_feedback_immediate": True,
 }
@@ -1822,8 +1965,7 @@ async def get_alert_settings(
     redrew hardcoded defaults and saved values looked lost (#526)."""
     row = await conn.fetchrow(
         """
-        SELECT school_id::text, pass_rate_threshold, feedback_count_threshold,
-               inactive_days_threshold, score_drop_threshold,
+        SELECT school_id::text, pass_rate_threshold, inactive_days_threshold,
                stuck_attempts_threshold, new_feedback_immediate, updated_at
         FROM report_alert_settings
         WHERE school_id = $1
@@ -1844,29 +1986,21 @@ async def save_alert_settings(
     row = await conn.fetchrow(
         """
         INSERT INTO report_alert_settings
-            (school_id, pass_rate_threshold, feedback_count_threshold,
-             inactive_days_threshold, score_drop_threshold, stuck_attempts_threshold,
-             new_feedback_immediate, updated_at)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+            (school_id, pass_rate_threshold, inactive_days_threshold,
+             stuck_attempts_threshold, new_feedback_immediate, updated_at)
+        VALUES ($1, $2, $3, $4, $5, NOW())
         ON CONFLICT (school_id) DO UPDATE SET
             pass_rate_threshold      = EXCLUDED.pass_rate_threshold,
-            feedback_count_threshold = EXCLUDED.feedback_count_threshold,
             inactive_days_threshold  = EXCLUDED.inactive_days_threshold,
-            score_drop_threshold     = EXCLUDED.score_drop_threshold,
             stuck_attempts_threshold = EXCLUDED.stuck_attempts_threshold,
             new_feedback_immediate   = EXCLUDED.new_feedback_immediate,
             updated_at               = NOW()
-        RETURNING school_id::text, pass_rate_threshold, feedback_count_threshold,
-                  inactive_days_threshold, score_drop_threshold,
+        RETURNING school_id::text, pass_rate_threshold, inactive_days_threshold,
                   stuck_attempts_threshold, new_feedback_immediate, updated_at
         """,
         uuid.UUID(school_id),
         settings.get("pass_rate_threshold", ALERT_SETTINGS_DEFAULTS["pass_rate_threshold"]),
-        settings.get(
-            "feedback_count_threshold", ALERT_SETTINGS_DEFAULTS["feedback_count_threshold"]
-        ),
         settings.get("inactive_days_threshold", ALERT_SETTINGS_DEFAULTS["inactive_days_threshold"]),
-        settings.get("score_drop_threshold", ALERT_SETTINGS_DEFAULTS["score_drop_threshold"]),
         settings.get(
             "stuck_attempts_threshold", ALERT_SETTINGS_DEFAULTS["stuck_attempts_threshold"]
         ),

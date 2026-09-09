@@ -16993,24 +16993,11 @@
             "title": "Pass Rate Threshold",
             "default": 50.0
           },
-          "feedback_count_threshold": {
-            "type": "integer",
-            "minimum": 1.0,
-            "title": "Feedback Count Threshold",
-            "default": 3
-          },
           "inactive_days_threshold": {
             "type": "integer",
             "minimum": 1.0,
             "title": "Inactive Days Threshold",
             "default": 14
-          },
-          "score_drop_threshold": {
-            "type": "number",
-            "maximum": 100.0,
-            "minimum": 0.0,
-            "title": "Score Drop Threshold",
-            "default": 10.0
           },
           "stuck_attempts_threshold": {
             "type": "integer",
@@ -17038,17 +17025,9 @@
             "type": "number",
             "title": "Pass Rate Threshold"
           },
-          "feedback_count_threshold": {
-            "type": "integer",
-            "title": "Feedback Count Threshold"
-          },
           "inactive_days_threshold": {
             "type": "integer",
             "title": "Inactive Days Threshold"
-          },
-          "score_drop_threshold": {
-            "type": "number",
-            "title": "Score Drop Threshold"
           },
           "stuck_attempts_threshold": {
             "type": "integer",
@@ -17075,9 +17054,7 @@
         "required": [
           "school_id",
           "pass_rate_threshold",
-          "feedback_count_threshold",
           "inactive_days_threshold",
-          "score_drop_threshold",
           "stuck_attempts_threshold",
           "new_feedback_immediate"
         ],

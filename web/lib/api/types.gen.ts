@@ -6398,20 +6398,10 @@ export interface components {
              */
             pass_rate_threshold: number;
             /**
-             * Feedback Count Threshold
-             * @default 3
-             */
-            feedback_count_threshold: number;
-            /**
              * Inactive Days Threshold
              * @default 14
              */
             inactive_days_threshold: number;
-            /**
-             * Score Drop Threshold
-             * @default 10
-             */
-            score_drop_threshold: number;
             /**
              * Stuck Attempts Threshold
              * @default 3
@@ -6429,12 +6419,8 @@ export interface components {
             school_id: string;
             /** Pass Rate Threshold */
             pass_rate_threshold: number;
-            /** Feedback Count Threshold */
-            feedback_count_threshold: number;
             /** Inactive Days Threshold */
             inactive_days_threshold: number;
-            /** Score Drop Threshold */
-            score_drop_threshold: number;
             /** Stuck Attempts Threshold */
             stuck_attempts_threshold: number;
             /** New Feedback Immediate */
