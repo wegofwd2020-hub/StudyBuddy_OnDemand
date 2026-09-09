@@ -1523,7 +1523,25 @@ async def get_alerts(
                -- more than one curriculum; the title is the same in each.
                (SELECT MIN(cu.title)
                   FROM curriculum_units cu
-                 WHERE cu.unit_id = a.details->>'unit_id') AS unit_title
+                 WHERE cu.unit_id = a.details->>'unit_id') AS unit_title,
+               -- Only `student_stuck_on_unit` carries a student_id; for every
+               -- other type this subquery has nothing to match and yields NULL.
+               -- Resolved HERE rather than stored in `details` on purpose: a name
+               -- written into an operational JSONB row is a PII duplicate that
+               -- goes stale, survives the account's deletion, and is invisible to
+               -- the retention schedule. The join is also how `grade` and
+               -- `unit_title` already work, so the shape is not new.
+               -- The regex is not decoration. `details` is free-form JSONB, and
+               -- a cast failure is not a per-row NULL: it aborts the statement,
+               -- so ONE malformed value 500s the whole inbox for that school.
+               -- Matching the shape first means a bad row costs its own name and
+               -- nothing else. Keyed on the value, not on `alert_type`, so the
+               -- next type that names a student inherits this for free.
+               (SELECT st.name
+                  FROM students st
+                 WHERE a.details->>'student_id'
+                       ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+                   AND st.student_id = (a.details->>'student_id')::uuid) AS student_name
         FROM report_alerts a
         WHERE a.school_id = $1
           AND NOT a.acknowledged
@@ -1550,6 +1568,7 @@ async def get_alerts(
                 "acknowledged": r["acknowledged"],
                 "grade": r["grade"],
                 "unit_title": r["unit_title"],
+                "student_name": r["student_name"],
             }
             for r in rows
         ]
@@ -1574,8 +1593,12 @@ async def raise_pass_rate_alert(
 ) -> None:
     """Open (or refresh) the single open pass-rate alert for a unit.
 
-    Keyed on the partial unique index from migration 0066, so a unit that keeps
-    breaching updates one row rather than appending one per daily run.
+    Keyed on `uq_report_alerts_open_unit`, so a unit that keeps breaching updates
+    one row rather than appending one per daily run. Migration 0070 narrowed that
+    index to `alert_type = 'pass_rate_breach'` and moved `alert_type` out of the
+    key columns, so this ON CONFLICT must carry the predicate: an ON CONFLICT
+    specification that does not match an index exactly raises
+    `InvalidColumnReferenceError` at runtime, not at deploy time.
     `triggered_at` is deliberately NOT touched: the alert should keep saying how
     long the breach has run, not reset to "new" every morning.
     """
@@ -1590,8 +1613,9 @@ async def raise_pass_rate_alert(
         INSERT INTO report_alerts (school_id, alert_type, details)
         VALUES ($1, 'pass_rate_breach',
                 jsonb_build_object('unit_id', $2::text, 'pass_rate', $3::float8))
-        ON CONFLICT (school_id, alert_type, (details->>'unit_id'))
-            WHERE NOT acknowledged AND resolved_at IS NULL
+        ON CONFLICT (school_id, (details->>'unit_id'))
+            WHERE alert_type = 'pass_rate_breach'
+              AND NOT acknowledged AND resolved_at IS NULL
         DO UPDATE SET details = EXCLUDED.details
         """,
         uuid.UUID(school_id),
@@ -1628,6 +1652,155 @@ async def resolve_cleared_alerts(
     return int(result.split()[-1]) if result else 0
 
 
+# ── Alert lifecycle: one student, one unit ────────────────────────────────────
+#
+# Every alert type before this one is UNIT-grained. `evaluate_report_alerts_task`
+# runs `GROUP BY ps.unit_id`, so `student_id` survives only inside
+# `COUNT(DISTINCT …)` and is consumed by the aggregate — the sentence the system
+# could produce was "unit X is hard for this school", never "student Y is not
+# getting through unit X" (Venki, 2026-09-02).
+#
+# These three live here rather than inline in the task for the same reason
+# `raise_pass_rate_alert` does: the tests exercise the statements the evaluator
+# actually runs. A test that re-types the SQL only proves the copy is consistent
+# with itself, which is how a dedupe that could never fire survived for months.
+
+
+async def find_stuck_students(
+    conn: asyncpg.Connection,
+    school_id: str,
+    threshold: int,
+) -> list[asyncpg.Record]:
+    """Students with `threshold`+ completed attempts on a unit and no pass, ever.
+
+    Deliberately NOT the case that prompted this. The reported student failed
+    attempt 1, passed attempts 2-10, then failed attempt 11 — one slip after nine
+    passes, which is revision. A threshold low enough to catch it catches everyone
+    who revises, and the cost of that lands on an inbox migration 0066 just cut
+    from 294 rows to 13.
+    """
+    return await conn.fetch(
+        """
+        WITH per_student AS (
+            SELECT ps.student_id,
+                   ps.unit_id,
+                   -- DISTINCT session_id, not COUNT(*): a student with two ACTIVE
+                   -- enrolments at the same school fans this join out and doubles
+                   -- the count, pushing a 2-attempt student over a 3 threshold.
+                   -- Same defect as #623, same fix as #625.
+                   COUNT(DISTINCT ps.session_id)
+                       FILTER (WHERE ps.completed AND NOT ps.passed) AS failed_attempts,
+                   -- The COALESCE is unreachable today and kept deliberately.
+                   -- `passed` is NULLABLE, but `NULL AND FALSE` is FALSE in SQL's
+                   -- three-valued logic, so BOOL_OR only yields NULL when EVERY
+                   -- row is (completed, passed IS NULL) — and such rows contribute
+                   -- nothing to `failed_attempts` below, so the threshold filters
+                   -- them out first. Verified, not assumed: mutating this line
+                   -- fails no test. It stays because the day someone widens the
+                   -- FILTER to treat an unfinished attempt as a failure, NULL
+                   -- becomes reachable and `WHERE NOT NULL` would drop the
+                   -- student silently — the wrong direction to fail.
+                   COALESCE(BOOL_OR(ps.passed AND ps.completed), FALSE) AS ever_passed
+            FROM progress_sessions ps
+            INNER JOIN school_enrolments se ON se.student_id = ps.student_id
+            WHERE se.school_id = $1 AND se.status = 'active'
+            GROUP BY ps.student_id, ps.unit_id
+        )
+        SELECT student_id::text AS student_id, unit_id, failed_attempts
+        FROM per_student
+        WHERE NOT ever_passed
+          AND failed_attempts >= $2
+        ORDER BY failed_attempts DESC, unit_id
+        """,
+        uuid.UUID(school_id),
+        threshold,
+    )
+
+
+async def raise_stuck_student_alert(
+    conn: asyncpg.Connection,
+    school_id: str,
+    student_id: str,
+    unit_id: str,
+    failed_attempts: int,
+) -> None:
+    """Open (or refresh) the single open stuck alert for one student on one unit.
+
+    Keyed on `uq_report_alerts_open_stuck` (migration 0070), which includes
+    `student_id`. It cannot share `uq_report_alerts_open_unit`: keyed on unit
+    alone, two students stuck on the same unit collide and the second insert
+    `DO UPDATE`s the first, so one of them is never reported.
+
+    `triggered_at` is deliberately NOT touched on a repeat, matching
+    `raise_pass_rate_alert`: the alert should keep saying how long the student has
+    been stuck rather than resetting to "new" every morning. Reading that value as
+    a bare date is what made a live breach look like old news (#733).
+
+    `details` is built in SQL from scalars rather than bound as JSON. This runs on
+    two pools with different codecs — the app pool registers a jsonb codec, the
+    Celery task's raw asyncpg pool does not — and a pre-dumped string is
+    double-encoded by the codec and lands as a JSON *string*, so
+    `details->>'student_id'` reads NULL and both the unique index and every keyed
+    query silently stop matching. jsonb_build_object is immune.
+    """
+    await conn.execute(
+        """
+        INSERT INTO report_alerts (school_id, alert_type, details)
+        VALUES ($1, 'student_stuck_on_unit',
+                jsonb_build_object('unit_id', $2::text,
+                                   'student_id', $3::text,
+                                   'failed_attempts', $4::int))
+        ON CONFLICT (school_id,
+                     COALESCE(details->>'student_id', ''),
+                     COALESCE(details->>'unit_id', ''))
+            WHERE alert_type = 'student_stuck_on_unit'
+              AND NOT acknowledged AND resolved_at IS NULL
+        DO UPDATE SET details = EXCLUDED.details
+        """,
+        uuid.UUID(school_id),
+        unit_id,
+        student_id,
+        int(failed_attempts),
+    )
+
+
+async def resolve_cleared_stuck_alerts(
+    conn: asyncpg.Connection,
+    school_id: str,
+    still_stuck: list[tuple[str, str]],
+) -> int:
+    """Withdraw stuck alerts for students who have since passed. Returns the count.
+
+    An empty `still_stuck` resolves every open alert of this type, which is
+    correct: nobody is stuck. `resolved_at` rather than `acknowledged`, because
+    acknowledged records that a PERSON dismissed the alert, and folding a machine
+    observation into that loses the distinction that makes the inbox trustworthy.
+
+    The pair list is passed as two parallel arrays rather than a composite type:
+    asyncpg has no clean binding for an array of records, and `unnest` of two
+    text[] is positional, so the arrays must be built from the same iteration.
+    """
+    students = [s for s, _ in still_stuck]
+    units = [u for _, u in still_stuck]
+    result = await conn.execute(
+        """
+        UPDATE report_alerts
+           SET resolved_at = NOW()
+         WHERE school_id = $1
+           AND alert_type = 'student_stuck_on_unit'
+           AND resolved_at IS NULL
+           AND NOT acknowledged
+           AND (details->>'student_id', details->>'unit_id') NOT IN (
+                   SELECT s, u FROM unnest($2::text[], $3::text[]) AS t(s, u)
+               )
+        """,
+        uuid.UUID(school_id),
+        students,
+        units,
+    )
+    return int(result.split()[-1]) if result else 0
+
+
 # Server-owned defaults for a school that has never saved its thresholds. The
 # client no longer keeps its own copy (#526) — these are the single source.
 ALERT_SETTINGS_DEFAULTS = {
@@ -1635,6 +1808,7 @@ ALERT_SETTINGS_DEFAULTS = {
     "feedback_count_threshold": 3,
     "inactive_days_threshold": 14,
     "score_drop_threshold": 10.0,
+    "stuck_attempts_threshold": 3,
     "new_feedback_immediate": True,
 }
 
@@ -1650,7 +1824,7 @@ async def get_alert_settings(
         """
         SELECT school_id::text, pass_rate_threshold, feedback_count_threshold,
                inactive_days_threshold, score_drop_threshold,
-               new_feedback_immediate, updated_at
+               stuck_attempts_threshold, new_feedback_immediate, updated_at
         FROM report_alert_settings
         WHERE school_id = $1
         """,
@@ -1671,18 +1845,20 @@ async def save_alert_settings(
         """
         INSERT INTO report_alert_settings
             (school_id, pass_rate_threshold, feedback_count_threshold,
-             inactive_days_threshold, score_drop_threshold, new_feedback_immediate, updated_at)
-        VALUES ($1, $2, $3, $4, $5, $6, NOW())
+             inactive_days_threshold, score_drop_threshold, stuck_attempts_threshold,
+             new_feedback_immediate, updated_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
         ON CONFLICT (school_id) DO UPDATE SET
             pass_rate_threshold      = EXCLUDED.pass_rate_threshold,
             feedback_count_threshold = EXCLUDED.feedback_count_threshold,
             inactive_days_threshold  = EXCLUDED.inactive_days_threshold,
             score_drop_threshold     = EXCLUDED.score_drop_threshold,
+            stuck_attempts_threshold = EXCLUDED.stuck_attempts_threshold,
             new_feedback_immediate   = EXCLUDED.new_feedback_immediate,
             updated_at               = NOW()
         RETURNING school_id::text, pass_rate_threshold, feedback_count_threshold,
                   inactive_days_threshold, score_drop_threshold,
-                  new_feedback_immediate, updated_at
+                  stuck_attempts_threshold, new_feedback_immediate, updated_at
         """,
         uuid.UUID(school_id),
         settings.get("pass_rate_threshold", ALERT_SETTINGS_DEFAULTS["pass_rate_threshold"]),
@@ -1691,6 +1867,9 @@ async def save_alert_settings(
         ),
         settings.get("inactive_days_threshold", ALERT_SETTINGS_DEFAULTS["inactive_days_threshold"]),
         settings.get("score_drop_threshold", ALERT_SETTINGS_DEFAULTS["score_drop_threshold"]),
+        settings.get(
+            "stuck_attempts_threshold", ALERT_SETTINGS_DEFAULTS["stuck_attempts_threshold"]
+        ),
         settings.get("new_feedback_immediate", ALERT_SETTINGS_DEFAULTS["new_feedback_immediate"]),
     )
     return dict(row)

@@ -269,6 +269,13 @@ class AlertItem(BaseModel):
     # Subjects page. None when the unit is not in curriculum_units, in which case
     # the page falls back to showing the raw id.
     unit_title: str | None = None
+    # For alerts that name a STUDENT (`student_stuck_on_unit`). Resolved at read
+    # time from `details->>'student_id'`, never stored in `details`: a name copied
+    # into an operational JSONB row is a PII duplicate that goes stale and
+    # outlives the account it describes, which is a FERPA retention problem
+    # rather than a tidiness one. None for unit-grained types, and for a student
+    # who has since been removed.
+    student_name: str | None = None
 
 
 class AlertListResponse(BaseModel):
@@ -280,6 +287,11 @@ class AlertSettings(BaseModel):
     feedback_count_threshold: int = Field(3, ge=1)
     inactive_days_threshold: int = Field(14, ge=1)
     score_drop_threshold: float = Field(10.0, ge=0, le=100)
+    # Completed attempts with no pass, ever, before `student_stuck_on_unit` fires.
+    # ge=2 on purpose: one failed attempt is a bad day, not a pattern, and a
+    # threshold of 1 would raise an alert for every student on their way to
+    # passing on the second try.
+    stuck_attempts_threshold: int = Field(3, ge=2, le=20)
     new_feedback_immediate: bool = True
 
 
@@ -289,6 +301,7 @@ class AlertSettingsResponse(BaseModel):
     feedback_count_threshold: int
     inactive_days_threshold: int
     score_drop_threshold: float
+    stuck_attempts_threshold: int
     new_feedback_immediate: bool
     # None when the school has never saved settings and the GET returns defaults (#526).
     updated_at: datetime | None = None
