@@ -57,7 +57,7 @@ These already exist or are synthetic — don't waste time provisioning new mailb
 
 | Email | Purpose |
 |---|---|
-| `wegofwd2020@gmail.com` (your personal Gmail) | Super-admin login (`scripts/seed_super_admin.py` creates this account in the DB). Also the signup email for every SaaS account you'll create on Day -1: Cloudflare, Hetzner, Zoho, Auth0, Stripe, Sentry, Grafana Cloud, GitHub. Also the Gmail send-as host (per Phase 4) so outbound from the "From: StudyBuddy Support <support@usestudybuddy.com>" identity is composed from your normal Gmail UI. |
+| `wegofwd2020@gmail.com` (your personal Gmail) | Super-admin login (`backend/scripts/seed_super_admin.py` creates this account in the DB). Also the signup email for every SaaS account you'll create on Day -1: Cloudflare, Hetzner, Zoho, Auth0, Stripe, Sentry, Grafana Cloud, GitHub. Also the Gmail send-as host (per Phase 4) so outbound from the "From: StudyBuddy Support <support@usestudybuddy.com>" identity is composed from your normal Gmail UI. |
 | `siva@mambakkam.net` | Receives Grafana Cloud alerts (`[PAGE]` / `[WARN]` subject-prefix routing). Already needs to exist for the mambakkam.net first-tenant launch; the StudyBuddy alerts (5 of 14) route to the same address. No new studybuddy mailbox needed for alerts. |
 
 ### Synthetic database accounts (NOT real mailboxes)

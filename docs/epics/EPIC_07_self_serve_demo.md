@@ -205,7 +205,7 @@ The self-serve demo went live 2026-05-18 and was walkthrough-validated end-to-en
 
 ### Curated demo state (now defaulted by `preimport_demo_units.py`)
 
-After the seed step, the operator MUST run `scripts/preimport_demo_units.py` (idempotent, ~1 second). It:
+After the seed step, the operator MUST run `backend/scripts/preimport_demo_units.py` (idempotent, ~1 second). It:
 
 - Auto-adopts `default-2026-g11-science` into the demo school's library (idempotent on the unique `(school_id, curriculum_id)` constraint).
 - Lazy-creates the school's fork curriculum + `grade_curriculum_assignments` row.

@@ -134,7 +134,7 @@ is non-critical and identical across all content types of the same subject.
 
 ### 6.1 Component — `ContentVerifiedBadge`
 
-New file: `web/components/content/ContentVerifiedBadge.tsx`. Mirrors the visual language of the
+New file: `web/components/content/ContentVerifiedBadge.tsx`. Mirrors the visual language of the <!-- doc-audit:ignore -->
 existing `ProviderBadge` (`admin/content-review/page.tsx`) and `StatusBadge`
 (`web/components/authoring/StatusBadge.tsx`).
 

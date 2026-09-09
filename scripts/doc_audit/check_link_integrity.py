@@ -48,6 +48,16 @@ SKIP_DIRS = {
     ".cache",
     "sample_content",  # massive, unrelated to doc-integrity
     "worktrees",  # .claude/worktrees/<agent>/ — agent scratch copies of the repo
+    # Per-task agent work records under .superpowers/sdd/<date>-<task>/. These
+    # are FROZEN by nature: a brief written in August describes the repo as it
+    # was in August, and 25 of this checker's findings were that directory
+    # citing `backend/tests/quiz_suite/` — a path that deliberately MOVED to
+    # `backend/quiz_suite/` so that `backend/tests/conftest.py`'s autouse
+    # downgrade-to-base fixture could never apply to it (pitfall #37). Those
+    # documents are accurate history, not drift, and rewriting them would
+    # falsify the record. Marking 25 lines individually would say the same
+    # thing 25 times.
+    ".superpowers",
 }
 
 # Markdown link regex: [label](target) where target starts with / or ./ or
@@ -311,6 +321,24 @@ def check_doc(doc_path: Path) -> list[dict]:
         # a sentence, the `_` of an italic-emphasised line, and similar
         # noise chars adjacent to but not part of the actual path.
         target = m.group(1).rstrip(".,;:)_")
+        # In PROSE (not backticks), require something that actually looks like
+        # a file: a dot-extension on the last segment, or an explicit trailing
+        # slash for a directory.
+        #
+        # Without this, any English phrase containing a slash after a top-level
+        # directory name is a "path": `mobile/tablet`, `web/nginx`,
+        # `backend/migrations`, `pipeline/Anthropic/TTS` were all reported as
+        # missing files. They are sentences.
+        #
+        # This deliberately stops flagging a bare directory mention written
+        # without a trailing slash. That is the cost, and it is the right side
+        # to err on: a false positive here trains people to ignore the whole
+        # checker, which is how a real finding gets missed. Inline-backtick
+        # mentions keep the stricter treatment — a backtick is a claim that the
+        # thing is a path.
+        last = target.rsplit("/", 1)[-1]
+        if "." not in last and not m.group(1).endswith("/"):
+            continue
         resolved = (REPO / target).resolve()
         try:
             resolved.relative_to(REPO)

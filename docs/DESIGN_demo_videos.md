@@ -335,7 +335,7 @@ location /videos/ {
 This is one block. Mirrors the `/_astro/*` long-cache pattern in
 `infra/nginx/mambakkam.net.conf`.
 
-## 10 · Deploy mechanics — `scripts/demo/sync-videos.sh`
+## 10 · Deploy mechanics — `scripts/demo/sync-videos.sh` <!-- doc-audit:ignore -->
 
 ```bash
 #!/usr/bin/env bash
@@ -414,7 +414,7 @@ If you want **zero** signal on these endpoints (paranoia mode): set
 | `<SampleVisualsStrip>` (auto-loop) component | 30 min |
 | Wire both into the demo home page in the chosen order | 30 min |
 | nginx vhost update (`/videos/` location block) | 10 min |
-| `scripts/demo/sync-videos.sh` | 15 min |
+| `scripts/demo/sync-videos.sh` | 15 min | <!-- doc-audit:ignore -->
 | First sync of MP4s to VPS | 5 min |
 | (Optional) WebVTT captions for the 2 story videos | 1–2 hr each, depends on length |
 
@@ -430,7 +430,7 @@ if you author them; can be deferred.
 | `/data/` directory pattern on the VPS (already used for content) | `/data/videos/` directory + initial rsync |
 | Auth-free public landing page | Two new home-page sections + manifest JSON |
 | | Two thumbnail JPGs (one-time ffmpeg extract) |
-| | `scripts/demo/sync-videos.sh` (one-shot, not in CI) |
+| | `scripts/demo/sync-videos.sh` (one-shot, not in CI) | <!-- doc-audit:ignore -->
 | | (Optional) WebVTT captions per story video |
 
 ## 15 · Out of scope
