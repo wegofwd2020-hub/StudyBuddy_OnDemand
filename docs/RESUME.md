@@ -25,8 +25,8 @@ keeps the Authoring Studio only as super-admin platform content-ops. Recorded in
 `docs/ADR_004_authoring_studio_home_repo.md` (PR #397, Accepted). OnDemand ADR-002
 (PR #394) + ADR-003 (PR #396) **closed without merge** — superseded, recast in Q.
 Reuse into Q is **port + vendor, one-way, never cross-import** (Q's ADR-002 rule).
-Q-side handoff lives on **Q `main`** (`StudyBuddy_SelfLearner`): `docs/adr/ADR-003-book-authoring.md`,
-`docs/PORT_BRIEF.md`, `docs/CONTENT_MIGRATION_CONTEXT_ENGINEERING.md`. **Note the
+Q-side handoff lives on **Q `main`** (`StudyBuddy_SelfLearner`): `docs/adr/ADR-003-book-authoring.md`, <!-- doc-audit:ignore -->
+`docs/PORT_BRIEF.md`, `docs/CONTENT_MIGRATION_CONTEXT_ENGINEERING.md`. **Note the <!-- doc-audit:ignore -->
 port is further along than `PORT_BRIEF.md` says** — Q already shipped `/structure`,
 `bookStore` (AsyncStorage), and a generate-all loop (Q PRs #11/#13). Phases 2–4 (Q
 reader growing to 5 content types) belong in a fresh **Q-rooted** session.
@@ -53,7 +53,7 @@ Scope = **"Everything"** (lesson + tutorial + 3 quiz sets; no experiments —
 then `docker cp <api>:/app/book.json /tmp/context-engineering-book.json`.
 **Optional:** re-publish in OnDemand to refresh its stale content store (passes the new
 completeness gate; not needed for the Q export, which reads accepted DB versions).
-Plan/contract: Q `docs/CONTENT_MIGRATION_CONTEXT_ENGINEERING.md`.
+Plan/contract: Q `docs/CONTENT_MIGRATION_CONTEXT_ENGINEERING.md`. <!-- doc-audit:ignore -->
 
 ---
 

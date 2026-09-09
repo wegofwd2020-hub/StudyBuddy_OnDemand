@@ -255,7 +255,7 @@ issues.
 ## The JSON deployment log
 
 Alongside the text log, every run writes a structured JSON file with one
-entry per step. Same shape as mambakkam-net's `scripts/launch/_log.sh`
+entry per step. Same shape as mambakkam-net's `scripts/launch/_log.sh` <!-- doc-audit:ignore -->
 output — so any downstream tooling (Promtail/Loki, dashboards, grep+jq)
 treats both deployments uniformly.
 

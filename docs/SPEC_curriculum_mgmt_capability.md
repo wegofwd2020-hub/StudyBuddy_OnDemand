@@ -211,7 +211,7 @@ async def test_plain_teacher_without_capability_cannot_view_queue(client, db_con
     assert r.status_code == 403
 ```
 
-### `has_capability` unit test — `backend/tests/test_permissions.py` (extend)
+### `has_capability` unit test — `backend/tests/test_permissions.py` (extend) <!-- doc-audit:ignore -->
 
 ```python
 from src.core.permissions import has_capability
@@ -234,7 +234,7 @@ def test_missing_capabilities_key_defaults_false():
     assert has_capability({"role": "teacher"}, "curriculum.review") is False
 ```
 
-### Web — `web/lib/hooks/useTeacher.test.ts` (new, vitest)
+### Web — `web/lib/hooks/useTeacher.test.ts` (new, vitest) <!-- doc-audit:ignore -->
 
 ```ts
 import { describe, it, expect } from "vitest";
@@ -253,7 +253,7 @@ it("defaults capabilities to [] when absent (no coercion drop)", () => {
 });
 ```
 
-### Cross-persona — `web/tests/e2e/curriculum-mgmt-nav.spec.ts` (new, Playwright, run from host — pitfall #26)
+### Cross-persona — `web/tests/e2e/curriculum-mgmt-nav.spec.ts` (new, Playwright, run from host — pitfall #26) <!-- doc-audit:ignore -->
 
 > **Note (#415 / #417):** the top-bar button was renamed **"Curriculum Management" →
 > "Administration"** (Curriculum is now a *section* inside it). Assertions below
