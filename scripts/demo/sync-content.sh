@@ -218,14 +218,27 @@ if [[ "$DO_INVALIDATE" -eq 1 && "$DRY_RUN" -eq 0 ]]; then
   DELETED=$(ssh "$TARGET" 'bash -s' <<'REMOTE' 2>/dev/null
 set -uo pipefail
 cd /opt/studybuddy 2>/dev/null || { echo "ERR_NO_DIR"; exit 1; }
-PW=$(grep -m1 "^REDIS_PASSWORD=" .env.demo 2>/dev/null | cut -d= -f2- | tr -d "\"'"'"'")
+PW=$(grep -m1 "^REDIS_PASSWORD=" .env.demo 2>/dev/null | cut -d= -f2- | tr -d "\"'")
 [ -n "$PW" ] || { echo "ERR_NO_PW"; exit 1; }
 DC=(sudo /usr/bin/docker compose -f docker-compose.yml -f docker-compose.demo.yml --env-file .env.demo)
+# EVERY `docker compose exec` below MUST redirect stdin. This whole block is
+# delivered to `bash -s` ON STDIN, and `exec -T` reads stdin -- so an
+# unredirected one consumes the REST OF THIS SCRIPT as its own input. Execution
+# then stops here silently and bash still exits 0, which is how this step came
+# to report failure and clear nothing on every run since it shipped.
+KEYS_FILE=$(mktemp)
+trap 'rm -f "$KEYS_FILE"' EXIT
 # --scan is cursor-based, so this does not block Redis the way KEYS would.
-KEYS=$("${DC[@]}" exec -T redis redis-cli -a "$PW" --no-auth-warning --scan --pattern "content:*" 2>/dev/null | tr -d "\r")
-if [ -z "$KEYS" ]; then echo "0"; exit 0; fi
-echo "$KEYS" | xargs -r -n 200 "${DC[@]}" exec -T redis redis-cli -a "$PW" --no-auth-warning DEL >/dev/null 2>&1
-echo "$KEYS" | wc -l
+"${DC[@]}" exec -T redis redis-cli -a "$PW" --no-auth-warning --scan --pattern "content:*" </dev/null 2>/dev/null \
+  | tr -d "\r" > "$KEYS_FILE"
+COUNT=$(grep -c . "$KEYS_FILE" || true)
+if [ "$COUNT" -eq 0 ]; then echo "0"; exit 0; fi
+# `xargs -a FILE` takes the key list from the file, which leaves xargs' OWN
+# stdin free to be redirected. Piping the keys in instead would mean `</dev/null`
+# here silently replaced the key list with nothing -- deleting zero keys while
+# reporting success.
+xargs -r -n 200 -a "$KEYS_FILE" "${DC[@]}" exec -T redis redis-cli -a "$PW" --no-auth-warning DEL </dev/null >/dev/null 2>&1
+echo "$COUNT"
 REMOTE
   ) || true
 
