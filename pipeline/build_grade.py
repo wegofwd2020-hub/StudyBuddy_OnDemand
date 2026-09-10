@@ -34,6 +34,14 @@ if _REPO_ROOT not in sys.path:
 
 log = logging.getLogger("pipeline.build_grade")
 
+# The DB writes live in `pipeline/db_writes.py` rather than here, because
+# `build_unit.py` needs the same ones and this module imports THAT one -- so
+# they cannot live in either entry point without a cycle (#751).
+from pipeline.db_writes import (  # noqa: E402
+    create_subject_version,
+    upsert_curriculum_units,
+)
+
 
 def _now_iso() -> str:
     return datetime.now(tz=timezone.utc).isoformat()
@@ -51,103 +59,6 @@ async def _upsert_curriculum(conn: object, curriculum_id: str, grade: int, year:
         grade,
         year,
         f"Default Grade {grade} STEM Curriculum ({year})",
-    )
-
-
-async def _upsert_curriculum_units(
-    conn: object,
-    curriculum_id: str,
-    subject_id: str,
-    units: list[dict],
-) -> None:
-    """Upsert curriculum_units rows for a subject.
-
-    NOTE: `unit_name` is `NOT NULL` per the Phase-8 schema (migration 0016ish).
-    We mirror `title` into it — the same value — because the source grade data
-    files have one field per unit (`title`) while the table evolved to carry
-    both a long-form title and a short unique name. If we omit `unit_name` the
-    INSERT silently fails and no curriculum_units rows are created, leaving
-    the admin review queue with empty unit lists even though content files
-    are on disk. Pitfall #20 in CLAUDE.md.
-    """
-    for sort_order, unit in enumerate(units):
-        title = unit.get("title", unit["unit_id"])
-        await conn.execute(
-            """
-            INSERT INTO curriculum_units
-                (unit_id, curriculum_id, subject, title, unit_name,
-                 description, has_lab, sort_order)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-            ON CONFLICT (unit_id, curriculum_id) DO NOTHING
-            """,
-            unit["unit_id"],
-            curriculum_id,
-            subject_id,
-            title,
-            title,  # unit_name — same as title for platform-seeded curricula
-            unit.get("description", ""),
-            unit.get("has_lab", False),
-            sort_order,
-        )
-
-
-async def _upsert_content_subject_version(
-    conn: object,
-    curriculum_id: str,
-    subject: str,
-    subject_name: str,
-    alex_warnings: int,
-    auto_approve: bool,
-    pipeline_run_id: str,
-    provider: str = "anthropic",
-) -> None:
-    """Create or update content_subject_versions record."""
-    status = "pending"
-
-    if auto_approve:
-        status = "published"
-        # asyncpg expects a datetime instance for TIMESTAMPTZ columns.
-        # `_now_iso()` returns a string (used elsewhere for JSON serialisation)
-        # and silently fails the INSERT when passed here. Pitfall #29.
-        published_at = datetime.now(tz=timezone.utc)
-    else:
-        published_at = None
-
-    # Determine next version number
-    row = await conn.fetchrow(
-        """
-        SELECT COALESCE(MAX(version_number), 0) as max_ver
-        FROM content_subject_versions
-        WHERE curriculum_id = $1 AND subject = $2
-        """,
-        curriculum_id,
-        subject,
-    )
-    next_version = (row["max_ver"] or 0) + 1
-
-    await conn.execute(
-        """
-        INSERT INTO content_subject_versions
-            (curriculum_id, subject, subject_name, version_number, status, alex_warnings_count,
-             provider, generated_at, published_at, pipeline_run_id)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8, $9)
-        ON CONFLICT (curriculum_id, subject, version_number) DO UPDATE
-            SET status = EXCLUDED.status,
-                subject_name = EXCLUDED.subject_name,
-                alex_warnings_count = EXCLUDED.alex_warnings_count,
-                provider = EXCLUDED.provider,
-                published_at = EXCLUDED.published_at,
-                pipeline_run_id = EXCLUDED.pipeline_run_id
-        """,
-        curriculum_id,
-        subject,
-        subject_name,
-        next_version,
-        status,
-        alex_warnings,
-        provider,
-        published_at,
-        pipeline_run_id,
     )
 
 
@@ -249,7 +160,7 @@ def run_grade(
         if db_conn and not dry_run:
             try:
                 asyncio.get_event_loop().run_until_complete(
-                    _upsert_curriculum_units(db_conn, curriculum_id, subject_id, units)
+                    upsert_curriculum_units(db_conn, curriculum_id, subject_id, units)
                 )
             except Exception as exc:
                 log.warning("db_upsert_units_skip: %s", exc)
@@ -351,7 +262,7 @@ def run_grade(
             if db_conn and not dry_run:
                 try:
                     asyncio.get_event_loop().run_until_complete(
-                        _upsert_content_subject_version(
+                        create_subject_version(
                             db_conn,
                             curriculum_id,
                             subject_id,
