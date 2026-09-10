@@ -54,10 +54,12 @@ Use this for all equations, inequalities, fractions, subscripts,
 superscripts, Greek letters, and any expression that benefits from typeset
 rendering. Do NOT write raw "E = mc^2" as plain text — it will not render.
 
-DOLLAR SIGN AS CURRENCY — escape or spell out to avoid math-mode collisions:
-  - Write \\$150.00 (backslash-escaped) inside prose, OR
-  - Spell out the currency code: "USD 150.00", "INR 1,200", "EUR 42.50".
-Never use an unescaped $ outside a math expression.
+CURRENCY — always spell out the currency code; never write a bare $:
+  - "USD 150.00", "INR 1,200", "EUR 42.50" — in prose, tables and quiz stems.
+A bare $ collides with the math delimiters above. Do NOT reach for a
+backslash to escape it either: you return this content as JSON, and a
+backslash before $ is not a legal JSON escape, so the whole response
+becomes unparseable. Spelling the code out has neither problem.
 
 SCIENTIFIC NOTATION:
   - In inline prose, Unicode superscripts are fine: "1.6 × 10⁻¹⁹ C".
