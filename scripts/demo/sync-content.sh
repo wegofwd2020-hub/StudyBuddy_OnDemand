@@ -10,7 +10,10 @@
 #      content_store_data/curricula/default-2026-g11-science/G11-*/ pick up
 #      the SVGs from sample_content/g11-science/ + the MP4 references in
 #      UNIT_VIDEOS. Idempotent. Skip with --skip-inject.
-#   3. Rsync content_store_data/ → /data/content/ on the VPS
+#   3. Rsync content_store_data/ → /data/content/ on the VPS. ADD/UPDATE only:
+#      deletion is opt-in via --prune, because the VPS legitimately holds
+#      content this repo never had (school-uploaded visuals above all), and
+#      visuals/ is protected from deletion even then.
 #      (TEXT — lesson/quiz/tutorial JSON + GRAPHICS — visuals/_legacy SVGs +
 #       audio MP3).
 #   4. Rsync web/public/sample-visuals/ → /data/sample-visuals/ on the VPS
@@ -30,6 +33,7 @@
 #   bash scripts/demo/sync-content.sh --dry-run deploy@staging.usestudybuddy.com
 #   bash scripts/demo/sync-content.sh --skip-inject deploy@demo.usestudybuddy.com
 #   bash scripts/demo/sync-content.sh --skip-invalidate deploy@demo.usestudybuddy.com
+#   bash scripts/demo/sync-content.sh --prune deploy@demo.usestudybuddy.com
 #   bash scripts/demo/sync-content.sh --smoke https://demo.usestudybuddy.com deploy@demo.usestudybuddy.com
 #
 # Exit codes:
@@ -48,6 +52,7 @@ set -uo pipefail
 DO_INJECT=1
 DO_INVALIDATE=1
 DRY_RUN=0
+PRUNE=0
 SMOKE_URL=""
 TARGET=""
 
@@ -60,6 +65,7 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --skip-inject) DO_INJECT=0; shift ;;
     --skip-invalidate) DO_INVALIDATE=0; shift ;;
+    --prune)       PRUNE=1; shift ;;
     --dry-run)     DRY_RUN=1; shift ;;
     --smoke)       SMOKE_URL="$2"; shift 2 ;;
     -h|--help)
@@ -75,6 +81,10 @@ Flags:
   --skip-invalidate Don't clear the VPS Redis content cache after syncing.
                     Only safe if you know nothing changed — otherwise the box
                     serves the old JSON until the keys expire (up to 1 hour).
+  --prune           Also DELETE remote files that no longer exist locally.
+                    Off by default: the VPS legitimately holds content this
+                    repo never had -- school-uploaded visuals above all. Even
+                    with --prune, visuals/ is protected and never removed.
   --dry-run         Pass --dry-run to both rsyncs (no remote writes)
   --smoke <url>     After both rsyncs succeed, run smoke.sh <url>
   -h, --help        Print this message
@@ -101,7 +111,7 @@ USAGE
 done
 
 if [[ -z "$TARGET" ]]; then
-  echo "Usage: $0 [--skip-inject] [--skip-invalidate] [--dry-run] [--smoke <url>] user@host" >&2
+  echo "Usage: $0 [--skip-inject] [--skip-invalidate] [--prune] [--dry-run] [--smoke <url>] user@host" >&2
   exit 1
 fi
 
@@ -146,19 +156,43 @@ fi
 
 # ── Step 3: rsync content_store_data → /data/content ────────────────────────
 step "3/6  Rsync content_store_data/ → /data/content/ on $TARGET"
-RSYNC_FLAGS=(-avz --delete --human-readable --info=stats2)
+RSYNC_FLAGS=(-avz --human-readable --info=stats2)
 if [[ "$DRY_RUN" -eq 1 ]]; then
   RSYNC_FLAGS+=(--dry-run)
   warn "DRY-RUN — no bytes will be written remotely"
 fi
-if ! rsync "${RSYNC_FLAGS[@]}" "$CONTENT_LOCAL/" "$TARGET:/data/content/"; then
+
+# `--delete` is OPT-IN, and it used to be the default. Measured against the live
+# demo, the default would have removed:
+#
+#   visuals/<school_id>/.../screenshot-2026-06-14-201008.png   (2 schools' uploads)
+#   curricula/default-2026-g10/G10-MATH-001/lesson_fr.json
+#   141 files under curricula/default-2026-g8.old
+#
+# The visuals are uploaded THROUGH THE PRODUCT on the box — `content_store_data/
+# visuals/` here holds only `_legacy`, so there is no local copy and the delete
+# is one-way loss of user data on a live demo. A content sync should add and
+# update; removing is a separate, deliberate act.
+CONTENT_FLAGS=("${RSYNC_FLAGS[@]}")
+if [[ "$PRUNE" -eq 1 ]]; then
+  CONTENT_FLAGS+=(--delete)
+  warn "--prune: remote files absent locally WILL be deleted (visuals/ still protected)"
+fi
+# Protect unconditionally, not just under --prune, so a future edit that adds
+# --delete back cannot quietly take the uploads with it. `***` covers the
+# directory and everything under it.
+CONTENT_FLAGS+=(--filter='protect visuals/***')
+
+if ! rsync "${CONTENT_FLAGS[@]}" "$CONTENT_LOCAL/" "$TARGET:/data/content/"; then
   die 3 "content_store_data rsync failed — check that /data/content exists on the VPS (provision.sh step 7) and the deploy user owns it"
 fi
 ok "content rsync complete"
 
 # ── Step 4: rsync web/public/sample-visuals → /data/sample-visuals ──────────
 step "4/6  Rsync web/public/sample-visuals/ → /data/sample-visuals/ on $TARGET"
-if ! rsync "${RSYNC_FLAGS[@]}" "$VISUALS_LOCAL/" "$TARGET:/data/sample-visuals/"; then
+VISUALS_FLAGS=("${RSYNC_FLAGS[@]}")
+[[ "$PRUNE" -eq 1 ]] && VISUALS_FLAGS+=(--delete)
+if ! rsync "${VISUALS_FLAGS[@]}" "$VISUALS_LOCAL/" "$TARGET:/data/sample-visuals/"; then
   die 4 "sample-visuals rsync failed — check that /data/sample-visuals exists on the VPS (provision.sh step 7) and the deploy user owns it"
 fi
 ok "sample-visuals rsync complete (44 MP4s + supporting SVGs)"
