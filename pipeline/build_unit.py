@@ -625,6 +625,85 @@ def _update_meta(
 
 # ── CLI entry point ───────────────────────────────────────────────────────────
 
+def _record_build(config: Any, args: Any, unit_data: dict, result: dict) -> bool:
+    """Write `curriculum_units` + `content_subject_versions` rows for this unit.
+
+    Returns True if the rows were written.
+
+    Failures are logged at ERROR and reported in the result rather than raised:
+    the content is already on disk and discarding the run would help nobody.
+    But they are NOT swallowed quietly -- every previous bug in this area
+    (pitfalls #28, #29, #30) hid behind a `log.warning` that nobody read, which
+    is precisely how content reached disk with no DB row for months.
+    """
+    import asyncio
+
+    from pipeline.db_writes import (
+        connect_with_bypass,
+        record_unit_build,
+        resolve_subject,
+        upsert_single_unit,
+    )
+
+    async def _write() -> bool:
+        conn = await connect_with_bypass(config.DATABASE_URL)
+        try:
+            # `--subject` defaults to "" and every historical invocation omitted
+            # it, so fall back to the subject the unit already belongs to.
+            # content_subject_versions is keyed on this; guessing would attach
+            # the content to the wrong subject.
+            subject = args.subject or await resolve_subject(
+                conn, args.curriculum_id, args.unit
+            )
+            if not subject:
+                log.error(
+                    "db_record_no_subject curriculum_id=%s unit_id=%s — unit is not in "
+                    "curriculum_units and --subject was not given, so there is no key "
+                    "to record this content under. Pass --subject.",
+                    args.curriculum_id, args.unit,
+                )
+                return False
+
+            await upsert_single_unit(
+                conn,
+                args.curriculum_id,
+                subject,
+                {
+                    "unit_id": args.unit,
+                    "title": unit_data.get("title") or args.unit,
+                    "description": unit_data.get("description", ""),
+                    "has_lab": unit_data.get("has_lab", False),
+                },
+            )
+            version, how = await record_unit_build(
+                conn,
+                args.curriculum_id,
+                subject,
+                args.subject or subject,
+                int(result.get("alex_warnings") or 0),
+                getattr(config, "REVIEW_AUTO_APPROVE", False),
+                pipeline_run_id=f"build_unit:{args.unit}:{args.lang}",
+                provider=str(result.get("provider") or "anthropic"),
+            )
+            log.info(
+                "db_recorded curriculum_id=%s unit_id=%s subject=%s version=%d (%s)",
+                args.curriculum_id, args.unit, subject, version, how,
+            )
+            return True
+        finally:
+            await conn.close()
+
+    try:
+        return asyncio.get_event_loop().run_until_complete(_write())
+    except Exception as exc:
+        log.error(
+            "db_record_failed curriculum_id=%s unit_id=%s: %s — content IS on disk "
+            "but has no version row, so it cannot be reviewed or published.",
+            args.curriculum_id, args.unit, exc,
+        )
+        return False
+
+
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s %(message)s")
 
@@ -695,6 +774,20 @@ def main() -> None:
         dry_run=args.dry_run,
         provider_id=args.provider,
     )
+
+    # ── Record the build in the DB (#751) ────────────────────────────────────
+    #
+    # This lives in main(), NOT in build_unit(), on purpose: build_grade.py
+    # calls build_unit() directly and does its own per-SUBJECT writes. Writing
+    # here too would double-record every unit of a grade run.
+    #
+    # Until this existed, a per-unit rebuild left no DB trace at all, so the
+    # content could never enter the review -> publish flow: `check_content_published`
+    # (backend/src/content/service.py) serves a subject only if some row exists
+    # for it with status='published', and nothing here ever created one.
+    if result.get("status") not in ("dry_run",) and config.DATABASE_URL and not args.dry_run:
+        result["db_recorded"] = _record_build(config, args, unit_data, result)
+
     print(json.dumps(result, indent=2))
 
 
