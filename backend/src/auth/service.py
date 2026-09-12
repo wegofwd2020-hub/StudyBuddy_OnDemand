@@ -409,7 +409,21 @@ async def login_local_user(
             SELECT teacher_id::text AS user_id, name, role, school_id::text, account_status,
                    password_hash, first_login, password_expires_at, 'teacher' AS user_type
             FROM teachers
+            -- Skip DELETED rows rather than matching them (migration 0072).
+            --
+            -- Deletion is soft (ADR-005): the row is retained with
+            -- account_status='deleted' for FERPA record retention and it keeps
+            -- its email. The one-email-one-role trigger therefore ignores
+            -- deleted rows, so an address CAN legitimately belong to a deleted
+            -- teacher and a live student at once.
+            --
+            -- Matching the dead row here would hand it to the caller, which
+            -- refuses `deleted` outright (auth/router.py) — locking the person
+            -- out entirely while a perfectly good student account sat behind
+            -- it. Worse than the wrong-portal bug this change is about, since
+            -- there is no portal at all.
             WHERE email = $1 AND auth_provider = 'local'
+              AND account_status <> 'deleted'
             """,
             email,
         )
@@ -422,7 +436,11 @@ async def login_local_user(
                        password_hash, first_login, password_expires_at,
                        'student' AS user_type
                 FROM students
+                -- Same exclusion as the teachers lookup above, for the same
+                -- reason. Kept symmetrical so neither side can become the one
+                -- that still resolves a deleted account.
                 WHERE email = $1 AND auth_provider = 'local'
+                  AND account_status <> 'deleted'
                 """,
                 email,
             )

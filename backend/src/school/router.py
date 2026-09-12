@@ -141,8 +141,22 @@ router = APIRouter(tags=["school"])
 # Unique constraints that genuinely mean "this email is taken" — used to keep
 # registration conflicts honest about which field actually clashed (#597).
 _EMAIL_UNIQUE_CONSTRAINTS = frozenset(
-    {"uq_schools_contact_email", "teachers_email_key", "students_email_key"}
+    {
+        "uq_schools_contact_email",
+        "teachers_email_key",
+        "students_email_key",
+        # Not a real constraint — the name the one-email-one-role trigger
+        # (migration 0072) raises under. It reports itself as a unique violation
+        # on purpose, so every caller that already branches on
+        # `constraint_name` treats a cross-role clash as the duplicate-email
+        # conflict it is, rather than needing to learn a second error shape.
+        "one_email_one_role",
+    }
 )
+
+# The trigger's name, kept as a constant because three handlers test for it and
+# a typo would turn a 409 into a 500.
+_ONE_EMAIL_ONE_ROLE = "one_email_one_role"
 
 
 def _cid(request: Request) -> str:
@@ -836,14 +850,35 @@ async def _duplicate_email_detail(
                                                 route, revealing nothing about
                                                 the other school
     """
-    owned_here = await conn.fetchval(
-        f"SELECT EXISTS (SELECT 1 FROM {table} WHERE lower(email) = lower($1) AND school_id = $2)",
-        email,
-        uuid.UUID(school_id),
-    )
-    if owned_here:
-        who = "student" if table == "students" else "teacher"
-        return f"That email address is already used by a {who} at your school."
+    # Look in BOTH tables (migration 0072). The clash is no longer necessarily
+    # in the table being written: since "one email, one role" is enforced across
+    # them, adding a student can be refused because a TEACHER holds the address.
+    # Saying "already used by a student" in that case sends the admin hunting
+    # through the wrong list.
+    #
+    # Deleted rows are skipped, matching the trigger — an address freed by a
+    # soft delete is available again, so it must never be reported as taken.
+    other = "students" if table == "teachers" else "teachers"
+    where = "lower(email) = lower($1) AND account_status <> 'deleted'"
+
+    for tbl in (table, other):
+        owned_here = await conn.fetchval(
+            f"SELECT EXISTS (SELECT 1 FROM {tbl} WHERE {where} AND school_id = $2)",
+            email,
+            uuid.UUID(school_id),
+        )
+        if owned_here:
+            who = "student" if tbl == "students" else "teacher"
+            if tbl == table:
+                return f"That email address is already used by a {who} at your school."
+            # Cross-role, and visible to this admin — so it is actionable, and
+            # naming the role is the whole of the fix.
+            return (
+                f"That email address already belongs to a {who} at your school. "
+                "One address can hold one role only, so use a different address "
+                f"for this person — or remove the {who} account first if it is "
+                "the same person changing role."
+            )
 
     return (
         "That email address is already registered on StudyBuddy, so it cannot be "
@@ -883,7 +918,9 @@ async def provision_teacher_endpoint(
             # Branch on the constraint, never a substring of the error text:
             # teachers.email and students.email are separate constraints (#578),
             # so guessing which one fired produces a message that is simply wrong.
-            if exc.constraint_name != "teachers_email_key":
+            # Either the table's own unique index, or the cross-role trigger
+            # (0072) — both are duplicate-email conflicts and get the same 409.
+            if exc.constraint_name not in ("teachers_email_key", _ONE_EMAIL_ONE_ROLE):
                 raise
             raise HTTPException(
                 status_code=409,
@@ -954,7 +991,7 @@ async def provision_student_endpoint(
                 },
             )
         except asyncpg.UniqueViolationError as exc:
-            if exc.constraint_name != "students_email_key":
+            if exc.constraint_name not in ("students_email_key", _ONE_EMAIL_ONE_ROLE):
                 raise
             raise HTTPException(
                 status_code=409,
