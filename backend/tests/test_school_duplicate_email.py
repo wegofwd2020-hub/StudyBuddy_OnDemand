@@ -130,14 +130,22 @@ async def test_duplicate_teacher_email_gets_the_same_treatment(client, db_conn):
 
 
 @pytest.mark.asyncio
-async def test_a_teacher_address_does_not_block_a_student(client, db_conn):
-    """Documents the real behaviour, which surprised me while writing this.
+async def test_a_teacher_address_now_blocks_a_student(client, db_conn):
+    """Inverted 2026-09-12 — this used to assert the opposite.
 
-    students.email and teachers.email are SEPARATE unique constraints with no
-    cross-table check, so the same address can be both a teacher and a student.
-    That is #578, and it is why the duplicate message must never guess which
-    kind of record it collided with — the constraint name is the only thing
-    that actually knows.
+    It was a CHARACTERISATION test, not a decision: its old docstring said the
+    behaviour "surprised me while writing this". `students.email` and
+    `teachers.email` were separate unique constraints with no cross-table
+    check, so one address could be both a teacher and a student (#578).
+
+    That is not a harmless quirk. `login_local_user` resolves teachers first
+    and falls through to students only when nothing matched, so the student row
+    was UNREACHABLE — no error, just the wrong portal. A tester lost both of
+    his student test accounts to it before anyone noticed.
+
+    Policy decided 2026-09-12: one email, one role, enforced by the trigger in
+    migration 0072. The reason the duplicate message must not guess which kind
+    of record it hit still stands — it just now has a third case to name.
     """
     reg = await _register_school(client, "_mixed")
     email = f"dup-mixed-{uuid.uuid4().hex[:8]}@example.com"
@@ -149,6 +157,9 @@ async def test_a_teacher_address_does_not_block_a_student(client, db_conn):
     )
     assert teacher.status_code in (200, 201), teacher.text
 
-    # Not blocked — the address now belongs to two different people.
+    # Blocked, and the message names the role that actually holds the address —
+    # saying "already used by a student" would send the admin to the wrong list.
     student = await _add_student(client, reg, email)
-    assert student.status_code in (200, 201), student.text
+    assert student.status_code == 409, student.text
+    detail = student.json()["detail"]
+    assert "teacher" in detail.lower(), detail
