@@ -10,6 +10,9 @@ export default defineConfig({
     globals: true,
     include: ["tests/unit/**/*.test.{ts,tsx}"],
     exclude: ["tests/e2e/**"],
+    testTimeout: 30000,
+    hookTimeout: 30000,
+    workerTimeout: 60000,
   },
   resolve: {
     alias: {

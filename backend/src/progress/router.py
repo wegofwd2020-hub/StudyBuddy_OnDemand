@@ -217,6 +217,19 @@ async def record_answer(
     correct_index = entry["index"]
     correct = body.student_answer == correct_index
 
+    # Debug logging for quiz validation issue
+    log.info(
+        "quiz_answer_validation",
+        extra={
+            "session_id": session_id,
+            "question_id": body.question_id,
+            "student_answer": body.student_answer,
+            "correct_index": correct_index,
+            "correct": correct,
+            "correct_option_id": entry.get("option_id"),
+        },
+    )
+
     # Running tally in Redis: the DB write below is fire-and-forget, so the rows
     # may not exist yet when the session ends. This is what end_session reads.
     # Keyed by question_id so re-answering (skip-and-return, #532) can't inflate

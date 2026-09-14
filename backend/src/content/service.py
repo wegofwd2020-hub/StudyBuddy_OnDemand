@@ -593,6 +593,27 @@ def _parse_quiz_answer_key(
             continue
         options = question.get("options", [])
         correct_option = question.get("correct_option")
+
+        # Check for duplicate option texts (potential cause of quiz validation issues)
+        option_texts = [opt.get("text", "").strip() for opt in options]
+        text_counts = {}
+        for text in option_texts:
+            text_counts[text] = text_counts.get(text, 0) + 1
+
+        duplicates = [text for text, count in text_counts.items() if count > 1]
+        if duplicates:
+            log.warning(
+                "quiz_duplicate_option_texts",
+                extra={
+                    "curriculum_id": curriculum_id,
+                    "unit_id": unit_id,
+                    "set_number": set_number,
+                    "question_id": qid,
+                    "duplicates": duplicates,
+                    "option_texts": option_texts,
+                },
+            )
+
         index = next(
             (i for i, o in enumerate(options) if o.get("option_id") == correct_option),
             None,
