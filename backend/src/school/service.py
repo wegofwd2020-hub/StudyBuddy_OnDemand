@@ -28,10 +28,19 @@ from src.utils.logger import get_logger
 log = get_logger("school")
 
 
+# The enrolment-code prefix is derived from the school name, so every school
+# sharing a name competes in the suffix space alone. 4 hex chars was only
+# 65,536 values, which collides by birthday paradox at a few dozen same-named
+# schools — frequently enough to redden CI at random (issue #597). 8 chars is
+# 4.3e9, and _ENROLMENT_CODE_ATTEMPTS covers the remainder.
+_ENROLMENT_CODE_SUFFIX_CHARS = 8
+_ENROLMENT_CODE_ATTEMPTS = 5
+
+
 def _gen_enrolment_code(school_name: str) -> str:
     """Derive a short enrolment code from the school name + random suffix."""
     abbr = re.sub(r"[^A-Za-z0-9]", "", school_name).upper()[:6] or "SCHL"
-    suffix = uuid.uuid4().hex[:4].upper()
+    suffix = uuid.uuid4().hex[:_ENROLMENT_CODE_SUFFIX_CHARS].upper()
     return f"{abbr}-{suffix}"
 
 
@@ -52,19 +61,36 @@ async def register_school(
     caller can immediately call teacher-scoped endpoints.
     """
     school_id = str(uuid.uuid4())
-    enrolment_code = _gen_enrolment_code(name)
 
-    await conn.execute(
-        """
-        INSERT INTO schools (school_id, name, contact_email, country, enrolment_code, status)
-        VALUES ($1, $2, $3, $4, $5, 'active')
-        """,
-        uuid.UUID(school_id),
-        name,
-        contact_email,
-        country,
-        enrolment_code,
-    )
+    # The enrolment code is server-generated and cosmetic, so a collision is
+    # ours to resolve, never the registering school's problem — redraw and
+    # retry rather than surfacing a conflict (issue #597).
+    for attempt in range(1, _ENROLMENT_CODE_ATTEMPTS + 1):
+        enrolment_code = _gen_enrolment_code(name)
+        try:
+            await conn.execute(
+                """
+                INSERT INTO schools (school_id, name, contact_email, country, enrolment_code, status)
+                VALUES ($1, $2, $3, $4, $5, 'active')
+                """,
+                uuid.UUID(school_id),
+                name,
+                contact_email,
+                country,
+                enrolment_code,
+            )
+            break
+        except asyncpg.UniqueViolationError as exc:
+            # Only an enrolment-code clash is retryable; a duplicate contact
+            # email is a real conflict the caller must see.
+            if exc.constraint_name != "schools_enrolment_code_key":
+                raise
+            if attempt == _ENROLMENT_CODE_ATTEMPTS:
+                raise
+            log.warning(
+                "enrolment_code_collision",
+                extra={"attempt": attempt, "enrolment_code": enrolment_code},
+            )
 
     # Seed the storage quota row — every school starts with 5 GB base allocation.
     await conn.execute(

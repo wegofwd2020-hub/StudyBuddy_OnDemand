@@ -139,6 +139,9 @@ export default function RestoreRequestsPage() {
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">
                   Status
                 </th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700">
+                  Preferred time
+                </th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-700">Notes</th>
                 <th className="px-4 py-3" />
               </tr>
@@ -155,6 +158,18 @@ export default function RestoreRequestsPage() {
                   <td className="px-4 py-3 text-gray-900">{scopeLabel(r)}</td>
                   <td className="px-4 py-3">
                     <StatusBadge status={r.status} />
+                  </td>
+                  <td className="px-4 py-3 text-xs text-gray-500 tabular-nums">
+                    {r.scheduled_at ? (
+                      <>
+                        {new Date(r.scheduled_at).toLocaleString()}
+                        {!["completed", "failed", "cancelled"].includes(r.status) && (
+                          <div className="text-gray-400">awaiting admin action</div>
+                        )}
+                      </>
+                    ) : (
+                      "ASAP"
+                    )}
                   </td>
                   <td className="max-w-xs truncate px-4 py-3 text-xs text-gray-500">
                     {r.notes ?? "—"}

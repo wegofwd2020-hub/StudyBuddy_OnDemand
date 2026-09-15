@@ -34,6 +34,12 @@ const PERIODS: { label: string; value: Period }[] = [
   { label: "All time", value: "all" },
 ];
 
+// Note: this vocabulary ("7d"/"30d"/"all") is intentionally not the same set
+// as the school-admin dashboard's period selector ("7d"/"30d"/"term") — the
+// admin overview endpoint has no "all time" concept and this per-student
+// endpoint has no school "term" concept. The "7d"/"30d" values that ARE
+// shared mean the same window on both screens.
+
 export default function StatsPage() {
   const t = useTranslations("stats_screen");
   const [period, setPeriod] = useState<Period>("30d");
@@ -44,7 +50,14 @@ export default function StatsPage() {
       <OfflineBanner />
       <div className="max-w-4xl space-y-6 p-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
+            {/* Explicit window label so the active period is legible without
+                relying on the reader to notice which pill is highlighted. */}
+            <p className="mt-0.5 text-xs text-gray-400">
+              Showing {PERIODS.find((p) => p.value === period)?.label.toLowerCase()}
+            </p>
+          </div>
           {/* Period selector */}
           <div className="flex gap-1 rounded-lg border bg-white p-1">
             {PERIODS.map((p) => (

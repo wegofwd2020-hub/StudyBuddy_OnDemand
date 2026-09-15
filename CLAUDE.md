@@ -585,6 +585,8 @@ Current migrations (as of last commit):
   fails (caught and logged as `db_upsert_units_skip`) but content generation continues.
 - **After rebuilding the `celery-pipeline` image, always restart the container:**
   `docker compose build celery-pipeline && docker compose up -d celery-pipeline`
+- **`celery-pipeline` builds its own image — `docker compose build api` does not rebuild it.**
+  Same for `celery-worker` and `celery-beat-primary`. See pitfall #38.
 
 ---
 
@@ -797,6 +799,20 @@ docker compose build celery-pipeline && docker compose up -d celery-pipeline
 # Rebuild web frontend (e.g. after npm install of a new package)
 docker compose build web && docker compose up -d web
 
+# After a requirements.txt change, rebuild ALL FOUR backend services.
+# api, celery-worker, celery-pipeline and celery-beat-primary each build their OWN
+# image from ./backend — `build api` leaves the three workers on a stale image (pitfall #38).
+docker compose build api celery-worker celery-pipeline celery-beat-primary \
+  && docker compose up -d api celery-worker celery-pipeline celery-beat-primary
+
+# Verify a new dependency actually landed in every service that imports it:
+for s in api celery-worker celery-pipeline celery-beat-primary; do \
+  printf "%-22s " "$s"; docker compose exec -T $s python -c "import croniter; print('OK')"; done
+
+# Source-only change needs NO rebuild — all four bind-mount ./backend:/app.
+# api hot-reloads via uvicorn --reload; the celery services do not, so restart them:
+docker compose restart celery-worker celery-pipeline celery-beat-primary
+
 # Apply pending migrations manually.
 # -e TEST_DB_URL= is required: without it env.py targets studybuddy_test, not dev.
 docker compose exec -e TEST_DB_URL= api alembic upgrade head
@@ -957,6 +973,7 @@ See [AGENTS.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/AGE
 35. **Never trust the client for quiz grading** — `POST /progress/answer` and `/end` once accepted `correct: bool` and `score: int` and stored them verbatim, while the quiz payload shipped `correct_option` for every question: a student could read the answers from the network tab and post themselves a perfect score. Grading is now server-side (`get_quiz_answer_key` → the content store), the answer key is stripped from the served quiz (`_strip_answer_key`), and the score is a Redis tally of server-graded answers. Two consequences to preserve: (a) `question_id` is `q1…qN` in **every** quiz set with **different** answers per set, so the graded set must be pinned per session (`quizset:{session_id}`, `progress_sessions.quiz_set`) — resolving it from the per-unit rotation pointer at answer time grades later answers against the wrong key; (b) answer writes are fire-and-forget, so `end_session` **cannot** count `progress_answers` (rows may not exist yet) — that race is why the score is tallied in Redis.
 36. **Placeholder content must never reach a student** — `scripts/seed_dev_content.py` and `scripts/setup_dev.py` backfill missing units with stub lessons/quizzes ("Sample question 1 about X?", options "Option A"…"Option D", correct answer always "A") tagged `model: "dev-placeholder"`. They only write where a file is *absent*, so any unit the pipeline hasn't generated keeps its stub indefinitely and used to be served as if real — students were graded on fiction. `get_content_file` now refuses `dev-placeholder` content on both the store and cache paths, so an ungenerated unit 404s honestly. Do not "fix" a 404 by re-running the seeder.
 37. **`-e TEST_DB_URL=` is REQUIRED for alembic and FORBIDDEN for pytest — the two rules are opposite, and conflating them destroyed the dev database on 2026-08-01.** Pitfall #34 already covers the alembic side: without `-e TEST_DB_URL=`, `alembic upgrade head` silently migrates `studybuddy_test` instead of dev. But `backend/tests/conftest.py` defines a session-scoped autouse `run_migrations` fixture that ends in `command.downgrade(cfg, "base")` — dropping every table — and that fixture is normally safe only because it targets `studybuddy_test`. Passing `-e TEST_DB_URL=` to a **pytest** invocation blanks the variable, `backend/alembic/env.py` falls back to `DATABASE_URL`, and the downgrade-to-base runs against the **dev** database instead — which is exactly what happened, wiping 30 `@riverside.demo` students, 1 school, and 15 curricula. This is why `backend/quiz_suite/` lives as a **sibling** of `backend/tests/`, not a subdirectory of it: living outside `backend/tests/` means that conftest's autouse fixture can never apply to it, no matter how it's invoked. Never pass `-e TEST_DB_URL=` to any `pytest` command, full stop — including `scripts/quiz_suite.sh`'s internal `docker compose exec` calls, which deliberately omit it.
+38. **`docker compose build api` does NOT rebuild the Celery workers — they build their own images.** `api`, `celery-worker`, `celery-pipeline` and `celery-beat-primary` each declare a separate `build:` block over the same `./backend` context, so Compose produces four independent images (`studybuddy_ondemand-api`, `…-celery-worker`, …). Rebuilding only `api` leaves the three workers running whatever image they were last built from — on 2026-08-17 the `celery-worker` image was **3 months old**, missing `croniter` (added to `requirements.txt` for the #527 per-school backup schedule), so any task importing it died with `ModuleNotFoundError: No module named 'croniter'` while `api` imported it fine. The failure is easy to misread because all four **bind-mount `./backend:/app`**: *source* edits are shared instantly (so code changes look like they propagate), but the site-packages layer comes from each service's own image, so *dependency* changes do not. Rule: source change → no rebuild (restart the workers; only `api` hot-reloads). `requirements.txt` change → rebuild all four, then verify with `docker compose exec -T <svc> python -c "import <pkg>"` per service rather than trusting the build log. Pitfall #19 is the adjacent trap (rebuilt but not restarted); this one is "restarted, but never rebuilt".
 
 ---
 

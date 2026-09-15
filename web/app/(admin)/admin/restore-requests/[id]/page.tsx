@@ -209,7 +209,21 @@ export default function RestoreRequestDetailPage() {
               }
             />
             <Field label="Notes" value={request.notes || "—"} />
-            <Field label="Scheduled at" value={fmtDate(request.scheduled_at ?? null)} />
+            <Field
+              label="Preferred time"
+              value={
+                request.scheduled_at ? (
+                  <>
+                    {fmtDate(request.scheduled_at)}{" "}
+                    <span className="text-xs font-normal text-gray-400">
+                      (school-requested — not automatic; action it below)
+                    </span>
+                  </>
+                ) : (
+                  "— (ASAP)"
+                )
+              }
+            />
             <Field label="Submitted" value={fmtDate(request.created_at)} />
           </div>
 

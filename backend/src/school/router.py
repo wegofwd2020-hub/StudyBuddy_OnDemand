@@ -18,6 +18,7 @@ import asyncio
 import json
 from typing import Annotated
 
+import asyncpg
 from fastapi import APIRouter, Depends, HTTPException, Request
 
 from src.auth.dependencies import get_current_student, get_current_teacher
@@ -128,6 +129,12 @@ from src.utils.logger import get_logger
 log = get_logger("school")
 router = APIRouter(tags=["school"])
 
+# Unique constraints that genuinely mean "this email is taken" — used to keep
+# registration conflicts honest about which field actually clashed (#597).
+_EMAIL_UNIQUE_CONSTRAINTS = frozenset(
+    {"uq_schools_contact_email", "teachers_email_key", "students_email_key"}
+)
+
 
 def _cid(request: Request) -> str:
     return getattr(request.state, "correlation_id", "")
@@ -156,17 +163,28 @@ async def register_school_endpoint(
             result = await register_school(
                 conn, body.school_name, body.contact_email, body.country, body.password
             )
-        except Exception as exc:
-            if "unique" in str(exc).lower():
-                raise HTTPException(
-                    status_code=409,
-                    detail={
-                        "error": "conflict",
-                        "detail": "A school or account with that email already exists.",
-                        "correlation_id": _cid(request),
-                    },
+        except asyncpg.UniqueViolationError as exc:
+            # Branch on the constraint, never on a substring of the error text:
+            # every unique violation used to be reported as a duplicate email,
+            # so an enrolment-code clash told a school its address was taken
+            # and sent it retrying with addresses that were never the problem
+            # (issue #597).
+            if exc.constraint_name == "schools_enrolment_code_key":
+                message = (
+                    "Could not allocate a unique enrolment code. Please try registering again."
                 )
-            raise
+            elif exc.constraint_name in _EMAIL_UNIQUE_CONSTRAINTS:
+                message = "A school or account with that email already exists."
+            else:
+                message = "That registration conflicts with an existing record."
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "error": "conflict",
+                    "detail": message,
+                    "correlation_id": _cid(request),
+                },
+            )
     return SchoolRegisterResponse(**result)
 
 
