@@ -204,6 +204,7 @@ All documentation has moved to **[studybuddy-docs](https://github.com/wegofwd202
 | [`docs/ADR_004_authoring_studio_home_repo.md`](docs/ADR_004_authoring_studio_home_repo.md) | Where the standalone authoring+reader lives (→ became Mentible, see below) |
 | [`docs/ADR_005_school_roles_and_uniqueness.md`](docs/ADR_005_school_roles_and_uniqueness.md) | School roles (`school_admin` = teacher superset), email-only uniqueness, soft-delete + archive |
 | [`docs/ADR_006_multi_provider_llm.md`](docs/ADR_006_multi_provider_llm.md) | Multi-provider LLM pipeline (Epic 1, migration 0043) — provider abstraction, `provider` column, `school_llm_config` + DPA, batch-not-agent |
+| [`docs/ADR_007_academic_calendar.md`](docs/ADR_007_academic_calendar.md) | Academic calendar, terms and breaks · grade enrolments with outcomes · per-school grading scales (pass marks are NOT 60% everywhere) · promotion gating, the year-start freeze and its correction path |
 | [`docs/SCHOOL_USER_MANAGEMENT.md`](docs/SCHOOL_USER_MANAGEMENT.md) | The Type-1 (self-managed) school user lifecycle + the top-bar **Administration** menu IA (§8.1) |
 | [`docs/DESIGN_curriculum_mgmt_capability.md`](docs/DESIGN_curriculum_mgmt_capability.md) · [`docs/SPEC_curriculum_mgmt_capability.md`](docs/SPEC_curriculum_mgmt_capability.md) | The `curriculum_mgmt` capability (#358) — additive grants; menu now lives under Administration (#415) |
 
@@ -509,6 +510,9 @@ Current migrations (as of last commit):
 | 0059 | Epic/#358 — `teacher_capabilities` table (RLS): additive `curriculum.commission` / `curriculum.review` / `curriculum_mgmt` grants |
 | 0060 | Authoring Studio (PR-A) — `authoring_projects`, `authoring_topic_versions`, `authoring_active_versions`, `authoring_snapshots` (platform/admin-scoped, no tenant RLS); extends `curricula.source_type` CHECK with `admin_authored`. Downgrade deletes `source_type='admin_authored'` curricula before reverting the CHECK |
 | 0061 | Server-side quiz grading — `progress_sessions.quiz_set` (SMALLINT, nullable, CHECK 1–3). Records which quiz set a session is graded against; `question_id` is `q1…qN` in every set with different answers, so the set must be pinned per session. See pitfall #35 |
+| 0062 | Student lesson feedback (#600/#612) — `feedback.message` nullable, `helpful` + `content_type` columns, `feedback_has_content` CHECK. Thumbs-down offers a comment box; a rating with no words is still a valid submission |
+| 0063 | #569 — `lesson_views.tutorial_viewed`, so lesson / tutorial / experiment views are distinguishable. The table already carried `experiment_viewed`, written by the end endpoint but never set by any page |
+| 0064 | #664 — `password_expires_at` on `teachers` + `students`. Bounds a school-ISSUED temporary password; NULL means no expiry (a user's own password, or an account provisioned before this shipped — backfilling a date would lock them out). Enforced at login only when `first_login` is still TRUE |
 
 ---
 
@@ -554,8 +558,14 @@ Current migrations (as of last commit):
   A student JWT must never grant access to teacher/admin endpoints.
 - **`attempt_number` is computed server-side** as `COUNT(*) + 1` from prior sessions
   for `(student_id, unit_id, curriculum_id)`. Discard any client-supplied value.
-- **COPPA:** students under 13 require parental consent before account activation.
-  Block content access until `account_status = 'active'`.
+- **COPPA:** there is **no parental-consent flow in the product** (decision
+  2026-08-24, #609). StudyBuddy is school-provisioned — schools create student
+  accounts — so the applicable route is the school acting as the consent
+  authority for an educational service, not a parent-facing form. Do NOT write
+  code or copy asserting a consent flow that does not exist. The orphaned
+  `/consent` page and its dead client call were removed rather than built.
+  Reopening this means deciding on a verification method first; "verifiable
+  parental consent" is a legal standard, not an email capture.
 - **Rate limiting on all public endpoints.** Auth: 10 req/min per IP.
   Content: 100 req/min per student JWT. Feedback: 5 submissions/student/hour.
 
@@ -585,6 +595,8 @@ Current migrations (as of last commit):
   fails (caught and logged as `db_upsert_units_skip`) but content generation continues.
 - **After rebuilding the `celery-pipeline` image, always restart the container:**
   `docker compose build celery-pipeline && docker compose up -d celery-pipeline`
+- **`celery-pipeline` builds its own image — `docker compose build api` does not rebuild it.**
+  Same for `celery-worker` and `celery-beat-primary`. See pitfall #38.
 
 ---
 
@@ -797,6 +809,20 @@ docker compose build celery-pipeline && docker compose up -d celery-pipeline
 # Rebuild web frontend (e.g. after npm install of a new package)
 docker compose build web && docker compose up -d web
 
+# After a requirements.txt change, rebuild ALL FOUR backend services.
+# api, celery-worker, celery-pipeline and celery-beat-primary each build their OWN
+# image from ./backend — `build api` leaves the three workers on a stale image (pitfall #38).
+docker compose build api celery-worker celery-pipeline celery-beat-primary \
+  && docker compose up -d api celery-worker celery-pipeline celery-beat-primary
+
+# Verify a new dependency actually landed in every service that imports it:
+for s in api celery-worker celery-pipeline celery-beat-primary; do \
+  printf "%-22s " "$s"; docker compose exec -T $s python -c "import croniter; print('OK')"; done
+
+# Source-only change needs NO rebuild — all four bind-mount ./backend:/app.
+# api hot-reloads via uvicorn --reload; the celery services do not, so restart them:
+docker compose restart celery-worker celery-pipeline celery-beat-primary
+
 # Apply pending migrations manually.
 # -e TEST_DB_URL= is required: without it env.py targets studybuddy_test, not dev.
 docker compose exec -e TEST_DB_URL= api alembic upgrade head
@@ -957,6 +983,7 @@ See [AGENTS.md](https://github.com/wegofwd2020-hub/studybuddy-docs/blob/main/AGE
 35. **Never trust the client for quiz grading** — `POST /progress/answer` and `/end` once accepted `correct: bool` and `score: int` and stored them verbatim, while the quiz payload shipped `correct_option` for every question: a student could read the answers from the network tab and post themselves a perfect score. Grading is now server-side (`get_quiz_answer_key` → the content store), the answer key is stripped from the served quiz (`_strip_answer_key`), and the score is a Redis tally of server-graded answers. Two consequences to preserve: (a) `question_id` is `q1…qN` in **every** quiz set with **different** answers per set, so the graded set must be pinned per session (`quizset:{session_id}`, `progress_sessions.quiz_set`) — resolving it from the per-unit rotation pointer at answer time grades later answers against the wrong key; (b) answer writes are fire-and-forget, so `end_session` **cannot** count `progress_answers` (rows may not exist yet) — that race is why the score is tallied in Redis.
 36. **Placeholder content must never reach a student** — `scripts/seed_dev_content.py` and `scripts/setup_dev.py` backfill missing units with stub lessons/quizzes ("Sample question 1 about X?", options "Option A"…"Option D", correct answer always "A") tagged `model: "dev-placeholder"`. They only write where a file is *absent*, so any unit the pipeline hasn't generated keeps its stub indefinitely and used to be served as if real — students were graded on fiction. `get_content_file` now refuses `dev-placeholder` content on both the store and cache paths, so an ungenerated unit 404s honestly. Do not "fix" a 404 by re-running the seeder.
 37. **`-e TEST_DB_URL=` is REQUIRED for alembic and FORBIDDEN for pytest — the two rules are opposite, and conflating them destroyed the dev database on 2026-08-01.** Pitfall #34 already covers the alembic side: without `-e TEST_DB_URL=`, `alembic upgrade head` silently migrates `studybuddy_test` instead of dev. But `backend/tests/conftest.py` defines a session-scoped autouse `run_migrations` fixture that ends in `command.downgrade(cfg, "base")` — dropping every table — and that fixture is normally safe only because it targets `studybuddy_test`. Passing `-e TEST_DB_URL=` to a **pytest** invocation blanks the variable, `backend/alembic/env.py` falls back to `DATABASE_URL`, and the downgrade-to-base runs against the **dev** database instead — which is exactly what happened, wiping 30 `@riverside.demo` students, 1 school, and 15 curricula. This is why `backend/quiz_suite/` lives as a **sibling** of `backend/tests/`, not a subdirectory of it: living outside `backend/tests/` means that conftest's autouse fixture can never apply to it, no matter how it's invoked. Never pass `-e TEST_DB_URL=` to any `pytest` command, full stop — including `scripts/quiz_suite.sh`'s internal `docker compose exec` calls, which deliberately omit it.
+38. **`docker compose build api` does NOT rebuild the Celery workers — they build their own images.** `api`, `celery-worker`, `celery-pipeline` and `celery-beat-primary` each declare a separate `build:` block over the same `./backend` context, so Compose produces four independent images (`studybuddy_ondemand-api`, `…-celery-worker`, …). Rebuilding only `api` leaves the three workers running whatever image they were last built from — on 2026-08-17 the `celery-worker` image was **3 months old**, missing `croniter` (added to `requirements.txt` for the #527 per-school backup schedule), so any task importing it died with `ModuleNotFoundError: No module named 'croniter'` while `api` imported it fine. The failure is easy to misread because all four **bind-mount `./backend:/app`**: *source* edits are shared instantly (so code changes look like they propagate), but the site-packages layer comes from each service's own image, so *dependency* changes do not. Rule: source change → no rebuild (restart the workers; only `api` hot-reloads). `requirements.txt` change → rebuild all four, then verify with `docker compose exec -T <svc> python -c "import <pkg>"` per service rather than trusting the build log. Pitfall #19 is the adjacent trap (rebuilt but not restarted); this one is "restarted, but never rebuilt".
 
 ---
 
@@ -984,8 +1011,12 @@ and to all student-facing UI copy. They are non-negotiable.
 ### COPPA (Children's Online Privacy Protection Act)
 Applies to students under 13 in US distribution.
 
-- Require verifiable parental consent before collecting any data from under-13 students.
-  Block content access until `account_status = 'active'`.
+- **Not implemented:** there is no parental-consent capture in the product, and
+  no `account_status` gate tied to consent (#609, decided 2026-08-24). Accounts
+  are created by schools. If this is revisited, the verification method is the
+  design question, not the endpoint.
+- Public copy must not claim a consent flow exists. See the note in
+  `docs/PENDING_DECISIONS.md`.
 - Collect only minimum necessary PII: name, email, grade, locale.
 - No tracking, location data, or behavioural fingerprinting of minors.
 

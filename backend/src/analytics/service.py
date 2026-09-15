@@ -5,7 +5,8 @@ Lesson analytics business logic.
 
 lesson_views table lifecycle:
   start_lesson_view() — INSERT row, returns view_id (called by mobile on lesson open)
-  end_lesson_view()   — UPDATE row with duration_s, audio_played, experiment_viewed, ended_at
+  end_lesson_view()   — UPDATE row with duration_s, audio_played, and which
+                        content type was viewed (lesson / tutorial / experiment)
 
 Ownership:
   verify_view_owner() — raises LookupError/PermissionError (same pattern as progress sessions)
@@ -77,6 +78,7 @@ async def end_lesson_view(
     duration_s: int,
     audio_played: bool,
     experiment_viewed: bool,
+    tutorial_viewed: bool = False,
 ) -> dict:
     """
     Close a lesson view row.
@@ -94,7 +96,8 @@ async def end_lesson_view(
         SET ended_at          = NOW(),
             duration_s        = $2,
             audio_played      = $3,
-            experiment_viewed = $4
+            experiment_viewed = $4,
+            tutorial_viewed   = $5
         WHERE view_id = $1
         RETURNING view_id::text, duration_s
         """,
@@ -102,6 +105,7 @@ async def end_lesson_view(
         duration_s,
         audio_played,
         experiment_viewed,
+        tutorial_viewed,
     )
 
     if row is None:
@@ -276,11 +280,19 @@ async def get_class_metrics(
     school_id: str,
     grade: int | None = None,
     subject: str | None = None,
+    allowed_grades: list[int] | None = None,
 ) -> dict:
     """
     Aggregate per-unit quiz metrics for all enrolled students in a school.
 
     struggle_flag = True when first_attempt_pass_rate_pct < 50% OR mean_attempts_to_pass > 2.
+
+    `allowed_grades` scopes the result to the caller's grades (#647).
+    None is unrestricted (`school_admin`); an EMPTY list is a teacher with no
+    assignments, who sees nothing. Found by the follow-up sweep this issue
+    called for, not by the report: an unscoped call returned every grade's unit
+    metrics, and `?grade=` was honoured without checking the caller was
+    assigned to it — the #576 bug verbatim, in an endpoint that sweep missed.
     """
     # All enrolled student IDs for the school (exclude rows where student hasn't linked yet).
     enrolled = await conn.fetch(
@@ -302,6 +314,12 @@ async def get_class_metrics(
     if grade is not None:
         params.append(grade)
         grade_filter = f"AND ps.grade = ${len(params)}"
+    elif allowed_grades is not None:
+        # No explicit ?grade=: a restricted caller still must not see the whole
+        # school. The empty list yields `= ANY('{}')`, which matches nothing —
+        # correct for a teacher with no assignments.
+        params.append(allowed_grades)
+        grade_filter = f"AND ps.grade = ANY(${len(params)}::smallint[])"
     if subject is not None:
         params.append(subject)
         subject_filter = f"AND ps.subject = ${len(params)}"
@@ -324,7 +342,9 @@ async def get_class_metrics(
             COUNT(DISTINCT ps.session_id)                                        AS total_quiz_attempts,
             COUNT(DISTINCT ps.student_id) FILTER (WHERE ps.completed)           AS unique_students_attempted,
             ROUND(
-                100.0 * COUNT(*) FILTER (WHERE ps.attempt_number = 1 AND ps.passed AND ps.completed)
+                -- Both sides count distinct students: per unit, rows in the
+                -- numerator let repeated attempt-1 sessions exceed 100% (#623).
+                100.0 * COUNT(DISTINCT ps.student_id) FILTER (WHERE ps.attempt_number = 1 AND ps.passed AND ps.completed)
                 / NULLIF(COUNT(DISTINCT ps.student_id) FILTER (WHERE ps.attempt_number = 1 AND ps.completed), 0),
                 1
             )                                                                    AS first_attempt_pass_rate_pct,

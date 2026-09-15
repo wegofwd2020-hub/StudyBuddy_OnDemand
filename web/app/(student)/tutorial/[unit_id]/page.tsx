@@ -10,6 +10,7 @@ import { LinkButton } from "@/components/ui/link-button";
 import { AIContentDisclosure } from "@/components/content/AIContentDisclosure";
 import { contentErrorMessage } from "@/lib/content-error";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useContentView } from "@/lib/hooks/useContentView";
 
 interface PageProps {
   params: Promise<{ unit_id: string }>;
@@ -27,6 +28,10 @@ export default function TutorialPage({ params }: PageProps) {
     queryFn: () => getTutorial(unit_id),
     enabled: !!unit_id,
   });
+
+  // Time spent here counted as zero everywhere until #569 — this page
+  // recorded no view at all, despite holding the worked examples.
+  useContentView(unit_id, !!tutorial, "tutorial");
 
   if (isLoading) {
     return (

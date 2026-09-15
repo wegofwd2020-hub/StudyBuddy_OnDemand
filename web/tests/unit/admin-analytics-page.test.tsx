@@ -66,14 +66,10 @@ describe("ADM-12 — Subscription table renders", () => {
     expect(screen.getByText(ANALYTICS_STRINGS.subSectionHeading)).toBeInTheDocument();
   });
 
-  it("renders Monthly subscribers row", () => {
+  it("renders a row per subscription plan", () => {
     render(<AdminAnalyticsPage />);
-    expect(screen.getByText(ANALYTICS_STRINGS.rowMonthly)).toBeInTheDocument();
-  });
-
-  it("renders Annual subscribers row", () => {
-    render(<AdminAnalyticsPage />);
-    expect(screen.getByText(ANALYTICS_STRINGS.rowAnnual)).toBeInTheDocument();
+    expect(screen.getByText(ANALYTICS_STRINGS.rowStarter)).toBeInTheDocument();
+    expect(screen.getByText(ANALYTICS_STRINGS.rowProfessional)).toBeInTheDocument();
   });
 
   it("renders MRR row", () => {

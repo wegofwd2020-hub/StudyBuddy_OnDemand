@@ -41,6 +41,7 @@ export function endLessonViewBeacon(
   durationSeconds: number,
   audioPlayed: boolean,
   experimentViewed: boolean,
+  tutorialViewed: boolean = false,
 ): void {
   if (typeof window === "undefined") return;
   const token = localStorage.getItem("sb_token");
@@ -56,6 +57,7 @@ export function endLessonViewBeacon(
       duration_s: durationSeconds,
       audio_played: audioPlayed,
       experiment_viewed: experimentViewed,
+      tutorial_viewed: tutorialViewed,
     }),
   }).catch(() => {});
 }

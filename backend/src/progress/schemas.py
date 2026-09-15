@@ -65,6 +65,10 @@ class StartSessionResponse(BaseModel):
     curriculum_id: str
     attempt_number: int
     started_at: str
+    # Which quiz set (1-3) this attempt is served and graded against (#567).
+    # The client passes it back to the quiz endpoint so display and grading
+    # cannot diverge.
+    quiz_set: int
 
 
 class RecordAnswerResponse(BaseModel):

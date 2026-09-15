@@ -21,10 +21,19 @@ export async function adminLogin(
 
 // ── Analytics ─────────────────────────────────────────────────────────────────
 
+export interface SubscriptionPlanStats {
+  active: number;
+  new_this_month: number;
+  cancelled_this_month: number;
+}
+
 export interface SubscriptionAnalytics {
-  active_monthly: number;
-  active_annual: number;
+  /** Keyed by plan — starter / professional / enterprise. The system bills by
+   *  plan, not by billing interval, so the old active_monthly/active_annual
+   *  fields described data that never existed (#604). */
+  by_plan: Record<string, SubscriptionPlanStats>;
   total_active: number;
+  /** String, never a float — money is not represented in binary floating point. */
   mrr_usd: string;
   new_this_month: number;
   cancelled_this_month: number;
@@ -32,7 +41,7 @@ export interface SubscriptionAnalytics {
 }
 
 export async function getSubscriptionAnalytics(): Promise<SubscriptionAnalytics> {
-  const res = await adminApi.get<SubscriptionAnalytics>("/admin/analytics/subscriptions");
+  const res = await adminApi.get<SubscriptionAnalytics>("/admin/analytics/subscription");
   return res.data;
 }
 
@@ -432,12 +441,32 @@ export async function blockVersionContent(
 export interface AdminFeedbackItem {
   feedback_id: string;
   student_id: string;
-  unit_id: string;
+  unit_id: string | null;
   unit_title: string;
-  rating: number;
+  /** 1-5 stars, or null for a thumbs vote (which carries `helpful` instead). */
+  rating: number | null;
+  /** Whether the student found the content helpful — the thumbs verdict (#600). */
+  helpful: boolean | null;
+  content_type: string | null;
   comment: string | null;
   submitted_at: string;
   resolved: boolean;
+}
+
+/** The shape the API actually returns, before the adapter above normalises it. */
+interface ApiFeedbackListResponse {
+  pagination: { page: number; per_page: number; total: number };
+  feedback_items: Array<{
+    feedback_id: string;
+    student_id: string;
+    unit_id: string | null;
+    message: string | null;
+    rating: number | null;
+    helpful: boolean | null;
+    content_type: string | null;
+    submitted_at: string;
+    reviewed: boolean;
+  }>;
 }
 
 export interface FeedbackListResponse {
@@ -452,12 +481,33 @@ export async function getFeedbackList(
   pageSize = 20,
   resolved?: boolean,
 ): Promise<FeedbackListResponse> {
-  const params: Record<string, unknown> = { page, page_size: pageSize };
-  if (resolved !== undefined) params.resolved = resolved;
-  const res = await adminApi.get<FeedbackListResponse>("/admin/feedback", {
+  // The API speaks `per_page`/`reviewed` and returns
+  // `{pagination, feedback_items}` with `message`/`reviewed` — none of which
+  // matched what this client claimed. Nothing surfaced it because no feedback
+  // had ever been stored to display (#600). Translate here rather than leaving
+  // the two sides disagreeing.
+  const params: Record<string, unknown> = { page, per_page: pageSize };
+  if (resolved !== undefined) params.reviewed = resolved;
+  const res = await adminApi.get<ApiFeedbackListResponse>("/admin/feedback", {
     params,
   });
-  return res.data;
+  return {
+    items: (res.data.feedback_items ?? []).map((item) => ({
+      feedback_id: item.feedback_id,
+      student_id: item.student_id,
+      unit_id: item.unit_id,
+      unit_title: item.unit_id ?? "General feedback",
+      rating: item.rating,
+      helpful: item.helpful,
+      content_type: item.content_type,
+      comment: item.message,
+      submitted_at: item.submitted_at,
+      resolved: item.reviewed,
+    })),
+    total: res.data.pagination?.total ?? 0,
+    page: res.data.pagination?.page ?? page,
+    page_size: res.data.pagination?.per_page ?? pageSize,
+  };
 }
 
 export async function resolveFeedback(feedbackId: string): Promise<void> {
@@ -487,11 +537,12 @@ export async function getSystemHealth(): Promise<SystemHealth> {
 
 export interface AuditEntry {
   audit_id: string;
-  actor_id: string;
+  actor_id: string | null;
   actor_role: string;
   action: string;
-  resource_type: string;
-  resource_id: string;
+  /** Null for actions with no target — a login has no resource (#604). */
+  resource_type: string | null;
+  resource_id: string | null;
   detail: Record<string, unknown>;
   created_at: string;
 }
@@ -953,36 +1004,6 @@ export async function adminCurriculumAction(
   const res = await adminApi.post<CurriculumActionResponse>(
     `/admin/schools/${schoolId}/curriculum/versions/${curriculumId}/action`,
     { action, reason },
-  );
-  return res.data;
-}
-
-export interface AdminPrivateTeacherItem {
-  teacher_id: string;
-  email: string;
-  name: string;
-  account_status: string;
-  plan: string | null;
-  subscription_status: string | null;
-  curricula_count: number;
-  created_at: string;
-}
-
-export interface AdminPrivateTeacherListResponse {
-  teachers: AdminPrivateTeacherItem[];
-  total: number;
-}
-
-export async function listAdminPrivateTeachers(
-  page: number = 1,
-  pageSize: number = 20,
-  search?: string,
-): Promise<AdminPrivateTeacherListResponse> {
-  const res = await adminApi.get<AdminPrivateTeacherListResponse>(
-    "/admin/private-teachers",
-    {
-      params: { page, page_size: pageSize, ...(search ? { search } : {}) },
-    },
   );
   return res.data;
 }

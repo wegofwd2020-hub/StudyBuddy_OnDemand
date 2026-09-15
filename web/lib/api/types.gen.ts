@@ -751,7 +751,11 @@ export interface paths {
         };
         /**
          * Get Quiz
-         * @description Serve a quiz set, rotating through sets 1→2→3→1 per student per unit.
+         * @description Serve the quiz set pinned by the caller's session.
+         *
+         *     Rotation (1→2→3→1 per student per unit) happens once per attempt when the
+         *     session is created — not here. Without a `session_id` the legacy rotating
+         *     behaviour is preserved for older clients.
          */
         get: operations["get_quiz_api_v1_content__unit_id__quiz_get"];
         put?: never;
@@ -1547,6 +1551,29 @@ export interface paths {
          *     Assigning to a *different* admin requires ``review:assign`` (product_admin+).
          */
         post: operations["assign_api_v1_admin_content_review__version_id__assign_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Admin Audit Log
+         * @description Read the platform audit log (newest first).
+         *
+         *     Gated on `audit:view`, which product_admin and above hold — matching the
+         *     role the admin nav already uses to show the page (#604).
+         */
+        get: operations["admin_audit_log_api_v1_admin_audit_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -2820,6 +2847,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/schools/{school_id}/my-grade-scope": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * My Grade Scope
+         * @description Which grades the caller may see (#647 follow-up).
+         *
+         *     Served once rather than embedded in every list response, because scope is a
+         *     property of the caller. Pages use it to explain an empty list instead of
+         *     asserting something false about the school — see GradeScopeResponse.
+         */
+        get: operations["my_grade_scope_api_v1_schools__school_id__my_grade_scope_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/schools/{school_id}/classrooms/{classroom_id}": {
         parameters: {
             query?: never;
@@ -3454,6 +3505,34 @@ export interface paths {
         get: operations["get_student_theme_endpoint_api_v1_student_school_theme_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/school/enrol/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm Enrolment
+         * @description Join a school using the code from an invite link (#609).
+         *
+         *     The school portal has always offered admins a copy-able `/enrol/{code}`
+         *     link; this is the endpoint behind it, which never existed.
+         *
+         *     Runs with RLS bypassed on purpose: `schools` and `school_enrolments` are
+         *     RLS-protected and the student is by definition not yet scoped to the school
+         *     they are joining. The enrolment code is the secret that authorises this, and
+         *     nothing about a school is returned unless the code matches.
+         */
+        post: operations["confirm_enrolment_api_v1_school_enrol_confirm_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -4482,6 +4561,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/feedback/{feedback_id}/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Resolve Feedback Endpoint
+         * @description Mark a feedback item reviewed.
+         *
+         *     The admin Feedback page has shipped this button since it was built, but the
+         *     endpoint never existed and the click 404'd. It went unnoticed because no
+         *     feedback was ever stored, so there was never a button to press (#603).
+         */
+        post: operations["resolve_feedback_endpoint_api_v1_admin_feedback__feedback_id__resolve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/reports/school/{school_id}/roster": {
         parameters: {
             query?: never;
@@ -4594,7 +4697,11 @@ export interface paths {
         };
         /**
          * Feedback Report
-         * @description All student feedback for the school's curriculum, grouped by unit.
+         * @description A page of student feedback for the school, newest first by default.
+         *
+         *     Paginated since #611: the report previously returned every item ever
+         *     recorded, so the response grew without bound as a school accumulated
+         *     feedback.
          */
         get: operations["feedback_report_api_v1_reports_school__school_id__feedback_get"];
         put?: never;
@@ -5896,9 +6003,13 @@ export interface components {
             /** Curriculum Id */
             curriculum_id?: string | null;
             /** Message */
-            message: string;
+            message?: string | null;
             /** Rating */
             rating?: number | null;
+            /** Helpful */
+            helpful?: boolean | null;
+            /** Content Type */
+            content_type?: string | null;
             /**
              * Submitted At
              * Format: date-time
@@ -6191,6 +6302,8 @@ export interface components {
             triggered_at: string;
             /** Acknowledged */
             acknowledged: boolean;
+            /** Grade */
+            grade?: number | null;
         };
         /** AlertListResponse */
         AlertListResponse: {
@@ -6480,6 +6593,44 @@ export interface components {
             url: string;
             /** Expires In */
             expires_in: number;
+        };
+        /** AuditEntry */
+        AuditEntry: {
+            /** Audit Id */
+            audit_id: string;
+            /** Actor Id */
+            actor_id?: string | null;
+            /** Actor Role */
+            actor_role: string;
+            /** Action */
+            action: string;
+            /** Resource Type */
+            resource_type?: string | null;
+            /** Resource Id */
+            resource_id?: string | null;
+            /**
+             * Detail
+             * @default {}
+             */
+            detail: {
+                [key: string]: unknown;
+            };
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** AuditLogResponse */
+        AuditLogResponse: {
+            /** Entries */
+            entries: components["schemas"]["AuditEntry"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
         };
         /** BackupCreateRequest */
         BackupCreateRequest: {
@@ -7221,6 +7372,7 @@ export interface components {
             /** Subject Progress */
             subject_progress: components["schemas"]["SubjectProgress"][];
             next_unit: components["schemas"]["NextUnit"] | null;
+            standing?: components["schemas"]["Standing"] | null;
             /** Recent Activity */
             recent_activity: components["schemas"]["RecentActivityItem"][];
         };
@@ -7611,6 +7763,19 @@ export interface components {
             /** Ended At */
             ended_at: string;
         };
+        /**
+         * EnrolConfirmRequest
+         * @description The school's enrolment code, as carried in an /enrol/{code} invite link.
+         */
+        EnrolConfirmRequest: {
+            /** Token */
+            token: string;
+        };
+        /** EnrolConfirmResponse */
+        EnrolConfirmResponse: {
+            /** School Name */
+            school_name: string;
+        };
         /** EnrolmentRosterItem */
         EnrolmentRosterItem: {
             /** Student Email */
@@ -7739,23 +7904,6 @@ export interface components {
             /** Cancel Url */
             cancel_url: string;
         };
-        /** FeedbackByUnit */
-        FeedbackByUnit: {
-            /** Unit Id */
-            unit_id: string;
-            /** Unit Name */
-            unit_name?: string | null;
-            /** Feedback Count */
-            feedback_count: number;
-            /** Category Breakdown */
-            category_breakdown: {
-                [key: string]: number;
-            };
-            /** Trending */
-            trending: boolean;
-            /** Feedback Items */
-            feedback_items: components["schemas"]["src__reports__schemas__FeedbackReportItem"][];
-        };
         /** FeedbackItem */
         FeedbackItem: {
             /** Feedback Id */
@@ -7783,6 +7931,15 @@ export interface components {
             /** Total */
             total: number;
         };
+        /** FeedbackPagination */
+        FeedbackPagination: {
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+        };
         /** FeedbackReport */
         FeedbackReport: {
             /** School Id */
@@ -7793,8 +7950,9 @@ export interface components {
             unreviewed_count: number;
             /** Avg Rating Overall */
             avg_rating_overall?: number | null;
-            /** By Unit */
-            by_unit: components["schemas"]["FeedbackByUnit"][];
+            /** Items */
+            items: components["schemas"]["src__reports__schemas__FeedbackReportItem"][];
+            pagination: components["schemas"]["FeedbackPagination"];
         };
         /** FeedbackReportResponse */
         FeedbackReportResponse: {
@@ -7816,6 +7974,17 @@ export interface components {
             /** Feedback Text */
             feedback_text: string;
         };
+        /** FeedbackResolveResponse */
+        FeedbackResolveResponse: {
+            /** Feedback Id */
+            feedback_id: string;
+            /** Reviewed */
+            reviewed: boolean;
+            /** Reviewed By */
+            reviewed_by?: string | null;
+            /** Reviewed At */
+            reviewed_at?: string | null;
+        };
         /** FeedbackSubmitRequest */
         FeedbackSubmitRequest: {
             /** Category */
@@ -7825,9 +7994,13 @@ export interface components {
             /** Curriculum Id */
             curriculum_id?: string | null;
             /** Message */
-            message: string;
+            message?: string | null;
             /** Rating */
             rating?: number | null;
+            /** Helpful */
+            helpful?: boolean | null;
+            /** Content Type */
+            content_type?: string | null;
         };
         /** FeedbackSubmitResponse */
         FeedbackSubmitResponse: {
@@ -7929,6 +8102,34 @@ export interface components {
             grade: number;
             /** Subjects */
             subjects: components["schemas"]["Subject"][];
+        };
+        /**
+         * GradeScopeResponse
+         * @description Which grades the CALLER may see (#647 follow-up).
+         *
+         *     Scope is a property of the caller, not of any one report, so it is served
+         *     once here rather than embedded in every list response. The overview report
+         *     still embeds its own copy: there the caption must be guaranteed to match
+         *     that specific query.
+         *
+         *     Exists because grade-scoping alerts and classrooms made two empty states
+         *     lie. A teacher with no assignments saw "No active alerts — all clear." and
+         *     "No active classrooms yet." — both asserting a fact about the school when
+         *     the truth was "you have no scope, and there may be things here you cannot
+         *     see". False reassurance is worse than an empty list.
+         *
+         *     `kind`: "school" (unrestricted) | "grades". An EMPTY `grades` list is the
+         *     teacher-with-no-assignments case and is exactly what those pages need to
+         *     distinguish.
+         */
+        GradeScopeResponse: {
+            /** Kind */
+            kind: string;
+            /**
+             * Grades
+             * @default []
+             */
+            grades: number[];
         };
         /** GradeSummary */
         GradeSummary: {
@@ -8036,6 +8237,11 @@ export interface components {
              * @default false
              */
             experiment_viewed: boolean;
+            /**
+             * Tutorial Viewed
+             * @default false
+             */
+            tutorial_viewed: boolean;
         };
         /** LessonEndResponse */
         LessonEndResponse: {
@@ -8240,6 +8446,7 @@ export interface components {
             school_id: string;
             /** Period */
             period: string;
+            scope: components["schemas"]["ReportScope"];
             /** Enrolled Students */
             enrolled_students: number;
             /** Active Students Period */
@@ -8689,7 +8896,11 @@ export interface components {
             /** Rating */
             rating?: number | null;
             /** Message */
-            message: string;
+            message?: string | null;
+            /** Helpful */
+            helpful?: boolean | null;
+            /** Content Type */
+            content_type?: string | null;
             /**
              * Submitted At
              * Format: date-time
@@ -8840,6 +9051,39 @@ export interface components {
             category: string;
             /** Message */
             message?: string | null;
+        };
+        /**
+         * ReportScope
+         * @description What population the figures in this report actually cover.
+         *
+         *     Since #576 a teacher's numbers mean THEIR GRADES and a school admin's mean
+         *     the whole school — the same tile, the same label, two different populations,
+         *     with nothing on screen saying which. That silence is the defect behind §0 of
+         *     the dashboard design, and it is what made a teacher reading "pass rate 62%"
+         *     unable to tell whose pass rate it was.
+         *
+         *     The scope is reported by the SERVER, derived from the same `_grade_filter`
+         *     that scoped the query. Re-deriving it in the client would let the caption
+         *     drift from the data it describes — the caption would still say "your grades:
+         *     8, 10" after the filter had changed, which is worse than no caption.
+         *
+         *     `kind`:
+         *         "school"    — unrestricted (school_admin); `grades` is empty
+         *         "grades"    — restricted to `grades`
+         *     A teacher with NO assignments is `kind="grades"` with an EMPTY list, which
+         *     is a real and distinct state: they legitimately see nothing. It must not be
+         *     collapsed into "school" (the pre-#576 bug) nor rendered as a blank caption —
+         *     all-zero tiles with no explanation is exactly the "can't tell 'not set up'
+         *     from 'broken'" problem in §4.2.
+         */
+        ReportScope: {
+            /** Kind */
+            kind: string;
+            /**
+             * Grades
+             * @default []
+             */
+            grades: number[];
         };
         /**
          * ResetPasswordRequest
@@ -9561,6 +9805,24 @@ export interface components {
             snapshots: components["schemas"]["SnapshotItem"][];
         };
         /**
+         * Standing
+         * @description The student's average beside their grade cohort's.
+         *
+         *     Omitted entirely (None on the response) when the cohort is too small to
+         *     aggregate without disclosing an individual's record — see
+         *     `_MIN_COHORT_FOR_STANDING` in service.py.
+         */
+        Standing: {
+            /** You */
+            you: number;
+            /** Cohort */
+            cohort: number;
+            /** Cohort Size */
+            cohort_size: number;
+            /** Grade */
+            grade: number;
+        };
+        /**
          * StartSessionRequest
          * @description Open a quiz session.
          *
@@ -9592,6 +9854,8 @@ export interface components {
             attempt_number: number;
             /** Started At */
             started_at: string;
+            /** Quiz Set */
+            quiz_set: number;
         };
         /** StatsResponse */
         StatsResponse: {
@@ -9907,6 +10171,8 @@ export interface components {
             units_completed: number;
             /** Pct */
             pct: number;
+            /** Avg Score */
+            avg_score?: number | null;
         };
         /** SubjectProgressMap */
         SubjectProgressMap: {
@@ -10767,12 +11033,20 @@ export interface components {
         src__reports__schemas__FeedbackReportItem: {
             /** Feedback Id */
             feedback_id: string;
+            /** Unit Id */
+            unit_id?: string | null;
+            /** Unit Name */
+            unit_name?: string | null;
             /** Category */
             category: string;
             /** Rating */
             rating?: number | null;
             /** Message */
-            message: string;
+            message?: string | null;
+            /** Helpful */
+            helpful?: boolean | null;
+            /** Content Type */
+            content_type?: string | null;
             /**
              * Submitted At
              * Format: date-time
@@ -11882,7 +12156,10 @@ export interface operations {
     };
     get_quiz_api_v1_content__unit_id__quiz_get: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description The quiz session this fetch belongs to. When given, the set pinned by that session is served, so refetching cannot change the questions mid-attempt (#567). */
+                session_id?: string | null;
+            };
             header?: never;
             path: {
                 unit_id: string;
@@ -13072,6 +13349,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AssignResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    admin_audit_log_api_v1_admin_audit_get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+                action?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditLogResponse"];
                 };
             };
             /** @description Validation Error */
@@ -15344,6 +15654,37 @@ export interface operations {
             };
         };
     };
+    my_grade_scope_api_v1_schools__school_id__my_grade_scope_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                school_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GradeScopeResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_classroom_endpoint_api_v1_schools__school_id__classrooms__classroom_id__get: {
         parameters: {
             query?: never;
@@ -16479,6 +16820,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SchoolThemeResponse"];
+                };
+            };
+        };
+    };
+    confirm_enrolment_api_v1_school_enrol_confirm_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EnrolConfirmRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EnrolConfirmResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -18026,6 +18400,37 @@ export interface operations {
             };
         };
     };
+    resolve_feedback_endpoint_api_v1_admin_feedback__feedback_id__resolve_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                feedback_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedbackResolveResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     student_roster_api_v1_reports_school__school_id__roster_get: {
         parameters: {
             query?: {
@@ -18198,6 +18603,8 @@ export interface operations {
                 category?: string | null;
                 reviewed?: boolean | null;
                 sort?: string;
+                page?: number;
+                page_size?: number;
             };
             header?: never;
             path: {

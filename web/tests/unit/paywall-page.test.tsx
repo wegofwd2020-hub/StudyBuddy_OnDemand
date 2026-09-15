@@ -2,6 +2,12 @@
  * Unit tests for section 2.11 — Paywall Page (`/paywall`)
  * Covers TC-IDs: STU-34, STU-35
  *
+ * Students cannot buy a subscription: individual student billing was removed in
+ * migration 0027 (ADR-001), so the school controls access. The page used to
+ * advertise "$9.99/month" with a Subscribe CTA pointing at endpoints that
+ * returned 404 (#604). These tests now pin the opposite: no price, no purchase
+ * CTA, and a clear statement of who to ask.
+ *
  * Run with:
  *   npm test -- paywall-page
  */
@@ -26,7 +32,7 @@ vi.mock("next/link", () => ({
 }));
 
 // ---------------------------------------------------------------------------
-// STU-34 — Paywall page renders with upgrade prompt
+// STU-34 — Paywall page explains that the school controls access
 // ---------------------------------------------------------------------------
 
 describe("STU-34 — Paywall page renders", () => {
@@ -47,27 +53,9 @@ describe("STU-34 — Paywall page renders", () => {
     expect(container.querySelector("svg")).toBeTruthy();
   });
 
-  it("renders the monthly price text", () => {
+  it("tells the student who can restore their access", () => {
     render(<PaywallPage />);
-    expect(
-      screen.getByText(new RegExp(`\\${PAYWALL_STRINGS.monthlyPrice}`)),
-    ).toBeInTheDocument();
-  });
-
-  it("renders the annual price text", () => {
-    const { container } = render(<PaywallPage />);
-    // Text is split across nodes inside the <p> — check combined textContent
-    const para = Array.from(container.querySelectorAll("p")).find((p) =>
-      p.textContent?.includes(PAYWALL_STRINGS.annualPrice),
-    );
-    expect(para).toBeTruthy();
-  });
-
-  it("renders the annual savings i18n text", () => {
-    render(<PaywallPage />);
-    expect(
-      screen.getByText(new RegExp(PAYWALL_STRINGS.annualSavings)),
-    ).toBeInTheDocument();
+    expect(screen.getByText(PAYWALL_STRINGS.help)).toBeInTheDocument();
   });
 
   it("renders the Back to Dashboard link", () => {
@@ -77,55 +65,31 @@ describe("STU-34 — Paywall page renders", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders the subscribe CTA link", () => {
+  it("offers no purchase CTA — a student cannot buy a subscription", () => {
     render(<PaywallPage />);
-    // Link text contains subscribe_btn key + price suffix
     const links = screen.getAllByRole("link");
-    const upgradeLink = links.find((l) =>
-      l.textContent?.includes(PAYWALL_STRINGS.subscribeBtn),
-    );
-    expect(upgradeLink).toBeTruthy();
+    expect(links).toHaveLength(1);
+    expect(links[0].getAttribute("href")).toBe(PAYWALL_HREFS.dashboardHref);
+  });
+
+  it("advertises no price", () => {
+    const { container } = render(<PaywallPage />);
+    expect(container.textContent).not.toMatch(/\$\d/);
   });
 });
 
 // ---------------------------------------------------------------------------
-// STU-35 — Upgrade button navigates to /account/subscription
+// STU-35 — the only CTA returns to the dashboard
 // ---------------------------------------------------------------------------
 
-describe("STU-35 — Upgrade button href", () => {
-  it("subscribe CTA href points to /account/subscription", () => {
-    render(<PaywallPage />);
-    const links = screen.getAllByRole("link");
-    const upgradeLink = links.find((l) =>
-      l.textContent?.includes(PAYWALL_STRINGS.subscribeBtn),
-    );
-    expect(upgradeLink?.getAttribute("href")).toBe(PAYWALL_HREFS.upgradeHref);
-  });
-
+describe("STU-35 — the only CTA returns to the dashboard", () => {
   it("Back to Dashboard href points to /dashboard", () => {
     render(<PaywallPage />);
     const dashLink = screen.getByRole("link", { name: PAYWALL_STRINGS.backToDashboard });
     expect(dashLink.getAttribute("href")).toBe(PAYWALL_HREFS.dashboardHref);
   });
 
-  it("upgrade href is /account/subscription", () => {
-    expect(PAYWALL_HREFS.upgradeHref).toBe("/account/subscription");
-  });
-
   it("dashboard href is /dashboard", () => {
     expect(PAYWALL_HREFS.dashboardHref).toBe("/dashboard");
-  });
-
-  it("both CTAs are present simultaneously", () => {
-    render(<PaywallPage />);
-    const links = screen.getAllByRole("link");
-    const hasUpgrade = links.some(
-      (l) => l.getAttribute("href") === PAYWALL_HREFS.upgradeHref,
-    );
-    const hasDashboard = links.some(
-      (l) => l.getAttribute("href") === PAYWALL_HREFS.dashboardHref,
-    );
-    expect(hasUpgrade).toBe(true);
-    expect(hasDashboard).toBe(true);
   });
 });

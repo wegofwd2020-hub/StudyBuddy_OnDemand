@@ -260,6 +260,82 @@ async def test_school_submit_restore_deduplicates(client: AsyncClient):
     assert r3.json()["status"] == "cancelled"
 
 
+# ── School: submit restore request — scheduled_at validation (#589) ─────────
+#
+# The "Schedule for" field is a *preferred* time an administrator will
+# action manually — nothing ever executes a restore automatically off this
+# timestamp (see backend/src/backup/schemas.py). These tests pin the bound
+# validation that makes the field honest: reject the past, reject an
+# absurd horizon, accept a reasonable near-term value, and confirm omitting
+# it entirely still works.
+
+
+@pytest.mark.asyncio
+async def test_school_submit_restore_request_scheduled_at_in_past_rejected(
+    client: AsyncClient,
+):
+    from datetime import datetime, timedelta
+
+    school_id, teacher_id = await _register_school(client, "rr-sched-past")
+    backup_id = await _seed_backup(client, school_id, status="completed")
+    past = (datetime.now(UTC) - timedelta(days=1)).isoformat()
+    r = await client.post(
+        f"/api/v1/schools/{school_id}/restore-requests",
+        json={"backup_id": backup_id, "scope_type": "full", "scheduled_at": past},
+        headers=_school_hdr(school_id, teacher_id),
+    )
+    assert r.status_code == 422, r.text
+
+
+@pytest.mark.asyncio
+async def test_school_submit_restore_request_scheduled_at_beyond_horizon_rejected(
+    client: AsyncClient,
+):
+    from datetime import datetime, timedelta
+
+    school_id, teacher_id = await _register_school(client, "rr-sched-far")
+    backup_id = await _seed_backup(client, school_id, status="completed")
+    # Years out — mirrors the live 2030 report in #589.
+    far_future = (datetime.now(UTC) + timedelta(days=365 * 4)).isoformat()
+    r = await client.post(
+        f"/api/v1/schools/{school_id}/restore-requests",
+        json={"backup_id": backup_id, "scope_type": "full", "scheduled_at": far_future},
+        headers=_school_hdr(school_id, teacher_id),
+    )
+    assert r.status_code == 422, r.text
+
+
+@pytest.mark.asyncio
+async def test_school_submit_restore_request_scheduled_at_reasonable_future_accepted(
+    client: AsyncClient,
+):
+    from datetime import datetime, timedelta
+
+    school_id, teacher_id = await _register_school(client, "rr-sched-ok")
+    backup_id = await _seed_backup(client, school_id, status="completed")
+    soon = (datetime.now(UTC) + timedelta(days=3)).isoformat()
+    r = await client.post(
+        f"/api/v1/schools/{school_id}/restore-requests",
+        json={"backup_id": backup_id, "scope_type": "full", "scheduled_at": soon},
+        headers=_school_hdr(school_id, teacher_id),
+    )
+    assert r.status_code == 200, r.text
+    assert r.json()["scheduled_at"] is not None
+
+
+@pytest.mark.asyncio
+async def test_school_submit_restore_request_scheduled_at_omitted_ok(client: AsyncClient):
+    school_id, teacher_id = await _register_school(client, "rr-sched-none")
+    backup_id = await _seed_backup(client, school_id, status="completed")
+    r = await client.post(
+        f"/api/v1/schools/{school_id}/restore-requests",
+        json={"backup_id": backup_id, "scope_type": "full"},
+        headers=_school_hdr(school_id, teacher_id),
+    )
+    assert r.status_code == 200, r.text
+    assert r.json()["scheduled_at"] is None
+
+
 # ── School: list / get / cancel restore requests ─────────────────────────────
 
 

@@ -12,6 +12,11 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { RotateCcw, Database, ChevronRight, ChevronLeft } from "lucide-react";
+import {
+  validateScheduledAt,
+  nowForDatetimeLocalMin,
+  maxForDatetimeLocalMax,
+} from "@/lib/school/restore-schedule";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -309,17 +314,25 @@ function StepNotesSubmit({
 
       <div className="space-y-2">
         <label className="block text-sm font-medium text-gray-700">
-          Schedule for{" "}
+          Preferred time{" "}
           <span className="font-normal text-gray-400">
-            (optional — leave blank for ASAP)
+            (optional — leave blank for as soon as possible)
           </span>
         </label>
         <input
           type="datetime-local"
           value={scheduledAt}
+          min={nowForDatetimeLocalMin()}
+          max={maxForDatetimeLocalMax()}
           onChange={(e) => setScheduledAt(e.target.value)}
           className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-indigo-400 focus:outline-none"
         />
+        <p className="text-xs text-gray-400">
+          A platform administrator reviews and actions every restore request by hand —
+          this isn&apos;t a scheduler, so nothing runs automatically at the time you pick.
+          Use it to tell the administrator roughly when you&apos;d like this handled
+          (within the next 30 days).
+        </p>
       </div>
 
       {error && (
@@ -381,12 +394,27 @@ export default function NewRestoreRequestPage() {
       }),
     onSuccess: () => router.push("/school/restore-requests"),
     onError: (err: unknown) => {
+      const detail = (err as { response?: { data?: { detail?: unknown } } })?.response
+        ?.data?.detail;
       const msg =
-        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ??
-        "Failed to submit request. Please try again.";
+        typeof detail === "string"
+          ? detail
+          : Array.isArray(detail)
+            ? ((detail[0] as { msg?: string })?.msg ?? "Validation error.")
+            : "Failed to submit request. Please try again.";
       setSubmitError(msg);
     },
   });
+
+  function handleSubmit() {
+    const scheduleError = validateScheduledAt(scheduledAt);
+    if (scheduleError) {
+      setSubmitError(scheduleError);
+      return;
+    }
+    setSubmitError(null);
+    mutation.mutate();
+  }
 
   return (
     <div className="max-w-2xl p-6">
@@ -449,7 +477,7 @@ export default function NewRestoreRequestPage() {
             scheduledAt={scheduledAt}
             onScheduledAt={setScheduledAt}
             onBack={() => setStep(2)}
-            onSubmit={() => mutation.mutate()}
+            onSubmit={handleSubmit}
             submitting={mutation.isPending}
             error={submitError}
           />

@@ -187,3 +187,49 @@ export interface FeedbackPayload {
   rating: FeedbackRating;
   comment?: string;
 }
+
+// ─── Student dashboard (#640) ────────────────────────────────────────────────
+
+export interface SubjectProgress {
+  subject: string;
+  units_total: number;
+  units_completed: number;
+  pct: number;
+  /** null — not 0 — when nothing has been answered in the subject yet. */
+  avg_score: number | null;
+}
+
+export interface Standing {
+  you: number;
+  cohort: number;
+  cohort_size: number;
+  grade: number;
+}
+
+export interface NextUnit {
+  unit_id: string;
+  title: string;
+  subject: string;
+  estimated_minutes: number;
+}
+
+export interface StudentDashboard {
+  summary: {
+    units_completed: number;
+    quizzes_passed: number;
+    current_streak_days: number;
+    total_time_minutes: number;
+    avg_quiz_score: number;
+  };
+  subject_progress: SubjectProgress[];
+  next_unit: NextUnit | null;
+  /** Absent when the cohort is too small to aggregate without disclosure. */
+  standing: Standing | null;
+  recent_activity: {
+    type: string;
+    unit_id: string;
+    title: string;
+    score: number | null;
+    at: string;
+  }[];
+}

@@ -505,7 +505,17 @@ export default function TeachersPage() {
       )?.response;
       const status = resp?.status;
       if (status === 409) {
-        setAddError("A teacher with that email already exists.");
+        // Prefer the server's explanation — it distinguishes "already on your
+        // roster" from "registered at another school" and names the contact
+        // route (#572). Falling back only if the API sent nothing usable.
+        {
+          const serverDetail = (resp?.data as { detail?: unknown } | undefined)?.detail;
+          setAddError(
+            typeof serverDetail === "string"
+              ? serverDetail
+              : "That email address is already registered. Try a different address.",
+          );
+        }
       } else if (status === 422) {
         // FastAPI 422 `detail` is an array of {loc, msg} objects. It must NEVER be
         // set raw — rendering an object array as a React child throws and trips the

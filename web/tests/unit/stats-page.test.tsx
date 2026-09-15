@@ -183,4 +183,17 @@ describe("STU-31 — Stats page renders", () => {
     fireEvent.click(screen.getByRole("button", { name: "All time" }));
     expect(mockUseStudentStats).toHaveBeenCalledWith("all");
   });
+
+  // fix/align-report-period-windows — the active window must be legible
+  // without relying on the reader noticing which pill is highlighted.
+  it("labels the active window explicitly (defaults to 'last 30 days')", () => {
+    render(<StatsPage />);
+    expect(screen.getByText(/Showing last 30 days/)).toBeInTheDocument();
+  });
+
+  it("updates the explicit window label after switching period", () => {
+    render(<StatsPage />);
+    fireEvent.click(screen.getByRole("button", { name: "Last 7 days" }));
+    expect(screen.getByText(/Showing last 7 days/)).toBeInTheDocument();
+  });
 });

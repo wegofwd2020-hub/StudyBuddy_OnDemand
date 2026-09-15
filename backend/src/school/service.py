@@ -22,16 +22,45 @@ from datetime import UTC
 import asyncpg
 from config import settings
 
-from src.auth.service import create_internal_jwt, generate_default_password, hash_password
+from src.auth.service import (
+    create_internal_jwt,
+    generate_default_password,
+    hash_password,
+    temp_password_expiry,
+)
 from src.utils.logger import get_logger
 
 log = get_logger("school")
 
 
+class AlreadyEnrolledError(Exception):
+    """The address is already on THIS school's roster.
+
+    Distinct from "registered elsewhere on the platform" (#572): since a student
+    may hold enrolments at several schools, a duplicate is only a conflict when
+    it duplicates *within one school*. The router turns this into a 409 that
+    says so, while an address belonging to another school is now attached rather
+    than refused.
+    """
+
+    def __init__(self, email: str) -> None:
+        super().__init__(f"{email} is already enrolled at this school")
+        self.email = email
+
+
+# The enrolment-code prefix is derived from the school name, so every school
+# sharing a name competes in the suffix space alone. 4 hex chars was only
+# 65,536 values, which collides by birthday paradox at a few dozen same-named
+# schools — frequently enough to redden CI at random (issue #597). 8 chars is
+# 4.3e9, and _ENROLMENT_CODE_ATTEMPTS covers the remainder.
+_ENROLMENT_CODE_SUFFIX_CHARS = 8
+_ENROLMENT_CODE_ATTEMPTS = 5
+
+
 def _gen_enrolment_code(school_name: str) -> str:
     """Derive a short enrolment code from the school name + random suffix."""
     abbr = re.sub(r"[^A-Za-z0-9]", "", school_name).upper()[:6] or "SCHL"
-    suffix = uuid.uuid4().hex[:4].upper()
+    suffix = uuid.uuid4().hex[:_ENROLMENT_CODE_SUFFIX_CHARS].upper()
     return f"{abbr}-{suffix}"
 
 
@@ -52,19 +81,36 @@ async def register_school(
     caller can immediately call teacher-scoped endpoints.
     """
     school_id = str(uuid.uuid4())
-    enrolment_code = _gen_enrolment_code(name)
 
-    await conn.execute(
-        """
-        INSERT INTO schools (school_id, name, contact_email, country, enrolment_code, status)
-        VALUES ($1, $2, $3, $4, $5, 'active')
-        """,
-        uuid.UUID(school_id),
-        name,
-        contact_email,
-        country,
-        enrolment_code,
-    )
+    # The enrolment code is server-generated and cosmetic, so a collision is
+    # ours to resolve, never the registering school's problem — redraw and
+    # retry rather than surfacing a conflict (issue #597).
+    for attempt in range(1, _ENROLMENT_CODE_ATTEMPTS + 1):
+        enrolment_code = _gen_enrolment_code(name)
+        try:
+            await conn.execute(
+                """
+                INSERT INTO schools (school_id, name, contact_email, country, enrolment_code, status)
+                VALUES ($1, $2, $3, $4, $5, 'active')
+                """,
+                uuid.UUID(school_id),
+                name,
+                contact_email,
+                country,
+                enrolment_code,
+            )
+            break
+        except asyncpg.UniqueViolationError as exc:
+            # Only an enrolment-code clash is retryable; a duplicate contact
+            # email is a real conflict the caller must see.
+            if exc.constraint_name != "schools_enrolment_code_key":
+                raise
+            if attempt == _ENROLMENT_CODE_ATTEMPTS:
+                raise
+            log.warning(
+                "enrolment_code_collision",
+                extra={"attempt": attempt, "enrolment_code": enrolment_code},
+            )
 
     # Seed the storage quota row — every school starts with 5 GB base allocation.
     await conn.execute(
@@ -191,8 +237,9 @@ async def provision_teacher(
         """
         INSERT INTO teachers
             (teacher_id, school_id, external_auth_id, auth_provider,
-             name, email, password_hash, role, account_status, first_login)
-        VALUES ($1, $2, $3, 'local', $4, $5, $6, 'teacher', 'active', TRUE)
+             name, email, password_hash, role, account_status, first_login,
+             password_expires_at)
+        VALUES ($1, $2, $3, 'local', $4, $5, $6, 'teacher', 'active', TRUE, $7)
         """,
         uuid.UUID(teacher_id),
         uuid.UUID(school_id),
@@ -200,6 +247,7 @@ async def provision_teacher(
         name,
         email,
         password_hash,
+        temp_password_expiry(),
     )
 
     log.info("teacher_provisioned", teacher_id=teacher_id, school_id=school_id)
@@ -221,12 +269,77 @@ async def provision_student(
     grade: int,
 ) -> dict:
     """
-    Create a school-provisioned student with local auth (Phase A).
+    Create a school-provisioned student with local auth (Phase A), or attach an
+    existing person to this school (#572).
 
     Generates a random default password, hashes it, and stores it.
-    Returns the plain-text default password so the router can send it via email.
+    Returns the plain-text default password so the router can send it via email —
+    `None` when attaching, because there is no new credential to send.
     Sets first_login=True so the client forces a password reset on first use.
+
+    A student may belong to more than one school: a school for their regular
+    curriculum and, say, an external tutor running additional classes on the
+    same platform. `school_enrolments` already models that — UNIQUE
+    (school_id, student_email) with no unique on student_id — so membership is
+    the enrolment, and the person is a single `students` row.
+
+    Keeping ONE identity per person (rather than one per school) is deliberate:
+    a second row per school would make login ambiguous — which account does this
+    address sign into? — which is #578, and would split one student's record in
+    two.
+
+    Raises `AlreadyEnrolledError` if the address is already on THIS school's
+    roster: one ID per school.
     """
+    existing = await conn.fetchrow(
+        "SELECT student_id::text AS student_id, name, email, grade"
+        "  FROM students WHERE lower(email) = lower($1)",
+        email,
+    )
+
+    if existing is not None:
+        # `school_enrolments` is RLS-forced on app.current_school_id, so this
+        # sees only THIS school's rows — which is exactly the question being
+        # asked, and means the check cannot observe another school's roster.
+        already_here = await conn.fetchval(
+            "SELECT 1 FROM school_enrolments"
+            " WHERE school_id = $1 AND lower(student_email) = lower($2)",
+            uuid.UUID(school_id),
+            email,
+        )
+        if already_here:
+            raise AlreadyEnrolledError(email)
+
+        await conn.execute(
+            """
+            INSERT INTO school_enrolments
+                (school_id, student_email, student_id, status, grade)
+            VALUES ($1, $2, $3, 'active', $4)
+            """,
+            uuid.UUID(school_id),
+            email,
+            uuid.UUID(existing["student_id"]),
+            grade,
+        )
+        log.info(
+            "student_attached_to_additional_school",
+            student_id=existing["student_id"],
+            school_id=school_id,
+            grade=grade,
+        )
+        # Their credentials are untouched: the person already has a password
+        # with their first school, and a school adding them later must not be
+        # able to reset it or be handed one.
+        return {
+            "student_id": existing["student_id"],
+            "school_id": school_id,
+            "name": existing["name"],
+            "email": existing["email"],
+            "grade": grade,
+            "default_password": None,
+            "attached": True,
+        }
+
     student_id = str(uuid.uuid4())
     default_password = generate_default_password()
     password_hash = await hash_password(default_password)
@@ -235,8 +348,9 @@ async def provision_student(
         """
         INSERT INTO students
             (student_id, school_id, external_auth_id, auth_provider,
-             name, email, password_hash, grade, account_status, first_login)
-        VALUES ($1, $2, $3, 'local', $4, $5, $6, $7, 'active', TRUE)
+             name, email, password_hash, grade, account_status, first_login,
+             password_expires_at)
+        VALUES ($1, $2, $3, 'local', $4, $5, $6, $7, 'active', TRUE, $8)
         """,
         uuid.UUID(student_id),
         uuid.UUID(school_id),
@@ -245,6 +359,7 @@ async def provision_student(
         email,
         password_hash,
         grade,
+        temp_password_expiry(),
     )
 
     # Provisioned students are immediately enrolled — write the enrolments row so
@@ -270,6 +385,7 @@ async def provision_student(
         "email": email,
         "grade": grade,
         "default_password": default_password,
+        "attached": False,
     }
 
 
@@ -286,15 +402,19 @@ async def reset_teacher_password(conn: asyncpg.Connection, school_id: str, teach
     row = await conn.fetchrow(
         """
         UPDATE teachers
-           SET password_hash = $1,
-               first_login   = TRUE,
-               auth_provider = 'local'
+           SET password_hash       = $1,
+               first_login         = TRUE,
+               auth_provider       = 'local',
+               -- A reset issues a NEW temporary password, so the clock
+               -- restarts here as well as at provisioning (#664).
+               password_expires_at = $4
          WHERE teacher_id = $2 AND school_id = $3
         RETURNING teacher_id::text, name, email
         """,
         new_hash,
         uuid.UUID(teacher_id),
         uuid.UUID(school_id),
+        temp_password_expiry(),
     )
     if not row:
         return {}
@@ -308,28 +428,75 @@ async def reset_teacher_password(conn: asyncpg.Connection, school_id: str, teach
     }
 
 
+class NotPrimarySchoolError(Exception):
+    """The student is enrolled here, but another school owns their credentials.
+
+    Since #572 a student may be enrolled at several schools — their own school
+    and, say, an external tutor — while holding ONE account. `students.school_id`
+    names their PRIMARY school, and credential control stays there.
+
+    This is deliberately NOT relaxed to "any school they are enrolled at".
+    Password reset returns the new plain-text password to the CALLING admin, and
+    a school can attach an existing student by email address alone (#572/#648).
+    Together those would make "any enrolled school may reset" a cross-school
+    account takeover: attach by email, reset, read the password, and hold the
+    student's single account — including their records at their real school.
+
+    So the fix for the reported failure (#665) is not to widen the lookup. It is
+    to say WHICH school can do this, instead of returning a bare 404 that the UI
+    rendered as "Reset failed. Please try again."
+    """
+
+
 async def reset_student_password(conn: asyncpg.Connection, school_id: str, student_id: str) -> dict:
     """
     Generate a new default password for a student and set first_login=True.
 
     Returns the new plain-text password so the router can email it.
-    Only operates on students that belong to the given school.
+    Only the student's PRIMARY school may reset — see NotPrimarySchoolError.
     """
+    # Distinguish "not ours at all" from "ours, but we are not their primary
+    # school". Collapsing the two is what produced the unexplained failure.
+    ownership = await conn.fetchrow(
+        """
+        SELECT s.school_id::text AS primary_school_id,
+               (SELECT sc.name FROM schools sc WHERE sc.school_id = s.school_id)
+                   AS primary_school_name,
+               EXISTS (
+                   SELECT 1 FROM school_enrolments se
+                    WHERE se.student_id = s.student_id
+                      AND se.school_id = $2 AND se.status = 'active'
+               ) AS enrolled_here
+        FROM students s
+        WHERE s.student_id = $1
+        """,
+        uuid.UUID(student_id),
+        uuid.UUID(school_id),
+    )
+    if not ownership or not ownership["enrolled_here"]:
+        return {}
+    if ownership["primary_school_id"] != school_id:
+        raise NotPrimarySchoolError(ownership["primary_school_name"] or "another school")
+
     new_password = generate_default_password()
     new_hash = await hash_password(new_password)
 
     row = await conn.fetchrow(
         """
         UPDATE students
-           SET password_hash = $1,
-               first_login   = TRUE,
-               auth_provider = 'local'
+           SET password_hash       = $1,
+               first_login         = TRUE,
+               auth_provider       = 'local',
+               -- A reset issues a NEW temporary password, so the clock
+               -- restarts here as well as at provisioning (#664).
+               password_expires_at = $4
          WHERE student_id = $2 AND school_id = $3
         RETURNING student_id::text, name, email
         """,
         new_hash,
         uuid.UUID(student_id),
         uuid.UUID(school_id),
+        temp_password_expiry(),
     )
     if not row:
         return {}
@@ -404,8 +571,21 @@ async def create_classroom(
     }
 
 
-async def list_classrooms(conn: asyncpg.Connection, school_id: str) -> list[dict]:
-    """Return all classrooms for a school with student + package counts."""
+async def list_classrooms(
+    conn: asyncpg.Connection, school_id: str, allowed_grades: list[int] | None = None
+) -> list[dict]:
+    """Return classrooms for a school, scoped to the caller's grades (#647).
+
+    `allowed_grades=None` is unrestricted (`school_admin`, a teacher superset
+    per ADR-005). An EMPTY list is a teacher with no assignments, who correctly
+    sees no classrooms — `[]` and `None` must not be collapsed.
+
+    Filtered on `classrooms.grade`, the classroom's own grade. Note this is the
+    grade the classroom DECLARES, which #651 shows is not always the grade of
+    the curricula assigned to it — that mismatch is a separate defect, and
+    scoping on the declared grade is still correct here: it is what the teacher
+    is assigned to.
+    """
     rows = await conn.fetch(
         """
         SELECT
@@ -424,9 +604,11 @@ async def list_classrooms(conn: asyncpg.Connection, school_id: str) -> list[dict
         FROM classrooms c
         LEFT JOIN teachers t ON t.teacher_id = c.teacher_id
         WHERE c.school_id = $1
+          AND ($2::smallint[] IS NULL OR c.grade = ANY($2::smallint[]))
         ORDER BY c.created_at DESC
         """,
         uuid.UUID(school_id),
+        allowed_grades,
     )
     return [dict(r) for r in rows]
 
@@ -1271,3 +1453,107 @@ async def get_student_school_theme(pool: asyncpg.Pool, student_id: str) -> dict 
     if row is None or row["theme"] is None:
         return None
     return row["theme"]
+
+
+async def enrol_student_by_code(
+    conn: asyncpg.Connection,
+    student_id: str,
+    code: str,
+) -> dict:
+    """Enrol a signed-in student into a school using its enrolment code (#609).
+
+    The school portal has always generated `/enrol/{code}` invite links and given
+    admins a copy button, but nothing served the confirmation — every student who
+    followed one hit a dead end.
+
+    Caller must pass a connection with RLS bypassed: `schools` and
+    `school_enrolments` are RLS-protected, and the student is by definition not
+    yet scoped to the school they are joining.
+
+    Returns {"ok": True, "school_name": ...} or {"ok": False, "reason": ...}.
+    """
+    school = await conn.fetchrow(
+        """
+        SELECT school_id::text AS school_id, name
+        FROM schools
+        WHERE upper(enrolment_code) = upper($1) AND status = 'active'
+        """,
+        code.strip(),
+    )
+    if school is None:
+        return {"ok": False, "reason": "invalid_code"}
+
+    current = await conn.fetchval(
+        "SELECT school_id::text FROM students WHERE student_id = $1",
+        uuid.UUID(student_id),
+    )
+
+    # Moving between schools detaches a student from their existing roster and
+    # curriculum. That is an administrative act, not something a link click
+    # should do silently behind both schools' backs.
+    if current and current != school["school_id"]:
+        return {"ok": False, "reason": "already_enrolled_elsewhere"}
+
+    already = await conn.fetchval(
+        """
+        SELECT COUNT(*) FROM school_enrolments
+        WHERE school_id = $1 AND student_id = $2
+        """,
+        uuid.UUID(school["school_id"]),
+        uuid.UUID(student_id),
+    )
+
+    if not already:
+        # Seat limits are only enforced where a subscription exists, matching the
+        # roster-upload path. Without this, the invite link would be a way around
+        # the plan the school is paying for.
+        sub = await conn.fetchrow(
+            """
+            SELECT max_students FROM school_subscriptions
+            WHERE school_id = $1 AND status IN ('active', 'trialing')
+            """,
+            uuid.UUID(school["school_id"]),
+        )
+        if sub is not None:
+            used = await conn.fetchval(
+                """
+                SELECT COUNT(*) FROM school_enrolments
+                WHERE school_id = $1 AND status = 'active'
+                """,
+                uuid.UUID(school["school_id"]),
+            )
+            if (used or 0) >= sub["max_students"]:
+                return {
+                    "ok": False,
+                    "reason": "seat_limit_reached",
+                    "limit": sub["max_students"],
+                    "used": used or 0,
+                }
+
+        email = await conn.fetchval(
+            "SELECT email FROM students WHERE student_id = $1", uuid.UUID(student_id)
+        )
+        grade = await conn.fetchval(
+            "SELECT grade FROM students WHERE student_id = $1", uuid.UUID(student_id)
+        )
+        await conn.execute(
+            """
+            INSERT INTO school_enrolments
+                (school_id, student_email, student_id, status, grade)
+            VALUES ($1, $2, $3, 'active', $4)
+            ON CONFLICT DO NOTHING
+            """,
+            uuid.UUID(school["school_id"]),
+            email,
+            uuid.UUID(student_id),
+            grade,
+        )
+
+    await conn.execute(
+        "UPDATE students SET school_id = $1 WHERE student_id = $2",
+        uuid.UUID(school["school_id"]),
+        uuid.UUID(student_id),
+    )
+
+    log.info("enrol_by_code", student_id=student_id, school_id=school["school_id"])
+    return {"ok": True, "school_name": school["name"]}

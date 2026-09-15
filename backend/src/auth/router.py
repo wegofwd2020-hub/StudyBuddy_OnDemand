@@ -946,7 +946,10 @@ async def change_password(
                 )
             new_hash = await hash_password(body.new_password)
             await conn.execute(
-                "UPDATE teachers SET password_hash = $1, first_login = FALSE WHERE teacher_id = $2",
+                # password_expires_at cleared too: the user chose this one via the
+                # reset-token flow, so it is theirs and does not lapse (#664).
+                "UPDATE teachers SET password_hash = $1, first_login = FALSE, "
+                "password_expires_at = NULL WHERE teacher_id = $2",
                 new_hash,
                 teacher_id,
             )
@@ -978,7 +981,10 @@ async def change_password(
                 )
             new_hash = await hash_password(body.new_password)
             await conn.execute(
-                "UPDATE students SET password_hash = $1, first_login = FALSE WHERE student_id = $2",
+                # password_expires_at cleared too: the user chose this one via the
+                # reset-token flow, so it is theirs and does not lapse (#664).
+                "UPDATE students SET password_hash = $1, first_login = FALSE, "
+                "password_expires_at = NULL WHERE student_id = $2",
                 new_hash,
                 student_id,
             )

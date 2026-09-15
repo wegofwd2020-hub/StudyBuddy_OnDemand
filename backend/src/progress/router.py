@@ -30,6 +30,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from src.auth.dependencies import get_current_student
 from src.content.service import resolve_curriculum_id, resolve_quiz_answer_key
 from src.core.db import get_db
+from src.core.redis_client import get_redis
 from src.core.storage import StorageBackend, get_storage
 from src.progress.schemas import (
     EndSessionRequest,
@@ -45,6 +46,7 @@ from src.progress.service import (
     create_session,
     end_session,
     get_raw_history,
+    pin_session_quiz_set,
     read_tally,
     resolve_session_quiz_set,
     tally_answer,
@@ -98,6 +100,18 @@ async def start_session(
                 student_id=student_id,
                 unit_id=body.unit_id,
                 curriculum_id=curriculum_id,
+            )
+            # The SESSION chooses the quiz set (#567), so the set a student is
+            # served can no longer drift from the set they are graded against.
+            # A reused session (#627) keeps the set it already had — one
+            # rotation per attempt, not one per page load.
+            result["quiz_set"] = await pin_session_quiz_set(
+                conn,
+                get_redis(request),
+                session_id=result["session_id"],
+                student_id=student_id,
+                unit_id=body.unit_id,
+                existing=result.get("quiz_set"),
             )
         except Exception as exc:
             log.error("start_session_failed", error=str(exc), correlation_id=cid)
