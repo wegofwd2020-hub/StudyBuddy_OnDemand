@@ -22,6 +22,7 @@ Design notes:
 
 from __future__ import annotations
 
+import asyncio
 import re
 
 import asyncpg
@@ -205,17 +206,31 @@ async def _retrieve_by_text(
 
 
 async def _call_haiku(prompt: str) -> str:
-    """Call Claude Haiku with temperature=0 for deterministic structured output."""
-    import anthropic  # already in requirements; imported here to isolate the import
+    """Call Claude Haiku for deterministic structured output.
 
-    client = anthropic.AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY or "")
-    msg = await client.messages.create(
-        model=_HAIKU_MODEL,
-        max_tokens=400,
-        temperature=0,
-        messages=[{"role": "user", "content": prompt}],
-    )
-    return msg.content[0].text
+    Goes through `wegofwd_llm` — the same seam the content pipeline uses — rather
+    than the `anthropic` SDK directly.
+
+    The direct SDK path was DEAD: `anthropic==0.28.0` passes `proxies=` to httpx,
+    which `httpx==0.28.1` removed, so even constructing the client raised
+    TypeError. This was the only place in the backend that touched the SDK
+    directly, and it had never been exercised because `help_chunks` was empty —
+    the retrieval step returned early every time, so the broken call was never
+    reached. Indexing the corpus is what made it reachable.
+
+    Runs in a thread: the shared provider is synchronous, and the event loop must
+    not block (CLAUDE.md performance rule 2).
+    """
+    from wegofwd_llm import LLMRequest, build_provider
+
+    def _run() -> str:
+        provider = build_provider(
+            "anthropic", api_key=settings.ANTHROPIC_API_KEY or "", model=_HAIKU_MODEL
+        )
+        resp = provider.generate(LLMRequest(prompt=prompt))
+        return resp.text or ""
+
+    return await asyncio.to_thread(_run)
 
 
 # ── Response parsing ──────────────────────────────────────────────────────────
@@ -374,8 +389,28 @@ async def ask_help(
         context=context,
     )
 
-    # 4. Call Haiku
-    raw = await _call_haiku(prompt)
+    # 4. Call Haiku.
+    #
+    # Guarded, because an unguarded third-party call on a user-facing path turns
+    # any provider hiccup — an outage, a missing key, an SDK incompatibility —
+    # into a 500 for someone who only asked a question. The endpoint already has
+    # a graceful "I don't know" for the no-chunks case; a failure to compose an
+    # answer should land in the same place rather than a stack trace.
+    #
+    # This was not hypothetical: the call was broken outright (anthropic/httpx
+    # version clash) and nobody noticed for months, because the retrieval step
+    # returned early on an empty corpus and never reached it.
+    try:
+        raw = await _call_haiku(prompt)
+    except Exception as exc:
+        log.error("help_answer_failed", error=str(exc)[:200], persona=persona)
+        return {
+            "title": "I can't answer that right now",
+            "steps": ["Please try again shortly, or check the Help pages in the menu."],
+            "result": "",
+            "related": [],
+            "sources": [c["heading"] for c in chunks],
+        }
     log.info(
         "help_haiku_called",
         persona=persona,

@@ -23,6 +23,7 @@ from datetime import date
 
 import asyncpg
 
+from src.core.subjects import display_subject, resolve_subject_labels
 from src.utils.logger import get_logger
 
 log = get_logger("student")
@@ -91,7 +92,16 @@ async def update_streak(redis, student_id: str, activity_date: str) -> dict:
 _DASHBOARD_TTL = 60  # seconds (L1 + L2)
 
 
-async def get_dashboard(conn: asyncpg.Connection, redis, student_id: str) -> dict:
+async def get_dashboard(
+    conn: asyncpg.Connection,
+    redis,
+    student_id: str,
+    *,
+    pool=None,
+    grade: int | None = None,
+    storage=None,
+    locale: str = "en",
+) -> dict:
     """
     Return dashboard payload.
 
@@ -99,6 +109,11 @@ async def get_dashboard(conn: asyncpg.Connection, redis, student_id: str) -> dic
       1. L1 TTLCache (per-worker, in-process, 60 s) — zero network cost
       2. L2 Redis (shared, 60 s) — single network hop
       3. DB aggregation — falls back and repopulates both caches
+
+    `pool` and `grade` are what let the build resolve the student's curriculum
+    properly (see `_build_dashboard`). Both are optional so existing callers and
+    tests keep working; without them the build falls back to the curricula the
+    student has already touched, which is the pre-#640 behaviour.
     """
     from src.core.cache import dashboard_cache
 
@@ -119,20 +134,156 @@ async def get_dashboard(conn: asyncpg.Connection, redis, student_id: str) -> dic
             pass
 
     # ── DB aggregation ────────────────────────────────────────────────────────
-    payload = await _build_dashboard(conn, redis, student_id)
+    payload = await _build_dashboard(
+        conn, redis, student_id, pool=pool, grade=grade, storage=storage, locale=locale
+    )
     dashboard_cache[student_id] = payload
     await redis.setex(cache_key, _DASHBOARD_TTL, json.dumps(payload))
     return payload
 
 
-async def _build_dashboard(conn: asyncpg.Connection, redis, student_id: str) -> dict:
+# Minimum number of students with scores before a class average is shown.
+#
+# This is a privacy control, not a noise threshold. The dashboard shows the
+# student their own average beside the cohort's; with a cohort of two, "you 80,
+# class 70" tells the student the other member scored exactly 60. Small cohorts
+# make an aggregate a lookup of one individual's educational record, which is
+# the disclosure FERPA is about. Five is the smallest that keeps any single
+# member's score genuinely underdetermined.
+#
+# Below the threshold the standing block is omitted entirely rather than shown
+# empty — a tile explaining why it cannot compare you is worse than no tile.
+_MIN_COHORT_FOR_STANDING = 5
+
+
+async def _resolve_dashboard_curricula(
+    conn: asyncpg.Connection,
+    redis,
+    student_id: str,
+    pool,
+    grade: int | None,
+) -> list[str]:
+    """Return the curriculum whose units this student's dashboard measures.
+
+    Calls `resolve_curriculum_id` — the same three-step resolution that decides
+    which content the student is actually SERVED (school-owned → classroom
+    package → `default-{year}-g{grade}`) — then swaps a school fork for its
+    source, because a fork carries no rows in `curriculum_units`.
+
+    The dashboard previously derived the curriculum as "any curriculum I already
+    have a session or a lesson view in". That is pitfall #31, and it fails in
+    the two states §4.2 of the dashboard design calls the common ones:
+
+      - a BRAND NEW student has no sessions, so nothing matched and every
+        subject tile rendered empty — blankest for the student who most needs
+        direction;
+      - a student on a school FORK matched the fork, which holds no units.
+
+    Returns EVERY curriculum, because a classroom's packages are additive
+    (#651) — the student's subject list and unit totals are the union of them,
+    not whichever one an arbitrary pick returned. Empty when there is nothing to
+    resolve against (no grade available), leaving the caller to fall back.
+    """
+    if pool is None or grade is None:
+        return []
+
+    from src.content.service import resolve_curriculum_ids
+
+    school_row = await conn.fetchrow(
+        "SELECT school_id FROM students WHERE student_id = $1", student_id
+    )
+    school_id = str(school_row["school_id"]) if school_row and school_row["school_id"] else None
+
+    ids = await resolve_curriculum_ids(student_id, grade, pool, redis, school_id=school_id)
+
+    # Fork → source, per curriculum. A fork carries no rows in
+    # curriculum_units — they live under its source — so counting the fork
+    # directly returns zero (the #650 regression, which is why this is not
+    # simplified away).
+    resolved: list[str] = []
+    for curriculum_id in ids:
+        source = await conn.fetchval(
+            "SELECT source_curriculum_id FROM curricula WHERE curriculum_id = $1", curriculum_id
+        )
+        if source:
+            has_own = await conn.fetchval(
+                "SELECT EXISTS (SELECT 1 FROM curriculum_units WHERE curriculum_id = $1)",
+                curriculum_id,
+            )
+            if not has_own:
+                resolved.append(source)
+                continue
+        resolved.append(curriculum_id)
+    return resolved
+
+
+async def _estimate_minutes(
+    redis,
+    storage,
+    curriculum_id: str,
+    unit_id: str,
+    locale: str,
+    grade: int | None,
+) -> int | None:
+    """Minutes for the "Up next" unit, from its lesson. None if unavailable.
+
+    Every failure path returns None rather than raising. This runs inside the
+    dashboard build, and a student whose next lesson is missing, unreadable or
+    still ungenerated must still get a dashboard — losing one line off one card
+    is the correct blast radius, not a 500.
+
+    `get_content_file` is itself L2-cached (TTL 3600) and the dashboard build
+    only runs on a cache miss, so this adds no DB query and, in the common case,
+    no filesystem or S3 read either.
+    """
+    if storage is None:
+        return None
+    try:
+        from src.content.service import get_content_file
+        from src.core.reading_time import estimate_unit_minutes
+
+        lesson = await get_content_file(
+            curriculum_id, unit_id, f"lesson_{locale}.json", redis, storage
+        )
+        return estimate_unit_minutes(lesson, grade)
+    except FileNotFoundError:
+        # Ungenerated, or dev-placeholder content the store refuses to serve
+        # (pitfall #36). Both mean "no lesson", which is not an error here.
+        return None
+    except Exception as exc:  # pragma: no cover - defensive
+        log.warning(
+            "next_unit_estimate_failed",
+            extra={"unit_id": unit_id, "error": str(exc)},
+        )
+        return None
+
+
+async def _build_dashboard(
+    conn: asyncpg.Connection,
+    redis,
+    student_id: str,
+    *,
+    pool=None,
+    grade: int | None = None,
+    storage=None,
+    locale: str = "en",
+) -> dict:
     # ── Summary stats ──────────────────────────────────────────────────────
     stats_row = await conn.fetchrow(
         """
         SELECT
             COUNT(DISTINCT CASE WHEN passed = TRUE THEN unit_id END)    AS units_completed,
             COUNT(CASE WHEN completed = TRUE AND passed = TRUE THEN 1 END) AS quizzes_passed,
-            AVG(CASE WHEN completed = TRUE THEN score::float / NULLIF(total_questions, 0) * 100 END) AS avg_pct
+            -- Questions right over questions answered (#669). This was an
+            -- unweighted mean of per-session percentages while /analytics/
+            -- student/stats used a mean of per-DAY means and the per-subject
+            -- cards below already used the weighted form — three definitions
+            -- of "average score" across two screens, which is what made the
+            -- dashboard read 61.8% beside My Stats' 62%.
+            SUM(score) FILTER (WHERE completed = TRUE AND score IS NOT NULL)
+                AS score_sum,
+            SUM(total_questions) FILTER (WHERE completed = TRUE AND score IS NOT NULL)
+                AS question_sum
         FROM progress_sessions
         WHERE student_id = $1
         """,
@@ -151,67 +302,129 @@ async def _build_dashboard(conn: asyncpg.Connection, redis, student_id: str) -> 
     streak = await get_streak(redis, student_id)
 
     # ── Subject progress ───────────────────────────────────────────────────
-    subject_rows = await conn.fetch(
-        """
-        SELECT
-            cu.subject,
-            COUNT(DISTINCT cu.unit_id)                                          AS units_total,
-            COUNT(DISTINCT CASE WHEN mv.status = 'completed' THEN cu.unit_id END) AS units_completed
-        FROM curriculum_units cu
-        LEFT JOIN mv_student_curriculum_progress mv
-            ON mv.unit_id = cu.unit_id AND mv.curriculum_id = cu.curriculum_id
-               AND mv.student_id = $1
-        WHERE cu.curriculum_id IN (
-            SELECT DISTINCT curriculum_id FROM progress_sessions WHERE student_id = $1
-            UNION
-            SELECT DISTINCT curriculum_id FROM lesson_views WHERE student_id = $1
+    #
+    # Answers question 3 of the dashboard design: "my subjects and scores".
+    #
+    # Measured against the curriculum the student is actually SERVED, resolved
+    # once (see _resolve_dashboard_curriculum) rather than inferred from the
+    # curricula they happen to have touched.
+    curriculum_ids = await _resolve_dashboard_curricula(conn, redis, student_id, pool, grade)
+
+    if curriculum_ids:
+        unit_rows = await conn.fetch(
+            """
+            -- The child table is aggregated to one row per unit BEFORE the join.
+            -- Joining progress_sessions directly fans the curriculum row out
+            -- once per attempt, which silently multiplies counts and corrupts
+            -- averages — the defect behind #624/#625.
+            WITH unit_stats AS (
+                SELECT unit_id,
+                       BOOL_OR(passed)      AS ever_passed,
+                       SUM(score)           AS score_sum,
+                       SUM(total_questions) AS question_sum
+                FROM progress_sessions
+                WHERE student_id = $1 AND completed = TRUE
+                GROUP BY unit_id
+            )
+            SELECT cu.unit_id, cu.curriculum_id, cu.subject, cu.title, cu.sort_order,
+                   COALESCE(us.ever_passed, FALSE) AS ever_passed,
+                   us.score_sum,
+                   us.question_sum
+            FROM curriculum_units cu
+            -- Joined on unit_id alone: the student's sessions may carry the
+            -- FORK's curriculum_id while cu rows live under the source.
+            LEFT JOIN unit_stats us ON us.unit_id = cu.unit_id
+            -- ANY(), not a single id: a classroom's packages are additive
+            -- (#651), so "my subjects" is the union across them.
+            WHERE cu.curriculum_id = ANY($2::text[])
+            -- The SAME order as the Subjects page the student actually browses
+            -- (`curriculum/router.py`), including the unit_id tiebreaker.
+            --
+            -- `ORDER BY cu.sort_order` alone is not an order here: the column
+            -- carries at most 5-6 distinct values across ~19 units (it groups
+            -- by subject, it does not sequence units), and in 8 of the demo's
+            -- curricula -- including the Grade 10 one -- it is 0 for EVERY row.
+            -- Postgres does not promise how ties resolve, so "the first unit
+            -- you have not passed" was whichever row the planner happened to
+            -- return, and could move after any update or replan.
+            --
+            -- That is what a tester saw: "Up next" offered a Technology unit
+            -- while four Science units sat unpassed, and asked what pattern was
+            -- being followed. Ordering identically to the browsing view makes
+            -- the answer statable -- next = the first unpassed unit in the
+            -- order you already see -- and makes it stable between refreshes.
+            ORDER BY cu.subject, cu.sort_order, cu.unit_id
+            """,
+            student_id,
+            curriculum_ids,
         )
-        GROUP BY cu.subject
-        ORDER BY cu.subject
-        """,
-        student_id,
-    )
+    else:
+        unit_rows = []
+
+    # Display names, not codes: stream curricula store subject CODES in
+    # curriculum_units.subject (G11-PHYS), with the readable name living in
+    # content_subject_versions.subject_name (pitfall #32).
+    subject_labels = await resolve_subject_labels(conn, [r["unit_id"] for r in unit_rows])
+
+    by_subject: dict[str, dict] = {}
+    for r in unit_rows:
+        label = display_subject(subject_labels, r["unit_id"], r["subject"])
+        agg = by_subject.setdefault(
+            label, {"units_total": 0, "units_completed": 0, "score_sum": 0, "question_sum": 0}
+        )
+        agg["units_total"] += 1
+        if r["ever_passed"]:
+            agg["units_completed"] += 1
+        agg["score_sum"] += int(r["score_sum"] or 0)
+        agg["question_sum"] += int(r["question_sum"] or 0)
 
     subject_progress = [
         {
-            "subject": r["subject"],
-            "units_total": r["units_total"],
-            "units_completed": r["units_completed"],
-            "pct": round(r["units_completed"] / r["units_total"] * 100, 1)
-            if r["units_total"]
+            "subject": label,
+            "units_total": agg["units_total"],
+            "units_completed": agg["units_completed"],
+            "pct": round(agg["units_completed"] / agg["units_total"] * 100, 1)
+            if agg["units_total"]
             else 0.0,
+            # Questions right out of questions answered, across every completed
+            # quiz in the subject. None — not 0 — when nothing has been
+            # answered yet, so the UI can say "not started" instead of showing
+            # a student a 0% they did not earn.
+            "avg_score": round(agg["score_sum"] / agg["question_sum"] * 100, 1)
+            if agg["question_sum"]
+            else None,
         }
-        for r in subject_rows
+        for label, agg in sorted(by_subject.items())
     ]
 
     # ── Next unit ──────────────────────────────────────────────────────────
-    next_unit_row = await conn.fetchrow(
-        """
-        SELECT cu.unit_id, cu.title, cu.subject
-        FROM curriculum_units cu
-        LEFT JOIN mv_student_curriculum_progress mv
-            ON mv.unit_id = cu.unit_id AND mv.curriculum_id = cu.curriculum_id
-               AND mv.student_id = $1
-        WHERE (mv.status IS NULL OR mv.status IN ('not_started', 'needs_retry', 'in_progress'))
-          AND cu.curriculum_id IN (
-              SELECT DISTINCT curriculum_id FROM progress_sessions WHERE student_id = $1
-              UNION
-              SELECT DISTINCT curriculum_id FROM lesson_views WHERE student_id = $1
-          )
-        ORDER BY cu.sort_order
-        LIMIT 1
-        """,
-        student_id,
-    )
-
+    #
+    # Half of question 1, "what am I doing this week". The other half — am I on
+    # PACE — needs the academic calendar (ADR-007) and is deliberately absent
+    # rather than approximated.
+    #
+    # Comes from the rows already fetched: the first unit in curriculum order
+    # the student has not yet passed. No second query, and no second definition
+    # of done — the same `ever_passed` that fed the subject tiles.
     next_unit = None
-    if next_unit_row:
-        next_unit = {
-            "unit_id": next_unit_row["unit_id"],
-            "title": next_unit_row["title"] or next_unit_row["unit_id"],
-            "subject": next_unit_row["subject"],
-            "estimated_minutes": 20,
-        }
+    for r in unit_rows:
+        if not r["ever_passed"]:
+            next_unit = {
+                "unit_id": r["unit_id"],
+                "title": r["title"] or r["unit_id"],
+                "subject": display_subject(subject_labels, r["unit_id"], r["subject"]),
+                # Was a literal 20, so every unit told every student the same
+                # thing next to a clock icon. Now read from the lesson the card
+                # links to; None when that cannot be determined, and the card
+                # omits the line rather than inventing one.
+                "estimated_minutes": await _estimate_minutes(
+                    redis, storage, r["curriculum_id"], r["unit_id"], locale, grade
+                ),
+            }
+            break
+
+    # ── Standing against the class ─────────────────────────────────────────
+    standing = await _build_standing(conn, student_id, grade)
 
     # ── Recent activity ────────────────────────────────────────────────────
     quiz_activity = await conn.fetch(
@@ -265,39 +478,132 @@ async def _build_dashboard(conn: asyncpg.Connection, redis, student_id: str) -> 
             "quizzes_passed": stats_row["quizzes_passed"] or 0,
             "current_streak_days": streak.get("current", 0),
             "total_time_minutes": int(view_mins_row["total_minutes"] or 0),
-            "avg_quiz_score": round(float(stats_row["avg_pct"] or 0), 1),
+            "avg_quiz_score": (
+                round(int(stats_row["score_sum"]) / int(stats_row["question_sum"]) * 100, 1)
+                if stats_row["question_sum"]
+                else 0.0
+            ),
         },
         "subject_progress": subject_progress,
         "next_unit": next_unit,
+        "standing": standing,
         "recent_activity": recent,
+    }
+
+
+async def _build_standing(
+    conn: asyncpg.Connection, student_id: str, grade: int | None
+) -> dict | None:
+    """The student's average score beside their grade cohort's.
+
+    Question 4 of the dashboard design. "Class" means the **grade cohort at
+    their school**, not their classroom — decided in §9, because a classroom is
+    a teaching group that a student may belong to several of (or none), which
+    makes it an unstable thing to be ranked within.
+
+    Returns None — the tile is not drawn at all — when the student has no
+    school, no scores of their own, or the cohort is too small to aggregate
+    without disclosing an individual's record (see _MIN_COHORT_FOR_STANDING).
+
+    Both averages are questions-right over questions-answered. Deliberately NOT
+    an average of per-session percentages: that weights a 4-question quiz the
+    same as a 20-question one, which is the flaw still present in the older
+    /analytics/student/stats average.
+    """
+    if grade is None:
+        return None
+
+    row = await conn.fetchrow("SELECT school_id FROM students WHERE student_id = $1", student_id)
+    if not row or not row["school_id"]:
+        return None
+
+    # Cohort membership comes from school_enrolments, the authority for "which
+    # grade at THIS school" (#572/#576) — students.grade is the student's own
+    # and can differ between the schools they attend.
+    stats = await conn.fetch(
+        """
+        WITH cohort AS (
+            SELECT se.student_id
+            FROM school_enrolments se
+            WHERE se.school_id = $1 AND se.status = 'active' AND se.grade = $2
+        ),
+        per_student AS (
+            SELECT ps.student_id,
+                   SUM(ps.score)::float / NULLIF(SUM(ps.total_questions), 0) AS avg_frac
+            FROM progress_sessions ps
+            WHERE ps.student_id IN (SELECT student_id FROM cohort)
+              AND ps.completed = TRUE AND ps.score IS NOT NULL
+            GROUP BY ps.student_id
+        )
+        SELECT student_id, avg_frac FROM per_student WHERE avg_frac IS NOT NULL
+        """,
+        row["school_id"],
+        grade,
+    )
+
+    if len(stats) < _MIN_COHORT_FOR_STANDING:
+        return None
+
+    mine = next((r["avg_frac"] for r in stats if str(r["student_id"]) == str(student_id)), None)
+    if mine is None:
+        return None
+
+    return {
+        "you": round(mine * 100, 1),
+        "cohort": round(sum(r["avg_frac"] for r in stats) / len(stats) * 100, 1),
+        "cohort_size": len(stats),
+        "grade": grade,
     }
 
 
 # ── Progress map ──────────────────────────────────────────────────────────────
 
 
-async def get_progress_map(conn: asyncpg.Connection, student_id: str) -> dict:
+async def get_progress_map(
+    conn: asyncpg.Connection,
+    student_id: str,
+    *,
+    redis=None,
+    pool=None,
+    grade: int | None = None,
+) -> dict:
     """
     Return the curriculum map with per-unit status badges.
     Reads from mv_student_curriculum_progress.
+
+    Curriculum resolution goes through the shared resolver when the caller can
+    supply what it needs. This used to pick "any curriculum I have touched,
+    LIMIT 1" — pitfall #31 again, and the same defect fixed on the dashboard in
+    #640: a brand-new student matched nothing and saw an empty map, and a
+    student on a school fork matched a curriculum holding no units.
+
+    It mattered less while nothing called this endpoint. #677 points the
+    Subjects page and the Curriculum Map at it, so it matters now.
     """
-    # Get all curricula this student has interacted with
-    curriculum_ids = await conn.fetch(
-        """
-        SELECT DISTINCT curriculum_id FROM (
-            SELECT curriculum_id FROM progress_sessions WHERE student_id = $1
-            UNION
-            SELECT curriculum_id FROM lesson_views WHERE student_id = $1
-        ) t
-        LIMIT 1
-        """,
-        student_id,
-    )
+    curriculum_ids = await _resolve_dashboard_curricula(conn, redis, student_id, pool, grade)
 
     if not curriculum_ids:
-        return {"curriculum_id": "", "pending_count": 0, "needs_retry_count": 0, "subjects": []}
-
-    curriculum_id = curriculum_ids[0]["curriculum_id"]
+        # Fall back to the old behaviour when the caller cannot supply the
+        # resolver's inputs, rather than returning nothing to existing callers.
+        touched = await conn.fetch(
+            """
+            SELECT DISTINCT curriculum_id FROM (
+                SELECT curriculum_id FROM progress_sessions WHERE student_id = $1
+                UNION
+                SELECT curriculum_id FROM lesson_views WHERE student_id = $1
+            ) t
+            LIMIT 1
+            """,
+            student_id,
+        )
+        if not touched:
+            return {
+                "curriculum_id": "",
+                "pending_count": 0,
+                "needs_retry_count": 0,
+                "subjects": [],
+            }
+        curriculum_ids = [touched[0]["curriculum_id"]]
 
     # All units in this curriculum
     units = await conn.fetch(
@@ -311,11 +617,17 @@ async def get_progress_map(conn: asyncpg.Connection, student_id: str) -> dict:
         LEFT JOIN mv_student_curriculum_progress mv
             ON mv.unit_id = cu.unit_id AND mv.curriculum_id = cu.curriculum_id
                AND mv.student_id = $1
-        WHERE cu.curriculum_id = $2
-        ORDER BY cu.subject, cu.sort_order
+        -- ANY(), not a single id: a classroom's packages are additive (#651),
+        -- so the map covers every package rather than one arbitrary pick.
+        WHERE cu.curriculum_id = ANY($2::text[])
+        -- unit_id breaks the tie, as everywhere else. `sort_order` groups by
+        -- subject rather than sequencing units and is all-zero in several
+        -- curricula, so without it this map's row order is unspecified and can
+        -- differ between two loads of the same page.
+        ORDER BY cu.subject, cu.sort_order, cu.unit_id
         """,
         student_id,
-        curriculum_id,
+        curriculum_ids,
     )
 
     subjects: dict[str, list] = {}
@@ -350,7 +662,10 @@ async def get_progress_map(conn: asyncpg.Connection, student_id: str) -> dict:
     ]
 
     return {
-        "curriculum_id": curriculum_id,
+        # The PRIMARY curriculum. The map itself spans every package (#651),
+        # but the response field is a single id and existing clients read it as
+        # "which curriculum am I on".
+        "curriculum_id": curriculum_ids[0],
         "pending_count": pending_count,
         "needs_retry_count": needs_retry_count,
         "subjects": subjects_list,
@@ -384,7 +699,13 @@ async def get_stats(conn: asyncpg.Connection, redis, student_id: str, period: st
         SELECT
             COUNT(CASE WHEN completed = TRUE THEN 1 END)           AS quizzes_completed,
             COUNT(CASE WHEN completed = TRUE AND passed = TRUE THEN 1 END) AS quizzes_passed,
-            AVG(CASE WHEN completed = TRUE THEN score::float / NULLIF(total_questions, 0) * 100 END) AS avg_pct
+            -- WEIGHTED: questions right over questions answered (#669). The old
+            -- AVG() averaged per-session percentages, which weights a 4-question
+            -- quiz the same as a 20-question one, so this endpoint and
+            -- /analytics/student/stats reported different averages for the same
+            -- student. That fix reached the web endpoint and not this one.
+            100.0 * SUM(CASE WHEN completed THEN score END)
+                  / NULLIF(SUM(CASE WHEN completed THEN total_questions END), 0) AS avg_pct
         FROM progress_sessions
         WHERE student_id = $1 {date_filter}
         """,
@@ -395,7 +716,12 @@ async def get_stats(conn: asyncpg.Connection, redis, student_id: str, period: st
     lesson_row = await conn.fetchrow(
         f"""
         SELECT
-            COUNT(*)                              AS lessons_viewed,
+            -- DISTINCT lessons, not view events (#668). Re-opening one lesson
+            -- incremented this, under a label promising "lessons viewed" -- on
+            -- the demo that is 72 view events against 18 distinct lessons for
+            -- one student. Fixed on the web endpoint at the time; this one,
+            -- which the MOBILE app calls, kept the old count until now.
+            COUNT(DISTINCT unit_id)               AS lessons_viewed,
             COALESCE(SUM(duration_s), 0) / 60    AS total_minutes,
             COUNT(CASE WHEN audio_played THEN 1 END) AS audio_plays
         FROM lesson_views

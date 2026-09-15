@@ -1,5 +1,14 @@
 FROM python:3.11-slim
 
+# Build identifier, so a deploy can prove WHICH commit is running (#583).
+# Surfaced at GET /api/v1/health as `build`.
+#
+# Deliberately NOT APP_VERSION: .env.demo sets that to the human label "demo",
+# and a compose env_file overrides an image ENV — so reusing it would leave the
+# check comparing against "demo" forever and failing every deploy.
+ARG BUILD_ID="dev"
+ENV BUILD_ID=$BUILD_ID
+
 WORKDIR /app
 
 # System dependencies (git for the wegofwd-llm git+ pip dep; libpq/gcc for asyncpg;

@@ -25,13 +25,17 @@ Security:
 from __future__ import annotations
 
 import os
+import uuid
 from typing import Annotated
 
+import asyncpg
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import FileResponse
 
 from src.auth.dependencies import get_current_teacher
 from src.core.db import get_db
+from src.core.grade_scope import grade_filter, permitted_grades
+from src.core.redis_client import get_redis
 from src.reports.schemas import (
     AlertListResponse,
     AlertSettings,
@@ -66,6 +70,7 @@ from src.reports.service import (
     save_alert_settings,
     send_at_risk_reminder,
     subscribe_digest,
+    total_units_by_student,
     trigger_export,
 )
 from src.utils.logger import get_logger
@@ -91,6 +96,54 @@ def _check_school(teacher: dict, school_id: str, request: Request) -> None:
         )
 
 
+async def _permitted_grades(
+    conn: asyncpg.Connection, teacher: dict, school_id: str
+) -> set[int] | None:
+    """Grades this teacher may see, or None meaning "no restriction".
+
+    Thin wrapper over `src.core.grade_scope` — the rule moved to core in #647
+    after living here caused it to be missed by two endpoints, one of them in
+    this very file (alerts). Kept as a local name so the ~20 call sites below
+    read unchanged.
+    """
+    return await permitted_grades(conn, teacher, school_id)
+
+
+async def _grade_filter(
+    conn: asyncpg.Connection, teacher: dict, school_id: str
+) -> list[int] | None:
+    """The `allowed_grades` argument for the aggregate reports (#576).
+
+    `None` means unrestricted — `school_admin`, a teacher superset (ADR-005).
+    A sorted list otherwise, INCLUDING the empty list: a teacher with no grade
+    assignments has no cohort and must see nothing rather than everything, so
+    `[]` and `None` must never be collapsed into one another.
+
+    Decided 2026-08-24: a teacher sees THEIR COHORT, not the school. This
+    changes what the numbers mean — a Grade-8 teacher's "pass rate" is their
+    grade's, not the school's — and it means nobody below `school_admin` sees a
+    school-wide figure. That is intentional. If teachers later need to compare
+    against the school, add a SEPARATE endpoint returning non-identifying
+    aggregates rather than unscoping this one: keeping the two apart makes
+    "this figure cannot identify a student" a property of that endpoint instead
+    of a subtlety inside a report that also serves names.
+    """
+    return await grade_filter(conn, teacher, school_id)
+
+
+def _deny_grade(request: Request) -> HTTPException:
+    return HTTPException(
+        status_code=403,
+        detail={
+            "error": "forbidden",
+            # Deliberately does not confirm whether the student exists — that
+            # would leak roster membership for grades the teacher cannot see.
+            "detail": "You are not assigned to that grade.",
+            "correlation_id": _cid(request),
+        },
+    )
+
+
 # ── Student Roster ────────────────────────────────────────────────────────────
 
 
@@ -109,34 +162,77 @@ async def student_roster(
     """
     _check_school(teacher, school_id, request)
     async with get_db(request) as conn:
-        grade_filter = "AND s.grade = $2" if grade is not None else ""
-        params = [school_id, grade] if grade is not None else [school_id]
+        permitted = await _permitted_grades(conn, teacher, school_id)
+
+        if grade is not None:
+            if permitted is not None and grade not in permitted:
+                raise _deny_grade(request)
+            grade_filter = "AND se.grade = $2"
+            params = [school_id, grade]
+        elif permitted is None:
+            # school_admin — whole school.
+            grade_filter = ""
+            params = [school_id]
+        else:
+            # Restricting only the explicit ?grade= would leave the wider door
+            # open: an unfiltered roster returned every grade in the school.
+            grade_filter = "AND se.grade = ANY($2::smallint[])"
+            params = [school_id, sorted(permitted)]
         rows = await conn.fetch(
             f"""
             SELECT
                 s.student_id,
                 s.name                                              AS student_name,
                 s.grade,
-                COALESCE(SUM(CASE WHEN ps.passed THEN 1 ELSE 0 END), 0)
-                                                                    AS units_completed,
-                (SELECT COUNT(*) FROM curriculum_units cu
-                 JOIN curricula c ON c.curriculum_id = cu.curriculum_id
-                 WHERE c.grade = s.grade AND c.is_default)          AS total_units,
+                -- DISTINCT units, not passed sessions (#655). Retaking a unit
+                -- and passing it again is one unit done, not two. The
+                -- denominator is a count of distinct units in the student's
+                -- curriculum (#638), so counting sessions here compared two
+                -- different things and could exceed 100%.
+                COUNT(DISTINCT ps.unit_id) FILTER (WHERE ps.passed)  AS units_completed,
                 COALESCE(
                     AVG(CASE WHEN ps.score IS NOT NULL
                         THEN ps.score::float / NULLIF(ps.total_questions, 0) * 100
                     END), 0
                 )                                                   AS avg_score_pct,
                 MAX(ps.started_at)                                  AS last_active
-            FROM students s
+            -- Membership comes from `school_enrolments`, not `students.school_id`
+            -- (#572). A student may be enrolled at more than one school — a
+            -- school for their regular curriculum and an external tutor running
+            -- additional classes — and `students.school_id` names only one of
+            -- them, so a student attached to a second school was provisioned
+            -- successfully and then absent from that school's reports.
+            --
+            -- `school_enrolments` is RLS-forced on app.current_school_id, so
+            -- this is already scoped to the caller's school.
+            --
+            -- The grade filter reads the ENROLMENT's grade: it is the grade at
+            -- THIS school, where `students.grade` is the student's own and can
+            -- differ between the two.
+            FROM school_enrolments se
+            JOIN students s ON s.student_id = se.student_id
             LEFT JOIN progress_sessions ps ON ps.student_id = s.student_id
                 AND ps.completed = true
-            WHERE s.school_id = $1 {grade_filter}
+                -- Enrolling someone must not hand over what they did before
+                -- they joined. Without this, a school could add a known address
+                -- and read that student's entire history at another school.
+                -- Every current flow (provisioning, roster upload, enrol-by-code)
+                -- creates the enrolment before any work, so this hides nothing
+                -- a school legitimately owns.
+                AND ps.started_at >= se.added_at
+            WHERE se.school_id = $1 AND se.status = 'active' {grade_filter}
             GROUP BY s.student_id, s.name, s.grade
             ORDER BY s.name
             """,
             *params,
         )
+
+    # The denominator is each student's OWN curriculum, resolved the same way
+    # their content is (#638). Summing every default curriculum at their grade
+    # measured a Grade 11 student against four streams at once.
+    totals = await total_units_by_student(
+        request.app.state.pool, get_redis(request), rows, school_id
+    )
 
     students = [
         {
@@ -144,7 +240,7 @@ async def student_roster(
             "student_name": r["student_name"],
             "grade": r["grade"],
             "units_completed": int(r["units_completed"]),
-            "total_units": int(r["total_units"] or 0),
+            "total_units": totals.get(str(r["student_id"]), 0),
             "avg_score_pct": round(float(r["avg_score_pct"] or 0), 1),
             "last_active": r["last_active"].isoformat() if r["last_active"] else None,
         }
@@ -166,7 +262,20 @@ async def overview_report(
     """Class overview summary for the selected period."""
     _check_school(teacher, school_id, request)
     async with get_db(request) as conn:
-        result = await get_overview(conn, school_id, period)
+        grades = await _grade_filter(conn, teacher, school_id)
+        result = await get_overview(
+            conn,
+            school_id,
+            period,
+            grades,
+            pool=request.app.state.pool,
+            redis=get_redis(request),
+        )
+    # Reported from the SAME filter that scoped the query above, so the caption
+    # on the page cannot describe a population the numbers do not cover (#640).
+    result["scope"] = (
+        {"kind": "school", "grades": []} if grades is None else {"kind": "grades", "grades": grades}
+    )
     return OverviewReport(**result)
 
 
@@ -184,7 +293,8 @@ async def unit_report(
     """Per-unit performance deep-dive."""
     _check_school(teacher, school_id, request)
     async with get_db(request) as conn:
-        result = await get_unit_report(conn, school_id, unit_id, period)
+        grades = await _grade_filter(conn, teacher, school_id)
+        result = await get_unit_report(conn, school_id, unit_id, period, grades)
     return UnitReport(**result)
 
 
@@ -202,6 +312,16 @@ async def student_report(
     _check_school(teacher, school_id, request)
     cid = _cid(request)
     async with get_db(request) as conn:
+        permitted = await _permitted_grades(conn, teacher, school_id)
+        if permitted is not None:
+            student_grade = await conn.fetchval(
+                "SELECT grade FROM students WHERE student_id = $1",
+                uuid.UUID(student_id),
+            )
+            # An unknown student is refused the same way as an out-of-scope one,
+            # so the response cannot be used to probe who exists.
+            if student_grade is None or student_grade not in permitted:
+                raise _deny_grade(request)
         try:
             result = await get_student_report(conn, school_id, student_id)
         except LookupError as exc:
@@ -220,11 +340,34 @@ async def curriculum_health(
     school_id: str,
     request: Request,
     teacher: Annotated[dict, Depends(get_current_teacher)],
+    grade: int | None = None,
 ) -> CurriculumHealthReport:
-    """All units ranked by health tier."""
+    """All units ranked by health tier, optionally narrowed to one grade.
+
+    `?grade=` is a filter WITHIN the caller's entitlement, never a way around
+    it: a grade the caller is not assigned to is refused with the same 403 the
+    roster uses, rather than being silently ignored. Silently ignoring it would
+    be worse than refusing — the teacher would read a school-wide report while
+    the control on screen said "Grade 7".
+    """
     _check_school(teacher, school_id, request)
     async with get_db(request) as conn:
-        result = await get_curriculum_health(conn, school_id)
+        permitted = await _permitted_grades(conn, teacher, school_id)
+        if grade is not None and permitted is not None and grade not in permitted:
+            raise _deny_grade(request)
+        # `_grade_filter` is `sorted(_permitted_grades)`, so deriving it here
+        # saves a second identical query AND makes the check and the scope
+        # provably the same set — calling both would let a refusal be decided
+        # against one read of the assignments and the report built from another.
+        grades = None if permitted is None else sorted(permitted)
+        result = await get_curriculum_health(
+            conn,
+            school_id,
+            grades,
+            pool=request.app.state.pool,
+            redis=get_redis(request),
+            grade=grade,
+        )
     return CurriculumHealthReport(**result)
 
 
@@ -239,12 +382,29 @@ async def feedback_report(
     unit_id: str | None = Query(None),
     category: str | None = Query(None, pattern="^(content|ux|general)$"),
     reviewed: bool | None = Query(None),
-    sort: str = Query("recent", pattern="^(recent|oldest|volume)$"),
+    sort: str = Query("recent", pattern="^(recent|oldest)$"),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(50, ge=1, le=200),
 ) -> FeedbackReport:
-    """All student feedback for the school's curriculum, grouped by unit."""
+    """A page of student feedback for the school, newest first by default.
+
+    Paginated since #611: the report previously returned every item ever
+    recorded, so the response grew without bound as a school accumulated
+    feedback.
+    """
     _check_school(teacher, school_id, request)
     async with get_db(request) as conn:
-        result = await get_feedback_report(conn, school_id, unit_id, category, reviewed, sort)
+        result = await get_feedback_report(
+            conn,
+            school_id,
+            unit_id=unit_id,
+            category=category,
+            reviewed=reviewed,
+            sort=sort,
+            page=page,
+            page_size=page_size,
+            allowed_grades=await _grade_filter(conn, teacher, school_id),
+        )
     return FeedbackReport(**result)
 
 
@@ -261,7 +421,8 @@ async def trends_report(
     """Week-over-week engagement and performance trends."""
     _check_school(teacher, school_id, request)
     async with get_db(request) as conn:
-        result = await get_trends(conn, school_id, period)
+        grades = await _grade_filter(conn, teacher, school_id)
+        result = await get_trends(conn, school_id, period, grades)
     return TrendsReport(**result)
 
 
@@ -323,7 +484,14 @@ async def at_risk_students(
     """
     _check_school(teacher, school_id, request)
     async with get_db(request) as conn:
-        result = await get_at_risk_students(conn, school_id)
+        grades = await _grade_filter(conn, teacher, school_id)
+        result = await get_at_risk_students(
+            conn,
+            school_id,
+            grades,
+            pool=request.app.state.pool,
+            redis=get_redis(request),
+        )
     return AtRiskListResponse(**result)
 
 
@@ -374,7 +542,11 @@ async def list_alerts(
     """Return unacknowledged threshold alerts for the school."""
     _check_school(teacher, school_id, request)
     async with get_db(request) as conn:
-        result = await get_alerts(conn, school_id)
+        # Scoped to the caller's grades (#647): alerts filtered on school
+        # alone, so a Grade-8 teacher's landing page listed breaches for
+        # Grades 5, 10 and 11.
+        grades = await _grade_filter(conn, teacher, school_id)
+        result = await get_alerts(conn, school_id, grades)
     return AlertListResponse(**result)
 
 

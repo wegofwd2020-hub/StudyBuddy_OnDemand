@@ -457,53 +457,22 @@ async def get_curriculum_tree(
     redis = request.app.state.redis
     pool = request.app.state.pool
 
-    # ── Step 1: resolve curriculum_id (full 3-step, same as content.service) ──
-    _cur_key = cur_key(student_id, school_id)
-    cached = await redis.get(_cur_key)
-    if cached:
-        curriculum_id = cached.decode() if isinstance(cached, bytes) else cached
-    else:
-        curriculum_id = None
-        async with pool.acquire() as conn:
-            # 1a. School-owned custom curriculum
-            row = await conn.fetchrow(
-                """
-                SELECT c.curriculum_id
-                FROM students s
-                JOIN schools sc ON s.school_id = sc.school_id
-                JOIN curricula c ON c.school_id = sc.school_id AND c.grade = s.grade
-                WHERE s.student_id = $1
-                LIMIT 1
-                """,
-                student_id,
-            )
-            if row:
-                curriculum_id = row["curriculum_id"]
+    # ── Step 1: resolve EVERY curriculum this student's content comes from ──
+    #
+    # This used to carry its own inline copy of the three-step resolution, with
+    # a comment claiming it was "the same as content.service". It was not the
+    # same — it was a fourth copy, and copies drift (pitfall #31 is exactly this
+    # function serving stream students another stream's subjects).
+    #
+    # It is now the shared resolver, and it returns a LIST: a classroom's
+    # packages are additive (#651), so the tree is the union of them rather than
+    # whichever one an arbitrary LIMIT 1 happened to pick.
+    from src.content.service import resolve_curriculum_ids
 
-            # 1b. Classroom package assignment (stream-specific platform curricula)
-            if not curriculum_id and school_id:
-                await conn.execute(
-                    "SELECT set_config('app.current_school_id', $1, false)", school_id
-                )
-                row = await conn.fetchrow(
-                    """
-                    SELECT cp.curriculum_id
-                    FROM classroom_students cs
-                    JOIN classrooms cl ON cl.classroom_id = cs.classroom_id
-                    JOIN classroom_packages cp ON cp.classroom_id = cl.classroom_id
-                    WHERE cs.student_id = $1
-                    ORDER BY cl.created_at DESC
-                    LIMIT 1
-                    """,
-                    student_id,
-                )
-                if row:
-                    curriculum_id = row["curriculum_id"]
-
-        # 1c. Default STEM fallback
-        if not curriculum_id:
-            curriculum_id = f"default-2026-g{grade}"
-        await redis.set(_cur_key, curriculum_id, ex=300)
+    curriculum_ids = await resolve_curriculum_ids(
+        student_id, grade, pool, redis, school_id=school_id
+    )
+    curriculum_id = curriculum_ids[0]
 
     # ── Step 2: load units from curriculum_units DB table ─────────────────────
     # Join content_subject_versions to get the human-readable subject display
@@ -516,32 +485,49 @@ async def get_curriculum_tree(
     # unit_content_overrides. Resolve the source id first so the units query
     # actually finds rows.
     async with pool.acquire() as conn:
-        source_id = await conn.fetchval(
-            "SELECT source_curriculum_id FROM curricula WHERE curriculum_id = $1",
-            curriculum_id,
-        )
-        units_lookup_id = source_id or curriculum_id
+        # A school FORK carries no rows in curriculum_units — they live under
+        # its source — so each id is swapped for the one that actually holds
+        # units before the lookup.
+        lookup_ids: list[str] = []
+        fork_lookups: set[str] = set()
+        for cid in curriculum_ids:
+            source_id = await conn.fetchval(
+                "SELECT source_curriculum_id FROM curricula WHERE curriculum_id = $1",
+                cid,
+            )
+            lookup = source_id or cid
+            lookup_ids.append(lookup)
+            if source_id:
+                # A fork serves unit content from teacher DB overrides, so its
+                # units must not be probed against the OOB files.
+                fork_lookups.add(lookup)
 
         rows = await conn.fetch(
             """
-            SELECT cu.unit_id, cu.title, cu.subject,
+            SELECT cu.unit_id, cu.curriculum_id AS holder, cu.title, cu.subject,
                    COALESCE(MAX(csv.subject_name), cu.subject) AS subject_display,
                    cu.has_lab, cu.sort_order
             FROM curriculum_units cu
             LEFT JOIN content_subject_versions csv
                 ON csv.curriculum_id = cu.curriculum_id
                AND csv.subject = cu.subject
-            WHERE cu.curriculum_id = $1
-            GROUP BY cu.unit_id, cu.title, cu.subject, cu.has_lab, cu.sort_order
+            WHERE cu.curriculum_id = ANY($1::text[])
+            GROUP BY cu.unit_id, cu.curriculum_id, cu.title, cu.subject, cu.has_lab, cu.sort_order
             ORDER BY cu.subject, cu.sort_order, cu.unit_id
             """,
-            units_lookup_id,
+            lookup_ids,
         )
+
+    # unit_id -> the curriculum that holds it, so the content probe below can
+    # ask the right one (#651). Empty on the JSON fallback path, which then
+    # treats provenance as unknown and assumes available.
+    holder_by_unit: dict[str, str] = {}
 
     if rows:
         # Build subjects dict preserving subject order from first encounter
         subjects_map: dict[str, list[dict]] = {}
         for row in rows:
+            holder_by_unit[row["unit_id"]] = row["holder"]
             subj = row["subject_display"]
             if subj not in subjects_map:
                 subjects_map[subj] = []
@@ -590,13 +576,22 @@ async def get_curriculum_tree(
     # hide overridden units. Skip the probe for forks and mark everything
     # available; the OOB platform path is where the reported dead-ends occur.
     all_units = [u for subj in subjects for u in subj["units"]]
-    if source_id:
-        content_map = {u["unit_id"]: True for u in all_units}
-    else:
-        storage = get_storage(request)
-        content_map = await _has_content_map(
-            storage, units_lookup_id, [u["unit_id"] for u in all_units]
-        )
+    # Probe each unit against the curriculum that actually HOLDS it (#651).
+    # With several packages in play there is no single id to probe against, and
+    # using the first would have marked another package's units as missing.
+    content_map: dict[str, bool] = {}
+    by_holder: dict[str, list[str]] = {}
+    for u in all_units:
+        by_holder.setdefault(holder_by_unit.get(u["unit_id"], ""), []).append(u["unit_id"])
+
+    storage = get_storage(request)
+    for holder, unit_ids in by_holder.items():
+        if not holder or holder in fork_lookups:
+            # Fork-held (overrides live in the DB) or unknown provenance —
+            # assume available rather than grey out a unit that works.
+            content_map.update(dict.fromkeys(unit_ids, True))
+        else:
+            content_map.update(await _has_content_map(storage, holder, unit_ids))
     for u in all_units:
         u["has_content"] = content_map.get(u["unit_id"], True)
 

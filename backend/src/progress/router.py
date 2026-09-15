@@ -28,8 +28,15 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
 from src.auth.dependencies import get_current_student
-from src.content.service import resolve_curriculum_id, resolve_quiz_answer_key
+from src.content.service import (
+    has_met_lesson_prerequisite,
+    resolve_curriculum_ids,
+    resolve_quiz_answer_key,
+    resolve_unit_curriculum,
+    unit_has_lesson,
+)
 from src.core.db import get_db
+from src.core.redis_client import get_redis
 from src.core.storage import StorageBackend, get_storage
 from src.progress.schemas import (
     EndSessionRequest,
@@ -45,6 +52,8 @@ from src.progress.service import (
     create_session,
     end_session,
     get_raw_history,
+    pin_session_quiz_set,
+    read_answered,
     read_tally,
     resolve_session_quiz_set,
     tally_answer,
@@ -75,21 +84,63 @@ async def start_session(
     # under whatever this session stores, so a client-supplied value that doesn't
     # resolve in the content store makes every answer 404 (#524).
     #
-    # This calls resolve_curriculum_id directly — it does NOT reproduce the
-    # extra steps the content path (backend/src/content/router.py, around the
-    # _get_curriculum_and_check_published helper) layers on top of that same
-    # resolver: the fork→OOB swap via get_fork_source_curriculum, and teacher
-    # override handling. A school on a forked curriculum can therefore still
-    # serve content from one curriculum_id while this endpoint grades against
-    # another. Out of scope for #524; see the fork/override grading issue
-    # (#529).
-    curriculum_id = await resolve_curriculum_id(
+    # Resolved the same way the CONTENT path resolves it — the package that
+    # actually holds this unit, with the fork→OOB swap applied (#651).
+    #
+    # It used to call resolve_curriculum_id and stop there, so a school on a
+    # forked curriculum could be served content under one id while this endpoint
+    # graded against another; the comment here said as much and deferred it.
+    # Additive packages made that worse rather than merely latent: with three
+    # packages, the primary is simply not where most units live.
+    #
+    # Teacher-override handling still belongs to the grading path
+    # (resolve_quiz_answer_key), which reads overrides before falling back to
+    # the store.
+    school_id = student.get("school_id")
+    candidates = await resolve_curriculum_ids(
         student_id,
         student.get("grade", 8),
         request.app.state.pool,
         request.app.state.redis,
-        school_id=student.get("school_id"),
+        school_id=school_id,
     )
+    curriculum_id, _unit_subject = await resolve_unit_curriculum(
+        body.unit_id, candidates, school_id, request.app.state.pool
+    )
+
+    # Lesson before quiz (product decision 2026-09-01).
+    #
+    # Enforced HERE as well as on the content endpoint, and this is the more
+    # important of the two. The quiz page opens the session FIRST and fetches the
+    # quiz for it (#567), so gating only the content would still create a
+    # progress_sessions row per blocked attempt — and `attempt_number` is
+    # COUNT(*) + 1, so a student repeatedly bouncing off the gate would silently
+    # inflate their own attempt count on a unit they never sat. That is the
+    # phantom-attempt bug of #465 / #579 wearing a new hat.
+    #
+    # Fails OPEN when the unit has no lesson to read: telling a student to go and
+    # read something that does not exist would make the quiz unreachable forever.
+    # That lookup only runs when the gate would otherwise block, so the ordinary
+    # path does not pay for it.
+    if not await has_met_lesson_prerequisite(request.app.state.pool, student_id, body.unit_id):
+        if await unit_has_lesson(
+            curriculum_id,
+            body.unit_id,
+            student.get("locale", "en"),
+            get_redis(request),
+            get_storage(request),
+        ):
+            raise HTTPException(
+                status_code=403,
+                detail={
+                    "error": "lesson_required",
+                    # Student-facing, so: no status code, no identifiers, no
+                    # jargon (Content Rule #5). It says what to do, not what
+                    # went wrong.
+                    "detail": "Read the lesson first, then come back for the quiz.",
+                    "correlation_id": cid,
+                },
+            )
 
     async with get_db(request) as conn:
         try:
@@ -98,6 +149,18 @@ async def start_session(
                 student_id=student_id,
                 unit_id=body.unit_id,
                 curriculum_id=curriculum_id,
+            )
+            # The SESSION chooses the quiz set (#567), so the set a student is
+            # served can no longer drift from the set they are graded against.
+            # A reused session (#627) keeps the set it already had — one
+            # rotation per attempt, not one per page load.
+            result["quiz_set"] = await pin_session_quiz_set(
+                conn,
+                get_redis(request),
+                session_id=result["session_id"],
+                student_id=student_id,
+                unit_id=body.unit_id,
+                existing=result.get("quiz_set"),
             )
         except Exception as exc:
             log.error("start_session_failed", error=str(exc), correlation_id=cid)
@@ -217,24 +280,18 @@ async def record_answer(
     correct_index = entry["index"]
     correct = body.student_answer == correct_index
 
-    # Debug logging for quiz validation issue
-    log.info(
-        "quiz_answer_validation",
-        extra={
-            "session_id": session_id,
-            "question_id": body.question_id,
-            "student_answer": body.student_answer,
-            "correct_index": correct_index,
-            "correct": correct,
-            "correct_option_id": entry.get("option_id"),
-        },
-    )
-
     # Running tally in Redis: the DB write below is fire-and-forget, so the rows
     # may not exist yet when the session ends. This is what end_session reads.
     # Keyed by question_id so re-answering (skip-and-return, #532) can't inflate
     # the score — the field is overwritten, not counted twice.
-    await tally_answer(redis, session_id=session_id, question_id=body.question_id, correct=correct)
+    await tally_answer(
+        redis,
+        session_id=session_id,
+        question_id=body.question_id,
+        correct=correct,
+        # Recorded so a refresh can restore what the student picked (#667).
+        answer_index=body.student_answer,
+    )
 
     # Fire-and-forget Celery task for the actual write — with the SERVER's verdict
     from src.core.celery_app import celery_app
@@ -250,16 +307,18 @@ async def record_answer(
             "ms_taken": body.ms_taken,
             "event_id": body.event_id,
             "quiz_set": set_number,
+            # ADR-008 Phase 1: WHICH question this was, as opposed to which slot.
+            # Resolved from the answer key the server just graded against, so the
+            # client contract is unchanged -- it still sends `q1…qN`.
+            "stable_question_id": entry.get("stable_question_id"),
         },
         queue="io",
     )
 
-    return RecordAnswerResponse(
-        answer_id="",
-        correct=correct,
-        correct_index=correct_index,
-        explanation=entry.get("explanation", ""),
-    )
+    # An acknowledgement only. The verdict and the key travel with the summary
+    # (#684): returning them here let a student read the answer and re-answer
+    # for a perfect score, because re-answering overwrites the verdict.
+    return RecordAnswerResponse(answer_id="", recorded=True)
 
 
 @router.post(
@@ -345,6 +404,9 @@ async def end_session_endpoint(
 
         # The quiz's real length is the answer key's — not whatever the client says.
         total_questions = body.total_questions or 1
+        # Bound before the try: the FileNotFoundError branch below leaves it
+        # unset otherwise, and the reveal reads it afterwards (#684).
+        answer_key: dict | None = None
         try:
             set_number = await resolve_session_quiz_set(
                 redis,
@@ -370,6 +432,24 @@ async def end_session_endpoint(
             # Content gone since the attempt started — fall back to the client's
             # hint for the denominator only. The score itself is still ours.
             log.warning("quiz_answer_key_missing_at_end", correlation_id=cid)
+
+        # The reveal, released now that the attempt is closed (#684). Built from
+        # the answer key already resolved above and the picked indexes the tally
+        # records since #667, so it costs no extra lookup.
+        reveal: list[dict] = []
+        if answer_key:
+            picked = await read_answered(redis, session_id)
+            for question_id, entry in answer_key.items():
+                mine = picked.get(question_id)
+                reveal.append(
+                    {
+                        "question_id": question_id,
+                        "correct_index": entry["index"],
+                        "explanation": entry.get("explanation", ""),
+                        "your_answer": mine,
+                        "correct": mine is not None and mine == entry["index"],
+                    }
+                )
 
         try:
             result = await end_session(
@@ -408,7 +488,64 @@ async def end_session_endpoint(
         "src.auth.tasks.refresh_progress_view_task", kwargs={"student_id": student_id}, queue="io"
     )
 
-    return EndSessionResponse(**result)
+    return EndSessionResponse(**result, reveal=reveal)
+
+
+@router.get("/progress/session/{session_id}/answers", status_code=200)
+async def session_answers(
+    session_id: str,
+    request: Request,
+    student: Annotated[dict, Depends(get_current_student)],
+) -> dict:
+    """
+    Which options this student has already picked in this session (#667).
+
+    Refreshing mid-quiz used to clear every selection on screen. The answers were
+    never lost — they are graded server-side as they are given (#506) and the
+    session resumes with the same question set (#646) — but the page could not
+    read them back, so a student saw an empty quiz and re-answered questions they
+    had already done, unable to tell which.
+
+    Returns ONLY the picked option index per question. Never whether it was
+    correct: the player withholds the reveal until the summary (#532), and a
+    resume must not become a way around that.
+
+    Read from the Redis tally rather than `progress_answers`, because answer
+    writes are fire-and-forget and the rows may not exist yet — the same reason
+    end_session reads the tally (pitfall #35).
+    """
+    student_id = str(student["student_id"])
+    cid = getattr(request.state, "correlation_id", "")
+
+    async with get_db(request) as conn:
+        try:
+            await verify_session_owner(conn, session_id, student_id)
+        except LookupError:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "error": "session_not_found",
+                    "detail": "Session not found.",
+                    "correlation_id": cid,
+                },
+            )
+        except PermissionError:
+            raise HTTPException(
+                status_code=403,
+                detail={
+                    "error": "forbidden",
+                    "detail": "This session belongs to another student.",
+                    "correlation_id": cid,
+                },
+            )
+
+    answered = await read_answered(request.app.state.redis, session_id)
+    return {
+        "session_id": session_id,
+        "answers": [
+            {"question_id": qid, "answer_index": idx} for qid, idx in sorted(answered.items())
+        ],
+    }
 
 
 @router.get("/progress/student", response_model=ProgressHistoryResponse, status_code=200)

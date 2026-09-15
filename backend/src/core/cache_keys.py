@@ -63,6 +63,26 @@ def cur_key(student_id: str, school_id: str | None) -> str:
     return f"cur:{student_id}"
 
 
+def curs_key(student_id: str, school_id: str | None) -> str:
+    """
+    Redis key for the FULL set of curricula a student's content comes from.
+
+    school:{school_id}:curs:{student_id}  — school-enrolled student
+    curs:{student_id}                     — unaffiliated / demo student
+
+    Distinct from `cur_key`, which holds the single PRIMARY curriculum. A
+    classroom may carry several packages and they are ADDITIVE (#651), so the
+    set is what the curriculum tree and the "units done" denominators need,
+    while serving one unit still resolves to one curriculum.
+
+    Deliberately under the same `school:{id}:` prefix, so the existing
+    `school_scan_pattern` bulk eviction already covers it.
+    """
+    if school_id:
+        return f"school:{school_id}:curs:{student_id}"
+    return f"curs:{student_id}"
+
+
 def school_ent_key(school_id: str) -> str:
     """
     Redis key for the school-level derived entitlement blob.
@@ -103,8 +123,11 @@ def quiz_set_key(student_id: str, unit_id: str) -> str:
 
 def quiz_answers_key(session_id: str) -> str:
     """
-    quizanswers:{session_id} — Redis HASH of question_id → "1"/"0" (server-graded
-    correctness), one field per answered question.
+    quizanswers:{session_id} — Redis HASH of question_id → "<verdict>:<index>",
+    one field per answered question. The verdict ("1"/"0") is the server-graded
+    correctness that scoring reads; the index is the option the student picked,
+    kept so a refresh can restore their selections (#667). Fields written before
+    #667 are a bare "1"/"0" and still score correctly.
 
     The score has to be authoritative but the answer write is fire-and-forget
     (perf rule #4), so `progress_answers` may not be persisted yet when the

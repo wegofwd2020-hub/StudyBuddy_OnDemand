@@ -51,6 +51,35 @@ class ForgotPasswordRequest(BaseModel):
         return v.strip().lower()
 
 
+class ResetTokenCheckRequest(BaseModel):
+    """
+    POST /auth/reset-password/check
+
+    Asks whether a reset token is still usable, WITHOUT consuming it. The reset
+    page needs this to decide between rendering the form and saying the link has
+    expired; before it existed the page had nothing to call, so it rendered the
+    form for any non-empty token string and only revealed the expiry after the
+    user had typed a new password twice and pressed the button.
+
+    The token travels in the body rather than a path segment so it stays out of
+    access logs, matching ResetPasswordRequest.
+    """
+
+    token: str
+
+
+class ResetTokenCheckResponse(BaseModel):
+    """Deliberately a bare boolean.
+
+    Returning the email or user type would turn a leaked reset link into a PII
+    lookup. `valid` is all the page needs, and the token is 256 bits of
+    `secrets.token_urlsafe(32)`, so confirming validity tells a guesser nothing
+    they could not learn by attempting the reset itself.
+    """
+
+    valid: bool
+
+
 class ResetPasswordRequest(BaseModel):
     """
     POST /auth/reset-password

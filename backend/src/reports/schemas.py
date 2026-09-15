@@ -24,9 +24,38 @@ class AttemptDistribution(BaseModel):
 # ── Report 1: Class Overview ──────────────────────────────────────────────────
 
 
+class ReportScope(BaseModel):
+    """What population the figures in this report actually cover.
+
+    Since #576 a teacher's numbers mean THEIR GRADES and a school admin's mean
+    the whole school — the same tile, the same label, two different populations,
+    with nothing on screen saying which. That silence is the defect behind §0 of
+    the dashboard design, and it is what made a teacher reading "pass rate 62%"
+    unable to tell whose pass rate it was.
+
+    The scope is reported by the SERVER, derived from the same `_grade_filter`
+    that scoped the query. Re-deriving it in the client would let the caption
+    drift from the data it describes — the caption would still say "your grades:
+    8, 10" after the filter had changed, which is worse than no caption.
+
+    `kind`:
+        "school"    — unrestricted (school_admin); `grades` is empty
+        "grades"    — restricted to `grades`
+    A teacher with NO assignments is `kind="grades"` with an EMPTY list, which
+    is a real and distinct state: they legitimately see nothing. It must not be
+    collapsed into "school" (the pre-#576 bug) nor rendered as a blank caption —
+    all-zero tiles with no explanation is exactly the "can't tell 'not set up'
+    from 'broken'" problem in §4.2.
+    """
+
+    kind: str
+    grades: list[int] = []
+
+
 class OverviewReport(BaseModel):
     school_id: str
     period: str
+    scope: ReportScope
     enrolled_students: int
     active_students_period: int
     active_pct: float
@@ -46,7 +75,11 @@ class RecentFeedbackItem(BaseModel):
     feedback_id: str
     category: str
     rating: int | None = None
-    message: str
+    # Nullable since migration 0062: a thumbs vote carries a verdict, not prose.
+    # Leaving this required made the report 500 on the first real thumbs-up.
+    message: str | None = None
+    helpful: bool | None = None
+    content_type: str | None = None
     submitted_at: datetime
 
 
@@ -82,7 +115,12 @@ class PerUnitStudentReportItem(BaseModel):
     quiz_attempts: int
     best_score: float | None = None
     passed: bool
-    avg_duration_s: float
+    # Total seconds this student spent on this unit's content, NOT a per-view
+    # average. Renamed from `avg_duration_s` because the old name described the
+    # value accurately while the column heading above it did not, and the tile it
+    # sat under was a sum — so the screen invited an addition that could never
+    # come out. Same quantity as `total_time_spent_s`, one grain down.
+    total_duration_s: int
 
 
 class StudentReport(BaseModel):
@@ -124,6 +162,24 @@ class CurriculumHealthReport(BaseModel):
     watch_count: int
     struggling_count: int
     no_activity_count: int
+    # Feedback that names no unit. A per-unit report cannot show it, so it is
+    # reported alongside — otherwise the dashboard's "Unreviewed feedback" tile
+    # and the sum of this report's per-unit counts differ with no way to see why.
+    # Defaulted so an older client that ignores it is unaffected.
+    general_feedback_count: int = 0
+    # Grades the CALLER may filter to — every grade with an active enrolment
+    # inside their entitlement, not merely the grades present in `units`.
+    #
+    # A picker populated from its own filtered result narrows to a single option
+    # the first time it is used and cannot be widened again. So this reports the
+    # permission scope while everything else in the response reports the
+    # selection, and the two are allowed to disagree.
+    available_grades: list[int] = []
+    # Echoed back so the client renders the filter from the SERVER's answer
+    # rather than from its own request. Same reasoning as `ReportScope` above:
+    # a caption or a selected chip derived client-side drifts from the data it
+    # labels the moment a request is in flight or one gets rejected.
+    selected_grade: int | None = None
     units: list[CurriculumHealthUnit]
 
 
@@ -132,20 +188,23 @@ class CurriculumHealthReport(BaseModel):
 
 class FeedbackReportItem(BaseModel):
     feedback_id: str
+    unit_id: str | None = None
+    unit_name: str | None = None
     category: str
     rating: int | None = None
-    message: str
+    # See the widget: a thumbs vote carries `helpful` and no prose (migration 0062).
+    message: str | None = None
+    helpful: bool | None = None
+    content_type: str | None = None
     submitted_at: datetime
     reviewed: bool
 
 
-class FeedbackByUnit(BaseModel):
-    unit_id: str
-    unit_name: str | None = None
-    feedback_count: int
-    category_breakdown: dict[str, int]  # content/ux/general → count
-    trending: bool  # > 3 items in last 7 days
-    feedback_items: list[FeedbackReportItem]
+class FeedbackPagination(BaseModel):
+    page: int
+    page_size: int
+    # Total matching the CURRENT filters — the header counts below are not filtered.
+    total: int
 
 
 class FeedbackReport(BaseModel):
@@ -153,7 +212,8 @@ class FeedbackReport(BaseModel):
     total_feedback_count: int
     unreviewed_count: int
     avg_rating_overall: float | None = None
-    by_unit: list[FeedbackByUnit]
+    items: list[FeedbackReportItem]
+    pagination: FeedbackPagination
 
 
 # ── Report 6: Trends ──────────────────────────────────────────────────────────
@@ -200,6 +260,22 @@ class AlertItem(BaseModel):
     details: dict[str, Any]
     triggered_at: datetime
     acknowledged: bool
+    # Resolved from the alert's unit (#647). None when the unit is not in
+    # curriculum_units — such alerts are withheld from grade-restricted
+    # teachers, so a None here only ever reaches a school_admin.
+    grade: int | None = None
+    # The unit's human name, so the inbox can say "Weather and Climate" rather
+    # than only "G5-TECH-004" — a code a teacher cannot match to anything on the
+    # Subjects page. None when the unit is not in curriculum_units, in which case
+    # the page falls back to showing the raw id.
+    unit_title: str | None = None
+    # For alerts that name a STUDENT (`student_stuck_on_unit`). Resolved at read
+    # time from `details->>'student_id'`, never stored in `details`: a name copied
+    # into an operational JSONB row is a PII duplicate that goes stale and
+    # outlives the account it describes, which is a FERPA retention problem
+    # rather than a tidiness one. None for unit-grained types, and for a student
+    # who has since been removed.
+    student_name: str | None = None
 
 
 class AlertListResponse(BaseModel):
@@ -207,19 +283,26 @@ class AlertListResponse(BaseModel):
 
 
 class AlertSettings(BaseModel):
+    # `score_drop_threshold` and `feedback_count_threshold` were here from
+    # migration 0010 and nothing ever read them (#735). Removed rather than
+    # labelled: a school could set them, watch them persist, and get no alert
+    # ever. The columns remain, so re-adding either is a schema no-op once one
+    # of them has a definition worth implementing.
     pass_rate_threshold: float = Field(50.0, ge=0, le=100)
-    feedback_count_threshold: int = Field(3, ge=1)
     inactive_days_threshold: int = Field(14, ge=1)
-    score_drop_threshold: float = Field(10.0, ge=0, le=100)
+    # Completed attempts with no pass, ever, before `student_stuck_on_unit` fires.
+    # ge=2 on purpose: one failed attempt is a bad day, not a pattern, and a
+    # threshold of 1 would raise an alert for every student on their way to
+    # passing on the second try.
+    stuck_attempts_threshold: int = Field(3, ge=2, le=20)
     new_feedback_immediate: bool = True
 
 
 class AlertSettingsResponse(BaseModel):
     school_id: str
     pass_rate_threshold: float
-    feedback_count_threshold: int
     inactive_days_threshold: int
-    score_drop_threshold: float
+    stuck_attempts_threshold: int
     new_feedback_immediate: bool
     # None when the school has never saved settings and the GET returns defaults (#526).
     updated_at: datetime | None = None

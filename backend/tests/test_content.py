@@ -21,6 +21,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from httpx import AsyncClient
 
+from tests.helpers.lesson_gate import satisfy_lesson_gate
 from tests.helpers.token_factory import make_student_token
 
 # ── Sample content fixtures ───────────────────────────────────────────────────
@@ -187,6 +188,22 @@ async def test_quiz_rotates_sets(client: AsyncClient, fake_redis):
     token = make_student_token(student_id=student_id, grade=8)
     unit_id = "G8-SCI-001"
 
+    # A quiz requires the lesson first (2026-09-01). This test is about SET
+    # ROTATION, so its student needs to be someone who may legitimately open the
+    # quiz at all.
+    pool = client._transport.app.state.pool
+    await pool.execute(
+        """
+        INSERT INTO students (student_id, external_auth_id, name, email, grade, locale, account_status)
+        VALUES ($1, $2, 'Rotation Student', $3, 8, 'en', 'active')
+        ON CONFLICT (student_id) DO NOTHING
+        """,
+        uuid.UUID(student_id),
+        f"auth0|rot-{student_id.replace('-', '')}",
+        f"rot-{student_id[:8]}@test.invalid",
+    )
+    await satisfy_lesson_gate(client, student_id, unit_id, "default-2026-g8")
+
     sets_served = []
 
     async def _mock_get_content_file(curriculum_id, unit_id, filename, redis, storage):
@@ -215,9 +232,17 @@ async def test_quiz_rotates_sets(client: AsyncClient, fake_redis):
                 headers={"Authorization": f"Bearer {token}"},
             )
             assert response.status_code == 200, response.text
-            # The quiz response carries a subject for the result screen (#461);
-            # with no subject_name seeded it falls back to the resolved code.
-            assert response.json()["subject"] == "G8-SCI"
+            # The quiz response carries a subject for the result screen (#461).
+            #
+            # This used to assert "G8-SCI" — i.e. with no subject_name seeded, a
+            # STUDENT was shown the internal subject code on their result screen,
+            # which Content Rule #5 forbids outright ("never expose ... internal
+            # identifiers in any message visible to students").
+            #
+            # `display_subject` no longer accepts a bare code as a display name,
+            # so the unit_id prefix now yields a real word. Same fallback chain,
+            # one fewer way to print a code at a child.
+            assert response.json()["subject"] == "Science"
 
     assert sets_served == [1, 2, 3, 1], f"Expected rotation 1→2→3→1, got {sets_served}"
 

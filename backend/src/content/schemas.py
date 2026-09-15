@@ -69,6 +69,11 @@ class QuizResponse(BaseModel):
     # Human-readable subject name for the result screen (#461). Optional so the
     # teacher-authored override path (which may omit it) stays valid.
     subject: str | None = None
+    # The unit's own title, e.g. "Permutations, Combinations, and Probability".
+    # The result screen showed only the SUBJECT ("MATHEMATICS"), which does not
+    # say which of that subject's units the score belongs to -- reported
+    # 2026-08-31. Optional for the same reason as `subject`.
+    unit_title: str | None = None
 
 
 # ── Tutorial ──────────────────────────────────────────────────────────────────

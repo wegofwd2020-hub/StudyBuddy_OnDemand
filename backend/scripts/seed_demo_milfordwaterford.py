@@ -326,6 +326,35 @@ async def _upsert_school(conn: asyncpg.Connection) -> str:
     return str(school_id)
 
 
+async def _ensure_subscription(conn: asyncpg.Connection, school_id: str) -> None:
+    """Give the demo school an active subscription.
+
+    Without one the school falls to the free tier, whose cap is TWO lessons
+    (`_FREE_TIER_LESSON_LIMIT` in content/router.py) — so a seeded student opens
+    two lessons and every one after that returns 402. The accounts look fine
+    right up until someone actually uses them, which is exactly what happened on
+    2026-08-31: the seeded school had no subscription and the gap was missed
+    because a differently-named school on the same demo did have one.
+
+    Idempotent, and it does not touch an existing row: a school whose
+    subscription was deliberately expired for paywall testing stays expired.
+    """
+    await conn.execute(
+        """
+        INSERT INTO school_subscriptions
+            (school_id, plan, status, stripe_customer_id, stripe_subscription_id,
+             max_students, max_teachers, current_period_end)
+        SELECT $1, 'professional', 'active',
+               'cus_demo_milford_local', 'sub_demo_milford_local', 500, 50,
+               NOW() + INTERVAL '1 year'
+        WHERE NOT EXISTS (
+            SELECT 1 FROM school_subscriptions WHERE school_id = $1
+        )
+        """,
+        school_id,
+    )
+
+
 # ── Teachers ───────────────────────────────────────────────────────────────────
 
 
@@ -752,6 +781,7 @@ async def seed(dry_run: bool) -> None:
             await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
             async with conn.transaction():
                 school_id = await _upsert_school(conn)
+                await _ensure_subscription(conn, school_id)
                 print(f"\nSchool '{SCHOOL_NAME}'")
                 print(_col("school_id", school_id))
 

@@ -354,6 +354,21 @@ _DEFAULT_PW_CHARS = _string.ascii_letters + _string.digits
 _TIMING_SENTINEL_HASH: str = bcrypt.hashpw(b"__sentinel__", bcrypt.gensalt(rounds=4)).decode()
 
 
+def temp_password_expiry() -> datetime:
+    """When a password issued RIGHT NOW should stop being accepted (#664).
+
+    One place decides this, because four call sites issue temporary passwords
+    (provision teacher, provision student, reset teacher, reset student) and a
+    TTL agreed in four places is a TTL that drifts in four directions.
+
+    Only ever stamped on a password somebody ELSE chose. A password the user
+    picks themselves clears the column — see `change_password`.
+    """
+    from config import settings
+
+    return datetime.now(tz=UTC) + timedelta(hours=settings.TEMP_PASSWORD_TTL_HOURS)
+
+
 def generate_default_password(length: int = 12) -> str:
     """
     Generate a random URL-safe default password for provisioned users.
@@ -392,7 +407,7 @@ async def login_local_user(
         row = await conn.fetchrow(
             """
             SELECT teacher_id::text AS user_id, name, role, school_id::text, account_status,
-                   password_hash, first_login, 'teacher' AS user_type
+                   password_hash, first_login, password_expires_at, 'teacher' AS user_type
             FROM teachers
             WHERE email = $1 AND auth_provider = 'local'
             """,
@@ -404,7 +419,8 @@ async def login_local_user(
                 """
                 SELECT student_id::text AS user_id, name, 'student' AS role,
                        school_id::text, account_status,
-                       password_hash, first_login, 'student' AS user_type
+                       password_hash, first_login, password_expires_at,
+                       'student' AS user_type
                 FROM students
                 WHERE email = $1 AND auth_provider = 'local'
                 """,
@@ -438,6 +454,30 @@ async def login_local_user(
         raise HTTPException(
             status_code=401,
             detail={"error": "unauthenticated", "detail": "Invalid email or password."},
+        )
+
+    # A school-issued temporary password stops working after its window (#664).
+    #
+    # Checked AFTER the password itself verifies, so an expired credential is
+    # not an oracle: a wrong password still returns the same 401 as always, and
+    # only someone holding the real (expired) one learns it has lapsed.
+    #
+    # Gated on `first_login` so this can only ever affect a password somebody
+    # ELSE chose. NULL expiry means no expiry — every account provisioned before
+    # this shipped, which must not be locked out by a deploy.
+    if (
+        row["first_login"]
+        and row["password_expires_at"] is not None
+        and row["password_expires_at"] < datetime.now(tz=UTC)
+    ):
+        raise HTTPException(
+            status_code=401,
+            detail={
+                "error": "temp_password_expired",
+                "detail": (
+                    "This temporary password has expired. Ask your school to send you a new one."
+                ),
+            },
         )
 
     if row["account_status"] == "suspended":
@@ -514,7 +554,9 @@ async def set_local_user_password(
             status = await conn.execute(
                 f"""
                 UPDATE {table}
-                   SET password_hash = $1, first_login = FALSE
+                   SET password_hash = $1, first_login = FALSE,
+                       -- The user chose this one, so it has no expiry (#664).
+                       password_expires_at = NULL
                  WHERE {id_col} = $2::uuid AND auth_provider = 'local'
                 """,
                 new_hash,

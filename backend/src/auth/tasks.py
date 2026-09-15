@@ -220,6 +220,7 @@ def write_progress_answer_task(
     ms_taken: int,
     event_id: str | None,
     quiz_set: int | None = None,
+    stable_question_id: str | None = None,
 ) -> None:
     """
     Fire-and-forget task: write a progress answer to PostgreSQL.
@@ -247,6 +248,7 @@ def write_progress_answer_task(
                     correct=correct,
                     ms_taken=ms_taken,
                     event_id=event_id,
+                    stable_question_id=stable_question_id,
                 )
                 # Persist which set was graded, so the session stays auditable
                 # after the Redis pin expires. First writer wins.
@@ -313,13 +315,31 @@ def update_streak_task(self, student_id: str, activity_date: str) -> None:
         raise self.retry(exc=exc, countdown=15)
 
 
-@celery_app.task(name="src.auth.tasks.refresh_progress_view_task", bind=True, max_retries=2)
-def refresh_progress_view_task(self, student_id: str) -> None:
-    """
-    Refresh mv_student_curriculum_progress for a single student.
+# Coalescing window for the whole-view refresh (#675). Long enough to absorb a
+# burst of lesson/quiz ends, short enough that a status icon is never visibly
+# stale — a student navigating from a lesson to the curriculum map takes longer
+# than this.
+_MV_REFRESH_LOCK = "mv_progress_refresh_lock"
+_MV_REFRESH_LOCK_TTL = 10
 
-    Uses REFRESH MATERIALIZED VIEW CONCURRENTLY so reads are not blocked.
-    Also invalidates the dashboard Redis cache for this student.
+
+@celery_app.task(name="src.auth.tasks.refresh_progress_view_task", bind=True, max_retries=2)
+def refresh_progress_view_task(self, student_id: str | None = None) -> None:
+    """
+    Refresh mv_student_curriculum_progress and drop this student's dashboard cache.
+
+    Note the refresh is WHOLE-VIEW despite the per-student argument — there is no
+    per-row refresh for a materialized view. That was tolerable when only session
+    end dispatched it; since #675 a lesson end does too, which is a far more
+    frequent event, so the work is coalesced behind a short Redis lock.
+
+    Coalescing, not dropping: a caller that cannot take the lock re-dispatches
+    itself once with a delay, so the last event in a burst still lands a refresh.
+    Simply skipping would lose the change that mattered if it happened to be the
+    last one — the student would sit looking at a stale icon indefinitely.
+
+    The cache invalidation runs regardless of the lock: it is per-student and
+    cheap, and it is what makes the student's own next page load correct.
     """
     import asyncpg
     import redis as redis_sync
@@ -336,12 +356,27 @@ def refresh_progress_view_task(self, student_id: str) -> None:
             await pool.close()
 
     try:
-        _run_async(_refresh())
-
-        # Invalidate L2 dashboard cache
         r = redis_sync.from_url(cfg.REDIS_URL)
-        r.delete(f"dashboard:{student_id}")
+
+        # Per-student and cheap — always do it, lock or no lock.
+        if student_id:
+            r.delete(f"dashboard:{student_id}")
+
+        got_lock = r.set(_MV_REFRESH_LOCK, "1", nx=True, ex=_MV_REFRESH_LOCK_TTL)
         r.close()
+
+        if not got_lock:
+            # Someone refreshed within the window. Re-dispatch once, after it,
+            # so this event's row is definitely included.
+            celery_app.send_task(
+                "src.auth.tasks.refresh_progress_view_task",
+                kwargs={"student_id": None},
+                queue="io",
+                countdown=_MV_REFRESH_LOCK_TTL + 2,
+            )
+            return
+
+        _run_async(_refresh())
     except Exception as exc:
         raise self.retry(exc=exc, countdown=30)
 
@@ -389,6 +424,7 @@ def write_lesson_end_task(
     duration_s: int,
     audio_played: bool,
     experiment_viewed: bool,
+    tutorial_viewed: bool = False,
 ) -> None:
     """
     Fire-and-forget task: write lesson end data to lesson_views.
@@ -402,18 +438,29 @@ def write_lesson_end_task(
         pool = await asyncpg.create_pool(cfg.DATABASE_URL, min_size=1, max_size=2)
         try:
             async with pool.acquire() as conn:
-                await end_lesson_view(
+                return await end_lesson_view(
                     conn,
                     view_id=view_id,
                     duration_s=duration_s,
                     audio_played=audio_played,
                     experiment_viewed=experiment_viewed,
+                    tutorial_viewed=tutorial_viewed,
                 )
         finally:
             await pool.close()
 
     try:
-        _run_async(_write())
+        result = _run_async(_write())
+        # The unit's status now depends on this row (#675): a lesson view makes
+        # the unit "in progress". Session end already refreshes the view; without
+        # the same dispatch here the icon would not move until the student's next
+        # quiz ended, which is precisely the state they have NOT reached yet.
+        if result and result.get("student_id"):
+            celery_app.send_task(
+                "src.auth.tasks.refresh_progress_view_task",
+                kwargs={"student_id": result["student_id"]},
+                queue="io",
+            )
     except Exception as exc:
         raise self.retry(exc=exc, countdown=10)
 
@@ -1190,46 +1237,124 @@ def evaluate_report_alerts_task() -> None:
     """
     import asyncpg as _asyncpg
 
+    from src.reports.service import (
+        find_inactive_students,
+        find_stuck_students,
+        raise_inactive_student_alert,
+        raise_pass_rate_alert,
+        raise_stuck_student_alert,
+        resolve_cleared_alerts,
+        resolve_cleared_inactive_alerts,
+        resolve_cleared_stuck_alerts,
+    )
+
     async def _evaluate():
         pool = await _asyncpg.create_pool(settings.DATABASE_URL, min_size=1, max_size=3)
         try:
             async with pool.acquire() as conn:
                 settings_rows = await conn.fetch(
-                    "SELECT school_id::text, pass_rate_threshold, inactive_days_threshold FROM report_alert_settings"
+                    "SELECT school_id::text, pass_rate_threshold, "
+                    "stuck_attempts_threshold, inactive_days_threshold "
+                    "FROM report_alert_settings"
                 )
+                pass_rate_raised = stuck_raised = stuck_resolved = 0
+                inactive_raised = inactive_resolved = 0
                 for s in settings_rows:
                     school_id = s["school_id"]
                     # Check pass rate breach per unit
                     breach_rows = await conn.fetch(
                         """
                         SELECT ps.unit_id,
-                            ROUND(100.0 * COUNT(*) FILTER (WHERE ps.attempt_number = 1 AND ps.passed AND ps.completed)
+                            -- Distinct students on BOTH sides: per unit, counting rows in the
+                            -- numerator let one student's repeated attempt-1 sessions — or a
+                            -- second active enrolment fanning out the JOIN below — exceed
+                            -- 100% (#623). COUNT(DISTINCT) is immune to both.
+                            ROUND(100.0 * COUNT(DISTINCT ps.student_id) FILTER (WHERE ps.attempt_number = 1 AND ps.passed AND ps.completed)
                                 / NULLIF(COUNT(DISTINCT ps.student_id) FILTER (WHERE ps.attempt_number = 1 AND ps.completed), 0), 1)
                                 AS pass_rate
                         FROM progress_sessions ps
                         INNER JOIN school_enrolments se ON se.student_id = ps.student_id
                         WHERE se.school_id = $1 AND se.status = 'active'
                         GROUP BY ps.unit_id
-                        HAVING ROUND(100.0 * COUNT(*) FILTER (WHERE ps.attempt_number = 1 AND ps.passed AND ps.completed)
+                        -- Must match the SELECT expression exactly, or units are filtered
+                        -- by one number and reported with another.
+                        HAVING ROUND(100.0 * COUNT(DISTINCT ps.student_id) FILTER (WHERE ps.attempt_number = 1 AND ps.passed AND ps.completed)
                             / NULLIF(COUNT(DISTINCT ps.student_id) FILTER (WHERE ps.attempt_number = 1 AND ps.completed), 0), 1)
                             < $2
                         """,
                         uuid.UUID(school_id),
                         s["pass_rate_threshold"],
                     )
+                    # Both statements live in reports.service so the tests
+                    # exercise the same SQL this task runs, rather than a copy.
                     for br in breach_rows:
-                        await conn.execute(
-                            """
-                            INSERT INTO report_alerts (school_id, alert_type, details)
-                            VALUES ($1, 'pass_rate_breach', $2::jsonb)
-                            ON CONFLICT DO NOTHING
-                            """,
-                            uuid.UUID(school_id),
-                            json.dumps(
-                                {"unit_id": br["unit_id"], "pass_rate": float(br["pass_rate"] or 0)}
-                            ),
+                        await raise_pass_rate_alert(
+                            conn, school_id, br["unit_id"], float(br["pass_rate"] or 0)
                         )
-            log.info("report_alerts_evaluated")
+                        pass_rate_raised += 1
+
+                    # Withdraw alerts whose breach has cleared. Without this an
+                    # alert is raised and never retracted, so the inbox describes
+                    # the past: a teacher whose students have since passed still
+                    # sees the warning with no way to tell it is stale.
+                    await resolve_cleared_alerts(
+                        conn, school_id, [br["unit_id"] for br in breach_rows]
+                    )
+
+                    # Per-student: a student with repeated completed attempts and
+                    # no pass, ever. The pass-rate query above cannot express this
+                    # — it groups by unit and filters `attempt_number = 1`, so
+                    # attempts 2..N are invisible to it and no per-student row can
+                    # exist (Venki, 2026-09-02).
+                    stuck_rows = await find_stuck_students(
+                        conn, school_id, int(s["stuck_attempts_threshold"])
+                    )
+                    for sr in stuck_rows:
+                        await raise_stuck_student_alert(
+                            conn,
+                            school_id,
+                            sr["student_id"],
+                            sr["unit_id"],
+                            int(sr["failed_attempts"]),
+                        )
+                        stuck_raised += 1
+
+                    stuck_resolved += await resolve_cleared_stuck_alerts(
+                        conn,
+                        school_id,
+                        [(sr["student_id"], sr["unit_id"]) for sr in stuck_rows],
+                    )
+
+                    # Inactivity. `inactive_days_threshold` has been settable
+                    # since migration 0010 and was SELECTed here and then never
+                    # referenced -- a school could tune it and nothing would ever
+                    # fire (#735).
+                    idle_rows = await find_inactive_students(
+                        conn, school_id, int(s["inactive_days_threshold"])
+                    )
+                    for ir in idle_rows:
+                        await raise_inactive_student_alert(
+                            conn,
+                            school_id,
+                            ir["student_id"],
+                            int(ir["days_inactive"]),
+                        )
+                        inactive_raised += 1
+
+                    inactive_resolved += await resolve_cleared_inactive_alerts(
+                        conn, school_id, [ir["student_id"] for ir in idle_rows]
+                    )
+
+            log.info(
+                "report_alerts_evaluated",
+                extra={
+                    "pass_rate_raised": pass_rate_raised,
+                    "stuck_raised": stuck_raised,
+                    "stuck_resolved": stuck_resolved,
+                    "inactive_raised": inactive_raised,
+                    "inactive_resolved": inactive_resolved,
+                },
+            )
         finally:
             await pool.close()
 

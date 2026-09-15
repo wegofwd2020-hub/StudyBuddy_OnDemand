@@ -16,13 +16,16 @@ from __future__ import annotations
 
 import asyncio
 import json
+import uuid
 from typing import Annotated
 
+import asyncpg
 from fastapi import APIRouter, Depends, HTTPException, Request
 
 from src.auth.dependencies import get_current_student, get_current_teacher
 from src.core.db import get_db
 from src.core.events import emit_event, write_audit_log
+from src.core.grade_scope import grade_filter
 from src.core.permissions import has_any_curriculum_capability
 from src.core.storage import get_storage
 from src.school.capability_guards import (
@@ -56,10 +59,13 @@ from src.school.schemas import (
     CurriculumDefinitionRequest,
     CurriculumDefinitionResponse,
     DefinitionListResponse,
+    EnrolConfirmRequest,
+    EnrolConfirmResponse,
     EnrolmentRosterItem,
     EnrolmentRosterResponse,
     EnrolmentUploadRequest,
     EnrolmentUploadResponse,
+    GradeScopeResponse,
     LibraryResponse,
     OverrideItem,
     PromoteTeacherResponse,
@@ -92,10 +98,14 @@ from src.school.schemas import (
     UpdateAdoptionRequest,
 )
 from src.school.service import (
+    AlreadyEnrolledError,
+    NotPrimarySchoolError,
+    OverlappingPackageError,
     approve_definition,
     assign_package_to_classroom,
     assign_student_to_classroom,
     create_classroom,
+    enrol_student_by_code,
     fetch_school,
     get_classroom_detail,
     get_definition,
@@ -128,6 +138,12 @@ from src.utils.logger import get_logger
 log = get_logger("school")
 router = APIRouter(tags=["school"])
 
+# Unique constraints that genuinely mean "this email is taken" — used to keep
+# registration conflicts honest about which field actually clashed (#597).
+_EMAIL_UNIQUE_CONSTRAINTS = frozenset(
+    {"uq_schools_contact_email", "teachers_email_key", "students_email_key"}
+)
+
 
 def _cid(request: Request) -> str:
     return getattr(request.state, "correlation_id", "")
@@ -156,17 +172,28 @@ async def register_school_endpoint(
             result = await register_school(
                 conn, body.school_name, body.contact_email, body.country, body.password
             )
-        except Exception as exc:
-            if "unique" in str(exc).lower():
-                raise HTTPException(
-                    status_code=409,
-                    detail={
-                        "error": "conflict",
-                        "detail": "A school or account with that email already exists.",
-                        "correlation_id": _cid(request),
-                    },
+        except asyncpg.UniqueViolationError as exc:
+            # Branch on the constraint, never on a substring of the error text:
+            # every unique violation used to be reported as a duplicate email,
+            # so an enrolment-code clash told a school its address was taken
+            # and sent it retrying with addresses that were never the problem
+            # (issue #597).
+            if exc.constraint_name == "schools_enrolment_code_key":
+                message = (
+                    "Could not allocate a unique enrolment code. Please try registering again."
                 )
-            raise
+            elif exc.constraint_name in _EMAIL_UNIQUE_CONSTRAINTS:
+                message = "A school or account with that email already exists."
+            else:
+                message = "That registration conflicts with an existing record."
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "error": "conflict",
+                    "detail": message,
+                    "correlation_id": _cid(request),
+                },
+            )
     return SchoolRegisterResponse(**result)
 
 
@@ -788,6 +815,44 @@ async def get_teacher_capabilities(
 # ── Phase A provisioning endpoints ───────────────────────────────────────────
 
 
+async def _duplicate_email_detail(
+    conn: asyncpg.Connection,
+    school_id: str,
+    email: str,
+    table: str,
+) -> str:
+    """Explain a duplicate-email conflict in a way the admin can act on (#572).
+
+    `students.email` and `teachers.email` are globally unique, so an address
+    registered at ANY school blocks it everywhere. The old wording — "A student
+    with that email already exists." — left a school admin with no idea the
+    address was in use elsewhere, no way to find out (correctly: that is another
+    school's data), and nothing to do next.
+
+    Two cases, deliberately worded differently:
+      - the clash is on THIS school's roster -> name it; the admin can fix it
+      - the clash is elsewhere               -> say the address is taken across
+                                                StudyBuddy and give a contact
+                                                route, revealing nothing about
+                                                the other school
+    """
+    owned_here = await conn.fetchval(
+        f"SELECT EXISTS (SELECT 1 FROM {table} WHERE lower(email) = lower($1) AND school_id = $2)",
+        email,
+        uuid.UUID(school_id),
+    )
+    if owned_here:
+        who = "student" if table == "students" else "teacher"
+        return f"That email address is already used by a {who} at your school."
+
+    return (
+        "That email address is already registered on StudyBuddy, so it cannot be "
+        "added again. It may belong to an account at another school, which we "
+        "cannot show you. Use a different address for this person, or contact "
+        "support@usestudybuddy.com to have the address released."
+    )
+
+
 @router.post(
     "/schools/{school_id}/teachers",
     response_model=ProvisionTeacherResponse,
@@ -814,17 +879,22 @@ async def provision_teacher_endpoint(
             result = await provision_teacher(
                 conn, school_id, body.name, str(body.email), body.subject_specialisation
             )
-        except Exception as exc:
-            if "unique" in str(exc).lower():
-                raise HTTPException(
-                    status_code=409,
-                    detail={
-                        "error": "conflict",
-                        "detail": "A teacher with that email already exists.",
-                        "correlation_id": _cid(request),
-                    },
-                )
-            raise
+        except asyncpg.UniqueViolationError as exc:
+            # Branch on the constraint, never a substring of the error text:
+            # teachers.email and students.email are separate constraints (#578),
+            # so guessing which one fired produces a message that is simply wrong.
+            if exc.constraint_name != "teachers_email_key":
+                raise
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "error": "conflict",
+                    "detail": await _duplicate_email_detail(
+                        conn, school_id, str(body.email), "teachers"
+                    ),
+                    "correlation_id": _cid(request),
+                },
+            )
 
     try:
         await send_welcome_teacher_email(
@@ -868,24 +938,46 @@ async def provision_student_endpoint(
             result = await provision_student(
                 conn, school_id, body.name, str(body.email), body.grade
             )
-        except Exception as exc:
-            if "unique" in str(exc).lower():
-                raise HTTPException(
-                    status_code=409,
-                    detail={
-                        "error": "conflict",
-                        "detail": "A student with that email already exists.",
-                        "correlation_id": _cid(request),
-                    },
-                )
-            raise
+        except AlreadyEnrolledError:
+            # Already on THIS roster. Since #572 a student may hold enrolments
+            # at several schools, so a duplicate is only a conflict within one
+            # school — and here the admin can see and fix it themselves.
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "error": "conflict",
+                    "detail": (
+                        "That student is already on your roster. "
+                        "Check your student list for their existing record."
+                    ),
+                    "correlation_id": _cid(request),
+                },
+            )
+        except asyncpg.UniqueViolationError as exc:
+            if exc.constraint_name != "students_email_key":
+                raise
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "error": "conflict",
+                    "detail": await _duplicate_email_detail(
+                        conn, school_id, str(body.email), "students"
+                    ),
+                    "correlation_id": _cid(request),
+                },
+            )
 
-    try:
-        await send_welcome_student_email(
-            result["email"], result["name"], result["default_password"]
-        )
-    except Exception:
-        log.warning("welcome_email_failed", student_id=result["student_id"])
+    # Only a newly created account has credentials to send. Attaching an
+    # existing person to an additional school must not mail them anything
+    # credential-shaped: they already have a password, and this school neither
+    # set it nor may reset it.
+    if result.get("default_password"):
+        try:
+            await send_welcome_student_email(
+                result["email"], result["name"], result["default_password"]
+            )
+        except Exception:
+            log.warning("welcome_email_failed", student_id=result["student_id"])
 
     return ProvisionStudentResponse(
         student_id=result["student_id"],
@@ -959,7 +1051,24 @@ async def reset_student_password_endpoint(
     from src.email.service import send_password_reset_email
 
     async with get_db(request) as conn:
-        result = await reset_student_password(conn, school_id, target_student_id)
+        try:
+            result = await reset_student_password(conn, school_id, target_student_id)
+        except NotPrimarySchoolError as exc:
+            # 409, not 404: the student IS on this roster, so a "not found" was
+            # both wrong and unactionable — the UI rendered it as "Reset failed.
+            # Please try again.", which invited retrying something that can
+            # never succeed here (#665).
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "error": "not_primary_school",
+                    "detail": (
+                        f"{exc} manages this student's sign-in details. "
+                        "Ask them to reset the password."
+                    ),
+                    "correlation_id": _cid(request),
+                },
+            )
 
     if not result:
         raise HTTPException(
@@ -1061,6 +1170,30 @@ async def create_classroom_endpoint(
     )
 
 
+@router.get("/schools/{school_id}/my-grade-scope", response_model=GradeScopeResponse)
+async def my_grade_scope(
+    school_id: str,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+) -> GradeScopeResponse:
+    """Which grades the caller may see (#647 follow-up).
+
+    Served once rather than embedded in every list response, because scope is a
+    property of the caller. Pages use it to explain an empty list instead of
+    asserting something false about the school — see GradeScopeResponse.
+    """
+    if teacher["school_id"] != school_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    async with get_db(request) as conn:
+        grades = await grade_filter(conn, teacher, school_id)
+
+    return GradeScopeResponse(
+        kind="school" if grades is None else "grades",
+        grades=[] if grades is None else grades,
+    )
+
+
 @router.get(
     "/schools/{school_id}/classrooms",
     response_model=list[ClassroomItem],
@@ -1079,7 +1212,10 @@ async def list_classrooms_endpoint(
         raise HTTPException(status_code=403, detail="Forbidden")
 
     async with get_db(request) as conn:
-        rows = await list_classrooms(conn, school_id)
+        # Scoped to the caller's grades (#647). Previously every grade's
+        # classrooms were listed to every teacher.
+        grades = await grade_filter(conn, teacher, school_id)
+        rows = await list_classrooms(conn, school_id, grades)
 
     return [ClassroomItem(**r) for r in rows]
 
@@ -1100,8 +1236,17 @@ async def get_classroom_endpoint(
 
     async with get_db(request) as conn:
         detail = await get_classroom_detail(conn, school_id, classroom_id)
+        grades = await grade_filter(conn, teacher, school_id)
 
     if not detail:
+        raise HTTPException(status_code=404, detail="Classroom not found")
+
+    # The detail endpoint returns the classroom's STUDENTS, so an unscoped one
+    # is a named-student disclosure — sharper than the list this issue was
+    # filed for, and it would have survived fixing only what was reported.
+    # 404, not 403: confirming "that classroom exists but is not yours" still
+    # leaks which grades the school runs.
+    if grades is not None and detail.get("grade") not in set(grades):
         raise HTTPException(status_code=404, detail="Classroom not found")
 
     return ClassroomDetailResponse(
@@ -1175,14 +1320,34 @@ async def assign_package_endpoint(
         raise HTTPException(status_code=403, detail="Forbidden")
 
     async with get_db(request) as conn:
-        ok = await assign_package_to_classroom(
-            conn,
-            school_id,
-            classroom_id,
-            body.curriculum_id,
-            teacher.get("teacher_id"),
-            body.sort_order,
-        )
+        try:
+            ok = await assign_package_to_classroom(
+                conn,
+                school_id,
+                classroom_id,
+                body.curriculum_id,
+                teacher.get("teacher_id"),
+                body.sort_order,
+            )
+        except OverlappingPackageError as exc:
+            # Packages are additive AND DISTINCT (#651). Overlap would make
+            # resolution a coin-toss the school never sees, so it is refused
+            # here — naming the units, because "conflict" without them leaves
+            # nobody able to act.
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "error": "overlapping_package",
+                    "detail": (
+                        "That package covers units this classroom already has: "
+                        f"{', '.join(exc.units[:5])}"
+                        + (f" and {len(exc.units) - 5} more" if len(exc.units) > 5 else "")
+                        + ". Packages must not overlap."
+                    ),
+                    "units": exc.units,
+                    "correlation_id": _cid(request),
+                },
+            )
 
     if not ok:
         raise HTTPException(status_code=404, detail="Classroom not found")
@@ -3190,3 +3355,67 @@ async def get_student_theme_endpoint(
     pool = request.app.state.pool
     theme = await get_student_school_theme(pool, student["student_id"])
     return SchoolThemeResponse(theme=theme)
+
+
+# ── POST /school/enrol/confirm (student) ──────────────────────────────────────
+
+
+@router.post("/school/enrol/confirm", response_model=EnrolConfirmResponse)
+async def confirm_enrolment(
+    body: EnrolConfirmRequest,
+    request: Request,
+    student: Annotated[dict, Depends(get_current_student)],
+) -> EnrolConfirmResponse:
+    """Join a school using the code from an invite link (#609).
+
+    The school portal has always offered admins a copy-able `/enrol/{code}`
+    link; this is the endpoint behind it, which never existed.
+
+    Runs with RLS bypassed on purpose: `schools` and `school_enrolments` are
+    RLS-protected and the student is by definition not yet scoped to the school
+    they are joining. The enrolment code is the secret that authorises this, and
+    nothing about a school is returned unless the code matches.
+    """
+    student_id = str(student["student_id"])
+
+    async with request.app.state.pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        result = await enrol_student_by_code(conn, student_id, body.token)
+
+    if result["ok"]:
+        return EnrolConfirmResponse(school_name=result["school_name"])
+
+    reason = result["reason"]
+    if reason == "invalid_code":
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "error": "invalid_code",
+                # Deliberately says nothing about whether a school exists.
+                "detail": "That enrolment link is not valid. Check with your school for a new one.",
+                "correlation_id": _cid(request),
+            },
+        )
+    if reason == "already_enrolled_elsewhere":
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "error": "already_enrolled",
+                "detail": (
+                    "You are already enrolled at a school. Ask your school to move "
+                    "your account before joining a different one."
+                ),
+                "correlation_id": _cid(request),
+            },
+        )
+    raise HTTPException(
+        status_code=402,
+        detail={
+            "error": "seat_limit_reached",
+            "detail": (
+                "This school has no places left on its plan. Let your school know "
+                "so they can add more."
+            ),
+            "correlation_id": _cid(request),
+        },
+    )

@@ -28,9 +28,10 @@ Rate limiting: 100 req/min per student JWT via slowapi.
 from __future__ import annotations
 
 import re
+import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
 from src.auth.dependencies import get_current_student
 from src.content.schemas import (
@@ -50,9 +51,14 @@ from src.content.service import (
     get_content_file,
     get_entitlement,
     get_next_quiz_set,
+    has_met_lesson_prerequisite,
     increment_lessons_accessed,
+    resolve_content_curriculum,
     resolve_curriculum_id,
+    resolve_curriculum_ids,
+    unit_has_lesson,
 )
+from src.core.cache_keys import quiz_session_set_key
 from src.core.redis_client import get_redis
 from src.core.storage import StorageBackend, get_storage
 from src.core.subjects import display_subject, resolve_subject_labels
@@ -62,6 +68,20 @@ log = get_logger("content")
 router = APIRouter(tags=["content"])
 
 _FREE_TIER_LESSON_LIMIT = 2
+
+
+async def _unit_display_title(pool, unit_id: str) -> str | None:
+    """The unit's human title for the quiz result screen.
+
+    Same shape as `_subject_display_name` (#461): the content file does not carry
+    the unit's title, so it is resolved from `curriculum_units`. Returns None when
+    the unit is not there, and the client falls back to showing nothing rather
+    than a code.
+    """
+    async with pool.acquire() as conn:
+        return await conn.fetchval(
+            "SELECT MIN(title) FROM curriculum_units WHERE unit_id = $1", unit_id
+        )
 
 
 async def _subject_display_name(pool, unit_id: str, fallback: str | None) -> str:
@@ -144,7 +164,7 @@ async def _get_curriculum_and_check_published(
     curriculum_units and content_subject_versions lookups work correctly.
     Raises HTTPException 404 if not published, 403 if blocked.
     """
-    from src.content.service import resolve_content_curriculum as _rcc
+    from src.content.service import resolve_unit_curriculum as _ruc
 
     redis = get_redis(request)
     pool = request.app.state.pool
@@ -152,15 +172,20 @@ async def _get_curriculum_and_check_published(
     grade = student_payload.get("grade", 8)
     school_id = student_payload.get("school_id")
 
-    curriculum_id = pre_resolved_curriculum_id or await resolve_curriculum_id(
-        student_id, grade, pool, redis, school_id=school_id
+    # A classroom's packages are additive (#651), so the student's curriculum is
+    # a LIST and only one member holds any given unit. Serving used the primary,
+    # which 404'd every unit belonging to the second or third package — units the
+    # curriculum tree had just listed.
+    candidates = (
+        [pre_resolved_curriculum_id]
+        if pre_resolved_curriculum_id
+        else await resolve_curriculum_ids(student_id, grade, pool, redis, school_id=school_id)
     )
 
-    # Fork→OOB fallback: school fork curricula have no rows in curriculum_units
-    # (those live under the source OOB curriculum_id). Swap to the OOB id so that
-    # the published check and content store reads work. This is the SAME helper the
-    # quiz grading path uses, so the two can no longer drift (#529).
-    curriculum_id, subject = await _rcc(unit_id, curriculum_id, school_id, pool)
+    # Picks the package holding this unit, applying the fork→OOB swap per
+    # package. That swap is still `resolve_content_curriculum`, the SAME helper
+    # the quiz grading path uses, so the two cannot drift (#529).
+    curriculum_id, subject = await _ruc(unit_id, candidates, school_id, pool)
 
     if subject is None:
         raise HTTPException(
@@ -332,6 +357,50 @@ def _strip_answer_key(data: dict) -> dict:
 # exclude_none: the answer-key fields are stripped above, so they serialise as
 # null. Omit them entirely rather than shipping `"correct_option": null` — a null
 # there reads like an oversight and invites someone to "fix" it by populating it.
+async def _session_quiz_set(
+    session_id: str, student_id: str, unit_id: str, pool, redis
+) -> int | None:
+    """The set pinned by this session, or None if it is not the caller's.
+
+    Ownership is checked against BOTH the student and the unit: a session id is
+    not a capability, and one for a different unit would serve the wrong content.
+    Returns None for every failure so the caller cannot tell "no such session"
+    from "not yours".
+    """
+    try:
+        uuid.UUID(session_id)
+    except (ValueError, AttributeError, TypeError):
+        return None
+
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(
+            "SELECT quiz_set FROM progress_sessions"
+            " WHERE session_id = $1 AND student_id = $2 AND unit_id = $3",
+            session_id,
+            student_id,
+            unit_id,
+        )
+    if row is None:
+        return None
+
+    if row["quiz_set"] is not None:
+        return int(row["quiz_set"])
+
+    # Sessions created before #567 have no pinned set on the row. Fall back to
+    # the Redis pin written at first answer, then to set 1 — the same order
+    # resolve_session_quiz_set uses for grading, so display and grading still
+    # agree for in-flight legacy attempts.
+    pinned = await redis.get(quiz_session_set_key(session_id))
+    if pinned is not None:
+        try:
+            value = int(pinned)
+            if 1 <= value <= 3:
+                return value
+        except (ValueError, TypeError):
+            pass
+    return 1
+
+
 @router.get(
     "/content/{unit_id}/quiz", response_model=QuizResponse, response_model_exclude_none=True
 )
@@ -340,9 +409,21 @@ async def get_quiz(
     request: Request,
     student: Annotated[dict, Depends(get_current_student)],
     storage: StorageBackend = Depends(get_storage),
+    session_id: str | None = Query(
+        None,
+        description=(
+            "The quiz session this fetch belongs to. When given, the set pinned "
+            "by that session is served, so refetching cannot change the "
+            "questions mid-attempt (#567)."
+        ),
+    ),
 ):
     """
-    Serve a quiz set, rotating through sets 1→2→3→1 per student per unit.
+    Serve the quiz set pinned by the caller's session.
+
+    Rotation (1→2→3→1 per student per unit) happens once per attempt when the
+    session is created — not here. Without a `session_id` the legacy rotating
+    behaviour is preserved for older clients.
     """
     from src.content.service import get_active_override as _gao
 
@@ -352,15 +433,92 @@ async def get_quiz(
     locale = student.get("locale", "en")
     school_id = student.get("school_id")
 
-    set_number = await get_next_quiz_set(student_id, unit_id, redis)
+    # The SESSION decides which set is served (#567).
+    #
+    # This endpoint used to call get_next_quiz_set(), which advances the per-unit
+    # rotation pointer — a state mutation as a side effect of a READ. Any refetch
+    # (window focus, remount, a React Query retry) therefore rotated the quiz
+    # mid-attempt. Grading was pinned per session but display was not, and since
+    # `question_id` is `q1…qN` in every set with different answers, the student
+    # was silently marked against questions they never saw.
+    #
+    # With a session_id the served set comes from the session's pin, so serving
+    # is idempotent. Without one the legacy rotation is kept so older clients
+    # (and any caller with no session) still work.
+    set_number: int | None = None
+    if session_id:
+        set_number = await _session_quiz_set(session_id, student_id, unit_id, pool, redis)
+        if set_number is None:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "error": "session_not_found",
+                    # Does not distinguish "no such session" from "not yours" —
+                    # a session id must not be usable to probe for other students'
+                    # sessions.
+                    "detail": "That quiz session could not be found.",
+                    "correlation_id": getattr(request.state, "correlation_id", ""),
+                },
+            )
+    if set_number is None:
+        set_number = await get_next_quiz_set(student_id, unit_id, redis)
     quiz_content_type = f"quiz_set_{set_number}"
 
-    # Active override path: school students may have teacher-authored quiz sets.
+    # Lesson before quiz (product decision 2026-09-01).
+    #
+    # Also enforced at POST /progress/session, which is where a blocked attempt
+    # is stopped from creating a phantom row. This second check exists because
+    # the backend is the sole authority on access (Content/Security rules): a
+    # client that skips the session and calls this endpoint directly must not be
+    # handed the questions.
+    #
+    # Placed before BOTH the override path and the store path, so a school with
+    # teacher-authored quizzes is gated identically.
+    #
+    # `pre_resolved` is hoisted above the override block so the school
+    # curriculum is resolved once and shared, rather than this gate paying for a
+    # second resolve of the same thing.
     pre_resolved: str | None = None
     if school_id:
         pre_resolved = await resolve_curriculum_id(
             student_id, student.get("grade", 8), pool, redis, school_id=school_id
         )
+
+    if not await has_met_lesson_prerequisite(pool, student_id, unit_id):
+        gate_curriculum = pre_resolved or await resolve_curriculum_id(
+            student_id, student.get("grade", 8), pool, redis, school_id=school_id
+        )
+        # Swap a school FORK to the curriculum that actually holds the content
+        # before asking whether a lesson exists.
+        #
+        # Without this the gate asked the fork — which by design has no content
+        # of its own, because a fork serves its source's files — got "no lesson",
+        # and FAILED OPEN. Silently, for every student on a forked curriculum,
+        # which is most school students.
+        #
+        # It stayed invisible because the one grade it could be observed on had
+        # placeholder content, so nothing was being served there anyway. Giving
+        # that grade real content is what surfaced it.
+        #
+        # `resolve_content_curriculum` is the same helper serving and grading use
+        # (#529), so the gate now asks about exactly the file the student would
+        # be sent to read. The session endpoint was already correct: it resolves
+        # through `resolve_unit_curriculum`, which applies this swap itself.
+        gate_curriculum, _gate_subject = await resolve_content_curriculum(
+            unit_id, gate_curriculum, school_id, pool
+        )
+        if await unit_has_lesson(gate_curriculum, unit_id, locale, redis, storage):
+            raise HTTPException(
+                status_code=403,
+                detail={
+                    "error": "lesson_required",
+                    "detail": "Read the lesson first, then come back for the quiz.",
+                    "correlation_id": getattr(request.state, "correlation_id", ""),
+                },
+            )
+
+    # Active override path: school students may have teacher-authored quiz sets.
+    if school_id:
         override = await _gao(
             school_id, pre_resolved, unit_id, locale, quiz_content_type, pool, redis
         )
@@ -374,6 +532,7 @@ async def get_quiz(
             override["subject"] = await _subject_display_name(
                 pool, unit_id, override.get("subject")
             )
+            override["unit_title"] = await _unit_display_title(pool, unit_id)
             return QuizResponse(**_strip_answer_key(override))
 
     curriculum_id, _subject = await _get_curriculum_and_check_published(
@@ -395,6 +554,7 @@ async def get_quiz(
             )
 
     data["subject"] = await _subject_display_name(pool, unit_id, _subject or data.get("subject"))
+    data["unit_title"] = await _unit_display_title(pool, unit_id)
     log.info("quiz_served unit_id=%s set=%d student_id=%s", unit_id, set_number, student_id)
     return QuizResponse(**_strip_answer_key(data))
 

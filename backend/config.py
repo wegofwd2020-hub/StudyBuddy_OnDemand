@@ -22,6 +22,10 @@ class Settings(BaseSettings):
     # ── Application ──────────────────────────────────────────────────────────
     APP_ENV: str = "development"
     APP_VERSION: str = "0.1.0"
+    # The commit this image was built from, baked in at build time and reported
+    # by GET /health so a deploy can prove what is running (#583). "dev" for a
+    # local build.
+    BUILD_ID: str = "dev"
     DEBUG: bool = False
     LOG_LEVEL: str = "INFO"
 
@@ -155,6 +159,17 @@ class Settings(BaseSettings):
     SMTP_USER: str | None = None      # Gmail address (e.g. hello@usestudybuddy.com)
     SMTP_PASSWORD: str | None = None  # Gmail App Password (not account password)
     SMTP_FROM_NAME: str = "StudyBuddy"
+
+    # ── School-issued temporary passwords (#664) ──────────────────────────────
+    # How long a password that SOMEBODY ELSE chose stays usable. Provisioning
+    # emails it in plaintext, so it lives in an inbox, and in every archive and
+    # forward that inbox reaches, until it is used. `first_login` prompts for a
+    # change but does not bound the window — it only fires if the person ever
+    # logs in.
+    #
+    # 72h covers a weekend, which is the realistic gap between a school
+    # provisioning accounts and students first signing in.
+    TEMP_PASSWORD_TTL_HOURS: int = 72
 
     # ── Demo accounts ─────────────────────────────────────────────────────────
     DEMO_ACCOUNT_TTL_HOURS: int = 24

@@ -24,6 +24,7 @@ from src.core.cache_keys import (
     content_key,
     csv_key,
     cur_key,
+    curs_key,
     ent_key,
     quiz_set_key,
     school_ent_key,
@@ -32,6 +33,8 @@ from src.core.storage import StorageBackend
 from src.utils.logger import get_logger
 
 log = get_logger("content.service")
+
+from src.core.question_identity import stable_question_id  # noqa: E402
 
 _ENT_TTL = 300  # 5 minutes
 _CSV_TTL = 300  # 5 minutes
@@ -323,21 +326,77 @@ async def resolve_curriculum_id(
 
     L2 cache: school:{school_id}:cur:{student_id} (or cur:{student_id} if unaffiliated).
     On miss: queries school enrollment or falls back to default-{year}-g{grade}.
+
+    PRIMARY SCHOOL ONLY (decision 2026-08-24, from #572). A student may hold
+    enrolments at several schools — a school for their regular curriculum and,
+    say, an external tutor running additional classes. Content resolution
+    deliberately follows ONE of them: `students.school_id`, their primary
+    school. Step 1 below joins that column, so passing a different `school_id`
+    changes the RLS scope and the cache key but NOT which school's curriculum is
+    chosen.
+
+    Consequence to be aware of before "fixing" this: additional enrolments are
+    for ROSTERING AND REPORTING, not delivery. A tutor can enrol a student and
+    report on them but cannot serve them different material. Making that work
+    needs a way for the student to choose which school they are working in — an
+    explicit product decision, not a change to this function alone.
     """
-    key = cur_key(student_id, school_id)
+    ids = await resolve_curriculum_ids(
+        student_id, grade, pool, redis, year=year, school_id=school_id
+    )
+    return ids[0]
+
+
+async def resolve_curriculum_ids(
+    student_id: str,
+    grade: int,
+    pool: asyncpg.Pool,
+    redis,
+    year: int = 2026,
+    school_id: str | None = None,
+) -> list[str]:
+    """
+    Every curriculum a student's content comes from, in order.
+
+    A classroom may carry several packages and they are ADDITIVE and DISTINCT
+    (product decision, 2026-08-28, #651): the student's curriculum is the UNION
+    of its packages, not one of them. Resolution used to take
+
+        ORDER BY cl.created_at DESC LIMIT 1
+
+    — the classroom's creation date, then an arbitrary package among that
+    classroom's several — which is why a Grade 11 student on the demo was served
+    Grade 8 content while two other packages sat unread.
+
+    `resolve_curriculum_id` returns element [0] of this list, so the single-
+    curriculum callers (serving one unit, cache keys) cannot disagree with the
+    additive ones about which curriculum is primary. One resolver, as ever.
+
+    Ordering is `sort_order, assigned_at, curriculum_id` — deterministic, and it
+    finally reads the `classroom_packages.sort_order` column that has existed
+    unused since the table was created.
+
+    Distinctness is already enforced by the table's PRIMARY KEY
+    (classroom_id, curriculum_id); nothing yet prevents two packages from
+    containing the SAME unit, which is a separate guard at assignment time.
+    """
+    key = curs_key(student_id, school_id)
     cached = await redis.get(key)
     if cached:
         try:
-            return cached.decode() if isinstance(cached, bytes) else cached
+            raw = cached.decode() if isinstance(cached, bytes) else cached
+            ids = json.loads(raw)
+            if isinstance(ids, list) and ids:
+                return ids
         except Exception:
             pass
 
-    curriculum_id: str | None = None
+    ids: list[str] = []
     async with pool.acquire() as conn:
-        # Set RLS session variable upfront so both step 1 and step 2 can see
-        # school-owned rows. Without this, curricula with owner_type='school'
-        # are filtered out by the RLS USING clause even though the JOIN
-        # condition references the correct school_id FK column.
+        # Set RLS session variable upfront so both steps can see school-owned
+        # rows. Without this, curricula with owner_type='school' are filtered
+        # out by the RLS USING clause even though the JOIN condition references
+        # the correct school_id FK column.
         if school_id:
             await conn.execute("SELECT set_config('app.current_school_id', $1, false)", school_id)
 
@@ -355,33 +414,32 @@ async def resolve_curriculum_id(
             student_id,
         )
         if row:
-            curriculum_id = row["curriculum_id"]
+            ids = [row["curriculum_id"]]
 
-        # 2. Classroom package assignment — resolves stream-specific platform
-        #    curricula (e.g. default-2026-g11-commerce). Session variable already
-        #    set above if school_id is present.
-        if not curriculum_id and school_id:
-            row = await conn.fetchrow(
+        # 2. Classroom packages — ALL of them (#651), in a stable order.
+        if not ids and school_id:
+            rows = await conn.fetch(
                 """
-                SELECT cp.curriculum_id
+                SELECT DISTINCT cp.curriculum_id, cp.sort_order, cp.assigned_at
                 FROM classroom_students cs
                 JOIN classrooms cl ON cl.classroom_id = cs.classroom_id
                 JOIN classroom_packages cp ON cp.classroom_id = cl.classroom_id
                 WHERE cs.student_id = $1
-                ORDER BY cl.created_at DESC
-                LIMIT 1
+                ORDER BY cp.sort_order, cp.assigned_at, cp.curriculum_id
                 """,
                 student_id,
             )
-            if row:
-                curriculum_id = row["curriculum_id"]
+            ids = [r["curriculum_id"] for r in rows]
 
     # 3. Default STEM fallback
-    if not curriculum_id:
-        curriculum_id = f"default-{year}-g{grade}"
+    if not ids:
+        ids = [f"default-{year}-g{grade}"]
 
-    await redis.set(key, curriculum_id, ex=_CSV_TTL)
-    return curriculum_id
+    await redis.set(key, json.dumps(ids), ex=_CSV_TTL)
+    # Keep the single-id cache in step with the set, so a caller reading either
+    # gets the same primary.
+    await redis.set(cur_key(student_id, school_id), ids[0], ex=_CSV_TTL)
+    return ids
 
 
 # ── Content block check ───────────────────────────────────────────────────────
@@ -565,6 +623,7 @@ async def get_quiz_answer_key(
     get_content_file refuses it).
     """
     filename = f"quiz_set_{set_number}_{lang}.json"
+    key_lang = lang
     try:
         data = await get_content_file(curriculum_id, unit_id, filename, redis, storage)
     except FileNotFoundError:
@@ -573,12 +632,17 @@ async def get_quiz_answer_key(
         data = await get_content_file(
             curriculum_id, unit_id, f"quiz_set_{set_number}_en.json", redis, storage
         )
+        key_lang = "en"
 
-    return _parse_quiz_answer_key(data, curriculum_id, unit_id, set_number)
+    # `key_lang`, not `lang`: the block above falls back to the _en file when a
+    # translation is missing, and the identity has to describe the text actually
+    # parsed. Passing the REQUESTED language would mint a French id for English
+    # questions and split one item's statistics across two identities.
+    return _parse_quiz_answer_key(data, curriculum_id, unit_id, set_number, key_lang)
 
 
 def _parse_quiz_answer_key(
-    data: dict, curriculum_id: str, unit_id: str, set_number: int
+    data: dict, curriculum_id: str, unit_id: str, set_number: int, lang: str = "en"
 ) -> dict[str, dict]:
     """Build {question_id: {index, explanation}} from a quiz-set body.
 
@@ -593,27 +657,6 @@ def _parse_quiz_answer_key(
             continue
         options = question.get("options", [])
         correct_option = question.get("correct_option")
-
-        # Check for duplicate option texts (potential cause of quiz validation issues)
-        option_texts = [opt.get("text", "").strip() for opt in options]
-        text_counts = {}
-        for text in option_texts:
-            text_counts[text] = text_counts.get(text, 0) + 1
-
-        duplicates = [text for text, count in text_counts.items() if count > 1]
-        if duplicates:
-            log.warning(
-                "quiz_duplicate_option_texts",
-                extra={
-                    "curriculum_id": curriculum_id,
-                    "unit_id": unit_id,
-                    "set_number": set_number,
-                    "question_id": qid,
-                    "duplicates": duplicates,
-                    "option_texts": option_texts,
-                },
-            )
-
         index = next(
             (i for i, o in enumerate(options) if o.get("option_id") == correct_option),
             None,
@@ -635,6 +678,14 @@ def _parse_quiz_answer_key(
         key[qid] = {
             "index": index,
             "explanation": question.get("explanation", ""),
+            # ADR-008 Phase 1. `qid` is a POSITION within this set -- `q1` of set 2
+            # is a different question from `q1` of set 1 -- so a recorded answer
+            # needs the question's own identity alongside it. Computed from the
+            # stem rather than read from the file, so content generated before the
+            # backfill still resolves and no path silently records NULL.
+            "stable_question_id": stable_question_id(
+                curriculum_id, unit_id, lang, question.get("question_text") or ""
+            ),
         }
     return key
 
@@ -666,6 +717,35 @@ async def resolve_content_curriculum(
     return curriculum_id, subject
 
 
+async def resolve_unit_curriculum(
+    unit_id: str,
+    curriculum_ids: list[str],
+    school_id: str | None,
+    pool: asyncpg.Pool,
+) -> tuple[str, str | None]:
+    """Which of a student's packages holds this unit, and the unit's subject.
+
+    A classroom's packages are additive (#651), so "the student's curriculum" is
+    a list and only one member of it actually contains any given unit. Serving
+    used the FIRST — the primary — which meant a unit belonging to the second or
+    third package resolved nowhere and 404'd, even though the curriculum tree
+    listed it.
+
+    Walks the list in resolution order and returns the first package that holds
+    the unit, applying the fork -> OOB swap per package via
+    `resolve_content_curriculum` — still the single source of truth for that
+    swap, so serving and grading cannot drift apart (#529).
+
+    When no package holds the unit, returns the primary with subject None, which
+    is the same "resolves nowhere" signal callers already handle.
+    """
+    for candidate in curriculum_ids:
+        resolved, subject = await resolve_content_curriculum(unit_id, candidate, school_id, pool)
+        if subject is not None:
+            return resolved, subject
+    return (curriculum_ids[0] if curriculum_ids else ""), None
+
+
 async def resolve_quiz_answer_key(
     school_id: str | None,
     curriculum_id: str,
@@ -695,6 +775,104 @@ async def resolve_quiz_answer_key(
             school_id, curriculum_id, unit_id, lang, f"quiz_set_{set_number}", pool, redis
         )
         if override:
-            return _parse_quiz_answer_key(override, curriculum_id, unit_id, set_number)
+            return _parse_quiz_answer_key(override, curriculum_id, unit_id, set_number, lang)
         curriculum_id, _ = await resolve_content_curriculum(unit_id, curriculum_id, school_id, pool)
     return await get_quiz_answer_key(curriculum_id, unit_id, set_number, lang, redis, storage)
+
+
+# ── Lesson-before-quiz prerequisite ──────────────────────────────────────────
+
+
+async def has_met_lesson_prerequisite(pool, student_id: str, unit_id: str) -> bool:
+    """Has this student earned the right to open this unit's quiz?
+
+    Product decision (2026-09-01): a quiz requires the lesson first. A tester
+    asked "Current system allows me to take a quiz without going through the
+    Lesson – is this OK?" and the answer is no. A separate revision mode — a
+    "Quiz Book" a student can drill from — is planned as its own thing later,
+    which is the right home for deliberate quiz-only practice.
+
+    Two ways to satisfy it, and the second matters as much as the first:
+
+    1. **The student has opened this unit's content.** Any `lesson_views` row
+       counts, not only one flagged as a lesson. The flags (`tutorial_viewed`,
+       `experiment_viewed`) are written when a view ENDS, so a lost end-beacon —
+       which is a real and already-known failure (#464) — leaves a genuine view
+       mis-flagged. Keying the gate on flags would lock a student out of a quiz
+       because their network dropped on the way out of the lesson. Existence of
+       the row is written at view START and is reliable.
+
+    2. **The student already has an attempt on this unit.** Grandfathering, and
+       not a nicety: on the demo alone 26 existing sessions across 4 students
+       have no lesson view, 9 of them PASSED. Without this, shipping the gate
+       would retroactively lock those students out of retrying units they have
+       already sat — a rule change that reaches backwards and looks exactly like
+       a regression to the person it happens to.
+
+    Deliberately NOT time- or scroll-based. "Fully read" is not observable: a
+    duration threshold punishes a fast reader and is defeated by leaving a tab
+    open, and scroll depth is not recorded. Opening the lesson is the honest
+    signal available, and it is the one that closes the reporting gap this
+    decision was really about — a unit quizzed without a lesson view is counted
+    by neither "Units completed" nor "In progress".
+
+    Returns True when the quiz may be served. Callers must ALSO fail open when
+    the unit has no lesson to read; see `unit_has_lesson`.
+    """
+    async with pool.acquire() as conn:
+        # RLS: lesson_views / progress_sessions are student-scoped, and this runs
+        # on a raw pool connection outside a request-scoped get_db() (pitfall #23).
+        await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
+        return bool(
+            await conn.fetchval(
+                """
+                SELECT EXISTS (
+                    SELECT 1 FROM lesson_views
+                    WHERE student_id = $1::uuid AND unit_id = $2
+                )
+                OR EXISTS (
+                    SELECT 1 FROM progress_sessions
+                    WHERE student_id = $1::uuid AND unit_id = $2
+                )
+                """,
+                student_id,
+                unit_id,
+            )
+        )
+
+
+async def unit_has_lesson(
+    curriculum_id: str,
+    unit_id: str,
+    lang: str,
+    redis,
+    storage: StorageBackend,
+) -> bool:
+    """Is there a lesson for this unit for the student to read?
+
+    The gate must never make content permanently unreachable. A unit with a quiz
+    and no lesson would, under a naive gate, be locked forever: the student is
+    told to read something that does not exist.
+
+    Every one of the 251 quiz-bearing units on the demo currently has a lesson,
+    so this fires for nobody today — but content is generated per unit and per
+    language and can be partial, and a school fork need not mirror its source.
+    An unreachable quiz is a worse failure than an ungated one.
+
+    Checked only when the prerequisite is NOT met, so the ordinary path (the
+    student did read the lesson) never pays for this lookup.
+    """
+    for filename in (f"lesson_{lang}.json", "lesson_en.json"):
+        try:
+            await get_content_file(curriculum_id, unit_id, filename, redis, storage)
+            return True
+        except FileNotFoundError:
+            continue
+        except Exception:
+            # A storage hiccup or a malformed file must not decide the gate.
+            # Report "no lesson", which makes the caller fail OPEN and serve the
+            # quiz. Between handing out an ungated quiz and telling a child to
+            # read a lesson we cannot currently find, the first is the smaller
+            # harm — and it is the behaviour they had until today anyway.
+            return False
+    return False

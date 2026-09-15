@@ -15,12 +15,29 @@ jobs:
     env:
       DOCS_TOKEN_PRESENT: ${{ secrets.DOCS_REPO_TOKEN != '' }}
     steps:
-      - name: Skip if DOCS_REPO_TOKEN not configured
+      # FAIL, do not skip.
+      #
+      # This step used to `exit 0` with a warning, so the job reported success
+      # every night while checking nothing — a 4-second run whose only output was
+      # an annotation nobody reads. The documentation it guards drifted for five
+      # months (docs top out at migration 0048; the repo is at 0069) and this
+      # check stayed green throughout.
+      #
+      # A guard that cannot run is broken, and broken things should look broken.
+      - name: Require DOCS_REPO_TOKEN
         if: env.DOCS_TOKEN_PRESENT == 'false'
         run: |
-          echo "::warning::DOCS_REPO_TOKEN not set — drift check skipped."
-          echo "Add a PAT with Contents:read on wegofwd2020-hub/studybuddy-docs as repo secret DOCS_REPO_TOKEN."
-          exit 0
+          echo "::error::DOCS_REPO_TOKEN is not set — the drift check cannot run."
+          echo ""
+          echo "This job is failing on purpose. It previously exited 0 in this"
+          echo "situation, which made an unconfigured check indistinguishable from"
+          echo "a passing one."
+          echo ""
+          echo "Fix: add a PAT with Contents:read on wegofwd2020-hub/studybuddy-docs"
+          echo "as the repository secret DOCS_REPO_TOKEN."
+          echo "Or, if the drift check is no longer wanted, delete this workflow"
+          echo "rather than leaving it permanently green and inert."
+          exit 1
 
       - name: Checkout application repo
         if: env.DOCS_TOKEN_PRESENT == 'true'
@@ -53,8 +70,17 @@ jobs:
             --out drift-report.md
           echo "exit_code=$?" >> "$GITHUB_OUTPUT"
 
+      # The scanner documents 0 = clean, 1 = drift. Any other code is the scanner
+      # itself failing, and must not be reported to a human as "documentation
+      # drift detected" — that sends them to edit docs over a broken script.
+      - name: Fail if the scanner itself broke
+        if: env.DOCS_TOKEN_PRESENT == 'true' && steps.drift.outputs.exit_code != '0' && steps.drift.outputs.exit_code != '1'
+        run: |
+          echo "::error::check_doc_drift.py exited ${{ steps.drift.outputs.exit_code }} — expected 0 (clean) or 1 (drift)."
+          exit 1
+
       - name: Upsert drift issue
-        if: env.DOCS_TOKEN_PRESENT == 'true' && steps.drift.outputs.exit_code != '0'
+        if: env.DOCS_TOKEN_PRESENT == 'true' && steps.drift.outputs.exit_code == '1'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         working-directory: app

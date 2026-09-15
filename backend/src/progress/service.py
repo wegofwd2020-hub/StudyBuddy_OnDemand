@@ -79,18 +79,34 @@ async def resolve_session_quiz_set(
     return set_number
 
 
-async def tally_answer(redis, session_id: str, question_id: str, correct: bool) -> None:
+async def tally_answer(
+    redis,
+    session_id: str,
+    question_id: str,
+    correct: bool,
+    answer_index: int | None = None,
+) -> None:
     """
     Record one graded answer against the session's per-question tally.
 
-    Stored as a Redis HASH field (question_id → "1"/"0") rather than a counter so
-    the write is idempotent: answering the same question again — which the
-    skip-and-return UI (#532) makes possible — overwrites its verdict instead of
-    incrementing a blind total. end_session reads this back without waiting on the
+    Stored as a Redis HASH field rather than a counter so the write is
+    idempotent: answering the same question again — which the skip-and-return UI
+    (#532) makes possible — overwrites its verdict instead of incrementing a
+    blind total. end_session reads this back without waiting on the
     fire-and-forget DB write (perf rule #4).
+
+    The field value is `"<verdict>:<answer_index>"`, e.g. `"1:2"`. The verdict
+    is what scoring reads; the index is what lets a REFRESH restore the options
+    the student had picked (#667) — before this, the page came back blank and a
+    student could not tell which questions they had already done.
+
+    Legacy `"1"` / `"0"` fields (sessions in flight when this shipped) are still
+    read correctly by `read_tally`; they simply carry no index to restore.
     """
     key = quiz_answers_key(session_id)
-    await redis.hset(key, question_id, "1" if correct else "0")
+    verdict = "1" if correct else "0"
+    value = verdict if answer_index is None else f"{verdict}:{answer_index}"
+    await redis.hset(key, question_id, value)
     await redis.expire(key, _TALLY_TTL)
 
 
@@ -106,7 +122,38 @@ async def read_tally(redis, session_id: str) -> int | None:
     values = await redis.hvals(quiz_answers_key(session_id))
     if not values:
         return None
-    return sum(1 for v in values if (v.decode() if isinstance(v, bytes) else v) == "1")
+    # The verdict is the first character; anything after ":" is the recorded
+    # answer index (#667). Plain "1"/"0" is the pre-#667 form and still counts.
+    return sum(
+        1 for v in values if (v.decode() if isinstance(v, bytes) else v).split(":", 1)[0] == "1"
+    )
+
+
+async def read_answered(redis, session_id: str) -> dict[str, int]:
+    """
+    question_id -> the option index the student picked, for resuming (#667).
+
+    Deliberately does NOT return whether the answer was correct. The player
+    withholds the reveal until the summary (#532), and a resume must not become
+    a way around that — see #684 for the related hole where the per-answer
+    response already leaks the key.
+
+    Questions recorded before #667 have no index stored and are omitted: the
+    page cannot restore a selection it was never told about, and guessing one
+    would show the student an answer they did not give.
+    """
+    raw = await redis.hgetall(quiz_answers_key(session_id))
+    if not raw:
+        return {}
+
+    answered: dict[str, int] = {}
+    for k, v in raw.items():
+        question_id = k.decode() if isinstance(k, bytes) else k
+        value = v.decode() if isinstance(v, bytes) else v
+        _, _, index = value.partition(":")
+        if index.isdigit():
+            answered[question_id] = int(index)
+    return answered
 
 
 async def count_correct_answers(conn: asyncpg.Connection, session_id: str) -> int:
@@ -159,6 +206,55 @@ async def compute_attempt_number(
     return (row["cnt"] or 0) + 1
 
 
+async def pin_session_quiz_set(
+    conn: asyncpg.Connection,
+    redis,
+    session_id: str,
+    student_id: str,
+    unit_id: str,
+    existing: int | None,
+) -> int:
+    """Decide and pin which quiz set this attempt is served and graded against.
+
+    The session chooses the set (#567). Previously `GET /content/{unit}/quiz`
+    called `get_next_quiz_set()`, which advanced the per-unit rotation pointer as
+    a SIDE EFFECT OF A READ — so any refetch (window focus, remount, a retry)
+    rotated the quiz. Grading was pinned per session but display was not, and
+    since `question_id` is `q1…qN` in every set with different answers, the
+    student was silently marked against questions they never saw.
+
+    Rotation now happens exactly once per attempt, here.
+
+    `existing` is the set already pinned on a RESUMED session. Resuming must NOT
+    re-rotate: one rotation per attempt, not one per page load. That is what
+    makes a refresh harmless — including a refresh after the student has already
+    answered, which is the case #567 was reopened for.
+    """
+    if existing is not None:
+        set_number = int(existing)
+    else:
+        from src.content.service import get_next_quiz_set
+
+        set_number = await get_next_quiz_set(student_id, unit_id, redis)
+        await conn.execute(
+            "UPDATE progress_sessions SET quiz_set = $1 WHERE session_id = $2",
+            set_number,
+            session_id,
+        )
+
+    # Mirror into Redis so `resolve_session_quiz_set` finds it at answer time
+    # without a DB read on the hot path.
+    await redis.set(quiz_session_set_key(session_id), str(set_number), ex=_TALLY_TTL)
+    return set_number
+
+
+# How long an unfinished quiz session stays resumable, measured from its last
+# activity. Long enough to survive a logout, a closed laptop or a lost
+# connection; short enough that a quiz abandoned last term does not reopen with
+# stale answers instead of starting a fresh attempt.
+RESUME_WINDOW_HOURS = 24
+
+
 async def create_session(
     conn: asyncpg.Connection,
     student_id: str,
@@ -183,6 +279,84 @@ async def create_session(
     else:
         grade = unit_row["grade"] or 0
         subject = unit_row["subject"] or "unknown"
+
+    # RESUME the attempt in progress instead of opening another one
+    # (issues #579 and #567).
+    #
+    # The quiz page calls this on mount, so every page load used to write a row.
+    # Open a quiz, wander off, come back: two rows. Never finish: they persist.
+    # On the demo that left 78 session rows for 7 units with only 16 carrying a
+    # score — displayed as history and counted as attempts.
+    #
+    # #579 first reused only sessions with NO answers, reasoning that an
+    # answered one is "real work belonging to its own attempt". That was wrong,
+    # and #567 is the cost: answer one question, refresh, and because the
+    # session now has an answer it is not reused — a new session opens and the
+    # quiz set rotates. Venki's live data, four sessions on one unit in eight
+    # minutes, sets 1 -> 2 -> 3 -> 1. He was shown questions he was not being
+    # graded against, which is the whole defect #567 was meant to close.
+    #
+    # A REFRESH IS NOT A NEW ATTEMPT. Any not-completed session for this
+    # (student, unit, curriculum) is resumed, answered or not.
+    #
+    # Resuming an answered session is safe by construction: the Redis tally is a
+    # hash keyed by question_id, so re-answering overwrites a verdict rather
+    # than double-counting it, and end_session falls back to the persisted
+    # answers when the tally has expired.
+    #
+    # "Try Again" still starts a fresh attempt — that session is `completed`,
+    # and completed sessions are never resumed.
+    #
+    # BOUNDED BY STALENESS (reported 2026-08-31: "answers are still there even
+    # after I log out and log in again — is this OK?"). Resuming is right for an
+    # interruption and wrong for an abandonment, and until now there was no line
+    # between them: any not-completed session resumed however old, and because
+    # `started_at` is refreshed on every resume it could be revived indefinitely.
+    # A quiz opened months ago would come back with its stale answers, graded
+    # against a set pinned at the time.
+    #
+    # `started_at` is refreshed on resume, so this reads as "time since last
+    # activity", which is the right thing to bound. Past the window the session
+    # is left alone — not completed, not deleted — and a fresh attempt opens
+    # beside it, so nothing a student did is destroyed by the passage of time.
+    row = await conn.fetchrow(
+        f"""
+        UPDATE progress_sessions
+        SET started_at = NOW()
+        WHERE session_id = (
+            SELECT ps.session_id
+            FROM progress_sessions ps
+            WHERE ps.student_id    = $1
+              AND ps.unit_id       = $2
+              AND ps.curriculum_id = $3
+              AND ps.completed     = FALSE
+              AND ps.started_at >= NOW() - INTERVAL '{RESUME_WINDOW_HOURS} hours'
+            ORDER BY ps.started_at DESC
+            LIMIT 1
+            FOR UPDATE SKIP LOCKED
+        )
+        RETURNING session_id, started_at, attempt_number, quiz_set
+        """,
+        student_id,
+        unit_id,
+        curriculum_id,
+    )
+
+    if row is not None:
+        log.info(
+            "session_reused",
+            student_id=student_id,
+            unit_id=unit_id,
+            session_id=str(row["session_id"]),
+        )
+        return {
+            "session_id": str(row["session_id"]),
+            "unit_id": unit_id,
+            "curriculum_id": curriculum_id,
+            "attempt_number": row["attempt_number"],
+            "started_at": row["started_at"].isoformat(),
+            "quiz_set": row["quiz_set"],
+        }
 
     attempt_number = await compute_attempt_number(conn, student_id, unit_id, curriculum_id)
 
@@ -215,6 +389,7 @@ async def create_session(
         "curriculum_id": curriculum_id,
         "attempt_number": row["attempt_number"],
         "started_at": row["started_at"].isoformat(),
+        "quiz_set": None,
     }
 
 
@@ -247,17 +422,25 @@ async def record_answer_sync(
     correct: bool,
     ms_taken: int,
     event_id: str | None,
+    stable_question_id: str | None = None,
 ) -> dict:
     """
     Write an answer row synchronously (called from the fire-and-forget Celery task).
     Uses ON CONFLICT DO NOTHING on event_id for offline deduplication.
+
+    `stable_question_id` (ADR-008 Phase 1) records WHICH question this was, not
+    which slot: `question_id` is `q1…qN` within a set, so grouping by it groups
+    questions that merely share an index. Nullable and defaulted so an older
+    caller keeps working — pre-migration rows stay NULL and must be excluded from
+    item analysis rather than treated as a group.
     """
     if event_id:
         row = await conn.fetchrow(
             """
             INSERT INTO progress_answers
-                (session_id, event_id, question_id, student_answer, correct_answer, correct, ms_taken)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
+                (session_id, event_id, question_id, student_answer, correct_answer,
+                 correct, ms_taken, stable_question_id)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             ON CONFLICT (event_id) DO NOTHING
             RETURNING answer_id, correct
             """,
@@ -268,13 +451,15 @@ async def record_answer_sync(
             correct_answer,
             correct,
             ms_taken,
+            stable_question_id,
         )
     else:
         row = await conn.fetchrow(
             """
             INSERT INTO progress_answers
-                (session_id, question_id, student_answer, correct_answer, correct, ms_taken)
-            VALUES ($1, $2, $3, $4, $5, $6)
+                (session_id, question_id, student_answer, correct_answer, correct,
+                 ms_taken, stable_question_id)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
             RETURNING answer_id, correct
             """,
             session_id,
@@ -283,6 +468,7 @@ async def record_answer_sync(
             correct_answer,
             correct,
             ms_taken,
+            stable_question_id,
         )
 
     if row is None:
@@ -373,13 +559,40 @@ async def get_raw_history(
     """
     Return all sessions with answers for a student, newest first.
     """
+    # Hide sessions that were opened but never worked on (issue #579).
+    #
+    # A row was written on every quiz-page load, so History listed ten identical
+    # entries for what the student experienced as one or two attempts, and the
+    # dashboard's "Recent Activity" — which renders this same feed — listed
+    # quizzes he had opened rather than work he had done.
+    #
+    # `create_session` now reuses an unanswered session so these stop
+    # accumulating, but that cannot clean up what already exists: the demo holds
+    # 78 rows for 7 units. Filtering here covers the existing rows without
+    # deleting them — they are educational records under FERPA, and hiding is
+    # reversible where DELETE is not.
+    #
+    # "Never worked on" is deliberately narrow: not completed AND no recorded
+    # answer. A student who answered two questions and walked away did real work
+    # and still sees it.
+    not_phantom = """
+          AND (
+              completed
+              OR EXISTS (
+                  SELECT 1 FROM progress_answers pa
+                  WHERE pa.session_id = progress_sessions.session_id
+              )
+          )
+    """
+
     sessions = await conn.fetch(
-        """
+        f"""
         SELECT session_id, unit_id, curriculum_id, grade, subject,
                started_at, ended_at, score, total_questions,
                completed, passed, attempt_number
         FROM progress_sessions
         WHERE student_id = $1
+        {not_phantom}
         ORDER BY started_at DESC
         LIMIT $2 OFFSET $3
         """,
@@ -388,8 +601,14 @@ async def get_raw_history(
         offset,
     )
 
+    # The total must agree with what is listed, or pagination advertises pages
+    # of hidden rows.
     total_row = await conn.fetchrow(
-        "SELECT COUNT(*) AS cnt FROM progress_sessions WHERE student_id = $1",
+        f"""
+        SELECT COUNT(*) AS cnt FROM progress_sessions
+        WHERE student_id = $1
+        {not_phantom}
+        """,
         student_id,
     )
 

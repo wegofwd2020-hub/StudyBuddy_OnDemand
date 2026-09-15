@@ -45,17 +45,30 @@ async def submit_feedback(
     conn: asyncpg.Connection,
     student_id: str,
     category: str,
-    message: str,
+    message: str | None = None,
     unit_id: str | None = None,
     curriculum_id: str | None = None,
     rating: int | None = None,
+    helpful: bool | None = None,
+    content_type: str | None = None,
+    stable_question_id: str | None = None,
 ) -> dict:
-    """Insert a feedback row. Returns {feedback_id, submitted_at}."""
+    """Insert a feedback row. Returns {feedback_id, submitted_at}.
+
+    `message` is optional: the thumbs widget submits a `helpful` verdict with no
+    prose (#600). The `feedback_has_content` CHECK keeps genuinely empty rows out.
+
+    `stable_question_id` (ADR-008 Phase 2) narrows the feedback to one question
+    rather than a whole unit. Resolved by the router from the session the student
+    was in — never accepted from the client — and NULL for the many kinds of
+    feedback that have no question to point at.
+    """
     row = await conn.fetchrow(
         """
         INSERT INTO feedback
-            (student_id, category, unit_id, curriculum_id, message, rating)
-        VALUES ($1, $2, $3, $4, $5, $6)
+            (student_id, category, unit_id, curriculum_id, message, rating,
+             helpful, content_type, stable_question_id)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         RETURNING feedback_id::text, submitted_at
         """,
         uuid.UUID(student_id),
@@ -64,8 +77,19 @@ async def submit_feedback(
         curriculum_id or None,
         message,
         rating,
+        helpful,
+        content_type,
+        stable_question_id,
     )
-    log.info("feedback_submitted", student_id=student_id, category=category)
+    log.info(
+        "feedback_submitted",
+        student_id=student_id,
+        category=category,
+        helpful=helpful,
+        content_type=content_type,
+        # Logged so a spike of flags on one question is visible without a query.
+        stable_question_id=stable_question_id,
+    )
     return {"feedback_id": row["feedback_id"], "submitted_at": row["submitted_at"]}
 
 
@@ -111,8 +135,8 @@ async def list_feedback(
     rows = await conn.fetch(
         f"""
         SELECT feedback_id::text, student_id::text, category, unit_id,
-               curriculum_id, message, rating, submitted_at,
-               reviewed, reviewed_by::text, reviewed_at
+               curriculum_id, message, rating, helpful, content_type,
+               submitted_at, reviewed, reviewed_by::text, reviewed_at
         FROM feedback
         {where}
         ORDER BY submitted_at DESC
@@ -127,3 +151,42 @@ async def list_feedback(
         "pagination": {"page": page, "per_page": per_page, "total": total},
         "feedback_items": [dict(r) for r in rows],
     }
+
+
+async def resolve_feedback(
+    conn: asyncpg.Connection,
+    feedback_id: str,
+    admin_id: str,
+) -> dict | None:
+    """Mark one feedback item reviewed. Returns None if it does not exist.
+
+    Idempotent, and the FIRST reviewer is kept: the button has no in-flight
+    disabled state, so a double-click is ordinary, and rewriting `reviewed_by`
+    on the second click would quietly falsify who actually reviewed it (#603).
+    """
+    updated = await conn.fetchrow(
+        """
+        UPDATE feedback
+        SET reviewed = TRUE,
+            reviewed_by = $2::uuid,
+            reviewed_at = NOW()
+        WHERE feedback_id = $1::uuid AND NOT reviewed
+        RETURNING feedback_id::text, reviewed, reviewed_by::text, reviewed_at
+        """,
+        feedback_id,
+        admin_id,
+    )
+    if updated is not None:
+        log.info("feedback_resolved", feedback_id=feedback_id, admin_id=admin_id)
+        return dict(updated)
+
+    # Either already resolved (return it unchanged) or absent (404).
+    existing = await conn.fetchrow(
+        """
+        SELECT feedback_id::text, reviewed, reviewed_by::text, reviewed_at
+        FROM feedback
+        WHERE feedback_id = $1::uuid
+        """,
+        feedback_id,
+    )
+    return dict(existing) if existing is not None else None
