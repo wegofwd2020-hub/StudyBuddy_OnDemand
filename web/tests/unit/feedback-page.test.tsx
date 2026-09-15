@@ -7,7 +7,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import FeedbackReportPage from "@/app/(school)/school/reports/feedback/page";
 import {
   MOCK_TEACHER,
@@ -56,46 +56,51 @@ describe("SCH-16 — Feedback report renders", () => {
     expect(screen.getByText(FEEDBACK_STRINGS.unreviewedBadge)).toBeInTheDocument();
   });
 
-  it("renders overall average rating", () => {
+  it("renders a table with the reviewer's columns", () => {
     render(<FeedbackReportPage />);
-    expect(
-      screen.getByText(`${MOCK_FEEDBACK_REPORT.avg_rating_overall!.toFixed(1)} overall`),
-    ).toBeInTheDocument();
-  });
-
-  it("renders each unit name as a card heading", () => {
-    render(<FeedbackReportPage />);
-    for (const unit of MOCK_FEEDBACK_REPORT.by_unit) {
-      expect(screen.getByText(unit.unit_name!)).toBeInTheDocument();
+    for (const col of [
+      FEEDBACK_STRINGS.colUnit,
+      FEEDBACK_STRINGS.colVerdict,
+      FEEDBACK_STRINGS.colComment,
+    ]) {
+      expect(screen.getByRole("columnheader", { name: col })).toBeInTheDocument();
     }
   });
 
-  it("renders 'Trending' label for trending unit", () => {
+  it("renders one row per feedback item", () => {
     render(<FeedbackReportPage />);
-    expect(screen.getByText(FEEDBACK_STRINGS.trendingLabel)).toBeInTheDocument();
+    // +1 for the header row.
+    expect(screen.getAllByRole("row")).toHaveLength(
+      MOCK_FEEDBACK_REPORT.items.length + 1,
+    );
+  });
+
+  it("names the unit each item belongs to", () => {
+    render(<FeedbackReportPage />);
+    for (const name of new Set(MOCK_FEEDBACK_REPORT.items.map((i) => i.unit_name!))) {
+      expect(screen.getAllByText(name).length).toBeGreaterThan(0);
+    }
   });
 
   it("renders each feedback message", () => {
     render(<FeedbackReportPage />);
-    for (const unit of MOCK_FEEDBACK_REPORT.by_unit) {
-      for (const item of unit.feedback_items) {
-        expect(screen.getByText(item.message)).toBeInTheDocument();
-      }
+    for (const item of MOCK_FEEDBACK_REPORT.items) {
+      if (item.message) expect(screen.getByText(item.message)).toBeInTheDocument();
     }
   });
 
-  it("renders 'No rating' for null-rating feedback", () => {
+  it("shows the thumbs verdict, which is what a thumbs row carries", () => {
     render(<FeedbackReportPage />);
-    expect(screen.getByText(FEEDBACK_STRINGS.noRatingLabel)).toBeInTheDocument();
+    expect(screen.getByText(FEEDBACK_STRINGS.notHelpful)).toBeInTheDocument();
   });
 
   it("renders 'Unreviewed' badge for unreviewed items", () => {
     render(<FeedbackReportPage />);
-    const badges = screen.getAllByText(FEEDBACK_STRINGS.unreviewedItemBadge);
-    const unreviewedCount = MOCK_FEEDBACK_REPORT.by_unit.flatMap((u) =>
-      u.feedback_items.filter((i) => !i.reviewed),
-    ).length;
-    expect(badges.length).toBe(unreviewedCount);
+    // Scope to the table: a filter chip carries the same label.
+    const table = screen.getByRole("table");
+    const badges = within(table).getAllByText(FEEDBACK_STRINGS.unreviewedItemBadge);
+    const unreviewed = MOCK_FEEDBACK_REPORT.items.filter((i) => !i.reviewed).length;
+    expect(badges.length).toBe(unreviewed);
   });
 
   it("shows loading skeleton while fetching", () => {

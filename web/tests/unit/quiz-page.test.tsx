@@ -59,6 +59,9 @@ const mockEndSession = vi.fn();
 vi.mock("@/lib/api/progress", () => ({
   submitAnswer: (...args: unknown[]) => mockSubmitAnswer(...args),
   endSession: (...args: unknown[]) => mockEndSession(...args),
+  // #667: the player asks which options were already picked so a refresh can
+  // restore them. Nothing answered yet is the right default for these tests.
+  getSessionAnswers: async () => [],
 }));
 
 // QuizPlayer calls useQueryClient().invalidateQueries() after the session ends;

@@ -45,7 +45,13 @@ async def student_dashboard(
     redis = request.app.state.redis
     async with get_db(request) as conn:
         try:
-            payload = await get_dashboard(conn, redis, student_id)
+            payload = await get_dashboard(
+                conn,
+                redis,
+                student_id,
+                pool=request.app.state.pool,
+                grade=student.get("grade"),
+            )
         except Exception as exc:
             log.error("dashboard_failed", error=str(exc), correlation_id=cid)
             raise HTTPException(
@@ -75,7 +81,13 @@ async def student_progress_map(
 
     async with get_db(request) as conn:
         try:
-            payload = await get_progress_map(conn, student_id)
+            payload = await get_progress_map(
+                conn,
+                student_id,
+                redis=request.app.state.redis,
+                pool=request.app.state.pool,
+                grade=student.get("grade"),
+            )
         except Exception as exc:
             log.error("progress_map_failed", error=str(exc), correlation_id=cid)
             raise HTTPException(

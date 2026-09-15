@@ -36,6 +36,15 @@ vi.mock("@/components/student/OfflineBanner", () => ({
 }));
 
 const mockUseProgressHistory = vi.fn();
+const mockUseCurriculumTree = vi.fn(() => ({ data: undefined }));
+
+// The page joins unit titles from the curriculum tree (#670) — the history
+// endpoint returns IDs only. Mocked at the hook so these tests do not need a
+// QueryClientProvider; the default (no tree) exercises the unit_id fallback.
+vi.mock("@/lib/hooks/useCurriculumTree", () => ({
+  useCurriculumTree: () => mockUseCurriculumTree(),
+}));
+
 vi.mock("@/lib/hooks/useProgress", () => ({
   useProgressHistory: () => mockUseProgressHistory(),
 }));
@@ -90,8 +99,52 @@ describe("STU-29 — Progress history renders", () => {
       (s) => s.score !== null && s.total !== null,
     );
     for (const session of withScore) {
-      expect(screen.getByText(`${session.score}/${session.total}`)).toBeInTheDocument();
+      // Reads "Score 5/8" inline on the meta line since #670, so the matcher
+      // normalises across the label and the number rather than expecting a
+      // bare "5/8" node.
+      expect(
+        screen.getByText(
+          (_, el) => el?.textContent === `Score ${session.score}/${session.total}`,
+        ),
+      ).toBeInTheDocument();
     }
+  });
+
+  it("shows the unit title when the curriculum tree has one (#670)", () => {
+    const first = MOCK_PROGRESS_HISTORY.sessions[0];
+    mockUseProgressHistory.mockReturnValue({
+      data: MOCK_PROGRESS_HISTORY,
+      isLoading: false,
+    });
+    // The history endpoint returns unit IDs only; the readable title comes from
+    // the tree, so a student sees the unit name rather than "G10-MATH-002".
+    mockUseCurriculumTree.mockReturnValue({
+      data: {
+        curriculum_id: "c1",
+        grade: 8,
+        subjects: [
+          {
+            subject: first.subject,
+            units: [{ unit_id: first.unit_id, title: "Readable Unit Title" }],
+          },
+        ],
+      },
+    });
+
+    render(<ProgressPage />);
+    expect(screen.getByText("Readable Unit Title")).toBeInTheDocument();
+  });
+
+  it("falls back to the unit id when no title is available (#670)", () => {
+    const first = MOCK_PROGRESS_HISTORY.sessions[0];
+    mockUseProgressHistory.mockReturnValue({
+      data: MOCK_PROGRESS_HISTORY,
+      isLoading: false,
+    });
+    mockUseCurriculumTree.mockReturnValue({ data: undefined });
+
+    render(<ProgressPage />);
+    expect(screen.getByText(first.unit_title)).toBeInTheDocument();
   });
 
   it("renders attempt number for each session", () => {

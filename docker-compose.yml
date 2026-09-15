@@ -201,7 +201,15 @@ services:
     depends_on:
       <<: *depends-all
     healthcheck:
-      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\""]
+      # timeout=3 is load-bearing, not decoration. Without it urlopen blocks
+      # forever, and Compose's `timeout: 5s` does NOT reliably reap the python
+      # child under CMD-SHELL — so every 15s interval leaves another stuck
+      # process behind. On the demo box that reached 182 sleeping processes
+      # holding 1.6 GB (43% of RAM), which starved the API, which made /health
+      # slower, which stranded more healthchecks: a feedback loop that ended in
+      # the OOM killer taking out celery and the site serving 502.
+      # Keep this strictly below the `timeout:` below so the check fails itself.
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3)\""]
       interval: 15s
       timeout: 5s
       retries: 5

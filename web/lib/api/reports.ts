@@ -14,7 +14,21 @@ export type ReportType =
 
 // ── Overview Report ───────────────────────────────────────────────────────────
 
+/**
+ * What population a report's figures cover. Reported by the server from the
+ * same filter that scoped the query, so a caption can never describe a
+ * population the numbers do not (#640).
+ *
+ * `kind: "grades"` with an EMPTY list is a real state — a teacher with no grade
+ * assignments legitimately sees nothing — and must not be read as "school".
+ */
+export interface ReportScope {
+  kind: "school" | "grades";
+  grades: number[];
+}
+
 export interface OverviewReport {
+  scope: ReportScope;
   school_id: string;
   period: string;
   enrolled_students: number;
@@ -175,20 +189,23 @@ export async function getClassMetrics(
 
 export interface FeedbackReportItem {
   feedback_id: string;
+  unit_id: string | null;
+  unit_name: string | null;
   category: string;
   rating: number | null;
-  message: string;
+  /** Null for a thumbs vote, which carries `helpful` instead (migration 0062). */
+  message: string | null;
+  helpful: boolean | null;
+  content_type: string | null;
   submitted_at: string;
   reviewed: boolean;
 }
 
-export interface FeedbackByUnit {
-  unit_id: string;
-  unit_name: string | null;
-  feedback_count: number;
-  category_breakdown: Record<string, number>;
-  trending: boolean;
-  feedback_items: FeedbackReportItem[];
+export interface FeedbackPagination {
+  page: number;
+  page_size: number;
+  /** Rows matching the CURRENT filters — the header counts are unfiltered. */
+  total: number;
 }
 
 export interface FeedbackReport {
@@ -196,11 +213,36 @@ export interface FeedbackReport {
   total_feedback_count: number;
   unreviewed_count: number;
   avg_rating_overall: number | null;
-  by_unit: FeedbackByUnit[];
+  items: FeedbackReportItem[];
+  pagination: FeedbackPagination;
 }
 
-export async function getFeedbackReport(schoolId: string): Promise<FeedbackReport> {
-  const res = await schoolApi.get<FeedbackReport>(`/reports/school/${schoolId}/feedback`);
+export interface FeedbackReportParams {
+  page?: number;
+  pageSize?: number;
+  unitId?: string;
+  category?: string;
+  reviewed?: boolean;
+}
+
+export async function getFeedbackReport(
+  schoolId: string,
+  params: FeedbackReportParams = {},
+): Promise<FeedbackReport> {
+  const query: Record<string, unknown> = {
+    page: params.page ?? 1,
+    page_size: params.pageSize ?? 25,
+  };
+  if (params.unitId) query.unit_id = params.unitId;
+  if (params.category) query.category = params.category;
+  if (params.reviewed !== undefined) query.reviewed = params.reviewed;
+
+  const res = await schoolApi.get<FeedbackReport>(
+    `/reports/school/${schoolId}/feedback`,
+    {
+      params: query,
+    },
+  );
   return res.data;
 }
 
@@ -233,6 +275,15 @@ export interface AlertItem {
   details: Record<string, unknown>;
   triggered_at: string;
   acknowledged: boolean;
+  /**
+   * Grade the alert's unit belongs to (#647). The list is now scoped to the
+   * caller's grades; showing the grade is what makes that visible — a scoped
+   * list is otherwise indistinguishable from an unscoped one.
+   *
+   * null only reaches a school_admin: an alert whose unit cannot be resolved
+   * to a grade is withheld from grade-restricted teachers.
+   */
+  grade: number | null;
 }
 
 export interface AlertListResponse {
@@ -377,5 +428,19 @@ export async function sendAtRiskReminder(
   const res = await schoolApi.post<SendReminderResponse>(
     `/reports/school/${schoolId}/at-risk/${studentId}/reminder`,
   );
+  return res.data;
+}
+
+/**
+ * Which grades the caller may see (#647 follow-up).
+ *
+ * Scope is a property of the caller, not of any one report, so it is fetched
+ * once and reused. Pages use it to explain an EMPTY list rather than assert
+ * something false about the school — grade-scoping alerts and classrooms made
+ * "No active alerts — all clear." and "No active classrooms yet." into false
+ * reassurance for a teacher with no assignments.
+ */
+export async function getMyGradeScope(schoolId: string): Promise<ReportScope> {
+  const res = await schoolApi.get<ReportScope>(`/schools/${schoolId}/my-grade-scope`);
   return res.data;
 }

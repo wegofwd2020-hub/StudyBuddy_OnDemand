@@ -17,6 +17,8 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { NoGradesNotice } from "@/components/school/ScopeNote";
+import { getMyGradeScope } from "@/lib/api/reports";
 import {
   DoorOpen,
   Plus,
@@ -236,6 +238,17 @@ export default function ClassroomsPage() {
   const isAdmin = teacher?.role === "school_admin";
   const [gradeFilter, setGradeFilter] = useState<number | "">("");
 
+  // The caller's GRADE scope — distinct from the mine/all filter below.
+  // Needed so an empty list can be explained instead of claiming the school
+  // has no classrooms when the teacher simply cannot see them (#647).
+  const { data: gradeScope } = useQuery({
+    queryKey: ["my-grade-scope", schoolId],
+    queryFn: () => getMyGradeScope(schoolId),
+    enabled: !!schoolId,
+    staleTime: 300_000,
+  });
+  const hasNoGradeScope = gradeScope?.kind === "grades" && gradeScope.grades.length === 0;
+
   const { data: classrooms, isLoading } = useQuery({
     queryKey: ["classrooms", schoolId],
     queryFn: () => listClassrooms(schoolId),
@@ -382,6 +395,11 @@ export default function ClassroomsPage() {
               />
             ))}
           </div>
+        ) : // Same false-claim problem as the alerts page: a teacher with no
+        // grade assignments is not looking at a school without classrooms,
+        // they are looking at classrooms they cannot see (#647).
+        hasNoGradeScope ? (
+          <NoGradesNotice scope={gradeScope} />
         ) : (
           <p className="text-sm text-gray-400 italic">No active classrooms yet.</p>
         )}

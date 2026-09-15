@@ -1,9 +1,9 @@
 "use client";
 
-import { useReducer, useRef } from "react";
+import { useEffect, useReducer, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import type { QuizContent, AnswerResponse, SessionEndResponse } from "@/lib/types/api";
+import type { QuizContent, SessionEndResponse } from "@/lib/types/api";
 import { Button } from "@/components/ui/button";
 import { LinkButton } from "@/components/ui/link-button";
 import {
@@ -15,7 +15,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { submitAnswer, endSession } from "@/lib/api/progress";
+import { submitAnswer, endSession, getSessionAnswers } from "@/lib/api/progress";
 
 // ─── State machine ────────────────────────────────────────────────────────────
 //
@@ -30,7 +30,6 @@ type SaveStatus = "idle" | "saving" | "saved" | "error";
 interface QuestionState {
   selectedIndex: number | null;
   /** Server verdict — held back until the summary; also drives the retry-on-error hint. */
-  result: AnswerResponse | null;
   save: SaveStatus;
 }
 
@@ -48,10 +47,11 @@ interface State {
 type Action =
   | { type: "GOTO"; index: number }
   | { type: "SELECT"; index: number; choice: number }
-  | { type: "SAVED"; index: number; result: AnswerResponse }
+  | { type: "SAVED"; index: number }
   | { type: "SAVE_ERROR"; index: number }
   | { type: "OPEN_CONFIRM" }
   | { type: "CLOSE_CONFIRM" }
+  | { type: "RESTORE"; byPosition: Map<number, number> }
   | { type: "FINISHING" }
   | { type: "FINISH_ERROR" }
   | { type: "FINISHED"; result: SessionEndResponse };
@@ -67,31 +67,48 @@ function patchQuestion(
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case "GOTO":
-      return { ...state, current: action.index };
+      // Leaving the question dismisses the finish confirmation (#666). It used
+      // to stay open, so the screen showed BOTH its "Finish anyway" and the
+      // footer's "Finish quiz" — two competing controls at the moment a student
+      // is deciding whether to submit. Covers Back, Next and the question
+      // number chips, all of which come through here.
+      return { ...state, current: action.index, confirming: false };
     case "SELECT":
       return {
         ...state,
+        // Answering also dismisses it: the panel states a count of unanswered
+        // questions, and that count is wrong the instant one is answered.
+        confirming: false,
         // Optimistic: highlight immediately, clear any prior verdict (it is being
         // re-graded), and drop a stale error so the option looks live again.
         questions: patchQuestion(state, action.index, {
           selectedIndex: action.choice,
-          result: null,
           save: "saving",
         }),
       };
     case "SAVED":
       return {
         ...state,
-        questions: patchQuestion(state, action.index, {
-          result: action.result,
-          save: "saved",
-        }),
+        questions: patchQuestion(state, action.index, { save: "saved" }),
       };
     case "SAVE_ERROR":
       return {
         ...state,
         questions: patchQuestion(state, action.index, { save: "error" }),
       };
+    case "RESTORE": {
+      // Re-seat the options the student had already picked (#667). Selections
+      // only — `result` stays null, because the reveal belongs to the summary
+      // (#532) and the resume payload carries no verdicts to leak.
+      let changed = false;
+      const questions = state.questions.map((q, i) => {
+        const restored = action.byPosition.get(i);
+        if (restored === undefined || q.selectedIndex !== null) return q;
+        changed = true;
+        return { ...q, selectedIndex: restored, save: "saved" as SaveStatus };
+      });
+      return changed ? { ...state, questions } : state;
+    }
     case "OPEN_CONFIRM":
       return { ...state, confirming: true };
     case "CLOSE_CONFIRM":
@@ -127,7 +144,6 @@ export function QuizPlayer({ quiz, sessionId, onRetry }: QuizPlayerProps) {
     current: 0,
     questions: quiz.questions.map(() => ({
       selectedIndex: null,
-      result: null,
       save: "idle" as SaveStatus,
     })),
     confirming: false,
@@ -156,10 +172,35 @@ export function QuizPlayer({ quiz, sessionId, onRetry }: QuizPlayerProps) {
       question_id: question.question_id,
       answer_index: choice,
     })
-      .then((result) => dispatch({ type: "SAVED", index, result }))
+      .then(() => dispatch({ type: "SAVED", index }))
       .catch(() => dispatch({ type: "SAVE_ERROR", index }));
     pendingSaves.current.push(p);
   }
+
+  // Restore prior selections after a refresh (#667). Runs once per session:
+  // the server is the record of what was answered, and until this the page came
+  // back blank while those answers were safely graded and stored.
+  useEffect(() => {
+    let cancelled = false;
+    getSessionAnswers(sessionId)
+      .then((answers) => {
+        if (cancelled || answers.length === 0) return;
+        const positionOf = new Map(quiz.questions.map((q, i) => [q.question_id, i]));
+        const byPosition = new Map<number, number>();
+        for (const a of answers) {
+          const i = positionOf.get(a.question_id);
+          if (i !== undefined) byPosition.set(i, a.answer_index);
+        }
+        if (byPosition.size > 0) dispatch({ type: "RESTORE", byPosition });
+      })
+      // A failure here costs the student their highlighted options, not their
+      // answers — the score is server-side either way, so it must not block the
+      // quiz or raise an error at them.
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [sessionId, quiz.questions]);
 
   async function doFinish() {
     dispatch({ type: "FINISHING" });
@@ -189,6 +230,9 @@ export function QuizPlayer({ quiz, sessionId, onRetry }: QuizPlayerProps) {
   // ── Summary screen ──────────────────────────────────────────────────────────
   if (state.phase === "summary" && state.result) {
     const { score: rawScore, total: rawTotal, passed, attempt_number } = state.result;
+    const revealByQuestion = new Map(
+      (state.result.reveal ?? []).map((r) => [r.question_id, r]),
+    );
     // Defensive clamp: never render an impossible result (e.g. 8/5 = 160%).
     const totalQ = rawTotal > 0 ? rawTotal : 1;
     const score = Math.max(0, Math.min(rawScore, totalQ));
@@ -227,9 +271,14 @@ export function QuizPlayer({ quiz, sessionId, onRetry }: QuizPlayerProps) {
         </h3>
         <ol className="space-y-4">
           {quiz.questions.map((question, qi) => {
-            const { selectedIndex, result } = state.questions[qi];
+            const { selectedIndex } = state.questions[qi];
             const answered = selectedIndex !== null;
-            const correctIndex = result?.correct_index ?? null;
+            // The key comes with the SUMMARY now, not with each answer (#684).
+            // Returning it per answer let a student read the right option and
+            // re-answer for a perfect score, since re-answering overwrites the
+            // verdict.
+            const revealed = revealByQuestion.get(question.question_id);
+            const correctIndex = revealed?.correct_index ?? null;
 
             return (
               <li
@@ -278,9 +327,9 @@ export function QuizPlayer({ quiz, sessionId, onRetry }: QuizPlayerProps) {
                     {tq("not_answered")}
                   </p>
                 )}
-                {result?.explanation && (
+                {revealed?.explanation && (
                   <div className="mt-3 rounded-md border bg-gray-50 p-3 text-sm text-gray-600">
-                    {result.explanation}
+                    {revealed.explanation}
                   </div>
                 )}
               </li>

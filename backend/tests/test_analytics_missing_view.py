@@ -48,7 +48,12 @@ async def test_end_lesson_view_on_missing_row_does_not_raise():
 async def test_end_lesson_view_on_existing_row_still_reports_success():
     """The happy path is unchanged."""
     conn = MagicMock()
-    conn.fetchrow = AsyncMock(return_value={"view_id": "abc", "duration_s": 42})
+    # Mirrors the real RETURNING clause, which since #675 also yields
+    # student_id so the caller can refresh that student's progress status
+    # without a second query.
+    conn.fetchrow = AsyncMock(
+        return_value={"view_id": "abc", "duration_s": 42, "student_id": "s-1"}
+    )
 
     result = await end_lesson_view(
         conn,

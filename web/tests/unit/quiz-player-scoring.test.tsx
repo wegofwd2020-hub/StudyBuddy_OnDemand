@@ -22,10 +22,16 @@ import type { QuizContent } from "@/lib/types/api";
 
 const mockSubmitAnswer = vi.fn();
 const mockEndSession = vi.fn();
+// #667: the player asks the server which options were already picked, so a
+// refresh restores them. Defaults to "nothing answered yet".
+const mockGetSessionAnswers = vi.fn(
+  async () => [] as { question_id: string; answer_index: number }[],
+);
 
 vi.mock("@/lib/api/progress", () => ({
   submitAnswer: (...args: unknown[]) => mockSubmitAnswer(...args),
   endSession: (...args: unknown[]) => mockEndSession(...args),
+  getSessionAnswers: (...args: unknown[]) => mockGetSessionAnswers(...args),
 }));
 
 vi.mock("next-intl", () => ({
@@ -93,6 +99,15 @@ describe("QuizPlayer", () => {
       total: 5,
       passed: true,
       attempt_number: 1,
+      // The key travels with the SUMMARY since #684 — the answer response is a
+      // bare acknowledgement, so this is where the reveal has to come from.
+      reveal: QUIZ.questions.map((q) => ({
+        question_id: q.question_id,
+        correct_index: SERVER_CORRECT_INDEX,
+        explanation: "Because that is the right one.",
+        your_answer: null,
+        correct: false,
+      })),
     });
   });
 
@@ -156,5 +171,127 @@ describe("QuizPlayer", () => {
         (await screen.findAllByText("Because that is the right one.")).length,
       ).toBeGreaterThan(0);
     });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// #666 — the finish confirmation must not outlive the question it was raised on
+// ---------------------------------------------------------------------------
+
+describe("QuizPlayer — finish confirmation dismissal (#666)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockSubmitAnswer.mockResolvedValue({
+      correct: true,
+      correct_index: SERVER_CORRECT_INDEX,
+      explanation: "",
+    });
+  });
+
+  /** Jump to the last question and raise the blank-answers confirmation. */
+  function openConfirmOnLastQuestion() {
+    render(<QuizPlayer quiz={QUIZ} sessionId="s1" />);
+    for (let i = 0; i < QUIZ.questions.length - 1; i++) {
+      fireEvent.click(screen.getByRole("button", { name: "next" }));
+    }
+    fireEvent.click(screen.getByRole("button", { name: "finish" }));
+    return screen.getByRole("alertdialog");
+  }
+
+  it("raises the confirmation when questions are unanswered", () => {
+    expect(openConfirmOnLastQuestion()).toBeInTheDocument();
+  });
+
+  it("dismisses it when the student goes Back", () => {
+    // Venki, 2026-08-28: the panel stayed, so the screen showed both its
+    // "Finish anyway" and the footer's "Finish quiz" — two competing controls
+    // at the moment a student decides whether to submit.
+    openConfirmOnLastQuestion();
+    fireEvent.click(screen.getByRole("button", { name: "back" }));
+
+    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+  });
+
+  it("leaves exactly one finish control after going Back", () => {
+    // The defect as seen, rather than via the dialog role.
+    openConfirmOnLastQuestion();
+    fireEvent.click(screen.getByRole("button", { name: "back" }));
+
+    expect(
+      screen.queryAllByRole("button", { name: "blank_warning_confirm" }),
+    ).toHaveLength(0);
+    expect(screen.getAllByRole("button", { name: "finish" })).toHaveLength(1);
+  });
+
+  it("dismisses it when the student answers instead", () => {
+    // The panel states a count of unanswered questions, and that count is wrong
+    // the instant one is answered.
+    openConfirmOnLastQuestion();
+    fireEvent.click(screen.getByText(QUIZ.questions[4].options[CORRECT]));
+
+    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// #667 — a refresh restores the options already picked
+// ---------------------------------------------------------------------------
+
+describe("QuizPlayer — resuming after a refresh (#667)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockSubmitAnswer.mockResolvedValue({
+      correct: true,
+      correct_index: SERVER_CORRECT_INDEX,
+      explanation: "",
+    });
+  });
+
+  it("re-seats the option the student had already picked", async () => {
+    // Venki, 2026-08-28: after a refresh the page came back blank, so a student
+    // re-answered questions they had already done, unable to tell which.
+    mockGetSessionAnswers.mockResolvedValue([{ question_id: "q1", answer_index: WRONG }]);
+
+    render(<QuizPlayer quiz={QUIZ} sessionId="s1" />);
+
+    const picked = await screen.findByRole("button", {
+      name: new RegExp(QUIZ.questions[0].options[WRONG]),
+      pressed: true,
+    });
+    expect(picked).toBeInTheDocument();
+  });
+
+  it("does not reveal whether the restored answer was right", async () => {
+    // The reveal belongs to the summary (#532). A resume must not become a way
+    // around it — the payload carries no verdict, and none is rendered.
+    mockGetSessionAnswers.mockResolvedValue([{ question_id: "q1", answer_index: WRONG }]);
+
+    render(<QuizPlayer quiz={QUIZ} sessionId="s1" />);
+    await screen.findByRole("button", {
+      name: new RegExp(QUIZ.questions[0].options[WRONG]),
+      pressed: true,
+    });
+
+    expect(screen.queryByText(/Because that is the right one/)).not.toBeInTheDocument();
+  });
+
+  it("leaves the quiz untouched when nothing was answered yet", async () => {
+    mockGetSessionAnswers.mockResolvedValue([]);
+
+    render(<QuizPlayer quiz={QUIZ} sessionId="s1" />);
+    await waitFor(() => expect(mockGetSessionAnswers).toHaveBeenCalled());
+
+    expect(screen.queryByRole("button", { pressed: true })).not.toBeInTheDocument();
+  });
+
+  it("still lets the student take the quiz if the restore call fails", async () => {
+    // Losing the highlights costs nothing that matters — the answers are
+    // server-side — so a failure must not block the quiz or surface an error.
+    mockGetSessionAnswers.mockRejectedValue(new Error("network"));
+
+    render(<QuizPlayer quiz={QUIZ} sessionId="s1" />);
+
+    fireEvent.click(await screen.findByText(QUIZ.questions[0].options[CORRECT]));
+    await waitFor(() => expect(mockSubmitAnswer).toHaveBeenCalled());
   });
 });

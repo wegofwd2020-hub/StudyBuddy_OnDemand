@@ -156,6 +156,17 @@ class Settings(BaseSettings):
     SMTP_PASSWORD: str | None = None  # Gmail App Password (not account password)
     SMTP_FROM_NAME: str = "StudyBuddy"
 
+    # ── School-issued temporary passwords (#664) ──────────────────────────────
+    # How long a password that SOMEBODY ELSE chose stays usable. Provisioning
+    # emails it in plaintext, so it lives in an inbox, and in every archive and
+    # forward that inbox reaches, until it is used. `first_login` prompts for a
+    # change but does not bound the window — it only fires if the person ever
+    # logs in.
+    #
+    # 72h covers a weekend, which is the realistic gap between a school
+    # provisioning accounts and students first signing in.
+    TEMP_PASSWORD_TTL_HOURS: int = 72
+
     # ── Demo accounts ─────────────────────────────────────────────────────────
     DEMO_ACCOUNT_TTL_HOURS: int = 24
     DEMO_VERIFICATION_TOKEN_TTL_MINUTES: int = 60

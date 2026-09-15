@@ -84,7 +84,11 @@ export default function AdminDashboardPage() {
               <KpiCard
                 label="Total Active"
                 value={analytics.total_active?.toLocaleString() ?? "—"}
-                sub={`${analytics.active_monthly ?? 0} monthly · ${analytics.active_annual ?? 0} annual`}
+                sub={
+                  Object.entries(analytics.by_plan ?? {})
+                    .map(([plan, stats]) => `${stats.active} ${plan}`)
+                    .join(" · ") || "no active plans"
+                }
                 icon={<Users className="h-4 w-4" />}
               />
               <KpiCard

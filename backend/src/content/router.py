@@ -28,9 +28,10 @@ Rate limiting: 100 req/min per student JWT via slowapi.
 from __future__ import annotations
 
 import re
+import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
 from src.auth.dependencies import get_current_student
 from src.content.schemas import (
@@ -53,6 +54,7 @@ from src.content.service import (
     increment_lessons_accessed,
     resolve_curriculum_id,
 )
+from src.core.cache_keys import quiz_session_set_key
 from src.core.redis_client import get_redis
 from src.core.storage import StorageBackend, get_storage
 from src.core.subjects import display_subject, resolve_subject_labels
@@ -332,6 +334,50 @@ def _strip_answer_key(data: dict) -> dict:
 # exclude_none: the answer-key fields are stripped above, so they serialise as
 # null. Omit them entirely rather than shipping `"correct_option": null` — a null
 # there reads like an oversight and invites someone to "fix" it by populating it.
+async def _session_quiz_set(
+    session_id: str, student_id: str, unit_id: str, pool, redis
+) -> int | None:
+    """The set pinned by this session, or None if it is not the caller's.
+
+    Ownership is checked against BOTH the student and the unit: a session id is
+    not a capability, and one for a different unit would serve the wrong content.
+    Returns None for every failure so the caller cannot tell "no such session"
+    from "not yours".
+    """
+    try:
+        uuid.UUID(session_id)
+    except (ValueError, AttributeError, TypeError):
+        return None
+
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(
+            "SELECT quiz_set FROM progress_sessions"
+            " WHERE session_id = $1 AND student_id = $2 AND unit_id = $3",
+            session_id,
+            student_id,
+            unit_id,
+        )
+    if row is None:
+        return None
+
+    if row["quiz_set"] is not None:
+        return int(row["quiz_set"])
+
+    # Sessions created before #567 have no pinned set on the row. Fall back to
+    # the Redis pin written at first answer, then to set 1 — the same order
+    # resolve_session_quiz_set uses for grading, so display and grading still
+    # agree for in-flight legacy attempts.
+    pinned = await redis.get(quiz_session_set_key(session_id))
+    if pinned is not None:
+        try:
+            value = int(pinned)
+            if 1 <= value <= 3:
+                return value
+        except (ValueError, TypeError):
+            pass
+    return 1
+
+
 @router.get(
     "/content/{unit_id}/quiz", response_model=QuizResponse, response_model_exclude_none=True
 )
@@ -340,9 +386,21 @@ async def get_quiz(
     request: Request,
     student: Annotated[dict, Depends(get_current_student)],
     storage: StorageBackend = Depends(get_storage),
+    session_id: str | None = Query(
+        None,
+        description=(
+            "The quiz session this fetch belongs to. When given, the set pinned "
+            "by that session is served, so refetching cannot change the "
+            "questions mid-attempt (#567)."
+        ),
+    ),
 ):
     """
-    Serve a quiz set, rotating through sets 1→2→3→1 per student per unit.
+    Serve the quiz set pinned by the caller's session.
+
+    Rotation (1→2→3→1 per student per unit) happens once per attempt when the
+    session is created — not here. Without a `session_id` the legacy rotating
+    behaviour is preserved for older clients.
     """
     from src.content.service import get_active_override as _gao
 
@@ -352,7 +410,35 @@ async def get_quiz(
     locale = student.get("locale", "en")
     school_id = student.get("school_id")
 
-    set_number = await get_next_quiz_set(student_id, unit_id, redis)
+    # The SESSION decides which set is served (#567).
+    #
+    # This endpoint used to call get_next_quiz_set(), which advances the per-unit
+    # rotation pointer — a state mutation as a side effect of a READ. Any refetch
+    # (window focus, remount, a React Query retry) therefore rotated the quiz
+    # mid-attempt. Grading was pinned per session but display was not, and since
+    # `question_id` is `q1…qN` in every set with different answers, the student
+    # was silently marked against questions they never saw.
+    #
+    # With a session_id the served set comes from the session's pin, so serving
+    # is idempotent. Without one the legacy rotation is kept so older clients
+    # (and any caller with no session) still work.
+    set_number: int | None = None
+    if session_id:
+        set_number = await _session_quiz_set(session_id, student_id, unit_id, pool, redis)
+        if set_number is None:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "error": "session_not_found",
+                    # Does not distinguish "no such session" from "not yours" —
+                    # a session id must not be usable to probe for other students'
+                    # sessions.
+                    "detail": "That quiz session could not be found.",
+                    "correlation_id": getattr(request.state, "correlation_id", ""),
+                },
+            )
+    if set_number is None:
+        set_number = await get_next_quiz_set(student_id, unit_id, redis)
     quiz_content_type = f"quiz_set_{set_number}"
 
     # Active override path: school students may have teacher-authored quiz sets.

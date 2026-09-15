@@ -1421,7 +1421,7 @@
           "content"
         ],
         "summary": "Get Quiz",
-        "description": "Serve a quiz set, rotating through sets 1\u21922\u21923\u21921 per student per unit.",
+        "description": "Serve the quiz set pinned by the caller's session.\n\nRotation (1\u21922\u21923\u21921 per student per unit) happens once per attempt when the\nsession is created \u2014 not here. Without a `session_id` the legacy rotating\nbehaviour is preserved for older clients.",
         "operationId": "get_quiz_api_v1_content__unit_id__quiz_get",
         "security": [
           {
@@ -1437,6 +1437,24 @@
               "type": "string",
               "title": "Unit Id"
             }
+          },
+          {
+            "name": "session_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The quiz session this fetch belongs to. When given, the set pinned by that session is served, so refetching cannot change the questions mid-attempt (#567).",
+              "title": "Session Id"
+            },
+            "description": "The quiz session this fetch belongs to. When given, the set pinned by that session is served, so refetching cannot change the questions mid-attempt (#567)."
           }
         ],
         "responses": {
@@ -1887,6 +1905,56 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/EndSessionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/progress/session/{session_id}/answers": {
+      "get": {
+        "tags": [
+          "progress"
+        ],
+        "summary": "Session Answers",
+        "description": "Which options this student has already picked in this session (#667).\n\nRefreshing mid-quiz used to clear every selection on screen. The answers were\nnever lost \u2014 they are graded server-side as they are given (#506) and the\nsession resumes with the same question set (#646) \u2014 but the page could not\nread them back, so a student saw an empty quiz and re-answered questions they\nhad already done, unable to tell which.\n\nReturns ONLY the picked option index per question. Never whether it was\ncorrect: the player withholds the reveal until the summary (#532), and a\nresume must not become a way around that.\n\nRead from the Redis tally rather than `progress_answers`, because answer\nwrites are fire-and-forget and the rows may not exist yet \u2014 the same reason\nend_session reads the tally (pitfall #35).",
+        "operationId": "session_answers_api_v1_progress_session__session_id__answers_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Session Answers Api V1 Progress Session  Session Id  Answers Get"
                 }
               }
             }
@@ -3389,6 +3457,84 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AssignResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/audit": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Admin Audit Log",
+        "description": "Read the platform audit log (newest first).\n\nGated on `audit:view`, which product_admin and above hold \u2014 matching the\nrole the admin nav already uses to show the page (#604).",
+        "operationId": "admin_audit_log_api_v1_admin_audit_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Page Size"
+            }
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Action"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuditLogResponse"
                 }
               }
             }
@@ -7222,6 +7368,54 @@
         }
       }
     },
+    "/api/v1/schools/{school_id}/my-grade-scope": {
+      "get": {
+        "tags": [
+          "school"
+        ],
+        "summary": "My Grade Scope",
+        "description": "Which grades the caller may see (#647 follow-up).\n\nServed once rather than embedded in every list response, because scope is a\nproperty of the caller. Pages use it to explain an empty list instead of\nasserting something false about the school \u2014 see GradeScopeResponse.",
+        "operationId": "my_grade_scope_api_v1_schools__school_id__my_grade_scope_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "school_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "School Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GradeScopeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/schools/{school_id}/classrooms/{classroom_id}": {
       "get": {
         "tags": [
@@ -9349,6 +9543,53 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SchoolThemeResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/school/enrol/confirm": {
+      "post": {
+        "tags": [
+          "school"
+        ],
+        "summary": "Confirm Enrolment",
+        "description": "Join a school using the code from an invite link (#609).\n\nThe school portal has always offered admins a copy-able `/enrol/{code}`\nlink; this is the endpoint behind it, which never existed.\n\nRuns with RLS bypassed on purpose: `schools` and `school_enrolments` are\nRLS-protected and the student is by definition not yet scoped to the school\nthey are joining. The enrolment code is the secret that authorises this, and\nnothing about a school is returned unless the code matches.",
+        "operationId": "confirm_enrolment_api_v1_school_enrol_confirm_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnrolConfirmRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnrolConfirmResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -12133,6 +12374,54 @@
         }
       }
     },
+    "/api/v1/admin/feedback/{feedback_id}/resolve": {
+      "post": {
+        "tags": [
+          "feedback"
+        ],
+        "summary": "Resolve Feedback Endpoint",
+        "description": "Mark a feedback item reviewed.\n\nThe admin Feedback page has shipped this button since it was built, but the\nendpoint never existed and the click 404'd. It went unnoticed because no\nfeedback was ever stored, so there was never a button to press (#603).",
+        "operationId": "resolve_feedback_endpoint_api_v1_admin_feedback__feedback_id__resolve_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "feedback_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Feedback Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackResolveResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/reports/school/{school_id}/roster": {
       "get": {
         "tags": [
@@ -12437,7 +12726,7 @@
           "reports"
         ],
         "summary": "Feedback Report",
-        "description": "All student feedback for the school's curriculum, grouped by unit.",
+        "description": "A page of student feedback for the school, newest first by default.\n\nPaginated since #611: the report previously returned every item ever\nrecorded, so the response grew without bound as a school accumulated\nfeedback.",
         "operationId": "feedback_report_api_v1_reports_school__school_id__feedback_get",
         "security": [
           {
@@ -12509,9 +12798,32 @@
             "required": false,
             "schema": {
               "type": "string",
-              "pattern": "^(recent|oldest|volume)$",
+              "pattern": "^(recent|oldest)$",
               "default": "recent",
               "title": "Sort"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Page Size"
             }
           }
         ],
@@ -15760,7 +16072,14 @@
             "title": "Curriculum Id"
           },
           "message": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Message"
           },
           "rating": {
@@ -15773,6 +16092,28 @@
               }
             ],
             "title": "Rating"
+          },
+          "helpful": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Helpful"
+          },
+          "content_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content Type"
           },
           "submitted_at": {
             "type": "string",
@@ -15812,7 +16153,6 @@
           "feedback_id",
           "student_id",
           "category",
-          "message",
           "submitted_at",
           "reviewed"
         ],
@@ -16524,6 +16864,17 @@
           "acknowledged": {
             "type": "boolean",
             "title": "Acknowledged"
+          },
+          "grade": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grade"
           }
         },
         "type": "object",
@@ -17300,6 +17651,105 @@
           "expires_in"
         ],
         "title": "AudioUrlResponse"
+      },
+      "AuditEntry": {
+        "properties": {
+          "audit_id": {
+            "type": "string",
+            "title": "Audit Id"
+          },
+          "actor_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actor Id"
+          },
+          "actor_role": {
+            "type": "string",
+            "title": "Actor Role"
+          },
+          "action": {
+            "type": "string",
+            "title": "Action"
+          },
+          "resource_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resource Type"
+          },
+          "resource_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resource Id"
+          },
+          "detail": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Detail",
+            "default": {}
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "audit_id",
+          "actor_role",
+          "action",
+          "created_at"
+        ],
+        "title": "AuditEntry"
+      },
+      "AuditLogResponse": {
+        "properties": {
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/AuditEntry"
+            },
+            "type": "array",
+            "title": "Entries"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "entries",
+          "total",
+          "page",
+          "page_size"
+        ],
+        "title": "AuditLogResponse"
       },
       "BackupCreateRequest": {
         "properties": {
@@ -19322,6 +19772,16 @@
               }
             ]
           },
+          "standing": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Standing"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "recent_activity": {
             "items": {
               "$ref": "#/components/schemas/RecentActivityItem"
@@ -20313,6 +20773,14 @@
           "ended_at": {
             "type": "string",
             "title": "Ended At"
+          },
+          "reveal": {
+            "items": {
+              "$ref": "#/components/schemas/QuestionReveal"
+            },
+            "type": "array",
+            "title": "Reveal",
+            "default": []
           }
         },
         "type": "object",
@@ -20325,6 +20793,35 @@
           "ended_at"
         ],
         "title": "EndSessionResponse"
+      },
+      "EnrolConfirmRequest": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 3,
+            "title": "Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token"
+        ],
+        "title": "EnrolConfirmRequest",
+        "description": "The school's enrolment code, as carried in an /enrol/{code} invite link."
+      },
+      "EnrolConfirmResponse": {
+        "properties": {
+          "school_name": {
+            "type": "string",
+            "title": "School Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "school_name"
+        ],
+        "title": "EnrolConfirmResponse"
       },
       "EnrolmentRosterItem": {
         "properties": {
@@ -20667,56 +21164,6 @@
         ],
         "title": "ExtraBuildCheckoutRequest"
       },
-      "FeedbackByUnit": {
-        "properties": {
-          "unit_id": {
-            "type": "string",
-            "title": "Unit Id"
-          },
-          "unit_name": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Unit Name"
-          },
-          "feedback_count": {
-            "type": "integer",
-            "title": "Feedback Count"
-          },
-          "category_breakdown": {
-            "additionalProperties": {
-              "type": "integer"
-            },
-            "type": "object",
-            "title": "Category Breakdown"
-          },
-          "trending": {
-            "type": "boolean",
-            "title": "Trending"
-          },
-          "feedback_items": {
-            "items": {
-              "$ref": "#/components/schemas/src__reports__schemas__FeedbackReportItem"
-            },
-            "type": "array",
-            "title": "Feedback Items"
-          }
-        },
-        "type": "object",
-        "required": [
-          "unit_id",
-          "feedback_count",
-          "category_breakdown",
-          "trending",
-          "feedback_items"
-        ],
-        "title": "FeedbackByUnit"
-      },
       "FeedbackItem": {
         "properties": {
           "feedback_id": {
@@ -20788,6 +21235,29 @@
         ],
         "title": "FeedbackListResponse"
       },
+      "FeedbackPagination": {
+        "properties": {
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "page",
+          "page_size",
+          "total"
+        ],
+        "title": "FeedbackPagination"
+      },
       "FeedbackReport": {
         "properties": {
           "school_id": {
@@ -20813,12 +21283,15 @@
             ],
             "title": "Avg Rating Overall"
           },
-          "by_unit": {
+          "items": {
             "items": {
-              "$ref": "#/components/schemas/FeedbackByUnit"
+              "$ref": "#/components/schemas/src__reports__schemas__FeedbackReportItem"
             },
             "type": "array",
-            "title": "By Unit"
+            "title": "Items"
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/FeedbackPagination"
           }
         },
         "type": "object",
@@ -20826,7 +21299,8 @@
           "school_id",
           "total_feedback_count",
           "unreviewed_count",
-          "by_unit"
+          "items",
+          "pagination"
         ],
         "title": "FeedbackReport"
       },
@@ -20902,6 +21376,47 @@
         ],
         "title": "FeedbackRequest"
       },
+      "FeedbackResolveResponse": {
+        "properties": {
+          "feedback_id": {
+            "type": "string",
+            "title": "Feedback Id"
+          },
+          "reviewed": {
+            "type": "boolean",
+            "title": "Reviewed"
+          },
+          "reviewed_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewed By"
+          },
+          "reviewed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewed At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "feedback_id",
+          "reviewed"
+        ],
+        "title": "FeedbackResolveResponse"
+      },
       "FeedbackSubmitRequest": {
         "properties": {
           "category": {
@@ -20932,9 +21447,16 @@
             "title": "Curriculum Id"
           },
           "message": {
-            "type": "string",
-            "maxLength": 500,
-            "minLength": 1,
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Message"
           },
           "rating": {
@@ -20949,12 +21471,34 @@
               }
             ],
             "title": "Rating"
+          },
+          "helpful": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Helpful"
+          },
+          "content_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(lesson|tutorial|experiment|quiz)$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content Type"
           }
         },
         "type": "object",
         "required": [
-          "category",
-          "message"
+          "category"
         ],
         "title": "FeedbackSubmitRequest"
       },
@@ -21187,6 +21731,28 @@
           "subjects"
         ],
         "title": "GradeCurriculum"
+      },
+      "GradeScopeResponse": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "grades": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Grades",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "title": "GradeScopeResponse",
+        "description": "Which grades the CALLER may see (#647 follow-up).\n\nScope is a property of the caller, not of any one report, so it is served\nonce here rather than embedded in every list response. The overview report\nstill embeds its own copy: there the caption must be guaranteed to match\nthat specific query.\n\nExists because grade-scoping alerts and classrooms made two empty states\nlie. A teacher with no assignments saw \"No active alerts \u2014 all clear.\" and\n\"No active classrooms yet.\" \u2014 both asserting a fact about the school when\nthe truth was \"you have no scope, and there may be things here you cannot\nsee\". False reassurance is worse than an empty list.\n\n`kind`: \"school\" (unrestricted) | \"grades\". An EMPTY `grades` list is the\nteacher-with-no-assignments case and is exactly what those pages need to\ndistinguish."
       },
       "GradeSummary": {
         "properties": {
@@ -21422,6 +21988,11 @@
           "experiment_viewed": {
             "type": "boolean",
             "title": "Experiment Viewed",
+            "default": false
+          },
+          "tutorial_viewed": {
+            "type": "boolean",
+            "title": "Tutorial Viewed",
             "default": false
           }
         },
@@ -21888,6 +22459,9 @@
             "type": "string",
             "title": "Period"
           },
+          "scope": {
+            "$ref": "#/components/schemas/ReportScope"
+          },
           "enrolled_students": {
             "type": "integer",
             "title": "Enrolled Students"
@@ -21939,6 +22513,7 @@
         "required": [
           "school_id",
           "period",
+          "scope",
           "enrolled_students",
           "active_students_period",
           "active_pct",
@@ -22854,6 +23429,46 @@
         "type": "object",
         "title": "PublishRequest"
       },
+      "QuestionReveal": {
+        "properties": {
+          "question_id": {
+            "type": "string",
+            "title": "Question Id"
+          },
+          "correct_index": {
+            "type": "integer",
+            "title": "Correct Index"
+          },
+          "explanation": {
+            "type": "string",
+            "title": "Explanation",
+            "default": ""
+          },
+          "your_answer": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Your Answer"
+          },
+          "correct": {
+            "type": "boolean",
+            "title": "Correct",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "question_id",
+          "correct_index"
+        ],
+        "title": "QuestionReveal",
+        "description": "One question's answer, released at the end of the attempt (#684)."
+      },
       "QuizOption": {
         "properties": {
           "option_id": {
@@ -23124,8 +23739,37 @@
             "title": "Rating"
           },
           "message": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Message"
+          },
+          "helpful": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Helpful"
+          },
+          "content_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content Type"
           },
           "submitted_at": {
             "type": "string",
@@ -23137,7 +23781,6 @@
         "required": [
           "feedback_id",
           "category",
-          "message",
           "submitted_at"
         ],
         "title": "RecentFeedbackItem"
@@ -23188,28 +23831,18 @@
             "type": "string",
             "title": "Answer Id"
           },
-          "correct": {
+          "recorded": {
             "type": "boolean",
-            "title": "Correct"
-          },
-          "correct_index": {
-            "type": "integer",
-            "title": "Correct Index"
-          },
-          "explanation": {
-            "type": "string",
-            "title": "Explanation",
-            "default": ""
+            "title": "Recorded",
+            "default": true
           }
         },
         "type": "object",
         "required": [
-          "answer_id",
-          "correct",
-          "correct_index"
+          "answer_id"
         ],
         "title": "RecordAnswerResponse",
-        "description": "The server's verdict on the answer, plus the reveal.\n\n`correct_index` and `explanation` are returned HERE rather than shipped inside\nthe quiz payload, so the answer key never sits in the browser before the\nstudent has committed to a choice."
+        "description": "An acknowledgement that the answer was recorded. Deliberately no verdict.\n\nThis used to return `correct`, `correct_index` and `explanation` \u2014 the key\nfor the question just answered. Combined with re-answering, which overwrites\na question's verdict so that skip-and-return (#532) cannot double-count, that\nlet a student read the answer out of the response and answer again for a\nperfect score without knowing any of the material (#684). Two individually\nreasonable behaviours whose product was the hole.\n\nThe reveal now travels with the summary (`EndSessionResponse.reveal`), where\nthe UI has always shown it. Nothing mid-quiz needs it, so nothing mid-quiz\nreceives it."
       },
       "RefreshRequest": {
         "properties": {
@@ -23455,6 +24088,28 @@
           "category"
         ],
         "title": "ReportRequest"
+      },
+      "ReportScope": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "grades": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Grades",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "title": "ReportScope",
+        "description": "What population the figures in this report actually cover.\n\nSince #576 a teacher's numbers mean THEIR GRADES and a school admin's mean\nthe whole school \u2014 the same tile, the same label, two different populations,\nwith nothing on screen saying which. That silence is the defect behind \u00a70 of\nthe dashboard design, and it is what made a teacher reading \"pass rate 62%\"\nunable to tell whose pass rate it was.\n\nThe scope is reported by the SERVER, derived from the same `_grade_filter`\nthat scoped the query. Re-deriving it in the client would let the caption\ndrift from the data it describes \u2014 the caption would still say \"your grades:\n8, 10\" after the filter had changed, which is worse than no caption.\n\n`kind`:\n    \"school\"    \u2014 unrestricted (school_admin); `grades` is empty\n    \"grades\"    \u2014 restricted to `grades`\nA teacher with NO assignments is `kind=\"grades\"` with an EMPTY list, which\nis a real and distinct state: they legitimately see nothing. It must not be\ncollapsed into \"school\" (the pre-#576 bug) nor rendered as a blank caption \u2014\nall-zero tiles with no explanation is exactly the \"can't tell 'not set up'\nfrom 'broken'\" problem in \u00a74.2."
       },
       "ResetPasswordRequest": {
         "properties": {
@@ -25415,6 +26070,35 @@
         ],
         "title": "SnapshotListResponse"
       },
+      "Standing": {
+        "properties": {
+          "you": {
+            "type": "number",
+            "title": "You"
+          },
+          "cohort": {
+            "type": "number",
+            "title": "Cohort"
+          },
+          "cohort_size": {
+            "type": "integer",
+            "title": "Cohort Size"
+          },
+          "grade": {
+            "type": "integer",
+            "title": "Grade"
+          }
+        },
+        "type": "object",
+        "required": [
+          "you",
+          "cohort",
+          "cohort_size",
+          "grade"
+        ],
+        "title": "Standing",
+        "description": "The student's average beside their grade cohort's.\n\nOmitted entirely (None on the response) when the cohort is too small to\naggregate without disclosing an individual's record \u2014 see\n`_MIN_COHORT_FOR_STANDING` in service.py."
+      },
       "StartSessionRequest": {
         "properties": {
           "unit_id": {
@@ -25465,6 +26149,10 @@
           "started_at": {
             "type": "string",
             "title": "Started At"
+          },
+          "quiz_set": {
+            "type": "integer",
+            "title": "Quiz Set"
           }
         },
         "type": "object",
@@ -25473,7 +26161,8 @@
           "unit_id",
           "curriculum_id",
           "attempt_number",
-          "started_at"
+          "started_at",
+          "quiz_set"
         ],
         "title": "StartSessionResponse"
       },
@@ -26338,6 +27027,17 @@
           "pct": {
             "type": "number",
             "title": "Pct"
+          },
+          "avg_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avg Score"
           }
         },
         "type": "object",
@@ -28559,6 +29259,28 @@
             "type": "string",
             "title": "Feedback Id"
           },
+          "unit_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit Id"
+          },
+          "unit_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit Name"
+          },
           "category": {
             "type": "string",
             "title": "Category"
@@ -28575,8 +29297,37 @@
             "title": "Rating"
           },
           "message": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Message"
+          },
+          "helpful": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Helpful"
+          },
+          "content_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content Type"
           },
           "submitted_at": {
             "type": "string",
@@ -28592,7 +29343,6 @@
         "required": [
           "feedback_id",
           "category",
-          "message",
           "submitted_at",
           "reviewed"
         ],

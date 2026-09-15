@@ -11,6 +11,7 @@ import {
   executeRestoreRequest,
   cancelRestoreRequest,
 } from "@/lib/api/backup";
+import { describeSchedule } from "@/lib/school/restore-schedule";
 
 const STATUS_STYLES: Record<string, string> = {
   submitted: "bg-yellow-100 text-yellow-700",
@@ -150,6 +151,9 @@ export default function RestoreRequestsPage() {
                 <th className="border-b px-4 py-2 font-medium text-gray-700">
                   Submitted
                 </th>
+                <th className="border-b px-4 py-2 font-medium text-gray-700">
+                  Preferred time
+                </th>
                 <th className="border-b px-4 py-2 font-medium text-gray-700">Actions</th>
               </tr>
             </thead>
@@ -177,6 +181,28 @@ export default function RestoreRequestsPage() {
                   </td>
                   <td className="px-4 py-2 text-xs text-gray-600">
                     {fmtDate(req.created_at)}
+                  </td>
+                  <td className="px-4 py-2 text-xs text-gray-600">
+                    {(() => {
+                      const s = describeSchedule(req.scheduled_at, req.status);
+                      if (s.kind === "asap") return "ASAP";
+                      return (
+                        <>
+                          {req.scheduled_at ? fmtDate(req.scheduled_at) : null}
+                          {s.note && (
+                            <div
+                              className={
+                                s.kind === "unschedulable"
+                                  ? "text-amber-700"
+                                  : "text-gray-400"
+                              }
+                            >
+                              {s.note}
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()}
                   </td>
                   <td className="px-4 py-2">
                     <div className="flex flex-wrap gap-1">

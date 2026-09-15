@@ -17,6 +17,7 @@ Covers:
 
 from __future__ import annotations
 
+import json
 import uuid
 
 import asyncpg
@@ -453,6 +454,63 @@ async def list_admin_users(conn: asyncpg.Connection) -> list[dict]:
         """
     )
     return [dict(r) for r in rows]
+
+
+async def list_audit_log(
+    conn: asyncpg.Connection,
+    page: int = 1,
+    page_size: int = 50,
+    action: str | None = None,
+) -> dict:
+    """Return a page of audit entries, newest first.
+
+    The `audit_log` table uses its own vocabulary (event_type / actor_type /
+    target_*); the admin client was written against action / actor_role /
+    resource_*, so the mapping happens here rather than renaming columns under
+    a table that other writers already use.
+    """
+    where = ""
+    params: list = []
+    if action:
+        where = "WHERE event_type = $1"
+        params.append(action)
+
+    total = await conn.fetchval(f"SELECT COUNT(*) FROM audit_log {where}", *params)
+
+    offset = (page - 1) * page_size
+    rows = await conn.fetch(
+        f"""
+        SELECT id::text            AS audit_id,
+               actor_id::text      AS actor_id,
+               actor_type          AS actor_role,
+               event_type          AS action,
+               target_type         AS resource_type,
+               target_id::text     AS resource_id,
+               COALESCE(metadata, '{{}}'::jsonb) AS detail,
+               timestamp           AS created_at
+        FROM audit_log
+        {where}
+        ORDER BY timestamp DESC, id DESC
+        LIMIT ${len(params) + 1} OFFSET ${len(params) + 2}
+        """,
+        *params,
+        page_size,
+        offset,
+    )
+    entries = []
+    for r in rows:
+        entry = dict(r)
+        # asyncpg hands jsonb back as a string unless a codec is registered.
+        if isinstance(entry.get("detail"), str):
+            entry["detail"] = json.loads(entry["detail"])
+        entries.append(entry)
+
+    return {
+        "entries": entries,
+        "total": total or 0,
+        "page": page,
+        "page_size": page_size,
+    }
 
 
 async def assign_version(

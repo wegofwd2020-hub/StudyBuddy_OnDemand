@@ -79,7 +79,11 @@ export function LocalAuthGuard({
 
     if (payload.first_login) {
       // Enforce first-login password change before any portal access (pitfall #24).
-      router.replace("/school/change-password?required=1");
+      // This guard only ever runs for the teacher/school-admin portal (it reads
+      // sb_teacher_token exclusively above), so the account is unambiguously
+      // "teacher" — pass it through explicitly rather than letting the
+      // change-password page re-derive it (issue #582).
+      router.replace("/school/change-password?required=1&account=teacher");
       return;
     }
 

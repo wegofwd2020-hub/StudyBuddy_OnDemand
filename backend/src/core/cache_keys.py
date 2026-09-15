@@ -103,8 +103,11 @@ def quiz_set_key(student_id: str, unit_id: str) -> str:
 
 def quiz_answers_key(session_id: str) -> str:
     """
-    quizanswers:{session_id} — Redis HASH of question_id → "1"/"0" (server-graded
-    correctness), one field per answered question.
+    quizanswers:{session_id} — Redis HASH of question_id → "<verdict>:<index>",
+    one field per answered question. The verdict ("1"/"0") is the server-graded
+    correctness that scoring reads; the index is the option the student picked,
+    kept so a refresh can restore their selections (#667). Fields written before
+    #667 are a bare "1"/"0" and still score correctly.
 
     The score has to be authoritative but the answer write is fire-and-forget
     (perf rule #4), so `progress_answers` may not be persisted yet when the

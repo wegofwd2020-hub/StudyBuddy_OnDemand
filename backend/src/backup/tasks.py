@@ -48,6 +48,74 @@ async def _bypass(conn: asyncpg.Connection) -> None:
     await conn.execute("SELECT set_config('app.current_school_id', 'bypass', false)")
 
 
+async def _prune_excess_backups(
+    conn: asyncpg.Connection,
+    storage,
+    school_uuid: uuid.UUID,
+    max_keep: int,
+) -> None:
+    """Delete a school's backups beyond `max_keep`, newest kept (issue #636).
+
+    Two rules, both learned the hard way.
+
+    **A backup a restore request references is never pruned.** You cannot
+    restore from a backup that has been deleted, so the reference pins it. The
+    `backup_restore_requests_backup_id_fkey` constraint was already refusing
+    these deletes and was right to; the prune was what was wrong.
+
+    **This function does not raise.** It runs AFTER the backup is written and
+    marked completed, so anything it hits is housekeeping, not the backup. When
+    it was able to raise, one un-prunable row failed a finished backup: the
+    school was emailed "your backup couldn't be completed" for seven consecutive
+    nights while all seven sat on disk, complete. Housekeeping must not be able
+    to invalidate the work it runs after.
+
+    Per-backup failures are isolated so one bad row cannot stop the rest of the
+    prune — matching how the storage half of this already behaved.
+    """
+    rows = await conn.fetch(
+        """
+        SELECT b.id, b.storage_path,
+               EXISTS (
+                   SELECT 1 FROM backup_restore_requests r WHERE r.backup_id = b.id
+               ) AS is_referenced
+        FROM curriculum_backups b
+        WHERE b.school_id = $1
+        ORDER BY b.created_at DESC
+        """,
+        school_uuid,
+    )
+    if len(rows) <= max_keep:
+        return
+
+    for old in rows[max_keep:]:
+        old_id = str(old["id"])
+        if old["is_referenced"]:
+            log.info(
+                "backup_prune_skipped_referenced",
+                old_backup_id=old_id,
+                reason="a restore request still needs this backup",
+            )
+            continue
+
+        old_path = old["storage_path"] or ""
+        if old_path:
+            try:
+                for key in await storage.list_prefix(old_path):
+                    await storage.delete(key)
+            except Exception as prune_exc:
+                log.warning("backup_prune_storage_error", backup_id=old_id, error=str(prune_exc))
+
+        try:
+            await conn.execute("DELETE FROM curriculum_backups WHERE id=$1", uuid.UUID(old_id))
+        except Exception as prune_exc:
+            # Never fatal: the backup this ran after is already complete.
+            log.warning("backup_prune_delete_error", backup_id=old_id, error=str(prune_exc))
+            continue
+
+        log.info("backup_pruned", old_backup_id=old_id)
+
+
 def _now_iso() -> str:
     return datetime.now(tz=UTC).isoformat()
 
@@ -346,38 +414,15 @@ def backup_school_task(
                         f"{school_id}/{backup_id}",
                     )
 
-                    # Prune excess backups
+                    # Prune excess backups.
+                    #
+                    # Deliberately AFTER the row is marked completed, and
+                    # deliberately unable to raise: see _prune_excess_backups.
                     from config import settings as cfg
 
-                    all_backups = await conn.fetch(
-                        """
-                        SELECT id, storage_path FROM curriculum_backups
-                        WHERE school_id=$1
-                        ORDER BY created_at DESC
-                        """,
-                        school_uuid,
+                    await _prune_excess_backups(
+                        conn, storage, school_uuid, max_keep=cfg.BACKUP_MAX_PER_SCHOOL
                     )
-                    if len(all_backups) > cfg.BACKUP_MAX_PER_SCHOOL:
-                        excess = all_backups[cfg.BACKUP_MAX_PER_SCHOOL :]
-                        for old in excess:
-                            old_id = str(old["id"])
-                            old_path = old["storage_path"] or ""
-                            if old_path:
-                                try:
-                                    old_keys = await storage.list_prefix(old_path)
-                                    for k in old_keys:
-                                        await storage.delete(k)
-                                except Exception as prune_exc:
-                                    log.warning(
-                                        "backup_prune_storage_error",
-                                        backup_id=old_id,
-                                        error=str(prune_exc),
-                                    )
-                            await conn.execute(
-                                "DELETE FROM curriculum_backups WHERE id=$1",
-                                uuid.UUID(old_id),
-                            )
-                            log.info("backup_pruned", old_backup_id=old_id)
             finally:
                 await pool2.close()
 

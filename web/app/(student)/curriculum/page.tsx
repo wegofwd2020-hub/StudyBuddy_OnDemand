@@ -2,13 +2,12 @@
 
 import { useState } from "react";
 import { useCurriculumTree } from "@/lib/hooks/useCurriculumTree";
-import { useProgressHistory } from "@/lib/hooks/useProgress";
+import { useUnitStatuses } from "@/lib/hooks/useProgressMap";
 import { Skeleton } from "@/components/ui/skeleton";
 import { OfflineBanner } from "@/components/student/OfflineBanner";
 import { useTranslations } from "next-intl";
 import { BookOpen as BookOpenIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { UnitStatus } from "@/lib/types/api";
 import {
   Aisle,
   Shelf,
@@ -22,13 +21,13 @@ import {
 export default function CurriculumMapPage() {
   const t = useTranslations("curriculum_map_screen");
   const { data: tree, isLoading: treeLoading } = useCurriculumTree();
-  const { data: history, isLoading: histLoading } = useProgressHistory(100);
+  // Status comes from the server (#677). It used to be derived here in the
+  // browser from quiz sessions alone — a separate definition with no lesson
+  // input, which is why #675's fix was invisible on this very screen.
+  const { statusByUnit, isLoading: statusLoading } = useUnitStatuses();
   const [openUnitId, setOpenUnitId] = useState<string | null>(null);
 
-  const loading = treeLoading || histLoading;
-
-  const statusMap = new Map<string, UnitStatus>();
-  history?.unit_progress?.forEach((up) => statusMap.set(up.unit_id, up.status));
+  const loading = treeLoading || statusLoading;
 
   return (
     <div className="flex flex-col">
@@ -78,7 +77,7 @@ export default function CurriculumMapPage() {
                       unitId={unit.unit_id}
                       title={unit.title}
                       subjectKey={subject.subject}
-                      status={statusMap.get(unit.unit_id) ?? "not_started"}
+                      status={statusByUnit.get(unit.unit_id) ?? "not_started"}
                       hasLab={unit.has_lab}
                       dim={unit.has_content === false}
                       isOpen={openUnitId === unit.unit_id}

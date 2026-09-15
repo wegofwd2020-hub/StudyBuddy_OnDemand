@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useRef } from "react";
+import { use, useRef } from "react";
 import { useLesson } from "@/lib/hooks/useLesson";
 import { LessonRenderer } from "@/components/content/LessonRenderer";
 import { AudioPlayer } from "@/components/content/AudioPlayer";
@@ -8,7 +8,7 @@ import { FeedbackWidget } from "@/components/feedback/FeedbackWidget";
 import { OfflineBanner } from "@/components/student/OfflineBanner";
 import { LinkButton } from "@/components/ui/link-button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { startLessonView, endLessonViewBeacon } from "@/lib/api/analytics";
+import { useContentView } from "@/lib/hooks/useContentView";
 import { AIContentDisclosure } from "@/components/content/AIContentDisclosure";
 import { contentErrorMessage } from "@/lib/content-error";
 import { FlaskConical, FileQuestion } from "lucide-react";
@@ -21,43 +21,12 @@ export default function LessonPage({ params }: PageProps) {
   const { unit_id } = use(params);
   const { data: lesson, isLoading, isError, error } = useLesson(unit_id);
 
-  const viewIdRef = useRef<string | null>(null);
-  const startTimeRef = useRef<number>(0);
   const audioPlayedRef = useRef(false);
-  const endedRef = useRef(false);
 
-  // Record a lesson VIEW on mount. We deliberately do NOT open a progress
-  // session here — a session is a quiz attempt, created by the quiz page. The
-  // lesson page used to call startSession, producing phantom never-completed
-  // sessions that cluttered Progress History with bogus/duplicate attempts (#465).
-  useEffect(() => {
-    if (!lesson) return;
-    endedRef.current = false;
-    startLessonView(unit_id)
-      .then((r) => {
-        viewIdRef.current = r.view_id;
-      })
-      .catch(() => {});
-    startTimeRef.current = Date.now();
-
-    // Record elapsed time exactly once — whether the student navigates within
-    // the app (effect cleanup) or closes/refreshes the tab (pagehide). The
-    // beacon uses a keepalive fetch so the write survives page unload, fixing
-    // the lost lesson durations that made "Time" show 0m (#464).
-    const flushEnd = () => {
-      if (endedRef.current || !viewIdRef.current) return;
-      endedRef.current = true;
-      const duration = Math.round((Date.now() - startTimeRef.current) / 1000);
-      endLessonViewBeacon(viewIdRef.current, duration, audioPlayedRef.current, false);
-    };
-
-    window.addEventListener("pagehide", flushEnd);
-
-    return () => {
-      window.removeEventListener("pagehide", flushEnd);
-      flushEnd();
-    };
-  }, [lesson, unit_id]);
+  // Records the view and flushes the duration. Shared with the tutorial and
+  // experiment pages (#569) so the three cannot drift — this effect used to
+  // live only here, which is exactly why the other two recorded nothing.
+  useContentView(unit_id, !!lesson, "lesson", audioPlayedRef);
 
   if (isLoading) {
     return (

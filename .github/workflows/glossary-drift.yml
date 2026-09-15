@@ -26,13 +26,13 @@ jobs:
 
       - name: Checkout application repo
         if: env.DOCS_TOKEN_PRESENT == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           path: app
 
       - name: Checkout docs repo
         if: env.DOCS_TOKEN_PRESENT == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: wegofwd2020-hub/studybuddy-docs
           token: ${{ secrets.DOCS_REPO_TOKEN }}

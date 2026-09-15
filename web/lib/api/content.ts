@@ -46,8 +46,12 @@ interface BackendQuizResponse {
   subject: string | null;
 }
 
-export async function getQuiz(unitId: string): Promise<QuizContent> {
-  const res = await api.get<BackendQuizResponse>(`/content/${unitId}/quiz`);
+export async function getQuiz(unitId: string, sessionId?: string): Promise<QuizContent> {
+  // The session id pins which quiz set is served, so a refetch (window focus,
+  // remount, a retry) cannot change the questions mid-attempt (#567).
+  const res = await api.get<BackendQuizResponse>(
+    `/content/${unitId}/quiz${sessionId ? `?session_id=${encodeURIComponent(sessionId)}` : ""}`,
+  );
   const raw = res.data;
   return {
     unit_id: raw.unit_id,

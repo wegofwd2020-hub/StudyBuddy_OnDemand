@@ -44,18 +44,14 @@ export default function AdminAnalyticsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                <tr>
-                  <td className="px-4 py-3 text-gray-700">Monthly subscribers</td>
-                  <td className="px-4 py-3 text-right font-mono text-gray-900">
-                    {sub.active_monthly?.toLocaleString() ?? "—"}
-                  </td>
-                </tr>
-                <tr>
-                  <td className="px-4 py-3 text-gray-700">Annual subscribers</td>
-                  <td className="px-4 py-3 text-right font-mono text-gray-900">
-                    {sub.active_annual?.toLocaleString() ?? "—"}
-                  </td>
-                </tr>
+                {Object.entries(sub.by_plan ?? {}).map(([plan, stats]) => (
+                  <tr key={plan}>
+                    <td className="px-4 py-3 text-gray-700 capitalize">{plan} plan</td>
+                    <td className="px-4 py-3 text-right font-mono text-gray-900">
+                      {stats.active?.toLocaleString() ?? "—"}
+                    </td>
+                  </tr>
+                ))}
                 <tr>
                   <td className="px-4 py-3 text-gray-700">Total active</td>
                   <td className="px-4 py-3 text-right font-mono font-semibold text-gray-900">

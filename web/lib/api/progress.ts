@@ -4,6 +4,7 @@ import type {
   AnswerResponse,
   SessionEndResponse,
   ProgressHistory,
+  QuestionReveal,
 } from "@/lib/types/api";
 
 /**
@@ -40,22 +41,12 @@ export async function submitAnswer(payload: {
 }): Promise<AnswerResponse> {
   const { session_id, question_id, answer_index, ms_taken = 0 } = payload;
 
-  const res = await api.post<{
-    answer_id: string;
-    correct: boolean;
-    correct_index: number;
-    explanation: string;
-  }>(`/progress/session/${session_id}/answer`, {
-    question_id,
-    student_answer: answer_index,
-    ms_taken,
-  });
+  const res = await api.post<{ answer_id: string; recorded: boolean }>(
+    `/progress/session/${session_id}/answer`,
+    { question_id, student_answer: answer_index, ms_taken },
+  );
 
-  return {
-    correct: res.data.correct,
-    correct_index: res.data.correct_index,
-    explanation: res.data.explanation ?? "",
-  };
+  return { recorded: res.data.recorded ?? true };
 }
 
 /**
@@ -70,6 +61,7 @@ export async function endSession(sessionId: string): Promise<SessionEndResponse>
     passed: boolean;
     attempt_number: number;
     ended_at: string;
+    reveal?: QuestionReveal[];
   }>(`/progress/session/${sessionId}/end`, {});
 
   // Map total_questions → total for the SessionEndResponse type
@@ -78,6 +70,10 @@ export async function endSession(sessionId: string): Promise<SessionEndResponse>
     total: res.data.total_questions,
     passed: res.data.passed,
     attempt_number: res.data.attempt_number,
+    // The answer key, released only now the attempt is closed (#684). This
+    // mapper lists fields explicitly, so anything added to the response has to
+    // be added here too or it is silently dropped before the UI sees it.
+    reveal: res.data.reveal ?? [],
   };
 }
 
@@ -115,33 +111,32 @@ export async function getProgressHistory(limit = 20): Promise<ProgressHistory> {
     attempt_number: s.attempt_number,
   }));
 
-  // Derive unit_progress from sessions
-  const byUnit = new Map<string, typeof raw.sessions>();
-  for (const s of raw.sessions) {
-    if (!byUnit.has(s.unit_id)) byUnit.set(s.unit_id, []);
-    byUnit.get(s.unit_id)!.push(s);
-  }
+  // No unit_progress here any more (#677). This used to derive a unit's status
+  // in the browser from quiz sessions alone — a definition separate from the
+  // server's, with no lesson input and no `not_started` branch, which is why
+  // #675's fix was invisible on the Curriculum Map. Status now comes from
+  // /student/progress via `useProgressMap`; leaving the derivation behind as
+  // dead code would just wait for someone to pick it up again.
+  return { sessions };
+}
 
-  const unit_progress = Array.from(byUnit.entries()).map(([unit_id, unitSessions]) => {
-    const completed = unitSessions.filter((s) => s.completed);
-    const passed = completed.filter((s) => s.passed);
-    const scores = completed.map((s) => s.score).filter((s): s is number => s !== null);
-    const best_score = scores.length ? Math.max(...scores) : null;
-    const last = unitSessions.reduce((a, b) => (a.started_at > b.started_at ? a : b));
-
-    let status: "completed" | "needs_retry" | "in_progress" | "not_started";
-    if (passed.length > 0) status = "completed";
-    else if (completed.length > 0) status = "needs_retry";
-    else status = "in_progress";
-
-    return {
-      unit_id,
-      status,
-      best_score,
-      attempts: unitSessions.length,
-      last_attempted_at: last.started_at,
-    };
-  });
-
-  return { sessions, unit_progress };
+/**
+ * Which options the student has already picked in this session (#667).
+ *
+ * A refresh mid-quiz used to clear every selection on screen. The answers were
+ * never lost — they are graded server-side as they are given and the session
+ * resumes with the same question set (#646) — the page just could not read them
+ * back, so a student re-answered questions they had already done.
+ *
+ * Returns the picked index only, never whether it was correct: the reveal
+ * belongs to the summary (#532).
+ */
+export async function getSessionAnswers(
+  sessionId: string,
+): Promise<{ question_id: string; answer_index: number }[]> {
+  const res = await api.get<{
+    session_id: string;
+    answers: { question_id: string; answer_index: number }[];
+  }>(`/progress/session/${sessionId}/answers`);
+  return res.data.answers;
 }

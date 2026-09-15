@@ -51,7 +51,10 @@ async def _answer_all(
             headers={"Authorization": f"Bearer {token}"},
         )
         assert r.status_code == 200, r.text
-        assert r.json()["correct"] is (i < correct_count)
+        # The answer response is an acknowledgement only since #684 — the
+        # verdict arrives with the summary. Scoring is asserted there instead.
+        assert r.json()["recorded"] is True
+        assert "correct" not in r.json()
 
 async def _insert_student(client: AsyncClient, student_id: str) -> None:
     """Insert a minimal student row using the app pool (committed; visible to all connections)."""
@@ -153,8 +156,12 @@ async def test_record_answer_returns_200(client, db_conn, student_token):
             headers={"Authorization": f"Bearer {student_token}"},
         )
     assert r.status_code == 200
-    assert r.json()["correct"] is False
-    assert r.json()["correct_index"] == 0
+    # #684: the key is no longer handed back mid-quiz. Returning `correct_index`
+    # here let a student read the answer and re-answer for a perfect score,
+    # since re-answering overwrites the verdict.
+    assert r.json()["recorded"] is True
+    assert "correct_index" not in r.json()
+    assert "correct" not in r.json()
 
 
 @pytest.mark.asyncio
@@ -258,7 +265,9 @@ async def test_client_cannot_inflate_its_own_score(client, db_conn, student_toke
                 headers={"Authorization": f"Bearer {student_token}"},
             )
             assert r.status_code == 200
-            assert r.json()["correct"] is False  # server overrules the client
+            # The server still overrules the client — now proven by the final
+            # score rather than a per-answer verdict, which #684 removed.
+            assert "correct" not in r.json()
 
         # ...and the end request claims a perfect score.
         r = await client.post(
@@ -435,3 +444,94 @@ async def test_progress_requires_auth(client):
         json={"unit_id": "G8-MATH-001", "curriculum_id": "default-2026-g8"},
     )
     assert r.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_the_answer_response_never_carries_the_key(client, db_conn, student_token):
+    """The #684 exploit, closed at its source.
+
+    `POST /progress/answer` used to return `correct_index`, and re-answering a
+    question overwrites its verdict — deliberately, so skip-and-return (#532)
+    cannot double-count. Together those let a student:
+
+        answer anything -> read correct_index -> answer again correctly -> 100%
+
+    with no knowledge of the material. Two individually reasonable behaviours
+    whose product was the hole.
+
+    The fix is that nothing mid-quiz carries the key, so the first step of that
+    sequence yields nothing to act on.
+    """
+    from jose import jwt as _jwt
+
+    payload = _jwt.decode(
+        student_token, "test-secret-do-not-use-in-production-aaaa", algorithms=["HS256"]
+    )
+    await _insert_student(client, payload["student_id"])
+
+    with (
+        patch("src.auth.tasks.celery_app.send_task", return_value=None),
+        patch(
+            "src.progress.router.resolve_quiz_answer_key",
+            new_callable=AsyncMock,
+            return_value=_ANSWER_KEY_8Q,
+        ),
+    ):
+        session = await _start_session(client, student_token)
+        r = await client.post(
+            f"/api/v1/progress/session/{session['session_id']}/answer",
+            json={"question_id": "q1", "student_answer": 3, "ms_taken": 10},
+            headers={"Authorization": f"Bearer {student_token}"},
+        )
+
+    assert r.status_code == 200, r.text
+    body = r.json()
+    # Nothing in the payload may hint at the answer — not the index, not the
+    # verdict, not the explanation that names it.
+    assert "correct_index" not in body, body
+    assert "correct" not in body, body
+    assert "explanation" not in body, body
+
+
+@pytest.mark.asyncio
+async def test_the_reveal_arrives_with_the_summary(client, db_conn, student_token):
+    """Removing the mid-quiz reveal must not remove it altogether.
+
+    The summary has always shown which option was right and why; it now gets
+    that from the end-of-session payload rather than from answers collected
+    during the attempt.
+    """
+    from jose import jwt as _jwt
+
+    payload = _jwt.decode(
+        student_token, "test-secret-do-not-use-in-production-aaaa", algorithms=["HS256"]
+    )
+    await _insert_student(client, payload["student_id"])
+
+    with (
+        patch("src.auth.tasks.celery_app.send_task", return_value=None),
+        patch(
+            "src.progress.router.resolve_quiz_answer_key",
+            new_callable=AsyncMock,
+            return_value=_ANSWER_KEY_8Q,
+        ),
+    ):
+        session = await _start_session(client, student_token)
+        await client.post(
+            f"/api/v1/progress/session/{session['session_id']}/answer",
+            json={"question_id": "q1", "student_answer": 0, "ms_taken": 10},
+            headers={"Authorization": f"Bearer {student_token}"},
+        )
+        r = await client.post(
+            f"/api/v1/progress/session/{session['session_id']}/end",
+            json={},
+            headers={"Authorization": f"Bearer {student_token}"},
+        )
+
+    assert r.status_code == 200, r.text
+    reveal = {q["question_id"]: q for q in r.json()["reveal"]}
+    assert reveal, r.json()
+    assert reveal["q1"]["correct_index"] == 0, reveal["q1"]
+    # And it says what the student themselves picked, so the summary can mark it.
+    assert reveal["q1"]["your_answer"] == 0, reveal["q1"]
+    assert reveal["q1"]["correct"] is True, reveal["q1"]

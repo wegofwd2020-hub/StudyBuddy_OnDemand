@@ -8,11 +8,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { changePassword } from "@/lib/api/auth";
+import {
+  parseAccountParam,
+  resolveChangePasswordToken,
+} from "@/lib/auth/change-password";
 
 export default function ChangePasswordPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isRequired = searchParams.get("required") === "1";
+  const accountParam = parseAccountParam(searchParams.get("account"));
 
   const [token, setToken] = useState<string | null>(null);
   const [currentPassword, setCurrentPassword] = useState("");
@@ -23,16 +28,27 @@ export default function ChangePasswordPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Read token from localStorage (safe — runs client-side only)
+  // Resolve which cached token belongs to the account that is actually
+  // changing its password (issue #582) — never guessed from localStorage
+  // key precedence. See lib/auth/change-password.ts for the full guard.
   useEffect(() => {
-    const t =
-      localStorage.getItem("sb_teacher_token") ?? localStorage.getItem("sb_token");
-    if (!t) {
+    const resolved = resolveChangePasswordToken(
+      accountParam,
+      {
+        studentToken: localStorage.getItem("sb_token"),
+        teacherToken: localStorage.getItem("sb_teacher_token"),
+      },
+      document.cookie,
+    );
+    if (!resolved) {
+      // Fail safe: no trustworthy token for the account this page was
+      // opened for. Never fall back to "whatever token happens to be
+      // cached" — force a fresh, unambiguous sign-in instead.
       router.replace("/signin");
     } else {
-      setToken(t);
+      setToken(resolved.token);
     }
-  }, [router]);
+  }, [router, accountParam]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -55,12 +71,19 @@ export default function ChangePasswordPage() {
         new_password: newPassword,
       });
       // Backend returns a fresh JWT with first_login=false. Replace the stored
-      // token so the school layout guard sees first_login=false on the next
+      // token so the portal layout guard sees first_login=false on the next
       // navigation — no redirect loop.
       const tokenKey = res.role === "student" ? "sb_token" : "sb_teacher_token";
       localStorage.setItem(tokenKey, res.token);
-      localStorage.setItem("sb_teacher_refresh_token", res.refresh_token);
-      router.push("/school/dashboard");
+      if (res.role !== "student") {
+        // Only the teacher/school-admin client silently refreshes
+        // (lib/api/school-client.ts reads sb_teacher_refresh_token) —
+        // students have no refresh flow. Writing this key unconditionally
+        // used to clobber a cached teacher's refresh token whenever a
+        // student changed their own password (issue #582).
+        localStorage.setItem("sb_teacher_refresh_token", res.refresh_token);
+      }
+      router.push(res.role === "student" ? "/dashboard" : "/school/dashboard");
     } catch (err: unknown) {
       const status = (err as { response?: { status?: number } })?.response?.status;
       if (status === 401) {

@@ -50,6 +50,68 @@ async def test_register_school_duplicate_email_returns_409(client: AsyncClient):
 
 
 @pytest.mark.asyncio
+async def test_enrolment_code_suffix_has_collision_resistant_entropy():
+    """The random half of an enrolment code must be wide enough for a UNIQUE column.
+
+    The prefix is derived from the school name, so every school sharing a name
+    competes in the suffix space alone. A 4-hex-char suffix is only 65,536
+    values, which collides by birthday paradox well before a school ever
+    notices (issue #597).
+    """
+    from src.school import service as school_service
+
+    code = school_service._gen_enrolment_code("Subscription Test School")
+    suffix = code.split("-")[-1]
+    assert len(suffix) >= 8, f"suffix {suffix!r} is only {len(suffix)} chars — too narrow"
+
+
+@pytest.mark.asyncio
+async def test_register_school_retries_when_enrolment_code_collides(
+    client: AsyncClient, monkeypatch: pytest.MonkeyPatch
+):
+    """A generated enrolment code that is already taken is regenerated, not fatal.
+
+    The code is cosmetic and server-generated, so a collision must never be
+    surfaced to the registering school (issue #597).
+    """
+    from src.school import service as school_service
+
+    codes = iter(["SAMECODE-AAAA", "SAMECODE-AAAA", "SAMECODE-BBBB"])
+    monkeypatch.setattr(school_service, "_gen_enrolment_code", lambda _name: next(codes))
+
+    r1 = await client.post("/api/v1/schools/register", json=_reg("Retry One", "retry1@example.com"))
+    assert r1.status_code == 201, r1.text
+
+    # Second registration draws the same code first, then a fresh one.
+    r2 = await client.post("/api/v1/schools/register", json=_reg("Retry Two", "retry2@example.com"))
+    assert r2.status_code == 201, r2.text
+
+
+@pytest.mark.asyncio
+async def test_enrolment_code_conflict_is_not_reported_as_an_email_conflict(
+    client: AsyncClient, monkeypatch: pytest.MonkeyPatch
+):
+    """An exhausted enrolment-code retry must not claim the email is taken.
+
+    Registration used to map any 'unique' violation to "A school or account
+    with that email already exists." A school admin whose email is perfectly
+    free was then told to pick a different one (issue #597).
+    """
+    from src.school import service as school_service
+
+    monkeypatch.setattr(school_service, "_gen_enrolment_code", lambda _name: "FIXEDCODE-ZZZZ")
+
+    r1 = await client.post("/api/v1/schools/register", json=_reg("Fixed One", "fixed1@example.com"))
+    assert r1.status_code == 201, r1.text
+
+    r2 = await client.post("/api/v1/schools/register", json=_reg("Fixed Two", "fixed2@example.com"))
+    assert r2.status_code == 409, r2.text
+    detail = r2.json()["detail"].lower()
+    assert "email" not in detail, f"enrolment-code conflict misreported as email: {detail!r}"
+    assert "enrolment code" in detail, f"conflict should name the real constraint: {detail!r}"
+
+
+@pytest.mark.asyncio
 async def test_register_school_missing_name_returns_422(client: AsyncClient):
     """Missing required field returns 422 Unprocessable Entity."""
     r = await client.post("/api/v1/schools/register", json={"contact_email": "x@x.com", "password": _PW})

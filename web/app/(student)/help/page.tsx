@@ -171,7 +171,13 @@ export default function StudentHelpPage() {
                 ["Take a quiz", "/subjects → unit → Quiz tab"],
                 ["View quiz score history", "/progress"],
                 ["See subject totals", "/stats"],
-                !demo && ["Update language / notifications", "/account/settings"],
+                // The page has a Profile card alongside Language and Notifications, so the
+                // old label undersold it and a student looking for their name or grade had
+                // no signpost (Venki, 2026-08-28).
+                !demo && [
+                  "Update profile / language / notifications",
+                  "/account/settings",
+                ],
                 ["Toggle dyslexia font", "Eye icon in top-right header, or Alt+D"],
                 demo && [
                   "Demo limitations",

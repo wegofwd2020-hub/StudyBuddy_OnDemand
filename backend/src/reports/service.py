@@ -49,15 +49,177 @@ def _trend_weeks(period: str) -> int:
     return {"4w": 4, "12w": 12, "term": 16}.get(period, 4)
 
 
-async def _enrolled_ids(conn: asyncpg.Connection, school_id: str) -> list[str]:
-    """Return active enrolled student UUIDs (as strings) for a school."""
+async def total_units_by_student(
+    pool,
+    redis,
+    students: list[dict],
+    school_id: str,
+) -> dict[str, int]:
+    """Map `student_id` -> the unit count of the curriculum they are actually served.
+
+    Fixes #638. Both report sites previously counted units with
+
+        WHERE c.grade = <student grade> AND c.is_default
+
+    which sums EVERY default curriculum at that grade. Since Epic 8 a grade has
+    one default per stream, so a Grade 11 student was measured against STEM +
+    Commerce + Humanities + Science together: 19 + 6 + 2 + 29 = 56. Grades with a
+    single curriculum (8, 10) read correctly by accident, which is why it
+    survived — the bug is invisible in exactly the grades most testing uses.
+
+    The denominator now comes from `resolve_curriculum_id()`, the same three-step
+    resolution that decides which content the student is served (school-owned →
+    classroom package → `default-{year}-g{grade}`).
+
+    Deliberately NOT re-expressed as SQL. Re-deriving the curriculum with a
+    simpler query is pitfall #31 exactly: `get_curriculum_tree` did that and
+    quietly served stream students another stream's subjects. One resolver,
+    called by everything, is the point — a second copy drifts silently and the
+    symptom appears somewhere else entirely.
+
+    Resolution is Redis-cached per student, and unit counts are fetched in one
+    query for the distinct curricula rather than per student.
+    """
+    from src.content.service import resolve_curriculum_id
+
+    if not students:
+        return {}
+
+    resolved: dict[str, str] = {}
+    for row in students:
+        sid = str(row["student_id"])
+        resolved[sid] = await resolve_curriculum_id(
+            sid,
+            row["grade"],
+            pool,
+            redis,
+            school_id=school_id,
+        )
+
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', $1, false)", school_id)
+        # Count against the curriculum that actually HOLDS the units.
+        #
+        # A school FORK carries no rows in `curriculum_units` — they live under
+        # its `source_curriculum_id`, which is why content serving swaps
+        # fork -> source before reading (resolve_content_curriculum). Counting
+        # the fork directly returns zero, so a student on a forked curriculum
+        # went from a wrong denominator to an impossible one. Caught on the demo
+        # minutes after #638 shipped: Venky_Gr11 resolves through a classroom
+        # package to a fork with 0 own units and 20 under default-2026-g8.
+        counts = await conn.fetch(
+            """
+            SELECT c.curriculum_id,
+                   COALESCE(
+                       -- the curriculum's own units, if it has any ...
+                       NULLIF((SELECT COUNT(*) FROM curriculum_units own
+                               WHERE own.curriculum_id = c.curriculum_id), 0),
+                       -- ... otherwise the source it was forked from
+                       (SELECT COUNT(*) FROM curriculum_units src
+                        WHERE src.curriculum_id = c.source_curriculum_id),
+                       0
+                   ) AS units
+            FROM curricula c
+            WHERE c.curriculum_id = ANY($1::text[])
+            """,
+            list(set(resolved.values())),
+        )
+    by_curriculum = {r["curriculum_id"]: r["units"] for r in counts}
+    return {sid: by_curriculum.get(cid, 0) for sid, cid in resolved.items()}
+
+
+async def cohort_unit_ids(
+    conn: asyncpg.Connection,
+    pool,
+    redis,
+    school_id: str,
+    allowed_grades: list[int] | None = None,
+) -> set[str]:
+    """Every unit in the curricula this school's students are actually served.
+
+    The catalog that "no activity" has to be measured against (#590). Both
+    metrics that used the name were ungrounded: the overview compared two
+    activity sets to each other, and curriculum health only ever saw units that
+    already had a session — so the report meant to surface coverage gaps was
+    blind to the units nobody had opened.
+
+    Resolution goes through `resolve_curriculum_id` and the fork -> source rule,
+    the same path as `total_units_by_student`, so the catalog matches what the
+    students are actually served rather than what their grade nominally implies.
+    """
+    from src.content.service import resolve_curriculum_id
+
+    rows = await conn.fetch(
+        """
+        SELECT student_id::text AS student_id, grade
+        FROM school_enrolments
+        WHERE school_id = $1 AND status = 'active' AND student_id IS NOT NULL
+          AND ($2::smallint[] IS NULL OR grade = ANY($2::smallint[]))
+        """,
+        uuid.UUID(school_id),
+        allowed_grades,
+    )
+    if not rows:
+        return set()
+
+    curricula: set[str] = set()
+    for row in rows:
+        curricula.add(
+            await resolve_curriculum_id(
+                row["student_id"], row["grade"], pool, redis, school_id=school_id
+            )
+        )
+
+    async with pool.acquire() as conn2:
+        await conn2.execute("SELECT set_config('app.current_school_id', $1, false)", school_id)
+        unit_rows = await conn2.fetch(
+            """
+            SELECT cu.unit_id
+            FROM curricula c
+            JOIN curriculum_units cu
+              ON cu.curriculum_id = CASE
+                     WHEN EXISTS (SELECT 1 FROM curriculum_units own
+                                  WHERE own.curriculum_id = c.curriculum_id)
+                     THEN c.curriculum_id
+                     ELSE c.source_curriculum_id
+                 END
+            WHERE c.curriculum_id = ANY($1::text[])
+            """,
+            list(curricula),
+        )
+    return {r["unit_id"] for r in unit_rows}
+
+
+async def _enrolled_ids(
+    conn: asyncpg.Connection,
+    school_id: str,
+    allowed_grades: list[int] | None = None,
+) -> list[str]:
+    """Return active enrolled student UUIDs (as strings) for a school.
+
+    `allowed_grades` narrows the cohort to the grades the caller is entitled to
+    (#576). `None` means no restriction — a `school_admin`, who is a teacher
+    superset under ADR-005, or an internal caller with no teacher context.
+
+    This is the single place five of the six aggregate reports get their cohort
+    from (overview, unit, curriculum-health, feedback, trends), so scoping here
+    scopes all of them at once rather than repeating the filter per endpoint.
+    `get_at_risk_students` builds its own `enrolled` CTE and is scoped
+    separately.
+
+    An EMPTY list is meaningful and distinct from None: a teacher with no grade
+    assignments has no cohort and must see no students, rather than every
+    student. Callers must pass None to mean "unrestricted".
+    """
     rows = await conn.fetch(
         """
         SELECT student_id::text
         FROM school_enrolments
         WHERE school_id = $1 AND status = 'active' AND student_id IS NOT NULL
+          AND ($2::smallint[] IS NULL OR grade = ANY($2::smallint[]))
         """,
         uuid.UUID(school_id),
+        allowed_grades,
     )
     return [r["student_id"] for r in rows]
 
@@ -88,11 +250,18 @@ async def get_overview(
     conn: asyncpg.Connection,
     school_id: str,
     period: str,
+    allowed_grades: list[int] | None = None,
+    pool=None,
+    redis=None,
 ) -> dict:
-    """Single-screen class summary for the selected period."""
+    """Single-screen class summary for the selected period.
+
+    `allowed_grades` limits the cohort to the caller's assigned grades
+    (#576); None means unrestricted (school_admin / internal caller).
+    """
     start = _period_start(period)
 
-    enrolled = await _enrolled_ids(conn, school_id)
+    enrolled = await _enrolled_ids(conn, school_id, allowed_grades)
     n_enrolled = len(enrolled)
 
     if not enrolled:
@@ -135,7 +304,22 @@ async def get_overview(
     quiz_row = await conn.fetchrow(
         f"""
         SELECT
-            COUNT(*) AS quiz_attempts,
+            -- An attempt is a quiz the student actually engaged with (#579).
+            -- This counted every row, and a row was written on every quiz-page
+            -- load — which is how a school with 8 real attempts read "QUIZ
+            -- ATTEMPTS 85". Sessions with no answers that were never completed
+            -- are page loads, not attempts.
+            --
+            -- The pass rates below already filter on `completed`, so they were
+            -- never inflated by this and are deliberately left alone: the two
+            -- must not be conflated (avg score verified correct on the demo).
+            COUNT(*) FILTER (
+                WHERE completed
+                   OR EXISTS (
+                       SELECT 1 FROM progress_answers pa
+                       WHERE pa.session_id = progress_sessions.session_id
+                   )
+            ) AS quiz_attempts,
             ROUND(
                 100.0 * COUNT(*) FILTER (WHERE attempt_number = 1 AND passed AND completed)
                 -- Denominator counts first-attempt SESSIONS, not distinct
@@ -164,7 +348,16 @@ async def get_overview(
         f"""
         SELECT unit_id,
                ROUND(
-                   100.0 * COUNT(*) FILTER (WHERE attempt_number = 1 AND passed AND completed)
+                   -- Per unit the population is STUDENTS, so both sides count distinct
+                   -- students. Counting rows in the numerator let one student with
+                   -- several completed attempt-1 sessions on a unit exceed 100% (#623).
+                   -- Unlike get_curriculum_health this query has no join, so it was
+                   -- never inflated by lesson-view fan-out (#625) — it is fixed here
+                   -- because the metric is the same and the row/student mismatch is
+                   -- wrong either way, not because it was observed misreporting.
+                   -- NOTE: the school-wide query above is rows/rows on purpose —
+                   -- see the #471 comment there. Do not "unify" them.
+                   100.0 * COUNT(DISTINCT student_id) FILTER (WHERE attempt_number = 1 AND passed AND completed)
                    / NULLIF(COUNT(DISTINCT student_id) FILTER (WHERE attempt_number = 1 AND completed), 0),
                    1
                ) AS first_pass_rate,
@@ -186,19 +379,31 @@ async def get_overview(
         )
     ]
 
-    # Units with NO activity in period
-    active_units = {r["unit_id"] for r in struggle_rows}
-    all_unit_rows = await conn.fetch(
+    # Units with NO activity in the period, measured against the real catalog
+    # (#590).
+    #
+    # This used to be (units viewed BEFORE the period) minus (units quizzed
+    # DURING it) — "went quiet", not "untouched", and structurally empty
+    # whenever no lesson views predate the window. A unit never opened could
+    # therefore never appear, which is the one case the card exists for.
+    touched_rows = await conn.fetch(
         f"""
         SELECT DISTINCT unit_id FROM lesson_views
-        WHERE student_id = ANY(ARRAY[{placeholders}]::uuid[])
-          AND started_at < $1
+        WHERE student_id = ANY(ARRAY[{placeholders}]::uuid[]) AND started_at >= $1
+        UNION
+        SELECT DISTINCT unit_id FROM progress_sessions
+        WHERE student_id = ANY(ARRAY[{placeholders}]::uuid[]) AND started_at >= $1
         """,
         start,
         *id_uuids,
     )
-    ever_active_units = {r["unit_id"] for r in all_unit_rows}
-    units_no_activity = sorted(ever_active_units - active_units)
+    touched_units = {r["unit_id"] for r in touched_rows}
+    catalog = (
+        await cohort_unit_ids(conn, pool, redis, school_id, allowed_grades)
+        if pool is not None and redis is not None
+        else set()
+    )
+    units_no_activity = sorted(catalog - touched_units)
 
     # Unreviewed feedback from enrolled students (no $1=start param here)
     fb_placeholders = ", ".join(f"${i + 1}" for i in range(len(id_uuids)))
@@ -235,10 +440,15 @@ async def get_unit_report(
     school_id: str,
     unit_id: str,
     period: str,
+    allowed_grades: list[int] | None = None,
 ) -> dict:
-    """Per-unit deep-dive for enrolled students in the period."""
+    """Per-unit deep-dive for enrolled students in the period.
+
+    `allowed_grades` limits the cohort to the caller's assigned grades
+    (#576); None means unrestricted (school_admin / internal caller).
+    """
     start = _period_start(period)
-    enrolled = await _enrolled_ids(conn, school_id)
+    enrolled = await _enrolled_ids(conn, school_id, allowed_grades)
     n_enrolled = len(enrolled)
     id_uuids = [uuid.UUID(s) for s in enrolled]
 
@@ -340,7 +550,7 @@ async def get_unit_report(
     fb_placeholders = ", ".join(f"${i + 2}" for i in range(len(id_uuids)))
     fb_rows = await conn.fetch(
         f"""
-        SELECT feedback_id::text, category, rating, message, submitted_at
+        SELECT feedback_id::text, category, rating, message, helpful, content_type, submitted_at
         FROM feedback
         WHERE unit_id = $1
           AND student_id = ANY(ARRAY[{fb_placeholders}]::uuid[])
@@ -605,9 +815,16 @@ async def get_student_report(
 async def get_curriculum_health(
     conn: asyncpg.Connection,
     school_id: str,
+    allowed_grades: list[int] | None = None,
+    pool=None,
+    redis=None,
 ) -> dict:
-    """All units ranked by health tier."""
-    enrolled = await _enrolled_ids(conn, school_id)
+    """All units ranked by health tier.
+
+    `allowed_grades` limits the cohort to the caller's assigned grades
+    (#576); None means unrestricted (school_admin / internal caller).
+    """
+    enrolled = await _enrolled_ids(conn, school_id, allowed_grades)
     if not enrolled:
         return {
             "school_id": school_id,
@@ -638,15 +855,39 @@ async def get_curriculum_health(
             ps.unit_id,
             MAX(ps.subject)                                    AS subject,
             ROUND(
-                100.0 * COUNT(*) FILTER (WHERE ps.attempt_number = 1 AND ps.passed AND ps.completed)
+                -- Both sides count distinct students: per unit the population is
+                -- STUDENTS, not session rows (#623).
+                100.0 * COUNT(DISTINCT ps.student_id) FILTER (WHERE ps.attempt_number = 1 AND ps.passed AND ps.completed)
                 / NULLIF(COUNT(DISTINCT ps.student_id) FILTER (WHERE ps.attempt_number = 1 AND ps.completed), 0),
                 1
             )                                                   AS first_pass_rate,
             ROUND(AVG(ps.score) FILTER (WHERE ps.completed)::numeric, 1) AS avg_score,
             ROUND(AVG(ps.attempt_number) FILTER (WHERE ps.passed AND ps.completed)::numeric, 1) AS avg_att,
-            COUNT(DISTINCT lv.view_id) > 0                      AS has_lesson_view
+            BOOL_OR(lv.viewed)                                  AS has_lesson_view
         FROM progress_sessions ps
-        LEFT JOIN lesson_views lv ON lv.student_id = ps.student_id AND lv.unit_id = ps.unit_id
+        -- Collapse lesson views to at most ONE row per (student, unit) BEFORE
+        -- joining (issue #625). Joining `lesson_views` directly fanned each quiz
+        -- session out into one row per view, so a student who opened the lesson
+        -- N times was counted N times by every row-based aggregate here:
+        --
+        --   * the pass-rate numerator counted joined rows against distinct
+        --     students and reported 200% / 300% / 800% — this was the actual
+        --     cause of #623, which was fixed by making both sides DISTINCT
+        --     (immune to fan-out) while the wrong cause was recorded;
+        --   * AVG(score) and AVG(attempt_number) are NOT immune, and still
+        --     weighted each student by their lesson-view count — the reason a
+        --     struggling student who re-read the lesson less could be averaged
+        --     away by a strong one who re-read it more.
+        --
+        -- Same defect and same remedy as #464 in analytics/service.py. Joining
+        -- on (student_id, unit_id) keeps the original meaning of has_lesson_view:
+        -- "a student with a session on this unit also viewed its lesson".
+        LEFT JOIN (
+            SELECT student_id, unit_id, TRUE AS viewed
+            FROM lesson_views
+            WHERE student_id = ANY(ARRAY[{placeholders}]::uuid[])
+            GROUP BY student_id, unit_id
+        ) lv ON lv.student_id = ps.student_id AND lv.unit_id = ps.unit_id
         WHERE ps.student_id = ANY(ARRAY[{placeholders}]::uuid[])
         GROUP BY ps.unit_id
         ORDER BY ps.unit_id
@@ -678,6 +919,19 @@ async def get_curriculum_health(
     )
     fb_map = {r["unit_id"]: r for r in fb_rows}
 
+    # Units nobody has touched never appear in `rows`, because those come
+    # `FROM progress_sessions` — so the report designed to surface coverage gaps
+    # was blind to exactly the units that represent one (#590). Merge the
+    # school's real catalog in, so an untouched unit is REPORTED as untouched
+    # rather than silently missing from `total_units` and every tier count.
+    catalog = (
+        await cohort_unit_ids(conn, pool, redis, school_id, allowed_grades)
+        if pool is not None and redis is not None
+        else set()
+    )
+    seen = {r["unit_id"] for r in rows}
+    untouched = sorted(catalog - seen)
+
     units = []
     counts = {"healthy": 0, "watch": 0, "struggling": 0, "no_activity": 0}
     for r in rows:
@@ -704,6 +958,30 @@ async def get_curriculum_health(
             }
         )
 
+    if untouched:
+        untouched_names = await conn.fetch(
+            "SELECT unit_id, unit_name, subject FROM curriculum_units WHERE unit_id = ANY($1::text[])",
+            untouched,
+        )
+        meta = {r["unit_id"]: r for r in untouched_names}
+        for unit_id in untouched:
+            row = meta.get(unit_id)
+            counts["no_activity"] += 1
+            units.append(
+                {
+                    "unit_id": unit_id,
+                    "unit_name": row["unit_name"] if row else None,
+                    "subject": row["subject"] if row else None,
+                    "health_tier": "no_activity",
+                    "first_attempt_pass_rate_pct": 0.0,
+                    "avg_attempts_to_pass": 0.0,
+                    "avg_score_pct": 0.0,
+                    "feedback_count": 0,
+                    "avg_rating": None,
+                    "recommended_action": _recommended_action("no_activity"),
+                }
+            )
+
     return {
         "school_id": school_id,
         "total_units": len(units),
@@ -725,142 +1003,115 @@ async def get_feedback_report(
     category: str | None = None,
     reviewed: bool | None = None,
     sort: str = "recent",
+    page: int = 1,
+    page_size: int = 50,
+    allowed_grades: list[int] | None = None,
 ) -> dict:
-    """Feedback from enrolled students, grouped by unit."""
-    enrolled = await _enrolled_ids(conn, school_id)
+    """A page of feedback from enrolled students, newest first by default.
+
+    This used to group by unit and loop, issuing three queries PER UNIT and
+    returning every item ever recorded — so both the query count and the
+    payload grew with a school's total feedback volume (issue #611). It is now
+    three queries regardless of how many units have feedback: the summary, the
+    filtered count, and the page itself.
+    """
+    enrolled = await _enrolled_ids(conn, school_id, allowed_grades)
     if not enrolled:
         return {
             "school_id": school_id,
             "total_feedback_count": 0,
             "unreviewed_count": 0,
             "avg_rating_overall": None,
-            "by_unit": [],
+            "items": [],
+            "pagination": {"page": page, "page_size": page_size, "total": 0},
         }
 
     id_uuids = [uuid.UUID(s) for s in enrolled]
-    placeholders = ", ".join(f"${i + 1}" for i in range(len(id_uuids)))
 
-    # Summary
+    # 1) Summary over ALL of the school's feedback — the header describes the
+    #    school, not whatever the current filters happen to show.
     summary = await conn.fetchrow(
-        f"""
+        """
         SELECT COUNT(*) AS total,
                COUNT(*) FILTER (WHERE NOT reviewed) AS unreviewed,
                ROUND(AVG(rating)::numeric, 1) AS avg_rating
         FROM feedback
-        WHERE student_id = ANY(ARRAY[{placeholders}]::uuid[])
+        WHERE student_id = ANY($1::uuid[])
         """,
-        *id_uuids,
+        id_uuids,
     )
 
-    # Per-unit breakdown
-    unit_ids_fb = await conn.fetch(
+    # 2) The filtered set — drives pagination, so it must honour the filters.
+    filters = ["student_id = ANY($1::uuid[])"]
+    params: list = [id_uuids]
+    if unit_id:
+        params.append(unit_id)
+        filters.append(f"unit_id = ${len(params)}")
+    if category:
+        params.append(category)
+        filters.append(f"category = ${len(params)}")
+    if reviewed is not None:
+        params.append(reviewed)
+        filters.append(f"reviewed = ${len(params)}")
+    where = " AND ".join(filters)
+
+    total = await conn.fetchval(f"SELECT COUNT(*) FROM feedback WHERE {where}", *params)
+
+    # 3) The page. feedback_id breaks ties so paging cannot repeat or skip a row
+    #    when several arrive in the same instant.
+    direction = "ASC" if sort == "oldest" else "DESC"
+    offset = max(page - 1, 0) * page_size
+    rows = await conn.fetch(
         f"""
-        SELECT DISTINCT COALESCE(unit_id, '') AS unit_id
-        FROM feedback
-        WHERE student_id = ANY(ARRAY[{placeholders}]::uuid[])
-          AND unit_id IS NOT NULL
+        SELECT f.feedback_id::text,
+               f.unit_id,
+               cu.unit_name,
+               f.category,
+               f.rating,
+               f.helpful,
+               f.content_type,
+               f.message,
+               f.submitted_at,
+               f.reviewed
+        FROM feedback f
+        LEFT JOIN LATERAL (
+            SELECT unit_name FROM curriculum_units
+            WHERE unit_id = f.unit_id LIMIT 1
+        ) cu ON TRUE
+        WHERE {where}
+        ORDER BY f.submitted_at {direction}, f.feedback_id {direction}
+        LIMIT ${len(params) + 1} OFFSET ${len(params) + 2}
         """,
-        *id_uuids,
+        *params,
+        page_size,
+        offset,
     )
-    seven_days_ago = datetime.now(UTC) - timedelta(days=7)
-
-    by_unit = []
-    for row in unit_ids_fb:
-        uid = row["unit_id"]
-        if unit_id and uid != unit_id:
-            continue
-
-        # Build filter clause
-        extra = []
-        extra_params: list = [*id_uuids, uid]
-        if category:
-            extra.append(f"AND category = ${len(extra_params) + 1}")
-            extra_params.append(category)
-        if reviewed is not None:
-            extra.append(f"AND reviewed = ${len(extra_params) + 1}")
-            extra_params.append(reviewed)
-        extra_sql = " ".join(extra)
-
-        items = await conn.fetch(
-            f"""
-            SELECT feedback_id::text, category, rating, message, submitted_at, reviewed
-            FROM feedback
-            WHERE student_id = ANY(ARRAY[{placeholders}]::uuid[])
-              AND unit_id = ${len(id_uuids) + 1}
-              {extra_sql}
-            ORDER BY submitted_at {"ASC" if sort == "oldest" else "DESC"}
-            """,
-            *extra_params,
-        )
-
-        cat_counts = await conn.fetchrow(
-            f"""
-            SELECT
-                COUNT(*) FILTER (WHERE category = 'content') AS content,
-                COUNT(*) FILTER (WHERE category = 'ux') AS ux,
-                COUNT(*) FILTER (WHERE category = 'general') AS general,
-                COUNT(*) FILTER (WHERE submitted_at >= ${len(id_uuids) + 2}) AS recent_7d
-            FROM feedback
-            WHERE student_id = ANY(ARRAY[{placeholders}]::uuid[]) AND unit_id = ${len(id_uuids) + 1}
-            """,
-            *id_uuids,
-            uid,
-            seven_days_ago,
-        )
-
-        # unit_name lookup
-        name_row = await conn.fetchrow(
-            "SELECT unit_name FROM curriculum_units WHERE unit_id = $1 LIMIT 1", uid
-        )
-        unit_name = name_row["unit_name"] if name_row else None
-
-        by_unit.append(
-            {
-                "unit_id": uid,
-                "unit_name": unit_name,
-                "feedback_count": len(items),
-                "category_breakdown": {
-                    "content": cat_counts["content"] or 0,
-                    "ux": cat_counts["ux"] or 0,
-                    "general": cat_counts["general"] or 0,
-                },
-                "trending": (cat_counts["recent_7d"] or 0) > 3,
-                "feedback_items": [
-                    {
-                        "feedback_id": r["feedback_id"],
-                        "category": r["category"],
-                        "rating": r["rating"],
-                        "message": r["message"],
-                        "submitted_at": r["submitted_at"],
-                        "reviewed": r["reviewed"],
-                    }
-                    for r in items
-                ],
-            }
-        )
 
     return {
         "school_id": school_id,
         "total_feedback_count": summary["total"] or 0,
         "unreviewed_count": summary["unreviewed"] or 0,
         "avg_rating_overall": float(summary["avg_rating"]) if summary["avg_rating"] else None,
-        "by_unit": by_unit,
+        "items": [dict(r) for r in rows],
+        "pagination": {"page": page, "page_size": page_size, "total": total or 0},
     }
-
-
-# ── Report 6: Trends ──────────────────────────────────────────────────────────
 
 
 async def get_trends(
     conn: asyncpg.Connection,
     school_id: str,
     period: str,
+    allowed_grades: list[int] | None = None,
 ) -> dict:
-    """Week-over-week trend data for enrolled students."""
+    """Week-over-week trend data for enrolled students.
+
+    `allowed_grades` limits the cohort to the caller's assigned grades
+    (#576); None means unrestricted (school_admin / internal caller).
+    """
     n_weeks = _trend_weeks(period)
     now = datetime.now(UTC)
 
-    enrolled = await _enrolled_ids(conn, school_id)
+    enrolled = await _enrolled_ids(conn, school_id, allowed_grades)
     id_uuids = [uuid.UUID(s) for s in enrolled]
     # Placeholders for student IDs starting at $3 (after week_start=$1 and week_end=$2).
     # For empty enrollment ARRAY[]::uuid[] is used — PostgreSQL returns 0 counts correctly.
@@ -964,17 +1215,60 @@ async def trigger_export(
 async def get_alerts(
     conn: asyncpg.Connection,
     school_id: str,
+    allowed_grades: list[int] | None = None,
 ) -> dict:
-    """Return unacknowledged alerts for the school."""
+    """Return unacknowledged alerts, scoped to the caller's grades (#647).
+
+    Alerts were filtered on school alone, so a Grade-8 teacher's landing page
+    listed pass-rate breaches for Grades 5, 10 and 11. Narrower than the #576
+    original — unit-level rather than named students — but the same class of
+    leak, and on the first screen a teacher sees.
+
+    `allowed_grades=None` is unrestricted (`school_admin`). An EMPTY list means
+    a teacher with no assignments, who correctly sees nothing.
+
+    ## Where the grade comes from
+
+    `report_alerts` has no grade column; the only alert type written is
+    `pass_rate_breach`, whose `details` carries a `unit_id`. The grade is
+    resolved through `curriculum_units -> curricula`. Every alert on the demo
+    resolves to exactly one grade, so this is a lookup rather than a guess.
+
+    Adding a `grade` column and populating it at write time would be tidier and
+    is worth doing if more alert types arrive — but it needs a migration plus a
+    backfill of existing rows via this same join, so the join is the honest
+    first step rather than a shortcut.
+
+    ## Unresolvable units fail CLOSED
+
+    An alert whose unit is not in `curriculum_units` has no determinable grade,
+    and is withheld from a restricted teacher (admins still see it). This is a
+    disclosure fix, so the safe direction is to show less. The cost is real —
+    a withheld alert is one a teacher does not act on — which is why the
+    resolvability was checked against live data first rather than assumed.
+    """
+    # `grade` is returned alongside each alert so the page can show which grade
+    # it belongs to. Without it, a scoped list is indistinguishable from an
+    # unscoped one, and the fix is unverifiable by eye.
     rows = await conn.fetch(
         """
-        SELECT alert_id::text, alert_type, school_id::text, details, triggered_at, acknowledged
-        FROM report_alerts
-        WHERE school_id = $1 AND NOT acknowledged
-        ORDER BY triggered_at DESC
+        SELECT a.alert_id::text, a.alert_type, a.school_id::text, a.details,
+               a.triggered_at, a.acknowledged,
+               (SELECT MIN(c.grade)
+                  FROM curriculum_units cu
+                  JOIN curricula c ON c.curriculum_id = cu.curriculum_id
+                 WHERE cu.unit_id = a.details->>'unit_id') AS grade
+        FROM report_alerts a
+        WHERE a.school_id = $1 AND NOT a.acknowledged
+        ORDER BY a.triggered_at DESC
         """,
         uuid.UUID(school_id),
     )
+
+    if allowed_grades is not None:
+        permitted = set(allowed_grades)
+        rows = [r for r in rows if r["grade"] is not None and r["grade"] in permitted]
+
     return {
         "alerts": [
             {
@@ -984,6 +1278,7 @@ async def get_alerts(
                 "details": r["details"],
                 "triggered_at": r["triggered_at"],
                 "acknowledged": r["acknowledged"],
+                "grade": r["grade"],
             }
             for r in rows
         ]
@@ -1095,6 +1390,9 @@ async def subscribe_digest(
 async def get_at_risk_students(
     conn: asyncpg.Connection,
     school_id: str,
+    allowed_grades: list[int] | None = None,
+    pool=None,
+    redis=None,
 ) -> dict:
     """
     Return students who are either inactive beyond the school's threshold or
@@ -1116,10 +1414,17 @@ async def get_at_risk_students(
     rows = await conn.fetch(
         """
         WITH enrolled AS (
+            -- Scoped to the caller's assigned grades (#576). This report NAMES
+            -- individual students flagged as struggling, so an unscoped row is
+            -- an educational record disclosed to a teacher who was never
+            -- assigned to that student. Grade lives on both `students` and
+            -- `school_enrolments`; the enrolment is the authority for "which
+            -- grade at THIS school", so filter on it.
             SELECT s.student_id, s.name, s.grade
             FROM students s
             JOIN school_enrolments se ON se.student_id = s.student_id
             WHERE se.school_id = $1 AND se.status = 'active'
+              AND ($4::smallint[] IS NULL OR se.grade = ANY($4::smallint[]))
         ),
         quiz_stats AS (
             SELECT
@@ -1129,18 +1434,22 @@ async def get_at_risk_students(
                     100.0 * SUM(CASE WHEN ps.passed THEN 1 END)::float / NULLIF(COUNT(*), 0),
                     0
                 )                                                                         AS pass_rate_pct,
-                SUM(CASE WHEN ps.passed THEN 1 ELSE 0 END)                                AS units_completed
+                -- DISTINCT units, not passed sessions (#655) — see the student
+                -- progress report for the same fix. This one also feeds the
+                -- `low_pass_rate` gate below, so an inflated count could mark a
+                -- student as having done work they had not.
+                COUNT(DISTINCT ps.unit_id) FILTER (WHERE ps.passed)                        AS units_completed
             FROM progress_sessions ps
             WHERE ps.student_id IN (SELECT student_id FROM enrolled)
               AND ps.completed = TRUE
             GROUP BY ps.student_id
         ),
         total_units AS (
-            SELECT c.grade, COUNT(cu.unit_id) AS total
-            FROM curricula c
-            JOIN curriculum_units cu ON cu.curriculum_id = c.curriculum_id
-            WHERE c.is_default = TRUE
-            GROUP BY c.grade
+            -- Placeholder only. The real denominator is each student's OWN
+            -- resolved curriculum, filled in by total_units_by_student (#638);
+            -- summing every default curriculum at a grade counted four streams
+            -- for one Grade 11 student.
+            SELECT NULL::int AS grade, 0 AS total WHERE FALSE
         )
         SELECT
             e.student_id,
@@ -1152,7 +1461,7 @@ async def get_at_risk_students(
             END::int                                  AS inactive_days,
             qs.pass_rate_pct,
             COALESCE(qs.units_completed, 0)           AS units_completed,
-            COALESCE(tu.total, 0)                     AS total_units,
+            0                                         AS total_units,
             CASE WHEN qs.last_active IS NULL
                       OR EXTRACT(EPOCH FROM (NOW() - qs.last_active)) / 86400 > $2
                  THEN TRUE ELSE FALSE END             AS inactive,
@@ -1174,6 +1483,14 @@ async def get_at_risk_students(
         uuid.UUID(school_id),
         inactive_days_threshold,
         pass_rate_threshold,
+        allowed_grades,
+    )
+
+    # Each student's OWN curriculum decides the denominator (#638).
+    totals = (
+        await total_units_by_student(pool, redis, rows, school_id)
+        if pool is not None and redis is not None
+        else {}
     )
 
     students = [
@@ -1187,7 +1504,7 @@ async def get_at_risk_students(
             if r["pass_rate_pct"] is not None
             else None,
             "units_completed": int(r["units_completed"]),
-            "total_units": int(r["total_units"]),
+            "total_units": totals.get(str(r["student_id"]), 0),
             "risk_reasons": {
                 "inactive": bool(r["inactive"]),
                 "low_pass_rate": bool(r["low_pass_rate"]),

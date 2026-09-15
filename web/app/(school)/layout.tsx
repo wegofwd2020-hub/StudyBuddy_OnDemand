@@ -1,3 +1,4 @@
+import { SessionGuard } from "@/components/auth/SessionGuard";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth0 } from "@/lib/auth0";
@@ -31,6 +32,7 @@ export default async function SchoolLayout({ children }: { children: React.React
           {/* LocalAuthGuard validates sb_teacher_token from localStorage,
               enforces first_login redirect (pitfall #24), and renders the
               full portal layout only once the JWT check passes. */}
+          <SessionGuard />
           <LocalAuthGuard userName={userName}>{children}</LocalAuthGuard>
         </SchoolPortalThemeProvider>
       </QueryProvider>
