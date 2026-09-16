@@ -177,7 +177,9 @@ async def test_an_untouched_unit_is_reported_as_no_activity(client, db_conn):
         headers=_headers(school),
     )
     assert r.status_code == 200, r.text
-    no_activity = set(r.json()["units_no_activity"])
+    # Objects since #773 — each row carries name/subject/grade so the screen
+    # can group them. The property under test is unchanged: which units.
+    no_activity = {u["unit_id"] for u in r.json()["units_no_activity"]}
     assert {"COV-B", "COV-C"} <= no_activity, r.json()
 
 
@@ -194,7 +196,7 @@ async def test_a_touched_unit_is_not_reported_as_no_activity(client, db_conn):
         f"/api/v1/reports/school/{school['school_id']}/overview?period=30d",
         headers=_headers(school),
     )
-    assert "COV-A" not in r.json()["units_no_activity"], r.json()
+    assert "COV-A" not in {u["unit_id"] for u in r.json()["units_no_activity"]}, r.json()
 
 
 # ── Curriculum health ─────────────────────────────────────────────────────────

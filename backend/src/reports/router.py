@@ -258,11 +258,25 @@ async def overview_report(
     request: Request,
     teacher: Annotated[dict, Depends(get_current_teacher)],
     period: str = Query("7d", pattern="^(7d|30d|term)$"),
+    grade: int | None = Query(None),
+    subject: str | None = Query(None, max_length=128),
 ) -> OverviewReport:
-    """Class overview summary for the selected period."""
+    """Class overview summary for the selected period, optionally narrowed.
+
+    `?grade=` is a filter WITHIN the caller's entitlement and is refused, not
+    ignored, when it names a grade they do not teach — the same rule and the
+    same 403 as every other report here.
+
+    `?subject=` needs no such check: it narrows the unit LISTS within a cohort
+    that is already scoped, so a subject the caller cannot see contributes no
+    units and is not offered in `available_subjects`.
+    """
     _check_school(teacher, school_id, request)
     async with get_db(request) as conn:
-        grades = await _grade_filter(conn, teacher, school_id)
+        permitted = await _permitted_grades(conn, teacher, school_id)
+        if grade is not None and permitted is not None and grade not in permitted:
+            raise _deny_grade(request)
+        grades = None if permitted is None else sorted(permitted)
         result = await get_overview(
             conn,
             school_id,
@@ -270,6 +284,8 @@ async def overview_report(
             grades,
             pool=request.app.state.pool,
             redis=get_redis(request),
+            grade=grade,
+            subject=subject,
         )
     # Reported from the SAME filter that scoped the query above, so the caption
     # on the page cannot describe a population the numbers do not cover (#640).

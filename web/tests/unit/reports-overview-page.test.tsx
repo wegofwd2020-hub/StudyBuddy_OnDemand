@@ -159,8 +159,10 @@ describe("SCH-09 — Overview report KPI cards render", () => {
 
   it("renders each struggling unit as a badge", () => {
     render(<OverviewReportPage />);
-    for (const uid of MOCK_OVERVIEW_REPORT.units_with_struggles) {
-      expect(screen.getByText(uid)).toBeInTheDocument();
+    // The badge shows the NAME since #773; the id moved to the tooltip, so a
+    // teacher reads "Fractions and Decimals" rather than "G8-MATH-002".
+    for (const u of MOCK_OVERVIEW_REPORT.units_with_struggles) {
+      expect(screen.getByText(u.unit_name)).toBeInTheDocument();
     }
   });
 

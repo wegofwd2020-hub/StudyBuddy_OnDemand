@@ -27,6 +27,16 @@ export interface ReportScope {
   grades: number[];
 }
 
+/** A unit named well enough to read, group and act on (#773). `grade` is null
+ *  when the unit has no curriculum_units row — still a real coverage gap, so it
+ *  is reported under "Other" rather than dropped. */
+export interface OverviewUnitRef {
+  unit_id: string;
+  unit_name: string;
+  subject: string;
+  grade?: number | null;
+}
+
 export interface OverviewReport {
   scope: ReportScope;
   school_id: string;
@@ -38,18 +48,36 @@ export interface OverviewReport {
   quiz_attempts: number;
   first_attempt_pass_rate_pct: number;
   audio_play_rate_pct: number;
-  units_with_struggles: string[];
-  units_no_activity: string[];
+  /** Objects, not bare ids, since #773. These were raw unit_ids
+   *  ("G8-MATH-002"), which put a code on screen and left nothing to group by:
+   *  the rows carried no grade. */
+  units_with_struggles: OverviewUnitRef[];
+  units_no_activity: OverviewUnitRef[];
   unreviewed_feedback_count: number;
+  /** Grades the caller may select and subjects this cohort actually has — both
+   *  independent of the current selection, or the picker collapses to the one
+   *  option chosen on first use. */
+  available_grades?: number[];
+  selected_grade?: number | null;
+  available_subjects?: string[];
+  selected_subject?: string | null;
 }
 
 export async function getOverviewReport(
   schoolId: string,
   period: ReportPeriod = "7d",
+  grade?: number | null,
+  subject?: string | null,
 ): Promise<OverviewReport> {
+  // Omitted when unset — the endpoint defaults to all grades and all subjects,
+  // and an explicit null would be a choice rather than the absence of one.
+  const params: Record<string, string | number> = { period };
+  if (grade != null) params.grade = grade;
+  if (subject != null) params.subject = subject;
+
   const res = await schoolApi.get<OverviewReport>(
     `/reports/school/${schoolId}/overview`,
-    { params: { period } },
+    { params },
   );
   return res.data;
 }
