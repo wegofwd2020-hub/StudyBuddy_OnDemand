@@ -9,7 +9,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import TrendsReportPage from "@/app/(school)/school/reports/trends/page";
-import { formatWeekStart } from "@/lib/utils/date";
+import { formatDate } from "@/lib/utils/date";
 import {
   MOCK_TEACHER,
   MOCK_TRENDS,
@@ -112,14 +112,15 @@ describe("SCH-11 — Trends report renders", () => {
     expect(screen.getByText(TRENDS_STRINGS.colPassRate)).toBeInTheDocument();
   });
 
-  it("renders each week as a named month, not the raw ISO string", () => {
+  it("renders each week as dd/mm/yyyy, not the raw ISO string", () => {
     // Was asserting the bare `week_start`. A tester asked why the screen and
     // the downloaded Excel disagree; the answer is that Excel re-types ISO and
     // renders it per the reader's locale, which we cannot control — so the
-    // screen now uses a month name, which no locale can read as another day.
+    // screen uses the shared day-first helper (#759), which no locale can
+    // read as another day.
     render(<TrendsReportPage />);
     for (const w of MOCK_TRENDS.weeks) {
-      expect(screen.getByText(formatWeekStart(w.week_start))).toBeInTheDocument();
+      expect(screen.getByText(formatDate(w.week_start))).toBeInTheDocument();
       expect(screen.queryByText(w.week_start)).toBeNull();
     }
   });

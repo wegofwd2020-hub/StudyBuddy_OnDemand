@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { LinkButton } from "@/components/ui/link-button";
 import { RotateCcw, AlertCircle } from "lucide-react";
 import { describeSchedule } from "@/lib/school/restore-schedule";
+import { formatDate, formatDateTime } from "@/lib/utils/date";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -154,7 +155,7 @@ export default function RestoreRequestsPage() {
                   className={`hover:bg-gray-50 ${r.status === "awaiting_school_confirm" ? "bg-orange-50/40" : ""}`}
                 >
                   <td className="px-4 py-3 text-gray-600 tabular-nums">
-                    {new Date(r.created_at).toLocaleDateString()}
+                    {formatDate(r.created_at)}
                   </td>
                   <td className="px-4 py-3 text-gray-900">{scopeLabel(r)}</td>
                   <td className="px-4 py-3">
@@ -166,7 +167,7 @@ export default function RestoreRequestsPage() {
                       if (s.kind === "asap") return "ASAP";
                       return (
                         <>
-                          {s.date ? s.date.toLocaleString() : null}
+                          {s.date ? formatDateTime(s.date) : null}
                           {s.note && (
                             <div
                               className={

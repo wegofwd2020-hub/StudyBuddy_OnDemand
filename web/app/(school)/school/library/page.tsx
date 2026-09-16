@@ -26,6 +26,7 @@ import {
   LayoutGrid,
   AlertTriangle,
 } from "lucide-react";
+import { formatDate } from "@/lib/utils/date";
 
 // ── Adoption detail (rendered inside <BookOpen>) ─────────────────────────────
 
@@ -74,7 +75,7 @@ function AdoptionDetail({
           </Badge>
         )}
         <span className="text-xs text-gray-400">
-          Adopted {new Date(item.adopted_at).toLocaleDateString()}
+          Adopted {formatDate(item.adopted_at)}
         </span>
       </div>
 

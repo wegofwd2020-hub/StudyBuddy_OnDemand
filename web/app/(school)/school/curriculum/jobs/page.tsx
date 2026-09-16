@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LinkButton } from "@/components/ui/link-button";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatDateTime } from "@/lib/utils/date";
 
 // ── Status badge ──────────────────────────────────────────────────────────────
 
@@ -41,12 +42,7 @@ function StatusBadge({ status }: { status: string }) {
 
 function fmtDate(iso: string | null) {
   if (!iso) return "—";
-  return new Date(iso).toLocaleString(undefined, {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  return formatDateTime(iso);
 }
 
 function fmtBytes(n: number | null) {

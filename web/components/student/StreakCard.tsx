@@ -1,6 +1,7 @@
 import { useTranslations } from "next-intl";
 import { Card, CardContent } from "@/components/ui/card";
 import { Flame } from "lucide-react";
+import { formatDate } from "@/lib/utils/date";
 
 interface StreakCardProps {
   streakDays: number;
@@ -37,7 +38,7 @@ export function StreakCard({ streakDays, sessionDates }: StreakCardProps) {
           {last7.map((date) => (
             <div
               key={date}
-              title={date}
+              title={formatDate(date)}
               className={`h-3 w-3 rounded-full ${
                 sessionDates?.includes(date) ? "bg-orange-400" : "bg-gray-100"
               }`}

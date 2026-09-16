@@ -12,6 +12,7 @@ import {
 import { useAdmin, hasPermission } from "@/lib/hooks/useAdmin";
 import { cn } from "@/lib/utils";
 import { AlertTriangle, CheckCheck, ClipboardList, UserCheck } from "lucide-react";
+import { formatDate } from "@/lib/utils/date";
 
 type StatusFilter = "pending" | "approved" | "published" | "rejected" | "blocked" | "";
 type AssignFilter = "all" | "mine" | "unassigned";
@@ -292,7 +293,7 @@ export default function AdminContentReviewPage() {
                               </span>
                             </td>
                             <td className="px-4 py-3 text-xs text-gray-500">
-                              {new Date(item.generated_at).toLocaleDateString()}
+                              {formatDate(item.generated_at)}
                             </td>
                             <td className="px-4 py-3 text-xs text-gray-500">
                               <div className="flex items-center gap-2">

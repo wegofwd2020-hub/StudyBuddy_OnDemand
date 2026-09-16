@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { Bell, CheckCheck, AlertTriangle, Info, Settings, UserX } from "lucide-react";
-import { formatDay } from "@/lib/utils/date";
+import { formatDate } from "@/lib/utils/date";
 
 const ALERT_ICON: Record<string, React.ReactNode> = {
   // Same key mismatch as alertLabel below: the evaluator writes
@@ -170,7 +170,7 @@ export default function AlertsPage() {
                         exactly how a tester read a still-breaching unit, and
                         why he asked why no alert had fired for it. */}
                     <span className="text-xs text-gray-400">
-                      Alert open since {formatDay(alert.triggered_at)}
+                      Alert open since {formatDate(alert.triggered_at)}
                     </span>
                   </div>
                   {/* The unit by NAME first. This used to dump every key of
@@ -287,7 +287,7 @@ export default function AlertsPage() {
               >
                 <CheckCheck className="h-4 w-4 shrink-0" />
                 <span>{alertLabel(alert.alert_type)}</span>
-                <span className="ml-auto text-xs">{formatDay(alert.triggered_at)}</span>
+                <span className="ml-auto text-xs">{formatDate(alert.triggered_at)}</span>
               </div>
             ))}
           </div>

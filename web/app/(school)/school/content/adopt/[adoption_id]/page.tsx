@@ -13,6 +13,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { LinkButton } from "@/components/ui/link-button";
 import { ArrowLeft, BookOpen, Download, Pencil, Eye, CheckCircle2 } from "lucide-react";
+import { formatDate } from "@/lib/utils/date";
 
 // ── Badge ──────────────────────────────────────────────────────────────────────
 
@@ -135,13 +136,7 @@ function UnitRow({
         {latest?.last_edited_by_name ?? "—"}
       </td>
       <td className="px-3 py-3 text-xs text-gray-400">
-        {latest
-          ? new Date(latest.edited_at).toLocaleDateString(undefined, {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })
-          : "—"}
+        {latest ? formatDate(latest.edited_at) : "—"}
       </td>
       <td className="py-3 pr-4 pl-3 text-right">
         {importError && (

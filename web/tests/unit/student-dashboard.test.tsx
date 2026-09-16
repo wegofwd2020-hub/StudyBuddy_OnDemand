@@ -72,7 +72,7 @@ describe("STU-04 — StreakCard", () => {
         sessionDates={MOCK_STATS.session_dates}
       />,
     );
-    // Each day renders as a div with a title attribute (the ISO date)
+    // Each day renders as a div with a title attribute (dd/mm/yyyy, #759)
     const dots = container.querySelectorAll("div[title]");
     expect(dots).toHaveLength(7);
   });

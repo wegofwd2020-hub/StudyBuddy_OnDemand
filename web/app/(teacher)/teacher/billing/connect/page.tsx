@@ -19,6 +19,7 @@ import {
   RefreshCw,
   ShieldCheck,
 } from "lucide-react";
+import { formatDate } from "@/lib/utils/date";
 
 // ── Revenue share constants (mirrors backend REVENUE_SHARE) ──────────────────
 const TEACHER_PCT = 70;
@@ -149,12 +150,7 @@ function EarningsTable({ teacherId }: { teacherId: string }) {
       currency: currency.toUpperCase(),
     }).format(cents / 100);
 
-  const fmtDate = (ts: number) =>
-    new Date(ts * 1000).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
+  const fmtDate = (ts: number) => formatDate(ts * 1000);
 
   if (isLoading) {
     return (

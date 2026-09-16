@@ -20,6 +20,7 @@ import {
   buildUnitPerformanceCsv,
   unitPerformanceFilename,
 } from "@/lib/reports/unit-performance-csv";
+import { formatDate } from "@/lib/utils/date";
 
 const REPORT_OPTIONS: { value: ReportType; label: string; description: string }[] = [
   {
@@ -134,14 +135,14 @@ export default function ExportPage() {
         filename = `overview_${data.period}.csv`;
       } else if (reportType === "trends") {
         const data = await getTrendsReport(schoolId, trendsPeriod);
-        // ISO 8601 stays in the FILE, because it is what sorts correctly in a
-        // spreadsheet and what any downstream tool expects. Excel will still
-        // re-type it and render it per the reader's regional settings — that
-        // is Excel's doing and not something this page can override — so the
-        // header names the convention we actually wrote. The screen, which we
-        // do control, uses a named month instead (see lib/utils/date.ts).
+        // #759: the on-screen Weekly breakdown renders dd/mm/yyyy (see
+        // lib/utils/date.ts), and this export follows suit rather than
+        // writing ISO 8601 as before. The header still names the convention
+        // explicitly, because Excel re-types a written date-like string and
+        // renders it per the READER's regional settings — a trade-off this
+        // page cannot override from here, same as it could not for ISO.
         fields = [
-          "Week start (YYYY-MM-DD)",
+          "Week start (DD/MM/YYYY)",
           "Active students",
           "Lessons viewed",
           "Quiz attempts",
@@ -149,7 +150,7 @@ export default function ExportPage() {
           "First-attempt pass rate %",
         ];
         rows = data.weeks.map((w) => ({
-          "Week start (YYYY-MM-DD)": w.week_start,
+          "Week start (DD/MM/YYYY)": formatDate(w.week_start),
           "Active students": w.active_students,
           "Lessons viewed": w.lessons_viewed,
           "Quiz attempts": w.quiz_attempts,

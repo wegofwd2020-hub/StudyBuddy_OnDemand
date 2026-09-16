@@ -20,6 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, BookOpen, Trash2, Plus, GraduationCap } from "lucide-react";
+import { formatDate } from "@/lib/utils/date";
 
 // ── Package row ────────────────────────────────────────────────────────────────
 
@@ -41,7 +42,7 @@ function PackageRow({
           {pkg.curriculum_name ?? pkg.curriculum_id}
         </p>
         <p className="text-xs text-gray-400">
-          Added {new Date(pkg.assigned_at).toLocaleDateString()} · order {pkg.sort_order}
+          Added {formatDate(pkg.assigned_at)} · order {pkg.sort_order}
         </p>
       </div>
       {confirm ? (

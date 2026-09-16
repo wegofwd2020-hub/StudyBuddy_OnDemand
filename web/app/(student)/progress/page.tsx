@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LinkButton } from "@/components/ui/link-button";
 import { CheckCircle2, XCircle, Clock } from "lucide-react";
+import { formatDate } from "@/lib/utils/date";
 
 export default function ProgressPage() {
   const { data: history, isLoading } = useProgressHistory(50);
@@ -58,13 +59,7 @@ export default function ProgressPage() {
                     <p className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-xs text-gray-400">
                       <span>{session.subject}</span>
                       <span aria-hidden="true">·</span>
-                      <span>
-                        {new Date(session.started_at).toLocaleDateString(undefined, {
-                          weekday: "short",
-                          month: "short",
-                          day: "numeric",
-                        })}
-                      </span>
+                      <span>{formatDate(session.started_at)}</span>
                       <span aria-hidden="true">·</span>
                       <span>Attempt #{session.attempt_number}</span>
                       {session.passed !== null && session.score !== null && (

@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, RefreshCw, Plus, Archive } from "lucide-react";
 import { Backup, listSchoolBackups, createBackup } from "@/lib/api/backup";
+import { formatDateTime } from "@/lib/utils/date";
 
 const STATUS_STYLES: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-700",
@@ -24,7 +25,7 @@ function fmtBytes(n: number): string {
 }
 
 function fmtDate(s: string): string {
-  return new Date(s).toLocaleString();
+  return formatDateTime(s);
 }
 
 export default function SchoolBackupsPage() {

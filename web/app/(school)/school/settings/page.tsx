@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Copy, Check, CreditCard, Building2, Globe } from "lucide-react";
 import { useState } from "react";
+import { formatDate } from "@/lib/utils/date";
 
 export default function SchoolSettingsPage() {
   const teacher = useTeacher();
@@ -109,7 +110,7 @@ export default function SchoolSettingsPage() {
                     Member since
                   </p>
                   <p className="text-xs text-gray-500">
-                    {new Date(profile.created_at).toLocaleDateString()}
+                    {formatDate(profile.created_at)}
                   </p>
                 </div>
                 <div>

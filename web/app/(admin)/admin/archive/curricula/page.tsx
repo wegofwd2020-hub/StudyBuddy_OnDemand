@@ -9,6 +9,7 @@ import {
   type ArchiveCurriculaFilters,
 } from "@/lib/api/admin";
 import { useAdmin } from "@/lib/hooks/useAdmin";
+import { formatDate } from "@/lib/utils/date";
 
 function ttlBadge(days: number | null) {
   if (days === null) return <span className="text-xs text-gray-400">—</span>;
@@ -27,11 +28,7 @@ function ttlBadge(days: number | null) {
 
 function fmtDate(iso: string | null) {
   if (!iso) return "—";
-  return new Date(iso).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
+  return formatDate(iso);
 }
 
 export default function ArchivedCurriculaPage() {

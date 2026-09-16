@@ -13,6 +13,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, CheckCircle2, XCircle, RotateCcw } from "lucide-react";
+import { formatDateTime } from "@/lib/utils/date";
 
 // ── Page ───────────────────────────────────────────────────────────────────────
 
@@ -124,14 +125,14 @@ export default function ConfirmRestorePage() {
 
           <dt className="text-gray-500">Submitted</dt>
           <dd className="text-gray-900 tabular-nums">
-            {new Date(request.created_at).toLocaleString()}
+            {formatDateTime(request.created_at)}
           </dd>
 
           {request.scheduled_at && (
             <>
               <dt className="text-gray-500">Preferred time</dt>
               <dd className="text-gray-900 tabular-nums">
-                {new Date(request.scheduled_at).toLocaleString()}
+                {formatDateTime(request.scheduled_at)}
                 <span className="ml-1 text-xs font-normal text-gray-400">
                   (an administrator will action this manually — not automatic)
                 </span>

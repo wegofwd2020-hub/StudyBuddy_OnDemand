@@ -18,6 +18,7 @@ import {
 } from "@/lib/api/admin";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Shield, Trash2, Plus, ArrowLeft } from "lucide-react";
+import { formatDate } from "@/lib/utils/date";
 
 function GeoBlockRow({ block }: { block: GeoBlockItem }) {
   const queryClient = useQueryClient();
@@ -36,9 +37,7 @@ function GeoBlockRow({ block }: { block: GeoBlockItem }) {
         {block.country_code}
       </span>
       <span className="flex-1 text-sm text-gray-600">{block.country_name ?? "—"}</span>
-      <span className="text-xs text-gray-400">
-        {new Date(block.added_at).toLocaleDateString()}
-      </span>
+      <span className="text-xs text-gray-400">{formatDate(block.added_at)}</span>
       {confirming ? (
         <div className="flex gap-2">
           <button

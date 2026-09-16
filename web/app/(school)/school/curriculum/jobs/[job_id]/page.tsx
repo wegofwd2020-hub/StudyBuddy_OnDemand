@@ -11,6 +11,7 @@ import { CheckCircle, XCircle, Loader2, Clock, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { formatDateTime } from "@/lib/utils/date";
 
 // ── Status icon ───────────────────────────────────────────────────────────────
 
@@ -26,13 +27,7 @@ function StatusIcon({ status }: { status: string }) {
 
 function fmtDate(iso: string | null) {
   if (!iso) return "—";
-  return new Date(iso).toLocaleString(undefined, {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
+  return formatDateTime(iso);
 }
 
 function fmtBytes(n: number | null) {

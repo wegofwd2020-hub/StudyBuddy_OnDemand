@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getSystemHealth, type ServiceStatus } from "@/lib/api/admin";
 import { cn } from "@/lib/utils";
 import { CheckCircle, XCircle, RefreshCw } from "lucide-react";
+import { formatTime } from "@/lib/utils/date";
 
 function StatusBadge({ status }: { status: ServiceStatus }) {
   const ok = status === "ok";
@@ -60,10 +61,7 @@ export default function AdminHealthPage() {
         {!isLoading && (
           <div className="flex items-center gap-2 text-xs text-gray-400">
             <RefreshCw className="h-3.5 w-3.5" />
-            <span>
-              Last checked{" "}
-              {dataUpdatedAt ? new Date(dataUpdatedAt).toLocaleTimeString() : "—"}
-            </span>
+            <span>Last checked {dataUpdatedAt ? formatTime(dataUpdatedAt) : "—"}</span>
           </div>
         )}
       </div>

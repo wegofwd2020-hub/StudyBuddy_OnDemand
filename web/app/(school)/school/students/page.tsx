@@ -22,6 +22,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Copy, Check, Users, UserPlus, BookOpen, KeyRound } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatDate } from "@/lib/utils/date";
 
 type ScopeFilter = "mine" | "all";
 
@@ -260,7 +261,7 @@ function TeacherStudentView({
                       {s.avg_score_pct != null ? `${Math.round(s.avg_score_pct)}%` : "—"}
                     </td>
                     <td className="px-4 py-3 text-xs text-gray-400">
-                      {s.last_active ? new Date(s.last_active).toLocaleDateString() : "—"}
+                      {s.last_active ? formatDate(s.last_active) : "—"}
                     </td>
                   </tr>
                 ))}
@@ -325,9 +326,7 @@ function RosterRow({ item, schoolId }: { item: RosterItem; schoolId: string }) {
             {item.status}
           </Badge>
         </td>
-        <td className="px-4 py-3 text-xs text-gray-400">
-          {new Date(item.added_at).toLocaleDateString()}
-        </td>
+        <td className="px-4 py-3 text-xs text-gray-400">{formatDate(item.added_at)}</td>
         <td className="px-4 py-3">
           {item.student_id && item.status === "active" && (
             <button

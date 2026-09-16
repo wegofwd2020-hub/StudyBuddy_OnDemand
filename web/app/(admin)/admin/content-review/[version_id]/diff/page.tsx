@@ -13,6 +13,7 @@ import {
 } from "@/lib/api/admin";
 import { ArrowLeft, GitCompare } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatDate } from "@/lib/utils/date";
 
 // ── Word-level diff renderer ──────────────────────────────────────────────────
 
@@ -368,8 +369,7 @@ export default function ContentDiffPage() {
             >
               {otherVersions.map((v) => (
                 <option key={v.version_id} value={v.version_id}>
-                  v{v.version_number} — {v.status} —{" "}
-                  {new Date(v.generated_at).toLocaleDateString()}
+                  v{v.version_number} — {v.status} — {formatDate(v.generated_at)}
                 </option>
               ))}
             </select>
