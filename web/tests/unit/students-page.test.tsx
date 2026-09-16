@@ -150,6 +150,16 @@ describe("SCH-36 — Invite link displayed and copyable", () => {
     expect(screen.getByText(STUDENTS_STRINGS.inviteLinkHeading)).toBeInTheDocument();
   });
 
+  it("describes what the link actually does (#764)", () => {
+    render(<StudentsPage />);
+    const help = screen.getByText(/nothing else to confirm/i);
+    // Promises no confirm step, says an existing login is needed, and that it
+    // does not place the student in a class.
+    expect(help.textContent).toMatch(/already have a StudyBuddy login/);
+    expect(help.textContent).toMatch(/add them to one from Classrooms/);
+    expect(help.textContent).not.toMatch(/confirm enrolment/i);
+  });
+
   it("renders the enrolment code in the invite URL", () => {
     const { container } = render(<StudentsPage />);
     const code = MOCK_PROFILE.enrolment_code!;

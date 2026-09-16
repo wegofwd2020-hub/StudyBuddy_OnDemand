@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { confirmEnrolment } from "@/lib/api/school";
 import { LinkButton } from "@/components/ui/link-button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,12 +11,21 @@ type State = "loading" | "success" | "error";
 
 export default function EnrolConfirmPage() {
   const { token } = useParams<{ token: string }>();
+  const router = useRouter();
   const [state, setState] = useState<State>("loading");
   const [schoolName, setSchoolName] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     if (!token) return;
+    // Signed out: go and sign in, then come straight back here (#764). This page
+    // used to sit behind the student layout, which redirected to sign-in with no
+    // way back — the student landed on the dashboard and was never enrolled.
+    // Read in the effect, never during render (hydration rule).
+    if (!localStorage.getItem("sb_token")) {
+      router.replace(`/signin?next=${encodeURIComponent(`/enrol/${token}`)}`);
+      return;
+    }
     confirmEnrolment(token)
       .then(({ school_name }) => {
         setSchoolName(school_name);
@@ -28,7 +37,7 @@ export default function EnrolConfirmPage() {
         setErrorMsg(msg);
         setState("error");
       });
-  }, [token]);
+  }, [token, router]);
 
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center p-6 text-center">

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { markSessionAlive, setRemembered } from "@/lib/auth/session";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { studentSignInDestination } from "@/lib/auth/safe-next";
 import { BookOpen, Eye, EyeOff } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -66,6 +67,7 @@ function destinationFor(
   track: AuthTrack,
   role: string,
   firstLogin: boolean | null,
+  next: string | null,
 ): string {
   if (track === "local" && firstLogin) {
     // Tell the change-password page exactly which cached token belongs to
@@ -75,7 +77,8 @@ function destinationFor(
     return `/school/change-password?required=1&account=${account}`;
   }
   if (role === "student") {
-    return "/dashboard";
+    // Back to the page that sent them here, e.g. an enrolment invite link (#764).
+    return studentSignInDestination(next);
   }
   return "/school/dashboard";
 }
@@ -108,7 +111,8 @@ export default function SignInPage() {
       persistSession(res, email);
       setRemembered(rememberMe);
       markSessionAlive();
-      router.push(destinationFor(res.auth_track, res.role, res.first_login));
+      const next = new URLSearchParams(window.location.search).get("next");
+      router.push(destinationFor(res.auth_track, res.role, res.first_login, next));
     } catch (err: unknown) {
       const status = (err as { response?: { status?: number } })?.response?.status;
       if (status === 401) {
