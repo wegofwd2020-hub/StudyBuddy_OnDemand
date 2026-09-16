@@ -9,4 +9,4 @@ export { STATUS_CONFIG } from "./status-config";
 export { ADOPTION_STATUS_ACCENT } from "./status-accents";
 export type { AdoptionAccentKey } from "./status-accents";
 export { STREAM_ACCENT, deriveStreamKey, deriveStreamAccent } from "./stream-accents";
-export { deriveSubjectAccent } from "./subject-accents";
+export { deriveSubjectAccent } from "@/lib/theme/subject-accents";

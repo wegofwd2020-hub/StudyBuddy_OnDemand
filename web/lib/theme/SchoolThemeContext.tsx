@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useTeacher } from "@/lib/hooks/useTeacher";
 import { getSubjectPalette, type SubjectPalette } from "./getSubjectPalette";
 import { DEFAULT_THEME, type SchoolTheme } from "./defaults";
+import { deriveSubjectAccent } from "./subject-accents";
 import schoolApi from "@/lib/api/school-client";
 import studentApi from "@/lib/api/client";
 
@@ -107,10 +108,24 @@ export function useSchoolTheme(): SchoolTheme {
   return useContext(SchoolThemeContext);
 }
 
+/**
+ * The colour of a subject, the same on every page that draws one (#760).
+ *
+ * school theme -> default theme (exact name) -> derived from the name -> indigo
+ *
+ * The default theme names only "Reading", "Math", "Science" and "World", so
+ * without the name-derived step every real subject (Accountancy, Physics,
+ * Economics) fell through to indigo here, while the Subjects page coloured it
+ * from its name: the same subject was orange on one page and blue on the next.
+ * For the four named subjects the derived colour is the default colour, so they
+ * look exactly as before.
+ */
 export function useSubjectPalette(subjectKey: string): SubjectPalette {
   const theme = useSchoolTheme();
   const subject = theme.subjects[subjectKey];
   const accent =
-    subject?.accent ?? DEFAULT_THEME.subjects[subjectKey]?.accent ?? "#4f46e5";
+    subject?.accent ??
+    DEFAULT_THEME.subjects[subjectKey]?.accent ??
+    deriveSubjectAccent(subjectKey);
   return getSubjectPalette(accent);
 }
