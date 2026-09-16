@@ -15,6 +15,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Download, Check } from "lucide-react";
 import Papa from "papaparse";
+import { streamLabel } from "@/lib/reports/streams";
+import {
+  buildUnitPerformanceCsv,
+  unitPerformanceFilename,
+} from "@/lib/reports/unit-performance-csv";
 
 const REPORT_OPTIONS: { value: ReportType; label: string; description: string }[] = [
   {
@@ -75,18 +80,22 @@ export default function ExportPage() {
   // download recreates the defect this page's period selector was added to
   // fix — the teacher reads one population and downloads another.
   const [healthGrade, setHealthGrade] = useState<number | null>(null);
+  // Stream on the same terms as grade (#772): the on-screen report filters by
+  // it, so the download must be able to as well.
+  const [healthStream, setHealthStream] = useState<string | null>(null);
   const [state, setState] = useState<DownloadState>("idle");
 
-  // Unfiltered, so the picker offers every grade the caller may choose. Shares
-  // a cache key with the Unit Performance page's own unfiltered query, so
-  // arriving here from that report costs no extra request.
+  // Unfiltered, so the pickers offer every grade and stream the caller may
+  // choose. Same key shape as the Unit Performance page's own unfiltered query
+  // (grade, stream), so arriving here from that report costs no extra request.
   const { data: healthMeta } = useQuery({
-    queryKey: ["curriculum-health", schoolId, null],
-    queryFn: () => getCurriculumHealth(schoolId, null),
+    queryKey: ["curriculum-health", schoolId, null, null],
+    queryFn: () => getCurriculumHealth(schoolId, null, null),
     enabled: !!schoolId && reportType === "curriculum-health",
     staleTime: 120_000,
   });
   const availableGrades = healthMeta?.available_grades ?? [];
+  const availableStreams = healthMeta?.available_streams ?? [];
 
   async function handleExport() {
     if (!schoolId) return;
@@ -149,55 +158,11 @@ export default function ExportPage() {
         }));
         filename = `trends_${trendsPeriod}.csv`;
       } else if (reportType === "curriculum-health") {
-        const data = await getCurriculumHealth(schoolId, healthGrade);
-        fields = [
-          "Unit ID",
-          "Unit name",
-          "Subject",
-          "Health tier",
-          "First-attempt pass rate %",
-          "Average score %",
-          "Avg attempts to pass",
-          "Feedback count",
-          "Recommended action",
-        ];
-        rows = data.units.map((u) => ({
-          "Unit ID": u.unit_id,
-          "Unit name": u.unit_name ?? "",
-          Subject: u.subject,
-          "Health tier": u.health_tier,
-          "First-attempt pass rate %": u.first_attempt_pass_rate_pct.toFixed(1),
-          "Average score %": u.avg_score_pct.toFixed(1),
-          "Avg attempts to pass": u.avg_attempts_to_pass.toFixed(2),
-          "Feedback count": u.feedback_count,
-          "Recommended action": u.recommended_action,
-        }));
-        // Feedback that names no unit has no row to live on, so without this the
-        // file silently omits it and the total cannot be reconciled against the
-        // dashboard — which is exactly what was reported. A labelled trailing
-        // row is honest: it is visibly not a unit, and it accounts for the
-        // difference rather than leaving the reader to find it.
-        if (data.general_feedback_count) {
-          rows.push({
-            "Unit ID": "—",
-            "Unit name": "General feedback (not tied to a unit)",
-            Subject: "",
-            "Health tier": "",
-            "First-attempt pass rate %": "",
-            "Average score %": "",
-            "Avg attempts to pass": "",
-            "Feedback count": data.general_feedback_count,
-            "Recommended action": "",
-          });
-        }
-        // The grade goes in the NAME, not only in the contents. Two downloads
-        // an hour apart both called `unit_performance.csv` sit in the same
-        // folder covering different populations, and nothing in the file says
-        // which is which.
-        filename =
-          healthGrade === null
-            ? "unit_performance.csv"
-            : `unit_performance_grade_${healthGrade}.csv`;
+        const data = await getCurriculumHealth(schoolId, healthGrade, healthStream);
+        // Grade and Stream lead every row, sorted, so the file groups the way the
+        // report screens do while staying filterable in a spreadsheet (#772).
+        ({ fields, rows } = buildUnitPerformanceCsv(data));
+        filename = unitPerformanceFilename(healthGrade, healthStream);
       }
       const csv = Papa.unparse({ fields, data: rows });
       const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
@@ -356,6 +321,31 @@ export default function ExportPage() {
                       }`}
                     >
                       {g === null ? "All grades" : `Grade ${g}`}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {availableStreams.length > 1 && (
+                <div
+                  role="radiogroup"
+                  aria-label="Stream"
+                  className="mt-3 flex flex-wrap items-center gap-2"
+                >
+                  <span className="text-sm text-gray-500">Stream</span>
+                  {[null, ...availableStreams].map((code) => (
+                    <button
+                      key={code ?? "all"}
+                      type="button"
+                      role="radio"
+                      aria-checked={healthStream === code}
+                      onClick={() => setHealthStream(code)}
+                      className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
+                        healthStream === code
+                          ? "border-blue-500 bg-blue-50 font-medium text-blue-700"
+                          : "border-gray-200 text-gray-600 hover:border-gray-300"
+                      }`}
+                    >
+                      {streamLabel(code)}
                     </button>
                   ))}
                 </div>

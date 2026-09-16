@@ -195,9 +195,50 @@ describe("Export CSV — period selection", () => {
     expect(screen.queryByRole("radio", { name: /weeks|days|term/i })).toBeNull();
 
     await download(user);
-    // `null` is "all grades" — the report's own default, and what the export
-    // must send when the teacher has not chosen one. It is a grade, not a
-    // period: this report gained a grade filter and still has no period.
-    expect(getCurriculumHealth).toHaveBeenCalledWith("sch-1", null);
+    // `null, null` is "all grades, all streams" — the report's own default, and
+    // what the export must send when the teacher has not chosen either. They are
+    // a grade and a stream (#772), not a period: this report still has none.
+    expect(getCurriculumHealth).toHaveBeenCalledWith("sch-1", null, null);
+  });
+
+  it("sends the chosen stream with the Unit Performance export (#772)", async () => {
+    getCurriculumHealth.mockResolvedValue({
+      school_id: "sch-1",
+      total_units: 0,
+      healthy_count: 0,
+      watch_count: 0,
+      struggling_count: 0,
+      no_activity_count: 0,
+      available_grades: [11],
+      available_streams: ["commerce", "science"],
+      units: [],
+    } as Awaited<ReturnType<typeof reportsApi.getCurriculumHealth>>);
+    const user = userEvent.setup();
+    renderExportPage();
+
+    await chooseReport(user, "Unit Performance");
+    await user.click(await screen.findByRole("radio", { name: "Commerce" }));
+    await download(user);
+
+    expect(getCurriculumHealth).toHaveBeenCalledWith("sch-1", null, "commerce");
+  });
+
+  it("offers no stream picker when there is only one stream", async () => {
+    getCurriculumHealth.mockResolvedValue({
+      school_id: "sch-1",
+      total_units: 0,
+      healthy_count: 0,
+      watch_count: 0,
+      struggling_count: 0,
+      no_activity_count: 0,
+      available_streams: ["commerce"],
+      units: [],
+    } as Awaited<ReturnType<typeof reportsApi.getCurriculumHealth>>);
+    const user = userEvent.setup();
+    renderExportPage();
+
+    await chooseReport(user, "Unit Performance");
+
+    expect(screen.queryByRole("radiogroup", { name: "Stream" })).toBeNull();
   });
 });

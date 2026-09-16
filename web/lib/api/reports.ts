@@ -93,6 +93,9 @@ export interface CurriculumHealthUnit {
    *  on a unit outside the cohort catalog — where inventing a grade would file
    *  it under one it does not belong to. */
   grade?: number | null;
+  /** Stream of the curriculum holding this unit (#772): a registry code, or
+   *  `unstreamed` — the stream filter's own bucket, so row and chip agree. */
+  stream?: string;
   health_tier: "healthy" | "watch" | "struggling" | "no_activity";
   first_attempt_pass_rate_pct: number;
   avg_attempts_to_pass: number;

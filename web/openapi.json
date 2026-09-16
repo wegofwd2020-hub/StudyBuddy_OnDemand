@@ -19567,6 +19567,11 @@
             ],
             "title": "Grade"
           },
+          "stream": {
+            "type": "string",
+            "title": "Stream",
+            "default": "unstreamed"
+          },
           "health_tier": {
             "type": "string",
             "title": "Health Tier"
