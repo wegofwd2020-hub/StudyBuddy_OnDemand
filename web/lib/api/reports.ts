@@ -60,6 +60,11 @@ export interface CurriculumHealthUnit {
   unit_id: string;
   unit_name: string | null;
   subject: string;
+  /** Grade of the curriculum holding this unit, for grouping by Grade then
+   *  subject (#776). Null when the unit has no curriculum_units row — feedback
+   *  on a unit outside the cohort catalog — where inventing a grade would file
+   *  it under one it does not belong to. */
+  grade?: number | null;
   health_tier: "healthy" | "watch" | "struggling" | "no_activity";
   first_attempt_pass_rate_pct: number;
   avg_attempts_to_pass: number;
@@ -237,6 +242,13 @@ export interface FeedbackReportItem {
   content_type: string | null;
   submitted_at: string;
   reviewed: boolean;
+  /** Cohort attributes for grouping (#771). The student id is deliberately
+   *  absent — a named student attached to a complaint is an educational record
+   *  this report has no reason to expose. */
+  grade?: number | null;
+  /** A LIST: classroom packages are additive, so a student can sit in two
+   *  streams and their feedback belongs under both. */
+  streams?: string[];
 }
 
 export interface FeedbackPagination {
@@ -253,6 +265,12 @@ export interface FeedbackReport {
   avg_rating_overall: number | null;
   items: FeedbackReportItem[];
   pagination: FeedbackPagination;
+  /** Same contract as CurriculumHealthReport: the options describe the
+   *  PERMISSION scope, everything else the selection. */
+  available_grades?: number[];
+  selected_grade?: number | null;
+  available_streams?: string[];
+  selected_stream?: string | null;
 }
 
 export interface FeedbackReportParams {
@@ -261,6 +279,8 @@ export interface FeedbackReportParams {
   unitId?: string;
   category?: string;
   reviewed?: boolean;
+  grade?: number | null;
+  stream?: string | null;
 }
 
 export async function getFeedbackReport(
@@ -274,6 +294,11 @@ export async function getFeedbackReport(
   if (params.unitId) query.unit_id = params.unitId;
   if (params.category) query.category = params.category;
   if (params.reviewed !== undefined) query.reviewed = params.reviewed;
+  // Cohort filters (#771). Omitted when unset: the endpoint's defaults are all
+  // grades and all streams, and sending an explicit null would be a choice
+  // rather than the absence of one.
+  if (params.grade != null) query.grade = params.grade;
+  if (params.stream != null) query.stream = params.stream;
 
   const res = await schoolApi.get<FeedbackReport>(
     `/reports/school/${schoolId}/feedback`,
