@@ -7,13 +7,7 @@ import { LinkButton } from "@/components/ui/link-button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FlaskConical } from "lucide-react";
 import { OfflineBanner } from "@/components/student/OfflineBanner";
-import {
-  Shelf,
-  BookSpine,
-  BookOpen,
-  deriveSubjectAccent,
-  STATUS_CONFIG,
-} from "@/components/library";
+import { Shelf, BookSpine, BookOpen, STATUS_CONFIG } from "@/components/library";
 import { useUnitStatuses } from "@/lib/hooks/useProgressMap";
 import { cn } from "@/lib/utils";
 import type { UnitStatus } from "@/lib/types/api";
@@ -205,7 +199,6 @@ export default function SubjectsPage() {
                   unitId={subject.subject}
                   title={subject.subject}
                   subjectKey={subject.subject}
-                  accentOverride={deriveSubjectAccent(subject.subject)}
                   isOpen={openSubject === subject.subject}
                   onToggle={(id) => setOpenSubject((cur) => (cur === id ? null : id))}
                 />

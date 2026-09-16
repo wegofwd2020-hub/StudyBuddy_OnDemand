@@ -1,6 +1,8 @@
-// Academic-subject-derived accents for the open-book view (/school/content/[id]).
-// Distinct from stream-accents (curriculum-stream-level) and status-accents
-// (adoption-state-level). Resolves a unit's subject string to a WCAG-AA-safe color.
+// Academic-subject-derived accents, resolved from a subject's name to a
+// WCAG-AA-safe color. The fallback step of useSubjectPalette (#760), so every
+// student page colours a subject the same way; also used directly by the
+// open-book view (/school/content/[id]). Distinct from stream-accents
+// (curriculum-stream-level) and status-accents (adoption-state-level).
 
 const SUBJECT_ACCENT_PATTERNS: Array<[RegExp, string]> = [
   [/\bmath/i, "#4f46e5"], // indigo-600
