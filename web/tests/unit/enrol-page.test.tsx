@@ -8,7 +8,7 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
-import EnrolConfirmPage from "@/app/(student)/enrol/[token]/page";
+import EnrolConfirmPage from "@/app/(public)/enrol/[token]/page";
 import {
   VALID_TOKEN,
   MOCK_ENROL_SUCCESS,
@@ -29,7 +29,14 @@ vi.mock("next/link", () => ({
 
 vi.mock("next/navigation", () => ({
   useParams: vi.fn(() => ({ token: VALID_TOKEN })),
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
 }));
+
+// These cases cover a SIGNED-IN student. Since #764 the page sends a signed-out
+// student to sign-in first — see enrolment-link-764.test.tsx.
+beforeEach(() => {
+  localStorage.setItem("sb_token", "test-token");
+});
 
 const mockConfirmEnrolment = vi.fn();
 vi.mock("@/lib/api/school", () => ({

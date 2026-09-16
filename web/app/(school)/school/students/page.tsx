@@ -551,9 +551,14 @@ function AdminStudentView({ schoolId }: { schoolId: string }) {
             <CardTitle className="text-base">Enrolment invite link</CardTitle>
           </CardHeader>
           <CardContent>
+            {/* #764. The old text promised a "confirm enrolment" step that does not
+                exist, and did not say that the link neither creates an account nor
+                places the student in a class. */}
             <p className="mb-2 text-xs text-gray-500">
-              Share this link with students. They will be prompted to sign in and confirm
-              enrolment.
+              Send this link to students who already have a StudyBuddy login. When they
+              open it and sign in, they join your school straight away — there is nothing
+              else to confirm. It doesn&apos;t put them in a class: add them to one from
+              Classrooms.
             </p>
             <div className="flex items-center gap-2">
               <code className="flex-1 overflow-hidden rounded border bg-gray-50 px-3 py-2 font-mono text-xs text-ellipsis whitespace-nowrap text-gray-700">
