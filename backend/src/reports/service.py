@@ -139,6 +139,7 @@ async def cohort_unit_ids(
     redis,
     school_id: str,
     allowed_grades: list[int] | None = None,
+    student_ids: list[str] | None = None,
 ) -> set[str]:
     """Every unit in the curricula this school's students are actually served.
 
@@ -154,6 +155,15 @@ async def cohort_unit_ids(
     Every package counts, since they are additive (#651) — measuring coverage
     against one of a classroom's three packages would report the other two as
     entirely untouched.
+
+    `student_ids` restricts the catalog to an ALREADY-NARROWED cohort. Grade is
+    expressible as a column predicate and stream is not -- a stream lives on the
+    resolved curriculum, so the cohort has to be narrowed first and the catalog
+    built from what is left. Without this the catalog stays wide while the rows
+    narrow, and every other stream's units are reported as "no activity": the
+    filter would manufacture the coverage gaps this catalog exists to measure
+    honestly. Same trap the `cohort_grades` comment in `get_curriculum_health`
+    describes, one axis over.
     """
     from src.content.service import resolve_curriculum_ids
 
@@ -163,9 +173,11 @@ async def cohort_unit_ids(
         FROM school_enrolments
         WHERE school_id = $1 AND status = 'active' AND student_id IS NOT NULL
           AND ($2::smallint[] IS NULL OR grade = ANY($2::smallint[]))
+          AND ($3::uuid[] IS NULL OR student_id = ANY($3::uuid[]))
         """,
         uuid.UUID(school_id),
         allowed_grades,
+        [uuid.UUID(s) for s in student_ids] if student_ids is not None else None,
     )
     if not rows:
         return set()
@@ -264,6 +276,87 @@ async def _cohort_grades(
         allowed_grades,
     )
     return [r["grade"] for r in rows]
+
+
+# The bucket for a student whose curricula carry no stream. NOT a stream code --
+# it can never collide with one because migration 0045's registry is a table of
+# real codes and this is not in it.
+UNSTREAMED = "unstreamed"
+
+
+async def _streams_by_student(
+    conn: asyncpg.Connection,
+    pool,
+    redis,
+    school_id: str,
+    allowed_grades: list[int] | None = None,
+) -> dict[str, set[str]]:
+    """`student_id` -> the stream codes that student is actually taught.
+
+    A stream is a property of the CURRICULUM (migration 0044's
+    `curricula.stream_code`), not of the student: `students.stream` exists but
+    nothing has ever written it, and routing goes through classroom packages. So
+    a student's stream is whatever their resolved curricula say it is.
+
+    Resolution goes through `resolve_curriculum_ids` -- the same resolver that
+    decides which content they are served -- for the reason spelled out in
+    `_units_served`: a second, simpler re-derivation is pitfall #31 exactly, and
+    drifts silently. It is Redis-cached per student, so this is cheap on repeat.
+
+    A SET, not a value. Classroom packages are additive (#651), so a student can
+    sit in more than one stream, and collapsing that to "their stream" would
+    silently drop them from one of the two reports they belong in.
+
+    A school FORK carries no `stream_code` of its own -- its units, and its
+    identity, live under `source_curriculum_id` (#650). Falling back to the
+    source is what stops every forked commerce class reading as unstreamed.
+
+    Students whose curricula resolve to no stream at all get `UNSTREAMED` rather
+    than an empty set, so they are filterable instead of invisible.
+    """
+    from src.content.service import resolve_curriculum_ids
+
+    rows = await conn.fetch(
+        """
+        SELECT student_id::text AS sid, grade
+        FROM school_enrolments
+        WHERE school_id = $1 AND status = 'active' AND student_id IS NOT NULL
+          AND ($2::smallint[] IS NULL OR grade = ANY($2::smallint[]))
+        """,
+        uuid.UUID(school_id),
+        allowed_grades,
+    )
+    if not rows:
+        return {}
+
+    resolved: dict[str, list[str]] = {}
+    for r in rows:
+        resolved[r["sid"]] = await resolve_curriculum_ids(
+            r["sid"], r["grade"], pool, redis, school_id=school_id
+        )
+
+    every_id = sorted({cid for ids in resolved.values() for cid in ids})
+    if not every_id:
+        return {sid: {UNSTREAMED} for sid in resolved}
+
+    stream_rows = await conn.fetch(
+        """
+        SELECT c.curriculum_id,
+               COALESCE(c.stream_code, src.stream_code) AS stream_code
+        FROM curricula c
+        LEFT JOIN curricula src ON src.curriculum_id = c.source_curriculum_id
+        WHERE c.curriculum_id = ANY($1::text[])
+        """,
+        every_id,
+    )
+    stream_of = {r["curriculum_id"]: r["stream_code"] for r in stream_rows}
+
+    out: dict[str, set[str]] = {}
+    for sid, ids in resolved.items():
+        codes = {stream_of.get(cid) for cid in ids}
+        codes.discard(None)
+        out[sid] = codes or {UNSTREAMED}
+    return out
 
 
 def _health_tier(pass_rate: float, avg_attempts: float, has_activity: bool) -> str:
@@ -946,6 +1039,7 @@ async def get_curriculum_health(
     pool=None,
     redis=None,
     grade: int | None = None,
+    stream: str | None = None,
 ) -> dict:
     """All units ranked by health tier.
 
@@ -969,7 +1063,30 @@ async def get_curriculum_health(
     available_grades = await _cohort_grades(conn, school_id, allowed_grades)
     cohort_grades = [grade] if grade is not None else allowed_grades
 
+    # Streams the caller MAY select, on the same rule as `available_grades`:
+    # derived from the permission scope, never from the filtered result, or the
+    # picker collapses to its own selection and cannot be widened again.
+    #
+    # Computed against `allowed_grades` rather than `cohort_grades` for exactly
+    # that reason -- narrowing to Grade 11 must not remove Commerce from the
+    # stream picker.
+    streams_by_student: dict[str, set[str]] = {}
+    available_streams: list[str] = []
+    if pool is not None and redis is not None:
+        streams_by_student = await _streams_by_student(
+            conn, pool, redis, school_id, allowed_grades
+        )
+        available_streams = sorted({s for codes in streams_by_student.values() for s in codes})
+
     enrolled = await _enrolled_ids(conn, school_id, cohort_grades)
+
+    # A stream selection narrows the COHORT, like a grade selection does, so the
+    # units, the counts and the tiers all move together. Filtering the unit rows
+    # instead would leave the headline counts describing the whole school while
+    # the table below showed one stream.
+    if stream is not None and streams_by_student:
+        enrolled = [s for s in enrolled if stream in streams_by_student.get(s, set())]
+
     if not enrolled:
         return {
             "school_id": school_id,
@@ -983,6 +1100,10 @@ async def get_curriculum_health(
             # the teacher could not get back to "All grades" without a reload.
             "available_grades": available_grades,
             "selected_grade": grade,
+            # Same reason as available_grades above: a stream with no enrolled
+            # students must not be a dead end the teacher cannot get back out of.
+            "available_streams": available_streams,
+            "selected_stream": stream,
             "units": [],
         }
 
@@ -1107,7 +1228,11 @@ async def get_curriculum_health(
         # the cohort. Leaving it wide would list every other grade's units as
         # "no activity" the moment a teacher filtered to one grade, turning the
         # filter into a way to manufacture coverage gaps that do not exist.
-        await cohort_unit_ids(conn, pool, redis, school_id, cohort_grades)
+        # `enrolled` rather than the grades alone, because a stream selection has
+        # already narrowed it and stream is not expressible as a column
+        # predicate. When no stream is selected the two are the same set, so
+        # this changes nothing for the grade-only case.
+        await cohort_unit_ids(conn, pool, redis, school_id, cohort_grades, student_ids=enrolled)
         if pool is not None and redis is not None
         else set()
     )
@@ -1247,6 +1372,8 @@ async def get_curriculum_health(
         "general_feedback_count": int(general_feedback or 0),
         "available_grades": available_grades,
         "selected_grade": grade,
+        "available_streams": available_streams,
+        "selected_stream": stream,
         "units": units,
     }
 

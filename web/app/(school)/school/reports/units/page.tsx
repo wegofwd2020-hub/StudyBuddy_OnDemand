@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useTeacher } from "@/lib/hooks/useTeacher";
-import { getCurriculumHealth } from "@/lib/api/reports";
+import { getCurriculumHealth, UNSTREAMED } from "@/lib/api/reports";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -17,16 +17,39 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+/** Display name for a stream code.
+ *
+ * The registry's own `display_name` is not on this response and fetching it
+ * would be a second request to label four chips. These are the five system
+ * seeds from migration 0045; an unknown code (a school's custom stream, added
+ * via upsert-on-use) falls through to a capitalised form of itself rather than
+ * being hidden or shown as a raw slug. */
+function streamLabel(code: string | null): string {
+  if (code === null) return "All streams";
+  if (code === UNSTREAMED) return "No stream";
+  const known: Record<string, string> = {
+    science: "Science",
+    commerce: "Commerce",
+    humanities: "Humanities",
+    english: "English Core",
+    stem: "STEM",
+  };
+  return known[code] ?? code.charAt(0).toUpperCase() + code.slice(1);
+}
+
 export default function UnitPerformancePage() {
   const teacher = useTeacher();
   const schoolId = teacher?.school_id ?? "";
   // null = all grades. The default, and the only value a teacher who ignores
   // the control ever sees.
   const [grade, setGrade] = useState<number | null>(null);
+  // null = all streams. An independent axis from grade (#774): a school may
+  // teach Commerce across two grades, and a grade may hold several streams.
+  const [stream, setStream] = useState<string | null>(null);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["curriculum-health", schoolId, grade],
-    queryFn: () => getCurriculumHealth(schoolId, grade),
+    queryKey: ["curriculum-health", schoolId, grade, stream],
+    queryFn: () => getCurriculumHealth(schoolId, grade, stream),
     enabled: !!schoolId,
     staleTime: 120_000,
     // Keep the previous grade's report on screen while the next one loads.
@@ -39,6 +62,7 @@ export default function UnitPerformancePage() {
   // the options from `data.units` would leave one grade selectable the moment a
   // grade was picked, with no way back to "All grades".
   const availableGrades = data?.available_grades ?? [];
+  const availableStreams = data?.available_streams ?? [];
 
   const chartData = (data?.units ?? [])
     .filter((u) => u.health_tier !== "no_activity")
@@ -84,6 +108,35 @@ export default function UnitPerformancePage() {
               }`}
             >
               {g === null ? "All grades" : `Grade ${g}`}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Stream filter. Same rule as the grade control above — rendered only
+          where there is a choice to make. A school teaching one stream gets no
+          control rather than one that does nothing. */}
+      {availableStreams.length > 1 && (
+        <div
+          role="radiogroup"
+          aria-label="Filter by stream"
+          className="flex flex-wrap items-center gap-2"
+        >
+          <span className="text-sm text-gray-500">Stream</span>
+          {[null, ...availableStreams].map((s) => (
+            <button
+              key={s ?? "all"}
+              type="button"
+              role="radio"
+              aria-checked={stream === s}
+              onClick={() => setStream(s)}
+              className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
+                stream === s
+                  ? "border-blue-500 bg-blue-50 font-medium text-blue-700"
+                  : "border-gray-200 text-gray-600 hover:border-gray-300"
+              }`}
+            >
+              {streamLabel(s)}
             </button>
           ))}
         </div>

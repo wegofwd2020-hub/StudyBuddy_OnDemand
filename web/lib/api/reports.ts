@@ -89,18 +89,38 @@ export interface CurriculumHealthReport {
    *  state, so a rejected or in-flight request cannot leave the chip claiming a
    *  grade the table below it does not show. */
   selected_grade?: number | null;
+  /** Streams this caller may filter to, on the same rule as `available_grades`:
+   *  the permission scope, not the selection. Codes come from the streams
+   *  registry (`science`, `commerce`, `humanities`, `english`, `stem`), plus the
+   *  literal `unstreamed` for students whose curricula carry no stream. School
+   *  content never carries one, so that bucket is permanent. */
+  available_streams?: string[];
+  /** Echoed by the server, for the same reason as `selected_grade`. */
+  selected_stream?: string | null;
   units: CurriculumHealthUnit[];
 }
+
+/** The bucket for students whose curricula carry no stream. Mirrors
+ *  `UNSTREAMED` in backend/src/reports/service.py — it is not a registry code
+ *  and cannot collide with one. */
+export const UNSTREAMED = "unstreamed";
 
 export async function getCurriculumHealth(
   schoolId: string,
   grade?: number | null,
+  stream?: string | null,
 ): Promise<CurriculumHealthReport> {
+  // Each param omitted entirely when unset — the endpoint's defaults are "all
+  // grades" and "all streams", and sending `grade=null` would make that an
+  // explicit (and rejected) choice. Built as an object so the two filters
+  // compose: they are independent axes and either may be set alone.
+  const params: Record<string, string | number> = {};
+  if (grade != null) params.grade = grade;
+  if (stream != null) params.stream = stream;
+
   const res = await schoolApi.get<CurriculumHealthReport>(
     `/reports/school/${schoolId}/curriculum-health`,
-    // Omitted entirely when unset — the endpoint's default is all grades, and
-    // sending `grade=null` would make that an explicit (and rejected) choice.
-    grade == null ? undefined : { params: { grade } },
+    Object.keys(params).length === 0 ? undefined : { params },
   );
   return res.data;
 }

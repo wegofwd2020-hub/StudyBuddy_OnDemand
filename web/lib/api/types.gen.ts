@@ -4747,13 +4747,20 @@ export interface paths {
         };
         /**
          * Curriculum Health
-         * @description All units ranked by health tier, optionally narrowed to one grade.
+         * @description All units ranked by health tier, optionally narrowed to one grade/stream.
          *
          *     `?grade=` is a filter WITHIN the caller's entitlement, never a way around
          *     it: a grade the caller is not assigned to is refused with the same 403 the
          *     roster uses, rather than being silently ignored. Silently ignoring it would
          *     be worse than refusing — the teacher would read a school-wide report while
          *     the control on screen said "Grade 7".
+         *
+         *     `?stream=` is the same kind of filter and carries the same rule. It needs no
+         *     separate 403: a stream is a property of the curricula the COHORT resolves
+         *     to, and the cohort is already scoped to the caller's grades before any
+         *     stream narrowing happens — so a stream the caller cannot see contributes no
+         *     students and is not offered in `available_streams`. Selecting one anyway
+         *     yields an empty report rather than another school's data.
          */
         get: operations["curriculum_health_api_v1_reports_school__school_id__curriculum_health_get"];
         put?: never;
@@ -7341,6 +7348,13 @@ export interface components {
             available_grades: number[];
             /** Selected Grade */
             selected_grade?: number | null;
+            /**
+             * Available Streams
+             * @default []
+             */
+            available_streams: string[];
+            /** Selected Stream */
+            selected_stream?: string | null;
             /** Units */
             units: components["schemas"]["CurriculumHealthUnit"][];
         };
@@ -18786,6 +18800,7 @@ export interface operations {
         parameters: {
             query?: {
                 grade?: number | null;
+                stream?: string | null;
             };
             header?: never;
             path: {
