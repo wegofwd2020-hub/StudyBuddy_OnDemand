@@ -50,6 +50,7 @@ export const MOCK_STUDENT_REPORT: StudentReport = {
       best_score: 90.0,
       passed: true,
       total_duration_s: 1200,
+      current: true,
     },
     {
       unit_id: "G8-MATH-001",
@@ -60,6 +61,7 @@ export const MOCK_STUDENT_REPORT: StudentReport = {
       best_score: 55.0,
       passed: false,
       total_duration_s: 900,
+      current: true,
     },
     {
       unit_id: "G8-SCI-002",
@@ -70,6 +72,7 @@ export const MOCK_STUDENT_REPORT: StudentReport = {
       best_score: null,
       passed: false,
       total_duration_s: 0,
+      current: true,
     },
   ],
 };

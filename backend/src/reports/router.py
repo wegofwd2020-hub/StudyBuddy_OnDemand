@@ -339,7 +339,9 @@ async def student_report(
             if student_grade is None or student_grade not in permitted:
                 raise _deny_grade(request)
         try:
-            result = await get_student_report(conn, school_id, student_id)
+            result = await get_student_report(
+                conn, school_id, student_id, request.app.state.pool, get_redis(request)
+            )
         except LookupError as exc:
             raise HTTPException(
                 status_code=404,

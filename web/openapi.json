@@ -23026,6 +23026,11 @@
           "total_duration_s": {
             "type": "integer",
             "title": "Total Duration S"
+          },
+          "current": {
+            "type": "boolean",
+            "title": "Current",
+            "default": true
           }
         },
         "type": "object",
