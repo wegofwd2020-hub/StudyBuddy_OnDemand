@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { RefreshCw, Plus, Archive } from "lucide-react";
 import { Backup, listAllBackups, createBackup } from "@/lib/api/backup";
+import { formatDateTime } from "@/lib/utils/date";
 
 const STATUS_STYLES: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-700",
@@ -22,7 +23,7 @@ function fmtBytes(n: number): string {
 }
 
 function fmtDate(s: string): string {
-  return new Date(s).toLocaleString();
+  return formatDateTime(s);
 }
 
 export default function BackupsPage() {

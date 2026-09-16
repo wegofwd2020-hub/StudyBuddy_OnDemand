@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { getPipelineJobs, AdminPipelineJob } from "@/lib/api/admin";
 import { cn } from "@/lib/utils";
+import { formatDateTime } from "@/lib/utils/date";
 import {
   ArrowUpDown,
   ArrowUp,
@@ -365,10 +366,10 @@ export default function AdminPipelinePage() {
                     {job.triggered_by_email ?? "—"}
                   </td>
                   <td className="px-4 py-3 text-xs text-gray-500">
-                    {job.triggered_at ? new Date(job.triggered_at).toLocaleString() : "—"}
+                    {job.triggered_at ? formatDateTime(job.triggered_at) : "—"}
                   </td>
                   <td className="px-4 py-3 text-xs text-gray-500">
-                    {job.started_at ? new Date(job.started_at).toLocaleString() : "—"}
+                    {job.started_at ? formatDateTime(job.started_at) : "—"}
                   </td>
                   <td className="px-4 py-3 text-xs text-gray-500">
                     {duration(job.started_at, job.completed_at)}

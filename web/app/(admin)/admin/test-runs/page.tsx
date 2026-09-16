@@ -14,6 +14,7 @@ import {
   Mail,
   Trash2,
 } from "lucide-react";
+import { formatDateTime } from "@/lib/utils/date";
 
 const PAGE_SIZE = 50;
 
@@ -273,7 +274,7 @@ export default function AdminTestRunsPage() {
                         {item.email}
                       </td>
                       <td className="px-4 py-3 text-gray-500">
-                        {new Date(item.requested_at).toLocaleString()}
+                        {formatDateTime(item.requested_at)}
                       </td>
                       <td className="px-4 py-3">
                         <StatusBadge status={item.status} />

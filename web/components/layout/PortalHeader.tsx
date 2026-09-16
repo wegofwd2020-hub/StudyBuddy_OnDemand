@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { AdministrationMenu } from "@/components/layout/AdministrationMenu";
 import { AccountMenu } from "@/components/layout/AccountMenu";
 import { useTeacher } from "@/lib/hooks/useTeacher";
+import { formatDateTime } from "@/lib/utils/date";
 
 const PORTAL_ICONS = {
   public: { src: "/assets/home_banner.png", alt: "StudyBuddy" },
@@ -119,8 +120,7 @@ export function PortalHeader({
             <AccountMenu userName={userName} />
             {now && (
               <span className="hidden text-sm whitespace-nowrap text-gray-500 tabular-nums sm:inline">
-                {now.toLocaleDateString()}{" "}
-                {now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                {formatDateTime(now)}
               </span>
             )}
           </div>
@@ -133,8 +133,7 @@ export function PortalHeader({
             )}
             {now && (
               <span className="whitespace-nowrap text-gray-500 tabular-nums">
-                {now.toLocaleDateString()}{" "}
-                {now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                {formatDateTime(now)}
               </span>
             )}
           </div>

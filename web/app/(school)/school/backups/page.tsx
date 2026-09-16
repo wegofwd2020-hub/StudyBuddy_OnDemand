@@ -6,6 +6,7 @@ import { schoolListBackups, type Backup } from "@/lib/api/backup";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LinkButton } from "@/components/ui/link-button";
 import { Database, RotateCcw } from "lucide-react";
+import { formatDateTime } from "@/lib/utils/date";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -123,13 +124,7 @@ export default function BackupsPage() {
               {backups.map((b) => (
                 <tr key={b.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3 text-gray-600 tabular-nums">
-                    {new Date(b.created_at).toLocaleDateString()}{" "}
-                    <span className="text-xs text-gray-400">
-                      {new Date(b.created_at).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
+                    {formatDateTime(b.created_at)}
                   </td>
                   <td className="px-4 py-3 text-gray-900">
                     {b.label || scopeLabel(b)}

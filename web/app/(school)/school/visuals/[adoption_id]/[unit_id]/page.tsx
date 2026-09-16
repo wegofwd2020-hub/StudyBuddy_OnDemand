@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import type { VisualBlock, VisualItem } from "@/lib/types/api";
 import { AssetPicker } from "@/components/visuals/AssetPicker";
+import { formatTime } from "@/lib/utils/date";
 
 /**
  * /school/visuals/{adoption_id}/{unit_id}
@@ -257,7 +258,7 @@ function SectionEditor({
             {savedAt && (
               <span className="flex items-center gap-1 text-xs text-emerald-700">
                 <CheckCircle2 className="h-3.5 w-3.5" />
-                Saved at {savedAt.toLocaleTimeString()}
+                Saved at {formatTime(savedAt)}
               </span>
             )}
             <Button

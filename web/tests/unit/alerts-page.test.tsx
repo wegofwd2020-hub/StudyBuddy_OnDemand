@@ -9,7 +9,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import AlertsPage from "@/app/(school)/school/alerts/page";
-import { formatDay } from "@/lib/utils/date";
+import { formatDate } from "@/lib/utils/date";
 import { SchoolNav } from "@/components/layout/SchoolNav";
 import {
   MOCK_TEACHER,
@@ -124,19 +124,18 @@ describe("SCH-19 — Alerts list renders", () => {
     expect(open.length).toBeGreaterThan(0);
     for (const a of open) {
       expect(
-        screen.getByText(`Alert open since ${formatDay(a.triggered_at)}`),
+        screen.getByText(`Alert open since ${formatDate(a.triggered_at)}`),
       ).toBeInTheDocument();
     }
   });
 
-  it("names the month, so the date cannot be read as another day", () => {
-    // `toLocaleDateString()` gives 05/08/2026 here and 08/05/2026 in the US —
-    // the same ambiguity fixed for the weekly breakdown.
+  it("renders dd/mm/yyyy, so the date cannot be read as another day", () => {
+    // #759: `toLocaleDateString()` gives 05/08/2026 here and 08/05/2026 in the
+    // US — the same ambiguity fixed for the weekly breakdown, now via the
+    // shared day-first helper instead of a named month.
     render(<AlertsPage />);
     const first = MOCK_ALERTS.alerts.find((a) => !a.acknowledged)!;
-    expect(formatDay(first.triggered_at)).toMatch(
-      /^\d{2} (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d{4}$/,
-    );
+    expect(formatDate(first.triggered_at)).toMatch(/^\d{2}\/\d{2}\/\d{4}$/);
   });
 });
 

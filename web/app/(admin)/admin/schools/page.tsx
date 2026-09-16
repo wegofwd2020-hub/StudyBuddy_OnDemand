@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Loader2, Search, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatDate } from "@/lib/utils/date";
 
 // ── Plan badge ────────────────────────────────────────────────────────────────
 
@@ -154,11 +155,7 @@ export default function AdminSchoolsPage() {
                         {school.country}
                       </td>
                       <td className="px-4 py-3 text-xs text-gray-500">
-                        {new Date(school.created_at).toLocaleDateString(undefined, {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })}
+                        {formatDate(school.created_at)}
                       </td>
                       <td className="px-4 py-3">
                         <Link

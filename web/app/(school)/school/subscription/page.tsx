@@ -25,6 +25,7 @@ import {
   PackagePlus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatDate } from "@/lib/utils/date";
 
 // ── Seat usage bar ────────────────────────────────────────────────────────────
 
@@ -115,13 +116,7 @@ function CancelDialog({
   onDismiss: () => void;
   isPending: boolean;
 }) {
-  const endDate = periodEnd
-    ? new Date(periodEnd).toLocaleDateString(undefined, {
-        month: "long",
-        day: "numeric",
-        year: "numeric",
-      })
-    : null;
+  const endDate = periodEnd ? formatDate(periodEnd) : null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
@@ -264,11 +259,7 @@ export default function SubscriptionPage() {
   const hasSub = isActive || isCancelledAtEnd;
 
   const periodEndDate = sub?.current_period_end
-    ? new Date(sub.current_period_end).toLocaleDateString(undefined, {
-        month: "long",
-        day: "numeric",
-        year: "numeric",
-      })
+    ? formatDate(sub.current_period_end)
     : null;
 
   return (

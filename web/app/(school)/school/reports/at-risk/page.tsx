@@ -10,6 +10,7 @@ import {
   sendAtRiskReminder,
 } from "@/lib/api/reports";
 import { cn } from "@/lib/utils";
+import { formatDate } from "@/lib/utils/date";
 import {
   AlertTriangle,
   Bell,
@@ -55,10 +56,7 @@ function LastActiveCell({
   if (!lastActive) {
     return <span className="text-gray-400">Never active</span>;
   }
-  const label =
-    inactiveDays != null
-      ? `${inactiveDays}d ago`
-      : new Date(lastActive).toLocaleDateString();
+  const label = inactiveDays != null ? `${inactiveDays}d ago` : formatDate(lastActive);
   return (
     <span
       className={cn(

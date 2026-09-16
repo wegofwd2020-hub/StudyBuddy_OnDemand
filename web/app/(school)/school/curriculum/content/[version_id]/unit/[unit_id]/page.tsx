@@ -19,6 +19,7 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatDate } from "@/lib/utils/date";
 
 // ── Type metadata ─────────────────────────────────────────────────────────────
 
@@ -75,8 +76,7 @@ function AnnotationsPanel({
               {a.annotation_text}
             </p>
             <p className="mt-1 text-xs text-gray-400">
-              {a.reviewer_email ?? "Reviewer"} ·{" "}
-              {new Date(a.created_at).toLocaleDateString()}
+              {a.reviewer_email ?? "Reviewer"} · {formatDate(a.created_at)}
             </p>
           </div>
         ))}

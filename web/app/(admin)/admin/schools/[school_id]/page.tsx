@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { LinkButton } from "@/components/ui/link-button";
 import { Loader2, AlertTriangle, CheckCircle, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatDate, formatDateTime } from "@/lib/utils/date";
 
 // ── Limits display ────────────────────────────────────────────────────────────
 
@@ -283,10 +284,7 @@ export default function AdminSchoolDetailPage() {
   // If override exists, plan default is the effective value only when that field is NOT overridden.
   // Since we don't store plan defaults separately in the response, show them as-is for non-overridden fields.
 
-  const resetDate = new Date(data.pipeline_resets_at).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-  });
+  const resetDate = formatDate(data.pipeline_resets_at);
 
   return (
     <div className="max-w-3xl space-y-6 p-6">
@@ -368,15 +366,7 @@ export default function AdminSchoolDetailPage() {
               </div>
               <div>
                 <dt className="text-xs text-gray-400">Set at</dt>
-                <dd className="text-gray-700">
-                  {new Date(data.override.set_at).toLocaleString(undefined, {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </dd>
+                <dd className="text-gray-700">{formatDateTime(data.override.set_at)}</dd>
               </div>
               <div>
                 <dt className="text-xs text-gray-400">Overridden fields</dt>

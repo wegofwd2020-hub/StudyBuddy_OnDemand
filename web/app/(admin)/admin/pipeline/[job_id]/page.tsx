@@ -15,6 +15,7 @@ function fmtBytes(bytes: number | null | undefined): string {
 }
 import { cn } from "@/lib/utils";
 import { ArrowLeft, CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { formatDateTime } from "@/lib/utils/date";
 
 export default function AdminPipelineJobPage() {
   const { job_id } = useParams<{ job_id: string }>();
@@ -77,19 +78,15 @@ export default function AdminPipelineJobPage() {
           <div className="grid grid-cols-2 gap-3 text-xs text-gray-500">
             <div>
               <p className="font-medium text-gray-600">Triggered</p>
-              <p>
-                {job.triggered_at ? new Date(job.triggered_at).toLocaleString() : "—"}
-              </p>
+              <p>{job.triggered_at ? formatDateTime(job.triggered_at) : "—"}</p>
             </div>
             <div>
               <p className="font-medium text-gray-600">Started</p>
-              <p>{job.started_at ? new Date(job.started_at).toLocaleString() : "—"}</p>
+              <p>{job.started_at ? formatDateTime(job.started_at) : "—"}</p>
             </div>
             <div>
               <p className="font-medium text-gray-600">Completed</p>
-              <p>
-                {job.completed_at ? new Date(job.completed_at).toLocaleString() : "—"}
-              </p>
+              <p>{job.completed_at ? formatDateTime(job.completed_at) : "—"}</p>
             </div>
             <div>
               <p className="font-medium text-gray-600">Languages</p>

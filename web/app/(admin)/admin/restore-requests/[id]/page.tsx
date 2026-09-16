@@ -12,6 +12,7 @@ import {
 } from "@/lib/api/backup";
 import adminClient from "@/lib/api/admin-client";
 import { describeSchedule } from "@/lib/school/restore-schedule";
+import { formatDateTime } from "@/lib/utils/date";
 
 const STATUS_STYLES: Record<string, string> = {
   submitted: "bg-yellow-100 text-yellow-700",
@@ -26,7 +27,7 @@ const STATUS_STYLES: Record<string, string> = {
 
 function fmtDate(s: string | null): string {
   if (!s) return "—";
-  return new Date(s).toLocaleString();
+  return formatDateTime(s);
 }
 
 function Field({ label, value }: { label: string; value: React.ReactNode }) {

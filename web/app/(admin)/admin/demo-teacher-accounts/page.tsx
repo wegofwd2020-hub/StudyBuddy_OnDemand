@@ -21,6 +21,7 @@ import {
   Hourglass,
   Mail,
 } from "lucide-react";
+import { formatDateTime } from "@/lib/utils/date";
 
 const PAGE_SIZE = 20;
 
@@ -427,15 +428,13 @@ export default function AdminDemoTeacherAccountsPage() {
                       <StatusBadge status={item.request_status} />
                     </td>
                     <td className="px-4 py-3 text-gray-500">
-                      {item.expires_at ? new Date(item.expires_at).toLocaleString() : "—"}
+                      {item.expires_at ? formatDateTime(item.expires_at) : "—"}
                     </td>
                     <td className="px-4 py-3 text-gray-500">
-                      {item.extended_at
-                        ? new Date(item.extended_at).toLocaleString()
-                        : "—"}
+                      {item.extended_at ? formatDateTime(item.extended_at) : "—"}
                     </td>
                     <td className="px-4 py-3 text-gray-500">
-                      {item.revoked_at ? new Date(item.revoked_at).toLocaleString() : "—"}
+                      {item.revoked_at ? formatDateTime(item.revoked_at) : "—"}
                     </td>
                     <td className="px-4 py-3">
                       <RowActions item={item} onRefresh={refresh} />

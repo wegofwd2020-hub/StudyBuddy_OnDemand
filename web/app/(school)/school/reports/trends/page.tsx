@@ -7,7 +7,7 @@ import { getTrendsReport, type TrendsPeriod } from "@/lib/api/reports";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import { formatWeekStart, formatWeekShort } from "@/lib/utils/date";
+import { formatDate, formatDayMonth } from "@/lib/utils/date";
 import {
   LineChart,
   Line,
@@ -39,9 +39,9 @@ export default function TrendsReportPage() {
 
   const chartData =
     data?.weeks.map((w) => ({
-      // A named month, not `.slice(5)` — that produced `06-15`, which a
+      // dd/mm, not `.slice(5)` — that produced `06-15`, which a
       // reader can take for 6 December as easily as 15 June.
-      week: formatWeekShort(w.week_start),
+      week: formatDayMonth(w.week_start),
       lessons: w.lessons_viewed,
       passRate: w.first_attempt_pass_rate_pct,
       avgScore: w.avg_score_pct,
@@ -172,7 +172,7 @@ export default function TrendsReportPage() {
                     {data!.weeks.map((w) => (
                       <tr key={w.week_start} className="hover:bg-gray-50">
                         <td className="px-4 py-2.5 text-gray-600">
-                          {formatWeekStart(w.week_start)}
+                          {formatDate(w.week_start)}
                         </td>
                         <td className="px-4 py-2.5">{w.active_students}</td>
                         <td className="px-4 py-2.5">{w.lessons_viewed}</td>

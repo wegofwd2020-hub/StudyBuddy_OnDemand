@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getFeedbackList, resolveFeedback } from "@/lib/api/admin";
 import { useAdmin, hasPermission } from "@/lib/hooks/useAdmin";
 import { ShieldOff, MessageSquare, Star } from "lucide-react";
+import { formatDateTime } from "@/lib/utils/date";
 
 function StarRating({ rating }: { rating: number }) {
   return (
@@ -137,7 +138,7 @@ export default function AdminFeedbackPage() {
                     <p className="line-clamp-2 text-sm text-gray-600">{fb.comment}</p>
                   )}
                   <p className="mt-1 text-xs text-gray-400">
-                    {new Date(fb.submitted_at).toLocaleString()}
+                    {formatDateTime(fb.submitted_at)}
                   </p>
                 </div>
                 {!fb.resolved && (

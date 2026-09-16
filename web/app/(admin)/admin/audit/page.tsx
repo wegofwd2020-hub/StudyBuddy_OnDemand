@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getAuditLog } from "@/lib/api/admin";
 import { useAdmin, hasPermission } from "@/lib/hooks/useAdmin";
 import { ShieldOff, FileText } from "lucide-react";
+import { formatDateTime } from "@/lib/utils/date";
 
 export default function AdminAuditPage() {
   const admin = useAdmin();
@@ -81,7 +82,7 @@ export default function AdminAuditPage() {
                 {data.entries.map((entry) => (
                   <tr key={entry.audit_id} className="hover:bg-gray-50">
                     <td className="px-4 py-3 text-xs whitespace-nowrap text-gray-500">
-                      {new Date(entry.created_at).toLocaleString()}
+                      {formatDateTime(entry.created_at)}
                     </td>
                     <td className="px-4 py-3">
                       <span className="text-xs text-gray-700">

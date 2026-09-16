@@ -17,6 +17,7 @@ import {
   Loader2,
   Settings2,
 } from "lucide-react";
+import { formatDateTime } from "@/lib/utils/date";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -31,14 +32,7 @@ function fmtDuration(seconds: number | null): string {
 }
 
 function fmtDate(iso: string): string {
-  try {
-    return new Intl.DateTimeFormat(undefined, {
-      dateStyle: "medium",
-      timeStyle: "short",
-    }).format(new Date(iso));
-  } catch {
-    return iso;
-  }
+  return formatDateTime(iso);
 }
 
 function timeAgo(iso: string): string {

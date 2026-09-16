@@ -28,6 +28,7 @@ import {
   ThumbsUp,
   ThumbsDown,
 } from "lucide-react";
+import { formatDate } from "@/lib/utils/date";
 
 // Shared textarea class
 const TA =
@@ -1447,7 +1448,7 @@ export default function UnitEditPage() {
               ? `Last edited by ${overrideDetail.last_edited_by_name}`
               : "Not yet edited"}
             {overrideDetail?.edited_at
-              ? ` · ${new Date(overrideDetail.edited_at).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}`
+              ? ` · ${formatDate(overrideDetail.edited_at)}`
               : ""}
             {overrideDetail?.version_number !== undefined
               ? ` · v${overrideDetail.version_number}`

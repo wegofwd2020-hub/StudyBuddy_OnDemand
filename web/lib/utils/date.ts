@@ -1,46 +1,61 @@
 /**
- * Date formatting for report screens.
+ * Date formatting — single source of truth for every date/time rendered
+ * anywhere in the web app (#759).
  *
- * A tester asked why the Weekly breakdown shows `2026-06-15` on screen and
- * `15-06-2026` in the downloaded Excel. Nothing in the export converts it — we
- * write ISO 8601 in both places. Excel recognises `2026-06-15` as a date,
- * stores it as one, and renders it using the reader's regional settings. Two
- * teachers on different locales see different text from an identical file, and
- * we cannot control that from here.
+ * Decision (2026-09-16, binding, recorded on issue #759): dates render
+ * numeric and DAY-FIRST — `dd/mm/yyyy`, e.g. `14/09/2026` — because that is
+ * the convention of the schools this product serves, not the US month-first
+ * convention `toLocaleDateString()` defaults to on an unconfigured locale.
+ * Where a time accompanies a date it is 24-hour: `14/09/2026 14:05`. Time
+ * alone is `14:05`. This superseded an earlier named-month format
+ * (`15 Jun 2026`) adopted to dodge exactly this day/month ambiguity — day-first
+ * numeric dodges it just as well and matches what the schools already expect,
+ * so the named-month table is gone.
  *
- * What we CAN control is whether a date can be read as the wrong day. A row
- * reading `03-08-2026` is 3 August in his locale and 8 March in a US one, with
- * nothing on the page saying which convention is in force. So the screen uses a
- * NAMED month, which no locale can reinterpret, and the CSV keeps ISO 8601 with
- * the convention stated in its column header.
+ * No browser-locale formatting anywhere in `app/`, `components/`, or `lib/`
+ * (outside this file): never `toLocaleDateString`, `toLocaleTimeString`, a
+ * date through `toLocaleString`, or `Intl.DateTimeFormat`. Those render
+ * per the VIEWER's OS/browser locale, so the same report reads as a different
+ * day to two teachers at the same school depending on their machine's
+ * settings — which is the defect this module exists to remove. (Plain
+ * `toLocaleString()` on a NUMBER — money, counts — is unrelated and stays;
+ * see the ESLint guard in `eslint.config.mjs`, which can only ban the
+ * date-shaped calls for the same reason.)
  *
- * The month names are a fixed table rather than `toLocaleDateString`, on
- * purpose: a locale-dependent formatter would reintroduce exactly the variance
- * this exists to remove — the same report reading differently for two teachers
- * at the same school.
+ * Two input shapes, handled differently on purpose:
+ *
+ * 1. A DATE-ONLY string, `YYYY-MM-DD` (e.g. a week-start bucket with no time
+ *    component). This is parsed directly out of the STRING, never through
+ *    `new Date(iso)` — `new Date("2026-06-15")` is midnight UTC, so
+ *    `.getDate()` west of Greenwich returns the 14th: a value that was never
+ *    an instant, and so never had a timezone, gets shifted by one anyway.
+ *    Because a date-only value has no time, `formatTime`/`formatDateTime`
+ *    on one fall back to `formatDate` output rather than fabricate `00:00`.
+ *
+ * 2. Anything else — a full ISO timestamp, an epoch number, or a `Date` — IS
+ *    an instant, so it goes through `Date` and renders in the VIEWER's local
+ *    timezone via `getDate/getMonth/getFullYear/getHours/getMinutes`, zero
+ *    padded. Only the RENDERING is pinned (numeric, day-first, 24-hour); the
+ *    day/hour value itself legitimately depends on the reader's timezone,
+ *    same as before.
+ *
+ * `null`/`undefined` render as `""`. An unparseable string is returned
+ * UNCHANGED — degrading to the raw value beats "Invalid Date" or a blank cell,
+ * since the reader can still see what the server actually sent.
+ *
+ * CSV exports keep ISO 8601 in the FILE where a value is written by
+ * `formatDate` for the on-screen column, the column header names the
+ * convention (`Week start (DD/MM/YYYY)`) explicitly — because Excel re-types
+ * a written date-like string and renders it per the READER's regional
+ * settings, which this module cannot control from the exporting page. That
+ * trade-off is orthogonal to the browser-locale problem above: it is Excel's
+ * own re-interpretation of a spreadsheet cell, not a `Date` rendered with the
+ * wrong formatter.
  */
 
-const MONTHS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-] as const;
-
-/** Split a `YYYY-MM-DD` string into parts, or null if it isn't one.
- *
- *  Parsed from the STRING, never through `new Date(iso)`. `new Date("2026-06-15")`
- *  is midnight UTC, so `getDate()` west of Greenwich returns the 14th — a
- *  date-only value silently shifted by a timezone it never had.
- */
+/** Split a `YYYY-MM-DD` string into parts, or null if it isn't one. See the
+ *  file header — this is why date-only values are never routed through
+ *  `new Date()`. */
 function parts(iso: string): { y: string; m: number; d: string } | null {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
   if (!m) return null;
@@ -49,35 +64,103 @@ function parts(iso: string): { y: string; m: number; d: string } | null {
   return { y: m[1], m: month, d: m[3] };
 }
 
-/** `2026-06-15` -> `15 Jun 2026`. Unparseable input is returned unchanged, so a
- *  format we did not anticipate degrades to the raw value rather than "Invalid
- *  Date" or an empty cell. */
-export function formatWeekStart(iso: string): string {
-  const p = parts(iso);
-  if (!p) return iso;
-  return `${p.d} ${MONTHS[p.m - 1]} ${p.y}`;
+function pad2(n: number): string {
+  return String(n).padStart(2, "0");
 }
 
-/** A timestamp (`2026-08-05T06:00:00Z`) -> `05 Aug 2026`.
- *
- *  For values that ARE instants rather than calendar dates, so unlike the week
- *  helpers this one goes through `Date` on purpose — the day genuinely depends
- *  on the reader's timezone. Only the RENDERING is pinned, via the same fixed
- *  month table, so an alert does not read `05/08/2026` to one teacher and
- *  `08/05/2026` to another at the same school. */
-export function formatDay(iso: string): string {
-  const d = new Date(iso);
-  if (isNaN(d.getTime())) return iso;
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${day} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+type Resolved =
+  | { kind: "empty" }
+  | { kind: "dateOnly"; d: string; m: number; y: string }
+  | { kind: "instant"; date: Date }
+  | { kind: "invalid"; original: string };
+
+/** Classify an input value once, so every helper below shares the same
+ *  date-only-vs-instant-vs-invalid decision instead of re-deriving it. */
+function resolve(value: string | number | Date | null | undefined): Resolved {
+  if (value === null || value === undefined) return { kind: "empty" };
+  if (typeof value === "string") {
+    const p = parts(value);
+    if (p) return { kind: "dateOnly", d: p.d, m: p.m, y: p.y };
+    const date = new Date(value);
+    if (isNaN(date.getTime())) return { kind: "invalid", original: value };
+    return { kind: "instant", date };
+  }
+  const date = value instanceof Date ? value : new Date(value);
+  if (isNaN(date.getTime())) return { kind: "invalid", original: "" };
+  return { kind: "instant", date };
 }
 
-/** `2026-06-15` -> `15 Jun`, for chart axes where the year would not fit.
- *
- *  Replaces `week_start.slice(5)`, which produced `06-15` — month-first, and so
- *  the single most ambiguous rendering of the three the report had. */
-export function formatWeekShort(iso: string): string {
-  const p = parts(iso);
-  if (!p) return iso;
-  return `${p.d} ${MONTHS[p.m - 1]}`;
+function dateOnlyToDMY(d: string, m: number, y: string): string {
+  return `${d}/${pad2(m)}/${y}`;
+}
+
+function instantToDMY(date: Date): string {
+  return `${pad2(date.getDate())}/${pad2(date.getMonth() + 1)}/${date.getFullYear()}`;
+}
+
+function instantToHM(date: Date): string {
+  return `${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
+}
+
+/** `2026-06-15` / an ISO timestamp / an epoch number / a `Date` -> `15/06/2026`. */
+export function formatDate(value: string | number | Date | null | undefined): string {
+  const r = resolve(value);
+  switch (r.kind) {
+    case "empty":
+      return "";
+    case "invalid":
+      return r.original;
+    case "dateOnly":
+      return dateOnlyToDMY(r.d, r.m, r.y);
+    case "instant":
+      return instantToDMY(r.date);
+  }
+}
+
+/** An instant -> `14:05` (24-hour, zero-padded). A date-only string has no
+ *  time component, so it falls back to `formatDate` output rather than
+ *  fabricate `00:00`. */
+export function formatTime(value: string | number | Date | null | undefined): string {
+  const r = resolve(value);
+  switch (r.kind) {
+    case "empty":
+      return "";
+    case "invalid":
+      return r.original;
+    case "dateOnly":
+      return dateOnlyToDMY(r.d, r.m, r.y);
+    case "instant":
+      return instantToHM(r.date);
+  }
+}
+
+/** An instant -> `14/09/2026 14:05`. A date-only string falls back to
+ *  `formatDate` output (no fabricated `00:00`), same as `formatTime`. */
+export function formatDateTime(value: string | number | Date | null | undefined): string {
+  const r = resolve(value);
+  switch (r.kind) {
+    case "empty":
+      return "";
+    case "invalid":
+      return r.original;
+    case "dateOnly":
+      return dateOnlyToDMY(r.d, r.m, r.y);
+    case "instant":
+      return `${instantToDMY(r.date)} ${instantToHM(r.date)}`;
+  }
+}
+
+/** `2026-06-15` -> `15/06`, for chart axes where the year would not fit. */
+export function formatDayMonth(value: string | number | Date | null | undefined): string {
+  const r = resolve(value);
+  switch (r.kind) {
+    case "empty":
+      return "";
+    case "invalid":
+      return r.original;
+    case "dateOnly":
+      return `${r.d}/${pad2(r.m)}`;
+    case "instant":
+      return `${pad2(r.date.getDate())}/${pad2(r.date.getMonth() + 1)}`;
+  }
 }
