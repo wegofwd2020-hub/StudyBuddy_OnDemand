@@ -127,18 +127,18 @@ describe("SCH-15 — Engagement report renders", () => {
     expect(screen.queryByText(ENGAGEMENT_STRINGS.inactiveStudents)).toBeNull();
   });
 
-  it("shows Units with zero activity card when dropout-risk units exist", () => {
+  it("shows Units with no activity card when dropout-risk units exist", () => {
     mockUseQueryHealth.mockReturnValue({
       data: MOCK_HEALTH_WITH_NO_ACTIVITY,
       isLoading: false,
     });
     render(<EngagementReportPage />);
-    expect(screen.getByText(ENGAGEMENT_STRINGS.zeroActivityCard)).toBeInTheDocument();
+    expect(screen.getByText(ENGAGEMENT_STRINGS.noActivityCard)).toBeInTheDocument();
   });
 
-  it("does NOT show Units with zero activity when none", () => {
+  it("does NOT show Units with no activity when none", () => {
     render(<EngagementReportPage />);
-    expect(screen.queryByText(ENGAGEMENT_STRINGS.zeroActivityCard)).toBeNull();
+    expect(screen.queryByText(ENGAGEMENT_STRINGS.noActivityCard)).toBeNull();
   });
 
   it("shows loading skeleton while fetching", () => {

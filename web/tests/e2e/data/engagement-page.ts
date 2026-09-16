@@ -85,6 +85,8 @@ export const ENGAGEMENT_STRINGS = {
   audioEngagement: "Audio engagement",
   // Inactive card
   inactiveStudents: "Inactive students",
-  // Zero activity units card
-  zeroActivityCard: "Units with zero activity",
+  // No-activity units card. The wording is "no activity" everywhere (#775);
+  // this card was the one holdout saying "zero activity", which made the same
+  // figure read as two different measures across reports.
+  noActivityCard: "Units with no activity",
 } as const;
