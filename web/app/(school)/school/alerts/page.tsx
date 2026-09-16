@@ -65,6 +65,17 @@ function daysInactiveOf(details: unknown): number | null {
   return typeof v === "number" ? v : null;
 }
 
+/** Whether this student has EVER opened anything (#755).
+ *
+ *  Absent on alerts raised before this shipped, and `null` is read as "not
+ *  known" rather than `false`: claiming an old alert's student definitely
+ *  started would be a worse answer than declining to say. */
+function neverActiveOf(details: unknown): boolean | null {
+  if (typeof details !== "object" || details === null) return null;
+  const v = (details as Record<string, unknown>).never_active;
+  return typeof v === "boolean" ? v : null;
+}
+
 function failedAttemptsOf(details: unknown): number | null {
   if (typeof details !== "object" || details === null) return null;
   const v = (details as Record<string, unknown>).failed_attempts;
@@ -151,7 +162,7 @@ export default function AlertsPage() {
                         Grade {alert.grade}
                       </span>
                     )}
-                    {/* "Open since", not a bare date. The evaluator re-checks
+                    {/* "Alert open since", not a bare date. The evaluator re-checks
                         every morning and deliberately does NOT touch
                         `triggered_at` on a repeat breach, so this value is when
                         the breach STARTED and the alert is still live today.
@@ -159,7 +170,7 @@ export default function AlertsPage() {
                         exactly how a tester read a still-breaching unit, and
                         why he asked why no alert had fired for it. */}
                     <span className="text-xs text-gray-400">
-                      Open since {formatDay(alert.triggered_at)}
+                      Alert open since {formatDay(alert.triggered_at)}
                     </span>
                   </div>
                   {/* The unit by NAME first. This used to dump every key of
@@ -194,10 +205,24 @@ export default function AlertsPage() {
                         {failedAttemptsOf(alert.details)} attempts, no pass
                       </span>
                     )}
+                    {/* #755. Two different spans used to sit side by side with
+                        nothing saying so: "Open since 10 Sep" is when the ALERT
+                        opened, and this is how long the STUDENT has been away.
+                        They rarely match — the alert fires only once a student
+                        crosses the threshold — and a reader trying to reconcile
+                        them concluded the arithmetic was broken. Both were
+                        right; neither said what it measured.
+
+                        A student who has NEVER started is also not a student
+                        who stopped. For them the count is days since ENROLMENT,
+                        which answers a different question and needs a different
+                        action: onboard, rather than re-engage. */}
                     {daysInactiveOf(alert.details) != null && (
                       <span>
                         {" · "}
-                        nothing opened in {daysInactiveOf(alert.details)} days
+                        {neverActiveOf(alert.details)
+                          ? `never opened anything — enrolled ${daysInactiveOf(alert.details)} days ago`
+                          : `last opened something ${daysInactiveOf(alert.details)} days ago`}
                       </span>
                     )}
                   </p>

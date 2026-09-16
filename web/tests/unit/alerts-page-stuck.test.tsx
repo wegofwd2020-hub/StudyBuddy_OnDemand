@@ -108,7 +108,7 @@ describe("student_stuck_on_unit in the Alert Inbox", () => {
     render(<AlertsPage />);
     // The evaluator deliberately does not touch `triggered_at` on a repeat, so a
     // bare date reads as old news — which is how the reporter read a live breach.
-    expect(screen.getByText(/Open since/)).toBeInTheDocument();
+    expect(screen.getByText(/Alert open since/)).toBeInTheDocument();
   });
 
   it("falls back to the raw id rather than rendering a blank line", () => {

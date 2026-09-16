@@ -114,12 +114,17 @@ describe("SCH-19 — Alerts list renders", () => {
     // STARTED and the alert is still live. Rendered as a bare date it reads as
     // old news: a tester looked at a unit still breaching today, saw a date
     // four weeks back, and asked why no alert had fired for it.
+    //
+    // "ALERT open since" since #755: the card also carries a day count about
+    // the STUDENT, and two unlabelled spans side by side read as one number
+    // contradicting the other. Naming what each measures is the fix; this
+    // assertion moved with it rather than being loosened.
     render(<AlertsPage />);
     const open = MOCK_ALERTS.alerts.filter((a) => !a.acknowledged);
     expect(open.length).toBeGreaterThan(0);
     for (const a of open) {
       expect(
-        screen.getByText(`Open since ${formatDay(a.triggered_at)}`),
+        screen.getByText(`Alert open since ${formatDay(a.triggered_at)}`),
       ).toBeInTheDocument();
     }
   });

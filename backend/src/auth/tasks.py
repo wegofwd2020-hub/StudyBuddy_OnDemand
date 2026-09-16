@@ -1338,6 +1338,9 @@ def evaluate_report_alerts_task() -> None:
                             school_id,
                             ir["student_id"],
                             int(ir["days_inactive"]),
+                            # #755: whether this student ever started, so the
+                            # alert can distinguish "lapsed" from "never began".
+                            never_active=bool(ir["never_active"]),
                         )
                         inactive_raised += 1
 
