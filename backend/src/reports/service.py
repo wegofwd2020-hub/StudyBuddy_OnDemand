@@ -1272,9 +1272,10 @@ async def get_curriculum_health(
     enrolled = await _enrolled_ids(conn, school_id, cohort_grades)
 
     # A stream selection narrows the COHORT, like a grade selection does, so the
-    # units, the counts and the tiers all move together. Filtering the unit rows
-    # instead would leave the headline counts describing the whole school while
-    # the table below showed one stream.
+    # pass rates and scores are measured over that stream's students. It narrows
+    # the unit rows as well, further down (#793), with the counts rebuilt from
+    # them — the cohort alone let a student who changed stream carry their
+    # earlier stream's units into this one.
     if stream is not None and streams_by_student:
         enrolled = [s for s in enrolled if stream in streams_by_student.get(s, set())]
 
@@ -1549,6 +1550,24 @@ async def get_curriculum_health(
             u["subject"] = display_subject(subject_labels, u["unit_id"], u["subject"])
             u["grade"] = unit_grades.get(u["unit_id"])
             u["stream"] = unit_streams.get(u["unit_id"], UNSTREAMED)
+
+    # A stream selection narrows the UNITS too, not only the cohort (#793).
+    #
+    # The cohort filter above picks students whose curricula are in the stream,
+    # but a student who CHANGED stream brings activity on their earlier
+    # curricula with them — on the demo, filtering ABC School to Commerce listed
+    # 14 STEM/Science units, all from one student moved off STEM on 11 Sep.
+    # Those rows are real and stay in the unfiltered view, labelled with their
+    # own stream; they are just not Commerce units.
+    #
+    # The counts are rebuilt from the surviving rows, so the headline still
+    # describes the table beneath it — the property the cohort-first design was
+    # protecting.
+    if stream is not None and streams_by_student:
+        units = [u for u in units if u["stream"] == stream]
+        counts = dict.fromkeys(counts, 0)
+        for u in units:
+            counts[u["health_tier"]] += 1
 
     # Feedback that names no unit, so a per-unit report structurally cannot show
     # it. Reported explicitly so the export and the dashboard tile can be
