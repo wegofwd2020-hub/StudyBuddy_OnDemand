@@ -293,22 +293,6 @@ class TrendsReport(BaseModel):
     weeks: list[TrendsWeek]
 
 
-# ── Export ────────────────────────────────────────────────────────────────────
-
-
-class ExportRequest(BaseModel):
-    report_type: str = Field(
-        ..., pattern="^(overview|unit|student|curriculum-health|feedback|trends)$"
-    )
-    filters: dict[str, Any] = {}
-
-
-class ExportResponse(BaseModel):
-    export_id: str
-    download_url: str
-    status: str  # queued | ready
-
-
 # ── Alerts ────────────────────────────────────────────────────────────────────
 
 

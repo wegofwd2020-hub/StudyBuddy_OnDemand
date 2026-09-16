@@ -339,26 +339,6 @@ export async function getFeedbackReport(
   return res.data;
 }
 
-// ── Export ────────────────────────────────────────────────────────────────────
-
-export interface ExportResponse {
-  export_id: string;
-  download_url: string;
-  status: "queued" | "ready";
-}
-
-export async function triggerExport(
-  schoolId: string,
-  reportType: ReportType,
-  filters: Record<string, unknown> = {},
-): Promise<ExportResponse> {
-  const res = await schoolApi.post<ExportResponse>(`/reports/school/${schoolId}/export`, {
-    report_type: reportType,
-    filters,
-  });
-  return res.data;
-}
-
 // ── Alerts ────────────────────────────────────────────────────────────────────
 
 export interface AlertItem {

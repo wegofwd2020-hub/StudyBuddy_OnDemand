@@ -4829,66 +4829,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/reports/school/{school_id}/export": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Export Report
-         * @description Queue a CSV export task. Returns export_id and download URL.
-         *
-         *     Scoped to the caller's grades (#576), like every other report on this
-         *     router. It was not: `_check_school` alone let a teacher assigned to one
-         *     grade export the WHOLE school's roster — names, emails, grades and scores —
-         *     which is a set of educational records outside their assigned scope (FERPA).
-         *     The rule is the same one `_grade_filter` applies everywhere else, and the
-         *     export was simply never given it.
-         */
-        post: operations["export_report_api_v1_reports_school__school_id__export_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/reports/download/{export_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Download Export
-         * @description Serve a completed CSV export file, and only to the school that made it.
-         *
-         *     This handler had NO ownership check of any kind — it took an export_id,
-         *     confirmed a file existed, and served it to any authenticated teacher. The id
-         *     is an unguessable UUID, so it was not trivially exploitable, but nothing
-         *     stopped one that leaked (a shared link, a log line, browser history) from
-         *     handing another school its roster. `_check_school` appears on every other
-         *     endpoint in this file and was missing from the one that returns a file.
-         *
-         *     The check is STRUCTURAL rather than a comparison: exports are written under
-         *     `exports/{school_id}/`, and this reads from the caller's OWN directory. A
-         *     path built from the caller's token cannot address another school's file, so
-         *     there is no comparison to forget on a later edit. `export_id` is still
-         *     validated as a UUID so it can never contribute a `..` path segment.
-         */
-        get: operations["download_export_api_v1_reports_download__export_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/reports/school/{school_id}/at-risk": {
         parameters: {
             query?: never;
@@ -8002,27 +7942,6 @@ export interface components {
             instruction: string;
             /** Expected Observation */
             expected_observation: string;
-        };
-        /** ExportRequest */
-        ExportRequest: {
-            /** Report Type */
-            report_type: string;
-            /**
-             * Filters
-             * @default {}
-             */
-            filters: {
-                [key: string]: unknown;
-            };
-        };
-        /** ExportResponse */
-        ExportResponse: {
-            /** Export Id */
-            export_id: string;
-            /** Download Url */
-            download_url: string;
-            /** Status */
-            status: string;
         };
         /** ExtendInput */
         ExtendInput: {
@@ -18987,72 +18906,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TrendsReport"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    export_report_api_v1_reports_school__school_id__export_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                school_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ExportRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ExportResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    download_export_api_v1_reports_download__export_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                export_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */
