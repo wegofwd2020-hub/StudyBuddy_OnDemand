@@ -3,7 +3,12 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTeacher } from "@/lib/hooks/useTeacher";
-import { getOverviewReport, type ReportPeriod } from "@/lib/api/reports";
+import {
+  getOverviewReport,
+  type ReportPeriod,
+  type OverviewUnitRef,
+} from "@/lib/api/reports";
+import { groupByGradeThenSubject } from "@/lib/reports/grouping";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -15,17 +20,60 @@ const PERIODS: { value: ReportPeriod; label: string }[] = [
   { value: "term", label: "This term" },
 ];
 
+/** Units grouped by Grade, then subject (#773).
+ *
+ * Same shape as the Engagement report's card, via the same shared helper —
+ * the issue asks for "display format similar to Reports->Engagement->Units with
+ * zero activity", and two hand-rolled copies would drift apart invisibly. */
+function GroupedUnits({
+  units,
+  badgeClass,
+}: {
+  units: OverviewUnitRef[];
+  badgeClass: string;
+}) {
+  return (
+    <div className="space-y-3">
+      {groupByGradeThenSubject(units).map(([gradeLabel, subjects]) => (
+        <div key={gradeLabel} className="space-y-1.5">
+          <h3 className="text-xs font-semibold tracking-wide text-gray-500 uppercase">
+            {gradeLabel}
+          </h3>
+          {subjects.map(([subjectName, rows]) => (
+            <div key={subjectName} className="flex flex-wrap items-baseline gap-1.5">
+              <span className="text-xs text-gray-400">{subjectName}</span>
+              {rows.map((u) => (
+                <Badge key={u.unit_id} className={badgeClass} title={u.unit_id}>
+                  {u.unit_name}
+                </Badge>
+              ))}
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function OverviewReportPage() {
   const teacher = useTeacher();
   const schoolId = teacher?.school_id ?? "";
   const [period, setPeriod] = useState<ReportPeriod>("7d");
+  // #773. Grade narrows the whole cohort; subject narrows only the two unit
+  // lists — a subject is a property of a unit, not of a student.
+  const [grade, setGrade] = useState<number | null>(null);
+  const [subject, setSubject] = useState<string | null>(null);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["report-overview", schoolId, period],
-    queryFn: () => getOverviewReport(schoolId, period),
+    queryKey: ["report-overview", schoolId, period, grade, subject],
+    queryFn: () => getOverviewReport(schoolId, period, grade, subject),
     enabled: !!schoolId,
     staleTime: 120_000,
   });
+
+  // From the server's scope, never from the rows on screen.
+  const availableGrades = data?.available_grades ?? [];
+  const availableSubjects = data?.available_subjects ?? [];
 
   return (
     <div className="max-w-4xl space-y-6 p-6">
@@ -48,6 +96,71 @@ export default function OverviewReportPage() {
           ))}
         </div>
       </div>
+
+      {/* Grade / Subject filters (#773). Each rendered only where there is a
+          choice to make — a school with one grade gets no control rather than
+          one that cannot change anything. */}
+      {(availableGrades.length > 1 || availableSubjects.length > 1) && (
+        <div className="flex flex-wrap items-center gap-4">
+          {availableGrades.length > 1 && (
+            <div
+              role="radiogroup"
+              aria-label="Filter by grade"
+              className="flex flex-wrap items-center gap-2"
+            >
+              <span className="text-xs text-gray-500">Grade</span>
+              {[null, ...availableGrades].map((g) => (
+                <button
+                  key={g ?? "all"}
+                  type="button"
+                  role="radio"
+                  aria-checked={grade === g}
+                  onClick={() => setGrade(g)}
+                  className={cn(
+                    "rounded-full px-3 py-1 text-xs font-medium",
+                    grade === g
+                      ? "bg-gray-900 text-white"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200",
+                  )}
+                >
+                  {g === null ? "All grades" : `Grade ${g}`}
+                </button>
+              ))}
+            </div>
+          )}
+          {availableSubjects.length > 1 && (
+            <div
+              role="radiogroup"
+              aria-label="Filter by subject"
+              className="flex flex-wrap items-center gap-2"
+            >
+              <span className="text-xs text-gray-500">Subject</span>
+              {[null, ...availableSubjects].map((sub) => (
+                <button
+                  key={sub ?? "all"}
+                  type="button"
+                  role="radio"
+                  aria-checked={subject === sub}
+                  onClick={() => setSubject(sub)}
+                  className={cn(
+                    "rounded-full px-3 py-1 text-xs font-medium",
+                    subject === sub
+                      ? "bg-gray-900 text-white"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200",
+                  )}
+                >
+                  {sub ?? "All subjects"}
+                </button>
+              ))}
+            </div>
+          )}
+          {subject !== null && (
+            <span className="text-xs text-gray-400">
+              subject filters the unit lists only
+            </span>
+          )}
+        </div>
+      )}
       {isLoading && <Skeleton className="h-60 rounded-lg" />}
       {data && (
         <>
@@ -112,16 +225,10 @@ export default function OverviewReportPage() {
                 {!data.units_with_struggles?.length ? (
                   <p className="text-xs text-gray-400">None — all units healthy.</p>
                 ) : (
-                  <div className="flex flex-wrap gap-1.5">
-                    {data.units_with_struggles.map((u) => (
-                      <Badge
-                        key={u}
-                        className="border-orange-200 bg-orange-50 text-xs text-orange-700"
-                      >
-                        {u}
-                      </Badge>
-                    ))}
-                  </div>
+                  <GroupedUnits
+                    units={data.units_with_struggles}
+                    badgeClass="border-orange-200 bg-orange-50 text-xs text-orange-700"
+                  />
                 )}
               </CardContent>
             </Card>
@@ -135,16 +242,10 @@ export default function OverviewReportPage() {
                 {!data.units_no_activity?.length ? (
                   <p className="text-xs text-gray-400">All units have activity.</p>
                 ) : (
-                  <div className="flex flex-wrap gap-1.5">
-                    {data.units_no_activity.map((u) => (
-                      <Badge
-                        key={u}
-                        className="border-gray-200 bg-gray-100 text-xs text-gray-500"
-                      >
-                        {u}
-                      </Badge>
-                    ))}
-                  </div>
+                  <GroupedUnits
+                    units={data.units_no_activity}
+                    badgeClass="border-gray-200 bg-gray-100 text-xs text-gray-500"
+                  />
                 )}
               </CardContent>
             </Card>

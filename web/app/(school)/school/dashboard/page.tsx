@@ -470,12 +470,16 @@ export default function SchoolDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2">
-                  {overview.units_with_struggles.map((uid) => (
+                  {/* Objects since #773 — show the NAME and keep the id in the
+                      tooltip. This tile previously rendered "G8-MATH-002",
+                      which a teacher had to decode before it meant anything. */}
+                  {overview.units_with_struggles.map((u) => (
                     <Badge
-                      key={uid}
+                      key={u.unit_id}
+                      title={u.unit_id}
                       className="border-orange-200 bg-orange-50 text-orange-700"
                     >
-                      {uid}
+                      {u.unit_name}
                     </Badge>
                   ))}
                 </div>

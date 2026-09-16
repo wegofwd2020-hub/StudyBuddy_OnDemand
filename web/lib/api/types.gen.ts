@@ -4687,7 +4687,15 @@ export interface paths {
         };
         /**
          * Overview Report
-         * @description Class overview summary for the selected period.
+         * @description Class overview summary for the selected period, optionally narrowed.
+         *
+         *     `?grade=` is a filter WITHIN the caller's entitlement and is refused, not
+         *     ignored, when it names a grade they do not teach — the same rule and the
+         *     same 403 as every other report here.
+         *
+         *     `?subject=` needs no such check: it narrows the unit LISTS within a cohort
+         *     that is already scoped, so a subject the caller cannot see contributes no
+         *     units and is not offered in `available_subjects`.
          */
         get: operations["overview_report_api_v1_reports_school__school_id__overview_get"];
         put?: never;
@@ -8612,11 +8620,44 @@ export interface components {
             /** Audio Play Rate Pct */
             audio_play_rate_pct: number;
             /** Units With Struggles */
-            units_with_struggles: string[];
+            units_with_struggles: components["schemas"]["OverviewUnitRef"][];
             /** Units No Activity */
-            units_no_activity: string[];
+            units_no_activity: components["schemas"]["OverviewUnitRef"][];
             /** Unreviewed Feedback Count */
             unreviewed_feedback_count: number;
+            /**
+             * Available Grades
+             * @default []
+             */
+            available_grades: number[];
+            /** Selected Grade */
+            selected_grade?: number | null;
+            /**
+             * Available Subjects
+             * @default []
+             */
+            available_subjects: string[];
+            /** Selected Subject */
+            selected_subject?: string | null;
+        };
+        /**
+         * OverviewUnitRef
+         * @description A unit named well enough to be read, grouped and acted on (#773).
+         *
+         *     `unit_name` falls back to the unit_id when the unit has no
+         *     `curriculum_units` row, and `grade` is None for the same case. Such a unit
+         *     is still a real coverage gap, so it is reported rather than dropped —
+         *     shortening the list would understate exactly what the card measures.
+         */
+        OverviewUnitRef: {
+            /** Unit Id */
+            unit_id: string;
+            /** Unit Name */
+            unit_name: string;
+            /** Subject */
+            subject: string;
+            /** Grade */
+            grade?: number | null;
         };
         /** PerUnitClassMetric */
         PerUnitClassMetric: {
@@ -18750,6 +18791,8 @@ export interface operations {
         parameters: {
             query?: {
                 period?: string;
+                grade?: number | null;
+                subject?: string | null;
             };
             header?: never;
             path: {

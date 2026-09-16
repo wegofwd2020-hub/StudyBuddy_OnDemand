@@ -52,6 +52,21 @@ class ReportScope(BaseModel):
     grades: list[int] = []
 
 
+class OverviewUnitRef(BaseModel):
+    """A unit named well enough to be read, grouped and acted on (#773).
+
+    `unit_name` falls back to the unit_id when the unit has no
+    `curriculum_units` row, and `grade` is None for the same case. Such a unit
+    is still a real coverage gap, so it is reported rather than dropped —
+    shortening the list would understate exactly what the card measures.
+    """
+
+    unit_id: str
+    unit_name: str
+    subject: str
+    grade: int | None = None
+
+
 class OverviewReport(BaseModel):
     school_id: str
     period: str
@@ -63,9 +78,20 @@ class OverviewReport(BaseModel):
     quiz_attempts: int
     first_attempt_pass_rate_pct: float
     audio_play_rate_pct: float
-    units_with_struggles: list[str]
-    units_no_activity: list[str]
+    # Objects, not bare ids, since #773. These were `list[str]` of raw unit_ids
+    # ("G8-MATH-002"), which put a code on screen for a teacher to decode and
+    # made grouping by grade not merely unimplemented but INEXPRESSIBLE — the
+    # rows carried no grade to group on.
+    units_with_struggles: list[OverviewUnitRef]
+    units_no_activity: list[OverviewUnitRef]
     unreviewed_feedback_count: int
+    # Grades the caller MAY select (permission scope) and subjects this cohort
+    # actually has, both independent of the current selection — a picker fed
+    # from its own filtered result collapses to one option on first use.
+    available_grades: list[int] = []
+    selected_grade: int | None = None
+    available_subjects: list[str] = []
+    selected_subject: str | None = None
 
 
 # ── Report 2: Unit Performance ────────────────────────────────────────────────

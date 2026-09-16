@@ -12536,7 +12536,7 @@
           "reports"
         ],
         "summary": "Overview Report",
-        "description": "Class overview summary for the selected period.",
+        "description": "Class overview summary for the selected period, optionally narrowed.\n\n`?grade=` is a filter WITHIN the caller's entitlement and is refused, not\nignored, when it names a grade they do not teach \u2014 the same rule and the\nsame 403 as every other report here.\n\n`?subject=` needs no such check: it narrows the unit LISTS within a cohort\nthat is already scoped, so a subject the caller cannot see contributes no\nunits and is not offered in `available_subjects`.",
         "operationId": "overview_report_api_v1_reports_school__school_id__overview_get",
         "security": [
           {
@@ -12562,6 +12562,39 @@
               "pattern": "^(7d|30d|term)$",
               "default": "7d",
               "title": "Period"
+            }
+          },
+          {
+            "name": "grade",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Grade"
+            }
+          },
+          {
+            "name": "subject",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Subject"
             }
           }
         ],
@@ -22731,14 +22764,14 @@
           },
           "units_with_struggles": {
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/OverviewUnitRef"
             },
             "type": "array",
             "title": "Units With Struggles"
           },
           "units_no_activity": {
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/OverviewUnitRef"
             },
             "type": "array",
             "title": "Units No Activity"
@@ -22746,6 +22779,44 @@
           "unreviewed_feedback_count": {
             "type": "integer",
             "title": "Unreviewed Feedback Count"
+          },
+          "available_grades": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Available Grades",
+            "default": []
+          },
+          "selected_grade": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Grade"
+          },
+          "available_subjects": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Available Subjects",
+            "default": []
+          },
+          "selected_subject": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Subject"
           }
         },
         "type": "object",
@@ -22765,6 +22836,41 @@
           "unreviewed_feedback_count"
         ],
         "title": "OverviewReport"
+      },
+      "OverviewUnitRef": {
+        "properties": {
+          "unit_id": {
+            "type": "string",
+            "title": "Unit Id"
+          },
+          "unit_name": {
+            "type": "string",
+            "title": "Unit Name"
+          },
+          "subject": {
+            "type": "string",
+            "title": "Subject"
+          },
+          "grade": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grade"
+          }
+        },
+        "type": "object",
+        "required": [
+          "unit_id",
+          "unit_name",
+          "subject"
+        ],
+        "title": "OverviewUnitRef",
+        "description": "A unit named well enough to be read, grouped and acted on (#773).\n\n`unit_name` falls back to the unit_id when the unit has no\n`curriculum_units` row, and `grade` is None for the same case. Such a unit\nis still a real coverage gap, so it is reported rather than dropped \u2014\nshortening the list would understate exactly what the card measures."
       },
       "PerUnitClassMetric": {
         "properties": {

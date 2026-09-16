@@ -388,6 +388,62 @@ async def _grades_by_unit(conn: asyncpg.Connection, unit_ids: Iterable[str]) -> 
     return {r["unit_id"]: r["grade"] for r in rows}
 
 
+async def _unit_refs(conn: asyncpg.Connection, unit_ids: Iterable[str]) -> list[dict]:
+    """Turn bare unit ids into rows a reader can group and act on (#773).
+
+    The overview reported `units_with_struggles` and `units_no_activity` as
+    lists of raw ids -- "G8-MATH-002" -- so the screen showed a teacher a code
+    to decode, and nothing on the row said which grade or subject it belonged
+    to. Grouping by grade was not merely unimplemented; it was not expressible.
+
+    Subject goes through `resolve_subject_labels` / `display_subject`, the same
+    path the other two reports use, because `curriculum_units.subject` holds a
+    CODE for every stream curriculum (pitfall #32) and one column speaking two
+    vocabularies is exactly what #755's predecessor complained about.
+
+    An id with no `curriculum_units` row keeps its id as the name and reports
+    `grade: None` rather than being dropped: an unresolvable unit is still a
+    real coverage gap, and silently shortening the list would understate it.
+
+    Sorted by (grade, subject, unit_id) so the caller's grouping starts from a
+    deterministic order rather than whatever the planner returned -- the same
+    reason `get_student_dashboard`'s "up next" had to be ordered (#733).
+    """
+    ids = [u for u in dict.fromkeys(unit_ids) if u]
+    if not ids:
+        return []
+
+    rows = await conn.fetch(
+        """
+        SELECT DISTINCT ON (cu.unit_id)
+               cu.unit_id, cu.unit_name, cu.subject, c.grade
+        FROM curriculum_units cu
+        JOIN curricula c ON c.curriculum_id = cu.curriculum_id
+        WHERE cu.unit_id = ANY($1::text[])
+        ORDER BY cu.unit_id, c.grade
+        """,
+        ids,
+    )
+    by_id = {r["unit_id"]: r for r in rows}
+    labels = await resolve_subject_labels(conn, ids)
+
+    out: list[dict] = []
+    for unit_id in ids:
+        row = by_id.get(unit_id)
+        out.append(
+            {
+                "unit_id": unit_id,
+                "unit_name": (row["unit_name"] if row else None) or unit_id,
+                "subject": display_subject(labels, unit_id, row["subject"] if row else ""),
+                "grade": row["grade"] if row else None,
+            }
+        )
+    # None grade sorts last: an unresolvable unit belongs in "Other", after every
+    # real grade, not before Grade 5.
+    out.sort(key=lambda u: (u["grade"] is None, u["grade"] or 0, u["subject"], u["unit_id"]))
+    return out
+
+
 def _health_tier(pass_rate: float, avg_attempts: float, has_activity: bool) -> str:
     if not has_activity:
         return "no_activity"
@@ -417,15 +473,31 @@ async def get_overview(
     allowed_grades: list[int] | None = None,
     pool=None,
     redis=None,
+    grade: int | None = None,
+    subject: str | None = None,
 ) -> dict:
     """Single-screen class summary for the selected period.
 
     `allowed_grades` limits the cohort to the caller's assigned grades
     (#576); None means unrestricted (school_admin / internal caller).
+
+    `grade` / `subject` are the reader's own choice WITHIN that entitlement
+    (#773), both defaulting to everything.
+
+    They act at different levels and that is deliberate:
+
+      * `grade` narrows the COHORT, so every figure on the screen moves with it
+        — the same rule as `get_curriculum_health`, and the reason it is passed
+        as a one-element `allowed_grades` rather than applied afterwards.
+      * `subject` narrows only the two UNIT LISTS. A subject is a property of a
+        unit, not of a student, so "Commerce" cannot mean a different set of
+        enrolled students or a different pass rate; applying it to the headline
+        tiles would invent a figure the data cannot support.
     """
     start = _period_start(period)
+    cohort_grades = [grade] if grade is not None else allowed_grades
 
-    enrolled = await _enrolled_ids(conn, school_id, allowed_grades)
+    enrolled = await _enrolled_ids(conn, school_id, cohort_grades)
     n_enrolled = len(enrolled)
 
     if not enrolled:
@@ -442,6 +514,12 @@ async def get_overview(
             "units_with_struggles": [],
             "units_no_activity": [],
             "unreviewed_feedback_count": 0,
+            # Carried even here, or a selection matching nobody is a dead end
+            # the reader cannot leave without reloading the page.
+            "available_grades": await _cohort_grades(conn, school_id, allowed_grades),
+            "selected_grade": grade,
+            "available_subjects": [],
+            "selected_subject": subject,
         }
 
     id_uuids = [uuid.UUID(s) for s in enrolled]
@@ -553,7 +631,7 @@ async def get_overview(
         start,
         *id_uuids,
     )
-    units_with_struggles = [
+    struggle_ids = [
         r["unit_id"]
         for r in struggle_rows
         if (
@@ -582,11 +660,33 @@ async def get_overview(
     )
     touched_units = {r["unit_id"] for r in touched_rows}
     catalog = (
-        await cohort_unit_ids(conn, pool, redis, school_id, allowed_grades)
+        # `cohort_grades`, not `allowed_grades`: the catalog narrows WITH the
+        # cohort, or filtering to one grade lists every other grade's units as
+        # untouched and the filter manufactures coverage gaps (#773).
+        await cohort_unit_ids(conn, pool, redis, school_id, cohort_grades)
         if pool is not None and redis is not None
         else set()
     )
-    units_no_activity = sorted(catalog - touched_units)
+    no_activity_ids = sorted(catalog - touched_units)
+
+    # Decorate both lists with name / subject / grade so the screen can GROUP
+    # them (#773) and a teacher reads "Fractions and Decimals — Mathematics"
+    # instead of "G8-MATH-002". One call per list, after both are final.
+    units_with_struggles = await _unit_refs(conn, struggle_ids)
+    units_no_activity = await _unit_refs(conn, no_activity_ids)
+
+    # Subject options come from the units this cohort actually has, BEFORE the
+    # subject filter is applied — a picker populated from its own filtered
+    # result collapses to the one option chosen and cannot be widened again.
+    available_subjects = sorted(
+        {u["subject"] for u in (*units_with_struggles, *units_no_activity) if u["subject"]}
+    )
+
+    # Subject narrows the two unit lists only; see the docstring for why it
+    # cannot touch the headline tiles.
+    if subject is not None:
+        units_with_struggles = [u for u in units_with_struggles if u["subject"] == subject]
+        units_no_activity = [u for u in units_no_activity if u["subject"] == subject]
 
     # Unreviewed feedback from enrolled students (no $1=start param here)
     fb_placeholders = ", ".join(f"${i + 1}" for i in range(len(id_uuids)))
@@ -612,6 +712,14 @@ async def get_overview(
         "units_with_struggles": units_with_struggles,
         "units_no_activity": units_no_activity,
         "unreviewed_feedback_count": unreviewed,
+        # Picker options describe the PERMISSION scope (grades) and the cohort's
+        # real catalog (subjects); the selections are echoed so the client
+        # renders its controls from the server's answer rather than its own
+        # request, which can be in flight or rejected.
+        "available_grades": await _cohort_grades(conn, school_id, allowed_grades),
+        "selected_grade": grade,
+        "available_subjects": available_subjects,
+        "selected_subject": subject,
     }
 
 

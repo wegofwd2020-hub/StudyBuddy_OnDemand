@@ -38,7 +38,15 @@ export const MOCK_OVERVIEW: OverviewReport = {
   quiz_attempts: 210,
   first_attempt_pass_rate_pct: 72.0,
   audio_play_rate_pct: 45.0,
-  units_with_struggles: ["G8-MATH-002", "G8-SCI-003"],
+  units_with_struggles: [
+    {
+      unit_id: "G8-MATH-002",
+      unit_name: "G8 Math 002",
+      subject: "Mathematics",
+      grade: 8,
+    },
+    { unit_id: "G8-SCI-003", unit_name: "G8 Sci 003", subject: "Science", grade: 8 },
+  ],
   units_no_activity: [],
   unreviewed_feedback_count: 3,
 };

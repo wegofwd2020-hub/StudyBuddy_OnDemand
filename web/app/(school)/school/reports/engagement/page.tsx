@@ -3,50 +3,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { useTeacher } from "@/lib/hooks/useTeacher";
 import { getOverviewReport, getCurriculumHealth } from "@/lib/api/reports";
-import type { CurriculumHealthUnit } from "@/lib/api/reports";
+import { groupByGradeThenSubject } from "@/lib/reports/grouping";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { TrendingDown, Users, AlertTriangle } from "lucide-react";
-
-/** Group units by Grade, then by subject within each grade (#776).
- *
- * Returns entries rather than a plain object so the ORDER is the one asserted
- * here and not V8's key-insertion behaviour: numeric-looking object keys are
- * iterated in ascending numeric order, which would silently reorder the moment
- * the "Other" bucket (a non-numeric key) joined them.
- *
- * Units with no resolvable grade go last under "Other", never dropped — a unit
- * nobody has opened is exactly what this card exists to surface, so hiding the
- * ones whose grade could not be resolved would defeat it.
- */
-function groupByGradeThenSubject(
-  units: CurriculumHealthUnit[],
-): [string, [string, CurriculumHealthUnit[]][]][] {
-  const byGrade = new Map<number | null, CurriculumHealthUnit[]>();
-  for (const u of units) {
-    const g = u.grade ?? null;
-    byGrade.set(g, [...(byGrade.get(g) ?? []), u]);
-  }
-
-  const grades = [...byGrade.keys()].sort((a, b) => {
-    if (a === null) return 1; // "Other" last
-    if (b === null) return -1;
-    return a - b;
-  });
-
-  return grades.map((g) => {
-    const bySubject = new Map<string, CurriculumHealthUnit[]>();
-    for (const u of byGrade.get(g) ?? []) {
-      bySubject.set(u.subject, [...(bySubject.get(u.subject) ?? []), u]);
-    }
-    const subjects = [...bySubject.entries()].sort(([a], [b]) => a.localeCompare(b));
-    return [g === null ? "Other" : `Grade ${g}`, subjects] as [
-      string,
-      [string, CurriculumHealthUnit[]][],
-    ];
-  });
-}
 
 export default function EngagementReportPage() {
   const teacher = useTeacher();

@@ -58,7 +58,14 @@ async function stubTeacherApis(page: Page) {
         quiz_attempts: 67,
         first_attempt_pass_rate_pct: 71.6,
         unreviewed_feedback_count: 3,
-        units_with_struggles: ["G8-MATH-003"],
+        units_with_struggles: [
+          {
+            unit_id: "G8-MATH-003",
+            unit_name: "G8 Math 003",
+            subject: "Mathematics",
+            grade: 8,
+          },
+        ],
         period: "7d",
       },
     }),
