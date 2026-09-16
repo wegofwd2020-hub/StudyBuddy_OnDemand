@@ -634,6 +634,14 @@ async def publish(
             continue
         path = f"curricula/{curriculum_id}/{a['unit_id']}/{stem}_{a['lang']}.json"
         body = _coerce_json(a["body"]) or {}
+        if a["content_type"].startswith("quiz_set_"):
+            # #779: published versions may predate the balance step (or a topic
+            # accepted before this shipped), and publish/re-publish is allowed —
+            # without this, re-publishing would restore the skewed order.
+            ensure_pipeline_path()
+            from pipeline.quiz_options import balance_options
+
+            body = balance_options(body, unit_id=a["unit_id"], lang=a["lang"])
         await storage.write(path, json.dumps(body, ensure_ascii=False).encode("utf-8"))
 
     # content_subject_versions per distinct subject (status published).
