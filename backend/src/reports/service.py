@@ -1441,11 +1441,22 @@ async def trigger_export(
     school_id: str,
     report_type: str,
     filters: dict,
+    allowed_grades: list[int] | None = None,
 ) -> dict:
     """
     Dispatch a CSV export Celery task and return {export_id, download_url}.
 
-    The Celery task writes the CSV to CONTENT_STORE_PATH/exports/{export_id}.csv.
+    The Celery task writes the CSV to
+    CONTENT_STORE_PATH/exports/{school_id}/{export_id}.csv. The school segment
+    is what makes the download endpoint's ownership check structural rather
+    than a comparison someone can forget.
+
+    `allowed_grades` carries the caller's #576 entitlement through to the query.
+    It is resolved in the ROUTER, from the caller's token, and never taken from
+    the request body -- a client-supplied scope is not a scope. `None` means
+    unrestricted (school_admin); the EMPTY list means a teacher with no grade
+    assignments, whose export must contain nobody rather than everybody, so the
+    two can never be collapsed.
     """
     from src.core.celery_app import celery_app
 
@@ -1457,6 +1468,7 @@ async def trigger_export(
             "school_id": school_id,
             "report_type": report_type,
             "filters": filters,
+            "allowed_grades": allowed_grades,
         },
         queue="io",
     )

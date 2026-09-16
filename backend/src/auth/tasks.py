@@ -1518,12 +1518,29 @@ def export_report_task(
     school_id: str,
     report_type: str,
     filters: dict,
+    allowed_grades: list[int] | None = None,
 ) -> None:
     """
-    Generate a CSV export and write to CONTENT_STORE_PATH/exports/{export_id}.csv.
+    Generate a CSV export and write to
+    CONTENT_STORE_PATH/exports/{school_id}/{export_id}.csv.
 
-    Triggered by POST /reports/school/{school_id}/export. The download
-    endpoint serves the file once it exists.
+    Triggered by POST /reports/school/{school_id}/export. The download endpoint
+    reads from the CALLER's school directory, so the path segment is what keeps
+    one school's export unreachable from another's session.
+
+    `allowed_grades` is the caller's #576 entitlement, resolved in the router
+    from their token. Without it this query returned every active student in the
+    school to any teacher who asked -- names, emails, grades and scores, i.e.
+    educational records outside the caller's assigned grades.
+
+    `None` means unrestricted (school_admin). An EMPTY list means a teacher with
+    no grade assignments: their export must contain nobody. The `$2 IS NULL`
+    form below distinguishes the two; collapsing them would turn "sees nothing"
+    into "sees everything", which is the failure this is fixing.
+
+    Ordered by grade then name so the file is readable as-is, and so a later
+    Grade/Stream grouping (#772) starts from a deterministic order rather than
+    whatever the planner returned.
     """
     import csv as _csv
     import os as _os
@@ -1544,15 +1561,19 @@ def export_report_task(
                     JOIN students s ON s.student_id = se.student_id
                     LEFT JOIN progress_sessions ps ON ps.student_id = se.student_id
                     WHERE se.school_id = $1 AND se.status = 'active'
+                      AND ($2::smallint[] IS NULL OR se.grade = ANY($2::smallint[]))
                     GROUP BY s.name, s.grade, s.email
-                    ORDER BY s.name
+                    ORDER BY s.grade, s.name
                     """,
                     uuid.UUID(school_id),
+                    allowed_grades,
                 )
         finally:
             await pool.close()
 
-        export_dir = _os.path.join(settings.CONTENT_STORE_PATH, "exports")
+        # Per-school directory: see the docstring. `school_id` reaches here from
+        # the validated URL path, never from the request body.
+        export_dir = _os.path.join(settings.CONTENT_STORE_PATH, "exports", str(school_id))
         _os.makedirs(export_dir, exist_ok=True)
         export_path = _os.path.join(export_dir, f"{export_id}.csv")
 
