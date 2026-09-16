@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatDate } from "@/lib/utils/date";
 import { StatusBadge } from "@/components/authoring/StatusBadge";
 import {
   listProjects,
@@ -101,9 +102,7 @@ export default function AuthoringListPage() {
                     <StatusBadge status={p.status} />
                   </td>
                   <td className="px-4 py-3 text-gray-600">{p.visibility}</td>
-                  <td className="px-4 py-3 text-gray-500">
-                    {new Date(p.updated_at).toLocaleDateString()}
-                  </td>
+                  <td className="px-4 py-3 text-gray-500">{formatDate(p.updated_at)}</td>
                 </tr>
               ))}
             </tbody>

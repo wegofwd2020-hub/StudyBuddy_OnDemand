@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BookOpen, ChevronRight, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatDate } from "@/lib/utils/date";
 
 const STATUS_STYLE: Record<string, string> = {
   approved: "bg-green-50 text-green-700 border-green-200",
@@ -316,8 +317,7 @@ function SubjectRow({
         </div>
         <p className="mt-0.5 text-xs text-gray-500">
           Latest v{item.version_number} · {item.unit_count} unit
-          {item.unit_count !== 1 ? "s" : ""} · Generated{" "}
-          {new Date(item.generated_at).toLocaleDateString()}
+          {item.unit_count !== 1 ? "s" : ""} · Generated {formatDate(item.generated_at)}
         </p>
       </div>
       <ChevronRight className="ml-3 h-4 w-4 shrink-0 text-gray-400" />

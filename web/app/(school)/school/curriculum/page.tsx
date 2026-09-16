@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { IS_DEMO_MODE } from "@/lib/demo-mode";
+import { formatDate } from "@/lib/utils/date";
 import { PendingSubscriptionBanner } from "@/components/demo/PendingSubscriptionBanner";
 
 type UploadState = "idle" | "uploading" | "success" | "error";
@@ -55,10 +56,7 @@ function QuotaIndicator({ schoolId }: { schoolId: string }) {
   const pct = total > 0 ? Math.min((used / total) * 100, 100) : 0;
   const isWarning = pct >= 80;
   const isExhausted = used >= total;
-  const resetDate = new Date(data.pipeline_resets_at).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-  });
+  const resetDate = formatDate(data.pipeline_resets_at);
 
   return (
     <div

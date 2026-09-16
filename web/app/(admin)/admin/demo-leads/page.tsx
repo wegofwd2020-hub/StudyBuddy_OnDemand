@@ -29,6 +29,7 @@ import {
   Copy,
   Check,
 } from "lucide-react";
+import { formatDate, formatDateTime } from "@/lib/utils/date";
 
 type StatusFilter = "all" | "pending" | "approved" | "rejected";
 
@@ -120,11 +121,7 @@ function ApprovePanel({ lead, onDone }: { lead: DemoLeadItem; onDone: () => void
           </div>
         ))}
         <p className="mt-2 text-xs text-gray-400">
-          Expires:{" "}
-          {new Date(result.token_expires_at).toLocaleString(undefined, {
-            dateStyle: "medium",
-            timeStyle: "short",
-          })}
+          Expires: {formatDateTime(result.token_expires_at)}
         </p>
         <button onClick={onDone} className="mt-3 text-xs text-gray-500 hover:underline">
           Close
@@ -236,7 +233,7 @@ function LeadRow({ lead }: { lead: DemoLeadItem }) {
         </div>
         <StatusBadge status={lead.status} />
         <span className="shrink-0 text-xs text-gray-400">
-          {new Date(lead.created_at).toLocaleDateString()}
+          {formatDate(lead.created_at)}
         </span>
         <button
           onClick={() => setExpanded((v) => !v)}
@@ -254,11 +251,7 @@ function LeadRow({ lead }: { lead: DemoLeadItem }) {
         <div className="border-t bg-gray-50 px-4 py-3">
           {lead.status === "approved" && lead.token_expires_at && (
             <p className="mb-2 text-xs text-gray-500">
-              Token expires:{" "}
-              {new Date(lead.token_expires_at).toLocaleString(undefined, {
-                dateStyle: "medium",
-                timeStyle: "short",
-              })}
+              Token expires: {formatDateTime(lead.token_expires_at)}
             </p>
           )}
           {lead.status === "rejected" && lead.rejected_reason && (

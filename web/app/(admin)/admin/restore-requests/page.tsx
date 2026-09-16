@@ -12,6 +12,7 @@ import {
   cancelRestoreRequest,
 } from "@/lib/api/backup";
 import { describeSchedule } from "@/lib/school/restore-schedule";
+import { formatDateTime } from "@/lib/utils/date";
 
 const STATUS_STYLES: Record<string, string> = {
   submitted: "bg-yellow-100 text-yellow-700",
@@ -25,7 +26,7 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 function fmtDate(s: string): string {
-  return new Date(s).toLocaleString();
+  return formatDateTime(s);
 }
 
 export default function RestoreRequestsPage() {

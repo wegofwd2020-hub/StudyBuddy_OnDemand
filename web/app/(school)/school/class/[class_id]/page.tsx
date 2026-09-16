@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { LinkButton } from "@/components/ui/link-button";
 import { ArrowUpDown, ChevronUp, ChevronDown, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatDate } from "@/lib/utils/date";
 
 type ScopeFilter = "mine" | "all";
 
@@ -279,9 +280,7 @@ export default function ClassOverviewPage() {
                         <ScoreBar pct={row.avg_score_pct} />
                       </td>
                       <td className="px-4 py-3 text-xs text-gray-400">
-                        {row.last_active
-                          ? new Date(row.last_active).toLocaleDateString()
-                          : "Never"}
+                        {row.last_active ? formatDate(row.last_active) : "Never"}
                       </td>
                       <td className="px-4 py-3 text-right">
                         <LinkButton

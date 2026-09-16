@@ -17,6 +17,7 @@ import {
 import { StatusBadge } from "@/components/authoring/StatusBadge";
 import { StructuredTocEditor } from "@/components/authoring/StructuredTocEditor";
 import { TopicReviewPanel } from "@/components/authoring/TopicReviewPanel";
+import { formatDateTime } from "@/lib/utils/date";
 import {
   acceptTopic,
   analyzeProject,
@@ -368,7 +369,7 @@ export default function AuthoringWorkspacePage({
                   </span>
                   <span className="text-gray-700">{s.label ?? "(no label)"}</span>
                   <span className="text-xs text-gray-400">
-                    {new Date(s.created_at).toLocaleString()}
+                    {formatDateTime(s.created_at)}
                   </span>
                   <button
                     disabled={restoreMut.isPending}

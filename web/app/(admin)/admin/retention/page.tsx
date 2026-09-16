@@ -24,16 +24,13 @@ import {
   Search,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatDate } from "@/lib/utils/date";
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
 function fmtDate(iso: string | null): string {
   if (!iso) return "—";
-  return new Date(iso).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  return formatDate(iso);
 }
 
 function urgencyClass(days: number | null): string {

@@ -17,6 +17,7 @@ import {
   nowForDatetimeLocalMin,
   maxForDatetimeLocalMax,
 } from "@/lib/school/restore-schedule";
+import { formatDate, formatDateTime } from "@/lib/utils/date";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -85,11 +86,7 @@ function StepPickBackup({
                     {b.label || scopeLabel(b)}
                   </span>
                   <span className="text-xs text-gray-400 tabular-nums">
-                    {new Date(b.created_at).toLocaleDateString()}{" "}
-                    {new Date(b.created_at).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                    {formatDateTime(b.created_at)}
                   </span>
                 </div>
                 <p className="mt-0.5 text-xs text-gray-500">
@@ -147,7 +144,7 @@ function StepConfigureScope({
           {backup.label || scopeLabel(backup)}
         </span>
         {" · "}
-        {new Date(backup.created_at).toLocaleDateString()}
+        {formatDate(backup.created_at)}
       </div>
 
       <div className="space-y-2">

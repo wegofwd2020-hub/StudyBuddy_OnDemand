@@ -21,6 +21,7 @@ import {
 import { useTeacherIdFromToken } from "@/lib/hooks/useIndependentTeacher";
 import { cn } from "@/lib/utils";
 import { AlertTriangle, CheckCircle2, ChevronRight, Loader2, Users } from "lucide-react";
+import { formatDate } from "@/lib/utils/date";
 
 // ── Plan definitions (mirrors pricing.py TEACHER_PLANS) ──────────────────────
 
@@ -109,13 +110,7 @@ function SeatUsageBar({
 }
 
 function OverQuotaBanner({ since }: { since: string | null }) {
-  const sinceStr = since
-    ? new Date(since).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      })
-    : null;
+  const sinceStr = since ? formatDate(since) : null;
 
   return (
     <div className="mb-6 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
@@ -341,11 +336,7 @@ export default function TeacherSubscriptionPage() {
           {sub.current_period_end && (
             <p className="mt-3 text-xs text-gray-400">
               {sub.status === "past_due" ? "Grace period ends" : "Renews"}{" "}
-              {new Date(sub.current_period_end).toLocaleDateString("en-US", {
-                month: "long",
-                day: "numeric",
-                year: "numeric",
-              })}
+              {formatDate(sub.current_period_end)}
             </p>
           )}
         </div>

@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { getSubscriptionAnalytics, getStruggleReport } from "@/lib/api/admin";
+import { formatDateTime } from "@/lib/utils/date";
 
 export default function AdminAnalyticsPage() {
   const { data: sub, isLoading: subLoading } = useQuery({
@@ -99,9 +100,7 @@ export default function AdminAnalyticsPage() {
         <h2 className="mb-1 text-base font-semibold text-gray-800">Struggle Report</h2>
         <p className="mb-4 text-xs text-gray-500">
           Units with highest fail rates across all students.
-          {struggle && (
-            <> Generated {new Date(struggle.generated_at).toLocaleString()}.</>
-          )}
+          {struggle && <> Generated {formatDateTime(struggle.generated_at)}.</>}
         </p>
         {struggleLoading ? (
           <div className="h-48 animate-pulse rounded-xl bg-gray-100" />

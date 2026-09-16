@@ -27,6 +27,7 @@ import {
   Eye,
   CheckCircle2,
 } from "lucide-react";
+import { formatDate } from "@/lib/utils/date";
 
 // ── Badge ──────────────────────────────────────────────────────────────────────
 
@@ -148,13 +149,7 @@ function UnitDetail({
           <span>by {latest.last_edited_by_name}</span>
         ) : null}
         {latest ? (
-          <span className="text-gray-400">
-            {new Date(latest.edited_at).toLocaleDateString(undefined, {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })}
-          </span>
+          <span className="text-gray-400">{formatDate(latest.edited_at)}</span>
         ) : null}
         <span className="text-gray-400">{unit.subject_name ?? unit.subject}</span>
       </div>

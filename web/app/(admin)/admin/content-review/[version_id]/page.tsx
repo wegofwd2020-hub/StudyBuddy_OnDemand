@@ -17,6 +17,7 @@ import {
 } from "@/lib/api/admin";
 import { useAdmin, hasPermission } from "@/lib/hooks/useAdmin";
 import { cn } from "@/lib/utils";
+import { formatDateTime } from "@/lib/utils/date";
 import {
   ArrowLeft,
   CheckCircle,
@@ -173,10 +174,8 @@ export default function AdminContentReviewDetailPage() {
               )}
             </div>
             <p className="mt-0.5 text-xs text-gray-400">
-              Generated {new Date(item.generated_at).toLocaleString()}
-              {item.published_at && (
-                <> · Published {new Date(item.published_at).toLocaleString()}</>
-              )}
+              Generated {formatDateTime(item.generated_at)}
+              {item.published_at && <> · Published {formatDateTime(item.published_at)}</>}
             </p>
             {item.version_number > 1 && (
               <Link
@@ -250,7 +249,7 @@ export default function AdminContentReviewDetailPage() {
             </div>
             {item.assigned_at && (
               <p className="mt-1 pl-6 text-xs text-gray-400">
-                Assigned {new Date(item.assigned_at).toLocaleString()}
+                Assigned {formatDateTime(item.assigned_at)}
               </p>
             )}
           </div>
@@ -343,8 +342,7 @@ export default function AdminContentReviewDetailPage() {
                     </p>
                     <p className="mt-1 text-gray-700">{ann.annotation_text}</p>
                     <p className="mt-1 text-xs text-gray-400">
-                      {ann.reviewer_email ?? "admin"} ·{" "}
-                      {new Date(ann.created_at).toLocaleString()}
+                      {ann.reviewer_email ?? "admin"} · {formatDateTime(ann.created_at)}
                     </p>
                   </div>
                 ))}
@@ -370,8 +368,7 @@ export default function AdminContentReviewDetailPage() {
                     </span>
                     <span className="flex-1 text-gray-500">{h.notes ?? "—"}</span>
                     <span className="text-xs whitespace-nowrap text-gray-400">
-                      {h.reviewer_email ?? "system"} ·{" "}
-                      {new Date(h.reviewed_at).toLocaleString()}
+                      {h.reviewer_email ?? "system"} · {formatDateTime(h.reviewed_at)}
                     </span>
                   </div>
                 ))}

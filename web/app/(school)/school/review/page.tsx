@@ -19,6 +19,7 @@ import {
   AlertCircle,
   Inbox,
 } from "lucide-react";
+import { formatDate } from "@/lib/utils/date";
 
 // ── Content type labels ────────────────────────────────────────────────────────
 
@@ -102,11 +103,7 @@ function QueueRow({
         </td>
         {/* Submitted at */}
         <td className="px-3 py-3 text-xs text-gray-400 tabular-nums">
-          {new Date(item.submitted_at).toLocaleDateString(undefined, {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-          })}
+          {formatDate(item.submitted_at)}
         </td>
         {/* Actions */}
         <td className="py-3 pr-4 pl-3">

@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatDate } from "@/lib/utils/date";
 
 /**
  * Student feedback, as a paginated table.
@@ -276,7 +277,7 @@ export default function FeedbackReportPage() {
                         {item.content_type ?? item.category}
                       </td>
                       <td className="px-3 py-2 whitespace-nowrap text-gray-500">
-                        {new Date(item.submitted_at).toLocaleDateString()}
+                        {formatDate(item.submitted_at)}
                       </td>
                       <td className="px-3 py-2">
                         {item.reviewed ? (

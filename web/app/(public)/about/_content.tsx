@@ -30,6 +30,7 @@ import {
   type ComplianceStandard,
 } from "@/lib/compliance";
 import { LinkButton } from "@/components/ui/link-button";
+import { formatDate as formatDateDMY } from "@/lib/utils/date";
 
 export interface AboutBuildData {
   buildTime: string;
@@ -46,16 +47,7 @@ export interface AboutBuildData {
 
 function formatDate(iso: string | null): string {
   if (!iso) return "unknown";
-  try {
-    return new Date(iso).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      timeZone: "UTC",
-    });
-  } catch {
-    return iso;
-  }
+  return formatDateDMY(iso);
 }
 
 function isLoggedIn(): boolean {

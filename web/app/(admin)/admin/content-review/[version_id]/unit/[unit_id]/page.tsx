@@ -32,6 +32,7 @@ import {
   ChevronUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatDateTime } from "@/lib/utils/date";
 
 // ── Type labels + icons ───────────────────────────────────────────────────────
 
@@ -255,8 +256,7 @@ function SectionNotes({ effectiveKey }: { effectiveKey: string }) {
                   {a.annotation_text}
                 </p>
                 <p className="mt-0.5 text-xs text-gray-400">
-                  {a.reviewer_email ?? "Admin"} ·{" "}
-                  {new Date(a.created_at).toLocaleString()}
+                  {a.reviewer_email ?? "Admin"} · {formatDateTime(a.created_at)}
                 </p>
               </div>
               <button
@@ -657,9 +657,7 @@ function InlineWarningsPanel({
                   <p className="mt-0.5 text-xs text-gray-400">
                     {w.is_false_positive ? "False positive" : "Acknowledged"} by{" "}
                     {w.acknowledged_by_email ?? "reviewer"}
-                    {w.acknowledged_at
-                      ? ` · ${new Date(w.acknowledged_at).toLocaleString()}`
-                      : ""}
+                    {w.acknowledged_at ? ` · ${formatDateTime(w.acknowledged_at)}` : ""}
                   </p>
                 )}
               </div>
