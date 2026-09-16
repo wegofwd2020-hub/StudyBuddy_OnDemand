@@ -45,6 +45,7 @@ from pipeline.prompts import (
     build_quiz_prompt,
     build_tutorial_prompt,
 )
+from pipeline.quiz_options import balance_options
 from pipeline.providers import get_provider
 from pipeline.providers.base import LLMProvider
 from pipeline.schemas import (
@@ -267,6 +268,9 @@ def build_unit(
             quiz_data, in_tok, out_tok = _generate_and_validate(
                 provider, prompt, validate_quiz, f"quiz_set_{set_num}"
             )
+            # Decide the option order here, not the model (#779): its habit put
+            # the correct answer at B 45% of the time and at D under 2%.
+            quiz_data = balance_options(quiz_data, unit_id=unit_id, lang=lang)
             quiz_data["generated_at"] = _now_iso()
             quiz_data["model"] = model_name
             total_input_tokens += in_tok
