@@ -7,7 +7,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import StudentDetailPage from "@/app/(school)/school/student/[student_id]/page";
 import {
   MOCK_TEACHER,
@@ -315,5 +315,54 @@ describe("SCH-08 — Student detail page", () => {
     expect(screen.getByText("20m")).toBeInTheDocument();
     expect(screen.getByText("15m")).toBeInTheDocument();
     expect(screen.queryByText("NaNm")).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// #758 — units from a curriculum the student is no longer served are grouped
+// ---------------------------------------------------------------------------
+
+describe("#758 — earlier-curriculum units", () => {
+  const withEarlier = {
+    ...MOCK_STUDENT_REPORT,
+    per_unit: [
+      ...MOCK_STUDENT_REPORT.per_unit,
+      {
+        unit_id: "G5-ENG-001",
+        unit_name: "Simple Machines",
+        subject: "Engineering",
+        lesson_viewed: true,
+        quiz_attempts: 1,
+        best_score: 70,
+        passed: true,
+        total_duration_s: 300,
+        current: false,
+      },
+    ],
+  };
+
+  beforeEach(() => {
+    mockUseQuery.mockReturnValue({ data: withEarlier, isLoading: false });
+  });
+
+  it("keeps them out of the main list until expanded", () => {
+    render(<StudentDetailPage />);
+    const toggle = screen.getByRole("button", {
+      name: /From earlier curricula \(1 unit\)/,
+    });
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByText("Simple Machines")).toBeNull();
+    // Current units are unaffected.
+    expect(screen.getByText("Cell Biology")).toBeInTheDocument();
+
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByText("Simple Machines")).toBeInTheDocument();
+  });
+
+  it("shows no group when every unit is current", () => {
+    mockUseQuery.mockReturnValue({ data: MOCK_STUDENT_REPORT, isLoading: false });
+    render(<StudentDetailPage />);
+    expect(screen.queryByRole("button", { name: /From earlier curricula/ })).toBeNull();
   });
 });

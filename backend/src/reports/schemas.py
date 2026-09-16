@@ -147,6 +147,9 @@ class PerUnitStudentReportItem(BaseModel):
     # sat under was a sum — so the screen invited an addition that could never
     # come out. Same quantity as `total_time_spent_s`, one grain down.
     total_duration_s: int
+    # False when the unit belongs to a curriculum the student is no longer
+    # served — history from before a classroom changed packages (#758).
+    current: bool = True
 
 
 class StudentReport(BaseModel):

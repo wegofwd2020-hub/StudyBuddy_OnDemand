@@ -442,6 +442,32 @@ async def resolve_curriculum_ids(
     return ids
 
 
+async def served_units(conn: asyncpg.Connection, curriculum_ids: list[str]) -> list[asyncpg.Record]:
+    """`(unit_id, subject)` for every unit in `curriculum_ids`, forks included.
+
+    A school FORK carries no `curriculum_units` rows of its own — its units live
+    under `source_curriculum_id` — so reading the resolved ids directly returns
+    nothing for a student on a fork (the #650 trap, caught on the demo for
+    Venky_Gr11). Pair with `resolve_curriculum_ids` whenever a list of what a
+    student is TAUGHT is needed, as opposed to what they have touched.
+    """
+    return await conn.fetch(
+        """
+        SELECT DISTINCT cu.unit_id, cu.subject
+        FROM curricula c
+        JOIN curriculum_units cu
+          ON cu.curriculum_id = CASE
+                 WHEN EXISTS (SELECT 1 FROM curriculum_units own
+                              WHERE own.curriculum_id = c.curriculum_id)
+                 THEN c.curriculum_id
+                 ELSE c.source_curriculum_id
+             END
+        WHERE c.curriculum_id = ANY($1::text[])
+        """,
+        list(curriculum_ids),
+    )
+
+
 # ── Content block check ───────────────────────────────────────────────────────
 
 

@@ -166,7 +166,7 @@ async def cohort_unit_ids(
     honestly. Same trap the `cohort_grades` comment in `get_curriculum_health`
     describes, one axis over.
     """
-    from src.content.service import resolve_curriculum_ids
+    from src.content.service import resolve_curriculum_ids, served_units
 
     rows = await conn.fetch(
         """
@@ -193,21 +193,7 @@ async def cohort_unit_ids(
 
     async with pool.acquire() as conn2:
         await conn2.execute("SELECT set_config('app.current_school_id', $1, false)", school_id)
-        unit_rows = await conn2.fetch(
-            """
-            SELECT cu.unit_id
-            FROM curricula c
-            JOIN curriculum_units cu
-              ON cu.curriculum_id = CASE
-                     WHEN EXISTS (SELECT 1 FROM curriculum_units own
-                                  WHERE own.curriculum_id = c.curriculum_id)
-                     THEN c.curriculum_id
-                     ELSE c.source_curriculum_id
-                 END
-            WHERE c.curriculum_id = ANY($1::text[])
-            """,
-            list(curricula),
-        )
+        unit_rows = await served_units(conn2, list(curricula))
     return {r["unit_id"] for r in unit_rows}
 
 
@@ -937,8 +923,16 @@ async def get_student_report(
     conn: asyncpg.Connection,
     school_id: str,
     student_id: str,
+    pool=None,
+    redis=None,
 ) -> dict:
-    """Per-student report card. Raises LookupError if not enrolled."""
+    """Per-student report card. Raises LookupError if not enrolled.
+
+    `pool` + `redis` let each unit be marked `current` — in a curriculum the
+    student is served NOW, per the shared resolver — so activity left over from
+    a curriculum their classroom has moved off can be grouped apart (#758).
+    Without them every unit reads as current, which is the pre-#758 view.
+    """
     # Verify this student is enrolled in the school
     enrol = await conn.fetchrow(
         "SELECT 1 FROM school_enrolments WHERE school_id = $1 AND student_id = $2 AND status = 'active'",
@@ -1123,6 +1117,27 @@ async def get_student_report(
     # Resolve human-readable subject names (issue #462).
     subject_labels = await resolve_subject_labels(conn, unit_ids)
 
+    # Which of these units the student is taught NOW (#758).
+    #
+    # Venki: a Commerce student's "Unit progress" listed Engineering and
+    # Mathematics & Technology. The rows were real — that student had been
+    # served G11 STEM and then G5 STEM before the classroom was moved onto
+    # Commerce — but a table built from activity cannot tell "working on" from
+    # "worked on once, somewhere else". Rows are marked rather than dropped:
+    # they are educational records, and "Reading time" above must still equal
+    # the sum of this column, so hiding rows would break that on screen.
+    current_units: set[str] | None = None
+    if pool is not None and redis is not None:
+        from src.content.service import resolve_curriculum_ids, served_units
+
+        try:
+            cids = await resolve_curriculum_ids(
+                student_id, int(student["grade"] or 0), pool, redis, school_id=school_id
+            )
+            current_units = {r["unit_id"] for r in await served_units(conn, cids)}
+        except Exception as exc:  # pragma: no cover - grouping is best-effort
+            log.warning("student_report_current_units_failed", error=str(exc))
+
     per_unit = [
         {
             "unit_id": r["unit_id"],
@@ -1135,13 +1150,18 @@ async def get_student_report(
             else None,
             "passed": bool(r["passed"]),
             "total_duration_s": int(r["total_duration_s"] or 0),
+            "current": current_units is None or r["unit_id"] in current_units,
         }
         for r in unit_rows
     ]
 
     # Strongest / needs-attention subject (keyed on the resolved display name)
+    # Current units only (#758): "Needs attention: Engineering" names a subject a
+    # Commerce student is no longer taught, which is advice they cannot act on.
     subj_scores: dict[str, list[float]] = {}
     for r in unit_rows:
+        if current_units is not None and r["unit_id"] not in current_units:
+            continue
         s = display_subject(subject_labels, r["unit_id"], r["subject"])
         if r["best_score"] is not None:
             subj_scores.setdefault(s, []).append(min(100.0, float(r["best_score"])))

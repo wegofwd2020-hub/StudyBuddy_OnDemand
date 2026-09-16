@@ -197,6 +197,8 @@ export interface PerUnitStudentItem {
   passed: boolean;
   /** Total seconds on this unit's content — sums to `total_time_spent_s`. */
   total_duration_s: number;
+  /** False for a unit in a curriculum the student is no longer served (#758). */
+  current: boolean;
 }
 
 export interface StudentReport {

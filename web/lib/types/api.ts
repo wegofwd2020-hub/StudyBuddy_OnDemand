@@ -193,7 +193,13 @@ export interface StudentStats {
   avg_score: number;
   audio_sessions: number;
   session_dates: string[];
-  subject_breakdown: { subject: string; attempts: number; pass_rate: number }[];
+  /** `current` is false for a subject the student only has history in (#758). */
+  subject_breakdown: {
+    subject: string;
+    attempts: number;
+    pass_rate: number;
+    current: boolean;
+  }[];
 }
 
 // ─── Feedback ────────────────────────────────────────────────────────────────

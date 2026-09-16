@@ -8717,6 +8717,11 @@ export interface components {
             passed: boolean;
             /** Total Duration S */
             total_duration_s: number;
+            /**
+             * Current
+             * @default true
+             */
+            current: boolean;
         };
         /**
          * PipelineEstimateResponse
