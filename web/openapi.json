@@ -12974,7 +12974,7 @@
           "reports"
         ],
         "summary": "Export Report",
-        "description": "Queue a CSV export task. Returns export_id and download URL.",
+        "description": "Queue a CSV export task. Returns export_id and download URL.\n\nScoped to the caller's grades (#576), like every other report on this\nrouter. It was not: `_check_school` alone let a teacher assigned to one\ngrade export the WHOLE school's roster \u2014 names, emails, grades and scores \u2014\nwhich is a set of educational records outside their assigned scope (FERPA).\nThe rule is the same one `_grade_filter` applies everywhere else, and the\nexport was simply never given it.",
         "operationId": "export_report_api_v1_reports_school__school_id__export_post",
         "security": [
           {
@@ -13032,7 +13032,7 @@
           "reports"
         ],
         "summary": "Download Export",
-        "description": "Serve a completed CSV export file.",
+        "description": "Serve a completed CSV export file, and only to the school that made it.\n\nThis handler had NO ownership check of any kind \u2014 it took an export_id,\nconfirmed a file existed, and served it to any authenticated teacher. The id\nis an unguessable UUID, so it was not trivially exploitable, but nothing\nstopped one that leaked (a shared link, a log line, browser history) from\nhanding another school its roster. `_check_school` appears on every other\nendpoint in this file and was missing from the one that returns a file.\n\nThe check is STRUCTURAL rather than a comparison: exports are written under\n`exports/{school_id}/`, and this reads from the caller's OWN directory. A\npath built from the caller's token cannot address another school's file, so\nthere is no comparison to forget on a later edit. `export_id` is still\nvalidated as a UUID so it can never contribute a `..` path segment.",
         "operationId": "download_export_api_v1_reports_download__export_id__get",
         "security": [
           {
