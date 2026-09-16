@@ -36,8 +36,10 @@ def balance_options(quiz: dict, *, unit_id: str, lang: str) -> dict
 Returns a new quiz body (never mutates the input) where each question's options are:
 
 1. **Canonicalised** — sorted by normalised text (whitespace collapsed, as grading
-   does), ties broken by original `option_id`. The result depends only on the
-   question's content, not on the order it arrived in.
+   does); among equal normalised text the correct option sorts first, then by
+   the option's full content excluding `option_id` (so a second run cannot
+   reorder them). The result depends only on the question's content, not on
+   the order it arrived in.
 2. **Permuted** by a `random.Random` seeded with
    `sha256(f"{unit_id}|{lang}|{question_text}")`.
 3. **Relabelled** `A`, `B`, `C`, `D` by new position.
@@ -60,6 +62,9 @@ Called immediately after `validate_quiz` succeeds:
 - `pipeline/build_unit.py` — on each generated quiz set, before it is written.
 - `backend/src/admin/authoring_generation.py` — on each generated / regenerated
   quiz body, before it is stored as a topic version.
+- `backend/src/admin/authoring_service.py`'s `publish` applies it when writing
+  quiz bodies to the store (published authoring versions predate #779, and
+  re-publish would otherwise restore the skew).
 
 ### 3. Existing content — `backend/scripts/rebalance_quiz_options.py`
 
@@ -72,8 +77,11 @@ Called immediately after `validate_quiz` succeeds:
   question ids with the correct text at `index`). Any violation aborts the run
   before that file is written.
 - Skips `dev-placeholder` content (pitfall #36).
-- Does not touch teacher overrides (`unit_content_overrides`), which live in the
-  database and are school-authored.
+- Does not touch `unit_content_overrides`. Most are school-edited, but
+  `content_source='imported'` rows are verbatim store copies and stay skewed —
+  tracked in [#795](https://github.com/wegofwd2020-hub/StudyBuddy_OnDemand/issues/795).
+- Aborts cleanly (exit 2) on unreadable/malformed files; verification also
+  covers non-option question fields and top-level quiz fields.
 
 ### 4. Demo rollout (timing approved by the user at run time)
 
@@ -89,16 +97,22 @@ sudo /usr/bin/docker compose -f docker-compose.yml -f docker-compose.demo.yml \
 # ... same with --commit
 ```
 
-1. No `progress_sessions` row started in the last 30 minutes without `ended_at`.
+1. No `progress_sessions` row has `ended_at IS NULL` and `started_at` within the
+   last 24 hours (quiz sessions are resumable for 24 h and the per-session answer
+   tally lives 6 h; a student resuming across the switch would see their picks
+   highlighted against the new order).
 2. Dry-run; review the distribution.
-3. `--commit`.
-4. Invalidate the content cache the way `scripts/demo/sync-content.sh` step 5 does
+3. Back up every `quiz_set_*.json` to a timestamped archive.
+4. `--commit`.
+5. Invalidate the content cache the way `scripts/demo/sync-content.sh` step 5 does
    (fixed in #750): delete Redis `content:*` keys only, never `FLUSHDB` (the same
    Redis holds sessions and rate limits). Content files are cached in L2 only —
    `get_content_file` has no in-process layer — so this is sufficient on the demo,
    which has no CDN in front of the content store.
-5. Verify live: distribution ≈ 25% per letter; one quiz answered and graded end to
-   end with the correct option at its new position.
+6. Verify live: distribution ≈ 25% per letter; one quiz answered and graded end to
+   end with the correct option at its new position, with a student NOT served an
+   imported override. Read the dry-run output alongside a count of imported
+   override versions (#795).
 
 ## Accepted consequences
 
@@ -108,6 +122,11 @@ sudo /usr/bin/docker compose -f docker-compose.yml -f docker-compose.demo.yml \
   against the new order — mitigated by the quiet-window check in step 1.
 - Per-session shuffling (approach B) is not done. It fits naturally into the
   ADR-008 Phase 3a serving rework if ever wanted.
+- Imported school overrides (`unit_content_overrides` rows with
+  `content_source='imported'`) are verbatim store copies that stay skewed —
+  tracked in [#795](https://github.com/wegofwd2020-hub/StudyBuddy_OnDemand/issues/795).
+- `meta.json`'s `content_version` is not bumped by the rebalance — the mobile
+  app caches content by it, which matters once Epic 3 ships.
 
 ## Testing
 
