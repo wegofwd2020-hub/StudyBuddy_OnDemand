@@ -68,8 +68,14 @@ async def test_subject_breakdown_resolves_names_and_respects_period(client, db_c
     assert r.status_code == 200, r.text
     breakdown = r.json()["subject_breakdown"]
     subjects = {b["subject"] for b in breakdown}
-    assert subjects == {"Science", "Mathematics"}
+    # A superset, not equality: since #763 the breakdown also lists every subject
+    # the student is TAUGHT at zero attempts. This student has no school, so they
+    # resolve to `default-2026-g8`, which other tests in the session add their
+    # own subjects to — asserting equality made this test order-dependent.
+    assert {"Science", "Mathematics"} <= subjects
     assert "Unknown" not in subjects
+    attempted = {b["subject"] for b in breakdown if b["attempts"] > 0}
+    assert attempted == {"Science", "Mathematics"}
     # The bars count QUIZ ATTEMPTS and the field is named accordingly (#525) — it
     # was mislabelled "lessons", which read as the lessons-viewed tile. One session
     # per subject here → one attempt each.
@@ -81,5 +87,8 @@ async def test_subject_breakdown_resolves_names_and_respects_period(client, db_c
     # period=7d → only the recent (1-day-old) Science session is in scope.
     r = await client.get("/api/v1/analytics/student/stats?period=7d", headers=_auth(token))
     assert r.status_code == 200, r.text
-    subjects_7d = {b["subject"] for b in r.json()["subject_breakdown"]}
-    assert subjects_7d == {"Science"}
+    # Only attempts are period-scoped: the 20-day-old Mathematics attempt is out
+    # of range. Whether Mathematics is still LISTED at zero depends on what the
+    # test DB's default-g8 catalog holds, so it is deliberately not asserted.
+    breakdown_7d = r.json()["subject_breakdown"]
+    assert {b["subject"] for b in breakdown_7d if b["attempts"] > 0} == {"Science"}
