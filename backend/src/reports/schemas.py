@@ -180,6 +180,15 @@ class CurriculumHealthReport(BaseModel):
     # a caption or a selected chip derived client-side drifts from the data it
     # labels the moment a request is in flight or one gets rejected.
     selected_grade: int | None = None
+    # Streams the CALLER may filter to, on the same rule as `available_grades`:
+    # the permission scope, not the current selection. Codes come from the
+    # migration-0045 registry (`science`, `commerce`, `humanities`, `english`,
+    # `stem`), plus the literal `unstreamed` for students whose curricula carry
+    # no stream — school-owned content never will, so that bucket is permanent
+    # rather than a migration artefact, and omitting it would drop those students
+    # out of every stream view.
+    available_streams: list[str] = []
+    selected_stream: str | None = None
     units: list[CurriculumHealthUnit]
 
 

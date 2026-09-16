@@ -12720,7 +12720,7 @@
           "reports"
         ],
         "summary": "Curriculum Health",
-        "description": "All units ranked by health tier, optionally narrowed to one grade.\n\n`?grade=` is a filter WITHIN the caller's entitlement, never a way around\nit: a grade the caller is not assigned to is refused with the same 403 the\nroster uses, rather than being silently ignored. Silently ignoring it would\nbe worse than refusing \u2014 the teacher would read a school-wide report while\nthe control on screen said \"Grade 7\".",
+        "description": "All units ranked by health tier, optionally narrowed to one grade/stream.\n\n`?grade=` is a filter WITHIN the caller's entitlement, never a way around\nit: a grade the caller is not assigned to is refused with the same 403 the\nroster uses, rather than being silently ignored. Silently ignoring it would\nbe worse than refusing \u2014 the teacher would read a school-wide report while\nthe control on screen said \"Grade 7\".\n\n`?stream=` is the same kind of filter and carries the same rule. It needs no\nseparate 403: a stream is a property of the curricula the COHORT resolves\nto, and the cohort is already scoped to the caller's grades before any\nstream narrowing happens \u2014 so a stream the caller cannot see contributes no\nstudents and is not offered in `available_streams`. Selecting one anyway\nyields an empty report rather than another school's data.",
         "operationId": "curriculum_health_api_v1_reports_school__school_id__curriculum_health_get",
         "security": [
           {
@@ -12751,6 +12751,23 @@
                 }
               ],
               "title": "Grade"
+            }
+          },
+          {
+            "name": "stream",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Stream"
             }
           }
         ],
@@ -19516,6 +19533,25 @@
               }
             ],
             "title": "Selected Grade"
+          },
+          "available_streams": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Available Streams",
+            "default": []
+          },
+          "selected_stream": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Stream"
           },
           "units": {
             "items": {

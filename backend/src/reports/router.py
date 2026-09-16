@@ -341,14 +341,22 @@ async def curriculum_health(
     request: Request,
     teacher: Annotated[dict, Depends(get_current_teacher)],
     grade: int | None = None,
+    stream: str | None = Query(None, max_length=64),
 ) -> CurriculumHealthReport:
-    """All units ranked by health tier, optionally narrowed to one grade.
+    """All units ranked by health tier, optionally narrowed to one grade/stream.
 
     `?grade=` is a filter WITHIN the caller's entitlement, never a way around
     it: a grade the caller is not assigned to is refused with the same 403 the
     roster uses, rather than being silently ignored. Silently ignoring it would
     be worse than refusing — the teacher would read a school-wide report while
     the control on screen said "Grade 7".
+
+    `?stream=` is the same kind of filter and carries the same rule. It needs no
+    separate 403: a stream is a property of the curricula the COHORT resolves
+    to, and the cohort is already scoped to the caller's grades before any
+    stream narrowing happens — so a stream the caller cannot see contributes no
+    students and is not offered in `available_streams`. Selecting one anyway
+    yields an empty report rather than another school's data.
     """
     _check_school(teacher, school_id, request)
     async with get_db(request) as conn:
@@ -367,6 +375,7 @@ async def curriculum_health(
             pool=request.app.state.pool,
             redis=get_redis(request),
             grade=grade,
+            stream=stream,
         )
     return CurriculumHealthReport(**result)
 

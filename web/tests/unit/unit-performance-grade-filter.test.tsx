@@ -107,9 +107,12 @@ describe("Unit Performance — grade filter", () => {
       "aria-checked",
       "true",
     );
-    // No grade in the request until one is chosen.
+    // No grade AND no stream in the request until one is chosen. The third
+    // argument is asserted explicitly rather than loosened to `expect.anything()`:
+    // the point of this test is what the page asks the server for, and a
+    // filter leaking in as a default would be exactly the regression to catch.
     lastOpts?.queryFn();
-    expect(mockGetCurriculumHealth).toHaveBeenCalledWith("sch-1", null);
+    expect(mockGetCurriculumHealth).toHaveBeenCalledWith("sch-1", null, null);
   });
 
   it("offers every grade the server says the caller may see", () => {
@@ -126,7 +129,9 @@ describe("Unit Performance — grade filter", () => {
     await user.click(screen.getByRole("radio", { name: "Grade 5" }));
 
     lastOpts?.queryFn();
-    expect(mockGetCurriculumHealth).toHaveBeenLastCalledWith("sch-1", 5);
+    // Grade selected, stream still unset — the two filters are independent axes
+    // (#774) and choosing one must not imply the other.
+    expect(mockGetCurriculumHealth).toHaveBeenLastCalledWith("sch-1", 5, null);
   });
 
   it("keeps every grade selectable after one is chosen", async () => {

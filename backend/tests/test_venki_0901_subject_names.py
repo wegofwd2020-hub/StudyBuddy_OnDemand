@@ -227,10 +227,19 @@ async def test_untouched_units_resolve_too(client, db_conn, monkeypatch):
 
     import src.reports.service as svc
 
-    async def _fake_cohort(conn, pool, redis, school_id, allowed_grades=None):
+    async def _fake_cohort(conn, pool, redis, school_id, allowed_grades=None, student_ids=None):
         return {"SUBJ-COLD-1"}
 
+    # The stream picker resolves each student's curricula too (#774), which is
+    # the same resolver this test already stubs out above and for the same
+    # reason: `object()` is passed for pool/redis precisely to assert that
+    # neither is touched on the path under test, which is subject RESOLUTION on
+    # untouched units.
+    async def _fake_streams(conn, pool, redis, school_id, allowed_grades=None):
+        return {}
+
     monkeypatch.setattr(svc, "cohort_unit_ids", _fake_cohort)
+    monkeypatch.setattr(svc, "_streams_by_student", _fake_streams)
 
     report = await get_curriculum_health(
         db_conn, school["school_id"], None, object(), object()

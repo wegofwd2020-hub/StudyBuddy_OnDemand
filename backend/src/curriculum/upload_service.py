@@ -400,12 +400,27 @@ async def seed_default_curriculum(
     curriculum_id = f"default-{year}-g{grade}"
     name = f"Grade {grade} STEM {year} (Default)"
 
+    # `stream_code` has existed since migration 0044 and this path never set it,
+    # which is why every platform default carried NULL and the `streams` registry
+    # reported curricula_count = 0 for all five seeds. Nothing could filter or
+    # group by stream because nothing recorded one.
+    #
+    # This function only ever produces the unsuffixed `default-{year}-g{grade}`
+    # id, whose name says STEM — so 'stem' is the correct code here, not a guess.
+    # Stream-specific curricula come from the admin upload path, which takes the
+    # code from the operator.
+    #
+    # COALESCE on conflict so an admin who later reassigns the stream through the
+    # Streams UI is not reverted by the next seed run.
     await conn.execute(
         """
-        INSERT INTO curricula (curriculum_id, grade, year, name, source_type, status)
-        VALUES ($1, $2, $3, $4, 'default', 'active')
+        INSERT INTO curricula
+            (curriculum_id, grade, year, name, source_type, status, stream_code)
+        VALUES ($1, $2, $3, $4, 'default', 'active', 'stem')
         ON CONFLICT (curriculum_id) DO UPDATE
-            SET name = EXCLUDED.name, status = 'active'
+            SET name        = EXCLUDED.name,
+                status      = 'active',
+                stream_code = COALESCE(curricula.stream_code, EXCLUDED.stream_code)
         """,
         curriculum_id,
         grade,
