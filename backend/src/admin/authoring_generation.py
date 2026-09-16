@@ -149,6 +149,12 @@ def generate_one(
             except Exception as exc:  # jsonschema.ValidationError
                 last_error = f"schema validation failed: {exc}"
             else:
+                if content_type.startswith("quiz_set_"):
+                    # Same rule as the content pipeline (#779): the model's
+                    # option order skews the correct answer toward A/B.
+                    from pipeline.quiz_options import balance_options
+
+                    body = balance_options(body, unit_id=unit_id, lang=lang)
                 return body, total_tokens
 
         if attempt < MAX_GENERATION_ATTEMPTS:
