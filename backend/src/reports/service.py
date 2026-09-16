@@ -1849,22 +1849,43 @@ async def find_inactive_students(
     """
     return await conn.fetch(
         """
-        WITH seen AS (
+        WITH activity AS (
             SELECT DISTINCT ON (se.student_id)
                    se.student_id::text AS student_id,
-                   GREATEST(
-                       se.added_at,
-                       COALESCE((SELECT MAX(lv.started_at) FROM lesson_views lv
-                                  WHERE lv.student_id = se.student_id), se.added_at),
-                       COALESCE((SELECT MAX(ps.started_at) FROM progress_sessions ps
-                                  WHERE ps.student_id = se.student_id), se.added_at)
-                   ) AS last_active_at
+                   se.added_at,
+                   (SELECT MAX(lv.started_at) FROM lesson_views lv
+                     WHERE lv.student_id = se.student_id) AS last_view,
+                   (SELECT MAX(ps.started_at) FROM progress_sessions ps
+                     WHERE ps.student_id = se.student_id) AS last_session
             FROM school_enrolments se
             WHERE se.school_id = $1 AND se.status = 'active'
             ORDER BY se.student_id, se.added_at
+        ), seen AS (
+            SELECT student_id,
+                   added_at,
+                   -- `added_at` is the FLOOR, not a stand-in for activity: a
+                   -- student enrolled yesterday must not read as inactive since
+                   -- the epoch. It is why the two facts below are reported
+                   -- separately rather than inferred from this one value.
+                   GREATEST(
+                       added_at,
+                       COALESCE(last_view, added_at),
+                       COALESCE(last_session, added_at)
+                   ) AS last_active_at,
+                   (last_view IS NULL AND last_session IS NULL) AS never_active
+            FROM activity
         )
         SELECT student_id,
-               EXTRACT(DAY FROM (NOW() - last_active_at))::int AS days_inactive
+               EXTRACT(DAY FROM (NOW() - last_active_at))::int AS days_inactive,
+               -- #755. A student with NO activity at all is not a student who
+               -- stopped; for them `last_active_at` is the enrolment date, so
+               -- `days_inactive` counts days since ENROLMENT and the figure
+               -- answers a different question than it does for everyone else.
+               -- Reported as its own fact so the alert can say which it means
+               -- instead of one label covering two states that need opposite
+               -- actions -- re-engage a student who lapsed, onboard one who
+               -- never began. Same distinction #590 drew for units.
+               never_active
         FROM seen
         WHERE last_active_at < NOW() - make_interval(days => $2)
         ORDER BY last_active_at
@@ -1879,6 +1900,7 @@ async def raise_inactive_student_alert(
     school_id: str,
     student_id: str,
     days_inactive: int,
+    never_active: bool = False,
 ) -> None:
     """Open (or refresh) the single open inactivity alert for one student.
 
@@ -1902,7 +1924,8 @@ async def raise_inactive_student_alert(
         INSERT INTO report_alerts (school_id, alert_type, details)
         VALUES ($1, 'inactive_students',
                 jsonb_build_object('student_id', $2::text,
-                                   'days_inactive', $3::int))
+                                   'days_inactive', $3::int,
+                                   'never_active', $4::boolean))
         ON CONFLICT (school_id, COALESCE(details->>'student_id', ''))
             WHERE alert_type = 'inactive_students'
               AND NOT acknowledged AND resolved_at IS NULL
@@ -1911,6 +1934,7 @@ async def raise_inactive_student_alert(
         uuid.UUID(school_id),
         student_id,
         int(days_inactive),
+        bool(never_active),
     )
 
 
