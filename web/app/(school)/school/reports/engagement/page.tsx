@@ -115,7 +115,7 @@ export default function EngagementReportPage() {
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-2 text-base text-gray-700">
                   <AlertTriangle className="h-4 w-4 text-gray-400" />
-                  Units with zero activity
+                  Units with no activity
                 </CardTitle>
               </CardHeader>
               <CardContent>

@@ -138,8 +138,9 @@ export default function SubjectsPage() {
         <div className="space-y-1">
           <h1 className="text-2xl font-bold text-gray-900">Subjects</h1>
           <p className="text-sm text-gray-500">
-            Browse every subject and open a lesson or quiz. To see how far you&apos;ve
-            come, visit the Curriculum Map.
+            Browse every subject and open a lesson or quiz. The Curriculum Map lays out
+            every unit in order, so you can see what you&apos;ve passed, what you&apos;re
+            part-way through, and what comes next.
           </p>
         </div>
 
