@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import json
 import random
 
 _LABELS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -56,21 +57,24 @@ def balance_options(quiz: dict, *, unit_id: str, lang: str) -> dict:
             continue
 
         # Among identical texts the correct option sorts first, so which copy is
-        # "correct" cannot flip between runs (#754 duplicates).
+        # "correct" cannot flip between runs (#754 duplicates). The final
+        # tie-break is the option's full content (excluding option_id, which is
+        # position-derived after relabelling and would let a second run reorder
+        # whitespace/field variants ~50% of the time) rather than option_id.
         ordered = sorted(
             options,
             key=lambda o: (
                 _normalise(o.get("text")),
                 0 if o is correct else 1,
-                str(o.get("option_id")),
+                json.dumps(
+                    {k: v for k, v in o.items() if k != "option_id"},
+                    sort_keys=True,
+                    default=str,
+                ),
             ),
         )
-        random.Random(
-            _seed(unit_id, lang, question.get("question_text") or "")
-        ).shuffle(ordered)
+        random.Random(_seed(unit_id, lang, question.get("question_text") or "")).shuffle(ordered)
 
         question["correct_option"] = _LABELS[next(i for i, o in enumerate(ordered) if o is correct)]
-        question["options"] = [
-            {**o, "option_id": _LABELS[i]} for i, o in enumerate(ordered)
-        ]
+        question["options"] = [{**o, "option_id": _LABELS[i]} for i, o in enumerate(ordered)]
     return out

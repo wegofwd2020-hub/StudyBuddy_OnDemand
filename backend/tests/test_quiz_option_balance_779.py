@@ -121,3 +121,22 @@ def test_other_fields_are_untouched():
     assert out["generated_at"] == quiz["generated_at"]
     for key in ("question_id", "question_text", "explanation", "difficulty"):
         assert out["questions"][0][key] == quiz["questions"][0][key]
+
+
+def test_whitespace_variant_wrong_options_stay_idempotent():
+    """M-1 (final review): two WRONG options with equal normalised text but
+    different raw text (a double space) used to tie-break on option_id, which
+    is position-derived after relabelling — a second run could reorder them
+    (~50% observed). The tie-break must be the option's own content instead."""
+    questions = [
+        _question(
+            i,
+            texts=("USD 30,000", "USD  30,000", "USD 40,000", "Correct answer"),
+            correct="D",
+        )
+        for i in range(200)
+    ]
+    quiz = _quiz(questions)
+    once = balance_options(quiz, unit_id="U-1", lang="en")
+    twice = balance_options(once, unit_id="U-1", lang="en")
+    assert twice == once
