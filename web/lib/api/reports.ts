@@ -93,6 +93,9 @@ export interface CurriculumHealthUnit {
    *  on a unit outside the cohort catalog — where inventing a grade would file
    *  it under one it does not belong to. */
   grade?: number | null;
+  /** Stream of the curriculum holding this unit (#772): a registry code, or
+   *  `unstreamed` — the stream filter's own bucket, so row and chip agree. */
+  stream?: string;
   health_tier: "healthy" | "watch" | "struggling" | "no_activity";
   first_attempt_pass_rate_pct: number;
   avg_attempts_to_pass: number;
@@ -197,6 +200,8 @@ export interface PerUnitStudentItem {
   passed: boolean;
   /** Total seconds on this unit's content — sums to `total_time_spent_s`. */
   total_duration_s: number;
+  /** False for a unit in a curriculum the student is no longer served (#758). */
+  current: boolean;
 }
 
 export interface StudentReport {
@@ -334,26 +339,6 @@ export async function getFeedbackReport(
       params: query,
     },
   );
-  return res.data;
-}
-
-// ── Export ────────────────────────────────────────────────────────────────────
-
-export interface ExportResponse {
-  export_id: string;
-  download_url: string;
-  status: "queued" | "ready";
-}
-
-export async function triggerExport(
-  schoolId: string,
-  reportType: ReportType,
-  filters: Record<string, unknown> = {},
-): Promise<ExportResponse> {
-  const res = await schoolApi.post<ExportResponse>(`/reports/school/${schoolId}/export`, {
-    report_type: reportType,
-    filters,
-  });
   return res.data;
 }
 

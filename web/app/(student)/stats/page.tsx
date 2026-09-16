@@ -44,6 +44,12 @@ export default function StatsPage() {
   const t = useTranslations("stats_screen");
   const [period, setPeriod] = useState<Period>("30d");
   const { data: stats, isLoading } = useStudentStats(period);
+  // Subjects from a curriculum the student has since moved off (#758) are not
+  // charted beside the ones they are taught now — a Commerce student seeing
+  // "Physics" as a bar reads it as something to study. Listed underneath
+  // instead, because the attempts are real and count in the tiles above.
+  const currentSubjects = stats?.subject_breakdown?.filter((b) => b.current) ?? [];
+  const earlierSubjects = stats?.subject_breakdown?.filter((b) => !b.current) ?? [];
 
   return (
     <div className="flex flex-col">
@@ -145,7 +151,7 @@ export default function StatsPage() {
             </div>
 
             {/* Subject breakdown chart */}
-            {stats.subject_breakdown && stats.subject_breakdown.length > 0 && (
+            {currentSubjects.length > 0 && (
               <section>
                 <h2 className="mb-1 flex items-center gap-2 text-lg font-semibold text-gray-800">
                   <BarChart3 className="h-4 w-4" />
@@ -157,7 +163,7 @@ export default function StatsPage() {
                 <div className="rounded-lg border bg-white p-4 shadow-sm">
                   <ResponsiveContainer width="100%" height={200}>
                     <BarChart
-                      data={stats.subject_breakdown}
+                      data={currentSubjects}
                       margin={{ top: 0, right: 0, bottom: 0, left: -20 }}
                     >
                       <XAxis dataKey="subject" tick={{ fontSize: 11 }} />
@@ -169,7 +175,7 @@ export default function StatsPage() {
                       {/* Cap width so a single subject renders as a normal bar
                           rather than one block spanning the whole chart (#473). */}
                       <Bar dataKey="attempts" radius={[4, 4, 0, 0]} maxBarSize={64}>
-                        {stats.subject_breakdown.map((_, i) => (
+                        {currentSubjects.map((_, i) => (
                           <Cell
                             key={i}
                             fill={
@@ -183,6 +189,17 @@ export default function StatsPage() {
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
+                {earlierSubjects.length > 0 && (
+                  <p className="mt-2 text-sm text-gray-500">
+                    From earlier curricula:{" "}
+                    {earlierSubjects
+                      .map(
+                        (b) =>
+                          `${b.subject} (${b.attempts} ${b.attempts === 1 ? "attempt" : "attempts"})`,
+                      )
+                      .join(", ")}
+                  </p>
+                )}
               </section>
             )}
           </>

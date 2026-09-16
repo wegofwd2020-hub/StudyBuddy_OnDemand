@@ -166,7 +166,7 @@ async def cohort_unit_ids(
     honestly. Same trap the `cohort_grades` comment in `get_curriculum_health`
     describes, one axis over.
     """
-    from src.content.service import resolve_curriculum_ids
+    from src.content.service import resolve_curriculum_ids, served_units
 
     rows = await conn.fetch(
         """
@@ -193,21 +193,7 @@ async def cohort_unit_ids(
 
     async with pool.acquire() as conn2:
         await conn2.execute("SELECT set_config('app.current_school_id', $1, false)", school_id)
-        unit_rows = await conn2.fetch(
-            """
-            SELECT cu.unit_id
-            FROM curricula c
-            JOIN curriculum_units cu
-              ON cu.curriculum_id = CASE
-                     WHEN EXISTS (SELECT 1 FROM curriculum_units own
-                                  WHERE own.curriculum_id = c.curriculum_id)
-                     THEN c.curriculum_id
-                     ELSE c.source_curriculum_id
-                 END
-            WHERE c.curriculum_id = ANY($1::text[])
-            """,
-            list(curricula),
-        )
+        unit_rows = await served_units(conn2, list(curricula))
     return {r["unit_id"] for r in unit_rows}
 
 
@@ -386,6 +372,42 @@ async def _grades_by_unit(conn: asyncpg.Connection, unit_ids: Iterable[str]) -> 
         ids,
     )
     return {r["unit_id"]: r["grade"] for r in rows}
+
+
+async def _streams_by_unit(conn: asyncpg.Connection, unit_ids: Iterable[str]) -> dict[str, str]:
+    """`unit_id` -> the stream of the curriculum that holds it (#772).
+
+    The unit-level twin of `_streams_by_student`, with the same two rules so a
+    row's label always matches the chip that selects it:
+
+      * A school FORK carries no `stream_code`; it inherits its source's.
+      * No stream at all is `UNSTREAMED`, never NULL — a real bucket, because
+        school-owned content has no stream and never will.
+
+    `DISTINCT ON` for the reason `_grades_by_unit` gives (a fork shares its
+    source's unit ids). A streamed candidate beats an unstreamed one, so a unit
+    held by both a Commerce source and its stream-less fork reads Commerce.
+    """
+    ids = [u for u in dict.fromkeys(unit_ids) if u]
+    if not ids:
+        return {}
+    rows = await conn.fetch(
+        """
+        SELECT DISTINCT ON (cu.unit_id)
+               cu.unit_id,
+               COALESCE(c.stream_code, src.stream_code) AS stream_code
+        FROM curriculum_units cu
+        JOIN curricula c ON c.curriculum_id = cu.curriculum_id
+        LEFT JOIN curricula src ON src.curriculum_id = c.source_curriculum_id
+        WHERE cu.unit_id = ANY($1::text[])
+        ORDER BY cu.unit_id,
+                 COALESCE(c.stream_code, src.stream_code) IS NULL,
+                 COALESCE(c.stream_code, src.stream_code)
+        """,
+        ids,
+    )
+    found = {r["unit_id"]: r["stream_code"] for r in rows}
+    return {u: found.get(u) or UNSTREAMED for u in ids}
 
 
 async def _unit_refs(conn: asyncpg.Connection, unit_ids: Iterable[str]) -> list[dict]:
@@ -937,8 +959,16 @@ async def get_student_report(
     conn: asyncpg.Connection,
     school_id: str,
     student_id: str,
+    pool=None,
+    redis=None,
 ) -> dict:
-    """Per-student report card. Raises LookupError if not enrolled."""
+    """Per-student report card. Raises LookupError if not enrolled.
+
+    `pool` + `redis` let each unit be marked `current` — in a curriculum the
+    student is served NOW, per the shared resolver — so activity left over from
+    a curriculum their classroom has moved off can be grouped apart (#758).
+    Without them every unit reads as current, which is the pre-#758 view.
+    """
     # Verify this student is enrolled in the school
     enrol = await conn.fetchrow(
         "SELECT 1 FROM school_enrolments WHERE school_id = $1 AND student_id = $2 AND status = 'active'",
@@ -1123,6 +1153,27 @@ async def get_student_report(
     # Resolve human-readable subject names (issue #462).
     subject_labels = await resolve_subject_labels(conn, unit_ids)
 
+    # Which of these units the student is taught NOW (#758).
+    #
+    # Venki: a Commerce student's "Unit progress" listed Engineering and
+    # Mathematics & Technology. The rows were real — that student had been
+    # served G11 STEM and then G5 STEM before the classroom was moved onto
+    # Commerce — but a table built from activity cannot tell "working on" from
+    # "worked on once, somewhere else". Rows are marked rather than dropped:
+    # they are educational records, and "Reading time" above must still equal
+    # the sum of this column, so hiding rows would break that on screen.
+    current_units: set[str] | None = None
+    if pool is not None and redis is not None:
+        from src.content.service import resolve_curriculum_ids, served_units
+
+        try:
+            cids = await resolve_curriculum_ids(
+                student_id, int(student["grade"] or 0), pool, redis, school_id=school_id
+            )
+            current_units = {r["unit_id"] for r in await served_units(conn, cids)}
+        except Exception as exc:  # pragma: no cover - grouping is best-effort
+            log.warning("student_report_current_units_failed", error=str(exc))
+
     per_unit = [
         {
             "unit_id": r["unit_id"],
@@ -1135,13 +1186,18 @@ async def get_student_report(
             else None,
             "passed": bool(r["passed"]),
             "total_duration_s": int(r["total_duration_s"] or 0),
+            "current": current_units is None or r["unit_id"] in current_units,
         }
         for r in unit_rows
     ]
 
     # Strongest / needs-attention subject (keyed on the resolved display name)
+    # Current units only (#758): "Needs attention: Engineering" names a subject a
+    # Commerce student is no longer taught, which is advice they cannot act on.
     subj_scores: dict[str, list[float]] = {}
     for r in unit_rows:
+        if current_units is not None and r["unit_id"] not in current_units:
+            continue
         s = display_subject(subject_labels, r["unit_id"], r["subject"])
         if r["best_score"] is not None:
             subj_scores.setdefault(s, []).append(min(100.0, float(r["best_score"])))
@@ -1486,9 +1542,13 @@ async def get_curriculum_health(
         # the untouched merge, so the two attributes cannot diverge between the
         # touched and untouched paths the way the raw subject values once did.
         unit_grades = await _grades_by_unit(conn, unit_ids_all)
+        # Stream on the same pass (#772), so a whole-school export can say which
+        # stream each row belongs to rather than only being filterable by one.
+        unit_streams = await _streams_by_unit(conn, unit_ids_all)
         for u in units:
             u["subject"] = display_subject(subject_labels, u["unit_id"], u["subject"])
             u["grade"] = unit_grades.get(u["unit_id"])
+            u["stream"] = unit_streams.get(u["unit_id"], UNSTREAMED)
 
     # Feedback that names no unit, so a per-unit report structurally cannot show
     # it. Reported explicitly so the export and the dashboard tile can be
@@ -1771,51 +1831,6 @@ async def get_trends(
         )
 
     return {"school_id": school_id, "period": period, "weeks": weeks}
-
-
-# ── Export ────────────────────────────────────────────────────────────────────
-
-
-async def trigger_export(
-    school_id: str,
-    report_type: str,
-    filters: dict,
-    allowed_grades: list[int] | None = None,
-) -> dict:
-    """
-    Dispatch a CSV export Celery task and return {export_id, download_url}.
-
-    The Celery task writes the CSV to
-    CONTENT_STORE_PATH/exports/{school_id}/{export_id}.csv. The school segment
-    is what makes the download endpoint's ownership check structural rather
-    than a comparison someone can forget.
-
-    `allowed_grades` carries the caller's #576 entitlement through to the query.
-    It is resolved in the ROUTER, from the caller's token, and never taken from
-    the request body -- a client-supplied scope is not a scope. `None` means
-    unrestricted (school_admin); the EMPTY list means a teacher with no grade
-    assignments, whose export must contain nobody rather than everybody, so the
-    two can never be collapsed.
-    """
-    from src.core.celery_app import celery_app
-
-    export_id = str(uuid.uuid4())
-    celery_app.send_task(
-        "src.auth.tasks.export_report_task",
-        kwargs={
-            "export_id": export_id,
-            "school_id": school_id,
-            "report_type": report_type,
-            "filters": filters,
-            "allowed_grades": allowed_grades,
-        },
-        queue="io",
-    )
-    return {
-        "export_id": export_id,
-        "download_url": f"/api/v1/reports/download/{export_id}",
-        "status": "queued",
-    }
 
 
 # ── Alerts ────────────────────────────────────────────────────────────────────

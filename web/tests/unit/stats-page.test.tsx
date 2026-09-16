@@ -197,3 +197,33 @@ describe("STU-31 — Stats page renders", () => {
     expect(screen.getByText(/Showing last 7 days/)).toBeInTheDocument();
   });
 });
+
+// ---------------------------------------------------------------------------
+// #758 — subjects from a curriculum the student has moved off are not charted
+// ---------------------------------------------------------------------------
+
+describe("#758 — earlier-curriculum subjects", () => {
+  it("lists them under the chart instead of as bars", () => {
+    mockUseStudentStats.mockReturnValue({
+      data: {
+        ...MOCK_STUDENT_STATS,
+        subject_breakdown: [
+          { subject: "Accountancy", attempts: 2, pass_rate: 1, current: true },
+          { subject: "Physics", attempts: 1, pass_rate: 1, current: false },
+        ],
+      },
+      isLoading: false,
+    });
+    render(<StatsPage />);
+    expect(screen.getByTestId("bar-chart")).toBeInTheDocument();
+    expect(
+      screen.getByText("From earlier curricula: Physics (1 attempt)"),
+    ).toBeInTheDocument();
+  });
+
+  it("says nothing about earlier curricula when there are none", () => {
+    mockUseStudentStats.mockReturnValue({ data: MOCK_STUDENT_STATS, isLoading: false });
+    render(<StatsPage />);
+    expect(screen.queryByText(/From earlier curricula/)).toBeNull();
+  });
+});

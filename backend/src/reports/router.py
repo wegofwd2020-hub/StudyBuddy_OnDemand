@@ -10,12 +10,10 @@ Routes (all prefixed /api/v1 in main.py):
   GET  /reports/school/{school_id}/curriculum-health
   GET  /reports/school/{school_id}/feedback
   GET  /reports/school/{school_id}/trends
-  POST /reports/school/{school_id}/export
   GET  /reports/school/{school_id}/alerts
   PUT  /reports/school/{school_id}/alerts/settings
   POST /reports/school/{school_id}/digest/subscribe
   POST /reports/school/{school_id}/refresh
-  GET  /reports/download/{export_id}
 
 Security:
   All endpoints require teacher JWT.  School ownership enforced.
@@ -24,13 +22,11 @@ Security:
 
 from __future__ import annotations
 
-import os
 import uuid
 from typing import Annotated
 
 import asyncpg
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
-from fastapi.responses import FileResponse
 
 from src.auth.dependencies import get_current_teacher
 from src.core.db import get_db
@@ -44,8 +40,6 @@ from src.reports.schemas import (
     CurriculumHealthReport,
     DigestSubscribeRequest,
     DigestSubscribeResponse,
-    ExportRequest,
-    ExportResponse,
     FeedbackReport,
     MarkSeenResponse,
     OverviewReport,
@@ -71,7 +65,6 @@ from src.reports.service import (
     send_at_risk_reminder,
     subscribe_digest,
     total_units_by_student,
-    trigger_export,
 )
 from src.utils.logger import get_logger
 
@@ -339,7 +332,9 @@ async def student_report(
             if student_grade is None or student_grade not in permitted:
                 raise _deny_grade(request)
         try:
-            result = await get_student_report(conn, school_id, student_id)
+            result = await get_student_report(
+                conn, school_id, student_id, request.app.state.pool, get_redis(request)
+            )
         except LookupError as exc:
             raise HTTPException(
                 status_code=404,
@@ -464,90 +459,6 @@ async def trends_report(
         grades = await _grade_filter(conn, teacher, school_id)
         result = await get_trends(conn, school_id, period, grades)
     return TrendsReport(**result)
-
-
-# ── Export ────────────────────────────────────────────────────────────────────
-
-
-@router.post("/reports/school/{school_id}/export", response_model=ExportResponse)
-async def export_report(
-    school_id: str,
-    body: ExportRequest,
-    request: Request,
-    teacher: Annotated[dict, Depends(get_current_teacher)],
-) -> ExportResponse:
-    """Queue a CSV export task. Returns export_id and download URL.
-
-    Scoped to the caller's grades (#576), like every other report on this
-    router. It was not: `_check_school` alone let a teacher assigned to one
-    grade export the WHOLE school's roster — names, emails, grades and scores —
-    which is a set of educational records outside their assigned scope (FERPA).
-    The rule is the same one `_grade_filter` applies everywhere else, and the
-    export was simply never given it.
-    """
-    _check_school(teacher, school_id, request)
-    async with get_db(request) as conn:
-        allowed_grades = await _grade_filter(conn, teacher, school_id)
-    result = await trigger_export(
-        school_id, body.report_type, body.filters, allowed_grades=allowed_grades
-    )
-    return ExportResponse(**result)
-
-
-@router.get("/reports/download/{export_id}")
-async def download_export(
-    export_id: str,
-    request: Request,
-    teacher: Annotated[dict, Depends(get_current_teacher)],
-):
-    """Serve a completed CSV export file, and only to the school that made it.
-
-    This handler had NO ownership check of any kind — it took an export_id,
-    confirmed a file existed, and served it to any authenticated teacher. The id
-    is an unguessable UUID, so it was not trivially exploitable, but nothing
-    stopped one that leaked (a shared link, a log line, browser history) from
-    handing another school its roster. `_check_school` appears on every other
-    endpoint in this file and was missing from the one that returns a file.
-
-    The check is STRUCTURAL rather than a comparison: exports are written under
-    `exports/{school_id}/`, and this reads from the caller's OWN directory. A
-    path built from the caller's token cannot address another school's file, so
-    there is no comparison to forget on a later edit. `export_id` is still
-    validated as a UUID so it can never contribute a `..` path segment.
-    """
-    from config import settings
-
-    try:
-        uuid.UUID(export_id)
-    except (ValueError, AttributeError, TypeError):
-        raise HTTPException(
-            status_code=404,
-            detail={
-                "error": "export_not_found",
-                "detail": "Export not ready or expired.",
-                "correlation_id": _cid(request),
-            },
-        )
-
-    school_id = teacher.get("school_id") or ""
-    export_path = os.path.join(
-        settings.CONTENT_STORE_PATH, "exports", str(school_id), f"{export_id}.csv"
-    )
-    if not os.path.exists(export_path):
-        cid = _cid(request)
-        raise HTTPException(
-            status_code=404,
-            detail={
-                "error": "export_not_found",
-                "detail": "Export not ready or expired.",
-                "correlation_id": cid,
-            },
-        )
-    return FileResponse(
-        export_path,
-        media_type="text/csv",
-        filename=f"report_{export_id}.csv",
-    )
 
 
 # ── At-Risk Student Action Queue (#79) ───────────────────────────────────────

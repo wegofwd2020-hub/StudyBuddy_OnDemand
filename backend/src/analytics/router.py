@@ -40,9 +40,10 @@ from src.analytics.service import (
     verify_view_owner,
 )
 from src.auth.dependencies import get_current_student, get_current_teacher
-from src.content.service import resolve_curriculum_id
+from src.content.service import resolve_curriculum_id, resolve_curriculum_ids, served_units
 from src.core.db import get_db
 from src.core.grade_scope import grade_filter
+from src.core.redis_client import get_redis
 from src.core.subjects import display_subject, resolve_subject_labels
 from src.utils.logger import get_logger
 
@@ -297,7 +298,42 @@ async def student_stats(
             student_id,
             *period_params,
         )
-        subject_labels = await resolve_subject_labels(conn, [r["unit_id"] for r in unit_subj_rows])
+        # Every subject the student is TAUGHT, not merely the ones they have
+        # attempted (#763).
+        #
+        # Venki: "Business studies not showing because quiz attempts: 0." The
+        # breakdown was built solely from `progress_sessions`, so a subject with
+        # no attempts contributed no row and was structurally invisible —
+        # precisely the case a student needs to see, because it is the one they
+        # have not started. Same defect #590 fixed for "units with no activity"
+        # and #755 for students who never began: a list built from ACTIVITY
+        # cannot report the absence of activity.
+        #
+        # Resolution goes through the shared resolver (pitfall #31) so the
+        # subjects offered here are the ones the student is actually served —
+        # a Commerce student gets Accountancy / Business Studies / Economics,
+        # not every subject at their grade.
+        enrolled_subject_rows = []
+        try:
+            cids = await resolve_curriculum_ids(
+                student_id,
+                int(student.get("grade") or 0),
+                request.app.state.pool,
+                get_redis(request),
+                school_id=student.get("school_id"),
+            )
+            enrolled_subject_rows = await served_units(conn, cids)
+        except Exception as exc:  # pragma: no cover - resolution is best-effort
+            # A failure here must not blank the whole stats page: the attempted
+            # subjects are still correct and useful on their own. Logged rather
+            # than swallowed, because silently reverting to the old (incomplete)
+            # behaviour is exactly the bug being fixed.
+            log.warning("stats_subject_catalog_failed", error=str(exc))
+
+        subject_labels = await resolve_subject_labels(
+            conn,
+            [r["unit_id"] for r in unit_subj_rows] + [r["unit_id"] for r in enrolled_subject_rows],
+        )
 
         # Streak is independent of the selected period: pull distinct active days
         # over a generous fixed window so picking "7d" never truncates a longer
@@ -342,6 +378,15 @@ async def student_stats(
     # QUIZ ATTEMPTS (progress_sessions), not lessons — it was mislabelled "lessons"
     # end to end, which read as the lessons-viewed tile and looked wrong (#525).
     breakdown: dict[str, dict[str, int]] = {}
+    # Seed every taught subject at zero FIRST, so the attempted ones below add
+    # to a complete set rather than defining it (#763). A subject the student
+    # has not touched now reads "0 attempts" instead of being absent, which is
+    # a different statement: absent looks like the subject does not exist.
+    current_subjects: set[str] = set()
+    for r in enrolled_subject_rows:
+        label = display_subject(subject_labels, r["unit_id"], r["subject"])
+        current_subjects.add(label)
+        breakdown.setdefault(label, {"attempts": 0, "passed": 0})
     for r in unit_subj_rows:
         label = display_subject(subject_labels, r["unit_id"], r["subject"])
         agg = breakdown.setdefault(label, {"attempts": 0, "passed": 0})
@@ -352,8 +397,19 @@ async def student_stats(
             "subject": label,
             "attempts": agg["attempts"],
             "pass_rate": round(agg["passed"] / agg["attempts"], 4) if agg["attempts"] else 0.0,
+            # False for a subject the student only has HISTORY in — a curriculum
+            # their classroom has since moved off (#758: a Commerce student's
+            # earlier STEM attempts). Kept, not dropped: those attempts happened
+            # and still count in the tiles above; the client groups them apart.
+            # When the catalog could not be resolved, nothing can be called
+            # earlier, so every subject reads as current (the pre-#763 view).
+            "current": label in current_subjects or not current_subjects,
         }
-        for label, agg in sorted(breakdown.items())
+        # Current subjects first, then earlier ones; alphabetical within each.
+        for label, agg in sorted(
+            breakdown.items(),
+            key=lambda kv: (bool(current_subjects) and kv[0] not in current_subjects, kv[0]),
+        )
     ]
 
     return {

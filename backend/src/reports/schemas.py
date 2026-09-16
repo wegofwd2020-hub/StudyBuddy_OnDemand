@@ -147,6 +147,9 @@ class PerUnitStudentReportItem(BaseModel):
     # sat under was a sum — so the screen invited an addition that could never
     # come out. Same quantity as `total_time_spent_s`, one grain down.
     total_duration_s: int
+    # False when the unit belongs to a curriculum the student is no longer
+    # served — history from before a classroom changed packages (#758).
+    current: bool = True
 
 
 class StudentReport(BaseModel):
@@ -178,6 +181,9 @@ class CurriculumHealthUnit(BaseModel):
     # see `with_feedback`) has no resolvable grade, and inventing one would put
     # it in a group it does not belong to.
     grade: int | None = None
+    # Stream of the curriculum holding this unit (#772): a registry code, or
+    # `unstreamed` — the stream filter's own bucket, so row and chip agree.
+    stream: str = "unstreamed"
     health_tier: str  # healthy | watch | struggling | no_activity
     first_attempt_pass_rate_pct: float
     avg_attempts_to_pass: float
@@ -288,22 +294,6 @@ class TrendsReport(BaseModel):
     school_id: str
     period: str
     weeks: list[TrendsWeek]
-
-
-# ── Export ────────────────────────────────────────────────────────────────────
-
-
-class ExportRequest(BaseModel):
-    report_type: str = Field(
-        ..., pattern="^(overview|unit|student|curriculum-health|feedback|trends)$"
-    )
-    filters: dict[str, Any] = {}
-
-
-class ExportResponse(BaseModel):
-    export_id: str
-    download_url: str
-    status: str  # queued | ready
 
 
 # ── Alerts ────────────────────────────────────────────────────────────────────

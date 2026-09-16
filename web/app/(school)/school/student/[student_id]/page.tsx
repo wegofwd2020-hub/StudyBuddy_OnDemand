@@ -1,14 +1,22 @@
 "use client";
 
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useTeacher } from "@/lib/hooks/useTeacher";
-import { getStudentReport } from "@/lib/api/reports";
+import { getStudentReport, type PerUnitStudentItem } from "@/lib/api/reports";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LinkButton } from "@/components/ui/link-button";
-import { Award, CheckCircle, XCircle, Clock } from "lucide-react";
+import {
+  Award,
+  CheckCircle,
+  ChevronDown,
+  ChevronRight,
+  XCircle,
+  Clock,
+} from "lucide-react";
 
 function secondsToHm(s: number): string {
   const h = Math.floor(s / 3600);
@@ -33,6 +41,70 @@ export default function StudentDetailPage() {
     enabled: !!schoolId && !!student_id,
     staleTime: 120_000,
   });
+  const [showEarlier, setShowEarlier] = useState(false);
+  const currentUnits = report?.per_unit.filter((u) => u.current) ?? [];
+  const earlierUnits = report?.per_unit.filter((u) => !u.current) ?? [];
+
+  const unitRow = (u: PerUnitStudentItem) => (
+    <tr key={u.unit_id} className="hover:bg-gray-50">
+      <td className="px-4 py-3 font-medium text-gray-800">{u.unit_name ?? u.unit_id}</td>
+      <td className="px-4 py-3 text-gray-500 capitalize">{u.subject}</td>
+      {/* Bare icons with no legend anywhere on the page. A
+            tester read this column as a health marker and asked
+            why low-scoring rows had no warning in it — a fair
+            reading of an unlabelled tick. It has always meant
+            only "opened the lesson", so it now says so, to a
+            screen reader and on hover alike. */}
+      <td className="px-4 py-3">
+        {u.lesson_viewed ? (
+          <CheckCircle className="h-4 w-4 text-green-500" aria-label="Lesson opened">
+            <title>Lesson opened</title>
+          </CheckCircle>
+        ) : (
+          <Clock className="h-4 w-4 text-gray-300" aria-label="Lesson not opened">
+            <title>Lesson not opened</title>
+          </Clock>
+        )}
+      </td>
+      <td className="px-4 py-3 text-gray-600">{u.quiz_attempts}</td>
+      {/* The needs-attention marker the tester asked for, on the
+            score rather than the lesson column — the score is what
+            makes a unit need attention.
+
+            The condition is `!u.passed`, NOT a hardcoded 50%. Pass
+            marks are per-school (ADR-007), so a fixed threshold
+            would flag units a school considers passed and miss
+            ones it does not. `passed` already carries that school's
+            own grading scale.
+
+            Same icon and colour as the "Needs attention" chip
+            above, deliberately: the legend and the rows should
+            speak one language, which is the whole complaint. */}
+      <td className="px-4 py-3">
+        {u.best_score !== null ? (
+          <span
+            className={
+              u.passed
+                ? "font-medium text-green-600"
+                : "inline-flex items-center gap-1.5 font-medium text-orange-700"
+            }
+          >
+            {!u.passed && (
+              <XCircle className="h-3.5 w-3.5 shrink-0" aria-label="Needs attention">
+                <title>Needs attention</title>
+              </XCircle>
+            )}
+            {u.best_score.toFixed(0)}%
+          </span>
+        ) : (
+          <span className="text-gray-300">—</span>
+        )}
+      </td>
+      <td className="px-4 py-3 text-xs text-gray-400">
+        {secondsToHm(u.total_duration_s)}
+      </td>
+    </tr>
+  );
 
   return (
     <div className="max-w-4xl space-y-6 p-6">
@@ -159,80 +231,39 @@ export default function StudentDetailPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
-                    {report.per_unit.map((u) => (
-                      <tr key={u.unit_id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 font-medium text-gray-800">
-                          {u.unit_name ?? u.unit_id}
-                        </td>
-                        <td className="px-4 py-3 text-gray-500 capitalize">
-                          {u.subject}
-                        </td>
-                        {/* Bare icons with no legend anywhere on the page. A
-                            tester read this column as a health marker and asked
-                            why low-scoring rows had no warning in it — a fair
-                            reading of an unlabelled tick. It has always meant
-                            only "opened the lesson", so it now says so, to a
-                            screen reader and on hover alike. */}
-                        <td className="px-4 py-3">
-                          {u.lesson_viewed ? (
-                            <CheckCircle
-                              className="h-4 w-4 text-green-500"
-                              aria-label="Lesson opened"
-                            >
-                              <title>Lesson opened</title>
-                            </CheckCircle>
-                          ) : (
-                            <Clock
-                              className="h-4 w-4 text-gray-300"
-                              aria-label="Lesson not opened"
-                            >
-                              <title>Lesson not opened</title>
-                            </Clock>
-                          )}
-                        </td>
-                        <td className="px-4 py-3 text-gray-600">{u.quiz_attempts}</td>
-                        {/* The needs-attention marker the tester asked for, on the
-                            score rather than the lesson column — the score is what
-                            makes a unit need attention.
-
-                            The condition is `!u.passed`, NOT a hardcoded 50%. Pass
-                            marks are per-school (ADR-007), so a fixed threshold
-                            would flag units a school considers passed and miss
-                            ones it does not. `passed` already carries that school's
-                            own grading scale.
-
-                            Same icon and colour as the "Needs attention" chip
-                            above, deliberately: the legend and the rows should
-                            speak one language, which is the whole complaint. */}
-                        <td className="px-4 py-3">
-                          {u.best_score !== null ? (
-                            <span
-                              className={
-                                u.passed
-                                  ? "font-medium text-green-600"
-                                  : "inline-flex items-center gap-1.5 font-medium text-orange-700"
-                              }
-                            >
-                              {!u.passed && (
-                                <XCircle
-                                  className="h-3.5 w-3.5 shrink-0"
-                                  aria-label="Needs attention"
-                                >
-                                  <title>Needs attention</title>
-                                </XCircle>
-                              )}
-                              {u.best_score.toFixed(0)}%
-                            </span>
-                          ) : (
-                            <span className="text-gray-300">—</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3 text-xs text-gray-400">
-                          {secondsToHm(u.total_duration_s)}
+                    {currentUnits.map(unitRow)}
+                  </tbody>
+                  {/* Activity on a curriculum this student is no longer served
+                      (#758) — e.g. a Commerce student's earlier STEM units. Kept,
+                      because it happened and "Reading time" above still counts
+                      it; grouped and collapsed, because listed among the current
+                      units it read as subjects the student is meant to study. */}
+                  {earlierUnits.length > 0 && (
+                    <tbody className="divide-y divide-gray-50 border-t">
+                      <tr>
+                        <td colSpan={6} className="bg-gray-50 px-4 py-2.5">
+                          <button
+                            type="button"
+                            onClick={() => setShowEarlier((v) => !v)}
+                            aria-expanded={showEarlier}
+                            className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-600 hover:text-gray-900"
+                          >
+                            {showEarlier ? (
+                              <ChevronDown className="h-3.5 w-3.5" aria-hidden />
+                            ) : (
+                              <ChevronRight className="h-3.5 w-3.5" aria-hidden />
+                            )}
+                            From earlier curricula ({earlierUnits.length}{" "}
+                            {earlierUnits.length === 1 ? "unit" : "units"})
+                          </button>
+                          <p className="mt-0.5 text-xs text-gray-400">
+                            Work on curricula this student is no longer assigned.
+                          </p>
                         </td>
                       </tr>
-                    ))}
-                  </tbody>
+                      {showEarlier && earlierUnits.map(unitRow)}
+                    </tbody>
+                  )}
                 </table>
               </div>
             </CardContent>
