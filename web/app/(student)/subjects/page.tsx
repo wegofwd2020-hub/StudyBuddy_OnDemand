@@ -96,6 +96,28 @@ function SubjectUnitList({
                   >
                     Lesson
                   </LinkButton>
+                  {/* #756. The Curriculum Map has always offered Lesson /
+                      Tutorial / Quiz (see components/library/Toc.tsx); this
+                      page offered two of the three, so which routes a student
+                      could reach depended on how they navigated rather than on
+                      what exists. Venki: "Tutorial presentation is better than
+                      Lesson for learning" — so the missing one was the one he
+                      wanted most.
+
+                      Linked unconditionally, matching the Map. A unit with no
+                      tutorial is not silently hidden: the tutorial page reports
+                      it through `contentErrorMessage`, the same honest 404 the
+                      lesson and quiz pages give (pitfall #36). The `unavailable`
+                      guard above already withholds every button for a unit whose
+                      content has not been published. */}
+                  <LinkButton
+                    href={`/tutorial/${unit.unit_id}`}
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 text-xs"
+                  >
+                    Tutorial
+                  </LinkButton>
                   <LinkButton
                     href={`/quiz/${unit.unit_id}`}
                     variant="ghost"

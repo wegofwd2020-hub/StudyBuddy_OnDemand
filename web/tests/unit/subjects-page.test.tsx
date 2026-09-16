@@ -16,6 +16,7 @@ import {
   MOCK_CURRICULUM_TREE,
   SUBJECTS_STRINGS,
   lessonHref,
+  tutorialHref,
   quizHref,
 } from "../e2e/data/subjects-page";
 
@@ -174,6 +175,56 @@ describe("STU-13 — Unit buttons and hrefs", () => {
         expect(match).toBeTruthy();
       }
     }
+  });
+
+  it("each unit has a Tutorial link with correct href", () => {
+    // #756. The Curriculum Map has always offered Lesson / Tutorial / Quiz;
+    // this page offered two of the three, so which routes a student could
+    // reach depended on how they navigated rather than on what exists.
+    mockUseCurriculumTree.mockReturnValue({
+      data: MOCK_CURRICULUM_TREE,
+      isLoading: false,
+      isError: false,
+    });
+    render(<SubjectsPage />);
+
+    for (const subject of MOCK_CURRICULUM_TREE.subjects) {
+      fireEvent.click(screen.getByRole("button", { name: subject.subject }));
+      for (const unit of subject.units) {
+        const tutorialLinks = screen.getAllByRole("link", {
+          name: SUBJECTS_STRINGS.tutorialBtn,
+        });
+        const match = tutorialLinks.find(
+          (el) => el.getAttribute("href") === tutorialHref(unit.unit_id),
+        );
+        expect(match).toBeTruthy();
+      }
+    }
+  });
+
+  it("offers the same three routes as the Curriculum Map", () => {
+    // The point of the issue is CONSISTENCY, so this asserts the set rather
+    // than each link separately: a future change that drops one would pass the
+    // individual tests above only if it dropped the one they do not cover.
+    mockUseCurriculumTree.mockReturnValue({
+      data: MOCK_CURRICULUM_TREE,
+      isLoading: false,
+      isError: false,
+    });
+    render(<SubjectsPage />);
+
+    const subject = MOCK_CURRICULUM_TREE.subjects[0];
+    fireEvent.click(screen.getByRole("button", { name: subject.subject }));
+    const unitId = subject.units[0].unit_id;
+
+    const hrefs = screen.getAllByRole("link").map((el) => el.getAttribute("href"));
+    expect(hrefs).toEqual(
+      expect.arrayContaining([
+        lessonHref(unitId),
+        tutorialHref(unitId),
+        quizHref(unitId),
+      ]),
+    );
   });
 
   it("each unit has a Quiz link with correct href", () => {

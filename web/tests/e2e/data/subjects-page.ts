@@ -89,6 +89,8 @@ export const SUBJECTS_STRINGS = {
   pageHeading: "Subjects",
   errorMessage: "Could not load curriculum. Please retry.",
   lessonBtn: "Lesson",
+  // #756 — the Curriculum Map has always offered all three; this page did not.
+  tutorialBtn: "Tutorial",
   quizBtn: "Quiz",
 } as const;
 
@@ -98,6 +100,10 @@ export const SUBJECTS_STRINGS = {
 
 export function lessonHref(unitId: string) {
   return `/lesson/${unitId}`;
+}
+
+export function tutorialHref(unitId: string) {
+  return `/tutorial/${unitId}`;
 }
 
 export function quizHref(unitId: string) {
