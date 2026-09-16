@@ -675,8 +675,43 @@ def _parse_quiz_answer_key(
                 },
             )
             continue
+        # #754. An option is CHOSEN by position, but what the student picked is
+        # the text: when two positions render the same words they are the same
+        # answer, and marking one of them wrong grades on a coin toss. Venki's
+        # report was G11-ACC-001 q7, whose options read
+        # ['USD 35,000', 'USD 35,000', 'USD 30,000', 'USD 36,500'].
+        #
+        # Whitespace is collapsed because HTML collapses it; case is NOT folded,
+        # because case carries meaning in this content -- 'Bb' vs 'bB' are
+        # different genotypes and '2gH' vs '2gh' different quantities. Folding it
+        # would mark a WRONG answer correct, which is worse than the bug.
+        #
+        # An empty text is a content defect, not evidence the student chose
+        # right, so blanks never merge -- otherwise clicking a blank option
+        # scores a mark.
+        correct_text = " ".join((options[index].get("text") or "").split())
+        accepted = sorted(
+            i
+            for i, o in enumerate(options)
+            if correct_text and " ".join((o.get("text") or "").split()) == correct_text
+        ) or [index]
+        if len(accepted) > 1:
+            log.warning(
+                "quiz_indistinguishable_options",
+                extra={
+                    "curriculum_id": curriculum_id,
+                    "unit_id": unit_id,
+                    "set_number": set_number,
+                    "question_id": qid,
+                    "accepted": accepted,
+                    "text": correct_text,
+                },
+            )
         key[qid] = {
             "index": index,
+            # Every index the student could have clicked that reads identically
+            # to the correct one. Always contains `index`.
+            "accepted": accepted,
             "explanation": question.get("explanation", ""),
             # ADR-008 Phase 1. `qid` is a POSITION within this set -- `q1` of set 2
             # is a different question from `q1` of set 1 -- so a recorded answer

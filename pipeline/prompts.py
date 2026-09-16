@@ -405,6 +405,9 @@ Requirements:
 - EXACTLY 8 questions — no more, no fewer
 - Each question has EXACTLY 4 options (A, B, C, D)
 - correct_option must be one of: "A", "B", "C", "D"
+- All 4 option texts within a question must be DIFFERENT from each other. Never
+  repeat the correct answer as a distractor: a student who knows the answer must
+  have exactly one option to click.
 - difficulty must be one of: "easy", "medium", "hard"
   - Include roughly 2–3 easy, 3–4 medium, 1–2 hard questions
 - Set {set_number} should cover different aspects of the topic than sets 1–{set_number - 1 if set_number > 1 else 0}

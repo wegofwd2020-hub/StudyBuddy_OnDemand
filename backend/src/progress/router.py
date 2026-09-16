@@ -278,7 +278,11 @@ async def record_answer(
         )
 
     correct_index = entry["index"]
-    correct = body.student_answer == correct_index
+    # `accepted` is every index whose option text is identical to the correct
+    # one -- normally just `index`. See _parse_quiz_answer_key (#754): grading on
+    # position alone marked a student wrong for picking the same words.
+    accepted = entry.get("accepted") or [correct_index]
+    correct = body.student_answer in accepted
 
     # Running tally in Redis: the DB write below is fire-and-forget, so the rows
     # may not exist yet when the session ends. This is what end_session reads.
@@ -441,13 +445,19 @@ async def end_session_endpoint(
             picked = await read_answered(redis, session_id)
             for question_id, entry in answer_key.items():
                 mine = picked.get(question_id)
+                accepted = entry.get("accepted") or [entry["index"]]
+                got_it = mine is not None and mine in accepted
                 reveal.append(
                     {
                         "question_id": question_id,
-                        "correct_index": entry["index"],
+                        # When the student picked an option that reads identically
+                        # to the correct one (#754), highlight THEIRS. Pointing at
+                        # the other copy is precisely what was reported: "marked
+                        # wrong but the correct answer shown was also USD 35,000".
+                        "correct_index": mine if got_it else entry["index"],
                         "explanation": entry.get("explanation", ""),
                         "your_answer": mine,
-                        "correct": mine is not None and mine == entry["index"],
+                        "correct": got_it,
                     }
                 )
 
