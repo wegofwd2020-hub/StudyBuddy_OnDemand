@@ -43,14 +43,12 @@
  * UNCHANGED — degrading to the raw value beats "Invalid Date" or a blank cell,
  * since the reader can still see what the server actually sent.
  *
- * CSV exports keep ISO 8601 in the FILE where a value is written by
- * `formatDate` for the on-screen column, the column header names the
- * convention (`Week start (DD/MM/YYYY)`) explicitly — because Excel re-types
- * a written date-like string and renders it per the READER's regional
- * settings, which this module cannot control from the exporting page. That
- * trade-off is orthogonal to the browser-locale problem above: it is Excel's
- * own re-interpretation of a spreadsheet cell, not a `Date` rendered with the
- * wrong formatter.
+ * CSV exports use the same `dd/mm/yyyy` (#759), with the column header naming
+ * the convention (`Week start (DD/MM/YYYY)`). Known trade-off, accepted: Excel
+ * re-types a date-like cell using the READER's regional settings, so on a
+ * US-locale machine `03/09/2026` opens as 9 March. That is Excel's own
+ * re-interpretation of the file, not something this module can control — the
+ * header label is the file's only safeguard.
  */
 
 /** Split a `YYYY-MM-DD` string into parts, or null if it isn't one. See the
