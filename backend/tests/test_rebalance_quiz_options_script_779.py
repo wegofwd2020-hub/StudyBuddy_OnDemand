@@ -143,3 +143,21 @@ def test_main_returns_2_on_violation(tmp_path):
 
     with patch.object(script, "balance_options", _corrupt):
         assert script.main(["--root", str(tmp_path), "--commit"]) == 2
+
+
+def test_a_reordered_unresolvable_question_aborts_without_writing(tmp_path):
+    quiz = _quiz("U-1")
+    quiz["questions"][0]["correct_option"] = "Z"  # unresolvable
+    path = _write(tmp_path, "c1", "U-1", quiz)
+    before = _read(path)
+
+    def _reorder_first_question(body, *, unit_id, lang):
+        result = json.loads(json.dumps(body))
+        result["questions"][0]["options"] = result["questions"][0]["options"][::-1]
+        return result
+
+    with patch.object(script, "balance_options", _reorder_first_question):
+        with pytest.raises(script.RebalanceInvariantError):
+            script.rebalance(str(tmp_path), commit=True)
+
+    assert _read(path) == before

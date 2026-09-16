@@ -88,6 +88,15 @@ def _verify(
     ):
         raise RebalanceInvariantError(f"correct answer changed: {path}")
 
+    # Verify that unresolvable questions (those not in the answer key) remain unchanged
+    orig_key = _parse_quiz_answer_key(original, cid, unit, set_number, lang)
+    orig_by_id = {q.get("question_id"): q for q in original.get("questions", [])}
+    balanced_by_id = {q.get("question_id"): q for q in balanced.get("questions", [])}
+    for qid, orig_q in orig_by_id.items():
+        if qid not in orig_key:  # unresolvable question
+            if qid not in balanced_by_id or balanced_by_id[qid] != orig_q:
+                raise RebalanceInvariantError(f"unresolvable question changed: {path}")
+
 
 def _write_atomic(path: str, body: dict) -> None:
     tmp = f"{path}.rebalance.tmp"
