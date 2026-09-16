@@ -7342,6 +7342,11 @@ export interface components {
             subject: string;
             /** Grade */
             grade?: number | null;
+            /**
+             * Stream
+             * @default unstreamed
+             */
+            stream: string;
             /** Health Tier */
             health_tier: string;
             /** First Attempt Pass Rate Pct */

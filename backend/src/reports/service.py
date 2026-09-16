@@ -374,6 +374,42 @@ async def _grades_by_unit(conn: asyncpg.Connection, unit_ids: Iterable[str]) -> 
     return {r["unit_id"]: r["grade"] for r in rows}
 
 
+async def _streams_by_unit(conn: asyncpg.Connection, unit_ids: Iterable[str]) -> dict[str, str]:
+    """`unit_id` -> the stream of the curriculum that holds it (#772).
+
+    The unit-level twin of `_streams_by_student`, with the same two rules so a
+    row's label always matches the chip that selects it:
+
+      * A school FORK carries no `stream_code`; it inherits its source's.
+      * No stream at all is `UNSTREAMED`, never NULL — a real bucket, because
+        school-owned content has no stream and never will.
+
+    `DISTINCT ON` for the reason `_grades_by_unit` gives (a fork shares its
+    source's unit ids). A streamed candidate beats an unstreamed one, so a unit
+    held by both a Commerce source and its stream-less fork reads Commerce.
+    """
+    ids = [u for u in dict.fromkeys(unit_ids) if u]
+    if not ids:
+        return {}
+    rows = await conn.fetch(
+        """
+        SELECT DISTINCT ON (cu.unit_id)
+               cu.unit_id,
+               COALESCE(c.stream_code, src.stream_code) AS stream_code
+        FROM curriculum_units cu
+        JOIN curricula c ON c.curriculum_id = cu.curriculum_id
+        LEFT JOIN curricula src ON src.curriculum_id = c.source_curriculum_id
+        WHERE cu.unit_id = ANY($1::text[])
+        ORDER BY cu.unit_id,
+                 COALESCE(c.stream_code, src.stream_code) IS NULL,
+                 COALESCE(c.stream_code, src.stream_code)
+        """,
+        ids,
+    )
+    found = {r["unit_id"]: r["stream_code"] for r in rows}
+    return {u: found.get(u) or UNSTREAMED for u in ids}
+
+
 async def _unit_refs(conn: asyncpg.Connection, unit_ids: Iterable[str]) -> list[dict]:
     """Turn bare unit ids into rows a reader can group and act on (#773).
 
@@ -1506,9 +1542,13 @@ async def get_curriculum_health(
         # the untouched merge, so the two attributes cannot diverge between the
         # touched and untouched paths the way the raw subject values once did.
         unit_grades = await _grades_by_unit(conn, unit_ids_all)
+        # Stream on the same pass (#772), so a whole-school export can say which
+        # stream each row belongs to rather than only being filterable by one.
+        unit_streams = await _streams_by_unit(conn, unit_ids_all)
         for u in units:
             u["subject"] = display_subject(subject_labels, u["unit_id"], u["subject"])
             u["grade"] = unit_grades.get(u["unit_id"])
+            u["stream"] = unit_streams.get(u["unit_id"], UNSTREAMED)
 
     # Feedback that names no unit, so a per-unit report structurally cannot show
     # it. Reported explicitly so the export and the dashboard tile can be

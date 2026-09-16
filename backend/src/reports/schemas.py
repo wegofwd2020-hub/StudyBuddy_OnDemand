@@ -181,6 +181,9 @@ class CurriculumHealthUnit(BaseModel):
     # see `with_feedback`) has no resolvable grade, and inventing one would put
     # it in a group it does not belong to.
     grade: int | None = None
+    # Stream of the curriculum holding this unit (#772): a registry code, or
+    # `unstreamed` — the stream filter's own bucket, so row and chip agree.
+    stream: str = "unstreamed"
     health_tier: str  # healthy | watch | struggling | no_activity
     first_attempt_pass_rate_pct: float
     avg_attempts_to_pass: float
