@@ -1793,51 +1793,6 @@ async def get_trends(
     return {"school_id": school_id, "period": period, "weeks": weeks}
 
 
-# ── Export ────────────────────────────────────────────────────────────────────
-
-
-async def trigger_export(
-    school_id: str,
-    report_type: str,
-    filters: dict,
-    allowed_grades: list[int] | None = None,
-) -> dict:
-    """
-    Dispatch a CSV export Celery task and return {export_id, download_url}.
-
-    The Celery task writes the CSV to
-    CONTENT_STORE_PATH/exports/{school_id}/{export_id}.csv. The school segment
-    is what makes the download endpoint's ownership check structural rather
-    than a comparison someone can forget.
-
-    `allowed_grades` carries the caller's #576 entitlement through to the query.
-    It is resolved in the ROUTER, from the caller's token, and never taken from
-    the request body -- a client-supplied scope is not a scope. `None` means
-    unrestricted (school_admin); the EMPTY list means a teacher with no grade
-    assignments, whose export must contain nobody rather than everybody, so the
-    two can never be collapsed.
-    """
-    from src.core.celery_app import celery_app
-
-    export_id = str(uuid.uuid4())
-    celery_app.send_task(
-        "src.auth.tasks.export_report_task",
-        kwargs={
-            "export_id": export_id,
-            "school_id": school_id,
-            "report_type": report_type,
-            "filters": filters,
-            "allowed_grades": allowed_grades,
-        },
-        queue="io",
-    )
-    return {
-        "export_id": export_id,
-        "download_url": f"/api/v1/reports/download/{export_id}",
-        "status": "queued",
-    }
-
-
 # ── Alerts ────────────────────────────────────────────────────────────────────
 
 

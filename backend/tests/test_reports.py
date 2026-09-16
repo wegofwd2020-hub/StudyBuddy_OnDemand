@@ -22,7 +22,6 @@ from __future__ import annotations
 
 import uuid
 from datetime import UTC, datetime, timedelta
-from unittest.mock import patch
 
 import pytest
 from httpx import AsyncClient
@@ -611,48 +610,6 @@ async def test_trends_report_returns_4_weeks(client, db_conn):
         assert _dt.strptime(week["week_start"], "%Y-%m-%d").weekday() == 0, (
             f"week_start {week['week_start']} is not a Monday"
         )
-
-
-# ── Export ─────────────────────────────────────────────────────────────────────
-
-
-@pytest.mark.asyncio
-async def test_export_queues_celery_task(client, db_conn):
-    """POST /export dispatches Celery task and returns export_id."""
-    school = await _register_school(client, "_exp")
-    school_id = school["school_id"]
-    token = school["access_token"]
-
-    with patch("src.auth.tasks.celery_app.send_task", return_value=None) as mock_send:
-        r = await client.post(
-            f"/api/v1/reports/school/{school_id}/export",
-            json={"report_type": "overview", "filters": {}},
-            headers={"Authorization": f"Bearer {token}"},
-        )
-        assert r.status_code == 200, r.text
-        mock_send.assert_called_once()
-        task_name = mock_send.call_args[0][0]
-        assert task_name == "src.auth.tasks.export_report_task"
-
-    data = r.json()
-    assert "export_id" in data
-    uuid.UUID(data["export_id"])
-    assert "/reports/download/" in data["download_url"]
-    assert data["status"] == "queued"
-
-
-@pytest.mark.asyncio
-async def test_export_wrong_school_403(client, db_conn):
-    school = await _register_school(client, "_exp_ws")
-    school_id = school["school_id"]
-    wrong_token = _make_teacher(_WRONG_SCHOOL)
-
-    r = await client.post(
-        f"/api/v1/reports/school/{school_id}/export",
-        json={"report_type": "overview"},
-        headers={"Authorization": f"Bearer {wrong_token}"},
-    )
-    assert r.status_code == 403
 
 
 # ── Alerts ─────────────────────────────────────────────────────────────────────

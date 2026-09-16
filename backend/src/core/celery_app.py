@@ -76,7 +76,6 @@ celery_app.conf.update(
         "src.auth.tasks.run_curriculum_pipeline_task": {"queue": "pipeline"},
         "src.auth.tasks.promote_student_grades": {"queue": "default"},
         "src.auth.tasks.send_pipeline_email_task": {"queue": "io"},
-        "src.auth.tasks.export_report_task": {"queue": "io"},
         "src.auth.tasks.refresh_report_views_task": {"queue": "default"},
         "src.auth.tasks.evaluate_report_alerts_task": {"queue": "default"},
         "src.auth.tasks.send_weekly_digest_task": {"queue": "io"},
