@@ -1073,9 +1073,7 @@ async def get_curriculum_health(
     streams_by_student: dict[str, set[str]] = {}
     available_streams: list[str] = []
     if pool is not None and redis is not None:
-        streams_by_student = await _streams_by_student(
-            conn, pool, redis, school_id, allowed_grades
-        )
+        streams_by_student = await _streams_by_student(conn, pool, redis, school_id, allowed_grades)
         available_streams = sorted({s for codes in streams_by_student.values() for s in codes})
 
     enrolled = await _enrolled_ids(conn, school_id, cohort_grades)
