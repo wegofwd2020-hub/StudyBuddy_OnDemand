@@ -145,6 +145,36 @@ def test_main_returns_2_on_violation(tmp_path):
         assert script.main(["--root", str(tmp_path), "--commit"]) == 2
 
 
+def test_malformed_json_aborts_cleanly(tmp_path):
+    """M-2 (final review): malformed JSON used to escape as a raw
+    json.JSONDecodeError traceback; it must abort cleanly instead (exit 2)."""
+    d = os.path.join(tmp_path, "curricula", "c1", "U-1")
+    os.makedirs(d, exist_ok=True)
+    with open(os.path.join(d, "quiz_set_1_en.json"), "w") as f:
+        f.write("{not json")
+
+    assert script.main(["--root", str(tmp_path), "--commit"]) == 2
+
+
+def test_a_changed_question_text_aborts_without_writing(tmp_path):
+    """M-3 (final review): `_verify` only checked options and correct text, so
+    a change to `question_text` (the ADR-008 stable_question_id input) or
+    `explanation` would pass silently."""
+    path = _write(tmp_path, "c1", "U-1", _quiz("U-1"))
+    before = _read(path)
+
+    def _alter_question_text(quiz, *, unit_id, lang):
+        result = json.loads(json.dumps(quiz))
+        result["questions"][0]["question_text"] = "A completely different question?"
+        return result
+
+    with patch.object(script, "balance_options", _alter_question_text):
+        with pytest.raises(script.RebalanceInvariantError):
+            script.rebalance(str(tmp_path), commit=True)
+
+    assert _read(path) == before
+
+
 def test_a_reordered_unresolvable_question_aborts_without_writing(tmp_path):
     quiz = _quiz("U-1")
     quiz["questions"][0]["correct_option"] = "Z"  # unresolvable

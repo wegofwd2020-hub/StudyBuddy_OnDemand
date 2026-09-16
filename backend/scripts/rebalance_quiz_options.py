@@ -14,13 +14,32 @@ On the demo `pipeline` is NOT inside the api image; mount it for the run:
       api python /app/scripts/rebalance_quiz_options.py
 
 Every file is checked before it is written: same question ids, same option
-texts, and the answer key resolves each question to the same correct TEXT. A
-violation stops the run before that file is touched (files already written were
-each verified). Placeholder content is skipped (pitfall #36). Teacher overrides
-live in the database and are not touched.
+texts, the answer key resolves each question to the same correct TEXT, and
+every non-option question/quiz field (question_text, explanation, top-level
+keys) is unchanged. A violation stops the run before that file is touched
+(files already written were each verified) and the process exits 2. Malformed
+or unreadable files (bad JSON, bad encoding, more than 26 options) also abort
+cleanly rather than raising a raw traceback. Placeholder content is skipped
+(pitfall #36). Imported school overrides (`unit_content_overrides`) live in
+the database and are not touched by this script — see #795.
 
-After a --commit on a live store, clear the Redis `content:*` keys as
-scripts/demo/sync-content.sh does (never FLUSHDB).
+Rollout notes
+-------------
+- Quiet window: run only when no `progress_sessions` row has `ended_at IS
+  NULL` and `started_at` within the last 24 hours (quiz sessions are
+  resumable for 24 h and the per-session answer tally lives 6 h; a student
+  resuming across the switch would see their picks highlighted against the
+  new order).
+- Take a backup of all `quiz_set_*.json` first.
+- After `--commit`: delete Redis `content:*` keys only (never FLUSHDB), as
+  scripts/demo/sync-content.sh does; outside the demo, CloudFront also needs
+  invalidation for the rewritten paths (CLAUDE.md pitfall #6).
+- `meta.json` `content_version` is not bumped by this script (the mobile app
+  caches content by it — relevant once Epic 3 ships).
+- Running as root inside the container leaves rewritten files root-owned;
+  check ownership matches the rest of the store afterwards.
+- Imported school overrides (`unit_content_overrides`) are not rebalanced —
+  see #795.
 """
 
 from __future__ import annotations
@@ -78,6 +97,10 @@ def _option_texts(body: dict) -> dict[str, list[str]]:
     }
 
 
+def _without_answer_fields(question: dict) -> dict:
+    return {k: v for k, v in question.items() if k not in ("options", "correct_option")}
+
+
 def _verify(
     original: dict, balanced: dict, cid: str, unit: str, set_number: int, lang: str, path: str
 ) -> None:
@@ -97,12 +120,34 @@ def _verify(
             if qid not in balanced_by_id or balanced_by_id[qid] != orig_q:
                 raise RebalanceInvariantError(f"unresolvable question changed: {path}")
 
+    # M-3: the question_id set and every top-level (non-`questions`) key/value
+    # of the body must be unchanged -- balance_options only ever touches
+    # per-question `options`/`correct_option`.
+    orig_top = {k: v for k, v in original.items() if k != "questions"}
+    balanced_top = {k: v for k, v in balanced.items() if k != "questions"}
+    if set(orig_by_id) != set(balanced_by_id) or orig_top != balanced_top:
+        raise RebalanceInvariantError(f"quiz fields changed: {path}")
+
+    # M-3: non-option question fields (question_text -- the ADR-008
+    # stable_question_id input -- explanation, etc.) must be unchanged too. A
+    # change here would pass the checks above, which only look at options.
+    for qid, orig_q in orig_by_id.items():
+        if _without_answer_fields(balanced_by_id[qid]) != _without_answer_fields(orig_q):
+            raise RebalanceInvariantError(f"question fields changed: {path}")
+
 
 def _write_atomic(path: str, body: dict) -> None:
     tmp = f"{path}.rebalance.tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(body, f, ensure_ascii=False, indent=2)
-    os.replace(tmp, path)
+    try:
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(body, f, ensure_ascii=False, indent=2)
+        os.replace(tmp, path)
+    except BaseException:
+        # M-4: don't leave a stray .rebalance.tmp file behind if writing or
+        # dumping fails partway through.
+        if os.path.exists(tmp):
+            os.remove(tmp)
+        raise
 
 
 def rebalance(root: str, *, commit: bool) -> Report:
@@ -124,15 +169,21 @@ def rebalance(root: str, *, commit: bool) -> Report:
                 if not match:
                     continue
                 path = os.path.join(udir, name)
-                with open(path, encoding="utf-8") as f:
-                    original = json.load(f)
+                try:
+                    with open(path, encoding="utf-8") as f:
+                        original = json.load(f)
+                except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+                    raise RebalanceInvariantError(f"cannot process {path}: {exc}") from exc
                 if original.get("model") == _PLACEHOLDER_MODEL:
                     report.skipped_placeholder += 1
                     continue
 
                 report.files_seen += 1
                 set_number, lang = int(match.group(1)), match.group(2)
-                balanced = balance_options(original, unit_id=unit, lang=lang)
+                try:
+                    balanced = balance_options(original, unit_id=unit, lang=lang)
+                except IndexError as exc:
+                    raise RebalanceInvariantError(f"cannot process {path}: {exc}") from exc
                 report.before.update(q.get("correct_option") for q in original.get("questions", []))
                 report.after.update(q.get("correct_option") for q in balanced.get("questions", []))
 
