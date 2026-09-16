@@ -394,15 +394,26 @@ async def feedback_report(
     sort: str = Query("recent", pattern="^(recent|oldest)$"),
     page: int = Query(1, ge=1),
     page_size: int = Query(50, ge=1, le=200),
+    grade: int | None = Query(None),
+    stream: str | None = Query(None, max_length=64),
 ) -> FeedbackReport:
     """A page of student feedback for the school, newest first by default.
 
     Paginated since #611: the report previously returned every item ever
     recorded, so the response grew without bound as a school accumulated
     feedback.
+
+    `?grade=` is a filter WITHIN the caller's entitlement and is refused, not
+    ignored, when it names a grade they do not teach — the same rule and the
+    same 403 as the roster and the curriculum-health report. `?stream=` needs
+    no separate check: the cohort is scoped to the caller's grades before any
+    stream narrowing, so a stream they cannot see contributes no students.
     """
     _check_school(teacher, school_id, request)
     async with get_db(request) as conn:
+        permitted = await _permitted_grades(conn, teacher, school_id)
+        if grade is not None and permitted is not None and grade not in permitted:
+            raise _deny_grade(request)
         result = await get_feedback_report(
             conn,
             school_id,
@@ -412,7 +423,11 @@ async def feedback_report(
             sort=sort,
             page=page,
             page_size=page_size,
-            allowed_grades=await _grade_filter(conn, teacher, school_id),
+            allowed_grades=None if permitted is None else sorted(permitted),
+            pool=request.app.state.pool,
+            redis=get_redis(request),
+            grade=grade,
+            stream=stream,
         )
     return FeedbackReport(**result)
 

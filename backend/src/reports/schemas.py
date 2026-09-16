@@ -146,6 +146,12 @@ class CurriculumHealthUnit(BaseModel):
     unit_id: str
     unit_name: str | None = None
     subject: str
+    # The grade of the curriculum holding this unit, so the client can group by
+    # Grade then subject (#773, #776). Nullable because a unit with no
+    # `curriculum_units` row (feedback on a unit outside the cohort catalog —
+    # see `with_feedback`) has no resolvable grade, and inventing one would put
+    # it in a group it does not belong to.
+    grade: int | None = None
     health_tier: str  # healthy | watch | struggling | no_activity
     first_attempt_pass_rate_pct: float
     avg_attempts_to_pass: float
@@ -207,6 +213,15 @@ class FeedbackReportItem(BaseModel):
     content_type: str | None = None
     submitted_at: datetime
     reviewed: bool
+    # Cohort attributes, so the client can GROUP by them (#771) without a second
+    # request. The student id itself is deliberately NOT here: a named student
+    # attached to a complaint is an educational record this report has no reason
+    # to expose (FERPA — see the Compliance section of CLAUDE.md).
+    grade: int | None = None
+    # A LIST because classroom packages are additive (#651) and a student can
+    # sit in two streams. Collapsing it would file their feedback under one and
+    # hide it from the other.
+    streams: list[str] = []
 
 
 class FeedbackPagination(BaseModel):
@@ -223,6 +238,12 @@ class FeedbackReport(BaseModel):
     avg_rating_overall: float | None = None
     items: list[FeedbackReportItem]
     pagination: FeedbackPagination
+    # Picker options + echoed selections, same contract as CurriculumHealthReport:
+    # the options describe the PERMISSION scope, everything else the selection.
+    available_grades: list[int] = []
+    selected_grade: int | None = None
+    available_streams: list[str] = []
+    selected_stream: str | None = None
 
 
 # ── Report 6: Trends ──────────────────────────────────────────────────────────

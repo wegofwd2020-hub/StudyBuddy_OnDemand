@@ -12801,7 +12801,7 @@
           "reports"
         ],
         "summary": "Feedback Report",
-        "description": "A page of student feedback for the school, newest first by default.\n\nPaginated since #611: the report previously returned every item ever\nrecorded, so the response grew without bound as a school accumulated\nfeedback.",
+        "description": "A page of student feedback for the school, newest first by default.\n\nPaginated since #611: the report previously returned every item ever\nrecorded, so the response grew without bound as a school accumulated\nfeedback.\n\n`?grade=` is a filter WITHIN the caller's entitlement and is refused, not\nignored, when it names a grade they do not teach \u2014 the same rule and the\nsame 403 as the roster and the curriculum-health report. `?stream=` needs\nno separate check: the cohort is scoped to the caller's grades before any\nstream narrowing, so a stream they cannot see contributes no students.",
         "operationId": "feedback_report_api_v1_reports_school__school_id__feedback_get",
         "security": [
           {
@@ -12899,6 +12899,39 @@
               "minimum": 1,
               "default": 50,
               "title": "Page Size"
+            }
+          },
+          {
+            "name": "grade",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Grade"
+            }
+          },
+          {
+            "name": "stream",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 64
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Stream"
             }
           }
         ],
@@ -19594,6 +19627,17 @@
             "type": "string",
             "title": "Subject"
           },
+          "grade": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grade"
+          },
           "health_tier": {
             "type": "string",
             "title": "Health Tier"
@@ -21421,6 +21465,44 @@
           },
           "pagination": {
             "$ref": "#/components/schemas/FeedbackPagination"
+          },
+          "available_grades": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Available Grades",
+            "default": []
+          },
+          "selected_grade": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Grade"
+          },
+          "available_streams": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Available Streams",
+            "default": []
+          },
+          "selected_stream": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Stream"
           }
         },
         "type": "object",
@@ -29533,6 +29615,25 @@
           "reviewed": {
             "type": "boolean",
             "title": "Reviewed"
+          },
+          "grade": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grade"
+          },
+          "streams": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Streams",
+            "default": []
           }
         },
         "type": "object",

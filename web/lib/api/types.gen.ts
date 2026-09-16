@@ -4785,6 +4785,12 @@ export interface paths {
          *     Paginated since #611: the report previously returned every item ever
          *     recorded, so the response grew without bound as a school accumulated
          *     feedback.
+         *
+         *     `?grade=` is a filter WITHIN the caller's entitlement and is refused, not
+         *     ignored, when it names a grade they do not teach — the same rule and the
+         *     same 403 as the roster and the curriculum-health report. `?stream=` needs
+         *     no separate check: the cohort is scoped to the caller's grades before any
+         *     stream narrowing, so a stream they cannot see contributes no students.
          */
         get: operations["feedback_report_api_v1_reports_school__school_id__feedback_get"];
         put?: never;
@@ -7366,6 +7372,8 @@ export interface components {
             unit_name?: string | null;
             /** Subject */
             subject: string;
+            /** Grade */
+            grade?: number | null;
             /** Health Tier */
             health_tier: string;
             /** First Attempt Pass Rate Pct */
@@ -8057,6 +8065,20 @@ export interface components {
             /** Items */
             items: components["schemas"]["src__reports__schemas__FeedbackReportItem"][];
             pagination: components["schemas"]["FeedbackPagination"];
+            /**
+             * Available Grades
+             * @default []
+             */
+            available_grades: number[];
+            /** Selected Grade */
+            selected_grade?: number | null;
+            /**
+             * Available Streams
+             * @default []
+             */
+            available_streams: string[];
+            /** Selected Stream */
+            selected_stream?: string | null;
         };
         /** FeedbackReportResponse */
         FeedbackReportResponse: {
@@ -11219,6 +11241,13 @@ export interface components {
             submitted_at: string;
             /** Reviewed */
             reviewed: boolean;
+            /** Grade */
+            grade?: number | null;
+            /**
+             * Streams
+             * @default []
+             */
+            streams: string[];
         };
         /** RefreshResponse */
         src__reports__schemas__RefreshResponse: {
@@ -18839,6 +18868,8 @@ export interface operations {
                 sort?: string;
                 page?: number;
                 page_size?: number;
+                grade?: number | null;
+                stream?: string | null;
             };
             header?: never;
             path: {

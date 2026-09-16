@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useTeacher } from "@/lib/hooks/useTeacher";
-import { getCurriculumHealth, UNSTREAMED } from "@/lib/api/reports";
+import { getCurriculumHealth } from "@/lib/api/reports";
+import { streamLabel } from "@/lib/reports/streams";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -16,26 +17,6 @@ import {
   Cell,
   ResponsiveContainer,
 } from "recharts";
-
-/** Display name for a stream code.
- *
- * The registry's own `display_name` is not on this response and fetching it
- * would be a second request to label four chips. These are the five system
- * seeds from migration 0045; an unknown code (a school's custom stream, added
- * via upsert-on-use) falls through to a capitalised form of itself rather than
- * being hidden or shown as a raw slug. */
-function streamLabel(code: string | null): string {
-  if (code === null) return "All streams";
-  if (code === UNSTREAMED) return "No stream";
-  const known: Record<string, string> = {
-    science: "Science",
-    commerce: "Commerce",
-    humanities: "Humanities",
-    english: "English Core",
-    stem: "STEM",
-  };
-  return known[code] ?? code.charAt(0).toUpperCase() + code.slice(1);
-}
 
 export default function UnitPerformancePage() {
   const teacher = useTeacher();
