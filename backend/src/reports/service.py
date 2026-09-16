@@ -17,6 +17,7 @@ Shared helper:
 from __future__ import annotations
 
 import uuid
+from collections.abc import Iterable
 from datetime import UTC, datetime, timedelta
 
 import asyncpg
@@ -357,6 +358,34 @@ async def _streams_by_student(
         codes.discard(None)
         out[sid] = codes or {UNSTREAMED}
     return out
+
+
+async def _grades_by_unit(conn: asyncpg.Connection, unit_ids: Iterable[str]) -> dict[str, int]:
+    """`unit_id` -> the grade its curriculum is for.
+
+    Needed to GROUP report rows by grade (#773, #776). A unit's grade is not on
+    `curriculum_units`; it is a property of the curriculum that holds it.
+
+    `DISTINCT ON` because the same unit_id can appear under more than one
+    curriculum — a school fork shares its source's unit ids — and a fan-out here
+    would duplicate rows in the caller's grouped output. Lowest grade wins so the
+    choice is deterministic rather than plan-dependent; in practice the
+    candidates agree, because a fork is of one grade's curriculum.
+    """
+    ids = [u for u in dict.fromkeys(unit_ids) if u]
+    if not ids:
+        return {}
+    rows = await conn.fetch(
+        """
+        SELECT DISTINCT ON (cu.unit_id) cu.unit_id, c.grade
+        FROM curriculum_units cu
+        JOIN curricula c ON c.curriculum_id = cu.curriculum_id
+        WHERE cu.unit_id = ANY($1::text[]) AND c.grade IS NOT NULL
+        ORDER BY cu.unit_id, c.grade
+        """,
+        ids,
+    )
+    return {r["unit_id"]: r["grade"] for r in rows}
 
 
 def _health_tier(pass_rate: float, avg_attempts: float, has_activity: bool) -> str:
@@ -1342,9 +1371,16 @@ async def get_curriculum_health(
     # One query for the whole page, after the untouched merge, so the resolution
     # cannot diverge between the two paths the way the raw values did.
     if units:
-        subject_labels = await resolve_subject_labels(conn, [u["unit_id"] for u in units])
+        unit_ids_all = [u["unit_id"] for u in units]
+        subject_labels = await resolve_subject_labels(conn, unit_ids_all)
+        # Grade too, so the client can group by Grade then subject (#776) without
+        # a second request. Resolved on the SAME pass as the subject label, after
+        # the untouched merge, so the two attributes cannot diverge between the
+        # touched and untouched paths the way the raw subject values once did.
+        unit_grades = await _grades_by_unit(conn, unit_ids_all)
         for u in units:
             u["subject"] = display_subject(subject_labels, u["unit_id"], u["subject"])
+            u["grade"] = unit_grades.get(u["unit_id"])
 
     # Feedback that names no unit, so a per-unit report structurally cannot show
     # it. Reported explicitly so the export and the dashboard tile can be
@@ -1389,6 +1425,10 @@ async def get_feedback_report(
     page: int = 1,
     page_size: int = 50,
     allowed_grades: list[int] | None = None,
+    pool=None,
+    redis=None,
+    grade: int | None = None,
+    stream: str | None = None,
 ) -> dict:
     """A page of feedback from enrolled students, newest first by default.
 
@@ -1397,17 +1437,63 @@ async def get_feedback_report(
     payload grew with a school's total feedback volume (issue #611). It is now
     three queries regardless of how many units have feedback: the summary, the
     filtered count, and the page itself.
+
+    `grade` / `stream` are COHORT filters (#771) and behave differently from
+    `unit_id` / `category` / `reviewed`, which are CONTENT filters. The summary
+    above is deliberately blind to the content filters — the header describes
+    the school, not whatever slice is on screen — but it MUST follow a cohort
+    filter, or a header reading "120 items" sits above a table showing one
+    grade's twelve, and the two halves of the page disagree with no way to tell
+    which is wrong. Same rule `get_curriculum_health` follows for its counts.
+
+    Every item carries `grade` and `stream` so the client can GROUP by them
+    (the second half of #771) without a second request or a guess.
     """
-    enrolled = await _enrolled_ids(conn, school_id, allowed_grades)
+    cohort = await _enrolled_ids(conn, school_id, allowed_grades)
+
+    # Picker options come from the caller's whole entitlement, never from the
+    # current selection — see `_cohort_grades`.
+    available_grades = await _cohort_grades(conn, school_id, allowed_grades)
+    streams_by_student: dict[str, set[str]] = {}
+    available_streams: list[str] = []
+    if pool is not None and redis is not None:
+        streams_by_student = await _streams_by_student(conn, pool, redis, school_id, allowed_grades)
+        available_streams = sorted({s for codes in streams_by_student.values() for s in codes})
+
+    grade_of = {
+        r["sid"]: r["grade"]
+        for r in await conn.fetch(
+            """
+            SELECT student_id::text AS sid, grade
+            FROM school_enrolments
+            WHERE school_id = $1 AND status = 'active' AND student_id IS NOT NULL
+            """,
+            uuid.UUID(school_id),
+        )
+    }
+
+    enrolled = cohort
+    if grade is not None:
+        enrolled = [s for s in enrolled if grade_of.get(s) == grade]
+    if stream is not None and streams_by_student:
+        enrolled = [s for s in enrolled if stream in streams_by_student.get(s, set())]
+
+    empty = {
+        "school_id": school_id,
+        "total_feedback_count": 0,
+        "unreviewed_count": 0,
+        "avg_rating_overall": None,
+        "items": [],
+        "pagination": {"page": page, "page_size": page_size, "total": 0},
+        # Carried even when the cohort is empty, or the selection is a dead end
+        # the reader cannot get back out of without a reload.
+        "available_grades": available_grades,
+        "selected_grade": grade,
+        "available_streams": available_streams,
+        "selected_stream": stream,
+    }
     if not enrolled:
-        return {
-            "school_id": school_id,
-            "total_feedback_count": 0,
-            "unreviewed_count": 0,
-            "avg_rating_overall": None,
-            "items": [],
-            "pagination": {"page": page, "page_size": page_size, "total": 0},
-        }
+        return empty
 
     id_uuids = [uuid.UUID(s) for s in enrolled]
 
@@ -1455,7 +1541,12 @@ async def get_feedback_report(
                f.content_type,
                f.message,
                f.submitted_at,
-               f.reviewed
+               f.reviewed,
+               -- For grouping (#771). Selected rather than joined per row in
+               -- Python so the page stays one query; the student id itself is
+               -- NOT returned, since a named student attached to a complaint is
+               -- an educational record this report has no reason to expose.
+               f.student_id::text AS _sid
         FROM feedback f
         LEFT JOIN LATERAL (
             SELECT unit_name FROM curriculum_units
@@ -1470,13 +1561,28 @@ async def get_feedback_report(
         offset,
     )
 
+    items = []
+    for r in rows:
+        item = dict(r)
+        sid = item.pop("_sid", None)
+        item["grade"] = grade_of.get(sid)
+        # Sorted for a stable caption. A student in two streams genuinely
+        # belongs to both, so this is a list rather than a value — collapsing it
+        # would file their feedback under one stream and hide it from the other.
+        item["streams"] = sorted(streams_by_student.get(sid, set()))
+        items.append(item)
+
     return {
         "school_id": school_id,
         "total_feedback_count": summary["total"] or 0,
         "unreviewed_count": summary["unreviewed"] or 0,
         "avg_rating_overall": float(summary["avg_rating"]) if summary["avg_rating"] else None,
-        "items": [dict(r) for r in rows],
+        "items": items,
         "pagination": {"page": page, "page_size": page_size, "total": total or 0},
+        "available_grades": available_grades,
+        "selected_grade": grade,
+        "available_streams": available_streams,
+        "selected_stream": stream,
     }
 
 

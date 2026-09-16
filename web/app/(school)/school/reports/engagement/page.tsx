@@ -3,10 +3,50 @@
 import { useQuery } from "@tanstack/react-query";
 import { useTeacher } from "@/lib/hooks/useTeacher";
 import { getOverviewReport, getCurriculumHealth } from "@/lib/api/reports";
+import type { CurriculumHealthUnit } from "@/lib/api/reports";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { TrendingDown, Users, AlertTriangle } from "lucide-react";
+
+/** Group units by Grade, then by subject within each grade (#776).
+ *
+ * Returns entries rather than a plain object so the ORDER is the one asserted
+ * here and not V8's key-insertion behaviour: numeric-looking object keys are
+ * iterated in ascending numeric order, which would silently reorder the moment
+ * the "Other" bucket (a non-numeric key) joined them.
+ *
+ * Units with no resolvable grade go last under "Other", never dropped — a unit
+ * nobody has opened is exactly what this card exists to surface, so hiding the
+ * ones whose grade could not be resolved would defeat it.
+ */
+function groupByGradeThenSubject(
+  units: CurriculumHealthUnit[],
+): [string, [string, CurriculumHealthUnit[]][]][] {
+  const byGrade = new Map<number | null, CurriculumHealthUnit[]>();
+  for (const u of units) {
+    const g = u.grade ?? null;
+    byGrade.set(g, [...(byGrade.get(g) ?? []), u]);
+  }
+
+  const grades = [...byGrade.keys()].sort((a, b) => {
+    if (a === null) return 1; // "Other" last
+    if (b === null) return -1;
+    return a - b;
+  });
+
+  return grades.map((g) => {
+    const bySubject = new Map<string, CurriculumHealthUnit[]>();
+    for (const u of byGrade.get(g) ?? []) {
+      bySubject.set(u.subject, [...(bySubject.get(u.subject) ?? []), u]);
+    }
+    const subjects = [...bySubject.entries()].sort(([a], [b]) => a.localeCompare(b));
+    return [g === null ? "Other" : `Grade ${g}`, subjects] as [
+      string,
+      [string, CurriculumHealthUnit[]][],
+    ];
+  });
+}
 
 export default function EngagementReportPage() {
   const teacher = useTeacher();
@@ -121,15 +161,36 @@ export default function EngagementReportPage() {
                 <p className="mb-3 text-xs text-gray-500">
                   These units have not been started by any student.
                 </p>
-                <div className="flex flex-wrap gap-2">
-                  {dropoutRiskUnits.map((u) => (
-                    <Badge
-                      key={u.unit_id}
-                      className="border-gray-200 bg-gray-100 text-xs text-gray-500"
-                    >
-                      {u.unit_name ?? u.unit_id} ({u.subject})
-                    </Badge>
-                  ))}
+                {/* Grouped by Grade, then subject (#776). A flat wall of badges
+                    across every grade the school teaches cannot be read: the one
+                    question this card exists to answer is "which of MY units are
+                    untouched", and that needs the grades separated. */}
+                <div className="space-y-4">
+                  {groupByGradeThenSubject(dropoutRiskUnits).map(
+                    ([gradeLabel, subjects]) => (
+                      <div key={gradeLabel} className="space-y-2">
+                        <h3 className="text-xs font-semibold tracking-wide text-gray-500 uppercase">
+                          {gradeLabel}
+                        </h3>
+                        {subjects.map(([subject, units]) => (
+                          <div
+                            key={subject}
+                            className="flex flex-wrap items-baseline gap-2"
+                          >
+                            <span className="text-xs text-gray-400">{subject}</span>
+                            {units.map((u) => (
+                              <Badge
+                                key={u.unit_id}
+                                className="border-gray-200 bg-gray-100 text-xs text-gray-500"
+                              >
+                                {u.unit_name ?? u.unit_id}
+                              </Badge>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                    ),
+                  )}
                 </div>
               </CardContent>
             </Card>

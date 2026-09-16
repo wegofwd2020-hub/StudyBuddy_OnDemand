@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useTeacher } from "@/lib/hooks/useTeacher";
 import { getFeedbackReport } from "@/lib/api/reports";
+import { streamLabel } from "@/lib/reports/streams";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -54,18 +55,29 @@ export default function FeedbackReportPage() {
   const [page, setPage] = useState(1);
   const [reviewedFilter, setReviewedFilter] = useState<ReviewedFilter>("all");
   const [verdictFilter, setVerdictFilter] = useState<VerdictFilter>("all");
+  // Cohort filters (#771). Unlike the verdict chips below these are SERVER-side,
+  // so they move the pagination total and the header counts with them.
+  const [grade, setGrade] = useState<number | null>(null);
+  const [stream, setStream] = useState<string | null>(null);
 
   const reviewed =
     reviewedFilter === "all" ? undefined : reviewedFilter === "reviewed" ? true : false;
 
   const { data, isLoading } = useQuery({
-    queryKey: ["school", "reports", "feedback", schoolId, page, reviewed],
-    queryFn: () => getFeedbackReport(schoolId, { page, pageSize: PAGE_SIZE, reviewed }),
+    queryKey: ["school", "reports", "feedback", schoolId, page, reviewed, grade, stream],
+    queryFn: () =>
+      getFeedbackReport(schoolId, { page, pageSize: PAGE_SIZE, reviewed, grade, stream }),
     enabled: Boolean(schoolId),
     // Keep the previous page visible while the next one loads, so paging does
     // not flash an empty table.
     placeholderData: keepPreviousData,
   });
+
+  // Picker options come from the SERVER's permission scope, never from the rows
+  // on screen — options derived from a filtered result collapse to the single
+  // option selected and cannot be widened again without a reload.
+  const availableGrades = data?.available_grades ?? [];
+  const availableStreams = data?.available_streams ?? [];
 
   // The verdict split is not a server-side filter, so it narrows the current
   // page only — labelled as such below rather than pretending otherwise.
@@ -136,6 +148,76 @@ export default function FeedbackReportPage() {
           <span className="text-xs text-gray-400">filters this page only</span>
         )}
       </div>
+
+      {/* Cohort filters (#771). Rendered only where there is a choice to make,
+          same rule as the Unit Performance pickers: a school with one grade gets
+          no control rather than one that cannot change anything.
+
+          Changing either resets to page 1 — leaving the page index alone would
+          land the reader on page 4 of a two-page result and show them nothing,
+          which reads as "the filter broke". */}
+      {(availableGrades.length > 1 || availableStreams.length > 1) && (
+        <div className="flex flex-wrap items-center gap-4">
+          {availableGrades.length > 1 && (
+            <div
+              role="radiogroup"
+              aria-label="Filter by grade"
+              className="flex flex-wrap items-center gap-2"
+            >
+              <span className="text-xs text-gray-500">Grade</span>
+              {[null, ...availableGrades].map((g) => (
+                <button
+                  key={g ?? "all"}
+                  type="button"
+                  role="radio"
+                  aria-checked={grade === g}
+                  onClick={() => {
+                    setGrade(g);
+                    setPage(1);
+                  }}
+                  className={cn(
+                    "rounded-full px-3 py-1 text-xs font-medium",
+                    grade === g
+                      ? "bg-gray-900 text-white"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200",
+                  )}
+                >
+                  {g === null ? "All grades" : `Grade ${g}`}
+                </button>
+              ))}
+            </div>
+          )}
+          {availableStreams.length > 1 && (
+            <div
+              role="radiogroup"
+              aria-label="Filter by stream"
+              className="flex flex-wrap items-center gap-2"
+            >
+              <span className="text-xs text-gray-500">Stream</span>
+              {[null, ...availableStreams].map((s) => (
+                <button
+                  key={s ?? "all"}
+                  type="button"
+                  role="radio"
+                  aria-checked={stream === s}
+                  onClick={() => {
+                    setStream(s);
+                    setPage(1);
+                  }}
+                  className={cn(
+                    "rounded-full px-3 py-1 text-xs font-medium",
+                    stream === s
+                      ? "bg-gray-900 text-white"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200",
+                  )}
+                >
+                  {streamLabel(s)}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       <Card>
         <CardHeader>
