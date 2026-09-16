@@ -77,6 +77,18 @@ Called immediately after `validate_quiz` succeeds:
 
 ### 4. Demo rollout (timing approved by the user at run time)
 
+The demo's `api` image is built from `./backend` alone and its volumes are
+overridden to `/data/content`, so **`pipeline` is not in the container**. The
+VPS checkout at `/opt/studybuddy` has it; mount it for the one-off run, at the
+path `ensure_pipeline_path()` already resolves (`/pipeline`):
+
+```bash
+sudo /usr/bin/docker compose -f docker-compose.yml -f docker-compose.demo.yml \
+  --env-file .env.demo run --rm -v /opt/studybuddy/pipeline:/pipeline \
+  api python /app/scripts/rebalance_quiz_options.py            # dry-run
+# ... same with --commit
+```
+
 1. No `progress_sessions` row started in the last 30 minutes without `ended_at`.
 2. Dry-run; review the distribution.
 3. `--commit`.
