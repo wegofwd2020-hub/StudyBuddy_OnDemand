@@ -542,15 +542,18 @@ async def _upsert_student(
         # Upsert enrolment
         await conn.execute(
             """
-            INSERT INTO school_enrolments (school_id, student_email, student_id, status)
-            VALUES ($1, $2, $3, 'active')
+            INSERT INTO school_enrolments
+                (school_id, student_email, student_id, status, grade)
+            VALUES ($1, $2, $3, 'active', $4)
             ON CONFLICT (school_id, student_email) DO UPDATE
                 SET student_id = EXCLUDED.student_id,
-                    status     = 'active'
+                    status     = 'active',
+                    grade      = EXCLUDED.grade
             """,
             school_id,
             email,
             existing_account["student_id"],
+            grade,
         )
         return {
             "name": name,
@@ -618,15 +621,18 @@ async def _upsert_student(
     # school_enrolments
     await conn.execute(
         """
-        INSERT INTO school_enrolments (school_id, student_email, student_id, status)
-        VALUES ($1, $2, $3, 'active')
+        INSERT INTO school_enrolments
+            (school_id, student_email, student_id, status, grade)
+        VALUES ($1, $2, $3, 'active', $4)
         ON CONFLICT (school_id, student_email) DO UPDATE
             SET student_id = EXCLUDED.student_id,
-                status     = 'active'
+                status     = 'active',
+                grade      = EXCLUDED.grade
         """,
         school_id,
         email,
         student_id,
+        grade,
     )
 
     return {
