@@ -351,6 +351,43 @@ def validate_lesson(data: dict) -> None:
 def validate_quiz(data: dict) -> None:
     """Validate a quiz dict against QUIZ_SCHEMA. Raises jsonschema.ValidationError on failure."""
     jsonschema.validate(instance=data, schema=QUIZ_SCHEMA)
+    _reject_indistinguishable_options(data)
+
+
+def _reject_indistinguishable_options(data: dict) -> None:
+    """Refuse a question whose options cannot be told apart on screen (#754).
+
+    A sweep of the demo store found 9 questions in 6,960 shipping the correct
+    answer twice -- e.g. `['USD 35,000', 'USD 35,000', 'USD 30,000', ...]` --
+    every one of them with the correct option at index 0 and a copy of it later
+    in the list. A student who knows the answer then has a 1-in-2 chance of
+    clicking the copy and being marked wrong, which is what #754 reported.
+
+    `uniqueItems` on the options array cannot express this: the option objects
+    differ by `option_id`, so a duplicate TEXT is unique as an object.
+
+    Raised as a ValidationError because `build_grade` retries that up to 3x and
+    then fails the unit -- so a bad draw is regenerated rather than written.
+
+    Whitespace is collapsed (HTML collapses it) but case is NOT folded: the same
+    sweep found 4 perfectly answerable questions whose options differ only in
+    case -- 'Bb' vs 'bB' (genotypes), 'Running' vs 'running' (Python is
+    case-sensitive), '2gH' vs '2gh' (different quantities). This must stay in
+    step with `_parse_quiz_answer_key`, which accepts by the same rule.
+    """
+    for question in data.get("questions", []):
+        seen: dict[str, str] = {}
+        for option in question.get("options", []):
+            text = " ".join((option.get("text") or "").split())
+            if not text:
+                continue
+            if text in seen:
+                raise jsonschema.ValidationError(
+                    f"question {question.get('question_id')!r}: options "
+                    f"{seen[text]!r} and {option.get('option_id')!r} have the same "
+                    f"text {text!r}; a student cannot choose between them"
+                )
+            seen[text] = option.get("option_id")
 
 
 def validate_tutorial(data: dict) -> None:
