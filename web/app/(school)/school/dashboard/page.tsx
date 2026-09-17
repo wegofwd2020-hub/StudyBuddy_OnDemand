@@ -14,6 +14,8 @@ import {
 import { listTeachers, getLibrary } from "@/lib/api/school-admin";
 import { SetupChecklist } from "@/components/school/SetupChecklist";
 import { NoGradesNotice, ScopeNote } from "@/components/school/ScopeNote";
+import { KpiCard } from "@/components/school/KpiCard";
+import { OVERVIEW_PERIODS, OVERVIEW_PERIOD_LABELS } from "@/lib/reports/periods";
 import { CommercialStrip } from "@/components/school/CommercialStrip";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -45,52 +47,6 @@ import {
 // window has no equivalent here; a school "term" window has no equivalent
 // there), so the admin selector is deliberately constrained to what this
 // endpoint supports rather than inventing values the API would reject.
-const OVERVIEW_PERIODS: { value: ReportPeriod; label: string }[] = [
-  { value: "7d", label: "Last 7 days" },
-  { value: "30d", label: "Last 30 days" },
-  { value: "term", label: "This term" },
-];
-
-const OVERVIEW_PERIOD_LABELS: Record<ReportPeriod, string> = {
-  "7d": "the last 7 days",
-  "30d": "the last 30 days",
-  term: "this term",
-};
-
-function KpiCard({
-  title,
-  value,
-  subtitle,
-  icon,
-  accent,
-}: {
-  title: string;
-  value: string | number;
-  subtitle?: string;
-  icon: React.ReactNode;
-  accent?: "green" | "blue" | "red" | "gray";
-}) {
-  const colors = {
-    green: "text-green-600 bg-green-50",
-    blue: "text-blue-600 bg-blue-50",
-    red: "text-red-500 bg-red-50",
-    gray: "text-gray-500 bg-gray-100",
-  };
-  return (
-    <Card className="border shadow-sm">
-      <CardContent className="flex items-start gap-4 p-5">
-        <div className={`rounded-lg p-2.5 ${colors[accent ?? "blue"]}`}>{icon}</div>
-        <div>
-          <p className="text-xs font-medium tracking-wide text-gray-400 uppercase">
-            {title}
-          </p>
-          <p className="mt-0.5 text-2xl font-bold text-gray-900">{value}</p>
-          {subtitle && <p className="mt-0.5 text-xs text-gray-500">{subtitle}</p>}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
 
 /**
  * Themed welcome band (#366). Uses the school's primary accent for a soft

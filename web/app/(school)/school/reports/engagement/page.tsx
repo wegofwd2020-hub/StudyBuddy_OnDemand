@@ -1,21 +1,52 @@
 "use client";
 
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTeacher } from "@/lib/hooks/useTeacher";
-import { getOverviewReport, getCurriculumHealth } from "@/lib/api/reports";
+import {
+  getOverviewReport,
+  getCurriculumHealth,
+  type ReportPeriod,
+} from "@/lib/api/reports";
 import { groupByGradeThenSubject } from "@/lib/reports/grouping";
+import { OVERVIEW_PERIODS, OVERVIEW_PERIOD_LABELS } from "@/lib/reports/periods";
+import { NoGradesNotice, ScopeNote } from "@/components/school/ScopeNote";
+import { KpiCard } from "@/components/school/KpiCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { TrendingDown, Users, AlertTriangle } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { TrendingDown, Users, AlertTriangle, TrendingUp, Volume2 } from "lucide-react";
 
+/**
+ * Engagement report (#770).
+ *
+ * Rebuilt on the dashboard's vocabulary rather than its own. Before this it was
+ * bespoke markup that predated the #640 dashboard redesign and had drifted from
+ * it in every way that matters to a reader:
+ *
+ *   - hand-rolled cards instead of `KpiCard`, so the same figure looked
+ *     different depending on which screen you read it on;
+ *   - "Last 30 days" hardcoded in prose, with no way to change the window —
+ *     the dashboard has offered 7d / 30d / term since #640;
+ *   - no `ScopeNote`, so a teacher could not tell whether the numbers covered
+ *     their own grades or the whole school. That ambiguity is the defect the
+ *     dashboard redesign was actually reported for (#640 §10), and this page
+ *     still had it.
+ *
+ * Grouping by Grade then Subject (#776) already applies to the units list
+ * below. The headline figures are school- or scope-wide totals rather than
+ * per-grade, so they are NOT grouped: doing so would need a per-grade breakdown
+ * the overview endpoint does not return.
+ */
 export default function EngagementReportPage() {
   const teacher = useTeacher();
   const schoolId = teacher?.school_id ?? "";
+  const [period, setPeriod] = useState<ReportPeriod>("30d");
 
   const { data: overview, isLoading: loadingOv } = useQuery({
-    queryKey: ["report-overview", schoolId, "30d"],
-    queryFn: () => getOverviewReport(schoolId, "30d"),
+    queryKey: ["report-overview", schoolId, period],
+    queryFn: () => getOverviewReport(schoolId, period),
     enabled: !!schoolId,
     staleTime: 120_000,
   });
@@ -30,62 +61,74 @@ export default function EngagementReportPage() {
   const isLoading = loadingOv || loadingHealth;
   const dropoutRiskUnits =
     health?.units.filter((u) => u.health_tier === "no_activity") ?? [];
+  const inactiveCount = overview
+    ? overview.enrolled_students - overview.active_students_period
+    : 0;
 
   return (
     <div className="max-w-4xl space-y-6 p-6">
-      <h1 className="text-2xl font-bold text-gray-900">Engagement Report</h1>
-      <p className="text-sm text-gray-500">Last 30 days</p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="text-2xl font-bold text-gray-900">Engagement Report</h1>
+            {/* WHO the numbers cover, beside WHEN — the dashboard has said both
+                since #640; this page said neither. */}
+            <ScopeNote scope={overview?.scope} />
+          </div>
+          <p className="mt-0.5 text-xs text-gray-400">
+            Showing {OVERVIEW_PERIOD_LABELS[period]}. The units below are not filtered by
+            it — a unit nobody has started has no activity in any window.
+          </p>
+        </div>
+        <div className="flex gap-1 rounded-lg border bg-white p-1">
+          {OVERVIEW_PERIODS.map((p) => (
+            <button
+              key={p.value}
+              onClick={() => setPeriod(p.value)}
+              aria-pressed={period === p.value}
+              className={cn(
+                "rounded px-3 py-1 text-xs font-medium transition-colors",
+                period === p.value
+                  ? "bg-blue-600 text-white"
+                  : "text-gray-500 hover:text-gray-900",
+              )}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <NoGradesNotice scope={overview?.scope} />
+
       {isLoading && <Skeleton className="h-60 rounded-lg" />}
       {!isLoading && overview && (
         <>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-            <Card className="border shadow-sm">
-              <CardContent className="flex items-start gap-3 p-5">
-                <div className="rounded-lg bg-blue-50 p-2.5 text-blue-600">
-                  <Users className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-xs font-medium tracking-wide text-gray-400 uppercase">
-                    Active students
-                  </p>
-                  <p className="mt-0.5 text-2xl font-bold text-gray-900">
-                    {overview.active_students_period}
-                  </p>
-                  <p className="text-xs text-gray-400">
-                    of {overview.enrolled_students} enrolled
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="border shadow-sm">
-              <CardContent className="p-5">
-                <p className="text-xs font-medium tracking-wide text-gray-400 uppercase">
-                  Activity rate
-                </p>
-                <p className="mt-0.5 text-2xl font-bold text-gray-900">
-                  {overview.active_pct.toFixed(0)}%
-                </p>
-                <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-gray-100">
-                  <div
-                    className="h-full rounded-full bg-blue-500"
-                    style={{ width: `${Math.min(overview.active_pct, 100)}%` }}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="border shadow-sm">
-              <CardContent className="p-5">
-                <p className="text-xs font-medium tracking-wide text-gray-400 uppercase">
-                  Audio engagement
-                </p>
-                <p className="mt-0.5 text-2xl font-bold text-gray-900">
-                  {overview.audio_play_rate_pct.toFixed(0)}%
-                </p>
-                <p className="text-xs text-gray-400">of lesson views played audio</p>
-              </CardContent>
-            </Card>
+            <KpiCard
+              title="Active students"
+              value={overview.active_students_period}
+              subtitle={`of ${overview.enrolled_students} enrolled`}
+              icon={<Users className="h-5 w-5" />}
+              accent="blue"
+            />
+            <KpiCard
+              title="Activity rate"
+              value={`${overview.active_pct.toFixed(0)}%`}
+              subtitle={OVERVIEW_PERIOD_LABELS[period]}
+              icon={<TrendingUp className="h-5 w-5" />}
+              accent={overview.active_pct >= 50 ? "green" : "red"}
+            />
+            <KpiCard
+              title="Audio engagement"
+              value={`${overview.audio_play_rate_pct.toFixed(0)}%`}
+              subtitle="of lesson views played audio"
+              icon={<Volume2 className="h-5 w-5" />}
+              accent="gray"
+            />
           </div>
-          {overview.active_pct < 100 && (
+
+          {inactiveCount > 0 && (
             <Card className="border border-orange-100 shadow-sm">
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-2 text-base text-orange-700">
@@ -95,14 +138,9 @@ export default function EngagementReportPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-gray-600">
-                  <span className="font-semibold text-orange-700">
-                    {overview.enrolled_students - overview.active_students_period}
-                  </span>{" "}
-                  enrolled student
-                  {overview.enrolled_students - overview.active_students_period !== 1
-                    ? "s"
-                    : ""}{" "}
-                  had no activity in the last 30 days.
+                  <span className="font-semibold text-orange-700">{inactiveCount}</span>{" "}
+                  enrolled student{inactiveCount !== 1 ? "s" : ""} had no activity in{" "}
+                  {OVERVIEW_PERIOD_LABELS[period]}.
                 </p>
                 <p className="mt-1 text-xs text-gray-400">
                   Consider sending a nudge via the notification system.
@@ -110,6 +148,7 @@ export default function EngagementReportPage() {
               </CardContent>
             </Card>
           )}
+
           {dropoutRiskUnits.length > 0 && (
             <Card className="border shadow-sm">
               <CardHeader className="pb-2">
