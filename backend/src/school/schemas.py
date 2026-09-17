@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import re
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
@@ -773,6 +774,14 @@ class AnswerReviewQuestion(BaseModel):
     question_text: str
     options: list[AnswerOptionItem]
     correct_option: str | None
+    # False when `correct_option` names no option in this question's own list.
+    # The grader DROPS such a question (`quiz_answer_key_unresolvable`), so it
+    # is a live content defect — and this page rendering "correct: C" beside
+    # options A, B and D with no signal is exactly what a reviewer is here for.
+    correct_option_resolves: bool = True
+    # Which body answered THIS set. One response can mix the two: a school
+    # typically overrides one set and leaves the others on the platform's.
+    served_from: Literal["override", "store"]
     validated: AnswerValidationState | None = None
     flag_count: int = 0
 
@@ -786,8 +795,15 @@ class AnswerReviewListResponse(BaseModel):
     this unit's quiz yet), or `none` (the school has not adopted this
     curriculum at all — the demo's case for every class-used curriculum,
     2026-09-17).
+
+    Both ids are returned because the caller needs both and they are different
+    things: `source_curriculum_id` is the OOB curriculum the store content (and
+    every recorded `stable_question_id`) lives under, and `owned_curriculum_id`
+    is the school's fork when one exists — the id a correction must be written
+    against.
     """
 
-    ownership: str
-    serving_curriculum_id: str
+    ownership: Literal["none", "fork", "override"]
+    source_curriculum_id: str
+    owned_curriculum_id: str | None = None
     questions: list[AnswerReviewQuestion]

@@ -6483,12 +6483,23 @@ export interface components {
          *     this unit's quiz yet), or `none` (the school has not adopted this
          *     curriculum at all — the demo's case for every class-used curriculum,
          *     2026-09-17).
+         *
+         *     Both ids are returned because the caller needs both and they are different
+         *     things: `source_curriculum_id` is the OOB curriculum the store content (and
+         *     every recorded `stable_question_id`) lives under, and `owned_curriculum_id`
+         *     is the school's fork when one exists — the id a correction must be written
+         *     against.
          */
         AnswerReviewListResponse: {
-            /** Ownership */
-            ownership: string;
-            /** Serving Curriculum Id */
-            serving_curriculum_id: string;
+            /**
+             * Ownership
+             * @enum {string}
+             */
+            ownership: "none" | "fork" | "override";
+            /** Source Curriculum Id */
+            source_curriculum_id: string;
+            /** Owned Curriculum Id */
+            owned_curriculum_id?: string | null;
             /** Questions */
             questions: components["schemas"]["AnswerReviewQuestion"][];
         };
@@ -6506,6 +6517,16 @@ export interface components {
             options: components["schemas"]["AnswerOptionItem"][];
             /** Correct Option */
             correct_option: string | null;
+            /**
+             * Correct Option Resolves
+             * @default true
+             */
+            correct_option_resolves: boolean;
+            /**
+             * Served From
+             * @enum {string}
+             */
+            served_from: "override" | "store";
             validated?: components["schemas"]["AnswerValidationState"] | null;
             /**
              * Flag Count

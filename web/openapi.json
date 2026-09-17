@@ -9986,6 +9986,9 @@
             "required": false,
             "schema": {
               "type": "string",
+              "minLength": 2,
+              "maxLength": 5,
+              "pattern": "^[a-z]{2}(-[A-Z]{2})?$",
               "default": "en",
               "title": "Lang"
             }
@@ -17249,11 +17252,27 @@
         "properties": {
           "ownership": {
             "type": "string",
+            "enum": [
+              "none",
+              "fork",
+              "override"
+            ],
             "title": "Ownership"
           },
-          "serving_curriculum_id": {
+          "source_curriculum_id": {
             "type": "string",
-            "title": "Serving Curriculum Id"
+            "title": "Source Curriculum Id"
+          },
+          "owned_curriculum_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owned Curriculum Id"
           },
           "questions": {
             "items": {
@@ -17266,11 +17285,11 @@
         "type": "object",
         "required": [
           "ownership",
-          "serving_curriculum_id",
+          "source_curriculum_id",
           "questions"
         ],
         "title": "AnswerReviewListResponse",
-        "description": "GET .../answers \u2014 every quiz question of a unit, this school's copy.\n\n`ownership` mirrors what serving/grading would resolve for this school:\n`override` (an active school override answers at least one set),\n`fork` (the school owns a fork of this curriculum but has not overridden\nthis unit's quiz yet), or `none` (the school has not adopted this\ncurriculum at all \u2014 the demo's case for every class-used curriculum,\n2026-09-17)."
+        "description": "GET .../answers \u2014 every quiz question of a unit, this school's copy.\n\n`ownership` mirrors what serving/grading would resolve for this school:\n`override` (an active school override answers at least one set),\n`fork` (the school owns a fork of this curriculum but has not overridden\nthis unit's quiz yet), or `none` (the school has not adopted this\ncurriculum at all \u2014 the demo's case for every class-used curriculum,\n2026-09-17).\n\nBoth ids are returned because the caller needs both and they are different\nthings: `source_curriculum_id` is the OOB curriculum the store content (and\nevery recorded `stable_question_id`) lives under, and `owned_curriculum_id`\nis the school's fork when one exists \u2014 the id a correction must be written\nagainst."
       },
       "AnswerReviewQuestion": {
         "properties": {
@@ -17308,6 +17327,19 @@
             ],
             "title": "Correct Option"
           },
+          "correct_option_resolves": {
+            "type": "boolean",
+            "title": "Correct Option Resolves",
+            "default": true
+          },
+          "served_from": {
+            "type": "string",
+            "enum": [
+              "override",
+              "store"
+            ],
+            "title": "Served From"
+          },
           "validated": {
             "anyOf": [
               {
@@ -17331,7 +17363,8 @@
           "question_id",
           "question_text",
           "options",
-          "correct_option"
+          "correct_option",
+          "served_from"
         ],
         "title": "AnswerReviewQuestion"
       },

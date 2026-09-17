@@ -23,7 +23,7 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Query, Request
 
 from src.auth.dependencies import get_current_teacher
 from src.core.db import get_db
@@ -48,7 +48,10 @@ async def list_answers(
     unit_id: str,
     request: Request,
     teacher: Annotated[dict, Depends(get_current_teacher)],
-    lang: str = "en",
+    # Constrained because it is interpolated into a content-store filename and
+    # `LocalStorage._full` has no traversal guard of its own. The shape is the
+    # one the sibling content endpoints accept (src/school/content_router.py).
+    lang: str = Query("en", min_length=2, max_length=5, pattern=r"^[a-z]{2}(-[A-Z]{2})?$"),
 ) -> AnswerReviewListResponse:
     require_curriculum_view(teacher, school_id, request)
 
