@@ -1,7 +1,11 @@
 "use client";
 
 /**
- * Top-bar account dropdown for the school/teacher portal (issue #367, AP-4).
+ * Top-bar account dropdown for the school/teacher portal (issue #367, AP-4) and,
+ * since #767, for the student portal — "move logout option to top right hand
+ * side corner". The student rail had Sign out at the BOTTOM LEFT; the school
+ * portal had already moved it here, so the two portals disagreed about where
+ * the same action lives.
  *
  * Per-user / account config (Settings, Digest Settings, Customize, Help) and
  * Sign out used to live at the bottom of the left rail. Convention is for these
@@ -15,7 +19,9 @@ import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Settings, Mail, Palette, HelpCircle, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const ACCOUNT_LINKS: { label: string; href: string; icon: React.ReactNode }[] = [
+type AccountLink = { label: string; href: string; icon: React.ReactNode };
+
+const SCHOOL_LINKS: AccountLink[] = [
   { label: "Settings", href: "/school/settings", icon: <Settings className="h-4 w-4" /> },
   {
     label: "Digest Settings",
@@ -30,6 +36,15 @@ const ACCOUNT_LINKS: { label: string; href: string; icon: React.ReactNode }[] = 
   { label: "Help", href: "/school/help", icon: <HelpCircle className="h-4 w-4" /> },
 ];
 
+const STUDENT_LINKS: AccountLink[] = [
+  {
+    label: "Settings",
+    href: "/account/settings",
+    icon: <Settings className="h-4 w-4" />,
+  },
+  { label: "Help", href: "/help", icon: <HelpCircle className="h-4 w-4" /> },
+];
+
 function handleLogout() {
   if (typeof window !== "undefined") {
     localStorage.removeItem("sb_teacher_token");
@@ -40,7 +55,14 @@ function handleLogout() {
   }
 }
 
-export function AccountMenu({ userName }: { userName?: string }) {
+export function AccountMenu({
+  userName,
+  portal = "school",
+}: {
+  userName?: string;
+  portal?: "school" | "student";
+}) {
+  const links = portal === "student" ? STUDENT_LINKS : SCHOOL_LINKS;
   const pathname = usePathname() ?? "";
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -60,7 +82,7 @@ export function AccountMenu({ userName }: { userName?: string }) {
     };
   }, []);
 
-  const active = ACCOUNT_LINKS.some((l) => pathname.startsWith(l.href));
+  const active = links.some((l) => pathname.startsWith(l.href));
   const label = userName ?? "Account";
 
   return (
@@ -87,7 +109,7 @@ export function AccountMenu({ userName }: { userName?: string }) {
           role="menu"
           className="absolute right-0 z-50 mt-1 w-52 rounded-md border border-gray-100 bg-white py-1 shadow-lg"
         >
-          {ACCOUNT_LINKS.map((l) => (
+          {links.map((l) => (
             <Link
               key={l.href}
               role="menuitem"
