@@ -10018,6 +10018,95 @@
         }
       }
     },
+    "/api/v1/schools/{school_id}/content/{curriculum_id}/units/{unit_id}/answers/{stable_question_id}/validate": {
+      "post": {
+        "tags": [
+          "school-answer-review"
+        ],
+        "summary": "Validate Answer Endpoint",
+        "operationId": "validate_answer_endpoint_api_v1_schools__school_id__content__curriculum_id__units__unit_id__answers__stable_question_id__validate_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "school_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "School Id"
+            }
+          },
+          {
+            "name": "curriculum_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Curriculum Id"
+            }
+          },
+          {
+            "name": "unit_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Unit Id"
+            }
+          },
+          {
+            "name": "stable_question_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "title": "Stable Question Id"
+            }
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 5,
+              "pattern": "^[a-z]{2}(-[A-Z]{2})?$",
+              "default": "en",
+              "title": "Lang"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnswerValidationResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/schools/{school_id}/visuals/upload": {
       "post": {
         "tags": [
@@ -17367,6 +17456,30 @@
           "served_from"
         ],
         "title": "AnswerReviewQuestion"
+      },
+      "AnswerValidationResponse": {
+        "properties": {
+          "validated_by": {
+            "type": "string",
+            "title": "Validated By"
+          },
+          "validated_at": {
+            "type": "string",
+            "title": "Validated At"
+          },
+          "correct_text": {
+            "type": "string",
+            "title": "Correct Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "validated_by",
+          "validated_at",
+          "correct_text"
+        ],
+        "title": "AnswerValidationResponse",
+        "description": "POST .../answers/{stable_question_id}/validate \u2014 the tick just written.\n\n`correct_text` is the snapshot the staleness comparison will be made\nagainst, returned so the caller can show what was vouched for rather than\nonly that something was."
       },
       "AnswerValidationState": {
         "properties": {

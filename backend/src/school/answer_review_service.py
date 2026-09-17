@@ -45,6 +45,16 @@ log = get_logger("school.answer_review")
 _QUIZ_SET_NUMBERS = (1, 2, 3)
 
 
+class QuestionNotInUnit(LookupError):
+    """The supplied `stable_question_id` is in no quiz set of this unit.
+
+    `stable_question_id` is a hash the caller hands us and `question_validations`
+    has no foreign key that could reject it, so without this the upsert would
+    happily record a tick against a question that does not exist here — one the
+    listing can never show and nobody can ever clear.
+    """
+
+
 class _ConnAsPool:
     """Adapts a single asyncpg Connection to `pool.acquire()`.
 
@@ -310,3 +320,97 @@ async def list_unit_answers(
             }
 
     return result
+
+
+async def validate_answer(
+    conn,
+    storage: StorageBackend,
+    redis,
+    *,
+    school_id: str,
+    curriculum_id: str,
+    unit_id: str,
+    lang: str,
+    stable_question_id: str,
+    teacher_id: str,
+) -> dict:
+    """Record that this school has checked `stable_question_id`'s answer.
+
+    Returns {"validated_by": str, "validated_at": str (ISO), "correct_text": str}.
+    Raises `QuestionNotInUnit` when the id is in no set of this unit.
+
+    The question is resolved through `list_unit_answers` — the same path the
+    page read it from — rather than by re-deriving it here. Two derivations of
+    one identity drift apart silently, and this one has to agree with the
+    listing exactly: the tick it writes is read back by that listing's
+    left-join, and a row written under an id the listing does not mint is
+    invisible forever.
+
+    `correct_text` is a SNAPSHOT, not a key: the listing calls a tick stale once
+    the current correct option's text no longer matches it. Stored with the same
+    normalisation `_correct_option_text` applies, because the comparison is
+    string equality.
+
+    NOTE: the signature takes `storage`/`redis` on top of the `conn` the plan
+    named, because resolving through the listing means reading the content
+    store and the override cache. Resolving without them would mean a second,
+    parallel derivation — the thing this function exists to avoid.
+    """
+    listing = await list_unit_answers(
+        conn,
+        storage,
+        redis,
+        school_id=school_id,
+        curriculum_id=curriculum_id,
+        unit_id=unit_id,
+        lang=lang,
+    )
+    matches = sorted(
+        (q for q in listing["questions"] if q["stable_question_id"] == stable_question_id),
+        key=lambda q: q["set_number"],
+    )
+    if not matches:
+        raise QuestionNotInUnit(stable_question_id)
+
+    # One identity can span several sets (the hash covers the stem, not the set
+    # number — question_identity.py). Normally they carry the same answer, and
+    # then there is nothing to choose. When they DISAGREE the sets are keyed
+    # differently for one question, which is itself the defect a reviewer is
+    # here to find: snapshot the lowest set's answer deterministically and say
+    # so, rather than picking whichever the dict happened to yield first. The
+    # listing still judges staleness per set, so the disagreement stays visible.
+    distinct = {_correct_option_text(q["options"], q["correct_option"]) for q in matches}
+    correct_text = _correct_option_text(matches[0]["options"], matches[0]["correct_option"])
+    if len(distinct) > 1:
+        log.warning(
+            "answer_review_validate_sets_disagree",
+            school_id=school_id,
+            curriculum_id=listing["source_curriculum_id"],
+            unit_id=unit_id,
+            stable_question_id=stable_question_id,
+            sets=[q["set_number"] for q in matches],
+            snapshot=correct_text,
+        )
+
+    row = await conn.fetchrow(
+        """
+        INSERT INTO question_validations
+            (school_id, stable_question_id, correct_text, validated_by, validated_at)
+        VALUES ($1::UUID, $2, $3, $4::UUID, now())
+        ON CONFLICT (school_id, stable_question_id) DO UPDATE
+            SET correct_text = EXCLUDED.correct_text,
+                validated_by = EXCLUDED.validated_by,
+                validated_at = now()
+        RETURNING validated_by::TEXT AS validated_by, validated_at
+        """,
+        school_id,
+        stable_question_id,
+        correct_text,
+        teacher_id,
+    )
+
+    return {
+        "validated_by": row["validated_by"],
+        "validated_at": row["validated_at"].isoformat(),
+        "correct_text": correct_text,
+    }

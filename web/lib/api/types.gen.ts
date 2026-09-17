@@ -3708,6 +3708,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/schools/{school_id}/content/{curriculum_id}/units/{unit_id}/answers/{stable_question_id}/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Validate Answer Endpoint */
+        post: operations["validate_answer_endpoint_api_v1_schools__school_id__content__curriculum_id__units__unit_id__answers__stable_question_id__validate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/schools/{school_id}/visuals/upload": {
         parameters: {
             query?: never;
@@ -6533,6 +6550,22 @@ export interface components {
              * @default 0
              */
             flag_count: number;
+        };
+        /**
+         * AnswerValidationResponse
+         * @description POST .../answers/{stable_question_id}/validate — the tick just written.
+         *
+         *     `correct_text` is the snapshot the staleness comparison will be made
+         *     against, returned so the caller can show what was vouched for rather than
+         *     only that something was.
+         */
+        AnswerValidationResponse: {
+            /** Validated By */
+            validated_by: string;
+            /** Validated At */
+            validated_at: string;
+            /** Correct Text */
+            correct_text: string;
         };
         /**
          * AnswerValidationState
@@ -17372,6 +17405,42 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AnswerReviewListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    validate_answer_endpoint_api_v1_schools__school_id__content__curriculum_id__units__unit_id__answers__stable_question_id__validate_post: {
+        parameters: {
+            query?: {
+                lang?: string;
+            };
+            header?: never;
+            path: {
+                school_id: string;
+                curriculum_id: string;
+                unit_id: string;
+                stable_question_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnswerValidationResponse"];
                 };
             };
             /** @description Validation Error */

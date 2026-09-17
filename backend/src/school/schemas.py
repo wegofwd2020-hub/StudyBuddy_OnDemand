@@ -807,3 +807,16 @@ class AnswerReviewListResponse(BaseModel):
     source_curriculum_id: str
     owned_curriculum_id: str | None = None
     questions: list[AnswerReviewQuestion]
+
+
+class AnswerValidationResponse(BaseModel):
+    """POST .../answers/{stable_question_id}/validate — the tick just written.
+
+    `correct_text` is the snapshot the staleness comparison will be made
+    against, returned so the caller can show what was vouched for rather than
+    only that something was.
+    """
+
+    validated_by: str
+    validated_at: str
+    correct_text: str
