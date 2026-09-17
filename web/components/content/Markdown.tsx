@@ -130,3 +130,85 @@ export function SBMarkdown({
     </div>
   );
 }
+
+/**
+ * Block elements, which `SBMarkdownInline` strips while keeping their children.
+ *
+ * `<button>` and `<label>` take PHRASING content only. A `<p>` or `<table>`
+ * inside one is invalid HTML and breaks activation in some assistive tech — so
+ * a renderer used there cannot be allowed to emit one, whatever its input says.
+ */
+const BLOCK_ELEMENTS = [
+  "p",
+  "div",
+  "table",
+  "thead",
+  "tbody",
+  "tfoot",
+  "tr",
+  "th",
+  "td",
+  "ul",
+  "ol",
+  "li",
+  "pre",
+  "blockquote",
+  "hr",
+  "img",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+];
+
+/**
+ * SBMarkdownInline — the same markup vocabulary as {@link SBMarkdown}, rendered
+ * without a single block element (#769).
+ *
+ * Exists for quiz answer options, which are rendered inside a `<button>`. The
+ * inline markup is the point: measured on the demo (2026-09-17), 8,984 of the
+ * 26,016 real platform quiz options carry `$math$` and 1,286 carry `**bold**`,
+ * all of which reached students as raw dollar signs and asterisks.
+ *
+ * Block constructs in an option are rare but NOT absent — 89 of those 26,016
+ * contain a code fence, list, table or heading — so this strips them via
+ * `unwrapDisallowed` rather than assuming they never occur. A table in an
+ * option degrades to its cell text run together, which is a fair trade against
+ * emitting invalid HTML into a control: it affects 5 options, and the
+ * alternative breaks the control for everyone.
+ *
+ * KaTeX is unaffected: `rehype-katex` emits `<span>`/`<math>`, and its
+ * display-math `<div>` wrapper unwraps harmlessly.
+ */
+export function SBMarkdownInline({
+  children,
+  className,
+}: {
+  children: string;
+  className?: string;
+}) {
+  return (
+    <span className={cn("[&_.katex-display]:my-0 [&_.katex-display]:inline", className)}>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm, remarkMath]}
+        rehypePlugins={[rehypeKatex]}
+        disallowedElements={BLOCK_ELEMENTS}
+        unwrapDisallowed
+        components={{
+          strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+          // Always the inline pill here: the fenced-code branch in SBMarkdown
+          // renders a <pre>, which is exactly what must not appear.
+          code: ({ children }) => (
+            <code className="rounded bg-gray-100 px-1 py-0.5 font-mono text-[0.9em] text-indigo-700">
+              {children}
+            </code>
+          ),
+        }}
+      >
+        {children}
+      </ReactMarkdown>
+    </span>
+  );
+}
