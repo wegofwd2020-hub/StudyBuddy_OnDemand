@@ -3691,6 +3691,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/schools/{school_id}/content/{curriculum_id}/units/{unit_id}/answers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Answers */
+        get: operations["list_answers_api_v1_schools__school_id__content__curriculum_id__units__unit_id__answers_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/schools/{school_id}/visuals/upload": {
         parameters: {
             query?: never;
@@ -6448,6 +6465,67 @@ export interface components {
              * Format: date-time
              */
             created_at: string;
+        };
+        /** AnswerOptionItem */
+        AnswerOptionItem: {
+            /** Option Id */
+            option_id: string;
+            /** Text */
+            text: string;
+        };
+        /**
+         * AnswerReviewListResponse
+         * @description GET .../answers — every quiz question of a unit, this school's copy.
+         *
+         *     `ownership` mirrors what serving/grading would resolve for this school:
+         *     `override` (an active school override answers at least one set),
+         *     `fork` (the school owns a fork of this curriculum but has not overridden
+         *     this unit's quiz yet), or `none` (the school has not adopted this
+         *     curriculum at all — the demo's case for every class-used curriculum,
+         *     2026-09-17).
+         */
+        AnswerReviewListResponse: {
+            /** Ownership */
+            ownership: string;
+            /** Serving Curriculum Id */
+            serving_curriculum_id: string;
+            /** Questions */
+            questions: components["schemas"]["AnswerReviewQuestion"][];
+        };
+        /** AnswerReviewQuestion */
+        AnswerReviewQuestion: {
+            /** Stable Question Id */
+            stable_question_id: string;
+            /** Set Number */
+            set_number: number;
+            /** Question Id */
+            question_id: string;
+            /** Question Text */
+            question_text: string;
+            /** Options */
+            options: components["schemas"]["AnswerOptionItem"][];
+            /** Correct Option */
+            correct_option: string | null;
+            validated?: components["schemas"]["AnswerValidationState"] | null;
+            /**
+             * Flag Count
+             * @default 0
+             */
+            flag_count: number;
+        };
+        /**
+         * AnswerValidationState
+         * @description Who checked this question for THIS school, and whether that check is
+         *     still current. `stale` is true once the current correct option's text no
+         *     longer matches what was validated — see `question_validations.correct_text`.
+         */
+        AnswerValidationState: {
+            /** By */
+            by: string;
+            /** At */
+            at: string;
+            /** Stale */
+            stale: boolean;
         };
         /** AppVersionResponse */
         AppVersionResponse: {
@@ -17238,6 +17316,41 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_answers_api_v1_schools__school_id__content__curriculum_id__units__unit_id__answers_get: {
+        parameters: {
+            query?: {
+                lang?: string;
+            };
+            header?: never;
+            path: {
+                school_id: string;
+                curriculum_id: string;
+                unit_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnswerReviewListResponse"];
                 };
             };
             /** @description Validation Error */

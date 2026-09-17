@@ -9940,6 +9940,81 @@
         }
       }
     },
+    "/api/v1/schools/{school_id}/content/{curriculum_id}/units/{unit_id}/answers": {
+      "get": {
+        "tags": [
+          "school-answer-review"
+        ],
+        "summary": "List Answers",
+        "operationId": "list_answers_api_v1_schools__school_id__content__curriculum_id__units__unit_id__answers_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "school_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "School Id"
+            }
+          },
+          {
+            "name": "curriculum_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Curriculum Id"
+            }
+          },
+          {
+            "name": "unit_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Unit Id"
+            }
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "en",
+              "title": "Lang"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnswerReviewListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/schools/{school_id}/visuals/upload": {
       "post": {
         "tags": [
@@ -17151,6 +17226,138 @@
           "created_at"
         ],
         "title": "AnnotateResponse"
+      },
+      "AnswerOptionItem": {
+        "properties": {
+          "option_id": {
+            "type": "string",
+            "title": "Option Id"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "option_id",
+          "text"
+        ],
+        "title": "AnswerOptionItem"
+      },
+      "AnswerReviewListResponse": {
+        "properties": {
+          "ownership": {
+            "type": "string",
+            "title": "Ownership"
+          },
+          "serving_curriculum_id": {
+            "type": "string",
+            "title": "Serving Curriculum Id"
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/AnswerReviewQuestion"
+            },
+            "type": "array",
+            "title": "Questions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ownership",
+          "serving_curriculum_id",
+          "questions"
+        ],
+        "title": "AnswerReviewListResponse",
+        "description": "GET .../answers \u2014 every quiz question of a unit, this school's copy.\n\n`ownership` mirrors what serving/grading would resolve for this school:\n`override` (an active school override answers at least one set),\n`fork` (the school owns a fork of this curriculum but has not overridden\nthis unit's quiz yet), or `none` (the school has not adopted this\ncurriculum at all \u2014 the demo's case for every class-used curriculum,\n2026-09-17)."
+      },
+      "AnswerReviewQuestion": {
+        "properties": {
+          "stable_question_id": {
+            "type": "string",
+            "title": "Stable Question Id"
+          },
+          "set_number": {
+            "type": "integer",
+            "title": "Set Number"
+          },
+          "question_id": {
+            "type": "string",
+            "title": "Question Id"
+          },
+          "question_text": {
+            "type": "string",
+            "title": "Question Text"
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/AnswerOptionItem"
+            },
+            "type": "array",
+            "title": "Options"
+          },
+          "correct_option": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correct Option"
+          },
+          "validated": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AnswerValidationState"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "flag_count": {
+            "type": "integer",
+            "title": "Flag Count",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "stable_question_id",
+          "set_number",
+          "question_id",
+          "question_text",
+          "options",
+          "correct_option"
+        ],
+        "title": "AnswerReviewQuestion"
+      },
+      "AnswerValidationState": {
+        "properties": {
+          "by": {
+            "type": "string",
+            "title": "By"
+          },
+          "at": {
+            "type": "string",
+            "title": "At"
+          },
+          "stale": {
+            "type": "boolean",
+            "title": "Stale"
+          }
+        },
+        "type": "object",
+        "required": [
+          "by",
+          "at",
+          "stale"
+        ],
+        "title": "AnswerValidationState",
+        "description": "Who checked this question for THIS school, and whether that check is\nstill current. `stale` is true once the current correct option's text no\nlonger matches what was validated \u2014 see `question_validations.correct_text`."
       },
       "AppVersionResponse": {
         "properties": {

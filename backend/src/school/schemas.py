@@ -746,3 +746,48 @@ class GradeScopeResponse(BaseModel):
 
     kind: str
     grades: list[int] = []
+
+
+# ── Quiz answer review (#762) ─────────────────────────────────────────────────
+
+
+class AnswerOptionItem(BaseModel):
+    option_id: str
+    text: str
+
+
+class AnswerValidationState(BaseModel):
+    """Who checked this question for THIS school, and whether that check is
+    still current. `stale` is true once the current correct option's text no
+    longer matches what was validated — see `question_validations.correct_text`."""
+
+    by: str
+    at: str
+    stale: bool
+
+
+class AnswerReviewQuestion(BaseModel):
+    stable_question_id: str
+    set_number: int
+    question_id: str
+    question_text: str
+    options: list[AnswerOptionItem]
+    correct_option: str | None
+    validated: AnswerValidationState | None = None
+    flag_count: int = 0
+
+
+class AnswerReviewListResponse(BaseModel):
+    """GET .../answers — every quiz question of a unit, this school's copy.
+
+    `ownership` mirrors what serving/grading would resolve for this school:
+    `override` (an active school override answers at least one set),
+    `fork` (the school owns a fork of this curriculum but has not overridden
+    this unit's quiz yet), or `none` (the school has not adopted this
+    curriculum at all — the demo's case for every class-used curriculum,
+    2026-09-17).
+    """
+
+    ownership: str
+    serving_curriculum_id: str
+    questions: list[AnswerReviewQuestion]
