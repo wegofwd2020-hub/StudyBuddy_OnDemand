@@ -30,6 +30,13 @@ import os
 import sys
 from dataclasses import dataclass
 
+# Run as `python /app/scripts/<this>.py`, sys.path[0] is the SCRIPTS directory, so
+# `from config import settings` below (the default --root) raises ModuleNotFoundError.
+# Caught on the demo: the unit tests always pass --root and never import config.
+_BACKEND = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _BACKEND not in sys.path:
+    sys.path.insert(0, _BACKEND)
+
 UNIT_ID = "G11-ACC-001"
 LESSON_FILE = "lesson_en.json"
 
