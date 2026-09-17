@@ -103,9 +103,10 @@ export function PortalHeader({
           <Eye className="h-4 w-4" aria-hidden />
         </button>
 
-        {/* School portal: username is the account-menu trigger (config + sign out
-            moved off the left rail — issue #367 AP-4). Other portals keep the
-            static username display. */}
+        {/* School AND student portals: the username is the account-menu trigger,
+            with settings/help and sign out inside it (#367 AP-4, extended to the
+            student portal by #767 — "move logout option to top right"). Other
+            portals keep the static username display. */}
         {/* Role indicator — Admin / School Admin / Teacher / Student (#448).
             Gated on `now` so it only renders after mount (avoids a hydration
             mismatch from useTeacher reading the JWT from localStorage). */}
@@ -115,9 +116,12 @@ export function PortalHeader({
           </span>
         )}
 
-        {portal === "school" ? (
+        {portal === "school" || portal === "student" ? (
           <div className="flex items-center gap-3">
-            <AccountMenu userName={userName} />
+            <AccountMenu
+              userName={userName}
+              portal={portal === "student" ? "student" : "school"}
+            />
             {now && (
               <span className="hidden text-sm whitespace-nowrap text-gray-500 tabular-nums sm:inline">
                 {formatDateTime(now)}

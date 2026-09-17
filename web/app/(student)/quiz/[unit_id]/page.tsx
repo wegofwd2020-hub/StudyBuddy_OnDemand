@@ -4,6 +4,7 @@ import { use, useCallback, useEffect, useState } from "react";
 import { useQuiz } from "@/lib/hooks/useQuiz";
 import { QuizPlayer } from "@/components/content/QuizPlayer";
 import { OfflineBanner } from "@/components/student/OfflineBanner";
+import { useUnitSubject } from "@/lib/hooks/useUnitSubject";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AIContentDisclosure } from "@/components/content/AIContentDisclosure";
 import { contentErrorMessage } from "@/lib/content-error";
@@ -17,6 +18,7 @@ interface PageProps {
 
 export default function QuizPage({ params }: PageProps) {
   const { unit_id } = use(params);
+  const subject = useUnitSubject(unit_id);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [startError, setStartError] = useState<unknown>(null);
   // The session is opened FIRST and the quiz is fetched for it (#567). The
@@ -108,6 +110,14 @@ export default function QuizPage({ params }: PageProps) {
     <div className="flex flex-col">
       <OfflineBanner />
       <div className="max-w-2xl p-6">
+        {/* Which subject this unit belongs to (#768): the title alone did not
+            say, and a student moving between Accountancy and Economics units
+            saw only unit names. */}
+        {subject && (
+          <p className="text-xs font-medium tracking-wide text-gray-500 uppercase">
+            {subject}
+          </p>
+        )}
         <h1 className="mb-6 text-xl font-bold text-gray-900">{quiz.title}</h1>
         {sessionId && (
           <QuizPlayer

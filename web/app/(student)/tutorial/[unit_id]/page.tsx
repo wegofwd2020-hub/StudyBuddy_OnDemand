@@ -6,6 +6,7 @@ import { getTutorial } from "@/lib/api/content";
 import { TutorialRenderer } from "@/components/content/TutorialRenderer";
 import { FeedbackWidget } from "@/components/feedback/FeedbackWidget";
 import { OfflineBanner } from "@/components/student/OfflineBanner";
+import { useUnitSubject } from "@/lib/hooks/useUnitSubject";
 import { LinkButton } from "@/components/ui/link-button";
 import { AIContentDisclosure } from "@/components/content/AIContentDisclosure";
 import { contentErrorMessage } from "@/lib/content-error";
@@ -18,6 +19,7 @@ interface PageProps {
 
 export default function TutorialPage({ params }: PageProps) {
   const { unit_id } = use(params);
+  const subject = useUnitSubject(unit_id);
   const {
     data: tutorial,
     isLoading,
@@ -59,6 +61,14 @@ export default function TutorialPage({ params }: PageProps) {
     <div className="flex flex-col">
       <OfflineBanner />
       <div className="max-w-3xl space-y-6 p-6">
+        {/* Which subject this unit belongs to (#768): the title alone did not
+            say, and a student moving between Accountancy and Economics units
+            saw only unit names. */}
+        {subject && (
+          <p className="text-xs font-medium tracking-wide text-gray-500 uppercase">
+            {subject}
+          </p>
+        )}
         <TutorialRenderer tutorial={tutorial} />
         <AIContentDisclosure />
         <div className="flex items-center justify-between border-t pt-4">

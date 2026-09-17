@@ -25,6 +25,12 @@ vi.mock("next/navigation", () => ({
   useSearchParams: vi.fn(() => new URLSearchParams()),
 }));
 
+// The quiz page resolves its subject from the curriculum tree (#768). This file
+// is about the lesson-first gate, so the tree is stubbed rather than provided.
+vi.mock("@/lib/hooks/useCurriculumTree", () => ({
+  useCurriculumTree: () => ({ data: undefined, isLoading: false, isError: false }),
+}));
+
 vi.mock("next/link", () => ({
   default: ({ href, children }: { href: string; children: React.ReactNode }) => (
     <a href={href}>{children}</a>
