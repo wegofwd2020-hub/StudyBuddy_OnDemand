@@ -15,6 +15,11 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+// Question text is markdown (#769). The pipeline injects the same
+// _FORMATTING_GUIDELINES block into the quiz prompt that lessons and tutorials
+// get, so stems, options and explanations carry GFM tables, KaTeX and bold —
+// this player was the one viewer that printed them raw.
+import { SBMarkdown, SBMarkdownInline } from "@/components/content/Markdown";
 import { submitAnswer, endSession, getSessionAnswers } from "@/lib/api/progress";
 
 // ─── State machine ────────────────────────────────────────────────────────────
@@ -291,10 +296,12 @@ export function QuizPlayer({ quiz, sessionId, onRetry }: QuizPlayerProps) {
                 key={question.question_id}
                 className="rounded-lg border bg-white p-4 shadow-sm"
               >
-                <p className="mb-3 font-medium text-gray-900">
-                  <span className="text-gray-400">{qi + 1}. </span>
-                  {question.question}
-                </p>
+                <div className="mb-3 flex gap-1 font-medium text-gray-900">
+                  <span className="shrink-0 text-gray-400">{qi + 1}. </span>
+                  <SBMarkdown className="min-w-0 flex-1 text-base text-gray-900">
+                    {question.question}
+                  </SBMarkdown>
+                </div>
                 <ul className="space-y-2">
                   {question.options.map((option, oi) => {
                     const isChosen = selectedIndex === oi;
@@ -318,7 +325,7 @@ export function QuizPlayer({ quiz, sessionId, onRetry }: QuizPlayerProps) {
                         ) : (
                           <span className="h-4 w-4 shrink-0" />
                         )}
-                        <span>{option}</span>
+                        <SBMarkdownInline>{option}</SBMarkdownInline>
                         {isChosen && (
                           <span className="ml-auto text-xs font-medium text-gray-400">
                             {tq("your_answer")}
@@ -334,8 +341,10 @@ export function QuizPlayer({ quiz, sessionId, onRetry }: QuizPlayerProps) {
                   </p>
                 )}
                 {revealed?.explanation && (
-                  <div className="mt-3 rounded-md border bg-gray-50 p-3 text-sm text-gray-600">
-                    {revealed.explanation}
+                  <div className="mt-3 rounded-md border bg-gray-50 p-3">
+                    <SBMarkdown className="text-sm text-gray-600">
+                      {revealed.explanation}
+                    </SBMarkdown>
                   </div>
                 )}
               </li>
@@ -397,7 +406,9 @@ export function QuizPlayer({ quiz, sessionId, onRetry }: QuizPlayerProps) {
 
       {/* Question */}
       <div className="rounded-lg border bg-white p-6 shadow-sm">
-        <p className="mb-6 text-lg font-medium text-gray-900">{question.question}</p>
+        <SBMarkdown className="mb-6 text-lg font-medium text-gray-900">
+          {question.question}
+        </SBMarkdown>
 
         <div className="space-y-3">
           {question.options.map((option, i) => {
@@ -417,7 +428,7 @@ export function QuizPlayer({ quiz, sessionId, onRetry }: QuizPlayerProps) {
                     : "border-border bg-background hover:bg-gray-50",
                 )}
               >
-                {option}
+                <SBMarkdownInline>{option}</SBMarkdownInline>
               </button>
             );
           })}
