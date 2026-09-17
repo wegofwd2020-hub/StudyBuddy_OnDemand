@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 import sys
 
 _SCRIPTS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "scripts")
@@ -124,6 +125,27 @@ def test_a_lesson_without_key_points_gets_them(tmp_path):
     script.add_rules(str(tmp_path), commit=True)
 
     assert len(_read(path)["key_points"]) == 3
+
+
+def test_running_the_script_by_path_with_no_root(tmp_path):
+    """The demo runs `python /app/scripts/<this>.py` with no --root, so the
+    default root comes from `config.settings`. Run that way, sys.path[0] is
+    scripts/, not backend/, and the import raised ModuleNotFoundError — which is
+    how the first demo run died while every test here passed (they all pass
+    --root and never import config). This runs it the same way the demo does."""
+    _lesson(str(tmp_path))
+    env = {**os.environ, "CONTENT_STORE_PATH": str(tmp_path)}
+    proc = subprocess.run(
+        [sys.executable, os.path.join(_SCRIPTS, "add_accounting_golden_rules.py")],
+        capture_output=True,
+        text=True,
+        env=env,
+        cwd="/",
+    )
+
+    assert proc.returncode == 0, proc.stderr
+    assert "DRY-RUN" in proc.stdout
+    assert "to change: 1" in proc.stdout
 
 
 def test_main_reports_and_exits_zero(tmp_path):
