@@ -49,6 +49,7 @@ async def _resolve_stable_question_id(
     student_id: str,
     session_id: str,
     question_id: str,
+    school_id: str | None = None,
 ) -> str | None:
     """Positional question id -> the question's stable identity, or None.
 
@@ -56,6 +57,12 @@ async def _resolve_stable_question_id(
     any other student's session by guessing a UUID. Returns None rather than
     raising on every failure path — see the caller for why the narrowing is
     best-effort while the feedback itself is not.
+
+    `school_id` is what lets the override branch run at all (#804). Passing None
+    resolved the question from the platform store even when the student's school
+    serves its own copy, so a flag on the school's question was recorded against
+    the platform's — and the per-question flag count on the answer-review page
+    (#762) reads 0 for exactly the schools that have edited something.
     """
     from src.content.service import resolve_quiz_answer_key
     from src.progress.service import resolve_session_quiz_set, verify_session_owner
@@ -74,7 +81,7 @@ async def _resolve_stable_question_id(
             unit_id=session["unit_id"],
         )
         key = await resolve_quiz_answer_key(
-            None,
+            school_id,
             session["curriculum_id"],
             session["unit_id"],
             set_number,
@@ -130,7 +137,12 @@ async def submit_feedback_endpoint(
         stable_qid = None
         if body.question_id and body.session_id:
             stable_qid = await _resolve_stable_question_id(
-                request, conn, student_id, body.session_id, body.question_id
+                request,
+                conn,
+                student_id,
+                body.session_id,
+                body.question_id,
+                school_id=student.get("school_id"),
             )
 
         result = await submit_feedback(
