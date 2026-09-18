@@ -27,9 +27,9 @@ Answer these before starting implementation. Decisions cascade down.
   - Pro: Fast grade switching; no UI churn
   - Con: Only works if teacher has ≤3 grades; hard to see "all grades" view
 
-**Decision:** _______________
+**Decision:**  B
 
-**Rationale:** _______________
+**Rationale:** The filter pane is collapsible, so imact of screen size is only when creating/editing the filters.
 
 ---
 
@@ -48,9 +48,9 @@ Answer these before starting implementation. Decisions cascade down.
 - **C) Smart: if 1 grade, show only that; if multi, show all**  
   Query teacher's classes; if single, pre-filter. If multi, show all with hint.
 
-**Decision:** _______________
+**Decision:**  A
 
-**Rationale:** _______________
+**Rationale:** The would their default focus.
 
 ---
 
@@ -69,9 +69,9 @@ Answer these before starting implementation. Decisions cascade down.
 - **C) Rolling: last 30d, month-to-date, year-to-date**  
   Richer context but more complex backend queries.
 
-**Decision:** _______________
+**Decision:**  B
 
-**Rationale:** _______________
+**Rationale:** The engagement metrics is meant to enable teacher to plan they weekly activities.
 
 ---
 
@@ -88,7 +88,7 @@ Answer these before starting implementation. Decisions cascade down.
 - **C) Has ≥1 completed quiz attempt or passed quiz**  
   Only counted if they submitted an answer. Highest bar.
 
-**Decision:** _______________
+**Decision:**  B
 
 **Rationale:** _______________
 
@@ -112,9 +112,9 @@ Answer these before starting implementation. Decisions cascade down.
 - **D) Remember from last visit**  
   localStorage tracks open/closed state. Best UX but complex.
 
-**Decision:** _______________
+**Decision:**  A
 
-**Rationale:** _______________
+**Rationale:** It is left to the student to choose what they want to view.
 
 ---
 
@@ -132,9 +132,9 @@ Answer these before starting implementation. Decisions cascade down.
   `Mathematics (Grade 8, 9, 10) > Fractions...`  
   Reduces nesting depth.
 
-**Decision:** _______________
+**Decision:**  A
 
-**Rationale:** _______________
+**Rationale:** Grade is the top level for any class/teacher/student
 
 ---
 
@@ -153,9 +153,9 @@ Answer these before starting implementation. Decisions cascade down.
   `▼ G8-MATH (5 units)`  
   Balanced; still organized.
 
-**Decision:** _______________
+**Decision:**  A
 
-**Rationale:** _______________
+**Rationale:** Simple
 
 ---
 
@@ -174,9 +174,9 @@ Answer these before starting implementation. Decisions cascade down.
 - **C) Tabs: one tab per class**  
   Click "Grade 8 Math" tab to see that roster. Active tab remembered.
 
-**Decision:** _______________
+**Decision:**  C
 
-**Rationale:** _______________
+**Rationale:** Clear separation
 
 ---
 
@@ -193,9 +193,9 @@ Answer these before starting implementation. Decisions cascade down.
 - **C) No filter (fixed to class)**  
   Teacher sees only their assigned class; no filter needed.
 
-**Decision:** _______________
+**Decision:**  B
 
-**Rationale:** _______________
+**Rationale:** Focus is on Grade
 
 ---
 
@@ -214,9 +214,9 @@ Answer these before starting implementation. Decisions cascade down.
 - **C) Manual override in content review**  
   Admin can mark comparison questions as "table" during content review.
 
-**Decision:** _______________
+**Decision:**  A
 
-**Rationale:** _______________
+**Rationale:** Keep focus
 
 ---
 
@@ -233,9 +233,9 @@ Answer these before starting implementation. Decisions cascade down.
 - **C) Collapse columns**  
   Show first 2 columns; tap to expand others inline.
 
-**Decision:** _______________
+**Decision:**  B
 
-**Rationale:** _______________
+**Rationale:** Good view
 
 ---
 
@@ -254,9 +254,9 @@ Answer these before starting implementation. Decisions cascade down.
 - **C) Summary + detail sheets**  
   Sheet 1 = totals by grade/subject. Sheet 2 = all rows with filters applied.
 
-**Decision:** _______________
+**Decision:**  A
 
-**Rationale:** _______________
+**Rationale:** Simple
 
 ---
 
@@ -273,9 +273,9 @@ Answer these before starting implementation. Decisions cascade down.
 - **C) Materialized view**  
   Database view refreshes nightly. Reports query view directly.
 
-**Decision:** _______________
+**Decision:**  B
 
-**Rationale:** _______________
+**Rationale:** Manageable
 
 ---
 
@@ -294,9 +294,9 @@ Answer these before starting implementation. Decisions cascade down.
 - **C) Incremental: ship what's ready**  
   EH-001 ASAP (teacher login). EH-003 next. Rest as ready.
 
-**Decision:** _______________
+**Decision:** C
 
-**Rationale:** _______________
+**Rationale:** Easier to validate
 
 ---
 
@@ -313,9 +313,9 @@ Answer these before starting implementation. Decisions cascade down.
 - **C) Dual-path rendering**  
   Frontend detects schema version; uses old or new renderer accordingly.
 
-**Decision:** _______________
+**Decision:** C
 
-**Rationale:** _______________
+**Rationale:** Easier going forward.
 
 ---
 
