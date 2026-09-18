@@ -26,7 +26,7 @@ turned into a failing test, stop and say so rather than implementing blind.
 - Branch `feat/762-quiz-answer-review` (already created, spec committed). Do not switch branches or create a worktree — the `api` container bind-mounts this checkout.
 - Backend tests: `docker compose exec -T api python -m pytest <paths> -q --tb=short -p no:cacheprovider`. **Never** pass `-e TEST_DB_URL=` to pytest (pitfall #37). **Never** run two pytest sessions at once (pitfall #41).
 - Frontend: run `npx vitest run`, `npx eslint`, `npx prettier --check .` from `web/`. For typecheck use `npx tsc --noEmit -p <scratchpad>/tsconfig.json` (excludes `.next`, pitfall #39) — NOT `npm run typecheck`.
-- Any schema/response change ⇒ regenerate the API contract (`scripts/export_openapi.py` → `npm run gen:types`) **and** hand-edit the DTO in `web/lib/api/*.ts` (pitfall #40 — those are hand-written).
+- Any schema/response change ⇒ regenerate the API contract (`backend/scripts/export_openapi.py` → `npm run gen:types`) **and** hand-edit the DTO in `web/lib/api/*.ts` (pitfall #40 — those are hand-written).
 - RLS: every new table gets `ENABLE` + `FORCE ROW LEVEL SECURITY` and a `tenant_isolation` policy on `school_id`, copying `0059_teacher_capabilities.py:67-77`.
 - Capability guards come from `backend/src/school/capability_guards.py`: `require_curriculum_view` (read), `require_review` (write). `school_admin` is an implicit superset — do not special-case it.
 - Lint/format backend with `ruff check` + `ruff format` (config `backend/pyproject.toml`, line-length 100).
