@@ -809,6 +809,65 @@ class AnswerReviewListResponse(BaseModel):
     questions: list[AnswerReviewQuestion]
 
 
+class CorrectAnswerRequest(BaseModel):
+    """POST .../answers/{stable_question_id}/correct
+
+    `correct_option` is an option_id as the content file spells it ("A".."D"),
+    deliberately NOT pattern-constrained: a letter that names no option of this
+    question is refused by the endpoint on the evidence that the question does
+    not have it, which is a better answer than a schema rejection, and a pattern
+    here would 422 content whose option ids are spelled some other way.
+
+    `confirm_fork` is the reviewer acknowledging that the school is about to
+    take its own copy of this unit — platform regeneration stops reaching it,
+    and the whole grade is repointed at the fork. Required only when the school
+    has no copy yet, and then only for the first correction in that curriculum
+    (design ruling: per curriculum, not per question).
+    """
+
+    correct_option: str = Field(min_length=1, max_length=8)
+    confirm_fork: bool = False
+
+
+class CorrectionCreated(BaseModel):
+    """Which of the three ownership steps this correction had to perform.
+
+    Read rather than inferred by the page: "did this fork the curriculum" is not
+    derivable from the response's other fields, and the confirmation copy the
+    reviewer sees afterwards depends on it.
+    """
+
+    adoption: bool
+    fork: bool
+    import_: bool = Field(alias="import")
+
+    model_config = {"populate_by_name": True}
+
+
+class CorrectAnswerResponse(BaseModel):
+    """POST .../answers/{stable_question_id}/correct — what actually happened.
+
+    `sets_corrected` lists every quiz set the question appeared in: one
+    `stable_question_id` spans sets, and a correction fixes all of them, because
+    the set a student sits is chosen by the server's rotation.
+
+    `grade_repointed` is true when creating the fork also repointed
+    `grade_curriculum_assignments` for that grade — a side effect on every
+    student of the grade, not only on this unit.
+    """
+
+    ownership_before: Literal["none", "fork", "override"]
+    created: CorrectionCreated
+    override_id: str
+    override_ids: list[str]
+    owned_curriculum_id: str
+    grade_repointed: bool
+    sets_corrected: list[int]
+    old_correct_text: str
+    new_correct_text: str
+    validated_at: str
+
+
 class AnswerValidationResponse(BaseModel):
     """POST .../answers/{stable_question_id}/validate — the tick just written.
 

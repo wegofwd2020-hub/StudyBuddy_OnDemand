@@ -30,13 +30,17 @@ reuses those helpers verbatim instead of re-deriving their SQL.
 
 from __future__ import annotations
 
+import json
+
 from src.content.service import (
     get_active_override,
     get_content_file,
     get_school_fork_for_source,
     resolve_content_curriculum,
 )
+from src.core.cache_keys import override_key
 from src.core.question_identity import stable_question_id
+from src.core.question_identity import stable_question_id as stable_question_id_of
 from src.core.storage import StorageBackend
 from src.utils.logger import get_logger
 
@@ -132,8 +136,9 @@ async def _resolve_ownership(conn, pool, *, school_id: str, curriculum_id: str, 
     return curriculum_id, owned
 
 
-async def list_unit_answers(
+async def _resolve_unit_quiz_sets(
     conn,
+    pool,
     storage: StorageBackend,
     redis,
     *,
@@ -141,20 +146,22 @@ async def list_unit_answers(
     curriculum_id: str,
     unit_id: str,
     lang: str,
-) -> dict:
-    """Every quiz question of `unit_id`, as this school would be served it.
+) -> tuple[str, str | None, bool, list[tuple[int, dict, str, str]]]:
+    """Resolve ownership and read every quiz set's BODY the way serving does.
 
-    Returns {"ownership": "none|fork|override", "source_curriculum_id": str,
-    "owned_curriculum_id": str | None, "questions": [...]} -- see
-    AnswerReviewListResponse for the question shape.
+    Returns (source_curriculum_id, owned_curriculum_id, has_override, per_set)
+    where per_set is [(set_number, body, key_lang, served_from)].
+
+    Split out of `list_unit_answers` so `correct_answer` can reuse it: a
+    correction needs the whole body (it writes a new version of it), not only
+    the question summary the listing projects. Deriving the body a second time
+    would be a second resolution of "what is this school served", and the two
+    would drift — silently, because the one that drifted is the one that writes.
     """
-    pool = _ConnAsPool(conn)
-
     source_curriculum_id, owned_curriculum_id = await _resolve_ownership(
         conn, pool, school_id=school_id, curriculum_id=curriculum_id, unit_id=unit_id
     )
 
-    # ── 1. Read each set: override first, else the store under the source ──
     has_override = False
     missing_sets: list[int] = []
     # (set_number, body, key_lang, served_from)
@@ -211,11 +218,22 @@ async def list_unit_answers(
             missing_sets=missing_sets,
         )
 
-    ownership = "override" if has_override else ("fork" if owned_curriculum_id else "none")
+    return source_curriculum_id, owned_curriculum_id, has_override, per_set
 
-    # ── 2. Build the question list + collect stable ids for the joins ──────
+
+def _questions_from_sets(
+    per_set: list[tuple[int, dict, str, str]],
+    *,
+    source_curriculum_id: str,
+    unit_id: str,
+) -> list[dict]:
+    """Project the resolved bodies onto the question shape the page reads.
+
+    The `stable_question_id` is minted HERE and nowhere else in this module, so
+    the listing, the tick and the correction cannot disagree about which
+    question they are talking about.
+    """
     questions: list[dict] = []
-    stable_ids: list[str] = []
     for set_number, body, key_lang, served_from in per_set:
         for question in body.get("questions") or []:
             if not isinstance(question, dict) or not question.get("question_id"):
@@ -241,11 +259,14 @@ async def list_unit_answers(
             # page to find.
             resolves = any(o.get("option_id") == correct_option for o in options)
             sid = stable_question_id(source_curriculum_id, unit_id, key_lang, text)
-            stable_ids.append(sid)
             questions.append(
                 {
                     "stable_question_id": sid,
                     "set_number": set_number,
+                    # Private to this module: the language the body was actually
+                    # read in, which a correction must write its new version
+                    # under. Stripped before the response is built.
+                    "_key_lang": key_lang,
                     "question_id": question["question_id"],
                     "question_text": text,
                     "options": [
@@ -261,16 +282,60 @@ async def list_unit_answers(
                 }
             )
 
+    return questions
+
+
+async def list_unit_answers(
+    conn,
+    storage: StorageBackend,
+    redis,
+    *,
+    school_id: str,
+    curriculum_id: str,
+    unit_id: str,
+    lang: str,
+) -> dict:
+    """Every quiz question of `unit_id`, as this school would be served it.
+
+    Returns {"ownership": "none|fork|override", "source_curriculum_id": str,
+    "owned_curriculum_id": str | None, "questions": [...]} -- see
+    AnswerReviewListResponse for the question shape.
+    """
+    pool = _ConnAsPool(conn)
+
+    (
+        source_curriculum_id,
+        owned_curriculum_id,
+        has_override,
+        per_set,
+    ) = await _resolve_unit_quiz_sets(
+        conn,
+        pool,
+        storage,
+        redis,
+        school_id=school_id,
+        curriculum_id=curriculum_id,
+        unit_id=unit_id,
+        lang=lang,
+    )
+    ownership = "override" if has_override else ("fork" if owned_curriculum_id else "none")
+    questions = _questions_from_sets(
+        per_set, source_curriculum_id=source_curriculum_id, unit_id=unit_id
+    )
+    for question in questions:
+        question.pop("_key_lang", None)
+
     result = {
         "ownership": ownership,
         "source_curriculum_id": source_curriculum_id,
         "owned_curriculum_id": owned_curriculum_id,
         "questions": questions,
     }
+    stable_ids = [q["stable_question_id"] for q in questions]
     if not stable_ids:
         return result
 
-    # ── 3. Left-join this school's validations ──────────────────────────────
+    # ── Left-join this school's validations ─────────────────────────────────
     validation_rows = await conn.fetch(
         """
         SELECT stable_question_id, correct_text, validated_by, validated_at
@@ -282,7 +347,7 @@ async def list_unit_answers(
     )
     validations = {r["stable_question_id"]: r for r in validation_rows}
 
-    # ── 4. Left-join flag counts, scoped to THIS school's own students ─────
+    # ── Left-join flag counts, scoped to THIS school's own students ────────
     #
     # A membership predicate, not a JOIN: `school_enrolments` is UNIQUE
     # (school_id, student_email) and NOT on (school_id, student_id), so one
@@ -392,6 +457,30 @@ async def validate_answer(
             snapshot=correct_text,
         )
 
+    return await _upsert_validation(
+        conn,
+        school_id=school_id,
+        stable_question_id=stable_question_id,
+        correct_text=correct_text,
+        teacher_id=teacher_id,
+    )
+
+
+async def _upsert_validation(
+    conn,
+    *,
+    school_id: str,
+    stable_question_id: str,
+    correct_text: str,
+    teacher_id: str,
+) -> dict:
+    """Record (school, question) -> the answer text vouched for, and by whom.
+
+    Shared by `validate_answer` and `correct_answer` because the design says a
+    correction re-validates automatically, by the reviewer who made it — and a
+    second copy of this upsert would be a second chance to snapshot a different
+    text, which is precisely the comparison the `stale` flag is made of.
+    """
     row = await conn.fetchrow(
         """
         INSERT INTO question_validations
@@ -413,4 +502,378 @@ async def validate_answer(
         "validated_by": row["validated_by"],
         "validated_at": row["validated_at"].isoformat(),
         "correct_text": correct_text,
+    }
+
+
+# ── Correcting an answer ──────────────────────────────────────────────────────
+
+
+class ForkConfirmationRequired(RuntimeError):
+    """The school has no copy of this curriculum, so correcting one answer would
+    create an adoption, a fork and an import — and repoint the whole grade at the
+    fork. The design (§3) makes that explicit rather than silent: the reviewer
+    confirms once per curriculum, not once per question."""
+
+
+class OptionNotInQuestion(ValueError):
+    """`correct_option` names no option this question actually has.
+
+    Exactly the defect `_parse_quiz_answer_key` logs as
+    `quiz_answer_key_unresolvable` and the listing surfaces as
+    `correct_option_resolves: false` — writing one here would be creating the
+    thing this page exists to find.
+    """
+
+
+class CorrectionInvariantError(RuntimeError):
+    """The body about to be written differs from the served one in more than
+    that question's `correct_option`.
+
+    Belt and braces over a deep copy that changes one field, and deliberately
+    fatal: this endpoint publishes straight to students with no review step, so
+    "something else changed" must roll the transaction back rather than ship.
+    Same guard shape as `scripts/rebalance_quiz_options.py::_verify`.
+    """
+
+
+def _verify_only_correct_option_changed(
+    original: dict, corrected: dict, *, question_ids: set[str]
+) -> None:
+    """Every field of the body must be identical except `correct_option` on the
+    named questions."""
+    orig_top = {k: v for k, v in original.items() if k != "questions"}
+    new_top = {k: v for k, v in corrected.items() if k != "questions"}
+    if orig_top != new_top:
+        raise CorrectionInvariantError("non-question fields changed")
+
+    orig_qs = original.get("questions") or []
+    new_qs = corrected.get("questions") or []
+    if len(orig_qs) != len(new_qs):
+        raise CorrectionInvariantError("the question list changed length")
+
+    for orig_q, new_q in zip(orig_qs, new_qs, strict=True):
+        if not isinstance(orig_q, dict) or not isinstance(new_q, dict):
+            if orig_q != new_q:
+                raise CorrectionInvariantError("a non-question entry changed")
+            continue
+        if orig_q.get("question_id") != new_q.get("question_id"):
+            raise CorrectionInvariantError("question order changed")
+        stripped_orig = {k: v for k, v in orig_q.items() if k != "correct_option"}
+        stripped_new = {k: v for k, v in new_q.items() if k != "correct_option"}
+        if stripped_orig != stripped_new:
+            # Includes `question_text` — the stable_question_id's only input.
+            # Changing it here would orphan every recorded answer and flag.
+            raise CorrectionInvariantError("a question changed beyond its correct option")
+        if orig_q.get("question_id") not in question_ids:
+            if orig_q.get("correct_option") != new_q.get("correct_option"):
+                raise CorrectionInvariantError("a question that was not targeted was re-keyed")
+
+
+class CurriculumNotAdoptable(ValueError):
+    """The curriculum is not a platform OOB package, so the school cannot take a
+    copy of it — the same refusal `adopt_curriculum` gives."""
+
+
+async def _ensure_adoption(
+    conn, *, school_id: str, source_curriculum_id: str, teacher_id: str
+) -> tuple[str, bool]:
+    """(adoption_id, created). Same rules and same INSERT as `adopt_curriculum`.
+
+    Deliberately the same 422 gate as that endpoint (`is_default` AND
+    `owner_type = 'platform'`): a curriculum that cannot be adopted through the
+    library cannot be forked through this side door either, or the two would
+    disagree about what a school is allowed to own.
+    """
+    pkg = await conn.fetchrow(
+        "SELECT curriculum_id, grade, is_default, owner_type FROM curricula "
+        "WHERE curriculum_id = $1",
+        source_curriculum_id,
+    )
+    if not pkg or not pkg["is_default"] or pkg["owner_type"] != "platform":
+        raise CurriculumNotAdoptable(source_curriculum_id)
+
+    existing = await conn.fetchval(
+        "SELECT adoption_id FROM school_adopted_curricula "
+        "WHERE school_id = $1 AND curriculum_id = $2",
+        school_id,
+        source_curriculum_id,
+    )
+    if existing:
+        return str(existing), False
+
+    adoption_id = await conn.fetchval(
+        """
+        INSERT INTO school_adopted_curricula
+            (school_id, curriculum_id, grade, adopted_by, notes)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING adoption_id
+        """,
+        school_id,
+        source_curriculum_id,
+        pkg["grade"],
+        teacher_id,
+        "Adopted automatically when a reviewer corrected a quiz answer (#762).",
+    )
+    return str(adoption_id), True
+
+
+async def correct_answer(
+    conn,
+    storage: StorageBackend,
+    redis,
+    *,
+    school_id: str,
+    curriculum_id: str,
+    unit_id: str,
+    lang: str,
+    stable_question_id: str,
+    correct_option: str,
+    confirm_fork: bool,
+    teacher_id: str,
+) -> dict:
+    """Change WHICH option is correct for one question, in this school's copy.
+
+    Returns {"ownership_before", "created": {adoption, fork, import},
+    "override_id", "override_ids", "grade_repointed", "sets_corrected",
+    "old_correct_text", "new_correct_text", "validated_at"}.
+
+    Raises `QuestionNotInUnit` (404), `OptionNotInQuestion` (422),
+    `ForkConfirmationRequired` (409) or `CurriculumNotAdoptable` (422).
+
+    RULING — one question, several sets. A `stable_question_id` spans quiz sets
+    (it hashes the stem, not the set number), so a unit can hold three BODIES
+    for one question. A correction fixes the answer in EVERY set the question
+    appears in. The set a student sits is chosen by the server's rotation
+    (`pin_session_quiz_set`, once per attempt), so correcting only the set the
+    reviewer happened to be shown would leave the same question misgraded on the
+    next attempt — and "the corrected answer is what grades" could not be said
+    at all. It also keeps `question_validations`' single `correct_text` snapshot
+    honest, since after this the sets agree.
+
+    RULING — language. The new version is written under the language the body
+    was actually READ in (`_key_lang`), not the one requested. Requesting `fr`
+    where only `_en` files exist reads English (serving falls back the same
+    way), and storing that English body as a French override would be a
+    translation nobody wrote. Consequence, stated rather than hidden: a school
+    whose students read `fr` while the content is English-only is corrected for
+    the English readers; the `fr` grading path reads the store's `_en` file and
+    does not see the override. Content is English-only today.
+
+    Everything after the reads happens in ONE transaction, so a failure cannot
+    leave a school with a fork and no correction in it.
+    """
+    from src.school.unit_import import import_unit_overrides
+
+    pool = _ConnAsPool(conn)
+
+    (
+        source_curriculum_id,
+        owned_curriculum_id,
+        has_override,
+        per_set,
+    ) = await _resolve_unit_quiz_sets(
+        conn,
+        pool,
+        storage,
+        redis,
+        school_id=school_id,
+        curriculum_id=curriculum_id,
+        unit_id=unit_id,
+        lang=lang,
+    )
+    ownership_before = "override" if has_override else ("fork" if owned_curriculum_id else "none")
+
+    questions = _questions_from_sets(
+        per_set, source_curriculum_id=source_curriculum_id, unit_id=unit_id
+    )
+    matches = sorted(
+        (q for q in questions if q["stable_question_id"] == stable_question_id),
+        key=lambda q: q["set_number"],
+    )
+    if not matches:
+        raise QuestionNotInUnit(stable_question_id)
+
+    # Refuse BEFORE anything is created: a 422 that has already adopted a
+    # curriculum and repointed a grade is not a refusal.
+    for question in matches:
+        if not any(o["option_id"] == correct_option for o in question["options"]):
+            raise OptionNotInQuestion(
+                f"{correct_option!r} is not an option of question "
+                f"{question['question_id']!r} in set {question['set_number']}"
+            )
+
+    if ownership_before == "none" and not confirm_fork:
+        raise ForkConfirmationRequired(source_curriculum_id)
+
+    old_correct_text = _correct_option_text(matches[0]["options"], matches[0]["correct_option"])
+    new_correct_text = _correct_option_text(matches[0]["options"], correct_option)
+
+    bodies = {set_number: body for set_number, body, _key_lang, _src in per_set}
+    created = {"adoption": False, "fork": False, "import": False}
+    grade_repointed = False
+    override_ids: list[str] = []
+    sets_corrected: list[int] = []
+
+    async with conn.transaction():
+        if ownership_before != "override":
+            # Take the school's own copy first. `_assert_school_owns_curriculum`
+            # refuses platform ids outright, so everything below operates on the
+            # FORK id and never on the id in the path.
+            adoption_id, created["adoption"] = await _ensure_adoption(
+                conn,
+                school_id=school_id,
+                source_curriculum_id=source_curriculum_id,
+                teacher_id=teacher_id,
+            )
+            imported = await import_unit_overrides(
+                conn,
+                storage,
+                school_id=school_id,
+                adoption_id=adoption_id,
+                unit_id=unit_id,
+                teacher_id=teacher_id,
+                lang=matches[0]["_key_lang"],
+            )
+            owned_curriculum_id = imported["forked_curriculum_id"]
+            created["fork"] = imported["fork_created"]
+            created["import"] = any(not o.skipped for o in imported["overrides"])
+            grade_repointed = imported["grade_repointed"]
+
+        for question in matches:
+            set_number = question["set_number"]
+            content_type = f"quiz_set_{set_number}"
+            write_lang = question["_key_lang"]
+            original = bodies[set_number]
+
+            corrected = json.loads(json.dumps(original))
+            targeted: set[str] = set()
+            for candidate in corrected.get("questions") or []:
+                if not isinstance(candidate, dict) or not candidate.get("question_id"):
+                    continue
+                sid = stable_question_id_of(
+                    source_curriculum_id, unit_id, write_lang, candidate.get("question_text") or ""
+                )
+                if sid == stable_question_id:
+                    candidate["correct_option"] = correct_option
+                    targeted.add(candidate["question_id"])
+            _verify_only_correct_option_changed(original, corrected, question_ids=targeted)
+
+            latest = await conn.fetchrow(
+                """
+                SELECT override_id, version_number, bundle_id
+                FROM unit_content_overrides
+                WHERE curriculum_id = $1 AND unit_id = $2
+                  AND lang = $3 AND content_type = $4
+                ORDER BY version_number DESC
+                LIMIT 1
+                FOR UPDATE
+                """,
+                owned_curriculum_id,
+                unit_id,
+                write_lang,
+                content_type,
+            )
+            override_id = await conn.fetchval(
+                """
+                INSERT INTO unit_content_overrides
+                    (school_id, curriculum_id, unit_id, lang, content_type,
+                     bundle_id, content_source, source_override_id, body,
+                     last_edited_by, review_status, version_number)
+                VALUES ($1, $2, $3, $4, $5,
+                        $6, 'teacher_authored', $7, $8,
+                        $9, 'approved', $10)
+                RETURNING override_id
+                """,
+                school_id,
+                owned_curriculum_id,
+                unit_id,
+                write_lang,
+                content_type,
+                latest["bundle_id"] if latest else None,
+                latest["override_id"] if latest else None,
+                corrected,
+                teacher_id,
+                (latest["version_number"] + 1) if latest else 1,
+            )
+
+            # `approve_unit_content`'s upsert (school/router.py), NOT
+            # `revert_unit_override`'s: that one omits school_id and conflicts on
+            # the wrong key (#803), so it would either fail or overwrite another
+            # school's pointer.
+            await conn.execute(
+                """
+                INSERT INTO unit_content_active_versions
+                    (school_id, curriculum_id, unit_id, lang,
+                     content_type, override_id, activated_by)
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
+                ON CONFLICT (school_id, curriculum_id, unit_id, lang, content_type)
+                DO UPDATE SET override_id  = EXCLUDED.override_id,
+                              activated_by = EXCLUDED.activated_by,
+                              activated_at = now()
+                """,
+                school_id,
+                owned_curriculum_id,
+                unit_id,
+                write_lang,
+                content_type,
+                override_id,
+                teacher_id,
+            )
+            override_ids.append(str(override_id))
+            sets_corrected.append(set_number)
+
+        # The correction re-validates, by the reviewer who made it (design §2).
+        # Inside the transaction: a tick vouching for an answer that was rolled
+        # back is worse than no tick.
+        validation = await _upsert_validation(
+            conn,
+            school_id=school_id,
+            stable_question_id=stable_question_id,
+            correct_text=new_correct_text,
+            teacher_id=teacher_id,
+        )
+
+    # AFTER the commit, and it is not optional: `get_active_override` caches the
+    # previous body — or a JSON-null miss sentinel — for an hour, so without
+    # this the correction reaches nobody until the TTL expires. Spec decision 3
+    # is "a correction is live immediately" (#806, fixed for the approve
+    # endpoint in school/router.py as well).
+    for set_number in sets_corrected:
+        question = next(q for q in matches if q["set_number"] == set_number)
+        await redis.delete(
+            override_key(
+                school_id,
+                owned_curriculum_id,
+                unit_id,
+                question["_key_lang"],
+                f"quiz_set_{set_number}",
+            )
+        )
+
+    log.info(
+        "answer_review_corrected",
+        school_id=school_id,
+        curriculum_id=source_curriculum_id,
+        owned_curriculum_id=owned_curriculum_id,
+        unit_id=unit_id,
+        stable_question_id=stable_question_id,
+        ownership_before=ownership_before,
+        sets_corrected=sets_corrected,
+        created=created,
+        grade_repointed=grade_repointed,
+    )
+
+    return {
+        "ownership_before": ownership_before,
+        "created": created,
+        # The lowest corrected set's version, chosen deterministically for the
+        # same reason `validate_answer` snapshots the lowest set's answer.
+        "override_id": override_ids[0],
+        "override_ids": override_ids,
+        "owned_curriculum_id": owned_curriculum_id,
+        "grade_repointed": grade_repointed,
+        "sets_corrected": sets_corrected,
+        "old_correct_text": old_correct_text,
+        "new_correct_text": new_correct_text,
+        "validated_at": validation["validated_at"],
     }

@@ -20,6 +20,14 @@ routers):
         Gated tighter than the read, at require_review (`curriculum.review`;
         `school_admin` is an implicit superset, not a special case here).
 
+  POST /schools/{school_id}/content/{curriculum_id}/units/{unit_id}
+       /answers/{stable_question_id}/correct
+      — change WHICH option is correct, in this school's own copy, creating
+        that copy (adoption -> fork -> import) when it has none. Also
+        require_review. Creating the copy repoints the whole grade at the
+        fork, so it is gated behind `confirm_fork` and reported back rather
+        than done silently (design §3).
+
 Curriculum is part of the path, matching the page route and the existing
 content endpoints — the school may be reading a platform curriculum through a
 classroom package, or its own fork of it, and the two are different content
@@ -40,12 +48,21 @@ from src.core.events import write_audit_log
 from src.core.redis_client import get_redis
 from src.core.storage import get_storage
 from src.school.answer_review_service import (
+    CurriculumNotAdoptable,
+    ForkConfirmationRequired,
+    OptionNotInQuestion,
     QuestionNotInUnit,
+    correct_answer,
     list_unit_answers,
     validate_answer,
 )
 from src.school.capability_guards import require_curriculum_view, require_review
-from src.school.schemas import AnswerReviewListResponse, AnswerValidationResponse
+from src.school.schemas import (
+    AnswerReviewListResponse,
+    AnswerValidationResponse,
+    CorrectAnswerRequest,
+    CorrectAnswerResponse,
+)
 from src.utils.logger import get_logger
 
 log = get_logger("school.answer_review")
@@ -169,6 +186,143 @@ async def validate_answer_endpoint(
     )
 
     return AnswerValidationResponse(**result)
+
+
+@router.post(
+    "/schools/{school_id}/content/{curriculum_id}/units/{unit_id}"
+    "/answers/{stable_question_id}/correct",
+    response_model=CorrectAnswerResponse,
+)
+async def correct_answer_endpoint(
+    school_id: str,
+    curriculum_id: str,
+    unit_id: str,
+    stable_question_id: Annotated[str, Path(min_length=1, max_length=128)],
+    body: CorrectAnswerRequest,
+    request: Request,
+    teacher: Annotated[dict, Depends(get_current_teacher)],
+    lang: str = Query("en", min_length=2, max_length=5, pattern=r"^[a-z]{2}(-[A-Z]{2})?$"),
+) -> CorrectAnswerResponse:
+    """Change which option is correct for one question, in this school's copy.
+
+    Creates the school's copy (adoption -> fork -> import) when it has none —
+    which is the demo's case for every curriculum a class actually uses. That
+    fork stops tracking platform regeneration and repoints the whole grade, so
+    it is gated behind `confirm_fork` and reported back rather than done
+    silently (design §3).
+    """
+    require_review(teacher, school_id, request)
+
+    storage = get_storage(request)
+    redis = get_redis(request)
+    teacher_id = teacher.get("teacher_id")
+    cid = getattr(request.state, "correlation_id", "")
+
+    async with get_db(request) as conn:
+        try:
+            result = await correct_answer(
+                conn,
+                storage,
+                redis,
+                school_id=school_id,
+                curriculum_id=curriculum_id,
+                unit_id=unit_id,
+                lang=lang,
+                stable_question_id=stable_question_id,
+                correct_option=body.correct_option,
+                confirm_fork=body.confirm_fork,
+                teacher_id=teacher_id,
+            )
+        except QuestionNotInUnit:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "error": "not_found",
+                    "detail": "That question is not in this unit's quiz sets.",
+                    "correlation_id": cid,
+                },
+            ) from None
+        except OptionNotInQuestion as exc:
+            raise HTTPException(
+                status_code=422,
+                detail={
+                    "error": "invalid_option",
+                    "detail": str(exc),
+                    "correlation_id": cid,
+                },
+            ) from None
+        except ForkConfirmationRequired:
+            # 409, not 403: the caller is allowed to do this, and the same
+            # request with `confirm_fork` succeeds. The client branches on
+            # `error`, so it is machine-readable rather than prose.
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "error": "fork_confirmation_required",
+                    "detail": (
+                        "Your school will keep its own copy of this unit; platform "
+                        "updates will no longer reach it, and this grade will be "
+                        "pointed at your copy. Confirm to continue."
+                    ),
+                    "correlation_id": cid,
+                },
+            ) from None
+        except CurriculumNotAdoptable:
+            raise HTTPException(
+                status_code=422,
+                detail={
+                    "error": "not_adoptable",
+                    "detail": (
+                        "Only platform curriculum packages can be copied, so this "
+                        "one's answers cannot be corrected here."
+                    ),
+                    "correlation_id": cid,
+                },
+            ) from None
+        except asyncpg.ForeignKeyViolationError:
+            # Same trap as the validate endpoint: a JWT outlives the `teachers`
+            # row it names (`scripts/purge_account.py` hard-deletes), and this
+            # path writes `last_edited_by`, `activated_by`, `adopted_by` and
+            # `validated_by` — all FKs to it.
+            raise HTTPException(
+                status_code=403,
+                detail={
+                    "error": "forbidden",
+                    "detail": "This account no longer exists. Please sign in again.",
+                    "correlation_id": cid,
+                },
+            ) from None
+
+    # Fire-and-forget: the correction is committed and live; an audit backlog
+    # must not fail a reviewer's click.
+    write_audit_log(
+        event_type="quiz_answer.corrected",
+        actor_type="teacher",
+        actor_id=_as_uuid(teacher_id),
+        target_type="quiz_question",
+        target_id=None,
+        metadata={
+            "school_id": school_id,
+            "curriculum_id": curriculum_id,
+            "owned_curriculum_id": result["owned_curriculum_id"],
+            "unit_id": unit_id,
+            "lang": lang,
+            "stable_question_id": stable_question_id,
+            # The TEXT on both sides: an option letter is meaningless once the
+            # options have been reordered, which is the whole reason
+            # `question_validations` snapshots text rather than a letter.
+            "old_correct_text": result["old_correct_text"],
+            "new_correct_text": result["new_correct_text"],
+            "new_correct_option": body.correct_option,
+            "ownership_before": result["ownership_before"],
+            "created": result["created"],
+            "grade_repointed": result["grade_repointed"],
+            "sets_corrected": result["sets_corrected"],
+            "actor_role": teacher.get("role"),
+        },
+    )
+
+    return CorrectAnswerResponse(**result)
 
 
 def _as_uuid(value: str | None) -> uuid.UUID | None:

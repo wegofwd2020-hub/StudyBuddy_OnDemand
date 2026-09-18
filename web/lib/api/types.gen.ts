@@ -3725,6 +3725,32 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/schools/{school_id}/content/{curriculum_id}/units/{unit_id}/answers/{stable_question_id}/correct": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Correct Answer Endpoint
+         * @description Change which option is correct for one question, in this school's copy.
+         *
+         *     Creates the school's copy (adoption -> fork -> import) when it has none —
+         *     which is the demo's case for every curriculum a class actually uses. That
+         *     fork stops tracking platform regeneration and repoints the whole grade, so
+         *     it is gated behind `confirm_fork` and reported back rather than done
+         *     silently (design §3).
+         */
+        post: operations["correct_answer_endpoint_api_v1_schools__school_id__content__curriculum_id__units__unit_id__answers__stable_question_id__correct_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/schools/{school_id}/visuals/upload": {
         parameters: {
             query?: never;
@@ -7302,6 +7328,83 @@ export interface components {
              * @default false
              */
             payouts_enabled: boolean;
+        };
+        /**
+         * CorrectAnswerRequest
+         * @description POST .../answers/{stable_question_id}/correct
+         *
+         *     `correct_option` is an option_id as the content file spells it ("A".."D"),
+         *     deliberately NOT pattern-constrained: a letter that names no option of this
+         *     question is refused by the endpoint on the evidence that the question does
+         *     not have it, which is a better answer than a schema rejection, and a pattern
+         *     here would 422 content whose option ids are spelled some other way.
+         *
+         *     `confirm_fork` is the reviewer acknowledging that the school is about to
+         *     take its own copy of this unit — platform regeneration stops reaching it,
+         *     and the whole grade is repointed at the fork. Required only when the school
+         *     has no copy yet, and then only for the first correction in that curriculum
+         *     (design ruling: per curriculum, not per question).
+         */
+        CorrectAnswerRequest: {
+            /** Correct Option */
+            correct_option: string;
+            /**
+             * Confirm Fork
+             * @default false
+             */
+            confirm_fork: boolean;
+        };
+        /**
+         * CorrectAnswerResponse
+         * @description POST .../answers/{stable_question_id}/correct — what actually happened.
+         *
+         *     `sets_corrected` lists every quiz set the question appeared in: one
+         *     `stable_question_id` spans sets, and a correction fixes all of them, because
+         *     the set a student sits is chosen by the server's rotation.
+         *
+         *     `grade_repointed` is true when creating the fork also repointed
+         *     `grade_curriculum_assignments` for that grade — a side effect on every
+         *     student of the grade, not only on this unit.
+         */
+        CorrectAnswerResponse: {
+            /**
+             * Ownership Before
+             * @enum {string}
+             */
+            ownership_before: "none" | "fork" | "override";
+            created: components["schemas"]["CorrectionCreated"];
+            /** Override Id */
+            override_id: string;
+            /** Override Ids */
+            override_ids: string[];
+            /** Owned Curriculum Id */
+            owned_curriculum_id: string;
+            /** Grade Repointed */
+            grade_repointed: boolean;
+            /** Sets Corrected */
+            sets_corrected: number[];
+            /** Old Correct Text */
+            old_correct_text: string;
+            /** New Correct Text */
+            new_correct_text: string;
+            /** Validated At */
+            validated_at: string;
+        };
+        /**
+         * CorrectionCreated
+         * @description Which of the three ownership steps this correction had to perform.
+         *
+         *     Read rather than inferred by the page: "did this fork the curriculum" is not
+         *     derivable from the response's other fields, and the confirmation copy the
+         *     reviewer sees afterwards depends on it.
+         */
+        CorrectionCreated: {
+            /** Adoption */
+            adoption: boolean;
+            /** Fork */
+            fork: boolean;
+            /** Import */
+            import: boolean;
         };
         /** CreateProjectRequest */
         CreateProjectRequest: {
@@ -17441,6 +17544,46 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AnswerValidationResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    correct_answer_endpoint_api_v1_schools__school_id__content__curriculum_id__units__unit_id__answers__stable_question_id__correct_post: {
+        parameters: {
+            query?: {
+                lang?: string;
+            };
+            header?: never;
+            path: {
+                school_id: string;
+                curriculum_id: string;
+                unit_id: string;
+                stable_question_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CorrectAnswerRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CorrectAnswerResponse"];
                 };
             };
             /** @description Validation Error */
