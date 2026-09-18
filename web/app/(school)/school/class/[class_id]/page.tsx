@@ -16,7 +16,7 @@ type ScopeFilter = "mine" | "all";
 
 type SortKey = keyof Pick<
   ClassStudentRow,
-  "student_name" | "grade" | "units_completed" | "avg_score_pct" | "last_active"
+  "student_name" | "grade" | "subject" | "units_completed" | "avg_score_pct" | "last_active"
 >;
 type SortDir = "asc" | "desc";
 
@@ -59,6 +59,7 @@ export default function ClassOverviewPage() {
   const [sortKey, setSortKey] = useState<SortKey>("student_name");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [gradeFilter, setGradeFilter] = useState<number | undefined>();
+  const [subjectFilter, setSubjectFilter] = useState<string | undefined>();
   const [scope, setScope] = useState<ScopeFilter>("mine");
 
   // School-wide metrics drives the table rows. Grade filtering is done
@@ -123,10 +124,17 @@ export default function ClassOverviewPage() {
   };
 
   // Apply scope filter to the server-fetched student list.
-  const scopedStudents =
+  let scopedStudents =
     effectiveScope === "all"
       ? (data?.students ?? [])
       : (data?.students ?? []).filter((s) => myStudentIds.has(s.student_id));
+
+  // Apply subject filter if set
+  if (subjectFilter) {
+    scopedStudents = scopedStudents.filter((s) =>
+      s.subject?.includes(subjectFilter)
+    );
+  }
 
   const rows = sortRows(scopedStudents, sortKey, sortDir);
 
@@ -140,6 +148,15 @@ export default function ClassOverviewPage() {
         .map((s) => s.grade),
     ),
   ).sort((a, b) => a - b);
+
+  // Subject pills — show subjects present in current scope
+  const presentSubjects = Array.from(
+    new Set(
+      (data?.students ?? [])
+        .filter((s) => effectiveScope === "all" || myStudentIds.has(s.student_id))
+        .flatMap((s) => (s.subject ? s.subject.split(", ") : []))
+    ),
+  ).sort();
 
   return (
     <div className="max-w-5xl space-y-6 p-6">
@@ -217,6 +234,39 @@ export default function ClassOverviewPage() {
               </div>
             </div>
           )}
+
+          {presentSubjects.length > 0 && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-500">Subject:</span>
+              <div className="flex gap-1 flex-wrap">
+                <button
+                  onClick={() => setSubjectFilter(undefined)}
+                  className={cn(
+                    "rounded px-2 py-1 text-xs font-medium transition-colors",
+                    subjectFilter === undefined
+                      ? "bg-blue-600 text-white"
+                      : "border bg-white text-gray-500 hover:text-gray-900",
+                  )}
+                >
+                  All
+                </button>
+                {presentSubjects.map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => setSubjectFilter(s)}
+                    className={cn(
+                      "rounded px-2 py-1 text-xs font-medium transition-colors",
+                      subjectFilter === s
+                        ? "bg-blue-600 text-white"
+                        : "border bg-white text-gray-500 hover:text-gray-900",
+                    )}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
       <Card className="border shadow-sm">
@@ -243,6 +293,7 @@ export default function ClassOverviewPage() {
                       [
                         ["student_name", "Student"],
                         ["grade", "Grade"],
+                        ["subject", "Subject"],
                         ["units_completed", "Units done"],
                         ["avg_score_pct", "Avg score"],
                         ["last_active", "Last active"],
@@ -272,6 +323,9 @@ export default function ClassOverviewPage() {
                         {row.student_name}
                       </td>
                       <td className="px-4 py-3 text-gray-500">G{row.grade}</td>
+                      <td className="px-4 py-3 text-gray-500 text-xs">
+                        {row.subject ? row.subject.split(", ").join(" • ") : "—"}
+                      </td>
                       <td className="px-4 py-3 text-gray-600">
                         {row.units_completed}
                         <span className="text-gray-400">/{row.total_units}</span>
@@ -296,7 +350,7 @@ export default function ClassOverviewPage() {
                   ))}
                   {rows.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="px-4 py-12 text-center">
+                      <td colSpan={7} className="px-4 py-12 text-center">
                         <Users className="mx-auto mb-2 h-8 w-8 text-gray-300" />
                         <p className="text-sm font-medium text-gray-500">
                           No students enrolled yet

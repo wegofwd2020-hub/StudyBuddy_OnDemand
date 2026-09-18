@@ -188,7 +188,8 @@ async def student_roster(
                         THEN ps.score::float / NULLIF(ps.total_questions, 0) * 100
                     END), 0
                 )                                                   AS avg_score_pct,
-                MAX(ps.started_at)                                  AS last_active
+                MAX(ps.started_at)                                  AS last_active,
+                STRING_AGG(DISTINCT cp.curriculum_id, ', ' ORDER BY cp.curriculum_id) AS subject
             -- Membership comes from `school_enrolments`, not `students.school_id`
             -- (#572). A student may be enrolled at more than one school — a
             -- school for their regular curriculum and an external tutor running
@@ -213,6 +214,8 @@ async def student_roster(
                 -- creates the enrolment before any work, so this hides nothing
                 -- a school legitimately owns.
                 AND ps.started_at >= se.added_at
+            LEFT JOIN classroom_students cs ON cs.student_id = s.student_id
+            LEFT JOIN classroom_packages cp ON cp.classroom_id = cs.classroom_id
             WHERE se.school_id = $1 AND se.status = 'active' {grade_filter}
             GROUP BY s.student_id, s.name, s.grade
             ORDER BY s.name
@@ -232,6 +235,7 @@ async def student_roster(
             "student_id": str(r["student_id"]),
             "student_name": r["student_name"],
             "grade": r["grade"],
+            "subject": r["subject"],
             "units_completed": int(r["units_completed"]),
             "total_units": totals.get(str(r["student_id"]), 0),
             "avg_score_pct": round(float(r["avg_score_pct"] or 0), 1),
