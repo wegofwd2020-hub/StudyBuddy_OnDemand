@@ -16,7 +16,7 @@ type ScopeFilter = "mine" | "all";
 
 type SortKey = keyof Pick<
   ClassStudentRow,
-  "student_name" | "grade" | "units_completed" | "avg_score_pct" | "last_active"
+  "student_name" | "grade" | "subject" | "units_completed" | "avg_score_pct" | "last_active"
 >;
 type SortDir = "asc" | "desc";
 
@@ -243,6 +243,7 @@ export default function ClassOverviewPage() {
                       [
                         ["student_name", "Student"],
                         ["grade", "Grade"],
+                        ["subject", "Subject"],
                         ["units_completed", "Units done"],
                         ["avg_score_pct", "Avg score"],
                         ["last_active", "Last active"],
@@ -272,6 +273,9 @@ export default function ClassOverviewPage() {
                         {row.student_name}
                       </td>
                       <td className="px-4 py-3 text-gray-500">G{row.grade}</td>
+                      <td className="px-4 py-3 text-gray-500 text-xs">
+                        {row.subject ? row.subject.split(", ").join(" • ") : "—"}
+                      </td>
                       <td className="px-4 py-3 text-gray-600">
                         {row.units_completed}
                         <span className="text-gray-400">/{row.total_units}</span>
@@ -296,7 +300,7 @@ export default function ClassOverviewPage() {
                   ))}
                   {rows.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="px-4 py-12 text-center">
+                      <td colSpan={7} className="px-4 py-12 text-center">
                         <Users className="mx-auto mb-2 h-8 w-8 text-gray-300" />
                         <p className="text-sm font-medium text-gray-500">
                           No students enrolled yet

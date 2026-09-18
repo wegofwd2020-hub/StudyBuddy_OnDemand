@@ -243,6 +243,7 @@ export interface ClassStudentRow {
   student_id: string;
   student_name: string;
   grade: number;
+  subject: string | null;
   units_completed: number;
   total_units: number;
   avg_score_pct: number;
