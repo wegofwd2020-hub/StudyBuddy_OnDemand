@@ -763,6 +763,13 @@ class AnswerValidationState(BaseModel):
     longer matches what was validated — see `question_validations.correct_text`."""
 
     by: str
+    # The reviewer's name, resolved server-side: `by` is a `teachers` UUID, and
+    # the page's reader cannot turn one into a person (the roster endpoint is
+    # school_admin-only, this page is not). Nullable only because the join is a
+    # LEFT one — losing a name must never cost the question — not because a
+    # missing name is expected: `validated_by` is NOT NULL and its FK restricts
+    # deletes, so a tick cannot outlive the reviewer's row.
+    by_name: str | None = None
     at: str
     stale: bool
 

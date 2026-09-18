@@ -830,3 +830,43 @@ async def test_school_admin_succeeds(
         headers=_auth(school["access_token"]),  # the founder token's role is school_admin
     )
     assert r.status_code == 200, r.text
+
+
+# ── Who checked it (Task 5) ───────────────────────────────────────────────────
+
+
+@pytest.mark.asyncio
+async def test_a_tick_names_the_reviewer_not_only_their_id(
+    client: AsyncClient, db_conn, oob_curriculum, quiz_content_store
+) -> None:
+    """The page's "Checked" state has to say WHO, and an id is not a who.
+
+    `validated.by` is a `teachers` UUID. Rendering it at a school_admin asking
+    which of their teachers vouched for an answer is an internal identifier in
+    a user-facing surface — and they cannot resolve it themselves, because the
+    roster endpoint is school_admin-only while this page is open to any
+    curriculum-capable teacher. The sibling content endpoints already resolve
+    the name in SQL (`t.name AS last_edited_by_name`, school/router.py); this
+    does the same.
+    """
+    school = await _register(client, "Named Reviewer School", "named-762@example.com")
+
+    key = await _grader_key(client, school_id=school["school_id"], set_number=1)
+    await _validate(client, school, stable_id=key["q1"]["stable_question_id"], correct_text="42")
+
+    pool = client._transport.app.state.pool
+    expected = await pool.fetchval(
+        "SELECT name FROM teachers WHERE teacher_id = $1::uuid", school["teacher_id"]
+    )
+    assert expected, "the founder's teachers row has a name to resolve"
+
+    r = await client.get(
+        _answers_url(school["school_id"], _OOB_CURRICULUM_ID),
+        params={"lang": "en"},
+        headers=_auth(school["access_token"]),
+    )
+    assert r.status_code == 200, r.text
+    q1 = next(q for q in r.json()["questions"] if q["set_number"] == 1)
+
+    assert q1["validated"]["by"] == school["teacher_id"], "the id stays, for equality checks"
+    assert q1["validated"]["by_name"] == expected

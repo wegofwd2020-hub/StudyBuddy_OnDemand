@@ -6602,6 +6602,8 @@ export interface components {
         AnswerValidationState: {
             /** By */
             by: string;
+            /** By Name */
+            by_name?: string | null;
             /** At */
             at: string;
             /** Stale */
@@ -7582,6 +7584,8 @@ export interface components {
              * @default unstreamed
              */
             stream: string;
+            /** Curriculum Id */
+            curriculum_id?: string | null;
             /** Health Tier */
             health_tier: string;
             /** First Attempt Pass Rate Pct */

@@ -184,6 +184,13 @@ class CurriculumHealthUnit(BaseModel):
     # Stream of the curriculum holding this unit (#772): a registry code, or
     # `unstreamed` — the stream filter's own bucket, so row and chip agree.
     stream: str = "unstreamed"
+    # The curriculum whose units hold this one (#762), so the row can link to
+    # quiz answer review — `/school/content/{curriculum_id}/units/{unit_id}
+    # /answers`, which needs both ids. Always the SOURCE, never a school fork:
+    # a fork has no `curriculum_units` rows, and the answers endpoint resolves
+    # the school's fork from the source itself. Nullable for the same reason
+    # `grade` is (a unit outside the cohort catalog has no row to read).
+    curriculum_id: str | None = None
     health_tier: str  # healthy | watch | struggling | no_activity
     first_attempt_pass_rate_pct: float
     avg_attempts_to_pass: float

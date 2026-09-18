@@ -336,11 +336,20 @@ async def list_unit_answers(
         return result
 
     # ── Left-join this school's validations ─────────────────────────────────
+    #
+    # The reviewer's NAME comes with the row, resolved in SQL the way every
+    # sibling content endpoint resolves it (`t.name AS last_edited_by_name`,
+    # school/router.py). Without it the page can only show a `teachers` UUID at
+    # a reader who cannot resolve it — the roster endpoint is school_admin-only
+    # while this page is open to any curriculum-capable teacher. LEFT, not
+    # INNER: a join that misses must cost the name, never the question.
     validation_rows = await conn.fetch(
         """
-        SELECT stable_question_id, correct_text, validated_by, validated_at
-        FROM question_validations
-        WHERE school_id = $1 AND stable_question_id = ANY($2::text[])
+        SELECT qv.stable_question_id, qv.correct_text, qv.validated_by,
+               qv.validated_at, t.name AS validated_by_name
+        FROM question_validations qv
+        LEFT JOIN teachers t ON t.teacher_id = qv.validated_by
+        WHERE qv.school_id = $1 AND qv.stable_question_id = ANY($2::text[])
         """,
         school_id,
         stable_ids,
@@ -380,6 +389,7 @@ async def list_unit_answers(
         else:
             question["validated"] = {
                 "by": str(validation["validated_by"]),
+                "by_name": validation["validated_by_name"],
                 "at": validation["validated_at"].isoformat(),
                 "stale": validation["correct_text"] != current_correct_text,
             }

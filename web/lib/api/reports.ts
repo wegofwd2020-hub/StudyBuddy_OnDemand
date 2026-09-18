@@ -96,6 +96,13 @@ export interface CurriculumHealthUnit {
   /** Stream of the curriculum holding this unit (#772): a registry code, or
    *  `unstreamed` — the stream filter's own bucket, so row and chip agree. */
   stream?: string;
+  /** The curriculum whose units hold this one (#762) — what the "Review
+   *  answers" link needs alongside `unit_id`. Always the SOURCE, never a
+   *  school fork: a fork has no `curriculum_units` rows, and the answers
+   *  endpoint resolves the school's fork from the source itself. Null for a
+   *  unit outside the cohort catalog, where there is no row to read — the row
+   *  then shows no link rather than a broken one. */
+  curriculum_id?: string | null;
   health_tier: "healthy" | "watch" | "struggling" | "no_activity";
   first_attempt_pass_rate_pct: number;
   avg_attempts_to_pass: number;

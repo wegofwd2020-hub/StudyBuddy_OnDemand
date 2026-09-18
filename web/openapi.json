@@ -17587,6 +17587,17 @@
             "type": "string",
             "title": "By"
           },
+          "by_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "By Name"
+          },
           "at": {
             "type": "string",
             "title": "At"
@@ -20138,6 +20149,17 @@
             "type": "string",
             "title": "Stream",
             "default": "unstreamed"
+          },
+          "curriculum_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Curriculum Id"
           },
           "health_tier": {
             "type": "string",

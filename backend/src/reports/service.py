@@ -374,6 +374,46 @@ async def _grades_by_unit(conn: asyncpg.Connection, unit_ids: Iterable[str]) -> 
     return {r["unit_id"]: r["grade"] for r in rows}
 
 
+async def _curricula_by_unit(conn: asyncpg.Connection, unit_ids: Iterable[str]) -> dict[str, str]:
+    """`unit_id` -> the curriculum whose `curriculum_units` hold it (#762).
+
+    The row is the entry point to quiz answer review, whose page route is
+    `/school/content/{curriculum_id}/units/{unit_id}/answers`. A unit id alone
+    is ambiguous once a school has a fork, so the link needs the curriculum —
+    and this report is, on the demo, the ONLY workable entry point, because no
+    curriculum any class uses is adopted.
+
+    It resolves to the SOURCE, never to a school's fork, and that is deliberate
+    on both sides:
+
+      * a fork carries no `curriculum_units` rows of its own — its units live
+        under `source_curriculum_id` (`content/service.served_units`, #650) — so
+        a per-unit mapping simply has no fork row to find;
+      * `answer_review_service._resolve_ownership` documents the platform id as
+        what this report sends, and looks the school's fork up from it, so a
+        school that owns one still reviews its own questions.
+
+    `DISTINCT ON` for the reason `_grades_by_unit` gives (one unit id can sit
+    under more than one curriculum), preferring a PLATFORM curriculum so the id
+    is the one the content store and every `stable_question_id` are keyed by,
+    with the id itself as the deterministic tiebreak.
+    """
+    ids = [u for u in dict.fromkeys(unit_ids) if u]
+    if not ids:
+        return {}
+    rows = await conn.fetch(
+        """
+        SELECT DISTINCT ON (cu.unit_id) cu.unit_id, cu.curriculum_id
+        FROM curriculum_units cu
+        JOIN curricula c ON c.curriculum_id = cu.curriculum_id
+        WHERE cu.unit_id = ANY($1::text[])
+        ORDER BY cu.unit_id, (c.owner_type <> 'platform'), cu.curriculum_id
+        """,
+        ids,
+    )
+    return {r["unit_id"]: r["curriculum_id"] for r in rows}
+
+
 async def _streams_by_unit(conn: asyncpg.Connection, unit_ids: Iterable[str]) -> dict[str, str]:
     """`unit_id` -> the stream of the curriculum that holds it (#772).
 
@@ -1546,10 +1586,17 @@ async def get_curriculum_health(
         # Stream on the same pass (#772), so a whole-school export can say which
         # stream each row belongs to rather than only being filterable by one.
         unit_streams = await _streams_by_unit(conn, unit_ids_all)
+        # The curriculum the unit lives in, on the SAME pass (#762), so the
+        # "Review answers" link on a row can name both ids. Nullable for the
+        # same reason `grade` is: a unit with no `curriculum_units` row (
+        # feedback on a unit outside the cohort catalog) has no curriculum to
+        # name, and the client hides the link rather than build a broken one.
+        unit_curricula = await _curricula_by_unit(conn, unit_ids_all)
         for u in units:
             u["subject"] = display_subject(subject_labels, u["unit_id"], u["subject"])
             u["grade"] = unit_grades.get(u["unit_id"])
             u["stream"] = unit_streams.get(u["unit_id"], UNSTREAMED)
+            u["curriculum_id"] = unit_curricula.get(u["unit_id"])
 
     # A stream selection narrows the UNITS too, not only the cohort (#793).
     #

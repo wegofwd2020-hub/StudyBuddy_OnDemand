@@ -9,6 +9,11 @@ export const MOCK_TEACHER = {
   teacher_id: "teacher-001",
   school_id: "school-001",
   role: "teacher" as const,
+  // A real `TeacherClaims` always carries these (`claimsFromPayload`), and the
+  // page reads `capabilities` through `canManageCurriculum` (#762) — a fixture
+  // missing them is a shape the hook never produces.
+  capabilities: [] as string[],
+  first_login: false,
 };
 
 export const MOCK_HEALTH: CurriculumHealthReport = {
