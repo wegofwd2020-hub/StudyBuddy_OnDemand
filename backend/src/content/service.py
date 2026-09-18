@@ -623,6 +623,35 @@ async def get_fork_source_curriculum(
     return row["source_curriculum_id"] if (row and row["source_curriculum_id"]) else None
 
 
+async def get_school_fork_for_source(
+    source_curriculum_id: str,
+    school_id: str,
+    pool: asyncpg.Pool,
+) -> str | None:
+    """The school's own fork of `source_curriculum_id`, or None.
+
+    The reverse of `get_fork_source_curriculum`, and it exists because the
+    grading path only ever holds the SOURCE id: `progress_sessions.curriculum_id`
+    is written by `resolve_unit_curriculum`, which has already applied the
+    fork→OOB swap (a fork has no `curriculum_units` rows). Overrides, meanwhile,
+    are keyed by the FORK id — that is what the approve endpoint writes into
+    `unit_content_active_versions` (school/router.py:3159-3175). Without this
+    lookup the two never meet and an override is served but never graded (#804).
+    """
+    async with pool.acquire() as conn:
+        await conn.execute("SELECT set_config('app.current_school_id', $1, false)", school_id)
+        row = await conn.fetchrow(
+            """
+            SELECT curriculum_id FROM curricula
+            WHERE source_curriculum_id = $1 AND school_id = $2::UUID
+              AND owner_type = 'school'
+            """,
+            source_curriculum_id,
+            school_id,
+        )
+    return row["curriculum_id"] if row else None
+
+
 # ── Quiz answer key (server-side grading) ─────────────────────────────────────
 
 
@@ -829,14 +858,36 @@ async def resolve_quiz_answer_key(
     - fork, no override → swap to the OOB source and read the store (the fork has no
       store content of its own → a raw lookup 404s, #529).
 
+    The override is looked up under the school's FORK id as well as under the id
+    passed in, because those are not the same id and the caller only ever holds
+    the second one: `progress_sessions.curriculum_id` is the SOURCE (the swap is
+    applied when the session is created), while `unit_content_active_versions` is
+    keyed by the fork. Looking only under the passed id served the override and
+    graded the store (#804).
+
     Raises FileNotFoundError only when the store content is genuinely absent.
     """
     if school_id:
-        override = await get_active_override(
-            school_id, curriculum_id, unit_id, lang, f"quiz_set_{set_number}", pool, redis
-        )
-        if override:
-            return _parse_quiz_answer_key(override, curriculum_id, unit_id, set_number, lang)
+        # Fork first: when the passed id is the source, the override lives under
+        # the fork. When it IS the fork, this lookup finds nothing (no curriculum
+        # has a fork as its source) and the passed id answers.
+        candidates = []
+        fork_id = await get_school_fork_for_source(curriculum_id, school_id, pool)
+        if fork_id and fork_id != curriculum_id:
+            candidates.append(fork_id)
+        candidates.append(curriculum_id)
+
+        for candidate in candidates:
+            override = await get_active_override(
+                school_id, candidate, unit_id, lang, f"quiz_set_{set_number}", pool, redis
+            )
+            if override:
+                # Identified with the id passed IN, not the id the body was found
+                # under: `stable_question_id` names the QUESTION, and every id
+                # already recorded against `progress_answers` / `feedback` was
+                # hashed with the session's (source) curriculum id.
+                return _parse_quiz_answer_key(override, curriculum_id, unit_id, set_number, lang)
+
         curriculum_id, _ = await resolve_content_curriculum(unit_id, curriculum_id, school_id, pool)
     return await get_quiz_answer_key(curriculum_id, unit_id, set_number, lang, redis, storage)
 

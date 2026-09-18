@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { useTeacher } from "@/lib/hooks/useTeacher";
+import { canManageCurriculum, useTeacher } from "@/lib/hooks/useTeacher";
 import { getCurriculumHealth } from "@/lib/api/reports";
 import { streamLabel } from "@/lib/reports/streams";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -44,6 +45,12 @@ export default function UnitPerformancePage() {
   // grade was picked, with no way back to "All grades".
   const availableGrades = data?.available_grades ?? [];
   const availableStreams = data?.available_streams ?? [];
+
+  // Quiz answer review (#762) is gated by `require_curriculum_view`, which
+  // wants a curriculum capability (school_admin is a superset) — NOT any
+  // teacher. Hidden rather than offered-and-403'd, the same rule the
+  // Administration menu follows.
+  const canReviewAnswers = canManageCurriculum(teacher);
 
   const chartData = (data?.units ?? [])
     .filter((u) => u.health_tier !== "no_activity")
@@ -197,6 +204,7 @@ export default function UnitPerformancePage() {
                         "Avg score",
                         "Avg attempts",
                         "Feedback",
+                        ...(canReviewAnswers ? ["Answers"] : []),
                       ].map((h) => (
                         <th
                           key={h}
@@ -241,6 +249,27 @@ export default function UnitPerformancePage() {
                             {u.avg_attempts_to_pass.toFixed(1)}
                           </td>
                           <td className="px-4 py-3 text-gray-500">{u.feedback_count}</td>
+                          {/* The entry point to quiz answer review (#762). It
+                              carries the row's OWN curriculum: on the demo no
+                              curriculum a class uses is adopted, so the school
+                              content page lists none of these units and this
+                              row is the only way in. No curriculum resolved
+                              (a unit outside the cohort catalog) means no
+                              link — better than one that cannot work. */}
+                          {canReviewAnswers && (
+                            <td className="px-4 py-3">
+                              {u.curriculum_id ? (
+                                <Link
+                                  href={`/school/content/${u.curriculum_id}/units/${u.unit_id}/answers`}
+                                  className="text-sm font-medium text-indigo-600 hover:underline"
+                                >
+                                  Review answers
+                                </Link>
+                              ) : (
+                                <span className="text-xs text-gray-300">—</span>
+                              )}
+                            </td>
+                          )}
                         </tr>
                       ))}
                   </tbody>

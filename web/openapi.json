@@ -9940,6 +9940,273 @@
         }
       }
     },
+    "/api/v1/schools/{school_id}/content/{curriculum_id}/units/{unit_id}/answers": {
+      "get": {
+        "tags": [
+          "school-answer-review"
+        ],
+        "summary": "List Answers",
+        "operationId": "list_answers_api_v1_schools__school_id__content__curriculum_id__units__unit_id__answers_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "school_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "School Id"
+            }
+          },
+          {
+            "name": "curriculum_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Curriculum Id"
+            }
+          },
+          {
+            "name": "unit_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Unit Id"
+            }
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 5,
+              "pattern": "^[a-z]{2}(-[A-Z]{2})?$",
+              "default": "en",
+              "title": "Lang"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnswerReviewListResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/schools/{school_id}/content/{curriculum_id}/units/{unit_id}/answers/{stable_question_id}/validate": {
+      "post": {
+        "tags": [
+          "school-answer-review"
+        ],
+        "summary": "Validate Answer Endpoint",
+        "operationId": "validate_answer_endpoint_api_v1_schools__school_id__content__curriculum_id__units__unit_id__answers__stable_question_id__validate_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "school_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "School Id"
+            }
+          },
+          {
+            "name": "curriculum_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Curriculum Id"
+            }
+          },
+          {
+            "name": "unit_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Unit Id"
+            }
+          },
+          {
+            "name": "stable_question_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "title": "Stable Question Id"
+            }
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 5,
+              "pattern": "^[a-z]{2}(-[A-Z]{2})?$",
+              "default": "en",
+              "title": "Lang"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnswerValidationResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/schools/{school_id}/content/{curriculum_id}/units/{unit_id}/answers/{stable_question_id}/correct": {
+      "post": {
+        "tags": [
+          "school-answer-review"
+        ],
+        "summary": "Correct Answer Endpoint",
+        "description": "Change which option is correct for one question, in this school's copy.\n\nCreates the school's copy (adoption -> fork -> import) when it has none \u2014\nwhich is the demo's case for every curriculum a class actually uses. That\nfork stops tracking platform regeneration and repoints the whole grade, so\nit is gated behind `confirm_fork` and reported back rather than done\nsilently (design \u00a73).",
+        "operationId": "correct_answer_endpoint_api_v1_schools__school_id__content__curriculum_id__units__unit_id__answers__stable_question_id__correct_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "school_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "School Id"
+            }
+          },
+          {
+            "name": "curriculum_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Curriculum Id"
+            }
+          },
+          {
+            "name": "unit_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Unit Id"
+            }
+          },
+          {
+            "name": "stable_question_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "title": "Stable Question Id"
+            }
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 5,
+              "pattern": "^[a-z]{2}(-[A-Z]{2})?$",
+              "default": "en",
+              "title": "Lang"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CorrectAnswerRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CorrectAnswerResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/schools/{school_id}/visuals/upload": {
       "post": {
         "tags": [
@@ -17152,6 +17419,203 @@
         ],
         "title": "AnnotateResponse"
       },
+      "AnswerOptionItem": {
+        "properties": {
+          "option_id": {
+            "type": "string",
+            "title": "Option Id"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "option_id",
+          "text"
+        ],
+        "title": "AnswerOptionItem"
+      },
+      "AnswerReviewListResponse": {
+        "properties": {
+          "ownership": {
+            "type": "string",
+            "enum": [
+              "none",
+              "fork",
+              "override"
+            ],
+            "title": "Ownership"
+          },
+          "source_curriculum_id": {
+            "type": "string",
+            "title": "Source Curriculum Id"
+          },
+          "owned_curriculum_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owned Curriculum Id"
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/AnswerReviewQuestion"
+            },
+            "type": "array",
+            "title": "Questions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ownership",
+          "source_curriculum_id",
+          "questions"
+        ],
+        "title": "AnswerReviewListResponse",
+        "description": "GET .../answers \u2014 every quiz question of a unit, this school's copy.\n\n`ownership` mirrors what serving/grading would resolve for this school:\n`override` (an active school override answers at least one set),\n`fork` (the school owns a fork of this curriculum but has not overridden\nthis unit's quiz yet), or `none` (the school has not adopted this\ncurriculum at all \u2014 the demo's case for every class-used curriculum,\n2026-09-17).\n\nBoth ids are returned because the caller needs both and they are different\nthings: `source_curriculum_id` is the OOB curriculum the store content (and\nevery recorded `stable_question_id`) lives under, and `owned_curriculum_id`\nis the school's fork when one exists \u2014 the id a correction must be written\nagainst."
+      },
+      "AnswerReviewQuestion": {
+        "properties": {
+          "stable_question_id": {
+            "type": "string",
+            "title": "Stable Question Id"
+          },
+          "set_number": {
+            "type": "integer",
+            "title": "Set Number"
+          },
+          "question_id": {
+            "type": "string",
+            "title": "Question Id"
+          },
+          "question_text": {
+            "type": "string",
+            "title": "Question Text"
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/AnswerOptionItem"
+            },
+            "type": "array",
+            "title": "Options"
+          },
+          "correct_option": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Correct Option"
+          },
+          "correct_option_resolves": {
+            "type": "boolean",
+            "title": "Correct Option Resolves",
+            "default": true
+          },
+          "served_from": {
+            "type": "string",
+            "enum": [
+              "override",
+              "store"
+            ],
+            "title": "Served From"
+          },
+          "validated": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AnswerValidationState"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "flag_count": {
+            "type": "integer",
+            "title": "Flag Count",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "stable_question_id",
+          "set_number",
+          "question_id",
+          "question_text",
+          "options",
+          "correct_option",
+          "served_from"
+        ],
+        "title": "AnswerReviewQuestion"
+      },
+      "AnswerValidationResponse": {
+        "properties": {
+          "validated_by": {
+            "type": "string",
+            "title": "Validated By"
+          },
+          "validated_at": {
+            "type": "string",
+            "title": "Validated At"
+          },
+          "correct_text": {
+            "type": "string",
+            "title": "Correct Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "validated_by",
+          "validated_at",
+          "correct_text"
+        ],
+        "title": "AnswerValidationResponse",
+        "description": "POST .../answers/{stable_question_id}/validate \u2014 the tick just written.\n\n`correct_text` is the snapshot the staleness comparison will be made\nagainst, returned so the caller can show what was vouched for rather than\nonly that something was."
+      },
+      "AnswerValidationState": {
+        "properties": {
+          "by": {
+            "type": "string",
+            "title": "By"
+          },
+          "by_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "By Name"
+          },
+          "at": {
+            "type": "string",
+            "title": "At"
+          },
+          "stale": {
+            "type": "boolean",
+            "title": "Stale"
+          }
+        },
+        "type": "object",
+        "required": [
+          "by",
+          "at",
+          "stale"
+        ],
+        "title": "AnswerValidationState",
+        "description": "Who checked this question for THIS school, and whether that check is\nstill current. `stale` is true once the current correct option's text no\nlonger matches what was validated \u2014 see `question_validations.correct_text`."
+      },
       "AppVersionResponse": {
         "properties": {
           "min_version": {
@@ -19084,6 +19548,120 @@
         ],
         "title": "ConnectStatusResponse"
       },
+      "CorrectAnswerRequest": {
+        "properties": {
+          "correct_option": {
+            "type": "string",
+            "maxLength": 8,
+            "minLength": 1,
+            "title": "Correct Option"
+          },
+          "confirm_fork": {
+            "type": "boolean",
+            "title": "Confirm Fork",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "correct_option"
+        ],
+        "title": "CorrectAnswerRequest",
+        "description": "POST .../answers/{stable_question_id}/correct\n\n`correct_option` is an option_id as the content file spells it (\"A\"..\"D\"),\ndeliberately NOT pattern-constrained: a letter that names no option of this\nquestion is refused by the endpoint on the evidence that the question does\nnot have it, which is a better answer than a schema rejection, and a pattern\nhere would 422 content whose option ids are spelled some other way.\n\n`confirm_fork` is the reviewer acknowledging that the school is about to\ntake its own copy of this unit \u2014 platform regeneration stops reaching it,\nand the whole grade is repointed at the fork. Required only when the school\nhas no copy yet, and then only for the first correction in that curriculum\n(design ruling: per curriculum, not per question)."
+      },
+      "CorrectAnswerResponse": {
+        "properties": {
+          "ownership_before": {
+            "type": "string",
+            "enum": [
+              "none",
+              "fork",
+              "override"
+            ],
+            "title": "Ownership Before"
+          },
+          "created": {
+            "$ref": "#/components/schemas/CorrectionCreated"
+          },
+          "override_id": {
+            "type": "string",
+            "title": "Override Id"
+          },
+          "override_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Override Ids"
+          },
+          "owned_curriculum_id": {
+            "type": "string",
+            "title": "Owned Curriculum Id"
+          },
+          "grade_repointed": {
+            "type": "boolean",
+            "title": "Grade Repointed"
+          },
+          "sets_corrected": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Sets Corrected"
+          },
+          "old_correct_text": {
+            "type": "string",
+            "title": "Old Correct Text"
+          },
+          "new_correct_text": {
+            "type": "string",
+            "title": "New Correct Text"
+          },
+          "validated_at": {
+            "type": "string",
+            "title": "Validated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ownership_before",
+          "created",
+          "override_id",
+          "override_ids",
+          "owned_curriculum_id",
+          "grade_repointed",
+          "sets_corrected",
+          "old_correct_text",
+          "new_correct_text",
+          "validated_at"
+        ],
+        "title": "CorrectAnswerResponse",
+        "description": "POST .../answers/{stable_question_id}/correct \u2014 what actually happened.\n\n`sets_corrected` lists every quiz set the question appeared in: one\n`stable_question_id` spans sets, and a correction fixes all of them, because\nthe set a student sits is chosen by the server's rotation.\n\n`grade_repointed` is true when creating the fork also repointed\n`grade_curriculum_assignments` for that grade \u2014 a side effect on every\nstudent of the grade, not only on this unit."
+      },
+      "CorrectionCreated": {
+        "properties": {
+          "adoption": {
+            "type": "boolean",
+            "title": "Adoption"
+          },
+          "fork": {
+            "type": "boolean",
+            "title": "Fork"
+          },
+          "import": {
+            "type": "boolean",
+            "title": "Import"
+          }
+        },
+        "type": "object",
+        "required": [
+          "adoption",
+          "fork",
+          "import"
+        ],
+        "title": "CorrectionCreated",
+        "description": "Which of the three ownership steps this correction had to perform.\n\nRead rather than inferred by the page: \"did this fork the curriculum\" is not\nderivable from the response's other fields, and the confirmation copy the\nreviewer sees afterwards depends on it."
+      },
       "CreateProjectRequest": {
         "properties": {
           "title": {
@@ -19571,6 +20149,17 @@
             "type": "string",
             "title": "Stream",
             "default": "unstreamed"
+          },
+          "curriculum_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Curriculum Id"
           },
           "health_tier": {
             "type": "string",

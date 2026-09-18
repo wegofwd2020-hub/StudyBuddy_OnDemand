@@ -18,9 +18,21 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import UnitPerformancePage from "@/app/(school)/school/reports/units/page";
 
-vi.mock("@/lib/hooks/useTeacher", () => ({
-  useTeacher: vi.fn(() => ({ school_id: "sch-1", role: "school_admin" })),
-}));
+// Partial, so `canManageCurriculum` (#762) resolves to the real helper rather
+// than being absent from the mock.
+vi.mock("@/lib/hooks/useTeacher", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/hooks/useTeacher")>();
+  return {
+    ...actual,
+    useTeacher: vi.fn(() => ({
+      teacher_id: "t-1",
+      school_id: "sch-1",
+      role: "school_admin" as const,
+      capabilities: [] as string[],
+      first_login: false,
+    })),
+  };
+});
 
 const mockGetCurriculumHealth = vi.fn();
 vi.mock("@/lib/api/reports", async (importOriginal) => {

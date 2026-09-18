@@ -87,6 +87,9 @@ async def test_unresolvable_unit_returns_none_subject():
 @pytest.mark.asyncio
 async def test_override_wins_and_store_is_not_read():
     with (
+        # No curriculum has a fork as its SOURCE, so passing the fork id finds
+        # none and the override is looked up under the id passed in (#804).
+        patch.object(svc, "get_school_fork_for_source", AsyncMock(return_value=None)),
         patch.object(svc, "get_active_override", AsyncMock(return_value=OVERRIDE_BODY)),
         patch.object(svc, "get_quiz_answer_key", AsyncMock(return_value=STORE_KEY)) as gk,
         patch.object(svc, "resolve_content_curriculum", AsyncMock()) as rcc,
@@ -107,6 +110,7 @@ async def test_override_wins_and_store_is_not_read():
 @pytest.mark.asyncio
 async def test_fork_without_override_swaps_then_reads_store_under_source():
     with (
+        patch.object(svc, "get_school_fork_for_source", AsyncMock(return_value=None)),
         patch.object(svc, "get_active_override", AsyncMock(return_value=None)),
         patch.object(
             svc,
@@ -123,6 +127,37 @@ async def test_fork_without_override_swaps_then_reads_store_under_source():
     # The store was read under the SWAPPED source id, not the fork (curriculum_id is
     # the first positional arg to get_quiz_answer_key).
     assert gk.await_args.args[0] == "default-2026-g8"
+
+
+@pytest.mark.asyncio
+async def test_the_source_id_finds_the_override_under_the_schools_fork():
+    """#804 — the id grading holds is the SOURCE, the override is keyed by the FORK.
+
+    `progress_sessions.curriculum_id` is written with the swap already applied,
+    so looking the override up only under the id passed in misses every time and
+    grades against the store — the override is served and never graded.
+    """
+
+    async def override_by_curriculum(school_id, curriculum_id, *args, **kwargs):
+        return OVERRIDE_BODY if curriculum_id == "fork-1" else None
+
+    with (
+        patch.object(svc, "get_school_fork_for_source", AsyncMock(return_value="fork-1")) as gsf,
+        patch.object(svc, "get_active_override", AsyncMock(side_effect=override_by_curriculum)),
+        patch.object(svc, "get_quiz_answer_key", AsyncMock(return_value=STORE_KEY)) as gk,
+    ):
+        key = await svc.resolve_quiz_answer_key(
+            "school-1", "default-2026-g8", "G8-SCI-001", 1, "en", object(), object(), object()
+        )
+
+    assert key["q1"]["index"] == 1  # the override's B, not the store's A
+    gk.assert_not_awaited()
+    assert gsf.await_args.args[:2] == ("default-2026-g8", "school-1")
+    # Identity still comes from the id passed IN: that is what every recorded
+    # `stable_question_id` was hashed with.
+    assert key["q1"]["stable_question_id"] == svc.stable_question_id(
+        "default-2026-g8", "G8-SCI-001", "en", ""
+    )
 
 
 @pytest.mark.asyncio

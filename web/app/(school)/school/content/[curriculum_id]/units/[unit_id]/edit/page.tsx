@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { diffWords } from "diff";
@@ -27,6 +28,7 @@ import {
   Clock,
   ThumbsUp,
   ThumbsDown,
+  ShieldCheck,
 } from "lucide-react";
 import { formatDate } from "@/lib/utils/date";
 
@@ -1458,6 +1460,18 @@ export default function UnitEditPage() {
 
         {/* Actions */}
         <div className="flex shrink-0 items-center gap-2">
+          {/* The second entry point the spec promises (#762). The first is the
+              Unit Performance row; this one is for schools that DO have
+              adoptions and reach their units through the editor. Answer-key
+              corrections live on their own page because they change what
+              GRADES a student, which is a different act from editing prose. */}
+          <Link
+            href={`/school/content/${curriculumId}/units/${unitId}/answers`}
+            className="inline-flex items-center gap-1.5 rounded-md bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-gray-200 hover:bg-gray-50"
+          >
+            <ShieldCheck className="h-4 w-4" />
+            Review answers
+          </Link>
           {canSave && (
             <button
               type="button"

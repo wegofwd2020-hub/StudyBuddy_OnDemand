@@ -16,9 +16,13 @@ import {
   UNIT_PERF_STRINGS,
 } from "../e2e/data/unit-performance-page";
 
-vi.mock("@/lib/hooks/useTeacher", () => ({
-  useTeacher: vi.fn(() => MOCK_TEACHER),
-}));
+// Partial: the page also reads `canManageCurriculum` (#762), and a mock that
+// replaces the whole module hides it — the real helper over MOCK_TEACHER (a
+// plain teacher) is also the honest answer here.
+vi.mock("@/lib/hooks/useTeacher", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/hooks/useTeacher")>();
+  return { ...actual, useTeacher: vi.fn(() => MOCK_TEACHER) };
+});
 
 const mockUseQuery = vi.fn();
 vi.mock("@tanstack/react-query", async (importOriginal) => {

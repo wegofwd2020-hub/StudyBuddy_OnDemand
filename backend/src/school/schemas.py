@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import re
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
@@ -746,3 +747,142 @@ class GradeScopeResponse(BaseModel):
 
     kind: str
     grades: list[int] = []
+
+
+# ── Quiz answer review (#762) ─────────────────────────────────────────────────
+
+
+class AnswerOptionItem(BaseModel):
+    option_id: str
+    text: str
+
+
+class AnswerValidationState(BaseModel):
+    """Who checked this question for THIS school, and whether that check is
+    still current. `stale` is true once the current correct option's text no
+    longer matches what was validated — see `question_validations.correct_text`."""
+
+    by: str
+    # The reviewer's name, resolved server-side: `by` is a `teachers` UUID, and
+    # the page's reader cannot turn one into a person (the roster endpoint is
+    # school_admin-only, this page is not). Nullable only because the join is a
+    # LEFT one — losing a name must never cost the question — not because a
+    # missing name is expected: `validated_by` is NOT NULL and its FK restricts
+    # deletes, so a tick cannot outlive the reviewer's row.
+    by_name: str | None = None
+    at: str
+    stale: bool
+
+
+class AnswerReviewQuestion(BaseModel):
+    stable_question_id: str
+    set_number: int
+    question_id: str
+    question_text: str
+    options: list[AnswerOptionItem]
+    correct_option: str | None
+    # False when `correct_option` names no option in this question's own list.
+    # The grader DROPS such a question (`quiz_answer_key_unresolvable`), so it
+    # is a live content defect — and this page rendering "correct: C" beside
+    # options A, B and D with no signal is exactly what a reviewer is here for.
+    correct_option_resolves: bool = True
+    # Which body answered THIS set. One response can mix the two: a school
+    # typically overrides one set and leaves the others on the platform's.
+    served_from: Literal["override", "store"]
+    validated: AnswerValidationState | None = None
+    flag_count: int = 0
+
+
+class AnswerReviewListResponse(BaseModel):
+    """GET .../answers — every quiz question of a unit, this school's copy.
+
+    `ownership` mirrors what serving/grading would resolve for this school:
+    `override` (an active school override answers at least one set),
+    `fork` (the school owns a fork of this curriculum but has not overridden
+    this unit's quiz yet), or `none` (the school has not adopted this
+    curriculum at all — the demo's case for every class-used curriculum,
+    2026-09-17).
+
+    Both ids are returned because the caller needs both and they are different
+    things: `source_curriculum_id` is the OOB curriculum the store content (and
+    every recorded `stable_question_id`) lives under, and `owned_curriculum_id`
+    is the school's fork when one exists — the id a correction must be written
+    against.
+    """
+
+    ownership: Literal["none", "fork", "override"]
+    source_curriculum_id: str
+    owned_curriculum_id: str | None = None
+    questions: list[AnswerReviewQuestion]
+
+
+class CorrectAnswerRequest(BaseModel):
+    """POST .../answers/{stable_question_id}/correct
+
+    `correct_option` is an option_id as the content file spells it ("A".."D"),
+    deliberately NOT pattern-constrained: a letter that names no option of this
+    question is refused by the endpoint on the evidence that the question does
+    not have it, which is a better answer than a schema rejection, and a pattern
+    here would 422 content whose option ids are spelled some other way.
+
+    `confirm_fork` is the reviewer acknowledging that the school is about to
+    take its own copy of this unit — platform regeneration stops reaching it,
+    and the whole grade is repointed at the fork. Required only when the school
+    has no copy yet, and then only for the first correction in that curriculum
+    (design ruling: per curriculum, not per question).
+    """
+
+    correct_option: str = Field(min_length=1, max_length=8)
+    confirm_fork: bool = False
+
+
+class CorrectionCreated(BaseModel):
+    """Which of the three ownership steps this correction had to perform.
+
+    Read rather than inferred by the page: "did this fork the curriculum" is not
+    derivable from the response's other fields, and the confirmation copy the
+    reviewer sees afterwards depends on it.
+    """
+
+    adoption: bool
+    fork: bool
+    import_: bool = Field(alias="import")
+
+    model_config = {"populate_by_name": True}
+
+
+class CorrectAnswerResponse(BaseModel):
+    """POST .../answers/{stable_question_id}/correct — what actually happened.
+
+    `sets_corrected` lists every quiz set the question appeared in: one
+    `stable_question_id` spans sets, and a correction fixes all of them, because
+    the set a student sits is chosen by the server's rotation.
+
+    `grade_repointed` is true when creating the fork also repointed
+    `grade_curriculum_assignments` for that grade — a side effect on every
+    student of the grade, not only on this unit.
+    """
+
+    ownership_before: Literal["none", "fork", "override"]
+    created: CorrectionCreated
+    override_id: str
+    override_ids: list[str]
+    owned_curriculum_id: str
+    grade_repointed: bool
+    sets_corrected: list[int]
+    old_correct_text: str
+    new_correct_text: str
+    validated_at: str
+
+
+class AnswerValidationResponse(BaseModel):
+    """POST .../answers/{stable_question_id}/validate — the tick just written.
+
+    `correct_text` is the snapshot the staleness comparison will be made
+    against, returned so the caller can show what was vouched for rather than
+    only that something was.
+    """
+
+    validated_by: str
+    validated_at: str
+    correct_text: str
