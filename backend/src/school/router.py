@@ -170,8 +170,9 @@ async def register_school_endpoint(
     """
     async with get_db(request) as conn:
         try:
+            client_ip = request.client.host if request.client else None
             result = await register_school(
-                conn, body.school_name, body.contact_email, body.country, body.password
+                conn, body.school_name, body.contact_email, body.country, body.password, client_ip
             )
         except asyncpg.UniqueViolationError as exc:
             # Branch on the constraint, never on a substring of the error text:

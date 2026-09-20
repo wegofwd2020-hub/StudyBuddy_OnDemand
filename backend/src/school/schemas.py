@@ -36,6 +36,15 @@ class SchoolRegisterResponse(BaseModel):
     role: str
 
 
+class SchoolLocalizationResponse(BaseModel):
+    country_code: str
+    currency_code: str
+    currency_symbol: str
+    thousands_separator: str
+    decimal_separator: str
+    timezone: str
+
+
 class SchoolProfileResponse(BaseModel):
     school_id: str
     name: str
@@ -44,6 +53,7 @@ class SchoolProfileResponse(BaseModel):
     enrolment_code: str | None = None
     status: str
     created_at: datetime
+    localization: SchoolLocalizationResponse | None = None
 
 
 class TeacherInviteRequest(BaseModel):
