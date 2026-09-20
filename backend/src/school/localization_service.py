@@ -33,6 +33,7 @@ _DEFAULT_COUNTRY = "US"
 
 class SchoolLocalization(TypedDict):
     """School localization configuration."""
+
     country_code: str
     currency_code: str
     currency_symbol: str
@@ -51,7 +52,9 @@ def get_localization_for_country(country_code: str | None) -> SchoolLocalization
     if country_upper not in _COUNTRY_LOCALIZATION:
         country_upper = _DEFAULT_COUNTRY
 
-    currency_code, symbol, thousands_sep, decimal_sep, timezone = _COUNTRY_LOCALIZATION[country_upper]
+    currency_code, symbol, thousands_sep, decimal_sep, timezone = _COUNTRY_LOCALIZATION[
+        country_upper
+    ]
 
     return SchoolLocalization(
         country_code=country_upper,
