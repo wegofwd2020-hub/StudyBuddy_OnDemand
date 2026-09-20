@@ -41,8 +41,7 @@ def _period_start(period: str) -> datetime:
     if period == "30d":
         return now - timedelta(days=30)
     if period == "term":
-        year = now.year if now.month >= 9 else now.year - 1
-        return datetime(year, 9, 1, tzinfo=UTC)
+        return datetime(now.year - 1, 9, 1, tzinfo=UTC)
     return now - timedelta(days=7)  # default: 7d
 
 
