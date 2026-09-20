@@ -24,6 +24,11 @@ export const MOCK_OVERVIEW_30D: OverviewReport = {
   units_with_struggles: [],
   units_no_activity: [],
   unreviewed_feedback_count: 3,
+  available_grades: [8, 9, 10, 11, 12],
+  selected_grade: undefined,
+  available_subjects: [],
+  selected_subject: undefined,
+  scope: { kind: "school", grades: [] },
 };
 
 // 100% active — no inactive students card
