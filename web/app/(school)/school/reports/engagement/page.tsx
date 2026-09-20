@@ -16,7 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { TrendingDown, Users, AlertTriangle, TrendingUp, Volume2 } from "lucide-react";
+import { TrendingDown, Users, AlertTriangle, TrendingUp } from "lucide-react";
 
 /**
  * Engagement report (#770).
