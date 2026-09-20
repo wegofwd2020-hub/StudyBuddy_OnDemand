@@ -60,13 +60,17 @@ _SUBJECT_CODE_NAMES: dict[str, str] = {
 
 _UNIT_ID_SUBJECT_RE = re.compile(r"^G\d+-([A-Z]+)-")
 
-# A stored "subject" that is really a grade-prefixed code — "G5-ENG", "G12-MATH".
+# A stored "subject" that is really a code rather than a display name:
+# - Grade-prefixed unit codes: "G5-ENG", "G12-MATH"
+# - Curriculum stream codes: "default-2026-g11-commerce", "stem-2026-g8-science"
+#
 # `progress_sessions.subject` and `curriculum_units.subject` both hold a mix of
 # these and real display names, which is precisely the inconsistency a tester
 # reported on the Unit Performance report: the same column showing "Engineering"
 # on one row and "G5-ENG" on the next. A code is never a display name, so it must
-# not be allowed to win over a resolved one.
-_BARE_SUBJECT_CODE_RE = re.compile(r"^G\d+-[A-Z]+$")
+# not be allowed to win over a resolved one. Stream codes were leaking through
+# because they don't match the G\d+-[A-Z]+ pattern (#824).
+_BARE_SUBJECT_CODE_RE = re.compile(r"^(G\d+-[A-Z]+|[a-z]+-\d+-g\d+-[a-z]+)$")
 
 
 def subject_from_unit_id(unit_id: str | None) -> str | None:
