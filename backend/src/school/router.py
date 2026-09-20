@@ -2457,6 +2457,7 @@ async def list_unit_override_status(
         curriculum_name=meta_row["name"] if meta_row else None,
         grade=meta_row["grade"] if meta_row else None,
         adoption_id=str(adoption_row["adoption_id"]) if adoption_row else None,
+        forked_curriculum_id=curriculum_id,
     ).model_dump()
 
 
