@@ -106,25 +106,46 @@ export default function EngagementReportPage() {
         <>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
             <KpiCard
-              title="Active students"
-              value={overview.active_students_period}
-              subtitle={`of ${overview.enrolled_students} enrolled`}
+              title="Enrolled students"
+              value={overview.enrolled_students}
+              subtitle="total"
               icon={<Users className="h-5 w-5" />}
               accent="blue"
             />
             <KpiCard
-              title="Activity rate"
+              title="Active"
               value={`${overview.active_pct.toFixed(0)}%`}
               subtitle={OVERVIEW_PERIOD_LABELS[period]}
               icon={<TrendingUp className="h-5 w-5" />}
               accent={overview.active_pct >= 50 ? "green" : "red"}
             />
             <KpiCard
-              title="Audio engagement"
-              value={`${overview.audio_play_rate_pct.toFixed(0)}%`}
-              subtitle="of lesson views played audio"
-              icon={<Volume2 className="h-5 w-5" />}
-              accent="gray"
+              title="Lessons viewed"
+              value={overview.lessons_viewed}
+              subtitle={OVERVIEW_PERIOD_LABELS[period]}
+              icon={<Users className="h-5 w-5" />}
+              accent="blue"
+            />
+            <KpiCard
+              title="Pass rate"
+              value={`${overview.first_attempt_pass_rate_pct.toFixed(1)}%`}
+              subtitle="first attempt"
+              icon={<TrendingUp className="h-5 w-5" />}
+              accent={overview.first_attempt_pass_rate_pct >= 70 ? "green" : "orange"}
+            />
+            <KpiCard
+              title="Quiz attempts"
+              value={overview.quiz_attempts}
+              subtitle={OVERVIEW_PERIOD_LABELS[period]}
+              icon={<Users className="h-5 w-5" />}
+              accent="blue"
+            />
+            <KpiCard
+              title="Unreviewed feedback"
+              value={overview.unreviewed_feedback_count}
+              subtitle="pending review"
+              icon={<AlertTriangle className="h-5 w-5" />}
+              accent={overview.unreviewed_feedback_count > 0 ? "orange" : "gray"}
             />
           </div>
 
