@@ -30,8 +30,7 @@ export interface FeedbackRow {
   created_at: string;
 }
 
-export interface GroupedFeedbackReport
-  extends GroupedReport<FeedbackRow> {
+export interface GroupedFeedbackReport extends GroupedReport<FeedbackRow> {
   filters: {
     availableGrades: number[];
     availableSubjects: string[];

@@ -16,7 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { TrendingDown, Users, AlertTriangle, TrendingUp, Volume2 } from "lucide-react";
+import { TrendingDown, Users, AlertTriangle, TrendingUp } from "lucide-react";
 
 /**
  * Engagement report (#770).
@@ -131,7 +131,7 @@ export default function EngagementReportPage() {
               value={`${overview.first_attempt_pass_rate_pct.toFixed(1)}%`}
               subtitle="first attempt"
               icon={<TrendingUp className="h-5 w-5" />}
-              accent={overview.first_attempt_pass_rate_pct >= 70 ? "green" : "orange"}
+              accent={overview.first_attempt_pass_rate_pct >= 70 ? "green" : "red"}
             />
             <KpiCard
               title="Quiz attempts"
@@ -145,7 +145,7 @@ export default function EngagementReportPage() {
               value={overview.unreviewed_feedback_count}
               subtitle="pending review"
               icon={<AlertTriangle className="h-5 w-5" />}
-              accent={overview.unreviewed_feedback_count > 0 ? "orange" : "gray"}
+              accent={overview.unreviewed_feedback_count > 0 ? "red" : "gray"}
             />
           </div>
 

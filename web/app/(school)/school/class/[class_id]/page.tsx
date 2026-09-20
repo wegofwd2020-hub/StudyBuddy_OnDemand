@@ -16,7 +16,12 @@ type ScopeFilter = "mine" | "all";
 
 type SortKey = keyof Pick<
   ClassStudentRow,
-  "student_name" | "grade" | "subject" | "units_completed" | "avg_score_pct" | "last_active"
+  | "student_name"
+  | "grade"
+  | "subject"
+  | "units_completed"
+  | "avg_score_pct"
+  | "last_active"
 >;
 type SortDir = "asc" | "desc";
 
@@ -131,9 +136,7 @@ export default function ClassOverviewPage() {
 
   // Apply subject filter if set
   if (subjectFilter) {
-    scopedStudents = scopedStudents.filter((s) =>
-      s.subject?.includes(subjectFilter)
-    );
+    scopedStudents = scopedStudents.filter((s) => s.subject?.includes(subjectFilter));
   }
 
   const rows = sortRows(scopedStudents, sortKey, sortDir);
@@ -154,7 +157,7 @@ export default function ClassOverviewPage() {
     new Set(
       (data?.students ?? [])
         .filter((s) => effectiveScope === "all" || myStudentIds.has(s.student_id))
-        .flatMap((s) => (s.subject ? s.subject.split(", ") : []))
+        .flatMap((s) => (s.subject ? s.subject.split(", ") : [])),
     ),
   ).sort();
 
@@ -238,7 +241,7 @@ export default function ClassOverviewPage() {
           {presentSubjects.length > 0 && (
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-500">Subject:</span>
-              <div className="flex gap-1 flex-wrap">
+              <div className="flex flex-wrap gap-1">
                 <button
                   onClick={() => setSubjectFilter(undefined)}
                   className={cn(
@@ -323,7 +326,7 @@ export default function ClassOverviewPage() {
                         {row.student_name}
                       </td>
                       <td className="px-4 py-3 text-gray-500">G{row.grade}</td>
-                      <td className="px-4 py-3 text-gray-500 text-xs">
+                      <td className="px-4 py-3 text-xs text-gray-500">
                         {row.subject ? row.subject.split(", ").join(" • ") : "—"}
                       </td>
                       <td className="px-4 py-3 text-gray-600">
