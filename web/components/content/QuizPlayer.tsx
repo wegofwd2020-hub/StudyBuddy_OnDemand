@@ -303,37 +303,48 @@ export function QuizPlayer({ quiz, sessionId, onRetry }: QuizPlayerProps) {
                   </SBMarkdown>
                 </div>
                 <ul className="space-y-2">
-                  {question.options.map((option, oi) => {
-                    const isChosen = selectedIndex === oi;
-                    const isCorrect = correctIndex === oi;
-                    return (
-                      <li
-                        key={oi}
-                        className={cn(
-                          "flex items-center gap-2 rounded-md border px-3 py-2 text-sm",
-                          isCorrect
-                            ? "border-green-500 bg-green-50 text-green-800"
-                            : isChosen
-                              ? "border-red-500 bg-red-50 text-red-800"
-                              : "border-gray-100 text-gray-600",
-                        )}
-                      >
-                        {isCorrect ? (
-                          <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" />
-                        ) : isChosen ? (
-                          <XCircle className="h-4 w-4 shrink-0 text-red-500" />
-                        ) : (
-                          <span className="h-4 w-4 shrink-0" />
-                        )}
-                        <SBMarkdownInline>{option}</SBMarkdownInline>
-                        {isChosen && (
-                          <span className="ml-auto text-xs font-medium text-gray-400">
-                            {tq("your_answer")}
-                          </span>
-                        )}
-                      </li>
-                    );
-                  })}
+                  {(() => {
+                    // Dedup options (#820): same logic as answering screen
+                    const uniqueSet = new Set<string>();
+                    return question.options
+                      .map((text, index) => ({ text, index }))
+                      .filter(({ text }) => {
+                        if (uniqueSet.has(text)) return false;
+                        uniqueSet.add(text);
+                        return true;
+                      })
+                      .map(({ text: option, index: origIndex }) => {
+                        const isChosen = selectedIndex === origIndex;
+                        const isCorrect = correctIndex === origIndex;
+                        return (
+                          <li
+                            key={origIndex}
+                            className={cn(
+                              "flex items-center gap-2 rounded-md border px-3 py-2 text-sm",
+                              isCorrect
+                                ? "border-green-500 bg-green-50 text-green-800"
+                                : isChosen
+                                  ? "border-red-500 bg-red-50 text-red-800"
+                                  : "border-gray-100 text-gray-600",
+                            )}
+                          >
+                            {isCorrect ? (
+                              <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" />
+                            ) : isChosen ? (
+                              <XCircle className="h-4 w-4 shrink-0 text-red-500" />
+                            ) : (
+                              <span className="h-4 w-4 shrink-0" />
+                            )}
+                            <SBMarkdownInline>{option}</SBMarkdownInline>
+                            {isChosen && (
+                              <span className="ml-auto text-xs font-medium text-gray-400">
+                                {tq("your_answer")}
+                              </span>
+                            )}
+                          </li>
+                        );
+                      });
+                  })()}
                 </ul>
                 {!answered && (
                   <p className="mt-2 text-xs font-medium text-amber-600">
@@ -369,6 +380,16 @@ export function QuizPlayer({ quiz, sessionId, onRetry }: QuizPlayerProps) {
   const currentState = state.questions[state.current];
   const isFirst = state.current === 0;
   const isLast = state.current === total - 1;
+
+  // Dedup options (#820): remove duplicate option text, keep original indices.
+  const uniqueSet = new Set<string>();
+  const deduped = question.options
+    .map((text, index) => ({ text, index }))
+    .filter(({ text }) => {
+      if (uniqueSet.has(text)) return false;
+      uniqueSet.add(text);
+      return true;
+    });
 
   return (
     <div className="space-y-6">
@@ -411,14 +432,14 @@ export function QuizPlayer({ quiz, sessionId, onRetry }: QuizPlayerProps) {
         </SBMarkdown>
 
         <div className="space-y-3">
-          {question.options.map((option, i) => {
-            const isSelected = currentState.selectedIndex === i;
+          {deduped.map(({ index: origIndex, text: option }, displayIndex) => {
+            const isSelected = currentState.selectedIndex === origIndex;
             // No verdict mid-quiz: the only state shown is which option is picked.
             return (
               <button
-                key={i}
+                key={displayIndex}
                 type="button"
-                onClick={() => handleSelect(i)}
+                onClick={() => handleSelect(origIndex)}
                 aria-pressed={isSelected}
                 className={cn(
                   "w-full rounded-lg border px-4 py-3 text-left text-sm font-medium transition-colors",
