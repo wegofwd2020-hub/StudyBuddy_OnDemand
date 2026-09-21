@@ -375,6 +375,8 @@ async def get_class_metrics(
         *params,
     )
 
+    import re
+
     metrics_per_unit = []
     for r in rows:
         first_pass = float(r["first_attempt_pass_rate_pct"] or 0)
@@ -383,10 +385,14 @@ async def get_class_metrics(
             first_pass < _STRUGGLE_PASS_THRESHOLD or mean_attempts > _STRUGGLE_ATTEMPTS_THRESHOLD
         )
         lv_count = r["students_with_lesson_view"] or 0
+        # Filter stream codes: return None if subject is a stream code (default-2026-gN-subject pattern)
+        subject_val = r["subject"]
+        if subject_val and re.match(r"^[a-z]+-\d+-g\d+-[a-z]+$", subject_val):
+            subject_val = None
         metrics_per_unit.append(
             {
                 "unit_id": r["unit_id"],
-                "subject": r["subject"],
+                "subject": subject_val,
                 "students_with_lesson_view": lv_count,
                 "lesson_view_pct": round(100 * lv_count / total_enrolled, 1)
                 if total_enrolled
