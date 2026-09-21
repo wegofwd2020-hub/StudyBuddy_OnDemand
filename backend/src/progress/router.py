@@ -497,6 +497,14 @@ async def end_session_endpoint(
     celery_app.send_task(
         "src.auth.tasks.refresh_progress_view_task", kwargs={"student_id": student_id}, queue="io"
     )
+    # #821: Recalculate pass-rate alerts for this unit after quiz completion
+    school_id = student.get("school_id", "")
+    if school_id:
+        celery_app.send_task(
+            "src.auth.tasks.evaluate_report_alerts_task",
+            kwargs={"school_id": school_id},
+            queue="io",
+        )
 
     return EndSessionResponse(**result, reveal=reveal)
 
