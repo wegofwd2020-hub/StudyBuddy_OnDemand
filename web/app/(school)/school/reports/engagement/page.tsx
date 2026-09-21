@@ -145,7 +145,7 @@ export default function EngagementReportPage() {
               value={overview.unreviewed_feedback_count}
               subtitle="pending review"
               icon={<AlertTriangle className="h-5 w-5" />}
-              accent={overview.unreviewed_feedback_count > 0 ? "orange" : "gray"}
+              accent={overview.unreviewed_feedback_count > 0  ? "red" : "gray"}
             />
           </div>
 
