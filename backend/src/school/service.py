@@ -28,6 +28,10 @@ from src.auth.service import (
     hash_password,
     temp_password_expiry,
 )
+from src.school.localization_service import (
+    get_or_create_school_localization,
+    get_school_localization,
+)
 from src.utils.logger import get_logger
 
 log = get_logger("school")
@@ -70,12 +74,16 @@ async def register_school(
     contact_email: str,
     country: str,
     password: str,
+    ip_addr: str | None = None,
 ) -> dict:
     """
     Create a school and its first school_admin teacher in one transaction.
 
     The founder sets their own password directly — no default password / forced
     reset for the account creator (Phase A design, Section 4a).
+
+    Initializes school localization (currency, timezone, number formatting) based
+    on country code, with fallback to IP geolocation then USA.
 
     Returns school_id, teacher_id, and a short-lived access token so the
     caller can immediately call teacher-scoped endpoints.
@@ -111,6 +119,10 @@ async def register_school(
                 "enrolment_code_collision",
                 extra={"attempt": attempt, "enrolment_code": enrolment_code},
             )
+
+    # Initialize school localization (currency, timezone, number formatting).
+    # Fallback: country → IP geolocation → USA.
+    await get_or_create_school_localization(conn, school_id, country, ip_addr)
 
     # Seed the storage quota row — every school starts with 5 GB base allocation.
     await conn.execute(
@@ -167,7 +179,7 @@ async def fetch_school(
     requesting_school_id: str,
 ) -> dict | None:
     """
-    Return school profile.  Teachers may only view their own school.
+    Return school profile with localization.  Teachers may only view their own school.
     """
     if school_id != requesting_school_id:
         return None
@@ -180,7 +192,17 @@ async def fetch_school(
         """,
         uuid.UUID(school_id),
     )
-    return dict(row) if row else None
+    if not row:
+        return None
+
+    result = dict(row)
+
+    # Fetch localization if available
+    loc = await get_school_localization(conn, school_id)
+    if loc:
+        result["localization"] = loc
+
+    return result
 
 
 async def invite_teacher(

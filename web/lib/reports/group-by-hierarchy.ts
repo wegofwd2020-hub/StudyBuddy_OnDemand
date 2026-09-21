@@ -5,12 +5,10 @@
  * Mirrors groupByGradeThenSubject but with generic items.
  */
 
-import type { GroupedItem, GroupedReport } from "./grouped-schemas";
+import type { GroupedItem } from "./grouped-schemas";
 
-export function groupByGradeAndSubject<
-  T extends { grade: number; subject: string }
->(
-  items: T[]
+export function groupByGradeAndSubject<T extends { grade: number; subject: string }>(
+  items: T[],
 ): GroupedItem<T>[] {
   const map = new Map<string, T[]>();
 
@@ -37,7 +35,7 @@ export function groupByGradeAndSubject<
 }
 
 export function getAvailableFilters<T extends { grade: number; subject: string }>(
-  items: T[]
+  items: T[],
 ): {
   grades: number[];
   subjects: string[];

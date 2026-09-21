@@ -243,7 +243,7 @@ export default function UnitPerformancePage() {
                             </span>
                           </td>
                           <td className="px-4 py-3 text-gray-600">
-                            {u.avg_score_pct.toFixed(0)}%
+                            {u.avg_score_pct.toFixed(1)}%
                           </td>
                           <td className="px-4 py-3 text-gray-600">
                             {u.avg_attempts_to_pass.toFixed(1)}
