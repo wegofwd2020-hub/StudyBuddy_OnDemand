@@ -1,6 +1,6 @@
 # StudyBuddy OnDemand — Progress Chart
 
-_Auto-generated 2026-09-20T07:11:33+00:00. Regenerated nightly at 21:00 EST._
+_Auto-generated 2026-09-21T07:20:46+00:00. Regenerated nightly at 21:00 EST._
 
 Source: `docs/epics/` (feature manifest) + `git log` (activity). Script: `scripts/generate_progress.py`.
 
@@ -243,7 +243,7 @@ Tickets with 2+ commits — each extra commit is an iteration or rework.
 
 ## Agent orchestration — in flight
 
-_As of 2026-09-20 07:11 UTC: 4 agent task(s) in flight (4 escalated); 1 approved._
+_As of 2026-09-21 07:20 UTC: 4 agent task(s) in flight (4 escalated); 1 approved._
 
 | # | status | sev | last gate | title |
 | --- | --- | --- | --- | --- |
