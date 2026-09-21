@@ -2360,7 +2360,16 @@ async def list_unit_override_status(
             "SELECT name, grade, source_curriculum_id FROM curricula WHERE curriculum_id = $1",
             curriculum_id,
         )
-        source_id = meta_row["source_curriculum_id"] if meta_row else None
+        if not meta_row:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "error": "not_found",
+                    "detail": "Curriculum not found.",
+                    "correlation_id": _cid(request),
+                },
+            )
+        source_id = meta_row["source_curriculum_id"]
         units_curriculum_id = source_id or curriculum_id
 
         units = await conn.fetch(
