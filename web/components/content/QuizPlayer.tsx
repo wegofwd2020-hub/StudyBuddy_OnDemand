@@ -305,47 +305,45 @@ export function QuizPlayer({ quiz, sessionId, onRetry }: QuizPlayerProps) {
                 <ul className="space-y-2">
                   {(() => {
                     // Dedup options (#820): same logic as answering screen
-                    const uniqueOptionsMap = new Map<string, number>();
-                    question.options.forEach((option, i) => {
-                      if (!uniqueOptionsMap.has(option)) {
-                        uniqueOptionsMap.set(option, i);
-                      }
-                    });
-                    const uniqueIndices = Array.from(uniqueOptionsMap.values()).sort(
-                      (a, b) => a - b,
-                    );
-                    return uniqueIndices.map((origIndex) => {
-                      const option = question.options[origIndex];
-                      const isChosen = selectedIndex === origIndex;
-                      const isCorrect = correctIndex === origIndex;
-                      return (
-                        <li
-                          key={origIndex}
-                          className={cn(
-                            "flex items-center gap-2 rounded-md border px-3 py-2 text-sm",
-                            isCorrect
-                              ? "border-green-500 bg-green-50 text-green-800"
-                              : isChosen
-                                ? "border-red-500 bg-red-50 text-red-800"
-                                : "border-gray-100 text-gray-600",
-                          )}
-                        >
-                          {isCorrect ? (
-                            <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" />
-                          ) : isChosen ? (
-                            <XCircle className="h-4 w-4 shrink-0 text-red-500" />
-                          ) : (
-                            <span className="h-4 w-4 shrink-0" />
-                          )}
-                          <SBMarkdownInline>{option}</SBMarkdownInline>
-                          {isChosen && (
-                            <span className="ml-auto text-xs font-medium text-gray-400">
-                              {tq("your_answer")}
-                            </span>
-                          )}
-                        </li>
-                      );
-                    });
+                    const uniqueSet = new Set<string>();
+                    return question.options
+                      .map((text, index) => ({ text, index }))
+                      .filter(({ text }) => {
+                        if (uniqueSet.has(text)) return false;
+                        uniqueSet.add(text);
+                        return true;
+                      })
+                      .map(({ text: option, index: origIndex }) => {
+                        const isChosen = selectedIndex === origIndex;
+                        const isCorrect = correctIndex === origIndex;
+                        return (
+                          <li
+                            key={origIndex}
+                            className={cn(
+                              "flex items-center gap-2 rounded-md border px-3 py-2 text-sm",
+                              isCorrect
+                                ? "border-green-500 bg-green-50 text-green-800"
+                                : isChosen
+                                  ? "border-red-500 bg-red-50 text-red-800"
+                                  : "border-gray-100 text-gray-600",
+                            )}
+                          >
+                            {isCorrect ? (
+                              <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" />
+                            ) : isChosen ? (
+                              <XCircle className="h-4 w-4 shrink-0 text-red-500" />
+                            ) : (
+                              <span className="h-4 w-4 shrink-0" />
+                            )}
+                            <SBMarkdownInline>{option}</SBMarkdownInline>
+                            {isChosen && (
+                              <span className="ml-auto text-xs font-medium text-gray-400">
+                                {tq("your_answer")}
+                              </span>
+                            )}
+                          </li>
+                        );
+                      });
                   })()}
                 </ul>
                 {!answered && (
@@ -383,16 +381,15 @@ export function QuizPlayer({ quiz, sessionId, onRetry }: QuizPlayerProps) {
   const isFirst = state.current === 0;
   const isLast = state.current === total - 1;
 
-  // Dedup options (#820): content may have duplicate option text. Map option text
-  // to its first index, then filter to unique indices. Preserves order.
-  const uniqueOptionsMap = new Map<string, number>();
-  question.options.forEach((option, i) => {
-    if (!uniqueOptionsMap.has(option)) {
-      uniqueOptionsMap.set(option, i);
-    }
-  });
-  const uniqueIndices = Array.from(uniqueOptionsMap.values()).sort((a, b) => a - b);
-  const deduped = uniqueIndices.map((i) => ({ index: i, text: question.options[i] }));
+  // Dedup options (#820): remove duplicate option text, keep original indices.
+  const uniqueSet = new Set<string>();
+  const deduped = question.options
+    .map((text, index) => ({ text, index }))
+    .filter(({ text }) => {
+      if (uniqueSet.has(text)) return false;
+      uniqueSet.add(text);
+      return true;
+    });
 
   return (
     <div className="space-y-6">
