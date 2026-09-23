@@ -9926,6 +9926,21 @@ export interface components {
             /** Has Override */
             has_override: boolean;
         };
+        /** SchoolLocalizationResponse */
+        SchoolLocalizationResponse: {
+            /** Country Code */
+            country_code: string;
+            /** Currency Code */
+            currency_code: string;
+            /** Currency Symbol */
+            currency_symbol: string;
+            /** Thousands Separator */
+            thousands_separator: string;
+            /** Decimal Separator */
+            decimal_separator: string;
+            /** Timezone */
+            timezone: string;
+        };
         /** SchoolProfileResponse */
         SchoolProfileResponse: {
             /** School Id */
@@ -9945,6 +9960,7 @@ export interface components {
              * Format: date-time
              */
             created_at: string;
+            localization?: components["schemas"]["SchoolLocalizationResponse"] | null;
         };
         /** SchoolRegisterRequest */
         SchoolRegisterRequest: {
