@@ -26145,6 +26145,44 @@
         ],
         "title": "SchoolLimitsResponse"
       },
+      "SchoolLocalizationResponse": {
+        "properties": {
+          "country_code": {
+            "type": "string",
+            "title": "Country Code"
+          },
+          "currency_code": {
+            "type": "string",
+            "title": "Currency Code"
+          },
+          "currency_symbol": {
+            "type": "string",
+            "title": "Currency Symbol"
+          },
+          "thousands_separator": {
+            "type": "string",
+            "title": "Thousands Separator"
+          },
+          "decimal_separator": {
+            "type": "string",
+            "title": "Decimal Separator"
+          },
+          "timezone": {
+            "type": "string",
+            "title": "Timezone"
+          }
+        },
+        "type": "object",
+        "required": [
+          "country_code",
+          "currency_code",
+          "currency_symbol",
+          "thousands_separator",
+          "decimal_separator",
+          "timezone"
+        ],
+        "title": "SchoolLocalizationResponse"
+      },
       "SchoolProfileResponse": {
         "properties": {
           "school_id": {
@@ -26182,6 +26220,16 @@
             "type": "string",
             "format": "date-time",
             "title": "Created At"
+          },
+          "localization": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SchoolLocalizationResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "type": "object",
