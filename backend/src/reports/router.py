@@ -193,7 +193,8 @@ async def student_roster(
                     END), 0
                 )                                                   AS avg_score_pct,
                 MAX(ps.started_at)                                  AS last_active,
-                STRING_AGG(DISTINCT cu.unit_id, ', ' ORDER BY cu.unit_id) AS unit_ids
+                STRING_AGG(DISTINCT cu.unit_id, ', ' ORDER BY cu.unit_id) AS unit_ids,
+                STRING_AGG(DISTINCT c.name, ', ' ORDER BY c.name) AS curriculum_names
             -- Membership comes from `school_enrolments`, not `students.school_id`
             -- (#572). A student may be enrolled at more than one school — a
             -- school for their regular curriculum and an external tutor running
@@ -221,6 +222,7 @@ async def student_roster(
             LEFT JOIN classroom_students cs ON cs.student_id = s.student_id
             LEFT JOIN classroom_packages cp ON cp.classroom_id = cs.classroom_id
             LEFT JOIN curriculum_units cu ON cu.curriculum_id = cp.curriculum_id
+            LEFT JOIN curricula c ON c.curriculum_id = cp.curriculum_id
             WHERE se.school_id = $1 AND se.status = 'active' {grade_filter}
             GROUP BY s.student_id, s.name, s.grade
             ORDER BY s.name
@@ -243,6 +245,7 @@ async def student_roster(
     )
 
     students = []
+    log.warning("roster_debug", extra={"num_rows": len(rows), "subject_labels_size": len(subject_labels)})
     for r in rows:
         # Aggregate display names from the unit_ids for this student's curricula.
         subject_names = set()
@@ -252,7 +255,12 @@ async def student_roster(
                 # because we're pulling from curriculum_units. Use the unit's resolved name.
                 display = display_subject(subject_labels, uid, None)
                 subject_names.add(display)
+        # Fallback to curriculum names if no units found. This handles cases where
+        # a curriculum has no units (edge case) or provides readable names.
+        if not subject_names and r["curriculum_names"]:
+            subject_names = set(n.strip() for n in r["curriculum_names"].split(", ") if n.strip())
         subject_str = ", ".join(sorted(subject_names)) if subject_names else None
+        log.warning("roster_student", extra={"name": r["student_name"], "unit_ids_count": len(r["unit_ids"].split(", ")) if r["unit_ids"] else 0, "subject": subject_str})
 
         students.append(
             {
