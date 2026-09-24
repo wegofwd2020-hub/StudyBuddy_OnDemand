@@ -154,6 +154,10 @@ async def student_roster(
              avg_score_pct, last_active.
     """
     _check_school(teacher, school_id, request)
+
+    # Import here to avoid circular dependencies.
+    from src.core.subjects import display_subject, resolve_subject_labels
+
     async with get_db(request) as conn:
         permitted = await _permitted_grades(conn, teacher, school_id)
 
@@ -189,7 +193,7 @@ async def student_roster(
                     END), 0
                 )                                                   AS avg_score_pct,
                 MAX(ps.started_at)                                  AS last_active,
-                STRING_AGG(DISTINCT cp.curriculum_id, ', ' ORDER BY cp.curriculum_id) AS subject
+                STRING_AGG(DISTINCT cu.unit_id, ', ' ORDER BY cu.unit_id) AS unit_ids
             -- Membership comes from `school_enrolments`, not `students.school_id`
             -- (#572). A student may be enrolled at more than one school — a
             -- school for their regular curriculum and an external tutor running
@@ -216,12 +220,20 @@ async def student_roster(
                 AND ps.started_at >= se.added_at
             LEFT JOIN classroom_students cs ON cs.student_id = s.student_id
             LEFT JOIN classroom_packages cp ON cp.classroom_id = cs.classroom_id
+            LEFT JOIN curriculum_units cu ON cu.curriculum_id = cp.curriculum_id
             WHERE se.school_id = $1 AND se.status = 'active' {grade_filter}
             GROUP BY s.student_id, s.name, s.grade
             ORDER BY s.name
             """,
             *params,
         )
+
+        # Resolve human-readable subject names (same pattern as #839 fix for analytics).
+        unit_ids = []
+        for r in rows:
+            if r["unit_ids"]:
+                unit_ids.extend(r["unit_ids"].split(", "))
+        subject_labels = await resolve_subject_labels(conn, list(set(unit_ids))) if unit_ids else {}
 
     # The denominator is each student's OWN curriculum, resolved the same way
     # their content is (#638). Summing every default curriculum at their grade
@@ -230,19 +242,30 @@ async def student_roster(
         request.app.state.pool, get_redis(request), rows, school_id
     )
 
-    students = [
-        {
-            "student_id": str(r["student_id"]),
-            "student_name": r["student_name"],
-            "grade": r["grade"],
-            "subject": r["subject"],
-            "units_completed": int(r["units_completed"]),
-            "total_units": totals.get(str(r["student_id"]), 0),
-            "avg_score_pct": round(float(r["avg_score_pct"] or 0), 1),
-            "last_active": r["last_active"].isoformat() if r["last_active"] else None,
-        }
-        for r in rows
-    ]
+    students = []
+    for r in rows:
+        # Aggregate display names from the unit_ids for this student's curricula.
+        subject_names = set()
+        if r["unit_ids"]:
+            for uid in r["unit_ids"].split(", "):
+                # subject_labels keys are unit_ids; we don't have raw subject values here
+                # because we're pulling from curriculum_units. Use the unit's resolved name.
+                display = display_subject(subject_labels, uid, None)
+                subject_names.add(display)
+        subject_str = ", ".join(sorted(subject_names)) if subject_names else None
+
+        students.append(
+            {
+                "student_id": str(r["student_id"]),
+                "student_name": r["student_name"],
+                "grade": r["grade"],
+                "subject": subject_str,
+                "units_completed": int(r["units_completed"]),
+                "total_units": totals.get(str(r["student_id"]), 0),
+                "avg_score_pct": round(float(r["avg_score_pct"] or 0), 1),
+                "last_active": r["last_active"].isoformat() if r["last_active"] else None,
+            }
+        )
     return {"school_id": school_id, "grade": grade, "subject": None, "students": students}
 
 
