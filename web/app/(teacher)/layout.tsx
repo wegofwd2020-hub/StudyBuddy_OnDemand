@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { auth0 } from "@/lib/auth0";
+import { getAuth0 } from "@/lib/auth0";
 import { getDevSession } from "@/lib/dev-session";
 import { QueryProvider } from "@/lib/providers/QueryProvider";
 import { PortalHeader } from "@/components/layout/PortalHeader";
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
  * SchoolNav (which requires a school_id).
  */
 export default async function TeacherLayout({ children }: { children: React.ReactNode }) {
-  const session = (await auth0.getSession()) ?? (await getDevSession());
+  const session = (await getAuth0().getSession()) ?? (await getDevSession());
 
   if (!session) {
     redirect("/signin");

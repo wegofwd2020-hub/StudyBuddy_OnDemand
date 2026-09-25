@@ -1,7 +1,7 @@
 import { SessionGuard } from "@/components/auth/SessionGuard";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { auth0 } from "@/lib/auth0";
+import { getAuth0 } from "@/lib/auth0";
 import {
   getDevSession,
   getDemoTeacherSession,
@@ -41,7 +41,7 @@ export default async function SchoolLayout({ children }: { children: React.React
 
   // Auth0 / dev / demo-teacher session paths (unchanged).
   const session =
-    (await auth0.getSession()) ??
+    (await getAuth0().getSession()) ??
     (await getDevSession()) ??
     (await getDemoTeacherSession());
 

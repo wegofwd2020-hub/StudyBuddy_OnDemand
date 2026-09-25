@@ -1,7 +1,7 @@
 import { SessionGuard } from "@/components/auth/SessionGuard";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { auth0 } from "@/lib/auth0";
+import { getAuth0 } from "@/lib/auth0";
 import { getDevSession, getLocalStudentSession } from "@/lib/dev-session";
 import { StudentNav } from "@/components/layout/StudentNav";
 import { QueryProvider } from "@/lib/providers/QueryProvider";
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 
 export default async function StudentLayout({ children }: { children: React.ReactNode }) {
   const session =
-    (await auth0.getSession()) ??
+    (await getAuth0().getSession()) ??
     (await getDevSession()) ??
     (await getLocalStudentSession());
 
