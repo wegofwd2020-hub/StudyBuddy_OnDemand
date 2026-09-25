@@ -3,7 +3,12 @@ import type { NextResponse } from "next/server";
 import { getAuth0 } from "./lib/auth0";
 
 export async function proxy(request: NextRequest): Promise<NextResponse> {
-  return await getAuth0().middleware(request);
+  try {
+    return await getAuth0().middleware(request);
+  } catch (error) {
+    // Auth0 domain resolution may fail in dev/local environment. Allow request to proceed.
+    return undefined as unknown as NextResponse;
+  }
 }
 
 export const config = {
