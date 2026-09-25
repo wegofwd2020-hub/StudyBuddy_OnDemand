@@ -25,8 +25,8 @@ const isDev = process.env.NODE_ENV === "development";
 const csp = [
   "default-src 'self'",
   isDev
-    ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com"
-    : "script-src 'self' 'unsafe-inline' https://js.stripe.com",
+    ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://static.cloudflareinsights.com"
+    : "script-src 'self' 'unsafe-inline' https://js.stripe.com https://static.cloudflareinsights.com",
   // Same-origin only — /api/v1/* is proxied by rewrites() to the backend.
   `connect-src 'self' https://api.stripe.com`,
   "style-src 'self' 'unsafe-inline'",
@@ -42,6 +42,10 @@ const csp = [
   .trimEnd();
 
 const nextConfig: NextConfig = {
+  // Allow dev server HMR from production domain
+  experimental: {
+    allowedDevOrigins: ["demo.usestudybuddy.com"],
+  },
   // Emit a self-contained server bundle at .next/standalone for the Docker
   // runner stage to COPY. Without this, `npm run build` only writes the
   // dev/SSR caches and the production image fails on missing standalone path.
