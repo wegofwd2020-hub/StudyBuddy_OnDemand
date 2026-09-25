@@ -319,8 +319,7 @@ services:
     build:
       context: ./web
       dockerfile: Dockerfile
-      target: deps            # stop at deps stage — dev uses mounted source
-    command: npm run dev
+    command: npm start
     restart: unless-stopped
     env_file:
       - ./web/.env.local
@@ -333,10 +332,6 @@ services:
       HOSTNAME: "0.0.0.0"
     ports:
       - "3000:3000"
-    volumes:
-      - ./web:/app                     # bind-mount source for hot-reload
-      - /app/node_modules              # keep container node_modules separate
-      - /app/.next                     # keep build cache in container
     depends_on:
       api:
         condition: service_healthy
