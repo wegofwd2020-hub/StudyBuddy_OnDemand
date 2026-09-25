@@ -314,12 +314,11 @@ services:
     depends_on:
       <<: *depends-all
 
-  # ── Next.js Web Frontend (dev server with hot-reload) ───────────────────────
+  # ── Next.js Web Frontend (production build) ───────────────────────────────────
   web:
     build:
       context: ./web
       dockerfile: Dockerfile
-    command: npm start
     restart: unless-stopped
     env_file:
       - ./web/.env.local
