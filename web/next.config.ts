@@ -42,10 +42,6 @@ const csp = [
   .trimEnd();
 
 const nextConfig: NextConfig = {
-  // Allow dev server HMR from production domain
-  experimental: {
-    allowedDevOrigins: ["demo.usestudybuddy.com"],
-  },
   // Emit a self-contained server bundle at .next/standalone for the Docker
   // runner stage to COPY. Without this, `npm run build` only writes the
   // dev/SSR caches and the production image fails on missing standalone path.
