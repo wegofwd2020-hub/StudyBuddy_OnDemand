@@ -341,6 +341,18 @@ services:
       api:
         condition: service_healthy
 
+  # ── Nginx (reverse proxy) ───────────────────────────────────────────────────
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./infra/nginx/nginx.dev.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      api:
+        condition: service_healthy
+
   # ── Pipeline CLI (on-demand — not started automatically) ────────────────────
   pipeline:
     build:
