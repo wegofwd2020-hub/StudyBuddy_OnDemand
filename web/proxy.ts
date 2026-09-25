@@ -6,8 +6,14 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   try {
     return await getAuth0().middleware(request);
   } catch (error) {
-    // Auth0 domain resolution may fail in dev/local environment. Allow request to proceed.
-    return undefined as unknown as NextResponse;
+    // Auth0 domain resolution may fail in dev/local environment.
+    if (process.env.NODE_ENV !== "production") {
+      console.error("[auth0-middleware] Dev/test mode - allowing request through:", error);
+      return undefined as unknown as NextResponse;
+    }
+    // Production: auth failures must not silently pass through
+    console.error("[auth0-middleware] Production auth error:", error);
+    throw error;
   }
 }
 
