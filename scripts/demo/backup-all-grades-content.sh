@@ -42,11 +42,11 @@ get_db_schema_version() {
 export_db_schema_for_grade() {
   local grade=$1
   local output_file=$2
-  # Use a SQL dump file instead; just export rows for this grade using psql COPY command
-  docker compose -f "$INSTALL_DIR/docker-compose.yml" exec -T db psql -U studybuddy -d studybuddy << EOSQL > "$output_file" 2>/dev/null
-\copy (SELECT * FROM curricula WHERE curriculum_id LIKE 'default-2026-g${grade}%') TO STDOUT
-\copy (SELECT * FROM curriculum_units WHERE curriculum_id LIKE 'default-2026-g${grade}%') TO STDOUT
-EOSQL
+  {
+    docker compose -f "$INSTALL_DIR/docker-compose.yml" exec -T db psql -U studybuddy -d studybuddy -c "COPY (SELECT curriculum_id, grade, year, name, is_default, school_id, created_at, source_type, status, restrict_access, created_by, activated_at, owner_type, owner_id, retention_status, expires_at, grace_until, renewed_at, stream_code, source_curriculum_id FROM curricula WHERE curriculum_id LIKE 'default-2026-g${grade}%') TO STDOUT"
+    echo "---UNITS---"
+    docker compose -f "$INSTALL_DIR/docker-compose.yml" exec -T db psql -U studybuddy -d studybuddy -c "COPY (SELECT unit_id, curriculum_id, subject, title, description, has_lab, sort_order, unit_name, objectives, lab_description, sequence, content_status FROM curriculum_units WHERE curriculum_id LIKE 'default-2026-g${grade}%') TO STDOUT"
+  } > "$output_file" 2>/dev/null
 }
 
 APP_VERSION=$(get_app_version)

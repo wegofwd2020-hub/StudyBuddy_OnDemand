@@ -44,12 +44,15 @@ restore_db_schema_for_grade() {
     return 1
   fi
   log "  Importing DB schema for Grade $grade..."
-  # Restore COPY format data using psql
   docker compose -f "$INSTALL_DIR/docker-compose.yml" cp "$schema_file" db:/tmp/grade_${grade}_schema.sql 2>/dev/null || true
-  docker compose -f "$INSTALL_DIR/docker-compose.yml" exec -T db psql -U studybuddy -d studybuddy << EOSQL 2>/dev/null
-\copy curricula FROM /tmp/grade_${grade}_schema.sql
-\copy curriculum_units FROM /tmp/grade_${grade}_schema.sql
-EOSQL
+
+  # Split data file and import with explicit column lists matching backup export
+  GRADE_NUM="$grade"
+  docker compose -f "$INSTALL_DIR/docker-compose.yml" exec -T db bash -c "
+    sed -n '1,/^---UNITS---/p' /tmp/grade_${GRADE_NUM}_schema.sql | head -n -1 | psql -U studybuddy -d studybuddy -c 'COPY curricula (curriculum_id, grade, year, name, is_default, school_id, created_at, source_type, status, restrict_access, created_by, activated_at, owner_type, owner_id, retention_status, expires_at, grace_until, renewed_at, stream_code, source_curriculum_id) FROM STDIN'
+    sed -n '/^---UNITS---/,\$p' /tmp/grade_${GRADE_NUM}_schema.sql | tail -n +2 | psql -U studybuddy -d studybuddy -c 'COPY curriculum_units (unit_id, curriculum_id, subject, title, description, has_lab, sort_order, unit_name, objectives, lab_description, sequence, content_status) FROM STDIN'
+  " 2>/dev/null || true
+
   docker compose -f "$INSTALL_DIR/docker-compose.yml" exec -T db rm -f /tmp/grade_${grade}_schema.sql 2>/dev/null || true
   log "  ✅ DB schema imported for Grade $grade"
 }
