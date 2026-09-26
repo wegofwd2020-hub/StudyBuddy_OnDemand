@@ -386,11 +386,12 @@ async def refresh_token(body: RefreshRequest, request: Request):
 
 @router.post("/auth/logout")
 async def logout(body: LogoutRequest, request: Request):
-    """Delete the refresh token from Redis."""
+    """Delete the refresh token from Redis and redirect to home."""
+    from fastapi.responses import RedirectResponse
     redis = get_redis(request)
     await redis.delete(f"refresh:{_hash_refresh_token(body.refresh_token)}")
     emit_event("auth", "logout")
-    return {}
+    return RedirectResponse(url="/", status_code=302)
 
 
 # ── Forgot password (always 200) ──────────────────────────────────────────────
