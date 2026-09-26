@@ -312,20 +312,18 @@ services:
     depends_on:
       <<: *depends-all
 
-  # ── Next.js Web Frontend (production build) ───────────────────────────────────
+  # ── Next.js Web Frontend (dev mode with fail-open auth) ────────────────────
   web:
     build:
       context: ./web
       dockerfile: Dockerfile
+      args:
+        BUILD_STAGE: dev
     restart: unless-stopped
     env_file:
       - ./web/.env.local
     environment:
       NODE_ENV: development
-      AUTH0_DOMAIN: localhost
-      AUTH0_CLIENT_ID: dev_client_id
-      AUTH0_CLIENT_SECRET: dev_client_secret_xxxxxxxxxxxxxxxx
-      AUTH0_SECRET: dev_secret_xxxxxxxxxxxxxxxx
       NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
       NEXT_PUBLIC_CDN_URL: http://localhost:8000
       # Server-side only — uses Docker service name (not localhost)

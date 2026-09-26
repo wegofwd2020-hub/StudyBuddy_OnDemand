@@ -33,8 +33,26 @@ ARG NEXT_PUBLIC_BUILD_ID="dev"
 ENV NEXT_PUBLIC_BUILD_ID=$NEXT_PUBLIC_BUILD_ID
 RUN npm run build
 
-# Stage 3: minimal production runtime
+# Stage 3: dev or production runtime (controlled by BUILD_STAGE arg)
+ARG BUILD_STAGE=production
 FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# For dev: use dev server; for production: use standalone built app
+# Dev mode allows Auth0 middleware to fail gracefully
+FROM node:20-alpine AS runner-dev
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+ENV NODE_ENV=development
+ENV NEXT_TELEMETRY_DISABLED=1
+EXPOSE 3000
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+CMD ["npm", "run", "dev"]
+
+FROM node:20-alpine AS runner-production
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -55,3 +73,6 @@ ENV HOSTNAME="0.0.0.0"
 
 ENTRYPOINT []
 CMD ["node", "server.js"]
+
+# Select final stage based on BUILD_STAGE arg
+FROM runner-${BUILD_STAGE} as runner
