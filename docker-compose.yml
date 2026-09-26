@@ -321,6 +321,10 @@ services:
     env_file:
       - ./web/.env.local
     environment:
+      NODE_ENV: development
+      AUTH0_DOMAIN: localhost:3000
+      AUTH0_CLIENT_ID: dev_client_id
+      AUTH0_CLIENT_SECRET: dev_client_secret
       NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
       NEXT_PUBLIC_CDN_URL: http://localhost:8000
       # Server-side only — uses Docker service name (not localhost)
