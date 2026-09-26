@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # =============================================================================
 # scripts/pull-backups-local.sh — pull Grade 9 backups from demo to local
 #
@@ -7,7 +7,7 @@
 #
 # Usage:
 #   bash scripts/pull-backups-local.sh
-#   bash scripts/pull-backups-local.sh ~/backups-grade9  # custom local dir
+#   ./scripts/pull-backups-local.sh ~/backups-grade9  # custom local dir
 #
 # Requires:
 #   - SSH key auth to root@178.105.160.62 (should already work)
@@ -21,7 +21,7 @@ DEMO_USER="root"
 DEMO_BACKUP_DIR="/opt/studybuddy/backups/grade9"
 
 # Local destination directory (default: ~/backups-grade9)
-LOCAL_BACKUP_DIR="${1:-$HOME/backups-grade9}"
+LOCAL_BACKUP_DIR="${1:-$HOMEDocuments/code/projects/AIStuff/backups-grade9}"
 
 log() { echo "[$(date +%Y-%m-%dT%H:%M:%SZ)] $*"; }
 
