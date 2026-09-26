@@ -8,11 +8,17 @@ FROM python:3.11-slim
 
 WORKDIR /pipeline
 
-# System dependencies (git for the wegofwd-llm git+ pip dep)
+# System dependencies for weasyprint + build tools
+# weasyprint requires: cairo, pango, fontconfig, freetype (pulled by libpango-1.0-0, libcairo2, fonts)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     libpq-dev \
     gcc \
+    libcairo2 \
+    libpango-1.0-0 \
+    libpangoft2-1.0-0 \
+    libfontconfig1 \
+    fonts-liberation \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
