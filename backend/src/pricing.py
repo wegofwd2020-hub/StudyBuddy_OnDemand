@@ -240,7 +240,7 @@ class AICostModel:
     output_per_million: Decimal = Decimal("15.00")  # $15 / 1M output tokens
 
     # Pipeline safety cap
-    max_run_usd: Decimal = Decimal("50.00")
+    max_run_usd: Decimal = Decimal("100.00")
 
     # Derived cost estimates (informational — not enforced at runtime)
     avg_input_tokens_per_unit: int = 1_800
