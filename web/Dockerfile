@@ -33,15 +33,8 @@ ARG NEXT_PUBLIC_BUILD_ID="dev"
 ENV NEXT_PUBLIC_BUILD_ID=$NEXT_PUBLIC_BUILD_ID
 RUN npm run build
 
-# Stage 3: dev or production runtime (controlled by BUILD_STAGE arg)
-ARG BUILD_STAGE=production
+# Stage 3: dev mode runtime — uses npm run dev for fail-open Auth0 middleware
 FROM node:20-alpine AS runner
-WORKDIR /app
-ENV NEXT_TELEMETRY_DISABLED=1
-
-# For dev: use dev server; for production: use standalone built app
-# Dev mode allows Auth0 middleware to fail gracefully
-FROM node:20-alpine AS runner-dev
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -51,28 +44,3 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 CMD ["npm", "run", "dev"]
-
-FROM node:20-alpine AS runner-production
-WORKDIR /app
-ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
-
-# Run as non-root
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser  --system --uid 1001 nextjs
-
-# Copy built output
-COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-USER nextjs
-EXPOSE 3000
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
-
-ENTRYPOINT []
-CMD ["node", "server.js"]
-
-# Select final stage based on BUILD_STAGE arg
-FROM runner-${BUILD_STAGE} as runner

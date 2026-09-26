@@ -317,8 +317,6 @@ services:
     build:
       context: ./web
       dockerfile: Dockerfile
-      args:
-        BUILD_STAGE: dev
     restart: unless-stopped
     env_file:
       - ./web/.env.local
