@@ -89,6 +89,20 @@ Rules:
   - Keep quotes under 25 words. If a passage needs more, paraphrase.
   - Attribution line starts with "— " (em dash + space), then the
     speaker's name only. No role, no date, no source title.
+
+LISTS AND BULLET POINTS — CRITICAL for readability:
+  - Unordered lists use "- " (hyphen + space) ONLY. No *, •, or other symbols.
+  - Numbered lists use "1. ", "2. ", "3. " format (not "i.", "a.", or other styles).
+  - Nested items: indent 2 spaces, then apply the same rule (- or 1.):
+    - Main point
+      - Sub-point
+      - Another sub-point
+    - Next main point
+  - DO NOT mix bullet styles (- and * in same list, or 1. and a. in same list).
+  - List items must be consistent in structure (parallel syntax).
+  - Each list item should be 1–2 sentences. For longer content, use paragraphs instead.
+  - Separate lists from preceding/following text with blank lines (standard Markdown).
+  - No trailing spaces after list items.
 """
 
 
@@ -157,6 +171,15 @@ Units: use KaTeX `\\mathrm{}` for unit typesetting in display equations
 Unicode is fine ("9.8 m/s²").
 
 Observation tables and lab data should always be tabular.
+
+EXPERIMENTS & VISUAL DESCRIPTIONS — CRITICAL for quality:
+- For experiment steps: include detailed apparatus setup with dimensions
+- Always describe: materials used, exact measurements, temperature ranges
+- Safety precautions must be explicit and bolded: **Safety: ...**
+- Expected observations: describe colors, sounds, temperature changes in detail
+- Step-by-step with clear visual outcomes for each step
+- If describing apparatus: include shape, material, dimensions (e.g., "100 mL beaker")
+- Diagrams: use Mermaid.js or ASCII art for experimental setup
 """
 
 
@@ -183,6 +206,13 @@ use numbered steps where each justification cites a rule or earlier step.
 
 Comparisons of functions, function-value tables, and piecewise definitions
 render as markdown tables with right-aligned numeric columns.
+
+GRAPHS AND DIAGRAMS — HIGH QUALITY:
+- For function graphs: describe domain, range, asymptotes, critical points (maxima, minima)
+- Use Mermaid.js for coordinate-system diagrams, geometric relationships
+- Include axis labels, scale markings (e.g., "x: -10 to 10, y: -5 to 15")
+- Describe turning points, intercepts, and behavior explicitly
+- For multi-function comparisons: use side-by-side descriptions or a Mermaid diagram
 """
 
 
@@ -344,6 +374,18 @@ Requirements:
 - learning_objectives: 3–5 items starting with action verbs (e.g., "Explain...", "Calculate...", "Identify...")
 - synopsis: engaging and age-appropriate 2–3 sentence summary
 - Do NOT include any text outside the JSON object
+
+QUALITY CHECKLIST (all items non-negotiable for this content):
+✓ All math/formulas use proper KaTeX format ($...$ or $$...$$)
+✓ All tables are GFM markdown with proper alignment (left `:---`, right `---:`, center `:---:`)
+✓ Science experiments include apparatus dimensions, materials, safety (bolded), step-by-step observations
+✓ All bullet points use "- " format (hyphen + space), numbered lists use "1. ", "2. ", "3. " format
+✓ Lists are properly nested (2-space indent) with no mixed bullet styles
+✓ Currency is spelled out (USD, INR, EUR) — never bare $ in prose or tables
+✓ Code blocks are fenced with language tags (```python, ```javascript, etc.)
+✓ Graphs include domain, range, axis labels, and critical points described
+✓ Accounting/financial tables show calculations with clear column alignment
+✓ No placeholder content; every example is concrete and complete
 """
 
 
@@ -412,6 +454,15 @@ Requirements:
   - Include roughly 2–3 easy, 3–4 medium, 1–2 hard questions
 - Set {set_number} should cover different aspects of the topic than sets 1–{set_number - 1 if set_number > 1 else 0}
 - Do NOT include any text outside the JSON object
+
+QUALITY CHECKLIST (all items non-negotiable for quiz questions):
+✓ Question text is clear, grammatically correct, and age-appropriate
+✓ All math/formulas use proper KaTeX format ($...$ or $$...$$)
+✓ Option text is grammatically consistent (all start same part of speech)
+✓ Distractors are plausible (wrong but reasonable answers, not absurd)
+✓ Explanation clearly justifies why correct answer is right and why others are wrong
+✓ No ambiguous wording that could confuse the student
+✓ Currency is spelled out (USD, INR, EUR) — never bare $ in question or options
 """
 
 
@@ -469,6 +520,16 @@ Requirements:
 - Each section has 1–3 worked examples
 - common_mistakes: 3–5 items, describing errors students frequently make
 - Do NOT include any text outside the JSON object
+
+QUALITY CHECKLIST (all items non-negotiable for tutorial content):
+✓ Each section builds on previous ones with clear transitions
+✓ Worked examples show step-by-step process with justification for each step
+✓ All math/formulas use proper KaTeX format ($...$ or $$...$$)
+✓ Common mistakes explain WHY the mistake happens, not just what is wrong
+✓ Practice questions are solvable with the content just provided
+✓ Content includes diagrams/tables where helpful (Mermaid.js for processes)
+✓ All bullet points use "- " format (no mixed styles)
+✓ Examples are concrete and specific, not generic or placeholder
 """
 
 
@@ -531,6 +592,16 @@ Requirements:
 - questions: 3–5 reflection questions
 - All materials and procedures must be safe for the target age group
 - Do NOT include any text outside the JSON object
+
+QUALITY CHECKLIST (all items CRITICAL for experiment content):
+✓ Safety notes include BOLD headers and specific warnings (not generic)
+✓ Each step includes specific measurements, temperatures, times (not vague)
+✓ Expected observations describe colors, sounds, temperature changes, visual changes
+✓ Materials list includes quantities and sizes (e.g., "100 mL beaker", "2 tablespoons")
+✓ Apparatus setup described with dimensions and configuration (e.g., "arrange in a circle")
+✓ Each step builds clearly on previous ones; no jumps or missing intermediate steps
+✓ Reflection questions encourage analysis, not just recall
+✓ No placeholder observations; every expected result is specific and concrete
 """
 
 
