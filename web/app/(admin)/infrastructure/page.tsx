@@ -18,8 +18,17 @@ interface HealthDeepResponse {
   build: string;
 }
 
+interface VersionInfo {
+  app_version: string;
+  app_build: string;
+  db_schema_version: string;
+  content_structure_version: number;
+  api_environment: string;
+}
+
 export default function InfrastructureStatus() {
   const [health, setHealth] = useState<HealthDeepResponse | null>(null);
+  const [versions, setVersions] = useState<VersionInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
@@ -28,16 +37,23 @@ export default function InfrastructureStatus() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch("/api/v1/health/deep", {
-        credentials: "include",
-      });
+      const [healthRes, versionsRes] = await Promise.all([
+        fetch("/api/v1/health/deep", { credentials: "include" }),
+        fetch("/api/v1/admin/system/versions", { credentials: "include" }),
+      ]);
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      if (!healthRes.ok) {
+        throw new Error(`HTTP ${healthRes.status}: ${healthRes.statusText}`);
       }
 
-      const data = await response.json();
-      setHealth(data);
+      const healthData = await healthRes.json();
+      setHealth(healthData);
+
+      if (versionsRes.ok) {
+        const versionsData = await versionsRes.json();
+        setVersions(versionsData);
+      }
+
       setLastUpdated(new Date());
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
@@ -169,15 +185,47 @@ export default function InfrastructureStatus() {
         </div>
       )}
 
+      {/* Version Information */}
+      {versions && (
+        <Card className="bg-blue-50 border-blue-200">
+          <CardHeader>
+            <CardTitle className="text-sm">System Versions</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <span className="text-gray-600">App Version:</span>
+                <div className="font-mono">{versions.app_version}</div>
+              </div>
+              <div>
+                <span className="text-gray-600">Build:</span>
+                <div className="font-mono text-xs">{versions.app_build}</div>
+              </div>
+              <div>
+                <span className="text-gray-600">DB Schema:</span>
+                <div className="font-mono">v{versions.db_schema_version}</div>
+              </div>
+              <div>
+                <span className="text-gray-600">Content Structure:</span>
+                <div className="font-mono">v{versions.content_structure_version}</div>
+              </div>
+            </div>
+            <div className="mt-3 pt-3 border-t">
+              <span className="text-xs text-gray-500">Environment: {versions.api_environment}</span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Info Footer */}
       {health && (
         <Card className="bg-gray-50">
           <CardHeader>
-            <CardTitle className="text-sm">System Information</CardTitle>
+            <CardTitle className="text-sm">API Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-gray-600">Version:</span>
+              <span className="text-gray-600">API Version:</span>
               <span className="font-mono">{health.version}</span>
             </div>
             <div className="flex justify-between">

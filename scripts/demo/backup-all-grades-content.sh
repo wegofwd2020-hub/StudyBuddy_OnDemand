@@ -26,11 +26,45 @@ BACKUP_RUN_DIR="$BACKUP_BASE_DIR/$TIMESTAMP"
 log() { echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] $*"; }
 log_err() { echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] ERROR: $*" >&2; }
 
+# Get version information
+get_app_version() {
+  grep "^__version__" "$INSTALL_DIR/backend/main.py" 2>/dev/null | cut -d'"' -f2 || echo "unknown"
+}
+
+get_app_commit() {
+  git -C "$INSTALL_DIR" rev-parse --short HEAD 2>/dev/null || echo "unknown"
+}
+
+get_db_schema_version() {
+  docker compose -f "$INSTALL_DIR/docker-compose.yml" exec -T db psql -U studybuddy -d studybuddy -c "SELECT version_num FROM alembic_version ORDER BY version_num DESC LIMIT 1;" 2>/dev/null | tail -1 | tr -d ' ' || echo "unknown"
+}
+
+APP_VERSION=$(get_app_version)
+APP_COMMIT=$(get_app_commit)
+DB_SCHEMA_VERSION=$(get_db_schema_version)
+
 log "Starting backup of all grades (8-12)"
 log "Backup directory: $BACKUP_RUN_DIR"
+log "App version: $APP_VERSION (commit: $APP_COMMIT)"
+log "DB schema version: $DB_SCHEMA_VERSION"
 log ""
 
 mkdir -p "$BACKUP_RUN_DIR"
+
+# Write global backup metadata
+cat > "$BACKUP_RUN_DIR/metadata.json" << EOF
+{
+  "timestamp": "$TIMESTAMP",
+  "backup_version": "1.0",
+  "app_version": "$APP_VERSION",
+  "app_commit": "$APP_COMMIT",
+  "db_schema_version": "$DB_SCHEMA_VERSION",
+  "content_structure_version": 2,
+  "created_at": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')",
+  "notes": "Full backup of all grades"
+}
+EOF
+log "Wrote backup metadata: $BACKUP_RUN_DIR/metadata.json"
 
 TOTAL_SIZE=0
 FAILED_GRADES=()
@@ -59,11 +93,35 @@ for grade in 8 9 10 11 12; do
     TOTAL_SIZE=$((TOTAL_SIZE + $(du -b "$TARBALL" | cut -f1)))
     SHA=$(sha256sum "$TARBALL" | awk '{print $1}')
 
-    log "  ✅ Grade $grade: $TARBALL ($SIZE)"
-    log "     SHA256: $SHA"
+    # Get content version from meta.json
+    CONTENT_VERSION="unknown"
+    CONTENT_SCHEMA_VERSION="2"
+    for dir in $G_DIRS; do
+      META_FILE="$CONTENT_STORE/curricula/$dir/meta.json"
+      if [[ -f "$META_FILE" ]]; then
+        CONTENT_VERSION=$(jq -r '.content_version // "unknown"' "$META_FILE" 2>/dev/null || echo "unknown")
+        CONTENT_SCHEMA_VERSION=$(jq -r '.schema_version // "2"' "$META_FILE" 2>/dev/null || echo "2")
+        break
+      fi
+    done
 
-    # Write manifest for this grade
-    echo "{\"grade\": $grade, \"timestamp\": \"$TIMESTAMP\", \"size_bytes\": $(du -b "$TARBALL" | cut -f1), \"sha256\": \"$SHA\", \"file\": \"content.tar.gz\"}" > "$GRADE_DIR/manifest.json"
+    log "  ✅ Grade $grade: $TARBALL ($SIZE)"
+    log "     SHA256: $SHA | Content v$CONTENT_VERSION"
+
+    # Write manifest for this grade with version info
+    cat > "$GRADE_DIR/manifest.json" << MANIFEST
+{
+  "grade": $grade,
+  "timestamp": "$TIMESTAMP",
+  "size_bytes": $(du -b "$TARBALL" | cut -f1),
+  "sha256": "$SHA",
+  "file": "content.tar.gz",
+  "content_version": "$CONTENT_VERSION",
+  "content_schema_version": "$CONTENT_SCHEMA_VERSION",
+  "app_version": "$APP_VERSION",
+  "app_commit": "$APP_COMMIT"
+}
+MANIFEST
   else
     log "  ❌ Grade $grade: tar failed"
     FAILED_GRADES+=("$grade")

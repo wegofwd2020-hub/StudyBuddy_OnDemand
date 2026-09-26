@@ -294,6 +294,7 @@ def _register_routers(app: FastAPI) -> None:
     app.include_router(subscription_router, prefix="/api/v1")
     app.include_router(admin_router, prefix="/api/v1")
     app.include_router(admin_streams_router, prefix="/api/v1")
+    app.include_router(admin_system_router, prefix="/api/v1/admin")
     app.include_router(admin_authoring_router, prefix="/api/v1")
     app.include_router(admin_curriculum_lifecycle_router, prefix="/api/v1")
     app.include_router(admin_retention_router, prefix="/api/v1")
