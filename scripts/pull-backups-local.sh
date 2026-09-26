@@ -18,14 +18,14 @@ set -euo pipefail
 
 DEMO_HOST="178.105.160.62"
 DEMO_USER="root"
-DEMO_BACKUP_DIR="/opt/studybuddy/backups/grade9"
+DEMO_BACKUP_DIR="/opt/studybuddy/backups"
 
-# Local destination directory (default: ~/backups-grade9)
-LOCAL_BACKUP_DIR="${1:-$HOMEDocuments/code/projects/AIStuff/backups-grade9}"
+# Local destination directory (default: ~/backups-all-grades)
+LOCAL_BACKUP_DIR="${1:-$HOME/backups-all-grades}"
 
 log() { echo "[$(date +%Y-%m-%dT%H:%M:%SZ)] $*"; }
 
-log "Syncing Grade 9 backups from demo server"
+log "Syncing all grade backups from demo server"
 log "  Remote: $DEMO_USER@$DEMO_HOST:$DEMO_BACKUP_DIR"
 log "  Local:  $LOCAL_BACKUP_DIR"
 
