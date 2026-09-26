@@ -34,6 +34,10 @@ ENV NEXT_PUBLIC_BUILD_ID=$NEXT_PUBLIC_BUILD_ID
 RUN npm run build
 
 # Stage 3: dev mode runtime — uses npm run dev for fail-open Auth0 middleware
+# ⚠️  SECURITY NOTE: This stage runs in development mode with fail-open authentication.
+# It is suitable ONLY for local development and demo environments without Auth0 credentials.
+# For production: restore production build (npm run build + node server.js) with non-root user.
+# See: web/Dockerfile.production for the secure production runtime.
 FROM node:20-alpine AS runner
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
