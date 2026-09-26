@@ -4,6 +4,18 @@
 
 ---
 
+### Finding — Backup/Restore Phase 2: file-only restore missing DB schema (2026-09-26)
+
+**Testing:** Deleted G9 from DB, ran restore script on 2026-09-26_21-16 backup. Result: files restored but curriculum_units records absent.
+
+**Root cause:** `backup-all-grades-content.sh` captures only `content.tar.gz` (file store). Database schema (curricula, curriculum_units) not included.
+
+**Impact:** Restored content unreachable without manual DB restoration (see restore script log pattern in script comments).
+
+**Next:** Phase 3 enhancement — add `pg_dump` of curricula + curriculum_units to each grade backup; import on restore.
+
+---
+
 ### Fix — Feedback batch 2: remaining UI fixes from Vneki's testing (2026-06-13)
 
 **Branch:** `fix/feedback-ui-batch-2` → **PR #455** (merged to `main`, commit `16b1776`)
