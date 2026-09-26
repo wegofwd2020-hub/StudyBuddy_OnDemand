@@ -36,6 +36,24 @@ fi
 log() { echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] $*"; }
 log_err() { echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] ERROR: $*" >&2; }
 
+restore_db_schema_for_grade() {
+  local grade=$1
+  local schema_file=$2
+  if [[ ! -f "$schema_file" ]]; then
+    log "  WARNING: no schema.sql for Grade $grade"
+    return 1
+  fi
+  log "  Importing DB schema for Grade $grade..."
+  # Restore COPY format data using psql
+  docker compose -f "$INSTALL_DIR/docker-compose.yml" cp "$schema_file" db:/tmp/grade_${grade}_schema.sql 2>/dev/null || true
+  docker compose -f "$INSTALL_DIR/docker-compose.yml" exec -T db psql -U studybuddy -d studybuddy << EOSQL 2>/dev/null
+\copy curricula FROM /tmp/grade_${grade}_schema.sql
+\copy curriculum_units FROM /tmp/grade_${grade}_schema.sql
+EOSQL
+  docker compose -f "$INSTALL_DIR/docker-compose.yml" exec -T db rm -f /tmp/grade_${grade}_schema.sql 2>/dev/null || true
+  log "  ✅ DB schema imported for Grade $grade"
+}
+
 log "Restoring all grades from backup: $BACKUP_TIMESTAMP"
 log "Source: $BACKUP_RUN_DIR"
 log ""
@@ -83,6 +101,7 @@ for grade_dir in "$BACKUP_RUN_DIR"/grade_*/; do
 
   GRADE=$(basename "$grade_dir" | sed 's/grade_//')
   TARBALL="$grade_dir/content.tar.gz"
+  SCHEMA_FILE="$grade_dir/schema.sql"
 
   if [[ ! -f "$TARBALL" ]]; then
     log "WARNING: no tarball found for grade $GRADE"
@@ -100,12 +119,27 @@ for grade_dir in "$BACKUP_RUN_DIR"/grade_*/; do
     done
   fi
 
+  # Delete existing DB schema for this grade
+  log "  Cleaning DB for Grade $GRADE..."
+  docker compose -f "$INSTALL_DIR/docker-compose.yml" exec -T db psql -U studybuddy -d studybuddy -c "
+    DELETE FROM curriculum_units WHERE curriculum_id LIKE 'default-2026-g${GRADE}%';
+    DELETE FROM curricula WHERE curriculum_id LIKE 'default-2026-g${GRADE}%';
+  " 2>/dev/null || true
+
   # Extract tarball
   if tar -xzf "$TARBALL" -C "$CONTENT_STORE/curricula" 2>/dev/null; then
-    log "  ✅ Grade $GRADE restored"
+    log "  ✅ Grade $GRADE content restored"
   else
     log "  ❌ Grade $GRADE: tar extraction failed"
     FAILED_GRADES+=("$GRADE")
+    continue
+  fi
+
+  # Restore DB schema
+  if restore_db_schema_for_grade "$GRADE" "$SCHEMA_FILE"; then
+    log "  ✅ Grade $GRADE fully restored (content + schema)"
+  else
+    log "  ⚠️  Grade $GRADE content restored, but schema import failed"
   fi
 done
 

@@ -39,6 +39,16 @@ get_db_schema_version() {
   docker compose -f "$INSTALL_DIR/docker-compose.yml" exec -T db psql -U studybuddy -d studybuddy -c "SELECT version_num FROM alembic_version ORDER BY version_num DESC LIMIT 1;" 2>/dev/null | tail -1 | tr -d ' ' || echo "unknown"
 }
 
+export_db_schema_for_grade() {
+  local grade=$1
+  local output_file=$2
+  # Use a SQL dump file instead; just export rows for this grade using psql COPY command
+  docker compose -f "$INSTALL_DIR/docker-compose.yml" exec -T db psql -U studybuddy -d studybuddy << EOSQL > "$output_file" 2>/dev/null
+\copy (SELECT * FROM curricula WHERE curriculum_id LIKE 'default-2026-g${grade}%') TO STDOUT
+\copy (SELECT * FROM curriculum_units WHERE curriculum_id LIKE 'default-2026-g${grade}%') TO STDOUT
+EOSQL
+}
+
 APP_VERSION=$(get_app_version)
 APP_COMMIT=$(get_app_commit)
 DB_SCHEMA_VERSION=$(get_db_schema_version)
@@ -87,11 +97,19 @@ for grade in 8 9 10 11 12; do
 
   # Create tarball for this grade
   TARBALL="$GRADE_DIR/content.tar.gz"
+  DB_EXPORT="$GRADE_DIR/schema.sql"
 
   if tar -czf "$TARBALL" -C "$CONTENT_STORE/curricula" $(echo "$G_DIRS" | xargs basename -a) 2>/dev/null; then
     SIZE=$(du -h "$TARBALL" | cut -f1)
     TOTAL_SIZE=$((TOTAL_SIZE + $(du -b "$TARBALL" | cut -f1)))
     SHA=$(sha256sum "$TARBALL" | awk '{print $1}')
+
+    # Export database schema for this grade
+    log "  Exporting DB schema for Grade $grade..."
+    export_db_schema_for_grade "$grade" "$DB_EXPORT"
+    if [[ -f "$DB_EXPORT" ]]; then
+      log "  ✅ DB schema exported: $DB_EXPORT"
+    fi
 
     # Get content version from meta.json
     CONTENT_VERSION="unknown"
@@ -116,10 +134,13 @@ for grade in 8 9 10 11 12; do
   "size_bytes": $(du -b "$TARBALL" | cut -f1),
   "sha256": "$SHA",
   "file": "content.tar.gz",
+  "db_schema_file": "schema.sql",
+  "db_schema_size_bytes": $([ -f "$DB_EXPORT" ] && du -b "$DB_EXPORT" | cut -f1 || echo 0),
   "content_version": "$CONTENT_VERSION",
   "content_schema_version": "$CONTENT_SCHEMA_VERSION",
   "app_version": "$APP_VERSION",
-  "app_commit": "$APP_COMMIT"
+  "app_commit": "$APP_COMMIT",
+  "db_schema_version": "$DB_SCHEMA_VERSION"
 }
 MANIFEST
   else
