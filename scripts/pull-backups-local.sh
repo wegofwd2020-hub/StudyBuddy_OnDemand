@@ -1,13 +1,25 @@
 #!/bin/bash
 # =============================================================================
-# scripts/pull-backups-local.sh — pull Grade 9 backups from demo to local
+# scripts/pull-backups-local.sh — pull all grade backups from demo to local
 #
-# Downloads all Grade 9 backup files from demo server to local machine.
+# Downloads all grade backup files from demo server to local machine.
+# Backs up: content.tar.gz, schema.sql, manifest.json, metadata.json
 # Uses rsync for efficient transfer (only pulls new/changed files).
+#
+# Phase 3 structure:
+#   backups/
+#     2026-09-26_HH-MM/
+#       metadata.json
+#       grade_8/
+#         content.tar.gz
+#         schema.sql
+#         manifest.json
+#       grade_9/
+#       ... (grade 10-12)
 #
 # Usage:
 #   bash scripts/pull-backups-local.sh
-#   ./scripts/pull-backups-local.sh ~/backups-grade9  # custom local dir
+#   ./scripts/pull-backups-local.sh ~/backups-all-grades  # custom local dir
 #
 # Requires:
 #   - SSH key auth to root@178.105.160.62 (should already work)
@@ -42,8 +54,8 @@ if rsync -avz --progress \
     "$LOCAL_BACKUP_DIR/"; then
   log "✅ Backup sync complete"
   log ""
-  log "Local backups:"
-  ls -lh "$LOCAL_BACKUP_DIR"/*.tar.gz 2>/dev/null | awk '{print "  " $5 "\t" $9}' || log "  (none yet)"
+  log "Local backup structure:"
+  find "$LOCAL_BACKUP_DIR" -maxdepth 3 -type f | sort | sed 's|^|  |' || log "  (none yet)"
   log ""
   log "Total size:"
   du -sh "$LOCAL_BACKUP_DIR" | awk '{print "  " $1}'
