@@ -247,6 +247,7 @@ def _register_routers(app: FastAPI) -> None:
     from src.admin.router import router as admin_router
     from src.admin.streams_router import router as admin_streams_router
     from src.admin.system import router as admin_system_router
+    from src.admin.version_mapping import router as admin_version_mapping_router
     from src.analytics.router import router as analytics_router
     from src.auth.admin_router import router as admin_auth_router
     from src.auth.router import router as auth_router
