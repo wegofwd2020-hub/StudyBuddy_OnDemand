@@ -200,7 +200,7 @@ services:
     pull_policy: always
     restart: always
     logging: *logging-cap
-    command: ["npm", "start"]   # production mode (built output)
+    command: ["node", ".next/standalone/server.js"]   # production mode (built output)
     env_file: !override
       - .env.demo
     environment:
