@@ -200,7 +200,7 @@ services:
     pull_policy: always
     restart: always
     logging: *logging-cap
-    command: ["node", "server.js"]   # production mode (built output)
+    command: ["npm", "start"]   # production mode (built output)
     env_file: !override
       - .env.demo
     environment:
