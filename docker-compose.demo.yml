@@ -200,7 +200,7 @@ services:
     pull_policy: always
     restart: always
     logging: *logging-cap
-    command: ["node", ".next/standalone/server.js"]   # production mode (built output)
+    # Use dev mode; standalone server requires separate build (see Dockerfile.production)
     env_file: !override
       - .env.demo
     environment:
