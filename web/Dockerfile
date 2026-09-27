@@ -40,6 +40,8 @@ RUN npm run build
 # See: web/Dockerfile.production for the secure production runtime.
 FROM node:20-alpine AS runner
 WORKDIR /app
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NODE_ENV=development
