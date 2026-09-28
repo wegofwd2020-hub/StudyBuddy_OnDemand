@@ -99,7 +99,10 @@ export default function SignInPage() {
   const [password, setPassword] = useState("");
 
   const getButtonDisabled = () => {
-    return loading || email.length === 0 || password.length === 0;
+    // Only check email; password autofill is inaccessible to JS but will submit anyway.
+    // Browsers prevent reading autofilled passwords for security, but form submission
+    // includes the password even if we can't read it with JavaScript.
+    return loading || email.length === 0;
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
