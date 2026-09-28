@@ -149,15 +149,15 @@ export interface UniversalLoginResponse {
 export async function universalLogin(
   body: LocalLoginRequest,
 ): Promise<UniversalLoginResponse> {
-  console.log("[universalLogin] Starting with email:", body.email);
+  console.log("[universalLogin] Starting");
   console.log("[universalLogin] baseURL:", publicApi.defaults.baseURL);
   try {
     console.log("[universalLogin] Calling POST /auth/universal-login");
     const res = await publicApi.post<UniversalLoginResponse>("/auth/universal-login", body);
-    console.log("[universalLogin] Success:", res.status, res.data);
+    console.log("[universalLogin] Success:", res.status);
     return res.data;
   } catch (err) {
-    console.error("[universalLogin] Error:", err);
+    console.error("[universalLogin] Error:", (err as any).message || err);
     throw err;
   }
 }
