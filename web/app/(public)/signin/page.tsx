@@ -85,8 +85,6 @@ function destinationFor(
 
 export default function SignInPage() {
   const router = useRouter();
-  const emailRef = useRef<HTMLInputElement>(null);
-  const pwRef = useRef<HTMLInputElement>(null);
   const [showPassword, setShowPassword] = useState(false);
   // Off by default: school devices are shared, so surviving a browser close is
   // opt-in rather than assumed (#601).
@@ -98,13 +96,6 @@ export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const getButtonDisabled = () => {
-    // Check both state and DOM values (for autofilled fields where state lags behind).
-    const emailVal = email || emailRef.current?.value || "";
-    const passwordVal = password || pwRef.current?.value || "";
-    return loading || emailVal.length === 0 || passwordVal.length === 0;
-  };
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.currentTarget;
     if (id === "email") {
@@ -115,47 +106,13 @@ export default function SignInPage() {
     setError(null);
   };
 
-  // Monitor for autofill (onChange doesn't fire for autofill)
-  useEffect(() => {
-    const emailEl = emailRef.current;
-    const pwEl = pwRef.current;
-    if (!emailEl || !pwEl) return;
-
-    const checkFields = () => {
-      const emailVal = emailEl.value || "";
-      const passwordVal = pwEl.value || "";
-      // Update state if autofill detected and state hasn't been updated yet
-      if (emailVal && !email) {
-        setEmail(emailVal);
-      }
-      if (passwordVal && !password) {
-        setPassword(passwordVal);
-      }
-    };
-
-    // Check immediately and after delays for async autofill
-    checkFields();
-    const t1 = setTimeout(checkFields, 100);
-    const t2 = setTimeout(checkFields, 300);
-    const t3 = setTimeout(checkFields, 800);
-    const t4 = setInterval(checkFields, 500);
-
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(t3);
-      clearInterval(t4);
-    };
-  }, [email, password]);
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
-    // Sync autofilled values from DOM if state wasn't updated
-    const emailVal = emailRef.current?.value || email;
-    const passwordVal = pwRef.current?.value || password;
+    const emailVal = email;
+    const passwordVal = password;
 
     if (!emailVal) {
       setError("Email is required.");
@@ -219,7 +176,6 @@ export default function SignInPage() {
             <div className="space-y-1.5">
               <Label htmlFor="email">Email</Label>
               <Input
-                ref={emailRef}
                 id="email"
                 type="email"
                 value={email}
@@ -234,7 +190,6 @@ export default function SignInPage() {
               <Label htmlFor="password">Password</Label>
               <div className="relative">
                 <Input
-                  ref={pwRef}
                   id="password"
                   type={showPassword ? "text" : "password"}
                   value={password}
@@ -283,7 +238,7 @@ export default function SignInPage() {
 
             <Button
               type="submit"
-              disabled={loading || (email || emailRef.current?.value || "").length === 0 || (password || pwRef.current?.value || "").length === 0}
+              disabled={loading || email.length === 0 || password.length === 0}
               className="w-full"
             >
               {loading ? "Signing in…" : "Sign in"}
