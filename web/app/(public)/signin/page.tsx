@@ -194,12 +194,11 @@ export default function SignInPage() {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   value={password}
-                  autoComplete="current-password"
+                  autoComplete="off"
                   required
                   placeholder="••••••••••••"
                   className="pr-10"
                   onChange={handleInputChange}
-                  onInput={handleInputChange}
                 />
                 <button
                   type="button"
@@ -240,7 +239,7 @@ export default function SignInPage() {
 
             <Button
               type="submit"
-              disabled={loading}
+              disabled={loading || email.length === 0 || password.length === 0}
               className="w-full"
             >
               {loading ? "Signing in…" : "Sign in"}
