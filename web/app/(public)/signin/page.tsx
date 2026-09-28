@@ -210,7 +210,6 @@ export default function SignInPage() {
                 required
                 placeholder="you@example.com"
                 onChange={handleInputChange}
-                onInput={handleInputChange}
               />
             </div>
 
@@ -227,7 +226,6 @@ export default function SignInPage() {
                   placeholder="••••••••••••"
                   className="pr-10"
                   onChange={handleInputChange}
-                  onInput={handleInputChange}
                 />
                 <button
                   type="button"
