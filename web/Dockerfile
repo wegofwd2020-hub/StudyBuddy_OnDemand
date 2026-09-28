@@ -31,6 +31,11 @@ ENV NEXT_PUBLIC_DEMO_MODE=$NEXT_PUBLIC_DEMO_MODE
 # as the API does. Served by app/build-id/route.ts.
 ARG NEXT_PUBLIC_BUILD_ID="dev"
 ENV NEXT_PUBLIC_BUILD_ID=$NEXT_PUBLIC_BUILD_ID
+# NODE_ENV_FOR_CSP: Set at build time to conditionally include 'unsafe-eval' in CSP.
+# Default to "development" for demo/local use (includes 'unsafe-eval').
+# Set to "production" when building for production to disable 'unsafe-eval'.
+ARG NODE_ENV_FOR_CSP="development"
+ENV NODE_ENV_FOR_CSP=$NODE_ENV_FOR_CSP
 RUN npm run build
 
 # Stage 3: dev mode runtime — uses npm run dev for fail-open Auth0 middleware

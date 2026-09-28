@@ -14,14 +14,14 @@ const backendOrigin = process.env.INTERNAL_API_URL
 // Content-Security-Policy
 // - default-src 'self': baseline allowlist
 // - script-src 'self' 'unsafe-inline': Next.js inline bootstrap scripts require unsafe-inline;
+//   'unsafe-eval' added only in development: React dev builds use eval() for call-stack
+//   reconstruction and debugging features. Controlled via NODE_ENV_FOR_CSP build ARG.
 //   nonce-based CSP is the correct long-term fix but is left for a dedicated hardening sprint.
-// - 'unsafe-eval' is added only in development: React dev builds use eval() for call-stack
-//   reconstruction and debugging features. React never uses eval() in production.
 // - connect-src 'self' covers the backend (proxied via rewrites) + Stripe telemetry
 // - img-src 'self' data: blob: *.cloudfront.net: lesson images served from CDN
 // - frame-src https://js.stripe.com: Stripe Checkout iframe
 // - frame-ancestors 'none': equivalent to X-Frame-Options DENY, but honoured by modern browsers
-const isDev = process.env.NODE_ENV === "development";
+const isDev = process.env.NODE_ENV_FOR_CSP === "development";
 const csp = [
   "default-src 'self'",
   isDev
