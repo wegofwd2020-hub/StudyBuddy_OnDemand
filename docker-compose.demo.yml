@@ -211,6 +211,9 @@ services:
       # Without this, the route falls back to http://localhost:3000 and the
       # browser ends up on a non-routable address.
       NEXT_PUBLIC_APP_URL: https://demo.usestudybuddy.com
+      # Expose the build ID to /build-id route for deploy verification.
+      # Set by deploy workflow; serves as proof of which commit is running.
+      NEXT_PUBLIC_BUILD_ID: dev
     # Internal port only — Nginx fronts it.
     ports: !override []
     # Base compose bind-mounts ./web:/app for dev hot-reload, which overlays
