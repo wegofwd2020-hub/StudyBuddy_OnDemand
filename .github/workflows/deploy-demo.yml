@@ -132,19 +132,20 @@ jobs:
 
       - name: Pull new images + roll services
         run: |
-          ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} '
+          ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} "
             cd /opt/studybuddy && \
-            sudo /usr/bin/docker compose \
+            export NEXT_PUBLIC_BUILD_ID='${{ steps.sha.outputs.short }}' && \
+            sudo -E /usr/bin/docker compose \
               -f docker-compose.yml \
               -f docker-compose.demo.yml \
               --env-file .env.demo \
               pull && \
-            sudo /usr/bin/docker compose \
+            sudo -E /usr/bin/docker compose \
               -f docker-compose.yml \
               -f docker-compose.demo.yml \
               --env-file .env.demo \
               up -d --remove-orphans
-          '
+          "
 
       # `docker compose up -d` only recreates services whose spec changed.
       # Nginx is left alone in two failure modes:
@@ -160,14 +161,15 @@ jobs:
       # Cost: ~2s of nginx unavailability per deploy. Acceptable at demo scale.
       - name: Force-recreate demo nginx (refresh config bind-mount + upstream IPs)
         run: |
-          ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} '
+          ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} "
             cd /opt/studybuddy && \
-            sudo /usr/bin/docker compose \
+            export NEXT_PUBLIC_BUILD_ID='${{ steps.sha.outputs.short }}' && \
+            sudo -E /usr/bin/docker compose \
               -f docker-compose.yml \
               -f docker-compose.demo.yml \
               --env-file .env.demo \
               up -d --force-recreate --no-deps nginx
-          '
+          "
 
       # The heart of #583: a green run used to prove only that commands exited 0.
       # On 2026-08-14 the box was still serving images from nine days earlier
