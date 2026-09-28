@@ -99,10 +99,9 @@ export default function SignInPage() {
   const [password, setPassword] = useState("");
 
   const getButtonDisabled = () => {
-    // Only check email; password autofill is inaccessible to JS but will submit anyway.
-    // Browsers prevent reading autofilled passwords for security, but form submission
-    // includes the password even if we can't read it with JavaScript.
-    return loading || email.length === 0;
+    // Check both state and DOM values (for autofilled fields where state lags behind).
+    const emailVal = email || emailRef.current?.value || "";
+    return loading || emailVal.length === 0;
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -152,9 +151,26 @@ export default function SignInPage() {
     e.preventDefault();
     setError(null);
     setLoading(true);
+
+    // Sync autofilled values from DOM if state wasn't updated
+    const emailVal = emailRef.current?.value || email;
+    const passwordVal = pwRef.current?.value || password;
+
+    if (!emailVal) {
+      setError("Email is required.");
+      setLoading(false);
+      return;
+    }
+
+    if (!passwordVal) {
+      setError("Password is required.");
+      setLoading(false);
+      return;
+    }
+
     try {
-      const res = await universalLogin({ email, password });
-      persistSession(res, email);
+      const res = await universalLogin({ email: emailVal, password: passwordVal });
+      persistSession(res, emailVal);
       setRemembered(rememberMe);
       markSessionAlive();
       const next = new URLSearchParams(window.location.search).get("next");
