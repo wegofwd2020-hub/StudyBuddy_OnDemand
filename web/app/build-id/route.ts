@@ -6,11 +6,16 @@
  * deploy now asserts this value against the SHA it just built, so "did it ship?"
  * is a question CI can answer without anyone SSHing in.
  *
- * Baked at build time via NEXT_PUBLIC_BUILD_ID env var. Since route has
- * force-static, process.env is captured at build time, not read at runtime.
+ * Build ID is written to .next/public/build-id.json during Docker build.
+ * This route reads and returns that static file.
  */
 export const dynamic = "force-static";
 
-export function GET() {
-  return Response.json({ build_id: process.env.NEXT_PUBLIC_BUILD_ID ?? "dev" });
+export async function GET() {
+  try {
+    const data = await import("../../public/build-id.json");
+    return Response.json({ build_id: data.build_id ?? "dev" });
+  } catch {
+    return Response.json({ build_id: "dev" });
+  }
 }
