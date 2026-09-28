@@ -149,8 +149,17 @@ export interface UniversalLoginResponse {
 export async function universalLogin(
   body: LocalLoginRequest,
 ): Promise<UniversalLoginResponse> {
-  const res = await publicApi.post<UniversalLoginResponse>("/auth/universal-login", body);
-  return res.data;
+  console.log("[universalLogin] Starting with email:", body.email);
+  console.log("[universalLogin] baseURL:", publicApi.defaults.baseURL);
+  try {
+    console.log("[universalLogin] Calling POST /auth/universal-login");
+    const res = await publicApi.post<UniversalLoginResponse>("/auth/universal-login", body);
+    console.log("[universalLogin] Success:", res.status, res.data);
+    return res.data;
+  } catch (err) {
+    console.error("[universalLogin] Error:", err);
+    throw err;
+  }
 }
 
 // ── School self-registration ──────────────────────────────────────────────────
