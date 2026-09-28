@@ -23,14 +23,12 @@ Revises: 0071
 
 from __future__ import annotations
 
-from collections.abc import Sequence
-
 from alembic import op
 
-revision: str = "0072"
-down_revision: str | None = "0071"
-branch_labels: str | Sequence[str] | None = None
-depends_on: str | Sequence[str] | None = None
+revision = "0072"
+down_revision = "0071"
+branch_labels = None
+depends_on = None
 
 
 def upgrade() -> None:
