@@ -95,19 +95,21 @@ export default function SignInPage() {
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const getButtonDisabled = () => {
-    const email = emailRef.current?.value || "";
-    const password = pwRef.current?.value || "";
     return loading || email.length === 0 || password.length === 0;
   };
 
-  const [, setRefreshTrigger] = useState(0);
-
-  const handleInputChange = () => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.currentTarget;
+    if (id === "email") {
+      setEmail(value);
+    } else if (id === "password") {
+      setPassword(value);
+    }
     setError(null);
-    // Force re-render to update button state
-    setRefreshTrigger(prev => prev + 1);
   };
 
   // Monitor for autofill (onChange doesn't fire for autofill)
@@ -117,10 +119,14 @@ export default function SignInPage() {
     if (!emailEl || !pwEl) return;
 
     const checkFields = () => {
-      const email = emailEl.value || "";
-      const password = pwEl.value || "";
-      if (email.length > 0 && password.length > 0) {
-        setRefreshTrigger(prev => prev + 1);
+      const emailVal = emailEl.value || "";
+      const passwordVal = pwEl.value || "";
+      // Update state if autofill detected and state hasn't been updated yet
+      if (emailVal && !email) {
+        setEmail(emailVal);
+      }
+      if (passwordVal && !password) {
+        setPassword(passwordVal);
       }
     };
 
@@ -137,14 +143,12 @@ export default function SignInPage() {
       clearTimeout(t3);
       clearInterval(t4);
     };
-  }, []);
+  }, [email, password]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    const email = emailRef.current?.value || "";
-    const password = pwRef.current?.value || "";
     try {
       const res = await universalLogin({ email, password });
       persistSession(res, email);
@@ -198,6 +202,7 @@ export default function SignInPage() {
                 ref={emailRef}
                 id="email"
                 type="email"
+                value={email}
                 autoComplete="email"
                 required
                 placeholder="you@example.com"
@@ -213,6 +218,7 @@ export default function SignInPage() {
                   ref={pwRef}
                   id="password"
                   type={showPassword ? "text" : "password"}
+                  value={password}
                   autoComplete="current-password"
                   required
                   placeholder="••••••••••••"
