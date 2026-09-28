@@ -283,7 +283,7 @@ export default function SignInPage() {
 
             <Button
               type="submit"
-              disabled={getButtonDisabled()}
+              disabled={loading || (email || emailRef.current?.value || "").length === 0 || (password || pwRef.current?.value || "").length === 0}
               className="w-full"
             >
               {loading ? "Signing in…" : "Sign in"}
