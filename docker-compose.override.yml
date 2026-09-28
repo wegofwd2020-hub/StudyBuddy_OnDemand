@@ -1,5 +1,5 @@
 services:
   api:
     environment:
-      DATABASE_URL: postgresql://studybuddy:studybuddy_dev@172.19.0.12:5432/studybuddy
+      DATABASE_URL: postgresql://studybuddy:studybuddy_dev@pgbouncer:6432/studybuddy
       REDIS_URL: redis://:studybuddy_dev@redis:6379/0
