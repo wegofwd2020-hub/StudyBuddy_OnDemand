@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { markSessionAlive, setRemembered } from "@/lib/auth/session";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -85,27 +85,66 @@ function destinationFor(
 
 export default function SignInPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const emailRef = useRef<HTMLInputElement>(null);
+  const pwRef = useRef<HTMLInputElement>(null);
   const [showPassword, setShowPassword] = useState(false);
   // Off by default: school devices are shared, so surviving a browser close is
   // opt-in rather than assumed (#601).
   const [rememberMe, setRememberMe] = useState(false);
   const [expiredReason, setExpiredReason] = useState<string | null>(null);
 
-  useEffect(() => {
-    const reason = new URLSearchParams(window.location.search).get("reason");
-    if (reason === "expired_idle" || reason === "expired_browser_closed") {
-      setExpiredReason(reason);
-    }
-  }, []);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const getButtonDisabled = () => {
+    const email = emailRef.current?.value || "";
+    const password = pwRef.current?.value || "";
+    return loading || email.length === 0 || password.length === 0;
+  };
+
+  const [, setRefreshTrigger] = useState(0);
+
+  const handleInputChange = () => {
+    setError(null);
+    // Force re-render to update button state
+    setRefreshTrigger(prev => prev + 1);
+  };
+
+  // Monitor for autofill (onChange doesn't fire for autofill)
+  useEffect(() => {
+    const emailEl = emailRef.current;
+    const pwEl = pwRef.current;
+    if (!emailEl || !pwEl) return;
+
+    const checkFields = () => {
+      const email = emailEl.value || "";
+      const password = pwEl.value || "";
+      if (email.length > 0 && password.length > 0) {
+        setRefreshTrigger(prev => prev + 1);
+      }
+    };
+
+    // Check immediately and after delays for async autofill
+    checkFields();
+    const t1 = setTimeout(checkFields, 100);
+    const t2 = setTimeout(checkFields, 300);
+    const t3 = setTimeout(checkFields, 800);
+    const t4 = setInterval(checkFields, 500);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      clearInterval(t4);
+    };
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setLoading(true);
+    const email = emailRef.current?.value || "";
+    const password = pwRef.current?.value || "";
     try {
       const res = await universalLogin({ email, password });
       persistSession(res, email);
@@ -152,20 +191,18 @@ export default function SignInPage() {
         </CardHeader>
 
         <CardContent className="space-y-4">
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div className="space-y-1.5">
               <Label htmlFor="email">Email</Label>
               <Input
+                ref={emailRef}
                 id="email"
                 type="email"
                 autoComplete="email"
                 required
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  setError(null);
-                }}
                 placeholder="you@example.com"
+                onChange={handleInputChange}
+                onInput={handleInputChange}
               />
             </div>
 
@@ -173,17 +210,15 @@ export default function SignInPage() {
               <Label htmlFor="password">Password</Label>
               <div className="relative">
                 <Input
+                  ref={pwRef}
                   id="password"
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
                   required
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    setError(null);
-                  }}
                   placeholder="••••••••••••"
                   className="pr-10"
+                  onChange={handleInputChange}
+                  onInput={handleInputChange}
                 />
                 <button
                   type="button"
@@ -224,7 +259,7 @@ export default function SignInPage() {
 
             <Button
               type="submit"
-              disabled={loading || !email || !password}
+              disabled={loading}
               className="w-full"
             >
               {loading ? "Signing in…" : "Sign in"}
