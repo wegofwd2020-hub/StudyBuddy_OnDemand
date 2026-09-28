@@ -6,12 +6,14 @@
  * deploy now asserts this value against the SHA it just built, so "did it ship?"
  * is a question CI can answer without anyone SSHing in.
  *
- * Baked at image build time (`NEXT_PUBLIC_BUILD_ID`), not read at runtime — a
- * runtime lookup would report the deployed config rather than the built code,
- * which is the very thing that went stale.
+ * Build ID is baked into a JSON file during Docker build, not read from env
+ * at runtime — a runtime lookup would report the deployed config rather than
+ * the built code, which is the very thing that went stale.
  */
+import buildId from "./build-id.json";
+
 export const dynamic = "force-static";
 
 export function GET() {
-  return Response.json({ build_id: process.env.NEXT_PUBLIC_BUILD_ID ?? "dev" });
+  return Response.json({ build_id: buildId.id ?? "dev" });
 }
