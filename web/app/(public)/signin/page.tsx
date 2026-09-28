@@ -259,7 +259,7 @@ export default function SignInPage() {
 
             <Button
               type="submit"
-              disabled={loading}
+              disabled={getButtonDisabled()}
               className="w-full"
             >
               {loading ? "Signing in…" : "Sign in"}
