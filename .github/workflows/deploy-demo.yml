@@ -100,7 +100,6 @@ jobs:
           build-args: |
             NEXT_PUBLIC_DEMO_MODE=true
             NEXT_PUBLIC_BUILD_ID=${{ steps.sha.outputs.short }}
-          cache-from: type=gha,scope=web
           cache-to: type=gha,scope=web,mode=max
 
   # ── 2. Deploy to VPS ────────────────────────────────────────────────────────
