@@ -36,8 +36,7 @@ ENV NEXT_PUBLIC_BUILD_ID=$NEXT_PUBLIC_BUILD_ID
 # Set to "production" when building for production to disable 'unsafe-eval'.
 ARG NODE_ENV_FOR_CSP="development"
 ENV NODE_ENV_FOR_CSP=$NODE_ENV_FOR_CSP
-RUN npm run build && \
-    echo "{\"id\":\"$NEXT_PUBLIC_BUILD_ID\"}" > app/build-id/build-id.json
+RUN npm run build
 
 # Stage 3: dev mode runtime — uses npm run dev for fail-open Auth0 middleware
 # ⚠️  SECURITY NOTE: This stage runs in development mode with fail-open authentication.
