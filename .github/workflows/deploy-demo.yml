@@ -134,16 +134,18 @@ jobs:
         run: |
           ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} "
             cd /opt/studybuddy && \
-            export NEXT_PUBLIC_BUILD_ID='${{ steps.sha.outputs.short }}' && \
-            sudo -E /usr/bin/docker compose \
+            echo 'NEXT_PUBLIC_BUILD_ID=${{ steps.sha.outputs.short }}' > /tmp/build-id.env && \
+            sudo /usr/bin/docker compose \
               -f docker-compose.yml \
               -f docker-compose.demo.yml \
               --env-file .env.demo \
+              --env-file /tmp/build-id.env \
               pull && \
-            sudo -E /usr/bin/docker compose \
+            sudo /usr/bin/docker compose \
               -f docker-compose.yml \
               -f docker-compose.demo.yml \
               --env-file .env.demo \
+              --env-file /tmp/build-id.env \
               up -d --remove-orphans
           "
 
@@ -163,11 +165,12 @@ jobs:
         run: |
           ssh ${{ secrets.DEMO_VPS_USER }}@${{ secrets.DEMO_VPS_HOST }} "
             cd /opt/studybuddy && \
-            export NEXT_PUBLIC_BUILD_ID='${{ steps.sha.outputs.short }}' && \
-            sudo -E /usr/bin/docker compose \
+            echo 'NEXT_PUBLIC_BUILD_ID=${{ steps.sha.outputs.short }}' > /tmp/build-id.env && \
+            sudo /usr/bin/docker compose \
               -f docker-compose.yml \
               -f docker-compose.demo.yml \
               --env-file .env.demo \
+              --env-file /tmp/build-id.env \
               up -d --force-recreate --no-deps nginx
           "
 
