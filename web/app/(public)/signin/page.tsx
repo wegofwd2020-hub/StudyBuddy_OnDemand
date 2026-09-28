@@ -101,7 +101,8 @@ export default function SignInPage() {
   const getButtonDisabled = () => {
     // Check both state and DOM values (for autofilled fields where state lags behind).
     const emailVal = email || emailRef.current?.value || "";
-    return loading || emailVal.length === 0;
+    const passwordVal = password || pwRef.current?.value || "";
+    return loading || emailVal.length === 0 || passwordVal.length === 0;
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
