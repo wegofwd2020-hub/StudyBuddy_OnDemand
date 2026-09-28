@@ -106,6 +106,23 @@ export default function SignInPage() {
     setError(null);
   };
 
+  // Detect autofilled password fields and sync state
+  useEffect(() => {
+    const pwInput = document.getElementById("password") as HTMLInputElement;
+    if (!pwInput) return;
+
+    const checkAutofill = () => {
+      if (pwInput.value && !password) {
+        setPassword(pwInput.value);
+      }
+    };
+
+    // Check on mount and periodically for async autofill
+    checkAutofill();
+    const timer = setInterval(checkAutofill, 100);
+    return () => clearInterval(timer);
+  }, [password]);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
