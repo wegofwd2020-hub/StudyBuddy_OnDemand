@@ -106,6 +106,24 @@ export default function SignInPage() {
     setError(null);
   };
 
+  useEffect(() => {
+    const syncAutofilled = () => {
+      const emailInput = document.getElementById("email") as HTMLInputElement;
+      const passwordInput = document.getElementById("password") as HTMLInputElement;
+      if (emailInput?.value) setEmail(emailInput.value);
+      if (passwordInput?.value) setPassword(passwordInput.value);
+    };
+
+    syncAutofilled();
+    let checkCount = 0;
+    const intervalId = setInterval(() => {
+      checkCount++;
+      syncAutofilled();
+      if (checkCount >= 10) clearInterval(intervalId);
+    }, 100);
+
+    return () => clearInterval(intervalId);
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
