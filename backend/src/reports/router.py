@@ -258,7 +258,7 @@ async def student_roster(
         # Fallback to curriculum names if no units found. This handles cases where
         # a curriculum has no units (edge case) or provides readable names.
         if not subject_names and r["curriculum_names"]:
-            subject_names = set(n.strip() for n in r["curriculum_names"].split(", ") if n.strip())
+            subject_names = {n.strip() for n in r["curriculum_names"].split(", ") if n.strip()}
         subject_str = ", ".join(sorted(subject_names)) if subject_names else "Not Assigned"
         log.warning("roster_student", extra={"name": r["student_name"], "unit_ids_count": len(r["unit_ids"].split(", ")) if r["unit_ids"] else 0, "subject": subject_str})
 
