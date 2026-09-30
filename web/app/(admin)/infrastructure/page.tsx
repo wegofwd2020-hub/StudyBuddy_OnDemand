@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RefreshCw } from "lucide-react";
+import { formatTime } from "@/lib/utils/date";
 
 interface HealthDeepResponse {
   status: "operational" | "degraded" | "down";
@@ -147,7 +148,7 @@ export default function InfrastructureStatus() {
             Overall Status: {health?.status?.toUpperCase() || "UNKNOWN"}
           </CardTitle>
           <CardDescription>
-            {lastUpdated ? `Last updated: ${lastUpdated.toLocaleTimeString()}` : "Never checked"}
+            {lastUpdated ? `Last updated: ${formatTime(lastUpdated)}` : "Never checked"}
           </CardDescription>
         </CardHeader>
       </Card>
