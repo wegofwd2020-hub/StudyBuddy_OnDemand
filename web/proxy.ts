@@ -8,7 +8,10 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   } catch (error) {
     // Auth0 domain resolution may fail in dev/local environment.
     if (process.env.NODE_ENV !== "production") {
-      console.error("[auth0-middleware] Dev/test mode - allowing request through:", error);
+      console.error(
+        "[auth0-middleware] Dev/test mode - allowing request through:",
+        error,
+      );
       return undefined as unknown as NextResponse;
     }
     // Production: auth failures must not silently pass through
